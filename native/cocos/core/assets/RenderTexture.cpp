@@ -47,6 +47,14 @@ gfx::RenderPassInfo getDefaultRenderPassInfo(gfx::Device *device) {
     info.depthStencilAttachment.format = gfx::Format::DEPTH_STENCIL;
     return info;
 }
+
+gfx::SampleCount getSampleCount(const ccstd::string &name) {
+    if (name == std::string("4x")) {
+        return gfx::SampleCount::MULTIPLE_BALANCE;
+    }
+    return gfx::SampleCount::ONE;
+}
+
 } // namespace
 
 RenderTexture::RenderTexture() = default;
@@ -96,6 +104,7 @@ void RenderTexture::initWindow() {
     windowInfo.width = _width;
     windowInfo.height = _height;
     windowInfo.renderPassInfo = getDefaultRenderPassInfo(device);
+    windowInfo.sampleCount = getSampleCount(_name); // gfx::SampleCount::MULTIPLE_BALANCE;
 
     if (_window != nullptr) {
         _window->destroy();
@@ -112,7 +121,7 @@ void RenderTexture::initWindow(const IRenderTextureCreateInfo &info) {
     windowInfo.title = _name;
     windowInfo.width = _width;
     windowInfo.height = _height;
-    windowInfo.sampleCount = gfx::SampleCount::MULTIPLE_QUALITY;
+    windowInfo.sampleCount = getSampleCount(_name); // gfx::SampleCount::MULTIPLE_BALANCE;
     if (info.passInfo.has_value()) {
         windowInfo.renderPassInfo = info.passInfo.value();
     } else {

@@ -310,7 +310,7 @@ void ForwardStage::render(scene::Camera *camera) {
 
     // add pass
     pipeline->getFrameGraph().addPass<RenderData>(static_cast<uint32_t>(ForwardInsertPoint::IP_FORWARD), ForwardPipeline::fgStrHandleForwardPass, forwardSetup, forwardExec);
-    pipeline->getFrameGraph().presentFromBlackboard(RenderPipeline::fgStrHandleOutColorTexture, camera->getWindow()->getFramebuffer()->getColorTextures()[0], true);
+    pipeline->getFrameGraph().presentFromBlackboard(RenderPipeline::fgStrHandleOutColorTexture, camera->getWindow()->getOutputTexture(), true);
 }
 
 } // namespace pipeline
