@@ -32,7 +32,7 @@ import { Component } from './component';
 const Destroying = CCObject.Flags.Destroying;
 
 export function nodePolyfill (Node) {
-    if (EDITOR || TEST) {
+    if ((EDITOR && !legacyCC.GAME_VIEW) || TEST) {
         Node.prototype._checkMultipleComp = function (ctor) {
             const existing = this.getComponent(ctor._disallowMultiple);
             if (existing) {
@@ -86,7 +86,7 @@ export function nodePolyfill (Node) {
 
             comp.node = this;
             this._components.splice(index, 0, comp);
-            if (EDITOR && EditorExtends.Node && EditorExtends.Component) {
+            if (EDITOR && !legacyCC.GAME_VIEW && EditorExtends.Node && EditorExtends.Component) {
                 const node = EditorExtends.Node.getNode(this._id);
                 if (node) {
                     EditorExtends.Component.add(comp._id, comp);
@@ -146,7 +146,7 @@ export function nodePolyfill (Node) {
         Node.prototype._onRestoreBase = Node.prototype.onRestore;
     }
 
-    if (EDITOR || TEST) {
+    if ((EDITOR && !legacyCC.GAME_VIEW) || TEST) {
         Node.prototype._registerIfAttached = function (register) {
             if (!this._id) {
                 console.warn(`Node(${this && this.name}}) is invalid or its data is corrupted.`);
