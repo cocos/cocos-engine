@@ -185,7 +185,7 @@ void ReflectionProbe::updatePlanarTexture(const scene::RenderScene* scene) {
                 }
                 const auto* probeBoundingBox = getBoundingBox();
                 if (modelWorldBounds->aabbAabb(*probeBoundingBox)) {
-                    model->updateReflctionProbePlanarMap(_realtimePlanarTexture->getGFXTexture());
+                    model->updateReflectionProbePlanarMap(_realtimePlanarTexture->getGFXTexture());
                 }
             }
         }
