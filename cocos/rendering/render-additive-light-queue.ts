@@ -59,11 +59,11 @@ const _matShadowView = new Mat4();
 const _matShadowViewProj = new Mat4();
 
 /**
- * @en Model with sphere light culling
- * @zh 模型与球面光裁剪
- * @param light 球面光
- * @param model 模型
- * @returns 是否相交
+ * @en Model with sphere light culling.
+ * @zh 模型与球面光裁剪。
+ * @param light @en Sphere light @zh 球面光
+ * @param model @en Model @zh 模型
+ * @returns @en Intersection or not @zh 是否相交
  * @engineInternal
  */
 function cullSphereLight (light: SphereLight, model: Model) {
@@ -71,11 +71,11 @@ function cullSphereLight (light: SphereLight, model: Model) {
 }
 
 /**
- * @en Model with spot light culling
- * @zh 模型与聚光灯裁剪
- * @param light 聚光灯
- * @param model 模型
- * @returns 是否相交
+ * @en Model with spot light culling.
+ * @zh 模型与聚光灯裁剪。
+ * @param light @en Spot light @zh 聚光灯
+ * @param model @en model @zh 模型
+ * @returns @en Intersection or not @zh 是否相交
  * @engineInternal
  */
 function cullSpotLight (light: SpotLight, model: Model) {
@@ -88,11 +88,11 @@ let _phaseID = getPhaseID(phaseName);
 const _lightPassIndices: number[] = [];
 
 /**
- * @en Get light pass indexes
- * @zh 获取光照队列的索引
- * @param subModels 子模型
- * @param lightPassIndices 光照队列索引数组
- * @returns 是否有光照队列
+ * @en Get light pass indexes.
+ * @zh 获取光照队列的索引。
+ * @param subModels @en Sub-model @zh 子模型
+ * @param lightPassIndices @en Light pass indexes @zh 光照队列索引数组
+ * @returns @en Has light queues @zh 是否有光照队列
  */
 function getLightPassIndices (subModels: SubModel[], lightPassIndices: number[]) {
     const r = cclegacy.rendering;
@@ -118,7 +118,7 @@ function getLightPassIndices (subModels: SubModel[], lightPassIndices: number[])
 }
 
 /**
- * @en Stacked light queue
+ * @en Stacked light queue.
  * @zh 叠加光照队列。
  */
 export class RenderAdditiveLightQueue {
@@ -161,8 +161,8 @@ export class RenderAdditiveLightQueue {
     }
 
     /**
-     * @en Clear light queue
-     * @zh 清除光照队列
+     * @en Clear light queue.
+     * @zh 清除光照队列。
      */
     public clear () {
         this._instancedQueue.clear();
@@ -183,8 +183,8 @@ export class RenderAdditiveLightQueue {
     }
 
     /**
-     * @en Destroy light queue
-     * @zh 销毁光照队列
+     * @en Destroy light queue.
+     * @zh 销毁光照队列。
      */
     public destroy () {
         const descriptorSetMap = this._pipeline.globalDSManager.descriptorSetMap;
@@ -205,10 +205,10 @@ export class RenderAdditiveLightQueue {
     }
 
     /**
-     * @en Gather light passes
-     * @zh 收集光照队列
-     * @param camera 被渲染的相机
-     * @param cmdBuff 提交命令对象
+     * @en Gather light passes.
+     * @zh 收集光照队列。
+     * @param camera @en Rendered camera @zh 被渲染的相机
+     * @param cmdBuff @en Command buffer @zh 提交命令对象
      */
     public gatherLightPasses (camera: Camera, cmdBuff: CommandBuffer) {
         this.clear();
@@ -262,11 +262,11 @@ export class RenderAdditiveLightQueue {
     }
 
     /**
-     * @en Record command buffer
-     * @zh 录制命令缓冲对象
-     * @param device 驱动设备
-     * @param renderPass 渲染路径
-     * @param cmdBuff 提交命令对象
+     * @en Record command buffer.
+     * @zh 录制命令缓冲对象。
+     * @param device @en Device @zh 设备
+     * @param renderPass @en Render pass @zh 渲染路径
+     * @param cmdBuff @en command buffer @zh 提交命令对象
      */
     public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer) {
         const globalDSManager: GlobalDSManager = this._pipeline.globalDSManager;

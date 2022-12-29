@@ -41,10 +41,10 @@ import { PipelineRuntime } from './custom/pipeline';
 let _phaseID = getPhaseID('shadow-caster');
 
 /**
- * @en Get shadow pass indexes
- * @zh 获取阴影队列的索引
- * @param subModels 子模型
- * @returns 是否有光照队列
+ * @en Get shadow pass indexes.
+ * @zh 获取阴影队列的索引。
+ * @param subModels @en Sub-model @zh 子模型
+ * @returns @en Has shadow queues @zh 是否有阴影队列
  * @engineInternal
  */
 function getShadowPassIndex (subModel: SubModel): number {
@@ -61,8 +61,8 @@ function getShadowPassIndex (subModel: SubModel): number {
 }
 
 /**
- * @en Shadow map render queue
- * @zh 阴影渲染队列
+ * @en Shadow map render queue.
+ * @zh 阴影渲染队列。
  */
 export class RenderShadowMapBatchedQueue {
     private _pipeline: PipelineRuntime;
@@ -79,11 +79,11 @@ export class RenderShadowMapBatchedQueue {
     }
 
     /**
-     * @en Gather shadow passes
-     * @zh 收集阴影队列
-     * @param camera 被渲染的相机
-     * @param light 被渲染的灯光
-     * @param cmdBuff 提交命令对象
+     * @en Gather shadow passes.
+     * @zh 收集阴影队列。
+     * @param camera @en Rendered camera @zh 被渲染的相机
+     * @param light @en Rendered light @zh 被渲染的灯光
+     * @param cmdBuff @en Command buffer @zh 提交命令对象
      */
     public gatherLightPasses (camera: Camera, light: Light, cmdBuff: CommandBuffer, level = 0) {
         this.clear();
@@ -140,8 +140,8 @@ export class RenderShadowMapBatchedQueue {
     }
 
     /**
-     * @en Clear shadow map queue
-     * @zh 清除阴影渲染队列
+     * @en Clear shadow map queue.
+     * @zh 清除阴影渲染队列。
      */
     public clear () {
         this._subModelsArray.length = 0;
@@ -152,9 +152,9 @@ export class RenderShadowMapBatchedQueue {
     }
 
     /**
-     * @en Add model into shadow map queue
-     * @zh 添加模型进入阴影渲染队列
-     * @param model 模型对象
+     * @en Add model into shadow map queue.
+     * @zh 添加模型进入阴影渲染队列。
+     * @param model @en model @zh 模型对象
      */
     public add (model: Model) {
         const subModels = model.subModels;
@@ -183,10 +183,10 @@ export class RenderShadowMapBatchedQueue {
     }
 
     /**
-     * @en Gather light passes
-     * @zh 收集光照队列
-     * @param camera 被渲染的相机
-     * @param cmdBuff 提交命令对象
+     * @en Gather light passes.
+     * @zh 收集光照队列。
+     * @param camera @en Rendered camera @zh 被渲染的相机
+     * @param cmdBuff @en Command buffer @zh 提交命令对象
      */
     public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer) {
         this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff);

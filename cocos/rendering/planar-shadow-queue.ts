@@ -36,8 +36,8 @@ import { BatchingSchemes } from '../render-scene/core/pass';
 const _ab = new geometry.AABB();
 
 /**
- * @en Planar shadow render queue
- * @zh 平面阴影渲染队列
+ * @en Planar shadow render queue.
+ * @zh 平面阴影渲染队列。
  */
 export class PlanarShadowQueue {
     private _pendingSubModels: SubModel[] = [];
@@ -50,10 +50,10 @@ export class PlanarShadowQueue {
     }
 
     /**
-     * @en Gather planar shadow queue
-     * @zh 收集平面阴影渲染队列
-     * @param camera 被渲染的相机
-     * @param cmdBuff 提交命令对象
+     * @en Gather planar shadow queue.
+     * @zh 收集平面阴影渲染队列。
+     * @param camera @en Rendered camera @zh 被渲染的相机
+     * @param cmdBuff @en Command buffer @zh 提交命令对象
      */
     public gatherShadowPasses (camera: Camera, cmdBuff: CommandBuffer) {
         const pipelineSceneData = this._pipeline.pipelineSceneData;
@@ -109,9 +109,9 @@ export class PlanarShadowQueue {
     /**
      * @en Record command buffer
      * @zh 录制命令缓冲对象
-     * @param device 驱动设备
-     * @param renderPass 渲染路径
-     * @param cmdBuff 提交命令对象
+     * @param device @en Device @zh 设备
+     * @param renderPass @en Render pass @zh 渲染路径
+     * @param cmdBuff @en Command buffer @zh 提交命令对象
      */
     public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer) {
         const shadows = this._pipeline.pipelineSceneData.shadows;

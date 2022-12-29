@@ -36,14 +36,14 @@ import { Camera, CSMLevel, DirectionalLight } from '../../render-scene/scene';
 const colors: Color[] = [new Color(1, 1, 1, 1)];
 
 /**
- * @en Shadow map render stage
+ * @en Shadow map render stage.
  * @zh 阴影渲染阶段。
  */
 @ccclass('ShadowStage')
 export class ShadowStage extends RenderStage {
     /**
-     * @en A common initialization info for shadow map render stage
-     * @zh 一个通用的 ShadowStage 的初始化信息对象
+     * @en A common initialization info for shadow map render stage.
+     * @zh 一个通用的 ShadowStage 的初始化信息对象。
      */
     public static initInfo: IRenderStageInfo = {
         name: 'ShadowStage',
@@ -52,11 +52,11 @@ export class ShadowStage extends RenderStage {
     };
 
     /**
-     * @en Sets the render shadow map info
-     * @zh 设置阴影渲染信息
-     * @param light
-     * @param shadowFrameBuffer
-     * @param level 层级
+     * @en Sets the render shadow map info.
+     * @zh 设置阴影渲染信息。
+     * @param light @en Renderer light @zh 被渲染的灯光
+     * @param shadowFrameBuffer @en shadow framebuffer @zh 阴影 framebuffer
+     * @param level @en CSM level @zh 层级
      */
     public setUsage (globalDS: DescriptorSet, light: Light, shadowFrameBuffer: Framebuffer, level = 0) {
         this._globalDS = globalDS;
@@ -82,9 +82,9 @@ export class ShadowStage extends RenderStage {
     }
 
     /**
-     * @en Clear framebuffer
-     * @zh 清理framebuffer
-     * @param camera 被渲染的相机
+     * @en Clear framebuffer.
+     * @zh 清理 framebuffer。
+     * @param camera @en Rendered Camera @zh 被渲染的相机
      */
     public clearFramebuffer (camera: Camera) {
         if (!this._light || !this._shadowFrameBuffer || this._isShadowMapCleared) { return; }
@@ -110,9 +110,9 @@ export class ShadowStage extends RenderStage {
     }
 
     /**
-     * @en Rendering stage for shadows rendering
-     * @zh 阴影阶段渲染
-     * @param camera 被渲染的相机
+     * @en Rendering stage for shadows rendering.
+     * @zh 阴影阶段渲染。
+     * @param camera @en Rendered camera @zh 被渲染的相机
      */
     public render (camera: Camera) {
         const pipeline = this._pipeline;
@@ -172,9 +172,10 @@ export class ShadowStage extends RenderStage {
     }
 
     /**
-     * @en Activate the shadow render stage in the given render flow
-     * @zh 为阴影的渲染流程开启当前渲染阶段
-     * @param flow The render flow to activate this render stage
+     * @en Activate the shadow render stage in the given render flow.
+     * @zh 为阴影的渲染流程开启当前渲染阶段。
+     * @param pipeline @en Rendered pipeline @zh 渲染管线
+     * @param flow @en The render flow to activate this render stage @zh 阴影渲染阶段
      */
     public activate (pipeline: ForwardPipeline, flow: ShadowFlow) {
         super.activate(pipeline, flow);

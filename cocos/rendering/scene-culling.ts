@@ -49,10 +49,10 @@ function getRenderObject (model: Model, camera: Camera) {
 }
 
 /**
- * @en Valid punctual lights culling
- * @zh 精确光源裁剪
- * @param pipeline 渲染管线对象
- * @param camera 被渲染的相机
+ * @en Valid punctual lights culling.
+ * @zh 精确光源裁剪。
+ * @param pipeline @en Render pipeline @zh 渲染管线对象
+ * @param camera @en Rendered camera @zh 被渲染的相机
  */
 export function validPunctualLightsCulling (pipeline: RenderPipeline, camera: Camera) {
     const sceneData = pipeline.pipelineSceneData;
@@ -86,11 +86,11 @@ export function validPunctualLightsCulling (pipeline: RenderPipeline, camera: Ca
 }
 
 /**
- * @en Cast shadows culling
- * @zh 需要投射阴影物体的裁剪
- * @param camera 被渲染的相机
- * @param sceneData 场景数据对象
- * @param layer 级联阴影层级
+ * @en Cast shadows culling.
+ * @zh 需要投射阴影物体的裁剪。
+ * @param camera @en Rendered camera @zh 被渲染的相机
+ * @param sceneData @en Scene Data @zh 场景数据对象
+ * @param layer @en CSM layer @zh 级联阴影层级
  */
 export function shadowCulling (camera: Camera, sceneData: PipelineSceneData, layer: ShadowLayerVolume) {
     const scene = camera.scene!;

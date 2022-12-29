@@ -42,14 +42,14 @@ import { SpotLight } from '../../render-scene/scene/spot-light';
 const _validLights: Light[] = [];
 
 /**
- * @en Shadow map render flow
- * @zh 阴影贴图绘制流程
+ * @en Shadow map render flow.
+ * @zh 阴影贴图绘制流程。
  */
 @ccclass('ShadowFlow')
 export class ShadowFlow extends RenderFlow {
     /**
-     * @en A common initialization info for shadow map render flow
-     * @zh 一个通用的 ShadowFlow 的初始化信息对象
+     * @en A common initialization info for shadow map render flow.
+     * @zh 一个通用的 ShadowFlow 的初始化信息对象。
      */
     public static initInfo: IRenderFlowInfo = {
         name: PIPELINE_FLOW_SHADOW,
@@ -61,10 +61,9 @@ export class ShadowFlow extends RenderFlow {
     private _shadowRenderPass: RenderPass|null = null;
 
     /**
-     * @en Initializing the shadow flow
-     * @zh 初始化阴影渲染流程
-     * @param info 渲染流程描述信息
-     * @returns 是否初始化成功
+     * @en Initializing the shadow flow.
+     * @zh 初始化阴影渲染流程。
+     * @param info @en Render flow information descriptor @zh 渲染流程描述信息
      */
     public initialize (info: IRenderFlowInfo): boolean {
         super.initialize(info);
@@ -78,9 +77,9 @@ export class ShadowFlow extends RenderFlow {
     }
 
     /**
-     * @en Activate the shadow render flow in the given pipeline
-     * @zh 为阴影的渲染管线开启当前渲染流程
-     * @param pipeline 渲染管线对象
+     * @en Activate the shadow render flow in the given pipeline.
+     * @zh 为阴影的渲染管线开启当前渲染流程。
+     * @param pipeline @en render pipeline @zh 渲染管线对象
      */
     public activate (pipeline: RenderPipeline) {
         super.activate(pipeline);
@@ -114,9 +113,9 @@ export class ShadowFlow extends RenderFlow {
     }
 
     /**
-     * @en Rendering flow for shadows rendering
-     * @zh 阴影流程渲染
-     * @param camera 被渲染的相机
+     * @en Rendering flow for shadows rendering.
+     * @zh 阴影流程渲染。
+     * @param camera @en Rendered camera @zh 被渲染的相机
      */
     public render (camera: Camera) {
         const pipeline = this._pipeline as ForwardPipeline;
@@ -182,8 +181,8 @@ export class ShadowFlow extends RenderFlow {
     }
 
     /**
-     * @en Destroying the shadow rendering flow
-     * @zh 销毁阴影渲染流程
+     * @en Destroying the shadow rendering flow.
+     * @zh 销毁阴影渲染流程。
      */
     public destroy () {
         super.destroy();
@@ -214,8 +213,8 @@ export class ShadowFlow extends RenderFlow {
     }
 
     /**
-     * @en Initialize the framebuffer used by the shadow rendering process
-     * @zh 初始化阴影渲染流程所使用的 framebuffer
+     * @en Initialize the framebuffer used by the shadow rendering process.
+     * @zh 初始化阴影渲染流程所使用的 framebuffer。
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _initShadowFrameBuffer  (pipeline: RenderPipeline, light: Light, swapchain: Swapchain) {

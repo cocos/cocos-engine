@@ -189,11 +189,11 @@ export class PipelineUBO {
     }
 
     /**
-     * @en Get pcf transition range
-     * @zh 获取 pcf 过渡范围
-     * @param shadowInfo 阴影信息参数
-     * @param mainLight 主光源
-     * @returns 过渡范围
+     * @en Gets pcf transition range.
+     * @zh 获取 pcf 过渡范围。
+     * @param shadowInfo @en Shadow info @zh 阴影信息参数。
+     * @param mainLight @en Main light @zh 主光源。
+     * @returns @en PCF radius @zh 过渡范围。
      * @engineInternal
      */
     public static getPCFRadius (shadowInfo: Shadows, mainLight: DirectionalLight): number {
@@ -213,10 +213,10 @@ export class PipelineUBO {
     }
 
     /**
-     * @en Update information such as the normal distance of planar shadows
-     * @zh 更新平面阴影的法线距离等信息
-     * @param shadowInfo 阴影信息参数
-     * @param shadowUBO 阴影相关的缓冲区对象
+     * @en Update information such as the normal distance of planar shadows.
+     * @zh 更新平面阴影的法线距离等信息。
+     * @param shadowInfo @en Shadow info @zh 阴影信息参数。
+     * @param shadowUBO @en Shadow uniform buffer object @zh 阴影相关的缓冲区对象。
      * @engineInternal
      */
     public static updatePlanarNormalAndDistance (shadowInfo: Shadows, shadowUBO: Float32Array) {
@@ -228,12 +228,12 @@ export class PipelineUBO {
     }
 
     /**
-     * @en Update information such as shadow uniform buffer object view
-     * @zh 更新阴影相关的缓冲区对象视图
-     * @param pipeline 渲染管线对象
-     * @param shadowBufferView 阴影缓冲区视图
-     * @param csmBufferView 级联阴影缓冲区视图
-     * @param camera 被渲染的相机
+     * @en Update information such as shadow uniform buffer object view.
+     * @zh 更新阴影相关的缓冲区对象视图。
+     * @param pipeline @en Render pipeline object @zh 渲染管线对象。
+     * @param shadowBufferView @en Shadow buffer view @zh 阴影缓冲区视图。
+     * @param csmBufferView @en CSM buffer view @zh 级联阴影缓冲区视图。
+     * @param camera @en Rendered camera @zh 被渲染的相机。
      */
     public static updateShadowUBOView (pipeline: PipelineRuntime, shadowBufferView: Float32Array,
         csmBufferView: Float32Array, camera: Camera) {
@@ -326,12 +326,12 @@ export class PipelineUBO {
     }
 
     /**
-     * @en Update the shadow buffer object view from the light direction
-     * @zh 更新来自光照方向的阴影缓冲区对象视图
-     * @param pipeline 渲染管线对象
-     * @param shadowBufferView 阴影缓冲区视图
-     * @param light 被渲染的灯光
-     * @param level 级联阴影层级
+     * @en Update the shadow buffer object view from the light direction.
+     * @zh 更新来自光照方向的阴影缓冲区对象视图。
+     * @param pipeline @en Render pipeline object @zh 渲染管线对象。
+     * @param shadowBufferView @en Shadow buffer view @zh 阴影缓冲区视图。
+     * @param light @en Rendered light @zh 被渲染的灯光。
+     * @param level @en CSM level @zh 级联阴影层级。
      */
     public static updateShadowUBOLightView (pipeline: PipelineRuntime, shadowBufferView: Float32Array, light: Light, level: number) {
         const device = pipeline.device;
@@ -503,7 +503,7 @@ export class PipelineUBO {
     }
 
     /**
-     * @en Update all UBOs
+     * @en Update all UBOs.
      * @zh 更新全部 UBO。
      */
     public updateGlobalUBO (window: RenderWindow) {
@@ -530,9 +530,9 @@ export class PipelineUBO {
     }
 
     /**
-     * @en Update information such as shadow uniform buffer object view
-     * @zh 更新阴影相关的缓冲区对象视图
-     * @param camera 被渲染的相机
+     * @en Update information such as shadow uniform buffer object view.
+     * @zh 更新阴影相关的缓冲区对象视图。
+     * @param camera @en Rendered camera @zh 被渲染的相机。
      */
     public updateShadowUBO (camera: Camera) {
         const sceneData = this._pipeline.pipelineSceneData;
@@ -555,11 +555,11 @@ export class PipelineUBO {
     }
 
     /**
-     * @en Update the shadow buffer object view from the light direction
-     * @zh 更新来自光照方向的阴影缓冲区对象视图
-     * @param globalDS 全局的布局描述对象
-     * @param light 被渲染的灯光
-     * @param level 级联阴影层级
+     * @en Update the shadow buffer object view from the light direction.
+     * @zh 更新来自光照方向的阴影缓冲区对象视图。
+     * @param globalDS @en Global descriptor set @zh 全局的布局描述对象。
+     * @param light @en Rendered light @zh 被渲染的灯光。
+     * @param level @en CSM level @zh 级联阴影层级。
      */
     public updateShadowUBOLight (globalDS: DescriptorSet, light: Light, level = 0) {
         PipelineUBO.updateShadowUBOLightView(this._pipeline, this._shadowUBO, light, level);
