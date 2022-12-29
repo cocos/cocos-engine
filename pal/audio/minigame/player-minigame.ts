@@ -30,6 +30,7 @@ import { AudioEvent, AudioPCMDataView, AudioState, AudioType } from '../type';
 import { clamp, clamp01 } from '../../../cocos/core';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
 import { OS } from '../../system-info/enum-type';
+import { Game, game } from '../../../cocos/game';
 
 export class OneShotAudioMinigame {
     private _innerAudioContext: InnerAudioContext;
@@ -105,6 +106,8 @@ export class AudioPlayerMinigame implements OperationQueueable {
         // event
         systemInfo.on('hide', this._onHide, this);
         systemInfo.on('show', this._onShow, this);
+        game.on(Game.EVENT_PAUSE, this._onHide, this);
+        game.on(Game.EVENT_RESUME, this._onShow, this);
         const eventTarget = this._eventTarget;
         this._onPlay = () => {
             this._state = AudioState.PLAYING;
@@ -161,6 +164,8 @@ export class AudioPlayerMinigame implements OperationQueueable {
     destroy () {
         systemInfo.off('hide', this._onHide, this);
         systemInfo.off('show', this._onShow, this);
+        game.off(Game.EVENT_PAUSE, this._onHide, this);
+        game.off(Game.EVENT_RESUME, this._onShow, this);
         if (this._innerAudioContext) {
             ['Play', 'Pause', 'Stop', 'Seeked', 'Ended'].forEach((event) => {
                 this._offEvent(event);

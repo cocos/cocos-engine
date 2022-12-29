@@ -28,6 +28,7 @@ import { EventTarget } from '../../../cocos/core/event';
 import { clamp, clamp01 } from '../../../cocos/core';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
 import { BrowserType, OS } from '../../system-info/enum-type';
+import { Game, game } from '../../../cocos/game';
 
 function ensurePlaying (domAudio: HTMLAudioElement): Promise<void> {
     return new Promise((resolve) => {
@@ -110,6 +111,8 @@ export class AudioPlayerDOM implements OperationQueueable {
         // event
         systemInfo.on('hide', this._onHide, this);
         systemInfo.on('show', this._onShow, this);
+        game.on(Game.EVENT_PAUSE, this._onHide, this);
+        game.on(Game.EVENT_RESUME, this._onShow, this);
         this._onEnded = () => {
             this.seek(0).catch((e) => {});
             this._state = AudioState.INIT;
@@ -121,6 +124,8 @@ export class AudioPlayerDOM implements OperationQueueable {
     destroy () {
         systemInfo.off('hide', this._onHide, this);
         systemInfo.off('show', this._onShow, this);
+        game.off(Game.EVENT_PAUSE, this._onHide, this);
+        game.off(Game.EVENT_RESUME, this._onShow, this);
         this._domAudio.removeEventListener('ended', this._onEnded);
         // @ts-expect-error need to release DOM Audio instance
         this._domAudio = null;

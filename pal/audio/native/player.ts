@@ -29,6 +29,7 @@ import { legacyCC } from '../../../cocos/core/global-exports';
 import { clamp, clamp01 } from '../../../cocos/core';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
 import { Platform } from '../../system-info/enum-type';
+import { Game, game } from '../../../cocos/game';
 
 const urlCount: Record<string, number> = {};
 const audioEngine = jsb.AudioEngine;
@@ -133,10 +134,14 @@ export class AudioPlayer implements OperationQueueable {
         // event
         systemInfo.on('hide', this._onHide, this);
         systemInfo.on('show', this._onShow, this);
+        game.on(Game.EVENT_PAUSE, this._onHide, this);
+        game.on(Game.EVENT_RESUME, this._onShow, this);
     }
     destroy () {
-        systemInfo.on('hide', this._onHide, this);
-        systemInfo.on('show', this._onShow, this);
+        systemInfo.off('hide', this._onHide, this);
+        systemInfo.off('show', this._onShow, this);
+        game.off(Game.EVENT_PAUSE, this._onHide, this);
+        game.off(Game.EVENT_RESUME, this._onShow, this);
         if (--urlCount[this._url] <= 0) {
             audioEngine.uncache(this._url);
         }

@@ -42,8 +42,6 @@ import { IBundleOptions } from '../asset/asset-manager/shared';
 import { ICustomJointTextureLayout } from '../3d/skeletal-animation/skeletal-animation-utils';
 import { IPhysicsConfig } from '../physics/framework/physics-config';
 import { effectSettings } from '../core/effect-settings';
-import { audioManager } from '../audio/audio-manager';
-
 /**
  * @zh
  * 游戏配置。
@@ -292,6 +290,26 @@ export class Game extends EventTarget {
     public static readonly EVENT_RESTART = 'game_on_restart';
 
     /**
+     * @en Triggered when the user triggers the game pause.<br>
+     * @zh 用户触发游戏暂停时触发该事件。<br>
+     * @example
+     * ```ts
+     * import { game, audioEngine } from 'cc';
+     * game.on(Game.EVENT_PAUSE_AUDIO, function () {
+     *     audioEngine.pauseMusic();
+     *     audioEngine.pauseAllEffects();
+     * });
+     * ```
+     */
+    public static readonly EVENT_PAUSE = 'game_on_pause';
+
+    /**
+     * @en Triggered when the user triggers the game resume.<br>
+     * @zh 用户触发游戏恢复时触发该事件。<br>
+     */
+    public static readonly EVENT_RESUME = 'game_on_resume';
+
+    /**
      * @en Web Canvas 2d API as renderer backend.
      * @zh 使用 Web Canvas 2d API 作为渲染器后端。
      */
@@ -526,7 +544,7 @@ export class Game extends EventTarget {
     private pauseByEngine () {
         if (this._paused) { return; }
         this._pausedByEngine = true;
-        this.pause();
+        this.pause(true);
     }
 
     /**
@@ -535,7 +553,7 @@ export class Game extends EventTarget {
      */
     private resumeByEngine () {
         if (this._pausedByEngine) {
-            this.resume();
+            this.resume(true);
             this._pausedByEngine = false;
         }
     }
@@ -552,28 +570,34 @@ export class Game extends EventTarget {
      * - 游戏逻辑
      * - 渲染
      * - 输入事件派发（Web 和小游戏平台除外）
+     * * @param engineTrigger @en True indicates trigger from engine internal, otherwise trigger by user. @zh true 代表由引擎內部触发,其他值意味着是用户发起的
      *
      * 这点和只暂停游戏逻辑的 `director.pause()` 不同。
      */
-    public pause () {
+    public pause (engineTrigger?: boolean) {
         if (this._paused) { return; }
         this._paused = true;
         this._pacer?.stop();
-        audioManager.pause();
+        if (!engineTrigger) {
+            this.emit(Game.EVENT_PAUSE);
+        }
     }
 
     /**
      * @en Resume the game from pause. This will resume:<br>
      * game logic execution, rendering process, event manager, background music and all audio effects.<br>
      * @zh 恢复游戏主循环。包含：游戏逻辑，渲染，事件处理，背景音乐和所有音效。
+     * @param engineTrigger @en True indicates trigger from engine internal, otherwise trigger by user. @zh true 代表由引擎內部触发,其他值意味着是用户发起的
      */
-    public resume () {
+    public resume (engineTrigger?: boolean) {
         if (!this._paused) { return; }
         // @ts-expect-error _clearEvents is a private method.
         input._clearEvents();
         this._paused = false;
         this._pacer?.start();
-        audioManager.resume();
+        if (!engineTrigger) {
+            this.emit(Game.EVENT_RESUME);
+        }
     }
 
     /**
@@ -593,8 +617,8 @@ export class Game extends EventTarget {
         return endFramePromise.then(() => {
             director.reset();
             cclegacy.Object._deferredDestroy();
-            this.pause();
-            this.resume();
+            this.pause(true);
+            this.resume(true);
             this._shouldLoadLaunchScene = true;
             SplashScreen.instance.curTime = 0;
             this._safeEmit(Game.EVENT_RESTART);
@@ -953,7 +977,7 @@ export class Game extends EventTarget {
         if (!this._inited || (EDITOR && !cclegacy.GAME_VIEW)) {
             return;
         }
-        this.resume();
+        this.resume(true);
     }
 
     // @Methods

@@ -30,6 +30,7 @@ import { audioBufferManager } from '../audio-buffer-manager';
 import AudioTimer from '../audio-timer';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
 import { AudioEvent, AudioPCMDataView, AudioState, AudioType } from '../type';
+import { Game, game } from '../../../cocos/game';
 
 declare const fsUtils: any;
 const audioContext = minigame.tt?.getAudioContext?.();
@@ -114,6 +115,8 @@ export class AudioPlayerWeb implements OperationQueueable {
         // event
         systemInfo.on('hide', this._onHide, this);
         systemInfo.on('show', this._onShow, this);
+        game.on(Game.EVENT_PAUSE, this._onHide, this);
+        game.on(Game.EVENT_RESUME, this._onShow, this);
     }
     destroy () {
         this._audioTimer.destroy();
@@ -124,6 +127,8 @@ export class AudioPlayerWeb implements OperationQueueable {
         audioBufferManager.tryReleasingCache(this._src);
         systemInfo.off('hide', this._onHide, this);
         systemInfo.off('show', this._onShow, this);
+        game.off(Game.EVENT_PAUSE, this._onHide, this);
+        game.off(Game.EVENT_RESUME, this._onShow, this);
     }
     private _onHide () {
         if (this._state === AudioState.PLAYING) {

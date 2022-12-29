@@ -88,6 +88,9 @@ export abstract class VideoPlayerImpl {
         /* handle hide & show */
         legacyCC.game.on(legacyCC.Game.EVENT_HIDE, this._onHide);
         legacyCC.game.on(legacyCC.Game.EVENT_SHOW, this._onShow);
+        /* handle pause & resume */
+        legacyCC.game.on(legacyCC.Game.EVENT_PAUSE, this._onHide);
+        legacyCC.game.on(legacyCC.Game.EVENT_RESUME, this._onShow);
     }
 
     //
@@ -113,7 +116,7 @@ export abstract class VideoPlayerImpl {
     public abstract syncPlaybackRate(val: number): void;
     public abstract syncVolume(val: number): void;
     public abstract syncMute(enabled: boolean): void;
-    public abstract syncLoop(enabled: boolean):void
+    public abstract syncLoop(enabled: boolean): void
     public abstract syncMatrix(): void;
 
     // get video player data
@@ -254,6 +257,8 @@ export abstract class VideoPlayerImpl {
         this._componentEventList.clear();
         legacyCC.game.off(legacyCC.Game.EVENT_HIDE, this._onHide);
         legacyCC.game.off(legacyCC.Game.EVENT_SHOW, this._onShow);
+        legacyCC.game.off(legacyCC.Game.EVENT_PAUSE, this._onHide);
+        legacyCC.game.off(legacyCC.Game.EVENT_RESUME, this._onShow);
     }
 }
 
