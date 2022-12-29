@@ -36,7 +36,7 @@ import { LimitVelocityOvertimeModule } from './modules/limit-velocity-overtime';
 import { RotationOvertimeModule } from './modules/rotation-over-lifetime';
 import { SizeOvertimeModule } from './modules/size-over-lifetime';
 import { TextureAnimationModule } from './modules/texture-animation';
-import { VelocityOvertimeModule } from './modules/velocity-overtime';
+import { VelocityOvertimeModule } from './modules/velocity-over-lifetime';
 import { EmissionModule } from './modules/emission';
 import { ShapeModule } from './modules/shape-module';
 import { ParticleUpdateContext } from './particle-update-context';

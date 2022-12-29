@@ -38,8 +38,8 @@ const FORCE_OVERTIME_RAND_OFFSET = ModuleRandSeed.FORCE;
 
 const _temp_v3 = new Vec3();
 
-@ccclass('cc.ForceOvertimeModule')
-export class ForceOvertimeModule extends ParticleModule {
+@ccclass('cc.ForceOverLifetimeModule')
+export class ForceOverLifetimeModule extends ParticleModule {
     public get name (): string {
         return 'forceModule';
     }
