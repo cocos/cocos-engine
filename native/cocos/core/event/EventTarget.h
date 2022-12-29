@@ -28,6 +28,7 @@
 #include <memory>
 #include "base/Log.h"
 #include "base/Macros.h"
+#include "base/memory/Memory.h"
 #include "intl/EventIntl.h"
 #include "intl/List.h"
 
@@ -577,7 +578,7 @@ template <typename T>
 class HeapObject final {
 public:
     HeapObject() {
-        _data = new T;
+        _data = ccnew T;
     }
 
     ~HeapObject() {
