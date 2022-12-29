@@ -732,6 +732,21 @@ export class Game extends EventTarget {
                 garbageCollectionManager.init();
                 // console.timeEnd('6.4');
                 console.time('phase 6.5'); // 6ms
+
+                // resize canvas before deviceManager init
+                console.time('phase resize canvas');
+                const locCanvas = this.canvas;
+                if (locCanvas) {
+                    const windowSize = screen.windowSize;
+                    if (locCanvas.width !== windowSize.width) {
+                        locCanvas.width = windowSize.width;
+                    }
+                    if (locCanvas.height !== windowSize.height) {
+                        locCanvas.height = windowSize.height;
+                    }
+                }
+                console.timeEnd('phase resize canvas');
+
                 deviceManager.init(this.canvas, bindingMappingInfo);
                 console.timeEnd('phase 6.5');
                 // console.time('6.6');
