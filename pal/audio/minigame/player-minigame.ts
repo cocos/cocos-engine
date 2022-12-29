@@ -104,8 +104,6 @@ export class AudioPlayerMinigame implements OperationQueueable {
         this._eventTarget = new EventTarget();
 
         // event
-        systemInfo.on('hide', this._onHide, this);
-        systemInfo.on('show', this._onShow, this);
         game.on(Game.EVENT_PAUSE, this._onHide, this);
         game.on(Game.EVENT_RESUME, this._onShow, this);
         const eventTarget = this._eventTarget;
@@ -162,8 +160,6 @@ export class AudioPlayerMinigame implements OperationQueueable {
         innerAudioContext.onEnded(this._onEnded);
     }
     destroy () {
-        systemInfo.off('hide', this._onHide, this);
-        systemInfo.off('show', this._onShow, this);
         game.off(Game.EVENT_PAUSE, this._onHide, this);
         game.off(Game.EVENT_RESUME, this._onShow, this);
         if (this._innerAudioContext) {

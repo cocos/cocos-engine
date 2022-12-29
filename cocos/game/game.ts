@@ -577,9 +577,7 @@ export class Game extends EventTarget {
         if (this._paused) { return; }
         this._paused = true;
         this._pacer?.stop();
-        if (!this._pausedByEngine) {
-            this.emit(Game.EVENT_PAUSE);
-        }
+        this.emit(Game.EVENT_PAUSE);
     }
 
     /**
@@ -593,9 +591,7 @@ export class Game extends EventTarget {
         input._clearEvents();
         this._paused = false;
         this._pacer?.start();
-        if (!this._pausedByEngine) {
-            this.emit(Game.EVENT_RESUME);
-        }
+        this.emit(Game.EVENT_RESUME);
     }
 
     /**

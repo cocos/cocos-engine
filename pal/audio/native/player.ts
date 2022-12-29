@@ -132,14 +132,10 @@ export class AudioPlayer implements OperationQueueable {
         // this._pcmHeader = audioEngine.getPCMHeader(url);
         this._pcmHeader = null;
         // event
-        systemInfo.on('hide', this._onHide, this);
-        systemInfo.on('show', this._onShow, this);
         game.on(Game.EVENT_PAUSE, this._onHide, this);
         game.on(Game.EVENT_RESUME, this._onShow, this);
     }
     destroy () {
-        systemInfo.off('hide', this._onHide, this);
-        systemInfo.off('show', this._onShow, this);
         game.off(Game.EVENT_PAUSE, this._onHide, this);
         game.off(Game.EVENT_RESUME, this._onShow, this);
         if (--urlCount[this._url] <= 0) {

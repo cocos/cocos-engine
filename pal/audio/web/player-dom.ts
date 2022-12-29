@@ -109,8 +109,6 @@ export class AudioPlayerDOM implements OperationQueueable {
         this._domAudio = nativeAudio;
 
         // event
-        systemInfo.on('hide', this._onHide, this);
-        systemInfo.on('show', this._onShow, this);
         game.on(Game.EVENT_PAUSE, this._onHide, this);
         game.on(Game.EVENT_RESUME, this._onShow, this);
         this._onEnded = () => {
@@ -122,8 +120,6 @@ export class AudioPlayerDOM implements OperationQueueable {
     }
 
     destroy () {
-        systemInfo.off('hide', this._onHide, this);
-        systemInfo.off('show', this._onShow, this);
         game.off(Game.EVENT_PAUSE, this._onHide, this);
         game.off(Game.EVENT_RESUME, this._onShow, this);
         this._domAudio.removeEventListener('ended', this._onEnded);

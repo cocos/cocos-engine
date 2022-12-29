@@ -85,9 +85,6 @@ export abstract class VideoPlayerImpl {
             this.video.play();
             this._interrupted = false;
         };
-        /* handle hide & show */
-        legacyCC.game.on(legacyCC.Game.EVENT_HIDE, this._onHide);
-        legacyCC.game.on(legacyCC.Game.EVENT_SHOW, this._onShow);
         /* handle pause & resume */
         legacyCC.game.on(legacyCC.Game.EVENT_PAUSE, this._onHide);
         legacyCC.game.on(legacyCC.Game.EVENT_RESUME, this._onShow);
@@ -255,8 +252,6 @@ export abstract class VideoPlayerImpl {
     public destroy () {
         this.removeVideoPlayer();
         this._componentEventList.clear();
-        legacyCC.game.off(legacyCC.Game.EVENT_HIDE, this._onHide);
-        legacyCC.game.off(legacyCC.Game.EVENT_SHOW, this._onShow);
         legacyCC.game.off(legacyCC.Game.EVENT_PAUSE, this._onHide);
         legacyCC.game.off(legacyCC.Game.EVENT_RESUME, this._onShow);
     }
