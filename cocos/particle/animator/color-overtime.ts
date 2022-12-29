@@ -36,14 +36,14 @@ const COLOR_OVERTIME_RAND_OFFSET = ModuleRandSeed.COLOR;
  * @en
  * This module will modify particle color over life time. You can set the color gradient to see how it changes.
  * @zh
- * 本模块用于在粒子生命周期内对颜色进行改变，可以修改模块下的颜色渐变条来查看粒子颜色渐变效果
+ * 本模块用于在粒子生命周期内对颜色进行改变，可以修改模块下的颜色渐变条来查看粒子颜色渐变效果。
  */
 @ccclass('cc.ColorOvertimeModule')
 export default class ColorOvertimeModule extends ParticleModuleBase {
     @serializable
     _enable = false;
     /**
-     * @en Enable or disable this module
+     * @en Enable or disable this module.
      * @zh 是否启用。
      */
     @displayOrder(0)
@@ -59,7 +59,7 @@ export default class ColorOvertimeModule extends ParticleModuleBase {
     }
 
     /**
-     * @en Change color over time. Evaluate by key interpolation 
+     * @en Change color over time. Evaluate by key interpolation.
      * @zh 颜色随时间变化的参数，各个 key 之间线性插值变化。
      */
     @type(GradientRange)
@@ -69,9 +69,10 @@ export default class ColorOvertimeModule extends ParticleModuleBase {
     public name = PARTICLE_MODULE_NAME.COLOR;
 
     /**
-     * @en Apply color animation to particle
-     * @zh 作用颜色变换到粒子上
+     * @en Apply color animation to particle.
+     * @zh 作用颜色变换到粒子上。
      * @param particle @en Particle to animate @zh 模块需要更新的粒子
+     * @internal
      */
     public animate (particle: Particle) {
         particle.color.set(particle.startColor);

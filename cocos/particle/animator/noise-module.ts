@@ -30,17 +30,17 @@ import { Particle, PARTICLE_MODULE_NAME, ParticleModuleBase } from '../particle'
 const { ccclass, serializable, displayOrder, type, range, slide, rangeStep, visible } = _decorator;
 
 /**
- * @en 
- * Adding noise to your particles is a simple and effective way to create interesting patterns and effects
- * @zh 
- * 为粒子添加噪声是创建有趣方案和效果的简单有效方法
+ * @en
+ * Adding noise to your particles is a simple and effective way to create interesting patterns and effects.
+ * @zh
+ * 为粒子添加噪声是创建有趣方案和效果的简单有效方法。
  */
 @ccclass('cc.NoiseModule')
 export class NoiseModule extends ParticleModuleBase {
     @serializable
     _enable = false;
     /**
-     * @en Enable this module or not
+     * @en Enable this module or not.
      * @zh 是否启用。
      */
     @displayOrder(0)
@@ -56,8 +56,8 @@ export class NoiseModule extends ParticleModuleBase {
     }
 
     /**
-     * @en Strength on X axis
-     * @zh X 轴上的力度大小
+     * @en Strength on X axis.
+     * @zh X 轴上的力度大小。
      */
     @type(CCFloat)
     @range([0, 100])
@@ -73,8 +73,8 @@ export class NoiseModule extends ParticleModuleBase {
     private _strengthX = 10;
 
     /**
-     * @en Strength on Y axis
-     * @zh Y 轴上的力度大小
+     * @en Strength on Y axis.
+     * @zh Y 轴上的力度大小。
      */
     @type(CCFloat)
     @range([0, 100])
@@ -90,8 +90,8 @@ export class NoiseModule extends ParticleModuleBase {
     private _strengthY = 10;
 
     /**
-     * @en Strength on Z axis
-     * @zh Z 轴上的力度大小
+     * @en Strength on Z axis.
+     * @zh Z 轴上的力度大小。
      */
     @type(CCFloat)
     @range([0, 100])
@@ -107,8 +107,8 @@ export class NoiseModule extends ParticleModuleBase {
     private _strengthZ = 10;
 
     /**
-     * @en Noise texture roll speed on X axis
-     * @zh X 轴上的噪声图滚动速度
+     * @en Noise texture roll speed on X axis.
+     * @zh X 轴上的噪声图滚动速度。
      */
     @type(CCFloat)
     @range([0, 100])
@@ -124,8 +124,8 @@ export class NoiseModule extends ParticleModuleBase {
     private _noiseSpeedX = 0;
 
     /**
-     * @en Noise texture roll speed on Y axis
-     * @zh Y 轴上的噪声图滚动速度
+     * @en Noise texture roll speed on Y axis.
+     * @zh Y 轴上的噪声图滚动速度。
      */
     @type(CCFloat)
     @range([0, 100])
@@ -141,8 +141,8 @@ export class NoiseModule extends ParticleModuleBase {
     private _noiseSpeedY = 0;
 
     /**
-     * @en Noise texture roll speed on Z axis
-     * @zh Z 轴上的噪声图滚动速度
+     * @en Noise texture roll speed on Z axis.
+     * @zh Z 轴上的噪声图滚动速度。
      */
     @type(CCFloat)
     @range([0, 100])
@@ -158,8 +158,8 @@ export class NoiseModule extends ParticleModuleBase {
     private _noiseSpeedZ = 0;
 
     /**
-     * @en Noise frequency
-     * @zh 噪声图频率
+     * @en Noise frequency.
+     * @zh 噪声图频率。
      */
     @type(CCFloat)
     @range([0, 100])
@@ -176,8 +176,8 @@ export class NoiseModule extends ParticleModuleBase {
     private _noiseFrequency = 1;
 
     /**
-     * @en Remap the final noise X axis values into a different range
-     * @zh 噪声值映射到 X 轴的不同范围
+     * @en Remap the final noise X axis values into a different range.
+     * @zh 噪声值映射到 X 轴的不同范围。
      */
     @visible(false)
     @type(CCFloat)
@@ -195,8 +195,8 @@ export class NoiseModule extends ParticleModuleBase {
     private _remapX = 0;
 
     /**
-     * @en Remap the final noise Y axis values into a different range
-     * @zh 噪声值映射到 Y 轴的不同范围
+     * @en Remap the final noise Y axis values into a different range.
+     * @zh 噪声值映射到 Y 轴的不同范围。
      */
     @visible(false)
     @type(CCFloat)
@@ -214,8 +214,8 @@ export class NoiseModule extends ParticleModuleBase {
     private _remapY = 0;
 
     /**
-     * @en Remap the final noise Z axis values into a different range
-     * @zh 噪声值映射到 Z 轴的不同范围
+     * @en Remap the final noise Z axis values into a different range.
+     * @zh 噪声值映射到 Z 轴的不同范围。
      */
     @visible(false)
     @type(CCFloat)
@@ -233,8 +233,8 @@ export class NoiseModule extends ParticleModuleBase {
     private _remapZ = 0;
 
     /**
-     * @en Specify how many layers of overlapping noise are combined to produce the final noise values
-     * @zh 指定组合多少层重叠噪声来产生最终噪声值
+     * @en Specify how many layers of overlapping noise are combined to produce the final noise values.
+     * @zh 指定组合多少层重叠噪声来产生最终噪声值。
      */
     @type(CCInteger)
     @range([1, 4])
@@ -251,8 +251,8 @@ export class NoiseModule extends ParticleModuleBase {
     private _octaves = 1;
 
     /**
-     * @en For each additional noise layer, reduce the strength by this proportion
-     * @zh 对于每个附加的噪声层，按此比例降低强度
+     * @en For each additional noise layer, reduce the strength by this proportion.
+     * @zh 对于每个附加的噪声层，按此比例降低强度。
      */
     // eslint-disable-next-line func-names
     @visible(function (this: NoiseModule) { return this._octaves > 1; })
@@ -270,8 +270,8 @@ export class NoiseModule extends ParticleModuleBase {
     private _octaveMultiplier = 0.5;
 
     /**
-     * @en For each additional noise layer, adjust the frequency by this multiplier
-     * @zh 对于每个附加的噪声层，按此乘数调整频率
+     * @en For each additional noise layer, adjust the frequency by this multiplier.
+     * @zh 对于每个附加的噪声层，按此乘数调整频率。
      */
     // eslint-disable-next-line func-names
     @visible(function (this: NoiseModule) { return this._octaves > 1; })
@@ -295,10 +295,11 @@ export class NoiseModule extends ParticleModuleBase {
     private samplePosition: Vec3 = new Vec3();
 
     /**
-     * @en Apply noise effect to particle
-     * @zh 作用噪声效果到粒子上
+     * @en Apply noise effect to particle.
+     * @zh 作用噪声效果到粒子上。
      * @param particle @en Particle to animate @zh 模块需要更新的粒子
      * @param dt @en Update interval time @zh 粒子系统更新的间隔时间
+     * @internal
      */
     public animate (particle: Particle, dt: number) {
         this.noise.setTime(particle.particleSystem.time);
@@ -319,7 +320,8 @@ export class NoiseModule extends ParticleModuleBase {
     }
 
     /**
-     * 
+     * @en Gets the preview of noise texture.
+     * @zh 获取噪声图预览。
      * @param out @en Noise texture pixels array @zh 噪声图像素数组
      * @param ps @en Particle system @zh 噪声图作用的粒子系统
      * @param width @en Texture width @zh 噪声图宽度

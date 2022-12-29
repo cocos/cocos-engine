@@ -33,7 +33,7 @@ import { isCurveTwoValues } from '../particle-general-function';
 const TEXTURE_ANIMATION_RAND_OFFSET = ModuleRandSeed.TEXTURE;
 
 /**
- * @en Texture animation type
+ * @en Texture animation type.
  * @zh 粒子贴图动画类型。
  * @enum textureAnimationModule.Mode
  */
@@ -50,19 +50,19 @@ const Mode = Enum({
 });
 
 /**
- * @en Mode to play texture animation
+ * @en Mode to play texture animation.
  * @zh 贴图动画的播放方式。
  * @enum textureAnimationModule.Animation
  */
 const Animation = Enum({
     /**
-     * @en Play whole sheet of texture
+     * @en Play whole sheet of texture.
      * @zh 播放贴图中的所有帧。
      */
     WholeSheet: 0,
 
     /**
-     * @en Play just one row of texture
+     * @en Play just one row of texture.
      * @zh 播放贴图中的其中一行动画。
      */
     SingleRow: 1,
@@ -70,9 +70,9 @@ const Animation = Enum({
 
 /**
  * @en
- * Use this module to play frame animation of the particle texture
+ * Use this module to play frame animation of the particle texture.
  * @zh
- * 这个模块用于播放粒子纹理带的纹理帧动画
+ * 这个模块用于播放粒子纹理带的纹理帧动画。
  */
 @ccclass('cc.TextureAnimationModule')
 export default class TextureAnimationModule extends ParticleModuleBase {
@@ -86,7 +86,7 @@ export default class TextureAnimationModule extends ParticleModuleBase {
     private _numTilesY = 0;
 
     /**
-     * @en Enable this module or not
+     * @en Enable this module or not.
      * @zh 是否启用。
      */
     @displayOrder(0)
@@ -106,7 +106,7 @@ export default class TextureAnimationModule extends ParticleModuleBase {
     private _mode = Mode.Grid;
 
     /**
-     * @en Set texture animation [[Mode]] (only support Grid mode)
+     * @en Set texture animation [[Mode]] (only support Grid mode).
      * @zh 设定粒子贴图动画的类型（暂只支持 Grid 模式）[[Mode]]。
      */
     @type(Mode)
@@ -123,7 +123,7 @@ export default class TextureAnimationModule extends ParticleModuleBase {
     }
 
     /**
-     * @en Tile count on X axis
+     * @en Tile count on X axis.
      * @zh X 方向动画帧数。
      */
     @displayOrder(2)
@@ -140,7 +140,7 @@ export default class TextureAnimationModule extends ParticleModuleBase {
     }
 
     /**
-     * @en Tile count on Y axis
+     * @en Tile count on Y axis.
      * @zh Y 方向动画帧数。
      */
     @displayOrder(3)
@@ -157,7 +157,7 @@ export default class TextureAnimationModule extends ParticleModuleBase {
     }
 
     /**
-     * @en Texture [[Animation]] type
+     * @en Texture [[Animation]] type.
      * @zh 动画播放方式 [[Animation]]。
      */
     @type(Animation)
@@ -167,7 +167,7 @@ export default class TextureAnimationModule extends ParticleModuleBase {
     public animation = Animation.WholeSheet;
 
     /**
-     * @en Curve to control texture animation speed
+     * @en Curve to control texture animation speed.
      * @zh 一个周期内动画播放的帧与时间变化曲线。
      */
     @type(CurveRange)
@@ -178,7 +178,7 @@ export default class TextureAnimationModule extends ParticleModuleBase {
     public frameOverTime = new CurveRange();
 
     /**
-     * @en Texture animation frame start to play
+     * @en Texture animation frame start to play.
      * @zh 从第几帧开始播放，时间为整个粒子系统的生命周期。
      */
     @type(CurveRange)
@@ -189,7 +189,7 @@ export default class TextureAnimationModule extends ParticleModuleBase {
     public startFrame = new CurveRange();
 
     /**
-     * @en Animation cycle count per particle life
+     * @en Animation cycle count per particle life.
      * @zh 一个生命周期内播放循环的次数。
      */
     @serializable
@@ -234,8 +234,8 @@ export default class TextureAnimationModule extends ParticleModuleBase {
     }
 
     /**
-     * @en Get random row from texture to generate animation<br>
-     * This option is available when [[Animation]] type is SingleRow
+     * @en Get random row from texture to generate animation.<br>
+     * This option is available when [[Animation]] type is SingleRow.
      * @zh 随机从动画贴图中选择一行以生成动画。<br>
      * 此选项仅在动画播放方式为 SingleRow 时生效。
      */
@@ -245,8 +245,8 @@ export default class TextureAnimationModule extends ParticleModuleBase {
     public randomRow = false;
 
     /**
-     * @en Generate animation from specific row in texture<br>
-     * This option is available when [[Animation]] type is SingleRow and randomRow option is disabled
+     * @en Generate animation from specific row in texture.<br>
+     * This option is available when [[Animation]] type is SingleRow and randomRow option is disabled.
      * @zh 从动画贴图中选择特定行以生成动画。<br>
      * 此选项仅在动画播放方式为 SingleRow 时且禁用 randomRow 时可用。
      */
@@ -258,19 +258,21 @@ export default class TextureAnimationModule extends ParticleModuleBase {
     public name = PARTICLE_MODULE_NAME.TEXTURE;
 
     /**
-     * @en Init start row to particle
-     * @zh 给粒子创建初始行属性
+     * @en Init start row to particle.
+     * @zh 给粒子创建初始行属性。
      * @param p @en Particle to set start row @zh 设置初始行属性的粒子
+     * @internal
      */
     public init (p: Particle) {
         p.startRow = Math.floor(Math.random() * this.numTilesY);
     }
 
     /**
-     * @en Apply texture animation to particle
-     * @zh 应用贴图动画到粒子
+     * @en Apply texture animation to particle.
+     * @zh 应用贴图动画到粒子。
      * @param p @en Particle to animate @zh 模块需要更新的粒子
      * @param dt @en Update interval time @zh 粒子系统更新的间隔时间
+     * @internal
      */
     public animate (p: Particle, dt: number) {
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;

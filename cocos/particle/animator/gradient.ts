@@ -74,16 +74,16 @@ CCClass.Attr.setClassAttr(AlphaKey, 'alpha', 'visible', true);
 CCClass.Attr.setClassAttr(AlphaKey, 'time', 'visible', true);
 
 /**
- * @en 
- * Gradient is a component that has a lot of color keys and alpha keys to get the interpolated color value
+ * @en
+ * Gradient is a component that has a lot of color keys and alpha keys to get the interpolated color value.
  * There are 2 kind of mode:
- * Blend just interpolate the nearest 2 colors from keys
- * Fixed get the nearest color from keys without interpolate
+ * Blend just interpolate the nearest 2 colors from keys.
+ * Fixed get the nearest color from keys without interpolate.
  * @zh
- * 渐变曲线控件包含了颜色关键帧和透明度关键帧，在关键帧中进行插值渐变返回最终的颜色值
+ * 渐变曲线控件包含了颜色关键帧和透明度关键帧，在关键帧中进行插值渐变返回最终的颜色值。
  * 这个控件包含了两种取色模式：
- * 混合模式对取到的最近两个颜色帧进行插值计算
- * 固定模式直接取最近的颜色帧返回，不进行插值
+ * 混合模式对取到的最近两个颜色帧进行插值计算。
+ * 固定模式直接取最近的颜色帧返回，不进行插值。
  */
 export default class Gradient {
     public static Mode = Mode;
@@ -110,8 +110,8 @@ export default class Gradient {
     }
 
     /**
-     * @en Set color keys array and alpha keys array
-     * @zh 设置颜色和透明度的关键帧列表
+     * @en Set color keys array and alpha keys array.
+     * @zh 设置颜色和透明度的关键帧列表。
      * @param colorKeys @en Array of color keys @zh 颜色关键帧列表
      * @param alphaKeys @en Array of alpha keys @zh 透明度关键帧列表
      */
@@ -121,8 +121,8 @@ export default class Gradient {
     }
 
     /**
-     * @en Sort color keys and alpha keys
-     * @zh 对颜色和透明度的关键帧进行排序
+     * @en Sort color keys and alpha keys.
+     * @zh 对颜色和透明度的关键帧进行排序。
      */
     public sortKeys () {
         if (this.colorKeys.length > 1) {
@@ -134,8 +134,8 @@ export default class Gradient {
     }
 
     /**
-     * @en Interpolate color and alpha from color and alpha keys
-     * @zh 根据颜色列表插值计算颜色和透明度
+     * @en Interpolate color and alpha from color and alpha keys.
+     * @zh 根据颜色列表插值计算颜色和透明度。
      * @param time @en Normalized time to interpolate @zh 用于插值的归一化时间
      * @returns @en Interpolated color value @zh 插值过后的颜色值
      */
@@ -146,8 +146,8 @@ export default class Gradient {
     }
 
     /**
-     * @en Random generate color and alpha
-     * @zh 随机生成颜色和透明度
+     * @en Random generate color and alpha.
+     * @zh 随机生成颜色和透明度。
      * @returns @en Randomized color @zh 随机生成的颜色
      */
     public randomColor () {

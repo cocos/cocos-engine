@@ -59,14 +59,14 @@ const _world_rol = new Quat();
 const superMaterials = Object.getOwnPropertyDescriptor(Renderer.prototype, 'sharedMaterials')!;
 
 /**
- * @en 
- * Particle system component, which can make many effects such as smoke and fire
- * Include some interesting modules and components such as Velocity Overtime, Force Overtime, Trail and Noise
- * You can open these modules to see how the particles animate
+ * @en
+ * Particle system component, which can make many effects such as smoke and fire.
+ * Include some interesting modules and components such as Velocity Overtime, Force Overtime, Trail and Noise.
+ * You can open these modules to see how the particles animate.
  * @zh
- * 粒子系统能够用来制作许多特效，例如 烟雾和火焰
- * 包含一些有趣的模块，例如 速度模块，受力模块，拖尾模块和噪声模块
- * 打开这些模块可以看到粒子如何进行变化
+ * 粒子系统能够用来制作许多特效，例如 烟雾和火焰。
+ * 包含一些有趣的模块，例如 速度模块，受力模块，拖尾模块和噪声模块。
+ * 打开这些模块可以看到粒子如何进行变化。
  */
 @ccclass('cc.ParticleSystem')
 @help('i18n:cc.ParticleSystem')
@@ -75,7 +75,7 @@ const superMaterials = Object.getOwnPropertyDescriptor(Renderer.prototype, 'shar
 @executeInEditMode
 export class ParticleSystem extends ModelRenderer {
     /**
-     * @en Maximum particle capacity to generate
+     * @en Maximum particle capacity to generate.
      * @zh 粒子系统能生成的最大粒子数量。
      */
     @range([0, Number.POSITIVE_INFINITY])
@@ -115,8 +115,8 @@ export class ParticleSystem extends ModelRenderer {
     public scaleSpace = Space.Local;
 
     /**
-     * @en Whether to modify particle size on XYZ axis
-     * @zh 是否需要修改粒子在三个轴上的大小
+     * @en Whether to modify particle size on XYZ axis.
+     * @zh 是否需要修改粒子在三个轴上的大小。
      */
     @serializable
     @displayOrder(10)
@@ -159,7 +159,7 @@ export class ParticleSystem extends ModelRenderer {
     public startSizeZ = new CurveRange();
 
     /**
-     * @en The initial velocity of the particle
+     * @en The initial velocity of the particle.
      * @zh 粒子初始速度。
      */
     @type(CurveRange)
@@ -169,8 +169,8 @@ export class ParticleSystem extends ModelRenderer {
     public startSpeed = new CurveRange();
 
     /**
-     * @en Whether to modify particle rotation on XYZ axis
-     * @zh 是否需要修改粒子在三个轴上的旋转
+     * @en Whether to modify particle rotation on XYZ axis.
+     * @zh 是否需要修改粒子在三个轴上的旋转。
      */
     @serializable
     @displayOrder(12)
@@ -178,7 +178,7 @@ export class ParticleSystem extends ModelRenderer {
     public startRotation3D = false;
 
     /**
-     * @en The initial rotation angle of the particle on X axis
+     * @en The initial rotation angle of the particle on X axis.
      * @zh 粒子初始x轴旋转角度。
      */
     @type(CurveRange)
@@ -191,7 +191,7 @@ export class ParticleSystem extends ModelRenderer {
     public startRotationX = new CurveRange();
 
     /**
-     * @en The initial rotation angle of the particle on Y axis
+     * @en The initial rotation angle of the particle on Y axis.
      * @zh 粒子初始y轴旋转角度。
      */
     @type(CurveRange)
@@ -204,7 +204,7 @@ export class ParticleSystem extends ModelRenderer {
     public startRotationY = new CurveRange();
 
     /**
-     * @en The initial rotation angle of the particle on Z axis
+     * @en The initial rotation angle of the particle on Z axis.
      * @zh 粒子初始z轴旋转角度。
      */
     @type(CurveRange)
@@ -217,7 +217,7 @@ export class ParticleSystem extends ModelRenderer {
     public startRotationZ = new CurveRange();
 
     /**
-     * @en The time delay to start emission after the particle system starts running
+     * @en The time delay to start emission after the particle system starts running.
      * @zh 粒子系统开始运行后，延迟粒子发射的时间。
      */
     @type(CurveRange)
@@ -228,7 +228,7 @@ export class ParticleSystem extends ModelRenderer {
     public startDelay = new CurveRange();
 
     /**
-     * @en Particle life time
+     * @en Particle life time.
      * @zh 粒子生命周期。
      */
     @type(CurveRange)
@@ -239,7 +239,7 @@ export class ParticleSystem extends ModelRenderer {
     public startLifetime = new CurveRange();
 
     /**
-     * @en Particle system duration time
+     * @en Particle system duration time.
      * @zh 粒子系统运行时间。
      */
     @serializable
@@ -257,7 +257,7 @@ export class ParticleSystem extends ModelRenderer {
     public loop = true;
 
     /**
-     * @en Play one round before start this particle system
+     * @en Play one round before start this particle system.
      * @zh 选中之后，粒子系统会以已播放完一轮之后的状态开始播放（仅当循环播放启用时有效）。
      */
     @displayOrder(3)
@@ -274,7 +274,7 @@ export class ParticleSystem extends ModelRenderer {
     }
 
     /**
-     * @en The simulation space of the particle system, it could be world, local or custom
+     * @en The simulation space of the particle system, it could be world, local or custom.
      * @zh 选择粒子系统所在的坐标系[[Space]]。<br>
      */
     @type(Space)
@@ -296,7 +296,7 @@ export class ParticleSystem extends ModelRenderer {
     }
 
     /**
-     * @en The simulation speed of the particle system
+     * @en The simulation speed of the particle system.
      * @zh 控制整个粒子系统的更新速度。
      */
     @serializable
@@ -305,7 +305,7 @@ export class ParticleSystem extends ModelRenderer {
     public simulationSpeed = 1.0;
 
     /**
-     * @en Automatically start playing after particle system initialized
+     * @en Automatically start playing after particle system initialized.
      * @zh 粒子系统加载后是否自动开始播放。
      */
     @serializable
@@ -314,7 +314,7 @@ export class ParticleSystem extends ModelRenderer {
     public playOnAwake = true;
 
     /**
-     * @en The gravity of the particle system
+     * @en The gravity of the particle system.
      * @zh 粒子受重力影响的重力系数。
      */
     @type(CurveRange)
@@ -325,7 +325,7 @@ export class ParticleSystem extends ModelRenderer {
 
     // emission module
     /**
-     * @en The value curve of emission rate over time
+     * @en The value curve of emission rate over time.
      * @zh 随时间推移发射的粒子数的变化曲线。
      */
     @type(CurveRange)
@@ -336,7 +336,7 @@ export class ParticleSystem extends ModelRenderer {
     public rateOverTime = new CurveRange();
 
     /**
-     * @en The value curve of emission rate over distance
+     * @en The value curve of emission rate over distance.
      * @zh 每移动单位距离发射的粒子数的变化曲线。
      */
     @type(CurveRange)
@@ -347,7 +347,7 @@ export class ParticleSystem extends ModelRenderer {
     public rateOverDistance = new CurveRange();
 
     /**
-     * @en Burst triggers of the particle system
+     * @en Burst triggers of the particle system.
      * @zh 设定在指定时间发射指定数量的粒子的 burst 的数量。
      */
     @type([Burst])
@@ -357,7 +357,8 @@ export class ParticleSystem extends ModelRenderer {
     public bursts: Burst[] = [];
 
     /**
-     * @en Enable particle culling switch. Open it to enable particle culling. If enabled will generate emitter bounding box and emitters outside the frustum will be culled.
+     * @en Enable particle culling switch. Open it to enable particle culling.
+     * If enabled will generate emitter bounding box and emitters outside the frustum will be culled.
      * @zh 粒子剔除开关，如果打开将会生成一个发射器包围盒，包围盒在相机外发射器将被剔除。
      */
     @type(CCBoolean)
@@ -399,8 +400,8 @@ export class ParticleSystem extends ModelRenderer {
     _cullingMode = CullingMode.Pause;
 
     /**
-     * @en Emitter culling mode
-     * @zh 发射器的各种剔除模式
+     * @en Emitter culling mode.
+     * @zh 发射器的各种剔除模式。
      */
     public static CullingMode = CullingMode;
 
@@ -511,7 +512,7 @@ export class ParticleSystem extends ModelRenderer {
     @type(ColorOverLifetimeModule)
     _colorOverLifetimeModule: ColorOverLifetimeModule | null = null;
     /**
-     * @en The module controlling particles' color over life time
+     * @en The module controlling particles' color over life time.
      * @zh 颜色控制模块。
      */
     @type(ColorOverLifetimeModule)
@@ -536,7 +537,7 @@ export class ParticleSystem extends ModelRenderer {
     @type(ShapeModule)
     _shapeModule: ShapeModule | null = null;
     /**
-     * @en The module controlling emitter's shape
+     * @en The module controlling emitter's shape.
      * @zh 粒子发射器模块。
      */
     @type(ShapeModule)
@@ -561,7 +562,7 @@ export class ParticleSystem extends ModelRenderer {
     @type(SizeOvertimeModule)
     _sizeOvertimeModule: SizeOvertimeModule | null = null;
     /**
-     * @en The module controlling particles' size over time
+     * @en The module controlling particles' size over time.
      * @zh 粒子大小模块。
      */
     @type(SizeOvertimeModule)
@@ -586,7 +587,7 @@ export class ParticleSystem extends ModelRenderer {
     @type(VelocityOvertimeModule)
     _velocityOvertimeModule: VelocityOvertimeModule | null = null;
     /**
-     * @en The module controlling particles' velocity over time
+     * @en The module controlling particles' velocity over time.
      * @zh 粒子速度模块。
      */
     @type(VelocityOvertimeModule)
@@ -611,7 +612,7 @@ export class ParticleSystem extends ModelRenderer {
     @type(ForceOvertimeModule)
     _forceOvertimeModule: ForceOvertimeModule | null = null;
     /**
-     * @en The module controlling the force applied to particles over time
+     * @en The module controlling the force applied to particles over time.
      * @zh 粒子加速度模块。
      */
     @type(ForceOvertimeModule)
@@ -637,7 +638,7 @@ export class ParticleSystem extends ModelRenderer {
     _limitVelocityOvertimeModule: LimitVelocityOvertimeModule | null = null;
 
     /**
-     * @en The module which limits the velocity applied to particles over time, only supported in CPU particle system
+     * @en The module which limits the velocity applied to particles over time, only supported in CPU particle system.
      * @zh 粒子限制速度模块（只支持 CPU 粒子）。
      */
     @type(LimitVelocityOvertimeModule)
@@ -662,7 +663,7 @@ export class ParticleSystem extends ModelRenderer {
     @type(RotationOvertimeModule)
     _rotationOvertimeModule: RotationOvertimeModule | null = null;
     /**
-     * @en The module controlling the rotation of particles over time
+     * @en The module controlling the rotation of particles over time.
      * @zh 粒子旋转模块。
      */
     @type(RotationOvertimeModule)
@@ -687,7 +688,7 @@ export class ParticleSystem extends ModelRenderer {
     @type(TextureAnimationModule)
     _textureAnimationModule: TextureAnimationModule | null = null;
     /**
-     * @en The module controlling the texture animation of particles
+     * @en The module controlling the texture animation of particles.
      * @zh 贴图动画模块。
      */
     @type(TextureAnimationModule)
@@ -710,14 +711,14 @@ export class ParticleSystem extends ModelRenderer {
 
     // noise module
     /**
-     * @en Noise module which can add some interesting effects
-     * @zh 噪声模块能够增加许多有趣的特效
+     * @en Noise module which can add some interesting effects.
+     * @zh 噪声模块能够增加许多有趣的特效。
      */
     @type(NoiseModule)
     private _noiseModule: NoiseModule | null = null;
     /**
-     * @en The module controlling noise map applied to the particles, only supported in CPU particle system
-     * @zh 噪声动画模块，仅支持 CPU 粒子
+     * @en The module controlling noise map applied to the particles, only supported in CPU particle system.
+     * @zh 噪声动画模块，仅支持 CPU 粒子。
      */
     @type(NoiseModule)
     @displayOrder(24)
@@ -741,7 +742,7 @@ export class ParticleSystem extends ModelRenderer {
     @type(TrailModule)
     _trailModule: TrailModule | null = null;
     /**
-     * @en The module controlling the trail module
+     * @en The module controlling the trail module.
      * @zh 粒子轨迹模块。
      */
     @type(TrailModule)
@@ -763,8 +764,8 @@ export class ParticleSystem extends ModelRenderer {
 
     // particle system renderer
     /**
-     * @en Particle system renderer (CPU or GPU)
-     * @zh 粒子系统渲染器（CPU 还是 GPU）
+     * @en Particle system renderer (CPU or GPU).
+     * @zh 粒子系统渲染器（CPU 还是 GPU）。
      */
     @type(ParticleSystemRenderer)
     @serializable
@@ -811,8 +812,8 @@ export class ParticleSystem extends ModelRenderer {
     private _simulationSpace = Space.Local;
 
     /**
-     * @en Particle update processor (update every particle)
-     * @zh 粒子更新器（负责更新每个粒子）
+     * @en Particle update processor (update every particle).
+     * @zh 粒子更新器（负责更新每个粒子）。
      */
     public processor: IParticleSystemRenderer = null!;
 
@@ -939,7 +940,7 @@ export class ParticleSystem extends ModelRenderer {
     // }
 
     /**
-     * @en Play particle system
+     * @en Play particle system.
      * @zh 播放粒子效果。
      */
     public play () {
@@ -973,7 +974,7 @@ export class ParticleSystem extends ModelRenderer {
     }
 
     /**
-     * @en Pause particle system
+     * @en Pause particle system.
      * @zh 暂停播放粒子效果。
      */
     public pause () {
@@ -997,7 +998,7 @@ export class ParticleSystem extends ModelRenderer {
     }
 
     /**
-     * @en Stop particle system
+     * @en Stop particle system.
      * @zh 停止播放粒子。
      */
     public stop () {
@@ -1041,8 +1042,8 @@ export class ParticleSystem extends ModelRenderer {
     }
 
     /**
-     * @en Get current particle capacity
-     * @zh 获取当前粒子数量
+     * @en Get current particle capacity.
+     * @zh 获取当前粒子数量。
      */
     public getParticleCount () {
         return this.processor.getParticleCount();
@@ -1181,7 +1182,7 @@ export class ParticleSystem extends ModelRenderer {
             let culled = true;
             if (cameraLst !== undefined && this._boundingBox) {
                 for (let i = 0; i < cameraLst.length; ++i) {
-                    const camera:Camera = cameraLst[i];
+                    const camera: Camera = cameraLst[i];
                     const visibility = camera.visibility;
                     if ((visibility & this.node.layer) === this.node.layer) {
                         if (EDITOR && !cclegacy.GAME_VIEW) {
@@ -1516,32 +1517,32 @@ export class ParticleSystem extends ModelRenderer {
     }
 
     /**
-     * @en Query particle system is paused or not
-     * @zh 获取粒子系统当前是否已经暂停运行
+     * @en Query particle system is paused or not.
+     * @zh 获取粒子系统当前是否已经暂停运行。
      */
     get isPaused () {
         return this._isPaused;
     }
 
     /**
-     * @en Query particle system is stopped or not
-     * @zh 获取粒子系统当前是否已经停止
+     * @en Query particle system is stopped or not.
+     * @zh 获取粒子系统当前是否已经停止。
      */
     get isStopped () {
         return this._isStopped;
     }
 
     /**
-     * @en Query particle system is emitting or not
-     * @zh 获取粒子系统当前是否还在发射
+     * @en Query particle system is emitting or not.
+     * @zh 获取粒子系统当前是否还在发射。
      */
     get isEmitting () {
         return this._isEmitting;
     }
 
     /**
-     * @en Query particle system simulation time
-     * @zh 获取粒子系统运行时间
+     * @en Query particle system simulation time.
+     * @zh 获取粒子系统运行时间。
      */
     get time () {
         return this._time;
@@ -1556,7 +1557,8 @@ export class ParticleSystem extends ModelRenderer {
     }
 
     /**
-     * 
+     * @en Gets the preview of noise texture.
+     * @zh 获取噪声图预览。
      * @param width @en Noise texture width @zh 噪声图宽度
      * @param height @en Noise texture height @zh 噪声图高度
      * @returns @en Noise texture RGB pixel array @zh 噪声图 RGB 纹理数组

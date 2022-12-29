@@ -37,8 +37,8 @@ import GradientRange from './animator/gradient-range';
  */
 export class ParticleUtils {
     /**
-     * @en instantiate particle system from prefab
-     * @zh 从 prefab 实例化粒子系统
+     * @en Instantiate particle system from prefab.
+     * @zh 从 prefab 实例化粒子系统。
      */
     public static instantiate (prefab) {
         if (!this.registeredSceneEvent) {
@@ -53,8 +53,8 @@ export class ParticleUtils {
     }
 
     /**
-     * @en Destroy particle system prefab
-     * @zh 销毁创建出来的粒子系统prefab
+     * @en Destroy particle system prefab.
+     * @zh 销毁创建出来的粒子系统prefab。
      * @param prefab @en Particle system prefab to destroy @zh 要销毁的粒子系统prefab
      */
     public static destroy (prefab) {
@@ -65,8 +65,8 @@ export class ParticleUtils {
     }
 
     /**
-     * @en Play particle system
-     * @zh 播放粒子系统
+     * @en Play particle system.
+     * @zh 播放粒子系统。
      * @param rootNode @en Root node contains the particle system @zh 包含粒子系统的根节点
      */
     public static play (rootNode: Node) {
@@ -76,8 +76,8 @@ export class ParticleUtils {
     }
 
     /**
-     * @en Stop particle system
-     * @zh 停止播放粒子系统
+     * @en Stop particle system.
+     * @zh 停止播放粒子系统。
      * @param rootNode @en Root node contains the particle system @zh 包含粒子系统的根节点
      */
     public static stop (rootNode: Node) {
