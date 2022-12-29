@@ -191,10 +191,9 @@ export class Game extends EventTarget {
      * 在原生平台，它对应的是应用被切换到后台事件，下拉菜单和上拉状态栏等不一定会触发这个事件，这取决于系统行为。
      * @example
      * ```ts
-     * import { game, audioEngine } from 'cc';
+     * import { game } from 'cc';
      * game.on(Game.EVENT_HIDE, function () {
-     *     audioEngine.pauseMusic();
-     *     audioEngine.pauseAllEffects();
+     *
      * });
      * ```
      */
@@ -294,10 +293,9 @@ export class Game extends EventTarget {
      * @zh 游戏暂停时触发该事件。<br>
      * @example
      * ```ts
-     * import { game, audioEngine } from 'cc';
+     * import { game } from 'cc';
      * game.on(Game.EVENT_PAUSE, function () {
-     *     audioEngine.pauseMusic();
-     *     audioEngine.pauseAllEffects();
+     *     //pause audio or video
      * });
      * ```
      */
