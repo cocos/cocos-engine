@@ -335,7 +335,7 @@ export class Asset extends Eventify(CCObject) {
      * Initialize to default asset.
      *
      * @zh
-     * 初始化为默认资源
+     * 初始化为默认资源。
      *
      * @deprecated Since v3.7, this is an internal engine interface and you should not call this interface under any circumstances.
      */
@@ -346,10 +346,10 @@ export class Asset extends Eventify(CCObject) {
 
     /**
      * @en
-     * Used to verify this asset is an available resource.
+     * Used to verify this asset is an available asset.
      *
      * @zh
-     * 用于验证此资源是否为可用资源
+     * 用于验证此资源是否为可用资源。
      *
      * @return @zh 是否是可用资源。@en Whether this asset is available or not.
      * @deprecated Since v3.7, this is an internal engine interface and you should not call this interface under any circumstances.

@@ -26,10 +26,6 @@
 import { warnID } from '../../core';
 import Task from './task';
 
-export type IAsyncPipe = (task: Task, done: ((err?: Error | null) => void)) => void;
-export type ISyncPipe = (task: Task) => Error | void;
-export type IPipe = IAsyncPipe | ISyncPipe;
-
 /**
  * @en
  * The loading pipeline can complete the loading task by executing a series of phases. [[AssetManager]] uses it to load all assets.
@@ -69,7 +65,7 @@ export class Pipeline {
      * 此管线的所有管道。
      *
      */
-    public pipes: IPipe[] = [];
+    public pipes: Array<((task: Task, done: ((err?: Error | null) => void)) => void) | ((task: Task) => Error | void)> = [];
 
     /**
      * @en
@@ -102,7 +98,7 @@ export class Pipeline {
      * ]);
      *
      */
-    constructor (name: string, funcs: IPipe[]) {
+    constructor (name: string, funcs: Array<((task: Task, done: ((err?: Error | null) => void)) => void) | ((task: Task) => Error | void)>) {
         this.name = name;
         for (let i = 0, l = funcs.length; i < l; i++) {
             this.pipes.push(funcs[i]);
@@ -117,10 +113,12 @@ export class Pipeline {
      * 在某个特定的点为管线插入一个新的 pipe。
      *
      * @param func @en The new pipe to be inserted. @zh 待插入的管道。
-     * @param func.task @en The task handled with pipeline will be transferred to this function.
-     * @param func.done - Callback you need to invoke manually when this pipe is finished. if the pipeline is synchronous, callback is unnecessary.
-     * @param index - The specific point you want to insert at.
-     * @return pipeline
+     * @param func.task @en The task handled with pipeline will be transferred to this function. @zh 正在被此管线处理的任务。
+     * @param func.done
+     * @en Callback you need to invoke manually when this pipe is finished. if the pipeline is synchronous, callback is unnecessary.
+     * @zh 当这个管道完成时，你需要手动调用回调。如果管道是同步的，回调就没有必要。
+     * @param index @en The specific point you want to insert at. @zh 要插入进的位置。
+     * @return @en Returns the Pipeline itself, which can be used to make chain calls. @zh 返回 Pipeline 本身，可以用于做链式调用。
      *
      * @example
      * var pipeline = new Pipeline('test', []);
@@ -130,7 +128,7 @@ export class Pipeline {
      * }, 0);
      *
      */
-    public insert (func: IPipe, index: number): Pipeline {
+    public insert (func: ((task: Task, done: ((err?: Error | null) => void)) => void) | ((task: Task) => Error | void), index: number): Pipeline {
         if (index > this.pipes.length) {
             warnID(4921);
             return this;
@@ -142,15 +140,19 @@ export class Pipeline {
 
     /**
      * @en
-     * Append a new pipe to the pipeline
+     * Append a new pipe to the pipeline.
      *
      * @zh
-     * 添加一个管道到管线中
+     * 添加一个管道到管线中。
      *
-     * @param func - The new pipe
-     * @param func.task - The task handled with pipeline will be transferred to this function
-     * @param func.done - Callback you need to invoke manually when this pipe is finished. if the pipeline is synchronous, callback is unnecessary.
-     * @return pipeline
+     * @param func @en The new pipe to be appended. @zh 要追加的新管道。
+     * @param func.task
+     * @en The task handled with pipeline will be transferred to this function.
+     * @zh 正在被此管线处理的任务。
+     * @param func.done
+     * @en Callback you need to invoke manually when this pipe is finished. if the pipeline is synchronous, callback is unnecessary.
+     * @zh 当这个管道完成时，你需要手动调用回调。如果管道是同步的，回调就没有必要。
+     * @return @en Returns the Pipeline itself, which can be used to make chain calls. @zh 返回 Pipeline 本身，可以用于做链式调用。
      *
      * @example
      * var pipeline = new Pipeline('test', []);
@@ -160,20 +162,20 @@ export class Pipeline {
      * });
      *
      */
-    public append (func: IPipe): Pipeline {
+    public append (func: ((task: Task, done: ((err?: Error | null) => void)) => void) | ((task: Task) => Error | void)): Pipeline {
         this.pipes.push(func);
         return this;
     }
 
     /**
      * @en
-     * Remove pipe which at specific point
+     * Remove pipe which at specific point.
      *
      * @zh
-     * 移除特定位置的管道
+     * 移除特定位置的管道。
      *
-     * @param index - The specific point
-     * @return pipeline
+     * @param index @en The specific point. @zh 指定位置的索引。
+     * @return @en Returns the Pipeline itself, which can be used to make chain calls. @zh 返回 Pipeline 本身，可以用于做链式调用。
      *
      * @example
      * var pipeline = new Pipeline('test', (task, done) => {
@@ -190,13 +192,13 @@ export class Pipeline {
 
     /**
      * @en
-     * Execute task synchronously
+     * Execute task synchronously.
      *
      * @zh
-     * 同步执行任务
+     * 同步执行任务。
      *
-     * @param task - The task will be executed
-     * @returns result
+     * @param task @en The task will be executed. @zh 要执行的任务。
+     * @returns @en execution result. @zh 执行结果。
      *
      * @example
      * var pipeline = new Pipeline('sync', [(task) => {
@@ -213,7 +215,7 @@ export class Pipeline {
         if (pipes.length === 0) { return null; }
         task.isFinished = false;
         for (let i = 0, l = pipes.length; i < l;) {
-            const pipe = pipes[i] as ISyncPipe;
+            const pipe = pipes[i] as ((task: Task) => Error | void);
             const result = pipe(task);
             if (result) {
                 task.isFinished = true;
@@ -231,12 +233,12 @@ export class Pipeline {
 
     /**
      * @en
-     * Execute task asynchronously
+     * Execute task asynchronously.
      *
      * @zh
-     * 异步执行任务
+     * 异步执行任务。
      *
-     * @param task - The task will be executed
+     * @param task @en The task will be executed. @zh 执行结果。
      *
      * @example
      * var pipeline = new Pipeline('sync', [(task, done) => {

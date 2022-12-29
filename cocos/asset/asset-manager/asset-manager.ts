@@ -37,8 +37,8 @@ import fetch from './fetch';
 import * as helper from './helper';
 import load from './load';
 import packManager from './pack-manager';
-import parser from './parser';
-import { IPipe, Pipeline } from './pipeline';
+import parser, { Parser } from './parser';
+import { Pipeline } from './pipeline';
 import preprocess from './preprocess';
 import releaseManager from './release-manager';
 import RequestItem from './request-item';
@@ -281,17 +281,17 @@ export class AssetManager {
     /**
      * @engineInternal
      */
-    public preprocessPipe: IPipe = preprocess;
+    public preprocessPipe = preprocess;
 
     /**
      * @engineInternal
      */
-    public fetchPipe: IPipe = fetch;
+    public fetchPipe = fetch;
 
     /**
      * @engineInternal
      */
-    public loadPipe: IPipe = load;
+    public loadPipe = load;
 
     /**
      * @engineInternal
@@ -762,6 +762,10 @@ AssetManager.Cache = Cache;
 AssetManager.RequestItem = RequestItem;
 AssetManager.Bundle = Bundle;
 AssetManager.BuiltinBundleName = BuiltinBundleName;
+AssetManager.CacheManager = CacheManager;
+AssetManager.Downloader = Downloader;
+AssetManager.Parser = Parser;
+AssetManager.DependUtil = DependUtil;
 
 export declare namespace AssetManager {
     export { Pipeline };
@@ -771,10 +775,11 @@ export declare namespace AssetManager {
     export { Bundle };
     export { BuiltinBundleName };
     export { CacheManager };
-    export { ICache };
-    export { IAssetInfo, IPackInfo, IAddressableInfo, ISceneInfo };
+    export type { ICache };
+    export type { IAssetInfo, IPackInfo, IAddressableInfo, ISceneInfo };
     export { DependUtil };
     export { Downloader };
+    export { Parser };
 }
 
 /**

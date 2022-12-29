@@ -60,7 +60,7 @@ export default class RequestItem {
      * @zh
      * 从对象池中创建 requestItem。
      *
-     * @returns requestItem
+     * @returns @en return a newly created RequestItem. @zh 返回一个刚创建的 `RequestItem`。
      *
      */
     public static create (): RequestItem {

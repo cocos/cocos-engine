@@ -22,14 +22,10 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-
-export type TaskCompleteCallback = (err: Error | null | undefined, data: any) => void;
-export type TaskProgressCallback = (...args: any[]) => void;
-export type TaskErrorCallback = (...args: any[]) => void;
 export interface ITaskOption {
-    onComplete?: TaskCompleteCallback | null;
-    onProgress?: TaskProgressCallback | null;
-    onError?: TaskErrorCallback | null;
+    onComplete?: ((err: Error | null | undefined, data: any) => void) | null;
+    onProgress?: ((...args: any[]) => void) | null;
+    onError?: ((...args: any[]) => void) | null;
     input: any;
     progress?: any;
     options?: Record<string, any> | null;
@@ -57,16 +53,20 @@ export default class Task {
      * @zh
      * 从对象池中创建 task。
      *
-     * @static
-     * @method create
-     * @param options - Some optional paramters
-     * @param options.onComplete - Callback when the task complete, if the pipeline is synchronous, onComplete is unnecessary.
-     * @param options.onProgress - Continuously callback when the task is runing, if the pipeline is synchronous, onProgress is unnecessary.
-     * @param options.onError - Callback when something goes wrong, if the pipeline is synchronous, onError is unnecessary.
-     * @param options.input - Something will be handled with pipeline
-     * @param options.progress - Progress information, you may need to assign it manually when multiple pipeline share one progress
-     * @param options.options - Custom parameters
-     * @returns task
+     * @param options @en Some optional parameters. @zh 一些可选参数。
+     * @param options.onComplete
+     * @en Callback when the task complete, if the pipeline is synchronous, onComplete is unnecessary.
+     * @zh 任务完成后的回调，如果流水线是同步的，onComplete 是不必要的。
+     * @param options.onProgress
+     * @en Continuously callback when the task is running, if the pipeline is synchronous, onProgress is unnecessary.
+     * @zh 在任务运行时持续回调，如果管道是同步的，onProgress 是不必要的。
+     * @param options.onError
+     * @en Callback when something goes wrong, if the pipeline is synchronous, onError is unnecessary.
+     * @zh 出错时的回调，如果流水线是同步的，onError 是不必要的。
+     * @param options.input @en Something will be handled with pipeline. @zh 需要被此管道处理的任务数据。
+     * @param options.progress @en Progress information. @zh 进度信息。
+     * @param options.options @en Custom parameters. @zh 自定义参数。
+     * @returns @en return a newly created task. @zh 返回一个新创建的任务。
      *
      */
     public static create (options: ITaskOption): Task {
@@ -86,43 +86,43 @@ export default class Task {
 
     /**
      * @en
-     * The id of task
+     * The id of task.
      *
      * @zh
-     * 任务 id
+     * 任务 id。
      *
      */
     public id: number = Task._taskId++;
 
     /**
      * @en
-     * The callback when task is completed
+     * The callback when task is completed.
      *
      * @zh
-     * 完成回调
+     * 完成回调。
      *
      */
-    public onComplete: TaskCompleteCallback | null = null;
+    public onComplete: ((err: Error | null | undefined, data: any) => void) | null = null;
 
     /**
      * @en
-     * The callback of progression
+     * The callback of progression.
      *
      * @zh
-     * 进度回调
+     * 进度回调。
      *
      */
-    public onProgress: TaskProgressCallback | null = null;
+    public onProgress: ((...args: any[]) => void) | null = null;
 
     /**
      * @en
-     * The callback when something goes wrong
+     * The callback when something goes wrong.
      *
      * @zh
-     * 错误回调
+     * 错误回调。
      *
      */
-    public onError: TaskErrorCallback | null = null;
+    public onError: ((...args: any[]) => void) | null = null;
 
     /**
      * @en
@@ -174,7 +174,7 @@ export default class Task {
     public options: Record<string, any> | null = null;
 
     /**
-     * @deprecated Typo. Since v3.7, please us [[Task.isFinished]] instead.
+     * @deprecated Typo. Since v3.7, please use [[Task.isFinished]] instead.
      */
     public get isFinish () {
         return this.isFinished;
@@ -201,13 +201,20 @@ export default class Task {
      * @zh
      * 创建一个任务。
      *
-     * @param options - Some optional paramters
-     * @param options.onComplete - Callback when the task is completed, if the pipeline is synchronous, onComplete is unnecessary.
-     * @param options.onProgress - Continuously callback when the task is runing, if the pipeline is synchronous, onProgress is unnecessary.
-     * @param options.onError - Callback when something goes wrong, if the pipeline is synchronous, onError is unnecessary.
-     * @param options.input - Something will be handled with pipeline
-     * @param options.progress - Progress information, you may need to assign it manually when multiple pipeline share one progress
-     * @param options.options - Custom parameters
+     * @param options @en Some optional parameters. @zh 一些可选参数。
+     * @param options.onComplete
+     * @en Callback when the task complete, if the pipeline is synchronous, onComplete is unnecessary.
+     * @zh 任务完成后的回调，如果流水线是同步的，onComplete 是不必要的。
+     * @param options.onProgress
+     * @en Continuously callback when the task is running, if the pipeline is synchronous, onProgress is unnecessary.
+     * @zh 在任务运行时持续回调，如果管道是同步的，onProgress 是不必要的。
+     * @param options.onError
+     * @en Callback when something goes wrong, if the pipeline is synchronous, onError is unnecessary.
+     * @zh 出错时的回调，如果流水线是同步的，onError 是不必要的。
+     * @param options.input @en Something will be handled with pipeline. @zh 需要被此管道处理的任务数据。
+     * @param options.progress @en Progress information. @zh 进度信息。
+     * @param options.options @en Custom parameters. @zh 自定义参数。
+     * @returns @en return a newly created task. @zh 返回一个新创建的任务。
      */
     public constructor (options?: ITaskOption) {
         this.set(options);
@@ -220,13 +227,20 @@ export default class Task {
      * @zh
      * 设置任务的参数。
      *
-     * @param options - Some optional parameters
-     * @param options.onComplete - Callback when the task is completed, if the pipeline is synchronous, onComplete is unnecessary.
-     * @param options.onProgress - Continuously callback when the task is running, if the pipeline is synchronous, onProgress is unnecessary.
-     * @param options.onError - Callback when something goes wrong, if the pipeline is synchronous, onError is unnecessary.
-     * @param options.input - Something will be handled with pipeline
-     * @param options.progress - Progress information, you may need to assign it manually when multiple pipeline share one progress
-     * @param options.options - Custom parameters
+     * @param options @en Some optional parameters. @zh 一些可选参数。
+     * @param options.onComplete
+     * @en Callback when the task complete, if the pipeline is synchronous, onComplete is unnecessary.
+     * @zh 任务完成后的回调，如果流水线是同步的，onComplete 是不必要的。
+     * @param options.onProgress
+     * @en Continuously callback when the task is running, if the pipeline is synchronous, onProgress is unnecessary.
+     * @zh 在任务运行时持续回调，如果管道是同步的，onProgress 是不必要的。
+     * @param options.onError
+     * @en Callback when something goes wrong, if the pipeline is synchronous, onError is unnecessary.
+     * @zh 出错时的回调，如果流水线是同步的，onError 是不必要的。
+     * @param options.input @en Something will be handled with pipeline. @zh 需要被此管道处理的任务数据。
+     * @param options.progress @en Progress information. @zh 进度信息。
+     * @param options.options @en Custom parameters. @zh 自定义参数。
+     * @returns @en return a newly created task. @zh 返回一个新创建的任务。
      *
      * @example
      * const task = new Task();
@@ -251,11 +265,11 @@ export default class Task {
      * @zh
      * 分发事件，可以传递任意参数。
      *
-     * @param event - The event name
-     * @param param1 - Parameter 1
-     * @param param2 - Parameter 2
-     * @param param3 - Parameter 3
-     * @param param4 - Parameter 4
+     * @param event @en The event name. @zh 事件名称。
+     * @param param1 @en The parameter 1. @zh 参数 1。
+     * @param param2 @en The parameter 2. @zh 参数 2。
+     * @param param3 @en The parameter 3. @zh 参数 3。
+     * @param param4 @en The parameter 4. @zh 参数 4。
      *
      * @example
      * const task = Task.create();
