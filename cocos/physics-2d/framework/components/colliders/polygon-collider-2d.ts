@@ -46,7 +46,7 @@ export class PolygonCollider2D extends Collider2D {
      * @en Polygon points.
      * @zh 多边形顶点数组。
      */
-    @type(Vec2)
+    @type([Vec2])
     @tooltip('i18n:physics2d.collider.points')
     get points () {
         return this._points;
