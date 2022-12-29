@@ -113,8 +113,8 @@ public:
     void updateOctree();
     void updateWorldBoundUBOs();
     void updateLocalShadowBias();
-    void updateReflctionProbeCubemap(TextureCube *texture);
-    void updateReflctionProbePlanarMap(gfx::Texture *texture);
+    void updateReflectionProbeCubemap(TextureCube *texture);
+    void updateReflectionProbePlanarMap(gfx::Texture *texture);
 
     inline void attachToScene(RenderScene *scene) {
         _scene = scene;
