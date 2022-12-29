@@ -31,6 +31,10 @@ import { ParticleSystem } from './particle-system';
 import CurveRange from './animator/curve-range';
 import GradientRange from './animator/gradient-range';
 
+/**
+ * @en Contains some util functions for particle system. Such as create and destroy particle system.
+ * @zh 该类包含一些粒子系统的工具函数，例如创建和销毁粒子系统。
+ */
 export class ParticleUtils {
     /**
      * @en instantiate particle system from prefab

@@ -95,7 +95,7 @@ export class ParticleSystem extends ModelRenderer {
     }
 
     /**
-     * @en The initial color of the particle
+     * @en The initial color of the particle.
      * @zh 粒子初始颜色。
      */
     @type(GradientRange)
@@ -105,8 +105,8 @@ export class ParticleSystem extends ModelRenderer {
     public startColor = new GradientRange();
 
     /**
-     * @en The space of particle scaling
-     * @zh 计算粒子缩放的空间
+     * @en The space of particle scaling.
+     * @zh 计算粒子缩放的空间。
      */
     @type(Space)
     @serializable
@@ -124,7 +124,7 @@ export class ParticleSystem extends ModelRenderer {
     public startSize3D = false;
 
     /**
-     * @en The initial X size of the particle
+     * @en The initial X size of the particle.
      * @zh 粒子初始x轴方向大小。
      */
     @formerlySerializedAs('startSize')
@@ -135,7 +135,7 @@ export class ParticleSystem extends ModelRenderer {
     public startSizeX = new CurveRange();
 
     /**
-     * @en The initial Y size of the particle
+     * @en The initial Y size of the particle.
      * @zh 粒子初始y轴方向大小。
      */
     @type(CurveRange)
@@ -147,7 +147,7 @@ export class ParticleSystem extends ModelRenderer {
     public startSizeY = new CurveRange();
 
     /**
-     * @en The initial Z size of the particle
+     * @en The initial Z size of the particle.
      * @zh 粒子初始z轴方向大小。
      */
     @type(CurveRange)
@@ -918,6 +918,10 @@ export class ParticleSystem extends ModelRenderer {
         }
     }
 
+    /**
+     * @en Bind module to particle processor.
+     * @zh 把模块绑定到粒子更新函数上。
+     */
     public bindModule () {
         if (this._colorOverLifetimeModule) this._colorOverLifetimeModule.bindTarget(this.processor);
         if (this._sizeOvertimeModule) this._sizeOvertimeModule.bindTarget(this.processor);
@@ -935,7 +939,7 @@ export class ParticleSystem extends ModelRenderer {
     // }
 
     /**
-     * @en play particle system
+     * @en Play particle system
      * @zh 播放粒子效果。
      */
     public play () {
@@ -969,7 +973,7 @@ export class ParticleSystem extends ModelRenderer {
     }
 
     /**
-     * @en pause particle system
+     * @en Pause particle system
      * @zh 暂停播放粒子效果。
      */
     public pause () {
@@ -993,7 +997,7 @@ export class ParticleSystem extends ModelRenderer {
     }
 
     /**
-     * @en stop particle system
+     * @en Stop particle system
      * @zh 停止播放粒子。
      */
     public stop () {
@@ -1051,6 +1055,9 @@ export class ParticleSystem extends ModelRenderer {
         Vec2.set(this._customData1, x, y);
     }
 
+    /**
+     * @ignore
+     */
     public setCustomData2 (x, y) {
         Vec2.set(this._customData2, x, y);
     }
@@ -1548,6 +1555,12 @@ export class ParticleSystem extends ModelRenderer {
         return this.dataCulling ? props.filter((p) => !PARTICLE_MODULE_PROPERTY.includes(p) || (this[p] && this[p].enable)) : props;
     }
 
+    /**
+     * 
+     * @param width @en Noise texture width @zh 噪声图宽度
+     * @param height @en Noise texture height @zh 噪声图高度
+     * @returns @en Noise texture RGB pixel array @zh 噪声图 RGB 纹理数组
+     */
     public getNoisePreview (width: number, height: number): number[] {
         const out: number[] = [];
         if (this.processor) {
