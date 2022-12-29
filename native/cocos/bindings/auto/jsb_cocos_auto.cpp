@@ -1684,6 +1684,26 @@ static bool js_delete_cc_CCObject(se::State& s)
 }
 SE_BIND_FINALIZE_FUNC(js_delete_cc_CCObject) 
 
+static bool js_cc_CCObject_destruct(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::CCObject *arg1 = (cc::CCObject *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::CCObject>(s);
+    if (nullptr == arg1) return true;
+    (arg1)->destruct();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_CCObject_destruct) 
+
 static bool js_cc_CCObject__destroy(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -1901,6 +1921,7 @@ bool js_register_cc_CCObject(se::Object* obj) {
     cls->defineProperty("replicated", _SE(js_cc_CCObject_replicated_get), _SE(js_cc_CCObject_replicated_set)); 
     cls->defineProperty("isValid", _SE(js_cc_CCObject_isValid_get), nullptr); 
     
+    cls->defineFunction("destruct", _SE(js_cc_CCObject_destruct)); 
     cls->defineFunction("_destroy", _SE(js_cc_CCObject__destroy)); 
     cls->defineFunction("_destroyImmediate", _SE(js_cc_CCObject__destroyImmediate)); 
     cls->defineFunction("toString", _SE(js_cc_CCObject_toString)); 

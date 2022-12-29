@@ -1,3 +1,27 @@
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
 import { minigame } from 'pal/minigame';
 import { systemInfo } from 'pal/system-info';
 import { TAOBAO } from 'internal:constants';
@@ -125,11 +149,6 @@ export class AudioPlayerMinigame implements OperationQueueable {
                     this._needSeek = false;
                 }
             }
-
-            // TaoBao iOS: After calling pause or stop, when seek is called, it will automatically play and call onPlay.
-            if (TAOBAO && systemInfo.os === OS.IOS && (this._state === AudioState.PAUSED || this._state === AudioState.STOPPED)) {
-                innerAudioContext.pause();
-            }
         };
         innerAudioContext.onSeeked(this._onSeeked);
         this._onEnded = () => {
@@ -207,11 +226,6 @@ export class AudioPlayerMinigame implements OperationQueueable {
                 innerAudioContext.offError(fail);
             }
             function success () {
-                // TaoBao Android: Audio is loaded after play, onCanplay will also be called.
-                if (TAOBAO && systemInfo.os === OS.ANDROID) {
-                    innerAudioContext.pause();
-                    innerAudioContext.seek(0);
-                }
                 clearEvent();
                 clearTimeout(timer);
                 resolve(innerAudioContext);
@@ -224,12 +238,6 @@ export class AudioPlayerMinigame implements OperationQueueable {
             }
             innerAudioContext.onCanplay(success);
             innerAudioContext.onError(fail);
-
-            // TaoBao Android: Audio is loaded after play, onCanplay will also be called.
-            if (TAOBAO && systemInfo.os === OS.ANDROID) {
-                innerAudioContext.autoplay = true;
-                innerAudioContext.volume = 0;
-            }
             innerAudioContext.src = url;
         });
     }
@@ -281,14 +289,6 @@ export class AudioPlayerMinigame implements OperationQueueable {
     @enqueueOperation
     seek (time: number): Promise<void> {
         return new Promise((resolve) => {
-            // TaoBao Android: After calling stop, when seek is called, it will not play and response onEnded.
-            // Disable calling seek and play after calling stop on TaoBao Android.
-            if (TAOBAO  && systemInfo.os === OS.ANDROID && this._state === AudioState.STOPPED) {
-                console.warn('Failed to call seek.');
-                resolve();
-                return;
-            }
-
             // KNOWN ISSUES: on Baidu: currentTime returns without numbers on decimal places
             if (this._state === AudioState.PLAYING && !this._seeking) {
                 time = clamp(time, 0, this.duration);
@@ -318,31 +318,23 @@ export class AudioPlayerMinigame implements OperationQueueable {
             } else {
                 this._eventTarget.once(AudioEvent.PAUSED, resolve);
                 this._innerAudioContext.pause();
-
-                // TaoBao: After calling pause or stop, when pause is called, onPause will not respond.
-                if (TAOBAO && (this._state === AudioState.PAUSED || this._state === AudioState.STOPPED)) {
-                    this._onPause();
-                }
             }
         });
     }
 
     @enqueueOperation
     stop (): Promise<void> {
+        // NOTE: on Taobao, it is designed that innerAudioContext is useless after calling stop.
+        // so we implement stop as pase + seek.
+        if (TAOBAO) {
+            this._innerAudioContext.pause();
+            this._innerAudioContext.seek(0);
+            this._onStop?.();
+            return Promise.resolve();
+        }
         return new Promise((resolve) => {
             this._eventTarget.once(AudioEvent.STOPPED, resolve);
-
-            // TaoBao iOS: After calling stop, when stop is called, onStop will not respond.
-            // TaoBao iOS: After callsing pause, when stop is called, onStop will sometimes not respond.
-            if (TAOBAO && systemInfo.os === OS.IOS) {
-                const cacheTime = this.currentTime;
-                this._innerAudioContext.stop();
-                if (this._state === AudioState.STOPPED || ((this._state === AudioState.PAUSED && cacheTime === this.currentTime))) {
-                    this._onStop();
-                }
-            } else {
-                this._innerAudioContext.stop();
-            }
+            this._innerAudioContext.stop();
         });
     }
 

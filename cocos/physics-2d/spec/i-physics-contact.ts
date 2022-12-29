@@ -1,4 +1,26 @@
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
 
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
 
 import { Vec2 } from '../../core';
 import { Collider2D } from '../framework/components/colliders/collider-2d';
@@ -14,15 +36,15 @@ export interface IPhysics2DImpulse {
      * @en
      * Normal impulses.
      * @zh
-     * 法线方向的冲量
+     * 法线方向的冲量。
      * @property normalImpulses
      */
     normalImpulses: number[],
     /**
      * @en
-     * Tangent impulses
+     * Tangent impulses.
      * @zh
-     * 切线方向的冲量
+     * 切线方向的冲量。
      * @property tangentImpulses
      */
     tangentImpulses: number[],
@@ -45,24 +67,24 @@ export interface IPhysics2DWorldManifold {
 
     /**
      * @en
-     * a negative value indicates overlap
+     * a negative value indicates overlap.
      * @zh
-     * 一个负数，用于指明重叠的部分
+     * 一个负数，用于指明重叠的部分。
      */
     separations: number[],
 
     /**
      * @en
-     * world vector pointing from A to B
+     * world vector pointing from A to B.
      * @zh
-     * 世界坐标系下由 A 指向 B 的向量
+     * 世界坐标系下由 A 指向 B 的向量。
      */
     normal: Vec2,
 }
 
 /**
- * @en Manifold Type
- * @zh 流形类型
+ * @en Manifold Type.
+ * @zh 流形类型。
  */
 export enum Physics2DManifoldType {
     Circles,
@@ -84,14 +106,14 @@ export interface IPhysics2DManifoldPoint {
     /**
     * @en
     * The local point usage depends on the manifold type:
-    * - Physics2DManifoldType.Circles: the local center of circleB
-    * - Physics2DManifoldType.FaceA: the local center of circleB or the clip point of polygonB
-    * - Physics2DManifoldType.FaceB: the clip point of polygonA
+    * - Physics2DManifoldType.Circles: the local center of circleB.
+    * - Physics2DManifoldType.FaceA: the local center of circleB or the clip point of polygonB.
+    * - Physics2DManifoldType.FaceB: the clip point of polygonA.
     * @zh
-    * 本地坐标点的用途取决于 manifold 的类型
-    * - Physics2DManifoldType.Circles: circleB 的本地中心点
-    * - Physics2DManifoldType.FaceA: circleB 的本地中心点 或者是 polygonB 的截取点
-    * - Physics2DManifoldType.FaceB: polygonB 的截取点
+    * 本地坐标点的用途取决于 manifold 的类型。
+    * - Physics2DManifoldType.Circles: circleB 的本地中心点。
+    * - Physics2DManifoldType.FaceA: circleB 的本地中心点 或者是 polygonB 的截取点。
+    * - Physics2DManifoldType.FaceB: polygonB 的截取点。
     */
     localPoint: Vec2;
     /**
@@ -111,39 +133,39 @@ export interface IPhysics2DManifoldPoint {
 }
 
 /**
- * @en Manifold
- * @zh 流形
+ * @en Manifold.
+ * @zh 流形。
  */
 export interface IPhysics2DManifold {
     /**
      * @en
-     * Manifold type
+     * Manifold type.
      * @zh
-     * Manifold 类型
+     * Manifold 类型。
      */
     type: Physics2DManifoldType,
     /**
      * @en
      * The local point usage depends on the manifold type:
-     * -Physics2DManifoldType.Circles: the local center of circleA
-     * -Physics2DManifoldType.FaceA: the center of faceA
-     * -Physics2DManifoldType.FaceB: the center of faceB
+     * -Physics2DManifoldType.Circles: the local center of circleA.
+     * -Physics2DManifoldType.FaceA: the center of faceA.
+     * -Physics2DManifoldType.FaceB: the center of faceB.
      * @zh
      * 用途取决于 manifold 类型
-     * -Physics2DManifoldType.Circles: circleA 的本地中心点
-     * -Physics2DManifoldType.FaceA: faceA 的本地中心点
-     * -Physics2DManifoldType.FaceB: faceB 的本地中心点
+     * -Physics2DManifoldType.Circles: circleA 的本地中心点。
+     * -Physics2DManifoldType.FaceA: faceA 的本地中心点。
+     * -Physics2DManifoldType.FaceB: faceB 的本地中心点。
      */
     localPoint: Vec2,
     /**
      * @en
-     * -Physics2DManifoldType.Circles: not used
-     * -Physics2DManifoldType.FaceA: the normal on polygonA
-     * -Physics2DManifoldType.FaceB: the normal on polygonB
+     * -Physics2DManifoldType.Circles: not used.
+     * -Physics2DManifoldType.FaceA: the normal on polygonA.
+     * -Physics2DManifoldType.FaceB: the normal on polygonB.
      * @zh
-     * -Physics2DManifoldType.Circles: 没被使用到
-     * -Physics2DManifoldType.FaceA: polygonA 的法向量
-     * -Physics2DManifoldType.FaceB: polygonB 的法向量
+     * -Physics2DManifoldType.Circles: 没被使用到。
+     * -Physics2DManifoldType.FaceA: polygonA 的法向量。
+     * -Physics2DManifoldType.FaceB: polygonB 的法向量。
      */
     localNormal: Vec2,
 
@@ -167,16 +189,16 @@ export interface IPhysics2DManifold {
 export interface IPhysics2DContact {
     /**
      * @en
-     * One of the collider that collided
+     * One of the collider that collided.
      * @zh
-     * 发生碰撞的碰撞体之一
+     * 发生碰撞的碰撞体之一。
      */
     colliderA: Collider2D | null;
     /**
      * @en
-     * One of the collider that collided
+     * One of the collider that collided.
      * @zh
-     * 发生碰撞的碰撞体之一
+     * 发生碰撞的碰撞体之一。
      */
     colliderB: Collider2D | null;
     /**
@@ -217,8 +239,8 @@ export interface IPhysics2DContact {
      * Get the impulses.
      * Note: PhysicsImpulse can only used in onPostSolve callback.
      * @zh
-     * 获取冲量信息
-     * 注意：这个信息只有在 onPostSolve 回调中才能获取到
+     * 获取冲量信息。
+     * 注意：这个信息只有在 onPostSolve 回调中才能获取到。
      */
     getImpulse (): IPhysics2DImpulse | null;
 
@@ -233,14 +255,14 @@ export interface IPhysics2DContact {
      * @en
      * Set the desired tangent speed for a conveyor belt behavior.
      * @zh
-     * 为传送带设置期望的切线速度
+     * 为传送带设置期望的切线速度。
      */
     setTangentSpeed (value: number);
     /**
      * @en
      * Get the desired tangent speed.
      * @zh
-     * 获取切线速度
+     * 获取切线速度。
      */
     getTangentSpeed (): number;
 
@@ -255,7 +277,7 @@ export interface IPhysics2DContact {
      * @en
      * Get the friction.
      * @zh
-     * 获取当前摩擦力系数
+     * 获取当前摩擦力系数。
      */
     getFriction (): number;
     /**
@@ -269,7 +291,7 @@ export interface IPhysics2DContact {
      * @en
      * Get the restitution.
      * @zh
-     * 获取当前恢复系数
+     * 获取当前恢复系数。
      */
     getRestitution (): number;
 }

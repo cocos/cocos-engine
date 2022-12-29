@@ -23,7 +23,7 @@ layout(set = 0, binding = 1) uniform CCCamera {
   highp   mat4 cc_matViewProj; // view-projection matrix
   highp   mat4 cc_matViewProjInv; // inverse view-projection matrix
   highp   vec4 cc_cameraPos; // xyz: camera position w: flip NDC sign
-  mediump vec4 cc_surfaceTransform; // x: surface transform y: unused zw: skybox rotation angle cos/sin value
+  mediump vec4 cc_surfaceTransform; // x: surface transform y: camera usage zw: skybox rotation angle cos/sin value
   mediump vec4 cc_screenScale; // xy: screen scale, zw: inverse screen scale
   mediump vec4 cc_exposure; // x: exposure, y: inverse exposure, z: HDR flag, w: inverse standard exposure value
   mediump vec4 cc_mainLitDir; // xyz: main direcitonal light direction, w: enable shadow

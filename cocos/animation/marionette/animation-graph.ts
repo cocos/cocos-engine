@@ -1,9 +1,32 @@
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
 import { ccclass, serializable } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
-import { js, clamp, assertIsNonNullable, assertIsTrue, EditorExtendable, move } from '../../core';
+import { js, clamp, assertIsNonNullable, assertIsTrue, EditorExtendable, shift } from '../../core';
 import { MotionEval, MotionEvalContext } from './motion';
 import type { Condition } from './condition';
-import { Asset } from '../../asset/assets';
 import { OwnedBy, assertsOwnedBy, own, markAsDangling, ownerSymbol } from './ownership';
 import { TriggerResetMode, Value, VariableType } from './variable';
 import { InvalidTransitionError } from './errors';
@@ -578,7 +601,7 @@ export class StateMachine extends EditorExtendable {
         }
         // eslint-disable-next-line no-lone-blocks
         { // 2. Adjust the order in outgoing array.
-            move(outgoings, iAdjusting, iNew);
+            shift(outgoings, iAdjusting, iNew);
         }
     }
 
@@ -901,7 +924,7 @@ export class AnimationGraph extends AnimationGraphLike implements AnimationGraph
      * @param newIndex
      */
     public moveLayer (index: number, newIndex: number) {
-        move(this._layers, index, newIndex);
+        shift(this._layers, index, newIndex);
     }
 
     /**

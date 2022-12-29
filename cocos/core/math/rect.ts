@@ -1,19 +1,18 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -84,7 +83,7 @@ export class Rect extends ValueType {
 
     /**
      * @en Returns the overlapping portion of 2 rectangles.
-     * @zh 计算当前矩形与指定矩形重叠部分的矩形，将其赋值给出口矩形。
+     * @zh 计算当前矩形与指定矩形重叠部分的矩形，将其赋值给输出矩形。
      * @param out Output Rect.
      * @param one One of the specify Rect.
      * @param other Another of the specify Rect.
@@ -108,7 +107,7 @@ export class Rect extends ValueType {
 
     /**
      * @en Returns the smallest rectangle that contains the current rect and the given rect.
-     * @zh 创建同时包含当前矩形和指定矩形的最小矩形，将其赋值给出口矩形。
+     * @zh 创建同时包含当前矩形和指定矩形的最小矩形，将其赋值给输出矩形。
      * @param out Output Rect.
      * @param one One of the specify Rect.
      * @param other Another of the specify Rect.
