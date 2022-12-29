@@ -27,9 +27,9 @@ import { Billboard } from './billboard';
 import { Line } from './line';
 import { ParticleSystem } from './particle-system';
 import { ParticleUtils } from './particle-utils';
-import CurveRange from './modules/curve-range';
+import { CurveRange } from './curve-range';
 import { legacyCC } from '../core/global-exports';
-import GradientRange from './gradient-range';
+import { GradientRange } from './gradient-range';
 import Gradient, { AlphaKey, ColorKey } from './gradient';
 import Burst from './burst';
 

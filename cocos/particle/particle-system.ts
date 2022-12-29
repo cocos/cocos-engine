@@ -33,8 +33,8 @@ import { InitializationModule } from './modules/initialization';
 import { CurveRange, Mode } from './curve-range';
 import { ForceOvertimeModule } from './modules/force-overtime';
 import { LimitVelocityOvertimeModule } from './modules/limit-velocity-overtime';
-import { RotationOvertimeModule } from './modules/rotation-overtime';
-import { SizeOvertimeModule } from './modules/size-overtime';
+import { RotationOvertimeModule } from './modules/rotation-over-lifetime';
+import { SizeOvertimeModule } from './modules/size-over-lifetime';
 import { TextureAnimationModule } from './modules/texture-animation';
 import { VelocityOvertimeModule } from './modules/velocity-overtime';
 import { EmissionModule } from './modules/emission';
@@ -60,7 +60,7 @@ const _world_rol = new Quat();
 @help('i18n:cc.ParticleSystem')
 @menu('Effects/ParticleSystem')
 @executionOrder(99)
-@requireComponent(ParticleSystemRenderer)
+//@requireComponent(ParticleSystemRenderer)
 @executeInEditMode
 export class ParticleSystem extends Component {
     /**
@@ -373,12 +373,12 @@ export class ParticleSystem extends Component {
         return this._trailModule;
     }
 
-    @type(ParticleSystemRenderer)
-    @displayOrder(26)
-    @tooltip('i18n:particle_system.renderer')
-    public get renderer () {
-        return this.getComponent(ParticleSystemRenderer) as ParticleSystemRenderer;
-    }
+    // @type(ParticleSystemRenderer)
+    // @displayOrder(26)
+    // @tooltip('i18n:particle_system.renderer')
+    // public get renderer () {
+    //     return this.getComponent(ParticleSystemRenderer) as ParticleSystemRenderer;
+    // }
 
     @serializable
     private _emissionModule = new EmissionModule();

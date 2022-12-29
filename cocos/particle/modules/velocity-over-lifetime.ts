@@ -39,8 +39,8 @@ const VELOCITY_Z_OVERTIME_RAND_OFFSET = ModuleRandSeed.VELOCITY_Z;
 
 const _temp_v3 = new Vec3();
 
-@ccclass('cc.VelocityOvertimeModule')
-export class VelocityOvertimeModule extends ParticleModule {
+@ccclass('cc.VelocityOverLifetimeModule')
+export class VelocityOverLifetimeModule extends ParticleModule {
     public get name (): string {
         return 'velocityModule';
     }

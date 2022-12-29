@@ -32,8 +32,8 @@ import { ModuleRandSeed, RenderMode } from '../enum';
 
 const ROTATION_OVERTIME_RAND_OFFSET = ModuleRandSeed.ROTATION;
 
-@ccclass('cc.RotationOvertimeModule')
-export class RotationOvertimeModule extends ParticleModule {
+@ccclass('cc.RotationOverLifetimeModule')
+export class RotationOverLifetimeModule extends ParticleModule {
     public get name (): string {
         return 'rotationModule';
     }
@@ -77,7 +77,7 @@ export class RotationOvertimeModule extends ParticleModule {
     @radian
     @displayOrder(2)
     @tooltip('i18n:rotationOvertimeModule.x')
-    @visible(function (this: RotationOvertimeModule): boolean { return this.separateAxes; })
+    @visible(function (this: RotationOverLifetimeModule): boolean { return this.separateAxes; })
     public x = new CurveRange();
 
     /**
@@ -89,7 +89,7 @@ export class RotationOvertimeModule extends ParticleModule {
     @radian
     @displayOrder(3)
     @tooltip('i18n:rotationOvertimeModule.y')
-    @visible(function (this: RotationOvertimeModule): boolean { return this.separateAxes; })
+    @visible(function (this: RotationOverLifetimeModule): boolean { return this.separateAxes; })
     public y = new CurveRange();
 
     /**
