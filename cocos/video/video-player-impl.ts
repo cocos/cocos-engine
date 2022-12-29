@@ -35,8 +35,8 @@ export abstract class VideoPlayerImpl {
     protected _state = EventType.NONE;
     protected _video: HTMLVideoElement | null = null;
 
-    protected _onHide: () => void;
-    protected _onShow: () => void;
+    protected _onInterruptedBegin: () => void;
+    protected _onInterruptedEnd: () => void;
     protected _interrupted = false;
 
     protected _loaded = false;
@@ -74,20 +74,20 @@ export abstract class VideoPlayerImpl {
         this._component = component;
         this._node = component.node;
         this._uiTrans = component.node.getComponent(UITransform);
-        this._onHide = () => {
+        this._onInterruptedBegin = () => {
             if (!this.video || this._state !== EventType.PLAYING) { return; }
             this.video.pause();
             this._interrupted = true;
         };
-        this._onShow = () => {
+        this._onInterruptedEnd = () => {
             if (!this._interrupted || !this.video) { return; }
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.video.play();
             this._interrupted = false;
         };
-        /* handle hide & show */
-        legacyCC.game.on(legacyCC.Game.EVENT_HIDE, this._onHide);
-        legacyCC.game.on(legacyCC.Game.EVENT_SHOW, this._onShow);
+        /* handle pause & resume */
+        legacyCC.game.on(legacyCC.Game.EVENT_PAUSE, this._onInterruptedBegin);
+        legacyCC.game.on(legacyCC.Game.EVENT_RESUME, this._onInterruptedEnd);
     }
 
     //
@@ -113,7 +113,7 @@ export abstract class VideoPlayerImpl {
     public abstract syncPlaybackRate(val: number): void;
     public abstract syncVolume(val: number): void;
     public abstract syncMute(enabled: boolean): void;
-    public abstract syncLoop(enabled: boolean):void
+    public abstract syncLoop(enabled: boolean): void
     public abstract syncMatrix(): void;
 
     // get video player data
@@ -252,8 +252,8 @@ export abstract class VideoPlayerImpl {
     public destroy () {
         this.removeVideoPlayer();
         this._componentEventList.clear();
-        legacyCC.game.off(legacyCC.Game.EVENT_HIDE, this._onHide);
-        legacyCC.game.off(legacyCC.Game.EVENT_SHOW, this._onShow);
+        legacyCC.game.off(legacyCC.Game.EVENT_PAUSE, this._onInterruptedBegin);
+        legacyCC.game.off(legacyCC.Game.EVENT_RESUME, this._onInterruptedEnd);
     }
 }
 

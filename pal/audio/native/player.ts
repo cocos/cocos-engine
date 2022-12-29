@@ -29,6 +29,7 @@ import { legacyCC } from '../../../cocos/core/global-exports';
 import { clamp, clamp01 } from '../../../cocos/core';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
 import { Platform } from '../../system-info/enum-type';
+import { Game, game } from '../../../cocos/game';
 
 const urlCount: Record<string, number> = {};
 const audioEngine = jsb.AudioEngine;
@@ -131,17 +132,17 @@ export class AudioPlayer implements OperationQueueable {
         // this._pcmHeader = audioEngine.getPCMHeader(url);
         this._pcmHeader = null;
         // event
-        systemInfo.on('hide', this._onHide, this);
-        systemInfo.on('show', this._onShow, this);
+        game.on(Game.EVENT_PAUSE, this._onInterruptedBegin, this);
+        game.on(Game.EVENT_RESUME, this._onInterruptedEnd, this);
     }
     destroy () {
-        systemInfo.on('hide', this._onHide, this);
-        systemInfo.on('show', this._onShow, this);
+        game.off(Game.EVENT_PAUSE, this._onInterruptedBegin, this);
+        game.off(Game.EVENT_RESUME, this._onInterruptedEnd, this);
         if (--urlCount[this._url] <= 0) {
             audioEngine.uncache(this._url);
         }
     }
-    private _onHide () {
+    private _onInterruptedBegin () {
         if (this._state === AudioState.PLAYING) {
             this.pause().then(() => {
                 this._state = AudioState.INTERRUPTED;
@@ -149,7 +150,7 @@ export class AudioPlayer implements OperationQueueable {
             }).catch((e) => {});
         }
     }
-    private _onShow () {
+    private _onInterruptedEnd () {
         if (this._state === AudioState.INTERRUPTED) {
             this.play().then(() => {
                 this._eventTarget.emit(AudioEvent.INTERRUPTION_END);
