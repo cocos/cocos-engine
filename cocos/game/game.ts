@@ -295,7 +295,7 @@ export class Game extends EventTarget {
      * @example
      * ```ts
      * import { game, audioEngine } from 'cc';
-     * game.on(Game.EVENT_PAUSE_AUDIO, function () {
+     * game.on(Game.EVENT_PAUSE, function () {
      *     audioEngine.pauseMusic();
      *     audioEngine.pauseAllEffects();
      * });
