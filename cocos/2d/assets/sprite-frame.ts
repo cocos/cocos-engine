@@ -51,7 +51,6 @@ enum MeshType {
 }
 
 /**
- * @internal
  * @deprecated since v3.7
  */
 export interface IUV {
