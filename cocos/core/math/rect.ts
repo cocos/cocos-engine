@@ -83,7 +83,7 @@ export class Rect extends ValueType {
 
     /**
      * @en Returns the overlapping portion of 2 rectangles.
-     * @zh 计算当前矩形与指定矩形重叠部分的矩形，将其赋值给出口矩形。
+     * @zh 计算当前矩形与指定矩形重叠部分的矩形，将其赋值给输出矩形。
      * @param out Output Rect.
      * @param one One of the specify Rect.
      * @param other Another of the specify Rect.
@@ -107,7 +107,7 @@ export class Rect extends ValueType {
 
     /**
      * @en Returns the smallest rectangle that contains the current rect and the given rect.
-     * @zh 创建同时包含当前矩形和指定矩形的最小矩形，将其赋值给出口矩形。
+     * @zh 创建同时包含当前矩形和指定矩形的最小矩形，将其赋值给输出矩形。
      * @param out Output Rect.
      * @param one One of the specify Rect.
      * @param other Another of the specify Rect.
