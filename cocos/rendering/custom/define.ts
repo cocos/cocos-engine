@@ -315,7 +315,7 @@ export function buildBloomPass (camera: Camera,
     }
     ppl.updateRenderTarget(bloomPassPrefilterRTName, width, height);
     ppl.updateDepthStencil(bloomPassPrefilterDSName, width, height);
-    const bloomPrefilterPass = ppl.addRasterPass(width, height, 'Bloom_Prefilter');
+    const bloomPrefilterPass = ppl.addRasterPass(width, height, 'bloom-prefilter');
     bloomPrefilterPass.name = `CameraBloomPrefilterPass${cameraID}`;
     bloomPrefilterPass.setViewport(new Viewport(area.x, area.y, width, height));
     if (ppl.containsResource(inputRT)) {
@@ -347,7 +347,7 @@ export function buildBloomPass (camera: Camera,
         }
         ppl.updateRenderTarget(bloomPassDownSampleRTName, width, height);
         ppl.updateDepthStencil(bloomPassDownSampleDSName, width, height);
-        const bloomDownSamplePass = ppl.addRasterPass(width, height, `Bloom_Downsample${i}`);
+        const bloomDownSamplePass = ppl.addRasterPass(width, height, `bloom-downsample${i}`);
         bloomDownSamplePass.name = `CameraBloomDownSamplePass${cameraID}${i}`;
         bloomDownSamplePass.setViewport(new Viewport(area.x, area.y, width, height));
         const computeView = new ComputeView();
@@ -382,7 +382,7 @@ export function buildBloomPass (camera: Camera,
         }
         ppl.updateRenderTarget(bloomPassUpSampleRTName, width, height);
         ppl.updateDepthStencil(bloomPassUpSampleDSName, width, height);
-        const bloomUpSamplePass = ppl.addRasterPass(width, height, `Bloom_Upsample${i}`);
+        const bloomUpSamplePass = ppl.addRasterPass(width, height, `bloom-upsample${i}`);
         bloomUpSamplePass.name = `CameraBloomUpSamplePass${cameraID}${bloomData.iterations - 1 - i}`;
         bloomUpSamplePass.setViewport(new Viewport(area.x, area.y, width, height));
         const computeView = new ComputeView();
@@ -416,7 +416,7 @@ export function buildBloomPass (camera: Camera,
     }
     ppl.updateRenderTarget(bloomPassCombineRTName, width, height);
     ppl.updateDepthStencil(bloomPassCombineDSName, width, height);
-    const bloomCombinePass = ppl.addRasterPass(width, height, 'Bloom_Combine');
+    const bloomCombinePass = ppl.addRasterPass(width, height, 'bloom-combine');
     bloomCombinePass.name = `CameraBloomCombinePass${cameraID}`;
     bloomCombinePass.setViewport(new Viewport(area.x, area.y, width, height));
     const computeViewOut = new ComputeView();
@@ -486,7 +486,7 @@ export function buildPostprocessPass (camera: Camera,
     }
     ppl.updateRenderWindow(postprocessPassRTName, camera.window);
     ppl.updateDepthStencil(postprocessPassDS, width, height);
-    const postprocessPass = ppl.addRasterPass(width, height, 'Postprocess');
+    const postprocessPass = ppl.addRasterPass(width, height, 'post-process');
     postprocessPass.name = `CameraPostprocessPass${cameraID}`;
     postprocessPass.setViewport(new Viewport(area.x, area.y, area.width, area.height));
     if (ppl.containsResource(inputTex)) {
@@ -777,7 +777,7 @@ export function buildGBufferPass (camera: Camera,
     ppl.updateRenderTarget(gBufferPassEmissive, width, height);
     ppl.updateDepthStencil(gBufferPassDSName, width, height);
     // gbuffer pass
-    const gBufferPass = ppl.addRasterPass(width, height, 'Geometry');
+    const gBufferPass = ppl.addRasterPass(width, height, 'default');
     gBufferPass.name = `CameraGBufferPass${cameraID}`;
     gBufferPass.setViewport(new Viewport(area.x, area.y, area.width, area.height));
     const rtColor = new Color(0, 0, 0, 0);
@@ -866,7 +866,7 @@ export function buildLightingPass (camera: Camera, ppl: Pipeline, gBuffer: GBuff
     ppl.updateRenderTarget(deferredLightingPassRTName, width, height);
     ppl.updateDepthStencil(deferredLightingPassDS, width, height);
     // lighting pass
-    const lightingPass = ppl.addRasterPass(width, height, 'Lighting');
+    const lightingPass = ppl.addRasterPass(width, height, 'deferred-lighting');
     lightingPass.name = `CameraLightingPass${cameraID}`;
     lightingPass.setViewport(new Viewport(area.x, area.y, width, height));
     for (const dirShadowName of cameraInfo.mainLightShadowNames) {
