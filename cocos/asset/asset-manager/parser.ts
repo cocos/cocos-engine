@@ -211,7 +211,7 @@ export class Parser {
      * Use corresponding handler to parse file.
      *
      * @zh
-     * 使用对应的handler来解析文件。
+     * 使用对应的 handler 来解析文件。
      *
      * @param id @en The id of file. @zh 文件的唯一 id。
      * @param file @en The data of file. @zh 文件的数据。

@@ -244,7 +244,7 @@ export class EffectAsset extends Asset {
     }
 
     /**
-     * @en Get the effect asset by the given name.
+     * @en Gets the effect asset by the given name.
      * @zh 获取指定名字的 effect 资源。
      *
      * @param name - @en The name of effect you want to get. @zh 想要获取的 effect 的名字。
@@ -264,7 +264,7 @@ export class EffectAsset extends Asset {
     }
 
     /**
-     * @en Get all registered effect assets.
+     * @en Gets all registered effect assets.
      * @zh 获取所有已注册的 effect 资源。
      * @returns @en All registered effects. @zh 所有已注册的 effect 资源。
      */

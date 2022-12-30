@@ -271,12 +271,10 @@ export class Asset extends Eventify(CCObject) {
 
     /**
      * @en
-     * Current number of references to this asset.
+     * Current reference count to this asset.
      *
      * @zh
      * 当前该资源被引用的数量。
-     *
-     * @en The number of references to this asset. @zh 被引用的数量。
      */
     public get refCount (): number {
         return this._ref;
@@ -284,13 +282,13 @@ export class Asset extends Eventify(CCObject) {
 
     /**
      * @en
-     * Add references of asset. This will prevent resources from being automatically recycled.
+     * Increase the reference count. This will prevent assets from being automatically recycled.
      * When you no longer need to hold the asset, you need to using [[decRef]] to decrease the refCount.
      *
      * @zh
      * 增加资源的引用。这将阻止资源被自动释放。当你不再需要持有该资源时，你需要调用 [[decRef]] 来减少引用计数。
      *
-     * @return @en The asset itself. @zh 此资源本身。
+     * @returns @en The asset itself. @zh 此资源本身。
      *
      */
     public addRef (): Asset {
@@ -300,7 +298,7 @@ export class Asset extends Eventify(CCObject) {
 
     /**
      * @en
-     * Reduce references of asset and it will be auto released when refCount equals 0.
+     * Decrease the reference count and it will be auto released when refCount equals 0.
      *
      * @zh
      * 减少资源的引用，如果引用数量为 0，则将自动释放该资源。
@@ -320,7 +318,7 @@ export class Asset extends Eventify(CCObject) {
 
     /**
      * @en
-     * A callback after the resource is loaded that you can use to initialize the asset's internal data.
+     * A callback after the asset is loaded that you can use to initialize the asset's internal data.
      *
      * @zh
      * 资源加载后的回调，你可以用于初始化资源的内部数据。
@@ -331,7 +329,7 @@ export class Asset extends Eventify(CCObject) {
 
     /**
      * @en
-     * Initialize to default asset.
+     * Initializes default asset.
      *
      * @zh
      * 初始化为默认资源。

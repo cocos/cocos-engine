@@ -160,16 +160,16 @@ export class AssetManager {
     public assets: ICache<Asset> = assets;
 
     /**
-     * @engineInternal only using in L10N for now.
+     * @internal only using in L10N for now.
      */
     public readonly assetsOverrideMap = assetsOverrideMap;
 
     /**
-     * @engineInternal
+     * @internal
      */
     public generalImportBase = '';
     /**
-     * @engineInternal
+     * @internal
      */
     public generalNativeBase = '';
 
@@ -274,27 +274,27 @@ export class AssetManager {
     public presets = presets;
 
     /**
-     * @engineInternal
+     * @internal
      */
     public factory = factory;
 
     /**
-     * @engineInternal
+     * @internal
      */
     public preprocessPipe = preprocess;
 
     /**
-     * @engineInternal
+     * @internal
      */
     public fetchPipe = fetch;
 
     /**
-     * @engineInternal
+     * @internal
      */
     public loadPipe = load;
 
     /**
-     * @engineInternal
+     * @internal
      */
     public references = references;
 
@@ -353,7 +353,7 @@ export class AssetManager {
      * 初始化资源管理器，引擎在启动时，将会自动调用此方法，你不应该在任何时候手动调用此方法。
      *
      * @param options @en The configuration of asset manager. @zh 资源管理器的配置选项。
-     * @engineInternal
+     * @internal
      */
     public init (options: IAssetManagerOptions = {}) {
         const server = options.server || settings.querySettings(Settings.Category.ASSETS, 'server') || '';

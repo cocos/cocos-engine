@@ -208,10 +208,10 @@ export class TextureBase extends Asset {
     }
 
     /**
-     * @en Sets the texture's filter mode
+     * @en Sets the texture's filter mode.
      * @zh 设置此贴图的过滤算法。
-     * @param minFilter Filter mode for scale down
-     * @param magFilter Filter mode for scale up
+     * @param minFilter @en Filter mode for scale down. @zh 贴图缩小时使用的过滤模式。
+     * @param magFilter @en Filter mode for scale up. @zh 贴图放大时使用的过滤模式。
      */
     public setFilters (minFilter: Filter, magFilter: Filter) {
         this._minFilter = minFilter;
@@ -225,9 +225,9 @@ export class TextureBase extends Asset {
     }
 
     /**
-     * @en Sets the texture's mip filter
-     * @zh 设置此贴图的缩小过滤算法。
-     * @param mipFilter Filter mode for scale down
+     * @en Sets the texture's mip filter mode.
+     * @zh 设置此贴图的多层 mip 过滤算法。
+     * @param mipFilter @en Filter mode for multiple mip level. @zh 多层 mip 过滤模式。
      */
     public setMipFilter (mipFilter: Filter) {
         this._mipFilter = mipFilter;
@@ -239,9 +239,9 @@ export class TextureBase extends Asset {
     }
 
     /**
-     * @en Sets the texture's anisotropy
+     * @en Sets the texture's anisotropy.
      * @zh 设置此贴图的各向异性。
-     * @param anisotropy
+     * @param anisotropy @en The anisotropy to be set. @zh 待设置的各向异性数值。
      */
     public setAnisotropy (anisotropy: number) {
         this._anisotropy = anisotropy;
