@@ -1,19 +1,18 @@
 /* eslint-disable max-len */
 /*
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -22,17 +21,16 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { EDITOR } from 'internal:constants';
 import { MeshRenderer, ReflectionProbeType } from '../3d/framework/mesh-renderer';
 import { Vec3, geometry, cclegacy } from '../core';
 import { director, Director } from '../game';
-import { Address, BufferTextureCopy, deviceManager, Filter, Format, SamplerInfo, Texture, TextureInfo, TextureType, TextureUsageBit } from '../gfx';
+import { Texture } from '../gfx';
 import { Camera, Model } from '../render-scene/scene';
 import { ProbeType, ReflectionProbe } from '../render-scene/scene/reflection-probe';
 import { Layers } from '../scene-graph/layers';
-import { UNIFORM_REFLECTION_PROBE_MAP_BINDING } from './define';
 
 const REFLECTION_PROBE_DEFAULT_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.UI_3D, Layers.BitMask.GIZMOS, Layers.BitMask.EDITOR,
     Layers.BitMask.SCENE_GIZMO, Layers.BitMask.PROFILER, Layers.Enum.IGNORE_RAYCAST]);
@@ -54,78 +52,9 @@ export class ReflectionProbeManager {
      * 场景中所有使用planar类型反射探针的模型
      */
     private _usePlanarModels = new Map<Model, ReflectionProbe>();
-    protected _texture: Texture | null = null;
+
     constructor () {
         director.on(Director.EVENT_BEFORE_UPDATE, this.onUpdateProbes, this);
-    }
-
-    public updateDateTexture () {
-        if (this._probes.length === 0) return;
-
-        const dataWidth = 3;
-        if (!this._texture) {
-            this._texture = deviceManager.gfxDevice.createTexture(new TextureInfo(
-                TextureType.TEX2D,
-                TextureUsageBit.SAMPLED | TextureUsageBit.TRANSFER_DST,
-                Format.RGBA32F,
-                dataWidth,
-                this._probes.length,
-            ));
-        } else {
-            this._texture.resize(dataWidth, this._probes.length);
-        }
-
-        const buffer = new Float32Array(4 * dataWidth * this._probes.length);
-        let bufferOffset = 0;
-        for (let i = 0; i < this._probes.length; i++) {
-            //world pos
-            buffer[bufferOffset] = this._probes[i].node.worldPosition.x;
-            buffer[bufferOffset + 1] = this._probes[i].node.worldPosition.y;
-            buffer[bufferOffset + 2] = this._probes[i].node.worldPosition.z;
-            buffer[bufferOffset + 3] = 0;
-            if (this._probes[i].probeType === ProbeType.CUBE) {
-                //half box size
-                buffer[bufferOffset + 4] = 1;
-                buffer[bufferOffset + 5] = 1;
-                buffer[bufferOffset + 6] = 0;
-                buffer[bufferOffset + 7] = 0;
-                //mip count
-                buffer[bufferOffset + 8] = this._probes[i].cubemap!.mipmapLevel;
-            } else {
-                //plane.w;
-                //planarReflectionDepthScale
-                //mipCount;
-                buffer[bufferOffset + 4] = 1;
-                buffer[bufferOffset + 5] = 1;
-                buffer[bufferOffset + 6] = 0;
-                buffer[bufferOffset + 7] = 0;
-
-                buffer[bufferOffset + 8] = 0;
-            }
-            buffer[bufferOffset + 9] = 0;
-            buffer[bufferOffset + 10] = 0;
-            buffer[bufferOffset + 11] = 0;
-
-            bufferOffset += 4 * dataWidth;
-        }
-        const region = new BufferTextureCopy();
-        region.texOffset.x = 0;
-        region.texOffset.y = 0;
-        region.texExtent.width = dataWidth;
-        region.texExtent.height = this._probes.length;
-
-        deviceManager.gfxDevice.copyBuffersToTexture([buffer], this._texture, [region]);
-        const ds = (cclegacy.director.root).pipeline.descriptorSet;
-        const sampler = deviceManager.gfxDevice.getSampler(new SamplerInfo(
-            Filter.LINEAR,
-            Filter.LINEAR,
-            Filter.NONE,
-            Address.CLAMP,
-            Address.CLAMP,
-            Address.CLAMP,
-        ));
-        ds.bindSampler(UNIFORM_REFLECTION_PROBE_MAP_BINDING, sampler);
-        ds.bindTexture(UNIFORM_REFLECTION_PROBE_MAP_BINDING, this._texture);
     }
 
     /**
@@ -184,7 +113,6 @@ export class ReflectionProbeManager {
         const index = this._probes.indexOf(probe);
         if (index === -1) {
             this._probes.push(probe);
-            this.updateDateTexture();
         }
     }
 

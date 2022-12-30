@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -32,26 +31,21 @@
 #include "RenderBatchedQueue.h"
 #include "RenderInstancedQueue.h"
 #include "core/geometry/AABB.h"
+#include "core/geometry/Intersect.h"
 #include "forward/ForwardPipeline.h"
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXDevice.h"
 #include "renderer/core/ProgramLib.h"
-#include "scene/ReflectionProbeManager.h"
 #include "scene/Camera.h"
-#include "scene/ReflectionProbe.h"
-#include "scene/Skybox.h"
 #include "scene/Define.h"
-#include "core/geometry/Intersect.h"
+#include "scene/ReflectionProbe.h"
+#include "scene/ReflectionProbeManager.h"
+#include "scene/Skybox.h"
 namespace cc {
 namespace pipeline {
-const static uint32_t REFLECTION_PROBE_DEFAULT_MASK = ~static_cast<uint32_t>(LayerList::UI_2D)
-    & ~static_cast<uint32_t>(LayerList::PROFILER)
-    & ~static_cast<uint32_t>(LayerList::UI_3D)
-    & ~static_cast<uint32_t>(LayerList::GIZMOS)
-    & ~static_cast<uint32_t>(LayerList::SCENE_GIZMO)
-    & ~static_cast<uint32_t>(LayerList::EDITOR);
+const static uint32_t REFLECTION_PROBE_DEFAULT_MASK = ~static_cast<uint32_t>(LayerList::UI_2D) & ~static_cast<uint32_t>(LayerList::PROFILER) & ~static_cast<uint32_t>(LayerList::UI_3D) & ~static_cast<uint32_t>(LayerList::GIZMOS) & ~static_cast<uint32_t>(LayerList::SCENE_GIZMO) & ~static_cast<uint32_t>(LayerList::EDITOR);
 const ccstd::string CC_USE_RGBE_OUTPUT = "CC_USE_RGBE_OUTPUT";
-const cc::scene::IMacroPatch MACRO_PATCH_RGBE_OUTPUT{ CC_USE_RGBE_OUTPUT, true};
+const cc::scene::IMacroPatch MACRO_PATCH_RGBE_OUTPUT{CC_USE_RGBE_OUTPUT, true};
 ReflectionProbeBatchedQueue::ReflectionProbeBatchedQueue(RenderPipeline *pipeline)
 : _phaseID(getPhaseID("default")), _phaseReflectMapID(getPhaseID("reflect-map")) {
     _pipeline = pipeline;
@@ -86,6 +80,9 @@ void ReflectionProbeBatchedQueue::gatherRenderObjects(const scene::Camera *camer
     for (const auto &model : scene->getModels()) {
         const auto *node = model->getNode();
         const auto *worldBounds = model->getWorldBounds();
+        if (scene->isCulledByLod(camera, model)) {
+            continue;
+        }
         if (!node || !model->isEnabled() || !worldBounds || !model->getBakeToReflectionProbe()) continue;
         uint32_t visibility = probe->getCamera()->getVisibility();
         if (probe->getProbeType() == scene::ReflectionProbe::ProbeType::CUBE) {
@@ -132,7 +129,7 @@ void ReflectionProbeBatchedQueue::add(const scene::Model *model) {
         auto *pass = subModel->getPass(passIdx);
         const auto batchingScheme = pass->getBatchingScheme();
 
-        if (!bUseReflectPass) {      
+        if (!bUseReflectPass) {
             auto patches = const_cast<ccstd::vector<cc::scene::IMacroPatch> &>(subModel->getPatches());
             patches.emplace_back(MACRO_PATCH_RGBE_OUTPUT);
             subModel->onMacroPatchesStateChanged(patches);
@@ -182,7 +179,7 @@ void ReflectionProbeBatchedQueue::resetMacro() const {
         for (auto iter = patches.begin(); iter != patches.end(); iter++) {
             if (iter->name == CC_USE_RGBE_OUTPUT) {
                 patches.erase(iter);
-                const_cast<scene::SubModel*>(subModel)->onMacroPatchesStateChanged(patches);
+                const_cast<scene::SubModel *>(subModel)->onMacroPatchesStateChanged(patches);
                 break;
             }
         }

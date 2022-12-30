@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -25,8 +24,8 @@
 
 #include <cstring>
 
-#include "base/Utils.h"
 #include "base/Compressed.h"
+#include "base/Utils.h"
 
 // compressed file header
 static const uint32_t COMPRESSED_HEADER_LENGTH = 4;
@@ -59,7 +58,7 @@ uint32_t getChunkSizes(const unsigned char* pFile, uint32_t level) {
 }
 
 unsigned char* getChunk(const unsigned char* pFile, uint32_t level) {
-    unsigned char *dstData = nullptr;
+    unsigned char* dstData = nullptr;
     const auto chunkCount = getChunkNumbers(pFile);
     const auto compressedFileHeaderLength = COMPRESSED_HEADER_LENGTH + COMPRESSED_MIPMAP_LEVEL_COUNT_LENGTH + COMPRESSED_MIPMAP_DATA_SIZE_LENGTH * chunkCount;
 

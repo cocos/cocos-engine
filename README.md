@@ -13,13 +13,9 @@
         <img src="https://img.shields.io/github/forks/cocos/cocos-engine.svg?style=flat-square&colorB=4183c4"
              alt="forks">
     </a>
-    <a href="https://github.com/cocos-creator/engine/releases">
-        <img src="https://img.shields.io/github/tag/cocos/cocos-engine.svg?label=version&style=flat-square&colorB=4183c4"
-             alt="version">
-    </a>
     <a href="./licenses/LICENSE">
         <img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square&colorB=4183c4"
-             alt="license">
+            alt="license">
     </a>
     <a href="https://twitter.com/CocosEngine">
         <img src="https://img.shields.io/twitter/follow/CocosEngine.svg?logo=twitter&label=follow&style=flat-square&colorB=4183c4"
@@ -31,7 +27,7 @@
 
 **Cocos Creator is the new generation of game development tool in Cocos family, it brings a complete set of 3D and 2D features while providing an intuitive, low cost and collaboration friendly workflow to game developers.** Cocos Engine is the runtime framework for Cocos Creator editor.
 
-![image](https://www.cocos.com/wp-content/uploads/2022/08/13f41f1c975e8255fdc06f59597b9546-7.png)
+![image](https://download.cocos.com/CocosCreator/ui.png)
 
 Cocos Creator inherited many good qualities and cool features from its previous versions, such as high performance low level C++ implementation, intuitive editor, cross-platform support. It supports native platforms, web platforms and rapidly expanding instant gaming platforms, including Windows, Mac, iOS, Android, HarmonyOS, Web, Facebook Instant Games, WeChat Mini Game and TikTok Mini Games.
 
