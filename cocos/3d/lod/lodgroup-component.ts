@@ -297,8 +297,7 @@ export class LODGroup extends Component {
     set LODs (valArray: readonly LOD[]) {
         if (valArray === this._LODs) {
             //_LODs maybe changed, we need to notify the scene to update.
-            this._detachFromScene();
-            this._attachToScene();
+            this._updateDataToScene();
             return;
         }
         this._LODs.length = 0;
@@ -309,8 +308,7 @@ export class LODGroup extends Component {
             lod.modelAddedCallback = this.onLodModelAddedCallback.bind(this);
         });
         //_LODs has been changed, we need to notify the scene to update.
-        this._detachFromScene();
-        this._attachToScene();
+        this._updateDataToScene();
     }
 
     /**
@@ -631,5 +629,10 @@ export class LODGroup extends Component {
             // @ts-expect-error Because EditorExtends is Editor only
             EditorExtends.Node.emit('change', node.uuid, node);
         }
+    }
+
+    private _updateDataToScene () {
+        this._detachFromScene();
+        this._attachToScene();
     }
 }
