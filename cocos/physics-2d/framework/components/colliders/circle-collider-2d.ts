@@ -26,12 +26,10 @@ import { Vec2, _decorator } from '../../../../core';
 import { Collider2D } from './collider-2d';
 import { ECollider2DType } from '../../physics-types';
 import { ICircleShape } from '../../../spec/i-physics-shape';
-import { help, tooltip } from '../../../../core/data/decorators';
 
 const { ccclass, menu, property } = _decorator;
 
 @ccclass('cc.CircleCollider2D')
-@help('i18n:cc.CircleCollider2D')
 @menu('Physics2D/Colliders/CircleCollider2D')
 export class CircleCollider2D extends Collider2D {
     @property
@@ -42,7 +40,6 @@ export class CircleCollider2D extends Collider2D {
      * @zh 圆形半径。
      */
     @property
-    @tooltip('i18n:physics2d.collider.radius')
     get radius () {
         return this._radius;
     }
