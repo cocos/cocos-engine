@@ -101,6 +101,12 @@ function getPropertyList (node: Element, map?: PropertiesInfo): PropertiesInfo {
     }
 
     map = map || ({} as any);
+
+    let className = node.getAttribute('class');
+    if (className) {
+        map!['propClass'] = className;
+    }
+
     for (let i = 0; i < res.length; i++) {
         const element = res[i];
         const name = element.getAttribute('name');
