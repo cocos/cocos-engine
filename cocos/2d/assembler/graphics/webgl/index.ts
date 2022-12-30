@@ -27,9 +27,6 @@ import { IAssemblerManager } from '../../../renderer/base';
 import { Graphics } from '../../../components';
 import { graphicsAssembler as graphics } from './graphics-assembler';
 
-// Todo: Remove
-export { earcut } from './earcut';
-
 const graphicsAssemblerManager: IAssemblerManager = {
     getAssembler (sprite: UIRenderer) {
         return graphics;

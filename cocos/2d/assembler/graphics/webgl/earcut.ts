@@ -638,9 +638,6 @@ function signedArea (datas: number[], start: number, end: number, dim: number) {
     return sum;
 }
 
-/**
- * @deprecated since v3.7
- */
 export function earcut (datas: number[], holeIndices: number[] | null, dim: number) {
     dim = dim || 3;
 
