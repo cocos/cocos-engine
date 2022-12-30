@@ -44,7 +44,6 @@ export class AudioPool {
         }
     }
     public alloc (url: string): InnerAudioContext {
-        console.log(`url is ${url}`);
         if (!this._infoMap[url]) {
             const ctx: InnerAudioContext = minigame.createInnerAudioContext();
             ctx.src = url;

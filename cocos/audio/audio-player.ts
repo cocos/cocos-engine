@@ -122,7 +122,6 @@ export class AudioPlayer extends DynamicPath<AudioState, AudioAction> implements
         return this._sourceNode.playbackRate;
     }
     set pan (pan: number) {
-        console.log(`Pan setting ${pan}`);
         this._stereo.pan = pan;
     }
     get pan (): number {

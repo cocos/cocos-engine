@@ -60,7 +60,7 @@ export class CCAudioContext implements CCAudioContext {
                     const arrBuf: ArrayBuffer = xhr.response;
                     this._ctx.decodeAudioData(arrBuf,
                         null,
-                        () => { console.log('decode failed'); })
+                        () => { })
                         .then((decodedAudioBuffer) => {
                             resolve(decodedAudioBuffer);
                         }).catch((e) => {

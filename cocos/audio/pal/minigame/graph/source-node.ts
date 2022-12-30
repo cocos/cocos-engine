@@ -8,7 +8,6 @@ import { ctxAudioPool } from './audio-pool';
 function ensurePlaying (CCAudio: HTMLAudioElement): Promise<void> {
     return new Promise((resolve) => {
         const promise = CCAudio.play();
-        console.log('ensure play');
         if (promise === undefined) {  // Chrome50/Firefox53 below
             resolve();
         }

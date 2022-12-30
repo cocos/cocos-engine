@@ -33,7 +33,6 @@ import { cclegacy } from '../core';
 import { audioContextManager } from './audio-graph';
 
 export function loadAudioPlayer (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) {
-    console.log(`load audio clip with ${url}`);
     audioContextManager.load(url).then((info: AudioInfo) => {
         // TODO(timlyeee): load native and duration with more info.
         const audioMeta: AudioMeta = {

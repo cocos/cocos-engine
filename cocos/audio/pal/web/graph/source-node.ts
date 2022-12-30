@@ -117,7 +117,6 @@ export class CCSourceNode extends CCAudioNode {
      * All operations relative to change the time will never be set here.
      */
     private _rebuild () {
-        console.log('rebuild');
         this._absn.disconnect();
         this._absn.onended = null;
         this._absn = this._ctx.createBufferSource();
@@ -193,7 +192,6 @@ export class CCSourceNode extends CCAudioNode {
         // TODO: If stop is a public API, it should make the absn ready to play.
         try {
             this._absn.stop();
-            console.log('Stopped');
         } catch { /*DONOTHING*/ }
     }
     pause () {
@@ -215,7 +213,6 @@ export class CCSourceNode extends CCAudioNode {
     public _onEnded () {
         this._cacheProperties.pastTime = 0;
         this._cacheProperties.startTime = 0;
-        console.log('[SourceNode] OnEnded');
         this._innerState = ABSNState.DIRTY;
         if (this._onExternalEnded) this._onExternalEnded();
     }

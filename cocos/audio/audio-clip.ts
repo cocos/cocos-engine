@@ -50,7 +50,6 @@ export class AudioClip extends Asset {
     protected _duration = 0; // we serialize this because it's unavailable at runtime on some platforms
     constructor () {
         super();
-        console.log(`create clip`);
     }
     protected _meta: AudioMeta | null = null;
 
