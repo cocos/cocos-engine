@@ -167,7 +167,7 @@ export class OBB {
 
     /**
      * @en
-     * The center point of the OBB in local coordinate.
+     * The center point of an OBB in local coordinate.
      * @zh
      * 本地坐标的中心点。
      */
