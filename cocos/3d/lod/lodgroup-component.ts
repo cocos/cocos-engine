@@ -295,7 +295,12 @@ export class LODGroup extends Component {
      * @ 重置 LODs 为当前新设置的值。
      */
     set LODs (valArray: readonly LOD[]) {
-        if (valArray === this._LODs) return;
+        if (valArray === this._LODs) {
+            //_LODs maybe changed, we need to notify the scene to update.
+            this._detachFromScene();
+            this._attachToScene();
+            return;
+        }
         this._LODs.length = 0;
         this.lodGroup.clearLODs();
         valArray.forEach((lod: LOD, index: number) => {
@@ -303,6 +308,9 @@ export class LODGroup extends Component {
             this._LODs[index] = lod;
             lod.modelAddedCallback = this.onLodModelAddedCallback.bind(this);
         });
+        //_LODs has been changed, we need to notify the scene to update.
+        this._detachFromScene();
+        this._attachToScene();
     }
 
     /**
