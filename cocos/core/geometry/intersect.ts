@@ -46,8 +46,8 @@ import type { Mesh } from '../../3d';
  * ray-plane intersect detect.
  * @zh
  * 射线与平面的相交性检测。
- * @param ray @zh 射线。 @en The ray to test.
- * @param plane @zh 平面。 @en The plane to test.
+ * @param ray @zh 要测试的射线。 @en The ray to test.
+ * @param plane @zh 要测试的平面。 @en The plane to test.
  * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns a non-zero value.
  */
 const rayPlane = (function () {
@@ -69,9 +69,9 @@ const rayPlane = (function () {
  * ray-triangle intersect detect.
  * @zh
  * 射线与三角形的相交性检测。
- * @param ray @zh 射线。 @en The ray to test.
- * @param triangle @zh 三角形。 @en The triangle to test.
- * @param doubleSided @zh 三角形是否为双面。 @en Indicates whether it is double sided.
+ * @param ray @zh 要测试的射线。 @en The ray to test.
+ * @param triangle @zh 用来测试三角形。 @en The triangle to test.
+ * @param doubleSided @zh 要测试的三角形是否为双面。 @en Indicates whether the triangle to test is double sided.
  * @returns @zh 0 或 非 0，0 表示没有相交。@en 0 or not 0, 0 indicates there is no intersection.
  */
 const rayTriangle = (function () {
@@ -109,8 +109,8 @@ const rayTriangle = (function () {
  * ray-sphere intersect detect.
  * @zh
  * 射线和球的相交性检测。
- * @param ray @zh 射线。 @en The ray to test.
- * @param sphere @zh 球。 @en The sphere to test.
+ * @param ray @zh 要测试的射线。 @en The ray to test.
+ * @param sphere @zh 要测试的球。 @en The sphere to test.
  * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns a non-zero value.
  */
 const raySphere = (function () {
@@ -140,8 +140,8 @@ const raySphere = (function () {
  * ray-aabb intersect detect.
  * @zh
  * 射线和轴对齐包围盒的相交性检测。
- * @param ray @zh 射线。 @en The ray to test.
- * @param aabb @zh 轴对齐包围盒。 @en The aabb to test.
+ * @param ray @zh 要测试的射线。 @en The ray to test.
+ * @param aabb @zh 要测试的 AABB。 @en The aabb to test.
  * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns a non-zero value.
  */
 const rayAABB = (function () {
@@ -173,9 +173,9 @@ function rayAABB2 (ray: Ray, min: IVec3Like, max: IVec3Like) {
  * @en
  * ray-obb intersect detect.
  * @zh
- * 射线和OBB的相交性检测。
- * @param ray @zh 射线。 @en The ray.
- * @param obb @zh OBB。 @en The OBB to test.
+ * 射线和 OBB 的相交性检测。
+ * @param ray @zh 要测试的射线。 @en The ray to test.
+ * @param obb @zh 要测试的 OBB。 @en The OBB to test.
  * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns a non-zero value.
  */
 const rayOBB = (function () {
@@ -254,8 +254,8 @@ const rayOBB = (function () {
  * ray-capsule intersect detect.
  * @zh
  * 射线和胶囊体的相交性检测。
- * @param ray @zh 射线。 @en The ray to test.
- * @param capsule @zh 胶囊体。 @en The capsule to test.
+ * @param ray @zh 要测试的射线。 @en The ray to test.
+ * @param capsule @zh 要测试的胶囊体。 @en The capsule to test.
  * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns a non-zero value.
  */
 const rayCapsule = (function () {
@@ -1120,9 +1120,9 @@ const sphereCapsule = (function () {
  * capsule-capsule intersect detect.
  * @zh
  * 胶囊体和胶囊体的相交性检测。
- * @param capsuleA @zh 参与测试的胶囊体 A @en The capsule A to test.
- * @param capsuleB @zh 参与测试的胶囊体 B @en The capsule B to test.
- * @returns @zh 是否发生碰撞 @en true or false which indicates if there is an intersection.
+ * @param capsuleA @zh 要测试的胶囊体 A。 @en The capsule A to test.
+ * @param capsuleB @zh 要测试的胶囊体 B。 @en The capsule B to test.
+ * @returns @zh 如果相交，返回 true，否则返回 false。 @en true if there is an intersection, otherwise returns false.
  */
 const capsuleWithCapsule = (function () {
     const v3_0 = new Vec3();
