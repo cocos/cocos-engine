@@ -98,9 +98,9 @@ export class Line {
 
     /**
      * @en
-     * Sets the values of a line with the given values.
+     * Sets the start point and the end point of a line with the given values.
      * @zh
-     * 将给定线的属性设置为给定值。
+     * 将给定线段的起点和终点设置为给定值。
      * @param out @en The output line to set properties. to @zh 接受新数据的 Line 对象。
      * @param sx @en The x coordinate of the start position. @zh 起点的 x 坐标。
      * @param sy @en The y coordinate of the start position. @zh 起点的 y 坐标。
@@ -124,7 +124,7 @@ export class Line {
     /**
      * @en Calculates the length of the given line.
      * @zh 计算线的长度。
-     * @param a @en The line. @zh 用于计算长度的线段。
+     * @param a @en The line to calculate length. @zh 用于计算长度的线段。
      * @returns @en The length of the given line. @zh 线段的长度。
      */
     public static len (a: Line) {

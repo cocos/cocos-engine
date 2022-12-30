@@ -96,6 +96,10 @@ export class Capsule {
     readonly ellipseCenter1: Vec3;
 
     /**
+     * @en
+     * Constructs a Capsule instance.
+     * @zh
+     * 构造一个胶囊体实例。
      * @param radius @en The radius of the sphere in this capsule. @zh 胶囊体球部的半径。
      * @param halfHeight @en The distance between the center point of the capsule and the center of the sphere. @zh 胶囊体中心点和球部圆心的距离。
      * @param axis @en The local orientation of this capsule [0,1,2] => [x,y,z]. @zh 胶囊体的本地朝向，映射关系 [0,1,2] => [x,y,z]。
@@ -139,7 +143,7 @@ export class Capsule {
      * @en
      * Updates the cache.
      * @zh
-     * 更新缓存
+     * 更新缓存。
      */
     updateCache () {
         this.updateLocalCenter();
