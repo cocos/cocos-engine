@@ -22,6 +22,7 @@
  THE SOFTWARE.
 */
 
+import { EDITOR } from 'internal:constants';
 import { Pipeline, PipelineBuilder } from './pipeline';
 import { WebPipeline } from './web-pipeline';
 import { buildDeferredLayout, buildForwardLayout } from './effect';
@@ -44,7 +45,7 @@ export * from './types';
 export * from './pipeline';
 export * from './archive';
 
-export const enableEffectImport = true;
+export const enableEffectImport = !EDITOR;
 export const programLib: ProgramLibrary = new WebProgramLibrary(defaultLayoutGraph);
 
 export function createCustomPipeline (): Pipeline {
