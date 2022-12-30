@@ -25,7 +25,9 @@ THE SOFTWARE.
  ****************************************************************************/
 package com.cocos.lib;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -34,6 +36,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.graphics.drawable.shapes.RoundRectShape;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
@@ -52,8 +55,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.app.Activity;
-import android.content.Intent;
+import android.widget.Toast;
 
 public class CocosEditBoxActivity extends Activity {
 
@@ -83,6 +85,7 @@ public class CocosEditBoxActivity extends Activity {
         private float mLineWidth = 2f;
         private boolean keyboardVisible = false;
         private int mScreenHeight;
+        private boolean mCheckKeyboardShowNormally = false;
 
         public  Cocos2dxEditText(Activity context){
             super(context);
@@ -135,6 +138,7 @@ public class CocosEditBoxActivity extends Activity {
          **************************************************************************************/
 
         public void show(String defaultValue, int maxLength, boolean isMultiline, boolean confirmHold, String confirmType, String inputType) {
+            mCheckKeyboardShowNormally = false;
             mIsMultiLine = isMultiline;
             this.setFilters(new InputFilter[]{new InputFilter.LengthFilter(maxLength) });
             this.setText(defaultValue);
@@ -154,6 +158,7 @@ public class CocosEditBoxActivity extends Activity {
         }
 
         public void hide() {
+            mCheckKeyboardShowNormally = false;
             mEditText.setVisibility(View.INVISIBLE);
             this.removeListeners();
         }
@@ -197,8 +202,12 @@ public class CocosEditBoxActivity extends Activity {
                 this.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_NUMBER_FLAG_SIGNED);
             else if (inputType.contentEquals("phone"))
                 this.setInputType(InputType.TYPE_CLASS_PHONE);
-            else if (inputType.contentEquals("password"))
+            else if (inputType.contentEquals("password")) {
+                if (Build.BRAND.equalsIgnoreCase("oppo")) {
+                    mCheckKeyboardShowNormally = true;
+                }
                 this.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+            }
             else
                 Log.e(TAG, "unknown input type " + inputType);
         }
@@ -238,6 +247,9 @@ public class CocosEditBoxActivity extends Activity {
                             keyboardVisible = true;
                         }
                     } else {
+                        if (mCheckKeyboardShowNormally && !keyboardVisible) {
+                            Toast.makeText(CocosEditBoxActivity.this, R.string.tip_disable_safe_input_type, Toast.LENGTH_SHORT).show();
+                        }
                         if (keyboardVisible) {
                             keyboardVisible = false;
                             CocosEditBoxActivity.this.hide();
