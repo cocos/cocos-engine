@@ -31,6 +31,7 @@ import { enqueueOperation, OperationInfo, OperationQueueable } from '../operatio
 import AudioTimer from '../audio-timer';
 import { audioBufferManager } from '../audio-buffer-manager';
 import legacyCC from '../../../predefine';
+import { Game, game } from '../../../cocos/game';
 
 // NOTE: fix CI
 const AudioContextClass = (window.AudioContext || window.webkitAudioContext || window.mozAudioContext);
@@ -238,8 +239,8 @@ export class AudioPlayerWeb implements OperationQueueable {
         audioContextAgent!.connectContext(this._gainNode);
         this._src = url;
         // event
-        systemInfo.on('hide', this._onHide, this);
-        systemInfo.on('show', this._onShow, this);
+        game.on(Game.EVENT_PAUSE, this._onInterruptedBegin, this);
+        game.on(Game.EVENT_RESUME, this._onInterruptedEnd, this);
     }
     destroy () {
         this._audioTimer.destroy();
@@ -248,8 +249,8 @@ export class AudioPlayerWeb implements OperationQueueable {
             this._audioBuffer = null;
         }
         audioBufferManager.tryReleasingCache(this._src);
-        systemInfo.off('hide', this._onHide, this);
-        systemInfo.off('show', this._onShow, this);
+        game.off(Game.EVENT_PAUSE, this._onInterruptedBegin, this);
+        game.off(Game.EVENT_RESUME, this._onInterruptedEnd, this);
     }
     static load (url: string): Promise<AudioPlayerWeb> {
         return new Promise((resolve) => {
@@ -306,7 +307,7 @@ export class AudioPlayerWeb implements OperationQueueable {
         return new AudioPCMDataView(this._audioBuffer.getChannelData(channelIndex), 1);
     }
 
-    private _onHide () {
+    private _onInterruptedBegin () {
         if (this._state === AudioState.PLAYING) {
             this.pause().then(() => {
                 this._state = AudioState.INTERRUPTED;
@@ -314,7 +315,7 @@ export class AudioPlayerWeb implements OperationQueueable {
             }).catch((e) => {});
         }
     }
-    private _onShow () {
+    private _onInterruptedEnd () {
         if (this._state === AudioState.INTERRUPTED) {
             this.play().then(() => {
                 this._eventTarget.emit(AudioEvent.INTERRUPTION_END);

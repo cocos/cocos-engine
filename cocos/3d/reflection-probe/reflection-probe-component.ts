@@ -288,24 +288,18 @@ export class ReflectionProbe extends Component {
     }
 
     public onLoad () {
-        if (EDITOR || this.probeType === ProbeType.PLANAR) {
-            this._createProbe();
-        }
+        this._createProbe();
     }
 
     onEnable () {
-        if (EDITOR || this.probeType === ProbeType.PLANAR) {
-            ReflectionProbeManager.probeManager.register(this._probe!);
-        }
         if (this._probe) {
+            ReflectionProbeManager.probeManager.register(this._probe);
             this._probe.enable();
         }
     }
     onDisable () {
-        if (EDITOR || this.probeType === ProbeType.PLANAR) {
-            ReflectionProbeManager.probeManager.unregister(this._probe!);
-        }
         if (this._probe) {
+            ReflectionProbeManager.probeManager.unregister(this._probe);
             this._probe.disable();
         }
     }

@@ -1120,6 +1120,9 @@ using namespace cc;
 #define cc_scene_ReflectionProbe_node_get(self_) self_->getNode()
   
 
+#define cc_scene_ReflectionProbe_realtimePlanarTexture_get(self_) self_->getRealtimePlanarTexture()
+  
+
 #define cc_SceneGlobals_bakedWithStationaryMainLight_get(self_) self_->getBakedWithStationaryMainLight()
 #define cc_SceneGlobals_bakedWithStationaryMainLight_set(self_, val_) self_->setBakedWithStationaryMainLight(val_)
   
@@ -14381,7 +14384,7 @@ static bool js_cc_scene_Model_updateLocalShadowBias(se::State& s)
 }
 SE_BIND_FUNC(js_cc_scene_Model_updateLocalShadowBias) 
 
-static bool js_cc_scene_Model_updateReflctionProbeCubemap(se::State& s)
+static bool js_cc_scene_Model_updateReflectionProbeCubemap(se::State& s)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
@@ -14398,14 +14401,14 @@ static bool js_cc_scene_Model_updateReflctionProbeCubemap(se::State& s)
     
     ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments"); 
-    (arg1)->updateReflctionProbeCubemap(arg2);
+    (arg1)->updateReflectionProbeCubemap(arg2);
     
     
     return true;
 }
-SE_BIND_FUNC(js_cc_scene_Model_updateReflctionProbeCubemap) 
+SE_BIND_FUNC(js_cc_scene_Model_updateReflectionProbeCubemap) 
 
-static bool js_cc_scene_Model_updateReflctionProbePlanarMap(se::State& s)
+static bool js_cc_scene_Model_updateReflectionProbePlanarMap(se::State& s)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
@@ -14422,12 +14425,12 @@ static bool js_cc_scene_Model_updateReflctionProbePlanarMap(se::State& s)
     
     ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments"); 
-    (arg1)->updateReflctionProbePlanarMap(arg2);
+    (arg1)->updateReflectionProbePlanarMap(arg2);
     
     
     return true;
 }
-SE_BIND_FUNC(js_cc_scene_Model_updateReflctionProbePlanarMap) 
+SE_BIND_FUNC(js_cc_scene_Model_updateReflectionProbePlanarMap) 
 
 static bool js_cc_scene_Model_attachToScene(se::State& s)
 {
@@ -15654,8 +15657,8 @@ bool js_register_cc_scene_Model(se::Object* obj) {
     cls->defineFunction("updateSHUBOs", _SE(js_cc_scene_Model_updateSHUBOs)); 
     cls->defineFunction("updateWorldBoundUBOs", _SE(js_cc_scene_Model_updateWorldBoundUBOs)); 
     cls->defineFunction("updateLocalShadowBias", _SE(js_cc_scene_Model_updateLocalShadowBias)); 
-    cls->defineFunction("updateReflctionProbeCubemap", _SE(js_cc_scene_Model_updateReflctionProbeCubemap)); 
-    cls->defineFunction("updateReflctionProbePlanarMap", _SE(js_cc_scene_Model_updateReflctionProbePlanarMap)); 
+    cls->defineFunction("updateReflectionProbeCubemap", _SE(js_cc_scene_Model_updateReflectionProbeCubemap)); 
+    cls->defineFunction("updateReflectionProbePlanarMap", _SE(js_cc_scene_Model_updateReflectionProbePlanarMap)); 
     cls->defineFunction("attachToScene", _SE(js_cc_scene_Model_attachToScene)); 
     cls->defineFunction("detachFromScene", _SE(js_cc_scene_Model_detachFromScene)); 
     cls->defineFunction("setLocalSHBuffer", _SE(js_cc_scene_Model_setLocalSHBuffer)); 
@@ -24196,31 +24199,6 @@ static bool js_cc_scene_ReflectionProbe_getCameraNode(se::State& s)
 }
 SE_BIND_FUNC(js_cc_scene_ReflectionProbe_getCameraNode) 
 
-static bool js_cc_scene_ReflectionProbe_getRealtimePlanarTexture(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::scene::ReflectionProbe *arg1 = (cc::scene::ReflectionProbe *) NULL ;
-    cc::RenderTexture *result = 0 ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::scene::ReflectionProbe>(s);
-    if (nullptr == arg1) return true;
-    result = (cc::RenderTexture *)((cc::scene::ReflectionProbe const *)arg1)->getRealtimePlanarTexture();
-    
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_scene_ReflectionProbe_getRealtimePlanarTexture) 
-
 static bool js_cc_scene_ReflectionProbe_updateBoundingBox(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -25039,6 +25017,25 @@ static bool js_cc_scene_ReflectionProbe_node_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_scene_ReflectionProbe_node_get) 
 
+static bool js_cc_scene_ReflectionProbe_realtimePlanarTexture_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::scene::ReflectionProbe *arg1 = (cc::scene::ReflectionProbe *) NULL ;
+    cc::RenderTexture *result = 0 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::ReflectionProbe>(s);
+    if (nullptr == arg1) return true;
+    result = (cc::RenderTexture *)cc_scene_ReflectionProbe_realtimePlanarTexture_get(arg1);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_scene_ReflectionProbe_realtimePlanarTexture_get) 
+
 bool js_register_cc_scene_ReflectionProbe(se::Object* obj) {
     auto* cls = se::Class::create("ReflectionProbe", obj, nullptr, _SE(js_new_cc_scene_ReflectionProbe)); 
     
@@ -25055,6 +25052,7 @@ bool js_register_cc_scene_ReflectionProbe(se::Object* obj) {
     cls->defineProperty("bakedCubeTextures", _SE(js_cc_scene_ReflectionProbe_bakedCubeTextures_get), nullptr); 
     cls->defineProperty("cubemap", _SE(js_cc_scene_ReflectionProbe_cubemap_get), _SE(js_cc_scene_ReflectionProbe_cubemap_set)); 
     cls->defineProperty("node", _SE(js_cc_scene_ReflectionProbe_node_get), nullptr); 
+    cls->defineProperty("realtimePlanarTexture", _SE(js_cc_scene_ReflectionProbe_realtimePlanarTexture_get), nullptr); 
     
     cls->defineFunction("initialize", _SE(js_cc_scene_ReflectionProbe_initialize)); 
     cls->defineFunction("getProbeId", _SE(js_cc_scene_ReflectionProbe_getProbeId)); 
@@ -25063,7 +25061,6 @@ bool js_register_cc_scene_ReflectionProbe(se::Object* obj) {
     cls->defineFunction("setNeedRender", _SE(js_cc_scene_ReflectionProbe_setNeedRender)); 
     cls->defineFunction("setCameraNode", _SE(js_cc_scene_ReflectionProbe_setCameraNode)); 
     cls->defineFunction("getCameraNode", _SE(js_cc_scene_ReflectionProbe_getCameraNode)); 
-    cls->defineFunction("getRealtimePlanarTexture", _SE(js_cc_scene_ReflectionProbe_getRealtimePlanarTexture)); 
     cls->defineFunction("updateBoundingBox", _SE(js_cc_scene_ReflectionProbe_updateBoundingBox)); 
     cls->defineFunction("syncCameraParams", _SE(js_cc_scene_ReflectionProbe_syncCameraParams)); 
     cls->defineFunction("transformReflectionCamera", _SE(js_cc_scene_ReflectionProbe_transformReflectionCamera)); 

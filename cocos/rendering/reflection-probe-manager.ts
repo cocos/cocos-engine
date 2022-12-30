@@ -54,9 +54,7 @@ export class ReflectionProbeManager {
     private _usePlanarModels = new Map<Model, ReflectionProbe>();
 
     constructor () {
-        if (EDITOR) {
-            director.on(Director.EVENT_BEFORE_UPDATE, this.onUpdateProbes, this);
-        }
+        director.on(Director.EVENT_BEFORE_UPDATE, this.onUpdateProbes, this);
     }
 
     /**

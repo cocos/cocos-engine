@@ -60,6 +60,20 @@ export enum KeyEventType {
     KET_GRAB
 }
 
+enum StickAxisCode {
+    UNDEFINE = 0,
+    X,
+    Y,
+    LEFT_STICK_X,
+    LEFT_STICK_Y,
+    RIGHT_STICK_X,
+    RIGHT_STICK_Y,
+    LEFT_TRIGGER,
+    RIGHT_TIRGGER,
+    LEFT_GRIP,
+    RIGHT_GRIP,
+}
+
 const _nativeButtonMap = {
     1: Button.BUTTON_EAST,
     2: Button.BUTTON_SOUTH,
@@ -171,46 +185,48 @@ export class HandleInputDevice {
             if (keyEventType === KeyEventType.KET_CLICK) {
                 const button = _nativeButtonMap[stickKeyCode];
                 this._nativeButtonState[button] = isButtonPressed ? 1 : 0;
-            } else if (keyEventType === KeyEventType.KET_STICK) {
+            } else if (keyEventType === KeyEventType.KET_STICK || keyEventType === KeyEventType.KET_GRAB) {
                 //
-            } else if (keyEventType === KeyEventType.KET_GRAB) {
-                //
-                let negativeButton: Button | undefined;
-                let positiveButton: Button | undefined;
-                let axisValue: IAxisValue | undefined;
+                let negativeButton: Button|undefined;
+                let positiveButton: Button|undefined;
+                let axisValue: IAxisValue|undefined;
                 switch (stickAxisCode) {
-                case 3:
+                case StickAxisCode.LEFT_STICK_X:
                     negativeButton = Button.LEFT_STICK_LEFT;
                     positiveButton = Button.LEFT_STICK_RIGHT;
                     axisValue = this._axisToButtons(stickAxisValue);
                     break;
-                case 4:
+                case StickAxisCode.LEFT_STICK_Y:
                     negativeButton = Button.LEFT_STICK_DOWN;
                     positiveButton = Button.LEFT_STICK_UP;
                     axisValue = this._axisToButtons(stickAxisValue);
                     break;
-                case 5:
+                case StickAxisCode.RIGHT_STICK_X:
                     negativeButton = Button.RIGHT_STICK_LEFT;
                     positiveButton = Button.RIGHT_STICK_RIGHT;
                     axisValue = this._axisToButtons(stickAxisValue);
                     break;
-                case 6:
+                case StickAxisCode.RIGHT_STICK_Y:
                     negativeButton = Button.RIGHT_STICK_DOWN;
                     positiveButton = Button.RIGHT_STICK_UP;
                     axisValue = this._axisToButtons(stickAxisValue);
                     break;
+                case StickAxisCode.LEFT_TRIGGER:
+                    this._nativeButtonState[Button.TRIGGER_LEFT] = stickAxisValue;
+                    break;
+                case StickAxisCode.RIGHT_TIRGGER:
+                    this._nativeButtonState[Button.TRIGGER_RIGHT] = stickAxisValue;
+                    break;
+                case StickAxisCode.LEFT_GRIP:
+                    this._nativeButtonState[Button.GRIP_LEFT] = stickAxisValue;
+                    break;
+                case StickAxisCode.RIGHT_GRIP:
+                    this._nativeButtonState[Button.GRIP_RIGHT] = stickAxisValue;
+                    break;
                 default:
-                    if (stickAxisCode === 7) {
-                        this._nativeButtonState[Button.TRIGGER_LEFT] = stickAxisValue;
-                    } else if (stickAxisCode === 8) {
-                        this._nativeButtonState[Button.TRIGGER_RIGHT] = stickAxisValue;
-                    } else if (stickAxisCode === 9) {
-                        this._nativeButtonState[Button.GRIP_LEFT] = stickAxisValue;
-                    } else if (stickAxisCode === 10) {
-                        this._nativeButtonState[Button.GRIP_RIGHT] = stickAxisValue;
-                    }
                     break;
                 }
+
                 if (negativeButton && positiveButton && axisValue) {
                     this._nativeButtonState[negativeButton] = axisValue.negative;
                     this._nativeButtonState[positiveButton] = axisValue.positive;

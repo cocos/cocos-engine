@@ -572,7 +572,7 @@ void Model::updateLocalShadowBias() {
     _localDataUpdated = true;
 }
 
-void Model::updateReflctionProbeCubemap(TextureCube *texture) {
+void Model::updateReflectionProbeCubemap(TextureCube *texture) {
     _localDataUpdated = true;
     if (texture == nullptr) {
         texture = BuiltinResMgr::getInstance()->get<TextureCube>(ccstd::string("default-cube-texture"));
@@ -588,7 +588,7 @@ void Model::updateReflctionProbeCubemap(TextureCube *texture) {
         }
     }
 }
-void Model::updateReflctionProbePlanarMap(gfx::Texture *texture) {
+void Model::updateReflectionProbePlanarMap(gfx::Texture *texture) {
     _localDataUpdated = true;
 
     gfx::Texture *bindingTexture = texture;

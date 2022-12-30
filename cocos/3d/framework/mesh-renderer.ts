@@ -660,7 +660,7 @@ export class MeshRenderer extends ModelRenderer {
             if (!cubeMap && this.node.scene && !useDefaultTexture) {
                 cubeMap = this.node.scene._globals.skybox.envmap;
             }
-            this.model.updateReflctionProbeCubemap(cubeMap);
+            this.model.updateReflectionProbeCubemap(cubeMap);
         }
     }
     public updateProbePlanarMap (planarMap: Texture | null) {
@@ -669,7 +669,7 @@ export class MeshRenderer extends ModelRenderer {
         }
         this.bakeSettings._probePlanarmap = planarMap;
         if (this.model !== null) {
-            this.model.updateReflctionProbePlanarMap(this.bakeSettings._probePlanarmap);
+            this.model.updateReflectionProbePlanarMap(this.bakeSettings._probePlanarmap);
         }
     }
 
@@ -680,14 +680,14 @@ export class MeshRenderer extends ModelRenderer {
             if (!cubeMap && this.node.scene) {
                 cubeMap = this.node.scene._globals.skybox.envmap;
             }
-            this.model.updateReflctionProbeCubemap(cubeMap);
-            this.model.updateReflctionProbePlanarMap(null);
+            this.model.updateReflectionProbeCubemap(cubeMap);
+            this.model.updateReflectionProbePlanarMap(null);
         } else if (this.bakeSettings.reflectionProbe === ReflectionProbeType.PLANAR_REFLECTION) {
-            this.model.updateReflctionProbePlanarMap(this.bakeSettings._probePlanarmap);
-            this.model.updateReflctionProbeCubemap(null);
+            this.model.updateReflectionProbePlanarMap(this.bakeSettings._probePlanarmap);
+            this.model.updateReflectionProbeCubemap(null);
         } else {
-            this.model.updateReflctionProbeCubemap(null);
-            this.model.updateReflctionProbePlanarMap(null);
+            this.model.updateReflectionProbeCubemap(null);
+            this.model.updateReflectionProbePlanarMap(null);
         }
     }
 
