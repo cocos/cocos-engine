@@ -33,7 +33,7 @@ const Destroying = CCObject.Flags.Destroying;
 const IS_PREVIEW = !!legacyCC.GAME_VIEW;
 
 export function nodePolyfill (Node) {
-    if ((EDITOR && !IS_PREVIEW) || TEST) {
+    if (EDITOR || TEST) {
         Node.prototype._checkMultipleComp = function (ctor) {
             const existing = this.getComponent(ctor._disallowMultiple);
             if (existing) {
@@ -45,7 +45,34 @@ export function nodePolyfill (Node) {
             }
             return true;
         };
-
+        /**
+         * @method _getDependComponent
+         * @param {Component} depended
+         * @return {Component[]}
+         */
+        Node.prototype._getDependComponent = function (depended) {
+            const dependant: Component[] = [];
+            for (let i = 0; i < this._components.length; i++) {
+                const comp = this._components[i];
+                if (comp !== depended && comp.isValid && !legacyCC.Object._willDestroy(comp)) {
+                    const reqComps = comp.constructor._requireComponent;
+                    if (reqComps) {
+                        if (Array.isArray(reqComps)) {
+                            for (let i = 0; i < reqComps.length; i++) {
+                                if (depended instanceof reqComps[i]) {
+                                    dependant.push(comp);
+                                }
+                            }
+                        } else if (depended instanceof reqComps) {
+                            dependant.push(comp);
+                        }
+                    }
+                }
+            }
+            return dependant;
+        };
+    }
+    if ((EDITOR && !IS_PREVIEW) || TEST) {
         /**
          * This api should only used by undo system
          * @method _addComponentAt
@@ -97,33 +124,6 @@ export function nodePolyfill (Node) {
                 legacyCC.director._nodeActivator.activateComp(comp);
             }
             return undefined;
-        };
-
-        /**
-         * @method _getDependComponent
-         * @param {Component} depended
-         * @return {Component[]}
-         */
-        Node.prototype._getDependComponent = function (depended) {
-            const dependant: Component[] = [];
-            for (let i = 0; i < this._components.length; i++) {
-                const comp = this._components[i];
-                if (comp !== depended && comp.isValid && !legacyCC.Object._willDestroy(comp)) {
-                    const reqComps = comp.constructor._requireComponent;
-                    if (reqComps) {
-                        if (Array.isArray(reqComps)) {
-                            for (let i = 0; i < reqComps.length; i++) {
-                                if (depended instanceof reqComps[i]) {
-                                    dependant.push(comp);
-                                }
-                            }
-                        } else if (depended instanceof reqComps) {
-                            dependant.push(comp);
-                        }
-                    }
-                }
-            }
-            return dependant;
         };
 
         Node.prototype.onRestore = function () {
