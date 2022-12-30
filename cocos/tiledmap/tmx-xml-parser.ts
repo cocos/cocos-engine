@@ -826,6 +826,9 @@ export class TMXMapInfo {
             console.warn(`Please try asset type of ${source} to 'sprite-frame'`);
             return null;
         }
+
+        imageLayer.properties = getPropertyList(selLayer);
+
         return imageLayer;
     }
 

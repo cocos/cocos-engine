@@ -548,6 +548,8 @@ export class TMXImageLayerInfo {
     sourceImage?: SpriteFrame;
 
     tintColor: Color | null = null;
+
+    properties: PropertiesInfo = {} as any;
 }
 
 type DrawOrder = 'topdown' | 'bottomup';
