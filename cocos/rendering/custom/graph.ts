@@ -250,7 +250,7 @@ export interface IncidenceGraph extends Graph {
 export interface BidirectionalGraph extends IncidenceGraph {
     inEdges (v: vertex_descriptor): in_edge_iterator;
     inDegree (v: vertex_descriptor): number;
-    degree (v: vertex_descriptor) : number;
+    degree (v: vertex_descriptor): number;
 }
 
 //--------------------------------------------------------------------------
@@ -424,7 +424,7 @@ export interface AddressableGraph extends ParentGraph {
     addressable (absPath: string): boolean;
     locate (absPath: string): vertex_descriptor | null;
     locateRelative (path: string, start?: vertex_descriptor | null): vertex_descriptor | null;
-    path (v: vertex_descriptor) : string;
+    path (v: vertex_descriptor): string;
 }
 
 //--------------------------------------------------------------------------

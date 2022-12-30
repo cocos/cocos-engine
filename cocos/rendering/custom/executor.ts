@@ -478,11 +478,13 @@ class RenderPassLayoutInfo {
         this._stage = lg.getRenderStage(layoutId);
         this._context = context;
         this._layout = lg.getLayout(layoutId);
-        const layoutData = this._layout.descriptorSets.get(UpdateFrequency.PER_PASS);
+        const layoutData =  this._layout.descriptorSets.get(UpdateFrequency.PER_PASS);
+        const globalDesc = context.pipeline.descriptorSet;
         if (layoutData) {
             // find resource
             const deviceTex = context.deviceTextures.get(this._inputName);
             const gfxTex = deviceTex?.texture;
+            const layoutDesc = layoutData.descriptorSet!;
             if (!gfxTex) {
                 throw Error(`Could not find texture with resource name ${this._inputName}`);
             }
@@ -495,10 +497,18 @@ class RenderPassLayoutInfo {
                 // find descriptor binding
                 for (const block of layoutData.descriptorSetLayoutData.descriptorBlocks) {
                     for (let i = 0; i !== block.descriptors.length; ++i) {
+                        const buffer = layoutDesc.getBuffer(block.offset + i);
+                        const texture = layoutDesc.getTexture(block.offset + i);
                         if (descriptorID === block.descriptors[i].descriptorID) {
-                            layoutData.descriptorSet!.bindTexture(block.offset + i, gfxTex);
-                            layoutData.descriptorSet!.bindSampler(block.offset + i, context.device.getSampler(samplerInfo));
-                            if (!this._descriptorSet) this._descriptorSet = layoutData.descriptorSet;
+                            layoutDesc.bindTexture(block.offset + i, gfxTex);
+                            layoutDesc.bindSampler(block.offset + i, context.device.getSampler(samplerInfo));
+                            if (!this._descriptorSet) this._descriptorSet = layoutDesc;
+                            continue;
+                        }
+                        if (!buffer && !texture) {
+                            layoutDesc.bindBuffer(block.offset + i, globalDesc.getBuffer(block.offset + i));
+                            layoutDesc.bindTexture(block.offset + i, globalDesc.getTexture(block.offset + i));
+                            layoutDesc.bindSampler(block.offset + i, globalDesc.getSampler(block.offset + i));
                         }
                     }
                 }
@@ -538,7 +548,6 @@ class DeviceRenderPass {
     protected _viewport: Viewport | null = null;
     private _rasterInfo: RasterPassInfo;
     private _layout: RenderPassLayoutInfo | null = null;
-    public submitMap: Map<Camera, SubmitInfo> = new Map<Camera, SubmitInfo>();
     constructor (context: ExecutorContext, passInfo: RasterPassInfo) {
         this._context = context;
         this._rasterInfo = passInfo;
@@ -749,7 +758,7 @@ class DeviceRenderPass {
     }
 
     private _clear () {
-        for (const [cam, info] of this.submitMap) {
+        for (const [cam, info] of this.context.submitMap) {
             info.additiveLight?.clear();
             const it = info.instances.values(); let res = it.next();
             while (!res.done) {
@@ -763,7 +772,7 @@ class DeviceRenderPass {
 
     postPass () {
         this._clear();
-        this.submitMap.clear();
+        // this.submitMap.clear();
         for (const queue of this._deviceQueues) {
             queue.postRecord();
         }
@@ -865,8 +874,8 @@ class DevicePreSceneTask extends WebSceneTask {
             return;
         }
         const devicePass = this._currentQueue.devicePass;
-        const submitMap = devicePass.submitMap;
         const context = devicePass.context;
+        const submitMap = context.submitMap;
         if (submitMap.has(this.camera)) {
             this._submitInfo = submitMap.get(this.camera)!;
         } else {
@@ -1090,7 +1099,7 @@ class DeviceSceneTask extends WebSceneTask {
     get graphScene () { return this._graphScene; }
     public start () {}
     protected _recordRenderList (isTransparent: boolean) {
-        const submitMap = this._currentQueue.devicePass.submitMap;
+        const submitMap = this._currentQueue.devicePass.context.submitMap;
         const renderList = isTransparent ? submitMap.get(this.camera!)!.transparentList : submitMap.get(this.camera!)!.opaqueList;
         for (let i = 0; i < renderList.length; ++i) {
             const { subModel, passIdx } = renderList[i];
@@ -1110,7 +1119,7 @@ class DeviceSceneTask extends WebSceneTask {
         this._recordRenderList(false);
     }
     protected _recordInstences () {
-        const submitMap = this._currentQueue.devicePass.submitMap;
+        const submitMap = this._currentQueue.devicePass.context.submitMap;
         const it = submitMap.get(this.camera!)!.renderInstanceQueue.length === 0
             ? submitMap.get(this.camera!)!.instances.values()
             : submitMap.get(this.camera!)!.renderInstanceQueue.values();
@@ -1140,7 +1149,7 @@ class DeviceSceneTask extends WebSceneTask {
         }
     }
     protected _recordBatches () {
-        const submitMap = this._currentQueue.devicePass.submitMap;
+        const submitMap = this._currentQueue.devicePass.context.submitMap;
         const it = submitMap.get(this.camera!)!.batches.values(); let res = it.next();
         while (!res.done) {
             let boundPSO = false;
@@ -1195,13 +1204,13 @@ class DeviceSceneTask extends WebSceneTask {
     }
     protected _recordShadowMap () {
         const context = this._currentQueue.devicePass.context;
-        const submitMap = this._currentQueue.devicePass.submitMap;
+        const submitMap = context.submitMap;
         submitMap.get(this.camera!)?.shadowMap?.recordCommandBuffer(context.device,
             this._renderPass, context.commandBuffer);
     }
     protected _recordReflectionProbe () {
         const context = this._currentQueue.devicePass.context;
-        const submitMap = this._currentQueue.devicePass.submitMap;
+        const submitMap = context.submitMap;
         submitMap.get(this.camera!)?.reflectionProbe?.recordCommandBuffer(context.device,
             this._renderPass, context.commandBuffer);
     }
@@ -1211,23 +1220,25 @@ class DeviceSceneTask extends WebSceneTask {
             && this.graphScene.scene
             && this.graphScene.scene.flags & SceneFlags.SHADOW_CASTER;
     }
-    private _mergeMatToBlitDesc (fromDesc, toDesc) {
+    private _mergeSrcToTarDesc (fromDesc, toDesc) {
         fromDesc.update();
         const fromGpuDesc = fromDesc.gpuDescriptorSet;
         const toGpuDesc = toDesc.gpuDescriptorSet;
         const extResId: number[] = [];
         for (let i = 0; i < toGpuDesc.gpuDescriptors.length; i++) {
+            const fromRes = fromGpuDesc.gpuDescriptors[i];
+            if (!fromRes) continue;
             const currRes = toGpuDesc.gpuDescriptors[i];
-            if (!currRes.gpuBuffer && fromGpuDesc.gpuDescriptors[i].gpuBuffer) {
-                currRes.gpuBuffer = fromGpuDesc.gpuDescriptors[i].gpuBuffer;
+            if (!currRes.gpuBuffer && fromRes.gpuBuffer) {
+                currRes.gpuBuffer = fromRes.gpuBuffer;
                 extResId.push(i);
             } else if ('gpuTextureView' in currRes && !currRes.gpuTextureView) {
-                currRes.gpuTextureView = fromGpuDesc.gpuDescriptors[i].gpuTextureView;
-                currRes.gpuSampler = fromGpuDesc.gpuDescriptors[i].gpuSampler;
+                currRes.gpuTextureView = fromRes.gpuTextureView;
+                currRes.gpuSampler = fromRes.gpuSampler;
                 extResId.push(i);
             } else if ('gpuTexture' in currRes && !currRes.gpuTexture) {
-                currRes.gpuTexture = fromGpuDesc.gpuDescriptors[i].gpuTexture;
-                currRes.gpuSampler = fromGpuDesc.gpuDescriptors[i].gpuSampler;
+                currRes.gpuTexture = fromRes.gpuTexture;
+                currRes.gpuSampler = fromRes.gpuSampler;
                 extResId.push(i);
             }
         }
@@ -1259,6 +1270,7 @@ class DeviceSceneTask extends WebSceneTask {
         const shader = pass.getShaderVariant();
         const devicePass = this._currentQueue.devicePass;
         const screenIa: any = this._currentQueue.blitDesc!.screenQuad!.quadIA;
+        const globalDesc = devicePass.context.pipeline.descriptorSet;
         let pso;
         if (pass !== null && shader !== null && screenIa !== null) {
             pso = PipelineStateManager.getOrCreatePipelineState(devicePass.context.device, pass, shader,
@@ -1268,20 +1280,21 @@ class DeviceSceneTask extends WebSceneTask {
             this.visitor.bindPipelineState(pso);
             const layoutStage = devicePass.renderLayout;
             const layoutDesc = layoutStage!.descriptorSet!;
-            const extResId: number[] = this._mergeMatToBlitDesc(pass.descriptorSet, layoutDesc);
-            // TODO: It will be changed to global later
-            this.visitor.bindDescriptorSet(SetIndex.MATERIAL, layoutDesc);
+            const extResId: number[] = isEnableEffect() ? [] : this._mergeSrcToTarDesc(pass.descriptorSet, layoutDesc);
+            if (isEnableEffect()) this.visitor.bindDescriptorSet(SetIndex.GLOBAL, layoutDesc);
+            this.visitor.bindDescriptorSet(SetIndex.MATERIAL, isEnableEffect() ? pass.descriptorSet : layoutDesc);
             this.visitor.bindDescriptorSet(SetIndex.LOCAL, this._currentQueue.blitDesc!.stageDesc!);
             this.visitor.bindInputAssembler(screenIa);
             this.visitor.draw(screenIa);
             // The desc data obtained from the outside should be cleaned up so that the data can be modified
             this._clearExtBlitDesc(layoutDesc, extResId);
+            if (isEnableEffect()) this.visitor.bindDescriptorSet(SetIndex.GLOBAL, globalDesc);
         }
     }
     private _recordAdditiveLights () {
         const devicePass = this._currentQueue.devicePass;
-        const submitMap = devicePass.submitMap;
         const context = devicePass.context;
+        const submitMap = context.submitMap;
         submitMap.get(this.camera!)?.additiveLight?.recordCommandBuffer(context.device,
             this._renderPass,
             devicePass.context.commandBuffer);
@@ -1289,8 +1302,8 @@ class DeviceSceneTask extends WebSceneTask {
 
     private _recordPlanarShadows () {
         const devicePass = this._currentQueue.devicePass;
-        const submitMap = devicePass.submitMap;
         const context = devicePass.context;
+        const submitMap = context.submitMap;
         submitMap.get(this.camera!)?.planarQueue?.recordCommandBuffer(context.device,
             this._renderPass,
             devicePass.context.commandBuffer);
@@ -1394,6 +1407,7 @@ class ExecutorContext {
     readonly height: number;
     readonly additiveLight: RenderAdditiveLightQueue;
     readonly shadowMapBatched: RenderShadowMapBatchedQueue;
+    readonly submitMap: Map<Camera, SubmitInfo> = new Map<Camera, SubmitInfo>();
     renderGraph: RenderGraph;
 }
 class ResourceVisitor implements ResourceGraphVisitor {
@@ -1450,6 +1464,7 @@ export class Executor {
 
     execute (rg: RenderGraph) {
         this._context.renderGraph = rg;
+        this._context.submitMap.clear();
         const cmdBuff = this._context.commandBuffer;
         cmdBuff.begin();
         const visitor = new RenderVisitor(this._context);
@@ -1512,13 +1527,24 @@ class PreRenderVisitor extends BaseRenderVisitor implements RenderGraphVisitor {
     raster (pass: RasterPass) {
         if (!this.rg.getValid(this.passID)) return;
         const devicePasses = this.context.devicePasses;
-        const passHash = stringify(pass);
-        this.currPass = devicePasses.get(passHash);
-        if (!this.currPass) {
-            this.currPass = new DeviceRenderPass(this.context, new RasterPassInfo(this.passID, pass));
-            devicePasses.set(passHash, this.currPass);
+        if (pass.versionName === '') {
+            const passHash = stringify(pass);
+            this.currPass = devicePasses.get(passHash);
+            if (!this.currPass) {
+                this.currPass = new DeviceRenderPass(this.context, new RasterPassInfo(this.passID, pass));
+                devicePasses.set(passHash, this.currPass);
+            } else {
+                this.currPass.resetResource(this.passID, pass);
+            }
         } else {
-            this.currPass.resetResource(this.passID, pass);
+            const passHash = pass.versionName;
+            this.currPass = devicePasses.get(passHash);
+            if (!this.currPass || this.currPass.version !== pass.version) {
+                this.currPass = new DeviceRenderPass(this.context, new RasterPassInfo(this.passID, pass));
+                devicePasses.set(passHash, this.currPass);
+            } else {
+                this.currPass.resetResource(this.passID, pass);
+            }
         }
     }
     compute (value: ComputePass) {}
@@ -1570,7 +1596,9 @@ class PostRenderVisitor extends BaseRenderVisitor implements RenderGraphVisitor 
     }
     raster (pass: RasterPass) {
         const devicePasses = this.context.devicePasses;
-        const passHash = stringify(pass);
+        const passHash = pass.versionName === ''
+            ? stringify(pass)
+            : pass.versionName;
         const currPass = devicePasses.get(passHash);
         if (!currPass) return;
         this.currPass = currPass;

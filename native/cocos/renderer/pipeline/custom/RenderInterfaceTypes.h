@@ -172,6 +172,7 @@ public:
     virtual void addComputeView(const ccstd::string &name, const ComputeView &view) = 0;
     virtual RasterQueueBuilder *addQueue(QueueHint hint) = 0;
     virtual void setViewport(const gfx::Viewport &viewport) = 0;
+    virtual void setVersion(const ccstd::string &name, uint64_t version) = 0;
     RasterQueueBuilder *addQueue() {
         return addQueue(QueueHint::NONE);
     }

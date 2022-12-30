@@ -585,6 +585,10 @@ export class WebRasterPassBuilder extends WebSetter implements RasterPassBuilder
         );
         this._layoutID = layoutGraph.locateChild(layoutGraph.nullVertex(), layoutName);
     }
+    setVersion (name: string, version: number): void {
+        this._pass.versionName = name;
+        this._pass.version = version;
+    }
     get name () {
         return this._renderGraph.getName(this._vertID);
     }
