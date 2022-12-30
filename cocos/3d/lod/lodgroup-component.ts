@@ -608,13 +608,13 @@ export class LODGroup extends Component {
     }
 
     private _attachToScene () {
-        if (!this.node.scene) { return; }
-
-        const renderScene = this._getRenderScene();
-        if (this._lodGroup.scene) {
-            this._detachFromScene();
+        if (this.node && this.node.scene) {
+            const renderScene = this._getRenderScene();
+            if (this._lodGroup.scene) {
+                this._detachFromScene();
+            }
+            renderScene.addLODGroup(this._lodGroup);
         }
-        renderScene.addLODGroup(this._lodGroup);
     }
 
     private _detachFromScene () {
