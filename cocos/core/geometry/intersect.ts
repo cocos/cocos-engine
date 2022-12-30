@@ -48,7 +48,7 @@ import type { Mesh } from '../../3d';
  * 射线与平面的相交性检测。
  * @param ray @zh 射线。 @en The ray to test.
  * @param plane @zh 平面。 @en The plane to test.
- * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns non-zero.
+ * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns a non-zero value.
  */
 const rayPlane = (function () {
     const pt = new Vec3(0, 0, 0);
@@ -111,7 +111,7 @@ const rayTriangle = (function () {
  * 射线和球的相交性检测。
  * @param ray @zh 射线。 @en The ray to test.
  * @param sphere @zh 球。 @en The sphere to test.
- * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns non-zero.
+ * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns a non-zero value.
  */
 const raySphere = (function () {
     const e = new Vec3(0, 0, 0);
@@ -142,7 +142,7 @@ const raySphere = (function () {
  * 射线和轴对齐包围盒的相交性检测。
  * @param ray @zh 射线。 @en The ray to test.
  * @param aabb @zh 轴对齐包围盒。 @en The aabb to test.
- * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns non-zero.
+ * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns a non-zero value.
  */
 const rayAABB = (function () {
     const min = new Vec3();
@@ -176,7 +176,7 @@ function rayAABB2 (ray: Ray, min: IVec3Like, max: IVec3Like) {
  * 射线和OBB的相交性检测。
  * @param ray @zh 射线。 @en The ray.
  * @param obb @zh OBB。 @en The OBB to test.
- * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns non-zero.
+ * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns a non-zero value.
  */
 const rayOBB = (function () {
     let center = new Vec3();
@@ -256,7 +256,7 @@ const rayOBB = (function () {
  * 射线和胶囊体的相交性检测。
  * @param ray @zh 射线。 @en The ray to test.
  * @param capsule @zh 胶囊体。 @en The capsule to test.
- * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns non-zero.
+ * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns a non-zero value.
  */
 const rayCapsule = (function () {
     const v3_0 = new Vec3();
@@ -342,7 +342,7 @@ const rayCapsule = (function () {
  * 线段与平面的相交性检测。
  * @param line @zh 要测试的线段。 @en The line to test.
  * @param plane @zh 要测试的平面。 @en The plane to test.
- * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns non-zero.
+ * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns a non-zero value.
  */
 const linePlane = (function () {
     const ab = new Vec3(0, 0, 0);
@@ -363,7 +363,7 @@ const linePlane = (function () {
  * @param line @zh 线段 @en The line to test.
  * @param triangle @zh 三角形 @en The triangle to test.
  * @param outPt @zh 可选，相交点 @en Optional out param, indicates the intersection point.
- * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns non-zero.
+ * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns a non-zero value.
  */
 const lineTriangle = (function () {
     const ab = new Vec3(0, 0, 0);
@@ -427,7 +427,7 @@ const r_t = new Ray();
  * 线段与轴对齐包围盒的相交性检测
  * @param line @zh 线段 @en The line to test
  * @param aabb @zh 轴对齐包围盒 @en The aabb to test
- * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns non-zero.no intersection
+ * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns a non-zero value.no intersection
  */
 function lineAABB (line: Line, aabb: AABB): number {
     r_t.o.set(line.s);
@@ -449,7 +449,7 @@ function lineAABB (line: Line, aabb: AABB): number {
  * 线段与OBB的相交性检测。
  * @param line @zh 线段 @en The line to test.
  * @param obb @zh OBB @en The OBB to test.
- * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns non-zero.no intersection
+ * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns a non-zero value.no intersection
  */
 function lineOBB (line: Line, obb: OBB): number {
     r_t.o.set(line.s);
@@ -471,7 +471,7 @@ function lineOBB (line: Line, obb: OBB): number {
  * 线段与球的相交性检测
  * @param line @zh 线段 @en The line to test
  * @param sphere @zh 球 @en The sphere to test
- * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns non-zero.no intersection
+ * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns a non-zero value.no intersection
  */
 function lineSphere (line: Line, sphere: Sphere): number {
     r_t.o.set(line.s);
@@ -493,7 +493,7 @@ function lineSphere (line: Line, sphere: Sphere): number {
  * 轴对齐包围盒和轴对齐包围盒的相交性检测。
  * @param aabb1 @zh 轴对齐包围盒1 @en aabb 1 to test
  * @param aabb2 @zh 轴对齐包围盒2 @en aabb 2 to test
- * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns non-zero.no intersection
+ * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns a non-zero value.no intersection
  */
 const aabbWithAABB = (function () {
     const aMin = new Vec3();
@@ -574,7 +574,7 @@ function getInterval (vertices: any[] | Vec3[], axis: Vec3) {
  * 轴对齐包围盒和OBB的相交性检测。
  * @param aabb @zh 轴对齐包围盒 @en The aabb to test
  * @param obb @zh OBB @en The OBB to test
- * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns non-zero.no intersection
+ * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns a non-zero value.no intersection
  */
 const aabbWithOBB = (function () {
     const test = new Array(15);
@@ -645,7 +645,7 @@ const aabbPlane = function (aabb: AABB, plane: Plane): number {
  * 轴对齐包围盒和锥台相交性检测，速度快，但有错误情况。
  * @param aabb @zh 轴对齐包围盒 @en The aabb to test
  * @param frustum @zh 锥台 @en The frustum to test
- * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns non-zero.no intersection
+ * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns a non-zero value.no intersection
  */
 const aabbFrustum = function (aabb: AABB, frustum: Readonly<Frustum>): number {
     for (let i = 0; i < frustum.planes.length; i++) {
@@ -684,7 +684,7 @@ const aabbFrustumCompletelyInside = function (aabb: AABB, frustum: Readonly<Frus
  * 轴对齐包围盒和锥台相交性检测，正确处理大多数错误情况。
  * @param aabb @zh 轴对齐包围盒 @en The aabb to test
  * @param frustum @zh 锥台 @en The frustum to test
- * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns non-zero.no intersection
+ * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns a non-zero value.no intersection
  */
 const aabbFrustumAccurate = (function () {
     const tmp = new Array(8);
@@ -777,7 +777,7 @@ const obbPlane = (function () {
  * OBB 和锥台相交性检测，速度快，但有错误情况。
  * @param obb @zh OBB @en The OBB to test.
  * @param frustum @zh 锥台 @en The frustum to test.
- * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns non-zero.
+ * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns a non-zero value.
  */
 const obbFrustum = function (obb: OBB, frustum: Frustum): number {
     for (let i = 0; i < frustum.planes.length; i++) {
@@ -797,7 +797,7 @@ const obbFrustum = function (obb: OBB, frustum: Frustum): number {
  * OBB 和锥台相交性检测，正确处理大多数错误情况。
  * @param obb @zh OBB @en The OBB to test
  * @param frustum @zh 锥台 @en The frustum to test
- * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns non-zero.no intersection
+ * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns a non-zero value.no intersection
  */
 const obbFrustumAccurate = (function () {
     const tmp = new Array(8);
@@ -852,7 +852,7 @@ const obbFrustumAccurate = (function () {
  * OBB 和OBB的相交性检测。
  * @param obb1 @zh OBB1 @en Obb 1 to test
  * @param obb2 @zh OBB2 @en Obb 2 to test
- * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns non-zero.no intersection
+ * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns a non-zero value.no intersection
  */
 const obbWithOBB = (function () {
     const test = new Array(15);
@@ -904,7 +904,7 @@ const obbWithOBB = (function () {
  * OBB 和胶囊体的相交性检测。
  * @param obb @zh OBB @en The OBB to test.
  * @param capsule @zh 胶囊体 @en The capsule to test.
- * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns non-zero.
+ * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns a non-zero value.
  */
 const obbCapsule = (function () {
     const sphere_0 = new Sphere();
@@ -986,7 +986,7 @@ const spherePlane = function (sphere: Sphere, plane: Plane): number {
  * 球和锥台的相交性检测，速度快，但有错误情况。
  * @param sphere @zh 球 @en The sphere to test
  * @param frustum @zh 锥台 @en The frustum to test
- * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns non-zero.no intersection
+ * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns a non-zero value.no intersection
  */
 const sphereFrustum = function (sphere: Sphere, frustum: Frustum): number {
     for (let i = 0; i < frustum.planes.length; i++) {
@@ -1006,7 +1006,7 @@ const sphereFrustum = function (sphere: Sphere, frustum: Frustum): number {
  * 球和锥台的相交性检测，正确处理大多数错误情况。
  * @param sphere @zh 球 @en The sphere to test
  * @param frustum @zh 锥台 @en The frustum to test
- * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns non-zero.no intersection
+ * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns a non-zero value.no intersection
  */
 const sphereFrustumAccurate = (function () {
     const pt = new Vec3(0, 0, 0); const map = [1, -1, 1, -1, 1, -1];
