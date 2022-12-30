@@ -20,7 +20,11 @@ SourceNode::SourceNode(BaseAudioContext* ctx, AudioBuffer* buffer): AudioNode(ct
     }
     ctx->getInnerContext()->connect(_node, _absn);
     _playbackRate = AudioParam::createParam(_absn->playbackRate());
-    _gain = AudioParam::createParam(std::reinterpret_pointer_cast<lab::GainNode>(_node)->gain());
+    #if CC_PLATFORM == CC_PLATFORM_ANDROID
+        _gain = AudioParam::createParam(std::dynamic_pointer_cast<lab::GainNode>(_node)->gain());
+    #else
+        _gain = AudioParam::createParam(std::-<lab::GainNode>(_node)->gain());
+    #endif
     _absn->setOnEnded([&](){
         _onEnd();
     });
