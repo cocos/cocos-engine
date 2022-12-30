@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,47 +22,45 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include "application/ApplicationManager.h"
 #include "base/Log.h"
 #include "base/Macros.h"
-#include "base/std/container/vector.h"
 #include "base/std/container/list.h"
 #include "base/std/container/string.h"
 #include "base/std/container/unordered_map.h"
-#include "application/ApplicationManager.h"
-#include "platform/java/modules/XRInterface.h"
+#include "base/std/container/vector.h"
 #include "math/Quaternion.h"
+#include "platform/java/modules/XRInterface.h"
 
 #if CC_USE_XR
-#include "Xr.h"
-#if ANDROID
-#include <sys/system_properties.h>
-#endif
-#include "XRRemotePreviewManager.h"
-#if CC_USE_WEBSOCKET_SERVER
-#include "network/WebSocketServer.h"
-#endif
+    #include "Xr.h"
+    #if ANDROID
+        #include <sys/system_properties.h>
+    #endif
+    #include "XRRemotePreviewManager.h"
+    #if CC_USE_WEBSOCKET_SERVER
+        #include "network/WebSocketServer.h"
+    #endif
 
 namespace cc {
-#define SOCKET_PORT 8989
+    #define SOCKET_PORT 8989
 // 11259375
 const int32_t PACKET_HEAD_CODE = 0x000ABCDEF;
 
 XRRemotePreviewManager::XRRemotePreviewManager() {
-
 }
 
 XRRemotePreviewManager::~XRRemotePreviewManager() {
-
 }
 
-#if CC_USE_WEBSOCKET_SERVER
+    #if CC_USE_WEBSOCKET_SERVER
 void XRRemotePreviewManager::onClientConnected(const std::shared_ptr<WebSocketServerConnection> &connection) {
     CC_LOG_INFO("[XRRemotePreviewManager] onClientConnected.%p", connection.get());
     XRDeviceInfo deviceInfo;
     deviceInfo.type = static_cast<int16_t>(XRDataPackageType::DPT_MSG_DEVICE_INFO);
     memset(deviceInfo.deviceName, 0, sizeof(char) * 32);
     strcpy(deviceInfo.deviceName, "XRDevice");
-#if ANDROID
+        #if ANDROID
     char man[PROP_VALUE_MAX + 1];
     char mod[PROP_VALUE_MAX + 1];
     /* A length 0 value indicates that the property is not defined */
@@ -77,7 +74,7 @@ void XRRemotePreviewManager::onClientConnected(const std::shared_ptr<WebSocketSe
         memcpy(deviceInfo.deviceName, pname, sizeof(char) * 32);
     }
     if (pname) free(pname);
-#endif
+        #endif
     _wssConnections = _webSocketServer->getConnections();
     _xr = CC_GET_XR_INTERFACE();
     if (_xr) {
@@ -121,40 +118,40 @@ void XRRemotePreviewManager::onConnection(const std::shared_ptr<WebSocketServerC
     onClientConnected(connection);
 
     connection->setOnClose([=](int closeCode, const ccstd::string &closeReason) {
-      onClientDisconnected(closeCode, closeReason);
+        onClientDisconnected(closeCode, closeReason);
     });
 }
-#endif
+    #endif
 
 void XRRemotePreviewManager::start() {
-#if CC_USE_WEBSOCKET_SERVER
+    #if CC_USE_WEBSOCKET_SERVER
     _webSocketServer = std::make_shared<WebSocketServer>();
 
     _webSocketServer->setOnBegin([]() {
-      CC_LOG_INFO("[XRRemotePreviewManager] onBegin");
+        CC_LOG_INFO("[XRRemotePreviewManager] onBegin");
     });
 
     _webSocketServer->setOnEnd([]() {
-      CC_LOG_INFO("[XRRemotePreviewManager] onEnd");
+        CC_LOG_INFO("[XRRemotePreviewManager] onEnd");
     });
 
     _webSocketServer->setOnClose([](const ccstd::string &msg) {
-      CC_LOG_INFO("[XRRemotePreviewManager] onClose.%s", msg.c_str());
+        CC_LOG_INFO("[XRRemotePreviewManager] onClose.%s", msg.c_str());
     });
 
     _webSocketServer->setOnListening([](const ccstd::string &msg) {
-      CC_LOG_INFO("[XRRemotePreviewManager] onListening.%s", msg.c_str());
+        CC_LOG_INFO("[XRRemotePreviewManager] onListening.%s", msg.c_str());
     });
 
     _webSocketServer->setOnError([](const ccstd::string &msg) {
-      CC_LOG_INFO("[XRRemotePreviewManager] onError.%s", msg.c_str());
+        CC_LOG_INFO("[XRRemotePreviewManager] onError.%s", msg.c_str());
     });
 
     _webSocketServer->setOnConnection(std::bind(&XRRemotePreviewManager::onConnection, this, std::placeholders::_1));
 
-    WebSocketServer::listenAsync(_webSocketServer, SOCKET_PORT, "127.0.0.1",  nullptr);
+    WebSocketServer::listenAsync(_webSocketServer, SOCKET_PORT, "127.0.0.1", nullptr);
     CC_LOG_INFO("[XRRemotePreviewManager] listenAsync ready!");
-#endif
+    #endif
     _isStarted = true;
 }
 
@@ -187,7 +184,7 @@ void XRRemotePreviewManager::packCommonMessageData(const XRCommonMessage &info, 
 }
 
 void XRRemotePreviewManager::sendMessage(const ccstd::string &message) {
-#if CC_USE_WEBSOCKET_SERVER
+    #if CC_USE_WEBSOCKET_SERVER
     if (_webSocketServer && _isConnectionChanged) {
         _isConnectionChanged = false;
         _wssConnections = _webSocketServer->getConnections();
@@ -210,18 +207,18 @@ void XRRemotePreviewManager::sendMessage(const ccstd::string &message) {
     } else {
         CC_LOG_INFO("[XRRemotePreviewManager] sendMessage [%s] failed [wss invalid] !!!", message.c_str());
     }
-#endif
+    #endif
 }
 
 void XRRemotePreviewManager::sendDeviceInfo(const XRDeviceInfo &info) {
-#if CC_USE_WEBSOCKET_SERVER
+    #if CC_USE_WEBSOCKET_SERVER
     if (_webSocketServer && _isConnectionChanged) {
         _isConnectionChanged = false;
         _wssConnections = _webSocketServer->getConnections();
     }
 
     if (_webSocketServer && !_wssConnections.empty()) {
-        for (auto &wssConn: _wssConnections) {
+        for (auto &wssConn : _wssConnections) {
             if (wssConn->getReadyState() == WebSocketServerConnection::ReadyState::OPEN) {
                 size_t dataLen = 8 + sizeof(info);
                 char data[dataLen];
@@ -234,18 +231,18 @@ void XRRemotePreviewManager::sendDeviceInfo(const XRDeviceInfo &info) {
     } else {
         CC_LOG_ERROR("[XRRemotePreviewManager] sendDeviceInfo failed [wss invalid] !!!");
     }
-#endif
+    #endif
 }
 
 void XRRemotePreviewManager::sendPoseInfo(const XRPoseInfo &info) {
-#if CC_USE_WEBSOCKET_SERVER
+    #if CC_USE_WEBSOCKET_SERVER
     if (_webSocketServer && _isConnectionChanged) {
         _isConnectionChanged = false;
         _wssConnections = _webSocketServer->getConnections();
     }
 
     if (_webSocketServer && !_wssConnections.empty()) {
-        for (auto &wssConn: _wssConnections) {
+        for (auto &wssConn : _wssConnections) {
             if (wssConn->getReadyState() == WebSocketServerConnection::ReadyState::OPEN) {
                 size_t dataLen = 8 + sizeof(info);
                 char data[dataLen];
@@ -256,7 +253,7 @@ void XRRemotePreviewManager::sendPoseInfo(const XRPoseInfo &info) {
             }
         }
     }
-#endif
+    #endif
 }
 
 void XRRemotePreviewManager::sendControllerKeyInfo(const ControllerInfo::ButtonInfo &info) {
@@ -342,7 +339,7 @@ bool XRRemotePreviewManager::isStarted() const {
 void XRRemotePreviewManager::tick() {
     if (this->_isStarted) {
         xr::XrEntry::getInstance()->getXrPose(_leftEyePose, _rightEyePose, _leftControllerPose, _rightControllerPose);
-        _devicePoseInfo.type = static_cast<int16_t> (XRDataPackageType::DPT_MSG_POSE_DATA);
+        _devicePoseInfo.type = static_cast<int16_t>(XRDataPackageType::DPT_MSG_POSE_DATA);
         _devicePoseInfo.hmdOrientation[0] = _leftEyePose.qx;
         _devicePoseInfo.hmdOrientation[1] = _leftEyePose.qy;
         _devicePoseInfo.hmdOrientation[2] = _leftEyePose.qz;

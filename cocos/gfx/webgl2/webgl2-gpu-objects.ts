@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { nextPow2 } from '../../core';
 import {
@@ -30,6 +29,7 @@ import {
     ColorAttachment, DepthStencilAttachment, UniformBlock, UniformSamplerTexture, DescriptorSetLayoutBinding,
 } from '../base/define';
 import { BlendState, DepthStencilState, RasterizerState } from '../base/pipeline-state';
+import { WebGL2DeviceManager } from './webgl2-define';
 import { WebGL2Device } from './webgl2-device';
 
 export class WebGL2IndirectDrawInfos {
@@ -190,7 +190,7 @@ export interface IWebGL2GPUSampler {
     glWrapT: GLenum;
     glWrapR: GLenum;
 
-    getGLSampler (device: WebGL2Device, minLod: number, maxLod: number) : WebGLSampler;
+    getGLSampler (device: WebGL2Device, minLod: number, maxLod: number): WebGLSampler;
 }
 
 export interface IWebGL2GPUInput {
@@ -320,4 +320,29 @@ export interface IWebGL2GPUInputAssembler {
     glAttribs: IWebGL2Attrib[];
     glIndexType: GLenum;
     glVAOs: Map<WebGLProgram, WebGLVertexArrayObject>;
+}
+
+export class IWebGL2BlitManager {
+    private _srcFramebuffer: WebGLFramebuffer | null;
+    private _dstFramebuffer: WebGLFramebuffer | null;
+
+    get srcFramebuffer () {
+        return this._srcFramebuffer;
+    }
+
+    get dstFramebuffer () {
+        return this._dstFramebuffer;
+    }
+
+    constructor () {
+        const { gl } = WebGL2DeviceManager.instance;
+        this._srcFramebuffer = gl.createFramebuffer();
+        this._dstFramebuffer = gl.createFramebuffer();
+    }
+
+    destroy () {
+        const { gl } = WebGL2DeviceManager.instance;
+        gl.deleteFramebuffer(this._srcFramebuffer);
+        gl.deleteFramebuffer(this._dstFramebuffer);
+    }
 }

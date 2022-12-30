@@ -1,18 +1,18 @@
 /****************************************************************************
- Copyright (c) 2018-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2018-2023 Xiamen Yaji Software Co., Ltd.
  
  http://www.cocos.com
  
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
- 
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -20,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+****************************************************************************/
 
 #include "math/Mat3.h"
 
@@ -52,13 +52,13 @@ Mat3::Mat3(const Mat3 &copy) {
 
 void Mat3::set(float m11, float m12, float m13, float m21, float m22, float m23, float m31, float m32, float m33) {
     m[0] = m11;
-    m[1] = m12;
-    m[2] = m13;
-    m[3] = m21;
+    m[1] = m21;
+    m[2] = m31;
+    m[3] = m12;
     m[4] = m22;
-    m[5] = m23;
-    m[6] = m31;
-    m[7] = m32;
+    m[5] = m32;
+    m[6] = m13;
+    m[7] = m23;
     m[8] = m33;
 }
 

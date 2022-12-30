@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+****************************************************************************/
 
 #include "scene/ReflectionProbe.h"
 #include "Define.h"
@@ -30,9 +29,25 @@
 #include "scene/ReflectionProbeManager.h"
 namespace cc {
 namespace scene {
+// right left up down front back
+const std::array<Vec3, 6> CAMERA_DIR{
+    Vec3(0, -90, 0),
+    Vec3(0, 90, 0),
+    Vec3(90, 0, 0),
+    Vec3(-90, 0, 0),
+    Vec3(0, 0, 0),
+    Vec3(0, 180, 0)};
 ReflectionProbe::ReflectionProbe(int32_t id) {
     _probeId = id;
-    scene::ReflectionProbeManager::getInstance()->registerProbe(this);
+}
+
+void ReflectionProbe::setResolution(int32_t resolution) {
+    if (_resolution != resolution) {
+        for (const auto& rt : _bakedCubeTextures) {
+            rt->resize(resolution, resolution);
+        }
+        _resolution = resolution;
+    }
 }
 
 void ReflectionProbe::initialize(Node* probeNode, Node* cameraNode) {
@@ -88,12 +103,15 @@ void ReflectionProbe::syncCameraParams(const Camera* camera) {
     _camera->setClearFlag(camera->getClearFlag());
     _camera->setClearColor(camera->getClearColor());
     _camera->setPriority(camera->getPriority() - 1);
+    _camera->changeTargetWindow(_realtimePlanarTexture->getWindow());
+    _camera->resize(camera->getWidth(), camera->getHeight());
 }
 
 void ReflectionProbe::renderPlanarReflection(const Camera* sourceCamera) {
     if (!sourceCamera) return;
     syncCameraParams(sourceCamera);
     transformReflectionCamera(sourceCamera);
+    packBackgroundColor();
     _needRender = true;
 }
 
@@ -126,7 +144,7 @@ void ReflectionProbe::transformReflectionCamera(const Camera* sourceCamera) {
     _camera->update(true);
 
     // Transform the plane from world space to reflection camera space use the inverse transpose matrix
-    Vec4 viewSpaceProbe{ Vec3::UNIT_Y.x, Vec3::UNIT_Y.y, Vec3::UNIT_Y.z, -Vec3::dot(Vec3::UNIT_Y, _node->getWorldPosition()) };
+    Vec4 viewSpaceProbe{Vec3::UNIT_Y.x, Vec3::UNIT_Y.y, Vec3::UNIT_Y.z, -Vec3::dot(Vec3::UNIT_Y, _node->getWorldPosition())};
     Mat4 matView = _camera->getMatView();
     matView.inverse();
     matView.transpose();
@@ -165,9 +183,9 @@ void ReflectionProbe::updatePlanarTexture(const scene::RenderScene* scene) {
                 if (!modelWorldBounds) {
                     continue;
                 }
-                const auto *probeBoundingBox = getBoundingBox();
+                const auto* probeBoundingBox = getBoundingBox();
                 if (modelWorldBounds->aabbAabb(*probeBoundingBox)) {
-                    model->updateReflctionProbePlanarMap(_realtimePlanarTexture->getGFXTexture());
+                    model->updateReflectionProbePlanarMap(_realtimePlanarTexture->getGFXTexture());
                 }
             }
         }
@@ -184,7 +202,94 @@ void ReflectionProbe::destroy() {
         _realtimePlanarTexture->destroy();
         _realtimePlanarTexture = nullptr;
     }
+    for (const auto& rt : _bakedCubeTextures) {
+        rt->destroy();
+    }
+    _bakedCubeTextures.clear();
+}
+
+void ReflectionProbe::enable() {
+    scene::ReflectionProbeManager::getInstance()->registerProbe(this);
+}
+void ReflectionProbe::disable() {
     scene::ReflectionProbeManager::getInstance()->unRegisterProbe(this);
+}
+
+void ReflectionProbe::initBakedTextures() {
+    if (_bakedCubeTextures.empty()) {
+        for (uint32_t i = 0; i < 6; i++) {
+            auto* rt = ccnew RenderTexture();
+            IRenderTextureCreateInfo info;
+            info.name = "capture";
+            info.height = _resolution;
+            info.width = _resolution;
+            rt->initialize(info);
+            _bakedCubeTextures.emplace_back(rt);
+        }
+    }
+}
+void ReflectionProbe::resetCameraParams() {
+    _camera->setProjectionType(CameraProjection::PERSPECTIVE);
+    _camera->setOrthoHeight(10.F);
+    _camera->setNearClip(1.F);
+    _camera->setFarClip(1000.F);
+    _camera->setFov(static_cast<float>(mathutils::toRadian(90.F)));
+    _camera->setPriority(0);
+    if (!_bakedCubeTextures.empty()) {
+        _camera->changeTargetWindow(_bakedCubeTextures[0]->getWindow());
+    }
+    _camera->resize(_resolution, _resolution);
+    _camera->setVisibility(_visibility);
+
+    _camera->setClearColor(_backgroundColor);
+    _camera->setClearDepth(1.F);
+    _camera->setClearStencil(0.F);
+    _camera->setClearFlag(_clearFlag);
+
+    _camera->setAperture(CameraAperture::F16_0);
+    _camera->setShutter(CameraShutter::D125);
+    _camera->setIso(CameraISO::ISO100);
+
+    _cameraNode->setWorldPosition(_node->getWorldPosition());
+    _cameraNode->setWorldRotation(_node->getWorldRotation());
+    _camera->update(true);
+}
+void ReflectionProbe::captureCubemap() {
+    initBakedTextures();
+    resetCameraParams();
+    packBackgroundColor();
+    _needRender = true;
+}
+
+void ReflectionProbe::updateCameraDir(int32_t faceIdx) {
+    _cameraNode->setRotationFromEuler(CAMERA_DIR[faceIdx]);
+    _camera->update(true);
+}
+
+Vec2 ReflectionProbe::getRenderArea() const {
+    if (_probeType == ProbeType::PLANAR) {
+        return Vec2(_realtimePlanarTexture->getWidth(), _realtimePlanarTexture->getHeight());
+    }
+    return Vec2(_resolution, _resolution);
+}
+
+void ReflectionProbe::packBackgroundColor() {
+    Vec3 rgb{_camera->getClearColor().x, _camera->getClearColor().y, _camera->getClearColor().z};
+    float maxComp = std::max(std::max(rgb.x, rgb.y), rgb.z);
+    float e = 128.F;
+    if (maxComp > 0.0001) {
+        e = std::log(maxComp) / std::log(1.1F);
+        e = std::ceil(e);
+        e = std::clamp(e + 128.F, 0.F, 255.F);
+    }
+    float sc = 1.F / std::pow(1.1F, e - 128.F);
+    Vec3 encode{std::clamp(rgb * sc, Vec3(0.F, 0.F, 0.F), Vec3(1.F, 1.F, 1.F))};
+    encode *= 255.F;
+    Vec3 fVec3{std::floor(encode.x), std::floor(encode.y), std::floor(encode.z)};
+    Vec3 sub(encode - fVec3);
+    Vec3 stepVec3 = sub < Vec3(0.5F, 0.5F, 0.5F) ? Vec3(0.5F, 0.5F, 0.5F) : sub;
+    Vec3 encodeRounded(fVec3 + stepVec3);
+    _camera->setClearColor(gfx::Color{encodeRounded.x / 255.F, encodeRounded.y / 255.F, encodeRounded.z / 255.F, e / 255.F});
 }
 
 } // namespace scene

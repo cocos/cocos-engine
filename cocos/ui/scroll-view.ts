@@ -1,19 +1,18 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -1145,15 +1144,6 @@ export class ScrollView extends ViewGroup {
             this._topBoundary = this._bottomBoundary + viewTrans.height;
 
             this._moveContentToTopLeft(viewTrans.contentSize);
-            this._updateScrollBarState();
-
-            // to avoid size changed and auto-spring-back after touching end.
-            const boundary = this._getHowMuchOutOfBoundary();
-            // if the _outOfBoundaryAmount !== Vec3.zero, the content will roll after touching end
-            // we should release this rolling event in advance in order to avoid  the weird rolling after touching end
-            if (boundary.x !== 0 || boundary.y !== 0) {
-                this._moveContent(boundary);
-            }
         }
     }
 
@@ -1430,7 +1420,7 @@ export class ScrollView extends ViewGroup {
             const outOfBoundary = this._getHowMuchOutOfBoundary();
             _tempVec3.set(this._getContentPosition());
             _tempVec3.add(outOfBoundary);
-            this._content.setPosition(_tempVec3);
+            this._setContentPosition(_tempVec3);
             this._updateScrollBar(Vec2.ZERO);
         }
     }
@@ -1861,12 +1851,10 @@ export class ScrollView extends ViewGroup {
             handleInputDevice = event.handleInputDevice;
         }
         let value;
-        if (!this.enabledInHierarchy) {
+        if (!this.enabledInHierarchy || this._hoverIn === XrhoverType.NONE) {
             return;
         }
-        if (this._hoverIn === XrhoverType.NONE) {
-            return;
-        } else if (this._hoverIn === XrhoverType.LEFT) {
+        if (this._hoverIn === XrhoverType.LEFT) {
             value = handleInputDevice.leftStick.getValue();
             if (!value.equals(Vec2.ZERO)) {
                 this._xrThumbStickMove(value);

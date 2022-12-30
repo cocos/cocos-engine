@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -24,8 +23,8 @@
 ****************************************************************************/
 
 #include "jsb_scene_manual.h"
-#include "bindings/auto/jsb_scene_auto.h"
 #include "bindings/auto/jsb_gfx_auto.h"
+#include "bindings/auto/jsb_scene_auto.h"
 #include "core/Root.h"
 #include "core/scene-graph/Node.h"
 #include "scene/Model.h"
@@ -123,6 +122,7 @@ static bool js_root_registerListeners(se::State &s) // NOLINT(readability-identi
     DISPATCH_EVENT_TO_JS_ARGS_0(cc::Root::BeforeCommit, _onDirectorBeforeCommit);
     DISPATCH_EVENT_TO_JS_ARGS_0(cc::Root::BeforeRender, _onDirectorBeforeRender);
     DISPATCH_EVENT_TO_JS_ARGS_0(cc::Root::AfterRender, _onDirectorAfterRender);
+    DISPATCH_EVENT_TO_JS_ARGS_0(cc::Root::PipelineChanged, _onDirectorPipelineChanged);
 
     return true;
 }
@@ -135,16 +135,6 @@ static void registerOnTransformChanged(cc::Node *node, se::Object *jsObject) {
             se::Value arg0;
             nativevalue_to_se(transformBit, arg0);
             se::ScriptEngine::getInstance()->callFunction(jsObject, "_onTransformChanged", 1, &arg0);
-        });
-}
-
-static void registerOnAncestorTransformChanged(cc::Node *node, se::Object *jsObject) {
-    node->on<cc::Node::AncestorTransformChanged>(
-        [jsObject](cc::Node * /* emitter*/, cc::TransformBit transformBit) {
-            se::AutoHandleScope hs;
-            se::Value arg0;
-            nativevalue_to_se(transformBit, arg0);
-            se::ScriptEngine::getInstance()->callFunction(jsObject, "_onAncestorTransformChanged", 1, &arg0);
         });
 }
 
@@ -281,12 +271,11 @@ static bool js_scene_Node_registerListeners(se::State &s) // NOLINT(readability-
     SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     auto *jsObject = s.thisObject();
-    se::Value jsThisVal(jsObject);
 #define NODE_DISPATCH_EVENT_TO_JS(eventType, jsFuncName)                                      \
     cobj->on<eventType>(                                                                      \
-        [jsThisVal](cc::Node * /*emitter*/) {                                                  \
+        [jsObject](cc::Node * /*emitter*/) {                                                  \
             se::AutoHandleScope scope;                                                        \
-            se::ScriptEngine::getInstance()->callFunction(jsThisVal.toObject(), #jsFuncName, 0, nullptr); \
+            se::ScriptEngine::getInstance()->callFunction(jsObject, #jsFuncName, 0, nullptr); \
         });
 
     registerOnActiveNode(cobj, jsObject);
@@ -344,18 +333,6 @@ static bool js_scene_Node_registerOnTransformChanged(se::State &s) // NOLINT(rea
     return true;
 }
 SE_BIND_FUNC(js_scene_Node_registerOnTransformChanged) // NOLINT(readability-identifier-naming)
-
-static bool js_scene_Node_registerOnAncestorTransformChanged(se::State &s) // NOLINT(readability-identifier-naming)
-{
-    auto *cobj = SE_THIS_OBJECT<cc::Node>(s);
-    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-
-    auto *jsObject = s.thisObject();
-
-    registerOnAncestorTransformChanged(cobj, jsObject);
-    return true;
-}
-SE_BIND_FUNC(js_scene_Node_registerOnAncestorTransformChanged) // NOLINT(readability-identifier-naming)
 
 static bool js_scene_Node_registerOnParentChanged(se::State &s) // NOLINT(readability-identifier-naming)
 {
@@ -706,7 +683,7 @@ static bool js_Model_setInstancedAttribute(se::State &s) // NOLINT(readability-i
 
                     default:
                         // FIXME:
-                        CC_ABORT(); 
+                        CC_ABORT();
                         break;
                 }
                 return true;
@@ -751,7 +728,7 @@ static bool js_Model_registerListeners(se::State &s) // NOLINT(readability-ident
             se::ScriptEngine::getInstance()->callFunction(thiz, "_updateLocalDescriptors", static_cast<uint32_t>(args.size()), args.data());
         });
 
-    cobj->on<cc::scene::Model::UpdateLocalSHDescriptor>([=](cc::scene::Model * /*emitter*/,index_t subModelIndex, cc::gfx::DescriptorSet *descriptorSet) {
+    cobj->on<cc::scene::Model::UpdateLocalSHDescriptor>([=](cc::scene::Model * /*emitter*/, index_t subModelIndex, cc::gfx::DescriptorSet *descriptorSet) {
         cobj->setCalledFromJS(true);
         se::AutoHandleScope hs;
 
@@ -761,7 +738,7 @@ static bool js_Model_registerListeners(se::State &s) // NOLINT(readability-ident
         se::ScriptEngine::getInstance()->callFunction(thiz, "_updateLocalSHDescriptors", static_cast<uint32_t>(args.size()), args.data());
     });
 
-    cobj->on<cc::scene::Model::UpdateWorldBound>([=](cc::scene::Model * /*emitter*/,index_t subModelIndex, cc::gfx::DescriptorSet *descriptorSet) {
+    cobj->on<cc::scene::Model::UpdateWorldBound>([=](cc::scene::Model * /*emitter*/, index_t subModelIndex, cc::gfx::DescriptorSet *descriptorSet) {
         cobj->setCalledFromJS(true);
         se::AutoHandleScope hs;
 
@@ -771,7 +748,7 @@ static bool js_Model_registerListeners(se::State &s) // NOLINT(readability-ident
         se::ScriptEngine::getInstance()->callFunction(thiz, "_updateWorldBoundDescriptors", static_cast<uint32_t>(args.size()), args.data());
     });
 
-    cobj->on<cc::scene::Model::UpdateInstancedAttributes>([=](cc::scene::Model * /*emitter*/,const ccstd::vector<cc::gfx::Attribute> &attributes, cc::scene::SubModel *subModel) {
+    cobj->on<cc::scene::Model::UpdateInstancedAttributes>([=](cc::scene::Model * /*emitter*/, const ccstd::vector<cc::gfx::Attribute> &attributes, cc::scene::SubModel *subModel) {
         cobj->setCalledFromJS(true);
         se::AutoHandleScope hs;
 
@@ -845,7 +822,6 @@ bool register_all_scene_manual(se::Object *obj) // NOLINT(readability-identifier
     __jsb_cc_Node_proto->defineFunction("_registerListeners", _SE(js_scene_Node_registerListeners));
 
     __jsb_cc_Node_proto->defineFunction("_registerOnTransformChanged", _SE(js_scene_Node_registerOnTransformChanged));
-    __jsb_cc_Node_proto->defineFunction("_registerOnAncestorTransformChanged", _SE(js_scene_Node_registerOnAncestorTransformChanged));
     __jsb_cc_Node_proto->defineFunction("_registerOnParentChanged", _SE(js_scene_Node_registerOnParentChanged));
     __jsb_cc_Node_proto->defineFunction("_registerOnMobilityChanged", _SE(js_scene_Node_registerOnMobilityChanged));
     __jsb_cc_Node_proto->defineFunction("_registerOnLayerChanged", _SE(js_scene_Node_registerOnLayerChanged));

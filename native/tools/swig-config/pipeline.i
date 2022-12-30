@@ -26,6 +26,8 @@
 #include "renderer/pipeline/PipelineSceneData.h"
 #include "renderer/pipeline/BatchedBuffer.h"
 #include "renderer/pipeline/GeometryRenderer.h"
+#include "renderer/pipeline/reflection-probe/ReflectionProbeFlow.h"
+#include "renderer/pipeline/reflection-probe/ReflectionProbeStage.h"
 %}
 
 // Insert code at the beginning of generated source file (.cpp)
@@ -33,6 +35,7 @@
 #include "bindings/auto/jsb_pipeline_auto.h"
 #include "bindings/auto/jsb_scene_auto.h"
 #include "bindings/auto/jsb_gfx_auto.h"
+#include "bindings/auto/jsb_assets_auto.h"
 #include "bindings/auto/jsb_cocos_auto.h"
 #include "renderer/pipeline/PipelineUBO.h"
 
@@ -153,6 +156,9 @@ using namespace cc;
 %attribute(cc::pipeline::RenderPipeline, cc::scene::Model*, profiler, getProfiler, setProfiler);
 %attribute(cc::pipeline::RenderPipeline, float, shadingScale, getShadingScale, setShadingScale);
 
+%attribute(cc::pipeline::RenderPipeline, uint32_t, _tag, getTag, setTag);
+%attribute(cc::pipeline::RenderPipeline, cc::pipeline::RenderFlowList , _flows, getFlows, setFlows);
+
 
 %attribute(cc::pipeline::PipelineSceneData, bool, isHDR, isHDR, setHDR);
 %attribute(cc::pipeline::PipelineSceneData, float, shadingScale, getShadingScale, setShadingScale);
@@ -162,11 +168,19 @@ using namespace cc;
 %attribute(cc::pipeline::PipelineSceneData, cc::scene::Shadows*, shadows, getShadows);
 %attribute(cc::pipeline::PipelineSceneData, cc::gi::LightProbes*, lightProbes, getLightProbes);
 
+
+%attribute(cc::pipeline::RenderStage, ccstd::string&, _name, getName, setName);
+%attribute(cc::pipeline::RenderStage, uint32_t, _priority, getPriority, setPriority);
+%attribute(cc::pipeline::RenderStage, uint32_t, _tag, getTag, setTag);
+
 %attribute(cc::pipeline::BloomStage, float, threshold, getThreshold, setThreshold);
 %attribute(cc::pipeline::BloomStage, float, intensity, getIntensity, setIntensity);
 %attribute(cc::pipeline::BloomStage, int, iterations, getIterations, setIterations);
 
-
+%attribute(cc::pipeline::RenderFlow, ccstd::string&, _name, getName, setName);
+%attribute(cc::pipeline::RenderFlow, uint32_t, _priority, getPriority, setPriority);
+%attribute(cc::pipeline::RenderFlow, uint32_t, _tag, getTag, setTag);
+%attribute(cc::pipeline::RenderFlow, cc::pipeline::RenderStageList, _stages, getStages, setStages);
 
 #define CC_USE_GEOMETRY_RENDERER 1
 
@@ -193,6 +207,7 @@ using namespace cc;
 
 %import "core/event/Event.h"
 
+%import "core/assets/Asset.h"
 %import "core/assets/Material.h"
 
 %import "renderer/gfx-base/GFXDef-common.h"
@@ -226,4 +241,7 @@ using namespace cc;
 %include "renderer/pipeline/PipelineSceneData.h"
 %include "renderer/pipeline/BatchedBuffer.h"
 %include "renderer/pipeline/GeometryRenderer.h"
+
+%include "renderer/pipeline/reflection-probe/ReflectionProbeFlow.h"
+%include "renderer/pipeline/reflection-probe/ReflectionProbeStage.h"
 
