@@ -432,7 +432,7 @@ void LodStateCache::updateLodState() {
                 if (lodGroup->isLockLevelChanged()) {
                     lodGroup->resetLockChangeFlag();
                     const auto &lodModels = _levelModels[lodGroup];
-                    for (auto level : lodModels) {
+                    for (const auto &level : lodModels) {
                         const auto &vecModels = lodModels.at(level.first);
                         for (const auto &model : vecModels) {
                             _modelsInLODGroup[model].clear();
@@ -480,7 +480,7 @@ void LodStateCache::updateLodState() {
             if (lodGroup->isLockLevelChanged()) {
                 lodGroup->resetLockChangeFlag();
 
-                for (auto level : lodModels) {
+                for (const auto &level : lodModels) {
                     const auto &vecModels = lodModels.at(level.first);
                     for (const auto &model : vecModels) {
                         _modelsInLODGroup[model].clear();
