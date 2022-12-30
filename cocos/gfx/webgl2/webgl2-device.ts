@@ -22,6 +22,7 @@
  THE SOFTWARE.
 */
 
+import { systemInfo } from 'pal/system-info';
 import { DescriptorSet } from '../base/descriptor-set';
 import { DescriptorSetLayout } from '../base/descriptor-set-layout';
 import { PipelineLayout } from '../base/pipeline-layout';
@@ -61,10 +62,11 @@ import { WebGL2CmdFuncCopyTextureToBuffers, WebGL2CmdFuncCopyBuffersToTexture, W
 import { GeneralBarrier } from '../base/states/general-barrier';
 import { TextureBarrier } from '../base/states/texture-barrier';
 import { BufferBarrier } from '../base/states/buffer-barrier';
-import { debug } from '../../core';
+import { debug, sys } from '../../core';
 import { Swapchain } from '../base/swapchain';
 import { IWebGL2Extensions, WebGL2DeviceManager } from './webgl2-define';
 import { IWebGL2BindingMapping } from './webgl2-gpu-objects';
+import { BrowserType, OS } from '../../../pal/system-info/enum-type';
 
 export class WebGL2Device extends Device {
     get gl () {
@@ -146,6 +148,13 @@ export class WebGL2Device extends Device {
 
         this._caps.maxVertexAttributes = gl.getParameter(gl.MAX_VERTEX_ATTRIBS);
         this._caps.maxVertexUniformVectors = gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS);
+        // WECHAT browser in IOS implementation of WebGL2 exist bugs.
+        // iOS15.5 or higher 15.x version the max valid vertex uniform vectors is 256.
+        // iOS16.0 or higher 16.x version the max valid vertex uniform vectors is 520?
+        // So limit wechat browser in IOS using vertex uniform vectors no more than 256.
+        if (systemInfo.os === OS.IOS && sys.browserType === BrowserType.WECHAT) {
+            this._caps.maxVertexUniformVectors = 256;
+        }
         this._caps.maxFragmentUniformVectors = gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS);
         this._caps.maxTextureUnits = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
         this._caps.maxVertexTextureUnits = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
