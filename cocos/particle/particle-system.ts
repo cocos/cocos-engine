@@ -31,12 +31,12 @@ import { INT_MAX } from '../core/math/bits';
 import { ColorOvertimeModule } from './modules/color-overtime';
 import { InitializationModule } from './modules/initialization';
 import { CurveRange, Mode } from './curve-range';
-import { ForceOvertimeModule } from './modules/force-overtime';
+import { ForceOverLifetimeModule } from './modules/force-overtime';
 import { LimitVelocityOvertimeModule } from './modules/limit-velocity-overtime';
-import { RotationOvertimeModule } from './modules/rotation-over-lifetime';
-import { SizeOvertimeModule } from './modules/size-over-lifetime';
+import { RotationOverLifetimeModule } from './modules/rotation-over-lifetime';
+import { SizeOverLifetimeModule } from './modules/size-over-lifetime';
 import { TextureAnimationModule } from './modules/texture-animation';
-import { VelocityOvertimeModule } from './modules/velocity-over-lifetime';
+import { VelocityOverLifetimeModule } from './modules/velocity-over-lifetime';
 import { EmissionModule } from './modules/emission';
 import { ShapeModule } from './modules/shape-module';
 import { ParticleUpdateContext } from './particle-update-context';
@@ -52,6 +52,7 @@ import { ParticleCuller } from './particle-culler';
 import { NoiseModule } from './modules/noise';
 import { CCBoolean, CCFloat, Component } from '../core';
 import { INVALID_HANDLE, ParticleHandle, ParticleSOAData } from './particle-soa-data';
+import { ParticleModule } from './particle';
 
 const _world_mat = new Mat4();
 const _world_rol = new Quat();
@@ -340,10 +341,10 @@ export class ParticleSystem extends Component {
     /**
      * @zh 粒子旋转模块。
      */
-    @type(RotationOvertimeModule)
+    @type(RotationOverLifetimeModule)
     @displayOrder(22)
     @tooltip('i18n:particle_system.rotationOvertimeModule')
-    public get rotationOvertimeModule () {
+    public get rotationOverLifetimeModule () {
         return this._rotationOvertimeModule;
     }
 
@@ -354,13 +355,13 @@ export class ParticleSystem extends Component {
     @displayOrder(24)
     @tooltip('i18n:particle_system.textureAnimationModule')
     public get textureAnimationModule () {
-        return this._textureAnimationModule;
+        return this.getOrAddModule(TextureAnimationModule);
     }
 
     @type(NoiseModule)
     @displayOrder(24)
     public get noiseModule () {
-        return this._noiseModule;
+        return this.getOrAddModule(NoiseModule);
     }
 
     /**
@@ -370,7 +371,7 @@ export class ParticleSystem extends Component {
     @displayOrder(25)
     @tooltip('i18n:particle_system.trailModule')
     public get trailModule () {
-        return this._trailModule;
+        return this.getOrAddModule(TrailModule);
     }
 
     // @type(ParticleSystemRenderer)
@@ -381,39 +382,7 @@ export class ParticleSystem extends Component {
     // }
 
     @serializable
-    private _emissionModule = new EmissionModule();
-    @serializable
-    private _initializationModule = new InitializationModule();
-    // color over lifetime module
-    @serializable
-    private _colorOverLifetimeModule = new ColorOvertimeModule();
-    // shape module
-    @serializable
-    private _shapeModule = new ShapeModule();
-    // size over lifetime module
-    @serializable
-    private _sizeOvertimeModule = new SizeOvertimeModule();
-    // velocity overtime module
-    @serializable
-    private _velocityOvertimeModule = new VelocityOvertimeModule();
-    // force overTime module
-    @serializable
-    private _forceOvertimeModule = new ForceOvertimeModule();
-    // limit velocity overtime module
-    @serializable
-    private _limitVelocityOvertimeModule = new LimitVelocityOvertimeModule();
-    // rotation overtime module
-    @serializable
-    private _rotationOvertimeModule = new RotationOvertimeModule();
-    // texture animation module
-    @serializable
-    private _textureAnimationModule = new TextureAnimationModule();
-    // noise module
-    @serializable
-    private _noiseModule = new NoiseModule();
-    // trail module
-    @serializable
-    private _trailModule = new TrailModule();
+    private _particleModules: ParticleModule[] = [];
 
     @serializable
     private _renderCulling = false;
@@ -455,6 +424,47 @@ export class ParticleSystem extends Component {
 
     @serializable
     private _simulationSpace = Space.LOCAL;
+
+    /**
+     * @zh 添加粒子模块
+     */
+    public addModule<T extends ParticleModule> (ModuleType: Constructor<T>): T {
+        const newModule = new ModuleType();
+        this._particleModules.push(newModule);
+        return newModule;
+    }
+
+    public getModule<T extends ParticleModule> (moduleType: Constructor<T>): T | null {
+        for (let i = 0, l = this._particleModules.length; i < l; i++) {
+            const particleModule = this._particleModules[i];
+            if (particleModule instanceof moduleType) {
+                return particleModule;
+            }
+        }
+        return null;
+    }
+
+    public removeModule (moduleType: Constructor<ParticleModule>) {
+        let index = -1;
+        for (let i = 0, l = this._particleModules.length; i < l; i++) {
+            const particleModule = this._particleModules[i];
+            if (particleModule instanceof moduleType) {
+                index = i;
+                break;
+            }
+        }
+        if (index !== -1) {
+            this._particleModules.splice(index, 1);
+        }
+    }
+
+    public getOrAddModule<T extends ParticleModule> (moduleType: Constructor<T>): T {
+        let module = this.getModule(moduleType);
+        if (!module) {
+            module = this.addModule(moduleType);
+        }
+        return module;
+    }
 
     /**
      * @en play particle system
@@ -758,7 +768,7 @@ export class ParticleSystem extends Component {
         }
         particleUpdateContext.isEmitting = this._isEmitting;
 
-        this._emissionModule.onUpdate(this._particles, particleUpdateContext);
+        this._emissionModule.update(this._particles, particleUpdateContext);
 
         for (let i = 0, length = this._particles.count; i < length; ++i) {
 

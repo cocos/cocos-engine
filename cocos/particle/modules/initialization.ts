@@ -162,7 +162,7 @@ export class InitializationModule extends ParticleModule {
         this.startSpeed.constant = 5;
     }
 
-    public onUpdate (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
+    public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
         for (let i = 0; i < count; ++i) {
             const particle = this.getFreeParticle();
             if (particle === INVALID_HANDLE) {

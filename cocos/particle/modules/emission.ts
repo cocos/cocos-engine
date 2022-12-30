@@ -85,7 +85,7 @@ export class EmissionModule extends ParticleModule {
         this._emitRateDistanceCounter = 0.0;
     }
 
-    public onUpdate (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
+    public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
         // emit particles.
         const startDelay = this.startDelay.evaluate(0, 1)!;
         if (this._time > startDelay) {

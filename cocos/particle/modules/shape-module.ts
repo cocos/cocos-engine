@@ -131,29 +131,7 @@ export class ShapeModule extends ParticleModule {
         this._angle = toRadian(val);
     }
 
-    @serializable
-    private _enable = false;
-    /**
-     * @zh 是否启用。
-     */
-    @displayOrder(0)
-    public get enable () {
-        return this._enable;
-    }
-
-    public set enable (val) {
-        this._enable = val;
-    }
-
-    /**
-     * @zh 粒子发射器类型 [[ShapeType]]。
-     *
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
-     */
-    @type(ShapeType)
-    @formerlySerializedAs('shapeType')
-    @displayOrder(1)
-    public _shapeType = ShapeType.Cone;
+    private _shapeType = ShapeType.CONE;
 
     @type(ShapeType)
     @tooltip('i18n:shapeModule.shapeType')

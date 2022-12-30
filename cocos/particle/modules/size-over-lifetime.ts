@@ -36,19 +36,7 @@ const SIZE_OVERTIME_RAND_OFFSET = ModuleRandSeed.SIZE;
 @ccclass('cc.SizeOverLifetimeModule')
 export class SizeOverLifetimeModule extends ParticleModule {
     public get name (): string {
-        return 'sizeModule';
-    }
-
-    /**
-     * @zh 是否启用。
-     */
-    @displayOrder(0)
-    public get enable () {
-        return this._enable;
-    }
-
-    public set enable (val) {
-        this._enable = val;
+        return 'SizeModule';
     }
 
     /**
@@ -102,9 +90,6 @@ export class SizeOverLifetimeModule extends ParticleModule {
     @tooltip('i18n:sizeOvertimeModule.z')
     @visible(function (this: SizeOverLifetimeModule): boolean { return this.separateAxes; })
     public z = new CurveRange();
-
-    @serializable
-    private _enable = false;
 
     public update (particles: ParticleSOAData, context: ParticleUpdateContext) {
 

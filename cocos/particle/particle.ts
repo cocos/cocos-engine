@@ -27,6 +27,7 @@ import { Color, Vec3, Mat4, Quat } from '../core/math';
 import { ParticleUpdateContext } from './particle-update-context';
 import { ParticleSystem } from './particle-system';
 import { ParticleSOAData } from './particle-soa-data';
+import { displayOrder, serializable } from '../core/data/decorators';
 
 export class Particle {
     public static INDENTIFY_NEG_QUAT = 10;
@@ -103,11 +104,24 @@ export class Particle {
     }
 }
 export abstract class ParticleModule {
-    public abstract get enable (): boolean;
-    public abstract set enable (val: boolean);
+    /**
+     * @zh 是否启用。
+     */
+    @displayOrder(0)
+    public get enable () {
+        return this._enable;
+    }
+
+    public set enable (val) {
+        this._enable = val;
+    }
+
+    @serializable
+    private _enable = false;
+
     public abstract get name (): string;
     public onLoad () {}
-    public onUpdate (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {}
+    public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {}
     public onDestroy () {}
     public onPlay () {}
     public onStop () {}

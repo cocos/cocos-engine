@@ -35,19 +35,7 @@ import { ParticleUpdateContext } from '../particle-update-context';
 @ccclass('cc.NoiseModule')
 export class NoiseModule extends ParticleModule {
     public get name (): string {
-        return 'noiseModule';
-    }
-
-    /**
-     * @zh 是否启用。
-     */
-    @displayOrder(0)
-    public get enable () {
-        return this._enable;
-    }
-
-    public set enable (val) {
-        this._enable = val;
+        return 'NoiseModule';
     }
 
     @type(CCFloat)
@@ -205,7 +193,6 @@ export class NoiseModule extends ParticleModule {
         this._octaveScale = value;
     }
 
-    public readonly name = 'noise';
     @serializable
     private _strengthX = 10;
     @serializable
@@ -234,8 +221,6 @@ export class NoiseModule extends ParticleModule {
     private _remapZ = 0;
     private noise: ParticleNoise = new ParticleNoise();
     private samplePosition: Vec3 = new Vec3();
-    @serializable
-    private _enable = false;
 
     public animate (particle: Particle, dt: number) {
         this.noise.setTime(particle.particleSystem.time);

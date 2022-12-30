@@ -146,7 +146,7 @@ export class LimitVelocityOvertimeModule extends ParticleModule {
         this.needUpdate = true;
     }
 
-    public onUpdate (space: number, worldTransform: Mat4) {
+    public update (space: number, worldTransform: Mat4) {
         this.needTransform = calculateTransform(space, this.space, worldTransform, this.rotation);
     }
 

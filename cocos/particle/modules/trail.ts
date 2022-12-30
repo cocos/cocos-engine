@@ -47,18 +47,6 @@ export class TrailModule extends ParticleModule {
     }
 
     /**
-     * 是否启用。
-     */
-    @displayOrder(0)
-    public get enable () {
-        return this._enable;
-    }
-
-    public set enable (val) {
-        this._enable = val;
-    }
-
-    /**
      * 设定粒子生成轨迹的方式。
      */
     @type(TrailMode)
@@ -153,8 +141,6 @@ export class TrailModule extends ParticleModule {
      */
     @serializable
     private _space = Space.World;
-    @serializable
-    private _enable = false;
     private _needTransform = false;
     @serializable
     private _minParticleDistance = 0.1;

@@ -38,22 +38,8 @@ export class RotationOverLifetimeModule extends ParticleModule {
         return 'rotationModule';
     }
 
-    /**
-     * @zh 是否启用。
-     */
-    @displayOrder(0)
-    public get enable () {
-        return this._enable;
-    }
-
-    public set enable (val) {
-        this._enable = val;
-    }
-
     @serializable
     private _separateAxes = false;
-    @serializable
-    private _enable = false;
 
     /**
      * @zh 是否三个轴分开设定旋转（暂不支持）。
@@ -102,8 +88,6 @@ export class RotationOverLifetimeModule extends ParticleModule {
     @displayOrder(4)
     @tooltip('i18n:rotationOvertimeModule.z')
     public z = new CurveRange();
-
-    public name = PARTICLE_MODULE_NAME.ROTATION;
 
     private _startMat:Mat4 = new Mat4();
     private _matRot:Mat4 = new Mat4();

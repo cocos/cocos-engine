@@ -40,18 +40,6 @@ export class ColorOvertimeModule extends ParticleModule {
     }
 
     /**
-     * @zh 是否启用。
-     */
-    @displayOrder(0)
-    public get enable () {
-        return this._enable;
-    }
-
-    public set enable (val) {
-        this._enable = val;
-    }
-
-    /**
      * @zh 颜色随时间变化的参数，各个 key 之间线性差值变化。
      */
     @type(GradientRange)
@@ -59,10 +47,7 @@ export class ColorOvertimeModule extends ParticleModule {
     @displayOrder(1)
     public color = new GradientRange();
 
-    @serializable
-    private _enable = false;
-
-    public onUpdate (particles: ParticleSOAData, context: ParticleUpdateContext) {
+    public update (particles: ParticleSOAData, context: ParticleUpdateContext) {
         const count = particles.count;
         const tempColor = new Color();
         if (this.color.mode === GradientRange.Mode.Color) {

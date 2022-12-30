@@ -73,18 +73,6 @@ export class TextureAnimationModule extends ParticleModule {
     }
 
     /**
-     * @zh 是否启用。
-     */
-    @displayOrder(0)
-    get enable () {
-        return this._enable;
-    }
-
-    set enable (val) {
-        this._enable = val;
-    }
-
-    /**
      * @zh 设定粒子贴图动画的类型（暂只支持 Grid 模式）[[Mode]]。
      */
     @type(Mode)
@@ -210,8 +198,6 @@ export class TextureAnimationModule extends ParticleModule {
 
     @serializable
     private _flipU = 0;
-    @serializable
-    private _enable = false;
     @formerlySerializedAs('numTilesX')
     private _numTilesX = 0;
     @formerlySerializedAs('numTilesY')
