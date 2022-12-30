@@ -245,7 +245,6 @@ exports.methods = {
                 }
                 if (panel.$.previewType.value === previewSelectType.uv) {
                     info = panel.glPreview.computedUV(panel.previewUVs[panel.$.previewChannel.value], canvas.width, canvas.height);
-                    info.buffer = info.data;
                 }
 
                 panel.glPreview.drawGL(info);

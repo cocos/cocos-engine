@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -30,6 +29,7 @@ import { Device, Format, FormatFeatureBit, deviceManager } from '../../gfx';
 import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
 import { warnID, macro, sys, cclegacy } from '../../core';
+import { ccwindow } from '../../core/global-exports';
 import { Enum } from '../../core/value-types/enum';
 
 // Compress mipmap constants
@@ -522,7 +522,7 @@ export class ImageAsset extends Asset {
      * @zh 此图像资源是 mipmap 时，获取每层数据大小。
      * @engineInternal
      */
-    get mipmapLevelDataSize () : number[] | undefined {
+    get mipmapLevelDataSize (): number[] | undefined {
         return (this._nativeData as IMemoryImageSource).mipmapLevelDataSize;
     }
 
@@ -691,7 +691,7 @@ export class ImageAsset extends Asset {
     public initDefault (uuid?: string) {
         super.initDefault(uuid);
         if (!ImageAsset._sharedPlaceHolderCanvas) {
-            const canvas = document.createElement('canvas');
+            const canvas = ccwindow.document.createElement('canvas');
             const context = canvas.getContext('2d')!;
             const l = canvas.width = canvas.height = 2;
             context.fillStyle = '#ff00ff';

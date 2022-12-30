@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,18 +20,13 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import {
     BufferUsageBit, ColorMask, CullMode, DynamicStateFlagBit, Filter, Format, TextureType, Type, FormatInfo,
     FormatInfos, FormatSize, LoadOp, MemoryUsageBit, SampleCount, ShaderStageFlagBit, TextureFlagBit,
     Color, Rect, BufferTextureCopy, BufferSource, DrawInfo, IndirectBuffer, UniformBlock, DynamicStates,
-    UniformSamplerTexture,
-    alignTo,
-    Extent,
-    formatAlignment,
-    getTypedArrayConstructor,
-    Offset,
+    UniformSamplerTexture, alignTo, Extent, formatAlignment, getTypedArrayConstructor, Offset, TextureBlit,
 } from '../base/define';
 import { WebGL2EXT } from './webgl2-define';
 import { WebGL2CommandAllocator } from './webgl2-command-allocator';
@@ -52,7 +46,7 @@ import {
     IWebGL2GPUUniformSamplerTexture,
     IWebGL2GPURenderPass,
 } from './webgl2-gpu-objects';
-import { CachedArray, error, errorID, debug } from '../../core';
+import { CachedArray, error, errorID, debug, cclegacy } from '../../core';
 
 const WebGLWraps: GLenum[] = [
     0x2901, // WebGLRenderingContext.REPEAT
@@ -627,6 +621,7 @@ export enum WebGL2Cmd {
     DRAW,
     UPDATE_BUFFER,
     COPY_BUFFER_TO_TEXTURE,
+    BLIT_TEXTURE,
     COUNT,
 }
 
@@ -721,6 +716,23 @@ export class WebGL2CmdCopyBufferToTexture extends WebGL2CmdObject {
     }
 }
 
+export class WebGL2CmdBlitTexture extends WebGL2CmdObject {
+    public srcTexture: IWebGL2GPUTexture | null = null;
+    public dstTexture: IWebGL2GPUTexture | null = null;
+    public regions: TextureBlit[] = [];
+    public filter: Filter = Filter.LINEAR;
+
+    constructor () {
+        super(WebGL2Cmd.BLIT_TEXTURE);
+    }
+
+    public clear () {
+        this.srcTexture = null;
+        this.dstTexture = null;
+        this.regions.length = 0;
+    }
+}
+
 export class WebGL2CmdPackage {
     public cmds: CachedArray<WebGL2Cmd> = new CachedArray(1);
     public beginRenderPassCmds: CachedArray<WebGL2CmdBeginRenderPass> = new CachedArray(1);
@@ -728,6 +740,7 @@ export class WebGL2CmdPackage {
     public drawCmds: CachedArray<WebGL2CmdDraw> = new CachedArray(1);
     public updateBufferCmds: CachedArray<WebGL2CmdUpdateBuffer> = new CachedArray(1);
     public copyBufferToTextureCmds: CachedArray<WebGL2CmdCopyBufferToTexture> = new CachedArray(1);
+    public blitTextureCmds: CachedArray<WebGL2CmdBlitTexture> = new CachedArray(1);
 
     public clearCmds (allocator: WebGL2CommandAllocator) {
         if (this.beginRenderPassCmds.length) {
@@ -753,6 +766,11 @@ export class WebGL2CmdPackage {
         if (this.copyBufferToTextureCmds.length) {
             allocator.copyBufferToTextureCmdPool.freeCmds(this.copyBufferToTextureCmds);
             this.copyBufferToTextureCmds.clear();
+        }
+
+        if (this.blitTextureCmds.length) {
+            allocator.blitTextureCmdPool.freeCmds(this.blitTextureCmds);
+            this.blitTextureCmds.clear();
         }
 
         this.cmds.clear();
@@ -1596,6 +1614,8 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2Device, gpuShader: IWeb
 
     gpuShader.glProgram = glProgram;
 
+    const enableEffectImport = !!(cclegacy.rendering && cclegacy.rendering.enableEffectImport);
+
     // link program
     for (let k = 0; k < gpuShader.gpuStages.length; k++) {
         const gpuStage = gpuShader.gpuStages[k];
@@ -1686,7 +1706,10 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2Device, gpuShader: IWeb
                 // blockIdx = gl.getUniformBlockIndex(gpuShader.glProgram, blockName);
                 blockIdx = b;
                 blockSize = gl.getActiveUniformBlockParameter(gpuShader.glProgram, blockIdx, gl.UNIFORM_BLOCK_DATA_SIZE);
-                const glBinding = block.binding + (device.bindingMappings.blockOffsets[block.set] || 0);
+
+                const glBinding = enableEffectImport
+                    ? block.flattened
+                    : block.binding + (device.bindingMappings.blockOffsets[block.set] || 0);
 
                 gl.uniformBlockBinding(gpuShader.glProgram, blockIdx, glBinding);
 
@@ -1735,27 +1758,42 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2Device, gpuShader: IWeb
     const glActiveSamplerLocations: WebGLUniformLocation[] = [];
     const texUnitCacheMap = device.stateCache.texUnitCacheMap;
 
-    let flexibleSetBaseOffset = 0;
-    for (let i = 0; i < gpuShader.blocks.length; ++i) {
-        if (gpuShader.blocks[i].set === device.bindingMappings.flexibleSet) {
-            flexibleSetBaseOffset++;
+    if (!enableEffectImport) {
+        let flexibleSetBaseOffset = 0;
+        for (let i = 0; i < gpuShader.blocks.length; ++i) {
+            if (gpuShader.blocks[i].set === device.bindingMappings.flexibleSet) {
+                flexibleSetBaseOffset++;
+            }
         }
-    }
 
-    let arrayOffset = 0;
-    for (let i = 0; i < gpuShader.samplerTextures.length; ++i) {
-        const sampler = gpuShader.samplerTextures[i];
-        const glLoc = gl.getUniformLocation(gpuShader.glProgram, sampler.name);
-        // wEcHAT just returns { id: -1 } for non-existing names /eyerolling
-        if (glLoc && (glLoc as any).id !== -1) {
-            glActiveSamplers.push(gpuShader.glSamplerTextures[i]);
-            glActiveSamplerLocations.push(glLoc);
+        let arrayOffset = 0;
+        for (let i = 0; i < gpuShader.samplerTextures.length; ++i) {
+            const sampler = gpuShader.samplerTextures[i];
+            const glLoc = gl.getUniformLocation(gpuShader.glProgram, sampler.name);
+            // wEcHAT just returns { id: -1 } for non-existing names /eyerolling
+            if (glLoc && (glLoc as any).id !== -1) {
+                glActiveSamplers.push(gpuShader.glSamplerTextures[i]);
+                glActiveSamplerLocations.push(glLoc);
+            }
+            if (texUnitCacheMap[sampler.name] === undefined) {
+                let binding = sampler.binding + device.bindingMappings.samplerTextureOffsets[sampler.set] + arrayOffset;
+                if (sampler.set === device.bindingMappings.flexibleSet) { binding -= flexibleSetBaseOffset; }
+                texUnitCacheMap[sampler.name] = binding % device.capabilities.maxTextureUnits;
+                arrayOffset += sampler.count - 1;
+            }
         }
-        if (texUnitCacheMap[sampler.name] === undefined) {
-            let binding = sampler.binding + device.bindingMappings.samplerTextureOffsets[sampler.set] + arrayOffset;
-            if (sampler.set === device.bindingMappings.flexibleSet) { binding -= flexibleSetBaseOffset; }
-            texUnitCacheMap[sampler.name] = binding % device.capabilities.maxTextureUnits;
-            arrayOffset += sampler.count - 1;
+    } else {
+        for (let i = 0; i < gpuShader.samplerTextures.length; ++i) {
+            const sampler = gpuShader.samplerTextures[i];
+            const glLoc = gl.getUniformLocation(gpuShader.glProgram, sampler.name);
+            // wEcHAT just returns { id: -1 } for non-existing names /eyerolling
+            if (glLoc && (glLoc as any).id !== -1) {
+                glActiveSamplers.push(gpuShader.glSamplerTextures[i]);
+                glActiveSamplerLocations.push(glLoc);
+            }
+            if (texUnitCacheMap[sampler.name] === undefined) {
+                texUnitCacheMap[sampler.name] = sampler.flattened % device.capabilities.maxTextureUnits;
+            }
         }
     }
 
@@ -2707,6 +2745,11 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2Device, cmdPackage: WebG
             WebGL2CmdFuncCopyBuffersToTexture(device, cmd5.buffers, cmd5.gpuTexture as IWebGL2GPUTexture, cmd5.regions);
             break;
         }
+        case WebGL2Cmd.BLIT_TEXTURE: {
+            const cmd6 = cmdPackage.blitTextureCmds.array[cmdId];
+            WebGL2CmdFuncBlitTexture(device, cmd6.srcTexture as IWebGL2GPUTexture, cmd6.dstTexture as IWebGL2GPUTexture, cmd6.regions, cmd6.filter);
+            break;
+        }
         default:
         } // switch
     } // for
@@ -3102,5 +3145,113 @@ export function WebGL2CmdFuncBlitFramebuffer (
 
     if (rebindFBO) {
         gl.bindFramebuffer(gl.FRAMEBUFFER, device.stateCache.glFramebuffer);
+    }
+}
+
+export function WebGL2CmdFuncBlitTexture (
+    device: WebGL2Device,
+    src: Readonly<IWebGL2GPUTexture>,
+    dst: IWebGL2GPUTexture,
+    regions: Readonly<TextureBlit[]>,
+    filter: Filter,
+) {
+    const { gl } = device;
+    const cache = device.stateCache;
+    const blitManager = device.blitManager;
+    if (!blitManager) {
+        return;
+    }
+
+    // logic different from native, because framebuffer-map is not implemented in webgl2
+    const glFilter = (filter === Filter.LINEAR || filter === Filter.ANISOTROPIC) ? gl.LINEAR : gl.NEAREST;
+
+    const srcFramebuffer = blitManager.srcFramebuffer;
+    const dstFramebuffer = blitManager.dstFramebuffer;
+    const origReadFBO = cache.glReadFramebuffer;
+    const origDrawFBO = cache.glFramebuffer;
+
+    let srcMip = regions[0].srcSubres.mipLevel;
+    let dstMip = regions[0].dstSubres.mipLevel;
+
+    const blitInfo = (formatInfo: FormatInfo) => {
+        let mask = 0;
+        let attachment = gl.COLOR_ATTACHMENT0;
+
+        if (formatInfo.hasStencil) {
+            attachment = gl.DEPTH_STENCIL_ATTACHMENT;
+        } else if (formatInfo.hasDepth) {
+            attachment = gl.DEPTH_ATTACHMENT;
+        }
+
+        if (formatInfo.hasDepth || formatInfo.hasStencil) {
+            if (formatInfo.hasDepth) {
+                mask |= gl.DEPTH_BUFFER_BIT;
+            }
+            if (formatInfo.hasStencil) {
+                mask |= gl.STENCIL_BUFFER_BIT;
+            }
+        } else {
+            mask |= gl.COLOR_BUFFER_BIT;
+        }
+
+        return { mask, attachment };
+    };
+
+    const regionIndices = regions.map((_, i) => i);
+    regionIndices.sort((a, b) => regions[a].srcSubres.mipLevel - regions[b].srcSubres.mipLevel);
+
+    const { mask: srcMask, attachment: srcAttachment } = blitInfo(FormatInfos[src.format]);
+    const { mask: dstMask, attachment: dstAttachment } = blitInfo(FormatInfos[dst.format]);
+
+    if (cache.glReadFramebuffer !== srcFramebuffer) {
+        gl.bindFramebuffer(gl.READ_FRAMEBUFFER, srcFramebuffer);
+        cache.glReadFramebuffer = srcFramebuffer;
+    }
+
+    if (cache.glFramebuffer !== dstFramebuffer) {
+        gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, dstFramebuffer);
+        cache.glFramebuffer = dstFramebuffer;
+    }
+
+    if (src.glTexture) {
+        gl.framebufferTexture2D(gl.READ_FRAMEBUFFER, srcAttachment, src.glTarget, src.glTexture, srcMip);
+    } else {
+        gl.framebufferRenderbuffer(gl.READ_FRAMEBUFFER, srcAttachment, gl.RENDERBUFFER, src.glRenderbuffer);
+    }
+
+    if (dst.glTexture) {
+        gl.framebufferTexture2D(gl.DRAW_FRAMEBUFFER, dstAttachment, dst.glTarget, dst.glTexture, dstMip);
+    } else {
+        gl.framebufferRenderbuffer(gl.DRAW_FRAMEBUFFER, dstAttachment, gl.RENDERBUFFER, dst.glRenderbuffer);
+    }
+
+    for (let i = 0; i < regionIndices.length; i++) {
+        const region = regions[regionIndices[i]];
+
+        if (src.glTexture && srcMip !== region.srcSubres.mipLevel) {
+            srcMip = region.srcSubres.mipLevel;
+            gl.framebufferTexture2D(gl.READ_FRAMEBUFFER, srcAttachment, src.glTarget, src.glTexture, srcMip);
+        }
+
+        if (dst.glTexture && dstMip !== region.dstSubres.mipLevel) {
+            dstMip = region.dstSubres.mipLevel;
+            gl.framebufferTexture2D(gl.DRAW_FRAMEBUFFER, dstAttachment, dst.glTarget, dst.glTexture, dstMip);
+        }
+
+        gl.blitFramebuffer(
+            region.srcOffset.x, region.srcOffset.y, region.srcOffset.x + region.srcExtent.width, region.srcOffset.y + region.srcExtent.height,
+            region.dstOffset.x, region.dstOffset.y, region.dstOffset.x + region.dstExtent.width, region.dstOffset.y + region.dstExtent.height,
+            srcMask, glFilter,
+        );
+    }
+
+    // restore fbo state
+    if (cache.glReadFramebuffer !== origReadFBO) {
+        gl.bindFramebuffer(gl.READ_FRAMEBUFFER, origReadFBO);
+        cache.glReadFramebuffer = origReadFBO;
+    }
+    if (cache.glFramebuffer !== origDrawFBO) {
+        gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, origDrawFBO);
+        cache.glFramebuffer = origDrawFBO;
     }
 }

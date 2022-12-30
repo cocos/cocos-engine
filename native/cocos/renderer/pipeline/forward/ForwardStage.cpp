@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -52,8 +51,8 @@ RenderStageInfo ForwardStage::initInfo = {
     "ForwardStage",
     static_cast<uint32_t>(ForwardStagePriority::FORWARD),
     static_cast<uint32_t>(RenderFlowTag::SCENE),
-    {{false, RenderQueueSortMode::FRONT_TO_BACK, {"default"}},
-     {true, RenderQueueSortMode::BACK_TO_FRONT, {"default", "planarShadow"}}}};
+    {new RenderQueueDesc{false, RenderQueueSortMode::FRONT_TO_BACK, {"default"}},
+     new RenderQueueDesc{true, RenderQueueSortMode::BACK_TO_FRONT, {"default", "planarShadow"}}}};
 const RenderStageInfo &ForwardStage::getInitializeInfo() { return ForwardStage::initInfo; }
 
 ForwardStage::ForwardStage() {
@@ -75,9 +74,9 @@ void ForwardStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
     RenderStage::activate(pipeline, flow);
 
     for (const auto &descriptor : _renderQueueDescriptors) {
-        uint32_t phase = convertPhase(descriptor.stages);
-        RenderQueueSortFunc sortFunc = convertQueueSortFunc(descriptor.sortMode);
-        RenderQueueCreateInfo info = {descriptor.isTransparent, phase, sortFunc};
+        uint32_t phase = convertPhase(descriptor->stages);
+        RenderQueueSortFunc sortFunc = convertQueueSortFunc(descriptor->sortMode);
+        RenderQueueCreateInfo info = {descriptor->isTransparent, phase, sortFunc};
         _renderQueues.emplace_back(ccnew RenderQueue(_pipeline, std::move(info), true));
     }
 
@@ -180,7 +179,7 @@ void ForwardStage::render(scene::Camera *camera) {
         auto clearFlags = static_cast<gfx::ClearFlagBit>(camera->getClearFlag());
 
         data.outputTex = framegraph::TextureHandle(builder.readFromBlackboard(RenderPipeline::fgStrHandleOutColorTexture));
-        if(!data.outputTex.isValid()) {
+        if (!data.outputTex.isValid()) {
             framegraph::Texture::Descriptor colorTexInfo;
             colorTexInfo.format = sceneData->isHDR() ? gfx::Format::RGBA16F : gfx::Format::RGBA8;
             colorTexInfo.usage = gfx::TextureUsageBit::COLOR_ATTACHMENT;

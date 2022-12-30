@@ -32,7 +32,7 @@ exports.template = /* html */`
         <ui-label slot="label" value="i18n:ENGINE.assets.fbx.promoteSingleRootNode.name" tooltip="i18n:ENGINE.assets.fbx.promoteSingleRootNode.title"></ui-label>
         <ui-checkbox slot="content" class="promoteSingleRootNode-checkbox"></ui-checkbox>
     </ui-prop>
-    <ui-prop>
+    <ui-prop hidden>
         <ui-label slot="label" value="i18n:ENGINE.assets.fbx.generateLightmapUVNode.name" tooltip="i18n:ENGINE.assets.fbx.generateLightmapUVNode.title"></ui-label>
         <ui-checkbox slot="content" class="generateLightmapUVNode-checkbox"></ui-checkbox>
     </ui-prop>

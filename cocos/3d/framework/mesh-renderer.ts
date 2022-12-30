@@ -1,15 +1,15 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
@@ -650,13 +650,17 @@ export class MeshRenderer extends ModelRenderer {
         this._onUpdateLightingmap();
     }
 
-    public updateProbeCubemap (cubeMap: TextureCube | null) {
-        if (this.bakeSettings._probeCubemap === cubeMap) {
+    public updateProbeCubemap (cubeMap: TextureCube | null, useDefaultTexture?: boolean) {
+        if (this.bakeSettings._probeCubemap && this.bakeSettings._probeCubemap === cubeMap) {
             return;
         }
         this.bakeSettings._probeCubemap = cubeMap;
         if (this.model !== null) {
-            this.model.updateReflctionProbeCubemap(this.bakeSettings._probeCubemap);
+            let cubeMap = this.bakeSettings._probeCubemap;
+            if (!cubeMap && this.node.scene && !useDefaultTexture) {
+                cubeMap = this.node.scene._globals.skybox.envmap;
+            }
+            this.model.updateReflectionProbeCubemap(cubeMap);
         }
     }
     public updateProbePlanarMap (planarMap: Texture | null) {
@@ -665,21 +669,25 @@ export class MeshRenderer extends ModelRenderer {
         }
         this.bakeSettings._probePlanarmap = planarMap;
         if (this.model !== null) {
-            this.model.updateReflctionProbePlanarMap(this.bakeSettings._probePlanarmap);
+            this.model.updateReflectionProbePlanarMap(this.bakeSettings._probePlanarmap);
         }
     }
 
     protected _updateReflectionProbeTexture () {
         if (this.model === null) return;
         if (this.bakeSettings.reflectionProbe === ReflectionProbeType.BAKED_CUBEMAP) {
-            this.model.updateReflctionProbeCubemap(this.bakeSettings._probeCubemap);
-            this.model.updateReflctionProbePlanarMap(null);
+            let cubeMap = this.bakeSettings._probeCubemap;
+            if (!cubeMap && this.node.scene) {
+                cubeMap = this.node.scene._globals.skybox.envmap;
+            }
+            this.model.updateReflectionProbeCubemap(cubeMap);
+            this.model.updateReflectionProbePlanarMap(null);
         } else if (this.bakeSettings.reflectionProbe === ReflectionProbeType.PLANAR_REFLECTION) {
-            this.model.updateReflctionProbePlanarMap(this.bakeSettings._probePlanarmap);
-            this.model.updateReflctionProbeCubemap(null);
+            this.model.updateReflectionProbePlanarMap(this.bakeSettings._probePlanarmap);
+            this.model.updateReflectionProbeCubemap(null);
         } else {
-            this.model.updateReflctionProbeCubemap(null);
-            this.model.updateReflctionProbePlanarMap(null);
+            this.model.updateReflectionProbeCubemap(null);
+            this.model.updateReflectionProbePlanarMap(null);
         }
     }
 
@@ -872,12 +880,12 @@ export class MeshRenderer extends ModelRenderer {
     }
 
     protected onReflectionProbeChanged () {
+        this._updateUseReflectionProbe();
         if (this.bakeSettings.reflectionProbe === ReflectionProbeType.BAKED_CUBEMAP) {
             cclegacy.internal.reflectionProbeManager.updateUseCubeModels(this._model);
         } else if (this.bakeSettings.reflectionProbe === ReflectionProbeType.PLANAR_REFLECTION) {
             cclegacy.internal.reflectionProbeManager.updateUsePlanarModels(this._model);
         }
-        this._updateUseReflectionProbe();
     }
 
     protected onBakeToReflectionProbeChanged () {

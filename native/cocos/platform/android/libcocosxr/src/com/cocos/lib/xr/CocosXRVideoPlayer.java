@@ -39,6 +39,7 @@ public class CocosXRVideoPlayer {
     enum MediaPlayerState {
         IDLE,
         INITIALIZED,
+        READY_PREPARE,
         PREPARING,
         PREPARED,
         STARTED,
@@ -174,12 +175,15 @@ public class CocosXRVideoPlayer {
                 Log.e(TAG, "prepare:" + e.getLocalizedMessage());
             }
         }
+        mediaPlayerState = MediaPlayerState.READY_PREPARE;
         if (isGLInitialized) {
             runOnUIThread(new Runnable() {
                 @Override
                 public void run() {
-                    mediaPlayerState = MediaPlayerState.PREPARING;
-                    mediaPlayer.prepareAsync();
+                    if(mediaPlayerState == MediaPlayerState.READY_PREPARE) {
+                        mediaPlayerState = MediaPlayerState.PREPARING;
+                        mediaPlayer.prepareAsync();
+                    }
                 }
             });
         }
@@ -222,12 +226,17 @@ public class CocosXRVideoPlayer {
         mediaPlayer.setSurface(surface);
         surface.release();
         isGLInitialized = true;
-        runOnUIThread(new Runnable() {
-            @Override
-            public void run() {
-                mediaPlayer.prepareAsync();
-            }
-        });
+        if(mediaPlayerState == MediaPlayerState.READY_PREPARE) {
+            runOnUIThread(new Runnable() {
+                @Override
+                public void run() {
+                    if(mediaPlayerState == MediaPlayerState.READY_PREPARE) {
+                        mediaPlayerState = MediaPlayerState.PREPARING;
+                        mediaPlayer.prepareAsync();
+                    }
+                }
+            });
+        }
     }
 
     public void onBeforeGLDrawFrame() {

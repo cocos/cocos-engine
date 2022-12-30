@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { Vec3 } from '../math';
 import enums from './enums';
@@ -29,24 +28,24 @@ import { IVec3Like } from '../math/type-define';
 
 /**
  * @en
- * Basic Geometry: ray.
+ * Basic Geometry: Ray.
  * @zh
- * 基础几何 射线。
+ * 基础几何：射线。
  */
 
 export class Ray {
     /**
      * @en
-     * create a new ray
+     * Creates a new ray.
      * @zh
      * 创建一条射线。
-     * @param {number} ox @en x component of start point @zh 起点的 x 部分。
-     * @param {number} oy @en y component of start point @zh 起点的 y 部分。
-     * @param {number} oz @en z component of start point @zh 起点的 z 部分。
-     * @param {number} dx @en Point in the x direction @zh 方向的 x 部分。
-     * @param {number} dy @en Point in the y direction @zh 方向的 y 部分。
-     * @param {number} dz @en Point in the z direction @zh 方向的 z 部分。
-     * @return {Ray} @en Ray object @zh 射线。
+     * @param {number} ox @en The x component of start point. @zh 起点的 x 部分。
+     * @param {number} oy @en The y component of start point. @zh 起点的 y 部分。
+     * @param {number} oz @en The z component of start point. @zh 起点的 z 部分。
+     * @param {number} dx @en The x component of direction point. @zh 方向的 x 部分。
+     * @param {number} dy @en The y component of direction point. @zh 方向的 y 部分。
+     * @param {number} dz @en The z component of direction point. @zh 方向的 z 部分。
+     * @returns {Ray} @en The created ray object. @zh 新创建的射线。
      */
     public static create (ox = 0, oy = 0, oz = 0, dx = 0, dy = 0, dz = 1): Ray {
         return new Ray(ox, oy, oz, dx, dy, dz);
@@ -54,11 +53,11 @@ export class Ray {
 
     /**
      * @en
-     * Creates a new ray initialized with values from an existing ray
+     * Creates a new ray initialized with the values from an existing ray.
      * @zh
      * 从一条射线克隆出一条新的射线。
-     * @param {Ray} a @en The Ray object to be cloned from @zh 克隆的目标。
-     * @return {Ray} @en Clone new ray object @zh 克隆出的新对象。
+     * @param a @en The Ray object to be cloned from. @zh 克隆的目标。
+     * @returns @en The cloned Ray object. @zh 克隆出的新对象。
      */
     public static clone (a: Ray): Ray {
         return new Ray(
@@ -69,12 +68,12 @@ export class Ray {
 
     /**
      * @en
-     * Copy the values from one ray to another
+     * Copies the values from one ray to another.
      * @zh
-     * 将从一个 ray 的值复制到另一个 ray。
-     * @param {Ray} out @en The ray object to be modified @zh 接受操作的 ray。
-     * @param {Ray} a @en The copied ray object @zh 被复制的 ray。
-     * @return {Ray} @en Ray object @zh out 接受操作的 ray。
+     * 复制一个 Ray 的值到另一个 Ray 中。
+     * @param out @en The Ray object to copy to. @zh 接受操作的射线。
+     * @param a @en The Ray object to copy from. @zh 被复制的射线。
+     * @returns @en The Ray object to copy to, same as the `out` parameter. @zh 接受操作的射线，与 `out` 参数相同。
      */
     public static copy (out: Ray, a: Ray): Ray {
         Vec3.copy(out.o, a.o);
@@ -85,13 +84,13 @@ export class Ray {
 
     /**
      * @en
-     * create a ray from two points
+     * Creates a ray from two points.
      * @zh
      * 用两个点创建一条射线。
-     * @param {Ray} out @en The ray object to be modified @zh 接受操作的射线。
-     * @param {Vec3} origin @en Starting point of the ray @zh 射线的起点。
-     * @param {Vec3} target @en point on the ray @zh 射线上的一点。
-     * @return {Ray} @en Ray object @zh out 接受操作的射线。
+     * @param out @en The Ray object. @zh 接受操作的射线。
+     * @param origin @en The start point of the ray. @zh 射线的起点。
+     * @param target @en The target point on the ray. @zh 射线上的一点。
+     * @returns @en The Ray object, same as the `out` parameter. @zh 接受操作的射线，与 `out` 参数相同。
      */
     public static fromPoints (out: Ray, origin: Vec3, target: Vec3): Ray {
         Vec3.copy(out.o, origin);
@@ -101,17 +100,17 @@ export class Ray {
 
     /**
      * @en
-     * Set the components of a ray to the given values
+     * Sets the components of a ray to the given values.
      * @zh
      * 将给定射线的属性设置为给定的值。
-     * @param {Ray} out @en The ray object to be modified @zh 接受操作的射线。
-     * @param {number} ox @en x component of start point @zh 起点的 x 部分。
-     * @param {number} oy @en y component of start point @zh 起点的 y 部分。
-     * @param {number} oz @en z component of start point @zh 起点的 z 部分。
-     * @param {number} dx @en Point in the x direction @zh 方向的 x 部分。
-     * @param {number} dy @en Point in the y direction @zh 方向的 y 部分。
-     * @param {number} dz @en Point in the z direction @zh 方向的 z 部分。
-     * @return {Ray} @en Ray object @zh out 接受操作的射线。
+     * @param out @en The Ray object to be modified @zh 接受操作的射线。
+     * @param ox @en The x component of start point. @zh 起点的 x 部分。
+     * @param oy @en The y component of start point. @zh 起点的 y 部分。
+     * @param oz @en The z component of start point. @zh 起点的 z 部分。
+     * @param dx @en The x component of direction point. @zh 方向的 x 部分。
+     * @param dy @en The y component of direction point. @zh 方向的 y 部分。
+     * @param dz @en The z component of direction point. @zh 方向的 z 部分。
+     * @returns @en The Ray object, same as the `out` parameter. @zh 接受操作的射线，与 `out` 相同。
      */
     public static set (out: Ray, ox: number, oy: number, oz: number, dx: number, dy: number, dz: number): Ray {
         out.o.x = ox;
@@ -142,9 +141,9 @@ export class Ray {
 
     /**
      * @en
-     * Gets the type of the shape.
+     * Gets the type of the ray, its value is `enums.SHAPE_RAY`.
      * @zh
-     * 获取形状的类型。
+     * 获取形状的类型，其值为`enums.SHAPE_RAY`。
      */
     get type () {
         return this._type;
@@ -154,15 +153,15 @@ export class Ray {
 
     /**
      * @en
-     * Construct a ray;
+     * Constructs a ray.
      * @zh
      * 构造一条射线。
-     * @param {number} ox @en x component of start point @zh 起点的 x 部分。
-     * @param {number} oy @en y component of start point @zh 起点的 y 部分。
-     * @param {number} oz @en z component of start point @zh 起点的 z 部分。
-     * @param {number} dx @en Point in the x direction @zh 方向的 x 部分。
-     * @param {number} dy @en Point in the y direction @zh 方向的 y 部分。
-     * @param {number} dz @en Point in the z direction @zh 方向的 z 部分。
+     * @param ox @en The x component of start point. @zh 起点的 x 部分。
+     * @param oy @en The y component of start point. @zh 起点的 y 部分。
+     * @param oz @en The z component of start point. @zh 起点的 z 部分。
+     * @param dx @en The x component of direction point. @zh 方向的 x 部分。
+     * @param dy @en The y component of direction point. @zh 方向的 y 部分。
+     * @param dz @en The z component of direction point. @zh 方向的 z 部分。
      */
     constructor (ox = 0, oy = 0, oz = 0,
         dx = 0, dy = 0, dz = -1) {
@@ -173,11 +172,11 @@ export class Ray {
 
     /**
      * @en
-     * Compute a point with the distance between the origin.
+     * Calculates a point on the ray with the specific distance from the origin point.
      * @zh
-     * 根据给定距离计算出射线上的一点。
-     * @param out @en Another point on the ray @zh 射线上的另一点。
-     * @param distance @en Given distance @zh 给定距离。
+     * 根据给定的距离计算出射线上的一点。
+     * @param out @en Another point on the ray. @zh 射线上的另一点。
+     * @param distance @en The given distance. @zh 给定的距离。
      */
     public computeHit (out: IVec3Like, distance: number) {
         Vec3.normalize(out, this.d);

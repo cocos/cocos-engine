@@ -5,7 +5,7 @@ CCEffect %{
   - passes:
     - vert: lighting-vs
       frag: lighting-fs
-      phase: deferred-lighting
+      pass: deferred-lighting
       depthStencilState:
         depthFunc: greater
         depthTest: true
@@ -60,9 +60,13 @@ CCProgram lighting-fs %{
       layout(binding = 3) uniform sampler2D depth_stencil;
     #endif
   #else
+    #pragma rate gbuffer_albedoMap pass
     layout(binding = 0) uniform sampler2D gbuffer_albedoMap;
+    #pragma rate gbuffer_normalMap pass
     layout(binding = 1) uniform sampler2D gbuffer_normalMap;
+    #pragma rate gbuffer_emissiveMap pass
     layout(binding = 2) uniform sampler2D gbuffer_emissiveMap;
+    #pragma rate depth_stencil pass
     layout(binding = 3) uniform sampler2D depth_stencil;
   #endif
 

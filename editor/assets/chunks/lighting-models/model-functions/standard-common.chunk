@@ -121,8 +121,14 @@ vec3 CalculateEnvironmentSpecular(in LightingIntermediateData lightingData, floa
     vec3 R = normalize(CalculateReflectDirection(lightingData.N, lightingData.V, lightingData.NoV));
     vec3 worldPos;
     HIGHP_VALUE_FROM_STRUCT_DEFINED(worldPos, lightingData.worldPosition);
-    vec2 screenUV = GetPlanarReflectScreenUV(worldPos, cc_matViewProj, cc_cameraPos.w, lightingData.V, R);
-    envSpec = fragTextureLod(cc_reflectionProbePlanarMap, screenUV, cc_ambientGround.w).xyz;
+    // todo:
+    // vec4 cc_planarReflectionPlane = vec4(-1.0, 0.0, 0.0, 0.0);
+    // float cc_planarReflectionDepthScale = 1.0;
+    // vec3 bumpedWorldPos = CalculatePlanarReflectPositionOnPlane(lightingData.N, lightingData.V, worldPos, cc_planarReflectionPlane, cc_cameraPos.xyz, cc_planarReflectionDepthScale);
+    vec3 bumpedWorldPos = worldPos;
+    vec2 screenUV = GetPlanarReflectScreenUV(bumpedWorldPos, cc_matViewProj, cc_cameraPos.w, lightingData.V, R);
+    vec4 rgbe = fragTextureLod(cc_reflectionProbePlanarMap, screenUV, cc_ambientGround.w);
+    envSpec = unpackRGBE(rgbe);
   #endif
 #elif CC_USE_IBL
     envSpec = SampleEnvironmentSpecular(cc_environment, lightingData, cc_ambientGround.w);

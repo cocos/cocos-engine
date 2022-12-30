@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,10 +20,10 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { UBOGlobal, UBOShadow, UBOCamera, UNIFORM_SHADOWMAP_BINDING,
-    supportsR32FloatTexture, UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING, UBOCSM } from './define';
+    supportsR32FloatTexture, UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING, UBOCSM, isEnableEffect } from './define';
 import { Device, BufferInfo, BufferUsageBit, MemoryUsageBit, DescriptorSet } from '../gfx';
 import { Camera } from '../render-scene/scene/camera';
 import { Mat4, Vec3, Vec4, Color, toRadian, cclegacy } from '../core';
@@ -36,6 +35,8 @@ import { RenderWindow } from '../render-scene/core/render-window';
 import { builtinResMgr } from '../asset/asset-manager/builtin-res-mgr';
 import { Texture2D } from '../asset/assets';
 import { DebugViewCompositeType } from './debug-view';
+import { legacyCC } from '../core/global-exports';
+import { getDescBindingFromName } from './custom/define';
 
 const _matShadowView = new Mat4();
 const _matShadowProj = new Mat4();
@@ -161,6 +162,7 @@ export class PipelineUBO {
         cv[UBOCamera.CAMERA_POS_OFFSET + 3] = this.getCombineSignY();
 
         cv[UBOCamera.SURFACE_TRANSFORM_OFFSET] = camera.surfaceTransform;
+        cv[UBOCamera.SURFACE_TRANSFORM_OFFSET + 1] = camera.cameraUsage;
         cv[UBOCamera.SURFACE_TRANSFORM_OFFSET + 2] = Math.cos(toRadian(sceneData.skybox.getRotationAngle()));
         cv[UBOCamera.SURFACE_TRANSFORM_OFFSET + 3] = Math.sin(toRadian(sceneData.skybox.getRotationAngle()));
 
@@ -432,6 +434,9 @@ export class PipelineUBO {
         this._device = device;
         this._pipeline = pipeline;
         const ds = this._pipeline.descriptorSet;
+        if (isEnableEffect()) {
+            return;
+        }
         this._initCombineSignY();
 
         const globalUBO = device.createBuffer(new BufferInfo(
@@ -455,14 +460,16 @@ export class PipelineUBO {
             UBOShadow.SIZE,
             UBOShadow.SIZE,
         ));
-        ds.bindBuffer(UBOShadow.BINDING, shadowUBO);
+        const binding = isEnableEffect() ? getDescBindingFromName('CCShadow') : UBOShadow.BINDING;
+        ds.bindBuffer(binding, shadowUBO);
         const csmUBO = device.createBuffer(new BufferInfo(
             BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
             MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
             UBOCSM.SIZE,
             UBOCSM.SIZE,
         ));
-        ds.bindBuffer(UBOCSM.BINDING, csmUBO);
+        const csmBinding = isEnableEffect() ? getDescBindingFromName('CCCSM') : UBOCSM.BINDING;
+        ds.bindBuffer(csmBinding, csmUBO);
     }
 
     /**
@@ -506,8 +513,10 @@ export class PipelineUBO {
         }
         PipelineUBO.updateShadowUBOView(this._pipeline, this._shadowUBO, this._csmUBO, camera);
         ds.update();
-        cmdBuffer[0].updateBuffer(ds.getBuffer(UBOShadow.BINDING), this._shadowUBO);
-        cmdBuffer[0].updateBuffer(ds.getBuffer(UBOCSM.BINDING), this._csmUBO);
+        const binding = isEnableEffect() ? getDescBindingFromName('CCShadow') : UBOShadow.BINDING;
+        cmdBuffer[0].updateBuffer(ds.getBuffer(binding), this._shadowUBO);
+        const csmBinding = isEnableEffect() ? getDescBindingFromName('CCCSM') : UBOCSM.BINDING;
+        cmdBuffer[0].updateBuffer(ds.getBuffer(csmBinding), this._csmUBO);
     }
 
     public updateShadowUBOLight (globalDS: DescriptorSet, light: Light, level = 0) {
@@ -515,7 +524,8 @@ export class PipelineUBO {
         globalDS.bindTexture(UNIFORM_SHADOWMAP_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
         globalDS.bindTexture(UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
         globalDS.update();
-        this._pipeline.commandBuffers[0].updateBuffer(globalDS.getBuffer(UBOShadow.BINDING), this._shadowUBO);
+        const binding = isEnableEffect() ? getDescBindingFromName('CCShadow') : UBOShadow.BINDING;
+        this._pipeline.commandBuffers[0].updateBuffer(globalDS.getBuffer(binding), this._shadowUBO);
     }
 
     public updateShadowUBORange (offset: number, data: Mat4 | Color) {

@@ -319,7 +319,7 @@ void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
             _clipper->clipEnd(*slot);
             continue;
         }
-        const spine::Color& slotColor = slot->getColor();
+        const spine::Color &slotColor = slot->getColor();
         // Early exit if slot is invisible
         if (slotColor.a == 0) {
             _clipper->clipEnd(*slot);

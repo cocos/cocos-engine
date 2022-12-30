@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -629,18 +628,22 @@ bool sevalue_to_native(const se::Value &from, ccstd::array<uint8_t, CNT> *to, se
 }
 
 template <typename T>
-bool sevalue_to_native(const se::Value &from, ccstd::variant<T, ccstd::vector<T>> *to, se::Object *ctx) { // NOLINT
-    se::Object *array = from.toObject();
-    if (array->isArray()) {
+bool sevalue_to_native(const se::Value &from, ccstd::variant<ccstd::monostate, T, ccstd::vector<T>> *to, se::Object *ctx) { // NOLINT
+    bool ok = false;
+    if (from.isObject() && from.toObject()->isArray()) {
         ccstd::vector<T> result;
-        sevalue_to_native(from, &result, ctx);
-        *to = std::move(result);
+        ok = sevalue_to_native(from, &result, ctx);
+        if (ok) {
+            *to = std::move(result);
+        }
     } else {
-        T result;
-        sevalue_to_native(from, &result, ctx);
-        *to = result;
+        T result{};
+        ok = sevalue_to_native(from, &result, ctx);
+        if (ok) {
+            *to = std::move(result);
+        }
     }
-    return true;
+    return ok;
 }
 
 ////////////////// TypedArray

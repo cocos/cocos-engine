@@ -29,10 +29,10 @@
 
 #pragma once
 
+#include <vector>
 #include "IOBuffer.h"
 #include "SkeletonAnimation.h"
 #include "middleware-adapter.h"
-#include <vector>
 
 namespace spine {
 class SkeletonCache : public SkeletonAnimation {
