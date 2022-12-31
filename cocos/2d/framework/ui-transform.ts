@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -282,7 +281,7 @@ export class UITransform extends Component {
      * node.setContentSize(new Size(100, 100));
      * ```
      */
-    public setContentSize(size: Size) : void;
+    public setContentSize(size: Size): void;
 
     /**
      * @en
@@ -299,7 +298,7 @@ export class UITransform extends Component {
      * node.setContentSize(100, 100);
      * ```
      */
-    public setContentSize(width: number, height: number) : void;
+    public setContentSize(width: number, height: number): void;
 
     public setContentSize (size: Size | number, height?: number) {
         const locContentSize = this._contentSize;
@@ -618,8 +617,8 @@ export class UITransform extends Component {
      */
     public getBoundingBoxToWorld () {
         if (this.node.parent) {
-            this.node.parent.getWorldMatrix(_worldMatrix);
-            return this.getBoundingBoxTo(_worldMatrix);
+            const m = this.node.parent.getWorldMatrix();
+            return this.getBoundingBoxTo(m);
         }
         return this.getBoundingBox();
     }
@@ -650,7 +649,7 @@ export class UITransform extends Component {
         rect.transformMat4(_worldMatrix);
 
         // query child's BoundingBox
-        if (!this.node.children) {
+        if (!this.node.children || this.node.children.length === 0) {
             return rect;
         }
 
@@ -730,7 +729,7 @@ export class UITransform extends Component {
     private static _sortChildrenSibling (node) {
         const siblings = node.children;
         if (siblings) {
-            siblings.sort((a:Node, b:Node) => {
+            siblings.sort((a: Node, b: Node) => {
                 const aComp = a._uiProps.uiTransformComp;
                 const bComp = b._uiProps.uiTransformComp;
                 const ca = aComp ? aComp._priority : 0;

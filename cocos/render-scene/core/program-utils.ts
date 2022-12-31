@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -25,6 +24,7 @@
 
 import { EffectAsset } from '../../asset/assets/effect-asset';
 import { Attribute, GetTypeSize, ShaderInfo, Uniform } from '../../gfx/base/define';
+import { UBOForwardLight, UBOSkinning } from '../../rendering/define';
 import { genHandle, MacroRecord } from './pass-utils';
 import { IProgramInfo } from './program-lib';
 
@@ -114,8 +114,28 @@ export function getVariantKey (programInfo: IProgramInfo, defines: MacroRecord) 
     return `${key.toString(16)}|${programInfo.hash}`;
 }
 
+const defaultUniformCounts = new Map<string, number>();
+defaultUniformCounts.set('cc_joints', UBOSkinning.LAYOUT.members[0].count);
+defaultUniformCounts.set('cc_lightPos', UBOForwardLight.LIGHTS_PER_PASS);
+defaultUniformCounts.set('cc_lightColor', UBOForwardLight.LIGHTS_PER_PASS);
+defaultUniformCounts.set('cc_lightSizeRangeAngle', UBOForwardLight.LIGHTS_PER_PASS);
+defaultUniformCounts.set('cc_lightDir', UBOForwardLight.LIGHTS_PER_PASS);
+
+function getUniformSize (prevSize: number, m: Uniform) {
+    if (m.count) {
+        return prevSize + GetTypeSize(m.type) * m.count;
+    } else {
+        const count = defaultUniformCounts.get(m.name);
+        if (count !== undefined) {
+            return prevSize + GetTypeSize(m.type) * count;
+        }
+        console.error(`uniform '${m.name}' must have a count`);
+    }
+    return prevSize;
+}
+
 export function getSize (blockMembers: Uniform[]) {
-    return blockMembers.reduce((s, m) => s + GetTypeSize(m.type) * m.count, 0);
+    return blockMembers.reduce(getUniformSize, 0);
 }
 
 export function genHandles (tmpl: EffectAsset.IShaderInfo | ShaderInfo) {
@@ -181,4 +201,17 @@ export function getCombinationDefines (combination: EffectAsset.IPreCompileInfo)
         return acc;
     }, [] as MacroRecord[]), [{}] as MacroRecord[]);
     return defines;
+}
+
+export function addEffectDefaultProperties (effect: EffectAsset) {
+    for (let i = 0; i < effect.techniques.length; i++) {
+        const tech = effect.techniques[i];
+        for (let j = 0; j < tech.passes.length; j++) {
+            const pass = tech.passes[j];
+            // grab default property declaration if there is none
+            if (pass.propertyIndex !== undefined && pass.properties === undefined) {
+                pass.properties = tech.passes[pass.propertyIndex].properties;
+            }
+        }
+    }
 }

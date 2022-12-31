@@ -1,12 +1,36 @@
+/****************************************************************************
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+****************************************************************************/
+
 #include <boost/graph/depth_first_search.hpp>
 #include <boost/graph/filtered_graph.hpp>
-#include "DebugUtils.h"
-#include "GraphView.h"
 #include "LayoutGraphGraphs.h"
 #include "NativePipelineGraphs.h"
 #include "NativePipelineTypes.h"
+#include "RenderCommonNames.h"
 #include "RenderGraphGraphs.h"
-#include "RenderGraphNames.h"
+#include "details/DebugUtils.h"
+#include "details/GraphView.h"
 #include "gfx-base/GFXDef-common.h"
 #include "pipeline/custom/RenderCommonTypes.h"
 #include "pipeline/custom/RenderGraphFwd.h"
@@ -21,7 +45,7 @@ ccstd::string NativeRasterPassBuilder::getName() const {
 }
 
 void NativeRasterPassBuilder::setName(const ccstd::string &name) {
-    get(RenderGraph::Name, *renderGraph, passID) = std::string_view(name);
+    get(RenderGraph::Name, *renderGraph, passID) = std::string_view{name};
 }
 
 void NativeRasterPassBuilder::addRasterView(const ccstd::string &name, const RasterView &view) {
@@ -51,7 +75,7 @@ ccstd::string NativeRasterQueueBuilder::getName() const {
 }
 
 void NativeRasterQueueBuilder::setName(const ccstd::string &name) {
-    get(RenderGraph::Name, *renderGraph, queueID) = std::string_view(name);
+    get(RenderGraph::Name, *renderGraph, queueID) = std::string_view{name};
 }
 
 void NativeRasterQueueBuilder::addSceneOfCamera(scene::Camera *camera, LightInfo light, SceneFlags sceneFlags) {
@@ -358,13 +382,17 @@ void NativeRasterPassBuilder::setSampler(const ccstd::string &name, gfx::Sampler
     addSampler(*layoutGraph, name, sampler, data);
 }
 
+void NativeRasterPassBuilder::setVersion(const ccstd::string &name, uint64_t version) {
+    // noop
+}
+
 // NativeComputeQueue
 ccstd::string NativeComputeQueueBuilder::getName() const {
     return std::string(get(RenderGraph::Name, *renderGraph, queueID));
 }
 
 void NativeComputeQueueBuilder::setName(const ccstd::string &name) {
-    get(RenderGraph::Name, *renderGraph, queueID) = std::string_view(name);
+    get(RenderGraph::Name, *renderGraph, queueID) = std::string_view{name};
 }
 
 void NativeComputeQueueBuilder::addDispatch(const ccstd::string &shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ) {
@@ -443,7 +471,7 @@ ccstd::string NativeComputePassBuilder::getName() const {
 }
 
 void NativeComputePassBuilder::setName(const ccstd::string &name) {
-    get(RenderGraph::Name, *renderGraph, passID) = std::string_view(name);
+    get(RenderGraph::Name, *renderGraph, passID) = std::string_view{name};
 }
 
 void NativeComputePassBuilder::addComputeView(const ccstd::string &name, const ComputeView &view) {
@@ -534,7 +562,7 @@ ccstd::string NativeMovePassBuilder::getName() const {
 }
 
 void NativeMovePassBuilder::setName(const ccstd::string &name) {
-    get(RenderGraph::Name, *renderGraph, passID) = std::string_view(name);
+    get(RenderGraph::Name, *renderGraph, passID) = std::string_view{name};
 }
 
 void NativeMovePassBuilder::addPair(const MovePair &pair) {
@@ -547,7 +575,7 @@ ccstd::string NativeCopyPassBuilder::getName() const {
 }
 
 void NativeCopyPassBuilder::setName(const ccstd::string &name) {
-    get(RenderGraph::Name, *renderGraph, passID) = std::string_view(name);
+    get(RenderGraph::Name, *renderGraph, passID) = std::string_view{name};
 }
 
 void NativeCopyPassBuilder::addPair(const CopyPair &pair) {

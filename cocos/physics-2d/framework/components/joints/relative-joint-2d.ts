@@ -1,3 +1,27 @@
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
 import { Joint2D } from './joint-2d';
 import { IRelativeJoint } from '../../../spec/i-physics-joint';
 import { EJoint2DType } from '../../physics-types';
@@ -17,7 +41,7 @@ export class RelativeJoint2D extends Joint2D {
      * @en
      * The maximum force can be applied to rigidbody.
      * @zh
-     * 可以应用于刚体的最大的力值
+     * 可以应用于刚体的最大的力值。
      */
     @property
     get maxForce (): number {
@@ -34,7 +58,7 @@ export class RelativeJoint2D extends Joint2D {
      * @en
      * The maximum torque can be applied to rigidbody.
      * @zh
-     * 可以应用于刚体的最大扭矩值
+     * 可以应用于刚体的最大扭矩值。
      */
     @property
     get maxTorque (): number {
@@ -51,7 +75,7 @@ export class RelativeJoint2D extends Joint2D {
      * @en
      * The position correction factor in the range [0,1].
      * @zh
-     * 位置矫正系数，范围为 [0, 1]
+     * 位置矫正系数，范围为 [0, 1]。
      */
     @property
     get correctionFactor (): number {
@@ -68,7 +92,7 @@ export class RelativeJoint2D extends Joint2D {
      * @en
      * The linear offset from connected rigidbody to rigidbody.
      * @zh
-     * 关节另一端的刚体相对于起始端刚体的位置偏移量
+     * 关节另一端的刚体相对于起始端刚体的位置偏移量。
      */
     @property
     get linearOffset (): Vec2 {
@@ -94,7 +118,7 @@ export class RelativeJoint2D extends Joint2D {
      * @en
      * The angular offset from connected rigidbody to rigidbody.
      * @zh
-     * 关节另一端的刚体相对于起始端刚体的角度偏移量
+     * 关节另一端的刚体相对于起始端刚体的角度偏移量。
      */
     @property
     get angularOffset (): number {
@@ -120,7 +144,7 @@ export class RelativeJoint2D extends Joint2D {
      * @en
      * Auto calculate the angularOffset and linearOffset between the connected two rigid bodies.
      * @zh
-     * 自动计算关节连接的两个刚体间的 angularOffset 和 linearOffset
+     * 自动计算关节连接的两个刚体间的 angularOffset 和 linearOffset。
      */
     @property
     get autoCalcOffset (): boolean {

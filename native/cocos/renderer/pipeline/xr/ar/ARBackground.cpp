@@ -1,26 +1,26 @@
 /****************************************************************************
- * Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
- *
- * http://www.cocos.com
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- ****************************************************************************/
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+****************************************************************************/
 
 #include "pipeline/xr/ar/ARBackground.h"
 #include "ar/ARModule.h"
@@ -281,7 +281,7 @@ void ARBackground::render(cc::scene::Camera *camera, gfx::RenderPass *renderPass
     if (apiState < 0) return;
 
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
-    if (!_setTexFlag) {
+    if (armodule->getTexInitFlag()) {
         gfx::SamplerInfo samplerInfo;
         auto *sampler = _device->getSampler(samplerInfo);
         armodule->setCameraTextureName(static_cast<int>(_glTex));
@@ -299,10 +299,10 @@ void ARBackground::render(cc::scene::Camera *camera, gfx::RenderPass *renderPass
         _descriptorSet->bindTexture(1, backgroundTex);
         _descriptorSet->update();
 
-        _setTexFlag = true;
+        armodule->resetTexInitFlag();
     }
 #elif CC_PLATFORM == CC_PLATFORM_MAC_IOS
-    if (!_setTexFlag) {
+    if (armodule->getTexInitFlag()) {
         auto *pixelBuffer = armodule->getCameraTextureRef();
         if (pixelBuffer != nullptr) {
             gfx::SamplerInfo samplerInfo;
@@ -336,7 +336,7 @@ void ARBackground::render(cc::scene::Camera *camera, gfx::RenderPass *renderPass
             _descriptorSet->bindBuffer(2, _ycbcrTransferBuffer);
             _descriptorSet->update();
 
-            _setTexFlag = true;
+            armodule->resetTexInitFlag();
         }
     }
 #endif
@@ -396,11 +396,11 @@ T &ARBackground::getAppropriateShaderSource(ShaderSources<T> &sources) {
 void ARBackground::destroy() {
     CC_SAFE_DESTROY_AND_DELETE(_shader);
     CC_SAFE_DESTROY_AND_DELETE(_vertexBuffer);
-#if CC_PLATFORM == CC_PLATFORM_ANDROID    
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
     CC_SAFE_DESTROY_AND_DELETE(_uniformBuffer);
 #elif CC_PLATFORM == CC_PLATFORM_MAC_IOS
     CC_SAFE_DESTROY_AND_DELETE(_ycbcrTransferBuffer);
-#endif 
+#endif
     CC_SAFE_DESTROY_AND_DELETE(_inputAssembler);
     CC_SAFE_DESTROY_AND_DELETE(_descriptorSetLayout);
     CC_SAFE_DESTROY_AND_DELETE(_descriptorSet);
