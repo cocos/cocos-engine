@@ -25,25 +25,13 @@
 
 import { ccclass, displayOrder, serializable, tooltip, type, range } from '../../core/data/decorators';
 import Burst from '../burst';
-import { ParticleModule } from '../particle';
+import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
 import { ParticleUpdateContext } from '../particle-update-context';
 import { CurveRange } from '../curve-range';
 
 @ccclass('cc.EmissionModule')
 export class EmissionModule extends ParticleModule {
-    public get name (): string {
-        return 'emissionModule';
-    }
-
-    public get enable (): boolean {
-        return this._enabled;
-    }
-
-    public set enable (val: boolean) {
-        this._enabled = val;
-    }
-
     /**
      * @zh 每秒发射的粒子数。
      */
@@ -73,8 +61,14 @@ export class EmissionModule extends ParticleModule {
     @tooltip('i18n:particle_system.bursts')
     public bursts: Burst[] = [];
 
-    @serializable
-    private _enabled = true;
+    public get name (): string {
+        return 'EmissionModule';
+    }
+
+    public get updateStage (): ParticleUpdateStage {
+        return ParticleUpdateStage.EMITTER_UPDATE;
+    }
+
     private _emitRateTimeCounter: number;
     private _emitRateDistanceCounter: number;
 

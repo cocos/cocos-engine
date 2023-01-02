@@ -28,16 +28,12 @@ import { CCFloat, CCInteger } from '../../core';
 import { range, rangeStep, slide, visible } from '../../core/data/decorators/editable';
 import { Vec3 } from '../../core/math';
 import { ParticleNoise } from '../noise';
-import { Particle, ParticleModule } from '../particle';
+import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
 import { ParticleUpdateContext } from '../particle-update-context';
 
 @ccclass('cc.NoiseModule')
 export class NoiseModule extends ParticleModule {
-    public get name (): string {
-        return 'NoiseModule';
-    }
-
     @type(CCFloat)
     @range([0, 100])
     @displayOrder(16)
@@ -191,6 +187,14 @@ export class NoiseModule extends ParticleModule {
     }
     set octaveScale (value: number) {
         this._octaveScale = value;
+    }
+
+    public get name (): string {
+        return 'NoiseModule';
+    }
+
+    public get updateStage (): ParticleUpdateStage {
+        return ParticleUpdateStage.POST_UPDATE_POSITION;
     }
 
     @serializable

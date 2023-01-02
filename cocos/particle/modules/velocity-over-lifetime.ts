@@ -27,7 +27,7 @@ import { ccclass, tooltip, displayOrder, range, type, serializable } from 'cc.de
 import { Enum } from '../../core';
 import { Mat4, pseudoRandom, Quat, Vec3 } from '../../core/math';
 import { Space, ModuleRandSeed } from '../enum';
-import { ParticleModule } from '../particle';
+import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { calculateTransform } from '../particle-general-function';
 import { ParticleSOAData } from '../particle-soa-data';
 import { ParticleUpdateContext } from '../particle-update-context';
@@ -41,22 +41,6 @@ const _temp_v3 = new Vec3();
 
 @ccclass('cc.VelocityOverLifetimeModule')
 export class VelocityOverLifetimeModule extends ParticleModule {
-    public get name (): string {
-        return 'velocityModule';
-    }
-
-    /**
-     * @zh 是否启用。
-     */
-    @displayOrder(0)
-    public get enable () {
-        return this._enable;
-    }
-
-    public set enable (val) {
-        this._enable = val;
-    }
-
     /**
      * @zh X 轴方向上的速度分量。
      */
@@ -106,9 +90,15 @@ export class VelocityOverLifetimeModule extends ParticleModule {
     @tooltip('i18n:velocityOvertimeModule.space')
     public space = Space.LOCAL;
 
+    public get name (): string {
+        return 'VelocityModule';
+    }
+
+    public get updateStage (): ParticleUpdateStage {
+        return ParticleUpdateStage.UPDATE_VELOCITY;
+    }
+
     private rotation: Quat;
-    @serializable
-    private _enable = false;
 
     constructor () {
         super();

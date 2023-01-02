@@ -26,7 +26,7 @@
 
 import { ccclass, tooltip, displayOrder, range, type, radian, serializable, visible } from 'cc.decorator';
 import { Mat4, pseudoRandom, Quat, Vec4, Vec3 } from '../../core/math';
-import { Particle, ParticleModule } from '../particle';
+import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { CurveRange } from '../curve-range';
 import { ModuleRandSeed, RenderMode } from '../enum';
 
@@ -34,13 +34,6 @@ const ROTATION_OVERTIME_RAND_OFFSET = ModuleRandSeed.ROTATION;
 
 @ccclass('cc.RotationOverLifetimeModule')
 export class RotationOverLifetimeModule extends ParticleModule {
-    public get name (): string {
-        return 'rotationModule';
-    }
-
-    @serializable
-    private _separateAxes = false;
-
     /**
      * @zh 是否三个轴分开设定旋转（暂不支持）。
      */
@@ -89,10 +82,20 @@ export class RotationOverLifetimeModule extends ParticleModule {
     @tooltip('i18n:rotationOvertimeModule.z')
     public z = new CurveRange();
 
+    public get name (): string {
+        return 'RotationModule';
+    }
+
+    public get updateStage (): ParticleUpdateStage {
+        return ParticleUpdateStage.UPDATE;
+    }
+
     private _startMat:Mat4 = new Mat4();
     private _matRot:Mat4 = new Mat4();
     private _quatRot:Quat = new Quat();
     private _otherEuler:Vec3 = new Vec3();
+    @serializable
+    private _separateAxes = false;
 
     private _processRotation (p: Particle, r2d: number) {
         // Same as the particle-vs-legacy.chunk glsl statemants

@@ -24,7 +24,7 @@
  */
 
 import { ccclass, displayOrder, range, serializable, tooltip, type } from "../../core/data/decorators";
-import { ParticleModule } from "../particle";
+import { ParticleModule, ParticleUpdateStage } from "../particle-module";
 import { ParticleSOAData } from "../particle-soa-data";
 import { ParticleUpdateContext } from "../particle-update-context";
 import { CurveRange } from "../curve-range";
@@ -33,17 +33,6 @@ import { Space } from "../enum";
 
 @ccclass('cc.GravityModule')
 export class GravityModule extends ParticleModule {
-    public get name (): string {
-        return 'gravityModule';
-    }
-
-    public get enable(): boolean {
-        return this._enable;
-    }
-
-    public set enable(val: boolean) {
-        this._enable = val;
-    }
 
     /**
      * @zh 粒子受重力影响的重力系数。
@@ -55,10 +44,15 @@ export class GravityModule extends ParticleModule {
     @tooltip('i18n:particle_system.gravityModifier')
     public gravityModifier = new CurveRange();
 
-    @serializable
-    private _enable = false;
+    public get name (): string {
+        return 'GravityModule';
+    }
 
-    public onUpdate(particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
+    public get updateStage (): ParticleUpdateStage {
+        return ParticleUpdateStage.UPDATE_VELOCITY;
+    }
+
+    public update(particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
         this.node.getWorldMatrix(_tempWorldTrans);
 
         if (particleUpdateContext.simulationSpace === Space.LOCAL) {

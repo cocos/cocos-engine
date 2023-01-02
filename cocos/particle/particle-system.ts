@@ -28,11 +28,11 @@ import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displa
 import { EDITOR } from 'internal:constants';
 import { Mat4, pseudoRandom, Quat, randomRangeInt, Vec2, Vec3 } from '../core/math';
 import { INT_MAX } from '../core/math/bits';
-import { ColorOvertimeModule } from './modules/color-overtime';
+import { ColorOverLifetimeModule } from './modules/color-over-lifetime';
 import { InitializationModule } from './modules/initialization';
 import { CurveRange, Mode } from './curve-range';
-import { ForceOverLifetimeModule } from './modules/force-overtime';
-import { LimitVelocityOvertimeModule } from './modules/limit-velocity-overtime';
+import { ForceOverLifetimeModule } from './modules/force-over-lifetime';
+import { LimitVelocityOverLifetimeModule } from './modules/limit-velocity-over-lifetime';
 import { RotationOverLifetimeModule } from './modules/rotation-over-lifetime';
 import { SizeOverLifetimeModule } from './modules/size-over-lifetime';
 import { TextureAnimationModule } from './modules/texture-animation';
@@ -52,10 +52,16 @@ import { ParticleCuller } from './particle-culler';
 import { NoiseModule } from './modules/noise';
 import { CCBoolean, CCFloat, Component } from '../core';
 import { INVALID_HANDLE, ParticleHandle, ParticleSOAData } from './particle-soa-data';
-import { ParticleModule } from './particle';
+import { ParticleModule } from './particle-module';
 
 const _world_mat = new Mat4();
 const _world_rol = new Quat();
+
+enum PlayingState {
+    STOPPED,
+    PLAYING,
+    PAUSED,
+}
 
 @ccclass('cc.ParticleSystem')
 @help('i18n:cc.ParticleSystem')
@@ -64,6 +70,7 @@ const _world_rol = new Quat();
 //@requireComponent(ParticleSystemRenderer)
 @executeInEditMode
 export class ParticleSystem extends Component {
+    public static CullingMode = CullingMode;
     /**
      * @zh 粒子系统能生成的最大粒子数量。
      */
@@ -120,9 +127,6 @@ export class ParticleSystem extends Component {
     }
 
     set prewarm (val) {
-        if (val === true && this.loop === false) {
-            // console.warn('prewarm only works if loop is also enabled.');
-        }
         this._prewarm = val;
     }
 
@@ -188,11 +192,9 @@ export class ParticleSystem extends Component {
         return this._cullingMode;
     }
 
-    set cullingMode (value: number) {
+    set cullingMode (value: CullingMode) {
         this._cullingMode = value;
     }
-
-    public static CullingMode = CullingMode;
 
     /**
      * @en Particle bounding box half width.
@@ -254,38 +256,24 @@ export class ParticleSystem extends Component {
         this.setBoundingZ(value);
     }
 
-    /**
-     * @en Culling module data before serialize.
-     * @zh 序列化之前剔除不需要的模块数据。
-     */
-    @displayOrder(28)
-    @tooltip('i18n:particle_system.dataCulling')
-    get dataCulling () {
-        return this._dataCulling;
-    }
-
-    set dataCulling (value: boolean) {
-        this._dataCulling = value;
-    }
-
     @type(InitializationModule)
     public get initializationModule () {
-        return this._initializationModule;
+        return this.getOrAddModule(InitializationModule);
     }
 
     @type(EmissionModule)
     public get emissionModule () {
-        return this._emissionModule;
+        return this.getOrAddModule(EmissionModule);
     }
 
     /**
      * @zh 颜色控制模块。
      */
-    @type(ColorOvertimeModule)
+    @type(ColorOverLifetimeModule)
     @displayOrder(23)
     @tooltip('i18n:particle_system.colorOverLifetimeModule')
     public get colorOverLifetimeModule () {
-        return this._colorOverLifetimeModule;
+        return this.getOrAddModule(ColorOverLifetimeModule);
     }
 
     /**
@@ -295,47 +283,47 @@ export class ParticleSystem extends Component {
     @displayOrder(17)
     @tooltip('i18n:particle_system.shapeModule')
     public get shapeModule () {
-        return this._shapeModule;
+        return this.getOrAddModule(ShapeModule);
     }
 
     /**
      * @zh 粒子大小模块。
      */
-    @type(SizeOvertimeModule)
+    @type(SizeOverLifetimeModule)
     @displayOrder(21)
     @tooltip('i18n:particle_system.sizeOvertimeModule')
-    public get sizeOvertimeModule () {
-        return this._sizeOvertimeModule;
+    public get sizeOverLifetimeModule () {
+        return this.getOrAddModule(SizeOverLifetimeModule);
     }
 
     /**
      * @zh 粒子速度模块。
      */
-    @type(VelocityOvertimeModule)
+    @type(VelocityOverLifetimeModule)
     @displayOrder(18)
     @tooltip('i18n:particle_system.velocityOvertimeModule')
-    public get velocityOvertimeModule () {
-        return this._velocityOvertimeModule;
+    public get velocityOverLifetimeModule () {
+        return this.getOrAddModule(VelocityOverLifetimeModule);
     }
 
     /**
      * @zh 粒子加速度模块。
      */
-    @type(ForceOvertimeModule)
+    @type(ForceOverLifetimeModule)
     @displayOrder(19)
     @tooltip('i18n:particle_system.forceOvertimeModule')
-    public get forceOvertimeModule () {
-        return this._forceOvertimeModule;
+    public get forceOverLifetimeModule () {
+        return this.getOrAddModule(ForceOverLifetimeModule);
     }
 
     /**
      * @zh 粒子限制速度模块（只支持 CPU 粒子）。
      */
-    @type(LimitVelocityOvertimeModule)
+    @type(LimitVelocityOverLifetimeModule)
     @displayOrder(20)
     @tooltip('i18n:particle_system.limitVelocityOvertimeModule')
-    public get limitVelocityOvertimeModule () {
-        return this._limitVelocityOvertimeModule;
+    public get limitVelocityOverLifetimeModule () {
+        return this.getOrAddModule(LimitVelocityOverLifetimeModule);
     }
 
     /**
@@ -345,7 +333,7 @@ export class ParticleSystem extends Component {
     @displayOrder(22)
     @tooltip('i18n:particle_system.rotationOvertimeModule')
     public get rotationOverLifetimeModule () {
-        return this._rotationOvertimeModule;
+        return this.getOrAddModule(RotationOverLifetimeModule);
     }
 
     /**
@@ -388,7 +376,7 @@ export class ParticleSystem extends Component {
     private _renderCulling = false;
 
     @serializable
-    private _cullingMode = CullingMode.Pause;
+    private _cullingMode = CullingMode.PAUSE;
 
     @serializable
     private _aabbHalfX = 0;
@@ -396,12 +384,8 @@ export class ParticleSystem extends Component {
     private _aabbHalfY = 0;
     @serializable
     private _aabbHalfZ = 0;
-    @serializable
-    @formerlySerializedAs('enableCulling')
-    private _dataCulling = false;
-    private _isPlaying = false;
-    private _isPaused = false;
-    private _isStopped = true;
+
+    private _state = PlayingState.STOPPED;
     private _isEmitting = false;
     private _needRefresh = true;
     private _isCulled = false;
@@ -431,6 +415,7 @@ export class ParticleSystem extends Component {
     public addModule<T extends ParticleModule> (ModuleType: Constructor<T>): T {
         const newModule = new ModuleType();
         this._particleModules.push(newModule);
+        this._particleModules.sort((moduleA, moduleB) => (moduleA.updateStage - moduleB.updateStage) || moduleA.name.localeCompare(moduleB.name));
         return newModule;
     }
 
@@ -471,14 +456,7 @@ export class ParticleSystem extends Component {
      * @zh 播放粒子效果。
      */
     public play () {
-        if (this._isPaused) {
-            this._isPaused = false;
-        }
-        if (this._isStopped) {
-            this._isStopped = false;
-        }
-
-        this._isPlaying = true;
+        this._state = PlayingState.PLAYING;
         this._isEmitting = true;
 
         // prewarm
@@ -492,15 +470,11 @@ export class ParticleSystem extends Component {
      * @zh 暂停播放粒子效果。
      */
     public pause () {
-        if (this._isStopped) {
+        if (this.isStopped) {
             console.warn('pause(): particle system is already stopped.');
             return;
         }
-        if (this._isPlaying) {
-            this._isPlaying = false;
-        }
-
-        this._isPaused = true;
+        this._state = PlayingState.PAUSED;
     }
 
     /**
@@ -516,22 +490,13 @@ export class ParticleSystem extends Component {
      * @zh 停止播放粒子。
      */
     public stop () {
-        if (this._isPlaying || this._isPaused) {
+        if (this.isPlaying || this.isPaused) {
             this.clear();
         }
-        if (this._isPlaying) {
-            this._isPlaying = false;
-        }
-        if (this._isPaused) {
-            this._isPaused = false;
-        }
-        if (this._isEmitting) {
-            this._isEmitting = false;
-        }
-
+        this._isEmitting = false;
         this._time = 0.0;
 
-        this._isStopped = true;
+        this._state = PlayingState.STOPPED;
 
         // if stop emit modify the refresh flag to true
         this._needRefresh = true;
@@ -693,11 +658,11 @@ export class ParticleSystem extends Component {
             }
         }
 
-        if (this._isPlaying) {
+        if (this.isPlaying) {
             this._time += scaledDeltaTime;
 
             // simulation, update particles.
-            if (this.updateParticles(scaledDeltaTime) === 0 && !this._isEmitting) {
+            if (this.updateParticles(scaledDeltaTime) === 0 && !this.isEmitting) {
                 this.stop();
             }
         }
@@ -743,7 +708,7 @@ export class ParticleSystem extends Component {
         particleUpdateContext.worldTransform.set(this.node.worldMatrix);
         particleUpdateContext.worldRotation.set(this.node.worldRotation);
 
-        const { normalizedAliveTime, invStartLifeTime, animatedVelocityX, animatedVelocityY, animatedVelocityZ, ve } = this._particles;
+        const { normalizedAliveTime, invStartLifeTime, animatedVelocityX, animatedVelocityY, animatedVelocityZ } = this._particles;
         for (let i = 0, length = this._particles.count; i < length; ++i) {
             normalizedAliveTime[i] += deltaTime * invStartLifeTime[i];
 
@@ -767,8 +732,6 @@ export class ParticleSystem extends Component {
             }
         }
         particleUpdateContext.isEmitting = this._isEmitting;
-
-        this._emissionModule.update(this._particles, particleUpdateContext);
 
         for (let i = 0, length = this._particles.count; i < length; ++i) {
 
@@ -817,19 +780,16 @@ export class ParticleSystem extends Component {
         }
     }
 
-    /**
-     * @ignore
-     */
     get isPlaying () {
-        return this._isPlaying;
+        return this._state === PlayingState.PLAYING;
     }
 
     get isPaused () {
-        return this._isPaused;
+        return this._state === PlayingState.PAUSED;
     }
 
     get isStopped () {
-        return this._isStopped;
+        return this._state === PlayingState.STOPPED;
     }
 
     get isEmitting () {
@@ -845,11 +805,5 @@ export class ParticleSystem extends Component {
             return INVALID_HANDLE;
         }
         return this._particles.addParticle();
-    }
-
-    public getNoisePreview (width: number, height: number): number[] {
-        const out: number[] = [];
-        this.noiseModule.getNoisePreview(out, this.time, width, height);
-        return out;
     }
 }

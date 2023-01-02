@@ -26,7 +26,7 @@
 import { ccclass, tooltip, displayOrder, type, formerlySerializedAs, serializable, range } from 'cc.decorator';
 import { lerp, pseudoRandom, repeat } from '../../core/math';
 import { Enum } from '../../core/value-types';
-import { Particle, ParticleModule } from '../particle';
+import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { CurveRange } from '../curve-range';
 import { ModuleRandSeed } from '../enum';
 import { ParticleSOAData } from '../particle-soa-data';
@@ -68,10 +68,6 @@ const Animation = Enum({
 
 @ccclass('cc.TextureAnimationModule')
 export class TextureAnimationModule extends ParticleModule {
-    public get name (): string {
-        return 'textureModule';
-    }
-
     /**
      * @zh 设定粒子贴图动画的类型（暂只支持 Grid 模式）[[Mode]]。
      */
@@ -195,6 +191,14 @@ export class TextureAnimationModule extends ParticleModule {
     @displayOrder(6)
     @tooltip('i18n:textureAnimationModule.rowIndex')
     public rowIndex = 0;
+
+    public get name (): string {
+        return 'textureModule';
+    }
+
+    public get updateStage (): ParticleUpdateStage {
+        return ParticleUpdateStage.POST_UPDATE;
+    }
 
     @serializable
     private _flipU = 0;

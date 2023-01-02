@@ -26,33 +26,19 @@
 import { ccclass, tooltip, displayOrder, range, type, serializable, visible } from 'cc.decorator';
 import { lerp, pseudoRandom, Vec3, Mat4, Quat } from '../../core/math';
 import { Space, ModuleRandSeed } from '../enum';
-import { Particle, ParticleModule } from '../particle';
+import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { CurveRange } from '../curve-range';
 import { calculateTransform } from '../particle-general-function';
+import { ParticleUpdateContext } from '../particle-update-context';
+import { ParticleSOAData } from '../particle-soa-data';
 
 const LIMIT_VELOCITY_RAND_OFFSET = ModuleRandSeed.LIMIT;
 
 const _temp_v3 = new Vec3();
 const _temp_v3_1 = new Vec3();
 
-@ccclass('cc.LimitVelocityOvertimeModule')
-export class LimitVelocityOvertimeModule extends ParticleModule {
-    public get name (): string {
-        return 'limitModule';
-    }
-
-    /**
-     * @zh 是否启用。
-     */
-    @displayOrder(0)
-    public get enable () {
-        return this._enable;
-    }
-
-    public set enable (val) {
-        this._enable = val;
-    }
-
+@ccclass('cc.LimitVelocityOverLifetimeModule')
+export class LimitVelocityOverLifetimeModule extends ParticleModule {
     /**
      * @zh X 轴方向上的速度下限。
      */
@@ -61,7 +47,7 @@ export class LimitVelocityOvertimeModule extends ParticleModule {
     @range([-1, 1])
     @displayOrder(4)
     @tooltip('i18n:limitVelocityOvertimeModule.limitX')
-    @visible(function (this: LimitVelocityOvertimeModule): boolean {
+    @visible(function (this: LimitVelocityOverLifetimeModule): boolean {
         return this.separateAxes;
     })
     public limitX = new CurveRange();
@@ -74,7 +60,7 @@ export class LimitVelocityOvertimeModule extends ParticleModule {
     @range([-1, 1])
     @displayOrder(5)
     @tooltip('i18n:limitVelocityOvertimeModule.limitY')
-    @visible(function (this: LimitVelocityOvertimeModule): boolean {
+    @visible(function (this: LimitVelocityOverLifetimeModule): boolean {
         return this.separateAxes;
     })
     public limitY = new CurveRange();
@@ -87,7 +73,7 @@ export class LimitVelocityOvertimeModule extends ParticleModule {
     @range([-1, 1])
     @displayOrder(6)
     @tooltip('i18n:limitVelocityOvertimeModule.limitZ')
-    @visible(function (this: LimitVelocityOvertimeModule): boolean {
+    @visible(function (this: LimitVelocityOverLifetimeModule): boolean {
         return this.separateAxes;
     })
     public limitZ = new CurveRange();
@@ -100,7 +86,7 @@ export class LimitVelocityOvertimeModule extends ParticleModule {
     @range([-1, 1])
     @displayOrder(3)
     @tooltip('i18n:limitVelocityOvertimeModule.limit')
-    @visible(function (this: LimitVelocityOvertimeModule): boolean {
+    @visible(function (this: LimitVelocityOverLifetimeModule): boolean {
         return !this.separateAxes;
     })
     public limit = new CurveRange();
@@ -128,7 +114,15 @@ export class LimitVelocityOvertimeModule extends ParticleModule {
     @serializable
     @displayOrder(1)
     @tooltip('i18n:limitVelocityOvertimeModule.space')
-    public space = Space.Local;
+    public space = Space.LOCAL;
+
+    public get name (): string {
+        return 'limitModule';
+    }
+
+    public get updateStage (): ParticleUpdateStage {
+        return ParticleUpdateStage.POST_UPDATE_VELOCITY;
+    }
 
     // TODO:functions related to drag are temporarily not supported
     public drag = null;
@@ -136,8 +130,6 @@ export class LimitVelocityOvertimeModule extends ParticleModule {
     public multiplyDragByParticleVelocity = false;
     private rotation: Quat;
     private needTransform: boolean;
-    @serializable
-    private _enable = false;
 
     constructor () {
         super();
@@ -146,8 +138,9 @@ export class LimitVelocityOvertimeModule extends ParticleModule {
         this.needUpdate = true;
     }
 
-    public update (space: number, worldTransform: Mat4) {
-        this.needTransform = calculateTransform(space, this.space, worldTransform, this.rotation);
+    public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
+        this.needTransform = calculateTransform(particleUpdateContext.simulationSpace,
+            this.space, particleUpdateContext.worldTransform, this.rotation);
     }
 
     public animate (p: Particle, dt: number) {

@@ -25,7 +25,7 @@
 
 import { ccclass, tooltip, displayOrder, type, serializable, range, visible } from 'cc.decorator';
 import { pseudoRandom, Vec3 } from '../../core/math';
-import { Particle, ParticleModule } from '../particle';
+import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { CurveRange } from '../curve-range';
 import { ModuleRandSeed } from '../enum';
 import { ParticleSOAData } from '../particle-soa-data';
@@ -35,10 +35,6 @@ const SIZE_OVERTIME_RAND_OFFSET = ModuleRandSeed.SIZE;
 
 @ccclass('cc.SizeOverLifetimeModule')
 export class SizeOverLifetimeModule extends ParticleModule {
-    public get name (): string {
-        return 'SizeModule';
-    }
-
     /**
      * @zh 决定是否在每个轴上独立控制粒子大小。
      */
@@ -90,6 +86,14 @@ export class SizeOverLifetimeModule extends ParticleModule {
     @tooltip('i18n:sizeOvertimeModule.z')
     @visible(function (this: SizeOverLifetimeModule): boolean { return this.separateAxes; })
     public z = new CurveRange();
+
+    public get name (): string {
+        return 'SizeModule';
+    }
+
+    public get updateStage (): ParticleUpdateStage {
+        return ParticleUpdateStage.UPDATE;
+    }
 
     public update (particles: ParticleSOAData, context: ParticleUpdateContext) {
 

@@ -24,7 +24,7 @@
  */
 
 import { ccclass, displayOrder, formerlySerializedAs, radian, range, serializable, tooltip, type, visible } from '../../core/data/decorators';
-import { ParticleModule } from '../particle';
+import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
 import { ParticleUpdateContext } from '../particle-update-context';
 import { CurveRange } from '../curve-range';
@@ -33,18 +33,6 @@ import { Vec3 } from '../../core/math';
 
 @ccclass('cc.InitializationModule')
 export class InitializationModule extends ParticleModule {
-    public get name (): string {
-        return 'initializationModule';
-    }
-
-    public get enable (): boolean {
-        return this._enabled;
-    }
-
-    public set enable (val: boolean) {
-        this._enabled = val;
-    }
-
     /**
      * @zh 粒子初始颜色。
      */
@@ -152,8 +140,13 @@ export class InitializationModule extends ParticleModule {
     @tooltip('i18n:particle_system.startLifetime')
     public startLifetime = new CurveRange();
 
-    @serializable
-    private _enabled = false;
+    public get name (): string {
+        return 'InitializationModule';
+    }
+
+    public get updateStage (): ParticleUpdateStage {
+        return ParticleUpdateStage.INITIALIZE;
+    }
 
     constructor () {
         super();

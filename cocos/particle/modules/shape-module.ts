@@ -31,7 +31,7 @@ import { ArcMode, EmitLocation, ShapeType } from '../enum';
 import { fixedAngleUnitVector2, particleEmitZAxis, randomPointBetweenCircleAtFixedAngle, randomPointBetweenSphere,
     randomPointInCube, randomSign, randomSortArray, randomUnitVector } from '../particle-general-function';
 import { ParticleSystem } from '../particle-system';
-import { ParticleModule } from '../particle';
+import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
 import { ParticleUpdateContext } from '../particle-update-context';
 
@@ -51,10 +51,6 @@ function getShapeTypeEnumName (enumValue: number): keyof typeof ShapeType {
 
 @ccclass('cc.ShapeModule')
 export class ShapeModule extends ParticleModule {
-    public get name (): string {
-        return 'shapeModule';
-    }
-
     /**
      * @zh 粒子发射器位置。
      */
@@ -308,6 +304,14 @@ export class ShapeModule extends ParticleModule {
         return subset.includes(enumName);
     })
     public boxThickness = new Vec3(0, 0, 0);
+
+    public get name (): string {
+        return 'shapeModule';
+    }
+
+    public get updateStage (): ParticleUpdateStage {
+        return ParticleUpdateStage.INITIALIZE;
+    }
 
     @serializable
     private _position = new Vec3(0, 0, 0);

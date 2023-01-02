@@ -29,7 +29,7 @@ import { Space, ModuleRandSeed } from '../enum';
 import { calculateTransform } from '../particle-general-function';
 import { CurveRange } from '../curve-range';
 
-import { ParticleModule, PARTICLE_MODULE_NAME } from '../particle';
+import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { Enum } from '../../core';
 import { ParticleUpdateContext } from '../particle-update-context';
 import { ParticleSOAData } from '../particle-soa-data';
@@ -40,22 +40,6 @@ const _temp_v3 = new Vec3();
 
 @ccclass('cc.ForceOverLifetimeModule')
 export class ForceOverLifetimeModule extends ParticleModule {
-    public get name (): string {
-        return 'forceModule';
-    }
-
-    /**
-     * @zh 是否启用。
-     */
-    @displayOrder(0)
-    public get enable () {
-        return this._enable;
-    }
-
-    public set enable (val) {
-        this._enable = val;
-    }
-
     /**
      * @zh X 轴方向上的加速度分量。
      */
@@ -95,12 +79,18 @@ export class ForceOverLifetimeModule extends ParticleModule {
     @tooltip('i18n:forceOvertimeModule.space')
     public space = Space.LOCAL;
 
+    public get name (): string {
+        return 'ForceModule';
+    }
+
+    public get updateStage (): ParticleUpdateStage {
+        return ParticleUpdateStage.POST_UPDATE_VELOCITY;
+    }
+
     // TODO:currently not supported
     public randomized = false;
 
     private rotation: Quat;
-    @serializable
-    private _enable = false;
 
     constructor () {
         super();

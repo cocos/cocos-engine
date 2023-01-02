@@ -28,7 +28,7 @@ import { Color, Mat4, Quat, toRadian, Vec3 } from '../../core/math';
 import { CurveRange } from '../curve-range';
 import { GradientRange } from '../gradient-range';
 import { Space, TextureMode, TrailMode } from '../enum';
-import { Particle, ParticleModule } from '../particle';
+import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 
 const PRE_TRIANGLE_INDEX = 1;
 const NEXT_TRIANGLE_INDEX = 1 << 2;
@@ -42,10 +42,6 @@ const _temp_color = new Color();
 
 @ccclass('cc.TrailModule')
 export class TrailModule extends ParticleModule {
-    public get name (): string {
-        return 'trailModule';
-    }
-
     /**
      * 设定粒子生成轨迹的方式。
      */
@@ -135,6 +131,14 @@ export class TrailModule extends ParticleModule {
     @displayOrder(13)
     @tooltip('i18n:trailSegment.colorOvertime')
     public colorOvertime = new GradientRange();
+
+    public get name (): string {
+        return 'TrailModule';
+    }
+
+    public get updateStage (): ParticleUpdateStage {
+        return ParticleUpdateStage.POST_UPDATE;
+    }
 
     /**
      * 轨迹设定时的坐标系。
