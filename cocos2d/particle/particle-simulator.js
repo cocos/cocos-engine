@@ -25,6 +25,9 @@
 
 const js = require('../core/platform/js');
 const misc = require('../core/utils/misc');
+const { Quat, Mat4, Vec3 } = require('../core/value-types');
+
+let _m4_tmp = new Mat4();
 
 const ZERO_VEC2 = cc.v2(0, 0);
 let _pos = cc.v2();
@@ -93,6 +96,12 @@ let Simulator = function (system) {
     this.emitCounter = 0;
     this._uvFilled = 0;
     this._worldRotation = 0;
+
+    this._nodeQuat = new Quat(0, 0, 0, 1);
+    this._nodeRotMat = new Mat4();
+    this._nodeScale = new Vec3();
+    this._nodeMat = new Mat4();
+    this._transformedPos = new Vec3();
 }
 
 Simulator.prototype.stop = function () {
@@ -318,8 +327,47 @@ Simulator.prototype.step = function (dt) {
         this._worldRotation = node.angle;
         _pos.x = node.x;
         _pos.y = node.y;
+    } else if (psys.positionType === PositionType.NORMAL) { 
+        this._worldRotation = 0;
+    
+        this._nodeQuat = node.getRotation(this._nodeQuat);
+        this._nodeQuat = Quat.normalize(this._nodeQuat, this._nodeQuat);
+        this._nodeQuat = Quat.invert(this._nodeQuat, this._nodeQuat);
+        this._nodeRotMat = Mat4.fromQuat(this._nodeRotMat, this._nodeQuat);
+    
+        this._nodeMat = node.getLocalMatrix(this._nodeMat);
+    
+        this._transformedPos.x = this._nodeMat.m[12];
+        this._transformedPos.y = this._nodeMat.m[13];
+        this._transformedPos.z = this._nodeMat.m[14];
+    
+        Vec3.transformMat4(this._transformedPos, this._transformedPos, this._nodeRotMat);
+        this._nodeScale = node.getScale(this._nodeScale);
+    
+        _pos.x = this._transformedPos.x / this._nodeScale.x;
+        _pos.y = this._transformedPos.y / this._nodeScale.y;
+        _pos.z = this._transformedPos.z / this._nodeScale.z;
     } else {
         this._worldRotation = 0;
+    }
+
+    let material = psys.getMaterial(0);
+    if (material) {
+        if (node.parent) {
+            node.parent.getWorldMatrix(_m4_tmp);
+        } else {
+            _m4_tmp.set(Mat4.IDENTITY);
+        }
+        material.setProperty('pmat', new Float32Array([_m4_tmp.m[0], _m4_tmp.m[1], _m4_tmp.m[2], _m4_tmp.m[3],
+            _m4_tmp.m[4], _m4_tmp.m[5], _m4_tmp.m[6], _m4_tmp.m[7], 
+            _m4_tmp.m[8], _m4_tmp.m[9], _m4_tmp.m[10], _m4_tmp.m[11],
+            _m4_tmp.m[12], _m4_tmp.m[13], _m4_tmp.m[14], _m4_tmp.m[15]]));
+
+        node.getLocalMatrix(_m4_tmp);
+        material.setProperty('lmat', new Float32Array([_m4_tmp.m[0], _m4_tmp.m[1], _m4_tmp.m[2], _m4_tmp.m[3],
+            _m4_tmp.m[4], _m4_tmp.m[5], _m4_tmp.m[6], _m4_tmp.m[7],
+            _m4_tmp.m[8], _m4_tmp.m[9], _m4_tmp.m[10], _m4_tmp.m[11],
+            _m4_tmp.m[12], _m4_tmp.m[13], _m4_tmp.m[14], _m4_tmp.m[15]]));
     }
 
     // Emission
