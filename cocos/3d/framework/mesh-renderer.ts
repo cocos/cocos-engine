@@ -319,7 +319,7 @@ export class MeshRenderer extends ModelRenderer {
     protected _shadowNormalBias = 0;
 
     @serializable
-    protected _reflectionProbeId = 0;
+    protected _reflectionProbeId = -1;
 
     // @serializable
     private _subMeshShapesWeights: number[][] = [];
@@ -660,11 +660,12 @@ export class MeshRenderer extends ModelRenderer {
         this._onUpdateLightingmap();
     }
 
-    public updateProbeCubemap (cubeMap: TextureCube | null, useDefaultTexture?: boolean, probeId?: number) {
+    public updateProbeCubemap (cubeMap: TextureCube | null, probeId: number, useDefaultTexture?: boolean) {
         if (this.bakeSettings._probeCubemap && this.bakeSettings._probeCubemap === cubeMap) {
             return;
         }
         this.bakeSettings._probeCubemap = cubeMap;
+        this.reflectionProbeId = probeId;
         if (this.model !== null) {
             let cubeMap = this.bakeSettings._probeCubemap;
             if (!cubeMap && this.node.scene && !useDefaultTexture) {
@@ -673,10 +674,11 @@ export class MeshRenderer extends ModelRenderer {
             this.model.updateReflectionProbeCubemap(cubeMap);
         }
     }
-    public updateProbePlanarMap (planarMap: Texture | null, probeId?: number) {
+    public updateProbePlanarMap (planarMap: Texture | null, probeId: number) {
         if (this.bakeSettings._probePlanarmap === planarMap) {
             return;
         }
+        this.reflectionProbeId = probeId;
         this.bakeSettings._probePlanarmap = planarMap;
         if (this.model !== null) {
             this.model.updateReflectionProbePlanarMap(this.bakeSettings._probePlanarmap);
@@ -806,10 +808,9 @@ export class MeshRenderer extends ModelRenderer {
     protected _onUpdateLocalShadowBiasAndProbeId () {
         if (this.model !== null) {
             this.model.updateLocalShadowBias();
-            this.model.updateReflectionProbeId();
+            this.model.updateReflectionProbeId(this.reflectionProbeId);
         }
 
-        //xubin: 保证使用reflectionProbe时也要触发添加此属性
         this.setInstancedAttribute('a_localShadowBiasAndProbeId', [
             this._shadowBias,
             this._shadowNormalBias,

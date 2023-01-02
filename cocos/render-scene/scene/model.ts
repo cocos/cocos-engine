@@ -40,6 +40,7 @@ import { UBOLocal, UBOSH, UBOWorldBound, UNIFORM_LIGHTMAP_TEXTURE_BINDING, UNIFO
 import { Root } from '../../root';
 import { TextureCube } from '../../asset/assets';
 import { ShadowType } from './shadows';
+import { ProbeType } from './reflection-probe';
 
 const m4_1 = new Mat4();
 
@@ -964,11 +965,34 @@ export class Model {
      * @en Update the id of reflection probe
      * @zh 更新物体使用哪个反射探针
      */
-    public updateReflectionProbeId () {
+    public updateReflectionProbeId (probeId: number) {
+        this._reflectionProbeId = probeId;
         const sv = this._localData;
-        //xubin: update Id and REFLECTION_PROBE_DATA1/2
         sv[UBOLocal.LOCAL_SHADOW_BIAS + 2] = this._reflectionProbeId;
         sv[UBOLocal.LOCAL_SHADOW_BIAS + 3] = 0;
+
+        const probe = cclegacy.internal.reflectionProbeManager.getProbeById();
+        if (probe) {
+            sv[UBOLocal.REFLECTION_PROBE_DATA1] = probe.node.worldPosition.x;
+            sv[UBOLocal.REFLECTION_PROBE_DATA1 + 1] = probe.node.worldPosition.y;
+            sv[UBOLocal.REFLECTION_PROBE_DATA1 + 2] = probe.node.worldPosition.z;
+            if (probe.probeType !== ProbeType.PLANAR) {
+                sv[UBOLocal.REFLECTION_PROBE_DATA1 + 3] = 1.0;
+
+                sv[UBOLocal.REFLECTION_PROBE_DATA2] = 1.0;
+                sv[UBOLocal.REFLECTION_PROBE_DATA2 + 1] = 0.0;
+                sv[UBOLocal.REFLECTION_PROBE_DATA2 + 2] = 0.0;
+                sv[UBOLocal.REFLECTION_PROBE_DATA2 + 3] = 1.0;
+            } else {
+                sv[UBOLocal.REFLECTION_PROBE_DATA1 + 3] = 0.0;
+
+                sv[UBOLocal.REFLECTION_PROBE_DATA2] = 1.0;
+                sv[UBOLocal.REFLECTION_PROBE_DATA2 + 1] = 1.0;
+                sv[UBOLocal.REFLECTION_PROBE_DATA2 + 2] = 1.0;
+                sv[UBOLocal.REFLECTION_PROBE_DATA2 + 3] = probe.cubemap ? probe.cubemap!.mipmapLevel : 1.0;
+            }
+        }
+
         this._localDataUpdated = true;
     }
 

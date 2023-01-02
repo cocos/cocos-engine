@@ -6,6 +6,5 @@ layout(set = 2, binding = 15) uniform samplerCube cc_reflectionProbeCubemap;
 #pragma builtin(local)
 layout(set = 2, binding = 16) uniform sampler2D cc_reflectionProbePlanarMap;
 
-//xubin: add binding
 #pragma builtin(local)
 layout(set = 2, binding = 17) uniform sampler2D cc_reflectionProbeDataMap;

@@ -80,29 +80,29 @@ export class ReflectionProbeManager {
             buffer[bufferOffset] = this._probes[i].node.worldPosition.x;
             buffer[bufferOffset + 1] = this._probes[i].node.worldPosition.y;
             buffer[bufferOffset + 2] = this._probes[i].node.worldPosition.z;
-            buffer[bufferOffset + 3] = 0;
+            buffer[bufferOffset + 3] = 0.0;
             if (this._probes[i].probeType === ProbeType.CUBE) {
                 //half box size
-                buffer[bufferOffset + 4] = 1;
-                buffer[bufferOffset + 5] = 1;
-                buffer[bufferOffset + 6] = 0;
-                buffer[bufferOffset + 7] = 0;
+                buffer[bufferOffset + 4] = 1.0;
+                buffer[bufferOffset + 5] = 1.0;
+                buffer[bufferOffset + 6] = 0.0;
+                buffer[bufferOffset + 7] = 0.0;
                 //mip count
-                buffer[bufferOffset + 8] = this._probes[i].cubemap!.mipmapLevel;
+                buffer[bufferOffset + 8] = this._probes[i].cubemap ? this._probes[i].cubemap!.mipmapLevel : 1.0;
             } else {
                 //plane.w;
                 //planarReflectionDepthScale
                 //mipCount;
-                buffer[bufferOffset + 4] = 1;
-                buffer[bufferOffset + 5] = 1;
-                buffer[bufferOffset + 6] = 0;
-                buffer[bufferOffset + 7] = 0;
+                buffer[bufferOffset + 4] = 1.0;
+                buffer[bufferOffset + 5] = 1.0;
+                buffer[bufferOffset + 6] = 0.0;
+                buffer[bufferOffset + 7] = 0.0;
 
-                buffer[bufferOffset + 8] = 0;
+                buffer[bufferOffset + 8] = 0.0;
             }
-            buffer[bufferOffset + 9] = 0;
-            buffer[bufferOffset + 10] = 0;
-            buffer[bufferOffset + 11] = 0;
+            buffer[bufferOffset + 9] = 0.0;
+            buffer[bufferOffset + 10] = 0.0;
+            buffer[bufferOffset + 11] = 0.0;
 
             bufferOffset += 4 * dataWidth;
         }
@@ -169,11 +169,7 @@ export class ReflectionProbeManager {
     public clearPlanarReflectionMap (probe: ReflectionProbe) {
         for (const entry of this._usePlanarModels.entries()) {
             if (entry[1] === probe) {
-                const model = entry[0];
-                const meshRender = model.node.getComponent(MeshRenderer);
-                if (meshRender) {
-                    meshRender.updateProbePlanarMap(null);
-                }
+                this._updatePlanarMapOfModel(entry[0], null, null);
             }
         }
     }
@@ -224,6 +220,15 @@ export class ReflectionProbeManager {
         return this._probes;
     }
 
+    public getProbeById (probeId: number): ReflectionProbe | null {
+        for (let i = 0; i < this._probes.length; i++) {
+            if (this._probes[i].getProbeId() === probeId) {
+                return this._probes[i];
+            }
+        }
+        return null;
+    }
+
     public clearAll () {
         this._probes = [];
     }
@@ -247,10 +252,7 @@ export class ReflectionProbeManager {
         if (!probe.cubemap) return;
         for (let i = 0; i < models.length; i++) {
             const model = models[i];
-            const meshRender = model.node.getComponent(MeshRenderer);
-            if (meshRender) {
-                meshRender.updateProbeCubemap(probe.cubemap);
-            }
+            this._updateCubemapOfModel(model, probe);
         }
         probe.needRefresh = false;
     }
@@ -264,16 +266,12 @@ export class ReflectionProbeManager {
         if (!probe.node || !probe.node.scene) return;
         const models = this._getModelsByProbe(probe);
         for (let i = 0; i < models.length; i++) {
-            const model = models[i];
-            const meshRender = model.node.getComponent(MeshRenderer);
-            if (meshRender) {
-                meshRender.updateProbePlanarMap(texture);
-            }
+            this._updatePlanarMapOfModel(models[i], texture, probe);
         }
         if (probe.previewPlane) {
             const meshRender = probe.previewPlane.getComponent(MeshRenderer);
             if (meshRender) {
-                meshRender.updateProbePlanarMap(texture);
+                meshRender.updateProbePlanarMap(texture, probe.getProbeId());
             }
         }
     }
@@ -289,8 +287,7 @@ export class ReflectionProbeManager {
         for (let i = 0; i < this._probes.length; i++) {
             const probe = this._probes[i];
             if (probe.probeType !== ProbeType.PLANAR) continue;
-            const meshRender = model.node.getComponent(MeshRenderer);
-            if ((model.node.layer & REFLECTION_PROBE_DEFAULT_MASK) && meshRender) {
+            if (model.node.layer & REFLECTION_PROBE_DEFAULT_MASK) {
                 model.updateWorldBound();
                 if (geometry.intersect.aabbWithAABB(model.worldBounds, probe.boundingBox!)) {
                     this._usePlanarModels.set(model, probe);
@@ -298,10 +295,7 @@ export class ReflectionProbeManager {
                     const old = this._usePlanarModels.get(model);
                     if (old === probe) {
                         this._usePlanarModels.delete(model);
-                        const meshRender = model.node.getComponent(MeshRenderer);
-                        if (meshRender) {
-                            meshRender.updateProbePlanarMap(null);
-                        }
+                        this._updatePlanarMapOfModel(model, null, null);
                     }
                 }
             }
@@ -330,10 +324,7 @@ export class ReflectionProbeManager {
             const nearest = this._getNearestProbe(model);
             if (!nearest) {
                 //not in the range of any probe,set default texture for the model
-                const meshRender = model.node.getComponent(MeshRenderer);
-                if (meshRender) {
-                    meshRender.updateProbeCubemap(null);
-                }
+                this._updateCubemapOfModel(model, null);
                 this._useCubeModels.delete(model);
             } else if (this._useCubeModels.has(model)) {
                 const old = this._useCubeModels.get(model);
@@ -363,7 +354,7 @@ export class ReflectionProbeManager {
         if (!probe || !probe.previewSphere) return;
         const meshRender = probe.previewSphere.getComponent(MeshRenderer);
         if (meshRender) {
-            meshRender.updateProbeCubemap(probe.cubemap, !probe.cubemap);
+            meshRender.updateProbeCubemap(probe.cubemap, probe.getProbeId(), !probe.cubemap);
         }
     }
 
@@ -430,21 +421,28 @@ export class ReflectionProbeManager {
             const p = this._useCubeModels.get(key);
             if (p !== undefined && p === probe) {
                 this._useCubeModels.delete(key);
-                const meshRender = key.node.getComponent(MeshRenderer);
-                if (meshRender) {
-                    meshRender.updateProbeCubemap(null);
-                }
+                this._updateCubemapOfModel(key, null);
             }
         }
         for (const key of this._usePlanarModels.keys()) {
             const p = this._usePlanarModels.get(key);
             if (p !== undefined && p === probe) {
                 this._usePlanarModels.delete(key);
-                const meshRender = key.node.getComponent(MeshRenderer);
-                if (meshRender) {
-                    meshRender.updateProbePlanarMap(null);
-                }
+                this._updatePlanarMapOfModel(key, null, null);
             }
+        }
+    }
+
+    private _updateCubemapOfModel (model: Model, probe: ReflectionProbe | null) {
+        const meshRender = model.node.getComponent(MeshRenderer);
+        if (meshRender) {
+            meshRender.updateProbeCubemap(probe ? probe.cubemap : null, probe ? probe.getProbeId() : -1);
+        }
+    }
+    private _updatePlanarMapOfModel (model: Model, texture: Texture | null, probe: ReflectionProbe | null) {
+        const meshRender = model.node.getComponent(MeshRenderer);
+        if (meshRender) {
+            meshRender.updateProbePlanarMap(texture, probe ? probe.getProbeId() : -1);
         }
     }
 }

@@ -70,8 +70,7 @@ export class PipelineUBO {
         fv[UBOGlobal.NATIVE_SIZE_OFFSET + 2] = 1.0 / fv[UBOGlobal.NATIVE_SIZE_OFFSET];
         fv[UBOGlobal.NATIVE_SIZE_OFFSET + 3] = 1.0 / fv[UBOGlobal.NATIVE_SIZE_OFFSET + 1];
 
-        //xubin: reflection probe count
-        fv[UBOGlobal.PROBE_INFO_OFFSET] = 0.0;
+        fv[UBOGlobal.PROBE_INFO_OFFSET] = cclegacy.internal.reflectionProbeManager.getProbes().length;
 
         const debugView = root.debugView;
         if (debugView) {
