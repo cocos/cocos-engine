@@ -596,23 +596,22 @@ export class Node extends BaseNode implements CustomSerializable {
         let j = 0;
         let l = 0;
         let cur: this;
-        let children:this[];
-        let hasChangedFlags = 0;
+        let children: this[];
         const childDirtyBit = dirtyBit | TransformBit.POSITION;
 
         dirtyNodes[0] = this;
 
         while (i >= 0) {
             cur = dirtyNodes[i--];
-            hasChangedFlags = cur.hasChangedFlags;
-            if (cur.isValid && (cur._dirtyFlags & hasChangedFlags & dirtyBit) !== dirtyBit) {
+            if ((cur._flagChangeVersion !== globalFlagChangeVersion || (cur._dirtyFlags & cur._hasChangedFlags & dirtyBit) !== dirtyBit) && cur.isValid) {
                 cur._dirtyFlags |= dirtyBit;
 
-                cur.hasChangedFlags = hasChangedFlags | dirtyBit;
+                cur._flagChangeVersion = globalFlagChangeVersion;
+                cur._hasChangedFlags |= dirtyBit;
 
                 children = cur._children;
                 l = children.length;
-                for (j = 0; j < l; j++) {
+                for (j = 0; j < l; ++j) {
                     dirtyNodes[++i] = children[j];
                 }
             }
