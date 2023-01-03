@@ -30,7 +30,7 @@ import { Address, BufferTextureCopy, deviceManager, Filter, Format, SamplerInfo,
 import { Camera, Model } from '../render-scene/scene';
 import { ProbeType, ReflectionProbe } from '../render-scene/scene/reflection-probe';
 import { Layers } from '../scene-graph/layers';
-import { UNIFORM_REFLECTION_PROBE_MAP_BINDING } from './define';
+import { UNIFORM_REFLECTION_PROBE_DATA_MAP_BINDING } from './define';
 
 const REFLECTION_PROBE_DEFAULT_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.UI_3D, Layers.BitMask.GIZMOS, Layers.BitMask.EDITOR,
     Layers.BitMask.SCENE_GIZMO, Layers.BitMask.PROFILER, Layers.Enum.IGNORE_RAYCAST]);
@@ -83,9 +83,9 @@ export class ReflectionProbeManager {
             buffer[bufferOffset + 3] = 0.0;
             if (this._probes[i].probeType === ProbeType.CUBE) {
                 //half box size
-                buffer[bufferOffset + 4] = 1.0;
-                buffer[bufferOffset + 5] = 1.0;
-                buffer[bufferOffset + 6] = 0.0;
+                buffer[bufferOffset + 4] = this._probes[i].size.x;
+                buffer[bufferOffset + 5] = this._probes[i].size.y;
+                buffer[bufferOffset + 6] = this._probes[i].size.z;
                 buffer[bufferOffset + 7] = 0.0;
                 //mip count
                 buffer[bufferOffset + 8] = this._probes[i].cubemap ? this._probes[i].cubemap!.mipmapLevel : 1.0;
@@ -98,7 +98,7 @@ export class ReflectionProbeManager {
                 buffer[bufferOffset + 6] = 0.0;
                 buffer[bufferOffset + 7] = 0.0;
 
-                buffer[bufferOffset + 8] = 0.0;
+                buffer[bufferOffset + 8] = 1.0;
             }
             buffer[bufferOffset + 9] = 0.0;
             buffer[bufferOffset + 10] = 0.0;
@@ -122,8 +122,8 @@ export class ReflectionProbeManager {
             Address.CLAMP,
             Address.CLAMP,
         ));
-        ds.bindSampler(UNIFORM_REFLECTION_PROBE_MAP_BINDING, sampler);
-        ds.bindTexture(UNIFORM_REFLECTION_PROBE_MAP_BINDING, this._texture);
+        ds.bindSampler(UNIFORM_REFLECTION_PROBE_DATA_MAP_BINDING, sampler);
+        ds.bindTexture(UNIFORM_REFLECTION_PROBE_DATA_MAP_BINDING, this._texture);
     }
 
     /**
