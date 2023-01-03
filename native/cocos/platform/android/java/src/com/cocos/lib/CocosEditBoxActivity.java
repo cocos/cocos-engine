@@ -138,7 +138,6 @@ public class CocosEditBoxActivity extends Activity {
          **************************************************************************************/
 
         public void show(String defaultValue, int maxLength, boolean isMultiline, boolean confirmHold, String confirmType, String inputType) {
-            mCheckKeyboardShowNormally = false;
             mIsMultiLine = isMultiline;
             this.setFilters(new InputFilter[]{new InputFilter.LengthFilter(maxLength) });
             this.setText(defaultValue);
@@ -158,7 +157,6 @@ public class CocosEditBoxActivity extends Activity {
         }
 
         public void hide() {
-            mCheckKeyboardShowNormally = false;
             mEditText.setVisibility(View.INVISIBLE);
             this.removeListeners();
         }
@@ -190,6 +188,7 @@ public class CocosEditBoxActivity extends Activity {
         }
 
         private void setInputType(final String inputType, boolean isMultiLine){
+            mCheckKeyboardShowNormally = false;
             if (inputType.contentEquals("text")) {
                 if (isMultiLine)
                     this.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
