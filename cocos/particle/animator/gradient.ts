@@ -74,18 +74,20 @@ CCClass.Attr.setClassAttr(AlphaKey, 'alpha', 'visible', true);
 CCClass.Attr.setClassAttr(AlphaKey, 'time', 'visible', true);
 
 /**
- * @en
- * Gradient is a component that has a lot of color keys and alpha keys to get the interpolated color value.
- * There are 2 kind of mode:
- * Blend just interpolate the nearest 2 colors from keys.
- * Fixed get the nearest color from keys without interpolate.
- * @zh
- * 渐变曲线控件包含了颜色关键帧和透明度关键帧，在关键帧中进行插值渐变返回最终的颜色值。
- * 这个控件包含了两种取色模式：
- * 混合模式对取到的最近两个颜色帧进行插值计算。
- * 固定模式直接取最近的颜色帧返回，不进行插值。
+ * @en Gradient is a component that has a lot of color keys and alpha keys to get the interpolated color value.
+ * @zh 渐变曲线控件包含了颜色关键帧和透明度关键帧，在关键帧中进行插值渐变返回最终的颜色值。
  */
 export default class Gradient {
+    /**
+     * @en
+     * There are 2 kind of mode:
+     * Blend just interpolate the nearest 2 colors from keys.
+     * Fixed get the nearest color from keys without interpolate.
+     * @zh
+     * 这个控件包含了两种取色模式：
+     * 混合模式对取到的最近两个颜色帧进行插值计算。
+     * 固定模式直接取最近的颜色帧返回，不进行插值。
+     */
     public static Mode = Mode;
     /**
      * @en Array of color key.
@@ -136,8 +138,8 @@ export default class Gradient {
     /**
      * @en Interpolate color and alpha from color and alpha keys.
      * @zh 根据颜色列表插值计算颜色和透明度。
-     * @param time @en Normalized time to interpolate @zh 用于插值的归一化时间
-     * @returns @en Interpolated color value @zh 插值过后的颜色值
+     * @param time @en Normalized time to interpolate. @zh 用于插值的归一化时间。
+     * @returns @en Interpolated color value. @zh 插值过后的颜色值。
      */
     public evaluate (time: number) {
         this.getRGB(time);
@@ -146,9 +148,9 @@ export default class Gradient {
     }
 
     /**
-     * @en Random generate color and alpha.
+     * @en Generates a random color and alpha.
      * @zh 随机生成颜色和透明度。
-     * @returns @en Randomized color @zh 随机生成的颜色
+     * @returns @en Randomized color. @zh 随机生成的颜色。
      */
     public randomColor () {
         const c = this.colorKeys[Math.trunc(Math.random() * this.colorKeys.length)];

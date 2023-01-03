@@ -38,13 +38,6 @@ const SerializableTable = [
     ['mode', 'constantMin', 'constantMax', 'multiplier'],
 ] as const;
 
-export const Mode = Enum({
-    Constant: 0,
-    Curve: 1,
-    TwoCurves: 2,
-    TwoConstants: 3,
-});
-// TODO: can not remove ccclass for now, we need ccclass specified deserialization to handle deserialization of RealCurve
 /**
  * @en
  * This curve has 4 modes:
@@ -60,8 +53,29 @@ export const Mode = Enum({
  * 曲线，包含一个 RealCurve 曲线值，从 RealCurve 取得关键帧进行插值得到。
  * 双曲线，包含两个 RealCurve 曲线，首先对每个曲线进行关键帧插值计算，然后再对算出的两个曲线值进行插值得到最终的数值。
  */
+export const Mode = Enum({
+    Constant: 0,
+    Curve: 1,
+    TwoCurves: 2,
+    TwoConstants: 3,
+});
+// TODO: can not remove ccclass for now, we need ccclass specified deserialization to handle deserialization of RealCurve
+
+/**
+ * @en
+ * CurveRange is a data structure which contains some constants or curves.
+ * Calculate the value by its mode and particle system will use it to change particle attribute associated with it.
+ * Refer [[CurveRange.Mode]] to see the detail of calculation mode.
+ * @zh
+ * CurveRange 是一类数据结构，其包含了多个常数值或曲线值，计算时其将根据计算模式计算最终值，粒子系统使用此数据结构对所有的粒子的属性进行修改。
+ * 详细的计算模式请参考 [[CurveRange.Mode]] 的解释。
+ */
 @ccclass('cc.CurveRange')
 export default class CurveRange  {
+    /**
+     * @en The curve mode used. See [[Mode]].
+     * @zh 曲线类型 [[Mode]]。
+     */
     public static Mode = Mode;
 
     /**
@@ -91,26 +105,26 @@ export default class CurveRange  {
         return this._mode;
     }
     /**
-     * @en Use spline when mode is curve.
-     * @zh 当mode为Curve时，使用的曲线。
+     * @en The spline used when mode is Mode.Curve.
+     * @zh 当 mode 为Curve时，使用的曲线。
      */
     public declare spline: RealCurve;
 
     /**
-     * @en Min spline when mode is TwoCurves.
-     * @zh 当mode为TwoCurves时，使用的曲线下限。
+     * @en The min spline when mode is Mode.TwoCurves.
+     * @zh 当 mode 为TwoCurves时，使用的曲线下限。
      */
     public declare splineMin: RealCurve;
 
     /**
      * @en Max spline when mode is TwoCurves.
-     * @zh 当mode为TwoCurves时，使用的曲线上限。
+     * @zh 当 mode 为TwoCurves时，使用的曲线上限。
      */
     public declare splineMax: RealCurve;
 
     /**
      * @en Gets/Sets the curve when use curve mode.
-     * @zh 当mode为Curve时，使用的曲线。
+     * @zh 当 mode 为 Curve 时，使用的曲线。
      * @deprecated Since V3.3. Use `spline` instead.
      */
     get curve () {
@@ -124,7 +138,7 @@ export default class CurveRange  {
 
     /**
      * @en Get/Set min curve when use TwoCurves mode.
-     * @zh 当mode为TwoCurves时，使用的曲线下限。
+     * @zh 当 mode 为 TwoCurves 时，使用的曲线下限。
      * @deprecated Since V3.3. Use `splineMin` instead.
      */
     get curveMin () {
@@ -138,7 +152,7 @@ export default class CurveRange  {
 
     /**
      * @en Gets/Sets max curve when use TwoCurves mode.
-     * @zh 当mode为TwoCurves时，使用的曲线上限。
+     * @zh 当 mode 为 TwoCurves 时，使用的曲线上限。
      * @deprecated Since V3.3. Use `splineMax` instead.
      */
     get curveMax () {
@@ -152,19 +166,19 @@ export default class CurveRange  {
 
     /**
      * @en Constant value when use constant mode.
-     * @zh 当mode为Constant时，曲线的值。
+     * @zh 当 mode 为 Constant 时，曲线的值。
      */
     public constant = 0;
 
     /**
      * @en Constant min value when use TwoConstants mode.
-     * @zh 当mode为TwoConstants时，曲线的下限。
+     * @zh 当 mode 为 TwoConstants 时，曲线的下限。
      */
     public constantMin = 0;
 
     /**
      * @en Constant max value when use TwoConstants mode.
-     * @zh 当mode为TwoConstants时，曲线的上限。
+     * @zh 当 mode 为 TwoConstants 时，曲线的上限。
      */
     public constantMax = 0;
 
@@ -176,7 +190,7 @@ export default class CurveRange  {
 
     /**
      * @en Curve mode to use.
-     * @zh 曲线类型[[Mode]]。
+     * @zh 曲线类型 [[Mode]]。
      */
     private _mode = Mode.Constant;
 
@@ -193,9 +207,11 @@ export default class CurveRange  {
     /**
      * @en Calculate curve value.
      * @zh 计算曲线数值。
-     * @param time @en Normalized time to interpolate @zh 用于插值的归一化时间
-     * @param rndRatio @en Random seed @zh 随机种子
-     * @returns @en Curve value @zh 曲线的值
+     * @param time @en Normalized time to interpolate. @zh 用于插值的归一化时间。
+     * @param rndRatio @en Interpolation ratio when mode is TwoCurves or TwoConstants.
+     *                     Particle attribute will pass in a random number to get a random result.
+     *                 @zh 当模式为双曲线或双常数时，使用的插值比例，通常粒子系统会传入一个随机数以获得一个随机结果。
+     * @returns @en Curve value. @zh 曲线的值。
      */
     public evaluate (time: number, rndRatio: number) {
         switch (this.mode) {

@@ -57,7 +57,7 @@ export class NoiseModule extends ParticleModuleBase {
 
     /**
      * @en Strength on X axis.
-     * @zh X 轴上的力度大小。
+     * @zh X 轴上的强度大小。
      */
     @type(CCFloat)
     @range([0, 100])
@@ -74,7 +74,7 @@ export class NoiseModule extends ParticleModuleBase {
 
     /**
      * @en Strength on Y axis.
-     * @zh Y 轴上的力度大小。
+     * @zh Y 轴上的强度大小。
      */
     @type(CCFloat)
     @range([0, 100])
@@ -91,7 +91,7 @@ export class NoiseModule extends ParticleModuleBase {
 
     /**
      * @en Strength on Z axis.
-     * @zh Z 轴上的力度大小。
+     * @zh Z 轴上的强度大小。
      */
     @type(CCFloat)
     @range([0, 100])

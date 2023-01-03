@@ -38,14 +38,6 @@ const SerializableTable = EDITOR && [
     ['_mode', 'gradient'],
 ];
 
-const Mode = Enum({
-    Color: 0,
-    Gradient: 1,
-    TwoColors: 2,
-    TwoGradients: 3,
-    RandomColor: 4,
-});
-
 /**
  * @en
  * Gradinet is a component to calculate color value. It contains 5 modes:
@@ -62,11 +54,28 @@ const Mode = Enum({
  * 双渐变曲线包含两个渐变曲线，对两个渐变曲线返回的颜色值再进行插值。
  * 随机颜色包含一个颜色曲线，从曲线中随机获取颜色值。
  */
+const Mode = Enum({
+    Color: 0,
+    Gradient: 1,
+    TwoColors: 2,
+    TwoGradients: 3,
+    RandomColor: 4,
+});
+
+/**
+ * @en
+ * GradientRange is a data structure which contains some constant colors or gradients.
+ * Calculate the color by its mode and particle system will use it to change particle attribute associated with it.
+ * Refer [[GradientRange.Mode]] to see the detail of calculation mode.
+ * @zh
+ * GradientRange 是一类数据结构，其包含了多个常数颜色或渐变色，计算时其将根据计算模式计算最终颜色，粒子系统使用此数据结构对所有的粒子的属性进行修改。
+ * 详细的计算模式请参考 [[GradientRange.Mode]] 的解释。
+ */
 @ccclass('cc.GradientRange')
 export default class GradientRange {
     /**
-     * @en Gets/Sets color gradient mode to use.
-     * @zh 渐变色类型 [[Mode]]。
+     * @en Gets/Sets color gradient mode to use. See [[Mode]].
+     * @zh 使用的渐变色类型 参考 [[Mode]]。
      */
     @type(Mode)
     get mode () {
@@ -88,14 +97,14 @@ export default class GradientRange {
     }
 
     /**
-     * @en Gets/Sets color gradient mode to use.
-     * @zh 渐变色类型 [[Mode]]。
+     * @en The gradient mode. See [[Mode]].
+     * @zh 渐变色类型 参考 [[Mode]]。
      */
     public static Mode = Mode;
 
     /**
      * @en Color value when use color mode.
-     * @zh 当mode为Color时的颜色。
+     * @zh 当 mode 为 Color 时的颜色。
      */
     @serializable
     @editable
@@ -103,7 +112,7 @@ export default class GradientRange {
 
     /**
      * @en Min color value when use TwoColors mode.
-     * @zh 当mode为TwoColors时的颜色下限。
+     * @zh 当 mode 为 TwoColors 时的颜色下限。
      */
     @serializable
     @editable
@@ -111,7 +120,7 @@ export default class GradientRange {
 
     /**
      * @en Max color value when use TwoColors mode.
-     * @zh 当mode为TwoColors时的颜色上限。
+     * @zh 当 mode 为 TwoColors 时的颜色上限。
      */
     @serializable
     @editable
@@ -119,7 +128,7 @@ export default class GradientRange {
 
     /**
      * @en Gradient value when use gradient mode.
-     * @zh 当mode为Gradient时的颜色渐变。
+     * @zh 当 mode 为 Gradient 时的颜色渐变。
      */
     @type(Gradient)
     public gradient = new Gradient();
@@ -133,7 +142,7 @@ export default class GradientRange {
 
     /**
      * @en Gradient max value when use TwoGradients.
-     * @zh 当mode为TwoGradients时的颜色渐变上限。
+     * @zh 当 mode 为 TwoGradients 时的颜色渐变上限。
      */
     @type(Gradient)
     public gradientMax = new Gradient();
@@ -146,9 +155,11 @@ export default class GradientRange {
     /**
      * @en Calculate gradient value.
      * @zh 计算颜色渐变曲线数值。
-     * @param time @en Normalized time to interpolate @zh 用于插值的归一化时间
-     * @param rndRatio @en Random seed @zh 随机种子
-     * @returns @en Gradient value @zh 颜色渐变曲线的值
+     * @param time @en Normalized time to interpolate. @zh 用于插值的归一化时间。
+     * @param rndRatio @en Interpolation ratio when mode is TwoColors or TwoGradients.
+     *                     Particle attribute will pass in a random number to get a random result.
+     *                 @zh 当模式为双色或双渐变色时，使用的插值比例，通常粒子系统会传入一个随机数以获得一个随机结果。
+     * @returns @en Gradient value. @zh 颜色渐变曲线的值。
      */
     public evaluate (time: number, rndRatio: number) {
         switch (this._mode) {

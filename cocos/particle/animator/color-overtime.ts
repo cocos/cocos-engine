@@ -59,7 +59,7 @@ export default class ColorOvertimeModule extends ParticleModuleBase {
     }
 
     /**
-     * @en Change color over time. Evaluate by key interpolation.
+     * @en Change color over life time. Evaluate by key interpolation.
      * @zh 颜色随时间变化的参数，各个 key 之间线性插值变化。
      */
     @type(GradientRange)
@@ -71,7 +71,7 @@ export default class ColorOvertimeModule extends ParticleModuleBase {
     /**
      * @en Apply color animation to particle.
      * @zh 作用颜色变换到粒子上。
-     * @param particle @en Particle to animate @zh 模块需要更新的粒子
+     * @param particle @en Particle to animate. @zh 模块需要更新的粒子。
      * @internal
      */
     public animate (particle: Particle) {

@@ -157,7 +157,7 @@ export default class TextureAnimationModule extends ParticleModuleBase {
     }
 
     /**
-     * @en Texture [[Animation]] type.
+     * @en Texture animation type. See [[Animation]].
      * @zh 动画播放方式 [[Animation]]。
      */
     @type(Animation)
@@ -260,7 +260,7 @@ export default class TextureAnimationModule extends ParticleModuleBase {
     /**
      * @en Init start row to particle.
      * @zh 给粒子创建初始行属性。
-     * @param p @en Particle to set start row @zh 设置初始行属性的粒子
+     * @param p @en Particle to set start row. @zh 设置初始行属性的粒子。
      * @internal
      */
     public init (p: Particle) {
@@ -270,8 +270,8 @@ export default class TextureAnimationModule extends ParticleModuleBase {
     /**
      * @en Apply texture animation to particle.
      * @zh 应用贴图动画到粒子。
-     * @param p @en Particle to animate @zh 模块需要更新的粒子
-     * @param dt @en Update interval time @zh 粒子系统更新的间隔时间
+     * @param p @en Particle to animate. @zh 模块需要更新的粒子。
+     * @param dt @en Update interval time. @zh 粒子系统更新的间隔时间。
      * @internal
      */
     public animate (p: Particle, dt: number) {
