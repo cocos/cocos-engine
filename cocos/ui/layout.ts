@@ -333,7 +333,7 @@ export class Layout extends Component {
     /**
      * @en
      * The start axis for grid layout. If you choose horizontal, then children will layout horizontally at first,
-     * and then break line on demand. Choose vertical if you want to layout vertically at first .
+     * and then break line on demand. Choose vertical if you want to layout vertically at first.
      *
      * @zh
      * 起始轴方向类型，可进行水平和垂直布局排列，只有布局类型为 GRID 的时候才有效。
@@ -684,7 +684,7 @@ export class Layout extends Component {
      *
      * @zh
      * 立即执行更新布局。
-     *
+     * @param force @en force update or not. @zh 是否强制更新。
      * @example
      * ```ts
      * import { Layout, log } from 'cc';

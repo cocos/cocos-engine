@@ -53,7 +53,7 @@ const stride = getAttributeStride(attributes);
  * Graphics component.
  *
  * @zh
- * 自定义图形类
+ * 自定义图形类。
  */
 @ccclass('cc.Graphics')
 @help('i18n:cc.Graphics')
@@ -228,7 +228,7 @@ export class Graphics extends UIRenderer {
     //nativeObj
     protected declare _graphicsNativeProxy: NativeUIModelProxy;
     /**
-     * @deprecated since v3.7.0
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     get graphicsNativeProxy () {
         return this._graphicsNativeProxy;
@@ -622,7 +622,7 @@ export class Graphics extends UIRenderer {
     }
 
     /**
-     * @deprecated since v3.7
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public activeSubModel (idx: number) {
         if (!this.model) {
@@ -723,7 +723,7 @@ export class Graphics extends UIRenderer {
     }
 
     /**
-     * @deprecated since v3.7
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public updateRenderer () {
         super.updateRenderer();

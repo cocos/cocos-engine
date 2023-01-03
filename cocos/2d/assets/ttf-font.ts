@@ -60,9 +60,9 @@ export class TTFFont extends Font {
     }
 
     /**
-     * @en default init
-     * @zh 默认初始化
-     * @param uuid @en asset uuid @zh 资源 uuid
+     * @en default init.
+     * @zh 默认初始化。
+     * @param uuid @en Asset uuid. @zh 资源 uuid。
      */
     public initDefault (uuid?: string) {
         this._fontFamily = 'Arial';

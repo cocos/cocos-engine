@@ -243,7 +243,7 @@ export class Button extends Component {
     }
 
     /**
-     * @deprecated since v3.7
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     set _resizeToTarget (value: boolean) {
         if (value) {

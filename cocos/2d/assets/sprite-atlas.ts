@@ -47,7 +47,7 @@ interface ISpriteFrameList {
 @ccclass('cc.SpriteAtlas')
 export class SpriteAtlas extends Asset {
     /**
-     * @en All sprite frames in the sprite atlas
+     * @en All sprite frames in the sprite atlas.
      * @zh 精灵图集中的所有精灵。
      */
     @serializable
@@ -57,7 +57,7 @@ export class SpriteAtlas extends Asset {
     /**
      * @en Get the [[Texture2D]] asset of the atlas.
      * @zh 获取精灵图集的贴图。
-     * @returns The texture2d asset
+     * @returns @en The texture2d asset. @zh 二维贴图资源。
      */
     public getTexture () {
         const keys = Object.keys(this.spriteFrames);
@@ -73,8 +73,8 @@ export class SpriteAtlas extends Asset {
      * @en Gets the [[SpriteFrame]] correspond to the given key in sprite atlas.
      * @zh 根据键值获取精灵。
      *
-     * @param key The SpriteFrame name
-     * @returns The SpriteFrame asset
+     * @param key @en The SpriteFrame name. @zh 精灵名字。
+     * @returns @en The SpriteFrame asset. @zh 精灵资源。
      */
     public getSpriteFrame (key: string) {
         const sf = this.spriteFrames[key];
@@ -90,7 +90,7 @@ export class SpriteAtlas extends Asset {
     /**
      * @en Returns all sprite frames in the sprite atlas.
      * @zh 获取精灵图集所有精灵。
-     * @returns All sprite frames
+     * @returns @en All sprite frames. @zh 所有的精灵资源。
      */
     public getSpriteFrames () {
         const frames: Array<SpriteFrame | null> = [];

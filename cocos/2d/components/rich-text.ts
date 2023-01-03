@@ -234,10 +234,10 @@ export class RichText extends Component {
 
     /**
      * @en
-     * Custom System font of RichText
+     * Custom System font of RichText.
      *
      * @zh
-     * 富文本定制系统字体
+     * 富文本定制系统字体。
      */
     @tooltip('i18n:richtext.font_family')
     get fontFamily () {

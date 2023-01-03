@@ -387,8 +387,8 @@ export class Sprite extends UIRenderer {
     }
 
     /**
-     * @en Grayscale mode
-     * @zh 是否以灰度模式渲染
+     * @en Grayscale mode.
+     * @zh 是否以灰度模式渲染。
      */
     @editable
     @displayOrder(5)
@@ -521,7 +521,8 @@ export class Sprite extends UIRenderer {
      * If there is no atlas, the switch fails.
      *
      * @zh
-     * 精灵图集内的精灵替换
+     * 选取使用精灵图集中的其他精灵。
+     * @param name @en Name of the spriteFrame to switch. @zh 要切换的 spriteFrame 名字。
      */
     public changeSpriteFrameFromAtlas (name: string) {
         if (!this._atlas) {
@@ -533,7 +534,7 @@ export class Sprite extends UIRenderer {
     }
 
     /**
-     * @deprecated Since v3.7
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public changeMaterialForDefine () {
         let texture;

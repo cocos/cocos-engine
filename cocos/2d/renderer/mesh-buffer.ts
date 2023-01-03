@@ -45,19 +45,19 @@ enum MeshBufferSharedBufferView {
 /**
  * @en Mesh buffer used for 2d rendering, used internally and not of concern to the user
  * @zh 2d 渲染使用的网格缓冲数据，内部使用，用户不须关心
- * @deprecated since v3.7
+ * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
  */
 export class MeshBuffer {
     /**
      * @en The vertex attributes of the buffer
      * @zh buffer 的顶点属性
-     * @deprecated since v3.7
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     get attributes () { return this._attributes; }
     /**
      * @en Number of bytes in vertex format
      * @zh 顶点格式的字节数
-     * @deprecated since v3.7
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     get vertexFormatBytes () { return this._vertexFormatBytes; }
 
@@ -65,7 +65,7 @@ export class MeshBuffer {
     /**
      * @en byte offset
      * @zh 字节偏移量
-     * @deprecated since v3.7
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     get byteOffset () {
         return this._byteOffset;
@@ -81,7 +81,7 @@ export class MeshBuffer {
     /**
      * @en Vertexes offset
      * @zh 顶点数偏移
-     * @deprecated since v3.7
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     get vertexOffset () {
         return this._vertexOffset;
@@ -97,7 +97,7 @@ export class MeshBuffer {
     /**
      * @en Indexes offset
      * @zh 索引偏移
-     * @deprecated since v3.7
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     get indexOffset () {
         return this._indexOffset;
@@ -113,7 +113,7 @@ export class MeshBuffer {
     /**
      * @en Dirty flag
      * @zh 脏标记
-     * @deprecated since v3.7
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     get dirty () {
         return this._dirty;
@@ -129,7 +129,7 @@ export class MeshBuffer {
     /**
      * @en Float numbers per vertex
      * @zh 每顶点的浮点数长度
-     * @deprecated since v3.7
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     get floatsPerVertex () {
         return this._floatsPerVertex;
@@ -142,7 +142,7 @@ export class MeshBuffer {
     /**
      * @en Vertexes data
      * @zh 顶点数据
-     * @deprecated since v3.7
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     get vData () {
         return this._vData;
@@ -159,7 +159,7 @@ export class MeshBuffer {
     /**
      * @en Indexes Data
      * @zh 索引数据
-     * @deprecated since v3.7
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     get iData () {
         return this._iData;
@@ -186,7 +186,7 @@ export class MeshBuffer {
     /**
      * @en Native object
      * @zh 原生对象
-     * @deprecated since v3.7
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     get nativeObj () {
         return this._nativeObj;
@@ -197,7 +197,7 @@ export class MeshBuffer {
     /**
      * @en Native shared buffer
      * @zh 原生共享缓冲
-     * @deprecated since v3.7
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     get sharedBuffer () {
         return this._sharedBuffer;
@@ -206,7 +206,7 @@ export class MeshBuffer {
     /**
      * @en Initial native shared buffer
      * @zh 初始化原生共享缓冲
-     * @deprecated since v3.7
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public initSharedBuffer () {
         if (JSB) {
@@ -217,7 +217,7 @@ export class MeshBuffer {
     /**
      * @en Synchronized native shared buffer
      * @zh 同步原生共享缓冲
-     * @deprecated since v3.7
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public syncSharedBufferToNative () {
         if (JSB) {
@@ -240,7 +240,7 @@ export class MeshBuffer {
      * @param attrs The vertex attributes of the buffer
      * @param vFloatCount The vertexes float count
      * @param iCount The indexes count
-     * @deprecated since v3.7
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public initialize (device: Device, attrs: Attribute[], vFloatCount: number, iCount: number) {
         this._initVDataCount = vFloatCount;
@@ -265,7 +265,7 @@ export class MeshBuffer {
     /**
      * @en Reset state
      * @zh 重置状态
-     * @deprecated since v3.7
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public reset () {
         this._nextFreeIAHandle = 0;
@@ -296,7 +296,7 @@ export class MeshBuffer {
     /**
      * @en Set dirty flag
      * @zh 设置脏标签
-     * @deprecated since v3.7
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public setDirty () {
         this.dirty = true;
@@ -314,7 +314,7 @@ export class MeshBuffer {
     /**
      * @en require Free input assembler
      * @zh 请求可用的输入汇集器
-     * @deprecated since v3.7
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public requireFreeIA (device: Device) {
         if (this._iaPool.length <= this._nextFreeIAHandle) {
@@ -327,7 +327,7 @@ export class MeshBuffer {
     /**
      * @en recycle input assembler
      * @zh 回收输入汇集器
-     * @deprecated since v3.7
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public recycleIA (ia: InputAssembler) {
         const pool = this._iaPool;
@@ -345,7 +345,7 @@ export class MeshBuffer {
     /**
      * @en check capacity
      * @zh 检查可分配余量
-     * @deprecated since v3.7
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public checkCapacity (vertexCount: number, indexCount: number) {
         const maxVertex = (this.vertexOffset + vertexCount) * this._floatsPerVertex;
@@ -359,7 +359,7 @@ export class MeshBuffer {
     /**
      * @en Upload and update buffers data
      * @zh 上传更新缓冲内容
-     * @deprecated since v3.7
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public uploadBuffers () {
         if (this.byteOffset === 0 || !this._dirty) {

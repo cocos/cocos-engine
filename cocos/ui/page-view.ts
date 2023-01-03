@@ -43,17 +43,17 @@ const _tempVec2 = new Vec2();
 /**
  * @en Enum for Page View Size Mode.
  *
- * @zh 页面视图每个页面统一的大小类型
+ * @zh 页面视图每个页面统一的大小类型。
  */
 enum SizeMode {
     /**
-     * @en Each page is unified in size
-     * @zh 每个页面统一大小
+     * @en Each page is unified in size.
+     * @zh 每个页面统一大小。
      */
     Unified = 0,
     /**
-     * @en Each page is in free size
-     * @zh 每个页面大小随意
+     * @en Each page is in free size.
+     * @zh 每个页面大小随意。
      */
     Free = 1,
 }
@@ -63,17 +63,17 @@ ccenum(SizeMode);
 /**
  * @en Enum for Page View Direction.
  *
- * @zh 页面视图滚动类型
+ * @zh 页面视图滚动类型。
  */
 enum Direction {
     /**
      * @en Horizontal scroll.
-     * @zh 水平滚动
+     * @zh 水平滚动。
      */
     Horizontal = 0,
     /**
      * @en Vertical scroll.
-     * @zh 垂直滚动
+     * @zh 垂直滚动。
      */
     Vertical = 1,
 }
@@ -83,7 +83,7 @@ ccenum(Direction);
 /**
  * @en Enum for ScrollView event type.
  *
- * @zh 滚动视图事件类型
+ * @zh 滚动视图事件类型。
  */
 enum EventType {
     PAGE_TURNING = 'page-turning',
@@ -94,7 +94,7 @@ enum EventType {
  * The PageView control.
  *
  * @zh
- * 页面视图组件
+ * 页面视图组件。
  */
 @ccclass('cc.PageView')
 @help('i18n:cc.PageView')
@@ -106,7 +106,7 @@ export class PageView extends ScrollView {
      * Specify the size type of each page in PageView.
      *
      * @zh
-     * 页面视图中每个页面大小类型
+     * 页面视图中每个页面大小类型。
      */
     @type(SizeMode)
     @tooltip('i18n:pageview.sizeMode')
@@ -128,7 +128,7 @@ export class PageView extends ScrollView {
      * The page view direction.
      *
      * @zh
-     * 页面视图滚动类型
+     * 页面视图滚动类型。
      */
     @type(Direction)
     @tooltip('i18n:pageview.direction')
@@ -195,7 +195,7 @@ export class PageView extends ScrollView {
      * The Page View Indicator.
      *
      * @zh
-     * 页面视图指示器组件
+     * 页面视图指示器组件。
      */
     @type(PageViewIndicator)
     @tooltip('i18n:pageview.indicator')
@@ -220,12 +220,12 @@ export class PageView extends ScrollView {
 
     /**
      * @en Enum for Page View Size Mode.
-     * @zh 页面视图每个页面统一的大小类型
+     * @zh 页面视图每个页面统一的大小类型。
      */
     public static SizeMode = SizeMode;
     /**
      * @en Enum for Page View Direction.
-     * @zh 页面视图滚动类型
+     * @zh 页面视图滚动类型。
      */
     public static Direction = Direction;
     /**
@@ -331,8 +331,8 @@ export class PageView extends ScrollView {
     public scrollEvents: ComponentEventHandler[] = [];
 
     /**
-     * @en The time required to turn over a page. unit: second
-     * @zh 每个页面翻页时所需时间。单位：秒
+     * @en The time required to turn over a page, unit: second.
+     * @zh 每个页面翻页时所需时间，单位：秒。
      */
     @serializable
     @editable
@@ -340,8 +340,8 @@ export class PageView extends ScrollView {
     public pageTurningSpeed = 0.3;
 
     /**
-     * @en PageView events callback
-     * @zh 滚动视图的事件回调函数
+     * @en PageView events callback.
+     * @zh 滚动视图的事件回调函数。
      */
     @type([ComponentEventHandler])
     @serializable
@@ -398,7 +398,7 @@ export class PageView extends ScrollView {
      * @zh
      * 返回当前页面索引。
      *
-     * @returns @en Current page index of this page view @zh 当前页面索引。
+     * @returns @en Current page index of this page view. @zh 当前页面索引。
      */
     public getCurrentPageIndex () {
         return this._curPageIdx;
@@ -410,7 +410,7 @@ export class PageView extends ScrollView {
      *
      * @zh
      * 设置当前页面索引。
-     * @param index @en The page index to scroll to @zh 需要滚动到的页面索引
+     * @param index @en The page index to scroll to. @zh 需要滚动到的页面索引。
      */
     public setCurrentPageIndex (index: number) {
         this.scrollToPage(index, 1);
@@ -423,7 +423,7 @@ export class PageView extends ScrollView {
      * @zh
      * 返回视图中的所有页面。
      *
-     * @returns @en return all pages of this page view @zh 返回当前视图所有页面
+     * @returns @en return all pages of this page view. @zh 返回当前视图所有页面。
      */
     public getPages () {
         return this._pages;
@@ -436,7 +436,7 @@ export class PageView extends ScrollView {
      * @zh
      * 在当前页面视图的尾部插入一个新视图。
      *
-     * @param page @en New page to add to this page view @zh 新加入的视图
+     * @param page @en New page to add to this page view. @zh 新加入的视图。
      */
     public addPage (page: Node) {
         if (!page || this._pages.indexOf(page) !== -1 || !this.content) {
@@ -458,8 +458,8 @@ export class PageView extends ScrollView {
      * @zh
      * 将页面插入指定位置中。
      *
-     * @param page @en New page to insert to this page view @zh 新插入的视图
-     * @param index @en The index of new page to be inserted @zh 新插入视图的索引
+     * @param page @en New page to insert to this page view. @zh 新插入的视图。
+     * @param index @en The index of new page to be inserted. @zh 新插入视图的索引。
      */
     public insertPage (page: Node, index: number) {
         if (index < 0 || !page || this._pages.indexOf(page) !== -1 || !this.content) {
@@ -486,7 +486,7 @@ export class PageView extends ScrollView {
      * @zh
      * 移除指定页面。
      *
-     * @param page @en The page to be removed @zh 将被移除的页面
+     * @param page @en The page to be removed. @zh 将被移除的页面。
      */
     public removePage (page: Node) {
         if (!page || !this.content) { return; }
@@ -505,7 +505,7 @@ export class PageView extends ScrollView {
      * @zh
      * 移除指定下标的页面。
      *
-     * @param index @en The index of the page to be removed @zh 将被移除界面的页面下标
+     * @param index @en The index of the page to be removed. @zh 将被移除界面的页面下标。
      */
     public removePageAtIndex (index: number) {
         const pageList = this._pages;
@@ -541,8 +541,8 @@ export class PageView extends ScrollView {
      * @zh
      * 滚动到指定页面
      *
-     * @param idx @en The index of page to be scroll to @zh 希望滚动到的页面下标
-     * @param timeInSecond @en How long time to scroll to the page, in seconds @zh 滚动到指定页面所需时间，单位：秒
+     * @param idx @en The index of page to be scroll to. @zh 希望滚动到的页面下标。
+     * @param timeInSecond @en How long time to scroll to the page, in seconds. @zh 滚动到指定页面所需时间，单位：秒。
      */
     public scrollToPage (idx: number, timeInSecond = 0.3) {
         if (idx < 0 || idx >= this._pages.length) {

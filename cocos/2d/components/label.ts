@@ -197,7 +197,7 @@ export class Label extends UIRenderer {
      */
     public static CacheMode = CacheMode;
     /**
-     * @deprecated since v3.7
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public static _canvasPool = CanvasPool.getInstance();
 
@@ -601,28 +601,28 @@ export class Label extends UIRenderer {
     }
 
     /**
-     * @deprecated since v3.7
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     get spriteFrame () {
         return this._texture;
     }
 
     /**
-     * @deprecated since v3.7
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     get ttfSpriteFrame () {
         return this._ttfSpriteFrame;
     }
 
     /**
-     * @deprecated since v3.7
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     get assemblerData () {
         return this._assemblerData;
     }
 
     /**
-     * @deprecated since v3.7
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     get fontAtlas () {
         return this._fontAtlas;
@@ -755,9 +755,9 @@ export class Label extends UIRenderer {
     }
 
     /**
-     * @en update render data
-     * @zh 更新渲染相关数据
-     * @param force Whether to force an immediate update
+     * @en update render data.
+     * @zh 更新渲染相关数据。
+     * @param force @en Whether to force an immediate update. @zh 是否立马强制更新渲染数据。
      */
     public updateRenderData (force = false) {
         if (force) {
@@ -783,7 +783,7 @@ export class Label extends UIRenderer {
     }
 
     /**
-     * @deprecated since v3.7
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public setEntityColor (color: Color) {
         if (JSB) {

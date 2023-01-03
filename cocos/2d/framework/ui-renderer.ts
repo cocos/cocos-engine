@@ -200,21 +200,21 @@ export class UIRenderer extends Renderer {
 
     protected _renderData: RenderData | null = null;
     /**
-     * @deprecated Since v3.7
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     get renderData () {
         return this._renderData;
     }
 
     /**
-     * @deprecated Since v3.7
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     get useVertexOpacity () {
         return this._useVertexOpacity;
     }
 
     /**
-     * @deprecated Since v3.7
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      * @en The component stencil stage (please do not any modification directly on this object)
      * @zh 组件模板缓冲状态 (注意：请不要直接修改它的值)
      */
@@ -255,23 +255,23 @@ export class UIRenderer extends Renderer {
     protected _dstBlendFactorCache = BlendFactor.ONE_MINUS_SRC_ALPHA;
 
     /**
-     * @deprecated Since v3.7
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public _dirtyVersion = -1;
     /**
-     * @deprecated Since v3.7
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public _internalId = -1;
 
     /**
-     * @deprecated Since v3.7
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     get batcher () {
         return director.root!.batcher2D;
     }
 
     /**
-     * @deprecated Since v3.7
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     get renderEntity () {
         if (DEBUG) {
@@ -357,7 +357,7 @@ export class UIRenderer extends Renderer {
     /**
      * @en Request new render data object.
      * @zh 请求新的渲染数据对象。
-     * @return The new render data
+     * @return @en The new render data. @zh 新的渲染数据。
      */
     public requestRenderData (drawInfoType = RenderDrawInfoType.COMP) {
         const data = RenderData.add();
@@ -380,7 +380,7 @@ export class UIRenderer extends Renderer {
     }
 
     /**
-     * @deprecated Since v3.7
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public updateRenderer () {
         if (this._assembler) {
@@ -391,7 +391,7 @@ export class UIRenderer extends Renderer {
     }
 
     /**
-     * @deprecated Since v3.7
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public fillBuffers (render: IBatcher) {
         if (this._renderFlag) {
@@ -458,7 +458,7 @@ export class UIRenderer extends Renderer {
     }
 
     /**
-     * @deprecated Since v3.7
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     // for common
     public static setEntityColorDirtyRecursively (node: Node, dirty: boolean) {
@@ -496,7 +496,7 @@ export class UIRenderer extends Renderer {
     }
 
     /**
-     * @deprecated Since v3.7
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public setEntityEnabled (enabled: boolean) {
         if (JSB) {
@@ -580,7 +580,7 @@ export class UIRenderer extends Renderer {
     protected _flushAssembler?(): void;
 
     /**
-     * @deprecated Since v3.7
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public setNodeDirty () {
         if (this.renderData) {
@@ -589,7 +589,7 @@ export class UIRenderer extends Renderer {
     }
 
     /**
-     * @deprecated Since v3.7
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public setTextureDirty () {
         if (this.renderData) {
