@@ -3,7 +3,6 @@
 #include "renderer/gfx-base/GFXAccelerationStructure.h"
 #include "base/Ptr.h"
 #include "gfx-base/GFXBuffer.h"
-#include "RayTracingSceneTypes.h"
 #include <queue>
 
 namespace cc {
@@ -168,7 +167,7 @@ bool use_avaiable_free_blocks(const int size, int& offset) {
 }
 
 void add_free_blocks(const int offset, const int size) {
-    
+
 }
 ARENA_ALLOCATOR_DEFINITION_END(AllocationPolicy::MONOTONIC_STACK)
 
@@ -218,7 +217,6 @@ ARENA_ALLOCATOR_DEFINITION_END(AllocationPolicy::BEST_FIT)
 ARENA_ALLOCATOR_DEFINITION_START(AllocationPolicy::WORST_FIT)
 
 bool use_avaiable_free_blocks(const int size, int& offset) {
-    std::cout << "use worst fit policy\n";
     return false;
 }
 
@@ -406,7 +404,7 @@ private:
                 break;
             }
         }
-        
+
     }
 
     void unregistryMaterials(const int offset) noexcept {
@@ -472,7 +470,7 @@ struct ShaderRecord final {
  * matID n : matID of the nth geometry
  *
  * |-----------------0-----------------||--------2--------||-----------------3-----------------||--------------------------5--------------------------|  SBTRecordOffset
- * |--------0--------|--------1--------||--------2--------||--------3--------|--------4--------||--------5--------|--------6--------|--------7--------| 
+ * |--------0--------|--------1--------||--------2--------||--------3--------|--------4--------||--------5--------|--------6--------|--------7--------|
  * |IA 0|VA 0|matID 0|IA 1|VA 1|matID 1||IA 0|VA 0|matID 0||IA 0|VA 0|matID 0|IA 1|VA 1|matID 1||IA 0|VA 0|matID 0|IA 1|VA 1|matID 1|IA 2|VA 2|matID 2|
  * |-----------------------------------||-----------------||-----------------------------------||-----------------------------------------------------|
  */
@@ -483,7 +481,7 @@ struct RayTracingBindingTable final{
 
     ShaderRecordList _hitGroup;
     IntrusivePtr<gfx::Buffer> _bingTableGPUBuffer;
-    
+
     uint32_t registry(const ccstd::vector<RayTracingGeometryShadingDescriptor>& shadingGeometries) {
         ccstd::vector<ShaderRecord> shaderRecords;
         shaderRecords.reserve(shadingGeometries.size());
