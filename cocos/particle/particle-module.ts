@@ -29,14 +29,10 @@ import { serializable, type } from '../core/data/decorators';
 import { CCBoolean } from '../core';
 
 export enum ParticleUpdateStage {
-    EMITTER_UPDATE = 0,
-    INITIALIZE = 100,
-    UPDATE = 200,
-    UPDATE_VELOCITY = 300,
-    POST_UPDATE_VELOCITY = 400,
-    UPDATE_POSITION = 500,
-    POST_UPDATE_POSITION = 600,
-    POST_UPDATE = 700,
+    EMITTER_UPDATE,
+    INITIALIZE,
+    PRE_UPDATE,
+    POST_UPDATE,
 }
 
 export abstract class ParticleModule {

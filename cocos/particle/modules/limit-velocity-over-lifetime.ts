@@ -121,7 +121,7 @@ export class LimitVelocityOverLifetimeModule extends ParticleModule {
     }
 
     public get updateStage (): ParticleUpdateStage {
-        return ParticleUpdateStage.POST_UPDATE_VELOCITY;
+        return ParticleUpdateStage.PRE_UPDATE;
     }
 
     // TODO:functions related to drag are temporarily not supported

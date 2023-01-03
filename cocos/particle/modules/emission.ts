@@ -29,6 +29,7 @@ import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
 import { ParticleUpdateContext } from '../particle-update-context';
 import { CurveRange } from '../curve-range';
+import { Vec3 } from '../../core';
 
 @ccclass('cc.EmissionModule')
 export class EmissionModule extends ParticleModule {
@@ -80,44 +81,23 @@ export class EmissionModule extends ParticleModule {
     }
 
     public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
-        // emit particles.
-        const startDelay = this.startDelay.evaluate(0, 1)!;
-        if (this._time > startDelay) {
-            if (this._time > (this.duration + startDelay)) {
-                // this._time = startDelay; // delay will not be applied from the second loop.(Unity)
-                // this._emitRateTimeCounter = 0.0;
-                // this._emitRateDistanceCounter = 0.0;
-                if (!this.loop) {
-                    this._isEmitting = false;
-                }
-            }
+        // emit by rateOverTime
+        this._emitRateTimeCounter += this.rateOverTime.evaluate(particleUpdateContext.normalizedTimeInCycle, 1)! * particleUpdateContext.emitterDeltaTime;
+        const emitNum = Math.floor(this._emitRateTimeCounter);
+        this._emitRateTimeCounter -= emitNum;
+        particleUpdateContext.newEmittingCount += emitNum;
 
-            if (!this._isEmitting) return;
+        // emit by rateOverDistance
+        const distance = Vec3.distance(particleUpdateContext.currentPosition, particleUpdateContext.lastPosition);
 
-            // emit by rateOverTime
-            this._emitRateTimeCounter += this.rateOverTime.evaluate(this._time / this.duration, 1)! * dt;
-            if (this._emitRateTimeCounter > 1) {
-                const emitNum = Math.floor(this._emitRateTimeCounter);
-                this._emitRateTimeCounter -= emitNum;
-                this.emit(emitNum, dt);
-            }
+        this._emitRateDistanceCounter += distance * this.rateOverDistance.evaluate(particleUpdateContext.normalizedTimeInCycle, 1)!;
+        const distanceEmitNum = Math.floor(this._emitRateDistanceCounter);
+        this._emitRateDistanceCounter -= distanceEmitNum;
+        particleUpdateContext.newEmittingCount += distanceEmitNum;
 
-            // emit by rateOverDistance
-            this.node.getWorldPosition(this._curWPos);
-            const distance = Vec3.distance(this._curWPos, this._oldWPos);
-            Vec3.copy(this._oldWPos, this._curWPos);
-            this._emitRateDistanceCounter += distance * this.rateOverDistance.evaluate(this._time / this.duration, 1)!;
-
-            if (this._emitRateDistanceCounter > 1) {
-                const emitNum = Math.floor(this._emitRateDistanceCounter);
-                this._emitRateDistanceCounter -= emitNum;
-                this.emit(emitNum, dt);
-            }
-
-            // bursts
-            for (const burst of this.bursts) {
-                burst.update(this, dt);
-            }
+        // bursts
+        for (const burst of this.bursts) {
+            burst.update(this, particleUpdateContext.emitterDeltaTime);
         }
     }
 

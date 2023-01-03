@@ -124,15 +124,28 @@ export class ParticleSOAData {
         return this._positionZ;
     }
 
-    getPositionChannel (chanel: SOADataChannel) {
-        switch (chanel) {
-        case SOADataChannel.X:
-            return this._positionX;
-        case SOADataChannel.Y:
-            return this._positionY;
-        default:
-            return this._positionZ;
-        }
+    get randomSeed () {
+        return this._randomSeed;
+    }
+
+    get invStartLifeTime () {
+        return this._invStartLifeTime;
+    }
+
+    get normalizedAliveTime () {
+        return this._normalizedAliveTime;
+    }
+
+    get frameIndex () {
+        return this._frameIndex;
+    }
+
+    get trailSegmentCapacityPerParticle () {
+        return this._trailSegmentCapacityPerParticle;
+    }
+
+    get trailSegmentNumbers () {
+        return this._trailSegmentNumbers;
     }
 
     get velocityX () {
@@ -145,6 +158,116 @@ export class ParticleSOAData {
 
     get velocityZ () {
         return this._velocityZ;
+    }
+
+    get animatedVelocityX () {
+        return this._animatedVelocityX;
+    }
+
+    get animatedVelocityY () {
+        return this._animatedVelocityY;
+    }
+
+    get animatedVelocityZ () {
+        return this._animatedVelocityZ;
+    }
+
+    get rotationX () {
+        return this._rotationX;
+    }
+
+    get rotationY () {
+        return this._rotationY;
+    }
+
+    get rotationZ () {
+        return this._rotationZ;
+    }
+
+    get axisOfRotationX () {
+        return this._axisOfRotationX;
+    }
+
+    get axisOfRotationY () {
+        return this._axisOfRotationY;
+    }
+
+    get axisOfRotationZ () {
+        return this._axisOfRotationZ;
+    }
+
+    get angularVelocityX () {
+        return this._angularVelocityX;
+    }
+
+    get angularVelocityY () {
+        return this._angularVelocityY;
+    }
+
+    get angularVelocityZ () {
+        return this._angularVelocityZ;
+    }
+
+    get sizeX () {
+        return this._sizeX;
+    }
+
+    get sizeY () {
+        return this._sizeY;
+    }
+
+    get sizeZ () {
+        return this._sizeZ;
+    }
+
+    get startSizeX () {
+        return this._startSizeX;
+    }
+
+    get startSizeY () {
+        return this._startSizeY;
+    }
+
+    get startSizeZ () {
+        return this._startSizeZ;
+    }
+
+    get startColor () {
+        return this._startColor;
+    }
+
+    get color () {
+        return this._color;
+    }
+
+    getPositionChannel (chanel: SOADataChannel) {
+        switch (chanel) {
+        case SOADataChannel.X:
+            return this._positionX;
+        case SOADataChannel.Y:
+            return this._positionY;
+        default:
+            return this._positionZ;
+        }
+    }
+
+    getPositionAt (out: Vec3, handle: ParticleHandle) {
+        out.x = this._positionX[handle];
+        out.y = this._positionY[handle];
+        out.z = this._positionZ[handle];
+        return out;
+    }
+
+    setPositionAt (position: Vec3, handle: ParticleHandle) {
+        this._positionX[handle] = position.x;
+        this._positionY[handle] = position.y;
+        this._positionZ[handle] = position.z;
+    }
+
+    addPositionAt (deltaTranslation: Vec3, handle: ParticleHandle) {
+        this._positionX[handle] += deltaTranslation.x;
+        this._positionY[handle] += deltaTranslation.y;
+        this._positionZ[handle] += deltaTranslation.z;
     }
 
     getVelocityAt (out: Vec3, handle: ParticleHandle) {
@@ -183,18 +306,6 @@ export class ParticleSOAData {
         }
     }
 
-    get animatedVelocityX () {
-        return this._animatedVelocityX;
-    }
-
-    get animatedVelocityY () {
-        return this._animatedVelocityY;
-    }
-
-    get animatedVelocityZ () {
-        return this._animatedVelocityZ;
-    }
-
     getAnimatedVelocityChannel (chanel: SOADataChannel) {
         switch (chanel) {
         case SOADataChannel.X:
@@ -204,18 +315,6 @@ export class ParticleSOAData {
         default:
             return this._animatedVelocityZ;
         }
-    }
-
-    get rotationX () {
-        return this._rotationX;
-    }
-
-    get rotationY () {
-        return this._rotationY;
-    }
-
-    get rotationZ () {
-        return this._rotationZ;
     }
 
     getRotationChannel (chanel: SOADataChannel) {
@@ -229,18 +328,6 @@ export class ParticleSOAData {
         }
     }
 
-    get axisOfRotationX () {
-        return this._axisOfRotationX;
-    }
-
-    get axisOfRotationY () {
-        return this._axisOfRotationY;
-    }
-
-    get axisOfRotationZ () {
-        return this._axisOfRotationZ;
-    }
-
     getAxisOfRotationChannel (chanel: SOADataChannel) {
         switch (chanel) {
         case SOADataChannel.X:
@@ -250,18 +337,6 @@ export class ParticleSOAData {
         default:
             return this._axisOfRotationZ;
         }
-    }
-
-    get angularVelocityX () {
-        return this._angularVelocityX;
-    }
-
-    get angularVelocityY () {
-        return this._angularVelocityY;
-    }
-
-    get angularVelocityZ () {
-        return this._angularVelocityZ;
     }
 
     getAngularVelocityChannel (chanel: SOADataChannel) {
@@ -275,18 +350,6 @@ export class ParticleSOAData {
         }
     }
 
-    get sizeX () {
-        return this._sizeX;
-    }
-
-    get sizeY () {
-        return this._sizeY;
-    }
-
-    get sizeZ () {
-        return this._sizeZ;
-    }
-
     getSizeChannel (chanel: SOADataChannel) {
         switch (chanel) {
         case SOADataChannel.X:
@@ -296,18 +359,6 @@ export class ParticleSOAData {
         default:
             return this._sizeZ;
         }
-    }
-
-    get startSizeX () {
-        return this._startSizeX;
-    }
-
-    get startSizeY () {
-        return this._startSizeY;
-    }
-
-    get startSizeZ () {
-        return this._startSizeZ;
     }
 
     getStartSizeChannel (chanel: SOADataChannel) {
@@ -321,10 +372,6 @@ export class ParticleSOAData {
         }
     }
 
-    get startColor () {
-        return this._startColor;
-    }
-
     getStartColorAt (out: Color, handle: ParticleHandle) {
         Color.fromUint32(out, this._startColor[handle]);
         return out;
@@ -334,10 +381,6 @@ export class ParticleSOAData {
         this._startColor[handle] = Color.toUint32(color);
     }
 
-    get color () {
-        return this._color;
-    }
-
     getColorAt (out: Color, handle: ParticleHandle) {
         Color.fromUint32(out, this._color[handle]);
         return out;
@@ -345,30 +388,6 @@ export class ParticleSOAData {
 
     setColorAt (color: Color, handle: ParticleHandle) {
         this._color[handle] = Color.toUint32(color);
-    }
-
-    get randomSeed () {
-        return this._randomSeed;
-    }
-
-    get invStartLifeTime () {
-        return this._invStartLifeTime;
-    }
-
-    get normalizedAliveTime () {
-        return this._normalizedAliveTime;
-    }
-
-    get frameIndex () {
-        return this._frameIndex;
-    }
-
-    get trailSegmentCapacityPerParticle () {
-        return this._trailSegmentCapacityPerParticle;
-    }
-
-    get trailSegmentNumbers () {
-        return this._trailSegmentNumbers;
     }
 
     addTrailSegment (handle: ParticleHandle) {
@@ -442,13 +461,16 @@ export class ParticleSOAData {
         return this._trailSegmentNumbers[handle];
     }
 
-    addParticle (): ParticleHandle {
-        if (this._count >= this._capacity) {
-            this.reserve(this._capacity * 2);
+    addParticles (count: number): ParticleHandle {
+        for (let i = 0; i < count; ++i) {
+            if (this._count >= this._capacity) {
+                this.reserve(this._capacity * 2);
+            }
+            const handle = this._count;
+            this._count++;
+            this.resetParticle(handle);
         }
-        const handle = this._count;
-        this._count++;
-        return handle;
+        return this._count - count;
     }
 
     removeParticle (handle: ParticleHandle) {
@@ -493,6 +515,42 @@ export class ParticleSOAData {
         this._endTrailSegmentIndices[handle] = this._endTrailSegmentIndices[lastParticle];
         this._trailSegmentNumbers[handle] = this._trailSegmentNumbers[lastParticle];
         this._count -= 1;
+    }
+
+    resetParticle (handle: ParticleHandle) {
+        this._positionX[handle] = 0;
+        this._positionY[handle] = 0;
+        this._positionZ[handle] = 0;
+        this._velocityX[handle] = 0;
+        this._velocityY[handle] = 0;
+        this._velocityZ[handle] = 0;
+        this._animatedVelocityX[handle] = 0;
+        this._animatedVelocityY[handle] = 0;
+        this._animatedVelocityZ[handle] = 0;
+        this._rotationX[handle] = 0;
+        this._rotationY[handle] = 0;
+        this._rotationZ[handle] = 0;
+        this._axisOfRotationX[handle] = 0;
+        this._axisOfRotationY[handle] = 0;
+        this._axisOfRotationZ[handle] = 0;
+        this._angularVelocityX[handle] = 0;
+        this._angularVelocityY[handle] = 0;
+        this._angularVelocityZ[handle] = 0;
+        this._startSizeX[handle] = 1;
+        this._startSizeY[handle] = 1;
+        this._startSizeZ[handle] = 1;
+        this._sizeX[handle] = 1;
+        this._sizeY[handle] = 1;
+        this._sizeZ[handle] = 1;
+        this._startColor[handle] = Color.WHITE._val;
+        this._color[handle] = Color.WHITE._val;
+        this._randomSeed[handle] = 0;
+        this._invStartLifeTime[handle] = 0;
+        this._normalizedAliveTime[handle] = 0;
+        this._frameIndex[handle] = 0;
+        this._startTrailSegmentIndices[handle] = 0;
+        this._endTrailSegmentIndices[handle] = 0;
+        this._trailSegmentNumbers[handle] = 0;
     }
 
     reserve (capacity: number) {

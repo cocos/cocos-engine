@@ -84,7 +84,7 @@ export class ForceOverLifetimeModule extends ParticleModule {
     }
 
     public get updateStage (): ParticleUpdateStage {
-        return ParticleUpdateStage.POST_UPDATE_VELOCITY;
+        return ParticleUpdateStage.PRE_UPDATE;
     }
 
     // TODO:currently not supported

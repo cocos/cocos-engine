@@ -26,7 +26,7 @@
 // eslint-disable-next-line max-len
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, type, range, displayName, formerlySerializedAs, override, radian, serializable, visible, requireComponent } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { Mat4, pseudoRandom, Quat, randomRangeInt, Vec2, Vec3 } from '../core/math';
+import { approx, EPSILON, Mat4, pseudoRandom, Quat, randomRangeInt, Vec2, Vec3 } from '../core/math';
 import { INT_MAX } from '../core/math/bits';
 import { ColorOverLifetimeModule } from './modules/color-over-lifetime';
 import { InitializationModule } from './modules/initialization';
@@ -52,7 +52,7 @@ import { ParticleCuller } from './particle-culler';
 import { NoiseModule } from './modules/noise';
 import { CCBoolean, CCFloat, Component } from '../core';
 import { INVALID_HANDLE, ParticleHandle, ParticleSOAData } from './particle-soa-data';
-import { ParticleModule } from './particle-module';
+import { ParticleModule, ParticleUpdateStage } from './particle-module';
 
 const _world_mat = new Mat4();
 const _world_rol = new Quat();
@@ -463,6 +463,9 @@ export class ParticleSystem extends Component {
         if (this._prewarm) {
             this._prewarmSystem();
         }
+
+        this._particleUpdateContext.currentPosition.set(this.node.worldPosition);
+        this._particleUpdateContext.emitterDelayRemaining = this._particleUpdateContext.emitterStartDelay = this.startDelay.evaluate(0, 1);
     }
 
     /**
@@ -660,9 +663,10 @@ export class ParticleSystem extends Component {
 
         if (this.isPlaying) {
             this._time += scaledDeltaTime;
-
             // simulation, update particles.
-            if (this.updateParticles(scaledDeltaTime) === 0 && !this.isEmitting) {
+            this.updateParticles(scaledDeltaTime);
+
+            if (this._particles.count === 0 && !this.loop && !this.isEmitting) {
                 this.stop();
             }
         }
@@ -704,9 +708,26 @@ export class ParticleSystem extends Component {
         const particleUpdateContext = this._particleUpdateContext;
         particleUpdateContext.accumulatedTime += deltaTime;
         particleUpdateContext.deltaTime = deltaTime;
+        particleUpdateContext.emitterDeltaTime = this._isEmitting ? deltaTime : 0;
         particleUpdateContext.simulationSpace = this.simulationSpace;
+        particleUpdateContext.newEmittingCount = 0;
+        particleUpdateContext.newParticleIndexOffset = -1;
+        particleUpdateContext.duration = this.duration;
+        particleUpdateContext.lastPosition.set(particleUpdateContext.currentPosition);
+        particleUpdateContext.currentPosition.set(this.node.worldPosition);
         particleUpdateContext.worldTransform.set(this.node.worldMatrix);
         particleUpdateContext.worldRotation.set(this.node.worldRotation);
+        if (particleUpdateContext.emitterDelayRemaining > 0) {
+            particleUpdateContext.emitterDelayRemaining -= particleUpdateContext.emitterDeltaTime;
+            particleUpdateContext.emitterDeltaTime = 0;
+            if (particleUpdateContext.emitterDelayRemaining < 0) {
+                particleUpdateContext.emitterDeltaTime = Math.abs(particleUpdateContext.emitterDelayRemaining);
+                particleUpdateContext.emitterDelayRemaining = 0;
+            }
+        }
+        particleUpdateContext.emitterAccumulatedTime += particleUpdateContext.emitterDeltaTime;
+        particleUpdateContext.normalizedTimeInCycle = ((particleUpdateContext.emitterAccumulatedTime - particleUpdateContext.emitterStartDelay)
+            % this.duration) / this.duration;
 
         const { normalizedAliveTime, invStartLifeTime, animatedVelocityX, animatedVelocityY, animatedVelocityZ } = this._particles;
         for (let i = 0, length = this._particles.count; i < length; ++i) {
@@ -723,25 +744,51 @@ export class ParticleSystem extends Component {
             }
         }
 
-        const startDelay = this.startDelay.evaluate(0, 1)!;
-        if (this._time > startDelay) {
-            if (this._time > (this.duration + startDelay)) {
-                if (!this.loop) {
-                    this._isEmitting = false;
+        let i = 0;
+        const length = this._particleModules.length;
+        for (; i < length; i++) {
+            const module = this._particleModules[i];
+            if (module.updateStage !== ParticleUpdateStage.EMITTER_UPDATE) {
+                break;
+            }
+            if (module.enable) {
+                module.update(this._particles, this._particleUpdateContext);
+            }
+        }
+
+        let newEmittingCount = this._particleUpdateContext.newEmittingCount;
+        if (newEmittingCount + this._particles.count > this.capacity) {
+            newEmittingCount = this._particleUpdateContext.newEmittingCount = this.capacity - this._particles.count;
+        }
+
+        this._particleUpdateContext.newParticleIndexOffset = this._particles.addParticles(newEmittingCount);
+
+        for (let stage = ParticleUpdateStage.INITIALIZE; stage < ParticleUpdateStage.POST_UPDATE; stage++) {
+            for (; i < length; i++) {
+                const module = this._particleModules[i];
+                if (module.updateStage !== stage) {
+                    break;
+                }
+                if (module.enable) {
+                    module.update(this._particles, this._particleUpdateContext);
                 }
             }
         }
-        particleUpdateContext.isEmitting = this._isEmitting;
-
-        for (let i = 0, length = this._particles.count; i < length; ++i) {
-
+        const velocity = new Vec3();
+        for (let particleHandle = 0; particleHandle < this._particles.count; particleHandle++) {
+            this._particles.getVelocityAt(velocity, particleHandle);
+            this._particles.addPositionAt(velocity.multiplyScalar(deltaTime), particleHandle);
         }
 
-        Vec3.copy(p.ultimateVelocity, p.velocity);
-
-        Vec3.scaleAndAdd(p.position, p.position, p.ultimateVelocity, dt); // apply velocity.
-
-        return this._particles.count;
+        for (; i < length; i++) {
+            const module = this._particleModules[i];
+            if (module.updateStage !== ParticleUpdateStage.POST_UPDATE) {
+                break;
+            }
+            if (module.enable) {
+                module.update(this._particles, this._particleUpdateContext);
+            }
+        }
     }
 
     private getBoundingX () {
@@ -798,12 +845,5 @@ export class ParticleSystem extends Component {
 
     get time () {
         return this._time;
-    }
-
-    public getFreeParticle (): ParticleHandle {
-        if (this._particles.count >= this.capacity) {
-            return INVALID_HANDLE;
-        }
-        return this._particles.addParticle();
     }
 }

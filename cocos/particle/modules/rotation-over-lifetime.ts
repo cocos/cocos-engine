@@ -87,7 +87,7 @@ export class RotationOverLifetimeModule extends ParticleModule {
     }
 
     public get updateStage (): ParticleUpdateStage {
-        return ParticleUpdateStage.UPDATE;
+        return ParticleUpdateStage.PRE_UPDATE;
     }
 
     private _startMat:Mat4 = new Mat4();

@@ -29,8 +29,8 @@ import { Component } from '../core/components';
 import { Vec3, Vec2, Vec4 } from '../core/math';
 import { LineModel } from './models/line-model';
 import { builtinResMgr } from '../core/builtin';
-import CurveRange from './modules/curve-range';
-import GradientRange from './gradient-range';
+import { CurveRange } from './curve-range';
+import { GradientRange } from './gradient-range';
 import { legacyCC } from '../core/global-exports';
 import { IMaterialInstanceInfo, MaterialInstance } from '../core/renderer/core/material-instance';
 

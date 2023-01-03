@@ -95,7 +95,7 @@ export class VelocityOverLifetimeModule extends ParticleModule {
     }
 
     public get updateStage (): ParticleUpdateStage {
-        return ParticleUpdateStage.UPDATE_VELOCITY;
+        return ParticleUpdateStage.PRE_UPDATE;
     }
 
     private rotation: Quat;

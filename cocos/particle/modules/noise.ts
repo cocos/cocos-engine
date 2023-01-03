@@ -194,7 +194,7 @@ export class NoiseModule extends ParticleModule {
     }
 
     public get updateStage (): ParticleUpdateStage {
-        return ParticleUpdateStage.POST_UPDATE_POSITION;
+        return ParticleUpdateStage.POST_UPDATE;
     }
 
     @serializable

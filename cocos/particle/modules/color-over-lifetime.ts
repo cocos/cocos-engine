@@ -48,7 +48,7 @@ export class ColorOverLifetimeModule extends ParticleModule {
     }
 
     public get updateStage (): ParticleUpdateStage {
-        return ParticleUpdateStage.UPDATE;
+        return ParticleUpdateStage.PRE_UPDATE;
     }
 
     public update (particles: ParticleSOAData, context: ParticleUpdateContext) {

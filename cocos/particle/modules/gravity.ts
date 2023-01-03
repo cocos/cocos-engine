@@ -49,7 +49,7 @@ export class GravityModule extends ParticleModule {
     }
 
     public get updateStage (): ParticleUpdateStage {
-        return ParticleUpdateStage.UPDATE_VELOCITY;
+        return ParticleUpdateStage.PRE_UPDATE;
     }
 
     public update(particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
