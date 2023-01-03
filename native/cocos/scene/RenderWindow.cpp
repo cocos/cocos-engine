@@ -61,7 +61,7 @@ bool RenderWindow::initialize(gfx::Device *device, IRenderWindowInfo &info) {
 
     _width = info.width;
     _height = info.height;
-    _antialiased = info.antiAliasing;
+    _sampleCount = info.sampleCount;
 
     _renderPass = device->createRenderPass(info.renderPassInfo);
 
@@ -169,6 +169,10 @@ void RenderWindow::generateFrameBuffer() {
         _depthStencilTexture});
 }
 
+gfx::Texture *RenderWindow::getOutputTexture() const {
+    return _frameBuffer->getColorTextures()[0];
+}
+
 void RenderWindow::attachCamera(Camera *camera) {
     for (Camera *cam : _cameras) {
         if (cam == camera) return;
@@ -192,6 +196,14 @@ void RenderWindow::clearCameras() {
 
 void RenderWindow::sortCameras() {
     std::sort(_cameras.begin(), _cameras.end(), [](Camera *a, Camera *b) { return a->getPriority() < b->getPriority(); });
+}
+
+uint32_t RenderWindow::getWidth() const {
+    return _swapchain == nullptr ? _width : _swapchain->getWidth();
+}
+
+uint32_t RenderWindow::getHeight() const {
+    return _swapchain == nullptr ? _height : _swapchain->getHeight();
 }
 
 } // namespace scene

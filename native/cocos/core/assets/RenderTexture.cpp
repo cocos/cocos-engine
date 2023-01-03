@@ -81,7 +81,7 @@ void RenderTexture::resize(uint32_t width, uint32_t height) {
 }
 
 gfx::Texture *RenderTexture::getGFXTexture() const {
-    return _window ? _window->getFramebuffer()->getColorTextures()[0] : nullptr;
+    return _window ? _window->getOutputTexture() : nullptr;
 }
 
 void RenderTexture::onLoaded() {
@@ -112,7 +112,7 @@ void RenderTexture::initWindow(const IRenderTextureCreateInfo &info) {
     windowInfo.title = _name;
     windowInfo.width = _width;
     windowInfo.height = _height;
-    windowInfo.antiAliasing = info.antiAliasing;
+    windowInfo.sampleCount = gfx::SampleCount::MULTIPLE_QUALITY;
     if (info.passInfo.has_value()) {
         windowInfo.renderPassInfo = info.passInfo.value();
     } else {

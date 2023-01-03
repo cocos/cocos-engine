@@ -104,7 +104,6 @@ DevicePass::DevicePass(const FrameGraph &graph, ccstd::vector<PassNode *> const 
 
     ccstd::vector<const gfx::Texture *> renderTargets;
 
-    bool hasDepthStencil{false};
     for (auto &attachment : attachments) {
         const ResourceNode &resourceNode = graph.getResourceNode(attachment.textureHandle);
         CC_ASSERT(resourceNode.virtualResource);
@@ -116,34 +115,6 @@ DevicePass::DevicePass(const FrameGraph &graph, ccstd::vector<PassNode *> const 
         _attachments.back().attachment = attachment;
         _attachments.back().renderTarget = resource;
         renderTargets.emplace_back(resource);
-
-        hasDepthStencil |= attachment.desc.usage != RenderTargetAttachment::Usage::COLOR;
-    }
-
-    Attachment dsResolve;
-    std::vector<gfx::SubpassInfo *> dsInvolved;
-    for (size_t i = 0; i < subpassNodes.size(); ++i) {
-        const auto &passNode = subpassNodes[i];
-        for (auto &attachment : passNode->_attachments) {
-            if (attachment.desc.resolveSource.isValid()) {
-                const ResourceNode &resourceNode = graph.getResourceNode(attachment.textureHandle);
-                CC_ASSERT(resourceNode.virtualResource);
-
-                gfx::Texture *resource = static_cast<ResourceEntry<Texture> *>(resourceNode.virtualResource)->getDeviceResource();
-                CC_ASSERT(resource);
-
-                renderTargets.emplace_back(resource);
-
-                if (attachment.desc.usage == RenderTargetAttachment::Usage::COLOR) {
-                    _attachments.emplace_back();
-                    _attachments.back().attachment = attachment;
-                    _attachments.back().renderTarget = resource;
-                    // no depthStencil resolve and depth/stencil attachment will be record separately in another property
-                    uint8_t dsOffset = hasDepthStencil ? 1 : 0;
-                    _subpasses[i].desc.resolves.emplace_back(_attachments.size() - 1 - dsOffset);
-                }
-            }
-        }
     }
 
     for (PassNode *const passNode : subpassNodes) {
@@ -279,6 +250,12 @@ void DevicePass::append(const FrameGraph &graph, const PassNode *passNode, ccstd
         logicPass.scissor = passNode->_scissor;
 
         for (const auto &attachment : passNode->_attachments) {
+            if (attachment.desc.samples > sampleCount) {
+                sampleCount = attachment.desc.samples;
+            }
+        }
+
+        for (const auto &attachment : passNode->_attachments) {
             append(graph, attachment, attachments, &subpass.desc, passNode->_reads);
         }
 
@@ -300,15 +277,15 @@ void DevicePass::append(const FrameGraph &graph, const PassNode *passNode, ccstd
 
 void DevicePass::append(const FrameGraph &graph, const RenderTargetAttachment &attachment,
                         ccstd::vector<RenderTargetAttachment> *attachments, gfx::SubpassInfo *subpass, const ccstd::vector<Handle> &reads) {
-    // later put resolved targets at the end
-    if (attachment.desc.resolveSource.isValid()) {
-        return;
-    }
     RenderTargetAttachment::Usage usage{attachment.desc.usage};
     uint32_t slot{attachment.desc.slot};
     if (attachment.desc.usage == RenderTargetAttachment::Usage::COLOR) {
         // should fetch actual color slot from current subpass
-        slot = subpass->colors.size() > attachment.desc.slot ? subpass->colors[attachment.desc.slot] : gfx::INVALID_BINDING;
+        if (sampleCount != gfx::SampleCount::ONE && attachment.desc.samples == gfx::SampleCount::ONE) {
+            slot = subpass->resolves.size() > attachment.desc.slot ? subpass->resolves[attachment.desc.slot] : gfx::INVALID_BINDING;
+        } else {
+            slot = subpass->colors.size() > attachment.desc.slot ? subpass->colors[attachment.desc.slot] : gfx::INVALID_BINDING;
+        }
     }
     auto it = std::find_if(attachments->begin(), attachments->end(), [usage, slot](const RenderTargetAttachment &x) {
         return usage == x.desc.usage && slot == x.desc.slot;
@@ -360,7 +337,9 @@ void DevicePass::append(const FrameGraph &graph, const RenderTargetAttachment &a
     }
 
     if (attachment.desc.usage == RenderTargetAttachment::Usage::COLOR) {
-        if (std::find(subpass->colors.begin(), subpass->colors.end(), output->desc.slot) == subpass->colors.end()) {
+        if (sampleCount != attachment.desc.samples && std::find(subpass->resolves.begin(), subpass->resolves.end(), output->desc.slot) == subpass->resolves.end()) {
+            subpass->resolves.push_back(output->desc.slot);
+        } else if (std::find(subpass->colors.begin(), subpass->colors.end(), output->desc.slot) == subpass->colors.end()) {
             subpass->colors.push_back(output->desc.slot);
         }
     } else {
@@ -405,7 +384,6 @@ void DevicePass::begin(gfx::CommandBuffer *cmdBuff) {
         }
     }
 
-    Attachment dsAttachment;
     for (const auto &attachElem : _attachments) {
         gfx::Texture *attachment = attachElem.renderTarget;
         if (attachElem.attachment.desc.usage == RenderTargetAttachment::Usage::COLOR) {
@@ -416,7 +394,7 @@ void DevicePass::begin(gfx::CommandBuffer *cmdBuff) {
             attachmentInfo.storeOp = attachElem.attachment.storeOp;
             attachmentInfo.barrier = gfx::Device::getInstance()->getGeneralBarrier({attachElem.attachment.desc.beginAccesses, attachElem.attachment.desc.endAccesses});
             attachmentInfo.isGeneralLayout = attachElem.attachment.isGeneralLayout;
-            attachmentInfo.sampleCount = attachElem.attachment.desc.samples;
+            attachmentInfo.sampleCount = attachment->getInfo().samples;
             fboInfo.colorTextures.push_back(attachElem.renderTarget);
             clearColors.emplace_back(attachElem.attachment.desc.clearColor);
         } else {
@@ -428,7 +406,7 @@ void DevicePass::begin(gfx::CommandBuffer *cmdBuff) {
             attachmentInfo.stencilStoreOp = attachElem.attachment.storeOp;
             attachmentInfo.barrier = gfx::Device::getInstance()->getGeneralBarrier({attachElem.attachment.desc.beginAccesses, attachElem.attachment.desc.endAccesses});
             attachmentInfo.isGeneralLayout = attachElem.attachment.isGeneralLayout;
-            attachmentInfo.sampleCount = attachElem.attachment.desc.samples;
+            attachmentInfo.sampleCount = attachment->getInfo().samples;
             fboInfo.depthStencilTexture = attachElem.renderTarget;
             clearDepth = attachElem.attachment.desc.clearDepth;
             clearStencil = attachElem.attachment.desc.clearStencil;
