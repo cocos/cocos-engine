@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { DEV } from 'internal:constants';
+import { DEV, EDITOR } from 'internal:constants';
 
 const _global = typeof window === 'undefined' ? global : window;
 
@@ -46,7 +46,7 @@ if (DEV) {
     legacyCC._Test = {};
 }
 
-const engineVersion = '3.7.0';
+const engineVersion = '3.7.1';
 
 /**
  * @en
@@ -63,6 +63,12 @@ _global.CocosEngine = legacyCC.ENGINE_VERSION = engineVersion;
 _global.cc = legacyCC;
 
 export { engineVersion as VERSION };
+
+if (EDITOR && legacyCC.GAME_VIEW === undefined) {
+    // Used to indicate whether it is currently in preview mode.
+    // 'isPreviewProcess' is defined only in the editor's process.
+    legacyCC.GAME_VIEW = typeof globalThis.isPreviewProcess !== 'undefined' ? globalThis.isPreviewProcess : false;
+}
 
 const ccwindow: typeof window = typeof globalThis.jsb !== 'undefined' ? (typeof jsb.window !== 'undefined' ? jsb.window : globalThis) : globalThis;
 _global.ccwindow = ccwindow;

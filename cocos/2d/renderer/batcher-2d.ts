@@ -146,9 +146,9 @@ export class Batcher2D implements IBatcher {
         }
         this._batches.destroy();
 
-        this._bufferAccessors.forEach((accessor: StaticVBAccessor) => {
+        for (const accessor of this._bufferAccessors.values()) {
             accessor.destroy();
-        });
+        }
         this._bufferAccessors.clear();
 
         if (this._drawBatchPool) {
@@ -278,14 +278,15 @@ export class Batcher2D implements IBatcher {
         if (JSB) {
             this._nativeObj.uploadBuffers();
         } else if (this._batches.length > 0) {
-            this._meshDataArray.forEach((rd) => {
-                rd.uploadBuffers();
-            });
+            const length = this._meshDataArray.length;
+            for (let i = 0; i < length; i++) {
+                this._meshDataArray[i].uploadBuffers();
+            }
 
-            this._bufferAccessors.forEach((accessor: StaticVBAccessor) => {
+            for (const accessor of this._bufferAccessors.values()) {
                 accessor.uploadBuffers();
                 accessor.reset();
-            });
+            }
 
             this._descriptorSetCache.update();
         }
@@ -305,12 +306,13 @@ export class Batcher2D implements IBatcher {
                 this._drawBatchPool.free(batch);
             }
             // Reset buffer accessors
-            this._bufferAccessors.forEach((accessor: StaticVBAccessor) => {
+            for (const accessor of this._bufferAccessors.values()) {
                 accessor.reset();
-            });
-            this._meshDataArray.forEach((rd) => {
-                rd.freeIAPool();
-            });
+            }
+            const length = this._meshDataArray.length;
+            for (let i = 0; i < length; i++) {
+                this._meshDataArray[i].freeIAPool();
+            }
             this._meshDataArray.length = 0;
             this._staticVBBuffer = null;
 
@@ -930,10 +932,7 @@ export class Batcher2D implements IBatcher {
     //sync mesh buffer to naive
     public syncMeshBuffersToNative (accId: number, buffers: MeshBuffer[]) {
         if (JSB) {
-            const nativeBuffers: NativeUIMeshBuffer[] = [];
-            buffers.forEach((x) => {
-                nativeBuffers.push(x.nativeObj);
-            });
+            const nativeBuffers = buffers.map((buf) => buf.nativeObj);
             this._nativeObj.syncMeshBuffersToNative(accId, nativeBuffers);
         }
     }
@@ -1085,8 +1084,11 @@ class DescriptorSetCache {
 
     public update () {
         const caches = this._localDescriptorSetCache;
+        const length = caches.length;
+        if (length === 0) { return; }
         const uselessArray: number[] = [];
-        caches.forEach((value) => {
+        for (let i = 0; i < length; i++) {
+            const value = caches[i];
             if (value.isValid()) {
                 value.uploadLocalData();
             } else {
@@ -1094,7 +1096,7 @@ class DescriptorSetCache {
                 const pos = caches.indexOf(value);
                 uselessArray.push(pos);
             }
-        });
+        }
         for (let i = uselessArray.length - 1; i >= 0; i--) {
             caches.splice(uselessArray[i], 1);
         }
@@ -1102,9 +1104,11 @@ class DescriptorSetCache {
 
     public reset () {
         const caches = this._localDescriptorSetCache;
-        caches.forEach((value) => {
+        const length = caches.length;
+        for (let i = 0; i < length; i++) {
+            const value = caches[i];
             this._localCachePool.free(value);
-        });
+        }
         this._localDescriptorSetCache.length = 0;
     }
 
@@ -1118,9 +1122,9 @@ class DescriptorSetCache {
     }
 
     public destroy () {
-        this._descriptorSetCache.forEach((value, key, map) => {
+        for (const value of this._descriptorSetCache.values()) {
             value.destroy();
-        });
+        }
         this._descriptorSetCache.clear();
         this._dsCacheHashByTexture.clear();
         this._localDescriptorSetCache.length = 0;

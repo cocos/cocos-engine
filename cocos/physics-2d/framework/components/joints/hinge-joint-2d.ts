@@ -23,10 +23,10 @@
 */
 
 import { Joint2D } from './joint-2d';
-import { _decorator } from '../../../../core';
+import { CCBoolean, CCFloat, _decorator } from '../../../../core';
 import { IHingeJoint } from '../../../spec/i-physics-joint';
 import { EJoint2DType } from '../../physics-types';
-import { help, tooltip } from '../../../../core/data/decorators';
+import { help, serializable, tooltip, type } from '../../../../core/data/decorators';
 
 const { ccclass, menu, property } = _decorator;
 
@@ -42,7 +42,7 @@ export class HingeJoint2D extends Joint2D {
      * @zh
      * 是否开启关节的限制？
      */
-    @property
+    @type(CCBoolean)
     @tooltip('i18n:physics2d.joint.enableLimit')
     get enableLimit (): boolean {
         return this._enableLimit;
@@ -57,7 +57,7 @@ export class HingeJoint2D extends Joint2D {
      * @zh
      * 角度的最低限制。
      */
-    @property
+    @type(CCFloat)
     @tooltip('i18n:physics2d.joint.lowerAngle')
     get lowerAngle (): number {
         return this._lowerAngle;
@@ -75,7 +75,7 @@ export class HingeJoint2D extends Joint2D {
      * @zh
      * 角度的最高限制。
      */
-    @property
+    @type(CCFloat)
     @tooltip('i18n:physics2d.joint.upperAngle')
     get upperAngle (): number {
         return this._upperAngle;
@@ -93,7 +93,7 @@ export class HingeJoint2D extends Joint2D {
      * @zh
      * 是否开启关节马达？
      */
-    @property
+    @type(CCBoolean)
     @tooltip('i18n:physics2d.joint.enableMotor')
     get enableMotor (): boolean {
         return this._enableMotor;
@@ -111,7 +111,7 @@ export class HingeJoint2D extends Joint2D {
      * @zh
      * 可以施加到刚体的最大扭矩。
      */
-    @property
+    @type(CCFloat)
     @tooltip('i18n:physics2d.joint.maxMotorTorque')
     get maxMotorTorque (): number {
         return this._maxMotorTorque;
@@ -129,7 +129,7 @@ export class HingeJoint2D extends Joint2D {
      * @zh
      * 期望的马达速度。
      */
-    @property
+    @type(CCFloat)
     @tooltip('i18n:physics2d.joint.motorSpeed')
     get motorSpeed (): number {
         return this._motorSpeed;
@@ -143,16 +143,21 @@ export class HingeJoint2D extends Joint2D {
 
     /// private properties
 
-    @property
+    @serializable
     private _enableLimit = false;
-    @property
+
+    @serializable
     private _lowerAngle = 0;
-    @property
+
+    @serializable
     private _upperAngle = 0;
-    @property
+
+    @serializable
     private _enableMotor = false;
-    @property
+
+    @serializable
     private _maxMotorTorque = 1000;
-    @property
+
+    @serializable
     private _motorSpeed = 0;
 }

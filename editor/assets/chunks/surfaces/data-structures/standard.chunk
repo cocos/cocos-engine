@@ -19,6 +19,10 @@ struct SurfacesMaterialData
   float anisotropyShape;
 #endif
   
+#if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR || CC_SURFACES_LIGHTING_TRANSMITTENCE
+  vec4 inScatteringColorAndIntensity;
+  vec4 transmitParams;
+#endif
 #if CC_SURFACES_LIGHTING_TRANSMITTENCE
   vec4 transmittenceParams;
 #endif

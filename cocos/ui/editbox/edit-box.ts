@@ -608,10 +608,6 @@ export class EditBox extends Component {
             this._textLabel = textLabel;
         }
 
-        // update
-        const transformComp = this._textLabel!.node._uiProps.uiTransformComp;
-        transformComp!.setAnchorPoint(0, 1);
-        textLabel.overflow = Label.Overflow.CLAMP;
         if (this._inputMode === InputMode.ANY) {
             textLabel.verticalAlign = VerticalTextAlignment.TOP;
             textLabel.enableWrapText = true;
@@ -639,9 +635,6 @@ export class EditBox extends Component {
             this._placeholderLabel = placeholderLabel;
         }
 
-        // update
-        const transform = this._placeholderLabel!.node._uiProps.uiTransformComp;
-        transform!.setAnchorPoint(0, 1);
         if (this._inputMode === InputMode.ANY) {
             placeholderLabel.enableWrapText = true;
         } else {

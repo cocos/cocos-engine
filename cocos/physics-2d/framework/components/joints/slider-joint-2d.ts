@@ -25,8 +25,8 @@
 import { Joint2D } from './joint-2d';
 import { ISliderJoint } from '../../../spec/i-physics-joint';
 import { EJoint2DType } from '../../physics-types';
-import { Vec2, IVec2Like, toDegree, _decorator } from '../../../../core';
-import { help, tooltip } from '../../../../core/data/decorators';
+import { Vec2, IVec2Like, toDegree, _decorator, CCFloat, CCBoolean } from '../../../../core';
+import { help, serializable, tooltip, type } from '../../../../core/data/decorators';
 
 const tempVec2 = new Vec2();
 const { ccclass, menu, property } = _decorator;
@@ -41,7 +41,7 @@ export class SliderJoint2D extends Joint2D {
      * @en Slide direction.
      * @zh 滑动的方向。
      */
-    @property
+    @type(CCFloat)
     @tooltip('i18n:physics2d.joint.angle')
     get angle (): number {
         if (this._autoCalcAngle) {
@@ -62,7 +62,7 @@ export class SliderJoint2D extends Joint2D {
      * @en Auto calculate slide direction according to the slide direction.
      * @zh 根据连接的两个刚体自动计算滑动方向。
      */
-    @property
+    @type(CCBoolean)
     @tooltip('i18n:physics2d.joint.autoCalcAngle')
     get autoCalcAngle (): boolean {
         return this._autoCalcAngle;
@@ -77,7 +77,7 @@ export class SliderJoint2D extends Joint2D {
      * @zh
      * 是否开启关节马达？
      */
-    @property
+    @type(CCBoolean)
     @tooltip('i18n:physics2d.joint.enableMotor')
     get enableMotor (): boolean {
         return this._enableMotor;
@@ -92,7 +92,7 @@ export class SliderJoint2D extends Joint2D {
      * @zh
      * 可以施加到刚体的最大力。
      */
-    @property
+    @type(CCFloat)
     @tooltip('i18n:physics2d.joint.maxMotorForce')
     get maxMotorForce (): number {
         return this._maxMotorForce;
@@ -110,7 +110,7 @@ export class SliderJoint2D extends Joint2D {
      * @zh
      * 期望的马达速度。
      */
-    @property
+    @type(CCFloat)
     @tooltip('i18n:physics2d.joint.motorSpeed')
     get motorSpeed (): number {
         return this._motorSpeed;
@@ -128,7 +128,7 @@ export class SliderJoint2D extends Joint2D {
      * @zh
      * 是否开启关节的距离限制？
      */
-    @property
+    @type(CCBoolean)
     @tooltip('i18n:physics2d.joint.enableLimit')
     get enableLimit (): boolean {
         return this._enableLimit;
@@ -143,7 +143,7 @@ export class SliderJoint2D extends Joint2D {
      * @zh
      * 刚体能够移动的最小值。
      */
-    @property
+    @type(CCFloat)
     @tooltip('i18n:physics2d.joint.lowerLimit')
     get lowerLimit (): number {
         return this._lowerLimit;
@@ -161,7 +161,7 @@ export class SliderJoint2D extends Joint2D {
      * @zh
      * 刚体能够移动的最大值。
      */
-    @property
+    @type(CCFloat)
     @tooltip('i18n:physics2d.joint.upperLimit')
     get upperLimit (): number {
         return this._upperLimit;
@@ -175,20 +175,27 @@ export class SliderJoint2D extends Joint2D {
 
     /// private properties
 
-    @property
+    @serializable
     private _angle = 0;
-    @property
+
+    @serializable
     private _autoCalcAngle = true;
-    @property
+
+    @serializable
     private _enableMotor = false;
-    @property
+
+    @serializable
     private _maxMotorForce = 1000;
-    @property
+
+    @serializable
     private _motorSpeed = 1000;
-    @property
+
+    @serializable
     private _enableLimit = false;
-    @property
+
+    @serializable
     private _lowerLimit = 0;
-    @property
+
+    @serializable
     private _upperLimit = 0;
 }
