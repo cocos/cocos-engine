@@ -32,7 +32,7 @@ export enum ERaycastMode {
 
     /**
      * @en
-     * Detect and record all data.
+     * Detects and records all data.
      * @zh
      * 检测并记录所有的数据。
      */
@@ -40,7 +40,7 @@ export enum ERaycastMode {
 
     /**
      * @en
-     * Detect all, but record only the most recent data.
+     * Detects all data, but records only the most recent data.
      * @zh
      * 检测所有，但只记录最近的数据。
      */
@@ -156,7 +156,7 @@ export interface IRayMeshOptions extends IRaySubMeshOptions {
 
 /**
  * @en
- * The optional param structure of the `rayModel`.
+ * The optional parameter structure of the `rayModel`.
  * @zh
  * `rayModel`的可选参数结构。
  */
