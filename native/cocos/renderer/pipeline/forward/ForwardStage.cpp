@@ -232,7 +232,8 @@ void ForwardStage::render(scene::Camera *camera) {
             colorTexInfo.usage |= gfx::TextureUsageBit::TRANSFER_SRC;
         }
         auto sampleCount = gfx::SampleCount::ONE;
-        if constexpr (msaaRT) {
+        auto aa = camera->getWindow()->antiAliased();
+        if (msaaRT || aa) {
             sampleCount = gfx::SampleCount::MULTIPLE_BALANCE;
             colorTexInfo.usage = gfx::TextureUsageBit::TRANSFER_SRC | gfx::TextureUsageBit::COLOR_ATTACHMENT;
             auto resolveTex = builder.create(RenderPipeline::fgStrHandleOutColorTexture, colorTexInfo);

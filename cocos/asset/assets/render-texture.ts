@@ -35,6 +35,7 @@ export interface IRenderTextureCreateInfo {
     width: number;
     height: number;
     passInfo?: RenderPassInfo;
+    antiAliasing?: boolean;
 }
 
 const _colorAttachment = new ColorAttachment();
@@ -166,6 +167,7 @@ export class RenderTexture extends TextureBase {
         _windowInfo.width = this._width;
         _windowInfo.height = this._height;
         _windowInfo.renderPassInfo = info && info.passInfo ? info.passInfo : passInfo;
+        _windowInfo.antiAliasing = info?.antiAliasing;
 
         _colorAttachment.barrier = deviceManager.gfxDevice.getGeneralBarrier(new GeneralBarrierInfo(
             AccessFlagBit.FRAGMENT_SHADER_READ_TEXTURE,
@@ -207,7 +209,7 @@ export class RenderTexture extends TextureBase {
      * @param height @en The pixel height @zh 像素高度
      * @param buffer @en The buffer to hold pixel data @zh 像素缓存
      */
-    public readPixels (x = 0, y = 0, width?: number, height?: number, buffer?: Uint8Array) : Uint8Array | null {
+    public readPixels (x = 0, y = 0, width?: number, height?: number, buffer?: Uint8Array): Uint8Array | null {
         width = width || this.width;
         height = height || this.height;
         const gfxTexture = this.getGFXTexture();

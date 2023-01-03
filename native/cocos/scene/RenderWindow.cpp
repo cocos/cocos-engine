@@ -61,6 +61,7 @@ bool RenderWindow::initialize(gfx::Device *device, IRenderWindowInfo &info) {
 
     _width = info.width;
     _height = info.height;
+    _antialiased = info.antiAliasing;
 
     _renderPass = device->createRenderPass(info.renderPassInfo);
 
@@ -69,20 +70,29 @@ bool RenderWindow::initialize(gfx::Device *device, IRenderWindowInfo &info) {
         _colorTextures.pushBack(info.swapchain->getColorTexture());
         _depthStencilTexture = info.swapchain->getDepthStencilTexture();
     } else {
+        auto sampleCount = info.antiAliasing ? gfx::SampleCount::MULTIPLE_BALANCE : gfx::SampleCount::ONE;
         for (auto &colorAttachment : info.renderPassInfo.colorAttachments) {
             _colorTextures.pushBack(
                 device->createTexture({gfx::TextureType::TEX2D,
                                        gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED | gfx::TextureUsageBit::TRANSFER_SRC,
                                        colorAttachment.format,
                                        _width,
-                                       _height}));
+                                       _height,
+                                       gfx::TextureFlagBit::NONE,
+                                       1,
+                                       1,
+                                       sampleCount}));
         }
         if (info.renderPassInfo.depthStencilAttachment.format != gfx::Format::UNKNOWN) {
             _depthStencilTexture = device->createTexture({gfx::TextureType::TEX2D,
                                                           gfx::TextureUsageBit::DEPTH_STENCIL_ATTACHMENT | gfx::TextureUsageBit::SAMPLED,
                                                           info.renderPassInfo.depthStencilAttachment.format,
                                                           _width,
-                                                          _height});
+                                                          _height,
+                                                          gfx::TextureFlagBit::NONE,
+                                                          1,
+                                                          1,
+                                                          sampleCount});
         }
     }
 
@@ -110,9 +120,11 @@ void RenderWindow::resize(uint32_t width, uint32_t height) {
     } else {
         for (auto *colorTexture : _colorTextures) {
             colorTexture->resize(width, height);
+            _antialiased |= colorTexture->getInfo().samples != gfx::SampleCount::ONE;
         }
         if (_depthStencilTexture != nullptr) {
             _depthStencilTexture->resize(width, height);
+            _antialiased |= _depthStencilTexture->getInfo().samples != gfx::SampleCount::ONE;
         }
         _width = width;
         _height = height;

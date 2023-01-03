@@ -40,6 +40,7 @@ struct IRenderWindowInfo {
     uint32_t height{0};
     gfx::RenderPassInfo renderPassInfo;
     gfx::Swapchain *swapchain{nullptr};
+    bool antiAliasing{false};
 };
 
 /**
@@ -119,9 +120,12 @@ public:
 
     inline const ccstd::vector<IntrusivePtr<Camera>> &getCameras() const { return _cameras; }
 
+    inline const bool antiAliased() const { return _antialiased; }
+
 private:
     void generateFrameBuffer();
 
+    bool _antialiased{false};
     uint32_t _width{1};
     uint32_t _height{1};
     gfx::Swapchain *_swapchain{nullptr};
