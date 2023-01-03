@@ -23,6 +23,7 @@
 */
 import { screenAdapter } from 'pal/screen-adapter';
 import { Orientation } from '../../../pal/screen-adapter/enum-type';
+import { gfx } from '../../../typedoc-index';
 import {
     TextureType, TextureUsageBit, Format, RenderPass, Texture, Framebuffer,
     RenderPassInfo, Device, TextureInfo, FramebufferInfo, Swapchain, SurfaceTransform, SampleCount, TextureFlagBit,
@@ -36,7 +37,7 @@ export interface IRenderWindowInfo {
     height: number;
     renderPassInfo: RenderPassInfo;
     swapchain?: Swapchain;
-    antiAliasing?: boolean;
+    sampleCount?: gfx.SampleCount;
 }
 
 const orientationMap: Record<Orientation, SurfaceTransform> = {
@@ -130,7 +131,7 @@ export class RenderWindow {
             this._colorTextures.push(info.swapchain.colorTexture);
             this._depthStencilTexture = info.swapchain.depthStencilTexture;
         } else {
-            const sampleCount = info.antiAliasing ? SampleCount.MULTIPLE_BALANCE : SampleCount.ONE;
+            const sampleCount = info.sampleCount;
             for (let i = 0; i < info.renderPassInfo.colorAttachments.length; i++) {
                 this._colorTextures.push(device.createTexture(new TextureInfo(
                     TextureType.TEX2D,

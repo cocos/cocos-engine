@@ -23,7 +23,7 @@
 #pragma once
 
 #include <algorithm>
-#include <set>
+
 #include "base/Macros.h"
 #include "base/std/container/unordered_map.h"
 #include "gfx-base/GFXDef-common.h"
@@ -621,42 +621,6 @@ public:
         return cacheMap[glResource][mipLevel].glFramebuffer;
     }
 
-    GLuint getFramebufferByHash(GLES3GPUFramebuffer *gpuFrameBuffer) {
-        auto seed = hashFramebuffer(gpuFrameBuffer);
-        auto iter = _multiAttachmentMap.find(seed);
-        return iter == _multiAttachmentMap.end() ? 0 : iter->second;
-    }
-
-    void cacheByHash(GLES3GPUFramebuffer *gpuFrameBuffer, GLuint glFBO) {
-        auto seed = hashFramebuffer(gpuFrameBuffer);
-        _multiAttachmentMap[seed] = glFBO;
-    }
-
-    void removeCache(GLES3GPUFramebuffer *gpuFrameBuffer, GLuint glFBO) {
-        auto seed = hashFramebuffer(gpuFrameBuffer);
-        auto iter = _multiAttachmentMap.find(seed);
-        if (iter != _multiAttachmentMap.end()) {
-            _multiAttachmentMap.erase(iter);
-        }
-    }
-
-    bool isZombieObject(GLuint glFBO) {
-        return _zombieObject.find(glFBO) != _zombieObject.end();
-    }
-
-    void recordZombie(GLuint glFBO) {
-        if (glFBO) {
-            _zombieObject.emplace(glFBO);
-        }
-    }
-
-    void removeZombie(GLuint glFBO) {
-        auto iter = _zombieObject.find(glFBO);
-        if (iter != _zombieObject.end()) {
-            _zombieObject.erase(iter);
-        }
-    }
-
     void onTextureDestroy(const GLES3GPUTexture *gpuTexture) {
         bool isTexture = gpuTexture->glTexture;
         GLuint glResource = isTexture ? gpuTexture->glTexture : gpuTexture->glRenderbuffer;
@@ -677,28 +641,6 @@ public:
     }
 
 private:
-    ccstd::hash_t hashFramebuffer(const GLES3GPUFramebuffer *gpuFrameBuffer) {
-        auto *ds = gpuFrameBuffer->gpuDepthStencilView;
-        const auto &colors = gpuFrameBuffer->gpuColorViews;
-        ccstd::hash_t seed{0};
-        if (ds) {
-            seed = (static_cast<uint32_t>(colors.size()) + 1) * 4;
-            ccstd::hash_combine(seed, ds);
-            ccstd::hash_combine(seed, ds->gpuTexture->glTarget);
-            ccstd::hash_combine(seed, ds->gpuTexture->glRenderbuffer);
-            ccstd::hash_combine(seed, ds->gpuTexture->glTexture);
-        } else {
-            seed = static_cast<uint32_t>(colors.size()) * 4;
-        }
-        for (auto *colorTexture : colors) {
-            ccstd::hash_combine(seed, colorTexture);
-            ccstd::hash_combine(seed, colorTexture->gpuTexture->glTarget);
-            ccstd::hash_combine(seed, colorTexture->gpuTexture->glRenderbuffer);
-            ccstd::hash_combine(seed, colorTexture->gpuTexture->glTexture);
-        }
-        return seed;
-    }
-
     GLES3GPUStateCache *_cache = nullptr;
 
     struct FramebufferRecord {
@@ -708,8 +650,6 @@ private:
     using CacheMap = ccstd::unordered_map<GLuint, ccstd::vector<FramebufferRecord>>;
     CacheMap _renderbufferMap; // renderbuffer -> mip level -> framebuffer
     CacheMap _textureMap;      // texture -> mip level -> framebuffer
-    ccstd::unordered_map<size_t, GLuint> _multiAttachmentMap;
-    std::set<GLuint> _zombieObject;
 };
 
 class GLES3GPUFramebufferHub final {

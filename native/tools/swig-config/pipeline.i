@@ -76,6 +76,7 @@ using namespace cc;
 %ignore cc::pipeline::RenderPipeline::fgStrHandleOutColorTexture;
 %ignore cc::pipeline::RenderPipeline::fgStrHandlePostprocessPass;
 %ignore cc::pipeline::RenderPipeline::fgStrHandleBloomOutTexture;
+%ignore cc::pipeline::RenderPipeline::fgStrHandleMSAATexture;
 
 %ignore cc::pipeline::ForwardPipeline::fgStrHandleForwardColorTexture;
 %ignore cc::pipeline::ForwardPipeline::fgStrHandleForwardDepthTexture;

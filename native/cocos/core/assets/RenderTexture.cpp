@@ -112,13 +112,12 @@ void RenderTexture::initWindow(const IRenderTextureCreateInfo &info) {
     windowInfo.title = _name;
     windowInfo.width = _width;
     windowInfo.height = _height;
-    windowInfo.sampleCount = gfx::SampleCount::MULTIPLE_QUALITY;
+    windowInfo.sampleCount = info.sampleCount;
     if (info.passInfo.has_value()) {
         windowInfo.renderPassInfo = info.passInfo.value();
     } else {
         windowInfo.renderPassInfo = getDefaultRenderPassInfo(device);
     }
-    windowInfo.renderPassInfo.colorAttachments[0].sampleCount = info.antiAliasing ? gfx::SampleCount::MULTIPLE_BALANCE : gfx::SampleCount::ONE;
 
     if (_window != nullptr) {
         _window->destroy();

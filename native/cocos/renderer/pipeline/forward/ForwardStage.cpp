@@ -37,7 +37,6 @@
 #include "../RenderQueue.h"
 #include "../helper/Utils.h"
 #include "ForwardPipeline.h"
-#include "GFXExternalDefines.h"
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXFramebuffer.h"
 #include "pipeline/UIPhase.h"
@@ -169,7 +168,7 @@ void ForwardStage::render(scene::Camera *camera) {
     uint32_t width = static_cast<uint32_t>(static_cast<float>(camera->getWindow()->getWidth()) * shadingScale);
     uint32_t height = static_cast<uint32_t>(static_cast<float>(camera->getWindow()->getHeight()) * shadingScale);
     gfx::Format colorFormat = sceneData->isHDR() ? gfx::Format::RGBA16F : gfx::Format::RGBA8;
-    gfx::SampleCount samplerCount = camera->getWindow()->getSamplerCount();
+    gfx::SampleCount samplerCount = camera->getWindow()->getSampleCount();
 
     if (swapChain != nullptr) {
         shadingScale = 1.F;
@@ -177,8 +176,6 @@ void ForwardStage::render(scene::Camera *camera) {
     }
 
     auto forwardSetup = [&](framegraph::PassNodeBuilder &builder, RenderData &data) {
-        constexpr bool msaaRT = MSAA_RT && !MSAA_SWAPCHAIN;
-
         if (hasFlag(static_cast<gfx::ClearFlags>(camera->getClearFlag()), gfx::ClearFlagBit::COLOR)) {
             _clearColors[0].x = camera->getClearColor().x;
             _clearColors[0].y = camera->getClearColor().y;
@@ -188,14 +185,13 @@ void ForwardStage::render(scene::Camera *camera) {
         // color
 // for inserting ar background before forward stage
 #if CC_USE_AR_MODULE
-        outputTexHandle = RenderPipeline::fgStrHandleOutColorTexture;
         framegraph::RenderTargetAttachment::Descriptor colorAttachmentInfo;
         colorAttachmentInfo.usage = framegraph::RenderTargetAttachment::Usage::COLOR;
         colorAttachmentInfo.clearColor = _clearColors[0];
         colorAttachmentInfo.loadOp = gfx::LoadOp::CLEAR;
         auto clearFlags = static_cast<gfx::ClearFlagBit>(camera->getClearFlag());
 
-        data.outputTex = framegraph::TextureHandle(builder.readFromBlackboard(outputTexHandle));
+        data.outputTex = framegraph::TextureHandle(builder.readFromBlackboard(RenderPipeline::fgStrHandleOutColorTexture));
         if (!data.outputTex.isValid()) {
             framegraph::Texture::Descriptor colorTexInfo;
             colorTexInfo.format = sceneData->isHDR() ? gfx::Format::RGBA16F : gfx::Format::RGBA8;
@@ -205,7 +201,7 @@ void ForwardStage::render(scene::Camera *camera) {
             if (shadingScale != 1.F) {
                 colorTexInfo.usage |= gfx::TextureUsageBit::TRANSFER_SRC;
             }
-            data.outputTex = builder.create(outputTexHandle, colorTexInfo);
+            data.outputTex = builder.create(RenderPipeline::fgStrHandleOutColorTexture, colorTexInfo);
 
             if (!hasFlag(clearFlags, gfx::ClearFlagBit::COLOR)) {
                 if (hasFlag(clearFlags, static_cast<gfx::ClearFlagBit>(skyboxFlag))) {
@@ -217,9 +213,6 @@ void ForwardStage::render(scene::Camera *camera) {
         } else {
             colorAttachmentInfo.loadOp = gfx::LoadOp::LOAD;
         }
-        colorAttachmentInfo.beginAccesses = colorAttachmentInfo.endAccesses = gfx::AccessFlagBit::COLOR_ATTACHMENT_WRITE;
-
-        data.outputTex = builder.write(data.outputTex, colorAttachmentInfo);
 #else
         framegraph::Texture::Descriptor colorTexInfo;
         colorTexInfo.format = colorFormat;
@@ -242,6 +235,8 @@ void ForwardStage::render(scene::Camera *camera) {
                 colorAttachmentInfo.loadOp = gfx::LoadOp::LOAD;
             }
         }
+#endif
+
         colorAttachmentInfo.beginAccesses = colorAttachmentInfo.endAccesses = gfx::AccessFlagBit::COLOR_ATTACHMENT_WRITE;
 
         data.outputTex = builder.write(data.outputTex, colorAttachmentInfo);
@@ -249,7 +244,7 @@ void ForwardStage::render(scene::Camera *camera) {
 
         if (samplerCount != gfx::SampleCount::ONE) {
             colorAttachmentInfo.samples = samplerCount;
-            colorTexInfo.samples = gfx::SampleCount::MULTIPLE_BALANCE;
+            colorTexInfo.samples = samplerCount;
             data.msaaTex = builder.create(RenderPipeline::fgStrHandleMSAATexture, colorTexInfo);
             data.msaaTex = builder.write(data.msaaTex, colorAttachmentInfo);
             builder.writeToBlackboard(RenderPipeline::fgStrHandleMSAATexture, data.msaaTex);
@@ -262,33 +257,24 @@ void ForwardStage::render(scene::Camera *camera) {
             gfx::Format::DEPTH_STENCIL,
             static_cast<uint32_t>(static_cast<float>(camera->getWindow()->getWidth()) * shadingScale),
             static_cast<uint32_t>(static_cast<float>(camera->getWindow()->getHeight()) * shadingScale),
-            gfx::TextureFlags::NONE,
-            1,
-            1,
-            sampleCount,
         };
         depthTexInfo.samples = samplerCount;
 
         framegraph::RenderTargetAttachment::Descriptor depthAttachmentInfo;
+        depthAttachmentInfo.usage = framegraph::RenderTargetAttachment::Usage::DEPTH_STENCIL;
         depthAttachmentInfo.loadOp = gfx::LoadOp::CLEAR;
         depthAttachmentInfo.clearDepth = camera->getClearDepth();
         depthAttachmentInfo.clearStencil = camera->getClearStencil();
         depthAttachmentInfo.beginAccesses = gfx::AccessFlagBit::DEPTH_STENCIL_ATTACHMENT_WRITE;
         depthAttachmentInfo.endAccesses = gfx::AccessFlagBit::DEPTH_STENCIL_ATTACHMENT_WRITE;
-        depthAttachmentInfo.samples = sampleCount;
-    #if !CC_USE_AR_MODULE
+#if !CC_USE_AR_MODULE
         if (static_cast<gfx::ClearFlagBit>(clearFlags & gfx::ClearFlagBit::DEPTH_STENCIL) != gfx::ClearFlagBit::DEPTH_STENCIL && (!hasFlag(clearFlags, gfx::ClearFlagBit::DEPTH) || !hasFlag(clearFlags, gfx::ClearFlagBit::STENCIL))) {
             depthAttachmentInfo.loadOp = gfx::LoadOp::LOAD;
         }
-    #endif
-
-        auto depthHandle = RenderPipeline::fgStrHandleOutDepthTexture;
-        depthAttachmentInfo.usage = framegraph::RenderTargetAttachment::Usage::DEPTH_STENCIL;
+#endif
         data.depth = builder.create(RenderPipeline::fgStrHandleOutDepthTexture, depthTexInfo);
         data.depth = builder.write(data.depth, depthAttachmentInfo);
-        
-
-        builder.writeToBlackboard(depthHandle, data.depth);
+        builder.writeToBlackboard(RenderPipeline::fgStrHandleOutDepthTexture, data.depth);
         builder.setViewport(pipeline->getViewport(camera), pipeline->getScissor(camera));
     };
 
@@ -309,24 +295,22 @@ void ForwardStage::render(scene::Camera *camera) {
             _renderQueues[1]->recordCommandBuffer(_device, camera, renderPass, cmdBuff);
         }
 
-    #if CC_USE_GEOMETRY_RENDERER
+#if CC_USE_GEOMETRY_RENDERER
         if (camera->getGeometryRenderer()) {
             camera->getGeometryRenderer()->render(renderPass, cmdBuff, pipeline->getPipelineSceneData());
         }
-    #endif
+#endif
 
         _uiPhase->render(camera, renderPass);
         renderProfiler(renderPass, cmdBuff, _pipeline->getProfiler(), camera);
-    #if CC_USE_DEBUG_RENDERER
+#if CC_USE_DEBUG_RENDERER
         renderDebugRenderer(renderPass, cmdBuff, _pipeline->getPipelineSceneData(), camera);
-    #endif
+#endif
     };
 
-    // resolve operation needs a texture, gl swapchain is memoryless which can't be moved to if current render target is an msaa fbo.
-    constexpr bool canMove = MOVE_TO_SWAPCHAIN;
     // add pass
     pipeline->getFrameGraph().addPass<RenderData>(static_cast<uint32_t>(ForwardInsertPoint::IP_FORWARD), ForwardPipeline::fgStrHandleForwardPass, forwardSetup, forwardExec);
-    pipeline->getFrameGraph().presentFromBlackboard(RenderPipeline::fgStrHandleOutColorTexture, camera->getWindow()->getFramebuffer()->getColorTextures()[0], canMove);
+    pipeline->getFrameGraph().presentFromBlackboard(RenderPipeline::fgStrHandleOutColorTexture, camera->getWindow()->getFramebuffer()->getColorTextures()[0], true);
 }
 
 } // namespace pipeline

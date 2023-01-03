@@ -1459,7 +1459,6 @@ static GLES2GPUFramebuffer::GLFramebufferInfo doCreateFramebuffer(GLES2Device *d
         GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, res.glFramebuffer));
         cache->glFramebuffer = res.glFramebuffer;
     }
-    device->framebufferCacheMap()->removeZombie(res.glFramebuffer);
 
     drawBuffers.clear();
 
@@ -1496,8 +1495,8 @@ static GLES2GPUFramebuffer::GLFramebufferInfo doCreateFramebuffer(GLES2Device *d
             GL_CHECK(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthStencil->glTarget, depthStencil->glTexture, 0));
             if (hasStencil) GL_CHECK(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, depthStencil->glTarget, depthStencil->glTexture, 0));
         } else {
-            GL_CHECK(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthStencil->glTarget, depthStencil->glRenderbuffer));
-            if (hasStencil) GL_CHECK(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, depthStencil->glTarget, depthStencil->glRenderbuffer));
+            GL_CHECK(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthStencil->glTarget, depthStencil->glTexture));
+            if (hasStencil) GL_CHECK(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, depthStencil->glTarget, depthStencil->glTexture));
         }
 
         // fallback to blit-based manual resolve
@@ -1561,7 +1560,7 @@ static void doCreateFramebufferInstance(GLES2Device *device, GLES2GPUFramebuffer
                                         const uint32_t *resolves = nullptr, uint32_t depthStencilResolve = INVALID_BINDING) {
     GLES2GPUSwapchain *swapchain{getSwapchainIfExists(gpuFBO->gpuColorTextures, colors.data(), colors.size())};
 
-    if (!swapchain || colors.size() > 1) {
+    if (!swapchain) {
         const GLES2GPUTexture *depthStencilTexture = nullptr;
         if (depthStencil != INVALID_BINDING) {
             depthStencilTexture = depthStencil < gpuFBO->gpuColorTextures.size()
@@ -1575,34 +1574,8 @@ static void doCreateFramebufferInstance(GLES2Device *device, GLES2GPUFramebuffer
                                              : gpuFBO->gpuDepthStencilTexture;
         }
 
-        GLES2GPUFramebuffer::GLFramebufferInfo fbInfo;
-        auto wIter = std::min_element(gpuFBO->gpuColorTextures.begin(), gpuFBO->gpuColorTextures.end(), [](const GLES2GPUTexture *lhs, const GLES2GPUTexture *rhs) { return lhs->width < rhs->width; });
-        auto hIter = std::min_element(gpuFBO->gpuColorTextures.begin(), gpuFBO->gpuColorTextures.end(), [](const GLES2GPUTexture *lhs, const GLES2GPUTexture *rhs) { return lhs->height < rhs->height; });
-        fbInfo.width = hIter == gpuFBO->gpuColorTextures.end() ? 0 : (*wIter)->width;
-        fbInfo.height = wIter == gpuFBO->gpuColorTextures.end() ? 0 : (*hIter)->height;
-        if (gpuFBO->gpuDepthStencilTexture) {
-            auto dsWidth = gpuFBO->gpuDepthStencilTexture->width;
-            auto dsHeight = gpuFBO->gpuDepthStencilTexture->height;
-            fbInfo.width = gpuFBO->gpuColorTextures.empty() ? dsWidth : std::min(fbInfo.width, dsWidth);
-            fbInfo.height = gpuFBO->gpuColorTextures.empty() ? dsWidth : std::min(fbInfo.height, dsHeight);
-        }
-
-        fbInfo.glFramebuffer = device->framebufferCacheMap()->getFramebufferByHash(gpuFBO);
-        if (fbInfo.glFramebuffer == 0) {
-            fbInfo = doCreateFramebuffer(device, gpuFBO->gpuColorTextures, colors.data(), utils::toUint(colors.size()),
-                                         depthStencilTexture, resolves, depthStencilResolveTexture, &outFBO->resolveMask);
-        } else {
-            // register to framebuffer caches
-            auto colorCount = std::count_if(gpuFBO->gpuColorTextures.begin(), gpuFBO->gpuColorTextures.end(),
-                                            [](const GLES2GPUTexture *view) {
-                                                return view->usage != TextureUsageBit::DEPTH_STENCIL_ATTACHMENT &&
-                                                       view->samples == SampleCount::ONE;
-                                            });
-            if (colorCount == 1) device->framebufferCacheMap()->registerExternal(fbInfo.glFramebuffer, gpuFBO->gpuColorTextures[resolves[0]]);
-            if (depthStencilTexture) device->framebufferCacheMap()->registerExternal(fbInfo.glFramebuffer, depthStencilTexture);
-        }
-
-        outFBO->framebuffer.initialize(fbInfo);
+        outFBO->framebuffer.initialize(doCreateFramebuffer(device, gpuFBO->gpuColorTextures, colors.data(), colors.size(),
+                                                           depthStencilTexture, resolves, depthStencilResolveTexture, &outFBO->resolveMask));
         if (outFBO->resolveMask) {
             size_t resolveCount = outFBO->resolveMask & GL_COLOR_BUFFER_BIT ? colors.size() : 0U;
             GLES2GPUSwapchain *resolveSwapchain{getSwapchainIfExists(gpuFBO->gpuColorTextures, resolves, resolveCount)};
@@ -1644,14 +1617,12 @@ void cmdFuncGLES2CreateFramebuffer(GLES2Device *device, GLES2GPUFramebuffer *gpu
             gpuFBO->uberColorAttachmentIndices.push_back(i);
         }
         doCreateFramebufferInstance(device, gpuFBO, gpuFBO->uberColorAttachmentIndices, gpuFBO->uberDepthStencil, &gpuFBO->uberInstance);
-        device->framebufferCacheMap()->cacheByHash(gpuFBO, gpuFBO->uberInstance.framebuffer.getFramebuffer());
     } else {
         for (const auto &subpass : gpuFBO->gpuRenderPass->subpasses) {
             gpuFBO->instances.emplace_back();
             auto &fboInst = gpuFBO->instances.back();
             doCreateFramebufferInstance(device, gpuFBO, subpass.colors, subpass.depthStencil, &fboInst,
                                         subpass.resolves.empty() ? nullptr : subpass.resolves.data(), subpass.depthStencilResolve);
-            device->framebufferCacheMap()->cacheByHash(gpuFBO, fboInst.framebuffer.getFramebuffer());
         }
     }
 }
@@ -1675,13 +1646,9 @@ void cmdFuncGLES2DestroyFramebuffer(GLES2Device *device, GLES2GPUFramebuffer *gp
     auto *framebufferCacheMap = device->framebufferCacheMap();
 
     for (auto &instance : gpuFBO->instances) {
-        framebufferCacheMap->removeCache(gpuFBO, instance.framebuffer.getFramebuffer());
-        framebufferCacheMap->recordZombie(instance.framebuffer.getFramebuffer());
         instance.framebuffer.destroy(cache, framebufferCacheMap);
         instance.resolveFramebuffer.destroy(cache, framebufferCacheMap);
     }
-    framebufferCacheMap->removeCache(gpuFBO, gpuFBO->uberInstance.framebuffer.getFramebuffer());
-    framebufferCacheMap->recordZombie(gpuFBO->uberInstance.framebuffer.getFramebuffer());
     gpuFBO->instances.clear();
 
     gpuFBO->uberInstance.framebuffer.destroy(cache, framebufferCacheMap);
@@ -1719,18 +1686,9 @@ void cmdFuncGLES2BeginRenderPass(GLES2Device *device, uint32_t subpassIdx, GLES2
     }
 
     if (gpuFramebuffer && gpuRenderPass) {
-        auto &instance = gpuFramebuffer->usesFBF ? gpuFramebuffer->uberInstance : gpuFramebuffer->instances[subpassIdx];
+        const auto &instance = gpuFramebuffer->usesFBF ? gpuFramebuffer->uberInstance : gpuFramebuffer->instances[subpassIdx];
 
         GLuint glFramebuffer = instance.framebuffer.getFramebuffer();
-
-        auto *framebufferCacheMap = device->framebufferCacheMap();
-        if (framebufferCacheMap->isZombieObject(glFramebuffer)) {
-            gpuFramebuffer->instances.clear();
-            // last time has been intercept by cache, so no need to destroy
-            cmdFuncGLES2CreateFramebuffer(device, gpuFramebuffer);
-            instance = gpuFramebuffer->usesFBF ? gpuFramebuffer->uberInstance : gpuFramebuffer->instances[subpassIdx];
-        }
-
         device->context()->makeCurrent(instance.framebuffer.swapchain, instance.framebuffer.swapchain);
 
         if (cache->glFramebuffer != glFramebuffer) {

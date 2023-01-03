@@ -34,7 +34,7 @@ struct IRenderTextureCreateInfo {
     uint32_t width;
     uint32_t height;
     ccstd::optional<gfx::RenderPassInfo> passInfo;
-    bool antiAliasing{false};
+    gfx::SampleCount sampleCount{gfx::SampleCount::ONE};
 };
 namespace scene {
 class RenderWindow;

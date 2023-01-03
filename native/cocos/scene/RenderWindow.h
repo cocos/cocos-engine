@@ -40,7 +40,7 @@ struct IRenderWindowInfo {
     uint32_t height{0};
     gfx::RenderPassInfo renderPassInfo;
     gfx::Swapchain *swapchain{nullptr};
-    gfx::SampleCount sampleCount = gfx::SampleCount::ONE;
+    gfx::SampleCount sampleCount{gfx::SampleCount::ONE};
 };
 
 /**
@@ -122,7 +122,7 @@ public:
 
     gfx::Texture *getOutputTexture() const;
 
-    gfx::SampleCount getSamplerCount() const { return _sampleCount; }
+    gfx::SampleCount getSampleCount() const { return _sampleCount; }
 
 private:
     void generateFrameBuffer();
@@ -137,7 +137,7 @@ private:
     IntrusivePtr<gfx::Framebuffer> _frameBuffer;
     ccstd::vector<IntrusivePtr<Camera>> _cameras;
     RefVector<gfx::Texture *> _colorTextures;
-    gfx::SampleCount _sampleCount = gfx::SampleCount::ONE;
+    gfx::SampleCount _sampleCount{gfx::SampleCount::ONE};
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(RenderWindow);
 };

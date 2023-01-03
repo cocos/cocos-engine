@@ -227,14 +227,6 @@ void FrameGraph::cull() {
             CC_ASSERT(handle.isValid());
             ++_resourceNodes[handle].readerCount;
         }
-
-        // msaa resolve, msaa texture implicitly read
-        for (const auto &attachment : passNode->_attachments) {
-            CC_ASSERT(attachment.textureHandle.isValid());
-            if (attachment.desc.resolveTarget.isValid()) {
-                ++_resourceNodes[attachment.textureHandle].readerCount;
-            }
-        }
     }
 
     static ccstd::vector<const ResourceNode *> stack;

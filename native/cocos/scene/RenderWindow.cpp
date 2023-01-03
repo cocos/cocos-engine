@@ -70,29 +70,20 @@ bool RenderWindow::initialize(gfx::Device *device, IRenderWindowInfo &info) {
         _colorTextures.pushBack(info.swapchain->getColorTexture());
         _depthStencilTexture = info.swapchain->getDepthStencilTexture();
     } else {
-        auto sampleCount = info.antiAliasing ? gfx::SampleCount::MULTIPLE_BALANCE : gfx::SampleCount::ONE;
         for (auto &colorAttachment : info.renderPassInfo.colorAttachments) {
             _colorTextures.pushBack(
                 device->createTexture({gfx::TextureType::TEX2D,
                                        gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED | gfx::TextureUsageBit::TRANSFER_SRC,
                                        colorAttachment.format,
                                        _width,
-                                       _height,
-                                       gfx::TextureFlagBit::NONE,
-                                       1,
-                                       1,
-                                       sampleCount}));
+                                       _height}));
         }
         if (info.renderPassInfo.depthStencilAttachment.format != gfx::Format::UNKNOWN) {
             _depthStencilTexture = device->createTexture({gfx::TextureType::TEX2D,
                                                           gfx::TextureUsageBit::DEPTH_STENCIL_ATTACHMENT | gfx::TextureUsageBit::SAMPLED,
                                                           info.renderPassInfo.depthStencilAttachment.format,
                                                           _width,
-                                                          _height,
-                                                          gfx::TextureFlagBit::NONE,
-                                                          1,
-                                                          1,
-                                                          sampleCount});
+                                                          _height});
         }
     }
 

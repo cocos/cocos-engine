@@ -7513,6 +7513,43 @@ static bool js_cc_IRenderTextureCreateInfo_passInfo_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_IRenderTextureCreateInfo_passInfo_get) 
 
+static bool js_cc_IRenderTextureCreateInfo_sampleCount_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::IRenderTextureCreateInfo *arg1 = (cc::IRenderTextureCreateInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IRenderTextureCreateInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->sampleCount, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_IRenderTextureCreateInfo_sampleCount_set) 
+
+static bool js_cc_IRenderTextureCreateInfo_sampleCount_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::IRenderTextureCreateInfo *arg1 = (cc::IRenderTextureCreateInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IRenderTextureCreateInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->sampleCount, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->sampleCount, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_IRenderTextureCreateInfo_sampleCount_get) 
+
 static bool js_new_cc_IRenderTextureCreateInfo(se::State& s) // NOLINT(readability-identifier-naming)
 {
     CC_UNUSED bool ok = true;
@@ -7572,6 +7609,12 @@ bool sevalue_to_native(const se::Value &from, cc::IRenderTextureCreateInfo * to,
     }
     
     
+    json->getProperty("sampleCount", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->sampleCount), ctx);
+    }
+    
+    
     return ok;
 }
 
@@ -7584,6 +7627,7 @@ bool js_register_cc_IRenderTextureCreateInfo(se::Object* obj) {
     cls->defineProperty("width", _SE(js_cc_IRenderTextureCreateInfo_width_get), _SE(js_cc_IRenderTextureCreateInfo_width_set)); 
     cls->defineProperty("height", _SE(js_cc_IRenderTextureCreateInfo_height_get), _SE(js_cc_IRenderTextureCreateInfo_height_set)); 
     cls->defineProperty("passInfo", _SE(js_cc_IRenderTextureCreateInfo_passInfo_get), _SE(js_cc_IRenderTextureCreateInfo_passInfo_set)); 
+    cls->defineProperty("sampleCount", _SE(js_cc_IRenderTextureCreateInfo_sampleCount_get), _SE(js_cc_IRenderTextureCreateInfo_sampleCount_set)); 
     
     
     
