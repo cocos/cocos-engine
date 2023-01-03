@@ -24,7 +24,7 @@
 
 /* eslint-disable max-len */
 import { EffectAsset } from '../../asset/assets';
-import { Attribute, DescriptorSetLayout, DESCRIPTOR_BUFFER_TYPE, DESCRIPTOR_SAMPLER_TYPE, Device, MemoryAccessBit, PipelineLayout, PipelineLayoutInfo, Shader, ShaderInfo, ShaderStage, ShaderStageFlagBit, Type, Uniform, UniformBlock, UniformInputAttachment, UniformSampler, UniformSamplerTexture, UniformStorageBuffer, UniformStorageImage, UniformTexture } from '../../gfx';
+import { Attribute, DescriptorSetLayout, DescriptorType, DESCRIPTOR_BUFFER_TYPE, DESCRIPTOR_SAMPLER_TYPE, Device, MemoryAccessBit, PipelineLayout, PipelineLayoutInfo, Shader, ShaderInfo, ShaderStage, ShaderStageFlagBit, Type, Uniform, UniformBlock, UniformInputAttachment, UniformSampler, UniformSamplerTexture, UniformStorageBuffer, UniformStorageImage, UniformTexture } from '../../gfx';
 import { genHandles, getActiveAttributes, getCombinationDefines, getShaderInstanceName, getSize, getVariantKey, populateMacros, prepareDefines } from '../../render-scene/core/program-utils';
 import { getDeviceShaderVersion, MacroRecord } from '../../render-scene';
 import { IProgramInfo } from '../../render-scene/core/program-lib';
@@ -339,25 +339,46 @@ function populateLocalShaderInfo (
     }
 }
 
-function setFlattenedBinding (setOffsets: number[],
-    descriptors: UniformBlock[]
-    | UniformSamplerTexture[]
+function getIDescriptorSetLayoutInfoUniformBlockCapacity (info: IDescriptorSetLayoutInfo): number {
+    let capacity = 0;
+    for (const binding of info.bindings) {
+        if (binding.descriptorType === DescriptorType.UNIFORM_BUFFER
+            || binding.descriptorType === DescriptorType.DYNAMIC_UNIFORM_BUFFER) {
+            capacity += binding.count;
+        }
+    }
+    return capacity;
+}
+
+function getIDescriptorSetLayoutInfoSamplerTextureCapacity (info: IDescriptorSetLayoutInfo): number {
+    let capacity = 0;
+    for (const binding of info.bindings) {
+        if (binding.descriptorType !== DescriptorType.UNIFORM_BUFFER
+            && binding.descriptorType !== DescriptorType.DYNAMIC_UNIFORM_BUFFER) {
+            capacity += binding.count;
+        }
+    }
+    return capacity;
+}
+
+function setFlattenedUniformBlockBinding (setOffsets: number[],
+    descriptors: UniformBlock[]) {
+    for (const d of descriptors) {
+        d.flattened = setOffsets[d.set] + d.binding;
+    }
+}
+
+function setFlattenedSamplerTextureBinding (setOffsets: number[],
+    uniformBlockCapacities: number[],
+    descriptors: UniformSamplerTexture[]
     | UniformSampler[]
     | UniformTexture[]
     | UniformStorageBuffer[]
     | UniformStorageImage[]
     | UniformInputAttachment[]) {
     for (const d of descriptors) {
-        d.flattened = setOffsets[d.set] + d.binding;
+        d.flattened = setOffsets[d.set] + d.binding - uniformBlockCapacities[d.set];
     }
-}
-
-function getIDescriptorSetLayoutInfoCapacity (info: IDescriptorSetLayoutInfo): number {
-    let capacity = 0;
-    for (const binding of info.bindings) {
-        capacity += binding.count;
-    }
-    return capacity;
 }
 
 function calculateFlattenedBinding (
@@ -365,30 +386,58 @@ function calculateFlattenedBinding (
     fixedInstanceDescriptorSetLayout: IDescriptorSetLayoutInfo | null,
     shaderInfo: ShaderInfo,
 ) {
-    const passCapacity = descriptorSets[UpdateFrequency.PER_PASS]?.capacity || 0;
-    const phaseCapacity = descriptorSets[UpdateFrequency.PER_PHASE]?.capacity || 0;
-    // const batchCapacity = descriptorSets[UpdateFrequency.PER_BATCH]?.capacity || 0; // dynamic size
-    const instanceCapacity = fixedInstanceDescriptorSetLayout
-        ? getIDescriptorSetLayoutInfoCapacity(fixedInstanceDescriptorSetLayout)
-        : (descriptorSets[UpdateFrequency.PER_INSTANCE]?.capacity || 0);
+    const uniformBlockCapacities = new Array(4);
+    {
+        const passCapacity = descriptorSets[UpdateFrequency.PER_PASS]?.uniformBlockCapacity || 0;
+        const phaseCapacity = descriptorSets[UpdateFrequency.PER_PHASE]?.uniformBlockCapacity || 0;
+        const batchCapacity = descriptorSets[UpdateFrequency.PER_BATCH]?.uniformBlockCapacity || 0; // dynamic size
+        const instanceCapacity = fixedInstanceDescriptorSetLayout
+            ? getIDescriptorSetLayoutInfoUniformBlockCapacity(fixedInstanceDescriptorSetLayout)
+            : (descriptorSets[UpdateFrequency.PER_INSTANCE]?.uniformBlockCapacity || 0);
 
-    const passOffset = 0;
-    const phaseOffset = passOffset + passCapacity;
-    const instanceOffset = phaseOffset + phaseCapacity;
-    const batchOffset = instanceOffset + instanceCapacity;
+        uniformBlockCapacities[_setIndex[UpdateFrequency.PER_PASS]] = passCapacity;
+        uniformBlockCapacities[_setIndex[UpdateFrequency.PER_PHASE]] = phaseCapacity;
+        uniformBlockCapacities[_setIndex[UpdateFrequency.PER_BATCH]] = batchCapacity;
+        uniformBlockCapacities[_setIndex[UpdateFrequency.PER_INSTANCE]] = instanceCapacity;
 
-    const offsets = new Array(4);
-    offsets[_setIndex[UpdateFrequency.PER_PASS]] = passOffset;
-    offsets[_setIndex[UpdateFrequency.PER_PHASE]] = phaseOffset;
-    offsets[_setIndex[UpdateFrequency.PER_BATCH]] = batchOffset;
-    offsets[_setIndex[UpdateFrequency.PER_INSTANCE]] = instanceOffset;
+        const passOffset = 0;
+        const phaseOffset = passOffset + passCapacity;
+        const instanceOffset = phaseOffset + phaseCapacity;
+        const batchOffset = instanceOffset + instanceCapacity;
 
-    setFlattenedBinding(offsets, shaderInfo.blocks);
-    setFlattenedBinding(offsets, shaderInfo.samplerTextures);
-    setFlattenedBinding(offsets, shaderInfo.samplers);
-    setFlattenedBinding(offsets, shaderInfo.textures);
-    setFlattenedBinding(offsets, shaderInfo.buffers);
-    setFlattenedBinding(offsets, shaderInfo.images);
+        const uniformBlockOffsets = new Array(4);
+        uniformBlockOffsets[_setIndex[UpdateFrequency.PER_PASS]] = passOffset;
+        uniformBlockOffsets[_setIndex[UpdateFrequency.PER_PHASE]] = phaseOffset;
+        uniformBlockOffsets[_setIndex[UpdateFrequency.PER_BATCH]] = batchOffset;
+        uniformBlockOffsets[_setIndex[UpdateFrequency.PER_INSTANCE]] = instanceOffset;
+
+        setFlattenedUniformBlockBinding(uniformBlockOffsets, shaderInfo.blocks);
+    }
+    {
+        const passCapacity = descriptorSets[UpdateFrequency.PER_PASS]?.samplerTextureCapacity || 0;
+        const phaseCapacity = descriptorSets[UpdateFrequency.PER_PHASE]?.samplerTextureCapacity || 0;
+        // const batchCapacity = descriptorSets[UpdateFrequency.PER_BATCH]?.capacity || 0; // dynamic size
+        const instanceCapacity = fixedInstanceDescriptorSetLayout
+            ? getIDescriptorSetLayoutInfoSamplerTextureCapacity(fixedInstanceDescriptorSetLayout)
+            : (descriptorSets[UpdateFrequency.PER_INSTANCE]?.samplerTextureCapacity || 0);
+
+        const passOffset = 0;
+        const phaseOffset = passOffset + passCapacity;
+        const instanceOffset = phaseOffset + phaseCapacity;
+        const batchOffset = instanceOffset + instanceCapacity;
+
+        const samplerTextureOffsets = new Array(4);
+        samplerTextureOffsets[_setIndex[UpdateFrequency.PER_PASS]] = passOffset;
+        samplerTextureOffsets[_setIndex[UpdateFrequency.PER_PHASE]] = phaseOffset;
+        samplerTextureOffsets[_setIndex[UpdateFrequency.PER_BATCH]] = batchOffset;
+        samplerTextureOffsets[_setIndex[UpdateFrequency.PER_INSTANCE]] = instanceOffset;
+
+        setFlattenedSamplerTextureBinding(samplerTextureOffsets, uniformBlockCapacities, shaderInfo.samplerTextures);
+        setFlattenedSamplerTextureBinding(samplerTextureOffsets, uniformBlockCapacities, shaderInfo.samplers);
+        setFlattenedSamplerTextureBinding(samplerTextureOffsets, uniformBlockCapacities, shaderInfo.textures);
+        setFlattenedSamplerTextureBinding(samplerTextureOffsets, uniformBlockCapacities, shaderInfo.buffers);
+        setFlattenedSamplerTextureBinding(samplerTextureOffsets, uniformBlockCapacities, shaderInfo.images);
+    }
 }
 
 // make gfx.ShaderInfo
