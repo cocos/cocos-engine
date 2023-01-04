@@ -114,7 +114,7 @@ function copyTransformsWithFilter (target: TransformArray, source: Readonly<Tran
     const nTransforms = target.length;
     assertIsTrue(nTransforms === target.length);
     for (const involvedTransformIndex of filter.involvedTransforms) {
-        target.setSpan(involvedTransformIndex, source, involvedTransformIndex, 1);
+        target.copyRange(involvedTransformIndex, source, involvedTransformIndex, 1);
     }
 }
 

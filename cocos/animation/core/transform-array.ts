@@ -204,7 +204,7 @@ export class TransformArray {
      * Equivalent to `this.set(source.slice(sourceOffset, sourceOffset + size), targetOffset)`
      * except without perform the slicing.
      * */
-    public setSpan (
+    public copyRange (
         targetOffset: number,
         source: Readonly<TransformArray>,
         sourceOffset: number,
