@@ -307,6 +307,12 @@ export class Game extends EventTarget {
     public static readonly EVENT_RESUME = 'game_on_resume';
 
     /**
+     * @en Events triggered when the game pauses to resume running. <br>
+     * @zh 游戏关闭时触发的事件。<br>
+     */
+    public static readonly EVENT_CLOSE = 'game_on_close';
+
+    /**
      * @en Web Canvas 2d API as renderer backend.
      * @zh 使用 Web Canvas 2d API 作为渲染器后端。
      */
@@ -542,6 +548,7 @@ export class Game extends EventTarget {
         if (this._paused) { return; }
         this._pausedByEngine = true;
         this.pause();
+        this.emit(Game.EVENT_PAUSE);
     }
 
     /**
@@ -551,6 +558,7 @@ export class Game extends EventTarget {
     private resumeByEngine () {
         if (this._pausedByEngine) {
             this.resume();
+            this.emit(Game.EVENT_RESUME);
             this._pausedByEngine = false;
         }
     }
@@ -1027,6 +1035,7 @@ export class Game extends EventTarget {
     private _initEvents () {
         systemInfo.on('show', this._onShow, this);
         systemInfo.on('hide', this._onHide, this);
+        systemInfo.on('close', this._onClose, this);
     }
 
     private _onHide () {
@@ -1037,6 +1046,11 @@ export class Game extends EventTarget {
     private _onShow () {
         this.emit(Game.EVENT_SHOW);
         this.resumeByEngine();
+    }
+
+    private _onClose() {
+        this.emit(Game.EVENT_CLOSE);
+        systemInfo.exit();
     }
 
     //  @ Persist root node section

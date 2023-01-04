@@ -45,6 +45,8 @@ public:
 
     int32_t loop() override;
 
+    void exitLoop() override;
+
     ISystemWindow *createNativeWindow(uint32_t windowId, void *externalHandle) override;
 
 private:

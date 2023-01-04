@@ -69,6 +69,11 @@ public:
     virtual void pollEvent() = 0;
 
     /**
+     * @brief Exit loop.
+     */
+    virtual void exitLoop() = 0;
+
+    /**
      * @brief Get target system type.
      */
     using OSType = ISystem::OSType;

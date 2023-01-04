@@ -4616,7 +4616,7 @@ static bool js_cc_ISystemWindowManager_processEvent(se::State& s)
     
     ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments"); 
-    (arg1)->processEvent(arg2);
+    (arg1)->processEvent();
     
     
     return true;

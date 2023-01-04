@@ -79,4 +79,8 @@ void UniversalPlatform::onDestroy() {
     cocos_destory();
 }
 
+void UniversalPlatform::exitLoop() {
+
+}
+
 } // namespace cc

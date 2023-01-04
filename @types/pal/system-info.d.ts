@@ -50,6 +50,7 @@ declare module 'pal/system-info' {
         public restartJSVM (): void;
 
         public close (): void;
+        public exit(): void;
 
         on (event: PalSystemEvent, cb: (...args: any)=>void, target?: any): void;
         off (event: PalSystemEvent, cb?: (...args: any)=>void, target?: any): void;

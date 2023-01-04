@@ -80,6 +80,11 @@ public:
      */
     virtual void onDestroy();
 
+    /**
+     * @brief Exit loop.
+     */
+    virtual void exitLoop();
+
 private:
     ThreadCallback _mainTask{nullptr};
 

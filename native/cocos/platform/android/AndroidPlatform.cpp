@@ -255,7 +255,7 @@ public:
                     addTouchEvent(i, motionEvent);
                 }
             }
-
+            finishActivity();
             events::Touch::broadcast(touchEvent);
             touchEvent.touches.clear();
             return true;
@@ -383,7 +383,6 @@ public:
                 WindowEvent ev;
                 ev.type = WindowEvent::Type::CLOSE;
                 events::WindowEvent::broadcast(ev);
-                _androidPlatform->onDestroy();
                 break;
             }
             case APP_CMD_STOP: {
@@ -583,6 +582,12 @@ int32_t AndroidPlatform::run(int /*argc*/, const char ** /*argv*/) {
     return 0;
 }
 
+void AndroidPlatform::exitLoop() {
+    _app->destroyRequested = 1;
+    CC_LOG_DEBUG("AndroidPlatform exit loop");
+    //_quit = true;
+}
+
 int32_t AndroidPlatform::loop() {
     IXRInterface *xr = getInterface<IXRInterface>();
     while (true) {
@@ -599,10 +604,15 @@ int32_t AndroidPlatform::loop() {
 
             // Exit the game loop when the Activity is destroyed
             if (_app->destroyRequested) {
-                return 0;
+                CC_LOG_DEBUG("AndroidPlatform destroyRequested");
+                break;
             }
         }
-
+        // Exit the game loop when the Activity is destroyed
+        if (_app->destroyRequested) {
+            CC_LOG_DEBUG("AndroidPlatform destroyRequested");
+            break;
+        }
         if (xr && !xr->platformLoopStart()) continue;
         _inputProxy->handleInput();
         if (_inputProxy->isAnimating() && (xr ? xr->getXRConfig(xr::XRConfigKey::SESSION_RUNNING).getBool() : true)) {
@@ -626,6 +636,10 @@ int32_t AndroidPlatform::loop() {
 #endif
         if (xr) xr->platformLoopEnd();
     }
+    CC_LOG_DEBUG("AndroidPlatform onDestroy1");
+    onDestroy();
+    CC_LOG_DEBUG("AndroidPlatform onDestroy2");
+    return 0;
 }
 
 void AndroidPlatform::pollEvent() {
