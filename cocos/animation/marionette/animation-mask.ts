@@ -104,6 +104,10 @@ export class AnimationMask extends Asset {
         }
         return disabledNodes;
     }
+
+    public isExcluded (path: string) {
+        return !(this._jointMasks.find(({ path: p }) => p === path)?.enabled ?? true);
+    }
 }
 
 type JointMaskInfo_ = JointMaskInfo;
