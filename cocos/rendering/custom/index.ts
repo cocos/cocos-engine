@@ -54,6 +54,7 @@ export function createCustomPipeline (): Pipeline {
     const ppl = new WebPipeline(layoutGraph);
     const pplName = macro.CUSTOM_PIPELINE_NAME;
     ppl.setCustomPipelineName(pplName);
+    (programLib as WebProgramLibrary).pipeline = ppl;
 
     if (!enableEffectImport) {
         if (pplName === 'Deferred') {

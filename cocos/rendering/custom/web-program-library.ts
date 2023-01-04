@@ -35,6 +35,7 @@ import { ProgramGroup, ProgramHost, ProgramInfo } from './web-types';
 import { getCustomPassID, getCustomPhaseID, getOrCreateDescriptorSetLayout, getEmptyDescriptorSetLayout, getEmptyPipelineLayout, initializeDescriptorSetLayoutInfo, makeDescriptorSetLayoutData, getDescriptorSetLayout, getOrCreateDescriptorID, getDescriptorTypeOrder, getProgramID, getDescriptorNameID, getDescriptorName, INVALID_ID } from './layout-graph-utils';
 import { assert } from '../../core/platform/debug';
 import { IDescriptorSetLayoutInfo, localDescriptorSetLayout } from '../define';
+import { PipelineRuntime } from './pipeline';
 
 const _setIndex = [2, 1, 3, 0];
 
@@ -834,6 +835,7 @@ export class WebProgramLibrary implements ProgramLibrary {
     }
     // get program variant
     getProgramVariant (device: Device, phaseID: number, name: string, defines: MacroRecord, key: string | null = null): ProgramProxy | null {
+        Object.assign(defines, this.pipeline?.macros);
         assert(phaseID !== INVALID_ID);
         // get phase
         const group = this.phases.get(phaseID);
@@ -993,8 +995,9 @@ export class WebProgramLibrary implements ProgramLibrary {
     getDescriptorName (nameID: number): string {
         return getDescriptorName(this.layoutGraph, nameID);
     }
-    layoutGraph: LayoutGraphData;
+    readonly layoutGraph: LayoutGraphData;
     readonly phases: Map<number, ProgramGroup> = new Map<number, ProgramGroup>();
     mergeHighFrequency = false;
     fixedLocal = true;
+    pipeline: PipelineRuntime | null = null;
 }
