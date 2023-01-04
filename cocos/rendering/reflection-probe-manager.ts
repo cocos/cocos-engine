@@ -284,7 +284,7 @@ export class ReflectionProbeManager {
         if (!probe || !probe.previewSphere) return;
         const meshRender = probe.previewSphere.getComponent(MeshRenderer);
         if (meshRender) {
-            meshRender.updateProbeCubemap(probe.cubemap);
+            meshRender.updateProbeCubemap(probe.cubemap, !probe.cubemap);
             meshRender.updateReflectionProbeId(probe ? probe.getProbeId() : -1);
         }
     }
