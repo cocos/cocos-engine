@@ -52,80 +52,10 @@ export class ReflectionProbeManager {
      * 场景中所有使用planar类型反射探针的模型
      */
     private _usePlanarModels = new Map<Model, ReflectionProbe>();
-    protected _texture: Texture | null = null;
+    protected _dataTexture: Texture | null = null;
     constructor () {
         director.on(Director.EVENT_BEFORE_UPDATE, this.onUpdateProbes, this);
     }
-
-    public updateDateTexture () {
-        if (this._probes.length === 0) return;
-
-        const dataWidth = 3;
-        if (!this._texture) {
-            this._texture = deviceManager.gfxDevice.createTexture(new TextureInfo(
-                TextureType.TEX2D,
-                TextureUsageBit.SAMPLED | TextureUsageBit.TRANSFER_DST,
-                Format.RGBA32F,
-                dataWidth,
-                this._probes.length,
-            ));
-        } else {
-            this._texture.resize(dataWidth, this._probes.length);
-        }
-
-        const buffer = new Float32Array(4 * dataWidth * this._probes.length);
-        let bufferOffset = 0;
-        for (let i = 0; i < this._probes.length; i++) {
-            //world pos
-            buffer[bufferOffset] = this._probes[i].node.worldPosition.x;
-            buffer[bufferOffset + 1] = this._probes[i].node.worldPosition.y;
-            buffer[bufferOffset + 2] = this._probes[i].node.worldPosition.z;
-            buffer[bufferOffset + 3] = 0.0;
-            if (this._probes[i].probeType === ProbeType.CUBE) {
-                //half box size
-                buffer[bufferOffset + 4] = this._probes[i].size.x;
-                buffer[bufferOffset + 5] = this._probes[i].size.y;
-                buffer[bufferOffset + 6] = this._probes[i].size.z;
-                buffer[bufferOffset + 7] = 0.0;
-                //mip count
-                buffer[bufferOffset + 8] = this._probes[i].cubemap ? this._probes[i].cubemap!.mipmapLevel : 1.0;
-            } else {
-                //plane.w;
-                //planarReflectionDepthScale
-                //mipCount;
-                buffer[bufferOffset + 4] = 1.0;
-                buffer[bufferOffset + 5] = 1.0;
-                buffer[bufferOffset + 6] = 0.0;
-                buffer[bufferOffset + 7] = 0.0;
-
-                buffer[bufferOffset + 8] = 1.0;
-            }
-            buffer[bufferOffset + 9] = 0.0;
-            buffer[bufferOffset + 10] = 0.0;
-            buffer[bufferOffset + 11] = 0.0;
-
-            bufferOffset += 4 * dataWidth;
-        }
-        const region = new BufferTextureCopy();
-        region.texOffset.x = 0;
-        region.texOffset.y = 0;
-        region.texExtent.width = dataWidth;
-        region.texExtent.height = this._probes.length;
-
-        deviceManager.gfxDevice.copyBuffersToTexture([buffer], this._texture, [region]);
-        const ds = (cclegacy.director.root).pipeline.descriptorSet;
-        const sampler = deviceManager.gfxDevice.getSampler(new SamplerInfo(
-            Filter.LINEAR,
-            Filter.LINEAR,
-            Filter.NONE,
-            Address.CLAMP,
-            Address.CLAMP,
-            Address.CLAMP,
-        ));
-        ds.bindSampler(UNIFORM_REFLECTION_PROBE_DATA_MAP_BINDING, sampler);
-        ds.bindTexture(UNIFORM_REFLECTION_PROBE_DATA_MAP_BINDING, this._texture);
-    }
-
     /**
      * @en refresh all reflection probe
      * @zh 刷新所有反射探针
@@ -178,7 +108,7 @@ export class ReflectionProbeManager {
         const index = this._probes.indexOf(probe);
         if (index === -1) {
             this._probes.push(probe);
-            this.updateDateTexture();
+            this.updateProbeDataOfModel();
         }
     }
 
@@ -271,7 +201,7 @@ export class ReflectionProbeManager {
         if (probe.previewPlane) {
             const meshRender = probe.previewPlane.getComponent(MeshRenderer);
             if (meshRender) {
-                meshRender.updateProbePlanarMap(texture, probe.getProbeId());
+                meshRender.updateProbePlanarMap(texture);
             }
         }
     }
@@ -354,7 +284,8 @@ export class ReflectionProbeManager {
         if (!probe || !probe.previewSphere) return;
         const meshRender = probe.previewSphere.getComponent(MeshRenderer);
         if (meshRender) {
-            meshRender.updateProbeCubemap(probe.cubemap, probe.getProbeId(), !probe.cubemap);
+            meshRender.updateProbeCubemap(probe.cubemap);
+            meshRender.updateReflectionProbeId(probe ? probe.getProbeId() : -1);
         }
     }
 
@@ -368,6 +299,74 @@ export class ReflectionProbeManager {
         if (meshRender) {
             if (probe.realtimePlanarTexture) {
                 this.updatePlanarMap(probe, probe.realtimePlanarTexture.getGFXTexture());
+            }
+            meshRender.updateReflectionProbeId(probe ? probe.getProbeId() : -1);
+        }
+    }
+
+    /**
+     * @en Update reflection probe data of model bind.
+     * @zh 更新模型绑定的反射探针数据。
+     */
+    public updateProbeDataOfModel () {
+        if (this._probes.length === 0) return;
+        const dataWidth = 3;
+        if (!this._dataTexture) {
+            this._dataTexture = deviceManager.gfxDevice.createTexture(new TextureInfo(
+                TextureType.TEX2D,
+                TextureUsageBit.SAMPLED | TextureUsageBit.TRANSFER_DST,
+                Format.RGBA32F,
+                dataWidth,
+                this._probes.length,
+            ));
+        } else {
+            this._dataTexture.resize(dataWidth, this._probes.length);
+        }
+
+        const buffer = new Float32Array(4 * dataWidth * this._probes.length);
+        let bufferOffset = 0;
+        for (let i = 0; i < this._probes.length; i++) {
+            //world pos
+            buffer[bufferOffset] = this._probes[i].node.worldPosition.x;
+            buffer[bufferOffset + 1] = this._probes[i].node.worldPosition.y;
+            buffer[bufferOffset + 2] = this._probes[i].node.worldPosition.z;
+            buffer[bufferOffset + 3] = 0.0;
+            if (this._probes[i].probeType === ProbeType.CUBE) {
+                buffer[bufferOffset + 4] = this._probes[i].size.x;
+                buffer[bufferOffset + 5] = this._probes[i].size.y;
+                buffer[bufferOffset + 6] = this._probes[i].size.z;
+                buffer[bufferOffset + 7] = 0.0;
+                buffer[bufferOffset + 8] = this._probes[i].cubemap ? this._probes[i].cubemap!.mipmapLevel : 1.0;
+            } else {
+                //plane.w;
+                buffer[bufferOffset + 4] = 1.0;
+                //planarReflectionDepthScale
+                buffer[bufferOffset + 5] = 1.0;
+                buffer[bufferOffset + 6] = 0.0;
+                buffer[bufferOffset + 7] = 0.0;
+                //mipCount;
+                buffer[bufferOffset + 8] = 1.0;
+            }
+            buffer[bufferOffset + 9] = 0.0;
+            buffer[bufferOffset + 10] = 0.0;
+            buffer[bufferOffset + 11] = 0.0;
+
+            bufferOffset += 4 * dataWidth;
+        }
+        const region = new BufferTextureCopy();
+        region.texOffset.x = 0;
+        region.texOffset.y = 0;
+        region.texExtent.width = dataWidth;
+        region.texExtent.height = this._probes.length;
+
+        deviceManager.gfxDevice.copyBuffersToTexture([buffer], this._dataTexture, [region]);
+
+        for (let i = 0; i < this._probes.length; i++) {
+            const probe = this._probes[i];
+            const models = this._getModelsByProbe(probe);
+            for (let j = 0; j < models.length; j++) {
+                models[j].updateReflectionProbeDataMap(this._dataTexture);
+                models[j].updateReflectionProbeData();
             }
         }
     }
@@ -436,13 +435,15 @@ export class ReflectionProbeManager {
     private _updateCubemapOfModel (model: Model, probe: ReflectionProbe | null) {
         const meshRender = model.node.getComponent(MeshRenderer);
         if (meshRender) {
-            meshRender.updateProbeCubemap(probe ? probe.cubemap : null, probe ? probe.getProbeId() : -1);
+            meshRender.updateProbeCubemap(probe ? probe.cubemap : null);
+            meshRender.updateReflectionProbeId(probe ? probe.getProbeId() : -1);
         }
     }
     private _updatePlanarMapOfModel (model: Model, texture: Texture | null, probe: ReflectionProbe | null) {
         const meshRender = model.node.getComponent(MeshRenderer);
         if (meshRender) {
-            meshRender.updateProbePlanarMap(texture, probe ? probe.getProbeId() : -1);
+            meshRender.updateProbePlanarMap(texture);
+            meshRender.updateReflectionProbeId(probe ? probe.getProbeId() : -1);
         }
     }
 }

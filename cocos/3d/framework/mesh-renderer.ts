@@ -452,13 +452,6 @@ export class MeshRenderer extends ModelRenderer {
         this._enableMorph = value;
     }
 
-    set reflectionProbeId (val: number) {
-        this._reflectionProbeId = val;
-    }
-    get reflectionProbeId () {
-        return this._reflectionProbeId;
-    }
-
     protected _modelType: typeof scene.Model;
 
     protected _model: scene.Model | null = null;
@@ -660,12 +653,11 @@ export class MeshRenderer extends ModelRenderer {
         this._onUpdateLightingmap();
     }
 
-    public updateProbeCubemap (cubeMap: TextureCube | null, probeId: number, useDefaultTexture?: boolean) {
+    public updateProbeCubemap (cubeMap: TextureCube | null, useDefaultTexture?: boolean) {
         if (this.bakeSettings._probeCubemap && this.bakeSettings._probeCubemap === cubeMap) {
             return;
         }
         this.bakeSettings._probeCubemap = cubeMap;
-        this.reflectionProbeId = probeId;
         if (this.model !== null) {
             let cubeMap = this.bakeSettings._probeCubemap;
             if (!cubeMap && this.node.scene && !useDefaultTexture) {
@@ -674,14 +666,19 @@ export class MeshRenderer extends ModelRenderer {
             this.model.updateReflectionProbeCubemap(cubeMap);
         }
     }
-    public updateProbePlanarMap (planarMap: Texture | null, probeId: number) {
+    public updateProbePlanarMap (planarMap: Texture | null) {
         if (this.bakeSettings._probePlanarmap === planarMap) {
             return;
         }
-        this.reflectionProbeId = probeId;
         this.bakeSettings._probePlanarmap = planarMap;
         if (this.model !== null) {
             this.model.updateReflectionProbePlanarMap(this.bakeSettings._probePlanarmap);
+        }
+    }
+    public updateReflectionProbeId (probeId: number) {
+        this._reflectionProbeId = probeId;
+        if (this.model) {
+            this.model.reflectionProbeId = probeId;
         }
     }
 
@@ -807,8 +804,9 @@ export class MeshRenderer extends ModelRenderer {
 
     protected _onUpdateLocalShadowBiasAndProbeId () {
         if (this.model !== null) {
+            this.model.reflectionProbeId = this._reflectionProbeId;
             this.model.updateLocalShadowBias();
-            this.model.updateReflectionProbeId(this.reflectionProbeId);
+            this.model.updateReflectionProbeData();
         }
 
         this.setInstancedAttribute('a_localShadowBiasAndProbeId', [
