@@ -92,6 +92,8 @@ void Root::initialize(gfx::Swapchain * /*swapchain*/) {
     uint32_t maxJoints = (_device->getCapabilities().maxVertexUniformVectors - usedUBOVectorCount) / 3;
     maxJoints = maxJoints < 256 ? maxJoints : 256;
     pipeline::localDescriptorSetLayoutResizeMaxJoints(maxJoints);
+
+    _debugView.reset(new pipeline::DebugView);
 }
 
 render::Pipeline *Root::getCustomPipeline() const {
@@ -160,6 +162,8 @@ void Root::destroy() {
         CC_SAFE_DELETE(swapchain);
     }
     _swapchains.clear();
+
+    _debugView.reset();
 
     // TODO(minggo):
     //    this.dataPoolManager.clear();

@@ -115,7 +115,6 @@ rootProto._ctor = function (device: Device) {
     this._batcher = null;
     this._pipelineEvent = new DummyPipelineEvent();
     this._debugView = new DebugView();
-    this.setDebugViewConfig(this._debugView._nativeConfig);
     this._registerListeners();
 };
 

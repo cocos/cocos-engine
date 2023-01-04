@@ -78,13 +78,21 @@ void PipelineUBO::updateGlobalUBOView(const scene::Camera *camera, ccstd::array<
     uboGlobalView[UBOGlobal::NATIVE_SIZE_OFFSET + 2] = 1.0F / uboGlobalView[UBOGlobal::NATIVE_SIZE_OFFSET];
     uboGlobalView[UBOGlobal::NATIVE_SIZE_OFFSET + 3] = 1.0F / uboGlobalView[UBOGlobal::NATIVE_SIZE_OFFSET + 1];
 
-    auto debugViewConfig = root->getDebugViewConfig();
-    uboGlobalView[UBOGlobal::DEBUG_VIEW_MODE_OFFSET] = debugViewConfig.singleMode;
-    uboGlobalView[UBOGlobal::DEBUG_VIEW_MODE_OFFSET + 1] = debugViewConfig.lightingWithAlbedo;
-    uboGlobalView[UBOGlobal::DEBUG_VIEW_MODE_OFFSET + 2] = debugViewConfig.csmLayerColoration;
-    for (int i = 0; i < debugViewConfig.compositeModeBitCount; i++) {
-        uint32_t mode = debugViewConfig.compositeModeValue & (1 << i);
-        uboGlobalView[UBOGlobal::DEBUG_VIEW_COMPOSITE_PACK_1_OFFSET + i] = mode ? 1.0 : 0.0;
+    auto debugView = root->getDebugView();
+    if (debugView) {
+        uboGlobalView[UBOGlobal::DEBUG_VIEW_MODE_OFFSET] = (float)debugView->getSingleMode();
+        uboGlobalView[UBOGlobal::DEBUG_VIEW_MODE_OFFSET + 1] = debugView->isLightingWithAlbedo() ? 1.0F : 0.0F;
+        uboGlobalView[UBOGlobal::DEBUG_VIEW_MODE_OFFSET + 2] = debugView->isCsmLayerColoration() ? 1.0F : 0.0F;
+        for (int i = 0; i < (int)pipeline::DebugViewCompositeType::MAX_BIT_COUNT; ++i) {
+            uboGlobalView[UBOGlobal::DEBUG_VIEW_COMPOSITE_PACK_1_OFFSET + i] = debugView->isCompositeModeEnabled(i) ? 1.0F : 0.0F;
+        }
+    } else {
+        uboGlobalView[UBOGlobal::DEBUG_VIEW_MODE_OFFSET] = 0.0F;
+        uboGlobalView[UBOGlobal::DEBUG_VIEW_MODE_OFFSET + 1] = 1.0F;
+        uboGlobalView[UBOGlobal::DEBUG_VIEW_MODE_OFFSET + 2] = 0.0F;
+        for (int i = 0; i < (int)pipeline::DebugViewCompositeType::MAX_BIT_COUNT; ++i) {
+            uboGlobalView[UBOGlobal::DEBUG_VIEW_COMPOSITE_PACK_1_OFFSET + i] = 1.0F;
+        }
     }
 }
 
