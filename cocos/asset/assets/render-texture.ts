@@ -25,7 +25,7 @@
 import { ccclass } from 'cc.decorator';
 import { EDITOR, TEST } from 'internal:constants';
 import { clamp, cclegacy, errorID } from '../../core';
-import { Texture, ColorAttachment, DepthStencilAttachment, GeneralBarrierInfo, AccessFlagBit, RenderPassInfo, Format, deviceManager, BufferTextureCopy } from '../../gfx';
+import { Texture, ColorAttachment, DepthStencilAttachment, GeneralBarrierInfo, AccessFlagBit, RenderPassInfo, Format, deviceManager, SampleCount, BufferTextureCopy } from '../../gfx';
 import { RenderWindow, IRenderWindowInfo } from '../../render-scene/core/render-window';
 import { Root } from '../../root';
 import { TextureBase } from './texture-base';
@@ -35,6 +35,7 @@ export interface IRenderTextureCreateInfo {
     width: number;
     height: number;
     passInfo?: RenderPassInfo;
+    samples?: SampleCount;
 }
 
 const _colorAttachment = new ColorAttachment();
@@ -57,6 +58,7 @@ const _windowInfo: IRenderWindowInfo = {
 @ccclass('cc.RenderTexture')
 export class RenderTexture extends TextureBase {
     private _window: RenderWindow | null = null;
+    private _samples: SampleCount = SampleCount.ONE;
 
     /**
      * @en The render window for the render pipeline, it's created internally and cannot be modified.
@@ -75,6 +77,7 @@ export class RenderTexture extends TextureBase {
         this._name = info.name || '';
         this._width = info.width;
         this._height = info.height;
+        this._samples = info.samples || SampleCount.ONE;
         this._initWindow(info);
     }
 
@@ -166,6 +169,7 @@ export class RenderTexture extends TextureBase {
         _windowInfo.width = this._width;
         _windowInfo.height = this._height;
         _windowInfo.renderPassInfo = info && info.passInfo ? info.passInfo : passInfo;
+        _windowInfo.samples = this._samples;
 
         _colorAttachment.barrier = deviceManager.gfxDevice.getGeneralBarrier(new GeneralBarrierInfo(
             AccessFlagBit.FRAGMENT_SHADER_READ_TEXTURE,
@@ -207,7 +211,7 @@ export class RenderTexture extends TextureBase {
      * @param height @en The pixel height @zh 像素高度
      * @param buffer @en The buffer to hold pixel data @zh 像素缓存
      */
-    public readPixels (x = 0, y = 0, width?: number, height?: number, buffer?: Uint8Array) : Uint8Array | null {
+    public readPixels (x = 0, y = 0, width?: number, height?: number, buffer?: Uint8Array): Uint8Array | null {
         width = width || this.width;
         height = height || this.height;
         const gfxTexture = this.getGFXTexture();

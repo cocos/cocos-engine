@@ -25,7 +25,7 @@ import { screenAdapter } from 'pal/screen-adapter';
 import { Orientation } from '../../../pal/screen-adapter/enum-type';
 import {
     TextureType, TextureUsageBit, Format, RenderPass, Texture, Framebuffer,
-    RenderPassInfo, Device, TextureInfo, FramebufferInfo, Swapchain, SurfaceTransform,
+    RenderPassInfo, Device, TextureInfo, FramebufferInfo, Swapchain, SurfaceTransform, SampleCount,
 } from '../../gfx';
 import { Root } from '../../root';
 import { Camera } from '../scene';
@@ -36,6 +36,7 @@ export interface IRenderWindowInfo {
     height: number;
     renderPassInfo: RenderPassInfo;
     swapchain?: Swapchain;
+    samples?: SampleCount;
 }
 
 const orientationMap: Record<Orientation, SurfaceTransform> = {
