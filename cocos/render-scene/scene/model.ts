@@ -238,10 +238,21 @@ export class Model {
     }
 
     /**
+     * @en Gets or sets received direction Light.
+     * @zh 获取或者设置接收平行光光照。
+     */
+    get receivedDirLight (): boolean {
+        return this._receivedDirLight;
+    }
+    set receivedDirLight (val) {
+        this._receivedDirLight = val;
+    }
+
+    /**
      * @en The node to which the model belongs
      * @zh 模型所在的节点
      */
-    get node () : Node {
+    get node (): Node {
         return this._node;
     }
 
@@ -253,7 +264,7 @@ export class Model {
      * @en Model's transform
      * @zh 模型的变换
      */
-    get transform () : Node {
+    get transform (): Node {
         return this._transform;
     }
 
@@ -268,7 +279,7 @@ export class Model {
      * @zh 模型的可见性标志
      * 模型的可见性标志与 [[Node.layer]] 不同，它会在剔除阶段与 [[Camera.visibility]] 进行比较
      */
-    get visFlags () : number {
+    get visFlags (): number {
         return this._visFlags;
     }
 
@@ -280,7 +291,7 @@ export class Model {
      * @en Whether the model is enabled in the render scene so that it will be rendered
      * @zh 模型是否在渲染场景中启用并被渲染
      */
-    get enabled () : boolean {
+    get enabled (): boolean {
         return this._enabled;
     }
 
@@ -292,7 +303,7 @@ export class Model {
      * @en Rendering priority in the transparent queue of model.
      * @zh Model 在透明队列中的渲染排序优先级
      */
-    get priority () : number {
+    get priority (): number {
         return this._priority;
     }
 
@@ -459,6 +470,12 @@ export class Model {
      * @zh 是否投射阴影
      */
     protected _castShadow = false;
+
+    /**
+     * @en Is received direction Light.
+     * @zh 是否接收平行光光照。
+     */
+    protected _receivedDirLight = true;
 
     /**
      * @en Shadow bias

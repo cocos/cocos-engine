@@ -375,6 +375,32 @@ export class MeshRenderer extends ModelRenderer {
     }
 
     /**
+     * @en Is received direction Light.
+     * @zh 是否接收平行光光照。
+     * @param visibility @en direction light visibility. @zh 方向光的可见性。
+     */
+    public onUpdateReceiveDirLight (visibility: number) {
+        if (!this._model) { return; }
+        if (((visibility & this.node.layer) !== this.node.layer) && !(visibility & this._model.visFlags)) {
+            if (this._shadowCastingMode === ModelShadowCastingMode.OFF) {
+                this._model.castShadow = false;
+            } else {
+                assertIsTrue(
+                    this._shadowCastingMode === ModelShadowCastingMode.ON,
+                    `ShadowCastingMode ${this._shadowCastingMode} is not supported.`,
+                );
+                this._model.castShadow = true;
+            }
+            this._model.receivedDirLight = true;
+        } else {
+            this._model.castShadow = false;
+            this._model.receivedDirLight = false;
+        }
+
+        this._updateModels();
+    }
+
+    /**
      * @en receive shadow.
      * @zh 实时光照下是否接受阴影。
      */

@@ -25,9 +25,11 @@
 
 import { Light } from './light-component';
 import { scene } from '../../render-scene';
-import { cclegacy, clamp, warnID, CCBoolean, CCFloat, _decorator, settings, Settings, override } from '../../core';
+import { cclegacy, clamp, warnID, CCBoolean, CCFloat, _decorator, settings, Settings, override, displayOrder } from '../../core';
 import { Camera, PCFType, Shadows, ShadowType, CSMOptimizationMode, CSMLevel } from '../../render-scene/scene';
 import { Root } from '../../root';
+import { director } from '../../game';
+import { MeshRenderer } from '../framework';
 
 const { ccclass, menu, executeInEditMode, property, serializable, formerlySerializedAs, tooltip, help, visible, type, editable, slide, range } = _decorator;
 
@@ -113,20 +115,6 @@ export class DirectionalLight extends Light {
             this._illuminanceLDR = val;
             this._light && (this._light.illuminanceLDR = this._illuminanceLDR);
         }
-    }
-
-    /**
-     * @en Turn off the function for directional light.
-     * @zh 方向光关闭该功能。
-     * @engineInternal
-     */
-    @override
-    @visible(false)
-    set visibility (vis: number) {
-        this._visibility = vis;
-    }
-    get visibility (): number {
-        return this._visibility;
     }
 
     /**
@@ -562,6 +550,23 @@ export class DirectionalLight extends Light {
             this._light.csmOptimizationMode = this._csmOptimizationMode;
             this._light.csmLayersTransition = this._csmLayersTransition;
             this._light.csmTransitionRange = this._csmTransitionRange;
+        }
+    }
+
+    protected _onUpdateReceived () {
+        super._onUpdateReceived();
+
+        const scene = director.getScene();
+        if (!scene || !scene.renderScene) {
+            return;
+        }
+        const models = scene.renderScene.models;
+        for (let i = 0; i < models.length; i++) {
+            const model = models[i];
+            if (!model.node) continue;
+            const meshRender = model.node.getComponent(MeshRenderer);
+            if (!meshRender) continue;
+            meshRender.onUpdateReceiveDirLight(this._visibility);
         }
     }
 }
