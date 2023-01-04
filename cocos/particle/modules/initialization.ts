@@ -29,7 +29,9 @@ import { ParticleSOAData } from '../particle-soa-data';
 import { ParticleUpdateContext } from '../particle-update-context';
 import { CurveRange } from '../curve-range';
 import { GradientRange } from '../gradient-range';
-import { Vec3 } from '../../core/math';
+import { pseudoRandom, randomRangeInt, Vec3 } from '../../core/math';
+import { INT_MAX } from '../../core/math/bits';
+import { particleEmitZAxis } from '../particle-general-function';
 
 @ccclass('cc.InitializationModule')
 export class InitializationModule extends ParticleModule {
@@ -156,26 +158,14 @@ export class InitializationModule extends ParticleModule {
     }
 
     public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
-        for (let i = 0; i < count; ++i) {
-            const particle = this.getFreeParticle();
-            if (particle === INVALID_HANDLE) {
-                return;
-            }
-
+        const { newParticleIndexOffset, newEmittingCount, normalizedTimeInCycle } = particleUpdateContext;
+        for (let i = newParticleIndexOffset; i < newEmittingCount; ++i) {
             const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
 
-            if (this._shapeModule && this._shapeModule.enable) {
-                this._shapeModule.emit(particle);
-            } else {
-                Vec3.set(particle.position, 0, 0, 0);
-                Vec3.copy(particle.velocity, particleEmitZAxis);
-            }
+            particles.setPositionAt(Vec3.ZERO, i);
+            particles.setVelocityAt(particleEmitZAxis, i);
 
-            if (this._textureAnimationModule && this._textureAnimationModule.enable) {
-                this._textureAnimationModule.init(particle);
-            }
-
-            const curveStartSpeed = this.startSpeed.evaluate(loopDelta, rand)!;
+            const curveStartSpeed = this.startSpeed.evaluate(normalizedTimeInCycle, rand);
             Vec3.multiplyScalar(particle.velocity, particle.velocity, curveStartSpeed);
 
             if (this._simulationSpace === Space.World) {
@@ -187,35 +177,32 @@ export class InitializationModule extends ParticleModule {
             // apply startRotation.
             if (this.startRotation3D) {
                 // eslint-disable-next-line max-len
-                particle.startEuler.set(this.startRotationX.evaluate(loopDelta, rand), this.startRotationY.evaluate(loopDelta, rand), this.startRotationZ.evaluate(loopDelta, rand));
+                particle.startEuler.set(this.startRotationX.evaluate(normalizedTimeInCycle, rand), this.startRotationY.evaluate(normalizedTimeInCycle, rand), this.startRotationZ.evaluate(normalizedTimeInCycle, rand));
             } else {
-                particle.startEuler.set(0, 0, this.startRotationZ.evaluate(loopDelta, rand));
+                particle.startEuler.set(0, 0, this.startRotationZ.evaluate(normalizedTimeInCycle, rand));
             }
             particle.rotation.set(particle.startEuler);
 
             // apply startSize.
             if (this.startSize3D) {
-                Vec3.set(particle.startSize, this.startSizeX.evaluate(loopDelta, rand)!,
-                    this.startSizeY.evaluate(loopDelta, rand)!,
-                    this.startSizeZ.evaluate(loopDelta, rand)!);
+                Vec3.set(particle.startSize, this.startSizeX.evaluate(normalizedTimeInCycle, rand)!,
+                    this.startSizeY.evaluate(normalizedTimeInCycle, rand)!,
+                    this.startSizeZ.evaluate(normalizedTimeInCycle, rand)!);
             } else {
-                Vec3.set(particle.startSize, this.startSizeX.evaluate(loopDelta, rand)!, 1, 1);
+                Vec3.set(particle.startSize, this.startSizeX.evaluate(normalizedTimeInCycle, rand)!, 1, 1);
                 particle.startSize.y = particle.startSize.x;
             }
             Vec3.copy(particle.size, particle.startSize);
 
             // apply startColor.
-            particle.startColor.set(this.startColor.evaluate(loopDelta, rand));
+            particle.startColor.set(this.startColor.evaluate(normalizedTimeInCycle, rand));
             particle.color.set(particle.startColor);
 
             // apply startLifetime.
-            particle.startLifetime = this.startLifetime.evaluate(loopDelta, rand)! + dt;
+            particle.startLifetime = this.startLifetime.evaluate(normalizedTimeInCycle, rand)! + dt;
             particle.remainingLifetime = particle.startLifetime;
 
             particle.randomSeed = randomRangeInt(0, 233280);
-            particle.loopCount++;
-
-            this._processor.setNewParticle(particle);
         } // end of particles forLoop.
     }
 }

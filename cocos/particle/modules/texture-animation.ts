@@ -218,10 +218,6 @@ export class TextureAnimationModule extends ParticleModule {
     }
 
     public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
-        throw new Error('Method not implemented.');
-    }
-
-    public animate (p: Particle, dt: number) {
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
         const startFrame = this.startFrame.evaluate(normalizedTime, pseudoRandom(p.randomSeed + TEXTURE_ANIMATION_RAND_OFFSET))! / (this.numTilesX * this.numTilesY);
         if (this.animation === Animation.WholeSheet) {
