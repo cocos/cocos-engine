@@ -42,6 +42,11 @@ CCEffect %{
       propertyIndex: 0
       rasterizerState:
         cullMode: back
+    - &reflect-map
+      vert: terrain-vs
+      frag: reflect-map-fs
+      phase: reflect-map
+      propertyIndex: 0
 }%
 
 CCProgram shared-ubos %{
@@ -56,6 +61,7 @@ CCProgram macro-remapping %{
   #pragma define-meta USE_NORMALMAP
   #define CC_SURFACES_USE_TANGENT_SPACE USE_NORMALMAP
 }%
+
 CCProgram surface-vertex %{  
   #define CC_SURFACES_VERTEX_MODIFY_WORLD_POS
   vec3 SurfacesVertexModifyWorldPos(in SurfacesStandardVertexIntermediate In)
@@ -96,10 +102,13 @@ CCProgram surface-fragment %{
   void SurfacesFragmentModifySharedData(inout SurfacesMaterialData surfaceData)
   {
     vec2 uvw = FSInput_texcoord;
-    vec2 uv0 = FSInput_localPos.xz * UVScale.x;
-    vec2 uv1 = FSInput_localPos.xz * UVScale.y;
-    vec2 uv2 = FSInput_localPos.xz * UVScale.z;
-    vec2 uv3 = FSInput_localPos.xz * UVScale.w;
+    vec2 uv0, uv1, uv2, uv3;
+    #if CC_SURFACES_TRANSFER_LOCAL_POS
+      uv0 = FSInput_localPos.xz * UVScale.x;
+      uv1 = FSInput_localPos.xz * UVScale.y;
+      uv2 = FSInput_localPos.xz * UVScale.z;
+      uv3 = FSInput_localPos.xz * UVScale.w;
+    #endif
     vec4 w = vec4(0.0);
     #if LAYERS > 1
         w = texture(weightMap, uvw);
@@ -204,10 +213,9 @@ CCProgram surface-fragment %{
 
 CCProgram terrain-vs %{
   precision highp float;
-  #include <surfaces/effect-macros/terrain>
   #include <builtin/uniforms/cc-local>
   // 1. surface internal macros, for technique usage or remapping some user (material) macros to surface internal macros
-  #include <surfaces/effect-macros/common-macros>
+  #include <surfaces/effect-macros/terrain>
 
   // 2. common include with corresponding shader stage, include before surface functions
   #include <surfaces/includes/common-vs>
@@ -238,9 +246,8 @@ CCProgram shadow-caster-vs %{
 CCProgram terrain-fs %{
 
   precision highp float;
-  #include <surfaces/effect-macros/terrain>
   // 1. surface internal macros, for technique usage or remapping some user (material) macros to surface internal macros
-  #include <surfaces/effect-macros/common-macros>
+  #include <surfaces/effect-macros/terrain>
 
   // 2. common include with corresponding shader stage, include before surface functions
   #include <surfaces/includes/common-fs>
@@ -267,4 +274,16 @@ CCProgram shadow-caster-fs %{
   #include <shared-ubos>
   #include <surface-fragment>
   #include <shading-entries/main-functions/render-to-shadowmap/fs>
+}%
+
+CCProgram reflect-map-fs %{
+  precision highp float;
+  #include <macro-remapping>
+  #include <surfaces/effect-macros/terrain>
+  #include <surfaces/includes/common-fs>
+  #include <shared-ubos>
+  #include <surface-fragment>
+  #include <lighting-models/includes/standard>
+  #include <surfaces/includes/standard-fs>
+  #include <shading-entries/main-functions/render-to-reflectmap/fs>
 }%
