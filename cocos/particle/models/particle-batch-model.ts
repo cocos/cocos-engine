@@ -30,9 +30,7 @@ import { AttributeName, BufferUsageBit, FormatInfos, MemoryUsageBit, PrimitiveMo
     Attribute, DRAW_INFO_SIZE, Buffer, IndirectBuffer, BufferInfo, DrawInfo, Feature, deviceManager } from '../../core/gfx';
 import { Color } from '../../core/math/color';
 import { scene } from '../../core/renderer';
-import { Particle } from '../particle';
 import { Material, RenderingSubMesh } from '../../core/assets';
-import { legacyCC } from '../../core/global-exports';
 
 const _uvs = [
     0, 0, // bottom-left
@@ -434,124 +432,6 @@ export default class ParticleBatchModel extends scene.Model {
 
             this._vdataUint32![offset++] = pvdata[4]; // color
         }
-    }
-
-    public addGPUParticleVertexData (p: Particle, num: number, time:number) {
-        if (!this._useInstance) {
-            let offset = num * this._vertAttrsFloatCount * this._vertCount;
-            for (let i = 0; i < this._vertCount; i++) {
-                let idx = offset;
-                this._vdataF32![idx++] = p.position.x;
-                this._vdataF32![idx++] = p.position.y;
-                this._vdataF32![idx++] = p.position.z;
-                this._vdataF32![idx++] = time;
-
-                this._vdataF32![idx++] = p.startSize.x;
-                this._vdataF32![idx++] = p.startSize.y;
-                this._vdataF32![idx++] = p.startSize.z;
-                this._vdataF32![idx++] = _uvs[2 * i];
-
-                this._vdataF32![idx++] = p.rotation.x;
-                this._vdataF32![idx++] = p.rotation.y;
-                this._vdataF32![idx++] = p.rotation.z;
-                this._vdataF32![idx++] = _uvs[2 * i + 1];
-
-                this._vdataF32![idx++] = p.startColor.r / 255.0;
-                this._vdataF32![idx++] = p.startColor.g / 255.0;
-                this._vdataF32![idx++] = p.startColor.b / 255.0;
-                this._vdataF32![idx++] = p.startColor.a / 255.0;
-
-                this._vdataF32![idx++] = p.velocity.x;
-                this._vdataF32![idx++] = p.velocity.y;
-                this._vdataF32![idx++] = p.velocity.z;
-                this._vdataF32![idx++] = p.startLifetime;
-
-                this._vdataF32![idx++] = p.randomSeed;
-
-                offset += this._vertAttrsFloatCount;
-            }
-        } else {
-            this.addGPUParticleVertexDataIns(p, num, time);
-        }
-    }
-
-    private addGPUParticleVertexDataIns (p: Particle, num: number, time:number) {
-        let offset = num * this._vertAttrsFloatCount;
-        let idx = offset;
-        this._vdataF32![idx++] = p.position.x;
-        this._vdataF32![idx++] = p.position.y;
-        this._vdataF32![idx++] = p.position.z;
-        this._vdataF32![idx++] = time;
-
-        this._vdataF32![idx++] = p.startSize.x;
-        this._vdataF32![idx++] = p.startSize.y;
-        this._vdataF32![idx++] = p.startSize.z;
-        this._vdataF32![idx++] = p.frameIndex;
-
-        this._vdataF32![idx++] = p.rotation.x;
-        this._vdataF32![idx++] = p.rotation.y;
-        this._vdataF32![idx++] = p.rotation.z;
-        this._vdataF32![idx++] = p.randomSeed;
-
-        this._vdataF32![idx++] = p.startColor.r / 255.0;
-        this._vdataF32![idx++] = p.startColor.g / 255.0;
-        this._vdataF32![idx++] = p.startColor.b / 255.0;
-        this._vdataF32![idx++] = p.startColor.a / 255.0;
-
-        this._vdataF32![idx++] = p.velocity.x;
-        this._vdataF32![idx++] = p.velocity.y;
-        this._vdataF32![idx++] = p.velocity.z;
-        this._vdataF32![idx++] = p.startLifetime;
-
-        offset += this._vertAttrsFloatCount;
-    }
-
-    public updateGPUParticles (num: number, time: number, dt: number) {
-        if (!this._useInstance) {
-            const pSize = this._vertAttrsFloatCount * this._vertCount;
-            let pBaseIndex = 0;
-            let startTime = 0;
-            let lifeTime = 0;
-            let lastBaseIndex = 0;
-            let interval = 0;
-            for (let i = 0; i < num; ++i) {
-                pBaseIndex = i * pSize;
-                startTime = this._vdataF32![pBaseIndex + this._startTimeOffset];
-                lifeTime = this._vdataF32![pBaseIndex + this._lifeTimeOffset];
-                interval = time - startTime;
-                if (lifeTime - interval < dt) {
-                    lastBaseIndex = --num * pSize;
-                    this._vdataF32!.copyWithin(pBaseIndex, lastBaseIndex, lastBaseIndex + pSize);
-                    i--;
-                }
-            }
-
-            return num;
-        } else {
-            return this.updateGPUParticlesIns(num, time, dt);
-        }
-    }
-
-    private updateGPUParticlesIns (num: number, time: number, dt: number) {
-        const pSize = this._vertAttrsFloatCount;
-        let pBaseIndex = 0;
-        let startTime = 0;
-        let lifeTime = 0;
-        let lastBaseIndex = 0;
-        let interval = 0;
-        for (let i = 0; i < num; ++i) {
-            pBaseIndex = i * pSize;
-            startTime = this._vdataF32![pBaseIndex + this._startTimeOffset];
-            lifeTime = this._vdataF32![pBaseIndex + this._lifeTimeOffset];
-            interval = time - startTime;
-            if (lifeTime - interval < dt) {
-                lastBaseIndex = --num * pSize;
-                this._vdataF32!.copyWithin(pBaseIndex, lastBaseIndex, lastBaseIndex + pSize);
-                i--;
-            }
-        }
-
-        return num;
     }
 
     public constructAttributeIndex () {

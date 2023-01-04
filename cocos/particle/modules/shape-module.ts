@@ -335,6 +335,7 @@ export class ShapeModule extends ParticleModule {
     private totalAngle: number;
 
     constructor () {
+        super();
         this.mat = new Mat4();
         this.quat = new Quat();
         this.particleSystem = null;

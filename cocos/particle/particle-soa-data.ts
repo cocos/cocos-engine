@@ -289,6 +289,13 @@ export class ParticleSOAData {
         this._velocityZ[handle] = val.z;
     }
 
+    getAnimatedVelocityAt (out: Vec3, handle: ParticleHandle) {
+        out.x = this._animatedVelocityX[handle];
+        out.y = this._animatedVelocityY[handle];
+        out.z = this._animatedVelocityZ[handle];
+        return out;
+    }
+
     addAnimatedVelocityAt (val: Vec3, handle: ParticleHandle) {
         this._animatedVelocityX[handle] = val.x;
         this._animatedVelocityY[handle] = val.y;
@@ -359,6 +366,19 @@ export class ParticleSOAData {
         default:
             return this._sizeZ;
         }
+    }
+
+    getStartSizeAt (out: Vec3, handle: ParticleHandle) {
+        out.x = this._startSizeX[handle];
+        out.y = this._startSizeY[handle];
+        out.z = this._startSizeZ[handle];
+        return out;
+    }
+
+    setSizeAt (val: Vec3, handle: ParticleHandle) {
+        this._sizeX[handle] = val.x;
+        this._sizeY[handle] = val.y;
+        this._sizeZ[handle] = val.z;
     }
 
     getStartSizeChannel (chanel: SOADataChannel) {

@@ -96,18 +96,24 @@ export class SizeOverLifetimeModule extends ParticleModule {
     }
 
     public update (particles: ParticleSOAData, context: ParticleUpdateContext) {
-
-    }
-
-    public animate (particle: Particle, dt: number) {
+        const { count, normalizedAliveTime, randomSeed } = particles;
+        const size = new Vec3();
         if (!this.separateAxes) {
-            Vec3.multiplyScalar(particle.size, particle.startSize, this.size.evaluate(1 - particle.remainingLifetime / particle.startLifetime, pseudoRandom(particle.randomSeed + SIZE_OVERTIME_RAND_OFFSET))!);
+            for (let i = 0; i < count; i++) {
+                particles.getStartSizeAt(size, i);
+                particles.setSizeAt(size.multiplyScalar(this.size.evaluate(normalizedAliveTime[i], pseudoRandom(randomSeed[i] + SIZE_OVERTIME_RAND_OFFSET))), i);
+            }
         } else {
-            const currLifetime = 1 - particle.remainingLifetime / particle.startLifetime;
-            const sizeRand = pseudoRandom(particle.randomSeed + SIZE_OVERTIME_RAND_OFFSET);
-            particle.size.x = particle.startSize.x * this.x.evaluate(currLifetime, sizeRand)!;
-            particle.size.y = particle.startSize.y * this.y.evaluate(currLifetime, sizeRand)!;
-            particle.size.z = particle.startSize.z * this.z.evaluate(currLifetime, sizeRand)!;
+            for (let i = 0; i < count; i++) {
+                particles.getStartSizeAt(size, i);
+                const currentLife = normalizedAliveTime[i];
+                const sizeRand = pseudoRandom(randomSeed[i] + SIZE_OVERTIME_RAND_OFFSET);
+                particles.setSizeAt(size.multiply3f(
+                    this.x.evaluate(currentLife, sizeRand),
+                    this.y.evaluate(currentLife, sizeRand),
+                    this.z.evaluate(currentLife, sizeRand),
+                ), i);
+            }
         }
     }
 }

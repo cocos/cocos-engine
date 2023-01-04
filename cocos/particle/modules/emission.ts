@@ -95,17 +95,25 @@ export class EmissionModule extends ParticleModule {
         this._emitRateDistanceCounter -= distanceEmitNum;
         particleUpdateContext.newEmittingCount += distanceEmitNum;
 
-        // bursts
-        for (const burst of this.bursts) {
-            burst.update(this, particleUpdateContext.emitterDeltaTime);
+        const preTime = particleUpdateContext.emitterAccumulatedTime - particleUpdateContext.emitterDeltaTime;
+        const time = particleUpdateContext.emitterAccumulatedTime;
+        for (let i = 0; i < this.bursts.length; i++) {
+            const burst = this.bursts[i];
+            if ((preTime < burst.time && time > burst.time) || (preTime > burst.time && burst.repeatCount > 1)) {
+                const preEmitTime = Math.floor((preTime - burst.time) / burst.repeatInterval);
+                if (preEmitTime < burst.repeatCount) {
+                    const currentEmitTime = Math.min(Math.floor((time - burst.time) / burst.repeatInterval), burst.repeatCount);
+                    const toEmitTime = currentEmitTime - preEmitTime;
+                    for (let j = 0; j < toEmitTime; j++) {
+                        particleUpdateContext.newEmittingCount += burst.count.evaluate(particleUpdateContext.normalizedTimeInCycle, 1);
+                    }
+                }
+            }
         }
     }
 
     public onStop (): void {
         this._emitRateTimeCounter = 0.0;
         this._emitRateDistanceCounter = 0.0;
-        for (const burst of this.bursts) {
-            burst.reset();
-        }
     }
 }

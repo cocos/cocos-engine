@@ -775,8 +775,11 @@ export class ParticleSystem extends Component {
             }
         }
         const velocity = new Vec3();
+        const animatedVelocity = new Vec3();
         for (let particleHandle = 0; particleHandle < this._particles.count; particleHandle++) {
             this._particles.getVelocityAt(velocity, particleHandle);
+            this._particles.getAnimatedVelocityAt(animatedVelocity, particleHandle);
+            velocity.add(animatedVelocity);
             this._particles.addPositionAt(velocity.multiplyScalar(deltaTime), particleHandle);
         }
 

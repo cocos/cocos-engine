@@ -29,8 +29,8 @@ import { DRAW_INFO_SIZE, Buffer, IndirectBuffer, Attribute, BufferInfo, DrawInfo
     AttributeName, BufferUsageBit, Format, FormatInfos, MemoryUsageBit, PrimitiveMode } from '../../core/gfx';
 import { Vec3 } from '../../core/math';
 import { scene } from '../../core/renderer';
-import CurveRange from '../modules/curve-range';
-import GradientRange from '../gradient-range';
+import { CurveRange } from '../curve-range';
+import { GradientRange } from '../gradient-range';
 import { Material } from '../../core/assets';
 
 const _vertex_attrs = [

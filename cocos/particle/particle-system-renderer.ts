@@ -117,9 +117,7 @@ export class ParticleSystemRenderer extends ModelRenderer {
             return;
         }
         this._renderMode = val;
-        if (this._particleSystem) {
-            this.updateRenderMode();
-        }
+        this.updateRenderMode();
     }
 
     /**
@@ -270,6 +268,7 @@ export class ParticleSystemRenderer extends ModelRenderer {
     @serializable
     private _mainTexture: Texture2D | null = null;
     private _model: ParticleBatchModel | null = null;
+    private _vertSize = 0;
     private _trailModel: scene.Model | null = null;
     protected _renderInfo: ParticleSystemRenderer | null = null;
     protected _vertAttrs: Attribute[] = [];
@@ -306,16 +305,25 @@ export class ParticleSystemRenderer extends ModelRenderer {
             new Attribute(AttributeName.ATTR_TEX_COORD1, Format.RGB32F), // xyz:velocity
             new Attribute(AttributeName.ATTR_COLOR, Format.RGBA8, true),
         ];
-        this._vertSize = 0;
         for (const a of this._vertAttrs) {
             this._vertSize += FormatInfos[a.format].size;
         }
     }
 
-    public onEnable () {
-        if (!this._particleSystem) {
+    public onLoad () {
+        if (!this._model) {
+            this._model = legacyCC.director.root.createModel(ParticleBatchModel);
+            this._model!.setCapacity(this._particleSystem.capacity);
+            this._model!.visFlags = this.node.layer;
+        }
+        if (this._trailModel) {
             return;
         }
+
+        this._trailModel = legacyCC.director.root.createModel(scene.Model);
+    }
+
+    public onEnable () {
         this.attachToScene();
         const model = this._model;
         if (model) {
@@ -336,7 +344,7 @@ export class ParticleSystemRenderer extends ModelRenderer {
         if (this._trailModel) {
             this._trailModel.detachFromScene();
             legacyCC.director.root.destroyModel(this._trailModel);
-            this._model = null;
+            this._trailModel = null;
         }
         if (this._subMeshData) {
             this._subMeshData.destroy();
@@ -372,14 +380,6 @@ export class ParticleSystemRenderer extends ModelRenderer {
 
     public getModel () {
         return this._model;
-    }
-
-    protected _initModel () {
-        if (!this._model) {
-            this._model = legacyCC.director.root.createModel(ParticleBatchModel);
-            this._model!.setCapacity(this._particleSystem.capacity);
-            this._model!.visFlags = this._particleSystem.visibility;
-        }
     }
 
     public update () {
@@ -818,20 +818,6 @@ export class ParticleSystemRenderer extends ModelRenderer {
         }
     }
 
-    protected _attachToScene () {
-        this._processor.attachToScene();
-        if (this._trailModule && this._trailModule.enable) {
-            this._trailModule._attachToScene();
-        }
-    }
-
-    protected _detachFromScene () {
-        this._processor.detachFromScene();
-        if (this._trailModule && this._trailModule.enable) {
-            this._trailModule._detachFromScene();
-        }
-    }
-
     public updateVertexAttrib () {
         if (this.renderMode !== RenderMode.Mesh) {
             return;
@@ -927,14 +913,6 @@ export class ParticleSystemRenderer extends ModelRenderer {
         }
     }
 
-    private _createModel () {
-        if (this._trailModel) {
-            return;
-        }
-
-        this._trailModel = legacyCC.director.root.createModel(scene.Model);
-    }
-
     private doUpdateRotation (pass) {
         const mode = this.renderMode;
         if (mode !== RenderMode.Mesh && this._alignSpace === AlignmentSpace.View) {
@@ -953,7 +931,7 @@ export class ParticleSystemRenderer extends ModelRenderer {
                 for (let i = 0; i < cameraLst?.length; ++i) {
                     const camera:Camera = cameraLst[i];
                     // eslint-disable-next-line max-len
-                    const checkCamera: boolean = (!EDITOR || legacyCC.GAME_VIEW) ? (camera.visibility & this.node.layer) === this._particleSystem.node.layer : camera.name === 'Editor Camera';
+                    const checkCamera: boolean = (!EDITOR || legacyCC.GAME_VIEW) ? (camera.visibility & this.node.layer) === this.node.layer : camera.name === 'Editor Camera';
                     if (checkCamera) {
                         Quat.fromViewUp(rotation, camera.forward);
                         break;

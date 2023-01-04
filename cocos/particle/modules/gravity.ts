@@ -53,8 +53,6 @@ export class GravityModule extends ParticleModule {
     }
 
     public update(particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
-        this.node.getWorldMatrix(_tempWorldTrans);
-
         if (particleUpdateContext.simulationSpace === Space.LOCAL) {
             const r: Quat = this.node.getRotation();
             Mat4.fromQuat(this._localMat, r);

@@ -26,14 +26,12 @@
 import { ccclass, type, serializable, editable, range } from 'cc.decorator';
 import { repeat } from '../core/math';
 import { CurveRange } from './curve-range';
+import { ParticleUpdateContext } from './particle-update-context';
 
 @ccclass('cc.Burst')
 export default class Burst {
-    @serializable
-    private _time = 0;
-
     /**
-     * @zh 粒子系统开始运行到触发此次 Brust 的时间。
+     * @zh 粒子系统开始运行到触发此次 Burst 的时间。
      */
     @editable
     get time () {
@@ -42,11 +40,7 @@ export default class Burst {
 
     set time (val) {
         this._time = val;
-        this._curTime = val;
     }
-
-    @serializable
-    private _repeatCount = 1;
 
     /**
      * @zh Burst 的触发次数。
@@ -58,15 +52,7 @@ export default class Burst {
 
     set repeatCount (val) {
         this._repeatCount = val;
-        this._remainingCount = val;
     }
-
-    /**
-     * @zh 每次触发的间隔时间。
-     */
-    @serializable
-    @editable
-    public repeatInterval = 1;
 
     /**
      * @zh 发射的粒子的数量。
@@ -76,35 +62,16 @@ export default class Burst {
     @range([0, 1])
     public count: CurveRange = new CurveRange();
 
-    private _remainingCount: number;
-    private _curTime: number;
-
-    constructor () {
-        this._remainingCount = 0;
-        this._curTime = 0.0;
-    }
-
-    public update (psys, dt: number) {
-        if (this._remainingCount === 0) {
-            this._remainingCount = this._repeatCount;
-            this._curTime = this._time;
-        }
-        if (this._remainingCount > 0) {
-            let preFrameTime = repeat(psys._time - psys.startDelay.evaluate(0, 1), psys.duration) - dt;
-            preFrameTime = (preFrameTime > 0.0) ? preFrameTime : 0.0;
-            const curFrameTime = repeat(psys.time - psys.startDelay.evaluate(0, 1), psys.duration);
-            if (this._curTime >= preFrameTime && this._curTime < curFrameTime) {
-                psys.emit(this.count.evaluate(this._curTime / psys.duration, 1), dt - (curFrameTime - this._curTime));
-                this._curTime += this.repeatInterval;
-                --this._remainingCount;
-            }
-        }
-    }
-
-    public reset () {
-        this._remainingCount = 0;
-        this._curTime = 0.0;
-    }
+    /**
+     * @zh 每次触发的间隔时间。
+     */
+    @serializable
+    @editable
+    public repeatInterval = 1;
+    @serializable
+    private _repeatCount = 1;
+    @serializable
+    private _time = 0;
 
     public getMaxCount (psys) {
         return this.count.getMax() * Math.min(Math.ceil(psys.duration / this.repeatInterval), this.repeatCount);
