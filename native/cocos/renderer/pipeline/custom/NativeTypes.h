@@ -31,12 +31,11 @@
 #pragma once
 #include "cocos/base/std/container/string.h"
 #include "cocos/base/std/hash/hash.h"
-#include "cocos/renderer/core/ProgramLib.h"
 #include "cocos/renderer/gfx-base/GFXRenderPass.h"
 #include "cocos/renderer/pipeline/GlobalDescriptorSetManager.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
 #include "cocos/renderer/pipeline/custom/NativeFwd.h"
-#include "cocos/renderer/pipeline/custom/RenderInterfaceTypes.h"
+#include "cocos/renderer/pipeline/custom/PrivateTypes.h"
 #include "cocos/renderer/pipeline/custom/details/Map.h"
 
 namespace cc {

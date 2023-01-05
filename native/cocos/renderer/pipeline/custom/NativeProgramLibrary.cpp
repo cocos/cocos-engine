@@ -1185,7 +1185,7 @@ ProgramProxy *NativeProgramLibrary::getProgramVariant(
     IntrusivePtr<gfx::Shader> shader = device->createShader(info.shaderInfo);
     auto res = phase.programProxies.emplace(
         key,
-        IntrusivePtr<NativeProgramProxy>(new NativeProgramProxy(std::move(shader))));
+        IntrusivePtr<ProgramProxy>(new NativeProgramProxy(std::move(shader))));
     CC_ENSURES(res.second);
 
     return res.first->second.get();
