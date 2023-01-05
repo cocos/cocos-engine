@@ -28,6 +28,7 @@
 #include "LayoutGraphSerialization.h"
 #include "NativePipelineTypes.h"
 #include "RenderInterfaceTypes.h"
+#include "RenderingModule.h"
 #include "details/GslUtils.h"
 #include "pipeline/custom/LayoutGraphTypes.h"
 #include "pipeline/custom/details/Pmr.h"
@@ -68,6 +69,13 @@ void Factory::destroy(RenderingModule* renderingModule) noexcept {
 
 Pipeline* Factory::createPipeline() {
     return ccnew NativePipeline(boost::container::pmr::get_default_resource());
+}
+
+ProgramLibrary* getProgramLibrary() {
+    if (!sRenderingModule) {
+        return nullptr;
+    }
+    return sRenderingModule->programLibrary.get();
 }
 
 } // namespace render

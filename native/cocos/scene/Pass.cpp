@@ -25,6 +25,7 @@
 #include "scene/Pass.h"
 #include "base/std/hash/hash.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
+#include "cocos/renderer/pipeline/custom/RenderingModule.h"
 #include "core/Root.h"
 #include "core/assets/TextureBase.h"
 #include "core/builtin/BuiltinResMgr.h"
@@ -134,8 +135,13 @@ ccstd::hash_t Pass::getPassHash(Pass *pass) {
     ccstd::hash_combine(hashValue, serializeDepthStencilState(pass->_depthStencilState));
     ccstd::hash_combine(hashValue, serializeRasterizerState(pass->_rs));
 
-    const ccstd::string &shaderKey = ProgramLib::getInstance()->getKey(pass->getProgram(), pass->getDefines());
-    ccstd::hash_range(hashValue, shaderKey.begin(), shaderKey.end());
+    const auto *programLib = render::getProgramLibrary();
+    if (programLib) {
+        const auto &shaderKey = programLib->getKey(pass->_phaseID, pass->getProgram(), pass->getDefines());
+    } else {
+        const ccstd::string &shaderKey = ProgramLib::getInstance()->getKey(pass->getProgram(), pass->getDefines());
+        ccstd::hash_range(hashValue, shaderKey.begin(), shaderKey.end());
+    }
 
     return hashValue;
 }

@@ -1018,7 +1018,7 @@ void NativeProgramLibrary::precompileEffect(gfx::Device *device, EffectAsset *ef
 }
 
 ccstd::string NativeProgramLibrary::getKey(
-    uint32_t phaseID, const ccstd::pmr::string &programName,
+    uint32_t phaseID, const ccstd::string &programName,
     const MacroRecord &defines) const {
     auto iter = phases.find(phaseID);
     if (iter == phases.end()) {
@@ -1026,7 +1026,7 @@ ccstd::string NativeProgramLibrary::getKey(
         return "";
     }
     const auto &phase = iter->second;
-    auto iter2 = phase.programInfos.find(programName);
+    auto iter2 = phase.programInfos.find(std::string_view{programName});
     if (iter2 == phase.programInfos.end()) {
         CC_LOG_ERROR("program not found");
         return "";

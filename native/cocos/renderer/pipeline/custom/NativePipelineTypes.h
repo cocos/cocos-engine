@@ -568,7 +568,7 @@ public:
 
     void addEffect(EffectAsset *effectAsset) override;
     void precompileEffect(gfx::Device *device, EffectAsset *effectAsset) override;
-    ccstd::string getKey(uint32_t phaseID, const ccstd::pmr::string &programName, const MacroRecord &defines) const override;
+    ccstd::string getKey(uint32_t phaseID, const ccstd::string &programName, const MacroRecord &defines) const override;
     const gfx::PipelineLayout &getPipelineLayout(gfx::Device *device, uint32_t phaseID, const ccstd::pmr::string &programName) override;
     const gfx::DescriptorSetLayout &getMaterialDescriptorSetLayout(gfx::Device *device, uint32_t phaseID, const ccstd::pmr::string &programName) override;
     const gfx::DescriptorSetLayout &getLocalDescriptorSetLayout(gfx::Device *device, uint32_t phaseID, const ccstd::pmr::string &programName) override;

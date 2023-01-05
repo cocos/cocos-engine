@@ -62,7 +62,7 @@ public:
 
     virtual void addEffect(EffectAsset *effectAsset) = 0;
     virtual void precompileEffect(gfx::Device *device, EffectAsset *effectAsset) = 0;
-    virtual ccstd::string getKey(uint32_t phaseID, const ccstd::pmr::string &programName, const MacroRecord &defines) const = 0;
+    virtual ccstd::string getKey(uint32_t phaseID, const ccstd::string &programName, const MacroRecord &defines) const = 0;
     virtual const gfx::PipelineLayout &getPipelineLayout(gfx::Device *device, uint32_t phaseID, const ccstd::pmr::string &programName) = 0;
     virtual const gfx::DescriptorSetLayout &getMaterialDescriptorSetLayout(gfx::Device *device, uint32_t phaseID, const ccstd::pmr::string &programName) = 0;
     virtual const gfx::DescriptorSetLayout &getLocalDescriptorSetLayout(gfx::Device *device, uint32_t phaseID, const ccstd::pmr::string &programName) = 0;
