@@ -52,6 +52,14 @@ export enum RequestType {
     SCENE = 'scene',
 }
 
+export interface IRequest extends Record<string, any> {
+    uuid?: string;
+    url?: string;
+    path?: string;
+    dir?: string;
+    scene?: string;
+}
+
 export const presets: Record<string, Record<string, any>> = {
 
     default: {

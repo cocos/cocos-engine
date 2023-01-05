@@ -450,13 +450,13 @@ export default class Bundle {
      * bundle1.loadScene('first', (err, sceneAsset) => director.runScene(sceneAsset));
      *
      */
-    public loadScene (sceneName: string, options: Record<string, any> | null, onProgress: ((finished: number, total: number, item: RequestItem) => void) | null, onComplete: ((err: Error | null, data: SceneAsset) => void) | null): void;
+    public loadScene (sceneName: string, options: { [key: string]: any, preset?: 'string' } | null, onProgress: ((finished: number, total: number, item: RequestItem) => void) | null, onComplete: ((err: Error | null, data: SceneAsset) => void) | null): void;
     public loadScene (sceneName: string, onProgress: ((finished: number, total: number, item: RequestItem) => void) | null, onComplete: ((err: Error | null, data: SceneAsset) => void) | null): void;
-    public loadScene (sceneName: string, options: Record<string, any> | null, onComplete?: ((err: Error | null, data: SceneAsset) => void) | null): void;
+    public loadScene (sceneName: string, options: { [key: string]: any, preset?: 'string' } | null, onComplete?: ((err: Error | null, data: SceneAsset) => void) | null): void;
     public loadScene (sceneName: string, onComplete?: ((err: Error | null, data: SceneAsset) => void) | null): void;
     public loadScene (
         sceneName: string,
-        options?: Record<string, any> | ((finished: number, total: number, item: RequestItem) => void) | ((err: Error | null, data: SceneAsset) => void) | null,
+        options?: { [key: string]: any, preset?: 'string' } | ((finished: number, total: number, item: RequestItem) => void) | ((err: Error | null, data: SceneAsset) => void) | null,
         onProgress?: ((finished: number, total: number, item: RequestItem) => void) | ((err: Error | null, data: SceneAsset) => void) | null,
         onComplete?: ((err: Error | null, data: SceneAsset) => void) | null,
     ) {
@@ -509,13 +509,13 @@ export default class Bundle {
      * bundle1.loadScene('first', (err, scene) => director.runScene(scene));
      *
      */
-    public preloadScene (sceneName: string, options: Record<string, any> | null, onProgress: ((finished: number, total: number, item: RequestItem) => void), onComplete: ((err?: Error | null) => void) | null): void;
+    public preloadScene (sceneName: string, options: { [key: string]: any, preset?: 'string' } | null, onProgress: ((finished: number, total: number, item: RequestItem) => void), onComplete: ((err?: Error | null) => void) | null): void;
     public preloadScene (sceneName: string, onProgress: ((finished: number, total: number, item: RequestItem) => void) | null, onComplete: ((err?: Error | null) => void) | null): void;
-    public preloadScene (sceneName: string, options: Record<string, any> | null, onComplete?: ((err?: Error | null) => void) | null): void;
+    public preloadScene (sceneName: string, options: { [key: string]: any, preset?: 'string' } | null, onComplete?: ((err?: Error | null) => void) | null): void;
     public preloadScene (sceneName: string, onComplete?: ((err?: Error | null) => void) | null): void;
     public preloadScene (
         sceneName: string,
-        options?: Record<string, any> | ((finished: number, total: number, item: RequestItem) => void) | ((err?: Error | null) => void) | null,
+        options?: { [key: string]: any, preset?: 'string' } | ((finished: number, total: number, item: RequestItem) => void) | ((err?: Error | null) => void) | null,
         onProgress?: ((finished: number, total: number, item: RequestItem) => void) | ((err?: Error | null) => void) | null,
         onComplete?: ((err?: Error | null) => void) | null,
     ) {

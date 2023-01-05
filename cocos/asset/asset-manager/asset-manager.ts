@@ -44,7 +44,7 @@ import RequestItem from './request-item';
 import {
     presets,
     references,
-    assets, BuiltinBundleName, bundles, fetchPipeline, files, parsed, pipeline, transformPipeline, assetsOverrideMap } from './shared';
+    assets, BuiltinBundleName, bundles, fetchPipeline, files, parsed, pipeline, transformPipeline, assetsOverrideMap, IRequest } from './shared';
 
 import Task from './task';
 import { combine, parse, replaceOverrideAsset } from './url-transformer';
@@ -472,15 +472,15 @@ export class AssetManager {
      * assetManager.loadAny({ url: 'http://example.com/my.asset' }, { skin: 'xxx', model: 'xxx', userName: 'xxx', password: 'xxx' });
      *
      */
-    public loadAny (requests: string | string[] | Record<string, any> | Array<Record<string, any>>, options: Record<string, any> | null, onProgress: ((finished: number, total: number, item: RequestItem) => void) | null, onComplete: ((err: Error | null, data: any) => void) | null): void;
-    public loadAny (requests: string | string[] | Record<string, any> | Array<Record<string, any>>, onProgress: ((finished: number, total: number, item: RequestItem) => void) | null, onComplete: ((err: Error | null, data: any) => void) | null): void;
-    public loadAny (requests: string | string[] | Record<string, any> | Array<Record<string, any>>, options: Record<string, any> | null, onComplete?: ((err: Error | null, data: any) => void) | null): void;
+    public loadAny (requests: string | string[] | IRequest | Array<IRequest>, options: { [key: string]: any, preset?: string } | null, onProgress: ((finished: number, total: number, item: RequestItem) => void) | null, onComplete: ((err: Error | null, data: any) => void) | null): void;
+    public loadAny (requests: string | string[] | IRequest | Array<IRequest>, onProgress: ((finished: number, total: number, item: RequestItem) => void) | null, onComplete: ((err: Error | null, data: any) => void) | null): void;
+    public loadAny (requests: string | string[] | IRequest | Array<IRequest>, options: { [key: string]: any, preset?: string } | null, onComplete?: ((err: Error | null, data: any) => void) | null): void;
     public loadAny<T extends Asset> (requests: string, onComplete?: ((err: Error | null, data: T) => void) | null): void;
     public loadAny<T extends Asset> (requests: string[], onComplete?: ((err: Error | null, data: T[]) => void) | null): void;
-    public loadAny (requests: string | string[] | Record<string, any> | Array<Record<string, any>>, onComplete?: ((err: Error | null, data: any) => void) | null): void;
+    public loadAny (requests: string | string[] | IRequest | Array<IRequest>, onComplete?: ((err: Error | null, data: any) => void) | null): void;
     public loadAny (
-        requests: string | string[] | Record<string, any> | Array<Record<string, any>>,
-        options?: Record<string, any> | ((finished: number, total: number, item: RequestItem) => void) | ((err: Error | null, data: any) => void) | null,
+        requests: string | string[] | IRequest | Array<IRequest>,
+        options?: { [key: string]: any, preset?: string } | ((finished: number, total: number, item: RequestItem) => void) | ((err: Error | null, data: any) => void) | null,
         onProgress?: ((finished: number, total: number, item: RequestItem) => void) | ((err: Error | null, data: any) => void) | null,
         onComplete?: ((err: Error | null, data: any) => void) | null,
     ) {
@@ -521,16 +521,16 @@ export class AssetManager {
      *
      */
     public preloadAny (
-        requests: string | string[] | Record<string, any> | Array<Record<string, any>>,
-        options: Record<string, any> | null,
+        requests: string | string[] | IRequest | Array<IRequest>,
+        options: { [key: string]: any, preset?: string } | null,
         onProgress: ((finished: number, total: number, item: RequestItem) => void) | null,
         onComplete: ((err: Error | null, data: RequestItem[]) => void)|null): void;
-    public preloadAny (requests: string | string[] | Record<string, any> | Array<Record<string, any>>, onProgress: ((finished: number, total: number, item: RequestItem) => void) | null, onComplete: ((err: Error | null, data: RequestItem[]) => void) | null): void;
-    public preloadAny (requests: string | string[] | Record<string, any> | Array<Record<string, any>>, options: Record<string, any> | null, onComplete?: ((err: Error | null, data: RequestItem[]) => void) | null): void;
-    public preloadAny (requests: string | string[] | Record<string, any> | Array<Record<string, any>>, onComplete?: ((err: Error | null, data: RequestItem[]) => void) | null): void;
+    public preloadAny (requests: string | string[] | IRequest | Array<IRequest>, onProgress: ((finished: number, total: number, item: RequestItem) => void) | null, onComplete: ((err: Error | null, data: RequestItem[]) => void) | null): void;
+    public preloadAny (requests: string | string[] | IRequest | Array<IRequest>, options: { [key: string]: any, preset?: string } | null, onComplete?: ((err: Error | null, data: RequestItem[]) => void) | null): void;
+    public preloadAny (requests: string | string[] | IRequest | Array<IRequest>, onComplete?: ((err: Error | null, data: RequestItem[]) => void) | null): void;
     public preloadAny (
-        requests: string | string[] | Record<string, any> | Array<Record<string, any>>,
-        options?: Record<string, any> | ((finished: number, total: number, item: RequestItem) => void) | ((err: Error | null, data: RequestItem[]) => void) | null,
+        requests: string | string[] | IRequest | Array<IRequest>,
+        options?: { [key: string]: any, preset?: string } | ((finished: number, total: number, item: RequestItem) => void) | ((err: Error | null, data: RequestItem[]) => void) | null,
         onProgress?: ((finished: number, total: number, item: RequestItem) => void) | ((err: Error | null, data: RequestItem[]) => void) | null,
         onComplete?: ((err: Error | null, data: RequestItem[]) => void) | null,
     ) {
@@ -717,15 +717,15 @@ export class AssetManager {
      */
     public loadWithJson<T extends Asset> (
         json: Record<string, any>,
-        options: Record<string, any> | null,
+        options: { [key: string]: any, assetId?: string } | null,
         onProgress: ((finished: number, total: number, item: RequestItem) => void) | null,
         onComplete: ((err: Error | null, data: T) => void) | null): void;
     public loadWithJson<T extends Asset> (json: Record<string, any>, onProgress: ((finished: number, total: number, item: RequestItem) => void) | null, onComplete: ((err: Error | null, data: T) => void) | null): void;
-    public loadWithJson<T extends Asset> (json: Record<string, any>, options: Record<string, any> | null, onComplete?: ((err: Error | null, data: T) => void) | null): void;
+    public loadWithJson<T extends Asset> (json: Record<string, any>, options: { [key: string]: any, assetId?: string }, onComplete?: ((err: Error | null, data: T) => void) | null): void;
     public loadWithJson<T extends Asset> (json: Record<string, any>, onComplete?: ((err: Error | null, data: T) => void) | null): void;
     public loadWithJson<T extends Asset> (
         json: Record<string, any>,
-        options?: Record<string, any> | ((err: Error | null, data: T) => void) | null,
+        options?: { [key: string]: any, assetId?: string } | ((err: Error | null, data: T) => void) | null,
         onProgress?: ((finished: number, total: number, item: RequestItem) => void) | ((err: Error | null, data: T) => void) | null,
         onComplete?: ((err: Error | null, data: T) => void) | null,
     ) {
@@ -776,7 +776,7 @@ export declare namespace AssetManager {
     export { BuiltinBundleName };
     export { CacheManager };
     export type { ICache };
-    export type { IAssetInfo, IPackInfo, IAddressableInfo, ISceneInfo };
+    export type { IAssetInfo, IPackInfo, IAddressableInfo, ISceneInfo, IRequest };
     export { DependUtil };
     export { Downloader };
     export { Parser };

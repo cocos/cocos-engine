@@ -211,7 +211,7 @@ export class Downloader {
      * Whether to automatically add a timestamp after the url.
      * This function is mainly used to prevent the browser from using cache in editor mode.
      * You don't need to change it at runtime.
-     * @engineInternal
+     * @internal
      */
     public appendTimeStamp = !!EDITOR;
 
