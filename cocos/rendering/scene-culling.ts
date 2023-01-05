@@ -88,34 +88,37 @@ export function shadowCulling (camera: Camera, sceneData: PipelineSceneData, lay
     dirShadowObjects.length = 0;
     const visibility = camera.visibility;
 
-    csmLayerObjects.array.forEach((obj, index) => {
+    for (let i = csmLayerObjects.length - 1; i >= 0; i--) {
+        const obj = csmLayerObjects.array[i];
         if (!obj) {
-            return;
+            csmLayerObjects.fastRemove(i);
+            continue;
         }
         const model = obj.model;
         if (!model || !model.enabled || !model.node) {
-            return;
+            csmLayerObjects.fastRemove(i);
+            continue;
         }
-        if (((visibility & model.node.layer) !== model.node.layer) && !(visibility & model.visFlags)) {
-            return;
+        if (((visibility & model.node.layer) !== model.node.layer) && (!(visibility & model.visFlags))) {
+            csmLayerObjects.fastRemove(i);
+            continue;
         }
         if (!model.worldBounds || !model.castShadow) {
-            return;
+            csmLayerObjects.fastRemove(i);
+            continue;
         }
-
-        // frustum culling
         const accurate = geometry.intersect.aabbFrustum(model.worldBounds, dirLightFrustum);
         if (!accurate) {
-            return;
+            continue;
         }
         dirShadowObjects.push(obj);
         if (layer.level < mainLight.csmLevel) {
             if (mainLight.csmOptimizationMode === CSMOptimizationMode.RemoveDuplicates
                     && geometry.intersect.aabbFrustumCompletelyInside(model.worldBounds, dirLightFrustum)) {
-                csmLayerObjects.fastRemove(index);
+                csmLayerObjects.fastRemove(i);
             }
         }
-    });
+    }
 }
 
 export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
