@@ -138,6 +138,8 @@ ccstd::hash_t Pass::getPassHash(Pass *pass) {
     const auto *programLib = render::getProgramLibrary();
     if (programLib) {
         const auto &shaderKey = programLib->getKey(pass->_phaseID, pass->getProgram(), pass->getDefines());
+        ccstd::hash_combine(hashValue, pass->_phaseID);
+        ccstd::hash_range(hashValue, shaderKey.begin(), shaderKey.end());
     } else {
         const ccstd::string &shaderKey = ProgramLib::getInstance()->getKey(pass->getProgram(), pass->getDefines());
         ccstd::hash_range(hashValue, shaderKey.begin(), shaderKey.end());
@@ -439,13 +441,25 @@ bool Pass::tryCompile() {
     }
 
     syncBatchingScheme();
-    auto *shader = ProgramLib::getInstance()->getGFXShader(_device, _programName, _defines, _root->getPipeline());
-    if (!shader) {
-        CC_LOG_WARNING("create shader %s failed", _programName.c_str());
-        return false;
+    auto *programLib = render::getProgramLibrary();
+    if (programLib) {
+        auto *shaderProxy = programLib->getProgramVariant(_device, _phaseID, _programName, _defines);
+        if (!shaderProxy) {
+            CC_LOG_WARNING("create shader %s failed", _programName.c_str());
+            return false;
+        }
+        _shader = shaderProxy->getShader();
+        _pipelineLayout = programLib->getPipelineLayout(_device, _phaseID, _programName);
+    } else {
+        auto *shader = ProgramLib::getInstance()->getGFXShader(_device, _programName, _defines, _root->getPipeline());
+        if (!shader) {
+            CC_LOG_WARNING("create shader %s failed", _programName.c_str());
+            return false;
+        }
+        _shader = shader;
+        _pipelineLayout = ProgramLib::getInstance()->getTemplateInfo(_programName)->pipelineLayout;
     }
-    _shader = shader;
-    _pipelineLayout = ProgramLib::getInstance()->getTemplateInfo(_programName)->pipelineLayout;
+
     _hash = Pass::getPassHash(this);
     return true;
 }

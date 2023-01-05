@@ -838,10 +838,10 @@ gfx::DescriptorSetLayout *getDescriptorSetLayout(
 gfx::DescriptorSetLayout *getProgramDescriptorSetLayout(
     gfx::Device *device,
     LayoutGraphData &lg, uint32_t phaseID,
-    const ccstd::pmr::string &programName, UpdateFrequency rate) {
+    const ccstd::string &programName, UpdateFrequency rate) {
     CC_EXPECTS(rate < UpdateFrequency::PER_PHASE);
     auto &phase = get(RenderPhaseTag{}, phaseID, lg);
-    const auto iter = phase.shaderIndex.find(programName);
+    const auto iter = phase.shaderIndex.find(std::string_view{programName});
     if (iter == phase.shaderIndex.end()) {
         return nullptr;
     }
@@ -1035,29 +1035,29 @@ ccstd::string NativeProgramLibrary::getKey(
     return getVariantKey(info.programInfo, defines);
 }
 
-const gfx::PipelineLayout &NativeProgramLibrary::getPipelineLayout(
-    gfx::Device *device, uint32_t phaseID, const ccstd::pmr::string &programName) {
+IntrusivePtr<gfx::PipelineLayout> NativeProgramLibrary::getPipelineLayout(
+    gfx::Device *device, uint32_t phaseID, const ccstd::string &programName) {
     if (mergeHighFrequency) {
         CC_EXPECTS(phaseID != LayoutGraphData::null_vertex());
         const auto &layout = get(RenderPhaseTag{}, phaseID, layoutGraph);
-        return *layout.pipelineLayout;
+        return layout.pipelineLayout;
     }
     auto &lg = layoutGraph;
     auto &phase = get(RenderPhaseTag{}, phaseID, lg);
-    const auto iter = phase.shaderIndex.find(programName);
+    const auto iter = phase.shaderIndex.find(std::string_view{programName});
     if (iter == phase.shaderIndex.end()) {
-        return *emptyPipelineLayout;
+        return emptyPipelineLayout;
     }
     const auto programID = iter->second;
     auto &programData = phase.shaderPrograms.at(programID);
     if (programData.pipelineLayout) {
-        return *programData.pipelineLayout;
+        return programData.pipelineLayout;
     }
 
     // get pass
     const auto passID = parent(phaseID, lg);
     if (passID == LayoutGraphData::null_vertex()) {
-        return *emptyPipelineLayout;
+        return emptyPipelineLayout;
     }
     // create pipeline layout
     gfx::PipelineLayoutInfo info{};
@@ -1080,7 +1080,7 @@ const gfx::PipelineLayout &NativeProgramLibrary::getPipelineLayout(
         info.setLayouts.emplace_back(instanceSet);
     }
     programData.pipelineLayout = device->createPipelineLayout(info);
-    return *programData.pipelineLayout;
+    return programData.pipelineLayout;
 }
 
 const gfx::DescriptorSetLayout &NativeProgramLibrary::getMaterialDescriptorSetLayout(
