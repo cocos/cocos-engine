@@ -314,6 +314,11 @@ public:
      */
     bool isTypedArray() const;
 
+    /** @brief Tests whether an object is a proxy object.
+     *  @return true if object is a proxy object, otherwise false.
+     */
+    bool isProxy() const;
+    
     /**
      *  @brief Gets the type of a typed array object.
      *  @return The type of a typed array object.
@@ -656,6 +661,7 @@ private:
     ~Object() override;
 
     bool init(Class *cls, v8::Local<v8::Object> obj);
+    v8::Local<v8::Value> getProxyTarget() const;
 
     Class *_cls{nullptr};
     ObjectWrap _obj;

@@ -564,6 +564,17 @@ bool Object::isTypedArray() const {
     return const_cast<Object *>(this)->_obj.handle(__isolate)->IsTypedArray();
 }
 
+bool Object::isProxy() const {
+    return const_cast<Object *>(this)->_obj.handle(__isolate)->IsProxy();
+}
+
+v8::Local<v8::Value> Object::getProxyTarget() const {
+    v8::Local<v8::Value> value = const_cast<Object *>(this)->_obj.handle(__isolate);
+    CC_ASSERTF(value->IsProxy(), "Object is not a Proxy");
+    v8::Proxy *proxy = v8::Proxy::Cast(*value);
+    return proxy->GetTarget();
+}
+
 Object::TypedArrayType Object::getTypedArrayType() const {
     v8::Local<v8::Value> value = const_cast<Object *>(this)->_obj.handle(__isolate);
     TypedArrayType ret = TypedArrayType::NONE;
@@ -787,15 +798,16 @@ bool Object::isWeakSet() const {
 }
 
 bool Object::isArray() const {
-    return const_cast<Object *>(this)->_obj.handle(__isolate)->IsArray();
+    return const_cast<Object *>(this)->_obj.handle(__isolate)->IsArray() || (isProxy() && getProxyTarget()->IsArray());
 }
 
 bool Object::getArrayLength(uint32_t *length) const {
     CC_ASSERT(isArray());
     CC_ASSERT_NOT_NULL(length);
+    using v8ArrayT= v8::Local<v8::Array>;
+    
     auto *thiz = const_cast<Object *>(this);
-
-    v8::Local<v8::Array> v8Arr = v8::Local<v8::Array>::Cast(thiz->_obj.handle(__isolate));
+    v8ArrayT v8Arr = isProxy() ? v8ArrayT::Cast(thiz->getProxyTarget()) : v8ArrayT::Cast(thiz->_obj.handle(__isolate));
     *length = v8Arr->Length();
     return true;
 }
