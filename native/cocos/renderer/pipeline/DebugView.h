@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-#include "core/Root.h"
+#pragma once
 
 namespace cc {
 

@@ -25,6 +25,7 @@
 #include "custom/RenderInterfaceTypes.h"
 #include "RenderPipeline.h"
 #include "core/Root.h"
+#include "DebugView.h"
 
 namespace cc {
 
