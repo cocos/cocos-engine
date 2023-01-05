@@ -250,8 +250,8 @@ void DevicePass::append(const FrameGraph &graph, const PassNode *passNode, ccstd
         logicPass.scissor = passNode->_scissor;
 
         for (const auto &attachment : passNode->_attachments) {
-            if (attachment.desc.samples > sampleCount) {
-                sampleCount = attachment.desc.samples;
+            if (attachment.desc.samples > _sampleCount) {
+                _sampleCount = attachment.desc.samples;
             }
         }
 
@@ -281,7 +281,7 @@ void DevicePass::append(const FrameGraph &graph, const RenderTargetAttachment &a
     uint32_t slot{attachment.desc.slot};
     if (attachment.desc.usage == RenderTargetAttachment::Usage::COLOR) {
         // should fetch actual color slot from current subpass
-        if (sampleCount != gfx::SampleCount::ONE && attachment.desc.samples == gfx::SampleCount::ONE) {
+        if (_sampleCount != gfx::SampleCount::ONE && attachment.desc.samples == gfx::SampleCount::ONE) {
             slot = subpass->resolves.size() > attachment.desc.slot ? subpass->resolves[attachment.desc.slot] : gfx::INVALID_BINDING;
         } else {
             slot = subpass->colors.size() > attachment.desc.slot ? subpass->colors[attachment.desc.slot] : gfx::INVALID_BINDING;
@@ -337,7 +337,7 @@ void DevicePass::append(const FrameGraph &graph, const RenderTargetAttachment &a
     }
 
     if (attachment.desc.usage == RenderTargetAttachment::Usage::COLOR) {
-        if (sampleCount != attachment.desc.samples && std::find(subpass->resolves.begin(), subpass->resolves.end(), output->desc.slot) == subpass->resolves.end()) {
+        if (_sampleCount != attachment.desc.samples && std::find(subpass->resolves.begin(), subpass->resolves.end(), output->desc.slot) == subpass->resolves.end()) {
             subpass->resolves.push_back(output->desc.slot);
         } else if (std::find(subpass->colors.begin(), subpass->colors.end(), output->desc.slot) == subpass->colors.end()) {
             subpass->colors.push_back(output->desc.slot);

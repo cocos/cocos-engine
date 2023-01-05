@@ -37,13 +37,13 @@
 #include "../RenderQueue.h"
 #include "../helper/Utils.h"
 #include "ForwardPipeline.h"
+#include "GFXExternalDefines.h"
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXFramebuffer.h"
 #include "pipeline/UIPhase.h"
 #include "profiler/Profiler.h"
 #include "scene/Camera.h"
 #include "scene/RenderWindow.h"
-#include "GFXExternalDefines.h"
 
 namespace cc {
 namespace pipeline {
@@ -166,8 +166,8 @@ void ForwardStage::render(scene::Camera *camera) {
     _planarShadowQueue->gatherShadowPasses(camera, cmdBuff);
 
     auto *swapChain = camera->getWindow()->getSwapchain();
-    uint32_t width = static_cast<uint32_t>(static_cast<float>(camera->getWindow()->getWidth()) * shadingScale);
-    uint32_t height = static_cast<uint32_t>(static_cast<float>(camera->getWindow()->getHeight()) * shadingScale);
+    auto width = static_cast<uint32_t>(static_cast<float>(camera->getWindow()->getWidth()) * shadingScale);
+    auto height = static_cast<uint32_t>(static_cast<float>(camera->getWindow()->getHeight()) * shadingScale);
     gfx::Format colorFormat = sceneData->isHDR() ? gfx::Format::RGBA16F : gfx::Format::RGBA8;
     gfx::SampleCount sampleCount = camera->getWindow()->getSampleCount();
 
@@ -311,7 +311,7 @@ void ForwardStage::render(scene::Camera *camera) {
         renderDebugRenderer(renderPass, cmdBuff, _pipeline->getPipelineSceneData(), camera);
 #endif
     };
-    auto* targetTexture = camera->getWindow()->getFramebuffer()->getColorTextures()[0];
+    auto *targetTexture = camera->getWindow()->getFramebuffer()->getColorTextures()[0];
     bool moveCompatible = (colorFormat == targetTexture->getFormat()) || RESOLVE_FORMAT_COMPATIBLE;
     // add pass
     pipeline->getFrameGraph().addPass<RenderData>(static_cast<uint32_t>(ForwardInsertPoint::IP_FORWARD), ForwardPipeline::fgStrHandleForwardPass, forwardSetup, forwardExec);
