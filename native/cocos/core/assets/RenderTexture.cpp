@@ -112,7 +112,7 @@ void RenderTexture::initWindow(const IRenderTextureCreateInfo &info) {
     windowInfo.title = _name;
     windowInfo.width = _width;
     windowInfo.height = _height;
-    windowInfo.sampleCount = info.sampleCount;
+    windowInfo.sampleCount = info.sampleCount.has_value() ? info.sampleCount.value() : gfx::SampleCount::ONE;
     if (info.passInfo.has_value()) {
         windowInfo.renderPassInfo = info.passInfo.value();
     } else {
