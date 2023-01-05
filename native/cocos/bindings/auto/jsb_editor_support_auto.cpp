@@ -732,12 +732,29 @@ static bool js_new_cc_middleware_Tex2F(se::State& s) // NOLINT(readability-ident
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::middleware::Tex2F *result;
     result = (cc::middleware::Tex2F *)new cc::middleware::Tex2F();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->u), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->v), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -922,12 +939,33 @@ static bool js_new_cc_middleware_V3F_T2F_C4B(se::State& s) // NOLINT(readability
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::middleware::V3F_T2F_C4B *result;
     result = (cc::middleware::V3F_T2F_C4B *)new cc::middleware::V3F_T2F_C4B();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->vertex), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->texCoord), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->color), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -1156,12 +1194,37 @@ static bool js_new_cc_middleware_V3F_T2F_C4B_C4B(se::State& s) // NOLINT(readabi
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::middleware::V3F_T2F_C4B_C4B *result;
     result = (cc::middleware::V3F_T2F_C4B_C4B *)new cc::middleware::V3F_T2F_C4B_C4B();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->vertex), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->texCoord), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->color), nullptr);
+    }
+    
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(result->color2), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -1385,12 +1448,37 @@ static bool js_new_cc_middleware_Triangles(se::State& s) // NOLINT(readability-i
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::middleware::Triangles *result;
     result = (cc::middleware::Triangles *)new cc::middleware::Triangles();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->verts), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->indices), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->vertCount), nullptr);
+    }
+    
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(result->indexCount), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -1614,12 +1702,37 @@ static bool js_new_cc_middleware_TwoColorTriangles(se::State& s) // NOLINT(reada
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::middleware::TwoColorTriangles *result;
     result = (cc::middleware::TwoColorTriangles *)new cc::middleware::TwoColorTriangles();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->verts), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->indices), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->vertCount), nullptr);
+    }
+    
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(result->indexCount), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -1869,12 +1982,37 @@ static bool js_new_cc_middleware_Texture2D_TexParams(se::State& s) // NOLINT(rea
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::middleware::Texture2D::TexParams *result;
     result = (cc::middleware::Texture2D::TexParams *)new cc::middleware::Texture2D::TexParams();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->minFilter), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->magFilter), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->wrapS), nullptr);
+    }
+    
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(result->wrapT), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }

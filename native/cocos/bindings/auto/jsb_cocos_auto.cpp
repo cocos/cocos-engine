@@ -4467,12 +4467,49 @@ static bool js_new_cc_ISystemWindowInfo(se::State& s) // NOLINT(readability-iden
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::ISystemWindowInfo *result;
     result = (cc::ISystemWindowInfo *)new cc::ISystemWindowInfo();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->title), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->x), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->y), nullptr);
+    }
+    
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(result->width), nullptr);
+    }
+    
+    if (argc > 4 && !args[4].isUndefined()) {
+        ok &= sevalue_to_native(args[4], &(result->height), nullptr);
+    }
+    
+    if (argc > 5 && !args[5].isUndefined()) {
+        ok &= sevalue_to_native(args[5], &(result->flags), nullptr);
+    }
+    
+    if (argc > 6 && !args[6].isUndefined()) {
+        ok &= sevalue_to_native(args[6], &(result->externalHandle), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }

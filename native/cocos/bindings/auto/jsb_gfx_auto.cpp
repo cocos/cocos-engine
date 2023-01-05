@@ -501,12 +501,33 @@ static bool js_new_cc_gfx_Size(se::State& s) // NOLINT(readability-identifier-na
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::Size *result;
     result = (cc::gfx::Size *)new cc::gfx::Size();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->x), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->y), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->z), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -1438,12 +1459,117 @@ static bool js_new_cc_gfx_DeviceCaps(se::State& s) // NOLINT(readability-identif
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::DeviceCaps *result;
     result = (cc::gfx::DeviceCaps *)new cc::gfx::DeviceCaps();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->maxVertexAttributes), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->maxVertexUniformVectors), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->maxFragmentUniformVectors), nullptr);
+    }
+    
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(result->maxTextureUnits), nullptr);
+    }
+    
+    if (argc > 4 && !args[4].isUndefined()) {
+        ok &= sevalue_to_native(args[4], &(result->maxImageUnits), nullptr);
+    }
+    
+    if (argc > 5 && !args[5].isUndefined()) {
+        ok &= sevalue_to_native(args[5], &(result->maxVertexTextureUnits), nullptr);
+    }
+    
+    if (argc > 6 && !args[6].isUndefined()) {
+        ok &= sevalue_to_native(args[6], &(result->maxColorRenderTargets), nullptr);
+    }
+    
+    if (argc > 7 && !args[7].isUndefined()) {
+        ok &= sevalue_to_native(args[7], &(result->maxShaderStorageBufferBindings), nullptr);
+    }
+    
+    if (argc > 8 && !args[8].isUndefined()) {
+        ok &= sevalue_to_native(args[8], &(result->maxShaderStorageBlockSize), nullptr);
+    }
+    
+    if (argc > 9 && !args[9].isUndefined()) {
+        ok &= sevalue_to_native(args[9], &(result->maxUniformBufferBindings), nullptr);
+    }
+    
+    if (argc > 10 && !args[10].isUndefined()) {
+        ok &= sevalue_to_native(args[10], &(result->maxUniformBlockSize), nullptr);
+    }
+    
+    if (argc > 11 && !args[11].isUndefined()) {
+        ok &= sevalue_to_native(args[11], &(result->maxTextureSize), nullptr);
+    }
+    
+    if (argc > 12 && !args[12].isUndefined()) {
+        ok &= sevalue_to_native(args[12], &(result->maxCubeMapTextureSize), nullptr);
+    }
+    
+    if (argc > 13 && !args[13].isUndefined()) {
+        ok &= sevalue_to_native(args[13], &(result->maxArrayTextureLayers), nullptr);
+    }
+    
+    if (argc > 14 && !args[14].isUndefined()) {
+        ok &= sevalue_to_native(args[14], &(result->max3DTextureSize), nullptr);
+    }
+    
+    if (argc > 15 && !args[15].isUndefined()) {
+        ok &= sevalue_to_native(args[15], &(result->uboOffsetAlignment), nullptr);
+    }
+    
+    if (argc > 16 && !args[16].isUndefined()) {
+        ok &= sevalue_to_native(args[16], &(result->maxComputeSharedMemorySize), nullptr);
+    }
+    
+    if (argc > 17 && !args[17].isUndefined()) {
+        ok &= sevalue_to_native(args[17], &(result->maxComputeWorkGroupInvocations), nullptr);
+    }
+    
+    if (argc > 18 && !args[18].isUndefined()) {
+        ok &= sevalue_to_native(args[18], &(result->maxComputeWorkGroupSize), nullptr);
+    }
+    
+    if (argc > 19 && !args[19].isUndefined()) {
+        ok &= sevalue_to_native(args[19], &(result->maxComputeWorkGroupCount), nullptr);
+    }
+    
+    if (argc > 20 && !args[20].isUndefined()) {
+        ok &= sevalue_to_native(args[20], &(result->supportQuery), nullptr);
+    }
+    
+    if (argc > 21 && !args[21].isUndefined()) {
+        ok &= sevalue_to_native(args[21], &(result->clipSpaceMinZ), nullptr);
+    }
+    
+    if (argc > 22 && !args[22].isUndefined()) {
+        ok &= sevalue_to_native(args[22], &(result->screenSpaceSignY), nullptr);
+    }
+    
+    if (argc > 23 && !args[23].isUndefined()) {
+        ok &= sevalue_to_native(args[23], &(result->clipSpaceSignY), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -1705,12 +1831,25 @@ static bool js_new_cc_gfx_DeviceOptions(se::State& s) // NOLINT(readability-iden
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::DeviceOptions *result;
     result = (cc::gfx::DeviceOptions *)new cc::gfx::DeviceOptions();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->enableBarrierDeduce), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -1908,12 +2047,33 @@ static bool js_new_cc_gfx_Offset(se::State& s) // NOLINT(readability-identifier-
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::Offset *result;
     result = (cc::gfx::Offset *)new cc::gfx::Offset();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->x), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->y), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->z), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -2161,12 +2321,37 @@ static bool js_new_cc_gfx_Rect(se::State& s) // NOLINT(readability-identifier-na
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::Rect *result;
     result = (cc::gfx::Rect *)new cc::gfx::Rect();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->x), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->y), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->width), nullptr);
+    }
+    
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(result->height), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -2389,12 +2574,33 @@ static bool js_new_cc_gfx_Extent(se::State& s) // NOLINT(readability-identifier-
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::Extent *result;
     result = (cc::gfx::Extent *)new cc::gfx::Extent();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->width), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->height), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->depth), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -2610,12 +2816,33 @@ static bool js_new_cc_gfx_TextureSubresLayers(se::State& s) // NOLINT(readabilit
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::TextureSubresLayers *result;
     result = (cc::gfx::TextureSubresLayers *)new cc::gfx::TextureSubresLayers();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->mipLevel), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->baseArrayLayer), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->layerCount), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -2865,12 +3092,37 @@ static bool js_new_cc_gfx_TextureSubresRange(se::State& s) // NOLINT(readability
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::TextureSubresRange *result;
     result = (cc::gfx::TextureSubresRange *)new cc::gfx::TextureSubresRange();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->baseMipLevel), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->levelCount), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->baseArrayLayer), nullptr);
+    }
+    
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(result->layerCount), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -3176,12 +3428,41 @@ static bool js_new_cc_gfx_TextureCopy(se::State& s) // NOLINT(readability-identi
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::TextureCopy *result;
     result = (cc::gfx::TextureCopy *)new cc::gfx::TextureCopy();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->srcSubres), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->srcOffset), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->dstSubres), nullptr);
+    }
+    
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(result->dstOffset), nullptr);
+    }
+    
+    if (argc > 4 && !args[4].isUndefined()) {
+        ok &= sevalue_to_native(args[4], &(result->extent), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -3531,12 +3812,45 @@ static bool js_new_cc_gfx_TextureBlit(se::State& s) // NOLINT(readability-identi
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::TextureBlit *result;
     result = (cc::gfx::TextureBlit *)new cc::gfx::TextureBlit();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->srcSubres), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->srcOffset), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->srcExtent), nullptr);
+    }
+    
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(result->dstSubres), nullptr);
+    }
+    
+    if (argc > 4 && !args[4].isUndefined()) {
+        ok &= sevalue_to_native(args[4], &(result->dstOffset), nullptr);
+    }
+    
+    if (argc > 5 && !args[5].isUndefined()) {
+        ok &= sevalue_to_native(args[5], &(result->dstExtent), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -3884,12 +4198,45 @@ static bool js_new_cc_gfx_BufferTextureCopy(se::State& s) // NOLINT(readability-
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::BufferTextureCopy *result;
     result = (cc::gfx::BufferTextureCopy *)new cc::gfx::BufferTextureCopy();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->buffOffset), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->buffStride), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->buffTexHeight), nullptr);
+    }
+    
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(result->texOffset), nullptr);
+    }
+    
+    if (argc > 4 && !args[4].isUndefined()) {
+        ok &= sevalue_to_native(args[4], &(result->texExtent), nullptr);
+    }
+    
+    if (argc > 5 && !args[5].isUndefined()) {
+        ok &= sevalue_to_native(args[5], &(result->texSubres), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -4224,12 +4571,45 @@ static bool js_new_cc_gfx_Viewport(se::State& s) // NOLINT(readability-identifie
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::Viewport *result;
     result = (cc::gfx::Viewport *)new cc::gfx::Viewport();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->left), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->top), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->width), nullptr);
+    }
+    
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(result->height), nullptr);
+    }
+    
+    if (argc > 4 && !args[4].isUndefined()) {
+        ok &= sevalue_to_native(args[4], &(result->minDepth), nullptr);
+    }
+    
+    if (argc > 5 && !args[5].isUndefined()) {
+        ok &= sevalue_to_native(args[5], &(result->maxDepth), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -4496,12 +4876,37 @@ static bool js_new_cc_gfx_Color(se::State& s) // NOLINT(readability-identifier-n
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::Color *result;
     result = (cc::gfx::Color *)new cc::gfx::Color();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->x), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->y), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->z), nullptr);
+    }
+    
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(result->w), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -4918,12 +5323,53 @@ static bool js_new_cc_gfx_BindingMappingInfo(se::State& s) // NOLINT(readability
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::BindingMappingInfo *result;
     result = (cc::gfx::BindingMappingInfo *)new cc::gfx::BindingMappingInfo();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->maxBlockCounts), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->maxSamplerTextureCounts), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->maxSamplerCounts), nullptr);
+    }
+    
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(result->maxTextureCounts), nullptr);
+    }
+    
+    if (argc > 4 && !args[4].isUndefined()) {
+        ok &= sevalue_to_native(args[4], &(result->maxBufferCounts), nullptr);
+    }
+    
+    if (argc > 5 && !args[5].isUndefined()) {
+        ok &= sevalue_to_native(args[5], &(result->maxImageCounts), nullptr);
+    }
+    
+    if (argc > 6 && !args[6].isUndefined()) {
+        ok &= sevalue_to_native(args[6], &(result->maxSubpassInputCounts), nullptr);
+    }
+    
+    if (argc > 7 && !args[7].isUndefined()) {
+        ok &= sevalue_to_native(args[7], &(result->setIndices), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -5245,12 +5691,41 @@ static bool js_new_cc_gfx_SwapchainInfo(se::State& s) // NOLINT(readability-iden
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::SwapchainInfo *result;
     result = (cc::gfx::SwapchainInfo *)new cc::gfx::SwapchainInfo();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->windowId), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->windowHandle), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->vsyncMode), nullptr);
+    }
+    
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(result->width), nullptr);
+    }
+    
+    if (argc > 4 && !args[4].isUndefined()) {
+        ok &= sevalue_to_native(args[4], &(result->height), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -5415,12 +5890,25 @@ static bool js_new_cc_gfx_DeviceInfo(se::State& s) // NOLINT(readability-identif
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::DeviceInfo *result;
     result = (cc::gfx::DeviceInfo *)new cc::gfx::DeviceInfo();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->bindingMappingInfo), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -5699,12 +6187,41 @@ static bool js_new_cc_gfx_BufferInfo(se::State& s) // NOLINT(readability-identif
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::BufferInfo *result;
     result = (cc::gfx::BufferInfo *)new cc::gfx::BufferInfo();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->usage), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->memUsage), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->size), nullptr);
+    }
+    
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(result->stride), nullptr);
+    }
+    
+    if (argc > 4 && !args[4].isUndefined()) {
+        ok &= sevalue_to_native(args[4], &(result->flags), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -5935,12 +6452,33 @@ static bool js_new_cc_gfx_BufferViewInfo(se::State& s) // NOLINT(readability-ide
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::BufferViewInfo *result;
     result = (cc::gfx::BufferViewInfo *)new cc::gfx::BufferViewInfo();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->buffer), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->offset), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->range), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -6291,12 +6829,49 @@ static bool js_new_cc_gfx_DrawInfo(se::State& s) // NOLINT(readability-identifie
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::DrawInfo *result;
     result = (cc::gfx::DrawInfo *)new cc::gfx::DrawInfo();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->vertexCount), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->firstVertex), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->indexCount), nullptr);
+    }
+    
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(result->firstIndex), nullptr);
+    }
+    
+    if (argc > 4 && !args[4].isUndefined()) {
+        ok &= sevalue_to_native(args[4], &(result->vertexOffset), nullptr);
+    }
+    
+    if (argc > 5 && !args[5].isUndefined()) {
+        ok &= sevalue_to_native(args[5], &(result->instanceCount), nullptr);
+    }
+    
+    if (argc > 6 && !args[6].isUndefined()) {
+        ok &= sevalue_to_native(args[6], &(result->firstInstance), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -6609,12 +7184,41 @@ static bool js_new_cc_gfx_DispatchInfo(se::State& s) // NOLINT(readability-ident
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::DispatchInfo *result;
     result = (cc::gfx::DispatchInfo *)new cc::gfx::DispatchInfo();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->groupCountX), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->groupCountY), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->groupCountZ), nullptr);
+    }
+    
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(result->indirectBuffer), nullptr);
+    }
+    
+    if (argc > 4 && !args[4].isUndefined()) {
+        ok &= sevalue_to_native(args[4], &(result->indirectOffset), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -6779,12 +7383,25 @@ static bool js_new_cc_gfx_IndirectBuffer(se::State& s) // NOLINT(readability-ide
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::IndirectBuffer *result;
     result = (cc::gfx::IndirectBuffer *)new cc::gfx::IndirectBuffer();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->drawInfos), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -7273,12 +7890,65 @@ static bool js_new_cc_gfx_TextureInfo(se::State& s) // NOLINT(readability-identi
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::TextureInfo *result;
     result = (cc::gfx::TextureInfo *)new cc::gfx::TextureInfo();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->type), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->usage), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->format), nullptr);
+    }
+    
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(result->width), nullptr);
+    }
+    
+    if (argc > 4 && !args[4].isUndefined()) {
+        ok &= sevalue_to_native(args[4], &(result->height), nullptr);
+    }
+    
+    if (argc > 5 && !args[5].isUndefined()) {
+        ok &= sevalue_to_native(args[5], &(result->flags), nullptr);
+    }
+    
+    if (argc > 6 && !args[6].isUndefined()) {
+        ok &= sevalue_to_native(args[6], &(result->layerCount), nullptr);
+    }
+    
+    if (argc > 7 && !args[7].isUndefined()) {
+        ok &= sevalue_to_native(args[7], &(result->levelCount), nullptr);
+    }
+    
+    if (argc > 8 && !args[8].isUndefined()) {
+        ok &= sevalue_to_native(args[8], &(result->samples), nullptr);
+    }
+    
+    if (argc > 9 && !args[9].isUndefined()) {
+        ok &= sevalue_to_native(args[9], &(result->depth), nullptr);
+    }
+    
+    if (argc > 10 && !args[10].isUndefined()) {
+        ok &= sevalue_to_native(args[10], &(result->externalRes), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -7693,12 +8363,49 @@ static bool js_new_cc_gfx_TextureViewInfo(se::State& s) // NOLINT(readability-id
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::TextureViewInfo *result;
     result = (cc::gfx::TextureViewInfo *)new cc::gfx::TextureViewInfo();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->texture), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->type), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->format), nullptr);
+    }
+    
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(result->baseLevel), nullptr);
+    }
+    
+    if (argc > 4 && !args[4].isUndefined()) {
+        ok &= sevalue_to_native(args[4], &(result->levelCount), nullptr);
+    }
+    
+    if (argc > 5 && !args[5].isUndefined()) {
+        ok &= sevalue_to_native(args[5], &(result->baseLayer), nullptr);
+    }
+    
+    if (argc > 6 && !args[6].isUndefined()) {
+        ok &= sevalue_to_native(args[6], &(result->layerCount), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -8133,12 +8840,53 @@ static bool js_new_cc_gfx_SamplerInfo(se::State& s) // NOLINT(readability-identi
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::SamplerInfo *result;
     result = (cc::gfx::SamplerInfo *)new cc::gfx::SamplerInfo();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->minFilter), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->magFilter), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->mipFilter), nullptr);
+    }
+    
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(result->addressU), nullptr);
+    }
+    
+    if (argc > 4 && !args[4].isUndefined()) {
+        ok &= sevalue_to_native(args[4], &(result->addressV), nullptr);
+    }
+    
+    if (argc > 5 && !args[5].isUndefined()) {
+        ok &= sevalue_to_native(args[5], &(result->addressW), nullptr);
+    }
+    
+    if (argc > 6 && !args[6].isUndefined()) {
+        ok &= sevalue_to_native(args[6], &(result->maxAnisotropy), nullptr);
+    }
+    
+    if (argc > 7 && !args[7].isUndefined()) {
+        ok &= sevalue_to_native(args[7], &(result->cmpFunc), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -8395,12 +9143,33 @@ static bool js_new_cc_gfx_Uniform(se::State& s) // NOLINT(readability-identifier
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::Uniform *result;
     result = (cc::gfx::Uniform *)new cc::gfx::Uniform();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->name), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->type), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->count), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -8724,12 +9493,45 @@ static bool js_new_cc_gfx_UniformBlock(se::State& s) // NOLINT(readability-ident
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::UniformBlock *result;
     result = (cc::gfx::UniformBlock *)new cc::gfx::UniformBlock();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->set), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->binding), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->name), nullptr);
+    }
+    
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(result->members), nullptr);
+    }
+    
+    if (argc > 4 && !args[4].isUndefined()) {
+        ok &= sevalue_to_native(args[4], &(result->count), nullptr);
+    }
+    
+    if (argc > 5 && !args[5].isUndefined()) {
+        ok &= sevalue_to_native(args[5], &(result->flattened), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -9074,12 +9876,45 @@ static bool js_new_cc_gfx_UniformSamplerTexture(se::State& s) // NOLINT(readabil
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::UniformSamplerTexture *result;
     result = (cc::gfx::UniformSamplerTexture *)new cc::gfx::UniformSamplerTexture();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->set), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->binding), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->name), nullptr);
+    }
+    
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(result->type), nullptr);
+    }
+    
+    if (argc > 4 && !args[4].isUndefined()) {
+        ok &= sevalue_to_native(args[4], &(result->count), nullptr);
+    }
+    
+    if (argc > 5 && !args[5].isUndefined()) {
+        ok &= sevalue_to_native(args[5], &(result->flattened), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -9387,12 +10222,41 @@ static bool js_new_cc_gfx_UniformSampler(se::State& s) // NOLINT(readability-ide
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::UniformSampler *result;
     result = (cc::gfx::UniformSampler *)new cc::gfx::UniformSampler();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->set), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->binding), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->name), nullptr);
+    }
+    
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(result->count), nullptr);
+    }
+    
+    if (argc > 4 && !args[4].isUndefined()) {
+        ok &= sevalue_to_native(args[4], &(result->flattened), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -9730,12 +10594,45 @@ static bool js_new_cc_gfx_UniformTexture(se::State& s) // NOLINT(readability-ide
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::UniformTexture *result;
     result = (cc::gfx::UniformTexture *)new cc::gfx::UniformTexture();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->set), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->binding), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->name), nullptr);
+    }
+    
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(result->type), nullptr);
+    }
+    
+    if (argc > 4 && !args[4].isUndefined()) {
+        ok &= sevalue_to_native(args[4], &(result->count), nullptr);
+    }
+    
+    if (argc > 5 && !args[5].isUndefined()) {
+        ok &= sevalue_to_native(args[5], &(result->flattened), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -10117,12 +11014,49 @@ static bool js_new_cc_gfx_UniformStorageImage(se::State& s) // NOLINT(readabilit
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::UniformStorageImage *result;
     result = (cc::gfx::UniformStorageImage *)new cc::gfx::UniformStorageImage();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->set), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->binding), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->name), nullptr);
+    }
+    
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(result->type), nullptr);
+    }
+    
+    if (argc > 4 && !args[4].isUndefined()) {
+        ok &= sevalue_to_native(args[4], &(result->count), nullptr);
+    }
+    
+    if (argc > 5 && !args[5].isUndefined()) {
+        ok &= sevalue_to_native(args[5], &(result->memoryAccess), nullptr);
+    }
+    
+    if (argc > 6 && !args[6].isUndefined()) {
+        ok &= sevalue_to_native(args[6], &(result->flattened), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -10474,12 +11408,45 @@ static bool js_new_cc_gfx_UniformStorageBuffer(se::State& s) // NOLINT(readabili
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::UniformStorageBuffer *result;
     result = (cc::gfx::UniformStorageBuffer *)new cc::gfx::UniformStorageBuffer();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->set), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->binding), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->name), nullptr);
+    }
+    
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(result->count), nullptr);
+    }
+    
+    if (argc > 4 && !args[4].isUndefined()) {
+        ok &= sevalue_to_native(args[4], &(result->memoryAccess), nullptr);
+    }
+    
+    if (argc > 5 && !args[5].isUndefined()) {
+        ok &= sevalue_to_native(args[5], &(result->flattened), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -10787,12 +11754,41 @@ static bool js_new_cc_gfx_UniformInputAttachment(se::State& s) // NOLINT(readabi
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::UniformInputAttachment *result;
     result = (cc::gfx::UniformInputAttachment *)new cc::gfx::UniformInputAttachment();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->set), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->binding), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->name), nullptr);
+    }
+    
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(result->count), nullptr);
+    }
+    
+    if (argc > 4 && !args[4].isUndefined()) {
+        ok &= sevalue_to_native(args[4], &(result->flattened), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -10994,12 +11990,29 @@ static bool js_new_cc_gfx_ShaderStage(se::State& s) // NOLINT(readability-identi
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::ShaderStage *result;
     result = (cc::gfx::ShaderStage *)new cc::gfx::ShaderStage();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->stage), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->source), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -11314,12 +12327,45 @@ static bool js_new_cc_gfx_Attribute(se::State& s) // NOLINT(readability-identifi
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::Attribute *result;
     result = (cc::gfx::Attribute *)new cc::gfx::Attribute();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->name), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->format), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->isNormalized), nullptr);
+    }
+    
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(result->stream), nullptr);
+    }
+    
+    if (argc > 4 && !args[4].isUndefined()) {
+        ok &= sevalue_to_native(args[4], &(result->isInstanced), nullptr);
+    }
+    
+    if (argc > 5 && !args[5].isUndefined()) {
+        ok &= sevalue_to_native(args[5], &(result->location), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -11824,12 +12870,61 @@ static bool js_new_cc_gfx_ShaderInfo(se::State& s) // NOLINT(readability-identif
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::ShaderInfo *result;
     result = (cc::gfx::ShaderInfo *)new cc::gfx::ShaderInfo();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->name), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->stages), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->attributes), nullptr);
+    }
+    
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(result->blocks), nullptr);
+    }
+    
+    if (argc > 4 && !args[4].isUndefined()) {
+        ok &= sevalue_to_native(args[4], &(result->buffers), nullptr);
+    }
+    
+    if (argc > 5 && !args[5].isUndefined()) {
+        ok &= sevalue_to_native(args[5], &(result->samplerTextures), nullptr);
+    }
+    
+    if (argc > 6 && !args[6].isUndefined()) {
+        ok &= sevalue_to_native(args[6], &(result->samplers), nullptr);
+    }
+    
+    if (argc > 7 && !args[7].isUndefined()) {
+        ok &= sevalue_to_native(args[7], &(result->textures), nullptr);
+    }
+    
+    if (argc > 8 && !args[8].isUndefined()) {
+        ok &= sevalue_to_native(args[8], &(result->images), nullptr);
+    }
+    
+    if (argc > 9 && !args[9].isUndefined()) {
+        ok &= sevalue_to_native(args[9], &(result->subpassInputs), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -12136,12 +13231,37 @@ static bool js_new_cc_gfx_InputAssemblerInfo(se::State& s) // NOLINT(readability
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::InputAssemblerInfo *result;
     result = (cc::gfx::InputAssemblerInfo *)new cc::gfx::InputAssemblerInfo();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->attributes), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->vertexBuffers), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->indexBuffer), nullptr);
+    }
+    
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(result->indirectBuffer), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -12479,12 +13599,45 @@ static bool js_new_cc_gfx_ColorAttachment(se::State& s) // NOLINT(readability-id
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::ColorAttachment *result;
     result = (cc::gfx::ColorAttachment *)new cc::gfx::ColorAttachment();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->format), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->sampleCount), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->loadOp), nullptr);
+    }
+    
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(result->storeOp), nullptr);
+    }
+    
+    if (argc > 4 && !args[4].isUndefined()) {
+        ok &= sevalue_to_native(args[4], &(result->barrier), nullptr);
+    }
+    
+    if (argc > 5 && !args[5].isUndefined()) {
+        ok &= sevalue_to_native(args[5], &(result->isGeneralLayout), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -12910,12 +14063,53 @@ static bool js_new_cc_gfx_DepthStencilAttachment(se::State& s) // NOLINT(readabi
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::DepthStencilAttachment *result;
     result = (cc::gfx::DepthStencilAttachment *)new cc::gfx::DepthStencilAttachment();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->format), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->sampleCount), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->depthLoadOp), nullptr);
+    }
+    
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(result->depthStoreOp), nullptr);
+    }
+    
+    if (argc > 4 && !args[4].isUndefined()) {
+        ok &= sevalue_to_native(args[4], &(result->stencilLoadOp), nullptr);
+    }
+    
+    if (argc > 5 && !args[5].isUndefined()) {
+        ok &= sevalue_to_native(args[5], &(result->stencilStoreOp), nullptr);
+    }
+    
+    if (argc > 6 && !args[6].isUndefined()) {
+        ok &= sevalue_to_native(args[6], &(result->barrier), nullptr);
+    }
+    
+    if (argc > 7 && !args[7].isUndefined()) {
+        ok &= sevalue_to_native(args[7], &(result->isGeneralLayout), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -13354,12 +14548,53 @@ static bool js_new_cc_gfx_SubpassInfo(se::State& s) // NOLINT(readability-identi
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::SubpassInfo *result;
     result = (cc::gfx::SubpassInfo *)new cc::gfx::SubpassInfo();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->inputs), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->colors), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->resolves), nullptr);
+    }
+    
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(result->preserves), nullptr);
+    }
+    
+    if (argc > 4 && !args[4].isUndefined()) {
+        ok &= sevalue_to_native(args[4], &(result->depthStencil), nullptr);
+    }
+    
+    if (argc > 5 && !args[5].isUndefined()) {
+        ok &= sevalue_to_native(args[5], &(result->depthStencilResolve), nullptr);
+    }
+    
+    if (argc > 6 && !args[6].isUndefined()) {
+        ok &= sevalue_to_native(args[6], &(result->depthResolveMode), nullptr);
+    }
+    
+    if (argc > 7 && !args[7].isUndefined()) {
+        ok &= sevalue_to_native(args[7], &(result->stencilResolveMode), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -13819,12 +15054,57 @@ static bool js_new_cc_gfx_SubpassDependency(se::State& s) // NOLINT(readability-
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::SubpassDependency *result;
     result = (cc::gfx::SubpassDependency *)new cc::gfx::SubpassDependency();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->srcSubpass), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->dstSubpass), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->generalBarrier), nullptr);
+    }
+    
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(result->bufferBarriers), nullptr);
+    }
+    
+    if (argc > 4 && !args[4].isUndefined()) {
+        ok &= sevalue_to_native(args[4], &(result->buffers), nullptr);
+    }
+    
+    if (argc > 5 && !args[5].isUndefined()) {
+        ok &= sevalue_to_native(args[5], &(result->bufferBarrierCount), nullptr);
+    }
+    
+    if (argc > 6 && !args[6].isUndefined()) {
+        ok &= sevalue_to_native(args[6], &(result->textureBarriers), nullptr);
+    }
+    
+    if (argc > 7 && !args[7].isUndefined()) {
+        ok &= sevalue_to_native(args[7], &(result->textures), nullptr);
+    }
+    
+    if (argc > 8 && !args[8].isUndefined()) {
+        ok &= sevalue_to_native(args[8], &(result->textureBarrierCount), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -14128,12 +15408,37 @@ static bool js_new_cc_gfx_RenderPassInfo(se::State& s) // NOLINT(readability-ide
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::RenderPassInfo *result;
     result = (cc::gfx::RenderPassInfo *)new cc::gfx::RenderPassInfo();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->colorAttachments), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->depthStencilAttachment), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->subpasses), nullptr);
+    }
+    
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(result->dependencies), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -14399,12 +15704,37 @@ static bool js_new_cc_gfx_GeneralBarrierInfo(se::State& s) // NOLINT(readability
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::GeneralBarrierInfo *result;
     result = (cc::gfx::GeneralBarrierInfo *)new cc::gfx::GeneralBarrierInfo();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->prevAccesses), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->nextAccesses), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->type), nullptr);
+    }
+    
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(result->_padding), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -14876,12 +16206,61 @@ static bool js_new_cc_gfx_TextureBarrierInfo(se::State& s) // NOLINT(readability
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::TextureBarrierInfo *result;
     result = (cc::gfx::TextureBarrierInfo *)new cc::gfx::TextureBarrierInfo();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->prevAccesses), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->nextAccesses), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->type), nullptr);
+    }
+    
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(result->baseMipLevel), nullptr);
+    }
+    
+    if (argc > 4 && !args[4].isUndefined()) {
+        ok &= sevalue_to_native(args[4], &(result->levelCount), nullptr);
+    }
+    
+    if (argc > 5 && !args[5].isUndefined()) {
+        ok &= sevalue_to_native(args[5], &(result->baseSlice), nullptr);
+    }
+    
+    if (argc > 6 && !args[6].isUndefined()) {
+        ok &= sevalue_to_native(args[6], &(result->sliceCount), nullptr);
+    }
+    
+    if (argc > 7 && !args[7].isUndefined()) {
+        ok &= sevalue_to_native(args[7], &(result->discardContents), nullptr);
+    }
+    
+    if (argc > 8 && !args[8].isUndefined()) {
+        ok &= sevalue_to_native(args[8], &(result->srcQueue), nullptr);
+    }
+    
+    if (argc > 9 && !args[9].isUndefined()) {
+        ok &= sevalue_to_native(args[9], &(result->dstQueue), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -15327,12 +16706,53 @@ static bool js_new_cc_gfx_BufferBarrierInfo(se::State& s) // NOLINT(readability-
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::BufferBarrierInfo *result;
     result = (cc::gfx::BufferBarrierInfo *)new cc::gfx::BufferBarrierInfo();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->prevAccesses), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->nextAccesses), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->type), nullptr);
+    }
+    
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(result->offset), nullptr);
+    }
+    
+    if (argc > 4 && !args[4].isUndefined()) {
+        ok &= sevalue_to_native(args[4], &(result->size), nullptr);
+    }
+    
+    if (argc > 5 && !args[5].isUndefined()) {
+        ok &= sevalue_to_native(args[5], &(result->discardContents), nullptr);
+    }
+    
+    if (argc > 6 && !args[6].isUndefined()) {
+        ok &= sevalue_to_native(args[6], &(result->srcQueue), nullptr);
+    }
+    
+    if (argc > 7 && !args[7].isUndefined()) {
+        ok &= sevalue_to_native(args[7], &(result->dstQueue), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -15588,12 +17008,33 @@ static bool js_new_cc_gfx_FramebufferInfo(se::State& s) // NOLINT(readability-id
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::FramebufferInfo *result;
     result = (cc::gfx::FramebufferInfo *)new cc::gfx::FramebufferInfo();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->renderPass), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->colorTextures), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->depthStencilTexture), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -15886,12 +17327,41 @@ static bool js_new_cc_gfx_DescriptorSetLayoutBinding(se::State& s) // NOLINT(rea
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::DescriptorSetLayoutBinding *result;
     result = (cc::gfx::DescriptorSetLayoutBinding *)new cc::gfx::DescriptorSetLayoutBinding();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->binding), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->descriptorType), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->count), nullptr);
+    }
+    
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(result->stageFlags), nullptr);
+    }
+    
+    if (argc > 4 && !args[4].isUndefined()) {
+        ok &= sevalue_to_native(args[4], &(result->immutableSamplers), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -16056,12 +17526,25 @@ static bool js_new_cc_gfx_DescriptorSetLayoutInfo(se::State& s) // NOLINT(readab
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::DescriptorSetLayoutInfo *result;
     result = (cc::gfx::DescriptorSetLayoutInfo *)new cc::gfx::DescriptorSetLayoutInfo();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->bindings), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -16196,12 +17679,25 @@ static bool js_new_cc_gfx_DescriptorSetInfo(se::State& s) // NOLINT(readability-
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::DescriptorSetInfo *result;
     result = (cc::gfx::DescriptorSetInfo *)new cc::gfx::DescriptorSetInfo();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->layout), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -16338,12 +17834,25 @@ static bool js_new_cc_gfx_PipelineLayoutInfo(se::State& s) // NOLINT(readability
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::PipelineLayoutInfo *result;
     result = (cc::gfx::PipelineLayoutInfo *)new cc::gfx::PipelineLayoutInfo();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->setLayouts), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -16480,12 +17989,25 @@ static bool js_new_cc_gfx_InputState(se::State& s) // NOLINT(readability-identif
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::InputState *result;
     result = (cc::gfx::InputState *)new cc::gfx::InputState();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->attributes), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -17018,12 +18540,69 @@ static bool js_new_cc_gfx_RasterizerState(se::State& s) // NOLINT(readability-id
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::RasterizerState *result;
     result = (cc::gfx::RasterizerState *)new cc::gfx::RasterizerState();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->isDiscard), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->polygonMode), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->shadeModel), nullptr);
+    }
+    
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(result->cullMode), nullptr);
+    }
+    
+    if (argc > 4 && !args[4].isUndefined()) {
+        ok &= sevalue_to_native(args[4], &(result->isFrontFaceCCW), nullptr);
+    }
+    
+    if (argc > 5 && !args[5].isUndefined()) {
+        ok &= sevalue_to_native(args[5], &(result->depthBiasEnabled), nullptr);
+    }
+    
+    if (argc > 6 && !args[6].isUndefined()) {
+        ok &= sevalue_to_native(args[6], &(result->depthBias), nullptr);
+    }
+    
+    if (argc > 7 && !args[7].isUndefined()) {
+        ok &= sevalue_to_native(args[7], &(result->depthBiasClamp), nullptr);
+    }
+    
+    if (argc > 8 && !args[8].isUndefined()) {
+        ok &= sevalue_to_native(args[8], &(result->depthBiasSlop), nullptr);
+    }
+    
+    if (argc > 9 && !args[9].isUndefined()) {
+        ok &= sevalue_to_native(args[9], &(result->isDepthClip), nullptr);
+    }
+    
+    if (argc > 10 && !args[10].isUndefined()) {
+        ok &= sevalue_to_native(args[10], &(result->isMultisample), nullptr);
+    }
+    
+    if (argc > 11 && !args[11].isUndefined()) {
+        ok &= sevalue_to_native(args[11], &(result->lineWidth), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -17894,12 +19473,97 @@ static bool js_new_cc_gfx_DepthStencilState(se::State& s) // NOLINT(readability-
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::DepthStencilState *result;
     result = (cc::gfx::DepthStencilState *)new cc::gfx::DepthStencilState();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->depthTest), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->depthWrite), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->depthFunc), nullptr);
+    }
+    
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(result->stencilTestFront), nullptr);
+    }
+    
+    if (argc > 4 && !args[4].isUndefined()) {
+        ok &= sevalue_to_native(args[4], &(result->stencilFuncFront), nullptr);
+    }
+    
+    if (argc > 5 && !args[5].isUndefined()) {
+        ok &= sevalue_to_native(args[5], &(result->stencilReadMaskFront), nullptr);
+    }
+    
+    if (argc > 6 && !args[6].isUndefined()) {
+        ok &= sevalue_to_native(args[6], &(result->stencilWriteMaskFront), nullptr);
+    }
+    
+    if (argc > 7 && !args[7].isUndefined()) {
+        ok &= sevalue_to_native(args[7], &(result->stencilFailOpFront), nullptr);
+    }
+    
+    if (argc > 8 && !args[8].isUndefined()) {
+        ok &= sevalue_to_native(args[8], &(result->stencilZFailOpFront), nullptr);
+    }
+    
+    if (argc > 9 && !args[9].isUndefined()) {
+        ok &= sevalue_to_native(args[9], &(result->stencilPassOpFront), nullptr);
+    }
+    
+    if (argc > 10 && !args[10].isUndefined()) {
+        ok &= sevalue_to_native(args[10], &(result->stencilRefFront), nullptr);
+    }
+    
+    if (argc > 11 && !args[11].isUndefined()) {
+        ok &= sevalue_to_native(args[11], &(result->stencilTestBack), nullptr);
+    }
+    
+    if (argc > 12 && !args[12].isUndefined()) {
+        ok &= sevalue_to_native(args[12], &(result->stencilFuncBack), nullptr);
+    }
+    
+    if (argc > 13 && !args[13].isUndefined()) {
+        ok &= sevalue_to_native(args[13], &(result->stencilReadMaskBack), nullptr);
+    }
+    
+    if (argc > 14 && !args[14].isUndefined()) {
+        ok &= sevalue_to_native(args[14], &(result->stencilWriteMaskBack), nullptr);
+    }
+    
+    if (argc > 15 && !args[15].isUndefined()) {
+        ok &= sevalue_to_native(args[15], &(result->stencilFailOpBack), nullptr);
+    }
+    
+    if (argc > 16 && !args[16].isUndefined()) {
+        ok &= sevalue_to_native(args[16], &(result->stencilZFailOpBack), nullptr);
+    }
+    
+    if (argc > 17 && !args[17].isUndefined()) {
+        ok &= sevalue_to_native(args[17], &(result->stencilPassOpBack), nullptr);
+    }
+    
+    if (argc > 18 && !args[18].isUndefined()) {
+        ok &= sevalue_to_native(args[18], &(result->stencilRefBack), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -18439,12 +20103,53 @@ static bool js_new_cc_gfx_BlendTarget(se::State& s) // NOLINT(readability-identi
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::BlendTarget *result;
     result = (cc::gfx::BlendTarget *)new cc::gfx::BlendTarget();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->blend), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->blendSrc), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->blendDst), nullptr);
+    }
+    
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(result->blendEq), nullptr);
+    }
+    
+    if (argc > 4 && !args[4].isUndefined()) {
+        ok &= sevalue_to_native(args[4], &(result->blendSrcAlpha), nullptr);
+    }
+    
+    if (argc > 5 && !args[5].isUndefined()) {
+        ok &= sevalue_to_native(args[5], &(result->blendDstAlpha), nullptr);
+    }
+    
+    if (argc > 6 && !args[6].isUndefined()) {
+        ok &= sevalue_to_native(args[6], &(result->blendAlphaEq), nullptr);
+    }
+    
+    if (argc > 7 && !args[7].isUndefined()) {
+        ok &= sevalue_to_native(args[7], &(result->blendColorMask), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -18808,12 +20513,37 @@ static bool js_new_cc_gfx_BlendState(se::State& s) // NOLINT(readability-identif
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::BlendState *result;
     result = (cc::gfx::BlendState *)new cc::gfx::BlendState();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->isA2C), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->isIndepend), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->blendColor), nullptr);
+    }
+    
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(result->targets), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -19335,12 +21065,65 @@ static bool js_new_cc_gfx_PipelineStateInfo(se::State& s) // NOLINT(readability-
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::PipelineStateInfo *result;
     result = (cc::gfx::PipelineStateInfo *)new cc::gfx::PipelineStateInfo();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->shader), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->pipelineLayout), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->renderPass), nullptr);
+    }
+    
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(result->inputState), nullptr);
+    }
+    
+    if (argc > 4 && !args[4].isUndefined()) {
+        ok &= sevalue_to_native(args[4], &(result->rasterizerState), nullptr);
+    }
+    
+    if (argc > 5 && !args[5].isUndefined()) {
+        ok &= sevalue_to_native(args[5], &(result->depthStencilState), nullptr);
+    }
+    
+    if (argc > 6 && !args[6].isUndefined()) {
+        ok &= sevalue_to_native(args[6], &(result->blendState), nullptr);
+    }
+    
+    if (argc > 7 && !args[7].isUndefined()) {
+        ok &= sevalue_to_native(args[7], &(result->primitive), nullptr);
+    }
+    
+    if (argc > 8 && !args[8].isUndefined()) {
+        ok &= sevalue_to_native(args[8], &(result->dynamicStates), nullptr);
+    }
+    
+    if (argc > 9 && !args[9].isUndefined()) {
+        ok &= sevalue_to_native(args[9], &(result->bindPoint), nullptr);
+    }
+    
+    if (argc > 10 && !args[10].isUndefined()) {
+        ok &= sevalue_to_native(args[10], &(result->subpass), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -19582,12 +21365,29 @@ static bool js_new_cc_gfx_CommandBufferInfo(se::State& s) // NOLINT(readability-
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::CommandBufferInfo *result;
     result = (cc::gfx::CommandBufferInfo *)new cc::gfx::CommandBufferInfo();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->queue), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->type), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -19731,12 +21531,25 @@ static bool js_new_cc_gfx_QueueInfo(se::State& s) // NOLINT(readability-identifi
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::QueueInfo *result;
     result = (cc::gfx::QueueInfo *)new cc::gfx::QueueInfo();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->type), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -19940,12 +21753,33 @@ static bool js_new_cc_gfx_QueryPoolInfo(se::State& s) // NOLINT(readability-iden
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::QueryPoolInfo *result;
     result = (cc::gfx::QueryPoolInfo *)new cc::gfx::QueryPoolInfo();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->type), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->maxQueryObjects), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->forceWait), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -20301,12 +22135,53 @@ static bool js_new_cc_gfx_FormatInfo(se::State& s) // NOLINT(readability-identif
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::FormatInfo *result;
     result = (cc::gfx::FormatInfo *)new cc::gfx::FormatInfo();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->name), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->size), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->count), nullptr);
+    }
+    
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(result->type), nullptr);
+    }
+    
+    if (argc > 4 && !args[4].isUndefined()) {
+        ok &= sevalue_to_native(args[4], &(result->hasAlpha), nullptr);
+    }
+    
+    if (argc > 5 && !args[5].isUndefined()) {
+        ok &= sevalue_to_native(args[5], &(result->hasDepth), nullptr);
+    }
+    
+    if (argc > 6 && !args[6].isUndefined()) {
+        ok &= sevalue_to_native(args[6], &(result->hasStencil), nullptr);
+    }
+    
+    if (argc > 7 && !args[7].isUndefined()) {
+        ok &= sevalue_to_native(args[7], &(result->isCompressed), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -20522,12 +22397,29 @@ static bool js_new_cc_gfx_MemoryStatus(se::State& s) // NOLINT(readability-ident
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::MemoryStatus *result;
     result = (cc::gfx::MemoryStatus *)new cc::gfx::MemoryStatus();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->bufferSize), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->textureSize), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -20736,12 +22628,33 @@ static bool js_new_cc_gfx_DynamicStencilStates(se::State& s) // NOLINT(readabili
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::DynamicStencilStates *result;
     result = (cc::gfx::DynamicStencilStates *)new cc::gfx::DynamicStencilStates();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->writeMask), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->compareMask), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->reference), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -21238,12 +23151,65 @@ static bool js_new_cc_gfx_DynamicStates(se::State& s) // NOLINT(readability-iden
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::gfx::DynamicStates *result;
     result = (cc::gfx::DynamicStates *)new cc::gfx::DynamicStates();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->viewport), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->scissor), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->blendConstant), nullptr);
+    }
+    
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(result->lineWidth), nullptr);
+    }
+    
+    if (argc > 4 && !args[4].isUndefined()) {
+        ok &= sevalue_to_native(args[4], &(result->depthBiasConstant), nullptr);
+    }
+    
+    if (argc > 5 && !args[5].isUndefined()) {
+        ok &= sevalue_to_native(args[5], &(result->depthBiasClamp), nullptr);
+    }
+    
+    if (argc > 6 && !args[6].isUndefined()) {
+        ok &= sevalue_to_native(args[6], &(result->depthBiasSlope), nullptr);
+    }
+    
+    if (argc > 7 && !args[7].isUndefined()) {
+        ok &= sevalue_to_native(args[7], &(result->depthMinBounds), nullptr);
+    }
+    
+    if (argc > 8 && !args[8].isUndefined()) {
+        ok &= sevalue_to_native(args[8], &(result->depthMaxBounds), nullptr);
+    }
+    
+    if (argc > 9 && !args[9].isUndefined()) {
+        ok &= sevalue_to_native(args[9], &(result->stencilStatesFront), nullptr);
+    }
+    
+    if (argc > 10 && !args[10].isUndefined()) {
+        ok &= sevalue_to_native(args[10], &(result->stencilStatesBack), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }

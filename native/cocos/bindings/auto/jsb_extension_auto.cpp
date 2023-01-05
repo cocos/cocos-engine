@@ -809,12 +809,37 @@ static bool js_new_cc_extension_DownloadUnit(se::State& s) // NOLINT(readability
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::extension::DownloadUnit *result;
     result = (cc::extension::DownloadUnit *)new cc::extension::DownloadUnit();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->srcUrl), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->storagePath), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->customId), nullptr);
+    }
+    
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(result->size), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -1075,12 +1100,41 @@ static bool js_new_cc_extension_ManifestAsset(se::State& s) // NOLINT(readabilit
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::extension::ManifestAsset *result;
     result = (cc::extension::ManifestAsset *)new cc::extension::ManifestAsset();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->md5), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->path), nullptr);
+    }
+    
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(result->compressed), nullptr);
+    }
+    
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(result->size), nullptr);
+    }
+    
+    if (argc > 4 && !args[4].isUndefined()) {
+        ok &= sevalue_to_native(args[4], &(result->downloadState), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
@@ -1253,12 +1307,29 @@ static bool js_new_cc_extension_Manifest_AssetDiff(se::State& s) // NOLINT(reada
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
     cc::extension::Manifest::AssetDiff *result;
     result = (cc::extension::Manifest::AssetDiff *)new cc::extension::Manifest::AssetDiff();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    if (argc == 0) {
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(result->asset), nullptr);
+    }
+    
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(result->type), nullptr);
+    }
+    
+    if (argc > 0 && !ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
