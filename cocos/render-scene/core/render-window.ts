@@ -25,7 +25,7 @@ import { screenAdapter } from 'pal/screen-adapter';
 import { Orientation } from '../../../pal/screen-adapter/enum-type';
 import {
     TextureType, TextureUsageBit, Format, RenderPass, Texture, Framebuffer,
-    RenderPassInfo, Device, TextureInfo, FramebufferInfo, Swapchain, SurfaceTransform,
+    RenderPassInfo, Device, TextureInfo, FramebufferInfo, Swapchain, SurfaceTransform, SampleCount, TextureFlagBit,
 } from '../../gfx';
 import { Root } from '../../root';
 import { Camera } from '../scene';
@@ -36,6 +36,7 @@ export interface IRenderWindowInfo {
     height: number;
     renderPassInfo: RenderPassInfo;
     swapchain?: Swapchain;
+    sampleCount?: SampleCount;
 }
 
 const orientationMap: Record<Orientation, SurfaceTransform> = {
@@ -129,6 +130,7 @@ export class RenderWindow {
             this._colorTextures.push(info.swapchain.colorTexture);
             this._depthStencilTexture = info.swapchain.depthStencilTexture;
         } else {
+            const sampleCount = info.sampleCount;
             for (let i = 0; i < info.renderPassInfo.colorAttachments.length; i++) {
                 this._colorTextures.push(device.createTexture(new TextureInfo(
                     TextureType.TEX2D,
@@ -136,6 +138,10 @@ export class RenderWindow {
                     info.renderPassInfo.colorAttachments[i].format,
                     this._width,
                     this._height,
+                    TextureFlagBit.NONE,
+                    1,
+                    1,
+                    sampleCount,
                 )));
             }
             if (info.renderPassInfo.depthStencilAttachment.format !== Format.UNKNOWN) {
@@ -145,6 +151,10 @@ export class RenderWindow {
                     info.renderPassInfo.depthStencilAttachment.format,
                     this._width,
                     this._height,
+                    TextureFlagBit.NONE,
+                    1,
+                    1,
+                    sampleCount,
                 ));
                 this._hasOffScreenAttachments = true;
             }
