@@ -110,8 +110,8 @@ bool GLES2GPUContext::initialize(GLES2GPUStateCache *stateCache, GLES2GPUConstan
 
     EGL_CHECK(eglBindAPI(EGL_OPENGL_ES_API));
 
-    bool msaaEnabled{MSAA_SWAPCHAIN};
-    bool qualityPreferred{true};
+    bool msaaEnabled{false};
+    bool qualityPreferred{false};
 
     EGLint redSize{8};
     EGLint greenSize{8};

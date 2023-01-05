@@ -28,37 +28,27 @@
 // Conditions outside GFX module better defined here.
 namespace cc {
 
+// MSAA_SWAPCHAIN: msaa swapchain
+// RESOLVE_FORMAT_COMPATIBLE: is texture format differs between msaa and resolve allowed?
+
 #if CC_EDITOR
     #if defined(CC_USE_GLES3) || defined(CC_USE_GLES2)
-// by enabling this render target texture is multisampled
-static constexpr bool MSAA_RT{false};
+
 // by enabling this use egl config onscreen msaa
-static constexpr bool MSAA_SWAPCHAIN{true};
-// by enabling this rendertarget is able to `move` to swapchain
-static constexpr bool MOVE_TO_SWAPCHAIN{true};
-    #else
-static constexpr bool MSAA_RT{true};
 static constexpr bool MSAA_SWAPCHAIN{false};
-static constexpr bool MOVE_TO_SWAPCHAIN{false};
+    #else
+static constexpr bool MSAA_SWAPCHAIN{true};
     #endif
 #else
-
-// note Metal requires resolve target has same format as msaa texture,
-// if you try to resolve to swapchain, make sure msaa texture format consistent with swapchain.
-static constexpr bool MSAA_RT{false};
 static constexpr bool MSAA_SWAPCHAIN{false};
-static constexpr bool MOVE_TO_SWAPCHAIN{true};
 #endif
 
-#if defined(CC_USE_GLES3) || defined(CC_USE_GLES2)
-// gl msaa rt needs a resolve target, while gl swapchain is memoryless(default fbo not a texture target),
-// so move is banned when msaa_rt is ON.
-static_assert(!(MSAA_RT && MOVE_TO_SWAPCHAIN));
-    #ifdef CC_USE_GLES2
-// present in frame graph performs a fbo(rbo) -> fbo(default)
-// gles2 no blitFramebuffer, same time read from render buffer is not allowed
-static_assert(MOVE_TO_SWAPCHAIN ^ MSAA_RT);
-    #endif
+#ifdef CC_USE_METAL
+// note Metal requires resolve target has same format as msaa texture,
+// if you try to resolve to swapchain, make sure msaa texture format consistent with swapchain.
+static constexpr bool RESOLVE_FORMAT_COMPATIBLE{false};
+#else
+static constexpr bool RESOLVE_FORMAT_COMPATIBLE{true};
 #endif
 
 } // namespace cc

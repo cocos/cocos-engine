@@ -852,11 +852,8 @@ NSUInteger mu::toMTLSampleCount(SampleCount count) {
         case SampleCount::ONE: return 1;
         case SampleCount::MULTIPLE_PERFORMANCE: return 2;
         case SampleCount::MULTIPLE_BALANCE: return 4;
-        case SampleCount::MULTIPLE_QUALITY:
-            return 8;
-            //        case SampleCount::X16: return 16;
-            //        case SampleCount::X32: return 32;
-            //        case SampleCount::X64: return 64;
+        // 1,2,4 are supported on most devices, few macOS supports 8 samples
+        case SampleCount::MULTIPLE_QUALITY: return 4;
     }
 }
 

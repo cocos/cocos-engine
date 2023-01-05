@@ -398,6 +398,15 @@ void FrameGraph::computeStoreActionAndMemoryless() {
                         attachment.storeOp = gfx::StoreOp::STORE;
                     }
                 }
+                if (attachment.desc.resolveSource.isValid() && attachment.storeOp == gfx::StoreOp::STORE) {
+                    auto srcID = attachment.desc.resolveSource;
+                    auto iter = std::find_if(passNode->_attachments.begin(), passNode->_attachments.end(), [srcID](const RenderTargetAttachment& attachment) {
+                        return attachment.textureHandle == srcID;
+                    });
+                    if (iter != passNode->_attachments.end()) {
+                        (*iter).storeOp = gfx::StoreOp::STORE;
+                    }
+                }
             }
 
             if (passNode->_subpass && attachment.desc.loadOp == gfx::LoadOp::LOAD && resourceNode.version > 1) {

@@ -53,6 +53,7 @@ struct RenderTargetAttachment final {
         gfx::AccessFlags beginAccesses{gfx::AccessFlagBit::NONE};
         gfx::AccessFlags endAccesses{gfx::AccessFlagBit::NONE};
         gfx::SampleCount samples{gfx::SampleCount::ONE};
+        TextureHandle resolveSource{};
     };
 
     struct Sorter {
