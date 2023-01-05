@@ -1193,33 +1193,43 @@ ProgramProxy *NativeProgramLibrary::getProgramVariant(
 
 const ccstd::pmr::vector<unsigned> &NativeProgramLibrary::getBlockSizes(
     uint32_t phaseID, const ccstd::pmr::string &programName) const {
-    std::ignore = phaseID;
-    std::ignore = programName;
-    throw std::runtime_error("not implemented");
+    CC_EXPECTS(phaseID != LayoutGraphData::null_vertex());
+    const auto &group = phases.at(phaseID);
+    const auto &info = group.programInfos.at(programName);
+    return info.blockSizes;
 }
 
 const Record<ccstd::string, uint32_t> &NativeProgramLibrary::getHandleMap(
     uint32_t phaseID, const ccstd::pmr::string &programName) const {
-    std::ignore = phaseID;
-    std::ignore = programName;
-    throw std::runtime_error("not implemented");
+    CC_EXPECTS(phaseID != LayoutGraphData::null_vertex());
+    const auto &group = phases.at(phaseID);
+    const auto &info = group.programInfos.at(programName);
+    return info.handleMap;
 }
 
 uint32_t NativeProgramLibrary::getProgramID(
     uint32_t phaseID, const ccstd::pmr::string &programName) {
-    std::ignore = phaseID;
-    std::ignore = programName;
-    throw std::runtime_error("not implemented");
+    CC_EXPECTS(phaseID != LayoutGraphData::null_vertex());
+    const auto &phase = get(RenderPhaseTag{}, phaseID, layoutGraph);
+    auto iter = phase.shaderIndex.find(programName);
+    if (iter == phase.shaderIndex.end()) {
+        CC_LOG_ERROR("program not found");
+        return LayoutGraphData::null_vertex();
+    }
+    return iter->second;
 }
 
 uint32_t NativeProgramLibrary::getDescriptorNameID(const ccstd::pmr::string &name) {
-    std::ignore = name;
-    return 0xFFFFFFFF;
+    const auto iter = layoutGraph.attributeIndex.find(name);
+    if (iter == layoutGraph.attributeIndex.end()) {
+        CC_LOG_ERROR("descriptor name not found");
+        return 0xFFFFFFFF;
+    }
+    return iter->second.value;
 }
 
 const ccstd::pmr::string &NativeProgramLibrary::getDescriptorName(uint32_t nameID) {
-    std::ignore = nameID;
-    throw std::runtime_error("not implemented");
+    return layoutGraph.valueNames.at(static_cast<size_t>(nameID));
 }
 
 } // namespace render
