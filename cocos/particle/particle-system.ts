@@ -1384,12 +1384,11 @@ export class ParticleSystem extends ModelRenderer {
             }
 
             // emit by rateOverDistance
-            const rateOverDistance = this.rateOverDistance.evaluate(this._time / this.duration, 1)!;
-            if (rateOverDistance > 0) {
+            if (!this.rateOverDistance.isZero()) {
                 Vec3.copy(this._oldWPos, this._curWPos);
                 this.node.getWorldPosition(this._curWPos);
                 const distance = Vec3.distance(this._curWPos, this._oldWPos);
-                this._emitRateDistanceCounter += distance * rateOverDistance;
+                this._emitRateDistanceCounter += distance * this.rateOverDistance.evaluate(this._time / this.duration, 1)!;
             }
 
             if (this._emitRateDistanceCounter > 1) {

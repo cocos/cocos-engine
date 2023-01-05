@@ -24,7 +24,7 @@
 
 import { ccclass } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { lerp, RealCurve, CCClass, geometry, Enum } from '../../core';
+import { lerp, RealCurve, CCClass, geometry, Enum, approx, EPSILON } from '../../core';
 import { PixelFormat, Filter, WrapMode } from '../../asset/assets/asset-enum';
 import { Texture2D, ImageAsset } from '../../asset/assets';
 
@@ -48,16 +48,10 @@ export const Mode = Enum({
 export default class CurveRange  {
     public static Mode = Mode;
 
-    /**
-     * @zh 当mode为Curve时，spline创建1个RealCurve，当mode为TwoCurves时，splineMax创建1个RealCurve,splineMin创建一个RealCurve
-     */
-    set mode (mode:number) {
-        this._mode = mode;
-        switch (mode) {
-        case Mode.Constant:
-            break;
-        case Mode.TwoConstants:
-            break;
+    public mode = Mode.Constant;
+
+    private checkCurve () {
+        switch (this.mode) {
         case Mode.Curve:
             if (!this.spline) this.spline = geometry.constructLegacyCurveAndConvert();
             break;
@@ -69,9 +63,7 @@ export default class CurveRange  {
             break;
         }
     }
-    get mode () {
-        return this._mode;
-    }
+
     /**
      * @zh 当mode为Curve时，使用的曲线。
      */
@@ -92,10 +84,12 @@ export default class CurveRange  {
      * @deprecated Since V3.3. Use `spline` instead.
      */
     get curve () {
+        this.checkCurve();
         return this._curve ??= new geometry.AnimationCurve(this.spline);
     }
 
     set curve (value) {
+        this.checkCurve();
         this._curve = value;
         this.spline = value._internalCurve;
     }
@@ -105,10 +99,12 @@ export default class CurveRange  {
      * @deprecated Since V3.3. Use `splineMin` instead.
      */
     get curveMin () {
+        this.checkCurve();
         return this._curveMin ??= new geometry.AnimationCurve(this.splineMin);
     }
 
     set curveMin (value) {
+        this.checkCurve();
         this._curveMin = value;
         this.splineMin = value._internalCurve;
     }
@@ -118,10 +114,12 @@ export default class CurveRange  {
      * @deprecated Since V3.3. Use `splineMax` instead.
      */
     get curveMax () {
+        this.checkCurve();
         return this._curveMax ??= new geometry.AnimationCurve(this.splineMax);
     }
 
     set curveMax (value) {
+        this.checkCurve();
         this._curveMax = value;
         this.splineMax = value._internalCurve;
     }
@@ -146,11 +144,6 @@ export default class CurveRange  {
      */
     public multiplier = 1;
 
-    /**
-     * @zh 曲线类型[[Mode]]。
-     */
-    private _mode = Mode.Constant;
-
     constructor () {
         /* Only create RealCurves in Editor, in order to show the Splines in Editor,
         in RunTime the RealCurves will only be created when it is in Curve mode*/
@@ -162,6 +155,7 @@ export default class CurveRange  {
     }
 
     public evaluate (time: number, rndRatio: number) {
+        this.checkCurve();
         switch (this.mode) {
         default:
         case Mode.Constant:
@@ -176,6 +170,7 @@ export default class CurveRange  {
     }
 
     public getMax (): number {
+        this.checkCurve();
         switch (this.mode) {
         default:
         case Mode.Constant:
@@ -186,6 +181,21 @@ export default class CurveRange  {
             return this.constantMax;
         case Mode.TwoCurves:
             return this.multiplier;
+        }
+    }
+
+    public isZero (): boolean {
+        this.checkCurve();
+        switch (this.mode) {
+        default:
+        case Mode.Constant:
+            return approx(this.constant, 0.0, EPSILON);
+        case Mode.Curve:
+            return approx(this.multiplier, 0.0, EPSILON);
+        case Mode.TwoConstants:
+            return approx(Math.max(Math.abs(this.constantMax), Math.abs(this.constantMin)), 0.0, EPSILON);
+        case Mode.TwoCurves:
+            return approx(this.multiplier, 0.0, EPSILON);
         }
     }
 
