@@ -387,6 +387,7 @@ function calculateFlattenedBinding (
     fixedInstanceDescriptorSetLayout: IDescriptorSetLayoutInfo | null,
     shaderInfo: ShaderInfo,
 ) {
+    // Descriptors of UniformBlock starts from 0, and Descriptors of SamplerTexture starts from the end of UniformBlock.
     const uniformBlockCapacities = new Array(4);
     {
         const passCapacity = descriptorSets[UpdateFrequency.PER_PASS]?.uniformBlockCapacity || 0;
@@ -396,25 +397,30 @@ function calculateFlattenedBinding (
             ? getIDescriptorSetLayoutInfoUniformBlockCapacity(fixedInstanceDescriptorSetLayout)
             : (descriptorSets[UpdateFrequency.PER_INSTANCE]?.uniformBlockCapacity || 0);
 
+        // update uniform block capacities
         uniformBlockCapacities[_setIndex[UpdateFrequency.PER_PASS]] = passCapacity;
         uniformBlockCapacities[_setIndex[UpdateFrequency.PER_PHASE]] = phaseCapacity;
         uniformBlockCapacities[_setIndex[UpdateFrequency.PER_BATCH]] = batchCapacity;
         uniformBlockCapacities[_setIndex[UpdateFrequency.PER_INSTANCE]] = instanceCapacity;
 
+        // calculate uniform block offsets
         const passOffset = 0;
         const phaseOffset = passOffset + passCapacity;
         const instanceOffset = phaseOffset + phaseCapacity;
         const batchOffset = instanceOffset + instanceCapacity;
 
+        // save uniform block offsets by set index
         const uniformBlockOffsets = new Array(4);
         uniformBlockOffsets[_setIndex[UpdateFrequency.PER_PASS]] = passOffset;
         uniformBlockOffsets[_setIndex[UpdateFrequency.PER_PHASE]] = phaseOffset;
         uniformBlockOffsets[_setIndex[UpdateFrequency.PER_BATCH]] = batchOffset;
         uniformBlockOffsets[_setIndex[UpdateFrequency.PER_INSTANCE]] = instanceOffset;
 
+        // update flattened uniform block binding
         setFlattenedUniformBlockBinding(uniformBlockOffsets, shaderInfo.blocks);
     }
     {
+        // calculate sampler texture capacities
         const passCapacity = descriptorSets[UpdateFrequency.PER_PASS]?.samplerTextureCapacity || 0;
         const phaseCapacity = descriptorSets[UpdateFrequency.PER_PHASE]?.samplerTextureCapacity || 0;
         // const batchCapacity = descriptorSets[UpdateFrequency.PER_BATCH]?.capacity || 0; // dynamic size
@@ -422,17 +428,20 @@ function calculateFlattenedBinding (
             ? getIDescriptorSetLayoutInfoSamplerTextureCapacity(fixedInstanceDescriptorSetLayout)
             : (descriptorSets[UpdateFrequency.PER_INSTANCE]?.samplerTextureCapacity || 0);
 
+        // calculate sampler texture offsets
         const passOffset = 0;
         const phaseOffset = passOffset + passCapacity;
         const instanceOffset = phaseOffset + phaseCapacity;
         const batchOffset = instanceOffset + instanceCapacity;
 
+        // save sampler texture offsets by set index
         const samplerTextureOffsets = new Array(4);
         samplerTextureOffsets[_setIndex[UpdateFrequency.PER_PASS]] = passOffset;
         samplerTextureOffsets[_setIndex[UpdateFrequency.PER_PHASE]] = phaseOffset;
         samplerTextureOffsets[_setIndex[UpdateFrequency.PER_BATCH]] = batchOffset;
         samplerTextureOffsets[_setIndex[UpdateFrequency.PER_INSTANCE]] = instanceOffset;
 
+        // update flattened sampler texture binding
         setFlattenedSamplerTextureBinding(samplerTextureOffsets, uniformBlockCapacities, shaderInfo.samplerTextures);
         setFlattenedSamplerTextureBinding(samplerTextureOffsets, uniformBlockCapacities, shaderInfo.samplers);
         setFlattenedSamplerTextureBinding(samplerTextureOffsets, uniformBlockCapacities, shaderInfo.textures);

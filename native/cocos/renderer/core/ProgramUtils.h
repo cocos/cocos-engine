@@ -34,6 +34,19 @@ void populateMacros(IProgramInfo& tmpl);
 ccstd::unordered_map<ccstd::string, uint32_t> genHandles(const IProgramInfo& tmpl);
 ccstd::unordered_map<ccstd::string, uint32_t> genHandles(const gfx::ShaderInfo& tmpl);
 ccstd::string getVariantKey(const IProgramInfo& tmpl, const MacroRecord& defines);
+ccstd::vector<IMacroInfo> prepareDefines(
+    const MacroRecord& records, const ccstd::vector<IDefineRecord>& defList);
+
+ccstd::vector<gfx::Attribute> getActiveAttributes(
+    const IProgramInfo& tmpl,
+    const ccstd::vector<gfx::Attribute>& gfxAttributes, const MacroRecord& defines);
+
+ccstd::vector<gfx::Attribute> getActiveAttributes(
+    const IProgramInfo& tmpl,
+    const ccstd::pmr::vector<gfx::Attribute>& gfxAttributes, const MacroRecord& defines);
+
+ccstd::string getShaderInstanceName(
+    const ccstd::string& name, const ccstd::vector<IMacroInfo>& macros);
 
 } // namespace render
 

@@ -34,16 +34,4 @@
 #include "cocos/renderer/pipeline/custom/LayoutGraphFwd.h"
 #include "cocos/renderer/pipeline/custom/RenderInterfaceFwd.h"
 
-namespace cc {
-
-namespace render {
-
-struct ProgramInfo;
-struct ProgramHost;
-struct ProgramGroup;
-
-} // namespace render
-
-} // namespace cc
-
 // clang-format on

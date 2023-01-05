@@ -28,38 +28,3 @@
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
 /* eslint-disable max-len */
-import { Attribute, Shader, ShaderInfo } from '../../gfx';
-import { IProgramInfo } from '../../render-scene/core/program-lib';
-
-export class ProgramInfo {
-    constructor (
-        programInfo: IProgramInfo,
-        shaderInfo: ShaderInfo,
-        attributes: Attribute[],
-        blockSizes: number[],
-        handleMap: Record<string, number>,
-    ) {
-        this.programInfo = programInfo;
-        this.shaderInfo = shaderInfo;
-        this.attributes = attributes;
-        this.blockSizes = blockSizes;
-        this.handleMap = handleMap;
-    }
-    readonly programInfo: IProgramInfo;
-    readonly shaderInfo: ShaderInfo;
-    readonly attributes: Attribute[];
-    readonly blockSizes: number[];
-    readonly handleMap: Record<string, number>;
-}
-
-export class ProgramHost {
-    constructor (program: Shader) {
-        this.program = program;
-    }
-    /*refcount*/ program: Shader;
-}
-
-export class ProgramGroup {
-    readonly programInfos: Map<string, ProgramInfo> = new Map<string, ProgramInfo>();
-    readonly programHosts: Map<string, ProgramHost> = new Map<string, ProgramHost>();
-}
