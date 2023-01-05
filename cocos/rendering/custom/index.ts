@@ -91,9 +91,11 @@ function addCustomBuiltinPipelines (map: Map<string, PipelineBuilder>) {
 
 addCustomBuiltinPipelines(customPipelineBuilderMap);
 
-export function init (device: Device, arrayBuffer: ArrayBuffer) {
-    const readBinaryData = new BinaryInputArchive(arrayBuffer);
-    loadLayoutGraphData(readBinaryData, defaultLayoutGraph);
+export function init (device: Device, arrayBuffer: ArrayBuffer | null) {
+    if (arrayBuffer) {
+        const readBinaryData = new BinaryInputArchive(arrayBuffer);
+        loadLayoutGraphData(readBinaryData, defaultLayoutGraph);
+    }
     initializeLayoutGraphData(device, defaultLayoutGraph);
 }
 

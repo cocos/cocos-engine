@@ -31,7 +31,7 @@ import { ConfigOrientation } from 'pal/screen-adapter';
 import assetManager, { IAssetManagerOptions } from '../asset/asset-manager/asset-manager';
 import { EventTarget, AsyncDelegate, sys, macro, VERSION, cclegacy, screen, Settings, settings, assert, garbageCollectionManager, DebugMode, warn, log, _resetDebugSetting } from '../core';
 import { input } from '../input';
-import { deviceManager } from '../gfx';
+import { deviceManager, LegacyRenderMode } from '../gfx';
 import { SplashScreen } from './splash-screen';
 import { RenderPipeline } from '../rendering';
 import { Layers, Node } from '../scene-graph';
@@ -774,6 +774,11 @@ export class Game extends EventTarget {
             .then(() => {
                 // initialize custom render pipeline
                 if (!cclegacy.rendering || !cclegacy.rendering.enableEffectImport) {
+                    return;
+                }
+                const renderMode = settings.querySettings(Settings.Category.RENDERING, 'renderMode');
+                if (renderMode === LegacyRenderMode.HEADLESS) {
+                    cclegacy.rendering.init(deviceManager.gfxDevice, null);
                     return;
                 }
                 const data = effectSettings.data;
