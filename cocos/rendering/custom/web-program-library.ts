@@ -31,7 +31,7 @@ import { IProgramInfo } from '../../render-scene/core/program-lib';
 import { DescriptorBlockData, DescriptorData, DescriptorSetData, DescriptorSetLayoutData, LayoutGraphData, LayoutGraphDataValue, PipelineLayoutData, RenderPhaseData, ShaderProgramData } from './layout-graph';
 import { ProgramLibrary, ProgramProxy } from './private';
 import { DescriptorTypeOrder, UpdateFrequency } from './types';
-import { ProgramGroup, ProgramHost, ProgramInfo } from './web-types';
+import { ProgramGroup, ProgramInfo } from './web-types';
 import { getCustomPassID, getCustomPhaseID, getOrCreateDescriptorSetLayout, getEmptyDescriptorSetLayout, getEmptyPipelineLayout, initializeDescriptorSetLayoutInfo, makeDescriptorSetLayoutData, getDescriptorSetLayout, getOrCreateDescriptorID, getDescriptorTypeOrder, getProgramID, getDescriptorNameID, getDescriptorName, INVALID_ID } from './layout-graph-utils';
 import { assert } from '../../core/platform/debug';
 import { IDescriptorSetLayoutInfo, localDescriptorSetLayout } from '../define';
@@ -529,16 +529,13 @@ function makeShaderInfo (
 }
 
 class WebProgramProxy implements ProgramProxy {
-    constructor (host: ProgramHost) {
-        this.host = host;
+    constructor (shader: Shader) {
+        this.shader = shader;
     }
     get name (): string {
-        return this.host.program.name;
+        return this.shader.name;
     }
-    get shader (): Shader {
-        return this.host.program;
-    }
-    host: ProgramHost;
+    readonly shader: Shader;
 }
 
 // find name and type from local descriptor set info
@@ -864,10 +861,10 @@ export class WebProgramLibrary implements ProgramLibrary {
         }
 
         // try get program
-        const programHosts = group.programHosts;
+        const programHosts = group.programProxies;
         const programHost = programHosts.get(key);
         if (programHost !== undefined) {
-            return new WebProgramProxy(programHost);
+            return programHost;
         }
 
         // prepare variant
@@ -894,11 +891,11 @@ export class WebProgramLibrary implements ProgramLibrary {
         const shader = device.createShader(shaderInfo);
 
         // create program host and register
-        const host = new ProgramHost(shader);
+        const host = new WebProgramProxy(shader);
         programHosts.set(key, host);
 
         // create
-        return new WebProgramProxy(host);
+        return host;
     }
     // get material descriptor set layout
     getMaterialDescriptorSetLayout (device: Device, phaseID: number, programName: string): DescriptorSetLayout {

@@ -58,8 +58,6 @@ struct ResourceGroup;
 struct NativeRenderContext;
 class NativePipeline;
 class NativeProgramProxy;
-struct ProgramInfo;
-struct ProgramGroup;
 class NativeProgramLibrary;
 class NativeRenderingModule;
 

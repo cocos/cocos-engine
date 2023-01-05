@@ -107,43 +107,6 @@ NativeRenderContext::NativeRenderContext(const allocator_type& alloc) noexcept
 : renderPasses(alloc),
   resourceGroups(alloc) {}
 
-ProgramInfo::ProgramInfo(const allocator_type& alloc) noexcept
-: attributes(alloc),
-  blockSizes(alloc) {}
-
-ProgramInfo::ProgramInfo(IProgramInfo programInfoIn, gfx::ShaderInfo shaderInfoIn, ccstd::pmr::vector<gfx::Attribute> attributesIn, ccstd::pmr::vector<unsigned> blockSizesIn, Record<ccstd::string, uint32_t> handleMapIn, const allocator_type& alloc) noexcept
-: programInfo(std::move(programInfoIn)),
-  shaderInfo(std::move(shaderInfoIn)),
-  attributes(std::move(attributesIn), alloc),
-  blockSizes(std::move(blockSizesIn), alloc),
-  handleMap(std::move(handleMapIn)) {}
-
-ProgramInfo::ProgramInfo(ProgramInfo&& rhs, const allocator_type& alloc)
-: programInfo(std::move(rhs.programInfo)),
-  shaderInfo(std::move(rhs.shaderInfo)),
-  attributes(std::move(rhs.attributes), alloc),
-  blockSizes(std::move(rhs.blockSizes), alloc),
-  handleMap(std::move(rhs.handleMap)) {}
-
-ProgramInfo::ProgramInfo(ProgramInfo const& rhs, const allocator_type& alloc)
-: programInfo(rhs.programInfo),
-  shaderInfo(rhs.shaderInfo),
-  attributes(rhs.attributes, alloc),
-  blockSizes(rhs.blockSizes, alloc),
-  handleMap(rhs.handleMap) {}
-
-ProgramGroup::ProgramGroup(const allocator_type& alloc) noexcept
-: programInfos(alloc),
-  programProxies(alloc) {}
-
-ProgramGroup::ProgramGroup(ProgramGroup&& rhs, const allocator_type& alloc)
-: programInfos(std::move(rhs.programInfos), alloc),
-  programProxies(std::move(rhs.programProxies), alloc) {}
-
-ProgramGroup::ProgramGroup(ProgramGroup const& rhs, const allocator_type& alloc)
-: programInfos(rhs.programInfos, alloc),
-  programProxies(rhs.programProxies, alloc) {}
-
 NativeProgramLibrary::NativeProgramLibrary(const allocator_type& alloc) noexcept
 : layoutGraph(alloc),
   phases(alloc) {}
