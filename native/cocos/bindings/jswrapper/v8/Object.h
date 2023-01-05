@@ -179,8 +179,8 @@ public:
 
     /**
      * Gets the Proxy Target object
-     * @param proxy
-     * @return Object*
+     * @param proxy The JavaScript Proxy object.
+     * @return The target JavaScript object of the parameter.
      */
     static Object *createProxyTarget(se::Object *proxy);
 
