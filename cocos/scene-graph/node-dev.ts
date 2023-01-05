@@ -147,7 +147,7 @@ export function nodePolyfill (Node) {
         Node.prototype._onRestoreBase = Node.prototype.onRestore;
     }
 
-    if ((EDITOR && !IS_PREVIEW) || TEST) {
+    if (EDITOR || TEST) {
         Node.prototype._registerIfAttached = function (register) {
             if (!this._id) {
                 console.warn(`Node(${this && this.name}}) is invalid or its data is corrupted.`);
