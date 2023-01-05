@@ -398,7 +398,7 @@ export class Root {
         }
 
         const renderMode = settings.querySettings(Settings.Category.RENDERING, 'renderMode');
-        if (renderMode !== LegacyRenderMode.HEADLESS) {
+        if (renderMode !== LegacyRenderMode.HEADLESS || this._classicPipeline) {
             if (!this._pipeline.activate(this._mainWindow!.swapchain)) {
                 if (isCreateDefaultPipeline) {
                     this._pipeline.destroy();
