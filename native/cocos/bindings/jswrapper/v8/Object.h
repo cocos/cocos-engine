@@ -178,8 +178,7 @@ public:
     static Object *createObjectWithConstructor(se::Object *constructor, const ValueArray &args);
 
     /**
-     * @brief Get the Proxy Target object
-     *
+     * Gets the Proxy Target object
      * @param proxy
      * @return Object*
      */

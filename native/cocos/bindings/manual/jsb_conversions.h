@@ -202,7 +202,7 @@ seval_to_std_vector(const se::Value &v, ccstd::vector<T> *ret) { // NOLINT(reada
     CC_ASSERT(v.isObject());
     se::Object *arrayObj= v.toObject();
     bool isArrayProxy = arrayObj->isProxy();
-    se::HandleObject array(isArrayProxy ? se::Object::createProxyTarget(arrayObj) : (arrayObj->incRef(), arrayObj));
+    se::HandleObject array(isArrayProxy ? se::Object::createProxyTarget(arrayObj) : (arrayObj->incRef(), arrayObj->root(), arrayObj));
     CC_ASSERT(array->isArray());
 
     bool ok = true;
@@ -244,7 +244,7 @@ seval_to_std_vector(const se::Value &v, ccstd::vector<T> *ret) { // NOLINT(reada
     CC_ASSERT(v.isObject());
     se::Object *arrayObj= v.toObject();
     bool isArrayProxy = arrayObj->isProxy();
-    se::HandleObject array(isArrayProxy ? se::Object::createProxyTarget(arrayObj) : (arrayObj->incRef(), arrayObj));
+    se::HandleObject array(isArrayProxy ? se::Object::createProxyTarget(arrayObj) : (arrayObj->incRef(), arrayObj->root(), arrayObj));
     CC_ASSERT(array->isArray());
 
     bool ok = true;
@@ -715,7 +715,7 @@ bool sevalue_to_native(const se::Value &from, ccstd::vector<T> *to, se::Object *
     CC_ASSERT(from.toObject());
     se::Object *arrayObj= from.toObject();
     bool isArrayProxy = arrayObj->isProxy();
-    se::HandleObject array(isArrayProxy ? se::Object::createProxyTarget(arrayObj) : (arrayObj->incRef(), arrayObj));
+    se::HandleObject array(isArrayProxy ? se::Object::createProxyTarget(arrayObj) : (arrayObj->incRef(), arrayObj->root(), arrayObj));
     CC_ASSERT(array->isArray());
     if (array->isArray()) {
         uint32_t len = 0;
