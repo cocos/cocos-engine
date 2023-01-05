@@ -178,6 +178,14 @@ public:
     static Object *createObjectWithConstructor(se::Object *constructor, const ValueArray &args);
 
     /**
+     * @brief Get the Proxy Target object
+     *
+     * @param proxy
+     * @return Object*
+     */
+    static Object *createProxyTarget(se::Object *proxy);
+
+    /**
      *  @brief Gets a se::Object from an existing native object pointer.
      *  @param[in] ptr The native object pointer associated with the se::Object
      *  @return A JavaScript Native Binding Object, or nullptr if there is an error.

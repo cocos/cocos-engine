@@ -150,6 +150,13 @@ void Object::cleanup() {
     SE_ASSERT(NativePtrToObjectMap::size() == 0, "NativePtrToObjectMap should be empty!");
 }
 
+Object *Object::createProxyTarget(se::Object *proxy) {
+    SE_ASSERT(proxy->isProxy(), "parameter is not a Proxy object");
+    v8::Local<v8::Object> jsobj = proxy->getProxyTarget().As<v8::Object>();
+    Object *obj = Object::_createJSObject(nullptr, jsobj);
+    return obj;
+}
+
 Object *Object::createPlainObject() {
     v8::Local<v8::Object> jsobj = v8::Object::New(__isolate);
     Object *obj = _createJSObject(nullptr, jsobj);
@@ -798,16 +805,14 @@ bool Object::isWeakSet() const {
 }
 
 bool Object::isArray() const {
-    return const_cast<Object *>(this)->_obj.handle(__isolate)->IsArray() || (isProxy() && getProxyTarget()->IsArray());
+    return const_cast<Object *>(this)->_obj.handle(__isolate)->IsArray();
 }
 
 bool Object::getArrayLength(uint32_t *length) const {
     CC_ASSERT(isArray());
     CC_ASSERT_NOT_NULL(length);
-    using v8ArrayT= v8::Local<v8::Array>;
-    
     auto *thiz = const_cast<Object *>(this);
-    v8ArrayT v8Arr = isProxy() ? v8ArrayT::Cast(thiz->getProxyTarget()) : v8ArrayT::Cast(thiz->_obj.handle(__isolate));
+    auto v8Arr = v8::Local<v8::Array>::Cast(thiz->_obj.handle(__isolate));
     *length = v8Arr->Length();
     return true;
 }

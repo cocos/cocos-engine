@@ -48,21 +48,22 @@ assetProto._ctor = function () {
 
     this._callbackTable = js.createMap(true);
     this._file = null;
+    this._uuid = ''; // @deprecated since v3.5.0
     // for deserialization
     // _initializerDefineProperty(_this, "_native", _descriptor$1, _assertThisInitialized(_this));
 };
 
-Object.defineProperty (assetProto, '_nativeAsset', {
-    get (): any {
+Object.defineProperty(assetProto, '_nativeAsset', {
+    get(): any {
         return this._file;
     },
-    set (obj: any) {
+    set(obj: any) {
         this._file = obj;
     }
 });
 
-Object.defineProperty (assetProto, 'nativeUrl', {
-    get (): string {
+Object.defineProperty(assetProto, 'nativeUrl', {
+    get(): string {
         if (!this._nativeUrl) {
             if (!this._native) return '';
             const name = this._native;
@@ -86,7 +87,7 @@ Object.defineProperty (assetProto, 'nativeUrl', {
 Object.defineProperty(assetProto, 'refCount', {
     configurable: true,
     enumerable: true,
-    get () {
+    get() {
         return this._ref;
     }
 });
@@ -109,7 +110,7 @@ assetProto.decRef = function (autoRelease = true): Asset {
 };
 
 assetProto.toString = function () {
-    return this.nativeUrl;   
+    return this.nativeUrl;
 };
 
 assetProto.createNode = null!;

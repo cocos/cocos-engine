@@ -200,12 +200,14 @@ typename std::enable_if<std::is_pointer<T>::value && std::is_class<typename std:
 seval_to_std_vector(const se::Value &v, ccstd::vector<T> *ret) { // NOLINT(readability-identifier-naming)
     CC_ASSERT_NOT_NULL(ret);
     CC_ASSERT(v.isObject());
-    se::Object *obj = v.toObject();
-    CC_ASSERT(obj->isArray());
+    se::Object *arrayObj= v.toObject();
+    bool isArrayProxy = arrayObj->isProxy();
+    se::HandleObject array(isArrayProxy ? se::Object::createProxyTarget(arrayObj) : (arrayObj->incRef(), arrayObj));
+    CC_ASSERT(array->isArray());
 
     bool ok = true;
     uint32_t len = 0;
-    ok = obj->getArrayLength(&len);
+    ok = array->getArrayLength(&len);
     if (!ok) {
         ret->clear();
         return false;
@@ -215,7 +217,7 @@ seval_to_std_vector(const se::Value &v, ccstd::vector<T> *ret) { // NOLINT(reada
 
     se::Value tmp;
     for (uint32_t i = 0; i < len; ++i) {
-        ok = obj->getArrayElement(i, &tmp);
+        ok = array->getArrayElement(i, &tmp);
         if (!ok) {
             ret->clear();
             return false;
@@ -240,12 +242,14 @@ typename std::enable_if<!std::is_pointer<T>::value, bool>::type
 seval_to_std_vector(const se::Value &v, ccstd::vector<T> *ret) { // NOLINT(readability-identifier-naming)
     CC_ASSERT_NOT_NULL(ret);
     CC_ASSERT(v.isObject());
-    se::Object *obj = v.toObject();
-    CC_ASSERT(obj->isArray());
+    se::Object *arrayObj= v.toObject();
+    bool isArrayProxy = arrayObj->isProxy();
+    se::HandleObject array(isArrayProxy ? se::Object::createProxyTarget(arrayObj) : (arrayObj->incRef(), arrayObj));
+    CC_ASSERT(array->isArray());
 
     bool ok = true;
     uint32_t len = 0;
-    ok = obj->getArrayLength(&len);
+    ok = array->getArrayLength(&len);
     if (!ok) {
         ret->clear();
         return false;
@@ -255,7 +259,7 @@ seval_to_std_vector(const se::Value &v, ccstd::vector<T> *ret) { // NOLINT(reada
 
     se::Value tmp;
     for (uint32_t i = 0; i < len; ++i) {
-        ok = obj->getArrayElement(i, &tmp);
+        ok = array->getArrayElement(i, &tmp);
         if (!ok) {
             ret->clear();
             return false;
@@ -709,8 +713,10 @@ bool sevalue_to_native(const se::Value &from, ccstd::vector<T> *to, se::Object *
     }
 
     CC_ASSERT(from.toObject());
-    se::Object *array = from.toObject();
-
+    se::Object *arrayObj= from.toObject();
+    bool isArrayProxy = arrayObj->isProxy();
+    se::HandleObject array(isArrayProxy ? se::Object::createProxyTarget(arrayObj) : (arrayObj->incRef(), arrayObj));
+    CC_ASSERT(array->isArray());
     if (array->isArray()) {
         uint32_t len = 0;
         array->getArrayLength(&len);
