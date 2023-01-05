@@ -246,7 +246,6 @@ using namespace cc;
 
 %attribute(cc::scene::RenderWindow, uint32_t, width, getWidth);
 %attribute(cc::scene::RenderWindow, uint32_t, height, getHeight);
-%attribute(cc::scene::RenderWindow, cc::gfx::SampleCount, sampleCount, getSampleCount);
 %attribute(cc::scene::RenderWindow, cc::gfx::Framebuffer*, framebuffer, getFramebuffer);
 %attribute(cc::scene::RenderWindow, %arg(ccstd::vector<IntrusivePtr<Camera>> &), cameras, getCameras);
 %attribute(cc::scene::RenderWindow, cc::gfx::Swapchain*, swapchain, getSwapchain);

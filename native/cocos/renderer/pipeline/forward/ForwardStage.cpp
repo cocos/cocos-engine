@@ -37,7 +37,6 @@
 #include "../RenderQueue.h"
 #include "../helper/Utils.h"
 #include "ForwardPipeline.h"
-#include "GFXExternalDefines.h"
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXFramebuffer.h"
 #include "pipeline/UIPhase.h"
@@ -148,7 +147,6 @@ void ForwardStage::render(scene::Camera *camera) {
     struct RenderData {
         framegraph::TextureHandle outputTex;
         framegraph::TextureHandle depth;
-        framegraph::TextureHandle msaaTex;
     };
     auto *pipeline = static_cast<ForwardPipeline *>(_pipeline);
     auto *const sceneData = _pipeline->getPipelineSceneData();
@@ -164,21 +162,6 @@ void ForwardStage::render(scene::Camera *camera) {
     _batchedQueue->uploadBuffers(cmdBuff);
     _additiveLightQueue->gatherLightPasses(camera, cmdBuff);
     _planarShadowQueue->gatherShadowPasses(camera, cmdBuff);
-
-    auto *swapChain = camera->getWindow()->getSwapchain();
-    auto width = static_cast<uint32_t>(static_cast<float>(camera->getWindow()->getWidth()) * shadingScale);
-    auto height = static_cast<uint32_t>(static_cast<float>(camera->getWindow()->getHeight()) * shadingScale);
-    gfx::Format colorFormat = sceneData->isHDR() ? gfx::Format::RGBA16F : gfx::Format::RGBA8;
-    gfx::SampleCount sampleCount = camera->getWindow()->getSampleCount();
-
-    if (swapChain != nullptr) {
-        shadingScale = 1.F;
-        colorFormat = swapChain->getColorTexture()->getFormat();
-        if constexpr (MSAA_SWAPCHAIN) {
-            sampleCount = gfx::SampleCount::MULTIPLE_BALANCE;
-        }
-    }
-
     auto forwardSetup = [&](framegraph::PassNodeBuilder &builder, RenderData &data) {
         if (hasFlag(static_cast<gfx::ClearFlags>(camera->getClearFlag()), gfx::ClearFlagBit::COLOR)) {
             _clearColors[0].x = camera->getClearColor().x;
@@ -219,10 +202,10 @@ void ForwardStage::render(scene::Camera *camera) {
         }
 #else
         framegraph::Texture::Descriptor colorTexInfo;
-        colorTexInfo.format = colorFormat;
-        colorTexInfo.usage = gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::TRANSFER_SRC;
-        colorTexInfo.width = width;
-        colorTexInfo.height = height;
+        colorTexInfo.format = sceneData->isHDR() ? gfx::Format::RGBA16F : gfx::Format::RGBA8;
+        colorTexInfo.usage = gfx::TextureUsageBit::COLOR_ATTACHMENT;
+        colorTexInfo.width = static_cast<uint32_t>(static_cast<float>(camera->getWindow()->getWidth()) * shadingScale);
+        colorTexInfo.height = static_cast<uint32_t>(static_cast<float>(camera->getWindow()->getHeight()) * shadingScale);
         if (shadingScale != 1.F) {
             colorTexInfo.usage |= gfx::TextureUsageBit::TRANSFER_SRC;
         }
@@ -242,18 +225,9 @@ void ForwardStage::render(scene::Camera *camera) {
 #endif
 
         colorAttachmentInfo.beginAccesses = colorAttachmentInfo.endAccesses = gfx::AccessFlagBit::COLOR_ATTACHMENT_WRITE;
-        if (sampleCount != gfx::SampleCount::ONE) {
-            auto msaaAttachmentInfo{colorAttachmentInfo};
-            msaaAttachmentInfo.samples = sampleCount;
-            auto msaaTexInfo{colorTexInfo};
-            msaaTexInfo.samples = sampleCount;
-            data.msaaTex = builder.create(RenderPipeline::fgStrHandleMSAATexture, msaaTexInfo);
-            data.msaaTex = builder.write(data.msaaTex, msaaAttachmentInfo);
-            colorAttachmentInfo.resolveSource = data.msaaTex;
-        }
+
         data.outputTex = builder.write(data.outputTex, colorAttachmentInfo);
         builder.writeToBlackboard(RenderPipeline::fgStrHandleOutColorTexture, data.outputTex);
-
         // depth
         gfx::TextureInfo depthTexInfo{
             gfx::TextureType::TEX2D,
@@ -262,7 +236,6 @@ void ForwardStage::render(scene::Camera *camera) {
             static_cast<uint32_t>(static_cast<float>(camera->getWindow()->getWidth()) * shadingScale),
             static_cast<uint32_t>(static_cast<float>(camera->getWindow()->getHeight()) * shadingScale),
         };
-        depthTexInfo.samples = sampleCount;
 
         framegraph::RenderTargetAttachment::Descriptor depthAttachmentInfo;
         depthAttachmentInfo.usage = framegraph::RenderTargetAttachment::Usage::DEPTH_STENCIL;
@@ -311,11 +284,10 @@ void ForwardStage::render(scene::Camera *camera) {
         renderDebugRenderer(renderPass, cmdBuff, _pipeline->getPipelineSceneData(), camera);
 #endif
     };
-    auto *targetTexture = camera->getWindow()->getFramebuffer()->getColorTextures()[0];
-    bool moveCompatible = (colorFormat == targetTexture->getFormat()) || RESOLVE_FORMAT_COMPATIBLE;
+
     // add pass
     pipeline->getFrameGraph().addPass<RenderData>(static_cast<uint32_t>(ForwardInsertPoint::IP_FORWARD), ForwardPipeline::fgStrHandleForwardPass, forwardSetup, forwardExec);
-    pipeline->getFrameGraph().presentFromBlackboard(RenderPipeline::fgStrHandleOutColorTexture, targetTexture, moveCompatible);
+    pipeline->getFrameGraph().presentFromBlackboard(RenderPipeline::fgStrHandleOutColorTexture, camera->getWindow()->getFramebuffer()->getColorTextures()[0], true);
 }
 
 } // namespace pipeline
