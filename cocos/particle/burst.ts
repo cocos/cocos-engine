@@ -87,12 +87,13 @@ export default class Burst {
     public update (psys, dt: number) {
         if (this._remainingCount === 0) {
             this._remainingCount = this._repeatCount;
-            this._curTime = this._time;
+            const startDelay: number = psys.startDelay.evaluate(0, Math.random());
+            this._curTime = this._time + startDelay;
         }
         if (this._remainingCount > 0) {
-            let preFrameTime = repeat(psys._time - psys.startDelay.evaluate(0, 1), psys.duration) - dt;
+            let preFrameTime = repeat(psys.time, psys.duration) - dt;
             preFrameTime = (preFrameTime > 0.0) ? preFrameTime : 0.0;
-            const curFrameTime = repeat(psys.time - psys.startDelay.evaluate(0, 1), psys.duration);
+            const curFrameTime = repeat(psys.time, psys.duration);
             if (this._curTime >= preFrameTime && this._curTime < curFrameTime) {
                 psys.emit(this.count.evaluate(this._curTime / psys.duration, 1), dt - (curFrameTime - this._curTime));
                 this._curTime += this.repeatInterval;
