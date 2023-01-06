@@ -246,14 +246,14 @@ function setDefaultValue<T> (
     propertyStash: PropertyStash,
     classConstructor: new () => T,
     propertyKey: PropertyKey,
-    descriptorOrInitializer: BabelPropertyDecoratorDescriptor | Initializer | undefined,
+    descriptorOrInitializer: BabelPropertyDecoratorDescriptor | Initializer | undefined | null,
 ) {
     if (descriptorOrInitializer !== undefined) {
         if (typeof descriptorOrInitializer === 'function') {
             propertyStash.default = getDefaultFromInitializer(descriptorOrInitializer);
         } else if (descriptorOrInitializer === null) {
             // some decorated properties we haven't specified default value, then the initializer should be null.
-            propertyStash.default = null;
+            propertyStash.default = undefined;
         } else if (descriptorOrInitializer.initializer) {
             // In case of Babel, if an initializer is given for class field.
             // That initializer is passed to `descriptor.initializer`.
