@@ -114,7 +114,7 @@ enum class DebugViewCompositeType {
 class DebugView final {
 public:
     DebugView() {
-        _activate();
+        activate();
     }
     ~DebugView() = default;
 
@@ -125,7 +125,7 @@ public:
     inline DebugViewSingleType getSingleMode() const { return _singleMode; }
     inline void setSingleMode(DebugViewSingleType val) {
         _singleMode = val;
-        _updatePipeline();
+        updatePipeline();
     }
 
     /**
@@ -135,7 +135,7 @@ public:
     inline bool isLightingWithAlbedo() const { return _lightingWithAlbedo; }
     inline void setLightingWithAlbedo(bool val) {
         _lightingWithAlbedo = val;
-        _updatePipeline();
+        updatePipeline();
     }
 
     /**
@@ -145,7 +145,7 @@ public:
     inline bool isCsmLayerColoration() const { return _csmLayerColoration; }
     inline void setCsmLayerColoration(bool val) {
         _csmLayerColoration = val;
-        _updatePipeline();
+        updatePipeline();
     }
 
     /**
@@ -163,8 +163,8 @@ public:
      * @param Specified composite type, enable or disable.
      */
     inline void enableCompositeMode (DebugViewCompositeType val, bool enable) {
-        _enableCompositeMode(val, enable);
-        _updatePipeline();
+        enableCompositeMode(val, enable);
+        updatePipeline();
     }
 
     /**
@@ -172,8 +172,8 @@ public:
      * @zh 开关所有的渲染组合调试模式。
      */
     inline void enableAllCompositeMode (bool enable) {
-        _enableAllCompositeMode(enable);
-        _updatePipeline();
+        enableAllCompositeMode(enable);
+        updatePipeline();
     }
 
     /**
@@ -181,7 +181,7 @@ public:
      * @zh 查询当前是否开启了渲染调试模式。
      */
     inline bool isEnabled() const {
-        return _getType() != RenderingDebugViewType::NONE;
+        return getType() != RenderingDebugViewType::NONE;
     }
 
     /**
@@ -189,16 +189,16 @@ public:
      * @zh 关闭所有的渲染调试模式，恢复到正常渲染。
      */
     void reset () {
-        _activate();
-        _updatePipeline();
+        activate();
+        updatePipeline();
     }
 
 protected:
-    void _activate();
-    void _updatePipeline();
+    void activate();
+    void updatePipeline();
 
 private:
-    inline void _enableCompositeMode(DebugViewCompositeType val, bool enable) {
+    inline void enableCompositeMode(DebugViewCompositeType val, bool enable) {
         if (enable) {
             _compositeModeValue |= (1 << (uint32_t)val);
         } else {
@@ -206,7 +206,7 @@ private:
         }
     }
 
-    inline void _enableAllCompositeMode(bool enable) {
+    inline void enableAllCompositeMode(bool enable) {
         for (int i = 0; i < (int)DebugViewCompositeType::MAX_BIT_COUNT; ++i) {
             if (enable) {
                 _compositeModeValue |= (1 << i);
@@ -216,7 +216,7 @@ private:
         }
     }
 
-    inline RenderingDebugViewType _getType () const {
+    inline RenderingDebugViewType getType () const {
         if (_singleMode != DebugViewSingleType::NONE) {
             return RenderingDebugViewType::SINGLE;
         } else if (_lightingWithAlbedo != true || _csmLayerColoration != false) {

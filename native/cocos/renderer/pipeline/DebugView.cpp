@@ -31,14 +31,14 @@ namespace cc {
 
 namespace pipeline {
 
-void DebugView::_activate() {
+void DebugView::activate() {
     _singleMode = DebugViewSingleType::NONE;
-    _enableAllCompositeMode(true);
+    enableAllCompositeMode(true);
     _lightingWithAlbedo = true;
     _csmLayerColoration = false;
 }
 
-void DebugView::_updatePipeline() {
+void DebugView::updatePipeline() {
     Root *root = Root::getInstance();
     auto *pipeline = root->getPipeline();
 
