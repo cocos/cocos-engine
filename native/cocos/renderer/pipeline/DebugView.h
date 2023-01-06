@@ -23,6 +23,7 @@
 */
 
 #pragma once
+#include "base/TypeDef.h"
 
 namespace cc {
 
