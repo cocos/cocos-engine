@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -22,10 +22,10 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include "DebugView.h"
 #include "custom/RenderInterfaceTypes.h"
 #include "RenderPipeline.h"
 #include "core/Root.h"
-#include "DebugView.h"
 
 namespace cc {
 
@@ -42,7 +42,7 @@ void DebugView::updatePipeline() {
     Root *root = Root::getInstance();
     auto *pipeline = root->getPipeline();
 
-    int32_t useDebugViewValue = (int32_t)_getType();
+    int32_t useDebugViewValue = static_cast<int32_t>(getType());
 
     bool valueChanged = false;
     auto iter = pipeline->getMacros().find("CC_USE_DEBUG_VIEW");
