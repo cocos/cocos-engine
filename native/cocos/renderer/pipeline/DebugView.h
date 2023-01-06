@@ -233,7 +233,7 @@ private:
 
 private:
     DebugViewSingleType _singleMode{DebugViewSingleType::NONE};
-    uint32_t _compositeModeValue{0};
+    unsigned int32_t _compositeModeValue{0};
     bool _lightingWithAlbedo{true};
     bool _csmLayerColoration{false};
 };

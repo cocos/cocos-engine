@@ -82,7 +82,7 @@ void PipelineUBO::updateGlobalUBOView(const scene::Camera *camera, ccstd::array<
     uboGlobalView[UBOGlobal::DEBUG_VIEW_MODE_OFFSET] = static_cast<float>(debugView->getSingleMode());
     uboGlobalView[UBOGlobal::DEBUG_VIEW_MODE_OFFSET + 1] = debugView->isLightingWithAlbedo() ? 1.0F : 0.0F;
     uboGlobalView[UBOGlobal::DEBUG_VIEW_MODE_OFFSET + 2] = debugView->isCsmLayerColoration() ? 1.0F : 0.0F;
-    for (int i = 0; i < (int)pipeline::DebugViewCompositeType::MAX_BIT_COUNT; ++i) {
+    for (int i = 0; i < static_cast<int>(pipeline::DebugViewCompositeType::MAX_BIT_COUNT); ++i) {
         uboGlobalView[UBOGlobal::DEBUG_VIEW_COMPOSITE_PACK_1_OFFSET + i] = debugView->isCompositeModeEnabled(i) ? 1.0F : 0.0F;
     }
 }
