@@ -26,9 +26,9 @@
 #include "renderer/pipeline/PipelineSceneData.h"
 #include "renderer/pipeline/BatchedBuffer.h"
 #include "renderer/pipeline/GeometryRenderer.h"
+#include "renderer/pipeline/DebugView.h"
 #include "renderer/pipeline/reflection-probe/ReflectionProbeFlow.h"
 #include "renderer/pipeline/reflection-probe/ReflectionProbeStage.h"
-#include "renderer/pipeline/DebugView.h"
 %}
 
 // Insert code at the beginning of generated source file (.cpp)
@@ -226,6 +226,7 @@ using namespace cc;
 %include "renderer/pipeline/RenderPipeline.h"
 %include "renderer/pipeline/RenderFlow.h"
 %include "renderer/pipeline/RenderStage.h"
+%include "renderer/pipeline/DebugView.h"
 
 %include "renderer/pipeline/forward/ForwardPipeline.h"
 %include "renderer/pipeline/forward/ForwardFlow.h"
