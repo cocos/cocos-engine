@@ -178,6 +178,13 @@ public:
     static Object *createObjectWithConstructor(se::Object *constructor, const ValueArray &args);
 
     /**
+     * Gets the Proxy Target object
+     * @param proxy The JavaScript Proxy object.
+     * @return The target JavaScript object of the parameter.
+     */
+    static Object *createProxyTarget(se::Object *proxy);
+
+    /**
      *  @brief Gets a se::Object from an existing native object pointer.
      *  @param[in] ptr The native object pointer associated with the se::Object
      *  @return A JavaScript Native Binding Object, or nullptr if there is an error.
@@ -314,6 +321,11 @@ public:
      */
     bool isTypedArray() const;
 
+    /** @brief Tests whether an object is a proxy object.
+     *  @return true if object is a proxy object, otherwise false.
+     */
+    bool isProxy() const;
+    
     /**
      *  @brief Gets the type of a typed array object.
      *  @return The type of a typed array object.
@@ -656,6 +668,7 @@ private:
     ~Object() override;
 
     bool init(Class *cls, v8::Local<v8::Object> obj);
+    v8::Local<v8::Value> getProxyTarget() const;
 
     Class *_cls{nullptr};
     ObjectWrap _obj;
