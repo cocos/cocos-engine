@@ -34,7 +34,7 @@ export const vfmt = [
 ];
 
 /**
- * @en Vertex format with the following layout
+ * @en Vertex format with the following layout.
  * 1. Vector 3 position attribute (Float32)
  * 2. Vector 4 color attribute (Float32)
  * @zh 包含以下数据的顶点格式
@@ -107,7 +107,7 @@ export const vfmtPosUvTwoColor = [
  * 1. 三维位置属性（Float32）
  * 2. 二维贴图 UV 属性（Float32）
  * 3. 第一套 RGBA 颜色属性（Byte）
- * 3. 第二套 RGBA 颜色属性（Byte）
+ * 4. 第二套 RGBA 颜色属性（Byte）
  */
 export const vfmtPosUvTwoColor4B = [
     new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F),

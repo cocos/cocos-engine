@@ -244,8 +244,8 @@ const temp_uvs: IUV[] = [{ u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0,
 export class SpriteFrame extends Asset {
     /**
      * @en Create a SpriteFrame object by an image asset or an native image asset.
-     * @zh 通过 Image 资源或者平台相关 Image 对象创建一个 SpriteFrame 对象。
-     * @param imageSourceOrImageAsset @en ImageAsset or ImageSource, ImageSource support HTMLCanvasElement HTMLImageElement IMemoryImageSource.
+     * @zh 通过 Image 资源或者平台相关 Image 对象创建一个 SpriteFrame 资源。
+     * @param imageSourceOrImageAsset @en ImageAsset or ImageSource, ImageSource could be HTMLCanvasElement, HTMLImageElement, IMemoryImageSource.
      *                                @zh 图像资源或图像原始图像源，图像原始图像源支持 HTMLCanvasElement HTMLImageElement IMemoryImageSource 三种资源。
      * @returns @en SpriteFrame asset. @zh 精灵资源。
      */
@@ -440,7 +440,7 @@ export class SpriteFrame extends Asset {
     }
 
     /**
-     * @en The uuid of the atlas asset, if exist.
+     * @en The uuid of the atlas asset, if exists.
      * @zh 图集资源的 uuid。
      */
     get atlasUuid () {
@@ -520,7 +520,7 @@ export class SpriteFrame extends Asset {
     }
 
     /**
-     * @en Original information before packed to dynamic atlas, includes texture and width and height. It's null before being packed to dynamic atlas.
+     * @en Original information before packed to dynamic atlas, includes texture, width, height. It's null before being packed to dynamic atlas.
      * @zh 精灵自动合图之前的原始 texture 和宽高信息。在参与自动合图之前此值为 null。
      */
     get original () {
@@ -528,8 +528,8 @@ export class SpriteFrame extends Asset {
     }
 
     /**
-     * @en Number of pixels corresponding to unit size in world space (pixels per meter).
-     * @zh 世界空间中的单位大小对应的像素数量（像素每米）。
+     * @en Number of pixels corresponding to unit size in world space (pixels per unit).
+     * @zh 世界空间中的单位大小对应的像素数量（像素每单位）。
      */
     get pixelsToUnit () {
         return this._pixelsToUnit;
@@ -684,8 +684,8 @@ export class SpriteFrame extends Asset {
      * If it's an atlas texture, a transparent pixel area is proposed for the actual mapping of the current texture.
      * @zh 获取 SpriteFrame 的纹理矩形区域。
      * 如果是一个 atlas 的贴图，则为当前贴图的实际剔除透明像素区域。
-     * @param out @en The output rect object @zh 输出的矩形区域。
-     * @returns @en The rect object. @zh 矩形区域对象。
+     * @param out @en The output rect. @zh 输出的矩形区域。
+     * @returns @en The rect. @zh 矩形区域。
      * @deprecated since v1.2, please use [[rect]].
      */
     public getRect (out?: Rect) {
@@ -734,7 +734,7 @@ export class SpriteFrame extends Asset {
     }
 
     /**
-     * @en Returns the offset of the frame.
+     * @en Gets the offset of the frame.
      * @zh 获取偏移量。
      * @param out @en The output offset object. @zh 输出的偏移量。
      * @returns @en The offset object. @zh 偏移量。
@@ -769,7 +769,7 @@ export class SpriteFrame extends Asset {
     }
 
     /**
-     * @en Gets the sampler resource of its texture.
+     * @en Gets the GFX sampler of its texture.
      * @zh 贴图资源的采样器。
      * @returns @en The GFX sampler resource. @zh GFX贴图采样器。
      */
@@ -1472,6 +1472,7 @@ export class SpriteFrame extends Asset {
     /**
      * @en complete loading callback.
      * @zh 加载完成回调。
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public onLoaded () {
         this._calcTrimmedBorder();
@@ -1481,6 +1482,7 @@ export class SpriteFrame extends Asset {
      * @en default init.
      * @zh 默认初始化。
      * @param uuid @en Asset uuid. @zh 资源 uuid。
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public initDefault (uuid?: string) {
         super.initDefault(uuid);
@@ -1494,6 +1496,7 @@ export class SpriteFrame extends Asset {
      * @en Check whether the sprite frame is validate.
      * @zh 检查当前 sprite frame 对象是否是有效的。
      * @returns @en validate or not. @zh 是否有效。
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public validate () {
         return this._texture && this._rect && this._rect.width !== 0 && this._rect.height !== 0;

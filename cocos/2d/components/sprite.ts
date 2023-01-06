@@ -446,13 +446,13 @@ export class Sprite extends UIRenderer {
      */
     public static Type = SpriteType;
     /**
-     * @en Sprite Size can track trimmed size, raw size or none.
+     * @en Sprite's size mode, including trimmed size, raw size, and none.
      * @zh 精灵尺寸调整模式。
      */
     public static SizeMode = SizeMode;
     /**
-     * @en Event types for sprite
-     * @zh sprite 的事件类型
+     * @en Event types for sprite.
+     * @zh sprite 的事件类型。
      */
     public static EventType = EventType;
 

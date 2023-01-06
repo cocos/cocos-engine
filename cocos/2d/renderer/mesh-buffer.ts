@@ -43,28 +43,28 @@ enum MeshBufferSharedBufferView {
 }
 
 /**
- * @en Mesh buffer used for 2d rendering, used internally and not of concern to the user
- * @zh 2d 渲染使用的网格缓冲数据，内部使用，用户不须关心
+ * @en Mesh buffer used for 2d rendering, used internally and not of concern to the user.
+ * @zh 2d 渲染使用的网格缓冲数据，内部使用，用户不须关心。
  * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
  */
 export class MeshBuffer {
     /**
-     * @en The vertex attributes of the buffer
-     * @zh buffer 的顶点属性
+     * @en The vertex attributes of the buffer.
+     * @zh buffer 的顶点属性。
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     get attributes () { return this._attributes; }
     /**
-     * @en Number of bytes in vertex format
-     * @zh 顶点格式的字节数
+     * @en Number of bytes in vertex format.
+     * @zh 顶点格式的字节数。
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     get vertexFormatBytes () { return this._vertexFormatBytes; }
 
     protected _byteOffset = 0;
     /**
-     * @en byte offset
-     * @zh 字节偏移量
+     * @en byte offset.
+     * @zh 字节偏移量。
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     get byteOffset () {
@@ -79,8 +79,8 @@ export class MeshBuffer {
 
     protected _vertexOffset = 0;
     /**
-     * @en Vertexes offset
-     * @zh 顶点数偏移
+     * @en Vertexes offset.
+     * @zh 顶点数偏移。
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     get vertexOffset () {
@@ -95,8 +95,8 @@ export class MeshBuffer {
 
     protected _indexOffset = 0;
     /**
-     * @en Indexes offset
-     * @zh 索引偏移
+     * @en Indices offset.
+     * @zh 索引偏移。
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     get indexOffset () {
@@ -111,8 +111,8 @@ export class MeshBuffer {
 
     protected _dirty = false;
     /**
-     * @en Dirty flag
-     * @zh 脏标记
+     * @en Dirty flag.
+     * @zh 脏标记。
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     get dirty () {
@@ -127,8 +127,8 @@ export class MeshBuffer {
 
     protected _floatsPerVertex = 0;
     /**
-     * @en Float numbers per vertex
-     * @zh 每顶点的浮点数长度
+     * @en Float numbers per vertex.
+     * @zh 每顶点的浮点数长度。
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     get floatsPerVertex () {
@@ -140,8 +140,8 @@ export class MeshBuffer {
 
     protected _vData: Float32Array = null!;
     /**
-     * @en Vertexes data
-     * @zh 顶点数据
+     * @en Vertexes data.
+     * @zh 顶点数据。
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     get vData () {
@@ -157,8 +157,8 @@ export class MeshBuffer {
 
     protected _iData: Uint16Array = null!;
     /**
-     * @en Indexes Data
-     * @zh 索引数据
+     * @en Indices data.
+     * @zh 索引数据。
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     get iData () {
@@ -184,8 +184,8 @@ export class MeshBuffer {
     //nativeObj
     protected declare _nativeObj: NativeUIMeshBuffer;
     /**
-     * @en Native object
-     * @zh 原生对象
+     * @en Native object.
+     * @zh 原生对象。
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     get nativeObj () {
@@ -195,8 +195,8 @@ export class MeshBuffer {
     //sharedBuffer
     protected declare _sharedBuffer: Uint32Array;
     /**
-     * @en Native shared buffer
-     * @zh 原生共享缓冲
+     * @en Native shared buffer.
+     * @zh 原生共享缓冲。
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     get sharedBuffer () {
@@ -204,8 +204,8 @@ export class MeshBuffer {
     }
 
     /**
-     * @en Initial native shared buffer
-     * @zh 初始化原生共享缓冲
+     * @en Initial native shared buffer.
+     * @zh 初始化原生共享缓冲。
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public initSharedBuffer () {
@@ -215,8 +215,8 @@ export class MeshBuffer {
     }
 
     /**
-     * @en Synchronized native shared buffer
-     * @zh 同步原生共享缓冲
+     * @en Synchronized native shared buffer.
+     * @zh 同步原生共享缓冲。
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public syncSharedBufferToNative () {
@@ -234,12 +234,12 @@ export class MeshBuffer {
     }
 
     /**
-     * @en Initialize mesh buffer
-     * @zh 初始化对象
-     * @param device The GFX device
-     * @param attrs The vertex attributes of the buffer
-     * @param vFloatCount The vertexes float count
-     * @param iCount The indexes count
+     * @en Initialize mesh buffer.
+     * @zh 初始化对象。
+     * @param device @en The GFX device. @zh GFX设备。
+     * @param attrs @en The vertex attributes of the buffer. @zh 缓冲区的顶点属性。
+     * @param vFloatCount @en The vertexes float count. @zh 每顶点所需的 float 数量。
+     * @param iCount @en The indices count. @zh 索引数量。
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public initialize (device: Device, attrs: Attribute[], vFloatCount: number, iCount: number) {
@@ -263,8 +263,8 @@ export class MeshBuffer {
     }
 
     /**
-     * @en Reset state
-     * @zh 重置状态
+     * @en Reset state.
+     * @zh 重置状态。
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public reset () {
@@ -294,8 +294,8 @@ export class MeshBuffer {
     }
 
     /**
-     * @en Set dirty flag
-     * @zh 设置脏标签
+     * @en Set dirty flag.
+     * @zh 设置脏标签。
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public setDirty () {
@@ -312,8 +312,8 @@ export class MeshBuffer {
     }
 
     /**
-     * @en require Free input assembler
-     * @zh 请求可用的输入汇集器
+     * @en require Free input assembler.
+     * @zh 请求可用的输入汇集器。
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public requireFreeIA (device: Device) {
@@ -325,8 +325,8 @@ export class MeshBuffer {
     }
 
     /**
-     * @en recycle input assembler
-     * @zh 回收输入汇集器
+     * @en recycle input assembler.
+     * @zh 回收输入汇集器。
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public recycleIA (ia: InputAssembler) {
@@ -343,8 +343,8 @@ export class MeshBuffer {
     }
 
     /**
-     * @en check capacity
-     * @zh 检查可分配余量
+     * @en check capacity.
+     * @zh 检查可分配余量。
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public checkCapacity (vertexCount: number, indexCount: number) {
@@ -357,8 +357,8 @@ export class MeshBuffer {
     }
 
     /**
-     * @en Upload and update buffers data
-     * @zh 上传更新缓冲内容
+     * @en Upload and update buffers data.
+     * @zh 上传更新缓冲内容。
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public uploadBuffers () {

@@ -28,8 +28,8 @@ import { UIRenderer } from '../framework/ui-renderer';
 import { UIMeshRenderer } from '../components/ui-mesh-renderer';
 
 /**
- * @en Stencil stage types enum
- * @zh 模板状态类型枚举
+ * @en Stencil stage types enum.
+ * @zh 模板状态类型枚举。
  * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
  */
 export enum Stage {
@@ -50,8 +50,8 @@ export enum Stage {
 }
 
 /**
- * @en Native stencil buffer format enum
- * @zh 原生模板缓冲格式枚举
+ * @en Native stencil buffer format enum.
+ * @zh 原生模板缓冲格式枚举。
  * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
  */
 export enum StencilSharedBufferView {
@@ -67,8 +67,8 @@ export enum StencilSharedBufferView {
 }
 
 /**
- * @en Stencil state manager，user use may cause state misalignment
- * @zh 模板状态管理器，用户使用可能会造成状态错乱
+ * @en Stencil state manager.
+ * @zh 模板状态管理器。
  * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
  */
 export class StencilManager {
@@ -87,8 +87,8 @@ export class StencilManager {
 
     private _stage: Stage = Stage.DISABLED;
     /**
-     * @en Stencil stage
-     * @zh 模板缓冲阶段
+     * @en Stencil stage.
+     * @zh 模板缓冲阶段。
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     get stage () {
@@ -99,8 +99,8 @@ export class StencilManager {
     }
 
     /**
-     * @en Stencil pattern
-     * @zh 模板缓冲样式
+     * @en Stencil pattern.
+     * @zh 模板缓冲样式。
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     get pattern () {
@@ -108,8 +108,8 @@ export class StencilManager {
     }
 
     /**
-     * @en Add mask nesting
-     * @zh 添加mask嵌套
+     * @en Add mask nesting.
+     * @zh 添加mask嵌套。
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public pushMask (mask: any) {
@@ -117,8 +117,8 @@ export class StencilManager {
     }
 
     /**
-     * @en clear stencil stage
-     * @zh 清空模板状态
+     * @en clear stencil stage.
+     * @zh 清空模板状态。
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public clear (comp: UIRenderer | UIMeshRenderer) {
@@ -127,8 +127,8 @@ export class StencilManager {
     }
 
     /**
-     * @en Open stencil stage to enabled
-     * @zh 开启模板状态
+     * @en Open stencil stage to enabled.
+     * @zh 开启模板状态。
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public enableMask () {
@@ -136,8 +136,8 @@ export class StencilManager {
     }
 
     /**
-     * @en exit stencil
-     * @zh 退出模板状态
+     * @en exit stencil.
+     * @zh 退出模板状态。
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public exitMask () {
@@ -154,8 +154,8 @@ export class StencilManager {
     }
 
     /**
-     * @en Get write mask count
-     * @zh 获取写入模板缓冲的位数
+     * @en Get write mask count.
+     * @zh 获取写入模板缓冲的位数。
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public getWriteMask () {
@@ -163,8 +163,8 @@ export class StencilManager {
     }
 
     /**
-     * @en Get write mask count when exit
-     * @zh 获取退出时模板缓冲的位数
+     * @en Get write mask count when exit.
+     * @zh 获取退出时模板缓冲的位数。
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public getExitWriteMask () {
@@ -180,8 +180,8 @@ export class StencilManager {
     }
 
     /**
-     * @en Get mask nesting count
-     * @zh 获取mask嵌套数量
+     * @en Get mask nesting count.
+     * @zh 获取mask嵌套数量。
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public getMaskStackSize () {
@@ -189,8 +189,8 @@ export class StencilManager {
     }
 
     /**
-     * @en Reset stencil stage
-     * @zh 重置模板状态
+     * @en Reset stencil stage.
+     * @zh 重置模板状态。
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public reset () {
@@ -210,8 +210,8 @@ export class StencilManager {
     private stencilStateMapWithDepth = new Map<number, DepthStencilState>();
 
     /**
-     * @en Get stencil stage
-     * @zh 获取模板状态
+     * @en Get stencil stage.
+     * @zh 获取模板状态。
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public getStencilStage (stage: Stage, mat?: Material) {
@@ -265,8 +265,8 @@ export class StencilManager {
     }
 
     /**
-     * @en Get stencil hash
-     * @zh 获取模板状态的哈希值
+     * @en Get stencil hash.
+     * @zh 获取模板状态的哈希值。
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public getStencilHash (stage: Stage) {

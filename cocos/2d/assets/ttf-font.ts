@@ -63,6 +63,7 @@ export class TTFFont extends Font {
      * @en default init.
      * @zh 默认初始化。
      * @param uuid @en Asset uuid. @zh 资源 uuid。
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public initDefault (uuid?: string) {
         this._fontFamily = 'Arial';

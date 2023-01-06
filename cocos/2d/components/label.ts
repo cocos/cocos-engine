@@ -185,7 +185,7 @@ export class Label extends UIRenderer {
      */
     public static VerticalAlign = VerticalTextAlignment;
     /**
-     * @en Enum for Overflow.
+     * @en Enum for label overflow mode.
      *
      * @zh 文本溢出行为类型。
      */

@@ -261,8 +261,8 @@ export class Mask extends Component {
     }
 
     /**
-     * @en Rendering component for providing stencilBuffer information.
-     * @zh 用于提供stencilBuffer 信息的渲染组件。
+     * @en Rendering component for providing stencil buffer information.
+     * @zh 用于提供 stencil buffer 信息的渲染组件。
      */
     get subComp () {
         return this._graphics || this._sprite;
@@ -321,7 +321,7 @@ export class Mask extends Component {
     /**
      * @en Hit test with point in World Space.
      * @zh 世界空间中的点击测试。
-     * @param worldPt point in World Space.
+     * @param worldPt @en point in World Space. @zh 世界空间中的点击点。
      */
     public isHit (worldPt: Vec2) {
         const uiTrans = this.node._uiProps.uiTransformComp!;

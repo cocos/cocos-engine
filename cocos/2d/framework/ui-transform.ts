@@ -599,13 +599,13 @@ export class UITransform extends Component {
 
     /**
      * @en
-     * Returns a "local" axis aligned bounding box of the node. <br/>
+     * Returns an axis aligned bounding box of this node in local space coordinate. <br/>
      * The returned box is relative only to its parent.
      *
      * @zh
      * 返回父节坐标系下的轴向对齐的包围盒。
      *
-     * @returns @en A "local" axis aligned bounding box of the node.  @zh 本地坐标系下的包围盒。
+     * @returns @en An axis aligned bounding box of this node in local space coordinate.  @zh 本地坐标系下的包围盒。
      * @example
      * ```ts
      * const boundingBox = uiTransform.getBoundingBox();
@@ -627,14 +627,14 @@ export class UITransform extends Component {
 
     /**
      * @en
-     * Returns a "world" axis aligned bounding box of the node.<br/>
+     * Returns an axis aligned bounding box of this node in world space coordinate.<br/>
      * The bounding box contains self and active children's world bounding box.
      *
      * @zh
      * 返回节点在世界坐标系下的对齐轴向的包围盒（AABB）。
      * 该边框包含自身和已激活的子节点的世界边框。
      *
-     * @returns @en A "world" axis aligned bounding box of the node. @zh 世界坐标系下包围盒。
+     * @returns @en An axis aligned bounding box of this node in world space coordinate. @zh 世界坐标系下包围盒。
      * @example
      * ```ts
      * const newRect = uiTransform.getBoundingBoxToWorld();
