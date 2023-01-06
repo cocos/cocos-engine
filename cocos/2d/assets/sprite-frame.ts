@@ -869,7 +869,7 @@ export class SpriteFrame extends Asset {
     /**
      * @en Check whether the rect of the sprite frame is out of the texture boundary.
      * @zh 判断精灵计算的矩形区域是否越界。
-     * @param texture @en Texture resources for sprite frame. @zh SpriteFrame 的图像资源。
+     * @param texture @en Texture resources for sprite frame. @zh SpriteFrame 的贴图资源。
      * @returns @en Out of the texture boundary or not. @zh 矩形区域是否越界。
      */
     public checkRect (texture: TextureBase) {
