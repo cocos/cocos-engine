@@ -33,7 +33,7 @@ namespace pipeline {
 
 void DebugView::activate() {
     _singleMode = DebugViewSingleType::NONE;
-    enableAllCompositeMode(true);
+    enableAllCompositeModeValue(true);
     _lightingWithAlbedo = true;
     _csmLayerColoration = false;
 }
@@ -42,7 +42,7 @@ void DebugView::updatePipeline() {
     Root *root = Root::getInstance();
     auto *pipeline = root->getPipeline();
 
-    int32_t useDebugViewValue = static_cast<int32_t>(getType());
+    auto useDebugViewValue = static_cast<int32_t>(getType());
 
     bool valueChanged = false;
     auto iter = pipeline->getMacros().find("CC_USE_DEBUG_VIEW");

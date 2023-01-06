@@ -164,7 +164,7 @@ public:
      * @param Specified composite type, enable or disable.
      */
     inline void enableCompositeMode (DebugViewCompositeType val, bool enable) {
-        enableCompositeMode(val, enable);
+        enableCompositeModeValue(val, enable);
         updatePipeline();
     }
 
@@ -173,7 +173,7 @@ public:
      * @zh 开关所有的渲染组合调试模式。
      */
     inline void enableAllCompositeMode (bool enable) {
-        enableAllCompositeMode(enable);
+        enableAllCompositeModeValue(enable);
         updatePipeline();
     }
 
@@ -199,16 +199,16 @@ protected:
     void updatePipeline();
 
 private:
-    inline void enableCompositeMode(DebugViewCompositeType val, bool enable) {
+    inline void enableCompositeModeValue(DebugViewCompositeType val, bool enable) {
         if (enable) {
-            _compositeModeValue |= (1 << (uint32_t)val);
+            _compositeModeValue |= (1 << static_cast<uint32_t>(val));
         } else {
-            _compositeModeValue &= (~(1 << (uint32_t)val));
+            _compositeModeValue &= (~(1 << static_cast<uint32_t>(val)));
         }
     }
 
-    inline void enableAllCompositeMode(bool enable) {
-        for (int i = 0; i < (int)DebugViewCompositeType::MAX_BIT_COUNT; ++i) {
+    inline void enableAllCompositeModeValue(bool enable) {
+        for (int i = 0; i < static_cast<int>(DebugViewCompositeType::MAX_BIT_COUNT); ++i) {
             if (enable) {
                 _compositeModeValue |= (1 << i);
             } else {
@@ -220,10 +220,10 @@ private:
     inline RenderingDebugViewType getType () const {
         if (_singleMode != DebugViewSingleType::NONE) {
             return RenderingDebugViewType::SINGLE;
-        } else if (_lightingWithAlbedo != true || _csmLayerColoration != false) {
+        } else if (!_lightingWithAlbedo || _csmLayerColoration) {
             return RenderingDebugViewType::COMPOSITE_AND_MISC;
         } else {
-            for (int i = 0; i < (int)DebugViewCompositeType::MAX_BIT_COUNT; ++i) {
+            for (int i = 0; i < static_cast<int>(DebugViewCompositeType::MAX_BIT_COUNT); ++i) {
                 if (!isCompositeModeEnabled(i)) {
                     return RenderingDebugViewType::COMPOSITE_AND_MISC;
                 }
@@ -239,5 +239,5 @@ private:
     bool _csmLayerColoration{false};
 };
 
-} // namespace scene
+} // namespace pipeline
 } // namespace cc

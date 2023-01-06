@@ -93,7 +93,7 @@ void Root::initialize(gfx::Swapchain * /*swapchain*/) {
     maxJoints = maxJoints < 256 ? maxJoints : 256;
     pipeline::localDescriptorSetLayoutResizeMaxJoints(maxJoints);
 
-    _debugView.reset(new pipeline::DebugView);
+    _debugView = std::make_unique<pipeline::DebugView>();
 }
 
 render::Pipeline *Root::getCustomPipeline() const {
