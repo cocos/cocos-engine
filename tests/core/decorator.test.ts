@@ -307,6 +307,7 @@ describe('Decorated property test', () => {
     });
 
     test('property in TSC compiler', () => {
+        // Simulate `class A { @property test; }`(in tsc case)
         expect(t()).toMatchObject({
             default: undefined,
         });
