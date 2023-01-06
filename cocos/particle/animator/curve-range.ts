@@ -24,7 +24,7 @@
 
 import { ccclass } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { lerp, RealCurve, CCClass, geometry, Enum } from '../../core';
+import { lerp, RealCurve, CCClass, geometry, Enum, approx, EPSILON } from '../../core';
 import { PixelFormat, Filter, WrapMode } from '../../asset/assets/asset-enum';
 import { Texture2D, ImageAsset } from '../../asset/assets';
 
@@ -162,7 +162,7 @@ export default class CurveRange  {
     }
 
     public evaluate (time: number, rndRatio: number) {
-        switch (this.mode) {
+        switch (this._mode) {
         default:
         case Mode.Constant:
             return this.constant;
@@ -176,7 +176,7 @@ export default class CurveRange  {
     }
 
     public getMax (): number {
-        switch (this.mode) {
+        switch (this._mode) {
         default:
         case Mode.Constant:
             return this.constant;
@@ -189,12 +189,26 @@ export default class CurveRange  {
         }
     }
 
+    public isZero (): boolean {
+        switch (this._mode) {
+        default:
+        case Mode.Constant:
+            return approx(this.constant, 0.0, EPSILON);
+        case Mode.Curve:
+            return approx(this.multiplier, 0.0, EPSILON);
+        case Mode.TwoConstants:
+            return approx(Math.max(Math.abs(this.constantMax), Math.abs(this.constantMin)), 0.0, EPSILON);
+        case Mode.TwoCurves:
+            return approx(this.multiplier, 0.0, EPSILON);
+        }
+    }
+
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _onBeforeSerialize (props) {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        return SerializableTable[this.mode];
+        return SerializableTable[this._mode];
     }
 
     private declare _curve: geometry.AnimationCurve | undefined;
