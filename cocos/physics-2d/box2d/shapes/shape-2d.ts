@@ -191,7 +191,7 @@ export class b2Shape2D implements IBaseShape {
 
         for (let i = fixtures.length - 1; i >= 0; i--) {
             const fixture = fixtures[i];
-            fixture.m_userData = null;
+            //fixture.m_userData = null;
 
             (PhysicsSystem2D.instance.physicsWorld as b2PhysicsWorld).unregisterContactFixture(fixture);
 

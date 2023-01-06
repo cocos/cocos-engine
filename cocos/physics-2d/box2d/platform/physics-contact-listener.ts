@@ -23,33 +23,140 @@
 */
 
 import b2 from '@cocos/box2d';
-import { js } from '../../../core';
+import { assert, js } from '../../../core';
+import { fastRemove } from '../../../core/utils/array';
 import { Contact2DType } from '../../framework';
 import { b2ContactExtends, PhysicsContact } from '../physics-contact';
+import { b2Shape2D } from '../shapes/shape-2d';
+
+enum CollisionStatus {
+    ENTER,
+    STAY,
+    EXIT,
+    UNKNOWN
+}
+class Collision {
+    //private static readonly _collisionMap = new Map<string, Collision>();
+    // public static getCollision (key: string) {
+    //     return Collision._collisionMap.get(key);
+    // }
+
+    // public static getOrCreateCollision (key: string) {
+    //     let retCollision!: Collision;
+    //     let newCreated = false;
+    //     if (Collision._collisionMap.has(key)) {
+    //         retCollision = Collision._collisionMap.get(key)!;
+    //         retCollision.reference = true;
+    //         newCreated = false;
+    //     } else {
+    //         retCollision = new Collision(key);
+    //         Collision._collisionMap.set(key, retCollision);
+    //         newCreated = true;
+    //     }
+    //     return { retCollision, newCreated };
+    // }
+
+    private readonly key: string;
+    public ref = 0;
+    public status: CollisionStatus = CollisionStatus.UNKNOWN;
+    public b2Contact: any;
+    // public set reference (v: boolean) {
+    //     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    //     v ? this.ref++ : this.ref--;
+    //     if (this.ref === 0) { this.destroy(); }
+    // }
+
+    public constructor (key: string) {
+        this.ref = 1;
+        this.key = key;
+    }
+
+    // private destroy () {
+    //     Collision._collisionMap.delete(this.key);
+    // }
+}
 
 export class PhysicsContactListener extends b2.ContactListener {
     private _contactFixtures: b2.Fixture[] = [];
+    static readonly _collisionMap = new Map<string, Collision>();
 
     BeginContact (contact: b2.Contact) {
-        if (!this._BeginContact) return;
+        //if (!this._BeginContact) return;
 
         const fixtureA = contact.GetFixtureA();
         const fixtureB = contact.GetFixtureB();
         const fixtures = this._contactFixtures;
 
-        (contact as any)._shouldReport = false;
-
-        if (fixtures.indexOf(fixtureA) !== -1 || fixtures.indexOf(fixtureB) !== -1) {
-            (contact as any)._shouldReport = true; // for quick check whether this contact should report
-            this._BeginContact(contact as b2ContactExtends);
+        // if (contact.m_fixtureA.m_userData === null) {
+        //     console.log('test');
+        // }
+        const colliderA = (contact.m_fixtureA.m_userData as b2Shape2D).collider;
+        const colliderB = (contact.m_fixtureB.m_userData as b2Shape2D).collider;
+        //const c: PhysicsContact = (contact as b2ContactExtends).m_userData as PhysicsContact;
+        let key = colliderA.uuid + colliderB.uuid;
+        if (colliderA.uuid > colliderB.uuid) {
+            key = colliderB.uuid + colliderA.uuid;
         }
+
+        if (PhysicsContactListener._collisionMap.has(key)) {
+            const retCollision = PhysicsContactListener._collisionMap.get(key)!;
+            retCollision.ref++;
+            console.log('   collision++', key, 'current ref is:', retCollision.ref);
+            if (retCollision.status === CollisionStatus.EXIT) {
+                retCollision.status = CollisionStatus.STAY;
+                console.log('   set as stay');
+            } else {
+                retCollision.status = CollisionStatus.ENTER;
+                console.log('   set as enter');
+            }
+        } else {
+            console.log('   new collision', key, 'current ref is:', 1);
+            const retCollision = new Collision(key);
+            PhysicsContactListener._collisionMap.set(key, retCollision);
+            retCollision.status = CollisionStatus.ENTER;
+            retCollision.b2Contact = contact;
+        }
+
+        // (contact as any)._shouldReport = false;
+
+        // if (fixtures.indexOf(fixtureA) !== -1 || fixtures.indexOf(fixtureB) !== -1) {
+        //     (contact as any)._shouldReport = true; // for quick check whether this contact should report
+        //     this._BeginContact(contact as b2ContactExtends);
+        // }
     }
 
     EndContact (contact: b2.Contact) {
-        if (this._EndContact && (contact as any)._shouldReport) {
-            (contact as any)._shouldReport = false;
-            this._EndContact(contact as b2ContactExtends);
+        const colliderA = (contact.m_fixtureA.m_userData as b2Shape2D).collider;
+        const colliderB = (contact.m_fixtureB.m_userData as b2Shape2D).collider;
+        let key = colliderA.uuid + colliderB.uuid;
+        if (colliderA.uuid > colliderB.uuid) {
+            key = colliderB.uuid + colliderA.uuid;
         }
+
+        if (PhysicsContactListener._collisionMap.has(key)) {
+            const retCollision = PhysicsContactListener._collisionMap.get(key)!;
+            retCollision.ref--;
+            console.log('   collision--', key, 'current ref is:', retCollision.ref);
+            if (retCollision.ref <= 0) {
+                console.log('   set as exit');
+                retCollision.status = CollisionStatus.EXIT;
+            }
+        } else {
+            assert(false);
+        }
+
+        // let collision = Collision.getCollision(key);
+        // assert(collision);
+        // collision.reference = false;
+
+        // //if collision is still not removed, return
+        // collision = Collision.getCollision(key);
+        // if (collision) { return; }
+
+        // if (this._EndContact && (contact as any)._shouldReport) {
+        //     (contact as any)._shouldReport = false;
+        //     this._EndContact(contact as b2ContactExtends);
+        // }
     }
 
     PreSolve (contact: b2.Contact, oldManifold: b2.Manifold) {
@@ -93,6 +200,12 @@ export class PhysicsContactListener extends b2.ContactListener {
             return;
         }
 
+        const bodyA = c.colliderA.body;
+        const bodyB = c.colliderB.body;
+        if (!bodyA || !bodyB || !bodyA.enabledInHierarchy || !bodyB.enabledInHierarchy) {
+            return;
+        }
+
         c.emit(Contact2DType.PRE_SOLVE);
     }
 
@@ -102,9 +215,87 @@ export class PhysicsContactListener extends b2.ContactListener {
             return;
         }
 
+        const bodyA = c.colliderA!.body;
+        const bodyB = c.colliderB!.body;
+        if (!bodyA || !bodyB || !bodyA.enabledInHierarchy || !bodyB.enabledInHierarchy) {
+            return;
+        }
+
         // impulse only survive during post sole callback
         c._setImpulse(impulse);
         c.emit(Contact2DType.POST_SOLVE);
         c._setImpulse(null);
+    }
+
+    public FinalizeCollision () {
+        console.log('FinalizeCollision');
+        //const deleteList: string[] = [];
+        PhysicsContactListener._collisionMap.forEach((collision: Collision, key: string) => {
+            //console.log('forEach', key, collision);
+
+            if (collision.status === CollisionStatus.EXIT) {
+                //deleteList.push(key);
+                PhysicsContactListener._collisionMap.delete(key);
+                console.log('   report end collision', key, 'current ref is:', collision.ref);
+
+                const b2contact = collision.b2Contact;
+                const bodyA = (b2contact.m_fixtureA.m_userData as b2Shape2D).collider.body;
+                const bodyB = (b2contact.m_fixtureB.m_userData as b2Shape2D).collider.body;
+                if (!bodyA || !bodyB || !bodyA.enabledInHierarchy || !bodyB.enabledInHierarchy) {
+                    return;
+                }
+
+                if (this._EndContact && b2contact._shouldReport) {
+                    b2contact._shouldReport = false;
+                    this._EndContact(b2contact as b2ContactExtends);
+                }
+            } else if (collision.status === CollisionStatus.ENTER) {
+                collision.status = CollisionStatus.STAY;
+                console.log('   report enter collision', key, 'current ref is:', collision.ref);
+
+                const b2contact = collision.b2Contact;
+
+                const fixtureA = b2contact.GetFixtureA();
+                const fixtureB = b2contact.GetFixtureB();
+                const fixtures = this._contactFixtures;
+
+                b2contact._shouldReport = false;
+                if (fixtures.indexOf(fixtureA) !== -1 || fixtures.indexOf(fixtureB) !== -1) {
+                    b2contact._shouldReport = true; // for quick check whether this contact should report
+                    this._BeginContact(b2contact as b2ContactExtends);
+                }
+            }
+
+            // if (collision.ref <= 0) {
+            //     deleteList.push(key);
+            //     PhysicsContactListener._collisionMap.delete(key);
+            //     const b2contact = collision.b2Contact;
+            //     if (this._EndContact && b2contact._shouldReport) {
+            //         b2contact._shouldReport = false;
+            //         this._EndContact(b2contact as b2ContactExtends);
+            //     }
+            // } else if (collision.ref > 0) {
+            //     if (collision.status === CollisionStatus.ENTER) {
+            //         collision.status = CollisionStatus.STAY;
+
+            //         const b2contact = collision.b2Contact;
+
+            //         const fixtureA = b2contact.GetFixtureA();
+            //         const fixtureB = b2contact.GetFixtureB();
+            //         const fixtures = this._contactFixtures;
+
+            //         b2contact._shouldReport = false;
+
+            //         if (fixtures.indexOf(fixtureA) !== -1 || fixtures.indexOf(fixtureB) !== -1) {
+            //             b2contact._shouldReport = true; // for quick check whether this contact should report
+            //             this._BeginContact(b2contact as b2ContactExtends);
+            //         }
+            //     }
+            // }
+        });
+
+        // for (let i = 0; i < deleteList.length; i++) {
+        //     PhysicsContactListener._collisionMap.delete(deleteList[i]);
+        // }
     }
 }

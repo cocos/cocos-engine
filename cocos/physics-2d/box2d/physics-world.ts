@@ -384,4 +384,8 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         this._debugGraphics.clear();
         this._world.DrawDebugData();
     }
+
+    finalizeCollision () {
+        this._contactListener.FinalizeCollision();
+    }
 }

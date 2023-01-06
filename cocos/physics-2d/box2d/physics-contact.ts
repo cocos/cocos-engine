@@ -67,6 +67,27 @@ const impulse: IPhysics2DImpulse = {
 };
 
 export class PhysicsContact implements IPhysics2DContact {
+    static readonly _contactMap = new Map<b2ContactExtends, PhysicsContact>();
+
+    // static get (key: b2ContactExtends) {
+    //     let retContact!: PhysicsContact;
+    //     if (PhysicsContact._contactMap.has(key)) {
+    //         retContact = PhysicsContact._contactMap.get(key)!;
+    //     } else {
+    //         retContact = new PhysicsContact();
+    //         PhysicsContact._contactMap.set(key, retContact);
+    //         retContact.init(key);
+    //     }
+    //     return retContact;
+    // }
+
+    // static put (key: b2ContactExtends) {
+    //     if (PhysicsContact._contactMap.has(key)) {
+    //         PhysicsContact._contactMap.get(key)?.reset();
+    //         PhysicsContact._contactMap.delete(key);
+    //     }
+    // }
+
     static get (b2contact: b2ContactExtends) {
         let c = pools.pop();
 
