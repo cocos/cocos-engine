@@ -87,6 +87,7 @@ typeMap.sampler1DArrayShadow = Type.SAMPLER1D_ARRAY;
 typeMap.isampler2D = Type.SAMPLER2D;
 typeMap.usampler2D = Type.SAMPLER2D;
 typeMap.sampler2DShadow = Type.SAMPLER2D;
+typeMap.samplerExternalOES = Type.SAMPLER2D;
 typeMap.isampler2DArray = Type.SAMPLER2D_ARRAY;
 typeMap.usampler2DArray = Type.SAMPLER2D_ARRAY;
 typeMap.sampler2DArrayShadow = Type.SAMPLER2D_ARRAY;
