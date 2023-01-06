@@ -4,12 +4,10 @@ void GetPlanarReflectionProbeData(out vec4 plane, out float planarReflectionDept
       float uv_y = probeId / cc_probeInfo.x;
       vec4 texData1 = texture(cc_reflectionProbeDataMap, vec2(0.166666667, uv_y));
       vec4 texData2 = texture(cc_reflectionProbeDataMap, vec2(0.5, uv_y));
-      vec3 data1 = unpackRGBE(texData1);
-      vec3 data2 = unpackRGBE(texData2);
-      plane.xyz = data1;
-      plane.w = data2.x;
-      planarReflectionDepthScale = data2.y;
-      mipCount = data2.z;
+      plane.xyz = texData1.xyz;
+      plane.w = texData2.x;
+      planarReflectionDepthScale = texData2.y;
+      mipCount = texData2.z;
     #else
       plane = cc_reflectionProbeData1;
       planarReflectionDepthScale = cc_reflectionProbeData2.x;
@@ -24,12 +22,9 @@ void GetCubeReflectionProbeData(out vec3 centerPos, out vec3 boxHalfSize, out fl
       vec4 texData1 = texture(cc_reflectionProbeDataMap, vec2(0.166666667, uv_y));
       vec4 texData2 = texture(cc_reflectionProbeDataMap, vec2(0.5, uv_y));
       vec4 texData3 = texture(cc_reflectionProbeDataMap, vec2(0.666666667, uv_y));
-      vec3 data1 = unpackRGBE(texData1);
-      vec3 data2 = unpackRGBE(texData2);
-      vec3 data3 = unpackRGBE(texData3);
-      centerPos = data1;
-      boxHalfSize = data2;
-      mipCount = data3.x;
+      centerPos = texData1.xyz;
+      boxHalfSize = texData2.xyz;
+      mipCount = texData3.x;
     #else
       centerPos = cc_reflectionProbeData1.xyz;
       boxHalfSize = cc_reflectionProbeData2.xyz;

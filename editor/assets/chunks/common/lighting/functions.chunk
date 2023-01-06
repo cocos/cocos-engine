@@ -1,4 +1,4 @@
-#include <common/lighting/attenuation>
+#include <common/lighting/attenuation1>
 
 // helper functions for lighting model-functions
 
@@ -69,13 +69,22 @@ vec3 CalculatePlanarReflectPositionOnPlane(vec3 N, vec3 V, vec3 worldPos, vec4 p
   return virtualCameraPos + y * virtualCameraToReflectedPoint;
 }
 
+
+
 // fix cubemap direction with box projection
 // return unnormalized vector
 vec3 CalculateBoxProjectedDirection(vec3 R, vec3 worldPos, vec3 cubeCenterPos, vec3 cubeBoxHalfSize)
 {
+  // point W is the worldPos in the space origin align with cube center
+  vec3 W = worldPos - cubeCenterPos;
+  // find point P which intersected with cube from W alone R
+  vec3 projectedLength = (sign(R) * cubeBoxHalfSize - W) / (R + vec3(EPSILON));
+  float len = min(min(projectedLength.x, projectedLength.y), projectedLength.z);
+  vec3 P = W + len * R;
+  return P;
   // find point P which intersected with cube from O alone R
-  vec3 projectedLength = cubeBoxHalfSize / (abs(R) + EPSILON);
-  vec3 P = R * min(min(projectedLength.x, projectedLength.y), projectedLength.z);
+  projectedLength = cubeBoxHalfSize / (abs(R) + EPSILON);
+  P = R * min(min(projectedLength.x, projectedLength.y), projectedLength.z);
   // fix direction with offset
-  return R + (worldPos - cubeCenterPos);
+  return P + (worldPos - cubeCenterPos);
 }

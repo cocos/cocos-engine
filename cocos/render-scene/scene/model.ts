@@ -972,12 +972,12 @@ export class Model {
         this.onMacroPatchesStateChanged();
 
         const sampler = this._device.getSampler(new SamplerInfo(
-            Filter.LINEAR,
-            Filter.LINEAR,
             Filter.NONE,
-            Address.CLAMP,
-            Address.CLAMP,
-            Address.CLAMP,
+            Filter.NONE,
+            Filter.NONE,
+            Address.WRAP,
+            Address.WRAP,
+            Address.WRAP,
         ));
         if (!texture) {
             texture = builtinResMgr.get<Texture2D>('empty-texture').getGFXTexture()!;
@@ -1005,20 +1005,19 @@ export class Model {
     }
 
     /**
-     * @en Update the data of reflection probe
-     * @zh 更新反射探针数据
+     * @en Update the id of reflection probe
+     * @zh 更新物体使用哪个反射探针
      */
-    public updateReflectionProbeData () {
+    public updateReflectionProbeId  () {
         const sv = this._localData;
         sv[UBOLocal.LOCAL_SHADOW_BIAS + 2] = this._reflectionProbeId;
         sv[UBOLocal.LOCAL_SHADOW_BIAS + 3] = 0;
-
         const probe = cclegacy.internal.reflectionProbeManager.getProbeById(this._reflectionProbeId);
         if (probe) {
-            sv[UBOLocal.REFLECTION_PROBE_DATA1] = probe.node.worldPosition.x;
-            sv[UBOLocal.REFLECTION_PROBE_DATA1 + 1] = probe.node.worldPosition.y;
-            sv[UBOLocal.REFLECTION_PROBE_DATA1 + 2] = probe.node.worldPosition.z;
             if (probe.probeType === ProbeType.PLANAR) {
+                sv[UBOLocal.REFLECTION_PROBE_DATA1] = probe.node.up.x;
+                sv[UBOLocal.REFLECTION_PROBE_DATA1 + 1] = probe.node.up.y;
+                sv[UBOLocal.REFLECTION_PROBE_DATA1 + 2] = probe.node.up.z;
                 sv[UBOLocal.REFLECTION_PROBE_DATA1 + 3] = 1.0;
 
                 sv[UBOLocal.REFLECTION_PROBE_DATA2] = 1.0;
@@ -1026,6 +1025,9 @@ export class Model {
                 sv[UBOLocal.REFLECTION_PROBE_DATA2 + 2] = 0.0;
                 sv[UBOLocal.REFLECTION_PROBE_DATA2 + 3] = 1.0;
             } else {
+                sv[UBOLocal.REFLECTION_PROBE_DATA1] = probe.node.worldPosition.x;
+                sv[UBOLocal.REFLECTION_PROBE_DATA1 + 1] = probe.node.worldPosition.y;
+                sv[UBOLocal.REFLECTION_PROBE_DATA1 + 2] = probe.node.worldPosition.z;
                 sv[UBOLocal.REFLECTION_PROBE_DATA1 + 3] = 0.0;
 
                 sv[UBOLocal.REFLECTION_PROBE_DATA2] = probe.size.x;

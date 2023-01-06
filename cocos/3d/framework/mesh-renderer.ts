@@ -806,7 +806,7 @@ export class MeshRenderer extends ModelRenderer {
         if (this.model !== null) {
             this.model.reflectionProbeId = this._reflectionProbeId;
             this.model.updateLocalShadowBias();
-            this.model.updateReflectionProbeData();
+            this.model.updateReflectionProbeId();
         }
 
         this.setInstancedAttribute('a_localShadowBiasAndProbeId', [
