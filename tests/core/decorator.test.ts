@@ -283,6 +283,7 @@ describe('Decorated property test', () => {
     };
 
     test('property without default value', () => {
+        // Simulate `class A { @property test; }`(in babel case)
         expect(t(null)).toMatchObject({});
     });
 
