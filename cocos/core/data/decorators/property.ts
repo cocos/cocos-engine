@@ -253,7 +253,8 @@ function setDefaultValue<T> (
             propertyStash.default = getDefaultFromInitializer(descriptorOrInitializer);
         } else if (descriptorOrInitializer === null) {
             // some decorated properties we haven't specified default value, then the initializer should be null.
-            propertyStash.default = undefined;
+            // We fallback to the behavior of v3.6.3, where we don't specify default value automatically.
+            // propertyStash.default = undefined;
         } else if (descriptorOrInitializer.initializer) {
             // In case of Babel, if an initializer is given for class field.
             // That initializer is passed to `descriptor.initializer`.
