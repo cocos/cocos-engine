@@ -295,6 +295,7 @@ describe('Decorated property test', () => {
     });
 
     test('property with property descriptor', () => {
+        // Simulate `class A { @property test = null; }`(in babel case)
         expect(t({
             configurable: true,
             enumerable: true,
