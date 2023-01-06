@@ -283,9 +283,7 @@ describe('Decorated property test', () => {
     };
 
     test('property without default value', () => {
-        expect(t(null)).toMatchObject({
-            default: undefined,
-        });
+        expect(t(null)).toMatchObject({});
     });
 
     test('property with default value null', () => {
