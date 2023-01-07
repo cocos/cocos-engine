@@ -146,6 +146,8 @@ DescriptorSetLayoutData::DescriptorSetLayoutData(uint32_t slotIn, uint32_t capac
 DescriptorSetLayoutData::DescriptorSetLayoutData(DescriptorSetLayoutData&& rhs, const allocator_type& alloc)
 : slot(rhs.slot),
   capacity(rhs.capacity),
+  uniformBlockCapacity(rhs.uniformBlockCapacity),
+  samplerTextureCapacity(rhs.samplerTextureCapacity),
   descriptorBlocks(std::move(rhs.descriptorBlocks), alloc),
   uniformBlocks(std::move(rhs.uniformBlocks), alloc),
   bindingMap(std::move(rhs.bindingMap), alloc) {}

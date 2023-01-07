@@ -38,7 +38,6 @@
 #include "cocos/renderer/pipeline/InstancedBuffer.h"
 #include "cocos/renderer/pipeline/custom/NativePipelineFwd.h"
 #include "cocos/renderer/pipeline/custom/NativeTypes.h"
-#include "cocos/renderer/pipeline/custom/PrivateTypes.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphTypes.h"
 #include "cocos/renderer/pipeline/custom/details/Map.h"
 #include "cocos/renderer/pipeline/custom/details/Set.h"
@@ -526,13 +525,13 @@ public:
 
     void addEffect(EffectAsset *effectAsset) override;
     void precompileEffect(gfx::Device *device, EffectAsset *effectAsset) override;
-    ccstd::string getKey(uint32_t phaseID, const ccstd::pmr::string &programName, const MacroRecord &defines) const override;
-    const gfx::PipelineLayout &getPipelineLayout(gfx::Device *device, uint32_t phaseID, const ccstd::pmr::string &programName) override;
+    ccstd::string getKey(uint32_t phaseID, const ccstd::string &programName, const MacroRecord &defines) const override;
+    IntrusivePtr<gfx::PipelineLayout> getPipelineLayout(gfx::Device *device, uint32_t phaseID, const ccstd::string &programName) override;
     const gfx::DescriptorSetLayout &getMaterialDescriptorSetLayout(gfx::Device *device, uint32_t phaseID, const ccstd::pmr::string &programName) override;
     const gfx::DescriptorSetLayout &getLocalDescriptorSetLayout(gfx::Device *device, uint32_t phaseID, const ccstd::pmr::string &programName) override;
     const IProgramInfo &getProgramInfo(uint32_t phaseID, const ccstd::pmr::string &programName) const override;
     const gfx::ShaderInfo &getShaderInfo(uint32_t phaseID, const ccstd::pmr::string &programName) const override;
-    ProgramProxy *getProgramVariant(gfx::Device *device, uint32_t phaseID, const ccstd::string &name, const MacroRecord &defines, const ccstd::pmr::string *key) const override;
+    ProgramProxy *getProgramVariant(gfx::Device *device, uint32_t phaseID, const ccstd::string &name, MacroRecord &defines, const ccstd::pmr::string *key) override;
     const ccstd::pmr::vector<unsigned> &getBlockSizes(uint32_t phaseID, const ccstd::pmr::string &programName) const override;
     const Record<ccstd::string, uint32_t> &getHandleMap(uint32_t phaseID, const ccstd::pmr::string &programName) const override;
     uint32_t getProgramID(uint32_t phaseID, const ccstd::pmr::string &programName) override;
@@ -549,6 +548,7 @@ public:
     bool fixedLocal{true};
     IntrusivePtr<gfx::DescriptorSetLayout> emptyDescriptorSetLayout;
     IntrusivePtr<gfx::PipelineLayout> emptyPipelineLayout;
+    PipelineRuntime* pipeline{nullptr};
 };
 
 class NativeRenderingModule final : public RenderingModule {

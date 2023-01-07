@@ -61,15 +61,15 @@ ProgramInfo::ProgramInfo(ProgramInfo const& rhs, const allocator_type& alloc)
 
 ProgramGroup::ProgramGroup(const allocator_type& alloc) noexcept
 : programInfos(alloc),
-  programHosts(alloc) {}
+  programProxies(alloc) {}
 
 ProgramGroup::ProgramGroup(ProgramGroup&& rhs, const allocator_type& alloc)
 : programInfos(std::move(rhs.programInfos), alloc),
-  programHosts(std::move(rhs.programHosts), alloc) {}
+  programProxies(std::move(rhs.programProxies), alloc) {}
 
 ProgramGroup::ProgramGroup(ProgramGroup const& rhs, const allocator_type& alloc)
 : programInfos(rhs.programInfos, alloc),
-  programHosts(rhs.programHosts, alloc) {}
+  programProxies(rhs.programProxies, alloc) {}
 
 } // namespace render
 

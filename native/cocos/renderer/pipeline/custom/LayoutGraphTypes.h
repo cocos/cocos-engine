@@ -365,6 +365,8 @@ struct DescriptorSetLayoutData {
 
     uint32_t slot{0xFFFFFFFF};
     uint32_t capacity{0};
+    uint32_t uniformBlockCapacity{0};
+    uint32_t samplerTextureCapacity{0};
     ccstd::pmr::vector<DescriptorBlockData> descriptorBlocks;
     ccstd::pmr::unordered_map<NameLocalID, gfx::UniformBlock> uniformBlocks;
     PmrFlatMap<NameLocalID, uint32_t> bindingMap;

@@ -76,8 +76,12 @@ function addCustomBuiltinPipelines (map: Map<string, PipelineBuilder>) {
 
 addCustomBuiltinPipelines(customPipelineBuilderMap);
 
-export function init (device: Device, arrayBuffer: ArrayBuffer) {
-    _renderModule = render.Factory.init(device, arrayBuffer);
+export function init (device: Device, arrayBuffer: ArrayBuffer | null) {
+    if (arrayBuffer) {
+        _renderModule = render.Factory.init(device, arrayBuffer);
+    } else {
+        _renderModule = render.Factory.init(device, new ArrayBuffer(0));
+    }
 }
 
 export function destroy () {
