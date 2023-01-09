@@ -300,7 +300,7 @@ export class PhysicsSystem2D extends Eventify(System) {
 
         this.physicsWorld.syncPhysicsToScene();
 
-        this.physicsWorld.finalizeCollision();
+        this.physicsWorld.finalizeContactEvent();
 
         if (this.debugDrawFlags) {
             this.physicsWorld.drawDebug();

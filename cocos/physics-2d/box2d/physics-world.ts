@@ -378,7 +378,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         this._world.DrawDebugData();
     }
 
-    finalizeCollision () {
-        this._contactListener.FinalizeCollision();
+    finalizeContactEvent () {
+        this._contactListener.FinalizeContactEvent();
     }
 }

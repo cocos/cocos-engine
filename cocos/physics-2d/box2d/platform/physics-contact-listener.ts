@@ -84,7 +84,7 @@ export class PhysicsContactListener extends b2.ContactListener {
     PostSolve (contact: b2.Contact, impulse: b2.ContactImpulse) {
     }
 
-    public FinalizeCollision () {
+    public FinalizeContactEvent () {
         PhysicsContactListener._contactMap.forEach((contact: PhysicsContact, key: string) => {
             //console.log('forEach', key, collision);
             if (contact.status === Contact2DType.END_CONTACT) {
