@@ -90,7 +90,7 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
                 const contact = contacts[i];
                 if (contact.shape1 === shape || contact.shape2 === shape) {
                     if (contact.touching) {
-                        this._emitCollide(contact, Contact2DType.END_CONTACT);
+                        this._emitCollide(contact, Contact2DType.EXIT_CONTACT);
                     }
 
                     js.array.fastRemoveAt(contacts, i);

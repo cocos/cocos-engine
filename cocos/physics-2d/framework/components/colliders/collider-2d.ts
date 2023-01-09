@@ -24,7 +24,7 @@
 
 import { EDITOR } from 'internal:constants';
 
-import { Vec2, Rect, _decorator, Eventify, cclegacy, tooltip, CCInteger, serializable, CCFloat, CCBoolean } from '../../../../core';
+import { Vec2, Rect, _decorator, Eventify, cclegacy, tooltip, CCInteger, serializable, CCFloat, CCBoolean, warnID } from '../../../../core';
 import { PhysicsGroup } from '../../../../physics/framework/physics-enum';
 
 import { RigidBody2D } from '../rigid-body-2d';
@@ -196,6 +196,18 @@ export class Collider2D extends Eventify(Component) {
         if (this._shape && this._shape.apply) {
             this._shape.apply();
         }
+    }
+
+    public on<TFunction extends (...any) => void>(type: string, callback: TFunction, thisArg?: any, once?: boolean): typeof callback {
+        if (type === 'pre-solve' || type === 'post-solve') {
+            warnID(16002, type, '3.7.1');
+        } else if (type === 'begin-contact') {
+            warnID(16001, type, '3.7.1', 'enter-contact');
+        } else if (type === 'end-contact') {
+            warnID(16001, type, '3.7.1', 'exit-contact');
+        }
+
+        return super.on(type, callback, thisArg, once);
     }
 
     /**

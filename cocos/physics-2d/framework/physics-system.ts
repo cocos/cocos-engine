@@ -23,7 +23,7 @@
 */
 
 import { EDITOR } from 'internal:constants';
-import { System, Vec2, IVec2Like, Rect, Eventify, Enum, Settings, settings, cclegacy } from '../../core';
+import { System, Vec2, IVec2Like, Rect, Eventify, Enum, Settings, settings, cclegacy, warnID } from '../../core';
 import { createPhysicsWorld, selector, IPhysicsSelector } from './physics-selector';
 
 import { DelayEvent } from './physics-internal-types';
@@ -374,6 +374,18 @@ export class PhysicsSystem2D extends Eventify(System) {
      */
     testAABB (rect: Rect): readonly Collider2D[] {
         return this.physicsWorld.testAABB(rect);
+    }
+
+    public on<TFunction extends (...any) => void>(type: string, callback: TFunction, thisArg?: any, once?: boolean): typeof callback {
+        if (type === 'pre-solve' || type === 'post-solve') {
+            warnID(16002, type, '3.7.1');
+        } else if (type === 'begin-contact') {
+            warnID(16001, type, '3.7.1', 'enter-contact');
+        } else if (type === 'end-contact') {
+            warnID(16001, type, '3.7.1', 'exit-contact');
+        }
+
+        return super.on(type, callback, thisArg, once);
     }
 }
 

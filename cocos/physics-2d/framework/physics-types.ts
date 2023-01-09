@@ -129,9 +129,29 @@ export enum ERaycast2DType {
 
 export const Contact2DType = {
     None: 'none-contact',
-    BEGIN_CONTACT: 'begin-contact',
+    ENTER_CONTACT: 'enter-contact',
     STAY_CONTACT: 'stay-contact',
+    EXIT_CONTACT: 'exit-contact',
+
+    /**
+    * @deprecated Since v3.7.1, use ENTER_CONTACT instead.
+    */
+    BEGIN_CONTACT: 'begin-contact',
+
+    /**
+    * @deprecated Since v3.7.1, use EXIT_CONTACT instead.
+    */
     END_CONTACT: 'end-contact',
+
+    /**
+    * @deprecated Since v3.7.1.
+    */
+    PRE_SOLVE: 'pre-solve',
+
+    /**
+    * @deprecated Since v3.7.1.
+    */
+    POST_SOLVE: 'post-solve',
 };
 
 export interface RaycastResult2D {
