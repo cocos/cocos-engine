@@ -130,9 +130,10 @@ export enum ERaycast2DType {
 export const Contact2DType = {
     None: 'none-contact',
     BEGIN_CONTACT: 'begin-contact',
+    STAY_CONTACT: 'stay-contact',
     END_CONTACT: 'end-contact',
-    PRE_SOLVE: 'pre-solve',
-    POST_SOLVE: 'post-solve',
+    // PRE_SOLVE: 'pre-solve',
+    // POST_SOLVE: 'post-solve',
 };
 
 export interface RaycastResult2D {
