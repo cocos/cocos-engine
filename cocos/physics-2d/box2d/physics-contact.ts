@@ -30,10 +30,6 @@ import { Collider2D, Contact2DType, PhysicsSystem2D } from '../framework';
 import { b2Shape2D } from './shapes/shape-2d';
 import { IPhysics2DContact, IPhysics2DImpulse, IPhysics2DManifoldPoint, IPhysics2DWorldManifold } from '../spec/i-physics-contact';
 
-// export type b2ContactExtends = b2.Contact & {
-//     m_userData: any
-// }
-
 const pools: PhysicsContact[] = [];
 
 // temp world manifold
@@ -67,69 +63,20 @@ const impulse: IPhysics2DImpulse = {
     tangentImpulses: [] as number[],
 };
 
-export enum CollisionStatus {
-    ENTER,
-    STAY,
-    EXIT,
-    UNKNOWN
-}
-
 export class PhysicsContact implements IPhysics2DContact {
-    static readonly _contactMap = new Map<string, PhysicsContact>();
-
-    private readonly key: string;
-    public ref = 0;
-    public status = Contact2DType.None;
-    //public b2Contact: any;
-    public constructor (key: string, b2contact: b2Contact) {
+    public constructor (b2contact: b2Contact) {
         this.ref = 1;
-        this.key = key;
         this.init(b2contact);
     }
 
-    // static get (key: b2ContactExtends) {
-    //     let retContact!: PhysicsContact;
-    //     if (PhysicsContact._contactMap.has(key)) {
-    //         retContact = PhysicsContact._contactMap.get(key)!;
-    //     } else {
-    //         retContact = new PhysicsContact();
-    //         PhysicsContact._contactMap.set(key, retContact);
-    //         retContact.init(key);
-    //     }
-    //     return retContact;
-    // }
+    public ref = 0;
+    public status = Contact2DType.None;
 
-    // static put (key: b2ContactExtends) {
-    //     if (PhysicsContact._contactMap.has(key)) {
-    //         PhysicsContact._contactMap.get(key)?.reset();
-    //         PhysicsContact._contactMap.delete(key);
-    //     }
-    // }
+    public colliderA: Collider2D | null = null;
+    public colliderB: Collider2D | null = null;
 
-    // static get (b2contact: b2ContactExtends) {
-    //     let c = pools.pop();
-
-    //     if (!c) {
-    //         c = new PhysicsContact();
-    //     }
-
-    //     c.init(b2contact);
-    //     return c;
-    // }
-
-    // static put (b2contact: b2ContactExtends) {
-    //     const c: PhysicsContact = b2contact.m_userData as PhysicsContact;
-    //     if (!c) return;
-
-    //     pools.push(c);
-    //     c.reset();
-    // }
-
-    colliderA: Collider2D | null = null;
-    colliderB: Collider2D | null = null;
-
-    disabled = false;
-    disabledOnce = false;
+    public disabled = false;
+    public disabledOnce = false;
 
     private _impulse: b2.ContactImpulse | null = null;
     private _inverted = false;
@@ -139,7 +86,7 @@ export class PhysicsContact implements IPhysics2DContact {
         this._impulse = impulse;
     }
 
-    init (b2contact) {
+    private init (b2contact) {
         this.colliderA = (b2contact.m_fixtureA.m_userData as b2Shape2D).collider;
         this.colliderB = (b2contact.m_fixtureB.m_userData as b2Shape2D).collider;
         this.disabled = false;
@@ -149,7 +96,6 @@ export class PhysicsContact implements IPhysics2DContact {
         this._inverted = false;
 
         this._b2contact = b2contact;
-        // b2contact.m_userData = this;
     }
 
     reset () {
@@ -161,8 +107,6 @@ export class PhysicsContact implements IPhysics2DContact {
         this.colliderB = null;
         this.disabled = false;
         this._impulse = null;
-
-        // this._b2contact.m_userData = null;
         this._b2contact = null;
     }
 
@@ -248,47 +192,6 @@ export class PhysicsContact implements IPhysics2DContact {
 
         return impulse;
     }
-
-    // emit (contactType) {
-    //     let func;
-    //     switch (contactType) {
-    //     case Contact2DType.BEGIN_CONTACT:
-    //         func = 'onBeginContact';
-    //         break;
-    //     case Contact2DType.END_CONTACT:
-    //         func = 'onEndContact';
-    //         break;
-    //     case Contact2DType.PRE_SOLVE:
-    //         func = 'onPreSolve';
-    //         break;
-    //     case Contact2DType.POST_SOLVE:
-    //         func = 'onPostSolve';
-    //         break;
-    //     }
-
-    //     const colliderA = this.colliderA;
-    //     const colliderB = this.colliderB;
-
-    //     const bodyA = colliderA!.body;
-    //     const bodyB = colliderB!.body;
-
-    //     if (bodyA!.enabledContactListener) {
-    //         colliderA?.emit(contactType, colliderA, colliderB, this);
-    //     }
-
-    //     if (bodyB!.enabledContactListener) {
-    //         colliderB?.emit(contactType, colliderB, colliderA, this);
-    //     }
-
-    //     if (bodyA!.enabledContactListener || bodyB!.enabledContactListener) {
-    //         PhysicsSystem2D.instance.emit(contactType, colliderA, colliderB, this);
-    //     }
-
-    //     if (this.disabled || this.disabledOnce) {
-    //         this.setEnabled(false);
-    //         this.disabledOnce = false;
-    //     }
-    // }
 
     setEnabled (value) {
         this._b2contact!.SetEnabled(value);

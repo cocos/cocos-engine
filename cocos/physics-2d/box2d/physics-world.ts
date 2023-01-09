@@ -322,13 +322,6 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         }
     }
 
-    registerContactFixture (fixture: b2.Fixture) {
-        this._contactListener.registerContactFixture(fixture);
-    }
-    unregisterContactFixture (fixture: b2.Fixture) {
-        this._contactListener.unregisterContactFixture(fixture);
-    }
-
     testPoint (point: Vec2): readonly Collider2D[] {
         const x = tempVec2_1.x = point.x / PHYSICS_2D_PTM_RATIO;
         const y = tempVec2_1.y = point.y / PHYSICS_2D_PTM_RATIO;

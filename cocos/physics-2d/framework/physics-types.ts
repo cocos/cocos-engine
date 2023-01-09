@@ -132,8 +132,6 @@ export const Contact2DType = {
     BEGIN_CONTACT: 'begin-contact',
     STAY_CONTACT: 'stay-contact',
     END_CONTACT: 'end-contact',
-    // PRE_SOLVE: 'pre-solve',
-    // POST_SOLVE: 'post-solve',
 };
 
 export interface RaycastResult2D {
