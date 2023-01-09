@@ -52,7 +52,7 @@ export class PhysicsContactListener extends b2.ContactListener {
             if (retContact.status === Contact2DType.EXIT_CONTACT) {
                 retContact.status = Contact2DType.STAY_CONTACT;
                 //console.log('   set as stay');
-            } else {
+            } else if (retContact.status !== Contact2DType.STAY_CONTACT) {
                 retContact.status = Contact2DType.ENTER_CONTACT;
                 //console.log('   set as enter');
             }
