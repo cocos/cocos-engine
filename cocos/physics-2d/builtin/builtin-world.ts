@@ -91,6 +91,8 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
                 if (contact.shape1 === shape || contact.shape2 === shape) {
                     if (contact.touching) {
                         this._emitCollide(contact, Contact2DType.EXIT_CONTACT);
+                        // compatibility
+                        this._emitCollide(contact, Contact2DType.END_CONTACT);
                     }
 
                     js.array.fastRemoveAt(contacts, i);
@@ -130,6 +132,13 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
         for (let i = 0, l = contactResults.length; i < l; i++) {
             const result = contactResults[i];
             this._emitCollide(result);
+
+            // compatibility
+            if (result.type === Contact2DType.EXIT_CONTACT) {
+                this._emitCollide(result, Contact2DType.END_CONTACT);
+            } else if (result.type === Contact2DType.ENTER_CONTACT) {
+                this._emitCollide(result, Contact2DType.BEGIN_CONTACT);
+            }
         }
     }
 
