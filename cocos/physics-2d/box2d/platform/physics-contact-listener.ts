@@ -95,11 +95,14 @@ export class PhysicsContactListener extends b2.ContactListener {
                 contact.status = Contact2DType.STAY_CONTACT;
                 //console.log('   report enter collision', key, 'current ref is:', contact.ref);
                 this.emit(Contact2DType.BEGIN_CONTACT, contact);
+            } else if (contact.status === Contact2DType.STAY_CONTACT) {
+                //console.log('   report stay collision', key, 'current ref is:', contact.ref);
+                this.emit(Contact2DType.STAY_CONTACT, contact);
             }
         });
     }
 
-    emit (contactType, contact: PhysicsContact) {
+    private emit (contactType, contact: PhysicsContact) {
         const colliderA = contact.colliderA;
         const colliderB = contact.colliderB;
         if (!colliderA || !colliderB || !colliderA.enabledInHierarchy || !colliderB.enabledInHierarchy) {
