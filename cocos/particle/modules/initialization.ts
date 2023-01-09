@@ -159,27 +159,40 @@ export class InitializationModule extends ParticleModule {
     }
 
     public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
-        const { newParticleIndexOffset, newEmittingCount, normalizedTimeInCycle, worldRotation, simulationSpace } = particleUpdateContext;
+        const { newParticleIndexStart, newParticleIndexEnd, normalizedTimeInCycle, worldRotation, simulationSpace } = particleUpdateContext;
         const velocity = new Vec3();
         if (simulationSpace === Space.WORLD) {
-            for (let i = newParticleIndexOffset, l = newParticleIndexOffset + newEmittingCount; i < l; ++i) {
+            if (this.startSpeed.mode === )
+            for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
                 const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
                 const curveStartSpeed = this.startSpeed.evaluate(normalizedTimeInCycle, rand);
                 Vec3.multiplyScalar(velocity, particleEmitZAxis, curveStartSpeed);
                 Vec3.transformQuat(velocity, velocity, worldRotation);
                 particles.setVelocityAt(velocity, i);
             }
+        } else {
+            for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
+                const curveStartSpeed = this.startSpeed.evaluate(normalizedTimeInCycle, rand);
+                Vec3.multiplyScalar(velocity, particleEmitZAxis, curveStartSpeed);
+                particles.setVelocityAt(velocity, i);
+            }
+        }
+        if (this.startRotation3D) {
+            for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
+                const curveStartSpeed = this.startSpeed.evaluate(normalizedTimeInCycle, rand);
+                Vec3.multiplyScalar(velocity, particleEmitZAxis, curveStartSpeed);
+                Vec3.transformQuat(velocity, velocity, worldRotation);
+                particles.setVelocityAt(velocity, i);
+            }
+            // eslint-disable-next-line max-len
+            particle.startEuler.set(this.startRotationX.evaluate(normalizedTimeInCycle, rand), this.startRotationY.evaluate(normalizedTimeInCycle, rand), this.startRotationZ.evaluate(normalizedTimeInCycle, rand));
+        } else {
+            particle.startEuler.set(0, 0, this.startRotationZ.evaluate(normalizedTimeInCycle, rand));
         }
         for (let i = newParticleIndexOffset, l = newParticleIndexOffset + newEmittingCount; i < l; ++i) {
             const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
-
-            const curveStartSpeed = this.startSpeed.evaluate(normalizedTimeInCycle, rand);
-            Vec3.multiplyScalar(velocity, particleEmitZAxis, curveStartSpeed);
-
-            if (simulationSpace === Space.WORLD) {
-                Vec3.transformQuat(velocity, velocity, worldRotation);
-            }
-            particles.setVelocityAt(velocity, i);
 
             // apply startRotation.
             if (this.startRotation3D) {

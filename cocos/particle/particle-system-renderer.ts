@@ -384,10 +384,6 @@ export class ParticleSystemRenderer extends ModelRenderer {
         return this._model;
     }
 
-    public update () {
-
-    }
-
     // internal function
     public updateRenderData () {
         this._model!.setCapacity(this.ps.capacity);
@@ -396,7 +392,7 @@ export class ParticleSystemRenderer extends ModelRenderer {
 
         // update vertex buffer
         let idx = 0;
-        if (this.renderMode === RenderMode.Mesh) {
+        if (this.renderMode === RenderMode.MESH) {
             for (let i = 0; i < this._particleSystem._particles.count; ++i) {
                 const p = this._particles.data[i];
                 let fi = 0;
@@ -407,7 +403,7 @@ export class ParticleSystemRenderer extends ModelRenderer {
                 idx = i * 4;
                 this._fillMeshData(p, idx, fi);
             }
-        } else if (this.renderMode === RenderMode.StrecthedBillboard) {
+        } else if (this.renderMode === RenderMode.STRETCHED_BILLBOARD) {
             for (let i = 0; i < this._particleSystem._particles.count; ++i) {
                 const p = this._particles.data[i];
                 let fi = 0;
@@ -416,7 +412,7 @@ export class ParticleSystemRenderer extends ModelRenderer {
                     fi = p.frameIndex;
                 }
                 idx = i * 4;
-                this._fillStrecthedData(p, idx, fi);
+                this._fillStretchedData(p, idx, fi);
             }
         } else {
             for (let i = 0; i < this._particleSystem._particles.count; ++i) {

@@ -504,12 +504,12 @@ export class ParticleSystem extends Component {
 
     private updateParticles (deltaTime: number) {
         const particleUpdateContext = this._particleUpdateContext;
+        const particles = this._particles;
         particleUpdateContext.accumulatedTime += deltaTime;
         particleUpdateContext.deltaTime = deltaTime;
         particleUpdateContext.emitterDeltaTime = this._isEmitting ? deltaTime : 0;
         particleUpdateContext.simulationSpace = this.simulationSpace;
-        particleUpdateContext.newEmittingCount = 0;
-        particleUpdateContext.newParticleIndexOffset = -1;
+        particleUpdateContext.newParticleIndexStart = particleUpdateContext.newParticleIndexStart = -1;
         particleUpdateContext.duration = this.duration;
         particleUpdateContext.lastPosition.set(particleUpdateContext.currentPosition);
         particleUpdateContext.currentPosition.set(this.node.worldPosition);
@@ -527,8 +527,8 @@ export class ParticleSystem extends Component {
         particleUpdateContext.normalizedTimeInCycle = ((particleUpdateContext.emitterAccumulatedTime - particleUpdateContext.emitterStartDelay)
             % this.duration) / this.duration;
 
-        const { normalizedAliveTime, invStartLifeTime, animatedVelocityX, animatedVelocityY, animatedVelocityZ } = this._particles;
-        for (let i = 0, length = this._particles.count; i < length; ++i) {
+        const { normalizedAliveTime, invStartLifeTime, animatedVelocityX, animatedVelocityY, animatedVelocityZ } = particles;
+        for (let i = 0, length = particles.count; i < length; ++i) {
             normalizedAliveTime[i] += deltaTime * invStartLifeTime[i];
 
             animatedVelocityX[i] = 0;
@@ -536,7 +536,7 @@ export class ParticleSystem extends Component {
             animatedVelocityZ[i] = 0;
 
             if (normalizedAliveTime[i] > 1) {
-                this._particles.removeParticle(i);
+                particles.removeParticle(i);
                 --i;
                 continue;
             }
@@ -550,20 +550,23 @@ export class ParticleSystem extends Component {
                 break;
             }
             if (module.enable) {
-                module.update(this._particles, this._particleUpdateContext);
+                module.update(particles, particleUpdateContext);
             }
         }
 
-        let newEmittingCount = this._particleUpdateContext.newEmittingCount;
-        if (newEmittingCount + this._particles.count > this.capacity) {
-            newEmittingCount = this._particleUpdateContext.newEmittingCount = this.capacity - this._particles.count;
+        let newEmittingCount = Math.floor(particleUpdateContext.emittingAccumulatedCount);
+        particleUpdateContext.emittingAccumulatedCount -= newEmittingCount;
+        if (newEmittingCount + particles.count > this.capacity) {
+            newEmittingCount = this.capacity - particles.count;
         }
 
-        this._particleUpdateContext.newParticleIndexOffset = this._particles.addParticles(newEmittingCount);
-
-        if (this._simulationSpace === Space.WORLD) {
-            for (let i = this._particleUpdateContext.newParticleIndexOffset; i < newEmittingCount; ++i) {
-                this._particles.setPositionAt(this.node.worldPosition, i);
+        if (newEmittingCount > 0) {
+            particleUpdateContext.newParticleIndexStart = particles.addParticles(newEmittingCount);
+            particleUpdateContext.newParticleIndexEnd = particleUpdateContext.newParticleIndexStart + newEmittingCount;
+            if (this._simulationSpace === Space.WORLD) {
+                for (let i = particleUpdateContext.newParticleIndexStart, end = particleUpdateContext.newParticleIndexEnd; i < end; ++i) {
+                    particles.setPositionAt(this.node.worldPosition, i);
+                }
             }
         }
 
@@ -574,17 +577,17 @@ export class ParticleSystem extends Component {
                     break;
                 }
                 if (module.enable) {
-                    module.update(this._particles, this._particleUpdateContext);
+                    module.update(particles, particleUpdateContext);
                 }
             }
         }
         const velocity = new Vec3();
         const animatedVelocity = new Vec3();
-        for (let particleHandle = 0; particleHandle < this._particles.count; particleHandle++) {
-            this._particles.getVelocityAt(velocity, particleHandle);
-            this._particles.getAnimatedVelocityAt(animatedVelocity, particleHandle);
+        for (let particleHandle = 0; particleHandle < particles.count; particleHandle++) {
+            particles.getVelocityAt(velocity, particleHandle);
+            particles.getAnimatedVelocityAt(animatedVelocity, particleHandle);
             velocity.add(animatedVelocity);
-            this._particles.addPositionAt(velocity.multiplyScalar(deltaTime), particleHandle);
+            particles.addPositionAt(velocity.multiplyScalar(deltaTime), particleHandle);
         }
 
         for (; i < length; i++) {
@@ -593,7 +596,7 @@ export class ParticleSystem extends Component {
                 break;
             }
             if (module.enable) {
-                module.update(this._particles, this._particleUpdateContext);
+                module.update(particles, particleUpdateContext);
             }
         }
     }

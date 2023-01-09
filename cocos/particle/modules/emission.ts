@@ -85,7 +85,7 @@ export class EmissionModule extends ParticleModule {
         this._emitRateTimeCounter += this.rateOverTime.evaluate(particleUpdateContext.normalizedTimeInCycle, 1)! * particleUpdateContext.emitterDeltaTime;
         const emitNum = Math.floor(this._emitRateTimeCounter);
         this._emitRateTimeCounter -= emitNum;
-        particleUpdateContext.newEmittingCount += emitNum;
+        particleUpdateContext.emittingAccumulatedCount += emitNum;
 
         // emit by rateOverDistance
         const distance = Vec3.distance(particleUpdateContext.currentPosition, particleUpdateContext.lastPosition);
@@ -93,7 +93,7 @@ export class EmissionModule extends ParticleModule {
         this._emitRateDistanceCounter += distance * this.rateOverDistance.evaluate(particleUpdateContext.normalizedTimeInCycle, 1)!;
         const distanceEmitNum = Math.floor(this._emitRateDistanceCounter);
         this._emitRateDistanceCounter -= distanceEmitNum;
-        particleUpdateContext.newEmittingCount += distanceEmitNum;
+        particleUpdateContext.emittingAccumulatedCount += distanceEmitNum;
 
         const preTime = particleUpdateContext.emitterAccumulatedTime - particleUpdateContext.emitterDeltaTime;
         const time = particleUpdateContext.emitterAccumulatedTime;
@@ -105,7 +105,7 @@ export class EmissionModule extends ParticleModule {
                     const currentEmitTime = Math.min(Math.floor((time - burst.time) / burst.repeatInterval), burst.repeatCount);
                     const toEmitTime = currentEmitTime - preEmitTime;
                     for (let j = 0; j < toEmitTime; j++) {
-                        particleUpdateContext.newEmittingCount += burst.count.evaluate(particleUpdateContext.normalizedTimeInCycle, 1);
+                        particleUpdateContext.emittingAccumulatedCount += burst.count.evaluate(particleUpdateContext.normalizedTimeInCycle, 1);
                     }
                 }
             }

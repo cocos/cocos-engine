@@ -35,7 +35,7 @@ export class ParticleUpdateContext {
     public simulationSpace = Space.LOCAL;
     public worldTransform = new Mat4();
     public worldRotation = new Quat();
-    public newEmittingCount = 0;
+    public emittingAccumulatedCount = 0;
     public newParticleIndexStart = -1;
     public newParticleIndexEnd = -1;
     public lastPosition = new Vec3();
