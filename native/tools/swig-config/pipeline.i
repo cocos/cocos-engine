@@ -26,6 +26,7 @@
 #include "renderer/pipeline/PipelineSceneData.h"
 #include "renderer/pipeline/BatchedBuffer.h"
 #include "renderer/pipeline/GeometryRenderer.h"
+#include "renderer/pipeline/DebugView.h"
 #include "renderer/pipeline/reflection-probe/ReflectionProbeFlow.h"
 #include "renderer/pipeline/reflection-probe/ReflectionProbeStage.h"
 %}
@@ -182,6 +183,10 @@ using namespace cc;
 %attribute(cc::pipeline::RenderFlow, uint32_t, _tag, getTag, setTag);
 %attribute(cc::pipeline::RenderFlow, cc::pipeline::RenderStageList, _stages, getStages, setStages);
 
+%attribute(cc::pipeline::DebugView, cc::pipeline::DebugViewSingleType, singleMode, getSingleMode, setSingleMode);
+%attribute(cc::pipeline::DebugView, bool, lightingWithAlbedo, isLightingWithAlbedo, setLightingWithAlbedo);
+%attribute(cc::pipeline::DebugView, bool, csmLayerColoration, isCsmLayerColoration, setCsmLayerColoration);
+
 #define CC_USE_GEOMETRY_RENDERER 1
 
 // ----- Import Section ------
@@ -221,6 +226,7 @@ using namespace cc;
 %include "renderer/pipeline/RenderPipeline.h"
 %include "renderer/pipeline/RenderFlow.h"
 %include "renderer/pipeline/RenderStage.h"
+%include "renderer/pipeline/DebugView.h"
 
 %include "renderer/pipeline/forward/ForwardPipeline.h"
 %include "renderer/pipeline/forward/ForwardFlow.h"

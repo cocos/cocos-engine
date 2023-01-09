@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -22,15 +22,18 @@
  THE SOFTWARE.
 */
 
-import { JSB } from 'internal:constants';
-import { cclegacy } from '../core';
-import { Root } from '../root';
+#pragma once
+#include "base/TypeDef.h"
 
-const enum RenderingDebugViewType {
+namespace cc {
+
+namespace pipeline {
+
+enum class RenderingDebugViewType {
     NONE,
     SINGLE,
     COMPOSITE_AND_MISC,
-}
+};
 
 /**
  * @zh
@@ -39,7 +42,7 @@ const enum RenderingDebugViewType {
  * Rendering single debug mode
  * @readonly
  */
-export const enum DebugViewSingleType {
+enum class DebugViewSingleType {
     NONE,
     VERTEX_COLOR,
     VERTEX_NORMAL,
@@ -76,7 +79,7 @@ export const enum DebugViewSingleType {
     AO,
 
     FOG,
-}
+};
 
 /**
  * @zh
@@ -85,7 +88,7 @@ export const enum DebugViewSingleType {
  * Rendering composite debug mode
  * @readonly
  */
-export const enum DebugViewCompositeType {
+enum class DebugViewCompositeType {
     DIRECT_DIFFUSE = 0,
     DIRECT_SPECULAR,
     ENV_DIFFUSE,
@@ -101,56 +104,49 @@ export const enum DebugViewCompositeType {
     TONE_MAPPING,
     GAMMA_CORRECTION,
     MAX_BIT_COUNT
-}
+};
 
 /**
  * @en Rendering debug view control class
  * @zh 渲染调试控制类
  */
-export class DebugView {
+// @ccclass('cc.DebugView')
+// @help('i18n:cc.DebugView')
+class DebugView final {
+public:
+    DebugView() {
+        activate();
+    }
+    ~DebugView() = default;
+
     /**
      * @en Toggle rendering single debug mode.
      * @zh 设置渲染单项调试模式。
      */
-    public get singleMode (): DebugViewSingleType {
-        return this._singleMode;
-    }
-    public set singleMode (val: DebugViewSingleType) {
-        this._singleMode = val;
-        this._updatePipeline();
+    inline DebugViewSingleType getSingleMode() const { return _singleMode; }
+    inline void setSingleMode(DebugViewSingleType val) {
+        _singleMode = val;
+        updatePipeline();
     }
 
     /**
      * @en Toggle normal / pure lighting mode.
      * @zh 切换正常光照和仅光照模式。
      */
-    public get lightingWithAlbedo (): boolean {
-        return this._lightingWithAlbedo;
-    }
-    public set lightingWithAlbedo (val: boolean) {
-        this._lightingWithAlbedo = val;
-        this._updatePipeline();
+    inline bool isLightingWithAlbedo() const { return _lightingWithAlbedo; }
+    inline void setLightingWithAlbedo(bool val) {
+        _lightingWithAlbedo = val;
+        updatePipeline();
     }
 
     /**
      * @en Toggle CSM layer coloration mode.
      * @zh 切换级联阴影染色调试模式。
      */
-    public get csmLayerColoration (): boolean {
-        return this._csmLayerColoration;
-    }
-    public set csmLayerColoration (val: boolean) {
-        this._csmLayerColoration = val;
-        this._updatePipeline();
-    }
-
-    protected _singleMode = DebugViewSingleType.NONE;
-    protected _compositeModeValue = 0;
-    protected _lightingWithAlbedo = true;
-    protected _csmLayerColoration = false;
-
-    constructor () {
-        this._activate();
+    inline bool isCsmLayerColoration() const { return _csmLayerColoration; }
+    inline void setCsmLayerColoration(bool val) {
+        _csmLayerColoration = val;
+        updatePipeline();
     }
 
     /**
@@ -158,98 +154,90 @@ export class DebugView {
      * @zh 获取指定的渲染组合调试模式是否开启。
      * @param Specified composite type.
      */
-    public isCompositeModeEnabled (val: number): boolean {
-        const mode = this._compositeModeValue & (1 << val);
-        return mode !== 0;
+    inline bool isCompositeModeEnabled (uint32_t val) const {
+        uint32_t mode = _compositeModeValue & (1 << val);
+        return mode != 0;
     }
     /**
      * @en Toggle specified rendering composite debug mode.
      * @zh 开关指定的渲染组合调试模式。
      * @param Specified composite type, enable or disable.
      */
-    public enableCompositeMode (val: DebugViewCompositeType, enable: boolean) {
-        this._enableCompositeMode(val, enable);
-        this._updatePipeline();
+    inline void enableCompositeMode (DebugViewCompositeType val, bool enable) {
+        enableCompositeModeValue(val, enable);
+        updatePipeline();
     }
 
     /**
      * @en Toggle all rendering composite debug mode.
      * @zh 开关所有的渲染组合调试模式。
      */
-    public enableAllCompositeMode (enable: boolean) {
-        this._enableAllCompositeMode(enable);
-        this._updatePipeline();
+    inline void enableAllCompositeMode (bool enable) {
+        enableAllCompositeModeValue(enable);
+        updatePipeline();
     }
 
     /**
      * @en Get rendering debug view on / off state.
      * @zh 查询当前是否开启了渲染调试模式。
      */
-    public isEnabled () {
-        return this._getType() !== RenderingDebugViewType.NONE;
+    inline bool isEnabled() const {
+        return getType() != RenderingDebugViewType::NONE;
     }
 
     /**
      * @en Disable all debug view modes, reset to standard rendering mode.
      * @zh 关闭所有的渲染调试模式，恢复到正常渲染。
      */
-    public reset () {
-        this._activate();
-        this._updatePipeline();
+    void reset () {
+        activate();
+        updatePipeline();
     }
 
-    /**
-     * @internal
-     */
-    protected _activate () {
-        this._singleMode = DebugViewSingleType.NONE;
-        this._enableAllCompositeMode(true);
-        this._lightingWithAlbedo = true;
-        this._csmLayerColoration = false;
-    }
+protected:
+    void activate();
+    void updatePipeline();
 
-    protected _updatePipeline () {
-        const root = cclegacy.director.root as Root;
-        const pipeline = root.pipeline;
-
-        const useDebugView = this._getType();
-
-        if (pipeline.macros.CC_USE_DEBUG_VIEW !== useDebugView) {
-            pipeline.macros.CC_USE_DEBUG_VIEW = useDebugView;
-            root.onGlobalPipelineStateChanged();
-        }
-    }
-
-    private _enableCompositeMode (val: DebugViewCompositeType, enable: boolean) {
+private:
+    inline void enableCompositeModeValue(DebugViewCompositeType val, bool enable) {
         if (enable) {
-            this._compositeModeValue |= (1 << val);
+            _compositeModeValue |= (1 << static_cast<uint32_t>(val));
         } else {
-            this._compositeModeValue &= (~(1 << val));
+            _compositeModeValue &= (~(1 << static_cast<uint32_t>(val)));
         }
     }
 
-    private _enableAllCompositeMode (enable: boolean) {
-        for (let i = 0; i < DebugViewCompositeType.MAX_BIT_COUNT; i++) {
+    inline void enableAllCompositeModeValue(bool enable) {
+        for (int i = 0; i < static_cast<int>(DebugViewCompositeType::MAX_BIT_COUNT); ++i) {
             if (enable) {
-                this._compositeModeValue |= (1 << i);
+                _compositeModeValue |= (1 << i);
             } else {
-                this._compositeModeValue &= (~(1 << i));
+                _compositeModeValue &= (~(1 << i));
             }
         }
     }
 
-    private _getType (): RenderingDebugViewType {
-        if (this._singleMode !== DebugViewSingleType.NONE) {
-            return RenderingDebugViewType.SINGLE;
-        } else if (this._lightingWithAlbedo !== true || this._csmLayerColoration !== false) {
-            return RenderingDebugViewType.COMPOSITE_AND_MISC;
+    inline RenderingDebugViewType getType () const {
+        if (_singleMode != DebugViewSingleType::NONE) {
+            return RenderingDebugViewType::SINGLE;
+        } else if (!_lightingWithAlbedo || _csmLayerColoration) {
+            return RenderingDebugViewType::COMPOSITE_AND_MISC;
         } else {
-            for (let i = 0; i < DebugViewCompositeType.MAX_BIT_COUNT; i++) {
-                if (!this.isCompositeModeEnabled(i)) {
-                    return RenderingDebugViewType.COMPOSITE_AND_MISC;
+            for (int i = 0; i < static_cast<int>(DebugViewCompositeType::MAX_BIT_COUNT); ++i) {
+                if (!isCompositeModeEnabled(i)) {
+                    return RenderingDebugViewType::COMPOSITE_AND_MISC;
                 }
             }
         }
-        return RenderingDebugViewType.NONE;
+        return RenderingDebugViewType::NONE;
     }
-}
+
+private:
+    DebugViewSingleType _singleMode{DebugViewSingleType::NONE};
+    uint32_t _compositeModeValue{0};
+    bool _lightingWithAlbedo{true};
+    bool _csmLayerColoration{false};
+};
+
+} // namespace pipeline
+} // namespace cc
