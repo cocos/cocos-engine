@@ -50,7 +50,7 @@ import { AABB, intersect } from '../core/geometry';
 import { Camera } from '../core/renderer/scene';
 import { ParticleCuller } from './particle-culler';
 import { NoiseModule } from './modules/noise';
-import { CCBoolean, CCFloat, Component } from '../core';
+import { CCBoolean, CCFloat, Component, geometry } from '../core';
 import { INVALID_HANDLE, ParticleHandle, ParticleSOAData } from './particle-soa-data';
 import { ParticleModule, ParticleUpdateStage } from './particle-module';
 
@@ -162,26 +162,6 @@ export class ParticleSystem extends Component {
     public playOnAwake = true;
 
     /**
-     * @en Enable particle culling switch. Open it to enable particle culling. If enabled will generate emitter bounding box and emitters outside the frustum will be culled.
-     * @zh 粒子剔除开关，如果打开将会生成一个发射器包围盒，包围盒在相机外发射器将被剔除。
-     */
-    @type(CCBoolean)
-    @displayOrder(27)
-    @tooltip('i18n:particle_system.renderCulling')
-    set renderCulling (value: boolean) {
-        this._renderCulling = value;
-        if (value) {
-            if (!this._boundingBox) {
-                this._boundingBox = new AABB();
-                this._calculateBounding(false);
-            }
-        }
-    }
-
-    get renderCulling () {
-        return this._renderCulling;
-    }
-    /**
      * @en Particle culling mode option. Includes pause, pause and catchup, always simulate.
      * @zh 粒子剔除模式选择。包括暂停模拟，暂停以后快进继续以及不间断模拟。
      */
@@ -196,64 +176,15 @@ export class ParticleSystem extends Component {
         this._cullingMode = value;
     }
 
-    /**
-     * @en Particle bounding box half width.
-     * @zh 粒子包围盒半宽。
-     */
-    @type(CCFloat)
+    @type(Vec3)
     @displayOrder(17)
     @tooltip('i18n:particle_system.aabbHalfX')
-    get aabbHalfX () {
-        const res = this.getBoundingX();
-        if (res) {
-            return res;
-        } else {
-            return 0;
-        }
+    get boundingBoxHalfExtents (): Readonly<Vec3> {
+        return this._boundingBoxHalfExtents;
     }
 
-    set aabbHalfX (value: number) {
-        this.setBoundingX(value);
-    }
-
-    /**
-     * @en Particle bounding box half height.
-     * @zh 粒子包围盒半高。
-     */
-    @type(CCFloat)
-    @displayOrder(17)
-    @tooltip('i18n:particle_system.aabbHalfY')
-    get aabbHalfY () {
-        const res = this.getBoundingY();
-        if (res) {
-            return res;
-        } else {
-            return 0;
-        }
-    }
-
-    set aabbHalfY (value: number) {
-        this.setBoundingY(value);
-    }
-
-    /**
-     * @en Particle bounding box half depth.
-     * @zh 粒子包围盒半深。
-     */
-    @type(CCFloat)
-    @displayOrder(17)
-    @tooltip('i18n:particle_system.aabbHalfZ')
-    get aabbHalfZ () {
-        const res = this.getBoundingZ();
-        if (res) {
-            return res;
-        } else {
-            return 0;
-        }
-    }
-
-    set aabbHalfZ (value: number) {
-        this.setBoundingZ(value);
+    set boundingBoxExtent (val) {
+        this._boundingBoxHalfExtents.set(val);
     }
 
     @type(InitializationModule)
@@ -373,30 +304,16 @@ export class ParticleSystem extends Component {
     private _particleModules: ParticleModule[] = [];
 
     @serializable
-    private _renderCulling = false;
+    private _cullingMode = CullingMode.ALWAYS_SIMULATE;
 
     @serializable
-    private _cullingMode = CullingMode.PAUSE;
-
-    @serializable
-    private _aabbHalfX = 0;
-    @serializable
-    private _aabbHalfY = 0;
-    @serializable
-    private _aabbHalfZ = 0;
+    private _boundingBoxHalfExtents = new Vec3();
 
     private _state = PlayingState.STOPPED;
     private _isEmitting = false;
-    private _needRefresh = true;
-    private _isCulled = false;
     private _isSimulating = true;
 
     private _time = 0;  // playback position in seconds.
-
-    private _boundingBox: AABB | null = null;
-    private _culler: ParticleCuller | null = null;
-    private _oldPos: Vec3 | null = null;
-    private _curPos: Vec3 | null = null;
     private _particles = new ParticleSOAData();
     private _particleUpdateContext = new ParticleUpdateContext();
 
@@ -500,9 +417,6 @@ export class ParticleSystem extends Component {
         this._time = 0.0;
 
         this._state = PlayingState.STOPPED;
-
-        // if stop emit modify the refresh flag to true
-        this._needRefresh = true;
     }
 
     /**
@@ -510,10 +424,7 @@ export class ParticleSystem extends Component {
      * @zh 将所有粒子从粒子系统中清除。
      */
     public clear () {
-        if (this.enabledInHierarchy) {
-            this._particles.clear();
-        }
-        this._calculateBounding(false);
+        this._particles.clear();
     }
 
     /**
@@ -523,145 +434,20 @@ export class ParticleSystem extends Component {
         return this._particles.count;
     }
 
-    protected onDestroy () {
-        this.stop();
-        if (this._culler) {
-            this._culler.clear();
-            this._culler.destroy();
-            this._culler = null;
-        }
-    }
-
     protected onEnable () {
         if (this.playOnAwake && (!EDITOR || legacyCC.GAME_VIEW)) {
             this.play();
         }
     }
+
     protected onDisable () {
-        if (this._boundingBox) {
-            this._boundingBox = null;
-        }
-        if (this._culler) {
-            this._culler.clear();
-            this._culler.destroy();
-            this._culler = null;
-        }
-    }
-
-    private _calculateBounding (forceRefresh: boolean) {
-        if (this._boundingBox) {
-            if (!this._culler) {
-                this._culler = new ParticleCuller(this);
-            }
-            this._culler.calculatePositions();
-            AABB.fromPoints(this._boundingBox, this._culler.minPos, this._culler.maxPos);
-            if (forceRefresh) {
-                this.aabbHalfX = this._boundingBox.halfExtents.x;
-                this.aabbHalfY = this._boundingBox.halfExtents.y;
-                this.aabbHalfZ = this._boundingBox.halfExtents.z;
-            } else {
-                if (this.aabbHalfX) {
-                    this.setBoundingX(this.aabbHalfX);
-                } else {
-                    this.aabbHalfX = this._boundingBox.halfExtents.x;
-                }
-
-                if (this.aabbHalfY) {
-                    this.setBoundingY(this.aabbHalfY);
-                } else {
-                    this.aabbHalfY = this._boundingBox.halfExtents.y;
-                }
-
-                if (this.aabbHalfZ) {
-                    this.setBoundingZ(this.aabbHalfZ);
-                } else {
-                    this.aabbHalfZ = this._boundingBox.halfExtents.z;
-                }
-            }
-            this._culler.clear();
-        }
+        this.stop();
     }
 
     public simulate (dt: number) {
         const scaledDeltaTime = dt * this.simulationSpeed;
 
-        if (!this.renderCulling) {
-            if (this._boundingBox) {
-                this._boundingBox = null;
-            }
-            if (this._culler) {
-                this._culler.clear();
-                this._culler.destroy();
-                this._culler = null;
-            }
-            this._isSimulating = true;
-        } else {
-            if (!this._boundingBox) {
-                this._boundingBox = new AABB();
-                this._calculateBounding(false);
-            }
-
-            if (!this._curPos) {
-                this._curPos = new Vec3();
-            }
-            this.node.getWorldPosition(this._curPos);
-            if (!this._oldPos) {
-                this._oldPos = new Vec3();
-                this._oldPos.set(this._curPos);
-            }
-            if (!this._curPos.equals(this._oldPos) && this._boundingBox && this._culler) {
-                const dx = this._curPos.x - this._oldPos.x;
-                const dy = this._curPos.y - this._oldPos.y;
-                const dz = this._curPos.z - this._oldPos.z;
-                const center = this._boundingBox.center;
-                center.x += dx;
-                center.y += dy;
-                center.z += dz;
-                this._culler.setBoundingBoxCenter(center.x, center.y, center.z);
-                this._oldPos.set(this._curPos);
-            }
-
-            const cameraLst: Camera[]|undefined = this.node.scene.renderScene?.cameras;
-            let culled = true;
-            if (cameraLst !== undefined && this._boundingBox) {
-                for (let i = 0; i < cameraLst.length; ++i) {
-                    const camera:Camera = cameraLst[i];
-                    const visibility = camera.visibility;
-                    if ((visibility & this.node.layer) === this.node.layer) {
-                        if (EDITOR && !legacyCC.GAME_VIEW) {
-                            if (camera.name === 'Editor Camera' && intersect.aabbFrustum(this._boundingBox, camera.frustum)) {
-                                culled = false;
-                                break;
-                            }
-                        } else if (intersect.aabbFrustum(this._boundingBox, camera.frustum)) {
-                            culled = false;
-                            break;
-                        }
-                    }
-                }
-            }
-            if (culled) {
-                if (this._cullingMode !== CullingMode.AlwaysSimulate) {
-                    this._isSimulating = false;
-                }
-                this._isCulled = true;
-                if (this._cullingMode === CullingMode.PauseAndCatchup) {
-                    this._time += scaledDeltaTime;
-                }
-                if (this._cullingMode !== CullingMode.AlwaysSimulate) {
-                    return;
-                }
-            } else {
-                this._isCulled = false;
-                this._isSimulating = true;
-            }
-
-            if (!this._isSimulating) {
-                return;
-            }
-        }
-
-        if (this.isPlaying) {
+        if (this.isPlaying && this._isSimulating) {
             this._time += scaledDeltaTime;
             // simulation, update particles.
             this.updateParticles(scaledDeltaTime);
@@ -670,22 +456,34 @@ export class ParticleSystem extends Component {
                 this.stop();
             }
         }
-    }
 
-    private emit (count: number, dt: number) {
-        const loopDelta = (this._time % this.duration) / this.duration; // loop delta value
+        const currentPosition = this.node.worldPosition;
+        const boundingBox = new AABB(currentPosition.x, currentPosition.y, currentPosition.z,
+            this._boundingBoxHalfExtents.x, this._boundingBoxHalfExtents.y, this._boundingBoxHalfExtents.z);
 
-        // refresh particle node position to update emit position
-        if (this._needRefresh) {
-            // this.node.setPosition(this.node.getPosition());
-            this.node.invalidateChildren(TransformBit.POSITION);
-
-            this._needRefresh = false;
+        const cameraLst: Camera[]| undefined = this.node.scene.renderScene?.cameras;
+        let culled = true;
+        if (cameraLst) {
+            for (let i = 0; i < cameraLst.length; ++i) {
+                const camera = cameraLst[i];
+                const visibility = camera.visibility;
+                if ((visibility & this.node.layer) === this.node.layer) {
+                    if (intersect.aabbFrustum(boundingBox, camera.frustum)) {
+                        culled = false;
+                        break;
+                    }
+                }
+            }
         }
-
-        if (this._simulationSpace === Space.WORLD) {
-            this.node.getWorldMatrix(_world_mat);
-            this.node.getWorldRotation(_world_rol);
+        if (culled) {
+            if (this._cullingMode !== CullingMode.ALWAYS_SIMULATE) {
+                this._isSimulating = false;
+            }
+            if (this._cullingMode === CullingMode.PAUSE_AND_CATCHUP) {
+                this._time += scaledDeltaTime;
+            }
+        } else {
+            this._isSimulating = true;
         }
     }
 
@@ -763,6 +561,12 @@ export class ParticleSystem extends Component {
 
         this._particleUpdateContext.newParticleIndexOffset = this._particles.addParticles(newEmittingCount);
 
+        if (this._simulationSpace === Space.WORLD) {
+            for (let i = this._particleUpdateContext.newParticleIndexOffset; i < newEmittingCount; ++i) {
+                this._particles.setPositionAt(this.node.worldPosition, i);
+            }
+        }
+
         for (let stage = ParticleUpdateStage.INITIALIZE; stage < ParticleUpdateStage.POST_UPDATE; stage++) {
             for (; i < length; i++) {
                 const module = this._particleModules[i];
@@ -791,42 +595,6 @@ export class ParticleSystem extends Component {
             if (module.enable) {
                 module.update(this._particles, this._particleUpdateContext);
             }
-        }
-    }
-
-    private getBoundingX () {
-        return this._aabbHalfX;
-    }
-
-    private getBoundingY () {
-        return this._aabbHalfY;
-    }
-
-    private getBoundingZ () {
-        return this._aabbHalfZ;
-    }
-
-    private setBoundingX (value: number) {
-        if (this._boundingBox && this._culler) {
-            this._boundingBox.halfExtents.x = value;
-            this._culler.setBoundingBoxSize(this._boundingBox.halfExtents);
-            this._aabbHalfX = value;
-        }
-    }
-
-    private setBoundingY (value: number) {
-        if (this._boundingBox && this._culler) {
-            this._boundingBox.halfExtents.y = value;
-            this._culler.setBoundingBoxSize(this._boundingBox.halfExtents);
-            this._aabbHalfY = value;
-        }
-    }
-
-    private setBoundingZ (value: number) {
-        if (this._boundingBox && this._culler) {
-            this._boundingBox.halfExtents.z = value;
-            this._culler.setBoundingBoxSize(this._boundingBox.halfExtents);
-            this._aabbHalfZ = value;
         }
     }
 

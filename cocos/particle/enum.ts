@@ -48,7 +48,6 @@ export enum Space {
 /**
  * @en Particle emitter culling mode
  * @zh 粒子的剔除模式。
- * @enum ParticleSystem.CullingMode
  */
 export enum CullingMode {
     PAUSE,

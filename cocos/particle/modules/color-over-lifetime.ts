@@ -56,44 +56,42 @@ export class ColorOverLifetimeModule extends ParticleModule {
         const tempColor = new Color();
         if (this.color.mode === GradientRange.Mode.Color) {
             const color = this.color.color;
-            const { startColor, color: dest } = particles;
             for (let i = 0; i < count; i++) {
-                Color.fromUint32(tempColor, startColor[i]);
-                dest[i] = Color.toUint32(tempColor.multiply(color));
+                particles.getStartColorAt(tempColor, i);
+                particles.setColorAt(tempColor.multiply(color), i);
             }
         } else if (this.color.mode === GradientRange.Mode.Gradient) {
             const color = this.color.gradient;
-            const { startColor, color: dest, normalizedAliveTime } = particles;
+            const { normalizedAliveTime } = particles;
             for (let i = 0; i < count; i++) {
-                Color.fromUint32(tempColor, startColor[i]);
-                dest[i] = Color.toUint32(tempColor.multiply(color.evaluate(normalizedAliveTime[i])));
+                particles.getStartColorAt(tempColor, i);
+                particles.setColorAt(tempColor.multiply(color.evaluate(normalizedAliveTime[i])), i);
             }
         } else if (this.color.mode === GradientRange.Mode.RandomColor) {
             const color = this.color.gradient;
-            const { startColor, color: dest } = particles;
             for (let i = 0; i < count; i++) {
-                Color.fromUint32(tempColor, startColor[i]);
-                dest[i] = Color.toUint32(tempColor.multiply(color.randomColor()));
+                particles.getStartColorAt(tempColor, i);
+                particles.setColorAt(tempColor.multiply(color.randomColor()), i);
             }
         } else if (this.color.mode === GradientRange.Mode.TwoColors) {
             const tempColor2 = new Color();
             const { colorMax, colorMin } = this.color;
-            const { startColor, color: dest, randomSeed } = particles;
+            const { randomSeed } = particles;
             for (let i = 0; i < count; i++) {
-                Color.fromUint32(tempColor, startColor[i]);
-                dest[i] = Color.toUint32(tempColor.multiply(Color.lerp(tempColor2, colorMin,
-                    colorMax, pseudoRandom(randomSeed[i] + COLOR_OVERTIME_RAND_OFFSET))));
+                particles.getStartColorAt(tempColor, i);
+                particles.setColorAt(tempColor.multiply(Color.lerp(tempColor2, colorMin,
+                    colorMax, pseudoRandom(randomSeed[i] + COLOR_OVERTIME_RAND_OFFSET))), i);
             }
         } else {
             const tempColor2 = new Color();
             const { gradientMin, gradientMax } = this.color;
-            const { startColor, color: dest, randomSeed, normalizedAliveTime } = particles;
+            const { randomSeed, normalizedAliveTime } = particles;
             for (let i = 0; i < count; i++) {
-                Color.fromUint32(tempColor, startColor[i]);
-                dest[i] = Color.toUint32(tempColor.multiply(Color.lerp(tempColor2,
+                particles.getStartColorAt(tempColor, i);
+                particles.setColorAt(tempColor.multiply(Color.lerp(tempColor2,
                     gradientMin.evaluate(normalizedAliveTime[i]),
                     gradientMax.evaluate(normalizedAliveTime[i]),
-                    pseudoRandom(randomSeed[i] + COLOR_OVERTIME_RAND_OFFSET))));
+                    pseudoRandom(randomSeed[i] + COLOR_OVERTIME_RAND_OFFSET))), i);
             }
         }
     }

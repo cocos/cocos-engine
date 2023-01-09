@@ -24,6 +24,7 @@
  */
 
 import { ccclass, tooltip, displayOrder, type, serializable, disallowAnimation, visible } from 'cc.decorator';
+import { EDITOR } from 'internal:constants';
 import { Mesh } from '../3d';
 import { Material, Texture2D } from '../core/assets';
 import { AlignmentSpace, RenderMode, Space } from './enum';
@@ -32,6 +33,8 @@ import { legacyCC } from '../core/global-exports';
 import { builtinResMgr, director, errorID, Mat4, ModelRenderer, Quat, RenderingSubMesh, Vec2, Vec4, warnID } from '../core';
 import { MacroRecord, MaterialInstance, Pass, scene } from '../core/renderer';
 import ParticleBatchModel from './models/particle-batch-model';
+import { ParticleSystem } from './particle-system';
+import { Camera } from '../core/renderer/scene/camera';
 
 const CC_USE_WORLD_SPACE = 'CC_USE_WORLD_SPACE';
 
@@ -113,11 +116,10 @@ export class ParticleSystemRenderer extends ModelRenderer {
     }
 
     public set renderMode (val) {
-        if (this._renderMode === val) {
-            return;
+        if (this._renderMode !== val) {
+            this._renderMode = val;
+            this.updateRenderMode();
         }
-        this._renderMode = val;
-        this.updateRenderMode();
     }
 
     /**
@@ -264,7 +266,7 @@ export class ParticleSystemRenderer extends ModelRenderer {
     public static AlignmentSpace = AlignmentSpace;
 
     @serializable
-    private _alignSpace = AlignmentSpace.View;
+    private _alignSpace = AlignmentSpace.VIEW;
     @serializable
     private _mainTexture: Texture2D | null = null;
     private _model: ParticleBatchModel | null = null;
@@ -433,21 +435,20 @@ export class ParticleSystemRenderer extends ModelRenderer {
     }
 
     public updateMaterialParams () {
-        if (!this._particleSystem) {
+        const particleSystem = this.getComponent(ParticleSystem);
+        if (!particleSystem) {
             return;
         }
 
         const mat: Material | null = this.getMaterialInstance(0) || this._defaultMat;
         const pass = mat!.passes[0];
 
-        const ps = this._particleSystem;
-        const shareMaterial = ps.sharedMaterial;
+        const shareMaterial = this.sharedMaterial;
         if (shareMaterial != null) {
-            const effectName = shareMaterial._effectAsset._name;
-            this.mainTexture = shareMaterial.getProperty('mainTexture', 0);
+            this.mainTexture = shareMaterial.getProperty('mainTexture', 0) as Texture2D;
         }
 
-        if (ps.sharedMaterial == null && this._defaultMat == null) {
+        if (shareMaterial == null && this._defaultMat == null) {
             this._defaultMat = new MaterialInstance({
                 parent: builtinResMgr.get<Material>('default-particle-material'),
                 owner: this,
@@ -457,7 +458,7 @@ export class ParticleSystemRenderer extends ModelRenderer {
                 this._defaultMat.setProperty('mainTexture', this.mainTexture);
             }
         }
-        if (ps._simulationSpace === Space.World) {
+        if (particleSystem.simulationSpace === Space.WORLD) {
             this._defines[CC_USE_WORLD_SPACE] = true;
         } else {
             this._defines[CC_USE_WORLD_SPACE] = false;
@@ -469,17 +470,17 @@ export class ParticleSystemRenderer extends ModelRenderer {
 
         const renderMode = this.renderMode;
         const vlenScale = this._frameTile_velLenScale;
-        if (renderMode === RenderMode.Billboard) {
+        if (renderMode === RenderMode.BILLBOARD) {
             this._defines[CC_RENDER_MODE] = RENDER_MODE_BILLBOARD;
-        } else if (renderMode === RenderMode.StrecthedBillboard) {
+        } else if (renderMode === RenderMode.STRETCHED_BILLBOARD) {
             this._defines[CC_RENDER_MODE] = RENDER_MODE_STRETCHED_BILLBOARD;
             vlenScale.z = this.velocityScale;
             vlenScale.w = this.lengthScale;
-        } else if (renderMode === RenderMode.HorizontalBillboard) {
+        } else if (renderMode === RenderMode.HORIZONTAL_BILLBOARD) {
             this._defines[CC_RENDER_MODE] = RENDER_MODE_HORIZONTAL_BILLBOARD;
-        } else if (renderMode === RenderMode.VerticalBillboard) {
+        } else if (renderMode === RenderMode.VERTICAL_BILLBOARD) {
             this._defines[CC_RENDER_MODE] = RENDER_MODE_VERTICAL_BILLBOARD;
-        } else if (renderMode === RenderMode.Mesh) {
+        } else if (renderMode === RenderMode.MESH) {
             this._defines[CC_RENDER_MODE] = RENDER_MODE_MESH;
         } else {
             console.warn(`particle system renderMode ${renderMode} not support.`);
@@ -675,7 +676,7 @@ export class ParticleSystemRenderer extends ModelRenderer {
         }
     }
 
-    private _fillStrecthedData (p: Particle, idx: number, fi: number) {
+    private _fillStretchedData (p: Particle, idx: number, fi: number) {
         if (!this._useInstance) {
             for (let j = 0; j < 4; ++j) { // four verts per particle.
                 this._attrs[0] = p.position;
@@ -745,26 +746,24 @@ export class ParticleSystemRenderer extends ModelRenderer {
         const ps = this._particleSystem;
         const trailModule = ps._trailModule;
         if (trailModule && trailModule.enable) {
-            if (ps.simulationSpace === Space.World || trailModule.space === Space.World) {
+            if (ps.simulationSpace === Space.WORLD || trailModule.space === Space.WORLD) {
                 this._trailDefines[CC_USE_WORLD_SPACE] = true;
             } else {
                 this._trailDefines[CC_USE_WORLD_SPACE] = false;
             }
             let mat = ps.getMaterialInstance(1);
             if (mat === null && this._defaultTrailMat === null) {
-                _matInsInfo.parent = builtinResMgr.get<Material>('default-trail-material');
-                _matInsInfo.owner = this._particleSystem;
-                _matInsInfo.subModelIdx = 1;
-                this._defaultTrailMat = new MaterialInstance(_matInsInfo);
-                _matInsInfo.parent = null!;
-                _matInsInfo.owner = null!;
-                _matInsInfo.subModelIdx = 0;
+                this._defaultTrailMat = new MaterialInstance({
+                    parent: builtinResMgr.get<Material>('default-trail-material'),
+                    owner: this,
+                    subModelIdx: 1,
+                });
             }
             mat = mat || this._defaultTrailMat;
             mat.recompileShaders(this._trailDefines);
             const trailMaterial = this.getMaterialInstance(1) || this._defaultTrailMat;
             if (this._trailModel) {
-                this._trailModel.setSubModelMaterial(0, trailMaterial!);
+                this._trailModel.setSubModelMaterial(0, trailMaterial);
             }
         }
     }
@@ -779,10 +778,6 @@ export class ParticleSystemRenderer extends ModelRenderer {
             this._model.doDestroy();
         }
         this.updateRenderMode();
-    }
-
-    onInit (ps) {
-        this.cpuMaterial = this.particleMaterial;
     }
 
     public onMaterialModified (index: number, material: Material) {
@@ -859,10 +854,10 @@ export class ParticleSystemRenderer extends ModelRenderer {
 
     private _setVertexAttribIns () {
         switch (this._renderInfo!.renderMode) {
-        case RenderMode.StrecthedBillboard:
+        case RenderMode.STRETCHED_BILLBOARD:
             this._vertAttrs = _vertex_attrs_stretch_ins.slice();
             break;
-        case RenderMode.Mesh:
+        case RenderMode.MESH:
             this._vertAttrs = _vertex_attrs_mesh_ins.slice();
             break;
         default:
@@ -919,11 +914,11 @@ export class ParticleSystemRenderer extends ModelRenderer {
             return;
         }
         const rotation = new Quat();
-        if (this._alignSpace === AlignmentSpace.Local) {
+        if (this._alignSpace === AlignmentSpace.LOCAL) {
             this.node.getRotation(rotation);
-        } else if (this._alignSpace === AlignmentSpace.World) {
+        } else if (this._alignSpace === AlignmentSpace.WORLD) {
             this.node.getWorldRotation(rotation);
-        } else if (this._alignSpace === AlignmentSpace.View) {
+        } else if (this._alignSpace === AlignmentSpace.VIEW) {
             // Quat.fromEuler(_node_rot, 0.0, 0.0, 0.0);
             rotation.set(0.0, 0.0, 0.0, 1.0);
             const cameraLst: Camera[]| undefined = this.node.scene.renderScene?.cameras;
@@ -952,11 +947,11 @@ export class ParticleSystemRenderer extends ModelRenderer {
 
     private doUpdateScale (pass) {
         switch (this._particleSystem.scaleSpace) {
-        case Space.Local:
-            this.node.getScale(this._node_scale);
+        case Space.LOCAL:
+            this._node_scale.set(this.node.scale.x, this.node.scale.y, this.node.scale.z);
             break;
-        case Space.World:
-            this.node.getWorldScale(this._node_scale);
+        case Space.WORLD:
+            this._node_scale.set(this.node.worldScale.x, this.node.worldScale.y, this.node.worldScale.z);
             break;
         default:
             break;

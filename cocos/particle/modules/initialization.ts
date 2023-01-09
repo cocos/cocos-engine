@@ -32,6 +32,7 @@ import { GradientRange } from '../gradient-range';
 import { pseudoRandom, randomRangeInt, Vec3 } from '../../core/math';
 import { INT_MAX } from '../../core/math/bits';
 import { particleEmitZAxis } from '../particle-general-function';
+import { Space } from '../enum';
 
 @ccclass('cc.InitializationModule')
 export class InitializationModule extends ParticleModule {
@@ -158,22 +159,28 @@ export class InitializationModule extends ParticleModule {
     }
 
     public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
-        const { newParticleIndexOffset, newEmittingCount, normalizedTimeInCycle } = particleUpdateContext;
-        for (let i = newParticleIndexOffset; i < newEmittingCount; ++i) {
+        const { newParticleIndexOffset, newEmittingCount, normalizedTimeInCycle, worldRotation, simulationSpace } = particleUpdateContext;
+        const velocity = new Vec3();
+        if (simulationSpace === Space.WORLD) {
+            for (let i = newParticleIndexOffset, l = newParticleIndexOffset + newEmittingCount; i < l; ++i) {
+                const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
+                const curveStartSpeed = this.startSpeed.evaluate(normalizedTimeInCycle, rand);
+                Vec3.multiplyScalar(velocity, particleEmitZAxis, curveStartSpeed);
+                Vec3.transformQuat(velocity, velocity, worldRotation);
+                particles.setVelocityAt(velocity, i);
+            }
+        }
+        for (let i = newParticleIndexOffset, l = newParticleIndexOffset + newEmittingCount; i < l; ++i) {
             const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
 
-            particles.setPositionAt(Vec3.ZERO, i);
-            particles.setVelocityAt(particleEmitZAxis, i);
-
             const curveStartSpeed = this.startSpeed.evaluate(normalizedTimeInCycle, rand);
-            Vec3.multiplyScalar(particle.velocity, particle.velocity, curveStartSpeed);
+            Vec3.multiplyScalar(velocity, particleEmitZAxis, curveStartSpeed);
 
-            if (this._simulationSpace === Space.World) {
-                Vec3.transformMat4(particle.position, particle.position, _world_mat);
-                Vec3.transformQuat(particle.velocity, particle.velocity, _world_rol);
+            if (simulationSpace === Space.WORLD) {
+                Vec3.transformQuat(velocity, velocity, worldRotation);
             }
+            particles.setVelocityAt(velocity, i);
 
-            Vec3.copy(particle.ultimateVelocity, particle.velocity);
             // apply startRotation.
             if (this.startRotation3D) {
                 // eslint-disable-next-line max-len

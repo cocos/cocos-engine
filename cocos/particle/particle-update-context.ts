@@ -36,7 +36,8 @@ export class ParticleUpdateContext {
     public worldTransform = new Mat4();
     public worldRotation = new Quat();
     public newEmittingCount = 0;
-    public newParticleIndexOffset = -1;
+    public newParticleIndexStart = -1;
+    public newParticleIndexEnd = -1;
     public lastPosition = new Vec3();
     public currentPosition = new Vec3();
     public emitterStartDelay = 0;
