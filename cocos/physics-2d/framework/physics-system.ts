@@ -29,7 +29,7 @@ import { createPhysicsWorld, selector, IPhysicsSelector } from './physics-select
 import { DelayEvent } from './physics-internal-types';
 import { ICollisionMatrix } from '../../physics/framework/physics-config';
 import { CollisionMatrix } from '../../physics/framework/collision-matrix';
-import { ERaycast2DType, RaycastResult2D, PHYSICS_2D_PTM_RATIO, PhysicsGroup } from './physics-types';
+import { ERaycast2DType, RaycastResult2D, PHYSICS_2D_PTM_RATIO, PhysicsGroup, Contact2DType } from './physics-types';
 import { Collider2D } from './components/colliders/collider-2d';
 import { director, Director } from '../../game';
 
@@ -377,12 +377,12 @@ export class PhysicsSystem2D extends Eventify(System) {
     }
 
     public on<TFunction extends (...any) => void>(type: string, callback: TFunction, thisArg?: any, once?: boolean): typeof callback {
-        if (type === 'pre-solve' || type === 'post-solve') {
+        if (type === Contact2DType.PRE_SOLVE || type === Contact2DType.POST_SOLVE) {
             warnID(16002, type, '3.7.1');
-        } else if (type === 'begin-contact') {
-            warnID(16001, type, '3.7.1', 'enter-contact');
-        } else if (type === 'end-contact') {
-            warnID(16001, type, '3.7.1', 'exit-contact');
+        } else if (type === Contact2DType.BEGIN_CONTACT) {
+            warnID(16001, type, '3.7.1', Contact2DType.ENTER_CONTACT);
+        } else if (type === Contact2DType.END_CONTACT) {
+            warnID(16001, type, '3.7.1', Contact2DType.EXIT_CONTACT);
         }
 
         return super.on(type, callback, thisArg, once);

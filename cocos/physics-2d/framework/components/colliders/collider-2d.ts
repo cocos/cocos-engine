@@ -29,7 +29,7 @@ import { PhysicsGroup } from '../../../../physics/framework/physics-enum';
 
 import { RigidBody2D } from '../rigid-body-2d';
 import { createShape } from '../../physics-selector';
-import { ECollider2DType } from '../../physics-types';
+import { Contact2DType, ECollider2DType } from '../../physics-types';
 import { IBaseShape } from '../../../spec/i-physics-shape';
 import { Component } from '../../../../scene-graph';
 
@@ -199,12 +199,12 @@ export class Collider2D extends Eventify(Component) {
     }
 
     public on<TFunction extends (...any) => void>(type: string, callback: TFunction, thisArg?: any, once?: boolean): typeof callback {
-        if (type === 'pre-solve' || type === 'post-solve') {
+        if (type === Contact2DType.PRE_SOLVE || type === Contact2DType.POST_SOLVE) {
             warnID(16002, type, '3.7.1');
-        } else if (type === 'begin-contact') {
-            warnID(16001, type, '3.7.1', 'enter-contact');
-        } else if (type === 'end-contact') {
-            warnID(16001, type, '3.7.1', 'exit-contact');
+        } else if (type === Contact2DType.BEGIN_CONTACT) {
+            warnID(16001, type, '3.7.1', Contact2DType.ENTER_CONTACT);
+        } else if (type === Contact2DType.END_CONTACT) {
+            warnID(16001, type, '3.7.1', Contact2DType.EXIT_CONTACT);
         }
 
         return super.on(type, callback, thisArg, once);

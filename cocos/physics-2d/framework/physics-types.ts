@@ -129,9 +129,9 @@ export enum ERaycast2DType {
 
 export const Contact2DType = {
     None: 'none-contact',
-    ENTER_CONTACT: 'enter-contact',
-    STAY_CONTACT: 'stay-contact',
-    EXIT_CONTACT: 'exit-contact',
+    ENTER_CONTACT: 'onCollisionEnter',
+    STAY_CONTACT: 'onCollisionStay',
+    EXIT_CONTACT: 'onCollisionExit',
 
     /**
     * @deprecated Since v3.7.1, use ENTER_CONTACT instead.
