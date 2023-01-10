@@ -315,7 +315,7 @@ export class TextureCube extends SimpleTexture {
      * After reset, the gfx resource will become invalid, you must use [[uploadData]] explicitly to upload the new mipmaps to GPU resources.
      * @zh 将当前贴图重置为指定尺寸、像素格式以及指定 mipmap 层级。重置后，贴图的像素数据将变为未定义。
      * mipmap 图像的数据不会自动更新到贴图中，你必须显式调用 [[uploadData]] 来上传贴图数据。
-     * @param info The create information
+     * @param info @en The create information. @zh 创建贴图的相关信息。
      */
     public reset (info: ITextureCubeCreateInfo) {
         this._width = info.width;
@@ -329,6 +329,13 @@ export class TextureCube extends SimpleTexture {
         this._tryReset();
     }
 
+    /**
+     * @en Updates the given level mipmap image.
+     * @zh 更新指定层级范围内的 Mipmap。当 Mipmap 数据发生了改变时应调用此方法提交更改。
+     * 若指定的层级范围超出了实际已有的层级范围，只有覆盖的那些层级范围会被更新。
+     * @param firstLevel @en First level to be updated. @zh 更新指定层的 mipmap。
+     * @param count @en Mipmap level count to be updated。 @zh 指定要更新层的数量。
+     */
     public updateMipmaps (firstLevel = 0, count?: number) {
         if (firstLevel >= this._mipmaps.length) {
             return;
@@ -348,7 +355,7 @@ export class TextureCube extends SimpleTexture {
     }
 
     /**
-     * @en Destroy this texture, clear all mipmaps and release GPU resources
+     * @en Destroys this texture, clear all mipmaps and release GPU resources
      * @zh 销毁此贴图，清空所有 Mipmap 并释放占用的 GPU 资源。
      */
     public destroy () {

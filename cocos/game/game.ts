@@ -38,7 +38,6 @@ import { Layers, Node } from '../scene-graph';
 import { builtinResMgr } from '../asset/asset-manager/builtin-res-mgr';
 import { Director, director } from './director';
 import { bindingMappingInfo } from '../rendering/define';
-import { IBundleOptions } from '../asset/asset-manager/shared';
 import { ICustomJointTextureLayout } from '../3d/skeletal-animation/skeletal-animation-utils';
 import { IPhysicsConfig } from '../physics/framework/physics-config';
 import { effectSettings } from '../core/effect-settings';
@@ -174,7 +173,7 @@ export interface IGameConfig {
      * 是否让游戏外框对齐到屏幕上，目前只在 web 平台生效
      * @deprecated Since v3.6, Please use ```overrideSettings: { Settings.Category.SCREEN: { 'exactFitScreen': true }}``` to set this.
      */
-    exactFitScreen: boolean,
+    exactFitScreen?: boolean,
 }
 
 /**
@@ -950,7 +949,7 @@ export class Game extends EventTarget {
         const preloadBundles = settings.querySettings<{ bundle: string, version: string }[]>(Settings.Category.ASSETS, 'preloadBundles');
         if (!preloadBundles) return Promise.resolve([]);
         return Promise.all(preloadBundles.map(({ bundle, version }) => new Promise<void>((resolve, reject) => {
-            const opts: IBundleOptions = {};
+            const opts: Record<string, any> = {};
             if (version) opts.version = version;
             assetManager.loadBundle(bundle, opts, (err) => {
                 if (err) {
