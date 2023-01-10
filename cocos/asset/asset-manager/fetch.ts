@@ -26,11 +26,11 @@ import { Asset } from '../assets';
 import { error, cclegacy } from '../../core';
 import packManager from './pack-manager';
 import RequestItem from './request-item';
-import { assets, CompleteCallbackNoData, fetchPipeline } from './shared';
+import { assets, fetchPipeline } from './shared';
 import Task from './task';
 import { clear, forEach, getDepends } from './utilities';
 
-export default function fetch (task: Task, done: CompleteCallbackNoData) {
+export default function fetch (task: Task, done: ((err?: Error | null) => void)) {
     let firstTask = false;
     if (!task.progress) {
         task.progress = { finish: 0, total: task.input.length, canInvoke: true };
@@ -58,7 +58,7 @@ export default function fetch (task: Task, done: CompleteCallbackNoData) {
 
         packManager.load(item, task.options, (err, data) => {
             if (err) {
-                if (!task.isFinish) {
+                if (!task.isFinished) {
                     if (!cclegacy.assetManager.force || firstTask) {
                         error(err.message, err.stack);
                         progress.canInvoke = false;
@@ -70,7 +70,7 @@ export default function fetch (task: Task, done: CompleteCallbackNoData) {
                         }
                     }
                 }
-            } else if (!task.isFinish) {
+            } else if (!task.isFinished) {
                 item.file = data;
                 task.output.push(item);
                 if (!item.isNative) {
@@ -85,7 +85,7 @@ export default function fetch (task: Task, done: CompleteCallbackNoData) {
             cb();
         });
     }, () => {
-        if (task.isFinish) {
+        if (task.isFinished) {
             clear(task, true);
             task.dispatch('error');
             return;
