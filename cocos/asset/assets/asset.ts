@@ -82,7 +82,7 @@ export class Asset extends Eventify(CCObject) {
      * @zh
      * 资源的 UUID。
      *
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future, please use asset.uuid instead.
      */
     public declare _uuid: string;
 
@@ -147,6 +147,17 @@ export class Asset extends Eventify(CCObject) {
             }
         }
         return this._nativeUrl;
+    }
+
+    /**
+     * @en
+     * The UUID of this asset.
+     *
+     * @zh
+     * 资源的 UUID。
+     */
+    get uuid () {
+        return this._uuid;
     }
 
     /**
@@ -348,7 +359,7 @@ export class Asset extends Eventify(CCObject) {
      * @zh
      * 用于验证此资源是否为可用资源。
      *
-     * @return @zh 是否是可用资源。@en Whether this asset is available or not.
+     * @returns @zh 是否是可用资源。@en Whether this asset is available or not.
      * @deprecated Since v3.7, this is an internal engine interface and you should not call this interface under any circumstances.
      */
     public validate (): boolean {

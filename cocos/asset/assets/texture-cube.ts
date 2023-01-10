@@ -330,7 +330,7 @@ export class TextureCube extends SimpleTexture {
     }
 
     /**
-     * @en Update the given level mipmap image.
+     * @en Updates the given level mipmap image.
      * @zh 更新指定层级范围内的 Mipmap。当 Mipmap 数据发生了改变时应调用此方法提交更改。
      * 若指定的层级范围超出了实际已有的层级范围，只有覆盖的那些层级范围会被更新。
      * @param firstLevel @en First level to be updated. @zh 更新指定层的 mipmap。
@@ -355,7 +355,7 @@ export class TextureCube extends SimpleTexture {
     }
 
     /**
-     * @en Destroy this texture, clear all mipmaps and release GPU resources
+     * @en Destroys this texture, clear all mipmaps and release GPU resources
      * @zh 销毁此贴图，清空所有 Mipmap 并释放占用的 GPU 资源。
      */
     public destroy () {

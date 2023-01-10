@@ -350,7 +350,7 @@ export class RenderingSubMesh {
     get iaInfo () { return this._iaInfo; }
 
     /**
-     * @en destroy sub mesh.
+     * @en Destroyes sub mesh.
      * @zh 销毁子网格。
      */
     public destroy () {

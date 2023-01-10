@@ -38,7 +38,7 @@ export { default as decodeUuid } from '../../core/utils/decode-uuid';
  * 从 url 中提取 uuid。
  *
  * @param url @en The url to be converted. @zh 待转换的 url。
- * @returns @en The uuid parsed from url. @zh url 转换为的 uuid。
+ * @returns @en The uuid extracted from url. @zh url 转换为的 uuid。
  *
  * @example
  * var url = 'res/import/fc/fc991dd7-0033-4b80-9d41-c8a86a702e59.json';
