@@ -647,30 +647,7 @@ void Pass::doInit(const IPassInfoFull &info, bool /*copyDefines*/ /* = false */)
     }
     ();
 
-    const auto alignment = device->getCapabilities().uboOffsetAlignment;
-    ccstd::vector<uint32_t> startOffsets;
-    startOffsets.reserve(blocks.size());
-    uint32_t lastSize = 0;
-    uint32_t lastOffset = 0;
-    for (size_t i = 0; i < blocks.size(); i++) {
-        const auto &size = blockSizes[i];
-        startOffsets.emplace_back(lastOffset);
-        lastOffset += static_cast<int32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(alignment))) * alignment;
-        lastSize = size;
-    }
-
-    // create gfx buffer resource
-    uint32_t totalSize = !startOffsets.empty() ? (startOffsets[startOffsets.size() - 1] + lastSize) : 0;
-    if (totalSize > 0) {
-        gfx::BufferInfo bufferInfo;
-        bufferInfo.usage = gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST;
-        bufferInfo.memUsage = gfx::MemoryUsageBit::DEVICE;
-        // https://bugs.chromium.org/p/chromium/issues/detail?id=988988
-        bufferInfo.size = static_cast<int32_t>(std::ceil(static_cast<float>(totalSize) / 16.F)) * 16;
-        _rootBuffer = device->createBuffer(bufferInfo);
-        _rootBlock = ccnew ArrayBuffer(totalSize);
-    }
-
+    // build uniform blocks
     if (programLib2) {
         const auto &shaderInfo = programLib2->getShaderInfo(_phaseID, _programName);
         buildMaterialUniformBlocks(shaderInfo.blocks, blockSizes);
