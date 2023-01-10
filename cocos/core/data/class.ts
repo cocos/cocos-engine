@@ -478,7 +478,9 @@ function parseAttributes (constructor: Function, attributes: PropertyStash, clas
     if ('default' in attributes) {
         (attrs || initAttrs())[`${propertyNamePrefix}default`] = attributes.default;
     } else if (((EDITOR && !window.Build) || TEST) && warnOnNoDefault && !(attributes.get || attributes.set)) {
-        warnID(3654, className, propertyName);
+        // TODO: we close this warning for now:
+        // issue: https://github.com/cocos/3d-tasks/issues/14887
+        // warnID(3654, className, propertyName);
     }
 
     const parseSimpleAttribute = (attributeName: keyof IAcceptableAttributes, expectType: string) => {

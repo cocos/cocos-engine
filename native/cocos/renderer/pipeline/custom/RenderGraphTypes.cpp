@@ -159,7 +159,8 @@ SubpassGraph::Vertex::Vertex(Vertex const& rhs, const allocator_type& alloc)
 RasterPass::RasterPass(const allocator_type& alloc) noexcept
 : rasterViews(alloc),
   computeViews(alloc),
-  subpassGraph(alloc) {}
+  subpassGraph(alloc),
+  versionName(alloc) {}
 
 RasterPass::RasterPass(RasterPass&& rhs, const allocator_type& alloc)
 : rasterViews(std::move(rhs.rasterViews), alloc),
@@ -167,7 +168,9 @@ RasterPass::RasterPass(RasterPass&& rhs, const allocator_type& alloc)
   subpassGraph(std::move(rhs.subpassGraph), alloc),
   width(rhs.width),
   height(rhs.height),
-  viewport(rhs.viewport) {}
+  viewport(rhs.viewport),
+  versionName(std::move(rhs.versionName), alloc),
+  version(rhs.version) {}
 
 RasterPass::RasterPass(RasterPass const& rhs, const allocator_type& alloc)
 : rasterViews(rhs.rasterViews, alloc),
@@ -175,7 +178,9 @@ RasterPass::RasterPass(RasterPass const& rhs, const allocator_type& alloc)
   subpassGraph(rhs.subpassGraph, alloc),
   width(rhs.width),
   height(rhs.height),
-  viewport(rhs.viewport) {}
+  viewport(rhs.viewport),
+  versionName(rhs.versionName, alloc),
+  version(rhs.version) {}
 
 ComputePass::ComputePass(const allocator_type& alloc) noexcept
 : computeViews(alloc) {}

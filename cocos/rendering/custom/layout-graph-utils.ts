@@ -1142,6 +1142,12 @@ class LayoutGraphBuilder2 implements LayoutGraphBuilder {
             dstBlock.descriptors.push(data);
         }
         layout.capacity += block.capacity;
+        if (index.descriptorType === DescriptorTypeOrder.UNIFORM_BUFFER
+            || index.descriptorType === DescriptorTypeOrder.DYNAMIC_UNIFORM_BUFFER) {
+            layout.uniformBlockCapacity += block.capacity;
+        } else {
+            layout.samplerTextureCapacity += block.capacity;
+        }
     }
     addUniformBlock (nodeID: number, index: DescriptorBlockIndex, name: string, uniformBlock: UniformBlock): void {
         const g: LayoutGraphData = this.lg;
@@ -1165,6 +1171,12 @@ class LayoutGraphBuilder2 implements LayoutGraphBuilder {
         dstBlock.offset = layout.capacity;
         layout.descriptorBlocks.push(dstBlock);
         layout.capacity += block.capacity;
+        if (index.descriptorType === DescriptorTypeOrder.UNIFORM_BUFFER
+            || index.descriptorType === DescriptorTypeOrder.DYNAMIC_UNIFORM_BUFFER) {
+            layout.uniformBlockCapacity += block.capacity;
+        } else {
+            layout.samplerTextureCapacity += block.capacity;
+        }
     }
     compile (): number {
         // console.debug(this.print());
@@ -1322,6 +1334,13 @@ export function makeDescriptorSetLayoutData (lg: LayoutGraphData,
         }
         // increate total capacity
         capacity += block.capacity;
+        data.capacity += block.capacity;
+        if (index.descriptorType === DescriptorTypeOrder.UNIFORM_BUFFER
+            || index.descriptorType === DescriptorTypeOrder.DYNAMIC_UNIFORM_BUFFER) {
+            data.uniformBlockCapacity += block.capacity;
+        } else {
+            data.samplerTextureCapacity += block.capacity;
+        }
         data.descriptorBlocks.push(block);
     }
     return data;

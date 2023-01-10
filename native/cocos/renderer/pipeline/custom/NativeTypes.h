@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -30,15 +29,13 @@
  */
 // clang-format off
 #pragma once
-#include "cocos/base/Ptr.h"
 #include "cocos/base/std/container/string.h"
 #include "cocos/base/std/hash/hash.h"
-#include "cocos/renderer/core/ProgramLib.h"
 #include "cocos/renderer/gfx-base/GFXRenderPass.h"
 #include "cocos/renderer/pipeline/GlobalDescriptorSetManager.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
 #include "cocos/renderer/pipeline/custom/NativeFwd.h"
-#include "cocos/renderer/pipeline/custom/RenderInterfaceTypes.h"
+#include "cocos/renderer/pipeline/custom/PrivateTypes.h"
 #include "cocos/renderer/pipeline/custom/details/Map.h"
 
 namespace cc {
@@ -68,14 +65,6 @@ struct ProgramInfo {
     Record<ccstd::string, uint32_t> handleMap;
 };
 
-struct ProgramHost {
-    ProgramHost() = default;
-    ProgramHost(IntrusivePtr<gfx::Shader> programIn) noexcept // NOLINT
-    : program(std::move(programIn)) {}
-
-    IntrusivePtr<gfx::Shader> program;
-};
-
 struct ProgramGroup {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
@@ -92,7 +81,7 @@ struct ProgramGroup {
     ProgramGroup& operator=(ProgramGroup const& rhs) = default;
 
     PmrFlatMap<ccstd::pmr::string, ProgramInfo> programInfos;
-    PmrFlatMap<ccstd::pmr::string, ProgramHost> programHosts;
+    PmrFlatMap<ccstd::pmr::string, IntrusivePtr<ProgramProxy>> programProxies;
 };
 
 } // namespace render

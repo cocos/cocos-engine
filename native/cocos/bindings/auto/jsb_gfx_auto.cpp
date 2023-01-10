@@ -8653,6 +8653,40 @@ static bool js_cc_gfx_UniformBlock_count_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_gfx_UniformBlock_count_get) 
 
+static bool js_cc_gfx_UniformBlock_flattened_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gfx::UniformBlock *arg1 = (cc::gfx::UniformBlock *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::UniformBlock>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->flattened, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_gfx_UniformBlock_flattened_set) 
+
+static bool js_cc_gfx_UniformBlock_flattened_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gfx::UniformBlock *arg1 = (cc::gfx::UniformBlock *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::UniformBlock>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->flattened, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_gfx_UniformBlock_flattened_get) 
+
 static bool js_cc_gfx_UniformBlock_copy(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -8750,6 +8784,12 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::UniformBlock * to, se::Ob
     }
     
     
+    json->getProperty("flattened", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->flattened), ctx);
+    }
+    
+    
     return ok;
 }
 
@@ -8763,6 +8803,7 @@ bool js_register_cc_gfx_UniformBlock(se::Object* obj) {
     cls->defineProperty("name", _SE(js_cc_gfx_UniformBlock_name_get), _SE(js_cc_gfx_UniformBlock_name_set)); 
     cls->defineProperty("members", _SE(js_cc_gfx_UniformBlock_members_get), _SE(js_cc_gfx_UniformBlock_members_set)); 
     cls->defineProperty("count", _SE(js_cc_gfx_UniformBlock_count_get), _SE(js_cc_gfx_UniformBlock_count_set)); 
+    cls->defineProperty("flattened", _SE(js_cc_gfx_UniformBlock_flattened_get), _SE(js_cc_gfx_UniformBlock_flattened_set)); 
     
     cls->defineFunction("copy", _SE(js_cc_gfx_UniformBlock_copy)); 
     
@@ -8962,6 +9003,40 @@ static bool js_cc_gfx_UniformSamplerTexture_count_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_gfx_UniformSamplerTexture_count_get) 
 
+static bool js_cc_gfx_UniformSamplerTexture_flattened_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gfx::UniformSamplerTexture *arg1 = (cc::gfx::UniformSamplerTexture *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::UniformSamplerTexture>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->flattened, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_gfx_UniformSamplerTexture_flattened_set) 
+
+static bool js_cc_gfx_UniformSamplerTexture_flattened_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gfx::UniformSamplerTexture *arg1 = (cc::gfx::UniformSamplerTexture *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::UniformSamplerTexture>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->flattened, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_gfx_UniformSamplerTexture_flattened_get) 
+
 static bool js_cc_gfx_UniformSamplerTexture_copy(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -9059,6 +9134,12 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::UniformSamplerTexture * t
     }
     
     
+    json->getProperty("flattened", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->flattened), ctx);
+    }
+    
+    
     return ok;
 }
 
@@ -9072,6 +9153,7 @@ bool js_register_cc_gfx_UniformSamplerTexture(se::Object* obj) {
     cls->defineProperty("name", _SE(js_cc_gfx_UniformSamplerTexture_name_get), _SE(js_cc_gfx_UniformSamplerTexture_name_set)); 
     cls->defineProperty("type", _SE(js_cc_gfx_UniformSamplerTexture_type_get), _SE(js_cc_gfx_UniformSamplerTexture_type_set)); 
     cls->defineProperty("count", _SE(js_cc_gfx_UniformSamplerTexture_count_get), _SE(js_cc_gfx_UniformSamplerTexture_count_set)); 
+    cls->defineProperty("flattened", _SE(js_cc_gfx_UniformSamplerTexture_flattened_get), _SE(js_cc_gfx_UniformSamplerTexture_flattened_set)); 
     
     cls->defineFunction("copy", _SE(js_cc_gfx_UniformSamplerTexture_copy)); 
     
@@ -9234,6 +9316,40 @@ static bool js_cc_gfx_UniformSampler_count_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_gfx_UniformSampler_count_get) 
 
+static bool js_cc_gfx_UniformSampler_flattened_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gfx::UniformSampler *arg1 = (cc::gfx::UniformSampler *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::UniformSampler>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->flattened, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_gfx_UniformSampler_flattened_set) 
+
+static bool js_cc_gfx_UniformSampler_flattened_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gfx::UniformSampler *arg1 = (cc::gfx::UniformSampler *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::UniformSampler>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->flattened, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_gfx_UniformSampler_flattened_get) 
+
 static bool js_cc_gfx_UniformSampler_copy(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -9325,6 +9441,12 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::UniformSampler * to, se::
     }
     
     
+    json->getProperty("flattened", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->flattened), ctx);
+    }
+    
+    
     return ok;
 }
 
@@ -9337,6 +9459,7 @@ bool js_register_cc_gfx_UniformSampler(se::Object* obj) {
     cls->defineProperty("binding", _SE(js_cc_gfx_UniformSampler_binding_get), _SE(js_cc_gfx_UniformSampler_binding_set)); 
     cls->defineProperty("name", _SE(js_cc_gfx_UniformSampler_name_get), _SE(js_cc_gfx_UniformSampler_name_set)); 
     cls->defineProperty("count", _SE(js_cc_gfx_UniformSampler_count_get), _SE(js_cc_gfx_UniformSampler_count_set)); 
+    cls->defineProperty("flattened", _SE(js_cc_gfx_UniformSampler_flattened_get), _SE(js_cc_gfx_UniformSampler_flattened_set)); 
     
     cls->defineFunction("copy", _SE(js_cc_gfx_UniformSampler_copy)); 
     
@@ -9536,6 +9659,40 @@ static bool js_cc_gfx_UniformTexture_count_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_gfx_UniformTexture_count_get) 
 
+static bool js_cc_gfx_UniformTexture_flattened_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gfx::UniformTexture *arg1 = (cc::gfx::UniformTexture *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::UniformTexture>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->flattened, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_gfx_UniformTexture_flattened_set) 
+
+static bool js_cc_gfx_UniformTexture_flattened_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gfx::UniformTexture *arg1 = (cc::gfx::UniformTexture *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::UniformTexture>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->flattened, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_gfx_UniformTexture_flattened_get) 
+
 static bool js_cc_gfx_UniformTexture_copy(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -9633,6 +9790,12 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::UniformTexture * to, se::
     }
     
     
+    json->getProperty("flattened", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->flattened), ctx);
+    }
+    
+    
     return ok;
 }
 
@@ -9646,6 +9809,7 @@ bool js_register_cc_gfx_UniformTexture(se::Object* obj) {
     cls->defineProperty("name", _SE(js_cc_gfx_UniformTexture_name_get), _SE(js_cc_gfx_UniformTexture_name_set)); 
     cls->defineProperty("type", _SE(js_cc_gfx_UniformTexture_type_get), _SE(js_cc_gfx_UniformTexture_type_set)); 
     cls->defineProperty("count", _SE(js_cc_gfx_UniformTexture_count_get), _SE(js_cc_gfx_UniformTexture_count_set)); 
+    cls->defineProperty("flattened", _SE(js_cc_gfx_UniformTexture_flattened_get), _SE(js_cc_gfx_UniformTexture_flattened_set)); 
     
     cls->defineFunction("copy", _SE(js_cc_gfx_UniformTexture_copy)); 
     
@@ -9882,6 +10046,40 @@ static bool js_cc_gfx_UniformStorageImage_memoryAccess_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_gfx_UniformStorageImage_memoryAccess_get) 
 
+static bool js_cc_gfx_UniformStorageImage_flattened_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gfx::UniformStorageImage *arg1 = (cc::gfx::UniformStorageImage *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::UniformStorageImage>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->flattened, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_gfx_UniformStorageImage_flattened_set) 
+
+static bool js_cc_gfx_UniformStorageImage_flattened_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gfx::UniformStorageImage *arg1 = (cc::gfx::UniformStorageImage *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::UniformStorageImage>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->flattened, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_gfx_UniformStorageImage_flattened_get) 
+
 static bool js_cc_gfx_UniformStorageImage_copy(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -9985,6 +10183,12 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::UniformStorageImage * to,
     }
     
     
+    json->getProperty("flattened", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->flattened), ctx);
+    }
+    
+    
     return ok;
 }
 
@@ -9999,6 +10203,7 @@ bool js_register_cc_gfx_UniformStorageImage(se::Object* obj) {
     cls->defineProperty("type", _SE(js_cc_gfx_UniformStorageImage_type_get), _SE(js_cc_gfx_UniformStorageImage_type_set)); 
     cls->defineProperty("count", _SE(js_cc_gfx_UniformStorageImage_count_get), _SE(js_cc_gfx_UniformStorageImage_count_set)); 
     cls->defineProperty("memoryAccess", _SE(js_cc_gfx_UniformStorageImage_memoryAccess_get), _SE(js_cc_gfx_UniformStorageImage_memoryAccess_set)); 
+    cls->defineProperty("flattened", _SE(js_cc_gfx_UniformStorageImage_flattened_get), _SE(js_cc_gfx_UniformStorageImage_flattened_set)); 
     
     cls->defineFunction("copy", _SE(js_cc_gfx_UniformStorageImage_copy)); 
     
@@ -10198,6 +10403,40 @@ static bool js_cc_gfx_UniformStorageBuffer_memoryAccess_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_gfx_UniformStorageBuffer_memoryAccess_get) 
 
+static bool js_cc_gfx_UniformStorageBuffer_flattened_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gfx::UniformStorageBuffer *arg1 = (cc::gfx::UniformStorageBuffer *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::UniformStorageBuffer>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->flattened, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_gfx_UniformStorageBuffer_flattened_set) 
+
+static bool js_cc_gfx_UniformStorageBuffer_flattened_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gfx::UniformStorageBuffer *arg1 = (cc::gfx::UniformStorageBuffer *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::UniformStorageBuffer>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->flattened, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_gfx_UniformStorageBuffer_flattened_get) 
+
 static bool js_cc_gfx_UniformStorageBuffer_copy(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -10295,6 +10534,12 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::UniformStorageBuffer * to
     }
     
     
+    json->getProperty("flattened", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->flattened), ctx);
+    }
+    
+    
     return ok;
 }
 
@@ -10308,6 +10553,7 @@ bool js_register_cc_gfx_UniformStorageBuffer(se::Object* obj) {
     cls->defineProperty("name", _SE(js_cc_gfx_UniformStorageBuffer_name_get), _SE(js_cc_gfx_UniformStorageBuffer_name_set)); 
     cls->defineProperty("count", _SE(js_cc_gfx_UniformStorageBuffer_count_get), _SE(js_cc_gfx_UniformStorageBuffer_count_set)); 
     cls->defineProperty("memoryAccess", _SE(js_cc_gfx_UniformStorageBuffer_memoryAccess_get), _SE(js_cc_gfx_UniformStorageBuffer_memoryAccess_set)); 
+    cls->defineProperty("flattened", _SE(js_cc_gfx_UniformStorageBuffer_flattened_get), _SE(js_cc_gfx_UniformStorageBuffer_flattened_set)); 
     
     cls->defineFunction("copy", _SE(js_cc_gfx_UniformStorageBuffer_copy)); 
     
@@ -10470,6 +10716,40 @@ static bool js_cc_gfx_UniformInputAttachment_count_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_gfx_UniformInputAttachment_count_get) 
 
+static bool js_cc_gfx_UniformInputAttachment_flattened_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gfx::UniformInputAttachment *arg1 = (cc::gfx::UniformInputAttachment *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::UniformInputAttachment>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->flattened, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_gfx_UniformInputAttachment_flattened_set) 
+
+static bool js_cc_gfx_UniformInputAttachment_flattened_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gfx::UniformInputAttachment *arg1 = (cc::gfx::UniformInputAttachment *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::UniformInputAttachment>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->flattened, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_gfx_UniformInputAttachment_flattened_get) 
+
 static bool js_cc_gfx_UniformInputAttachment_copy(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -10561,6 +10841,12 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::UniformInputAttachment * 
     }
     
     
+    json->getProperty("flattened", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->flattened), ctx);
+    }
+    
+    
     return ok;
 }
 
@@ -10573,6 +10859,7 @@ bool js_register_cc_gfx_UniformInputAttachment(se::Object* obj) {
     cls->defineProperty("binding", _SE(js_cc_gfx_UniformInputAttachment_binding_get), _SE(js_cc_gfx_UniformInputAttachment_binding_set)); 
     cls->defineProperty("name", _SE(js_cc_gfx_UniformInputAttachment_name_get), _SE(js_cc_gfx_UniformInputAttachment_name_set)); 
     cls->defineProperty("count", _SE(js_cc_gfx_UniformInputAttachment_count_get), _SE(js_cc_gfx_UniformInputAttachment_count_set)); 
+    cls->defineProperty("flattened", _SE(js_cc_gfx_UniformInputAttachment_flattened_get), _SE(js_cc_gfx_UniformInputAttachment_flattened_set)); 
     
     cls->defineFunction("copy", _SE(js_cc_gfx_UniformInputAttachment_copy)); 
     

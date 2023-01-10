@@ -5,7 +5,7 @@ CCEffect %{
   - passes:
     - vert: post-process-vs
       frag: post-process-fs
-      phase: post-process
+      pass: post-process
       depthStencilState:
         depthTest: false
         depthWrite: false
@@ -44,6 +44,7 @@ CCProgram post-process-fs %{
   #include <post-process/anti-aliasing>
   in vec2 v_uv;
 
+  #pragma rate outputResultMap pass
   layout(binding = 0) uniform sampler2D outputResultMap;
 
   layout(location = 0) out vec4 fragColor;

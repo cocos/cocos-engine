@@ -382,6 +382,10 @@ void NativeRasterPassBuilder::setSampler(const ccstd::string &name, gfx::Sampler
     addSampler(*layoutGraph, name, sampler, data);
 }
 
+void NativeRasterPassBuilder::setVersion(const ccstd::string &name, uint64_t version) {
+    // noop
+}
+
 // NativeComputeQueue
 ccstd::string NativeComputeQueueBuilder::getName() const {
     return std::string(get(RenderGraph::Name, *renderGraph, queueID));

@@ -1117,6 +1117,7 @@ struct UniformBlock {
     ccstd::string name;
     UniformList members;
     uint32_t count{0};
+    uint32_t flattened{0};
 
     EXPOSE_COPY_FN(UniformBlock)
 };
@@ -1129,6 +1130,7 @@ struct UniformSamplerTexture {
     ccstd::string name;
     Type type{Type::UNKNOWN};
     uint32_t count{0};
+    uint32_t flattened{0};
 
     EXPOSE_COPY_FN(UniformSamplerTexture)
 };
@@ -1140,6 +1142,7 @@ struct UniformSampler {
     uint32_t binding{0};
     ccstd::string name;
     uint32_t count{0};
+    uint32_t flattened{0};
 
     EXPOSE_COPY_FN(UniformSampler)
 };
@@ -1152,6 +1155,7 @@ struct UniformTexture {
     ccstd::string name;
     Type type{Type::UNKNOWN};
     uint32_t count{0};
+    uint32_t flattened{0};
 
     EXPOSE_COPY_FN(UniformTexture)
 };
@@ -1165,6 +1169,7 @@ struct UniformStorageImage {
     Type type{Type::UNKNOWN};
     uint32_t count{0};
     MemoryAccess memoryAccess{MemoryAccessBit::READ_WRITE};
+    uint32_t flattened{0};
 
     EXPOSE_COPY_FN(UniformStorageImage)
 };
@@ -1177,6 +1182,7 @@ struct UniformStorageBuffer {
     ccstd::string name;
     uint32_t count{0};
     MemoryAccess memoryAccess{MemoryAccessBit::READ_WRITE};
+    uint32_t flattened{0};
 
     EXPOSE_COPY_FN(UniformStorageBuffer)
 };
@@ -1188,6 +1194,7 @@ struct UniformInputAttachment {
     uint32_t binding{0};
     ccstd::string name;
     uint32_t count{0};
+    uint32_t flattened{0};
 
     EXPOSE_COPY_FN(UniformInputAttachment)
 };
