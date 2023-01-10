@@ -82,7 +82,7 @@ export class Asset extends Eventify(CCObject) {
      * @zh
      * 资源的 UUID。
      *
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future, please use asset.uuid instead.
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future, please use [[Asset.uuid]] instead.
      */
     public declare _uuid: string;
 
