@@ -230,7 +230,7 @@ export class Light extends Component {
     set visibility (vis: number) {
         this._visibility = vis;
         if (this._light) { this._light.visibility = vis; }
-        this._onUpdateReceived();
+        this._onUpdateReceiveDirLight();
     }
     get visibility (): number {
         return this._visibility;
@@ -317,5 +317,5 @@ export class Light extends Component {
         }
     }
 
-    protected _onUpdateReceived () {}
+    protected _onUpdateReceiveDirLight () {}
 }

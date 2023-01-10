@@ -391,13 +391,11 @@ export class MeshRenderer extends ModelRenderer {
                 );
                 this._model.castShadow = true;
             }
-            this._model.receivedDirLight = true;
+            this._model.receiveDirLight = true;
         } else {
             this._model.castShadow = false;
-            this._model.receivedDirLight = false;
+            this._model.receiveDirLight = false;
         }
-
-        this._updateModels();
     }
 
     /**
@@ -444,6 +442,7 @@ export class MeshRenderer extends ModelRenderer {
         this._updateReceiveShadow();
         this._updateUseLightProbe();
         this._updateUseReflectionProbe();
+        this._updateReceiveDirLight();
     }
 
     /**
@@ -510,6 +509,7 @@ export class MeshRenderer extends ModelRenderer {
         this._updateUseLightProbe();
         this._updateBakeToReflectionProbe();
         this._updateUseReflectionProbe();
+        this._updateReceiveDirLight();
     }
 
     // Redo, Undo, Prefab restore, etc.
@@ -525,6 +525,7 @@ export class MeshRenderer extends ModelRenderer {
         this._updateUseLightProbe();
         this._updateBakeToReflectionProbe();
         this._updateUseReflectionProbe();
+        this._updateReceiveDirLight();
     }
 
     public onEnable () {
@@ -545,6 +546,7 @@ export class MeshRenderer extends ModelRenderer {
         this._updateUseReflectionProbe();
         this._onUpdateLocalShadowBias();
         this._updateUseLightProbe();
+        this._updateReceiveDirLight();
         this._attachToScene();
     }
 
@@ -949,6 +951,19 @@ export class MeshRenderer extends ModelRenderer {
     protected _updateBakeToReflectionProbe () {
         if (!this._model) { return; }
         this._model.bakeToReflectionProbe = this.bakeSettings.bakeToReflectionProbe;
+    }
+
+    protected _updateReceiveDirLight () {
+        const scene = this.node.scene;
+        if (!scene || !scene.renderScene) {
+            return;
+        }
+        const mainLight = scene.renderScene.mainLight;
+        if (!mainLight) {
+            return;
+        }
+        const visibility = mainLight.visibility;
+        this.onUpdateReceiveDirLight(visibility);
     }
 
     private _watchMorphInMesh () {

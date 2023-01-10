@@ -553,11 +553,17 @@ export class DirectionalLight extends Light {
         }
     }
 
-    protected _onUpdateReceived () {
-        super._onUpdateReceived();
+    protected _onUpdateReceiveDirLight () {
+        if (!this._light) {
+            return;
+        }
+        super._onUpdateReceiveDirLight();
 
         const scene = director.getScene();
         if (!scene || !scene.renderScene) {
+            return;
+        }
+        if (scene.renderScene.mainLight !== this._light) {
             return;
         }
         const models = scene.renderScene.models;

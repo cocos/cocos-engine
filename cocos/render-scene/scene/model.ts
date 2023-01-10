@@ -238,14 +238,15 @@ export class Model {
     }
 
     /**
-     * @en Gets or sets received direction Light.
+     * @en Gets or sets receive direction Light.
      * @zh 获取或者设置接收平行光光照。
      */
-    get receivedDirLight (): boolean {
-        return this._receivedDirLight;
+    get receiveDirLight (): boolean {
+        return this._receiveDirLight;
     }
-    set receivedDirLight (val) {
-        this._receivedDirLight = val;
+    set receiveDirLight (val) {
+        this._receiveDirLight = val;
+        this.onMacroPatchesStateChanged();
     }
 
     /**
@@ -475,7 +476,7 @@ export class Model {
      * @en Is received direction Light.
      * @zh 是否接收平行光光照。
      */
-    protected _receivedDirLight = true;
+    protected _receiveDirLight = true;
 
     /**
      * @en Shadow bias
@@ -996,6 +997,10 @@ export class Model {
             { name: CC_USE_REFLECTION_PROBE, value: this._reflectionProbeType },
         ];
         patches = patches ? patches.concat(reflectionProbePatches) : reflectionProbePatches;
+        const receiveDirLightPatches: IMacroPatch[] = [
+            { name: CC_USE_REFLECTION_PROBE, value: this._receiveDirLight },
+        ];
+        patches = patches ? patches.concat(receiveDirLightPatches) : receiveDirLightPatches;
 
         return patches;
     }
