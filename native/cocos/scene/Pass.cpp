@@ -631,19 +631,21 @@ void Pass::doInit(const IPassInfoFull &info, bool /*copyDefines*/ /* = false */)
     // calculate total size required
     const auto &blocks = _shaderInfo->blocks;
     const auto *tmplInfo = programLib->getTemplateInfo(info.program);
-    const auto &blockSizes = [&]() {
+    const auto &blockSizes = [&]() -> const auto & {
         if (programLib2) {
             return programLib2->getBlockSizes(_phaseID, _programName);
         }
         return tmplInfo->blockSizes;
-    }();
-    const auto &handleMap = [&]() {
+    }
+    ();
+    const auto &handleMap = [&]() -> const auto & {
         if (programLib2) {
             CC_EXPECTS(_phaseID != INVALID_ID);
             return programLib2->getHandleMap(_phaseID, _programName);
         }
         return tmplInfo->handleMap;
-    }();
+    }
+    ();
 
     const auto alignment = device->getCapabilities().uboOffsetAlignment;
     ccstd::vector<uint32_t> startOffsets;
