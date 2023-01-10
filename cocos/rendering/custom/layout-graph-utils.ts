@@ -1145,7 +1145,7 @@ class LayoutGraphBuilder2 implements LayoutGraphBuilder {
         if (index.descriptorType === DescriptorTypeOrder.UNIFORM_BUFFER
             || index.descriptorType === DescriptorTypeOrder.DYNAMIC_UNIFORM_BUFFER) {
             layout.uniformBlockCapacity += block.capacity;
-        } else {
+        } else if (index.descriptorType === DescriptorTypeOrder.SAMPLER_TEXTURE) {
             layout.samplerTextureCapacity += block.capacity;
         }
     }
@@ -1174,7 +1174,7 @@ class LayoutGraphBuilder2 implements LayoutGraphBuilder {
         if (index.descriptorType === DescriptorTypeOrder.UNIFORM_BUFFER
             || index.descriptorType === DescriptorTypeOrder.DYNAMIC_UNIFORM_BUFFER) {
             layout.uniformBlockCapacity += block.capacity;
-        } else {
+        } else if (index.descriptorType === DescriptorTypeOrder.SAMPLER_TEXTURE) {
             layout.samplerTextureCapacity += block.capacity;
         }
     }
@@ -1338,7 +1338,7 @@ export function makeDescriptorSetLayoutData (lg: LayoutGraphData,
         if (index.descriptorType === DescriptorTypeOrder.UNIFORM_BUFFER
             || index.descriptorType === DescriptorTypeOrder.DYNAMIC_UNIFORM_BUFFER) {
             data.uniformBlockCapacity += block.capacity;
-        } else {
+        } else if (index.descriptorType === DescriptorTypeOrder.SAMPLER_TEXTURE) {
             data.samplerTextureCapacity += block.capacity;
         }
         data.descriptorBlocks.push(block);
