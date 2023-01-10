@@ -136,7 +136,7 @@ gfx::InputAssembler* RenderDrawInfo::initIAInfo(gfx::Device* device) {
     return ia;
 }
 
-void RenderDrawInfo::updateLocalDescriptorSet(Node* transform, gfx::DescriptorSetLayout* dsLayout) {
+void RenderDrawInfo::updateLocalDescriptorSet(Node* transform, const gfx::DescriptorSetLayout* dsLayout) {
     if (_localDSBF == nullptr) {
         _localDSBF = new LocalDSBF();
         auto* device = Root::getInstance()->getDevice();

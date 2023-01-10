@@ -253,7 +253,7 @@ ShaderProgramData &buildProgramData(
 void populateMergedShaderInfo(
     const ccstd::pmr::vector<ccstd::pmr::string> &valueNames,
     const DescriptorSetLayoutData &layout, uint32_t set,
-    gfx::ShaderInfo &shaderInfo, ccstd::pmr::vector<uint32_t> &blockSizes) {
+    gfx::ShaderInfo &shaderInfo, ccstd::vector<int32_t> &blockSizes) {
     for (const auto &descriptorBlock : layout.descriptorBlocks) {
         auto binding = descriptorBlock.offset;
         switch (descriptorBlock.type) {
@@ -371,7 +371,7 @@ void populateGroupedShaderInfo(
     const DescriptorSetLayoutData &layout,
     const IDescriptorInfo &descriptorInfo, uint32_t set,
     gfx::ShaderInfo &shaderInfo,
-    ccstd::pmr::vector<uint32_t> &blockSizes) {
+    ccstd::vector<int32_t> &blockSizes) {
     for (const auto &descriptorBlock : layout.descriptorBlocks) {
         const auto visibility = descriptorBlock.visibility;
         auto binding = descriptorBlock.offset;
@@ -500,7 +500,7 @@ void populateGroupedShaderInfo(
 void populateLocalShaderInfo(
     const IDescriptorInfo &target,
     const pipeline::DescriptorSetLayoutInfos &source,
-    gfx::ShaderInfo &shaderInfo, ccstd::pmr::vector<uint32_t> &blockSizes) {
+    gfx::ShaderInfo &shaderInfo, ccstd::vector<int32_t> &blockSizes) {
     const auto set = setIndex(UpdateFrequency::PER_INSTANCE);
     for (const auto &block : target.blocks) {
         auto blockIter = source.blocks.find(block.name);
@@ -699,7 +699,7 @@ void makeShaderInfo(
     const ShaderProgramData *programData,
     bool fixedLocal,
     gfx::ShaderInfo &shaderInfo,
-    ccstd::pmr::vector<uint32_t> &blockSizes) {
+    ccstd::vector<int32_t> &blockSizes) {
     std::array<const DescriptorSetLayoutData *, 4> descriptorSets{};
     const pipeline::DescriptorSetLayoutInfos *fixedInstanceDescriptorSetLayout = nullptr;
     { // pass
@@ -900,7 +900,7 @@ const gfx::DescriptorSetLayout &getOrCreateProgramDescriptorSetLayout(
     const NativeProgramLibrary &lib,
     gfx::Device *device,
     LayoutGraphData &lg, uint32_t phaseID,
-    const ccstd::pmr::string &programName, UpdateFrequency rate) {
+    std::string_view programName, UpdateFrequency rate) {
     CC_EXPECTS(rate < UpdateFrequency::PER_PHASE);
     auto &phase = get(RenderPhaseTag{}, phaseID, lg);
     const auto iter = phase.shaderIndex.find(programName);
@@ -975,7 +975,7 @@ void NativeProgramLibrary::addEffect(EffectAsset *effectAssetIn) {
 
             // shaderInfo and blockSizes
             gfx::ShaderInfo shaderInfo;
-            ccstd::pmr::vector<uint32_t> blockSizes(alloc);
+            ccstd::vector<int32_t> blockSizes;
             makeShaderInfo(lg, passLayout, phaseLayout, srcShaderInfo, programData,
                            fixedLocal, shaderInfo, blockSizes);
 
@@ -1084,7 +1084,7 @@ IntrusivePtr<gfx::PipelineLayout> NativeProgramLibrary::getPipelineLayout(
 }
 
 const gfx::DescriptorSetLayout &NativeProgramLibrary::getMaterialDescriptorSetLayout(
-    gfx::Device *device, uint32_t phaseID, const ccstd::pmr::string &programName) {
+    gfx::Device *device, uint32_t phaseID, const ccstd::string &programName) {
     if (mergeHighFrequency) {
         CC_EXPECTS(phaseID != LayoutGraphData::null_vertex());
         const auto passID = parent(phaseID, layoutGraph);
@@ -1096,7 +1096,7 @@ const gfx::DescriptorSetLayout &NativeProgramLibrary::getMaterialDescriptorSetLa
 }
 
 const gfx::DescriptorSetLayout &NativeProgramLibrary::getLocalDescriptorSetLayout(
-    gfx::Device *device, uint32_t phaseID, const ccstd::pmr::string &programName) {
+    gfx::Device *device, uint32_t phaseID, const ccstd::string &programName) {
     if (mergeHighFrequency) {
         CC_EXPECTS(phaseID != LayoutGraphData::null_vertex());
         const auto passID = parent(phaseID, layoutGraph);
@@ -1108,15 +1108,23 @@ const gfx::DescriptorSetLayout &NativeProgramLibrary::getLocalDescriptorSetLayou
 }
 
 const IProgramInfo &NativeProgramLibrary::getProgramInfo(
-    uint32_t phaseID, const ccstd::pmr::string &programName) const {
+    uint32_t phaseID, const ccstd::string &programName) const {
     const auto &group = phases.at(phaseID);
-    return group.programInfos.at(programName).programInfo;
+    auto iter = group.programInfos.find(std::string_view{programName});
+    if (iter != group.programInfos.end()) {
+        return iter->second.programInfo;
+    }
+    throw std::invalid_argument("program not found");
 }
 
 const gfx::ShaderInfo &NativeProgramLibrary::getShaderInfo(
-    uint32_t phaseID, const ccstd::pmr::string &programName) const {
+    uint32_t phaseID, const ccstd::string &programName) const {
     const auto &group = phases.at(phaseID);
-    return group.programInfos.at(programName).shaderInfo;
+    auto iter = group.programInfos.find(std::string_view{programName});
+    if (iter != group.programInfos.end()) {
+        return iter->second.shaderInfo;
+    }
+    throw std::invalid_argument("program not found");
 }
 
 ProgramProxy *NativeProgramLibrary::getProgramVariant(
@@ -1191,20 +1199,26 @@ ProgramProxy *NativeProgramLibrary::getProgramVariant(
     return res.first->second.get();
 }
 
-const ccstd::pmr::vector<unsigned> &NativeProgramLibrary::getBlockSizes(
-    uint32_t phaseID, const ccstd::pmr::string &programName) const {
+const ccstd::vector<int32_t> &NativeProgramLibrary::getBlockSizes(
+    uint32_t phaseID, const ccstd::string &programName) const {
     CC_EXPECTS(phaseID != LayoutGraphData::null_vertex());
     const auto &group = phases.at(phaseID);
-    const auto &info = group.programInfos.at(programName);
-    return info.blockSizes;
+    auto iter = group.programInfos.find(std::string_view{programName});
+    if (iter != group.programInfos.end()) {
+        return iter->second.blockSizes;
+    }
+    throw std::invalid_argument("program not found");
 }
 
 const Record<ccstd::string, uint32_t> &NativeProgramLibrary::getHandleMap(
-    uint32_t phaseID, const ccstd::pmr::string &programName) const {
+    uint32_t phaseID, const ccstd::string &programName) const {
     CC_EXPECTS(phaseID != LayoutGraphData::null_vertex());
     const auto &group = phases.at(phaseID);
-    const auto &info = group.programInfos.at(programName);
-    return info.handleMap;
+    auto iter = group.programInfos.find(std::string_view{programName});
+    if (iter != group.programInfos.end()) {
+        return iter->second.handleMap;
+    }
+    throw std::invalid_argument("program not found");
 }
 
 uint32_t NativeProgramLibrary::getProgramID(

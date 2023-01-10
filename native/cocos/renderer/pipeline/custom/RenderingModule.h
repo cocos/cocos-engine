@@ -30,6 +30,7 @@ namespace cc {
 namespace render {
 
 ProgramLibrary* getProgramLibrary();
+RenderingModule* getRenderingModule();
 
 } // namespace render
 
