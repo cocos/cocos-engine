@@ -23,7 +23,7 @@
 */
 
 import { EDITOR } from 'internal:constants';
-import { Vec2, _decorator, cclegacy } from '../../../../core';
+import { Vec2, _decorator, cclegacy, tooltip } from '../../../../core';
 import { RigidBody2D } from '../rigid-body-2d';
 import { IJoint2D } from '../../../spec/i-physics-joint';
 import { EJoint2DType } from '../../physics-types';
@@ -41,6 +41,7 @@ export class Joint2D extends Component {
      * 在自身刚体的本地空间中，Joint2D的位置。
      */
     @property
+    @tooltip('i18n:physics2d.joint.anchor')
     anchor = new Vec2();
 
     /**
@@ -50,6 +51,7 @@ export class Joint2D extends Component {
      * 在连接刚体的本地空间中，Joint2D的位置。
      */
     @property
+    @tooltip('i18n:physics2d.joint.connectedAnchor')
     connectedAnchor = new Vec2();
 
     /**
@@ -59,6 +61,7 @@ export class Joint2D extends Component {
      * 关节连接的两刚体之间是否开启碰撞。
      */
     @property
+    @tooltip('i18n:physics2d.joint.collideConnected')
     collideConnected = false;
 
     /**
@@ -68,6 +71,7 @@ export class Joint2D extends Component {
      * 关节连接的刚体，为空时表示连接到位于世界原点的静态刚体。
      */
     @type(RigidBody2D)
+    @tooltip('i18n:physics2d.joint.connectedBody')
     connectedBody: RigidBody2D | null = null;
 
     /**
