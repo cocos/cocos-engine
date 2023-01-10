@@ -1939,6 +1939,10 @@ Can not add a page without UITransform.
 
 Can not set the scroll view content when it hasn't UITransform or its parent hasn't UITransform.
 
+### 4303
+
+The %s scrollBar on the '%s' node is not available, please check it.
+
 ### 4400
 
 Invalid RichText img tag! The sprite frame name can't be found in the ImageAtlas!
