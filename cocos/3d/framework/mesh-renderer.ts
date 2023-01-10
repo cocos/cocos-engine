@@ -381,7 +381,8 @@ export class MeshRenderer extends ModelRenderer {
      */
     public onUpdateReceiveDirLight (visibility: number) {
         if (!this._model) { return; }
-        if (((visibility & this.node.layer) !== this.node.layer) && !(visibility & this._model.visFlags)) {
+        if (this.node && ((visibility & this.node.layer) === this.node.layer)
+        || (visibility & this._model.visFlags)) {
             if (this._shadowCastingMode === ModelShadowCastingMode.OFF) {
                 this._model.castShadow = false;
             } else {
