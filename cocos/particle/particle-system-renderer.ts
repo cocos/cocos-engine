@@ -178,7 +178,6 @@ export class ParticleSystemRenderer extends ModelRenderer {
     private _uNodeRotHandle = 0;
     private _inited = false;
     private _localMat = new Mat4();
-    private _gravity = new Vec4();
     private _subMeshData: RenderingSubMesh | null = null;
 
     /**
@@ -386,14 +385,18 @@ export class ParticleSystemRenderer extends ModelRenderer {
 
     // internal function
     public updateRenderData () {
-        this._model!.setCapacity(this.ps.capacity);
+        const particleSystem = this.getComponent(ParticleSystem);
+        if (!particleSystem) return;
+
+        this._model!.setCapacity(particleSystem.capacity);
         this.updateMaterialParams();
         this.updateTrailMaterial();
 
         // update vertex buffer
         let idx = 0;
+        const { particles } = particleSystem;
         if (this.renderMode === RenderMode.MESH) {
-            for (let i = 0; i < this._particleSystem._particles.count; ++i) {
+            for (let i = 0, l = particles.count; i < l; ++i) {
                 const p = this._particles.data[i];
                 let fi = 0;
                 const textureModule = this._particleSystem._textureAnimationModule;

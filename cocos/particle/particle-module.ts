@@ -27,6 +27,7 @@ import { ParticleUpdateContext } from './particle-update-context';
 import { ParticleSOAData } from './particle-soa-data';
 import { serializable, type } from '../core/data/decorators';
 import { CCBoolean } from '../core';
+import { ParticleSystem } from './particle-system';
 
 export enum ParticleUpdateStage {
     EMITTER_UPDATE,

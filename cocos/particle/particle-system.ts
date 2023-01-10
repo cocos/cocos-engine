@@ -48,6 +48,7 @@ import { legacyCC } from '../core/global-exports';
 import { TransformBit } from '../core/scene-graph/node-enum';
 import { AABB, intersect } from '../core/geometry';
 import { Camera } from '../core/renderer/scene';
+import { GravityModule } from './modules/gravity';
 import { ParticleCuller } from './particle-culler';
 import { NoiseModule } from './modules/noise';
 import { CCBoolean, CCFloat, Component, geometry } from '../core';
@@ -291,6 +292,10 @@ export class ParticleSystem extends Component {
     @tooltip('i18n:particle_system.trailModule')
     public get trailModule () {
         return this.getOrAddModule(TrailModule);
+    }
+
+    public get particles () {
+        return this._particles;
     }
 
     // @type(ParticleSystemRenderer)

@@ -53,7 +53,8 @@ export class GravityModule extends ParticleModule {
     }
 
     public update(particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
-        if (particleUpdateContext.simulationSpace === Space.LOCAL) {
+        const { simulationSpace } = particleUpdateContext;
+        if (simulationSpace === Space.LOCAL) {
             const r: Quat = this.node.getRotation();
             Mat4.fromQuat(this._localMat, r);
             this._localMat.transpose(); // just consider rotation, use transpose as invert
@@ -63,7 +64,7 @@ export class GravityModule extends ParticleModule {
             this.node.parent.getWorldMatrix(_tempParentInverse);
             _tempParentInverse.invert();
         }
-        if (ps.simulationSpace === Space.LOCAL) {
+        if (simulationSpace === Space.LOCAL) {
             const gravityFactor = -this.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed))! * 9.8 * dt;
             this._gravity.x = 0.0;
             this._gravity.y = gravityFactor;
@@ -81,7 +82,7 @@ export class GravityModule extends ParticleModule {
             }
         } else {
             // apply gravity.
-            p.velocity.y -= ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed))! * 9.8 * dt;
+            p.velocity.y -= this.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed))! * 9.8 * dt;
         }
     }
 

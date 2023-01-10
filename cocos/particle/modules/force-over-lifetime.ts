@@ -24,7 +24,7 @@
  */
 
 import { ccclass, tooltip, displayOrder, range, type, serializable } from 'cc.decorator';
-import { pseudoRandom, Quat, Vec3 } from '../../core/math';
+import { lerp, pseudoRandom, Quat, Vec3 } from '../../core/math';
 import { Space, ModuleRandSeed } from '../enum';
 import { calculateTransform } from '../particle-general-function';
 import { CurveRange } from '../curve-range';
@@ -102,27 +102,112 @@ export class ForceOverLifetimeModule extends ParticleModule {
         const dt = context.deltaTime;
         const { count, normalizedAliveTime, randomSeed } = particles;
         if (needTransform) {
-            for (let i = 0; i < count; i++) {
-                const normalizedTime = normalizedAliveTime[i];
-                const seed = randomSeed[i] + FORCE_OVERTIME_RAND_OFFSET;
-                const force = Vec3.set(_temp_v3,
-                    this.x.evaluate(normalizedTime, pseudoRandom(seed)),
-                    this.y.evaluate(normalizedTime, pseudoRandom(seed)),
-                    this.z.evaluate(normalizedTime, pseudoRandom(seed)));
-                Vec3.transformQuat(force, force, this.rotation);
-                force.multiplyScalar(dt);
-                particles.addVelocityAt(force, i);
+            switch (this.x.mode) {
+            case CurveRange.Mode.Constant: {
+                for (let i = 0; i < count; i++) {
+                    const force = Vec3.set(_temp_v3,
+                        this.x.constant,
+                        this.y.constant,
+                        this.z.constant);
+                    Vec3.transformQuat(force, force, this.rotation);
+                    force.multiplyScalar(dt);
+                    particles.addVelocityAt(force, i);
+                }
+                break;
+            }
+            case CurveRange.Mode.Curve: {
+                for (let i = 0; i < count; i++) {
+                    const normalizedTime = normalizedAliveTime[i];
+                    const force = Vec3.set(_temp_v3,
+                        this.x.spline.evaluate(normalizedTime) * this.x.multiplier,
+                        this.y.spline.evaluate(normalizedTime) * this.y.multiplier,
+                        this.z.spline.evaluate(normalizedTime) * this.z.multiplier);
+                    Vec3.transformQuat(force, force, this.rotation);
+                    force.multiplyScalar(dt);
+                    particles.addVelocityAt(force, i);
+                }
+                break;
+            }
+            case CurveRange.Mode.TwoConstants: {
+                for (let i = 0; i < count; i++) {
+                    const seed = randomSeed[i] + FORCE_OVERTIME_RAND_OFFSET;
+                    const force = Vec3.set(_temp_v3,
+                        lerp(this.x.constantMin, this.x.constantMax, pseudoRandom(seed)),
+                        lerp(this.y.constantMin, this.y.constantMax, pseudoRandom(seed)),
+                        lerp(this.z.constantMin, this.z.constantMax, pseudoRandom(seed)));
+                    Vec3.transformQuat(force, force, this.rotation);
+                    force.multiplyScalar(dt);
+                    particles.addVelocityAt(force, i);
+                }
+                break;
+            }
+            case CurveRange.Mode.TwoCurves: {
+                for (let i = 0; i < count; i++) {
+                    const normalizedTime = normalizedAliveTime[i];
+                    const seed = randomSeed[i] + FORCE_OVERTIME_RAND_OFFSET;
+                    const force = Vec3.set(_temp_v3,
+                        lerp(this.x.splineMin.evaluate(normalizedTime), this.x.splineMax.evaluate(normalizedTime), pseudoRandom(seed))  * this.x.multiplier,
+                        lerp(this.y.splineMin.evaluate(normalizedTime), this.y.splineMax.evaluate(normalizedTime), pseudoRandom(seed))  * this.x.multiplier,
+                        lerp(this.z.splineMin.evaluate(normalizedTime), this.z.splineMax.evaluate(normalizedTime), pseudoRandom(seed))  * this.x.multiplier);
+                    Vec3.transformQuat(force, force, this.rotation);
+                    force.multiplyScalar(dt);
+                    particles.addVelocityAt(force, i);
+                }
+                break;
+            }
+            default:
             }
         } else {
-            for (let i = 0; i < count; i++) {
-                const normalizedTime = normalizedAliveTime[i];
-                const seed = randomSeed[i] + FORCE_OVERTIME_RAND_OFFSET;
-                const force = Vec3.set(_temp_v3,
-                    this.x.evaluate(normalizedTime, pseudoRandom(seed)),
-                    this.y.evaluate(normalizedTime, pseudoRandom(seed)),
-                    this.z.evaluate(normalizedTime, pseudoRandom(seed)));
-                force.multiplyScalar(dt);
-                particles.addVelocityAt(force, i);
+            switch (this.x.mode) {
+            case CurveRange.Mode.Constant: {
+                for (let i = 0; i < count; i++) {
+                    const force = Vec3.set(_temp_v3,
+                        this.x.constant,
+                        this.y.constant,
+                        this.z.constant);
+                    force.multiplyScalar(dt);
+                    particles.addVelocityAt(force, i);
+                }
+                break;
+            }
+            case CurveRange.Mode.Curve: {
+                for (let i = 0; i < count; i++) {
+                    const normalizedTime = normalizedAliveTime[i];
+                    const force = Vec3.set(_temp_v3,
+                        this.x.spline.evaluate(normalizedTime) * this.x.multiplier,
+                        this.y.spline.evaluate(normalizedTime) * this.y.multiplier,
+                        this.z.spline.evaluate(normalizedTime) * this.z.multiplier);
+                    force.multiplyScalar(dt);
+                    particles.addVelocityAt(force, i);
+                }
+                break;
+            }
+            case CurveRange.Mode.TwoConstants: {
+                for (let i = 0; i < count; i++) {
+                    const seed = randomSeed[i] + FORCE_OVERTIME_RAND_OFFSET;
+                    const force = Vec3.set(_temp_v3,
+                        lerp(this.x.constantMin, this.x.constantMax, pseudoRandom(seed)),
+                        lerp(this.y.constantMin, this.y.constantMax, pseudoRandom(seed)),
+                        lerp(this.z.constantMin, this.z.constantMax, pseudoRandom(seed)));
+                    force.multiplyScalar(dt);
+                    particles.addVelocityAt(force, i);
+                }
+                break;
+            }
+            case CurveRange.Mode.TwoCurves: {
+                for (let i = 0; i < count; i++) {
+                    const normalizedTime = normalizedAliveTime[i];
+                    const seed = randomSeed[i] + FORCE_OVERTIME_RAND_OFFSET;
+                    const force = Vec3.set(_temp_v3,
+                        lerp(this.x.splineMin.evaluate(normalizedTime), this.x.splineMax.evaluate(normalizedTime), pseudoRandom(seed))  * this.x.multiplier,
+                        lerp(this.y.splineMin.evaluate(normalizedTime), this.y.splineMax.evaluate(normalizedTime), pseudoRandom(seed))  * this.x.multiplier,
+                        lerp(this.z.splineMin.evaluate(normalizedTime), this.z.splineMax.evaluate(normalizedTime), pseudoRandom(seed))  * this.x.multiplier);
+                    force.multiplyScalar(dt);
+                    particles.addVelocityAt(force, i);
+                }
+                break;
+            }
+            default:
             }
         }
     }
