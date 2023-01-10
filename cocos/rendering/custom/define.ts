@@ -27,14 +27,15 @@ import { BufferInfo, Buffer, BufferUsageBit, ClearFlagBit, Color, DescriptorSet,
 import { Camera, CSMLevel, DirectionalLight, Light, LightType, ReflectionProbe, ShadowType, SKYBOX_FLAG, SpotLight } from '../../render-scene/scene';
 import { supportsR32FloatTexture } from '../define';
 import { Pipeline } from './pipeline';
-import { AccessType, AttachmentType, ComputeView, LightInfo, QueueHint, RasterView, ResourceResidency, SceneFlags } from './types';
-import { Vec4, macro, geometry, toRadian, cclegacy } from '../../core';
+import { AccessType, AttachmentType, ComputeView, LightInfo, QueueHint, RasterView, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
+import { Vec4, macro, geometry, toRadian, cclegacy, assert } from '../../core';
 import { Material } from '../../asset/assets';
 import { SRGBToLinear } from '../pipeline-funcs';
 import { RenderWindow } from '../../render-scene/core/render-window';
 import { RenderData } from './render-graph';
 import { WebPipeline } from './web-pipeline';
 import { DescriptorSetData } from './layout-graph';
+import { legacyCC } from '../../core/global-exports';
 
 // Anti-aliasing type, other types will be gradually added in the future
 export enum AntiAliasing {
@@ -315,7 +316,7 @@ export function buildBloomPass (camera: Camera,
     }
     ppl.updateRenderTarget(bloomPassPrefilterRTName, width, height);
     ppl.updateDepthStencil(bloomPassPrefilterDSName, width, height);
-    const bloomPrefilterPass = ppl.addRasterPass(width, height, 'Bloom_Prefilter');
+    const bloomPrefilterPass = ppl.addRasterPass(width, height, 'bloom-prefilter');
     bloomPrefilterPass.name = `CameraBloomPrefilterPass${cameraID}`;
     bloomPrefilterPass.setViewport(new Viewport(area.x, area.y, width, height));
     if (ppl.containsResource(inputRT)) {
@@ -347,7 +348,7 @@ export function buildBloomPass (camera: Camera,
         }
         ppl.updateRenderTarget(bloomPassDownSampleRTName, width, height);
         ppl.updateDepthStencil(bloomPassDownSampleDSName, width, height);
-        const bloomDownSamplePass = ppl.addRasterPass(width, height, `Bloom_Downsample${i}`);
+        const bloomDownSamplePass = ppl.addRasterPass(width, height, `bloom-downsample${i}`);
         bloomDownSamplePass.name = `CameraBloomDownSamplePass${cameraID}${i}`;
         bloomDownSamplePass.setViewport(new Viewport(area.x, area.y, width, height));
         const computeView = new ComputeView();
@@ -382,7 +383,7 @@ export function buildBloomPass (camera: Camera,
         }
         ppl.updateRenderTarget(bloomPassUpSampleRTName, width, height);
         ppl.updateDepthStencil(bloomPassUpSampleDSName, width, height);
-        const bloomUpSamplePass = ppl.addRasterPass(width, height, `Bloom_Upsample${i}`);
+        const bloomUpSamplePass = ppl.addRasterPass(width, height, `bloom-upsample${i}`);
         bloomUpSamplePass.name = `CameraBloomUpSamplePass${cameraID}${bloomData.iterations - 1 - i}`;
         bloomUpSamplePass.setViewport(new Viewport(area.x, area.y, width, height));
         const computeView = new ComputeView();
@@ -416,7 +417,7 @@ export function buildBloomPass (camera: Camera,
     }
     ppl.updateRenderTarget(bloomPassCombineRTName, width, height);
     ppl.updateDepthStencil(bloomPassCombineDSName, width, height);
-    const bloomCombinePass = ppl.addRasterPass(width, height, 'Bloom_Combine');
+    const bloomCombinePass = ppl.addRasterPass(width, height, 'bloom-combine');
     bloomCombinePass.name = `CameraBloomCombinePass${cameraID}`;
     bloomCombinePass.setViewport(new Viewport(area.x, area.y, width, height));
     const computeViewOut = new ComputeView();
@@ -486,7 +487,7 @@ export function buildPostprocessPass (camera: Camera,
     }
     ppl.updateRenderWindow(postprocessPassRTName, camera.window);
     ppl.updateDepthStencil(postprocessPassDS, width, height);
-    const postprocessPass = ppl.addRasterPass(width, height, 'Postprocess');
+    const postprocessPass = ppl.addRasterPass(width, height, 'post-process');
     postprocessPass.name = `CameraPostprocessPass${cameraID}`;
     postprocessPass.setViewport(new Viewport(area.x, area.y, area.width, area.height));
     if (ppl.containsResource(inputTex)) {
@@ -777,7 +778,7 @@ export function buildGBufferPass (camera: Camera,
     ppl.updateRenderTarget(gBufferPassEmissive, width, height);
     ppl.updateDepthStencil(gBufferPassDSName, width, height);
     // gbuffer pass
-    const gBufferPass = ppl.addRasterPass(width, height, 'Geometry');
+    const gBufferPass = ppl.addRasterPass(width, height, 'default');
     gBufferPass.name = `CameraGBufferPass${cameraID}`;
     gBufferPass.setViewport(new Viewport(area.x, area.y, area.width, area.height));
     const rtColor = new Color(0, 0, 0, 0);
@@ -866,7 +867,7 @@ export function buildLightingPass (camera: Camera, ppl: Pipeline, gBuffer: GBuff
     ppl.updateRenderTarget(deferredLightingPassRTName, width, height);
     ppl.updateDepthStencil(deferredLightingPassDS, width, height);
     // lighting pass
-    const lightingPass = ppl.addRasterPass(width, height, 'Lighting');
+    const lightingPass = ppl.addRasterPass(width, height, 'deferred-lighting');
     lightingPass.name = `CameraLightingPass${cameraID}`;
     lightingPass.setViewport(new Viewport(area.x, area.y, width, height));
     for (const dirShadowName of cameraInfo.mainLightShadowNames) {
@@ -1106,11 +1107,11 @@ function bindDescValue (desc: DescriptorSet, binding: number, value) {
     }
 }
 
-function bindGlobalDesc (pipeline: Pipeline, binding: number, value) {
-    bindDescValue(pipeline.descriptorSet, binding, value);
+function bindGlobalDesc (desc: DescriptorSet, binding: number, value) {
+    bindDescValue(desc, binding, value);
 }
 
-function getDescBinding (descId, descData: DescriptorSetData): number {
+export function getDescBinding (descId, descData: DescriptorSetData): number {
     const layoutData = descData;
     // find descriptor binding
     for (const block of layoutData.descriptorSetLayoutData.descriptorBlocks) {
@@ -1147,15 +1148,17 @@ export function getDescBindingFromName (bindingName: string) {
     return -1;
 }
 
-function applyGlobalDescBinding (pipeline: Pipeline, data: RenderData, isUpdate = false) {
+function applyGlobalDescBinding (data: RenderData, layout: string, isUpdate = false) {
     const constants = data.constants;
     const samplers = data.samplers;
     const textures = data.textures;
     const device = cclegacy.director.root.device;
-    const currPip = pipeline as WebPipeline;
+    const descriptorSetData = getDescriptorSetDataFromLayout(layout)!;
+    const descriptorSet = descriptorSetData.descriptorSet!;
     for (const [key, value] of constants) {
-        const bindId = getDescBinding(key, currPip.globalDescriptorSetData);
-        let buffer = pipeline.descriptorSet.getBuffer(bindId);
+        const bindId = getDescBinding(key, descriptorSetData);
+        if (bindId === -1) { continue; }
+        let buffer = descriptorSet.getBuffer(bindId);
         let haveBuff = true;
         if (!buffer && !isUpdate) {
             buffer = device.createBuffer(new BufferInfo(BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
@@ -1165,28 +1168,74 @@ function applyGlobalDescBinding (pipeline: Pipeline, data: RenderData, isUpdate 
             haveBuff = false;
         }
         if (isUpdate) buffer.update(new Float32Array(value));
-        if (!haveBuff) bindGlobalDesc(pipeline, bindId, buffer);
+        if (!haveBuff) bindGlobalDesc(descriptorSet, bindId, buffer);
     }
     for (const [key, value] of textures) {
-        const bindId = getDescBinding(key, currPip.globalDescriptorSetData);
-        const tex = pipeline.descriptorSet.getTexture(bindId);
+        const bindId = getDescBinding(key, descriptorSetData);
+        if (bindId === -1) { continue; }
+        const tex = descriptorSet.getTexture(bindId);
         if (!tex || isUpdate) {
-            bindGlobalDesc(pipeline, bindId, value);
+            bindGlobalDesc(descriptorSet, bindId, value);
         }
     }
     for (const [key, value] of samplers) {
-        const bindId = getDescBinding(key, currPip.globalDescriptorSetData);
-        const sampler = pipeline.descriptorSet.getSampler(bindId);
+        const bindId = getDescBinding(key, descriptorSetData);
+        if (bindId === -1) { continue; }
+        const sampler = descriptorSet.getSampler(bindId);
         if (!sampler || isUpdate) {
-            bindGlobalDesc(pipeline, bindId, value);
+            bindGlobalDesc(descriptorSet, bindId, value);
         }
     }
 }
-
-export function initGlobalDescBinding (pipeline: Pipeline, data: RenderData) {
-    applyGlobalDescBinding(pipeline, data);
+const layouts: Map<string, DescriptorSetData> = new Map();
+export function getDescriptorSetDataFromLayout (layoutName: string) {
+    const descLayout = layouts.get(layoutName);
+    if (descLayout) {
+        return descLayout;
+    }
+    const webPip = cclegacy.director.root.pipeline as WebPipeline;
+    const stageId = webPip.layoutGraph.locateChild(webPip.layoutGraph.nullVertex(), layoutName);
+    assert(stageId !== 0xFFFFFFFF);
+    const layout = webPip.layoutGraph.getLayout(stageId);
+    const layoutData = layout.descriptorSets.get(UpdateFrequency.PER_PASS);
+    layouts.set(layoutName, layoutData!);
+    return layoutData;
 }
 
-export function updateGlobalDescBinding (pipeline: Pipeline, data: RenderData) {
-    applyGlobalDescBinding(pipeline, data, true);
+export function initGlobalDescBinding (data: RenderData, layoutName = 'default') {
+    applyGlobalDescBinding(data, layoutName);
+}
+
+export function updateGlobalDescBinding (data: RenderData, layoutName = 'default') {
+    applyGlobalDescBinding(data, layoutName, true);
+}
+
+export function mergeSrcToTargetDesc (fromDesc, toDesc, isForce = false) {
+    fromDesc.update();
+    const fromGpuDesc = fromDesc.gpuDescriptorSet;
+    const toGpuDesc = toDesc.gpuDescriptorSet;
+    const extResId: number[] = [];
+    if (isForce) {
+        toGpuDesc.gpuDescriptors = fromGpuDesc.gpuDescriptors;
+        toGpuDesc.descriptorIndices = fromGpuDesc.descriptorIndices;
+        return extResId;
+    }
+    for (let i = 0; i < toGpuDesc.gpuDescriptors.length; i++) {
+        const fromRes = fromGpuDesc.gpuDescriptors[i];
+        if (!fromRes) continue;
+        const currRes = toGpuDesc.gpuDescriptors[i];
+        if (!currRes.gpuBuffer && fromRes.gpuBuffer) {
+            currRes.gpuBuffer = fromRes.gpuBuffer;
+            extResId.push(i);
+        } else if ('gpuTextureView' in currRes && !currRes.gpuTextureView) {
+            currRes.gpuTextureView = fromRes.gpuTextureView;
+            currRes.gpuSampler = fromRes.gpuSampler;
+            extResId.push(i);
+        } else if ('gpuTexture' in currRes && !currRes.gpuTexture) {
+            currRes.gpuTexture = fromRes.gpuTexture;
+            currRes.gpuSampler = fromRes.gpuSampler;
+            extResId.push(i);
+        }
+    }
+    return extResId;
 }

@@ -11,44 +11,38 @@ import {
 } from '../../cocos/core/data/decorators';
 import { CCClass } from '../../cocos/core/data/class';
 import { property } from '../../cocos/core/data/decorators/property';
+import { getClassByName, unregisterClass } from '../../cocos/core/utils/js-typed';
+import { LegacyPropertyDecorator } from '../../cocos/core/data/decorators/utils';
 
-describe('Decorators signature', () => {
+test('Decorators signature', () => {
     class Foo {}
 
-    property(Foo, 'field1', function initializer () {
+    property(Foo.prototype, 'field1', function initializer () {
         return 1;
     });
-    property(Foo, 'field2', {
+    property(Foo.prototype, 'field2', {
         initializer() {
             return 2;
         },
     });
-    property(Foo, 'property', { value: 1 });
-    property(Foo, 'getset', {
+    property(Foo.prototype, 'property', { value: 1 });
+    property(Foo.prototype, 'getset', {
         get() {
             return 3;
         },
         set(v) {},
     });
-    expect(Foo.constructor['__ccclassCache__']).toMatchInlineSnapshot(`
-        Object {
-          "proto": Object {
-            "properties": Object {
-              "field1": Object {
-                "default": 1,
-              },
-              "field2": Object {
-                "default": 2,
-              },
-              "getset": Object {
-                "get": [Function],
-                "set": [Function],
-              },
-              "property": Object {},
-            },
-          },
-        }
-    `);
+    ccclass('Foo')(Foo);
+    expect(Foo['__attrs__']).toMatchObject({
+        field1$_$default: 1,
+        field2$_$default: 2,
+        getset$_$hasGetter: true,
+        getset$_$hasSetter: true,
+        getset$_$serializable: false,
+    });
+    expect(Foo['__props__']).toMatchObject(['field1', 'field2', 'property', 'getset']);
+
+    unregisterClass(Foo);
 });
 
 describe(`Decorators`, () => {
@@ -270,5 +264,53 @@ describe(`Decorators`, () => {
         }
 
         expect(CCClass.Attr.attr(Tooltip, 'boo').tooltip).toBe('i18n:ENGINE.model.shadow_normal_bias');
+    });
+});
+
+describe('Decorated property test', () => {
+    afterEach(() => {
+        const cls = getClassByName('A');
+        unregisterClass(cls);
+    });
+
+    const t = (descriptorOrInitializer?: Parameters<LegacyPropertyDecorator>[2]) => {
+        class A {
+            test: number;
+        }
+        property(A.prototype, 'test', descriptorOrInitializer);
+        ccclass('A')(A);
+        return CCClass.Attr.attr(A, 'test');
+    };
+
+    test('property without default value', () => {
+        // Simulate `class A { @property test; }`(in babel case)
+        expect(t(null)).toMatchObject({});
+    });
+
+    test('property with default value null', () => {
+        // Simulate `class A { @property test = null; }`(in babel case)
+        expect(t(() => null)).toMatchObject({
+            default: null,
+        });
+    });
+
+    test('property with property descriptor', () => {
+        // Simulate `class A { @property test = null; }`(in babel case)
+        expect(t({
+            configurable: true,
+            enumerable: true,
+            value: 1,
+            writable: true,
+            initializer () { return null; }
+        })).toMatchObject({
+            default: null,
+        });
+    });
+
+    test('property in TSC compiler', () => {
+        // Simulate `class A { @property test; }`(in tsc case)
+        expect(t()).toMatchObject({
+            default: undefined,
+        });
     });
 });

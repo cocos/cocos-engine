@@ -35,9 +35,9 @@ import { IVec3Like, IQuatLike } from '../math/type-define';
 export class Capsule {
     /**
      * @en
-     * Gets the type of the shape.
+     * Gets the type of this Capsule, always returns `enums.SHAPE_CAPSULE`.
      * @zh
-     * 获取形状的类型。
+     * 获取此形状的类型，值固定为 `enums.SHAPE_CAPSULE`。
      */
     get type () {
         return this._type;
@@ -47,9 +47,9 @@ export class Capsule {
 
     /**
      * @en
-     * Capsule sphere radius.
+     * The radius of the sphere in this capsule.
      * @zh
-     * 胶囊体球部半径。
+     * 胶囊体球部的半径。
      */
     radius: number;
 
@@ -63,7 +63,7 @@ export class Capsule {
 
     /**
      * @en
-     * Local orientation of capsule [0,1,2] => [x,y,z].
+     * The local orientation of this capsule [0,1,2] => [x,y,z].
      * @zh
      * 胶囊体的本地朝向，映射关系 [0,1,2] => [x,y,z]。
      */
@@ -95,6 +95,15 @@ export class Capsule {
      */
     readonly ellipseCenter1: Vec3;
 
+    /**
+     * @en
+     * Constructs a Capsule instance.
+     * @zh
+     * 构造一个胶囊体实例。
+     * @param radius @en The radius of the sphere in this capsule. @zh 胶囊体球部的半径。
+     * @param halfHeight @en The distance between the center point of the capsule and the center of the sphere. @zh 胶囊体中心点和球部圆心的距离。
+     * @param axis @en The local orientation of this capsule [0,1,2] => [x,y,z]. @zh 胶囊体的本地朝向，映射关系 [0,1,2] => [x,y,z]。
+     */
     constructor (radius = 0.5, halfHeight = 0.5, axis = 1) {
         this._type = enums.SHAPE_CAPSULE;
         this.radius = radius;
@@ -111,9 +120,9 @@ export class Capsule {
 
     /**
      * @en
-     * Transform this capsule.
+     * Transforms this capsule by a 4x4 matrix and RTS.
      * @zh
-     * 变换此胶囊体。
+     * 使用 4x4 矩阵和 RTS 变换此胶囊体。
      */
     transform (m: Mat4, pos: IVec3Like, rot: IQuatLike, scale: IVec3Like, out: Capsule) {
         const ws = scale;
@@ -130,6 +139,12 @@ export class Capsule {
         out.updateCache();
     }
 
+    /**
+     * @en
+     * Updates the cache.
+     * @zh
+     * 更新缓存。
+     */
     updateCache () {
         this.updateLocalCenter();
         Vec3.transformQuat(this.ellipseCenter0, this.ellipseCenter0, this.rotation);
@@ -138,6 +153,12 @@ export class Capsule {
         this.ellipseCenter1.add(this.center);
     }
 
+    /**
+     * @en
+     * Updates the center points.
+     * @zh
+     * 更新中心点信息。
+     */
     updateLocalCenter () {
         const halfHeight = this.halfHeight;
         const axis = this.axis;

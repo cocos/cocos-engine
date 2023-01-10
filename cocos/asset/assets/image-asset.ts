@@ -24,7 +24,7 @@
 
 // @ts-check
 import { ccclass, override } from 'cc.decorator';
-import { EDITOR, ALIPAY, XIAOMI, JSB, TEST, BAIDU } from 'internal:constants';
+import { EDITOR, ALIPAY, XIAOMI, JSB, TEST, BAIDU, TAOBAO } from 'internal:constants';
 import { Device, Format, FormatFeatureBit, deviceManager } from '../../gfx';
 import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
@@ -163,7 +163,7 @@ function fetchImageSource (imageSource: ImageSource) {
 
 // 返回该图像源是否是平台提供的图像对象。
 function isNativeImage (imageSource: ImageSource): imageSource is (HTMLImageElement | HTMLCanvasElement | ImageBitmap) {
-    if (ALIPAY || XIAOMI || BAIDU) {
+    if (ALIPAY || TAOBAO || XIAOMI || BAIDU) {
         // We're unable to grab the constructors of Alipay native image or canvas object.
         return !('_data' in imageSource);
     }

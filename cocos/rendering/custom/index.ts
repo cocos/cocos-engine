@@ -45,7 +45,7 @@ export * from './types';
 export * from './pipeline';
 export * from './archive';
 
-export const enableEffectImport = false;
+export const enableEffectImport = !EDITOR;
 export const programLib: ProgramLibrary = new WebProgramLibrary(defaultLayoutGraph);
 
 export function createCustomPipeline (): Pipeline {
@@ -54,6 +54,7 @@ export function createCustomPipeline (): Pipeline {
     const ppl = new WebPipeline(layoutGraph);
     const pplName = macro.CUSTOM_PIPELINE_NAME;
     ppl.setCustomPipelineName(pplName);
+    (programLib as WebProgramLibrary).pipeline = ppl;
 
     if (!enableEffectImport) {
         if (pplName === 'Deferred') {
@@ -90,9 +91,11 @@ function addCustomBuiltinPipelines (map: Map<string, PipelineBuilder>) {
 
 addCustomBuiltinPipelines(customPipelineBuilderMap);
 
-export function init (device: Device, arrayBuffer: ArrayBuffer) {
-    const readBinaryData = new BinaryInputArchive(arrayBuffer);
-    loadLayoutGraphData(readBinaryData, defaultLayoutGraph);
+export function init (device: Device, arrayBuffer: ArrayBuffer | null) {
+    if (arrayBuffer) {
+        const readBinaryData = new BinaryInputArchive(arrayBuffer);
+        loadLayoutGraphData(readBinaryData, defaultLayoutGraph);
+    }
     initializeLayoutGraphData(device, defaultLayoutGraph);
 }
 

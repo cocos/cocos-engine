@@ -88,7 +88,7 @@ enum BloomStage {
 }
 
 function buildBloomDownSample (lg, idx: number) {
-    const bloomDownsampleID = lg.addRenderStage(`Bloom_Downsample${idx}`, BloomStage.DOWNSAMPLE);
+    const bloomDownsampleID = lg.addRenderStage(`bloom-downsample${idx}`, BloomStage.DOWNSAMPLE);
     lg.addRenderPhase('Queue', bloomDownsampleID);
     const bloomDownsampleDescriptors = lg.layoutGraph.getDescriptors(bloomDownsampleID);
 
@@ -113,7 +113,7 @@ function buildBloomDownSample (lg, idx: number) {
 }
 
 function buildBloomUpSample (lg, idx: number) {
-    const bloomUpsampleID = lg.addRenderStage(`Bloom_Upsample${idx}`, BloomStage.UPSAMPLE);
+    const bloomUpsampleID = lg.addRenderStage(`bloom-upsample${idx}`, BloomStage.UPSAMPLE);
     lg.addRenderPhase('Queue', bloomUpsampleID);
     const bloomUpsampleDescriptors = lg.layoutGraph.getDescriptors(bloomUpsampleID);
 
@@ -143,7 +143,7 @@ export function buildForwardLayout (ppl: Pipeline) {
     const defaultID = lg.addGlobal('default', true, true, true, true, true, true, true, true);
     lg.mergeDescriptors(defaultID);
     // 1.=== Bloom prefilter ===
-    const bloomPrefilterID = lg.addRenderStage('Bloom_Prefilter', BloomStage.PREFILTER);
+    const bloomPrefilterID = lg.addRenderStage('bloom-prefilter', BloomStage.PREFILTER);
     lg.addRenderPhase('Queue', bloomPrefilterID);
     const bloomPrefilterDescriptors = lg.layoutGraph.getDescriptors(bloomPrefilterID);
     // unifom
@@ -172,7 +172,7 @@ export function buildForwardLayout (ppl: Pipeline) {
     buildBloomUpSample(lg, 0);
     buildBloomUpSample(lg, 1);
     // 4.=== Bloom combine ===
-    const bloomCombineSampleID = lg.addRenderStage('Bloom_Combine', BloomStage.COMBINE);
+    const bloomCombineSampleID = lg.addRenderStage('bloom-combine', BloomStage.COMBINE);
     lg.addRenderPhase('Queue', bloomCombineSampleID);
     const bloomCombineSampleDescriptors = lg.layoutGraph.getDescriptors(bloomCombineSampleID);
 
@@ -201,7 +201,7 @@ export function buildForwardLayout (ppl: Pipeline) {
     lg.merge(bloomCombineSampleDescriptors);
     lg.mergeDescriptors(bloomCombineSampleID);
     // 5.=== Postprocess ===
-    const postPassID = lg.addRenderStage('Postprocess', DeferredStage.POST);
+    const postPassID = lg.addRenderStage('post-process', DeferredStage.POST);
     const postDescriptors = lg.layoutGraph.getDescriptors(postPassID);
     const postPassBlock = lg.getLayoutBlock(UpdateFrequency.PER_PASS,
         ParameterType.TABLE,
@@ -266,8 +266,8 @@ export function buildDeferredLayout (ppl: Pipeline) {
     const defaultID = lg.addGlobal('default', true, true, true, true, true, true, true, true);
     lg.mergeDescriptors(defaultID);
     const geometryPassID = lg.addRenderStage('Geometry', DeferredStage.GEOMETRY);
-    const lightingPassID = lg.addRenderStage('Lighting', DeferredStage.LIGHTING);
-    const postPassID = lg.addRenderStage('Postprocess', DeferredStage.POST);
+    const lightingPassID = lg.addRenderStage('deferred-lighting', DeferredStage.LIGHTING);
+    const postPassID = lg.addRenderStage('post-process', DeferredStage.POST);
 
     const geometryQueueID = lg.addRenderPhase('Queue', geometryPassID);
     const lightingQueueID = lg.addRenderPhase('Queue', lightingPassID);

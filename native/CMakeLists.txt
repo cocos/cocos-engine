@@ -1372,6 +1372,7 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/RenderInterfaceFwd.h
                  cocos/renderer/pipeline/custom/RenderInterfaceTypes.cpp
                  cocos/renderer/pipeline/custom/RenderInterfaceTypes.h
+                 cocos/renderer/pipeline/custom/RenderingModule.h
 )
 
 if (USE_GEOMETRY_RENDERER)

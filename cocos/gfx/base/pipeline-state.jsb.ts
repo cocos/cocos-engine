@@ -585,14 +585,14 @@ export class BlendState {
         this._nativeObj = new gfx.BlendState();
         this._setTargets(targets);
         this.blendColor = blendColor;
-        this.isA2c = isA2C;
+        this.isA2C = isA2C;
         this.isIndepend = isIndepend;
     }
 
-    get isA2c (): boolean {
+    get isA2C (): boolean {
         return this._isA2C;
     }
-    set isA2c (val: boolean) {
+    set isA2C (val: boolean) {
         this._isA2C = val;
         this._nativeObj.isA2C = val;
     }
@@ -628,7 +628,7 @@ export class BlendState {
     }
 
     public reset () {
-        this.isA2c = false;
+        this.isA2C = false;
         this.isIndepend = false;
         this.blendColor = new Color(0, 0, 0, 0);
 
