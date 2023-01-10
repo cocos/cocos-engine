@@ -26444,7 +26444,7 @@ static bool js_cc_ProgramLib_getTemplate(se::State& s)
     SE_PRECONDITION2(ok, false, "Error processing arguments");
     arg2 = &temp2;
     
-    result = (cc::IProgramInfo *)(arg1)->getTemplate((ccstd::string const &)*arg2);
+    result = (cc::IProgramInfo *)((cc::ProgramLib const *)arg1)->getTemplate((ccstd::string const &)*arg2);
     
     ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments");

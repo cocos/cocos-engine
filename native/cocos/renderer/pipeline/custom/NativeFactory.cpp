@@ -78,6 +78,11 @@ ProgramLibrary* getProgramLibrary() {
     return sRenderingModule->programLibrary.get();
 }
 
+RenderingModule* getRenderingModule() {
+    CC_EXPECTS(sRenderingModule);
+    return sRenderingModule;
+}
+
 } // namespace render
 
 } // namespace cc

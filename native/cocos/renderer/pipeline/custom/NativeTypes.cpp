@@ -35,28 +35,27 @@ namespace cc {
 namespace render {
 
 ProgramInfo::ProgramInfo(const allocator_type& alloc) noexcept
-: attributes(alloc),
-  blockSizes(alloc) {}
+: attributes(alloc) {}
 
-ProgramInfo::ProgramInfo(IProgramInfo programInfoIn, gfx::ShaderInfo shaderInfoIn, ccstd::pmr::vector<gfx::Attribute> attributesIn, ccstd::pmr::vector<unsigned> blockSizesIn, Record<ccstd::string, uint32_t> handleMapIn, const allocator_type& alloc) noexcept
+ProgramInfo::ProgramInfo(IProgramInfo programInfoIn, gfx::ShaderInfo shaderInfoIn, ccstd::pmr::vector<gfx::Attribute> attributesIn, ccstd::vector<signed> blockSizesIn, Record<ccstd::string, uint32_t> handleMapIn, const allocator_type& alloc) noexcept
 : programInfo(std::move(programInfoIn)),
   shaderInfo(std::move(shaderInfoIn)),
   attributes(std::move(attributesIn), alloc),
-  blockSizes(std::move(blockSizesIn), alloc),
+  blockSizes(std::move(blockSizesIn)),
   handleMap(std::move(handleMapIn)) {}
 
 ProgramInfo::ProgramInfo(ProgramInfo&& rhs, const allocator_type& alloc)
 : programInfo(std::move(rhs.programInfo)),
   shaderInfo(std::move(rhs.shaderInfo)),
   attributes(std::move(rhs.attributes), alloc),
-  blockSizes(std::move(rhs.blockSizes), alloc),
+  blockSizes(std::move(rhs.blockSizes)),
   handleMap(std::move(rhs.handleMap)) {}
 
 ProgramInfo::ProgramInfo(ProgramInfo const& rhs, const allocator_type& alloc)
 : programInfo(rhs.programInfo),
   shaderInfo(rhs.shaderInfo),
   attributes(rhs.attributes, alloc),
-  blockSizes(rhs.blockSizes, alloc),
+  blockSizes(rhs.blockSizes),
   handleMap(rhs.handleMap) {}
 
 ProgramGroup::ProgramGroup(const allocator_type& alloc) noexcept

@@ -263,8 +263,8 @@ public:
     // infos
     inline Root *getRoot() const { return _root; }
     inline gfx::Device *getDevice() const { return _device; }
-    inline IProgramInfo *getShaderInfo() const { return _shaderInfo; }
-    gfx::DescriptorSetLayout *getLocalSetLayout() const;
+    inline const IProgramInfo *getShaderInfo() const { return _shaderInfo; }
+    const gfx::DescriptorSetLayout *getLocalSetLayout() const;
     inline const ccstd::string &getProgram() const { return _programName; }
     inline const Record<ccstd::string, IPropertyInfo> &getProperties() const { return _properties; }
     inline const MacroRecord &getDefines() const { return _defines; }
@@ -306,6 +306,19 @@ public:
     virtual void beginChangeStatesSilently() {}
     virtual void endChangeStatesSilently() {}
 
+private:
+    void buildUniformBlocks(
+        const ccstd::vector<IBlockInfo> &blocks,
+        const ccstd::vector<int32_t> &blockSizes);
+    void buildMaterialUniformBlocks(
+        const ccstd::vector<gfx::UniformBlock> &blocks,
+        const ccstd::vector<int32_t> &blockSizes);
+    void buildUniformBlock(
+        uint32_t binding, int32_t size,
+        gfx::BufferViewInfo &bufferViewInfo,
+        ccstd::vector<uint32_t> &startOffsets,
+        size_t &count);
+
 protected:
     void setState(const gfx::BlendState &bs, const gfx::DepthStencilState &dss, const gfx::RasterizerState &rs, gfx::DescriptorSet *ds);
     void doInit(const IPassInfoFull &info, bool copyDefines = false);
@@ -325,7 +338,7 @@ protected:
     IntrusivePtr<ArrayBuffer> _rootBlock;
     ccstd::vector<IBlockRef> _blocks; // Point to position in _rootBlock
 
-    IProgramInfo *_shaderInfo; // weakref to template of ProgramLib
+    const IProgramInfo *_shaderInfo; // weakref to template of ProgramLib
     MacroRecord _defines;
     Record<ccstd::string, IPropertyInfo> _properties;
     IntrusivePtr<gfx::Shader> _shader;

@@ -362,7 +362,7 @@ IProgramInfo *ProgramLib::define(IShaderInfo &shader) {
  * @param name Target shader name
  */
 
-IProgramInfo *ProgramLib::getTemplate(const ccstd::string &name) {
+const IProgramInfo *ProgramLib::getTemplate(const ccstd::string &name) const {
     auto it = _templates.find(name);
     return it != _templates.end() ? &it->second : nullptr;
 }
