@@ -26,7 +26,7 @@ import { EDITOR } from 'internal:constants';
 import { CommandBuffer, Device, Rect, RenderPass, Viewport } from '../gfx';
 import { IVec4Like } from '../core';
 import { PipelineStateManager } from './pipeline-state-manager';
-import { SetIndex } from './define';
+import { isEnableEffect, SetIndex } from './define';
 import { Camera, Model } from '../render-scene/scene';
 import { Layers } from '../scene-graph/layers';
 
@@ -77,6 +77,9 @@ export function decideProfilerCamera (cameras: Camera[]) {
 }
 
 export function renderProfiler (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer, profiler: Model | null, camera: Camera) {
+    if (isEnableEffect()) {
+        return;
+    }
     if (!profiler || !profiler.enabled) {
         return;
     }
