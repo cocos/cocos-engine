@@ -770,7 +770,7 @@ export class Game extends EventTarget {
                 this.emit(Game.EVENT_PRE_SUBSYSTEM_INIT);
                 return this.onPreSubsystemInitDelegate.dispatch();
             })
-            .then(() => effectSettings.init(config.effectSettingsPath))
+            .then(() => effectSettings.init(settings.querySettings(Settings.Category.RENDERING, 'effectSettingsPath') as string))
             .then(() => {
                 // initialize custom render pipeline
                 if (!cclegacy.rendering || !cclegacy.rendering.enableEffectImport) {
