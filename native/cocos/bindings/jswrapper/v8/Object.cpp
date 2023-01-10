@@ -150,6 +150,13 @@ void Object::cleanup() {
     SE_ASSERT(NativePtrToObjectMap::size() == 0, "NativePtrToObjectMap should be empty!");
 }
 
+Object *Object::createProxyTarget(se::Object *proxy) {
+    SE_ASSERT(proxy->isProxy(), "parameter is not a Proxy object");
+    v8::Local<v8::Object> jsobj = proxy->getProxyTarget().As<v8::Object>();
+    Object *obj = Object::_createJSObject(nullptr, jsobj);
+    return obj;
+}
+
 Object *Object::createPlainObject() {
     v8::Local<v8::Object> jsobj = v8::Object::New(__isolate);
     Object *obj = _createJSObject(nullptr, jsobj);
@@ -564,6 +571,17 @@ bool Object::isTypedArray() const {
     return const_cast<Object *>(this)->_obj.handle(__isolate)->IsTypedArray();
 }
 
+bool Object::isProxy() const {
+    return const_cast<Object *>(this)->_obj.handle(__isolate)->IsProxy();
+}
+
+v8::Local<v8::Value> Object::getProxyTarget() const {
+    v8::Local<v8::Value> value = const_cast<Object *>(this)->_obj.handle(__isolate);
+    CC_ASSERTF(value->IsProxy(), "Object is not a Proxy");
+    v8::Proxy *proxy = v8::Proxy::Cast(*value);
+    return proxy->GetTarget();
+}
+
 Object::TypedArrayType Object::getTypedArrayType() const {
     v8::Local<v8::Value> value = const_cast<Object *>(this)->_obj.handle(__isolate);
     TypedArrayType ret = TypedArrayType::NONE;
@@ -794,8 +812,7 @@ bool Object::getArrayLength(uint32_t *length) const {
     CC_ASSERT(isArray());
     CC_ASSERT_NOT_NULL(length);
     auto *thiz = const_cast<Object *>(this);
-
-    v8::Local<v8::Array> v8Arr = v8::Local<v8::Array>::Cast(thiz->_obj.handle(__isolate));
+    auto v8Arr = v8::Local<v8::Array>::Cast(thiz->_obj.handle(__isolate));
     *length = v8Arr->Length();
     return true;
 }

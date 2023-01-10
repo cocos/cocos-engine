@@ -246,11 +246,15 @@ function setDefaultValue<T> (
     propertyStash: PropertyStash,
     classConstructor: new () => T,
     propertyKey: PropertyKey,
-    descriptorOrInitializer: BabelPropertyDecoratorDescriptor | Initializer | undefined,
+    descriptorOrInitializer: BabelPropertyDecoratorDescriptor | Initializer | undefined | null,
 ) {
-    if (descriptorOrInitializer) {
+    if (descriptorOrInitializer !== undefined) {
         if (typeof descriptorOrInitializer === 'function') {
             propertyStash.default = getDefaultFromInitializer(descriptorOrInitializer);
+        } else if (descriptorOrInitializer === null) {
+            // some decorated properties we haven't specified default value, then the initializer should be null.
+            // We fallback to the behavior of v3.6.3, where we don't specify default value automatically.
+            // propertyStash.default = undefined;
         } else if (descriptorOrInitializer.initializer) {
             // In case of Babel, if an initializer is given for class field.
             // That initializer is passed to `descriptor.initializer`.
@@ -259,6 +263,7 @@ function setDefaultValue<T> (
     } else {
         // In case of TypeScript, we can not directly capture the initializer.
         // We have to be hacking to extract the value.
+        // We should fallback to TypeScript case only when `descriptorOrInitializer` is undefined.
         const actualDefaultValues = classStash.default || (classStash.default = extractActualDefaultValues(classConstructor));
         // eslint-disable-next-line no-prototype-builtins
         if ((actualDefaultValues as any).hasOwnProperty(propertyKey)) {

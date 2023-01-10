@@ -31,6 +31,7 @@
 #include "NativePipelineTypes.h"
 #include "ProgramLib.h"
 #include "ProgramUtils.h"
+#include "base/Ptr.h"
 #include "cocos/base/Log.h"
 #include "cocos/core/assets/EffectAsset.h"
 #include "cocos/renderer/core/ProgramUtils.h"
@@ -39,7 +40,10 @@
 #include "cocos/renderer/pipeline/custom/LayoutGraphGraphs.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
 #include "gfx-base/GFXDescriptorSetLayout.h"
+#include "gfx-base/GFXShader.h"
+#include "pipeline/custom/NativePipelineFwd.h"
 #include "pipeline/custom/PrivateTypes.h"
+#include "pipeline/custom/RenderCommonTypes.h"
 #include "pipeline/custom/details/GslUtils.h"
 
 namespace cc {
@@ -556,6 +560,137 @@ void populateLocalShaderInfo(
     }
 }
 
+uint32_t getIDescriptorSetLayoutInfoUniformBlockCapacity(const pipeline::DescriptorSetLayoutInfos &info) {
+    uint32_t capacity = 0;
+    for (const auto &binding : info.bindings) {
+        if (binding.descriptorType == gfx::DescriptorType::UNIFORM_BUFFER ||
+            binding.descriptorType == gfx::DescriptorType::DYNAMIC_UNIFORM_BUFFER) {
+            capacity += binding.count;
+        }
+    }
+    return capacity;
+}
+
+uint32_t getIDescriptorSetLayoutInfoSamplerTextureCapacity(const pipeline::DescriptorSetLayoutInfos &info) {
+    uint32_t capacity = 0;
+    for (const auto &binding : info.bindings) {
+        if (binding.descriptorType != gfx::DescriptorType::UNIFORM_BUFFER &&
+            binding.descriptorType != gfx::DescriptorType::DYNAMIC_UNIFORM_BUFFER) {
+            capacity += binding.count;
+        }
+    }
+    return capacity;
+}
+
+void setFlattenedUniformBlockBinding(
+    const std::array<uint32_t, 4> &setOffsets,
+    ccstd::vector<gfx::UniformBlock> &descriptors) {
+    for (auto &d : descriptors) {
+        d.flattened = setOffsets[d.set] + d.binding;
+    }
+}
+
+template <class Desc>
+void setFlattenedSamplerTextureBinding(
+    const std::array<uint32_t, 4> &setOffsets,
+    const std::array<uint32_t, 4> &uniformBlockCapacities,
+    ccstd::vector<Desc> &descriptors) {
+    for (auto &d : descriptors) {
+        d.flattened = setOffsets[d.set] + d.binding - uniformBlockCapacities[d.set];
+    }
+}
+
+void calculateFlattenedBinding(
+    const std::array<const DescriptorSetLayoutData *, 4> &descriptorSets,
+    const pipeline::DescriptorSetLayoutInfos *fixedInstanceDescriptorSetLayout,
+    gfx::ShaderInfo &shaderInfo) {
+    // Descriptors of UniformBlock starts from 0, and Descriptors of SamplerTexture starts from the end of UniformBlock.
+    std::array<uint32_t, 4> uniformBlockCapacities{};
+    {
+        const auto passCapacity =
+            descriptorSets[static_cast<size_t>(UpdateFrequency::PER_PASS)]
+                ? descriptorSets[static_cast<size_t>(UpdateFrequency::PER_PASS)]->uniformBlockCapacity
+                : 0;
+        const auto phaseCapacity =
+            descriptorSets[static_cast<size_t>(UpdateFrequency::PER_PHASE)]
+                ? descriptorSets[static_cast<size_t>(UpdateFrequency::PER_PHASE)]->uniformBlockCapacity
+                : 0;
+        const auto batchCapacity =
+            descriptorSets[static_cast<size_t>(UpdateFrequency::PER_BATCH)]
+                ? descriptorSets[static_cast<size_t>(UpdateFrequency::PER_BATCH)]->uniformBlockCapacity
+                : 0;
+        const auto instanceCapacity =
+            fixedInstanceDescriptorSetLayout
+                ? getIDescriptorSetLayoutInfoUniformBlockCapacity(*fixedInstanceDescriptorSetLayout)
+                : (descriptorSets[static_cast<size_t>(UpdateFrequency::PER_INSTANCE)]
+                       ? descriptorSets[static_cast<size_t>(UpdateFrequency::PER_INSTANCE)]->uniformBlockCapacity
+                       : 0);
+
+        // update uniform block capacities
+        uniformBlockCapacities[setIndex(UpdateFrequency::PER_PASS)] = passCapacity;
+        uniformBlockCapacities[setIndex(UpdateFrequency::PER_PHASE)] = phaseCapacity;
+        uniformBlockCapacities[setIndex(UpdateFrequency::PER_BATCH)] = batchCapacity;
+        uniformBlockCapacities[setIndex(UpdateFrequency::PER_INSTANCE)] = instanceCapacity;
+
+        // calculate uniform block offsets
+        const auto passOffset = 0;
+        const auto phaseOffset = passOffset + passCapacity;
+        const auto instanceOffset = phaseOffset + phaseCapacity;
+        const auto batchOffset = instanceOffset + instanceCapacity;
+
+        // save uniform block offsets by set index
+        std::array<uint32_t, 4> uniformBlockOffsets{};
+        uniformBlockOffsets[setIndex(UpdateFrequency::PER_PASS)] = passOffset;
+        uniformBlockOffsets[setIndex(UpdateFrequency::PER_PHASE)] = phaseOffset;
+        uniformBlockOffsets[setIndex(UpdateFrequency::PER_BATCH)] = batchOffset;
+        uniformBlockOffsets[setIndex(UpdateFrequency::PER_INSTANCE)] = instanceOffset;
+
+        // update flattened uniform block binding
+        setFlattenedUniformBlockBinding(uniformBlockOffsets, shaderInfo.blocks);
+    }
+    {
+        // calculate sampler texture capacities
+        const auto passCapacity =
+            descriptorSets[static_cast<size_t>(UpdateFrequency::PER_PASS)]
+                ? descriptorSets[static_cast<size_t>(UpdateFrequency::PER_PASS)]->samplerTextureCapacity
+                : 0;
+        const auto phaseCapacity =
+            descriptorSets[static_cast<size_t>(UpdateFrequency::PER_PHASE)]
+                ? descriptorSets[static_cast<size_t>(UpdateFrequency::PER_PHASE)]->samplerTextureCapacity
+                : 0;
+        const auto batchCapacity =
+            descriptorSets[static_cast<size_t>(UpdateFrequency::PER_BATCH)]
+                ? descriptorSets[static_cast<size_t>(UpdateFrequency::PER_BATCH)]->samplerTextureCapacity
+                : 0;
+        const auto instanceCapacity =
+            fixedInstanceDescriptorSetLayout
+                ? getIDescriptorSetLayoutInfoSamplerTextureCapacity(*fixedInstanceDescriptorSetLayout)
+                : (descriptorSets[static_cast<size_t>(UpdateFrequency::PER_INSTANCE)]
+                       ? descriptorSets[static_cast<size_t>(UpdateFrequency::PER_INSTANCE)]->samplerTextureCapacity
+                       : 0);
+
+        // calculate sampler texture offsets
+        const auto passOffset = 0;
+        const auto phaseOffset = passOffset + passCapacity;
+        const auto instanceOffset = phaseOffset + phaseCapacity;
+        const auto batchOffset = instanceOffset + instanceCapacity;
+
+        // save sampler texture offsets by set index
+        std::array<uint32_t, 4> samplerTextureOffsets{};
+        samplerTextureOffsets[setIndex(UpdateFrequency::PER_PASS)] = passOffset;
+        samplerTextureOffsets[setIndex(UpdateFrequency::PER_PHASE)] = phaseOffset;
+        samplerTextureOffsets[setIndex(UpdateFrequency::PER_BATCH)] = batchOffset;
+        samplerTextureOffsets[setIndex(UpdateFrequency::PER_INSTANCE)] = instanceOffset;
+
+        // update flattened sampler texture binding
+        setFlattenedSamplerTextureBinding(samplerTextureOffsets, uniformBlockCapacities, shaderInfo.samplerTextures);
+        setFlattenedSamplerTextureBinding(samplerTextureOffsets, uniformBlockCapacities, shaderInfo.samplers);
+        setFlattenedSamplerTextureBinding(samplerTextureOffsets, uniformBlockCapacities, shaderInfo.textures);
+        setFlattenedSamplerTextureBinding(samplerTextureOffsets, uniformBlockCapacities, shaderInfo.buffers);
+        setFlattenedSamplerTextureBinding(samplerTextureOffsets, uniformBlockCapacities, shaderInfo.images);
+    }
+}
+
 void makeShaderInfo(
     LayoutGraphData &lg,
     const PipelineLayoutData &passLayouts, // NOLINT(bugprone-easily-swappable-parameters)
@@ -565,9 +700,12 @@ void makeShaderInfo(
     bool fixedLocal,
     gfx::ShaderInfo &shaderInfo,
     ccstd::pmr::vector<uint32_t> &blockSizes) {
+    std::array<const DescriptorSetLayoutData *, 4> descriptorSets{};
+    const pipeline::DescriptorSetLayoutInfos *fixedInstanceDescriptorSetLayout = nullptr;
     { // pass
         auto iter = passLayouts.descriptorSets.find(UpdateFrequency::PER_PASS);
         if (iter != passLayouts.descriptorSets.end()) {
+            descriptorSets[static_cast<size_t>(UpdateFrequency::PER_PASS)] = &iter->second.descriptorSetLayoutData;
             populateMergedShaderInfo(
                 lg.valueNames, iter->second.descriptorSetLayoutData,
                 setIndex(UpdateFrequency::PER_PASS),
@@ -577,6 +715,7 @@ void makeShaderInfo(
     { // phase
         auto iter = phaseLayouts.descriptorSets.find(UpdateFrequency::PER_PHASE);
         if (iter != passLayouts.descriptorSets.end()) {
+            descriptorSets[static_cast<size_t>(UpdateFrequency::PER_PHASE)] = &iter->second.descriptorSetLayoutData;
             populateMergedShaderInfo(
                 lg.valueNames, iter->second.descriptorSetLayoutData,
                 setIndex(UpdateFrequency::PER_PHASE),
@@ -589,6 +728,7 @@ void makeShaderInfo(
         if (programData) {
             auto iter = programData->layout.descriptorSets.find(UpdateFrequency::PER_BATCH);
             if (iter != programData->layout.descriptorSets.end()) {
+                descriptorSets[static_cast<size_t>(UpdateFrequency::PER_BATCH)] = &iter->second.descriptorSetLayoutData;
                 populateMergedShaderInfo(
                     lg.valueNames, iter->second.descriptorSetLayoutData,
                     setIndex(UpdateFrequency::PER_BATCH),
@@ -597,6 +737,7 @@ void makeShaderInfo(
         } else {
             auto iter = phaseLayouts.descriptorSets.find(UpdateFrequency::PER_BATCH);
             if (iter != phaseLayouts.descriptorSets.end()) {
+                descriptorSets[static_cast<size_t>(UpdateFrequency::PER_BATCH)] = &iter->second.descriptorSetLayoutData;
                 populateGroupedShaderInfo(
                     iter->second.descriptorSetLayoutData,
                     batchInfo, setIndex(UpdateFrequency::PER_BATCH),
@@ -609,6 +750,7 @@ void makeShaderInfo(
             static_cast<uint32_t>(UpdateFrequency::PER_INSTANCE));
         if (programData) {
             if (fixedLocal) {
+                fixedInstanceDescriptorSetLayout = &pipeline::localDescriptorSetLayout;
                 populateLocalShaderInfo(
                     instanceInfo,
                     pipeline::localDescriptorSetLayout, shaderInfo, blockSizes);
@@ -616,6 +758,7 @@ void makeShaderInfo(
                 auto iter = programData->layout.descriptorSets.find(
                     UpdateFrequency::PER_INSTANCE);
                 if (iter != programData->layout.descriptorSets.end()) {
+                    descriptorSets[static_cast<size_t>(UpdateFrequency::PER_INSTANCE)] = &iter->second.descriptorSetLayoutData;
                     populateMergedShaderInfo(
                         lg.valueNames, iter->second.descriptorSetLayoutData,
                         setIndex(UpdateFrequency::PER_INSTANCE),
@@ -625,6 +768,7 @@ void makeShaderInfo(
         } else {
             auto iter = phaseLayouts.descriptorSets.find(UpdateFrequency::PER_INSTANCE);
             if (iter != phaseLayouts.descriptorSets.end()) {
+                descriptorSets[static_cast<size_t>(UpdateFrequency::PER_INSTANCE)] = &iter->second.descriptorSetLayoutData;
                 populateGroupedShaderInfo(
                     iter->second.descriptorSetLayoutData,
                     instanceInfo, setIndex(UpdateFrequency::PER_INSTANCE),
@@ -632,6 +776,9 @@ void makeShaderInfo(
             }
         }
     }
+    calculateFlattenedBinding(descriptorSets, fixedInstanceDescriptorSetLayout, shaderInfo);
+    shaderInfo.stages.emplace_back(gfx::ShaderStage{gfx::ShaderStageFlagBit::VERTEX, ""});
+    shaderInfo.stages.emplace_back(gfx::ShaderStage{gfx::ShaderStageFlagBit::FRAGMENT, ""});
 }
 
 // overwrite IProgramInfo using gfx.ShaderInfo
@@ -691,10 +838,10 @@ gfx::DescriptorSetLayout *getDescriptorSetLayout(
 gfx::DescriptorSetLayout *getProgramDescriptorSetLayout(
     gfx::Device *device,
     LayoutGraphData &lg, uint32_t phaseID,
-    const ccstd::pmr::string &programName, UpdateFrequency rate) {
+    const ccstd::string &programName, UpdateFrequency rate) {
     CC_EXPECTS(rate < UpdateFrequency::PER_PHASE);
     auto &phase = get(RenderPhaseTag{}, phaseID, lg);
-    const auto iter = phase.shaderIndex.find(programName);
+    const auto iter = phase.shaderIndex.find(std::string_view{programName});
     if (iter == phase.shaderIndex.end()) {
         return nullptr;
     }
@@ -807,9 +954,10 @@ void NativeProgramLibrary::addEffect(EffectAsset *effectAssetIn) {
             // programs
             auto iter = this->phases.find(phaseID);
             if (iter == this->phases.end()) {
-                iter = this->phases.emplace(std::piecewise_construct,
-                                            std::forward_as_tuple(phaseID),
-                                            std::forward_as_tuple())
+                iter = this->phases.emplace(
+                                       std::piecewise_construct,
+                                       std::forward_as_tuple(phaseID),
+                                       std::forward_as_tuple())
                            .first;
             }
             auto &phasePrograms = iter->second.programInfos;
@@ -870,7 +1018,7 @@ void NativeProgramLibrary::precompileEffect(gfx::Device *device, EffectAsset *ef
 }
 
 ccstd::string NativeProgramLibrary::getKey(
-    uint32_t phaseID, const ccstd::pmr::string &programName,
+    uint32_t phaseID, const ccstd::string &programName,
     const MacroRecord &defines) const {
     auto iter = phases.find(phaseID);
     if (iter == phases.end()) {
@@ -878,7 +1026,7 @@ ccstd::string NativeProgramLibrary::getKey(
         return "";
     }
     const auto &phase = iter->second;
-    auto iter2 = phase.programInfos.find(programName);
+    auto iter2 = phase.programInfos.find(std::string_view{programName});
     if (iter2 == phase.programInfos.end()) {
         CC_LOG_ERROR("program not found");
         return "";
@@ -887,29 +1035,29 @@ ccstd::string NativeProgramLibrary::getKey(
     return getVariantKey(info.programInfo, defines);
 }
 
-const gfx::PipelineLayout &NativeProgramLibrary::getPipelineLayout(
-    gfx::Device *device, uint32_t phaseID, const ccstd::pmr::string &programName) {
+IntrusivePtr<gfx::PipelineLayout> NativeProgramLibrary::getPipelineLayout(
+    gfx::Device *device, uint32_t phaseID, const ccstd::string &programName) {
     if (mergeHighFrequency) {
         CC_EXPECTS(phaseID != LayoutGraphData::null_vertex());
         const auto &layout = get(RenderPhaseTag{}, phaseID, layoutGraph);
-        return *layout.pipelineLayout;
+        return layout.pipelineLayout;
     }
     auto &lg = layoutGraph;
     auto &phase = get(RenderPhaseTag{}, phaseID, lg);
-    const auto iter = phase.shaderIndex.find(programName);
+    const auto iter = phase.shaderIndex.find(std::string_view{programName});
     if (iter == phase.shaderIndex.end()) {
-        return *emptyPipelineLayout;
+        return emptyPipelineLayout;
     }
     const auto programID = iter->second;
     auto &programData = phase.shaderPrograms.at(programID);
     if (programData.pipelineLayout) {
-        return *programData.pipelineLayout;
+        return programData.pipelineLayout;
     }
 
     // get pass
     const auto passID = parent(phaseID, lg);
     if (passID == LayoutGraphData::null_vertex()) {
-        return *emptyPipelineLayout;
+        return emptyPipelineLayout;
     }
     // create pipeline layout
     gfx::PipelineLayoutInfo info{};
@@ -932,7 +1080,7 @@ const gfx::PipelineLayout &NativeProgramLibrary::getPipelineLayout(
         info.setLayouts.emplace_back(instanceSet);
     }
     programData.pipelineLayout = device->createPipelineLayout(info);
-    return *programData.pipelineLayout;
+    return programData.pipelineLayout;
 }
 
 const gfx::DescriptorSetLayout &NativeProgramLibrary::getMaterialDescriptorSetLayout(
@@ -973,19 +1121,25 @@ const gfx::ShaderInfo &NativeProgramLibrary::getShaderInfo(
 
 ProgramProxy *NativeProgramLibrary::getProgramVariant(
     gfx::Device *device, uint32_t phaseID, const ccstd::string &name,
-    const MacroRecord &defines, const ccstd::pmr::string *key0) const {
+    MacroRecord &defines, const ccstd::pmr::string *key0) {
+    if (pipeline) {
+        for (const auto &it : pipeline->getMacros()) {
+            defines[it.first] = it.second;
+        }
+    }
+
     auto iter = phases.find(phaseID);
     if (iter == phases.end()) {
         CC_LOG_ERROR("phase not found");
         return nullptr;
     }
-    const auto &phase = iter->second;
+    auto &phase = iter->second;
     auto iter2 = phase.programInfos.find(std::string_view{name});
     if (iter2 == phase.programInfos.end()) {
         CC_LOG_ERROR("program not found");
         return nullptr;
     }
-    const auto &info = iter2->second;
+    auto &info = iter2->second;
 
     const auto &programInfo = info.programInfo;
 
@@ -999,48 +1153,83 @@ ProgramProxy *NativeProgramLibrary::getProgramVariant(
         key = *key0;
     }
 
-    auto iter3 = phase.programHosts.find(key);
-    if (iter3 != phase.programHosts.end()) {
-        return new NativeProgramProxy(iter3->second.program);
+    auto iter3 = phase.programProxies.find(key);
+    if (iter3 != phase.programProxies.end()) {
+        return iter3->second.get();
     }
 
-    std::ignore = device;
-    std::ignore = phaseID;
-    std::ignore = name;
-    std::ignore = defines;
-    std::ignore = key;
-    return nullptr;
+    // prepare defines
+    ccstd::vector<IMacroInfo> macroArray = render::prepareDefines(defines, programInfo.defines);
+    std::stringstream ss;
+    ss << std::endl;
+    for (const auto &m : macroArray) {
+        ss << "#define " << m.name << " " << m.value << std::endl;
+    }
+    auto prefix = pipeline->getConstantMacros() + programInfo.constantMacros + ss.str();
+
+    const IShaderSource *src = &programInfo.glsl3;
+    const auto *deviceShaderVersion = getDeviceShaderVersion(device);
+    if (deviceShaderVersion) {
+        src = programInfo.getSource(deviceShaderVersion);
+    } else {
+        CC_LOG_ERROR("Invalid GFX API!");
+    }
+    info.shaderInfo.stages[0].source = prefix + src->vert;
+    info.shaderInfo.stages[1].source = prefix + src->frag;
+
+    // strip out the active attributes only, instancing depend on this
+    info.shaderInfo.attributes = getActiveAttributes(programInfo, info.attributes, defines);
+
+    info.shaderInfo.name = getShaderInstanceName(name, macroArray);
+
+    IntrusivePtr<gfx::Shader> shader = device->createShader(info.shaderInfo);
+    auto res = phase.programProxies.emplace(
+        key,
+        IntrusivePtr<ProgramProxy>(new NativeProgramProxy(std::move(shader))));
+    CC_ENSURES(res.second);
+
+    return res.first->second.get();
 }
 
 const ccstd::pmr::vector<unsigned> &NativeProgramLibrary::getBlockSizes(
     uint32_t phaseID, const ccstd::pmr::string &programName) const {
-    std::ignore = phaseID;
-    std::ignore = programName;
-    throw std::runtime_error("not implemented");
+    CC_EXPECTS(phaseID != LayoutGraphData::null_vertex());
+    const auto &group = phases.at(phaseID);
+    const auto &info = group.programInfos.at(programName);
+    return info.blockSizes;
 }
 
 const Record<ccstd::string, uint32_t> &NativeProgramLibrary::getHandleMap(
     uint32_t phaseID, const ccstd::pmr::string &programName) const {
-    std::ignore = phaseID;
-    std::ignore = programName;
-    throw std::runtime_error("not implemented");
+    CC_EXPECTS(phaseID != LayoutGraphData::null_vertex());
+    const auto &group = phases.at(phaseID);
+    const auto &info = group.programInfos.at(programName);
+    return info.handleMap;
 }
 
 uint32_t NativeProgramLibrary::getProgramID(
     uint32_t phaseID, const ccstd::pmr::string &programName) {
-    std::ignore = phaseID;
-    std::ignore = programName;
-    throw std::runtime_error("not implemented");
+    CC_EXPECTS(phaseID != LayoutGraphData::null_vertex());
+    const auto &phase = get(RenderPhaseTag{}, phaseID, layoutGraph);
+    auto iter = phase.shaderIndex.find(programName);
+    if (iter == phase.shaderIndex.end()) {
+        CC_LOG_ERROR("program not found");
+        return LayoutGraphData::null_vertex();
+    }
+    return iter->second;
 }
 
 uint32_t NativeProgramLibrary::getDescriptorNameID(const ccstd::pmr::string &name) {
-    std::ignore = name;
-    return 0xFFFFFFFF;
+    const auto iter = layoutGraph.attributeIndex.find(name);
+    if (iter == layoutGraph.attributeIndex.end()) {
+        CC_LOG_ERROR("descriptor name not found");
+        return 0xFFFFFFFF;
+    }
+    return iter->second.value;
 }
 
 const ccstd::pmr::string &NativeProgramLibrary::getDescriptorName(uint32_t nameID) {
-    std::ignore = nameID;
-    throw std::runtime_error("not implemented");
+    return layoutGraph.valueNames.at(static_cast<size_t>(nameID));
 }
 
 } // namespace render

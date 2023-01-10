@@ -125,11 +125,11 @@ export class ReflectionProbe extends Component {
      */
     @type(Enum(ProbeType))
     set probeType (value: number) {
+        this.probe.probeType = value;
         if (value !== this._probeType) {
             const lastSize = this._size.clone();
             const lastSizeIsNoExist = Vec3.equals(this._lastSize, Vec3.ZERO);
             this._probeType = value;
-            this.probe.probeType = value;
 
             if (this._probeType === ProbeType.CUBE) {
                 if (lastSizeIsNoExist) {

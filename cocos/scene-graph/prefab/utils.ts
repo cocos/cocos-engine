@@ -432,8 +432,10 @@ export function expandNestedPrefabInstanceNode (node: Node) {
         prefabInfo.nestedPrefabInstanceRoots.forEach((instanceNode: Node) => {
             expandPrefabInstanceNode(instanceNode);
             // when expanding the prefab,it's children will be change,so need to apply after expanded
-            // @ts-expect-error private member access
-            applyNodeAndComponentId(instanceNode, instanceNode._prefab?.instance?.fileId);
+            if (!EDITOR) {
+                // @ts-expect-error private member access
+                applyNodeAndComponentId(instanceNode, instanceNode._prefab?.instance?.fileId);
+            }
         });
     }
 }

@@ -24,17 +24,18 @@
 
 /* eslint-disable max-len */
 import { EffectAsset } from '../../asset/assets';
-import { Attribute, DescriptorSetLayout, DESCRIPTOR_BUFFER_TYPE, DESCRIPTOR_SAMPLER_TYPE, Device, MemoryAccessBit, PipelineLayout, PipelineLayoutInfo, Shader, ShaderInfo, ShaderStage, ShaderStageFlagBit, Type, Uniform, UniformBlock, UniformInputAttachment, UniformSampler, UniformSamplerTexture, UniformStorageBuffer, UniformStorageImage, UniformTexture } from '../../gfx';
+import { Attribute, DescriptorSetLayout, DescriptorType, DESCRIPTOR_BUFFER_TYPE, DESCRIPTOR_SAMPLER_TYPE, Device, MemoryAccessBit, PipelineLayout, PipelineLayoutInfo, Shader, ShaderInfo, ShaderStage, ShaderStageFlagBit, Type, Uniform, UniformBlock, UniformInputAttachment, UniformSampler, UniformSamplerTexture, UniformStorageBuffer, UniformStorageImage, UniformTexture } from '../../gfx';
 import { genHandles, getActiveAttributes, getCombinationDefines, getShaderInstanceName, getSize, getVariantKey, populateMacros, prepareDefines } from '../../render-scene/core/program-utils';
 import { getDeviceShaderVersion, MacroRecord } from '../../render-scene';
 import { IProgramInfo } from '../../render-scene/core/program-lib';
 import { DescriptorBlockData, DescriptorData, DescriptorSetData, DescriptorSetLayoutData, LayoutGraphData, LayoutGraphDataValue, PipelineLayoutData, RenderPhaseData, ShaderProgramData } from './layout-graph';
 import { ProgramLibrary, ProgramProxy } from './private';
 import { DescriptorTypeOrder, UpdateFrequency } from './types';
-import { ProgramGroup, ProgramHost, ProgramInfo } from './web-types';
+import { ProgramGroup, ProgramInfo } from './web-types';
 import { getCustomPassID, getCustomPhaseID, getOrCreateDescriptorSetLayout, getEmptyDescriptorSetLayout, getEmptyPipelineLayout, initializeDescriptorSetLayoutInfo, makeDescriptorSetLayoutData, getDescriptorSetLayout, getOrCreateDescriptorID, getDescriptorTypeOrder, getProgramID, getDescriptorNameID, getDescriptorName, INVALID_ID } from './layout-graph-utils';
 import { assert } from '../../core/platform/debug';
 import { IDescriptorSetLayoutInfo, localDescriptorSetLayout } from '../define';
+import { PipelineRuntime } from './pipeline';
 
 const _setIndex = [2, 1, 3, 0];
 
@@ -339,25 +340,46 @@ function populateLocalShaderInfo (
     }
 }
 
-function setFlattenedBinding (setOffsets: number[],
-    descriptors: UniformBlock[]
-    | UniformSamplerTexture[]
+function getIDescriptorSetLayoutInfoUniformBlockCapacity (info: IDescriptorSetLayoutInfo): number {
+    let capacity = 0;
+    for (const binding of info.bindings) {
+        if (binding.descriptorType === DescriptorType.UNIFORM_BUFFER
+            || binding.descriptorType === DescriptorType.DYNAMIC_UNIFORM_BUFFER) {
+            capacity += binding.count;
+        }
+    }
+    return capacity;
+}
+
+function getIDescriptorSetLayoutInfoSamplerTextureCapacity (info: IDescriptorSetLayoutInfo): number {
+    let capacity = 0;
+    for (const binding of info.bindings) {
+        if (binding.descriptorType !== DescriptorType.UNIFORM_BUFFER
+            && binding.descriptorType !== DescriptorType.DYNAMIC_UNIFORM_BUFFER) {
+            capacity += binding.count;
+        }
+    }
+    return capacity;
+}
+
+function setFlattenedUniformBlockBinding (setOffsets: number[],
+    descriptors: UniformBlock[]) {
+    for (const d of descriptors) {
+        d.flattened = setOffsets[d.set] + d.binding;
+    }
+}
+
+function setFlattenedSamplerTextureBinding (setOffsets: number[],
+    uniformBlockCapacities: number[],
+    descriptors: UniformSamplerTexture[]
     | UniformSampler[]
     | UniformTexture[]
     | UniformStorageBuffer[]
     | UniformStorageImage[]
     | UniformInputAttachment[]) {
     for (const d of descriptors) {
-        d.flattened = setOffsets[d.set] + d.binding;
+        d.flattened = setOffsets[d.set] + d.binding - uniformBlockCapacities[d.set];
     }
-}
-
-function getIDescriptorSetLayoutInfoCapacity (info: IDescriptorSetLayoutInfo): number {
-    let capacity = 0;
-    for (const binding of info.bindings) {
-        capacity += binding.count;
-    }
-    return capacity;
 }
 
 function calculateFlattenedBinding (
@@ -365,30 +387,67 @@ function calculateFlattenedBinding (
     fixedInstanceDescriptorSetLayout: IDescriptorSetLayoutInfo | null,
     shaderInfo: ShaderInfo,
 ) {
-    const passCapacity = descriptorSets[UpdateFrequency.PER_PASS]?.capacity || 0;
-    const phaseCapacity = descriptorSets[UpdateFrequency.PER_PHASE]?.capacity || 0;
-    // const batchCapacity = descriptorSets[UpdateFrequency.PER_BATCH]?.capacity || 0; // dynamic size
-    const instanceCapacity = fixedInstanceDescriptorSetLayout
-        ? getIDescriptorSetLayoutInfoCapacity(fixedInstanceDescriptorSetLayout)
-        : (descriptorSets[UpdateFrequency.PER_INSTANCE]?.capacity || 0);
+    // Descriptors of UniformBlock starts from 0, and Descriptors of SamplerTexture starts from the end of UniformBlock.
+    const uniformBlockCapacities = new Array(4);
+    {
+        const passCapacity = descriptorSets[UpdateFrequency.PER_PASS]?.uniformBlockCapacity || 0;
+        const phaseCapacity = descriptorSets[UpdateFrequency.PER_PHASE]?.uniformBlockCapacity || 0;
+        const batchCapacity = descriptorSets[UpdateFrequency.PER_BATCH]?.uniformBlockCapacity || 0; // dynamic size
+        const instanceCapacity = fixedInstanceDescriptorSetLayout
+            ? getIDescriptorSetLayoutInfoUniformBlockCapacity(fixedInstanceDescriptorSetLayout)
+            : (descriptorSets[UpdateFrequency.PER_INSTANCE]?.uniformBlockCapacity || 0);
 
-    const passOffset = 0;
-    const phaseOffset = passOffset + passCapacity;
-    const instanceOffset = phaseOffset + phaseCapacity;
-    const batchOffset = instanceOffset + instanceCapacity;
+        // update uniform block capacities
+        uniformBlockCapacities[_setIndex[UpdateFrequency.PER_PASS]] = passCapacity;
+        uniformBlockCapacities[_setIndex[UpdateFrequency.PER_PHASE]] = phaseCapacity;
+        uniformBlockCapacities[_setIndex[UpdateFrequency.PER_BATCH]] = batchCapacity;
+        uniformBlockCapacities[_setIndex[UpdateFrequency.PER_INSTANCE]] = instanceCapacity;
 
-    const offsets = new Array(4);
-    offsets[_setIndex[UpdateFrequency.PER_PASS]] = passOffset;
-    offsets[_setIndex[UpdateFrequency.PER_PHASE]] = phaseOffset;
-    offsets[_setIndex[UpdateFrequency.PER_BATCH]] = batchOffset;
-    offsets[_setIndex[UpdateFrequency.PER_INSTANCE]] = instanceOffset;
+        // calculate uniform block offsets
+        const passOffset = 0;
+        const phaseOffset = passOffset + passCapacity;
+        const instanceOffset = phaseOffset + phaseCapacity;
+        const batchOffset = instanceOffset + instanceCapacity;
 
-    setFlattenedBinding(offsets, shaderInfo.blocks);
-    setFlattenedBinding(offsets, shaderInfo.samplerTextures);
-    setFlattenedBinding(offsets, shaderInfo.samplers);
-    setFlattenedBinding(offsets, shaderInfo.textures);
-    setFlattenedBinding(offsets, shaderInfo.buffers);
-    setFlattenedBinding(offsets, shaderInfo.images);
+        // save uniform block offsets by set index
+        const uniformBlockOffsets = new Array(4);
+        uniformBlockOffsets[_setIndex[UpdateFrequency.PER_PASS]] = passOffset;
+        uniformBlockOffsets[_setIndex[UpdateFrequency.PER_PHASE]] = phaseOffset;
+        uniformBlockOffsets[_setIndex[UpdateFrequency.PER_BATCH]] = batchOffset;
+        uniformBlockOffsets[_setIndex[UpdateFrequency.PER_INSTANCE]] = instanceOffset;
+
+        // update flattened uniform block binding
+        setFlattenedUniformBlockBinding(uniformBlockOffsets, shaderInfo.blocks);
+    }
+    {
+        // calculate sampler texture capacities
+        const passCapacity = descriptorSets[UpdateFrequency.PER_PASS]?.samplerTextureCapacity || 0;
+        const phaseCapacity = descriptorSets[UpdateFrequency.PER_PHASE]?.samplerTextureCapacity || 0;
+        // const batchCapacity = descriptorSets[UpdateFrequency.PER_BATCH]?.capacity || 0; // dynamic size
+        const instanceCapacity = fixedInstanceDescriptorSetLayout
+            ? getIDescriptorSetLayoutInfoSamplerTextureCapacity(fixedInstanceDescriptorSetLayout)
+            : (descriptorSets[UpdateFrequency.PER_INSTANCE]?.samplerTextureCapacity || 0);
+
+        // calculate sampler texture offsets
+        const passOffset = 0;
+        const phaseOffset = passOffset + passCapacity;
+        const instanceOffset = phaseOffset + phaseCapacity;
+        const batchOffset = instanceOffset + instanceCapacity;
+
+        // save sampler texture offsets by set index
+        const samplerTextureOffsets = new Array(4);
+        samplerTextureOffsets[_setIndex[UpdateFrequency.PER_PASS]] = passOffset;
+        samplerTextureOffsets[_setIndex[UpdateFrequency.PER_PHASE]] = phaseOffset;
+        samplerTextureOffsets[_setIndex[UpdateFrequency.PER_BATCH]] = batchOffset;
+        samplerTextureOffsets[_setIndex[UpdateFrequency.PER_INSTANCE]] = instanceOffset;
+
+        // update flattened sampler texture binding
+        setFlattenedSamplerTextureBinding(samplerTextureOffsets, uniformBlockCapacities, shaderInfo.samplerTextures);
+        setFlattenedSamplerTextureBinding(samplerTextureOffsets, uniformBlockCapacities, shaderInfo.samplers);
+        setFlattenedSamplerTextureBinding(samplerTextureOffsets, uniformBlockCapacities, shaderInfo.textures);
+        setFlattenedSamplerTextureBinding(samplerTextureOffsets, uniformBlockCapacities, shaderInfo.buffers);
+        setFlattenedSamplerTextureBinding(samplerTextureOffsets, uniformBlockCapacities, shaderInfo.images);
+    }
 }
 
 // make gfx.ShaderInfo
@@ -470,16 +529,13 @@ function makeShaderInfo (
 }
 
 class WebProgramProxy implements ProgramProxy {
-    constructor (host: ProgramHost) {
-        this.host = host;
+    constructor (shader: Shader) {
+        this.shader = shader;
     }
     get name (): string {
-        return this.host.program.name;
+        return this.shader.name;
     }
-    get shader (): Shader {
-        return this.host.program;
-    }
-    host: ProgramHost;
+    readonly shader: Shader;
 }
 
 // find name and type from local descriptor set info
@@ -785,6 +841,7 @@ export class WebProgramLibrary implements ProgramLibrary {
     }
     // get program variant
     getProgramVariant (device: Device, phaseID: number, name: string, defines: MacroRecord, key: string | null = null): ProgramProxy | null {
+        Object.assign(defines, this.pipeline?.macros);
         assert(phaseID !== INVALID_ID);
         // get phase
         const group = this.phases.get(phaseID);
@@ -804,10 +861,10 @@ export class WebProgramLibrary implements ProgramLibrary {
         }
 
         // try get program
-        const programHosts = group.programHosts;
+        const programHosts = group.programProxies;
         const programHost = programHosts.get(key);
         if (programHost !== undefined) {
-            return new WebProgramProxy(programHost);
+            return programHost;
         }
 
         // prepare variant
@@ -834,11 +891,11 @@ export class WebProgramLibrary implements ProgramLibrary {
         const shader = device.createShader(shaderInfo);
 
         // create program host and register
-        const host = new ProgramHost(shader);
+        const host = new WebProgramProxy(shader);
         programHosts.set(key, host);
 
         // create
-        return new WebProgramProxy(host);
+        return host;
     }
     // get material descriptor set layout
     getMaterialDescriptorSetLayout (device: Device, phaseID: number, programName: string): DescriptorSetLayout {
@@ -944,8 +1001,9 @@ export class WebProgramLibrary implements ProgramLibrary {
     getDescriptorName (nameID: number): string {
         return getDescriptorName(this.layoutGraph, nameID);
     }
-    layoutGraph: LayoutGraphData;
+    readonly layoutGraph: LayoutGraphData;
     readonly phases: Map<number, ProgramGroup> = new Map<number, ProgramGroup>();
     mergeHighFrequency = false;
     fixedLocal = true;
+    pipeline: PipelineRuntime | null = null;
 }

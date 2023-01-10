@@ -73,9 +73,9 @@ float LODGroup::getScreenUsagePercentage(const Camera *camera) const {
 
 float LODGroup::distanceToScreenUsagePercentage(const Camera *camera, float distance, float size) {
     if (camera->getProjectionType() == CameraProjection::PERSPECTIVE) {
-        return static_cast<float>((size * camera->getMatProj().m[5]) / (distance * 2.0)); // note: matProj.m11 is 1 / tan(fov / 2.0)
+        return static_cast<float>((size * fabs(camera->getMatProj().m[5])) / (distance * 2.0)); // note: matProj.m11 is 1 / tan(fov / 2.0)
     }
-    return static_cast<float>(size * camera->getMatProj().m[5] * 0.5);
+    return static_cast<float>(size * fabs(camera->getMatProj().m[5]) * 0.5);
 }
 
 float LODGroup::getWorldSpaceSize() const {
