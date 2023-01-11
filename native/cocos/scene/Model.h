@@ -187,6 +187,11 @@ public:
     inline float getShadowNormalBias() const { return _shadowBias.y; }
     inline uint32_t getPriority() const { return _priority; }
     inline void setPriority(uint32_t value) { _priority = value; }
+    inline bool isReceiveDirLight() const { return _receiveDirLight; }
+    inline void setReceiveDirLight(bool value) {
+        _receiveDirLight = value;
+        onMacroPatchesStateChanged();
+    }
 
     // For JS
     inline void setCalledFromJS(bool v) { _isCalledFromJS = v; }
@@ -209,10 +214,11 @@ protected:
     Type _type{Type::DEFAULT};
     Layers::Enum _visFlags{Layers::Enum::NONE};
 
+    int32_t _reflectionProbeType{0};
+    int32_t _tetrahedronIndex{-1};
     uint32_t _descriptorSetCount{1};
     uint32_t _priority{0};
     uint32_t _updateStamp{0};
-    Float32Array _localSHData;
 
     OctreeNode *_octreeNode{nullptr};
     RenderScene *_scene{nullptr};
@@ -227,13 +233,6 @@ protected:
     IntrusivePtr<geometry::AABB> _modelBounds;
     IntrusivePtr<Texture2D> _lightmap;
 
-    int32_t _tetrahedronIndex{-1};
-    Vec3 _lastWorldBoundCenter{INFINITY, INFINITY, INFINITY};
-    bool _useLightProbe = false;
-
-    bool _bakeToReflectionProbe{true};
-    int32_t _reflectionProbeType{0};
-
     bool _enabled{false};
     bool _castShadow{false};
     bool _receiveShadow{false};
@@ -241,8 +240,13 @@ protected:
     bool _inited{false};
     bool _localDataUpdated{false};
     bool _worldBoundsDirty{true};
+    bool _useLightProbe = false;
+    bool _bakeToReflectionProbe{true};
+    bool _receiveDirLight{true};
     // For JS
     bool _isCalledFromJS{false};
+
+    Vec3 _lastWorldBoundCenter{INFINITY, INFINITY, INFINITY};
 
     Vec4 _shadowBias;
     Vec4 _lightmapUVParam;
@@ -250,6 +254,8 @@ protected:
     // For JS
     // CallbacksInvoker _eventProcessor;
     ccstd::vector<IntrusivePtr<SubModel>> _subModels;
+
+    Float32Array _localSHData;
 
 private:
     CC_DISALLOW_COPY_MOVE_ASSIGN(Model);
