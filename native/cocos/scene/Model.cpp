@@ -40,6 +40,7 @@
 #include "scene/Pass.h"
 #include "scene/RenderScene.h"
 #include "scene/SubModel.h"
+#include "scene/ReflectionProbeManager.h"
 
 namespace {
 const cc::gfx::SamplerInfo LIGHTMAP_SAMPLER_HASH{
@@ -203,8 +204,11 @@ void Model::updateUBOs(uint32_t stamp) {
         _localBuffer->write(_lightmapUVParam, sizeof(float) * pipeline::UBOLocal::LIGHTINGMAP_UVPARAM);
         _localBuffer->write(_shadowBias, sizeof(float) * (pipeline::UBOLocal::LOCAL_SHADOW_BIAS));
         //xubin: update Id and REFLECTION_PROBE_DATA1/2
-        _localBuffer->write(_reflectionProbeId, sizeof(float) * (pipeline::UBOLocal::LOCAL_SHADOW_BIAS + 2));
-        _localBuffer->write(_reflectionProbeId, sizeof(float) * (pipeline::UBOLocal::LOCAL_SHADOW_BIAS + 3));
+        _localBuffer->write(static_cast<float>(_reflectionProbeId), sizeof(float) * (pipeline::UBOLocal::LOCAL_SHADOW_BIAS + 2));
+        _localBuffer->write(static_cast<float>(_reflectionProbeId), sizeof(float) * (pipeline::UBOLocal::LOCAL_SHADOW_BIAS + 3));
+
+        const auto * probe = scene::ReflectionProbeManager::getInstance()->getReflectionProbeById(_reflectionProbeId);
+  
 
         _localBuffer->update();
         const bool enableOcclusionQuery = Root::getInstance()->getPipeline()->isOcclusionQueryEnabled();
@@ -615,6 +619,37 @@ void Model::updateReflectionProbePlanarMap(gfx::Texture *texture) {
             descriptorSet->update();
         }
     }
+}
+
+void Model::updateReflectionProbeDataMap(gfx::Texture *texture)
+{
+    _localDataUpdated = true;
+
+    gfx::Texture *bindingTexture = texture;
+    if (!bindingTexture) {
+        bindingTexture = BuiltinResMgr::getInstance()->get<Texture2D>(ccstd::string("empty-texture"))->getGFXTexture();
+    }
+    if (bindingTexture) {
+        gfx::SamplerInfo info{
+            cc::gfx::Filter::NONE,
+            cc::gfx::Filter::NONE,
+            cc::gfx::Filter::NONE,
+            cc::gfx::Address::WRAP,
+            cc::gfx::Address::WRAP,
+            cc::gfx::Address::WRAP,
+        };
+        auto *sampler = _device->getSampler(info);
+        for (SubModel *subModel : _subModels) {
+            gfx::DescriptorSet *descriptorSet = subModel->getDescriptorSet();
+            descriptorSet->bindTexture(pipeline::REFLECTIONPROBEDATAMAP::BINDING, bindingTexture);
+            descriptorSet->bindSampler(pipeline::REFLECTIONPROBEDATAMAP::BINDING, sampler);
+            descriptorSet->update();
+        }
+    }
+}
+
+void Model::updateReflectionProbeId() {
+    _localDataUpdated = true;
 }
 
 void Model::setInstancedAttribute(const ccstd::string &name, const float *value, uint32_t byteLength) {

@@ -218,24 +218,14 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
       GetCubeReflectionProbeData(centerPos, boxHalfSize, mipCount, s.reflectionProbeId);
       R = CalculateBoxProjectedDirection(R, position, centerPos, boxHalfSize);
       probe = fragTextureLod(cc_reflectionProbeCubemap, R, s.roughness * (mipCount - 1.0));
-      //return vec4(s.reflectionProbeId, 0.0, 0.0, 1.0);
     #elif CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_PLANAR
       vec4 plane;
       float planarReflectionDepthScale, mipCount;
-      GetPlanarReflectionProbeData(plane, planarReflectionDepthScale, mipCount, 1.0);
+      GetPlanarReflectionProbeData(plane, planarReflectionDepthScale, mipCount, s.reflectionProbeId);
       R = normalize(CalculateReflectDirection(N, V, NV));
       vec3 worldPosOffset = CalculatePlanarReflectPositionOnPlane(N, V, s.position, plane, cc_cameraPos.xyz, planarReflectionDepthScale);
       vec2 screenUV = GetPlanarReflectScreenUV(worldPosOffset, cc_matViewProj, cc_cameraPos.w, V, R);
       probe = fragTextureLod(cc_reflectionProbePlanarMap, screenUV, cc_ambientGround.w);
-      if(s.shadowBias.x == 0.0){
-        return vec4(0.0, 0.0, 0.0, 1.0);
-      }else if(s.shadowBias.x == 1.0){
-        return vec4(0.0, 0.0, 1.0, 1.0);
-      }else{
-        return vec4(s.shadowBias.x, 0.0, 0.0, 1.0);
-      }
-      //return vec4(s.reflectionProbeId/cc_probeInfo.x, 0.0, 0.0, 1.0);
-         
     #endif
     env = probe.rgb;
   #endif

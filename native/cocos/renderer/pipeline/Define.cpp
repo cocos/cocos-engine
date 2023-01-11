@@ -613,6 +613,23 @@ const gfx::UniformSamplerTexture REFLECTIONPROBEPLANARMAP::LAYOUT = {
     1,
 };
 
+const ccstd::string REFLECTIONPROBEDATAMAP::NAME = "cc_reflectionProbeDataMap";
+const gfx::DescriptorSetLayoutBinding REFLECTIONPROBEDATAMAP::DESCRIPTOR = {
+    REFLECTIONPROBEDATAMAP::BINDING,
+    gfx::DescriptorType::SAMPLER_TEXTURE,
+    1,
+    gfx::ShaderStageFlagBit::FRAGMENT,
+    {},
+};
+const gfx::UniformSamplerTexture REFLECTIONPROBEDATAMAP::LAYOUT = {
+    localSet,
+    REFLECTIONPROBEDATAMAP::BINDING,
+    REFLECTIONPROBEDATAMAP::NAME,
+    gfx::Type::SAMPLER2D,
+    1,
+};
+
+
 uint32_t skyboxFlag = static_cast<uint32_t>(gfx::ClearFlagBit::STENCIL) << 1;
 
 uint32_t nextPow2(uint32_t val) {

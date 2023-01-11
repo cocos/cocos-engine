@@ -261,6 +261,7 @@ enum class CC_DLL ModelLocalBindings {
 
     SAMPLER_REFLECTION_PROBE_CUBE,
     SAMPLER_REFLECTION_PROBE_PLANAR,
+    SAMPLER_REFLECTION_PROBE_DATA_MAP,
 
     COUNT,
 };
@@ -444,9 +445,9 @@ struct CC_DLL UBOGlobal {
     static constexpr uint32_t TIME_OFFSET = 0;
     static constexpr uint32_t SCREEN_SIZE_OFFSET = UBOGlobal::TIME_OFFSET + 4;
     static constexpr uint32_t NATIVE_SIZE_OFFSET = UBOGlobal::SCREEN_SIZE_OFFSET + 4;
-    static constexpr uint32_t PROBE_INFO__OFFSET = UBOGlobal::NATIVE_SIZE_OFFSET + 4;
+    static constexpr uint32_t PROBE_INFO_OFFSET = UBOGlobal::NATIVE_SIZE_OFFSET + 4;
 
-    static constexpr uint32_t DEBUG_VIEW_MODE_OFFSET = UBOGlobal::PROBE_INFO__OFFSET + 4;
+    static constexpr uint32_t DEBUG_VIEW_MODE_OFFSET = UBOGlobal::PROBE_INFO_OFFSET + 4;
     static constexpr uint32_t DEBUG_VIEW_COMPOSITE_PACK_1_OFFSET = UBOGlobal::DEBUG_VIEW_MODE_OFFSET + 4;
     static constexpr uint32_t DEBUG_VIEW_COMPOSITE_PACK_2_OFFSET = UBOGlobal::DEBUG_VIEW_COMPOSITE_PACK_1_OFFSET + 4;
     static constexpr uint32_t DEBUG_VIEW_COMPOSITE_PACK_3_OFFSET = UBOGlobal::DEBUG_VIEW_COMPOSITE_PACK_2_OFFSET + 4;
@@ -661,6 +662,13 @@ struct CC_DLL REFLECTIONPROBECUBEMAP {
 
 struct CC_DLL REFLECTIONPROBEPLANARMAP {
     static constexpr uint32_t BINDING = static_cast<uint32_t>(ModelLocalBindings::SAMPLER_REFLECTION_PROBE_PLANAR);
+    static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
+    static const gfx::UniformSamplerTexture LAYOUT;
+    static const ccstd::string NAME;
+};
+
+struct CC_DLL REFLECTIONPROBEDATAMAP {
+    static constexpr uint32_t BINDING = static_cast<uint32_t>(ModelLocalBindings::SAMPLER_REFLECTION_PROBE_DATA_MAP);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
     static const gfx::UniformSamplerTexture LAYOUT;
     static const ccstd::string NAME;

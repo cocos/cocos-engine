@@ -1,7 +1,7 @@
 void GetPlanarReflectionProbeData(out vec4 plane, out float planarReflectionDepthScale, out float mipCount, float probeId)
 {
     #if USE_INSTANCING
-      float uv_y = probeId / cc_probeInfo.x;
+      float uv_y = (probeId + 0.5) / cc_probeInfo.x; //align to texel center
       vec4 texData1 = texture(cc_reflectionProbeDataMap, vec2(0.166666667, uv_y));
       vec4 texData2 = texture(cc_reflectionProbeDataMap, vec2(0.5, uv_y));
       plane.xyz = texData1.xyz;
@@ -18,7 +18,7 @@ void GetPlanarReflectionProbeData(out vec4 plane, out float planarReflectionDept
 void GetCubeReflectionProbeData(out vec3 centerPos, out vec3 boxHalfSize, out float mipCount, float probeId)
 {
     #if USE_INSTANCING
-      float uv_y = probeId / cc_probeInfo.x;
+      float uv_y = (probeId + 0.5) / cc_probeInfo.x; //align to texel center
       vec4 texData1 = texture(cc_reflectionProbeDataMap, vec2(0.166666667, uv_y));
       vec4 texData2 = texture(cc_reflectionProbeDataMap, vec2(0.5, uv_y));
       vec4 texData3 = texture(cc_reflectionProbeDataMap, vec2(0.666666667, uv_y));

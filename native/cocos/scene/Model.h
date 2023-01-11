@@ -115,6 +115,8 @@ public:
     void updateLocalShadowBias();
     void updateReflectionProbeCubemap(TextureCube *texture);
     void updateReflectionProbePlanarMap(gfx::Texture *texture);
+    void updateReflectionProbeId();
+    void updateReflectionProbeDataMap(gfx::Texture *texture);
 
     inline void attachToScene(RenderScene *scene) {
         _scene = scene;
@@ -161,6 +163,8 @@ public:
     }
     inline int32_t getReflectionProbeType() const { return _reflectionProbeType; }
     void setReflectionProbeType(int32_t val);
+    inline int32_t getReflectionProbeId() const { return _reflectionProbeId; }
+    void setReflectionProbeId(int32_t reflectionProbeId) { _reflectionProbeId = reflectionProbeId; };
     inline int32_t getTetrahedronIndex() const { return _tetrahedronIndex; }
     inline void setTetrahedronIndex(int32_t index) { _tetrahedronIndex = index; }
     inline bool showTetrahedron() const { return isLightProbeAvailable(); }
@@ -233,6 +237,7 @@ protected:
 
     bool _bakeToReflectionProbe{true};
     int32_t _reflectionProbeType{0};
+    int32_t _reflectionProbeId{ -1 };
 
     bool _enabled{false};
     bool _castShadow{false};
@@ -245,7 +250,6 @@ protected:
     bool _isCalledFromJS{false};
 
     Vec4 _shadowBias;
-    float _reflectionProbeId;
     Vec4 _lightmapUVParam;
 
     // For JS

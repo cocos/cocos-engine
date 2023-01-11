@@ -49,5 +49,14 @@ void ReflectionProbeManager::unRegisterProbe(scene::ReflectionProbe* probe) {
     }
 }
 
+const ReflectionProbe* ReflectionProbeManager::getReflectionProbeById(int32_t probeId) {
+    for (const auto& probe : _probes) {
+        if (probe->getProbeId() == probeId) {
+            return probe;
+        }
+    }
+    return nullptr;
+}
+
 } // namespace scene
 } // namespace cc
