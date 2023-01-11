@@ -32,6 +32,7 @@ import { legacyCC } from '../core/global-exports';
 import GradientRange from './animator/gradient-range';
 import Gradient, { AlphaKey, ColorKey } from './animator/gradient';
 import Burst from './burst';
+import { ForceFieldComp } from './animator/force-field-comp';
 
 export {
     Billboard,
@@ -44,6 +45,7 @@ export {
     AlphaKey,
     ColorKey,
     Burst,
+    ForceFieldComp,
 };
 
 export * from './deprecated';

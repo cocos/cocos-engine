@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 
-import { ccclass, displayOrder, serializable, type } from '../../core/data/decorators';
+import { ccclass, displayOrder, executeInEditMode, executionOrder, menu, serializable, type } from '../../core/data/decorators';
 import CurveRange from './curve-range';
 import ForceField from './force-field';
 import { Component, Mat4 } from '../../core';
@@ -33,6 +33,9 @@ import { forceFieldManager } from '../force-field-manager';
 const _tempWorldTrans = new Mat4();
 
 @ccclass('cc.ForceFieldComp')
+@menu('Effects/ForceFieldComp')
+@executionOrder(99)
+@executeInEditMode
 export class ForceFieldComp extends Component {
     private _field: ForceField;
 
@@ -42,144 +45,71 @@ export class ForceFieldComp extends Component {
 
     @type(ShapeType)
     @serializable
-    @displayOrder(7)
-    private _shape;
-
-    set shape (value) {
-        this._shape = value;
-        this._field.mode = this._shape;
-    }
-
-    get shape () {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        return this._shape;
-    }
-
-    @serializable
-    @displayOrder(8)
-    private _startRange = 0;
-
-    set startRange (value) {
-        this._startRange = value;
-        this._field.startRange = this._startRange;
-    }
-
-    get startRange () {
-        return this._startRange;
-    }
-
-    @serializable
-    @displayOrder(9)
-    private _endRange = 1;
-
-    set endRange (value) {
-        this._endRange = value;
-        this._field.endRange = this._endRange;
-    }
-
-    get endRange () {
-        return this._endRange;
-    }
-
-    @type(CurveRange)
-    @serializable
     @displayOrder(0)
-    public directionX = new CurveRange();
+    public shape = ShapeType.Box;
 
-    @type(CurveRange)
     @serializable
     @displayOrder(1)
-    public directionY = new CurveRange();
+    public startRange = 0;
 
-    @type(CurveRange)
     @serializable
     @displayOrder(2)
-    public directionZ = new CurveRange();
+    public endRange = 1;
 
     @type(CurveRange)
     @serializable
     @displayOrder(3)
-    public gravity = new CurveRange();
-
-    @serializable
-    @displayOrder(10)
-    private _gravityFocus = 0;
-
-    set gravityFocus (value) {
-        this._gravityFocus = value;
-        this._field.gravityFocus = this._gravityFocus;
-    }
-
-    get gravityFocus () {
-        return this._gravityFocus;
-    }
+    public directionX = new CurveRange();
 
     @type(CurveRange)
     @serializable
     @displayOrder(4)
-    public rotationSpeed = new CurveRange();
+    public directionY = new CurveRange();
 
     @type(CurveRange)
     @serializable
     @displayOrder(5)
-    public rotationAttraction = new CurveRange();
-
-    @serializable
-    @displayOrder(11)
-    private _rotationRandomnessX = 0;
-
-    set rotationRandomnessX (value) {
-        this._rotationRandomnessX = value;
-        this._field.setRotationRandomness(this._rotationRandomnessX, this._rotationRandomnessY);
-    }
-
-    get rotationRandomnessX () {
-        return this._rotationRandomnessX;
-    }
-
-    @serializable
-    @displayOrder(12)
-    private _rotationRandomnessY = 0;
-
-    set rotationRandomnessY (value) {
-        this._rotationRandomnessY = value;
-        this._field.setRotationRandomness(this._rotationRandomnessX, this._rotationRandomnessY);
-    }
-
-    get rotationRandomnessY () {
-        return this._rotationRandomnessY;
-    }
+    public directionZ = new CurveRange();
 
     @type(CurveRange)
     @serializable
     @displayOrder(6)
+    public gravity = new CurveRange();
+
+    @serializable
+    @displayOrder(7)
+    public gravityFocus = 0;
+
+    @type(CurveRange)
+    @serializable
+    @displayOrder(8)
+    public rotationSpeed = new CurveRange();
+
+    @type(CurveRange)
+    @serializable
+    @displayOrder(9)
+    public rotationAttraction = new CurveRange();
+
+    @serializable
+    @displayOrder(10)
+    public rotationRandomnessX = 0;
+
+    @serializable
+    @displayOrder(11)
+    public rotationRandomnessY = 0;
+
+    @type(CurveRange)
+    @serializable
+    @displayOrder(12)
     public drag = new CurveRange();
 
     @serializable
     @displayOrder(13)
-    private _multiplyDragByParticleSize = true;
-
-    set multiplyDragByParticleSize (value) {
-        this._multiplyDragByParticleSize = value;
-        this._field.multiplyDragByParticleSize = this._multiplyDragByParticleSize;
-    }
-
-    get multiplyDragByParticleSize () {
-        return this._multiplyDragByParticleSize;
-    }
+    public multiplyDragByParticleSize = true;
 
     @serializable
     @displayOrder(14)
-    private _multiplyDragByParticleVelocity = true;
-
-    set multiplyDragByParticleVelocity (value) {
-        this._multiplyDragByParticleVelocity = value;
-        this._field.multiplyDragByParticleVelocity = this._multiplyDragByParticleVelocity;
-    }
-
-    get multiplyDragByParticleVelocity () {
-        return this._multiplyDragByParticleVelocity;
-    }
+    public multiplyDragByParticleVelocity = true;
 
     constructor () {
         super();
@@ -190,10 +120,18 @@ export class ForceFieldComp extends Component {
         this.node.getWorldMatrix(_tempWorldTrans);
         this._field.fieldLocalToWorld = _tempWorldTrans;
 
+        this._field.mode = this.shape;
+        this._field.startRange = this.startRange;
+        this._field.endRange = this.endRange;
+        this._field.setRotationRandomness(this.rotationRandomnessX, this.rotationRandomnessY);
+        this._field.multiplyDragByParticleSize = this.multiplyDragByParticleSize;
+        this._field.multiplyDragByParticleVelocity = this.multiplyDragByParticleVelocity;
+
         this._field.directionCacheX = this.directionX;
         this._field.directionCacheY = this.directionY;
         this._field.directionCacheZ = this.directionZ;
         this._field.gravityCache = this.gravity;
+        this._field.gravityFocus = this.gravityFocus;
         this._field.rotationSpeedCache = this.rotationSpeed;
         this._field.rotationAttractionCache = this.rotationAttraction;
         this._field.dragCache = this.drag;
