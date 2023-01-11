@@ -185,7 +185,7 @@ export class b2RigidBody2D implements IRigidBody2D {
 
         const rot = this._rigidBody.node.worldRotation;
         const euler = tempVec3;
-        Quat.toEuler1(euler, rot);
+        Quat.toEulerAngle(euler, rot);
         const rotation = toRadian(euler.z);
 
         const bodyType = this._rigidBody.type;
