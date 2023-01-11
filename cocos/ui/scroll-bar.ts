@@ -297,13 +297,6 @@ export class ScrollBar extends Component {
         this._scrollView = scrollView;
     }
 
-    /**
-     * @engineInternal
-     */
-    public isAvailable () {
-        return this.node !== null;
-    }
-
     public onTouchBegan () {
         if (!this._enableAutoHide) {
             return;

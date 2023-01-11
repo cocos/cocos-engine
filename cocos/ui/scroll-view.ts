@@ -314,7 +314,7 @@ export class ScrollView extends ViewGroup {
     @displayOrder(0)
     @tooltip('i18n:scrollview.horizontal_bar')
     get horizontalScrollBar () {
-        if (this._horizontalScrollBar && !this._horizontalScrollBar.isAvailable()) {
+        if (this._horizontalScrollBar && !this._horizontalScrollBar.isValid) {
             errorID(4303, 'horizontal', this.node.name);
         }
         return this._horizontalScrollBar;
@@ -356,7 +356,7 @@ export class ScrollView extends ViewGroup {
     @displayOrder(1)
     @tooltip('i18n:scrollview.vertical_bar')
     get verticalScrollBar () {
-        if (this._verticalScrollBar && !this._verticalScrollBar.isAvailable()) {
+        if (this._verticalScrollBar && !this._verticalScrollBar.isValid) {
             errorID(4303, 'vertical', this.node.name);
         }
         return this._verticalScrollBar;
@@ -1368,31 +1368,31 @@ export class ScrollView extends ViewGroup {
     }
 
     protected _updateScrollBar (outOfBoundary: Vec2 | Readonly<Vec2>) {
-        if (this._horizontalScrollBar && this._horizontalScrollBar.isAvailable()) {
+        if (this._horizontalScrollBar && this._horizontalScrollBar.isValid) {
             this._horizontalScrollBar.onScroll(outOfBoundary);
         }
 
-        if (this._verticalScrollBar && this._verticalScrollBar.isAvailable()) {
+        if (this._verticalScrollBar && this._verticalScrollBar.isValid) {
             this._verticalScrollBar.onScroll(outOfBoundary);
         }
     }
 
     protected _onScrollBarTouchBegan () {
-        if (this._horizontalScrollBar && this._horizontalScrollBar.isAvailable()) {
+        if (this._horizontalScrollBar && this._horizontalScrollBar.isValid) {
             this._horizontalScrollBar.onTouchBegan();
         }
 
-        if (this._verticalScrollBar && this._verticalScrollBar.isAvailable()) {
+        if (this._verticalScrollBar && this._verticalScrollBar.isValid) {
             this._verticalScrollBar.onTouchBegan();
         }
     }
 
     protected _onScrollBarTouchEnded () {
-        if (this._horizontalScrollBar && this._horizontalScrollBar.isAvailable()) {
+        if (this._horizontalScrollBar && this._horizontalScrollBar.isValid) {
             this._horizontalScrollBar.onTouchEnded();
         }
 
-        if (this._verticalScrollBar && this._verticalScrollBar.isAvailable()) {
+        if (this._verticalScrollBar && this._verticalScrollBar.isValid) {
             this._verticalScrollBar.onTouchEnded();
         }
     }
@@ -1432,11 +1432,11 @@ export class ScrollView extends ViewGroup {
     }
 
     protected _hideScrollBar () {
-        if (this._horizontalScrollBar && this._horizontalScrollBar.isAvailable()) {
+        if (this._horizontalScrollBar && this._horizontalScrollBar.isValid) {
             this._horizontalScrollBar.hide();
         }
 
-        if (this._verticalScrollBar && this._verticalScrollBar.isAvailable()) {
+        if (this._verticalScrollBar && this._verticalScrollBar.isValid) {
             this._verticalScrollBar.hide();
         }
     }
@@ -1447,7 +1447,7 @@ export class ScrollView extends ViewGroup {
         }
         const viewTrans = this.view;
         const uiTrans = this._content._uiProps.uiTransformComp!;
-        if (this._verticalScrollBar && this._verticalScrollBar.isAvailable()) {
+        if (this._verticalScrollBar && this._verticalScrollBar.isValid) {
             if (uiTrans.height < viewTrans.height) {
                 this._verticalScrollBar.hide();
             } else {
@@ -1455,7 +1455,7 @@ export class ScrollView extends ViewGroup {
             }
         }
 
-        if (this._horizontalScrollBar && this._horizontalScrollBar.isAvailable()) {
+        if (this._horizontalScrollBar && this._horizontalScrollBar.isValid) {
             if (uiTrans.width < viewTrans.width) {
                 this._horizontalScrollBar.hide();
             } else {
