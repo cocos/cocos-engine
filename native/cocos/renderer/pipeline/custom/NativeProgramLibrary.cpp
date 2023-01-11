@@ -45,6 +45,7 @@
 #include "pipeline/custom/PrivateTypes.h"
 #include "pipeline/custom/RenderCommonTypes.h"
 #include "pipeline/custom/details/GslUtils.h"
+#include "details/Range.h"
 
 namespace cc {
 
@@ -167,8 +168,12 @@ void makeLocalDescriptorSetLayoutData(
             }
             data.bindingMap.emplace(nameID, b.binding);
         }
-        const auto &v = source.blocks.at(ccstd::string(name));
-        data.uniformBlocks.emplace(nameID, v);
+        {
+            auto iter = source.blocks.find(ccstd::string(name));
+            if (iter != source.blocks.end()) {
+                data.uniformBlocks.emplace(nameID, iter->second);
+            }
+        }
     }
 }
 
@@ -714,7 +719,7 @@ void makeShaderInfo(
     }
     { // phase
         auto iter = phaseLayouts.descriptorSets.find(UpdateFrequency::PER_PHASE);
-        if (iter != passLayouts.descriptorSets.end()) {
+        if (iter != phaseLayouts.descriptorSets.end()) {
             descriptorSets[static_cast<size_t>(UpdateFrequency::PER_PHASE)] = &iter->second.descriptorSetLayoutData;
             populateMergedShaderInfo(
                 lg.valueNames, iter->second.descriptorSetLayoutData,
@@ -926,6 +931,15 @@ const gfx::DescriptorSetLayout &getOrCreateProgramDescriptorSetLayout(
 void NativeProgramLibrary::init(gfx::Device *device) {
     emptyDescriptorSetLayout = device->createDescriptorSetLayout({});
     emptyPipelineLayout = device->createPipelineLayout({});
+    for (const auto &vertID : makeRange(vertices(layoutGraph))) {
+        if (holds<RenderPhaseTag>(vertID, layoutGraph)) {
+            auto res = phases.emplace(
+                std::piecewise_construct,
+                std::forward_as_tuple(vertID),
+                std::forward_as_tuple());
+            CC_ENSURES(res.second);
+        }
+    }
 }
 
 void NativeProgramLibrary::destroy() {
@@ -933,7 +947,7 @@ void NativeProgramLibrary::destroy() {
     emptyPipelineLayout.reset();
 }
 
-void NativeProgramLibrary::addEffect(EffectAsset *effectAssetIn) {
+void NativeProgramLibrary::addEffect(const EffectAsset *effectAssetIn) {
     auto &lg = layoutGraph;
     boost::container::pmr::memory_resource *scratch = &unsycPool;
     const auto &effect = *effectAssetIn;
@@ -961,6 +975,9 @@ void NativeProgramLibrary::addEffect(EffectAsset *effectAssetIn) {
                            .first;
             }
             auto &phasePrograms = iter->second.programInfos;
+            if (phasePrograms.find(std::string_view{srcShaderInfo.name}) != phasePrograms.end()) {
+                continue;
+            }
             auto alloc = phasePrograms.get_allocator();
 
             // build program
@@ -970,7 +987,7 @@ void NativeProgramLibrary::addEffect(EffectAsset *effectAssetIn) {
             ShaderProgramData *programData = nullptr;
             if (!mergeHighFrequency) {
                 auto &phase = get(RenderPhaseTag{}, phaseID, lg);
-                buildProgramData(programName, srcShaderInfo, lg, phase, fixedLocal, scratch);
+                programData = &buildProgramData(programName, srcShaderInfo, lg, phase, fixedLocal, scratch);
             }
 
             // shaderInfo and blockSizes
@@ -1173,7 +1190,12 @@ ProgramProxy *NativeProgramLibrary::getProgramVariant(
     for (const auto &m : macroArray) {
         ss << "#define " << m.name << " " << m.value << std::endl;
     }
-    auto prefix = pipeline->getConstantMacros() + programInfo.constantMacros + ss.str();
+
+    std::string prefix;
+    if (pipeline) {
+        prefix += pipeline->getConstantMacros();
+    }
+    prefix += programInfo.constantMacros + ss.str();
 
     const IShaderSource *src = &programInfo.glsl3;
     const auto *deviceShaderVersion = getDeviceShaderVersion(device);

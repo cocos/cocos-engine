@@ -29,8 +29,9 @@
 #include "cocos/base/Log.h"
 #include "cocos/base/std/container/string.h"
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
-#include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
-#include "cocos/renderer/pipeline/custom/RenderCommonTypes.h"
+#include "LayoutGraphTypes.h"
+#include "LayoutGraphGraphs.h"
+#include "RenderCommonTypes.h"
 #include "details/Map.h"
 
 namespace cc {
@@ -49,7 +50,7 @@ DescriptorBlockData& getDescriptorBlockData(
     iter = map.emplace(
                   std::piecewise_construct,
                   std::forward_as_tuple(index),
-                  std::forward_as_tuple())
+                  std::forward_as_tuple(index.descriptorType, index.visibility, 0))
                .first;
 
     return iter->second;
@@ -241,6 +242,13 @@ void makeDescriptorSetLayoutData(
         }
         // increate total capacity
         capacity += block.capacity;
+        data.capacity += block.capacity;
+        if (index.descriptorType == DescriptorTypeOrder::UNIFORM_BUFFER
+            || index.descriptorType == DescriptorTypeOrder::DYNAMIC_UNIFORM_BUFFER) {
+            data.uniformBlockCapacity += block.capacity;
+        } else if (index.descriptorType == DescriptorTypeOrder::SAMPLER_TEXTURE) {
+            data.samplerTextureCapacity += block.capacity;
+        }
         data.descriptorBlocks.emplace_back(std::move(block));
     }
 }
@@ -291,6 +299,26 @@ uint32_t getSize(const ccstd::vector<gfx::Uniform>& blockMembers) {
         CC_LOG_ERROR("Invalid uniform count: %s", m.name.c_str());
     }
     return prevSize;
+}
+
+gfx::DescriptorSet* getOrCreatePerPassDescriptorSet(
+    gfx::Device* device,
+    LayoutGraphData& lg, LayoutGraphData::vertex_descriptor vertID) {
+    auto& ppl = get(LayoutGraphData::Layout, lg, vertID);
+    auto iter = ppl.descriptorSets.find(UpdateFrequency::PER_PASS);
+    if (iter == ppl.descriptorSets.end()) {
+        return nullptr;
+    }
+    auto& data = iter->second;
+    if (!data.descriptorSet) {
+        if (!data.descriptorSetLayout) {
+            data.descriptorSetLayout = device->createDescriptorSetLayout(data.descriptorSetLayoutInfo);
+        }
+        CC_ENSURES(data.descriptorSetLayout);
+        data.descriptorSet = device->createDescriptorSet(gfx::DescriptorSetInfo{data.descriptorSetLayout.get()});
+    }
+    CC_ENSURES(data.descriptorSet);
+    return data.descriptorSet;
 }
 
 } // namespace render

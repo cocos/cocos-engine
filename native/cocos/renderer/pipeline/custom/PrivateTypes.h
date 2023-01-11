@@ -60,7 +60,7 @@ public:
     ProgramLibrary& operator=(ProgramLibrary const& rhs) = delete;
     virtual ~ProgramLibrary() noexcept = default;
 
-    virtual void addEffect(EffectAsset *effectAsset) = 0;
+    virtual void addEffect(const EffectAsset *effectAsset) = 0;
     virtual void precompileEffect(gfx::Device *device, EffectAsset *effectAsset) = 0;
     virtual ccstd::string getKey(uint32_t phaseID, const ccstd::string &programName, const MacroRecord &defines) const = 0;
     virtual IntrusivePtr<gfx::PipelineLayout> getPipelineLayout(gfx::Device *device, uint32_t phaseID, const ccstd::string &programName) = 0;

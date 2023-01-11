@@ -27,6 +27,7 @@
 #include "cocos/core/assets/EffectAsset.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
 #include "cocos/renderer/pipeline/custom/RenderCommonTypes.h"
+#include "gfx-base/GFXDevice.h"
 
 namespace cc {
 
@@ -48,6 +49,10 @@ void initializeDescriptorSetLayoutInfo(
     gfx::DescriptorSetLayoutInfo& info);
 
 uint32_t getSize(const ccstd::vector<gfx::Uniform>& blockMembers);
+
+gfx::DescriptorSet* getOrCreatePerPassDescriptorSet(
+    gfx::Device* device,
+    LayoutGraphData& lg, LayoutGraphData::vertex_descriptor vertID);
 
 } // namespace render
 

@@ -523,7 +523,7 @@ public:
 
     NativeProgramLibrary(const allocator_type& alloc) noexcept; // NOLINT
 
-    void addEffect(EffectAsset *effectAsset) override;
+    void addEffect(const EffectAsset *effectAsset) override;
     void precompileEffect(gfx::Device *device, EffectAsset *effectAsset) override;
     ccstd::string getKey(uint32_t phaseID, const ccstd::string &programName, const MacroRecord &defines) const override;
     IntrusivePtr<gfx::PipelineLayout> getPipelineLayout(gfx::Device *device, uint32_t phaseID, const ccstd::string &programName) override;

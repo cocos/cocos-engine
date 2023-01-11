@@ -42,6 +42,11 @@
 #include "details/GraphView.h"
 #include "details/GslUtils.h"
 #include "details/Range.h"
+#include "RenderingModule.h"
+#include "LayoutGraphTypes.h"
+#include "LayoutGraphGraphs.h"
+#include "LayoutGraphUtils.h"
+#include "pipeline/Define.h"
 
 namespace cc {
 
@@ -52,6 +57,7 @@ namespace {
 struct RenderGraphVisitorContext {
     RenderGraphVisitorContext(
         NativeRenderContext& contextIn,
+        LayoutGraphData& lgIn,
         const RenderGraph& gIn,
         ResourceGraph& resgIn,
         const FrameGraphDispatcher& fgdIn,
@@ -65,6 +71,7 @@ struct RenderGraphVisitorContext {
         PipelineRuntime* pplIn,
         boost::container::pmr::memory_resource* scratchIn)
     : context(contextIn),
+      lg(lgIn),
       g(gIn),
       resourceGraph(resgIn),
       fgd(fgdIn),
@@ -77,6 +84,7 @@ struct RenderGraphVisitorContext {
       scratch(scratchIn) {}
 
     NativeRenderContext& context;
+    LayoutGraphData& lg;
     const RenderGraph& g;
     ResourceGraph& resourceGraph;
     const FrameGraphDispatcher& fgd;
@@ -415,7 +423,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
             submitBarriers(iter->second.blockBarrier.rearBarriers);
         }
     }
-    void begin(const RasterPass& pass) const {
+    void begin(const RasterPass& pass, RenderGraph::vertex_descriptor vertID) const {
         // viewport
         auto vp = pass.viewport;
         if (vp.width == 0 && vp.height == 0) {
@@ -446,7 +454,14 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         ctx.currentPass = data.renderPass.get();
 
         // update states
-        // auto offset = ctx.ppl->getPipelineUBO()->getCurrentCameraUBOOffset();
+        const auto& layoutName = get(RenderGraph::Layout, ctx.g, vertID);
+        const auto& layoutID = locate(LayoutGraphData::null_vertex(), layoutName, ctx.lg);
+        auto* passDescriptorSet = getOrCreatePerPassDescriptorSet(
+            ctx.device, ctx.lg, layoutID);
+
+        cmdBuff->bindDescriptorSet(
+            static_cast<uint32_t>(pipeline::SetIndex::GLOBAL), passDescriptorSet);
+        //auto offset = ctx.ppl->getPipelineUBO()->getCurrentCameraUBOOffset();
         // cmdBuff->bindDescriptorSet(pipeline::globalSet, ctx.getDescriptorSet(), 1, &offset);
     }
     void begin(const ComputePass& pass) const { // NOLINT(readability-convert-member-functions-to-static)
@@ -619,7 +634,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
             [&](const RasterPass& pass) {
                 mountResources(pass);
                 frontBarriers(vertID);
-                begin(pass);
+                begin(pass, vertID);
             },
             [&](const ComputePass& pass) {
                 mountResources(pass);
@@ -991,7 +1006,7 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
     auto& ppl = *this;
     auto* scratch = &ppl.unsyncPool;
 
-    // CC_LOG_INFO(rg.print(scratch).c_str());
+    auto& lg = dynamic_cast<NativeProgramLibrary*>(getProgramLibrary())->layoutGraph;
 
     RenderGraphContextCleaner contextCleaner(ppl.nativeContext);
     ResourceCleaner cleaner(ppl.resourceGraph);
@@ -1049,7 +1064,8 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
 
         // submit commands
         RenderGraphVisitorContext ctx(
-            ppl.nativeContext, rg, ppl.resourceGraph,
+            ppl.nativeContext,
+            lg, rg, ppl.resourceGraph,
             fgd, fgd.barrierMap,
             validPasses,
             ppl.device, submit.primaryCommandBuffer,
