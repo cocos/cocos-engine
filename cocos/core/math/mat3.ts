@@ -26,7 +26,7 @@ import { CCClass } from '../data/class';
 import { ValueType } from '../value-types/value-type';
 import { Quat } from './quat';
 import { IMat3Like, IMat4Like, IQuatLike, IVec2Like, IVec3Like } from './type-define';
-import { EPSILON } from './utils';
+import { EPSILON, HALF_PI } from './utils';
 import { Vec3 } from './vec3';
 import { legacyCC } from '../global-exports';
 
@@ -624,9 +624,9 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * @en Convert Matrix to euler angle, resulting angle y, z in the range of [-180, 180],
-     *  x in the range of [-90, 90], the rotation order is YXZ.
-     * @zh 将矩阵转换成欧拉角, 返回角度 y,z 在 [-180, 180] 区间内, x 在 [-90, 90] 区间内，旋转顺序为 YXZ.
+     * @en Convert Matrix to euler angle, resulting angle y, z in the range of [-PI, PI],
+     *  x in the range of [-PI/2, PI/2], the rotation order is YXZ.
+     * @zh 将矩阵转换成欧拉角, 返回角度 y,z 在 [-PI, PI] 区间内, x 在 [-PI/2, PI/2] 区间内，旋转顺序为 YXZ.
      */
     public static toEuler (matrix: Mat3,  v: Vec3): boolean {
         //a[col][row]
@@ -644,14 +644,14 @@ export class Mat3 extends ValueType {
                 return true;
             } else {
                 // Not unique.  YA - ZA = atan2(r01,r00)
-                v.x = Math.PI * 0.5;
+                v.x = HALF_PI;
                 v.y = Math.atan2(a10, a00);
                 v.z = 0.0;
                 return false;
             }
         } else {
             // Not unique.  YA + ZA = atan2(-r01,r00)
-            v.x = -Math.PI * 0.5;
+            v.x = -HALF_PI;
             v.y = Math.atan2(-a10, a00);
             v.z = 0.0;
             return false;

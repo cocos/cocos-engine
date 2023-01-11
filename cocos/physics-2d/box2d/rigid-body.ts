@@ -27,7 +27,7 @@ import { IRigidBody2D } from '../spec/i-rigid-body';
 import { RigidBody2D } from '../framework/components/rigid-body-2d';
 import { PhysicsSystem2D } from '../framework/physics-system';
 import { b2PhysicsWorld } from './physics-world';
-import { Vec2, toRadian, Vec3, Quat, IVec2Like, toDegree } from '../../core';
+import { Vec2, toRadian, Vec3, Quat, IVec2Like, toDegree, TWO_PI, HALF_PI } from '../../core';
 import { PHYSICS_2D_PTM_RATIO, ERigidBody2DType } from '../framework/physics-types';
 
 import { Node } from '../../scene-graph/node';
@@ -133,17 +133,17 @@ export class b2RigidBody2D implements IRigidBody2D {
         b2body.SetLinearVelocity(tempVec2_1);
 
         //convert b2Rotation to [-PI~PI], which is the same as this._animatedAngle
-        let b2Rotation = b2body.GetAngle() % (Math.PI * 2);
+        let b2Rotation = b2body.GetAngle() % (TWO_PI);
         if (b2Rotation > Math.PI) {
-            b2Rotation -= Math.PI * 2;
+            b2Rotation -= TWO_PI;
         }
 
         //calculate angular velocity
         let angularVelocity = (this._animatedAngle - b2Rotation) * timeStep;
-        if (this._animatedAngle < -0.5 * Math.PI && b2Rotation > 0.5 * Math.PI) { //ccw, crossing PI
-            angularVelocity = (this._animatedAngle + 2 * Math.PI - b2Rotation) * timeStep;
-        } if (this._animatedAngle > 0.5 * Math.PI && b2Rotation < -0.5 * Math.PI) { //cw, crossing PI
-            angularVelocity = (this._animatedAngle - 2 * Math.PI - b2Rotation) * timeStep;
+        if (this._animatedAngle < -HALF_PI && b2Rotation > HALF_PI) { //ccw, crossing PI
+            angularVelocity = (this._animatedAngle + TWO_PI - b2Rotation) * timeStep;
+        } if (this._animatedAngle > HALF_PI && b2Rotation < -HALF_PI) { //cw, crossing PI
+            angularVelocity = (this._animatedAngle - TWO_PI - b2Rotation) * timeStep;
         }
 
         b2body.SetAngularVelocity(angularVelocity);
