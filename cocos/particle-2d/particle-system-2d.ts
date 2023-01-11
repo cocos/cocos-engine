@@ -216,10 +216,6 @@ export class ParticleSystem2D extends UIRenderer {
                 this.custom = true;
             }
         }
-        if (!value) {
-            Color.set(this._startColorVar, 0, 0, 0, 0);
-            Color.set(this._endColorVar, 0, 0, 0, 0);
-        }
     }
 
     /**
