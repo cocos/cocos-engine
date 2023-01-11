@@ -133,8 +133,7 @@ export class b2RigidBody2D implements IRigidBody2D {
         b2body.SetLinearVelocity(tempVec2_1);
 
         //convert b2Rotation to [-PI~PI], which is the same as this._animatedAngle
-        const f = b2body.GetAngle() / (Math.PI * 2);
-        let b2Rotation = (f - Math.floor(f)) * Math.PI * 2;
+        let b2Rotation = b2body.GetAngle() % (Math.PI * 2);
         if (b2Rotation > Math.PI) {
             b2Rotation -= Math.PI * 2;
         }
