@@ -44,8 +44,6 @@ NativeRenderingModule* sRenderingModule = nullptr;
 } // namespace
 
 RenderingModule* Factory::init(gfx::Device* deviceIn, const ccstd::vector<unsigned char>& bufferIn) {
-    std::ignore = deviceIn;
-
     std::shared_ptr<NativeProgramLibrary> ptr(
         allocatePmrUniquePtr<NativeProgramLibrary>(
             boost::container::pmr::get_default_resource()));
@@ -55,6 +53,7 @@ RenderingModule* Factory::init(gfx::Device* deviceIn, const ccstd::vector<unsign
         BinaryInputArchive ar(iss, boost::container::pmr::get_default_resource());
         load(ar, ptr->layoutGraph);
     }
+    ptr->init(deviceIn);
 
     sRenderingModule = ccnew NativeRenderingModule(std::move(ptr));
     return sRenderingModule;
@@ -68,7 +67,10 @@ void Factory::destroy(RenderingModule* renderingModule) noexcept {
 }
 
 Pipeline* Factory::createPipeline() {
-    return ccnew NativePipeline(boost::container::pmr::get_default_resource());
+    auto* ptr = ccnew NativePipeline(boost::container::pmr::get_default_resource());
+    CC_EXPECTS(sRenderingModule);
+    sRenderingModule->programLibrary->pipeline = ptr;
+    return ptr;
 }
 
 ProgramLibrary* getProgramLibrary() {

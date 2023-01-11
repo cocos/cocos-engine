@@ -77,6 +77,8 @@ export function validPunctualLightsCulling (pipeline: RenderPipeline, camera: Ca
             validPunctualLights.push(light);
         }
     }
+    // in jsb, std::vector is not synchronized, so we need to assign it manually
+    sceneData.validPunctualLights = validPunctualLights;
 }
 export function shadowCulling (camera: Camera, sceneData: PipelineSceneData, layer: ShadowLayerVolume) {
     const scene = camera.scene!;

@@ -178,15 +178,7 @@ void ProgramLib::registerEffect(EffectAsset *effect) {
         auto *tmpl = define(shader);
         tmpl->effectName = effect->getName();
     }
-
-    for (auto &tech : effect->_techniques) {
-        for (auto &pass : tech.passes) {
-            // grab default property declaration if there is none
-            if (pass.propertyIndex.has_value() && !pass.properties.has_value()) {
-                pass.properties = tech.passes[pass.propertyIndex.value()].properties;
-            }
-        }
-    }
+    render::addEffectDefaultProperties(*effect);
 }
 
 IProgramInfo *ProgramLib::define(IShaderInfo &shader) {

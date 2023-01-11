@@ -630,7 +630,10 @@ void Pass::doInit(const IPassInfoFull &info, bool /*copyDefines*/ /* = false */)
 
     // calculate total size required
     const auto &blocks = _shaderInfo->blocks;
-    const auto *tmplInfo = programLib->getTemplateInfo(info.program);
+    const auto *tmplInfo
+        = programLib2
+        ? nullptr
+        : programLib->getTemplateInfo(info.program);
     const auto &blockSizes = [&]() -> const auto & {
         if (programLib2) {
             return programLib2->getBlockSizes(_phaseID, _programName);
