@@ -132,8 +132,22 @@ export class b2RigidBody2D implements IRigidBody2D {
         tempVec2_1.y = (this._animatedPos.y - b2Pos.y) * timeStep;
         b2body.SetLinearVelocity(tempVec2_1);
 
-        const b2Rotation = b2body.GetAngle();
-        b2body.SetAngularVelocity((this._animatedAngle - b2Rotation) * timeStep);
+        //convert b2Rotation to [-PI~PI], which is the same as this._animatedAngle
+        const f = b2body.GetAngle() / (Math.PI * 2);
+        let b2Rotation = (f - Math.floor(f)) * Math.PI * 2;
+        if (b2Rotation > Math.PI) {
+            b2Rotation -= Math.PI * 2;
+        }
+
+        //calculate angular velocity
+        let angularVelocity = (this._animatedAngle - b2Rotation) * timeStep;
+        if (this._animatedAngle < -0.5 * Math.PI && b2Rotation > 0.5 * Math.PI) { //ccw, crossing PI
+            angularVelocity = (this._animatedAngle + 2 * Math.PI - b2Rotation) * timeStep;
+        } if (this._animatedAngle > 0.5 * Math.PI && b2Rotation < -0.5 * Math.PI) { //cw, crossing PI
+            angularVelocity = (this._animatedAngle - 2 * Math.PI - b2Rotation) * timeStep;
+        }
+
+        b2body.SetAngularVelocity(angularVelocity);
     }
 
     syncSceneToPhysics () {
@@ -171,7 +185,7 @@ export class b2RigidBody2D implements IRigidBody2D {
 
         const rot = this._rigidBody.node.worldRotation;
         const euler = tempVec3;
-        Quat.toEuler(euler, rot);
+        Quat.toEuler1(euler, rot);
         const rotation = toRadian(euler.z);
 
         const bodyType = this._rigidBody.type;

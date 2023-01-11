@@ -624,6 +624,41 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Convert Matrix to euler angle, resulting angle y, z in the range of [-180, 180],
+     *  x in the range of [-90, 90], the rotation order is YXZ.
+     * @zh 将矩阵转换成欧拉角, 返回角度 y,z 在 [-180, 180] 区间内, x 在 [-90, 90] 区间内，旋转顺序为 YXZ.
+     */
+    public static toEuler (matrix: Mat3,  v: Vec3): boolean {
+        //a[col][row]
+        const a00 = matrix.m00; const a01 = matrix.m01; const a02 = matrix.m02;
+        const a10 = matrix.m03; const a11 = matrix.m04; const a12 = matrix.m05;
+        const a20 = matrix.m06; const a21 = matrix.m07; const a22 = matrix.m08;
+
+        // from http://www.geometrictools.com/Documentation/EulerAngles.pdf
+        // YXZ order
+        if (a21 < 0.999) {
+            if (a21 > -0.999) {
+                v.x = Math.asin(-a21);
+                v.y = Math.atan2(a20, a22);
+                v.z = Math.atan2(a01, a11);
+                return true;
+            } else {
+                // Not unique.  YA - ZA = atan2(r01,r00)
+                v.x = Math.PI * 0.5;
+                v.y = Math.atan2(a10, a00);
+                v.z = 0.0;
+                return false;
+            }
+        } else {
+            // Not unique.  YA + ZA = atan2(-r01,r00)
+            v.x = -Math.PI * 0.5;
+            v.y = Math.atan2(-a10, a00);
+            v.z = 0.0;
+            return false;
+        }
+    }
+
+    /**
      * @en Value at column 0 row 0 of the matrix.
      * @zh 矩阵第 0 列第 0 行的元素。
      */
