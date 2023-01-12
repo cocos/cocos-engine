@@ -273,13 +273,12 @@ ccstd::string NativeLayoutGraphBuilder::print() const {
 
     oss << "\n";
 
-    auto &g = *data;
+    const auto &g = *data;
     for (const auto v : makeRange(vertices(g))) {
         if (parent(v, g) != LayoutGraphData::null_vertex()) {
             continue;
         }
         const auto &name = get(LayoutGraphData::Name, g, v);
-        const auto &freq = get(LayoutGraphData::Update, g, v);
         OSS << "\"" << name << "\": ";
 
         visit(
@@ -288,7 +287,7 @@ ccstd::string NativeLayoutGraphBuilder::print() const {
             },
             tag(v, g));
 
-        oss << "<" << getName(freq) << "> {\n";
+        oss << " {\n";
         INDENT_BEG();
         const auto &info = get(LayoutGraphData::Layout, g, v);
         for (const auto &set : info.descriptorSets) {

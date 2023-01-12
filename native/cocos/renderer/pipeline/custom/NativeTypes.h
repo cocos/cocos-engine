@@ -80,7 +80,7 @@ struct ProgramGroup {
     ProgramGroup& operator=(ProgramGroup&& rhs) = default;
     ProgramGroup& operator=(ProgramGroup const& rhs) = default;
 
-    PmrFlatMap<ccstd::pmr::string, ProgramInfo> programInfos;
+    PmrTransparentMap<ccstd::pmr::string, ProgramInfo> programInfos;
     PmrFlatMap<ccstd::pmr::string, IntrusivePtr<ProgramProxy>> programProxies;
 };
 
