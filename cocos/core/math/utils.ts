@@ -31,6 +31,9 @@ const _d2r = Math.PI / 180.0;
 
 const _r2d = 180.0 / Math.PI;
 
+export const HALF_PI = Math.PI * 0.5;
+export const TWO_PI = Math.PI * 2.0;
+
 export const EPSILON = 0.000001;
 
 /**
