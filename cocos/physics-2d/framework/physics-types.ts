@@ -130,8 +130,19 @@ export enum ERaycast2DType {
 export const Contact2DType = {
     None: 'none-contact',
     BEGIN_CONTACT: 'begin-contact',
+    STAY_CONTACT: 'stay-contact',
     END_CONTACT: 'end-contact',
+
+    /**
+    * @deprecated Since v3.7.1, PhysicsSystem2D doesn't directly emit the contact events emitted by box2d.
+    * If you need this event, try to modify the relevant engine code(mainly PhysicsContactListener).
+    */
     PRE_SOLVE: 'pre-solve',
+
+    /**
+    * @deprecated Since v3.7.1, PhysicsSystem2D doesn't directly emit the contact events emitted by box2d.
+    * If you need this event, try to modify the relevant engine code(mainly PhysicsContactListener).
+    */
     POST_SOLVE: 'post-solve',
 };
 
