@@ -614,6 +614,18 @@ export class Quat extends ValueType {
     }
 
     /**
+     * @en Converts the quaternion to euler angles, result angle y, z in the range of [-180, 180], x in the range of [-90, 90], the rotation order is YXZ
+     * @zh 根据四元数计算欧拉角，返回角度 yz 在 [-180, 180], x 在 [-90, 90]，旋转顺序为 YXZ
+     */
+    public static toEulerInYXZOrder (out: Vec3, q: IQuatLike) {
+        Mat3.fromQuat(m3_1, q);
+        Mat3.toEuler(m3_1, out);
+        out.x = toDegree(out.x);
+        out.y = toDegree(out.y);
+        out.z = toDegree(out.z);
+    }
+
+    /**
      * @en Converts quaternion to an array
      * @zh 四元数转数组
      * @param ofs Array Start Offset

@@ -26,7 +26,7 @@ import { CCClass } from '../data/class';
 import { ValueType } from '../value-types/value-type';
 import { Quat } from './quat';
 import { IMat3Like, IMat4Like, IQuatLike, IVec2Like, IVec3Like } from './type-define';
-import { EPSILON } from './utils';
+import { EPSILON, HALF_PI } from './utils';
 import { Vec3 } from './vec3';
 import { legacyCC } from '../global-exports';
 
@@ -621,6 +621,41 @@ export class Mat3 extends ValueType {
             && Math.abs(a.m07 - b.m07) <= epsilon * Math.max(1.0, Math.abs(a.m07), Math.abs(b.m07))
             && Math.abs(a.m08 - b.m08) <= epsilon * Math.max(1.0, Math.abs(a.m08), Math.abs(b.m08))
         );
+    }
+
+    /**
+     * @en Convert Matrix to euler angle, resulting angle y, z in the range of [-PI, PI],
+     *  x in the range of [-PI/2, PI/2], the rotation order is YXZ.
+     * @zh 将矩阵转换成欧拉角, 返回角度 y,z 在 [-PI, PI] 区间内, x 在 [-PI/2, PI/2] 区间内，旋转顺序为 YXZ.
+     */
+    public static toEuler (matrix: Mat3,  v: Vec3): boolean {
+        //a[col][row]
+        const a00 = matrix.m00; const a01 = matrix.m01; const a02 = matrix.m02;
+        const a10 = matrix.m03; const a11 = matrix.m04; const a12 = matrix.m05;
+        const a20 = matrix.m06; const a21 = matrix.m07; const a22 = matrix.m08;
+
+        // from http://www.geometrictools.com/Documentation/EulerAngles.pdf
+        // YXZ order
+        if (a21 < 0.999) {
+            if (a21 > -0.999) {
+                v.x = Math.asin(-a21);
+                v.y = Math.atan2(a20, a22);
+                v.z = Math.atan2(a01, a11);
+                return true;
+            } else {
+                // Not unique.  YA - ZA = atan2(r01,r00)
+                v.x = HALF_PI;
+                v.y = Math.atan2(a10, a00);
+                v.z = 0.0;
+                return false;
+            }
+        } else {
+            // Not unique.  YA + ZA = atan2(-r01,r00)
+            v.x = -HALF_PI;
+            v.y = Math.atan2(-a10, a00);
+            v.z = 0.0;
+            return false;
+        }
     }
 
     /**
