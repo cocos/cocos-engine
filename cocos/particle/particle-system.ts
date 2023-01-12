@@ -519,7 +519,7 @@ export class ParticleSystem extends Component {
         particleUpdateContext.lastPosition.set(particleUpdateContext.currentPosition);
         particleUpdateContext.currentPosition.set(this.node.worldPosition);
         particleUpdateContext.worldTransform.set(this.node.worldMatrix);
-        particleUpdateContext.worldRotation.set(this.node.worldRotation);
+        Quat.normalize(particleUpdateContext.worldRotation, this.node.worldRotation);
         if (particleUpdateContext.emitterDelayRemaining > 0) {
             particleUpdateContext.emitterDelayRemaining -= particleUpdateContext.emitterDeltaTime;
             particleUpdateContext.emitterDeltaTime = 0;
@@ -532,13 +532,17 @@ export class ParticleSystem extends Component {
         particleUpdateContext.normalizedTimeInCycle = ((particleUpdateContext.emitterAccumulatedTime - particleUpdateContext.emitterStartDelay)
             % this.duration) / this.duration;
 
-        const { normalizedAliveTime, invStartLifeTime, animatedVelocityX, animatedVelocityY, animatedVelocityZ } = particles;
+        const { normalizedAliveTime, invStartLifeTime, animatedVelocityX, animatedVelocityY, animatedVelocityZ, angularVelocityX, angularVelocityY, angularVelocityZ, color, startColor } = particles;
         for (let i = 0, length = particles.count; i < length; ++i) {
             normalizedAliveTime[i] += deltaTime * invStartLifeTime[i];
 
             animatedVelocityX[i] = 0;
             animatedVelocityY[i] = 0;
             animatedVelocityZ[i] = 0;
+            angularVelocityX[i] = 0;
+            angularVelocityY[i] = 0;
+            angularVelocityZ[i] = 0;
+            color[i] = startColor[i];
 
             if (normalizedAliveTime[i] > 1) {
                 particles.removeParticle(i);
@@ -588,11 +592,14 @@ export class ParticleSystem extends Component {
         }
         const velocity = new Vec3();
         const animatedVelocity = new Vec3();
+        const angularVelocity = new Vec3();
         for (let particleHandle = 0; particleHandle < particles.count; particleHandle++) {
             particles.getVelocityAt(velocity, particleHandle);
             particles.getAnimatedVelocityAt(animatedVelocity, particleHandle);
             velocity.add(animatedVelocity);
             particles.addPositionAt(velocity.multiplyScalar(deltaTime), particleHandle);
+            particles.getAngularVelocityAt(angularVelocity, particleHandle);
+            particles.addRotationAt(angularVelocity.multiplyScalar(deltaTime), particleHandle);
         }
 
         for (; i < length; i++) {

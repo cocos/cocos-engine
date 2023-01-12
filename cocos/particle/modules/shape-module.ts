@@ -24,16 +24,16 @@
  */
 
 import { ccclass, tooltip, displayOrder, type, formerlySerializedAs, serializable, visible, range } from 'cc.decorator';
-import { Mat4, Quat, Vec2, Vec3, clamp, pingPong, random, randomRange, repeat, toDegree, toRadian } from '../../core/math';
+import { Mat4, Quat, Vec2, Vec3, clamp, pingPong, random, randomRange, repeat, toDegree, toRadian, randomRangeInt } from '../../core/math';
 
 import { CurveRange } from '../curve-range';
-import { ArcMode, EmitLocation, ShapeType } from '../enum';
 import { fixedAngleUnitVector2, particleEmitZAxis, randomPointBetweenCircleAtFixedAngle, randomPointBetweenSphere,
     randomPointInCube, randomSign, randomSortArray, randomUnitVector } from '../particle-general-function';
 import { ParticleSystem } from '../particle-system';
 import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
 import { ParticleUpdateContext } from '../particle-update-context';
+import { Enum } from '../../core';
 
 const _intermediVec = new Vec3(0, 0, 0);
 const _intermediArr: number[] = [];
@@ -49,6 +49,70 @@ function getShapeTypeEnumName (enumValue: number): keyof typeof ShapeType {
     return enumName as keyof typeof ShapeType;
 }
 
+/**
+ * 粒子发射器类型。
+ * @enum shapeModule.ShapeType
+ */
+export enum ShapeType {
+    /**
+     * 立方体类型粒子发射器。
+     */
+    BOX,
+
+    BOX_SHELL,
+
+    BOX_EDGE,
+
+    /**
+     * 圆形粒子发射器。
+     */
+    CIRCLE,
+
+    /**
+     * 圆锥体粒子发射器。
+     */
+    CONE,
+
+    CONE_BASE,
+
+    CONE_SHELL,
+
+    /**
+     * 球体粒子发射器。
+     */
+    SPHERE,
+
+    SPHERE_SHELL,
+
+    /**
+     * 半球体粒子发射器。
+     */
+    HEMISPHERE,
+
+    HEMISPHERE_SHELL,
+}
+
+/**
+ * 粒子在扇形区域的发射方式。
+ * @enum shapeModule.ArcMode
+ */
+export enum ArcMode {
+    /**
+     * 随机位置发射。
+     */
+    RANDOM,
+
+    /**
+     * 沿某一方向循环发射，每次循环方向相同。
+     */
+    LOOP,
+
+    /**
+     * 循环发射，每次循环方向相反。
+     */
+    PING_PONG,
+}
+
 @ccclass('cc.ShapeModule')
 export class ShapeModule extends ParticleModule {
     /**
@@ -61,7 +125,6 @@ export class ShapeModule extends ParticleModule {
     }
     set position (val) {
         this._position = val;
-        this.constructMat();
     }
 
     /**
@@ -74,7 +137,6 @@ export class ShapeModule extends ParticleModule {
     }
     set rotation (val) {
         this._rotation = val;
-        this.constructMat();
     }
 
     /**
@@ -87,7 +149,6 @@ export class ShapeModule extends ParticleModule {
     }
     set scale (val) {
         this._scale = val;
-        this.constructMat();
     }
 
     /**
@@ -96,9 +157,8 @@ export class ShapeModule extends ParticleModule {
     @displayOrder(6)
     @tooltip('i18n:shapeModule.arc')
     @visible(function (this: ShapeModule) {
-        const subset: Array<keyof typeof ShapeType> = ['Cone', 'Circle'];
-        const enumName = getShapeTypeEnumName(this.shapeType);
-        return subset.includes(enumName);
+        return this._shapeType === ShapeType.CONE || this._shapeType === ShapeType.CONE_BASE || this._shapeType === ShapeType.CONE_SHELL
+            || this._shapeType === ShapeType.CIRCLE;
     })
     get arc () {
         return toDegree(this._arc);
@@ -115,9 +175,7 @@ export class ShapeModule extends ParticleModule {
     @displayOrder(5)
     @tooltip('i18n:shapeModule.angle')
     @visible(function (this: ShapeModule) {
-        const subset: Array<keyof typeof ShapeType> = ['Cone'];
-        const enumName = getShapeTypeEnumName(this.shapeType);
-        return subset.includes(enumName);
+        return this._shapeType === ShapeType.CONE || this._shapeType === ShapeType.CONE_BASE || this._shapeType === ShapeType.CONE_SHELL;
     })
     get angle () {
         return Math.round(toDegree(this._angle) * 100) / 100;
@@ -129,7 +187,7 @@ export class ShapeModule extends ParticleModule {
 
     private _shapeType = ShapeType.CONE;
 
-    @type(ShapeType)
+    @type(Enum(ShapeType))
     @tooltip('i18n:shapeModule.shapeType')
     public get shapeType () {
         return this._shapeType;
@@ -137,41 +195,7 @@ export class ShapeModule extends ParticleModule {
 
     public set shapeType (val) {
         this._shapeType = val;
-        switch (this._shapeType) {
-        case ShapeType.Box:
-            if (this.emitFrom === EmitLocation.Base) {
-                this.emitFrom = EmitLocation.Volume;
-            }
-            break;
-        case ShapeType.Cone:
-            if (this.emitFrom === EmitLocation.Edge) {
-                this.emitFrom = EmitLocation.Base;
-            }
-            break;
-        case ShapeType.Sphere:
-        case ShapeType.Hemisphere:
-            if (this.emitFrom === EmitLocation.Base || this.emitFrom === EmitLocation.Edge) {
-                this.emitFrom = EmitLocation.Volume;
-            }
-            break;
-        default:
-            break;
-        }
     }
-
-    /**
-     * @zh 粒子从发射器哪个部位发射 [[EmitLocation]]。
-     */
-    @type(EmitLocation)
-    @serializable
-    @displayOrder(2)
-    @tooltip('i18n:shapeModule.emitFrom')
-    @visible(function (this: ShapeModule) {
-        const subset: Array<keyof typeof ShapeType> = ['Box', 'Cone', 'Sphere', 'Hemisphere'];
-        const enumName = getShapeTypeEnumName(this.shapeType);
-        return subset.includes(enumName);
-    })
-    public emitFrom = EmitLocation.Volume;
 
     /**
      * @zh 根据粒子的初始方向决定粒子的移动方向。
@@ -212,9 +236,7 @@ export class ShapeModule extends ParticleModule {
     @displayOrder(3)
     @tooltip('i18n:shapeModule.radius')
     @visible(function (this: ShapeModule) {
-        const subset: Array<keyof typeof ShapeType> = ['Circle', 'Cone', 'Sphere', 'Hemisphere'];
-        const enumName = getShapeTypeEnumName(this.shapeType);
-        return subset.includes(enumName);
+        return this._shapeType !== ShapeType.BOX && this._shapeType !== ShapeType.BOX_EDGE && this._shapeType !== ShapeType.BOX_SHELL;
     })
     public radius = 1;
 
@@ -228,9 +250,7 @@ export class ShapeModule extends ParticleModule {
     @displayOrder(4)
     @tooltip('i18n:shapeModule.radiusThickness')
     @visible(function (this: ShapeModule) {
-        const subset: Array<keyof typeof ShapeType> = ['Circle', 'Cone', 'Sphere', 'Hemisphere'];
-        const enumName = getShapeTypeEnumName(this.shapeType);
-        return subset.includes(enumName);
+        return this._shapeType !== ShapeType.BOX && this._shapeType !== ShapeType.BOX_EDGE && this._shapeType !== ShapeType.BOX_SHELL;
     })
     public radiusThickness = 1;
 
@@ -242,23 +262,20 @@ export class ShapeModule extends ParticleModule {
     @displayOrder(7)
     @tooltip('i18n:shapeModule.arcMode')
     @visible(function (this: ShapeModule) {
-        const subset: Array<keyof typeof ShapeType> = ['Cone', 'Circle'];
-        const enumName = getShapeTypeEnumName(this.shapeType);
-        return subset.includes(enumName);
+        return this._shapeType === ShapeType.CONE || this._shapeType === ShapeType.CONE_BASE || this._shapeType === ShapeType.CONE_SHELL
+            || this._shapeType === ShapeType.CIRCLE;
     })
-    public arcMode = ArcMode.Random;
+    public arcMode = ArcMode.RANDOM;
 
     /**
      * @zh 控制可能产生粒子的弧周围的离散间隔。
      */
-    @visible(function noArc (this: ShapeModule) { return this.arcMode !== ArcMode.Random; }) // Bug fix: Hide this input when arcMode is random
     @serializable
     @displayOrder(9)
     @tooltip('i18n:shapeModule.arcSpread')
     @visible(function (this: ShapeModule) {
-        const subset: Array<keyof typeof ShapeType> = ['Cone', 'Circle'];
-        const enumName = getShapeTypeEnumName(this.shapeType);
-        return subset.includes(enumName);
+        return (this._shapeType === ShapeType.CONE || this._shapeType === ShapeType.CONE_BASE || this._shapeType === ShapeType.CONE_SHELL
+            || this._shapeType === ShapeType.CIRCLE) && this.arcMode !== ArcMode.RANDOM;
     })
     public arcSpread = 0;
 
@@ -266,15 +283,13 @@ export class ShapeModule extends ParticleModule {
      * @zh 粒子沿圆周发射的速度。
      */
     @type(CurveRange)
-    @visible(function noArc (this: ShapeModule) { return this.arcMode !== ArcMode.Random; }) // Bug fix: Hide this input when arcMode is random
     @range([0, 1])
     @serializable
     @displayOrder(10)
     @tooltip('i18n:shapeModule.arcSpeed')
     @visible(function (this: ShapeModule) {
-        const subset: Array<keyof typeof ShapeType> = ['Cone', 'Circle'];
-        const enumName = getShapeTypeEnumName(this.shapeType);
-        return subset.includes(enumName);
+        return (this._shapeType === ShapeType.CONE || this._shapeType === ShapeType.CONE_BASE || this._shapeType === ShapeType.CONE_SHELL
+            || this._shapeType === ShapeType.CIRCLE) && this.arcMode !== ArcMode.RANDOM;
     })
     public arcSpeed = new CurveRange();
 
@@ -286,9 +301,7 @@ export class ShapeModule extends ParticleModule {
     @displayOrder(11)
     @tooltip('i18n:shapeModule.length')
     @visible(function (this: ShapeModule) {
-        const subset: Array<keyof typeof ShapeType> = ['Cone'];
-        const enumName = getShapeTypeEnumName(this.shapeType);
-        return subset.includes(enumName);
+        return this._shapeType === ShapeType.CONE || this._shapeType === ShapeType.CONE_BASE || this._shapeType === ShapeType.CONE_SHELL;
     })
     public length = 5;
 
@@ -299,9 +312,7 @@ export class ShapeModule extends ParticleModule {
     @displayOrder(12)
     @tooltip('i18n:shapeModule.boxThickness')
     @visible(function (this: ShapeModule) {
-        const subset: Array<keyof typeof ShapeType> = ['Box'];
-        const enumName = getShapeTypeEnumName(this.shapeType);
-        return subset.includes(enumName);
+        return this._shapeType === ShapeType.BOX || this._shapeType === ShapeType.BOX_EDGE || this._shapeType === ShapeType.BOX_SHELL;
     })
     public boxThickness = new Vec3(0, 0, 0);
 
@@ -328,29 +339,71 @@ export class ShapeModule extends ParticleModule {
     @serializable
     private _angle = toRadian(25);
 
-    private mat: Mat4;
-    private quat: Quat;
-    private particleSystem: any;
-    private lastTime: number;
-    private totalAngle: number;
-
-    constructor () {
-        super();
-        this.mat = new Mat4();
-        this.quat = new Quat();
-        this.particleSystem = null;
-        this.lastTime = 0;
-        this.totalAngle = 0;
-    }
-
-    public onInit (ps: ParticleSystem) {
-        this.particleSystem = ps;
-        this.constructMat();
-        this.lastTime = this.particleSystem._time;
-    }
+    private mat = new Mat4();
+    private quat = new Quat();
+    private lastTime = 0;
+    private totalAngle = 0;
+    private _shuffleArray = new Float32Array(3);
 
     public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
-        throw new Error('Method not implemented.');
+        Quat.fromEuler(this.quat, this._rotation.x, this._rotation.y, this._rotation.z);
+        const { newParticleIndexStart, newParticleIndexEnd } = particleUpdateContext;
+        Mat4.fromRTS(this.mat, this.quat, this._position, this._scale);
+        const position = new Vec3();
+        const velocity = new Vec3();
+        const shuffleArray = this._shuffleArray;
+        switch (this.shapeType) {
+        case ShapeType.BOX:
+            for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                particles.getVelocityAt(velocity, i);
+                Vec3.set(position,
+                    randomRange(-0.5, 0.5),
+                    randomRange(-0.5, 0.5),
+                    randomRange(-0.5, 0.5));
+                particles.setVelocityAt(Vec3.transformQuat(velocity, velocity, this.quat), i);
+                particles.setPositionAt(Vec3.transformMat4(position, position, this.mat), i);
+            }
+            break;
+        case ShapeType.BOX_SHELL:
+            for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                particles.getVelocityAt(velocity, i);
+                shuffleArray[0] = randomRange(-0.5, 0.5);
+                shuffleArray[1] = randomRange(-0.5, 0.5);
+                shuffleArray[2] = randomSign() * 0.5;
+                shuffleFloat3(shuffleArray);
+                Vec3.set(position, shuffleArray[0], shuffleArray[1], shuffleArray[2]);
+                applyBoxThickness(shuffleArray, this.boxThickness);
+                particles.setVelocityAt(Vec3.transformQuat(velocity, velocity, this.quat), i);
+                particles.setPositionAt(Vec3.transformMat4(position, position, this.mat), i);
+            }
+            break;
+        case ShapeType.BOX_EDGE:
+            for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                shuffleArray[0] = randomRange(-0.5, 0.5);
+                shuffleArray[1] = randomSign() * 0.5;
+                shuffleArray[2] = randomSign() * 0.5;
+                shuffleFloat3(shuffleArray);
+                applyBoxThickness(shuffleArray, this.boxThickness);
+                Vec3.set(position, shuffleArray[0], shuffleArray[1], shuffleArray[2]);
+                applyBoxThickness(shuffleArray, this.boxThickness);
+                particles.setVelocityAt(Vec3.transformQuat(velocity, velocity, this.quat), i);
+                particles.setPositionAt(Vec3.transformMat4(position, position, this.mat), i);
+            }
+            break;
+        case ShapeType.CIRCLE:
+            circleEmit(this.radius, this.radiusThickness, this.generateArcAngle(), p.position, p.velocity);
+            break;
+        case ShapeType.CONE:
+            coneEmit(this.emitFrom, this.radius, this.radiusThickness, this.generateArcAngle(), this._angle, this.length, p.position, p.velocity);
+            break;
+        case ShapeType.Sphere:
+            sphereEmit(this.emitFrom, this.radius, this.radiusThickness, p.position, p.velocity);
+            break;
+        case ShapeType.Hemisphere:
+            hemisphereEmit(this.emitFrom, this.radius, this.radiusThickness, p.position, p.velocity);
+            break;
+        default:
+        }
     }
 
     public emit (p) {
@@ -385,11 +438,6 @@ export class ShapeModule extends ParticleModule {
             Vec3.lerp(p.velocity, p.velocity, sphericalVel, this.sphericalDirectionAmount);
         }
         this.lastTime = this.particleSystem._time;
-    }
-
-    private constructMat () {
-        Quat.fromEuler(this.quat, this._rotation.x, this._rotation.y, this._rotation.z);
-        Mat4.fromRTS(this.mat, this.quat, this._position, this._scale);
     }
 
     private generateArcAngle () {
@@ -515,17 +563,29 @@ function circleEmit (radius, radiusThickness, theta, pos, dir) {
     Vec3.normalize(dir, pos);
 }
 
-function applyBoxThickness (pos, thickness) {
+function applyBoxThickness (position: Float32Array, thickness: Vec3) {
     if (thickness.x > 0) {
-        pos[0] += 0.5 * randomRange(-thickness.x, thickness.x);
-        pos[0] = clamp(pos[0], -0.5, 0.5);
+        position[0] *= randomRange(thickness.x, 1);
     }
     if (thickness.y > 0) {
-        pos[1] += 0.5 * randomRange(-thickness.y, thickness.y);
-        pos[1] = clamp(pos[1], -0.5, 0.5);
+        position[1] *= randomRange(thickness.y, 1);
     }
     if (thickness.z > 0) {
-        pos[2] += 0.5 * randomRange(-thickness.z, thickness.z);
-        pos[2] = clamp(pos[2], -0.5, 0.5);
+        position[2] *= randomRange(thickness.z, 1);
     }
+}
+
+export function shuffleFloat3 (float3: Float32Array) {
+    let transpose = randomRangeInt(0, 3);
+    let val = float3[transpose];
+    float3[transpose] = float3[0];
+    float3[0] = val;
+    transpose = 1 + randomRangeInt(0, 2);
+    val = float3[transpose];
+    float3[transpose] = float3[1];
+    float3[1] = val;
+    transpose = 2 + randomRangeInt(0, 1);
+    val = float3[transpose];
+    float3[transpose] = float3[2];
+    float3[2] = val;
 }

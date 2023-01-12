@@ -25,7 +25,7 @@
 
 import { ccclass, tooltip, displayOrder, range, type, serializable } from 'cc.decorator';
 import { lerp, pseudoRandom, Quat, Vec3 } from '../../core/math';
-import { Space, ModuleRandSeed } from '../enum';
+import { Space } from '../enum';
 import { calculateTransform } from '../particle-general-function';
 import { CurveRange } from '../curve-range';
 
@@ -34,7 +34,7 @@ import { Enum } from '../../core';
 import { ParticleUpdateContext } from '../particle-update-context';
 import { ParticleSOAData } from '../particle-soa-data';
 
-const FORCE_OVERTIME_RAND_OFFSET = ModuleRandSeed.FORCE;
+const FORCE_OVER_LIFETIME_RAND_OFFSET = 212165;
 
 const _temp_v3 = new Vec3();
 
@@ -130,7 +130,7 @@ export class ForceOverLifetimeModule extends ParticleModule {
             }
             case CurveRange.Mode.TwoConstants: {
                 for (let i = 0; i < count; i++) {
-                    const seed = randomSeed[i] + FORCE_OVERTIME_RAND_OFFSET;
+                    const seed = randomSeed[i] + FORCE_OVER_LIFETIME_RAND_OFFSET;
                     const force = Vec3.set(_temp_v3,
                         lerp(this.x.constantMin, this.x.constantMax, pseudoRandom(seed)),
                         lerp(this.y.constantMin, this.y.constantMax, pseudoRandom(seed)),
@@ -144,7 +144,7 @@ export class ForceOverLifetimeModule extends ParticleModule {
             case CurveRange.Mode.TwoCurves: {
                 for (let i = 0; i < count; i++) {
                     const normalizedTime = normalizedAliveTime[i];
-                    const seed = randomSeed[i] + FORCE_OVERTIME_RAND_OFFSET;
+                    const seed = randomSeed[i] + FORCE_OVER_LIFETIME_RAND_OFFSET;
                     const force = Vec3.set(_temp_v3,
                         lerp(this.x.splineMin.evaluate(normalizedTime), this.x.splineMax.evaluate(normalizedTime), pseudoRandom(seed))  * this.x.multiplier,
                         lerp(this.y.splineMin.evaluate(normalizedTime), this.y.splineMax.evaluate(normalizedTime), pseudoRandom(seed))  * this.x.multiplier,
@@ -184,7 +184,7 @@ export class ForceOverLifetimeModule extends ParticleModule {
             }
             case CurveRange.Mode.TwoConstants: {
                 for (let i = 0; i < count; i++) {
-                    const seed = randomSeed[i] + FORCE_OVERTIME_RAND_OFFSET;
+                    const seed = randomSeed[i] + FORCE_OVER_LIFETIME_RAND_OFFSET;
                     const force = Vec3.set(_temp_v3,
                         lerp(this.x.constantMin, this.x.constantMax, pseudoRandom(seed)),
                         lerp(this.y.constantMin, this.y.constantMax, pseudoRandom(seed)),
@@ -197,7 +197,7 @@ export class ForceOverLifetimeModule extends ParticleModule {
             case CurveRange.Mode.TwoCurves: {
                 for (let i = 0; i < count; i++) {
                     const normalizedTime = normalizedAliveTime[i];
-                    const seed = randomSeed[i] + FORCE_OVERTIME_RAND_OFFSET;
+                    const seed = randomSeed[i] + FORCE_OVER_LIFETIME_RAND_OFFSET;
                     const force = Vec3.set(_temp_v3,
                         lerp(this.x.splineMin.evaluate(normalizedTime), this.x.splineMax.evaluate(normalizedTime), pseudoRandom(seed))  * this.x.multiplier,
                         lerp(this.y.splineMin.evaluate(normalizedTime), this.y.splineMax.evaluate(normalizedTime), pseudoRandom(seed))  * this.x.multiplier,

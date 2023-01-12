@@ -29,7 +29,7 @@ import { ParticleSOAData } from '../particle-soa-data';
 import { ParticleUpdateContext } from '../particle-update-context';
 import { CurveRange } from '../curve-range';
 import { GradientRange } from '../gradient-range';
-import { lerp, pseudoRandom, randomRangeInt, Vec3 } from '../../core/math';
+import { Color, lerp, pseudoRandom, randomRangeInt, Vec3 } from '../../core/math';
 import { INT_MAX } from '../../core/math/bits';
 import { particleEmitZAxis } from '../particle-general-function';
 import { Space } from '../enum';
@@ -160,7 +160,7 @@ export class InitializationModule extends ParticleModule {
 
     public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
         const { newParticleIndexStart, newParticleIndexEnd, normalizedTimeInCycle, worldRotation, simulationSpace } = particleUpdateContext;
-        const { randomSeed, invStartLifeTime } = particles;
+        const { randomSeed, invStartLifeTime, rotationX, rotationY, rotationZ, startSizeX, startSizeY, startSizeZ, sizeX, sizeY, sizeZ, startColor, color } = particles;
         const velocity = new Vec3();
         if (simulationSpace === Space.WORLD) {
             switch (this.startSpeed.mode) {
@@ -239,69 +239,64 @@ export class InitializationModule extends ParticleModule {
         if (this.startRotation3D) {
             switch (this.startRotationX.mode) {
             case CurveRange.Mode.Constant:
-                // eslint-disable-next-line no-case-declarations
-                const lifeTime = 1 / this.startLifetime.constant;
                 for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
-                    invStartLifeTime[i] = lifeTime;
+                    rotationX[i] = this.startRotationX.constant;
+                    rotationY[i] = this.startRotationY.constant;
+                    rotationZ[i] = this.startRotationZ.constant;
                 }
                 break;
             case CurveRange.Mode.TwoConstants:
                 for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
                     const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
-                    invStartLifeTime[i] = 1 / lerp(this.startLifetime.constantMin, this.startLifetime.constantMax, rand);
+                    rotationX[i] = lerp(this.startRotationX.constantMin, this.startRotationX.constantMax, rand);
+                    rotationY[i] = lerp(this.startRotationY.constantMin, this.startRotationY.constantMax, rand);
+                    rotationZ[i] = lerp(this.startRotationZ.constantMin, this.startRotationZ.constantMax, rand);
                 }
                 break;
             case CurveRange.Mode.Curve:
                 for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
-                    invStartLifeTime[i] = 1 / (this.startLifetime.spline.evaluate(normalizedTimeInCycle) * this.startLifetime.multiplier);
+                    rotationX[i] = this.startRotationX.spline.evaluate(normalizedTimeInCycle) * this.startRotationX.multiplier;
+                    rotationY[i] = this.startRotationY.spline.evaluate(normalizedTimeInCycle) * this.startRotationY.multiplier;
+                    rotationZ[i] = this.startRotationZ.spline.evaluate(normalizedTimeInCycle) * this.startRotationZ.multiplier;
                 }
                 break;
             case CurveRange.Mode.TwoCurves:
                 for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
                     const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
-                    invStartLifeTime[i] = 1 / (lerp(this.startLifetime.splineMin.evaluate(normalizedTimeInCycle), this.startLifetime.splineMax.evaluate(normalizedTimeInCycle), rand) * this.startLifetime.multiplier);
+                    rotationX[i] = lerp(this.startRotationX.splineMin.evaluate(normalizedTimeInCycle), this.startRotationX.splineMax.evaluate(normalizedTimeInCycle), rand) * this.startRotationX.multiplier;
+                    rotationY[i] = lerp(this.startRotationY.splineMin.evaluate(normalizedTimeInCycle), this.startRotationY.splineMax.evaluate(normalizedTimeInCycle), rand) * this.startRotationY.multiplier;
+                    rotationZ[i] = lerp(this.startRotationZ.splineMin.evaluate(normalizedTimeInCycle), this.startRotationZ.splineMax.evaluate(normalizedTimeInCycle), rand) * this.startRotationZ.multiplier;
                 }
                 break;
             default:
             }
-            // eslint-disable-next-line max-len
-            particle.startEuler.set(this.startRotationX.evaluate(normalizedTimeInCycle, rand), this.startRotationY.evaluate(normalizedTimeInCycle, rand), this.startRotationZ.evaluate(normalizedTimeInCycle, rand));
         } else {
-            switch (this.startRotationX.mode) {
+            switch (this.startRotationZ.mode) {
             case CurveRange.Mode.Constant:
                 // eslint-disable-next-line no-case-declarations
-                const lifeTime = 1 / this.startLifetime.constant;
                 for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
-                    invStartLifeTime[i] = lifeTime;
+                    rotationZ[i] = this.startRotationZ.constant;
                 }
                 break;
             case CurveRange.Mode.TwoConstants:
                 for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
                     const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
-                    invStartLifeTime[i] = 1 / lerp(this.startLifetime.constantMin, this.startLifetime.constantMax, rand);
+                    rotationZ[i] = lerp(this.startRotationZ.constantMin, this.startRotationZ.constantMax, rand);
                 }
                 break;
             case CurveRange.Mode.Curve:
                 for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
-                    invStartLifeTime[i] = 1 / (this.startLifetime.spline.evaluate(normalizedTimeInCycle) * this.startLifetime.multiplier);
+                    rotationZ[i] = this.startRotationZ.spline.evaluate(normalizedTimeInCycle) * this.startRotationZ.multiplier;
                 }
                 break;
             case CurveRange.Mode.TwoCurves:
                 for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
                     const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
-                    invStartLifeTime[i] = 1 / (lerp(this.startLifetime.splineMin.evaluate(normalizedTimeInCycle), this.startLifetime.splineMax.evaluate(normalizedTimeInCycle), rand) * this.startLifetime.multiplier);
+                    rotationZ[i] = lerp(this.startRotationZ.splineMin.evaluate(normalizedTimeInCycle), this.startRotationZ.splineMax.evaluate(normalizedTimeInCycle), rand) * this.startLifetime.multiplier;
                 }
                 break;
             default:
             }
-            particle.startEuler.set(0, 0, this.startRotationZ.evaluate(normalizedTimeInCycle, rand));
-        }
-
-        if (this.startRotation3D) {
-            // eslint-disable-next-line max-len
-            particle.startEuler.set(this.startRotationX.evaluate(normalizedTimeInCycle, rand), this.startRotationY.evaluate(normalizedTimeInCycle, rand), this.startRotationZ.evaluate(normalizedTimeInCycle, rand));
-        } else {
-            particle.startEuler.set(0, 0, this.startRotationZ.evaluate(normalizedTimeInCycle, rand));
         }
 
         switch (this.startLifetime.mode) {
@@ -334,32 +329,99 @@ export class InitializationModule extends ParticleModule {
         for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
             randomSeed[i] = randomRangeInt(0, 233280);
         }
-        for (let i = newParticleIndexOffset, l = newParticleIndexOffset + newEmittingCount; i < l; ++i) {
-            const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
-
-            // apply startRotation.
-            if (this.startRotation3D) {
-                // eslint-disable-next-line max-len
-                particle.startEuler.set(this.startRotationX.evaluate(normalizedTimeInCycle, rand), this.startRotationY.evaluate(normalizedTimeInCycle, rand), this.startRotationZ.evaluate(normalizedTimeInCycle, rand));
-            } else {
-                particle.startEuler.set(0, 0, this.startRotationZ.evaluate(normalizedTimeInCycle, rand));
+        if (this.startSize3D) {
+            switch (this.startSizeX.mode) {
+            case CurveRange.Mode.Constant:
+                for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                    sizeX[i] = startSizeX[i] = this.startSizeX.constant;
+                    sizeY[i] = startSizeY[i] = this.startSizeY.constant;
+                    sizeZ[i] = startSizeZ[i] = this.startSizeZ.constant;
+                }
+                break;
+            case CurveRange.Mode.TwoConstants:
+                for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                    const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
+                    sizeX[i] = startSizeX[i] = lerp(this.startSizeX.constantMin, this.startSizeX.constantMax, rand);
+                    sizeY[i] = startSizeY[i] = lerp(this.startSizeY.constantMin, this.startSizeY.constantMax, rand);
+                    sizeZ[i] = startSizeZ[i] = lerp(this.startSizeZ.constantMin, this.startSizeZ.constantMax, rand);
+                }
+                break;
+            case CurveRange.Mode.Curve:
+                for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                    sizeX[i] = startSizeX[i] = this.startSizeX.spline.evaluate(normalizedTimeInCycle) * this.startSizeX.multiplier;
+                    sizeY[i] = startSizeY[i] = this.startSizeY.spline.evaluate(normalizedTimeInCycle) * this.startSizeY.multiplier;
+                    sizeZ[i] = startSizeZ[i] = this.startSizeZ.spline.evaluate(normalizedTimeInCycle) * this.startSizeZ.multiplier;
+                }
+                break;
+            case CurveRange.Mode.TwoCurves:
+                for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                    const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
+                    sizeX[i] = startSizeX[i] = lerp(this.startSizeX.splineMin.evaluate(normalizedTimeInCycle), this.startSizeX.splineMax.evaluate(normalizedTimeInCycle), rand) * this.startSizeX.multiplier;
+                    sizeY[i] = startSizeY[i] = lerp(this.startSizeY.splineMin.evaluate(normalizedTimeInCycle), this.startSizeY.splineMax.evaluate(normalizedTimeInCycle), rand) * this.startSizeY.multiplier;
+                    sizeZ[i] = startSizeZ[i] = lerp(this.startSizeZ.splineMin.evaluate(normalizedTimeInCycle), this.startSizeZ.splineMax.evaluate(normalizedTimeInCycle), rand) * this.startSizeZ.multiplier;
+                }
+                break;
+            default:
             }
-            particle.rotation.set(particle.startEuler);
-
-            // apply startSize.
-            if (this.startSize3D) {
-                Vec3.set(particle.startSize, this.startSizeX.evaluate(normalizedTimeInCycle, rand)!,
-                    this.startSizeY.evaluate(normalizedTimeInCycle, rand)!,
-                    this.startSizeZ.evaluate(normalizedTimeInCycle, rand)!);
-            } else {
-                Vec3.set(particle.startSize, this.startSizeX.evaluate(normalizedTimeInCycle, rand)!, 1, 1);
-                particle.startSize.y = particle.startSize.x;
+        } else {
+            switch (this.startSizeX.mode) {
+            case CurveRange.Mode.Constant:
+                for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                    sizeY[i] = startSizeY[i] = sizeX[i] = startSizeX[i] = this.startSizeX.constant;
+                }
+                break;
+            case CurveRange.Mode.TwoConstants:
+                for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                    const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
+                    sizeY[i] = startSizeY[i] = sizeX[i] = startSizeX[i] = lerp(this.startSizeX.constantMin, this.startSizeX.constantMax, rand);
+                }
+                break;
+            case CurveRange.Mode.Curve:
+                for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                    sizeY[i] = startSizeY[i] = sizeX[i] = startSizeX[i] = this.startSizeX.spline.evaluate(normalizedTimeInCycle) * this.startSizeX.multiplier;
+                }
+                break;
+            case CurveRange.Mode.TwoCurves:
+                for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                    const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
+                    sizeY[i] = startSizeY[i] = sizeX[i] = startSizeX[i] = lerp(this.startSizeX.splineMin.evaluate(normalizedTimeInCycle), this.startSizeX.splineMax.evaluate(normalizedTimeInCycle), rand) * this.startSizeX.multiplier;
+                }
+                break;
+            default:
             }
-            Vec3.copy(particle.size, particle.startSize);
-
-            // apply startColor.
-            particle.startColor.set(this.startColor.evaluate(normalizedTimeInCycle, rand));
-            particle.color.set(particle.startColor);
-        } // end of particles forLoop.
+        }
+        const tempColor = new Color();
+        switch (this.startColor.mode) {
+        case GradientRange.Mode.Color:
+            // eslint-disable-next-line no-case-declarations
+            const colorNum = Color.toUint32(this.startColor.color);
+            for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                color[i] = startColor[i] = colorNum;
+            }
+            break;
+        case GradientRange.Mode.Gradient:
+            for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                color[i] = startColor[i] = Color.toUint32(this.startColor.gradient.evaluate(normalizedTimeInCycle));
+            }
+            break;
+        case GradientRange.Mode.TwoColors:
+            for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
+                color[i] = startColor[i] = Color.toUint32(Color.lerp(tempColor, this.startColor.colorMin, this.startColor.colorMax, rand));
+            }
+            break;
+        case GradientRange.Mode.TwoGradients:
+            for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
+                color[i] = startColor[i] = Color.toUint32(Color.lerp(tempColor, this.startColor.gradientMin.evaluate(normalizedTimeInCycle), this.startColor.gradientMax.evaluate(normalizedTimeInCycle), rand));
+            }
+            break;
+        case GradientRange.Mode.RandomColor:
+            for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                color[i] = startColor[i] = Color.toUint32(this.startColor.gradient.randomColor());
+            }
+            break;
+        default:
+        }
     }
 }

@@ -63,6 +63,7 @@ export class TrailSegment {
     }
 }
 
+const tempColor = new Color();
 export class ParticleSOAData {
     private _count = 0;
     private _capacity = 16;
@@ -302,6 +303,18 @@ export class ParticleSOAData {
         this._animatedVelocityZ[handle] = val.z;
     }
 
+    getAngularVelocityAt (out: Vec3, handle: ParticleHandle) {
+        out.x = this._angularVelocityX[handle];
+        out.y = this._angularVelocityY[handle];
+        out.z = this._angularVelocityZ[handle];
+    }
+
+    addAngularVelocityAt (val: Vec3, handle: ParticleHandle) {
+        this._angularVelocityX[handle] += val.x;
+        this._angularVelocityY[handle] += val.y;
+        this._angularVelocityZ[handle] += val.z;
+    }
+
     getVelocityChannel (chanel: SOADataChannel) {
         switch (chanel) {
         case SOADataChannel.X:
@@ -333,6 +346,12 @@ export class ParticleSOAData {
         default:
             return this._rotationZ;
         }
+    }
+
+    addRotationAt (val: Vec3, handle: ParticleHandle) {
+        this._rotationX[handle] += val.x;
+        this._rotationY[handle] += val.y;
+        this._rotationZ[handle] += val.z;
     }
 
     getAxisOfRotationChannel (chanel: SOADataChannel) {
@@ -408,6 +427,12 @@ export class ParticleSOAData {
 
     setColorAt (color: Color, handle: ParticleHandle) {
         this._color[handle] = Color.toUint32(color);
+    }
+
+    multipleColorAt (color: Color, handle: ParticleHandle) {
+        Color.fromUint32(tempColor, this._color[handle]);
+        tempColor.multiply(color);
+        this._color[handle] = Color.toUint32(tempColor);
     }
 
     addTrailSegment (handle: ParticleHandle) {
@@ -562,8 +587,8 @@ export class ParticleSOAData {
         this._sizeX[handle] = 1;
         this._sizeY[handle] = 1;
         this._sizeZ[handle] = 1;
-        this._startColor[handle] = Color.WHITE._val;
-        this._color[handle] = Color.WHITE._val;
+        this._startColor[handle] = Color.toUint32(Color.WHITE);
+        this._color[handle] = Color.toUint32(Color.WHITE);
         this._randomSeed[handle] = 0;
         this._invStartLifeTime[handle] = 0;
         this._normalizedAliveTime[handle] = 0;

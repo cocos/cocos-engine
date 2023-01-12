@@ -213,27 +213,27 @@ export class TextureAnimationModule extends ParticleModule {
     @serializable
     private _uvChannelMask = -1;
 
-    public init (p: Particle) {
-        p.startRow = Math.floor(Math.random() * this.numTilesY);
-    }
+    // public init (p: Particle) {
+    //     p.startRow = Math.floor(Math.random() * this.numTilesY);
+    // }
 
-    public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
-        const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
-        const startFrame = this.startFrame.evaluate(normalizedTime, pseudoRandom(p.randomSeed + TEXTURE_ANIMATION_RAND_OFFSET))! / (this.numTilesX * this.numTilesY);
-        if (this.animation === Animation.WholeSheet) {
-            p.frameIndex = repeat(this.cycleCount * (this.frameOverTime.evaluate(normalizedTime, pseudoRandom(p.randomSeed + TEXTURE_ANIMATION_RAND_OFFSET))! + startFrame), 1);
-        } else if (this.animation === Animation.SingleRow) {
-            const rowLength = 1 / this.numTilesY;
-            if (this.randomRow) {
-                const f = repeat(this.cycleCount * (this.frameOverTime.evaluate(normalizedTime, pseudoRandom(p.randomSeed + TEXTURE_ANIMATION_RAND_OFFSET))! + startFrame), 1);
-                const from = p.startRow * rowLength;
-                const to = from + rowLength;
-                p.frameIndex = lerp(from, to, f);
-            } else {
-                const from = this.rowIndex * rowLength;
-                const to = from + rowLength;
-                p.frameIndex = lerp(from, to, repeat(this.cycleCount * (this.frameOverTime.evaluate(normalizedTime, pseudoRandom(p.randomSeed + TEXTURE_ANIMATION_RAND_OFFSET))! + startFrame), 1));
-            }
-        }
-    }
+    // public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
+    //     const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
+    //     const startFrame = this.startFrame.evaluate(normalizedTime, pseudoRandom(p.randomSeed + TEXTURE_ANIMATION_RAND_OFFSET))! / (this.numTilesX * this.numTilesY);
+    //     if (this.animation === Animation.WholeSheet) {
+    //         p.frameIndex = repeat(this.cycleCount * (this.frameOverTime.evaluate(normalizedTime, pseudoRandom(p.randomSeed + TEXTURE_ANIMATION_RAND_OFFSET))! + startFrame), 1);
+    //     } else if (this.animation === Animation.SingleRow) {
+    //         const rowLength = 1 / this.numTilesY;
+    //         if (this.randomRow) {
+    //             const f = repeat(this.cycleCount * (this.frameOverTime.evaluate(normalizedTime, pseudoRandom(p.randomSeed + TEXTURE_ANIMATION_RAND_OFFSET))! + startFrame), 1);
+    //             const from = p.startRow * rowLength;
+    //             const to = from + rowLength;
+    //             p.frameIndex = lerp(from, to, f);
+    //         } else {
+    //             const from = this.rowIndex * rowLength;
+    //             const to = from + rowLength;
+    //             p.frameIndex = lerp(from, to, repeat(this.cycleCount * (this.frameOverTime.evaluate(normalizedTime, pseudoRandom(p.randomSeed + TEXTURE_ANIMATION_RAND_OFFSET))! + startFrame), 1));
+    //         }
+    //     }
+    // }
 }

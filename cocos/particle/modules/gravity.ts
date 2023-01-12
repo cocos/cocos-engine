@@ -23,17 +23,17 @@
  THE SOFTWARE.
  */
 
-import { ccclass, displayOrder, range, serializable, tooltip, type } from "../../core/data/decorators";
-import { ParticleModule, ParticleUpdateStage } from "../particle-module";
-import { ParticleSOAData } from "../particle-soa-data";
-import { ParticleUpdateContext } from "../particle-update-context";
-import { CurveRange } from "../curve-range";
-import { approx, EPSILON, pseudoRandom } from "../../core/math";
-import { Space } from "../enum";
+import { ccclass, displayOrder, range, serializable, tooltip, type } from '../../core/data/decorators';
+import { ParticleModule, ParticleUpdateStage } from '../particle-module';
+import { ParticleSOAData } from '../particle-soa-data';
+import { ParticleUpdateContext } from '../particle-update-context';
+import { CurveRange } from '../curve-range';
+import { approx, EPSILON, lerp, pseudoRandom, Quat, Vec3 } from '../../core/math';
+import { Space } from '../enum';
 
+const GRAVITY_RAND_OFFSET = 238818;
 @ccclass('cc.GravityModule')
 export class GravityModule extends ParticleModule {
-
     /**
      * @zh 粒子受重力影响的重力系数。
      */
@@ -52,38 +52,86 @@ export class GravityModule extends ParticleModule {
         return ParticleUpdateStage.PRE_UPDATE;
     }
 
-    public update(particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
-        const { simulationSpace } = particleUpdateContext;
+    public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
+        const { simulationSpace, deltaTime, worldRotation } = particleUpdateContext;
+        const { count, normalizedAliveTime, randomSeed, velocityY } = particles;
+        const deltaVelocity = 9.8 * deltaTime;
         if (simulationSpace === Space.LOCAL) {
-            const r: Quat = this.node.getRotation();
-            Mat4.fromQuat(this._localMat, r);
-            this._localMat.transpose(); // just consider rotation, use transpose as invert
-        }
-
-        if (this.node.parent) {
-            this.node.parent.getWorldMatrix(_tempParentInverse);
-            _tempParentInverse.invert();
-        }
-        if (simulationSpace === Space.LOCAL) {
-            const gravityFactor = -this.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed))! * 9.8 * dt;
-            this._gravity.x = 0.0;
-            this._gravity.y = gravityFactor;
-            this._gravity.z = 0.0;
-            this._gravity.w = 1.0;
-            if (!approx(gravityFactor, 0.0, EPSILON)) {
-                if (this.node.parent) {
-                    this._gravity = this._gravity.transformMat4(_tempParentInverse);
+            const invRotation = Quat.conjugate(new Quat(), worldRotation);
+            const deltaVelocity = 9.8 * deltaTime;
+            const gravity = new Vec3();
+            const gravityInLocalSpace = new Vec3();
+            switch (this.gravityModifier.mode) {
+            case CurveRange.Mode.Constant: {
+                for (let i = 0; i < count; i++) {
+                    gravity.y = -this.gravityModifier.constant * deltaVelocity;
+                    Vec3.transformQuat(gravityInLocalSpace, gravity, invRotation);
+                    particles.addVelocityAt(gravityInLocalSpace, i);
                 }
-                this._gravity = this._gravity.transformMat4(this._localMat);
-
-                p.velocity.x += this._gravity.x;
-                p.velocity.y += this._gravity.y;
-                p.velocity.z += this._gravity.z;
+                break;
+            }
+            case CurveRange.Mode.Curve: {
+                for (let i = 0; i < count; i++) {
+                    const normalizedTime = normalizedAliveTime[i];
+                    gravity.y = -this.gravityModifier.spline.evaluate(normalizedTime) * this.gravityModifier.multiplier * deltaVelocity;
+                    Vec3.transformQuat(gravityInLocalSpace, gravity, invRotation);
+                    particles.addVelocityAt(gravityInLocalSpace, i);
+                }
+                break;
+            }
+            case CurveRange.Mode.TwoConstants: {
+                for (let i = 0; i < count; i++) {
+                    const seed = randomSeed[i] + GRAVITY_RAND_OFFSET;
+                    gravity.y = -lerp(this.gravityModifier.constantMin, this.gravityModifier.constantMax, pseudoRandom(seed)) * deltaVelocity;
+                    Vec3.transformQuat(gravityInLocalSpace, gravity, invRotation);
+                    particles.addVelocityAt(gravityInLocalSpace, i);
+                }
+                break;
+            }
+            case CurveRange.Mode.TwoCurves: {
+                for (let i = 0; i < count; i++) {
+                    const normalizedTime = normalizedAliveTime[i];
+                    const seed = randomSeed[i] + GRAVITY_RAND_OFFSET;
+                    gravity.y = -lerp(this.gravityModifier.splineMin.evaluate(normalizedTime), this.gravityModifier.splineMax.evaluate(normalizedTime), pseudoRandom(seed)) * this.gravityModifier.multiplier * deltaVelocity;
+                    Vec3.transformQuat(gravityInLocalSpace, gravity, invRotation);
+                    particles.addVelocityAt(gravityInLocalSpace, i);
+                }
+                break;
+            }
+            default:
             }
         } else {
-            // apply gravity.
-            p.velocity.y -= this.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed))! * 9.8 * dt;
+            switch (this.gravityModifier.mode) {
+            case CurveRange.Mode.Constant: {
+                for (let i = 0; i < count; i++) {
+                    velocityY[i] -= this.gravityModifier.constant * deltaVelocity;
+                }
+                break;
+            }
+            case CurveRange.Mode.Curve: {
+                for (let i = 0; i < count; i++) {
+                    const normalizedTime = normalizedAliveTime[i];
+                    velocityY[i] -= this.gravityModifier.spline.evaluate(normalizedTime) * this.gravityModifier.multiplier * deltaVelocity;
+                }
+                break;
+            }
+            case CurveRange.Mode.TwoConstants: {
+                for (let i = 0; i < count; i++) {
+                    const seed = randomSeed[i] + GRAVITY_RAND_OFFSET;
+                    velocityY[i] -= lerp(this.gravityModifier.constantMin, this.gravityModifier.constantMax, pseudoRandom(seed)) * deltaVelocity;
+                }
+                break;
+            }
+            case CurveRange.Mode.TwoCurves: {
+                for (let i = 0; i < count; i++) {
+                    const normalizedTime = normalizedAliveTime[i];
+                    const seed = randomSeed[i] + GRAVITY_RAND_OFFSET;
+                    velocityY[i] -= lerp(this.gravityModifier.splineMin.evaluate(normalizedTime), this.gravityModifier.splineMax.evaluate(normalizedTime), pseudoRandom(seed)) * this.gravityModifier.multiplier * deltaVelocity;
+                }
+                break;
+            }
+            default:
+            }
         }
     }
-
 }

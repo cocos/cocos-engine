@@ -135,31 +135,30 @@ export class LimitVelocityOverLifetimeModule extends ParticleModule {
         super();
         this.rotation = new Quat();
         this.needTransform = false;
-        this.needUpdate = true;
     }
 
-    public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
-        this.needTransform = calculateTransform(particleUpdateContext.simulationSpace,
-            this.space, particleUpdateContext.worldTransform, this.rotation);
-        const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
-        const dampedVel = _temp_v3;
-        if (this.separateAxes) {
-            Vec3.set(_temp_v3_1, this.limitX.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET))!,
-                this.limitY.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET))!,
-                this.limitZ.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET))!);
-            if (this.needTransform) {
-                Vec3.transformQuat(_temp_v3_1, _temp_v3_1, this.rotation);
-            }
-            Vec3.set(dampedVel,
-                dampenBeyondLimit(p.ultimateVelocity.x, _temp_v3_1.x, this.dampen),
-                dampenBeyondLimit(p.ultimateVelocity.y, _temp_v3_1.y, this.dampen),
-                dampenBeyondLimit(p.ultimateVelocity.z, _temp_v3_1.z, this.dampen));
-        } else {
-            Vec3.normalize(dampedVel, p.ultimateVelocity);
-            Vec3.multiplyScalar(dampedVel, dampedVel, dampenBeyondLimit(p.ultimateVelocity.length(), this.limit.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET))!, this.dampen));
-        }
-        Vec3.copy(p.ultimateVelocity, dampedVel);
-    }
+    // public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
+    //     this.needTransform = calculateTransform(particleUpdateContext.simulationSpace,
+    //         this.space, particleUpdateContext.worldTransform, this.rotation);
+    //     const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
+    //     const dampedVel = _temp_v3;
+    //     if (this.separateAxes) {
+    //         Vec3.set(_temp_v3_1, this.limitX.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET))!,
+    //             this.limitY.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET))!,
+    //             this.limitZ.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET))!);
+    //         if (this.needTransform) {
+    //             Vec3.transformQuat(_temp_v3_1, _temp_v3_1, this.rotation);
+    //         }
+    //         Vec3.set(dampedVel,
+    //             dampenBeyondLimit(p.ultimateVelocity.x, _temp_v3_1.x, this.dampen),
+    //             dampenBeyondLimit(p.ultimateVelocity.y, _temp_v3_1.y, this.dampen),
+    //             dampenBeyondLimit(p.ultimateVelocity.z, _temp_v3_1.z, this.dampen));
+    //     } else {
+    //         Vec3.normalize(dampedVel, p.ultimateVelocity);
+    //         Vec3.multiplyScalar(dampedVel, dampedVel, dampenBeyondLimit(p.ultimateVelocity.length(), this.limit.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET))!, this.dampen));
+    //     }
+    //     Vec3.copy(p.ultimateVelocity, dampedVel);
+    // }
 }
 
 function dampenBeyondLimit (vel: number, limit: number, dampen: number) {

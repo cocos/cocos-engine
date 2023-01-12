@@ -97,53 +97,53 @@ export class RotationOverLifetimeModule extends ParticleModule {
     @serializable
     private _separateAxes = false;
 
-    private _processRotation (p: Particle, r2d: number) {
-        // Same as the particle-vs-legacy.chunk glsl statemants
-        const renderMode = p.particleSystem.processor.getInfo().renderMode;
-        if (renderMode !== RenderMode.Mesh) {
-            if (renderMode === RenderMode.StrecthedBillboard) {
-                this._quatRot.set(0, 0, 0, 1);
-            }
-        }
+    // private _processRotation (p: Particle, r2d: number) {
+    //     // Same as the particle-vs-legacy.chunk glsl statemants
+    //     const renderMode = p.particleSystem.processor.getInfo().renderMode;
+    //     if (renderMode !== RenderMode.Mesh) {
+    //         if (renderMode === RenderMode.StrecthedBillboard) {
+    //             this._quatRot.set(0, 0, 0, 1);
+    //         }
+    //     }
 
-        Quat.normalize(this._quatRot, this._quatRot);
-        if (this._quatRot.w < 0.0) { // Use vec3 to save quat so we need identify negative w
-            this._quatRot.x += Particle.INDENTIFY_NEG_QUAT; // Indentify negative w & revert the quat in shader
-        }
-    }
+    //     Quat.normalize(this._quatRot, this._quatRot);
+    //     if (this._quatRot.w < 0.0) { // Use vec3 to save quat so we need identify negative w
+    //         this._quatRot.x += Particle.INDENTIFY_NEG_QUAT; // Indentify negative w & revert the quat in shader
+    //     }
+    // }
 
-    public animate (p: Particle, dt: number) {
-        const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
-        const rotationRand = pseudoRandom(p.randomSeed + ROTATION_OVERTIME_RAND_OFFSET);
-        const renderMode = p.particleSystem.processor.getInfo().renderMode;
+    // public animate (p: Particle, dt: number) {
+    //     const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
+    //     const rotationRand = pseudoRandom(p.randomSeed + ROTATION_OVERTIME_RAND_OFFSET);
+    //     const renderMode = p.particleSystem.processor.getInfo().renderMode;
 
-        if ((!this._separateAxes) || (renderMode === RenderMode.VerticalBillboard || renderMode === RenderMode.HorizontalBillboard)) {
-            Quat.fromEuler(p.deltaQuat, 0, 0, this.z.evaluate(normalizedTime, rotationRand)! * dt * Particle.R2D);
-        } else {
-            Quat.fromEuler(p.deltaQuat, this.x.evaluate(normalizedTime, rotationRand)! * dt * Particle.R2D, this.y.evaluate(normalizedTime, rotationRand)! * dt * Particle.R2D, this.z.evaluate(normalizedTime, rotationRand)! * dt * Particle.R2D);
-        }
+    //     if ((!this._separateAxes) || (renderMode === RenderMode.VerticalBillboard || renderMode === RenderMode.HorizontalBillboard)) {
+    //         Quat.fromEuler(p.deltaQuat, 0, 0, this.z.evaluate(normalizedTime, rotationRand)! * dt * Particle.R2D);
+    //     } else {
+    //         Quat.fromEuler(p.deltaQuat, this.x.evaluate(normalizedTime, rotationRand)! * dt * Particle.R2D, this.y.evaluate(normalizedTime, rotationRand)! * dt * Particle.R2D, this.z.evaluate(normalizedTime, rotationRand)! * dt * Particle.R2D);
+    //     }
 
-        // Rotation-overtime combine with start rotation, after that we get quat from the mat
-        p.deltaMat = Mat4.fromQuat(p.deltaMat, p.deltaQuat);
-        p.localMat = p.localMat.multiply(p.deltaMat); // accumulate rotation
+    //     // Rotation-overtime combine with start rotation, after that we get quat from the mat
+    //     p.deltaMat = Mat4.fromQuat(p.deltaMat, p.deltaQuat);
+    //     p.localMat = p.localMat.multiply(p.deltaMat); // accumulate rotation
 
-        if (!p.startRotated) {
-            if (renderMode !== RenderMode.Mesh) {
-                if (renderMode === RenderMode.StrecthedBillboard) {
-                    p.startEuler.set(0, 0, 0);
-                } else if (renderMode !== RenderMode.Billboard) {
-                    p.startEuler.set(0, 0, p.startEuler.z);
-                }
-            }
-            Quat.fromEuler(p.startRotation, p.startEuler.x * Particle.R2D, p.startEuler.y * Particle.R2D, p.startEuler.z * Particle.R2D);
-            p.startRotated = true;
-        }
+    //     if (!p.startRotated) {
+    //         if (renderMode !== RenderMode.Mesh) {
+    //             if (renderMode === RenderMode.StrecthedBillboard) {
+    //                 p.startEuler.set(0, 0, 0);
+    //             } else if (renderMode !== RenderMode.Billboard) {
+    //                 p.startEuler.set(0, 0, p.startEuler.z);
+    //             }
+    //         }
+    //         Quat.fromEuler(p.startRotation, p.startEuler.x * Particle.R2D, p.startEuler.y * Particle.R2D, p.startEuler.z * Particle.R2D);
+    //         p.startRotated = true;
+    //     }
 
-        this._startMat = Mat4.fromQuat(this._startMat, p.startRotation);
-        this._matRot = this._startMat.multiply(p.localMat);
+    //     this._startMat = Mat4.fromQuat(this._startMat, p.startRotation);
+    //     this._matRot = this._startMat.multiply(p.localMat);
 
-        Mat4.getRotation(this._quatRot, this._matRot);
-        this._processRotation(p, Particle.R2D);
-        p.rotation.set(this._quatRot.x, this._quatRot.y, this._quatRot.z);
-    }
+    //     Mat4.getRotation(this._quatRot, this._matRot);
+    //     this._processRotation(p, Particle.R2D);
+    //     p.rotation.set(this._quatRot.x, this._quatRot.y, this._quatRot.z);
+    // }
 }

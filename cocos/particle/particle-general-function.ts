@@ -31,7 +31,7 @@ export const particleEmitZAxis = new Vec3(0, 0, -1);
 
 export function calculateTransform (systemSpace: number, moduleSpace: number, worldTransform: Mat4, outQuat: Quat) {
     if (moduleSpace !== systemSpace) {
-        if (systemSpace === Space.World) {
+        if (systemSpace === Space.WORLD) {
             Mat4.getRotation(outQuat, worldTransform);
         } else {
             Mat4.invert(worldTransform, worldTransform);

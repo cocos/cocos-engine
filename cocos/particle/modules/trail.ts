@@ -149,108 +149,108 @@ export class TrailModule extends ParticleModule {
     @serializable
     private _minParticleDistance = 0.1;
 
-    public update () {
-        this._trailLifetime = this.lifeTime.evaluate(this._particleSystem._time, 1)!;
-        if (this.space === Space.World && this._particleSystem._simulationSpace === Space.Local) {
-            this._needTransform = true;
-            this._particleSystem.node.getWorldMatrix(_temp_xform);
-            this._particleSystem.node.getWorldRotation(_temp_quat);
-        } else {
-            this._needTransform = false;
-        }
-    }
+    // public update () {
+    //     this._trailLifetime = this.lifeTime.evaluate(this._particleSystem._time, 1)!;
+    //     if (this.space === Space.World && this._particleSystem._simulationSpace === Space.Local) {
+    //         this._needTransform = true;
+    //         this._particleSystem.node.getWorldMatrix(_temp_xform);
+    //         this._particleSystem.node.getWorldRotation(_temp_quat);
+    //     } else {
+    //         this._needTransform = false;
+    //     }
+    // }
 
-    public animate (p: Particle, scaledDt: number) {
-        if (!this._trailSegments) {
-            return;
-        }
+    // public animate (p: Particle, scaledDt: number) {
+    //     if (!this._trailSegments) {
+    //         return;
+    //     }
 
-        if (p.loopCount > p.lastLoop) {
-            if (p.trailDelay > 1) {
-                p.lastLoop = p.loopCount;
-                p.trailDelay = 0;
-            } else {
-                p.trailDelay++;
-            }
-            return;
-        }
+    //     if (p.loopCount > p.lastLoop) {
+    //         if (p.trailDelay > 1) {
+    //             p.lastLoop = p.loopCount;
+    //             p.trailDelay = 0;
+    //         } else {
+    //             p.trailDelay++;
+    //         }
+    //         return;
+    //     }
 
-        let trail = this._particleTrail.get(p);
-        if (!trail) {
-            trail = this._trailSegments.alloc();
-            this._particleTrail.set(p, trail);
-            // Avoid position and trail are one frame apart at the end of the particle animation.
-            return;
-        }
-        let lastSeg = trail.getElement(trail.end - 1);
-        if (this._needTransform) {
-            Vec3.transformMat4(_temp_vec3, p.position, _temp_xform);
-        } else {
-            Vec3.copy(_temp_vec3, p.position);
-        }
-        if (lastSeg) {
-            trail.iterateElement(this, this._updateTrailElement, p, scaledDt);
-            if (Vec3.squaredDistance(lastSeg.position, _temp_vec3) < this._minSquaredDistance) {
-                return;
-            }
-        }
-        lastSeg = trail.addElement();
-        if (!lastSeg) {
-            return;
-        }
+    //     let trail = this._particleTrail.get(p);
+    //     if (!trail) {
+    //         trail = this._trailSegments.alloc();
+    //         this._particleTrail.set(p, trail);
+    //         // Avoid position and trail are one frame apart at the end of the particle animation.
+    //         return;
+    //     }
+    //     let lastSeg = trail.getElement(trail.end - 1);
+    //     if (this._needTransform) {
+    //         Vec3.transformMat4(_temp_vec3, p.position, _temp_xform);
+    //     } else {
+    //         Vec3.copy(_temp_vec3, p.position);
+    //     }
+    //     if (lastSeg) {
+    //         trail.iterateElement(this, this._updateTrailElement, p, scaledDt);
+    //         if (Vec3.squaredDistance(lastSeg.position, _temp_vec3) < this._minSquaredDistance) {
+    //             return;
+    //         }
+    //     }
+    //     lastSeg = trail.addElement();
+    //     if (!lastSeg) {
+    //         return;
+    //     }
 
-        Vec3.copy(lastSeg.position, _temp_vec3);
-        lastSeg.lifetime = 0;
-        if (this.widthFromParticle) {
-            lastSeg.width = p.size.x * this.widthRatio.evaluate(0, 1)!;
-        } else {
-            lastSeg.width = this.widthRatio.evaluate(0, 1)!;
-        }
+    //     Vec3.copy(lastSeg.position, _temp_vec3);
+    //     lastSeg.lifetime = 0;
+    //     if (this.widthFromParticle) {
+    //         lastSeg.width = p.size.x * this.widthRatio.evaluate(0, 1)!;
+    //     } else {
+    //         lastSeg.width = this.widthRatio.evaluate(0, 1)!;
+    //     }
 
-        const trailNum = trail.count();
-        if (trailNum === 2) {
-            const lastSecondTrail = trail.getElement(trail.end - 2)!;
-            Vec3.subtract(lastSecondTrail.velocity, lastSeg.position, lastSecondTrail.position);
-        } else if (trailNum > 2) {
-            const lastSecondTrail = trail.getElement(trail.end - 2)!;
-            const lastThirdTrail = trail.getElement(trail.end - 3)!;
-            Vec3.subtract(_temp_vec3, lastThirdTrail.position, lastSecondTrail.position);
-            Vec3.subtract(_temp_vec3_1, lastSeg.position, lastSecondTrail.position);
-            Vec3.subtract(lastSecondTrail.velocity, _temp_vec3_1, _temp_vec3);
-            if (Vec3.equals(Vec3.ZERO, lastSecondTrail.velocity)) {
-                Vec3.copy(lastSecondTrail.velocity, _temp_vec3);
-            }
-            Vec3.normalize(lastSecondTrail.velocity, lastSecondTrail.velocity);
-            this._checkDirectionReverse(lastSecondTrail, lastThirdTrail);
-        }
-        if (this.colorFromParticle) {
-            lastSeg.color.set(p.color);
-        } else {
-            lastSeg.color.set(this.colorOvertime.evaluate(0, 1));
-        }
-    }
+    //     const trailNum = trail.count();
+    //     if (trailNum === 2) {
+    //         const lastSecondTrail = trail.getElement(trail.end - 2)!;
+    //         Vec3.subtract(lastSecondTrail.velocity, lastSeg.position, lastSecondTrail.position);
+    //     } else if (trailNum > 2) {
+    //         const lastSecondTrail = trail.getElement(trail.end - 2)!;
+    //         const lastThirdTrail = trail.getElement(trail.end - 3)!;
+    //         Vec3.subtract(_temp_vec3, lastThirdTrail.position, lastSecondTrail.position);
+    //         Vec3.subtract(_temp_vec3_1, lastSeg.position, lastSecondTrail.position);
+    //         Vec3.subtract(lastSecondTrail.velocity, _temp_vec3_1, _temp_vec3);
+    //         if (Vec3.equals(Vec3.ZERO, lastSecondTrail.velocity)) {
+    //             Vec3.copy(lastSecondTrail.velocity, _temp_vec3);
+    //         }
+    //         Vec3.normalize(lastSecondTrail.velocity, lastSecondTrail.velocity);
+    //         this._checkDirectionReverse(lastSecondTrail, lastThirdTrail);
+    //     }
+    //     if (this.colorFromParticle) {
+    //         lastSeg.color.set(p.color);
+    //     } else {
+    //         lastSeg.color.set(this.colorOvertime.evaluate(0, 1));
+    //     }
+    // }
 
-    private _updateTrailElement (module: any, trailEle: ITrailElement, p: Particle, dt: number): boolean {
-        trailEle.lifetime += dt;
-        if (module.colorFromParticle) {
-            trailEle.color.set(p.color);
-            trailEle.color.multiply(module.colorOvertime.evaluate(1.0 - p.remainingLifetime / p.startLifetime, 1));
-        } else {
-            trailEle.color.set(module.colorOvertime.evaluate(1.0 - p.remainingLifetime / p.startLifetime, 1));
-        }
-        if (module.widthFromParticle) {
-            trailEle.width = p.size.x * module.widthRatio.evaluate(trailEle.lifetime / module._trailLifetime, 1)!;
-        } else {
-            trailEle.width = module.widthRatio.evaluate(trailEle.lifetime / module._trailLifetime, 1)!;
-        }
-        return trailEle.lifetime > module._trailLifetime;
-    }
+    // private _updateTrailElement (module: any, trailEle: ITrailElement, p: Particle, dt: number): boolean {
+    //     trailEle.lifetime += dt;
+    //     if (module.colorFromParticle) {
+    //         trailEle.color.set(p.color);
+    //         trailEle.color.multiply(module.colorOvertime.evaluate(1.0 - p.remainingLifetime / p.startLifetime, 1));
+    //     } else {
+    //         trailEle.color.set(module.colorOvertime.evaluate(1.0 - p.remainingLifetime / p.startLifetime, 1));
+    //     }
+    //     if (module.widthFromParticle) {
+    //         trailEle.width = p.size.x * module.widthRatio.evaluate(trailEle.lifetime / module._trailLifetime, 1)!;
+    //     } else {
+    //         trailEle.width = module.widthRatio.evaluate(trailEle.lifetime / module._trailLifetime, 1)!;
+    //     }
+    //     return trailEle.lifetime > module._trailLifetime;
+    // }
 
-    private _checkDirectionReverse (currElement: ITrailElement, prevElement: ITrailElement) {
-        if (Vec3.dot(currElement.velocity, prevElement.velocity) < DIRECTION_THRESHOLD) {
-            currElement.direction = 1 - prevElement.direction;
-        } else {
-            currElement.direction = prevElement.direction;
-        }
-    }
+    // private _checkDirectionReverse (currElement: ITrailElement, prevElement: ITrailElement) {
+    //     if (Vec3.dot(currElement.velocity, prevElement.velocity) < DIRECTION_THRESHOLD) {
+    //         currElement.direction = 1 - prevElement.direction;
+    //     } else {
+    //         currElement.direction = prevElement.direction;
+    //     }
+    // }
 }
