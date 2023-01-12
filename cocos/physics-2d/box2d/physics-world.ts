@@ -379,6 +379,6 @@ export class b2PhysicsWorld implements IPhysicsWorld {
     }
 
     finalizeContactEvent () {
-        this._contactListener.FinalizeContactEvent();
+        this._contactListener.finalizeContactEvent();
     }
 }

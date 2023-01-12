@@ -52,7 +52,7 @@ export class PhysicsContactListener extends b2.ContactListener {
             if (retContact.status === Contact2DType.END_CONTACT) {
                 retContact.status = Contact2DType.STAY_CONTACT;
                 //console.log('   set as stay');
-            } else {
+            } else if (retContact.status !== Contact2DType.STAY_CONTACT) {
                 retContact.status = Contact2DType.BEGIN_CONTACT;
                 //console.log('   set as enter');
             }
@@ -84,7 +84,7 @@ export class PhysicsContactListener extends b2.ContactListener {
     PostSolve (contact: b2.Contact, impulse: b2.ContactImpulse) {
     }
 
-    public FinalizeContactEvent () {
+    public finalizeContactEvent () {
         PhysicsContactListener._contactMap.forEach((contact: PhysicsContact, key: string) => {
             //console.log('forEach', key, collision);
             if (contact.status === Contact2DType.END_CONTACT) {
