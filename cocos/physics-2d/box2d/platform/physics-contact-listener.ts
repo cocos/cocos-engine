@@ -49,18 +49,18 @@ export class PhysicsContactListener extends b2.ContactListener {
             const retContact = PhysicsContactListener._contactMap.get(key)!;
             retContact.ref++;
             //console.log('   collision++', key, 'current ref is:', retContact.ref);
-            if (retContact.status === Contact2DType.EXIT_CONTACT) {
+            if (retContact.status === Contact2DType.END_CONTACT) {
                 retContact.status = Contact2DType.STAY_CONTACT;
                 //console.log('   set as stay');
-            } else if (retContact.status !== Contact2DType.STAY_CONTACT) {
-                retContact.status = Contact2DType.ENTER_CONTACT;
+            } else {
+                retContact.status = Contact2DType.BEGIN_CONTACT;
                 //console.log('   set as enter');
             }
         } else {
             //console.log('   new collision', key, 'current ref is:', 1);
             const retCollision = new PhysicsContact(contact);
             PhysicsContactListener._contactMap.set(key, retCollision);
-            retCollision.status = Contact2DType.ENTER_CONTACT;
+            retCollision.status = Contact2DType.BEGIN_CONTACT;
         }
     }
 
@@ -74,7 +74,7 @@ export class PhysicsContactListener extends b2.ContactListener {
         //console.log('   collision--', key, 'current ref is:', retCollision.ref);
         if (retContact.ref <= 0) {
             //console.log('   set as exit');
-            retContact.status = Contact2DType.EXIT_CONTACT;
+            retContact.status = Contact2DType.END_CONTACT;
         }
     }
 
@@ -87,15 +87,13 @@ export class PhysicsContactListener extends b2.ContactListener {
     public FinalizeContactEvent () {
         PhysicsContactListener._contactMap.forEach((contact: PhysicsContact, key: string) => {
             //console.log('forEach', key, collision);
-            if (contact.status === Contact2DType.EXIT_CONTACT) {
+            if (contact.status === Contact2DType.END_CONTACT) {
                 PhysicsContactListener._contactMap.delete(key);
                 //console.log('   report end collision', key, 'current ref is:', contact.ref);
-                this.emit(Contact2DType.EXIT_CONTACT, contact);
                 this.emit(Contact2DType.END_CONTACT, contact);
-            } else if (contact.status === Contact2DType.ENTER_CONTACT) {
+            } else if (contact.status === Contact2DType.BEGIN_CONTACT) {
                 contact.status = Contact2DType.STAY_CONTACT;
                 //console.log('   report enter collision', key, 'current ref is:', contact.ref);
-                this.emit(Contact2DType.ENTER_CONTACT, contact);
                 this.emit(Contact2DType.BEGIN_CONTACT, contact);
             } else if (contact.status === Contact2DType.STAY_CONTACT) {
                 //console.log('   report stay collision', key, 'current ref is:', contact.ref);

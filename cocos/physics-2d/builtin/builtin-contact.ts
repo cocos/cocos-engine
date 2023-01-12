@@ -98,10 +98,10 @@ export class BuiltinContact {
         let type = Contact2DType.None;
         if (result && !this.touching) {
             this.touching = true;
-            type = Contact2DType.ENTER_CONTACT;
+            type = Contact2DType.BEGIN_CONTACT;
         } else if (!result && this.touching) {
             this.touching = false;
-            type = Contact2DType.EXIT_CONTACT;
+            type = Contact2DType.END_CONTACT;
         }
 
         this.type = type;
