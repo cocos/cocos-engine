@@ -362,6 +362,7 @@ export class LODGroup extends Component {
         lod.screenUsagePercentage = screenUsagePercentage;
         this._LODs.splice(index, 0, lod);
         this._lodGroup.insertLOD(index, lod.lodData);
+        this._updateDataToScene();
         if (this.node) {
             this._emitChangeNode(this.node);
         }
@@ -386,6 +387,7 @@ export class LODGroup extends Component {
         }
         this._LODs.splice(index, 1);
         this._lodGroup.eraseLOD(index);
+        this._updateDataToScene();
         this._emitChangeNode(this.node);
         return lod;
     }
@@ -418,6 +420,7 @@ export class LODGroup extends Component {
         this._LODs[index] = lod;
         lod.modelAddedCallback = this.onLodModelAddedCallback.bind(this);
         this.lodGroup.updateLOD(index, lod.lodData);
+        this._updateDataToScene();
     }
 
     /**
