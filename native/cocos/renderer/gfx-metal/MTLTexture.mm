@@ -29,7 +29,6 @@
 #import "MTLUtils.h"
 #import "MTLSwapchain.h"
 #import "profiler/Profiler.h"
-#include "base/Log.h"
 #import <CoreVideo/CVPixelBuffer.h>
 #import <CoreVideo/CVMetalTexture.h>
 #import <CoreVideo/CVMetalTextureCache.h>
@@ -168,18 +167,8 @@ void CCMTLTexture::doInit(const TextureViewInfo &info) {
 }
 
 void CCMTLTexture::doInit(const SwapchainTextureInfo &info) {
-    _swapchain = info.swapchain;
-    if (info.format == Format::DEPTH_STENCIL) {
-        createMTLTexture();
-    } else {
-        _mtlTexture = [static_cast<CCMTLSwapchain *>(_swapchain)->currentDrawable() texture];
-    }
-}
-
-void CCMTLTexture::update() {
-    if (_swapchain) {
-        id<CAMetalDrawable> drawable = static_cast<CCMTLSwapchain *>(_swapchain)->currentDrawable();
-        _mtlTexture = drawable ? [drawable texture] : nil;
+    if(!createMTLTexture()) {
+        CC_LOG_ERROR("%s", "try create swapchain texture error!");
     }
 }
 

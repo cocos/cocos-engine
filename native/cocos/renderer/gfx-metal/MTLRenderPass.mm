@@ -23,7 +23,6 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include <QuartzCore/CAMetalLayer.h>
 #include "MTLDevice.h"
 #include "MTLRenderPass.h"
 #include "MTLUtils.h"

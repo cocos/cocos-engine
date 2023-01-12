@@ -46,7 +46,10 @@ ccstd::hash_t RenderPass::computeHash() {
     }
     const auto &ds = _depthStencilAttachment;
     ccstd::hash_combine(seed, ds);
-
+    ccstd::hash_combine(seed, _fsrInfo.enabled);
+    if(_fsrInfo.enabled) {
+        ccstd::hash_combine(seed, _fsrInfo.ratio);
+    }
     ccstd::hash_combine(seed, _subpasses);
     return seed;
 }
@@ -61,6 +64,8 @@ void RenderPass::initialize(const RenderPassInfo &info) {
     _subpasses = info.subpasses;
     _dependencies = info.dependencies;
     _hash = computeHash();
+    _fsrInfo = info.fsrInfo;
+    _taaInfo = info.taaInfo;
 
     doInit(info);
 }

@@ -52,7 +52,7 @@ namespace {
 constexpr size_t MegaBytesToBytes = 1024 * 1024;
 }
 
-constexpr size_t MAX_COLORATTACHMENTS = 16u;
+static constexpr size_t MAX_COLORATTACHMENTS = 16u;
 
 struct CCMTLGPUDescriptorSetLayout {
     DescriptorSetLayoutBindingList bindings;
@@ -291,7 +291,6 @@ protected:
 };
 
 struct CCMTLGPUSwapChainObject {
-    id<CAMetalDrawable> currentDrawable = nil;
     CAMetalLayer *mtlLayer = nullptr;
 };
 

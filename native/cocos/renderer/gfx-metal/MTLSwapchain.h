@@ -32,7 +32,6 @@ namespace gfx {
 
 struct CCMTLGPUSwapChainObject;
 class CCMTLTexture;
-
 class CCMTLSwapchain final : public Swapchain {
 public:
     CCMTLSwapchain();
@@ -41,8 +40,7 @@ public:
     inline CCMTLGPUSwapChainObject *gpuSwapChainObj() { return _gpuSwapchainObj; }
     CCMTLTexture *colorTexture();
     CCMTLTexture *depthStencilTexture();
-
-    id<CAMetalDrawable> currentDrawable();
+    CAMetalLayer* layer();
 
     void acquire();
 

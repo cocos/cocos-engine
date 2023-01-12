@@ -155,6 +155,7 @@ void GbufferStage::render(scene::Camera *camera) {
 
     auto gbufferSetup = [&](framegraph::PassNodeBuilder &builder, RenderData &data) {
         builder.subpass();
+        builder.enableFSR();
 
         // gbuffer setup
         gfx::TextureInfo gbufferInfo = {

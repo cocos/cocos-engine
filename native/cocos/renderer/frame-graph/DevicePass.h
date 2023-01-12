@@ -87,6 +87,7 @@ private:
     Framebuffer _fbo;
 
     std::vector<std::reference_wrapper<const PassBarrierPair>> _barriers;
+    gfx::FSRInfo _fsrInfo{};
 };
 
 } // namespace framegraph

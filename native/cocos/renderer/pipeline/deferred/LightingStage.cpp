@@ -338,6 +338,7 @@ void LightingStage::fgLightingPass(scene::Camera *camera) {
     _planarShadowQueue->gatherShadowPasses(camera, pipeline->getCommandBuffers()[0]);
     auto lightingSetup = [&](framegraph::PassNodeBuilder &builder, RenderData &data) {
         builder.subpass(true);
+        builder.enableFSR();
 
         // read gbuffer
         for (int i = 0; i < 3; i++) {
