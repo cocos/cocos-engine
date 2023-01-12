@@ -63,6 +63,8 @@ void Factory::destroy(RenderingModule* renderingModule) noexcept {
     auto* ptr = dynamic_cast<NativeRenderingModule*>(renderingModule);
     if (ptr) {
         ptr->programLibrary.reset();
+        CC_EXPECTS(sRenderingModule == renderingModule);
+        sRenderingModule = nullptr;
     }
 }
 

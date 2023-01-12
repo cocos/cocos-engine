@@ -27,6 +27,7 @@
 #include <stdexcept>
 #include <tuple>
 #include <utility>
+#include "LayoutGraphGraphs.h"
 #include "LayoutGraphUtils.h"
 #include "NativePipelineTypes.h"
 #include "ProgramLib.h"
@@ -39,13 +40,13 @@
 #include "cocos/renderer/pipeline/Define.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphGraphs.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
+#include "details/Range.h"
 #include "gfx-base/GFXDescriptorSetLayout.h"
 #include "gfx-base/GFXShader.h"
 #include "pipeline/custom/NativePipelineFwd.h"
 #include "pipeline/custom/PrivateTypes.h"
 #include "pipeline/custom/RenderCommonTypes.h"
 #include "pipeline/custom/details/GslUtils.h"
-#include "details/Range.h"
 
 namespace cc {
 
@@ -926,19 +927,58 @@ const gfx::DescriptorSetLayout &getOrCreateProgramDescriptorSetLayout(
     return *layout.descriptorSetLayout;
 }
 
+void populatePipelineLayoutInfo(
+    const NativeProgramLibrary &lib,
+    const PipelineLayoutData &layout,
+    UpdateFrequency rate,
+    gfx::PipelineLayoutInfo &info) {
+    auto iter = layout.descriptorSets.find(rate);
+    if (iter != layout.descriptorSets.end()) {
+        const auto &set = iter->second;
+        CC_EXPECTS(set.descriptorSetLayout);
+        info.setLayouts.emplace_back(set.descriptorSetLayout.get());
+    } else {
+        info.setLayouts.emplace_back(lib.emptyDescriptorSetLayout.get());
+    }
+}
+
 } // namespace
 
 void NativeProgramLibrary::init(gfx::Device *device) {
     emptyDescriptorSetLayout = device->createDescriptorSetLayout({});
     emptyPipelineLayout = device->createPipelineLayout({});
-    for (const auto &vertID : makeRange(vertices(layoutGraph))) {
-        if (holds<RenderPhaseTag>(vertID, layoutGraph)) {
-            auto res = phases.emplace(
-                std::piecewise_construct,
-                std::forward_as_tuple(vertID),
-                std::forward_as_tuple());
-            CC_ENSURES(res.second);
+    auto &lg = layoutGraph;
+    for (const auto v : makeRange(vertices(lg))) {
+        auto &layout = get(LayoutGraphData::Layout, lg, v);
+        for (auto &&[update, set] : layout.descriptorSets) {
+            if (set.descriptorSetLayout) {
+                CC_LOG_WARNING("descriptor set layout already initialized. It will be overwritten");
+            }
+            initializeDescriptorSetLayoutInfo(
+                set.descriptorSetLayoutData,
+                set.descriptorSetLayoutInfo);
+            set.descriptorSetLayout = device->createDescriptorSetLayout(set.descriptorSetLayoutInfo);
+            CC_ENSURES(set.descriptorSetLayout);
+            set.descriptorSet = device->createDescriptorSet(gfx::DescriptorSetInfo{set.descriptorSetLayout.get()});
+            CC_ENSURES(set.descriptorSet);
         }
+    }
+
+    for (const auto v : makeRange(vertices(lg))) {
+        if (!holds<RenderPhaseTag>(v, lg)) {
+            continue;
+        }
+        const auto phaseID = v;
+        const auto passID = parent(phaseID, lg);
+        const auto &passLayout = get(LayoutGraphData::Layout, lg, passID);
+        const auto &phaseLayout = get(LayoutGraphData::Layout, lg, phaseID);
+        gfx::PipelineLayoutInfo info;
+        populatePipelineLayoutInfo(*this, passLayout, UpdateFrequency::PER_PASS, info);
+        populatePipelineLayoutInfo(*this, phaseLayout, UpdateFrequency::PER_PHASE, info);
+        populatePipelineLayoutInfo(*this, phaseLayout, UpdateFrequency::PER_BATCH, info);
+        populatePipelineLayoutInfo(*this, phaseLayout, UpdateFrequency::PER_INSTANCE, info);
+        auto &phase = get(RenderPhaseTag{}, phaseID, lg);
+        phase.pipelineLayout = device->createPipelineLayout(info);
     }
 }
 
