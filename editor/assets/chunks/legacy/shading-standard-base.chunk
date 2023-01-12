@@ -216,8 +216,9 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
       vec3 centerPos, boxHalfSize;
       float mipCount;
       GetCubeReflectionProbeData(centerPos, boxHalfSize, mipCount, s.reflectionProbeId);
-      R = CalculateBoxProjectedDirection(R, position, centerPos, boxHalfSize);
-      probe = fragTextureLod(cc_reflectionProbeCubemap, R, s.roughness * (mipCount - 1.0));
+      vec4 fixedR = CalculateBoxProjectedDirection(R, position, centerPos, boxHalfSize);
+      R = fixedR.xyz;
+      probe = fragTextureLod(cc_reflectionProbeCubemap, R, s.roughness * (mipCount - 1.0)) * fixedR.w;
     #elif CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_PLANAR
       vec4 plane;
       float planarReflectionDepthScale, mipCount;
@@ -227,7 +228,7 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
       vec2 screenUV = GetPlanarReflectScreenUV(worldPosOffset, cc_matViewProj, cc_cameraPos.w, V, R);
       probe = fragTextureLod(cc_reflectionProbePlanarMap, screenUV, cc_ambientGround.w);
     #endif
-    env = probe.rgb;
+    env = unpackRGBE(probe);
   #endif
 
   finalColor += env * cc_ambientSky.w * specular * s.occlusion;

@@ -51,9 +51,20 @@ export class ReflectionProbeManager {
      * 场景中所有使用planar类型反射探针的模型
      */
     private _usePlanarModels = new Map<Model, ReflectionProbe>();
-    protected _dataTexture: Texture | null = null;
+    private _updateForRuntime = true;
+    private _dataTexture: Texture | null = null;
     constructor () {
         director.on(Director.EVENT_BEFORE_UPDATE, this.onUpdateProbes, this);
+    }
+    /**
+     * @en Set and get whether to detect objects leaving or entering the reflection probe's bounding box at runtime.
+     * @zh 设置和获取是否在运行时检测物体离开或者进入反射探针的包围盒。
+     */
+    set updateForRuntime (val: boolean) {
+        this._updateForRuntime = val;
+    }
+    get updateForRuntime () {
+        return this._updateForRuntime;
     }
     /**
      * @en refresh all reflection probe
@@ -61,6 +72,7 @@ export class ReflectionProbeManager {
      */
     public onUpdateProbes (forceUpdate = false) {
         if (this._probes.length === 0) return;
+        if (!this.updateForRuntime) return;
         const scene = director.getScene();
         if (!scene || !scene.renderScene) {
             return;
@@ -407,6 +419,24 @@ export class ReflectionProbeManager {
         return find ? this._probes[idx] : null;
     }
 
+    private _getBlendProbe (model: Model): ReflectionProbe | null {
+        if (this._probes.length === 0) return null;
+        if (!model.node || !model.worldBounds) return null;
+        const temp: ReflectionProbe[] = [];
+        for (let i = 0; i < this._probes.length; i++) {
+            if (this._probes[i].probeType !== ProbeType.CUBE || !this._probes[i].validate() || !geometry.intersect.aabbWithAABB(model.worldBounds, this._probes[i].boundingBox!)) {
+                continue;
+            }
+            temp.push(this._probes[i]);
+        }
+        temp.sort((a: ReflectionProbe, b: ReflectionProbe) => {
+            const aDistance = Vec3.distance(model.node.worldPosition, a.node.worldPosition);
+            const bDistance = Vec3.distance(model.node.worldPosition, b.node.worldPosition);
+            return bDistance - aDistance;
+        });
+        return temp.length > 1 ? temp[1] : null;
+    }
+
     private _getModelsByProbe (probe: ReflectionProbe) {
         const models: Model[] = [];
         let useModels = this._useCubeModels;
@@ -441,6 +471,7 @@ export class ReflectionProbeManager {
     private _updateCubemapOfModel (model: Model, probe: ReflectionProbe | null) {
         const meshRender = model.node.getComponent(MeshRenderer);
         if (meshRender) {
+            const blendProbe = this._getBlendProbe(model);
             meshRender.updateProbeCubemap(probe ? probe.cubemap : null);
             meshRender.updateReflectionProbeId(probe ? probe.getProbeId() : -1);
         }
