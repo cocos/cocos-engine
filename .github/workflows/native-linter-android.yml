@@ -26,6 +26,10 @@ jobs:
       # Checks out a copy of your repository on the ubuntu-latest machine
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: Install CMake & Clang Tidy
+        run: |
+          sudo apt update --fix-missing
+          sudo apt install -y cmake llvm clang-tidy-11
       - name: Download external
         run: |
           EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
@@ -71,9 +75,6 @@ jobs:
             skipedDebug:
               - added|modified|deleted: '**'
               - exclude: 'native/cocos/editor-support/**'
-      - name: Install CMake & Clang Tidy
-        run: |
-          sudo apt install -y cmake llvm clang-tidy-11
 
       - name: Generate Compile database
         shell: bash
