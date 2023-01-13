@@ -374,6 +374,8 @@ struct IPassInfoFull final { // cjh } : public IPassInfo {
     // IPassInfoFull
     // generated part
     index_t passIndex{0};
+    uint32_t passID = 0xFFFFFFFF;
+    uint32_t phaseID = 0xFFFFFFFF;
     MacroRecord defines;
     ccstd::optional<PassOverrides> stateOverrides;
 

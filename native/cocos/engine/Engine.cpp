@@ -37,6 +37,7 @@
 #include "renderer/GFXDeviceManager.h"
 #include "renderer/core/ProgramLib.h"
 #include "renderer/pipeline/RenderPipeline.h"
+#include "renderer/pipeline/custom/RenderingModule.h"
 
 #if CC_USE_AUDIO
     #include "cocos/audio/include/AudioEngine.h"
@@ -191,6 +192,11 @@ void Engine::destroy() {
 
     delete _builtinResMgr;
     delete _programLib;
+
+    if (cc::render::getRenderingModule()) {
+        cc::render::Factory::destroy(cc::render::getRenderingModule());
+    }
+
     CC_SAFE_DESTROY_AND_DELETE(_gfxDevice);
     delete _fs;
     _scheduler.reset();
@@ -225,9 +231,9 @@ void Engine::close() { // NOLINT
     cc::AudioEngine::stopAll();
 #endif
 
-    //#if CC_USE_SOCKET
-    //    cc::network::WebSocket::closeAllConnections();
-    //#endif
+    // #if CC_USE_SOCKET
+    //     cc::network::WebSocket::closeAllConnections();
+    // #endif
 
     cc::DeferredReleasePool::clear();
     _scheduler->removeAllFunctionsToBePerformedInCocosThread();

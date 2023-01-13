@@ -482,7 +482,7 @@ export function buildPostprocessPass (camera: Camera,
     const postprocessPassRTName = `postprocessPassRTName${cameraID}`;
     const postprocessPassDS = `postprocessPassDS${cameraID}`;
     if (!ppl.containsResource(postprocessPassRTName)) {
-        ppl.addRenderTexture(postprocessPassRTName, Format.RGBA8, width, height, camera.window);
+        ppl.addRenderTexture(postprocessPassRTName, Format.BGRA8, width, height, camera.window);
         ppl.addDepthStencil(postprocessPassDS, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
     }
     ppl.updateRenderWindow(postprocessPassRTName, camera.window);
@@ -537,7 +537,7 @@ export function buildForwardPass (camera: Camera,
     const forwardPassDSName = `dsForwardPassDS${cameraName}`;
     if (!ppl.containsResource(forwardPassRTName)) {
         if (!isOffScreen) {
-            ppl.addRenderTexture(forwardPassRTName, Format.RGBA8, width, height, camera.window);
+            ppl.addRenderTexture(forwardPassRTName, Format.BGRA8, width, height, camera.window);
         } else {
             ppl.addRenderTarget(forwardPassRTName, Format.RGBA16F, width, height, ResourceResidency.MANAGED);
         }
