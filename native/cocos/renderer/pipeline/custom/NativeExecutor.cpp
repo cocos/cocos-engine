@@ -603,10 +603,12 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
                         // update gfx buffer
                         CC_ENSURES(buffer);
                         buffer->update(ctx.buffer.data(), bufferSize);
-                        bindID += d.count;
 
                         // bind uniform buffer
                         set.descriptorSet->bindBuffer(bindID, buffer);
+
+                        // increase slot
+                        bindID += d.count;
                     }
                     break;
                 }
@@ -1179,14 +1181,13 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
     auto& ppl = *this;
     auto* scratch = &ppl.unsyncPool;
 
-    auto& lg = dynamic_cast<NativeProgramLibrary*>(getProgramLibrary())->layoutGraph;
-
     RenderGraphContextCleaner contextCleaner(ppl.nativeContext);
     ResourceCleaner cleaner(ppl.resourceGraph);
 
+    auto& lg = ppl.programLibrary->layoutGraph;
     FrameGraphDispatcher fgd(
         ppl.resourceGraph, rg,
-        ppl.layoutGraph, &ppl.unsyncPool, scratch);
+        lg, &ppl.unsyncPool, scratch);
     fgd.enableMemoryAliasing(false);
     fgd.enablePassReorder(false);
     fgd.setParalellWeight(0);
