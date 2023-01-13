@@ -103,9 +103,32 @@ DefaultForwardLightingTransversal::DefaultForwardLightingTransversal(const alloc
 ResourceGroup::ResourceGroup(const allocator_type& alloc) noexcept
 : instancingBuffers(alloc) {}
 
+BufferPool::BufferPool(const allocator_type& alloc) noexcept
+: currentBuffers(alloc),
+  freeBuffers(alloc) {}
+
+BufferPool::BufferPool(BufferPool&& rhs, const allocator_type& alloc)
+: currentBuffers(std::move(rhs.currentBuffers), alloc),
+  freeBuffers(std::move(rhs.freeBuffers), alloc) {}
+
+UniformBlockResource::UniformBlockResource(const allocator_type& alloc) noexcept
+: data(alloc),
+  bufferPool(alloc) {}
+
+UniformBlockResource::UniformBlockResource(UniformBlockResource&& rhs, const allocator_type& alloc)
+: data(std::move(rhs.data), alloc),
+  bufferPool(std::move(rhs.bufferPool), alloc) {}
+
+LayoutGraphNodeResource::LayoutGraphNodeResource(const allocator_type& alloc) noexcept
+: uniformBuffers(alloc) {}
+
+LayoutGraphNodeResource::LayoutGraphNodeResource(LayoutGraphNodeResource&& rhs, const allocator_type& alloc)
+: uniformBuffers(std::move(rhs.uniformBuffers), alloc) {}
+
 NativeRenderContext::NativeRenderContext(const allocator_type& alloc) noexcept
 : renderPasses(alloc),
-  resourceGroups(alloc) {}
+  resourceGroups(alloc),
+  layoutGraphResources(alloc) {}
 
 NativeProgramLibrary::NativeProgramLibrary(const allocator_type& alloc) noexcept
 : layoutGraph(alloc),
