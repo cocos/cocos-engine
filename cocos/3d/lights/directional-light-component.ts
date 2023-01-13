@@ -28,8 +28,8 @@ import { scene } from '../../render-scene';
 import { cclegacy, clamp, warnID, CCBoolean, CCFloat, _decorator, settings, Settings, override, displayOrder } from '../../core';
 import { Camera, PCFType, Shadows, ShadowType, CSMOptimizationMode, CSMLevel } from '../../render-scene/scene';
 import { Root } from '../../root';
-import { director } from '../../game';
 import { MeshRenderer } from '../framework';
+import { director } from '../../game/director';
 
 const { ccclass, menu, executeInEditMode, property, serializable, formerlySerializedAs, tooltip, help, visible, type, editable, slide, range } = _decorator;
 
