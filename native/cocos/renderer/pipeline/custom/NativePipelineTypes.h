@@ -70,8 +70,9 @@ public:
 class NativeRasterQueueBuilder final : public RasterQueueBuilder {
 public:
     NativeRasterQueueBuilder() = default;
-    NativeRasterQueueBuilder(RenderGraph* renderGraphIn, uint32_t queueIDIn, const LayoutGraphData* layoutGraphIn) noexcept
-    : renderGraph(renderGraphIn),
+    NativeRasterQueueBuilder(const PipelineRuntime* pipelineRuntimeIn, RenderGraph* renderGraphIn, uint32_t queueIDIn, const LayoutGraphData* layoutGraphIn) noexcept
+    : pipelineRuntime(pipelineRuntimeIn),
+      renderGraph(renderGraphIn),
       layoutGraph(layoutGraphIn),
       queueID(queueIDIn) {}
 
@@ -97,6 +98,7 @@ public:
     void clearRenderTarget(const ccstd::string &name, const gfx::Color &color) override;
     void setViewport(const gfx::Viewport &viewport) override;
 
+    const PipelineRuntime* pipelineRuntime{nullptr};
     RenderGraph* renderGraph{nullptr};
     const LayoutGraphData* layoutGraph{nullptr};
     uint32_t queueID{RenderGraph::null_vertex()};
@@ -105,8 +107,9 @@ public:
 class NativeRasterPassBuilder final : public RasterPassBuilder {
 public:
     NativeRasterPassBuilder() = default;
-    NativeRasterPassBuilder(RenderGraph* renderGraphIn, uint32_t passIDIn, const LayoutGraphData* layoutGraphIn, uint32_t layoutIDIn) noexcept // NOLINT
-    : renderGraph(renderGraphIn),
+    NativeRasterPassBuilder(const PipelineRuntime* pipelineRuntimeIn, RenderGraph* renderGraphIn, uint32_t passIDIn, const LayoutGraphData* layoutGraphIn, uint32_t layoutIDIn) noexcept // NOLINT
+    : pipelineRuntime(pipelineRuntimeIn),
+      renderGraph(renderGraphIn),
       layoutGraph(layoutGraphIn),
       passID(passIDIn),
       layoutID(layoutIDIn) {}
@@ -132,6 +135,7 @@ public:
     void setViewport(const gfx::Viewport &viewport) override;
     void setVersion(const ccstd::string &name, uint64_t version) override;
 
+    const PipelineRuntime* pipelineRuntime{nullptr};
     RenderGraph* renderGraph{nullptr};
     const LayoutGraphData* layoutGraph{nullptr};
     uint32_t passID{RenderGraph::null_vertex()};
