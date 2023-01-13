@@ -149,23 +149,21 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
     #endif
   #endif
   
-  #if CC_USE_LIGHTMAP != LIGHT_MAP_TYPE_ALL_IN_ONE
-    #if CC_RECEIVE_DIR_LIGHT
-      float NV = max(abs(dot(N, V)), 0.0);
-      specular = BRDFApprox(specular, s.roughness, NV);
+  #if CC_RECEIVE_DIRECTIONAL_LIGHT
+    float NV = max(abs(dot(N, V)), 0.0);
+    specular = BRDFApprox(specular, s.roughness, NV);
   
-      vec3 H = normalize(L + V);
-      float NH = max(dot(N, H), 0.0);
-      vec3 lightingColor = NL * cc_mainLitColor.rgb * cc_mainLitColor.w;
-      vec3 diffuseContrib = diffuse / PI;
+    vec3 H = normalize(L + V);
+    float NH = max(dot(N, H), 0.0);
+    vec3 lightingColor = NL * cc_mainLitColor.rgb * cc_mainLitColor.w;
+    vec3 diffuseContrib = diffuse / PI;
   
-      // Cook-Torrance Microfacet Specular BRDF
-      vec3 specularContrib = specular * CalcSpecular(s.roughness, NH, H, N);
-      vec3 dirlightContrib = (diffuseContrib + specularContrib);
+    // Cook-Torrance Microfacet Specular BRDF
+    vec3 specularContrib = specular * CalcSpecular(s.roughness, NH, H, N);
+    vec3 dirlightContrib = (diffuseContrib + specularContrib);
   
-      dirlightContrib *= shadow;
-      finalColor += lightingColor * dirlightContrib;
-    #endif
+    dirlightContrib *= shadow;
+    finalColor += lightingColor * dirlightContrib;
   #endif
 
   float fAmb = 0.5 - N.y * 0.5;

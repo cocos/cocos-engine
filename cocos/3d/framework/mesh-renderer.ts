@@ -379,22 +379,16 @@ export class MeshRenderer extends ModelRenderer {
      * @zh 是否接收平行光光照。
      * @param visibility @en direction light visibility. @zh 方向光的可见性。
      */
-    public onUpdateReceiveDirLight (visibility: number) {
+    public onUpdateReceiveDirLight (visibility: number, forceClose = false) {
         if (!this._model) { return; }
+        if (forceClose) {
+            this._model.receiveDirLight = false;
+            return;
+        }
         if (this.node && ((visibility & this.node.layer) === this.node.layer)
         || (visibility & this._model.visFlags)) {
-            if (this._shadowCastingMode === ModelShadowCastingMode.OFF) {
-                this._model.castShadow = false;
-            } else {
-                assertIsTrue(
-                    this._shadowCastingMode === ModelShadowCastingMode.ON,
-                    `ShadowCastingMode ${this._shadowCastingMode} is not supported.`,
-                );
-                this._model.castShadow = true;
-            }
             this._model.receiveDirLight = true;
         } else {
-            this._model.castShadow = false;
             this._model.receiveDirLight = false;
         }
     }
@@ -747,6 +741,7 @@ export class MeshRenderer extends ModelRenderer {
             this._onUpdateLightingmap();
             this._onUpdateLocalShadowBias();
             this._updateUseReflectionProbe();
+            this._updateReceiveDirLight();
         }
     }
 
@@ -955,16 +950,21 @@ export class MeshRenderer extends ModelRenderer {
     }
 
     protected _updateReceiveDirLight () {
+        if (!this._model) { return; }
         const scene = this.node.scene;
-        if (!scene || !scene.renderScene) {
-            return;
-        }
+        if (!scene || !scene.renderScene) { return; }
         const mainLight = scene.renderScene.mainLight;
-        if (!mainLight) {
-            return;
-        }
+        if (!mainLight) { return; }
         const visibility = mainLight.visibility;
-        this.onUpdateReceiveDirLight(visibility);
+        if (!mainLight.node) { return; }
+        if (!this.node.scene.globals.lightProbeInfo.data) { return; }
+        if (mainLight.node.mobility === MobilityMode.Static
+            && (this.bakeSettings.texture || (this.node.scene.globals.lightProbeInfo.data.hasCoefficients()
+            && this._model.useLightProbe))) {
+            this.onUpdateReceiveDirLight(visibility, true);
+        } else {
+            this.onUpdateReceiveDirLight(visibility);
+        }
     }
 
     private _watchMorphInMesh () {
