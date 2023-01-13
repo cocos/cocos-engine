@@ -1521,7 +1521,8 @@ class PreRenderVisitor extends BaseRenderVisitor implements RenderGraphVisitor {
         } else {
             const passHash = pass.versionName;
             this.currPass = devicePasses.get(passHash);
-            if (!this.currPass || this.currPass.version !== pass.version) {
+            const currRasterPass = this.currPass ? this.currPass.rasterPassInfo.pass : null;
+            if (!this.currPass || currRasterPass.version !== pass.version) {
                 this.currPass = new DeviceRenderPass(this.context, new RasterPassInfo(this.passID, pass));
                 devicePasses.set(passHash, this.currPass);
             } else {
