@@ -48,7 +48,7 @@ void initializeDescriptorSetLayoutInfo(
     const DescriptorSetLayoutData& layoutData,
     gfx::DescriptorSetLayoutInfo& info);
 
-uint32_t getSize(const ccstd::vector<gfx::Uniform>& blockMembers);
+uint32_t getUniformBlockSize(const ccstd::vector<gfx::Uniform>& blockMembers);
 
 gfx::DescriptorSet* getOrCreatePerPassDescriptorSet(
     gfx::Device* device,

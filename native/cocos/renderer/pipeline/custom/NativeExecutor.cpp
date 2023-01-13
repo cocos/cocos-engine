@@ -75,6 +75,7 @@ struct RenderGraphVisitorContext {
         const scene::RenderScene*,
         ccstd::pmr::unordered_map<scene::Camera*, NativeRenderQueue>>& sceneQueues;
     PipelineRuntime* ppl = nullptr;
+    ccstd::pmr::vector<char>& buffer;
     boost::container::pmr::memory_resource* scratch = nullptr;
     gfx::RenderPass* currentPass = nullptr;
 };
@@ -544,19 +545,69 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
             switch (block.type) {
                 case DescriptorTypeOrder::UNIFORM_BUFFER: {
                     for (const auto& d : block.descriptors) {
+                        // TODO(zhouzhenglong): here binding will be refactored in the future
+                        // current implementation is incorrect, and we assume d.count == 1
+                        CC_EXPECTS(d.count == 1);
+                        // get uniform block
                         const auto& uniformBlock = data.uniformBlocks.at(d.descriptorID);
-                    }
+                        const auto bufferSize = uniformBlock.count *
+                                                getUniformBlockSize(uniformBlock.members);
+                        // prepare buffer
+                        auto* buffer = [&]() {
+                            auto* buffer = descriptorSet.getBuffer(bindID);
+                            CC_EXPECTS(uniformBlock.count == 1);
+                            if (!buffer) {
+                                gfx::BufferInfo info{
+                                    gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
+                                    gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE,
+                                    bufferSize,
+                                    bufferSize};
+                                buffer = ctx.device->createBuffer(info);
+                            }
+                            CC_ENSURES(buffer->getSize() == bufferSize);
+                            return buffer;
+                        }();
 
-                    // auto* buffer = descriptorSet.getBuffer(bindID);
-                    // if (!buffer) {
-                    //     gfx::BufferInfo info{
-                    //         gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
-                    //         gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE,
-                    //         static_cast<uint32_t>(value.size()),
-                    //         static_cast<uint32_t>(value.size())};
-                    //     buffer = device.createBuffer(info);
-                    //     haveBuff = false;
-                    // }
+                        // collect uniforms
+                        {
+                            ctx.buffer.resize(bufferSize);
+                            uint32_t offset = 0;
+                            for (const auto& value : uniformBlock.members) {
+                                CC_EXPECTS(value.count);
+                                const auto valueSize = getTypeSize(value.type) * value.count;
+                                auto iter = ctx.lg.constantIndex.find(std::string_view{value.name});
+                                if (iter == ctx.lg.constantIndex.end()) {
+                                    offset += valueSize;
+                                    continue;
+                                }
+                                const auto valueID = iter->second.value;
+                                const auto iter2 = user.constants.find(valueID);
+                                if (iter2 == user.constants.end()) {
+                                    CC_EXPECTS(value.count);
+                                    offset += valueSize;
+                                    continue;
+                                }
+                                const auto& valueBuffer = iter2->second;
+                                if (valueBuffer.empty()) {
+                                    offset += valueSize;
+                                    continue;
+                                }
+                                CC_EXPECTS(valueBuffer.size() == valueSize);
+                                CC_EXPECTS(offset + valueSize <= bufferSize);
+                                memcpy(ctx.buffer.data() + offset,
+                                       valueBuffer.data(),
+                                       std::min<size_t>(valueBuffer.size(), valueSize));
+                            }
+                        }
+
+                        // update gfx buffer
+                        CC_ENSURES(buffer);
+                        buffer->update(ctx.buffer.data(), bufferSize);
+                        bindID += d.count;
+
+                        // bind uniform buffer
+                        set.descriptorSet->bindBuffer(bindID, buffer);
+                    }
                     break;
                 }
                 case DescriptorTypeOrder::DYNAMIC_UNIFORM_BUFFER:
@@ -1185,6 +1236,9 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
         }
 
         // submit commands
+        ccstd::pmr::vector<char> scratchBuffer(scratch);
+        scratchBuffer.resize(16384 * 2); // GL_MAX_UNIFORM_BLOCK_SIZE is atleast 16384
+
         RenderGraphVisitorContext ctx{
             ppl.nativeContext,
             lg, rg, ppl.resourceGraph,
@@ -1193,6 +1247,7 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
             ppl.device, submit.primaryCommandBuffer,
             sceneQueues,
             &ppl,
+            scratchBuffer,
             scratch};
 
         RenderGraphVisitor visitor{{}, ctx};
