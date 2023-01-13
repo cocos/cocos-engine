@@ -3158,6 +3158,10 @@ Can't getGFXSampler with out device
 
 [Physics][Ammo]: changing the mesh is not supported after the initialization is completed
 
+### 9630
+
+[Physics]: A dynamic rigid body can not have the following collider shapes: Terrain, Plane, Mesh and Simplex. Node name: %s
+
 ### 10001
 
 The sub-mesh contains %d vertices, which beyonds the capability (%d vertices most) of renderer of your platform.

@@ -25,14 +25,14 @@
 
 import { ccclass, tooltip, displayOrder, displayName, readOnly, type, serializable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { Eventify, Vec3, error, geometry } from '../../../../core';
+import { Eventify, Vec3, error, geometry, warn, warnID } from '../../../../core';
 import { CollisionEventType, TriggerEventType } from '../../physics-interface';
 import { RigidBody } from '../rigid-body';
 import { PhysicsMaterial } from '../../assets/physics-material';
 import { PhysicsSystem } from '../../physics-system';
 import { Component, Node } from '../../../../scene-graph';
 import { IBaseShape } from '../../../spec/i-physics-shape';
-import { EColliderType, EAxisDirection } from '../../physics-enum';
+import { EColliderType, EAxisDirection, ERigidBodyType } from '../../physics-enum';
 import { selector, createShape } from '../../physics-selector';
 
 /**
@@ -419,6 +419,24 @@ export class Collider extends Eventify(Component) {
     protected onEnable () {
         if (this._shape) {
             this._shape.onEnable!();
+        }
+        // limit the collider type
+
+        if (!this.node) { return; }
+        const body = findAttachedBody(this.node);
+        if (!body) { return; }
+        if (body.type === ERigidBodyType.DYNAMIC) {
+            switch (this.type) {
+            case EColliderType.PLANE:
+            case EColliderType.TERRAIN:
+            case EColliderType.MESH:
+            case EColliderType.SIMPLEX:
+                warnID(9630, this.node.name);
+                break;
+
+            default:
+                break;
+            }
         }
     }
 
