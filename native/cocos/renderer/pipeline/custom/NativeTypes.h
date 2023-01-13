@@ -49,7 +49,7 @@ struct ProgramInfo {
     }
 
     ProgramInfo(const allocator_type& alloc) noexcept; // NOLINT
-    ProgramInfo(IProgramInfo programInfoIn, gfx::ShaderInfo shaderInfoIn, ccstd::pmr::vector<gfx::Attribute> attributesIn, ccstd::pmr::vector<unsigned> blockSizesIn, Record<ccstd::string, uint32_t> handleMapIn, const allocator_type& alloc) noexcept;
+    ProgramInfo(IProgramInfo programInfoIn, gfx::ShaderInfo shaderInfoIn, ccstd::pmr::vector<gfx::Attribute> attributesIn, ccstd::vector<signed> blockSizesIn, Record<ccstd::string, uint32_t> handleMapIn, const allocator_type& alloc) noexcept;
     ProgramInfo(ProgramInfo&& rhs, const allocator_type& alloc);
     ProgramInfo(ProgramInfo const& rhs, const allocator_type& alloc);
 
@@ -61,7 +61,7 @@ struct ProgramInfo {
     IProgramInfo programInfo;
     gfx::ShaderInfo shaderInfo;
     ccstd::pmr::vector<gfx::Attribute> attributes;
-    ccstd::pmr::vector<unsigned> blockSizes;
+    ccstd::vector<signed> blockSizes;
     Record<ccstd::string, uint32_t> handleMap;
 };
 
@@ -80,7 +80,7 @@ struct ProgramGroup {
     ProgramGroup& operator=(ProgramGroup&& rhs) = default;
     ProgramGroup& operator=(ProgramGroup const& rhs) = default;
 
-    PmrFlatMap<ccstd::pmr::string, ProgramInfo> programInfos;
+    PmrTransparentMap<ccstd::pmr::string, ProgramInfo> programInfos;
     PmrFlatMap<ccstd::pmr::string, IntrusivePtr<ProgramProxy>> programProxies;
 };
 

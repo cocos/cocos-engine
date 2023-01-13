@@ -101,7 +101,7 @@ public:
      * @param name Target shader name
      */
 
-    IProgramInfo *getTemplate(const ccstd::string &name);
+    const IProgramInfo *getTemplate(const ccstd::string &name) const;
 
     /**
      * @en Gets the shader template info with its name

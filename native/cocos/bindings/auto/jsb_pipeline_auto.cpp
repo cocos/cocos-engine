@@ -130,6 +130,10 @@ using namespace cc;
 #define cc_pipeline_PipelineSceneData_lightProbes_get(self_) self_->getLightProbes()
   
 
+#define cc_pipeline_PipelineSceneData_validPunctualLights_get(self_) self_->getValidPunctualLights()
+#define cc_pipeline_PipelineSceneData_validPunctualLights_set(self_, val_) self_->setValidPunctualLights(val_)
+  
+
 #define cc_pipeline_RenderStage__name_get(self_) self_->getName()
 #define cc_pipeline_RenderStage__name_set(self_, val_) self_->setName(val_)
   
@@ -13857,31 +13861,6 @@ static bool js_cc_pipeline_PipelineSceneData_setShadowFramebuffer(se::State& s)
 }
 SE_BIND_FUNC(js_cc_pipeline_PipelineSceneData_setShadowFramebuffer) 
 
-static bool js_cc_pipeline_PipelineSceneData_getValidPunctualLights(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::pipeline::PipelineSceneData *arg1 = (cc::pipeline::PipelineSceneData *) NULL ;
-    ccstd::vector< cc::scene::Light const * > *result = 0 ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
-    if (nullptr == arg1) return true;
-    result = (ccstd::vector< cc::scene::Light const * > *) &((cc::pipeline::PipelineSceneData const *)arg1)->getValidPunctualLights();
-    
-    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_pipeline_PipelineSceneData_getValidPunctualLights) 
-
 static bool js_cc_pipeline_PipelineSceneData_getOctree(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -14367,6 +14346,47 @@ static bool js_cc_pipeline_PipelineSceneData_lightProbes_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_pipeline_PipelineSceneData_lightProbes_get) 
 
+static bool js_cc_pipeline_PipelineSceneData_validPunctualLights_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::pipeline::PipelineSceneData *arg1 = (cc::pipeline::PipelineSceneData *) NULL ;
+    ccstd::vector< cc::scene::Light const * > arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    cc_pipeline_PipelineSceneData_validPunctualLights_set(arg1,SWIG_STD_MOVE(arg2));
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_pipeline_PipelineSceneData_validPunctualLights_set) 
+
+static bool js_cc_pipeline_PipelineSceneData_validPunctualLights_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::pipeline::PipelineSceneData *arg1 = (cc::pipeline::PipelineSceneData *) NULL ;
+    ccstd::vector< cc::scene::Light const * > result;
+    
+    arg1 = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
+    if (nullptr == arg1) return true;
+    result = cc_pipeline_PipelineSceneData_validPunctualLights_get(arg1);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_pipeline_PipelineSceneData_validPunctualLights_get) 
+
 bool js_register_cc_pipeline_PipelineSceneData(se::Object* obj) {
     auto* cls = se::Class::create("PipelineSceneData", obj, nullptr, _SE(js_new_cc_pipeline_PipelineSceneData)); 
     
@@ -14378,12 +14398,12 @@ bool js_register_cc_pipeline_PipelineSceneData(se::Object* obj) {
     cls->defineProperty("skybox", _SE(js_cc_pipeline_PipelineSceneData_skybox_get), nullptr); 
     cls->defineProperty("shadows", _SE(js_cc_pipeline_PipelineSceneData_shadows_get), nullptr); 
     cls->defineProperty("lightProbes", _SE(js_cc_pipeline_PipelineSceneData_lightProbes_get), nullptr); 
+    cls->defineProperty("validPunctualLights", _SE(js_cc_pipeline_PipelineSceneData_validPunctualLights_get), _SE(js_cc_pipeline_PipelineSceneData_validPunctualLights_set)); 
     
     cls->defineFunction("activate", _SE(js_cc_pipeline_PipelineSceneData_activate)); 
     cls->defineFunction("destroy", _SE(js_cc_pipeline_PipelineSceneData_destroy)); 
     cls->defineFunction("updatePipelineSceneData", _SE(js_cc_pipeline_PipelineSceneData_updatePipelineSceneData)); 
     cls->defineFunction("setShadowFramebuffer", _SE(js_cc_pipeline_PipelineSceneData_setShadowFramebuffer)); 
-    cls->defineFunction("getValidPunctualLights", _SE(js_cc_pipeline_PipelineSceneData_getValidPunctualLights)); 
     cls->defineFunction("getOctree", _SE(js_cc_pipeline_PipelineSceneData_getOctree)); 
     cls->defineFunction("getOcclusionQueryInputAssembler", _SE(js_cc_pipeline_PipelineSceneData_getOcclusionQueryInputAssembler)); 
     cls->defineFunction("getOcclusionQueryPass", _SE(js_cc_pipeline_PipelineSceneData_getOcclusionQueryPass)); 
