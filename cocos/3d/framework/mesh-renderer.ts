@@ -957,9 +957,9 @@ export class MeshRenderer extends ModelRenderer {
         if (!mainLight) { return; }
         const visibility = mainLight.visibility;
         if (!mainLight.node) { return; }
-        if (!this.node.scene.globals.lightProbeInfo.data) { return; }
         if (mainLight.node.mobility === MobilityMode.Static
-            && (this.bakeSettings.texture || (this.node.scene.globals.lightProbeInfo.data.hasCoefficients()
+            && (this.bakeSettings.texture || (this.node.scene.globals.lightProbeInfo.data
+            && this.node.scene.globals.lightProbeInfo.data.hasCoefficients()
             && this._model.useLightProbe))) {
             this.onUpdateReceiveDirLight(visibility, true);
         } else {
