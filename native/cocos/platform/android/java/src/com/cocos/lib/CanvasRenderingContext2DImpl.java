@@ -419,7 +419,8 @@ public class CanvasRenderingContext2DImpl {
         if (mShadowColorA > 0 && (Math.abs(mShadowOffsetX) > Float.MIN_VALUE || Math.abs(mShadowOffsetY) > Float.MIN_VALUE)) {
             if (mShadowBlur < 0) {
                 return;
-            } else if (mShadowBlur < Float.MIN_VALUE) {
+            }
+            if (mShadowBlur < Float.MIN_VALUE) {
                 mShadowBlur = 0.001f;//If shadowBlur is 0, the shadow effect is not consistent with the web.
             }
             paint.setShadowLayer(mShadowBlur, mShadowOffsetX, mShadowOffsetY,
