@@ -568,7 +568,8 @@ export class ParticleSOAData {
         this._positionZ[handle] = 0;
         this._velocityX[handle] = 0;
         this._velocityY[handle] = 0;
-        this._velocityZ[handle] = 0;
+        // init as particleEmitZAxis
+        this._velocityZ[handle] = 1;
         this._animatedVelocityX[handle] = 0;
         this._animatedVelocityY[handle] = 0;
         this._animatedVelocityZ[handle] = 0;

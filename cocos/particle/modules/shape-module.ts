@@ -1,3 +1,4 @@
+/* eslint-disable no-lonely-if */
 /*
  Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
 
@@ -36,18 +37,6 @@ import { ParticleUpdateContext } from '../particle-update-context';
 import { Enum } from '../../core';
 
 const _intermediVec = new Vec3(0, 0, 0);
-const _intermediArr: number[] = [];
-const _unitBoxExtent = new Vec3(0.5, 0.5, 0.5);
-function getShapeTypeEnumName (enumValue: number): keyof typeof ShapeType {
-    let enumName = '';
-    for (const key in ShapeType) {
-        if (ShapeType[key] === enumValue) {
-            enumName = key;
-            break;
-        }
-    }
-    return enumName as keyof typeof ShapeType;
-}
 
 /**
  * 粒子发射器类型。
@@ -341,41 +330,46 @@ export class ShapeModule extends ParticleModule {
 
     private mat = new Mat4();
     private quat = new Quat();
-    private lastTime = 0;
-    private totalAngle = 0;
+    private _totalAngle = 0;
     private _shuffleArray = new Float32Array(3);
 
     public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
         Quat.fromEuler(this.quat, this._rotation.x, this._rotation.y, this._rotation.z);
-        const { newParticleIndexStart, newParticleIndexEnd } = particleUpdateContext;
+        const { newParticleIndexStart, newParticleIndexEnd, normalizedTimeInCycle, emitterDeltaTime } = particleUpdateContext;
         Mat4.fromRTS(this.mat, this.quat, this._position, this._scale);
         const position = new Vec3();
         const velocity = new Vec3();
         const shuffleArray = this._shuffleArray;
+        const randomPositionAmount = this.randomPositionAmount;
+        const boxThickness = new Vec3(1 - this.boxThickness.x, 1 - this.boxThickness.y, 1 - this.boxThickness.z);
+        const minRadius = this.radius * (1 - this.radiusThickness);
+        const velocityZ = -Math.cos(this._angle) * this.radius;
+        let angle = this._totalAngle + 2 * Math.PI * this.arcSpeed.evaluate(normalizedTimeInCycle, 1) * emitterDeltaTime;
+        this._totalAngle = angle;
+        if (this.arcSpread !== 0) {
+            angle = Math.floor(angle / (this._arc * this.arcSpread)) * this._arc * this.arcSpread;
+        }
         switch (this.shapeType) {
         case ShapeType.BOX:
             for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
-                particles.getVelocityAt(velocity, i);
                 Vec3.set(position,
                     randomRange(-0.5, 0.5),
                     randomRange(-0.5, 0.5),
                     randomRange(-0.5, 0.5));
-                particles.setVelocityAt(Vec3.transformQuat(velocity, velocity, this.quat), i);
-                particles.setPositionAt(Vec3.transformMat4(position, position, this.mat), i);
+                particles.setPositionAt(position, i);
             }
             break;
         case ShapeType.BOX_SHELL:
             for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
-                particles.getVelocityAt(velocity, i);
                 shuffleArray[0] = randomRange(-0.5, 0.5);
                 shuffleArray[1] = randomRange(-0.5, 0.5);
                 shuffleArray[2] = randomSign() * 0.5;
                 shuffleFloat3(shuffleArray);
+                applyBoxThickness(shuffleArray, boxThickness);
                 Vec3.set(position, shuffleArray[0], shuffleArray[1], shuffleArray[2]);
-                applyBoxThickness(shuffleArray, this.boxThickness);
-                particles.setVelocityAt(Vec3.transformQuat(velocity, velocity, this.quat), i);
-                particles.setPositionAt(Vec3.transformMat4(position, position, this.mat), i);
+                particles.setPositionAt(position, i);
             }
+
             break;
         case ShapeType.BOX_EDGE:
             for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
@@ -385,182 +379,241 @@ export class ShapeModule extends ParticleModule {
                 shuffleFloat3(shuffleArray);
                 applyBoxThickness(shuffleArray, this.boxThickness);
                 Vec3.set(position, shuffleArray[0], shuffleArray[1], shuffleArray[2]);
-                applyBoxThickness(shuffleArray, this.boxThickness);
-                particles.setVelocityAt(Vec3.transformQuat(velocity, velocity, this.quat), i);
-                particles.setPositionAt(Vec3.transformMat4(position, position, this.mat), i);
+                particles.setPositionAt(position, i);
             }
             break;
         case ShapeType.CIRCLE:
-            circleEmit(this.radius, this.radiusThickness, this.generateArcAngle(), p.position, p.velocity);
+            if (this.arcMode === ArcMode.RANDOM) {
+                for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                    const theta = randomRange(0, this._arc);
+                    position.set(Math.cos(theta), Math.sin(theta), 0);
+                    position.multiplyScalar(minRadius + (this.radius - minRadius) * random());
+                    Vec3.normalize(velocity, position);
+                    particles.setVelocityAt(velocity, i);
+                    particles.setPositionAt(position, i);
+                }
+            } else if (this.arcMode === ArcMode.LOOP) {
+                angle = repeat(angle, this._arc);
+                for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                    position.set(Math.cos(angle), Math.sin(angle), 0);
+                    position.multiplyScalar(minRadius + (this.radius - minRadius) * random());
+                    Vec3.normalize(velocity, position);
+                    particles.setVelocityAt(velocity, i);
+                    particles.setPositionAt(position, i);
+                }
+            } else {
+                angle = pingPong(angle, this._arc);
+                for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                    position.set(Math.cos(angle), Math.sin(angle), 0);
+                    position.multiplyScalar(minRadius + (this.radius - minRadius) * random());
+                    Vec3.normalize(velocity, position);
+                    particles.setVelocityAt(velocity, i);
+                    particles.setPositionAt(position, i);
+                }
+            }
+
             break;
         case ShapeType.CONE:
-            coneEmit(this.emitFrom, this.radius, this.radiusThickness, this.generateArcAngle(), this._angle, this.length, p.position, p.velocity);
+            if (this.arcMode === ArcMode.RANDOM) {
+                for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                    const theta = randomRange(0, this._arc);
+                    position.set(Math.cos(theta), Math.sin(theta), 0);
+                    position.multiplyScalar(minRadius + (this.radius - minRadius) * random());
+                    Vec2.multiplyScalar(velocity, position, Math.sin(this._angle));
+                    velocity.z = velocityZ;
+                    Vec3.normalize(velocity, velocity);
+                    Vec3.scaleAndAdd(position, position, velocity, this.length * random() / -velocityZ);
+                    particles.setVelocityAt(velocity, i);
+                    particles.setPositionAt(position, i);
+                }
+            } else if (this.arcMode === ArcMode.LOOP) {
+                angle = repeat(angle, this._arc);
+                for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                    position.set(Math.cos(angle), Math.sin(angle), 0);
+                    position.multiplyScalar(minRadius + (this.radius - minRadius) * random());
+                    Vec2.multiplyScalar(velocity, position, Math.sin(this._angle));
+                    velocity.z = velocityZ;
+                    velocity.normalize();
+                    Vec3.scaleAndAdd(position, position, velocity, this.length * random() / -velocityZ);
+                    particles.setVelocityAt(velocity, i);
+                    particles.setPositionAt(position, i);
+                }
+            } else {
+                angle = pingPong(angle, this._arc);
+                for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                    position.set(Math.cos(angle), Math.sin(angle), 0);
+                    position.multiplyScalar(minRadius + (this.radius - minRadius) * random());
+                    Vec2.multiplyScalar(velocity, position, Math.sin(this._angle));
+                    velocity.z = velocityZ;
+                    velocity.normalize();
+                    Vec3.scaleAndAdd(position, position, velocity, this.length * random() / -velocityZ);
+                    particles.setVelocityAt(velocity, i);
+                    particles.setPositionAt(position, i);
+                }
+            }
             break;
-        case ShapeType.Sphere:
-            sphereEmit(this.emitFrom, this.radius, this.radiusThickness, p.position, p.velocity);
+        case ShapeType.CONE_BASE:
+            if (this.arcMode === ArcMode.RANDOM) {
+                for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                    const theta = randomRange(0, this._arc);
+                    position.set(Math.cos(theta), Math.sin(theta), 0);
+                    position.multiplyScalar(minRadius + (this.radius - minRadius) * random());
+                    Vec2.multiplyScalar(velocity, position, Math.sin(this._angle));
+                    velocity.z = velocityZ;
+                    Vec3.normalize(velocity, velocity);
+                    particles.setVelocityAt(velocity, i);
+                    particles.setPositionAt(position, i);
+                }
+            } else if (this.arcMode === ArcMode.LOOP) {
+                angle = repeat(angle, this._arc);
+                for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                    position.set(Math.cos(angle), Math.sin(angle), 0);
+                    position.multiplyScalar(minRadius + (this.radius - minRadius) * random());
+                    Vec2.multiplyScalar(velocity, position, Math.sin(this._angle));
+                    velocity.z = velocityZ;
+                    velocity.normalize();
+                    particles.setVelocityAt(velocity, i);
+                    particles.setPositionAt(position, i);
+                }
+            } else {
+                angle = pingPong(angle, this._arc);
+                for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                    position.set(Math.cos(angle), Math.sin(angle), 0);
+                    position.multiplyScalar(minRadius + (this.radius - minRadius) * random());
+                    Vec2.multiplyScalar(velocity, position, Math.sin(this._angle));
+                    velocity.z = velocityZ;
+                    velocity.normalize();
+                    particles.setVelocityAt(velocity, i);
+                    particles.setPositionAt(position, i);
+                }
+            }
             break;
-        case ShapeType.Hemisphere:
-            hemisphereEmit(this.emitFrom, this.radius, this.radiusThickness, p.position, p.velocity);
+        case ShapeType.CONE_SHELL:
+            if (this.arcMode === ArcMode.RANDOM) {
+                for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                    const theta = randomRange(0, this._arc);
+                    position.set(Math.cos(theta), Math.sin(theta), 0);
+                    Vec2.multiplyScalar(velocity, position, Math.sin(this._angle));
+                    velocity.z = -Math.cos(this._angle);
+                    velocity.normalize();
+                    Vec2.multiplyScalar(position, position, this.radius);
+                    particles.setVelocityAt(velocity, i);
+                    particles.setPositionAt(position, i);
+                }
+            } else if (this.arcMode === ArcMode.LOOP) {
+                angle = repeat(angle, this._arc);
+                for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                    position.set(Math.cos(angle), Math.sin(angle), 0);
+                    Vec2.multiplyScalar(velocity, position, Math.sin(this._angle));
+                    velocity.z = -Math.cos(this._angle);
+                    velocity.normalize();
+                    Vec2.multiplyScalar(position, position, this.radius);
+                    particles.setVelocityAt(velocity, i);
+                    particles.setPositionAt(position, i);
+                }
+            } else {
+                angle = pingPong(angle, this._arc);
+                for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                    position.set(Math.cos(angle), Math.sin(angle), 0);
+                    Vec2.multiplyScalar(velocity, position, Math.sin(this._angle));
+                    velocity.z = -Math.cos(this._angle);
+                    velocity.normalize();
+                    Vec2.multiplyScalar(position, position, this.radius);
+                    particles.setVelocityAt(velocity, i);
+                    particles.setPositionAt(position, i);
+                }
+            }
             break;
-        default:
-        }
-    }
-
-    public emit (p) {
-        switch (this.shapeType) {
-        case ShapeType.Box:
-            boxEmit(this.emitFrom, this.boxThickness, p.position, p.velocity);
+        case ShapeType.SPHERE:
+            for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                const z = randomRange(-1, 1);
+                const a = randomRange(0, 2 * Math.PI);
+                const r = Math.sqrt(1 - z * z);
+                position.x = r * Math.cos(a);
+                position.y = r * Math.sin(a);
+                position.z = z;
+                position.multiplyScalar(minRadius + (this.radius - minRadius) * random());
+                Vec3.normalize(velocity, position);
+                particles.setVelocityAt(velocity, i);
+                particles.setPositionAt(position, i);
+            }
             break;
-        case ShapeType.Circle:
-            circleEmit(this.radius, this.radiusThickness, this.generateArcAngle(), p.position, p.velocity);
+        case ShapeType.SPHERE_SHELL:
+            for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                const z = randomRange(-1, 1);
+                const a = randomRange(0, 2 * Math.PI);
+                const r = Math.sqrt(1 - z * z);
+                position.x = r * Math.cos(a);
+                position.y = r * Math.sin(a);
+                position.z = z;
+                position.multiplyScalar(this.radius);
+                Vec3.normalize(velocity, position);
+                particles.setVelocityAt(velocity, i);
+                particles.setPositionAt(position, i);
+            }
             break;
-        case ShapeType.Cone:
-            coneEmit(this.emitFrom, this.radius, this.radiusThickness, this.generateArcAngle(), this._angle, this.length, p.position, p.velocity);
+        case ShapeType.HEMISPHERE:
+            for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                const z = randomRange(-1, 1);
+                const a = randomRange(0, 2 * Math.PI);
+                const r = Math.sqrt(1 - z * z);
+                position.x = r * Math.cos(a);
+                position.y = r * Math.sin(a);
+                position.z = z;
+                position.multiplyScalar(minRadius + (this.radius - minRadius) * random());
+                if (position.z > 0) {
+                    position.z *= -1;
+                }
+                Vec3.normalize(velocity, position);
+                particles.setVelocityAt(velocity, i);
+                particles.setPositionAt(position, i);
+            }
             break;
-        case ShapeType.Sphere:
-            sphereEmit(this.emitFrom, this.radius, this.radiusThickness, p.position, p.velocity);
-            break;
-        case ShapeType.Hemisphere:
-            hemisphereEmit(this.emitFrom, this.radius, this.radiusThickness, p.position, p.velocity);
+        case ShapeType.HEMISPHERE_SHELL:
+            for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                const z = randomRange(-1, 1);
+                const a = randomRange(0, 2 * Math.PI);
+                const r = Math.sqrt(1 - z * z);
+                position.x = r * Math.cos(a);
+                position.y = r * Math.sin(a);
+                position.z = z;
+                position.multiplyScalar(this.radius);
+                if (position.z > 0) {
+                    position.z *= -1;
+                }
+                Vec3.normalize(velocity, position);
+                particles.setVelocityAt(velocity, i);
+                particles.setPositionAt(position, i);
+            }
             break;
         default:
             console.warn(`${this.shapeType} shapeType is not supported by ShapeModule.`);
         }
-        if (this.randomPositionAmount > 0) {
-            p.position.x += randomRange(-this.randomPositionAmount, this.randomPositionAmount);
-            p.position.y += randomRange(-this.randomPositionAmount, this.randomPositionAmount);
-            p.position.z += randomRange(-this.randomPositionAmount, this.randomPositionAmount);
+        if (randomPositionAmount > 0) {
+            for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                particles.getPositionAt(position, i);
+                position.add3f(randomRange(-randomPositionAmount, randomPositionAmount),
+                    randomRange(-randomPositionAmount, randomPositionAmount),
+                    randomRange(-randomPositionAmount, randomPositionAmount));
+                particles.setPositionAt(position, i);
+            }
         }
-        Vec3.transformQuat(p.velocity, p.velocity, this.quat);
-        Vec3.transformMat4(p.position, p.position, this.mat);
+        for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+            particles.getPositionAt(position, i);
+            particles.getVelocityAt(velocity, i);
+            particles.setVelocityAt(Vec3.transformQuat(velocity, velocity, this.quat), i);
+            particles.setPositionAt(Vec3.transformMat4(position, position, this.mat), i);
+        }
         if (this.sphericalDirectionAmount > 0) {
-            const sphericalVel = Vec3.normalize(_intermediVec, p.position);
-            Vec3.lerp(p.velocity, p.velocity, sphericalVel, this.sphericalDirectionAmount);
-        }
-        this.lastTime = this.particleSystem._time;
-    }
-
-    private generateArcAngle () {
-        if (this.arcMode === ArcMode.Random) {
-            return randomRange(0, this._arc);
-        }
-        let angle = this.totalAngle + 2 * Math.PI * this.arcSpeed.evaluate(this.particleSystem._time, 1)! * (this.particleSystem._time - this.lastTime);
-        this.totalAngle = angle;
-        if (this.arcSpread !== 0) {
-            angle = Math.floor(angle / (this._arc * this.arcSpread)) * this._arc * this.arcSpread;
-        }
-        switch (this.arcMode) {
-        case ArcMode.Loop:
-            return repeat(angle, this._arc);
-        case ArcMode.PingPong:
-            return pingPong(angle, this._arc);
-        default:
-            return repeat(angle, this._arc);
+            for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                particles.getPositionAt(position, i);
+                particles.getVelocityAt(velocity, i);
+                const sphericalVel = Vec3.normalize(_intermediVec, position);
+                Vec3.lerp(velocity, velocity, sphericalVel, this.sphericalDirectionAmount);
+                particles.setVelocityAt(velocity, i);
+            }
         }
     }
-}
-
-function sphereEmit (emitFrom, radius, radiusThickness, pos, dir) {
-    switch (emitFrom) {
-    case EmitLocation.Volume:
-        randomPointBetweenSphere(pos, radius * (1 - radiusThickness), radius);
-        Vec3.normalize(dir, pos);
-        break;
-    case EmitLocation.Shell:
-        randomUnitVector(pos);
-        Vec3.multiplyScalar(pos, pos, radius);
-        Vec3.normalize(dir, pos);
-        break;
-    default:
-        console.warn(`${emitFrom} is not supported for sphere emitter.`);
-    }
-}
-
-function hemisphereEmit (emitFrom, radius, radiusThickness, pos, dir) {
-    switch (emitFrom) {
-    case EmitLocation.Volume:
-        randomPointBetweenSphere(pos, radius * (1 - radiusThickness), radius);
-        if (pos.z > 0) {
-            pos.z *= -1;
-        }
-        Vec3.normalize(dir, pos);
-        break;
-    case EmitLocation.Shell:
-        randomUnitVector(pos);
-        Vec3.multiplyScalar(pos, pos, radius);
-        if (pos.z > 0) {
-            pos.z *= -1;
-        }
-        Vec3.normalize(dir, pos);
-        break;
-    default:
-        console.warn(`${emitFrom} is not supported for hemisphere emitter.`);
-    }
-}
-
-function coneEmit (emitFrom, radius, radiusThickness, theta, angle, length, pos, dir) {
-    switch (emitFrom) {
-    case EmitLocation.Base:
-        randomPointBetweenCircleAtFixedAngle(pos, radius * (1 - radiusThickness), radius, theta);
-        Vec2.multiplyScalar(dir, pos, Math.sin(angle));
-        dir.z = -Math.cos(angle) * radius;
-        Vec3.normalize(dir, dir);
-        pos.z = 0;
-        break;
-    case EmitLocation.Shell:
-        fixedAngleUnitVector2(pos, theta);
-        Vec2.multiplyScalar(dir, pos, Math.sin(angle));
-        dir.z = -Math.cos(angle);
-        Vec3.normalize(dir, dir);
-        Vec2.multiplyScalar(pos, pos, radius);
-        pos.z = 0;
-        break;
-    case EmitLocation.Volume:
-        randomPointBetweenCircleAtFixedAngle(pos, radius * (1 - radiusThickness), radius, theta);
-        Vec2.multiplyScalar(dir, pos, Math.sin(angle));
-        dir.z = -Math.cos(angle) * radius;
-        Vec3.normalize(dir, dir);
-        pos.z = 0;
-        Vec3.add(pos, pos, Vec3.multiplyScalar(_intermediVec, dir, length * random() / -dir.z));
-        break;
-    default:
-        console.warn(`${emitFrom} is not supported for cone emitter.`);
-    }
-}
-
-function boxEmit (emitFrom, boxThickness, pos, dir) {
-    switch (emitFrom) {
-    case EmitLocation.Volume:
-        randomPointInCube(pos, _unitBoxExtent);
-        // randomPointBetweenCube(pos, vec3.multiply(_intermediVec, _unitBoxExtent, boxThickness), _unitBoxExtent);
-        break;
-    case EmitLocation.Shell:
-        _intermediArr.splice(0, _intermediArr.length);
-        _intermediArr.push(randomRange(-0.5, 0.5));
-        _intermediArr.push(randomRange(-0.5, 0.5));
-        _intermediArr.push(randomSign() * 0.5);
-        randomSortArray(_intermediArr);
-        applyBoxThickness(_intermediArr, boxThickness);
-        Vec3.set(pos, _intermediArr[0], _intermediArr[1], _intermediArr[2]);
-        break;
-    case EmitLocation.Edge:
-        _intermediArr.splice(0, _intermediArr.length);
-        _intermediArr.push(randomRange(-0.5, 0.5));
-        _intermediArr.push(randomSign() * 0.5);
-        _intermediArr.push(randomSign() * 0.5);
-        randomSortArray(_intermediArr);
-        applyBoxThickness(_intermediArr, boxThickness);
-        Vec3.set(pos, _intermediArr[0], _intermediArr[1], _intermediArr[2]);
-        break;
-    default:
-        console.warn(`${emitFrom} is not supported for box emitter.`);
-    }
-    Vec3.copy(dir, particleEmitZAxis);
-}
-
-function circleEmit (radius, radiusThickness, theta, pos, dir) {
-    randomPointBetweenCircleAtFixedAngle(pos, radius * (1 - radiusThickness), radius, theta);
-    Vec3.normalize(dir, pos);
 }
 
 function applyBoxThickness (position: Float32Array, thickness: Vec3) {

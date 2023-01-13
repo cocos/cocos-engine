@@ -167,7 +167,8 @@ export class InitializationModule extends ParticleModule {
             case CurveRange.Mode.Constant:
                 for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
                     const curveStartSpeed = this.startSpeed.constant;
-                    Vec3.multiplyScalar(velocity, particleEmitZAxis, curveStartSpeed);
+                    particles.getVelocityAt(velocity, i);
+                    Vec3.multiplyScalar(velocity, velocity, curveStartSpeed);
                     Vec3.transformQuat(velocity, velocity, worldRotation);
                     particles.setVelocityAt(velocity, i);
                 }
@@ -176,16 +177,17 @@ export class InitializationModule extends ParticleModule {
                 for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
                     const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
                     const curveStartSpeed = lerp(this.startSpeed.constantMin, this.startSpeed.constantMax, rand);
-                    Vec3.multiplyScalar(velocity, particleEmitZAxis, curveStartSpeed);
+                    particles.getVelocityAt(velocity, i);
+                    Vec3.multiplyScalar(velocity, velocity, curveStartSpeed);
                     Vec3.transformQuat(velocity, velocity, worldRotation);
                     particles.setVelocityAt(velocity, i);
                 }
                 break;
             case CurveRange.Mode.Curve:
                 for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
-                    const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
                     const curveStartSpeed = this.startSpeed.spline.evaluate(normalizedTimeInCycle) * this.startSpeed.multiplier;
-                    Vec3.multiplyScalar(velocity, particleEmitZAxis, curveStartSpeed);
+                    particles.getVelocityAt(velocity, i);
+                    Vec3.multiplyScalar(velocity, velocity, curveStartSpeed);
                     Vec3.transformQuat(velocity, velocity, worldRotation);
                     particles.setVelocityAt(velocity, i);
                 }
@@ -194,7 +196,8 @@ export class InitializationModule extends ParticleModule {
                 for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
                     const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
                     const curveStartSpeed = lerp(this.startSpeed.splineMin.evaluate(normalizedTimeInCycle), this.startSpeed.splineMax.evaluate(normalizedTimeInCycle), rand) * this.startSpeed.multiplier;
-                    Vec3.multiplyScalar(velocity, particleEmitZAxis, curveStartSpeed);
+                    particles.getVelocityAt(velocity, i);
+                    Vec3.multiplyScalar(velocity, velocity, curveStartSpeed);
                     Vec3.transformQuat(velocity, velocity, worldRotation);
                     particles.setVelocityAt(velocity, i);
                 }
@@ -206,7 +209,8 @@ export class InitializationModule extends ParticleModule {
             case CurveRange.Mode.Constant:
                 for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
                     const curveStartSpeed = this.startSpeed.constant;
-                    Vec3.multiplyScalar(velocity, particleEmitZAxis, curveStartSpeed);
+                    particles.getVelocityAt(velocity, i);
+                    Vec3.multiplyScalar(velocity, velocity, curveStartSpeed);
                     particles.setVelocityAt(velocity, i);
                 }
                 break;
@@ -214,14 +218,16 @@ export class InitializationModule extends ParticleModule {
                 for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
                     const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
                     const curveStartSpeed = lerp(this.startSpeed.constantMin, this.startSpeed.constantMax, rand);
-                    Vec3.multiplyScalar(velocity, particleEmitZAxis, curveStartSpeed);
+                    particles.getVelocityAt(velocity, i);
+                    Vec3.multiplyScalar(velocity, velocity, curveStartSpeed);
                     particles.setVelocityAt(velocity, i);
                 }
                 break;
             case CurveRange.Mode.Curve:
                 for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
                     const curveStartSpeed = this.startSpeed.spline.evaluate(normalizedTimeInCycle) * this.startSpeed.multiplier;
-                    Vec3.multiplyScalar(velocity, particleEmitZAxis, curveStartSpeed);
+                    particles.getVelocityAt(velocity, i);
+                    Vec3.multiplyScalar(velocity, velocity, curveStartSpeed);
                     particles.setVelocityAt(velocity, i);
                 }
                 break;
@@ -229,7 +235,8 @@ export class InitializationModule extends ParticleModule {
                 for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
                     const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
                     const curveStartSpeed = lerp(this.startSpeed.splineMin.evaluate(normalizedTimeInCycle), this.startSpeed.splineMax.evaluate(normalizedTimeInCycle), rand) * this.startSpeed.multiplier;
-                    Vec3.multiplyScalar(velocity, particleEmitZAxis, curveStartSpeed);
+                    particles.getVelocityAt(velocity, i);
+                    Vec3.multiplyScalar(velocity, velocity, curveStartSpeed);
                     particles.setVelocityAt(velocity, i);
                 }
                 break;

@@ -529,8 +529,7 @@ export class ParticleSystem extends Component {
             }
         }
         particleUpdateContext.emitterAccumulatedTime += particleUpdateContext.emitterDeltaTime;
-        particleUpdateContext.normalizedTimeInCycle = ((particleUpdateContext.emitterAccumulatedTime - particleUpdateContext.emitterStartDelay)
-            % this.duration) / this.duration;
+        particleUpdateContext.normalizedTimeInCycle = particleUpdateContext.emitterAccumulatedTime / this.duration;
 
         const { normalizedAliveTime, invStartLifeTime, animatedVelocityX, animatedVelocityY, animatedVelocityZ, angularVelocityX, angularVelocityY, angularVelocityZ, color, startColor } = particles;
         for (let i = 0, length = particles.count; i < length; ++i) {
