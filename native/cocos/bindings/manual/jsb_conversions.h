@@ -195,20 +195,20 @@ seval_to_type(const se::Value &v, bool &ok) { // NOLINT(readability-identifier-n
     return v.toString();
 }
 
+inline se::HandleObject unwrapProxyObject(se::Object *obj) {
+    if(obj->isProxy()) {
+        return se::HandleObject(se::Object::createProxyTarget(obj));
+    }
+    obj->incRef();
+    return se::HandleObject(obj);
+}
+
 template <typename T>
 typename std::enable_if<std::is_pointer<T>::value && std::is_class<typename std::remove_pointer<T>::type>::value, bool>::type
 seval_to_std_vector(const se::Value &v, ccstd::vector<T> *ret) { // NOLINT(readability-identifier-naming)
     CC_ASSERT_NOT_NULL(ret);
     CC_ASSERT(v.isObject());
-    se::Object *arrayObj= v.toObject();
-    se::Object *tempArray = nullptr;
-    if(arrayObj->isArray()) {
-        tempArray = arrayObj;
-        tempArray->incRef();
-    }else {
-        tempArray = se::Object::createProxyTarget(arrayObj);
-    }
-    se::HandleObject array(tempArray);
+    se::HandleObject array(unwrapProxyObject(v.toObject()));
     CC_ASSERT(array->isArray());
 
     bool ok = true;
@@ -248,15 +248,7 @@ typename std::enable_if<!std::is_pointer<T>::value, bool>::type
 seval_to_std_vector(const se::Value &v, ccstd::vector<T> *ret) { // NOLINT(readability-identifier-naming)
     CC_ASSERT_NOT_NULL(ret);
     CC_ASSERT(v.isObject());
-    se::Object *arrayObj= v.toObject();
-    se::Object *tempArray = nullptr;
-    if(arrayObj->isArray()) {
-        tempArray = arrayObj;
-        tempArray->incRef();
-    }else {
-        tempArray = se::Object::createProxyTarget(arrayObj);
-    }
-    se::HandleObject array(tempArray);
+    se::HandleObject array(unwrapProxyObject(v.toObject()));
     CC_ASSERT(array->isArray());
 
     bool ok = true;
@@ -725,15 +717,7 @@ bool sevalue_to_native(const se::Value &from, ccstd::vector<T> *to, se::Object *
     }
 
     CC_ASSERT(from.toObject());
-    se::Object *arrayObj= from.toObject();
-    se::Object *tempArray = nullptr;
-    if(arrayObj->isArray()) {
-        tempArray = arrayObj;
-        tempArray->incRef();
-    }else {
-        tempArray = se::Object::createProxyTarget(arrayObj);
-    }
-    se::HandleObject array(tempArray);
+    se::HandleObject array(unwrapProxyObject(from.toObject()));
     
     if (array->isArray()) {
         uint32_t len = 0;
