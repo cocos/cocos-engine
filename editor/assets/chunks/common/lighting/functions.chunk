@@ -72,22 +72,15 @@ vec3 CalculatePlanarReflectPositionOnPlane(vec3 N, vec3 V, vec3 worldPos, vec4 p
 
 
 // fix cubemap direction with box projection
-// return unnormalized vector and weight
+// return unnormalized vector and weight for exceeding
 vec4 CalculateBoxProjectedDirection(vec3 R, vec3 worldPos, vec3 cubeCenterPos, vec3 cubeBoxHalfSize)
 {
   // point W is the worldPos in the space origin align with cube center
   vec3 W = worldPos - cubeCenterPos;
-  // float boxSize = sqrt(dot(cubeBoxHalfSize.xz, cubeBoxHalfSize.xz));
-  // find point P which intersected with cube from W alone R
+  // find point P which intersected with cube box border from W alone R
   vec3 projectedLength = (sign(R) * cubeBoxHalfSize - W) / (R + vec3(EPSILON));
   float len = min(min(projectedLength.x, projectedLength.y), projectedLength.z);
   vec3 P = W + len * R;
-  float weight = 1.0;
-  if (len < 0.0) weight = 0.0;
+  float weight = len < 0.0 ? 0.0 : 1.0;
   return vec4(P, weight);
-  // find point P which intersected with cube from O alone R
-  // projectedLength = cubeBoxHalfSize / (abs(R) + EPSILON);
-  // P = R * min(min(projectedLength.x, projectedLength.y), projectedLength.z);
-  // fix direction with offset
-  // return P + (worldPos - cubeCenterPos);
 }
