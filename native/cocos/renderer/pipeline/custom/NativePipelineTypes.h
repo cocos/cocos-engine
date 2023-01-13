@@ -428,11 +428,48 @@ struct NativeRenderContext {
     uint64_t nextFenceValue{0};
 };
 
+class NativeProgramLibrary final : public ProgramLibrary {
+public:
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {layoutGraph.get_allocator().resource()};
+    }
+
+    NativeProgramLibrary(const allocator_type& alloc) noexcept; // NOLINT
+
+    void addEffect(const EffectAsset *effectAsset) override;
+    void precompileEffect(gfx::Device *device, EffectAsset *effectAsset) override;
+    ccstd::string getKey(uint32_t phaseID, const ccstd::string &programName, const MacroRecord &defines) const override;
+    IntrusivePtr<gfx::PipelineLayout> getPipelineLayout(gfx::Device *device, uint32_t phaseID, const ccstd::string &programName) override;
+    const gfx::DescriptorSetLayout &getMaterialDescriptorSetLayout(gfx::Device *device, uint32_t phaseID, const ccstd::string &programName) override;
+    const gfx::DescriptorSetLayout &getLocalDescriptorSetLayout(gfx::Device *device, uint32_t phaseID, const ccstd::string &programName) override;
+    const IProgramInfo &getProgramInfo(uint32_t phaseID, const ccstd::string &programName) const override;
+    const gfx::ShaderInfo &getShaderInfo(uint32_t phaseID, const ccstd::string &programName) const override;
+    ProgramProxy *getProgramVariant(gfx::Device *device, uint32_t phaseID, const ccstd::string &name, MacroRecord &defines, const ccstd::pmr::string *key) override;
+    const ccstd::vector<int32_t> &getBlockSizes(uint32_t phaseID, const ccstd::string &programName) const override;
+    const Record<ccstd::string, uint32_t> &getHandleMap(uint32_t phaseID, const ccstd::string &programName) const override;
+    uint32_t getProgramID(uint32_t phaseID, const ccstd::pmr::string &programName) override;
+    uint32_t getDescriptorNameID(const ccstd::pmr::string &name) override;
+    const ccstd::pmr::string &getDescriptorName(uint32_t nameID) override;
+
+    void init(gfx::Device* device);
+    void destroy();
+
+    LayoutGraphData layoutGraph;
+    PmrFlatMap<uint32_t, ProgramGroup> phases;
+    boost::container::pmr::unsynchronized_pool_resource unsycPool;
+    bool mergeHighFrequency{false};
+    bool fixedLocal{true};
+    IntrusivePtr<gfx::DescriptorSetLayout> emptyDescriptorSetLayout;
+    IntrusivePtr<gfx::PipelineLayout> emptyPipelineLayout;
+    PipelineRuntime* pipeline{nullptr};
+};
+
 class NativePipeline final : public Pipeline {
 public:
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {nativeContext.get_allocator().resource()};
+        return {name.get_allocator().resource()};
     }
 
     NativePipeline(const allocator_type& alloc) noexcept; // NOLINT
@@ -497,11 +534,13 @@ public:
     MacroRecord macros;
     ccstd::string constantMacros;
     std::unique_ptr<pipeline::GlobalDSManager> globalDSManager;
+    ccstd::pmr::string name;
+    NativeProgramLibrary* programLibrary;
     scene::Model* profiler{nullptr};
     LightingMode lightingMode{LightingMode::DEFAULT};
     IntrusivePtr<pipeline::PipelineSceneData> pipelineSceneData;
     NativeRenderContext nativeContext;
-    LayoutGraphData layoutGraph;
+    LayoutGraphData dummyLayoutGraph;
     ResourceGraph resourceGraph;
     RenderGraph renderGraph;
 };
@@ -516,43 +555,6 @@ public:
     gfx::Shader *getShader() const noexcept override;
 
     IntrusivePtr<gfx::Shader> shader;
-};
-
-class NativeProgramLibrary final : public ProgramLibrary {
-public:
-    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
-    allocator_type get_allocator() const noexcept { // NOLINT
-        return {layoutGraph.get_allocator().resource()};
-    }
-
-    NativeProgramLibrary(const allocator_type& alloc) noexcept; // NOLINT
-
-    void addEffect(const EffectAsset *effectAsset) override;
-    void precompileEffect(gfx::Device *device, EffectAsset *effectAsset) override;
-    ccstd::string getKey(uint32_t phaseID, const ccstd::string &programName, const MacroRecord &defines) const override;
-    IntrusivePtr<gfx::PipelineLayout> getPipelineLayout(gfx::Device *device, uint32_t phaseID, const ccstd::string &programName) override;
-    const gfx::DescriptorSetLayout &getMaterialDescriptorSetLayout(gfx::Device *device, uint32_t phaseID, const ccstd::string &programName) override;
-    const gfx::DescriptorSetLayout &getLocalDescriptorSetLayout(gfx::Device *device, uint32_t phaseID, const ccstd::string &programName) override;
-    const IProgramInfo &getProgramInfo(uint32_t phaseID, const ccstd::string &programName) const override;
-    const gfx::ShaderInfo &getShaderInfo(uint32_t phaseID, const ccstd::string &programName) const override;
-    ProgramProxy *getProgramVariant(gfx::Device *device, uint32_t phaseID, const ccstd::string &name, MacroRecord &defines, const ccstd::pmr::string *key) override;
-    const ccstd::vector<int32_t> &getBlockSizes(uint32_t phaseID, const ccstd::string &programName) const override;
-    const Record<ccstd::string, uint32_t> &getHandleMap(uint32_t phaseID, const ccstd::string &programName) const override;
-    uint32_t getProgramID(uint32_t phaseID, const ccstd::pmr::string &programName) override;
-    uint32_t getDescriptorNameID(const ccstd::pmr::string &name) override;
-    const ccstd::pmr::string &getDescriptorName(uint32_t nameID) override;
-
-    void init(gfx::Device* device);
-    void destroy();
-
-    LayoutGraphData layoutGraph;
-    PmrFlatMap<uint32_t, ProgramGroup> phases;
-    boost::container::pmr::unsynchronized_pool_resource unsycPool;
-    bool mergeHighFrequency{false};
-    bool fixedLocal{true};
-    IntrusivePtr<gfx::DescriptorSetLayout> emptyDescriptorSetLayout;
-    IntrusivePtr<gfx::PipelineLayout> emptyPipelineLayout;
-    PipelineRuntime* pipeline{nullptr};
 };
 
 class NativeRenderingModule final : public RenderingModule {

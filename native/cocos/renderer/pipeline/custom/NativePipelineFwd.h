@@ -55,9 +55,9 @@ class DefaultSceneVisitor;
 class DefaultForwardLightingTransversal;
 struct ResourceGroup;
 struct NativeRenderContext;
+class NativeProgramLibrary;
 class NativePipeline;
 class NativeProgramProxy;
-class NativeProgramLibrary;
 class NativeRenderingModule;
 
 } // namespace render

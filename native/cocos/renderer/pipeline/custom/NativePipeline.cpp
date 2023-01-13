@@ -59,6 +59,7 @@
 #include "cocos/scene/RenderWindow.h"
 #include "details/DebugUtils.h"
 #include "details/GslUtils.h"
+#include "RenderingModule.h"
 
 #if CC_USE_DEBUG_RENDERER
     #include "profiler/DebugRenderer.h"
@@ -76,11 +77,13 @@ SceneTask *NativeSceneTransversal::transverse(SceneVisitor *visitor) const {
 NativePipeline::NativePipeline(const allocator_type &alloc) noexcept
 : device(gfx::Device::getInstance()),
   globalDSManager(std::make_unique<pipeline::GlobalDSManager>()),
-  layoutGraph(alloc),
+  programLibrary(dynamic_cast<NativeProgramLibrary*>(getProgramLibrary())),
   pipelineSceneData(ccnew pipeline::PipelineSceneData()), // NOLINT
   nativeContext(alloc),
+  dummyLayoutGraph(alloc),
   resourceGraph(alloc),
-  renderGraph(alloc) {}
+  renderGraph(alloc),
+  name(alloc) {}
 
 gfx::Device *NativePipeline::getDevice() const {
     return device;
@@ -251,10 +254,10 @@ RasterPassBuilder *NativePipeline::addRasterPass(
         std::forward_as_tuple(std::move(pass)),
         renderGraph);
 
-    auto passLayoutID = locate(LayoutGraphData::null_vertex(), layoutName, layoutGraph);
+    auto passLayoutID = locate(LayoutGraphData::null_vertex(), layoutName, programLibrary->layoutGraph);
     CC_EXPECTS(passLayoutID != LayoutGraphData::null_vertex());
 
-    return ccnew NativeRasterPassBuilder(this, &renderGraph, passID, &layoutGraph, passLayoutID);
+    return ccnew NativeRasterPassBuilder(this, &renderGraph, passID, &programLibrary->layoutGraph, passLayoutID);
 }
 
 // NOLINTNEXTLINE
@@ -269,9 +272,9 @@ ComputePassBuilder *NativePipeline::addComputePass(const ccstd::string &layoutNa
         std::forward_as_tuple(),
         renderGraph);
 
-    auto passLayoutID = locate(LayoutGraphData::null_vertex(), layoutName, layoutGraph);
+    auto passLayoutID = locate(LayoutGraphData::null_vertex(), layoutName, programLibrary->layoutGraph);
 
-    return ccnew NativeComputePassBuilder(&renderGraph, passID, &layoutGraph, passLayoutID);
+    return ccnew NativeComputePassBuilder(&renderGraph, passID, &programLibrary->layoutGraph, passLayoutID);
 }
 
 // NOLINTNEXTLINE
@@ -336,13 +339,14 @@ SceneTransversal *NativePipeline::createSceneTransversal(const scene::Camera *ca
 }
 
 LayoutGraphBuilder *NativePipeline::getLayoutGraphBuilder() {
-    return ccnew NativeLayoutGraphBuilder(device, &layoutGraph);
+    return ccnew NativeLayoutGraphBuilder(device, &dummyLayoutGraph);
 }
 
 gfx::DescriptorSetLayout *NativePipeline::getDescriptorSetLayout(const ccstd::string &shaderName, UpdateFrequency freq) {
-    auto iter = layoutGraph.shaderLayoutIndex.find(std::string_view{shaderName});
-    if (iter != layoutGraph.shaderLayoutIndex.end()) {
-        const auto &layouts = get(LayoutGraphData::Layout, layoutGraph, iter->second).descriptorSets;
+    const auto &lg = programLibrary->layoutGraph;
+    auto iter = lg.shaderLayoutIndex.find(std::string_view{shaderName});
+    if (iter != lg.shaderLayoutIndex.end()) {
+        const auto &layouts = get(LayoutGraphData::Layout, lg, iter->second).descriptorSets;
         auto iter2 = layouts.find(freq);
         if (iter2 != layouts.end()) {
             return iter2->second.descriptorSetLayout.get();
