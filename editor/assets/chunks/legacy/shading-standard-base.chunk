@@ -8,10 +8,9 @@
 #include <common/data/unpack>
 #include <common/texture/texture-lod>
 #include <builtin/uniforms/cc-local>
+#include <builtin/uniforms/cc-environment>
 
 #if CC_USE_IBL
-  #include <builtin/uniforms/cc-environment>
-
   #if CC_USE_DIFFUSEMAP
     #include <builtin/uniforms/cc-diffusemap>
   #endif

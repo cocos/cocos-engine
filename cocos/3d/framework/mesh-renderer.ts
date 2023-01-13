@@ -680,6 +680,9 @@ export class MeshRenderer extends ModelRenderer {
         if (this.model) {
             this.model.reflectionProbeId = probeId;
         }
+        if (this._reflectionProbeId !== probeId) {
+            this._onUpdateLocalShadowBiasAndProbeId();
+        }
     }
 
     protected _updateReflectionProbeTexture () {
