@@ -190,7 +190,6 @@ export class ParticleSystem extends ModelRenderer {
     @radian
     @displayOrder(12)
     @tooltip('i18n:particle_system.startRotationZ')
-    @visible(function (this: ParticleSystem): boolean { return this.startRotation3D; })
     public startRotationZ = new CurveRange();
 
     /**
