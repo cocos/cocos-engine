@@ -409,6 +409,59 @@ struct ResourceGroup {
     PmrUnorderedSet<IntrusivePtr<pipeline::InstancedBuffer>> instancingBuffers;
 };
 
+struct BufferPool {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {currentBuffers.get_allocator().resource()};
+    }
+
+    BufferPool(const allocator_type& alloc) noexcept; // NOLINT
+    BufferPool(BufferPool&& rhs, const allocator_type& alloc);
+
+    BufferPool(BufferPool&& rhs) noexcept = default;
+    BufferPool(BufferPool const& rhs) = delete;
+    BufferPool& operator=(BufferPool&& rhs) = default;
+    BufferPool& operator=(BufferPool const& rhs) = delete;
+
+    ccstd::pmr::vector<IntrusivePtr<gfx::Buffer>> currentBuffers;
+    ccstd::pmr::vector<IntrusivePtr<gfx::Buffer>> freeBuffers;
+};
+
+struct UniformBlockResource {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {data.get_allocator().resource()};
+    }
+
+    UniformBlockResource(const allocator_type& alloc) noexcept; // NOLINT
+    UniformBlockResource(UniformBlockResource&& rhs, const allocator_type& alloc);
+
+    UniformBlockResource(UniformBlockResource&& rhs) noexcept = default;
+    UniformBlockResource(UniformBlockResource const& rhs) = delete;
+    UniformBlockResource& operator=(UniformBlockResource&& rhs) = default;
+    UniformBlockResource& operator=(UniformBlockResource const& rhs) = delete;
+
+    ccstd::pmr::vector<char> data;
+    BufferPool bufferPool;
+};
+
+struct LayoutGraphNodeResource {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {uniformBuffers.get_allocator().resource()};
+    }
+
+    LayoutGraphNodeResource(const allocator_type& alloc) noexcept; // NOLINT
+    LayoutGraphNodeResource(LayoutGraphNodeResource&& rhs, const allocator_type& alloc);
+
+    LayoutGraphNodeResource(LayoutGraphNodeResource&& rhs) noexcept = default;
+    LayoutGraphNodeResource(LayoutGraphNodeResource const& rhs) = delete;
+    LayoutGraphNodeResource& operator=(LayoutGraphNodeResource&& rhs) = default;
+    LayoutGraphNodeResource& operator=(LayoutGraphNodeResource const& rhs) = delete;
+
+    PmrFlatMap<NameLocalID, UniformBlockResource> uniformBuffers;
+};
+
 struct NativeRenderContext {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
@@ -425,6 +478,7 @@ struct NativeRenderContext {
 
     ccstd::pmr::unordered_map<RasterPass, PersistentRenderPassAndFramebuffer> renderPasses;
     ccstd::pmr::map<uint64_t, ResourceGroup> resourceGroups;
+    ccstd::pmr::vector<LayoutGraphNodeResource> layoutGraphResources;
     uint64_t nextFenceValue{0};
 };
 

@@ -40,6 +40,7 @@
 #include "RenderGraphTypes.h"
 #include "RenderInterfaceFwd.h"
 #include "RenderInterfaceTypes.h"
+#include "RenderingModule.h"
 #include "cocos/base/Macros.h"
 #include "cocos/base/Ptr.h"
 #include "cocos/base/StringUtil.h"
@@ -59,7 +60,7 @@
 #include "cocos/scene/RenderWindow.h"
 #include "details/DebugUtils.h"
 #include "details/GslUtils.h"
-#include "RenderingModule.h"
+#include "pipeline/custom/LayoutGraphUtils.h"
 
 #if CC_USE_DEBUG_RENDERER
     #include "profiler/DebugRenderer.h"
@@ -77,7 +78,7 @@ SceneTask *NativeSceneTransversal::transverse(SceneVisitor *visitor) const {
 NativePipeline::NativePipeline(const allocator_type &alloc) noexcept
 : device(gfx::Device::getInstance()),
   globalDSManager(std::make_unique<pipeline::GlobalDSManager>()),
-  programLibrary(dynamic_cast<NativeProgramLibrary*>(getProgramLibrary())),
+  programLibrary(dynamic_cast<NativeProgramLibrary *>(getProgramLibrary())),
   pipelineSceneData(ccnew pipeline::PipelineSceneData()), // NOLINT
   nativeContext(alloc),
   dummyLayoutGraph(alloc),
@@ -405,6 +406,34 @@ bool NativePipeline::activate(gfx::Swapchain *swapchainIn) {
     generateConstantMacros(device, constantMacros, false);
 
     _commandBuffers.resize(1, device->getCommandBuffer());
+
+    // reserve layout graph resource
+    const auto &lg = programLibrary->layoutGraph;
+    const auto numNodes = num_vertices(lg);
+    nativeContext.layoutGraphResources.reserve(numNodes);
+
+    for (uint32_t i = 0; i != numNodes; ++i) {
+        auto &node = nativeContext.layoutGraphResources.emplace_back();
+        const auto &layout = get(LayoutGraphData::Layout, lg, i);
+        if (holds<RenderStageTag>(i, lg)) {
+            auto iter = layout.descriptorSets.find(UpdateFrequency::PER_PASS);
+            if (iter == layout.descriptorSets.end()) {
+                continue;
+            }
+            const auto &set = iter->second;
+            for (const auto &[nameID, uniformBlock] : set.descriptorSetLayoutData.uniformBlocks) {
+                auto res = node.uniformBuffers.emplace(
+                    std::piecewise_construct,
+                    std::forward_as_tuple(nameID),
+                    std::forward_as_tuple());
+                CC_ENSURES(res.second);
+                auto &uniformBlockResource = res.first->second;
+                CC_EXPECTS(uniformBlock.count);
+                uniformBlockResource.data.resize(
+                    getUniformBlockSize(uniformBlock.members) * uniformBlock.count);
+            }
+        }
+    }
     return true;
 }
 
