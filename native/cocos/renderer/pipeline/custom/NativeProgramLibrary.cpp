@@ -272,7 +272,7 @@ void populateMergedShaderInfo(
                         continue;
                     }
                     const auto &uniformBlock = iter->second;
-                    blockSizes.emplace_back(getSize(uniformBlock.members));
+                    blockSizes.emplace_back(getUniformBlockSize(uniformBlock.members));
                     shaderInfo.blocks.emplace_back(
                         gfx::UniformBlock{
                             set,
@@ -388,7 +388,7 @@ void populateGroupedShaderInfo(
                     if (block.stageFlags != visibility) {
                         continue;
                     }
-                    blockSizes.emplace_back(getSize(block.members));
+                    blockSizes.emplace_back(getUniformBlockSize(block.members));
                     shaderInfo.blocks.emplace_back(
                         gfx::UniformBlock{
                             set,
@@ -527,7 +527,7 @@ void populateLocalShaderInfo(
         }
 
         const auto &binding = *pBinding;
-        blockSizes.emplace_back(getSize(block.members));
+        blockSizes.emplace_back(getUniformBlockSize(block.members));
         shaderInfo.blocks.emplace_back(
             gfx::UniformBlock{
                 set,
