@@ -254,7 +254,7 @@ RasterPassBuilder *NativePipeline::addRasterPass(
     auto passLayoutID = locate(LayoutGraphData::null_vertex(), layoutName, layoutGraph);
     CC_EXPECTS(passLayoutID != LayoutGraphData::null_vertex());
 
-    return ccnew NativeRasterPassBuilder(&renderGraph, passID, &layoutGraph, passLayoutID);
+    return ccnew NativeRasterPassBuilder(this, &renderGraph, passID, &layoutGraph, passLayoutID);
 }
 
 // NOLINTNEXTLINE

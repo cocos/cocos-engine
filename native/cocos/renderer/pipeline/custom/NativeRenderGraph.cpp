@@ -28,13 +28,19 @@
 #include "NativePipelineGraphs.h"
 #include "NativePipelineTypes.h"
 #include "RenderCommonNames.h"
+#include "RenderCommonTypes.h"
+#include "RenderGraphFwd.h"
 #include "RenderGraphGraphs.h"
+#include "RenderGraphTypes.h"
+#include "cocos/math/Utils.h"
+#include "cocos/renderer/pipeline/PipelineUBO.h"
+#include "cocos/scene/Fog.h"
+#include "cocos/scene/Skybox.h"
 #include "details/DebugUtils.h"
 #include "details/GraphView.h"
+#include "details/GslUtils.h"
 #include "gfx-base/GFXDef-common.h"
-#include "pipeline/custom/RenderCommonTypes.h"
-#include "pipeline/custom/RenderGraphFwd.h"
-#include "pipeline/custom/RenderGraphTypes.h"
+#include "scene/DirectionalLight.h"
 
 namespace cc {
 
@@ -78,6 +84,99 @@ void NativeRasterQueueBuilder::setName(const ccstd::string &name) {
     get(RenderGraph::Name, *renderGraph, queueID) = std::string_view{name};
 }
 
+namespace {
+
+void setCameraUBOValues(
+    const scene::Camera &camera,
+    const pipeline::PipelineSceneData &cfg,
+    const scene::Light *light,
+    Setter &setter) {
+    CC_EXPECTS(camera.getNode());
+    CC_EXPECTS(cfg.getSkybox());
+    const auto &skybox = *cfg.getSkybox();
+    const auto &shadingScale = cfg.getShadingScale();
+    // Camera
+    setter.setMat4("cc_matView", camera.getMatView());
+    setter.setMat4("cc_matViewInv", camera.getNode()->getWorldMatrix());
+    setter.setMat4("cc_matProj", camera.getMatProj());
+    setter.setMat4("cc_matProjInv", camera.getMatProjInv());
+    setter.setMat4("cc_matViewProj", camera.getMatViewProj());
+    setter.setMat4("cc_matViewProjInv", camera.getMatViewProjInv());
+    setter.setVec4("cc_cameraPos", Vec4(camera.getPosition().x,
+                                        camera.getPosition().y,
+                                        camera.getPosition().z,
+                                        pipeline::PipelineUBO::getCombineSignY()));
+    setter.setVec4("cc_surfaceTransform", Vec4(static_cast<float>(camera.getSurfaceTransform()),
+                                               0.0,
+                                               cosf(static_cast<float>(mathutils::toRadian(skybox.getRotationAngle()))),
+                                               sinf(static_cast<float>(mathutils::toRadian(skybox.getRotationAngle())))));
+    setter.setVec4("cc_screenScale", Vec4(cfg.getShadingScale(),
+                                          cfg.getShadingScale(),
+                                          1.0F / cfg.getShadingScale(),
+                                          1.0F / cfg.getShadingScale()));
+    setter.setVec4("cc_exposure", Vec4(camera.getExposure(),
+                                       1.0F / camera.getExposure(),
+                                       cfg.isHDR() ? 1.0F : 0.0F,
+                                       1.0F / scene::Camera::getStandardExposureValue()));
+
+    if (const auto *mainLight = dynamic_cast<const scene::DirectionalLight *>(light)) {
+        const auto &shadowInfo = *cfg.getShadows();
+        const bool shadowEnable = (mainLight->isShadowEnabled() &&
+                                   shadowInfo.getType() == scene::ShadowType::SHADOW_MAP);
+        setter.setVec4("cc_mainLitDir", Vec4(mainLight->getDirection().x,
+                                             mainLight->getDirection().y,
+                                             mainLight->getDirection().z,
+                                             shadowEnable));
+        auto r = mainLight->getColor().x;
+        auto g = mainLight->getColor().y;
+        auto b = mainLight->getColor().z;
+        if (mainLight->isUseColorTemperature()) {
+            r *= mainLight->getColorTemperatureRGB().x;
+            g *= mainLight->getColorTemperatureRGB().y;
+            b *= mainLight->getColorTemperatureRGB().z;
+        }
+        auto w = mainLight->getIlluminance();
+        if (cfg.isHDR()) {
+            w *= camera.getExposure();
+        }
+        setter.setVec4("cc_mainLitColor", Vec4(r, g, b, w));
+    } else {
+        setter.setVec4("cc_mainLitDir", Vec4(0, 0, 1, 0));
+        setter.setVec4("cc_mainLitColor", Vec4(0, 0, 0, 0));
+    }
+
+    CC_EXPECTS(cfg.getAmbient());
+    auto &ambient = *cfg.getAmbient();
+    auto &skyColor = ambient.getSkyColor();
+    if (cfg.isHDR()) {
+        skyColor.w = ambient.getSkyIllum() * camera.getExposure();
+    } else {
+        skyColor.w = ambient.getSkyIllum();
+    }
+    setter.setVec4("cc_ambientSky", Vec4(skyColor.x, skyColor.y, skyColor.z, skyColor.w));
+    setter.setVec4("cc_ambientGround", Vec4(ambient.getGroundAlbedo().x,
+                                            ambient.getGroundAlbedo().y,
+                                            ambient.getGroundAlbedo().z,
+                                            skybox.getEnvmap()
+                                                ? static_cast<float>(skybox.getEnvmap()->mipmapLevel())
+                                                : 1.0F));
+
+    CC_EXPECTS(cfg.getFog());
+    const auto &fog = *cfg.getFog();
+
+    const auto &colorTempRGB = fog.getColorArray();
+    setter.setVec4("cc_fogColor", Vec4(colorTempRGB.x, colorTempRGB.y, colorTempRGB.z, colorTempRGB.z));
+    setter.setVec4("cc_fogBase", Vec4(fog.getFogStart(), fog.getFogEnd(), fog.getFogDensity(), 0.0F));
+    setter.setVec4("cc_fogAdd", Vec4(fog.getFogTop(), fog.getFogRange(), fog.getFogAtten(), 0.0F));
+    setter.setVec4("cc_nearFar", Vec4(camera.getNearClip(), camera.getFarClip(), 0.0, 0.0));
+    setter.setVec4("cc_viewPort", Vec4(camera.getViewport().x,
+                                       camera.getViewport().y,
+                                       shadingScale * static_cast<float>(camera.getWindow()->getWidth()) * camera.getViewport().z,
+                                       shadingScale * static_cast<float>(camera.getWindow()->getHeight()) * camera.getViewport().w));
+}
+
+} // namespace
+
 void NativeRasterQueueBuilder::addSceneOfCamera(scene::Camera *camera, LightInfo light, SceneFlags sceneFlags) {
     std::string_view name = "Camera";
     SceneData scene(renderGraph->get_allocator());
@@ -94,6 +193,8 @@ void NativeRasterQueueBuilder::addSceneOfCamera(scene::Camera *camera, LightInfo
         std::forward_as_tuple(std::move(scene)),
         *renderGraph, queueID);
     CC_ENSURES(sceneID != RenderGraph::null_vertex());
+
+    setCameraUBOValues(*camera, *pipelineRuntime->getPipelineSceneData(), light.light.get(), *this);
 }
 
 void NativeRasterQueueBuilder::addScene(const ccstd::string &name, SceneFlags sceneFlags) {
@@ -319,7 +420,7 @@ RasterQueueBuilder *NativeRasterPassBuilder::addQueue(QueueHint hint) {
         std::forward_as_tuple(hint),
         *renderGraph, passID);
 
-    return new NativeRasterQueueBuilder(renderGraph, queueID, layoutGraph);
+    return new NativeRasterQueueBuilder(pipelineRuntime, renderGraph, queueID, layoutGraph);
 }
 
 void NativeRasterPassBuilder::setViewport(const gfx::Viewport &viewport) {
