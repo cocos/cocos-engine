@@ -38,4 +38,5 @@ export class PhysXInstance {
     static simulationCB: any;
     static queryFilterCB: any;
     static mutipleResultSize = 12;
+    static singleSweepResult: any;
 }

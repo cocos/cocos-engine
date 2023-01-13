@@ -552,6 +552,31 @@ export function raycastClosest (world: PhysXWorld, worldRay: geometry.Ray, optio
     return false;
 }
 
+export function sweepClosest (world: PhysXWorld, worldRay: geometry.Ray, geometry: any, geometryRotation: IQuatLike,
+    options: IRaycastOptions, inflation: number, result: PhysicsRayResult): boolean {
+    const maxDistance = options.maxDistance;
+    const flags = PxHitFlag.ePOSITION | PxHitFlag.eNORMAL;
+    const word3 = EFilterDataWord3.QUERY_FILTER | (options.queryTrigger ? 0 : EFilterDataWord3.QUERY_CHECK_TRIGGER)
+            | EFilterDataWord3.QUERY_SINGLE_HIT;
+    const queryFlags = PxQueryFlag.eSTATIC | PxQueryFlag.eDYNAMIC | PxQueryFlag.ePREFILTER;
+    const queryfilterData = PhysXInstance.queryfilterData;
+    queryfilterData.setWords(options.mask >>> 0, 0);
+    queryfilterData.setWords(word3, 3);
+    queryfilterData.setFlags(queryFlags);
+    const queryFilterCB = PhysXInstance.queryFilterCB;
+
+    const block = PhysXInstance.singleSweepResult;
+    const r = world.scene.sweep(geometry, getTempTransform(worldRay.o, geometryRotation), worldRay.d, maxDistance, flags,
+        block, queryfilterData, queryFilterCB, null, inflation);
+    if (r) {
+        const collider = getWrapShape<PhysXShape>(block.getShape()).collider;
+        result._assign(block.position, block.distance, collider, block.normal);
+        return true;
+    }
+
+    return false;
+}
+
 export function initializeWorld (world: any) {
     if (USE_BYTEDANCE) {
         // construct PhysX instance object only once
@@ -603,6 +628,7 @@ export function initializeWorld (world: any) {
             PhysXInstance.queryfilterData = new PX.PxQueryFilterData();
             PhysXInstance.simulationCB = PX.PxSimulationEventCallback.implement(world.callback.eventCallback);
             PhysXInstance.queryFilterCB = PX.PxQueryFilterCallback.implement(world.callback.queryCallback);
+            PhysXInstance.singleSweepResult = new PX.PxSweepHit();
         }
 
         const sceneDesc = PX.getDefaultSceneDesc(PhysXInstance.physics.getTolerancesScale(), 0, PhysXInstance.simulationCB);
