@@ -55,6 +55,7 @@ class DefaultSceneVisitor;
 class DefaultForwardLightingTransversal;
 struct ResourceGroup;
 struct BufferPool;
+struct DescriptorSetPool;
 struct UniformBlockResource;
 struct LayoutGraphNodeResource;
 struct NativeRenderContext;

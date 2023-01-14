@@ -48,6 +48,12 @@ void NativeRenderContext::clearPreviousResources(uint64_t finishedFenceValue) no
             break;
         }
     }
+    for (auto& node : layoutGraphResources) {
+        for (auto&& [nameID, buffer] : node.uniformBuffers) {
+            buffer.bufferPool.syncResources();
+        }
+        node.descriptorSetPool.syncDescriptorSets();
+    }
 }
 
 namespace {
