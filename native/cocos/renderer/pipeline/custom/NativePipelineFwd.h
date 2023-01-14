@@ -63,6 +63,7 @@ class NativeProgramLibrary;
 class NativePipeline;
 class NativeProgramProxy;
 class NativeRenderingModule;
+class NativeSetter;
 
 } // namespace render
 

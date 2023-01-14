@@ -46,6 +46,153 @@ namespace cc {
 
 namespace render {
 
+namespace {
+
+render::NameLocalID getNameID(
+    const PmrFlatMap<ccstd::pmr::string, render::NameLocalID> &index,
+    std::string_view name) {
+    auto iter = index.find(name);
+    CC_EXPECTS(iter != index.end());
+    return iter->second;
+}
+
+void addMat4(
+    const LayoutGraphData &lg, std::string_view name,
+    const cc::Mat4 &v, RenderData &data) {
+    auto nameID = getNameID(lg.constantIndex, name);
+    static_assert(sizeof(Mat4) == 16 * 4, "sizeof(Mat4) is not 64 bytes");
+    data.constants[nameID.value].resize(sizeof(Mat4));
+    memcpy(data.constants[nameID.value].data(), v.m, sizeof(v));
+}
+
+void addQuaternion(const LayoutGraphData &lg, const ccstd::string &name, const Quaternion &quat, RenderData &data) {
+    auto nameID = getNameID(lg.constantIndex, name);
+    static_assert(sizeof(Quaternion) == 4 * 4, "sizeof(Quaternion) is not 16 bytes");
+    static_assert(std::is_trivially_copyable<Quaternion>::value, "Quaternion is not trivially copyable");
+    data.constants[nameID.value].resize(sizeof(Quaternion));
+    memcpy(data.constants[nameID.value].data(), &quat, sizeof(quat));
+}
+
+void addColor(const LayoutGraphData &lg, const ccstd::string &name, const gfx::Color &color, RenderData &data) {
+    auto nameID = getNameID(lg.constantIndex, name);
+    static_assert(sizeof(gfx::Color) == 4 * 4, "sizeof(Color) is not 16 bytes");
+    static_assert(std::is_trivially_copyable<gfx::Color>::value, "Color is not trivially copyable");
+    data.constants[nameID.value].resize(sizeof(gfx::Color));
+    memcpy(data.constants[nameID.value].data(), &color, sizeof(color));
+}
+
+void addVec4(const LayoutGraphData &lg, const ccstd::string &name, const Vec4 &vec, RenderData &data) {
+    auto nameID = getNameID(lg.constantIndex, name);
+    static_assert(sizeof(Vec4) == 4 * 4, "sizeof(Vec4) is not 16 bytes");
+    // static_assert(std::is_trivially_copyable<Vec4>::value, "Vec4 is not trivially copyable");
+    data.constants[nameID.value].resize(sizeof(Vec4));
+    memcpy(data.constants[nameID.value].data(), &vec.x, sizeof(vec));
+}
+
+void addVec2(const LayoutGraphData &lg, const ccstd::string &name, const Vec2 &vec, RenderData &data) {
+    auto nameID = getNameID(lg.constantIndex, name);
+    static_assert(sizeof(Vec2) == 2 * 4, "sizeof(Vec2) is not 8 bytes");
+    // static_assert(std::is_trivially_copyable<Vec4>::value, "Vec2 is not trivially copyable");
+    data.constants[nameID.value].resize(sizeof(Vec2));
+    memcpy(data.constants[nameID.value].data(), &vec.x, sizeof(vec));
+}
+
+void addFloat(const LayoutGraphData &lg, const ccstd::string &name, float v, RenderData &data) {
+    auto nameID = getNameID(lg.constantIndex, name);
+    static_assert(sizeof(float) == 4, "sizeof(float) is not 4 bytes");
+    data.constants[nameID.value].resize(sizeof(float));
+    memcpy(data.constants[nameID.value].data(), &v, sizeof(v));
+}
+
+void addBuffer(const LayoutGraphData &lg, const ccstd::string &name, gfx::Buffer *buffer, RenderData &data) {
+    auto nameID = getNameID(lg.attributeIndex, name);
+    data.buffers[nameID.value] = IntrusivePtr<gfx::Buffer>(buffer);
+}
+
+void addTexture(const LayoutGraphData &lg, const ccstd::string &name, gfx::Texture *texture, RenderData &data) {
+    auto nameID = getNameID(lg.attributeIndex, name);
+    data.textures[nameID.value] = IntrusivePtr<gfx::Texture>(texture);
+}
+
+void addReadWriteBuffer(const LayoutGraphData &lg, const ccstd::string &name, gfx::Buffer *buffer, RenderData &data) {
+    auto nameID = getNameID(lg.attributeIndex, name);
+    data.buffers[nameID.value] = IntrusivePtr<gfx::Buffer>(buffer);
+}
+
+void addReadWriteTexture(const LayoutGraphData &lg, const ccstd::string &name, gfx::Texture *texture, RenderData &data) {
+    auto nameID = getNameID(lg.attributeIndex, name);
+    data.textures[nameID.value] = IntrusivePtr<gfx::Texture>(texture);
+}
+
+void addSampler(const LayoutGraphData &lg, const ccstd::string &name, gfx::Sampler *sampler, RenderData &data) {
+    auto nameID = getNameID(lg.attributeIndex, name);
+    data.samplers[nameID.value].ptr = sampler;
+}
+
+} // namespace
+
+ccstd::string NativeSetter::getName() const {
+    return {};
+}
+void NativeSetter::setName(const ccstd::string &name) {
+    // noop
+}
+
+void NativeSetter::setMat4(const ccstd::string &name, const Mat4 &mat) {
+    auto& data = renderData;
+    addMat4(layoutGraph, name, mat, data);
+}
+
+void NativeSetter::setQuaternion(const ccstd::string &name, const Quaternion &quat) {
+    auto& data = renderData;
+    addQuaternion(layoutGraph, name, quat, data);
+}
+
+void NativeSetter::setColor(const ccstd::string &name, const gfx::Color &color) {
+    auto& data = renderData;
+    addColor(layoutGraph, name, color, data);
+}
+
+void NativeSetter::setVec4(const ccstd::string &name, const Vec4 &vec) {
+    auto& data = renderData;
+    addVec4(layoutGraph, name, vec, data);
+}
+
+void NativeSetter::setVec2(const ccstd::string &name, const Vec2 &vec) {
+    auto& data = renderData;
+    addVec2(layoutGraph, name, vec, data);
+}
+
+void NativeSetter::setFloat(const ccstd::string &name, float v) {
+    auto& data = renderData;
+    addFloat(layoutGraph, name, v, data);
+}
+
+void NativeSetter::setBuffer(const ccstd::string &name, gfx::Buffer *buffer) {
+    auto& data = renderData;
+    addBuffer(layoutGraph, name, buffer, data);
+}
+
+void NativeSetter::setTexture(const ccstd::string &name, gfx::Texture *texture) {
+    auto& data = renderData;
+    addTexture(layoutGraph, name, texture, data);
+}
+
+void NativeSetter::setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) {
+    auto& data = renderData;
+    addReadWriteBuffer(layoutGraph, name, buffer, data);
+}
+
+void NativeSetter::setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) {
+    auto& data = renderData;
+    addReadWriteTexture(layoutGraph, name, texture, data);
+}
+
+void NativeSetter::setSampler(const ccstd::string &name, gfx::Sampler *sampler) {
+    auto& data = renderData;
+    addSampler(layoutGraph, name, sampler, data);
+}
+
 ccstd::string NativeRasterPassBuilder::getName() const {
     return std::string(get(RenderGraph::Name, *renderGraph, passID));
 }
@@ -195,7 +342,9 @@ void NativeRasterQueueBuilder::addSceneOfCamera(scene::Camera *camera, LightInfo
         *renderGraph, queueID);
     CC_ENSURES(sceneID != RenderGraph::null_vertex());
 
-    setCameraUBOValues(*camera, *pipelineRuntime->getPipelineSceneData(), pLight, *this);
+    auto &data = get(RenderGraph::Data, *renderGraph, sceneID);
+    NativeSetter setter{*layoutGraph, data};
+    setCameraUBOValues(*camera, *pipelineRuntime->getPipelineSceneData(), pLight, setter);
 }
 
 void NativeRasterQueueBuilder::addScene(const ccstd::string &name, SceneFlags sceneFlags) {
@@ -269,91 +418,6 @@ void NativeRasterQueueBuilder::setViewport(const gfx::Viewport &viewport) {
         *renderGraph, queueID);
     CC_ENSURES(viewportID != RenderGraph::null_vertex());
 }
-
-namespace {
-
-render::NameLocalID getNameID(
-    const PmrFlatMap<ccstd::pmr::string, render::NameLocalID> &index,
-    std::string_view name) {
-    auto iter = index.find(name);
-    CC_EXPECTS(iter != index.end());
-    return iter->second;
-}
-
-void addMat4(
-    const LayoutGraphData &lg, std::string_view name,
-    const cc::Mat4 &v, RenderData &data) {
-    auto nameID = getNameID(lg.constantIndex, name);
-    static_assert(sizeof(Mat4) == 16 * 4, "sizeof(Mat4) is not 64 bytes");
-    data.constants[nameID.value].resize(sizeof(Mat4));
-    memcpy(data.constants[nameID.value].data(), v.m, sizeof(v));
-}
-
-void addQuaternion(const LayoutGraphData &lg, const ccstd::string &name, const Quaternion &quat, RenderData &data) {
-    auto nameID = getNameID(lg.constantIndex, name);
-    static_assert(sizeof(Quaternion) == 4 * 4, "sizeof(Quaternion) is not 16 bytes");
-    static_assert(std::is_trivially_copyable<Quaternion>::value, "Quaternion is not trivially copyable");
-    data.constants[nameID.value].resize(sizeof(Quaternion));
-    memcpy(data.constants[nameID.value].data(), &quat, sizeof(quat));
-}
-
-void addColor(const LayoutGraphData &lg, const ccstd::string &name, const gfx::Color &color, RenderData &data) {
-    auto nameID = getNameID(lg.constantIndex, name);
-    static_assert(sizeof(gfx::Color) == 4 * 4, "sizeof(Color) is not 16 bytes");
-    static_assert(std::is_trivially_copyable<gfx::Color>::value, "Color is not trivially copyable");
-    data.constants[nameID.value].resize(sizeof(gfx::Color));
-    memcpy(data.constants[nameID.value].data(), &color, sizeof(color));
-}
-
-void addVec4(const LayoutGraphData &lg, const ccstd::string &name, const Vec4 &vec, RenderData &data) {
-    auto nameID = getNameID(lg.constantIndex, name);
-    static_assert(sizeof(Vec4) == 4 * 4, "sizeof(Vec4) is not 16 bytes");
-    // static_assert(std::is_trivially_copyable<Vec4>::value, "Vec4 is not trivially copyable");
-    data.constants[nameID.value].resize(sizeof(Vec4));
-    memcpy(data.constants[nameID.value].data(), &vec.x, sizeof(vec));
-}
-
-void addVec2(const LayoutGraphData &lg, const ccstd::string &name, const Vec2 &vec, RenderData &data) {
-    auto nameID = getNameID(lg.constantIndex, name);
-    static_assert(sizeof(Vec2) == 2 * 4, "sizeof(Vec2) is not 8 bytes");
-    // static_assert(std::is_trivially_copyable<Vec4>::value, "Vec2 is not trivially copyable");
-    data.constants[nameID.value].resize(sizeof(Vec2));
-    memcpy(data.constants[nameID.value].data(), &vec.x, sizeof(vec));
-}
-
-void addFloat(const LayoutGraphData &lg, const ccstd::string &name, float v, RenderData &data) {
-    auto nameID = getNameID(lg.constantIndex, name);
-    static_assert(sizeof(float) == 4, "sizeof(float) is not 4 bytes");
-    data.constants[nameID.value].resize(sizeof(float));
-    memcpy(data.constants[nameID.value].data(), &v, sizeof(v));
-}
-
-void addBuffer(const LayoutGraphData &lg, const ccstd::string &name, gfx::Buffer *buffer, RenderData &data) {
-    auto nameID = getNameID(lg.attributeIndex, name);
-    data.buffers[nameID.value] = IntrusivePtr<gfx::Buffer>(buffer);
-}
-
-void addTexture(const LayoutGraphData &lg, const ccstd::string &name, gfx::Texture *texture, RenderData &data) {
-    auto nameID = getNameID(lg.attributeIndex, name);
-    data.textures[nameID.value] = IntrusivePtr<gfx::Texture>(texture);
-}
-
-void addReadWriteBuffer(const LayoutGraphData &lg, const ccstd::string &name, gfx::Buffer *buffer, RenderData &data) {
-    auto nameID = getNameID(lg.attributeIndex, name);
-    data.buffers[nameID.value] = IntrusivePtr<gfx::Buffer>(buffer);
-}
-
-void addReadWriteTexture(const LayoutGraphData &lg, const ccstd::string &name, gfx::Texture *texture, RenderData &data) {
-    auto nameID = getNameID(lg.attributeIndex, name);
-    data.textures[nameID.value] = IntrusivePtr<gfx::Texture>(texture);
-}
-
-void addSampler(const LayoutGraphData &lg, const ccstd::string &name, gfx::Sampler *sampler, RenderData &data) {
-    auto nameID = getNameID(lg.attributeIndex, name);
-    data.samplers[nameID.value].ptr = sampler;
-}
-
-} // namespace
 
 void NativeRasterQueueBuilder::setMat4(const ccstd::string &name, const Mat4 &mat) {
     auto &data = get(RenderGraph::Data, *renderGraph, queueID);
