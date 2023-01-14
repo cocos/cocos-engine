@@ -107,26 +107,53 @@ BufferPool::BufferPool(const allocator_type& alloc) noexcept
 : currentBuffers(alloc),
   freeBuffers(alloc) {}
 
+BufferPool::BufferPool(gfx::Device* deviceIn, uint32_t bufferSizeIn, const allocator_type& alloc) noexcept // NOLINT
+: device(deviceIn),
+  bufferSize(bufferSizeIn),
+  currentBuffers(alloc),
+  freeBuffers(alloc) {}
+
 BufferPool::BufferPool(BufferPool&& rhs, const allocator_type& alloc)
-: currentBuffers(std::move(rhs.currentBuffers), alloc),
+: device(rhs.device),
+  bufferSize(rhs.bufferSize),
+  currentBuffers(std::move(rhs.currentBuffers), alloc),
   freeBuffers(std::move(rhs.freeBuffers), alloc) {}
 
+DescriptorSetPool::DescriptorSetPool(const allocator_type& alloc) noexcept
+: currentDescriptorSets(alloc),
+  freeDescriptorSets(alloc) {}
+
+DescriptorSetPool::DescriptorSetPool(gfx::Device* deviceIn, IntrusivePtr<gfx::DescriptorSetLayout> setLayoutIn, const allocator_type& alloc) noexcept // NOLINT
+: device(deviceIn),
+  setLayout(std::move(setLayoutIn)),
+  currentDescriptorSets(alloc),
+  freeDescriptorSets(alloc) {}
+
+DescriptorSetPool::DescriptorSetPool(DescriptorSetPool&& rhs, const allocator_type& alloc)
+: device(rhs.device),
+  setLayout(std::move(rhs.setLayout)),
+  currentDescriptorSets(std::move(rhs.currentDescriptorSets), alloc),
+  freeDescriptorSets(std::move(rhs.freeDescriptorSets), alloc) {}
+
 UniformBlockResource::UniformBlockResource(const allocator_type& alloc) noexcept
-: data(alloc),
+: cpuBuffer(alloc),
   bufferPool(alloc) {}
 
 UniformBlockResource::UniformBlockResource(UniformBlockResource&& rhs, const allocator_type& alloc)
-: data(std::move(rhs.data), alloc),
+: cpuBuffer(std::move(rhs.cpuBuffer), alloc),
   bufferPool(std::move(rhs.bufferPool), alloc) {}
 
 LayoutGraphNodeResource::LayoutGraphNodeResource(const allocator_type& alloc) noexcept
-: uniformBuffers(alloc) {}
+: uniformBuffers(alloc),
+  descriptorSetPool(alloc) {}
 
 LayoutGraphNodeResource::LayoutGraphNodeResource(LayoutGraphNodeResource&& rhs, const allocator_type& alloc)
-: uniformBuffers(std::move(rhs.uniformBuffers), alloc) {}
+: uniformBuffers(std::move(rhs.uniformBuffers), alloc),
+  descriptorSetPool(std::move(rhs.descriptorSetPool), alloc) {}
 
-NativeRenderContext::NativeRenderContext(const allocator_type& alloc) noexcept
-: renderPasses(alloc),
+NativeRenderContext::NativeRenderContext(gfx::DefaultResource defaultResourceIn, const allocator_type& alloc) noexcept
+: defaultResource(std::move(defaultResourceIn)),
+  renderPasses(alloc),
   resourceGroups(alloc),
   layoutGraphResources(alloc) {}
 

@@ -416,21 +416,51 @@ struct BufferPool {
     }
 
     BufferPool(const allocator_type& alloc) noexcept; // NOLINT
+    BufferPool(gfx::Device* deviceIn, uint32_t bufferSizeIn, const allocator_type& alloc) noexcept;
     BufferPool(BufferPool&& rhs, const allocator_type& alloc);
 
     BufferPool(BufferPool&& rhs) noexcept = default;
     BufferPool(BufferPool const& rhs) = delete;
     BufferPool& operator=(BufferPool&& rhs) = default;
     BufferPool& operator=(BufferPool const& rhs) = delete;
+    void init(gfx::Device* deviceIn, uint32_t sz);
+    void syncResources();
+    gfx::Buffer* allocateBuffer();
 
+    gfx::Device* device{nullptr};
+    uint32_t bufferSize{0};
     ccstd::pmr::vector<IntrusivePtr<gfx::Buffer>> currentBuffers;
     ccstd::pmr::vector<IntrusivePtr<gfx::Buffer>> freeBuffers;
+};
+
+struct DescriptorSetPool {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {currentDescriptorSets.get_allocator().resource()};
+    }
+
+    DescriptorSetPool(const allocator_type& alloc) noexcept; // NOLINT
+    DescriptorSetPool(gfx::Device* deviceIn, IntrusivePtr<gfx::DescriptorSetLayout> setLayoutIn, const allocator_type& alloc) noexcept;
+    DescriptorSetPool(DescriptorSetPool&& rhs, const allocator_type& alloc);
+
+    DescriptorSetPool(DescriptorSetPool&& rhs) noexcept = default;
+    DescriptorSetPool(DescriptorSetPool const& rhs) = delete;
+    DescriptorSetPool& operator=(DescriptorSetPool&& rhs) = default;
+    DescriptorSetPool& operator=(DescriptorSetPool const& rhs) = delete;
+    void init(gfx::Device* deviceIn, IntrusivePtr<gfx::DescriptorSetLayout> layout);
+    void syncDescriptorSets();
+    gfx::DescriptorSet* allocateDescriptorSet();
+
+    gfx::Device* device{nullptr};
+    IntrusivePtr<gfx::DescriptorSetLayout> setLayout;
+    ccstd::pmr::vector<IntrusivePtr<gfx::DescriptorSet>> currentDescriptorSets;
+    ccstd::pmr::vector<IntrusivePtr<gfx::DescriptorSet>> freeDescriptorSets;
 };
 
 struct UniformBlockResource {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {data.get_allocator().resource()};
+        return {cpuBuffer.get_allocator().resource()};
     }
 
     UniformBlockResource(const allocator_type& alloc) noexcept; // NOLINT
@@ -440,8 +470,9 @@ struct UniformBlockResource {
     UniformBlockResource(UniformBlockResource const& rhs) = delete;
     UniformBlockResource& operator=(UniformBlockResource&& rhs) = default;
     UniformBlockResource& operator=(UniformBlockResource const& rhs) = delete;
+    void init(gfx::Device* deviceIn, uint32_t sz);
 
-    ccstd::pmr::vector<char> data;
+    ccstd::pmr::vector<char> cpuBuffer;
     BufferPool bufferPool;
 };
 
@@ -460,6 +491,7 @@ struct LayoutGraphNodeResource {
     LayoutGraphNodeResource& operator=(LayoutGraphNodeResource const& rhs) = delete;
 
     PmrFlatMap<NameLocalID, UniformBlockResource> uniformBuffers;
+    DescriptorSetPool descriptorSetPool;
 };
 
 struct NativeRenderContext {
@@ -468,7 +500,7 @@ struct NativeRenderContext {
         return {renderPasses.get_allocator().resource()};
     }
 
-    NativeRenderContext(const allocator_type& alloc) noexcept; // NOLINT
+    NativeRenderContext(gfx::DefaultResource defaultResourceIn, const allocator_type& alloc) noexcept;
     NativeRenderContext(NativeRenderContext&& rhs) = delete;
     NativeRenderContext(NativeRenderContext const& rhs) = delete;
     NativeRenderContext& operator=(NativeRenderContext&& rhs) = delete;
@@ -476,6 +508,7 @@ struct NativeRenderContext {
 
     void clearPreviousResources(uint64_t finishedFenceValue) noexcept;
 
+    gfx::DefaultResource defaultResource;
     ccstd::pmr::unordered_map<RasterPass, PersistentRenderPassAndFramebuffer> renderPasses;
     ccstd::pmr::map<uint64_t, ResourceGroup> resourceGroups;
     ccstd::pmr::vector<LayoutGraphNodeResource> layoutGraphResources;

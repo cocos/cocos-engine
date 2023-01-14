@@ -1349,6 +1349,7 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/NativePipelineGraphs.h
                  cocos/renderer/pipeline/custom/NativePipelineTypes.cpp
                  cocos/renderer/pipeline/custom/NativePipelineTypes.h
+                 cocos/renderer/pipeline/custom/NativePools.cpp
                  cocos/renderer/pipeline/custom/NativeProgramLibrary.cpp
                  cocos/renderer/pipeline/custom/NativeRenderGraph.cpp
                  cocos/renderer/pipeline/custom/NativeRenderQueue.cpp

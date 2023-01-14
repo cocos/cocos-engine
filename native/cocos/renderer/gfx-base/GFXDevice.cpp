@@ -176,7 +176,7 @@ DefaultResource::DefaultResource(Device *device) {
     }
 }
 
-const Texture *DefaultResource::getTexture(TextureType type) const {
+Texture *DefaultResource::getTexture(TextureType type) const {
     switch (type) {
         case TextureType::TEX2D:
             return _texture2D;

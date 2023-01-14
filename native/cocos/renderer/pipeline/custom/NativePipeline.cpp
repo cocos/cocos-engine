@@ -80,7 +80,7 @@ NativePipeline::NativePipeline(const allocator_type &alloc) noexcept
   globalDSManager(std::make_unique<pipeline::GlobalDSManager>()),
   programLibrary(dynamic_cast<NativeProgramLibrary *>(getProgramLibrary())),
   pipelineSceneData(ccnew pipeline::PipelineSceneData()), // NOLINT
-  nativeContext(alloc),
+  nativeContext(gfx::DefaultResource(device), alloc),
   dummyLayoutGraph(alloc),
   resourceGraph(alloc),
   renderGraph(alloc),
@@ -389,6 +389,26 @@ void generateConstantMacros(
         device->hasFeature(gfx::Feature::INPUT_ATTACHMENT_BENEFIT));
 }
 
+void buildLayoutGraphNodeBuffer(
+    gfx::Device *device,
+    const DescriptorSetLayoutData &data,
+    LayoutGraphNodeResource &node) {
+    for (const auto &[nameID, uniformBlock] : data.uniformBlocks) {
+        auto res = node.uniformBuffers.emplace(
+            std::piecewise_construct,
+            std::forward_as_tuple(nameID),
+            std::forward_as_tuple());
+        CC_ENSURES(res.second);
+        auto &buffer = res.first->second;
+        CC_EXPECTS(uniformBlock.count);
+        const auto bufferSize =
+            getUniformBlockSize(uniformBlock.members) * uniformBlock.count;
+
+        CC_ENSURES(bufferSize);
+        buffer.init(device, bufferSize);
+    }
+}
+
 } // namespace
 
 // NOLINTNEXTLINE
@@ -421,17 +441,20 @@ bool NativePipeline::activate(gfx::Swapchain *swapchainIn) {
                 continue;
             }
             const auto &set = iter->second;
-            for (const auto &[nameID, uniformBlock] : set.descriptorSetLayoutData.uniformBlocks) {
-                auto res = node.uniformBuffers.emplace(
-                    std::piecewise_construct,
-                    std::forward_as_tuple(nameID),
-                    std::forward_as_tuple());
-                CC_ENSURES(res.second);
-                auto &uniformBlockResource = res.first->second;
-                CC_EXPECTS(uniformBlock.count);
-                uniformBlockResource.data.resize(
-                    getUniformBlockSize(uniformBlock.members) * uniformBlock.count);
+            // reserve buffer
+            buildLayoutGraphNodeBuffer(device, set.descriptorSetLayoutData, node);
+            // reserve descriptor sets
+            node.descriptorSetPool.init(device, set.descriptorSetLayout);
+        } else {
+            auto iter = layout.descriptorSets.find(UpdateFrequency::PER_PHASE);
+            if (iter == layout.descriptorSets.end()) {
+                continue;
             }
+            const auto &set = iter->second;
+            // reserve buffer
+            buildLayoutGraphNodeBuffer(device, set.descriptorSetLayoutData, node);
+            // reserve descriptor sets
+            node.descriptorSetPool.init(device, set.descriptorSetLayout);
         }
     }
     return true;

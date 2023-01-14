@@ -196,7 +196,7 @@ public:
 
     ~DefaultResource() = default;
 
-    const Texture *getTexture(TextureType type) const;
+    Texture *getTexture(TextureType type) const;
 
 private:
     IntrusivePtr<Texture> _texture1D;
