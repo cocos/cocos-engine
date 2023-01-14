@@ -472,7 +472,7 @@ bool initCpuUniformBuffer(
                 CC_EXPECTS(sizeof(Mat4) == typeSize);
                 const Mat4 id{};
                 for (uint32_t i = 0; i != value.count; ++i) {
-                    memcpy(buffer.data() + offset + i * typeSize, &id, typeSize);
+                    memcpy(buffer.data() + offset + i * typeSize, id.m, typeSize);
                 }
             }
             offset += totalSize;
@@ -516,7 +516,7 @@ void setInitialPassDescriptorSet(
                         auto* buffer = resource.bufferPool.allocateBuffer();
                         CC_ENSURES(buffer);
                         buffer->update(resource.cpuBuffer.data(),
-                                       resource.cpuBuffer.size());
+                                       static_cast<uint32_t>(resource.cpuBuffer.size()));
 
                         CC_EXPECTS(passSet);
                         passSet->bindBuffer(bindID, buffer);
@@ -713,7 +713,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         const auto& user = get(RenderGraph::Data, ctx.g, vertID);
         auto& node = ctx.context.layoutGraphResources.at(layoutID);
         setInitialPassDescriptorSet(
-            ctx.device, ctx.context.defaultResource, ctx.lg,
+            ctx.device, *ctx.context.defaultResource, ctx.lg,
             set, user, node);
     }
     void begin(const ComputePass& pass) const { // NOLINT(readability-convert-member-functions-to-static)

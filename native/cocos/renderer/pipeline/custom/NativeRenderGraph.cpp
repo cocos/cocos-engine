@@ -179,6 +179,7 @@ void setCameraUBOValues(
 
 void NativeRasterQueueBuilder::addSceneOfCamera(scene::Camera *camera, LightInfo light, SceneFlags sceneFlags) {
     std::string_view name = "Camera";
+    auto *pLight = light.light.get();
     SceneData scene(renderGraph->get_allocator());
     scene.name = name;
     scene.flags = sceneFlags;
@@ -194,7 +195,7 @@ void NativeRasterQueueBuilder::addSceneOfCamera(scene::Camera *camera, LightInfo
         *renderGraph, queueID);
     CC_ENSURES(sceneID != RenderGraph::null_vertex());
 
-    setCameraUBOValues(*camera, *pipelineRuntime->getPipelineSceneData(), light.light.get(), *this);
+    setCameraUBOValues(*camera, *pipelineRuntime->getPipelineSceneData(), pLight, *this);
 }
 
 void NativeRasterQueueBuilder::addScene(const ccstd::string &name, SceneFlags sceneFlags) {

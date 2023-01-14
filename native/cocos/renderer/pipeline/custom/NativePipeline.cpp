@@ -80,7 +80,7 @@ NativePipeline::NativePipeline(const allocator_type &alloc) noexcept
   globalDSManager(std::make_unique<pipeline::GlobalDSManager>()),
   programLibrary(dynamic_cast<NativeProgramLibrary *>(getProgramLibrary())),
   pipelineSceneData(ccnew pipeline::PipelineSceneData()), // NOLINT
-  nativeContext(gfx::DefaultResource(device), alloc),
+  nativeContext(std::make_unique<gfx::DefaultResource>(device), alloc),
   dummyLayoutGraph(alloc),
   resourceGraph(alloc),
   renderGraph(alloc),

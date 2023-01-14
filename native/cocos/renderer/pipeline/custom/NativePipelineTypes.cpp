@@ -151,7 +151,7 @@ LayoutGraphNodeResource::LayoutGraphNodeResource(LayoutGraphNodeResource&& rhs, 
 : uniformBuffers(std::move(rhs.uniformBuffers), alloc),
   descriptorSetPool(std::move(rhs.descriptorSetPool), alloc) {}
 
-NativeRenderContext::NativeRenderContext(gfx::DefaultResource defaultResourceIn, const allocator_type& alloc) noexcept
+NativeRenderContext::NativeRenderContext(std::unique_ptr<gfx::DefaultResource> defaultResourceIn, const allocator_type& alloc) noexcept
 : defaultResource(std::move(defaultResourceIn)),
   renderPasses(alloc),
   resourceGroups(alloc),

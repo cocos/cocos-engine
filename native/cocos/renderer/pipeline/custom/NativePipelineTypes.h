@@ -500,7 +500,7 @@ struct NativeRenderContext {
         return {renderPasses.get_allocator().resource()};
     }
 
-    NativeRenderContext(gfx::DefaultResource defaultResourceIn, const allocator_type& alloc) noexcept;
+    NativeRenderContext(std::unique_ptr<gfx::DefaultResource> defaultResourceIn, const allocator_type& alloc) noexcept;
     NativeRenderContext(NativeRenderContext&& rhs) = delete;
     NativeRenderContext(NativeRenderContext const& rhs) = delete;
     NativeRenderContext& operator=(NativeRenderContext&& rhs) = delete;
@@ -508,7 +508,7 @@ struct NativeRenderContext {
 
     void clearPreviousResources(uint64_t finishedFenceValue) noexcept;
 
-    gfx::DefaultResource defaultResource;
+    std::unique_ptr<gfx::DefaultResource> defaultResource;
     ccstd::pmr::unordered_map<RasterPass, PersistentRenderPassAndFramebuffer> renderPasses;
     ccstd::pmr::map<uint64_t, ResourceGroup> resourceGroups;
     ccstd::pmr::vector<LayoutGraphNodeResource> layoutGraphResources;
