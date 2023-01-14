@@ -449,6 +449,8 @@ struct DescriptorSetPool {
     DescriptorSetPool& operator=(DescriptorSetPool const& rhs) = delete;
     void init(gfx::Device* deviceIn, IntrusivePtr<gfx::DescriptorSetLayout> layout);
     void syncDescriptorSets();
+    const gfx::DescriptorSet& getCurrentDescriptorSet() const;
+    gfx::DescriptorSet& getCurrentDescriptorSet();
     gfx::DescriptorSet* allocateDescriptorSet();
 
     gfx::Device* device{nullptr};
@@ -654,6 +656,31 @@ public:
     uint32_t getPhaseID(uint32_t passID, const ccstd::string &name) const override;
 
     std::shared_ptr<NativeProgramLibrary> programLibrary;
+};
+
+class NativeSetter final : public Setter {
+public:
+    NativeSetter(const LayoutGraphData& layoutGraphIn, RenderData& renderDataIn) noexcept
+    : layoutGraph(layoutGraphIn),
+      renderData(renderDataIn) {}
+
+    ccstd::string getName() const override;
+    void setName(const ccstd::string &name) override;
+
+    void setMat4(const ccstd::string &name, const Mat4 &mat) override;
+    void setQuaternion(const ccstd::string &name, const Quaternion &quat) override;
+    void setColor(const ccstd::string &name, const gfx::Color &color) override;
+    void setVec4(const ccstd::string &name, const Vec4 &vec) override;
+    void setVec2(const ccstd::string &name, const Vec2 &vec) override;
+    void setFloat(const ccstd::string &name, float v) override;
+    void setBuffer(const ccstd::string &name, gfx::Buffer *buffer) override;
+    void setTexture(const ccstd::string &name, gfx::Texture *texture) override;
+    void setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) override;
+    void setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) override;
+    void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override;
+
+    const LayoutGraphData& layoutGraph;
+    RenderData& renderData;
 };
 
 } // namespace render

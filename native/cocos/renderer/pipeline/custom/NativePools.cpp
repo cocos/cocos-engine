@@ -71,6 +71,16 @@ void DescriptorSetPool::syncDescriptorSets() {
     currentDescriptorSets.clear();
 }
 
+gfx::DescriptorSet& DescriptorSetPool::getCurrentDescriptorSet() {
+    CC_EXPECTS(!currentDescriptorSets.empty());
+    return *currentDescriptorSets.back();
+}
+
+const gfx::DescriptorSet& DescriptorSetPool::getCurrentDescriptorSet() const {
+    CC_EXPECTS(!currentDescriptorSets.empty());
+    return *currentDescriptorSets.back();
+}
+
 gfx::DescriptorSet* DescriptorSetPool::allocateDescriptorSet() {
     CC_EXPECTS(device);
     CC_EXPECTS(setLayout);
