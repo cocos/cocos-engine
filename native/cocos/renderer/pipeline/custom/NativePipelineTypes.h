@@ -541,7 +541,7 @@ public:
     uint32_t getDescriptorNameID(const ccstd::pmr::string &name) override;
     const ccstd::pmr::string &getDescriptorName(uint32_t nameID) override;
 
-    void init(gfx::Device* device);
+    void init(gfx::Device* deviceIn);
     void destroy();
 
     LayoutGraphData layoutGraph;
@@ -552,6 +552,7 @@ public:
     IntrusivePtr<gfx::DescriptorSetLayout> emptyDescriptorSetLayout;
     IntrusivePtr<gfx::PipelineLayout> emptyPipelineLayout;
     PipelineRuntime* pipeline{nullptr};
+    gfx::Device* device{nullptr};
 };
 
 class NativePipeline final : public Pipeline {
