@@ -900,24 +900,20 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
             bDrawInstancing = true;
         }
         if (any(sceneData.flags & (SceneFlags::OPAQUE_OBJECT | SceneFlags::CUTOUT_OBJECT))) {
-            if (bDraw) {
-                queue.opaqueQueue.recordCommandBuffer(
-                    ctx.device, camera, ctx.currentPass, ctx.cmdBuff, 0);
+            queue.opaqueQueue.recordCommandBuffer(
+                ctx.device, camera, ctx.currentPass, ctx.cmdBuff, 0);
+            if (bDrawInstancing) {
+                queue.opaqueInstancingQueue.recordCommandBuffer(
+                    ctx.currentPass, ctx.cmdBuff);
             }
-            // if (bDrawInstancing) {
-            //     queue.opaqueInstancingQueue.recordCommandBuffer(
-            //         ctx.currentPass, ctx.cmdBuff);
-            // }
         }
         if (any(sceneData.flags & SceneFlags::TRANSPARENT_OBJECT)) {
-            if (bDraw) {
-                queue.transparentQueue.recordCommandBuffer(
-                    ctx.device, camera, ctx.currentPass, ctx.cmdBuff, 0);
+            queue.transparentQueue.recordCommandBuffer(
+                ctx.device, camera, ctx.currentPass, ctx.cmdBuff, 0);
+            if (bDrawInstancing) {
+                queue.transparentInstancingQueue.recordCommandBuffer(
+                    ctx.currentPass, ctx.cmdBuff);
             }
-            // if (bDrawInstancing) {
-            //     queue.transparentInstancingQueue.recordCommandBuffer(
-            //         ctx.currentPass, ctx.cmdBuff);
-            // }
         }
     }
     void begin(const Blit& pass, RenderGraph::vertex_descriptor vertID) const {
