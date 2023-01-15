@@ -615,7 +615,7 @@ void setShadowUBOView(
 void setTextureUBOView(
     gfx::Device &device,
     const pipeline::PipelineSceneData &sceneData,
-    const scene::Camera &camera, NativeSetter &setter) {
+    Setter &setter) {
     const auto &skybox = *sceneData.getSkybox();
     if (skybox.getReflectionMap()) {
         auto &texture = *skybox.getReflectionMap()->getGFXTexture();
@@ -644,14 +644,14 @@ void setTextureUBOView(
         setter.setTexture("cc_diffuseMap", texture);
         setter.setSampler("cc_diffuseMap", sampler);
     }
-    gfx::SamplerInfo _samplerPointInfo{
+    gfx::SamplerInfo samplerPointInfo{
         gfx::Filter::POINT,
         gfx::Filter::POINT,
         gfx::Filter::NONE,
         gfx::Address::CLAMP,
         gfx::Address::CLAMP,
         gfx::Address::CLAMP};
-    auto *pointSampler = device.getSampler(_samplerPointInfo);
+    auto *pointSampler = device.getSampler(samplerPointInfo);
     setter.setSampler("cc_shadowMap", pointSampler);
     setter.setTexture("cc_shadowMap", BuiltinResMgr::getInstance()->get<Texture2D>("default-texture")->getGFXTexture());
     setter.setSampler("cc_spotShadowMap", pointSampler);
@@ -705,7 +705,7 @@ void NativeRasterQueueBuilder::addSceneOfCamera(
     setTextureUBOView(
         *pipelineRuntime->getDevice(),
         *pipelineRuntime->getPipelineSceneData(),
-        *camera, setter);
+        setter);
 }
 
 void NativeRasterQueueBuilder::addScene(const ccstd::string &name, SceneFlags sceneFlags) {
