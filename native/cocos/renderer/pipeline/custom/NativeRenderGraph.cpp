@@ -43,6 +43,8 @@
 #include "details/GraphView.h"
 #include "details/GslUtils.h"
 #include "gfx-base/GFXDef-common.h"
+#include "gfx-base/GFXDevice.h"
+#include "pipeline/PipelineSceneData.h"
 
 namespace cc {
 
@@ -67,6 +69,25 @@ void addMat4(
     memcpy(data.constants[nameID.value].data(), v.m, sizeof(v));
 }
 
+void setMat4ArrayElemImpl(
+    const LayoutGraphData &lg, std::string_view name,
+    const cc::Mat4 &v, uint32_t i, RenderData &data) {
+    auto nameID = getNameID(lg.constantIndex, name);
+    static_assert(sizeof(Mat4) == 16 * 4, "sizeof(Mat4) is not 64 bytes");
+    auto &dst = data.constants[nameID.value];
+    CC_EXPECTS(sizeof(Mat4) * (i + 1) <= dst.size());
+    memcpy(dst.data() + sizeof(Mat4) * i, v.m, sizeof(v));
+}
+
+void setMat4ArraySizeImpl(
+    const LayoutGraphData &lg, std::string_view name,
+    uint32_t sz, RenderData &data) {
+    CC_EXPECTS(sz);
+    auto nameID = getNameID(lg.constantIndex, name);
+    static_assert(sizeof(Mat4) == 16 * 4, "sizeof(Mat4) is not 64 bytes");
+    data.constants[nameID.value].resize(sizeof(Mat4) * sz);
+}
+
 void addQuaternion(const LayoutGraphData &lg, const ccstd::string &name, const Quaternion &quat, RenderData &data) {
     auto nameID = getNameID(lg.constantIndex, name);
     static_assert(sizeof(Quaternion) == 4 * 4, "sizeof(Quaternion) is not 16 bytes");
@@ -89,6 +110,25 @@ void addVec4(const LayoutGraphData &lg, const ccstd::string &name, const Vec4 &v
     // static_assert(std::is_trivially_copyable<Vec4>::value, "Vec4 is not trivially copyable");
     data.constants[nameID.value].resize(sizeof(Vec4));
     memcpy(data.constants[nameID.value].data(), &vec.x, sizeof(vec));
+}
+
+void setVec4ArrayElemImpl(const LayoutGraphData &lg, const ccstd::string &name,
+                          const Vec4 &vec, uint32_t i, RenderData &data) {
+    auto nameID = getNameID(lg.constantIndex, name);
+    static_assert(sizeof(Vec4) == 4 * 4, "sizeof(Vec4) is not 16 bytes");
+    // static_assert(std::is_trivially_copyable<Vec4>::value, "Vec4 is not trivially copyable");
+    auto &dst = data.constants[nameID.value];
+    CC_EXPECTS(sizeof(Vec4) * (i + 1) <= dst.size());
+    memcpy(dst.data() + sizeof(Vec4) * i, &vec.x, sizeof(vec));
+}
+
+void setVec4ArraySizeImpl(const LayoutGraphData &lg, const ccstd::string &name,
+                          uint32_t sz, RenderData &data) {
+    CC_EXPECTS(sz);
+    auto nameID = getNameID(lg.constantIndex, name);
+    static_assert(sizeof(Vec4) == 4 * 4, "sizeof(Vec4) is not 16 bytes");
+    // static_assert(std::is_trivially_copyable<Vec4>::value, "Vec4 is not trivially copyable");
+    data.constants[nameID.value].resize(sizeof(Vec4) * sz);
 }
 
 void addVec2(const LayoutGraphData &lg, const ccstd::string &name, const Vec2 &vec, RenderData &data) {
@@ -193,6 +233,22 @@ void NativeSetter::setReadWriteTexture(const ccstd::string &name, gfx::Texture *
 void NativeSetter::setSampler(const ccstd::string &name, gfx::Sampler *sampler) {
     auto &data = renderData;
     addSampler(layoutGraph, name, sampler, data);
+}
+
+void NativeSetter::setVec4ArraySize(const ccstd::string &name, uint32_t sz) {
+    setVec4ArraySizeImpl(layoutGraph, name, sz, renderData);
+}
+
+void NativeSetter::setVec4ArrayElem(const ccstd::string &name, const cc::Vec4 &vec, uint32_t id) {
+    setVec4ArrayElemImpl(layoutGraph, name, vec, id, renderData);
+}
+
+void NativeSetter::setMat4ArraySize(const ccstd::string &name, uint32_t sz) {
+    setMat4ArraySizeImpl(layoutGraph, name, sz, renderData);
+}
+
+void NativeSetter::setMat4ArrayElem(const ccstd::string &name, const cc::Mat4 &mat, uint32_t id) {
+    setMat4ArrayElemImpl(layoutGraph, name, mat, id, renderData);
 }
 
 ccstd::string NativeRasterPassBuilder::getName() const {
@@ -425,6 +481,137 @@ void setShadowUBOLightView(
     setter.setColor("cc_shadowColor", gfx::Color{data[0], data[1], data[2], data[3]});
 }
 
+float getPCFRadius(
+    const scene::Shadows &shadowInfo,
+    const scene::DirectionalLight &mainLight) {
+    const auto &shadowMapSize = shadowInfo.getSize().x;
+    switch (mainLight.getShadowPcf()) {
+        case scene::PCFType::HARD:
+            return 0.0F;
+        case scene::PCFType::SOFT:
+            return 1.0F / (shadowMapSize * 0.5F);
+        case scene::PCFType::SOFT_2X:
+            return 2.0F / (shadowMapSize * 0.5F);
+        // case PCFType.SOFT_4X:
+        //     return 3.0F  / (shadowMapSize * 0.5F);
+        default:
+            break;
+    }
+    return 0.0F;
+}
+
+void setShadowUBOView(
+    gfx::Device &device,
+    const pipeline::PipelineSceneData &sceneData,
+    const scene::DirectionalLight &mainLight,
+    NativeSetter &setter) {
+    const auto &shadowInfo = *sceneData.getShadows();
+    const auto &csmLayers = *sceneData.getCSMLayers();
+    const auto &csmSupported = sceneData.getCSMSupported();
+    const auto &packing = pipeline::supportsR32FloatTexture(&device) ? 0.0F : 1.0F;
+    Vec4 vec4ShadowInfo{};
+    if (shadowInfo.isEnabled()) {
+        if (shadowInfo.getType() == scene::ShadowType::SHADOW_MAP) {
+            if (mainLight.isShadowEnabled()) {
+                if (mainLight.isShadowFixedArea() ||
+                    mainLight.getCSMLevel() == scene::CSMLevel::LEVEL_1 || !csmSupported) {
+                    // Shadow
+                    const auto &matShadowView = csmLayers.getSpecialLayer()->getMatShadowView();
+                    const auto &matShadowProj = csmLayers.getSpecialLayer()->getMatShadowProj();
+                    const auto &matShadowViewProj = csmLayers.getSpecialLayer()->getMatShadowViewProj();
+                    const auto &near = mainLight.getShadowNear();
+                    const auto &far = mainLight.getShadowFar();
+
+                    setter.setMat4("cc_matLightView", matShadowView);
+                    setter.setVec4("cc_shadowProjDepthInfo",
+                                   Vec4(matShadowProj.m[10], matShadowProj.m[14],
+                                        matShadowProj.m[11], matShadowProj.m[15]));
+
+                    setter.setVec4("cc_shadowProjInfo",
+                                   Vec4(matShadowProj.m[00], matShadowProj.m[05],
+                                        1.0F / matShadowProj.m[00], 1.0F / matShadowProj.m[05]));
+                    setter.setMat4("cc_matLightViewProj", matShadowViewProj);
+                    vec4ShadowInfo.set(near, far, 0, 1.0F - mainLight.getShadowSaturation());
+                    setter.setVec4("cc_shadowNFLSInfo", vec4ShadowInfo);
+                    vec4ShadowInfo.set(0.0F, packing, mainLight.getShadowNormalBias(), 0);
+                    setter.setVec4("cc_shadowLPNNInfo", vec4ShadowInfo);
+                } else {
+                    { // CSM
+                        const auto layerThreshold = getPCFRadius(shadowInfo, mainLight);
+                        const auto numCascades = static_cast<uint32_t>(mainLight.getCSMLevel());
+                        setter.setVec4ArraySize("cc_csmViewDir0", numCascades);
+                        setter.setVec4ArraySize("cc_csmViewDir1", numCascades);
+                        setter.setVec4ArraySize("cc_csmViewDir2", numCascades);
+                        setter.setVec4ArraySize("cc_csmAtlas", numCascades);
+                        setter.setMat4ArraySize("cc_matCSMViewProj", numCascades);
+                        setter.setVec4ArraySize("cc_csmProjDepthInfo", numCascades);
+                        setter.setVec4ArraySize("cc_csmProjInfo", numCascades);
+
+                        Vec4 csmSplitsInfo{};
+                        for (uint32_t i = 0; i < numCascades; ++i) {
+                            const auto &layer = *csmLayers.getLayers()[i];
+
+                            const auto &matShadowView = layer.getMatShadowView();
+                            vec4ShadowInfo.set(matShadowView.m[0], matShadowView.m[4], matShadowView.m[8], layerThreshold);
+                            setter.setVec4ArrayElem("cc_csmViewDir0", vec4ShadowInfo, i);
+                            vec4ShadowInfo.set(matShadowView.m[1], matShadowView.m[5], matShadowView.m[9], 0.0F);
+                            setter.setVec4ArrayElem("cc_csmViewDir1", vec4ShadowInfo, i);
+                            vec4ShadowInfo.set(matShadowView.m[2], matShadowView.m[6], matShadowView.m[0], 0.0F);
+                            setter.setVec4ArrayElem("cc_csmViewDir2", vec4ShadowInfo, i);
+
+                            const auto &csmAtlas = layer.getCSMAtlas();
+                            setter.setVec4ArrayElem("cc_csmAtlas", csmAtlas, i);
+
+                            const auto &matShadowViewProj = layer.getMatShadowViewProj();
+                            setter.setMat4ArrayElem("cc_matCSMViewProj", matShadowViewProj, i);
+
+                            const auto &matShadowProj = layer.getMatShadowProj();
+                            setter.setVec4ArrayElem(
+                                "cc_csmProjDepthInfo",
+                                Vec4(matShadowProj.m[10], matShadowProj.m[14],
+                                     matShadowProj.m[11], matShadowProj.m[15]),
+                                i);
+
+                            setter.setVec4ArrayElem(
+                                "cc_csmProjInfo",
+                                Vec4(matShadowProj.m[00], matShadowProj.m[05],
+                                     1.0F / matShadowProj.m[00], 1.0F / matShadowProj.m[05]),
+                                i);
+
+                            (&csmSplitsInfo.x)[i] = layer.getSplitCameraFar() / mainLight.getShadowDistance();
+                        }
+                        setter.setVec4("cc_csmSplitsInfo", csmSplitsInfo);
+                    }
+                    { // Shadow
+                        vec4ShadowInfo.set(0, 0, 0, 1.0F - mainLight.getShadowSaturation());
+                        setter.setVec4("cc_shadowNFLSInfo", vec4ShadowInfo);
+                        vec4ShadowInfo.set(
+                            0.0F, packing,
+                            mainLight.getShadowNormalBias(),
+                            static_cast<float>(mainLight.getCSMLevel()));
+                        setter.setVec4("cc_shadowLPNNInfo", vec4ShadowInfo);
+                    }
+                }
+                { // Shadow
+                    vec4ShadowInfo.set(
+                        shadowInfo.getSize().x, shadowInfo.getSize().y,
+                        static_cast<float>(mainLight.getShadowPcf()), mainLight.getShadowBias());
+                    setter.setVec4("cc_shadowWHPBInfo", vec4ShadowInfo);
+                }
+            }
+        } else {
+            Vec3 tempVec3 = shadowInfo.getNormal().getNormalized();
+            setter.setVec4(
+                "cc_planarNDInfo",
+                Vec4(tempVec3.x, tempVec3.y, tempVec3.z, -shadowInfo.getDistance()));
+        }
+        {
+            const auto &data = shadowInfo.getShadowColor4f();
+            setter.setColor("cc_shadowColor", gfx::Color{data[0], data[1], data[2], data[3]});
+        }
+    }
+}
+
 } // namespace
 
 void NativeRasterQueueBuilder::addSceneOfCamera(scene::Camera *camera, LightInfo light, SceneFlags sceneFlags) {
@@ -457,7 +644,12 @@ void NativeRasterQueueBuilder::addSceneOfCamera(scene::Camera *camera, LightInfo
                 *pLight, light.level, setter);
         }
     } else {
-        // setShadowUBOView(this, camera, layoutName);
+        const auto *pDirLight = dynamic_cast<scene::DirectionalLight *>(pLight);
+        if (pDirLight) {
+            setShadowUBOView(*pipelineRuntime->getDevice(),
+                             *pipelineRuntime->getPipelineSceneData(),
+                             *pDirLight, setter);
+        }
     }
 }
 
