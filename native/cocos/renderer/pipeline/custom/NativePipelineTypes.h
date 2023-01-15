@@ -680,6 +680,12 @@ public:
     void setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) override;
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override;
 
+    void setVec4ArraySize(const ccstd::string& name, uint32_t sz);
+    void setVec4ArrayElem(const ccstd::string& name, const cc::Vec4& vec, uint32_t id);
+
+    void setMat4ArraySize(const ccstd::string& name, uint32_t sz);
+    void setMat4ArrayElem(const ccstd::string& name, const cc::Mat4& mat, uint32_t id);
+
     const LayoutGraphData& layoutGraph;
     RenderData& renderData;
 };
