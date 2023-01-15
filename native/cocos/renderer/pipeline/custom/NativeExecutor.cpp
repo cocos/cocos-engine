@@ -112,6 +112,9 @@ uint32_t getRasterPassInputCount(const RasterPass& pass) {
 uint32_t getRasterPassOutputCount(const RasterPass& pass) {
     uint32_t numOutputs = 0;
     for (const auto& [name, view] : pass.rasterViews) {
+        if (view.attachmentType != AttachmentType::RENDER_TARGET) {
+            continue;
+        }
         if (view.accessType == AccessType::READ_WRITE || view.accessType == AccessType::WRITE) {
             ++numOutputs;
         }
@@ -132,25 +135,31 @@ uint32_t getRasterPassPreserveCount(const RasterPass& pass) {
 PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
     RenderGraphVisitorContext& ctx, const RasterPass& pass) {
     auto& resg = ctx.resourceGraph;
+
     PersistentRenderPassAndFramebuffer data(pass.get_allocator());
-    gfx::RenderPassInfo rpInfo;
-    uint32_t numDepthStencil = 0;
-    rpInfo.colorAttachments.resize(pass.rasterViews.size());
-    data.clearColors.resize(pass.rasterViews.size());
+    gfx::RenderPassInfo rpInfo{};
+
     gfx::FramebufferInfo fbInfo{
         data.renderPass,
     };
     fbInfo.colorTextures.reserve(pass.rasterViews.size());
 
     if (pass.subpassGraph.subpasses.empty()) {
+        const auto numInputs = getRasterPassInputCount(pass);
+        const auto numColors = getRasterPassOutputCount(pass);
+
+        // persistent cache
+        data.clearColors.reserve(numColors);
+
+        // render pass
+        rpInfo.colorAttachments.reserve(numColors);
+
         auto& subpass = rpInfo.subpasses.emplace_back();
-        subpass.inputs.resize(getRasterPassInputCount(pass));
-        subpass.colors.resize(getRasterPassOutputCount(pass));
-        subpass.resolves.resize(getRasterPassResolveCount(pass));
-        subpass.preserves.resize(getRasterPassPreserveCount(pass));
+        subpass.inputs.reserve(numInputs);
+        subpass.colors.reserve(numColors);
+        subpass.resolves.reserve(getRasterPassResolveCount(pass));
+        subpass.preserves.reserve(getRasterPassPreserveCount(pass));
         auto numTotalAttachments = static_cast<uint32_t>(pass.rasterViews.size());
-        uint32_t slot = 0;
-        uint32_t rtvCount = 0;
         uint32_t dsvCount = 0;
         for (const auto& pair : pass.rasterViews) {
             const auto& name = pair.first;
@@ -159,22 +168,24 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
             const auto& desc = get(ResourceGraph::DescTag{}, ctx.resourceGraph, resID);
 
             if (view.attachmentType == AttachmentType::RENDER_TARGET) { // RenderTarget
-                auto& rtv = rpInfo.colorAttachments[slot];
-                rtv.format = desc.format;
-                rtv.sampleCount = desc.sampleCount;
-                rtv.loadOp = view.loadOp;
-                rtv.storeOp = view.storeOp;
-                rtv.barrier = nullptr;
-                rtv.isGeneralLayout = hasFlag(desc.textureFlags, gfx::TextureFlags::GENERAL_LAYOUT);
+                auto slot = static_cast<uint32_t>(rpInfo.colorAttachments.size());
+                auto& rtv = rpInfo.colorAttachments.emplace_back(
+                    gfx::ColorAttachment{
+                        desc.format,
+                        desc.sampleCount,
+                        view.loadOp,
+                        view.storeOp,
+                        nullptr,
+                        hasFlag(desc.textureFlags, gfx::TextureFlags::GENERAL_LAYOUT),
+                    });
                 if (view.accessType != AccessType::WRITE) { // Input
                     auto inputSlot = getRasterViewPassInputSlot(view);
-                    subpass.inputs[inputSlot] = slot;
+                    subpass.inputs.emplace_back(slot);
                 }
                 if (view.accessType != AccessType::READ) { // Output
-                    auto outputSlot = rtvCount++;
-                    subpass.colors[outputSlot] = slot;
+                    subpass.colors.emplace_back(slot);
                 }
-                data.clearColors[slot] = view.clearColor;
+                data.clearColors.emplace_back(view.clearColor);
 
                 auto resID = findVertex(name, resg);
                 visitObject(
@@ -204,10 +215,10 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
                     [&](const RenderSwapchain& sc) {
                         fbInfo.colorTextures.emplace_back(sc.swapchain->getColorTexture());
                     });
-
-                ++slot;
+                CC_ENSURES(rpInfo.colorAttachments.size() == subpass.colors.size());
+                CC_ENSURES(rpInfo.colorAttachments.size() == data.clearColors.size());
+                CC_ENSURES(rpInfo.colorAttachments.size() == fbInfo.colorTextures.size());
             } else { // DepthStencil
-                ++numDepthStencil;
                 auto& dsv = rpInfo.depthStencilAttachment;
                 CC_EXPECTS(desc.format != gfx::Format::UNKNOWN);
                 dsv.format = desc.format;
@@ -241,20 +252,14 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
                     });
             }
         }
-        CC_EXPECTS(numDepthStencil <= 1);
-        if (numDepthStencil) {
-            CC_EXPECTS(rpInfo.colorAttachments.back().format == gfx::Format::UNKNOWN);
-            rpInfo.colorAttachments.pop_back();
-            data.clearColors.pop_back();
-        }
     } else {
         CC_EXPECTS(false);
     }
+
     data.renderPass = ctx.device->createRenderPass(rpInfo);
-    if (!data.framebuffer) {
-        fbInfo.renderPass = data.renderPass;
-        data.framebuffer = ctx.device->createFramebuffer(fbInfo);
-    }
+    fbInfo.renderPass = data.renderPass;
+    data.framebuffer = ctx.device->createFramebuffer(fbInfo);
+
     return data;
 }
 
@@ -863,6 +868,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         // update uniform buffers and descriptor sets
     }
     void begin(const SceneData& sceneData, RenderGraph::vertex_descriptor sceneID) const {
+        return;
         auto* camera = sceneData.camera;
         if (camera) { // update camera data
             // update states
