@@ -267,7 +267,7 @@ void updateRasterPassConstants(uint32_t width, uint32_t height, Setter &setter) 
                  debugView->isCsmLayerColoration() ? 1.0F : 0.0F,
                  0.0F));
         Vec4 debugPackVec{};
-        for (uint32_t i = static_cast<uint32_t>(pipeline::DebugViewCompositeType::DIRECT_DIFFUSE);
+        for (auto i = static_cast<uint32_t>(pipeline::DebugViewCompositeType::DIRECT_DIFFUSE);
              i < static_cast<uint32_t>(pipeline::DebugViewCompositeType::MAX_BIT_COUNT); ++i) {
             const auto idx = i % 4;
             (&debugPackVec.x)[idx] = debugView->isCompositeModeEnabled(i) ? 1.0F : 0.0F;
@@ -281,7 +281,7 @@ void updateRasterPassConstants(uint32_t width, uint32_t height, Setter &setter) 
     } else {
         setter.setVec4("cc_debug_view_mode", Vec4(0.0F, 1.0F, 0.0F, 0.0F));
         Vec4 debugPackVec{};
-        for (uint32_t i = static_cast<uint32_t>(pipeline::DebugViewCompositeType::DIRECT_DIFFUSE);
+        for (auto i = static_cast<uint32_t>(pipeline::DebugViewCompositeType::DIRECT_DIFFUSE);
              i < static_cast<uint32_t>(pipeline::DebugViewCompositeType::MAX_BIT_COUNT); ++i) {
             const auto idx = i % 4;
             (&debugPackVec.x)[idx] = 1.0F;
