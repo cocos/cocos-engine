@@ -623,22 +623,24 @@ void setTextureUBOView(
         setter.setTexture("cc_environment", &texture);
         setter.setSampler("cc_environment", sampler);
     } else {
-        const auto* envmap = skybox.getEnvmap()
-            ? skybox.getEnvmap()
-            : BuiltinResMgr::getInstance()->get<TextureCube>("default-cube-texture");
+        const auto *envmap =
+            skybox.getEnvmap()
+                ? skybox.getEnvmap()
+                : BuiltinResMgr::getInstance()->get<TextureCube>("default-cube-texture");
         if (envmap) {
-            auto* texture = envmap->getGFXTexture();
-            auto* sampler = device.getSampler(envmap->getSamplerInfo());
+            auto *texture = envmap->getGFXTexture();
+            auto *sampler = device.getSampler(envmap->getSamplerInfo());
             setter.setTexture("cc_environment", texture);
             setter.setSampler("cc_environment", sampler);
         }
     }
-    const auto *diffuseMap = skybox.getDiffuseMap()
-        ? skybox.getDiffuseMap()
-        : BuiltinResMgr::getInstance()->get<TextureCube>("default-cube-texture");
+    const auto *diffuseMap =
+        skybox.getDiffuseMap()
+            ? skybox.getDiffuseMap()
+            : BuiltinResMgr::getInstance()->get<TextureCube>("default-cube-texture");
     if (diffuseMap) {
-        auto* texture = diffuseMap->getGFXTexture();
-        auto* sampler = device.getSampler(diffuseMap->getSamplerInfo());
+        auto *texture = diffuseMap->getGFXTexture();
+        auto *sampler = device.getSampler(diffuseMap->getSamplerInfo());
         setter.setTexture("cc_diffuseMap", texture);
         setter.setSampler("cc_diffuseMap", sampler);
     }
@@ -648,9 +650,8 @@ void setTextureUBOView(
         gfx::Filter::NONE,
         gfx::Address::CLAMP,
         gfx::Address::CLAMP,
-        gfx::Address::CLAMP
-    };
-    auto* pointSampler = device.getSampler(_samplerPointInfo);
+        gfx::Address::CLAMP};
+    auto *pointSampler = device.getSampler(_samplerPointInfo);
     setter.setSampler("cc_shadowMap", pointSampler);
     setter.setTexture("cc_shadowMap", BuiltinResMgr::getInstance()->get<Texture2D>("default-texture")->getGFXTexture());
     setter.setSampler("cc_spotShadowMap", pointSampler);
