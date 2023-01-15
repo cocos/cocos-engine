@@ -509,6 +509,7 @@ void uploadUniformBuffer(
 
 void initPerPassDescriptorSet(
     gfx::Device* device,
+    cc::gfx::CommandBuffer* cmdBuff,
     const gfx::DefaultResource& defaultResource,
     const LayoutGraphData& lg,
     const DescriptorSetData& set,
@@ -624,9 +625,11 @@ void initPerPassDescriptorSet(
                 break;
         }
     }
+    cmdBuff->bindDescriptorSet(static_cast<uint32_t>(pipeline::SetIndex::GLOBAL), passSet);
 }
 
 void updatePerPassDescriptorSet(
+    cc::gfx::CommandBuffer* cmdBuff,
     const LayoutGraphData& lg,
     const DescriptorSetData& set,
     const RenderData& user,
@@ -635,7 +638,7 @@ void updatePerPassDescriptorSet(
     const auto& data = set.descriptorSetLayoutData;
 
     auto& prevSet = node.descriptorSetPool.getCurrentDescriptorSet();
-    gfx::DescriptorSet* currSet = node.descriptorSetPool.allocateDescriptorSet();
+    gfx::DescriptorSet* newSet = node.descriptorSetPool.allocateDescriptorSet();
     for (const auto& block : data.descriptorBlocks) {
         CC_EXPECTS(block.descriptors.size() == block.capacity);
         auto bindID = block.offset;
@@ -649,7 +652,7 @@ void updatePerPassDescriptorSet(
                     updateCpuUniformBuffer(lg, user, uniformBlock, false, resource.cpuBuffer);
 
                     // upload gfx buffer
-                    uploadUniformBuffer(currSet, bindID, resource);
+                    uploadUniformBuffer(newSet, bindID, resource);
 
                     // increase slot
                     // TODO(zhouzhenglong): here binding will be refactored in the future
@@ -664,18 +667,18 @@ void updatePerPassDescriptorSet(
                 CC_EXPECTS(false);
                 break;
             case DescriptorTypeOrder::SAMPLER_TEXTURE: {
-                CC_EXPECTS(currSet);
+                CC_EXPECTS(newSet);
                 for (const auto& d : block.descriptors) {
                     CC_EXPECTS(d.count == 1);
                     CC_EXPECTS(d.type >= gfx::Type::SAMPLER1D &&
                                d.type <= gfx::Type::SAMPLER_CUBE);
                     auto iter = user.textures.find(d.descriptorID.value);
                     if (iter != user.textures.end()) {
-                        currSet->bindTexture(bindID, iter->second.get());
+                        newSet->bindTexture(bindID, iter->second.get());
                     } else {
                         auto* prevTexture = prevSet.getTexture(bindID);
                         CC_ENSURES(prevTexture);
-                        currSet->bindTexture(bindID, prevTexture);
+                        newSet->bindTexture(bindID, prevTexture);
                     }
                     bindID += d.count;
                 }
@@ -686,11 +689,11 @@ void updatePerPassDescriptorSet(
                     CC_EXPECTS(d.count == 1);
                     auto iter = user.samplers.find(d.descriptorID.value);
                     if (iter != user.samplers.end()) {
-                        currSet->bindSampler(bindID, iter->second.get());
+                        newSet->bindSampler(bindID, iter->second.get());
                     } else {
                         auto* prevSampler = prevSet.getSampler(bindID);
                         CC_ENSURES(prevSampler);
-                        currSet->bindSampler(bindID, prevSampler);
+                        newSet->bindSampler(bindID, prevSampler);
                     }
                     bindID += d.count;
                 }
@@ -720,6 +723,7 @@ void updatePerPassDescriptorSet(
                 break;
         }
     }
+    cmdBuff->bindDescriptorSet(static_cast<uint32_t>(pipeline::SetIndex::GLOBAL), newSet);
 }
 
 struct RenderGraphVisitor : boost::dfs_visitor<> {
@@ -823,7 +827,8 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         const auto& user = get(RenderGraph::Data, ctx.g, vertID);
         auto& node = ctx.context.layoutGraphResources.at(layoutID);
         initPerPassDescriptorSet(
-            ctx.device, *ctx.context.defaultResource, ctx.lg,
+            ctx.device, ctx.cmdBuff,
+            *ctx.context.defaultResource, ctx.lg,
             set, user, node);
     }
     void begin(const ComputePass& pass, RenderGraph::vertex_descriptor vertID) const { // NOLINT(readability-convert-member-functions-to-static)
@@ -868,8 +873,8 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         // update uniform buffers and descriptor sets
     }
     void begin(const SceneData& sceneData, RenderGraph::vertex_descriptor sceneID) const {
-        return;
         auto* camera = sceneData.camera;
+        CC_EXPECTS(camera);
         if (camera) { // update camera data
             // update states
             CC_EXPECTS(ctx.currentPassLayoutID != LayoutGraphData::null_vertex());
@@ -880,7 +885,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
                 auto& set = iter->second;
                 auto& node = ctx.context.layoutGraphResources.at(passLayoutID);
                 const auto& user = get(RenderGraph::Data, ctx.g, sceneID); // notice: sceneID
-                updatePerPassDescriptorSet(ctx.lg, set, user, node);
+                updatePerPassDescriptorSet(ctx.cmdBuff, ctx.lg, set, user, node);
             }
         }
         const auto* scene = camera->getScene();
@@ -897,20 +902,20 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
                 queue.opaqueQueue.recordCommandBuffer(
                     ctx.device, camera, ctx.currentPass, ctx.cmdBuff, 0);
             }
-            if (bDrawInstancing) {
-                queue.opaqueInstancingQueue.recordCommandBuffer(
-                    ctx.currentPass, ctx.cmdBuff);
-            }
+            // if (bDrawInstancing) {
+            //     queue.opaqueInstancingQueue.recordCommandBuffer(
+            //         ctx.currentPass, ctx.cmdBuff);
+            // }
         }
         if (any(sceneData.flags & SceneFlags::TRANSPARENT_OBJECT)) {
             if (bDraw) {
                 queue.transparentQueue.recordCommandBuffer(
                     ctx.device, camera, ctx.currentPass, ctx.cmdBuff, 0);
             }
-            if (bDrawInstancing) {
-                queue.transparentInstancingQueue.recordCommandBuffer(
-                    ctx.currentPass, ctx.cmdBuff);
-            }
+            // if (bDrawInstancing) {
+            //     queue.transparentInstancingQueue.recordCommandBuffer(
+            //         ctx.currentPass, ctx.cmdBuff);
+            // }
         }
     }
     void begin(const Blit& pass, RenderGraph::vertex_descriptor vertID) const {
