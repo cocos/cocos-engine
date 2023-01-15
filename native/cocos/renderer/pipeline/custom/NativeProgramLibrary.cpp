@@ -23,6 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include <boost/algorithm/string.hpp>
 #include <boost/container/pmr/memory_resource.hpp>
 #include <stdexcept>
 #include <tuple>
@@ -507,7 +508,7 @@ void populateLocalShaderInfo(
     const IDescriptorInfo &target,
     const pipeline::DescriptorSetLayoutInfos &source,
     gfx::ShaderInfo &shaderInfo, ccstd::vector<int32_t> &blockSizes) {
-    const auto set = setIndex(UpdateFrequency::PER_INSTANCE);
+    constexpr auto set = setIndex(UpdateFrequency::PER_INSTANCE);
     for (const auto &block : target.blocks) {
         auto blockIter = source.blocks.find(block.name);
         if (blockIter == source.blocks.end()) {
@@ -787,9 +788,155 @@ void makeShaderInfo(
     shaderInfo.stages.emplace_back(gfx::ShaderStage{gfx::ShaderStageFlagBit::FRAGMENT, ""});
 }
 
+std::pair<uint32_t, uint32_t> findBinding(
+    const gfx::ShaderInfo &shaderInfo, std::string_view name) {
+    for (const auto &v : shaderInfo.blocks) {
+        if (v.name == name) {
+            return std::pair{v.set, v.binding};
+        }
+    }
+    for (const auto &v : shaderInfo.buffers) {
+        if (v.name == name) {
+            return std::pair{v.set, v.binding};
+        }
+    }
+    for (const auto &v : shaderInfo.samplerTextures) {
+        if (v.name == name) {
+            return std::pair{v.set, v.binding};
+        }
+    }
+    for (const auto &v : shaderInfo.samplers) {
+        if (v.name == name) {
+            return std::pair{v.set, v.binding};
+        }
+    }
+    for (const auto &v : shaderInfo.textures) {
+        if (v.name == name) {
+            return std::pair{v.set, v.binding};
+        }
+    }
+    for (const auto &v : shaderInfo.images) {
+        if (v.name == name) {
+            return std::pair{v.set, v.binding};
+        }
+    }
+    CC_EXPECTS(false);
+    return {};
+}
+
+void overwriteShaderSourceBinding(
+    gfx::Device *device,
+    const gfx::ShaderInfo &shaderInfo, IProgramInfo &programInfo,
+    boost::container::pmr::memory_resource *scratch) {
+    // get shader source to use
+    IShaderSource *src = &programInfo.glsl3;
+    const auto *deviceShaderVersion = getDeviceShaderVersion(device);
+    if (deviceShaderVersion) {
+        src = programInfo.getSource(deviceShaderVersion);
+    } else {
+        CC_LOG_ERROR("Invalid GFX API!");
+    }
+    CC_ENSURES(src);
+    auto &source = src->vert;
+    // find first uniform
+    auto pos = source.find(" uniform ");
+    while (pos != ccstd::string::npos) {
+        // uniform statement is separated by ";{}";
+        auto beg = source.find_last_of(";}", pos);
+        auto end = source.find_first_of(";{", pos);
+        if (beg == ccstd::string::npos) {
+            // if separator is not found, start from 0
+            beg = 0;
+        } else {
+            // bypass last separator
+            beg += 1;
+        }
+        // uniform declaration is found
+        CC_EXPECTS(beg != ccstd::string::npos);
+        CC_EXPECTS(end != ccstd::string::npos);
+        CC_ENSURES(end > beg);
+
+        // find uniform name
+        std::string_view name{};
+        {
+            std::string_view decl(source.c_str() + beg, end - beg);
+            auto nameEnd = decl.size();
+            for (; nameEnd-- > 0;) {
+                if (!std::isspace(decl[nameEnd])) {
+                    break;
+                }
+            }
+            auto nameBeg = decl.find_last_of(' ', nameEnd);
+            nameBeg += 1;
+            nameEnd += 1;
+            // uniform name found
+            name = decl.substr(nameBeg, nameEnd - nameBeg);
+        }
+        CC_ENSURES(!name.empty());
+
+        // layout
+        std::ptrdiff_t offset = 0;
+        {
+            std::string_view prevLayout;
+            // find layout expression
+            auto layoutBeg = source.rfind("layout", pos);
+            auto layoutEnd = ccstd::string::npos;
+            if (layoutBeg == ccstd::string::npos || layoutBeg < beg) {
+                // layout not found
+                layoutBeg = ccstd::string::npos;
+                CC_ENSURES(layoutBeg == ccstd::string::npos);
+            } else {
+                CC_EXPECTS(layoutBeg >= beg && layoutBeg <= end);
+                layoutEnd = source.find(')', layoutBeg) + 1;
+                CC_EXPECTS(layoutEnd != ccstd::string::npos);
+                CC_ENSURES(layoutBeg < layoutEnd && layoutEnd <= end);
+                prevLayout = std::string_view(source.c_str() + layoutBeg, layoutEnd - layoutBeg);
+            }
+            // check layout expression is within uniform declaration
+            // prev layout expression is from layoutBeg to layoutEnd
+            CC_ENSURES(layoutBeg >= beg && layoutBeg <= end);
+            CC_ENSURES(layoutEnd >= layoutBeg && layoutEnd <= end);
+
+            // find uniform set and binding
+            auto [set, binding] = findBinding(shaderInfo, name);
+
+            // compose new layout expression
+            ccstd::pmr::string newLayout(scratch);
+            newLayout.reserve(32);
+            newLayout.append("layout(set = ");
+            newLayout.append(std::to_string(set));
+            newLayout.append(", binding = ");
+            newLayout.append(std::to_string(binding));
+            newLayout.append(")");
+
+            // replace layout expression
+            if (layoutBeg == ccstd::string::npos) { // layout not found
+                source.insert(pos, newLayout);
+                offset = static_cast<std::ptrdiff_t>(newLayout.size());
+            } else {
+                // layout is found
+                source.erase(layoutBeg, prevLayout.size());
+                source.insert(layoutBeg, newLayout);
+                // calculate string difference
+                offset = static_cast<std::ptrdiff_t>(newLayout.size()) -
+                         static_cast<std::ptrdiff_t>(prevLayout.size());
+            }
+        }
+        // offset end of uniform declaration, offset is caused by modification of layout
+        end += offset;
+        // find next uniform
+        pos = source.find(" uniform ", end);
+    }
+}
+
 // overwrite IProgramInfo using gfx.ShaderInfo
-void overwriteProgramBlockInfo(const gfx::ShaderInfo &shaderInfo, IProgramInfo &programInfo) {
-    const auto set = setIndex(UpdateFrequency::PER_BATCH);
+void overwriteProgramBlockInfo(
+    gfx::Device *device,
+    const gfx::ShaderInfo &shaderInfo, IProgramInfo &programInfo,
+    boost::container::pmr::memory_resource *scratch) {
+    overwriteShaderSourceBinding(device, shaderInfo, programInfo, scratch);
+
+    constexpr auto set = setIndex(UpdateFrequency::PER_BATCH);
     for (auto &block : programInfo.blocks) {
         auto found = false;
         for (const auto &src : shaderInfo.blocks) {
@@ -944,7 +1091,8 @@ void populatePipelineLayoutInfo(
 
 } // namespace
 
-void NativeProgramLibrary::init(gfx::Device *device) {
+void NativeProgramLibrary::init(gfx::Device *deviceIn) {
+    device = deviceIn;
     emptyDescriptorSetLayout = device->createDescriptorSetLayout({});
     emptyPipelineLayout = device->createPipelineLayout({});
     auto &lg = layoutGraph;
@@ -1037,7 +1185,7 @@ void NativeProgramLibrary::addEffect(const EffectAsset *effectAssetIn) {
                            fixedLocal, shaderInfo, blockSizes);
 
             // overwrite programInfo
-            overwriteProgramBlockInfo(shaderInfo, programInfo);
+            overwriteProgramBlockInfo(device, shaderInfo, programInfo, scratch);
 
             // handle map
             auto handleMap = genHandles(shaderInfo);
