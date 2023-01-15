@@ -825,19 +825,9 @@ std::pair<uint32_t, uint32_t> findBinding(
 }
 
 void overwriteShaderSourceBinding(
-    gfx::Device *device,
-    const gfx::ShaderInfo &shaderInfo, IProgramInfo &programInfo,
+    const gfx::ShaderInfo &shaderInfo,
+    ccstd::string &source,
     boost::container::pmr::memory_resource *scratch) {
-    // get shader source to use
-    IShaderSource *src = &programInfo.glsl3;
-    const auto *deviceShaderVersion = getDeviceShaderVersion(device);
-    if (deviceShaderVersion) {
-        src = programInfo.getSource(deviceShaderVersion);
-    } else {
-        CC_LOG_ERROR("Invalid GFX API!");
-    }
-    CC_ENSURES(src);
-    auto &source = src->vert;
     // find first uniform
     auto pos = source.find(" uniform ");
     while (pos != ccstd::string::npos) {
@@ -929,12 +919,30 @@ void overwriteShaderSourceBinding(
     }
 }
 
+void overwriteShaderProgramBinding(
+    gfx::Device *device,
+    const gfx::ShaderInfo &shaderInfo, IProgramInfo &programInfo,
+    boost::container::pmr::memory_resource *scratch) {
+    // get shader source to use
+    IShaderSource *src = &programInfo.glsl3;
+    const auto *deviceShaderVersion = getDeviceShaderVersion(device);
+    if (deviceShaderVersion) {
+        src = programInfo.getSource(deviceShaderVersion);
+    } else {
+        CC_LOG_ERROR("Invalid GFX API!");
+    }
+    CC_ENSURES(src);
+
+    overwriteShaderSourceBinding(shaderInfo, src->vert, scratch);
+    overwriteShaderSourceBinding(shaderInfo, src->frag, scratch);
+}
+
 // overwrite IProgramInfo using gfx.ShaderInfo
 void overwriteProgramBlockInfo(
     gfx::Device *device,
     const gfx::ShaderInfo &shaderInfo, IProgramInfo &programInfo,
     boost::container::pmr::memory_resource *scratch) {
-    overwriteShaderSourceBinding(device, shaderInfo, programInfo, scratch);
+    overwriteShaderProgramBinding(device, shaderInfo, programInfo, scratch);
 
     constexpr auto set = setIndex(UpdateFrequency::PER_BATCH);
     for (auto &block : programInfo.blocks) {
