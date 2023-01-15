@@ -294,7 +294,7 @@ namespace {
 void setCameraUBOValues(
     const scene::Camera &camera,
     const pipeline::PipelineSceneData &cfg,
-    const scene::Light *light,
+    const scene::DirectionalLight *mainLight,
     Setter &setter) {
     CC_EXPECTS(camera.getNode());
     CC_EXPECTS(cfg.getSkybox());
@@ -324,7 +324,7 @@ void setCameraUBOValues(
                                        cfg.isHDR() ? 1.0F : 0.0F,
                                        1.0F / scene::Camera::getStandardExposureValue()));
 
-    if (const auto *mainLight = dynamic_cast<const scene::DirectionalLight *>(light)) {
+    if (mainLight) {
         const auto &shadowInfo = *cfg.getShadows();
         const bool shadowEnable = (mainLight->isShadowEnabled() &&
                                    shadowInfo.getType() == scene::ShadowType::SHADOW_MAP);
@@ -612,9 +612,55 @@ void setShadowUBOView(
     }
 }
 
+void setTextureUBOView(
+    gfx::Device &device,
+    const pipeline::PipelineSceneData &sceneData,
+    const scene::Camera &camera, NativeSetter &setter) {
+    const auto &skybox = *sceneData.getSkybox();
+    if (skybox.getReflectionMap()) {
+        auto &texture = *skybox.getReflectionMap()->getGFXTexture();
+        auto *sampler = device.getSampler(skybox.getReflectionMap()->getSamplerInfo());
+        setter.setTexture("cc_environment", &texture);
+        setter.setSampler("cc_environment", sampler);
+    } else {
+        const auto* envmap = skybox.getEnvmap()
+            ? skybox.getEnvmap()
+            : BuiltinResMgr::getInstance()->get<TextureCube>("default-cube-texture");
+        if (envmap) {
+            auto* texture = envmap->getGFXTexture();
+            auto* sampler = device.getSampler(envmap->getSamplerInfo());
+            setter.setTexture("cc_environment", texture);
+            setter.setSampler("cc_environment", sampler);
+        }
+    }
+    const auto *diffuseMap = skybox.getDiffuseMap()
+        ? skybox.getDiffuseMap()
+        : BuiltinResMgr::getInstance()->get<TextureCube>("default-cube-texture");
+    if (diffuseMap) {
+        auto* texture = diffuseMap->getGFXTexture();
+        auto* sampler = device.getSampler(diffuseMap->getSamplerInfo());
+        setter.setTexture("cc_diffuseMap", texture);
+        setter.setSampler("cc_diffuseMap", sampler);
+    }
+    gfx::SamplerInfo _samplerPointInfo{
+        gfx::Filter::POINT,
+        gfx::Filter::POINT,
+        gfx::Filter::NONE,
+        gfx::Address::CLAMP,
+        gfx::Address::CLAMP,
+        gfx::Address::CLAMP
+    };
+    auto* pointSampler = device.getSampler(_samplerPointInfo);
+    setter.setSampler("cc_shadowMap", pointSampler);
+    setter.setTexture("cc_shadowMap", BuiltinResMgr::getInstance()->get<Texture2D>("default-texture")->getGFXTexture());
+    setter.setSampler("cc_spotShadowMap", pointSampler);
+    setter.setTexture("cc_spotShadowMap", BuiltinResMgr::getInstance()->get<Texture2D>("default-texture")->getGFXTexture());
+}
+
 } // namespace
 
-void NativeRasterQueueBuilder::addSceneOfCamera(scene::Camera *camera, LightInfo light, SceneFlags sceneFlags) {
+void NativeRasterQueueBuilder::addSceneOfCamera(
+    scene::Camera *camera, LightInfo light, SceneFlags sceneFlags) {
     std::string_view name = "Camera";
     auto *pLight = light.light.get();
     SceneData scene(renderGraph->get_allocator());
@@ -634,7 +680,11 @@ void NativeRasterQueueBuilder::addSceneOfCamera(scene::Camera *camera, LightInfo
 
     auto &data = get(RenderGraph::Data, *renderGraph, sceneID);
     NativeSetter setter{*layoutGraph, data};
-    setCameraUBOValues(*camera, *pipelineRuntime->getPipelineSceneData(), pLight, setter);
+
+    setCameraUBOValues(
+        *camera,
+        *pipelineRuntime->getPipelineSceneData(),
+        camera->getScene()->getMainLight(), setter);
 
     if (any(sceneFlags & SceneFlags::SHADOW_CASTER)) {
         if (pLight) {
@@ -651,6 +701,10 @@ void NativeRasterQueueBuilder::addSceneOfCamera(scene::Camera *camera, LightInfo
                              *pDirLight, setter);
         }
     }
+    setTextureUBOView(
+        *pipelineRuntime->getDevice(),
+        *pipelineRuntime->getPipelineSceneData(),
+        *camera, setter);
 }
 
 void NativeRasterQueueBuilder::addScene(const ccstd::string &name, SceneFlags sceneFlags) {
