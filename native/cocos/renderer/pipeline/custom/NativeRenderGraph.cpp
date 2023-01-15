@@ -33,14 +33,16 @@
 #include "RenderGraphGraphs.h"
 #include "RenderGraphTypes.h"
 #include "cocos/math/Utils.h"
+#include "cocos/renderer/pipeline/Define.h"
 #include "cocos/renderer/pipeline/PipelineUBO.h"
+#include "cocos/scene/DirectionalLight.h"
 #include "cocos/scene/Fog.h"
 #include "cocos/scene/Skybox.h"
+#include "cocos/scene/SpotLight.h"
 #include "details/DebugUtils.h"
 #include "details/GraphView.h"
 #include "details/GslUtils.h"
 #include "gfx-base/GFXDef-common.h"
-#include "scene/DirectionalLight.h"
 
 namespace cc {
 
@@ -139,57 +141,57 @@ void NativeSetter::setName(const ccstd::string &name) {
 }
 
 void NativeSetter::setMat4(const ccstd::string &name, const Mat4 &mat) {
-    auto& data = renderData;
+    auto &data = renderData;
     addMat4(layoutGraph, name, mat, data);
 }
 
 void NativeSetter::setQuaternion(const ccstd::string &name, const Quaternion &quat) {
-    auto& data = renderData;
+    auto &data = renderData;
     addQuaternion(layoutGraph, name, quat, data);
 }
 
 void NativeSetter::setColor(const ccstd::string &name, const gfx::Color &color) {
-    auto& data = renderData;
+    auto &data = renderData;
     addColor(layoutGraph, name, color, data);
 }
 
 void NativeSetter::setVec4(const ccstd::string &name, const Vec4 &vec) {
-    auto& data = renderData;
+    auto &data = renderData;
     addVec4(layoutGraph, name, vec, data);
 }
 
 void NativeSetter::setVec2(const ccstd::string &name, const Vec2 &vec) {
-    auto& data = renderData;
+    auto &data = renderData;
     addVec2(layoutGraph, name, vec, data);
 }
 
 void NativeSetter::setFloat(const ccstd::string &name, float v) {
-    auto& data = renderData;
+    auto &data = renderData;
     addFloat(layoutGraph, name, v, data);
 }
 
 void NativeSetter::setBuffer(const ccstd::string &name, gfx::Buffer *buffer) {
-    auto& data = renderData;
+    auto &data = renderData;
     addBuffer(layoutGraph, name, buffer, data);
 }
 
 void NativeSetter::setTexture(const ccstd::string &name, gfx::Texture *texture) {
-    auto& data = renderData;
+    auto &data = renderData;
     addTexture(layoutGraph, name, texture, data);
 }
 
 void NativeSetter::setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) {
-    auto& data = renderData;
+    auto &data = renderData;
     addReadWriteBuffer(layoutGraph, name, buffer, data);
 }
 
 void NativeSetter::setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) {
-    auto& data = renderData;
+    auto &data = renderData;
     addReadWriteTexture(layoutGraph, name, texture, data);
 }
 
 void NativeSetter::setSampler(const ccstd::string &name, gfx::Sampler *sampler) {
-    auto& data = renderData;
+    auto &data = renderData;
     addSampler(layoutGraph, name, sampler, data);
 }
 
@@ -254,7 +256,7 @@ void setCameraUBOValues(
                                         camera.getPosition().z,
                                         pipeline::PipelineUBO::getCombineSignY()));
     setter.setVec4("cc_surfaceTransform", Vec4(static_cast<float>(camera.getSurfaceTransform()),
-                                               0.0,
+                                               0.0F,
                                                cosf(static_cast<float>(mathutils::toRadian(skybox.getRotationAngle()))),
                                                sinf(static_cast<float>(mathutils::toRadian(skybox.getRotationAngle())))));
     setter.setVec4("cc_screenScale", Vec4(cfg.getShadingScale(),
@@ -315,11 +317,112 @@ void setCameraUBOValues(
     setter.setVec4("cc_fogColor", Vec4(colorTempRGB.x, colorTempRGB.y, colorTempRGB.z, colorTempRGB.z));
     setter.setVec4("cc_fogBase", Vec4(fog.getFogStart(), fog.getFogEnd(), fog.getFogDensity(), 0.0F));
     setter.setVec4("cc_fogAdd", Vec4(fog.getFogTop(), fog.getFogRange(), fog.getFogAtten(), 0.0F));
-    setter.setVec4("cc_nearFar", Vec4(camera.getNearClip(), camera.getFarClip(), 0.0, 0.0));
+    setter.setVec4("cc_nearFar", Vec4(camera.getNearClip(), camera.getFarClip(), 0.0F, 0.0F));
     setter.setVec4("cc_viewPort", Vec4(camera.getViewport().x,
                                        camera.getViewport().y,
                                        shadingScale * static_cast<float>(camera.getWindow()->getWidth()) * camera.getViewport().z,
                                        shadingScale * static_cast<float>(camera.getWindow()->getHeight()) * camera.getViewport().w));
+}
+
+void setShadowUBOLightView(
+    gfx::Device *device,
+    const pipeline::PipelineSceneData &sceneData,
+    const scene::Light &light,
+    uint32_t level, Setter &setter) {
+    const auto &shadowInfo = *sceneData.getShadows();
+    const auto &csmLayers = *sceneData.getCSMLayers();
+    const auto &packing = pipeline::supportsR32FloatTexture(device) ? 0.0F : 1.0F;
+    const auto &cap = device->getCapabilities();
+    Vec4 vec4ShadowInfo{};
+
+    // ShadowMap
+    switch (light.getType()) {
+        case scene::LightType::DIRECTIONAL: {
+            const auto &mainLight = dynamic_cast<const scene::DirectionalLight &>(light);
+            if (shadowInfo.isEnabled() && mainLight.isShadowEnabled()) {
+                if (shadowInfo.getType() == scene::ShadowType::SHADOW_MAP) {
+                    float near = 0.1;
+                    float far = 0;
+                    Mat4 matShadowView;
+                    Mat4 matShadowProj;
+                    Mat4 matShadowViewProj;
+                    scene::CSMLevel levelCount{};
+                    if (mainLight.isShadowFixedArea() || mainLight.getCSMLevel() == scene::CSMLevel::LEVEL_1) {
+                        matShadowView = csmLayers.getSpecialLayer()->getMatShadowView();
+                        matShadowProj = csmLayers.getSpecialLayer()->getMatShadowProj();
+                        matShadowViewProj = csmLayers.getSpecialLayer()->getMatShadowViewProj();
+                        if (mainLight.isShadowFixedArea()) {
+                            near = mainLight.getShadowNear();
+                            far = mainLight.getShadowFar();
+                            levelCount = static_cast<scene::CSMLevel>(0);
+                        } else {
+                            near = 0.1;
+                            far = csmLayers.getSpecialLayer()->getShadowCameraFar();
+                            levelCount = scene::CSMLevel::LEVEL_1;
+                        }
+                        vec4ShadowInfo.set(0.0F, packing, mainLight.getShadowNormalBias(), 0);
+                        setter.setVec4("cc_shadowLPNNInfo", vec4ShadowInfo);
+                    } else {
+                        const auto &layer = *csmLayers.getLayers()[level];
+                        matShadowView = layer.getMatShadowView();
+                        matShadowProj = layer.getMatShadowProj();
+                        matShadowViewProj = layer.getMatShadowViewProj();
+
+                        near = layer.getSplitCameraNear();
+                        far = layer.getSplitCameraFar();
+                        levelCount = mainLight.getCSMLevel();
+                    }
+                    setter.setMat4("cc_matLightView", matShadowView);
+                    setter.setVec4("cc_shadowProjDepthInfo", Vec4(matShadowProj.m[10], matShadowProj.m[14],
+                                                                  matShadowProj.m[11], matShadowProj.m[15]));
+                    setter.setVec4("cc_shadowProjInfo", Vec4(matShadowProj.m[00], matShadowProj.m[05],
+                                                             1.0F / matShadowProj.m[00], 1.0F / matShadowProj.m[05]));
+                    setter.setMat4("cc_matLightViewProj", matShadowViewProj);
+                    vec4ShadowInfo.set(near, far, 0, 1.0F - mainLight.getShadowSaturation());
+                    setter.setVec4("cc_shadowNFLSInfo", vec4ShadowInfo);
+                    vec4ShadowInfo.set(0.0F, packing, mainLight.getShadowNormalBias(), static_cast<float>(levelCount));
+                    setter.setVec4("cc_shadowLPNNInfo", vec4ShadowInfo);
+                    vec4ShadowInfo.set(shadowInfo.getSize().x, shadowInfo.getSize().y, static_cast<float>(mainLight.getShadowPcf()), mainLight.getShadowBias());
+                    setter.setVec4("cc_shadowWHPBInfo", vec4ShadowInfo);
+                }
+            }
+            break;
+        }
+        case scene::LightType::SPOT: {
+            const auto &spotLight = dynamic_cast<const scene::SpotLight &>(light);
+            if (shadowInfo.isEnabled() && spotLight.isShadowEnabled()) {
+                const auto &matShadowCamera = spotLight.getNode()->getWorldMatrix();
+                const auto matShadowView = matShadowCamera.getInversed();
+                setter.setMat4("cc_matLightView", matShadowView);
+
+                Mat4 matShadowViewProj{};
+                Mat4::createPerspective(spotLight.getAngle(), 1.0F, 0.001F,
+                                        spotLight.getRange(), true,
+                                        cap.clipSpaceMinZ, cap.clipSpaceSignY, 0, &matShadowViewProj);
+                matShadowViewProj.multiply(matShadowView);
+                setter.setMat4("cc_matLightViewProj", matShadowViewProj);
+
+                const Vec4 shadowNFLSInfos(0.01F, spotLight.getRange(), 0.0F, 0.0F);
+                setter.setVec4("cc_shadowNFLSInfo", shadowNFLSInfos);
+
+                const Vec4 shadowWHPBInfos(
+                    shadowInfo.getSize().x,
+                    shadowInfo.getSize().y,
+                    spotLight.getShadowPcf(),
+                    spotLight.getShadowBias());
+                setter.setVec4("cc_shadowWHPBInfo", shadowWHPBInfos);
+
+                const Vec4 shadowLPNNInfos(1.0F, packing, spotLight.getShadowNormalBias(), 0.0F);
+                setter.setVec4("cc_shadowLPNNInfo", shadowLPNNInfos);
+            }
+            break;
+        }
+        default:
+            break;
+    }
+
+    const auto &data = shadowInfo.getShadowColor4f();
+    setter.setColor("cc_shadowColor", gfx::Color{data[0], data[1], data[2], data[3]});
 }
 
 } // namespace
@@ -331,7 +434,7 @@ void NativeRasterQueueBuilder::addSceneOfCamera(scene::Camera *camera, LightInfo
     scene.name = name;
     scene.flags = sceneFlags;
     scene.camera = camera;
-    scene.light = std::move(light);
+    scene.light = light;
     auto sceneID = addVertex(
         SceneTag{},
         std::forward_as_tuple(name),
@@ -345,6 +448,17 @@ void NativeRasterQueueBuilder::addSceneOfCamera(scene::Camera *camera, LightInfo
     auto &data = get(RenderGraph::Data, *renderGraph, sceneID);
     NativeSetter setter{*layoutGraph, data};
     setCameraUBOValues(*camera, *pipelineRuntime->getPipelineSceneData(), pLight, setter);
+
+    if (any(sceneFlags & SceneFlags::SHADOW_CASTER)) {
+        if (pLight) {
+            setShadowUBOLightView(
+                pipelineRuntime->getDevice(),
+                *pipelineRuntime->getPipelineSceneData(),
+                *pLight, light.level, setter);
+        }
+    } else {
+        // setShadowUBOView(this, camera, layoutName);
+    }
 }
 
 void NativeRasterQueueBuilder::addScene(const ccstd::string &name, SceneFlags sceneFlags) {

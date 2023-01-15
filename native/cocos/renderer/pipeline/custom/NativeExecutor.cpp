@@ -625,6 +625,7 @@ void initPerPassDescriptorSet(
                 break;
         }
     }
+    passSet->update();
     cmdBuff->bindDescriptorSet(static_cast<uint32_t>(pipeline::SetIndex::GLOBAL), passSet);
 }
 
@@ -723,6 +724,7 @@ void updatePerPassDescriptorSet(
                 break;
         }
     }
+    newSet->update();
     cmdBuff->bindDescriptorSet(static_cast<uint32_t>(pipeline::SetIndex::GLOBAL), newSet);
 }
 
