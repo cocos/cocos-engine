@@ -25,17 +25,17 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
 import { PhysicsMaterial, PhysicsRayResult, CollisionEventType, TriggerEventType } from '../framework';
-import { error, RecyclePool, js, IVec3Like, geometry } from '../../core';
+import { error, RecyclePool, js, IVec3Like, geometry, IQuatLike } from '../../core';
 import { IBaseConstraint } from '../spec/i-physics-constraint';
 import { PhysXRigidBody } from './physx-rigid-body';
 import {
-    addActorToScene, raycastAll, simulateScene, initializeWorld, raycastClosest,
+    addActorToScene, raycastAll, simulateScene, initializeWorld, raycastClosest, sweepClosest,
     gatherEvents, getWrapShape, PX, getContactDataOrByteOffset,
 } from './physx-adapter';
 import { PhysXSharedBody } from './physx-shared-body';
 import { TupleDictionary } from '../utils/tuple-dictionary';
 import { PhysXContactEquation } from './physx-contact-equation';
-import { CollisionEventObject, TriggerEventObject } from '../utils/util';
+import { CollisionEventObject, TriggerEventObject, VEC3_0 } from '../utils/util';
 import { PhysXShape } from './shapes/physx-shape';
 import { EFilterDataWord3 } from './physx-enum';
 import { PhysXInstance } from './physx-instance';
@@ -54,6 +54,8 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
     readonly wrappedBodies: PhysXSharedBody[] = [];
 
     private _isNeedFetch = false;
+
+    private static _sweepBoxGeometry: any = new PX.BoxGeometry(VEC3_0);
 
     constructor () {
         super();
@@ -144,6 +146,17 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
 
     raycastClosest (worldRay: geometry.Ray, options: IRaycastOptions, result: PhysicsRayResult): boolean {
         return raycastClosest(this, worldRay, options, result);
+    }
+
+    // sweepClosest (worldRay: geometry.Ray, geometry: any, geometryRotation: IQuatLike,
+    //     options: IRaycastOptions, inflation: number, result: PhysicsRayResult): boolean {
+    //     return sweepClosest(this, worldRay, geometry, geometryRotation, options, inflation, result);
+    // }
+
+    sweepBoxClosest (worldRay: geometry.Ray, halfExtent: IVec3Like, orientation: IQuatLike,
+        options: IRaycastOptions, inflation: number, result: PhysicsRayResult): boolean {
+        PhysXWorld._sweepBoxGeometry.setHalfExtents(halfExtent);
+        return sweepClosest(this, worldRay, PhysXWorld._sweepBoxGeometry, orientation, options, inflation, result);
     }
 
     emitEvents (): void {
