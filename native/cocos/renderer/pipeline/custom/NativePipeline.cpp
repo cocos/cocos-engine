@@ -230,6 +230,19 @@ void NativePipeline::updateRenderTarget(
 void NativePipeline::updateDepthStencil(
     const ccstd::string &name,
     uint32_t width, uint32_t height, gfx::Format format) { // NOLINT(bugprone-easily-swappable-parameters)
+    auto resID = findVertex(ccstd::pmr::string(name, get_allocator()), resourceGraph);
+    if (resID == ResourceGraph::null_vertex()) {
+        return;
+    }
+    auto &desc = get(ResourceGraph::Desc, resourceGraph, resID);
+    visitObject(
+        resID, resourceGraph,
+        [&](ManagedTexture &tex) {
+            desc.width = width;
+            desc.height = height;
+        },
+        [](const auto & /*res*/) {});
+
 }
 
 void NativePipeline::beginFrame() {

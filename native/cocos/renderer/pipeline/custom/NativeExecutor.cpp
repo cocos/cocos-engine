@@ -259,8 +259,31 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
     data.renderPass = ctx.device->createRenderPass(rpInfo);
     fbInfo.renderPass = data.renderPass;
     data.framebuffer = ctx.device->createFramebuffer(fbInfo);
+    data.hash = gfx::Framebuffer::computeHash(fbInfo);
 
     return data;
+}
+
+PersistentRenderPassAndFramebuffer &fetchOrCreateFramebuffer(RenderGraphVisitorContext& ctx, const RasterPass& pass) {
+    auto iter = ctx.context.renderPasses.find(pass);
+    if (iter == ctx.context.renderPasses.end()) {
+        bool added = false;
+        std::tie(iter, added) = ctx.context.renderPasses.emplace(
+            pass, createPersistentRenderPassAndFramebuffer(ctx, pass));
+        CC_ENSURES(added);
+        return iter->second;
+    }
+
+    gfx::FramebufferInfo fbInfo{};
+    fbInfo.renderPass = iter->second.renderPass;
+    fbInfo.colorTextures = iter->second.framebuffer->getColorTextures();
+    fbInfo.depthStencilTexture = iter->second.framebuffer->getDepthStencilTexture();
+    auto hash = gfx::Framebuffer::computeHash(fbInfo);
+    if (iter->second.hash != hash) {
+        iter->second.framebuffer = ctx.device->createFramebuffer(fbInfo);
+        iter->second.hash = hash;
+    }
+    return iter->second;
 }
 
 gfx::BufferBarrierInfo getBufferBarrier(const cc::render::Barrier& barrier) {
@@ -798,15 +821,9 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         const auto& layoutName = get(RenderGraph::Layout, ctx.g, vertID);
         const auto& layoutID = locate(LayoutGraphData::null_vertex(), layoutName, ctx.lg);
         {
-            auto iter = ctx.context.renderPasses.find(pass);
-            if (iter == ctx.context.renderPasses.end()) {
-                bool added = false;
-                std::tie(iter, added) = ctx.context.renderPasses.emplace(
-                    pass, createPersistentRenderPassAndFramebuffer(ctx, pass));
-                CC_ENSURES(added);
-            }
-            ++iter->second.refCount;
-            const auto& data = iter->second;
+            auto &res = fetchOrCreateFramebuffer(ctx, pass);
+            ++res.refCount;
+            const auto& data = res;
             auto* cmdBuff = ctx.cmdBuff;
 
             cmdBuff->beginRenderPass(

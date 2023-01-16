@@ -162,7 +162,7 @@ void ResourceGraph::mount(gfx::Device* device, vertex_descriptor vertID) {
             buffer.fenceValue = nextFenceValue;
         },
         [&](ManagedTexture& texture) {
-            if (!texture.texture) {
+            if (!texture.texture || texture.texture->getWidth() != desc.width || texture.texture->getHeight() != desc.height) {
                 auto info = getTextureInfo(desc);
                 texture.texture = device->createTexture(info);
             }
