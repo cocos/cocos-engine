@@ -23,7 +23,7 @@
 */
 
 import { EDITOR } from 'internal:constants';
-import { Vec3, RecyclePool, Enum, System, cclegacy, Settings, settings, geometry, warn } from '../../core';
+import { Vec3, RecyclePool, Enum, System, cclegacy, Settings, settings, geometry, warn, IQuatLike, IVec3Like } from '../../core';
 import { IRaycastOptions } from '../spec/i-physics-world';
 import { director, Director, game } from '../../game';
 import { PhysicsMaterial } from './assets/physics-material';
@@ -33,6 +33,7 @@ import { CollisionMatrix } from './collision-matrix';
 import { PhysicsGroup } from './physics-enum';
 import { constructDefaultWorld, IWorldInitData, selector } from './physics-selector';
 import { assetManager, builtinResMgr } from '../../asset/asset-manager';
+import { Collider } from './components/colliders/collider';
 
 cclegacy.internal.PhysicsGroup = PhysicsGroup;
 
@@ -572,6 +573,26 @@ export class PhysicsSystem extends System implements IWorldInitData {
             }
         }
         return hit;
+    }
+
+    // sweepClosest (worldRay: geometry.Ray, collider: Collider, geometryRotation: IQuatLike,
+    //     mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true, inflation: number): boolean {
+    //     if (!this.physicsWorld) return false;
+    //     this.raycastOptions.mask = mask >>> 0;
+    //     this.raycastOptions.maxDistance = maxDistance;
+    //     this.raycastOptions.queryTrigger = queryTrigger;
+    //     const geometry = collider.shape?.impl().GetGeometry();//?
+    //     return this.physicsWorld.sweepClosest(worldRay, geometry, geometryRotation,
+    //         this.raycastOptions, inflation, this.raycastClosestResult);
+    // }
+
+    sweepBoxClosest (worldRay: geometry.Ray, halfExtent: IVec3Like, orientation: IQuatLike,
+        mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true, inflation: number): boolean {
+        if (!this.physicsWorld) return false;
+        this.raycastOptions.mask = mask >>> 0;
+        this.raycastOptions.maxDistance = maxDistance;
+        this.raycastOptions.queryTrigger = queryTrigger;
+        return this.physicsWorld.sweepBoxClosest(worldRay, halfExtent, orientation, this.raycastOptions, inflation, this.raycastClosestResult);
     }
 
     private _updateMaterial () {

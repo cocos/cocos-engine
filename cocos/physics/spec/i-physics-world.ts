@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { IVec3Like, RecyclePool, geometry } from '../../core';
+import { IVec3Like, RecyclePool, geometry, IQuatLike } from '../../core';
 import { PhysicsRayResult } from '../framework/physics-ray-result';
 import { PhysicsMaterial } from '../framework';
 
@@ -41,6 +41,10 @@ export interface IPhysicsWorld {
     step (fixedTimeStep: number, timeSinceLastCalled?: number, maxSubSteps?: number): void;
     raycast (worldRay: geometry.Ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean
     raycastClosest (worldRay: geometry.Ray, options: IRaycastOptions, out: PhysicsRayResult): boolean;
+    // sweepClosest (worldRay: geometry.Ray, geometry: any, geometryRotation: IQuatLike,
+    //     options: IRaycastOptions, inflation: number, result: PhysicsRayResult): boolean;
+    sweepBoxClosest (worldRay: geometry.Ray, halfExtent: IVec3Like, orientation: IQuatLike,
+        options: IRaycastOptions, inflation: number, result: PhysicsRayResult): boolean;
     emitEvents (): void;
     syncSceneToPhysics (): void;
     syncAfterEvents (): void;
