@@ -29,6 +29,7 @@ import { CurveRange } from '../curve-range';
 import { GradientRange } from '../gradient-range';
 import { Space, TextureMode, TrailMode } from '../enum';
 import { ParticleModule, ParticleUpdateStage } from '../particle-module';
+import { Enum } from '../../core';
 
 const PRE_TRIANGLE_INDEX = 1;
 const NEXT_TRIANGLE_INDEX = 1 << 2;
@@ -74,7 +75,7 @@ export class TrailModule extends ParticleModule {
         this._minParticleDistance = val;
     }
 
-    @type(Space)
+    @type(Enum(Space))
     @displayOrder(6)
     @tooltip('i18n:trailSegment.space')
     public get space () {

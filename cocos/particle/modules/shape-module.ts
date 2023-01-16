@@ -30,7 +30,6 @@ import { Mat4, Quat, Vec2, Vec3, clamp, pingPong, random, randomRange, repeat, t
 import { CurveRange } from '../curve-range';
 import { fixedAngleUnitVector2, particleEmitZAxis, randomPointBetweenCircleAtFixedAngle, randomPointBetweenSphere,
     randomPointInCube, randomSign, randomSortArray, randomUnitVector } from '../particle-general-function';
-import { ParticleSystem } from '../particle-system';
 import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
 import { ParticleUpdateContext } from '../particle-update-context';

@@ -109,6 +109,10 @@ export class ParticleSOAData {
     private _endTrailSegmentIndices = new Uint16Array(this._capacity);
     private _trailSegmentNumbers = new Uint16Array(this._capacity);
 
+    get capacity () {
+        return this._capacity;
+    }
+
     get count () {
         return this._count;
     }

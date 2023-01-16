@@ -94,11 +94,7 @@ export default class Gradient {
      */
     public mode = Mode.Blend;
 
-    private _color: Color;
-
-    constructor () {
-        this._color = Color.WHITE.clone();
-    }
+    private _color = Color.WHITE.clone();
 
     public setKeys (colorKeys: ColorKey[], alphaKeys: AlphaKey[]) {
         this.colorKeys = colorKeys;

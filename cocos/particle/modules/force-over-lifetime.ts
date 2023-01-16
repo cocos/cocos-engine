@@ -104,13 +104,13 @@ export class ForceOverLifetimeModule extends ParticleModule {
         if (needTransform) {
             switch (this.x.mode) {
             case CurveRange.Mode.Constant: {
+                const force = Vec3.set(_temp_v3,
+                    this.x.constant,
+                    this.y.constant,
+                    this.z.constant);
+                Vec3.transformQuat(force, force, this.rotation);
+                force.multiplyScalar(dt);
                 for (let i = 0; i < count; i++) {
-                    const force = Vec3.set(_temp_v3,
-                        this.x.constant,
-                        this.y.constant,
-                        this.z.constant);
-                    Vec3.transformQuat(force, force, this.rotation);
-                    force.multiplyScalar(dt);
                     particles.addVelocityAt(force, i);
                 }
                 break;
@@ -160,12 +160,12 @@ export class ForceOverLifetimeModule extends ParticleModule {
         } else {
             switch (this.x.mode) {
             case CurveRange.Mode.Constant: {
+                const force = Vec3.set(_temp_v3,
+                    this.x.constant,
+                    this.y.constant,
+                    this.z.constant);
+                force.multiplyScalar(dt);
                 for (let i = 0; i < count; i++) {
-                    const force = Vec3.set(_temp_v3,
-                        this.x.constant,
-                        this.y.constant,
-                        this.z.constant);
-                    force.multiplyScalar(dt);
                     particles.addVelocityAt(force, i);
                 }
                 break;

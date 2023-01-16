@@ -24,7 +24,7 @@
  */
 
 import { ccclass, tooltip, displayOrder, type, serializable, range, visible } from 'cc.decorator';
-import { pseudoRandom, Vec3 } from '../../core/math';
+import { lerp, pseudoRandom, Vec3 } from '../../core/math';
 import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { CurveRange } from '../curve-range';
 import { ModuleRandSeed } from '../enum';
@@ -99,20 +99,75 @@ export class SizeOverLifetimeModule extends ParticleModule {
         const { count, normalizedAliveTime, randomSeed } = particles;
         const size = new Vec3();
         if (!this.separateAxes) {
-            for (let i = 0; i < count; i++) {
-                particles.getStartSizeAt(size, i);
-                particles.setSizeAt(size.multiplyScalar(this.size.evaluate(normalizedAliveTime[i], pseudoRandom(randomSeed[i] + SIZE_OVERTIME_RAND_OFFSET))), i);
+            switch (this.size.mode) {
+            case CurveRange.Mode.Constant:
+                for (let i = 0; i < count; i++) {
+                    particles.getStartSizeAt(size, i);
+                    particles.setSizeAt(size.multiplyScalar(this.size.constant), i);
+                }
+                break;
+            case CurveRange.Mode.Curve:
+                for (let i = 0; i < count; i++) {
+                    particles.getStartSizeAt(size, i);
+                    particles.setSizeAt(size.multiplyScalar(this.size.spline.evaluate(normalizedAliveTime[i]) * this.size.multiplier), i);
+                }
+                break;
+            case CurveRange.Mode.TwoConstants:
+                for (let i = 0; i < count; i++) {
+                    particles.getStartSizeAt(size, i);
+                    particles.setSizeAt(size.multiplyScalar(lerp(this.size.constantMin, this.size.constantMax, pseudoRandom(randomSeed[i] + SIZE_OVERTIME_RAND_OFFSET))), i);
+                }
+                break;
+            case CurveRange.Mode.TwoCurves:
+                for (let i = 0; i < count; i++) {
+                    particles.getStartSizeAt(size, i);
+                    const currentLife = normalizedAliveTime[i];
+                    particles.setSizeAt(size.multiplyScalar(lerp(this.size.splineMin.evaluate(currentLife),
+                        this.size.splineMax.evaluate(currentLife),
+                        pseudoRandom(randomSeed[i] + SIZE_OVERTIME_RAND_OFFSET)) * this.size.multiplier), i);
+                }
+                break;
+            default:
             }
         } else {
-            for (let i = 0; i < count; i++) {
-                particles.getStartSizeAt(size, i);
-                const currentLife = normalizedAliveTime[i];
-                const sizeRand = pseudoRandom(randomSeed[i] + SIZE_OVERTIME_RAND_OFFSET);
-                particles.setSizeAt(size.multiply3f(
-                    this.x.evaluate(currentLife, sizeRand),
-                    this.y.evaluate(currentLife, sizeRand),
-                    this.z.evaluate(currentLife, sizeRand),
-                ), i);
+            switch (this.size.mode) {
+            case CurveRange.Mode.Constant:
+                for (let i = 0; i < count; i++) {
+                    particles.getStartSizeAt(size, i);
+                    particles.setSizeAt(size.multiply3f(this.x.constant, this.y.constant, this.z.constant), i);
+                }
+                break;
+            case CurveRange.Mode.Curve:
+                for (let i = 0; i < count; i++) {
+                    particles.getStartSizeAt(size, i);
+                    const currentLife = normalizedAliveTime[i];
+                    particles.setSizeAt(size.multiply3f(this.x.spline.evaluate(currentLife) * this.x.multiplier,
+                        this.y.spline.evaluate(currentLife) * this.y.multiplier,
+                        this.z.spline.evaluate(currentLife) * this.z.multiplier), i);
+                }
+                break;
+            case CurveRange.Mode.TwoConstants:
+                for (let i = 0; i < count; i++) {
+                    particles.getStartSizeAt(size, i);
+                    particles.setSizeAt(size.multiply3f(
+                        lerp(this.x.constantMin, this.x.constantMax, pseudoRandom(randomSeed[i] + SIZE_OVERTIME_RAND_OFFSET)),
+                        lerp(this.y.constantMin, this.y.constantMax, pseudoRandom(randomSeed[i] + SIZE_OVERTIME_RAND_OFFSET)),
+                        lerp(this.z.constantMin, this.z.constantMax, pseudoRandom(randomSeed[i] + SIZE_OVERTIME_RAND_OFFSET)),
+                    ), i);
+                }
+                break;
+            case CurveRange.Mode.TwoCurves:
+                for (let i = 0; i < count; i++) {
+                    particles.getStartSizeAt(size, i);
+                    const currentLife = normalizedAliveTime[i];
+                    particles.setSizeAt(size.multiply3f(
+                        lerp(this.x.splineMin.evaluate(currentLife), this.x.splineMax.evaluate(currentLife), pseudoRandom(randomSeed[i] + SIZE_OVERTIME_RAND_OFFSET)) * this.x.multiplier,
+                        lerp(this.y.splineMin.evaluate(currentLife), this.y.splineMax.evaluate(currentLife), pseudoRandom(randomSeed[i] + SIZE_OVERTIME_RAND_OFFSET)) * this.y.multiplier,
+                        lerp(this.z.splineMin.evaluate(currentLife), this.z.splineMax.evaluate(currentLife), pseudoRandom(randomSeed[i] + SIZE_OVERTIME_RAND_OFFSET)) * this.z.multiplier,
+                    ), i);
+                }
+                break;
+            default:
             }
         }
     }

@@ -51,12 +51,10 @@ import { Camera } from '../core/renderer/scene';
 import { GravityModule } from './modules/gravity';
 import { ParticleCuller } from './particle-culler';
 import { NoiseModule } from './modules/noise';
-import { CCBoolean, CCFloat, Component, geometry } from '../core';
+import { CCBoolean, CCFloat, Component, Enum, geometry } from '../core';
 import { INVALID_HANDLE, ParticleHandle, ParticleSOAData } from './particle-soa-data';
 import { ParticleModule, ParticleUpdateStage } from './particle-module';
-
-const _world_mat = new Mat4();
-const _world_rol = new Quat();
+import { particleSystemManager } from './particle-system-manager';
 
 enum PlayingState {
     STOPPED,
@@ -64,11 +62,11 @@ enum PlayingState {
     PAUSED,
 }
 
-@ccclass('cc.ParticleSystem')
+@ccclass('cc.ParticleEmitter')
 @help('i18n:cc.ParticleSystem')
-@menu('Effects/ParticleSystem')
+@menu('Effects/ParticleEmitter')
 @executionOrder(99)
-//@requireComponent(ParticleSystemRenderer)
+@requireComponent(ParticleSystemRenderer)
 @executeInEditMode
 export class ParticleSystem extends Component {
     public static CullingMode = CullingMode;
@@ -86,7 +84,7 @@ export class ParticleSystem extends Component {
         this._capacity = Math.floor(val > 0 ? val : 0);
     }
 
-    @type(Space)
+    @type(Enum(Space))
     @serializable
     @displayOrder(9)
     @tooltip('i18n:particle_system.scaleSpace')
@@ -134,8 +132,7 @@ export class ParticleSystem extends Component {
     /**
      * @zh 选择粒子系统所在的坐标系[[Space]]。<br>
      */
-    @type(Space)
-    @serializable
+    @type(Enum(Space))
     @displayOrder(4)
     @tooltip('i18n:particle_system.simulationSpace')
     get simulationSpace () {
@@ -166,7 +163,7 @@ export class ParticleSystem extends Component {
      * @en Particle culling mode option. Includes pause, pause and catchup, always simulate.
      * @zh 粒子剔除模式选择。包括暂停模拟，暂停以后快进继续以及不间断模拟。
      */
-    @type(CullingMode)
+    @type(Enum(CullingMode))
     @displayOrder(17)
     @tooltip('i18n:particle_system.cullingMode')
     get cullingMode () {
@@ -184,16 +181,14 @@ export class ParticleSystem extends Component {
         return this._boundingBoxHalfExtents;
     }
 
-    set boundingBoxExtent (val) {
+    set boundingBoxHalfExtents (val) {
         this._boundingBoxHalfExtents.set(val);
     }
 
-    @type(InitializationModule)
     public get initializationModule () {
         return this.getOrAddModule(InitializationModule);
     }
 
-    @type(EmissionModule)
     public get emissionModule () {
         return this.getOrAddModule(EmissionModule);
     }
@@ -201,9 +196,6 @@ export class ParticleSystem extends Component {
     /**
      * @zh 颜色控制模块。
      */
-    @type(ColorOverLifetimeModule)
-    @displayOrder(23)
-    @tooltip('i18n:particle_system.colorOverLifetimeModule')
     public get colorOverLifetimeModule () {
         return this.getOrAddModule(ColorOverLifetimeModule);
     }
@@ -211,9 +203,6 @@ export class ParticleSystem extends Component {
     /**
      * @zh 粒子发射器模块。
      */
-    @type(ShapeModule)
-    @displayOrder(17)
-    @tooltip('i18n:particle_system.shapeModule')
     public get shapeModule () {
         return this.getOrAddModule(ShapeModule);
     }
@@ -221,9 +210,6 @@ export class ParticleSystem extends Component {
     /**
      * @zh 粒子大小模块。
      */
-    @type(SizeOverLifetimeModule)
-    @displayOrder(21)
-    @tooltip('i18n:particle_system.sizeOvertimeModule')
     public get sizeOverLifetimeModule () {
         return this.getOrAddModule(SizeOverLifetimeModule);
     }
@@ -231,9 +217,6 @@ export class ParticleSystem extends Component {
     /**
      * @zh 粒子速度模块。
      */
-    @type(VelocityOverLifetimeModule)
-    @displayOrder(18)
-    @tooltip('i18n:particle_system.velocityOvertimeModule')
     public get velocityOverLifetimeModule () {
         return this.getOrAddModule(VelocityOverLifetimeModule);
     }
@@ -241,9 +224,6 @@ export class ParticleSystem extends Component {
     /**
      * @zh 粒子加速度模块。
      */
-    @type(ForceOverLifetimeModule)
-    @displayOrder(19)
-    @tooltip('i18n:particle_system.forceOvertimeModule')
     public get forceOverLifetimeModule () {
         return this.getOrAddModule(ForceOverLifetimeModule);
     }
@@ -251,9 +231,6 @@ export class ParticleSystem extends Component {
     /**
      * @zh 粒子限制速度模块（只支持 CPU 粒子）。
      */
-    @type(LimitVelocityOverLifetimeModule)
-    @displayOrder(20)
-    @tooltip('i18n:particle_system.limitVelocityOvertimeModule')
     public get limitVelocityOverLifetimeModule () {
         return this.getOrAddModule(LimitVelocityOverLifetimeModule);
     }
@@ -261,9 +238,6 @@ export class ParticleSystem extends Component {
     /**
      * @zh 粒子旋转模块。
      */
-    @type(RotationOverLifetimeModule)
-    @displayOrder(22)
-    @tooltip('i18n:particle_system.rotationOvertimeModule')
     public get rotationOverLifetimeModule () {
         return this.getOrAddModule(RotationOverLifetimeModule);
     }
@@ -271,15 +245,10 @@ export class ParticleSystem extends Component {
     /**
      * @zh 贴图动画模块。
      */
-    @type(TextureAnimationModule)
-    @displayOrder(24)
-    @tooltip('i18n:particle_system.textureAnimationModule')
     public get textureAnimationModule () {
         return this.getOrAddModule(TextureAnimationModule);
     }
 
-    @type(NoiseModule)
-    @displayOrder(24)
     public get noiseModule () {
         return this.getOrAddModule(NoiseModule);
     }
@@ -287,9 +256,6 @@ export class ParticleSystem extends Component {
     /**
      * @zh 粒子轨迹模块。
      */
-    @type(TrailModule)
-    @displayOrder(25)
-    @tooltip('i18n:particle_system.trailModule')
     public get trailModule () {
         return this.getOrAddModule(TrailModule);
     }
@@ -298,12 +264,14 @@ export class ParticleSystem extends Component {
         return this._particles;
     }
 
-    // @type(ParticleSystemRenderer)
-    // @displayOrder(26)
-    // @tooltip('i18n:particle_system.renderer')
-    // public get renderer () {
-    //     return this.getComponent(ParticleSystemRenderer) as ParticleSystemRenderer;
-    // }
+    public get renderer () {
+        return this.getComponent(ParticleSystemRenderer);
+    }
+
+    @type([ParticleModule])
+    public get particleModules (): ReadonlyArray<ParticleModule> {
+        return this._particleModules;
+    }
 
     @serializable
     private _particleModules: ParticleModule[] = [];
@@ -388,6 +356,7 @@ export class ParticleSystem extends Component {
 
         this._particleUpdateContext.currentPosition.set(this.node.worldPosition);
         this._particleUpdateContext.emitterDelayRemaining = this._particleUpdateContext.emitterStartDelay = this.startDelay.evaluate(0, 1);
+        particleSystemManager.addParticleSystem(this);
     }
 
     /**
@@ -418,6 +387,7 @@ export class ParticleSystem extends Component {
         if (this.isPlaying || this.isPaused) {
             this.clear();
         }
+        particleSystemManager.removeParticleSystem(this);
         this._isEmitting = false;
         this._time = 0.0;
 
@@ -443,9 +413,17 @@ export class ParticleSystem extends Component {
         if (this.playOnAwake && (!EDITOR || legacyCC.GAME_VIEW)) {
             this.play();
         }
+        const renderer = this.getComponent(ParticleSystemRenderer);
+        if (renderer) {
+            renderer.setParticleSystem(this);
+        }
     }
 
     protected onDisable () {
+        const renderer = this.getComponent(ParticleSystemRenderer);
+        if (renderer) {
+            renderer.setParticleSystem(null);
+        }
         this.stop();
     }
 
@@ -591,12 +569,15 @@ export class ParticleSystem extends Component {
         }
         const velocity = new Vec3();
         const animatedVelocity = new Vec3();
-        const angularVelocity = new Vec3();
         for (let particleHandle = 0; particleHandle < particles.count; particleHandle++) {
             particles.getVelocityAt(velocity, particleHandle);
             particles.getAnimatedVelocityAt(animatedVelocity, particleHandle);
             velocity.add(animatedVelocity);
             particles.addPositionAt(velocity.multiplyScalar(deltaTime), particleHandle);
+        }
+
+        const angularVelocity = new Vec3();
+        for (let particleHandle = 0; particleHandle < particles.count; particleHandle++) {
             particles.getAngularVelocityAt(angularVelocity, particleHandle);
             particles.addRotationAt(angularVelocity.multiplyScalar(deltaTime), particleHandle);
         }
