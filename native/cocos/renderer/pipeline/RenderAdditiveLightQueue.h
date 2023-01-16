@@ -95,9 +95,9 @@ private:
     // weak reference
     ccstd::vector<const scene::Light *> _validPunctualLights;
 
-    ccstd::vector<IntrusivePtr<RenderInstancedQueue>> _instancedQueue;
+    ccstd::vector<IntrusivePtr<RenderInstancedQueue>> _instancedQueues;
 
-    ccstd::vector<IntrusivePtr<RenderBatchedQueue>> _batchedQueue;
+    ccstd::vector<IntrusivePtr<RenderBatchedQueue>> _batchedQueues;
 
     ccstd::vector<AdditiveLightPass> _lightPasses;
 
