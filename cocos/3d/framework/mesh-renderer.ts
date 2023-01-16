@@ -671,6 +671,7 @@ export class MeshRenderer extends ModelRenderer {
         this.bakeSettings.uvParam.w = lum;
 
         this._onUpdateLightingmap();
+        this._updateReceiveDirLight();
     }
 
     public updateProbeCubemap (cubeMap: TextureCube | null, useDefaultTexture?: boolean) {
