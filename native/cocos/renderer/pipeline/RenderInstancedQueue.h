@@ -43,7 +43,7 @@ namespace pipeline {
 
 class InstancedBuffer;
 
-class CC_DLL RenderInstancedQueue final {
+class CC_DLL RenderInstancedQueue final : public RefCounted {
 public:
     RenderInstancedQueue() = default;
     ~RenderInstancedQueue() = default;

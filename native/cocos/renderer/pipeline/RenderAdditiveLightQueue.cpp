@@ -47,9 +47,7 @@
 namespace cc {
 namespace pipeline {
 
-RenderAdditiveLightQueue::RenderAdditiveLightQueue(RenderPipeline *pipeline) : _pipeline(pipeline),
-                                                                               _instancedQueue(ccnew RenderInstancedQueue),
-                                                                               _batchedQueue(ccnew RenderBatchedQueue) {
+RenderAdditiveLightQueue::RenderAdditiveLightQueue(RenderPipeline *pipeline) : _pipeline(pipeline) {
     auto *device = gfx::Device::getInstance();
     const auto alignment = device->getCapabilities().uboOffsetAlignment;
     _lightBufferStride = ((UBOForwardLight::SIZE + alignment - 1) / alignment) * alignment;
@@ -67,25 +65,20 @@ RenderAdditiveLightQueue::RenderAdditiveLightQueue(RenderPipeline *pipeline) : _
     _shadowUBO.fill(0.F);
 }
 
-RenderAdditiveLightQueue ::~RenderAdditiveLightQueue() {
-    CC_SAFE_DELETE(_instancedQueue);
-    CC_SAFE_DELETE(_batchedQueue);
-}
-
 void RenderAdditiveLightQueue::recordCommandBuffer(gfx::Device *device, scene::Camera *camera, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer) {
     const uint32_t offset = _pipeline->getPipelineUBO()->getCurrentCameraUBOOffset();
-    for (uint32_t i = 0; i < _instancedLightPass.lights.size(); ++i) {
+    for (uint32_t i = 0; i < _instancedQueue.size(); ++i) {
         const auto *light = _instancedLightPass.lights[i];
         _dynamicOffsets[0] = _instancedLightPass.dynamicOffsets[i];
         auto *globalDescriptorSet = _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(light);
-        _instancedQueue->recordCommandBuffer(device, renderPass, cmdBuffer, globalDescriptorSet, offset, &_dynamicOffsets);
+        _instancedQueue[i]->recordCommandBuffer(device, renderPass, cmdBuffer, globalDescriptorSet, offset, &_dynamicOffsets);
     }
 
-    for (size_t i = 0; i < _batchedLightPass.lights.size(); ++i) {
+    for (size_t i = 0; i < _batchedQueue.size(); ++i) {
         const auto *light = _batchedLightPass.lights[i];
         _dynamicOffsets[0] = _batchedLightPass.dynamicOffsets[i];
         auto *globalDescriptorSet = _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(light);
-        _batchedQueue->recordCommandBuffer(device, renderPass, cmdBuffer, globalDescriptorSet, offset, &_dynamicOffsets);
+        _batchedQueue[i]->recordCommandBuffer(device, renderPass, cmdBuffer, globalDescriptorSet, offset, &_dynamicOffsets);
     }
 
     const bool enableOcclusionQuery = _pipeline->isOcclusionQueryEnabled();
@@ -166,13 +159,23 @@ void RenderAdditiveLightQueue::gatherLightPasses(const scene::Camera *camera, gf
         _batchedLightPass.lights.emplace_back(light);
         _batchedLightPass.dynamicOffsets.emplace_back(_lightBufferStride * l);
     }
-    _instancedQueue->uploadBuffers(cmdBuffer);
-    _batchedQueue->uploadBuffers(cmdBuffer);
+    for (auto instancedQueue : _instancedQueue) {
+        instancedQueue->uploadBuffers(cmdBuffer);
+    }
+    for (auto batchedQueue : _batchedQueue) {
+        batchedQueue->uploadBuffers(cmdBuffer);
+    }
 }
 
 void RenderAdditiveLightQueue::clear() {
-    _instancedQueue->clear();
-    _batchedQueue->clear();
+    for (auto instancedQueue : _instancedQueue) {
+        instancedQueue->clear();
+    }
+    _instancedQueue.clear();
+    for (auto batchedQueue : _batchedQueue) {
+        batchedQueue->clear();
+    }
+    _batchedQueue.clear();
 
     for (auto lightPass : _lightPasses) {
         lightPass.dynamicOffsets.clear();
@@ -217,13 +220,19 @@ void RenderAdditiveLightQueue::addRenderQueue(scene::SubModel *subModel, const s
                     auto *buffer = pass->getInstancedBuffer(i);
                     buffer->merge(subModel, lightPassIdx);
                     buffer->setDynamicOffset(0, _lightBufferStride);
-                    _instancedQueue->add(buffer);
+                    if (i >= _instancedQueue.size()) {
+                        _instancedQueue.emplace_back(ccnew RenderInstancedQueue());
+                    }
+                    _instancedQueue[i]->add(buffer);
                 } break;
                 case scene::BatchingSchemes::VB_MERGING: {
                     auto *buffer = pass->getBatchedBuffer(i);
                     buffer->merge(subModel, lightPassIdx, model);
                     buffer->setDynamicOffset(0, _lightBufferStride);
-                    _batchedQueue->add(buffer);
+                    if (i >= _batchedQueue.size()) {
+                        _batchedQueue.emplace_back(ccnew RenderBatchedQueue());
+                    }
+                    _batchedQueue[i]->add(buffer);
                 } break;
                 case scene::BatchingSchemes::NONE: {
                     lightPass.lights.emplace_back(light);
