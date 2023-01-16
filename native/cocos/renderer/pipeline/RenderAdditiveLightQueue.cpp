@@ -159,20 +159,20 @@ void RenderAdditiveLightQueue::gatherLightPasses(const scene::Camera *camera, gf
         _batchedLightPass.lights.emplace_back(light);
         _batchedLightPass.dynamicOffsets.emplace_back(_lightBufferStride * l);
     }
-    for (const auto instancedQueue : _instancedQueues) {
+    for (const auto &instancedQueue : _instancedQueues) {
         instancedQueue->uploadBuffers(cmdBuffer);
     }
-    for (const auto batchedQueue : _batchedQueues) {
+    for (const auto &batchedQueue : _batchedQueues) {
         batchedQueue->uploadBuffers(cmdBuffer);
     }
 }
 
 void RenderAdditiveLightQueue::clear() {
-    for (const auto instancedQueue : _instancedQueues) {
+    for (const auto &instancedQueue : _instancedQueues) {
         instancedQueue->clear();
     }
     _instancedQueues.clear();
-    for (const auto batchedQueue : _batchedQueues) {
+    for (const auto &batchedQueue : _batchedQueues) {
         batchedQueue->clear();
     }
     _batchedQueues.clear();
