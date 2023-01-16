@@ -587,12 +587,13 @@ export class PhysicsSystem extends System implements IWorldInitData {
     // }
 
     sweepBoxClosest (worldRay: geometry.Ray, halfExtent: IVec3Like, orientation: IQuatLike,
-        mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true, inflation: number): boolean {
+        mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true, inflation = 0): boolean {
         if (!this.physicsWorld) return false;
         this.raycastOptions.mask = mask >>> 0;
         this.raycastOptions.maxDistance = maxDistance;
         this.raycastOptions.queryTrigger = queryTrigger;
-        return this.physicsWorld.sweepBoxClosest(worldRay, halfExtent, orientation, this.raycastOptions, inflation, this.raycastClosestResult);
+        return this.physicsWorld.sweepBoxClosest(worldRay, halfExtent, orientation,
+            this.raycastOptions, inflation, this.raycastClosestResult);
     }
 
     private _updateMaterial () {

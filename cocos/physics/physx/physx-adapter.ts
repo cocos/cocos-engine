@@ -570,8 +570,8 @@ export function sweepClosest (world: PhysXWorld, worldRay: geometry.Ray, geometr
     const queryFilterCB = PhysXInstance.queryFilterCB;
 
     const block = PhysXInstance.singleSweepResult;
-    const r = world.scene.sweep(geometry, getTempTransform(worldRay.o, geometryRotation), worldRay.d, maxDistance, flags,
-        block, queryfilterData, queryFilterCB, null, inflation);
+    const r = world.scene.sweep(geometry, getTempTransform(worldRay.o, geometryRotation), worldRay.d, maxDistance,
+        block, flags, queryfilterData, queryFilterCB, null, 0);
     if (r) {
         const collider = getWrapShape<PhysXShape>(block.getShape()).collider;
         result._assign(block.position, block.distance, collider, block.normal);

@@ -1,4 +1,4 @@
-import { geometry, Vec3 } from "../../cocos/core";
+import { geometry, Quat, Vec3 } from "../../cocos/core";
 import { physics } from "../../exports/physics-framework";
 import { Node } from "../../cocos/scene-graph";
 import { director } from "../../cocos/game";
@@ -83,6 +83,11 @@ export default function (parent: Node) {
     expect(Vec3.equals(hitClosest.hitPoint, ray_t.o, 0.001)).toBe(true);
     expect(Vec3.equals(hitClosest.hitNormal, physics.PhysicsSystem.PHYSICS_BUILTIN ? Vec3.ZERO : Vec3.FORWARD)).toBe(true);
     
+    const hitClosest1 = physics.PhysicsSystem.instance.raycastClosestResult;
+    isHit = physics.PhysicsSystem.instance.sweepBoxClosest(ray_t, new Vec3(2,2,2), new Quat(), -1);
+    expect(isHit).toBe(true);
+    expect(hitClosest1.collider.uuid).toBe(box.uuid);
+
     parent.destroyAllChildren();
     parent.removeAllChildren();
 }

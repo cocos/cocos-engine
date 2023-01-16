@@ -59,7 +59,7 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
 
     private _isNeedFetch = false;
 
-    private static _sweepBoxGeometry: any = new PX.BoxGeometry(VEC3_0);
+    private static _sweepBoxGeometry: any;
 
     constructor () {
         super();
@@ -185,6 +185,9 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
 
     sweepBoxClosest (worldRay: geometry.Ray, halfExtent: IVec3Like, orientation: IQuatLike,
         options: IRaycastOptions, inflation: number, result: PhysicsRayResult): boolean {
+        if (!PhysXWorld._sweepBoxGeometry) {
+            PhysXWorld._sweepBoxGeometry = new PX.BoxGeometry(halfExtent);
+        }
         PhysXWorld._sweepBoxGeometry.setHalfExtents(halfExtent);
         return sweepClosest(this, worldRay, PhysXWorld._sweepBoxGeometry, orientation, options, inflation, result);
     }
