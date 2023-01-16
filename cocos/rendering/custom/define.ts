@@ -545,6 +545,7 @@ export function buildForwardPass (camera: Camera,
     }
     if (!isOffScreen) {
         ppl.updateRenderWindow(forwardPassRTName, camera.window);
+        ppl.updateDepthStencil(forwardPassDSName, width, height);
     } else {
         ppl.updateRenderTarget(forwardPassRTName, width, height);
         ppl.updateDepthStencil(forwardPassDSName, width, height);
