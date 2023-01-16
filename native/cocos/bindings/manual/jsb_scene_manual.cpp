@@ -265,6 +265,14 @@ static void registerLocalPositionRotationScaleUpdated(cc::Node *node, se::Object
         });
 }
 
+static void registerOnLightProbeBakingChanged(cc::Node *node, se::Object *jsObject) {
+    node->on<cc::Node::LightProbeBakingChanged>(
+        [jsObject](cc::Node * /*emitter*/) {
+            se::AutoHandleScope hs;
+            se::ScriptEngine::getInstance()->callFunction(jsObject, "_onLightProbeBakingChanged", 0, nullptr);
+        });
+}
+
 static bool js_scene_Node_registerListeners(se::State &s) // NOLINT(readability-identifier-naming)
 {
     auto *cobj = SE_THIS_OBJECT<cc::Node>(s);
@@ -404,6 +412,18 @@ static bool js_scene_Node_registerOnSiblingOrderChanged(se::State &s) // NOLINT(
     return true;
 }
 SE_BIND_FUNC(js_scene_Node_registerOnSiblingOrderChanged) // NOLINT(readability-identifier-naming)
+
+static bool js_scene_Node_registerOnLightProbeBakingChanged(se::State &s) // NOLINT(readability-identifier-naming)
+{
+    auto *cobj = SE_THIS_OBJECT<cc::Node>(s);
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+
+    auto *jsObject = s.thisObject();
+
+    registerOnLightProbeBakingChanged(cobj, jsObject);
+    return true;
+}
+SE_BIND_FUNC(js_scene_Node_registerOnLightProbeBakingChanged) // NOLINT(readability-identifier-naming)
 
 static bool js_scene_Camera_screenPointToRay(void *nativeObject) // NOLINT(readability-identifier-naming)
 {
@@ -828,6 +848,7 @@ bool register_all_scene_manual(se::Object *obj) // NOLINT(readability-identifier
     __jsb_cc_Node_proto->defineFunction("_registerOnChildRemoved", _SE(js_scene_Node_registerOnChildRemoved));
     __jsb_cc_Node_proto->defineFunction("_registerOnChildAdded", _SE(js_scene_Node_registerOnChildAdded));
     __jsb_cc_Node_proto->defineFunction("_registerOnSiblingOrderChanged", _SE(js_scene_Node_registerOnSiblingOrderChanged));
+    __jsb_cc_Node_proto->defineFunction("_registerOnLightProbeBakingChanged", _SE(js_scene_Node_registerOnLightProbeBakingChanged));
 
     se::Value jsbVal;
     obj->getProperty("jsb", &jsbVal);

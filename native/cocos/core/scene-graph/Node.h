@@ -91,6 +91,7 @@ class Node : public CCObject {
     TARGET_EVENT_ARG3(LocalScaleUpdated, float, float, float)
     TARGET_EVENT_ARG10(LocalRTSUpdated, float, float, float, float, float, float, float, float, float, float)
     TARGET_EVENT_ARG1(EditorAttached, bool)
+    TARGET_EVENT_ARG0(LightProbeBakingChanged)
     DECLARE_TARGET_EVENT_END()
 public:
     class UserData : public RefCounted {

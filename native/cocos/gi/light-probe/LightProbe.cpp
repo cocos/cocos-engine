@@ -26,6 +26,7 @@
 #include "LightProbe.h"
 #include "PolynomialSolver.h"
 #include "core/Root.h"
+#include "core/scene-graph/Node.h"
 #include "core/scene-graph/Scene.h"
 #include "math/Math.h"
 #include "math/Utils.h"
@@ -205,6 +206,15 @@ void LightProbeInfo::activate(Scene *scene, LightProbes *resource) {
     _resource->initialize(this);
 }
 
+void LightProbeInfo::onProbeBakeFinished() {
+    onProbeBakingChanged(_scene);
+}
+
+void LightProbeInfo::onProbeBakeCleared() {
+    clearSHCoefficients();
+    onProbeBakingChanged(_scene);
+}
+
 void LightProbeInfo::clearSHCoefficients() {
     if (!_data) {
         return;
@@ -290,6 +300,20 @@ void LightProbeInfo::update(bool updateTet) {
     if (updateTet) {
         resetAllTetraIndices();
         _data->updateTetrahedrons();
+    }
+}
+
+void LightProbeInfo::onProbeBakingChanged(Node *node) {
+    if (!node) {
+        return;
+    }
+
+    node->emit<Node::LightProbeBakingChanged>();
+
+    const auto &children = node->getChildren();
+    for (auto i = 0; i < children.size(); i++) {
+        const auto child = children[i];
+        onProbeBakingChanged(child);
     }
 }
 
