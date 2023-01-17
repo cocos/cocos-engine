@@ -27,7 +27,8 @@ import {
     CommandBufferInfo, BufferInfo, BufferViewInfo, TextureInfo, TextureViewInfo, SamplerInfo, DescriptorSetInfo,
     ShaderInfo, InputAssemblerInfo, RenderPassInfo, FramebufferInfo, DescriptorSetLayoutInfo, PipelineLayoutInfo,
     QueueInfo, BufferTextureCopy, DeviceInfo, DeviceCaps, GeneralBarrierInfo, TextureBarrierInfo, BufferBarrierInfo,
-    SwapchainInfo, BindingMappingInfo, Format, FormatFeature, TextureType, TextureUsageBit, TextureFlagBit, Offset, Extent, SampleCount, TextureSubresLayers,
+    SwapchainInfo, BindingMappingInfo, Format, FormatFeature, TextureType, TextureUsageBit,
+    TextureFlagBit, Offset, Extent, SampleCount, TextureSubresLayers,
 } from './define';
 import { Buffer } from './buffer';
 import { CommandBuffer } from './command-buffer';
@@ -354,11 +355,10 @@ export abstract class Device {
 }
 
 export class DefaultResource {
-    private _texture2D : Texture | null = null;
-    private _texture3D : Texture | null = null;
-    private _textureCube : Texture | null = null;
-    private _texture1DArray : Texture | null = null;
-    private _texture2DArray : Texture | null = null;
+    private _texture2D: Texture | null = null;
+    private _texture3D: Texture | null = null;
+    private _textureCube: Texture | null = null;
+    private _texture2DArray: Texture | null = null;
 
     constructor (device: Device) {
         const bufferSize = 64;
@@ -413,20 +413,6 @@ export class DefaultResource {
             device.copyBuffersToTexture([buffer], this._texture3D, [copyRegion]);
         }
         if (device.capabilities.maxArrayTextureLayers >= 2) {
-            this._texture1DArray = device.createTexture(new TextureInfo(
-                TextureType.TEX1D_ARRAY,
-                TextureUsageBit.STORAGE | TextureUsageBit.SAMPLED,
-                Format.RGBA8,
-                1, 1,
-                TextureFlagBit.NONE,
-                2,
-            ));
-            const copyRegion = new BufferTextureCopy(0, 0, 0, new Offset(0, 0, 0), new Extent(1, 1, 1), new TextureSubresLayers(0, 0, 1));
-            device.copyBuffersToTexture([buffer], this._texture1DArray, [copyRegion]);
-            copyRegion.texSubres.baseArrayLayer = 1;
-            device.copyBuffersToTexture([buffer], this._texture1DArray, [copyRegion]);
-        }
-        if (device.capabilities.maxArrayTextureLayers >= 2) {
             this._texture2DArray = device.createTexture(new TextureInfo(
                 TextureType.TEX2D_ARRAY,
                 TextureUsageBit.STORAGE | TextureUsageBit.SAMPLED,
@@ -442,12 +428,11 @@ export class DefaultResource {
         }
     }
 
-    public getTexture (type : TextureType) {
+    public getTexture (type: TextureType) {
         switch (type) {
         case TextureType.TEX2D: return this._texture2D;
         case TextureType.TEX3D: return this._texture3D;
         case TextureType.CUBE: return this._textureCube;
-        case TextureType.TEX1D_ARRAY: return this._texture1DArray;
         case TextureType.TEX2D_ARRAY: return this._texture2DArray;
         default: return null;
         }
