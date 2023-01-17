@@ -2,18 +2,12 @@
     "files.exclude": {
         ".git": true,
         "node_modules": true,
-        "**/.vscode/ShaderCompilerIDE": true,
-        "**/library": true,
     },
     "search.exclude": {
         ".git": true,
         "node_modules": true,
         ".github": true,
-        "bin": true,
-        "**/.vscode/ShaderCompilerIDE": true,
-        "**/library": true,
-        "**/builtin-glsl?.ts": true,
-        "**/builtin-effects.ts": true,
+        "bin": true
     },
     "typescript.preferences.importModuleSpecifier": "relative",
     "typescript.tsdk": "node_modules/typescript/lib",
@@ -24,4 +18,8 @@
     "editor.codeActionsOnSave": {
         "source.fixAll": true,
     },
+    "files.associations": {
+        "iterator": "cpp"
+    },
+    "cmake.configureOnOpen": false,
 }
