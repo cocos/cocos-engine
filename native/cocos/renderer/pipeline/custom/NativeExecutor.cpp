@@ -264,7 +264,7 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
     return data;
 }
 
-PersistentRenderPassAndFramebuffer &fetchOrCreateFramebuffer(RenderGraphVisitorContext& ctx, const RasterPass& pass) {
+PersistentRenderPassAndFramebuffer& fetchOrCreateFramebuffer(RenderGraphVisitorContext& ctx, const RasterPass& pass) {
     auto iter = ctx.context.renderPasses.find(pass);
     if (iter == ctx.context.renderPasses.end()) {
         bool added = false;
@@ -821,7 +821,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         const auto& layoutName = get(RenderGraph::Layout, ctx.g, vertID);
         const auto& layoutID = locate(LayoutGraphData::null_vertex(), layoutName, ctx.lg);
         {
-            auto &res = fetchOrCreateFramebuffer(ctx, pass);
+            auto& res = fetchOrCreateFramebuffer(ctx, pass);
             ++res.refCount;
             const auto& data = res;
             auto* cmdBuff = ctx.cmdBuff;
@@ -1373,11 +1373,12 @@ void extendResourceLifetime(const NativeRenderQueue& queue, ResourceGroup& group
 }
 
 void buildRenderQueues(
+    const pipeline::PipelineSceneData& sceneData,
     NativeRenderContext& context,
     ccstd::pmr::unordered_map<
         const scene::RenderScene*,
         ccstd::pmr::unordered_map<scene::Camera*, NativeRenderQueue>>& sceneQueues) {
-    const scene::Skybox* skyBox = nullptr;
+    const scene::Skybox* skybox = sceneData.getSkybox();
 
     auto& group = context.resourceGroups[context.nextFenceValue];
 
@@ -1388,8 +1389,25 @@ void buildRenderQueues(
             if (!camera->isCullingEnabled()) {
                 continue;
             }
+
+            // skybox
+            if (skybox && skybox->isEnabled() &&
+                (static_cast<int32_t>(camera->getClearFlag()) & scene::Camera::SKYBOX_FLAG)) {
+                CC_EXPECTS(skybox->getModel());
+                const auto& model = *skybox->getModel();
+                const auto* node = model.getNode();
+                float depth = 0;
+                if (node) {
+                    Vec3 tempVec3{};
+                    tempVec3 = node->getWorldPosition() - camera->getPosition();
+                    depth = tempVec3.dot(camera->getForward());
+                }
+                queue.opaqueQueue.add(model, depth, 0, 0);
+            }
+
+            // culling
             if (octree && octree->isEnabled()) {
-                octreeCulling(octree, scene, skyBox, *camera, queue);
+                octreeCulling(octree, scene, skybox, *camera, queue);
             } else {
                 frustumCulling(scene, *camera, queue);
             }
@@ -1442,7 +1460,7 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
         sceneQueues(scratch);
     {
         mergeSceneFlags(rg, sceneQueues);
-        buildRenderQueues(ppl.nativeContext, sceneQueues);
+        buildRenderQueues(*ppl.getPipelineSceneData(), ppl.nativeContext, sceneQueues);
     }
 
     // Execute all valid passes
