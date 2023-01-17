@@ -875,17 +875,19 @@ void overwriteShaderSourceBinding(
                 // layout not found
                 layoutBeg = ccstd::string::npos;
                 CC_ENSURES(layoutBeg == ccstd::string::npos);
+                CC_ENSURES(layoutEnd == ccstd::string::npos);
             } else {
                 CC_EXPECTS(layoutBeg >= beg && layoutBeg <= end);
                 layoutEnd = source.find(')', layoutBeg) + 1;
                 CC_EXPECTS(layoutEnd != ccstd::string::npos);
                 CC_ENSURES(layoutBeg < layoutEnd && layoutEnd <= end);
                 prevLayout = std::string_view(source.c_str() + layoutBeg, layoutEnd - layoutBeg);
+
+                // check layout expression is within uniform declaration
+                // prev layout expression is from layoutBeg to layoutEnd
+                CC_ENSURES(layoutBeg >= beg && layoutBeg <= end);
+                CC_ENSURES(layoutEnd >= layoutBeg && layoutEnd <= end);
             }
-            // check layout expression is within uniform declaration
-            // prev layout expression is from layoutBeg to layoutEnd
-            CC_ENSURES(layoutBeg >= beg && layoutBeg <= end);
-            CC_ENSURES(layoutEnd >= layoutBeg && layoutEnd <= end);
 
             // find uniform set and binding
             auto [set, binding] = findBinding(shaderInfo, name);
