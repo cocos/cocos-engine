@@ -53,6 +53,7 @@
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/gfx-base/GFXDescriptorSetLayout.h"
 #include "cocos/renderer/gfx-base/GFXDevice.h"
+#include "cocos/renderer/gfx-base/GFXInputAssembler.h"
 #include "cocos/renderer/gfx-base/GFXSwapchain.h"
 #include "cocos/renderer/gfx-base/states/GFXSampler.h"
 #include "cocos/renderer/pipeline/Enum.h"
@@ -521,6 +522,60 @@ bool NativePipeline::activate(gfx::Swapchain *swapchainIn) {
             node.perPassDescriptorSetPool.init(device, set.descriptorSetLayout);
         }
     }
+
+    // create ia
+    {
+        CC_EXPECTS(device);
+        const auto vbStride = sizeof(float) * 4; // 4 float per vertex
+        const auto vbSize = vbStride * 4;        // 4 vertices
+        IntrusivePtr<gfx::Buffer> quadVB = device->createBuffer(gfx::BufferInfo{
+            gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
+            gfx::MemoryUsageBit::DEVICE | gfx::MemoryUsageBit::HOST,
+            vbSize,
+            vbStride});
+
+        CC_ENSURES(quadVB);
+
+        // create index buffer
+        const auto ibStride = sizeof(uint16_t);
+        const auto ibSize = ibStride * 6;
+
+        IntrusivePtr<gfx::Buffer> quadIB = device->createBuffer(gfx::BufferInfo{
+            gfx::BufferUsageBit::INDEX | gfx::BufferUsageBit::TRANSFER_DST,
+            gfx::MemoryUsageBit::DEVICE,
+            ibSize,
+            ibStride});
+
+        CC_ENSURES(quadIB);
+
+        ccstd::vector<uint16_t> indices(6);
+        indices[0] = 0;
+        indices[1] = 1;
+        indices[2] = 2;
+        indices[3] = 1;
+        indices[4] = 3;
+        indices[5] = 2;
+
+        quadIB->update(indices.data(), indices.size() * sizeof(decltype(indices)::value_type));
+
+        // create input assembler
+        ccstd::vector<gfx::Attribute> attributes;
+        attributes.reserve(2);
+        attributes.emplace_back(gfx::Attribute{"a_position", gfx::Format::RG32F});
+        attributes.emplace_back(gfx::Attribute{"a_texCoord", gfx::Format::RG32F});
+
+        ccstd::vector<gfx::Buffer *> buffers;
+        buffers.emplace_back(quadVB.get());
+
+        IntrusivePtr<gfx::InputAssembler> quadIA = device->createInputAssembler(
+            gfx::InputAssemblerInfo{attributes, buffers, quadIB});
+
+        CC_ENSURES(quadIA);
+        nativeContext.fullscreedQuad.quadIB = quadIB;
+        nativeContext.fullscreedQuad.quadVB = quadVB;
+        nativeContext.fullscreedQuad.quadIA = quadIA;
+    }
+
     return true;
 }
 

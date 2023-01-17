@@ -495,6 +495,19 @@ struct LayoutGraphNodeResource {
 
     PmrFlatMap<NameLocalID, UniformBlockResource> uniformBuffers;
     DescriptorSetPool perPassDescriptorSetPool;
+    PmrTransparentMap<ccstd::pmr::string, DescriptorSetPool> programDescriptorSetPool;
+};
+
+struct QuadResource {
+    QuadResource() = default;
+    QuadResource(IntrusivePtr<gfx::Buffer> quadVBIn, IntrusivePtr<gfx::Buffer> quadIBIn, IntrusivePtr<gfx::InputAssembler> quadIAIn) noexcept // NOLINT
+    : quadVB(std::move(quadVBIn)),
+      quadIB(std::move(quadIBIn)),
+      quadIA(std::move(quadIAIn)) {}
+
+    IntrusivePtr<gfx::Buffer> quadVB;
+    IntrusivePtr<gfx::Buffer> quadIB;
+    IntrusivePtr<gfx::InputAssembler> quadIA;
 };
 
 struct NativeRenderContext {
@@ -515,6 +528,7 @@ struct NativeRenderContext {
     ccstd::pmr::unordered_map<RasterPass, PersistentRenderPassAndFramebuffer> renderPasses;
     ccstd::pmr::map<uint64_t, ResourceGroup> resourceGroups;
     ccstd::pmr::vector<LayoutGraphNodeResource> layoutGraphResources;
+    QuadResource fullscreedQuad;
     uint64_t nextFenceValue{0};
 };
 
