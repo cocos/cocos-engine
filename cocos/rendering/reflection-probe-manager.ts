@@ -119,7 +119,7 @@ export class ReflectionProbeManager {
         const index = this._probes.indexOf(probe);
         if (index === -1) {
             this._probes.push(probe);
-            this.updateProbeDataOfModel();
+            this.updateDataMap();
         }
     }
 
@@ -319,7 +319,7 @@ export class ReflectionProbeManager {
      * @en Update reflection probe data of model bind.
      * @zh 更新模型绑定的反射探针数据。
      */
-    public updateProbeDataOfModel () {
+    public updateDataMap () {
         if (this._probes.length === 0) return;
         const dataWidth = 3;
         if (!this._dataTexture) {
