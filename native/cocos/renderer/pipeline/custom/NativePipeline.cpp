@@ -63,7 +63,6 @@
 #include "cocos/scene/RenderWindow.h"
 #include "details/DebugUtils.h"
 #include "details/GslUtils.h"
-#include "pipeline/custom/LayoutGraphUtils.h"
 #include "pipeline/PipelineStateManager.h"
 
 #if CC_USE_DEBUG_RENDERER
@@ -261,10 +260,11 @@ void NativePipeline::endFrame() {
 
 namespace {
 
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 void updateRasterPassConstants(uint32_t width, uint32_t height, Setter &setter) {
     const auto &root = *Root::getInstance();
-    const auto &shadingWidth = width;
-    const auto &shadingHeight = height;
+    const auto shadingWidth = static_cast<float>(width);
+    const auto shadingHeight = static_cast<float>(height);
     setter.setVec4(
         "cc_time",
         Vec4(
@@ -292,7 +292,7 @@ void updateRasterPassConstants(uint32_t width, uint32_t height, Setter &setter) 
              i < static_cast<uint32_t>(pipeline::DebugViewCompositeType::MAX_BIT_COUNT); ++i) {
             const auto idx = i % 4;
             (&debugPackVec.x)[idx] = debugView->isCompositeModeEnabled(i) ? 1.0F : 0.0F;
-            const auto packIdx = static_cast<uint32_t>(floor(i / 4.0F));
+            const auto packIdx = static_cast<uint32_t>(floor(static_cast<float>(i) / 4.0F));
             if (idx == 3) {
                 std::string name("cc_debug_view_composite_pack_");
                 name.append(std::to_string(packIdx + 1));
