@@ -46,25 +46,6 @@ const define = { CC_USE_WORLD_SPACE: false };
 @menu('Effects/Line')
 @executeInEditMode
 export class Line extends Component {
-    @type(Texture2D)
-    private _texture = null;
-
-    /**
-     * @zh 显示的纹理。
-     */
-    @type(Texture2D)
-    @displayOrder(0)
-    @tooltip('i18n:line.texture')
-    get texture () {
-        return this._texture;
-    }
-
-    set texture (val) {
-        this._texture = val;
-        if (this._materialInstance) {
-            this._materialInstance.setProperty('mainTexture', val);
-        }
-    }
     @serializable
     private _material: Material | null = null;
     private _materialInstance: MaterialInstance | null = null;
@@ -78,6 +59,18 @@ export class Line extends Component {
 
     set material (val) {
         this._material = val;
+        if (this._material) {
+            define[CC_USE_WORLD_SPACE] = this.worldSpace;
+            _matInsInfo.parent = this._material;
+            _matInsInfo.subModelIdx = 0;
+            this._materialInstance = new MaterialInstance(_matInsInfo);
+            _matInsInfo.parent = null!;
+            _matInsInfo.subModelIdx = 0;
+            this._materialInstance.recompileShaders(define);
+        }
+        if (this._model) {
+            this._model.updateMaterial(this._materialInstance!);
+        }
     }
 
     @serializable
@@ -120,91 +113,28 @@ export class Line extends Component {
     set positions (val) {
         this._positions = val;
         if (this._model) {
-            this._model.addLineVertexData(this._positions, this._width, this._color);
+            this._model.addLineVertexData(this._positions, this.width, this.color);
         }
     }
-
-    @type(CurveRange)
-    private _width = new CurveRange();
 
     /**
      * @zh 线段的宽度。
      */
+    @serializable
     @type(CurveRange)
     @range([0, 1])
     @displayOrder(3)
     @tooltip('i18n:line.width')
-    get width () {
-        return this._width;
-    }
-
-    set width (val) {
-        this._width = val;
-        if (this._model) {
-            this._model.addLineVertexData(this._positions, this._width, this._color);
-        }
-    }
-
-    @serializable
-    private _tile = new Vec2(1, 1);
-
-    /**
-     * @zh 图块数。
-     */
-    @type(Vec2)
-    @displayOrder(4)
-    @tooltip('i18n:line.tile')
-    get tile () {
-        return this._tile;
-    }
-
-    set tile (val) {
-        this._tile.set(val);
-        if (this._materialInstance) {
-            this._tile_offset.x = this._tile.x;
-            this._tile_offset.y = this._tile.y;
-            this._materialInstance.setProperty('mainTiling_Offset', this._tile_offset);
-        }
-    }
-
-    @serializable
-    private _offset = new Vec2(0, 0);
-
-    @type(Vec2)
-    @displayOrder(5)
-    @tooltip('i18n:line.offset')
-    get offset () {
-        return this._offset;
-    }
-
-    set offset (val) {
-        this._offset.set(val);
-        if (this._materialInstance) {
-            this._tile_offset.z = this._offset.x;
-            this._tile_offset.w = this._offset.y;
-            this._materialInstance.setProperty('mainTiling_Offset', this._tile_offset);
-        }
-    }
-
-    @type(GradientRange)
-    private _color = new GradientRange();
+    public width = new CurveRange();
 
     /**
      * @zh 线段颜色。
      */
+    @serializable
     @type(GradientRange)
     @displayOrder(6)
     @tooltip('i18n:line.color')
-    get color () {
-        return this._color;
-    }
-
-    set color (val) {
-        this._color = val;
-        if (this._model) {
-            this._model.addLineVertexData(this._positions, this._width, this._color);
-        }
-    }
+    public color = new GradientRange();
 
     /**
      * @ignore
@@ -241,10 +171,7 @@ export class Line extends Component {
             return;
         }
         this._attachToScene();
-        this.texture = this._texture;
-        this.tile = this._tile;
-        this.offset = this._offset;
-        this._model.addLineVertexData(this._positions, this._width, this._color);
+        this._model.addLineVertexData(this._positions, this.width, this.color);
     }
 
     public onDisable () {
@@ -265,6 +192,12 @@ export class Line extends Component {
     protected _detachFromScene () {
         if (this._model && this._model.scene) {
             this._model.scene.removeModel(this._model);
+        }
+    }
+
+    protected update (dt: number): void {
+        if (this._model) {
+            this._model.addLineVertexData(this._positions, this.width, this.color);
         }
     }
 }
