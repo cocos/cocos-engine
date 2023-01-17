@@ -147,11 +147,11 @@ UniformBlockResource::UniformBlockResource(UniformBlockResource&& rhs, const all
 
 LayoutGraphNodeResource::LayoutGraphNodeResource(const allocator_type& alloc) noexcept
 : uniformBuffers(alloc),
-  descriptorSetPool(alloc) {}
+  perPassDescriptorSetPool(alloc) {}
 
 LayoutGraphNodeResource::LayoutGraphNodeResource(LayoutGraphNodeResource&& rhs, const allocator_type& alloc)
 : uniformBuffers(std::move(rhs.uniformBuffers), alloc),
-  descriptorSetPool(std::move(rhs.descriptorSetPool), alloc) {}
+  perPassDescriptorSetPool(std::move(rhs.perPassDescriptorSetPool), alloc) {}
 
 NativeRenderContext::NativeRenderContext(std::unique_ptr<gfx::DefaultResource> defaultResourceIn, const allocator_type& alloc) noexcept
 : defaultResource(std::move(defaultResourceIn)),
