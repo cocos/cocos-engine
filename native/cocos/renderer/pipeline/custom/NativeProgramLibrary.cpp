@@ -929,6 +929,9 @@ void overwriteShaderProgramBinding(
     IShaderSource *src = &programInfo.glsl3;
     const auto *deviceShaderVersion = getDeviceShaderVersion(device);
     if (deviceShaderVersion) {
+        if (deviceShaderVersion != std::string_view{"glsl4"}) {
+            return;
+        }
         src = programInfo.getSource(deviceShaderVersion);
     } else {
         CC_LOG_ERROR("Invalid GFX API!");
@@ -1138,6 +1141,8 @@ void NativeProgramLibrary::init(gfx::Device *deviceIn) {
         auto &phase = get(RenderPhaseTag{}, phaseID, lg);
         phase.pipelineLayout = device->createPipelineLayout(info);
     }
+
+    generateConstantMacros(device, lg.constantMacros, false);
 }
 
 void NativeProgramLibrary::destroy() {
@@ -1390,9 +1395,7 @@ ProgramProxy *NativeProgramLibrary::getProgramVariant(
     }
 
     std::string prefix;
-    if (pipeline) {
-        prefix += pipeline->getConstantMacros();
-    }
+    prefix += layoutGraph.constantMacros;
     prefix += programInfo.constantMacros + ss.str();
 
     const IShaderSource *src = &programInfo.glsl3;

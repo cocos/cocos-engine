@@ -33,6 +33,7 @@
 #include "LayoutGraphGraphs.h"
 #include "LayoutGraphNames.h"
 #include "LayoutGraphTypes.h"
+#include "LayoutGraphUtils.h"
 #include "NativePipelineFwd.h"
 #include "NativePipelineTypes.h"
 #include "RenderCommonTypes.h"
@@ -62,7 +63,6 @@
 #include "cocos/scene/RenderWindow.h"
 #include "details/DebugUtils.h"
 #include "details/GslUtils.h"
-#include "pipeline/custom/LayoutGraphUtils.h"
 
 #if CC_USE_DEBUG_RENDERER
     #include "profiler/DebugRenderer.h"
@@ -134,6 +134,9 @@ uint32_t NativePipeline::addRenderTexture(const ccstd::string &name, gfx::Format
 
     CC_ASSERT(renderWindow->getFramebuffer()->getColorTextures().size() == 1);
     CC_ASSERT(renderWindow->getFramebuffer()->getColorTextures().at(0));
+
+    desc.format = renderWindow->getFramebuffer()->getColorTextures()[0]->getFormat();
+
     return addVertex(
         SwapchainTag{},
         std::forward_as_tuple(name.c_str()),
@@ -443,27 +446,6 @@ const ccstd::vector<gfx::CommandBuffer *> &NativePipeline::getCommandBuffers() c
 }
 
 namespace {
-
-void generateConstantMacros(
-    gfx::Device *device,
-    ccstd::string &constantMacros, bool clusterEnabled) {
-    constantMacros = StringUtil::format(
-        R"(
-#define CC_DEVICE_SUPPORT_FLOAT_TEXTURE %d
-#define CC_ENABLE_CLUSTERED_LIGHT_CULLING %d
-#define CC_DEVICE_MAX_VERTEX_UNIFORM_VECTORS %d
-#define CC_DEVICE_MAX_FRAGMENT_UNIFORM_VECTORS %d
-#define CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT %d
-#define CC_PLATFORM_ANDROID_AND_WEBGL 0
-#define CC_ENABLE_WEBGL_HIGHP_STRUCT_VALUES 0
-        )",
-        hasAnyFlags(device->getFormatFeatures(gfx::Format::RGBA32F),
-                    gfx::FormatFeature::RENDER_TARGET | gfx::FormatFeature::SAMPLED_TEXTURE),
-        clusterEnabled ? 1 : 0,
-        device->getCapabilities().maxVertexUniformVectors,
-        device->getCapabilities().maxFragmentUniformVectors,
-        device->hasFeature(gfx::Feature::INPUT_ATTACHMENT_BENEFIT));
-}
 
 void buildLayoutGraphNodeBuffer(
     gfx::Device *device,

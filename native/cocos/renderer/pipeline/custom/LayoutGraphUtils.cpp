@@ -26,12 +26,13 @@
 #include "LayoutGraphUtils.h"
 #include <tuple>
 #include <utility>
+#include "LayoutGraphGraphs.h"
+#include "LayoutGraphTypes.h"
+#include "RenderCommonTypes.h"
 #include "cocos/base/Log.h"
+#include "cocos/base/StringUtil.h"
 #include "cocos/base/std/container/string.h"
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
-#include "LayoutGraphTypes.h"
-#include "LayoutGraphGraphs.h"
-#include "RenderCommonTypes.h"
 #include "details/Map.h"
 
 namespace cc {
@@ -243,8 +244,8 @@ void makeDescriptorSetLayoutData(
         // increate total capacity
         capacity += block.capacity;
         data.capacity += block.capacity;
-        if (index.descriptorType == DescriptorTypeOrder::UNIFORM_BUFFER
-            || index.descriptorType == DescriptorTypeOrder::DYNAMIC_UNIFORM_BUFFER) {
+        if (index.descriptorType == DescriptorTypeOrder::UNIFORM_BUFFER ||
+            index.descriptorType == DescriptorTypeOrder::DYNAMIC_UNIFORM_BUFFER) {
             data.uniformBlockCapacity += block.capacity;
         } else if (index.descriptorType == DescriptorTypeOrder::SAMPLER_TEXTURE) {
             data.samplerTextureCapacity += block.capacity;
@@ -319,6 +320,28 @@ gfx::DescriptorSet* getOrCreatePerPassDescriptorSet(
     }
     CC_ENSURES(data.descriptorSet);
     return data.descriptorSet;
+}
+
+void generateConstantMacros(
+    gfx::Device* device,
+    ccstd::string& constantMacros,
+    bool clusterEnabled) {
+    constantMacros = StringUtil::format(
+        R"(
+#define CC_DEVICE_SUPPORT_FLOAT_TEXTURE %d
+#define CC_ENABLE_CLUSTERED_LIGHT_CULLING %d
+#define CC_DEVICE_MAX_VERTEX_UNIFORM_VECTORS %d
+#define CC_DEVICE_MAX_FRAGMENT_UNIFORM_VECTORS %d
+#define CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT %d
+#define CC_PLATFORM_ANDROID_AND_WEBGL 0
+#define CC_ENABLE_WEBGL_HIGHP_STRUCT_VALUES 0
+        )",
+        hasAnyFlags(device->getFormatFeatures(gfx::Format::RGBA32F),
+                    gfx::FormatFeature::RENDER_TARGET | gfx::FormatFeature::SAMPLED_TEXTURE),
+        clusterEnabled ? 1 : 0,
+        device->getCapabilities().maxVertexUniformVectors,
+        device->getCapabilities().maxFragmentUniformVectors,
+        device->hasFeature(gfx::Feature::INPUT_ATTACHMENT_BENEFIT));
 }
 
 } // namespace render
