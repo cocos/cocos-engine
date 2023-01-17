@@ -512,7 +512,12 @@ export class DirectionalLight extends Light {
      * @zh 获取或者设置级联阴影层级过渡范围？
      */
     @tooltip('i18n:lights.csmTransitionRange')
-    @visible(false)
+    @visible(function (this: DirectionalLight) {
+        return (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
+         && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap
+         && this._csmLevel > CSMLevel.LEVEL_1
+         && this._csmAdvancedOptions;
+    })
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 21 } })
     @editable
     @range([0.0, 0.1, 0.01])
