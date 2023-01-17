@@ -175,7 +175,7 @@ export class TiledLayer extends UIRenderer {
     get leftDownToCenterX () { return this._leftDownToCenterX; }
     get leftDownToCenterY () { return this._leftDownToCenterY; }
 
-    private _drawInfoList : RenderDrawInfo[] = [];
+    private _drawInfoList: RenderDrawInfo[] = [];
     private requestDrawInfo (idx: number) {
         if (!this._drawInfoList[idx]) {
             this._drawInfoList[idx] = new RenderDrawInfo();
@@ -797,13 +797,16 @@ export class TiledLayer extends UIRenderer {
             _tempRowCol.col++;
         }
 
+        // avoid range out of max rect
+        if (_tempRowCol.row > this._rightTop.row) _tempRowCol.row = this._rightTop.row;
+        if (_tempRowCol.col > this._rightTop.col) _tempRowCol.col = this._rightTop.col;
+
         if (_tempRowCol.row !== rightTop.row || _tempRowCol.col !== rightTop.col) {
             rightTop.row = _tempRowCol.row;
             rightTop.col = _tempRowCol.col;
             this._cullingDirty = true;
+            this.markForUpdateRenderData();
         }
-
-        if (this._cullingDirty) this.markForUpdateRenderData();
     }
 
     // the result may not precise, but it dose't matter, it just uses to be got range
