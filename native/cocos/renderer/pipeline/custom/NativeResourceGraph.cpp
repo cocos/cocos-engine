@@ -53,6 +53,9 @@ void NativeRenderContext::clearPreviousResources(uint64_t finishedFenceValue) no
             buffer.bufferPool.syncResources();
         }
         node.perPassDescriptorSetPool.syncDescriptorSets();
+        for (auto&& [programName, pool] : node.programDescriptorSetPool) {
+            pool.syncDescriptorSets();
+        }
     }
 }
 

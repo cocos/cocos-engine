@@ -58,6 +58,7 @@ struct BufferPool;
 struct DescriptorSetPool;
 struct UniformBlockResource;
 struct LayoutGraphNodeResource;
+struct QuadResource;
 struct NativeRenderContext;
 class NativeProgramLibrary;
 class NativePipeline;
