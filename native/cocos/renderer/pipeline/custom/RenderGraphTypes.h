@@ -109,6 +109,8 @@ struct ManagedTexture {
     ManagedTexture(IntrusivePtr<gfx::Texture> textureIn) noexcept // NOLINT
     : texture(std::move(textureIn)) {}
 
+    bool checkResource(const ResourceDesc &desc) const;
+
     IntrusivePtr<gfx::Texture> texture;
     uint64_t fenceValue{0};
 };
