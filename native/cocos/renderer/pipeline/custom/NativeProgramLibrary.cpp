@@ -918,6 +918,14 @@ void overwriteShaderSourceBinding(
         end += offset;
         // find next uniform
         pos = source.find(" uniform ", end);
+        auto exceptionPos = source.find(" uniform subpassInput ", end);
+        if (exceptionPos != ccstd::string::npos) {
+            while(pos == exceptionPos) {
+                end += strlen(" uniform subpassInput ");
+                pos = source.find(" uniform ", end);
+                exceptionPos = source.find(" uniform subpassInput ", end);
+            }
+        }
     }
 }
 
