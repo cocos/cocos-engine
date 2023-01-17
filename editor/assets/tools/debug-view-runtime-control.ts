@@ -1,4 +1,4 @@
-import { instantiate, math, Toggle, TextureCube, _decorator, Component, Button, labelAssembler, game, director, Node, Scene, renderer, CameraComponent, Label, ForwardPipeline, RichText } from 'cc';
+import { Canvas, instantiate, math, Toggle, TextureCube, _decorator, Component, Button, labelAssembler, game, director, Node, Scene, renderer, CameraComponent, Label, ForwardPipeline, RichText } from 'cc';
 const { ccclass, property } = _decorator;
 
 @ccclass('debugViewRuntimeControl')
@@ -35,6 +35,7 @@ export class debugViewRuntimeControl extends Component {
         'Metallic',
         'Roughness',
         'Specular Intensity',
+        'IOR',
 
         'Direct Diffuse',
         'Direct Specular',
@@ -88,21 +89,34 @@ export class debugViewRuntimeControl extends Component {
     private compositeModeToggleList: Node[] = [];
     private singleModeToggleList: Node[] = [];
     private miscModeToggleList: Node[] = [];
+    private textComponentList: RichText[] = [];
+    private textContentList: string[] = [];
     start() {
+        // get canvas resolution
+        const canvas = this.node.parent.getComponent(Canvas);
+        if (!canvas) {
+            console.error('debug-view-runtime-control should be child of Canvas');
+            return;
+        }
+
+        const halfWidth = 960 * 0.5;
+        const halfHeight = 640 * 0.5;
         // single
-        let x = -400, y = 300, height = 20, currentItem = 0;
-        for (let i = 0; i < this.strSingle.length; i++, currentItem++) {
+        let x = -halfWidth + halfWidth * 0.1, y = halfHeight - halfHeight * 0.1, height = 20, currentRow = 0;
+        for (let i = 0; i < this.strSingle.length; i++, currentRow++) {
             if (i === this.strSingle.length >> 1) {
-                x = -200; y = 300;
-                currentItem = 0;
+                x += 200;
+                currentRow = 0;
             }
             const newNode = i ? instantiate(this.singleModeToggle) : this.singleModeToggle;
-            newNode.setPosition(x, y - height * currentItem, 0.0);
+            newNode.setPosition(x, y - height * currentRow, 0.0);
             newNode.setScale(0.5, 0.5, 0.5);
             newNode.parent = this.singleModeToggle.parent;
 
             const textComponent = newNode.getComponentInChildren(RichText);
             textComponent.string = this.strSingle[i];
+            this.textComponentList[this.textComponentList.length] = textComponent;
+            this.textContentList[this.textContentList.length] = textComponent.string;
 
             newNode.on(Toggle.EventType.TOGGLE, this.toggleSingleMode, this);
 
@@ -110,21 +124,32 @@ export class debugViewRuntimeControl extends Component {
         }
 
         // restore button
-        x = 0; y = 200;
-        this.EnableAllCompositeModeButton.setPosition(x + 25, y + 100, 0.0);
+        x += 200;
+        this.EnableAllCompositeModeButton.setPosition(x + 15, y, 0.0);
         this.EnableAllCompositeModeButton.setScale(0.5, 0.5, 0.5);
         this.EnableAllCompositeModeButton.on(Button.EventType.CLICK, this.enableAllCompositeMode, this);
+        const changeColorButton = instantiate(this.EnableAllCompositeModeButton);
+        changeColorButton.setPosition(x + 90, y, 0.0);
+        changeColorButton.setScale(0.5, 0.5, 0.5);
+        changeColorButton.on(Button.EventType.CLICK, this.changeTextColor, this);
+        changeColorButton.parent = this.EnableAllCompositeModeButton.parent;
+        const textComponent = changeColorButton.getComponentInChildren(Label);
+        textComponent.string = 'TextColor';
 
         // misc
         const miscNode = this.node.getChildByName('MiscMode');
-        x = 0; y = 270; height = 20;
+        y -= 40; height = 20;
         for (let i = 0; i < this.strMisc.length; i++) {
             const newNode = instantiate(this.compositeModeToggle);
             newNode.setPosition(x, y - height * i, 0.0);
             newNode.setScale(0.5, 0.5, 0.5);
             newNode.parent = miscNode;
+
             const textComponent = newNode.getComponentInChildren(RichText);
             textComponent.string = this.strMisc[i];
+            this.textComponentList[this.textComponentList.length] = textComponent;
+            this.textContentList[this.textContentList.length] = textComponent.string;
+
             const toggleComponent = newNode.getComponent(Toggle);
             toggleComponent.isChecked = i ? true : false;
             newNode.on(Toggle.EventType.TOGGLE, i ? this.toggleLightingWithAlbedo : this.toggleCSMColoration, this);
@@ -132,7 +157,7 @@ export class debugViewRuntimeControl extends Component {
         }
 
         // composite
-        x = 0; y = 130; height = 20;
+        y -= 150; height = 20;
         for (let i = 0; i < this.strComposite.length; i++) {
             const newNode = i ? instantiate(this.compositeModeToggle) : this.compositeModeToggle;
             newNode.setPosition(x, y - height * i, 0.0);
@@ -141,6 +166,8 @@ export class debugViewRuntimeControl extends Component {
 
             const textComponent = newNode.getComponentInChildren(RichText);
             textComponent.string = this.strComposite[i];
+            this.textComponentList[this.textComponentList.length] = textComponent;
+            this.textContentList[this.textContentList.length] = textComponent.string;
 
             newNode.on(Toggle.EventType.TOGGLE, this.toggleCompositeMode, this);
 
@@ -188,6 +215,24 @@ export class debugViewRuntimeControl extends Component {
         toggleComponent = this.miscModeToggleList[1].getComponent(Toggle);
         toggleComponent.isChecked = true;
         debugView.lightingWithAlbedo = true;
+    }
+
+    private _currentColorIndex = 0;
+    private strColor: string[] = [
+        '<color=#ffffff>',
+        '<color=#000000>',
+        '<color=#ff0000>',
+        '<color=#00ff00>',
+        '<color=#0000ff>',
+    ];
+    changeTextColor(button: Button) {
+        this._currentColorIndex++;
+        if (this._currentColorIndex >= this.strColor.length) {
+            this._currentColorIndex = 0;
+        }
+        for (let i = 0; i < this.textComponentList.length; i++) {
+            this.textComponentList[i].string = this.strColor[this._currentColorIndex] + this.textContentList[i] + '</color>';
+        }
     }
 
     onLoad() {
