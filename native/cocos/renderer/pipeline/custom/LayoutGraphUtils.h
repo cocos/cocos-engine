@@ -54,6 +54,11 @@ gfx::DescriptorSet* getOrCreatePerPassDescriptorSet(
     gfx::Device* device,
     LayoutGraphData& lg, LayoutGraphData::vertex_descriptor vertID);
 
+void generateConstantMacros(
+    gfx::Device* device,
+    ccstd::string& constantMacros,
+    bool clusterEnabled);
+
 } // namespace render
 
 } // namespace cc

@@ -43,7 +43,8 @@ PersistentRenderPassAndFramebuffer::PersistentRenderPassAndFramebuffer(Persisten
   clearColors(std::move(rhs.clearColors), alloc),
   clearDepth(rhs.clearDepth),
   clearStencil(rhs.clearStencil),
-  refCount(rhs.refCount) {}
+  refCount(rhs.refCount),
+  hash(rhs.hash) {}
 
 PersistentRenderPassAndFramebuffer::PersistentRenderPassAndFramebuffer(PersistentRenderPassAndFramebuffer const& rhs, const allocator_type& alloc)
 : renderPass(rhs.renderPass),
@@ -51,7 +52,8 @@ PersistentRenderPassAndFramebuffer::PersistentRenderPassAndFramebuffer(Persisten
   clearColors(rhs.clearColors, alloc),
   clearDepth(rhs.clearDepth),
   clearStencil(rhs.clearStencil),
-  refCount(rhs.refCount) {}
+  refCount(rhs.refCount),
+  hash(rhs.hash) {}
 
 RenderInstancingQueue::RenderInstancingQueue(const allocator_type& alloc) noexcept
 : batches(alloc),
