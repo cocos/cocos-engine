@@ -46,7 +46,7 @@ import {
     IWebGL2GPUUniformSamplerTexture,
     IWebGL2GPURenderPass,
 } from './webgl2-gpu-objects';
-import { CachedArray, error, errorID, debug } from '../../core';
+import { CachedArray, error, errorID, debug, cclegacy } from '../../core';
 
 const WebGLWraps: GLenum[] = [
     0x2901, // WebGLRenderingContext.REPEAT
@@ -1614,6 +1614,8 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2Device, gpuShader: IWeb
 
     gpuShader.glProgram = glProgram;
 
+    const enableEffectImport = !!(cclegacy.rendering && cclegacy.rendering.enableEffectImport);
+
     // link program
     for (let k = 0; k < gpuShader.gpuStages.length; k++) {
         const gpuStage = gpuShader.gpuStages[k];
@@ -1704,7 +1706,10 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2Device, gpuShader: IWeb
                 // blockIdx = gl.getUniformBlockIndex(gpuShader.glProgram, blockName);
                 blockIdx = b;
                 blockSize = gl.getActiveUniformBlockParameter(gpuShader.glProgram, blockIdx, gl.UNIFORM_BLOCK_DATA_SIZE);
-                const glBinding = block.binding + (device.bindingMappings.blockOffsets[block.set] || 0);
+
+                const glBinding = enableEffectImport
+                    ? block.flattened
+                    : block.binding + (device.bindingMappings.blockOffsets[block.set] || 0);
 
                 gl.uniformBlockBinding(gpuShader.glProgram, blockIdx, glBinding);
 
@@ -1753,27 +1758,42 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2Device, gpuShader: IWeb
     const glActiveSamplerLocations: WebGLUniformLocation[] = [];
     const texUnitCacheMap = device.stateCache.texUnitCacheMap;
 
-    let flexibleSetBaseOffset = 0;
-    for (let i = 0; i < gpuShader.blocks.length; ++i) {
-        if (gpuShader.blocks[i].set === device.bindingMappings.flexibleSet) {
-            flexibleSetBaseOffset++;
+    if (!enableEffectImport) {
+        let flexibleSetBaseOffset = 0;
+        for (let i = 0; i < gpuShader.blocks.length; ++i) {
+            if (gpuShader.blocks[i].set === device.bindingMappings.flexibleSet) {
+                flexibleSetBaseOffset++;
+            }
         }
-    }
 
-    let arrayOffset = 0;
-    for (let i = 0; i < gpuShader.samplerTextures.length; ++i) {
-        const sampler = gpuShader.samplerTextures[i];
-        const glLoc = gl.getUniformLocation(gpuShader.glProgram, sampler.name);
-        // wEcHAT just returns { id: -1 } for non-existing names /eyerolling
-        if (glLoc && (glLoc as any).id !== -1) {
-            glActiveSamplers.push(gpuShader.glSamplerTextures[i]);
-            glActiveSamplerLocations.push(glLoc);
+        let arrayOffset = 0;
+        for (let i = 0; i < gpuShader.samplerTextures.length; ++i) {
+            const sampler = gpuShader.samplerTextures[i];
+            const glLoc = gl.getUniformLocation(gpuShader.glProgram, sampler.name);
+            // wEcHAT just returns { id: -1 } for non-existing names /eyerolling
+            if (glLoc && (glLoc as any).id !== -1) {
+                glActiveSamplers.push(gpuShader.glSamplerTextures[i]);
+                glActiveSamplerLocations.push(glLoc);
+            }
+            if (texUnitCacheMap[sampler.name] === undefined) {
+                let binding = sampler.binding + device.bindingMappings.samplerTextureOffsets[sampler.set] + arrayOffset;
+                if (sampler.set === device.bindingMappings.flexibleSet) { binding -= flexibleSetBaseOffset; }
+                texUnitCacheMap[sampler.name] = binding % device.capabilities.maxTextureUnits;
+                arrayOffset += sampler.count - 1;
+            }
         }
-        if (texUnitCacheMap[sampler.name] === undefined) {
-            let binding = sampler.binding + device.bindingMappings.samplerTextureOffsets[sampler.set] + arrayOffset;
-            if (sampler.set === device.bindingMappings.flexibleSet) { binding -= flexibleSetBaseOffset; }
-            texUnitCacheMap[sampler.name] = binding % device.capabilities.maxTextureUnits;
-            arrayOffset += sampler.count - 1;
+    } else {
+        for (let i = 0; i < gpuShader.samplerTextures.length; ++i) {
+            const sampler = gpuShader.samplerTextures[i];
+            const glLoc = gl.getUniformLocation(gpuShader.glProgram, sampler.name);
+            // wEcHAT just returns { id: -1 } for non-existing names /eyerolling
+            if (glLoc && (glLoc as any).id !== -1) {
+                glActiveSamplers.push(gpuShader.glSamplerTextures[i]);
+                glActiveSamplerLocations.push(glLoc);
+            }
+            if (texUnitCacheMap[sampler.name] === undefined) {
+                texUnitCacheMap[sampler.name] = sampler.flattened % device.capabilities.maxTextureUnits;
+            }
         }
     }
 

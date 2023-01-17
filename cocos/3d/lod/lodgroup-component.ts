@@ -295,7 +295,11 @@ export class LODGroup extends Component {
      * @ 重置 LODs 为当前新设置的值。
      */
     set LODs (valArray: readonly LOD[]) {
-        if (valArray === this._LODs) return;
+        if (valArray === this._LODs) {
+            //_LODs maybe changed, we need to notify the scene to update.
+            this._updateDataToScene();
+            return;
+        }
         this._LODs.length = 0;
         this.lodGroup.clearLODs();
         valArray.forEach((lod: LOD, index: number) => {
@@ -303,6 +307,8 @@ export class LODGroup extends Component {
             this._LODs[index] = lod;
             lod.modelAddedCallback = this.onLodModelAddedCallback.bind(this);
         });
+        //_LODs has been changed, we need to notify the scene to update.
+        this._updateDataToScene();
     }
 
     /**
@@ -602,13 +608,13 @@ export class LODGroup extends Component {
     }
 
     private _attachToScene () {
-        if (!this.node.scene) { return; }
-
-        const renderScene = this._getRenderScene();
-        if (this._lodGroup.scene) {
-            this._detachFromScene();
+        if (this.node && this.node.scene) {
+            const renderScene = this._getRenderScene();
+            if (this._lodGroup.scene) {
+                this._detachFromScene();
+            }
+            renderScene.addLODGroup(this._lodGroup);
         }
-        renderScene.addLODGroup(this._lodGroup);
     }
 
     private _detachFromScene () {
@@ -623,5 +629,10 @@ export class LODGroup extends Component {
             // @ts-expect-error Because EditorExtends is Editor only
             EditorExtends.Node.emit('change', node.uuid, node);
         }
+    }
+
+    private _updateDataToScene () {
+        this._detachFromScene();
+        this._attachToScene();
     }
 }

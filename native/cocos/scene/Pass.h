@@ -276,10 +276,10 @@ public:
     inline const ccstd::vector<IBlockRef> &getBlocks() const { return _blocks; }
     inline ArrayBuffer *getRootBlock() { return _rootBlock; }
     inline bool isRootBufferDirty() const { return _rootBufferDirty; }
-    //NOTE: _setRootBufferDirty must contain a _ prefix to make bindings-generator work correctly.
-    // In ts engine, Pass has rootBufferDirty getter and without setter, but it contains a protected function named _setRootBufferDirty.
-    // If we remove _ prefix in C++, bindings-generator doesn't support to bind rootBufferDirty property as getter and ignore to bind setRootBufferDirty as setter at the same time.
-    // So let's keep the _ prefix temporarily.
+    // NOTE: _setRootBufferDirty must contain a _ prefix to make bindings-generator work correctly.
+    //  In ts engine, Pass has rootBufferDirty getter and without setter, but it contains a protected function named _setRootBufferDirty.
+    //  If we remove _ prefix in C++, bindings-generator doesn't support to bind rootBufferDirty property as getter and ignore to bind setRootBufferDirty as setter at the same time.
+    //  So let's keep the _ prefix temporarily.
     inline void _setRootBufferDirty(bool val) { _rootBufferDirty = val; } // NOLINT(readability-identifier-naming)
     // states
     inline pipeline::RenderPriority getPriority() const { return _priority; }
@@ -335,6 +335,8 @@ protected:
     pipeline::RenderPriority _priority{pipeline::RenderPriority::DEFAULT};
     pipeline::RenderPassStage _stage{pipeline::RenderPassStage::DEFAULT};
     uint32_t _phase{0};
+    uint32_t _passID{0xFFFFFFFF};
+    uint32_t _phaseID{0xFFFFFFFF};
     ccstd::string _phaseString;
     gfx::PrimitiveMode _primitive{gfx::PrimitiveMode::TRIANGLE_LIST};
     BatchingSchemes _batchingScheme{BatchingSchemes::NONE};

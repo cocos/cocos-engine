@@ -37,47 +37,6 @@ namespace cc {
 
 namespace {
 
-ccstd::string mapDefine(const IDefineInfo &info, const ccstd::optional<MacroRecord::mapped_type> &def) {
-    if (info.type == "boolean") {
-        return def.has_value() ? (macroRecordAsBool(def.value()) ? "1" : "0") : "0";
-    }
-    if (info.type == "string") {
-        return def.has_value() ? macroRecordAsString(def.value()) : info.options.value()[0];
-    }
-    if (info.type == "number") {
-        return def.has_value() ? macroRecordAsString(def.value()) : std::to_string(info.range.value()[0]);
-    }
-    CC_LOG_WARNING("unknown define type '%s', name: %s", info.type.c_str(), info.name.c_str());
-    return "-1"; // should neven happen
-}
-
-ccstd::vector<IMacroInfo> prepareDefines(const MacroRecord &records, const ccstd::vector<IDefineRecord> &defList) {
-    ccstd::vector<IMacroInfo> macros{};
-    for (const auto &tmp : defList) {
-        const auto &name = tmp.name;
-        auto it = records.find(name);
-        auto value = mapDefine(tmp, it == records.end() ? ccstd::nullopt : ccstd::optional<MacroValue>(it->second));
-        bool isDefault = it == records.end() || (ccstd::holds_alternative<ccstd::string>(it->second) && ccstd::get<ccstd::string>(it->second) == "0");
-        macros.emplace_back();
-        auto &info = macros.back();
-        info.name = name;
-        info.value = value;
-        info.isDefault = isDefault;
-    }
-    return macros;
-}
-
-ccstd::string getShaderInstanceName(const ccstd::string &name, const ccstd::vector<IMacroInfo> &macros) {
-    std::stringstream ret;
-    ret << name;
-    for (const auto &cur : macros) {
-        if (!cur.isDefault) {
-            ret << "|" << cur.name << cur.value;
-        }
-    }
-    return ret.str();
-}
-
 void insertBuiltinBindings(const IProgramInfo &tmpl, ITemplateInfo &tmplInfo, const pipeline::DescriptorSetLayoutInfos &source,
                            const ccstd::string &type, ccstd::vector<gfx::DescriptorSetLayoutBinding> *outBindings) {
     CC_ASSERT(type == "locals" || type == "globals");
@@ -142,32 +101,6 @@ int32_t getSize(const IBlockInfo &block) {
         s += static_cast<int>(getTypeSize(m.type) * m.count);
     }
     return s;
-}
-
-bool dependencyCheck(const ccstd::vector<ccstd::string> &dependencies, const MacroRecord &defines) {
-    for (const auto &d : dependencies) { // NOLINT(readability-use-anyofallof)
-        if (d[0] == '!') {               // negative dependency
-            if (defines.find(d.substr(1)) != defines.end()) {
-                return false;
-            }
-        } else if (defines.count(d) == 0 ? true : !macroRecordAsBool(defines.at(d))) {
-            return false;
-        }
-    }
-    return true;
-}
-
-ccstd::vector<gfx::Attribute> getActiveAttributes(const IProgramInfo &tmpl, const ITemplateInfo &tmplInfo, const MacroRecord &defines) {
-    ccstd::vector<gfx::Attribute> out{};
-    const auto &attributes = tmpl.attributes;
-    const auto &gfxAttributes = tmplInfo.gfxAttributes;
-    for (auto i = 0; i < attributes.size(); i++) {
-        if (!dependencyCheck(attributes[i].defines, defines)) {
-            continue;
-        }
-        out.emplace_back(gfxAttributes[i]);
-    }
-    return out;
 }
 
 } // namespace
@@ -540,7 +473,7 @@ gfx::Shader *ProgramLib::getGFXShader(gfx::Device *device, const ccstd::string &
         tmplInfo.pipelineLayout = device->createPipelineLayout(gfx::PipelineLayoutInfo{tmplInfo.setLayouts.get()});
     }
 
-    ccstd::vector<IMacroInfo> macroArray = prepareDefines(defines, tmpl.defines);
+    ccstd::vector<IMacroInfo> macroArray = render::prepareDefines(defines, tmpl.defines);
     std::stringstream ss;
     ss << std::endl;
     for (const auto &m : macroArray) {
@@ -559,9 +492,9 @@ gfx::Shader *ProgramLib::getGFXShader(gfx::Device *device, const ccstd::string &
     tmplInfo.shaderInfo.stages[1].source = prefix + src->frag;
 
     // strip out the active attributes only, instancing depend on this
-    tmplInfo.shaderInfo.attributes = getActiveAttributes(tmpl, tmplInfo, defines);
+    tmplInfo.shaderInfo.attributes = render::getActiveAttributes(tmpl, tmplInfo.gfxAttributes, defines);
 
-    tmplInfo.shaderInfo.name = getShaderInstanceName(name, macroArray);
+    tmplInfo.shaderInfo.name = render::getShaderInstanceName(name, macroArray);
 
     auto *shader = device->createShader(tmplInfo.shaderInfo);
     _cache[key] = shader;

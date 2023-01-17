@@ -32,7 +32,6 @@
 #include "cocos/base/std/variant.h"
 #include "cocos/renderer/pipeline/InstancedBuffer.h"
 #include "cocos/renderer/pipeline/custom/NativeFwd.h"
-#include "cocos/renderer/pipeline/custom/PrivateFwd.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphFwd.h"
 
 namespace cc {

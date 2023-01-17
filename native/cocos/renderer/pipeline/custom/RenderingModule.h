@@ -1,6 +1,5 @@
 /****************************************************************************
- Copyright (c) 2016 Chukong Technologies Inc.
- Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -23,35 +22,15 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "HandleObject.h"
-#include "Object.h"
+#pragma once
+#include "cocos/renderer/pipeline/custom/PrivateTypes.h"
 
-namespace se {
+namespace cc {
 
-HandleObject::HandleObject(Object *obj)
-: _obj(obj) {
-    if (_obj != nullptr) {
-        // se::HandleObject could not be used for native binding object.
-        CC_ASSERT(!_obj->_getClass());
-        _obj->root();
-    }
-}
+namespace render {
 
-HandleObject::HandleObject(HandleObject &&o) noexcept{
-    _obj = o._obj;
-    o._obj = nullptr;
-}
+ProgramLibrary* getProgramLibrary();
 
-HandleObject::~HandleObject() {
-    if (_obj != nullptr) {
-        _obj->unroot();
-        _obj->decRef();
-    }
-}
+} // namespace render
 
-void HandleObject::operator=(HandleObject &&o) noexcept {
-    _obj = o._obj;
-    o._obj = nullptr;
-}
-
-} // namespace se
+} // namespace cc
