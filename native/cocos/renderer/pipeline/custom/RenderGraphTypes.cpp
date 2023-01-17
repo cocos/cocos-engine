@@ -380,12 +380,6 @@ RenderGraph::Vertex::Vertex(Vertex const& rhs, const allocator_type& alloc)
   inEdges(rhs.inEdges, alloc),
   handle(rhs.handle) {}
 
-bool ManagedTexture::checkResource(const ResourceDesc &desc) const {
-    if (!texture) return false;
-    const auto &info = texture->getInfo();
-    return desc.width == info.width && desc.height == info.height && desc.format == info.format;
-}
-
 } // namespace render
 
 } // namespace cc

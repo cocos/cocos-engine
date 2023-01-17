@@ -52,7 +52,7 @@ void NativeRenderContext::clearPreviousResources(uint64_t finishedFenceValue) no
         for (auto&& [nameID, buffer] : node.uniformBuffers) {
             buffer.bufferPool.syncResources();
         }
-        node.descriptorSetPool.syncDescriptorSets();
+        node.perPassDescriptorSetPool.syncDescriptorSets();
     }
 }
 
@@ -143,6 +143,12 @@ gfx::TextureInfo getTextureInfo(const ResourceDesc& desc, bool bCube = false) {
 }
 
 } // namespace
+
+bool ManagedTexture::checkResource(const ResourceDesc& desc) const {
+    if (!texture) return false;
+    const auto& info = texture->getInfo();
+    return desc.width == info.width && desc.height == info.height && desc.format == info.format;
+}
 
 void ResourceGraph::mount(gfx::Device* device, vertex_descriptor vertID) {
     std::ignore = device;

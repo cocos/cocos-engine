@@ -541,7 +541,7 @@ void initPerPassDescriptorSet(
     // update per pass resources
     const auto& data = set.descriptorSetLayoutData;
 
-    gfx::DescriptorSet* passSet = node.descriptorSetPool.allocateDescriptorSet();
+    gfx::DescriptorSet* passSet = node.perPassDescriptorSetPool.allocateDescriptorSet();
     for (const auto& block : data.descriptorBlocks) {
         CC_EXPECTS(block.descriptors.size() == block.capacity);
         auto bindID = block.offset;
@@ -661,8 +661,8 @@ void updatePerPassDescriptorSet(
     // update per pass resources
     const auto& data = set.descriptorSetLayoutData;
 
-    auto& prevSet = node.descriptorSetPool.getCurrentDescriptorSet();
-    gfx::DescriptorSet* newSet = node.descriptorSetPool.allocateDescriptorSet();
+    auto& prevSet = node.perPassDescriptorSetPool.getCurrentDescriptorSet();
+    gfx::DescriptorSet* newSet = node.perPassDescriptorSetPool.allocateDescriptorSet();
     for (const auto& block : data.descriptorBlocks) {
         CC_EXPECTS(block.descriptors.size() == block.capacity);
         auto bindID = block.offset;

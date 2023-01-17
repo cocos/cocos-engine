@@ -494,7 +494,7 @@ struct LayoutGraphNodeResource {
     LayoutGraphNodeResource& operator=(LayoutGraphNodeResource const& rhs) = delete;
 
     PmrFlatMap<NameLocalID, UniformBlockResource> uniformBuffers;
-    DescriptorSetPool descriptorSetPool;
+    DescriptorSetPool perPassDescriptorSetPool;
 };
 
 struct NativeRenderContext {

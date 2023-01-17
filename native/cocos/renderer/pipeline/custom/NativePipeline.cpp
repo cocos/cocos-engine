@@ -508,7 +508,7 @@ bool NativePipeline::activate(gfx::Swapchain *swapchainIn) {
             // reserve buffer
             buildLayoutGraphNodeBuffer(device, set.descriptorSetLayoutData, node);
             // reserve descriptor sets
-            node.descriptorSetPool.init(device, set.descriptorSetLayout);
+            node.perPassDescriptorSetPool.init(device, set.descriptorSetLayout);
         } else {
             auto iter = layout.descriptorSets.find(UpdateFrequency::PER_PHASE);
             if (iter == layout.descriptorSets.end()) {
@@ -518,7 +518,7 @@ bool NativePipeline::activate(gfx::Swapchain *swapchainIn) {
             // reserve buffer
             buildLayoutGraphNodeBuffer(device, set.descriptorSetLayoutData, node);
             // reserve descriptor sets
-            node.descriptorSetPool.init(device, set.descriptorSetLayout);
+            node.perPassDescriptorSetPool.init(device, set.descriptorSetLayout);
         }
     }
     return true;
