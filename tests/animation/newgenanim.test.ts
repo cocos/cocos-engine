@@ -3489,6 +3489,81 @@ describe('NewGen Anim', () => {
                 ),
             );
         });
+
+        test(`Interruption on circular transitions`, () => {
+            const fixture = {
+                initialValue: 0.0,
+                a: new LinearRealValueAnimationFixture(1, 2, 3),
+                b: new LinearRealValueAnimationFixture(4, 5, 6),
+                aToBDuration: 0.3,
+                bToADuration: 0.4,
+            };
+
+            const observer = new SingleRealValueObserver(fixture.initialValue);
+            const graph = new AnimationGraph();
+            const layer = graph.addLayer();
+            const motionStateA = layer.stateMachine.addMotion();
+            motionStateA.name = 'A';
+            motionStateA.motion = fixture.a.createMotion(observer.getCreateMotionContext());
+            const motionStateB = layer.stateMachine.addMotion();
+            motionStateB.name = 'B';
+            motionStateB.motion = fixture.b.createMotion(observer.getCreateMotionContext());
+            {
+                const transitionAToB = layer.stateMachine.connect(motionStateA, motionStateB);
+                transitionAToB.exitConditionEnabled = false;
+                const [condition] = transitionAToB.conditions = [new UnaryCondition()];
+                condition.operator = UnaryCondition.Operator.TRUTHY;
+                condition.operand.variable = 'AToB';
+                graph.addBoolean(condition.operand.variable, true);
+                transitionAToB.duration = fixture.aToBDuration;
+                transitionAToB.interruptionSource = TransitionInterruptionSource.CURRENT_STATE_THEN_NEXT_STATE;
+            }
+            {
+                const transitionBToA = layer.stateMachine.connect(motionStateB, motionStateA);
+                transitionBToA.exitConditionEnabled = false;
+                const [condition] = transitionBToA.conditions = [new UnaryCondition()];
+                condition.operator = UnaryCondition.Operator.TRUTHY;
+                condition.operand.variable = 'BToA';
+                graph.addBoolean(condition.operand.variable, false);
+                transitionBToA.duration = fixture.bToADuration;
+                transitionBToA.interruptionSource = TransitionInterruptionSource.CURRENT_STATE_THEN_NEXT_STATE;
+            }
+            layer.stateMachine.connect(layer.stateMachine.entryState, motionStateA);
+
+            const graphEval = createAnimationGraphEval(graph, observer.root);
+            const graphUpdater = new GraphUpdater(graphEval);
+
+            graphUpdater.goto(0.1);
+
+            graphEval.setValue('BToA', true);
+            graphUpdater.goto(0.25);
+            expect(observer.value).toBeCloseTo(
+                lerp(
+                    lerp(
+                        fixture.a.getExpected(0.1),
+                        fixture.b.getExpected(0.1),
+                        0.1 / fixture.aToBDuration,
+                    ),
+                    fixture.a.getExpected(0.15),
+                    0.15 / fixture.bToADuration,  
+                ),
+                DEFAULT_AROUND_NUM_DIGITS
+            );
+
+            graphUpdater.goto(0.27);
+            expect(observer.value).toBeCloseTo(
+                lerp(
+                    lerp(
+                        fixture.a.getExpected(0.1),
+                        fixture.b.getExpected(0.1),
+                        0.1 / fixture.aToBDuration,
+                    ),
+                    fixture.a.getExpected(0.17),
+                    0.17 / fixture.bToADuration,  
+                ),
+                DEFAULT_AROUND_NUM_DIGITS,
+            );
+        });
     });
 
     describe('Animation mask', () => {
