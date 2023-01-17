@@ -140,7 +140,6 @@ export class Line extends Component {
      * @ignore
      */
     private _model: LineModel | null = null;
-    private _tile_offset: Vec4 = new Vec4();
 
     constructor () {
         super();
