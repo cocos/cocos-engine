@@ -29,14 +29,18 @@ import { getTempTransform, PX, _pxtrans, _trans } from '../physx-adapter';
 import { PhysXJoint } from './physx-joint';
 
 export class PhysXRevoluteJoint extends PhysXJoint implements IHingeConstraint {
+    private _rot = new Quat(Quat.IDENTITY);
+
     setPivotA (v: IVec3Like): void {
         const cs = this.constraint;
         const pos = _trans.translation;
         const rot = _trans.rotation;
-        Vec3.multiply(pos, cs.node.worldScale, cs.pivotA);
+
         Quat.rotationTo(rot, Vec3.UNIT_X, cs.axis);
+        Vec3.multiply(pos, cs.node.worldScale, cs.pivotA);
         this._impl.setLocalPose(0, getTempTransform(pos, rot));
-        if (!cs.connectedBody) this.setPivotB(cs.pivotB);
+
+        if (!cs.connectedBody) this.setPivotB(cs.pivotB); // seems useless
     }
 
     setPivotB (v: IVec3Like): void {
@@ -44,17 +48,28 @@ export class PhysXRevoluteJoint extends PhysXJoint implements IHingeConstraint {
         const cb = cs.connectedBody;
         const pos = _trans.translation;
         const rot = _trans.rotation;
-        Quat.rotationTo(rot, Vec3.UNIT_X, cs.axis);
+
+        // rotation in local space body0
+        Quat.rotationTo(this._rot, Vec3.UNIT_X, cs.axis);
+
         if (cb) {
+            // orientation of axis in local space of body1
+            Quat.invert(rot, cs.node.worldRotation);
+            Quat.multiply(this._rot, rot, this._rot);
+            Quat.multiply(this._rot, cb.node.worldRotation, this._rot);
+            // position in local space body0
             Vec3.multiply(pos, cb.node.worldScale, cs.pivotB);
         } else {
             const node = cs.node;
-            Vec3.multiply(pos, node.worldScale, cs.pivotA);
+            // orientation of axis in local space of body1
+            Quat.multiply(this._rot, cs.node.worldRotation, this._rot);
+            // position in world space
+            Quat.invert(rot, cs.node.worldRotation);
+            Vec3.multiply(pos, node.worldScale, cs.pivotB);
+            Vec3.transformQuat(pos, pos, rot);
             Vec3.add(pos, pos, node.worldPosition);
-            Vec3.add(pos, pos, cs.pivotB);
-            Quat.multiply(rot, rot, node.worldRotation);
         }
-        this._impl.setLocalPose(1, getTempTransform(pos, rot));
+        this._impl.setLocalPose(1, getTempTransform(pos, this._rot));
     }
 
     setAxis (v: IVec3Like): void {

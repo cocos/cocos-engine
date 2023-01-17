@@ -60,21 +60,29 @@ void PhysXRevolute::updateScale1() {
 void PhysXRevolute::updatePose() {
     physx::PxTransform pose0{physx::PxIdentity};
     physx::PxTransform pose1{physx::PxIdentity};
+
+    // pos and rot in with respect to bodyA
     auto *node0 = _mSharedBody->getNode();
     node0->updateWorldTransform();
     pose0.p = _mPivotA * node0->getWorldScale();
     pxSetFromTwoVectors(pose0.q, physx::PxVec3{1.F, 0.F, 0.F}, _mAxis);
     _mJoint->setLocalPose(physx::PxJointActorIndex::eACTOR0, pose0);
-    pose1.q = pose0.q;
+
     if (_mConnectedBody) {
         auto *node1 = _mConnectedBody->getNode();
         node1->updateWorldTransform();
         pose1.p = _mPivotB * node1->getWorldScale();
+        const auto &rot_0_i = node0->getWorldRotation().getInversed();
+        const auto &rot_1 = node1->getWorldRotation();
+        pose1.q = physx::PxQuat(rot_1.x, rot_1.y, rot_1.z, rot_1.w) * physx::PxQuat(rot_0_i.x, rot_0_i.y, rot_0_i.z, rot_0_i.w) * pose0.q;
     } else {
-        pose1.p = _mPivotA * node0->getWorldScale();
-        pose1.p += _mPivotB + node0->getWorldPosition();
         const auto &wr = node0->getWorldRotation();
-        pose1.q *= physx::PxQuat{wr.x, wr.y, wr.z, wr.w};
+        const auto &wr_i = wr.getInversed();
+        auto rot = physx::PxQuat{wr_i.x, wr_i.y, wr_i.z, wr_i.w};
+        pose1.p = _mPivotA * node0->getWorldScale();
+        rot.rotate(pose1.p);
+        pose1.p += _mPivotB + node0->getWorldPosition();
+        pose1.q = physx::PxQuat{wr.x, wr.y, wr.z, wr.w} * pose0.q;
     }
     _mJoint->setLocalPose(physx::PxJointActorIndex::eACTOR1, pose1);
 }

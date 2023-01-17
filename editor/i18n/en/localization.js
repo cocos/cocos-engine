@@ -1021,6 +1021,13 @@ module.exports = {
             torque: 'The torque applied to the rigid body in the world coordinate system',
             localTorque: 'The torque applied to the rigid body in the local coordinate system',
         },
+        constraint: {
+            hinge: {
+                pivotA: 'The pivot point of the hinge in the local coordinate system of the own rigid body',
+                pivotB: 'The pivot point of the hinge in the local coordinate system of the connected rigid body',
+                axis: 'The axis of the hinge in the local coordinate system of the own rigid body',
+            },
+        },
     },
     octree_culling: {
         enabled: 'The switch of octree culling, only available for native platforms.',

@@ -1002,6 +1002,13 @@ module.exports = {
             torque: '在世界坐标系中，对刚体施加的扭转力',
             localTorque: '在本地坐标系中，对刚体施加的扭转力',
         },
+        constraint: {
+            hinge: {
+                pivotA: '在自身刚体的本地坐标系中，旋转轴的锚点位置',
+                pivotB: '在连接刚体的本地坐标系中，旋转轴的锚点位置',
+                axis: '在自身刚体的本地坐标系中，旋转轴的方向',
+            },
+        },
     },
     octree_culling: {
         enabled: '八叉树剔除开关，仅在原生平台中生效',
