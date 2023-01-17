@@ -251,15 +251,14 @@ float CCGetLinearDepth(vec3 worldPos) {
   
   #if CC_SUPPORT_CASCADED_SHADOW_MAP
     bool CCGetCSMLevelWithTransition(out highp float ratio, vec3 clipPos) {
-      highp float layerThreshold = 0.0;//cc_csmViewDir0[0].w;
       highp float maxRange = 1.0 - cc_csmSplitsInfo.x;
       highp float minRange = cc_csmSplitsInfo.x;
-      highp float thresholdInvert = 1.0 / (cc_csmSplitsInfo.x - layerThreshold);
+      highp float thresholdInvert = 1.0 / cc_csmSplitsInfo.x;
       ratio = 0.0;
       if (clipPos.x <= minRange) {
-        ratio = (clipPos.x - layerThreshold) * thresholdInvert;
+        ratio = clipPos.x * thresholdInvert;
         // if (clipPos.y <= minRange) {
-        //   ratio *= (clipPos.y - layerThreshold) * thresholdInvert;
+        //   ratio *= clipPos.y * thresholdInvert;
         // }
         // if (clipPos.y >= maxRange) {
         //   ratio *= 1.0 - (clipPos.y - maxRange) * thresholdInvert;
@@ -269,7 +268,7 @@ float CCGetLinearDepth(vec3 worldPos) {
       if (clipPos.x >= maxRange) {
         ratio = 1.0 - (clipPos.x - maxRange) * thresholdInvert;
         // if (clipPos.y <= minRange) {
-        //   ratio *= (clipPos.y - layerThreshold) * thresholdInvert;
+        //   ratio *= clipPos.y * thresholdInvert;
         // }
         // if (clipPos.y >= maxRange) {
         //   ratio *= 1.0 - (clipPos.y - maxRange) * thresholdInvert;
@@ -277,7 +276,7 @@ float CCGetLinearDepth(vec3 worldPos) {
         return true;
       }
       if (clipPos.y <= minRange) {
-        ratio = (clipPos.y - layerThreshold) * thresholdInvert;
+        ratio = clipPos.y  * thresholdInvert;
         return true;
       }
       if (clipPos.y >= maxRange) {
