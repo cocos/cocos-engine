@@ -1444,6 +1444,14 @@ export class SceneGlobals {
     @serializable
     public bakedWithStationaryMainLight = false;
 
+     /**
+     * @en bake lightmap with highp mode
+     * @zh 是否使用高精度模式烘培光照图
+     */
+     @editable
+     @serializable
+     public bakedWithHighpLightmap = false;
+
     /**
      * @en Activate and initialize the global configurations of the scene, no need to invoke manually.
      * @zh 启用和初始化场景全局配置，不需要手动调用
