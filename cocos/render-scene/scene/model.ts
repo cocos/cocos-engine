@@ -55,6 +55,10 @@ const stationaryLightMapPatches: IMacroPatch[] = [
     { name: 'CC_USE_LIGHTMAP', value: 2 },
 ];
 
+const highpLightMapPatches: IMacroPatch[] = [
+    { name: 'CC_LIGHT_MAP_VERSION', value: 2 },
+];
+
 const lightProbePatches: IMacroPatch[] = [
     { name: 'CC_USE_LIGHT_PROBE', value: true },
 ];
@@ -971,6 +975,11 @@ export class Model {
 
             const lightmapPathes = stationary ? stationaryLightMapPatches : staticLightMapPatches;
             patches = patches ? patches.concat(lightmapPathes) : lightmapPathes;
+
+            // use highp lightmap
+            if (this.node.scene.globals.bakedWithHighpLightmap) {
+                patches = patches.concat(highpLightMapPatches);
+            }
         }
         if (this._useLightProbe) {
             patches = patches ? patches.concat(lightProbePatches) : lightProbePatches;
