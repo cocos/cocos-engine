@@ -1,3 +1,27 @@
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
 import { EDITOR } from 'internal:constants';
 
 import { Vec2, Rect, _decorator, Eventify, cclegacy } from '../../../../core';
@@ -41,7 +65,7 @@ export class Collider2D extends Eventify(Component) {
 
     /**
      * @en The density.
-     * @zh 密度
+     * @zh 密度。
      */
     @property
     get density () {
@@ -69,7 +93,7 @@ export class Collider2D extends Eventify(Component) {
      * @en
      * The friction coefficient, usually in the range [0,1].
      * @zh
-     * 摩擦系数，取值一般在 [0, 1] 之间
+     * 摩擦系数，取值一般在 [0, 1] 之间。
      */
     @property
     get friction () {
@@ -83,7 +107,7 @@ export class Collider2D extends Eventify(Component) {
      * @en
      * The restitution (elasticity) usually in the range [0,1].
      * @zh
-     * 弹性系数，取值一般在 [0, 1]之间
+     * 弹性系数，取值一般在 [0, 1]之间。
      */
     @property
     get restitution () {
@@ -167,9 +191,9 @@ export class Collider2D extends Eventify(Component) {
 
     /**
      * @en
-     * Get the world aabb of the collider
+     * Get the world aabb of the collider.
      * @zh
-     * 获取碰撞体的世界坐标系下的包围盒
+     * 获取碰撞体的世界坐标系下的包围盒。
      */
     get worldAABB (): Readonly<Rect> {
         if (this._shape) {

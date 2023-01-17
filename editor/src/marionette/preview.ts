@@ -1,14 +1,16 @@
-import { BlendStateBuffer, LegacyBlendStateBuffer } from '../../../cocos/3d/skeletal-animation/skeletal-animation-blending';
 import { Node } from '../../../cocos/scene-graph';
-import { Motion, MotionEval } from '../../../cocos/animation/marionette/motion';
+import { Motion, MotionEval, MotionPort } from '../../../cocos/animation/marionette/motion';
 import { createEval } from '../../../cocos/animation/marionette/create-eval';
-import { BindContext } from '../../../cocos/animation/marionette/parametric';
 import { VarInstance, Value, VariableType } from '../../../cocos/animation/marionette/variable';
 import { assertIsNonNullable } from '../../../cocos/core/data/utils/asserts';
 import {
     AnimationBlendEval,
 } from '../../../cocos/animation/marionette/animation-blend';
 import type { RuntimeID } from '../../../cocos/animation/marionette/graph-debug';
+import {
+    AnimationGraphBindingContext, AnimationGraphEvaluationContext, AnimationGraphPoseLayoutMaintainer, defaultTransformsTag, MetaValueRegistry,
+} from '../../../cocos/animation/marionette/animation-graph-context';
+import { blendPoseInto, Pose } from '../../../cocos/animation/core/pose';
 
 class AnimationGraphPartialPreviewer {
     constructor(root: Node) {
@@ -19,7 +21,10 @@ class AnimationGraphPartialPreviewer {
     }
 
     public evaluate() {
-        this._blendBuffer.apply();
+        const { _evaluationContext: evaluationContext } = this;
+        const pose = this.doEvaluate(evaluationContext);
+        this._poseLayoutMaintainer.apply(pose ?? evaluationContext.pushDefaultedPose());
+        evaluationContext.popPose();
     }
 
     public addVariable(id: string, type: VariableType, value: Value) {
@@ -42,36 +47,52 @@ class AnimationGraphPartialPreviewer {
         varInstance.value = value;
     }
 
-    protected createMotionEval(motion: Motion) {
-        const {
-            _root: root,
-            _blendBuffer: blendBuffer,
-        } = this;
-
-        const bindContext: BindContext = {
-            getVar: this._getVar.bind(this),
-        };
-
-        const motionEval = motion[createEval]({
-            node: root,
-            blendBuffer,
-            getVar: (...args) => {
-                return bindContext.getVar(...args);
-            },
-            clipOverrides: null,
-        });
-
-        return motionEval;
+    protected createMotionEval(motion: Motion): MotionEvalRecord | null {
+        const record = new MotionEvalRecord(motion);
+        this._motionRecords.push(record);
+        this._updateAllRecords();
+        return record;
     }
 
-    private _root: Node;
+    protected doEvaluate(_evaluationContext: AnimationGraphEvaluationContext): Pose | null {
+        return null;
+    }
 
-    private _blendBuffer: BlendStateBuffer = new LegacyBlendStateBuffer();
+    private _poseLayoutMaintainer: AnimationGraphPoseLayoutMaintainer;
+
+    private _evaluationContext: AnimationGraphEvaluationContext;
 
     private _varInstances: Record<string, VarInstance> = {};
 
-    private _getVar(id: string): VarInstance | undefined {
-        return this._varInstances[id];
+    private _root: Node;
+
+    private _motionRecords: MotionEvalRecord[] = [];
+
+    private _updateAllRecords() {
+        const poseLayoutMaintainer = new AnimationGraphPoseLayoutMaintainer(new MetaValueRegistry());
+        this._poseLayoutMaintainer = poseLayoutMaintainer;
+
+        const bindingContext = new AnimationGraphBindingContext(this._root, this._poseLayoutMaintainer, this._varInstances);
+
+        poseLayoutMaintainer.startBind();
+
+        for (const record of this._motionRecords) {
+            record.rebind(bindingContext);
+        }
+
+        poseLayoutMaintainer.endBind();
+
+        const evaluationContext = new AnimationGraphEvaluationContext({
+            transformCount: poseLayoutMaintainer.transformCount,
+            metaValueCount: poseLayoutMaintainer.metaValueCount,
+        });
+
+        poseLayoutMaintainer.fetchDefaultTransforms(evaluationContext[defaultTransformsTag]);
+
+        if (this._evaluationContext) {
+            this._evaluationContext.destroy();
+        }
+        this._evaluationContext = evaluationContext;
     }
 }
 
@@ -92,31 +113,9 @@ export class MotionPreviewer extends AnimationGraphPartialPreviewer {
      * Gets an iterable to the weights of each motion(that has runtime ID).
      */
     public queryWeights(): Iterable<[RuntimeID, number]> {
-        const getWeightsRecursive = function* (motionEval: MotionEval, weight: number): Iterable<[RuntimeID, number]> {
-            if (typeof motionEval.runtimeId !== 'undefined') {
-                yield [motionEval.runtimeId, weight];
-            }
-
-            if (motionEval instanceof AnimationBlendEval) {
-                const nChild = motionEval.childCount;
-                for (let iChild = 0; iChild < nChild; ++iChild) {
-                    const childMotionEval = motionEval.getChildMotionEval(iChild);
-                    const childWeight = motionEval.getChildWeight(iChild);
-                    if (childMotionEval) {
-                        for (const child of getWeightsRecursive(childMotionEval, childWeight)) {
-                            yield child;
-                        }
-                    }
-                }
-            }
-
-            return;
-        };
-
         if (this._motionEval) {
-            return getWeightsRecursive(this._motionEval, 1.0);
+            return this._motionEval.getWeightsRecursive(1.0);
         }
-
         return [];
     }
 
@@ -134,20 +133,19 @@ export class MotionPreviewer extends AnimationGraphPartialPreviewer {
         this._timelineStatsDirty = true;
     }
 
-    public evaluate(): void {
+    protected doEvaluate(context: AnimationGraphEvaluationContext) {
         const {
             _motionEval: motionEval,
         } = this;
         if (!motionEval) {
-            return;
+            return context.pushDefaultedPose();
         }
-        motionEval.sample(this._time / motionEval.duration, 1.0);
-        super.evaluate();
+        return motionEval.sample(this._time / motionEval.duration, context);
     }
 
     private _time: number = 0.0;
 
-    private _motionEval: MotionEval | null = null;
+    private _motionEval: MotionEvalRecord | null = null;
 
     private _timelineStatsDirty = true;
     private _timelineStats: MotionPreviewerTimelineStats = {
@@ -253,7 +251,7 @@ export class TransitionPreviewer extends AnimationGraphPartialPreviewer {
         this._time = time;
     }
 
-    public evaluate() {
+    protected doEvaluate(context: AnimationGraphEvaluationContext) {
         const {
             _source: source,
             _target: target,
@@ -267,7 +265,7 @@ export class TransitionPreviewer extends AnimationGraphPartialPreviewer {
         } = this;
 
         if (!source || !target) {
-            return;
+            return context.pushDefaultedPose();
         }
 
         const sourceDuration = source.duration;
@@ -284,21 +282,20 @@ export class TransitionPreviewer extends AnimationGraphPartialPreviewer {
         const destinationStartAbsolute = relativeDestinationStart ? destinationStart * targetDuration : destinationStart;
 
         if (time < exitTimeAbsolute) {
-            source.sample(time / sourceDuration, 1.0);
+            return source.sample(time / sourceDuration, context);
         } else {
             const transitionTime = time - exitTimeAbsolute;
             if (transitionTime > transitionDurationAbsolute) {
-                target.sample((destinationStartAbsolute + transitionTime) / targetDuration, 1.0);
+                return target.sample((destinationStartAbsolute + transitionTime) / targetDuration, context);
             } else {
                 const transitionRatio = transitionTime / transitionDurationAbsolute;
-                const sourceWeight = 1.0 - transitionRatio;
-                const targetWeight = transitionRatio;
-                source.sample(time / sourceDuration, sourceWeight);
-                target.sample(transitionTime / targetDuration, targetWeight);
+                const sourcePose = source.sample(time / sourceDuration, context);
+                const targetPose = target.sample(transitionTime / targetDuration, context);
+                blendPoseInto(sourcePose, targetPose, transitionRatio);
+                context.popPose();
+                return sourcePose;
             }
         }
-
-        super.evaluate();
     }
 
     private _time: number = 0.0;
@@ -308,8 +305,8 @@ export class TransitionPreviewer extends AnimationGraphPartialPreviewer {
     private _exitCondition: number = 0.0;
     private _destinationStart = 0.0;
     private _relativeDestinationStart = false;
-    private _source: MotionEval | null = null;
-    private _target: MotionEval | null = null;
+    private _source: MotionEvalRecord | null = null;
+    private _target: MotionEvalRecord | null = null;
     private _timelineStatsDirty = true;
     private _timeLineStats: TransitionPreviewerTimelineStats = {
         timeLineLength: 0.0,
@@ -373,4 +370,69 @@ export class TransitionPreviewer extends AnimationGraphPartialPreviewer {
         timeLineStats.transitionDurationStart = exitTimeAbsolute;
         timeLineStats.transitionDurationLength = transitionDurationAbsolute;
     }
+}
+
+class MotionEvalRecord {
+    constructor(motion: Motion) {
+        this._motion = motion;
+    }
+
+    get motion() {
+        return this._motion;
+    }
+
+    get duration() {
+        return this._eval?.duration ?? 0.0;
+    }
+
+    public sample(progress: number, context: AnimationGraphEvaluationContext) {
+        return this._port?.evaluate(progress, context) ?? context.pushDefaultedPose();
+    }
+
+    public getWeightsRecursive(weight: number): Iterable<[RuntimeID, number]> {
+        if (!this._eval) {
+            return [];
+        }
+
+        const getWeightsRecursive = function* (motionEval: MotionEval, weight: number): Iterable<[RuntimeID, number]> {
+            if (typeof motionEval.runtimeId !== 'undefined') {
+                yield [motionEval.runtimeId, weight];
+            }
+
+            if (motionEval instanceof AnimationBlendEval) {
+                const nChild = motionEval.childCount;
+                for (let iChild = 0; iChild < nChild; ++iChild) {
+                    const childMotionEval = motionEval.getChildMotionEval(iChild);
+                    const childWeight = motionEval.getChildWeight(iChild);
+                    if (childMotionEval) {
+                        for (const child of getWeightsRecursive(childMotionEval, childWeight)) {
+                            yield child;
+                        }
+                    }
+                }
+            }
+
+            return;
+        };
+
+        return getWeightsRecursive(this._eval, weight);
+    }
+
+    public rebind(bindContext: AnimationGraphBindingContext) {
+        const motionEval = this._motion[createEval]({
+            additive: false,
+            up: bindContext,
+        }, null);
+
+        if (!motionEval) {
+            return;
+        }
+
+        this._eval = motionEval;
+        this._port = motionEval.createPort();
+    }
+
+    private _motion: Motion;
+    private _eval: MotionEval | null = null;
+    private _port: MotionPort | null = null;
 }

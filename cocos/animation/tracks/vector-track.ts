@@ -1,7 +1,31 @@
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
 import { ccclass, serializable } from 'cc.decorator';
 import { RealCurve, Vec2, Vec3, Vec4 } from '../../core';
 import { CLASS_NAME_PREFIX_ANIM, createEvalSymbol } from '../define';
-import { Channel, RealChannel, RuntimeBinding, Track } from './track';
+import { Channel, RealChannel, RuntimeBinding, Track, TrackEval } from './track';
 import { maskIfEmpty } from './utils';
 
 const CHANNEL_NAMES: ReadonlyArray<string> = ['X', 'Y', 'Z', 'W'];
@@ -80,14 +104,18 @@ export class VectorTrack extends Track {
     private _nComponents: 2 | 3 | 4 = 4;
 }
 
-export class Vec2TrackEval {
+export class Vec2TrackEval implements TrackEval<Vec2> {
     constructor (private _x: RealCurve | undefined, private _y: RealCurve | undefined) {
 
     }
 
-    public evaluate (time: number, runtimeBinding: RuntimeBinding) {
-        if ((!this._x || !this._y) && runtimeBinding.getValue) {
-            Vec2.copy(this._result, runtimeBinding.getValue() as Vec2);
+    public get requiresDefault () {
+        return !this._x || !this._y;
+    }
+
+    public evaluate (time: number, defaultValue?: Readonly<Vec2>) {
+        if (defaultValue) {
+            Vec2.copy(this._result, defaultValue);
         }
 
         if (this._x) {
@@ -103,14 +131,18 @@ export class Vec2TrackEval {
     private _result: Vec2 = new Vec2();
 }
 
-export class Vec3TrackEval {
+export class Vec3TrackEval implements TrackEval<Vec3> {
     constructor (private _x: RealCurve | undefined, private _y: RealCurve | undefined, private _z: RealCurve | undefined) {
 
     }
 
-    public evaluate (time: number, runtimeBinding: RuntimeBinding) {
-        if ((!this._x || !this._y || !this._z) && runtimeBinding.getValue) {
-            Vec3.copy(this._result, runtimeBinding.getValue() as Vec3);
+    public get requiresDefault () {
+        return !this._x || !this._y || !this._z;
+    }
+
+    public evaluate (time: number, defaultValue?: Readonly<Vec3>) {
+        if (defaultValue) {
+            Vec3.copy(this._result, defaultValue);
         }
 
         if (this._x) {
@@ -129,7 +161,7 @@ export class Vec3TrackEval {
     private _result: Vec3 = new Vec3();
 }
 
-export class Vec4TrackEval {
+export class Vec4TrackEval implements TrackEval<Vec4> {
     constructor (
         private _x: RealCurve | undefined,
         private _y: RealCurve | undefined,
@@ -139,9 +171,13 @@ export class Vec4TrackEval {
 
     }
 
-    public evaluate (time: number, runtimeBinding: RuntimeBinding) {
-        if ((!this._x || !this._y || !this._z || !this._w) && runtimeBinding.getValue) {
-            Vec4.copy(this._result, runtimeBinding.getValue() as Vec4);
+    public get requiresDefault () {
+        return !this._x || !this._y || !this._z || !this._w;
+    }
+
+    public evaluate (time: number, defaultValue?: Readonly<Vec4>) {
+        if (defaultValue) {
+            Vec4.copy(this._result, defaultValue);
         }
 
         if (this._x) {

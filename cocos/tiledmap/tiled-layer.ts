@@ -1,20 +1,19 @@
 /* eslint-disable default-case */
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,7 +22,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { ccclass } from 'cc.decorator';
 
@@ -176,7 +175,7 @@ export class TiledLayer extends UIRenderer {
     get leftDownToCenterX () { return this._leftDownToCenterX; }
     get leftDownToCenterY () { return this._leftDownToCenterY; }
 
-    private _drawInfoList : RenderDrawInfo[] = [];
+    private _drawInfoList: RenderDrawInfo[] = [];
     private requestDrawInfo (idx: number) {
         if (!this._drawInfoList[idx]) {
             this._drawInfoList[idx] = new RenderDrawInfo();
@@ -798,16 +797,13 @@ export class TiledLayer extends UIRenderer {
             _tempRowCol.col++;
         }
 
-        // avoid range out of max rect
-        if (_tempRowCol.row > this._rightTop.row) _tempRowCol.row = this._rightTop.row;
-        if (_tempRowCol.col > this._rightTop.col) _tempRowCol.col = this._rightTop.col;
-
         if (_tempRowCol.row !== rightTop.row || _tempRowCol.col !== rightTop.col) {
             rightTop.row = _tempRowCol.row;
             rightTop.col = _tempRowCol.col;
             this._cullingDirty = true;
-            this.markForUpdateRenderData();
         }
+
+        if (this._cullingDirty) this.markForUpdateRenderData();
     }
 
     // the result may not precise, but it dose't matter, it just uses to be got range
@@ -1346,18 +1342,20 @@ export class TiledLayer extends UIRenderer {
         if (this._layerOrientation === Orientation.HEX) {
             let width = 0;
             let height = 0;
+            const tileWidth = maptw & ~1;
+            const tileHeight = mapth & ~1;
 
             this._odd_even = (this._staggerIndex === StaggerIndex.STAGGERINDEX_ODD) ? 1 : -1;
             if (this._staggerAxis === StaggerAxis.STAGGERAXIS_X) {
-                this._diffX1 = (maptw - this._hexSideLength) / 2;
+                this._diffX1 = (tileWidth - this._hexSideLength) / 2;
                 this._diffY1 = 0;
-                height = mapth * (layerH + 0.5);
-                width = (maptw + this._hexSideLength) * Math.floor(layerW / 2) + maptw * (layerW % 2);
+                width = (this._diffX1 + this._hexSideLength) * layerW + this._diffX1;
+                height = (tileHeight * layerH) + tileHeight / 2;
             } else {
                 this._diffX1 = 0;
-                this._diffY1 = (mapth - this._hexSideLength) / 2;
-                width = maptw * (layerW + 0.5);
-                height = (mapth + this._hexSideLength) * Math.floor(layerH / 2) + mapth * (layerH % 2);
+                this._diffY1 = (tileHeight - this._hexSideLength) / 2;
+                width = (tileWidth * layerW) + tileWidth / 2;
+                height = (this._diffY1 + this._hexSideLength) * layerH + this._diffY1;
             }
             this.node._uiProps.uiTransformComp!.setContentSize(width, height);
         } else if (this._layerOrientation === Orientation.ISO) {

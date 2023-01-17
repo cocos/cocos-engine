@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 import { EDITOR, JSB } from 'internal:constants';
 import { ccclass, editable, executeInEditMode, menu, serializable, type } from 'cc.decorator';
 import { Vec3, Mat4, geometry, CCInteger, CCFloat } from '../../core';
@@ -33,7 +32,7 @@ import { scene } from '../../render-scene';
 import { NodeEventType } from '../../scene-graph/node-event';
 
 // Ratio of objects occupying the screen
-const DEFAULT_SCREEN_OCCUPATION: number[] = [0.25, 0.125, 0.0625];
+const DEFAULT_SCREEN_OCCUPATION: number[] = [0.25, 0.125, 0.01];
 
 export type ModelAddedCallback = () => void;
 @ccclass('cc.LOD')
@@ -296,7 +295,11 @@ export class LODGroup extends Component {
      * @ 重置 LODs 为当前新设置的值。
      */
     set LODs (valArray: readonly LOD[]) {
-        if (valArray === this._LODs) return;
+        if (valArray === this._LODs) {
+            //_LODs maybe changed, we need to notify the scene to update.
+            this._updateDataToScene();
+            return;
+        }
         this._LODs.length = 0;
         this.lodGroup.clearLODs();
         valArray.forEach((lod: LOD, index: number) => {
@@ -304,6 +307,8 @@ export class LODGroup extends Component {
             this._LODs[index] = lod;
             lod.modelAddedCallback = this.onLodModelAddedCallback.bind(this);
         });
+        //_LODs has been changed, we need to notify the scene to update.
+        this._updateDataToScene();
     }
 
     /**
@@ -342,6 +347,9 @@ export class LODGroup extends Component {
                 screenUsagePercentage = (preLod.screenUsagePercentage + nextLod.screenUsagePercentage) / 2;
             } else if (preLod && !nextLod) { // insert at last position
                 screenUsagePercentage = preLod.screenUsagePercentage / 2;
+                if (screenUsagePercentage > 0.01) {
+                    screenUsagePercentage = 0.01;
+                }
             } else if (nextLod && !preLod) {
                 //insert at first position
                 screenUsagePercentage = nextLod.screenUsagePercentage;
@@ -600,13 +608,13 @@ export class LODGroup extends Component {
     }
 
     private _attachToScene () {
-        if (!this.node.scene) { return; }
-
-        const renderScene = this._getRenderScene();
-        if (this._lodGroup.scene) {
-            this._detachFromScene();
+        if (this.node && this.node.scene) {
+            const renderScene = this._getRenderScene();
+            if (this._lodGroup.scene) {
+                this._detachFromScene();
+            }
+            renderScene.addLODGroup(this._lodGroup);
         }
-        renderScene.addLODGroup(this._lodGroup);
     }
 
     private _detachFromScene () {
@@ -621,5 +629,10 @@ export class LODGroup extends Component {
             // @ts-expect-error Because EditorExtends is Editor only
             EditorExtends.Node.emit('change', node.uuid, node);
         }
+    }
+
+    private _updateDataToScene () {
+        this._detachFromScene();
+        this._attachToScene();
     }
 }

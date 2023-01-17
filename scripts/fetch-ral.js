@@ -163,6 +163,7 @@ async function removeDir (dirPath) {
         await removeDir(repositoryPath);
         let exitCode = await runCommand('git clone git@github.com:yangws/runtime-web-adapter.git', __dirname);
         if (exitCode !== 0) {
+            await removeDir(repositoryPath);
             await runCommand('git clone https://github.com/yangws/runtime-web-adapter', __dirname);
         }
         await runCommand('git checkout for-creator-3', repositoryPath);

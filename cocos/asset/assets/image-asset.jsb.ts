@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -31,6 +30,7 @@ import './asset';
 
 export type ImageAsset = jsb.ImageAsset;
 export const ImageAsset = jsb.ImageAsset;
+const jsbWindow = jsb.window;
 
 export interface IMemoryImageSource {
     _data: ArrayBufferView | null;
@@ -58,7 +58,7 @@ function isNativeImage (imageSource: ImageSource): imageSource is (HTMLImageElem
         return false;
     }
 
-    return imageSource instanceof HTMLImageElement || imageSource instanceof HTMLCanvasElement || isImageBitmap(imageSource);
+    return imageSource instanceof jsbWindow.HTMLImageElement || imageSource instanceof jsbWindow.HTMLCanvasElement || isImageBitmap(imageSource);
 }
 
 const imageAssetProto = ImageAsset.prototype;
@@ -88,7 +88,7 @@ Object.defineProperty(imageAssetProto, '_nativeAsset', {
         return this._nativeData;
     },
     set (value: ImageSource) {
-        if (!(value instanceof HTMLElement) && !isImageBitmap(value)) {
+        if (!(value instanceof jsbWindow.HTMLElement) && !isImageBitmap(value)) {
             // @ts-expect-error internal API usage
             value.format = value.format || this.format;
         }
@@ -116,19 +116,22 @@ imageAssetProto._setRawAsset = function (filename: string, inLibrary = true) {
     }
 };
 
+
 imageAssetProto.reset = function (data: ImageSource) {
     this._nativeData = data;
 
-    if (!(data instanceof HTMLElement)) {
+    if (!(data instanceof jsbWindow.HTMLElement)) {
         // @ts-expect-error internal api usage
-        this.format = data.format;
+        if(data.format !== undefined) {
+            this.format = (data as any).format;
+        }
     }
     this._syncDataToNative();
 };
 
 const superDestroy = jsb.Asset.prototype.destroy;
 imageAssetProto.destroy = function () {
-    if(this.data && this.data instanceof HTMLImageElement) {
+    if(this.data && this.data instanceof jsbWindow.HTMLImageElement) {
         this.data.src = '';
         this._setRawAsset('');
         this.data.destroy();
@@ -163,16 +166,20 @@ imageAssetProto._syncDataToNative = function () {
     this.setHeight(this._height);
     this.url = this.nativeUrl;
 
-    if (data instanceof HTMLCanvasElement) {
+    if (data instanceof jsbWindow.HTMLCanvasElement) {
         this.setData(data._data.data);
     }
-    else if (data instanceof HTMLImageElement) {
+    else if (data instanceof jsbWindow.HTMLImageElement) {
         this.setData(data._data);
         if (data._mipmapLevelDataSize){
             this.setMipmapLevelDataSize(data._mipmapLevelDataSize);
         }
     }
     else {
+        if(!this._nativeData._data){
+            console.error(`[ImageAsset] setData bad argument ${this._nativeData}`);
+            return;
+        }
         this.setData(this._nativeData._data);
         if (this._nativeData.mipmapLevelDataSize) {
             this.setMipmapLevelDataSize(this._nativeData.mipmapLevelDataSize);

@@ -2,16 +2,16 @@
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
@@ -36,6 +36,7 @@ import { dynamicAtlasManager } from '../utils/dynamic-atlas/atlas-manager';
 import { Mesh } from '../../3d/assets/mesh';
 import { createMesh } from '../../3d/misc';
 import { Attribute, AttributeName, Format, PrimitiveMode } from '../../gfx';
+import { ccwindow } from '../../core/global-exports';
 
 const INSET_LEFT = 0;
 const INSET_TOP = 1;
@@ -463,7 +464,7 @@ export class SpriteFrame extends Asset {
 
     set _textureSource (value: TextureBase) {
         // Optimization for build
-        if (window.Build) {
+        if (globalThis.Build) {
             this._texture = value;
             return;
         }
@@ -553,7 +554,7 @@ export class SpriteFrame extends Asset {
      */
     public uv: number[] = [];
 
-    public unbiasUV:number[] = [];
+    public unbiasUV: number[] = [];
 
     /**
      * @en UV for sliced 9 vertices
@@ -1241,8 +1242,9 @@ export class SpriteFrame extends Asset {
             this._packable = false;
             return;
         }
+        const CanvasElement = ccwindow.HTMLCanvasElement;
 
-        if (texture.image && texture.image instanceof HTMLCanvasElement) {
+        if (texture.image && texture.image instanceof CanvasElement) {
             this._packable = true;
         }
     }

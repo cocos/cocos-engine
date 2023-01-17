@@ -551,6 +551,11 @@ void CCMTLCommandBuffer::nextSubpass() {
 }
 
 void CCMTLCommandBuffer::draw(const DrawInfo &info) {
+    if(!_gpuCommandBufferObj->pipelineState ||
+       !_gpuCommandBufferObj->pipelineState->getGPUPipelineState() ||
+       !_gpuCommandBufferObj->pipelineState->getGPUPipelineState()->mtlRenderPipelineState) {
+        return;
+    }
     CC_PROFILE(CCMTLCommandBufferDraw);
     if (_firstDirtyDescriptorSet < _GPUDescriptorSets.size()) {
         bindDescriptorSets();
