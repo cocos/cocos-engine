@@ -45,7 +45,7 @@ void CCSurfacesLightingCalculateEnvironment(out vec3 lightingDiffuse, out vec3 l
     vec3 irradiance = vec3(lightingData.NoLSat) * lightSourceColorAndIntensity.rgb * lightSourceColorAndIntensity.w;
 
     vec3 R = CalculateRefractDirection(lightingData.N, lightingData.V, lightingData.NoV, lightingData.ior);
-    float RoL = dot(lightingData.L, R);
+    float RoL = dot(-lightingData.L, R);
     float calcSpec = D_GGX(roughness, saturate(RoL));
     
     lightingSpecular = irradiance * calcSpec;
@@ -69,34 +69,33 @@ void CCSurfacesLightingCalculateEnvironment(out vec3 lightingDiffuse, out vec3 l
 
     lightingSpecular = envSpec * lightIntensity;
 
-    // extinction and in-scattering
-    float extinction = lightingData.transmitParams.x, depth = lightingData.transmitParams.y;
-    float outScattered = exp(-extinction * depth);
-    lightingSpecular = lightingSpecular * outScattered;
-    float inScatterIntensity = lightingData.transmitParams.z;
-    lightingSpecular += (1.0 - outScattered) * inScatterIntensity * lightingData.inScatteringColorAndIntensity.xyz * lightingData.inScatteringColorAndIntensity.w;
+    // scattering
+    float distance = lightingData.transmitParams.w, inScatterCoef = lightingData.transmitParams.z;
+    vec2 e = lightingData.transmitParams.xy;
+    vec2 extinction = exp(-e * distance * vec2(1.0, inScatterCoef));
+    vec3 inScattered = (1.0 - extinction.y) * lightingData.inScatteringLightColor.rgb;
+    lightingSpecular = lightingSpecular * extinction.x + inScattered;
   }
 #endif
 
-#if CC_SURFACES_LIGHTING_TRANSMITTENCE
-  void CCSurfacesLightingCalculateDirectTransmittence(out vec3 transmittence, in LightingResult lightingResult, in LightingIntermediateData lightingData, in vec4 lightSourceColorAndIntensity)
+#if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
+  void CCSurfacesLightingCalculateDirectTransmitDiffuse(out vec3 transmitDiffuse, in LightingResult lightingResult, in LightingIntermediateData lightingData, in vec4 lightSourceColorAndIntensity)
   {
     vec3 backIrradiance = vec3(saturate(-lightingData.NoL)) * lightSourceColorAndIntensity.rgb * lightSourceColorAndIntensity.w;
     vec3 transmitDiffuse = backIrradiance * DiffuseCoefficient_EnergyConservation;
     //todo: add some
     lightingData.transmitParams;
-    lightingData.transmittenceParams;
-    transmittence = vec3(0.0);
+    lightingData.transmitDiffuseParams;
+    transmitDiffuse = vec3(0.0);
   }
-  void CCSurfacesLightingCalculateEnvironmentTransmittence(out vec3 transmittence, in LightingResult lightingResult, in LightingIntermediateData lightingData, float lightIntensity)
+  void CCSurfacesLightingCalculateEnvironmentTransmitDiffuse(out vec3 transmitDiffuse, in LightingResult lightingResult, in LightingIntermediateData lightingData, float lightIntensity)
   {
     // negativate lightingData.N before invoking CalculateEnvironmentDiffuse
     lightingData.N *= -1.0;
     vec3 backIrradiance = CalculateEnvironmentDiffuse(lightingData, lightIntensity);
-    lightingData.N *= -1.0;
     lightingData.transmitParams;
-    lightingData.transmittenceParams;
-    transmittence = vec3(0.0); //backIrradiance * lightingResult.ao;
+    lightingData.transmitDiffuseParams;
+    transmitDiffuse = vec3(0.0); //backIrradiance * lightingResult.ao;
   }  
 #endif
 

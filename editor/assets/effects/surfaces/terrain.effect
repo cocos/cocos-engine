@@ -96,10 +96,13 @@ CCProgram surface-fragment %{
   void SurfacesFragmentModifySharedData(inout SurfacesMaterialData surfaceData)
   {
     vec2 uvw = FSInput_texcoord;
-    vec2 uv0 = FSInput_localPos.xz * UVScale.x;
-    vec2 uv1 = FSInput_localPos.xz * UVScale.y;
-    vec2 uv2 = FSInput_localPos.xz * UVScale.z;
-    vec2 uv3 = FSInput_localPos.xz * UVScale.w;
+    vec2 uv0, uv1, uv2, uv3;
+    #if CC_SURFACES_TRANSFER_LOCAL_POS
+      uv0 = FSInput_localPos.xz * UVScale.x;
+      uv1 = FSInput_localPos.xz * UVScale.y;
+      uv2 = FSInput_localPos.xz * UVScale.z;
+      uv3 = FSInput_localPos.xz * UVScale.w;
+    #endif
     vec4 w = vec4(0.0);
     #if LAYERS > 1
         w = texture(weightMap, uvw);
@@ -204,10 +207,9 @@ CCProgram surface-fragment %{
 
 CCProgram terrain-vs %{
   precision highp float;
-  #include <surfaces/effect-macros/terrain>
   #include <builtin/uniforms/cc-local>
   // 1. surface internal macros, for technique usage or remapping some user (material) macros to surface internal macros
-  #include <surfaces/effect-macros/common-macros>
+  #include <surfaces/effect-macros/terrain>
 
   // 2. common include with corresponding shader stage, include before surface functions
   #include <surfaces/includes/common-vs>
@@ -238,9 +240,8 @@ CCProgram shadow-caster-vs %{
 CCProgram terrain-fs %{
 
   precision highp float;
-  #include <surfaces/effect-macros/terrain>
   // 1. surface internal macros, for technique usage or remapping some user (material) macros to surface internal macros
-  #include <surfaces/effect-macros/common-macros>
+  #include <surfaces/effect-macros/terrain>
 
   // 2. common include with corresponding shader stage, include before surface functions
   #include <surfaces/includes/common-fs>
