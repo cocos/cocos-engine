@@ -67,7 +67,7 @@ export class ParticleSystem extends ModelRenderer {
      * @en Maximum particle capacity to generate
      * @zh 粒子系统能生成的最大粒子数量。
      */
-    @range([0, Number.POSITIVE_INFINITY])
+    @range([0, Number.POSITIVE_INFINITY, 1])
     @displayOrder(1)
     @tooltip('i18n:particle_system.capacity')
     public get capacity () {
@@ -1135,7 +1135,7 @@ export class ParticleSystem extends ModelRenderer {
             let culled = true;
             if (cameraLst !== undefined && this._boundingBox) {
                 for (let i = 0; i < cameraLst.length; ++i) {
-                    const camera:Camera = cameraLst[i];
+                    const camera: Camera = cameraLst[i];
                     const visibility = camera.visibility;
                     if ((visibility & this.node.layer) === this.node.layer) {
                         if (EDITOR && !cclegacy.GAME_VIEW) {

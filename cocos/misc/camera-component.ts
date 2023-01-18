@@ -24,7 +24,7 @@
 */
 
 import { EDITOR } from 'internal:constants';
-import { ccclass, help, executeInEditMode, menu, tooltip, displayOrder, type, serializable, visible } from 'cc.decorator';
+import { ccclass, help, executeInEditMode, menu, tooltip, displayOrder, type, serializable, visible, range, rangeMin } from 'cc.decorator';
 import { RenderTexture } from '../asset/assets/render-texture';
 import { UITransform } from '../2d/framework';
 import { Component } from '../scene-graph';
@@ -189,6 +189,7 @@ export class Camera extends Component {
      * @zh 相机的渲染优先级，值越小越优先渲染。
      */
     @displayOrder(0)
+    @range([0, 65535, 1])
     @tooltip('i18n:camera.priority')
     get priority () {
         return this._priority;
@@ -330,6 +331,7 @@ export class Camera extends Component {
     @visible(function (this: Camera) {
         return this._projection === ProjectionType.PERSPECTIVE;
     })
+    @range([1, 180, 1])
     @tooltip('i18n:camera.fov')
     get fov () {
         return this._fov;
@@ -348,6 +350,7 @@ export class Camera extends Component {
     @visible(function (this: Camera) {
         return this._projection === ProjectionType.ORTHO;
     })
+    @rangeMin(1)
     @tooltip('i18n:camera.ortho_height')
     get orthoHeight () {
         return this._orthoHeight;
@@ -363,6 +366,7 @@ export class Camera extends Component {
      * @zh 相机的近裁剪距离，应在可接受范围内尽量取最大。
      */
     @displayOrder(10)
+    @rangeMin(0)
     @tooltip('i18n:camera.near')
     get near () {
         return this._near;
@@ -378,6 +382,7 @@ export class Camera extends Component {
      * @zh 相机的远裁剪距离，应在可接受范围内尽量取最小。
      */
     @displayOrder(11)
+    @rangeMin(0)
     @tooltip('i18n:camera.far')
     get far () {
         return this._far;
