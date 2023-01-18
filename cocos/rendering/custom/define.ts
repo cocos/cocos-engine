@@ -555,13 +555,13 @@ export function buildForwardPass (camera: Camera,
     forwardPass.setViewport(new Viewport(area.x, area.y, width, height));
     for (const dirShadowName of cameraInfo.mainLightShadowNames) {
         if (ppl.containsResource(dirShadowName)) {
-            const computeView = new ComputeView();
+            const computeView = new ComputeView('cc_shadowMap');
             forwardPass.addComputeView(dirShadowName, computeView);
         }
     }
     for (const spotShadowName of cameraInfo.spotLightShadowNames) {
         if (ppl.containsResource(spotShadowName)) {
-            const computeView = new ComputeView();
+            const computeView = new ComputeView('cc_spotShadowMap');
             forwardPass.addComputeView(spotShadowName, computeView);
         }
     }
