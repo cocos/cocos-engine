@@ -268,6 +268,8 @@ void NativeRasterPassBuilder::addRasterView(const ccstd::string &name, const Ras
 }
 
 void NativeRasterPassBuilder::addComputeView(const ccstd::string &name, const ComputeView &view) {
+    CC_EXPECTS(!name.empty());
+    CC_EXPECTS(!view.name.empty());
     auto &pass = get(RasterTag{}, passID, *renderGraph);
     auto iter = pass.computeViews.find(name.c_str());
     if (iter == pass.computeViews.end()) {
@@ -1002,6 +1004,8 @@ void NativeComputePassBuilder::setName(const ccstd::string &name) {
 }
 
 void NativeComputePassBuilder::addComputeView(const ccstd::string &name, const ComputeView &view) {
+    CC_EXPECTS(!name.empty());
+    CC_EXPECTS(!view.name.empty());
     auto &pass = get(ComputeTag{}, passID, *renderGraph);
     auto iter = pass.computeViews.find(name.c_str());
     if (iter == pass.computeViews.end()) {

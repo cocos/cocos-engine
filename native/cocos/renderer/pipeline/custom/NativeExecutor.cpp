@@ -317,26 +317,7 @@ gfx::BufferBarrierInfo getBufferBarrier(const cc::render::Barrier& barrier) {
 std::pair<gfx::TextureBarrierInfo, gfx::Texture*> getTextureBarrier(
     ResourceGraph& resg, ResourceGraph::vertex_descriptor resID,
     const cc::render::Barrier& barrier) {
-    gfx::Texture* texture = nullptr;
-    visitObject(
-        resID, resg,
-        [&](const ManagedTexture& res) {
-            texture = res.texture.get();
-        },
-        [&](const IntrusivePtr<gfx::Texture>& tex) {
-            texture = tex.get();
-        },
-        [&](const IntrusivePtr<gfx::Framebuffer>& fb) {
-            std::ignore = fb;
-            CC_EXPECTS(false);
-        },
-        [&](const RenderSwapchain& sc) {
-            texture = sc.swapchain->getColorTexture();
-        },
-        [&](const auto& buffer) {
-            std::ignore = buffer;
-            CC_EXPECTS(false);
-        });
+    gfx::Texture* texture = resg.getTexture(resID);
     CC_ENSURES(texture);
 
     const auto& desc = get(ResourceGraph::DescTag{}, resg, resID);
@@ -562,10 +543,12 @@ void uploadUniformBuffer(
 }
 
 void initPerPassDescriptorSet(
+    ResourceGraph& resg,
     gfx::Device* device,
     cc::gfx::CommandBuffer* cmdBuff,
     const gfx::DefaultResource& defaultResource,
     const LayoutGraphData& lg,
+    const PmrFlatMap<NameLocalID, ResourceGraph::vertex_descriptor>& resourceIndex,
     const DescriptorSetData& set,
     const RenderData& user,
     LayoutGraphNodeResource& node) {
@@ -607,34 +590,45 @@ void initPerPassDescriptorSet(
                     CC_EXPECTS(d.count == 1);
                     CC_EXPECTS(d.type >= gfx::Type::SAMPLER1D &&
                                d.type <= gfx::Type::SAMPLER_CUBE);
-                    auto iter = user.textures.find(d.descriptorID.value);
-                    if (iter != user.textures.end()) {
-                        passSet->bindTexture(bindID, iter->second.get());
+
+                    auto iter = resourceIndex.find(d.descriptorID);
+                    if (iter != resourceIndex.end()) {
+                        // render graph textures
+                        auto* texture = resg.getTexture(iter->second);
+                        CC_ENSURES(texture);
+                        passSet->bindTexture(bindID, texture);
                     } else {
-                        gfx::TextureType type{};
-                        switch (d.type) {
-                            case gfx::Type::SAMPLER1D:
-                                type = gfx::TextureType::TEX1D;
-                                break;
-                            case gfx::Type::SAMPLER1D_ARRAY:
-                                type = gfx::TextureType::TEX1D_ARRAY;
-                                break;
-                            case gfx::Type::SAMPLER2D:
-                                type = gfx::TextureType::TEX2D;
-                                break;
-                            case gfx::Type::SAMPLER2D_ARRAY:
-                                type = gfx::TextureType::TEX2D_ARRAY;
-                                break;
-                            case gfx::Type::SAMPLER3D:
-                                type = gfx::TextureType::TEX3D;
-                                break;
-                            case gfx::Type::SAMPLER_CUBE:
-                                type = gfx::TextureType::CUBE;
-                                break;
-                            default:
-                                break;
+                        // user provided textures
+                        auto iter = user.textures.find(d.descriptorID.value);
+                        if (iter != user.textures.end()) {
+                            passSet->bindTexture(bindID, iter->second.get());
+                        } else {
+                            // default textures
+                            gfx::TextureType type{};
+                            switch (d.type) {
+                                case gfx::Type::SAMPLER1D:
+                                    type = gfx::TextureType::TEX1D;
+                                    break;
+                                case gfx::Type::SAMPLER1D_ARRAY:
+                                    type = gfx::TextureType::TEX1D_ARRAY;
+                                    break;
+                                case gfx::Type::SAMPLER2D:
+                                    type = gfx::TextureType::TEX2D;
+                                    break;
+                                case gfx::Type::SAMPLER2D_ARRAY:
+                                    type = gfx::TextureType::TEX2D_ARRAY;
+                                    break;
+                                case gfx::Type::SAMPLER3D:
+                                    type = gfx::TextureType::TEX3D;
+                                    break;
+                                case gfx::Type::SAMPLER_CUBE:
+                                    type = gfx::TextureType::CUBE;
+                                    break;
+                                default:
+                                    break;
+                            }
+                            passSet->bindTexture(bindID, defaultResource.getTexture(type));
                         }
-                        passSet->bindTexture(bindID, defaultResource.getTexture(type));
                     }
                     bindID += d.count;
                 }
@@ -892,8 +886,23 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
             ctx.currentPassLayoutID = layoutID;
         }
 
-        // update states
+        // get layout
         auto& layout = get(LayoutGraphData::Layout, ctx.lg, layoutID);
+
+        // build pass resources
+        PmrFlatMap<NameLocalID, ResourceGraph::vertex_descriptor> resourceIndex(ctx.scratch);
+        resourceIndex.reserve(pass.computeViews.size() * 2);
+        for (const auto& [resName, computeViews] : pass.computeViews) {
+            const auto resID = vertex(resName, ctx.resourceGraph);
+            for (const auto& computeView : computeViews) {
+                const auto& name = computeView.name;
+                CC_EXPECTS(!name.empty());
+                const auto nameID = ctx.lg.attributeIndex.at(name);
+                resourceIndex.emplace(nameID, resID);
+            }
+        }
+
+        // update states
         auto iter = layout.descriptorSets.find(UpdateFrequency::PER_PASS);
         if (iter == layout.descriptorSets.end()) {
             return;
@@ -902,9 +911,10 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         const auto& user = get(RenderGraph::Data, ctx.g, vertID);
         auto& node = ctx.context.layoutGraphResources.at(layoutID);
         initPerPassDescriptorSet(
+            ctx.resourceGraph,
             ctx.device, ctx.cmdBuff,
             *ctx.context.defaultResource, ctx.lg,
-            set, user, node);
+            resourceIndex, set, user, node);
     }
     void begin(const ComputePass& pass, RenderGraph::vertex_descriptor vertID) const { // NOLINT(readability-convert-member-functions-to-static)
         std::ignore = pass;

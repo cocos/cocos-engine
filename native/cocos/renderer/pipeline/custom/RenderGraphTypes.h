@@ -230,6 +230,7 @@ struct ResourceGraph {
 
     void mount(gfx::Device* device, vertex_descriptor vertID);
     void unmount(uint64_t completedFenceValue);
+    gfx::Texture* getTexture(vertex_descriptor resID);
 
     // ContinuousContainer
     void reserve(vertices_size_type sz);

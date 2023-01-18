@@ -246,6 +246,32 @@ void ResourceGraph::unmount(uint64_t completedFenceValue) {
     }
 }
 
+gfx::Texture* ResourceGraph::getTexture(vertex_descriptor resID) {
+    gfx::Texture* texture = nullptr;
+    visitObject(
+        resID, *this,
+        [&](const ManagedTexture& res) {
+            texture = res.texture.get();
+        },
+        [&](const IntrusivePtr<gfx::Texture>& tex) {
+            texture = tex.get();
+        },
+        [&](const IntrusivePtr<gfx::Framebuffer>& fb) {
+            std::ignore = fb;
+            CC_EXPECTS(false);
+        },
+        [&](const RenderSwapchain& sc) {
+            texture = sc.swapchain->getColorTexture();
+        },
+        [&](const auto& buffer) {
+            std::ignore = buffer;
+            CC_EXPECTS(false);
+        });
+    CC_ENSURES(texture);
+
+    return texture;
+}
+
 } // namespace render
 
 } // namespace cc
