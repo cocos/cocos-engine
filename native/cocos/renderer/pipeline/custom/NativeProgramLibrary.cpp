@@ -26,6 +26,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/container/pmr/global_resource.hpp>
 #include <boost/container/pmr/memory_resource.hpp>
+#include <sstream>
 #include <stdexcept>
 #include <tuple>
 #include <utility>
@@ -1126,6 +1127,18 @@ void NativeProgramLibrary::init(gfx::Device *deviceIn) {
     device = deviceIn;
     emptyDescriptorSetLayout = device->createDescriptorSetLayout({});
     emptyPipelineLayout = device->createPipelineLayout({});
+
+    if (false) { // NOLINT(readability-simplify-boolean-expr)
+        std::ostringstream oss;
+        printLayoutGraphData(layoutGraph, oss, scratch);
+        auto content = oss.str();
+        std::istringstream iss(content);
+        std::string line;
+        while (std::getline(iss, line)) {
+            CC_LOG_INFO(line.c_str());
+        }
+    }
+
     auto &lg = layoutGraph;
     for (const auto v : makeRange(vertices(lg))) {
         auto &layout = get(LayoutGraphData::Layout, lg, v);
