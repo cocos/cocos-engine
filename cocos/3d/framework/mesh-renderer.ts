@@ -375,6 +375,25 @@ export class MeshRenderer extends ModelRenderer {
     }
 
     /**
+     * @en Is received direction Light.
+     * @zh 是否接收平行光光照。
+     * @param visibility @en direction light visibility. @zh 方向光的可见性。
+     */
+    public onUpdateReceiveDirLight (visibility: number, forceClose = false) {
+        if (!this._model) { return; }
+        if (forceClose) {
+            this._model.receiveDirLight = false;
+            return;
+        }
+        if (this.node && ((visibility & this.node.layer) === this.node.layer)
+        || (visibility & this._model.visFlags)) {
+            this._model.receiveDirLight = true;
+        } else {
+            this._model.receiveDirLight = false;
+        }
+    }
+
+    /**
      * @en receive shadow.
      * @zh 实时光照下是否接受阴影。
      */
@@ -418,6 +437,7 @@ export class MeshRenderer extends ModelRenderer {
         this._updateReceiveShadow();
         this._updateUseLightProbe();
         this._updateUseReflectionProbe();
+        this._updateReceiveDirLight();
     }
 
     /**
@@ -484,6 +504,7 @@ export class MeshRenderer extends ModelRenderer {
         this._updateUseLightProbe();
         this._updateBakeToReflectionProbe();
         this._updateUseReflectionProbe();
+        this._updateReceiveDirLight();
     }
 
     // Redo, Undo, Prefab restore, etc.
@@ -499,6 +520,7 @@ export class MeshRenderer extends ModelRenderer {
         this._updateUseLightProbe();
         this._updateBakeToReflectionProbe();
         this._updateUseReflectionProbe();
+        this._updateReceiveDirLight();
     }
 
     public onEnable () {
@@ -519,6 +541,7 @@ export class MeshRenderer extends ModelRenderer {
         this._updateUseReflectionProbe();
         this._onUpdateLocalShadowBias();
         this._updateUseLightProbe();
+        this._updateReceiveDirLight();
         this._attachToScene();
     }
 
@@ -648,6 +671,7 @@ export class MeshRenderer extends ModelRenderer {
         this.bakeSettings.uvParam.w = lum;
 
         this._onUpdateLightingmap();
+        this._updateReceiveDirLight();
     }
 
     public updateProbeCubemap (cubeMap: TextureCube | null, useDefaultTexture?: boolean) {
@@ -718,6 +742,25 @@ export class MeshRenderer extends ModelRenderer {
             this._onUpdateLightingmap();
             this._onUpdateLocalShadowBias();
             this._updateUseReflectionProbe();
+            this._updateReceiveDirLight();
+        }
+    }
+
+    protected _updateReceiveDirLight () {
+        if (!this._model) { return; }
+        const scene = this.node.scene;
+        if (!scene || !scene.renderScene) { return; }
+        const mainLight = scene.renderScene.mainLight;
+        if (!mainLight) { return; }
+        const visibility = mainLight.visibility;
+        if (!mainLight.node) { return; }
+        if (mainLight.node.mobility === MobilityMode.Static
+            && (this.bakeSettings.texture || (this.node.scene.globals.lightProbeInfo.data
+            && this.node.scene.globals.lightProbeInfo.data.hasCoefficients()
+            && this._model.useLightProbe))) {
+            this.onUpdateReceiveDirLight(visibility, true);
+        } else {
+            this.onUpdateReceiveDirLight(visibility);
         }
     }
 
@@ -873,6 +916,7 @@ export class MeshRenderer extends ModelRenderer {
 
     protected onMobilityChanged () {
         this._updateUseLightProbe();
+        this._updateReceiveDirLight();
     }
 
     protected onUseLightProbeChanged () {
