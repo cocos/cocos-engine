@@ -145,15 +145,23 @@ UniformBlockResource::UniformBlockResource(UniformBlockResource&& rhs, const all
 : cpuBuffer(std::move(rhs.cpuBuffer), alloc),
   bufferPool(std::move(rhs.bufferPool), alloc) {}
 
+ProgramResource::ProgramResource(const allocator_type& alloc) noexcept
+: uniformBuffers(alloc),
+  descriptorSetPool(alloc) {}
+
+ProgramResource::ProgramResource(ProgramResource&& rhs, const allocator_type& alloc)
+: uniformBuffers(std::move(rhs.uniformBuffers), alloc),
+  descriptorSetPool(std::move(rhs.descriptorSetPool), alloc) {}
+
 LayoutGraphNodeResource::LayoutGraphNodeResource(const allocator_type& alloc) noexcept
 : uniformBuffers(alloc),
-  perPassDescriptorSetPool(alloc),
-  programDescriptorSetPool(alloc) {}
+  descriptorSetPool(alloc),
+  programResources(alloc) {}
 
 LayoutGraphNodeResource::LayoutGraphNodeResource(LayoutGraphNodeResource&& rhs, const allocator_type& alloc)
 : uniformBuffers(std::move(rhs.uniformBuffers), alloc),
-  perPassDescriptorSetPool(std::move(rhs.perPassDescriptorSetPool), alloc),
-  programDescriptorSetPool(std::move(rhs.programDescriptorSetPool), alloc) {}
+  descriptorSetPool(std::move(rhs.descriptorSetPool), alloc),
+  programResources(std::move(rhs.programResources), alloc) {}
 
 NativeRenderContext::NativeRenderContext(std::unique_ptr<gfx::DefaultResource> defaultResourceIn, const allocator_type& alloc) noexcept
 : defaultResource(std::move(defaultResourceIn)),

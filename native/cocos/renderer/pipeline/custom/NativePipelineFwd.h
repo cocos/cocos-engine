@@ -57,6 +57,7 @@ struct ResourceGroup;
 struct BufferPool;
 struct DescriptorSetPool;
 struct UniformBlockResource;
+struct ProgramResource;
 struct LayoutGraphNodeResource;
 struct QuadResource;
 struct NativeRenderContext;

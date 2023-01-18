@@ -40,6 +40,23 @@ ResourceGroup::~ResourceGroup() noexcept {
     }
 }
 
+void ProgramResource::syncResources() noexcept {
+    for (auto&& [nameID, buffer] : uniformBuffers) {
+        buffer.bufferPool.syncResources();
+    }
+    descriptorSetPool.syncDescriptorSets();
+}
+
+void LayoutGraphNodeResource::syncResources() noexcept {
+    for (auto&& [nameID, buffer] : uniformBuffers) {
+        buffer.bufferPool.syncResources();
+    }
+    descriptorSetPool.syncDescriptorSets();
+    for (auto&& [programName, programResource] : programResources) {
+        programResource.syncResources();
+    }
+}
+
 void NativeRenderContext::clearPreviousResources(uint64_t finishedFenceValue) noexcept {
     for (auto iter = resourceGroups.begin(); iter != resourceGroups.end();) {
         if (iter->first <= finishedFenceValue) {
@@ -49,13 +66,7 @@ void NativeRenderContext::clearPreviousResources(uint64_t finishedFenceValue) no
         }
     }
     for (auto& node : layoutGraphResources) {
-        for (auto&& [nameID, buffer] : node.uniformBuffers) {
-            buffer.bufferPool.syncResources();
-        }
-        node.perPassDescriptorSetPool.syncDescriptorSets();
-        for (auto&& [programName, pool] : node.programDescriptorSetPool) {
-            pool.syncDescriptorSets();
-        }
+        node.syncResources();
     }
 }
 

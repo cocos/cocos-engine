@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include <boost/algorithm/string.hpp>
+#include <boost/container/pmr/global_resource.hpp>
 #include <boost/container/pmr/memory_resource.hpp>
 #include <stdexcept>
 #include <tuple>
@@ -920,7 +921,7 @@ void overwriteShaderSourceBinding(
         pos = source.find(" uniform ", end);
         auto exceptionPos = source.find(" uniform subpassInput ", end);
         if (exceptionPos != ccstd::string::npos) {
-            while(pos == exceptionPos) {
+            while (pos == exceptionPos) {
                 end += strlen(" uniform subpassInput ");
                 pos = source.find(" uniform ", end);
                 exceptionPos = source.find(" uniform subpassInput ", end);
@@ -1150,6 +1151,17 @@ void NativeProgramLibrary::init(gfx::Device *deviceIn) {
         phase.pipelineLayout = device->createPipelineLayout(info);
     }
 
+    // init local descriptor set
+    {
+        DescriptorSetLayoutData perInstance(boost::container::pmr::get_default_resource());
+        makeLocalDescriptorSetLayoutData(lg, pipeline::localDescriptorSetLayout, perInstance);
+        gfx::DescriptorSetLayoutInfo info{};
+        initializeDescriptorSetLayoutInfo(perInstance, info);
+        localDescriptorSetLayout = device->createDescriptorSetLayout(info);
+        CC_ENSURES(localDescriptorSetLayout);
+    }
+
+    // generate constant macros string
     generateConstantMacros(device, lg.constantMacros, false);
 }
 
@@ -1330,6 +1342,9 @@ const gfx::DescriptorSetLayout &NativeProgramLibrary::getLocalDescriptorSetLayou
         const auto passID = parent(phaseID, layoutGraph);
         return getOrCreateDescriptorSetLayout(
             *this, layoutGraph, passID, phaseID, UpdateFrequency::PER_INSTANCE);
+    }
+    if (fixedLocal) {
+        return *localDescriptorSetLayout;
     }
     return getOrCreateProgramDescriptorSetLayout(
         *this, device, layoutGraph, phaseID, programName, UpdateFrequency::PER_INSTANCE);

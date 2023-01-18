@@ -64,7 +64,7 @@ void DescriptorSetPool::init(gfx::Device* deviceIn,
     setLayout = std::move(layout);
 }
 
-void DescriptorSetPool::syncDescriptorSets() {
+void DescriptorSetPool::syncDescriptorSets() noexcept {
     for (auto& set : currentDescriptorSets) {
         freeDescriptorSets.emplace_back(std::move(set));
     }
