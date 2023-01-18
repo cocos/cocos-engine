@@ -315,7 +315,7 @@ gfx::BufferBarrierInfo getBufferBarrier(const cc::render::Barrier& barrier) {
 }
 
 std::pair<gfx::TextureBarrierInfo, gfx::Texture*> getTextureBarrier(
-    const ResourceGraph& resg, ResourceGraph::vertex_descriptor resID,
+    ResourceGraph& resg, ResourceGraph::vertex_descriptor resID,
     const cc::render::Barrier& barrier) {
     gfx::Texture* texture = nullptr;
     visitObject(
@@ -340,18 +340,42 @@ std::pair<gfx::TextureBarrierInfo, gfx::Texture*> getTextureBarrier(
     CC_ENSURES(texture);
 
     const auto& desc = get(ResourceGraph::DescTag{}, resg, resID);
-    const auto& beginUsage = get<gfx::TextureUsage>(barrier.beginStatus.usage);
-    const auto& endUsage = get<gfx::TextureUsage>(barrier.endStatus.usage);
+
+    const bool isExternal = barrier.endStatus.vertID == ResourceAccessGraph::null_vertex();
+
+    const auto barrierType = isExternal ? gfx::BarrierType::FULL : barrier.type;
+    const auto beginUsage = get<gfx::TextureUsage>(barrier.beginStatus.usage);
+    const auto endUsage = [&]() {
+        if (!isExternal) {
+            return get<gfx::TextureUsage>(barrier.endStatus.usage);
+        }
+        return gfx::TextureUsage::NONE;
+    }();
 
     auto beginAccesFlags = gfx::getAccessFlags(
         beginUsage,
         barrier.beginStatus.access,
         barrier.beginStatus.visibility);
 
-    auto endAccessFlags = gfx::getAccessFlags(
-        endUsage,
-        barrier.endStatus.access,
-        barrier.endStatus.visibility);
+    auto endAccessFlags = [&]() {
+        if (!isExternal) {
+            return gfx::getAccessFlags(
+                endUsage,
+                barrier.endStatus.access,
+                barrier.endStatus.visibility);
+        }
+        auto& states = get(ResourceGraph::States, resg, resID);
+        if (holds<SwapchainTag>(resID, resg)) {
+            states.states = gfx::AccessFlagBit::PRESENT;
+            return states.states;
+        }
+        states.states =
+            gfx::AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE |
+            gfx::AccessFlagBit::VERTEX_SHADER_READ_TEXTURE |
+            gfx::AccessFlagBit::COMPUTE_SHADER_READ_TEXTURE;
+
+        return states.states;
+    }();
 
     CC_ENSURES(beginAccesFlags != gfx::INVALID_ACCESS_FLAGS);
     CC_ENSURES(endAccessFlags != gfx::INVALID_ACCESS_FLAGS);
@@ -364,7 +388,7 @@ std::pair<gfx::TextureBarrierInfo, gfx::Texture*> getTextureBarrier(
         gfx::TextureBarrierInfo{
             beginAccesFlags,
             endAccessFlags,
-            barrier.type,
+            barrierType,
             textureRange.mipLevel,
             textureRange.levelCount,
             textureRange.firstSlice,
@@ -775,7 +799,7 @@ void updateCameraUniformBufferAndDescriptorSet(
 
 struct RenderGraphVisitor : boost::dfs_visitor<> {
     void submitBarriers(const std::vector<Barrier>& barriers) const {
-        const auto& resg = ctx.resourceGraph;
+        auto& resg = ctx.resourceGraph;
         auto sz = barriers.size();
         ccstd::pmr::vector<const gfx::Buffer*> buffers(ctx.scratch);
         ccstd::pmr::vector<const gfx::BufferBarrier*> bufferBarriers(ctx.scratch);
