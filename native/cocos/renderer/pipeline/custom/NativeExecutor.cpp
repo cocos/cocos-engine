@@ -1010,40 +1010,71 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         pass.update();
 
         // get or create program per-instance descriptor set
-        const auto localID = ctx.lg.attributeIndex.at("CCLocal");
-
         auto& node = ctx.context.layoutGraphResources.at(vertID);
         auto iter = node.programResources.find(std::string_view{shader.getName()});
         if (iter == node.programResources.end()) {
+            // make program resource
             auto res = node.programResources.emplace(
                 std::piecewise_construct,
                 std::forward_as_tuple(shader.getName()),
                 std::forward_as_tuple());
             CC_ENSURES(res.second);
-            pass.getPhase();
+            iter = res.first;
+            auto& instance = res.first->second;
+
+            // make per-instance layout
             IntrusivePtr<gfx::DescriptorSetLayout> instanceSetLayout =
                 &const_cast<gfx::DescriptorSetLayout&>(
                     ctx.programLib->getLocalDescriptorSetLayout(
                         ctx.device, pass.getPhaseID(), shader.getName()));
-            iter = res.first;
 
-            auto& instance = res.first->second;
-            instance.uniformBuffers[localID].init(ctx.device, pipeline::UBOLocal::SIZE);
+            // init per-instance descriptor set pool
             instance.descriptorSetPool.init(ctx.device, std::move(instanceSetLayout));
+
+            for (const auto& block : shader.getBlocks()) {
+                if (static_cast<pipeline::SetIndex>(block.set) != pipeline::SetIndex::LOCAL) {
+                    continue;
+                }
+                const auto& name = block.name;
+                auto iter = ctx.lg.attributeIndex.find(std::string_view{name});
+                CC_EXPECTS(iter != ctx.lg.attributeIndex.end());
+                const auto attrID = iter->second;
+                auto sz = getUniformBlockSize(block.members);
+                const auto bDynamic = isDynamicUniformBlock(block.name);
+                instance.uniformBuffers[attrID].init(ctx.device, sz, bDynamic);
+            }
         }
+
+        // update per-instance buffer and descriptor set
+        const auto& data = programLib.localLayoutData;
         auto& instance = iter->second;
         auto* set = instance.descriptorSetPool.allocateDescriptorSet();
         CC_ENSURES(set);
+        for (const auto& block : shader.getBlocks()) {
+            if (static_cast<pipeline::SetIndex>(block.set) != pipeline::SetIndex::LOCAL) {
+                continue;
+            }
+            // find descriptor name ID
+            const auto& name = block.name;
+            auto iter = ctx.lg.attributeIndex.find(std::string_view{name});
+            CC_EXPECTS(iter != ctx.lg.attributeIndex.end());
+            const auto attrID = iter->second;
 
-        // update per-instance descriptor set
-        {
-            const auto& data = programLib.localLayoutData;
-            const auto binding = data.bindingMap.at(localID);
-            auto& bufferResource = instance.uniformBuffers.at(localID);
-            auto& cpuData = bufferResource.cpuBuffer;
-            // fill cpu data
-            auto* buffer = bufferResource.bufferPool.allocateBuffer();
-            CC_ENSURES(buffer);
+            // get uniformBuffer
+            auto& uniformBuffer = instance.uniformBuffers[attrID];
+            CC_EXPECTS(uniformBuffer.cpuBuffer.size() == uniformBuffer.bufferPool.bufferSize);
+
+            // fill cpu buffer
+            auto& cpuData = uniformBuffer.cpuBuffer;
+            for (const auto& v : block.members) {
+                CC_LOG_INFO(v.name.c_str());
+            }
+
+            // create and upload buffer
+            auto* buffer = uniformBuffer.createFromCpuBuffer();
+
+            // set buffer descriptor
+            const auto binding = data.bindingMap.at(attrID);
             set->bindBuffer(binding, buffer);
         }
 

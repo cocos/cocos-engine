@@ -107,19 +107,27 @@ ResourceGroup::ResourceGroup(const allocator_type& alloc) noexcept
 
 BufferPool::BufferPool(const allocator_type& alloc) noexcept
 : currentBuffers(alloc),
-  freeBuffers(alloc) {}
+  currentBufferViews(alloc),
+  freeBuffers(alloc),
+  freeBufferViews(alloc) {}
 
-BufferPool::BufferPool(gfx::Device* deviceIn, uint32_t bufferSizeIn, const allocator_type& alloc) noexcept // NOLINT
+BufferPool::BufferPool(gfx::Device* deviceIn, uint32_t bufferSizeIn, bool dynamicIn, const allocator_type& alloc) noexcept // NOLINT
 : device(deviceIn),
   bufferSize(bufferSizeIn),
+  dynamic(dynamicIn),
   currentBuffers(alloc),
-  freeBuffers(alloc) {}
+  currentBufferViews(alloc),
+  freeBuffers(alloc),
+  freeBufferViews(alloc) {}
 
 BufferPool::BufferPool(BufferPool&& rhs, const allocator_type& alloc)
 : device(rhs.device),
   bufferSize(rhs.bufferSize),
+  dynamic(rhs.dynamic),
   currentBuffers(std::move(rhs.currentBuffers), alloc),
-  freeBuffers(std::move(rhs.freeBuffers), alloc) {}
+  currentBufferViews(std::move(rhs.currentBufferViews), alloc),
+  freeBuffers(std::move(rhs.freeBuffers), alloc),
+  freeBufferViews(std::move(rhs.freeBufferViews), alloc) {}
 
 DescriptorSetPool::DescriptorSetPool(const allocator_type& alloc) noexcept
 : currentDescriptorSets(alloc),

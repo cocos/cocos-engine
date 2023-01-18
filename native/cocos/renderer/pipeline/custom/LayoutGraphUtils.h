@@ -51,6 +51,8 @@ void initializeDescriptorSetLayoutInfo(
 
 uint32_t getUniformBlockSize(const ccstd::vector<gfx::Uniform>& blockMembers);
 
+bool isDynamicUniformBlock(std::string_view name);
+
 gfx::DescriptorSet* getOrCreatePerPassDescriptorSet(
     gfx::Device* device,
     LayoutGraphData& lg, LayoutGraphData::vertex_descriptor vertID);
@@ -60,7 +62,8 @@ void generateConstantMacros(
     ccstd::string& constantMacros,
     bool clusterEnabled);
 
-void printLayoutGraphData(const LayoutGraphData& lg, std::ostream& oss,
+void printLayoutGraphData(
+    const LayoutGraphData& lg, std::ostream& oss,
     boost::container::pmr::memory_resource* scratch);
 
 } // namespace render

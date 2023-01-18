@@ -5,7 +5,7 @@ namespace cc {
 
 namespace render {
 
-void BufferPool::init(gfx::Device* deviceIn, uint32_t sz) {
+void BufferPool::init(gfx::Device* deviceIn, uint32_t sz, bool bDynamic) {
     CC_EXPECTS(deviceIn);
     CC_EXPECTS(sz);
     CC_EXPECTS(!device);
@@ -13,6 +13,7 @@ void BufferPool::init(gfx::Device* deviceIn, uint32_t sz) {
 
     device = deviceIn;
     bufferSize = sz;
+    dynamic = bDynamic;
 }
 
 void BufferPool::syncResources() {
@@ -20,6 +21,11 @@ void BufferPool::syncResources() {
         freeBuffers.emplace_back(std::move(buffer));
     }
     currentBuffers.clear();
+
+    for (auto& bufferView : currentBufferViews) {
+        freeBufferViews.emplace_back(std::move(bufferView));
+    }
+    currentBufferViews.clear();
 }
 
 gfx::Buffer* BufferPool::allocateBuffer() {
@@ -29,12 +35,21 @@ gfx::Buffer* BufferPool::allocateBuffer() {
     gfx::Buffer* ptr = nullptr;
 
     if (freeBuffers.empty()) {
-        gfx::BufferInfo info{
-            gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
-            gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE,
-            bufferSize,
-            bufferSize};
-        freeBuffers.emplace_back(device->createBuffer(info));
+        {
+            gfx::BufferInfo info{
+                gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
+                gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE,
+                bufferSize,
+                bufferSize};
+            freeBuffers.emplace_back(device->createBuffer(info));
+        }
+
+        if (dynamic) {
+            gfx::BufferViewInfo info{
+                freeBuffers.back().get(),
+                0, bufferSize};
+            freeBufferViews.emplace_back(device->createBuffer(info));
+        }
     }
     {
         CC_ENSURES(!freeBuffers.empty());
@@ -44,14 +59,39 @@ gfx::Buffer* BufferPool::allocateBuffer() {
         currentBuffers.emplace_back(std::move(buffer));
         freeBuffers.pop_back();
     }
+    if (dynamic) {
+        CC_ENSURES(!freeBufferViews.empty());
+        auto& bufferView = freeBufferViews.back();
+        ptr = bufferView.get();
+        CC_EXPECTS(bufferView->getSize() == bufferSize);
+        currentBufferViews.emplace_back(std::move(bufferView));
+        freeBufferViews.pop_back();
+    }
     CC_ENSURES(ptr);
+    if (dynamic) {
+        CC_ENSURES(ptr->isBufferView());
+    } else {
+        CC_ENSURES(!ptr->isBufferView());
+    }
     return ptr;
 }
 
-void UniformBlockResource::init(gfx::Device* deviceIn, uint32_t sz) {
+void UniformBlockResource::init(gfx::Device* deviceIn, uint32_t sz, bool bDynamic) {
     CC_EXPECTS(cpuBuffer.empty());
     cpuBuffer.resize(sz);
-    bufferPool.init(deviceIn, sz);
+    bufferPool.init(deviceIn, sz, bDynamic);
+}
+
+gfx::Buffer* UniformBlockResource::createFromCpuBuffer() {
+    CC_EXPECTS(cpuBuffer.size() == bufferPool.bufferSize);
+    auto* bufferOrView = bufferPool.allocateBuffer();
+    if (bufferPool.dynamic) {
+        auto* buffer = bufferPool.currentBuffers.back().get();
+        buffer->update(cpuBuffer.data(), static_cast<uint32_t>(cpuBuffer.size()));
+    } else {
+        bufferOrView->update(cpuBuffer.data(), static_cast<uint32_t>(cpuBuffer.size()));
+    }
+    return bufferOrView;
 }
 
 void DescriptorSetPool::init(gfx::Device* deviceIn,

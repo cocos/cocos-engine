@@ -288,6 +288,12 @@ const ccstd::unordered_map<ccstd::string, uint32_t> DEFAULT_UNIFORM_COUNTS{
     {"cc_lightDir", pipeline::UBOForwardLight::LIGHTS_PER_PASS},
 };
 
+const TransparentSet<ccstd::string> DYNAMIC_UNIFORM_BLOCK{
+    {"CCCamera"},
+    {"CCForwardLight"},
+    {"CCUILocal"},
+};
+
 } // namespace
 
 uint32_t getUniformBlockSize(const ccstd::vector<gfx::Uniform>& blockMembers) {
@@ -305,6 +311,10 @@ uint32_t getUniformBlockSize(const ccstd::vector<gfx::Uniform>& blockMembers) {
         CC_LOG_ERROR("Invalid uniform count: %s", m.name.c_str());
     }
     return prevSize;
+}
+
+bool isDynamicUniformBlock(std::string_view name) {
+    return DYNAMIC_UNIFORM_BLOCK.find(name) != DYNAMIC_UNIFORM_BLOCK.end();
 }
 
 gfx::DescriptorSet* getOrCreatePerPassDescriptorSet(
