@@ -203,6 +203,7 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
                         CC_EXPECTS(false);
                     },
                     [&](const ManagedTexture& tex) {
+                        CC_EXPECTS(tex.texture);
                         fbInfo.colorTextures.emplace_back(tex.texture);
                     },
                     [&](const IntrusivePtr<gfx::Buffer>& res) {
@@ -244,6 +245,7 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
                 visitObject(
                     resID, resg,
                     [&](const ManagedTexture& tex) {
+                        CC_EXPECTS(tex.texture);
                         CC_EXPECTS(!fbInfo.depthStencilTexture);
                         fbInfo.depthStencilTexture = tex.texture.get();
                     },
@@ -335,6 +337,7 @@ std::pair<gfx::TextureBarrierInfo, gfx::Texture*> getTextureBarrier(
             std::ignore = buffer;
             CC_EXPECTS(false);
         });
+    CC_ENSURES(texture);
 
     const auto& desc = get(ResourceGraph::DescTag{}, resg, resID);
     const auto& beginUsage = get<gfx::TextureUsage>(barrier.beginStatus.usage);
@@ -815,15 +818,25 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
             textureBarriers.data(), textures.data(), static_cast<uint32_t>(textureBarriers.size()));
     }
     void frontBarriers(RenderGraph::vertex_descriptor vertID) const {
-        auto iter = ctx.barrierMap.find(vertID + 1);
-        if (iter != ctx.barrierMap.end()) {
-            submitBarriers(iter->second.blockBarrier.frontBarriers);
+        auto iter = ctx.fgd.resourceAccessGraph.passIndex.find(vertID);
+        if (iter == ctx.fgd.resourceAccessGraph.passIndex.end()) {
+            return;
+        }
+        const auto& nodeID = iter->second;
+        auto iter2 = ctx.barrierMap.find(nodeID);
+        if (iter2 != ctx.barrierMap.end()) {
+            submitBarriers(iter2->second.blockBarrier.frontBarriers);
         }
     }
     void rearBarriers(RenderGraph::vertex_descriptor vertID) const {
-        auto iter = ctx.barrierMap.find(vertID + 1);
-        if (iter != ctx.barrierMap.end()) {
-            submitBarriers(iter->second.blockBarrier.rearBarriers);
+        auto iter = ctx.fgd.resourceAccessGraph.passIndex.find(vertID);
+        if (iter == ctx.fgd.resourceAccessGraph.passIndex.end()) {
+            return;
+        }
+        const auto& nodeID = iter->second;
+        auto iter2 = ctx.barrierMap.find(nodeID);
+        if (iter2 != ctx.barrierMap.end()) {
+            submitBarriers(iter2->second.blockBarrier.rearBarriers);
         }
     }
     void begin(const RasterPass& pass, RenderGraph::vertex_descriptor vertID) const {
