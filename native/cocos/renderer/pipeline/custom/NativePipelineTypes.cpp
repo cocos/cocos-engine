@@ -171,7 +171,8 @@ NativeRenderContext::NativeRenderContext(std::unique_ptr<gfx::DefaultResource> d
 
 NativeProgramLibrary::NativeProgramLibrary(const allocator_type& alloc) noexcept
 : layoutGraph(alloc),
-  phases(alloc) {}
+  phases(alloc),
+  localLayoutData(alloc) {}
 
 } // namespace render
 

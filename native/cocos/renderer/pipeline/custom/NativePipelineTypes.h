@@ -449,7 +449,7 @@ struct DescriptorSetPool {
     DescriptorSetPool& operator=(DescriptorSetPool&& rhs) = default;
     DescriptorSetPool& operator=(DescriptorSetPool const& rhs) = delete;
     void init(gfx::Device* deviceIn, IntrusivePtr<gfx::DescriptorSetLayout> layout);
-    void syncDescriptorSets() noexcept;
+    void syncDescriptorSets();
     const gfx::DescriptorSet& getCurrentDescriptorSet() const;
     gfx::DescriptorSet& getCurrentDescriptorSet();
     gfx::DescriptorSet* allocateDescriptorSet();
@@ -494,7 +494,7 @@ struct ProgramResource {
     ProgramResource& operator=(ProgramResource const& rhs) = delete;
     void syncResources() noexcept;
 
-    PmrFlatMap<NameLocalID, UniformBlockResource> uniformBuffers;
+    ccstd::pmr::unordered_map<NameLocalID, UniformBlockResource> uniformBuffers;
     DescriptorSetPool descriptorSetPool;
 };
 
@@ -584,6 +584,7 @@ public:
     boost::container::pmr::unsynchronized_pool_resource unsycPool;
     bool mergeHighFrequency{false};
     bool fixedLocal{true};
+    DescriptorSetLayoutData localLayoutData;
     IntrusivePtr<gfx::DescriptorSetLayout> localDescriptorSetLayout;
     IntrusivePtr<gfx::DescriptorSetLayout> emptyDescriptorSetLayout;
     IntrusivePtr<gfx::PipelineLayout> emptyPipelineLayout;

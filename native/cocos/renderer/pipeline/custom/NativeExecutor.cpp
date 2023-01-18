@@ -980,6 +980,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         }
     }
     void begin(const Blit& blit, RenderGraph::vertex_descriptor vertID) const {
+        const auto& programLib = *dynamic_cast<const NativeProgramLibrary*>(ctx.programLib);
         CC_EXPECTS(blit.material);
         CC_EXPECTS(blit.material->getPasses());
         if (blit.camera) {
@@ -999,6 +1000,8 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         pass.update();
 
         // get or create program per-instance descriptor set
+        const auto localID = ctx.lg.attributeIndex.at("CCLocal");
+
         auto& node = ctx.context.layoutGraphResources.at(vertID);
         auto iter = node.programResources.find(std::string_view{shader.getName()});
         if (iter == node.programResources.end()) {
@@ -1012,17 +1015,36 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
                 &const_cast<gfx::DescriptorSetLayout&>(
                     ctx.programLib->getLocalDescriptorSetLayout(
                         ctx.device, pass.getPhaseID(), shader.getName()));
-            res.first->second.descriptorSetPool.init(ctx.device, std::move(instanceSetLayout));
             iter = res.first;
-        }
 
-        auto& instanceSet = iter->second;
+            auto& instance = res.first->second;
+            instance.uniformBuffers[localID].init(ctx.device, pipeline::UBOLocal::SIZE);
+            instance.descriptorSetPool.init(ctx.device, std::move(instanceSetLayout));
+        }
+        auto& instance = iter->second;
+        auto* set = instance.descriptorSetPool.allocateDescriptorSet();
+        CC_ENSURES(set);
+
+        // update per-instance descriptor set
+        {
+            const auto& data = programLib.localLayoutData;
+            const auto binding = data.bindingMap.at(localID);
+            auto& bufferResource = instance.uniformBuffers.at(localID);
+            auto& cpuData = bufferResource.cpuBuffer;
+            // fill cpu data
+            auto* buffer = bufferResource.bufferPool.allocateBuffer();
+            CC_ENSURES(buffer);
+            set->bindBuffer(binding, buffer);
+        }
 
         // execution
         ctx.cmdBuff->bindPipelineState(pso);
         ctx.cmdBuff->bindDescriptorSet(
-            static_cast<uint32_t>(pipeline::SetIndex::MATERIAL),
-            pass.getDescriptorSet());
+            static_cast<uint32_t>(pipeline::SetIndex::MATERIAL), pass.getDescriptorSet());
+        ctx.cmdBuff->bindDescriptorSet(
+            static_cast<uint32_t>(pipeline::SetIndex::LOCAL), set);
+        ctx.cmdBuff->bindInputAssembler(ctx.context.fullscreenQuad.quadIA.get());
+        ctx.cmdBuff->draw(ctx.context.fullscreenQuad.quadIA.get());
     }
     void begin(const Dispatch& pass, RenderGraph::vertex_descriptor vertID) const {
     }
