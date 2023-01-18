@@ -321,6 +321,9 @@ export class MeshRenderer extends ModelRenderer {
     @serializable
     protected _reflectionProbeId = -1;
 
+    @serializable
+    public _reflectionProbeDataMap: Texture | null = null;
+
     // @serializable
     private _subMeshShapesWeights: number[][] = [];
 
@@ -675,6 +678,14 @@ export class MeshRenderer extends ModelRenderer {
             this.model.updateReflectionProbePlanarMap(this.bakeSettings._probePlanarmap);
         }
     }
+
+    public updateReflectionProbeDataMap (dataMap: Texture | null) {
+        this._reflectionProbeDataMap = dataMap;
+        if (this.model !== null) {
+            this.model.updateReflectionProbeDataMap(dataMap);
+        }
+    }
+
     public updateReflectionProbeId (probeId: number) {
         this._reflectionProbeId = probeId;
         if (this.model) {
@@ -730,6 +741,7 @@ export class MeshRenderer extends ModelRenderer {
             this._onUpdateLightingmap();
             this._onUpdateLocalShadowBiasAndProbeId();
             this._updateUseReflectionProbe();
+            this._onUpdateReflectionProbeDataMap();
         }
     }
 
@@ -807,7 +819,6 @@ export class MeshRenderer extends ModelRenderer {
 
     protected _onUpdateLocalShadowBiasAndProbeId () {
         if (this.model !== null) {
-            this.model.reflectionProbeId = this._reflectionProbeId;
             this.model.updateLocalShadowBias();
             this.model.updateReflectionProbeId();
         }
@@ -818,6 +829,12 @@ export class MeshRenderer extends ModelRenderer {
             this._reflectionProbeId,
             0.0,
         ]);
+    }
+
+    protected _onUpdateReflectionProbeDataMap () {
+        if (this.model !== null) {
+            this.model.updateReflectionProbeDataMap(this._reflectionProbeDataMap);
+        }
     }
 
     protected _onMaterialModified (idx: number, material: Material | null) {
@@ -832,6 +849,7 @@ export class MeshRenderer extends ModelRenderer {
         this._onUpdateLightingmap();
         this._onUpdateLocalShadowBiasAndProbeId();
         this._updateReflectionProbeTexture();
+        this._onUpdateReflectionProbeDataMap();
     }
 
     protected _onMeshChanged (old: Mesh | null) {

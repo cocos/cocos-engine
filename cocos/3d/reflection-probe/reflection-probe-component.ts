@@ -112,7 +112,7 @@ export class ReflectionProbe extends Component {
         this.probe.size = this._size;
         if (this.probe) {
             ReflectionProbeManager.probeManager.onUpdateProbes(true);
-            ReflectionProbeManager.probeManager.updateDataMap();
+            ReflectionProbeManager.probeManager.updateProbeData();
         }
     }
     @type(Vec3)
@@ -310,7 +310,7 @@ export class ReflectionProbe extends Component {
             this.probe.renderPlanarReflection(this.sourceCamera.camera);
             ReflectionProbeManager.probeManager.filterModelsForPlanarReflection();
         }
-        ReflectionProbeManager.probeManager.updateDataMap();
+        ReflectionProbeManager.probeManager.updateProbeData();
     }
 
     public onDestroy () {
@@ -341,7 +341,7 @@ export class ReflectionProbe extends Component {
             if (this.node.hasChangedFlags & TransformBit.POSITION) {
                 ReflectionProbeManager.probeManager.onUpdateProbes(true);
             }
-            ReflectionProbeManager.probeManager.updateDataMap();
+            ReflectionProbeManager.probeManager.updateProbeData();
         }
         if (this.probeType === ProbeType.PLANAR && this.sourceCamera) {
             if ((this.sourceCamera.node.hasChangedFlags & TransformBit.TRS)

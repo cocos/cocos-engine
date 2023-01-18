@@ -119,7 +119,7 @@ export class ReflectionProbeManager {
         const index = this._probes.indexOf(probe);
         if (index === -1) {
             this._probes.push(probe);
-            this.updateDataMap();
+            this.updateProbeData();
         }
     }
 
@@ -319,7 +319,7 @@ export class ReflectionProbeManager {
      * @en Update reflection probe data of model bind.
      * @zh 更新模型绑定的反射探针数据。
      */
-    public updateDataMap () {
+    public updateProbeData () {
         if (this._probes.length === 0) return;
         const dataWidth = 3;
         if (!this._dataTexture) {
@@ -383,8 +383,11 @@ export class ReflectionProbeManager {
             const probe = this._probes[i];
             const models = this._getModelsByProbe(probe);
             for (let j = 0; j < models.length; j++) {
-                models[j].updateReflectionProbeDataMap(this._dataTexture);
-                models[j].updateReflectionProbeId();
+                const meshRender = models[i].node.getComponent(MeshRenderer);
+                if (meshRender) {
+                    meshRender.updateReflectionProbeDataMap(this._dataTexture);
+                    meshRender.updateReflectionProbeId(probe.getProbeId());
+                }
             }
         }
     }
@@ -471,7 +474,6 @@ export class ReflectionProbeManager {
     private _updateCubemapOfModel (model: Model, probe: ReflectionProbe | null) {
         const meshRender = model.node.getComponent(MeshRenderer);
         if (meshRender) {
-            const blendProbe = this._getBlendProbe(model);
             meshRender.updateProbeCubemap(probe ? probe.cubemap : null);
             meshRender.updateReflectionProbeId(probe ? probe.getProbeId() : -1);
         }
