@@ -148,7 +148,9 @@ gfx::TextureInfo getTextureInfo(const ResourceDesc& desc, bool bCube = false) {
 } // namespace
 
 bool ManagedTexture::checkResource(const ResourceDesc& desc) const {
-    if (!texture) return false;
+    if (!texture) {
+        return false;
+    }
     const auto& info = texture->getInfo();
     return desc.width == info.width && desc.height == info.height && desc.format == info.format;
 }
@@ -178,13 +180,21 @@ void ResourceGraph::mount(gfx::Device* device, vertex_descriptor vertID) {
             CC_ENSURES(texture.texture);
             texture.fenceValue = nextFenceValue;
         },
-        [&](const IntrusivePtr<gfx::Buffer>& pass) {
+        [&](const IntrusivePtr<gfx::Buffer>& buffer) {
+            CC_EXPECTS(buffer);
+            std::ignore = buffer;
         },
-        [&](const IntrusivePtr<gfx::Texture>& pass) {
+        [&](const IntrusivePtr<gfx::Texture>& texture) {
+            CC_EXPECTS(texture);
+            std::ignore = texture;
         },
-        [&](const IntrusivePtr<gfx::Framebuffer>& pass) {
+        [&](const IntrusivePtr<gfx::Framebuffer>& fb) {
+            CC_EXPECTS(fb);
+            std::ignore = fb;
         },
         [&](const RenderSwapchain& queue) {
+            CC_EXPECTS(queue.swapchain);
+            std::ignore = queue;
         });
 }
 
@@ -206,13 +216,21 @@ void ResourceGraph::unmount(uint64_t completedFenceValue) {
                     texture.texture.reset();
                 }
             },
-            [&](const IntrusivePtr<gfx::Buffer>& pass) {
+            [&](const IntrusivePtr<gfx::Buffer>& buffer) {
+                CC_EXPECTS(buffer);
+                std::ignore = buffer;
             },
-            [&](const IntrusivePtr<gfx::Texture>& pass) {
+            [&](const IntrusivePtr<gfx::Texture>& texture) {
+                CC_EXPECTS(texture);
+                std::ignore = texture;
             },
-            [&](const IntrusivePtr<gfx::Framebuffer>& pass) {
+            [&](const IntrusivePtr<gfx::Framebuffer>& fb) {
+                CC_EXPECTS(fb);
+                std::ignore = fb;
             },
             [&](const RenderSwapchain& queue) {
+                CC_EXPECTS(queue.swapchain);
+                std::ignore = queue;
             });
     }
 }
