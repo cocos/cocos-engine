@@ -960,7 +960,7 @@ auto evaluateHeaviness(const RAG &rag, const ResourceGraph &rescGraph, ResourceA
             break;
         }
     }
-    return std::tie(forceAdjacent, score);
+    return std::make_tuple(forceAdjacent, score);
 };
 
 void evaluateAndTryMerge(const RAG &rag, const ResourceGraph &rescGraph, RelationGraph &relationGraph, const RelationGraph &relationGraphTc, const RelationVerts &lhsVerts, const RelationVerts &rhsVerts) {
@@ -1451,7 +1451,7 @@ auto getResourceStatus(PassType passType, const PmrString &name, gfx::MemoryAcce
         accesFlag = gfx::getAccessFlags(texUsage, memAccess, vis);
     }
 
-    return std::tie(vis, usage, accesFlag);
+    return std::make_tuple(vis, usage, accesFlag);
 }
 
 void addCopyAccessStatus(RAG &rag, const ResourceGraph &rg, ResourceAccessNode &node, const ViewStatus &status, const Range &range) {
