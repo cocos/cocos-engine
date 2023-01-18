@@ -383,7 +383,7 @@ export class ReflectionProbeManager {
             const probe = this._probes[i];
             const models = this._getModelsByProbe(probe);
             for (let j = 0; j < models.length; j++) {
-                const meshRender = models[i].node.getComponent(MeshRenderer);
+                const meshRender = models[j].node.getComponent(MeshRenderer);
                 if (meshRender) {
                     meshRender.updateReflectionProbeDataMap(this._dataTexture);
                     meshRender.updateReflectionProbeId(probe.getProbeId());
@@ -459,14 +459,14 @@ export class ReflectionProbeManager {
             const p = this._useCubeModels.get(key);
             if (p !== undefined && p === probe) {
                 this._useCubeModels.delete(key);
-                this._updateCubemapOfModel(key, null);
+                this.updateUseCubeModels(key);
             }
         }
         for (const key of this._usePlanarModels.keys()) {
             const p = this._usePlanarModels.get(key);
             if (p !== undefined && p === probe) {
                 this._usePlanarModels.delete(key);
-                this._updatePlanarMapOfModel(key, null, null);
+                this.updateUsePlanarModels(key);
             }
         }
     }
