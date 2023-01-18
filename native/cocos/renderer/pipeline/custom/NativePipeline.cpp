@@ -556,7 +556,8 @@ bool NativePipeline::activate(gfx::Swapchain *swapchainIn) {
         indices[4] = 3;
         indices[5] = 2;
 
-        quadIB->update(indices.data(), indices.size() * sizeof(decltype(indices)::value_type));
+        quadIB->update(indices.data(),
+                       static_cast<uint32_t>(indices.size() * sizeof(decltype(indices)::value_type)));
 
         // create input assembler
         ccstd::vector<gfx::Attribute> attributes;
