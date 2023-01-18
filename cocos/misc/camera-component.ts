@@ -301,7 +301,7 @@ export class Camera extends Component {
     }
 
     /**
-     * @en The axi on which the FOV would be fixed regardless of screen aspect changes.
+     * @en The axis on which the FOV would be fixed regardless of screen aspect changes.
      * @zh 指定视角的固定轴向，在此轴上不会跟随屏幕长宽比例变化。
      */
     @type(FOVAxis)

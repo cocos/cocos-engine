@@ -31,8 +31,8 @@ import { RenderWindow } from '../core/render-window';
 import { GeometryRenderer } from '../../rendering/geometry-renderer';
 
 /**
- * @en The enumeration type for the fixed axi of the camera.
- * The field of view along the corresponding axi would be fixed regardless of screen aspect changes.
+ * @en The enumeration type for the fixed axis of the camera.
+ * The field of view along the corresponding axis would be fixed regardless of screen aspect changes.
  * @zh 相机视角的锁定轴向枚举，在对应轴上不会跟随屏幕长宽比例变化。
  */
 export enum CameraFOVAxis {
