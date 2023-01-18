@@ -26,7 +26,7 @@ import { CCFloat, CCInteger, _decorator, Vec3 } from '../../core';
 import { ParticleNoise } from '../noise';
 import { Particle, PARTICLE_MODULE_NAME, ParticleModuleBase } from '../particle';
 
-const { ccclass, serializable, displayOrder, type, range, slide, rangeStep, visible } = _decorator;
+const { ccclass, serializable, displayOrder, type, range, slide, visible } = _decorator;
 
 @ccclass('cc.NoiseModule')
 export class NoiseModule extends ParticleModuleBase {
@@ -126,8 +126,7 @@ export class NoiseModule extends ParticleModuleBase {
     private _noiseSpeedZ = 0;
 
     @type(CCFloat)
-    @range([0, 100])
-    @rangeStep(0.1)
+    @range([0, 100, 0.1])
     @displayOrder(16)
     @slide
     get noiseFrequency () {
@@ -141,8 +140,7 @@ export class NoiseModule extends ParticleModuleBase {
 
     @visible(false)
     @type(CCFloat)
-    @range([0, 1])
-    @rangeStep(0.1)
+    @range([0, 1, 0.1])
     @displayOrder(16)
     @slide
     get remapX () {
@@ -156,8 +154,7 @@ export class NoiseModule extends ParticleModuleBase {
 
     @visible(false)
     @type(CCFloat)
-    @range([0, 1])
-    @rangeStep(0.1)
+    @range([0, 1, 0.1])
     @displayOrder(16)
     @slide
     get remapY () {
@@ -171,8 +168,7 @@ export class NoiseModule extends ParticleModuleBase {
 
     @visible(false)
     @type(CCFloat)
-    @range([0, 1])
-    @rangeStep(0.1)
+    @range([0, 1, 0.1])
     @displayOrder(16)
     @slide
     get remapZ () {
@@ -185,8 +181,7 @@ export class NoiseModule extends ParticleModuleBase {
     private _remapZ = 0;
 
     @type(CCInteger)
-    @range([1, 4])
-    @rangeStep(1)
+    @range([1, 4, 1])
     @displayOrder(16)
     @slide
     get octaves () {
@@ -201,8 +196,7 @@ export class NoiseModule extends ParticleModuleBase {
     // eslint-disable-next-line func-names
     @visible(function (this: NoiseModule) { return this._octaves > 1; })
     @type(CCFloat)
-    @range([0, 1])
-    @rangeStep(0.1)
+    @range([0, 1, 0.1])
     @displayOrder(16)
     get octaveMultiplier () {
         return this._octaveMultiplier;
@@ -216,8 +210,7 @@ export class NoiseModule extends ParticleModuleBase {
     // eslint-disable-next-line func-names
     @visible(function (this: NoiseModule) { return this._octaves > 1; })
     @type(CCFloat)
-    @range([1, 4])
-    @rangeStep(0.1)
+    @range([1, 4, 0.1])
     @displayOrder(16)
     get octaveScale () {
         return this._octaveScale;
