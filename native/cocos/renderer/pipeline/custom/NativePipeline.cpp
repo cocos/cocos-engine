@@ -23,12 +23,7 @@
 ****************************************************************************/
 
 #include <boost/utility/string_view_fwd.hpp>
-#include <memory>
 #include <sstream>
-#include <stdexcept>
-#include <tuple>
-#include <type_traits>
-#include <utility>
 #include "LayoutGraphFwd.h"
 #include "LayoutGraphGraphs.h"
 #include "LayoutGraphNames.h"
@@ -36,6 +31,7 @@
 #include "LayoutGraphUtils.h"
 #include "NativePipelineFwd.h"
 #include "NativePipelineTypes.h"
+#include "NativeUtils.h"
 #include "RenderCommonTypes.h"
 #include "RenderGraphGraphs.h"
 #include "RenderGraphTypes.h"
@@ -59,12 +55,12 @@
 #include "cocos/renderer/pipeline/Enum.h"
 #include "cocos/renderer/pipeline/GlobalDescriptorSetManager.h"
 #include "cocos/renderer/pipeline/PipelineSceneData.h"
+#include "cocos/renderer/pipeline/PipelineStateManager.h"
 #include "cocos/renderer/pipeline/RenderPipeline.h"
 #include "cocos/scene/RenderScene.h"
 #include "cocos/scene/RenderWindow.h"
 #include "details/DebugUtils.h"
 #include "details/GslUtils.h"
-#include "pipeline/PipelineStateManager.h"
 
 #if CC_USE_DEBUG_RENDERER
     #include "profiler/DebugRenderer.h"
@@ -509,7 +505,7 @@ bool NativePipeline::activate(gfx::Swapchain *swapchainIn) {
             // reserve buffer
             buildLayoutGraphNodeBuffer(device, set.descriptorSetLayoutData, node);
             // reserve descriptor sets
-            node.perPassDescriptorSetPool.init(device, set.descriptorSetLayout);
+            node.descriptorSetPool.init(device, set.descriptorSetLayout);
         } else {
             auto iter = layout.descriptorSets.find(UpdateFrequency::PER_PHASE);
             if (iter == layout.descriptorSets.end()) {
@@ -519,13 +515,14 @@ bool NativePipeline::activate(gfx::Swapchain *swapchainIn) {
             // reserve buffer
             buildLayoutGraphNodeBuffer(device, set.descriptorSetLayoutData, node);
             // reserve descriptor sets
-            node.perPassDescriptorSetPool.init(device, set.descriptorSetLayout);
+            node.descriptorSetPool.init(device, set.descriptorSetLayout);
         }
     }
 
     // create ia
     {
         CC_EXPECTS(device);
+        // create vertex buffer
         const auto vbStride = sizeof(float) * 4; // 4 float per vertex
         const auto vbSize = vbStride * 4;        // 4 vertices
         IntrusivePtr<gfx::Buffer> quadVB = device->createBuffer(gfx::BufferInfo{
@@ -535,6 +532,13 @@ bool NativePipeline::activate(gfx::Swapchain *swapchainIn) {
             vbStride});
 
         CC_ENSURES(quadVB);
+
+        // update vertex buffer
+        float vbData[16] = {};
+        render::setupQuadVertexBuffer(*device, Vec4{0, 0, 1, 1}, vbData);
+        static_assert(sizeof(vbData) == 16 * 4);
+        CC_ENSURES(sizeof(vbData) == vbSize);
+        quadVB->update(vbData, sizeof(vbData));
 
         // create index buffer
         const auto ibStride = sizeof(uint16_t);
@@ -570,11 +574,12 @@ bool NativePipeline::activate(gfx::Swapchain *swapchainIn) {
 
         IntrusivePtr<gfx::InputAssembler> quadIA = device->createInputAssembler(
             gfx::InputAssemblerInfo{attributes, buffers, quadIB});
-
         CC_ENSURES(quadIA);
-        nativeContext.fullscreedQuad.quadIB = quadIB;
-        nativeContext.fullscreedQuad.quadVB = quadVB;
-        nativeContext.fullscreedQuad.quadIA = quadIA;
+
+        // init fullscreenQuad
+        nativeContext.fullscreenQuad.quadIB = quadIB;
+        nativeContext.fullscreenQuad.quadVB = quadVB;
+        nativeContext.fullscreenQuad.quadIA = quadIA;
     }
 
     return true;

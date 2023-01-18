@@ -449,7 +449,7 @@ struct DescriptorSetPool {
     DescriptorSetPool& operator=(DescriptorSetPool&& rhs) = default;
     DescriptorSetPool& operator=(DescriptorSetPool const& rhs) = delete;
     void init(gfx::Device* deviceIn, IntrusivePtr<gfx::DescriptorSetLayout> layout);
-    void syncDescriptorSets();
+    void syncDescriptorSets() noexcept;
     const gfx::DescriptorSet& getCurrentDescriptorSet() const;
     gfx::DescriptorSet& getCurrentDescriptorSet();
     gfx::DescriptorSet* allocateDescriptorSet();
@@ -479,6 +479,25 @@ struct UniformBlockResource {
     BufferPool bufferPool;
 };
 
+struct ProgramResource {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {uniformBuffers.get_allocator().resource()};
+    }
+
+    ProgramResource(const allocator_type& alloc) noexcept; // NOLINT
+    ProgramResource(ProgramResource&& rhs, const allocator_type& alloc);
+
+    ProgramResource(ProgramResource&& rhs) noexcept = default;
+    ProgramResource(ProgramResource const& rhs) = delete;
+    ProgramResource& operator=(ProgramResource&& rhs) = default;
+    ProgramResource& operator=(ProgramResource const& rhs) = delete;
+    void syncResources() noexcept;
+
+    PmrFlatMap<NameLocalID, UniformBlockResource> uniformBuffers;
+    DescriptorSetPool descriptorSetPool;
+};
+
 struct LayoutGraphNodeResource {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
@@ -492,10 +511,11 @@ struct LayoutGraphNodeResource {
     LayoutGraphNodeResource(LayoutGraphNodeResource const& rhs) = delete;
     LayoutGraphNodeResource& operator=(LayoutGraphNodeResource&& rhs) = default;
     LayoutGraphNodeResource& operator=(LayoutGraphNodeResource const& rhs) = delete;
+    void syncResources() noexcept;
 
     PmrFlatMap<NameLocalID, UniformBlockResource> uniformBuffers;
-    DescriptorSetPool perPassDescriptorSetPool;
-    PmrTransparentMap<ccstd::pmr::string, DescriptorSetPool> programDescriptorSetPool;
+    DescriptorSetPool descriptorSetPool;
+    PmrTransparentMap<ccstd::pmr::string, ProgramResource> programResources;
 };
 
 struct QuadResource {
@@ -528,7 +548,7 @@ struct NativeRenderContext {
     ccstd::pmr::unordered_map<RasterPass, PersistentRenderPassAndFramebuffer> renderPasses;
     ccstd::pmr::map<uint64_t, ResourceGroup> resourceGroups;
     ccstd::pmr::vector<LayoutGraphNodeResource> layoutGraphResources;
-    QuadResource fullscreedQuad;
+    QuadResource fullscreenQuad;
     uint64_t nextFenceValue{0};
 };
 
@@ -564,6 +584,7 @@ public:
     boost::container::pmr::unsynchronized_pool_resource unsycPool;
     bool mergeHighFrequency{false};
     bool fixedLocal{true};
+    IntrusivePtr<gfx::DescriptorSetLayout> localDescriptorSetLayout;
     IntrusivePtr<gfx::DescriptorSetLayout> emptyDescriptorSetLayout;
     IntrusivePtr<gfx::PipelineLayout> emptyPipelineLayout;
     PipelineRuntime* pipeline{nullptr};

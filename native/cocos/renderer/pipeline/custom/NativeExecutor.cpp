@@ -24,19 +24,20 @@
 
 #include <boost/graph/depth_first_search.hpp>
 #include <boost/graph/filtered_graph.hpp>
-#include <variant>
 #include "FGDispatcherGraphs.h"
 #include "LayoutGraphGraphs.h"
 #include "LayoutGraphTypes.h"
 #include "LayoutGraphUtils.h"
 #include "NativePipelineFwd.h"
 #include "NativePipelineTypes.h"
+#include "NativeUtils.h"
 #include "PrivateTypes.h"
 #include "RenderGraphGraphs.h"
 #include "RenderGraphTypes.h"
 #include "RenderingModule.h"
 #include "cocos/renderer/gfx-base/GFXBarrier.h"
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
+#include "cocos/renderer/gfx-base/GFXDescriptorSetLayout.h"
 #include "cocos/renderer/gfx-base/GFXDevice.h"
 #include "cocos/renderer/pipeline/Define.h"
 #include "cocos/renderer/pipeline/InstancedBuffer.h"
@@ -49,7 +50,6 @@
 #include "details/GraphView.h"
 #include "details/GslUtils.h"
 #include "details/Range.h"
-#include "gfx-base/GFXDescriptorSetLayout.h"
 
 namespace cc {
 
@@ -572,7 +572,7 @@ void initPerPassDescriptorSet(
     // update per pass resources
     const auto& data = set.descriptorSetLayoutData;
 
-    gfx::DescriptorSet* passSet = node.perPassDescriptorSetPool.allocateDescriptorSet();
+    gfx::DescriptorSet* passSet = node.descriptorSetPool.allocateDescriptorSet();
     for (const auto& block : data.descriptorBlocks) {
         CC_EXPECTS(block.descriptors.size() == block.capacity);
         auto bindID = block.offset;
@@ -692,8 +692,8 @@ void updatePerPassDescriptorSet(
     // update per pass resources
     const auto& data = set.descriptorSetLayoutData;
 
-    auto& prevSet = node.perPassDescriptorSetPool.getCurrentDescriptorSet();
-    gfx::DescriptorSet* newSet = node.perPassDescriptorSetPool.allocateDescriptorSet();
+    auto& prevSet = node.descriptorSetPool.getCurrentDescriptorSet();
+    gfx::DescriptorSet* newSet = node.descriptorSetPool.allocateDescriptorSet();
     for (const auto& block : data.descriptorBlocks) {
         CC_EXPECTS(block.descriptors.size() == block.capacity);
         auto bindID = block.offset;
@@ -991,17 +991,18 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         auto& shader = *pass.getShaderVariant();
         // get pso
         auto* pso = pipeline::PipelineStateManager::getOrCreatePipelineState(
-            &pass, &shader, ctx.context.fullscreedQuad.quadIA.get(), ctx.currentPass);
+            &pass, &shader, ctx.context.fullscreenQuad.quadIA.get(), ctx.currentPass);
         if (!pso) {
             return;
         }
         // update material ubo and descriptor set
         pass.update();
+
         // get or create program per-instance descriptor set
         auto& node = ctx.context.layoutGraphResources.at(vertID);
-        auto iter = node.programDescriptorSetPool.find(std::string_view{shader.getName()});
-        if (iter == node.programDescriptorSetPool.end()) {
-            auto res = node.programDescriptorSetPool.emplace(
+        auto iter = node.programResources.find(std::string_view{shader.getName()});
+        if (iter == node.programResources.end()) {
+            auto res = node.programResources.emplace(
                 std::piecewise_construct,
                 std::forward_as_tuple(shader.getName()),
                 std::forward_as_tuple());
@@ -1011,9 +1012,11 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
                 &const_cast<gfx::DescriptorSetLayout&>(
                     ctx.programLib->getLocalDescriptorSetLayout(
                         ctx.device, pass.getPhaseID(), shader.getName()));
-            res.first->second.init(ctx.device, std::move(instanceSetLayout));
+            res.first->second.descriptorSetPool.init(ctx.device, std::move(instanceSetLayout));
             iter = res.first;
         }
+
+        auto& instanceSet = iter->second;
 
         // execution
         ctx.cmdBuff->bindPipelineState(pso);

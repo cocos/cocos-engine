@@ -1356,6 +1356,8 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/NativeRenderingModule.cpp
                  cocos/renderer/pipeline/custom/NativeTypes.cpp
                  cocos/renderer/pipeline/custom/NativeTypes.h
+                 cocos/renderer/pipeline/custom/NativeUtils.cpp
+                 cocos/renderer/pipeline/custom/NativeUtils.h
                  cocos/renderer/pipeline/custom/PrivateFwd.h
                  cocos/renderer/pipeline/custom/PrivateTypes.cpp
                  cocos/renderer/pipeline/custom/PrivateTypes.h
