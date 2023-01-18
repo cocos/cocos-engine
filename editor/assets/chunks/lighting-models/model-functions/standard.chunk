@@ -42,10 +42,11 @@ void CCSurfacesLightingCalculateEnvironment(out vec3 lightingDiffuse, out vec3 l
   void CCSurfacesLightingCalculateDirectTransmitSpecular(out vec3 lightingSpecular, in LightingIntermediateData lightingData, in vec4 lightSourceColorAndIntensity)
   {
     float roughness = lightingData.specularParam;
-    vec3 irradiance = vec3(lightingData.NoLSat) * lightSourceColorAndIntensity.rgb * lightSourceColorAndIntensity.w;
+    float NoLSat = saturate(dot(lightingData.N, -lightingData.L));
+    vec3 irradiance = NoLSat * lightSourceColorAndIntensity.rgb * lightSourceColorAndIntensity.w;
 
     vec3 R = CalculateRefractDirection(lightingData.N, lightingData.V, lightingData.NoV, lightingData.ior);
-    float RoL = dot(-lightingData.L, R);
+    float RoL = dot(lightingData.L, normalize(R));
     float calcSpec = D_GGX(roughness, saturate(RoL));
     
     lightingSpecular = irradiance * calcSpec;
