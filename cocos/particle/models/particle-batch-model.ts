@@ -31,6 +31,7 @@ import { AttributeName, BufferUsageBit, FormatInfos, MemoryUsageBit, PrimitiveMo
 import { Color } from '../../core/math/color';
 import { scene } from '../../core/renderer';
 import { Material, RenderingSubMesh } from '../../core/assets';
+import { ParticleSOAData } from '../particle-soa-data';
 
 const _uvs = [
     0, 0, // bottom-left
@@ -39,36 +40,28 @@ const _uvs = [
     1, 1, // top-right
 ];
 
-const _uvs_ins = [
-    0, 0, 0, // bottom-left
-    1, 0, 0, // bottom-right
-    0, 1, 0, // top-left
-    1, 1, 0, // top-right
-];
+const fixedVertexBuffer = new Float32Array([
+    0, 0, 0, 0, 0, 0, // bottom-left
+    1, 0, 0, 1, 0, 0, // bottom-right
+    0, 1, 0, 0, 1, 0, // top-left
+    1, 1, 0, 1, 1, 0, // top-right
+]);
 
 export default class ParticleBatchModel extends scene.Model {
-    private _capacity: number;
-    private _vertAttrs: Attribute[] | null;
-    private _vertAttribSize: number;
-    private _vBuffer: ArrayBuffer | null;
-    private _vertAttrsFloatCount: number;
-    private _vdataF32: Float32Array | null;
-    private _vdataUint32: Uint32Array | null;
+    private _capacity = 0;
+    private _vertAttrs: Attribute[] = [];
     private _iaInfo: IndirectBuffer;
-    private _iaInfoBuffer: Buffer | null;
-    private _subMeshData: RenderingSubMesh | null;
-    private _mesh: Mesh | null;
+    private _iaInfoBuffer: Buffer | null = null;
+    private _subMeshData: RenderingSubMesh | null = null;
+    private _mesh: Mesh | null = null;
     private _vertCount = 0;
     private _indexCount = 0;
-    private _startTimeOffset = 0;
-    private _lifeTimeOffset = 0;
     private _material: Material | null = null;
 
-    private _vertAttribSizeStatic: number;
-    private _vertStaticAttrsFloatCount: number;
-    private _insBuffers: Buffer[];
-    private _insIndices: Buffer | null;
-    private _useInstance: boolean;
+    private _vertAttribSizeStatic = 0;
+    private _vertStaticAttrsFloatCount = 0;
+    private _insBuffers: Buffer[] = [];
+    private _insIndices: Buffer | null = null;
 
     constructor () {
         super();
@@ -77,24 +70,6 @@ export default class ParticleBatchModel extends scene.Model {
         }
 
         this.type = scene.ModelType.PARTICLE_BATCH;
-        this._capacity = 0;
-        this._vertAttrs = null;
-
-        this._vertAttribSize = 0;
-        this._vBuffer = null;
-        this._vertAttrsFloatCount = 0;
-        this._vdataF32 = null;
-        this._vdataUint32 = null;
-
-        this._vertAttribSizeStatic = 0;
-        this._vertStaticAttrsFloatCount = 0;
-        this._insBuffers = [];
-        this._insIndices = null;
-        if (!deviceManager.gfxDevice.hasFeature(Feature.INSTANCED_ARRAYS)) {
-            this._useInstance = false;
-        } else {
-            this._useInstance = true;
-        }
 
         this._iaInfo = new IndirectBuffer([new DrawInfo()]);
         this._iaInfoBuffer = this._device.createBuffer(new BufferInfo(
@@ -103,8 +78,6 @@ export default class ParticleBatchModel extends scene.Model {
             DRAW_INFO_SIZE,
             DRAW_INFO_SIZE,
         ));
-        this._subMeshData = null;
-        this._mesh = null;
     }
 
     public setCapacity (capacity: number) {
@@ -121,39 +94,31 @@ export default class ParticleBatchModel extends scene.Model {
         }
         this._mesh = mesh;
         this._vertAttrs = attrs;
-        this._vertAttribSize = 0;
         this._vertAttribSizeStatic = 0;
         for (const a of this._vertAttrs) {
             if (a.stream === 0) {
-                (a as any).offset = this._vertAttribSize;
-                this._vertAttribSize += FormatInfos[a.format].size;
-            } else if (a.stream === 1) {
                 (a as any).offset = this._vertAttribSizeStatic;
                 this._vertAttribSizeStatic += FormatInfos[a.format].size;
             }
         }
-        this._vertAttrsFloatCount = this._vertAttribSize / 4; // number of float
         this._vertStaticAttrsFloatCount = this._vertAttribSizeStatic / 4;
         // rebuid
         this.rebuild();
     }
 
-    private createSubMeshDataInsDynamic (): ArrayBuffer {
-        this.destroySubMeshData();
-
-        const vertexBuffer = this._device.createBuffer(new BufferInfo(
-            BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
-            this._vertAttribSize * this._capacity,
-            this._vertAttribSize,
-        ));
-
-        const vBuffer: ArrayBuffer = new ArrayBuffer(this._vertAttribSize * this._capacity);
-        vertexBuffer.update(vBuffer);
-
-        this._insBuffers.push(vertexBuffer);
-
-        return vBuffer;
+    private createSubMeshDataInsDynamic () {
+        for (let i = 0; i < this._vertAttrs?.length; i++) {
+            const vertexAttribute = this._vertAttrs[i];
+            if (vertexAttribute.stream !== 0 && vertexAttribute.isInstanced) {
+                const vertexBuffer = this._device.createBuffer(new BufferInfo(
+                    BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+                    MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+                    FormatInfos[vertexAttribute.format].size * this._capacity,
+                    FormatInfos[vertexAttribute.format].size,
+                ));
+                this._insBuffers.push(vertexBuffer);
+            }
+        }
     }
 
     private createSubMeshDataInsStatic () {
@@ -173,15 +138,15 @@ export default class ParticleBatchModel extends scene.Model {
 
         const vBuffer: ArrayBuffer = new ArrayBuffer(this._vertAttribSizeStatic * this._vertCount);
         if (this._mesh) {
-            let vIdx = this._vertAttrs!.findIndex((val) => val.name === AttributeName.ATTR_TEX_COORD); // find ATTR_TEX_COORD index
-            let vOffset = (this._vertAttrs![vIdx] as any).offset; // find ATTR_TEX_COORD offset
+            let vIdx = this._vertAttrs.findIndex((val) => val.name === AttributeName.ATTR_TEX_COORD); // find ATTR_TEX_COORD index
+            let vOffset = (this._vertAttrs[vIdx] as any).offset; // find ATTR_TEX_COORD offset
             this._mesh.copyAttribute(0, AttributeName.ATTR_TEX_COORD, vBuffer, this._vertAttribSizeStatic, vOffset);  // copy mesh uv to ATTR_TEX_COORD
-            vIdx = this._vertAttrs!.findIndex((val) => val.name === AttributeName.ATTR_TEX_COORD3); // find ATTR_TEX_COORD3 index
-            vOffset = (this._vertAttrs![vIdx++] as any).offset; // find ATTR_TEX_COORD3 offset
+            vIdx = this._vertAttrs.findIndex((val) => val.name === AttributeName.ATTR_POSITION); // find ATTR_TEX_COORD3 index
+            vOffset = (this._vertAttrs[vIdx++] as any).offset; // find ATTR_TEX_COORD3 offset
             this._mesh.copyAttribute(0, AttributeName.ATTR_POSITION, vBuffer, this._vertAttribSizeStatic, vOffset);  // copy mesh position to ATTR_TEX_COORD3
-            vOffset = (this._vertAttrs![vIdx++] as any).offset;
+            vOffset = (this._vertAttrs[vIdx++] as any).offset;
             this._mesh.copyAttribute(0, AttributeName.ATTR_NORMAL, vBuffer, this._vertAttribSizeStatic, vOffset);  // copy mesh normal to ATTR_NORMAL
-            vOffset = (this._vertAttrs![vIdx++] as any).offset;
+            vOffset = (this._vertAttrs[vIdx++] as any).offset;
             if (!this._mesh.copyAttribute(0, AttributeName.ATTR_COLOR, vBuffer, this._vertAttribSizeStatic, vOffset)) {  // copy mesh color to ATTR_COLOR1
                 const vb = new Uint32Array(vBuffer);
                 for (let iVertex = 0; iVertex < this._vertCount; ++iVertex) {
@@ -190,9 +155,7 @@ export default class ParticleBatchModel extends scene.Model {
             }
         } else {
             const vbFloatArray = new Float32Array(vBuffer);
-            for (let i = 0; i < _uvs_ins.length; ++i) {
-                vbFloatArray[i] = _uvs_ins[i];
-            }
+            vbFloatArray.set(fixedVertexBuffer);
         }
         vertexBuffer.update(vBuffer);
 
@@ -234,7 +197,7 @@ export default class ParticleBatchModel extends scene.Model {
     }
 
     private createInsSubmesh () {
-        this._subMeshData = new RenderingSubMesh(this._insBuffers, this._vertAttrs!, PrimitiveMode.TRIANGLE_LIST, this._insIndices, this._iaInfoBuffer);
+        this._subMeshData = new RenderingSubMesh(this._insBuffers, this._vertAttrs, PrimitiveMode.TRIANGLE_LIST, this._insIndices, this._iaInfoBuffer);
         this.initSubModel(0, this._subMeshData, this._material!);
     }
 
@@ -243,16 +206,20 @@ export default class ParticleBatchModel extends scene.Model {
         this.setSubModelMaterial(0, mat);
     }
 
-    public updateIA (count: number) {
-        if (count <= 0) {
+    public updateIA (particles: ParticleSOAData) {
+        if (particles.count <= 0) {
             return;
         }
         const ia = this._subModels[0].inputAssembler;
-        ia.vertexBuffers[0].update(this._vdataF32!); // update dynamic buffer
-        ia.instanceCount = count;
+        ia.vertexBuffers[1].update(particles.positionX); // update dynamic buffer
+        ia.vertexBuffers[2].update(particles.rotationX);
+        ia.vertexBuffers[3].update(particles.sizeX);
+        ia.vertexBuffers[4].update(particles.frameIndex);
+        ia.vertexBuffers[5].update(particles.color);
+        ia.instanceCount = particles.count;
         this._iaInfo.drawInfos[0].firstIndex = 0;
         this._iaInfo.drawInfos[0].indexCount = this._indexCount;
-        this._iaInfo.drawInfos[0].instanceCount = count;
+        this._iaInfo.drawInfos[0].instanceCount = particles.count;
         this._iaInfoBuffer!.update(this._iaInfo);
     }
 
@@ -266,20 +233,17 @@ export default class ParticleBatchModel extends scene.Model {
     }
 
     public doDestroy () {
-        this._vBuffer = null;
-        this._vdataF32 = null;
-        this._vdataUint32 = null;
-
-        this._insBuffers = [];
+        this._insBuffers.length = 0;
         this._insIndices = null;
 
-        this._vertAttrs = null;
+        this._vertAttrs.length = 0;
         this._material = null;
         this._mesh = null;
         this.destroySubMeshData();
     }
 
     private rebuild () {
+        this.destroySubMeshData();
         this.createSubMeshDataInsStatic();
         this.createSubMeshDataInsDynamic();
 
@@ -295,15 +259,5 @@ export default class ParticleBatchModel extends scene.Model {
             // this._iaInfoBuffer.destroy(); // Already destroyed in _subMeshData
             this._iaInfoBuffer = null;
         }
-    }
-
-    public set useInstance (value: boolean) {
-        if (this._useInstance !== value) {
-            this._useInstance = value;
-        }
-    }
-
-    public get useInstance (): boolean {
-        return this._useInstance;
     }
 }

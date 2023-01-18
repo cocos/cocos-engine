@@ -30,54 +30,19 @@ import { Material, Texture2D } from '../core/assets';
 import { AlignmentSpace, RenderMode, Space } from './enum';
 import { Attribute, AttributeName, BufferInfo, BufferUsageBit, Device, deviceManager, DrawInfo, Feature, Format, FormatFeatureBit, FormatInfos, IndirectBuffer, MemoryUsageBit } from '../core/gfx';
 import { legacyCC } from '../core/global-exports';
-import { builtinResMgr, director, errorID, gfx, Mat4, ModelRenderer, Quat, RenderingSubMesh, Vec2, Vec4, warnID } from '../core';
+import { builtinResMgr, director, Enum, errorID, gfx, Mat4, ModelRenderer, Quat, RenderingSubMesh, Vec2, Vec4, warnID } from '../core';
 import { MacroRecord, MaterialInstance, Pass, scene } from '../core/renderer';
 import ParticleBatchModel from './models/particle-batch-model';
 import { ParticleSystem } from './particle-system';
 import { Camera } from '../core/renderer/scene/camera';
 import { particleSystemManager } from './particle-system-manager';
+import { TextureAnimationModule } from './modules/texture-animation';
 
 const CC_USE_WORLD_SPACE = 'CC_USE_WORLD_SPACE';
 
 const CC_RENDER_MODE = 'CC_RENDER_MODE';
 const ROTATION_OVER_TIME_MODULE_ENABLE = 'ROTATION_OVER_TIME_MODULE_ENABLE';
 const INSTANCE_PARTICLE = 'CC_INSTANCE_PARTICLE';
-const RENDER_MODE_BILLBOARD = 0;
-const RENDER_MODE_STRETCHED_BILLBOARD = 1;
-const RENDER_MODE_HORIZONTAL_BILLBOARD = 2;
-const RENDER_MODE_VERTICAL_BILLBOARD = 3;
-const RENDER_MODE_MESH = 4;
-
-const _vertex_attrs_ins = [
-    new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F, false, 0),        // mesh position
-    new Attribute('a_particle_position', Format.RGB32F, false, 1, true),        // particle position
-    new Attribute('a_particle_rotation', Format.RGB32F, false, 2, true),        // particle rotation
-    new Attribute('a_particle_size', Format.RGB32F, false, 3, true),            // particle size
-    new Attribute('a_particle_frame', Format.R16UI, false, 4, true),            // particle frame id
-    new Attribute('a_particle_color', Format.RGBA8, true, 5, true),             // particle color
-];
-
-const _vertex_attrs_stretch_ins = [
-    new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F, false, 0),        // mesh position
-    new Attribute('a_particle_position', Format.RGB32F, false, 1, true),        // particle position
-    new Attribute('a_particle_rotation', Format.RGB32F, false, 2, true),        // particle rotation
-    new Attribute('a_particle_size', Format.RGB32F, false, 3, true),            // particle size
-    new Attribute('a_particle_frame', Format.R16UI, false, 4, true),            // particle frame id
-    new Attribute('a_particle_color', Format.RGBA8, true, 5, true),             // particle color
-    new Attribute('a_particle_velocity', Format.RGB32F, false, 6, true),        // particle velocity
-];
-
-const _vertex_attrs_mesh_ins = [
-    new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F, false, 0),        // mesh position
-    new Attribute(AttributeName.ATTR_TEX_COORD, Format.RGB32F, false, 0),       // mesh uv
-    new Attribute(AttributeName.ATTR_NORMAL, Format.RGB32F, false, 0),          // mesh normal
-    new Attribute(AttributeName.ATTR_COLOR, Format.RGBA8, true, 0),             // mesh color
-    new Attribute('a_particle_position', Format.RGB32F, false, 1, true),        // particle position
-    new Attribute('a_particle_rotation', Format.RGB32F, false, 2, true),        // particle rotation
-    new Attribute('a_particle_size', Format.RGB32F, false, 3, true),            // particle size
-    new Attribute('a_particle_frame', Format.R16UI, false, 4, true),            // particle frame id
-    new Attribute('a_particle_color', Format.RGBA8, true, 5, true),             // particle color
-];
 
 @ccclass('cc.ParticleSystemRenderer')
 export class ParticleSystemRenderer extends ModelRenderer {
@@ -85,7 +50,7 @@ export class ParticleSystemRenderer extends ModelRenderer {
     /**
      * @zh 设定粒子生成模式。
      */
-    @type(RenderMode)
+    @type(Enum(RenderMode))
     @displayOrder(0)
     @tooltip('i18n:particleSystemRenderer.renderMode')
     public get renderMode () {
@@ -134,7 +99,6 @@ export class ParticleSystemRenderer extends ModelRenderer {
 
     public set mesh (val) {
         this._mesh = val;
-        this.updateVertexAttributes();
     }
 
     /**
@@ -184,7 +148,6 @@ export class ParticleSystemRenderer extends ModelRenderer {
         this._alignSpace = val;
     }
 
-    @type(RenderMode)
     @serializable
     private _renderMode = RenderMode.BILLBOARD;
 
@@ -197,45 +160,29 @@ export class ParticleSystemRenderer extends ModelRenderer {
     @serializable
     private _mesh: Mesh | null = null;
 
-    private _iaInfo: IndirectBuffer;
+    // private _iaInfo: IndirectBuffer;
     private _defines: MacroRecord;
-    private _trailDefines: MacroRecord;
-    private _frameTile_velLenScale: Vec4;
-    private _tmp_velLenScale: Vec4;
+    // private _trailDefines: MacroRecord;
+    private _frameTile_velLenScale = new Vec4(1, 1, 0, 0);
+    private _tmp_velLenScale = new Vec4(1, 1, 0, 0);
     private _defaultMat: Material | null = null;
-    private _node_scale: Vec4;
-    private _attrs: any[];
-    private _defaultTrailMat: Material | null = null;
+    private _node_scale = new Vec4();
+    // private _defaultTrailMat: Material | null = null;
     private _uScaleHandle = 0;
     private _uLenHandle = 0;
     private _uNodeRotHandle = 0;
-    private _inited = false;
-    private _localMat = new Mat4();
     private _scaleSpace = Space.LOCAL;
-    private _vertexBuffers: gfx.Buffer[] = [];
-    private _renderingSubMesh: RenderingSubMesh | null = null;
-    private _particlePosBuffer: gfx.Buffer | null = null;
-    private _particleSizeBuffer: gfx.Buffer | null = null;
-    private _particleRotationBuffer: gfx.Buffer | null = null;
-    private _particleFrameBuffer: gfx.Buffer | null = null;
-    private _particleColorBuffer: gfx.Buffer | null = null;
 
     @serializable
     private _alignSpace = AlignmentSpace.VIEW;
     @serializable
     private _mainTexture: Texture2D | null = null;
     private _model: ParticleBatchModel | null = null;
-    private _vertSize = 0;
-    private _capacity = 0;
-    protected _vertAttrs: Attribute[] = [];
+    private _vertAttrs: Attribute[] = [];
     private _particleSystem: ParticleSystem | null = null;
 
     constructor () {
         super();
-        this._frameTile_velLenScale = new Vec4(1, 1, 0, 0);
-        this._tmp_velLenScale = this._frameTile_velLenScale.clone();
-        this._node_scale = new Vec4();
-        this._attrs = new Array(7);
         this._defines = {
             CC_USE_WORLD_SPACE: true,
             CC_USE_BILLBOARD: true,
@@ -243,11 +190,11 @@ export class ParticleSystemRenderer extends ModelRenderer {
             CC_USE_HORIZONTAL_BILLBOARD: false,
             CC_USE_VERTICAL_BILLBOARD: false,
         };
-        this._trailDefines = {
-            CC_USE_WORLD_SPACE: true,
-            // CC_DRAW_WIRE_FRAME: true,   // <wireframe debug>
-        };
-        this._iaInfo = new IndirectBuffer([new DrawInfo()]);
+        // this._trailDefines = {
+        //     CC_USE_WORLD_SPACE: true,
+        //     // CC_DRAW_WIRE_FRAME: true,   // <wireframe debug>
+        // };
+        // this._iaInfo = new IndirectBuffer([new DrawInfo()]);
 
         // this._vertAttrs = [
         //     new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F),   // xyz:position
@@ -267,51 +214,66 @@ export class ParticleSystemRenderer extends ModelRenderer {
 
     public onLoad () {
         if (!this._model) {
-            this._model = legacyCC.director.root.createModel(ParticleBatchModel);
-            this._model!.visFlags = this.node.layer;
+            this._model = legacyCC.director.root.createModel(ParticleBatchModel) as ParticleBatchModel;
+            this._model.visFlags = this.node.layer;
+            this._model.node = this._model.transform = this.node;
         }
     }
 
     public onEnable () {
-        this.attachToScene();
-        const model = this._model;
-        if (model) {
-            model.node = model.transform = this.node;
-        }
+        this._getRenderScene().addModel(this._model!);
         particleSystemManager.addParticleSystemRenderer(this);
     }
 
     public onDisable () {
-        this.detachFromScene();
+        this._model!.scene!.removeModel(this._model!);
         particleSystemManager.removeParticleSystemRenderer(this);
     }
 
     public onDestroy () {
         if (this._model) {
-            this._model.detachFromScene();
             legacyCC.director.root.destroyModel(this._model);
             this._model = null;
         }
     }
 
-    public attachToScene () {
+    private _updateVertexAttributes () {
         if (this._model) {
-            if (this._model.scene) {
-                this.detachFromScene();
+            this._vertAttrs.length = 0;
+            this._vertAttrs.push(
+                new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F, false, 0),            // mesh position
+                new Attribute(AttributeName.ATTR_TEX_COORD, Format.RGB32F, false, 0),           // mesh uv
+            );
+            if (this.renderMode === RenderMode.MESH && this.mesh) {
+                this._vertAttrs.push(
+                    new Attribute(AttributeName.ATTR_NORMAL, Format.RGB32F, false, 0),          // mesh normal
+                    new Attribute(AttributeName.ATTR_COLOR, Format.RGBA8, true, 0),             // mesh color
+                );
+                const format = this.mesh.readAttributeFormat(0, AttributeName.ATTR_COLOR);
+                if (format) {
+                    let type = Format.RGBA8;
+                    for (let i = 0; i < FormatInfos.length; ++i) {
+                        if (FormatInfos[i].name === format.name) {
+                            type = i;
+                            break;
+                        }
+                    }
+                    this._vertAttrs[3] = new Attribute(AttributeName.ATTR_COLOR, type, true, 0);
+                } else { // mesh without vertex color
+                    const type = Format.RGBA8;
+                    this._vertAttrs[3] = new Attribute(AttributeName.ATTR_COLOR, type, true, 0);
+                }
             }
-            this._getRenderScene().addModel(this._model);
-        }
-    }
-
-    public detachFromScene () {
-        if (this._model && this._model.scene) {
-            this._model.scene.removeModel(this._model);
-        }
-    }
-
-    public updateVertexAttributes () {
-        if (this._model) {
-            this.updateVertexAttrib();
+            this._vertAttrs.push(
+                new Attribute('a_particle_position', Format.RGB32F, false, 1, true),        // particle position
+                new Attribute('a_particle_rotation', Format.RGB32F, false, 2, true),        // particle rotation
+                new Attribute('a_particle_size', Format.RGB32F, false, 3, true),            // particle size
+                new Attribute('a_particle_frame', Format.R16UI, false, 4, true),            // particle frame id
+                new Attribute('a_particle_color', Format.RGBA8, true, 5, true),             // particle color
+            );
+            if (this._renderMode === RenderMode.STRETCHED_BILLBOARD) {
+                this._vertAttrs.push(new Attribute('a_particle_velocity', Format.RGB32F, false, 6, true));
+            }
             this._model.setVertexAttributes(this._renderMode === RenderMode.MESH ? this._mesh : null, this._vertAttrs);
         }
     }
@@ -324,78 +286,17 @@ export class ParticleSystemRenderer extends ModelRenderer {
         return this._model;
     }
 
-    private createBufferIfNeed (count: number) {
-        if (this._capacity === count) return;
-        this._renderingSubMesh?.destroy();
-        this._capacity = count;
-        const device: Device = director.root!.device;
-        this._particlePosBuffer = device.createBuffer(new BufferInfo(
-            BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
-            FormatInfos[Format.RGB32F].size * this._capacity,
-            FormatInfos[Format.RGB32F].size,
-        ));
-        this._particleRotationBuffer = device.createBuffer(new BufferInfo(
-            BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
-            FormatInfos[Format.RGB32F].size * this._capacity,
-            FormatInfos[Format.RGB32F].size,
-        ));
-        this._particleSizeBuffer = device.createBuffer(new BufferInfo(
-            BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
-            FormatInfos[Format.RGB32F].size * this._capacity,
-            FormatInfos[Format.RGB32F].size,
-        ));
-        this._particleFrameBuffer = device.createBuffer(new BufferInfo(
-            BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
-            FormatInfos[Format.R16UI].size * this._capacity,
-            FormatInfos[Format.R16UI].size,
-        ));
-        this._particleColorBuffer = device.createBuffer(new BufferInfo(
-            BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
-            FormatInfos[Format.RGBA8].size * this._capacity,
-            FormatInfos[Format.RGBA8].size,
-        ));
-    }
-
     // internal function
     public updateRenderData () {
         if (!this._particleSystem) return;
         const { particles } = this._particleSystem;
 
+        this._updateVertexAttributes();
         this._model!.setCapacity(particles.capacity);
         this.updateMaterialParams();
-        // this.updateTrailMaterial();
-        this.createBufferIfNeed(particles.capacity);
+        // this.updateTrailMaterial()
 
-        const position = new Float32Array(3 * particles.capacity);
-        for (let i = 0; i < particles.capacity; i++) {
-            position[i * 3] = particles.positionX[i];
-            position[i * 3 + 1] = particles.positionY[i];
-            position[i * 3 + 2] = particles.positionZ[i];
-        }
-        this._particlePosBuffer?.update(position);
-        const size = new Float32Array(3 * particles.capacity);
-        for (let i = 0; i < particles.capacity; i++) {
-            size[i * 3] = particles.sizeX[i];
-            size[i * 3 + 1] = particles.sizeY[i];
-            size[i * 3 + 2] = particles.sizeZ[i];
-        }
-        this._particleSizeBuffer?.update(size);
-        const rotation = new Float32Array(3 * particles.capacity);
-        for (let i = 0; i < particles.capacity; i++) {
-            rotation[i * 3] = particles.rotationX[i];
-            rotation[i * 3 + 1] = particles.rotationY[i];
-            rotation[i * 3 + 2] = particles.rotationZ[i];
-        }
-        this._particleRotationBuffer?.update(rotation);
-        this._particleFrameBuffer?.update(particles.frameIndex);
-        this._particleColorBuffer?.update(particles.color);
-
-        this._model!.updateIA(particles.count);
+        this._model!.updateIA(particles);
         //this.updateTrailRenderData();
     }
 
@@ -436,29 +337,19 @@ export class ParticleSystemRenderer extends ModelRenderer {
 
         const renderMode = this.renderMode;
         const vlenScale = this._frameTile_velLenScale;
-        if (renderMode === RenderMode.BILLBOARD) {
-            this._defines[CC_RENDER_MODE] = RENDER_MODE_BILLBOARD;
-        } else if (renderMode === RenderMode.STRETCHED_BILLBOARD) {
-            this._defines[CC_RENDER_MODE] = RENDER_MODE_STRETCHED_BILLBOARD;
+        if (renderMode === RenderMode.STRETCHED_BILLBOARD) {
             vlenScale.z = this.velocityScale;
             vlenScale.w = this.lengthScale;
-        } else if (renderMode === RenderMode.HORIZONTAL_BILLBOARD) {
-            this._defines[CC_RENDER_MODE] = RENDER_MODE_HORIZONTAL_BILLBOARD;
-        } else if (renderMode === RenderMode.VERTICAL_BILLBOARD) {
-            this._defines[CC_RENDER_MODE] = RENDER_MODE_VERTICAL_BILLBOARD;
-        } else if (renderMode === RenderMode.MESH) {
-            this._defines[CC_RENDER_MODE] = RENDER_MODE_MESH;
-        } else {
-            console.warn(`particle system renderMode ${renderMode} not support.`);
         }
-        // const textureModule = ps._textureAnimationModule;
-        // if (textureModule && textureModule.enable) {
-        //     Vec4.copy(this._tmp_velLenScale, vlenScale); // fix textureModule switch bug
-        //     Vec2.set(this._tmp_velLenScale, textureModule.numTilesX, textureModule.numTilesY);
-        //     pass.setUniform(this._uLenHandle, this._tmp_velLenScale);
-        // } else {
-        //     pass.setUniform(this._uLenHandle, vlenScale);
-        // }
+        this._defines[CC_RENDER_MODE] = renderMode;
+        const textureModule = this._particleSystem.getModule(TextureAnimationModule);
+        if (textureModule && textureModule.enable) {
+            Vec4.copy(this._tmp_velLenScale, vlenScale); // fix textureModule switch bug
+            Vec2.set(this._tmp_velLenScale, textureModule.numTilesX, textureModule.numTilesY);
+            pass.setUniform(this._uLenHandle, this._tmp_velLenScale);
+        } else {
+            pass.setUniform(this._uLenHandle, vlenScale);
+        }
 
         this._defines[ROTATION_OVER_TIME_MODULE_ENABLE] = true;
         this._defines[INSTANCE_PARTICLE] = true;
@@ -687,28 +578,6 @@ export class ParticleSystemRenderer extends ModelRenderer {
                 rotation.set(0.0, 0.0, 0.0, 1.0);
             }
             pass.setUniform(this._uNodeRotHandle, rotation);
-        }
-    }
-
-    public updateVertexAttrib () {
-        if (this.renderMode !== RenderMode.MESH) {
-            return;
-        }
-        if (this.mesh) {
-            const format = this.mesh.readAttributeFormat(0, AttributeName.ATTR_COLOR);
-            if (format) {
-                let type = Format.RGBA8;
-                for (let i = 0; i < FormatInfos.length; ++i) {
-                    if (FormatInfos[i].name === format.name) {
-                        type = i;
-                        break;
-                    }
-                }
-                this._vertAttrs[7] = new Attribute(AttributeName.ATTR_COLOR1, type, true, 0);
-            } else { // mesh without vertex color
-                const type = Format.RGBA8;
-                this._vertAttrs[7] = new Attribute(AttributeName.ATTR_COLOR1, type, true, 0);
-            }
         }
     }
 

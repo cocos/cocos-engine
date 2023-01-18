@@ -47,6 +47,8 @@ export {
     Burst,
 };
 
+export * from './modules/shape-module';
+
 export * from './deprecated';
 
 legacyCC.ParticleUtils = ParticleUtils;
