@@ -466,7 +466,7 @@ void buildLayoutGraphNodeBuffer(
             getUniformBlockSize(uniformBlock.members) * uniformBlock.count;
 
         CC_ENSURES(bufferSize);
-        buffer.init(device, bufferSize);
+        buffer.init(device, bufferSize, false);
     }
 }
 

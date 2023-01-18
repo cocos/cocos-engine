@@ -417,21 +417,24 @@ struct BufferPool {
     }
 
     BufferPool(const allocator_type& alloc) noexcept; // NOLINT
-    BufferPool(gfx::Device* deviceIn, uint32_t bufferSizeIn, const allocator_type& alloc) noexcept;
+    BufferPool(gfx::Device* deviceIn, uint32_t bufferSizeIn, bool dynamicIn, const allocator_type& alloc) noexcept;
     BufferPool(BufferPool&& rhs, const allocator_type& alloc);
 
     BufferPool(BufferPool&& rhs) noexcept = default;
     BufferPool(BufferPool const& rhs) = delete;
     BufferPool& operator=(BufferPool&& rhs) = default;
     BufferPool& operator=(BufferPool const& rhs) = delete;
-    void init(gfx::Device* deviceIn, uint32_t sz);
+    void init(gfx::Device* deviceIn, uint32_t sz, bool bDynamic);
     void syncResources();
     gfx::Buffer* allocateBuffer();
 
     gfx::Device* device{nullptr};
     uint32_t bufferSize{0};
+    bool dynamic{false};
     ccstd::pmr::vector<IntrusivePtr<gfx::Buffer>> currentBuffers;
+    ccstd::pmr::vector<IntrusivePtr<gfx::Buffer>> currentBufferViews;
     ccstd::pmr::vector<IntrusivePtr<gfx::Buffer>> freeBuffers;
+    ccstd::pmr::vector<IntrusivePtr<gfx::Buffer>> freeBufferViews;
 };
 
 struct DescriptorSetPool {
@@ -473,7 +476,8 @@ struct UniformBlockResource {
     UniformBlockResource(UniformBlockResource const& rhs) = delete;
     UniformBlockResource& operator=(UniformBlockResource&& rhs) = default;
     UniformBlockResource& operator=(UniformBlockResource const& rhs) = delete;
-    void init(gfx::Device* deviceIn, uint32_t sz);
+    void init(gfx::Device* deviceIn, uint32_t sz, bool bDynamic);
+    gfx::Buffer* createFromCpuBuffer();
 
     ccstd::pmr::vector<char> cpuBuffer;
     BufferPool bufferPool;
