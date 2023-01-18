@@ -873,13 +873,13 @@ export function buildLightingPass (camera: Camera, ppl: Pipeline, gBuffer: GBuff
     lightingPass.setViewport(new Viewport(area.x, area.y, width, height));
     for (const dirShadowName of cameraInfo.mainLightShadowNames) {
         if (ppl.containsResource(dirShadowName)) {
-            const computeView = new ComputeView();
+            const computeView = new ComputeView('cc_shadowMap');
             lightingPass.addComputeView(dirShadowName, computeView);
         }
     }
     for (const spotShadowName of cameraInfo.spotLightShadowNames) {
         if (ppl.containsResource(spotShadowName)) {
-            const computeView = new ComputeView();
+            const computeView = new ComputeView('cc_spotShadowMap');
             lightingPass.addComputeView(spotShadowName, computeView);
         }
     }
@@ -917,8 +917,8 @@ export function buildLightingPass (camera: Camera, ppl: Pipeline, gBuffer: GBuff
         camera, lightingInfo.deferredLightingMaterial, 0,
         SceneFlags.VOLUMETRIC_LIGHTING,
     );
-    lightingPass.addQueue(QueueHint.RENDER_TRANSPARENT).addSceneOfCamera(camera, new LightInfo(),
-        SceneFlags.TRANSPARENT_OBJECT | SceneFlags.PLANAR_SHADOW | SceneFlags.GEOMETRY);
+    // lightingPass.addQueue(QueueHint.RENDER_TRANSPARENT).addSceneOfCamera(camera, new LightInfo(),
+    //     SceneFlags.TRANSPARENT_OBJECT | SceneFlags.PLANAR_SHADOW | SceneFlags.GEOMETRY);
     return { rtName: deferredLightingPassRTName, dsName: deferredLightingPassDS };
 }
 

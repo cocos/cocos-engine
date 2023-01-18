@@ -24,6 +24,7 @@
 
 #pragma once
 #include <boost/container/pmr/memory_resource.hpp>
+#include <iosfwd>
 #include "cocos/core/assets/EffectAsset.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
 #include "cocos/renderer/pipeline/custom/RenderCommonTypes.h"
@@ -58,6 +59,9 @@ void generateConstantMacros(
     gfx::Device* device,
     ccstd::string& constantMacros,
     bool clusterEnabled);
+
+void printLayoutGraphData(const LayoutGraphData& lg, std::ostream& oss,
+    boost::container::pmr::memory_resource* scratch);
 
 } // namespace render
 

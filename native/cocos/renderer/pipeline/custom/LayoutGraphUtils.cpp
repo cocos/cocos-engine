@@ -27,13 +27,18 @@
 #include <tuple>
 #include <utility>
 #include "LayoutGraphGraphs.h"
+#include "LayoutGraphNames.h"
 #include "LayoutGraphTypes.h"
+#include "RenderCommonNames.h"
 #include "RenderCommonTypes.h"
 #include "cocos/base/Log.h"
 #include "cocos/base/StringUtil.h"
 #include "cocos/base/std/container/string.h"
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
+#include "details/DebugUtils.h"
+#include "details/GslUtils.h"
 #include "details/Map.h"
+#include "details/Range.h"
 
 namespace cc {
 
@@ -342,6 +347,118 @@ void generateConstantMacros(
         device->getCapabilities().maxVertexUniformVectors,
         device->getCapabilities().maxFragmentUniformVectors,
         device->hasFeature(gfx::Feature::INPUT_ATTACHMENT_BENEFIT));
+}
+
+namespace {
+
+ccstd::string getName(gfx::ShaderStageFlagBit stage) {
+    std::ostringstream oss;
+    int count = 0;
+    if (hasFlag(stage, gfx::ShaderStageFlagBit::VERTEX)) {
+        if (count++) {
+            oss << " | ";
+        }
+        oss << "Vertex";
+    }
+    if (hasFlag(stage, gfx::ShaderStageFlagBit::CONTROL)) {
+        if (count++) {
+            oss << " | ";
+        }
+        oss << "Control";
+    }
+    if (hasFlag(stage, gfx::ShaderStageFlagBit::EVALUATION)) {
+        if (count++) {
+            oss << " | ";
+        }
+        oss << "Evaluation";
+    }
+    if (hasFlag(stage, gfx::ShaderStageFlagBit::GEOMETRY)) {
+        if (count++) {
+            oss << " | ";
+        }
+        oss << "Geometry";
+    }
+    if (hasFlag(stage, gfx::ShaderStageFlagBit::FRAGMENT)) {
+        if (count++) {
+            oss << " | ";
+        }
+        oss << "Fragment";
+    }
+    if (hasFlag(stage, gfx::ShaderStageFlagBit::COMPUTE)) {
+        if (count++) {
+            oss << " | ";
+        }
+        oss << "Compute";
+    }
+    if (hasAllFlags(stage, gfx::ShaderStageFlagBit::ALL)) {
+        if (count++) {
+            oss << " | ";
+        }
+        oss << "All";
+    }
+    return oss.str();
+}
+
+} // namespace
+
+void printLayoutGraphData(
+    const LayoutGraphData& lg, std::ostream& oss,
+    boost::container::pmr::memory_resource* scratch) {
+    ccstd::pmr::string space(scratch);
+
+    oss << "\n";
+
+    for (const auto v : makeRange(vertices(lg))) {
+        if (parent(v, lg) != LayoutGraphData::null_vertex()) {
+            continue;
+        }
+        const auto& name = get(LayoutGraphData::Name, lg, v);
+        OSS << "\"" << name << "\": ";
+
+        visit(
+            [&](auto tag) {
+                oss << getName(tag);
+            },
+            tag(v, lg));
+
+        oss << " {\n";
+        INDENT_BEG();
+        const auto& info = get(LayoutGraphData::Layout, lg, v);
+        for (const auto& set : info.descriptorSets) {
+            OSS << "Set<" << getName(set.first) << "> {\n";
+            {
+                INDENT();
+                for (const auto& block : set.second.descriptorSetLayoutData.descriptorBlocks) {
+                    OSS << "Block<" << getName(block.type) << ", " << getName(block.visibility) << "> {\n";
+                    {
+                        INDENT();
+                        OSS << "capacity: " << block.capacity << ",\n";
+                        OSS << "count: " << block.descriptors.size() << ",\n";
+                        if (!block.descriptors.empty()) {
+                            OSS << "Descriptors{ ";
+                            int count = 0;
+                            for (const auto& d : block.descriptors) {
+                                if (count++) {
+                                    oss << ", ";
+                                }
+                                const auto& name = lg.valueNames.at(d.descriptorID.value);
+                                oss << "\"" << name;
+                                if (d.count != 1) {
+                                    oss << "[" << d.count << "]";
+                                }
+                                oss << "\"";
+                            }
+                            oss << " }\n";
+                        }
+                    }
+                    OSS << "}\n";
+                }
+            }
+            OSS << "}\n";
+        }
+        INDENT_END();
+        OSS << "}\n";
+    }
 }
 
 } // namespace render
