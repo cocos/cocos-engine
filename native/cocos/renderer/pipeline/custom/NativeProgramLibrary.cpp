@@ -130,51 +130,59 @@ IProgramInfo makeProgramInfo(const ccstd::string &effectName, const IShaderInfo 
     return programInfo;
 }
 
-std::tuple<std::string_view, gfx::Type> getDescriptorNameAndType(
-    const pipeline::DescriptorSetLayoutInfos &source,
-    uint32_t binding) {
+ccstd::pmr::vector<std::tuple<ccstd::pmr::string, gfx::Type>> getDescriptorNameAndType(
+    const pipeline::DescriptorSetLayoutInfos &source, uint32_t binding,
+    boost::container::pmr::memory_resource *scratch) {
+    ccstd::pmr::vector<std::tuple<ccstd::pmr::string, gfx::Type>> results(scratch);
+
     for (const auto &[name, block] : source.blocks) {
         if (block.binding == binding) {
-            return {name, gfx::Type::UNKNOWN};
+            results.emplace_back(std::tuple{name, gfx::Type::UNKNOWN});
         }
     }
     for (const auto &[name, texture] : source.samplers) {
         if (texture.binding == binding) {
-            return {name, texture.type};
+            results.emplace_back(std::tuple{name, texture.type});
         }
     }
     for (const auto &[name, image] : source.storeImages) {
         if (image.binding == binding) {
-            return {name, image.type};
+            results.emplace_back(std::tuple{name, image.type});
         }
     }
-    return {"", gfx::Type::UNKNOWN};
+    return results;
 }
 
 void makeLocalDescriptorSetLayoutData(
     LayoutGraphData &lg,
     const pipeline::DescriptorSetLayoutInfos &source,
-    DescriptorSetLayoutData &data) {
+    DescriptorSetLayoutData &data,
+    boost::container::pmr::memory_resource *scratch) {
     for (const auto &b : source.bindings) {
-        const auto [name, type] = getDescriptorNameAndType(source, b.binding);
-        const auto nameID = getOrCreateDescriptorID(lg, name);
-        const auto order = getDescriptorTypeOrder(b.descriptorType);
+        const auto &descriptors = getDescriptorNameAndType(source, b.binding, scratch);
+        CC_ENSURES(!descriptors.empty());
         {
+            const auto &[name, type] = descriptors.front();
+            const auto nameID = getOrCreateDescriptorID(lg, name);
+            const auto order = getDescriptorTypeOrder(b.descriptorType);
             auto &block = data.descriptorBlocks.emplace_back(order, b.stageFlags, b.count);
             block.offset = b.binding;
             block.descriptors.emplace_back(nameID, type, b.count);
         }
-        {
-            auto iter = data.bindingMap.find(nameID);
-            if (iter != data.bindingMap.end()) {
-                CC_LOG_ERROR("Duplicate descriptor name: %s", name.data());
+        for (const auto &[name, type] : descriptors) {
+            const auto nameID = getOrCreateDescriptorID(lg, name);
+            {
+                auto iter = data.bindingMap.find(nameID);
+                if (iter != data.bindingMap.end()) {
+                    CC_LOG_ERROR("Duplicate descriptor name: %s", name.data());
+                }
+                data.bindingMap.emplace(nameID, b.binding);
             }
-            data.bindingMap.emplace(nameID, b.binding);
-        }
-        {
-            auto iter = source.blocks.find(ccstd::string(name));
-            if (iter != source.blocks.end()) {
-                data.uniformBlocks.emplace(nameID, iter->second);
+            {
+                auto iter = source.blocks.find(ccstd::string(name));
+                if (iter != source.blocks.end()) {
+                    data.uniformBlocks.emplace(nameID, iter->second);
+                }
             }
         }
     }
@@ -220,7 +228,7 @@ ShaderProgramData &buildProgramData(
         CC_ENSURES(res.second);
         auto &setData = res.first->second;
         auto &perInstance = setData.descriptorSetLayoutData;
-        makeLocalDescriptorSetLayoutData(lg, pipeline::localDescriptorSetLayout, perInstance);
+        makeLocalDescriptorSetLayoutData(lg, pipeline::localDescriptorSetLayout, perInstance, scratch);
         initializeDescriptorSetLayoutInfo(
             setData.descriptorSetLayoutData,
             setData.descriptorSetLayoutInfo);
@@ -1114,6 +1122,7 @@ void populatePipelineLayoutInfo(
 } // namespace
 
 void NativeProgramLibrary::init(gfx::Device *deviceIn) {
+    boost::container::pmr::memory_resource *scratch = &unsycPool;
     device = deviceIn;
     emptyDescriptorSetLayout = device->createDescriptorSetLayout({});
     emptyPipelineLayout = device->createPipelineLayout({});
@@ -1153,12 +1162,24 @@ void NativeProgramLibrary::init(gfx::Device *deviceIn) {
 
     // init local descriptor set
     {
-        DescriptorSetLayoutData perInstance(boost::container::pmr::get_default_resource());
-        makeLocalDescriptorSetLayoutData(lg, pipeline::localDescriptorSetLayout, perInstance);
+        const auto &localSetLayout = pipeline::localDescriptorSetLayout;
+        makeLocalDescriptorSetLayoutData(lg, localSetLayout, localLayoutData, scratch);
         gfx::DescriptorSetLayoutInfo info{};
-        initializeDescriptorSetLayoutInfo(perInstance, info);
+        initializeDescriptorSetLayoutInfo(localLayoutData, info);
         localDescriptorSetLayout = device->createDescriptorSetLayout(info);
         CC_ENSURES(localDescriptorSetLayout);
+
+        uint32_t numUniformBuffers = 0;
+        for (const auto &block : localLayoutData.descriptorBlocks) {
+            if (block.type != DescriptorTypeOrder::UNIFORM_BUFFER &&
+                block.type != DescriptorTypeOrder::DYNAMIC_UNIFORM_BUFFER) {
+                continue;
+            }
+            for (const auto &d : block.descriptors) {
+                numUniformBuffers += d.count;
+            }
+        }
+        CC_ENSURES(numUniformBuffers == 7); // 7 is currently max uniform binding
     }
 
     // generate constant macros string
