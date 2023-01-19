@@ -137,7 +137,8 @@ uint32_t getRasterPassPreserveCount(const RasterPass& pass) {
 }
 
 PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
-    RenderGraphVisitorContext& ctx, const RasterPass& pass) {
+    RenderGraphVisitorContext& ctx, const RasterPass& pass,
+    boost::container::pmr::memory_resource* scratch) {
     auto& resg = ctx.resourceGraph;
 
     PersistentRenderPassAndFramebuffer data(pass.get_allocator());
@@ -164,10 +165,15 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
         subpass.resolves.reserve(getRasterPassResolveCount(pass));
         subpass.preserves.reserve(getRasterPassPreserveCount(pass));
         auto numTotalAttachments = static_cast<uint32_t>(pass.rasterViews.size());
+
+        PmrFlatMap<uint32_t, ccstd::pmr::string> viewIndex(scratch);
+        for (const auto& [name, view] : pass.rasterViews) {
+            viewIndex.emplace(view.slotID, name);
+        }
+
         uint32_t dsvCount = 0;
-        for (const auto& pair : pass.rasterViews) {
-            const auto& name = pair.first;
-            const auto& view = pair.second;
+        for (const auto& [slotID, name] : viewIndex) {
+            const auto& view = pass.rasterViews.at(name);
             const auto resID = vertex(name, ctx.resourceGraph);
             const auto& desc = get(ResourceGraph::DescTag{}, ctx.resourceGraph, resID);
 
@@ -270,12 +276,14 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
     return data;
 }
 
-PersistentRenderPassAndFramebuffer& fetchOrCreateFramebuffer(RenderGraphVisitorContext& ctx, const RasterPass& pass) {
+PersistentRenderPassAndFramebuffer& fetchOrCreateFramebuffer(
+    RenderGraphVisitorContext& ctx, const RasterPass& pass,
+    boost::container::pmr::memory_resource* scratch) {
     auto iter = ctx.context.renderPasses.find(pass);
     if (iter == ctx.context.renderPasses.end()) {
         bool added = false;
         std::tie(iter, added) = ctx.context.renderPasses.emplace(
-            pass, createPersistentRenderPassAndFramebuffer(ctx, pass));
+            pass, createPersistentRenderPassAndFramebuffer(ctx, pass, scratch));
         CC_ENSURES(added);
         return iter->second;
     }
@@ -871,7 +879,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         const auto& layoutName = get(RenderGraph::Layout, ctx.g, vertID);
         const auto& layoutID = locate(LayoutGraphData::null_vertex(), layoutName, ctx.lg);
         {
-            auto& res = fetchOrCreateFramebuffer(ctx, pass);
+            auto& res = fetchOrCreateFramebuffer(ctx, pass, ctx.scratch);
             ++res.refCount;
             const auto& data = res;
             auto* cmdBuff = ctx.cmdBuff;

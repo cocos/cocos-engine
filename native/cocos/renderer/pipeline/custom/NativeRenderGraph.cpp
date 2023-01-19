@@ -261,10 +261,13 @@ void NativeRasterPassBuilder::setName(const ccstd::string &name) {
 
 void NativeRasterPassBuilder::addRasterView(const ccstd::string &name, const RasterView &view) {
     auto &pass = get(RasterTag{}, passID, *renderGraph);
-    pass.rasterViews.emplace(
+    auto slotID = static_cast<uint32_t>(pass.rasterViews.size());
+    auto res = pass.rasterViews.emplace(
         std::piecewise_construct,
         std::forward_as_tuple(name.c_str()),
         std::forward_as_tuple(view));
+    CC_ENSURES(res.second);
+    res.first->second.slotID = slotID;
 }
 
 void NativeRasterPassBuilder::addComputeView(const ccstd::string &name, const ComputeView &view) {
