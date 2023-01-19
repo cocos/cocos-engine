@@ -697,7 +697,7 @@ void NativeRasterQueueBuilder::addSceneOfCamera(
                 *pLight, light.level, setter);
         }
     } else {
-        const auto *pDirLight = dynamic_cast<scene::DirectionalLight *>(pLight);
+        const auto *pDirLight = camera->getScene()->getMainLight();
         if (pDirLight) {
             setShadowUBOView(*pipelineRuntime->getDevice(),
                              *pipelineRuntime->getPipelineSceneData(),
@@ -753,6 +753,28 @@ void NativeRasterQueueBuilder::addCameraQuad(
         std::forward_as_tuple(material, passID, sceneFlags, camera),
         *renderGraph, queueID);
     CC_ENSURES(drawID != RenderGraph::null_vertex());
+
+    auto &data = get(RenderGraph::Data, *renderGraph, drawID);
+    NativeSetter setter{*layoutGraph, data};
+
+    setCameraUBOValues(
+        *camera,
+        *pipelineRuntime->getPipelineSceneData(),
+        camera->getScene()->getMainLight(), setter);
+
+    if (any(sceneFlags & SceneFlags::SHADOW_CASTER)) {
+    } else {
+        const auto *pDirLight = camera->getScene()->getMainLight();
+        if (pDirLight) {
+            setShadowUBOView(*pipelineRuntime->getDevice(),
+                             *pipelineRuntime->getPipelineSceneData(),
+                             *pDirLight, setter);
+        }
+    }
+    setTextureUBOView(
+        *pipelineRuntime->getDevice(),
+        *pipelineRuntime->getPipelineSceneData(),
+        setter);
 }
 
 void NativeRasterQueueBuilder::clearRenderTarget(const ccstd::string &name, const gfx::Color &color) {
