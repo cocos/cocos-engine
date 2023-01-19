@@ -281,7 +281,6 @@ void initializeDescriptorSetLayoutInfo(
 namespace {
 
 const ccstd::unordered_map<ccstd::string, uint32_t> DEFAULT_UNIFORM_COUNTS{
-    {"cc_joints", pipeline::UBOSkinning::layout.members[0].count},
     {"cc_lightPos", pipeline::UBOForwardLight::LIGHTS_PER_PASS},
     {"cc_lightColor", pipeline::UBOForwardLight::LIGHTS_PER_PASS},
     {"cc_lightSizeRangeAngle", pipeline::UBOForwardLight::LIGHTS_PER_PASS},
@@ -308,8 +307,15 @@ uint32_t getUniformBlockSize(const ccstd::vector<gfx::Uniform>& blockMembers) {
             prevSize += getTypeSize(m.type) * iter->second;
             continue;
         }
+        if (m.name == "cc_joints") {
+            const auto sz = getTypeSize(m.type) * pipeline::UBOSkinning::layout.members[0].count;
+            CC_EXPECTS(sz == pipeline::UBOSkinning::size);
+            prevSize += sz;
+            continue;
+        }
         CC_LOG_ERROR("Invalid uniform count: %s", m.name.c_str());
     }
+    CC_ENSURES(prevSize);
     return prevSize;
 }
 
