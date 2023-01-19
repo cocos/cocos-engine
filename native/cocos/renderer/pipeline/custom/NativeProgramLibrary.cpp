@@ -1199,6 +1199,10 @@ void NativeProgramLibrary::init(gfx::Device *deviceIn) {
     generateConstantMacros(device, lg.constantMacros, false);
 }
 
+void NativeProgramLibrary::setPipeline(PipelineRuntime *pipelineIn) {
+    pipeline = pipelineIn;
+}
+
 void NativeProgramLibrary::destroy() {
     emptyDescriptorSetLayout.reset();
     emptyPipelineLayout.reset();

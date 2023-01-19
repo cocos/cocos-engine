@@ -248,7 +248,7 @@ ccstd::string getShaderInstanceName(const ccstd::string &name, const ccstd::vect
     return ret.str();
 }
 
-void addEffectDefaultProperties(EffectAsset& effect) {
+void addEffectDefaultProperties(EffectAsset &effect) {
     for (auto &tech : effect._techniques) {
         for (auto &pass : tech.passes) {
             // grab default property declaration if there is none

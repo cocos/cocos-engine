@@ -581,6 +581,7 @@ public:
     const ccstd::pmr::string &getDescriptorName(uint32_t nameID) override;
 
     void init(gfx::Device* deviceIn);
+    void setPipeline(PipelineRuntime* pipelineIn);
     void destroy();
 
     LayoutGraphData layoutGraph;
