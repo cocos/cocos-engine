@@ -84,7 +84,9 @@ NativePipeline::NativePipeline(const allocator_type &alloc) noexcept
   dummyLayoutGraph(alloc),
   resourceGraph(alloc),
   renderGraph(alloc),
-  name(alloc) {}
+  name(alloc) {
+    programLibrary->setPipeline(this);
+}
 
 gfx::Device *NativePipeline::getDevice() const {
     return device;
@@ -474,8 +476,9 @@ void buildLayoutGraphNodeBuffer(
 
 // NOLINTNEXTLINE
 bool NativePipeline::activate(gfx::Swapchain *swapchainIn) {
+    // setMacroInt("CC_PIPELINE_TYPE", 1);
+
     swapchain = swapchainIn;
-    macros["CC_PIPELINE_TYPE"] = 0;
     globalDSManager->activate(device);
     pipelineSceneData->activate(device);
 #if CC_USE_DEBUG_RENDERER
