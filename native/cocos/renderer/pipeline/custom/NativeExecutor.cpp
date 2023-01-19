@@ -1066,8 +1066,10 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
 
             // fill cpu buffer
             auto& cpuData = uniformBuffer.cpuBuffer;
-            for (const auto& v : block.members) {
-                CC_LOG_INFO(v.name.c_str());
+            if (false) { // NOLINT(readability-simplify-boolean-expr)
+                for (const auto& v : block.members) {
+                    CC_LOG_INFO(v.name.c_str());
+                }
             }
 
             // create and upload buffer
@@ -1595,10 +1597,11 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
     { // Mark all culled vertices
         RenderGraphCullVisitor visitor{{}, validPasses};
         for (const auto& vertID : fgd.resourceAccessGraph.culledPasses) {
-            const auto passID = get(ResourceAccessGraph::PassID, fgd.resourceAccessGraph, vertID);
-            if (passID == RenderGraph::null_vertex()) {
+            const auto nodeID = get(ResourceAccessGraph::PassID, fgd.resourceAccessGraph, vertID);
+            if (nodeID == RenderGraph::null_vertex()) {
                 continue;
             }
+            const auto passID = fgd.resourceAccessGraph.passIndex.at(nodeID);
             boost::depth_first_visit(graphView, passID, visitor, get(colors, rg));
         }
         colors.clear();
