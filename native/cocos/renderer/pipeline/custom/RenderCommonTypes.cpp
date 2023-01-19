@@ -53,7 +53,8 @@ RasterView::RasterView(RasterView&& rhs, const allocator_type& alloc)
   loadOp(rhs.loadOp),
   storeOp(rhs.storeOp),
   clearFlags(rhs.clearFlags),
-  clearColor(rhs.clearColor) {}
+  clearColor(rhs.clearColor),
+  slotID(rhs.slotID) {}
 
 RasterView::RasterView(RasterView const& rhs, const allocator_type& alloc)
 : slotName(rhs.slotName, alloc),
@@ -62,7 +63,8 @@ RasterView::RasterView(RasterView const& rhs, const allocator_type& alloc)
   loadOp(rhs.loadOp),
   storeOp(rhs.storeOp),
   clearFlags(rhs.clearFlags),
-  clearColor(rhs.clearColor) {}
+  clearColor(rhs.clearColor),
+  slotID(rhs.slotID) {}
 
 ComputeView::ComputeView(const allocator_type& alloc) noexcept
 : name(alloc) {}
