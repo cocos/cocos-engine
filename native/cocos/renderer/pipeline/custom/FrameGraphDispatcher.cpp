@@ -809,6 +809,26 @@ void buildBarriers(FrameGraphDispatcher &fgDispatcher) {
         }
     };
 
+    // remove unnecessary barriers
+    for (auto &&[nodeID, node] : batchedBarriers) {
+        auto removeUnnecessaryBarriers = [](std::vector<Barrier> &barriers) {
+            for (int32_t i = 0; i != barriers.size();) {
+                const auto &barrier = barriers[i];
+                const auto &lhs = barrier.beginStatus;
+                const auto &rhs = barrier.endStatus;
+                if (std::forward_as_tuple(lhs.visibility, lhs.access, lhs.accessFlag) ==
+                    std::forward_as_tuple(rhs.visibility, rhs.access, rhs.accessFlag)) {
+                    barriers.erase(barriers.begin() + i);
+                } else {
+                    ++i;
+                }
+            }
+        };
+        removeUnnecessaryBarriers(node.blockBarrier.frontBarriers);
+        removeUnnecessaryBarriers(node.blockBarrier.rearBarriers);
+    }
+
+    // generate gfx barrier
     for (auto &passBarrierInfo : batchedBarriers) {
         auto &passBarrierNode = passBarrierInfo.second;
         genGFXBarrier(passBarrierNode.blockBarrier.frontBarriers);
