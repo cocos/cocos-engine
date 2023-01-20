@@ -1,4 +1,4 @@
-import { Canvas, instantiate, math, Toggle, TextureCube, _decorator, Component, Button, labelAssembler, game, director, Node, Scene, renderer, CameraComponent, Label, ForwardPipeline, RichText } from 'cc';
+import { Color, Canvas, instantiate, math, Toggle, TextureCube, _decorator, Component, Button, labelAssembler, game, director, Node, Scene, renderer, CameraComponent, Label, ForwardPipeline, RichText } from 'cc';
 const { ccclass, property } = _decorator;
 
 @ccclass('debugViewRuntimeControl')
@@ -90,6 +90,7 @@ export class debugViewRuntimeControl extends Component {
     private singleModeToggleList: Node[] = [];
     private miscModeToggleList: Node[] = [];
     private textComponentList: RichText[] = [];
+    private labelComponentList: Label[] = [];
     private textContentList: string[] = [];
     start() {
         // get canvas resolution
@@ -99,13 +100,31 @@ export class debugViewRuntimeControl extends Component {
             return;
         }
 
-        const halfWidth = 960 * 0.5;
-        const halfHeight = 640 * 0.5;
+        const halfScreenWidth = 960 * 0.5;
+        const halfScreenHeight = 640 * 0.5;
+
+        let x = -halfScreenWidth + halfScreenWidth * 0.1, y = halfScreenHeight - halfScreenHeight * 0.1;
+        const width = 200, height = 20;
+
+        // title
+        for (let i = 0; i < 2; i++) {
+            const newLabel = instantiate(this.EnableAllCompositeModeButton.getChildByName('Label'));
+            newLabel.setPosition(x + (i > 0 ? 50 + width * 2 : 150), y, 0.0);
+            newLabel.setScale(0.75, 0.75, 0.75);
+            newLabel.parent = this.node.parent;
+            const labelComponent = newLabel.getComponent(Label);
+            labelComponent.string = i ? '----------Composite Mode----------' : '----------Single Mode----------';
+            labelComponent.color = Color.WHITE;
+            labelComponent.overflow = 0;
+            this.labelComponentList[this.labelComponentList.length] = labelComponent;
+        }
+
+        y -= height;
         // single
-        let x = -halfWidth + halfWidth * 0.1, y = halfHeight - halfHeight * 0.1, height = 20, currentRow = 0;
+        let currentRow = 0;
         for (let i = 0; i < this.strSingle.length; i++, currentRow++) {
             if (i === this.strSingle.length >> 1) {
-                x += 200;
+                x += width;
                 currentRow = 0;
             }
             const newNode = i ? instantiate(this.singleModeToggle) : this.singleModeToggle;
@@ -123,22 +142,26 @@ export class debugViewRuntimeControl extends Component {
             this.singleModeToggleList[i] = newNode;
         }
 
+        x += width;
         // restore button
-        x += 200;
         this.EnableAllCompositeModeButton.setPosition(x + 15, y, 0.0);
         this.EnableAllCompositeModeButton.setScale(0.5, 0.5, 0.5);
         this.EnableAllCompositeModeButton.on(Button.EventType.CLICK, this.enableAllCompositeMode, this);
+        let labelComponent = this.EnableAllCompositeModeButton.getComponentInChildren(Label);
+        this.labelComponentList[this.labelComponentList.length] = labelComponent;
+
         const changeColorButton = instantiate(this.EnableAllCompositeModeButton);
         changeColorButton.setPosition(x + 90, y, 0.0);
         changeColorButton.setScale(0.5, 0.5, 0.5);
         changeColorButton.on(Button.EventType.CLICK, this.changeTextColor, this);
         changeColorButton.parent = this.EnableAllCompositeModeButton.parent;
-        const textComponent = changeColorButton.getComponentInChildren(Label);
-        textComponent.string = 'TextColor';
+        labelComponent = changeColorButton.getComponentInChildren(Label);
+        labelComponent.string = 'TextColor';
+        this.labelComponentList[this.labelComponentList.length] = labelComponent;
 
         // misc
         const miscNode = this.node.getChildByName('MiscMode');
-        y -= 40; height = 20;
+        y -= 40;
         for (let i = 0; i < this.strMisc.length; i++) {
             const newNode = instantiate(this.compositeModeToggle);
             newNode.setPosition(x, y - height * i, 0.0);
@@ -157,7 +180,7 @@ export class debugViewRuntimeControl extends Component {
         }
 
         // composite
-        y -= 150; height = 20;
+        y -= 150;
         for (let i = 0; i < this.strComposite.length; i++) {
             const newNode = i ? instantiate(this.compositeModeToggle) : this.compositeModeToggle;
             newNode.setPosition(x, y - height * i, 0.0);
@@ -225,6 +248,13 @@ export class debugViewRuntimeControl extends Component {
         '<color=#00ff00>',
         '<color=#0000ff>',
     ];
+    private color: Color[] = [
+        Color.WHITE,
+        Color.BLACK,
+        Color.RED,
+        Color.GREEN,
+        Color.BLUE,
+    ];
     changeTextColor(button: Button) {
         this._currentColorIndex++;
         if (this._currentColorIndex >= this.strColor.length) {
@@ -232,6 +262,9 @@ export class debugViewRuntimeControl extends Component {
         }
         for (let i = 0; i < this.textComponentList.length; i++) {
             this.textComponentList[i].string = this.strColor[this._currentColorIndex] + this.textContentList[i] + '</color>';
+        }
+        for (let i = 0; i < this.labelComponentList.length; i++) {
+            this.labelComponentList[i].color = this.color[this._currentColorIndex];
         }
     }
 
