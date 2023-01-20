@@ -25,7 +25,7 @@
 
 import { ParticleUpdateContext } from './particle-update-context';
 import { ParticleSOAData } from './particle-soa-data';
-import { serializable, type } from '../core/data/decorators';
+import { ccclass, serializable, type } from '../core/data/decorators';
 import { CCBoolean } from '../core';
 
 export enum ParticleUpdateStage {
@@ -35,6 +35,7 @@ export enum ParticleUpdateStage {
     POST_UPDATE,
 }
 
+@ccclass('cc.ParticleModule')
 export abstract class ParticleModule {
     @type(CCBoolean)
     public get enable () {

@@ -5,7 +5,7 @@ precision highp float;
 #include <builtin/uniforms/cc-local>
 
 in vec3 a_particle_position;
-in int  a_particle_frame;
+in float  a_particle_frame;
 in vec3 a_particle_size;  // size
 in vec3 a_particle_rotation;  // rotation
 in vec4 a_particle_color;

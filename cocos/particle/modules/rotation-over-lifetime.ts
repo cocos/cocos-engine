@@ -29,6 +29,7 @@ import { Mat4, pseudoRandom, Quat, Vec4, Vec3 } from '../../core/math';
 import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { CurveRange } from '../curve-range';
 import { ModuleRandSeed, RenderMode } from '../enum';
+import { CCBoolean } from '../../core';
 
 const ROTATION_OVERTIME_RAND_OFFSET = ModuleRandSeed.ROTATION;
 
@@ -37,6 +38,7 @@ export class RotationOverLifetimeModule extends ParticleModule {
     /**
      * @zh 是否三个轴分开设定旋转（暂不支持）。
      */
+    @type(CCBoolean)
     @displayOrder(1)
     @tooltip('i18n:rotationOvertimeModule.separateAxes')
     get separateAxes () {

@@ -83,8 +83,12 @@ export default class ParticleBatchModel extends scene.Model {
     public setCapacity (capacity: number) {
         const capChanged = this._capacity !== capacity;
         this._capacity = capacity;
-        if (this._subMeshData && capChanged) {
-            this.rebuild();
+        if (capChanged) {
+            const ia = this._subModels[0].inputAssembler;
+            for (let i = 0; i < ia.vertexBuffers.length; i++) {
+                const vertexBuffer = ia.vertexBuffers[i];
+                vertexBuffer.resize(capacity * vertexBuffer.stride);
+            }
         }
     }
 

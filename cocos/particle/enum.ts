@@ -27,22 +27,22 @@ import { Enum } from '../core/value-types';
 
 export enum Space {
     WORLD,
-    /**
-     * @deprecated since 3.8, please use Space.WORLD instead
-     */
-    World = WORLD,
+    // /**
+    //  * @deprecated since 3.8, please use Space.WORLD instead
+    //  */
+    // World = WORLD,
 
     LOCAL,
-    /**
-     * @deprecated since 3.8, please use Space.LOCAL instead
-     */
-    Local = LOCAL,
+    // /**
+    //  * @deprecated since 3.8, please use Space.LOCAL instead
+    //  */
+    // Local = LOCAL,
 
     CUSTOM,
-    /**
-     * @deprecated since 3.8, please use Space.CUSTOM instead
-     */
-    Custom = CUSTOM,
+    // /**
+    //  * @deprecated since 3.8, please use Space.CUSTOM instead
+    //  */
+    // Custom = CUSTOM,
 }
 
 /**
@@ -51,22 +51,22 @@ export enum Space {
  */
 export enum CullingMode {
     PAUSE,
-    /**
-     * @deprecated since 3.8, please use CullingMode.PAUSE instead
-     */
-    Pause = PAUSE,
+    // /**
+    //  * @deprecated since 3.8, please use CullingMode.PAUSE instead
+    //  */
+    // Pause = PAUSE,
 
     PAUSE_AND_CATCHUP,
-    /**
-     * @deprecated since 3.8, please use CullingMode.PAUSE_AND_CATCHUP instead
-     */
-    PauseAndCatchup = PAUSE_AND_CATCHUP,
+    // /**
+    //  * @deprecated since 3.8, please use CullingMode.PAUSE_AND_CATCHUP instead
+    //  */
+    // PauseAndCatchup = PAUSE_AND_CATCHUP,
 
     ALWAYS_SIMULATE,
-    /**
-     * @deprecated since 3.8, please use CullingMode.ALWAYS_SIMULATE instead
-     */
-    AlwaysSimulate = ALWAYS_SIMULATE,
+    // /**
+    //  * @deprecated since 3.8, please use CullingMode.ALWAYS_SIMULATE instead
+    //  */
+    // AlwaysSimulate = ALWAYS_SIMULATE,
 }
 
 /**
@@ -76,22 +76,22 @@ export enum CullingMode {
  */
 export enum AlignmentSpace {
     WORLD,
-    /**
-     * @deprecated since 3.8, please use AlignmentSpace.WORLD instead
-     */
-    World = WORLD,
+    // /**
+    //  * @deprecated since 3.8, please use AlignmentSpace.WORLD instead
+    //  */
+    // World = WORLD,
 
     LOCAL,
-    /**
-     * @deprecated since 3.8, please use AlignmentSpace.LOCAL instead
-     */
-    Local = LOCAL,
+    // /**
+    //  * @deprecated since 3.8, please use AlignmentSpace.LOCAL instead
+    //  */
+    // Local = LOCAL,
 
     VIEW,
-    /**
-     * @deprecated since 3.8, please use AlignmentSpace.VIEW instead
-     */
-    View = VIEW,
+    // /**
+    //  * @deprecated since 3.8, please use AlignmentSpace.VIEW instead
+    //  */
+    // View = VIEW,
 }
 
 /**
@@ -103,50 +103,50 @@ export enum RenderMode {
      * 粒子始终面向摄像机。
      */
     BILLBOARD,
-    /**
-     * @deprecated since v3.8, please use RenderMode.BILLBOARD instead
-     */
-    Billboard = BILLBOARD,
+    // /**
+    //  * @deprecated since v3.8, please use RenderMode.BILLBOARD instead
+    //  */
+    // Billboard = BILLBOARD,
 
     /**
      * 粒子始终面向摄像机但会根据参数进行拉伸。
      */
     STRETCHED_BILLBOARD,
 
-    /**
-     * @deprecated since v3.8, please use RenderMode.STRETCHED_BILLBOARD instead
-     */
-    StrecthedBillboard = STRETCHED_BILLBOARD,
+    // /**
+    //  * @deprecated since v3.8, please use RenderMode.STRETCHED_BILLBOARD instead
+    //  */
+    // StrecthedBillboard = STRETCHED_BILLBOARD,
 
     /**
      * 粒子始终与 XZ 平面平行。
      */
     HORIZONTAL_BILLBOARD,
 
-    /**
-     * @deprecated since v3.8, please use RenderMode.HORIZONTAL_BILLBOARD instead
-     */
-    HorizontalBillboard = HORIZONTAL_BILLBOARD,
+    // /**
+    //  * @deprecated since v3.8, please use RenderMode.HORIZONTAL_BILLBOARD instead
+    //  */
+    // HorizontalBillboard = HORIZONTAL_BILLBOARD,
 
     /**
      * 粒子始终与 Y 轴平行且朝向摄像机。
      */
     VERTICAL_BILLBOARD,
 
-    /**
-     * @deprecated since v3.8, please use RenderMode.VERTICAL_BILLBOARD instead
-     */
-    VerticalBillboard = VERTICAL_BILLBOARD,
+    // /**
+    //  * @deprecated since v3.8, please use RenderMode.VERTICAL_BILLBOARD instead
+    //  */
+    // VerticalBillboard = VERTICAL_BILLBOARD,
 
     /**
      * 粒子保持模型本身状态。
      */
     MESH,
 
-    /**
-     * @deprecated since v3.8, please use RenderMode.MESH instead
-     */
-    Mesh = MESH,
+    // /**
+    //  * @deprecated since v3.8, please use RenderMode.MESH instead
+    //  */
+    // Mesh = MESH,
 }
 
 /**

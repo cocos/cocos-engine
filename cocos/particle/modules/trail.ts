@@ -145,7 +145,7 @@ export class TrailModule extends ParticleModule {
      * 轨迹设定时的坐标系。
      */
     @serializable
-    private _space = Space.World;
+    private _space = Space.WORLD;
     private _needTransform = false;
     @serializable
     private _minParticleDistance = 0.1;

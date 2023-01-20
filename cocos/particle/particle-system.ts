@@ -26,7 +26,7 @@
 // eslint-disable-next-line max-len
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, type, range, displayName, formerlySerializedAs, override, radian, serializable, visible, requireComponent } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { approx, EPSILON, Mat4, pseudoRandom, Quat, randomRangeInt, Vec2, Vec3 } from '../core/math';
+import { approx, EPSILON, Mat4, pseudoRandom, Quat, randomRangeInt, Size, Vec2, Vec3 } from '../core/math';
 import { INT_MAX } from '../core/math/bits';
 import { ColorOverLifetimeModule } from './modules/color-over-lifetime';
 import { InitializationModule } from './modules/initialization';
@@ -62,9 +62,13 @@ enum PlayingState {
     PAUSED,
 }
 
-@ccclass('cc.ParticleEmitter')
+const velocity = new Vec3();
+const animatedVelocity = new Vec3();
+const angularVelocity = new Vec3();
+
+@ccclass('cc.ParticleSystem')
 @help('i18n:cc.ParticleSystem')
-@menu('Effects/ParticleEmitter')
+@menu('Effects/ParticleSystem')
 @executionOrder(99)
 @requireComponent(ParticleSystemRenderer)
 @executeInEditMode
@@ -341,6 +345,20 @@ export class ParticleSystem extends Component {
         return module;
     }
 
+    onLoad () {
+        this.getOrAddModule(ShapeModule);
+        this.getOrAddModule(VelocityOverLifetimeModule);
+        this.getOrAddModule(ForceOverLifetimeModule);
+        this.getOrAddModule(ColorOverLifetimeModule);
+        this.getOrAddModule(InitializationModule);
+        this.getOrAddModule(EmissionModule);
+        this.getOrAddModule(SizeOverLifetimeModule);
+        const renderer = this.getComponent(ParticleSystemRenderer);
+        if (renderer) {
+            renderer.setParticleSystem(this);
+        }
+    }
+
     /**
      * @en play particle system
      * @zh 播放粒子效果。
@@ -413,17 +431,9 @@ export class ParticleSystem extends Component {
         if (this.playOnAwake && (!EDITOR || legacyCC.GAME_VIEW)) {
             this.play();
         }
-        const renderer = this.getComponent(ParticleSystemRenderer);
-        if (renderer) {
-            renderer.setParticleSystem(this);
-        }
     }
 
     protected onDisable () {
-        const renderer = this.getComponent(ParticleSystemRenderer);
-        if (renderer) {
-            renderer.setParticleSystem(null);
-        }
         this.stop();
     }
 
@@ -492,7 +502,7 @@ export class ParticleSystem extends Component {
         particleUpdateContext.deltaTime = deltaTime;
         particleUpdateContext.emitterDeltaTime = this._isEmitting ? deltaTime : 0;
         particleUpdateContext.simulationSpace = this.simulationSpace;
-        particleUpdateContext.newParticleIndexStart = particleUpdateContext.newParticleIndexStart = -1;
+        particleUpdateContext.newParticleIndexStart = particleUpdateContext.newParticleIndexEnd = -1;
         particleUpdateContext.duration = this.duration;
         particleUpdateContext.lastPosition.set(particleUpdateContext.currentPosition);
         particleUpdateContext.currentPosition.set(this.node.worldPosition);
@@ -510,9 +520,15 @@ export class ParticleSystem extends Component {
         particleUpdateContext.normalizedTimeInCycle = particleUpdateContext.emitterAccumulatedTime / this.duration;
 
         const { normalizedAliveTime, invStartLifeTime, animatedVelocityX, animatedVelocityY, animatedVelocityZ, angularVelocityX, angularVelocityY, angularVelocityZ, color, startColor } = particles;
-        for (let i = 0, length = particles.count; i < length; ++i) {
+        for (let i = particles.count - 1; i >= 0; i--) {
             normalizedAliveTime[i] += deltaTime * invStartLifeTime[i];
 
+            if (normalizedAliveTime[i] > 1) {
+                particles.removeParticle(i);
+            }
+        }
+
+        for (let i = 0, length = particles.count; i < length; i++) {
             animatedVelocityX[i] = 0;
             animatedVelocityY[i] = 0;
             animatedVelocityZ[i] = 0;
@@ -520,12 +536,6 @@ export class ParticleSystem extends Component {
             angularVelocityY[i] = 0;
             angularVelocityZ[i] = 0;
             color[i] = startColor[i];
-
-            if (normalizedAliveTime[i] > 1) {
-                particles.removeParticle(i);
-                --i;
-                continue;
-            }
         }
 
         let i = 0;
@@ -567,8 +577,6 @@ export class ParticleSystem extends Component {
                 }
             }
         }
-        const velocity = new Vec3();
-        const animatedVelocity = new Vec3();
         for (let particleHandle = 0; particleHandle < particles.count; particleHandle++) {
             particles.getVelocityAt(velocity, particleHandle);
             particles.getAnimatedVelocityAt(animatedVelocity, particleHandle);
@@ -576,7 +584,6 @@ export class ParticleSystem extends Component {
             particles.addPositionAt(velocity.multiplyScalar(deltaTime), particleHandle);
         }
 
-        const angularVelocity = new Vec3();
         for (let particleHandle = 0; particleHandle < particles.count; particleHandle++) {
             particles.getAngularVelocityAt(angularVelocity, particleHandle);
             particles.addRotationAt(angularVelocity.multiplyScalar(deltaTime), particleHandle);

@@ -137,7 +137,7 @@ export class ParticleSystemRenderer extends ModelRenderer {
       * @en Particle alignment space option. Includes world, local and view.
       * @zh 粒子对齐空间选择。包括世界空间，局部空间和视角空间。
       */
-    @type(AlignmentSpace)
+    @type(Enum(AlignmentSpace))
     @displayOrder(10)
     @tooltip('i18n:particle_system.alignSpace')
     public get alignSpace () {
@@ -220,6 +220,11 @@ export class ParticleSystemRenderer extends ModelRenderer {
         }
     }
 
+    public start () {
+        this.updateMaterialParams();
+        this._updateVertexAttributes();
+    }
+
     public onEnable () {
         this._getRenderScene().addModel(this._model!);
         particleSystemManager.addParticleSystemRenderer(this);
@@ -234,6 +239,13 @@ export class ParticleSystemRenderer extends ModelRenderer {
         if (this._model) {
             legacyCC.director.root.destroyModel(this._model);
             this._model = null;
+        }
+    }
+
+    protected _onMaterialModified (index: number, material: Material | null) {
+        super._onMaterialModified(index, material);
+        if (material && index === 0) {
+            this.updateMaterialParams();
         }
     }
 
@@ -290,10 +302,9 @@ export class ParticleSystemRenderer extends ModelRenderer {
     public updateRenderData () {
         if (!this._particleSystem) return;
         const { particles } = this._particleSystem;
-
-        this._updateVertexAttributes();
         this._model!.setCapacity(particles.capacity);
-        this.updateMaterialParams();
+        this._updateRotation();
+        this._updateScale();
         // this.updateTrailMaterial()
 
         this._model!.updateIA(particles);
@@ -323,17 +334,10 @@ export class ParticleSystemRenderer extends ModelRenderer {
                 this._defaultMat.setProperty('mainTexture', this._mainTexture);
             }
         }
-        if (this._particleSystem.simulationSpace === Space.WORLD) {
-            this._defines[CC_USE_WORLD_SPACE] = true;
-        } else {
-            this._defines[CC_USE_WORLD_SPACE] = false;
-        }
-
+        this._defines[CC_USE_WORLD_SPACE] = this._particleSystem.simulationSpace === Space.WORLD;
         this._uScaleHandle = pass.getHandle('scale');
         this._uLenHandle = pass.getHandle('frameTile_velLenScale');
         this._uNodeRotHandle = pass.getHandle('nodeRotation');
-        this._updateScale(pass);
-        this._updateRotation(pass);
 
         const renderMode = this.renderMode;
         const vlenScale = this._frameTile_velLenScale;
@@ -355,9 +359,7 @@ export class ParticleSystemRenderer extends ModelRenderer {
         this._defines[INSTANCE_PARTICLE] = true;
 
         mat!.recompileShaders(this._defines);
-        if (this._model) {
-            this._model.updateMaterial(mat!);
-        }
+        this._model?.updateMaterial(mat!);
     }
 
     protected beforeRender () {
@@ -548,7 +550,9 @@ export class ParticleSystemRenderer extends ModelRenderer {
     //     }
     // }
 
-    private _updateRotation (pass: Pass | null) {
+    private _updateRotation () {
+        const material = this.getMaterialInstance(0);
+        const pass = material?.passes[0];
         if (pass) {
             const mode = this.renderMode;
             if (mode !== RenderMode.MESH && this._alignSpace === AlignmentSpace.VIEW) {
@@ -624,7 +628,9 @@ export class ParticleSystemRenderer extends ModelRenderer {
     //     }
     // }
 
-    private _updateScale (pass: Pass | null) {
+    private _updateScale () {
+        const material = this.getMaterialInstance(0);
+        const pass = material?.passes[0];
         if (pass) {
             switch (this._scaleSpace) {
             case Space.LOCAL:
