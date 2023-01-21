@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { ccclass, tooltip, displayOrder, type, serializable, disallowAnimation, visible } from 'cc.decorator';
+import { ccclass, tooltip, displayOrder, type, serializable, disallowAnimation, visible, override } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Mesh } from '../3d';
 import { Material, Texture2D } from '../core/assets';
@@ -61,10 +61,21 @@ export class ParticleSystemRenderer extends ModelRenderer {
         this._renderMode = val;
     }
 
+    @override
+    @visible(false)
+    get sharedMaterials () {
+        return super.sharedMaterials;
+    }
+
+    set sharedMaterials (val) {
+        super.sharedMaterials = val;
+    }
+
     /**
      * @zh 在粒子生成方式为 StretchedBillboard 时,对粒子在运动方向上按速度大小进行拉伸。
      */
     @displayOrder(1)
+    @visible(function (this: ParticleSystemRenderer) { return this._renderMode === RenderMode.STRETCHED_BILLBOARD; })
     @tooltip('i18n:particleSystemRenderer.velocityScale')
     public get velocityScale () {
         return this._velocityScale;
@@ -78,6 +89,7 @@ export class ParticleSystemRenderer extends ModelRenderer {
      * @zh 在粒子生成方式为 StretchedBillboard 时,对粒子在运动方向上按粒子大小进行拉伸。
      */
     @displayOrder(2)
+    @visible(function (this: ParticleSystemRenderer) { return this._renderMode === RenderMode.STRETCHED_BILLBOARD; })
     @tooltip('i18n:particleSystemRenderer.lengthScale')
     public get lengthScale () {
         return this._lengthScale;
@@ -91,6 +103,7 @@ export class ParticleSystemRenderer extends ModelRenderer {
      * @zh 粒子发射的模型。
      */
     @type(Mesh)
+    @visible(function (this: ParticleSystemRenderer) { return this._renderMode === RenderMode.MESH; })
     @displayOrder(7)
     @tooltip('i18n:particleSystemRenderer.mesh')
     public get mesh () {
@@ -107,7 +120,6 @@ export class ParticleSystemRenderer extends ModelRenderer {
     @type(Material)
     @displayOrder(8)
     @disallowAnimation
-    @visible(false)
     @tooltip('i18n:particleSystemRenderer.particleMaterial')
     public get particleMaterial () {
         return this.getMaterial(0) as Material;
@@ -208,7 +220,7 @@ export class ParticleSystemRenderer extends ModelRenderer {
         // }
     }
 
-    public setParticleSystem (particleSystem: ParticleSystem | null) {
+    public setParticleSystem (particleSystem: ParticleSystem) {
         this._particleSystem = particleSystem;
     }
 
@@ -221,7 +233,7 @@ export class ParticleSystemRenderer extends ModelRenderer {
     }
 
     public start () {
-        this.updateMaterialParams();
+        this._updateMaterialParams();
         this._updateVertexAttributes();
     }
 
@@ -245,7 +257,7 @@ export class ParticleSystemRenderer extends ModelRenderer {
     protected _onMaterialModified (index: number, material: Material | null) {
         super._onMaterialModified(index, material);
         if (material && index === 0) {
-            this.updateMaterialParams();
+            this._updateMaterialParams();
         }
     }
 
@@ -311,7 +323,7 @@ export class ParticleSystemRenderer extends ModelRenderer {
         //this.updateTrailRenderData();
     }
 
-    public updateMaterialParams () {
+    private _updateMaterialParams () {
         if (!this._particleSystem) {
             return;
         }

@@ -141,6 +141,10 @@ export class TrailModule extends ParticleModule {
         return ParticleUpdateStage.POST_UPDATE;
     }
 
+    public get updatePriority (): number {
+        return 0;
+    }
+
     /**
      * 轨迹设定时的坐标系。
      */

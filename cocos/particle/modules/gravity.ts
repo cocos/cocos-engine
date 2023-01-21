@@ -52,6 +52,10 @@ export class GravityModule extends ParticleModule {
         return ParticleUpdateStage.PRE_UPDATE;
     }
 
+    public get updatePriority (): number {
+        return 0;
+    }
+
     public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
         const { simulationSpace, deltaTime, worldRotation } = particleUpdateContext;
         const { count, normalizedAliveTime, randomSeed, velocityY } = particles;

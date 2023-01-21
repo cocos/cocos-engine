@@ -151,6 +151,10 @@ export class InitializationModule extends ParticleModule {
         return ParticleUpdateStage.INITIALIZE;
     }
 
+    public get updatePriority (): number {
+        return 1;
+    }
+
     constructor () {
         super();
         this.startLifetime.constant = 5;

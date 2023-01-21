@@ -87,6 +87,10 @@ export class ForceOverLifetimeModule extends ParticleModule {
         return ParticleUpdateStage.PRE_UPDATE;
     }
 
+    public get updatePriority (): number {
+        return 0;
+    }
+
     // TODO:currently not supported
     public randomized = false;
 

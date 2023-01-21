@@ -124,6 +124,10 @@ export class LimitVelocityOverLifetimeModule extends ParticleModule {
         return ParticleUpdateStage.PRE_UPDATE;
     }
 
+    public get updatePriority (): number {
+        return 0;
+    }
+
     // TODO:functions related to drag are temporarily not supported
     public drag = null;
     public multiplyDragByParticleSize = false;

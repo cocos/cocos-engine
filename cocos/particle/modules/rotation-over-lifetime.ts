@@ -92,6 +92,10 @@ export class RotationOverLifetimeModule extends ParticleModule {
         return ParticleUpdateStage.PRE_UPDATE;
     }
 
+    public get updatePriority (): number {
+        return 0;
+    }
+
     private _startMat:Mat4 = new Mat4();
     private _matRot:Mat4 = new Mat4();
     private _quatRot:Quat = new Quat();

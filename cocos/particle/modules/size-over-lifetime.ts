@@ -95,6 +95,10 @@ export class SizeOverLifetimeModule extends ParticleModule {
         return ParticleUpdateStage.PRE_UPDATE;
     }
 
+    public get updatePriority (): number {
+        return 0;
+    }
+
     public update (particles: ParticleSOAData, context: ParticleUpdateContext) {
         const { count, normalizedAliveTime, randomSeed } = particles;
         const size = new Vec3();

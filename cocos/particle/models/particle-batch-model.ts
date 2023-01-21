@@ -61,6 +61,7 @@ export default class ParticleBatchModel extends scene.Model {
     private _vertAttribSizeStatic = 0;
     private _vertStaticAttrsFloatCount = 0;
     private _insBuffers: Buffer[] = [];
+    private _dynamicBuffers: Float32Array[] = [];
     private _insIndices: Buffer | null = null;
 
     constructor () {
@@ -82,13 +83,13 @@ export default class ParticleBatchModel extends scene.Model {
 
     public setCapacity (capacity: number) {
         const capChanged = this._capacity !== capacity;
-        this._capacity = capacity;
         if (capChanged) {
-            const ia = this._subModels[0].inputAssembler;
-            for (let i = 0; i < ia.vertexBuffers.length; i++) {
-                const vertexBuffer = ia.vertexBuffers[i];
+            for (let i = 1; i < this._insBuffers.length; i++) {
+                const vertexBuffer = this._insBuffers[i];
                 vertexBuffer.resize(capacity * vertexBuffer.stride);
+                this._dynamicBuffers[i - 1] = new Float32Array(new ArrayBuffer(capacity * vertexBuffer.stride));
             }
+            this._capacity = capacity;
         }
     }
 
@@ -113,13 +114,14 @@ export default class ParticleBatchModel extends scene.Model {
     private createSubMeshDataInsDynamic () {
         for (let i = 0; i < this._vertAttrs?.length; i++) {
             const vertexAttribute = this._vertAttrs[i];
-            if (vertexAttribute.stream !== 0 && vertexAttribute.isInstanced) {
+            if (vertexAttribute.isInstanced) {
                 const vertexBuffer = this._device.createBuffer(new BufferInfo(
                     BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
                     MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
                     FormatInfos[vertexAttribute.format].size * this._capacity,
                     FormatInfos[vertexAttribute.format].size,
                 ));
+                this._dynamicBuffers.push(new Float32Array(new ArrayBuffer(FormatInfos[vertexAttribute.format].size * this._capacity)));
                 this._insBuffers.push(vertexBuffer);
             }
         }
@@ -214,13 +216,41 @@ export default class ParticleBatchModel extends scene.Model {
         if (particles.count <= 0) {
             return;
         }
-        const ia = this._subModels[0].inputAssembler;
-        ia.vertexBuffers[1].update(particles.positionX); // update dynamic buffer
-        ia.vertexBuffers[2].update(particles.rotationX);
-        ia.vertexBuffers[3].update(particles.sizeX);
-        ia.vertexBuffers[4].update(particles.frameIndex);
-        ia.vertexBuffers[5].update(particles.color);
-        ia.instanceCount = particles.count;
+        const { capacity, positionX, positionY, positionZ, rotationX, rotationY, rotationZ, sizeX, sizeY, sizeZ } = particles;
+        const position = this._dynamicBuffers[0];
+        for (let i = 0; i < capacity; i++) {
+            position[i * 3] = positionX[i];
+            position[i * 3 + 1] = positionY[i];
+            position[i * 3 + 2] = positionZ[i];
+        }
+        this._insBuffers[1].update(position); // update dynamic buffer
+        const rotation = this._dynamicBuffers[1];
+        for (let i = 0; i < capacity; i++) {
+            rotation[i * 3] = rotationX[i];
+            rotation[i * 3 + 1] = rotationY[i];
+            rotation[i * 3 + 2] = rotationZ[i];
+        }
+        this._insBuffers[2].update(rotation);
+        const size = this._dynamicBuffers[2];
+        for (let i = 0; i < capacity; i++) {
+            size[i * 3] = sizeX[i];
+            size[i * 3 + 1] = sizeY[i];
+            size[i * 3 + 2] = sizeZ[i];
+        }
+        this._insBuffers[3].update(size);
+        this._insBuffers[4].update(particles.frameIndex);
+        this._insBuffers[5].update(particles.color);
+        if (this._insBuffers[6]) {
+            const { velocityX, velocityY, velocityZ, animatedVelocityX, animatedVelocityY, animatedVelocityZ } = particles;
+            const velocity = this._dynamicBuffers[5];
+            for (let i = 0; i < capacity; i++) {
+                velocity[i * 3] = velocityX[i] + animatedVelocityX[i];
+                velocity[i * 3 + 1] = velocityY[i] + animatedVelocityY[i];
+                velocity[i * 3 + 2] = velocityZ[i] + animatedVelocityZ[i];
+            }
+            this._insBuffers[6].update(velocity);
+        }
+        this._subModels[0].inputAssembler.instanceCount = particles.count;
         this._iaInfo.drawInfos[0].firstIndex = 0;
         this._iaInfo.drawInfos[0].indexCount = this._indexCount;
         this._iaInfo.drawInfos[0].instanceCount = particles.count;
@@ -248,6 +278,7 @@ export default class ParticleBatchModel extends scene.Model {
 
     private rebuild () {
         this.destroySubMeshData();
+        this._dynamicBuffers.length = 0;
         this.createSubMeshDataInsStatic();
         this.createSubMeshDataInsDynamic();
 

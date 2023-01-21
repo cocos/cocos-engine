@@ -51,6 +51,10 @@ export class ColorOverLifetimeModule extends ParticleModule {
         return ParticleUpdateStage.PRE_UPDATE;
     }
 
+    public get updatePriority (): number {
+        return 0;
+    }
+
     public update (particles: ParticleSOAData, context: ParticleUpdateContext) {
         const count = particles.count;
         if (this.color.mode === GradientRange.Mode.Color) {

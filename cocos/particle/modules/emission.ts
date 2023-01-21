@@ -70,6 +70,10 @@ export class EmissionModule extends ParticleModule {
         return ParticleUpdateStage.EMITTER_UPDATE;
     }
 
+    public get updatePriority (): number {
+        return 0;
+    }
+
     private _emitRateTimeCounter: number;
     private _emitRateDistanceCounter: number;
 

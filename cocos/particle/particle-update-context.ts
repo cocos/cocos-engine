@@ -43,6 +43,7 @@ export class ParticleUpdateContext {
     public emitterStartDelay = 0;
     public emitterDelayRemaining = 0;
     public emitterDeltaTime = 0;
+    public capacity = 0;
 
     constructor () {
 

@@ -315,6 +315,10 @@ export class ShapeModule extends ParticleModule {
         return ParticleUpdateStage.INITIALIZE;
     }
 
+    public get updatePriority (): number {
+        return 0;
+    }
+
     @serializable
     private _position = new Vec3(0, 0, 0);
 

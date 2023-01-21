@@ -200,6 +200,10 @@ export class TextureAnimationModule extends ParticleModule {
         return ParticleUpdateStage.POST_UPDATE;
     }
 
+    public get updatePriority (): number {
+        return 0;
+    }
+
     @serializable
     private _flipU = 0;
     @formerlySerializedAs('numTilesX')

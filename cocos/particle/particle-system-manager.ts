@@ -60,11 +60,13 @@ export class ParticleSystemManager extends System {
 
     tick () {
         const dt = game.deltaTime;
-        for (let i = 0; i < this._particleSystems.length; i++) {
-            this._particleSystems[i].simulate(dt);
+        const particleSystems = this._particleSystems;
+        const renderers = this._particleSystemRenderers;
+        for (let i = 0, length = particleSystems.length; i < length; i++) {
+            particleSystems[i].simulate(dt);
         }
-        for (let i = 0; i < this._particleSystemRenderers.length; i++) {
-            this._particleSystemRenderers[i].updateRenderData();
+        for (let i = 0, length = renderers.length; i < length; i++) {
+            renderers[i].updateRenderData();
         }
     }
 }

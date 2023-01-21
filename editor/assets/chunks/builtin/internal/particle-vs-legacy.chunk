@@ -91,11 +91,7 @@ vec4 lpvs_main () {
     color = a_particle_color * a_color;
   #endif
 
-  #if CC_RENDER_MODE != RENDER_MODE_MESH
-  uv = computeUV(a_particle_frame, a_position.xy, frameTile_velLenScale.xy) * mainTiling_Offset.xy + mainTiling_Offset.zw;
-  #else
   uv = computeUV(a_particle_frame, a_texCoord.xy, frameTile_velLenScale.xy) * mainTiling_Offset.xy + mainTiling_Offset.zw;
-  #endif
   pos = cc_matViewProj * pos;
 
   return pos;

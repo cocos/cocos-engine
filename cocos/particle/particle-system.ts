@@ -55,17 +55,14 @@ import { CCBoolean, CCFloat, Component, Enum, geometry } from '../core';
 import { INVALID_HANDLE, ParticleHandle, ParticleSOAData } from './particle-soa-data';
 import { ParticleModule, ParticleUpdateStage } from './particle-module';
 import { particleSystemManager } from './particle-system-manager';
+import { EmittingModule } from './modules/emitting';
+import { CompositionModule } from './modules/composition';
 
 enum PlayingState {
     STOPPED,
     PLAYING,
     PAUSED,
 }
-
-const velocity = new Vec3();
-const animatedVelocity = new Vec3();
-const angularVelocity = new Vec3();
-
 @ccclass('cc.ParticleSystem')
 @help('i18n:cc.ParticleSystem')
 @menu('Effects/ParticleSystem')
@@ -277,6 +274,26 @@ export class ParticleSystem extends Component {
         return this._particleModules;
     }
 
+    public get isPlaying () {
+        return this._state === PlayingState.PLAYING;
+    }
+
+    public get isPaused () {
+        return this._state === PlayingState.PAUSED;
+    }
+
+    public get isStopped () {
+        return this._state === PlayingState.STOPPED;
+    }
+
+    public get isEmitting () {
+        return this._isEmitting;
+    }
+
+    public get time () {
+        return this._particleUpdateContext.accumulatedTime;
+    }
+
     @serializable
     private _particleModules: ParticleModule[] = [];
 
@@ -290,9 +307,9 @@ export class ParticleSystem extends Component {
     private _isEmitting = false;
     private _isSimulating = true;
 
-    private _time = 0;  // playback position in seconds.
     private _particles = new ParticleSOAData();
     private _particleUpdateContext = new ParticleUpdateContext();
+    private _updatingModules: ParticleModule[] = [];
 
     @serializable
     private _prewarm = false;
@@ -303,13 +320,18 @@ export class ParticleSystem extends Component {
     @serializable
     private _simulationSpace = Space.LOCAL;
 
+    private static _sortParticleModule (moduleA: ParticleModule, moduleB: ParticleModule) {
+        return (moduleA.updateStage - moduleB.updateStage) || (moduleA.updatePriority - moduleB.updatePriority)
+            || moduleA.name.localeCompare(moduleB.name);
+    }
+
     /**
      * @zh 添加粒子模块
      */
     public addModule<T extends ParticleModule> (ModuleType: Constructor<T>): T {
         const newModule = new ModuleType();
         this._particleModules.push(newModule);
-        this._particleModules.sort((moduleA, moduleB) => (moduleA.updateStage - moduleB.updateStage) || moduleA.name.localeCompare(moduleB.name));
+        this._particleModules.sort(ParticleSystem._sortParticleModule);
         return newModule;
     }
 
@@ -345,20 +367,6 @@ export class ParticleSystem extends Component {
         return module;
     }
 
-    onLoad () {
-        this.getOrAddModule(ShapeModule);
-        this.getOrAddModule(VelocityOverLifetimeModule);
-        this.getOrAddModule(ForceOverLifetimeModule);
-        this.getOrAddModule(ColorOverLifetimeModule);
-        this.getOrAddModule(InitializationModule);
-        this.getOrAddModule(EmissionModule);
-        this.getOrAddModule(SizeOverLifetimeModule);
-        const renderer = this.getComponent(ParticleSystemRenderer);
-        if (renderer) {
-            renderer.setParticleSystem(this);
-        }
-    }
-
     /**
      * @en play particle system
      * @zh 播放粒子效果。
@@ -371,7 +379,13 @@ export class ParticleSystem extends Component {
         if (this._prewarm) {
             this._prewarmSystem();
         }
-
+        this._updatingModules.length = 0;
+        for (let i = 0; i < this._particleModules.length; i++) {
+            const particleModule = this._particleModules[i];
+            if (particleModule.enable) {
+                this._updatingModules.push(particleModule);
+            }
+        }
         this._particleUpdateContext.currentPosition.set(this.node.worldPosition);
         this._particleUpdateContext.emitterDelayRemaining = this._particleUpdateContext.emitterStartDelay = this.startDelay.evaluate(0, 1);
         particleSystemManager.addParticleSystem(this);
@@ -407,8 +421,6 @@ export class ParticleSystem extends Component {
         }
         particleSystemManager.removeParticleSystem(this);
         this._isEmitting = false;
-        this._time = 0.0;
-
         this._state = PlayingState.STOPPED;
     }
 
@@ -427,6 +439,22 @@ export class ParticleSystem extends Component {
         return this._particles.count;
     }
 
+    protected onLoad () {
+        this.getOrAddModule(EmittingModule);
+        this.getOrAddModule(CompositionModule);
+        this.getOrAddModule(ShapeModule);
+        this.getOrAddModule(VelocityOverLifetimeModule);
+        this.getOrAddModule(ForceOverLifetimeModule);
+        this.getOrAddModule(ColorOverLifetimeModule);
+        this.getOrAddModule(InitializationModule);
+        this.getOrAddModule(EmissionModule);
+        this.getOrAddModule(SizeOverLifetimeModule);
+        const renderer = this.getComponent(ParticleSystemRenderer);
+        if (renderer) {
+            renderer.setParticleSystem(this);
+        }
+    }
+
     protected onEnable () {
         if (this.playOnAwake && (!EDITOR || legacyCC.GAME_VIEW)) {
             this.play();
@@ -441,7 +469,6 @@ export class ParticleSystem extends Component {
         const scaledDeltaTime = dt * this.simulationSpeed;
 
         if (this.isPlaying && this._isSimulating) {
-            this._time += scaledDeltaTime;
             // simulation, update particles.
             this.updateParticles(scaledDeltaTime);
 
@@ -473,7 +500,7 @@ export class ParticleSystem extends Component {
                 this._isSimulating = false;
             }
             if (this._cullingMode === CullingMode.PAUSE_AND_CATCHUP) {
-                this._time += scaledDeltaTime;
+                this._particleUpdateContext.accumulatedTime += scaledDeltaTime;
             }
         } else {
             this._isSimulating = true;
@@ -488,7 +515,6 @@ export class ParticleSystem extends Component {
         const cnt = this.duration / dt;
 
         for (let i = 0; i < cnt; ++i) {
-            this._time += dt;
             this.updateParticles(dt);
         }
     }
@@ -498,6 +524,7 @@ export class ParticleSystem extends Component {
     private updateParticles (deltaTime: number) {
         const particleUpdateContext = this._particleUpdateContext;
         const particles = this._particles;
+        particleUpdateContext.capacity = this._capacity;
         particleUpdateContext.accumulatedTime += deltaTime;
         particleUpdateContext.deltaTime = deltaTime;
         particleUpdateContext.emitterDeltaTime = this._isEmitting ? deltaTime : 0;
@@ -538,85 +565,9 @@ export class ParticleSystem extends Component {
             color[i] = startColor[i];
         }
 
-        let i = 0;
-        const length = this._particleModules.length;
-        for (; i < length; i++) {
-            const module = this._particleModules[i];
-            if (module.updateStage !== ParticleUpdateStage.EMITTER_UPDATE) {
-                break;
-            }
-            if (module.enable) {
-                module.update(particles, particleUpdateContext);
-            }
+        const updatingModules = this._updatingModules;
+        for (let i = 0, length = updatingModules.length; i < length; i++) {
+            updatingModules[i].update(particles, particleUpdateContext);
         }
-
-        let newEmittingCount = Math.floor(particleUpdateContext.emittingAccumulatedCount);
-        particleUpdateContext.emittingAccumulatedCount -= newEmittingCount;
-        if (newEmittingCount + particles.count > this.capacity) {
-            newEmittingCount = this.capacity - particles.count;
-        }
-
-        if (newEmittingCount > 0) {
-            particleUpdateContext.newParticleIndexStart = particles.addParticles(newEmittingCount);
-            particleUpdateContext.newParticleIndexEnd = particleUpdateContext.newParticleIndexStart + newEmittingCount;
-            if (this._simulationSpace === Space.WORLD) {
-                for (let i = particleUpdateContext.newParticleIndexStart, end = particleUpdateContext.newParticleIndexEnd; i < end; ++i) {
-                    particles.setPositionAt(this.node.worldPosition, i);
-                }
-            }
-        }
-
-        for (let stage = ParticleUpdateStage.INITIALIZE; stage < ParticleUpdateStage.POST_UPDATE; stage++) {
-            for (; i < length; i++) {
-                const module = this._particleModules[i];
-                if (module.updateStage !== stage) {
-                    break;
-                }
-                if (module.enable) {
-                    module.update(particles, particleUpdateContext);
-                }
-            }
-        }
-        for (let particleHandle = 0; particleHandle < particles.count; particleHandle++) {
-            particles.getVelocityAt(velocity, particleHandle);
-            particles.getAnimatedVelocityAt(animatedVelocity, particleHandle);
-            velocity.add(animatedVelocity);
-            particles.addPositionAt(velocity.multiplyScalar(deltaTime), particleHandle);
-        }
-
-        for (let particleHandle = 0; particleHandle < particles.count; particleHandle++) {
-            particles.getAngularVelocityAt(angularVelocity, particleHandle);
-            particles.addRotationAt(angularVelocity.multiplyScalar(deltaTime), particleHandle);
-        }
-
-        for (; i < length; i++) {
-            const module = this._particleModules[i];
-            if (module.updateStage !== ParticleUpdateStage.POST_UPDATE) {
-                break;
-            }
-            if (module.enable) {
-                module.update(particles, particleUpdateContext);
-            }
-        }
-    }
-
-    get isPlaying () {
-        return this._state === PlayingState.PLAYING;
-    }
-
-    get isPaused () {
-        return this._state === PlayingState.PAUSED;
-    }
-
-    get isStopped () {
-        return this._state === PlayingState.STOPPED;
-    }
-
-    get isEmitting () {
-        return this._isEmitting;
-    }
-
-    get time () {
-        return this._time;
     }
 }

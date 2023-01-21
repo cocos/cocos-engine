@@ -197,6 +197,10 @@ export class NoiseModule extends ParticleModule {
         return ParticleUpdateStage.POST_UPDATE;
     }
 
+    public get updatePriority (): number {
+        return 0;
+    }
+
     @serializable
     private _strengthX = 10;
     @serializable
