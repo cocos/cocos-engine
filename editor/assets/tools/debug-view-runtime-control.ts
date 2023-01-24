@@ -92,6 +92,7 @@ export class debugViewRuntimeControl extends Component {
     private textComponentList: RichText[] = [];
     private labelComponentList: Label[] = [];
     private textContentList: string[] = [];
+    private hideButtonLabel: Label;
     start() {
         // get canvas resolution
         const canvas = this.node.parent.getComponent(Canvas);
@@ -106,12 +107,21 @@ export class debugViewRuntimeControl extends Component {
         let x = -halfScreenWidth + halfScreenWidth * 0.1, y = halfScreenHeight - halfScreenHeight * 0.1;
         const width = 200, height = 20;
 
+        // new nodes
+        const miscNode = this.node.getChildByName('MiscMode');
+        const buttonNode = instantiate(miscNode);
+        buttonNode.parent = this.node;
+        buttonNode.name = 'Buttons';
+        const titleNode = instantiate(miscNode);
+        titleNode.parent = this.node;
+        titleNode.name = 'Titles';
+
         // title
         for (let i = 0; i < 2; i++) {
             const newLabel = instantiate(this.EnableAllCompositeModeButton.getChildByName('Label'));
             newLabel.setPosition(x + (i > 0 ? 50 + width * 2 : 150), y, 0.0);
             newLabel.setScale(0.75, 0.75, 0.75);
-            newLabel.parent = this.node.parent;
+            newLabel.parent = titleNode;
             const labelComponent = newLabel.getComponent(Label);
             labelComponent.string = i ? '----------Composite Mode----------' : '----------Single Mode----------';
             labelComponent.color = Color.WHITE;
@@ -143,10 +153,11 @@ export class debugViewRuntimeControl extends Component {
         }
 
         x += width;
-        // restore button
+        // buttons
         this.EnableAllCompositeModeButton.setPosition(x + 15, y, 0.0);
         this.EnableAllCompositeModeButton.setScale(0.5, 0.5, 0.5);
         this.EnableAllCompositeModeButton.on(Button.EventType.CLICK, this.enableAllCompositeMode, this);
+        this.EnableAllCompositeModeButton.parent = buttonNode;
         let labelComponent = this.EnableAllCompositeModeButton.getComponentInChildren(Label);
         this.labelComponentList[this.labelComponentList.length] = labelComponent;
 
@@ -154,13 +165,22 @@ export class debugViewRuntimeControl extends Component {
         changeColorButton.setPosition(x + 90, y, 0.0);
         changeColorButton.setScale(0.5, 0.5, 0.5);
         changeColorButton.on(Button.EventType.CLICK, this.changeTextColor, this);
-        changeColorButton.parent = this.EnableAllCompositeModeButton.parent;
+        changeColorButton.parent = buttonNode;
         labelComponent = changeColorButton.getComponentInChildren(Label);
         labelComponent.string = 'TextColor';
         this.labelComponentList[this.labelComponentList.length] = labelComponent;
 
+        const HideButton = instantiate(this.EnableAllCompositeModeButton);
+        HideButton.setPosition(x + 200, y, 0.0);
+        HideButton.setScale(0.5, 0.5, 0.5);
+        HideButton.on(Button.EventType.CLICK, this.hideUI, this);
+        HideButton.parent = this.node.parent;
+        labelComponent = HideButton.getComponentInChildren(Label);
+        labelComponent.string = 'Hide UI';
+        this.labelComponentList[this.labelComponentList.length] = labelComponent;
+        this.hideButtonLabel = labelComponent;
+
         // misc
-        const miscNode = this.node.getChildByName('MiscMode');
         y -= 40;
         for (let i = 0; i < this.strMisc.length; i++) {
             const newNode = instantiate(this.compositeModeToggle);
@@ -238,6 +258,16 @@ export class debugViewRuntimeControl extends Component {
         toggleComponent = this.miscModeToggleList[1].getComponent(Toggle);
         toggleComponent.isChecked = true;
         debugView.lightingWithAlbedo = true;
+    }
+    hideUI(button: Button) {
+        const titleNode = this.node.getChildByName('Titles');
+        const activeValue = !titleNode.active;
+        this.singleModeToggleList[0].parent.active = activeValue;
+        this.miscModeToggleList[0].parent.active = activeValue;
+        this.compositeModeToggleList[0].parent.active = activeValue;
+        this.EnableAllCompositeModeButton.parent.active = activeValue;
+        titleNode.active = activeValue;
+        this.hideButtonLabel.string = activeValue ? 'Hide UI' : 'Show UI';
     }
 
     private _currentColorIndex = 0;
