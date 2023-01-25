@@ -1,4 +1,4 @@
-import { Color, Canvas, instantiate, math, Toggle, TextureCube, _decorator, Component, Button, labelAssembler, game, director, Node, Scene, renderer, CameraComponent, Label, ForwardPipeline, RichText } from 'cc';
+import { Color, Canvas, UITransform, instantiate, math, Toggle, TextureCube, _decorator, Component, Button, labelAssembler, game, director, Node, Scene, renderer, CameraComponent, Label, ForwardPipeline, RichText } from 'cc';
 const { ccclass, property } = _decorator;
 
 @ccclass('debugViewRuntimeControl')
@@ -101,8 +101,9 @@ export class debugViewRuntimeControl extends Component {
             return;
         }
 
-        const halfScreenWidth = 960 * 0.5;
-        const halfScreenHeight = 640 * 0.5;
+        const uiTransform = this.node.parent.getComponent(UITransform);
+        const halfScreenWidth = uiTransform.width * 0.5;
+        const halfScreenHeight = uiTransform.height * 0.5;
 
         let x = -halfScreenWidth + halfScreenWidth * 0.1, y = halfScreenHeight - halfScreenHeight * 0.1;
         const width = 200, height = 20;
