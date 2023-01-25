@@ -52,7 +52,7 @@ export class SkeletonData extends Asset {
 
     /**
      * @internal
-     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     * @deprecated since v3.7.1, this is an engine private interface that will be removed in the future.
      */
     get skeletonJsonStr (): string {
         if (this._skeletonJson) {
@@ -163,7 +163,7 @@ export class SkeletonData extends Asset {
 
     /**
      * @internal
-     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     * @deprecated since v3.7.1, this is an engine private interface that will be removed in the future.
      */
     public createNode (callback: (err: Error|null, node: Node) => void) {
         const node = new Node(this.name);
@@ -241,7 +241,7 @@ export class SkeletonData extends Asset {
 
     // EDITOR functions
     /**
-     * @internal since v3.7.0, this is an engine private function.
+     * @internal since v3.7.1, this is an engine private function.
      */
     public getSkinsEnum () {
         if (this._skinsEnum /* && Object.keys(this._skinsEnum).length > 0 */) {
@@ -260,7 +260,7 @@ export class SkeletonData extends Asset {
         return null;
     }
     /**
-     * @internal since v3.7.0, this is an engine private function.
+     * @internal since v3.7.1, this is an engine private function.
      */
     public getAnimsEnum () {
         if (this._animsEnum && Object.keys(this._animsEnum).length > 1) {

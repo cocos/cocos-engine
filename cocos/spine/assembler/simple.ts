@@ -167,7 +167,7 @@ let _tintAccessor: StaticVBAccessor = null!;
 /**
  * simple 组装器
  * 可通过 `UI.simple` 获取该组装器。
- * @internal since v3.7.0 this is an engine private object.
+ * @internal since v3.7.1 this is an engine private object.
  */
 export const simple: IAssembler = {
     vCount: 32767,

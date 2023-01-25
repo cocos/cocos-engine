@@ -1246,7 +1246,7 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @en Set the start event listener.
+     * @en Sets the start event listener.
      * @zh 用来设置开始播放动画的事件监听。
      * @method setStartListener
      * @param {function} listener
@@ -1257,7 +1257,7 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @en Set the interrupt event listener.
+     * @en Sets the interrupt event listener.
      * @zh 用来设置动画被打断的事件监听。
      * @method setInterruptListener
      * @param {function} listener
@@ -1268,7 +1268,7 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @en Set the end event listener.
+     * @en Sets the end event listener.
      * @zh 用来设置动画播放完后的事件监听。
      * @method setEndListener
      * @param {function} listener
@@ -1279,7 +1279,7 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @en Set the dispose event listener.
+     * @en Sets the dispose event listener.
      * @zh 用来设置动画将被销毁的事件监听。
      * @method setDisposeListener
      * @param {function} listener
@@ -1290,7 +1290,7 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @en Set the complete event listener.
+     * @en Sets the complete event listener.
      * @zh 用来设置动画播放一次循环结束后的事件监听。
      * @method setCompleteListener
      * @param {function} listener
@@ -1301,7 +1301,7 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @en Set the animation event listener.
+     * @en Sets the animation event listener.
      * @zh 用来设置动画播放过程中帧事件的监听。
      * @method setEventListener
      * @param {function} listener
@@ -1312,7 +1312,7 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @en Set the start event listener for specified TrackEntry.
+     * @en Sets the start event listener for specified TrackEntry.
      * @zh 用来为指定的 TrackEntry 设置动画开始播放的事件监听。
      * @method setTrackStartListener
      * @param {sp.spine.TrackEntry} entry
@@ -1323,7 +1323,7 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @en Set the interrupt event listener for specified TrackEntry.
+     * @en Sets the interrupt event listener for specified TrackEntry.
      * @zh 用来为指定的 TrackEntry 设置动画被打断的事件监听。
      * @method setTrackInterruptListener
      * @param {sp.spine.TrackEntry} entry
@@ -1334,7 +1334,7 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @en Set the end event listener for specified TrackEntry.
+     * @en Sets the end event listener for specified TrackEntry.
      * @zh 用来为指定的 TrackEntry 设置动画播放结束的事件监听。
      * @method setTrackEndListener
      * @param {sp.spine.TrackEntry} entry
@@ -1345,7 +1345,7 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @en Set the dispose event listener for specified TrackEntry.
+     * @en Sets the dispose event listener for specified TrackEntry.
      * @zh 用来为指定的 TrackEntry 设置动画即将被销毁的事件监听。
      * @method setTrackDisposeListener
      * @param {sp.spine.TrackEntry} entry
@@ -1356,7 +1356,7 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @en Set the complete event listener for specified TrackEntry.
+     * @en Sets the complete event listener for specified TrackEntry.
      * @zh 用来为指定的 TrackEntry 设置动画一次循环播放结束的事件监听。
      * @method setTrackCompleteListener
      * @param {sp.spine.TrackEntry} entry
@@ -1372,7 +1372,7 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @en Set the event listener for specified TrackEntry.
+     * @en Sets the event listener for specified TrackEntry.
      * @zh 用来为指定的 TrackEntry 设置动画帧事件的监听。
      * @method setTrackEventListener
      * @param {sp.spine.TrackEntry} entry
@@ -1383,7 +1383,7 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @en Get the animation state object.
+     * @en Gets the animation state object.
      * @zh 获取动画状态。
      * @method getState
      * @return {sp.spine.AnimationState} state
@@ -1434,7 +1434,7 @@ export class Skeleton extends UIRenderer {
         return this.material!;
     }
     /**
-     * @internal since v3.7.0, this is an engine private interface.
+     * @internal since v3.7.1, this is an engine private interface.
      */
     public getMaterialForBlendAndTint (src: BlendFactor, dst: BlendFactor, type: SpineMaterialType): MaterialInstance {
         const key = `${type}/${src}/${dst}`;
@@ -1476,7 +1476,7 @@ export class Skeleton extends UIRenderer {
     // For Redo, Undo
     // call markForUpdateRenderData to make sure renderData will be re-built.
     /**
-     * @internal since v3.7.0, this is an engine private interface.
+     * @internal since v3.7.1, this is an engine private interface.
      */
     public onRestore () {
         this.updateMaterial();
@@ -1484,8 +1484,8 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @internal since v3.7.0, this is an engine private interface.
-     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     * @internal since v3.7.1, this is an engine private interface.
+     * @deprecated since v3.7.1, this is an engine private interface that will be removed in the future.
      */
     public querySockets () {
         if (!this._skeleton) {
@@ -1771,11 +1771,6 @@ export class Skeleton extends UIRenderer {
             this._updateColor();
         }
     }
-
-    // run base class method
-    // protected _updateColor () {
-    //     // TODO
-    // }
 
     protected _updateSocketBindings () {
         if (!this._skeleton) return;

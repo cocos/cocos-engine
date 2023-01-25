@@ -33,11 +33,18 @@ import spine from './lib/spine-core.js';
  * @class VertexEffectDelegate
  */
 export class VertexEffectDelegate {
+    /**
+     * @internal
+     * @deprecated since v3.7.1, this is an engine private variable that will be removed in the future.
+     */
     name = 'sp.VertexEffectDelegate';
-
+    /**
+     * @en Spine vertex effect object instance.
+     * @zh spine 顶点特效对象实例。
+     */
     _vertexEffect: spine.VertexEffect | null = null;
-    _interpolation: spine.Interpolation | null = null;
-    _effectType: string;
+    private _interpolation: spine.Interpolation | null = null;
+    private _effectType: string;
 
     constructor () {
         this._vertexEffect = null;
@@ -48,7 +55,6 @@ export class VertexEffectDelegate {
     /**
      * @en Clears vertex effect.
      * @zh 清空顶点特效。
-     * @method clear
      */
     clear () {
         this._vertexEffect = null;
@@ -59,9 +65,9 @@ export class VertexEffectDelegate {
     /**
      * @en Inits delegate with jitter effect.
      * @zh 设置顶点抖动特效。
-     * @method initJitter
      * @param {Number} jitterX
      * @param {Number} jitterY
+     * @return {spine.VertexEffect} @en return a vertex effect type of jitter. @zh 返回一个 jitter 类型的顶点特效对象实例。
      */
     initJitter (jitterX: number, jitterY: number): spine.VertexEffect {
         this._effectType = 'jitter';
@@ -75,9 +81,10 @@ export class VertexEffectDelegate {
      * @method initSwirlWithPow
      * @param {Number} radius
      * @param {Number} power
-     * @return {sp.spine.JitterEffect}
+     * @return {sp.spine.JitterEffect} @en return a vertex effect type of swirl. @zh 返回一个 swirl 类型的顶点特效对象实例。
      */
     initSwirlWithPow (radius: number, power: number): spine.VertexEffect {
+        this._effectType = 'swirl';
         this._interpolation = new spine.Pow(power);
         this._vertexEffect = new spine.SwirlEffect(radius, this._interpolation);
         return this._vertexEffect;
@@ -89,9 +96,10 @@ export class VertexEffectDelegate {
      * @method initSwirlWithPowOut
      * @param {Number} radius
      * @param {Number} power
-     * @return {sp.spine.SwirlEffect}
+     * @return {sp.spine.SwirlEffect} @en return a vertex effect type of swirl. @zh 返回一个 swirl 类型的顶点特效对象实例。
      */
     initSwirlWithPowOut (radius: number, power: number) {
+        this._effectType = 'swirl';
         this._interpolation = new spine.PowOut(power);
         this._vertexEffect = new spine.SwirlEffect(radius, this._interpolation);
         return this._vertexEffect;

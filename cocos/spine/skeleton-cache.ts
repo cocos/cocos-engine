@@ -74,7 +74,8 @@ const _darkColor = new spine.Color(1, 1, 1, 1);
 const _quadTriangles = [0, 1, 2, 2, 3, 0];
 
 /**
- * @internal since v3.7
+ * @internal since v3.7.1, this is an engine private interface.
+ * Users should not care about internal type details used in cached mode.
  */
 export interface SkeletonCacheItemInfo {
     skeleton: spine.Skeleton;
@@ -86,7 +87,7 @@ export interface SkeletonCacheItemInfo {
 }
 /**
  * @en FrameColor contains light color，dark color and a offset.
- * @zh 缓存帧颜色结构包括light和dark颜色以及偏移。
+ * @zh 缓存帧颜色结构包括 light 和 dark 颜色以及偏移。
  */
 export interface FrameColor {
     fr: number;
@@ -101,7 +102,7 @@ export interface FrameColor {
 }
 /**
  * @en Bone information includes a 2D matrix and X and Y coordinates.
- * @zh 骨骼信息包括2维矩阵和X，Y坐标。
+ * @zh 骨骼信息包括2维矩阵和 X, Y 坐标。
  */
 export interface FrameSegment {
     indexCount: number;
@@ -112,7 +113,7 @@ export interface FrameSegment {
 }
 /**
  * @en Bone information includes a 2D matrix and X and Y coordinates.
- * @zh 骨骼信息包括2维矩阵和X，Y坐标。
+ * @zh 骨骼信息包括2维矩阵和 X, Y 坐标。
  */
 export interface FrameBoneInfo extends spine.Bone {
     a: number;
@@ -175,7 +176,10 @@ export class AnimationCache {
         this._tempColors = null;
         this._tempBoneInfos = null;
     }
-
+    /**
+     * @deprecated since v3.7.1, this is an engine private function that will be removed in the future.
+     * @internal since v3.7.1, this is an engine private function.
+     */
     public init (skeletonInfo: SkeletonCacheItemInfo, animationName: string) {
         this._inited = true;
         this._animationName = animationName;
@@ -183,6 +187,10 @@ export class AnimationCache {
     }
 
     // Clear texture quote.
+    /**
+     * @deprecated since v3.7.1, this is an engine private function that will be removed in the future.
+     * @internal since v3.7.1, this is an engine private function.
+     */
     public clear () {
         this._inited = false;
         for (let i = 0, n = this.frames.length; i < n; i++) {
@@ -191,7 +199,10 @@ export class AnimationCache {
         }
         this.invalidAllFrame();
     }
-
+    /**
+     * @deprecated since v3.7.1, this is an engine private function that will be removed in the future.
+     * @internal since v3.7.1, this is an engine private function.
+     */
     public bind (listener: TrackEntryListeners) {
         const completeHandle = (entry: spine.TrackEntry) => {
             if (entry && entry.animation.name === this._animationName) {
@@ -201,11 +212,17 @@ export class AnimationCache {
 
         listener.complete = completeHandle;
     }
-
+    /**
+     * @deprecated since v3.7.1, this is an engine private function that will be removed in the future.
+     * @internal since v3.7.1, this is an engine private function.
+     */
     public unbind (listener: TrackEntryListeners) {
         (listener as any).complete = null;
     }
-
+    /**
+     * @deprecated since v3.7.1, this is an engine private function that will be removed in the future.
+     * @internal since v3.7.1, this is an engine private function.
+     */
     public begin () {
         if (!this._invalid) return;
 
@@ -237,7 +254,10 @@ export class AnimationCache {
         this.totalTime = 0;
         this._invalid = false;
     }
-
+    /**
+     * @deprecated since v3.7.1, this is an engine private function that will be removed in the future.
+     * @internal since v3.7.1, this is an engine private function.
+     */
     public end () {
         if (!this.needToUpdate()) {
             // clear cur animation cache
@@ -248,9 +268,13 @@ export class AnimationCache {
         }
     }
     /**
+     * @deprecated since v3.7.1, this is an engine private function that will be removed in the future.
+     * @internal since v3.7.1, this is an engine private function.
+     */
+    /**
      * @en Cache update to specified frame.
      * @zh 缓冲帧更新至指定帧。
-     * @param toFrameIdx @en frame index @zh 帧下标
+     * @param toFrameIdx @en frame index. @zh 帧下标。
      */
     public updateToFrame (toFrameIdx?: number) {
         if (!this._inited) return;
@@ -278,33 +302,33 @@ export class AnimationCache {
         this.end();
     }
     /**
-     * @internal since v3.7.0, this is an engine private function.
+     * @internal since v3.7.1, this is an engine private function.
      */
     public isInited () {
         return this._inited;
     }
     /**
-     * @internal since v3.7.0, this is an engine private function.
+     * @internal since v3.7.1, this is an engine private function.
      */
     public isInvalid () {
         return this._invalid;
     }
     /**
-     * @internal since v3.7.0, this is an engine private function.
+     * @internal since v3.7.1, this is an engine private function.
      */
     public invalidAllFrame () {
         this.isCompleted = false;
         this._invalid = true;
     }
     /**
-     * @internal since v3.7.0, this is an engine private function.
+     * @internal since v3.7.1, this is an engine private function.
      */
     public updateAllFrame () {
         this.invalidAllFrame();
         this.updateToFrame();
     }
     /**
-     * @internal since v3.7.0, this is an engine private function.
+     * @internal since v3.7.1, this is an engine private function.
      */
     public enableCacheAttachedInfo () {
         if (!this._enableCacheAttachedInfo) {
@@ -662,20 +686,20 @@ class SkeletonCache {
         this._skeletonCache = {};
     }
     /**
-     * @internal since v3.7.0, this is an engine private function.
+     * @internal since v3.7.1, this is an engine private function.
      */
     public enablePrivateMode () {
         this._privateMode = true;
     }
     /**
-     * @internal since v3.7.0, this is an engine private function.
+     * @internal since v3.7.1, this is an engine private function.
      */
     public clear () {
         this._animationPool = {};
         this._skeletonCache = {};
     }
     /**
-     * @internal since v3.7.0, this is an engine private function.
+     * @internal since v3.7.1, this is an engine private function.
      */
     public removeSkeleton (uuid: string) {
         const skeletonInfo = this._skeletonCache[uuid];
@@ -693,7 +717,7 @@ class SkeletonCache {
         delete this._skeletonCache[uuid];
     }
     /**
-     * @internal since v3.7.0, this is an engine private function.
+     * @internal since v3.7.1, this is an engine private function.
      */
     public getSkeletonCache (uuid: string, skeletonData: spine.SkeletonData) {
         let skeletonInfo = this._skeletonCache[uuid];
@@ -720,7 +744,7 @@ class SkeletonCache {
     }
 
     /**
-     * @internal since v3.7.0, this is an engine private function.
+     * @internal since v3.7.1, this is an engine private function.
      */
     public getAnimationCache (uuid: string, animationName: string) {
         const skeletonInfo = this._skeletonCache[uuid];
@@ -731,7 +755,7 @@ class SkeletonCache {
     }
 
     /**
-     * @internal since v3.7.0, this is an engine private function.
+     * @internal since v3.7.1, this is an engine private function.
      */
     public invalidAnimationCache (uuid: string) {
         const skeletonInfo = this._skeletonCache[uuid];
@@ -746,7 +770,7 @@ class SkeletonCache {
     }
 
     /**
-     * @internal since v3.7.0, this is an engine private function.
+     * @internal since v3.7.1, this is an engine private function.
      */
     public initAnimationCache (uuid: string, animationName: string): null | AnimationCache {
         if (!animationName) return null;
@@ -778,7 +802,7 @@ class SkeletonCache {
     }
 
     /**
-     * @internal since v3.7.0, this is an engine private function.
+     * @internal since v3.7.1, this is an engine private function.
      */
     public updateAnimationCache (uuid: string, animationName: string): void {
         if (animationName) {

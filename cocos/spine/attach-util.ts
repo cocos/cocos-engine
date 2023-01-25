@@ -49,8 +49,8 @@ export class AttachUtil {
         this._skeletonComp = null;
     }
     /**
-     * @en Initialization.
-     * @zh 初始化。
+     * @en Initialization. Setting state and Recording variable used frequently for accelerating.
+     * @zh 初始化。设置变量状态，并记录经常使用到的对象到成员变量中。
      * @param skeletonComp @en skeleton object @zh skeleton组件
      */
     init (skeletonComp: Skeleton) {

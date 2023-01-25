@@ -28,18 +28,23 @@ import { Filter, WrapMode } from '../asset/assets/asset-enum';
 import spine from './lib/spine-core.js';
 
 /**
- * @en
- * The texture of spine.
- * @zh
- * 骨骼贴图。
+ * @en The texture of spine.
+ * @zh 骨骼贴图。
  * @class SkeletonTexture
  */
 export class SkeletonTexture extends spine.Texture {
+    /**
+     * @deprecated since v3.7.1, this property will be removed in the future.
+     */
     name = 'sp.SkeletonTexture';
+    /**
+     * @en Texture page wraped in cocos, it's a Texture2D type object.
+     * @zh cocos 中使用 Texture2D 封装 spine 中使用的纹理页。
+     */
     _texture: Texture2D | null = null;
     /**
      * @internal
-     * @deprecated since v3.7.0, this will be removed in the future.
+     * @deprecated since v3.7.1, this will be removed in the future.
      */
     _material: Material | null = null;
 
@@ -51,7 +56,7 @@ export class SkeletonTexture extends spine.Texture {
     /**
      * @en Sets Texture2D resource.
      * @zh 设置Texture2D资源。
-     * @param tex @en Texture2D asset @zh Texture2D资源
+     * @param tex @en Texture2D asset. @zh Texture2D资源。
      */
     setRealTexture (tex: Texture2D) {
         this._texture = tex;
@@ -86,15 +91,15 @@ export class SkeletonTexture extends spine.Texture {
             this.getRealTexture()!.setWrapMode(convertWraps(uWrap), convertWraps(vWrap));
         }
     }
-
     /**
-    * @internal
-    */
+     * @en Just for adapter interface.
+     * @zh 空函数为了适配接口。
+     */
     dispose () { }
 }
 
 /**
- * @internal since v3.7.0, this is an engine private function.
+ * @internal since v3.7.1, this is an engine private function.
  */
 export function convertFilter (filter: spine.TextureFilter): Filter {
     switch (filter) {
@@ -112,7 +117,7 @@ export function convertFilter (filter: spine.TextureFilter): Filter {
 }
 
 /**
- * @internal since v3.7.0, this is an engine private function.
+ * @internal since v3.7.1, this is an engine private function.
  */
 export function convertWraps (wrap: spine.TextureWrap): WrapMode {
     switch (wrap) {
