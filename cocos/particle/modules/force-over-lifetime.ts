@@ -28,7 +28,6 @@ import { lerp, pseudoRandom, Quat, Vec3 } from '../../core/math';
 import { Space } from '../enum';
 import { calculateTransform } from '../particle-general-function';
 import { CurveRange } from '../curve-range';
-
 import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { Enum } from '../../core';
 import { ParticleUpdateContext } from '../particle-update-context';
@@ -113,21 +112,24 @@ export class ForceOverLifetimeModule extends ParticleModule {
                     this.y.constant,
                     this.z.constant);
                 Vec3.transformQuat(force, force, this.rotation);
-                force.multiplyScalar(dt);
+                Vec3.multiplyScalar(force, force, dt);
                 for (let i = 0; i < count; i++) {
                     particles.addVelocityAt(force, i);
                 }
                 break;
             }
             case CurveRange.Mode.Curve: {
+                const { spline: xCurve, multiplier: xMultiplier } = this.x;
+                const { spline: yCurve, multiplier: yMultiplier } = this.x;
+                const { spline: zCurve, multiplier: zMultiplier } = this.x;
                 for (let i = 0; i < count; i++) {
                     const normalizedTime = normalizedAliveTime[i];
                     const force = Vec3.set(_temp_v3,
-                        this.x.spline.evaluate(normalizedTime) * this.x.multiplier,
-                        this.y.spline.evaluate(normalizedTime) * this.y.multiplier,
-                        this.z.spline.evaluate(normalizedTime) * this.z.multiplier);
+                        xCurve.evaluate(normalizedTime) * xMultiplier,
+                        yCurve.evaluate(normalizedTime) * yMultiplier,
+                        zCurve.evaluate(normalizedTime) * zMultiplier);
                     Vec3.transformQuat(force, force, this.rotation);
-                    force.multiplyScalar(dt);
+                    Vec3.multiplyScalar(force, force, dt);
                     particles.addVelocityAt(force, i);
                 }
                 break;
@@ -140,7 +142,7 @@ export class ForceOverLifetimeModule extends ParticleModule {
                         lerp(this.y.constantMin, this.y.constantMax, pseudoRandom(seed)),
                         lerp(this.z.constantMin, this.z.constantMax, pseudoRandom(seed)));
                     Vec3.transformQuat(force, force, this.rotation);
-                    force.multiplyScalar(dt);
+                    Vec3.multiplyScalar(force, force, dt);
                     particles.addVelocityAt(force, i);
                 }
                 break;
@@ -154,7 +156,7 @@ export class ForceOverLifetimeModule extends ParticleModule {
                         lerp(this.y.splineMin.evaluate(normalizedTime), this.y.splineMax.evaluate(normalizedTime), pseudoRandom(seed))  * this.x.multiplier,
                         lerp(this.z.splineMin.evaluate(normalizedTime), this.z.splineMax.evaluate(normalizedTime), pseudoRandom(seed))  * this.x.multiplier);
                     Vec3.transformQuat(force, force, this.rotation);
-                    force.multiplyScalar(dt);
+                    Vec3.multiplyScalar(force, force, dt);
                     particles.addVelocityAt(force, i);
                 }
                 break;
@@ -168,7 +170,7 @@ export class ForceOverLifetimeModule extends ParticleModule {
                     this.x.constant,
                     this.y.constant,
                     this.z.constant);
-                force.multiplyScalar(dt);
+                Vec3.multiplyScalar(force, force, dt);
                 for (let i = 0; i < count; i++) {
                     particles.addVelocityAt(force, i);
                 }
@@ -181,7 +183,7 @@ export class ForceOverLifetimeModule extends ParticleModule {
                         this.x.spline.evaluate(normalizedTime) * this.x.multiplier,
                         this.y.spline.evaluate(normalizedTime) * this.y.multiplier,
                         this.z.spline.evaluate(normalizedTime) * this.z.multiplier);
-                    force.multiplyScalar(dt);
+                    Vec3.multiplyScalar(force, force, dt);
                     particles.addVelocityAt(force, i);
                 }
                 break;
@@ -193,7 +195,7 @@ export class ForceOverLifetimeModule extends ParticleModule {
                         lerp(this.x.constantMin, this.x.constantMax, pseudoRandom(seed)),
                         lerp(this.y.constantMin, this.y.constantMax, pseudoRandom(seed)),
                         lerp(this.z.constantMin, this.z.constantMax, pseudoRandom(seed)));
-                    force.multiplyScalar(dt);
+                    Vec3.multiplyScalar(force, force, dt);
                     particles.addVelocityAt(force, i);
                 }
                 break;
@@ -206,7 +208,7 @@ export class ForceOverLifetimeModule extends ParticleModule {
                         lerp(this.x.splineMin.evaluate(normalizedTime), this.x.splineMax.evaluate(normalizedTime), pseudoRandom(seed))  * this.x.multiplier,
                         lerp(this.y.splineMin.evaluate(normalizedTime), this.y.splineMax.evaluate(normalizedTime), pseudoRandom(seed))  * this.x.multiplier,
                         lerp(this.z.splineMin.evaluate(normalizedTime), this.z.splineMax.evaluate(normalizedTime), pseudoRandom(seed))  * this.x.multiplier);
-                    force.multiplyScalar(dt);
+                    Vec3.multiplyScalar(force, force, dt);
                     particles.addVelocityAt(force, i);
                 }
                 break;

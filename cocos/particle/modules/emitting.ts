@@ -23,6 +23,7 @@
  THE SOFTWARE.
  */
 
+import { randomRangeInt } from '../../core';
 import { ccclass } from '../../core/data/decorators';
 import { Space } from '../enum';
 import { ParticleModule, ParticleUpdateStage } from '../particle-module';
@@ -56,12 +57,17 @@ export class EmittingModule extends ParticleModule {
         }
 
         if (newEmittingCount > 0) {
-            particleUpdateContext.newParticleIndexStart = particles.addParticles(newEmittingCount);
-            particleUpdateContext.newParticleIndexEnd = particleUpdateContext.newParticleIndexStart + newEmittingCount;
+            const { randomSeed } = particles;
+            const newParticleIndexStart = particleUpdateContext.newParticleIndexStart = particles.addParticles(newEmittingCount);
+            const newParticleIndexEnd = particleUpdateContext.newParticleIndexEnd = particleUpdateContext.newParticleIndexStart + newEmittingCount;
             if (particleUpdateContext.simulationSpace === Space.WORLD) {
-                for (let i = particleUpdateContext.newParticleIndexStart, end = particleUpdateContext.newParticleIndexEnd; i < end; ++i) {
-                    particles.setPositionAt(particleUpdateContext.currentPosition, i);
+                const position = particleUpdateContext.currentPosition;
+                for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                    particles.setPositionAt(position, i);
                 }
+            }
+            for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                randomSeed[i] = randomRangeInt(0, 233280);
             }
         }
     }

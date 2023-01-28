@@ -76,6 +76,7 @@ export class ParticleSOAData {
     private _animatedVelocityX = new Float32Array(this._capacity);
     private _animatedVelocityY = new Float32Array(this._capacity);
     private _animatedVelocityZ = new Float32Array(this._capacity);
+    private _speedModifier = new Float32Array(this._capacity);
     private _rotationX = new Float32Array(this._capacity);
     private _rotationY = new Float32Array(this._capacity);
     private _rotationZ = new Float32Array(this._capacity);
@@ -211,6 +212,10 @@ export class ParticleSOAData {
 
     get angularVelocityZ () {
         return this._angularVelocityZ;
+    }
+
+    get speedModifier () {
+        return this._speedModifier;
     }
 
     get sizeX () {
@@ -534,6 +539,7 @@ export class ParticleSOAData {
         this._animatedVelocityX[handle] = this._animatedVelocityX[lastParticle];
         this._animatedVelocityY[handle] = this._animatedVelocityY[lastParticle];
         this._animatedVelocityZ[handle] = this._animatedVelocityZ[lastParticle];
+        this._speedModifier[handle] = this._speedModifier[lastParticle];
         this._rotationX[handle] = this._rotationX[lastParticle];
         this._rotationY[handle] = this._rotationY[lastParticle];
         this._rotationZ[handle] = this._rotationZ[lastParticle];
@@ -577,6 +583,7 @@ export class ParticleSOAData {
         this._animatedVelocityX[handle] = 0;
         this._animatedVelocityY[handle] = 0;
         this._animatedVelocityZ[handle] = 0;
+        this._speedModifier[handle] = 1;
         this._rotationX[handle] = 0;
         this._rotationY[handle] = 0;
         this._rotationZ[handle] = 0;
@@ -641,6 +648,7 @@ export class ParticleSOAData {
         const oldStartTrailSegmentIndices = this._startTrailSegmentIndices;
         const oldEndTrailSegmentIndices = this._endTrailSegmentIndices;
         const oldTrailSegments = this._trailSegments;
+        const oldSpeedModifier = this._speedModifier;
         if (shouldGrow) {
             this._positionX = new Float32Array(capacity);
             this._positionX.set(oldPositionX);
@@ -660,6 +668,8 @@ export class ParticleSOAData {
             this._animatedVelocityY.set(oldAnimatedVelocityY);
             this._animatedVelocityZ = new Float32Array(capacity);
             this._animatedVelocityZ.set(oldAnimatedVelocityZ);
+            this._speedModifier = new Float32Array(capacity);
+            this._speedModifier.set(oldSpeedModifier);
             this._rotationX = new Float32Array(capacity);
             this._rotationX.set(oldRotationX);
             this._rotationY = new Float32Array(capacity);
@@ -723,6 +733,7 @@ export class ParticleSOAData {
             this._animatedVelocityX = oldAnimatedVelocityX.slice(0, capacity);
             this._animatedVelocityY = oldAnimatedVelocityY.slice(0, capacity);
             this._animatedVelocityZ = oldAnimatedVelocityZ.slice(0, capacity);
+            this._speedModifier = oldSpeedModifier.slice(0, capacity);
             this._rotationX = oldRotationX.slice(0, capacity);
             this._rotationY = oldRotationY.slice(0, capacity);
             this._rotationZ = oldRotationZ.slice(0, capacity);

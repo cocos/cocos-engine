@@ -23,31 +23,15 @@
  THE SOFTWARE.
  */
 
-import { Billboard } from './billboard';
-import { Line } from './line';
-import { ParticleSystem } from './particle-system';
-import { ParticleUtils } from './particle-utils';
-import { CurveRange } from './curve-range';
-import { legacyCC } from '../core/global-exports';
-import { GradientRange } from './gradient-range';
-import Gradient, { AlphaKey, ColorKey } from './gradient';
-import './particle-system-manager';
-import Burst from './burst';
-
-export {
-    Billboard,
-    Line,
-    ParticleSystem,
-    ParticleUtils,
-    CurveRange,
-    GradientRange,
-    Gradient,
-    AlphaKey,
-    ColorKey,
-    Burst,
-};
-
-export * from './modules';
-export * from './deprecated';
-
-legacyCC.ParticleUtils = ParticleUtils;
+export * from './color-over-lifetime';
+export * from './speed-modifier';
+export * from './shape-module';
+export * from './emission-over-distance';
+export * from './burst-emission';
+export * from './emission-over-time';
+export * from './start-speed';
+export * from './start-color';
+export * from './start-rotation';
+export * from './start-life-time';
+export * from './start-size';
+export * from './gravity';

@@ -22,48 +22,50 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { Vec3 } from '../../core';
-import { ccclass } from '../../core/data/decorators';
+
+import { ccclass, displayOrder, serializable, tooltip, type, range } from '../../core/data/decorators';
 import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
 import { ParticleUpdateContext } from '../particle-update-context';
+import { CurveRange } from '../curve-range';
+import { Vec3 } from '../../core';
 
-const velocity = new Vec3();
-const animatedVelocity = new Vec3();
-const angularVelocity = new Vec3();
+@ccclass('cc.EmissionOverDistanceModule')
+export class EmissionOverDistanceModule extends ParticleModule {
+    /**
+      * @zh 每移动单位距离发射的粒子数。
+      */
+    @type(CurveRange)
+    @serializable
+    @range([0, 1])
+    @displayOrder(15)
+    @tooltip('i18n:particle_system.rateOverDistance')
+    public rate = new CurveRange();
 
-@ccclass('cc.CompositionModule')
-export class CompositionModule extends ParticleModule {
     public get name (): string {
-        return 'CompositionModule';
+        return 'EmissionOverDistanceModule';
     }
 
     public get updateStage (): ParticleUpdateStage {
-        return ParticleUpdateStage.COMPOSITION;
+        return ParticleUpdateStage.EMITTER_UPDATE;
     }
 
     public get updatePriority (): number {
         return 0;
     }
 
-    constructor () {
-        super();
-        this.enable = true;
-    }
+    private _emitRateDistanceCounter = 0;
 
     public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
-        const deltaTime = particleUpdateContext.deltaTime;
-        const count = particles.count;
-        for (let particleHandle = 0; particleHandle < count; particleHandle++) {
-            particles.getVelocityAt(velocity, particleHandle);
-            particles.getAnimatedVelocityAt(animatedVelocity, particleHandle);
-            velocity.add(animatedVelocity);
-            particles.addPositionAt(Vec3.multiplyScalar(velocity, velocity, deltaTime), particleHandle);
-        }
+        // emit by rateOverDistance
+        const distance = Vec3.distance(particleUpdateContext.currentPosition, particleUpdateContext.lastPosition);
+        this._emitRateDistanceCounter += distance * this.rate.evaluate(particleUpdateContext.normalizedTimeInCycle, 1)!;
+        const distanceEmitNum = Math.floor(this._emitRateDistanceCounter);
+        this._emitRateDistanceCounter -= distanceEmitNum;
+        particleUpdateContext.emittingAccumulatedCount += distanceEmitNum;
+    }
 
-        for (let particleHandle = 0; particleHandle < count; particleHandle++) {
-            particles.getAngularVelocityAt(angularVelocity, particleHandle);
-            particles.addRotationAt(Vec3.multiplyScalar(angularVelocity, angularVelocity, deltaTime), particleHandle);
-        }
+    public onStop (): void {
+        this._emitRateDistanceCounter = 0.0;
     }
 }

@@ -29,7 +29,6 @@ import { EDITOR } from 'internal:constants';
 import { approx, EPSILON, Mat4, pseudoRandom, Quat, randomRangeInt, Size, Vec2, Vec3 } from '../core/math';
 import { INT_MAX } from '../core/math/bits';
 import { ColorOverLifetimeModule } from './modules/color-over-lifetime';
-import { InitializationModule } from './modules/initialization';
 import { CurveRange, Mode } from './curve-range';
 import { ForceOverLifetimeModule } from './modules/force-over-lifetime';
 import { LimitVelocityOverLifetimeModule } from './modules/limit-velocity-over-lifetime';
@@ -37,7 +36,7 @@ import { RotationOverLifetimeModule } from './modules/rotation-over-lifetime';
 import { SizeOverLifetimeModule } from './modules/size-over-lifetime';
 import { TextureAnimationModule } from './modules/texture-animation';
 import { VelocityOverLifetimeModule } from './modules/velocity-over-lifetime';
-import { EmissionModule } from './modules/emission';
+import { EmissionOverTimeModule } from './modules/emission-over-time';
 import { ShapeModule } from './modules/shape-module';
 import { ParticleUpdateContext } from './particle-update-context';
 import { CullingMode, Space } from './enum';
@@ -48,8 +47,6 @@ import { legacyCC } from '../core/global-exports';
 import { TransformBit } from '../core/scene-graph/node-enum';
 import { AABB, intersect } from '../core/geometry';
 import { Camera } from '../core/renderer/scene';
-import { GravityModule } from './modules/gravity';
-import { ParticleCuller } from './particle-culler';
 import { NoiseModule } from './modules/noise';
 import { CCBoolean, CCFloat, Component, Enum, geometry } from '../core';
 import { INVALID_HANDLE, ParticleHandle, ParticleSOAData } from './particle-soa-data';
@@ -186,16 +183,9 @@ export class ParticleSystem extends Component {
         this._boundingBoxHalfExtents.set(val);
     }
 
-    public get initializationModule () {
-        return this.getOrAddModule(InitializationModule);
-    }
-
-    public get emissionModule () {
-        return this.getOrAddModule(EmissionModule);
-    }
-
     /**
      * @zh 颜色控制模块。
+     * @deprecated since v3.8, please use [[ParticleSystem.getModule]] instead.
      */
     public get colorOverLifetimeModule () {
         return this.getOrAddModule(ColorOverLifetimeModule);
@@ -440,15 +430,6 @@ export class ParticleSystem extends Component {
     }
 
     protected onLoad () {
-        this.getOrAddModule(EmittingModule);
-        this.getOrAddModule(CompositionModule);
-        this.getOrAddModule(ShapeModule);
-        this.getOrAddModule(VelocityOverLifetimeModule);
-        this.getOrAddModule(ForceOverLifetimeModule);
-        this.getOrAddModule(ColorOverLifetimeModule);
-        this.getOrAddModule(InitializationModule);
-        this.getOrAddModule(EmissionModule);
-        this.getOrAddModule(SizeOverLifetimeModule);
         const renderer = this.getComponent(ParticleSystemRenderer);
         if (renderer) {
             renderer.setParticleSystem(this);

@@ -290,13 +290,13 @@ export class ParticleSystemRenderer extends ModelRenderer {
             }
             this._vertAttrs.push(
                 new Attribute('a_particle_position', Format.RGB32F, false, 1, true),        // particle position
-                new Attribute('a_particle_rotation', Format.RGB32F, false, 2, true),        // particle rotation
-                new Attribute('a_particle_size', Format.RGB32F, false, 3, true),            // particle size
-                new Attribute('a_particle_frame', Format.R16UI, false, 4, true),            // particle frame id
-                new Attribute('a_particle_color', Format.RGBA8, true, 5, true),             // particle color
+                new Attribute('a_particle_rotation', Format.RGB32F, false, 1, true),        // particle rotation
+                new Attribute('a_particle_size', Format.RGB32F, false, 1, true),            // particle size
+                new Attribute('a_particle_frame', Format.R32F, false, 1, true),            // particle frame id
+                new Attribute('a_particle_color', Format.RGBA8, true, 1, true),             // particle color
             );
             if (this._renderMode === RenderMode.STRETCHED_BILLBOARD) {
-                this._vertAttrs.push(new Attribute('a_particle_velocity', Format.RGB32F, false, 6, true));
+                this._vertAttrs.push(new Attribute('a_particle_velocity', Format.RGB32F, false, 1, true));
             }
             this._model.setVertexAttributes(this._renderMode === RenderMode.MESH ? this._mesh : null, this._vertAttrs);
         }

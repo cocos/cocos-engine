@@ -27,11 +27,10 @@ import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { Color, pseudoRandom } from '../../core/math';
 import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { GradientRange } from '../gradient-range';
-import { ModuleRandSeed } from '../enum';
 import { ParticleSOAData } from '../particle-soa-data';
 import { ParticleUpdateContext } from '../particle-update-context';
 
-const COLOR_OVERTIME_RAND_OFFSET = ModuleRandSeed.COLOR;
+const COLOR_OVERTIME_RAND_OFFSET = 91041;
 
 @ccclass('cc.ColorOverLifetimeModule')
 export class ColorOverLifetimeModule extends ParticleModule {

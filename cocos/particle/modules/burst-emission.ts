@@ -23,39 +23,19 @@
  THE SOFTWARE.
  */
 
+import { lerp } from '../../core';
 import { ccclass, displayOrder, serializable, tooltip, type, range } from '../../core/data/decorators';
 import Burst from '../burst';
+import { CurveRange } from '../curve-range';
 import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
 import { ParticleUpdateContext } from '../particle-update-context';
-import { CurveRange } from '../curve-range';
-import { Vec3 } from '../../core';
 
-@ccclass('cc.EmissionModule')
-export class EmissionModule extends ParticleModule {
+@ccclass('cc.BurstEmissionModule')
+export class BurstEmissionModule extends ParticleModule {
     /**
-     * @zh 每秒发射的粒子数。
-     */
-    @type(CurveRange)
-    @serializable
-    @range([0, 1])
-    @displayOrder(14)
-    @tooltip('i18n:particle_system.rateOverTime')
-    public rateOverTime = new CurveRange();
-
-    /**
-     * @zh 每移动单位距离发射的粒子数。
-     */
-    @type(CurveRange)
-    @serializable
-    @range([0, 1])
-    @displayOrder(15)
-    @tooltip('i18n:particle_system.rateOverDistance')
-    public rateOverDistance = new CurveRange();
-
-    /**
-     * @zh 设定在指定时间发射指定数量的粒子的 burst 的数量。
-     */
+      * @zh 设定在指定时间发射指定数量的粒子的 burst 的数量。
+      */
     @type([Burst])
     @serializable
     @displayOrder(16)
@@ -63,7 +43,7 @@ export class EmissionModule extends ParticleModule {
     public bursts: Burst[] = [];
 
     public get name (): string {
-        return 'EmissionModule';
+        return 'BurstEmissionModule';
     }
 
     public get updateStage (): ParticleUpdateStage {
@@ -74,33 +54,9 @@ export class EmissionModule extends ParticleModule {
         return 0;
     }
 
-    private _emitRateTimeCounter: number;
-    private _emitRateDistanceCounter: number;
-
-    constructor () {
-        super();
-        this.rateOverTime.constant = 10;
-        this._emitRateTimeCounter = 0.0;
-        this._emitRateDistanceCounter = 0.0;
-    }
-
     public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
-        // emit by rateOverTime
-        this._emitRateTimeCounter += this.rateOverTime.evaluate(particleUpdateContext.normalizedTimeInCycle, 1)! * particleUpdateContext.emitterDeltaTime;
-        const emitNum = Math.floor(this._emitRateTimeCounter);
-        this._emitRateTimeCounter -= emitNum;
-        particleUpdateContext.emittingAccumulatedCount += emitNum;
-
-        // emit by rateOverDistance
-        const distance = Vec3.distance(particleUpdateContext.currentPosition, particleUpdateContext.lastPosition);
-
-        this._emitRateDistanceCounter += distance * this.rateOverDistance.evaluate(particleUpdateContext.normalizedTimeInCycle, 1)!;
-        const distanceEmitNum = Math.floor(this._emitRateDistanceCounter);
-        this._emitRateDistanceCounter -= distanceEmitNum;
-        particleUpdateContext.emittingAccumulatedCount += distanceEmitNum;
-
-        const preTime = particleUpdateContext.emitterAccumulatedTime - particleUpdateContext.emitterDeltaTime;
-        const time = particleUpdateContext.emitterAccumulatedTime;
+        const { normalizedTimeInCycle, emitterAccumulatedTime: time, emitterDeltaTime } = particleUpdateContext;
+        const preTime = time - emitterDeltaTime;
         for (let i = 0; i < this.bursts.length; i++) {
             const burst = this.bursts[i];
             if ((preTime < burst.time && time > burst.time) || (preTime > burst.time && burst.repeatCount > 1)) {
@@ -108,16 +64,28 @@ export class EmissionModule extends ParticleModule {
                 if (preEmitTime < burst.repeatCount) {
                     const currentEmitTime = Math.min(Math.floor((time - burst.time) / burst.repeatInterval), burst.repeatCount);
                     const toEmitTime = currentEmitTime - preEmitTime;
-                    for (let j = 0; j < toEmitTime; j++) {
-                        particleUpdateContext.emittingAccumulatedCount += burst.count.evaluate(particleUpdateContext.normalizedTimeInCycle, 1);
+                    if (burst.count.mode === CurveRange.Mode.Constant) {
+                        for (let j = 0; j < toEmitTime; j++) {
+                            particleUpdateContext.emittingAccumulatedCount += burst.count.constant;
+                        }
+                    } else if (burst.count.mode === CurveRange.Mode.Curve) {
+                        const { spline, multiplier } = burst.count;
+                        for (let j = 0; j < toEmitTime; j++) {
+                            particleUpdateContext.emittingAccumulatedCount += spline.evaluate(normalizedTimeInCycle[i]) * multiplier;
+                        }
+                    } else if (burst.count.mode === CurveRange.Mode.TwoConstants) {
+                        const { constantMin, constantMax } = burst.count;
+                        for (let j = 0; j < toEmitTime; j++) {
+                            particleUpdateContext.emittingAccumulatedCount += lerp(constantMin, constantMax, Math.random());
+                        }
+                    } else {
+                        const { splineMin, splineMax, multiplier } = burst.count;
+                        for (let j = 0; j < toEmitTime; j++) {
+                            particleUpdateContext.emittingAccumulatedCount += lerp(splineMin.evaluate(normalizedTimeInCycle[i]), splineMax.evaluate(normalizedTimeInCycle[i]), Math.random()) * multiplier;
+                        }
                     }
                 }
             }
         }
-    }
-
-    public onStop (): void {
-        this._emitRateTimeCounter = 0.0;
-        this._emitRateDistanceCounter = 0.0;
     }
 }

@@ -59,10 +59,14 @@ export default class ParticleBatchModel extends scene.Model {
     private _material: Material | null = null;
 
     private _vertAttribSizeStatic = 0;
+    private _vertAttribSizeDynamic = 0;
     private _vertStaticAttrsFloatCount = 0;
+    private _vertDynamicAttrsFloatCount = 0;
     private _insBuffers: Buffer[] = [];
-    private _dynamicBuffers: Float32Array[] = [];
+    private _dynamicBuffer: Float32Array | null = null;
+    private _dynamicBufferUintView: Uint32Array | null = null;
     private _insIndices: Buffer | null = null;
+    private _hasVelocityChanel = false;
 
     constructor () {
         super();
@@ -84,11 +88,10 @@ export default class ParticleBatchModel extends scene.Model {
     public setCapacity (capacity: number) {
         const capChanged = this._capacity !== capacity;
         if (capChanged) {
-            for (let i = 1; i < this._insBuffers.length; i++) {
-                const vertexBuffer = this._insBuffers[i];
-                vertexBuffer.resize(capacity * vertexBuffer.stride);
-                this._dynamicBuffers[i - 1] = new Float32Array(new ArrayBuffer(capacity * vertexBuffer.stride));
-            }
+            const vertexBuffer = this._insBuffers[1];
+            vertexBuffer.resize(capacity * vertexBuffer.stride);
+            this._dynamicBuffer = new Float32Array(new ArrayBuffer(capacity * vertexBuffer.stride));
+            this._dynamicBufferUintView = new Uint32Array(this._dynamicBuffer.buffer);
             this._capacity = capacity;
         }
     }
@@ -101,30 +104,30 @@ export default class ParticleBatchModel extends scene.Model {
         this._vertAttrs = attrs;
         this._vertAttribSizeStatic = 0;
         for (const a of this._vertAttrs) {
-            if (a.stream === 0) {
+            if (!a.isInstanced) {
                 (a as any).offset = this._vertAttribSizeStatic;
                 this._vertAttribSizeStatic += FormatInfos[a.format].size;
+            } else {
+                this._vertAttribSizeDynamic += FormatInfos[a.format].size;
             }
         }
         this._vertStaticAttrsFloatCount = this._vertAttribSizeStatic / 4;
+        this._vertDynamicAttrsFloatCount = this._vertAttribSizeDynamic / 4;
+        this._hasVelocityChanel = !!this._vertAttrs.find((val) => val.name === 'a_particle_velocity');
         // rebuid
         this.rebuild();
     }
 
     private createSubMeshDataInsDynamic () {
-        for (let i = 0; i < this._vertAttrs?.length; i++) {
-            const vertexAttribute = this._vertAttrs[i];
-            if (vertexAttribute.isInstanced) {
-                const vertexBuffer = this._device.createBuffer(new BufferInfo(
-                    BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
-                    MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
-                    FormatInfos[vertexAttribute.format].size * this._capacity,
-                    FormatInfos[vertexAttribute.format].size,
-                ));
-                this._dynamicBuffers.push(new Float32Array(new ArrayBuffer(FormatInfos[vertexAttribute.format].size * this._capacity)));
-                this._insBuffers.push(vertexBuffer);
-            }
-        }
+        const vertexBuffer = this._device.createBuffer(new BufferInfo(
+            BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+            this._vertAttribSizeDynamic * this._capacity,
+            this._vertAttribSizeDynamic,
+        ));
+        this._dynamicBuffer = new Float32Array(new ArrayBuffer(this._capacity * this._vertAttribSizeDynamic));
+        this._dynamicBufferUintView = new Uint32Array(this._dynamicBuffer.buffer);
+        this._insBuffers.push(vertexBuffer);
     }
 
     private createSubMeshDataInsStatic () {
@@ -216,44 +219,50 @@ export default class ParticleBatchModel extends scene.Model {
         if (particles.count <= 0) {
             return;
         }
-        const { capacity, positionX, positionY, positionZ, rotationX, rotationY, rotationZ, sizeX, sizeY, sizeZ } = particles;
-        const position = this._dynamicBuffers[0];
-        for (let i = 0; i < capacity; i++) {
-            position[i * 3] = positionX[i];
-            position[i * 3 + 1] = positionY[i];
-            position[i * 3 + 2] = positionZ[i];
-        }
-        this._insBuffers[1].update(position); // update dynamic buffer
-        const rotation = this._dynamicBuffers[1];
-        for (let i = 0; i < capacity; i++) {
-            rotation[i * 3] = rotationX[i];
-            rotation[i * 3 + 1] = rotationY[i];
-            rotation[i * 3 + 2] = rotationZ[i];
-        }
-        this._insBuffers[2].update(rotation);
-        const size = this._dynamicBuffers[2];
-        for (let i = 0; i < capacity; i++) {
-            size[i * 3] = sizeX[i];
-            size[i * 3 + 1] = sizeY[i];
-            size[i * 3 + 2] = sizeZ[i];
-        }
-        this._insBuffers[3].update(size);
-        this._insBuffers[4].update(particles.frameIndex);
-        this._insBuffers[5].update(particles.color);
-        if (this._insBuffers[6]) {
-            const { velocityX, velocityY, velocityZ, animatedVelocityX, animatedVelocityY, animatedVelocityZ } = particles;
-            const velocity = this._dynamicBuffers[5];
-            for (let i = 0; i < capacity; i++) {
-                velocity[i * 3] = velocityX[i] + animatedVelocityX[i];
-                velocity[i * 3 + 1] = velocityY[i] + animatedVelocityY[i];
-                velocity[i * 3 + 2] = velocityZ[i] + animatedVelocityZ[i];
+        const dynamicBuffer = this._dynamicBuffer!;
+        const dynamicBufferUintView = this._dynamicBufferUintView!;
+        const { positionX, positionY, positionZ, rotationX, rotationY, rotationZ, sizeX, sizeY, sizeZ, frameIndex, color, count } = particles;
+        if (!this._hasVelocityChanel) {
+            for (let i = 0; i < count; i++) {
+                const offset = i * this._vertDynamicAttrsFloatCount;
+                dynamicBuffer[offset] = positionX[i];
+                dynamicBuffer[offset + 1] = positionY[i];
+                dynamicBuffer[offset + 2] = positionZ[i];
+                dynamicBuffer[offset + 3] = rotationX[i];
+                dynamicBuffer[offset + 4] = rotationY[i];
+                dynamicBuffer[offset + 5] = rotationZ[i];
+                dynamicBuffer[offset + 6] = sizeX[i];
+                dynamicBuffer[offset + 7] = sizeY[i];
+                dynamicBuffer[offset + 8] = sizeZ[i];
+                dynamicBuffer[offset + 9] = frameIndex[i];
+                dynamicBufferUintView[offset + 10] = color[i];
             }
-            this._insBuffers[6].update(velocity);
+        } else {
+            const { velocityX, velocityY, velocityZ, animatedVelocityX, animatedVelocityY, animatedVelocityZ } = particles;
+            for (let i = 0; i < count; i++) {
+                const offset = i * this._vertDynamicAttrsFloatCount;
+                dynamicBuffer[offset] = positionX[i];
+                dynamicBuffer[offset + 1] = positionY[i];
+                dynamicBuffer[offset + 2] = positionZ[i];
+                dynamicBuffer[offset + 3] = rotationX[i];
+                dynamicBuffer[offset + 4] = rotationY[i];
+                dynamicBuffer[offset + 5] = rotationZ[i];
+                dynamicBuffer[offset + 6] = sizeX[i];
+                dynamicBuffer[offset + 7] = sizeY[i];
+                dynamicBuffer[offset + 8] = sizeZ[i];
+                dynamicBuffer[offset + 9] = frameIndex[i];
+                dynamicBufferUintView[offset + 10] = color[i];
+                dynamicBuffer[offset + 11] = velocityX[i] + animatedVelocityX[i];
+                dynamicBuffer[offset + 12] = velocityY[i] + animatedVelocityY[i];
+                dynamicBuffer[offset + 13] = velocityZ[i] + animatedVelocityZ[i];
+            }
         }
-        this._subModels[0].inputAssembler.instanceCount = particles.count;
+
+        this._insBuffers[1].update(dynamicBuffer); // update dynamic buffer
+        this._subModels[0].inputAssembler.instanceCount = count;
         this._iaInfo.drawInfos[0].firstIndex = 0;
         this._iaInfo.drawInfos[0].indexCount = this._indexCount;
-        this._iaInfo.drawInfos[0].instanceCount = particles.count;
+        this._iaInfo.drawInfos[0].instanceCount = count;
         this._iaInfoBuffer!.update(this._iaInfo);
     }
 
@@ -278,7 +287,6 @@ export default class ParticleBatchModel extends scene.Model {
 
     private rebuild () {
         this.destroySubMeshData();
-        this._dynamicBuffers.length = 0;
         this.createSubMeshDataInsStatic();
         this.createSubMeshDataInsDynamic();
 
