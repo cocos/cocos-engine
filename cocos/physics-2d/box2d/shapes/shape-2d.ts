@@ -22,11 +22,11 @@
  THE SOFTWARE.
 */
 
-import b2 from '@cocos/box2d';
+import b2, { Vec2 } from '@cocos/box2d';
 
 import { IBaseShape } from '../../spec/i-physics-shape';
 import { Collider2D, PhysicsSystem2D, RigidBody2D, PHYSICS_2D_PTM_RATIO } from '../../../../exports/physics-2d-framework';
-import { Rect } from '../../../core';
+import { Rect, Vec3 } from '../../../core';
 import { b2PhysicsWorld } from '../physics-world';
 import { PhysicsGroup } from '../../../physics/framework/physics-enum';
 
@@ -34,7 +34,11 @@ const tempFilter = new b2.Filter();
 
 function getFilter (shape: b2Shape2D) {
     const comp = shape.collider;
-    tempFilter.categoryBits = comp.group === PhysicsGroup.DEFAULT ? comp.body!.group : comp.group;
+    if (comp.body) {
+        tempFilter.categoryBits = comp.group === PhysicsGroup.DEFAULT ? comp.body.group : comp.group;
+    } else {
+        tempFilter.categoryBits = comp.group;
+    }
     tempFilter.maskBits = PhysicsSystem2D.instance.collisionMatrix[tempFilter.categoryBits];
     return tempFilter;
 }
@@ -133,7 +137,8 @@ export class b2Shape2D implements IBaseShape {
         return this._fixtures.indexOf(fixture);
     }
 
-    _createShapes (scaleX: number, scaleY: number): b2.Shape[] {
+    //relativePositionX/Y : relative Position from shape to rigid body
+    _createShapes (scaleX: number, scaleY: number, relativePositionX: number, relativePositionY: number): b2.Shape[] {
         return [];
     }
 
@@ -141,16 +146,21 @@ export class b2Shape2D implements IBaseShape {
         if (this._inited) return;
 
         const comp = this.collider;
+        const scale = comp.node.worldScale;
+        // relative Position from shape to rigid body
+        let relativePosition = new Vec3(0, 0, 0);
         const body = comp.getComponent(RigidBody2D);
-        if (!body) return;
 
-        const innerBody = body.impl?.impl as b2.Body;
-        if (!innerBody) return;
+        //if rigid body is not attached to the same node of collider, this b2.shape is attached
+        // to the groundRigidBody(pos zero, rot zero)
+        if (body && body.impl && body.impl.impl) {
+            this._body = body.impl.impl as b2.Body;
+        } else {
+            this._body = (PhysicsSystem2D.instance.physicsWorld as b2PhysicsWorld).groundBodyImpl;
+            relativePosition = comp.node.worldPosition;
+        }
 
-        const node = body.node;
-        const scale = node.worldScale;
-
-        const shapes = scale.x === 0 && scale.y === 0 ? [] : this._createShapes(scale.x, scale.y);
+        const shapes = scale.x === 0 && scale.y === 0 ? [] : this._createShapes(scale.x, scale.y, relativePosition.x, relativePosition.y);
 
         const filter = getFilter(this);
 
@@ -167,14 +177,12 @@ export class b2Shape2D implements IBaseShape {
                 filter,
             };
 
-            const fixture = innerBody.CreateFixture(fixDef);
+            const fixture = this._body.CreateFixture(fixDef);
             fixture.m_userData = this;
 
             this._shapes.push(shape);
             this._fixtures.push(fixture);
         }
-
-        this._body = innerBody;
 
         this._inited = true;
     }
