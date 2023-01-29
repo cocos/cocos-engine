@@ -27,7 +27,7 @@ float GGXMobile (float roughness, float NoH, vec3 H, vec3 N) {
   float OneMinusNoHSqr = dot(NxH, NxH);
   float a = roughness * roughness;
   float n = NoH * a;
-  float p = a / (OneMinusNoHSqr + n * n);
+  float p = a / max(EPSILON, OneMinusNoHSqr + n * n);
   return p * p;
 }
 
@@ -166,7 +166,7 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
     finalColor += lightingColor * dirlightContrib;
   #endif
 
-  float fAmb = 0.5 - N.y * 0.5;
+  float fAmb = max(EPSILON, 0.5 - N.y * 0.5);
   vec3 ambDiff = mix(cc_ambientSky.rgb, cc_ambientGround.rgb, fAmb);
 
   vec3 env = vec3(0.0);
