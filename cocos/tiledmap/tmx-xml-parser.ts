@@ -91,9 +91,9 @@ function strToColor (value: string): Color {
 function getPropertyList (node: Element, map?: PropertiesInfo): PropertiesInfo {
     const res: any[] = [];
     for (let childNode = node.firstChild; childNode != null; childNode = childNode.nextSibling) {
-        if (childNode instanceof Element && childNode.nodeName == 'properties') {
+        if (childNode && childNode.nodeName == 'properties') {
             for (let childNode2 = childNode.firstChild; childNode2 != null; childNode2 = childNode2.nextSibling) {
-                if (childNode2 instanceof Element && childNode2.nodeName === 'property') {
+                if (childNode2 && childNode2.nodeName === 'property') {
                     res.push(childNode2);
                 }
             }
