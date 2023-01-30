@@ -310,7 +310,6 @@ export class ReflectionProbeManager {
             if (probe.realtimePlanarTexture) {
                 this.updatePlanarMap(probe, probe.realtimePlanarTexture.getGFXTexture());
             }
-            meshRender.updateReflectionProbeId(probe ? probe.getProbeId() : -1);
         }
     }
 

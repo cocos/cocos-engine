@@ -1,3 +1,4 @@
+#include <builtin/uniforms/cc-local>
 void GetPlanarReflectionProbeData(out vec4 plane, out float planarReflectionDepthScale, out float mipCount, float probeId)
 {
     #if USE_INSTANCING

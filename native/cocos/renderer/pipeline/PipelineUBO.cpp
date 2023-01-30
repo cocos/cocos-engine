@@ -79,7 +79,6 @@ void PipelineUBO::updateGlobalUBOView(const scene::Camera *camera, ccstd::array<
     uboGlobalView[UBOGlobal::NATIVE_SIZE_OFFSET + 2] = 1.0F / uboGlobalView[UBOGlobal::NATIVE_SIZE_OFFSET];
     uboGlobalView[UBOGlobal::NATIVE_SIZE_OFFSET + 3] = 1.0F / uboGlobalView[UBOGlobal::NATIVE_SIZE_OFFSET + 1];
 
-    //xubin: reflection probe count
     uboGlobalView[UBOGlobal::PROBE_INFO_OFFSET + 0] = scene::ReflectionProbeManager::getInstance()->getProbeCount();
 
     auto debugViewConfig = root->getDebugViewConfig();

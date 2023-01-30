@@ -40,7 +40,7 @@ public:
     void unRegisterProbe(scene::ReflectionProbe* probe);
     const ccstd::vector<scene::ReflectionProbe*>& getAllProbes() const { return _probes; }
     uint32_t getProbeCount() { return _probes.size(); }
-    const ReflectionProbe* getReflectionProbeById(int32_t probeId);
+    ReflectionProbe* getReflectionProbeById(int32_t probeId);
 private: 
     ccstd::vector<scene::ReflectionProbe*> _probes;
 };

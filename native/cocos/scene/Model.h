@@ -164,7 +164,7 @@ public:
     inline int32_t getReflectionProbeType() const { return _reflectionProbeType; }
     void setReflectionProbeType(int32_t val);
     inline int32_t getReflectionProbeId() const { return _reflectionProbeId; }
-    void setReflectionProbeId(int32_t reflectionProbeId) { _reflectionProbeId = reflectionProbeId; };
+    inline void setReflectionProbeId(int32_t reflectionProbeId) { _reflectionProbeId = reflectionProbeId; }
     inline int32_t getTetrahedronIndex() const { return _tetrahedronIndex; }
     inline void setTetrahedronIndex(int32_t index) { _tetrahedronIndex = index; }
     inline bool showTetrahedron() const { return isLightProbeAvailable(); }
@@ -237,7 +237,7 @@ protected:
 
     bool _bakeToReflectionProbe{true};
     int32_t _reflectionProbeType{0};
-    int32_t _reflectionProbeId{ -1 };
+    int32_t _reflectionProbeId{-1};
 
     bool _enabled{false};
     bool _castShadow{false};
