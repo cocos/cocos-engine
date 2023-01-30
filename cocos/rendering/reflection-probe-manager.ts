@@ -296,7 +296,6 @@ export class ReflectionProbeManager {
         const meshRender = probe.previewSphere.getComponent(MeshRenderer);
         if (meshRender) {
             meshRender.updateProbeCubemap(probe.cubemap, !probe.cubemap);
-            meshRender.updateReflectionProbeId(probe ? probe.getProbeId() : -1);
         }
     }
 
