@@ -29,18 +29,18 @@ export abstract class ScalableContainer {
      */
     public _poolHandle = -1;
     constructor () {
-        containerManager.addContainer(this);
+        scalableContainerManager.addContainer(this);
     }
 
     abstract tryShrink (): void;
 
     destroy () {
-        containerManager.removeContainer(this);
+        scalableContainerManager.removeContainer(this);
     }
 }
 
 /**
- * @en ContainerManager is a sequence container that stores ScalableContainers.
+ * @en ScalableContainerManager is a sequence container that stores ScalableContainers.
  * It will shrink all managed ScalableContainer in a fixed interval.
  */
 class ScalableContainerManager {
@@ -95,6 +95,6 @@ class ScalableContainerManager {
 }
 
 /**
- * @en A global ContainerManager instance.
+ * @en A global ScalableContainerManager instance.
  */
-export const containerManager = new ScalableContainerManager();
+export const scalableContainerManager = new ScalableContainerManager();
