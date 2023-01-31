@@ -74,7 +74,7 @@ export interface SerializationOutput {
     writeSuper(): void;
 }
 
-type NewType = {
+export type SerializationContext = {
     /**
      * The main serializing asset or root node in the scene/prefab passed to the serialization procedure.
      */
@@ -88,8 +88,6 @@ type NewType = {
      */
     customArguments: Record<PropertyKey, unknown>;
 };
-
-export type SerializationContext = NewType;
 
 /**
  * @engineInternal
