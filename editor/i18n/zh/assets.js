@@ -101,9 +101,9 @@ module.exports = {
             fixAlphaTransparencyArtifacts: '消除透明伪影',
             fixAlphaTransparencyArtifactsTip:
                 '为全透明像素填充相邻像素的颜色，防止纹理过滤引起的黑边问题。当使用 Alpha 透明通道时，请启用此功能。',
-            isRGBE: '是 RGBE',
-            isRGBETip: '是否为 RGBE',
-            flipGreenChannel: '翻转绿通道',
+            isRGBE: '作为 RGBE 格式',
+            isRGBETip: '作为 RGBE 格式',
+            flipGreenChannel: '翻转绿色通道',
         },
         spriteFrame: {
             packable: 'Packable',
