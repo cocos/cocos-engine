@@ -883,8 +883,16 @@ export class MeshRenderer extends ModelRenderer {
         this._updateUseReflectionProbe();
         if (this.bakeSettings.reflectionProbe === ReflectionProbeType.BAKED_CUBEMAP) {
             cclegacy.internal.reflectionProbeManager.updateUseCubeModels(this._model);
+            if (!cclegacy.internal.reflectionProbeManager.getUsedReflectionProbe(this._model, ReflectionProbeType.BAKED_CUBEMAP)) {
+                // eslint-disable-next-line max-len
+                console.warn('There is no reflection probe in the scene or no probe is near the current object. No reflection probe will take effect on this object. Please create a new reflection probe or move existing ones closer.');
+            }
         } else if (this.bakeSettings.reflectionProbe === ReflectionProbeType.PLANAR_REFLECTION) {
             cclegacy.internal.reflectionProbeManager.updateUsePlanarModels(this._model);
+            if (!cclegacy.internal.reflectionProbeManager.getUsedReflectionProbe(this._model, ReflectionProbeType.PLANAR_REFLECTION)) {
+                // eslint-disable-next-line max-len
+                console.warn('There is no reflection probe in the scene or no probe is near the current object. No reflection probe will take effect on this object. Please create a new reflection probe or move existing ones closer.');
+            }
         }
     }
 
