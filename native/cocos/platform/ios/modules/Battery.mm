@@ -29,6 +29,7 @@
 namespace cc {
 
 float Battery::getBatteryLevel() const {
+    [UIDevice currentDevice].batteryMonitoringEnabled = YES;
     return [UIDevice currentDevice].batteryLevel;
 }
 
