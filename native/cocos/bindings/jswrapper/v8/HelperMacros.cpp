@@ -23,8 +23,10 @@
 ****************************************************************************/
 
 #include "HelperMacros.h"
+#include <type_traits>
 #include "../State.h"
 #include "../ValueArrayPool.h"
+#include "../HasJSThisObject.h"
 #include "Object.h"
 #include "ScriptEngine.h"
 #include "Utils.h"
@@ -127,6 +129,7 @@ SE_HOT void jsbConstructorWrapper(const v8::FunctionCallbackInfo<v8::Value> &v8a
     if (!ret) {
         SE_LOGE("[ERROR] Failed to invoke %s\n", funcName);
     }
+    
     se::Value property;
     if (thisObject->getProperty("_ctor", &property)) {
         property.toObject()->call(args, thisObject);

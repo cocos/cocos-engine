@@ -1500,8 +1500,8 @@ cocos_source_files(
     cocos/3d/models/MorphModel.cpp
     cocos/3d/models/SkinningModel.h
     cocos/3d/models/SkinningModel.cpp
-    # cocos/3d/framework/MeshRenderer.h
-    # cocos/3d/framework/MeshRenderer.cpp
+    cocos/3d/framework/MeshRenderer.h
+    cocos/3d/framework/MeshRenderer.cpp
 )
 
 ##### animations
@@ -2017,6 +2017,7 @@ cocos_source_files(
     cocos/core/data/Object.cpp
     cocos/core/data/Object.h
     cocos/core/data/JSBNativeDataHolder.h
+    cocos/core/scene-graph/ComponentProxy.h
     cocos/core/scene-graph/Layers.h
     cocos/core/scene-graph/Node.cpp
     cocos/core/scene-graph/Node.h
@@ -2661,6 +2662,10 @@ cocos_source_files(MODULE ccbindings
                  cocos/bindings/jswrapper/Value.h
                  cocos/bindings/jswrapper/ValueArrayPool.cpp
                  cocos/bindings/jswrapper/ValueArrayPool.h
+                 cocos/bindings/jswrapper/Accessor.h
+                 cocos/bindings/jswrapper/Accessor.cpp
+                 cocos/bindings/jswrapper/HasJSThisObject.h
+                 cocos/bindings/jswrapper/HasJSThisObject.cpp
 )
 
 cocos_source_files(

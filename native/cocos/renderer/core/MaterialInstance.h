@@ -31,9 +31,11 @@
 
 namespace cc {
 
+class Renderer;
+
 struct IMaterialInstanceInfo {
     Material *parent{nullptr};
-    //    RenderableComponent *owner{nullptr};
+    Renderer *owner{nullptr};
     index_t subModelIdx{0};
 };
 

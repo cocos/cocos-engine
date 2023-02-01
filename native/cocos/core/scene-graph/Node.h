@@ -470,6 +470,9 @@ public:
         _hasChangedFlagsVersion = globalFlagChangeVersion;
         _hasChangedFlags = value;
     }
+    inline void setChangedFlagsAdditive(TransformBit value) {
+        setChangedFlags(getChangedFlags() | static_cast<uint32_t>(value));
+    }
 
     inline void setDirtyFlag(uint32_t value) { _dirtyFlag = value; }
     inline uint32_t getDirtyFlag() const { return _dirtyFlag; }

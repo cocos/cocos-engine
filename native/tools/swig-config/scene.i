@@ -14,6 +14,8 @@
 #include "core/scene-graph/Node.h"
 #include "core/scene-graph/Scene.h"
 #include "core/scene-graph/SceneGlobals.h"
+#include "cocos/misc/Renderer.h"
+#include "core/scene-graph/ComponentProxy.h"
 #include "scene/Light.h"
 #include "scene/LODGroup.h"
 #include "scene/Fog.h"
@@ -39,6 +41,7 @@
 #include "renderer/core/ProgramLib.h"
 #include "scene/Octree.h"
 #include "scene/ReflectionProbe.h"
+#include "3d/framework/MeshRenderer.h"
 %}
 
 // Insert code at the beginning of generated source file (.cpp)
@@ -138,6 +141,31 @@ using namespace cc;
 %ignore cc::Node::getWorldRS;
 %ignore cc::Node::getWorldRT;
 
+%ignore cc::ComponentProxy::getExecutionOrder; 
+%ignore cc::ComponentProxy::getName; 
+%ignore cc::ComponentProxy::setName; 
+%ignore cc::ComponentProxy::getUuid; 
+%ignore cc::ComponentProxy::isEnabled; 
+%ignore cc::ComponentProxy::setEnabled; 
+%ignore cc::ComponentProxy::isEnabledInHierarchy; 
+%ignore cc::ComponentProxy::isOnLoadCalled; 
+%ignore cc::ComponentProxy::getNode; 
+%ignore cc::ComponentProxy::setNode; 
+%ignore cc::ComponentProxy::getObjFlags; 
+%ignore cc::ComponentProxy::setObjFlags; 
+%ignore cc::ComponentProxy::_getRenderScene; 
+// %ignore cc::ComponentProxy::update; 
+// %ignore cc::ComponentProxy::lateUpdate; 
+// %ignore cc::ComponentProxy::__preload; 
+// %ignore cc::ComponentProxy::onLoad; 
+// %ignore cc::ComponentProxy::start; 
+// %ignore cc::ComponentProxy::onEnable; 
+// %ignore cc::ComponentProxy::onDisable; 
+// %ignore cc::ComponentProxy::onDestroy; 
+// %ignore cc::ComponentProxy::onRestore; 
+// %ignore cc::ComponentProxy::onFocusInEditor; 
+// %ignore cc::ComponentProxy::onLostFocusInEditor; 
+    
 %ignore cc::scene::Camera::screenPointToRay;
 %ignore cc::scene::Camera::screenToWorld;
 %ignore cc::scene::Camera::worldToScreen;
@@ -183,6 +211,12 @@ using namespace cc;
 %rename(_updateSiblingIndex) cc::Node::updateSiblingIndex;
 %rename(_onPreDestroyBase) cc::Node::onPreDestroyBase;
 %rename(_onPreDestroy) cc::Node::onPreDestroy;
+
+%rename(getMaterial) cc::Renderer::_getMaterial;
+%rename(setMaterial) cc::Renderer::_setMaterial;
+%rename(getMaterialInstance) cc::Renderer::_getMaterialInstance;
+%rename(setMaterialInstance) cc::Renderer::_setMaterialInstance;
+%rename(_materialsJS) cc::Renderer::_materials;
 
 %rename(_enabled) cc::scene::FogInfo::_isEnabled;
 %rename(cpp_keyword_register) cc::ProgramLib::registerEffect;
@@ -284,6 +318,32 @@ using namespace cc;
 %attribute(cc::Node, uint32_t, hasChangedFlags, getChangedFlags, setChangedFlags);
 %attribute(cc::Node, bool, _persistNode, isPersistNode, setPersistNode);
 %attribute(cc::Node, cc::MobilityMode, mobility, getMobility, setMobility);
+
+%attribute(cc::Renderer, cc::Material* , sharedMaterial, getSharedMaterial);
+%attribute(cc::Renderer, ccstd::vector<cc::IntrusivePtr<cc::Material>>& , sharedMaterials, getSharedMaterials, setSharedMaterials);
+%attribute(cc::Renderer, cc::Material* , material, getMaterial, setMaterial);
+%attribute(cc::Renderer, ccstd::vector<cc::IntrusivePtr<cc::Material>>& , materials, getMaterials, setMaterials);
+
+%attribute(cc::ModelRenderer, uint32_t, visibility, getVisibility, setVisibility);
+%attribute(cc::ModelRenderer, int32_t, priority, getPriority, setPriority);
+
+%attribute(cc::ModelBakeSettings, bool, bakeable, isBakeable, setBakeable);
+%attribute(cc::ModelBakeSettings, bool, castShadow, isCastShadow, setCastShadow);
+%attribute(cc::ModelBakeSettings, bool, receiveShadow, isReceiveShadow, setReceiveShadow);
+%attribute(cc::ModelBakeSettings, int32_t, lightmapSize, getLightmapSize, setLightmapSize);
+%attribute(cc::ModelBakeSettings, bool, useLightProbe, isUseLightProbe, setUseLightProbe);
+%attribute(cc::ModelBakeSettings, bool, bakeToLightProbe, isBakeToLightProbe, setBakeToLightProbe);
+%attribute(cc::ModelBakeSettings, cc::ReflectionProbeType, reflectionProbe, getReflectionProbe, setReflectionProbe);
+%attribute(cc::ModelBakeSettings, bool, bakeToReflectionProbe, isBakeToReflectionProbe, setBakeToReflectionProbe);
+
+%attribute(cc::MeshRenderer, float, shadowBias, getShadowBias, setShadowBias);
+%attribute(cc::MeshRenderer, float, shadowNormalBias, getShadowNormalBias, setShadowNormalBias);
+%attribute(cc::MeshRenderer, cc::MeshRenderer::ShadowCastingMode, shadowCastingMode, getShadowCastingMode, setShadowCastingMode);
+%attribute(cc::MeshRenderer, cc::MeshRenderer::ShadowReceivingMode, receiveShadow, getReceiveShadow, setReceiveShadow);
+%attribute(cc::MeshRenderer, cc::Mesh*, mesh, getMesh, setMesh);
+%attribute(cc::MeshRenderer, cc::scene::Model*, model, getModel);
+%attribute(cc::MeshRenderer, bool, enableMorph, isEnableMorph, setEnableMorph);
+
 
 %attribute(cc::scene::Ambient, cc::Vec4&, skyColor, getSkyColor, setSkyColor);
 %attribute(cc::scene::Ambient, float, skyIllum, getSkyIllum, setSkyIllum);
@@ -606,6 +666,7 @@ using namespace cc;
 %import "core/geometry/Spline.h"
 %import "core/geometry/Triangle.h"
 %import "3d/assets/Skeleton.h"
+// %import "misc/ModelRenderer.h"
 
 // ----- Include Section ------
 // Brief: Include header files in which classes and methods will be bound
@@ -617,6 +678,11 @@ using namespace cc;
 %include "core/Root.h"
 // %include "core/animation/SkeletalAnimationUtils.h"
 // %include "3d/skeletal-animation/SkeletalAnimationUtils.h"
+
+%include "core/scene-graph/ComponentProxy.h"
+%include "misc/Renderer.h"
+%include "misc/ModelRenderer.h"
+%include "3d/framework/MeshRenderer.h"
 
 %include "scene/Define.h"
 %include "scene/Light.h"

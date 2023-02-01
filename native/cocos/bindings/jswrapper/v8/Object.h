@@ -49,7 +49,7 @@ namespace se {
 
 class Class;
 class ScriptEngine;
-
+class HasJSThisObject;
 /**
  * se::Object represents JavaScript Object.
  */
@@ -443,6 +443,14 @@ public:
     ValueArray getAllElementsInSet() const;
 
     void setPrivateObject(PrivateObjectBase *data);
+
+    template<typename T>
+    void setPrivateObject(TypedPrivateObject<T>* data) {
+        setPrivateObject(static_cast<PrivateObjectBase *>(data));
+        if constexpr (std::is_base_of<HasJSThisObject, T>::value) {
+            data->get<T>()->bindJSThis(data->get<T>());
+        }
+    }
     PrivateObjectBase *getPrivateObject() const;
 
     /*

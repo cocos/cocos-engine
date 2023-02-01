@@ -568,8 +568,8 @@ public:
     }
 
 protected:
-    TargetListenerContainer<EventCount> _bubblingHandlers;
-    TargetListenerContainer<EventCount> _capturingHandlers;
+    TargetListenerContainer<EventCount> _bubblingHandlers{};
+    TargetListenerContainer<EventCount> _capturingHandlers{};
     TargetEventIdType _handlerId{1};
     std::array<int, EventCount> _emittingEvent{0};
 };
