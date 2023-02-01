@@ -18286,6 +18286,52 @@ static bool js_cc_scene_Pass_getRootBlock(se::State& s)
 }
 SE_BIND_FUNC(js_cc_scene_Pass_getRootBlock) 
 
+static bool js_cc_scene_Pass_getPassID(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::Pass *arg1 = (cc::scene::Pass *) NULL ;
+    uint32_t result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::Pass>(s);
+    if (nullptr == arg1) return true;
+    result = ((cc::scene::Pass const *)arg1)->getPassID();
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_Pass_getPassID) 
+
+static bool js_cc_scene_Pass_getPhaseID(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::Pass *arg1 = (cc::scene::Pass *) NULL ;
+    uint32_t result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::Pass>(s);
+    if (nullptr == arg1) return true;
+    result = ((cc::scene::Pass const *)arg1)->getPhaseID();
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_Pass_getPhaseID) 
+
 static bool js_cc_scene_Pass__updatePassHash(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -18869,6 +18915,8 @@ bool js_register_cc_scene_Pass(se::Object* obj) {
     cls->defineFunction("getShaderVariant", _SE(js_cc_scene_Pass_getShaderVariant)); 
     cls->defineFunction("getPassInfoFull", _SE(js_cc_scene_Pass_getPassInfoFull)); 
     cls->defineFunction("getRootBlock", _SE(js_cc_scene_Pass_getRootBlock)); 
+    cls->defineFunction("getPassID", _SE(js_cc_scene_Pass_getPassID)); 
+    cls->defineFunction("getPhaseID", _SE(js_cc_scene_Pass_getPhaseID)); 
     cls->defineFunction("_updatePassHash", _SE(js_cc_scene_Pass__updatePassHash)); 
     cls->defineFunction("beginChangeStatesSilently", _SE(js_cc_scene_Pass_beginChangeStatesSilently)); 
     cls->defineFunction("endChangeStatesSilently", _SE(js_cc_scene_Pass_endChangeStatesSilently)); 
