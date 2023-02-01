@@ -69,22 +69,20 @@ export class SpeedModifierModule extends ParticleModule {
                 speedModifier[i] = constant;
             }
         } else if (this.speedModifier.mode === CurveRange.Mode.Curve) {
-            const { spline: curve, multiplier } = this.speedModifier;
+            const { spline, multiplier } = this.speedModifier;
             for (let i = 0; i < count; i++) {
-                speedModifier[i] = curve.evaluate(normalizedAliveTime[i]) * multiplier;
+                speedModifier[i] = spline.evaluate(normalizedAliveTime[i]) * multiplier;
             }
         } else if (this.speedModifier.mode === CurveRange.Mode.TwoConstants) {
             const { constantMin, constantMax } = this.speedModifier;
             for (let i = 0; i < count; i++) {
-                const seed = randomSeed[i];
-                speedModifier[i] = lerp(constantMin, constantMax, pseudoRandom(seed + SPEED_MODIFIER_RAND_OFFSET));
+                speedModifier[i] = lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + SPEED_MODIFIER_RAND_OFFSET));
             }
         } else {
             const { splineMin, splineMax, multiplier } = this.speedModifier;
             for (let i = 0; i < count; i++) {
-                const seed = randomSeed[i];
                 const normalizedTime = normalizedAliveTime[i];
-                speedModifier[i] = lerp(splineMin.evaluate(normalizedTime), splineMax.evaluate(normalizedTime), pseudoRandom(seed + SPEED_MODIFIER_RAND_OFFSET)) * multiplier;
+                speedModifier[i] = lerp(splineMin.evaluate(normalizedTime), splineMax.evaluate(normalizedTime), pseudoRandom(randomSeed[i] + SPEED_MODIFIER_RAND_OFFSET)) * multiplier;
             }
         }
     }

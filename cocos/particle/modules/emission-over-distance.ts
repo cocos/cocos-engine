@@ -59,7 +59,7 @@ export class EmissionOverDistanceModule extends ParticleModule {
     public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
         // emit by rateOverDistance
         const distance = Vec3.distance(particleUpdateContext.currentPosition, particleUpdateContext.lastPosition);
-        this._emitRateDistanceCounter += distance * this.rate.evaluate(particleUpdateContext.normalizedTimeInCycle, 1)!;
+        this._emitRateDistanceCounter += distance * this.rate.evaluate(particleUpdateContext.normalizedTimeInCycle, Math.random())!;
         const distanceEmitNum = Math.floor(this._emitRateDistanceCounter);
         this._emitRateDistanceCounter -= distanceEmitNum;
         particleUpdateContext.emittingAccumulatedCount += distanceEmitNum;

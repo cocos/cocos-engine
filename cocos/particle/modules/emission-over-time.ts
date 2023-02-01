@@ -61,7 +61,7 @@ export class EmissionOverTimeModule extends ParticleModule {
     }
 
     public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
-        this._emitRateTimeCounter += this.rate.evaluate(particleUpdateContext.normalizedTimeInCycle, 1)! * particleUpdateContext.emitterDeltaTime;
+        this._emitRateTimeCounter += this.rate.evaluate(particleUpdateContext.normalizedTimeInCycle, Math.random()) * particleUpdateContext.emitterDeltaTime;
         const emitNum = Math.floor(this._emitRateTimeCounter);
         this._emitRateTimeCounter -= emitNum;
         particleUpdateContext.emittingAccumulatedCount += emitNum;

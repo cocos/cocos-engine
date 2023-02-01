@@ -31,6 +31,8 @@ import { CurveRange } from '../curve-range';
 import { approx, EPSILON, lerp, pseudoRandom, Quat, Vec3 } from '../../core/math';
 import { Space } from '../enum';
 
+const rotation = new Quat();
+const gravity = new Vec3();
 const GRAVITY_RAND_OFFSET = 238818;
 @ccclass('cc.GravityModule')
 export class GravityModule extends ParticleModule {
@@ -61,80 +63,63 @@ export class GravityModule extends ParticleModule {
         const { count, normalizedAliveTime, randomSeed, velocityY } = particles;
         const deltaVelocity = 9.8 * deltaTime;
         if (simulationSpace === Space.LOCAL) {
-            const invRotation = Quat.conjugate(new Quat(), worldRotation);
-            const deltaVelocity = 9.8 * deltaTime;
-            const gravity = new Vec3();
-            const gravityInLocalSpace = new Vec3();
-            switch (this.gravityModifier.mode) {
-            case CurveRange.Mode.Constant: {
+            const invRotation = Quat.conjugate(rotation, worldRotation);
+            if (this.gravityModifier.mode === CurveRange.Mode.Constant) {
+                Vec3.set(gravity, 0, -this.gravityModifier.constant * deltaVelocity, 0);
+                Vec3.transformQuat(gravity, gravity, invRotation);
                 for (let i = 0; i < count; i++) {
-                    gravity.y = -this.gravityModifier.constant * deltaVelocity;
-                    Vec3.transformQuat(gravityInLocalSpace, gravity, invRotation);
-                    particles.addVelocityAt(gravityInLocalSpace, i);
+                    particles.addVelocityAt(gravity, i);
                 }
-                break;
-            }
-            case CurveRange.Mode.Curve: {
+            } else if (this.gravityModifier.mode === CurveRange.Mode.Curve) {
+                const { spline } = this.gravityModifier;
+                const multiplier = this.gravityModifier.multiplier * deltaVelocity;
                 for (let i = 0; i < count; i++) {
-                    const normalizedTime = normalizedAliveTime[i];
-                    gravity.y = -this.gravityModifier.spline.evaluate(normalizedTime) * this.gravityModifier.multiplier * deltaVelocity;
-                    Vec3.transformQuat(gravityInLocalSpace, gravity, invRotation);
-                    particles.addVelocityAt(gravityInLocalSpace, i);
+                    Vec3.set(gravity, 0, -spline.evaluate(normalizedAliveTime[i]) * multiplier, 0);
+                    Vec3.transformQuat(gravity, gravity, invRotation);
+                    particles.addVelocityAt(gravity, i);
                 }
-                break;
-            }
-            case CurveRange.Mode.TwoConstants: {
+            } else if (this.gravityModifier.mode === CurveRange.Mode.TwoConstants) {
+                const { constantMin, constantMax } = this.gravityModifier;
                 for (let i = 0; i < count; i++) {
-                    const seed = randomSeed[i] + GRAVITY_RAND_OFFSET;
-                    gravity.y = -lerp(this.gravityModifier.constantMin, this.gravityModifier.constantMax, pseudoRandom(seed)) * deltaVelocity;
-                    Vec3.transformQuat(gravityInLocalSpace, gravity, invRotation);
-                    particles.addVelocityAt(gravityInLocalSpace, i);
+                    Vec3.set(gravity, 0, -lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + GRAVITY_RAND_OFFSET)) * deltaVelocity, 0);
+                    Vec3.transformQuat(gravity, gravity, invRotation);
+                    particles.addVelocityAt(gravity, i);
                 }
-                break;
-            }
-            case CurveRange.Mode.TwoCurves: {
+            } else {
+                const { splineMin, splineMax } = this.gravityModifier;
+                const multiplier = this.gravityModifier.multiplier * deltaVelocity;
                 for (let i = 0; i < count; i++) {
                     const normalizedTime = normalizedAliveTime[i];
-                    const seed = randomSeed[i] + GRAVITY_RAND_OFFSET;
-                    gravity.y = -lerp(this.gravityModifier.splineMin.evaluate(normalizedTime), this.gravityModifier.splineMax.evaluate(normalizedTime), pseudoRandom(seed)) * this.gravityModifier.multiplier * deltaVelocity;
-                    Vec3.transformQuat(gravityInLocalSpace, gravity, invRotation);
-                    particles.addVelocityAt(gravityInLocalSpace, i);
+                    Vec3.set(gravity, 0, -lerp(splineMin.evaluate(normalizedTime), splineMax.evaluate(normalizedTime), pseudoRandom(randomSeed[i] + GRAVITY_RAND_OFFSET)) * multiplier, 0);
+                    Vec3.transformQuat(gravity, gravity, invRotation);
+                    particles.addVelocityAt(gravity, i);
                 }
-                break;
-            }
-            default:
             }
         } else {
-            switch (this.gravityModifier.mode) {
-            case CurveRange.Mode.Constant: {
+            // eslint-disable-next-line no-lonely-if
+            if (this.gravityModifier.mode === CurveRange.Mode.Constant) {
+                const multiplier = this.gravityModifier.constant * deltaVelocity;
                 for (let i = 0; i < count; i++) {
-                    velocityY[i] -= this.gravityModifier.constant * deltaVelocity;
+                    velocityY[i] -= multiplier;
                 }
-                break;
-            }
-            case CurveRange.Mode.Curve: {
+            } else if (this.gravityModifier.mode === CurveRange.Mode.Curve) {
+                const { spline } = this.gravityModifier;
+                const multiplier = this.gravityModifier.multiplier * deltaVelocity;
                 for (let i = 0; i < count; i++) {
-                    const normalizedTime = normalizedAliveTime[i];
-                    velocityY[i] -= this.gravityModifier.spline.evaluate(normalizedTime) * this.gravityModifier.multiplier * deltaVelocity;
+                    velocityY[i] -= spline.evaluate(normalizedAliveTime[i]) * multiplier;
                 }
-                break;
-            }
-            case CurveRange.Mode.TwoConstants: {
+            } else if (this.gravityModifier.mode === CurveRange.Mode.TwoConstants) {
+                const { constantMin, constantMax } = this.gravityModifier;
                 for (let i = 0; i < count; i++) {
-                    const seed = randomSeed[i] + GRAVITY_RAND_OFFSET;
-                    velocityY[i] -= lerp(this.gravityModifier.constantMin, this.gravityModifier.constantMax, pseudoRandom(seed)) * deltaVelocity;
+                    velocityY[i] -= lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + GRAVITY_RAND_OFFSET)) * deltaVelocity;
                 }
-                break;
-            }
-            case CurveRange.Mode.TwoCurves: {
+            } else {
+                const { splineMin, splineMax } = this.gravityModifier;
+                const multiplier = this.gravityModifier.multiplier * deltaVelocity;
                 for (let i = 0; i < count; i++) {
                     const normalizedTime = normalizedAliveTime[i];
-                    const seed = randomSeed[i] + GRAVITY_RAND_OFFSET;
-                    velocityY[i] -= lerp(this.gravityModifier.splineMin.evaluate(normalizedTime), this.gravityModifier.splineMax.evaluate(normalizedTime), pseudoRandom(seed)) * this.gravityModifier.multiplier * deltaVelocity;
+                    velocityY[i] -= lerp(splineMin.evaluate(normalizedTime), splineMax.evaluate(normalizedTime), pseudoRandom(randomSeed[i] + GRAVITY_RAND_OFFSET)) * multiplier;
                 }
-                break;
-            }
-            default:
             }
         }
     }

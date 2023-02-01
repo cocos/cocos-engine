@@ -24,6 +24,7 @@
  */
 
 import { ccclass, tooltip, displayOrder, range, type, serializable, visible } from 'cc.decorator';
+import { DEBUG } from 'internal:constants';
 import { lerp, pseudoRandom, Vec3, Mat4, Quat } from '../../core/math';
 import { Space, ModuleRandSeed } from '../enum';
 import { ParticleModule, ParticleUpdateStage } from '../particle-module';
@@ -31,11 +32,13 @@ import { CurveRange } from '../curve-range';
 import { calculateTransform } from '../particle-general-function';
 import { ParticleUpdateContext } from '../particle-update-context';
 import { ParticleSOAData } from '../particle-soa-data';
+import { assert } from '../../core';
 
 const LIMIT_VELOCITY_RAND_OFFSET = ModuleRandSeed.LIMIT;
 
 const _temp_v3 = new Vec3();
 const _temp_v3_1 = new Vec3();
+const rotation = new Quat();
 
 @ccclass('cc.LimitVelocityOverLifetimeModule')
 export class LimitVelocityOverLifetimeModule extends ParticleModule {
@@ -132,37 +135,204 @@ export class LimitVelocityOverLifetimeModule extends ParticleModule {
     public drag = null;
     public multiplyDragByParticleSize = false;
     public multiplyDragByParticleVelocity = false;
-    private rotation: Quat;
-    private needTransform: boolean;
 
-    constructor () {
-        super();
-        this.rotation = new Quat();
-        this.needTransform = false;
+    public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
+        const needTransform = calculateTransform(particleUpdateContext.simulationSpace,
+            this.space, particleUpdateContext.worldTransform, rotation);
+        const { count, normalizedAliveTime, randomSeed, animatedVelocityX, animatedVelocityY, animatedVelocityZ } = particles;
+        const velocity = new Vec3();
+        if (this.separateAxes) {
+            if (DEBUG) {
+                assert(this.limitX.mode === this.limitY.mode && this.limitY.mode === this.limitZ.mode, 'The curve of limitX, limitY, limitZ must have same mode!');
+            }
+            if (needTransform) {
+                if (this.limitX.mode === CurveRange.Mode.Constant) {
+                    Vec3.set(_temp_v3_1, this.limitX.constant, this.limitY.constant, this.limitY.constant);
+                    Vec3.transformQuat(_temp_v3_1, _temp_v3_1, rotation);
+                    for (let i = 0; i < count; i++) {
+                        particles.getVelocityAt(velocity, i);
+                        velocity.add3f(animatedVelocityX[i], animatedVelocityY[i], animatedVelocityZ[i]);
+                        Vec3.set(velocity,
+                            dampenBeyondLimit(velocity.x, _temp_v3_1.x, this.dampen),
+                            dampenBeyondLimit(velocity.y, _temp_v3_1.y, this.dampen),
+                            dampenBeyondLimit(velocity.z, _temp_v3_1.z, this.dampen));
+                        particles.setVelocityAt(velocity.subtract3f(animatedVelocityX[i], animatedVelocityY[i], animatedVelocityZ[i]), i);
+                    }
+                } else if (this.limitX.mode === CurveRange.Mode.Curve) {
+                    const { spline: splineX, multiplier: xMultiplier } = this.limitX;
+                    const { spline: splineY, multiplier: yMultiplier } = this.limitY;
+                    const { spline: splineZ, multiplier: zMultiplier } = this.limitZ;
+                    for (let i = 0; i < count; i++) {
+                        const normalizedTime = normalizedAliveTime[i];
+                        Vec3.set(_temp_v3_1, splineX.evaluate(normalizedTime) * xMultiplier,
+                            splineY.evaluate(normalizedTime) * yMultiplier,
+                            splineZ.evaluate(normalizedTime) * zMultiplier);
+                        Vec3.transformQuat(_temp_v3_1, _temp_v3_1, rotation);
+                        particles.getVelocityAt(velocity, i);
+                        velocity.add3f(animatedVelocityX[i], animatedVelocityY[i], animatedVelocityZ[i]);
+                        Vec3.set(velocity,
+                            dampenBeyondLimit(velocity.x, _temp_v3_1.x, this.dampen),
+                            dampenBeyondLimit(velocity.y, _temp_v3_1.y, this.dampen),
+                            dampenBeyondLimit(velocity.z, _temp_v3_1.z, this.dampen));
+                        particles.setVelocityAt(velocity.subtract3f(animatedVelocityX[i], animatedVelocityY[i], animatedVelocityZ[i]), i);
+                    }
+                } else if (this.limitX.mode === CurveRange.Mode.TwoConstants) {
+                    const { constantMin: xMin, constantMax: xMax } = this.limitX;
+                    const { constantMin: yMin, constantMax: yMax } = this.limitY;
+                    const { constantMin: zMin, constantMax: zMax } = this.limitZ;
+                    for (let i = 0; i < count; i++) {
+                        const seed = randomSeed[i];
+                        Vec3.set(_temp_v3_1, lerp(xMin, xMax, pseudoRandom(seed + LIMIT_VELOCITY_RAND_OFFSET)),
+                            lerp(yMin, yMax, pseudoRandom(seed + LIMIT_VELOCITY_RAND_OFFSET)),
+                            lerp(zMin, zMax, pseudoRandom(seed + LIMIT_VELOCITY_RAND_OFFSET)));
+                        Vec3.transformQuat(_temp_v3_1, _temp_v3_1, rotation);
+                        particles.getVelocityAt(velocity, i);
+                        velocity.add3f(animatedVelocityX[i], animatedVelocityY[i], animatedVelocityZ[i]);
+                        Vec3.set(velocity,
+                            dampenBeyondLimit(velocity.x, _temp_v3_1.x, this.dampen),
+                            dampenBeyondLimit(velocity.y, _temp_v3_1.y, this.dampen),
+                            dampenBeyondLimit(velocity.z, _temp_v3_1.z, this.dampen));
+                        particles.setVelocityAt(velocity.subtract3f(animatedVelocityX[i], animatedVelocityY[i], animatedVelocityZ[i]), i);
+                    }
+                } else {
+                    const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.limitX;
+                    const { splineMin: yMin, splineMax: yMax, multiplier: yMultiplier } = this.limitY;
+                    const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.limitZ;
+                    for (let i = 0; i < count; i++) {
+                        const seed = randomSeed[i];
+                        const normalizedTime = normalizedAliveTime[i];
+                        Vec3.set(_temp_v3_1, lerp(xMin.evaluate(normalizedTime), xMax.evaluate(normalizedTime), pseudoRandom(seed + LIMIT_VELOCITY_RAND_OFFSET)) * xMultiplier,
+                            lerp(yMin.evaluate(normalizedTime), yMax.evaluate(normalizedTime), pseudoRandom(seed + LIMIT_VELOCITY_RAND_OFFSET)) * yMultiplier,
+                            lerp(zMin.evaluate(normalizedTime), zMax.evaluate(normalizedTime), pseudoRandom(seed + LIMIT_VELOCITY_RAND_OFFSET)) * zMultiplier);
+                        Vec3.transformQuat(_temp_v3_1, _temp_v3_1, rotation);
+                        particles.getVelocityAt(velocity, i);
+                        velocity.add3f(animatedVelocityX[i], animatedVelocityY[i], animatedVelocityZ[i]);
+                        Vec3.set(velocity,
+                            dampenBeyondLimit(velocity.x, _temp_v3_1.x, this.dampen),
+                            dampenBeyondLimit(velocity.y, _temp_v3_1.y, this.dampen),
+                            dampenBeyondLimit(velocity.z, _temp_v3_1.z, this.dampen));
+                        particles.setVelocityAt(velocity.subtract3f(animatedVelocityX[i], animatedVelocityY[i], animatedVelocityZ[i]), i);
+                    }
+                }
+            } else {
+                // eslint-disable-next-line no-lonely-if
+                if (this.limitX.mode === CurveRange.Mode.Constant) {
+                    Vec3.set(_temp_v3_1, this.limitX.constant, this.limitY.constant, this.limitY.constant);
+                    for (let i = 0; i < count; i++) {
+                        particles.getVelocityAt(velocity, i);
+                        velocity.add3f(animatedVelocityX[i], animatedVelocityY[i], animatedVelocityZ[i]);
+                        Vec3.set(velocity,
+                            dampenBeyondLimit(velocity.x, _temp_v3_1.x, this.dampen),
+                            dampenBeyondLimit(velocity.y, _temp_v3_1.y, this.dampen),
+                            dampenBeyondLimit(velocity.z, _temp_v3_1.z, this.dampen));
+                        particles.setVelocityAt(velocity.subtract3f(animatedVelocityX[i], animatedVelocityY[i], animatedVelocityZ[i]), i);
+                    }
+                } else if (this.limitX.mode === CurveRange.Mode.Curve) {
+                    const { spline: splineX, multiplier: xMultiplier } = this.limitX;
+                    const { spline: splineY, multiplier: yMultiplier } = this.limitY;
+                    const { spline: splineZ, multiplier: zMultiplier } = this.limitZ;
+                    for (let i = 0; i < count; i++) {
+                        const normalizedTime = normalizedAliveTime[i];
+                        Vec3.set(_temp_v3_1, splineX.evaluate(normalizedTime) * xMultiplier,
+                            splineY.evaluate(normalizedTime) * yMultiplier,
+                            splineZ.evaluate(normalizedTime) * zMultiplier);
+                        particles.getVelocityAt(velocity, i);
+                        velocity.add3f(animatedVelocityX[i], animatedVelocityY[i], animatedVelocityZ[i]);
+                        Vec3.set(velocity,
+                            dampenBeyondLimit(velocity.x, _temp_v3_1.x, this.dampen),
+                            dampenBeyondLimit(velocity.y, _temp_v3_1.y, this.dampen),
+                            dampenBeyondLimit(velocity.z, _temp_v3_1.z, this.dampen));
+                        particles.setVelocityAt(velocity.subtract3f(animatedVelocityX[i], animatedVelocityY[i], animatedVelocityZ[i]), i);
+                    }
+                } else if (this.limitX.mode === CurveRange.Mode.TwoConstants) {
+                    const { constantMin: xMin, constantMax: xMax } = this.limitX;
+                    const { constantMin: yMin, constantMax: yMax } = this.limitY;
+                    const { constantMin: zMin, constantMax: zMax } = this.limitZ;
+                    for (let i = 0; i < count; i++) {
+                        const seed = randomSeed[i];
+                        Vec3.set(_temp_v3_1, lerp(xMin, xMax, pseudoRandom(seed + LIMIT_VELOCITY_RAND_OFFSET)),
+                            lerp(yMin, yMax, pseudoRandom(seed + LIMIT_VELOCITY_RAND_OFFSET)),
+                            lerp(zMin, zMax, pseudoRandom(seed + LIMIT_VELOCITY_RAND_OFFSET)));
+                        particles.getVelocityAt(velocity, i);
+                        velocity.add3f(animatedVelocityX[i], animatedVelocityY[i], animatedVelocityZ[i]);
+                        Vec3.set(velocity,
+                            dampenBeyondLimit(velocity.x, _temp_v3_1.x, this.dampen),
+                            dampenBeyondLimit(velocity.y, _temp_v3_1.y, this.dampen),
+                            dampenBeyondLimit(velocity.z, _temp_v3_1.z, this.dampen));
+                        particles.setVelocityAt(velocity.subtract3f(animatedVelocityX[i], animatedVelocityY[i], animatedVelocityZ[i]), i);
+                    }
+                } else {
+                    const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.limitX;
+                    const { splineMin: yMin, splineMax: yMax, multiplier: yMultiplier } = this.limitY;
+                    const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.limitZ;
+                    for (let i = 0; i < count; i++) {
+                        const seed = randomSeed[i];
+                        const normalizedTime = normalizedAliveTime[i];
+                        Vec3.set(_temp_v3_1, lerp(xMin.evaluate(normalizedTime), xMax.evaluate(normalizedTime), pseudoRandom(seed + LIMIT_VELOCITY_RAND_OFFSET)) * xMultiplier,
+                            lerp(yMin.evaluate(normalizedTime), yMax.evaluate(normalizedTime), pseudoRandom(seed + LIMIT_VELOCITY_RAND_OFFSET)) * yMultiplier,
+                            lerp(zMin.evaluate(normalizedTime), zMax.evaluate(normalizedTime), pseudoRandom(seed + LIMIT_VELOCITY_RAND_OFFSET)) * zMultiplier);
+                        particles.getVelocityAt(velocity, i);
+                        velocity.add3f(animatedVelocityX[i], animatedVelocityY[i], animatedVelocityZ[i]);
+                        Vec3.set(velocity,
+                            dampenBeyondLimit(velocity.x, _temp_v3_1.x, this.dampen),
+                            dampenBeyondLimit(velocity.y, _temp_v3_1.y, this.dampen),
+                            dampenBeyondLimit(velocity.z, _temp_v3_1.z, this.dampen));
+                        particles.setVelocityAt(velocity.subtract3f(animatedVelocityX[i], animatedVelocityY[i], animatedVelocityZ[i]), i);
+                    }
+                }
+            }
+        } else {
+            // eslint-disable-next-line no-lonely-if
+            if (this.limitX.mode === CurveRange.Mode.Constant) {
+                const { constant } = this.limit;
+                for (let i = 0; i < count; i++) {
+                    particles.getVelocityAt(velocity, i);
+                    velocity.add3f(animatedVelocityX[i], animatedVelocityY[i], animatedVelocityZ[i]);
+                    const length = velocity.length();
+                    velocity.normalize();
+                    Vec3.multiplyScalar(velocity, velocity,
+                        dampenBeyondLimit(length, constant, this.dampen));
+                    particles.setVelocityAt(velocity.subtract3f(animatedVelocityX[i], animatedVelocityY[i], animatedVelocityZ[i]), i);
+                }
+            } else if (this.limitX.mode === CurveRange.Mode.Curve) {
+                const { spline, multiplier } = this.limit;
+                for (let i = 0; i < count; i++) {
+                    particles.getVelocityAt(velocity, i);
+                    velocity.add3f(animatedVelocityX[i], animatedVelocityY[i], animatedVelocityZ[i]);
+                    const length = velocity.length();
+                    velocity.normalize();
+                    Vec3.multiplyScalar(velocity, velocity,
+                        dampenBeyondLimit(length, spline.evaluate(normalizedAliveTime[i]) * multiplier, this.dampen));
+                    particles.setVelocityAt(velocity.subtract3f(animatedVelocityX[i], animatedVelocityY[i], animatedVelocityZ[i]), i);
+                }
+            } else if (this.limitX.mode === CurveRange.Mode.TwoConstants) {
+                const { constantMin, constantMax } = this.limit;
+                for (let i = 0; i < count; i++) {
+                    const seed = randomSeed[i];
+                    particles.getVelocityAt(velocity, i);
+                    velocity.add3f(animatedVelocityX[i], animatedVelocityY[i], animatedVelocityZ[i]);
+                    const length = velocity.length();
+                    velocity.normalize();
+                    Vec3.multiplyScalar(velocity, velocity,
+                        dampenBeyondLimit(length, lerp(constantMin, constantMax, pseudoRandom(seed + LIMIT_VELOCITY_RAND_OFFSET)), this.dampen));
+                    particles.setVelocityAt(velocity.subtract3f(animatedVelocityX[i], animatedVelocityY[i], animatedVelocityZ[i]), i);
+                }
+            } else {
+                const { splineMin, splineMax, multiplier } = this.limit;
+                for (let i = 0; i < count; i++) {
+                    const seed = randomSeed[i];
+                    const normalizedTime = normalizedAliveTime[i];
+                    particles.getVelocityAt(velocity, i);
+                    velocity.add3f(animatedVelocityX[i], animatedVelocityY[i], animatedVelocityZ[i]);
+                    const length = velocity.length();
+                    velocity.normalize();
+                    Vec3.multiplyScalar(velocity, velocity,
+                        dampenBeyondLimit(length, lerp(splineMin.evaluate(normalizedTime), splineMax.evaluate(normalizedTime), pseudoRandom(seed + LIMIT_VELOCITY_RAND_OFFSET)) * multiplier, this.dampen));
+                    particles.setVelocityAt(velocity.subtract3f(animatedVelocityX[i], animatedVelocityY[i], animatedVelocityZ[i]), i);
+                }
+            }
+        }
     }
-
-    // public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
-    //     this.needTransform = calculateTransform(particleUpdateContext.simulationSpace,
-    //         this.space, particleUpdateContext.worldTransform, this.rotation);
-    //     const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
-    //     const dampedVel = _temp_v3;
-    //     if (this.separateAxes) {
-    //         Vec3.set(_temp_v3_1, this.limitX.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET))!,
-    //             this.limitY.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET))!,
-    //             this.limitZ.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET))!);
-    //         if (this.needTransform) {
-    //             Vec3.transformQuat(_temp_v3_1, _temp_v3_1, this.rotation);
-    //         }
-    //         Vec3.set(dampedVel,
-    //             dampenBeyondLimit(p.ultimateVelocity.x, _temp_v3_1.x, this.dampen),
-    //             dampenBeyondLimit(p.ultimateVelocity.y, _temp_v3_1.y, this.dampen),
-    //             dampenBeyondLimit(p.ultimateVelocity.z, _temp_v3_1.z, this.dampen));
-    //     } else {
-    //         Vec3.normalize(dampedVel, p.ultimateVelocity);
-    //         Vec3.multiplyScalar(dampedVel, dampedVel, dampenBeyondLimit(p.ultimateVelocity.length(), this.limit.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET))!, this.dampen));
-    //     }
-    //     Vec3.copy(p.ultimateVelocity, dampedVel);
-    // }
 }
 
 function dampenBeyondLimit (vel: number, limit: number, dampen: number) {

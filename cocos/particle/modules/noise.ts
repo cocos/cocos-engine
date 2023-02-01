@@ -220,33 +220,33 @@ export class NoiseModule extends ParticleModule {
     @serializable
     private _remapY = 0;
     @serializable
+    private _remapZ = 0;
+    @serializable
     private _octaves = 1;
     @serializable
     private _octaveScale = 2;
     @serializable
     private _octaveMultiplier = 0.5;
-    @serializable
-    private _remapZ = 0;
     private noise: ParticleNoise = new ParticleNoise();
     private samplePosition: Vec3 = new Vec3();
 
-    // public animate (particle: Particle, dt: number) {
-    //     this.noise.setTime(particle.particleSystem.time);
-    //     this.noise.setSpeed(this.noiseSpeedX, this.noiseSpeedY, this.noiseSpeedZ);
-    //     this.noise.setFrequency(this.noiseFrequency);
-    //     this.noise.setAbs(this.remapX, this.remapY, this.remapZ);
-    //     this.noise.setAmplititude(this.strengthX, this.strengthY, this.strengthZ);
-    //     this.noise.setOctaves(this.octaves, this.octaveMultiplier, this.octaveScale);
+    public animate (particle: Particle, dt: number) {
+        this.noise.setTime(particle.particleSystem.time);
+        this.noise.setSpeed(this.noiseSpeedX, this.noiseSpeedY, this.noiseSpeedZ);
+        this.noise.setFrequency(this.noiseFrequency);
+        this.noise.setAbs(this.remapX, this.remapY, this.remapZ);
+        this.noise.setAmplititude(this.strengthX, this.strengthY, this.strengthZ);
+        this.noise.setOctaves(this.octaves, this.octaveMultiplier, this.octaveScale);
 
-    //     this.samplePosition.set(particle.position);
-    //     this.samplePosition.add3f(Math.random() * 1.0, Math.random() * 1.0, Math.random() * 1.0);
-    //     this.noise.setSamplePoint(this.samplePosition);
-    //     this.noise.getNoiseParticle();
+        this.samplePosition.set(particle.position);
+        this.samplePosition.add3f(Math.random() * 1.0, Math.random() * 1.0, Math.random() * 1.0);
+        this.noise.setSamplePoint(this.samplePosition);
+        this.noise.getNoiseParticle();
 
-    //     const noisePosition: Vec3 = this.noise.getResult();
-    //     noisePosition.multiply3f(Math.random(), Math.random(), Math.random());
-    //     Vec3.add(particle.position, particle.position, noisePosition.multiplyScalar(dt));
-    // }
+        const noisePosition: Vec3 = this.noise.getResult();
+        noisePosition.multiply3f(Math.random(), Math.random(), Math.random());
+        Vec3.add(particle.position, particle.position, noisePosition.multiplyScalar(dt));
+    }
 
     public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
         throw new Error('Method not implemented.');

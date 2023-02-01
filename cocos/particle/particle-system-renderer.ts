@@ -180,9 +180,6 @@ export class ParticleSystemRenderer extends ModelRenderer {
     private _defaultMat: Material | null = null;
     private _node_scale = new Vec4();
     // private _defaultTrailMat: Material | null = null;
-    private _uScaleHandle = 0;
-    private _uLenHandle = 0;
-    private _uNodeRotHandle = 0;
     private _scaleSpace = Space.LOCAL;
 
     @serializable
@@ -329,7 +326,6 @@ export class ParticleSystemRenderer extends ModelRenderer {
         }
 
         const mat: Material | null = this.getMaterialInstance(0) || this._defaultMat;
-        const pass = mat!.passes[0];
 
         const shareMaterial = this.sharedMaterial;
         if (shareMaterial != null) {
@@ -347,24 +343,19 @@ export class ParticleSystemRenderer extends ModelRenderer {
             }
         }
         this._defines[CC_USE_WORLD_SPACE] = this._particleSystem.simulationSpace === Space.WORLD;
-        this._uScaleHandle = pass.getHandle('scale');
-        this._uLenHandle = pass.getHandle('frameTile_velLenScale');
-        this._uNodeRotHandle = pass.getHandle('nodeRotation');
-
         const renderMode = this.renderMode;
-        const vlenScale = this._frameTile_velLenScale;
         if (renderMode === RenderMode.STRETCHED_BILLBOARD) {
-            vlenScale.z = this.velocityScale;
-            vlenScale.w = this.lengthScale;
+            this._frameTile_velLenScale.z = this.velocityScale;
+            this._frameTile_velLenScale.w = this.lengthScale;
         }
         this._defines[CC_RENDER_MODE] = renderMode;
         const textureModule = this._particleSystem.getModule(TextureAnimationModule);
         if (textureModule && textureModule.enable) {
-            Vec4.copy(this._tmp_velLenScale, vlenScale); // fix textureModule switch bug
+            Vec4.copy(this._tmp_velLenScale, this._frameTile_velLenScale); // fix textureModule switch bug
             Vec2.set(this._tmp_velLenScale, textureModule.numTilesX, textureModule.numTilesY);
-            pass.setUniform(this._uLenHandle, this._tmp_velLenScale);
+            mat!.setProperty('frameTile_velLenScale', this._tmp_velLenScale);
         } else {
-            pass.setUniform(this._uLenHandle, vlenScale);
+            mat!.setProperty('frameTile_velLenScale', this._frameTile_velLenScale);
         }
 
         this._defines[ROTATION_OVER_TIME_MODULE_ENABLE] = true;
@@ -564,37 +555,34 @@ export class ParticleSystemRenderer extends ModelRenderer {
 
     private _updateRotation () {
         const material = this.getMaterialInstance(0);
-        const pass = material?.passes[0];
-        if (pass) {
-            const mode = this.renderMode;
-            if (mode !== RenderMode.MESH && this._alignSpace === AlignmentSpace.VIEW) {
-                return;
-            }
-            const rotation = new Quat();
-            if (this._alignSpace === AlignmentSpace.LOCAL) {
-                this.node.getRotation(rotation);
-            } else if (this._alignSpace === AlignmentSpace.WORLD) {
-                this.node.getWorldRotation(rotation);
-            } else if (this._alignSpace === AlignmentSpace.VIEW) {
+        const mode = this.renderMode;
+        if (mode !== RenderMode.MESH && this._alignSpace === AlignmentSpace.VIEW) {
+            return;
+        }
+        const rotation = new Quat();
+        if (this._alignSpace === AlignmentSpace.LOCAL) {
+            this.node.getRotation(rotation);
+        } else if (this._alignSpace === AlignmentSpace.WORLD) {
+            this.node.getWorldRotation(rotation);
+        } else if (this._alignSpace === AlignmentSpace.VIEW) {
             // Quat.fromEuler(_node_rot, 0.0, 0.0, 0.0);
-                rotation.set(0.0, 0.0, 0.0, 1.0);
-                const cameraLst: Camera[]| undefined = this.node.scene.renderScene?.cameras;
-                if (cameraLst !== undefined) {
-                    for (let i = 0; i < cameraLst?.length; ++i) {
-                        const camera:Camera = cameraLst[i];
-                        // eslint-disable-next-line max-len
-                        const checkCamera: boolean = (!EDITOR || legacyCC.GAME_VIEW) ? (camera.visibility & this.node.layer) === this.node.layer : camera.name === 'Editor Camera';
-                        if (checkCamera) {
-                            Quat.fromViewUp(rotation, camera.forward);
-                            break;
-                        }
+            rotation.set(0.0, 0.0, 0.0, 1.0);
+            const cameraLst: Camera[]| undefined = this.node.scene.renderScene?.cameras;
+            if (cameraLst !== undefined) {
+                for (let i = 0; i < cameraLst?.length; ++i) {
+                    const camera:Camera = cameraLst[i];
+                    // eslint-disable-next-line max-len
+                    const checkCamera: boolean = (!EDITOR || legacyCC.GAME_VIEW) ? (camera.visibility & this.node.layer) === this.node.layer : camera.name === 'Editor Camera';
+                    if (checkCamera) {
+                        Quat.fromViewUp(rotation, camera.forward);
+                        break;
                     }
                 }
-            } else {
-                rotation.set(0.0, 0.0, 0.0, 1.0);
             }
-            pass.setUniform(this._uNodeRotHandle, rotation);
+        } else {
+            rotation.set(0.0, 0.0, 0.0, 1.0);
         }
+        material!.setProperty('nodeRotation', rotation);
     }
 
     // private rebuild () {
@@ -642,19 +630,16 @@ export class ParticleSystemRenderer extends ModelRenderer {
 
     private _updateScale () {
         const material = this.getMaterialInstance(0);
-        const pass = material?.passes[0];
-        if (pass) {
-            switch (this._scaleSpace) {
-            case Space.LOCAL:
-                this._node_scale.set(this.node.scale.x, this.node.scale.y, this.node.scale.z);
-                break;
-            case Space.WORLD:
-                this._node_scale.set(this.node.worldScale.x, this.node.worldScale.y, this.node.worldScale.z);
-                break;
-            default:
-                break;
-            }
-            pass.setUniform(this._uScaleHandle, this._node_scale);
+        switch (this._scaleSpace) {
+        case Space.LOCAL:
+            this._node_scale.set(this.node.scale.x, this.node.scale.y, this.node.scale.z);
+            break;
+        case Space.WORLD:
+            this._node_scale.set(this.node.worldScale.x, this.node.worldScale.y, this.node.worldScale.z);
+            break;
+        default:
+            break;
         }
+        material?.setProperty('scale', this._node_scale);
     }
 }

@@ -24,18 +24,20 @@
  */
 
 import { ccclass, tooltip, displayOrder, range, type, serializable } from 'cc.decorator';
+import { DEBUG } from 'internal:constants';
 import { lerp, pseudoRandom, Quat, Vec3 } from '../../core/math';
 import { Space } from '../enum';
 import { calculateTransform } from '../particle-general-function';
 import { CurveRange } from '../curve-range';
 import { ParticleModule, ParticleUpdateStage } from '../particle-module';
-import { Enum } from '../../core';
+import { assert, Enum } from '../../core';
 import { ParticleUpdateContext } from '../particle-update-context';
 import { ParticleSOAData } from '../particle-soa-data';
 
 const FORCE_OVER_LIFETIME_RAND_OFFSET = 212165;
 
 const _temp_v3 = new Vec3();
+const rotation = new Quat();
 
 @ccclass('cc.ForceOverLifetimeModule')
 export class ForceOverLifetimeModule extends ParticleModule {
@@ -93,79 +95,71 @@ export class ForceOverLifetimeModule extends ParticleModule {
     // TODO:currently not supported
     public randomized = false;
 
-    private rotation: Quat;
-
-    constructor () {
-        super();
-        this.rotation = new Quat();
-    }
-
     public update (particles: ParticleSOAData, context: ParticleUpdateContext) {
-        const needTransform = calculateTransform(context.simulationSpace, this.space, context.worldTransform, this.rotation);
+        const needTransform = calculateTransform(context.simulationSpace, this.space, context.worldTransform, rotation);
         const dt = context.deltaTime;
         const { count, normalizedAliveTime, randomSeed } = particles;
+        if (DEBUG) {
+            assert(this.x.mode === this.y.mode && this.y.mode === this.z.mode, 'The curve of x, y, z must have same mode!');
+        }
         if (needTransform) {
-            switch (this.x.mode) {
-            case CurveRange.Mode.Constant: {
+            if (this.x.mode === CurveRange.Mode.Constant) {
                 const force = Vec3.set(_temp_v3,
                     this.x.constant,
                     this.y.constant,
                     this.z.constant);
-                Vec3.transformQuat(force, force, this.rotation);
+                Vec3.transformQuat(force, force, rotation);
                 Vec3.multiplyScalar(force, force, dt);
                 for (let i = 0; i < count; i++) {
                     particles.addVelocityAt(force, i);
                 }
-                break;
-            }
-            case CurveRange.Mode.Curve: {
+            } else if (this.x.mode === CurveRange.Mode.Curve) {
                 const { spline: xCurve, multiplier: xMultiplier } = this.x;
-                const { spline: yCurve, multiplier: yMultiplier } = this.x;
-                const { spline: zCurve, multiplier: zMultiplier } = this.x;
+                const { spline: yCurve, multiplier: yMultiplier } = this.y;
+                const { spline: zCurve, multiplier: zMultiplier } = this.z;
                 for (let i = 0; i < count; i++) {
                     const normalizedTime = normalizedAliveTime[i];
                     const force = Vec3.set(_temp_v3,
                         xCurve.evaluate(normalizedTime) * xMultiplier,
                         yCurve.evaluate(normalizedTime) * yMultiplier,
                         zCurve.evaluate(normalizedTime) * zMultiplier);
-                    Vec3.transformQuat(force, force, this.rotation);
+                    Vec3.transformQuat(force, force, rotation);
                     Vec3.multiplyScalar(force, force, dt);
                     particles.addVelocityAt(force, i);
                 }
-                break;
-            }
-            case CurveRange.Mode.TwoConstants: {
+            } else if (this.x.mode === CurveRange.Mode.TwoConstants) {
+                const { constantMin: xMin, constantMax: xMax } = this.x;
+                const { constantMin: yMin, constantMax: yMax } = this.y;
+                const { constantMin: zMin, constantMax: zMax } = this.z;
                 for (let i = 0; i < count; i++) {
                     const seed = randomSeed[i] + FORCE_OVER_LIFETIME_RAND_OFFSET;
                     const force = Vec3.set(_temp_v3,
-                        lerp(this.x.constantMin, this.x.constantMax, pseudoRandom(seed)),
-                        lerp(this.y.constantMin, this.y.constantMax, pseudoRandom(seed)),
-                        lerp(this.z.constantMin, this.z.constantMax, pseudoRandom(seed)));
-                    Vec3.transformQuat(force, force, this.rotation);
+                        lerp(xMin, xMax, pseudoRandom(seed)),
+                        lerp(yMin, yMax, pseudoRandom(seed)),
+                        lerp(zMin, zMax, pseudoRandom(seed)));
+                    Vec3.transformQuat(force, force, rotation);
                     Vec3.multiplyScalar(force, force, dt);
                     particles.addVelocityAt(force, i);
                 }
-                break;
-            }
-            case CurveRange.Mode.TwoCurves: {
+            } else {
+                const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.x;
+                const { splineMin: yMin, splineMax: yMax, multiplier: yMultiplier } = this.y;
+                const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.z;
                 for (let i = 0; i < count; i++) {
                     const normalizedTime = normalizedAliveTime[i];
                     const seed = randomSeed[i] + FORCE_OVER_LIFETIME_RAND_OFFSET;
                     const force = Vec3.set(_temp_v3,
-                        lerp(this.x.splineMin.evaluate(normalizedTime), this.x.splineMax.evaluate(normalizedTime), pseudoRandom(seed))  * this.x.multiplier,
-                        lerp(this.y.splineMin.evaluate(normalizedTime), this.y.splineMax.evaluate(normalizedTime), pseudoRandom(seed))  * this.x.multiplier,
-                        lerp(this.z.splineMin.evaluate(normalizedTime), this.z.splineMax.evaluate(normalizedTime), pseudoRandom(seed))  * this.x.multiplier);
-                    Vec3.transformQuat(force, force, this.rotation);
+                        lerp(xMin.evaluate(normalizedTime), xMax.evaluate(normalizedTime), pseudoRandom(seed))  * xMultiplier,
+                        lerp(yMin.evaluate(normalizedTime), yMax.evaluate(normalizedTime), pseudoRandom(seed))  * yMultiplier,
+                        lerp(zMin.evaluate(normalizedTime), zMax.evaluate(normalizedTime), pseudoRandom(seed))  * zMultiplier);
+                    Vec3.transformQuat(force, force, rotation);
                     Vec3.multiplyScalar(force, force, dt);
                     particles.addVelocityAt(force, i);
                 }
-                break;
-            }
-            default:
             }
         } else {
-            switch (this.x.mode) {
-            case CurveRange.Mode.Constant: {
+            // eslint-disable-next-line no-lonely-if
+            if (this.x.mode === CurveRange.Mode.Constant) {
                 const force = Vec3.set(_temp_v3,
                     this.x.constant,
                     this.y.constant,
@@ -174,46 +168,46 @@ export class ForceOverLifetimeModule extends ParticleModule {
                 for (let i = 0; i < count; i++) {
                     particles.addVelocityAt(force, i);
                 }
-                break;
-            }
-            case CurveRange.Mode.Curve: {
+            } else if (this.x.mode === CurveRange.Mode.Curve) {
+                const { spline: xCurve, multiplier: xMultiplier } = this.x;
+                const { spline: yCurve, multiplier: yMultiplier } = this.y;
+                const { spline: zCurve, multiplier: zMultiplier } = this.z;
                 for (let i = 0; i < count; i++) {
                     const normalizedTime = normalizedAliveTime[i];
                     const force = Vec3.set(_temp_v3,
-                        this.x.spline.evaluate(normalizedTime) * this.x.multiplier,
-                        this.y.spline.evaluate(normalizedTime) * this.y.multiplier,
-                        this.z.spline.evaluate(normalizedTime) * this.z.multiplier);
+                        xCurve.evaluate(normalizedTime) * xMultiplier,
+                        yCurve.evaluate(normalizedTime) * yMultiplier,
+                        zCurve.evaluate(normalizedTime) * zMultiplier);
                     Vec3.multiplyScalar(force, force, dt);
                     particles.addVelocityAt(force, i);
                 }
-                break;
-            }
-            case CurveRange.Mode.TwoConstants: {
+            } else if (this.x.mode === CurveRange.Mode.TwoConstants) {
+                const { constantMin: xMin, constantMax: xMax } = this.x;
+                const { constantMin: yMin, constantMax: yMax } = this.y;
+                const { constantMin: zMin, constantMax: zMax } = this.z;
                 for (let i = 0; i < count; i++) {
                     const seed = randomSeed[i] + FORCE_OVER_LIFETIME_RAND_OFFSET;
                     const force = Vec3.set(_temp_v3,
-                        lerp(this.x.constantMin, this.x.constantMax, pseudoRandom(seed)),
-                        lerp(this.y.constantMin, this.y.constantMax, pseudoRandom(seed)),
-                        lerp(this.z.constantMin, this.z.constantMax, pseudoRandom(seed)));
+                        lerp(xMin, xMax, pseudoRandom(seed)),
+                        lerp(yMin, yMax, pseudoRandom(seed)),
+                        lerp(zMin, zMax, pseudoRandom(seed)));
                     Vec3.multiplyScalar(force, force, dt);
                     particles.addVelocityAt(force, i);
                 }
-                break;
-            }
-            case CurveRange.Mode.TwoCurves: {
+            } else {
+                const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.x;
+                const { splineMin: yMin, splineMax: yMax, multiplier: yMultiplier } = this.y;
+                const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.z;
                 for (let i = 0; i < count; i++) {
                     const normalizedTime = normalizedAliveTime[i];
                     const seed = randomSeed[i] + FORCE_OVER_LIFETIME_RAND_OFFSET;
                     const force = Vec3.set(_temp_v3,
-                        lerp(this.x.splineMin.evaluate(normalizedTime), this.x.splineMax.evaluate(normalizedTime), pseudoRandom(seed))  * this.x.multiplier,
-                        lerp(this.y.splineMin.evaluate(normalizedTime), this.y.splineMax.evaluate(normalizedTime), pseudoRandom(seed))  * this.x.multiplier,
-                        lerp(this.z.splineMin.evaluate(normalizedTime), this.z.splineMax.evaluate(normalizedTime), pseudoRandom(seed))  * this.x.multiplier);
+                        lerp(xMin.evaluate(normalizedTime), xMax.evaluate(normalizedTime), pseudoRandom(seed))  * xMultiplier,
+                        lerp(yMin.evaluate(normalizedTime), yMax.evaluate(normalizedTime), pseudoRandom(seed))  * yMultiplier,
+                        lerp(zMin.evaluate(normalizedTime), zMax.evaluate(normalizedTime), pseudoRandom(seed))  * zMultiplier);
                     Vec3.multiplyScalar(force, force, dt);
                     particles.addVelocityAt(force, i);
                 }
-                break;
-            }
-            default:
             }
         }
     }
