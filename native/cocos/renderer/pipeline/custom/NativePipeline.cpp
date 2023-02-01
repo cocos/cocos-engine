@@ -278,6 +278,7 @@ void updateRasterPassConstants(uint32_t width, uint32_t height, Setter &setter) 
     setter.setVec4(
         "cc_nativeSize",
         Vec4(shadingWidth, shadingHeight, 1.0F / shadingWidth, 1.0F / shadingHeight));
+#if 0
     const auto *debugView = root.getDebugView();
     if (debugView) {
         setter.setVec4(
@@ -313,6 +314,7 @@ void updateRasterPassConstants(uint32_t width, uint32_t height, Setter &setter) 
             }
         }
     }
+#endif
 }
 
 } // namespace
