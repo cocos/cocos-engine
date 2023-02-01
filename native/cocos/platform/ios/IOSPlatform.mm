@@ -110,6 +110,11 @@ int32_t IOSPlatform::init() {
     return 0;
 }
 
+void IOSPlatform::exitLoop() {
+    onDestroy();
+    exit(0);
+}
+
 int32_t IOSPlatform::loop() {
     cocos_main(0, nullptr);
     [_timer start];

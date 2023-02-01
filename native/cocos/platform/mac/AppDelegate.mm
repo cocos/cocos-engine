@@ -104,6 +104,12 @@
     return _window;
 }
 
+- (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender
+{
+    //return NSTerminateCancel;
+    return _platform->readyToExit() ? NSTerminateNow : NSTerminateLater;
+}
+
 - (void)applicationWillTerminate:(NSNotification*)aNotification {
     //    delete _game;
     //FIXME: will crash if relase it here.
