@@ -43,6 +43,7 @@ public:
     void config(int featureMask);
     int getSupportMask();
     void start();
+    void stop();
     void onResume();
     void onPause();
     void update();
@@ -83,6 +84,7 @@ public:
     // plane detection
     void enablePlane(bool enable) const;
     void setPlaneDetectionMode(int mode) const;
+    // deprecated
     void setPlaneMaxTrackingNumber(int count) const;
     float* getAddedPlanesInfo() const;
     float* getUpdatedPlanesInfo() const;
@@ -101,6 +103,7 @@ public:
 
     // image recognition & tracking
     void enableImageTracking(bool enable) const;
+    // deprecated
     void addImageToLib(const std::string& name) const;
     void addImageToLibWithSize(const std::string& name, float widthInMeters) const;
     void setImageMaxTrackingNumber(int number) const;

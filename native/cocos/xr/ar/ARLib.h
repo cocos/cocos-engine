@@ -41,6 +41,7 @@ public:
     uint32_t getSupportMask() override;
     void start() override;
     void start(void* env, void* context) override;
+    void stop() override;
     void resume() override;
     void resume(void* env, void* context) override;
     void pause() override;

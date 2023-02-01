@@ -41,6 +41,7 @@ public:
     virtual uint32_t getSupportMask() = 0;
     virtual void start() = 0;
     virtual void start(void* env, void* context) = 0;
+    virtual void stop() = 0;
     virtual void resume() = 0;
     virtual void resume(void* env, void* context) = 0;
     virtual void pause() = 0;

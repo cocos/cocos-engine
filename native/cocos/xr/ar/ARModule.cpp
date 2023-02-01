@@ -70,6 +70,14 @@ void ARModule::start() {
     _impl->start();
 }
 
+void ARModule::stop() {
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
+    _impl->stop();
+#elif CC_PLATFORM == CC_PLATFORM_MAC_IOS
+    _impl->pause();
+#endif
+}
+
 void ARModule::onResume() {
     _impl->resume();
 }
