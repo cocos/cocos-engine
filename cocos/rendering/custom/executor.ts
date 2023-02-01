@@ -65,6 +65,8 @@ import { VectorGraphColorMap } from './effect';
 import { getDescBindingFromName, getDescriptorSetDataFromLayout, getRenderArea, mergeSrcToTargetDesc, updateGlobalDescBinding } from './define';
 import { RenderReflectionProbeQueue } from '../render-reflection-probe-queue';
 import { ReflectionProbeManager } from '../reflection-probe-manager';
+import { builtinResMgr } from '../../asset/asset-manager/builtin-res-mgr';
+import { Texture2D } from '../../asset/assets/texture-2d';
 
 class DeviceResource {
     protected _context: ExecutorContext;
@@ -1047,9 +1049,14 @@ class DevicePreSceneTask extends WebSceneTask {
             const mainLight = graphScene.scene.camera.scene!.mainLight;
             const shadowFrameBufferMap = this.sceneData.shadowFrameBufferMap;
             if (mainLight && shadowFrameBufferMap.has(mainLight)) {
+                const shadowAttrID = context.layoutGraph.attributeIndex.get('cc_shadowMap');
+                const defaultTex = builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!;
                 for (const [key, value] of data.textures) {
-                    if (key === context.layoutGraph.attributeIndex.get('cc_shadowMap')) {
-                        data.textures.set(key, shadowFrameBufferMap.get(mainLight)!.colorTextures[0]!);
+                    if (key === shadowAttrID) {
+                        const tex = data.textures.get(shadowAttrID);
+                        if (tex === defaultTex) {
+                            data.textures.set(key, shadowFrameBufferMap.get(mainLight)!.colorTextures[0]!);
+                        }
                         return;
                     }
                 }
@@ -1521,7 +1528,8 @@ class PreRenderVisitor extends BaseRenderVisitor implements RenderGraphVisitor {
         } else {
             const passHash = pass.versionName;
             this.currPass = devicePasses.get(passHash);
-            if (!this.currPass || this.currPass.version !== pass.version) {
+            const currRasterPass = this.currPass ? this.currPass.rasterPassInfo.pass : null;
+            if (!this.currPass || currRasterPass.version !== pass.version) {
                 this.currPass = new DeviceRenderPass(this.context, new RasterPassInfo(this.passID, pass));
                 devicePasses.set(passHash, this.currPass);
             } else {

@@ -43,7 +43,8 @@ PersistentRenderPassAndFramebuffer::PersistentRenderPassAndFramebuffer(Persisten
   clearColors(std::move(rhs.clearColors), alloc),
   clearDepth(rhs.clearDepth),
   clearStencil(rhs.clearStencil),
-  refCount(rhs.refCount) {}
+  refCount(rhs.refCount),
+  hash(rhs.hash) {}
 
 PersistentRenderPassAndFramebuffer::PersistentRenderPassAndFramebuffer(PersistentRenderPassAndFramebuffer const& rhs, const allocator_type& alloc)
 : renderPass(rhs.renderPass),
@@ -51,7 +52,8 @@ PersistentRenderPassAndFramebuffer::PersistentRenderPassAndFramebuffer(Persisten
   clearColors(rhs.clearColors, alloc),
   clearDepth(rhs.clearDepth),
   clearStencil(rhs.clearStencil),
-  refCount(rhs.refCount) {}
+  refCount(rhs.refCount),
+  hash(rhs.hash) {}
 
 RenderInstancingQueue::RenderInstancingQueue(const allocator_type& alloc) noexcept
 : batches(alloc),
@@ -103,13 +105,82 @@ DefaultForwardLightingTransversal::DefaultForwardLightingTransversal(const alloc
 ResourceGroup::ResourceGroup(const allocator_type& alloc) noexcept
 : instancingBuffers(alloc) {}
 
-NativeRenderContext::NativeRenderContext(const allocator_type& alloc) noexcept
-: renderPasses(alloc),
-  resourceGroups(alloc) {}
+BufferPool::BufferPool(const allocator_type& alloc) noexcept
+: currentBuffers(alloc),
+  currentBufferViews(alloc),
+  freeBuffers(alloc),
+  freeBufferViews(alloc) {}
+
+BufferPool::BufferPool(gfx::Device* deviceIn, uint32_t bufferSizeIn, bool dynamicIn, const allocator_type& alloc) noexcept // NOLINT
+: device(deviceIn),
+  bufferSize(bufferSizeIn),
+  dynamic(dynamicIn),
+  currentBuffers(alloc),
+  currentBufferViews(alloc),
+  freeBuffers(alloc),
+  freeBufferViews(alloc) {}
+
+BufferPool::BufferPool(BufferPool&& rhs, const allocator_type& alloc)
+: device(rhs.device),
+  bufferSize(rhs.bufferSize),
+  dynamic(rhs.dynamic),
+  currentBuffers(std::move(rhs.currentBuffers), alloc),
+  currentBufferViews(std::move(rhs.currentBufferViews), alloc),
+  freeBuffers(std::move(rhs.freeBuffers), alloc),
+  freeBufferViews(std::move(rhs.freeBufferViews), alloc) {}
+
+DescriptorSetPool::DescriptorSetPool(const allocator_type& alloc) noexcept
+: currentDescriptorSets(alloc),
+  freeDescriptorSets(alloc) {}
+
+DescriptorSetPool::DescriptorSetPool(gfx::Device* deviceIn, IntrusivePtr<gfx::DescriptorSetLayout> setLayoutIn, const allocator_type& alloc) noexcept // NOLINT
+: device(deviceIn),
+  setLayout(std::move(setLayoutIn)),
+  currentDescriptorSets(alloc),
+  freeDescriptorSets(alloc) {}
+
+DescriptorSetPool::DescriptorSetPool(DescriptorSetPool&& rhs, const allocator_type& alloc)
+: device(rhs.device),
+  setLayout(std::move(rhs.setLayout)),
+  currentDescriptorSets(std::move(rhs.currentDescriptorSets), alloc),
+  freeDescriptorSets(std::move(rhs.freeDescriptorSets), alloc) {}
+
+UniformBlockResource::UniformBlockResource(const allocator_type& alloc) noexcept
+: cpuBuffer(alloc),
+  bufferPool(alloc) {}
+
+UniformBlockResource::UniformBlockResource(UniformBlockResource&& rhs, const allocator_type& alloc)
+: cpuBuffer(std::move(rhs.cpuBuffer), alloc),
+  bufferPool(std::move(rhs.bufferPool), alloc) {}
+
+ProgramResource::ProgramResource(const allocator_type& alloc) noexcept
+: uniformBuffers(alloc),
+  descriptorSetPool(alloc) {}
+
+ProgramResource::ProgramResource(ProgramResource&& rhs, const allocator_type& alloc)
+: uniformBuffers(std::move(rhs.uniformBuffers), alloc),
+  descriptorSetPool(std::move(rhs.descriptorSetPool), alloc) {}
+
+LayoutGraphNodeResource::LayoutGraphNodeResource(const allocator_type& alloc) noexcept
+: uniformBuffers(alloc),
+  descriptorSetPool(alloc),
+  programResources(alloc) {}
+
+LayoutGraphNodeResource::LayoutGraphNodeResource(LayoutGraphNodeResource&& rhs, const allocator_type& alloc)
+: uniformBuffers(std::move(rhs.uniformBuffers), alloc),
+  descriptorSetPool(std::move(rhs.descriptorSetPool), alloc),
+  programResources(std::move(rhs.programResources), alloc) {}
+
+NativeRenderContext::NativeRenderContext(std::unique_ptr<gfx::DefaultResource> defaultResourceIn, const allocator_type& alloc) noexcept
+: defaultResource(std::move(defaultResourceIn)),
+  renderPasses(alloc),
+  resourceGroups(alloc),
+  layoutGraphResources(alloc) {}
 
 NativeProgramLibrary::NativeProgramLibrary(const allocator_type& alloc) noexcept
 : layoutGraph(alloc),
-  phases(alloc) {}
+  phases(alloc),
+  localLayoutData(alloc) {}
 
 } // namespace render
 

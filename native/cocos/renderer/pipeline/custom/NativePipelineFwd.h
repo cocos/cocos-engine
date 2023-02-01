@@ -54,11 +54,18 @@ struct NativeRenderQueue;
 class DefaultSceneVisitor;
 class DefaultForwardLightingTransversal;
 struct ResourceGroup;
+struct BufferPool;
+struct DescriptorSetPool;
+struct UniformBlockResource;
+struct ProgramResource;
+struct LayoutGraphNodeResource;
+struct QuadResource;
 struct NativeRenderContext;
+class NativeProgramLibrary;
 class NativePipeline;
 class NativeProgramProxy;
-class NativeProgramLibrary;
 class NativeRenderingModule;
+class NativeSetter;
 
 } // namespace render
 

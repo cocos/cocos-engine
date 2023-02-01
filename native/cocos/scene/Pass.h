@@ -286,6 +286,8 @@ public:
     inline gfx::PrimitiveMode getPrimitive() const { return _primitive; }
     inline pipeline::RenderPassStage getStage() const { return _stage; }
     inline uint32_t getPhase() const { return _phase; }
+    inline uint32_t getPassID() const { return _passID; }
+    inline uint32_t getPhaseID() const { return _phaseID; }
     inline const gfx::RasterizerState *getRasterizerState() const { return &_rs; }
     inline const gfx::DepthStencilState *getDepthStencilState() const { return &_depthStencilState; }
     inline const gfx::BlendState *getBlendState() const { return &_blendState; }

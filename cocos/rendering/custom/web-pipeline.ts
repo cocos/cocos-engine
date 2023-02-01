@@ -200,6 +200,20 @@ export class WebSetter {
         const num = this._lg.attributeIndex.get(name)!;
         this._data.samplers.set(num, sampler);
     }
+    public hasSampler (name: string): boolean {
+        const id = this._lg.attributeIndex.get(name);
+        if (id === undefined) {
+            return false;
+        }
+        return this._data.samplers.has(id);
+    }
+    public hasTexture (name: string): boolean {
+        const id = this._lg.attributeIndex.get(name);
+        if (id === undefined) {
+            return false;
+        }
+        return this._data.textures.has(id);
+    }
 
     // protected
     protected readonly _data: RenderData;
@@ -515,11 +529,20 @@ function setTextureUBOView (setter: WebSetter, camera: Camera, cfg: Readonly<Pip
         Address.CLAMP,
         Address.CLAMP,
     );
+
     const pointSampler = root.device.getSampler(_samplerPointInfo);
-    setter.setSampler('cc_shadowMap', pointSampler);
-    setter.setTexture('cc_shadowMap', builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
-    setter.setSampler('cc_spotShadowMap', pointSampler);
-    setter.setTexture('cc_spotShadowMap', builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
+    if (!setter.hasSampler('cc_shadowMap')) {
+        setter.setSampler('cc_shadowMap', pointSampler);
+    }
+    if (!setter.hasTexture('cc_shadowMap')) {
+        setter.setTexture('cc_shadowMap', builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
+    }
+    if (!setter.hasSampler('cc_spotShadowMap')) {
+        setter.setSampler('cc_spotShadowMap', pointSampler);
+    }
+    if (!setter.hasTexture('cc_spotShadowMap')) {
+        setter.setTexture('cc_spotShadowMap', builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
+    }
 }
 
 function getFirstChildLayoutName (lg: LayoutGraphData, parentID: number): string {
