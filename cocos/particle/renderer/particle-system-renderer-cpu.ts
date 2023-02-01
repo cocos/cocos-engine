@@ -449,9 +449,14 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                     p.velocity.y -= ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed))! * 9.8 * dt;
                 }
 
-                for (let f = 0; f < forceFields.length; ++f) {
-                    const ff = forceFields[f];
-                    ff.field.update(p, dt, _tempWorldTrans, _tempWorldInv);
+                if (ps.forceFieldModule && ps.forceFieldModule.enable) {
+                    const ffList = ps.forceFieldModule.forceList;
+                    for (let f = 0; f < ffList.length; ++f) {
+                        const ff = ffList[f];
+                        if (ff) {
+                            ff.field.update(p, dt, _tempWorldTrans, _tempWorldInv);
+                        }
+                    }
                 }
 
                 Vec3.copy(p.ultimateVelocity, p.velocity);

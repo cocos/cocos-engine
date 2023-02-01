@@ -42,6 +42,9 @@ export const ForceRandSeed = {
     DRAG: 10314145,
 };
 
+const _temp_world_pos = new Vec3();
+const _temp_local_pos = new Vec3();
+
 export default class ForceField {
     private _mode;
     private _fieldLocalToWorld: Mat4;
@@ -235,7 +238,7 @@ export default class ForceField {
         const forceRandom = pseudoRandom(p.randomSeed + ForceRandSeed.FORCE);
         const forceMultiplier = multiplier.evaluate(normalizedTime, forceRandom);
 
-        Vec3.transformMat4(this._toForce, p.position, worldToLocal);
+        Vec3.transformMat4(this._toForce, _temp_local_pos, worldToLocal);
 
         if (hasRandomRotation) {
             this._rotationEuler.x = (pseudoRandom(p.randomSeed + ForceRandSeed.ForcesRotationRandomnessXId) - 0.5) * rotationRandomnessX;
@@ -362,7 +365,15 @@ export default class ForceField {
         const sphereRadius = this._endRange * scale;
         this._fieldLocalToWorld.getTranslation(this._fieldCenter);
 
-        if (this.checkInSphere(p.position, this._fieldCenter, sphereRadius)) {
+        if (p.particleSystem.simulationSpace !== Space.World) {
+            Vec3.transformMat4(_temp_world_pos, p.position, psLocalToWorld);
+            _temp_local_pos.set(p.position);
+        } else {
+            Vec3.transformMat4(_temp_local_pos, p.position, psWorldToLocal);
+            _temp_world_pos.set(p.position);
+        }
+
+        if (this.checkInSphere(_temp_world_pos, this._fieldCenter, sphereRadius)) {
             this.apply(p, dt, this._forceTransform, this._forceInvTransform, this._multiplier);
         }
     }

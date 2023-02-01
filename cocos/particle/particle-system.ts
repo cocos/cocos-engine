@@ -55,6 +55,7 @@ import { AABB, intersect } from '../core/geometry';
 import { Camera } from '../core/renderer/scene';
 import { ParticleCuller } from './particle-culler';
 import { NoiseModule } from './animator/noise-module';
+import { ForceFieldModule } from './animator/force-field-module';
 import { CCBoolean, CCFloat, CCObject, Node } from '../core';
 
 const _world_mat = new Mat4();
@@ -682,6 +683,27 @@ export class ParticleSystem extends ModelRenderer {
         this._noiseModule = val;
     }
 
+    // force field module
+    @type(ForceFieldModule)
+    private _forceFieldModule: ForceFieldModule | null = null;
+
+    @type(ForceFieldModule)
+    @displayOrder(24)
+    public get forceFieldModule () {
+        if (EDITOR) {
+            if (!this._forceFieldModule) {
+                this._forceFieldModule = new ForceFieldModule();
+                this._noiseModule?.bindTarget(this.processor);
+            }
+        }
+        return this._forceFieldModule;
+    }
+
+    public set forceFieldModule (val) {
+        if (!val) return;
+        this._forceFieldModule = val;
+    }
+
     // trail module
     @type(TrailModule)
     _trailModule: TrailModule | null = null;
@@ -1129,6 +1151,7 @@ export class ParticleSystem extends ModelRenderer {
         if (this._velocityOvertimeModule) this._velocityOvertimeModule.bindTarget(this.processor);
         if (this._textureAnimationModule) this._textureAnimationModule.bindTarget(this.processor);
         if (this._noiseModule) this._noiseModule.bindTarget(this.processor);
+        if (this._forceFieldModule) this._forceFieldModule.bindTarget(this.processor);
     }
 
     // TODO: Fast forward current particle system by simulating particles over given period of time, then pause it.
