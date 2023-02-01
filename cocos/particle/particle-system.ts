@@ -512,7 +512,7 @@ export class ParticleSystem extends ModelRenderer {
     @type(ColorOverLifetimeModule)
     _colorOverLifetimeModule: ColorOverLifetimeModule | null = null;
     /**
-     * @en The module controlling particles' color over life time.
+     * @en The module controlling particle's color over life time.
      * @zh 颜色控制模块。
      */
     @type(ColorOverLifetimeModule)
@@ -562,7 +562,7 @@ export class ParticleSystem extends ModelRenderer {
     @type(SizeOvertimeModule)
     _sizeOvertimeModule: SizeOvertimeModule | null = null;
     /**
-     * @en The module controlling particles' size over time.
+     * @en The module controlling particle's size over time.
      * @zh 粒子大小模块。
      */
     @type(SizeOvertimeModule)

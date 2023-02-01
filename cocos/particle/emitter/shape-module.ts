@@ -52,7 +52,7 @@ function getShapeTypeEnumName (enumValue: number): keyof typeof ShapeType {
  * The Shape property defines the shape of the emission volume, and the rest of the module properties vary depending on the Shape you choose.
  * All shapes have properties that define their dimensions, such as the Radius property.
  * To edit these, drag the handles on the wireframe emitter shape in the Scene view.
- * The choice of shape affects the region from which particles can be launched, but also the initial direction of the particles.
+ * The choice of shape affects the region from which particles can be emitted, but also the initial direction of the particles.
  * @zh
  * 本模块定义一个发射体或发射面，粒子将会从它进行发射，并且定义了粒子发射的初始方向和初始速度。
  * 形状属性定义粒子系统的发射体，剩下的属性依赖于选择的形状。
@@ -392,7 +392,8 @@ export default class ShapeModule {
     /**
      * @en Apply particle system to this shape and create shape transform matrix.
      * @zh 把发射形状应用到粒子系统，并且创建发射形状变换矩阵。
-     * @param ps @en Emit shape applied to which Particle system @zh 使用发射形状的粒子系统
+     * @param ps @en Emit shape applied to which Particle system. @zh 使用发射形状的粒子系统。
+     * @internal
      */
     public onInit (ps: ParticleSystem) {
         this.particleSystem = ps;
@@ -403,7 +404,7 @@ export default class ShapeModule {
     /**
      * @en Emit particle by this shape.
      * @zh 通过这个形状发射粒子。
-     * @param p @en Particle emitted @zh 发射出来的粒子
+     * @param p @en Particle emitted. @zh 发射出来的粒子。
      * @internal
      */
     public emit (p) {

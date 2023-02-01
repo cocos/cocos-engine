@@ -73,13 +73,13 @@ export const Mode = Enum({
 @ccclass('cc.CurveRange')
 export default class CurveRange  {
     /**
-     * @en The curve mode used. See [[Mode]].
+     * @en The curve mode. See [[Mode]].
      * @zh 曲线类型 [[Mode]]。
      */
     public static Mode = Mode;
 
     /**
-     * @en Spline will create a RealCurve when mode is curve.
+     * @en Spline will create a RealCurve when mode is curve. The mode of curve range, see [[Mode]].
      * A RealCurve will be created for each spline(SplineMin & SplineMax) when mode is TwoCurves.
      * @zh 当mode为Curve时，spline创建1个RealCurve，当mode为TwoCurves时，splineMax创建1个RealCurve,splineMin创建一个RealCurve。
      */
