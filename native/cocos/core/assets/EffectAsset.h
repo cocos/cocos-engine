@@ -544,6 +544,12 @@ struct IShaderInfo {
         if (version == "glsl4") return &glsl4;
         return nullptr;
     }
+    IShaderSource *getSource(const ccstd::string &version) {
+        if (version == "glsl1") return &glsl1;
+        if (version == "glsl3") return &glsl3;
+        if (version == "glsl4") return &glsl4;
+        return nullptr;
+    }
 };
 
 using IPreCompileInfoValueType = ccstd::variant<ccstd::monostate, ccstd::vector<bool>, ccstd::vector<int32_t>, ccstd::vector<ccstd::string>>;
