@@ -70,8 +70,9 @@ public:
 class NativeRasterQueueBuilder final : public RasterQueueBuilder {
 public:
     NativeRasterQueueBuilder() = default;
-    NativeRasterQueueBuilder(RenderGraph* renderGraphIn, uint32_t queueIDIn, const LayoutGraphData* layoutGraphIn) noexcept
-    : renderGraph(renderGraphIn),
+    NativeRasterQueueBuilder(const PipelineRuntime* pipelineRuntimeIn, RenderGraph* renderGraphIn, uint32_t queueIDIn, const LayoutGraphData* layoutGraphIn) noexcept
+    : pipelineRuntime(pipelineRuntimeIn),
+      renderGraph(renderGraphIn),
       layoutGraph(layoutGraphIn),
       queueID(queueIDIn) {}
 
@@ -97,6 +98,7 @@ public:
     void clearRenderTarget(const ccstd::string &name, const gfx::Color &color) override;
     void setViewport(const gfx::Viewport &viewport) override;
 
+    const PipelineRuntime* pipelineRuntime{nullptr};
     RenderGraph* renderGraph{nullptr};
     const LayoutGraphData* layoutGraph{nullptr};
     uint32_t queueID{RenderGraph::null_vertex()};
@@ -105,8 +107,9 @@ public:
 class NativeRasterPassBuilder final : public RasterPassBuilder {
 public:
     NativeRasterPassBuilder() = default;
-    NativeRasterPassBuilder(RenderGraph* renderGraphIn, uint32_t passIDIn, const LayoutGraphData* layoutGraphIn, uint32_t layoutIDIn) noexcept // NOLINT
-    : renderGraph(renderGraphIn),
+    NativeRasterPassBuilder(const PipelineRuntime* pipelineRuntimeIn, RenderGraph* renderGraphIn, uint32_t passIDIn, const LayoutGraphData* layoutGraphIn, uint32_t layoutIDIn) noexcept // NOLINT
+    : pipelineRuntime(pipelineRuntimeIn),
+      renderGraph(renderGraphIn),
       layoutGraph(layoutGraphIn),
       passID(passIDIn),
       layoutID(layoutIDIn) {}
@@ -132,6 +135,7 @@ public:
     void setViewport(const gfx::Viewport &viewport) override;
     void setVersion(const ccstd::string &name, uint64_t version) override;
 
+    const PipelineRuntime* pipelineRuntime{nullptr};
     RenderGraph* renderGraph{nullptr};
     const LayoutGraphData* layoutGraph{nullptr};
     uint32_t passID{RenderGraph::null_vertex()};
@@ -267,6 +271,7 @@ struct PersistentRenderPassAndFramebuffer {
     float clearDepth{0};
     uint8_t clearStencil{0};
     int32_t refCount{1};
+    uint32_t hash{0};
 };
 
 struct RenderInstancingQueue {
@@ -405,13 +410,137 @@ struct ResourceGroup {
     PmrUnorderedSet<IntrusivePtr<pipeline::InstancedBuffer>> instancingBuffers;
 };
 
+struct BufferPool {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {currentBuffers.get_allocator().resource()};
+    }
+
+    BufferPool(const allocator_type& alloc) noexcept; // NOLINT
+    BufferPool(gfx::Device* deviceIn, uint32_t bufferSizeIn, bool dynamicIn, const allocator_type& alloc) noexcept;
+    BufferPool(BufferPool&& rhs, const allocator_type& alloc);
+
+    BufferPool(BufferPool&& rhs) noexcept = default;
+    BufferPool(BufferPool const& rhs) = delete;
+    BufferPool& operator=(BufferPool&& rhs) = default;
+    BufferPool& operator=(BufferPool const& rhs) = delete;
+    void init(gfx::Device* deviceIn, uint32_t sz, bool bDynamic);
+    void syncResources();
+    gfx::Buffer* allocateBuffer();
+
+    gfx::Device* device{nullptr};
+    uint32_t bufferSize{0};
+    bool dynamic{false};
+    ccstd::pmr::vector<IntrusivePtr<gfx::Buffer>> currentBuffers;
+    ccstd::pmr::vector<IntrusivePtr<gfx::Buffer>> currentBufferViews;
+    ccstd::pmr::vector<IntrusivePtr<gfx::Buffer>> freeBuffers;
+    ccstd::pmr::vector<IntrusivePtr<gfx::Buffer>> freeBufferViews;
+};
+
+struct DescriptorSetPool {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {currentDescriptorSets.get_allocator().resource()};
+    }
+
+    DescriptorSetPool(const allocator_type& alloc) noexcept; // NOLINT
+    DescriptorSetPool(gfx::Device* deviceIn, IntrusivePtr<gfx::DescriptorSetLayout> setLayoutIn, const allocator_type& alloc) noexcept;
+    DescriptorSetPool(DescriptorSetPool&& rhs, const allocator_type& alloc);
+
+    DescriptorSetPool(DescriptorSetPool&& rhs) noexcept = default;
+    DescriptorSetPool(DescriptorSetPool const& rhs) = delete;
+    DescriptorSetPool& operator=(DescriptorSetPool&& rhs) = default;
+    DescriptorSetPool& operator=(DescriptorSetPool const& rhs) = delete;
+    void init(gfx::Device* deviceIn, IntrusivePtr<gfx::DescriptorSetLayout> layout);
+    void syncDescriptorSets();
+    const gfx::DescriptorSet& getCurrentDescriptorSet() const;
+    gfx::DescriptorSet& getCurrentDescriptorSet();
+    gfx::DescriptorSet* allocateDescriptorSet();
+
+    gfx::Device* device{nullptr};
+    IntrusivePtr<gfx::DescriptorSetLayout> setLayout;
+    ccstd::pmr::vector<IntrusivePtr<gfx::DescriptorSet>> currentDescriptorSets;
+    ccstd::pmr::vector<IntrusivePtr<gfx::DescriptorSet>> freeDescriptorSets;
+};
+
+struct UniformBlockResource {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {cpuBuffer.get_allocator().resource()};
+    }
+
+    UniformBlockResource(const allocator_type& alloc) noexcept; // NOLINT
+    UniformBlockResource(UniformBlockResource&& rhs, const allocator_type& alloc);
+
+    UniformBlockResource(UniformBlockResource&& rhs) noexcept = default;
+    UniformBlockResource(UniformBlockResource const& rhs) = delete;
+    UniformBlockResource& operator=(UniformBlockResource&& rhs) = default;
+    UniformBlockResource& operator=(UniformBlockResource const& rhs) = delete;
+    void init(gfx::Device* deviceIn, uint32_t sz, bool bDynamic);
+    gfx::Buffer* createFromCpuBuffer();
+
+    ccstd::pmr::vector<char> cpuBuffer;
+    BufferPool bufferPool;
+};
+
+struct ProgramResource {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {uniformBuffers.get_allocator().resource()};
+    }
+
+    ProgramResource(const allocator_type& alloc) noexcept; // NOLINT
+    ProgramResource(ProgramResource&& rhs, const allocator_type& alloc);
+
+    ProgramResource(ProgramResource&& rhs) noexcept = default;
+    ProgramResource(ProgramResource const& rhs) = delete;
+    ProgramResource& operator=(ProgramResource&& rhs) = default;
+    ProgramResource& operator=(ProgramResource const& rhs) = delete;
+    void syncResources() noexcept;
+
+    ccstd::pmr::unordered_map<NameLocalID, UniformBlockResource> uniformBuffers;
+    DescriptorSetPool descriptorSetPool;
+};
+
+struct LayoutGraphNodeResource {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {uniformBuffers.get_allocator().resource()};
+    }
+
+    LayoutGraphNodeResource(const allocator_type& alloc) noexcept; // NOLINT
+    LayoutGraphNodeResource(LayoutGraphNodeResource&& rhs, const allocator_type& alloc);
+
+    LayoutGraphNodeResource(LayoutGraphNodeResource&& rhs) noexcept = default;
+    LayoutGraphNodeResource(LayoutGraphNodeResource const& rhs) = delete;
+    LayoutGraphNodeResource& operator=(LayoutGraphNodeResource&& rhs) = default;
+    LayoutGraphNodeResource& operator=(LayoutGraphNodeResource const& rhs) = delete;
+    void syncResources() noexcept;
+
+    PmrFlatMap<NameLocalID, UniformBlockResource> uniformBuffers;
+    DescriptorSetPool descriptorSetPool;
+    PmrTransparentMap<ccstd::pmr::string, ProgramResource> programResources;
+};
+
+struct QuadResource {
+    QuadResource() = default;
+    QuadResource(IntrusivePtr<gfx::Buffer> quadVBIn, IntrusivePtr<gfx::Buffer> quadIBIn, IntrusivePtr<gfx::InputAssembler> quadIAIn) noexcept // NOLINT
+    : quadVB(std::move(quadVBIn)),
+      quadIB(std::move(quadIBIn)),
+      quadIA(std::move(quadIAIn)) {}
+
+    IntrusivePtr<gfx::Buffer> quadVB;
+    IntrusivePtr<gfx::Buffer> quadIB;
+    IntrusivePtr<gfx::InputAssembler> quadIA;
+};
+
 struct NativeRenderContext {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
         return {renderPasses.get_allocator().resource()};
     }
 
-    NativeRenderContext(const allocator_type& alloc) noexcept; // NOLINT
+    NativeRenderContext(std::unique_ptr<gfx::DefaultResource> defaultResourceIn, const allocator_type& alloc) noexcept;
     NativeRenderContext(NativeRenderContext&& rhs) = delete;
     NativeRenderContext(NativeRenderContext const& rhs) = delete;
     NativeRenderContext& operator=(NativeRenderContext&& rhs) = delete;
@@ -419,16 +548,60 @@ struct NativeRenderContext {
 
     void clearPreviousResources(uint64_t finishedFenceValue) noexcept;
 
+    std::unique_ptr<gfx::DefaultResource> defaultResource;
     ccstd::pmr::unordered_map<RasterPass, PersistentRenderPassAndFramebuffer> renderPasses;
     ccstd::pmr::map<uint64_t, ResourceGroup> resourceGroups;
+    ccstd::pmr::vector<LayoutGraphNodeResource> layoutGraphResources;
+    QuadResource fullscreenQuad;
     uint64_t nextFenceValue{0};
+};
+
+class NativeProgramLibrary final : public ProgramLibrary {
+public:
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {layoutGraph.get_allocator().resource()};
+    }
+
+    NativeProgramLibrary(const allocator_type& alloc) noexcept; // NOLINT
+
+    void addEffect(const EffectAsset *effectAsset) override;
+    void precompileEffect(gfx::Device *device, EffectAsset *effectAsset) override;
+    ccstd::string getKey(uint32_t phaseID, const ccstd::string &programName, const MacroRecord &defines) const override;
+    IntrusivePtr<gfx::PipelineLayout> getPipelineLayout(gfx::Device *device, uint32_t phaseID, const ccstd::string &programName) override;
+    const gfx::DescriptorSetLayout &getMaterialDescriptorSetLayout(gfx::Device *device, uint32_t phaseID, const ccstd::string &programName) override;
+    const gfx::DescriptorSetLayout &getLocalDescriptorSetLayout(gfx::Device *device, uint32_t phaseID, const ccstd::string &programName) override;
+    const IProgramInfo &getProgramInfo(uint32_t phaseID, const ccstd::string &programName) const override;
+    const gfx::ShaderInfo &getShaderInfo(uint32_t phaseID, const ccstd::string &programName) const override;
+    ProgramProxy *getProgramVariant(gfx::Device *device, uint32_t phaseID, const ccstd::string &name, MacroRecord &defines, const ccstd::pmr::string *key) override;
+    const ccstd::vector<int32_t> &getBlockSizes(uint32_t phaseID, const ccstd::string &programName) const override;
+    const Record<ccstd::string, uint32_t> &getHandleMap(uint32_t phaseID, const ccstd::string &programName) const override;
+    uint32_t getProgramID(uint32_t phaseID, const ccstd::pmr::string &programName) override;
+    uint32_t getDescriptorNameID(const ccstd::pmr::string &name) override;
+    const ccstd::pmr::string &getDescriptorName(uint32_t nameID) override;
+
+    void init(gfx::Device* deviceIn);
+    void setPipeline(PipelineRuntime* pipelineIn);
+    void destroy();
+
+    LayoutGraphData layoutGraph;
+    PmrFlatMap<uint32_t, ProgramGroup> phases;
+    boost::container::pmr::unsynchronized_pool_resource unsycPool;
+    bool mergeHighFrequency{false};
+    bool fixedLocal{true};
+    DescriptorSetLayoutData localLayoutData;
+    IntrusivePtr<gfx::DescriptorSetLayout> localDescriptorSetLayout;
+    IntrusivePtr<gfx::DescriptorSetLayout> emptyDescriptorSetLayout;
+    IntrusivePtr<gfx::PipelineLayout> emptyPipelineLayout;
+    PipelineRuntime* pipeline{nullptr};
+    gfx::Device* device{nullptr};
 };
 
 class NativePipeline final : public Pipeline {
 public:
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {nativeContext.get_allocator().resource()};
+        return {name.get_allocator().resource()};
     }
 
     NativePipeline(const allocator_type& alloc) noexcept; // NOLINT
@@ -493,11 +666,13 @@ public:
     MacroRecord macros;
     ccstd::string constantMacros;
     std::unique_ptr<pipeline::GlobalDSManager> globalDSManager;
+    ccstd::pmr::string name;
+    NativeProgramLibrary* programLibrary;
     scene::Model* profiler{nullptr};
     LightingMode lightingMode{LightingMode::DEFAULT};
     IntrusivePtr<pipeline::PipelineSceneData> pipelineSceneData;
     NativeRenderContext nativeContext;
-    LayoutGraphData layoutGraph;
+    LayoutGraphData dummyLayoutGraph;
     ResourceGraph resourceGraph;
     RenderGraph renderGraph;
 };
@@ -514,43 +689,6 @@ public:
     IntrusivePtr<gfx::Shader> shader;
 };
 
-class NativeProgramLibrary final : public ProgramLibrary {
-public:
-    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
-    allocator_type get_allocator() const noexcept { // NOLINT
-        return {layoutGraph.get_allocator().resource()};
-    }
-
-    NativeProgramLibrary(const allocator_type& alloc) noexcept; // NOLINT
-
-    void addEffect(EffectAsset *effectAsset) override;
-    void precompileEffect(gfx::Device *device, EffectAsset *effectAsset) override;
-    ccstd::string getKey(uint32_t phaseID, const ccstd::string &programName, const MacroRecord &defines) const override;
-    IntrusivePtr<gfx::PipelineLayout> getPipelineLayout(gfx::Device *device, uint32_t phaseID, const ccstd::string &programName) override;
-    const gfx::DescriptorSetLayout &getMaterialDescriptorSetLayout(gfx::Device *device, uint32_t phaseID, const ccstd::pmr::string &programName) override;
-    const gfx::DescriptorSetLayout &getLocalDescriptorSetLayout(gfx::Device *device, uint32_t phaseID, const ccstd::pmr::string &programName) override;
-    const IProgramInfo &getProgramInfo(uint32_t phaseID, const ccstd::pmr::string &programName) const override;
-    const gfx::ShaderInfo &getShaderInfo(uint32_t phaseID, const ccstd::pmr::string &programName) const override;
-    ProgramProxy *getProgramVariant(gfx::Device *device, uint32_t phaseID, const ccstd::string &name, MacroRecord &defines, const ccstd::pmr::string *key) override;
-    const ccstd::pmr::vector<unsigned> &getBlockSizes(uint32_t phaseID, const ccstd::pmr::string &programName) const override;
-    const Record<ccstd::string, uint32_t> &getHandleMap(uint32_t phaseID, const ccstd::pmr::string &programName) const override;
-    uint32_t getProgramID(uint32_t phaseID, const ccstd::pmr::string &programName) override;
-    uint32_t getDescriptorNameID(const ccstd::pmr::string &name) override;
-    const ccstd::pmr::string &getDescriptorName(uint32_t nameID) override;
-
-    void init(gfx::Device* device);
-    void destroy();
-
-    LayoutGraphData layoutGraph;
-    PmrFlatMap<uint32_t, ProgramGroup> phases;
-    boost::container::pmr::unsynchronized_pool_resource unsycPool;
-    bool mergeHighFrequency{false};
-    bool fixedLocal{true};
-    IntrusivePtr<gfx::DescriptorSetLayout> emptyDescriptorSetLayout;
-    IntrusivePtr<gfx::PipelineLayout> emptyPipelineLayout;
-    PipelineRuntime* pipeline{nullptr};
-};
-
 class NativeRenderingModule final : public RenderingModule {
 public:
     NativeRenderingModule() = default;
@@ -561,6 +699,37 @@ public:
     uint32_t getPhaseID(uint32_t passID, const ccstd::string &name) const override;
 
     std::shared_ptr<NativeProgramLibrary> programLibrary;
+};
+
+class NativeSetter final : public Setter {
+public:
+    NativeSetter(const LayoutGraphData& layoutGraphIn, RenderData& renderDataIn) noexcept
+    : layoutGraph(layoutGraphIn),
+      renderData(renderDataIn) {}
+
+    ccstd::string getName() const override;
+    void setName(const ccstd::string &name) override;
+
+    void setMat4(const ccstd::string &name, const Mat4 &mat) override;
+    void setQuaternion(const ccstd::string &name, const Quaternion &quat) override;
+    void setColor(const ccstd::string &name, const gfx::Color &color) override;
+    void setVec4(const ccstd::string &name, const Vec4 &vec) override;
+    void setVec2(const ccstd::string &name, const Vec2 &vec) override;
+    void setFloat(const ccstd::string &name, float v) override;
+    void setBuffer(const ccstd::string &name, gfx::Buffer *buffer) override;
+    void setTexture(const ccstd::string &name, gfx::Texture *texture) override;
+    void setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) override;
+    void setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) override;
+    void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override;
+
+    void setVec4ArraySize(const ccstd::string& name, uint32_t sz);
+    void setVec4ArrayElem(const ccstd::string& name, const cc::Vec4& vec, uint32_t id);
+
+    void setMat4ArraySize(const ccstd::string& name, uint32_t sz);
+    void setMat4ArrayElem(const ccstd::string& name, const cc::Mat4& mat, uint32_t id);
+
+    const LayoutGraphData& layoutGraph;
+    RenderData& renderData;
 };
 
 } // namespace render

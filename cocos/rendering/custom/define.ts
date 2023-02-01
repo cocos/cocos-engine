@@ -482,7 +482,7 @@ export function buildPostprocessPass (camera: Camera,
     const postprocessPassRTName = `postprocessPassRTName${cameraID}`;
     const postprocessPassDS = `postprocessPassDS${cameraID}`;
     if (!ppl.containsResource(postprocessPassRTName)) {
-        ppl.addRenderTexture(postprocessPassRTName, Format.RGBA8, width, height, camera.window);
+        ppl.addRenderTexture(postprocessPassRTName, Format.BGRA8, width, height, camera.window);
         ppl.addDepthStencil(postprocessPassDS, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
     }
     ppl.updateRenderWindow(postprocessPassRTName, camera.window);
@@ -537,7 +537,7 @@ export function buildForwardPass (camera: Camera,
     const forwardPassDSName = `dsForwardPassDS${cameraName}`;
     if (!ppl.containsResource(forwardPassRTName)) {
         if (!isOffScreen) {
-            ppl.addRenderTexture(forwardPassRTName, Format.RGBA8, width, height, camera.window);
+            ppl.addRenderTexture(forwardPassRTName, Format.BGRA8, width, height, camera.window);
         } else {
             ppl.addRenderTarget(forwardPassRTName, Format.RGBA16F, width, height, ResourceResidency.MANAGED);
         }
@@ -545,6 +545,7 @@ export function buildForwardPass (camera: Camera,
     }
     if (!isOffScreen) {
         ppl.updateRenderWindow(forwardPassRTName, camera.window);
+        ppl.updateDepthStencil(forwardPassDSName, width, height);
     } else {
         ppl.updateRenderTarget(forwardPassRTName, width, height);
         ppl.updateDepthStencil(forwardPassDSName, width, height);
@@ -554,13 +555,13 @@ export function buildForwardPass (camera: Camera,
     forwardPass.setViewport(new Viewport(area.x, area.y, width, height));
     for (const dirShadowName of cameraInfo.mainLightShadowNames) {
         if (ppl.containsResource(dirShadowName)) {
-            const computeView = new ComputeView();
+            const computeView = new ComputeView('cc_shadowMap');
             forwardPass.addComputeView(dirShadowName, computeView);
         }
     }
     for (const spotShadowName of cameraInfo.spotLightShadowNames) {
         if (ppl.containsResource(spotShadowName)) {
-            const computeView = new ComputeView();
+            const computeView = new ComputeView('cc_spotShadowMap');
             forwardPass.addComputeView(spotShadowName, computeView);
         }
     }
@@ -872,13 +873,13 @@ export function buildLightingPass (camera: Camera, ppl: Pipeline, gBuffer: GBuff
     lightingPass.setViewport(new Viewport(area.x, area.y, width, height));
     for (const dirShadowName of cameraInfo.mainLightShadowNames) {
         if (ppl.containsResource(dirShadowName)) {
-            const computeView = new ComputeView();
+            const computeView = new ComputeView('cc_shadowMap');
             lightingPass.addComputeView(dirShadowName, computeView);
         }
     }
     for (const spotShadowName of cameraInfo.spotLightShadowNames) {
         if (ppl.containsResource(spotShadowName)) {
-            const computeView = new ComputeView();
+            const computeView = new ComputeView('cc_spotShadowMap');
             lightingPass.addComputeView(spotShadowName, computeView);
         }
     }
@@ -916,8 +917,8 @@ export function buildLightingPass (camera: Camera, ppl: Pipeline, gBuffer: GBuff
         camera, lightingInfo.deferredLightingMaterial, 0,
         SceneFlags.VOLUMETRIC_LIGHTING,
     );
-    lightingPass.addQueue(QueueHint.RENDER_TRANSPARENT).addSceneOfCamera(camera, new LightInfo(),
-        SceneFlags.TRANSPARENT_OBJECT | SceneFlags.PLANAR_SHADOW | SceneFlags.GEOMETRY);
+    // lightingPass.addQueue(QueueHint.RENDER_TRANSPARENT).addSceneOfCamera(camera, new LightInfo(),
+    //     SceneFlags.TRANSPARENT_OBJECT | SceneFlags.PLANAR_SHADOW | SceneFlags.GEOMETRY);
     return { rtName: deferredLightingPassRTName, dsName: deferredLightingPassDS };
 }
 

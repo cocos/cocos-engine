@@ -44,14 +44,6 @@ inline void cleanPath(std::basic_string<CharT, std::char_traits<CharT>, Allocato
     CC_EXPECTS(!str.empty());
     CC_EXPECTS(boost::algorithm::starts_with(str, std::string_view(slash)));
     CC_EXPECTS(str.find(doubleSlash) == string_t::npos);
-    CC_EXPECTS([&]() { // NOLINT
-        bool valid = true;
-        for (uint8_t c : str) {
-            if (c < uint8_t('.'))
-                valid = false;
-        }
-        return valid;
-    }());
 
     { // remove all /./
         constexpr CharT current[] = {'/', '.', '/', '\0'};

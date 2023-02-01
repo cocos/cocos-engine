@@ -72,7 +72,7 @@ export default class Burst {
      */
     @type(CurveRange)
     @serializable
-    @range([0, Number.POSITIVE_INFINITY])
+    @range([0, Number.POSITIVE_INFINITY, 1])
     public count: CurveRange = new CurveRange();
 
     private _remainingCount: number;

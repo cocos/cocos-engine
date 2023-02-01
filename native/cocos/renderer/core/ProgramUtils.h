@@ -48,6 +48,8 @@ ccstd::vector<gfx::Attribute> getActiveAttributes(
 ccstd::string getShaderInstanceName(
     const ccstd::string& name, const ccstd::vector<IMacroInfo>& macros);
 
+void addEffectDefaultProperties(EffectAsset& effect);
+
 } // namespace render
 
 } // namespace cc

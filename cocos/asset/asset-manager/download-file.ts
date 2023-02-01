@@ -22,15 +22,13 @@
  THE SOFTWARE.
 */
 
-import { CompleteCallback, IXHROptions } from './shared';
-
 type FileProgressCallback = (loaded: number, total: number) => void;
 
 export default function downloadFile (
     url: string,
-    options: IXHROptions,
+    options: Record<string, any>,
     onProgress: FileProgressCallback | null | undefined,
-    onComplete: CompleteCallback,
+    onComplete: ((err: Error | null, data?: any | null) => void),
 ): XMLHttpRequest {
     const xhr = new XMLHttpRequest();
     const errInfo = `download failed: ${url}, status: `;

@@ -147,6 +147,7 @@ void IProgramInfo::copyFrom(const IShaderInfo &o) {
     buffers = o.buffers;
     images = o.images;
     subpassInputs = o.subpassInputs;
+    descriptors = o.descriptors;
 }
 
 ProgramLib::ProgramLib() {
@@ -178,15 +179,7 @@ void ProgramLib::registerEffect(EffectAsset *effect) {
         auto *tmpl = define(shader);
         tmpl->effectName = effect->getName();
     }
-
-    for (auto &tech : effect->_techniques) {
-        for (auto &pass : tech.passes) {
-            // grab default property declaration if there is none
-            if (pass.propertyIndex.has_value() && !pass.properties.has_value()) {
-                pass.properties = tech.passes[pass.propertyIndex.value()].properties;
-            }
-        }
-    }
+    render::addEffectDefaultProperties(*effect);
 }
 
 IProgramInfo *ProgramLib::define(IShaderInfo &shader) {
@@ -362,7 +355,7 @@ IProgramInfo *ProgramLib::define(IShaderInfo &shader) {
  * @param name Target shader name
  */
 
-IProgramInfo *ProgramLib::getTemplate(const ccstd::string &name) {
+const IProgramInfo *ProgramLib::getTemplate(const ccstd::string &name) const {
     auto it = _templates.find(name);
     return it != _templates.end() ? &it->second : nullptr;
 }
