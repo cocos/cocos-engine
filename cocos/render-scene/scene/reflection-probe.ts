@@ -56,7 +56,7 @@ export class ReflectionProbe {
 
     public realtimePlanarTexture: RenderTexture | null = null;
 
-    protected _resolution = 512;
+    protected _resolution = 256;
     protected _clearFlag: number = ProbeClearFlag.SKYBOX;
     protected _backgroundColor = new Color(0, 0, 0, 255);
     protected _visibility = CAMERA_DEFAULT_MASK;

@@ -40,6 +40,8 @@
 #include "scene/Pass.h"
 #include "scene/RenderScene.h"
 #include "scene/SubModel.h"
+#include "scene/ReflectionProbeManager.h"
+#include "scene/ReflectionProbe.h"
 
 namespace {
 const cc::gfx::SamplerInfo LIGHTMAP_SAMPLER_HASH{
@@ -202,6 +204,37 @@ void Model::updateUBOs(uint32_t stamp) {
         _localBuffer->write(mat4, sizeof(float) * pipeline::UBOLocal::MAT_WORLD_IT_OFFSET);
         _localBuffer->write(_lightmapUVParam, sizeof(float) * pipeline::UBOLocal::LIGHTINGMAP_UVPARAM);
         _localBuffer->write(_shadowBias, sizeof(float) * (pipeline::UBOLocal::LOCAL_SHADOW_BIAS));
+        _localBuffer->write(0.F, sizeof(float) * (pipeline::UBOLocal::LOCAL_SHADOW_BIAS + 1));
+        _localBuffer->write(static_cast<float>(_reflectionProbeId), sizeof(float) * (pipeline::UBOLocal::LOCAL_SHADOW_BIAS + 2));
+        _localBuffer->write(0.F, sizeof(float) * (pipeline::UBOLocal::LOCAL_SHADOW_BIAS + 3));
+
+        auto * probe = scene::ReflectionProbeManager::getInstance()->getReflectionProbeById(_reflectionProbeId);
+        if (probe) {
+            if (probe->getProbeType() == scene::ReflectionProbe::ProbeType::PLANAR)
+            {
+                _localBuffer->write(static_cast<float>(probe->getNode()->getUp().x), sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_DATA1));
+                _localBuffer->write(static_cast<float>(probe->getNode()->getUp().y), sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_DATA1+1));
+                _localBuffer->write(static_cast<float>(probe->getNode()->getUp().z), sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_DATA1+2));
+                _localBuffer->write(1.F, sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_DATA1 + 3));
+
+                _localBuffer->write(1.F, sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_DATA2));
+                _localBuffer->write(0.F, sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_DATA2 + 1));
+                _localBuffer->write(0.F, sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_DATA2 + 2));
+                _localBuffer->write(1.F, sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_DATA2 + 3));
+            }
+            else
+            {
+                _localBuffer->write(static_cast<float>(probe->getNode()->getWorldPosition().x), sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_DATA1));
+                _localBuffer->write(static_cast<float>(probe->getNode()->getWorldPosition().y), sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_DATA1 + 1));
+                _localBuffer->write(static_cast<float>(probe->getNode()->getWorldPosition().z), sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_DATA1 + 2));
+                _localBuffer->write(0.F, sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_DATA1 + 3));
+
+                _localBuffer->write(static_cast<float>(probe->getBoudingSize().x), sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_DATA2));
+                _localBuffer->write(static_cast<float>(probe->getBoudingSize().y), sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_DATA2 + 1));
+                _localBuffer->write(static_cast<float>(probe->getBoudingSize().z), sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_DATA2 + 2));
+                _localBuffer->write(static_cast<float>(probe->getCubeMap() ? probe->getCubeMap()->mipmapLevel() : 1.F), sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_DATA2 + 3));
+            }
+        }
 
         _localBuffer->update();
         const bool enableOcclusionQuery = Root::getInstance()->getPipeline()->isOcclusionQueryEnabled();
@@ -612,6 +645,37 @@ void Model::updateReflectionProbePlanarMap(gfx::Texture *texture) {
             descriptorSet->update();
         }
     }
+}
+
+void Model::updateReflectionProbeDataMap(gfx::Texture *texture)
+{
+    _localDataUpdated = true;
+
+    gfx::Texture *bindingTexture = texture;
+    if (!bindingTexture) {
+        bindingTexture = BuiltinResMgr::getInstance()->get<Texture2D>(ccstd::string("empty-texture"))->getGFXTexture();
+    }
+    if (bindingTexture) {
+        gfx::SamplerInfo info{
+            cc::gfx::Filter::NONE,
+            cc::gfx::Filter::NONE,
+            cc::gfx::Filter::NONE,
+            cc::gfx::Address::WRAP,
+            cc::gfx::Address::WRAP,
+            cc::gfx::Address::WRAP,
+        };
+        auto *sampler = _device->getSampler(info);
+        for (SubModel *subModel : _subModels) {
+            gfx::DescriptorSet *descriptorSet = subModel->getDescriptorSet();
+            descriptorSet->bindTexture(pipeline::REFLECTIONPROBEDATAMAP::BINDING, bindingTexture);
+            descriptorSet->bindSampler(pipeline::REFLECTIONPROBEDATAMAP::BINDING, sampler);
+            descriptorSet->update();
+        }
+    }
+}
+
+void Model::updateReflectionProbeId() {
+    _localDataUpdated = true;
 }
 
 void Model::setInstancedAttribute(const ccstd::string &name, const float *value, uint32_t byteLength) {

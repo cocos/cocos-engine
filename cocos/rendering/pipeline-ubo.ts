@@ -70,6 +70,8 @@ export class PipelineUBO {
         fv[UBOGlobal.NATIVE_SIZE_OFFSET + 2] = 1.0 / fv[UBOGlobal.NATIVE_SIZE_OFFSET];
         fv[UBOGlobal.NATIVE_SIZE_OFFSET + 3] = 1.0 / fv[UBOGlobal.NATIVE_SIZE_OFFSET + 1];
 
+        fv[UBOGlobal.PROBE_INFO_OFFSET] = cclegacy.internal.reflectionProbeManager.getProbes().length;
+
         const debugView = root.debugView;
         fv[UBOGlobal.DEBUG_VIEW_MODE_OFFSET] = debugView.singleMode as number;
         fv[UBOGlobal.DEBUG_VIEW_MODE_OFFSET + 1] = debugView.lightingWithAlbedo ? 1.0 : 0.0;

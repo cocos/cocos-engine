@@ -36,10 +36,11 @@ import { IMacroPatch } from '../core/pass';
 import { Mat4, Vec3, Vec4, geometry, cclegacy, EPSILON } from '../../core';
 import { Attribute, DescriptorSet, Device, Buffer, BufferInfo,
     BufferUsageBit, MemoryUsageBit, Filter, Address, SamplerInfo, deviceManager, Texture } from '../../gfx';
-import { UBOLocal, UBOSH, UBOWorldBound, UNIFORM_LIGHTMAP_TEXTURE_BINDING, UNIFORM_REFLECTION_PROBE_CUBEMAP_BINDING, UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING } from '../../rendering/define';
+import { UBOLocal, UBOSH, UBOWorldBound, UNIFORM_LIGHTMAP_TEXTURE_BINDING, UNIFORM_REFLECTION_PROBE_CUBEMAP_BINDING, UNIFORM_REFLECTION_PROBE_DATA_MAP_BINDING, UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING } from '../../rendering/define';
 import { Root } from '../../root';
 import { TextureCube } from '../../asset/assets';
 import { ShadowType } from './shadows';
+import { ProbeType } from './reflection-probe';
 
 const m4_1 = new Mat4();
 
@@ -245,7 +246,7 @@ export class Model {
      * @en The node to which the model belongs
      * @zh 模型所在的节点
      */
-    get node () : Node {
+    get node (): Node {
         return this._node;
     }
 
@@ -257,7 +258,7 @@ export class Model {
      * @en Model's transform
      * @zh 模型的变换
      */
-    get transform () : Node {
+    get transform (): Node {
         return this._transform;
     }
 
@@ -272,7 +273,7 @@ export class Model {
      * @zh 模型的可见性标志
      * 模型的可见性标志与 [[Node.layer]] 不同，它会在剔除阶段与 [[Camera.visibility]] 进行比较
      */
-    get visFlags () : number {
+    get visFlags (): number {
         return this._visFlags;
     }
 
@@ -284,7 +285,7 @@ export class Model {
      * @en Whether the model is enabled in the render scene so that it will be rendered
      * @zh 模型是否在渲染场景中启用并被渲染
      */
-    get enabled () : boolean {
+    get enabled (): boolean {
         return this._enabled;
     }
 
@@ -296,7 +297,7 @@ export class Model {
      * @en Rendering priority in the transparent queue of model.
      * @zh Model 在透明队列中的渲染排序优先级
      */
-    get priority () : number {
+    get priority (): number {
         return this._priority;
     }
 
@@ -331,6 +332,18 @@ export class Model {
             subModels[i].useReflectionProbeType = val;
         }
         this.onMacroPatchesStateChanged();
+    }
+
+    /**
+     * @en sets or gets reflection probe id
+     * @zh 设置或获取反射探针id。
+     */
+    get reflectionProbeId () {
+        return this._reflectionProbeId;
+    }
+
+    set reflectionProbeId (val) {
+        this._reflectionProbeId = val;
     }
 
     /**
@@ -475,6 +488,12 @@ export class Model {
      * @zh 阴影法线偏移
      */
     protected _shadowNormalBias = 0;
+
+    /**
+     * @en Reflect probe Id
+     * @zh 使用第几个反射探针
+     */
+    protected _reflectionProbeId = -1;
 
     /**
      * @en Whether the model is enabled in the render scene so that it will be rendered
@@ -948,6 +967,37 @@ export class Model {
     }
 
     /**
+     * @en Update the data map of the reflection probe
+     * @zh 更新反射探针的数据贴图
+     * @param texture data map
+     */
+    public updateReflectionProbeDataMap (texture: Texture | null) {
+        this._localDataUpdated = true;
+        this.onMacroPatchesStateChanged();
+
+        const sampler = this._device.getSampler(new SamplerInfo(
+            Filter.NONE,
+            Filter.NONE,
+            Filter.NONE,
+            Address.WRAP,
+            Address.WRAP,
+            Address.WRAP,
+        ));
+        if (!texture) {
+            texture = builtinResMgr.get<Texture2D>('empty-texture').getGFXTexture()!;
+        }
+        if (texture) {
+            const subModels = this._subModels;
+            for (let i = 0; i < subModels.length; i++) {
+                const { descriptorSet } = subModels[i];
+                descriptorSet.bindTexture(UNIFORM_REFLECTION_PROBE_DATA_MAP_BINDING, texture);
+                descriptorSet.bindSampler(UNIFORM_REFLECTION_PROBE_DATA_MAP_BINDING, sampler);
+                descriptorSet.update();
+            }
+        }
+    }
+
+    /**
      * @en Update the shadow bias
      * @zh 更新阴影偏移
      */
@@ -955,8 +1005,41 @@ export class Model {
         const sv = this._localData;
         sv[UBOLocal.LOCAL_SHADOW_BIAS + 0] = this._shadowBias;
         sv[UBOLocal.LOCAL_SHADOW_BIAS + 1] = this._shadowNormalBias;
-        sv[UBOLocal.LOCAL_SHADOW_BIAS + 2] = 0;
+        this._localDataUpdated = true;
+    }
+
+    /**
+     * @en Update the id of reflection probe
+     * @zh 更新物体使用哪个反射探针
+     */
+    public updateReflectionProbeId  () {
+        const sv = this._localData;
+        sv[UBOLocal.LOCAL_SHADOW_BIAS + 2] = this._reflectionProbeId;
         sv[UBOLocal.LOCAL_SHADOW_BIAS + 3] = 0;
+        const probe = cclegacy.internal.reflectionProbeManager.getProbeById(this._reflectionProbeId);
+        if (probe) {
+            if (probe.probeType === ProbeType.PLANAR) {
+                sv[UBOLocal.REFLECTION_PROBE_DATA1] = probe.node.up.x;
+                sv[UBOLocal.REFLECTION_PROBE_DATA1 + 1] = probe.node.up.y;
+                sv[UBOLocal.REFLECTION_PROBE_DATA1 + 2] = probe.node.up.z;
+                sv[UBOLocal.REFLECTION_PROBE_DATA1 + 3] = 1.0;
+
+                sv[UBOLocal.REFLECTION_PROBE_DATA2] = 1.0;
+                sv[UBOLocal.REFLECTION_PROBE_DATA2 + 1] = 0.0;
+                sv[UBOLocal.REFLECTION_PROBE_DATA2 + 2] = 0.0;
+                sv[UBOLocal.REFLECTION_PROBE_DATA2 + 3] = 1.0;
+            } else {
+                sv[UBOLocal.REFLECTION_PROBE_DATA1] = probe.node.worldPosition.x;
+                sv[UBOLocal.REFLECTION_PROBE_DATA1 + 1] = probe.node.worldPosition.y;
+                sv[UBOLocal.REFLECTION_PROBE_DATA1 + 2] = probe.node.worldPosition.z;
+                sv[UBOLocal.REFLECTION_PROBE_DATA1 + 3] = 0.0;
+
+                sv[UBOLocal.REFLECTION_PROBE_DATA2] = probe.size.x;
+                sv[UBOLocal.REFLECTION_PROBE_DATA2 + 1] = probe.size.y;
+                sv[UBOLocal.REFLECTION_PROBE_DATA2 + 2] = probe.size.z;
+                sv[UBOLocal.REFLECTION_PROBE_DATA2 + 3] = probe.cubemap ? probe.cubemap!.mipmapLevel : 1.0;
+            }
+        }
         this._localDataUpdated = true;
     }
 

@@ -23,11 +23,10 @@
  THE SOFTWARE.
 */
 
-import { EDITOR } from 'internal:constants';
 import { MeshRenderer, ReflectionProbeType } from '../3d/framework/mesh-renderer';
 import { Vec3, geometry, cclegacy } from '../core';
 import { director, Director } from '../game';
-import { Texture } from '../gfx';
+import { BufferTextureCopy, deviceManager, Format, Texture, TextureInfo, TextureType, TextureUsageBit } from '../gfx';
 import { Camera, Model } from '../render-scene/scene';
 import { ProbeType, ReflectionProbe } from '../render-scene/scene/reflection-probe';
 import { Layers } from '../scene-graph/layers';
@@ -52,17 +51,28 @@ export class ReflectionProbeManager {
      * 场景中所有使用planar类型反射探针的模型
      */
     private _usePlanarModels = new Map<Model, ReflectionProbe>();
-
+    private _updateForRuntime = true;
+    private _dataTexture: Texture | null = null;
     constructor () {
         director.on(Director.EVENT_BEFORE_UPDATE, this.onUpdateProbes, this);
     }
-
+    /**
+     * @en Set and get whether to detect objects leaving or entering the reflection probe's bounding box at runtime.
+     * @zh 设置和获取是否在运行时检测物体离开或者进入反射探针的包围盒。
+     */
+    set updateForRuntime (val: boolean) {
+        this._updateForRuntime = val;
+    }
+    get updateForRuntime () {
+        return this._updateForRuntime;
+    }
     /**
      * @en refresh all reflection probe
      * @zh 刷新所有反射探针
      */
     public onUpdateProbes (forceUpdate = false) {
         if (this._probes.length === 0) return;
+        if (!this.updateForRuntime) return;
         const scene = director.getScene();
         if (!scene || !scene.renderScene) {
             return;
@@ -100,11 +110,7 @@ export class ReflectionProbeManager {
     public clearPlanarReflectionMap (probe: ReflectionProbe) {
         for (const entry of this._usePlanarModels.entries()) {
             if (entry[1] === probe) {
-                const model = entry[0];
-                const meshRender = model.node.getComponent(MeshRenderer);
-                if (meshRender) {
-                    meshRender.updateProbePlanarMap(null);
-                }
+                this._updatePlanarMapOfModel(entry[0], null, null);
             }
         }
     }
@@ -113,6 +119,7 @@ export class ReflectionProbeManager {
         const index = this._probes.indexOf(probe);
         if (index === -1) {
             this._probes.push(probe);
+            this.updateProbeData();
         }
     }
 
@@ -154,6 +161,15 @@ export class ReflectionProbeManager {
         return this._probes;
     }
 
+    public getProbeById (probeId: number): ReflectionProbe | null {
+        for (let i = 0; i < this._probes.length; i++) {
+            if (this._probes[i].getProbeId() === probeId) {
+                return this._probes[i];
+            }
+        }
+        return null;
+    }
+
     public clearAll () {
         this._probes = [];
     }
@@ -177,10 +193,7 @@ export class ReflectionProbeManager {
         if (!probe.cubemap) return;
         for (let i = 0; i < models.length; i++) {
             const model = models[i];
-            const meshRender = model.node.getComponent(MeshRenderer);
-            if (meshRender) {
-                meshRender.updateProbeCubemap(probe.cubemap);
-            }
+            this._updateCubemapOfModel(model, probe);
         }
         probe.needRefresh = false;
     }
@@ -194,11 +207,7 @@ export class ReflectionProbeManager {
         if (!probe.node || !probe.node.scene) return;
         const models = this._getModelsByProbe(probe);
         for (let i = 0; i < models.length; i++) {
-            const model = models[i];
-            const meshRender = model.node.getComponent(MeshRenderer);
-            if (meshRender) {
-                meshRender.updateProbePlanarMap(texture);
-            }
+            this._updatePlanarMapOfModel(models[i], texture, probe);
         }
         if (probe.previewPlane) {
             const meshRender = probe.previewPlane.getComponent(MeshRenderer);
@@ -219,8 +228,7 @@ export class ReflectionProbeManager {
         for (let i = 0; i < this._probes.length; i++) {
             const probe = this._probes[i];
             if (probe.probeType !== ProbeType.PLANAR) continue;
-            const meshRender = model.node.getComponent(MeshRenderer);
-            if ((model.node.layer & REFLECTION_PROBE_DEFAULT_MASK) && meshRender) {
+            if (model.node.layer & REFLECTION_PROBE_DEFAULT_MASK) {
                 model.updateWorldBound();
                 if (geometry.intersect.aabbWithAABB(model.worldBounds, probe.boundingBox!)) {
                     this._usePlanarModels.set(model, probe);
@@ -228,10 +236,7 @@ export class ReflectionProbeManager {
                     const old = this._usePlanarModels.get(model);
                     if (old === probe) {
                         this._usePlanarModels.delete(model);
-                        const meshRender = model.node.getComponent(MeshRenderer);
-                        if (meshRender) {
-                            meshRender.updateProbePlanarMap(null);
-                        }
+                        this._updatePlanarMapOfModel(model, null, null);
                     }
                 }
             }
@@ -260,10 +265,7 @@ export class ReflectionProbeManager {
             const nearest = this._getNearestProbe(model);
             if (!nearest) {
                 //not in the range of any probe,set default texture for the model
-                const meshRender = model.node.getComponent(MeshRenderer);
-                if (meshRender) {
-                    meshRender.updateProbeCubemap(null);
-                }
+                this._updateCubemapOfModel(model, null);
                 this._useCubeModels.delete(model);
             } else if (this._useCubeModels.has(model)) {
                 const old = this._useCubeModels.get(model);
@@ -312,6 +314,83 @@ export class ReflectionProbeManager {
     }
 
     /**
+     * @en Update reflection probe data of model bind.
+     * @zh 更新模型绑定的反射探针数据。
+     */
+    public updateProbeData () {
+        if (this._probes.length === 0) return;
+        const dataWidth = 3;
+        if (!this._dataTexture) {
+            this._dataTexture = deviceManager.gfxDevice.createTexture(new TextureInfo(
+                TextureType.TEX2D,
+                TextureUsageBit.SAMPLED | TextureUsageBit.TRANSFER_DST,
+                Format.RGBA32F,
+                dataWidth,
+                this._probes.length,
+            ));
+        } else {
+            this._dataTexture.resize(dataWidth, this._probes.length);
+        }
+
+        const buffer = new Float32Array(4 * dataWidth * this._probes.length);
+        let bufferOffset = 0;
+        this._probes.sort((a: ReflectionProbe, b: ReflectionProbe) => a.getProbeId() - b.getProbeId());
+        for (let i = 0; i < this._probes.length; i++) {
+            if (this._probes[i].probeType === ProbeType.CUBE) {
+                //world pos
+                buffer[bufferOffset] = this._probes[i].node.worldPosition.x;
+                buffer[bufferOffset + 1] = this._probes[i].node.worldPosition.y;
+                buffer[bufferOffset + 2] = this._probes[i].node.worldPosition.z;
+                buffer[bufferOffset + 3] = 0.0;
+
+                buffer[bufferOffset + 4] = this._probes[i].size.x;
+                buffer[bufferOffset + 5] = this._probes[i].size.y;
+                buffer[bufferOffset + 6] = this._probes[i].size.z;
+                buffer[bufferOffset + 7] = 0.0;
+                buffer[bufferOffset + 8] = this._probes[i].cubemap ? this._probes[i].cubemap!.mipmapLevel : 1.0;
+            } else {
+                //plane.xyz;
+                buffer[bufferOffset] = this._probes[i].node.up.x;
+                buffer[bufferOffset + 1] = this._probes[i].node.up.y;
+                buffer[bufferOffset + 2] = this._probes[i].node.up.z;
+                buffer[bufferOffset + 3] = 1.0;
+                //plane.w;
+                buffer[bufferOffset + 4] = 1.0;
+                //planarReflectionDepthScale
+                buffer[bufferOffset + 5] = 1.0;
+                buffer[bufferOffset + 6] = 0.0;
+                buffer[bufferOffset + 7] = 0.0;
+                //mipCount;
+                buffer[bufferOffset + 8] = 1.0;
+            }
+            buffer[bufferOffset + 9] = 0.0;
+            buffer[bufferOffset + 10] = 0.0;
+            buffer[bufferOffset + 11] = 0.0;
+
+            bufferOffset += 4 * dataWidth;
+        }
+        const region = new BufferTextureCopy();
+        region.texOffset.x = 0;
+        region.texOffset.y = 0;
+        region.texExtent.width = dataWidth;
+        region.texExtent.height = this._probes.length;
+
+        deviceManager.gfxDevice.copyBuffersToTexture([buffer], this._dataTexture, [region]);
+
+        for (let i = 0; i < this._probes.length; i++) {
+            const probe = this._probes[i];
+            const models = this._getModelsByProbe(probe);
+            for (let j = 0; j < models.length; j++) {
+                const meshRender = models[j].node.getComponent(MeshRenderer);
+                if (meshRender) {
+                    meshRender.updateReflectionProbeDataMap(this._dataTexture);
+                    meshRender.updateReflectionProbeId(probe.getProbeId());
+                }
+            }
+        }
+    }
+
+    /**
      * @en
      * select the probe with the nearest distance.
      * @zh
@@ -341,6 +420,24 @@ export class ReflectionProbeManager {
         return find ? this._probes[idx] : null;
     }
 
+    private _getBlendProbe (model: Model): ReflectionProbe | null {
+        if (this._probes.length === 0) return null;
+        if (!model.node || !model.worldBounds) return null;
+        const temp: ReflectionProbe[] = [];
+        for (let i = 0; i < this._probes.length; i++) {
+            if (this._probes[i].probeType !== ProbeType.CUBE || !this._probes[i].validate() || !geometry.intersect.aabbWithAABB(model.worldBounds, this._probes[i].boundingBox!)) {
+                continue;
+            }
+            temp.push(this._probes[i]);
+        }
+        temp.sort((a: ReflectionProbe, b: ReflectionProbe) => {
+            const aDistance = Vec3.distance(model.node.worldPosition, a.node.worldPosition);
+            const bDistance = Vec3.distance(model.node.worldPosition, b.node.worldPosition);
+            return bDistance - aDistance;
+        });
+        return temp.length > 1 ? temp[1] : null;
+    }
+
     private _getModelsByProbe (probe: ReflectionProbe) {
         const models: Model[] = [];
         let useModels = this._useCubeModels;
@@ -360,21 +457,30 @@ export class ReflectionProbeManager {
             const p = this._useCubeModels.get(key);
             if (p !== undefined && p === probe) {
                 this._useCubeModels.delete(key);
-                const meshRender = key.node.getComponent(MeshRenderer);
-                if (meshRender) {
-                    meshRender.updateProbeCubemap(null);
-                }
+                this.updateUseCubeModels(key);
             }
         }
         for (const key of this._usePlanarModels.keys()) {
             const p = this._usePlanarModels.get(key);
             if (p !== undefined && p === probe) {
                 this._usePlanarModels.delete(key);
-                const meshRender = key.node.getComponent(MeshRenderer);
-                if (meshRender) {
-                    meshRender.updateProbePlanarMap(null);
-                }
+                this.updateUsePlanarModels(key);
             }
+        }
+    }
+
+    private _updateCubemapOfModel (model: Model, probe: ReflectionProbe | null) {
+        const meshRender = model.node.getComponent(MeshRenderer);
+        if (meshRender) {
+            meshRender.updateProbeCubemap(probe ? probe.cubemap : null);
+            meshRender.updateReflectionProbeId(probe ? probe.getProbeId() : -1);
+        }
+    }
+    private _updatePlanarMapOfModel (model: Model, texture: Texture | null, probe: ReflectionProbe | null) {
+        const meshRender = model.node.getComponent(MeshRenderer);
+        if (meshRender) {
+            meshRender.updateProbePlanarMap(texture);
+            meshRender.updateReflectionProbeId(probe ? probe.getProbeId() : -1);
         }
     }
 }

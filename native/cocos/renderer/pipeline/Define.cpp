@@ -70,6 +70,7 @@ const gfx::UniformBlock UBOGlobal::LAYOUT = {
         {"cc_time", gfx::Type::FLOAT4, 1},
         {"cc_screenSize", gfx::Type::FLOAT4, 1},
         {"cc_nativeSize", gfx::Type::FLOAT4, 1},
+        {"cc_probeInfo", gfx::Type::FLOAT4, 1},
 
         {"cc_debug_view_mode", gfx::Type::FLOAT, 4},
         {"cc_debug_view_composite_pack_1", gfx::Type::FLOAT, 4},
@@ -202,6 +203,8 @@ const gfx::UniformBlock UBOLocal::LAYOUT = {
         {"cc_matWorldIT", gfx::Type::MAT4, 1},
         {"cc_lightingMapUVParam", gfx::Type::FLOAT4, 1},
         {"cc_localShadowBias", gfx::Type::FLOAT4, 1},
+        {"cc_reflectionProbeData1", gfx::Type::FLOAT4, 1},
+        {"cc_reflectionProbeData2", gfx::Type::FLOAT4, 1},
     },
     1,
 };
@@ -609,6 +612,23 @@ const gfx::UniformSamplerTexture REFLECTIONPROBEPLANARMAP::LAYOUT = {
     gfx::Type::SAMPLER2D,
     1,
 };
+
+const ccstd::string REFLECTIONPROBEDATAMAP::NAME = "cc_reflectionProbeDataMap";
+const gfx::DescriptorSetLayoutBinding REFLECTIONPROBEDATAMAP::DESCRIPTOR = {
+    REFLECTIONPROBEDATAMAP::BINDING,
+    gfx::DescriptorType::SAMPLER_TEXTURE,
+    1,
+    gfx::ShaderStageFlagBit::FRAGMENT,
+    {},
+};
+const gfx::UniformSamplerTexture REFLECTIONPROBEDATAMAP::LAYOUT = {
+    localSet,
+    REFLECTIONPROBEDATAMAP::BINDING,
+    REFLECTIONPROBEDATAMAP::NAME,
+    gfx::Type::SAMPLER2D,
+    1,
+};
+
 
 uint32_t skyboxFlag = static_cast<uint32_t>(gfx::ClearFlagBit::STENCIL) << 1;
 
