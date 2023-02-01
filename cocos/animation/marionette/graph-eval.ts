@@ -713,6 +713,7 @@ class LayerEval {
                     exitCondition: 0.0,
                     exitConditionEnabled: false,
                     interruption: TransitionInterruptionSource.NONE,
+                    activated: false,
                 };
 
                 if (isAnimationTransition(outgoing)) {
@@ -923,7 +924,6 @@ class LayerEval {
             currentNode,
             currentNode,
             deltaTime,
-            null,
             transitionMatch,
         );
         if (transitionMatch.hasZeroCost()) {
@@ -962,7 +962,6 @@ class LayerEval {
                 ancestor.any,
                 realNode,
                 deltaTime,
-                null,
                 result,
             );
             if (updated) {
@@ -982,7 +981,7 @@ class LayerEval {
      * @returns True if a transition match is updated into the `result`.
      */
     private _matchTransition (
-        node: NodeEval, realNode: NodeEval, deltaTime: Readonly<number>, except: TransitionEval | null, result: TransitionMatchCache,
+        node: NodeEval, realNode: NodeEval, deltaTime: Readonly<number>, result: TransitionMatchCache,
     ) {
         assertIsTrue(node === realNode || node.kind === NodeKind.any);
         const { outgoingTransitions } = node;
@@ -990,7 +989,7 @@ class LayerEval {
         let resultUpdated = false;
         for (let iTransition = 0; iTransition < nTransitions; ++iTransition) {
             const transition = outgoingTransitions[iTransition];
-            if (transition === except) {
+            if (transition.activated) {
                 continue;
             }
 
@@ -1054,10 +1053,7 @@ class LayerEval {
      * @returns If the transition finally ran into entry/exit state.
      */
     private _switchTo (transition: TransitionEval) {
-        const { _currentTransitionPath: currentTransitionPath } = this;
-
         this._consumeTransition(transition);
-        currentTransitionPath.push(transition);
 
         const motionNode = this._matchTransitionPathUntilMotion();
         if (motionNode) {
@@ -1117,7 +1113,6 @@ class LayerEval {
                 tailNode,
                 tailNode,
                 0.0,
-                null,
                 transitionMatch,
             );
             if (!transitionMatch.transition) {
@@ -1125,7 +1120,6 @@ class LayerEval {
             }
             const transition = transitionMatch.transition;
             this._consumeTransition(transition);
-            currentTransitionPath.push(transition);
             tailNode = transition.to;
         }
 
@@ -1139,6 +1133,9 @@ class LayerEval {
             // We're entering a state machine
             this._callEnterMethods(to);
         }
+
+        transition.activated = true;
+        this._currentTransitionPath.push(transition);
     }
 
     private _resetTriggersAlongThePath () {
@@ -1277,23 +1274,30 @@ class LayerEval {
         }
         this._fromUpdated = this._toUpdated;
         this._toUpdated = false;
-        this._dropCurrentTransition();
+        this._dropCurrentTransition(true);
         this._currentNode = toNode;
         if (fromNode.kind === NodeKind.transitionSnapshot) {
             fromNode.clear();
         }
     }
 
-    private _dropCurrentTransition () {
+    private _dropCurrentTransition (inactivate: boolean) {
         const {
+            _currentTransitionPath: currentTransitionPath,
             _currentTransitionToNode: currentTransitionToNode,
         } = this;
         assertIsNonNullable(currentTransitionToNode);
         if (currentTransitionToNode.kind === NodeKind.animation) {
             currentTransitionToNode.finishTransition();
         }
+        if (inactivate) {
+            const nTransitions = currentTransitionPath.length;
+            for (let iTransition = 0; iTransition < nTransitions; ++iTransition) {
+                currentTransitionPath[iTransition].activated = false;
+            }
+        }
         this._currentTransitionToNode = null;
-        this._currentTransitionPath.length = 0;
+        currentTransitionPath.length = 0;
         // Make sure we won't suffer from precision problem
         this._transitionAlpha = 0.0;
     }
@@ -1350,7 +1354,6 @@ class LayerEval {
             motion0,
             motion0,
             remainTimePiece,
-            currentTransition,
             transitionMatch,
         );
         if (transitionMatchUpdated) {
@@ -1368,7 +1371,6 @@ class LayerEval {
                 motion1,
                 motion1,
                 remainTimePiece,
-                currentTransition,
                 transitionMatch,
             );
             if (transitionMatchUpdated) {
@@ -1414,7 +1416,10 @@ class LayerEval {
             transitionSnapshot.enqueue(currentNode, 1.0);
         }
         this._takeCurrentTransitionSnapshot(transitionSource);
-        this._dropCurrentTransition();
+        // Drop transitions.
+        // Do not inactivate the transitions since in snapshot mode, transitions are treated as inactivated.
+        // They will be inactivated when the snapshot is cleared.
+        this._dropCurrentTransition(false);
         // Install the snapshot as "current"
         this._currentNode = this._transitionSnapshot;
         const ranIntoNonMotionState = this._switchTo(transition);
@@ -1456,6 +1461,7 @@ class LayerEval {
         }
 
         transitionSnapshot.enqueue(currentTransitionToNode, ratio);
+        transitionSnapshot.transferTransitions(currentTransitionPath);
     }
 
     private _resetTriggersOnTransition (transition: TransitionEval) {
@@ -1962,6 +1968,12 @@ class TransitionSnapshotEval extends StateEval {
 
     public clear () {
         this._queue.length = 0;
+
+        const { _heldTransitions: heldTransitions } = this;
+        const nTransitions = heldTransitions.length;
+        for (let iTransition = 0; iTransition < nTransitions; ++iTransition) {
+            heldTransitions[iTransition].activated = false;
+        }
     }
 
     public enqueue (state: MotionStateEval, weight: number) {
@@ -1974,7 +1986,15 @@ class TransitionSnapshotEval extends StateEval {
         queue.push(new QueuedMotion(state, weight));
     }
 
+    public transferTransitions (transitions: readonly TransitionEval[]) {
+        if (DEBUG) {
+            assertIsTrue(transitions.every((transition) => transition.activated));
+        }
+        this._heldTransitions.push(...transitions);
+    }
+
     private _queue: QueuedMotion[] = [];
+    private _heldTransitions: TransitionEval[] = [];
 }
 
 export type NodeEval = MotionStateEval | SpecialStateEval | EmptyStateEval | TransitionSnapshotEval;
@@ -1993,6 +2013,11 @@ interface TransitionEval {
      */
     triggers: string[] | undefined;
     interruption: TransitionInterruptionSource;
+
+    /**
+     * Whether the transition is activated, if it has already been activated, it can not be activated(matched) again.
+     */
+    activated: boolean;
 }
 
 export type { VarInstance } from './variable';
