@@ -340,8 +340,8 @@ export class ReflectionProbe extends Component {
             }
             if (this.node.hasChangedFlags & TransformBit.POSITION) {
                 ReflectionProbeManager.probeManager.onUpdateProbes(true);
+                ReflectionProbeManager.probeManager.updateProbeData();
             }
-            ReflectionProbeManager.probeManager.updateProbeData();
         }
         if (this.probeType === ProbeType.PLANAR && this.sourceCamera) {
             if ((this.sourceCamera.node.hasChangedFlags & TransformBit.TRS)
