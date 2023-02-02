@@ -268,6 +268,6 @@ function setDefaultValue<T> (
         // eslint-disable-next-line no-prototype-builtins
         if ((actualDefaultValues as any).hasOwnProperty(propertyKey)) {
             propertyStash.default = (actualDefaultValues as any)[propertyKey];
-        
+        }
     }
 }
