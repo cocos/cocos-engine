@@ -25,7 +25,7 @@
 /* eslint-disable max-len */
 import { EffectAsset } from '../../asset/assets';
 import { assert } from '../../core';
-import { DescriptorSetLayout, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo, DescriptorType, Device, PipelineLayout, PipelineLayoutInfo, ShaderStageFlagBit, Type, Uniform, UniformBlock } from '../../gfx';
+import { DescriptorSetInfo, DescriptorSetLayout, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo, DescriptorType, Device, PipelineLayout, PipelineLayoutInfo, ShaderStageFlagBit, Type, Uniform, UniformBlock } from '../../gfx';
 import { DefaultVisitor, depthFirstSearch, GraphColor, MutableVertexPropertyMap } from './graph';
 import { DescriptorBlockData, DescriptorData, DescriptorDB, DescriptorSetData, DescriptorSetLayoutData, LayoutGraph, LayoutGraphData, LayoutGraphDataValue, LayoutGraphValue, PipelineLayoutData, RenderPhase, RenderPhaseData, RenderStageData, ShaderProgramData } from './layout-graph';
 import { UpdateFrequency, getUpdateFrequencyName, getDescriptorTypeOrderName, Descriptor, DescriptorBlock, DescriptorBlockFlattened, DescriptorBlockIndex, DescriptorTypeOrder, ParameterType } from './types';
@@ -1210,6 +1210,54 @@ export function buildLayoutGraphData (lg: LayoutGraph, lgData: LayoutGraphData) 
     const builder = new LayoutGraphBuilder2(lgData);
     buildLayoutGraphDataImpl(lg, builder);
     builder.compile();
+}
+
+function createDescriptorInfo (layoutData: DescriptorSetLayoutData, info: DescriptorSetLayoutInfo) {
+    for (let i = 0; i < layoutData.descriptorBlocks.length; ++i) {
+        const block = layoutData.descriptorBlocks[i];
+        let slot = block.offset;
+        for (let j = 0; j < block.descriptors.length; ++j) {
+            const d = block.descriptors[j];
+            const binding: DescriptorSetLayoutBinding = new DescriptorSetLayoutBinding();
+            binding.binding = slot;
+            binding.descriptorType = getGfxDescriptorType(block.type);
+            binding.count = d.count;
+            binding.stageFlags = block.visibility;
+            binding.immutableSamplers = [];
+            info.bindings.push(binding);
+            slot += d.count;
+        }
+    }
+}
+
+function createDescriptorSetLayout (device: Device | null, layoutData: DescriptorSetLayoutData) {
+    const info: DescriptorSetLayoutInfo = new DescriptorSetLayoutInfo();
+    createDescriptorInfo(layoutData, info);
+
+    if (device) {
+        return device.createDescriptorSetLayout(info);
+    } else {
+        return null;
+    }
+}
+
+export function createGfxDescriptorSetsAndPipelines (device: Device | null, g: LayoutGraphData) {
+    for (let i = 0; i < g._layouts.length; ++i) {
+        const ppl: PipelineLayoutData = g.getLayout(i);
+        ppl.descriptorSets.forEach((value, key) => {
+            const level = value;
+            const layoutData = level.descriptorSetLayoutData;
+            if (device) {
+                const layout: DescriptorSetLayout | null = createDescriptorSetLayout(device, layoutData);
+                if (layout) {
+                    level.descriptorSetLayout = (layout);
+                    level.descriptorSet = (device.createDescriptorSet(new DescriptorSetInfo(layout)));
+                }
+            } else {
+                createDescriptorInfo(layoutData, level.descriptorSetLayoutInfo);
+            }
+        });
+    }
 }
 
 export function printLayoutGraphData (g: LayoutGraphData): string {

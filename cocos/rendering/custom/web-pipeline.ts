@@ -51,6 +51,7 @@ import { decideProfilerCamera } from '../pipeline-funcs';
 import { DebugViewCompositeType } from '../debug-view';
 import { getUBOTypeCount } from './utils';
 import { initGlobalDescBinding } from './define';
+import { createGfxDescriptorSetsAndPipelines } from './layout-graph-utils';
 
 export class WebSetter {
     constructor (data: RenderData, lg: LayoutGraphData) {
@@ -946,6 +947,7 @@ export class WebPipeline implements Pipeline {
 
     public activate (swapchain: Swapchain): boolean {
         this._device = deviceManager.gfxDevice;
+        createGfxDescriptorSetsAndPipelines(this._device, this._layoutGraph);
         this._globalDSManager = new GlobalDSManager(this._device);
         this._globalDescSetData = this.getGlobalDescriptorSetData()!;
         this._globalDescriptorSetLayout = this._globalDescSetData.descriptorSetLayout;
