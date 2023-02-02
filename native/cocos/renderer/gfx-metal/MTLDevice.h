@@ -86,6 +86,10 @@ public:
             _swapchains.erase(iter);
         }
     }
+    
+    CommandBuffer* transferCommandBuffer() const;
+    
+    void writeBuffer(Buffer* buffer, const void* data, size_t size);
 
 protected:
     static CCMTLDevice *_instance;
@@ -134,6 +138,7 @@ protected:
     ccstd::vector<CCMTLSwapchain *> _swapchains;
 
     CCMTLGPUDeviceObject *_gpuDeviceObj = nullptr;
+    uint8_t _inFlightCount = 0;
 };
 
 } // namespace gfx
