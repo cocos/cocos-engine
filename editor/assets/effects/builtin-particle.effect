@@ -129,7 +129,7 @@ CCProgram no-tint-fs %{
   in vec4 color;
 
   uniform sampler2D mainTexture;
-    uniform FragConstants {
+  uniform FragConstants {
     vec4 spriteColor;
     vec4 additiveColor;
   };
