@@ -224,6 +224,7 @@ export class WebSetter {
 }
 
 function setShadowUBOLightView (setter: WebSetter,
+    camera: Camera,
     light: Light,
     level: number,
     layout = 'default') {
@@ -239,6 +240,14 @@ function setShadowUBOLightView (setter: WebSetter,
     setter.addConstant('CCCSM', layout);
     // ShadowMap
     if (!setter.addConstant('CCShadow', layout)) return;
+    if (shadowInfo.enabled) {
+        if (shadowInfo.type === ShadowType.ShadowMap) {
+            // update CSM layers
+            if (light && light.node) {
+                csmLayers.update(sceneData, camera);
+            }
+        }
+    }
     switch (light.type) {
     case LightType.DIRECTIONAL: {
         const mainLight = light as DirectionalLight;
@@ -319,8 +328,8 @@ function setShadowUBOLightView (setter: WebSetter,
     }
     default:
     }
-    setter.setColor('cc_shadowColor', new Color(shadowInfo.shadowColor.r, shadowInfo.shadowColor.g,
-        shadowInfo.shadowColor.b, shadowInfo.shadowColor.a));
+    setter.setColor('cc_shadowColor', new Color(shadowInfo.shadowColor.x, shadowInfo.shadowColor.y,
+        shadowInfo.shadowColor.z, shadowInfo.shadowColor.w));
 }
 
 function getPCFRadius (shadowInfo: Shadows, mainLight: DirectionalLight): number {
@@ -587,7 +596,7 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
             camera.scene ? camera.scene : cclegacy.director.getScene().renderScene,
             layoutName);
         if (sceneFlags & SceneFlags.SHADOW_CASTER) {
-            setShadowUBOLightView(this, light.light!, light.level, layoutName);
+            setShadowUBOLightView(this, camera, light.light!, light.level, layoutName);
         } else {
             setShadowUBOView(this, camera, layoutName);
         }

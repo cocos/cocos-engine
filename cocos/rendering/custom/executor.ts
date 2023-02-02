@@ -887,11 +887,13 @@ class DevicePreSceneTask extends WebSceneTask {
             submitMap.set(this.camera, this._submitInfo);
         }
         // shadowmap
-        if (this._isShadowMap() && !this._submitInfo.shadowMap) {
+        if (this._isShadowMap()) {
             assert(this.graphScene.scene!.light.light);
-            this._submitInfo.shadowMap = context.shadowMapBatched;
-            this._submitInfo.shadowMap.gatherLightPasses(this.camera, this.graphScene.scene!.light.light, this._cmdBuff, this.graphScene.scene!.light.level);
+            if (!this._submitInfo.shadowMap) {
+                this._submitInfo.shadowMap = context.shadowMapBatched;
+            }
             this.sceneData.shadowFrameBufferMap.set(this.graphScene.scene!.light.light, devicePass.framebuffer);
+            this._submitInfo.shadowMap.gatherLightPasses(this.camera, this.graphScene.scene!.light.light, this._cmdBuff, this.graphScene.scene!.light.level);
             return;
         }
         // reflection probe
