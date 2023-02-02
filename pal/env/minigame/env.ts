@@ -23,7 +23,7 @@
 */
 
 /* eslint-disable import/no-dynamic-require */
-import { BAIDU, TAOBAO, WECHAT, XIAOMI } from 'internal:constants';
+import { BAIDU, TAOBAO, TAOBAO_MINIGAME, WECHAT, XIAOMI } from 'internal:constants';
 
 declare const require: (path: string) => any;
 declare const __baiduRequire: (path: string) => any;
@@ -44,7 +44,7 @@ export function loadJsFile (path: string): any {
     if (WECHAT) {
         return __wxRequire(path);
     }
-    if (TAOBAO) {
+    if (TAOBAO || TAOBAO_MINIGAME) {
         // NOTE: Taobao doesn't support dynamic require
         return undefined;
     }

@@ -24,7 +24,7 @@
 
 import { minigame } from 'pal/minigame';
 import { systemInfo } from 'pal/system-info';
-import { TAOBAO } from 'internal:constants';
+import { TAOBAO, TAOBAO_MINIGAME } from 'internal:constants';
 import { EventTarget } from '../../../cocos/core/event';
 import { AudioEvent, AudioPCMDataView, AudioState, AudioType } from '../type';
 import { clamp, clamp01 } from '../../../cocos/core';
@@ -327,7 +327,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
     stop (): Promise<void> {
         // NOTE: on Taobao, it is designed that innerAudioContext is useless after calling stop.
         // so we implement stop as pase + seek.
-        if (TAOBAO) {
+        if (TAOBAO || TAOBAO_MINIGAME) {
             this._innerAudioContext.pause();
             this._innerAudioContext.seek(0);
             this._onStop?.();
