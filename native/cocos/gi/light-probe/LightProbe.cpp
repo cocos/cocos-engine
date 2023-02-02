@@ -303,7 +303,7 @@ void LightProbeInfo::update(bool updateTet) {
     }
 }
 
-void LightProbeInfo::onProbeBakingChanged(Node *node) {
+void LightProbeInfo::onProbeBakingChanged(Node *node) { // NOLINT(misc-no-recursion)
     if (!node) {
         return;
     }
