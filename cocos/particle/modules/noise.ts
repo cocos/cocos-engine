@@ -26,11 +26,16 @@
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { CCFloat, CCInteger } from '../../core';
 import { range, rangeStep, slide, visible } from '../../core/data/decorators/editable';
-import { Vec3 } from '../../core/math';
+import { pseudoRandom, Vec3 } from '../../core/math';
 import { ParticleNoise } from '../noise';
 import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
 import { ParticleUpdateContext } from '../particle-update-context';
+
+const samplePosition = new Vec3();
+const RANDOM_SEED_OFFSET_X = 112331;
+const RANDOM_SEED_OFFSET_Y = 291830;
+const RANDOM_SEED_OFFSET_Z = 616728;
 
 @ccclass('cc.NoiseModule')
 export class NoiseModule extends ParticleModule {
@@ -194,11 +199,11 @@ export class NoiseModule extends ParticleModule {
     }
 
     public get updateStage (): ParticleUpdateStage {
-        return ParticleUpdateStage.POST_UPDATE;
+        return ParticleUpdateStage.PRE_UPDATE;
     }
 
     public get updatePriority (): number {
-        return 0;
+        return 3;
     }
 
     @serializable
@@ -228,28 +233,26 @@ export class NoiseModule extends ParticleModule {
     @serializable
     private _octaveMultiplier = 0.5;
     private noise: ParticleNoise = new ParticleNoise();
-    private samplePosition: Vec3 = new Vec3();
 
-    public animate (particle: Particle, dt: number) {
-        this.noise.setTime(particle.particleSystem.time);
+    public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
+        const { accumulatedTime } = particleUpdateContext;
+        const { count, randomSeed } = particles;
+        this.noise.setTime(accumulatedTime);
         this.noise.setSpeed(this.noiseSpeedX, this.noiseSpeedY, this.noiseSpeedZ);
         this.noise.setFrequency(this.noiseFrequency);
         this.noise.setAbs(this.remapX, this.remapY, this.remapZ);
         this.noise.setAmplititude(this.strengthX, this.strengthY, this.strengthZ);
         this.noise.setOctaves(this.octaves, this.octaveMultiplier, this.octaveScale);
 
-        this.samplePosition.set(particle.position);
-        this.samplePosition.add3f(Math.random() * 1.0, Math.random() * 1.0, Math.random() * 1.0);
-        this.noise.setSamplePoint(this.samplePosition);
-        this.noise.getNoiseParticle();
-
-        const noisePosition: Vec3 = this.noise.getResult();
-        noisePosition.multiply3f(Math.random(), Math.random(), Math.random());
-        Vec3.add(particle.position, particle.position, noisePosition.multiplyScalar(dt));
-    }
-
-    public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
-        throw new Error('Method not implemented.');
+        for (let i = 0; i < count; i++) {
+            const seed = randomSeed[i];
+            particles.getPositionAt(samplePosition, i);
+            samplePosition.add3f(pseudoRandom(seed + RANDOM_SEED_OFFSET_X) * 100, pseudoRandom(seed + RANDOM_SEED_OFFSET_Y) * 100, pseudoRandom(seed + RANDOM_SEED_OFFSET_Z) * 100);
+            this.noise.setSamplePoint(samplePosition);
+            this.noise.getNoiseParticle();
+            const noisePosition: Vec3 = this.noise.getResult();
+            particles.addAnimatedVelocityAt(noisePosition, i);
+        }
     }
 
     public getNoisePreview (out: number[], time, width: number, height: number) {

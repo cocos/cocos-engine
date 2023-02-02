@@ -65,32 +65,28 @@ export class StartLifeTimeModule extends ParticleModule {
     public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
         const { newParticleIndexStart, newParticleIndexEnd, normalizedTimeInCycle } = particleUpdateContext;
         const { invStartLifeTime } = particles;
-        switch (this.startLifetime.mode) {
-        case CurveRange.Mode.Constant:
-            // eslint-disable-next-line no-case-declarations
+        if (this.startLifetime.mode === CurveRange.Mode.Constant) {
             const lifeTime = 1 / this.startLifetime.constant;
             for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
                 invStartLifeTime[i] = lifeTime;
             }
-            break;
-        case CurveRange.Mode.TwoConstants:
+        } else if (this.startLifetime.mode ===  CurveRange.Mode.TwoConstants) {
+            const { constantMin, constantMax } = this.startLifetime;
             for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
                 const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
-                invStartLifeTime[i] = 1 / lerp(this.startLifetime.constantMin, this.startLifetime.constantMax, rand);
+                invStartLifeTime[i] = 1 / lerp(constantMin, constantMax, rand);
             }
-            break;
-        case CurveRange.Mode.Curve:
+        } else if (this.startLifetime.mode ===  CurveRange.Mode.Curve) {
+            const { spline, multiplier } = this.startLifetime;
             for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
-                invStartLifeTime[i] = 1 / (this.startLifetime.spline.evaluate(normalizedTimeInCycle) * this.startLifetime.multiplier);
+                invStartLifeTime[i] = 1 / (spline.evaluate(normalizedTimeInCycle) * multiplier);
             }
-            break;
-        case CurveRange.Mode.TwoCurves:
+        } else {
+            const { splineMin, splineMax, multiplier } = this.startLifetime;
             for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
                 const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
-                invStartLifeTime[i] = 1 / (lerp(this.startLifetime.splineMin.evaluate(normalizedTimeInCycle), this.startLifetime.splineMax.evaluate(normalizedTimeInCycle), rand) * this.startLifetime.multiplier);
+                invStartLifeTime[i] = 1 / (lerp(splineMin.evaluate(normalizedTimeInCycle), splineMax.evaluate(normalizedTimeInCycle), rand) * multiplier);
             }
-            break;
-        default:
         }
     }
 }

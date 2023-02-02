@@ -93,64 +93,69 @@ export class StartSizeModule extends ParticleModule {
         const { newParticleIndexStart, newParticleIndexEnd, normalizedTimeInCycle } = particleUpdateContext;
         const { startSizeX, startSizeY, startSizeZ, sizeX, sizeY, sizeZ } = particles;
         if (this.startSize3D) {
-            switch (this.startSizeX.mode) {
-            case CurveRange.Mode.Constant:
+            if (this.startSizeX.mode === CurveRange.Mode.Constant) {
+                const constantX = this.startSizeX.constant;
+                const constantY = this.startSizeY.constant;
+                const constantZ = this.startSizeZ.constant;
                 for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
-                    sizeX[i] = startSizeX[i] = this.startSizeX.constant;
-                    sizeY[i] = startSizeY[i] = this.startSizeY.constant;
-                    sizeZ[i] = startSizeZ[i] = this.startSizeZ.constant;
+                    sizeX[i] = startSizeX[i] = constantX;
+                    sizeY[i] = startSizeY[i] = constantY;
+                    sizeZ[i] = startSizeZ[i] = constantZ;
                 }
-                break;
-            case CurveRange.Mode.TwoConstants:
-                for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
-                    const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
-                    sizeX[i] = startSizeX[i] = lerp(this.startSizeX.constantMin, this.startSizeX.constantMax, rand);
-                    sizeY[i] = startSizeY[i] = lerp(this.startSizeY.constantMin, this.startSizeY.constantMax, rand);
-                    sizeZ[i] = startSizeZ[i] = lerp(this.startSizeZ.constantMin, this.startSizeZ.constantMax, rand);
-                }
-                break;
-            case CurveRange.Mode.Curve:
-                for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
-                    sizeX[i] = startSizeX[i] = this.startSizeX.spline.evaluate(normalizedTimeInCycle) * this.startSizeX.multiplier;
-                    sizeY[i] = startSizeY[i] = this.startSizeY.spline.evaluate(normalizedTimeInCycle) * this.startSizeY.multiplier;
-                    sizeZ[i] = startSizeZ[i] = this.startSizeZ.spline.evaluate(normalizedTimeInCycle) * this.startSizeZ.multiplier;
-                }
-                break;
-            case CurveRange.Mode.TwoCurves:
+            } else if (this.startSizeX.mode === CurveRange.Mode.TwoConstants) {
+                const { constantMin: xMin, constantMax: xMax } = this.startSizeX;
+                const { constantMin: yMin, constantMax: yMax } = this.startSizeY;
+                const { constantMin: zMin, constantMax: zMax } = this.startSizeZ;
                 for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
                     const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
-                    sizeX[i] = startSizeX[i] = lerp(this.startSizeX.splineMin.evaluate(normalizedTimeInCycle), this.startSizeX.splineMax.evaluate(normalizedTimeInCycle), rand) * this.startSizeX.multiplier;
-                    sizeY[i] = startSizeY[i] = lerp(this.startSizeY.splineMin.evaluate(normalizedTimeInCycle), this.startSizeY.splineMax.evaluate(normalizedTimeInCycle), rand) * this.startSizeY.multiplier;
-                    sizeZ[i] = startSizeZ[i] = lerp(this.startSizeZ.splineMin.evaluate(normalizedTimeInCycle), this.startSizeZ.splineMax.evaluate(normalizedTimeInCycle), rand) * this.startSizeZ.multiplier;
+                    sizeX[i] = startSizeX[i] = lerp(xMin, xMax, rand);
+                    sizeY[i] = startSizeY[i] = lerp(yMin, yMax, rand);
+                    sizeZ[i] = startSizeZ[i] = lerp(zMin, zMax, rand);
                 }
-                break;
-            default:
+            } else if (this.startSizeX.mode === CurveRange.Mode.Curve) {
+                const { spline: xCurve, multiplier: xMultiplier } = this.startSizeX;
+                const { spline: yCurve, multiplier: yMultiplier } = this.startSizeY;
+                const { spline: zCurve, multiplier: zMultiplier } = this.startSizeZ;
+                for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                    sizeX[i] = startSizeX[i] = xCurve.evaluate(normalizedTimeInCycle) * xMultiplier;
+                    sizeY[i] = startSizeY[i] = yCurve.evaluate(normalizedTimeInCycle) * yMultiplier;
+                    sizeZ[i] = startSizeZ[i] = zCurve.evaluate(normalizedTimeInCycle) * zMultiplier;
+                }
+            } else {
+                const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.startSizeX;
+                const { splineMin: yMin, splineMax: yMax, multiplier: yMultiplier } = this.startSizeY;
+                const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.startSizeZ;
+                for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                    const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
+                    sizeX[i] = startSizeX[i] = lerp(xMin.evaluate(normalizedTimeInCycle), xMax.evaluate(normalizedTimeInCycle), rand) * xMultiplier;
+                    sizeY[i] = startSizeY[i] = lerp(yMin.evaluate(normalizedTimeInCycle), yMax.evaluate(normalizedTimeInCycle), rand) * yMultiplier;
+                    sizeZ[i] = startSizeZ[i] = lerp(zMin.evaluate(normalizedTimeInCycle), zMax.evaluate(normalizedTimeInCycle), rand) * zMultiplier;
+                }
             }
         } else {
-            switch (this.startSizeX.mode) {
-            case CurveRange.Mode.Constant:
+            // eslint-disable-next-line no-lonely-if
+            if (this.startSizeX.mode === CurveRange.Mode.Constant) {
+                const constantX = this.startSizeX.constant;
                 for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
-                    sizeY[i] = startSizeY[i] = sizeX[i] = startSizeX[i] = this.startSizeX.constant;
+                    sizeY[i] = startSizeY[i] = sizeX[i] = startSizeX[i] = constantX;
                 }
-                break;
-            case CurveRange.Mode.TwoConstants:
-                for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
-                    const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
-                    sizeY[i] = startSizeY[i] = sizeX[i] = startSizeX[i] = lerp(this.startSizeX.constantMin, this.startSizeX.constantMax, rand);
-                }
-                break;
-            case CurveRange.Mode.Curve:
-                for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
-                    sizeY[i] = startSizeY[i] = sizeX[i] = startSizeX[i] = this.startSizeX.spline.evaluate(normalizedTimeInCycle) * this.startSizeX.multiplier;
-                }
-                break;
-            case CurveRange.Mode.TwoCurves:
+            } else if (this.startSizeX.mode === CurveRange.Mode.TwoConstants) {
+                const { constantMin: xMin, constantMax: xMax } = this.startSizeX;
                 for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
                     const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
-                    sizeY[i] = startSizeY[i] = sizeX[i] = startSizeX[i] = lerp(this.startSizeX.splineMin.evaluate(normalizedTimeInCycle), this.startSizeX.splineMax.evaluate(normalizedTimeInCycle), rand) * this.startSizeX.multiplier;
+                    sizeY[i] = startSizeY[i] = sizeX[i] = startSizeX[i] = lerp(xMin, xMax, rand);
                 }
-                break;
-            default:
+            } else if (this.startSizeX.mode === CurveRange.Mode.Curve) {
+                const { spline: xCurve, multiplier: xMultiplier } = this.startSizeX;
+                for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                    sizeY[i] = startSizeY[i] = sizeX[i] = startSizeX[i] = xCurve.evaluate(normalizedTimeInCycle) * xMultiplier;
+                }
+            } else {
+                const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.startSizeX;
+                for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                    const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
+                    sizeY[i] = startSizeY[i] = sizeX[i] = startSizeX[i] = lerp(xMin.evaluate(normalizedTimeInCycle), xMax.evaluate(normalizedTimeInCycle), rand) * xMultiplier;
+                }
             }
         }
     }

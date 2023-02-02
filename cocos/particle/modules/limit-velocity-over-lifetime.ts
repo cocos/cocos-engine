@@ -36,9 +36,9 @@ import { assert } from '../../core';
 
 const LIMIT_VELOCITY_RAND_OFFSET = ModuleRandSeed.LIMIT;
 
-const _temp_v3 = new Vec3();
 const _temp_v3_1 = new Vec3();
 const rotation = new Quat();
+const velocity = new Vec3();
 
 @ccclass('cc.LimitVelocityOverLifetimeModule')
 export class LimitVelocityOverLifetimeModule extends ParticleModule {
@@ -128,7 +128,7 @@ export class LimitVelocityOverLifetimeModule extends ParticleModule {
     }
 
     public get updatePriority (): number {
-        return 0;
+        return 6;
     }
 
     // TODO:functions related to drag are temporarily not supported
@@ -140,11 +140,10 @@ export class LimitVelocityOverLifetimeModule extends ParticleModule {
         const needTransform = calculateTransform(particleUpdateContext.simulationSpace,
             this.space, particleUpdateContext.worldTransform, rotation);
         const { count, normalizedAliveTime, randomSeed, animatedVelocityX, animatedVelocityY, animatedVelocityZ } = particles;
-        const velocity = new Vec3();
+        if (DEBUG) {
+            assert(this.limitX.mode === this.limitY.mode && this.limitY.mode === this.limitZ.mode, 'The curve of limitX, limitY, limitZ must have same mode!');
+        }
         if (this.separateAxes) {
-            if (DEBUG) {
-                assert(this.limitX.mode === this.limitY.mode && this.limitY.mode === this.limitZ.mode, 'The curve of limitX, limitY, limitZ must have same mode!');
-            }
             if (needTransform) {
                 if (this.limitX.mode === CurveRange.Mode.Constant) {
                     Vec3.set(_temp_v3_1, this.limitX.constant, this.limitY.constant, this.limitY.constant);

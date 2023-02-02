@@ -89,7 +89,7 @@ export class ForceOverLifetimeModule extends ParticleModule {
     }
 
     public get updatePriority (): number {
-        return 0;
+        return 4;
     }
 
     // TODO:currently not supported

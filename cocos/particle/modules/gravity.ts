@@ -55,7 +55,7 @@ export class GravityModule extends ParticleModule {
     }
 
     public get updatePriority (): number {
-        return 0;
+        return 5;
     }
 
     public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {

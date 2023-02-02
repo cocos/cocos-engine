@@ -89,7 +89,7 @@ export class VelocityOverLifetimeModule extends ParticleModule {
     }
 
     public get updatePriority (): number {
-        return 0;
+        return 2;
     }
 
     private rotation: Quat;

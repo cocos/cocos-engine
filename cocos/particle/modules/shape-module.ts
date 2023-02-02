@@ -37,7 +37,7 @@ import { Enum } from '../../core';
 
 const _intermediVec = new Vec3(0, 0, 0);
 const tmpPosition = new Vec3();
-const tmpVelocity = new Vec3();
+const tmpDir = new Vec3();
 const shuffleArray = new Float32Array(3);
 
 /**
@@ -390,8 +390,8 @@ export class ShapeModule extends ParticleModule {
                     const theta = randomRange(0, this._arc);
                     tmpPosition.set(Math.cos(theta), Math.sin(theta), 0);
                     tmpPosition.multiplyScalar(minRadius + (this.radius - minRadius) * random());
-                    Vec3.normalize(tmpVelocity, tmpPosition);
-                    particles.setVelocityAt(tmpVelocity, i);
+                    Vec3.normalize(tmpDir, tmpPosition);
+                    particles.setStartDirAt(tmpDir, i);
                     particles.setPositionAt(tmpPosition, i);
                 }
             } else {
@@ -403,8 +403,8 @@ export class ShapeModule extends ParticleModule {
                 for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
                     tmpPosition.set(Math.cos(angle), Math.sin(angle), 0);
                     tmpPosition.multiplyScalar(minRadius + (this.radius - minRadius) * random());
-                    Vec3.normalize(tmpVelocity, tmpPosition);
-                    particles.setVelocityAt(tmpVelocity, i);
+                    Vec3.normalize(tmpDir, tmpPosition);
+                    particles.setStartDirAt(tmpDir, i);
                     particles.setPositionAt(tmpPosition, i);
                 }
             }
@@ -417,11 +417,11 @@ export class ShapeModule extends ParticleModule {
                     const theta = randomRange(0, this._arc);
                     Vec3.set(tmpPosition, Math.cos(theta), Math.sin(theta), 0);
                     Vec3.multiplyScalar(tmpPosition, tmpPosition, minRadius + radiusThickness * random());
-                    Vec2.multiplyScalar(tmpVelocity, tmpPosition, angleSin);
-                    tmpVelocity.z = velocityZ;
-                    Vec3.normalize(tmpVelocity, tmpVelocity);
-                    Vec3.scaleAndAdd(tmpPosition, tmpPosition, tmpVelocity, this.length * random() / -velocityZ);
-                    particles.setVelocityAt(tmpVelocity, i);
+                    Vec2.multiplyScalar(tmpDir, tmpPosition, angleSin);
+                    tmpDir.z = velocityZ;
+                    Vec3.normalize(tmpDir, tmpDir);
+                    Vec3.scaleAndAdd(tmpPosition, tmpPosition, tmpDir, this.length * random() / -velocityZ);
+                    particles.setStartDirAt(tmpDir, i);
                     particles.setPositionAt(tmpPosition, i);
                 }
             } else {
@@ -433,11 +433,11 @@ export class ShapeModule extends ParticleModule {
                 for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
                     tmpPosition.set(Math.cos(angle), Math.sin(angle), 0);
                     tmpPosition.multiplyScalar(minRadius + (this.radius - minRadius) * random());
-                    Vec2.multiplyScalar(tmpVelocity, tmpPosition, Math.sin(this._angle));
-                    tmpVelocity.z = velocityZ;
-                    tmpVelocity.normalize();
-                    Vec3.scaleAndAdd(tmpPosition, tmpPosition, tmpVelocity, this.length * random() / -velocityZ);
-                    particles.setVelocityAt(tmpVelocity, i);
+                    Vec2.multiplyScalar(tmpDir, tmpPosition, Math.sin(this._angle));
+                    tmpDir.z = velocityZ;
+                    tmpDir.normalize();
+                    Vec3.scaleAndAdd(tmpPosition, tmpPosition, tmpDir, this.length * random() / -velocityZ);
+                    particles.setStartDirAt(tmpDir, i);
                     particles.setPositionAt(tmpPosition, i);
                 }
             }
@@ -448,10 +448,10 @@ export class ShapeModule extends ParticleModule {
                     const theta = randomRange(0, this._arc);
                     tmpPosition.set(Math.cos(theta), Math.sin(theta), 0);
                     tmpPosition.multiplyScalar(minRadius + (this.radius - minRadius) * random());
-                    Vec2.multiplyScalar(tmpVelocity, tmpPosition, Math.sin(this._angle));
-                    tmpVelocity.z = velocityZ;
-                    Vec3.normalize(tmpVelocity, tmpVelocity);
-                    particles.setVelocityAt(tmpVelocity, i);
+                    Vec2.multiplyScalar(tmpDir, tmpPosition, Math.sin(this._angle));
+                    tmpDir.z = velocityZ;
+                    Vec3.normalize(tmpDir, tmpDir);
+                    particles.setStartDirAt(tmpDir, i);
                     particles.setPositionAt(tmpPosition, i);
                 }
             } else {
@@ -464,10 +464,10 @@ export class ShapeModule extends ParticleModule {
                 for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
                     tmpPosition.set(Math.cos(angle), Math.sin(angle), 0);
                     tmpPosition.multiplyScalar(minRadius + (this.radius - minRadius) * random());
-                    Vec2.multiplyScalar(tmpVelocity, tmpPosition, Math.sin(this._angle));
-                    tmpVelocity.z = velocityZ;
-                    tmpVelocity.normalize();
-                    particles.setVelocityAt(tmpVelocity, i);
+                    Vec2.multiplyScalar(tmpDir, tmpPosition, Math.sin(this._angle));
+                    tmpDir.z = velocityZ;
+                    tmpDir.normalize();
+                    particles.setStartDirAt(tmpDir, i);
                     particles.setPositionAt(tmpPosition, i);
                 }
             }
@@ -477,11 +477,11 @@ export class ShapeModule extends ParticleModule {
                 for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
                     const theta = randomRange(0, this._arc);
                     tmpPosition.set(Math.cos(theta), Math.sin(theta), 0);
-                    Vec2.multiplyScalar(tmpVelocity, tmpPosition, Math.sin(this._angle));
-                    tmpVelocity.z = -Math.cos(this._angle);
-                    tmpVelocity.normalize();
+                    Vec2.multiplyScalar(tmpDir, tmpPosition, Math.sin(this._angle));
+                    tmpDir.z = -Math.cos(this._angle);
+                    tmpDir.normalize();
                     Vec2.multiplyScalar(tmpPosition, tmpPosition, this.radius);
-                    particles.setVelocityAt(tmpVelocity, i);
+                    particles.setStartDirAt(tmpDir, i);
                     particles.setPositionAt(tmpPosition, i);
                 }
             } else {
@@ -493,11 +493,11 @@ export class ShapeModule extends ParticleModule {
 
                 for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
                     tmpPosition.set(Math.cos(angle), Math.sin(angle), 0);
-                    Vec2.multiplyScalar(tmpVelocity, tmpPosition, Math.sin(this._angle));
-                    tmpVelocity.z = -Math.cos(this._angle);
-                    tmpVelocity.normalize();
+                    Vec2.multiplyScalar(tmpDir, tmpPosition, Math.sin(this._angle));
+                    tmpDir.z = -Math.cos(this._angle);
+                    tmpDir.normalize();
                     Vec2.multiplyScalar(tmpPosition, tmpPosition, this.radius);
-                    particles.setVelocityAt(tmpVelocity, i);
+                    particles.setStartDirAt(tmpDir, i);
                     particles.setPositionAt(tmpPosition, i);
                 }
             }
@@ -511,8 +511,8 @@ export class ShapeModule extends ParticleModule {
                 tmpPosition.y = r * Math.sin(a);
                 tmpPosition.z = z;
                 tmpPosition.multiplyScalar(minRadius + (this.radius - minRadius) * random());
-                Vec3.normalize(tmpVelocity, tmpPosition);
-                particles.setVelocityAt(tmpVelocity, i);
+                Vec3.normalize(tmpDir, tmpPosition);
+                particles.setStartDirAt(tmpDir, i);
                 particles.setPositionAt(tmpPosition, i);
             }
             break;
@@ -525,8 +525,8 @@ export class ShapeModule extends ParticleModule {
                 tmpPosition.y = r * Math.sin(a);
                 tmpPosition.z = z;
                 tmpPosition.multiplyScalar(this.radius);
-                Vec3.normalize(tmpVelocity, tmpPosition);
-                particles.setVelocityAt(tmpVelocity, i);
+                Vec3.normalize(tmpDir, tmpPosition);
+                particles.setStartDirAt(tmpDir, i);
                 particles.setPositionAt(tmpPosition, i);
             }
             break;
@@ -542,8 +542,8 @@ export class ShapeModule extends ParticleModule {
                 if (tmpPosition.z > 0) {
                     tmpPosition.z *= -1;
                 }
-                Vec3.normalize(tmpVelocity, tmpPosition);
-                particles.setVelocityAt(tmpVelocity, i);
+                Vec3.normalize(tmpDir, tmpPosition);
+                particles.setStartDirAt(tmpDir, i);
                 particles.setPositionAt(tmpPosition, i);
             }
             break;
@@ -559,8 +559,8 @@ export class ShapeModule extends ParticleModule {
                 if (tmpPosition.z > 0) {
                     tmpPosition.z *= -1;
                 }
-                Vec3.normalize(tmpVelocity, tmpPosition);
-                particles.setVelocityAt(tmpVelocity, i);
+                Vec3.normalize(tmpDir, tmpPosition);
+                particles.setStartDirAt(tmpDir, i);
                 particles.setPositionAt(tmpPosition, i);
             }
             break;
@@ -577,8 +577,8 @@ export class ShapeModule extends ParticleModule {
             }
         }
         for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
-            particles.getVelocityAt(tmpVelocity, i);
-            particles.setVelocityAt(Vec3.transformQuat(tmpVelocity, tmpVelocity, this.quat), i);
+            particles.getStartDirAt(tmpDir, i);
+            particles.setStartDirAt(Vec3.transformQuat(tmpDir, tmpDir, this.quat), i);
         }
         for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
             particles.getPositionAt(tmpPosition, i);
@@ -587,10 +587,10 @@ export class ShapeModule extends ParticleModule {
         if (this.sphericalDirectionAmount > 0) {
             for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
                 particles.getPositionAt(tmpPosition, i);
-                particles.getVelocityAt(tmpVelocity, i);
+                particles.getStartDirAt(tmpDir, i);
                 const sphericalVel = Vec3.normalize(_intermediVec, tmpPosition);
-                Vec3.lerp(tmpVelocity, tmpVelocity, sphericalVel, this.sphericalDirectionAmount);
-                particles.setVelocityAt(tmpVelocity, i);
+                Vec3.lerp(tmpDir, tmpDir, sphericalVel, this.sphericalDirectionAmount);
+                particles.setStartDirAt(tmpDir, i);
             }
         }
     }

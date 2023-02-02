@@ -25,15 +25,15 @@
  */
 
 import { ccclass, tooltip, displayOrder, range, type, radian, serializable, visible } from 'cc.decorator';
-import { Mat4, pseudoRandom, Quat, Vec4, Vec3 } from '../../core/math';
+import { DEBUG } from 'internal:constants';
+import { Mat4, pseudoRandom, Quat, Vec4, Vec3, lerp } from '../../core/math';
 import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { CurveRange } from '../curve-range';
-import { ModuleRandSeed, RenderMode } from '../enum';
-import { CCBoolean } from '../../core';
+import { assert, CCBoolean } from '../../core';
 import { ParticleUpdateContext } from '../particle-update-context';
 import { ParticleSOAData } from '../particle-soa-data';
 
-const ROTATION_OVERTIME_RAND_OFFSET = ModuleRandSeed.ROTATION;
+const ROTATION_OVERTIME_RAND_OFFSET = 125292;
 
 @ccclass('cc.RotationOverLifetimeModule')
 export class RotationOverLifetimeModule extends ParticleModule {
@@ -95,34 +95,79 @@ export class RotationOverLifetimeModule extends ParticleModule {
     }
 
     public get updatePriority (): number {
-        return 0;
+        return 1;
     }
 
-    private _startMat:Mat4 = new Mat4();
-    private _matRot:Mat4 = new Mat4();
-    private _quatRot:Quat = new Quat();
-    private _otherEuler:Vec3 = new Vec3();
     @serializable
     private _separateAxes = false;
 
     public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
-        const { count } = particles;
-        if (!this._separateAxes) {
-            if ()
-            Quat.fromEuler(p.deltaQuat, 0, 0, this.z.evaluate(normalizedTime, rotationRand)! * dt * Particle.R2D);
-        } else {
-            Quat.fromEuler(p.deltaQuat, this.x.evaluate(normalizedTime, rotationRand)! * dt * Particle.R2D, this.y.evaluate(normalizedTime, rotationRand)! * dt * Particle.R2D, this.z.evaluate(normalizedTime, rotationRand)! * dt * Particle.R2D);
+        const { count, angularVelocityZ, normalizedAliveTime, randomSeed } = particles;
+        if (DEBUG) {
+            assert(this.x.mode === this.y.mode && this.y.mode === this.z.mode, 'The curve of x, y, z must have same mode!');
         }
-
-        // Rotation-overtime combine with start rotation, after that we get quat from the mat
-        p.deltaMat = Mat4.fromQuat(p.deltaMat, p.deltaQuat);
-        p.localMat = p.localMat.multiply(p.deltaMat); // accumulate rotation
-
-        this._startMat = Mat4.fromQuat(this._startMat, p.startRotation);
-        this._matRot = this._startMat.multiply(p.localMat);
-
-        Mat4.getRotation(this._quatRot, this._matRot);
-        this._processRotation(p, Particle.R2D);
-        p.rotation.set(this._quatRot.x, this._quatRot.y, this._quatRot.z);
+        if (!this._separateAxes) {
+            if (this.z.mode === CurveRange.Mode.Constant) {
+                const constant = this.z.constant;
+                for (let i = 0; i < count; i++) {
+                    angularVelocityZ[i] += constant;
+                }
+            } else if (this.z.mode === CurveRange.Mode.Curve) {
+                const { spline, multiplier } = this.z;
+                for (let i = 0; i < count; i++) {
+                    angularVelocityZ[i] += spline.evaluate(normalizedAliveTime[i]) * multiplier;
+                }
+            } else if (this.z.mode === CurveRange.Mode.TwoConstants) {
+                const { constantMin, constantMax } = this.z;
+                for (let i = 0; i < count; i++) {
+                    angularVelocityZ[i] += lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + ROTATION_OVERTIME_RAND_OFFSET));
+                }
+            } else {
+                const { splineMin, splineMax, multiplier } = this.z;
+                for (let i = 0; i < count; i++) {
+                    angularVelocityZ[i] += lerp(splineMin.evaluate(normalizedAliveTime[i]), splineMax.evaluate(normalizedAliveTime[i]), pseudoRandom(randomSeed[i] + ROTATION_OVERTIME_RAND_OFFSET)) * multiplier;
+                }
+            }
+        } else {
+            const { angularVelocityX, angularVelocityY } = particles;
+            // eslint-disable-next-line no-lonely-if
+            if (this.z.mode === CurveRange.Mode.Constant) {
+                const constantX = this.x.constant;
+                const constantY = this.y.constant;
+                const constantZ = this.z.constant;
+                for (let i = 0; i < count; i++) {
+                    angularVelocityX[i] += constantX;
+                    angularVelocityY[i] += constantY;
+                    angularVelocityZ[i] += constantZ;
+                }
+            } else if (this.z.mode === CurveRange.Mode.Curve) {
+                const { spline: splineX, multiplier: xMultiplier } = this.x;
+                const { spline: splineY, multiplier: yMultiplier } = this.y;
+                const { spline: splineZ, multiplier: zMultiplier } = this.z;
+                for (let i = 0; i < count; i++) {
+                    angularVelocityX[i] += splineX.evaluate(normalizedAliveTime[i]) * xMultiplier;
+                    angularVelocityY[i] += splineY.evaluate(normalizedAliveTime[i]) * yMultiplier;
+                    angularVelocityZ[i] += splineZ.evaluate(normalizedAliveTime[i]) * zMultiplier;
+                }
+            } else if (this.z.mode === CurveRange.Mode.TwoConstants) {
+                const { constantMin: xMin, constantMax: xMax } = this.x;
+                const { constantMin: yMin, constantMax: yMax } = this.y;
+                const { constantMin: zMin, constantMax: zMax } = this.z;
+                for (let i = 0; i < count; i++) {
+                    angularVelocityX[i] += lerp(xMin, xMax, pseudoRandom(randomSeed[i] + ROTATION_OVERTIME_RAND_OFFSET));
+                    angularVelocityY[i] += lerp(yMin, yMax, pseudoRandom(randomSeed[i] + ROTATION_OVERTIME_RAND_OFFSET));
+                    angularVelocityZ[i] += lerp(zMin, zMax, pseudoRandom(randomSeed[i] + ROTATION_OVERTIME_RAND_OFFSET));
+                }
+            } else {
+                const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.x;
+                const { splineMin: yMin, splineMax: yMax, multiplier: yMultiplier } = this.y;
+                const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.z;
+                for (let i = 0; i < count; i++) {
+                    angularVelocityX[i] += lerp(xMin.evaluate(normalizedAliveTime[i]), xMax.evaluate(normalizedAliveTime[i]), pseudoRandom(randomSeed[i] + ROTATION_OVERTIME_RAND_OFFSET)) * xMultiplier;
+                    angularVelocityY[i] += lerp(yMin.evaluate(normalizedAliveTime[i]), yMax.evaluate(normalizedAliveTime[i]), pseudoRandom(randomSeed[i] + ROTATION_OVERTIME_RAND_OFFSET)) * yMultiplier;
+                    angularVelocityZ[i] += lerp(zMin.evaluate(normalizedAliveTime[i]), zMax.evaluate(normalizedAliveTime[i]), pseudoRandom(randomSeed[i] + ROTATION_OVERTIME_RAND_OFFSET)) * zMultiplier;
+                }
+            }
+        }
     }
 }

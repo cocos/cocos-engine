@@ -158,11 +158,6 @@ export class ParticleNoise {
         return sum / range;
     }
 
-    private getNoiseMix (out: Vec2, point: Vec3, time: number, offSpeed: Vec3, noiseFrequency: number, octaves: Vec3) {
-        out.x = this.getNoise(point.x, point.y, point.z, time, offSpeed, noiseFrequency, octaves);
-        out.y = this.getNoise(point.y, point.z, point.x, time, offSpeed, noiseFrequency, octaves);
-    }
-
     public getNoiseParticle () {
         this.accSpeed.set(this.noiseSpeed.x * this.dt, this.noiseSpeed.y * this.dt, this.noiseSpeed.z * this.dt);
 

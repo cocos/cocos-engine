@@ -54,9 +54,7 @@ export abstract class ParticleModule {
     public abstract get name (): string;
     public abstract get updateStage (): ParticleUpdateStage;
     public abstract get updatePriority (): number;
-    public onLoad () {}
     public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {}
-    public onDestroy () {}
     public onPlay () {}
     public onStop () {}
     public onPause () {}

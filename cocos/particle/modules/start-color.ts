@@ -59,37 +59,33 @@ export class StartColorModule extends ParticleModule {
     public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
         const { newParticleIndexStart, newParticleIndexEnd, normalizedTimeInCycle } = particleUpdateContext;
         const { startColor, color } = particles;
-        switch (this.startColor.mode) {
-        case GradientRange.Mode.Color:
-            // eslint-disable-next-line no-case-declarations
+        if (this.startColor.mode === GradientRange.Mode.Color) {
             const colorNum = Color.toUint32(this.startColor.color);
             for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
                 color[i] = startColor[i] = colorNum;
             }
-            break;
-        case GradientRange.Mode.Gradient:
+        } else if (this.startColor.mode === GradientRange.Mode.Gradient) {
+            const { gradient } = this.startColor;
             for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
-                color[i] = startColor[i] = Color.toUint32(this.startColor.gradient.evaluate(normalizedTimeInCycle));
+                color[i] = startColor[i] = Color.toUint32(gradient.evaluate(normalizedTimeInCycle));
             }
-            break;
-        case GradientRange.Mode.TwoColors:
-            for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
-                const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
-                color[i] = startColor[i] = Color.toUint32(Color.lerp(tempColor, this.startColor.colorMin, this.startColor.colorMax, rand));
-            }
-            break;
-        case GradientRange.Mode.TwoGradients:
+        } else if (this.startColor.mode === GradientRange.Mode.TwoColors) {
+            const { colorMin, colorMax } = this.startColor;
             for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
                 const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
-                color[i] = startColor[i] = Color.toUint32(Color.lerp(tempColor, this.startColor.gradientMin.evaluate(normalizedTimeInCycle), this.startColor.gradientMax.evaluate(normalizedTimeInCycle), rand));
+                color[i] = startColor[i] = Color.toUint32(Color.lerp(tempColor, colorMin, colorMax, rand));
             }
-            break;
-        case GradientRange.Mode.RandomColor:
+        } else if (this.startColor.mode === GradientRange.Mode.TwoGradients) {
+            const { gradientMin, gradientMax } = this.startColor;
             for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
-                color[i] = startColor[i] = Color.toUint32(this.startColor.gradient.randomColor());
+                const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
+                color[i] = startColor[i] = Color.toUint32(Color.lerp(tempColor, gradientMin.evaluate(normalizedTimeInCycle), gradientMax.evaluate(normalizedTimeInCycle), rand));
             }
-            break;
-        default:
+        } else {
+            const { gradient } = this.startColor;
+            for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                color[i] = startColor[i] = Color.toUint32(gradient.randomColor());
+            }
         }
     }
 }

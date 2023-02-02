@@ -73,6 +73,9 @@ export class ParticleSOAData {
     private _velocityX = new Float32Array(this._capacity);
     private _velocityY = new Float32Array(this._capacity);
     private _velocityZ = new Float32Array(this._capacity);
+    private _startDirX = new Float32Array(this._capacity);
+    private _startDirY = new Float32Array(this._capacity);
+    private _startDirZ = new Float32Array(this._capacity);
     private _animatedVelocityX = new Float32Array(this._capacity);
     private _animatedVelocityY = new Float32Array(this._capacity);
     private _animatedVelocityZ = new Float32Array(this._capacity);
@@ -164,6 +167,18 @@ export class ParticleSOAData {
 
     get velocityZ () {
         return this._velocityZ;
+    }
+
+    get startDirX () {
+        return this._startDirX;
+    }
+
+    get startDirY () {
+        return this._startDirY;
+    }
+
+    get startDirZ () {
+        return this._startDirZ;
     }
 
     get animatedVelocityX () {
@@ -297,6 +312,19 @@ export class ParticleSOAData {
         this._velocityX[handle] = val.x;
         this._velocityY[handle] = val.y;
         this._velocityZ[handle] = val.z;
+    }
+
+    getStartDirAt (out: Vec3, handle: ParticleHandle) {
+        out.x = this._startDirX[handle];
+        out.y = this._startDirY[handle];
+        out.z = this._startDirZ[handle];
+        return out;
+    }
+
+    setStartDirAt (val: Vec3, handle: ParticleHandle) {
+        this._startDirX[handle] = val.x;
+        this._startDirY[handle] = val.y;
+        this._startDirZ[handle] = val.z;
     }
 
     getAnimatedVelocityAt (out: Vec3, handle: ParticleHandle) {
@@ -536,6 +564,9 @@ export class ParticleSOAData {
         this._velocityX[handle] = this._velocityX[lastParticle];
         this._velocityY[handle] = this._velocityY[lastParticle];
         this._velocityZ[handle] = this._velocityZ[lastParticle];
+        this._startDirX[handle] = this._startDirX[lastParticle];
+        this._startDirY[handle] = this._startDirY[lastParticle];
+        this._startDirZ[handle] = this._startDirZ[lastParticle];
         this._animatedVelocityX[handle] = this._animatedVelocityX[lastParticle];
         this._animatedVelocityY[handle] = this._animatedVelocityY[lastParticle];
         this._animatedVelocityZ[handle] = this._animatedVelocityZ[lastParticle];
@@ -578,8 +609,11 @@ export class ParticleSOAData {
         this._positionZ[handle] = 0;
         this._velocityX[handle] = 0;
         this._velocityY[handle] = 0;
+        this._velocityZ[handle] = 0;
+        this._startDirX[handle] = 0;
+        this._startDirY[handle] = 0;
         // init as particleEmitZAxis
-        this._velocityZ[handle] = 1;
+        this._startDirZ[handle] = 1;
         this._animatedVelocityX[handle] = 0;
         this._animatedVelocityY[handle] = 0;
         this._animatedVelocityZ[handle] = 0;
@@ -620,6 +654,9 @@ export class ParticleSOAData {
         const oldVelocityX = this._velocityX;
         const oldVelocityY = this._velocityY;
         const oldVelocityZ = this._velocityZ;
+        const oldStartDirX = this._startDirX;
+        const oldStartDirY = this._startDirY;
+        const oldStartDirZ = this._startDirZ;
         const oldAnimatedVelocityX = this._animatedVelocityX;
         const oldAnimatedVelocityY = this._animatedVelocityY;
         const oldAnimatedVelocityZ = this._animatedVelocityZ;
@@ -662,6 +699,12 @@ export class ParticleSOAData {
             this._velocityY.set(oldVelocityY);
             this._velocityZ = new Float32Array(capacity);
             this._velocityZ.set(oldVelocityZ);
+            this._startDirX = new Float32Array(capacity);
+            this._startDirX.set(oldStartDirX);
+            this._startDirY = new Float32Array(capacity);
+            this._startDirY.set(oldStartDirY);
+            this._startDirZ = new Float32Array(capacity);
+            this._startDirZ.set(oldStartDirZ);
             this._animatedVelocityX = new Float32Array(capacity);
             this._animatedVelocityX.set(oldAnimatedVelocityX);
             this._animatedVelocityY = new Float32Array(capacity);
@@ -730,6 +773,9 @@ export class ParticleSOAData {
             this._velocityX = oldVelocityX.slice(0, capacity);
             this._velocityY = oldVelocityY.slice(0, capacity);
             this._velocityZ = oldVelocityZ.slice(0, capacity);
+            this._startDirX = oldStartDirX.slice(0, capacity);
+            this._startDirY = oldStartDirY.slice(0, capacity);
+            this._startDirZ = oldStartDirZ.slice(0, capacity);
             this._animatedVelocityX = oldAnimatedVelocityX.slice(0, capacity);
             this._animatedVelocityY = oldAnimatedVelocityY.slice(0, capacity);
             this._animatedVelocityZ = oldAnimatedVelocityZ.slice(0, capacity);
