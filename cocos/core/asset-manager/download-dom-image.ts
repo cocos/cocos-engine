@@ -45,7 +45,9 @@ export default function downloadDomImage (
         img.crossOrigin = 'anonymous';
     }
 
+    console.time(`phase downloadDomImage ${url}`);
     function loadCallback () {
+        console.timeEnd(`phase downloadDomImage ${url}`);
         img.removeEventListener('load', loadCallback);
         img.removeEventListener('error', errorCallback);
         if (onComplete) { onComplete(null, img); }

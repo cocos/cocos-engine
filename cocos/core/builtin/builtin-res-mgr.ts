@@ -318,7 +318,7 @@ class BuiltinResMgr {
     public loadBuiltinAssets () {
         const builtinAssets = settings.querySettings<string[]>(Settings.Category.ENGINE, 'builtinAssets');
         if (TEST || !builtinAssets) return Promise.resolve();
-        console.time('9.3'); // 20ms
+        console.time('phase 9.3'); // 20ms
         const resources = this._resources;
         return new Promise<void>((resolve, reject) => {
             assetManager.loadBundle(BuiltinBundleName.INTERNAL, (err, bundle) => {
@@ -326,13 +326,13 @@ class BuiltinResMgr {
                     reject(err);
                     return;
                 }
-                console.timeEnd('9.3');
-                console.time('9.4'); // 20ms
+                console.timeEnd('phase 9.3');
+                console.time('phase 9.4'); // 20ms
                 assetManager.loadAny(builtinAssets, (err, assets) => {
                     if (err) {
                         reject(err);
                     } else {
-                        console.timeEnd('9.4');
+                        console.timeEnd('phase 9.4');
                         // console.time('9.5'); // 0ms
                         assets.forEach((asset) => {
                             resources[asset.name] = asset;
@@ -343,7 +343,7 @@ class BuiltinResMgr {
                             }
                         });
                         // console.timeEnd('9.5');
-                        console.timeEnd('9.2');
+                        console.timeEnd('phase 9.2');
                         resolve();
                     }
                 });

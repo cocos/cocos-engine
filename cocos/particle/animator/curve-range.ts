@@ -23,13 +23,11 @@
  THE SOFTWARE.
  */
 
-import { ccclass, type, serializable, editable, formerlySerializedAs } from 'cc.decorator';
+import { ccclass } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { lerp } from '../../core/math';
-import { Enum } from '../../core/value-types';
+import { lerp, RealCurve, CCClass, geometry, Enum, ImageAsset, Texture2D } from '../../core';
+import { Filter, PixelFormat, WrapMode } from '../../core/assets/asset-enum';
 import { AnimationCurve, constructLegacyCurveAndConvert } from '../../core/geometry/curve';
-import { Texture2D, ImageAsset, RealCurve, CCClass } from '../../core';
-import { PixelFormat, Filter, WrapMode } from '../../core/assets/asset-enum';
 
 const setClassAttr = CCClass.Attr.setClassAttr;
 
@@ -52,24 +50,43 @@ export default class CurveRange  {
     public static Mode = Mode;
 
     /**
-     * @zh 曲线类型[[Mode]]。
+     * @zh 当mode为Curve时，spline创建1个RealCurve，当mode为TwoCurves时，splineMax创建1个RealCurve,splineMin创建一个RealCurve
      */
-    public mode = Mode.Constant;
-
+    set mode (mode:number) {
+        this._mode = mode;
+        switch (mode) {
+        case Mode.Constant:
+            break;
+        case Mode.TwoConstants:
+            break;
+        case Mode.Curve:
+            if (!this.spline) this.spline = constructLegacyCurveAndConvert();
+            break;
+        case Mode.TwoCurves:
+            if (!this.splineMax) this.splineMax = constructLegacyCurveAndConvert();
+            if (!this.splineMin) this.splineMin = constructLegacyCurveAndConvert();
+            break;
+        default:
+            break;
+        }
+    }
+    get mode () {
+        return this._mode;
+    }
     /**
      * @zh 当mode为Curve时，使用的曲线。
      */
-    public spline = constructLegacyCurveAndConvert();
+    public declare spline:RealCurve;
 
     /**
      * @zh 当mode为TwoCurves时，使用的曲线下限。
      */
-    public splineMin = constructLegacyCurveAndConvert();
+    public declare splineMin:RealCurve;
 
     /**
      * @zh 当mode为TwoCurves时，使用的曲线上限。
      */
-    public splineMax = constructLegacyCurveAndConvert();
+    public declare splineMax:RealCurve;
 
     /**
      * @zh 当mode为Curve时，使用的曲线。
@@ -130,8 +147,19 @@ export default class CurveRange  {
      */
     public multiplier = 1;
 
-    constructor () {
+    /**
+     * @zh 曲线类型[[Mode]]。
+     */
+    private _mode = Mode.Constant;
 
+    constructor () {
+        /* Only create RealCurves in Editor, in order to show the Splines in Editor,
+        in RunTime the RealCurves will only be created when it is in Curve mode*/
+        if (EDITOR) {
+            this.spline = constructLegacyCurveAndConvert();
+            this.splineMin = constructLegacyCurveAndConvert();
+            this.splineMax = constructLegacyCurveAndConvert();
+        }
     }
 
     public evaluate (time: number, rndRatio: number) {
@@ -162,6 +190,20 @@ export default class CurveRange  {
         }
     }
 
+    public getMaxAbs (): number {
+        switch (this.mode) {
+        default:
+        case Mode.Constant:
+            return this.constant;
+        case Mode.Curve:
+            return this.multiplier;
+        case Mode.TwoConstants:
+            return Math.max(Math.abs(this.constantMax), Math.abs(this.constantMin));
+        case Mode.TwoCurves:
+            return this.multiplier;
+        }
+    }
+
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
@@ -170,9 +212,9 @@ export default class CurveRange  {
         return SerializableTable[this.mode];
     }
 
-    private declare _curve: AnimationCurve | undefined;
-    private declare _curveMin: AnimationCurve | undefined;
-    private declare _curveMax: AnimationCurve | undefined;
+    private declare _curve: geometry.AnimationCurve | undefined;
+    private declare _curveMin: geometry.AnimationCurve | undefined;
+    private declare _curveMax: geometry.AnimationCurve | undefined;
 }
 
 CCClass.fastDefine('cc.CurveRange', CurveRange, {

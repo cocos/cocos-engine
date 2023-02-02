@@ -387,7 +387,7 @@ function loadImage (url, options, onComplete)  {
         image.onload = function () {
             image.onload = null;
             image.onerror = null;
-            URL.revokeObjectULR(url);
+            URL.revokeObjectURL(blobUrl);
             onComplete && onComplete(null, image);
           };
 

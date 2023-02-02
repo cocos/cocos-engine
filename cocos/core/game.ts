@@ -687,11 +687,11 @@ export class Game extends EventTarget {
                 this._initEvents();
             })
             .then(() => {
-                console.time('4'); // 17ms
+                console.time('phase 4'); // 17ms
                 return settings.init(config.settingsPath, config.overrideSettings);
             })
             .then(() => {
-                console.timeEnd('4');
+                console.timeEnd('phase 4');
                 // console.time('4.5');
                 if (DEBUG) {
                     console.timeEnd('Init Base');
@@ -709,7 +709,7 @@ export class Game extends EventTarget {
             })
             .then(() => {
                 // console.timeEnd('5');
-                console.time('6'); // 19ms
+                console.time('phase 6'); // 19ms
                 if (DEBUG) {
                     console.time('Init Infrastructure');
                 }
@@ -731,15 +731,15 @@ export class Game extends EventTarget {
                 // console.time('6.4');
                 garbageCollectionManager.init();
                 // console.timeEnd('6.4');
-                console.time('6.5'); // 6ms
+                console.time('phase 6.5'); // 6ms
                 deviceManager.init(this.canvas, bindingMappingInfo);
-                console.timeEnd('6.5');
+                console.timeEnd('phase 6.5');
                 // console.time('6.6');
                 assetManager.init();
                 // console.timeEnd('6.6');
-                console.time('6.7'); // 12ms -> 2ms
+                console.time('phase 6.7'); // 12ms -> 2ms
                 builtinResMgr.init();
-                console.timeEnd('6.7');
+                console.timeEnd('phase 6.7');
                 // console.time('6.8');
                 Layers.init();
                 // console.timeEnd('6.8');
@@ -751,7 +751,7 @@ export class Game extends EventTarget {
                 }
             })
             .then(() => {
-                console.timeEnd('6');
+                console.timeEnd('phase 6');
                 // console.time('7');
                 this.emit(Game.EVENT_POST_INFRASTRUCTURE_INIT);
                 return this.onPostInfrastructureInitDelegate.dispatch();
@@ -766,18 +766,18 @@ export class Game extends EventTarget {
             })
             .then(() => {
                 // console.timeEnd('8');
-                console.time('9');
+                console.time('phase 9');
                 if (DEBUG) {
                     console.time('Init SubSystem');
                 }
-                console.time('9.1');
+                console.time('phase 9.1');
                 director.init();
-                console.timeEnd('9.1');
-                console.time('9.2'); // 41ms
+                console.timeEnd('phase 9.1');
+                console.time('phase 9.2'); // 41ms
                 return builtinResMgr.loadBuiltinAssets();
             })
             .then(() => {
-                console.timeEnd('9');
+                console.timeEnd('phase 9');
                 // console.time('10');
                 if (DEBUG) {
                     console.timeEnd('Init SubSystem');
@@ -818,8 +818,8 @@ export class Game extends EventTarget {
             })
             .then(() => {
                 // console.timeEnd('13');
-                console.time('14'); // 32ms
-                console.time('14.1');
+                console.time('phase 14'); // 32ms
+                console.time('phase 14.1');
                 const scriptPackages = settings.querySettings<string[]>(Settings.Category.SCRIPTING, 'scriptPackages');
                 if (scriptPackages) {
                     return Promise.all(scriptPackages.map((pack) => import(pack)));
@@ -827,22 +827,22 @@ export class Game extends EventTarget {
                 return Promise.resolve([]);
             })
             .then(() => {
-                console.timeEnd('14.1');
-                console.time('14.2'); // 29ms
+                console.timeEnd('phase 14.1');
+                console.time('phase 14.2'); // 29ms
                 return this._loadProjectBundles();
             })
             .then(() => {
-                console.timeEnd('14.2');
+                console.timeEnd('phase 14.2');
                 // console.time('14.3');
                 return this._loadCCEScripts();
             })
             .then(() => {
                 // console.timeEnd('14.3');
-                console.time('14.4'); //3ms
+                console.time('phase 14.4'); //3ms
                 return this._setupRenderPipeline();
             })
             .then(() => {
-                console.timeEnd('14.4');
+                console.timeEnd('phase 14.4');
                 // console.time('14.5');
                 return this._loadPreloadAssets();
             })
@@ -852,7 +852,7 @@ export class Game extends EventTarget {
             // })
             .then(() => {
                 // console.timeEnd('14.5');
-                console.timeEnd('14');
+                console.timeEnd('phase 14');
                 // console.time('15'); // 1ms
                 builtinResMgr.compileBuiltinMaterial();
                 if (DEBUG) {
@@ -963,7 +963,7 @@ export class Game extends EventTarget {
         // console.time('14.2.2');
         return Promise.all(preloadBundles.map(({ bundle, version }) => new Promise<void>((resolve, reject) => {
             // console.timeEnd('14.2.2');
-            console.time('14.2.3');
+            console.time('phase 14.2.3');
             const opts: IBundleOptions = {};
             if (version) opts.version = version;
             assetManager.loadBundle(bundle, opts, (err) => {
@@ -971,7 +971,7 @@ export class Game extends EventTarget {
                     reject(err);
                     return;
                 }
-                console.timeEnd('14.2.3');
+                console.timeEnd('phase 14.2.3');
                 resolve();
             });
         })));
@@ -1027,7 +1027,9 @@ export class Game extends EventTarget {
                 this.onStart?.();
             }
         } else {
-            director.tick(this._calculateDT());
+            const dt = this._calculateDT();
+            const maxDt = 1.0 / 60.0;
+            director.tick(dt > maxDt ? maxDt : dt);
         }
     }
 

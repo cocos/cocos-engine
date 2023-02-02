@@ -807,6 +807,7 @@ export class ParticleSystem extends ModelRenderer {
         sub.inheritVelocity = subSrc.inheritVelocity;
         sub.startSize3D = subSrc.startSize3D;
         sub.startRotation3D = subSrc.startRotation3D;
+        sub.simulationSpeed = subSrc.simulationSpeed;
         Object.assign(sub.startColor, subSrc.startColor);
         Object.assign(sub.startDelay, subSrc.startDelay);
         Object.assign(sub.startLifetime, subSrc.startLifetime);
@@ -1634,6 +1635,9 @@ export class ParticleSystem extends ModelRenderer {
 
             particle.randomSeed = randomRangeInt(0, 233280);
             particle.loopCount++;
+            if (this._trailModule && this._trailModule.enable) {
+                this._trailModule.removeParticle(particle);
+            }
 
             particle.active = true;
             this._trigged = true;
