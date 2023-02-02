@@ -133,6 +133,7 @@ export class ReflectionProbeManager {
                 break;
             }
         }
+        this.updateProbeData();
     }
 
     public exists (probeId: number): boolean {
@@ -319,6 +320,8 @@ export class ReflectionProbeManager {
      */
     public updateProbeData () {
         if (this._probes.length === 0) return;
+        const maxId = this.getMaxProbeId();
+        const height = maxId + 1;
         const dataWidth = 3;
         if (!this._dataTexture) {
             this._dataTexture = deviceManager.gfxDevice.createTexture(new TextureInfo(
@@ -326,33 +329,40 @@ export class ReflectionProbeManager {
                 TextureUsageBit.SAMPLED | TextureUsageBit.TRANSFER_DST,
                 Format.RGBA32F,
                 dataWidth,
-                this._probes.length,
+                height,
             ));
         } else {
-            this._dataTexture.resize(dataWidth, this._probes.length);
+            this._dataTexture.resize(dataWidth, height);
         }
 
-        const buffer = new Float32Array(4 * dataWidth * this._probes.length);
+        const buffer = new Float32Array(4 * dataWidth * height);
         let bufferOffset = 0;
-        this._probes.sort((a: ReflectionProbe, b: ReflectionProbe) => a.getProbeId() - b.getProbeId());
-        for (let i = 0; i < this._probes.length; i++) {
-            if (this._probes[i].probeType === ProbeType.CUBE) {
+        for (let i = 0; i <= maxId; i++) {
+            const probe = this.getProbeById(i);
+            if (!probe) {
+                for (let j = 0; j < 4 * dataWidth; j++) {
+                    buffer[bufferOffset + j] = 1.0;
+                }
+                bufferOffset += 4 * dataWidth;
+                continue;
+            }
+            if (probe.probeType === ProbeType.CUBE) {
                 //world pos
-                buffer[bufferOffset] = this._probes[i].node.worldPosition.x;
-                buffer[bufferOffset + 1] = this._probes[i].node.worldPosition.y;
-                buffer[bufferOffset + 2] = this._probes[i].node.worldPosition.z;
+                buffer[bufferOffset] = probe.node.worldPosition.x;
+                buffer[bufferOffset + 1] = probe.node.worldPosition.y;
+                buffer[bufferOffset + 2] = probe.node.worldPosition.z;
                 buffer[bufferOffset + 3] = 0.0;
 
-                buffer[bufferOffset + 4] = this._probes[i].size.x;
-                buffer[bufferOffset + 5] = this._probes[i].size.y;
-                buffer[bufferOffset + 6] = this._probes[i].size.z;
+                buffer[bufferOffset + 4] = probe.size.x;
+                buffer[bufferOffset + 5] = probe.size.y;
+                buffer[bufferOffset + 6] = probe.size.z;
                 buffer[bufferOffset + 7] = 0.0;
-                buffer[bufferOffset + 8] = this._probes[i].cubemap ? this._probes[i].cubemap!.mipmapLevel : 1.0;
+                buffer[bufferOffset + 8] = probe.cubemap ? probe.cubemap.mipmapLevel : 1.0;
             } else {
                 //plane.xyz;
-                buffer[bufferOffset] = this._probes[i].node.up.x;
-                buffer[bufferOffset + 1] = this._probes[i].node.up.y;
-                buffer[bufferOffset + 2] = this._probes[i].node.up.z;
+                buffer[bufferOffset] = probe.node.up.x;
+                buffer[bufferOffset + 1] = probe.node.up.y;
+                buffer[bufferOffset + 2] = probe.node.up.z;
                 buffer[bufferOffset + 3] = 1.0;
                 //plane.w;
                 buffer[bufferOffset + 4] = 1.0;
@@ -373,7 +383,7 @@ export class ReflectionProbeManager {
         region.texOffset.x = 0;
         region.texOffset.y = 0;
         region.texExtent.width = dataWidth;
-        region.texExtent.height = this._probes.length;
+        region.texExtent.height = height;
 
         deviceManager.gfxDevice.copyBuffersToTexture([buffer], this._dataTexture, [region]);
 
@@ -388,6 +398,21 @@ export class ReflectionProbeManager {
                 }
             }
         }
+    }
+
+    /**
+     * @en get max value of probe id.
+     * @zh 获取反射探针id的最大值。
+     */
+    public getMaxProbeId () {
+        if (this._probes.length === 0) {
+            return -1;
+        }
+        if (this._probes.length === 1) {
+            return this._probes[0].getProbeId();
+        }
+        this._probes.sort((a: ReflectionProbe, b: ReflectionProbe) => a.getProbeId() - b.getProbeId());
+        return this._probes[this._probes.length - 1].getProbeId();
     }
 
     /**
