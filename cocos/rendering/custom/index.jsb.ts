@@ -25,6 +25,8 @@
 declare const render: any;
 
 import { Pipeline, PipelineBuilder, RenderingModule } from './pipeline';
+import { buildDeferredLayout, buildForwardLayout } from './effect';
+import { macro } from '../../core/platform/macro';
 import { DeferredPipelineBuilder, ForwardPipelineBuilder } from './builtin-pipelines';
 import { CustomPipelineBuilder, NativePipelineBuilder } from './custom-pipeline';
 import { Device } from '../../gfx';
@@ -39,7 +41,16 @@ export const enableEffectImport = true;
 let _renderModule: RenderingModule;
 
 export function createCustomPipeline (): Pipeline {
-    return render.Factory.createPipeline();
+    const ppl = render.Factory.createPipeline();
+    const pplName = macro.CUSTOM_PIPELINE_NAME;
+    if (!enableEffectImport) {
+        if (pplName === 'Deferred') {
+            buildDeferredLayout(ppl);
+        } else {
+            buildForwardLayout(ppl);
+        }
+    }
+    return ppl;
 }
 
 export const customPipelineBuilderMap = new Map<string, PipelineBuilder>();

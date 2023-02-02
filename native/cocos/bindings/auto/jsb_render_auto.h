@@ -103,6 +103,11 @@ extern se::Object *__jsb_cc_render_SceneTransversal_proto; // NOLINT
 extern se::Class * __jsb_cc_render_SceneTransversal_class; // NOLINT
 
 
+JSB_REGISTER_OBJECT_TYPE(cc::render::LayoutGraphBuilder);
+extern se::Object *__jsb_cc_render_LayoutGraphBuilder_proto; // NOLINT
+extern se::Class * __jsb_cc_render_LayoutGraphBuilder_class; // NOLINT
+
+
 JSB_REGISTER_OBJECT_TYPE(cc::render::Pipeline);
 extern se::Object *__jsb_cc_render_Pipeline_proto; // NOLINT
 extern se::Class * __jsb_cc_render_Pipeline_class; // NOLINT

@@ -28,6 +28,7 @@ import { assert } from '../../core';
 import { DescriptorSetLayout, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo, DescriptorType, Device, PipelineLayout, PipelineLayoutInfo, ShaderStageFlagBit, Type, Uniform, UniformBlock } from '../../gfx';
 import { DefaultVisitor, depthFirstSearch, GraphColor, MutableVertexPropertyMap } from './graph';
 import { DescriptorBlockData, DescriptorData, DescriptorDB, DescriptorSetData, DescriptorSetLayoutData, LayoutGraph, LayoutGraphData, LayoutGraphDataValue, LayoutGraphValue, PipelineLayoutData, RenderPhase, RenderPhaseData, RenderStageData, ShaderProgramData } from './layout-graph';
+import { LayoutGraphBuilder } from './pipeline';
 import { UpdateFrequency, getUpdateFrequencyName, getDescriptorTypeOrderName, Descriptor, DescriptorBlock, DescriptorBlockFlattened, DescriptorBlockIndex, DescriptorTypeOrder, ParameterType } from './types';
 
 export const INVALID_ID = 0xFFFFFFFF;
@@ -989,7 +990,7 @@ function sortDescriptorBlocks<T> (lhs: [string, T], rhs: [string, T]): number {
 }
 
 // build LayoutGraphData
-function buildLayoutGraphDataImpl (graph: LayoutGraph, builder: LayoutGraphBuilder2) {
+function buildLayoutGraphDataImpl (graph: LayoutGraph, builder: LayoutGraphBuilder) {
     for (const v of graph.vertices()) {
         const db = graph.getDescriptors(v);
         let minLevel = UpdateFrequency.PER_INSTANCE;
@@ -1075,7 +1076,7 @@ export function getOrCreateConstantID (lg: LayoutGraphData, name: string): numbe
 }
 
 // LayoutGraphData builder
-class LayoutGraphBuilder2 {
+class LayoutGraphBuilder2 implements LayoutGraphBuilder {
     public constructor (lg: LayoutGraphData) {
         this.lg = lg;
     }
