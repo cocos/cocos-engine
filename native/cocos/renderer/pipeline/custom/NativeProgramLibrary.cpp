@@ -30,6 +30,7 @@
 #include <stdexcept>
 #include <tuple>
 #include <utility>
+#include <cctype>
 #include "LayoutGraphGraphs.h"
 #include "LayoutGraphUtils.h"
 #include "NativePipelineTypes.h"
