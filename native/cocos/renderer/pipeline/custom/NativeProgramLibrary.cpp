@@ -863,7 +863,7 @@ void overwriteShaderSourceBinding(
             std::string_view decl(source.c_str() + beg, end - beg);
             auto nameEnd = decl.size();
             for (; nameEnd-- > 0;) {
-                if (!::isspace(decl[nameEnd])) {
+                if (!std::isspace(decl[nameEnd])) {
                     break;
                 }
             }
