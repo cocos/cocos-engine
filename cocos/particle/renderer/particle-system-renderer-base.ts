@@ -53,8 +53,8 @@ export interface IParticleSystemRenderer {
     getFreeParticle (): Particle | null;
     setNewParticle (p: Particle): void;
     getDefaultMaterial(): Material | null;
-    updateRotation (pass: Pass | null): void;
-    updateScale (pass: Pass | null): void;
+    updateRotation (mat: Material | null): void;
+    updateScale (mat: Material | null): void;
     clearSubemitter (): void;
     updateParticles (dt: number): number;
     updateRenderData (): void;
@@ -166,8 +166,8 @@ export abstract class ParticleSystemRendererBase implements IParticleSystemRende
     public abstract updateMaterialParams () : void;
     public abstract setNewParticle (p: Particle): void;
     public abstract getDefaultMaterial(): Material | null;
-    public abstract updateRotation (pass: Pass | null): void;
-    public abstract updateScale (pass: Pass | null): void;
+    public abstract updateRotation (mat: Material | null): void;
+    public abstract updateScale (mat: Material | null): void;
     public abstract clearSubemitter(): void;
     public abstract updateParticles (dt: number): number;
     public abstract updateRenderData (): void;
