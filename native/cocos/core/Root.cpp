@@ -26,6 +26,7 @@
 #include "2d/renderer/Batcher2d.h"
 #include "application/ApplicationManager.h"
 #include "bindings/event/EventDispatcher.h"
+#include "pipeline/custom/RenderingModule.h"
 #include "platform/interfaces/modules/IScreen.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
 #include "platform/interfaces/modules/ISystemWindowManager.h"
@@ -316,8 +317,8 @@ bool Root::setRenderPipeline(pipeline::RenderPipeline *rppl /* = nullptr*/) {
             return false;
         }
     } else {
-        _pipelineRuntime = std::make_unique<render::NativePipeline>(
-            boost::container::pmr::get_default_resource());
+        assert(!_pipelineRuntime);
+        _pipelineRuntime.reset(render::Factory::createPipeline());
         if (!_pipelineRuntime->activate(_mainRenderWindow->getSwapchain())) {
             _pipelineRuntime->destroy();
             _pipelineRuntime.reset();

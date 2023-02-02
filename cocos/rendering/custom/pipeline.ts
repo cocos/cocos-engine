@@ -31,12 +31,12 @@
 import { Material } from '../../asset/assets';
 import { Camera } from '../../render-scene/scene/camera';
 import { GeometryRenderer } from '../geometry-renderer';
-import { Buffer, Color, CommandBuffer, DescriptorSet, DescriptorSetLayout, Device, DrawInfo, Format, InputAssembler, PipelineState, Rect, Sampler, Swapchain, Texture, UniformBlock, Viewport } from '../../gfx';
+import { Buffer, Color, CommandBuffer, DescriptorSet, DescriptorSetLayout, Device, DrawInfo, Format, InputAssembler, PipelineState, Rect, Sampler, Swapchain, Texture, Viewport } from '../../gfx';
 import { GlobalDSManager } from '../global-descriptor-set-manager';
 import { Mat4, Quat, Vec2, Vec4 } from '../../core/math';
 import { MacroRecord } from '../../render-scene/core/pass-utils';
 import { PipelineSceneData } from '../pipeline-scene-data';
-import { ComputeView, CopyPair, DescriptorBlockFlattened, DescriptorBlockIndex, LightInfo, MovePair, QueueHint, RasterView, ResourceResidency, SceneFlags, TaskType, UpdateFrequency } from './types';
+import { ComputeView, CopyPair, LightInfo, MovePair, QueueHint, RasterView, ResourceResidency, SceneFlags, TaskType, UpdateFrequency } from './types';
 import { RenderScene } from '../../render-scene/core/render-scene';
 import { RenderWindow } from '../../render-scene/core/render-window';
 import { Model } from '../../render-scene/scene';
@@ -146,18 +146,6 @@ export interface SceneTransversal {
     transverse (visitor: SceneVisitor): SceneTask;
 }
 
-export interface LayoutGraphBuilder {
-    clear (): void;
-    addRenderStage (name: string): number;
-    addRenderPhase (name: string, parentID: number): number;
-    addShader (name: string, parentPhaseID: number): void;
-    addDescriptorBlock (nodeID: number, index: DescriptorBlockIndex, block: DescriptorBlockFlattened): void;
-    addUniformBlock (nodeID: number, index: DescriptorBlockIndex, name: string, uniformBlock: UniformBlock): void;
-    reserveDescriptorBlock (nodeID: number, index: DescriptorBlockIndex, block: DescriptorBlockFlattened): void;
-    compile (): number;
-    print (): string;
-}
-
 export interface Pipeline extends PipelineRuntime {
     beginSetup (): void;
     endSetup (): void;
@@ -181,7 +169,6 @@ export interface Pipeline extends PipelineRuntime {
     addCopyPass (): CopyPassBuilder;
     presentAll (): void;
     createSceneTransversal (camera: Camera, scene: RenderScene): SceneTransversal;
-    readonly layoutGraphBuilder: LayoutGraphBuilder;
     getDescriptorSetLayout (shaderName: string, freq: UpdateFrequency): DescriptorSetLayout | null;
 }
 
