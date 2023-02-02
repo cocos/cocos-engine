@@ -147,9 +147,13 @@ Object.defineProperty(meshAssetProto, 'maxPosition', {
 });
 
 meshAssetProto.onLoaded = function () {
-    // might be undefined
-    if (this._struct != undefined) {
-        this.setStruct(this._struct);
+    // might be undefined or null
+    const meshStruct = this._struct;
+    if (meshStruct) {
+        // Synchronize to native if the struct contains valid values.
+        if (meshStruct.vertexBundles.length !== 0 || meshStruct.primitives.length !== 0) {
+            this.setStruct(this._struct);
+        }
     }
     // Set to null to release memory in JS
     this._struct = null;
