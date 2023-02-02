@@ -63,6 +63,7 @@ export const enum DebugViewSingleType {
     METALLIC,
     ROUGHNESS,
     SPECULAR_INTENSITY,
+    IOR,
 
     DIRECT_DIFFUSE,
     DIRECT_SPECULAR,
@@ -74,6 +75,16 @@ export const enum DebugViewSingleType {
     LIGHT_MAP,
     SHADOW,
     AO,
+
+    FRESNEL,
+    DIRECT_TRANSMIT_DIFFUSE,
+    DIRECT_TRANSMIT_SPECULAR,
+    ENV_TRANSMIT_DIFFUSE,
+    ENV_TRANSMIT_SPECULAR,
+    TRANSMIT_ALL,
+    DIRECT_TRT,
+    ENV_TRT,
+    TRT_ALL,
 
     FOG,
 }
@@ -100,6 +111,12 @@ export const enum DebugViewCompositeType {
 
     TONE_MAPPING,
     GAMMA_CORRECTION,
+
+    FRESNEL,
+    TRANSMIT_DIFFUSE,
+    TRANSMIT_SPECULAR,
+    TRT,
+
     MAX_BIT_COUNT
 }
 
