@@ -30,6 +30,7 @@
 #include <stdexcept>
 #include <tuple>
 #include <utility>
+#include <cctype>
 #include "LayoutGraphGraphs.h"
 #include "LayoutGraphUtils.h"
 #include "NativePipelineTypes.h"
@@ -862,7 +863,7 @@ void overwriteShaderSourceBinding(
             std::string_view decl(source.c_str() + beg, end - beg);
             auto nameEnd = decl.size();
             for (; nameEnd-- > 0;) {
-                if (!std::isspace(decl[nameEnd])) {
+                if (!::isspace(decl[nameEnd])) {
                     break;
                 }
             }
