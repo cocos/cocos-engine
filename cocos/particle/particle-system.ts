@@ -587,7 +587,7 @@ export class ParticleSystem extends ModelRenderer {
     @type(VelocityOvertimeModule)
     _velocityOvertimeModule: VelocityOvertimeModule | null = null;
     /**
-     * @en The module controlling particles' velocity over time.
+     * @en The module controlling particle's velocity over time.
      * @zh 粒子速度模块。
      */
     @type(VelocityOvertimeModule)
