@@ -111,8 +111,13 @@ int32_t IOSPlatform::init() {
 }
 
 void IOSPlatform::exitLoop() {
-    onDestroy();
-    exit(0);
+    if(_manualQuit) {
+        // Manual exit requires an active call to onDestory.
+        onDestroy();
+        exit(0);
+    } else {
+        _quitLoop = true;
+    }
 }
 
 int32_t IOSPlatform::loop() {
@@ -153,6 +158,24 @@ void IOSPlatform::onClose() {
     cc::WindowEvent ev;
     ev.type = cc::WindowEvent::Type::CLOSE;
     cc::events::WindowEvent::broadcast(ev);
+}
+
+void IOSPlatform::manualExit() {
+    _manualQuit = true;
+    onClose();
+}
+
+void IOSPlatform::onDestroy() {
+    if(!_manualQuit) {
+        // ios exit process is special because it needs to wait for ts layer to destroy resources
+        int32_t fps = getFps();
+        float sleepTime = 1000.0 / fps;
+        while (!_quitLoop) {
+            runTask();
+            usleep(sleepTime);
+        }
+    }
+    UniversalPlatform::onDestroy();
 }
 
 ISystemWindow *IOSPlatform::createNativeWindow(uint32_t windowId, void *externalHandle) {

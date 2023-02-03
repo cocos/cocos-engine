@@ -44,6 +44,10 @@ public:
      * @brief Start base platform initialization.
      */
     int32_t run(int argc, const char **argv) override;
+    
+    void manualExit();
+    
+    void exitLoop() override;
     /**
      * @brief Implement the main logic of the base platform.
      */
@@ -55,10 +59,12 @@ public:
     void onPause() override;
     void onResume() override;
     void onClose() override;
-
+    void onDestroy() override;
     ISystemWindow *createNativeWindow(uint32_t windowId, void *externalHandle) override;
 
 private:
+    bool _manualQuit{false};
+    bool _quitLoop{false};
     ThreadCallback _cb;
 };
 
