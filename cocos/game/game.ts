@@ -548,7 +548,6 @@ export class Game extends EventTarget {
         if (this._paused) { return; }
         this._pausedByEngine = true;
         this.pause();
-        this.emit(Game.EVENT_PAUSE);
     }
 
     /**
@@ -558,7 +557,6 @@ export class Game extends EventTarget {
     private resumeByEngine () {
         if (this._pausedByEngine) {
             this.resume();
-            this.emit(Game.EVENT_RESUME);
             this._pausedByEngine = false;
         }
     }
@@ -1050,6 +1048,7 @@ export class Game extends EventTarget {
 
     private _onClose() {
         this.emit(Game.EVENT_CLOSE);
+        // TODO : Release Resources.
         systemInfo.exit();
     }
 

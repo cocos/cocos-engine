@@ -51,9 +51,8 @@ void SystemWindow::closeWindow() {
     IOSPlatform* platform = dynamic_cast<IOSPlatform*>(BasePlatform::getPlatform());
     platform->manualExit();
     //platform->onClose();
-    //platform->onDestroy();
-    //exit(0);
 }
+
 uintptr_t SystemWindow::getWindowHandle() const {
     return reinterpret_cast<uintptr_t>(UIApplication.sharedApplication.delegate.window.rootViewController.view);
 }

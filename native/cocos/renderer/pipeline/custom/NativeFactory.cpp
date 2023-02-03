@@ -91,18 +91,6 @@ RenderingModule* getRenderingModule() {
     return sRenderingModule;
 }
 
-ProgramLibrary* getProgramLibrary() {
-    if (!sRenderingModule) {
-        return nullptr;
-    }
-    return sRenderingModule->programLibrary.get();
-}
-
-RenderingModule* getRenderingModule() {
-    //CC_EXPECTS(sRenderingModule);
-    return sRenderingModule;
-}
-
 } // namespace render
 
 } // namespace cc

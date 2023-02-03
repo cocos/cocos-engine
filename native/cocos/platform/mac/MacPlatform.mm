@@ -132,7 +132,6 @@ bool MacPlatform::readyToExit() {
 }
 
 void MacPlatform::exitLoop() {
-    //[_timer release];
     if(!_readyToExit) {
         [[NSApplication sharedApplication] replyToApplicationShouldTerminate:true];
         _readyToExit = true;

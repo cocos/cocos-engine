@@ -255,7 +255,6 @@ public:
                     addTouchEvent(i, motionEvent);
                 }
             }
-            finishActivity();
             events::Touch::broadcast(touchEvent);
             touchEvent.touches.clear();
             return true;
@@ -604,13 +603,11 @@ int32_t AndroidPlatform::loop() {
 
             // Exit the game loop when the Activity is destroyed
             if (_app->destroyRequested) {
-                CC_LOG_DEBUG("AndroidPlatform destroyRequested");
                 break;
             }
         }
         // Exit the game loop when the Activity is destroyed
         if (_app->destroyRequested) {
-            CC_LOG_DEBUG("AndroidPlatform destroyRequested");
             break;
         }
         if (xr && !xr->platformLoopStart()) continue;
@@ -636,9 +633,7 @@ int32_t AndroidPlatform::loop() {
 #endif
         if (xr) xr->platformLoopEnd();
     }
-    CC_LOG_DEBUG("AndroidPlatform onDestroy1");
     onDestroy();
-    CC_LOG_DEBUG("AndroidPlatform onDestroy2");
     return 0;
 }
 
