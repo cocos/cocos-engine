@@ -1,4 +1,4 @@
-import { renameObjectProperty } from '../../cocos/core/utils/rename-object-property';
+import { renameObjectProperty } from '../../cocos/core/utils/internal';
 
 test(`renameObjectProperty()`, () => {
     const symKey = Symbol();
