@@ -3324,3 +3324,7 @@ The asset replacing failed, can not found override asset('%s') for '%s'
 ### 16301
 
 node '%s' doesn't have any ModelRenderer component, this component will not work. please add ModelRenderer component first
+
+### 16302
+
+There is no reflection probe in the scene or no probe is near the current object. No reflection probe will take effect on this object. Please create a new reflection probe or move existing ones closer.
