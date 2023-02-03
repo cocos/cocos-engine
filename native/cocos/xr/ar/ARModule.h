@@ -105,7 +105,7 @@ public:
 
     // image recognition & tracking
     void enableImageTracking(bool enable) const;
-    void addImageToLibWithSize(const std::string& name, float withInMeters) const;
+    void addImageToLibWithSize(const std::string& name, float widthInMeters) const;
     void setImageMaxTrackingNumber(int number) const;
     float* getAddedImagesInfo();
     float* getUpdatedImagesInfo();
