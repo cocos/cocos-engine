@@ -1064,6 +1064,17 @@ export function getOrCreateDescriptorID (lg: LayoutGraphData, name: string): num
     return nameID;
 }
 
+export function getOrCreateConstantID (lg: LayoutGraphData, name: string): number {
+    const nameID = lg.constantIndex.get(name);
+    if (nameID === undefined) {
+        const newID = lg.valueNames.length;
+        lg.constantIndex.set(name, newID);
+        lg.valueNames.push(name);
+        return newID;
+    }
+    return nameID;
+}
+
 // LayoutGraphData builder
 class LayoutGraphBuilder2 implements LayoutGraphBuilder {
     public constructor (lg: LayoutGraphData) {
@@ -1156,6 +1167,10 @@ class LayoutGraphBuilder2 implements LayoutGraphBuilder {
         const layout = setData.descriptorSetLayoutData;
         const nameID = getOrCreateDescriptorID(g, name);
         layout.uniformBlocks.set(nameID, uniformBlock);
+        // register constant names
+        for (const member of uniformBlock.members) {
+            getOrCreateConstantID(g, member.name);
+        }
     }
     reserveDescriptorBlock (nodeID: number, index: DescriptorBlockIndex, block: DescriptorBlockFlattened): void {
         if (block.capacity <= 0) {

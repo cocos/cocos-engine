@@ -1,8 +1,8 @@
 /****************************************************************************
  Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
- 
+
  http://www.cocos.com
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights to
@@ -153,6 +153,11 @@ void Ambient::initialize(AmbientInfo *info) {
 }
 
 Vec4 &Ambient::getSkyColor() {
+    const bool isHDR = Root::getInstance()->getPipeline()->getPipelineSceneData()->isHDR();
+    return isHDR ? _skyColorHDR : _skyColorLDR;
+}
+
+const Vec4 &Ambient::getSkyColor() const {
     const bool isHDR = Root::getInstance()->getPipeline()->getPipelineSceneData()->isHDR();
     return isHDR ? _skyColorHDR : _skyColorLDR;
 }

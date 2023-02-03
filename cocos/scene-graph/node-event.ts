@@ -282,4 +282,12 @@ export enum NodeEventType {
      * 当光照探针组组件的探针改变时触发的事件
      */
     LIGHT_PROBE_CHANGED = 'light-probe-changed',
+
+    /**
+     * @en
+     * The event occur after light probe's baking data is changed
+     * @zh
+     * 当光照探针烘焙数据修改后触发的事件
+     */
+    LIGHT_PROBE_BAKING_CHANGED = 'light-probe-baking-changed',
 }
