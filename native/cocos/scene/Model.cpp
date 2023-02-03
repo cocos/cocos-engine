@@ -660,9 +660,9 @@ void Model::updateReflectionProbeDataMap(gfx::Texture *texture)
             cc::gfx::Filter::NONE,
             cc::gfx::Filter::NONE,
             cc::gfx::Filter::NONE,
-            cc::gfx::Address::WRAP,
-            cc::gfx::Address::WRAP,
-            cc::gfx::Address::WRAP,
+            cc::gfx::Address::CLAMP,
+            cc::gfx::Address::CLAMP,
+            cc::gfx::Address::CLAMP,
         };
         auto *sampler = _device->getSampler(info);
         for (SubModel *subModel : _subModels) {

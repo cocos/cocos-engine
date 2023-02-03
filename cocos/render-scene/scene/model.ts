@@ -979,9 +979,9 @@ export class Model {
             Filter.NONE,
             Filter.NONE,
             Filter.NONE,
-            Address.WRAP,
-            Address.WRAP,
-            Address.WRAP,
+            Address.CLAMP,
+            Address.CLAMP,
+            Address.CLAMP,
         ));
         if (!texture) {
             texture = builtinResMgr.get<Texture2D>('empty-texture').getGFXTexture()!;

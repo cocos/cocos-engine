@@ -25,6 +25,7 @@
 
 import { MeshRenderer, ReflectionProbeType } from '../3d/framework/mesh-renderer';
 import { Vec3, geometry, cclegacy } from '../core';
+import { packRGBE } from '../core/math/color';
 import { director, Director } from '../game';
 import { BufferTextureCopy, deviceManager, Format, Texture, TextureInfo, TextureType, TextureUsageBit } from '../gfx';
 import { Camera, Model } from '../render-scene/scene';
@@ -322,12 +323,12 @@ export class ReflectionProbeManager {
         if (this._probes.length === 0) return;
         const maxId = this.getMaxProbeId();
         const height = maxId + 1;
-        const dataWidth = 3;
+        const dataWidth = 8;
         if (!this._dataTexture) {
             this._dataTexture = deviceManager.gfxDevice.createTexture(new TextureInfo(
                 TextureType.TEX2D,
                 TextureUsageBit.SAMPLED | TextureUsageBit.TRANSFER_DST,
-                Format.RGBA32F,
+                Format.RGBA8,
                 dataWidth,
                 height,
             ));
@@ -335,29 +336,27 @@ export class ReflectionProbeManager {
             this._dataTexture.resize(dataWidth, height);
         }
 
-        const buffer = new Float32Array(4 * dataWidth * height);
+        const buffer = new Uint8Array(4 * dataWidth * height);
         let bufferOffset = 0;
         for (let i = 0; i <= maxId; i++) {
             const probe = this.getProbeById(i);
             if (!probe) {
-                for (let j = 0; j < 4 * dataWidth; j++) {
-                    buffer[bufferOffset + j] = 1.0;
-                }
                 bufferOffset += 4 * dataWidth;
                 continue;
             }
             if (probe.probeType === ProbeType.CUBE) {
                 //world pos
-                buffer[bufferOffset] = probe.node.worldPosition.x;
-                buffer[bufferOffset + 1] = probe.node.worldPosition.y;
-                buffer[bufferOffset + 2] = probe.node.worldPosition.z;
-                buffer[bufferOffset + 3] = 0.0;
-
-                buffer[bufferOffset + 4] = probe.size.x;
-                buffer[bufferOffset + 5] = probe.size.y;
-                buffer[bufferOffset + 6] = probe.size.z;
-                buffer[bufferOffset + 7] = 0.0;
-                buffer[bufferOffset + 8] = probe.cubemap ? probe.cubemap.mipmapLevel : 1.0;
+                this._insertToBuffer(buffer, bufferOffset, probe.node.worldPosition.x);
+                this._insertToBuffer(buffer, bufferOffset + 4, probe.node.worldPosition.y);
+                this._insertToBuffer(buffer, bufferOffset + 8, probe.node.worldPosition.z);
+                bufferOffset += 12;
+                this._insertToBuffer(buffer, bufferOffset, probe.size.x);
+                this._insertToBuffer(buffer, bufferOffset + 4, probe.size.x);
+                this._insertToBuffer(buffer, bufferOffset + 8, probe.size.x);
+                bufferOffset += 12;
+                buffer[bufferOffset] = probe.cubemap ? probe.cubemap.mipmapLevel : 1.0;
+                //unuse
+                bufferOffset += 8;
             } else {
                 //plane.xyz;
                 buffer[bufferOffset] = probe.node.up.x;
@@ -373,11 +372,6 @@ export class ReflectionProbeManager {
                 //mipCount;
                 buffer[bufferOffset + 8] = 1.0;
             }
-            buffer[bufferOffset + 9] = 0.0;
-            buffer[bufferOffset + 10] = 0.0;
-            buffer[bufferOffset + 11] = 0.0;
-
-            bufferOffset += 4 * dataWidth;
         }
         const region = new BufferTextureCopy();
         region.texOffset.x = 0;
@@ -398,6 +392,28 @@ export class ReflectionProbeManager {
                 }
             }
         }
+    }
+
+    private _insertToBuffer (buffer: Uint8Array, startPos: number, value: number) {
+        const sign = value > 0 ? 0.0 : 1.0;
+        const integer = Math.trunc(value);
+        const decimals = (Math.abs(value) - Math.abs(integer)).toFixed(3).slice(2);
+        const first = decimals.includes('0', 0);
+        const second = decimals.includes('0', 1);
+        const decimalsNum = Number(decimals);
+
+        const pack = packRGBE(new Vec3(sign, integer, decimalsNum));
+        // eslint-disable-next-line no-restricted-properties
+        const signUnpack = pack.x * Math.pow(1.1, pack.w * 255.0 - 128.0);
+        // eslint-disable-next-line no-restricted-properties
+        const integerUnpack = pack.y * Math.pow(1.1, pack.w * 255.0 - 128.0);
+        // eslint-disable-next-line no-restricted-properties
+        const decimalsUnpack = pack.z * Math.pow(1.1, pack.w * 255.0 - 128.0);
+
+        buffer[startPos] = sign;
+        buffer[startPos + 1] = pack.y;
+        buffer[startPos + 2] = pack.z;
+        buffer[startPos + 3] = pack.w;
     }
 
     /**
