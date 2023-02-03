@@ -73,7 +73,7 @@ struct RenderGraphVisitorContext {
     const FrameGraphDispatcher::BarrierMap& barrierMap;
     const ccstd::pmr::vector<bool>& validPasses;
     gfx::Device* device = nullptr;
-    cc::gfx::CommandBuffer* cmdBuff = nullptr;
+    gfx::CommandBuffer* cmdBuff = nullptr;
     ccstd::pmr::unordered_map<
         const scene::RenderScene*,
         ccstd::pmr::unordered_map<scene::Camera*, NativeRenderQueue>>& sceneQueues;
@@ -300,7 +300,7 @@ PersistentRenderPassAndFramebuffer& fetchOrCreateFramebuffer(
     return iter->second;
 }
 
-gfx::BufferBarrierInfo getBufferBarrier(const cc::render::Barrier& barrier) {
+gfx::BufferBarrierInfo getBufferBarrier(const render::Barrier& barrier) {
     gfx::MemoryUsage memUsage = gfx::MemoryUsage::DEVICE;
 
     const auto& beginUsage = get<gfx::BufferUsage>(barrier.beginStatus.usage);
@@ -324,7 +324,7 @@ gfx::BufferBarrierInfo getBufferBarrier(const cc::render::Barrier& barrier) {
 
 std::pair<gfx::TextureBarrierInfo, gfx::Texture*> getTextureBarrier(
     ResourceGraph& resg, ResourceGraph::vertex_descriptor resID,
-    const cc::render::Barrier& barrier) {
+    const render::Barrier& barrier) {
     gfx::Texture* texture = resg.getTexture(resID);
     CC_ENSURES(texture);
 
@@ -553,7 +553,7 @@ void uploadUniformBuffer(
 void initPerPassDescriptorSet(
     ResourceGraph& resg,
     gfx::Device* device,
-    cc::gfx::CommandBuffer* cmdBuff,
+    gfx::CommandBuffer* cmdBuff,
     const gfx::DefaultResource& defaultResource,
     const LayoutGraphData& lg,
     const PmrFlatMap<NameLocalID, ResourceGraph::vertex_descriptor>& resourceIndex,
@@ -686,7 +686,7 @@ void initPerPassDescriptorSet(
 }
 
 void updatePerPassDescriptorSet(
-    cc::gfx::CommandBuffer* cmdBuff,
+    gfx::CommandBuffer* cmdBuff,
     const LayoutGraphData& lg,
     const DescriptorSetData& set,
     const RenderData& user,
@@ -796,6 +796,38 @@ void updateCameraUniformBufferAndDescriptorSet(
         auto& node = ctx.context.layoutGraphResources.at(passLayoutID);
         const auto& user = get(RenderGraph::Data, ctx.g, sceneID); // notice: sceneID
         updatePerPassDescriptorSet(ctx.cmdBuff, ctx.lg, set, user, node);
+    }
+}
+
+void submitUICommands(gfx::RenderPass* renderPass,
+    uint32_t layoutPassID,
+    scene::Camera* camera,
+    gfx::CommandBuffer* cmdBuff) {
+    const auto& batches = camera->getScene()->getBatches();
+    for (auto* batch : batches) {
+        if (!(camera->getVisibility() & batch->getVisFlags())) {
+            continue;
+        }
+        const auto& passes = batch->getPasses();
+        for (size_t i = 0; i < batch->getShaders().size(); ++i) {
+            const scene::Pass* pass = passes[i];
+            if (pass->getPassID() != layoutPassID) {
+                continue;
+            }
+            auto* shader = batch->getShaders()[i];
+            auto* inputAssembler = batch->getInputAssembler();
+            auto* ds = batch->getDescriptorSet();
+            auto* pso = pipeline::PipelineStateManager::getOrCreatePipelineState(
+                pass, shader, inputAssembler, renderPass);
+            cmdBuff->bindPipelineState(pso);
+            cmdBuff->bindDescriptorSet(
+                static_cast<uint32_t>(pipeline::SetIndex::MATERIAL),
+                pass->getDescriptorSet());
+            cmdBuff->bindInputAssembler(inputAssembler);
+            cmdBuff->bindDescriptorSet(
+                static_cast<uint32_t>(pipeline::SetIndex::LOCAL), ds);
+            cmdBuff->draw(inputAssembler);
+        }
     }
 }
 
@@ -995,6 +1027,10 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
                 queue.transparentInstancingQueue.recordCommandBuffer(
                     ctx.currentPass, ctx.cmdBuff);
             }
+        }
+        if (any(sceneData.flags & SceneFlags::UI)) {
+            submitUICommands(ctx.currentPass,
+                ctx.currentPassLayoutID, camera, ctx.cmdBuff);
         }
     }
     void begin(const Blit& blit, RenderGraph::vertex_descriptor vertID) const {
@@ -1371,8 +1407,8 @@ float computeSortingDepth(const scene::Camera& camera, const scene::Model& model
     float depth = 0;
     if (model.getNode()) {
         const auto* node = model.getTransform();
-        cc::Vec3 position;
-        cc::Vec3::subtract(node->getWorldPosition(), camera.getPosition(), &position);
+        Vec3 position;
+        Vec3::subtract(node->getWorldPosition(), camera.getPosition(), &position);
         depth = position.dot(camera.getForward());
     }
     return depth;
