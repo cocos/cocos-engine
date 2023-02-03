@@ -46,27 +46,6 @@ namespace cc {
 
 namespace render {
 
-class NativeLayoutGraphBuilder final : public LayoutGraphBuilder {
-public:
-    NativeLayoutGraphBuilder() = default;
-    NativeLayoutGraphBuilder(gfx::Device* deviceIn, LayoutGraphData* dataIn) noexcept
-    : device(deviceIn),
-      data(dataIn) {}
-
-    void clear() override;
-    uint32_t addRenderStage(const ccstd::string &name) override;
-    uint32_t addRenderPhase(const ccstd::string &name, uint32_t parentID) override;
-    void addShader(const ccstd::string &name, uint32_t parentPhaseID) override;
-    void addDescriptorBlock(uint32_t nodeID, const DescriptorBlockIndex &index, const DescriptorBlockFlattened &block) override;
-    void addUniformBlock(uint32_t nodeID, const DescriptorBlockIndex &index, const ccstd::string &name, const gfx::UniformBlock &uniformBlock) override;
-    void reserveDescriptorBlock(uint32_t nodeID, const DescriptorBlockIndex &index, const DescriptorBlockFlattened &block) override;
-    int compile() override;
-    ccstd::string print() const override;
-
-    gfx::Device* device{nullptr};
-    LayoutGraphData* data{nullptr};
-};
-
 class NativeRasterQueueBuilder final : public RasterQueueBuilder {
 public:
     NativeRasterQueueBuilder() = default;
@@ -652,7 +631,6 @@ public:
     CopyPassBuilder *addCopyPass() override;
     void presentAll() override;
     SceneTransversal *createSceneTransversal(const scene::Camera *camera, const scene::RenderScene *scene) override;
-    LayoutGraphBuilder *getLayoutGraphBuilder() override;
     gfx::DescriptorSetLayout *getDescriptorSetLayout(const ccstd::string &shaderName, UpdateFrequency freq) override;
 
     void executeRenderGraph(const RenderGraph& rg);
@@ -672,7 +650,6 @@ public:
     LightingMode lightingMode{LightingMode::DEFAULT};
     IntrusivePtr<pipeline::PipelineSceneData> pipelineSceneData;
     NativeRenderContext nativeContext;
-    LayoutGraphData dummyLayoutGraph;
     ResourceGraph resourceGraph;
     RenderGraph renderGraph;
 };

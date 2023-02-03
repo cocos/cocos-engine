@@ -253,26 +253,6 @@ public:
     virtual SceneTask *transverse(SceneVisitor *visitor) const = 0;
 };
 
-class LayoutGraphBuilder {
-public:
-    LayoutGraphBuilder() noexcept = default;
-    LayoutGraphBuilder(LayoutGraphBuilder&& rhs) = delete;
-    LayoutGraphBuilder(LayoutGraphBuilder const& rhs) = delete;
-    LayoutGraphBuilder& operator=(LayoutGraphBuilder&& rhs) = delete;
-    LayoutGraphBuilder& operator=(LayoutGraphBuilder const& rhs) = delete;
-    virtual ~LayoutGraphBuilder() noexcept = default;
-
-    virtual void clear() = 0;
-    virtual uint32_t addRenderStage(const ccstd::string &name) = 0;
-    virtual uint32_t addRenderPhase(const ccstd::string &name, uint32_t parentID) = 0;
-    virtual void addShader(const ccstd::string &name, uint32_t parentPhaseID) = 0;
-    virtual void addDescriptorBlock(uint32_t nodeID, const DescriptorBlockIndex &index, const DescriptorBlockFlattened &block) = 0;
-    virtual void addUniformBlock(uint32_t nodeID, const DescriptorBlockIndex &index, const ccstd::string &name, const gfx::UniformBlock &uniformBlock) = 0;
-    virtual void reserveDescriptorBlock(uint32_t nodeID, const DescriptorBlockIndex &index, const DescriptorBlockFlattened &block) = 0;
-    virtual int compile() = 0;
-    virtual ccstd::string print() const = 0;
-};
-
 class Pipeline : public PipelineRuntime {
 public:
     Pipeline() noexcept = default;
@@ -294,7 +274,6 @@ public:
     virtual CopyPassBuilder *addCopyPass() = 0;
     virtual void presentAll() = 0;
     virtual SceneTransversal *createSceneTransversal(const scene::Camera *camera, const scene::RenderScene *scene) = 0;
-    virtual LayoutGraphBuilder *getLayoutGraphBuilder() = 0;
     virtual gfx::DescriptorSetLayout *getDescriptorSetLayout(const ccstd::string &shaderName, UpdateFrequency freq) = 0;
     uint32_t addRenderTarget(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height) {
         return addRenderTarget(name, format, width, height, ResourceResidency::MANAGED);
