@@ -300,7 +300,7 @@ export class MeshRenderer extends ModelRenderer {
     @serializable
     @editable
     @disallowAnimation
-    @displayOrder(1)
+    @displayOrder(3)
     public bakeSettings = new ModelBakeSettings(this);
 
     @serializable
@@ -327,7 +327,7 @@ export class MeshRenderer extends ModelRenderer {
      */
     @type(CCFloat)
     @tooltip('i18n:model.shadow_bias')
-    @group({ id: 'DynamicShadow', name: 'DynamicShadowSettings', displayOrder: 0 })
+    @group({ id: 'DynamicShadow', name: 'DynamicShadowSettings', displayOrder: 2 })
     @disallowAnimation
     get shadowBias () {
         return this._shadowBias;
@@ -398,6 +398,7 @@ export class MeshRenderer extends ModelRenderer {
      * 注意，设置时，所有形变目标的权重都将归零。
      */
     @type(Mesh)
+    @displayOrder(1)
     @tooltip('i18n:model.mesh')
     get mesh () {
         return this._mesh;
