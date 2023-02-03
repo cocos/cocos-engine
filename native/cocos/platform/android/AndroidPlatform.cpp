@@ -583,8 +583,6 @@ int32_t AndroidPlatform::run(int /*argc*/, const char ** /*argv*/) {
 
 void AndroidPlatform::exitLoop() {
     _app->destroyRequested = 1;
-    CC_LOG_DEBUG("AndroidPlatform exit loop");
-    //_quit = true;
 }
 
 int32_t AndroidPlatform::loop() {
