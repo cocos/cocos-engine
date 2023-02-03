@@ -25,9 +25,7 @@
 import { legacyCC } from './core/global-exports';
 import { DataPoolManager } from './3d/skeletal-animation/data-pool-manager';
 import { Device, deviceManager } from './gfx';
-import { EDITOR } from "internal:constants";
 import { DebugView } from './rendering/debug-view';
-import { buildDeferredLayout, buildForwardLayout } from './rendering/custom/effect';
 import { settings, Settings, warnID, Pool, macro } from './core';
 import { ForwardPipeline } from './rendering';
 
@@ -230,15 +228,8 @@ const oldSetPipeline = rootProto.setRenderPipeline;
 rootProto.setRenderPipeline = function (pipeline) {
     let ppl;
     if (macro.CUSTOM_PIPELINE_NAME !== '' && legacyCC.rendering && this.usesCustomPipeline) {
-        const result = oldSetPipeline.call(this, null);
-        const ppl = this.customPipeline;
-        if (this.useDeferredPipeline) {
-            buildDeferredLayout(ppl);
-        } else {
-            buildForwardLayout(ppl);
-        }
-        ppl.layoutGraphBuilder.compile();
-        return result;
+        legacyCC.rendering.createCustomPipeline();
+        return oldSetPipeline.call(this, null);
     } else {
         if (!pipeline) {
             // pipeline should not be created in C++, ._ctor need to be triggered
