@@ -45,7 +45,7 @@ public:
      */
     int32_t run(int argc, const char **argv) override;
     
-    void manualExit();
+    void requestQuit();
     
     void exitLoop() override;
     /**
@@ -63,7 +63,7 @@ public:
     ISystemWindow *createNativeWindow(uint32_t windowId, void *externalHandle) override;
 
 private:
-    bool _manualQuit{false};
+    bool _requestQuit{false};
     bool _quitLoop{false};
     ThreadCallback _cb;
 };

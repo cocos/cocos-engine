@@ -111,8 +111,8 @@ int32_t IOSPlatform::init() {
 }
 
 void IOSPlatform::exitLoop() {
-    if(_manualQuit) {
-        // Manual exit requires an active call to onDestory.
+    if(_requestQuit) {
+        // Manual quit requires a call to onDestory.
         onDestroy();
         exit(0);
     } else {
@@ -160,13 +160,13 @@ void IOSPlatform::onClose() {
     cc::events::WindowEvent::broadcast(ev);
 }
 
-void IOSPlatform::manualExit() {
-    _manualQuit = true;
+void IOSPlatform::requestQuit() {
+    _requestQuit = true;
     onClose();
 }
 
 void IOSPlatform::onDestroy() {
-    if(!_manualQuit) {
+    if(!_requestQuit) {
         // ios exit process is special because it needs to wait for ts layer to destroy resources
         int32_t fps = getFps();
         float sleepTime = 1000.0 / fps;
