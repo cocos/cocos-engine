@@ -147,6 +147,7 @@ void IProgramInfo::copyFrom(const IShaderInfo &o) {
     buffers = o.buffers;
     images = o.images;
     subpassInputs = o.subpassInputs;
+    descriptors = o.descriptors;
 }
 
 ProgramLib::ProgramLib() {

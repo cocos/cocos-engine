@@ -234,7 +234,6 @@ LayoutGraphData::LayoutGraphData(const allocator_type& alloc) noexcept
   constantIndex(alloc),
   shaderLayoutIndex(alloc),
   effects(alloc),
-  constantMacros(alloc),
   pathIndex(alloc) {}
 
 LayoutGraphData::LayoutGraphData(LayoutGraphData&& rhs, const allocator_type& alloc)
@@ -249,7 +248,7 @@ LayoutGraphData::LayoutGraphData(LayoutGraphData&& rhs, const allocator_type& al
   constantIndex(std::move(rhs.constantIndex), alloc),
   shaderLayoutIndex(std::move(rhs.shaderLayoutIndex), alloc),
   effects(std::move(rhs.effects), alloc),
-  constantMacros(std::move(rhs.constantMacros), alloc),
+  constantMacros(std::move(rhs.constantMacros)),
   pathIndex(std::move(rhs.pathIndex), alloc) {}
 
 // ContinuousContainer

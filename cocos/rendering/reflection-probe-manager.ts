@@ -68,11 +68,13 @@ export class ReflectionProbeManager {
     get updateForRuntime () {
         return this._updateForRuntime;
     }
+
     /**
      * @en refresh all reflection probe
      * @zh 刷新所有反射探针
      */
     public onUpdateProbes (forceUpdate = false) {
+        if (!this._updateForRuntime) return;
         if (this._probes.length === 0) return;
         if (!this.updateForRuntime) return;
         const scene = director.getScene();
@@ -412,6 +414,22 @@ export class ReflectionProbeManager {
         }
         this._probes.sort((a: ReflectionProbe, b: ReflectionProbe) => a.getProbeId() - b.getProbeId());
         return this._probes[this._probes.length - 1].getProbeId();
+    }
+    /**
+     * @en Get the reflection probe used by the model.
+     * @zh 获取模型使用的反射探针。
+     */
+    public getUsedReflectionProbe (model: Model, probeType: ReflectionProbeType) {
+        if (probeType === ReflectionProbeType.BAKED_CUBEMAP) {
+            if (this._useCubeModels.has(model)) {
+                return this._useCubeModels.get(model);
+            }
+        } else if (probeType === ReflectionProbeType.PLANAR_REFLECTION) {
+            if (this._usePlanarModels.has(model)) {
+                return this._usePlanarModels.get(model);
+            }
+        }
+        return null;
     }
 
     /**

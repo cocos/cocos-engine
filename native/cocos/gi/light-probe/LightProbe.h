@@ -137,6 +137,8 @@ public:
     ~LightProbeInfo() override = default;
 
     void activate(Scene *scene, LightProbes *resource);
+    void onProbeBakeFinished();
+    void onProbeBakeCleared();
     void clearSHCoefficients();
     inline bool isUniqueNode() const { return _nodes.size() == 1; }
     bool addNode(Node *node);
@@ -248,6 +250,7 @@ public:
     IntrusivePtr<LightProbesData> _data;
 
 private:
+    void onProbeBakingChanged(Node *node);
     void clearAllSHUBOs();
     void resetAllTetraIndices();
 

@@ -34,6 +34,7 @@ import { Layers } from '../../scene-graph/layers';
 import { Camera } from '../../misc/camera-component';
 import { Node, TransformBit } from '../../scene-graph';
 import { ProbeClearFlag, ProbeType } from '../../render-scene/scene/reflection-probe';
+import { absolute } from '../../physics/utils/util';
 
 export enum ProbeResolution {
     /**
@@ -105,10 +106,8 @@ export class ReflectionProbe extends Component {
      * 获取或设置包围盒的大小。
      */
     set size (value: Vec3) {
-        if (value.x < 0) value.x = 0;
-        if (value.y < 0) value.y = 0;
-        if (value.z < 0) value.z = 0;
         this._size.set(value);
+        absolute(this._size);
         this.probe.size = this._size;
         if (this.probe) {
             ReflectionProbeManager.probeManager.onUpdateProbes(true);
@@ -295,6 +294,7 @@ export class ReflectionProbe extends Component {
     onEnable () {
         if (this._probe) {
             ReflectionProbeManager.probeManager.register(this._probe);
+            ReflectionProbeManager.probeManager.onUpdateProbes(true);
             this._probe.enable();
         }
     }

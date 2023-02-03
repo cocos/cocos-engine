@@ -64,6 +64,7 @@ const lightProbePatches: IMacroPatch[] = [
     { name: 'CC_USE_LIGHT_PROBE', value: true },
 ];
 const CC_USE_REFLECTION_PROBE = 'CC_USE_REFLECTION_PROBE';
+const CC_RECEIVE_DIRECTIONAL_LIGHT = 'CC_RECEIVE_DIRECTIONAL_LIGHT';
 export enum ModelType {
     DEFAULT,
     SKINNING,
@@ -240,6 +241,18 @@ export class Model {
 
     set castShadow (val) {
         this._castShadow = val;
+    }
+
+    /**
+     * @en Gets or sets receive direction Light.
+     * @zh 获取或者设置接收平行光光照。
+     */
+    get receiveDirLight (): boolean {
+        return this._receiveDirLight;
+    }
+    set receiveDirLight (val) {
+        this._receiveDirLight = val;
+        this.onMacroPatchesStateChanged();
     }
 
     /**
@@ -476,6 +489,12 @@ export class Model {
      * @zh 是否投射阴影
      */
     protected _castShadow = false;
+
+    /**
+     * @en Is received direction Light.
+     * @zh 是否接收平行光光照。
+     */
+    protected _receiveDirLight = true;
 
     /**
      * @en Shadow bias
@@ -1064,6 +1083,10 @@ export class Model {
             { name: CC_USE_REFLECTION_PROBE, value: this._reflectionProbeType },
         ];
         patches = patches ? patches.concat(reflectionProbePatches) : reflectionProbePatches;
+        const receiveDirLightPatches: IMacroPatch[] = [
+            { name: CC_RECEIVE_DIRECTIONAL_LIGHT, value: this._receiveDirLight },
+        ];
+        patches = patches ? patches.concat(receiveDirLightPatches) : receiveDirLightPatches;
 
         return patches;
     }
