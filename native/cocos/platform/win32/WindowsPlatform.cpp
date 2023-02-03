@@ -119,7 +119,7 @@ void WindowsPlatform::exitLoop() {
 
 int32_t WindowsPlatform::loop() {
 #if CC_EDITOR
-    _windowManager->processEvent(&_quit);
+    _windowManager->processEvent();
     runTask();
 #else
     ///////////////////////////////////////////////////////////////////////////
