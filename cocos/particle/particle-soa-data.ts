@@ -100,7 +100,7 @@ export class ParticleSOAData {
     private _randomSeed = new Uint32Array(this._capacity);
     private _invStartLifeTime = new Float32Array(this._capacity);
     private _normalizedAliveTime = new Float32Array(this._capacity);
-    private _frameIndex = new Uint16Array(this._capacity);
+    private _frameIndex = new Float32Array(this._capacity);
     // trail
     // One trail segment contains 4 float: x, y, z, timestamp
     private _trailSegmentStride = 4;
@@ -544,13 +544,13 @@ export class ParticleSOAData {
     }
 
     addParticles (count: number): ParticleHandle {
+        let reservedCount = this._capacity;
+        while (this._count + count > reservedCount) {
+            reservedCount *= 2;
+        }
+        this.reserve(reservedCount);
         for (let i = 0; i < count; ++i) {
-            if (this._count >= this._capacity) {
-                this.reserve(this._capacity * 2);
-            }
-            const handle = this._count;
-            this._count++;
-            this.resetParticle(handle);
+            this.resetParticle(this._count++);
         }
         return this._count - count;
     }
@@ -753,7 +753,7 @@ export class ParticleSOAData {
             this._invStartLifeTime.set(oldInvStartLifeTime);
             this._normalizedAliveTime = new Float32Array(capacity);
             this._normalizedAliveTime.set(oldNormalizedAliveTime);
-            this._frameIndex = new Uint16Array(capacity);
+            this._frameIndex = new Float32Array(capacity);
             this._frameIndex.set(oldFrameIndex);
             this._trailSegmentNumbers = new Uint16Array(capacity);
             this._trailSegmentNumbers.set(oldTrailSegmentNumbers);

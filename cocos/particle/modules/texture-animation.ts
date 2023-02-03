@@ -24,15 +24,16 @@
  */
 
 import { ccclass, tooltip, displayOrder, type, formerlySerializedAs, serializable, range } from 'cc.decorator';
+import { DEBUG } from 'internal:constants';
 import { lerp, pseudoRandom, repeat } from '../../core/math';
 import { Enum } from '../../core/value-types';
 import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { CurveRange } from '../curve-range';
-import { ModuleRandSeed } from '../enum';
 import { ParticleSOAData } from '../particle-soa-data';
 import { ParticleUpdateContext } from '../particle-update-context';
+import { assert } from '../../core';
 
-const TEXTURE_ANIMATION_RAND_OFFSET = ModuleRandSeed.TEXTURE;
+const TEXTURE_ANIMATION_RAND_OFFSET = 90794;
 
 /**
  * 粒子贴图动画类型。
@@ -217,26 +218,82 @@ export class TextureAnimationModule extends ParticleModule {
     @serializable
     private _uvChannelMask = -1;
 
-    // public init (p: Particle) {
-    //     p.startRow = Math.floor(Math.random() * this.numTilesY);
-    // }
-
     public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
-        const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
-        const startFrame = this.startFrame.evaluate(normalizedTime, pseudoRandom(p.randomSeed + TEXTURE_ANIMATION_RAND_OFFSET))! / (this.numTilesX * this.numTilesY);
-        if (this.animation === Animation.WholeSheet) {
-            p.frameIndex = repeat(this.cycleCount * (this.frameOverTime.evaluate(normalizedTime, pseudoRandom(p.randomSeed + TEXTURE_ANIMATION_RAND_OFFSET))! + startFrame), 1);
-        } else if (this.animation === Animation.SingleRow) {
+        const { count, randomSeed, frameIndex, normalizedAliveTime } = particles;
+        if (DEBUG) {
+            assert(this.startFrame.mode === CurveRange.Mode.Constant || this.startFrame.mode === CurveRange.Mode.TwoConstants,
+                'The mode of startFrame in texture-animation module can not be Curve and TwoCurve!');
+        }
+        const cycleCount = this.cycleCount;
+        // use frameIndex to cache lerp ratio
+        if (this.startFrame.mode === CurveRange.Mode.Constant) {
+            const startFrame = this.startFrame.constant;
+            if (this.frameOverTime.mode === CurveRange.Mode.Constant) {
+                const frame = repeat(cycleCount * (this.frameOverTime.constant + startFrame), 1);
+                for (let i = 0; i < count; i++) {
+                    frameIndex[i] = frame;
+                }
+            } else if (this.frameOverTime.mode === CurveRange.Mode.TwoConstants) {
+                const { constantMin, constantMax } = this.frameOverTime;
+                for (let i = 0; i < count; i++) {
+                    frameIndex[i] = repeat(cycleCount * (lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET)) + startFrame), 1);
+                }
+            } else if (this.frameOverTime.mode === CurveRange.Mode.Curve) {
+                const { spline, multiplier } = this.frameOverTime;
+                for (let i = 0; i < count; i++) {
+                    frameIndex[i] = repeat(cycleCount * (spline.evaluate(normalizedAliveTime[i]) * multiplier + startFrame), 1);
+                }
+            } else {
+                const { splineMin, splineMax, multiplier } = this.frameOverTime;
+                for (let i = 0; i < count; i++) {
+                    frameIndex[i] = repeat(cycleCount * (lerp(splineMin.evaluate(normalizedAliveTime[i]), splineMax.evaluate(normalizedAliveTime[i]), pseudoRandom(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET)) * multiplier + startFrame), 1);
+                }
+            }
+        } else if (this.startFrame.mode === CurveRange.Mode.TwoConstants) {
+            const { constantMin, constantMax } = this.startFrame;
+            if (this.frameOverTime.mode === CurveRange.Mode.Constant) {
+                const frame = this.frameOverTime.constant;
+                for (let i = 0; i < count; i++) {
+                    const startFrame = lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET));
+                    frameIndex[i] = repeat(cycleCount * (frame + startFrame), 1);
+                }
+            } else if (this.frameOverTime.mode === CurveRange.Mode.TwoConstants) {
+                const { constantMin, constantMax } = this.frameOverTime;
+                for (let i = 0; i < count; i++) {
+                    const startFrame = lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET));
+                    frameIndex[i] = repeat(cycleCount * (lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET)) + startFrame), 1);
+                }
+            } else if (this.frameOverTime.mode === CurveRange.Mode.Curve) {
+                const { spline, multiplier } = this.frameOverTime;
+                for (let i = 0; i < count; i++) {
+                    const startFrame = lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET));
+                    frameIndex[i] = repeat(cycleCount * (spline.evaluate(normalizedAliveTime[i]) * multiplier + startFrame), 1);
+                }
+            } else {
+                const { splineMin, splineMax, multiplier } = this.frameOverTime;
+                for (let i = 0; i < count; i++) {
+                    const startFrame = lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET));
+                    frameIndex[i] = repeat(cycleCount * (lerp(splineMin.evaluate(normalizedAliveTime[i]), splineMax.evaluate(normalizedAliveTime[i]), pseudoRandom(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET)) * multiplier + startFrame), 1);
+                }
+            }
+        }
+
+        if (this.animation === Animation.SingleRow) {
             const rowLength = 1 / this.numTilesY;
             if (this.randomRow) {
-                const f = repeat(this.cycleCount * (this.frameOverTime.evaluate(normalizedTime, pseudoRandom(p.randomSeed + TEXTURE_ANIMATION_RAND_OFFSET))! + startFrame), 1);
-                const from = p.startRow * rowLength;
-                const to = from + rowLength;
-                p.frameIndex = lerp(from, to, f);
+                const rows = this.numTilesY;
+                for (let i = 0; i < count; i++) {
+                    const startRow = Math.floor(pseudoRandom(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET) * rows);
+                    const from = startRow * rowLength;
+                    const to = from + rowLength;
+                    frameIndex[i] = lerp(from, to, frameIndex[i]);
+                }
             } else {
                 const from = this.rowIndex * rowLength;
                 const to = from + rowLength;
-                p.frameIndex = lerp(from, to, repeat(this.cycleCount * (this.frameOverTime.evaluate(normalizedTime, pseudoRandom(p.randomSeed + TEXTURE_ANIMATION_RAND_OFFSET))! + startFrame), 1));
+                for (let i = 0; i < count; i++) {
+                    frameIndex[i] = lerp(from, to, frameIndex[i]);
+                }
             }
         }
     }

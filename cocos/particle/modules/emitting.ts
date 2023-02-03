@@ -36,7 +36,7 @@ export class EmittingModule extends ParticleModule {
         return 'EmittingModule';
     }
 
-    public get updateStage (): ParticleUpdateStage {
+    public get updateStage () {
         return ParticleUpdateStage.EMITTING;
     }
 

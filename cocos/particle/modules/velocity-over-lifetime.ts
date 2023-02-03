@@ -37,8 +37,6 @@ const VELOCITY_X_OVERTIME_RAND_OFFSET = 197866;
 const VELOCITY_Y_OVERTIME_RAND_OFFSET = 156497;
 const VELOCITY_Z_OVERTIME_RAND_OFFSET = 984136;
 
-const _temp_v3 = new Vec3();
-
 @ccclass('cc.VelocityOverLifetimeModule')
 export class VelocityOverLifetimeModule extends ParticleModule {
     /**

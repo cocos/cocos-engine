@@ -25,7 +25,7 @@
 
 import { ccclass, type, serializable, editable, formerlySerializedAs } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { lerp } from '../core/math';
+import { approx, lerp } from '../core/math';
 import { Enum } from '../core/value-types';
 import { constructLegacyCurveAndConvert } from '../core/geometry/curve';
 import { RealCurve, CCClass } from '../core';
@@ -33,10 +33,10 @@ import { RealCurve, CCClass } from '../core';
 const setClassAttr = CCClass.Attr.setClassAttr;
 
 const SerializableTable = [
-    ['mode', 'constant', 'multiplier'],
-    ['mode', 'spline', 'multiplier'],
-    ['mode', 'splineMin', 'splineMax', 'multiplier'],
-    ['mode', 'constantMin', 'constantMax', 'multiplier'],
+    ['_mode', 'constant'],
+    ['_mode', '_spline', 'constant'],
+    ['_mode', '_splineMin', '_spline', 'constant'],
+    ['_mode', 'constantMin', 'constant'],
 ] as const;
 
 export const Mode = Enum({
@@ -53,22 +53,81 @@ export class CurveRange  {
     /**
      * @zh 曲线类型[[Mode]]。
      */
-    public mode = Mode.Constant;
+    public get mode () {
+        return this._mode;
+    }
+
+    public set mode (val) {
+        if (val !== this._mode) {
+            switch (val) {
+            case Mode.TwoCurves:
+            case Mode.Curve:
+                if (approx(this.multiplier, 0)) { this.multiplier = 1; }
+                break;
+            default:
+                break;
+            }
+            this._mode = val;
+        }
+    }
 
     /**
      * @zh 当mode为Curve时，使用的曲线。
      */
-    public spline = constructLegacyCurveAndConvert();
+    public get spline () {
+        if (!this._spline) {
+            this._spline = constructLegacyCurveAndConvert();
+        }
+        return this._spline;
+    }
 
-    /**
-     * @zh 当mode为TwoCurves时，使用的曲线下限。
-     */
-    public splineMin = constructLegacyCurveAndConvert();
+    public set spline (val) {
+        this._spline = val;
+    }
+
+    public get splineMin () {
+        if (!this._splineMin) {
+            this._splineMin = constructLegacyCurveAndConvert();
+        }
+        return this._splineMin;
+    }
+
+    public set splineMin (val) {
+        this._splineMin = val;
+    }
 
     /**
      * @zh 当mode为TwoCurves时，使用的曲线上限。
      */
-    public splineMax = constructLegacyCurveAndConvert();
+    public get splineMax () {
+        return this.spline;
+    }
+
+    public set splineMax (val) {
+        this.spline = val;
+    }
+
+    /**
+     * @zh 当mode为TwoConstants时，曲线的上限。
+     */
+    public get constantMax () {
+        return this.constant;
+    }
+
+    public set constantMax (val) {
+        this.constant = val;
+    }
+
+    /**
+     * @zh 应用于曲线插值的系数。
+     */
+    public get multiplier () {
+        return this.constant;
+    }
+
+    public set multiplier (val) {
+        this.constant = val;
+    }
 
     /**
      * @zh 当mode为Constant时，曲线的值。
@@ -76,19 +135,13 @@ export class CurveRange  {
     public constant = 0;
 
     /**
-     * @zh 当mode为TwoConstants时，曲线的上限。
+     * @zh 当mode为TwoConstants时，曲线的下限。
      */
     public constantMin = 0;
 
-    /**
-     * @zh 当mode为TwoConstants时，曲线的下限。
-     */
-    public constantMax = 0;
-
-    /**
-     * @zh 应用于曲线插值的系数。
-     */
-    public multiplier = 1;
+    private _mode = Mode.Constant;
+    private _spline: RealCurve | null = null;
+    private _splineMin: RealCurve | null = null;
 
     constructor () {
 
@@ -109,37 +162,21 @@ export class CurveRange  {
     }
 
     public getMax (): number {
-        switch (this.mode) {
-        default:
-        case Mode.Constant:
-            return this.constant;
-        case Mode.Curve:
-            return this.multiplier;
-        case Mode.TwoConstants:
-            return this.constantMax;
-        case Mode.TwoCurves:
-            return this.multiplier;
-        }
+        return this.constant;
     }
 
-    /**
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
-     */
-    public _onBeforeSerialize (props) {
+    protected _onBeforeSerialize (props) {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return SerializableTable[this.mode];
     }
 }
 
 CCClass.fastDefine('cc.CurveRange', CurveRange, {
-    multiplier: 1,
-    constantMax: 0,
     constantMin: 0,
     constant: 0,
-    mode: Mode.Constant,
-    splineMax: Object.freeze(constructLegacyCurveAndConvert()),
-    splineMin: Object.freeze(constructLegacyCurveAndConvert()),
-    spline: Object.freeze(constructLegacyCurveAndConvert()),
+    _mode: Mode.Constant,
+    _splineMin: null,
+    _spline: null,
 });
 
 setClassAttr(CurveRange, 'multiplier', 'visible', true);
