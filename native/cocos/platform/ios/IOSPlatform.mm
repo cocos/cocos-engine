@@ -167,7 +167,8 @@ void IOSPlatform::requestQuit() {
 
 void IOSPlatform::onDestroy() {
     if(!_requestQuit) {
-        // ios exit process is special because it needs to wait for ts layer to destroy resources
+        // ios exit process is special because it needs to wait for ts layer to destroy resources.
+        // The timer cannot be used here.
         int32_t fps = getFps();
         float sleepTime = 1000.0 / fps;
         while (!_quitLoop) {
