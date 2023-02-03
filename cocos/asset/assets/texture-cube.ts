@@ -168,10 +168,11 @@ export class TextureCube extends SimpleTexture {
     }
 
     /**
-     * @en Fill mipmaps with convolutional maps.
-     * @zh 使用卷积图填充mipmaps。
-     * @param value All mipmaps of each face of the cube map are stored in the form of atlas
+     * @en Fill mipmaps for cube map with atlas.
+     * @zh 使用 atlas 方式排布的图填充到立方体贴图的 mipmaps。
+     * @param value @en All mipmaps of each face of the cube map are stored in the form of atlas
      * and the value contains the atlas of the 6 faces and the layout information of each mipmap layer.
+     * @zh 立方体贴图六个面的图，其中每张图中的全部 mip 数据都使用 atlas 方式排布
      */
     set mipmapAtlas (value: ITextureCubeMipmapAtlas | null) {
         this._mipmapAtlas = value;

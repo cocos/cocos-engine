@@ -28,7 +28,7 @@ import { EDITOR } from 'internal:constants';
 import { EventHandler as ComponentEventHandler } from '../scene-graph/component-event-handler';
 import { UITransform } from '../2d/framework';
 import { Event, EventMouse, EventTouch, Touch, SystemEventType, EventHandle, EventGamepad } from '../input/types';
-import { logID } from '../core/platform/debug';
+import { errorID, logID } from '../core/platform/debug';
 import { Size, Vec2, Vec3 } from '../core/math';
 import { Layout } from './layout';
 import { ScrollBar } from './scroll-bar';
@@ -314,6 +314,9 @@ export class ScrollView extends ViewGroup {
     @displayOrder(0)
     @tooltip('i18n:scrollview.horizontal_bar')
     get horizontalScrollBar () {
+        if (this._horizontalScrollBar && !this._horizontalScrollBar.isValid) {
+            errorID(4303, 'horizontal', this.node.name);
+        }
         return this._horizontalScrollBar;
     }
 
@@ -353,6 +356,9 @@ export class ScrollView extends ViewGroup {
     @displayOrder(1)
     @tooltip('i18n:scrollview.vertical_bar')
     get verticalScrollBar () {
+        if (this._verticalScrollBar && !this._verticalScrollBar.isValid) {
+            errorID(4303, 'vertical', this.node.name);
+        }
         return this._verticalScrollBar;
     }
 
@@ -1362,32 +1368,32 @@ export class ScrollView extends ViewGroup {
     }
 
     protected _updateScrollBar (outOfBoundary: Vec2 | Readonly<Vec2>) {
-        if (this._horizontalScrollBar) {
+        if (this._horizontalScrollBar && this._horizontalScrollBar.isValid) {
             this._horizontalScrollBar.onScroll(outOfBoundary);
         }
 
-        if (this.verticalScrollBar) {
-            this.verticalScrollBar.onScroll(outOfBoundary);
+        if (this._verticalScrollBar && this._verticalScrollBar.isValid) {
+            this._verticalScrollBar.onScroll(outOfBoundary);
         }
     }
 
     protected _onScrollBarTouchBegan () {
-        if (this._horizontalScrollBar) {
+        if (this._horizontalScrollBar && this._horizontalScrollBar.isValid) {
             this._horizontalScrollBar.onTouchBegan();
         }
 
-        if (this.verticalScrollBar) {
-            this.verticalScrollBar.onTouchBegan();
+        if (this._verticalScrollBar && this._verticalScrollBar.isValid) {
+            this._verticalScrollBar.onTouchBegan();
         }
     }
 
     protected _onScrollBarTouchEnded () {
-        if (this._horizontalScrollBar) {
+        if (this._horizontalScrollBar && this._horizontalScrollBar.isValid) {
             this._horizontalScrollBar.onTouchEnded();
         }
 
-        if (this.verticalScrollBar) {
-            this.verticalScrollBar.onTouchEnded();
+        if (this._verticalScrollBar && this._verticalScrollBar.isValid) {
+            this._verticalScrollBar.onTouchEnded();
         }
     }
 
@@ -1426,11 +1432,11 @@ export class ScrollView extends ViewGroup {
     }
 
     protected _hideScrollBar () {
-        if (this._horizontalScrollBar) {
+        if (this._horizontalScrollBar && this._horizontalScrollBar.isValid) {
             this._horizontalScrollBar.hide();
         }
 
-        if (this._verticalScrollBar) {
+        if (this._verticalScrollBar && this._verticalScrollBar.isValid) {
             this._verticalScrollBar.hide();
         }
     }
@@ -1441,19 +1447,19 @@ export class ScrollView extends ViewGroup {
         }
         const viewTrans = this.view;
         const uiTrans = this._content._uiProps.uiTransformComp!;
-        if (this.verticalScrollBar) {
+        if (this._verticalScrollBar && this._verticalScrollBar.isValid) {
             if (uiTrans.height < viewTrans.height) {
-                this.verticalScrollBar.hide();
+                this._verticalScrollBar.hide();
             } else {
-                this.verticalScrollBar.show();
+                this._verticalScrollBar.show();
             }
         }
 
-        if (this.horizontalScrollBar) {
+        if (this._horizontalScrollBar && this._horizontalScrollBar.isValid) {
             if (uiTrans.width < viewTrans.width) {
-                this.horizontalScrollBar.hide();
+                this._horizontalScrollBar.hide();
             } else {
-                this.horizontalScrollBar.show();
+                this._horizontalScrollBar.show();
             }
         }
     }

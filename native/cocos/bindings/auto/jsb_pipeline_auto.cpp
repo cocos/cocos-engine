@@ -7879,7 +7879,7 @@ static bool js_cc_pipeline_RenderPipeline_genQuadVertexData(se::State& s)
     size_t argc = args.size();
     cc::pipeline::RenderPipeline *arg1 = (cc::pipeline::RenderPipeline *) NULL ;
     cc::Vec4 *arg2 = 0 ;
-    float *arg3 = (float *) NULL ;
+    float *arg3 ;
     cc::Vec4 temp2 ;
     
     if(argc != 2) {

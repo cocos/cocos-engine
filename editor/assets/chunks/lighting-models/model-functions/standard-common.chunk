@@ -84,7 +84,7 @@ vec3 SampleEnvironmentSpecular(samplerCube tex, in LightingIntermediateData ligh
 vec3 CalculateEnvironmentDiffuse(in LightingIntermediateData lightingData, float lightIntensity)
 {
   // Hemisphere Lighting
-  float fAmb = 0.5 - lightingData.N.y * 0.5;
+  float fAmb = max(EPSILON, 0.5 - lightingData.N.y * 0.5);
   vec3 ambDiff = mix(cc_ambientSky.rgb, cc_ambientGround.rgb, fAmb);
 
   // Diffuse Map

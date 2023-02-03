@@ -809,6 +809,26 @@ void buildBarriers(FrameGraphDispatcher &fgDispatcher) {
         }
     };
 
+    // remove unnecessary barriers
+    for (auto &&[nodeID, node] : batchedBarriers) {
+        auto removeUnnecessaryBarriers = [](std::vector<Barrier> &barriers) {
+            for (int32_t i = 0; i != barriers.size();) {
+                const auto &barrier = barriers[i];
+                const auto &lhs = barrier.beginStatus;
+                const auto &rhs = barrier.endStatus;
+                if (std::forward_as_tuple(lhs.visibility, lhs.access, lhs.accessFlag) ==
+                    std::forward_as_tuple(rhs.visibility, rhs.access, rhs.accessFlag)) {
+                    barriers.erase(barriers.begin() + i);
+                } else {
+                    ++i;
+                }
+            }
+        };
+        removeUnnecessaryBarriers(node.blockBarrier.frontBarriers);
+        removeUnnecessaryBarriers(node.blockBarrier.rearBarriers);
+    }
+
+    // generate gfx barrier
     for (auto &passBarrierInfo : batchedBarriers) {
         auto &passBarrierNode = passBarrierInfo.second;
         genGFXBarrier(passBarrierNode.blockBarrier.frontBarriers);
@@ -960,7 +980,7 @@ auto evaluateHeaviness(const RAG &rag, const ResourceGraph &rescGraph, ResourceA
             break;
         }
     }
-    return std::tie(forceAdjacent, score);
+    return std::make_tuple(forceAdjacent, score);
 };
 
 void evaluateAndTryMerge(const RAG &rag, const ResourceGraph &rescGraph, RelationGraph &relationGraph, const RelationGraph &relationGraphTc, const RelationVerts &lhsVerts, const RelationVerts &rhsVerts) {
@@ -1451,7 +1471,7 @@ auto getResourceStatus(PassType passType, const PmrString &name, gfx::MemoryAcce
         accesFlag = gfx::getAccessFlags(texUsage, memAccess, vis);
     }
 
-    return std::tie(vis, usage, accesFlag);
+    return std::make_tuple(vis, usage, accesFlag);
 }
 
 void addCopyAccessStatus(RAG &rag, const ResourceGraph &rg, ResourceAccessNode &node, const ViewStatus &status, const Range &range) {

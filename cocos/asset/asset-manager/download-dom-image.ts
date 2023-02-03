@@ -23,6 +23,7 @@
  THE SOFTWARE.
 */
 
+import { XIAOMI } from 'internal:constants';
 import { getError } from '../../core';
 import { ccwindow } from '../../core/global-exports';
 
@@ -33,7 +34,8 @@ export default function downloadDomImage (
 ): HTMLImageElement {
     const img = new ccwindow.Image();
 
-    if (ccwindow.location.protocol !== 'file:') {
+    // NOTE: on xiaomi platform, we need to force setting img.crossOrigin as 'anonymous'
+    if (ccwindow.location.protocol !== 'file:' || XIAOMI) {
         img.crossOrigin = 'anonymous';
     }
 

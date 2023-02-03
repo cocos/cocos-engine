@@ -24,9 +24,8 @@
 
         float fresnel = 1.0;
       #if CC_SURFACES_LIGHTING_USE_FRESNEL
-        fresnel = CCSurfaceLightingCalculateFresnel(lightingData);
+        fresnel = lightingResult.fresnel = CCSurfaceLightingCalculateFresnel(lightingData);
       #endif
-        lightingResult.fresnel = fresnel;
 
         float shadow = 1.0;
       #if CC_RECEIVE_SHADOW && CC_SHADOW_TYPE == CC_SHADOW_MAP
@@ -36,13 +35,13 @@
             shadowPos = cc_matLightViewProj * vec4(surfaceData.worldPos, 1.0);
             shadow = CCSpotShadowFactorBase(shadowNDCPosWithBias, shadowPos, worldPos, shadowBias);
           }
-          #if CC_SURFACES_LIGHTING_TRANSMITTENCE
-            #if CC_SURFACES_LIGHTING_USE_SHADOWMAP_TRANSMITTENCE
+          #if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
+            #if CC_SURFACES_LIGHTING_USE_SHADOWMAP_TRANSMIT
               lightingData.shadowPosAndDepth.xy = shadowNDCPosWithBias.xy;
               lightingData.shadowPosAndDepth.z = shadowPos.z;
               lightingData.shadowPosAndDepth.w = GetViewSpaceDepthFromNDCDepth_Perspective(SampleShadowMap(shadowNDCPosWithBias.xyz, cc_spotShadowMap), shadowNDCPosWithBias.w, cc_shadowInvProjDepthInfo.x, cc_shadowInvProjDepthInfo.y);
             #else
-              lightingData.transmittenceParams.zw = vec2(0.0);
+              lightingData.transmitDiffuseParams.zw = vec2(0.0);
             #endif
           #endif
         }
@@ -72,10 +71,8 @@
           lightingResult.directTransmitSpecular += transmitSpecularLighting * multiplier * (1.0 - fresnel);
         #endif
 
-        #if CC_SURFACES_LIGHTING_TRANSMITTENCE
-          vec3 transmittence;
-          CCSurfacesLightingCalculateDirectTransmittence(transmittence, lightingResult, lightingData, cc_lightColor[i]);
-          lightingResult.directTransmittence += transmittence;
+        #if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
+          lightingResult.directTransmitDiffuse += CCSurfacesLightingCalculateDirectTransmitDiffuse(lightingResult, lightingData, cc_lightColor[i]);
         #endif
 
         #if CC_SURFACES_LIGHTING_TRT
@@ -115,13 +112,13 @@
               #endif
             }
           }
-          #if CC_SURFACES_LIGHTING_TRANSMITTENCE
-            #if CC_SURFACES_LIGHTING_USE_SHADOWMAP_TRANSMITTENCE
+          #if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
+            #if CC_SURFACES_LIGHTING_USE_SHADOWMAP_TRANSMIT
               lightingData.shadowPosAndDepth.xy = shadowNDCPosWithBias.xy;
               lightingData.shadowPosAndDepth.z = shadowPos.z;
               lightingData.shadowPosAndDepth.w = GetViewSpaceDepthFromNDCDepth_Orthgraphic(SampleShadowMap(shadowNDCPosWithBias.xyz, cc_shadowMap), cc_shadowProjDepthInfo.x, cc_shadowProjDepthInfo.y);
             #else
-              lightingData.transmittenceParams.zw = vec2(0.0);
+              lightingData.transmitDiffuseParams.zw = vec2(0.0);
             #endif
           #endif
         }
@@ -152,8 +149,6 @@
 
       #if CC_SURFACES_LIGHTING_USE_FRESNEL
         lightingResult.fresnel = CCSurfaceLightingCalculateFresnel(lightingData);
-      #else
-        lightingResult.fresnel = 1.0;
       #endif
 
       #if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR
@@ -161,12 +156,12 @@
         CCSurfacesLightingCalculateEnvironmentTransmitSpecular(lightingResult.environmentTransmitSpecular, lightingData, cc_ambientSky.w);
       #endif
       
-      #if CC_SURFACES_LIGHTING_TRANSMITTENCE
-        CCSurfacesLightingCalculateDirectTransmittence(lightingResult.directTransmittence, lightingResult, lightingData, cc_mainLitColor);
-        CCSurfacesLightingCalculateEnvironmentTransmittence(lightingResult.environmentTransmittence, lightingResult, lightingData, cc_ambientSky.w);
+      #if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
+        CCSurfacesLightingCalculateDirectTransmitDiffuse(lightingResult.directTransmitDiffuse, lightingResult, lightingData, cc_mainLitColor);
+        CCSurfacesLightingCalculateEnvironmentTransmitDiffuse(lightingResult.environmentTransmitDiffuse, lightingResult, lightingData, cc_ambientSky.w);
       #endif
       #if CC_SURFACES_LIGHTING_TRT
-        LightingIntermediateData lightingDataTRT;
+      LightingIntermediateData lightingDataTRT;
         CCSurfacesGetLightingIntermediateDataTRT(lightingDataTRT, lightingData, surfaceData);
         CCSurfacesLightingCalculateDirectTRT(lightingResult.directTRT, lightingDataTRT, cc_mainLitColor);
         CCSurfacesLightingCalculateEnvironmentTRT(lightingResult.environmentTRT, lightingDataTRT, cc_ambientSky.w);

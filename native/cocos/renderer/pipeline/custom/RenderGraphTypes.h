@@ -109,6 +109,8 @@ struct ManagedTexture {
     ManagedTexture(IntrusivePtr<gfx::Texture> textureIn) noexcept // NOLINT
     : texture(std::move(textureIn)) {}
 
+    bool checkResource(const ResourceDesc &desc) const;
+
     IntrusivePtr<gfx::Texture> texture;
     uint64_t fenceValue{0};
 };
@@ -228,6 +230,7 @@ struct ResourceGraph {
 
     void mount(gfx::Device* device, vertex_descriptor vertID);
     void unmount(uint64_t completedFenceValue);
+    gfx::Texture* getTexture(vertex_descriptor resID);
 
     // ContinuousContainer
     void reserve(vertices_size_type sz);

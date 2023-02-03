@@ -183,8 +183,9 @@ export class UBOGlobal {
     public static readonly DEBUG_VIEW_COMPOSITE_PACK_1_OFFSET = UBOGlobal.DEBUG_VIEW_MODE_OFFSET + 4;
     public static readonly DEBUG_VIEW_COMPOSITE_PACK_2_OFFSET = UBOGlobal.DEBUG_VIEW_COMPOSITE_PACK_1_OFFSET + 4;
     public static readonly DEBUG_VIEW_COMPOSITE_PACK_3_OFFSET = UBOGlobal.DEBUG_VIEW_COMPOSITE_PACK_2_OFFSET + 4;
+    public static readonly DEBUG_VIEW_COMPOSITE_PACK_4_OFFSET = UBOGlobal.DEBUG_VIEW_COMPOSITE_PACK_3_OFFSET + 4;
 
-    public static readonly COUNT = UBOGlobal.DEBUG_VIEW_COMPOSITE_PACK_3_OFFSET + 4;
+    public static readonly COUNT = UBOGlobal.DEBUG_VIEW_COMPOSITE_PACK_4_OFFSET + 4;
     public static readonly SIZE = UBOGlobal.COUNT * 4;
 
     public static readonly NAME = 'CCGlobal';
@@ -199,6 +200,7 @@ export class UBOGlobal {
         new Uniform('cc_debug_view_composite_pack_1', Type.FLOAT, 4),
         new Uniform('cc_debug_view_composite_pack_2', Type.FLOAT, 4),
         new Uniform('cc_debug_view_composite_pack_3', Type.FLOAT, 4),
+        new Uniform('cc_debug_view_composite_pack_4', Type.FLOAT, 4),
     ], 1);
 }
 globalDescriptorSetLayout.layouts[UBOGlobal.NAME] = UBOGlobal.LAYOUT;

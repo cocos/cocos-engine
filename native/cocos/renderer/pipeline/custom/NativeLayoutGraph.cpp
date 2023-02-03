@@ -266,66 +266,7 @@ ccstd::string getName(gfx::ShaderStageFlagBit stage) {
 } // namespace
 
 ccstd::string NativeLayoutGraphBuilder::print() const {
-    std::ostringstream oss;
-    boost::container::pmr::unsynchronized_pool_resource pool(
-        boost::container::pmr::get_default_resource());
-    ccstd::pmr::string space(&pool);
-
-    oss << "\n";
-
-    const auto &g = *data;
-    for (const auto v : makeRange(vertices(g))) {
-        if (parent(v, g) != LayoutGraphData::null_vertex()) {
-            continue;
-        }
-        const auto &name = get(LayoutGraphData::Name, g, v);
-        OSS << "\"" << name << "\": ";
-
-        visit(
-            [&](auto tag) {
-                oss << getName(tag);
-            },
-            tag(v, g));
-
-        oss << " {\n";
-        INDENT_BEG();
-        const auto &info = get(LayoutGraphData::Layout, g, v);
-        for (const auto &set : info.descriptorSets) {
-            OSS << "Set<" << getName(set.first) << "> {\n";
-            {
-                INDENT();
-                for (const auto &block : set.second.descriptorSetLayoutData.descriptorBlocks) {
-                    OSS << "Block<" << getName(block.type) << ", " << getName(block.visibility) << "> {\n";
-                    {
-                        INDENT();
-                        OSS << "capacity: " << block.capacity << ",\n";
-                        OSS << "count: " << block.descriptors.size() << ",\n";
-                        if (!block.descriptors.empty()) {
-                            OSS << "Descriptors{ ";
-                            int count = 0;
-                            for (const auto &d : block.descriptors) {
-                                if (count++) {
-                                    oss << ", ";
-                                }
-                                const auto &name = g.valueNames.at(d.descriptorID.value);
-                                oss << "\"" << name;
-                                if (d.count != 1) {
-                                    oss << "[" << d.count << "]";
-                                }
-                                oss << "\"";
-                            }
-                            oss << " }\n";
-                        }
-                    }
-                    OSS << "}\n";
-                }
-            }
-            OSS << "}\n";
-        }
-        INDENT_END();
-        OSS << "}\n";
-    }
-    return oss.str();
+    return {};
 }
 
 } // namespace render

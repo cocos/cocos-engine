@@ -222,6 +222,7 @@ ccstd::unordered_map<uint32_t, ccstd::string> debugInfos = {
 { 4300, "Can not found the %s page." },
 { 4301, "Can not add a page without UITransform." },
 { 4302, "Can not set the scroll view content when it hasn't UITransform or its parent hasn't UITransform." },
+{ 4303, "The %s scrollBar on the '%s' node is not available, please check it." },
 { 4400, "Invalid RichText img tag! The sprite frame name can't be found in the ImageAtlas!" },
 { 4500, "Graphics: There is no model in %s." },
 { 4600, "Script attached to '%s' is missing or invalid." },
