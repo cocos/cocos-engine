@@ -1459,9 +1459,8 @@ export class ParticleSystem extends ModelRenderer {
             }
         } else {
             const mat: Material | null = this.getMaterialInstance(0) || this.processor.getDefaultMaterial();
-            const pass = mat!.passes[0];
-            this.processor.updateRotation(pass);
-            this.processor.updateScale(pass);
+            this.processor.updateRotation(mat);
+            this.processor.updateScale(mat);
         }
         // update render data
         this.processor.updateRenderData();

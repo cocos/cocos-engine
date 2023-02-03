@@ -163,9 +163,9 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     private _animateList: Map<string, IParticleModule> = new Map<string, IParticleModule>();
     private _runAnimateList: IParticleModule[] = new Array<IParticleModule>();
     private _fillDataFunc: any = null;
-    private _uScaleHandle = 0;
-    private _uLenHandle = 0;
-    private _uNodeRotHandle = 0;
+    private _uScaleHandle: number[] = [];
+    private _uLenHandle: number[] = [];
+    private _uNodeRotHandle: number[] = [];
     private _alignSpace = AlignmentSpace.View;
     private _inited = false;
     private _localMat: Mat4 = new Mat4();
@@ -308,13 +308,13 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         return this._defaultMat;
     }
 
-    public updateRotation (pass: Pass | null) {
-        if (pass) {
-            this.doUpdateRotation(pass);
+    public updateRotation (mat: Material | null) {
+        if (mat) {
+            this.doUpdateRotation(mat);
         }
     }
 
-    private doUpdateRotation (pass) {
+    private doUpdateRotation (mat: Material | null) {
         const mode = this._renderInfo!.renderMode;
         if (mode !== RenderMode.Mesh && this._alignSpace === AlignmentSpace.View) {
             return;
@@ -342,16 +342,24 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         } else {
             _node_rot.set(0.0, 0.0, 0.0, 1.0);
         }
-        pass.setUniform(this._uNodeRotHandle, _node_rot);
-    }
-
-    public updateScale (pass: Pass | null) {
-        if (pass) {
-            this.doUpdateScale(pass);
+        if (mat) {
+            const passLen = mat.passes.length;
+            while (this._uNodeRotHandle.length < passLen) {
+                this._uNodeRotHandle.push(0);
+            }
+            for (let p = 0; p < passLen; ++p) {
+                mat.passes[p].setUniform(this._uNodeRotHandle[p], _node_rot);
+            }
         }
     }
 
-    private doUpdateScale (pass) {
+    public updateScale (mat: Material | null) {
+        if (mat) {
+            this.doUpdateScale(mat);
+        }
+    }
+
+    private doUpdateScale (mat: Material | null) {
         switch (this._particleSystem.scaleSpace) {
         case Space.Local:
             this._particleSystem.node.getScale(this._node_scale);
@@ -362,7 +370,15 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         default:
             break;
         }
-        pass.setUniform(this._uScaleHandle, this._node_scale);
+        if (mat) {
+            const passLen = mat.passes.length;
+            while (this._uScaleHandle.length < passLen) {
+                this._uScaleHandle.push(0);
+            }
+            for (let p = 0; p < passLen; ++p) {
+                mat.passes[p].setUniform(this._uScaleHandle[p], this._node_scale);
+            }
+        }
     }
 
     private noise: ParticleNoise = new ParticleNoise();
@@ -387,9 +403,8 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
         ps.node.getWorldMatrix(_tempWorldTrans);
         const mat: Material | null = ps.getMaterialInstance(0) || this._defaultMat;
-        const pass = mat!.passes[0];
-        this.doUpdateScale(pass);
-        this.doUpdateRotation(pass);
+        this.doUpdateScale(mat);
+        this.doUpdateRotation(mat);
 
         const forceFields = forceFieldManager.forceFields;
         if (forceFields.length > 0) {
@@ -777,10 +792,23 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             this._defines[CC_USE_WORLD_SPACE] = false;
         }
 
-        const pass = mat.passes[0];
-        this._uScaleHandle = pass.getHandle('scale');
-        this._uLenHandle = pass.getHandle('frameTile_velLenScale');
-        this._uNodeRotHandle = pass.getHandle('nodeRotation');
+        const passLen = mat.passes.length;
+
+        while (this._uScaleHandle.length < passLen) {
+            this._uScaleHandle.push(0);
+        }
+        while (this._uLenHandle.length < passLen) {
+            this._uLenHandle.push(0);
+        }
+        while (this._uNodeRotHandle.length < passLen) {
+            this._uNodeRotHandle.push(0);
+        }
+        for (let p = 0; p < passLen; ++p) {
+            const pass = mat.passes[p];
+            this._uScaleHandle[p] = pass.getHandle('scale');
+            this._uLenHandle[p] = pass.getHandle('frameTile_velLenScale');
+            this._uNodeRotHandle[p] = pass.getHandle('nodeRotation');
+        }
 
         const renderMode = this._renderInfo!.renderMode;
         const vlenScale = this._frameTile_velLenScale;
@@ -803,9 +831,13 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         if (textureModule && textureModule.enable) {
             Vec4.copy(this._tmp_velLenScale, vlenScale); // fix textureModule switch bug
             Vec2.set(this._tmp_velLenScale, textureModule.numTilesX, textureModule.numTilesY);
-            pass.setUniform(this._uLenHandle, this._tmp_velLenScale);
+            for (let p = 0; p < passLen; ++p) {
+                mat.passes[p].setUniform(this._uLenHandle[p], this._tmp_velLenScale);
+            }
         } else {
-            pass.setUniform(this._uLenHandle, vlenScale);
+            for (let p = 0; p < passLen; ++p) {
+                mat.passes[p].setUniform(this._uLenHandle[p], vlenScale);
+            }
         }
 
         let enable = false;

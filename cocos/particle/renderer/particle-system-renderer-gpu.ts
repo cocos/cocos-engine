@@ -151,9 +151,10 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
     private _rotationData: Float32Array | null = null;
     private _sizeData: Float32Array | null = null;
     private _animData: Float32Array | null = null;
-    private _uTimeHandle = 0;
-    private _uRotHandle = 0;
-    private _uNodeRotHandle = 0;
+    private _uTimeHandle: number[] = [];
+    private _uRotHandle: number[] = [];
+    private _uNodeRotHandle: number[] = [];
+    private _uScaleHandle: number[] = [];
     private _alignSpace = AlignmentSpace.View;
     private _inited = false;
 
@@ -248,13 +249,13 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         return this._defaultMat;
     }
 
-    public updateRotation (pass: Pass | null) {
-        if (pass) {
-            this.doUpdateRotation(pass);
+    public updateRotation (mat: Material | null) {
+        if (mat) {
+            this.doUpdateRotation(mat);
         }
     }
 
-    private doUpdateRotation (pass) {
+    private doUpdateRotation (mat: Material | null) {
         const mode = this._renderInfo!.renderMode;
         if (mode !== RenderMode.Mesh && this._alignSpace === AlignmentSpace.View) {
             return;
@@ -282,16 +283,24 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         } else {
             _node_rot.set(0.0, 0.0, 0.0, 1.0);
         }
-        pass.setUniform(this._uNodeRotHandle, _node_rot);
-    }
-
-    public updateScale (pass: Pass | null) {
-        if (pass) {
-            this.doUpdateScale(pass);
+        if (mat) {
+            const passLen = mat.passes.length;
+            while (passLen > this._uNodeRotHandle.length) {
+                this._uNodeRotHandle.push(0);
+            }
+            for (let p = 0; p < passLen; ++p) {
+                mat.passes[p].setUniform(this._uNodeRotHandle[p], _node_rot);
+            }
         }
     }
 
-    private doUpdateScale (pass) {
+    public updateScale (mat: Material | null) {
+        if (mat) {
+            this.doUpdateScale(mat);
+        }
+    }
+
+    private doUpdateScale (mat: Material | null) {
         switch (this._particleSystem.scaleSpace) {
         case Space.Local:
             this._particleSystem.node.getScale(this._node_scale);
@@ -302,7 +311,15 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         default:
             break;
         }
-        pass.setUniform(pass.getHandle('scale'), this._node_scale);
+        if (mat) {
+            const passLen = mat.passes.length;
+            while (passLen > this._uScaleHandle.length) {
+                this._uScaleHandle.push(0);
+            }
+            for (let p = 0; p < passLen; ++p) {
+                mat.passes[p].setUniform(this._uScaleHandle[p], this._node_scale);
+            }
+        }
     }
 
     public clearSubemitter (): void {
@@ -352,29 +369,56 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
             return;
         }
 
-        const pass = mat.passes[0];
+        const passLen = mat.passes.length;
+        while (passLen > this._uTimeHandle.length) {
+            this._uTimeHandle.push(0);
+        }
+        while (passLen > this._uRotHandle.length) {
+            this._uRotHandle.push(0);
+        }
+
         _tempVec4.x = this._particleSystem._time;
         _tempVec4.y = dt;
-        pass.setUniform(this._uTimeHandle, _tempVec4);
-
         this._particleSystem.node.getWorldRotation(_world_rot);
-        pass.setUniform(this._uRotHandle, _world_rot);
 
-        this.doUpdateRotation(pass);
+        for (let p = 0; p < passLen; ++p) {
+            const pass = mat.passes[p];
+            pass.setUniform(this._uTimeHandle[p], _tempVec4);
+            pass.setUniform(this._uRotHandle[p], _world_rot);
+        }
+
+        this.doUpdateRotation(mat);
     }
 
     public initShaderUniform (mat: Material) {
-        const pass = mat.passes[0];
+        this.doUpdateScale(mat);
 
-        this._uTimeHandle = pass.getHandle('u_timeDelta');
-        this._uRotHandle = pass.getHandle('u_worldRot');
-        this._uNodeRotHandle = pass.getHandle('nodeRotation');
+        const passLen = mat.passes.length;
+        while (passLen > this._uTimeHandle.length) {
+            this._uTimeHandle.push(0);
+        }
+        while (passLen > this._uRotHandle.length) {
+            this._uRotHandle.push(0);
+        }
+        while (passLen > this._uNodeRotHandle.length) {
+            this._uNodeRotHandle.push(0);
+        }
+        while (passLen > this._uScaleHandle.length) {
+            this._uScaleHandle.push(0);
+        }
 
-        this.doUpdateScale(pass);
-        pass.setUniform(pass.getHandle('frameTile_velLenScale'), this._unifrom_velLenScale);
         _tempVec4.x = _sample_num;
         _tempVec4.y = _sample_interval;
-        pass.setUniform(pass.getHandle('u_sampleInfo'), _tempVec4);
+        for (let p = 0; p < passLen; ++p) {
+            const pass = mat.passes[p];
+            this._uTimeHandle[p] = pass.getHandle('u_timeDelta');
+            this._uRotHandle[p] = pass.getHandle('u_worldRot');
+            this._uNodeRotHandle[p] = pass.getHandle('nodeRotation');
+            this._uScaleHandle[p] = pass.getHandle('scale');
+
+            pass.setUniform(pass.getHandle('frameTile_velLenScale'), this._unifrom_velLenScale);
+            pass.setUniform(pass.getHandle('u_sampleInfo'), _tempVec4);
+        }
 
         let enable = false;
         // force
@@ -385,14 +429,17 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
             const packed = packCurveRangeXYZ(this._forceTexture, this._forceData, _sample_num, forceModule.x, forceModule.y, forceModule.z);
             this._forceTexture = packed.texture;
             this._forceData = packed.texdata;
-            const handle = pass.getHandle('force_over_time_tex0');
-            const binding = Pass.getBindingFromHandle(handle);
-            pass.bindSampler(binding, this._forceTexture.getGFXSampler()!);
-            pass.bindTexture(binding, this._forceTexture.getGFXTexture()!);
-            const spaceHandle = pass.getHandle('u_force_space');
-            pass.setUniform(spaceHandle, forceModule.space);
-            const modeHandle = pass.getHandle('u_force_mode');
-            pass.setUniform(modeHandle, this._forceTexture.height);
+            for (let p = 0; p < passLen; ++p) {
+                const pass = mat.passes[p];
+                const handle = pass.getHandle('force_over_time_tex0');
+                const binding = Pass.getBindingFromHandle(handle);
+                pass.bindSampler(binding, this._forceTexture.getGFXSampler()!);
+                pass.bindTexture(binding, this._forceTexture.getGFXTexture()!);
+                const spaceHandle = pass.getHandle('u_force_space');
+                pass.setUniform(spaceHandle, forceModule.space);
+                const modeHandle = pass.getHandle('u_force_mode');
+                pass.setUniform(modeHandle, this._forceTexture.height);
+            }
         }
 
         // velocity
@@ -404,14 +451,17 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
                 velocityModule.z, velocityModule.speedModifier);
             this._velocityTexture = packed.texture;
             this._velocityData = packed.texdata;
-            const handle = pass.getHandle('velocity_over_time_tex0');
-            const binding = Pass.getBindingFromHandle(handle);
-            pass.bindSampler(binding, this._velocityTexture.getGFXSampler()!);
-            pass.bindTexture(binding, this._velocityTexture.getGFXTexture()!);
-            const spaceHandle = pass.getHandle('u_velocity_space');
-            pass.setUniform(spaceHandle, velocityModule.space);
-            const modeHandle = pass.getHandle('u_velocity_mode');
-            pass.setUniform(modeHandle, this._velocityTexture.height);
+            for (let p = 0; p < passLen; ++p) {
+                const pass = mat.passes[p];
+                const handle = pass.getHandle('velocity_over_time_tex0');
+                const binding = Pass.getBindingFromHandle(handle);
+                pass.bindSampler(binding, this._velocityTexture.getGFXSampler()!);
+                pass.bindTexture(binding, this._velocityTexture.getGFXTexture()!);
+                const spaceHandle = pass.getHandle('u_velocity_space');
+                pass.setUniform(spaceHandle, velocityModule.space);
+                const modeHandle = pass.getHandle('u_velocity_mode');
+                pass.setUniform(modeHandle, this._velocityTexture.height);
+            }
         }
 
         // color module
@@ -422,12 +472,15 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
             const packed = packGradientRange(this._colorTexture, this._colorData, _sample_num, colorModule.color);
             this._colorTexture = packed.texture;
             this._colorData = packed.texdata;
-            const handle = pass.getHandle('color_over_time_tex0');
-            const binding = Pass.getBindingFromHandle(handle);
-            pass.bindSampler(binding, this._colorTexture.getGFXSampler()!);
-            pass.bindTexture(binding, this._colorTexture.getGFXTexture()!);
-            const modeHandle = pass.getHandle('u_color_mode');
-            pass.setUniform(modeHandle, this._colorTexture.height);
+            for (let p = 0; p < passLen; ++p) {
+                const pass = mat.passes[p];
+                const handle = pass.getHandle('color_over_time_tex0');
+                const binding = Pass.getBindingFromHandle(handle);
+                pass.bindSampler(binding, this._colorTexture.getGFXSampler()!);
+                pass.bindTexture(binding, this._colorTexture.getGFXTexture()!);
+                const modeHandle = pass.getHandle('u_color_mode');
+                pass.setUniform(modeHandle, this._colorTexture.height);
+            }
         }
 
         // rotation module
@@ -445,12 +498,15 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
             this._rotationTexture = packed.texture;
             this._rotationData = packed.texdata;
             if (this._rotationTexture) {
-                const handle = pass.getHandle('rotation_over_time_tex0');
-                const binding = Pass.getBindingFromHandle(handle);
-                pass.bindSampler(binding, this._rotationTexture.getGFXSampler()!);
-                pass.bindTexture(binding, this._rotationTexture.getGFXTexture()!);
-                const modeHandle = pass.getHandle('u_rotation_mode');
-                pass.setUniform(modeHandle, this._rotationTexture.height);
+                for (let p = 0; p < passLen; ++p) {
+                    const pass = mat.passes[p];
+                    const handle = pass.getHandle('rotation_over_time_tex0');
+                    const binding = Pass.getBindingFromHandle(handle);
+                    pass.bindSampler(binding, this._rotationTexture.getGFXSampler()!);
+                    pass.bindTexture(binding, this._rotationTexture.getGFXTexture()!);
+                    const modeHandle = pass.getHandle('u_rotation_mode');
+                    pass.setUniform(modeHandle, this._rotationTexture.height);
+                }
             }
         }
 
@@ -468,12 +524,15 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
             this._sizeTexture = packed.texture;
             this._sizeData = packed.texdata;
             if (this._sizeTexture) {
-                const handle = pass.getHandle('size_over_time_tex0');
-                const binding = Pass.getBindingFromHandle(handle);
-                pass.bindSampler(binding, this._sizeTexture.getGFXSampler()!);
-                pass.bindTexture(binding, this._sizeTexture.getGFXTexture()!);
-                const modeHandle = pass.getHandle('u_size_mode');
-                pass.setUniform(modeHandle, this._sizeTexture.height);
+                for (let p = 0; p < passLen; ++p) {
+                    const pass = mat.passes[p];
+                    const handle = pass.getHandle('size_over_time_tex0');
+                    const binding = Pass.getBindingFromHandle(handle);
+                    pass.bindSampler(binding, this._sizeTexture.getGFXSampler()!);
+                    pass.bindTexture(binding, this._sizeTexture.getGFXTexture()!);
+                    const modeHandle = pass.getHandle('u_size_mode');
+                    pass.setUniform(modeHandle, this._sizeTexture.height);
+                }
             }
         }
 
@@ -486,15 +545,18 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
             const packed = packCurveRangeXY(this._animTexture, this._animData, _sample_num, textureModule.startFrame, textureModule.frameOverTime, true);
             this._animTexture = packed.texture;
             this._animData = packed.texdata;
-            const handle = pass.getHandle('texture_animation_tex0');
-            const binding = Pass.getBindingFromHandle(handle);
-            pass.bindSampler(binding, this._animTexture.getGFXSampler()!);
-            pass.bindTexture(binding, this._animTexture.getGFXTexture()!);
-            const infoHandle = pass.getHandle('u_anim_info');
-            _tempVec4.x = this._animTexture.height;
-            _tempVec4.y = textureModule.numTilesX * textureModule.numTilesY;
-            _tempVec4.z = textureModule.cycleCount;
-            pass.setUniform(infoHandle, _tempVec4);
+            for (let p = 0; p < passLen; ++p) {
+                const pass = mat.passes[p];
+                const handle = pass.getHandle('texture_animation_tex0');
+                const binding = Pass.getBindingFromHandle(handle);
+                pass.bindSampler(binding, this._animTexture.getGFXSampler()!);
+                pass.bindTexture(binding, this._animTexture.getGFXTexture()!);
+                const infoHandle = pass.getHandle('u_anim_info');
+                _tempVec4.x = this._animTexture.height;
+                _tempVec4.y = textureModule.numTilesX * textureModule.numTilesY;
+                _tempVec4.z = textureModule.cycleCount;
+                pass.setUniform(infoHandle, _tempVec4);
+            }
         }
 
         this._defines[USE_VK_SHADER] = deviceManager.gfxDevice.gfxAPI === API.VULKAN;
