@@ -81,7 +81,6 @@ NativePipeline::NativePipeline(const allocator_type &alloc) noexcept
   programLibrary(dynamic_cast<NativeProgramLibrary *>(getProgramLibrary())),
   pipelineSceneData(ccnew pipeline::PipelineSceneData()), // NOLINT
   nativeContext(std::make_unique<gfx::DefaultResource>(device), alloc),
-  dummyLayoutGraph(alloc),
   resourceGraph(alloc),
   renderGraph(alloc),
   name(alloc) {
@@ -423,10 +422,6 @@ void NativePipeline::presentAll() {
 // NOLINTNEXTLINE
 SceneTransversal *NativePipeline::createSceneTransversal(const scene::Camera *camera, const scene::RenderScene *scene) {
     return ccnew NativeSceneTransversal(camera, scene);
-}
-
-LayoutGraphBuilder *NativePipeline::getLayoutGraphBuilder() {
-    return ccnew NativeLayoutGraphBuilder(device, &dummyLayoutGraph);
 }
 
 gfx::DescriptorSetLayout *NativePipeline::getDescriptorSetLayout(const ccstd::string &shaderName, UpdateFrequency freq) {

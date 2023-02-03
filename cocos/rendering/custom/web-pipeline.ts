@@ -28,11 +28,11 @@ import { Color, Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeat
 import { Mat4, Quat, toRadian, Vec2, Vec3, Vec4, assert, macro, cclegacy } from '../../core';
 import { ComputeView, CopyPair, LightInfo, LightingMode, MovePair, QueueHint, RasterView, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
 import { Blit, ClearView, ComputePass, CopyPass, Dispatch, ManagedResource, MovePass, RasterPass, RenderData, RenderGraph, RenderGraphComponent, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData } from './render-graph';
-import { ComputePassBuilder, ComputeQueueBuilder, CopyPassBuilder, LayoutGraphBuilder, MovePassBuilder, Pipeline, PipelineBuilder, RasterPassBuilder, RasterQueueBuilder, SceneTransversal } from './pipeline';
+import { ComputePassBuilder, ComputeQueueBuilder, CopyPassBuilder, MovePassBuilder, Pipeline, PipelineBuilder, RasterPassBuilder, RasterQueueBuilder, SceneTransversal } from './pipeline';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { Model, Camera, ShadowType, CSMLevel, DirectionalLight, SpotLight, PCFType, Shadows } from '../../render-scene/scene';
 import { Light, LightType } from '../../render-scene/scene/light';
-import { DescriptorSetData, DescriptorSetLayoutData, LayoutGraphData } from './layout-graph';
+import { DescriptorSetData, LayoutGraphData } from './layout-graph';
 import { Executor } from './executor';
 import { RenderWindow } from '../../render-scene/core/render-window';
 import { MacroRecord, RenderScene } from '../../render-scene';
@@ -43,7 +43,6 @@ import { Compiler } from './compiler';
 import { PipelineUBO } from '../pipeline-ubo';
 import { builtinResMgr } from '../../asset/asset-manager';
 import { Texture2D } from '../../asset/assets/texture-2d';
-import { WebLayoutGraphBuilder } from './web-layout-graph';
 import { GeometryRenderer } from '../geometry-renderer';
 import { Material, TextureCube } from '../../asset/assets';
 import { DeferredPipelineBuilder, ForwardPipelineBuilder } from './builtin-pipelines';
@@ -51,7 +50,8 @@ import { CustomPipelineBuilder } from './custom-pipeline';
 import { decideProfilerCamera } from '../pipeline-funcs';
 import { DebugViewCompositeType } from '../debug-view';
 import { getUBOTypeCount } from './utils';
-import { getDescBinding, initGlobalDescBinding } from './define';
+import { initGlobalDescBinding } from './define';
+import { createGfxDescriptorSetsAndPipelines } from './layout-graph-utils';
 
 export class WebSetter {
     constructor (data: RenderData, lg: LayoutGraphData) {
@@ -225,6 +225,7 @@ export class WebSetter {
 }
 
 function setShadowUBOLightView (setter: WebSetter,
+    camera: Camera,
     light: Light,
     level: number,
     layout = 'default') {
@@ -240,6 +241,14 @@ function setShadowUBOLightView (setter: WebSetter,
     setter.addConstant('CCCSM', layout);
     // ShadowMap
     if (!setter.addConstant('CCShadow', layout)) return;
+    if (shadowInfo.enabled) {
+        if (shadowInfo.type === ShadowType.ShadowMap) {
+            // update CSM layers
+            if (light && light.node) {
+                csmLayers.update(sceneData, camera);
+            }
+        }
+    }
     switch (light.type) {
     case LightType.DIRECTIONAL: {
         const mainLight = light as DirectionalLight;
@@ -320,8 +329,8 @@ function setShadowUBOLightView (setter: WebSetter,
     }
     default:
     }
-    setter.setColor('cc_shadowColor', new Color(shadowInfo.shadowColor.r, shadowInfo.shadowColor.g,
-        shadowInfo.shadowColor.b, shadowInfo.shadowColor.a));
+    setter.setColor('cc_shadowColor', new Color(shadowInfo.shadowColor.x, shadowInfo.shadowColor.y,
+        shadowInfo.shadowColor.z, shadowInfo.shadowColor.w));
 }
 
 function getPCFRadius (shadowInfo: Shadows, mainLight: DirectionalLight): number {
@@ -588,7 +597,7 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
             camera.scene ? camera.scene : cclegacy.director.getScene().renderScene,
             layoutName);
         if (sceneFlags & SceneFlags.SHADOW_CASTER) {
-            setShadowUBOLightView(this, light.light!, light.level, layoutName);
+            setShadowUBOLightView(this, camera, light.light!, light.level, layoutName);
         } else {
             setShadowUBOView(this, camera, layoutName);
         }
@@ -938,7 +947,7 @@ export class WebPipeline implements Pipeline {
 
     public activate (swapchain: Swapchain): boolean {
         this._device = deviceManager.gfxDevice;
-        this.layoutGraphBuilder.compile();
+        createGfxDescriptorSetsAndPipelines(this._device, this._layoutGraph);
         this._globalDSManager = new GlobalDSManager(this._device);
         this._globalDescSetData = this.getGlobalDescriptorSetData()!;
         this._globalDescriptorSetLayout = this._globalDescSetData.descriptorSetLayout;
@@ -998,9 +1007,6 @@ export class WebPipeline implements Pipeline {
     }
     public set lightingMode (mode: LightingMode) {
         this._lightingMode = mode;
-    }
-    public get layoutGraphBuilder (): LayoutGraphBuilder {
-        return new WebLayoutGraphBuilder(this._device, this._layoutGraph);
     }
     public get usesDeferredPipeline (): boolean {
         return this._usesDeferredPipeline;
