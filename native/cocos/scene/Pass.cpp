@@ -834,6 +834,8 @@ void Pass::initPassFromTarget(Pass *target, const gfx::DepthStencilState &dss, c
     _priority = target->_priority;
     _stage = target->_stage;
     _phase = target->_phase;
+    _passID = target->_passID;
+    _phaseID = target->_phaseID;
     _batchingScheme = target->_batchingScheme;
     _primitive = target->_primitive;
     _dynamicStates = target->_dynamicStates;
@@ -853,7 +855,12 @@ void Pass::initPassFromTarget(Pass *target, const gfx::DepthStencilState &dss, c
 
     _shader = target->_shader;
 
-    _pipelineLayout = ProgramLib::getInstance()->getTemplateInfo(_programName)->pipelineLayout;
+    auto *programLib = render::getProgramLibrary();
+    if (programLib) {
+        _pipelineLayout = programLib->getPipelineLayout(_device, _phaseID, _programName);
+    } else {
+        _pipelineLayout = ProgramLib::getInstance()->getTemplateInfo(_programName)->pipelineLayout;
+    }
     _hash = target->_hash ^ hashFactor;
 }
 
