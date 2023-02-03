@@ -922,6 +922,7 @@ export class MeshRenderer extends ModelRenderer {
     }
 
     protected onLightProbeBakingChanged () {
+        this._updateReceiveDirLight();
     }
 
     protected onUseLightProbeChanged () {
