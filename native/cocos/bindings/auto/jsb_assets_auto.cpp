@@ -16740,20 +16740,15 @@ static bool js_cc_IShaderInfo_descriptors_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_IShaderInfo_descriptors_get) 
 
-static bool js_cc_IShaderInfo_getSource(se::State& s)
+static bool js_cc_IShaderInfo_getSource__SWIG_0(se::State& s)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
-    size_t argc = args.size();
     cc::IShaderInfo *arg1 = (cc::IShaderInfo *) NULL ;
     ccstd::string *arg2 = 0 ;
     ccstd::string temp2 ;
     cc::IShaderSource *result = 0 ;
     
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
     arg1 = SE_THIS_OBJECT<cc::IShaderInfo>(s);
     if (nullptr == arg1) return true;
     
@@ -16769,6 +16764,55 @@ static bool js_cc_IShaderInfo_getSource(se::State& s)
     
     
     return true;
+}
+
+static bool js_cc_IShaderInfo_getSource__SWIG_1(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::IShaderInfo *arg1 = (cc::IShaderInfo *) NULL ;
+    ccstd::string *arg2 = 0 ;
+    ccstd::string temp2 ;
+    cc::IShaderSource *result = 0 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IShaderInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg2 = &temp2;
+    
+    result = (cc::IShaderSource *)(arg1)->getSource((ccstd::string const &)*arg2);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+
+static bool js_cc_IShaderInfo_getSource(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    
+    
+    if (argc == 1) {
+        ok = js_cc_IShaderInfo_getSource__SWIG_0(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    if (argc == 1) {
+        ok = js_cc_IShaderInfo_getSource__SWIG_1(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
 }
 SE_BIND_FUNC(js_cc_IShaderInfo_getSource) 
 

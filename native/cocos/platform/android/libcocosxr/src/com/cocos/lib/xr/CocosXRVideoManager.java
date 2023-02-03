@@ -421,6 +421,7 @@ public class CocosXRVideoManager {
             for (Map.Entry<String, CocosXRVideoPlayer> entrySet : entrySets) {
                 entrySet.getValue().onGLDestroy();
             }
+            GLES30.glDeleteFramebuffers(1, new int[] {renderTargetFboId}, 0);
             EGL14.eglMakeCurrent(eglDisplay, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_CONTEXT);
             EGL14.eglDestroySurface(eglDisplay, pBufferSurface);
             EGL14.eglDestroyContext(eglDisplay, eglContext);
