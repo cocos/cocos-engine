@@ -86,10 +86,10 @@ public:
             _swapchains.erase(iter);
         }
     }
-    
-    CommandBuffer* transferCommandBuffer() const;
-    
-    void writeBuffer(Buffer* buffer, const void* data, size_t size);
+
+    CommandBuffer *transferCommandBuffer() const;
+
+    void writeBuffer(Buffer *buffer, const void *data, uint32_t size);
 
 protected:
     static CCMTLDevice *_instance;

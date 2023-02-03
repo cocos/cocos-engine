@@ -334,7 +334,7 @@ void CCMTLDevice::copyTextureToBuffers(Texture *src, uint8_t *const *buffers, co
     static_cast<CCMTLCommandBuffer *>(_cmdBuff)->copyTextureToBuffers(src, buffers, region, count);
 }
 
-void CCMTLDevice::writeBuffer(Buffer* buffer, const void* data, size_t size) {
+void CCMTLDevice::writeBuffer(Buffer* buffer, const void* data, uint32_t size) {
     bool hasFrameInFlight = _inFlightCount;
     auto* ccBuffer = static_cast<CCMTLBuffer*>(buffer);
     id<MTLBuffer> mtlBuffer = ccBuffer->getMTLBuffer();
