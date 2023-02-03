@@ -110,7 +110,7 @@ public:
 
     gfx::Viewport getViewport(scene::Camera *camera);
     gfx::Rect getScissor(scene::Camera *camera);
-    void genQuadVertexData(const Vec4 &viewport, float *data);
+    void genQuadVertexData(const Vec4 &viewport, float data[16]);
     uint32_t getWidth() const { return _width; }
     uint32_t getHeight() const { return _height; }
     framegraph::FrameGraph &getFrameGraph() { return _fg; }

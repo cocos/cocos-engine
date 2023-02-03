@@ -24,6 +24,7 @@
 
 #pragma once
 
+#include "base/RefCounted.h"
 #include "base/std/container/unordered_set.h"
 #include "gfx-base/GFXDef.h"
 
@@ -39,10 +40,10 @@ namespace pipeline {
 
 class BatchedBuffer;
 
-class CC_DLL RenderBatchedQueue final {
+class CC_DLL RenderBatchedQueue final : public RefCounted {
 public:
     RenderBatchedQueue() = default;
-    ~RenderBatchedQueue() = default;
+    ~RenderBatchedQueue() override = default;
 
     void clear();
     void uploadBuffers(gfx::CommandBuffer *cmdBuff);

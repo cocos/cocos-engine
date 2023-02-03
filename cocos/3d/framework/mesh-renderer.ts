@@ -504,6 +504,7 @@ export class MeshRenderer extends ModelRenderer {
     public onEnable () {
         super.onEnable();
         this.node.on(NodeEventType.MOBILITY_CHANGED, this.onMobilityChanged, this);
+        this.node.on(NodeEventType.LIGHT_PROBE_BAKING_CHANGED, this.onLightProbeBakingChanged, this);
         this.bakeSettings.on(ModelBakeSettings.USE_LIGHT_PROBE_CHANGED, this.onUseLightProbeChanged, this);
         this.bakeSettings.on(ModelBakeSettings.REFLECTION_PROBE_CHANGED, this.onReflectionProbeChanged, this);
         this.bakeSettings.on(ModelBakeSettings.BAKE_TO_REFLECTION_PROBE_CHANGED, this.onBakeToReflectionProbeChanged, this);
@@ -527,6 +528,7 @@ export class MeshRenderer extends ModelRenderer {
             this._detachFromScene();
         }
         this.node.off(NodeEventType.MOBILITY_CHANGED, this.onMobilityChanged, this);
+        this.node.off(NodeEventType.LIGHT_PROBE_BAKING_CHANGED, this.onLightProbeBakingChanged, this);
         this.bakeSettings.off(ModelBakeSettings.USE_LIGHT_PROBE_CHANGED, this.onUseLightProbeChanged, this);
         this.bakeSettings.off(ModelBakeSettings.REFLECTION_PROBE_CHANGED, this.onReflectionProbeChanged, this);
         this.bakeSettings.off(ModelBakeSettings.BAKE_TO_REFLECTION_PROBE_CHANGED, this.onBakeToReflectionProbeChanged, this);
@@ -873,6 +875,9 @@ export class MeshRenderer extends ModelRenderer {
 
     protected onMobilityChanged () {
         this._updateUseLightProbe();
+    }
+
+    protected onLightProbeBakingChanged () {
     }
 
     protected onUseLightProbeChanged () {

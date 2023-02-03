@@ -479,6 +479,7 @@ export class WebDescriptorHierarchy {
             this.setUniform(globalDB, 'cc_debug_view_composite_pack_1', Type.FLOAT, 4);
             this.setUniform(globalDB, 'cc_debug_view_composite_pack_2', Type.FLOAT, 4);
             this.setUniform(globalDB, 'cc_debug_view_composite_pack_3', Type.FLOAT, 4);
+            this.setUniform(globalDB, 'cc_debug_view_composite_pack_4', Type.FLOAT, 4);
             this.setDescriptor(globalUniformTarget, 'CCGlobal', Type.UNKNOWN);
         }
 

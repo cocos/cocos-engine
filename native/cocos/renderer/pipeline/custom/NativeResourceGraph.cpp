@@ -40,6 +40,23 @@ ResourceGroup::~ResourceGroup() noexcept {
     }
 }
 
+void ProgramResource::syncResources() noexcept {
+    for (auto&& [nameID, buffer] : uniformBuffers) {
+        buffer.bufferPool.syncResources();
+    }
+    descriptorSetPool.syncDescriptorSets();
+}
+
+void LayoutGraphNodeResource::syncResources() noexcept {
+    for (auto&& [nameID, buffer] : uniformBuffers) {
+        buffer.bufferPool.syncResources();
+    }
+    descriptorSetPool.syncDescriptorSets();
+    for (auto&& [programName, programResource] : programResources) {
+        programResource.syncResources();
+    }
+}
+
 void NativeRenderContext::clearPreviousResources(uint64_t finishedFenceValue) noexcept {
     for (auto iter = resourceGroups.begin(); iter != resourceGroups.end();) {
         if (iter->first <= finishedFenceValue) {
@@ -47,6 +64,9 @@ void NativeRenderContext::clearPreviousResources(uint64_t finishedFenceValue) no
         } else {
             break;
         }
+    }
+    for (auto& node : layoutGraphResources) {
+        node.syncResources();
     }
 }
 
@@ -138,6 +158,14 @@ gfx::TextureInfo getTextureInfo(const ResourceDesc& desc, bool bCube = false) {
 
 } // namespace
 
+bool ManagedTexture::checkResource(const ResourceDesc& desc) const {
+    if (!texture) {
+        return false;
+    }
+    const auto& info = texture->getInfo();
+    return desc.width == info.width && desc.height == info.height && desc.format == info.format;
+}
+
 void ResourceGraph::mount(gfx::Device* device, vertex_descriptor vertID) {
     std::ignore = device;
     auto& resg = *this;
@@ -156,20 +184,28 @@ void ResourceGraph::mount(gfx::Device* device, vertex_descriptor vertID) {
             buffer.fenceValue = nextFenceValue;
         },
         [&](ManagedTexture& texture) {
-            if (!texture.texture) {
+            if (!texture.checkResource(desc)) {
                 auto info = getTextureInfo(desc);
                 texture.texture = device->createTexture(info);
             }
             CC_ENSURES(texture.texture);
             texture.fenceValue = nextFenceValue;
         },
-        [&](const IntrusivePtr<gfx::Buffer>& pass) {
+        [&](const IntrusivePtr<gfx::Buffer>& buffer) {
+            CC_EXPECTS(buffer);
+            std::ignore = buffer;
         },
-        [&](const IntrusivePtr<gfx::Texture>& pass) {
+        [&](const IntrusivePtr<gfx::Texture>& texture) {
+            CC_EXPECTS(texture);
+            std::ignore = texture;
         },
-        [&](const IntrusivePtr<gfx::Framebuffer>& pass) {
+        [&](const IntrusivePtr<gfx::Framebuffer>& fb) {
+            CC_EXPECTS(fb);
+            std::ignore = fb;
         },
         [&](const RenderSwapchain& queue) {
+            CC_EXPECTS(queue.swapchain);
+            std::ignore = queue;
         });
 }
 
@@ -191,15 +227,49 @@ void ResourceGraph::unmount(uint64_t completedFenceValue) {
                     texture.texture.reset();
                 }
             },
-            [&](const IntrusivePtr<gfx::Buffer>& pass) {
+            [&](const IntrusivePtr<gfx::Buffer>& buffer) {
+                CC_EXPECTS(buffer);
+                std::ignore = buffer;
             },
-            [&](const IntrusivePtr<gfx::Texture>& pass) {
+            [&](const IntrusivePtr<gfx::Texture>& texture) {
+                CC_EXPECTS(texture);
+                std::ignore = texture;
             },
-            [&](const IntrusivePtr<gfx::Framebuffer>& pass) {
+            [&](const IntrusivePtr<gfx::Framebuffer>& fb) {
+                CC_EXPECTS(fb);
+                std::ignore = fb;
             },
             [&](const RenderSwapchain& queue) {
+                CC_EXPECTS(queue.swapchain);
+                std::ignore = queue;
             });
     }
+}
+
+gfx::Texture* ResourceGraph::getTexture(vertex_descriptor resID) {
+    gfx::Texture* texture = nullptr;
+    visitObject(
+        resID, *this,
+        [&](const ManagedTexture& res) {
+            texture = res.texture.get();
+        },
+        [&](const IntrusivePtr<gfx::Texture>& tex) {
+            texture = tex.get();
+        },
+        [&](const IntrusivePtr<gfx::Framebuffer>& fb) {
+            std::ignore = fb;
+            CC_EXPECTS(false);
+        },
+        [&](const RenderSwapchain& sc) {
+            texture = sc.swapchain->getColorTexture();
+        },
+        [&](const auto& buffer) {
+            std::ignore = buffer;
+            CC_EXPECTS(false);
+        });
+    CC_ENSURES(texture);
+
+    return texture;
 }
 
 } // namespace render

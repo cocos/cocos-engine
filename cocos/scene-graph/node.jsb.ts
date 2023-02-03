@@ -241,6 +241,7 @@ const REGISTERED_EVENT_MASK_LAYER_CHANGED = (1 << 3);
 const REGISTERED_EVENT_MASK_CHILD_REMOVED_CHANGED = (1 << 4);
 const REGISTERED_EVENT_MASK_CHILD_ADDED_CHANGED = (1 << 5);
 const REGISTERED_EVENT_MASK_SIBLING_ORDER_CHANGED_CHANGED = (1 << 6);
+const REGISTERED_EVENT_MASK_LIGHT_PROBE_BAKING_CHANGED = (1 << 7);
 
 nodeProto.on = function (type, callback, target, useCapture: any = false) {
     switch (type) {
@@ -285,6 +286,12 @@ nodeProto.on = function (type, callback, target, useCapture: any = false) {
             if (!(this._registeredNodeEventTypeMask & REGISTERED_EVENT_MASK_SIBLING_ORDER_CHANGED_CHANGED)) {
                 this._registerOnSiblingOrderChanged();
                 this._registeredNodeEventTypeMask |= REGISTERED_EVENT_MASK_SIBLING_ORDER_CHANGED_CHANGED;
+            }
+            break;
+        case NodeEventType.LIGHT_PROBE_BAKING_CHANGED:
+            if (!(this._registeredNodeEventTypeMask & REGISTERED_EVENT_MASK_LIGHT_PROBE_BAKING_CHANGED)) {
+                this._registerOnLightProbeBakingChanged();
+                this._registeredNodeEventTypeMask |= REGISTERED_EVENT_MASK_LIGHT_PROBE_BAKING_CHANGED;
             }
             break;
         default:
@@ -505,6 +512,10 @@ nodeProto._onPostActivated = function (active: boolean) {
     } else { // deactivated
         this._eventProcessor.setEnabled(false);
     }
+};
+
+nodeProto._onLightProbeBakingChanged = function () {
+    this.emit(NodeEventType.LIGHT_PROBE_BAKING_CHANGED);
 };
 
 // Static functions.

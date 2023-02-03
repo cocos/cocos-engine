@@ -196,12 +196,10 @@ public:
 
     ~DefaultResource() = default;
 
-    const Texture *getTexture(TextureType type) const;
+    Texture *getTexture(TextureType type) const;
 
 private:
-    IntrusivePtr<Texture> _texture1D;
     IntrusivePtr<Texture> _texture2D;
-    IntrusivePtr<Texture> _texture1DArray;
     IntrusivePtr<Texture> _texture2DArray;
     IntrusivePtr<Texture> _textureCube;
     IntrusivePtr<Texture> _texture3D;
