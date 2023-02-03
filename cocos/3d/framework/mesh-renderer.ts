@@ -27,7 +27,7 @@ import { displayOrder, group, range } from 'cc.decorator';
 import { Texture2D, TextureCube } from '../../asset/assets';
 import { Material } from '../../asset/assets/material';
 import { Mesh } from '../assets/mesh';
-import { Vec4, Enum, cclegacy, CCBoolean, CCFloat, assertIsTrue, _decorator, CCInteger, EventTarget } from '../../core';
+import { Vec4, Enum, cclegacy, CCBoolean, CCFloat, assertIsTrue, _decorator, CCInteger, EventTarget, warnID } from '../../core';
 import { scene } from '../../render-scene';
 import { MorphModel } from '../models/morph-model';
 import { Root } from '../../root';
@@ -889,8 +889,14 @@ export class MeshRenderer extends ModelRenderer {
         this._updateUseReflectionProbe();
         if (this.bakeSettings.reflectionProbe === ReflectionProbeType.BAKED_CUBEMAP) {
             cclegacy.internal.reflectionProbeManager.updateUseCubeModels(this._model);
+            if (!cclegacy.internal.reflectionProbeManager.getUsedReflectionProbe(this._model, ReflectionProbeType.BAKED_CUBEMAP)) {
+                warnID(16302);
+            }
         } else if (this.bakeSettings.reflectionProbe === ReflectionProbeType.PLANAR_REFLECTION) {
             cclegacy.internal.reflectionProbeManager.updateUsePlanarModels(this._model);
+            if (!cclegacy.internal.reflectionProbeManager.getUsedReflectionProbe(this._model, ReflectionProbeType.PLANAR_REFLECTION)) {
+                warnID(16302);
+            }
         }
     }
 
