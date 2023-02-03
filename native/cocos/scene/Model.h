@@ -116,7 +116,7 @@ public:
     void updateReflectionProbeCubemap(TextureCube *texture);
     void updateReflectionProbePlanarMap(gfx::Texture *texture);
     void updateReflectionProbeId();
-    void updateReflectionProbeDataMap(gfx::Texture *texture);
+    void updateReflectionProbeDataMap(Texture2D *texture);
 
     inline void attachToScene(RenderScene *scene) {
         _scene = scene;

@@ -3,8 +3,21 @@ void GetPlanarReflectionProbeData(out vec4 plane, out float planarReflectionDept
 {
     #if USE_INSTANCING
       float uv_y = (probeId + 0.5) / cc_probeInfo.x; //align to texel center
-      vec4 texData1 = texture(cc_reflectionProbeDataMap, vec2(0.166666667, uv_y));
-      vec4 texData2 = texture(cc_reflectionProbeDataMap, vec2(0.5, uv_y));
+      float x = 0.0;
+      float dataMapWidth = 12.0;
+      vec4 texData1 = vec4(
+          decode32(texture(cc_reflectionProbeDataMap, vec2(((x + 0.5)/dataMapWidth), uv_y))),
+          decode32(texture(cc_reflectionProbeDataMap, vec2(((x + 1.5)/dataMapWidth), uv_y))),
+          decode32(texture(cc_reflectionProbeDataMap, vec2(((x + 2.5)/dataMapWidth), uv_y))),
+          decode32(texture(cc_reflectionProbeDataMap, vec2(((x + 3.5)/dataMapWidth), uv_y)))
+        );
+      x = 4.0;
+      vec4 texData2 = vec4(
+          decode32(texture(cc_reflectionProbeDataMap, vec2(((x + 0.5)/dataMapWidth), uv_y))),
+          decode32(texture(cc_reflectionProbeDataMap, vec2(((x + 1.5)/dataMapWidth), uv_y))),
+          decode32(texture(cc_reflectionProbeDataMap, vec2(((x + 2.5)/dataMapWidth), uv_y))),
+          decode32(texture(cc_reflectionProbeDataMap, vec2(((x + 3.5)/dataMapWidth), uv_y)))
+      );
       plane.xyz = texData1.xyz;
       plane.w = texData2.x;
       planarReflectionDepthScale = texData2.y;
@@ -20,9 +33,28 @@ void GetCubeReflectionProbeData(out vec3 centerPos, out vec3 boxHalfSize, out fl
 {
     #if USE_INSTANCING
       float uv_y = (probeId + 0.5) / cc_probeInfo.x; //align to texel center
-      vec4 texData1 = texture(cc_reflectionProbeDataMap, vec2(0.166666667, uv_y));
-      vec4 texData2 = texture(cc_reflectionProbeDataMap, vec2(0.5, uv_y));
-      vec4 texData3 = texture(cc_reflectionProbeDataMap, vec2(0.666666667, uv_y));
+      float x = 0.0;
+      float dataMapWidth = 12.0;
+      vec4 texData1 = vec4(
+          decode32(texture(cc_reflectionProbeDataMap, vec2(((x + 0.5)/dataMapWidth), uv_y))),
+          decode32(texture(cc_reflectionProbeDataMap, vec2(((x + 1.5)/dataMapWidth), uv_y))),
+          decode32(texture(cc_reflectionProbeDataMap, vec2(((x + 2.5)/dataMapWidth), uv_y))),
+          decode32(texture(cc_reflectionProbeDataMap, vec2(((x + 3.5)/dataMapWidth), uv_y)))
+        );
+      x = 4.0;
+      vec4 texData2 = vec4(
+          decode32(texture(cc_reflectionProbeDataMap, vec2(((x + 0.5)/dataMapWidth), uv_y))),
+          decode32(texture(cc_reflectionProbeDataMap, vec2(((x + 1.5)/dataMapWidth), uv_y))),
+          decode32(texture(cc_reflectionProbeDataMap, vec2(((x + 2.5)/dataMapWidth), uv_y))),
+          decode32(texture(cc_reflectionProbeDataMap, vec2(((x + 3.5)/dataMapWidth), uv_y)))
+      );
+      x = 8.0;
+      vec4 texData3 = vec4(
+          decode32(texture(cc_reflectionProbeDataMap, vec2(((x + 0.5)/dataMapWidth), uv_y))),
+          decode32(texture(cc_reflectionProbeDataMap, vec2(((x + 1.5)/dataMapWidth), uv_y))),
+          decode32(texture(cc_reflectionProbeDataMap, vec2(((x + 2.5)/dataMapWidth), uv_y))),
+          decode32(texture(cc_reflectionProbeDataMap, vec2(((x + 3.5)/dataMapWidth), uv_y)))
+      );
       centerPos = texData1.xyz;
       boxHalfSize = texData2.xyz;
       mipCount = texData3.x;

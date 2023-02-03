@@ -320,8 +320,8 @@ export class MeshRenderer extends ModelRenderer {
 
     @serializable
     protected _reflectionProbeId = -1;
-
-    protected _reflectionProbeDataMap: Texture | null = null;
+    @serializable
+    protected _reflectionProbeDataMap: Texture2D | null = null;
 
     // @serializable
     private _subMeshShapesWeights: number[][] = [];
@@ -678,7 +678,7 @@ export class MeshRenderer extends ModelRenderer {
         }
     }
 
-    public updateReflectionProbeDataMap (dataMap: Texture | null) {
+    public updateReflectionProbeDataMap (dataMap: Texture2D | null) {
         this._reflectionProbeDataMap = dataMap;
         if (this.model !== null) {
             this.model.updateReflectionProbeDataMap(dataMap);

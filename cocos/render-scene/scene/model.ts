@@ -971,27 +971,20 @@ export class Model {
      * @zh 更新反射探针的数据贴图
      * @param texture data map
      */
-    public updateReflectionProbeDataMap (texture: Texture | null) {
+    public updateReflectionProbeDataMap (texture: Texture2D | null) {
         this._localDataUpdated = true;
         this.onMacroPatchesStateChanged();
 
-        const sampler = this._device.getSampler(new SamplerInfo(
-            Filter.NONE,
-            Filter.NONE,
-            Filter.NONE,
-            Address.CLAMP,
-            Address.CLAMP,
-            Address.CLAMP,
-        ));
         if (!texture) {
-            texture = builtinResMgr.get<Texture2D>('empty-texture').getGFXTexture()!;
+            texture = builtinResMgr.get<Texture2D>('empty-texture');
         }
-        if (texture) {
+        const gfxTexture = texture.getGFXTexture();
+        if (gfxTexture) {
             const subModels = this._subModels;
             for (let i = 0; i < subModels.length; i++) {
                 const { descriptorSet } = subModels[i];
-                descriptorSet.bindTexture(UNIFORM_REFLECTION_PROBE_DATA_MAP_BINDING, texture);
-                descriptorSet.bindSampler(UNIFORM_REFLECTION_PROBE_DATA_MAP_BINDING, sampler);
+                descriptorSet.bindTexture(UNIFORM_REFLECTION_PROBE_DATA_MAP_BINDING, gfxTexture);
+                descriptorSet.bindSampler(UNIFORM_REFLECTION_PROBE_DATA_MAP_BINDING, texture.getGFXSampler());
                 descriptorSet.update();
             }
         }

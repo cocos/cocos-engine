@@ -647,28 +647,18 @@ void Model::updateReflectionProbePlanarMap(gfx::Texture *texture) {
     }
 }
 
-void Model::updateReflectionProbeDataMap(gfx::Texture *texture)
-{
+void Model::updateReflectionProbeDataMap(Texture2D *texture) {
     _localDataUpdated = true;
 
-    gfx::Texture *bindingTexture = texture;
-    if (!bindingTexture) {
-        bindingTexture = BuiltinResMgr::getInstance()->get<Texture2D>(ccstd::string("empty-texture"))->getGFXTexture();
+    if (!texture) {
+        texture = BuiltinResMgr::getInstance()->get<Texture2D>(ccstd::string("empty-texture"));
     }
-    if (bindingTexture) {
-        gfx::SamplerInfo info{
-            cc::gfx::Filter::NONE,
-            cc::gfx::Filter::NONE,
-            cc::gfx::Filter::NONE,
-            cc::gfx::Address::CLAMP,
-            cc::gfx::Address::CLAMP,
-            cc::gfx::Address::CLAMP,
-        };
-        auto *sampler = _device->getSampler(info);
+    gfx::Texture *gfxTexture = texture->getGFXTexture();
+    if (gfxTexture) {
         for (SubModel *subModel : _subModels) {
             gfx::DescriptorSet *descriptorSet = subModel->getDescriptorSet();
-            descriptorSet->bindTexture(pipeline::REFLECTIONPROBEDATAMAP::BINDING, bindingTexture);
-            descriptorSet->bindSampler(pipeline::REFLECTIONPROBEDATAMAP::BINDING, sampler);
+            descriptorSet->bindTexture(pipeline::REFLECTIONPROBEDATAMAP::BINDING, gfxTexture);
+            descriptorSet->bindSampler(pipeline::REFLECTIONPROBEDATAMAP::BINDING, texture->getGFXSampler());
             descriptorSet->update();
         }
     }
