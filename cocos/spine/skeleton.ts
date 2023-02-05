@@ -1434,7 +1434,7 @@ export class Skeleton extends UIRenderer {
         return this.material!;
     }
     /**
-     * @internal since v3.7.1, this is an engine private interface.
+     * @internal since v3.7.2, this is an engine private interface.
      */
     public getMaterialForBlendAndTint (src: BlendFactor, dst: BlendFactor, type: SpineMaterialType): MaterialInstance {
         const key = `${type}/${src}/${dst}`;
@@ -1476,7 +1476,7 @@ export class Skeleton extends UIRenderer {
     // For Redo, Undo
     // call markForUpdateRenderData to make sure renderData will be re-built.
     /**
-     * @internal since v3.7.1, this is an engine private interface.
+     * @internal since v3.7.2, this is an engine private interface.
      */
     public onRestore () {
         this.updateMaterial();
@@ -1484,8 +1484,8 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @internal since v3.7.1, this is an engine private interface.
-     * @deprecated since v3.7.1, this is an engine private interface that will be removed in the future.
+     * @internal since v3.7.2, this is an engine private interface.
+     * @deprecated since v3.7.2, this is an engine private interface that will be removed in the future.
      */
     public querySockets () {
         if (!this._skeleton) {

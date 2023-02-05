@@ -34,7 +34,7 @@ import spine from './lib/spine-core.js';
  */
 export class SkeletonTexture extends spine.Texture {
     /**
-     * @deprecated since v3.7.1, this property will be removed in the future.
+     * @deprecated since v3.7.2, this property will be removed in the future.
      */
     name = 'sp.SkeletonTexture';
     /**
@@ -44,7 +44,7 @@ export class SkeletonTexture extends spine.Texture {
     _texture: Texture2D | null = null;
     /**
      * @internal
-     * @deprecated since v3.7.1, this will be removed in the future.
+     * @deprecated since v3.7.2, this will be removed in the future.
      */
     _material: Material | null = null;
 
@@ -99,7 +99,7 @@ export class SkeletonTexture extends spine.Texture {
 }
 
 /**
- * @internal since v3.7.1, this is an engine private function.
+ * @internal since v3.7.2, this is an engine private function.
  */
 export function convertFilter (filter: spine.TextureFilter): Filter {
     switch (filter) {
@@ -117,7 +117,7 @@ export function convertFilter (filter: spine.TextureFilter): Filter {
 }
 
 /**
- * @internal since v3.7.1, this is an engine private function.
+ * @internal since v3.7.2, this is an engine private function.
  */
 export function convertWraps (wrap: spine.TextureWrap): WrapMode {
     switch (wrap) {
