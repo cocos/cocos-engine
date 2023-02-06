@@ -110,7 +110,7 @@ function _getSlotMaterial (tex: TextureBase | null, blendMode: BlendMode) {
     return _comp!.getMaterialForBlend(src, dst);
 }
 
-function _handleColor (color: {r:number, g:number, b:number, a:number}, parentOpacity: number) {
+function _handleColor (color: {r: number, g: number, b: number, a: number}, parentOpacity: number) {
     const _a = color.a * parentOpacity * _nodeA;
     const _multiply = _premultipliedAlpha ? _a / 255.0 : 1.0;
     const _r = color.r * _nodeR * _multiply / 255.0;
@@ -432,7 +432,8 @@ function updateComponentRenderData (comp: ArmatureDisplay, batcher: Batcher2D) {
         _handleVal |= NEED_COLOR;
     }
 
-    const worldMat = comp.node.getWorldMatrix();
+    //const worldMat = comp.node.getWorldMatrix();
+    let worldMat;
 
     _vertexFloatCount = 0;
     _vertexOffset = 0;

@@ -530,7 +530,7 @@ export class ArmatureDisplay extends UIRenderer {
     protected _sockets: DragonBoneSocket[] = [];
 
     private _inited;
-    private _drawInfoList : RenderDrawInfo[] = [];
+    private _drawInfoList: RenderDrawInfo[] = [];
     private requestDrawInfo (idx: number) {
         if (!this._drawInfoList[idx]) {
             this._drawInfoList[idx] = new RenderDrawInfo();
@@ -589,7 +589,7 @@ export class ArmatureDisplay extends UIRenderer {
         super.destroyRenderData();
     }
 
-    private getMaterialTemplate () : Material {
+    private getMaterialTemplate (): Material {
         if (this.customMaterial !== null) return this.customMaterial;
         if (this.material) return this.material;
         this.updateMaterial();
@@ -610,7 +610,7 @@ export class ArmatureDisplay extends UIRenderer {
         };
 
         inst = new MaterialInstance(matInfo);
-        inst.recompileShaders({ TWO_COLORED: false, USE_LOCAL: false });
+        inst.recompileShaders({ TWO_COLORED: false, USE_LOCAL: true });
         this._materialCache[key] = inst;
         inst.overridePipelineStates({
             blendState: {
@@ -1379,7 +1379,7 @@ export class ArmatureDisplay extends UIRenderer {
 
     protected createRenderEntity () {
         const renderEntity = new RenderEntity(RenderEntityType.DYNAMIC);
-        renderEntity.setUseLocal(false);
+        renderEntity.setUseLocal(true);
         return renderEntity;
     }
 
