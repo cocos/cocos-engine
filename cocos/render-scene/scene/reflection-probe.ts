@@ -329,6 +329,10 @@ export class ReflectionProbe {
         return this._probeId;
     }
 
+    public updateProbeId (id) {
+        this._probeId = id;
+    }
+
     public renderArea (): Vec2 {
         if (this._probeType === ProbeType.PLANAR) {
             return new Vec2(this.realtimePlanarTexture!.width, this.realtimePlanarTexture!.height);

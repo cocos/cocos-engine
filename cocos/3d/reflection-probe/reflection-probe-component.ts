@@ -293,6 +293,11 @@ export class ReflectionProbe extends Component {
 
     onEnable () {
         if (this._probe) {
+            const probe = ReflectionProbeManager.probeManager.getProbeById(this._probeId);
+            if (probe !== null && probe !== this._probe) {
+                this._probeId = ReflectionProbeManager.probeManager.getNewReflectionProbeId();
+                this._probe.updateProbeId(this._probeId);
+            }
             ReflectionProbeManager.probeManager.register(this._probe);
             ReflectionProbeManager.probeManager.onUpdateProbes(true);
             this._probe.enable();
