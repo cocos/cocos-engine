@@ -43,7 +43,7 @@ export class StartLifeTimeModule extends ParticleModule {
     @range([0, 1])
     @displayOrder(7)
     @tooltip('i18n:particle_system.startLifetime')
-    public startLifetime = new CurveRange();
+    public startLifetime = new CurveRange(5);
 
     public get name (): string {
         return 'StartLifeTimeModule';
@@ -55,11 +55,6 @@ export class StartLifeTimeModule extends ParticleModule {
 
     public get updatePriority (): number {
         return 1;
-    }
-
-    constructor () {
-        super();
-        this.startLifetime.constant = 5;
     }
 
     public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {

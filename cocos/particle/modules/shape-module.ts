@@ -39,6 +39,9 @@ const _intermediVec = new Vec3(0, 0, 0);
 const tmpPosition = new Vec3();
 const tmpDir = new Vec3();
 const shuffleArray = new Float32Array(3);
+const mat = new Mat4();
+const quat = new Quat();
+const boxThickness = new Vec3();
 
 /**
  * 粒子发射器类型。
@@ -115,7 +118,7 @@ export class ShapeModule extends ParticleModule {
         return this._position;
     }
     set position (val) {
-        this._position = val;
+        this._position.set(val);
     }
 
     /**
@@ -127,7 +130,7 @@ export class ShapeModule extends ParticleModule {
         return this._rotation;
     }
     set rotation (val) {
-        this._rotation = val;
+        this._rotation.set(val);
     }
 
     /**
@@ -135,11 +138,11 @@ export class ShapeModule extends ParticleModule {
      */
     @displayOrder(15)
     @tooltip('i18n:shapeModule.scale')
-    get scale () {
+    get scale (): Readonly<Vec3> {
         return this._scale;
     }
     set scale (val) {
-        this._scale = val;
+        this._scale.set(val);
     }
 
     /**
@@ -333,19 +336,16 @@ export class ShapeModule extends ParticleModule {
 
     @serializable
     private _angle = toRadian(25);
-
-    private mat = new Mat4();
-    private quat = new Quat();
     private _totalAngle = 0;
 
     public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
-        Quat.fromEuler(this.quat, this._rotation.x, this._rotation.y, this._rotation.z);
-        Mat4.fromRTS(this.mat, this.quat, this._position, this._scale);
+        Quat.fromEuler(quat, this._rotation.x, this._rotation.y, this._rotation.z);
+        Mat4.fromRTS(mat, quat, this._position, this._scale);
         const { newParticleIndexStart, newParticleIndexEnd, normalizedTimeInCycle, emitterDeltaTime } = particleUpdateContext;
         const randomPositionAmount = this.randomPositionAmount;
         const minRadius = this.radius * (1 - this.radiusThickness);
         const velocityZ = -Math.cos(this._angle) * this.radius;
-        const boxThickness = new Vec3(1 - this.boxThickness.x, 1 - this.boxThickness.y, 1 - this.boxThickness.z);
+        boxThickness.set(1 - this.boxThickness.x, 1 - this.boxThickness.y, 1 - this.boxThickness.z);
         this._totalAngle += 2 * Math.PI * this.arcSpeed.evaluate(normalizedTimeInCycle, 1) * emitterDeltaTime;
         let angle = this._totalAngle;
         if (this.arcSpread !== 0) {
@@ -578,11 +578,11 @@ export class ShapeModule extends ParticleModule {
         }
         for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
             particles.getStartDirAt(tmpDir, i);
-            particles.setStartDirAt(Vec3.transformQuat(tmpDir, tmpDir, this.quat), i);
+            particles.setStartDirAt(Vec3.transformQuat(tmpDir, tmpDir, quat), i);
         }
         for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
             particles.getPositionAt(tmpPosition, i);
-            particles.setPositionAt(Vec3.transformMat4(tmpPosition, tmpPosition, this.mat), i);
+            particles.setPositionAt(Vec3.transformMat4(tmpPosition, tmpPosition, mat), i);
         }
         if (this.sphericalDirectionAmount > 0) {
             for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {

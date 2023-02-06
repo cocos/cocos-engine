@@ -42,25 +42,41 @@ export class StartRotationModule extends ParticleModule {
       * @zh 粒子初始旋转角度。
       */
     @type(CurveRange)
-    @serializable
     @range([-1, 1])
     @radian
     @displayOrder(12)
     @tooltip('i18n:particle_system.startRotationX')
     @visible(function (this: StartRotationModule): boolean { return this.startRotation3D; })
-    public startRotationX = new CurveRange();
+    public get startRotationX () {
+        if (!this._startRotationX) {
+            this._startRotationX = new CurveRange();
+        }
+        return this._startRotationX;
+    }
+
+    public set startRotationX (val) {
+        this._startRotationX = val;
+    }
 
     /**
       * @zh 粒子初始旋转角度。
       */
     @type(CurveRange)
-    @serializable
     @range([-1, 1])
     @radian
     @displayOrder(12)
     @tooltip('i18n:particle_system.startRotationY')
     @visible(function (this: StartRotationModule): boolean { return this.startRotation3D; })
-    public startRotationY = new CurveRange();
+    public get startRotationY () {
+        if (!this._startRotationY) {
+            this._startRotationY = new CurveRange();
+        }
+        return this._startRotationY;
+    }
+
+    public set startRotationY (val) {
+        this._startRotationY = val;
+    }
 
     /**
       * @zh 粒子初始旋转角度。
@@ -71,7 +87,22 @@ export class StartRotationModule extends ParticleModule {
     @radian
     @displayOrder(12)
     @tooltip('i18n:particle_system.startRotationZ')
+    @visible(function (this: StartRotationModule): boolean { return this.startRotation3D; })
     public startRotationZ = new CurveRange();
+
+    @type(CurveRange)
+    @range([-1, 1])
+    @radian
+    @displayOrder(12)
+    @tooltip('i18n:particle_system.startRotationZ')
+    @visible(function (this: StartRotationModule): boolean { return !this.startRotation3D; })
+    public get startRotation () {
+        return this.startRotationZ;
+    }
+
+    public set startRotation (val) {
+        this.startRotationZ = val;
+    }
 
     public get name (): string {
         return 'StartRotationModule';
@@ -84,6 +115,11 @@ export class StartRotationModule extends ParticleModule {
     public get updatePriority (): number {
         return 1;
     }
+
+    @serializable
+    private _startRotationX: CurveRange | null = null;
+    @serializable
+    private _startRotationY: CurveRange | null = null;
 
     public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
         const { newParticleIndexStart, newParticleIndexEnd, normalizedTimeInCycle } = particleUpdateContext;
@@ -153,6 +189,14 @@ export class StartRotationModule extends ParticleModule {
                     rotationZ[i] = lerp(zMin.evaluate(normalizedTimeInCycle), zMax.evaluate(normalizedTimeInCycle), rand) * zMultiplier;
                 }
             }
+        }
+    }
+
+    protected _onBeforeSerialize (props) {
+        if (!this.startRotation3D) {
+            return ['startRotation3D', 'startRotationZ'];
+        } else {
+            return ['startRotation3D', 'startRotationX', 'startRotationY', 'startRotationZ'];
         }
     }
 }

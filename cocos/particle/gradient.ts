@@ -125,30 +125,32 @@ export default class Gradient {
     }
 
     private getRGB (time: number) {
-        if (this.colorKeys.length > 1) {
+        const colorKeys = this.colorKeys;
+        const length = colorKeys.length;
+        if (length > 1) {
             time = repeat(time, 1);
-            for (let i = 1; i < this.colorKeys.length; ++i) {
-                const preTime = this.colorKeys[i - 1].time;
-                const curTime = this.colorKeys[i].time;
+            for (let i = 1; i < length; ++i) {
+                const preTime = colorKeys[i - 1].time;
+                const curTime = colorKeys[i].time;
                 if (time >= preTime && time < curTime) {
                     if (this.mode === Mode.Fixed) {
-                        return this.colorKeys[i].color;
+                        return colorKeys[i].color;
                     }
                     const factor = (time - preTime) / (curTime - preTime);
-                    Color.lerp(this._color, this.colorKeys[i - 1].color, this.colorKeys[i].color, factor);
+                    Color.lerp(this._color, colorKeys[i - 1].color, colorKeys[i].color, factor);
                     return this._color;
                 }
             }
-            const lastIndex = this.colorKeys.length - 1;
-            if (time < this.colorKeys[0].time) {
-                Color.lerp(this._color, Color.BLACK, this.colorKeys[0].color, time / this.colorKeys[0].time);
-            } else if (time > this.colorKeys[lastIndex].time) {
-                Color.lerp(this._color, this.colorKeys[lastIndex].color, Color.BLACK, (time - this.colorKeys[lastIndex].time) / (1 - this.colorKeys[lastIndex].time));
+            const lastIndex = length - 1;
+            if (time < colorKeys[0].time) {
+                Color.lerp(this._color, Color.BLACK, colorKeys[0].color, time / colorKeys[0].time);
+            } else if (time > colorKeys[lastIndex].time) {
+                Color.lerp(this._color, colorKeys[lastIndex].color, Color.BLACK, (time - colorKeys[lastIndex].time) / (1 - colorKeys[lastIndex].time));
             }
             // console.warn('something went wrong. can not get gradient color.');
             return this._color;
-        } else if (this.colorKeys.length === 1) {
-            this._color.set(this.colorKeys[0].color);
+        } else if (length === 1) {
+            this._color.set(colorKeys[0].color);
             return this._color;
         } else {
             this._color.set(Color.WHITE);
@@ -158,28 +160,30 @@ export default class Gradient {
 
     private getAlpha (time: number) {
         const basicAlpha = 0; // default alpha is 0
-        if (this.alphaKeys.length > 1) {
+        const alphaKeys = this.alphaKeys;
+        const length = alphaKeys.length;
+        if (length > 1) {
             time = repeat(time, 1);
-            for (let i = 1; i < this.alphaKeys.length; ++i) {
-                const preTime = this.alphaKeys[i - 1].time;
-                const curTime = this.alphaKeys[i].time;
+            for (let i = 1; i < length; ++i) {
+                const preTime = alphaKeys[i - 1].time;
+                const curTime = alphaKeys[i].time;
                 if (time >= preTime && time < curTime) {
                     if (this.mode === Mode.Fixed) {
-                        return this.alphaKeys[i].alpha;
+                        return alphaKeys[i].alpha;
                     }
                     const factor = (time - preTime) / (curTime - preTime);
-                    return lerp(this.alphaKeys[i - 1].alpha, this.alphaKeys[i].alpha, factor);
+                    return lerp(alphaKeys[i - 1].alpha, alphaKeys[i].alpha, factor);
                 }
             }
-            const lastIndex = this.alphaKeys.length - 1;
-            if (time < this.alphaKeys[0].time) {
-                return lerp(basicAlpha, this.alphaKeys[0].alpha, time / this.alphaKeys[0].time);
-            } else if (time > this.alphaKeys[lastIndex].time) {
-                return lerp(this.alphaKeys[lastIndex].alpha, basicAlpha, (time - this.alphaKeys[lastIndex].time) / (1 - this.alphaKeys[lastIndex].time));
+            const lastIndex = length - 1;
+            if (time < alphaKeys[0].time) {
+                return lerp(basicAlpha, alphaKeys[0].alpha, time / alphaKeys[0].time);
+            } else if (time > alphaKeys[lastIndex].time) {
+                return lerp(alphaKeys[lastIndex].alpha, basicAlpha, (time - alphaKeys[lastIndex].time) / (1 - alphaKeys[lastIndex].time));
             }
             return 255;
-        } else if (this.alphaKeys.length === 1) {
-            return this.alphaKeys[0].alpha;
+        } else if (length === 1) {
+            return alphaKeys[0].alpha;
         } else {
             return 255;
         }

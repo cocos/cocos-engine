@@ -42,7 +42,7 @@ export class SpeedModifierModule extends ParticleModule {
     @range([-1, 1])
     @displayOrder(5)
     @tooltip('i18n:velocityOvertimeModule.speedModifier')
-    public speedModifier = new CurveRange();
+    public speedModifier = new CurveRange(1);
 
     public get name (): string {
         return 'SpeedModifierModule';
@@ -54,11 +54,6 @@ export class SpeedModifierModule extends ParticleModule {
 
     public get updatePriority (): number {
         return 0;
-    }
-
-    constructor () {
-        super();
-        this.speedModifier.constant = 1;
     }
 
     public update (particles: ParticleSOAData, context: ParticleUpdateContext) {

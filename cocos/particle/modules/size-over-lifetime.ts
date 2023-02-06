@@ -47,12 +47,17 @@ export class SizeOverLifetimeModule extends ParticleModule {
      * @zh 定义一条曲线来决定粒子在其生命周期中的大小变化。
      */
     @type(CurveRange)
-    @serializable
     @range([0, 1])
     @displayOrder(2)
     @tooltip('i18n:sizeOvertimeModule.size')
     @visible(function (this: SizeOverLifetimeModule): boolean { return !this.separateAxes; })
-    public size = new CurveRange();
+    public get size () {
+        return this.x;
+    }
+
+    public set size (val) {
+        this.x = val;
+    }
 
     /**
      * @zh 定义一条曲线来决定粒子在其生命周期中 X 轴方向上的大小变化。
@@ -69,23 +74,44 @@ export class SizeOverLifetimeModule extends ParticleModule {
      * @zh 定义一条曲线来决定粒子在其生命周期中 Y 轴方向上的大小变化。
      */
     @type(CurveRange)
-    @serializable
     @range([0, 1])
     @displayOrder(4)
     @tooltip('i18n:sizeOvertimeModule.y')
     @visible(function (this: SizeOverLifetimeModule): boolean { return this.separateAxes; })
-    public y = new CurveRange();
+    public get y () {
+        if (!this._y) {
+            this._y = new CurveRange();
+        }
+        return this._y;
+    }
+
+    public set y (val) {
+        this._y = val;
+    }
 
     /**
      * @zh 定义一条曲线来决定粒子在其生命周期中 Z 轴方向上的大小变化。
      */
     @type(CurveRange)
-    @serializable
     @range([0, 1])
     @displayOrder(5)
     @tooltip('i18n:sizeOvertimeModule.z')
     @visible(function (this: SizeOverLifetimeModule): boolean { return this.separateAxes; })
-    public z = new CurveRange();
+    public get z () {
+        if (!this._z) {
+            this._z = new CurveRange();
+        }
+        return this._z;
+    }
+
+    public set z (val) {
+        this._z = val;
+    }
+
+    @serializable
+    private _y: CurveRange | null = null;
+    @serializable
+    private _z: CurveRange | null = null;
 
     public get name (): string {
         return 'SizeModule';
@@ -178,6 +204,14 @@ export class SizeOverLifetimeModule extends ParticleModule {
                     ), i);
                 }
             }
+        }
+    }
+
+    protected _onBeforeSerialize (props) {
+        if (!this.separateAxes) {
+            return ['separateAxes', 'x'];
+        } else {
+            return ['separateAxes', 'x', '_y', '_z'];
         }
     }
 }

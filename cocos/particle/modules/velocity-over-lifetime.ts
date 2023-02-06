@@ -37,6 +37,9 @@ const VELOCITY_X_OVERTIME_RAND_OFFSET = 197866;
 const VELOCITY_Y_OVERTIME_RAND_OFFSET = 156497;
 const VELOCITY_Z_OVERTIME_RAND_OFFSET = 984136;
 
+const velocity = new Vec3();
+const rotation = new Quat();
+
 @ccclass('cc.VelocityOverLifetimeModule')
 export class VelocityOverLifetimeModule extends ParticleModule {
     /**
@@ -90,18 +93,9 @@ export class VelocityOverLifetimeModule extends ParticleModule {
         return 2;
     }
 
-    private rotation: Quat;
-
-    constructor () {
-        super();
-        this.rotation = new Quat();
-    }
-
     public update (particles: ParticleSOAData, context: ParticleUpdateContext) {
-        const needTransform = calculateTransform(context.simulationSpace, this.space, context.worldTransform, this.rotation);
+        const needTransform = calculateTransform(context.simulationSpace, this.space, context.worldTransform, rotation);
         const { count, normalizedAliveTime, randomSeed } = particles;
-        const rotation = this.rotation;
-        const velocity = new Vec3();
         if (needTransform) {
             if (this.x.mode === CurveRange.Mode.Constant) {
                 velocity.set(this.x.constant, this.y.constant, this.z.constant);

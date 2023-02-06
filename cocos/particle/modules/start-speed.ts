@@ -44,7 +44,7 @@ export class StartSpeedModule extends ParticleModule {
     @range([-1, 1])
     @displayOrder(11)
     @tooltip('i18n:particle_system.startSpeed')
-    public startSpeed = new CurveRange();
+    public startSpeed = new CurveRange(5);
 
     public get name (): string {
         return 'StartSpeedModule';
@@ -56,11 +56,6 @@ export class StartSpeedModule extends ParticleModule {
 
     public get updatePriority (): number {
         return 1;
-    }
-
-    constructor () {
-        super();
-        this.startSpeed.constant = 5;
     }
 
     public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {

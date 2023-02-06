@@ -46,27 +46,43 @@ export class LimitVelocityOverLifetimeModule extends ParticleModule {
      * @zh X 轴方向上的速度下限。
      */
     @type(CurveRange)
-    @serializable
     @range([-1, 1])
     @displayOrder(4)
     @tooltip('i18n:limitVelocityOvertimeModule.limitX')
     @visible(function (this: LimitVelocityOverLifetimeModule): boolean {
         return this.separateAxes;
     })
-    public limitX = new CurveRange();
+    public get limitX () {
+        if (!this._x) {
+            this._x = new CurveRange();
+        }
+        return this._x;
+    }
+
+    public set limitX (val) {
+        this._x = val;
+    }
 
     /**
      * @zh Y 轴方向上的速度下限。
      */
     @type(CurveRange)
-    @serializable
     @range([-1, 1])
     @displayOrder(5)
     @tooltip('i18n:limitVelocityOvertimeModule.limitY')
     @visible(function (this: LimitVelocityOverLifetimeModule): boolean {
         return this.separateAxes;
     })
-    public limitY = new CurveRange();
+    public get limitY () {
+        if (!this._y) {
+            this._y = new CurveRange();
+        }
+        return this._y;
+    }
+
+    public set limitY (val) {
+        this._y = val;
+    }
 
     /**
      * @zh Z 轴方向上的速度下限。
@@ -79,20 +95,37 @@ export class LimitVelocityOverLifetimeModule extends ParticleModule {
     @visible(function (this: LimitVelocityOverLifetimeModule): boolean {
         return this.separateAxes;
     })
-    public limitZ = new CurveRange();
+    public get limitZ () {
+        if (!this._z) {
+            this._z = new CurveRange();
+        }
+        return this._z;
+    }
+
+    public set limitZ (val) {
+        this._z = val;
+    }
 
     /**
      * @zh 速度下限。
      */
     @type(CurveRange)
-    @serializable
     @range([-1, 1])
     @displayOrder(3)
     @tooltip('i18n:limitVelocityOvertimeModule.limit')
     @visible(function (this: LimitVelocityOverLifetimeModule): boolean {
         return !this.separateAxes;
     })
-    public limit = new CurveRange();
+    public get limit () {
+        if (!this._limit) {
+            this._limit = new CurveRange();
+        }
+        return this._limit;
+    }
+
+    public set limit (val) {
+        this._limit = val;
+    }
 
     /**
      * @zh 当前速度与速度下限的插值。
@@ -119,6 +152,15 @@ export class LimitVelocityOverLifetimeModule extends ParticleModule {
     @tooltip('i18n:limitVelocityOvertimeModule.space')
     public space = Space.LOCAL;
 
+    @serializable
+    private _x: CurveRange | null = null;
+    @serializable
+    private _y: CurveRange | null = null;
+    @serializable
+    private _z: CurveRange | null = null;
+    @serializable
+    private _limit: CurveRange | null = null;
+
     public get name (): string {
         return 'limitModule';
     }
@@ -131,19 +173,14 @@ export class LimitVelocityOverLifetimeModule extends ParticleModule {
         return 6;
     }
 
-    // TODO:functions related to drag are temporarily not supported
-    public drag = null;
-    public multiplyDragByParticleSize = false;
-    public multiplyDragByParticleVelocity = false;
-
     public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
         const needTransform = calculateTransform(particleUpdateContext.simulationSpace,
             this.space, particleUpdateContext.worldTransform, rotation);
         const { count, normalizedAliveTime, randomSeed, animatedVelocityX, animatedVelocityY, animatedVelocityZ } = particles;
-        if (DEBUG) {
-            assert(this.limitX.mode === this.limitY.mode && this.limitY.mode === this.limitZ.mode, 'The curve of limitX, limitY, limitZ must have same mode!');
-        }
         if (this.separateAxes) {
+            if (DEBUG) {
+                assert(this.limitX.mode === this.limitY.mode && this.limitY.mode === this.limitZ.mode, 'The curve of limitX, limitY, limitZ must have same mode!');
+            }
             if (needTransform) {
                 if (this.limitX.mode === CurveRange.Mode.Constant) {
                     Vec3.set(_temp_v3_1, this.limitX.constant, this.limitY.constant, this.limitY.constant);
@@ -330,6 +367,14 @@ export class LimitVelocityOverLifetimeModule extends ParticleModule {
                     particles.setVelocityAt(velocity.subtract3f(animatedVelocityX[i], animatedVelocityY[i], animatedVelocityZ[i]), i);
                 }
             }
+        }
+    }
+
+    protected _onBeforeSerialize (props) {
+        if (!this.separateAxes) {
+            return ['separateAxes', '_limit'];
+        } else {
+            return ['separateAxes', '_x', '_y', '_z'];
         }
     }
 }

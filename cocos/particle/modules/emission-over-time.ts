@@ -39,7 +39,7 @@ export class EmissionOverTimeModule extends ParticleModule {
     @range([0, 1])
     @displayOrder(14)
     @tooltip('i18n:particle_system.rateOverTime')
-    public rate = new CurveRange();
+    public rate = new CurveRange(10);
 
     public get name (): string {
         return 'EmissionOverTimeModule';
@@ -54,11 +54,6 @@ export class EmissionOverTimeModule extends ParticleModule {
     }
 
     private _emitRateTimeCounter = 0;
-
-    constructor () {
-        super();
-        this.rate.constant = 10;
-    }
 
     public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
         this._emitRateTimeCounter += this.rate.evaluate(particleUpdateContext.normalizedTimeInCycle, Math.random()) * particleUpdateContext.emitterDeltaTime;

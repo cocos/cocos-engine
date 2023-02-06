@@ -32,13 +32,6 @@ import { RealCurve, CCClass } from '../core';
 
 const setClassAttr = CCClass.Attr.setClassAttr;
 
-const SerializableTable = [
-    ['_mode', 'constant'],
-    ['_mode', '_spline', 'constant'],
-    ['_mode', '_splineMin', '_spline', 'constant'],
-    ['_mode', 'constantMin', 'constant'],
-] as const;
-
 export const Mode = Enum({
     Constant: 0,
     Curve: 1,
@@ -143,8 +136,8 @@ export class CurveRange  {
     private _spline: RealCurve | null = null;
     private _splineMin: RealCurve | null = null;
 
-    constructor () {
-
+    constructor (scalar = 0) {
+        this.constant = scalar;
     }
 
     public evaluate (time: number, rndRatio: number) {
@@ -166,8 +159,18 @@ export class CurveRange  {
     }
 
     protected _onBeforeSerialize (props) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        return SerializableTable[this.mode];
+        switch (this._mode) {
+        case Mode.Constant:
+            return ['_mode', 'constant'];
+        case Mode.Curve:
+            return ['_mode', '_spline', 'constant'];
+        case Mode.TwoCurves:
+            return ['_mode', '_splineMin', '_spline', 'constant'];
+        case Mode.TwoConstants:
+            return ['_mode', 'constantMin', 'constant'];
+        default:
+            return [];
+        }
     }
 }
 

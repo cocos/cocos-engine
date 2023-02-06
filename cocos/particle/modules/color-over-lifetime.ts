@@ -31,6 +31,7 @@ import { ParticleSOAData } from '../particle-soa-data';
 import { ParticleUpdateContext } from '../particle-update-context';
 
 const COLOR_OVERTIME_RAND_OFFSET = 91041;
+const tempColor2 = new Color();
 
 @ccclass('cc.ColorOverLifetimeModule')
 export class ColorOverLifetimeModule extends ParticleModule {
@@ -73,7 +74,6 @@ export class ColorOverLifetimeModule extends ParticleModule {
                 particles.multipleColorAt(color.randomColor(), i);
             }
         } else if (this.color.mode === GradientRange.Mode.TwoColors) {
-            const tempColor2 = new Color();
             const { colorMax, colorMin } = this.color;
             const { randomSeed } = particles;
             for (let i = 0; i < count; i++) {
@@ -81,7 +81,6 @@ export class ColorOverLifetimeModule extends ParticleModule {
                     colorMax, pseudoRandom(randomSeed[i] + COLOR_OVERTIME_RAND_OFFSET)), i);
             }
         } else {
-            const tempColor2 = new Color();
             const { gradientMin, gradientMax } = this.color;
             const { randomSeed, normalizedAliveTime } = particles;
             for (let i = 0; i < count; i++) {

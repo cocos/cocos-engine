@@ -38,7 +38,7 @@ const ROTATION_OVERTIME_RAND_OFFSET = 125292;
 @ccclass('cc.RotationOverLifetimeModule')
 export class RotationOverLifetimeModule extends ParticleModule {
     /**
-     * @zh 是否三个轴分开设定旋转（暂不支持）。
+     * @zh 是否三个轴分开设定旋转。
      */
     @type(CCBoolean)
     @displayOrder(1)
@@ -55,25 +55,41 @@ export class RotationOverLifetimeModule extends ParticleModule {
      * @zh 绕 X 轴设定旋转。
      */
     @type(CurveRange)
-    @serializable
     @range([-1, 1])
     @radian
     @displayOrder(2)
     @tooltip('i18n:rotationOvertimeModule.x')
     @visible(function (this: RotationOverLifetimeModule): boolean { return this.separateAxes; })
-    public x = new CurveRange();
+    public get x () {
+        if (!this._x) {
+            this._x = new CurveRange();
+        }
+        return this._x;
+    }
+
+    public set x (val) {
+        this._x = val;
+    }
 
     /**
      * @zh 绕 Y 轴设定旋转。
      */
     @type(CurveRange)
-    @serializable
     @range([-1, 1])
     @radian
     @displayOrder(3)
     @tooltip('i18n:rotationOvertimeModule.y')
     @visible(function (this: RotationOverLifetimeModule): boolean { return this.separateAxes; })
-    public y = new CurveRange();
+    public get y () {
+        if (!this._y) {
+            this._y = new CurveRange();
+        }
+        return this._y;
+    }
+
+    public set y (val) {
+        this._y = val;
+    }
 
     /**
      * @zh 绕 Z 轴设定旋转。
@@ -84,7 +100,22 @@ export class RotationOverLifetimeModule extends ParticleModule {
     @radian
     @displayOrder(4)
     @tooltip('i18n:rotationOvertimeModule.z')
+    @visible(function (this: RotationOverLifetimeModule): boolean { return this.separateAxes; })
     public z = new CurveRange();
+
+    @type(CurveRange)
+    @range([-1, 1])
+    @radian
+    @displayOrder(4)
+    @tooltip('i18n:rotationOvertimeModule.z')
+    @visible(function (this: RotationOverLifetimeModule): boolean { return !this.separateAxes; })
+    public get angularVelocity () {
+        return this.z;
+    }
+
+    public set angularVelocity (val) {
+        this.z = val;
+    }
 
     public get name (): string {
         return 'RotationModule';
@@ -100,12 +131,13 @@ export class RotationOverLifetimeModule extends ParticleModule {
 
     @serializable
     private _separateAxes = false;
+    @serializable
+    private _y: CurveRange | null = null;
+    @serializable
+    private _x: CurveRange | null = null;
 
     public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
         const { count, angularVelocityZ, normalizedAliveTime, randomSeed } = particles;
-        if (DEBUG) {
-            assert(this.x.mode === this.y.mode && this.y.mode === this.z.mode, 'The curve of x, y, z must have same mode!');
-        }
         if (!this._separateAxes) {
             if (this.z.mode === CurveRange.Mode.Constant) {
                 const constant = this.z.constant;
@@ -129,6 +161,9 @@ export class RotationOverLifetimeModule extends ParticleModule {
                 }
             }
         } else {
+            if (DEBUG) {
+                assert(this.x.mode === this.y.mode && this.y.mode === this.z.mode, 'The curve of x, y, z must have same mode!');
+            }
             const { angularVelocityX, angularVelocityY } = particles;
             // eslint-disable-next-line no-lonely-if
             if (this.z.mode === CurveRange.Mode.Constant) {
@@ -168,6 +203,14 @@ export class RotationOverLifetimeModule extends ParticleModule {
                     angularVelocityZ[i] += lerp(zMin.evaluate(normalizedAliveTime[i]), zMax.evaluate(normalizedAliveTime[i]), pseudoRandom(randomSeed[i] + ROTATION_OVERTIME_RAND_OFFSET)) * zMultiplier;
                 }
             }
+        }
+    }
+
+    protected _onBeforeSerialize (props) {
+        if (!this.separateAxes) {
+            return ['separateAxes', 'z'];
+        } else {
+            return ['separateAxes', '_x', '_y', 'z'];
         }
     }
 }

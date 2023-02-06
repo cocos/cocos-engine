@@ -48,29 +48,59 @@ export class StartSizeModule extends ParticleModule {
     @type(CurveRange)
     @displayOrder(10)
     @tooltip('i18n:particle_system.startSizeX')
-    public startSizeX = new CurveRange();
+    @visible(function (this: StartSizeModule): boolean { return this.startSize3D; })
+    public startSizeX = new CurveRange(1);
+
+    @range([0, 1])
+    @type(CurveRange)
+    @displayOrder(10)
+    @tooltip('i18n:particle_system.startSizeX')
+    @visible(function (this: StartSizeModule): boolean { return !this.startSize3D; })
+    public get startSize () {
+        return this.startSizeX;
+    }
+
+    public set startSize (val) {
+        this.startSizeX = val;
+    }
 
     /**
       * @zh 粒子初始大小。
       */
     @type(CurveRange)
-    @serializable
     @range([0, 1])
     @displayOrder(10)
     @tooltip('i18n:particle_system.startSizeY')
     @visible(function (this: StartSizeModule): boolean { return this.startSize3D; })
-    public startSizeY = new CurveRange();
+    public get startSizeY () {
+        if (!this._startSizeY) {
+            this._startSizeY = new CurveRange(1);
+        }
+        return this._startSizeY;
+    }
+
+    public set startSizeY (val) {
+        this._startSizeY = val;
+    }
 
     /**
       * @zh 粒子初始大小。
       */
     @type(CurveRange)
-    @serializable
     @range([0, 1])
     @displayOrder(10)
     @tooltip('i18n:particle_system.startSizeZ')
     @visible(function (this: StartSizeModule): boolean { return this.startSize3D; })
-    public startSizeZ = new CurveRange();
+    public get startSizeZ () {
+        if (!this._startSizeZ) {
+            this._startSizeZ = new CurveRange(1);
+        }
+        return this._startSizeZ;
+    }
+
+    public set startSizeZ (val) {
+        this._startSizeZ = val;
+    }
 
     public get name (): string {
         return 'StartSizeModule';
@@ -84,10 +114,10 @@ export class StartSizeModule extends ParticleModule {
         return 1;
     }
 
-    constructor () {
-        super();
-        this.startSizeX.constant = 1;
-    }
+    @serializable
+    private _startSizeY: CurveRange | null = null;
+    @serializable
+    private _startSizeZ: CurveRange | null = null;
 
     public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
         const { newParticleIndexStart, newParticleIndexEnd, normalizedTimeInCycle } = particleUpdateContext;
@@ -157,6 +187,14 @@ export class StartSizeModule extends ParticleModule {
                     sizeY[i] = startSizeY[i] = sizeX[i] = startSizeX[i] = lerp(xMin.evaluate(normalizedTimeInCycle), xMax.evaluate(normalizedTimeInCycle), rand) * xMultiplier;
                 }
             }
+        }
+    }
+
+    protected _onBeforeSerialize (props) {
+        if (!this.startSize3D) {
+            return ['startSize3D', 'startSizeX'];
+        } else {
+            return ['startSize3D', 'startSizeX', 'startSizeY', 'startSizeZ'];
         }
     }
 }
