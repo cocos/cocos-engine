@@ -1046,7 +1046,7 @@ export class Game extends EventTarget {
         this.resumeByEngine();
     }
 
-    private _onClose() {
+    private _onClose () {
         this.emit(Game.EVENT_CLOSE);
         // TODO : Release Resources.
         systemInfo.exit();
