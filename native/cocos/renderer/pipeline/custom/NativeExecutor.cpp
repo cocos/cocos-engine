@@ -1054,7 +1054,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         pass.update();
 
         // get or create program per-instance descriptor set
-        auto& node = ctx.context.layoutGraphResources.at(vertID);
+        auto& node = ctx.context.layoutGraphResources.at(pass.getPhaseID());
         auto iter = node.programResources.find(std::string_view{shader.getName()});
         if (iter == node.programResources.end()) {
             // make program resource
