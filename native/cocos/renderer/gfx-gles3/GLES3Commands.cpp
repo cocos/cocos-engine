@@ -807,7 +807,7 @@ void cmdFuncGLES3CreateTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture)
 
     if (gpuTexture->samples > SampleCount::ONE) {
         GLint supportedSampleCountCount = 0;
-        GL_CHECK(glGetInternalformativ(GL_RENDERBUFFER, gpuTexture->glInternalFmt, GL_SAMPLES, 1, &supportedSampleCountCount));
+        GL_CHECK(glGetInternalformativ(GL_RENDERBUFFER, gpuTexture->glInternalFmt, GL_NUM_SAMPLE_COUNTS, 1, &supportedSampleCountCount));
         supportedSampleCounts.resize(supportedSampleCountCount);
         GL_CHECK(glGetInternalformativ(GL_RENDERBUFFER, gpuTexture->glInternalFmt, GL_SAMPLES, supportedSampleCountCount, supportedSampleCounts.data()));
 

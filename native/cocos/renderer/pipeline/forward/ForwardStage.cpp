@@ -244,7 +244,7 @@ void ForwardStage::render(scene::Camera *camera) {
 
         if (samplerCount != gfx::SampleCount::ONE) {
             colorAttachmentInfo.samples = samplerCount;
-            colorTexInfo.samples = gfx::SampleCount::MULTIPLE_BALANCE;
+            colorTexInfo.samples = samplerCount;
             data.msaaTex = builder.create(RenderPipeline::fgStrHandleMSAATexture, colorTexInfo);
             data.msaaTex = builder.write(data.msaaTex, colorAttachmentInfo);
             builder.writeToBlackboard(RenderPipeline::fgStrHandleMSAATexture, data.msaaTex);
