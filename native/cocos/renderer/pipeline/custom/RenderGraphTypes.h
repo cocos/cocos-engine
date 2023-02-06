@@ -472,6 +472,7 @@ struct RasterPass {
     gfx::Viewport viewport;
     ccstd::pmr::string versionName;
     uint64_t version{0};
+    bool showStatistics{false};
 };
 
 inline bool operator==(const RasterPass& lhs, const RasterPass& rhs) noexcept {

@@ -721,6 +721,12 @@ export class WebRasterPassBuilder extends WebSetter implements RasterPassBuilder
     setViewport (viewport: Viewport): void {
         this._pass.viewport.copy(viewport);
     }
+    get showStatistics (): boolean {
+        return this._pass.showStatistics;
+    }
+    set showStatistics (enable: boolean) {
+        this._pass.showStatistics = enable;
+    }
     private readonly _renderGraph: RenderGraph;
     private readonly _vertID: number;
     private readonly _layoutID: number;

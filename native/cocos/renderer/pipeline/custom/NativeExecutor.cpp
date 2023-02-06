@@ -82,6 +82,7 @@ struct RenderGraphVisitorContext {
     boost::container::pmr::memory_resource* scratch = nullptr;
     gfx::RenderPass* currentPass = nullptr;
     LayoutGraphData::vertex_descriptor currentPassLayoutID = LayoutGraphData::null_vertex();
+    Mat4 currentProjMatrix{};
 };
 
 void clear(gfx::RenderPassInfo& info) {
@@ -799,7 +800,8 @@ void updateCameraUniformBufferAndDescriptorSet(
     }
 }
 
-void submitUICommands(gfx::RenderPass* renderPass,
+void submitUICommands(
+    gfx::RenderPass* renderPass,
     uint32_t layoutPassID,
     scene::Camera* camera,
     gfx::CommandBuffer* cmdBuff) {
@@ -829,6 +831,58 @@ void submitUICommands(gfx::RenderPass* renderPass,
             cmdBuff->draw(inputAssembler);
         }
     }
+}
+
+void submitProfilerCommands(
+    RenderGraphVisitorContext& ctx,
+    const RasterPass& rasterPass) {
+    const auto* profiler = ctx.ppl->getProfiler();
+    if (!profiler || !profiler->isEnabled()) {
+        return;
+    }
+    auto* renderPass = ctx.currentPass;
+    auto* cmdBuff = ctx.cmdBuff;
+    const auto& submodel = profiler->getSubModels()[0];
+    auto* pass = submodel->getPass(0);
+    auto* ia = submodel->getInputAssembler();
+    auto* pso = pipeline::PipelineStateManager::getOrCreatePipelineState(
+        pass, submodel->getShader(0), ia, renderPass);
+
+    // current pass
+    RenderData user(ctx.scratch);
+    NativeSetter setter(ctx.lg, user);
+    setter.setMat4("cc_matProj", ctx.currentProjMatrix);
+
+    // profiler pass
+    gfx::Viewport profilerViewport{};
+    gfx::Rect profilerScissor{};
+    profilerViewport.width = profilerScissor.width = rasterPass.width;
+    profilerViewport.height = profilerScissor.height = rasterPass.height;
+    cmdBuff->setViewport(profilerViewport);
+    cmdBuff->setScissor(profilerScissor);
+
+    cmdBuff->bindPipelineState(pso);
+    {
+        auto& layout = get(LayoutGraphData::Layout, ctx.lg, pass->getPassID());
+        auto iter = layout.descriptorSets.find(UpdateFrequency::PER_PASS);
+        if (iter != layout.descriptorSets.end()) {
+            auto& set = iter->second;
+            auto& node = ctx.context.layoutGraphResources.at(pass->getPassID());
+            PmrFlatMap<NameLocalID, ResourceGraph::vertex_descriptor> resourceIndex(ctx.scratch);
+            initPerPassDescriptorSet(
+                ctx.resourceGraph,
+                ctx.device, ctx.cmdBuff,
+                *ctx.context.defaultResource, ctx.lg,
+                resourceIndex, set, user, node);
+        } else {
+            CC_EXPECTS(false);
+            // TODO(zhouzhenglong): set descriptor set to empty
+        }
+    }
+    cmdBuff->bindDescriptorSet(static_cast<uint32_t>(pipeline::SetIndex::MATERIAL), pass->getDescriptorSet());
+    cmdBuff->bindDescriptorSet(static_cast<uint32_t>(pipeline::SetIndex::LOCAL), submodel->getDescriptorSet());
+    cmdBuff->bindInputAssembler(ia);
+    cmdBuff->draw(ia);
 }
 
 struct RenderGraphVisitor : boost::dfs_visitor<> {
@@ -1002,6 +1056,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         CC_EXPECTS(camera);
         if (camera) { // update camera data
             updateCameraUniformBufferAndDescriptorSet(ctx, sceneID);
+            ctx.currentProjMatrix = camera->getMatProj();
         }
         const auto* scene = camera->getScene();
         const auto& queues = ctx.sceneQueues.at(scene);
@@ -1030,7 +1085,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         }
         if (any(sceneData.flags & SceneFlags::UI)) {
             submitUICommands(ctx.currentPass,
-                ctx.currentPassLayoutID, camera, ctx.cmdBuff);
+                             ctx.currentPassLayoutID, camera, ctx.cmdBuff);
         }
     }
     void begin(const Blit& blit, RenderGraph::vertex_descriptor vertID) const {
@@ -1039,6 +1094,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         CC_EXPECTS(blit.material->getPasses());
         if (blit.camera) {
             updateCameraUniformBufferAndDescriptorSet(ctx, vertID);
+            ctx.currentProjMatrix = blit.camera->getMatProj();
         }
         // get pass
         auto& pass = *blit.material->getPasses()->at(static_cast<size_t>(blit.passID));
@@ -1140,9 +1196,10 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
     void begin(const gfx::Viewport& pass, RenderGraph::vertex_descriptor vertID) const {
     }
     void end(const RasterPass& pass) const {
-        std::ignore = pass;
-        auto* cmdBuff = ctx.cmdBuff;
-        cmdBuff->endRenderPass();
+        if (pass.showStatistics) {
+            submitProfilerCommands(ctx, pass);
+        }
+        ctx.cmdBuff->endRenderPass();
         ctx.currentPass = nullptr;
         ctx.currentPassLayoutID = LayoutGraphData::null_vertex();
     }

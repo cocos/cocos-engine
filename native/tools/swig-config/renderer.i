@@ -98,6 +98,7 @@ using namespace cc::render;
 %attribute(cc::render::PipelineRuntime, cc::pipeline::GeometryRenderer*, geometryRenderer, getGeometryRenderer);
 %attribute(cc::render::PipelineRuntime, float, shadingScale, getShadingScale, setShadingScale);
 %attribute(cc::render::RenderNode, ccstd::string, name, getName, setName);
+%attribute(cc::render::RasterPassBuilder, bool, showStatistics, getShowStatistics, setShowStatistics);
 %attribute(cc::render::SceneVisitor, cc::pipeline::PipelineSceneData*, pipelineSceneData, getPipelineSceneData);
 %attribute(cc::render::SceneTask, cc::render::TaskType, taskType, getTaskType);
 
