@@ -22,15 +22,15 @@
  THE SOFTWARE.
 */
 
-import { ccclass, help, executeInEditMode, menu, tooltip, displayOrder, type, serializable, range } from 'cc.decorator';
+import { ccclass, help, executeInEditMode, menu, tooltip, displayOrder, type, serializable, range, visible, override } from 'cc.decorator';
 import { Material, Texture2D } from '../asset/assets';
-import { Component } from '../scene-graph';
 import { Vec3, Vec2, Vec4, cclegacy } from '../core';
 import { LineModel } from './models/line-model';
 import { builtinResMgr } from '../asset/asset-manager';
 import CurveRange from './animator/curve-range';
 import GradientRange from './animator/gradient-range';
 import { IMaterialInstanceInfo, MaterialInstance } from '../render-scene/core/material-instance';
+import { ModelRenderer } from '../misc';
 
 const _matInsInfo: IMaterialInstanceInfo = {
     parent: null!,
@@ -45,32 +45,47 @@ const define = { CC_USE_WORLD_SPACE: false };
 @help('i18n:cc.Line')
 @menu('Effects/Line')
 @executeInEditMode
-export class Line extends Component {
+export class Line extends ModelRenderer {
     @serializable
-    private _material: Material | null = null;
-    private _materialInstance: MaterialInstance | null = null;
+    private _lineMaterial: Material | null = null;
+    private _lineMatIns: MaterialInstance | null = null;
 
     @type(Material)
     @displayOrder(1)
     @tooltip('i18n:line.material')
-    get material () {
-        return this._material;
+    get lineMaterial () {
+        return this._lineMaterial;
     }
 
-    set material (val) {
-        this._material = val;
-        if (this._material) {
+    set lineMaterial (val) {
+        super.material = val;
+        this._lineMaterial = val;
+        if (this._lineMaterial) {
             define[CC_USE_WORLD_SPACE] = this.worldSpace;
-            _matInsInfo.parent = this._material;
+            _matInsInfo.parent = this._lineMaterial;
             _matInsInfo.subModelIdx = 0;
-            this._materialInstance = new MaterialInstance(_matInsInfo);
+            this._lineMatIns = new MaterialInstance(_matInsInfo);
+            this.setMaterialInstance(this._lineMatIns, 0);
             _matInsInfo.parent = null!;
             _matInsInfo.subModelIdx = 0;
-            this._materialInstance.recompileShaders(define);
+            this._lineMatIns.recompileShaders(define);
         }
-        if (this._model) {
-            this._model.updateMaterial(this._materialInstance!);
+        if (this._models[0]) {
+            const lineModel = this._models[0] as LineModel;
+            lineModel.updateMaterial(this._lineMatIns!);
         }
+    }
+
+    @override
+    @visible(false)
+    @type(Material)
+    @serializable
+    get sharedMaterials () {
+        return super.sharedMaterials;
+    }
+
+    set sharedMaterials (val) {
+        super.sharedMaterials = val;
     }
 
     @serializable
@@ -87,11 +102,11 @@ export class Line extends Component {
 
     set worldSpace (val) {
         this._worldSpace = val;
-        if (this._materialInstance) {
+        if (this._lineMatIns) {
             define[CC_USE_WORLD_SPACE] = this.worldSpace;
-            this._materialInstance.recompileShaders(define);
-            if (this._model) {
-                this._model.setSubModelMaterial(0, this._materialInstance);
+            this._lineMatIns.recompileShaders(define);
+            if (this._models[0]) {
+                this._models[0].setSubModelMaterial(0, this._lineMatIns);
             }
         }
     }
@@ -112,8 +127,9 @@ export class Line extends Component {
 
     set positions (val) {
         this._positions = val;
-        if (this._model) {
-            this._model.addLineVertexData(this._positions, this.width, this.color);
+        if (this._models[0]) {
+            const lineModel = this._models[0] as LineModel;
+            lineModel.addLineVertexData(this._positions, this.width, this.color);
         }
     }
 
@@ -136,67 +152,79 @@ export class Line extends Component {
     @tooltip('i18n:line.color')
     public color = new GradientRange();
 
-    /**
-     * @ignore
-     */
-    private _model: LineModel | null = null;
-
     constructor () {
         super();
     }
 
     public onLoad () {
-        const model = this._model = cclegacy.director.root.createModel(LineModel);
-        model.node = model.transform = this.node;
-        if (this._material === null) {
-            this._material = new Material();
-            this._material.copy(builtinResMgr.get<Material>('default-trail-material'));
+        const model = cclegacy.director.root.createModel(LineModel);
+        if (this._models.length === 0) {
+            this._models.push(model);
+        } else {
+            this._models[0] = model;
         }
-        if (this._material) {
+        model.node = model.transform = this.node;
+        if (this._lineMaterial === null) {
+            this._lineMaterial = new Material();
+            super.material = this._lineMaterial;
+            this._lineMaterial.copy(builtinResMgr.get<Material>('default-trail-material'));
+        }
+        if (this._lineMaterial) {
             define[CC_USE_WORLD_SPACE] = this.worldSpace;
-            _matInsInfo.parent = this._material;
+            _matInsInfo.parent = this._lineMaterial;
             _matInsInfo.subModelIdx = 0;
-            this._materialInstance = new MaterialInstance(_matInsInfo);
+            this._lineMatIns = new MaterialInstance(_matInsInfo);
+            this.setMaterialInstance(this._lineMatIns, 0);
             _matInsInfo.parent = null!;
             _matInsInfo.subModelIdx = 0;
-            this._materialInstance.recompileShaders(define);
+            this._lineMatIns.recompileShaders(define);
         }
-        model.updateMaterial(this._materialInstance!);
+        model.updateMaterial(this._lineMatIns!);
         model.setCapacity(100);
+        console.log('model loaded');
     }
 
     public onEnable () {
-        if (!this._model) {
+        super.onEnable();
+        if (this._models.length === 0 || !this._models[0]) {
             return;
         }
         this._attachToScene();
-        this._model.addLineVertexData(this._positions, this.width, this.color);
+        const lineModel = this._models[0] as LineModel;
+        lineModel.addLineVertexData(this._positions, this.width, this.color);
     }
 
     public onDisable () {
-        if (this._model) {
+        if (this._models.length > 0 && this._models[0]) {
             this._detachFromScene();
         }
     }
 
     protected _attachToScene () {
-        if (this._model && this.node && this.node.scene) {
-            if (this._model.scene) {
+        super._attachToScene();
+        if (this._models.length > 0 && this._models[0] && this.node && this.node.scene) {
+            const lineModel = this._models[0];
+            if (lineModel.scene) {
                 this._detachFromScene();
             }
-            this._getRenderScene().addModel(this._model);
+            this._getRenderScene().addModel(lineModel);
         }
     }
 
     protected _detachFromScene () {
-        if (this._model && this._model.scene) {
-            this._model.scene.removeModel(this._model);
+        super._detachFromScene();
+        if (this._models.length > 0 && this._models[0]) {
+            const lineModel = this._models[0];
+            if (lineModel.scene) {
+                lineModel.scene.removeModel(lineModel);
+            }
         }
     }
 
     protected update (dt: number): void {
-        if (this._model) {
-            this._model.addLineVertexData(this._positions, this.width, this.color);
+        if (this._models.length > 0 && this._models[0]) {
+            const lineModel = this._models[0] as LineModel;
+            lineModel.addLineVertexData(this._positions, this.width, this.color);
         }
     }
 }
