@@ -475,11 +475,11 @@ export class WebDescriptorHierarchy {
             this.setUniform(globalDB, 'cc_time', Type.FLOAT4, 1);
             this.setUniform(globalDB, 'cc_screenSize', Type.FLOAT4, 1);
             this.setUniform(globalDB, 'cc_nativeSize', Type.FLOAT4, 1);
-            this.setUniform(globalDB, 'cc_debug_view_mode', Type.FLOAT, 4);
-            this.setUniform(globalDB, 'cc_debug_view_composite_pack_1', Type.FLOAT, 4);
-            this.setUniform(globalDB, 'cc_debug_view_composite_pack_2', Type.FLOAT, 4);
-            this.setUniform(globalDB, 'cc_debug_view_composite_pack_3', Type.FLOAT, 4);
-            this.setUniform(globalDB, 'cc_debug_view_composite_pack_4', Type.FLOAT, 4);
+            this.setUniform(globalDB, 'cc_debug_view_mode', Type.FLOAT4, 1);
+            this.setUniform(globalDB, 'cc_debug_view_composite_pack_1', Type.FLOAT4, 1);
+            this.setUniform(globalDB, 'cc_debug_view_composite_pack_2', Type.FLOAT4, 1);
+            this.setUniform(globalDB, 'cc_debug_view_composite_pack_3', Type.FLOAT4, 1);
+            this.setUniform(globalDB, 'cc_debug_view_composite_pack_4', Type.FLOAT4, 1);
             this.setDescriptor(globalUniformTarget, 'CCGlobal', Type.UNKNOWN);
         }
 
