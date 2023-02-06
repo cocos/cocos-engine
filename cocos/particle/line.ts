@@ -181,7 +181,6 @@ export class Line extends ModelRenderer {
         }
         model.updateMaterial(this._lineMatIns!);
         model.setCapacity(100);
-        console.log('model loaded');
     }
 
     public onEnable () {
