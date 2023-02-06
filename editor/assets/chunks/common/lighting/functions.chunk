@@ -1,4 +1,4 @@
-#include <common/lighting/attenuation1>
+#include <common/lighting/attenuation>
 
 // helper functions for lighting model-functions
 
