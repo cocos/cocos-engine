@@ -199,11 +199,11 @@ export class UBOGlobal {
         new Uniform('cc_nativeSize', Type.FLOAT4, 1),
         new Uniform('cc_probeInfo', Type.FLOAT4, 1),
 
-        new Uniform('cc_debug_view_mode', Type.FLOAT, 4),
-        new Uniform('cc_debug_view_composite_pack_1', Type.FLOAT, 4),
-        new Uniform('cc_debug_view_composite_pack_2', Type.FLOAT, 4),
-        new Uniform('cc_debug_view_composite_pack_3', Type.FLOAT, 4),
-        new Uniform('cc_debug_view_composite_pack_4', Type.FLOAT, 4),
+        new Uniform('cc_debug_view_mode', Type.FLOAT4, 1),
+        new Uniform('cc_debug_view_composite_pack_1', Type.FLOAT4, 1),
+        new Uniform('cc_debug_view_composite_pack_2', Type.FLOAT4, 1),
+        new Uniform('cc_debug_view_composite_pack_3', Type.FLOAT4, 1),
+        new Uniform('cc_debug_view_composite_pack_4', Type.FLOAT4, 1),
     ], 1);
 }
 globalDescriptorSetLayout.layouts[UBOGlobal.NAME] = UBOGlobal.LAYOUT;

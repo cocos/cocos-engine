@@ -219,11 +219,22 @@ export class debugViewRuntimeControl extends Component {
         }
     }
 
+    isTextMatched(textUI, textDescription) : boolean {
+        let tempText = new String(textUI);
+        const findIndex = tempText.search('>');
+        if (findIndex === -1) {
+            return textUI === textDescription;
+        } else {
+            tempText = tempText.substr(findIndex + 1);
+            tempText = tempText.substr(0, tempText.search('<'));
+            return tempText === textDescription;
+        }
+    }
     toggleSingleMode(toggle: Toggle) {
         const debugView = director.root!.debugView;
         const textComponent = toggle.getComponentInChildren(RichText);
         for (let i = 0; i < this.strSingle.length; i++) {
-            if (textComponent.string === this.strSingle[i]) {
+            if (this.isTextMatched(textComponent.string, this.strSingle[i])) {
                 debugView.singleMode = i;
             }
         }
@@ -232,7 +243,7 @@ export class debugViewRuntimeControl extends Component {
         const debugView = director.root!.debugView;
         const textComponent = toggle.getComponentInChildren(RichText);
         for (let i = 0; i < this.strComposite.length; i++) {
-            if (textComponent.string === this.strComposite[i]) {
+            if (this.isTextMatched(textComponent.string, this.strComposite[i])) {
                 debugView.enableCompositeMode(i, toggle.isChecked);
             }
         }
