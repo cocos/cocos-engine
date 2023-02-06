@@ -77,9 +77,6 @@ export function decideProfilerCamera (cameras: Camera[]) {
 }
 
 export function renderProfiler (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer, profiler: Model | null, camera: Camera) {
-    if (isEnableEffect()) {
-        return;
-    }
     if (!profiler || !profiler.enabled) {
         return;
     }

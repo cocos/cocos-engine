@@ -25,7 +25,8 @@
 import { EDITOR } from 'internal:constants';
 import { Camera, CameraUsage } from '../../render-scene/scene';
 import { Pipeline, PipelineBuilder } from './pipeline';
-import { buildForwardPass, buildGBufferPass, buildLightingPass, buildPostprocessPass, buildReflectionProbePasss, buildUIAndProfilerPass } from './define';
+import { buildForwardPass, buildGBufferPass, buildLightingPass, buildPostprocessPass, buildProfilerPass,
+    buildReflectionProbePasss, buildUIAndProfilerPass } from './define';
 import { isUICamera } from './utils';
 
 export class ForwardPipelineBuilder implements PipelineBuilder {
@@ -64,6 +65,8 @@ export class DeferredPipelineBuilder implements PipelineBuilder {
                 const lightInfo = buildLightingPass(camera, ppl, gBufferInfo);
                 // Postprocess
                 buildPostprocessPass(camera, ppl, lightInfo.rtName);
+                // Profiler
+                buildProfilerPass(camera, ppl);
                 continue;
             }
             // render ui and profiler
