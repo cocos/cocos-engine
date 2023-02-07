@@ -81,7 +81,7 @@ public:
     virtual void onDestroy();
 
     /**
-     * @brief Exit loop.
+     * @brief Exit platform.
      */
     void exit() override;
 

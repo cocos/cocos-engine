@@ -69,7 +69,7 @@ public:
     virtual void pollEvent() = 0;
 
     /**
-     * @brief Exit loop.
+     * @brief Exit platform.
      */
     virtual void exit() = 0;
 
