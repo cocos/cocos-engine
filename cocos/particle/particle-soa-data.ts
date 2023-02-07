@@ -25,14 +25,7 @@
 
 import { assert, Color } from '../core';
 
-export enum SOADataChannel {
-    X,
-    Y,
-    Z,
-}
-
 export type ParticleHandle = number;
-
 export const INVALID_HANDLE = -1;
 
 export class TrailSegment {
@@ -265,17 +258,6 @@ export class ParticleSOAData {
         return this._color;
     }
 
-    getPositionChannel (chanel: SOADataChannel) {
-        switch (chanel) {
-        case SOADataChannel.X:
-            return this._positionX;
-        case SOADataChannel.Y:
-            return this._positionY;
-        default:
-            return this._positionZ;
-        }
-    }
-
     getPositionAt (out: Vec3, handle: ParticleHandle) {
         out.x = this._positionX[handle];
         out.y = this._positionY[handle];
@@ -352,76 +334,10 @@ export class ParticleSOAData {
         this._angularVelocityZ[handle] += val.z;
     }
 
-    getVelocityChannel (chanel: SOADataChannel) {
-        switch (chanel) {
-        case SOADataChannel.X:
-            return this._velocityX;
-        case SOADataChannel.Y:
-            return this._velocityY;
-        default:
-            return this._velocityZ;
-        }
-    }
-
-    getAnimatedVelocityChannel (chanel: SOADataChannel) {
-        switch (chanel) {
-        case SOADataChannel.X:
-            return this._animatedVelocityX;
-        case SOADataChannel.Y:
-            return this._animatedVelocityY;
-        default:
-            return this._animatedVelocityZ;
-        }
-    }
-
-    getRotationChannel (chanel: SOADataChannel) {
-        switch (chanel) {
-        case SOADataChannel.X:
-            return this._rotationX;
-        case SOADataChannel.Y:
-            return this._rotationY;
-        default:
-            return this._rotationZ;
-        }
-    }
-
     addRotationAt (val: Vec3, handle: ParticleHandle) {
         this._rotationX[handle] += val.x;
         this._rotationY[handle] += val.y;
         this._rotationZ[handle] += val.z;
-    }
-
-    getAxisOfRotationChannel (chanel: SOADataChannel) {
-        switch (chanel) {
-        case SOADataChannel.X:
-            return this._axisOfRotationX;
-        case SOADataChannel.Y:
-            return this._axisOfRotationY;
-        default:
-            return this._axisOfRotationZ;
-        }
-    }
-
-    getAngularVelocityChannel (chanel: SOADataChannel) {
-        switch (chanel) {
-        case SOADataChannel.X:
-            return this._angularVelocityX;
-        case SOADataChannel.Y:
-            return this._angularVelocityY;
-        default:
-            return this._angularVelocityZ;
-        }
-    }
-
-    getSizeChannel (chanel: SOADataChannel) {
-        switch (chanel) {
-        case SOADataChannel.X:
-            return this._sizeX;
-        case SOADataChannel.Y:
-            return this._sizeY;
-        default:
-            return this._sizeZ;
-        }
     }
 
     getStartSizeAt (out: Vec3, handle: ParticleHandle) {
@@ -435,17 +351,6 @@ export class ParticleSOAData {
         this._sizeX[handle] = val.x;
         this._sizeY[handle] = val.y;
         this._sizeZ[handle] = val.z;
-    }
-
-    getStartSizeChannel (chanel: SOADataChannel) {
-        switch (chanel) {
-        case SOADataChannel.X:
-            return this._startSizeX;
-        case SOADataChannel.Y:
-            return this._startSizeY;
-        default:
-            return this._startSizeZ;
-        }
     }
 
     getStartColorAt (out: Color, handle: ParticleHandle) {
@@ -636,7 +541,7 @@ export class ParticleSOAData {
         this._startColor[handle] = Color.toUint32(Color.WHITE);
         this._color[handle] = Color.toUint32(Color.WHITE);
         this._randomSeed[handle] = 0;
-        this._invStartLifeTime[handle] = 0;
+        this._invStartLifeTime[handle] = 1;
         this._normalizedAliveTime[handle] = 0;
         this._frameIndex[handle] = 0;
         this._startTrailSegmentIndices[handle] = 0;

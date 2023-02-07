@@ -54,6 +54,8 @@ import { ParticleModule, ParticleUpdateStage } from './particle-module';
 import { particleSystemManager } from './particle-system-manager';
 import { EmittingModule } from './modules/emitting';
 import { CompositionModule } from './modules/composition';
+import { BurstEmissionModule } from './modules/burst-emission';
+import { EmissionOverDistanceModule, GravityModule, SpeedModifierModule, StartColorModule, StartLifeTimeModule, StartRotationModule, StartSizeModule, StartSpeedModule } from './modules';
 
 enum PlayingState {
     STOPPED,
@@ -172,15 +174,70 @@ export class ParticleSystem extends Component {
         this._cullingMode = value;
     }
 
-    @type(Vec3)
-    @displayOrder(17)
-    @tooltip('i18n:particle_system.aabbHalfX')
-    get boundingBoxHalfExtents (): Readonly<Vec3> {
-        return this._boundingBoxHalfExtents;
+    /**
+     * @deprecated since v3.8, please use [[StartColorModule.startColor]] instead.
+     */
+    get startColor () {
+        return this.getOrAddModule(StartColorModule).startColor;
     }
 
-    set boundingBoxHalfExtents (val) {
-        this._boundingBoxHalfExtents.set(val);
+    set startColor (val) {
+        this.getOrAddModule(StartColorModule).startColor = val;
+    }
+
+    /**
+     * @deprecated since v3.8, please use [[StartSizeModule.startSize3D]] instead.
+     */
+    get startSize3D () {
+        return this.getOrAddModule(StartSizeModule).startSize3D;
+    }
+
+    set startSize3D (val) {
+        this.getOrAddModule(StartSizeModule).startSize3D = val;
+    }
+
+    /**
+     * @deprecated since v3.8, please use [[StartSizeModule.startSizeX]] instead.
+     */
+    get startSizeX () {
+        return this.getOrAddModule(StartSizeModule).startSizeX;
+    }
+
+    set startSizeX (val) {
+        this.getOrAddModule(StartSizeModule).startSizeX = val;
+    }
+
+    /**
+     * @deprecated since v3.8, please use [[StartSizeModule.startSizeY]] instead.
+     */
+    get startSizeY () {
+        return this.getOrAddModule(StartSizeModule).startSizeY;
+    }
+
+    set startSizeY (val) {
+        this.getOrAddModule(StartSizeModule).startSizeY = val;
+    }
+
+    /**
+     * @deprecated since v3.8, please use [[StartSizeModule.startSizeZ]] instead.
+     */
+    get startSizeZ () {
+        return this.getOrAddModule(StartSizeModule).startSizeZ;
+    }
+
+    set startSizeZ (val) {
+        this.getOrAddModule(StartSizeModule).startSizeZ = val;
+    }
+
+    /**
+     * @deprecated since v3.8, please use [[StartSpeedModule.startSpeed]] instead.
+     */
+    get startSpeed () {
+        return this.getOrAddModule(StartSpeedModule).startSpeed;
+    }
+
+    set startSpeed (val) {
+        this.getOrAddModule(StartSpeedModule).startSpeed = val;
     }
 
     /**
@@ -193,6 +250,7 @@ export class ParticleSystem extends Component {
 
     /**
      * @zh 粒子发射器模块。
+     * @deprecated since v3.8, please use [[ParticleSystem.getModule]] instead.
      */
     public get shapeModule () {
         return this.getOrAddModule(ShapeModule);
@@ -200,6 +258,7 @@ export class ParticleSystem extends Component {
 
     /**
      * @zh 粒子大小模块。
+     * @deprecated since v3.8, please use [[ParticleSystem.getModule]] instead.
      */
     public get sizeOverLifetimeModule () {
         return this.getOrAddModule(SizeOverLifetimeModule);
@@ -207,6 +266,7 @@ export class ParticleSystem extends Component {
 
     /**
      * @zh 粒子速度模块。
+     * @deprecated since v3.8, please use [[ParticleSystem.getModule]] instead.
      */
     public get velocityOverLifetimeModule () {
         return this.getOrAddModule(VelocityOverLifetimeModule);
@@ -214,13 +274,15 @@ export class ParticleSystem extends Component {
 
     /**
      * @zh 粒子加速度模块。
+     * @deprecated since v3.8, please use [[ParticleSystem.getModule]] instead.
      */
     public get forceOverLifetimeModule () {
         return this.getOrAddModule(ForceOverLifetimeModule);
     }
 
     /**
-     * @zh 粒子限制速度模块（只支持 CPU 粒子）。
+     * @zh 粒子限制速度模块（只支持 CPU 粒子）
+     * @deprecated since v3.8, please use [[ParticleSystem.getModule]] instead.。
      */
     public get limitVelocityOverLifetimeModule () {
         return this.getOrAddModule(LimitVelocityOverLifetimeModule);
@@ -228,6 +290,7 @@ export class ParticleSystem extends Component {
 
     /**
      * @zh 粒子旋转模块。
+     * @deprecated since v3.8, please use [[ParticleSystem.getModule]] instead.
      */
     public get rotationOverLifetimeModule () {
         return this.getOrAddModule(RotationOverLifetimeModule);
@@ -235,17 +298,22 @@ export class ParticleSystem extends Component {
 
     /**
      * @zh 贴图动画模块。
+     * @deprecated since v3.8, please use [[ParticleSystem.getModule]] instead.
      */
     public get textureAnimationModule () {
         return this.getOrAddModule(TextureAnimationModule);
     }
 
+    /**
+     * @deprecated since v3.8, please use [[ParticleSystem.getModule]] instead.
+     */
     public get noiseModule () {
         return this.getOrAddModule(NoiseModule);
     }
 
     /**
      * @zh 粒子轨迹模块。
+     * @deprecated since v3.8, please use [[ParticleSystem.getModule]] instead.
      */
     public get trailModule () {
         return this.getOrAddModule(TrailModule);
@@ -290,9 +358,7 @@ export class ParticleSystem extends Component {
     @serializable
     private _cullingMode = CullingMode.ALWAYS_SIMULATE;
 
-    @serializable
     private _boundingBoxHalfExtents = new Vec3();
-
     private _state = PlayingState.STOPPED;
     private _isEmitting = false;
     private _isSimulating = true;
@@ -434,6 +500,27 @@ export class ParticleSystem extends Component {
         if (renderer) {
             renderer.setParticleSystem(this);
         }
+        this.getOrAddModule(BurstEmissionModule);
+        this.getOrAddModule(ColorOverLifetimeModule);
+        this.getOrAddModule(CompositionModule);
+        this.getOrAddModule(EmissionOverDistanceModule);
+        this.getOrAddModule(EmissionOverTimeModule);
+        this.getOrAddModule(EmittingModule);
+        this.getOrAddModule(ForceOverLifetimeModule);
+        this.getOrAddModule(GravityModule);
+        this.getOrAddModule(LimitVelocityOverLifetimeModule);
+        this.getOrAddModule(NoiseModule);
+        this.getOrAddModule(RotationOverLifetimeModule);
+        this.getOrAddModule(ShapeModule);
+        this.getOrAddModule(SizeOverLifetimeModule);
+        this.getOrAddModule(SpeedModifierModule);
+        this.getOrAddModule(StartColorModule);
+        this.getOrAddModule(StartLifeTimeModule);
+        this.getOrAddModule(StartRotationModule);
+        this.getOrAddModule(StartSizeModule);
+        this.getOrAddModule(StartSpeedModule);
+        this.getOrAddModule(TextureAnimationModule);
+        this.getOrAddModule(VelocityOverLifetimeModule);
     }
 
     protected onEnable () {

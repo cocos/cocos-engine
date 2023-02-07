@@ -12,7 +12,6 @@ test('particle system capacity test', function () {
     const particle = temp0.addComponent(ParticleSystem) as ParticleSystem;
 
     particle.capacity = 0;
-    particle.renderer.useGPU = false;
 
     legacyCC.game.step();
     

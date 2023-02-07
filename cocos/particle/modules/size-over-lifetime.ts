@@ -68,7 +68,7 @@ export class SizeOverLifetimeModule extends ParticleModule {
     @displayOrder(3)
     @tooltip('i18n:sizeOvertimeModule.x')
     @visible(function (this: SizeOverLifetimeModule): boolean { return this.separateAxes; })
-    public x = new CurveRange();
+    public x = new CurveRange(1);
 
     /**
      * @zh 定义一条曲线来决定粒子在其生命周期中 Y 轴方向上的大小变化。
@@ -80,7 +80,7 @@ export class SizeOverLifetimeModule extends ParticleModule {
     @visible(function (this: SizeOverLifetimeModule): boolean { return this.separateAxes; })
     public get y () {
         if (!this._y) {
-            this._y = new CurveRange();
+            this._y = new CurveRange(1);
         }
         return this._y;
     }
@@ -99,7 +99,7 @@ export class SizeOverLifetimeModule extends ParticleModule {
     @visible(function (this: SizeOverLifetimeModule): boolean { return this.separateAxes; })
     public get z () {
         if (!this._z) {
-            this._z = new CurveRange();
+            this._z = new CurveRange(1);
         }
         return this._z;
     }

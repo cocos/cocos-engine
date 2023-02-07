@@ -25,8 +25,8 @@
 
 import { ParticleUpdateContext } from './particle-update-context';
 import { ParticleSOAData } from './particle-soa-data';
-import { ccclass, serializable, type } from '../core/data/decorators';
-import { CCBoolean } from '../core';
+import { ccclass, displayName, serializable, type } from '../core/data/decorators';
+import { CCBoolean, CCString } from '../core';
 
 export enum ParticleUpdateStage {
     EMITTER_UPDATE,
@@ -46,6 +46,12 @@ export abstract class ParticleModule {
 
     public set enable (val) {
         this._enable = val;
+    }
+
+    @type(CCString)
+    @displayName('Name')
+    private get inspectorName () {
+        return this.name;
     }
 
     @serializable

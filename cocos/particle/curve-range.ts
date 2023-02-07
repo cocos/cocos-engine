@@ -161,13 +161,13 @@ export class CurveRange  {
     protected _onBeforeSerialize (props) {
         switch (this._mode) {
         case Mode.Constant:
-            return ['_mode', 'constant'];
+            return ['mode', 'constant'];
         case Mode.Curve:
-            return ['_mode', '_spline', 'constant'];
+            return ['mode', 'spline', 'multiplier'];
         case Mode.TwoCurves:
-            return ['_mode', '_splineMin', '_spline', 'constant'];
+            return ['mode', 'splineMin', 'splineMax', 'multiplier'];
         case Mode.TwoConstants:
-            return ['_mode', 'constantMin', 'constant'];
+            return ['mode', 'constantMin', 'constantMax'];
         default:
             return [];
         }
@@ -175,11 +175,14 @@ export class CurveRange  {
 }
 
 CCClass.fastDefine('cc.CurveRange', CurveRange, {
-    constantMin: 0,
+    multiplier: 0,
     constant: 0,
-    _mode: Mode.Constant,
-    _splineMin: null,
-    _spline: null,
+    constantMin: 0,
+    constantMax: 0,
+    mode: Mode.Constant,
+    spline: null,
+    splineMin: null,
+    splineMax: null,
 });
 
 setClassAttr(CurveRange, 'multiplier', 'visible', true);
