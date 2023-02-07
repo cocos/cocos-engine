@@ -44,7 +44,8 @@ PersistentRenderPassAndFramebuffer::PersistentRenderPassAndFramebuffer(Persisten
   clearDepth(rhs.clearDepth),
   clearStencil(rhs.clearStencil),
   refCount(rhs.refCount),
-  hash(rhs.hash) {}
+  hash(rhs.hash),
+  version(rhs.version) {}
 
 PersistentRenderPassAndFramebuffer::PersistentRenderPassAndFramebuffer(PersistentRenderPassAndFramebuffer const& rhs, const allocator_type& alloc)
 : renderPass(rhs.renderPass),
@@ -53,7 +54,8 @@ PersistentRenderPassAndFramebuffer::PersistentRenderPassAndFramebuffer(Persisten
   clearDepth(rhs.clearDepth),
   clearStencil(rhs.clearStencil),
   refCount(rhs.refCount),
-  hash(rhs.hash) {}
+  hash(rhs.hash),
+  version(rhs.version) {}
 
 RenderInstancingQueue::RenderInstancingQueue(const allocator_type& alloc) noexcept
 : batches(alloc),

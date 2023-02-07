@@ -253,6 +253,7 @@ struct PersistentRenderPassAndFramebuffer {
     uint8_t clearStencil{0};
     int32_t refCount{1};
     uint32_t hash{0};
+    uint64_t version{0};
 };
 
 struct RenderInstancingQueue {

@@ -958,7 +958,9 @@ void NativeRasterPassBuilder::setSampler(const ccstd::string &name, gfx::Sampler
 }
 
 void NativeRasterPassBuilder::setVersion(const ccstd::string &name, uint64_t version) {
-    // noop
+    auto &pass = get(RasterTag{}, passID, *renderGraph);
+    pass.versionName = name;
+    pass.version = version;
 }
 
 // NativeComputeQueue

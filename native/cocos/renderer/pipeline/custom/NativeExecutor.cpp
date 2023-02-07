@@ -273,6 +273,7 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
     fbInfo.renderPass = data.renderPass;
     data.framebuffer = ctx.device->createFramebuffer(fbInfo);
     data.hash = gfx::Framebuffer::computeHash(fbInfo);
+    data.version = pass.version;
 
     return data;
 }
@@ -289,16 +290,32 @@ PersistentRenderPassAndFramebuffer& fetchOrCreateFramebuffer(
         return iter->second;
     }
 
-    gfx::FramebufferInfo fbInfo{};
-    fbInfo.renderPass = iter->second.renderPass;
-    fbInfo.colorTextures = iter->second.framebuffer->getColorTextures();
-    fbInfo.depthStencilTexture = iter->second.framebuffer->getDepthStencilTexture();
-    auto hash = gfx::Framebuffer::computeHash(fbInfo);
-    if (iter->second.hash != hash) {
-        iter->second.framebuffer = ctx.device->createFramebuffer(fbInfo);
-        iter->second.hash = hash;
+    auto& persistent = iter->second;
+    auto makeFramebufferInfo = [&]() {
+        gfx::FramebufferInfo fbInfo{};
+        fbInfo.renderPass = persistent.renderPass;
+        fbInfo.colorTextures = persistent.framebuffer->getColorTextures();
+        fbInfo.depthStencilTexture = persistent.framebuffer->getDepthStencilTexture();
+        return fbInfo;
+    };
+
+    if (persistent.version != pass.version) {
+        const auto fbInfo = makeFramebufferInfo();
+        const auto hash = gfx::Framebuffer::computeHash(fbInfo);
+        persistent.version = pass.version;
+        persistent.framebuffer = ctx.device->createFramebuffer(fbInfo);
+        persistent.hash = hash;
+        return persistent;
     }
-    return iter->second;
+
+    const auto fbInfo = makeFramebufferInfo();
+    const auto hash = gfx::Framebuffer::computeHash(fbInfo);
+    if (persistent.hash != hash) {
+        CC_EXPECTS(persistent.version == pass.version);
+        persistent.framebuffer = ctx.device->createFramebuffer(fbInfo);
+        persistent.hash = hash;
+    }
+    return persistent;
 }
 
 gfx::BufferBarrierInfo getBufferBarrier(const render::Barrier& barrier) {
