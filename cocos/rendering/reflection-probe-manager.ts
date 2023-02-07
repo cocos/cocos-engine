@@ -440,26 +440,24 @@ export class ReflectionProbeManager {
      * @param model select the probe for this model
      */
     private _getNearestProbe (model: Model): ReflectionProbe | null {
-        if (this._probes.length === 0) return null;
-        if (!model.node || !model.worldBounds) return null;
-        let distance = 0;
-        let idx = -1;
-        let find = false;
-        for (let i = 0; i < this._probes.length; i++) {
-            if (this._probes[i].probeType !== ProbeType.CUBE || !this._probes[i].validate() || !geometry.intersect.aabbWithAABB(model.worldBounds, this._probes[i].boundingBox!)) {
+        if (!model.node || !model.worldBounds || this._probes.length === 0) return null;
+
+        let nearestProbe: ReflectionProbe | null = null;
+        let minDistance = Infinity;
+
+        for (const probe of this._probes) {
+            if (probe.probeType !== ProbeType.CUBE || !probe.validate() || !geometry.intersect.aabbWithAABB(model.worldBounds, probe.boundingBox!)) {
                 continue;
-            } else if (!find) {
-                find = true;
-                distance = Vec3.distance(model.node.worldPosition, this._probes[i].node.worldPosition);
-                idx = i;
             }
-            const d = Vec3.distance(model.node.worldPosition, this._probes[i].node.worldPosition);
-            if (d < distance) {
-                distance = d;
-                idx = i;
+
+            const distance = Vec3.distance(model.node.worldPosition, probe.node.worldPosition);
+            if (distance < minDistance) {
+                minDistance = distance;
+                nearestProbe = probe;
             }
         }
-        return find ? this._probes[idx] : null;
+
+        return nearestProbe;
     }
 
     private _getBlendProbe (model: Model): ReflectionProbe | null {
