@@ -1,5 +1,6 @@
 #include <common/lighting/brdf>
 #include <common/lighting/bxdf>
+#include <common/lighting/attenuation>
 #include <common/lighting/functions>
 #include <lighting-models/model-functions/standard-common>
 
