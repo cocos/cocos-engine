@@ -192,11 +192,15 @@ export class StartRotationModule extends ParticleModule {
         }
     }
 
-    protected _onBeforeSerialize (props) {
+    protected needsFilterSerialization () {
+        return true;
+    }
+
+    protected getSerializedProps () {
         if (!this.startRotation3D) {
             return ['startRotation3D', 'startRotationZ'];
         } else {
-            return ['startRotation3D', 'startRotationX', 'startRotationY', 'startRotationZ'];
+            return ['startRotation3D', '_startRotationX', '_startRotationY', 'startRotationZ'];
         }
     }
 }

@@ -53,12 +53,13 @@ export class CompositionModule extends ParticleModule {
 
     public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
         const deltaTime = particleUpdateContext.deltaTime;
+        const { speedModifier } = particles;
         const count = particles.count;
         for (let particleHandle = 0; particleHandle < count; particleHandle++) {
             particles.getVelocityAt(velocity, particleHandle);
             particles.getAnimatedVelocityAt(animatedVelocity, particleHandle);
             velocity.add(animatedVelocity);
-            particles.addPositionAt(Vec3.multiplyScalar(velocity, velocity, deltaTime), particleHandle);
+            particles.addPositionAt(Vec3.multiplyScalar(velocity, velocity, deltaTime * speedModifier[particleHandle]), particleHandle);
         }
 
         for (let particleHandle = 0; particleHandle < count; particleHandle++) {

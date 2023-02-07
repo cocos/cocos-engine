@@ -190,11 +190,15 @@ export class StartSizeModule extends ParticleModule {
         }
     }
 
-    protected _onBeforeSerialize (props) {
+    protected needsFilterSerialization () {
+        return true;
+    }
+
+    protected getSerializedProps () {
         if (!this.startSize3D) {
             return ['startSize3D', 'startSizeX'];
         } else {
-            return ['startSize3D', 'startSizeX', 'startSizeY', 'startSizeZ'];
+            return ['startSize3D', 'startSizeX', '_startSizeZ', '_startSizeZ'];
         }
     }
 }

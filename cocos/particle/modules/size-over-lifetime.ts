@@ -207,7 +207,11 @@ export class SizeOverLifetimeModule extends ParticleModule {
         }
     }
 
-    protected _onBeforeSerialize (props) {
+    protected needsFilterSerialization () {
+        return true;
+    }
+
+    protected getSerializedProps () {
         if (!this.separateAxes) {
             return ['separateAxes', 'x'];
         } else {

@@ -46,22 +46,14 @@ export class LimitVelocityOverLifetimeModule extends ParticleModule {
      * @zh X 轴方向上的速度下限。
      */
     @type(CurveRange)
+    @serializable
     @range([-1, 1])
     @displayOrder(4)
     @tooltip('i18n:limitVelocityOvertimeModule.limitX')
     @visible(function (this: LimitVelocityOverLifetimeModule): boolean {
         return this.separateAxes;
     })
-    public get limitX () {
-        if (!this._x) {
-            this._x = new CurveRange();
-        }
-        return this._x;
-    }
-
-    public set limitX (val) {
-        this._x = val;
-    }
+    public limitX = new CurveRange(1)
 
     /**
      * @zh Y 轴方向上的速度下限。
@@ -75,7 +67,7 @@ export class LimitVelocityOverLifetimeModule extends ParticleModule {
     })
     public get limitY () {
         if (!this._y) {
-            this._y = new CurveRange();
+            this._y = new CurveRange(1);
         }
         return this._y;
     }
@@ -88,7 +80,6 @@ export class LimitVelocityOverLifetimeModule extends ParticleModule {
      * @zh Z 轴方向上的速度下限。
      */
     @type(CurveRange)
-    @serializable
     @range([-1, 1])
     @displayOrder(6)
     @tooltip('i18n:limitVelocityOvertimeModule.limitZ')
@@ -97,7 +88,7 @@ export class LimitVelocityOverLifetimeModule extends ParticleModule {
     })
     public get limitZ () {
         if (!this._z) {
-            this._z = new CurveRange();
+            this._z = new CurveRange(1);
         }
         return this._z;
     }
@@ -117,14 +108,11 @@ export class LimitVelocityOverLifetimeModule extends ParticleModule {
         return !this.separateAxes;
     })
     public get limit () {
-        if (!this._limit) {
-            this._limit = new CurveRange();
-        }
-        return this._limit;
+        return this.limitX;
     }
 
     public set limit (val) {
-        this._limit = val;
+        this.limitX = val;
     }
 
     /**
@@ -153,13 +141,9 @@ export class LimitVelocityOverLifetimeModule extends ParticleModule {
     public space = Space.LOCAL;
 
     @serializable
-    private _x: CurveRange | null = null;
-    @serializable
     private _y: CurveRange | null = null;
     @serializable
     private _z: CurveRange | null = null;
-    @serializable
-    private _limit: CurveRange | null = null;
 
     public get name (): string {
         return 'limitModule';
@@ -370,11 +354,15 @@ export class LimitVelocityOverLifetimeModule extends ParticleModule {
         }
     }
 
-    protected _onBeforeSerialize (props) {
+    protected needsFilterSerialization () {
+        return true;
+    }
+
+    protected getSerializedProps () {
         if (!this.separateAxes) {
-            return ['separateAxes', '_limit'];
+            return ['separateAxes', 'x'];
         } else {
-            return ['separateAxes', '_x', '_y', '_z'];
+            return ['separateAxes', 'x', '_y', '_z'];
         }
     }
 }

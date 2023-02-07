@@ -206,7 +206,11 @@ export class RotationOverLifetimeModule extends ParticleModule {
         }
     }
 
-    protected _onBeforeSerialize (props) {
+    protected needsFilterSerialization () {
+        return true;
+    }
+
+    protected getSerializedProps () {
         if (!this.separateAxes) {
             return ['separateAxes', 'z'];
         } else {

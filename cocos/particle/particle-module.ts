@@ -60,6 +60,24 @@ export abstract class ParticleModule {
     public abstract get name (): string;
     public abstract get updateStage (): ParticleUpdateStage;
     public abstract get updatePriority (): number;
+    protected needsFilterSerialization () {
+        return false;
+    }
+
+    protected getSerializedProps (): string[] {
+        return [];
+    }
+
+    private _onBeforeSerialize (props: any) {
+        if (!this.needsFilterSerialization()) {
+            return props;
+        } else {
+            const serializableProps = this.getSerializedProps();
+            serializableProps.push('_enable');
+            return serializableProps;
+        }
+    }
+
     public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {}
     public onPlay () {}
     public onStop () {}

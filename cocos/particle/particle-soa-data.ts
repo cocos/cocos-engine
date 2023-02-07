@@ -56,6 +56,10 @@ export class TrailSegment {
     }
 }
 
+export enum ParticleOptionalChannels {
+    SPEED_MODIFIER = 1,
+}
+
 const tempColor = new Color();
 export class ParticleSOAData {
     private _count = 0;
