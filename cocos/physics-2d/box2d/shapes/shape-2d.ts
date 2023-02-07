@@ -148,7 +148,7 @@ export class b2Shape2D implements IBaseShape {
         const comp = this.collider;
         const scale = comp.node.worldScale;
         // relative Position from shape to rigid body
-        let relativePosition = new Vec3(0, 0, 0);
+        let relativePosition = Vec3.ZERO;
         const body = comp.getComponent(RigidBody2D);
 
         //if rigid body is not attached to the same node of collider, this b2.shape is attached
