@@ -145,6 +145,17 @@ bool CCMTLPipelineState::createMTLComputePipelineState() {
 }
 
 bool CCMTLPipelineState::createMTLDepthStencilState() {
+    const auto& colorAttachments = _renderPass->getColorAttachments();
+    bool hasDS = std::any_of(colorAttachments.begin(), colorAttachments.end(), [](const ColorAttachment& attachemnt){
+        return attachemnt.format == Format::DEPTH ||attachemnt.format == Format::DEPTH_STENCIL;
+    });
+    hasDS |= _renderPass->getDepthStencilAttachment().format != Format::UNKNOWN;
+    
+    if(!hasDS) {
+        // default nil
+        return true;
+    }
+    
     MTLDepthStencilDescriptor *descriptor = [[MTLDepthStencilDescriptor alloc] init];
     if (descriptor == nil) {
         CC_LOG_ERROR("CCMTLPipelineState: MTLDepthStencilDescriptor could not be allocated.");
@@ -152,7 +163,6 @@ bool CCMTLPipelineState::createMTLDepthStencilState() {
     }
 
     descriptor.depthWriteEnabled = _depthStencilState.depthWrite != 0;
-
     if (!_depthStencilState.depthTest)
         descriptor.depthCompareFunction = MTLCompareFunctionAlways;
     else

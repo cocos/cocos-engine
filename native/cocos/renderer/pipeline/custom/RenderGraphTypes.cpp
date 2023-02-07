@@ -170,7 +170,8 @@ RasterPass::RasterPass(RasterPass&& rhs, const allocator_type& alloc)
   height(rhs.height),
   viewport(rhs.viewport),
   versionName(std::move(rhs.versionName), alloc),
-  version(rhs.version) {}
+  version(rhs.version),
+  showStatistics(rhs.showStatistics) {}
 
 RasterPass::RasterPass(RasterPass const& rhs, const allocator_type& alloc)
 : rasterViews(rhs.rasterViews, alloc),
@@ -180,7 +181,8 @@ RasterPass::RasterPass(RasterPass const& rhs, const allocator_type& alloc)
   height(rhs.height),
   viewport(rhs.viewport),
   versionName(rhs.versionName, alloc),
-  version(rhs.version) {}
+  version(rhs.version),
+  showStatistics(rhs.showStatistics) {}
 
 ComputePass::ComputePass(const allocator_type& alloc) noexcept
 : computeViews(alloc) {}

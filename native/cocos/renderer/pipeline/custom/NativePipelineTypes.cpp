@@ -82,19 +82,21 @@ NativeRenderQueue::NativeRenderQueue(const allocator_type& alloc) noexcept
   opaqueInstancingQueue(alloc),
   transparentInstancingQueue(alloc) {}
 
-NativeRenderQueue::NativeRenderQueue(SceneFlags sceneFlagsIn, const allocator_type& alloc) noexcept
+NativeRenderQueue::NativeRenderQueue(SceneFlags sceneFlagsIn, uint32_t layoutPassIDIn, const allocator_type& alloc) noexcept
 : opaqueQueue(alloc),
   transparentQueue(alloc),
   opaqueInstancingQueue(alloc),
   transparentInstancingQueue(alloc),
-  sceneFlags(sceneFlagsIn) {}
+  sceneFlags(sceneFlagsIn),
+  layoutPassID(layoutPassIDIn) {}
 
 NativeRenderQueue::NativeRenderQueue(NativeRenderQueue&& rhs, const allocator_type& alloc)
 : opaqueQueue(std::move(rhs.opaqueQueue), alloc),
   transparentQueue(std::move(rhs.transparentQueue), alloc),
   opaqueInstancingQueue(std::move(rhs.opaqueInstancingQueue), alloc),
   transparentInstancingQueue(std::move(rhs.transparentInstancingQueue), alloc),
-  sceneFlags(rhs.sceneFlags) {}
+  sceneFlags(rhs.sceneFlags),
+  layoutPassID(rhs.layoutPassID) {}
 
 DefaultSceneVisitor::DefaultSceneVisitor(const allocator_type& alloc) noexcept
 : name(alloc) {}

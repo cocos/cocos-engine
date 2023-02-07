@@ -106,6 +106,10 @@ using namespace cc::render;
 #define cc_render_RenderNode_name_set(self_, val_) self_->setName(val_)
   
 
+#define cc_render_RasterPassBuilder_showStatistics_get(self_) self_->getShowStatistics()
+#define cc_render_RasterPassBuilder_showStatistics_set(self_, val_) self_->setShowStatistics(val_)
+  
+
 #define cc_render_SceneVisitor_pipelineSceneData_get(self_) self_->getPipelineSceneData()
   
 
@@ -1814,6 +1818,43 @@ static bool js_cc_render_RasterPassBuilder_addQueue(se::State& s)
 }
 SE_BIND_FUNC(js_cc_render_RasterPassBuilder_addQueue) 
 
+static bool js_cc_render_RasterPassBuilder_showStatistics_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::render::RasterPassBuilder *arg1 = (cc::render::RasterPassBuilder *) NULL ;
+    bool arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::render::RasterPassBuilder>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2);
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    cc_render_RasterPassBuilder_showStatistics_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_render_RasterPassBuilder_showStatistics_set) 
+
+static bool js_cc_render_RasterPassBuilder_showStatistics_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::render::RasterPassBuilder *arg1 = (cc::render::RasterPassBuilder *) NULL ;
+    bool result;
+    
+    arg1 = SE_THIS_OBJECT<cc::render::RasterPassBuilder>(s);
+    if (nullptr == arg1) return true;
+    result = (bool)cc_render_RasterPassBuilder_showStatistics_get(arg1);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_render_RasterPassBuilder_showStatistics_get) 
+
 static bool js_delete_cc_render_RasterPassBuilder(se::State& s)
 {
     return true;
@@ -1824,6 +1865,7 @@ bool js_register_cc_render_RasterPassBuilder(se::Object* obj) {
     auto* cls = se::Class::create("RasterPassBuilder", obj, __jsb_cc_render_Setter_proto, nullptr); 
     
     cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
+    cls->defineProperty("showStatistics", _SE(js_cc_render_RasterPassBuilder_showStatistics_get), _SE(js_cc_render_RasterPassBuilder_showStatistics_set)); 
     
     cls->defineFunction("addRasterView", _SE(js_cc_render_RasterPassBuilder_addRasterView)); 
     cls->defineFunction("addComputeView", _SE(js_cc_render_RasterPassBuilder_addComputeView)); 

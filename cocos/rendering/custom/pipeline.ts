@@ -104,6 +104,7 @@ export interface RasterPassBuilder extends Setter {
     addQueue (/*QueueHint.NONE*/): RasterQueueBuilder;
     setViewport (viewport: Viewport): void;
     setVersion (name: string, version: number): void;
+    showStatistics: boolean;
 }
 
 export interface ComputeQueueBuilder extends Setter {

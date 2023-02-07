@@ -113,6 +113,8 @@ public:
     RasterQueueBuilder *addQueue(QueueHint hint) override;
     void setViewport(const gfx::Viewport &viewport) override;
     void setVersion(const ccstd::string &name, uint64_t version) override;
+    bool getShowStatistics() const override;
+    void setShowStatistics(bool enable) override;
 
     const PipelineRuntime* pipelineRuntime{nullptr};
     RenderGraph* renderGraph{nullptr};
@@ -321,7 +323,7 @@ struct NativeRenderQueue {
     }
 
     NativeRenderQueue(const allocator_type& alloc) noexcept; // NOLINT
-    NativeRenderQueue(SceneFlags sceneFlagsIn, const allocator_type& alloc) noexcept;
+    NativeRenderQueue(SceneFlags sceneFlagsIn, uint32_t layoutPassIDIn, const allocator_type& alloc) noexcept;
     NativeRenderQueue(NativeRenderQueue&& rhs, const allocator_type& alloc);
 
     NativeRenderQueue(NativeRenderQueue&& rhs) noexcept = default;
@@ -336,6 +338,7 @@ struct NativeRenderQueue {
     RenderInstancingQueue opaqueInstancingQueue;
     RenderInstancingQueue transparentInstancingQueue;
     SceneFlags sceneFlags{SceneFlags::NONE};
+    uint32_t layoutPassID{0xFFFFFFFF};
 };
 
 class DefaultSceneVisitor final : public SceneVisitor {

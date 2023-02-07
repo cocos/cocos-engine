@@ -519,7 +519,7 @@ export function buildPostprocessPass (camera: Camera,
         postInfo.postMaterial, 0, SceneFlags.NONE,
     );
     postprocessPass.addQueue(QueueHint.RENDER_TRANSPARENT).addSceneOfCamera(camera, new LightInfo(),
-        SceneFlags.UI | SceneFlags.PROFILER);
+        SceneFlags.UI);
     return { rtName: postprocessPassRTName, dsName: postprocessPassDS };
 }
 
@@ -917,8 +917,8 @@ export function buildLightingPass (camera: Camera, ppl: Pipeline, gBuffer: GBuff
         camera, lightingInfo.deferredLightingMaterial, 0,
         SceneFlags.VOLUMETRIC_LIGHTING,
     );
-    // lightingPass.addQueue(QueueHint.RENDER_TRANSPARENT).addSceneOfCamera(camera, new LightInfo(),
-    //     SceneFlags.TRANSPARENT_OBJECT | SceneFlags.PLANAR_SHADOW | SceneFlags.GEOMETRY);
+    lightingPass.addQueue(QueueHint.RENDER_TRANSPARENT).addSceneOfCamera(camera, new LightInfo(),
+        SceneFlags.TRANSPARENT_OBJECT | SceneFlags.PLANAR_SHADOW | SceneFlags.GEOMETRY);
     return { rtName: deferredLightingPassRTName, dsName: deferredLightingPassDS };
 }
 
@@ -942,6 +942,84 @@ function getClearFlags (attachment: AttachmentType, clearFlag: ClearFlagBit, loa
             return ClearFlagBit.NONE;
         }
     }
+}
+
+export function buildProfilerPass (camera: Camera,
+    ppl: Pipeline) {
+    const cameraID = getCameraUniqueID(camera);
+    const cameraName = `Camera${cameraID}`;
+    const area = getRenderArea(camera, camera.window.width, camera.window.height);
+    const width = area.width;
+    const height = area.height;
+
+    const dsProfilerPassRTName = `dsProfilerPassColor${cameraName}`;
+    const dsProfilerPassDSName = `dsProfilerPassDS${cameraName}`;
+    if (!ppl.containsResource(dsProfilerPassRTName)) {
+        ppl.addRenderTexture(dsProfilerPassRTName, Format.BGRA8, width, height, camera.window);
+        ppl.addDepthStencil(dsProfilerPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
+    }
+    ppl.updateRenderWindow(dsProfilerPassRTName, camera.window);
+    ppl.updateDepthStencil(dsProfilerPassDSName, width, height);
+    const ProfilerPass = ppl.addRasterPass(width, height, 'default');
+    ProfilerPass.name = `CameraProfilerPass${cameraID}`;
+    ProfilerPass.setViewport(new Viewport(area.x, area.y, width, height));
+    const passView = new RasterView('_',
+        AccessType.WRITE, AttachmentType.RENDER_TARGET,
+        getLoadOpOfClearFlag(ClearFlagBit.DEPTH_STENCIL, AttachmentType.RENDER_TARGET),
+        StoreOp.STORE,
+        ClearFlagBit.DEPTH_STENCIL,
+        new Color(camera.clearColor.x, camera.clearColor.y, camera.clearColor.z, camera.clearColor.w));
+    const passDSView = new RasterView('_',
+        AccessType.WRITE, AttachmentType.DEPTH_STENCIL,
+        getLoadOpOfClearFlag(ClearFlagBit.DEPTH_STENCIL, AttachmentType.DEPTH_STENCIL),
+        StoreOp.STORE,
+        ClearFlagBit.DEPTH_STENCIL,
+        new Color(camera.clearDepth, camera.clearStencil, 0, 0));
+    ProfilerPass.addRasterView(dsProfilerPassRTName, passView);
+    ProfilerPass.addRasterView(dsProfilerPassDSName, passDSView);
+    const sceneFlags = SceneFlags.PROFILER;
+    ProfilerPass
+        .addQueue(QueueHint.RENDER_TRANSPARENT)
+        .addSceneOfCamera(camera, new LightInfo(), sceneFlags);
+}
+
+export function buildUIAndProfilerPass (camera: Camera,
+    ppl: Pipeline) {
+    const cameraID = getCameraUniqueID(camera);
+    const cameraName = `Camera${cameraID}`;
+    const area = getRenderArea(camera, camera.window.width, camera.window.height);
+    const width = area.width;
+    const height = area.height;
+
+    const dsUIAndProfilerPassRTName = `dsUIAndProfilerPassColor${cameraName}`;
+    const dsUIAndProfilerPassDSName = `dsUIAndProfilerPassDS${cameraName}`;
+    if (!ppl.containsResource(dsUIAndProfilerPassRTName)) {
+        ppl.addRenderTexture(dsUIAndProfilerPassRTName, Format.BGRA8, width, height, camera.window);
+        ppl.addDepthStencil(dsUIAndProfilerPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
+    }
+    ppl.updateRenderWindow(dsUIAndProfilerPassRTName, camera.window);
+    ppl.updateDepthStencil(dsUIAndProfilerPassDSName, width, height);
+    const uIAndProfilerPass = ppl.addRasterPass(width, height, 'default');
+    uIAndProfilerPass.name = `CameraUIAndProfilerPass${cameraID}`;
+    uIAndProfilerPass.setViewport(new Viewport(area.x, area.y, width, height));
+    const passView = new RasterView('_',
+        AccessType.WRITE, AttachmentType.RENDER_TARGET,
+        getLoadOpOfClearFlag(camera.clearFlag, AttachmentType.RENDER_TARGET),
+        StoreOp.STORE,
+        camera.clearFlag,
+        new Color(camera.clearColor.x, camera.clearColor.y, camera.clearColor.z, camera.clearColor.w));
+    const passDSView = new RasterView('_',
+        AccessType.WRITE, AttachmentType.DEPTH_STENCIL,
+        getLoadOpOfClearFlag(camera.clearFlag, AttachmentType.DEPTH_STENCIL),
+        StoreOp.STORE,
+        camera.clearFlag,
+        new Color(camera.clearDepth, camera.clearStencil, 0, 0));
+    uIAndProfilerPass.addRasterView(dsUIAndProfilerPassRTName, passView);
+    uIAndProfilerPass.addRasterView(dsUIAndProfilerPassDSName, passDSView);
+    const sceneFlags = SceneFlags.UI | SceneFlags.PROFILER;
+    uIAndProfilerPass
+        .addQueue(QueueHint.RENDER_TRANSPARENT)
+        .addSceneOfCamera(camera, new LightInfo(), sceneFlags);
 }
 
 export function buildNativeForwardPass (camera: Camera, ppl: Pipeline) {
