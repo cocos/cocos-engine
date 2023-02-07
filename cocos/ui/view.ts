@@ -588,7 +588,8 @@ export class View extends Eventify(System) {
     }
 
     private _updateAdaptResult (width: number, height: number, windowId?: number) {
-        cclegacy.director.root.resize(width, height, windowId === undefined ? 1 : windowId);
+        // The default invalid windowId is 0
+        cclegacy.director.root.resize(width, height, (windowId === undefined || windowId === 0) ? 1 : windowId);
         // Frame size changed, do resize works
         const w = this._designResolutionSize.width;
         const h = this._designResolutionSize.height;
