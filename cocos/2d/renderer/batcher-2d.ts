@@ -22,14 +22,14 @@
  THE SOFTWARE.
 */
 
-import { JSB } from 'internal:constants';
+import { DEBUG, JSB } from 'internal:constants';
 import { Camera, Model } from '../../render-scene/scene';
 import type { UIStaticBatch } from '../components/ui-static-batch';
 import { Material } from '../../asset/assets/material';
 import { RenderRoot2D, UIRenderer } from '../framework';
 import { Texture, Device, Attribute, Sampler, DescriptorSetInfo, Buffer,
     BufferInfo, BufferUsageBit, MemoryUsageBit, DescriptorSet, InputAssembler, deviceManager, PrimitiveMode } from '../../gfx';
-import { CachedArray, Pool, Mat4, cclegacy, assertIsTrue } from '../../core';
+import { CachedArray, Pool, Mat4, cclegacy, assertIsTrue, assert } from '../../core';
 import { Root } from '../../root';
 import { Node } from '../../scene-graph';
 import { Stage, StencilManager } from './stencil-manager';
@@ -413,6 +413,9 @@ export class Batcher2D implements IBatcher {
             this._currDepthStencilStateStage = depthStencilStateStage;
             this._currLayer = comp.node.layer;
             if (frame) {
+                if (DEBUG) {
+                    assert(frame.isValid, 'frame should not be invalid, it may have been released');
+                }
                 this._currTexture = frame.getGFXTexture();
                 this._currSampler = frame.getGFXSampler();
                 this._currTextureHash = frame.getHash();
