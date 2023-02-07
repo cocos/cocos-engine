@@ -8,7 +8,7 @@ describe('particle-soa-data', () => {
         expect(particles.capacity).toBe(16);
         expect(particles.count).toBe(0);
         particles.addParticles(5);
-
+        
     });
     
 });
