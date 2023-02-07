@@ -282,7 +282,7 @@ struct RenderInstancingQueue {
     ccstd::pmr::vector<pipeline::InstancedBuffer*> sortedBatches;
 };
 
-struct alignas(32) DrawInstance {
+struct DrawInstance {
     const scene::SubModel* subModel{nullptr};
     uint32_t priority{0};
     uint32_t hash{0};
