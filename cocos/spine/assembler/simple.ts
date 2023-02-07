@@ -291,9 +291,6 @@ function updateComponentRenderData (comp: Skeleton, batcher: Batcher2D) {
     const accessor = _useTint ? _tintAccessor : _accessor;
     accessor.getMeshBuffer(_renderData.chunk.bufferId).setDirty();
 
-    // sync attached node matrix
-    comp.attachUtil._syncAttachedNode();
-
     // Clear temp var.
     _comp = undefined;
     _vertexEffect = null;

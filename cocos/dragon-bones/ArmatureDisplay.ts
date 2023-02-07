@@ -530,7 +530,7 @@ export class ArmatureDisplay extends UIRenderer {
     protected _sockets: DragonBoneSocket[] = [];
 
     private _inited;
-    private _drawInfoList : RenderDrawInfo[] = [];
+    private _drawInfoList: RenderDrawInfo[] = [];
     private requestDrawInfo (idx: number) {
         if (!this._drawInfoList[idx]) {
             this._drawInfoList[idx] = new RenderDrawInfo();
@@ -589,7 +589,7 @@ export class ArmatureDisplay extends UIRenderer {
         super.destroyRenderData();
     }
 
-    private getMaterialTemplate () : Material {
+    private getMaterialTemplate (): Material {
         if (this.customMaterial !== null) return this.customMaterial;
         if (this.material) return this.material;
         this.updateMaterial();
@@ -1388,6 +1388,14 @@ export class ArmatureDisplay extends UIRenderer {
         if (this._debugDraw) {
             this._debugDraw.markForUpdateRenderData(enable);
         }
+    }
+
+    /**
+     * @engineInternal since v3.7.2 this is an engine private function.
+     */
+    public syncAttachedNode () {
+        // sync attached node matrix
+        this.attachUtil._syncAttachedNode();
     }
 }
 
