@@ -48,7 +48,7 @@ public:
     ISystemWindow *createNativeWindow(uint32_t windowId, void *externalHandle) override;
 
     bool readyToExit();
-    void exitLoop() override;
+    void exit() override;
     /**
      * @brief Implement the main logic of the base platform.
      */

@@ -110,8 +110,8 @@ int32_t IOSPlatform::init() {
     return 0;
 }
 
-void IOSPlatform::exitLoop() {
-    if(_requestQuit) {
+void IOSPlatform::exit() {
+    if(_requestExit) {
         // Manual quit requires a call to onDestory.
         onDestroy();
         exit(0);
@@ -160,13 +160,13 @@ void IOSPlatform::onClose() {
     cc::events::WindowEvent::broadcast(ev);
 }
 
-void IOSPlatform::requestQuit() {
-    _requestQuit = true;
+void IOSPlatform::requestExit() {
+    _requestExit = true;
     onClose();
 }
 
 void IOSPlatform::onDestroy() {
-    if(!_requestQuit) {
+    if(!_requestExit) {
         // ios exit process is special because it needs to wait for ts layer to destroy resources.
         // The timer cannot be used here.
         int32_t fps = getFps();

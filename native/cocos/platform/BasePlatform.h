@@ -71,7 +71,7 @@ public:
     /**
      * @brief Exit loop.
      */
-    virtual void exitLoop() = 0;
+    virtual void exit() = 0;
 
     /**
      * @brief Get target system type.

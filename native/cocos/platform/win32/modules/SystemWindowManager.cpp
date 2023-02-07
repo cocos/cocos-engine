@@ -35,7 +35,7 @@ int SystemWindowManager::init() {
     return SDLHelper::init();
 }
 
-void SystemWindowManager::processEvent(void) {
+void SystemWindowManager::processEvent() {
     SDL_Event sdlEvent;
     while (SDL_PollEvent(&sdlEvent) != 0) {
         SDL_Window *sdlWindow = SDL_GetWindowFromID(sdlEvent.window.windowID);

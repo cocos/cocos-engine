@@ -387,7 +387,7 @@ static bool JSB_closeWindow(se::State &s) {
 SE_BIND_FUNC(JSB_closeWindow)
 
 static bool JSB_exit(se::State &s) {
-    BasePlatform::getPlatform()->exitLoop();
+    BasePlatform::getPlatform()->exit();
     return true;
 }
 SE_BIND_FUNC(JSB_exit);

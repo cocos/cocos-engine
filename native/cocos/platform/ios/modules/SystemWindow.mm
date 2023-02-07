@@ -48,7 +48,7 @@ void SystemWindow::copyTextToClipboard(const std::string& text) {
 void SystemWindow::closeWindow() {
     // Force quit as there's no API to exit UIApplication
     IOSPlatform* platform = dynamic_cast<IOSPlatform*>(BasePlatform::getPlatform());
-    platform->requestQuit();
+    platform->requestExit();
 }
 
 uintptr_t SystemWindow::getWindowHandle() const {

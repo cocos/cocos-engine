@@ -106,7 +106,6 @@
 
 - (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender
 {
-    //return NSTerminateCancel;
     return _platform->readyToExit() ? NSTerminateNow : NSTerminateLater;
 }
 

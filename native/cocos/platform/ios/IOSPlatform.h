@@ -45,9 +45,9 @@ public:
      */
     int32_t run(int argc, const char **argv) override;
     
-    void requestQuit();
+    void requestExit();
     
-    void exitLoop() override;
+    void exit() override;
     /**
      * @brief Implement the main logic of the base platform.
      */
@@ -63,7 +63,7 @@ public:
     ISystemWindow *createNativeWindow(uint32_t windowId, void *externalHandle) override;
 
 private:
-    bool _requestQuit{false};
+    bool _requestExit{false};
     bool _quitLoop{false};
     ThreadCallback _cb;
 };

@@ -47,7 +47,7 @@ public:
     int getSdkVersion() const override;
 
     int32_t loop() override;
-    void exitLoop() override;
+    void exit() override;
     
     void *getActivity();
 

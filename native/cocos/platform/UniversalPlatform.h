@@ -83,7 +83,7 @@ public:
     /**
      * @brief Exit loop.
      */
-    void exitLoop() override;
+    void exit() override;
 
 private:
     ThreadCallback _mainTask{nullptr};

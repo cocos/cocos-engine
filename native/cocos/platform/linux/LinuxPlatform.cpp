@@ -83,7 +83,7 @@ static long getCurrentMillSecond() {
     return lLastTime;
 }
 
-void LinuxPlatform::exitLoop() {
+void LinuxPlatform::exit() {
     _quit = true;
 }
 

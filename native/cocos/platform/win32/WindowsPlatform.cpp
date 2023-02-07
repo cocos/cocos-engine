@@ -113,7 +113,7 @@ int32_t WindowsPlatform::init() {
     return _windowManager->init();
 }
 
-void WindowsPlatform::exitLoop() {
+void WindowsPlatform::exit() {
     _quit = true;
 }
 

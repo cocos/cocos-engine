@@ -79,7 +79,7 @@ void UniversalPlatform::onDestroy() {
     cocos_destory();
 }
 
-void UniversalPlatform::exitLoop() {
+void UniversalPlatform::exit() {
 
 }
 
