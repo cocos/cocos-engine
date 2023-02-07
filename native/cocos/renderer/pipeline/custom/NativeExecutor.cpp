@@ -1472,12 +1472,14 @@ float computeSortingDepth(const scene::Camera& camera, const scene::Model& model
 }
 
 void addRenderObject(
+    LayoutGraphData::vertex_descriptor shadowCasterlayoutID,
     const scene::Camera& camera, const scene::Model& model, NativeRenderQueue& queue) {
     const bool bDrawTransparent = any(queue.sceneFlags & SceneFlags::TRANSPARENT_OBJECT);
     bool bDrawOpaqueOrCutout = any(queue.sceneFlags & (SceneFlags::OPAQUE_OBJECT | SceneFlags::CUTOUT_OBJECT));
     if (!bDrawTransparent && !bDrawOpaqueOrCutout) {
         bDrawOpaqueOrCutout = true;
     }
+    const bool bDrawShadowCaster = any(queue.sceneFlags & SceneFlags::SHADOW_CASTER);
 
     const auto& subModels = model.getSubModels();
     const auto subModelCount = subModels.size();
@@ -1489,6 +1491,7 @@ void addRenderObject(
             auto& pass = *passes[passIdx];
             const bool bTransparent = isTransparent(pass);
             const bool bOpaqueOrCutout = !bTransparent;
+            const bool bShadowCaster = pass.getPhaseID() == shadowCasterlayoutID;
 
             if (!bDrawTransparent && bTransparent) {
                 // skip transparent object
@@ -1500,6 +1503,17 @@ void addRenderObject(
                 continue;
             }
 
+            // skip irrelavent passes
+            if (queue.layoutPassID != pass.getPassID()) {
+                continue;
+            }
+
+            // skip shadow caster
+            if (!bDrawShadowCaster && bShadowCaster) {
+                continue;
+            }
+
+            // add object to queue
             if (pass.getBatchingScheme() == scene::BatchingSchemes::INSTANCING) {
                 auto& instancedBuffer = *pass.getInstancedBuffer();
                 instancedBuffer.merge(subModel, passIdx);
@@ -1521,6 +1535,7 @@ void addRenderObject(
 }
 
 void octreeCulling(
+    LayoutGraphData::vertex_descriptor shadowCasterlayoutID,
     const scene::Octree* octree,
     const scene::RenderScene* scene,
     const scene::Skybox* skyBox,
@@ -1542,7 +1557,7 @@ void octreeCulling(
         }
         const auto visibility = camera.getVisibility();
         if (isInstanceVisible(model, visibility) && isPointInstanceAndNotSkybox(model, skyBox)) {
-            addRenderObject(camera, model, queue);
+            addRenderObject(shadowCasterlayoutID, camera, model, queue);
         }
     }
 
@@ -1556,11 +1571,12 @@ void octreeCulling(
         if (scene->isCulledByLod(&camera, &model)) {
             continue;
         }
-        addRenderObject(camera, model, queue);
+        addRenderObject(shadowCasterlayoutID, camera, model, queue);
     }
 }
 
 void frustumCulling(
+    LayoutGraphData::vertex_descriptor shadowCasterlayoutID,
     const scene::RenderScene* scene,
     const scene::Camera& camera,
     NativeRenderQueue& queue) {
@@ -1588,12 +1604,12 @@ void frustumCulling(
             const auto* modelWorldBounds = model.getWorldBounds();
             // object has no volume
             if (!modelWorldBounds) {
-                addRenderObject(camera, model, queue);
+                addRenderObject(shadowCasterlayoutID, camera, model, queue);
                 continue;
             }
             // frustum culling
             if (modelWorldBounds->aabbFrustum(camera.getFrustum())) {
-                addRenderObject(camera, model, queue);
+                addRenderObject(shadowCasterlayoutID, camera, model, queue);
             }
         }
     }
@@ -1601,6 +1617,7 @@ void frustumCulling(
 
 void mergeSceneFlags(
     const RenderGraph& rg,
+    const LayoutGraphData& lg,
     ccstd::pmr::unordered_map<
         const scene::RenderScene*,
         ccstd::pmr::unordered_map<scene::Camera*, NativeRenderQueue>>&
@@ -1609,10 +1626,21 @@ void mergeSceneFlags(
         if (!holds<SceneTag>(vertID, rg)) {
             continue;
         }
+        const auto queueID = parent(vertID, rg);
+        CC_ENSURES(queueID != RenderGraph::null_vertex());
+        const auto passID = parent(queueID, rg);
+        CC_ENSURES(passID != RenderGraph::null_vertex());
+        const auto& layoutName = get(RenderGraph::Layout, rg, passID);
+        CC_ENSURES(!layoutName.empty());
+        const auto layoutID = locate(LayoutGraphData::null_vertex(), layoutName, lg);
+        CC_ENSURES(layoutID != LayoutGraphData::null_vertex());
+
         const auto& sceneData = get(SceneTag{}, vertID, rg);
         const auto* scene = sceneData.camera->getScene();
         if (scene) {
-            sceneQueues[scene][sceneData.camera].sceneFlags |= sceneData.flags;
+            auto& queue = sceneQueues[scene][sceneData.camera];
+            queue.sceneFlags |= sceneData.flags;
+            queue.layoutPassID = layoutID;
         }
     }
 }
@@ -1628,6 +1656,7 @@ void extendResourceLifetime(const NativeRenderQueue& queue, ResourceGroup& group
 }
 
 void buildRenderQueues(
+    LayoutGraphData::vertex_descriptor shadowCasterlayoutID,
     const pipeline::PipelineSceneData& sceneData,
     NativeRenderContext& context,
     ccstd::pmr::unordered_map<
@@ -1662,9 +1691,9 @@ void buildRenderQueues(
 
             // culling
             if (octree && octree->isEnabled()) {
-                octreeCulling(octree, scene, skybox, *camera, queue);
+                octreeCulling(shadowCasterlayoutID, octree, scene, skybox, *camera, queue);
             } else {
-                frustumCulling(scene, *camera, queue);
+                frustumCulling(shadowCasterlayoutID, scene, *camera, queue);
             }
 
             queue.sort();
@@ -1715,8 +1744,14 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
         ccstd::pmr::unordered_map<scene::Camera*, NativeRenderQueue>>
         sceneQueues(scratch);
     {
-        mergeSceneFlags(rg, sceneQueues);
-        buildRenderQueues(*ppl.getPipelineSceneData(), ppl.nativeContext, sceneQueues);
+        mergeSceneFlags(rg, lg, sceneQueues);
+        const auto shadowCasterLayoutID = locate("/default/shadow-caster", lg);
+        CC_ENSURES(shadowCasterLayoutID != LayoutGraphData::null_vertex());
+        buildRenderQueues(
+            shadowCasterLayoutID,
+            *ppl.getPipelineSceneData(),
+            ppl.nativeContext,
+            sceneQueues);
     }
 
     // Execute all valid passes
