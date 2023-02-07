@@ -114,7 +114,7 @@ void IOSPlatform::exit() {
     if(_requestExit) {
         // Manual quit requires a call to onDestory.
         onDestroy();
-        exit(0);
+        ::exit(0);
     } else {
         _quitLoop = true;
     }
