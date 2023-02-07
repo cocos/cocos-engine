@@ -223,6 +223,7 @@ protected:
     uint32_t _descriptorSetCount{1};
     uint32_t _priority{0};
     uint32_t _updateStamp{0};
+    int32_t _reflectionProbeId{-1};
 
     OctreeNode *_octreeNode{nullptr};
     RenderScene *_scene{nullptr};
@@ -236,12 +237,6 @@ protected:
     IntrusivePtr<geometry::AABB> _worldBounds;
     IntrusivePtr<geometry::AABB> _modelBounds;
     IntrusivePtr<Texture2D> _lightmap;
-    int32_t _tetrahedronIndex{-1};
-    Vec3 _lastWorldBoundCenter{INFINITY, INFINITY, INFINITY};
-    bool _useLightProbe = false;
-    bool _bakeToReflectionProbe{true};
-    int32_t _reflectionProbeType{0};
-    int32_t _reflectionProbeId{-1};
     bool _enabled{false};
     bool _castShadow{false};
     bool _receiveShadow{false};
