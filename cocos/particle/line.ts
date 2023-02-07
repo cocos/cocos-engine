@@ -23,20 +23,13 @@
 */
 
 import { ccclass, help, executeInEditMode, menu, tooltip, displayOrder, type, serializable, range, visible, override } from 'cc.decorator';
-import { Material, Texture2D } from '../asset/assets';
-import { Vec3, Vec2, Vec4, cclegacy } from '../core';
+import { Material } from '../asset/assets';
+import { Vec3, cclegacy } from '../core';
 import { LineModel } from './models/line-model';
 import { builtinResMgr } from '../asset/asset-manager';
 import CurveRange from './animator/curve-range';
 import GradientRange from './animator/gradient-range';
-import { IMaterialInstanceInfo, MaterialInstance } from '../render-scene/core/material-instance';
 import { ModelRenderer } from '../misc';
-
-const _matInsInfo: IMaterialInstanceInfo = {
-    parent: null!,
-    owner: null!,
-    subModelIdx: 0,
-};
 
 const CC_USE_WORLD_SPACE = 'CC_USE_WORLD_SPACE';
 const define = { CC_USE_WORLD_SPACE: false };
@@ -46,33 +39,23 @@ const define = { CC_USE_WORLD_SPACE: false };
 @menu('Effects/Line')
 @executeInEditMode
 export class Line extends ModelRenderer {
-    @serializable
-    private _lineMaterial: Material | null = null;
-    private _lineMatIns: MaterialInstance | null = null;
-
     @type(Material)
     @displayOrder(1)
     @tooltip('i18n:line.material')
     get lineMaterial () {
-        return this._lineMaterial;
+        return this.getMaterial(0);
     }
 
     set lineMaterial (val) {
-        super.material = val;
-        this._lineMaterial = val;
-        if (this._lineMaterial) {
+        this.material = val;
+        const matIns = this.getMaterialInstance(0);
+        if (matIns) {
             define[CC_USE_WORLD_SPACE] = this.worldSpace;
-            _matInsInfo.parent = this._lineMaterial;
-            _matInsInfo.subModelIdx = 0;
-            this._lineMatIns = new MaterialInstance(_matInsInfo);
-            this.setMaterialInstance(this._lineMatIns, 0);
-            _matInsInfo.parent = null!;
-            _matInsInfo.subModelIdx = 0;
-            this._lineMatIns.recompileShaders(define);
-        }
-        if (this._models[0]) {
-            const lineModel = this._models[0] as LineModel;
-            lineModel.updateMaterial(this._lineMatIns!);
+            matIns.recompileShaders(define);
+            if (this._models[0]) {
+                const lineModel = this._models[0] as LineModel;
+                lineModel.updateMaterial(matIns);
+            }
         }
     }
 
@@ -102,11 +85,12 @@ export class Line extends ModelRenderer {
 
     set worldSpace (val) {
         this._worldSpace = val;
-        if (this._lineMatIns) {
+        const matIns = this.getMaterialInstance(0);
+        if (matIns) {
             define[CC_USE_WORLD_SPACE] = this.worldSpace;
-            this._lineMatIns.recompileShaders(define);
+            matIns.recompileShaders(define);
             if (this._models[0]) {
-                this._models[0].setSubModelMaterial(0, this._lineMatIns);
+                this._models[0].setSubModelMaterial(0, matIns);
             }
         }
     }
@@ -164,22 +148,17 @@ export class Line extends ModelRenderer {
             this._models[0] = model;
         }
         model.node = model.transform = this.node;
-        if (this._lineMaterial === null) {
-            this._lineMaterial = new Material();
-            super.material = this._lineMaterial;
-            this._lineMaterial.copy(builtinResMgr.get<Material>('default-trail-material'));
+        if (this.lineMaterial === null) {
+            const mat = new Material();
+            mat.copy(builtinResMgr.get<Material>('default-trail-material'));
+            this.material = mat;
         }
-        if (this._lineMaterial) {
+        const matIns = this.getMaterialInstance(0);
+        if (matIns) {
             define[CC_USE_WORLD_SPACE] = this.worldSpace;
-            _matInsInfo.parent = this._lineMaterial;
-            _matInsInfo.subModelIdx = 0;
-            this._lineMatIns = new MaterialInstance(_matInsInfo);
-            this.setMaterialInstance(this._lineMatIns, 0);
-            _matInsInfo.parent = null!;
-            _matInsInfo.subModelIdx = 0;
-            this._lineMatIns.recompileShaders(define);
+            matIns.recompileShaders(define);
+            model.updateMaterial(matIns);
         }
-        model.updateMaterial(this._lineMatIns!);
         model.setCapacity(100);
     }
 
