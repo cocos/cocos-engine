@@ -1,4 +1,4 @@
-
+// base
 float SmoothDistAtt2 (float distSqr, float invSqrAttRadius) {
   float factor = distSqr * invSqrAttRadius; // ^2
   float factor2 = factor * factor; // ^4
@@ -23,4 +23,26 @@ float GetAngleAtt (vec3 L, vec3 litDir, float litAngleScale, float litAngleOffse
   float cd = dot(litDir, L);
   float attenuation = clamp(cd * litAngleScale + litAngleOffset, 0.0, 1.0);
   return (attenuation * attenuation);
+}
+
+
+
+// advanced
+float CalculateDistanceAttenuation(float distToLightSqr, float lightRadius, float lightRange)
+{
+  float litRadiusSqr = lightRadius * lightRadius;
+  float attRadiusSqrInv = 1.0 / max(lightRange, 0.01);
+  attRadiusSqrInv *= attRadiusSqrInv;
+  
+  // soft edge fading
+  float edgeAttenuation = litRadiusSqr / max(litRadiusSqr, distToLightSqr);
+  return GetDistAtt(distToLightSqr, attRadiusSqrInv) * edgeAttenuation;
+}
+
+float CalculateAngleAttenuation(vec3 spotLightDir, vec3 L, float cosAngleOuter)
+{
+  float cosInner = max(dot(spotLightDir, L), 0.01);
+  float litAngleScale = 1.0 / max(0.001, cosInner - cosAngleOuter);
+  float litAngleOffset = -cosAngleOuter * litAngleScale;
+  return GetAngleAtt(L, spotLightDir, litAngleScale, litAngleOffset);
 }

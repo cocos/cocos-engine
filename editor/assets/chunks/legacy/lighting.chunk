@@ -6,4 +6,4 @@
 #pragma define-meta CC_FORCE_FORWARD_SHADING
 
 #include <builtin/uniforms/cc-forward-light>
-#include <common/lighting/functions>
+#include <common/lighting/attenuation>
