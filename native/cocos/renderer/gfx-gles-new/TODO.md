@@ -1,0 +1,16 @@
+- [ ] XR interface
+- [ ] MSAA Auto resolve
+- [ ] MSAA Depth resolve
+- [ ] External Texture
+- [ ] Texture Feature && Exclusive
+- [ ] Memory record
+- [ ] State Cache
+- [ ] Framebuffer Fetch
+- [ ] Swappy
+- [ ] Sampler min / max lod
+- [ ] Shader version
+- [ ] Query pool
+- [ ] Draw / Dispatch Indirect
+- [ ] Different blend modes for each color attachment in a frame buffer.
+- [ ] Immutable samplers
+- [ ] Descriptor Dynamic Offset
