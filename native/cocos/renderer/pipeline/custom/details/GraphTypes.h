@@ -65,8 +65,8 @@ struct VertexOverloaded : Overloaded<Ts...> {
 };
 
 template <class GraphT, class... Ts>
-auto visitObject(typename GraphT::vertex_descriptor v, GraphT &g, Ts&&... args) {
-    return ccstd::visit(VertexOverloaded<Ts...>{std::forward<Ts>(args)...}, value(v, g));
+auto visitObject(typename GraphT::vertex_descriptor v, GraphT &g, Ts... args) {
+    return ccstd::visit(VertexOverloaded<Ts...>{std::move(args)...}, value(v, g));
 }
 
 namespace impl {
