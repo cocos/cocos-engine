@@ -154,7 +154,6 @@ LayoutGraphNodeResource::LayoutGraphNodeResource(LayoutGraphNodeResource&& rhs, 
 
 NativeRenderContext::NativeRenderContext(std::unique_ptr<gfx::DefaultResource> defaultResourceIn, const allocator_type& alloc) noexcept
 : defaultResource(std::move(defaultResourceIn)),
-  renderPasses(alloc),
   resourceGroups(alloc),
   layoutGraphResources(alloc) {}
 

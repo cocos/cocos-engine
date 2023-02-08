@@ -495,7 +495,7 @@ struct QuadResource {
 struct NativeRenderContext {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {renderPasses.get_allocator().resource()};
+        return {resourceGroups.get_allocator().resource()};
     }
 
     NativeRenderContext(std::unique_ptr<gfx::DefaultResource> defaultResourceIn, const allocator_type& alloc) noexcept;
@@ -507,7 +507,6 @@ struct NativeRenderContext {
     void clearPreviousResources(uint64_t finishedFenceValue) noexcept;
 
     std::unique_ptr<gfx::DefaultResource> defaultResource;
-    ccstd::pmr::unordered_map<RasterPass, PersistentRenderPassAndFramebuffer> renderPasses;
     ccstd::pmr::map<uint64_t, ResourceGroup> resourceGroups;
     ccstd::pmr::vector<LayoutGraphNodeResource> layoutGraphResources;
     QuadResource fullscreenQuad;

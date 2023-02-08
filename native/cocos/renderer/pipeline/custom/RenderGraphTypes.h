@@ -90,6 +90,7 @@ struct RenderSwapchain {
     gfx::Swapchain* swapchain{nullptr};
     uint32_t currentID{0};
     uint32_t numBackBuffers{0};
+    uint32_t generation{0xFFFFFFFF};
 };
 
 struct ResourceStates {
@@ -335,7 +336,6 @@ struct PersistentRenderPassAndFramebuffer {
     ccstd::pmr::vector<gfx::Color> clearColors;
     float clearDepth{0};
     uint8_t clearStencil{0};
-    int32_t refCount{1};
     uint32_t hash{0};
     uint64_t version{0};
 };
@@ -360,13 +360,10 @@ struct ResourceGraph {
     }
 
     ResourceGraph(const allocator_type& alloc) noexcept; // NOLINT
-    ResourceGraph(ResourceGraph&& rhs, const allocator_type& alloc);
-    ResourceGraph(ResourceGraph const& rhs, const allocator_type& alloc);
-
-    ResourceGraph(ResourceGraph&& rhs) noexcept = default;
+    ResourceGraph(ResourceGraph&& rhs) = delete;
     ResourceGraph(ResourceGraph const& rhs) = delete;
-    ResourceGraph& operator=(ResourceGraph&& rhs) = default;
-    ResourceGraph& operator=(ResourceGraph const& rhs) = default;
+    ResourceGraph& operator=(ResourceGraph&& rhs) = delete;
+    ResourceGraph& operator=(ResourceGraph const& rhs) = delete;
 
     // Graph
     using directed_category      = boost::bidirectional_tag;
@@ -452,6 +449,7 @@ struct ResourceGraph {
     void mount(gfx::Device* device, vertex_descriptor vertID);
     void unmount(uint64_t completedFenceValue);
     gfx::Texture* getTexture(vertex_descriptor resID);
+    void invalidatePersistentRenderPassAndFramebuffer(gfx::Texture* pTexture);
 
     // ContinuousContainer
     void reserve(vertices_size_type sz);

@@ -122,7 +122,6 @@ PersistentRenderPassAndFramebuffer::PersistentRenderPassAndFramebuffer(Persisten
   clearColors(std::move(rhs.clearColors), alloc),
   clearDepth(rhs.clearDepth),
   clearStencil(rhs.clearStencil),
-  refCount(rhs.refCount),
   hash(rhs.hash),
   version(rhs.version) {}
 
@@ -132,7 +131,6 @@ PersistentRenderPassAndFramebuffer::PersistentRenderPassAndFramebuffer(Persisten
   clearColors(rhs.clearColors, alloc),
   clearDepth(rhs.clearDepth),
   clearStencil(rhs.clearStencil),
-  refCount(rhs.refCount),
   hash(rhs.hash),
   version(rhs.version) {}
 
@@ -152,44 +150,6 @@ ResourceGraph::ResourceGraph(const allocator_type& alloc) noexcept
   swapchains(alloc),
   valueIndex(alloc),
   renderPasses(alloc) {}
-
-ResourceGraph::ResourceGraph(ResourceGraph&& rhs, const allocator_type& alloc)
-: _vertices(std::move(rhs._vertices), alloc),
-  names(std::move(rhs.names), alloc),
-  descs(std::move(rhs.descs), alloc),
-  traits(std::move(rhs.traits), alloc),
-  states(std::move(rhs.states), alloc),
-  samplerInfo(std::move(rhs.samplerInfo), alloc),
-  resources(std::move(rhs.resources), alloc),
-  managedBuffers(std::move(rhs.managedBuffers), alloc),
-  managedTextures(std::move(rhs.managedTextures), alloc),
-  buffers(std::move(rhs.buffers), alloc),
-  textures(std::move(rhs.textures), alloc),
-  framebuffers(std::move(rhs.framebuffers), alloc),
-  swapchains(std::move(rhs.swapchains), alloc),
-  valueIndex(std::move(rhs.valueIndex), alloc),
-  renderPasses(std::move(rhs.renderPasses), alloc),
-  nextFenceValue(rhs.nextFenceValue),
-  version(rhs.version) {}
-
-ResourceGraph::ResourceGraph(ResourceGraph const& rhs, const allocator_type& alloc)
-: _vertices(rhs._vertices, alloc),
-  names(rhs.names, alloc),
-  descs(rhs.descs, alloc),
-  traits(rhs.traits, alloc),
-  states(rhs.states, alloc),
-  samplerInfo(rhs.samplerInfo, alloc),
-  resources(rhs.resources, alloc),
-  managedBuffers(rhs.managedBuffers, alloc),
-  managedTextures(rhs.managedTextures, alloc),
-  buffers(rhs.buffers, alloc),
-  textures(rhs.textures, alloc),
-  framebuffers(rhs.framebuffers, alloc),
-  swapchains(rhs.swapchains, alloc),
-  valueIndex(rhs.valueIndex, alloc),
-  renderPasses(rhs.renderPasses, alloc),
-  nextFenceValue(rhs.nextFenceValue),
-  version(rhs.version) {}
 
 // ContinuousContainer
 void ResourceGraph::reserve(vertices_size_type sz) {

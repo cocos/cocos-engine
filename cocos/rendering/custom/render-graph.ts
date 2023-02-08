@@ -61,6 +61,7 @@ export class RenderSwapchain {
     /*pointer*/ swapchain: Swapchain | null;
     currentID = 0;
     numBackBuffers = 0;
+    generation = 0xFFFFFFFF;
 }
 
 export class ResourceStates {
@@ -417,7 +418,6 @@ export class PersistentRenderPassAndFramebuffer {
     readonly clearColors: Color[] = [];
     clearDepth = 0;
     clearStencil = 0;
-    refCount = 1;
     hash = 0;
     version = 0;
 }

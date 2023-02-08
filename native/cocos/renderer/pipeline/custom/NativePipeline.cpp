@@ -217,6 +217,12 @@ void NativePipeline::updateRenderWindow(const ccstd::string &name, scene::Render
         },
         [&](RenderSwapchain &sc) {
             CC_EXPECTS(renderWindow->getSwapchain());
+            auto* newSwapchain = renderWindow->getSwapchain();
+            if (sc.generation != newSwapchain->getGeneration()) {
+                resourceGraph.invalidatePersistentRenderPassAndFramebuffer(
+                    sc.swapchain->getColorTexture());
+                sc.generation = newSwapchain->getGeneration();
+            }
             desc.width = renderWindow->getSwapchain()->getWidth();
             desc.height = renderWindow->getSwapchain()->getHeight();
             sc.swapchain = renderWindow->getSwapchain();
@@ -232,13 +238,22 @@ void NativePipeline::updateRenderTarget(
         return;
     }
     auto &desc = get(ResourceGraph::Desc, resourceGraph, resID);
+
+    // update format
+    if (format == gfx::Format::UNKNOWN) {
+        format = desc.format;
+    }
     visitObject(
         resID, resourceGraph,
-        [&](ManagedTexture & /*tex*/) {
-            desc.width = width;
-            desc.height = height;
-            if (format != gfx::Format::UNKNOWN) {
+        [&](ManagedTexture &tex) {
+            bool invalidate =
+                std::forward_as_tuple(desc.width, desc.height, desc.format) !=
+                std::forward_as_tuple(width, height, format);
+            if (invalidate) {
+                desc.width = width;
+                desc.height = height;
                 desc.format = format;
+                resourceGraph.invalidatePersistentRenderPassAndFramebuffer(tex.texture.get());
             }
         },
         [](const auto & /*res*/) {});
