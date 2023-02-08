@@ -396,8 +396,8 @@ export class Quat extends ValueType {
     }
 
     /**
-     * @en Normalize the given quaternion
-     * @zh 归一化四元数
+     * @en Normalize the given quaternion, returns a zero quaternion if input is a zero quaternion
+     * @zh 归一化四元数，输入零四元数将会返回零四元数
      */
     public static normalize<Out extends IQuatLike> (out: Out, a: Out) {
         let len = a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w;
@@ -407,6 +407,11 @@ export class Quat extends ValueType {
             out.y = a.y * len;
             out.z = a.z * len;
             out.w = a.w * len;
+        } else {
+            out.x = 0;
+            out.y = 0;
+            out.z = 0;
+            out.w = 0;
         }
         return out;
     }
