@@ -30,7 +30,7 @@ import { Pipeline } from './pipeline';
 import { AccessType, AttachmentType, ComputeView, LightInfo, QueueHint, RasterView, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
 import { Vec4, macro, geometry, toRadian, cclegacy, assert } from '../../core';
 import { Material } from '../../asset/assets';
-import { SRGBToLinear } from '../pipeline-funcs';
+import { getProfilerCamera, SRGBToLinear } from '../pipeline-funcs';
 import { RenderWindow } from '../../render-scene/core/render-window';
 import { RenderData } from './render-graph';
 import { WebPipeline } from './web-pipeline';
@@ -520,6 +520,9 @@ export function buildPostprocessPass (camera: Camera,
     );
     postprocessPass.addQueue(QueueHint.RENDER_TRANSPARENT).addSceneOfCamera(camera, new LightInfo(),
         SceneFlags.UI);
+    if (getProfilerCamera() === camera) {
+        postprocessPass.showStatistics = true;
+    }
     return { rtName: postprocessPassRTName, dsName: postprocessPassDS };
 }
 
@@ -586,7 +589,8 @@ export function buildForwardPass (camera: Camera,
              | SceneFlags.DEFAULT_LIGHTING | SceneFlags.DRAW_INSTANCING);
     let sceneFlags = SceneFlags.TRANSPARENT_OBJECT | SceneFlags.GEOMETRY;
     if (!isOffScreen) {
-        sceneFlags |= SceneFlags.UI | SceneFlags.PROFILER;
+        sceneFlags |= SceneFlags.UI;
+        forwardPass.showStatistics = true;
     }
     forwardPass
         .addQueue(QueueHint.RENDER_TRANSPARENT)
@@ -944,46 +948,7 @@ function getClearFlags (attachment: AttachmentType, clearFlag: ClearFlagBit, loa
     }
 }
 
-export function buildProfilerPass (camera: Camera,
-    ppl: Pipeline) {
-    const cameraID = getCameraUniqueID(camera);
-    const cameraName = `Camera${cameraID}`;
-    const area = getRenderArea(camera, camera.window.width, camera.window.height);
-    const width = area.width;
-    const height = area.height;
-
-    const dsProfilerPassRTName = `dsProfilerPassColor${cameraName}`;
-    const dsProfilerPassDSName = `dsProfilerPassDS${cameraName}`;
-    if (!ppl.containsResource(dsProfilerPassRTName)) {
-        ppl.addRenderTexture(dsProfilerPassRTName, Format.BGRA8, width, height, camera.window);
-        ppl.addDepthStencil(dsProfilerPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
-    }
-    ppl.updateRenderWindow(dsProfilerPassRTName, camera.window);
-    ppl.updateDepthStencil(dsProfilerPassDSName, width, height);
-    const ProfilerPass = ppl.addRasterPass(width, height, 'default');
-    ProfilerPass.name = `CameraProfilerPass${cameraID}`;
-    ProfilerPass.setViewport(new Viewport(area.x, area.y, width, height));
-    const passView = new RasterView('_',
-        AccessType.WRITE, AttachmentType.RENDER_TARGET,
-        getLoadOpOfClearFlag(ClearFlagBit.DEPTH_STENCIL, AttachmentType.RENDER_TARGET),
-        StoreOp.STORE,
-        ClearFlagBit.DEPTH_STENCIL,
-        new Color(camera.clearColor.x, camera.clearColor.y, camera.clearColor.z, camera.clearColor.w));
-    const passDSView = new RasterView('_',
-        AccessType.WRITE, AttachmentType.DEPTH_STENCIL,
-        getLoadOpOfClearFlag(ClearFlagBit.DEPTH_STENCIL, AttachmentType.DEPTH_STENCIL),
-        StoreOp.STORE,
-        ClearFlagBit.DEPTH_STENCIL,
-        new Color(camera.clearDepth, camera.clearStencil, 0, 0));
-    ProfilerPass.addRasterView(dsProfilerPassRTName, passView);
-    ProfilerPass.addRasterView(dsProfilerPassDSName, passDSView);
-    const sceneFlags = SceneFlags.PROFILER;
-    ProfilerPass
-        .addQueue(QueueHint.RENDER_TRANSPARENT)
-        .addSceneOfCamera(camera, new LightInfo(), sceneFlags);
-}
-
-export function buildUIAndProfilerPass (camera: Camera,
+export function buildUIPass (camera: Camera,
     ppl: Pipeline) {
     const cameraID = getCameraUniqueID(camera);
     const cameraName = `Camera${cameraID}`;
@@ -1016,10 +981,13 @@ export function buildUIAndProfilerPass (camera: Camera,
         new Color(camera.clearDepth, camera.clearStencil, 0, 0));
     uIAndProfilerPass.addRasterView(dsUIAndProfilerPassRTName, passView);
     uIAndProfilerPass.addRasterView(dsUIAndProfilerPassDSName, passDSView);
-    const sceneFlags = SceneFlags.UI | SceneFlags.PROFILER;
+    const sceneFlags = SceneFlags.UI;
     uIAndProfilerPass
         .addQueue(QueueHint.RENDER_TRANSPARENT)
         .addSceneOfCamera(camera, new LightInfo(), sceneFlags);
+    if (getProfilerCamera() === camera) {
+        uIAndProfilerPass.showStatistics = true;
+    }
 }
 
 export function buildNativeForwardPass (camera: Camera, ppl: Pipeline) {
@@ -1078,8 +1046,8 @@ export function buildNativeForwardPass (camera: Camera, ppl: Pipeline) {
     forwardPass
         .addQueue(QueueHint.RENDER_TRANSPARENT)
         .addSceneOfCamera(camera, new LightInfo(),
-            SceneFlags.UI
-            | SceneFlags.PROFILER);
+            SceneFlags.UI);
+    forwardPass.showStatistics = true;
 }
 
 export function buildNativeDeferredPipeline (camera: Camera, ppl: Pipeline) {
@@ -1278,6 +1246,13 @@ export function getDescriptorSetDataFromLayout (layoutName: string) {
     const layout = webPip.layoutGraph.getLayout(stageId);
     const layoutData = layout.descriptorSets.get(UpdateFrequency.PER_PASS);
     layouts.set(layoutName, layoutData!);
+    return layoutData;
+}
+
+export function getDescriptorSetDataFromLayoutId (id: number) {
+    const webPip = cclegacy.director.root.pipeline as WebPipeline;
+    const layout = webPip.layoutGraph.getLayout(id);
+    const layoutData = layout.descriptorSets.get(UpdateFrequency.PER_PASS);
     return layoutData;
 }
 
