@@ -205,11 +205,10 @@ void Model::updateUBOs(uint32_t stamp) {
         _localBuffer->write(mat4, sizeof(float) * pipeline::UBOLocal::MAT_WORLD_IT_OFFSET);
         _localBuffer->write(_lightmapUVParam, sizeof(float) * pipeline::UBOLocal::LIGHTINGMAP_UVPARAM);
         _localBuffer->write(_shadowBias, sizeof(float) * (pipeline::UBOLocal::LOCAL_SHADOW_BIAS));
-        _localBuffer->write(0.F, sizeof(float) * (pipeline::UBOLocal::LOCAL_SHADOW_BIAS + 1));
-        _localBuffer->write(static_cast<float>(_reflectionProbeId), sizeof(float) * (pipeline::UBOLocal::LOCAL_SHADOW_BIAS + 2));
-        _localBuffer->write(0.F, sizeof(float) * (pipeline::UBOLocal::LOCAL_SHADOW_BIAS + 3));
+        //_localBuffer->write(static_cast<float>(_reflectionProbeId), sizeof(float) * (pipeline::UBOLocal::LOCAL_SHADOW_BIAS + 2));
+        //_localBuffer->write(5.F, sizeof(float) * (pipeline::UBOLocal::LOCAL_SHADOW_BIAS + 3));
 
-        auto * probe = scene::ReflectionProbeManager::getInstance()->getReflectionProbeById(_reflectionProbeId);
+        /*auto * probe = scene::ReflectionProbeManager::getInstance()->getReflectionProbeById(_reflectionProbeId);
         if (probe) {
             if (probe->getProbeType() == scene::ReflectionProbe::ProbeType::PLANAR)
             {
@@ -225,17 +224,15 @@ void Model::updateUBOs(uint32_t stamp) {
             }
             else
             {
-                _localBuffer->write(static_cast<float>(probe->getNode()->getWorldPosition().x), sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_DATA1));
-                _localBuffer->write(static_cast<float>(probe->getNode()->getWorldPosition().y), sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_DATA1 + 1));
-                _localBuffer->write(static_cast<float>(probe->getNode()->getWorldPosition().z), sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_DATA1 + 2));
-                _localBuffer->write(0.F, sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_DATA1 + 3));
+                const Vec4 pos = { probe->getNode()->getWorldPosition().x, probe->getNode()->getWorldPosition().y, probe->getNode()->getWorldPosition().z, 2.F };
+                _localBuffer->write(pos, sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_DATA1));
 
                 _localBuffer->write(static_cast<float>(probe->getBoudingSize().x), sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_DATA2));
                 _localBuffer->write(static_cast<float>(probe->getBoudingSize().y), sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_DATA2 + 1));
                 _localBuffer->write(static_cast<float>(probe->getBoudingSize().z), sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_DATA2 + 2));
-                _localBuffer->write(static_cast<float>(probe->getCubeMap() ? probe->getCubeMap()->mipmapLevel() : 1.F), sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_DATA2 + 3));
+                _localBuffer->write(9.F, sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_DATA2 + 3));
             }
-        }
+        }*/
 
         _localBuffer->update();
         const bool enableOcclusionQuery = Root::getInstance()->getPipeline()->isOcclusionQueryEnabled();
