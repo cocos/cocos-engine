@@ -272,7 +272,6 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
     data.renderPass = ctx.device->createRenderPass(rpInfo);
     fbInfo.renderPass = data.renderPass;
     data.framebuffer = ctx.device->createFramebuffer(fbInfo);
-    data.hash = gfx::Framebuffer::computeHash(fbInfo);
 
     return data;
 }
@@ -280,23 +279,12 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
 PersistentRenderPassAndFramebuffer& fetchOrCreateFramebuffer(
     RenderGraphVisitorContext& ctx, const RasterPass& pass,
     boost::container::pmr::memory_resource* scratch) {
-    auto iter = ctx.context.renderPasses.find(pass);
-    if (iter == ctx.context.renderPasses.end()) {
+    auto iter = ctx.resourceGraph.renderPasses.find(pass);
+    if (iter == ctx.resourceGraph.renderPasses.end()) {
         bool added = false;
-        std::tie(iter, added) = ctx.context.renderPasses.emplace(
+        std::tie(iter, added) = ctx.resourceGraph.renderPasses.emplace(
             pass, createPersistentRenderPassAndFramebuffer(ctx, pass, scratch));
         CC_ENSURES(added);
-        return iter->second;
-    }
-
-    gfx::FramebufferInfo fbInfo{};
-    fbInfo.renderPass = iter->second.renderPass;
-    fbInfo.colorTextures = iter->second.framebuffer->getColorTextures();
-    fbInfo.depthStencilTexture = iter->second.framebuffer->getDepthStencilTexture();
-    auto hash = gfx::Framebuffer::computeHash(fbInfo);
-    if (iter->second.hash != hash) {
-        iter->second.framebuffer = ctx.device->createFramebuffer(fbInfo);
-        iter->second.hash = hash;
     }
     return iter->second;
 }
@@ -966,7 +954,6 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         const auto& layoutID = locate(LayoutGraphData::null_vertex(), layoutName, ctx.lg);
         {
             auto& res = fetchOrCreateFramebuffer(ctx, pass, ctx.scratch);
-            ++res.refCount;
             const auto& data = res;
             auto* cmdBuff = ctx.cmdBuff;
 
@@ -1393,15 +1380,7 @@ struct RenderGraphContextCleaner {
     }
     RenderGraphContextCleaner(const RenderGraphContextCleaner&) = delete;
     RenderGraphContextCleaner& operator=(const RenderGraphContextCleaner&) = delete;
-    ~RenderGraphContextCleaner() noexcept {
-        for (auto iter = context.renderPasses.begin(); iter != context.renderPasses.end();) {
-            if (--iter->second.refCount == 0) {
-                iter = context.renderPasses.erase(iter);
-            } else {
-                ++iter;
-            }
-        }
-    }
+    ~RenderGraphContextCleaner() noexcept = default;
     NativeRenderContext& context;
     uint64_t prevFenceValue = 0;
 };
@@ -1708,6 +1687,8 @@ void buildRenderQueues(
 void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
     auto& ppl = *this;
     auto* scratch = &ppl.unsyncPool;
+
+    ppl.resourceGraph.validateSwapchains();
 
     RenderGraphContextCleaner contextCleaner(ppl.nativeContext);
     ResourceCleaner cleaner(ppl.resourceGraph);
