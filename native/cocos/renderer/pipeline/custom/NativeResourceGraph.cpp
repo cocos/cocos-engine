@@ -212,6 +212,8 @@ void ResourceGraph::mount(gfx::Device* device, vertex_descriptor vertID) {
 void ResourceGraph::unmount(uint64_t completedFenceValue) {
     auto& resg = *this;
     for (const auto& vertID : makeRange(vertices(resg))) {
+        // here msvc has strange behaviour when using visitObject
+        // we use if-else instead.
         if (holds<ManagedBufferTag>(vertID, resg)) {
             auto& buffer = get(ManagedBufferTag{}, vertID, resg);
             if (buffer.buffer && buffer.fenceValue <= completedFenceValue) {
@@ -224,38 +226,6 @@ void ResourceGraph::unmount(uint64_t completedFenceValue) {
                 texture.texture.reset();
             }
         }
-        //visitObject(
-        //    vertID, resg,
-        //    [&](const ManagedResource& resource) {
-        //        // to be removed
-        //    },
-        //    [&](ManagedBuffer& buffer) {
-        //        if (buffer.fenceValue <= completedFenceValue) {
-        //            buffer.buffer.reset();
-        //        }
-        //    },
-        //    [&](ManagedTexture& texture) {
-        //        if (texture.fenceValue <= completedFenceValue) {
-        //            pTexture = texture.texture.get();
-        //            texture.texture.reset();
-        //        }
-        //    },
-        //    [&](const IntrusivePtr<gfx::Buffer>& buffer) {
-        //        CC_EXPECTS(buffer);
-        //        std::ignore = buffer;
-        //    },
-        //    [&](const IntrusivePtr<gfx::Texture>& texture) {
-        //        CC_EXPECTS(texture);
-        //        std::ignore = texture;
-        //    },
-        //    [&](const IntrusivePtr<gfx::Framebuffer>& fb) {
-        //        CC_EXPECTS(fb);
-        //        std::ignore = fb;
-        //    },
-        //    [&](const RenderSwapchain& queue) {
-        //        CC_EXPECTS(queue.swapchain);
-        //        std::ignore = queue;
-        //    });
     }
 }
 
