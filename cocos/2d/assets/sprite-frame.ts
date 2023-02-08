@@ -484,7 +484,7 @@ export class SpriteFrame extends Asset {
 
     /**
      * @en Whether flip the uv in X direction.
-     * @zh 延 X 轴方向, 翻转 UV。
+     * @zh 沿 X 轴方向, 翻转 UV。
      */
     get flipUVX () {
         return this._isFlipUVX;
@@ -497,7 +497,7 @@ export class SpriteFrame extends Asset {
 
     /**
      * @en Whether flip the uv in Y direction.
-     * @zh 延 Y 轴方向, 翻转 UV。
+     * @zh 沿 Y 轴方向, 翻转 UV。
      */
     get flipUVY () {
         return this._isFlipUVY;

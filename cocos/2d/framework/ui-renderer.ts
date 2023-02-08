@@ -478,7 +478,7 @@ export class UIRenderer extends Renderer {
     }
 
     /**
-     * @deprecated Since v3.7
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public setEntityColor (color: Color) {
         if (JSB) {
@@ -487,7 +487,7 @@ export class UIRenderer extends Renderer {
     }
 
     /**
-     * @deprecated Since v3.7
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public setEntityOpacity (opacity: number) {
         if (JSB) {

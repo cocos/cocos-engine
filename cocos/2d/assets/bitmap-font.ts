@@ -133,7 +133,7 @@ export class BitmapFont extends Font {
     public fntConfig: IConfig | null = null;
 
     /**
-     * @deprecated since v3.7.0, Useless Code.
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public declare fontDefDictionary: FontAtlas;
 
