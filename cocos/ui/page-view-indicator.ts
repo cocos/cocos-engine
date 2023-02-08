@@ -40,7 +40,7 @@ const _color = new Color();
 /**
  * @en Enum for PageView Indicator direction.
  *
- * @zh 页面视图指示器的摆放方向
+ * @zh 页面视图指示器的摆放方向。
  *
  * @enum PageViewIndicator.Direction
  */
@@ -48,14 +48,14 @@ enum Direction {
     /**
      * @en The horizontal direction.
      *
-     * @zh 水平方向
+     * @zh 水平方向。
      */
     HORIZONTAL = 0,
 
     /**
      * @en The vertical direction.
      *
-     * @zh 垂直方向
+     * @zh 垂直方向。
      */
     VERTICAL = 1,
 }
@@ -66,7 +66,7 @@ ccenum(Direction);
  * The Page View Indicator Component.
  *
  * @zh
- * 页面视图每页标记组件
+ * 页面视图每页标记组件。
  */
 @ccclass('cc.PageViewIndicator')
 @help('i18n:cc.PageViewIndicator')
@@ -78,7 +78,7 @@ export class PageViewIndicator extends Component {
      * The spriteFrame for each element.
      *
      * @zh
-     * 每个页面标记显示的图片
+     * 每个页面标记显示的图片。
      */
     @type(SpriteFrame)
     @tooltip('i18n:pageview_indicator.spriteFrame')
@@ -98,9 +98,9 @@ export class PageViewIndicator extends Component {
      * The location direction of PageViewIndicator.
      *
      * @zh
-     * 页面标记摆放方向
+     * 页面标记摆放方向。
      *
-     * @param direction @en The direction of the PageViewIndicator @zh 页面标记的摆放方向
+     * @param direction @en The direction of the PageViewIndicator. @zh 页面标记的摆放方向。
      */
     @type(Direction)
     @tooltip('i18n:pageview_indicator.direction')
@@ -120,7 +120,7 @@ export class PageViewIndicator extends Component {
      * The cellSize for each element.
      *
      * @zh
-     * 每个页面标记的大小
+     * 每个页面标记的大小。
      */
     @type(Size)
     @tooltip('i18n:pageview_indicator.cell_size')
@@ -135,6 +135,11 @@ export class PageViewIndicator extends Component {
         this._cellSize = value;
     }
 
+    /**
+     * @en Enum for PageView Indicator direction.
+     * @zh 页面视图指示器的摆放方向。
+     * @enum PageViewIndicator.Direction
+     */
     public static Direction = Direction;
 
     /**
@@ -142,7 +147,7 @@ export class PageViewIndicator extends Component {
      * The distance between each element.
      *
      * @zh
-     * 每个页面标记之间的边距
+     * 每个页面标记之间的边距。
      */
     @serializable
     @tooltip('i18n:pageview_indicator.spacing')
@@ -166,9 +171,9 @@ export class PageViewIndicator extends Component {
      * Set Page View.
      *
      * @zh
-     * 设置页面视图
+     * 设置页面视图。
      *
-     * @param target @en The page view which is attached with this indicator  @zh 当前标记对象附着到的页面视图对象
+     * @param target @en The page view which is attached with this indicator.  @zh 当前标记对象附着到的页面视图对象。
      */
     public setPageView (target: PageView) {
         this._pageView = target;

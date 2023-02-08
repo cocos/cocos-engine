@@ -53,6 +53,8 @@ const _dsInfo = new DescriptorSetInfo(null!);
 const m4_1 = new Mat4();
 
 /**
+ * @en
+ * UI render flow
  * @zh
  * UI 渲染流程
  */
