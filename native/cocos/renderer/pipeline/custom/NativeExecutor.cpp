@@ -272,8 +272,6 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
     data.renderPass = ctx.device->createRenderPass(rpInfo);
     fbInfo.renderPass = data.renderPass;
     data.framebuffer = ctx.device->createFramebuffer(fbInfo);
-    data.hash = gfx::Framebuffer::computeHash(fbInfo);
-    data.version = pass.version;
 
     return data;
 }
@@ -287,35 +285,8 @@ PersistentRenderPassAndFramebuffer& fetchOrCreateFramebuffer(
         std::tie(iter, added) = ctx.resourceGraph.renderPasses.emplace(
             pass, createPersistentRenderPassAndFramebuffer(ctx, pass, scratch));
         CC_ENSURES(added);
-        return iter->second;
     }
-
-    auto& persistent = iter->second;
-    auto makeFramebufferInfo = [&]() {
-        gfx::FramebufferInfo fbInfo{};
-        fbInfo.renderPass = persistent.renderPass;
-        fbInfo.colorTextures = persistent.framebuffer->getColorTextures();
-        fbInfo.depthStencilTexture = persistent.framebuffer->getDepthStencilTexture();
-        return fbInfo;
-    };
-
-    if (persistent.version != pass.version) {
-        const auto fbInfo = makeFramebufferInfo();
-        const auto hash = gfx::Framebuffer::computeHash(fbInfo);
-        persistent.version = pass.version;
-        persistent.framebuffer = ctx.device->createFramebuffer(fbInfo);
-        persistent.hash = hash;
-        return persistent;
-    }
-
-    const auto fbInfo = makeFramebufferInfo();
-    const auto hash = gfx::Framebuffer::computeHash(fbInfo);
-    if (persistent.hash != hash) {
-        CC_EXPECTS(persistent.version == pass.version);
-        persistent.framebuffer = ctx.device->createFramebuffer(fbInfo);
-        persistent.hash = hash;
-    }
-    return persistent;
+    return iter->second;
 }
 
 gfx::BufferBarrierInfo getBufferBarrier(const render::Barrier& barrier) {
@@ -1716,6 +1687,8 @@ void buildRenderQueues(
 void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
     auto& ppl = *this;
     auto* scratch = &ppl.unsyncPool;
+
+    ppl.resourceGraph.validateSwapchains();
 
     RenderGraphContextCleaner contextCleaner(ppl.nativeContext);
     ResourceCleaner cleaner(ppl.resourceGraph);

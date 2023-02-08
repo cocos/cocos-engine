@@ -166,6 +166,19 @@ bool ManagedTexture::checkResource(const ResourceDesc& desc) const {
     return desc.width == info.width && desc.height == info.height && desc.format == info.format;
 }
 
+void ResourceGraph::validateSwapchains() {
+    bool swapchainInvalidated = false;
+    for (auto& sc : swapchains) {
+        if (sc.generation != sc.swapchain->getGeneration()) {
+            swapchainInvalidated = true;
+            sc.generation = sc.swapchain->getGeneration();
+        }
+    }
+    if (swapchainInvalidated) {
+        renderPasses.clear();
+    }
+}
+
 void ResourceGraph::mount(gfx::Device* device, vertex_descriptor vertID) {
     std::ignore = device;
     auto& resg = *this;

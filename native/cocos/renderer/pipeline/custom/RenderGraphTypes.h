@@ -307,8 +307,8 @@ struct RasterPass {
 };
 
 inline bool operator==(const RasterPass& lhs, const RasterPass& rhs) noexcept {
-    return std::forward_as_tuple(lhs.rasterViews, lhs.computeViews, lhs.subpassGraph, lhs.width, lhs.height, lhs.versionName) ==
-           std::forward_as_tuple(rhs.rasterViews, rhs.computeViews, rhs.subpassGraph, rhs.width, rhs.height, rhs.versionName);
+    return std::forward_as_tuple(lhs.rasterViews, lhs.computeViews, lhs.subpassGraph, lhs.width, lhs.height) ==
+           std::forward_as_tuple(rhs.rasterViews, rhs.computeViews, rhs.subpassGraph, rhs.width, rhs.height);
 }
 
 inline bool operator!=(const RasterPass& lhs, const RasterPass& rhs) noexcept {
@@ -336,8 +336,6 @@ struct PersistentRenderPassAndFramebuffer {
     ccstd::pmr::vector<gfx::Color> clearColors;
     float clearDepth{0};
     uint8_t clearStencil{0};
-    uint32_t hash{0};
-    uint64_t version{0};
 };
 
 struct ManagedTag {};
@@ -446,6 +444,7 @@ struct ResourceGraph {
         impl::ValueHandle<FramebufferTag, vertex_descriptor>,
         impl::ValueHandle<SwapchainTag, vertex_descriptor>>;
 
+    void validateSwapchains();
     void mount(gfx::Device* device, vertex_descriptor vertID);
     void unmount(uint64_t completedFenceValue);
     gfx::Texture* getTexture(vertex_descriptor resID);
@@ -969,7 +968,6 @@ inline hash_t hash<cc::render::RasterPass>::operator()(const cc::render::RasterP
     hash_combine(seed, val.subpassGraph);
     hash_combine(seed, val.width);
     hash_combine(seed, val.height);
-    hash_combine(seed, val.versionName);
     return seed;
 }
 

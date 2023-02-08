@@ -121,18 +121,14 @@ PersistentRenderPassAndFramebuffer::PersistentRenderPassAndFramebuffer(Persisten
   framebuffer(std::move(rhs.framebuffer)),
   clearColors(std::move(rhs.clearColors), alloc),
   clearDepth(rhs.clearDepth),
-  clearStencil(rhs.clearStencil),
-  hash(rhs.hash),
-  version(rhs.version) {}
+  clearStencil(rhs.clearStencil) {}
 
 PersistentRenderPassAndFramebuffer::PersistentRenderPassAndFramebuffer(PersistentRenderPassAndFramebuffer const& rhs, const allocator_type& alloc)
 : renderPass(rhs.renderPass),
   framebuffer(rhs.framebuffer),
   clearColors(rhs.clearColors, alloc),
   clearDepth(rhs.clearDepth),
-  clearStencil(rhs.clearStencil),
-  hash(rhs.hash),
-  version(rhs.version) {}
+  clearStencil(rhs.clearStencil) {}
 
 ResourceGraph::ResourceGraph(const allocator_type& alloc) noexcept
 : _vertices(alloc),

@@ -418,8 +418,6 @@ export class PersistentRenderPassAndFramebuffer {
     readonly clearColors: Color[] = [];
     clearDepth = 0;
     clearStencil = 0;
-    hash = 0;
-    version = 0;
 }
 
 //=================================================================
