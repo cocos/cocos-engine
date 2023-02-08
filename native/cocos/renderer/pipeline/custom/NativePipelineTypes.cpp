@@ -34,29 +34,6 @@ namespace cc {
 
 namespace render {
 
-PersistentRenderPassAndFramebuffer::PersistentRenderPassAndFramebuffer(const allocator_type& alloc) noexcept
-: clearColors(alloc) {}
-
-PersistentRenderPassAndFramebuffer::PersistentRenderPassAndFramebuffer(PersistentRenderPassAndFramebuffer&& rhs, const allocator_type& alloc)
-: renderPass(std::move(rhs.renderPass)),
-  framebuffer(std::move(rhs.framebuffer)),
-  clearColors(std::move(rhs.clearColors), alloc),
-  clearDepth(rhs.clearDepth),
-  clearStencil(rhs.clearStencil),
-  refCount(rhs.refCount),
-  hash(rhs.hash),
-  version(rhs.version) {}
-
-PersistentRenderPassAndFramebuffer::PersistentRenderPassAndFramebuffer(PersistentRenderPassAndFramebuffer const& rhs, const allocator_type& alloc)
-: renderPass(rhs.renderPass),
-  framebuffer(rhs.framebuffer),
-  clearColors(rhs.clearColors, alloc),
-  clearDepth(rhs.clearDepth),
-  clearStencil(rhs.clearStencil),
-  refCount(rhs.refCount),
-  hash(rhs.hash),
-  version(rhs.version) {}
-
 RenderInstancingQueue::RenderInstancingQueue(const allocator_type& alloc) noexcept
 : batches(alloc),
   sortedBatches(alloc) {}

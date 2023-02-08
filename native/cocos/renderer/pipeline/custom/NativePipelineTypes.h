@@ -231,31 +231,6 @@ public:
     const scene::RenderScene* scene{nullptr};
 };
 
-struct PersistentRenderPassAndFramebuffer {
-    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
-    allocator_type get_allocator() const noexcept { // NOLINT
-        return {clearColors.get_allocator().resource()};
-    }
-
-    PersistentRenderPassAndFramebuffer(const allocator_type& alloc) noexcept; // NOLINT
-    PersistentRenderPassAndFramebuffer(PersistentRenderPassAndFramebuffer&& rhs, const allocator_type& alloc);
-    PersistentRenderPassAndFramebuffer(PersistentRenderPassAndFramebuffer const& rhs, const allocator_type& alloc);
-
-    PersistentRenderPassAndFramebuffer(PersistentRenderPassAndFramebuffer&& rhs) noexcept = default;
-    PersistentRenderPassAndFramebuffer(PersistentRenderPassAndFramebuffer const& rhs) = delete;
-    PersistentRenderPassAndFramebuffer& operator=(PersistentRenderPassAndFramebuffer&& rhs) = default;
-    PersistentRenderPassAndFramebuffer& operator=(PersistentRenderPassAndFramebuffer const& rhs) = default;
-
-    IntrusivePtr<gfx::RenderPass> renderPass;
-    IntrusivePtr<gfx::Framebuffer> framebuffer;
-    ccstd::pmr::vector<gfx::Color> clearColors;
-    float clearDepth{0};
-    uint8_t clearStencil{0};
-    int32_t refCount{1};
-    uint32_t hash{0};
-    uint64_t version{0};
-};
-
 struct RenderInstancingQueue {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
