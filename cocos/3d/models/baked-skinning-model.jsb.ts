@@ -3,10 +3,14 @@ import { Skeleton } from '../assets/skeleton';
 import { AABB } from '../../core/geometry';
 import { Mesh } from '../assets/mesh';
 import { Node } from '../../core/scene-graph/node'
-import { AnimationClip } from "../../core";
 import { IJointTextureHandle } from '../skeletal-animation/skeletal-animation-utils';
+import type { BakedSkinningModel as JsbBakedSkinningModel } from './baked-skinning-model';
 
-export const BakedSkinningModel = jsb.BakedSkinningModel;
+declare const jsb: any;
+
+export const BakedSkinningModel: typeof JsbBakedSkinningModel = jsb.BakedSkinningModel;
+export type BakedSkinningModel = JsbBakedSkinningModel;
+
 legacyCC.BakedSkinningModel = jsb.BakedSkinningModel;
 const MorphModel = jsb.MorphModel;
 

@@ -29,9 +29,12 @@ import { Mat4 } from '../../core/math';
 import { DataPoolManager } from '../skeletal-animation/data-pool-manager';
 import { Asset } from '../../core/assets/asset';
 import { legacyCC } from '../../core/global-exports';
+import type { Skeleton as JsbSkeleton } from './skeleton';
 
-export const Skeleton = jsb.Skeleton;
-export type Skeleton = jsb.Skeleton;
+declare const jsb: any;
+
+export const Skeleton: typeof JsbSkeleton = jsb.Skeleton;
+export type Skeleton = JsbSkeleton;
 legacyCC.Skeleton = Skeleton;
 const skeletonProto: any = Skeleton.prototype;
 

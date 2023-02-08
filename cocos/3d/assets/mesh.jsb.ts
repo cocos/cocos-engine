@@ -26,6 +26,7 @@ import { ccclass, serializable } from 'cc.decorator';
 import { legacyCC } from '../../core/global-exports';
 import { Vec3 } from '../../core/math';
 import '../../core/assets/asset';
+import type { Mesh as JsbMesh } from './mesh';
 
 declare const jsb: any;
 
@@ -43,8 +44,8 @@ export declare namespace Mesh {
     export type IStruct = jsb.Mesh.IStruct;
     export type ICreateInfo = jsb.Mesh.ICreateInfo;
 }
-export type Mesh = jsb.Mesh;
-export const Mesh = jsb.Mesh;
+export type Mesh = JsbMesh;
+export const Mesh: typeof JsbMesh = jsb.Mesh;
 
 const IStructProto: any = jsb.Mesh.IStruct.prototype;
 

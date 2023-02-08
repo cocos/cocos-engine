@@ -38,6 +38,16 @@ import { Enum } from '../value-types';
 import { ccclass, displayOrder, rangeMin, rangeStep, slide } from '../data/decorators';
 import { EnvironmentLightingType } from '../renderer/scene';
 import { Material } from '../assets/material';
+import type {
+    AmbientInfo as JsbAmbientInfo,
+    SkyboxInfo as JsbSkyboxInfo,
+    FogInfo as JsbFogInfo,
+    ShadowsInfo as JsbShadowsInfo,
+    OctreeInfo as JsbOctreeInfo,
+    SceneGlobals as JsbSceneGlobals,
+} from './scene-globals';
+
+declare const jsb: any;
 
 /**
  * @zh
@@ -141,30 +151,29 @@ export const ShadowType = Enum({
     ShadowMap: 1,
 });
 
-// @ts-ignore
-export const AmbientInfo = jsb.AmbientInfo;
+export const AmbientInfo: typeof JsbAmbientInfo = jsb.AmbientInfo;
+export type AmbientInfo = JsbAmbientInfo;
 legacyCC.AmbientInfo = AmbientInfo;
 
-// @ts-ignore
-export const SkyboxInfo = jsb.SkyboxInfo;
+export const SkyboxInfo: typeof JsbSkyboxInfo = jsb.SkyboxInfo;
+export type SkyboxInfo = JsbSkyboxInfo;
 legacyCC.SkyboxInfo = SkyboxInfo;
 
-
-// @ts-ignore
-export const FogInfo = jsb.FogInfo;
+export const FogInfo: typeof JsbFogInfo = jsb.FogInfo;
+export type FogInfo = JsbFogInfo;
 legacyCC.FogInfo = FogInfo;
 FogInfo.FogType = FogType;
 
-// @ts-ignore
-export const ShadowsInfo = jsb.ShadowsInfo;
+export const ShadowsInfo: typeof JsbShadowsInfo = jsb.ShadowsInfo;
+export type ShadowsInfo = JsbShadowsInfo;
 legacyCC.ShadowsInfo = ShadowsInfo;
 
-// @ts-ignore
-export const OctreeInfo = jsb.OctreeInfo;
+export const OctreeInfo: typeof JsbOctreeInfo = jsb.OctreeInfo;
+export type OctreeInfo = JsbOctreeInfo;
 legacyCC.OctreeInfo = OctreeInfo;
 
-// @ts-ignore
-export const SceneGlobals = jsb.SceneGlobals;
+export const SceneGlobals: typeof JsbSceneGlobals = jsb.SceneGlobals;
+export type SceneGlobals = JsbSceneGlobals;
 legacyCC.SceneGlobals = SceneGlobals;
 
 (function () {

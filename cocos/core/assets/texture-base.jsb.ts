@@ -22,11 +22,15 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+import { EDITOR, TEST } from 'internal:constants';
 import { ccclass, serializable } from 'cc.decorator';
 import { deviceManager } from '../gfx';
 import { legacyCC } from '../global-exports';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
 import './asset';
+import type { TextureBase as JsbTextureBase } from './texture-base';
+
+declare const jsb: any;
 
 const textureBaseProto: any = jsb.TextureBase.prototype;
 
@@ -78,8 +82,8 @@ textureBaseProto._getGFXPixelFormat = function (format) {
 
 textureBaseProto.createNode = null!;
 
-export type TextureBase = jsb.TextureBase;
-export const TextureBase: any = jsb.TextureBase;
+export type TextureBase = JsbTextureBase;
+export const TextureBase: typeof JsbTextureBase = jsb.TextureBase;
 
 TextureBase.Filter = Filter;
 TextureBase.PixelFormat = PixelFormat;

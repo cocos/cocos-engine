@@ -6,11 +6,13 @@ import { Device, deviceManager } from './gfx';
 import { DebugView } from './pipeline/debug-view';
 import { buildDeferredLayout, buildForwardLayout } from './pipeline/custom/effect';
 import { settings, Settings } from './settings';
+import type { Root as JsbRoot } from './root';
 
 declare const nr: any;
 declare const jsb: any;
 
-export const Root = jsb.Root;
+export const Root: typeof JsbRoot = jsb.Root;
+export type Root = JsbRoot;
 
 enum LightType {
     DIRECTIONAL,

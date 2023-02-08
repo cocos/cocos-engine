@@ -31,9 +31,12 @@ import { sys } from '../platform/sys';
 import { macro } from '../platform/macro';
 import { warnID } from '../platform/debug';
 import './asset';
+import type { ImageAsset as JsbImageAsset } from './image-asset';
 
-export type ImageAsset = jsb.ImageAsset;
-export const ImageAsset = jsb.ImageAsset;
+declare const jsb: any;
+
+export type ImageAsset = JsbImageAsset;
+export const ImageAsset: typeof JsbImageAsset = jsb.ImageAsset;
 
 export interface IMemoryImageSource {
     _data: ArrayBufferView | null;

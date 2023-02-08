@@ -26,8 +26,27 @@ import { legacyCC } from '../../global-exports';
 import { Vec3 } from '../../math';
 import { Enum } from '../../value-types';
 
-export type Ambient = jsb.Ambient;
-export const Ambient = jsb.Ambient;
+import type {
+    Ambient as JsbAmbient,
+    Light as JsbLight,
+    DirectionalLight as JsbDirectionalLight,
+    SpotLight as JsbSpotLight,
+    SphereLight as JsbSphereLight,
+    Fog as JsbFog,
+    Shadows as JsbShadows,
+    Skybox as JsbSkybox,
+} from './index';
+
+// NOTE: why don't we export FogInfo and ShadowInfo from 'index.ts' 
+import type {
+    FogInfo as JsbFogInfo,
+    ShadowsInfo as JsbShadowsInfo,
+} from '../../scene-graph/scene-globals';
+
+declare const jsb: any;
+
+export type Ambient = JsbAmbient;
+export const Ambient: typeof JsbAmbient = jsb.Ambient;
 legacyCC.Ambient = Ambient;
 
 /**
@@ -69,20 +88,20 @@ export enum LightType {
 }
 
 export const nt2lm = (size: number) => 4 * Math.PI * Math.PI * size * size;
-export const Light = jsb.Light;
-export type Light = jsb.Light;
+export const Light: typeof JsbLight = jsb.Light;
+export type Light = JsbLight;
 legacyCC.Light = jsb.Light;
 
-export const DirectionalLight = jsb.DirectionalLight;
-export type DirectionalLight = jsb.DirectionalLight;
+export const DirectionalLight: typeof JsbDirectionalLight = jsb.DirectionalLight;
+export type DirectionalLight = JsbDirectionalLight;
 legacyCC.DirectionalLight = jsb.DirectionalLight;
 
-export const SpotLight = jsb.SpotLight;
-export type SpotLight = jsb.SpotLight;
+export const SpotLight: typeof JsbSpotLight = jsb.SpotLight;
+export type SpotLight = JsbSpotLight;
 legacyCC.SpotLight = jsb.SpotLight;
 
-export const SphereLight = jsb.SphereLight;
-export type SphereLight = jsb.SphereLight;
+export const SphereLight: typeof JsbSphereLight = jsb.SphereLight;
+export type SphereLight = JsbSphereLight;
 legacyCC.SphereLight = jsb.SphereLight;
 
 /**
@@ -123,10 +142,10 @@ export const FogType = Enum({
      */
     LAYERED: 3,
 });
-export const FogInfo = jsb.FogInfo;
-export type FogInfo = jsb.FogInfo;
-export const Fog = jsb.Fog;
-export type Fog = jsb.Fog;
+export const FogInfo: typeof JsbFogInfo = jsb.FogInfo;
+export type FogInfo = JsbFogInfo;
+export const Fog: typeof JsbFog = jsb.Fog;
+export type Fog = JsbFog;
 legacyCC.Fog = Fog;
 
 /**
@@ -283,14 +302,14 @@ export const EnvironmentLightingType = Enum({
      */
     DIFFUSEMAP_WITH_REFLECTION: 2,
 });
-export const ShadowsInfo = jsb.ShadowsInfo;
-export type ShadowsInfo = jsb.ShadowsInfo;
-export const Shadows = jsb.Shadow;
-export type Shadows = jsb.Shadow;
+export const ShadowsInfo: typeof JsbShadowsInfo = jsb.ShadowsInfo;
+export type ShadowsInfo = JsbShadowsInfo;
+export const Shadows: typeof JsbShadows = jsb.Shadow;
+export type Shadows = JsbShadows;
 legacyCC.Shadows = Shadows;
 
-export const Skybox = jsb.Skybox;
-export type Skybox = jsb.Skybox;
+export const Skybox: typeof JsbSkybox = jsb.Skybox;
+export type Skybox = JsbSkybox;
 legacyCC.Skybox = Skybox;
 
 export * from './model';

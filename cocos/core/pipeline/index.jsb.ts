@@ -29,26 +29,60 @@ import { getPhaseID } from './pass-phase';
 import { setClassName } from '../../core/utils/js';
 import { PipelineEventType } from './pipeline-event';
 import * as pipeline from './define';
+import type { 
+    RenderPipeline as JsbRenderPipeline,
+    RenderFlow as JsbRenderFlow,
+    RenderStage as JsbRenderStage,
+    InstancedBuffer as JsbInstancedBuffer,
+    PipelineStateManager as JsbPipelineStateManager,
+    ForwardPipeline as JsbForwardPipeline,
+    ForwardFlow as JsbForwardFlow,
+    ShadowFlow as JsbShadowFlow,
+    ForwardStage as JsbForwardStage,
+    ShadowStage as JsbShadowStage,
+    DeferredPipeline as JsbDeferredPipeline,
+    MainFlow as JsbMainFlow,
+    LightingStage as JsbLightingStage,
+    PostProcessStage as JsbPostProcessStage,
+    GbufferStage as JsbGbufferStage,
+    BloomStage as JsbBloomStage,
+} from './index';
 export { pipeline };
 
 nr.getPhaseID = getPhaseID;
 
-export const RenderPipeline = nr.RenderPipeline;
-export const RenderFlow = nr.RenderFlow;
-export const RenderStage = nr.RenderStage;
-export const InstancedBuffer = nr.InstancedBuffer;
-export const PipelineStateManager = nr.PipelineStateManager;
-export const ForwardPipeline = nr.ForwardPipeline;
-export const ForwardFlow = nr.ForwardFlow;
-export const ShadowFlow = nr.ShadowFlow;
-export const ForwardStage = nr.ForwardStage;
-export const ShadowStage = nr.ShadowStage;
-export const DeferredPipeline = nr.DeferredPipeline;
-export const MainFlow = nr.MainFlow;
-export const LightingStage = nr.LightingStage;
-export const PostProcessStage = nr.PostProcessStage;
-export const GbufferStage = nr.GbufferStage;
-export const BloomStage = nr.BloomStage;
+export const RenderPipeline: typeof JsbRenderPipeline = nr.RenderPipeline;
+export type RenderPipeline = JsbRenderPipeline;
+export const RenderFlow: typeof JsbRenderFlow = nr.RenderFlow;
+export type RenderFlow = JsbRenderFlow;
+export const RenderStage: typeof JsbRenderStage = nr.RenderStage;
+export type RenderStage = JsbRenderStage;
+export const InstancedBuffer: typeof JsbInstancedBuffer = nr.InstancedBuffer;
+export type InstancedBuffer = JsbInstancedBuffer;
+export const PipelineStateManager: typeof JsbPipelineStateManager = nr.PipelineStateManager;
+export type PipelineStateManager = JsbPipelineStateManager;
+export const ForwardPipeline: typeof JsbForwardPipeline = nr.ForwardPipeline;
+export type ForwardPipeline = JsbForwardPipeline;
+export const ForwardFlow: typeof JsbForwardFlow = nr.ForwardFlow;
+export type ForwardFlow = JsbForwardFlow;
+export const ShadowFlow: typeof JsbShadowFlow = nr.ShadowFlow;
+export type ShadowFlow = JsbShadowFlow;
+export const ForwardStage: typeof JsbForwardStage = nr.ForwardStage;
+export type ForwardStage = JsbForwardStage;
+export const ShadowStage: typeof JsbShadowStage = nr.ShadowStage;
+export type ShadowStage = JsbShadowStage;
+export const DeferredPipeline: typeof JsbDeferredPipeline = nr.DeferredPipeline;
+export type DeferredPipeline = JsbDeferredPipeline;
+export const MainFlow: typeof JsbMainFlow = nr.MainFlow;
+export type MainFlow = JsbMainFlow;
+export const LightingStage: typeof JsbLightingStage = nr.LightingStage;
+export type LightingStage = JsbLightingStage;
+export const PostProcessStage: typeof JsbPostProcessStage = nr.PostProcessStage;
+export type PostProcessStage = JsbPostProcessStage;
+export const GbufferStage: typeof JsbGbufferStage = nr.GbufferStage;
+export type GbufferStage = JsbGbufferStage;
+export const BloomStage: typeof JsbBloomStage = nr.BloomStage;
+export type BloomStage = JsbBloomStage;
 export { PipelineEventType } from './pipeline-event';
 
 let getOrCreatePipelineState = nr.PipelineStateManager.getOrCreatePipelineState;

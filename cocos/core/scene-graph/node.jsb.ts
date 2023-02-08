@@ -37,14 +37,14 @@ import { syncNodeValues } from "../utils/jsb-utils";
 import { property } from '../data/class-decorator';
 import * as js from '../utils/js';
 import './base-node';
+import type { Node as JsbNode } from './node';
 
 const reserveContentsForAllSyncablePrefabTag = Symbol('ReserveContentsForAllSyncablePrefab');
 
 declare const jsb: any;
 
-export const Node = jsb.Node;
-// @ts-ignore
-export type Node = jsb.Node;
+export const Node: typeof JsbNode = jsb.Node;
+export type Node = JsbNode;
 legacyCC.Node = Node;
 
 const NodeCls: any = Node;

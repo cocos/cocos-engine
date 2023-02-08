@@ -30,13 +30,15 @@ import { TextureBase } from './texture-base.jsb';
 import { js } from '../utils/js';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
 import './simple-texture';
+import type { Texture2D as JsbTexture2D } from './texture-2d';
 
+declare const jsb: any;
 const texture2DProto: any = jsb.Texture2D.prototype;
 
 texture2DProto.createNode = null!;
 
-export type Texture2D = jsb.Texture2D;
-export const Texture2D: any = jsb.Texture2D;
+export type Texture2D = JsbTexture2D;
+export const Texture2D: typeof JsbTexture2D = jsb.Texture2D;
 
 Texture2D.Filter = Filter;
 Texture2D.PixelFormat = PixelFormat;

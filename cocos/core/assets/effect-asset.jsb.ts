@@ -26,9 +26,12 @@
 import { ccclass, editable, editorOnly, serializable } from 'cc.decorator';
 import { legacyCC } from '../global-exports';
 import './asset';
+import type { EffectAsset as JsbEffectAsset } from './effect-asset';
 
-export type EffectAsset = jsb.EffectAsset;
-export const EffectAsset = jsb.EffectAsset;
+declare const jsb: any;
+
+export type EffectAsset = JsbEffectAsset;
+export const EffectAsset: typeof JsbEffectAsset = jsb.EffectAsset;
 
 legacyCC.EffectAsset = EffectAsset;
 

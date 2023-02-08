@@ -26,12 +26,16 @@
 import { ccclass } from '../data/decorators';
 import { legacyCC } from '../global-exports';
 import { baseNodePolyfill } from './base-node-dev';
+import type { BaseNode as JsbBaseNode } from './base-node';
+
+declare const jsb: any;
+
 const baseNodeProto: any = jsb.BaseNode.prototype;
 
 baseNodeProto.createNode = null!;
 
-export type BaseNode = jsb.BaseNode;
-export const BaseNode = jsb.BaseNode;
+export type BaseNode = JsbBaseNode;
+export const BaseNode: typeof JsbBaseNode = jsb.BaseNode;
 
 baseNodePolyfill(BaseNode);
 legacyCC._BaseNode = BaseNode;
