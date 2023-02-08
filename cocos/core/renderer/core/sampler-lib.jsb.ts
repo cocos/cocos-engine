@@ -22,6 +22,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+
+// NOTE: this module does not have a web version
+
 import { legacyCC } from "../../global-exports";
 
 const SamplerLib = nr.SamplerLib;
