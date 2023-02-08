@@ -1404,7 +1404,9 @@ export class ParticleSystem extends ModelRenderer {
     }
 
     protected update (dt: number) {
-        this.refreshSubemitters();
+        if (EDITOR) {
+            this.refreshSubemitters();
+        }
 
         const scaledDeltaTime = dt * this.simulationSpeed;
 
