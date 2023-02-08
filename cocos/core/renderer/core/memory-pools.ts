@@ -23,7 +23,6 @@
  THE SOFTWARE.
 */
 
-import { PolygonShape } from '@cocos/box2d';
 import { DEBUG } from 'internal:constants';
 import { NativeBufferPool } from './native-pools';
 
