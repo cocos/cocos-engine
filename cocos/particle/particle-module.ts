@@ -68,7 +68,7 @@ export abstract class ParticleModule {
         return [];
     }
 
-    private _onBeforeSerialize (props: any) {
+    private _onBeforeSerialize (props: string[]) {
         if (!this.needsFilterSerialization()) {
             return props;
         } else {

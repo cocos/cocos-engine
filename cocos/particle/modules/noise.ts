@@ -24,22 +24,31 @@
  */
 
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
-import { CCBoolean, CCFloat, CCInteger } from '../../core';
+import { DEBUG } from 'internal:constants';
+import { assert, CCBoolean, CCFloat, CCInteger, Enum, warn } from '../../core';
 import { range, rangeStep, slide, visible } from '../../core/data/decorators/editable';
-import { lerp, pseudoRandom, randomRangeInt, Vec3 } from '../../core/math';
+import { clamp, lerp, pseudoRandom, randomRangeInt, Vec2, Vec3 } from '../../core/math';
 import { CurveRange } from '../curve-range';
-import { ParticleNoise } from '../noise';
 import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
 import { ParticleUpdateContext } from '../particle-update-context';
+import { perlinNoise1D, perlinNoise2D, perlinNoise3D } from './perlin-noise';
 
-const samplePosition = new Vec3();
+const pos = new Vec3();
+const sample3D = new Vec3();
+const sample2D = new Vec2();
 const velocity = new Vec3();
-const tempAmplitude = new Vec3();
 const RANDOM_SEED_OFFSET_X = 112331;
 const RANDOM_SEED_OFFSET_Y = 291830;
 const RANDOM_SEED_OFFSET_Z = 616728;
-const RANDOM_SEED_OFFSET = 332133;
+const RANDOM_SEED_OFFSET_POSITION = 943728;
+const RANDOM_SEED_OFFSET_ROTATION = 746210;
+
+enum Quality {
+    LOW,
+    MIDDLE,
+    HIGH
+}
 
 @ccclass('cc.NoiseModule')
 export class NoiseModule extends ParticleModule {
@@ -142,6 +151,10 @@ export class NoiseModule extends ParticleModule {
         this._octaveScale = value;
     }
 
+    @type(Enum(Quality))
+    @serializable
+    public quality = Quality.HIGH;
+
     @serializable
     public enableRemap = false;
 
@@ -197,9 +210,11 @@ export class NoiseModule extends ParticleModule {
     @type(CurveRange)
     @serializable
     public positionAmount = new CurveRange(1);
+
     @type(CurveRange)
     @serializable
     public rotationAmount = new CurveRange();
+
     @type(CurveRange)
     @serializable
     public sizeAmount = new CurveRange();
@@ -240,130 +255,309 @@ export class NoiseModule extends ParticleModule {
     private _octaveMultiplier = 0.5;
 
     private _randomSeed = randomRangeInt(0, 233280);
+    private _scrollOffset = 0;
 
     public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
-        const { accumulatedTime, normalizedTimeInCycle, deltaTime } = particleUpdateContext;
-        const { count, randomSeed, normalizedAliveTime } = particles;
-        const scrollOffset = this._scrollSpeed.evaluate(normalizedTimeInCycle, 1) * deltaTime;
+        const { normalizedTimeInCycle, deltaTime } = particleUpdateContext;
+        const { count, randomSeed, normalizedAliveTime, noiseSumX, noiseSumY, noiseSumZ, rotationX, rotationY, rotationZ, sizeX, sizeY, sizeZ } = particles;
+        this._scrollOffset += this._scrollSpeed.evaluate(normalizedTimeInCycle, 1) * deltaTime;
+        const scrollOffset = this._scrollOffset;
         const frequency = Math.max(this.frequency, 0);
         const offsetX = pseudoRandom(this._randomSeed + RANDOM_SEED_OFFSET_X) * 100;
         const offsetY = pseudoRandom(this._randomSeed + RANDOM_SEED_OFFSET_Y) * 100;
         const offsetZ = pseudoRandom(this._randomSeed + RANDOM_SEED_OFFSET_Z) * 100;
-        if (this._octaves > 1) {
-
+        const { octaves,  octaveScale, octaveMultiplier } = this;
+        if (octaves > 1) {
+            if (this.quality === Quality.MIDDLE) {
+                for (let i = 0; i < count; i++) {
+                    particles.getPositionAt(pos, i);
+                    pos.add3f(offsetX, offsetY, offsetZ);
+                    Vec2.set(sample2D, pos.y, pos.x + 100 + scrollOffset);
+                    noiseSumX[i] = accumulateNoise2D(sample2D, frequency, octaves, octaveScale, octaveMultiplier);
+                    Vec2.set(sample2D, pos.z, pos.y + scrollOffset);
+                    noiseSumY[i] = accumulateNoise2D(sample2D, frequency, octaves, octaveScale, octaveMultiplier);
+                    Vec2.set(sample2D, pos.x + 100, pos.z + scrollOffset);
+                    noiseSumZ[i] = accumulateNoise2D(sample2D, frequency, octaves, octaveScale, octaveMultiplier);
+                }
+            } else if (this.quality === Quality.HIGH) {
+                for (let i = 0; i < count; i++) {
+                    particles.getPositionAt(pos, i);
+                    pos.add3f(offsetX, offsetY, offsetZ);
+                    Vec3.set(sample3D, pos.y, pos.x + 100, pos.z + scrollOffset);
+                    noiseSumX[i] = accumulateNoise3D(sample3D, frequency, octaves, octaveScale, octaveMultiplier);
+                    Vec3.set(sample3D, pos.z, pos.y, pos.x + scrollOffset);
+                    noiseSumY[i] = accumulateNoise3D(sample3D, frequency, octaves, octaveScale, octaveMultiplier);
+                    Vec3.set(sample3D, pos.x + 100, pos.z, pos.y + scrollOffset);
+                    noiseSumZ[i] = accumulateNoise3D(sample3D, frequency, octaves, octaveScale, octaveMultiplier);
+                }
+            } else {
+                for (let i = 0; i < count; i++) {
+                    particles.getPositionAt(pos, i);
+                    pos.add3f(offsetX, offsetY, offsetZ);
+                    noiseSumX[i] = accumulateNoise1D(pos.y + scrollOffset, frequency, octaves, octaveScale, octaveMultiplier);
+                    noiseSumY[i] = accumulateNoise1D(pos.z + scrollOffset, frequency, octaves, octaveScale, octaveMultiplier);
+                    noiseSumZ[i] = accumulateNoise1D(pos.x + 100 + scrollOffset, frequency, octaves, octaveScale, octaveMultiplier);
+                }
+            }
         } else {
             // eslint-disable-next-line no-lonely-if
+            if (this.quality === Quality.HIGH) {
+                for (let i = 0; i < count; i++) {
+                    particles.getPositionAt(pos, i);
+                    pos.add3f(offsetX, offsetY, offsetZ);
+                    Vec3.set(sample3D, pos.y, pos.x + 100, pos.z + scrollOffset);
+                    Vec3.multiplyScalar(sample3D, sample3D, frequency);
+                    noiseSumX[i] = perlinNoise3D(sample3D);
+                    Vec3.set(sample3D, pos.z, pos.y, pos.x + scrollOffset);
+                    Vec3.multiplyScalar(sample3D, sample3D, frequency);
+                    noiseSumY[i] = perlinNoise3D(sample3D);
+                    Vec3.set(sample3D, pos.x + 100, pos.z, pos.y + scrollOffset);
+                    Vec3.multiplyScalar(sample3D, sample3D, frequency);
+                    noiseSumZ[i] = perlinNoise3D(sample3D);
+                }
+            } else if (this.quality === Quality.MIDDLE) {
+                for (let i = 0; i < count; i++) {
+                    particles.getPositionAt(pos, i);
+                    pos.add3f(offsetX, offsetY, offsetZ);
+                    Vec2.set(sample2D, pos.y, pos.x + 100 + scrollOffset);
+                    Vec2.multiplyScalar(sample2D, sample2D, frequency);
+                    noiseSumX[i] = perlinNoise2D(sample2D);
+                    Vec2.set(sample2D, pos.z, pos.y + scrollOffset);
+                    Vec2.multiplyScalar(sample3D, sample3D, frequency);
+                    noiseSumY[i] = perlinNoise2D(sample2D);
+                    Vec2.set(sample2D, pos.x + 100, pos.z + scrollOffset);
+                    Vec2.multiplyScalar(sample2D, sample2D, frequency);
+                    noiseSumZ[i] = perlinNoise2D(sample2D);
+                }
+            } else {
+                for (let i = 0; i < count; i++) {
+                    particles.getPositionAt(pos, i);
+                    pos.add3f(offsetX, offsetY, offsetZ);
+                    noiseSumX[i] = perlinNoise1D((pos.y + scrollOffset) * frequency);
+                    noiseSumY[i] = perlinNoise1D((pos.z + scrollOffset) * frequency);
+                    noiseSumZ[i] = perlinNoise1D((pos.x + 100 + scrollOffset) * frequency);
+                }
+            }
+        }
+        // remap
+        if (this.enableRemap) {
             if (this.separateAxes) {
-                if (this.strengthX.mode === CurveRange.Mode.Constant) {
-                    const amplitude = Vec3.set(tempAmplitude, this.strengthX.constant, this.strengthY.constant, this.strengthZ.constant);
+                if (DEBUG) {
+                    assert(this.remapX.mode === this.remapY.mode && this.remapZ.mode === this.remapY.mode,
+                        'The remapX, remapY, remapZ must be same mode');
+                }
+                if (this.remapX.mode === CurveRange.Mode.Curve) {
+                    const { spline: splineX, multiplier: multiplierX } = this.remapX;
+                    const { spline: splineY, multiplier: multiplierY } = this.remapY;
+                    const { spline: splineZ, multiplier: multiplierZ } = this.remapZ;
                     for (let i = 0; i < count; i++) {
-                        particles.getPositionAt(samplePosition, i);
-                        samplePosition.add3f(offsetX, offsetY, offsetZ);
-                        Vec3.set(velocity, noise(samplePosition.y, samplePosition.x + 100, samplePosition.z + scrollOffset, frequency),
-                            noise(samplePosition.z, samplePosition.y, samplePosition.x + scrollOffset, frequency),
-                            noise(samplePosition.x + 100, samplePosition.z, samplePosition.y + scrollOffset, frequency));
-                        particles.addAnimatedVelocityAt(Vec3.multiply(velocity, velocity, amplitude), i);
-                    }
-                } else if (this.strengthX.mode === CurveRange.Mode.Curve) {
-                    const { spline: splineX, multiplier: multiplierX } = this.strengthX;
-                    const { spline: splineY, multiplier: multiplierY } = this.strengthY;
-                    const { spline: splineZ, multiplier: multiplierZ } = this.strengthZ;
-                    for (let i = 0; i < count; i++) {
-                        const life = normalizedAliveTime[i];
-                        const amplitude = Vec3.set(tempAmplitude, splineX.evaluate(life) * multiplierX,
-                            splineY.evaluate(life) * multiplierY,
-                            splineZ.evaluate(life) * multiplierZ);
-                        particles.getPositionAt(samplePosition, i);
-                        samplePosition.add3f(offsetX, offsetY, offsetZ);
-                        Vec3.set(velocity, noise(samplePosition.y, samplePosition.x + 100, samplePosition.z + scrollOffset, frequency),
-                            noise(samplePosition.z, samplePosition.y, samplePosition.x + scrollOffset, frequency),
-                            noise(samplePosition.x + 100, samplePosition.z, samplePosition.y + scrollOffset, frequency));
-                        particles.addAnimatedVelocityAt(Vec3.multiply(velocity, velocity, amplitude), i);
-                    }
-                } else if (this.strengthX.mode === CurveRange.Mode.TwoConstants) {
-                    const { constantMax: xMax, constantMin: xMin } = this.strengthX;
-                    const { constantMax: yMax, constantMin: yMin } = this.strengthY;
-                    const { constantMax: zMax, constantMin: zMin } = this.strengthZ;
-                    for (let i = 0; i < count; i++) {
-                        const seed = randomSeed[i];
-                        const amplitude = Vec3.set(tempAmplitude, lerp(xMin, xMax, pseudoRandom(seed + RANDOM_SEED_OFFSET_X)),
-                            lerp(yMin, yMax, pseudoRandom(seed + RANDOM_SEED_OFFSET_Y)),
-                            lerp(zMin, zMax, pseudoRandom(seed + RANDOM_SEED_OFFSET_Z)));
-                        particles.getPositionAt(samplePosition, i);
-                        samplePosition.add3f(offsetX, offsetY, offsetZ);
-                        Vec3.set(velocity, noise(samplePosition.y, samplePosition.x + 100, samplePosition.z + scrollOffset, frequency),
-                            noise(samplePosition.z, samplePosition.y, samplePosition.x + scrollOffset, frequency),
-                            noise(samplePosition.x + 100, samplePosition.z, samplePosition.y + scrollOffset, frequency));
-                        particles.addAnimatedVelocityAt(Vec3.multiply(velocity, velocity, amplitude), i);
+                        noiseSumX[i] = splineX.evaluate(clamp(noiseSumX[i] * 0.5 + 0.5, 0, 1)) * multiplierX;
+                        noiseSumY[i] = splineY.evaluate(clamp(noiseSumY[i] * 0.5 + 0.5, 0, 1)) * multiplierY;
+                        noiseSumZ[i] = splineZ.evaluate(clamp(noiseSumY[i] * 0.5 + 0.5, 0, 1)) * multiplierZ;
                     }
                 } else {
-                    const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.strengthX;
-                    const { splineMin: yMin, splineMax: yMax, multiplier: yMultiplier } = this.strengthY;
-                    const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.strengthZ;
-                    for (let i = 0; i < count; i++) {
-                        const life = normalizedAliveTime[i];
-                        const seed = randomSeed[i];
-                        const amplitude = Vec3.set(tempAmplitude, lerp(xMin.evaluate(life),
-                            xMax.evaluate(life), pseudoRandom(seed + RANDOM_SEED_OFFSET_X)) * xMultiplier,
-                        lerp(yMin.evaluate(life),
-                            yMax.evaluate(life), pseudoRandom(seed + RANDOM_SEED_OFFSET_Y)) * yMultiplier,
-                        lerp(zMin.evaluate(life),
-                            zMax.evaluate(life), pseudoRandom(seed + RANDOM_SEED_OFFSET_Z)) * zMultiplier);
-                        particles.getPositionAt(samplePosition, i);
-                        samplePosition.add3f(offsetX, offsetY, offsetZ);
-                        Vec3.set(velocity, noise(samplePosition.y, samplePosition.x + 100, samplePosition.z + scrollOffset, frequency),
-                            noise(samplePosition.z, samplePosition.y, samplePosition.x + scrollOffset, frequency),
-                            noise(samplePosition.x + 100, samplePosition.z, samplePosition.y + scrollOffset, frequency));
-                        particles.addAnimatedVelocityAt(Vec3.multiply(velocity, velocity, amplitude), i);
-                    }
+                    warn('The remap curve range muse be Curve Mode');
                 }
             } else {
                 // eslint-disable-next-line no-lonely-if
-                if (this.strengthX.mode === CurveRange.Mode.Constant) {
-                    const amplitude = this.strengthX.constant;
+                if (this.remapX.mode === CurveRange.Mode.Curve) {
+                    const { spline: splineX, multiplier: multiplierX } = this.remapX;
                     for (let i = 0; i < count; i++) {
-                        particles.getPositionAt(samplePosition, i);
-                        samplePosition.add3f(offsetX, offsetY, offsetZ);
-                        Vec3.set(velocity, noise(samplePosition.y, samplePosition.x + 100, samplePosition.z + scrollOffset, frequency),
-                            noise(samplePosition.z, samplePosition.y, samplePosition.x + scrollOffset, frequency),
-                            noise(samplePosition.x + 100, samplePosition.z, samplePosition.y + scrollOffset, frequency));
-                        particles.addAnimatedVelocityAt(Vec3.multiplyScalar(velocity, velocity, amplitude), i);
-                    }
-                } else if (this.strengthX.mode === CurveRange.Mode.Curve) {
-                    const { spline, multiplier } = this.strengthX;
-                    for (let i = 0; i < count; i++) {
-                        const amplitude = spline.evaluate(normalizedAliveTime[i]) * multiplier;
-                        particles.getPositionAt(samplePosition, i);
-                        samplePosition.add3f(offsetX, offsetY, offsetZ);
-                        Vec3.set(velocity, noise(samplePosition.y, samplePosition.x + 100, samplePosition.z + scrollOffset, frequency),
-                            noise(samplePosition.z, samplePosition.y, samplePosition.x + scrollOffset, frequency),
-                            noise(samplePosition.x + 100, samplePosition.z, samplePosition.y + scrollOffset, frequency));
-                        particles.addAnimatedVelocityAt(Vec3.multiplyScalar(velocity, velocity, amplitude), i);
-                    }
-                } else if (this.strengthX.mode === CurveRange.Mode.TwoConstants) {
-                    const { constantMax, constantMin } = this.strengthX;
-                    for (let i = 0; i < count; i++) {
-                        const amplitude = lerp(constantMin, constantMax, pseudoRandom(randomSeed[i]));
-                        particles.getPositionAt(samplePosition, i);
-                        samplePosition.add3f(offsetX, offsetY, offsetZ);
-                        Vec3.set(velocity, noise(samplePosition.y, samplePosition.x + 100, samplePosition.z + scrollOffset, frequency),
-                            noise(samplePosition.z, samplePosition.y, samplePosition.x + scrollOffset, frequency),
-                            noise(samplePosition.x + 100, samplePosition.z, samplePosition.y + scrollOffset, frequency));
-                        particles.addAnimatedVelocityAt(Vec3.multiplyScalar(velocity, velocity, amplitude), i);
+                        noiseSumX[i] = splineX.evaluate(clamp(noiseSumX[i] * 0.5 + 0.5, 0, 1)) * multiplierX;
+                        noiseSumY[i] = splineX.evaluate(clamp(noiseSumY[i] * 0.5 + 0.5, 0, 1)) * multiplierX;
+                        noiseSumZ[i] = splineX.evaluate(clamp(noiseSumY[i] * 0.5 + 0.5, 0, 1)) * multiplierX;
                     }
                 } else {
-                    const { splineMin, splineMax, multiplier } = this.strengthX;
-                    for (let i = 0; i < count; i++) {
-                        const life = normalizedAliveTime[i];
-                        const amplitude = lerp(splineMin.evaluate(life),
-                            splineMax.evaluate(life), pseudoRandom(randomSeed[i])) * multiplier;
-                        particles.getPositionAt(samplePosition, i);
-                        samplePosition.add3f(offsetX, offsetY, offsetZ);
-                        Vec3.set(velocity, noise(samplePosition.y, samplePosition.x + 100, samplePosition.z + scrollOffset, frequency),
-                            noise(samplePosition.z, samplePosition.y, samplePosition.x + scrollOffset, frequency),
-                            noise(samplePosition.x + 100, samplePosition.z, samplePosition.y + scrollOffset, frequency));
-                        particles.addAnimatedVelocityAt(Vec3.multiplyScalar(velocity, velocity, amplitude), i);
-                    }
+                    warn('The remap curve range muse be Curve Mode');
+                }
+            }
+        }
+        // eslint-disable-next-line no-lonely-if
+        if (this.separateAxes) {
+            if (this.strengthX.mode === CurveRange.Mode.Constant) {
+                const amplitudeX = this.strengthX.constant;
+                const amplitudeY = this.strengthY.constant;
+                const amplitudeZ = this.strengthZ.constant;
+                for (let i = 0; i < count; i++) {
+                    noiseSumX[i] *= amplitudeX;
+                    noiseSumY[i] *= amplitudeY;
+                    noiseSumZ[i] *= amplitudeZ;
+                }
+            } else if (this.strengthX.mode === CurveRange.Mode.Curve) {
+                const { spline: splineX, multiplier: multiplierX } = this.strengthX;
+                const { spline: splineY, multiplier: multiplierY } = this.strengthY;
+                const { spline: splineZ, multiplier: multiplierZ } = this.strengthZ;
+                for (let i = 0; i < count; i++) {
+                    const life = normalizedAliveTime[i];
+                    noiseSumX[i] *= splineX.evaluate(life) * multiplierX;
+                    noiseSumY[i] *= splineY.evaluate(life) * multiplierY;
+                    noiseSumZ[i] *= splineZ.evaluate(life) * multiplierZ;
+                }
+            } else if (this.strengthX.mode === CurveRange.Mode.TwoConstants) {
+                const { constantMax: xMax, constantMin: xMin } = this.strengthX;
+                const { constantMax: yMax, constantMin: yMin } = this.strengthY;
+                const { constantMax: zMax, constantMin: zMin } = this.strengthZ;
+                for (let i = 0; i < count; i++) {
+                    const seed = randomSeed[i];
+                    noiseSumX[i] *= lerp(xMin, xMax, pseudoRandom(seed + RANDOM_SEED_OFFSET_X));
+                    noiseSumY[i] *= lerp(yMin, yMax, pseudoRandom(seed + RANDOM_SEED_OFFSET_Y));
+                    noiseSumZ[i] *= lerp(zMin, zMax, pseudoRandom(seed + RANDOM_SEED_OFFSET_Z));
+                }
+            } else {
+                const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.strengthX;
+                const { splineMin: yMin, splineMax: yMax, multiplier: yMultiplier } = this.strengthY;
+                const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.strengthZ;
+                for (let i = 0; i < count; i++) {
+                    const life = normalizedAliveTime[i];
+                    const seed = randomSeed[i];
+                    noiseSumX[i] *= lerp(xMin.evaluate(life),
+                        xMax.evaluate(life), pseudoRandom(seed + RANDOM_SEED_OFFSET_X)) * xMultiplier;
+                    noiseSumY[i] *= lerp(yMin.evaluate(life),
+                        yMax.evaluate(life), pseudoRandom(seed + RANDOM_SEED_OFFSET_Y)) * yMultiplier;
+                    noiseSumZ[i] *= lerp(zMin.evaluate(life),
+                        zMax.evaluate(life), pseudoRandom(seed + RANDOM_SEED_OFFSET_Z)) * zMultiplier;
+                }
+            }
+        } else {
+            // eslint-disable-next-line no-lonely-if
+            if (this.strengthX.mode === CurveRange.Mode.Constant) {
+                const amplitude = this.strengthX.constant;
+                for (let i = 0; i < count; i++) {
+                    noiseSumX[i] *= amplitude;
+                    noiseSumY[i] *= amplitude;
+                    noiseSumZ[i] *= amplitude;
+                }
+            } else if (this.strengthX.mode === CurveRange.Mode.Curve) {
+                const { spline, multiplier } = this.strengthX;
+                for (let i = 0; i < count; i++) {
+                    const amplitude = spline.evaluate(normalizedAliveTime[i]) * multiplier;
+                    noiseSumX[i] *= amplitude;
+                    noiseSumY[i] *= amplitude;
+                    noiseSumZ[i] *= amplitude;
+                }
+            } else if (this.strengthX.mode === CurveRange.Mode.TwoConstants) {
+                const { constantMax, constantMin } = this.strengthX;
+                for (let i = 0; i < count; i++) {
+                    const amplitude = lerp(constantMin, constantMax, pseudoRandom(randomSeed[i]));
+                    noiseSumX[i] *= amplitude;
+                    noiseSumY[i] *= amplitude;
+                    noiseSumZ[i] *= amplitude;
+                }
+            } else {
+                const { splineMin, splineMax, multiplier } = this.strengthX;
+                for (let i = 0; i < count; i++) {
+                    const life = normalizedAliveTime[i];
+                    const amplitude = lerp(splineMin.evaluate(life),
+                        splineMax.evaluate(life), pseudoRandom(randomSeed[i])) * multiplier;
+                    noiseSumX[i] *= amplitude;
+                    noiseSumY[i] *= amplitude;
+                    noiseSumZ[i] *= amplitude;
+                }
+            }
+        }
+
+        if (this.positionAmount.getMax() !== 0) {
+            if (this.positionAmount.mode === CurveRange.Mode.Constant) {
+                const amount = this.positionAmount.constant;
+                for (let i = 0; i < count; i++) {
+                    Vec3.set(velocity, noiseSumX[i] * amount, noiseSumY[i] * amount, noiseSumZ[i] * amount);
+                    particles.addAnimatedVelocityAt(velocity, i);
+                }
+            } else if (this.positionAmount.mode === CurveRange.Mode.Curve) {
+                const { spline, multiplier } = this.positionAmount;
+                for (let i = 0; i < count; i++) {
+                    const amount = spline.evaluate(normalizedAliveTime[i]) * multiplier;
+                    Vec3.set(velocity, noiseSumX[i] * amount, noiseSumY[i] * amount, noiseSumZ[i] * amount);
+                    particles.addAnimatedVelocityAt(velocity, i);
+                }
+            } else if (this.positionAmount.mode === CurveRange.Mode.TwoCurves) {
+                const { constantMin, constantMax } = this.positionAmount;
+                for (let i = 0; i < count; i++) {
+                    const amount = lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + RANDOM_SEED_OFFSET_POSITION));
+                    Vec3.set(velocity, noiseSumX[i] * amount, noiseSumY[i] * amount, noiseSumZ[i] * amount);
+                    particles.addAnimatedVelocityAt(velocity, i);
+                }
+            } else {
+                const { splineMin, splineMax, multiplier } = this.positionAmount;
+                for (let i = 0; i < count; i++) {
+                    const life = normalizedAliveTime[i];
+                    const amount = lerp(splineMin.evaluate(life), splineMax.evaluate(life), pseudoRandom(randomSeed[i] + RANDOM_SEED_OFFSET_POSITION)) * multiplier;
+                    Vec3.set(velocity, noiseSumX[i] * amount, noiseSumY[i] * amount, noiseSumZ[i] * amount);
+                    particles.addAnimatedVelocityAt(velocity, i);
+                }
+            }
+        }
+
+        if (this.rotationAmount.getMax() !== 0) {
+            if (this.rotationAmount.mode === CurveRange.Mode.Constant) {
+                const amount = this.rotationAmount.constant * deltaTime;
+                for (let i = 0; i < count; i++) {
+                    rotationX[i] += noiseSumX[i] * amount;
+                    rotationY[i] += noiseSumY[i] * amount;
+                    rotationZ[i] += noiseSumZ[i] * amount;
+                }
+            } else if (this.rotationAmount.mode === CurveRange.Mode.Curve) {
+                const { spline } = this.rotationAmount;
+                const multiplier = this.rotationAmount.multiplier * deltaTime;
+                for (let i = 0; i < count; i++) {
+                    const amount = spline.evaluate(normalizedAliveTime[i]) * multiplier * deltaTime;
+                    rotationX[i] += noiseSumX[i] * amount;
+                    rotationY[i] += noiseSumY[i] * amount;
+                    rotationZ[i] += noiseSumZ[i] * amount;
+                }
+            } else if (this.rotationAmount.mode === CurveRange.Mode.TwoConstants) {
+                const { constantMin, constantMax } = this.rotationAmount;
+                for (let i = 0; i < count; i++) {
+                    const amount = lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + RANDOM_SEED_OFFSET_ROTATION)) * deltaTime;
+                    rotationX[i] += noiseSumX[i] * amount;
+                    rotationY[i] += noiseSumY[i] * amount;
+                    rotationZ[i] += noiseSumZ[i] * amount;
+                }
+            } else {
+                const { splineMin, splineMax } = this.rotationAmount;
+                const multiplier = this.rotationAmount.multiplier * deltaTime;
+                for (let i = 0; i < count; i++) {
+                    const life = normalizedAliveTime[i];
+                    const amount = lerp(splineMin.evaluate(life), splineMax.evaluate(life), pseudoRandom(randomSeed[i] + RANDOM_SEED_OFFSET_ROTATION)) * multiplier;
+                    rotationX[i] += noiseSumX[i] * amount;
+                    rotationY[i] += noiseSumY[i] * amount;
+                    rotationZ[i] += noiseSumZ[i] * amount;
+                }
+            }
+        }
+
+        if (this.sizeAmount.getMax() !== 0) {
+            if (this.sizeAmount.mode === CurveRange.Mode.Constant) {
+                const amount = this.sizeAmount.constant;
+                for (let i = 0; i < count; i++) {
+                    sizeX[i] *= (noiseSumX[i] * amount + 1);
+                    sizeY[i] *= (noiseSumY[i] * amount + 1);
+                    sizeZ[i] *= (noiseSumZ[i] * amount + 1);
+                }
+            } else if (this.sizeAmount.mode === CurveRange.Mode.Curve) {
+                const { spline, multiplier } = this.sizeAmount;
+                for (let i = 0; i < count; i++) {
+                    const amount = spline.evaluate(normalizedAliveTime[i]) * multiplier;
+                    sizeX[i] *= (noiseSumX[i] * amount + 1);
+                    sizeY[i] *= (noiseSumY[i] * amount + 1);
+                    sizeZ[i] *= (noiseSumZ[i] * amount + 1);
+                }
+            } else if (this.sizeAmount.mode === CurveRange.Mode.TwoConstants) {
+                const { constantMin, constantMax } = this.sizeAmount;
+                for (let i = 0; i < count; i++) {
+                    const amount = lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + RANDOM_SEED_OFFSET_ROTATION));
+                    sizeX[i] *= (noiseSumX[i] * amount + 1);
+                    sizeY[i] *= (noiseSumY[i] * amount + 1);
+                    sizeZ[i] *= (noiseSumZ[i] * amount + 1);
+                }
+            } else {
+                const { splineMin, splineMax, multiplier } = this.sizeAmount;
+                for (let i = 0; i < count; i++) {
+                    const life = normalizedAliveTime[i];
+                    const amount = lerp(splineMin.evaluate(life), splineMax.evaluate(life), pseudoRandom(randomSeed[i] + RANDOM_SEED_OFFSET_ROTATION)) * multiplier;
+                    sizeX[i] *= (noiseSumX[i] * amount + 1);
+                    sizeY[i] *= (noiseSumY[i] * amount + 1);
+                    sizeZ[i] *= (noiseSumZ[i] * amount + 1);
                 }
             }
         }
@@ -393,70 +587,44 @@ export class NoiseModule extends ParticleModule {
     }
 }
 
-// https://mrl.cs.nyu.edu/~perlin/noise/
-const permutation = [151, 160, 137, 91, 90, 15,
-    131, 13, 201, 95, 96, 53, 194, 233, 7, 225, 140, 36, 103, 30, 69, 142, 8, 99, 37, 240, 21, 10, 23,
-    190, 6, 148, 247, 120, 234, 75, 0, 26, 197, 62, 94, 252, 219, 203, 117, 35, 11, 32, 57, 177, 33,
-    88, 237, 149, 56, 87, 174, 20, 125, 136, 171, 168, 68, 175, 74, 165, 71, 134, 139, 48, 27, 166,
-    77, 146, 158, 231, 83, 111, 229, 122, 60, 211, 133, 230, 220, 105, 92, 41, 55, 46, 245, 40, 244,
-    102, 143, 54, 65, 25, 63, 161, 1, 216, 80, 73, 209, 76, 132, 187, 208, 89, 18, 169, 200, 196,
-    135, 130, 116, 188, 159, 86, 164, 100, 109, 198, 173, 186, 3, 64, 52, 217, 226, 250, 124, 123,
-    5, 202, 38, 147, 118, 126, 255, 82, 85, 212, 207, 206, 59, 227, 47, 16, 58, 17, 182, 189, 28, 42,
-    223, 183, 170, 213, 119, 248, 152, 2, 44, 154, 163, 70, 221, 153, 101, 155, 167, 43, 172, 9,
-    129, 22, 39, 253, 19, 98, 108, 110, 79, 113, 224, 232, 178, 185, 112, 104, 218, 246, 97, 228,
-    251, 34, 242, 193, 238, 210, 144, 12, 191, 179, 162, 241, 81, 51, 145, 235, 249, 14, 239, 107,
-    49, 192, 214, 31, 181, 199, 106, 157, 184, 84, 204, 176, 115, 121, 50, 45, 127, 4, 150, 254,
-    138, 236, 205, 93, 222, 114, 67, 29, 24, 72, 243, 141, 128, 195, 78, 66, 215, 61, 156, 180,
-];
-
-const p = new Array<number>(512);
-for (let i = 0; i < 256; i++) p[256 + i] = p[i] = permutation[i];
-
-function noise (x: number, y: number, z: number, frequency: number) {
-    x *= frequency;
-    y *= frequency;
-    z *= frequency;
-    const X = Math.floor(x) & 255;                  // FIND UNIT CUBE THAT
-    const Y = Math.floor(y) & 255;                  // CONTAINS POINT.
-    const Z = Math.floor(z) & 255;
-    x -= Math.floor(x);                                // FIND RELATIVE X,Y,Z
-    y -= Math.floor(y);                                // OF POINT IN CUBE.
-    z -= Math.floor(z);
-    const u = fade(x);                                // COMPUTE FADE CURVES
-    const v = fade(y);                                // FOR EACH OF X,Y,Z.
-    const w = fade(z);
-    const A = p[X] + Y; const AA = p[A] + Z; const AB = p[A + 1] + Z;      // HASH COORDINATES OF
-    const B = p[X + 1] + Y; const BA = p[B] + Z; const BB = p[B + 1] + Z;      // THE 8 CUBE CORNERS,
-
-    return lerp(w, lerp(v, lerp(u, grad(p[AA], x, y, z),  // AND ADD
-        grad(p[BA], x - 1, y, z)), // BLENDED
-    lerp(u, grad(p[AB], x, y - 1, z),  // RESULTS
-        grad(p[BB], x - 1, y - 1, z))), // FROM  8
-    lerp(v, lerp(u, grad(p[AA + 1], x, y, z - 1),  // CORNERS
-        grad(p[BA + 1], x - 1, y, z - 1)), // OF CUBE
-    lerp(u, grad(p[AB + 1], x, y - 1, z - 1),
-        grad(p[BB + 1], x - 1, y - 1, z - 1)))) * frequency;
-}
-
-function accumulatedNoise (x: number, y: number, z: number, frequency: number, octaveCount: number, octaveScale: number, octaveMultiplier: number) {
-    let sum = noise(x, y, z, frequency);
+function accumulateNoise1D (pos: number, frequency: number, octaveCount: number, octaveScale: number, octaveMultiplier: number) {
+    pos *= frequency;
+    let sum = perlinNoise1D(pos);
     let amplitude = 1;
     let range = 1;
     for (let i = 1; i < octaveCount; i++) {
-        frequency *= octaveScale;
+        pos *= octaveScale;
         amplitude *= octaveMultiplier;
         range += amplitude;
-
-        sum += noise(x, y, z, frequency) * amplitude;
+        sum += perlinNoise1D(pos) * amplitude;
     }
     return sum / range;
 }
 
-function grad (hash: number, x: number, y: number, z: number) {
-    const h = hash & 15;                      // CONVERT LO 4 BITS OF HASH CODE
-    const u = h < 8 ? x : y;                 // INTO 12 GRADIENT DIRECTIONS.
-    const v = h < 4 ? y : h === 12 || h === 14 ? x : z;
-    return ((h & 1) === 0 ? u : -u) + ((h & 2) === 0 ? v : -v);
+function accumulateNoise2D (pos: Vec2, frequency: number, octaveCount: number, octaveScale: number, octaveMultiplier: number) {
+    Vec2.multiplyScalar(pos, pos, frequency);
+    let sum = perlinNoise2D(pos);
+    let amplitude = 1;
+    let range = 1;
+    for (let i = 1; i < octaveCount; i++) {
+        Vec2.multiplyScalar(pos, pos, octaveScale);
+        amplitude *= octaveMultiplier;
+        range += amplitude;
+        sum += perlinNoise2D(pos) * amplitude;
+    }
+    return sum / range;
 }
 
-function fade (t: number) { return t * t * t * (t * (t * 6 - 15) + 10); }
+function accumulateNoise3D (pos: Vec3, frequency: number, octaveCount: number, octaveScale: number, octaveMultiplier: number) {
+    Vec3.multiplyScalar(pos, pos, frequency);
+    let sum = perlinNoise3D(pos);
+    let amplitude = 1;
+    let range = 1;
+    for (let i = 1; i < octaveCount; i++) {
+        Vec3.multiplyScalar(pos, pos, octaveScale);
+        amplitude *= octaveMultiplier;
+        range += amplitude;
+        sum += perlinNoise3D(pos) * amplitude;
+    }
+    return sum / range;
+}
