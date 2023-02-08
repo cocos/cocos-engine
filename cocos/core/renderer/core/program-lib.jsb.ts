@@ -1,5 +1,8 @@
 import { API, } from '../../gfx';
 import { legacyCC } from '../../global-exports';
+import type { ProgramLib } from './program-lib';
+
+declare const jsb: any;
 
 export interface ITemplateInfo {
     gfxAttributes: Attribute[];
@@ -29,5 +32,5 @@ export function getDeviceShaderVersion (device) {
     }
 }
 
-export const programLib = jsb.ProgramLib.getInstance();
+export const programLib = jsb.ProgramLib.getInstance() as ProgramLib;
 legacyCC.programLib = programLib;

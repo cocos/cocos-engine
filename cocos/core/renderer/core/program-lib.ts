@@ -184,7 +184,7 @@ function getActiveAttributes (tmpl: IProgramInfo, tmplInfo: ITemplateInfo, defin
  * @en The global maintainer of all shader resources.
  * @zh 维护 shader 资源实例的全局管理器。
  */
-class ProgramLib {
+export class ProgramLib {
     protected _templates: Record<string, IProgramInfo> = {}; // per shader
     protected _cache: Record<string, Shader> = {};
     protected _templateInfos: Record<number, ITemplateInfo> = {};
