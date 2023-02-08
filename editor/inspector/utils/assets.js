@@ -76,7 +76,7 @@ exports.setPropValue = function(prop, type, event) {
         if (propNames.length > 1) {
             for (let i = 0; i < lastIndex; i++) {
                 const propName = propNames[i];
-                if (!target[propName]) {
+                if (!target[propName] || typeof target[propName] !== 'object') {
                     target[propName] = {};
                 }
                 target = target[propName];
