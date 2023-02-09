@@ -31,10 +31,10 @@ import { errorID } from '../../platform/debug';
  * 此函数的行为等价于返回了一个新的枚举，其成员囊括了所有源枚举的成员。
  * 这些枚举的成员必须各不相同（包括成员名和值），否则行为是未定义的。
  * @en
- * Combine arbitray number of enumerations.
- * It behaves like an enumeration having members that is a combination of members of the source enumerations
+ * Combine an arbitrary number of enumerations.
+ * It behaves like an enumeration having members that are a combination of members of the source enumerations
  * is returned.
- * These enumerations shall have non-overlaped member names or member values.
+ * These enumerations shall have non-overlapped member names or member values.
  * If not, the behavior is undefined.
  * @example
  * ```ts
