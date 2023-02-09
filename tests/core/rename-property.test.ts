@@ -41,13 +41,17 @@ test(`renameObjectProperty()`, () => {
         // A copy is returned instead of modifying original object.
         expect(renamed).not.toBe(originalObject);
 
+        const {
+            [originalPropertyKey]: _, // Trick: Delete the original property
+            ...deleted                // <--- this is original object's clone with original property deleted
+        } = originalObject;
         const expected: Record<PropertyKey, any> = {
-            ...originalObject,
+            ...deleted,
             [newPropertyKey]: originalObject[originalPropertyKey],
         };
-        delete expected[originalPropertyKey];
 
         // The copy should be equal to the original object, except the key is renamed.
+        // This assertion does not check the order. The order is checked below.
         expect(renamed).toStrictEqual(expected);
 
         // Order is retained.
@@ -57,7 +61,7 @@ test(`renameObjectProperty()`, () => {
                 .filter((k) => typeof k === 'string')
         );
 
-        // Accessor field become data fields.
+        // Accessor field become data fields(i.e the descriptor of that property has no `get`).
         if (originalPropertyKey === 'x') {
             expect(Object.getOwnPropertyDescriptor(renamed, 'x')?.get).toBeUndefined();
         } else {
