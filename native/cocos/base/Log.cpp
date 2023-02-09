@@ -24,6 +24,8 @@
 
 #include "Log.h"
 
+#include <cstring> // strstr
+#include <chrono>
 #include <cstdarg>
 #include <ctime>
 #include "base/std/container/string.h"
@@ -209,6 +211,24 @@ void Log::logMessage(LogType type, LogLevel level, const char *formats, ...) {
 #if CC_REMOTE_LOG
     logRemote(buff);
 #endif
+}
+
+void logErrorPer5Sec(const char* errStr){
+    thread_local auto last = std::chrono::system_clock::now();
+    thread_local ccstd::string errBuffer;
+    if (!strstr(errBuffer.c_str(), errStr)) {
+        errBuffer += errStr;
+    }
+
+    auto now = std::chrono::system_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - last);
+    if(duration.count() > 5000) {
+        if (cc::Log::slogLevel >= cc::LogLevel::ERR) {
+            cc::Log::logMessage(cc::LogType::KERNEL, cc::LogLevel::ERR, "%s", errBuffer.c_str());
+        }
+        last = now;
+        errBuffer.clear();
+    }
 }
 
 } // namespace cc

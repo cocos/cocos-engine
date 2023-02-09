@@ -84,7 +84,7 @@ protected:
     CommandBufferStorage _curStates;
     CommandRecorder _recorder;
 
-    bool _insideRenderPass{false};
+    RenderPass* _renderPass{nullptr};
     bool _commandsFlushed{false};
     uint32_t _curSubpass{0U};
 
