@@ -105,25 +105,29 @@ export class PhysicsContactListener extends b2.ContactListener {
     private emit (contactType, contact: PhysicsContact) {
         const colliderA = contact.colliderA;
         const colliderB = contact.colliderB;
-        if (!colliderA || !colliderB || !colliderA.enabledInHierarchy || !colliderB.enabledInHierarchy) {
+        if (!colliderA || !colliderB) {
             return;
         }
 
         const bodyA = colliderA.body;
         const bodyB = colliderB.body;
-        if (!bodyA || !bodyB || !bodyA.enabledInHierarchy || !bodyB.enabledInHierarchy) {
+        //if rigid body doesn't exist, collider will be added to groundRigidbody automatically,
+        //hence it should emit event
+        if ((bodyA && !bodyA.enabledInHierarchy) || (bodyB && !bodyB.enabledInHierarchy) || (!bodyA && !bodyB)) {
             return;
         }
 
-        if (bodyA.enabledContactListener) {
+        //bodyA exists and enabledContactListner, or bodyA doesn't exist
+        if ((bodyA && bodyA.enabledContactListener) || (!bodyA)) {
             colliderA?.emit(contactType, colliderA, colliderB, contact);
         }
 
-        if (bodyB.enabledContactListener) {
+        //bodyB exists and enabledContactListner, or bodyB doesn't exist
+        if ((bodyB && bodyB.enabledContactListener) || (!bodyB)) {
             colliderB?.emit(contactType, colliderB, colliderA, contact);
         }
 
-        if (bodyA.enabledContactListener || bodyB.enabledContactListener) {
+        if ((bodyA && bodyA.enabledContactListener) || (bodyB && bodyB.enabledContactListener) || !bodyA || !bodyB) {
             PhysicsSystem2D.instance.emit(contactType, colliderA, colliderB, contact);
         }
 

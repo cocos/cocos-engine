@@ -49,7 +49,7 @@ export class b2PolygonShape extends b2Shape2D implements IPolygonShape {
         return this._worldPoints;
     }
 
-    _createShapes (scaleX: number, scaleY: number) {
+    _createShapes (scaleX: number, scaleY: number, relativePositionX: number, relativePositionY: number) {
         const shapes: b2.PolygonShape[] = [];
 
         const comp = this.collider as PolygonCollider2D;
@@ -79,8 +79,8 @@ export class b2PolygonShape extends b2Shape2D implements IPolygonShape {
                     shape = new b2.PolygonShape();
                 }
                 const p = poly[j];
-                const x = (p.x + offset.x) / PHYSICS_2D_PTM_RATIO * scaleX;
-                const y = (p.y + offset.y) / PHYSICS_2D_PTM_RATIO * scaleY;
+                const x = (relativePositionX + (p.x + offset.x) * scaleX) / PHYSICS_2D_PTM_RATIO;
+                const y = (relativePositionY + (p.y + offset.y) * scaleY) / PHYSICS_2D_PTM_RATIO;
                 const v = new b2.Vec2(x, y);
                 vertices.push(v);
 
