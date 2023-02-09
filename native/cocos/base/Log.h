@@ -59,8 +59,6 @@ private:
     static FILE *slogFile;
 };
 
-void logErrorPer5Sec(const char* errStr);
-
 } // namespace cc
 
 #define CC_LOG_DEBUG(formats, ...) \

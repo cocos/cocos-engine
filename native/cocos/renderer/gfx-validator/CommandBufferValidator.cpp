@@ -93,12 +93,12 @@ void CommandBufferValidator::begin(RenderPass *renderPass, uint32_t subpass, Fra
     CC_ASSERT(!renderPass || static_cast<RenderPassValidator *>(renderPass)->isInited());
     CC_ASSERT(!framebuffer || static_cast<FramebufferValidator *>(framebuffer)->isInited());
 
-    CC_ASSERT(!_renderPass);
+    CC_ASSERT(!_insideRenderPass);
     // Primary command buffer cannot inherit render passes.
     CC_ASSERT(_type != CommandBufferType::PRIMARY || !renderPass);
 
     // secondary command buffers enter the render pass right here
-    _renderPass = renderPass;
+    _insideRenderPass = !!renderPass;
     _commandsFlushed = false;
 
     _recorder.clear();
@@ -117,8 +117,8 @@ void CommandBufferValidator::end() {
     CC_ASSERT(isInited());
 
     // Still inside a render pass?
-    CC_ASSERT(_type != CommandBufferType::PRIMARY || !_renderPass);
-    _renderPass = nullptr;
+    CC_ASSERT(_type != CommandBufferType::PRIMARY || !_insideRenderPass);
+    _insideRenderPass = false;
 
     /////////// execute ///////////
 
@@ -132,7 +132,7 @@ void CommandBufferValidator::beginRenderPass(RenderPass *renderPass, Framebuffer
 
     // Command 'endRenderPass' must be recorded in primary command buffers.
     CC_ASSERT_EQ(_type, CommandBufferType::PRIMARY);
-    CC_ASSERT(!_renderPass);
+    CC_ASSERT(!_insideRenderPass);
 
     for (size_t i = 0; i < renderPass->getColorAttachments().size(); ++i) {
         const auto &desc = renderPass->getColorAttachments()[i];
@@ -143,7 +143,7 @@ void CommandBufferValidator::beginRenderPass(RenderPass *renderPass, Framebuffer
         CC_ASSERT(fbo->getDepthStencilTexture()->getFormat() == renderPass->getDepthStencilAttachment().format);
     }
 
-    _renderPass = renderPass;
+    _insideRenderPass = true;
     _curSubpass = 0U;
 
     _curStates.renderPass = renderPass;
@@ -194,8 +194,8 @@ void CommandBufferValidator::endRenderPass() {
 
     // Command 'endRenderPass' must be recorded in primary command buffers.
     CC_ASSERT_EQ(_type, CommandBufferType::PRIMARY);
-    CC_ASSERT(_renderPass);
-    _renderPass = nullptr;
+    CC_ASSERT(_insideRenderPass);
+    _insideRenderPass = false;
 
     if (DeviceValidator::getInstance()->isRecording()) {
         _recorder.recordEndRenderPass();
@@ -232,29 +232,6 @@ void CommandBufferValidator::execute(CommandBuffer *const *cmdBuffs, uint32_t co
 void CommandBufferValidator::bindPipelineState(PipelineState *pso) {
     CC_ASSERT(isInited());
     CC_ASSERT(pso && static_cast<PipelineStateValidator *>(pso)->isInited());
-    
-    if(_renderPass) {
-        /////////// pipelinestate.depthstencilstate should be compatible with renderpass ///////////
-        bool pipelineDepthNeed = pso->getDepthStencilState().depthTest || pso->getDepthStencilState().depthWrite;
-        bool pipelineStencilNeed = pso->getDepthStencilState().stencilTestBack || pso->getDepthStencilState().stencilTestFront;
-        const auto& colorAttachments = _renderPass->getColorAttachments();
-        bool slotCheck = std::any_of(colorAttachments.begin(), colorAttachments.end(),
-                                 [pipelineDepthNeed, pipelineStencilNeed](const ColorAttachment& attachemnt){
-            bool depthMacthed = !pipelineDepthNeed || (pipelineDepthNeed && (attachemnt.format == Format::DEPTH ||attachemnt.format == Format::DEPTH_STENCIL));
-            bool stencilMatched = !pipelineStencilNeed || (pipelineStencilNeed && (attachemnt.format == Format::DEPTH_STENCIL));
-            return depthMacthed && stencilMatched;
-        });
-        
-        const auto& dsAttachment = _renderPass->getDepthStencilAttachment();
-        bool dsCheck = (!pipelineDepthNeed || (pipelineDepthNeed && (dsAttachment.format == Format::DEPTH || dsAttachment.format == Format::DEPTH_STENCIL))) && //depth check
-        (!pipelineStencilNeed || (pipelineStencilNeed && (dsAttachment.format == Format::DEPTH_STENCIL))); // stencil check
-
-        if(!(slotCheck || dsCheck)) {
-            ccstd::string err = "RenderPass is not compatible with pipelinestate, do you enable depth/stencil test while forgetting setting a depth/stencil attachment?";
-            err += "\nTarget pipelinestate: " + pso->getShader()->getName();
-            logErrorPer5Sec(err.c_str());
-        }
-    }
 
     _curStates.pipelineState = pso;
 
@@ -388,7 +365,7 @@ void CommandBufferValidator::draw(const DrawInfo &info) {
     CC_ASSERT(isInited());
 
     // Command 'draw' must be recorded inside render passes.
-    CC_ASSERT(_renderPass);
+    CC_ASSERT(_insideRenderPass);
 
     if (DeviceValidator::getInstance()->isRecording()) {
         _recorder.recordDrawcall(_curStates);
@@ -414,7 +391,7 @@ void CommandBufferValidator::updateBuffer(Buffer *buff, const void *data, uint32
     // Command 'updateBuffer' must be recorded in primary command buffers.
     CC_ASSERT_EQ(_type, CommandBufferType::PRIMARY);
     // Command 'updateBuffer' must be recorded outside render passes.
-    CC_ASSERT(!_renderPass);
+    CC_ASSERT(!_insideRenderPass);
 
     auto *bufferValidator = static_cast<BufferValidator *>(buff);
     bufferValidator->sanityCheck(data, size);
@@ -431,7 +408,7 @@ void CommandBufferValidator::copyBuffersToTexture(const uint8_t *const *buffers,
     // Command 'copyBuffersToTexture' must be recorded in primary command buffers.
     CC_ASSERT_EQ(_type, CommandBufferType::PRIMARY);
     // Command 'copyBuffersToTexture' must be recorded outside render passes.
-    CC_ASSERT(!_renderPass);
+    CC_ASSERT(!_insideRenderPass);
 
     auto *textureValidator = static_cast<TextureValidator *>(texture);
     textureValidator->sanityCheck();
@@ -451,7 +428,7 @@ void CommandBufferValidator::blitTexture(Texture *srcTexture, Texture *dstTextur
     CC_ASSERT(dstTexture->getInfo().samples == SampleCount::ONE);
 
     // Command 'blitTexture' must be recorded outside render passes.
-    CC_ASSERT(!_renderPass);
+    CC_ASSERT(!_insideRenderPass);
 
     for (uint32_t i = 0; i < count; ++i) {
         const auto &region = regions[i];
@@ -478,7 +455,7 @@ void CommandBufferValidator::dispatch(const DispatchInfo &info) {
     CC_ASSERT(isInited());
 
     // Command 'dispatch' must be recorded outside render passes.
-    CC_ASSERT(!_renderPass);
+    CC_ASSERT(!_insideRenderPass);
 
     /////////// execute ///////////
 
