@@ -200,11 +200,11 @@ CCProgram toon-fs %{
       #endif
     #endif
 
-    vec4 baseColor = baseColor;
+    vec4 localBaseColor = baseColor;
     #if USE_BASE_COLOR_MAP
       vec4 baseColorMap = texture(baseColorMap, v_uv);
       baseColorMap.rgb = SRGBToLinear(baseColorMap.rgb);
-      baseColor *= baseColorMap;
+      localBaseColor *= baseColorMap;
       #if BASE_COLOR_MAP_AS_SHADE_MAP_1
         s.shade1 *= baseColorMap.rgb;
       #endif
@@ -212,7 +212,7 @@ CCProgram toon-fs %{
         s.shade2 *= baseColorMap.rgb;
       #endif
     #endif
-    s.baseColor = baseColor;
+    s.baseColor = localBaseColor;
     s.baseColor.rgb *= colorScaleAndCutoff.xyz;
 
     #if USE_ALPHA_TEST
