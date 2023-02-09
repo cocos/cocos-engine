@@ -37,6 +37,7 @@ import { AnimationMask } from './animation-mask';
 import { onAfterDeserializedTag } from '../../serialization/deserialize-symbols';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 import { AnimationGraphLike } from './animation-graph-like';
+import { renameObjectProperty } from '../../core/utils/internal';
 
 export { State };
 
@@ -996,17 +997,6 @@ export class AnimationGraph extends AnimationGraphLike implements AnimationGraph
      * @param newName @zh 新的名字。 @en New name.
      */
     public renameVariable (name: string, newName: string) {
-        const { _variables: variables } = this;
-        if (!(name in variables)) {
-            return;
-        }
-        if (newName in variables) {
-            return;
-        }
-        // Rename but also retain order.
-        this._variables = Object.entries(variables).reduce((result, [k, v]) => {
-            result[k === name ? newName : k] = v;
-            return result;
-        }, {} as AnimationGraph['_variables']);
+        this._variables = renameObjectProperty(this._variables, name, newName);
     }
 }
