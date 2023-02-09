@@ -38,6 +38,7 @@ SystemWindow::SystemWindow(uint32_t windowId, void *externalHandle)
 SystemWindow::~SystemWindow() = default;
 
 void SystemWindow::setCursorEnabled(bool value) {
+
 }
 
 void SystemWindow::copyTextToClipboard(const std::string& text) {

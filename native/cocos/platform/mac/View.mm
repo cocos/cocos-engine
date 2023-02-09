@@ -32,6 +32,7 @@
 #import "application/ApplicationManager.h"
 #import "cocos/bindings/event/EventDispatcher.h"
 #import "platform/mac/AppDelegate.h"
+#import "platform/interfaces/modules/IScreen.h"
 #import "platform/mac/modules/SystemWindow.h"
 #import "platform/mac/modules/SystemWindowManager.h"
 
@@ -268,14 +269,50 @@
 }
 
 - (void)sendMouseEvent:(int)button type:(cc::MouseEvent::Type)type event:(NSEvent *)event {
-    const NSRect contentRect = [self frame];
-    const NSPoint pos = [event locationInWindow];
-
     _mouseEvent.windowId = [self getWindowId];
     _mouseEvent.type = type;
     _mouseEvent.button = button;
-    _mouseEvent.x = pos.x;
-    _mouseEvent.y = contentRect.size.height - pos.y;
+    
+    auto *windowMgr = CC_GET_PLATFORM_INTERFACE(cc::SystemWindowManager);
+    auto *window = dynamic_cast<cc::SystemWindow*>( windowMgr->getWindowFromNSWindow([self window]));
+    const NSRect contentRect = [self frame];
+    const NSPoint pos = [event locationInWindow];
+    if(!window->isPointerLock()) {
+        
+        _mouseEvent.x = pos.x;
+        _mouseEvent.y = contentRect.size.height - pos.y;
+    } else {
+        if(type == cc::MouseEvent::Type::MOVE) {
+            _mouseEvent.x = _mouseEvent.x + [event deltaX];
+            _mouseEvent.y = _mouseEvent.y + [event deltaY];
+            float x_min = 0, x_max = 0;
+            float y_min = 0, y_max = 0;
+            cc::Size sz = window->getViewSize();
+            auto dpr = cc::BasePlatform::getPlatform()->getInterface<cc::IScreen>()->getDevicePixelRatio();
+            x_max = sz.width / dpr;
+            y_max = sz.height / dpr;
+            //SDL_GetWindowSize(window, &x_max, &y_max);
+            --x_max;
+            --y_max;
+            if (_mouseEvent.x > x_max) {
+                _mouseEvent.x = x_max;
+            } else if (_mouseEvent.x < x_min) {
+                _mouseEvent.x = x_min;
+            }
+            
+            if (_mouseEvent.y > y_max) {
+                _mouseEvent.y = y_max;
+            } else if (_mouseEvent.y < y_min) {
+                _mouseEvent.y = y_min;
+            }
+        }
+        auto mainDisplayId = CGMainDisplayID();
+        float windowX = [[self.window contentView] frame].origin.x;
+        float windowY =
+           CGDisplayPixelsHigh(mainDisplayId) - contentRect.origin.y - contentRect.size.height;
+        window->setLastMousePos(windowX + _mouseEvent.x, windowY + _mouseEvent.y);
+    }
+
     cc::events::Mouse::broadcast(_mouseEvent);
 }
 - (int)getWindowId {
