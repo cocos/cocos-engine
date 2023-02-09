@@ -27,8 +27,17 @@ void CCSurfacesLightingCalculateDirect(out vec3 lightingDiffuse, out vec3 lighti
 
 void CCSurfacesLightingCalculateEnvironment(out vec3 lightingDiffuse, out vec3 lightingSpecular, in LightingIntermediateData lightingData, float lightIntensity)
 {
+#if CC_SURFACES_LIGHTING_CALCULATE_DIFFUSE
   lightingDiffuse = CalculateEnvironmentDiffuse(lightingData, lightIntensity);
+#else
+  lightingDiffuse = vec3(0.0);
+#endif
+
+#if CC_SURFACES_LIGHTING_CALCULATE_SPECULAR
   lightingSpecular = CalculateEnvironmentSpecular(lightingData, lightIntensity);
+#else
+  lightingSpecular = vec3(0.0);
+#endif
 }
 
 #if CC_SURFACES_LIGHTING_USE_FRESNEL
