@@ -1,0 +1,15 @@
+void highlightSelectedFace(inout vec4 outputColor,vec3 normal,vec4 selectedColor,int hightLightFaceType){
+  if ( hightLightFaceType == 1 && normal.y >0.0) {
+    outputColor = selectedColor;
+  } else if ( hightLightFaceType == 2 && normal.y <0.0){
+    outputColor = selectedColor;
+  } else if ( hightLightFaceType == 3 && normal.x <0.0){
+    outputColor = selectedColor;
+  } else if ( hightLightFaceType == 4 && normal.x >0.0){
+    outputColor = selectedColor;
+  } else if ( hightLightFaceType == 5 && normal.z >0.0){
+    outputColor = selectedColor;
+  } else if ( hightLightFaceType == 6 && normal.z <0.0){
+    outputColor = selectedColor;
+  }
+}
