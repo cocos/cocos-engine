@@ -115,7 +115,7 @@ void SystemWindow::setCursorEnabled(bool value) {
         [NSCursor hide];
         _pointerLock = true;
     }
-    
+    CC_ASSERT(result == kCGErrorSuccess);
 }
 
 void SystemWindow::copyTextToClipboard(const std::string &text) {
