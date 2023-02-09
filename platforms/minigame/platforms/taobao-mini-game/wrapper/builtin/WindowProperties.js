@@ -2,11 +2,7 @@ const { pixelRatio, windowWidth, windowHeight } = my.getSystemInfoSync()
 const devicePixelRatio = pixelRatio;
 
 let width, height;
-if ($global.screencanvas.getBoundingClientRect) {
-  let rect = $global.screencanvas.getBoundingClientRect();
-  width = rect.width;
-  height = rect.height;
-} else {
+{
   width = windowWidth;
   height = windowHeight;
 }

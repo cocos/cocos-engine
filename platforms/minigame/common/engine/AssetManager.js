@@ -25,7 +25,11 @@ function downloadScript (url, options, onComplete) {
     else {
         //TODO: Can't load scripts dynamically on Taobao platform
         if (sys.platform !== sys.Platform.TAOBAO_CREATIVE_APP && sys.platform !== sys.Platform.TAOBAO_MINI_GAME) {
-            require('../../../' + url);
+            if (sys.platform === sys.Platform.TAOBAO_MINI_GAME) {
+                requireHandler('../../../' + url);
+            } else {
+                require('../../../' + url);
+            }  
         }
         onComplete && onComplete(null);
     }
@@ -244,8 +248,12 @@ function downloadBundle (nameOrUrl, options, onComplete) {
             }
         }
         //TODO: Can't load scripts dynamically on Taobao platform
-        if (sys.platform !== sys.Platform.TAOBAO_CREATIVE_APP && sys.platform !== sys.Platform.TAOBAO_MINI_GAME) {
-            require('./' + js);
+        if (sys.platform !== sys.Platform.TAOBAO_CREATIVE_APP) {
+            if (sys.platform === sys.Platform.TAOBAO_MINI_GAME) {
+                requireHandler(js);
+            } else {
+                require('./' + js);
+            }  
         }
         options.__cacheBundleRoot__ = bundleName;
         var config = `${url}/config.${suffix}json`;

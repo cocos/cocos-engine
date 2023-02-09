@@ -5,7 +5,7 @@ function Canvas () {}
 let CanvasProxy = new Proxy(Canvas, {
   construct () {
 
-    const canvas = my.createOffscreenCanvas()
+    const canvas = my.createCanvas();
 
     canvas.type = 'canvas'
   
@@ -32,12 +32,12 @@ let CanvasProxy = new Proxy(Canvas, {
   
     canvas.addEventListener = function (type, listener, options = {}) {
       // console.log('canvas.addEventListener', type);
-      document.addEventListener(type, listener, options);
+      $global.document.addEventListener(type, listener, options);
     }
   
     canvas.removeEventListener = function (type, listener) {
       // console.log('canvas.removeEventListener', type);
-      document.removeEventListener(type, listener);
+      $global.document.removeEventListener(type, listener);
     }
   
     canvas.dispatchEvent = function (event = {}) {
@@ -62,6 +62,10 @@ let CanvasProxy = new Proxy(Canvas, {
     return canvas
   },
 });
+
+// 暴露全局的 canvas
+$global.screencanvas = $global.screencanvas || new CanvasProxy();
+
 
 // NOTE: this is a hack operation
 // let canvas = new window.Canvas()

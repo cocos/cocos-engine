@@ -34,7 +34,9 @@ var fsUtils = {
     },
 
     getUserDataPath () {
-        return my.env.USER_DATA_PATH;
+        return 'https://usr';
+        //todo:
+        //return my.env.USER_DATA_PATH;
     },
 
     checkFsValid () {
@@ -234,7 +236,18 @@ var fsUtils = {
     },
 
     loadSubpackage (name, onProgress, onComplete) {
-        throw new Error('Not Implemented');
+        const task = my.loadSubPackage({
+            packages: [name],
+            success () {
+                onComplete && onComplete();
+            },
+            fail (res) {
+                console.warn(`Load Subpackage failed: path: ${name} message: ${res.errMsg}`);
+                onComplete && onComplete(new Error(`Failed to load subpackage ${name}: ${res.errMsg}`));
+            },
+        });
+        onProgress && task.onProgressUpdate(onProgress);
+        return task;
     },
 
     unzip (zipFilePath, targetPath, onComplete) {

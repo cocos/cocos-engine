@@ -2,7 +2,7 @@ if (cc && cc.LabelComponent) {
     const Label = cc.LabelComponent;
 
     // shared label canvas
-    const _sharedLabelCanvas = my.createOffscreenCanvas();
+    const _sharedLabelCanvas = my.createCanvas();
     const _sharedLabelCanvasCtx = _sharedLabelCanvas.getContext('2d');
     const canvasData = {
         canvas: _sharedLabelCanvas,
