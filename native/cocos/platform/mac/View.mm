@@ -276,9 +276,8 @@
     auto *windowMgr = CC_GET_PLATFORM_INTERFACE(cc::SystemWindowManager);
     auto *window = dynamic_cast<cc::SystemWindow*>( windowMgr->getWindowFromNSWindow([self window]));
     const NSRect contentRect = [self frame];
-    const NSPoint pos = [event locationInWindow];
     if(!window->isPointerLock()) {
-        
+        const NSPoint pos = [event locationInWindow];
         _mouseEvent.x = pos.x;
         _mouseEvent.y = contentRect.size.height - pos.y;
     } else {
@@ -287,11 +286,8 @@
             _mouseEvent.y = _mouseEvent.y + [event deltaY];
             float x_min = 0, x_max = 0;
             float y_min = 0, y_max = 0;
-            cc::Size sz = window->getViewSize();
-            auto dpr = cc::BasePlatform::getPlatform()->getInterface<cc::IScreen>()->getDevicePixelRatio();
-            x_max = sz.width / dpr;
-            y_max = sz.height / dpr;
-            //SDL_GetWindowSize(window, &x_max, &y_max);
+            x_max = contentRect.size.width;
+            y_max = contentRect.size.height;
             --x_max;
             --y_max;
             if (_mouseEvent.x > x_max) {
@@ -307,12 +303,11 @@
             }
         }
         auto mainDisplayId = CGMainDisplayID();
-        float windowX = [[self.window contentView] frame].origin.x;
+        float windowX = contentRect.origin.x;
         float windowY =
            CGDisplayPixelsHigh(mainDisplayId) - contentRect.origin.y - contentRect.size.height;
         window->setLastMousePos(windowX + _mouseEvent.x, windowY + _mouseEvent.y);
     }
-
     cc::events::Mouse::broadcast(_mouseEvent);
 }
 - (int)getWindowId {
