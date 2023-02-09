@@ -273,7 +273,7 @@
     _mouseEvent.button = button;
     
     auto *windowMgr = CC_GET_PLATFORM_INTERFACE(cc::SystemWindowManager);
-    auto *window = dynamic_cast<cc::SystemWindow*>( windowMgr->getWindowFromNSWindow([self window]));
+    auto *window = static_cast<cc::SystemWindow*>( windowMgr->getWindowFromNSWindow([self window]));
     const NSRect contentRect = [self frame];
     if(!window->isPointerLock()) {
         const NSPoint pos = [event locationInWindow];
@@ -281,24 +281,25 @@
         _mouseEvent.y = contentRect.size.height - pos.y;
     } else {
         if(type == cc::MouseEvent::Type::MOVE) {
+            // Out of window only happens when mouse is moved.
             _mouseEvent.x = _mouseEvent.x + [event deltaX];
             _mouseEvent.y = _mouseEvent.y + [event deltaY];
-            float x_min = 0, x_max = 0;
-            float y_min = 0, y_max = 0;
-            x_max = contentRect.size.width;
-            y_max = contentRect.size.height;
-            --x_max;
-            --y_max;
-            if (_mouseEvent.x > x_max) {
-                _mouseEvent.x = x_max;
-            } else if (_mouseEvent.x < x_min) {
-                _mouseEvent.x = x_min;
+            float xMin = 0, xMax = 0;
+            float yMin = 0, yMax = 0;
+            xMax = contentRect.size.width;
+            yMax = contentRect.size.height;
+            --xMax;
+            --yMax;
+            if (_mouseEvent.x > xMax) {
+                _mouseEvent.x = xMax;
+            } else if (_mouseEvent.x < xMin) {
+                _mouseEvent.x = xMin;
             }
             
-            if (_mouseEvent.y > y_max) {
-                _mouseEvent.y = y_max;
-            } else if (_mouseEvent.y < y_min) {
-                _mouseEvent.y = y_min;
+            if (_mouseEvent.y > yMax) {
+                _mouseEvent.y = yMax;
+            } else if (_mouseEvent.y < yMin) {
+                _mouseEvent.y = yMin;
             }
         }
         auto mainDisplayId = CGMainDisplayID();
