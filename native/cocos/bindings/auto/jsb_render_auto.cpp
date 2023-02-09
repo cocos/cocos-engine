@@ -1711,6 +1711,7 @@ static bool js_cc_render_RasterPassBuilder_addQueue__SWIG_0(se::State& s)
     ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments");
     SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    s.rval().toObject()->getPrivateObject()->tryAllowDestroyInGC();
     
     
     return true;
@@ -1789,6 +1790,7 @@ static bool js_cc_render_RasterPassBuilder_addQueue__SWIG_1(se::State& s)
     ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments");
     SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    s.rval().toObject()->getPrivateObject()->tryAllowDestroyInGC();
     
     
     return true;
@@ -2926,6 +2928,7 @@ static bool js_cc_render_Pipeline_addRasterPass__SWIG_0(se::State& s)
     ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments");
     SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    s.rval().toObject()->getPrivateObject()->tryAllowDestroyInGC();
     
     
     return true;
@@ -3363,6 +3366,7 @@ static bool js_cc_render_Pipeline_addRasterPass__SWIG_1(se::State& s)
     ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments");
     SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    s.rval().toObject()->getPrivateObject()->tryAllowDestroyInGC();
     
     
     return true;
