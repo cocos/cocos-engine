@@ -74,9 +74,7 @@ export class ReflectionProbeManager {
      * @zh 刷新所有反射探针
      */
     public onUpdateProbes (forceUpdate = false) {
-        if (!this._updateForRuntime) return;
-        if (this._probes.length === 0) return;
-        if (!this.updateForRuntime) return;
+        if (!this._updateForRuntime || this._probes.length === 0) return;
         const scene = director.getScene();
         if (!scene || !scene.renderScene) {
             return;
@@ -366,9 +364,6 @@ export class ReflectionProbeManager {
                 //mipCount;
                 buffer[bufferOffset + 8] = 1.0;
             }
-            buffer[bufferOffset + 9] = 0.0;
-            buffer[bufferOffset + 10] = 0.0;
-            buffer[bufferOffset + 11] = 0.0;
             bufferOffset += 4 * dataWidth;
         }
         const updateView = new Uint8Array(buffer.buffer);
