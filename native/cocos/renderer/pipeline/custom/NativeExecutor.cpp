@@ -1682,6 +1682,44 @@ void buildRenderQueues(
     }
 }
 
+void collectStatistics(const NativePipeline& ppl, PipelineStatistics& stats) {
+    // resources
+    stats.numRenderPasses = static_cast<uint32_t>(ppl.resourceGraph.renderPasses.size());
+    stats.totalManagedTextures = static_cast<uint32_t>(ppl.resourceGraph.managedTextures.size());
+    stats.numManagedTextures = 0;
+    for (const auto& tex : ppl.resourceGraph.managedTextures) {
+        if (tex.texture) {
+            ++stats.numManagedTextures;
+        }
+    }
+    // layout graph
+    stats.numUploadBuffers = 0;
+    stats.numUploadBufferViews = 0;
+    stats.numFreeUploadBuffers = 0;
+    stats.numFreeUploadBufferViews = 0;
+    stats.numDescriptorSets = 0;
+    stats.numFreeDescriptorSets = 0;
+    for (const auto& node : ppl.nativeContext.layoutGraphResources) {
+        for (const auto& [nameID, buffer] : node.uniformBuffers) {
+            stats.numUploadBuffers += static_cast<uint32_t>(buffer.bufferPool.currentBuffers.size());
+            stats.numUploadBufferViews += static_cast<uint32_t>(buffer.bufferPool.currentBufferViews.size());
+            stats.numFreeUploadBuffers += static_cast<uint32_t>(buffer.bufferPool.freeBuffers.size());
+            stats.numFreeUploadBufferViews += static_cast<uint32_t>(buffer.bufferPool.freeBufferViews.size());
+        }
+        stats.numDescriptorSets += static_cast<uint32_t>(node.descriptorSetPool.currentDescriptorSets.size());
+        stats.numFreeDescriptorSets += static_cast<uint32_t>(node.descriptorSetPool.freeDescriptorSets.size());
+    }
+    // scene
+    stats.numInstancingBuffers = 0;
+    stats.numInstancingUniformBlocks = 0;
+    for (const auto& [key, group] : ppl.nativeContext.resourceGroups) {
+        stats.numInstancingBuffers += group.instancingBuffers.size();
+        for (const auto& buffer : group.instancingBuffers) {
+            stats.numInstancingUniformBlocks += static_cast<uint32_t>(buffer->getInstances().size());
+        }
+    }
+}
+
 } // namespace
 
 void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
@@ -1767,6 +1805,9 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
         RenderGraphVisitor visitor{{}, ctx};
         boost::depth_first_search(fg, visitor, get(colors, rg));
     }
+
+    // collect statistics
+    collectStatistics(*this, statistics);
 }
 
 } // namespace render
