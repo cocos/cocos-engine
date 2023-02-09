@@ -102,6 +102,10 @@ using namespace cc::render;
 %attribute(cc::render::SceneVisitor, cc::pipeline::PipelineSceneData*, pipelineSceneData, getPipelineSceneData);
 %attribute(cc::render::SceneTask, cc::render::TaskType, taskType, getTaskType);
 
+// ----- Release Returned Cpp Object in GC Section ------
+%release_returned_cpp_object_in_gc(cc::render::Pipeline::addRasterPass);
+%release_returned_cpp_object_in_gc(cc::render::RasterPassBuilder::addQueue);
+
 // ----- Import Section ------
 // Brief: Import header files which are depended by 'Include Section'
 // Note: 
@@ -111,3 +115,4 @@ using namespace cc::render;
 // ----- Include Section ------
 // Brief: Include header files in which classes and methods will be bound
 %include "renderer/pipeline/custom/RenderInterfaceTypes.h"
+
