@@ -1,5 +1,4 @@
-#include <builtin/uniforms/cc-local>
-void GetPlanarReflectionProbeData(out vec4 plane, out float planarReflectionDepthScale, out float mipCount, float probeId)
+void GetPlanarReflectionProbeData(out vec4 plane, out float planarReflectionDepthScale, out float mipCount, float probeId, vec4 reflectionProbeData1, vec4 reflectionProbeData2)
 {
     #if USE_INSTANCING
       float uv_y = (probeId + 0.5) / cc_probeInfo.x; //align to texel center
@@ -23,13 +22,13 @@ void GetPlanarReflectionProbeData(out vec4 plane, out float planarReflectionDept
       planarReflectionDepthScale = texData2.y;
       mipCount = texData2.z;
     #else
-      plane = cc_reflectionProbeData1;
-      planarReflectionDepthScale = cc_reflectionProbeData2.x;
-      mipCount = cc_reflectionProbeData2.w;
+      plane = reflectionProbeData1;
+      planarReflectionDepthScale = reflectionProbeData2.x;
+      mipCount = reflectionProbeData2.w;
     #endif
 }
 
-void GetCubeReflectionProbeData(out vec3 centerPos, out vec3 boxHalfSize, out float mipCount, float probeId)
+void GetCubeReflectionProbeData(out vec3 centerPos, out vec3 boxHalfSize, out float mipCount, float probeId, vec4 reflectionProbeData1, vec4 reflectionProbeData2)
 {
     #if USE_INSTANCING
       float uv_y = (probeId + 0.5) / cc_probeInfo.x; //align to texel center
@@ -59,8 +58,8 @@ void GetCubeReflectionProbeData(out vec3 centerPos, out vec3 boxHalfSize, out fl
       boxHalfSize = texData2.xyz;
       mipCount = texData3.x;
     #else
-      centerPos = cc_reflectionProbeData1.xyz;
-      boxHalfSize = cc_reflectionProbeData2.xyz;
-      mipCount = cc_reflectionProbeData2.w;
+       centerPos = reflectionProbeData1.xyz;
+       boxHalfSize = reflectionProbeData2.xyz;
+       mipCount = reflectionProbeData2.w;
     #endif
 }

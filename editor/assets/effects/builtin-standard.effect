@@ -109,6 +109,8 @@ CCProgram standard-vs %{
 
   #if CC_RECEIVE_SHADOW || CC_USE_REFLECTION_PROBE
     out mediump vec4 v_shadowBiasAndProbeId;
+    out mediump vec4 v_reflectionProbeData1;
+    out mediump vec4 v_reflectionProbeData2;
   #endif
 
   #if USE_NORMAL_MAP
@@ -143,6 +145,8 @@ CCProgram standard-vs %{
         v_shadowBiasAndProbeId.zw = a_localShadowBiasAndProbeId.zw;
       #else
         v_shadowBiasAndProbeId.zw = vec2(cc_localShadowBias.z, 0.0);
+        v_reflectionProbeData1 = cc_reflectionProbeData1;
+        v_reflectionProbeData2 = cc_reflectionProbeData2;
       #endif
     #endif
 
@@ -202,6 +206,8 @@ CCProgram standard-fs %{
 
   #if CC_RECEIVE_SHADOW || CC_USE_REFLECTION_PROBE
     in mediump vec4 v_shadowBiasAndProbeId;
+    in mediump vec4 v_reflectionProbeData1;
+    in mediump vec4 v_reflectionProbeData2;
   #endif
 
   #if USE_VERTEX_COLOR
@@ -266,6 +272,8 @@ CCProgram standard-fs %{
     #endif
     #if CC_USE_REFLECTION_PROBE
       s.reflectionProbeId = v_shadowBiasAndProbeId.z;
+      s.reflectionProbeData1 = v_reflectionProbeData1;
+      s.reflectionProbeData2 = v_reflectionProbeData2;
     #endif
 
 
