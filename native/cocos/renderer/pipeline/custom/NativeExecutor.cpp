@@ -1451,7 +1451,6 @@ float computeSortingDepth(const scene::Camera& camera, const scene::Model& model
 }
 
 void addRenderObject(
-    LayoutGraphData::vertex_descriptor defaultlayoutID,
     LayoutGraphData::vertex_descriptor shadowCasterlayoutID,
     const scene::Camera& camera, const scene::Model& model, NativeRenderQueue& queue) {
     const bool bDrawTransparent = any(queue.sceneFlags & SceneFlags::TRANSPARENT_OBJECT);
@@ -1493,11 +1492,6 @@ void addRenderObject(
                 continue;
             }
 
-            if (pass.getPhaseID() != defaultlayoutID) {
-                // TODO(zhouzhenglong): remove this hardcode phase comparison
-                continue;
-            }
-
             // add object to queue
             if (pass.getBatchingScheme() == scene::BatchingSchemes::INSTANCING) {
                 auto& instancedBuffer = *pass.getInstancedBuffer();
@@ -1520,7 +1514,6 @@ void addRenderObject(
 }
 
 void octreeCulling(
-    LayoutGraphData::vertex_descriptor defaultlayoutID,
     LayoutGraphData::vertex_descriptor shadowCasterlayoutID,
     const scene::Octree* octree,
     const scene::RenderScene* scene,
@@ -1543,7 +1536,7 @@ void octreeCulling(
         }
         const auto visibility = camera.getVisibility();
         if (isInstanceVisible(model, visibility) && isPointInstanceAndNotSkybox(model, skyBox)) {
-            addRenderObject(defaultlayoutID, shadowCasterlayoutID, camera, model, queue);
+            addRenderObject(shadowCasterlayoutID, camera, model, queue);
         }
     }
 
@@ -1557,12 +1550,11 @@ void octreeCulling(
         if (scene->isCulledByLod(&camera, &model)) {
             continue;
         }
-        addRenderObject(defaultlayoutID, shadowCasterlayoutID, camera, model, queue);
+        addRenderObject(shadowCasterlayoutID, camera, model, queue);
     }
 }
 
 void frustumCulling(
-    LayoutGraphData::vertex_descriptor defaultlayoutID,
     LayoutGraphData::vertex_descriptor shadowCasterlayoutID,
     const scene::RenderScene* scene,
     const scene::Camera& camera,
@@ -1591,12 +1583,12 @@ void frustumCulling(
             const auto* modelWorldBounds = model.getWorldBounds();
             // object has no volume
             if (!modelWorldBounds) {
-                addRenderObject(defaultlayoutID, shadowCasterlayoutID, camera, model, queue);
+                addRenderObject(shadowCasterlayoutID, camera, model, queue);
                 continue;
             }
             // frustum culling
             if (modelWorldBounds->aabbFrustum(camera.getFrustum())) {
-                addRenderObject(defaultlayoutID, shadowCasterlayoutID, camera, model, queue);
+                addRenderObject(shadowCasterlayoutID, camera, model, queue);
             }
         }
     }
@@ -1643,7 +1635,6 @@ void extendResourceLifetime(const NativeRenderQueue& queue, ResourceGroup& group
 }
 
 void buildRenderQueues(
-    LayoutGraphData::vertex_descriptor defaultlayoutID,
     LayoutGraphData::vertex_descriptor shadowCasterlayoutID,
     const pipeline::PipelineSceneData& sceneData,
     NativeRenderContext& context,
@@ -1679,9 +1670,9 @@ void buildRenderQueues(
 
             // culling
             if (octree && octree->isEnabled()) {
-                octreeCulling(defaultlayoutID, shadowCasterlayoutID, octree, scene, skybox, *camera, queue);
+                octreeCulling(shadowCasterlayoutID, octree, scene, skybox, *camera, queue);
             } else {
-                frustumCulling(defaultlayoutID, shadowCasterlayoutID, scene, *camera, queue);
+                frustumCulling(shadowCasterlayoutID, scene, *camera, queue);
             }
 
             queue.sort();
@@ -1773,12 +1764,9 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
         sceneQueues(scratch);
     {
         mergeSceneFlags(rg, lg, sceneQueues);
-        const auto defaultLayoutID = locate("/default/default", lg);
-        CC_ENSURES(defaultLayoutID != LayoutGraphData::null_vertex());
         const auto shadowCasterLayoutID = locate("/default/shadow-caster", lg);
         CC_ENSURES(shadowCasterLayoutID != LayoutGraphData::null_vertex());
         buildRenderQueues(
-            defaultLayoutID,
             shadowCasterLayoutID,
             *ppl.getPipelineSceneData(),
             ppl.nativeContext,
