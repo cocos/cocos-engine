@@ -32,7 +32,6 @@
 #import "application/ApplicationManager.h"
 #import "cocos/bindings/event/EventDispatcher.h"
 #import "platform/mac/AppDelegate.h"
-#import "platform/interfaces/modules/IScreen.h"
 #import "platform/mac/modules/SystemWindow.h"
 #import "platform/mac/modules/SystemWindowManager.h"
 
