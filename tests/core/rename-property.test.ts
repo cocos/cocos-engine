@@ -42,11 +42,11 @@ test(`renameObjectProperty()`, () => {
         expect(renamed).not.toBe(originalObject);
 
         const {
-            [originalPropertyKey]: _, // Trick: Delete the original property
-            ...deleted                // <--- this is original object's clone with original property deleted
+            [originalPropertyKey]: _, // Trick: Delete the property to rename.
+            ...unchangedProperties    // <--- all other unchanged properties are collected into a new object.
         } = originalObject;
         const expected: Record<PropertyKey, any> = {
-            ...deleted,
+            ...unchangedProperties,
             [newPropertyKey]: originalObject[originalPropertyKey],
         };
 
