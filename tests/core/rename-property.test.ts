@@ -2,6 +2,8 @@ import { renameObjectProperty } from '../../cocos/core/utils/internal';
 
 test(`renameObjectProperty()`, () => {
     const symKey = Symbol();
+    const nonEnumerableSymKey = Symbol();
+    const nonOwnSymKey = Symbol();
 
     const originalObject: Record<PropertyKey, any> = {
         c: 1, a: '2', b: null,
@@ -12,8 +14,13 @@ test(`renameObjectProperty()`, () => {
         value: 6,
         enumerable: false,
     });
+    Object.defineProperty(originalObject, nonEnumerableSymKey, {
+        value: 7,
+        enumerable: false,
+    });
     Object.setPrototypeOf(originalObject, {
         pNonOwn: '',
+        nonOwnSymKey: true,
     });
     // Freeze to ensure our readonly on original object.
     Object.freeze(originalObject);
@@ -74,6 +81,8 @@ test(`renameObjectProperty()`, () => {
         // Non-enumerable-own properties are excluded in the result.
         expect('pNonEnumerable' in renamed).toBe(false);
         expect('pNonOwn' in renamed).toBe(false);
+        expect(nonEnumerableSymKey in renamed).toBe(false);
+        expect(nonOwnSymKey in renamed).toBe(false);
     };
 
     // Rename a data field.
