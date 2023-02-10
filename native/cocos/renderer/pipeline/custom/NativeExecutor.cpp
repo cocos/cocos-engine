@@ -900,8 +900,12 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
                 case ResourceDimension::TEXTURE2D:
                 case ResourceDimension::TEXTURE3D:
                 default: {
-                    auto [info, texture] = getTextureBarrier(resg, resID, barrier);
+                    //auto [info, texture] = getTextureBarrier(resg, resID, barrier);
+                    auto* texture = resg.getTexture(resID);
                     const auto* textureBarrier = static_cast<gfx::TextureBarrier*>(barrier.barrier);
+                    //if (textureBarrier->getInfo().type != gfx::BarrierType::FULL) {
+                    //    CC_LOG_INFO("gggg");
+                    //}
                     textures.emplace_back(texture);
                     textureBarriers.emplace_back(textureBarrier);
                     break;

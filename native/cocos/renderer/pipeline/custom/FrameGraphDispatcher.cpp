@@ -111,7 +111,7 @@ using ComputeViewsMap = PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector
 using ResourceLifeRecordMap = PmrFlatMap<PmrString, ResourceLifeRecord>;
 
 struct Graphs {
-    const ResourceGraph &resourceGraph;
+    ResourceGraph &resourceGraph;
     const LayoutGraphData &layoutGraphData;
     ResourceAccessGraph &resourceAccessGraph;
     RelationGraph &relationGraph;
@@ -175,6 +175,10 @@ auto getResourceStatus(PassType passType, const PmrString &name, gfx::MemoryAcce
 // execution order BUT NOT LOGICALLY
 bool isPassExecAdjecent(uint32_t passLID, uint32_t passRID) {
     return std::abs(static_cast<int>(passLID) - static_cast<int>(passRID)) <= 1;
+}
+
+inline bool isReadOnlyAccess(gfx::AccessFlagBit flag) {
+    return flag < gfx::AccessFlagBit::PRESENT;
 }
 
 bool isTransitionStatusDependent(const AccessStatus &lhs, const AccessStatus &rhs);
@@ -566,15 +570,18 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
             uint32_t rescID = resourcecAccess.vertID;
             bool externalRes = get(get(ResourceGraph::Traits, resourceGraph), rescID).hasSideEffects();
             if (externalRes) {
+                auto &states = get(ResourceGraph::States, resourceGraph, rescID);
                 const PmrString &resName = get(ResourceGraph::Name, resourceGraph, rescID);
-                auto iter = externalMap.find(resName);
+                auto resIter = externalMap.find(resName);
                 // first meet in this frame
-                if (externalResNames.find(resName) == externalResNames.end()) {
-                    // first meet in whole program
-                    if (iter == externalMap.end()) {
+                if (resIter == externalMap.end()) {
+                    // first meet in this program
+                    if (states.states == gfx::AccessFlagBit::NONE) {
                         auto lastRescAccess = resourcecAccess;
-                        lastRescAccess.vertID = EXPECT_START_ID;
                         auto currRescAccess = resourcecAccess;
+
+                        // resource id in access -> pass id in barrier
+                        lastRescAccess.vertID = vert;
                         currRescAccess.vertID = vert;
 
                         externalMap.insert({resName,
@@ -583,26 +590,37 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
                                                 currRescAccess,
                                             }});
                     } else {
-                        externalMap[resName].lastStatus = externalMap[resName].currStatus;
+                        externalMap[resName].lastStatus = {};
+                        externalMap[resName].lastStatus.vertID = INVALID_ID;
+                        externalMap[resName].lastStatus.accessFlag = states.states;
+                        // deprecated
+                        externalMap[resName].lastStatus.usage = gfx::TextureUsageBit::NONE;
+                        externalMap[resName].lastStatus.range = TextureRange{};
+
                         externalMap[resName].currStatus = resourcecAccess;
                         externalMap[resName].currStatus.vertID = vert;
 
+                        const auto &traits = get(ResourceGraph::Traits, resourceGraph, rescID);
+                        // transit status from last frame end to this frame begin
                         if (isTransitionStatusDependent(externalMap[resName].lastStatus, externalMap[resName].currStatus)) {
                             barrierMap[vert].blockBarrier.frontBarriers.emplace_back(Barrier{
                                 rescID,
-                                gfx::BarrierType::SPLIT_END,
+                                traits.residency == ResourceResidency::BACKBUFFER ? gfx::BarrierType::FULL : gfx::BarrierType::SPLIT_END,
                                 nullptr,
                                 externalMap[resName].lastStatus,
                                 externalMap[resName].currStatus,
                             });
+                            externalResNames.emplace(resName);
                         }
                     }
-                    externalResNames.insert(resName);
                 } else {
-                    if (iter->second.currStatus.vertID < vert) {
+                    if (resIter->second.currStatus.vertID < vert) {
                         //[pass: vert] is later access than in iter.
                         externalMap[resName].currStatus = resourcecAccess;
-                        externalMap[resName].currStatus.vertID = INVALID_ID;
+                        externalMap[resName].currStatus.vertID = vert;
+                        if (isReadOnlyAccess(resourcecAccess.accessFlag)) {
+                            externalResNames.emplace(resName);
+                        }
                     }
                 }
             }
@@ -710,7 +728,7 @@ void buildBarriers(FrameGraphDispatcher &fgDispatcher) {
     auto *scratch = fgDispatcher.scratch;
     const auto &graph = fgDispatcher.graph;
     const auto &layoutGraph = fgDispatcher.layoutGraph;
-    const auto &resourceGraph = fgDispatcher.resourceGraph;
+    auto &resourceGraph = fgDispatcher.resourceGraph;
     auto &relationGraph = fgDispatcher.relationGraph;
     auto &externalResMap = fgDispatcher.externalResMap;
     auto &rag = fgDispatcher.resourceAccessGraph;
@@ -744,6 +762,12 @@ void buildBarriers(FrameGraphDispatcher &fgDispatcher) {
     for (const auto &externalPair : externalResMap) {
         const auto &transition = externalPair.second;
         auto resID = resourceGraph.valueIndex.at(externalPair.first);
+        const auto &resTraits = get(ResourceGraph::Traits, resourceGraph, resID);
+        auto &rescStates = get(ResourceGraph::States, resourceGraph, resID);
+
+        // persistant resource states cached here
+        rescStates.states = transition.currStatus.accessFlag;
+
         auto passID = transition.currStatus.vertID;
         if (batchedBarriers.find(passID) == batchedBarriers.end()) {
             batchedBarriers.emplace(passID, BarrierNode{});
@@ -755,6 +779,20 @@ void buildBarriers(FrameGraphDispatcher &fgDispatcher) {
             nullptr,
             externalResMap[externalPair.first].currStatus,
             {}};
+
+        if (resTraits.residency == ResourceResidency::BACKBUFFER) {
+            nextFrameResBarrier.endStatus = {
+                INVALID_ID,
+                gfx::ShaderStageFlagBit::NONE,
+                gfx::MemoryAccessBit::NONE,
+                gfx::PassType::PRESENT,
+                gfx::AccessFlagBit::PRESENT,
+                gfx::TextureUsageBit::NONE,
+                TextureRange{},
+            };
+            nextFrameResBarrier.type = gfx::BarrierType::FULL;
+            rescStates.states = gfx::AccessFlagBit::PRESENT;
+        }
 
         bool hasSubpass = !batchedBarriers[passID].subpassBarriers.empty();
 
@@ -771,13 +809,15 @@ void buildBarriers(FrameGraphDispatcher &fgDispatcher) {
                              std::find_if(rearBarriers.begin(), rearBarriers.end(), findBarrierByResID) != rearBarriers.end();
                 if (found) {
                     // put into rear barriers in order not to stuck
-                    rearBarriers.push_back({});
+                    rearBarriers.push_back(nextFrameResBarrier);
                     break;
                 }
             }
         } else {
-            auto &rearBarriers = batchedBarriers[passID].blockBarrier.rearBarriers;
-            rearBarriers.emplace_back(nextFrameResBarrier);
+            if (namesSet.find(externalPair.first) != namesSet.end()) {
+                auto &rearBarriers = batchedBarriers[passID].blockBarrier.rearBarriers;
+                rearBarriers.emplace_back(nextFrameResBarrier);
+            }
         }
     }
 
@@ -805,6 +845,10 @@ void buildBarriers(FrameGraphDispatcher &fgDispatcher) {
                 info.sliceCount = range.numSlices;
                 info.type = passBarrier.type;
                 passBarrier.barrier = gfx::Device::getInstance()->getTextureBarrier(info);
+
+                if (info.type != gfx::BarrierType::FULL) {
+                    //CC_LOG_INFO("gggg");
+                }
             }
         }
     };
@@ -1228,7 +1272,7 @@ void passReorder(FrameGraphDispatcher &fgDispatcher) {
     auto *scratch = fgDispatcher.scratch;
     const auto &graph = fgDispatcher.graph;
     const auto &layoutGraph = fgDispatcher.layoutGraph;
-    const auto &resourceGraph = fgDispatcher.resourceGraph;
+    auto &resourceGraph = fgDispatcher.resourceGraph;
     auto &relationGraph = fgDispatcher.relationGraph;
     auto &rag = fgDispatcher.resourceAccessGraph;
 
@@ -1376,14 +1420,8 @@ bool tryAddEdge(uint32_t srcVertex, uint32_t dstVertex, Graph &graph) {
 }
 
 bool isTransitionStatusDependent(const AccessStatus &lhs, const AccessStatus &rhs) {
-    bool res = true;
-    if (lhs.passType == rhs.passType &&
-        lhs.visibility == rhs.visibility &&
-        lhs.access == rhs.access &&
-        lhs.usage == rhs.usage) {
-        res = false;
-    }
-    return res;
+    return (!(isReadOnlyAccess(lhs.accessFlag) && isReadOnlyAccess(rhs.accessFlag))) &&
+           (lhs.accessFlag != rhs.accessFlag);
 }
 
 auto getResourceStatus(PassType passType, const PmrString &name, gfx::MemoryAccess memAccess, gfx::ShaderStageFlags visibility, const ResourceGraph &resourceGraph) {

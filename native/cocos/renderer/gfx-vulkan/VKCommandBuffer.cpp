@@ -649,7 +649,7 @@ void CCVKCommandBuffer::pipelineBarrier(const GeneralBarrier *barrier, const Buf
             VkEventCreateInfo eventInfo = {
                 VK_STRUCTURE_TYPE_EVENT_CREATE_INFO,
                 nullptr,
-                VK_EVENT_CREATE_DEVICE_ONLY_BIT_KHR,
+                0,
             };
             VkResult res = vkCreateEvent(CCVKDevice::getInstance()->gpuDevice()->vkDevice,
                                          &eventInfo,
