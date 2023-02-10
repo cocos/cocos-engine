@@ -53,40 +53,41 @@ enum Quality {
 @ccclass('cc.NoiseModule')
 export class NoiseModule extends ParticleModule {
     @serializable
+    @visible(true)
     public separateAxes = false;
 
     @type(CurveRange)
     @visible(function (this: NoiseModule) { return this.separateAxes; })
     get strengthX () {
-        return this._sx;
+        return this._strengthX;
     }
 
     set strengthX (value) {
-        this._sx = value;
+        this._strengthX = value;
     }
 
     @type(CurveRange)
     @visible(function (this: NoiseModule) { return this.separateAxes; })
     get strengthY () {
-        if (!this._sy) {
-            this._sy = new CurveRange(1);
+        if (!this._strengthY) {
+            this._strengthY = new CurveRange(1);
         }
-        return this._sy;
+        return this._strengthY;
     }
     set strengthY (value) {
-        this._sy = value;
+        this._strengthY = value;
     }
 
     @type(CurveRange)
     @visible(function (this: NoiseModule) { return this.separateAxes; })
     get strengthZ () {
-        if (!this._sz) {
-            this._sz = new CurveRange(1);
+        if (!this._strengthZ) {
+            this._strengthZ = new CurveRange(1);
         }
-        return this._sz;
+        return this._strengthZ;
     }
     set strengthZ (value) {
-        this._sz = value;
+        this._strengthZ = value;
     }
 
     @type(CurveRange)
@@ -153,48 +154,50 @@ export class NoiseModule extends ParticleModule {
 
     @type(Enum(Quality))
     @serializable
+    @visible(true)
     public quality = Quality.HIGH;
 
     @serializable
+    @visible(true)
     public enableRemap = false;
 
     @type(CurveRange)
     @range([-1, 1])
     @visible(function (this: NoiseModule) { return this.enableRemap && this.separateAxes; })
     get remapX () {
-        if (!this._rx) {
-            this._rx = new CurveRange(1);
+        if (!this._remapX) {
+            this._remapX = new CurveRange(1);
         }
-        return this._rx;
+        return this._remapX;
     }
     set remapX (value) {
-        this._rx = value;
+        this._remapX = value;
     }
 
     @type(CurveRange)
     @range([-1, 1])
     @visible(function (this: NoiseModule) { return this.enableRemap && this.separateAxes; })
     get remapY () {
-        if (!this._ry) {
-            this._ry = new CurveRange(1);
+        if (!this._remapY) {
+            this._remapY = new CurveRange(1);
         }
-        return this._ry;
+        return this._remapY;
     }
     set remapY (value) {
-        this._ry = value;
+        this._remapY = value;
     }
 
     @type(CurveRange)
     @range([-1, 1])
     @visible(function (this: NoiseModule) { return this.enableRemap && this.separateAxes; })
     get remapZ () {
-        if (!this._rz) {
-            this._rz = new CurveRange(1);
+        if (!this._remapZ) {
+            this._remapZ = new CurveRange(1);
         }
-        return this._rz;
+        return this._remapZ;
     }
     set remapZ (value) {
-        this._rz = value;
+        this._remapZ = value;
     }
 
     @type(CurveRange)
@@ -209,14 +212,17 @@ export class NoiseModule extends ParticleModule {
 
     @type(CurveRange)
     @serializable
+    @visible(true)
     public positionAmount = new CurveRange(1);
 
     @type(CurveRange)
     @serializable
+    @visible(true)
     public rotationAmount = new CurveRange();
 
     @type(CurveRange)
     @serializable
+    @visible(true)
     public sizeAmount = new CurveRange();
 
     public get name (): string {
@@ -232,21 +238,21 @@ export class NoiseModule extends ParticleModule {
     }
 
     @serializable
-    private _sx = new CurveRange(1);
+    private _strengthX = new CurveRange(1);
     @serializable
-    private _sy: CurveRange | null = null;
+    private _strengthY: CurveRange | null = null;
     @serializable
-    private _sz: CurveRange | null = null;
+    private _strengthZ: CurveRange | null = null;
     @serializable
     private _scrollSpeed = new CurveRange();
     @serializable
     private _frequency = 0.5;
     @serializable
-    private _rx: CurveRange | null = null;
+    private _remapX: CurveRange | null = null;
     @serializable
-    private _ry: CurveRange | null = null;
+    private _remapY: CurveRange | null = null;
     @serializable
-    private _rz: CurveRange | null = null;
+    private _remapZ: CurveRange | null = null;
     @serializable
     private _octaves = 1;
     @serializable
@@ -572,16 +578,16 @@ export class NoiseModule extends ParticleModule {
     }
 
     protected getSerializedProps () {
-        const serializedProps = ['separateAxes', '_sx', '_scrollSpeed', '_frequency',
+        const serializedProps = ['separateAxes', '_strengthX', '_scrollSpeed', '_frequency',
             'enableRemap', '_octaves', '_octaveScale', '_octaveMultiplier'];
         if (this.enableRemap) {
-            serializedProps.push('_rx');
+            serializedProps.push('_remapX');
         }
         if (this.separateAxes) {
-            serializedProps.push('_sy, _sz');
+            serializedProps.push('_strengthY, _strengthZ');
         }
         if (this.enableRemap && this.separateAxes) {
-            serializedProps.push('_ry, _rz');
+            serializedProps.push('_remapY, _remapZ');
         }
         return serializedProps;
     }

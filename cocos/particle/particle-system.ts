@@ -357,7 +357,6 @@ export class ParticleSystem extends Component {
 
     @serializable
     private _cullingMode = CullingMode.ALWAYS_SIMULATE;
-
     private _boundingBoxHalfExtents = new Vec3();
     private _state = PlayingState.STOPPED;
     private _isEmitting = false;

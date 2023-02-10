@@ -136,8 +136,25 @@ export class CurveRange  {
     private _spline: RealCurve | null = null;
     private _splineMin: RealCurve | null = null;
 
-    constructor (scalar = 0) {
+    constructor ();
+    constructor (scalar: number);
+    constructor (scalar: number, minScaler: number);
+    constructor (scalar: number, spline: RealCurve);
+    constructor (scalar: number, spline: RealCurve, minSpline: RealCurve)
+    constructor (scalar = 0, splineOrMinScalar?: RealCurve | number, minSpline?: RealCurve) {
         this.constant = scalar;
+        if (typeof splineOrMinScalar === 'number') {
+            this.mode = Mode.TwoConstants;
+            this.constantMin = splineOrMinScalar;
+        } else if (typeof splineOrMinScalar === 'object') {
+            this.spline = splineOrMinScalar;
+            if (typeof minSpline === 'object') {
+                this.mode = Mode.TwoCurves;
+                this.splineMin = minSpline;
+            } else {
+                this.mode = Mode.Curve;
+            }
+        }
     }
 
     public evaluate (time: number, rndRatio: number) {
@@ -186,18 +203,36 @@ CCClass.fastDefine('cc.CurveRange', CurveRange, {
 });
 
 setClassAttr(CurveRange, 'multiplier', 'visible', true);
+setClassAttr(CurveRange, 'multiplier', 'hasSetter', true);
+setClassAttr(CurveRange, 'multiplier', 'hasGetter', true);
 setClassAttr(CurveRange, 'constantMax', 'visible', true);
+setClassAttr(CurveRange, 'constantMax', 'hasSetter', true);
+setClassAttr(CurveRange, 'constantMax', 'hasGetter', true);
 setClassAttr(CurveRange, 'constantMin', 'visible', true);
 setClassAttr(CurveRange, 'constant', 'visible', true);
 setClassAttr(CurveRange, 'mode', 'type', 'Enum');
 setClassAttr(CurveRange, 'mode', 'enumList', Enum.getList(Mode));
 setClassAttr(CurveRange, 'mode', 'visible', true);
+setClassAttr(CurveRange, 'mode', 'hasSetter', true);
+setClassAttr(CurveRange, 'mode', 'hasGetter', true);
 setClassAttr(CurveRange, 'splineMax', 'type', 'Object');
 setClassAttr(CurveRange, 'splineMax', 'ctor', RealCurve);
 setClassAttr(CurveRange, 'splineMax', 'visible', true);
+setClassAttr(CurveRange, 'splineMax', 'hasGetter', true);
+setClassAttr(CurveRange, 'splineMax', 'hasSetter', true);
 setClassAttr(CurveRange, 'splineMin', 'type', 'Object');
 setClassAttr(CurveRange, 'splineMin', 'ctor', RealCurve);
 setClassAttr(CurveRange, 'splineMin', 'visible', true);
+setClassAttr(CurveRange, 'splineMin', 'hasGetter', true);
+setClassAttr(CurveRange, 'splineMin', 'hasSetter', true);
 setClassAttr(CurveRange, 'spline', 'type', 'Object');
 setClassAttr(CurveRange, 'spline', 'ctor', RealCurve);
 setClassAttr(CurveRange, 'spline', 'visible', true);
+setClassAttr(CurveRange, 'spline', 'hasGetter', true);
+setClassAttr(CurveRange, 'spline', 'hasSetter', true);
+
+export function createRealCurve (keyframes: Iterable<[number, number]>) {
+    const curve = new RealCurve();
+    curve.assignSorted(keyframes);
+    return curve;
+}
