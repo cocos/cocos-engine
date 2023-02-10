@@ -40,7 +40,7 @@ import { UBOLocal, UBOSH, UBOWorldBound, UNIFORM_LIGHTMAP_TEXTURE_BINDING, UNIFO
 import { Root } from '../../root';
 import { TextureCube } from '../../asset/assets';
 import { ShadowType } from './shadows';
-import { ProbeType } from './reflection-probe';
+import { ProbeType, ReflectionProbe } from './reflection-probe';
 
 const m4_1 = new Mat4();
 
@@ -1028,7 +1028,10 @@ export class Model {
         const sv = this._localData;
         sv[UBOLocal.LOCAL_SHADOW_BIAS + 2] = this._reflectionProbeId;
         sv[UBOLocal.LOCAL_SHADOW_BIAS + 3] = 0;
-        const probe = cclegacy.internal.reflectionProbeManager.getProbeById(this._reflectionProbeId);
+        let probe: ReflectionProbe | null = null;
+        if (cclegacy.internal.reflectionProbeManager) {
+            probe = cclegacy.internal.reflectionProbeManager.getProbeById(this._reflectionProbeId);
+        }
         if (probe) {
             if (probe.probeType === ProbeType.PLANAR) {
                 sv[UBOLocal.REFLECTION_PROBE_DATA1] = probe.node.up.x;
@@ -1049,7 +1052,7 @@ export class Model {
                 sv[UBOLocal.REFLECTION_PROBE_DATA2] = probe.size.x;
                 sv[UBOLocal.REFLECTION_PROBE_DATA2 + 1] = probe.size.y;
                 sv[UBOLocal.REFLECTION_PROBE_DATA2 + 2] = probe.size.z;
-                sv[UBOLocal.REFLECTION_PROBE_DATA2 + 3] = probe.cubemap ? probe.cubemap!.mipmapLevel : 1.0;
+                sv[UBOLocal.REFLECTION_PROBE_DATA2 + 3] = probe.cubemap ? probe.cubemap.mipmapLevel : 1.0;
             }
         }
         this._localDataUpdated = true;
