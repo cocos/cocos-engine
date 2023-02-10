@@ -87,7 +87,7 @@ void UIModelProxy::uploadData() {
     for (size_t i = 0; i < drawInfos.size(); i++) {
         auto* drawInfo = drawInfos[i];
         auto* ia = subModelList.at(i)->getInputAssembler();
-        if (drawInfo->getVertexOffset() <= 0) continue;
+        if (drawInfo->getVertexOffset() <= 0 || drawInfo->getIndexOffset() <= 0) continue;
         gfx::BufferList vBuffers = ia->getVertexBuffers();
         if (!vBuffers.empty()) {
             auto size = drawInfo->getVertexOffset() * _stride;
