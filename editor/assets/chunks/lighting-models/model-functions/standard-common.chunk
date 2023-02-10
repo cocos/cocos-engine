@@ -161,14 +161,14 @@ vec3 CalculateEnvironmentSpecular(in LightingIntermediateData lightingData, floa
     vec3 R = normalize(CalculateReflectDirection(lightingData.N, lightingData.V, lightingData.NoV));
     if(FSInput_reflectionProbeId < 0.0){
         vec2 screenUV = GetPlanarReflectScreenUV(worldPos, cc_matViewProj, cc_cameraPos.w, lightingData.V, R);
-        envSpec = unpackRGBE(fragTextureLod(cc_reflectionProbePlanarMap, screenUV, cc_ambientGround.w)).xyz;
-    }else {
+        envSpec = unpackRGBE(fragTextureLod(cc_reflectionProbePlanarMap, screenUV, 1.0)).xyz;
+    }else{
         vec4 plane;
         float planarReflectionDepthScale, mipCount;
         GetPlanarReflectionProbeData(plane, planarReflectionDepthScale, mipCount, FSInput_reflectionProbeId);
         vec3 worldPosOffset = CalculatePlanarReflectPositionOnPlane(lightingData.N, lightingData.V, worldPos, plane, cc_cameraPos.xyz, planarReflectionDepthScale);
         vec2 screenUV = GetPlanarReflectScreenUV(worldPosOffset, cc_matViewProj, cc_cameraPos.w, lightingData.V, R);
-        envSpec = unpackRGBE(fragTextureLod(cc_reflectionProbePlanarMap, screenUV, cc_ambientGround.w)).xyz;
+        envSpec = unpackRGBE(fragTextureLod(cc_reflectionProbePlanarMap, screenUV, mipCount)).xyz;
     } 
   #endif
 #elif CC_USE_IBL
