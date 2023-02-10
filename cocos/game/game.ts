@@ -307,8 +307,8 @@ export class Game extends EventTarget {
     public static readonly EVENT_RESUME = 'game_on_resume';
 
     /**
-     * @en Events triggered when the game pauses to resume running. <br>
-     * @zh 游戏关闭时触发的事件。<br>
+     * @en Triggered when the game will be closed. <br>
+     * @zh 游戏将要关闭时触发的事件。<br>
      */
     public static readonly EVENT_CLOSE = 'game_on_close';
 
