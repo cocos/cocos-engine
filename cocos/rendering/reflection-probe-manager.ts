@@ -509,6 +509,9 @@ export class ReflectionProbeManager {
         if (meshRender) {
             meshRender.updateProbeCubemap(probe ? probe.cubemap : null);
             meshRender.updateReflectionProbeId(probe ? probe.getProbeId() : -1);
+            if (probe) {
+                meshRender.updateReflectionProbeDataMap(this._dataTexture);
+            }
         }
     }
     private _updatePlanarMapOfModel (model: Model, texture: Texture | null, probe: ReflectionProbe | null) {
@@ -516,6 +519,9 @@ export class ReflectionProbeManager {
         if (meshRender) {
             meshRender.updateProbePlanarMap(texture);
             meshRender.updateReflectionProbeId(probe ? probe.getProbeId() : -1);
+            if (probe) {
+                meshRender.updateReflectionProbeDataMap(this._dataTexture);
+            }
         }
     }
 }
