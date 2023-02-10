@@ -23,6 +23,7 @@
  THE SOFTWARE.
 */
 import { ccclass, type } from 'cc.decorator';
+import { EDITOR, TEST } from 'internal:constants'
 import { legacyCC } from '../global-exports';
 import { ImageAsset } from './image-asset';
 import { SimpleTexture } from './simple-texture';

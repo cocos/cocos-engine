@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 import { ccclass, override } from 'cc.decorator';
-import { ALIPAY, XIAOMI, JSB, TEST, BAIDU } from 'internal:constants';
+import { ALIPAY, XIAOMI, JSB, TEST, BAIDU, EDITOR } from 'internal:constants';
 import { Format, FormatFeatureBit, deviceManager } from '../gfx';
 import { legacyCC } from '../global-exports';
 import { PixelFormat } from './asset-enum';
