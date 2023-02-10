@@ -27,17 +27,13 @@ import { director } from '../game/director';
 import { System } from '../core';
 import { Skeleton } from './skeleton';
 import { legacyCC } from '../core/global-exports';
-/**
- * @en
- * System of spine，control skeleton animation updating.
- * @zh
- * spine 骨骼系统，控制骨骼动画更新。
- * @class SkeletonSystem
- */
+
 export class SkeletonSystem extends System {
     /**
-     * @en The ID flag of the system.
-     * @zh 此系统的 ID 标记。
+     * @en
+     * The ID flag of the system.
+     * @zh
+     * 此系统的 ID 标记。
      */
     static readonly ID = 'SKELETON';
 
@@ -48,8 +44,10 @@ export class SkeletonSystem extends System {
     }
 
     /**
-     * @en Gets the instance of the Spine Skeleton system.
-     * @zh 获取 Spine 骨骼系统的单例。
+     * @en
+     * Gets the instance of the Spine Skeleton system.
+     * @zh
+     * 获取 Spine 骨骼系统的单例。
      */
     public static getInstance () {
         if (!SkeletonSystem._instance) {
@@ -61,23 +59,13 @@ export class SkeletonSystem extends System {
 
     private _skeletons = new Set<Skeleton>();
 
-    /**
-     * @en
-     * Add a skeleton instance into Skeleton system. Only be added into skeleton
-     * system, skeleton animation will be updated.
-     * @zh
-     * 添加一个spine骨骼实例到系统, 只有添加到系统中的骨骼组件才会被更新动画。
-     */
     public add (skeleton: Skeleton | null) {
         if (!skeleton) return;
         if (!this._skeletons.has(skeleton)) {
             this._skeletons.add(skeleton);
         }
     }
-    /**
-     * @en Remove skeleton from skeleton system.
-     * @zh 从skeleton系统中移除骨骼组件。
-     */
+
     public remove (skeleton: Skeleton | null) {
         if (!skeleton) return;
         if (this._skeletons.has(skeleton)) {
@@ -85,10 +73,6 @@ export class SkeletonSystem extends System {
         }
     }
 
-    /**
-     * @en Trigger update for all skeleton animations.
-     * @zh 触发更新所有骨骼动画。
-     */
     postUpdate (dt: number) {
         if (!this._skeletons) {
             return;
@@ -97,10 +81,7 @@ export class SkeletonSystem extends System {
             skeleton.updateAnimation(dt);
         });
     }
-    /**
-     * @en Mark to update the rendering data for all skeletons.
-     * @zh 标记更新所有骨骼动画的渲染数据。
-     */
+
     public prepareRenderData () {
         if (!this._skeletons) {
             return;

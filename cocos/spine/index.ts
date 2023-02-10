@@ -53,7 +53,7 @@ export * from './assembler';
 export { spine };
 
 /**
-* @internal since v3.7.2, this is an engine private type.
+* @internal Since v3.7.2, this is an engine private type.
 */
 /**
  * @en

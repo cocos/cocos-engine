@@ -34,17 +34,17 @@ import spine from './lib/spine-core.js';
  */
 export class SkeletonTexture extends spine.Texture {
     /**
-     * @deprecated since v3.7.2, this property will be removed in the future.
+     * @deprecated Since v3.7.2, this property will be removed in the future.
      */
     name = 'sp.SkeletonTexture';
     /**
-     * @en Texture page wraped in cocos, it's a Texture2D type object.
-     * @zh cocos 中使用 Texture2D 封装 spine 中使用的纹理页。
+     * @en Use a Texture2D type object to Store and rendering spine.Texture data.
+     * @zh cocos 中使用 Texture2D 存储和渲染 spine.Texture 的数据。
      */
     _texture: Texture2D | null = null;
     /**
      * @internal
-     * @deprecated since v3.7.2, this will be removed in the future.
+     * @deprecated Since v3.7.2, this will be removed in the future.
      */
     _material: Material | null = null;
 
@@ -56,7 +56,7 @@ export class SkeletonTexture extends spine.Texture {
     /**
      * @en Sets Texture2D resource.
      * @zh 设置Texture2D资源。
-     * @param tex @en Texture2D asset. @zh Texture2D资源。
+     * @param tex @en Texture2D asset. @zh Texture2D 资源。
      */
     setRealTexture (tex: Texture2D) {
         this._texture = tex;
@@ -64,16 +64,19 @@ export class SkeletonTexture extends spine.Texture {
 
     /**
      * @en Gets Texture2D resource.
-     * @zh 获取Texture2D资源。
+     * @zh 获取 Texture2D 资源。
      */
     getRealTexture (): Texture2D|null {
         return this._texture;
     }
 
     /**
-     * @en Sets the filtering options for the texture. Filtering options control how the
-     * texture is sampled when it is drawn to the screen at different scales or angles
-     * @zh 用于设置纹理的过滤选项, 过滤选项控制纹理在不同比例或角度绘制到屏幕时的采样方式。
+     * @en Sets the texture's filter mode.
+     * @zh 设置此贴图的过滤算法。
+     * @param minFilter @en Filter mode for scale down.
+     *                  @zh 控制向下采样方式。
+     * @param magFilter @en Filter mode for scale up
+     *                  @zh 控制向上采样方式。
      */
     setFilters (minFilter: spine.TextureFilter, magFilter: spine.TextureFilter) {
         if (this._texture) {
@@ -82,9 +85,10 @@ export class SkeletonTexture extends spine.Texture {
     }
 
     /**
-     * @en Sets the wrap mode for a texture resource. The wrap mode determines how the texture
-     * is repeated or stretched when it is applied to a surface that is larger than the texture itself.
-     * @zh 设置纹理资源的包装模式的函数。包装模式确定当纹理应用于大于纹理本身的表面时，纹理如何重复或拉伸。
+     * @en Sets the wrap mode of the texture.
+     * @zh 设置此贴图的缠绕模式。
+     * @param uWrap U coordinate wrap mode.
+     * @param vWrap V coordinate wrap mode.
      */
     setWraps (uWrap: spine.TextureWrap, vWrap: spine.TextureWrap) {
         if (this._texture) {
@@ -99,7 +103,7 @@ export class SkeletonTexture extends spine.Texture {
 }
 
 /**
- * @internal since v3.7.2, this is an engine private function.
+ * @internal Since v3.7.2, this is an engine private function.
  */
 export function convertFilter (filter: spine.TextureFilter): Filter {
     switch (filter) {
@@ -117,7 +121,7 @@ export function convertFilter (filter: spine.TextureFilter): Filter {
 }
 
 /**
- * @internal since v3.7.2, this is an engine private function.
+ * @internal Since v3.7.2, this is an engine private function.
  */
 export function convertWraps (wrap: spine.TextureWrap): WrapMode {
     switch (wrap) {

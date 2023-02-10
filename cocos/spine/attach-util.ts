@@ -32,8 +32,8 @@ import { Node } from '../scene-graph';
 const tempMat4 = new Mat4();
 
 /**
- * @en Attach node tool.
- * @zh 挂点工具类。
+ * @en Attach node tool
+ * @zh 挂点工具类
  * @class sp.AttachUtil
  */
 export class AttachUtil {
@@ -48,31 +48,21 @@ export class AttachUtil {
         this._skeletonNode = null;
         this._skeletonComp = null;
     }
-    /**
-     * @en Initialization. Setting state and Recording variable used frequently for accelerating.
-     * @zh 初始化。设置变量状态，并记录经常使用到的对象到成员变量中。
-     * @param skeletonComp @en skeleton object @zh skeleton组件
-     */
+
     init (skeletonComp: Skeleton) {
         this._inited = true;
         this._skeleton = skeletonComp._skeleton;
         this._skeletonNode = skeletonComp.node;
         this._skeletonComp = skeletonComp;
     }
-    /**
-     * @en reset state and clear data.
-     * @zh 重置状态和清除设置。
-     */
+
     reset () {
         this._inited = false;
         this._skeleton = null;
         this._skeletonNode = null;
         this._skeletonComp = null;
     }
-    /**
-     * @en Synchronized transformation of Nodes mounted on the skeleton bones.
-     * @zh 同步变换挂载在骨骼上的Node。
-     */
+
     _syncAttachedNode () {
         if (!this._inited) return;
 

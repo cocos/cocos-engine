@@ -36,7 +36,7 @@ import { Node } from '../scene-graph';
 
 /**
  * @en The skeleton data of spine.
- * @zh Spine 的 骨骼数据。
+ * @zh Spine 的骨骼数据。
  * @class SkeletonData
  * @extends Asset
  */
@@ -51,8 +51,8 @@ export class SkeletonData extends Asset {
     public _skeletonJson: spine.SkeletonJson | null = null;
 
     /**
-     * @internal
-     * @deprecated since v3.7.2, this is an engine private interface that will be removed in the future.
+     * @en A string parsed from the _skeletonJson.
+     * @zh 从 _skeletonJson 中解析出的字符串。
      */
     get skeletonJsonStr (): string {
         if (this._skeletonJson) {
@@ -64,7 +64,6 @@ export class SkeletonData extends Asset {
     /**
      * @en See http://en.esotericsoftware.com/spine-json-format
      * @zh 可查看 Spine 官方文档 http://zh.esotericsoftware.com/spine-json-format
-     * @property {Object} skeletonJson
      */
     get skeletonJson (): spine.SkeletonJson {
         return this._skeletonJson!;
@@ -82,10 +81,9 @@ export class SkeletonData extends Asset {
         }
     }
 
-    /*
+    /**
      * @en a atlas text description.
      * @zh atlas文本描述。
-     * @property {String} atlasText
      */
     get atlasText () {
         return this._atlasText;
@@ -98,9 +96,7 @@ export class SkeletonData extends Asset {
     /**
      * @en Texture array.
      * @zh 纹理数组。
-     * @property {Texture2D[]} textures
      */
-
     @serializable
     @type([Texture2D])
     public textures: Texture2D[] = [];
@@ -108,7 +104,6 @@ export class SkeletonData extends Asset {
     /**
      * @en Texture name array.
      * @zh 纹理名称数组。
-     * @property {String[]} textureNames
      * @private
      */
     @serializable
@@ -124,8 +119,11 @@ export class SkeletonData extends Asset {
      * a scale of 0.5 can be used. This is commonly used for games that can run with either low or high
      * resolution texture atlases.
      * see http://en.esotericsoftware.com/spine-using-runtimes#Scaling
-     * @zh 可查看 Spine 官方文档： http://zh.esotericsoftware.com/spine-using-runtimes#Scaling
-     * @property {Number} scale
+     * @zh 在 JSON 或二进制加载器上可以指定一个缩放比例，该缩放比例将缩放骨头位置、图像大小和动画平移。
+     * 这在使用与 Spine 中设计骨架不同大小的图像时非常有用。例如，如果使用的图像大小是 Spine 中使用的
+     * 图像大小的一半，可以使用 0.5 的缩放比例。这在游戏中经常使用，因为游戏可以使用低分辨率或高分辨率
+     * 的纹理图集。可查看 Spine 官方文档：
+     * http://zh.esotericsoftware.com/spine-using-runtimes#Scaling
      */
     @serializable
     public scale = 1;
@@ -140,15 +138,15 @@ export class SkeletonData extends Asset {
         this._buffer = bin;
         this.reset();
     }
-
+    /**
+     * @en A string describing atlas.
+     * @zh 描述图集信息的字符串。
+     */
     @serializable
     protected _atlasText = '';
 
     private _buffer?: ArrayBuffer;
-    /**
-     * @property {sp.spine.SkeletonData} _skeletonData
-     * @private
-     */
+
     private _skeletonCache: spine.SkeletonData | null = null;
 
     private _atlasCache: spine.TextureAtlas | null = null;
@@ -163,7 +161,7 @@ export class SkeletonData extends Asset {
 
     /**
      * @internal
-     * @deprecated since v3.7.2, this is an engine private interface that will be removed in the future.
+     * @deprecated Since v3.7.2, this is an engine private interface that will be removed in the future.
      */
     public createNode (callback: (err: Error|null, node: Node) => void) {
         const node = new Node(this.name);
@@ -173,8 +171,8 @@ export class SkeletonData extends Asset {
         return callback(null, node);
     }
     /**
-     * @en reset skeleton data state.
-     * @zh 数据重置。
+     * @en Resets skeleton data state.
+     * @zh 重置数据。
      */
     public reset () {
         this._skeletonCache = null;
@@ -185,6 +183,7 @@ export class SkeletonData extends Asset {
         }
     }
     /**
+     * @internal Since v3.7.2, this is an engine private function, only works in editor.
      * @en reset skeleton skin and animation enumeration.
      * @zh 重置皮肤和动画枚举。
      */
@@ -196,15 +195,14 @@ export class SkeletonData extends Asset {
     }
 
     /**
-     * @en Get the included SkeletonData used in spine runtime.<br>
-     * Returns a {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.SkeletonData object.
+     * @en Gets the included SkeletonData used in spine runtime.<br>
+     * Returns a sp.spine.SkeletonData object.
      * @zh 获取 Spine Runtime 使用的 SkeletonData。<br>
-     * 返回一个 {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.SkeletonData 对象。
-     * @method getRuntimeData
-     * @param {Boolean} [quiet=false]
-     * @return {sp.spine.SkeletonData}
+     * 返回一个 p.spine.SkeletonData 对象。
+     * @param quiet @en If vaulue is false, feedback information will be printed when an error occurs.
+     *              @zh 值为 false 时，当发生错误时将打印出反馈信息。
      */
-    public getRuntimeData (quiet?: boolean) {
+    public getRuntimeData (quiet?: boolean): spine.SkeletonData | null {
         if (this._skeletonCache) {
             return this._skeletonCache;
         }
@@ -239,9 +237,8 @@ export class SkeletonData extends Asset {
         return this._skeletonCache;
     }
 
-    // EDITOR functions
     /**
-     * @internal since v3.7.2, this is an engine private function.
+     * @internal Since v3.7.2, this is an engine private function, it only works in editor.
      */
     public getSkinsEnum () {
         if (this._skinsEnum /* && Object.keys(this._skinsEnum).length > 0 */) {
@@ -260,7 +257,7 @@ export class SkeletonData extends Asset {
         return null;
     }
     /**
-     * @internal since v3.7.2, this is an engine private function.
+     * @internal Since v3.7.2, this is an engine private function, it only works in editor.
      */
     public getAnimsEnum () {
         if (this._animsEnum && Object.keys(this._animsEnum).length > 1) {

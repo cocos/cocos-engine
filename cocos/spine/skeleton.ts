@@ -55,7 +55,7 @@ import { Node } from '../scene-graph';
 export const timeScale = 1.0;
 
 /**
- * @internal
+ * @internal Since v3.7.2, this is an engine private enum, only used in editor.
  */
 export enum DefaultSkinsEnum {
     default = 0,
@@ -63,7 +63,7 @@ export enum DefaultSkinsEnum {
 ccenum(DefaultSkinsEnum);
 
 /**
- * @internal
+ * @internal Since v3.7.2, this is an engine private enum, only used in editor.
  */
 export enum DefaultAnimsEnum {
     '<None>' = 0
@@ -108,7 +108,7 @@ type TrackListener = (x: spine.TrackEntry) => void;
 type TrackListener2 = (x: spine.TrackEntry, ev: spine.Event | number) => void;
 
 /**
- * @internal
+ * @internal Since v3.7.2, this is an engine private enum.
  */
 export enum SpineMaterialType {
     COLORED_TEXTURED = 0,
@@ -116,7 +116,7 @@ export enum SpineMaterialType {
 }
 
 /**
- * @internal
+ * @internal Since v3.7.2, this is an engine private interface.
  */
 export interface SkeletonDrawData {
     material: Material | null;
@@ -183,8 +183,11 @@ js.setClassAlias(SpineSocket, 'sp.Skeleton.SpineSocket');
 @executeInEditMode
 export class Skeleton extends UIRenderer {
     public static SpineSocket = SpineSocket;
-
     public static AnimationCacheMode = AnimationCacheMode;
+
+    /**
+     * @internal Since v3.7.2, this is an engine private interface.
+     */
     get drawList () { return this._drawList; }
 
     protected _updateBuiltinMaterial (): Material {
@@ -492,10 +495,12 @@ export class Skeleton extends UIRenderer {
             this._updateUseTint();
         }
     }
-    /*
-     * @en Enabled batch model, if skeleton is complex, do not enable batch, or will lower performance.
-     * @zh 开启合批，如果渲染大量相同纹理，且结构简单的骨骼动画，开启合批可以降低drawcall，否则请不要开启，cpu消耗会上升。
-    */
+    /**
+     * @en Enabled batch model, if skeleton is complex.
+     * Otherwise, do not enable the option, CPU consumption will increase when it is turned on.
+     * @zh 开启合批，如果渲染大量相同纹理，且结构简单的骨骼动画，开启合批可以降低draw call 数量。
+     * 否则请不要开启，因为开启后 cpu 消耗会上升。
+     */
     @editable
     @tooltip('i18n:COMPONENT.skeleton.enabled_batch')
     get enableBatch () { return this._enableBatch; }
@@ -509,9 +514,9 @@ export class Skeleton extends UIRenderer {
     /**
      * @en
      * The bone sockets this animation component maintains.<br>
-     * Sockets have to be registered here before attaching custom nodes to animated bones.
+     * A SpineSocket object contains a path reference to bone, and a target node.
      * @zh
-     * 当前动画组件维护的挂点数组。要挂载自定义节点到受动画驱动的骨骼上，必须先在此注册挂点。
+     * 当前动画组件维护的挂点数组。一个挂点组件包括动画节点路径和目标节点。
      */
     @type([SpineSocket])
     @tooltip('i18n:animation.sockets')
@@ -529,7 +534,9 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @internal
+     * @en
+     * All the target nodes been set in the array of SpineSocket.
+     * @zh 当前所有设置在 SpineSocket 数组中的 target nodes.
      */
     get socketNodes () { return this._socketNodes; }
 
@@ -850,9 +857,9 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @en update skeleton animation
-     * @zh 更新骨骼动画
-     * @param dt @en delta time @zh 时间差
+     * @en update skeleton animation.
+     * @zh 更新骨骼动画。
+     * @param dt @en delta time. @zh 时间差。
      */
     public updateAnimation (dt: number) {
         this.markForUpdateRenderData();
@@ -1077,11 +1084,9 @@ export class Skeleton extends UIRenderer {
     /**
      * @en
      * Get Texture Atlas used in attachments.
-     * @zh
-     * 获取附件图集。
-     * @method getTextureAtlas
-     * @param {sp.spine.RegionAttachment|spine.BoundingBoxAttachment} regionAttachment
-     * @return {sp.spine.TextureAtlasRegion}
+     * @zh 获取附件图集。
+     * @param regionAttachment An attachment type of RegionAttachment or BoundingBoxAttachment.
+     * @return TextureRegion contains texture and atlas text information.
      */
     public getTextureAtlas (regionAttachment: spine.RegionAttachment | spine.BoundingBoxAttachment) {
         return (regionAttachment as spine.RegionAttachment).region;
@@ -1434,7 +1439,7 @@ export class Skeleton extends UIRenderer {
         return this.material!;
     }
     /**
-     * @internal since v3.7.2, this is an engine private interface.
+     * @internal Since v3.7.2, this is an engine private interface.
      */
     public getMaterialForBlendAndTint (src: BlendFactor, dst: BlendFactor, type: SpineMaterialType): MaterialInstance {
         const key = `${type}/${src}/${dst}`;
@@ -1476,7 +1481,7 @@ export class Skeleton extends UIRenderer {
     // For Redo, Undo
     // call markForUpdateRenderData to make sure renderData will be re-built.
     /**
-     * @internal since v3.7.2, this is an engine private interface.
+     * @internal Since v3.7.2, this is an engine private interface.
      */
     public onRestore () {
         this.updateMaterial();
@@ -1484,8 +1489,9 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @internal since v3.7.2, this is an engine private interface.
-     * @deprecated since v3.7.2, this is an engine private interface that will be removed in the future.
+     * @en Query all bones that can attach sockets.
+     * @zh 查询所有可以添加挂点的所有骨骼。
+     * @return String typed array of bones's path.
      */
     public querySockets () {
         if (!this._skeleton) {

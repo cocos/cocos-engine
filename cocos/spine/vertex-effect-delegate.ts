@@ -35,7 +35,7 @@ import spine from './lib/spine-core.js';
 export class VertexEffectDelegate {
     /**
      * @internal
-     * @deprecated since v3.7.2, this is an engine private variable that will be removed in the future.
+     * @deprecated Since v3.7.2, this is an engine private variable that will be removed in the future.
      */
     name = 'sp.VertexEffectDelegate';
     /**
