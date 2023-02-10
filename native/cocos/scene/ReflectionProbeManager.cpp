@@ -59,7 +59,7 @@ ReflectionProbe* ReflectionProbeManager::getReflectionProbeById(int32_t probeId)
 }
 
 int32_t ReflectionProbeManager::getMaxProbeId() {
-    if (_probes.size() == 0) {
+    if (_probes.empty()) {
         return -1;
     }
     if (_probes.size() == 1) {

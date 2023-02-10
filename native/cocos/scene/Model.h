@@ -240,6 +240,7 @@ protected:
     IntrusivePtr<geometry::AABB> _worldBounds;
     IntrusivePtr<geometry::AABB> _modelBounds;
     IntrusivePtr<Texture2D> _lightmap;
+
     bool _enabled{false};
     bool _castShadow{false};
     bool _receiveShadow{false};
