@@ -308,7 +308,7 @@ void buildAccessGraph(const RenderGraph &renderGraph, const Graphs &graphs) {
         bool isExternal = pass.second.isExternal;
         bool needCulling = pass.second.needCulling;
 
-        if(pass.first != resourceAccessGraph.presentPassID) {
+        if (pass.first != resourceAccessGraph.presentPassID) {
             if (isExternal && !needCulling) {
                 add_edge(pass.first, resourceAccessGraph.presentPassID, resourceAccessGraph);
             } else {
@@ -733,6 +733,9 @@ void buildBarriers(FrameGraphDispatcher &fgDispatcher) {
     auto &externalResMap = fgDispatcher.externalResMap;
     auto &rag = fgDispatcher.resourceAccessGraph;
 
+    // disable gfx internal deduce
+    gfx::Device::getInstance()->enableAutoBarrier(false);
+
     // record resource current in-access and out-access for every single node
     if (!fgDispatcher._accessGraphBuilt) {
         const Graphs graphs{resourceGraph, layoutGraph, rag, relationGraph};
@@ -765,8 +768,19 @@ void buildBarriers(FrameGraphDispatcher &fgDispatcher) {
         const auto &resTraits = get(ResourceGraph::Traits, resourceGraph, resID);
         auto &rescStates = get(ResourceGraph::States, resourceGraph, resID);
 
+        bool backBuffer = resTraits.residency == ResourceResidency::BACKBUFFER;
+        // when to dispatch a barrier on persistent:
+        // 1. resource been written in this frame;
+        // 2. first meet in this frame (no idea if any writes in next frame)
+        // 3. backbuffer present
+        bool needNextBarrier = (namesSet.find(externalPair.first) != namesSet.end()) || (rescStates.states == gfx::AccessFlagBit::NONE);
+
         // persistant resource states cached here
         rescStates.states = transition.currStatus.accessFlag;
+
+        if (!backBuffer && !needNextBarrier) {
+            continue;
+        }
 
         auto passID = transition.currStatus.vertID;
         if (batchedBarriers.find(passID) == batchedBarriers.end()) {
@@ -780,7 +794,7 @@ void buildBarriers(FrameGraphDispatcher &fgDispatcher) {
             externalResMap[externalPair.first].currStatus,
             {}};
 
-        if (resTraits.residency == ResourceResidency::BACKBUFFER) {
+        if (backBuffer) {
             nextFrameResBarrier.endStatus = {
                 INVALID_ID,
                 gfx::ShaderStageFlagBit::NONE,
@@ -795,7 +809,6 @@ void buildBarriers(FrameGraphDispatcher &fgDispatcher) {
         }
 
         bool hasSubpass = !batchedBarriers[passID].subpassBarriers.empty();
-
         if (hasSubpass) {
             auto &subpassBarriers = batchedBarriers[passID].subpassBarriers;
             for (int i = static_cast<int>(subpassBarriers.size()) - 1; i >= 0; --i) {
@@ -808,16 +821,13 @@ void buildBarriers(FrameGraphDispatcher &fgDispatcher) {
                 auto found = std::find_if(frontBarriers.begin(), frontBarriers.end(), findBarrierByResID) != frontBarriers.end() ||
                              std::find_if(rearBarriers.begin(), rearBarriers.end(), findBarrierByResID) != rearBarriers.end();
                 if (found) {
-                    // put into rear barriers in order not to stuck
                     rearBarriers.push_back(nextFrameResBarrier);
                     break;
                 }
             }
         } else {
-            if (namesSet.find(externalPair.first) != namesSet.end()) {
-                auto &rearBarriers = batchedBarriers[passID].blockBarrier.rearBarriers;
-                rearBarriers.emplace_back(nextFrameResBarrier);
-            }
+            auto &rearBarriers = batchedBarriers[passID].blockBarrier.rearBarriers;
+            rearBarriers.emplace_back(nextFrameResBarrier);
         }
     }
 
@@ -845,10 +855,6 @@ void buildBarriers(FrameGraphDispatcher &fgDispatcher) {
                 info.sliceCount = range.numSlices;
                 info.type = passBarrier.type;
                 passBarrier.barrier = gfx::Device::getInstance()->getTextureBarrier(info);
-
-                if (info.type != gfx::BarrierType::FULL) {
-                    //CC_LOG_INFO("gggg");
-                }
             }
         }
     };

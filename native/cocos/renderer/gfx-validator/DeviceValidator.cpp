@@ -360,5 +360,9 @@ void DeviceValidator::getQueryPoolResults(QueryPool *queryPool) {
     queryPoolValidator->_results = actorQueryPoolValidator->_results;
 }
 
+void DeviceValidator::enableAutoBarrier(bool en) {
+    _actor->enableAutoBarrier(en);
+}
+
 } // namespace gfx
 } // namespace cc
