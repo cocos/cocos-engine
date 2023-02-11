@@ -3887,6 +3887,39 @@ se::Class* __jsb_dragonBones_BoneData_class = nullptr;
 se::Object* __jsb_dragonBones_BoneData_proto = nullptr;
 SE_DECLARE_FINALIZE_FUNC(js_delete_dragonBones_BoneData) 
 
+static bool js_dragonBones_BoneData_length_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    dragonBones::BoneData *arg1 = (dragonBones::BoneData *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<dragonBones::BoneData>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->length, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_dragonBones_BoneData_length_set) 
+
+static bool js_dragonBones_BoneData_length_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    dragonBones::BoneData *arg1 = (dragonBones::BoneData *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<dragonBones::BoneData>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->length, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_dragonBones_BoneData_length_get) 
+
 static bool js_dragonBones_BoneData_name_set(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -4043,6 +4076,7 @@ bool js_register_dragonBones_BoneData(se::Object* obj) {
     auto* cls = se::Class::create("BoneData", obj, __jsb_dragonBones_BaseObject_proto, nullptr); 
     
     cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
+    cls->defineProperty("length", _SE(js_dragonBones_BoneData_length_get), _SE(js_dragonBones_BoneData_length_set)); 
     cls->defineProperty("name", _SE(js_dragonBones_BoneData_name_get), _SE(js_dragonBones_BoneData_name_set)); 
     cls->defineProperty("parent", _SE(js_dragonBones_BoneData_parent_get), _SE(js_dragonBones_BoneData_parent_set)); 
     
