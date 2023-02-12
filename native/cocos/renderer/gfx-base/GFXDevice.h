@@ -118,7 +118,7 @@ public:
     template <typename ExecuteMethod>
     void registerOnAcquireCallback(ExecuteMethod &&execute);
 
-    virtual void enableAutoBarrier(bool en = true) { _options.enableBarrierDeduce = en; }
+    virtual void enableAutoBarrier(bool en) { _options.enableBarrierDeduce = en; }
 
 protected:
     static Device *instance;

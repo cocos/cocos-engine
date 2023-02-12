@@ -570,7 +570,7 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
             uint32_t rescID = resourcecAccess.vertID;
             bool externalRes = get(get(ResourceGraph::Traits, resourceGraph), rescID).hasSideEffects();
             if (externalRes) {
-                auto &states = get(ResourceGraph::States, resourceGraph, rescID);
+                const auto &states = get(ResourceGraph::States, resourceGraph, rescID);
                 const PmrString &resName = get(ResourceGraph::Name, resourceGraph, rescID);
                 auto resIter = externalMap.find(resName);
                 // first meet in this frame
@@ -1572,7 +1572,7 @@ AccessVertex dependencyCheck(RAG &rag, AccessVertex curVertID, const ResourceGra
     } else {
         ResourceTransition &trans = iter->second;
         auto &currAccessStatus = trans.currStatus;
-        auto lastReadOnly = isReadOnlyAccess(currAccessStatus.accessFlag);
+        auto lastReadOnly = isReadOnlyAccess(currAccessStatus.accessFlag) && (currAccessStatus.access == gfx::MemoryAccessBit::READ_ONLY);
         if (readOnly && lastReadOnly) {
             if (isExternalPass) {
                 // only external res will be manually record here, leaf pass with transient resource will be culled by default,
