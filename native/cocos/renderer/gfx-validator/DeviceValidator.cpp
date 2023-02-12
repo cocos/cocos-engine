@@ -349,6 +349,10 @@ void DeviceValidator::flushCommands(CommandBuffer *const *cmdBuffs, uint32_t cou
     _actor->flushCommands(cmdBuffActors.data(), count);
 }
 
+void DeviceValidator::enableAutoBarrier(bool en) {
+    _actor->enableAutoBarrier(en);
+}
+
 void DeviceValidator::getQueryPoolResults(QueryPool *queryPool) {
     auto *actorQueryPool = static_cast<QueryPoolValidator *>(queryPool)->getActor();
 
@@ -358,10 +362,6 @@ void DeviceValidator::getQueryPoolResults(QueryPool *queryPool) {
     auto *queryPoolValidator = static_cast<QueryPoolValidator *>(queryPool);
     std::lock_guard<std::mutex> lock(actorQueryPoolValidator->_mutex);
     queryPoolValidator->_results = actorQueryPoolValidator->_results;
-}
-
-void DeviceValidator::enableAutoBarrier(bool en) {
-    _actor->enableAutoBarrier(en);
 }
 
 } // namespace gfx
