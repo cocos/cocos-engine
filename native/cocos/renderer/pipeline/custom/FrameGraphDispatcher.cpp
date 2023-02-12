@@ -1553,6 +1553,8 @@ AccessVertex dependencyCheck(RAG &rag, AccessVertex curVertID, const ResourceGra
     const auto &[name, passType, visibility, access, accessFlag, usage] = viewStatus;
     auto &accessRecord = rag.accessRecord;
 
+    bool readOnly = isReadOnlyAccess(accessFlag);
+
     AccessVertex lastVertID = INVALID_ID;
     CC_EXPECTS(rag.resourceIndex.find(name) != rag.resourceIndex.end());
     auto resourceID = rag.resourceIndex[name];
@@ -1569,23 +1571,27 @@ AccessVertex dependencyCheck(RAG &rag, AccessVertex curVertID, const ResourceGra
         }
     } else {
         ResourceTransition &trans = iter->second;
-        if (access == gfx::MemoryAccessBit::READ_ONLY &&
-            trans.currStatus.access == gfx::MemoryAccessBit::READ_ONLY &&
-            (trans.currStatus.passType == passType || passType == PassType::PRESENT) &&
-            trans.currStatus.visibility == visibility &&
-            trans.currStatus.usage == usage) {
-            // current READ, no WRITE before in this frame, it's expected to be external.
-            bool dirtyExternalRes = trans.lastStatus.vertID == INVALID_ID;
-            if (!dirtyExternalRes) {
-                tryAddEdge(trans.lastStatus.vertID, curVertID, rag);
-                if (rag.leafPasses.find(trans.lastStatus.vertID) != rag.leafPasses.end()) {
-                    rag.leafPasses.erase(trans.lastStatus.vertID);
-                }
-            }
+        auto &currAccessStatus = trans.currStatus;
+        auto lastReadOnly = isReadOnlyAccess(currAccessStatus.accessFlag);
+        if (readOnly && lastReadOnly) {
             if (isExternalPass) {
                 // only external res will be manually record here, leaf pass with transient resource will be culled by default,
                 // those leaf passes with ALL read access on external(or with transients) res can be culled.
                 rag.leafPasses[curVertID].needCulling &= (access == gfx::MemoryAccessBit::READ_ONLY && passType != PassType::PRESENT);
+
+                // current READ, no WRITE before in this frame, it's expected to be external.
+                bool dirtyExternalRes = trans.lastStatus.vertID == INVALID_ID;
+                if (!dirtyExternalRes) {
+                    tryAddEdge(EXPECT_START_ID, curVertID, rag);
+                    if (rag.leafPasses.find(EXPECT_START_ID) != rag.leafPasses.end()) {
+                        rag.leafPasses.erase(EXPECT_START_ID);
+                    }
+                }
+            } else {
+                tryAddEdge(trans.lastStatus.vertID, curVertID, rag);
+                if (rag.leafPasses.find(trans.lastStatus.vertID) != rag.leafPasses.end()) {
+                    rag.leafPasses.erase(trans.lastStatus.vertID);
+                }
             }
             trans.currStatus = {curVertID, visibility, access, passType, accessFlag, usage, Range{}};
             lastVertID = trans.lastStatus.vertID;
