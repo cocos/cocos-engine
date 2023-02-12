@@ -10,6 +10,7 @@ CommandBuffer::~CommandBuffer() {
 }
 
 void CommandBuffer::doInit(const CommandBufferInfo &info) {
+    std::ignore = info;
     _commands = std::make_unique<Commands>();
     allocateStorage();
 }
@@ -46,6 +47,10 @@ void CommandBuffer::resetStorage() {
 
 
 void CommandBuffer::begin(gfx::RenderPass *renderPass, uint32_t subpass, gfx::Framebuffer *frameBuffer) {
+    std::ignore = renderPass;
+    std::ignore = subpass;
+    std::ignore = frameBuffer;
+
     _semaphore.wait();
     resetStorage();
 }

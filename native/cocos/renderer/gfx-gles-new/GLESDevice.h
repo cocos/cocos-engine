@@ -7,6 +7,10 @@
 
 namespace cc::gfx::gles {
 
+struct GLDeviceCap {
+    bool persistentMap = false;
+};
+
 class Device : public gfx::Device {
 public:
     ~Device();
@@ -49,6 +53,8 @@ public:
     egl::Context *getMainContext() const { return _mainContext.get(); }
     Queue *getQueue(QueueType type) const { return type == QueueType::GRAPHICS ? _graphicsQueue.get() : _asyncQueue.get(); }
 
+    const GLDeviceCap &getGLDeviceCap() const { return _glCap; }
+
 private:
     friend class DeviceManager;
     Device();
@@ -77,9 +83,17 @@ private:
     gfx::GeneralBarrier *createGeneralBarrier(const GeneralBarrierInfo &info) override;
 
 
+    inline bool checkExtension(const ccstd::string &extension) const {
+        return std::any_of(_extensions.begin(), _extensions.end(), [&extension](auto &ext) {
+            return ext.find(extension) != ccstd::string::npos;
+        });
+    }
+
     void initContext();
     void initDefaultObject();
     void initCaps();
+
+    ccstd::vector<ccstd::string> _extensions;
 
     std::unique_ptr<egl::Context> _mainContext;
     std::unique_ptr<egl::Context> _graphicsContext;
@@ -88,6 +102,8 @@ private:
     IntrusivePtr<Queue> _graphicsQueue;
     IntrusivePtr<Queue> _asyncQueue;
     IntrusivePtr<CommandBuffer> _defaultCmdBuffer;
+
+    GLDeviceCap _glCap;
 
     // current swapchain
     ccstd::vector<Swapchain *> _swapChains;

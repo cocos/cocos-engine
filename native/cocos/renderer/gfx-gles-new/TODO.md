@@ -1,7 +1,7 @@
 - [ ] XR interface
 - [ ] MSAA Auto resolve
 - [ ] MSAA Depth resolve
-- [ ] External Texture
+- [ ] External Texture, TEXTURE_OES
 - [ ] Texture Feature && Exclusive
 - [ ] Memory record
 - [ ] State Cache
@@ -14,3 +14,4 @@
 - [ ] Different blend modes for each color attachment in a frame buffer.
 - [ ] Immutable samplers
 - [ ] Descriptor Dynamic Offset
+- [ ] GL_MAP_PERSISTENT_BIT

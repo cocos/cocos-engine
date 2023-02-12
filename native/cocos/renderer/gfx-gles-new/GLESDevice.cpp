@@ -1,19 +1,20 @@
 #include "GLESDevice.h"
-#include "egl/Wrapper.h"
-#include "GLESShader.h"
-#include "GLESTexture.h"
+#include "base/StringUtil.h"
 #include "GLESBuffer.h"
+#include "GLESCommandBuffer.h"
 #include "GLESDescriptorSet.h"
 #include "GLESDescriptorSetLayout.h"
-#include "GLESPipelineLayout.h"
-#include "GLESPipelineState.h"
-#include "GLESSampler.h"
-#include "GLESQueue.h"
-#include "GLESCommandBuffer.h"
-#include "GLESSwapchain.h"
 #include "GLESFramebuffer.h"
 #include "GLESInputAssembler.h"
+#include "GLESPipelineLayout.h"
+#include "GLESPipelineState.h"
+#include "GLESQueue.h"
 #include "GLESRenderPass.h"
+#include "GLESSampler.h"
+#include "GLESShader.h"
+#include "GLESSwapchain.h"
+#include "GLESTexture.h"
+#include "egl/Wrapper.h"
 #include <memory>
 
 std::unique_ptr<cc::gfx::egl::Wrapper> wrapper;
@@ -92,6 +93,8 @@ void Device::initContext() {
     _renderer = reinterpret_cast<const char *>(glGetString(GL_RENDERER));
     _vendor = reinterpret_cast<const char *>(glGetString(GL_VENDOR));
     _version = reinterpret_cast<const char *>(glGetString(GL_VERSION));
+    ccstd::string extStr = reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS));
+    _extensions = StringUtil::split(extStr, " ");
 
     // init graphics queue
     _graphicsContext = std::make_unique<egl::Context>();
@@ -156,6 +159,11 @@ void Device::initCaps() {
 //        glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 1, reinterpret_cast<GLint *>(&_caps.maxComputeWorkGroupCount.y));
 //        glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 2, reinterpret_cast<GLint *>(&_caps.maxComputeWorkGroupCount.z));
 //    }
+
+    // gl device cap
+    if (checkExtension("buffer_storage")) {
+        _glCap.persistentMap = true;
+    }
 }
 
 gfx::CommandBuffer *Device::createCommandBuffer(const CommandBufferInfo &info, bool hasAgent) {

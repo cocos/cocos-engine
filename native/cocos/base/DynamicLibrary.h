@@ -13,7 +13,7 @@ namespace cc {
 
 class DynamicLibrary {
 public:
-    DynamicLibrary(const ccstd::string &name) : _libName(name) {}
+    explicit DynamicLibrary(ccstd::string name) : _libName(std::move(name)) {}
     ~DynamicLibrary();
 
     bool load();
@@ -21,11 +21,11 @@ public:
 
     bool isLoaded() const;
 
-    void* GetAddress(const std::string &key);
+    void* GetAddress(const std::string &key) const;
 
 private:
     std::string _libName;
     void *handle = nullptr;
 };
 
-}
+} // namespace cc

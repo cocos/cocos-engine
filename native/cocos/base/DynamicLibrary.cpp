@@ -30,7 +30,7 @@ bool DynamicLibrary::isLoaded() const {
     return handle != nullptr;
 }
 
-void* DynamicLibrary::GetAddress(const std::string &key) {
+void* DynamicLibrary::GetAddress(const std::string &key) const {
     if (handle == nullptr) {
         return nullptr;
     }

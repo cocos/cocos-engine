@@ -7,12 +7,12 @@
 namespace cc::gfx::gles {
 
 struct GPUBuffer : public GFXDeviceObject<DefaultDeleter> {
-    GLenum target      = 0;
-    GLenum memoryUsage = 0;
-    BufferUsage usage  = BufferUsageBit::NONE;
-    uint32_t size      = 0;
-    uint32_t stride    = 0;
-    uint32_t count     = 0;
+    GLenum target           = GL_NONE;
+    uint32_t size           = 0;
+    uint32_t stride         = 0;
+    uint32_t count          = 0;
+    MemoryUsage memoryUsage = MemoryUsageBit::NONE;
+    BufferUsage usage       = BufferUsageBit::NONE;
 
     // gpu handle
     GLuint bufferId = 0;
@@ -26,6 +26,8 @@ struct GPUBufferView : public GFXDeviceObject<DefaultDeleter> {
     IntrusivePtr<GPUBuffer> buffer;
     uint32_t offset;
     uint32_t range;
+
+    void update(const void *src, uint32_t size);
 };
 
 class Buffer final : public gfx::Buffer {
