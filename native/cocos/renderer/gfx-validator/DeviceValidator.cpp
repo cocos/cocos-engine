@@ -349,10 +349,6 @@ void DeviceValidator::flushCommands(CommandBuffer *const *cmdBuffs, uint32_t cou
     _actor->flushCommands(cmdBuffActors.data(), count);
 }
 
-void DeviceValidator::enableAutoBarrier(bool en) {
-    _actor->enableAutoBarrier(en);
-}
-
 void DeviceValidator::getQueryPoolResults(QueryPool *queryPool) {
     auto *actorQueryPool = static_cast<QueryPoolValidator *>(queryPool)->getActor();
 

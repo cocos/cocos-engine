@@ -103,8 +103,6 @@ public:
     void presentWait();
     void presentSignal();
 
-    void enableAutoBarrier(bool en) override;
-
 protected:
     static DeviceAgent *instance;
 
