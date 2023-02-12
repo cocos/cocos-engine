@@ -30,6 +30,7 @@
 #include <stdexcept>
 #include <tuple>
 #include <utility>
+#include <cctype>
 #include "LayoutGraphGraphs.h"
 #include "LayoutGraphUtils.h"
 #include "NativePipelineTypes.h"
@@ -1139,6 +1140,14 @@ void NativeProgramLibrary::init(gfx::Device *deviceIn) {
         }
     }
 
+    // update ubo
+    // tips: for compatibility with old version, when maxVertexUniformVectors is 128, maxJoints = 30
+    uint maxJoints = (device->getCapabilities().maxVertexUniformVectors - 38) / 3;
+    maxJoints = maxJoints < 256 ? maxJoints : 256;
+    pipeline::SkinningJointCapacity::jointUniformCapacity = maxJoints;
+    pipeline::UBOSkinning::initLayout(maxJoints);
+
+    // init layout graph
     auto &lg = layoutGraph;
     for (const auto v : makeRange(vertices(lg))) {
         auto &layout = get(LayoutGraphData::Layout, lg, v);

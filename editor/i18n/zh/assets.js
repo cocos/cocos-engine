@@ -291,7 +291,7 @@ module.exports = {
                     '若不勾选，网格数据被提交到 GPU 后会被自动释放。<br>',
             },
             meshOptimizer: {
-                name: 'Mesh Optimizer',
+                name: 'Mesh 优化',
                 title: 'Mesh Optimizer',
                 simplification: {
                     name: 'Simplification',
@@ -338,6 +338,22 @@ module.exports = {
                     targetRatio: {
                         name: 'LOD 压缩比例',
                         title: 'Target Ratio',
+                    },
+                    preserveSurfaceCurvature: {
+                        name: '保留表面曲率',
+                        title: 'Preserve Surface Curvature',
+                    },
+                    preserveBorderEdges: {
+                        name: '保留边界边',
+                        title: 'Preserve Border Edges',
+                    },
+                    preserveUVSeamEdges: {
+                        name: '保留 UV 缝合边',
+                        title: 'Preserve UV Seam Edges',
+                    },
+                    preserveUVFoldoverEdges: {
+                        name: '保留 UV 折叠边',
+                        title: 'Preserve UV Foldover Edges',
                     },
                     enableSmartLink: {
                         name: '防止破面',

@@ -356,13 +356,15 @@ void generateConstantMacros(
 #define CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT %d
 #define CC_PLATFORM_ANDROID_AND_WEBGL 0
 #define CC_ENABLE_WEBGL_HIGHP_STRUCT_VALUES 0
+#define CC_JOINT_UNIFORM_CAPACITY %d
         )",
         hasAnyFlags(device->getFormatFeatures(gfx::Format::RGBA32F),
                     gfx::FormatFeature::RENDER_TARGET | gfx::FormatFeature::SAMPLED_TEXTURE),
         clusterEnabled ? 1 : 0,
         device->getCapabilities().maxVertexUniformVectors,
         device->getCapabilities().maxFragmentUniformVectors,
-        device->hasFeature(gfx::Feature::INPUT_ATTACHMENT_BENEFIT));
+        device->hasFeature(gfx::Feature::INPUT_ATTACHMENT_BENEFIT),
+        pipeline::SkinningJointCapacity::jointUniformCapacity);
 }
 
 namespace {

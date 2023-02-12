@@ -37,11 +37,21 @@ HandleObject::HandleObject(Object *obj)
     }
 }
 
+HandleObject::HandleObject(HandleObject &&o) noexcept{
+    _obj = o._obj;
+    o._obj = nullptr;
+}
+
 HandleObject::~HandleObject() {
     if (_obj != nullptr) {
         _obj->unroot();
         _obj->decRef();
     }
+}
+
+void HandleObject::operator=(HandleObject &&o) noexcept {
+    _obj = o._obj;
+    o._obj = nullptr;
 }
 
 } // namespace se
