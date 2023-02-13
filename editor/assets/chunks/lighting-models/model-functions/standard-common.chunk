@@ -4,22 +4,30 @@
 void LightingCalculateDirect(out vec3 lightingDiffuse, out vec3 lightingSpecular, in LightingIntermediateData lightingData, in vec4 lightSourceColorAndIntensity)
 {
     vec3 irradiance = vec3(lightingData.NoLSat) * lightSourceColorAndIntensity.rgb * lightSourceColorAndIntensity.w;
-    
-    lightingDiffuse = irradiance * DiffuseCoefficient_EnergyConservation;
 
-    float roughness = lightingData.specularParam;
-#if CC_SURFACES_LIGHTING_ANISOTROPIC
-    float rT, rB;
-    GetAnisotropicRoughness(roughness, lightingData.anisotropyShape, rT, rB);
-    float calcSpec = D_GGXAniso(rT, rB, lightingData.NoHSat, lightingData.H, lightingData.T, lightingData.B);
+#if CC_SURFACES_LIGHTING_CALCULATE_DIFFUSE
+    lightingDiffuse = irradiance * DiffuseCoefficient_EnergyConservation;
 #else
-  #if CC_SURFACES_USE_LEGACY_COMPATIBLE_LIGHTING
-    float calcSpec = (roughness * 0.25 + 0.25) * D_GGXMobile(roughness, lightingData.NoHSat);
-  #else
-    float calcSpec = D_GGX(roughness, lightingData.NoHSat);
-  #endif
+    lightingDiffuse = vec3(0.0);
 #endif
+
+#if CC_SURFACES_LIGHTING_CALCULATE_SPECULAR
+    float roughness = lightingData.specularParam;
+  #if CC_SURFACES_LIGHTING_ANISOTROPIC
+      float rT, rB;
+      GetAnisotropicRoughness(roughness, lightingData.anisotropyShape, rT, rB);
+      float calcSpec = D_GGXAniso(rT, rB, lightingData.NoHSat, lightingData.H, lightingData.T, lightingData.B);
+  #else
+    #if CC_SURFACES_USE_LEGACY_COMPATIBLE_LIGHTING
+      float calcSpec = (roughness * 0.25 + 0.25) * D_GGXMobile(roughness, lightingData.NoHSat);
+    #else
+      float calcSpec = D_GGX(roughness, lightingData.NoHSat);
+    #endif
+  #endif
     lightingSpecular = irradiance * calcSpec;
+#else
+    lightingSpecular = vec3(0.0);
+#endif
 }
 
 

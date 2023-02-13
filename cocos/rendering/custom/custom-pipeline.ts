@@ -24,8 +24,10 @@
 
 import { Camera, CameraUsage } from '../../render-scene/scene';
 import { buildFxaaPass, buildBloomPass as buildBloomPasses, buildForwardPass,
-    buildNativeDeferredPipeline, buildNativeForwardPass, buildPostprocessPass, AntiAliasing } from './define';
+    buildNativeDeferredPipeline, buildNativeForwardPass, buildPostprocessPass,
+    AntiAliasing, buildUIPass } from './define';
 import { Pipeline, PipelineBuilder } from './pipeline';
+import { isUICamera } from './utils';
 
 export class CustomPipelineBuilder implements PipelineBuilder {
     public setup (cameras: Camera[], ppl: Pipeline): void {
@@ -36,17 +38,25 @@ export class CustomPipelineBuilder implements PipelineBuilder {
             }
             const isGameView = camera.cameraUsage === CameraUsage.GAME
                 || camera.cameraUsage === CameraUsage.GAME_VIEW;
-            // forward pass
-            const forwardInfo = buildForwardPass(camera, ppl, isGameView);
             if (!isGameView) {
+                // forward pass
+                buildForwardPass(camera, ppl, isGameView);
                 continue;
             }
-            // fxaa pass
-            const fxaaInfo = buildFxaaPass(camera, ppl, forwardInfo.rtName);
-            // bloom passes
-            const bloomInfo = buildBloomPasses(camera, ppl, fxaaInfo.rtName);
-            // Present Pass
-            buildPostprocessPass(camera, ppl, bloomInfo.rtName, AntiAliasing.NONE);
+            // TODO: There is currently no effective way to judge the ui camera. Let’s do this first.
+            if (!isUICamera(camera)) {
+                // forward pass
+                const forwardInfo = buildForwardPass(camera, ppl, isGameView);
+                // fxaa pass
+                const fxaaInfo = buildFxaaPass(camera, ppl, forwardInfo.rtName);
+                // bloom passes
+                const bloomInfo = buildBloomPasses(camera, ppl, fxaaInfo.rtName);
+                // Present Pass
+                buildPostprocessPass(camera, ppl, bloomInfo.rtName, AntiAliasing.NONE);
+                continue;
+            }
+            // render ui
+            buildUIPass(camera, ppl);
         }
     }
 }

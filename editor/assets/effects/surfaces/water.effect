@@ -192,7 +192,7 @@ void SurfacesFragmentModifyTransmitParams(out vec4 transmitParams, out vec3 inSc
   #include <surfaces/data-structures/standard>
   #include <lighting-models/includes/common>
   #define CC_SURFACES_LIGHTING_MODIFY_FINAL_RESULT
-  void SurfacesLightingModifyFinalResult(inout LightingResult result, in LightingIntermediateData lightingData, in SurfacesMaterialData surfaceData)
+  void SurfacesLightingModifyFinalResult(inout LightingResult result, in LightingIntermediateData lightingData, in SurfacesMaterialData surfaceData, in LightingMiscData miscData)
   {
     #if CC_SURFACES_LIGHTING_USE_FRESNEL
       result.fresnel = saturate(result.fresnel * pbrParams.z);

@@ -35,7 +35,6 @@
 #pragma once
 #include "bindings/jswrapper/SeApi.h"
 #include "bindings/manual/jsb_conversions.h"
-#include "xr/ar/IARAPI.h"
 #include "xr/ar/ARModule.h"
 
 

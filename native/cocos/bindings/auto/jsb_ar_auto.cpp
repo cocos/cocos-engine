@@ -109,22 +109,6 @@ static bool js_cc_ar_ARModule_get_static(se::State& s)
 }
 SE_BIND_FUNC(js_cc_ar_ARModule_get_static) 
 
-static bool js_new_cc_ar_ARModule(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    
-    cc::ar::ARModule *result;
-    result = (cc::ar::ARModule *)new cc::ar::ARModule();
-    
-    
-    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
-    s.thisObject()->setPrivateObject(ptr);
-    return true;
-}
-SE_BIND_CTOR(js_new_cc_ar_ARModule, __jsb_cc_ar_ARModule_class, js_delete_cc_ar_ARModule)
-
 static bool js_delete_cc_ar_ARModule(se::State& s)
 {
     return true;
@@ -137,7 +121,7 @@ static bool js_cc_ar_ARModule_config(se::State& s)
     const auto& args = s.args();
     size_t argc = args.size();
     cc::ar::ARModule *arg1 = (cc::ar::ARModule *) NULL ;
-    int arg2 ;
+    uint32_t arg2 ;
     
     if(argc != 1) {
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -147,7 +131,8 @@ static bool js_cc_ar_ARModule_config(se::State& s)
     if (nullptr == arg1) return true;
     
     ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
     (arg1)->config(arg2);
     
     
@@ -161,7 +146,7 @@ static bool js_cc_ar_ARModule_getSupportMask(se::State& s)
     const auto& args = s.args();
     size_t argc = args.size();
     cc::ar::ARModule *arg1 = (cc::ar::ARModule *) NULL ;
-    int result;
+    uint32_t result;
     
     if(argc != 0) {
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -169,7 +154,7 @@ static bool js_cc_ar_ARModule_getSupportMask(se::State& s)
     }
     arg1 = SE_THIS_OBJECT<cc::ar::ARModule>(s);
     if (nullptr == arg1) return true;
-    result = (int)(arg1)->getSupportMask();
+    result = ((cc::ar::ARModule const *)arg1)->getSupportMask();
     
     ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
     
@@ -178,17 +163,12 @@ static bool js_cc_ar_ARModule_getSupportMask(se::State& s)
 }
 SE_BIND_FUNC(js_cc_ar_ARModule_getSupportMask) 
 
-static bool js_cc_ar_ARModule_start(se::State& s)
+static bool js_cc_ar_ARModule_start__SWIG_0(se::State& s)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
-    size_t argc = args.size();
     cc::ar::ARModule *arg1 = (cc::ar::ARModule *) NULL ;
     
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
     arg1 = SE_THIS_OBJECT<cc::ar::ARModule>(s);
     if (nullptr == arg1) return true;
     (arg1)->start();
@@ -196,9 +176,52 @@ static bool js_cc_ar_ARModule_start(se::State& s)
     
     return true;
 }
+
+static bool js_cc_ar_ARModule_start__SWIG_1(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::ar::ARModule *arg1 = (cc::ar::ARModule *) NULL ;
+    void *arg2 = (void *) NULL ;
+    void *arg3 = (void *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::ar::ARModule>(s);
+    if (nullptr == arg1) return true;
+    ok &= sevalue_to_native(args[0], &arg2);
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    ok &= sevalue_to_native(args[1], &arg3);
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    (arg1)->start(arg2,arg3);
+    
+    
+    return true;
+}
+
+static bool js_cc_ar_ARModule_start(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    
+    
+    if (argc == 0) {
+        ok = js_cc_ar_ARModule_start__SWIG_0(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    if (argc == 2) {
+        ok = js_cc_ar_ARModule_start__SWIG_1(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
 SE_BIND_FUNC(js_cc_ar_ARModule_start) 
 
-static bool js_cc_ar_ARModule_onResume(se::State& s)
+static bool js_cc_ar_ARModule_stop(se::State& s)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
@@ -211,14 +234,72 @@ static bool js_cc_ar_ARModule_onResume(se::State& s)
     }
     arg1 = SE_THIS_OBJECT<cc::ar::ARModule>(s);
     if (nullptr == arg1) return true;
-    (arg1)->onResume();
+    (arg1)->stop();
     
     
     return true;
 }
-SE_BIND_FUNC(js_cc_ar_ARModule_onResume) 
+SE_BIND_FUNC(js_cc_ar_ARModule_stop) 
 
-static bool js_cc_ar_ARModule_onPause(se::State& s)
+static bool js_cc_ar_ARModule_resume__SWIG_0(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::ar::ARModule *arg1 = (cc::ar::ARModule *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::ar::ARModule>(s);
+    if (nullptr == arg1) return true;
+    (arg1)->resume();
+    
+    
+    return true;
+}
+
+static bool js_cc_ar_ARModule_resume__SWIG_1(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::ar::ARModule *arg1 = (cc::ar::ARModule *) NULL ;
+    void *arg2 = (void *) NULL ;
+    void *arg3 = (void *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::ar::ARModule>(s);
+    if (nullptr == arg1) return true;
+    ok &= sevalue_to_native(args[0], &arg2);
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    ok &= sevalue_to_native(args[1], &arg3);
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    (arg1)->resume(arg2,arg3);
+    
+    
+    return true;
+}
+
+static bool js_cc_ar_ARModule_resume(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    
+    
+    if (argc == 0) {
+        ok = js_cc_ar_ARModule_resume__SWIG_0(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    if (argc == 2) {
+        ok = js_cc_ar_ARModule_resume__SWIG_1(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_FUNC(js_cc_ar_ARModule_resume) 
+
+static bool js_cc_ar_ARModule_pause(se::State& s)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
@@ -231,12 +312,12 @@ static bool js_cc_ar_ARModule_onPause(se::State& s)
     }
     arg1 = SE_THIS_OBJECT<cc::ar::ARModule>(s);
     if (nullptr == arg1) return true;
-    (arg1)->onPause();
+    (arg1)->pause();
     
     
     return true;
 }
-SE_BIND_FUNC(js_cc_ar_ARModule_onPause) 
+SE_BIND_FUNC(js_cc_ar_ARModule_pause) 
 
 static bool js_cc_ar_ARModule_update(se::State& s)
 {
@@ -339,7 +420,7 @@ static bool js_cc_ar_ARModule_getCameraPose(se::State& s)
     const auto& args = s.args();
     size_t argc = args.size();
     cc::ar::ARModule *arg1 = (cc::ar::ARModule *) NULL ;
-    Pose result;
+    cc::ar::Pose result;
     
     if(argc != 0) {
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -347,7 +428,7 @@ static bool js_cc_ar_ARModule_getCameraPose(se::State& s)
     }
     arg1 = SE_THIS_OBJECT<cc::ar::ARModule>(s);
     if (nullptr == arg1) return true;
-    result = ((cc::ar::ARModule const *)arg1)->getCameraPose();
+    result = (arg1)->getCameraPose();
     
     ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
@@ -365,7 +446,7 @@ static bool js_cc_ar_ARModule_getCameraViewMatrix(se::State& s)
     const auto& args = s.args();
     size_t argc = args.size();
     cc::ar::ARModule *arg1 = (cc::ar::ARModule *) NULL ;
-    Matrix result;
+    cc::ar::Matrix result;
     
     if(argc != 0) {
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -373,7 +454,7 @@ static bool js_cc_ar_ARModule_getCameraViewMatrix(se::State& s)
     }
     arg1 = SE_THIS_OBJECT<cc::ar::ARModule>(s);
     if (nullptr == arg1) return true;
-    result = ((cc::ar::ARModule const *)arg1)->getCameraViewMatrix();
+    result = (arg1)->getCameraViewMatrix();
     
     ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
@@ -391,7 +472,7 @@ static bool js_cc_ar_ARModule_getCameraProjectionMatrix(se::State& s)
     const auto& args = s.args();
     size_t argc = args.size();
     cc::ar::ARModule *arg1 = (cc::ar::ARModule *) NULL ;
-    Matrix result;
+    cc::ar::Matrix result;
     
     if(argc != 0) {
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -399,7 +480,7 @@ static bool js_cc_ar_ARModule_getCameraProjectionMatrix(se::State& s)
     }
     arg1 = SE_THIS_OBJECT<cc::ar::ARModule>(s);
     if (nullptr == arg1) return true;
-    result = ((cc::ar::ARModule const *)arg1)->getCameraProjectionMatrix();
+    result = (arg1)->getCameraProjectionMatrix();
     
     ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
@@ -417,7 +498,7 @@ static bool js_cc_ar_ARModule_getCameraTexCoords(se::State& s)
     const auto& args = s.args();
     size_t argc = args.size();
     cc::ar::ARModule *arg1 = (cc::ar::ARModule *) NULL ;
-    TexCoords result;
+    cc::ar::TexCoords result;
     
     if(argc != 0) {
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -425,7 +506,7 @@ static bool js_cc_ar_ARModule_getCameraTexCoords(se::State& s)
     }
     arg1 = SE_THIS_OBJECT<cc::ar::ARModule>(s);
     if (nullptr == arg1) return true;
-    result = ((cc::ar::ARModule const *)arg1)->getCameraTexCoords();
+    result = (arg1)->getCameraTexCoords();
     
     ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
@@ -611,7 +692,7 @@ static bool js_cc_ar_ARModule_getCameraDepthBuffer(se::State& s)
     }
     arg1 = SE_THIS_OBJECT<cc::ar::ARModule>(s);
     if (nullptr == arg1) return true;
-    result = (uint8_t *)((cc::ar::ARModule const *)arg1)->getCameraDepthBuffer();
+    result = (uint8_t *)(arg1)->getCameraDepthBuffer();
     
     ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments");
@@ -695,7 +776,7 @@ static bool js_cc_ar_ARModule_getMainLightDirection(se::State& s)
     const auto& args = s.args();
     size_t argc = args.size();
     cc::ar::ARModule *arg1 = (cc::ar::ARModule *) NULL ;
-    LightVal result;
+    cc::ar::LightVal result;
     
     if(argc != 0) {
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -721,7 +802,7 @@ static bool js_cc_ar_ARModule_getMainLightIntensity(se::State& s)
     const auto& args = s.args();
     size_t argc = args.size();
     cc::ar::ARModule *arg1 = (cc::ar::ARModule *) NULL ;
-    LightVal result;
+    cc::ar::LightVal result;
     
     if(argc != 0) {
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -775,7 +856,7 @@ static bool js_cc_ar_ARModule_getAnchorPose(se::State& s)
     size_t argc = args.size();
     cc::ar::ARModule *arg1 = (cc::ar::ARModule *) NULL ;
     int arg2 ;
-    Pose result;
+    cc::ar::Pose result;
     
     if(argc != 1) {
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -786,7 +867,7 @@ static bool js_cc_ar_ARModule_getAnchorPose(se::State& s)
     
     ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments"); 
-    result = ((cc::ar::ARModule const *)arg1)->getAnchorPose(arg2);
+    result = (arg1)->getAnchorPose(arg2);
     
     ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
@@ -840,7 +921,7 @@ static bool js_cc_ar_ARModule_getHitResult(se::State& s)
     const auto& args = s.args();
     size_t argc = args.size();
     cc::ar::ARModule *arg1 = (cc::ar::ARModule *) NULL ;
-    Pose result;
+    cc::ar::Pose result;
     
     if(argc != 0) {
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -848,7 +929,7 @@ static bool js_cc_ar_ARModule_getHitResult(se::State& s)
     }
     arg1 = SE_THIS_OBJECT<cc::ar::ARModule>(s);
     if (nullptr == arg1) return true;
-    result = ((cc::ar::ARModule const *)arg1)->getHitResult();
+    result = (arg1)->getHitResult();
     
     ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
@@ -954,30 +1035,6 @@ static bool js_cc_ar_ARModule_setPlaneDetectionMode(se::State& s)
 }
 SE_BIND_FUNC(js_cc_ar_ARModule_setPlaneDetectionMode) 
 
-static bool js_cc_ar_ARModule_setPlaneMaxTrackingNumber(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::ar::ARModule *arg1 = (cc::ar::ARModule *) NULL ;
-    int arg2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::ar::ARModule>(s);
-    if (nullptr == arg1) return true;
-    
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
-    ((cc::ar::ARModule const *)arg1)->setPlaneMaxTrackingNumber(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_ar_ARModule_setPlaneMaxTrackingNumber) 
-
 static bool js_cc_ar_ARModule_enableSceneMesh(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -1045,33 +1102,6 @@ static bool js_cc_ar_ARModule_enableImageTracking(se::State& s)
     return true;
 }
 SE_BIND_FUNC(js_cc_ar_ARModule_enableImageTracking) 
-
-static bool js_cc_ar_ARModule_addImageToLib(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::ar::ARModule *arg1 = (cc::ar::ARModule *) NULL ;
-    std::string *arg2 = 0 ;
-    std::string temp2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::ar::ARModule>(s);
-    if (nullptr == arg1) return true;
-    
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    arg2 = &temp2;
-    
-    ((cc::ar::ARModule const *)arg1)->addImageToLib((std::string const &)*arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_ar_ARModule_addImageToLib) 
 
 static bool js_cc_ar_ARModule_addImageToLibWithSize(se::State& s)
 {
@@ -1203,6 +1233,22 @@ static bool js_cc_ar_ARModule_enableFaceTracking(se::State& s)
 }
 SE_BIND_FUNC(js_cc_ar_ARModule_enableFaceTracking) 
 
+static bool js_new_cc_ar_ARModule(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    
+    cc::ar::ARModule *result;
+    result = (cc::ar::ARModule *)new cc::ar::ARModule();
+    
+    
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+SE_BIND_CTOR(js_new_cc_ar_ARModule, __jsb_cc_ar_ARModule_class, js_delete_cc_ar_ARModule)
+
 bool js_register_cc_ar_ARModule(se::Object* obj) {
     auto* cls = se::Class::create("ARModule", obj, nullptr, _SE(js_new_cc_ar_ARModule)); 
     
@@ -1211,8 +1257,9 @@ bool js_register_cc_ar_ARModule(se::Object* obj) {
     cls->defineFunction("config", _SE(js_cc_ar_ARModule_config)); 
     cls->defineFunction("getSupportMask", _SE(js_cc_ar_ARModule_getSupportMask)); 
     cls->defineFunction("start", _SE(js_cc_ar_ARModule_start)); 
-    cls->defineFunction("onResume", _SE(js_cc_ar_ARModule_onResume)); 
-    cls->defineFunction("onPause", _SE(js_cc_ar_ARModule_onPause)); 
+    cls->defineFunction("stop", _SE(js_cc_ar_ARModule_stop)); 
+    cls->defineFunction("resume", _SE(js_cc_ar_ARModule_resume)); 
+    cls->defineFunction("pause", _SE(js_cc_ar_ARModule_pause)); 
     cls->defineFunction("update", _SE(js_cc_ar_ARModule_update)); 
     cls->defineFunction("getAPIState", _SE(js_cc_ar_ARModule_getAPIState)); 
     cls->defineFunction("setCameraId", _SE(js_cc_ar_ARModule_setCameraId)); 
@@ -1241,11 +1288,9 @@ bool js_register_cc_ar_ARModule(se::Object* obj) {
     cls->defineFunction("getHitType", _SE(js_cc_ar_ARModule_getHitType)); 
     cls->defineFunction("enablePlane", _SE(js_cc_ar_ARModule_enablePlane)); 
     cls->defineFunction("setPlaneDetectionMode", _SE(js_cc_ar_ARModule_setPlaneDetectionMode)); 
-    cls->defineFunction("setPlaneMaxTrackingNumber", _SE(js_cc_ar_ARModule_setPlaneMaxTrackingNumber)); 
     cls->defineFunction("enableSceneMesh", _SE(js_cc_ar_ARModule_enableSceneMesh)); 
     cls->defineFunction("endRequireSceneMesh", _SE(js_cc_ar_ARModule_endRequireSceneMesh)); 
     cls->defineFunction("enableImageTracking", _SE(js_cc_ar_ARModule_enableImageTracking)); 
-    cls->defineFunction("addImageToLib", _SE(js_cc_ar_ARModule_addImageToLib)); 
     cls->defineFunction("addImageToLibWithSize", _SE(js_cc_ar_ARModule_addImageToLibWithSize)); 
     cls->defineFunction("setImageMaxTrackingNumber", _SE(js_cc_ar_ARModule_setImageMaxTrackingNumber)); 
     cls->defineFunction("enableObjectTracking", _SE(js_cc_ar_ARModule_enableObjectTracking)); 

@@ -23,7 +23,7 @@
 */
 import { ccclass, executeInEditMode, menu, playOnFocus, serializable, tooltip, type, visible } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { CCObject, Color, Enum, size, Vec3 } from '../../core';
+import { cclegacy, CCObject, Color, Enum, size, Vec3 } from '../../core';
 
 import { TextureCube } from '../../asset/assets';
 import { scene } from '../../render-scene';
@@ -326,7 +326,7 @@ export class ReflectionProbe extends Component {
 
     public update (dt: number) {
         if (!this.probe) return;
-        if (EDITOR) {
+        if (EDITOR && !cclegacy.GAME_VIEW) {
             if (this.probeType === ProbeType.PLANAR) {
                 const cameraLst: scene.Camera[] | undefined = this.node.scene.renderScene?.cameras;
                 if (cameraLst !== undefined) {

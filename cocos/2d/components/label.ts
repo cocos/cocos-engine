@@ -97,7 +97,7 @@ ccenum(VerticalTextAlignment);
 /**
  * @en Enum for Overflow.
  *
- * @zh 文本超载类型。
+ * @zh 文本溢出行为类型。
  */
 export enum Overflow {
     /**
@@ -161,23 +161,6 @@ export enum CacheMode {
 ccenum(CacheMode);
 
 /**
- * @zh
- * Type 类型。
- */
-/**
- * @zh
- * TTF字体。
- */
-/**
- * @zh
- * 位图字体。
- */
-/**
- * @zh
- * 系统字体。
- */
-
-/**
  * @en
  * The Label Component.
  *
@@ -189,12 +172,32 @@ ccenum(CacheMode);
 @executionOrder(110)
 @menu('2D/Label')
 export class Label extends UIRenderer {
+    /**
+     * @en Enum for horizontal text alignment.
+     *
+     * @zh 文本横向对齐类型。
+     */
     public static HorizontalAlign = HorizontalTextAlignment;
+    /**
+     * @en Enum for vertical text alignment.
+     *
+     * @zh 文本垂直对齐类型。
+     */
     public static VerticalAlign = VerticalTextAlignment;
+    /**
+     * @en Enum for label overflow mode.
+     *
+     * @zh 文本溢出行为类型。
+     */
     public static Overflow = Overflow;
+    /**
+     * @en Enum for cache mode.
+     *
+     * @zh 文本图集缓存类型。
+     */
     public static CacheMode = CacheMode;
     /**
-     * @internal
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public static _canvasPool = CanvasPool.getInstance();
 
@@ -597,18 +600,30 @@ export class Label extends UIRenderer {
         this.markForUpdateRenderData();
     }
 
+    /**
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     get spriteFrame () {
         return this._texture;
     }
 
+    /**
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     get ttfSpriteFrame () {
         return this._ttfSpriteFrame;
     }
 
+    /**
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     get assemblerData () {
         return this._assemblerData;
     }
 
+    /**
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     get fontAtlas () {
         return this._fontAtlas;
     }
@@ -739,6 +754,11 @@ export class Label extends UIRenderer {
         super.onDestroy();
     }
 
+    /**
+     * @en update render data.
+     * @zh 更新渲染相关数据。
+     * @param force @en Whether to force an immediate update. @zh 是否立马强制更新渲染数据。
+     */
     public updateRenderData (force = false) {
         if (force) {
             this._flushAssembler();
@@ -762,6 +782,9 @@ export class Label extends UIRenderer {
         this.markForUpdateRenderData();
     }
 
+    /**
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     public setEntityColor (color: Color) {
         if (JSB) {
             if (this._font instanceof BitmapFont) {

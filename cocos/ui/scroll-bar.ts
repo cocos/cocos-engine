@@ -225,7 +225,7 @@ export class ScrollBar extends Component {
      * @zh
      * 重置滚动条位置。
      *
-     * @param outOfBoundary @en Rolling displacement @zh 滚动位移。
+     * @param outOfBoundary @en Rolling displacement. @zh 滚动位移。
      */
     public onScroll (outOfBoundary: Vec2 | Readonly<Vec2>) {
         if (!this._scrollView) {
@@ -291,7 +291,7 @@ export class ScrollBar extends Component {
      * @zh
      * 滚动视窗设置。
      *
-     * @param scrollView @en The scroll view which is attached with this scroll bar @zh 当前滚动条附着的滚动视窗
+     * @param scrollView @en The scroll view which is attached with this scroll bar. @zh 当前滚动条附着的滚动视窗。
      */
     public setScrollView (scrollView: ScrollView) {
         this._scrollView = scrollView;
