@@ -49,9 +49,10 @@ HandleObject::~HandleObject() {
     }
 }
 
-void HandleObject::operator=(HandleObject &&o) noexcept {
+HandleObject& HandleObject::operator=(HandleObject &&o) noexcept {
     _obj = o._obj;
     o._obj = nullptr;
+    return *this;
 }
 
 } // namespace se

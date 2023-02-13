@@ -98,10 +98,10 @@ public:
         return (_obj == nullptr);
     }
     HandleObject(HandleObject &&) noexcept;
-    void operator=(HandleObject &&) noexcept;
+    HandleObject& operator=(HandleObject &&) noexcept;
 
     HandleObject(const HandleObject &) = delete;
-    void operator=(const HandleObject &) = delete;
+    HandleObject& operator=(const HandleObject &) = delete;
 
     void *operator new(size_t size) = delete;
     void operator delete(void *, size_t) = delete;
