@@ -162,15 +162,18 @@ export class NodeEventProcessor {
                 child._eventProcessor.setEnabled(value, true);
             }
         }
-        // If a touch event is being received for processing and a disabled node is set.
-        // The touch cancel event needs to be triggered manually. 
-        // Otherwise, it may cause the touch operation of a different node to affect the previous node.
-        if (this._dispatchingTouch) {
+        // When a node is dispatching touch events and the node is set to disabled,
+        // The dispatching events function will hang until the node is enabled.
+        // If the node is re-enabled, any touch events will be handled by this node,
+        // even if the touch events are not in the scope of this node.This is an error.
+        // So, Sending a cancel event when the node is set to disable.
+        if (this._dispatchingTouch && !this._isEnabled) {
             // Dispatch touch cancel event when node is destroyed.
             const cancelEvent = new EventTouch([this._dispatchingTouch], true, InputEventType.TOUCH_CANCEL);
             cancelEvent.touch = this._dispatchingTouch;
             this.dispatchEvent(cancelEvent);
-            this.claimedTouchIdList.splice(0, this.claimedTouchIdList.length); 
+            this.claimedTouchIdList.length = 0;
+            //this.claimedTouchIdList.splice(0, this.claimedTouchIdList.length);
             this._dispatchingTouch = null;
         }
     }
