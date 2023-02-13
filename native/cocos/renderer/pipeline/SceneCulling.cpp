@@ -105,31 +105,40 @@ void shadowCulling(const RenderPipeline *pipeline, const scene::Camera *camera, 
 
     layer->clearShadowObjects();
 
-    for (size_t i = 0; i < csmLayers->getLayerObjects().size(); ++i) {
-        const auto *model = csmLayers->getLayerObjects()[i].model;
+    if (csmLayers->getLayerObjects().empty()) return;
+
+    for (auto it = csmLayers->getLayerObjects().begin(); it != csmLayers->getLayerObjects().end();) {
+        const auto *model = it->model;
         if (!model || !model->isEnabled() || !model->getNode()) {
+            it = csmLayers->getLayerObjects().erase(it);
             continue;
         }
         const auto *node = model->getNode();
         if (((visibility & node->getLayer()) != node->getLayer()) && !(visibility & static_cast<uint32_t>(model->getVisFlags()))) {
+            it = csmLayers->getLayerObjects().erase(it);
             continue;
         }
         if (!model->getWorldBounds() || !model->isCastShadow()) {
+            it = csmLayers->getLayerObjects().erase(it);
             continue;
         }
 
         // frustum culling
         const bool accurate = model->getWorldBounds()->aabbFrustum(layer->getValidFrustum());
         if (!accurate) {
+            ++it;
             continue;
         }
         layer->addShadowObject(genRenderObject(model, camera));
         if (layer->getLevel() < static_cast<uint32_t>(mainLight->getCSMLevel())) {
             if (mainLight->getCSMOptimizationMode() == scene::CSMOptimizationMode::REMOVE_DUPLICATES &&
                 aabbFrustumCompletelyInside(*model->getWorldBounds(), layer->getValidFrustum())) {
-                csmLayers->getLayerObjects().erase(csmLayers->getLayerObjects().begin() + static_cast<uint32_t>(i));
-                i--;
+                it = csmLayers->getLayerObjects().erase(it);
+            } else {
+                ++it;
             }
+        } else {
+            ++it;
         }
     }
 }

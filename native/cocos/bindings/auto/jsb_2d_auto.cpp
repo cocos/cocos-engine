@@ -1287,7 +1287,7 @@ static bool js_cc_RenderDrawInfo_updateLocalDescriptorSet(se::State& s)
     
     ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments"); 
-    (arg1)->updateLocalDescriptorSet(arg2,arg3);
+    (arg1)->updateLocalDescriptorSet(arg2,(cc::gfx::DescriptorSetLayout const *)arg3);
     
     
     return true;

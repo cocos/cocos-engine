@@ -341,7 +341,7 @@ void ARBackground::render(cc::scene::Camera *camera, gfx::RenderPass *renderPass
     }
 #endif
 
-    const auto data = armodule->getCameraTexCoords();
+    auto data = armodule->getCameraTexCoords();
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
     if (apiState > 1) {
         float vertices[] = {-1, -1, data[2], data[3],

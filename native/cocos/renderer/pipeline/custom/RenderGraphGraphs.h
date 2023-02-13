@@ -41,6 +41,212 @@ namespace cc {
 namespace render {
 
 // IncidenceGraph
+inline SubpassGraph::vertex_descriptor
+source(const SubpassGraph::edge_descriptor& e, const SubpassGraph& /*g*/) noexcept {
+    return e.source;
+}
+
+inline SubpassGraph::vertex_descriptor
+target(const SubpassGraph::edge_descriptor& e, const SubpassGraph& /*g*/) noexcept {
+    return e.target;
+}
+
+inline std::pair<SubpassGraph::out_edge_iterator, SubpassGraph::out_edge_iterator>
+out_edges(SubpassGraph::vertex_descriptor u, const SubpassGraph& g) noexcept { // NOLINT
+    return std::make_pair(
+        SubpassGraph::out_edge_iterator(const_cast<SubpassGraph&>(g).getOutEdgeList(u).begin(), u),
+        SubpassGraph::out_edge_iterator(const_cast<SubpassGraph&>(g).getOutEdgeList(u).end(), u));
+}
+
+inline SubpassGraph::degree_size_type
+out_degree(SubpassGraph::vertex_descriptor u, const SubpassGraph& g) noexcept { // NOLINT
+    return gsl::narrow_cast<SubpassGraph::degree_size_type>(g.getOutEdgeList(u).size());
+}
+
+inline std::pair<SubpassGraph::edge_descriptor, bool>
+edge(SubpassGraph::vertex_descriptor u, SubpassGraph::vertex_descriptor v, const SubpassGraph& g) noexcept {
+    const auto& outEdgeList = g.getOutEdgeList(u);
+    auto  iter        = std::find(outEdgeList.begin(), outEdgeList.end(), SubpassGraph::OutEdge(v));
+    bool  hasEdge     = (iter != outEdgeList.end());
+    return {SubpassGraph::edge_descriptor(u, v), hasEdge};
+}
+
+// BidirectionalGraph(Directed)
+inline std::pair<SubpassGraph::in_edge_iterator, SubpassGraph::in_edge_iterator>
+in_edges(SubpassGraph::vertex_descriptor u, const SubpassGraph& g) noexcept { // NOLINT
+    return std::make_pair(
+        SubpassGraph::in_edge_iterator(const_cast<SubpassGraph&>(g).getInEdgeList(u).begin(), u),
+        SubpassGraph::in_edge_iterator(const_cast<SubpassGraph&>(g).getInEdgeList(u).end(), u));
+}
+
+inline SubpassGraph::degree_size_type
+in_degree(SubpassGraph::vertex_descriptor u, const SubpassGraph& g) noexcept { // NOLINT
+    return gsl::narrow_cast<SubpassGraph::degree_size_type>(g.getInEdgeList(u).size());
+}
+
+inline SubpassGraph::degree_size_type
+degree(SubpassGraph::vertex_descriptor u, const SubpassGraph& g) noexcept {
+    return in_degree(u, g) + out_degree(u, g);
+}
+
+// AdjacencyGraph
+inline std::pair<SubpassGraph::adjacency_iterator, SubpassGraph::adjacency_iterator>
+adjacent_vertices(SubpassGraph::vertex_descriptor u, const SubpassGraph& g) noexcept { // NOLINT
+    auto edges = out_edges(u, g);
+    return std::make_pair(SubpassGraph::adjacency_iterator(edges.first, &g), SubpassGraph::adjacency_iterator(edges.second, &g));
+}
+
+// VertexListGraph
+inline std::pair<SubpassGraph::vertex_iterator, SubpassGraph::vertex_iterator>
+vertices(const SubpassGraph& g) noexcept {
+    return std::make_pair(const_cast<SubpassGraph&>(g).getVertexList().begin(), const_cast<SubpassGraph&>(g).getVertexList().end());
+}
+
+inline SubpassGraph::vertices_size_type
+num_vertices(const SubpassGraph& g) noexcept { // NOLINT
+    return gsl::narrow_cast<SubpassGraph::vertices_size_type>(g.getVertexList().size());
+}
+
+// EdgeListGraph
+inline std::pair<SubpassGraph::edge_iterator, SubpassGraph::edge_iterator>
+edges(const SubpassGraph& g0) noexcept {
+    auto& g = const_cast<SubpassGraph&>(g0);
+    return std::make_pair(
+        SubpassGraph::edge_iterator(g.getVertexList().begin(), g.getVertexList().begin(), g.getVertexList().end(), g),
+        SubpassGraph::edge_iterator(g.getVertexList().begin(), g.getVertexList().end(), g.getVertexList().end(), g));
+}
+
+inline SubpassGraph::edges_size_type
+num_edges(const SubpassGraph& g) noexcept { // NOLINT
+    SubpassGraph::edges_size_type numEdges = 0;
+
+    auto range = vertices(g);
+    for (auto iter = range.first; iter != range.second; ++iter) {
+        numEdges += out_degree(*iter, g);
+    }
+    return numEdges;
+}
+
+// MutableGraph(Edge)
+inline std::pair<SubpassGraph::edge_descriptor, bool>
+add_edge( // NOLINT
+    SubpassGraph::vertex_descriptor u,
+    SubpassGraph::vertex_descriptor v, SubpassGraph& g) {
+    auto& outEdgeList = g.getOutEdgeList(u);
+    outEdgeList.emplace_back(v);
+
+    auto& inEdgeList = g.getInEdgeList(v);
+    inEdgeList.emplace_back(u);
+
+    return std::make_pair(SubpassGraph::edge_descriptor(u, v), true);
+}
+
+inline void remove_edge(SubpassGraph::vertex_descriptor u, SubpassGraph::vertex_descriptor v, SubpassGraph& g) noexcept { // NOLINT
+    auto& s = g._vertices[u];
+    auto& t = g._vertices[v];
+    s.outEdges.erase(std::remove(s.outEdges.begin(), s.outEdges.end(), SubpassGraph::OutEdge(v)), s.outEdges.end());
+    t.inEdges.erase(std::remove(t.inEdges.begin(), t.inEdges.end(), SubpassGraph::InEdge(u)), t.inEdges.end());
+}
+
+inline void remove_edge(SubpassGraph::out_edge_iterator outIter, SubpassGraph& g) noexcept { // NOLINT
+    auto e = *outIter;
+    const auto u = source(e, g);
+    const auto v = target(e, g);
+    auto& s = g._vertices[u];
+    auto& t = g._vertices[v];
+    auto inIter = std::find(t.inEdges.begin(), t.inEdges.end(), SubpassGraph::InEdge(u));
+    CC_EXPECTS(inIter != t.inEdges.end());
+    t.inEdges.erase(inIter);
+    s.outEdges.erase(outIter.base());
+}
+
+inline void remove_edge(SubpassGraph::edge_descriptor e, SubpassGraph& g) noexcept { // NOLINT
+    const auto u = source(e, g);
+    const auto v = target(e, g);
+    auto& s = g._vertices[u];
+    auto outIter = std::find(s.outEdges.begin(), s.outEdges.end(), SubpassGraph::OutEdge(v));
+    CC_EXPECTS(outIter != s.outEdges.end());
+    remove_edge(SubpassGraph::out_edge_iterator(outIter, u), g);
+}
+
+// MutableGraph(Vertex)
+inline void clear_out_edges(SubpassGraph::vertex_descriptor u, SubpassGraph& g) noexcept { // NOLINT
+    // Bidirectional (OutEdges)
+    auto& outEdgeList = g.getOutEdgeList(u);
+    auto  outEnd      = outEdgeList.end();
+    for (auto iter = outEdgeList.begin(); iter != outEnd; ++iter) {
+        auto& inEdgeList = g.getInEdgeList((*iter).get_target());
+        // eraseFromIncidenceList
+        impl::sequenceEraseIf(inEdgeList, [u](const auto& e) {
+            return e.get_target() == u;
+        });
+    }
+    outEdgeList.clear();
+}
+
+inline void clear_in_edges(SubpassGraph::vertex_descriptor u, SubpassGraph& g) noexcept { // NOLINT
+    // Bidirectional (InEdges)
+    auto& inEdgeList = g.getInEdgeList(u);
+    auto  inEnd      = inEdgeList.end();
+    for (auto iter = inEdgeList.begin(); iter != inEnd; ++iter) {
+        auto& outEdgeList = g.getOutEdgeList((*iter).get_target());
+        // eraseFromIncidenceList
+        impl::sequenceEraseIf(outEdgeList, [u](const auto& e) {
+            return e.get_target() == u;
+        });
+    }
+    inEdgeList.clear();
+}
+
+inline void clear_vertex(SubpassGraph::vertex_descriptor u, SubpassGraph& g) noexcept { // NOLINT
+    clear_out_edges(u, g);
+    clear_in_edges(u, g);
+}
+
+inline void remove_vertex(SubpassGraph::vertex_descriptor u, SubpassGraph& g) noexcept { // NOLINT
+    impl::removeVectorVertex(const_cast<SubpassGraph&>(g), u, SubpassGraph::directed_category{});
+
+    // remove components
+    g.names.erase(g.names.begin() + static_cast<std::ptrdiff_t>(u));
+    g.subpasses.erase(g.subpasses.begin() + static_cast<std::ptrdiff_t>(u));
+}
+
+// MutablePropertyGraph(Vertex)
+template <class Component0, class Component1>
+inline SubpassGraph::vertex_descriptor
+addVertex(Component0&& c0, Component1&& c1, SubpassGraph& g) {
+    auto v = gsl::narrow_cast<SubpassGraph::vertex_descriptor>(g._vertices.size());
+
+    g._vertices.emplace_back();
+    g.names.emplace_back(std::forward<Component0>(c0));
+    g.subpasses.emplace_back(std::forward<Component1>(c1));
+
+    return v;
+}
+
+template <class Component0, class Component1>
+inline SubpassGraph::vertex_descriptor
+addVertex(std::piecewise_construct_t /*tag*/, Component0&& c0, Component1&& c1, SubpassGraph& g) {
+    auto v = gsl::narrow_cast<SubpassGraph::vertex_descriptor>(g._vertices.size());
+
+    g._vertices.emplace_back();
+
+    std::apply(
+        [&](auto&&... args) {
+            g.names.emplace_back(std::forward<decltype(args)>(args)...);
+        },
+        std::forward<Component0>(c0));
+
+    std::apply(
+        [&](auto&&... args) {
+            g.subpasses.emplace_back(std::forward<decltype(args)>(args)...);
+        },
+        std::forward<Component1>(c1));
+
+    return v;
+}
+
+// IncidenceGraph
 inline ResourceGraph::vertex_descriptor
 source(const ResourceGraph::edge_descriptor& e, const ResourceGraph& /*g*/) noexcept {
     return e.source;
@@ -506,212 +712,6 @@ addVertex(Tag tag, Component0&& c0, Component1&& c1, Component2&& c2, Component3
 }
 
 // IncidenceGraph
-inline SubpassGraph::vertex_descriptor
-source(const SubpassGraph::edge_descriptor& e, const SubpassGraph& /*g*/) noexcept {
-    return e.source;
-}
-
-inline SubpassGraph::vertex_descriptor
-target(const SubpassGraph::edge_descriptor& e, const SubpassGraph& /*g*/) noexcept {
-    return e.target;
-}
-
-inline std::pair<SubpassGraph::out_edge_iterator, SubpassGraph::out_edge_iterator>
-out_edges(SubpassGraph::vertex_descriptor u, const SubpassGraph& g) noexcept { // NOLINT
-    return std::make_pair(
-        SubpassGraph::out_edge_iterator(const_cast<SubpassGraph&>(g).getOutEdgeList(u).begin(), u),
-        SubpassGraph::out_edge_iterator(const_cast<SubpassGraph&>(g).getOutEdgeList(u).end(), u));
-}
-
-inline SubpassGraph::degree_size_type
-out_degree(SubpassGraph::vertex_descriptor u, const SubpassGraph& g) noexcept { // NOLINT
-    return gsl::narrow_cast<SubpassGraph::degree_size_type>(g.getOutEdgeList(u).size());
-}
-
-inline std::pair<SubpassGraph::edge_descriptor, bool>
-edge(SubpassGraph::vertex_descriptor u, SubpassGraph::vertex_descriptor v, const SubpassGraph& g) noexcept {
-    const auto& outEdgeList = g.getOutEdgeList(u);
-    auto  iter        = std::find(outEdgeList.begin(), outEdgeList.end(), SubpassGraph::OutEdge(v));
-    bool  hasEdge     = (iter != outEdgeList.end());
-    return {SubpassGraph::edge_descriptor(u, v), hasEdge};
-}
-
-// BidirectionalGraph(Directed)
-inline std::pair<SubpassGraph::in_edge_iterator, SubpassGraph::in_edge_iterator>
-in_edges(SubpassGraph::vertex_descriptor u, const SubpassGraph& g) noexcept { // NOLINT
-    return std::make_pair(
-        SubpassGraph::in_edge_iterator(const_cast<SubpassGraph&>(g).getInEdgeList(u).begin(), u),
-        SubpassGraph::in_edge_iterator(const_cast<SubpassGraph&>(g).getInEdgeList(u).end(), u));
-}
-
-inline SubpassGraph::degree_size_type
-in_degree(SubpassGraph::vertex_descriptor u, const SubpassGraph& g) noexcept { // NOLINT
-    return gsl::narrow_cast<SubpassGraph::degree_size_type>(g.getInEdgeList(u).size());
-}
-
-inline SubpassGraph::degree_size_type
-degree(SubpassGraph::vertex_descriptor u, const SubpassGraph& g) noexcept {
-    return in_degree(u, g) + out_degree(u, g);
-}
-
-// AdjacencyGraph
-inline std::pair<SubpassGraph::adjacency_iterator, SubpassGraph::adjacency_iterator>
-adjacent_vertices(SubpassGraph::vertex_descriptor u, const SubpassGraph& g) noexcept { // NOLINT
-    auto edges = out_edges(u, g);
-    return std::make_pair(SubpassGraph::adjacency_iterator(edges.first, &g), SubpassGraph::adjacency_iterator(edges.second, &g));
-}
-
-// VertexListGraph
-inline std::pair<SubpassGraph::vertex_iterator, SubpassGraph::vertex_iterator>
-vertices(const SubpassGraph& g) noexcept {
-    return std::make_pair(const_cast<SubpassGraph&>(g).getVertexList().begin(), const_cast<SubpassGraph&>(g).getVertexList().end());
-}
-
-inline SubpassGraph::vertices_size_type
-num_vertices(const SubpassGraph& g) noexcept { // NOLINT
-    return gsl::narrow_cast<SubpassGraph::vertices_size_type>(g.getVertexList().size());
-}
-
-// EdgeListGraph
-inline std::pair<SubpassGraph::edge_iterator, SubpassGraph::edge_iterator>
-edges(const SubpassGraph& g0) noexcept {
-    auto& g = const_cast<SubpassGraph&>(g0);
-    return std::make_pair(
-        SubpassGraph::edge_iterator(g.getVertexList().begin(), g.getVertexList().begin(), g.getVertexList().end(), g),
-        SubpassGraph::edge_iterator(g.getVertexList().begin(), g.getVertexList().end(), g.getVertexList().end(), g));
-}
-
-inline SubpassGraph::edges_size_type
-num_edges(const SubpassGraph& g) noexcept { // NOLINT
-    SubpassGraph::edges_size_type numEdges = 0;
-
-    auto range = vertices(g);
-    for (auto iter = range.first; iter != range.second; ++iter) {
-        numEdges += out_degree(*iter, g);
-    }
-    return numEdges;
-}
-
-// MutableGraph(Edge)
-inline std::pair<SubpassGraph::edge_descriptor, bool>
-add_edge( // NOLINT
-    SubpassGraph::vertex_descriptor u,
-    SubpassGraph::vertex_descriptor v, SubpassGraph& g) {
-    auto& outEdgeList = g.getOutEdgeList(u);
-    outEdgeList.emplace_back(v);
-
-    auto& inEdgeList = g.getInEdgeList(v);
-    inEdgeList.emplace_back(u);
-
-    return std::make_pair(SubpassGraph::edge_descriptor(u, v), true);
-}
-
-inline void remove_edge(SubpassGraph::vertex_descriptor u, SubpassGraph::vertex_descriptor v, SubpassGraph& g) noexcept { // NOLINT
-    auto& s = g._vertices[u];
-    auto& t = g._vertices[v];
-    s.outEdges.erase(std::remove(s.outEdges.begin(), s.outEdges.end(), SubpassGraph::OutEdge(v)), s.outEdges.end());
-    t.inEdges.erase(std::remove(t.inEdges.begin(), t.inEdges.end(), SubpassGraph::InEdge(u)), t.inEdges.end());
-}
-
-inline void remove_edge(SubpassGraph::out_edge_iterator outIter, SubpassGraph& g) noexcept { // NOLINT
-    auto e = *outIter;
-    const auto u = source(e, g);
-    const auto v = target(e, g);
-    auto& s = g._vertices[u];
-    auto& t = g._vertices[v];
-    auto inIter = std::find(t.inEdges.begin(), t.inEdges.end(), SubpassGraph::InEdge(u));
-    CC_EXPECTS(inIter != t.inEdges.end());
-    t.inEdges.erase(inIter);
-    s.outEdges.erase(outIter.base());
-}
-
-inline void remove_edge(SubpassGraph::edge_descriptor e, SubpassGraph& g) noexcept { // NOLINT
-    const auto u = source(e, g);
-    const auto v = target(e, g);
-    auto& s = g._vertices[u];
-    auto outIter = std::find(s.outEdges.begin(), s.outEdges.end(), SubpassGraph::OutEdge(v));
-    CC_EXPECTS(outIter != s.outEdges.end());
-    remove_edge(SubpassGraph::out_edge_iterator(outIter, u), g);
-}
-
-// MutableGraph(Vertex)
-inline void clear_out_edges(SubpassGraph::vertex_descriptor u, SubpassGraph& g) noexcept { // NOLINT
-    // Bidirectional (OutEdges)
-    auto& outEdgeList = g.getOutEdgeList(u);
-    auto  outEnd      = outEdgeList.end();
-    for (auto iter = outEdgeList.begin(); iter != outEnd; ++iter) {
-        auto& inEdgeList = g.getInEdgeList((*iter).get_target());
-        // eraseFromIncidenceList
-        impl::sequenceEraseIf(inEdgeList, [u](const auto& e) {
-            return e.get_target() == u;
-        });
-    }
-    outEdgeList.clear();
-}
-
-inline void clear_in_edges(SubpassGraph::vertex_descriptor u, SubpassGraph& g) noexcept { // NOLINT
-    // Bidirectional (InEdges)
-    auto& inEdgeList = g.getInEdgeList(u);
-    auto  inEnd      = inEdgeList.end();
-    for (auto iter = inEdgeList.begin(); iter != inEnd; ++iter) {
-        auto& outEdgeList = g.getOutEdgeList((*iter).get_target());
-        // eraseFromIncidenceList
-        impl::sequenceEraseIf(outEdgeList, [u](const auto& e) {
-            return e.get_target() == u;
-        });
-    }
-    inEdgeList.clear();
-}
-
-inline void clear_vertex(SubpassGraph::vertex_descriptor u, SubpassGraph& g) noexcept { // NOLINT
-    clear_out_edges(u, g);
-    clear_in_edges(u, g);
-}
-
-inline void remove_vertex(SubpassGraph::vertex_descriptor u, SubpassGraph& g) noexcept { // NOLINT
-    impl::removeVectorVertex(const_cast<SubpassGraph&>(g), u, SubpassGraph::directed_category{});
-
-    // remove components
-    g.names.erase(g.names.begin() + static_cast<std::ptrdiff_t>(u));
-    g.subpasses.erase(g.subpasses.begin() + static_cast<std::ptrdiff_t>(u));
-}
-
-// MutablePropertyGraph(Vertex)
-template <class Component0, class Component1>
-inline SubpassGraph::vertex_descriptor
-addVertex(Component0&& c0, Component1&& c1, SubpassGraph& g) {
-    auto v = gsl::narrow_cast<SubpassGraph::vertex_descriptor>(g._vertices.size());
-
-    g._vertices.emplace_back();
-    g.names.emplace_back(std::forward<Component0>(c0));
-    g.subpasses.emplace_back(std::forward<Component1>(c1));
-
-    return v;
-}
-
-template <class Component0, class Component1>
-inline SubpassGraph::vertex_descriptor
-addVertex(std::piecewise_construct_t /*tag*/, Component0&& c0, Component1&& c1, SubpassGraph& g) {
-    auto v = gsl::narrow_cast<SubpassGraph::vertex_descriptor>(g._vertices.size());
-
-    g._vertices.emplace_back();
-
-    std::apply(
-        [&](auto&&... args) {
-            g.names.emplace_back(std::forward<decltype(args)>(args)...);
-        },
-        std::forward<Component0>(c0));
-
-    std::apply(
-        [&](auto&&... args) {
-            g.subpasses.emplace_back(std::forward<decltype(args)>(args)...);
-        },
-        std::forward<Component1>(c1));
-
-    return v;
-}
-
-// IncidenceGraph
 inline RenderGraph::vertex_descriptor
 source(const RenderGraph::edge_descriptor& e, const RenderGraph& /*g*/) noexcept {
     return e.source;
@@ -934,6 +934,83 @@ namespace boost {
 
 // Vertex Index
 template <>
+struct property_map<cc::render::SubpassGraph, vertex_index_t> {
+    using const_type = identity_property_map;
+    using type       = identity_property_map;
+};
+
+// Vertex Component
+template <>
+struct property_map<cc::render::SubpassGraph, cc::render::SubpassGraph::NameTag> {
+    using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
+        read_write_property_map_tag,
+        const cc::render::SubpassGraph,
+        const ccstd::pmr::vector<ccstd::pmr::string>,
+        std::string_view,
+        const ccstd::pmr::string&>;
+    using type = cc::render::impl::VectorVertexComponentPropertyMap<
+        read_write_property_map_tag,
+        cc::render::SubpassGraph,
+        ccstd::pmr::vector<ccstd::pmr::string>,
+        std::string_view,
+        ccstd::pmr::string&>;
+};
+
+// Vertex Name
+template <>
+struct property_map<cc::render::SubpassGraph, vertex_name_t> {
+    using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
+        read_write_property_map_tag,
+        const cc::render::SubpassGraph,
+        const ccstd::pmr::vector<ccstd::pmr::string>,
+        std::string_view,
+        const ccstd::pmr::string&>;
+    using type = cc::render::impl::VectorVertexComponentPropertyMap<
+        read_write_property_map_tag,
+        cc::render::SubpassGraph,
+        ccstd::pmr::vector<ccstd::pmr::string>,
+        std::string_view,
+        ccstd::pmr::string&>;
+};
+
+// Vertex Component
+template <>
+struct property_map<cc::render::SubpassGraph, cc::render::SubpassGraph::SubpassTag> {
+    using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
+        lvalue_property_map_tag,
+        const cc::render::SubpassGraph,
+        const ccstd::pmr::vector<cc::render::RasterSubpass>,
+        cc::render::RasterSubpass,
+        const cc::render::RasterSubpass&>;
+    using type = cc::render::impl::VectorVertexComponentPropertyMap<
+        lvalue_property_map_tag,
+        cc::render::SubpassGraph,
+        ccstd::pmr::vector<cc::render::RasterSubpass>,
+        cc::render::RasterSubpass,
+        cc::render::RasterSubpass&>;
+};
+
+// Vertex ComponentMember
+template <class T>
+struct property_map<cc::render::SubpassGraph, T cc::render::RasterSubpass::*> {
+    using const_type = cc::render::impl::VectorVertexComponentMemberPropertyMap<
+        lvalue_property_map_tag,
+        const cc::render::SubpassGraph,
+        const ccstd::pmr::vector<cc::render::RasterSubpass>,
+        T,
+        const T&,
+        T cc::render::RasterSubpass::*>;
+    using type = cc::render::impl::VectorVertexComponentMemberPropertyMap<
+        lvalue_property_map_tag,
+        cc::render::SubpassGraph,
+        ccstd::pmr::vector<cc::render::RasterSubpass>,
+        T,
+        T&,
+        T cc::render::RasterSubpass::*>;
+};
+
+// Vertex Index
+template <>
 struct property_map<cc::render::ResourceGraph, vertex_index_t> {
     using const_type = identity_property_map;
     using type       = identity_property_map;
@@ -1100,83 +1177,6 @@ struct property_map<cc::render::ResourceGraph, cc::render::ResourceGraph::Sample
 
 // Vertex Index
 template <>
-struct property_map<cc::render::SubpassGraph, vertex_index_t> {
-    using const_type = identity_property_map;
-    using type       = identity_property_map;
-};
-
-// Vertex Component
-template <>
-struct property_map<cc::render::SubpassGraph, cc::render::SubpassGraph::NameTag> {
-    using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
-        read_write_property_map_tag,
-        const cc::render::SubpassGraph,
-        const ccstd::pmr::vector<ccstd::pmr::string>,
-        std::string_view,
-        const ccstd::pmr::string&>;
-    using type = cc::render::impl::VectorVertexComponentPropertyMap<
-        read_write_property_map_tag,
-        cc::render::SubpassGraph,
-        ccstd::pmr::vector<ccstd::pmr::string>,
-        std::string_view,
-        ccstd::pmr::string&>;
-};
-
-// Vertex Name
-template <>
-struct property_map<cc::render::SubpassGraph, vertex_name_t> {
-    using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
-        read_write_property_map_tag,
-        const cc::render::SubpassGraph,
-        const ccstd::pmr::vector<ccstd::pmr::string>,
-        std::string_view,
-        const ccstd::pmr::string&>;
-    using type = cc::render::impl::VectorVertexComponentPropertyMap<
-        read_write_property_map_tag,
-        cc::render::SubpassGraph,
-        ccstd::pmr::vector<ccstd::pmr::string>,
-        std::string_view,
-        ccstd::pmr::string&>;
-};
-
-// Vertex Component
-template <>
-struct property_map<cc::render::SubpassGraph, cc::render::SubpassGraph::SubpassTag> {
-    using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
-        lvalue_property_map_tag,
-        const cc::render::SubpassGraph,
-        const ccstd::pmr::vector<cc::render::RasterSubpass>,
-        cc::render::RasterSubpass,
-        const cc::render::RasterSubpass&>;
-    using type = cc::render::impl::VectorVertexComponentPropertyMap<
-        lvalue_property_map_tag,
-        cc::render::SubpassGraph,
-        ccstd::pmr::vector<cc::render::RasterSubpass>,
-        cc::render::RasterSubpass,
-        cc::render::RasterSubpass&>;
-};
-
-// Vertex ComponentMember
-template <class T>
-struct property_map<cc::render::SubpassGraph, T cc::render::RasterSubpass::*> {
-    using const_type = cc::render::impl::VectorVertexComponentMemberPropertyMap<
-        lvalue_property_map_tag,
-        const cc::render::SubpassGraph,
-        const ccstd::pmr::vector<cc::render::RasterSubpass>,
-        T,
-        const T&,
-        T cc::render::RasterSubpass::*>;
-    using type = cc::render::impl::VectorVertexComponentMemberPropertyMap<
-        lvalue_property_map_tag,
-        cc::render::SubpassGraph,
-        ccstd::pmr::vector<cc::render::RasterSubpass>,
-        T,
-        T&,
-        T cc::render::RasterSubpass::*>;
-};
-
-// Vertex Index
-template <>
 struct property_map<cc::render::RenderGraph, vertex_index_t> {
     using const_type = identity_property_map;
     using type       = identity_property_map;
@@ -1291,6 +1291,105 @@ struct property_map<cc::render::RenderGraph, cc::render::RenderGraph::ValidTag> 
 namespace cc {
 
 namespace render {
+
+// Vertex Index
+inline boost::property_map<SubpassGraph, boost::vertex_index_t>::const_type
+get(boost::vertex_index_t /*tag*/, const SubpassGraph& /*g*/) noexcept {
+    return {};
+}
+
+inline boost::property_map<SubpassGraph, boost::vertex_index_t>::type
+get(boost::vertex_index_t /*tag*/, SubpassGraph& /*g*/) noexcept {
+    return {};
+}
+
+inline impl::ColorMap<SubpassGraph::vertex_descriptor>
+get(ccstd::pmr::vector<boost::default_color_type>& colors, const SubpassGraph& /*g*/) noexcept {
+    return {colors};
+}
+
+// Vertex Component
+inline typename boost::property_map<SubpassGraph, SubpassGraph::NameTag>::const_type
+get(SubpassGraph::NameTag /*tag*/, const SubpassGraph& g) noexcept {
+    return {g.names};
+}
+
+inline typename boost::property_map<SubpassGraph, SubpassGraph::NameTag>::type
+get(SubpassGraph::NameTag /*tag*/, SubpassGraph& g) noexcept {
+    return {g.names};
+}
+
+// Vertex Name
+inline boost::property_map<SubpassGraph, boost::vertex_name_t>::const_type
+get(boost::vertex_name_t /*tag*/, const SubpassGraph& g) noexcept {
+    return {g.names};
+}
+
+// Vertex Component
+inline typename boost::property_map<SubpassGraph, SubpassGraph::SubpassTag>::const_type
+get(SubpassGraph::SubpassTag /*tag*/, const SubpassGraph& g) noexcept {
+    return {g.subpasses};
+}
+
+inline typename boost::property_map<SubpassGraph, SubpassGraph::SubpassTag>::type
+get(SubpassGraph::SubpassTag /*tag*/, SubpassGraph& g) noexcept {
+    return {g.subpasses};
+}
+
+// Vertex ComponentMember
+template <class T>
+inline typename boost::property_map<SubpassGraph, T RasterSubpass::*>::const_type
+get(T RasterSubpass::*memberPointer, const SubpassGraph& g) noexcept {
+    return {g.subpasses, memberPointer};
+}
+
+template <class T>
+inline typename boost::property_map<SubpassGraph, T RasterSubpass::*>::type
+get(T RasterSubpass::*memberPointer, SubpassGraph& g) noexcept {
+    return {g.subpasses, memberPointer};
+}
+
+// Vertex Constant Getter
+template <class Tag>
+inline decltype(auto)
+get(Tag tag, const SubpassGraph& g, SubpassGraph::vertex_descriptor v) noexcept {
+    return get(get(tag, g), v);
+}
+
+// Vertex Mutable Getter
+template <class Tag>
+inline decltype(auto)
+get(Tag tag, SubpassGraph& g, SubpassGraph::vertex_descriptor v) noexcept {
+    return get(get(tag, g), v);
+}
+
+// Vertex Setter
+template <class Tag, class... Args>
+inline void put(
+    Tag tag, SubpassGraph& g,
+    SubpassGraph::vertex_descriptor v,
+    Args&&... args) {
+    put(get(tag, g), v, std::forward<Args>(args)...);
+}
+
+// MutableGraph(Vertex)
+inline SubpassGraph::vertex_descriptor
+add_vertex(SubpassGraph& g, ccstd::pmr::string&& name) { // NOLINT
+    return addVertex(
+        std::piecewise_construct,
+        std::forward_as_tuple(std::move(name)), // names
+        std::forward_as_tuple(),                // subpasses
+        g);
+}
+
+inline SubpassGraph::vertex_descriptor
+add_vertex(SubpassGraph& g, const char* name) { // NOLINT
+    return addVertex(
+        std::piecewise_construct,
+        std::forward_as_tuple(name), // names
+        std::forward_as_tuple(),     // subpasses
+        g);
+}
 
 // Vertex Index
 inline boost::property_map<ResourceGraph, boost::vertex_index_t>::const_type
@@ -2227,105 +2326,6 @@ add_vertex(ResourceGraph& g, Tag t, const char* name) { // NOLINT
         std::forward_as_tuple(),     // states
         std::forward_as_tuple(),     // samplerInfo
         std::forward_as_tuple(),     // PolymorphicType
-        g);
-}
-
-// Vertex Index
-inline boost::property_map<SubpassGraph, boost::vertex_index_t>::const_type
-get(boost::vertex_index_t /*tag*/, const SubpassGraph& /*g*/) noexcept {
-    return {};
-}
-
-inline boost::property_map<SubpassGraph, boost::vertex_index_t>::type
-get(boost::vertex_index_t /*tag*/, SubpassGraph& /*g*/) noexcept {
-    return {};
-}
-
-inline impl::ColorMap<SubpassGraph::vertex_descriptor>
-get(ccstd::pmr::vector<boost::default_color_type>& colors, const SubpassGraph& /*g*/) noexcept {
-    return {colors};
-}
-
-// Vertex Component
-inline typename boost::property_map<SubpassGraph, SubpassGraph::NameTag>::const_type
-get(SubpassGraph::NameTag /*tag*/, const SubpassGraph& g) noexcept {
-    return {g.names};
-}
-
-inline typename boost::property_map<SubpassGraph, SubpassGraph::NameTag>::type
-get(SubpassGraph::NameTag /*tag*/, SubpassGraph& g) noexcept {
-    return {g.names};
-}
-
-// Vertex Name
-inline boost::property_map<SubpassGraph, boost::vertex_name_t>::const_type
-get(boost::vertex_name_t /*tag*/, const SubpassGraph& g) noexcept {
-    return {g.names};
-}
-
-// Vertex Component
-inline typename boost::property_map<SubpassGraph, SubpassGraph::SubpassTag>::const_type
-get(SubpassGraph::SubpassTag /*tag*/, const SubpassGraph& g) noexcept {
-    return {g.subpasses};
-}
-
-inline typename boost::property_map<SubpassGraph, SubpassGraph::SubpassTag>::type
-get(SubpassGraph::SubpassTag /*tag*/, SubpassGraph& g) noexcept {
-    return {g.subpasses};
-}
-
-// Vertex ComponentMember
-template <class T>
-inline typename boost::property_map<SubpassGraph, T RasterSubpass::*>::const_type
-get(T RasterSubpass::*memberPointer, const SubpassGraph& g) noexcept {
-    return {g.subpasses, memberPointer};
-}
-
-template <class T>
-inline typename boost::property_map<SubpassGraph, T RasterSubpass::*>::type
-get(T RasterSubpass::*memberPointer, SubpassGraph& g) noexcept {
-    return {g.subpasses, memberPointer};
-}
-
-// Vertex Constant Getter
-template <class Tag>
-inline decltype(auto)
-get(Tag tag, const SubpassGraph& g, SubpassGraph::vertex_descriptor v) noexcept {
-    return get(get(tag, g), v);
-}
-
-// Vertex Mutable Getter
-template <class Tag>
-inline decltype(auto)
-get(Tag tag, SubpassGraph& g, SubpassGraph::vertex_descriptor v) noexcept {
-    return get(get(tag, g), v);
-}
-
-// Vertex Setter
-template <class Tag, class... Args>
-inline void put(
-    Tag tag, SubpassGraph& g,
-    SubpassGraph::vertex_descriptor v,
-    Args&&... args) {
-    put(get(tag, g), v, std::forward<Args>(args)...);
-}
-
-// MutableGraph(Vertex)
-inline SubpassGraph::vertex_descriptor
-add_vertex(SubpassGraph& g, ccstd::pmr::string&& name) { // NOLINT
-    return addVertex(
-        std::piecewise_construct,
-        std::forward_as_tuple(std::move(name)), // names
-        std::forward_as_tuple(),                // subpasses
-        g);
-}
-
-inline SubpassGraph::vertex_descriptor
-add_vertex(SubpassGraph& g, const char* name) { // NOLINT
-    return addVertex(
-        std::piecewise_construct,
-        std::forward_as_tuple(name), // names
-        std::forward_as_tuple(),     // subpasses
         g);
 }
 

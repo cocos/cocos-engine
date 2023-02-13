@@ -368,16 +368,19 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             trailModule.update();
         }
 
-        if (ps.simulationSpace === Space.Local) {
-            const r: Quat = ps.node.getRotation();
-            Mat4.fromQuat(this._localMat, r);
-            this._localMat.transpose(); // just consider rotation, use transpose as invert
-        }
+        const useGravity = !ps.gravityModifier.isZero();
+        if (useGravity) {
+            if (ps.simulationSpace === Space.Local) {
+                const r: Quat = ps.node.getRotation();
+                Mat4.fromQuat(this._localMat, r);
+                this._localMat.transpose(); // just consider rotation, use transpose as invert
+            }
 
-        if (ps.node.parent) {
-            const r: Quat = ps.node.parent.getWorldRotation();
-            Mat4.fromQuat(_tempParentInverse, r);
-            _tempParentInverse.transpose();
+            if (ps.node.parent) {
+                const r: Quat = ps.node.parent.getWorldRotation();
+                Mat4.fromQuat(_tempParentInverse, r);
+                _tempParentInverse.transpose();
+            }
         }
 
         for (let i = 0; i < this._particles!.length; ++i) {
@@ -395,7 +398,6 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             }
 
             // apply gravity when both the mode is not Constant and the value is not 0.
-            const useGravity = (ps.gravityModifier.mode !== Mode.Constant || ps.gravityModifier.constant !== 0);
             if (useGravity) {
                 const rand = isCurveTwoValues(ps.gravityModifier) ? pseudoRandom(p.randomSeed) : 0;
                 if (ps.simulationSpace === Space.Local) {

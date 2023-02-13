@@ -341,6 +341,22 @@ module.exports = {
                         name: 'Ratio',
                         title: 'Target Ratio',
                     },
+                    preserveSurfaceCurvature: {
+                        name: 'Surface Curvature',
+                        title: 'Preserve Surface Curvature',
+                    },
+                    preserveBorderEdges: {
+                        name: 'Border Edges',
+                        title: 'Preserve Border Edges',
+                    },
+                    preserveUVSeamEdges: {
+                        name: 'UV Seam Edges',
+                        title: 'Preserve UV Seam Edges',
+                    },
+                    preserveUVFoldoverEdges: {
+                        name: 'UV Foldover Edges',
+                        title: 'Preserve UV Foldover Edges',
+                    },
                     enableSmartLink: {
                         name: 'Smart Link',
                         title: 'Enable Smart Link',

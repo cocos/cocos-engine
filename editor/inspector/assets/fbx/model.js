@@ -96,6 +96,22 @@ exports.template = /* html */`
                 <ui-slider slot="content" class="meshOptimizer-targetRatio-slider" min="0" max="1" step="0.01"></ui-slider>
             </ui-prop>
             <ui-prop>
+                <ui-label slot="label" value="i18n:ENGINE.assets.fbx.meshOptimizer.simplify.preserveSurfaceCurvature.name" tooltip="i18n:ENGINE.assets.fbx.meshOptimizer.simplify.preserveSurfaceCurvature.title"></ui-label>
+                <ui-checkbox slot="content" class="meshOptimizer-preserveSurfaceCurvature-checkbox"></ui-checkbox>
+            </ui-prop>
+            <ui-prop>
+                <ui-label slot="label" value="i18n:ENGINE.assets.fbx.meshOptimizer.simplify.preserveBorderEdges.name" tooltip="i18n:ENGINE.assets.fbx.meshOptimizer.simplify.preserveBorderEdges.title"></ui-label>
+                <ui-checkbox slot="content" class="meshOptimizer-preserveBorderEdges-checkbox"></ui-checkbox>
+            </ui-prop>
+            <ui-prop>
+                <ui-label slot="label" value="i18n:ENGINE.assets.fbx.meshOptimizer.simplify.preserveUVSeamEdges.name" tooltip="i18n:ENGINE.assets.fbx.meshOptimizer.simplify.preserveUVSeamEdges.title"></ui-label>
+                <ui-checkbox slot="content" class="meshOptimizer-preserveUVSeamEdges-checkbox"></ui-checkbox>
+            </ui-prop>
+            <ui-prop>
+                <ui-label slot="label" value="i18n:ENGINE.assets.fbx.meshOptimizer.simplify.preserveUVFoldoverEdges.name" tooltip="i18n:ENGINE.assets.fbx.meshOptimizer.simplify.preserveUVFoldoverEdges.title"></ui-label>
+                <ui-checkbox slot="content" class="meshOptimizer-preserveUVFoldoverEdges-checkbox"></ui-checkbox>
+            </ui-prop>
+            <ui-prop>
                 <ui-label slot="label" value="i18n:ENGINE.assets.fbx.meshOptimizer.simplify.enableSmartLink.name" tooltip="i18n:ENGINE.assets.fbx.meshOptimizer.simplify.enableSmartLink.title"></ui-label>
                 <ui-checkbox slot="content" class="meshOptimizer-enableSmartLink-checkbox"></ui-checkbox>
             </ui-prop>
@@ -165,6 +181,10 @@ exports.$ = {
     // simplifyOptions
     meshOptimizerSimplifyOptions: '.simplify-options',
     meshOptimizerTargetRatioSlider: '.meshOptimizer-targetRatio-slider',
+    meshOptimizerPreserveSurfaceCurvatureCheckbox: '.meshOptimizer-preserveSurfaceCurvature-checkbox',
+    meshOptimizerPreserveBorderEdgesCheckbox: '.meshOptimizer-preserveBorderEdges-checkbox',
+    meshOptimizerPreserveUVSeamEdgesCheckbox: '.meshOptimizer-preserveUVSeamEdges-checkbox',
+    meshOptimizerPreserveUVFoldoverEdgesCheckbox: '.meshOptimizer-preserveUVFoldoverEdges-checkbox',
     meshOptimizerEnableSmartLinkCheckbox: '.meshOptimizer-enableSmartLink-checkbox',
     meshOptimizerAgressivenessSlider: '.meshOptimizer-agressiveness-slider',
     meshOptimizerMaxIterationCountSlider: '.meshOptimizer-maxIterationCount-slider',
@@ -555,6 +575,74 @@ const Elements = {
             updateElementReadonly.call(panel, panel.$.meshOptimizerEnableSmartLinkCheckbox);
         },
     },
+    preserveSurfaceCurvature: {
+        ready() {
+            const panel = this;
+            panel.$.meshOptimizerPreserveSurfaceCurvatureCheckbox.addEventListener('change', panel.setProp.bind(panel, 'meshOptimizer.simplifyOptions.preserveSurfaceCurvature', 'boolean'));
+            panel.$.meshOptimizerPreserveSurfaceCurvatureCheckbox.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
+        },
+        update() {
+            const panel = this;
+
+            panel.$.meshOptimizerPreserveSurfaceCurvatureCheckbox.value = getPropValue.call(panel, panel.meta.userData, false, 'meshOptimizer.simplifyOptions.preserveSurfaceCurvature');
+
+            updateElementInvalid.call(panel, panel.$.meshOptimizerPreserveSurfaceCurvatureCheckbox, 'meshOptimizer.simplifyOptions.preserveSurfaceCurvature');
+            updateElementReadonly.call(panel, panel.$.meshOptimizerPreserveSurfaceCurvatureCheckbox);
+        },
+    },
+    preserveBorderEdges: {
+        ready() {
+            const panel = this;
+            panel.$.meshOptimizerPreserveBorderEdgesCheckbox.addEventListener('change', panel.setProp.bind(panel, 'meshOptimizer.simplifyOptions.preserveBorderEdges', 'boolean'));
+            panel.$.meshOptimizerPreserveBorderEdgesCheckbox.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
+        },
+        update() {
+            const panel = this;
+
+            panel.$.meshOptimizerPreserveBorderEdgesCheckbox.value = getPropValue.call(panel, panel.meta.userData, false, 'meshOptimizer.simplifyOptions.preserveBorderEdges');
+
+            updateElementInvalid.call(panel, panel.$.meshOptimizerPreserveBorderEdgesCheckbox, 'meshOptimizer.simplifyOptions.preserveBorderEdges');
+            updateElementReadonly.call(panel, panel.$.meshOptimizerPreserveBorderEdgesCheckbox);
+        },
+    },
+    preserveUVSeamEdges: {
+        ready() {
+            const panel = this;
+            panel.$.meshOptimizerPreserveUVSeamEdgesCheckbox.addEventListener('change', panel.setProp.bind(panel, 'meshOptimizer.simplifyOptions.preserveUVSeamEdges', 'boolean'));
+            panel.$.meshOptimizerPreserveUVSeamEdgesCheckbox.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
+        },
+        update() {
+            const panel = this;
+
+            panel.$.meshOptimizerPreserveUVSeamEdgesCheckbox.value = getPropValue.call(panel, panel.meta.userData, false, 'meshOptimizer.simplifyOptions.preserveUVSeamEdges');
+
+            updateElementInvalid.call(panel, panel.$.meshOptimizerPreserveUVSeamEdgesCheckbox, 'meshOptimizer.simplifyOptions.preserveUVSeamEdges');
+            updateElementReadonly.call(panel, panel.$.meshOptimizerPreserveUVSeamEdgesCheckbox);
+        },
+    },
+    preserveUVFoldoverEdges: {
+        ready() {
+            const panel = this;
+            panel.$.meshOptimizerPreserveUVFoldoverEdgesCheckbox.addEventListener('change', panel.setProp.bind(panel, 'meshOptimizer.simplifyOptions.preserveUVFoldoverEdges', 'boolean'));
+            panel.$.meshOptimizerPreserveUVFoldoverEdgesCheckbox.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
+        },
+        update() {
+            const panel = this;
+
+            panel.$.meshOptimizerPreserveUVFoldoverEdgesCheckbox.value = getPropValue.call(panel, panel.meta.userData, false, 'meshOptimizer.simplifyOptions.preserveUVFoldoverEdges');
+
+            updateElementInvalid.call(panel, panel.$.meshOptimizerPreserveUVFoldoverEdgesCheckbox, 'meshOptimizer.simplifyOptions.preserveUVFoldoverEdges');
+            updateElementReadonly.call(panel, panel.$.meshOptimizerPreserveUVFoldoverEdgesCheckbox);
+        },
+    },
     agressiveness: {
         ready() {
             const panel = this;
@@ -566,7 +654,7 @@ const Elements = {
         update() {
             const panel = this;
 
-            panel.$.meshOptimizerAgressivenessSlider.value = getPropValue.call(panel, panel.meta.userData, 1, 'meshOptimizer.simplifyOptions.agressiveness');
+            panel.$.meshOptimizerAgressivenessSlider.value = getPropValue.call(panel, panel.meta.userData, 7, 'meshOptimizer.simplifyOptions.agressiveness');
 
             updateElementInvalid.call(panel, panel.$.meshOptimizerAgressivenessSlider, 'meshOptimizer.simplifyOptions.agressiveness');
             updateElementReadonly.call(panel, panel.$.meshOptimizerAgressivenessSlider);
@@ -583,7 +671,7 @@ const Elements = {
         update() {
             const panel = this;
 
-            panel.$.meshOptimizerMaxIterationCountSlider.value = getPropValue.call(panel, panel.meta.userData, 1, 'meshOptimizer.simplifyOptions.maxIterationCount');
+            panel.$.meshOptimizerMaxIterationCountSlider.value = getPropValue.call(panel, panel.meta.userData, 100, 'meshOptimizer.simplifyOptions.maxIterationCount');
 
             updateElementInvalid.call(panel, panel.$.meshOptimizerMaxIterationCountSlider, 'meshOptimizer.simplifyOptions.maxIterationCount');
             updateElementReadonly.call(panel, panel.$.meshOptimizerMaxIterationCountSlider);

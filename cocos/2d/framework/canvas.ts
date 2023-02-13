@@ -84,6 +84,10 @@ export class Canvas extends RenderRoot2D {
         }
     }
 
+    /**
+     * @en The camera component that will be aligned with this canvas
+     * @zh 将与此 canvas 对齐的相机组件
+     */
     @type(Camera)
     @tooltip('i18n:canvas.camera')
     get cameraComponent () {
@@ -98,6 +102,10 @@ export class Canvas extends RenderRoot2D {
         this._onResizeCamera();
     }
 
+    /**
+     * @en Align canvas with screen
+     * @zh 是否使用屏幕对齐画布
+     */
     @tooltip('i18n:canvas.align')
     get alignCanvasWithScreen () {
         return this._alignCanvasWithScreen;
@@ -108,12 +116,6 @@ export class Canvas extends RenderRoot2D {
 
         this._onResizeCamera();
     }
-
-    // /**
-    //  * @zh
-    //  * 当前激活的画布组件，场景同一时间只能有一个激活的画布。
-    //  */
-    // public static instance: Canvas | null = null;
 
     @type(Camera)
     protected _cameraComponent: Camera | null = null;

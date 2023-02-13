@@ -374,6 +374,8 @@ struct IPassInfoFull final { // cjh } : public IPassInfo {
     // IPassInfoFull
     // generated part
     index_t passIndex{0};
+    uint32_t passID = 0xFFFFFFFF;
+    uint32_t phaseID = 0xFFFFFFFF;
     MacroRecord defines;
     ccstd::optional<PassOverrides> stateOverrides;
 
@@ -537,6 +539,12 @@ struct IShaderInfo {
     ccstd::vector<IDescriptorInfo> descriptors;
 
     const IShaderSource *getSource(const ccstd::string &version) const {
+        if (version == "glsl1") return &glsl1;
+        if (version == "glsl3") return &glsl3;
+        if (version == "glsl4") return &glsl4;
+        return nullptr;
+    }
+    IShaderSource *getSource(const ccstd::string &version) {
         if (version == "glsl1") return &glsl1;
         if (version == "glsl3") return &glsl3;
         if (version == "glsl4") return &glsl4;

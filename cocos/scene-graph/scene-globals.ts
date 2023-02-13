@@ -40,6 +40,7 @@ import { warnID } from '../core/platform/debug';
 import { Material } from '../asset/assets/material';
 import { cclegacy } from '../core';
 import { Scene } from './scene';
+import { NodeEventType } from './node-event';
 
 const _up = new Vec3(0, 1, 0);
 const _v3 = new Vec3();
@@ -48,7 +49,7 @@ const _col = new Color();
 const _qt = new Quat();
 
 // Normalize HDR color
-const normalizeHDRColor = (color : Vec4) => {
+const normalizeHDRColor = (color: Vec4) => {
     const intensity = 1.0 / Math.max(Math.max(Math.max(color.x, color.y), color.z), 0.0001);
     if (intensity < 1.0) {
         color.x *= intensity;
@@ -66,7 +67,7 @@ export class AmbientInfo {
      * @en The sky color in HDR mode
      * @zh HDR 模式下的天空光照色
      */
-    get skyColorHDR () : Readonly<Vec4> {
+    get skyColorHDR (): Readonly<Vec4> {
         return this._skyColorHDR;
     }
 
@@ -74,7 +75,7 @@ export class AmbientInfo {
      * @en The ground color in HDR mode
      * @zh HDR 模式下的地面光照色
      */
-    get groundAlbedoHDR () : Readonly<Vec4> {
+    get groundAlbedoHDR (): Readonly<Vec4> {
         return this._groundAlbedoHDR;
     }
 
@@ -90,7 +91,7 @@ export class AmbientInfo {
      * @en The sky color in LDR mode
      * @zh LDR 模式下的天空光照色
      */
-    get skyColorLDR () : Readonly<Vec4> {
+    get skyColorLDR (): Readonly<Vec4> {
         return this._skyColorLDR;
     }
 
@@ -98,7 +99,7 @@ export class AmbientInfo {
      * @en The ground color in LDR mode
      * @zh LDR 模式下的地面光照色
      */
-    get groundAlbedoLDR () : Readonly<Vec4> {
+    get groundAlbedoLDR (): Readonly<Vec4> {
         return this._groundAlbedoLDR;
     }
 
@@ -418,8 +419,7 @@ export class SkyboxInfo {
      * @zh 旋转天空盒
      */
     @type(CCFloat)
-    @range([0, 360])
-    @rangeStep(1)
+    @range([0, 360, 1])
     @slide
     @tooltip('i18n:skybox.rotationAngle')
     set rotationAngle (val: number) {
@@ -434,7 +434,7 @@ export class SkyboxInfo {
      * @en The optional diffusion convolution map used in tandem with IBL
      * @zh 使用的漫反射卷积图
      */
-    @visible(function (this : SkyboxInfo) {
+    @visible(function (this: SkyboxInfo) {
         if (this.useIBL && this.applyDiffuseMap) {
             return true;
         }
@@ -444,7 +444,7 @@ export class SkyboxInfo {
     @readOnly
     @type(TextureCube)
     @displayOrder(100)
-    set diffuseMap (val : TextureCube | null) {
+    set diffuseMap (val: TextureCube | null) {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             this._diffuseMapHDR = val;
@@ -469,7 +469,7 @@ export class SkyboxInfo {
      * @en Convolutional map using environmental reflections
      * @zh 使用环境反射卷积图
      */
-    @visible(function (this : SkyboxInfo) {
+    @visible(function (this: SkyboxInfo) {
         if (this._resource?.reflectionMap) {
             return true;
         }
@@ -631,7 +631,7 @@ export class FogInfo {
         if (this._resource) { this._resource.fogColor = this._fogColor; }
     }
 
-    get fogColor () : Readonly<Color> {
+    get fogColor (): Readonly<Color> {
         return this._fogColor;
     }
 
@@ -660,8 +660,7 @@ export class FogInfo {
         return this._type !== FogType.LAYERED && this._type !== FogType.LINEAR;
     })
     @type(CCFloat)
-    @range([0, 1])
-    @rangeStep(0.01)
+    @range([0, 1, 0.01])
     @slide
     @tooltip('i18n:fog.fogDensity')
     get fogDensity () {
@@ -849,7 +848,7 @@ export class ShadowsInfo {
         this._shadowColor.set(val);
         if (this._resource) { this._resource.shadowColor = val; }
     }
-    get shadowColor () : Readonly<Color> {
+    get shadowColor (): Readonly<Color> {
         return this._shadowColor;
     }
 
@@ -863,7 +862,7 @@ export class ShadowsInfo {
         Vec3.copy(this._normal, val);
         if (this._resource) { this._resource.normal = val; }
     }
-    get planeDirection () : Readonly<Vec3> {
+    get planeDirection (): Readonly<Vec3> {
         return this._normal;
     }
 
@@ -1093,7 +1092,7 @@ export class LightProbeInfo {
      * @zh GI 采样数量
      */
     @editable
-    @range([64, 65536, 1])
+    @range([64, 65535, 1])
     @type(CCInteger)
     @tooltip('i18n:light_probe.giSamples')
     @displayName('GISamples')
@@ -1238,6 +1237,28 @@ export class LightProbeInfo {
         this._scene = scene;
         this._resource = resource;
         this._resource.initialize(this);
+    }
+
+    public onProbeBakeFinished () {
+        this.onProbeBakingChanged(this._scene);
+    }
+
+    public onProbeBakeCleared () {
+        this.clearSHCoefficients();
+        this.onProbeBakingChanged(this._scene);
+    }
+
+    private onProbeBakingChanged (node: Node | null) {
+        if (!node) {
+            return;
+        }
+
+        node.emit(NodeEventType.LIGHT_PROBE_BAKING_CHANGED);
+
+        for (let i = 0; i < node.children.length; i++) {
+            const child = node.children[i];
+            this.onProbeBakingChanged(child);
+        }
     }
 
     public clearSHCoefficients () {
@@ -1443,6 +1464,14 @@ export class SceneGlobals {
     @editable
     @serializable
     public bakedWithStationaryMainLight = false;
+
+     /**
+     * @en bake lightmap with highp mode
+     * @zh 是否使用高精度模式烘培光照图
+     */
+     @editable
+     @serializable
+     public bakedWithHighpLightmap = false;
 
     /**
      * @en Activate and initialize the global configurations of the scene, no need to invoke manually.

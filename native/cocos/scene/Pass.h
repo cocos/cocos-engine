@@ -263,8 +263,8 @@ public:
     // infos
     inline Root *getRoot() const { return _root; }
     inline gfx::Device *getDevice() const { return _device; }
-    inline IProgramInfo *getShaderInfo() const { return _shaderInfo; }
-    gfx::DescriptorSetLayout *getLocalSetLayout() const;
+    inline const IProgramInfo *getShaderInfo() const { return _shaderInfo; }
+    const gfx::DescriptorSetLayout *getLocalSetLayout() const;
     inline const ccstd::string &getProgram() const { return _programName; }
     inline const Record<ccstd::string, IPropertyInfo> &getProperties() const { return _properties; }
     inline const MacroRecord &getDefines() const { return _defines; }
@@ -276,16 +276,18 @@ public:
     inline const ccstd::vector<IBlockRef> &getBlocks() const { return _blocks; }
     inline ArrayBuffer *getRootBlock() { return _rootBlock; }
     inline bool isRootBufferDirty() const { return _rootBufferDirty; }
-    //NOTE: _setRootBufferDirty must contain a _ prefix to make bindings-generator work correctly.
-    // In ts engine, Pass has rootBufferDirty getter and without setter, but it contains a protected function named _setRootBufferDirty.
-    // If we remove _ prefix in C++, bindings-generator doesn't support to bind rootBufferDirty property as getter and ignore to bind setRootBufferDirty as setter at the same time.
-    // So let's keep the _ prefix temporarily.
+    // NOTE: _setRootBufferDirty must contain a _ prefix to make bindings-generator work correctly.
+    //  In ts engine, Pass has rootBufferDirty getter and without setter, but it contains a protected function named _setRootBufferDirty.
+    //  If we remove _ prefix in C++, bindings-generator doesn't support to bind rootBufferDirty property as getter and ignore to bind setRootBufferDirty as setter at the same time.
+    //  So let's keep the _ prefix temporarily.
     inline void _setRootBufferDirty(bool val) { _rootBufferDirty = val; } // NOLINT(readability-identifier-naming)
     // states
     inline pipeline::RenderPriority getPriority() const { return _priority; }
     inline gfx::PrimitiveMode getPrimitive() const { return _primitive; }
     inline pipeline::RenderPassStage getStage() const { return _stage; }
     inline uint32_t getPhase() const { return _phase; }
+    inline uint32_t getPassID() const { return _passID; }
+    inline uint32_t getPhaseID() const { return _phaseID; }
     inline const gfx::RasterizerState *getRasterizerState() const { return &_rs; }
     inline const gfx::DepthStencilState *getDepthStencilState() const { return &_depthStencilState; }
     inline const gfx::BlendState *getBlendState() const { return &_blendState; }
@@ -306,6 +308,19 @@ public:
     virtual void beginChangeStatesSilently() {}
     virtual void endChangeStatesSilently() {}
 
+private:
+    void buildUniformBlocks(
+        const ccstd::vector<IBlockInfo> &blocks,
+        const ccstd::vector<int32_t> &blockSizes);
+    void buildMaterialUniformBlocks(
+        const ccstd::vector<gfx::UniformBlock> &blocks,
+        const ccstd::vector<int32_t> &blockSizes);
+    void buildUniformBlock(
+        uint32_t binding, int32_t size,
+        gfx::BufferViewInfo &bufferViewInfo,
+        ccstd::vector<uint32_t> &startOffsets,
+        size_t &count);
+
 protected:
     void setState(const gfx::BlendState &bs, const gfx::DepthStencilState &dss, const gfx::RasterizerState &rs, gfx::DescriptorSet *ds);
     void doInit(const IPassInfoFull &info, bool copyDefines = false);
@@ -325,7 +340,7 @@ protected:
     IntrusivePtr<ArrayBuffer> _rootBlock;
     ccstd::vector<IBlockRef> _blocks; // Point to position in _rootBlock
 
-    IProgramInfo *_shaderInfo; // weakref to template of ProgramLib
+    const IProgramInfo *_shaderInfo; // weakref to template of ProgramLib
     MacroRecord _defines;
     Record<ccstd::string, IPropertyInfo> _properties;
     IntrusivePtr<gfx::Shader> _shader;
@@ -335,6 +350,8 @@ protected:
     pipeline::RenderPriority _priority{pipeline::RenderPriority::DEFAULT};
     pipeline::RenderPassStage _stage{pipeline::RenderPassStage::DEFAULT};
     uint32_t _phase{0};
+    uint32_t _passID{0xFFFFFFFF};
+    uint32_t _phaseID{0xFFFFFFFF};
     ccstd::string _phaseString;
     gfx::PrimitiveMode _primitive{gfx::PrimitiveMode::TRIANGLE_LIST};
     BatchingSchemes _batchingScheme{BatchingSchemes::NONE};

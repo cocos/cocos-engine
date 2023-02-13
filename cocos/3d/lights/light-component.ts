@@ -221,8 +221,8 @@ export class Light extends Component {
     }
 
     /**
-     * @en Visibility mask of the light, declaring a set of node layers that will be visible to this light(Does not work with directional light).
-     * @zh 光照的可见性掩码，声明在当前光照中可见的节点层级集合（对方向光不生效）。
+     * @en Visibility mask of the light, declaring a set of node layers that will be visible to this light.
+     * @zh 光照的可见性掩码，声明在当前光照中可见的节点层级集合。
      */
     @tooltip('i18n:lights.visibility')
     @displayOrder(255)
@@ -230,6 +230,7 @@ export class Light extends Component {
     set visibility (vis: number) {
         this._visibility = vis;
         if (this._light) { this._light.visibility = vis; }
+        this._onUpdateReceiveDirLight();
     }
     get visibility (): number {
         return this._visibility;
@@ -315,4 +316,6 @@ export class Light extends Component {
             }
         }
     }
+
+    protected _onUpdateReceiveDirLight () {}
 }

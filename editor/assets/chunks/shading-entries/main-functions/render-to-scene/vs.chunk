@@ -9,7 +9,8 @@ void main()
   In.normal.xyz = SurfacesVertexModifyLocalNormal(In);
   #if CC_SURFACES_USE_TANGENT_SPACE
     In.tangent = SurfacesVertexModifyLocalTangent(In);
-  #endif    
+  #endif
+  SurfacesVertexModifyLocalSharedData(In);
 
   // World Space
   CCSurfacesVertexWorldTransform(In);
@@ -20,12 +21,12 @@ void main()
   In.clipPos = SurfacesVertexModifyClipPos(In);
 
   // Other Surfaces Function
-  SurfacesVertexModifyUV(In);
-  SurfacesVertexModifySharedData(In);
-
   vec3 viewDirect = normalize(cc_cameraPos.xyz - In.worldPos);
   In.worldNormal.w = dot(In.worldNormal.xyz, viewDirect) < 0.0 ? -1.0 : 1.0;
   In.worldNormal.xyz = SurfacesVertexModifyWorldNormal(In);
+
+  SurfacesVertexModifyUV(In);
+  SurfacesVertexModifySharedData(In);
 
   // Other Data
   CCSurfacesVertexTransformUV(In);  

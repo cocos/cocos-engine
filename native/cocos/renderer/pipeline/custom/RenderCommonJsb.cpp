@@ -59,6 +59,9 @@ bool nativevalue_to_se(const cc::render::RasterView &from, se::Value &to, se::Ob
     nativevalue_to_se(from.clearColor, tmp, ctx);
     obj->setProperty("clearColor", tmp);
 
+    nativevalue_to_se(from.slotID, tmp, ctx);
+    obj->setProperty("slotID", tmp);
+
     to.setObject(obj);
     return true;
 }
@@ -261,6 +264,10 @@ bool sevalue_to_native<cc::render::RasterView>(const se::Value &from, cc::render
     obj->getProperty("clearColor", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->clearColor), ctx);
+    }
+    obj->getProperty("slotID", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->slotID), ctx);
     }
     return ok;
 }

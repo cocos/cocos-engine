@@ -33,6 +33,18 @@ const Destroying = CCObject.Flags.Destroying;
 const IS_PREVIEW = !!legacyCC.GAME_VIEW;
 
 export function nodePolyfill (Node) {
+    if ((EDITOR && !IS_PREVIEW) || TEST) {
+        Node.prototype._onPreDestroy = function () {
+            const destroyByParent: boolean = this._onPreDestroyBase();
+            if (!destroyByParent) {
+                // ensure this node can reattach to scene by undo system
+                // (simulate some destruct logic to make undo system work correctly)
+                this._parent = null;
+            }
+            return destroyByParent;
+        };
+    }
+
     if (EDITOR || TEST) {
         Node.prototype._checkMultipleComp = function (ctor) {
             const existing = this.getComponent(ctor._disallowMultiple);
@@ -71,8 +83,6 @@ export function nodePolyfill (Node) {
             }
             return dependant;
         };
-    }
-    if ((EDITOR && !IS_PREVIEW) || TEST) {
         /**
          * This api should only used by undo system
          * @method _addComponentAt
@@ -133,21 +143,8 @@ export function nodePolyfill (Node) {
                 legacyCC.director._nodeActivator.activateNode(this, shouldActiveNow);
             }
         };
-
-        Node.prototype._onPreDestroy = function () {
-            const destroyByParent: boolean = this._onPreDestroyBase();
-            if (!destroyByParent) {
-                // ensure this node can reattach to scene by undo system
-                // (simulate some destruct logic to make undo system work correctly)
-                this._parent = null;
-            }
-            return destroyByParent;
-        };
-
         Node.prototype._onRestoreBase = Node.prototype.onRestore;
-    }
 
-    if ((EDITOR && !IS_PREVIEW) || TEST) {
         Node.prototype._registerIfAttached = function (register) {
             if (!this._id) {
                 console.warn(`Node(${this && this.name}}) is invalid or its data is corrupted.`);

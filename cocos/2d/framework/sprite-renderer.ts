@@ -50,8 +50,8 @@ enum SpriteMode {
 @executeInEditMode
 export class SpriteRenderer extends ModelRenderer {
     /**
-    * @en The spriteFrame that the component should render
-    * @zh 该组件应渲染的 spriteFrame
+    * @en The spriteFrame that the component should render.
+    * @zh 该组件应渲染的 spriteFrame。
     */
     @type(SpriteFrame)
     get spriteFrame () {
@@ -78,8 +78,8 @@ export class SpriteRenderer extends ModelRenderer {
     }
 
     /**
-     * @en Rendering model of the component
-     * @zh 该组件的渲染模型
+     * @en Rendering model of the component.
+     * @zh 该组件的渲染模型。
      */
     get model () {
         return this._model;

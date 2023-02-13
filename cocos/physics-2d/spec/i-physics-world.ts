@@ -38,4 +38,5 @@ export interface IPhysicsWorld {
     testPoint (p: Vec2): readonly Collider2D[];
     testAABB (rect: Rect): readonly Collider2D[];
     drawDebug (): void;
+    finalizeContactEvent(): void
 }

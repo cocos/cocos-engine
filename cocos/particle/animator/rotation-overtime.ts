@@ -32,11 +32,22 @@ import { isCurveTwoValues } from '../particle-general-function';
 
 const ROTATION_OVERTIME_RAND_OFFSET = ModuleRandSeed.ROTATION;
 
+/**
+ * @en
+ * This module will apply rotation to particle over life time.
+ * Open the separateAxes option you can change the rotation on XYZ axis
+ * Rotation on every axis is curve so you can modify these curves to see how it animate.
+ * @zh
+ * 本模块用于在粒子生命周期内对粒子施加旋转角速度。
+ * 打开 separateAxes 就能够修改粒子在三个轴方向的旋转角速度大小。
+ * 每个轴上的旋转角速度都是可以用曲线来进行编辑，修改曲线就能够看到粒子受力变化的效果了。
+ */
 @ccclass('cc.RotationOvertimeModule')
 export default class RotationOvertimeModule extends ParticleModuleBase {
     @serializable
     _enable = false;
     /**
+     * @en Enable this module or not.
      * @zh 是否启用。
      */
     @displayOrder(0)
@@ -55,7 +66,8 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
     private _separateAxes = false;
 
     /**
-     * @zh 是否三个轴分开设定旋转（暂不支持）。
+     * @en Rotation around separate axis.
+     * @zh 是否三个轴分开设定旋转。
      */
     @displayOrder(1)
     @tooltip('i18n:rotationOvertimeModule.separateAxes')
@@ -68,6 +80,7 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
     }
 
     /**
+     * @en Angle around X axis.
      * @zh 绕 X 轴设定旋转。
      */
     @type(CurveRange)
@@ -79,6 +92,7 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
     public x = new CurveRange();
 
     /**
+     * @en Angle around Y axis.
      * @zh 绕 Y 轴设定旋转。
      */
     @type(CurveRange)
@@ -90,6 +104,7 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
     public y = new CurveRange();
 
     /**
+     * @en Angle around Z axis.
      * @zh 绕 Z 轴设定旋转。
      */
     @type(CurveRange)
@@ -121,6 +136,13 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
         }
     }
 
+    /**
+     * @en Apply rotation to particle.
+     * @zh 作用旋转到粒子上。
+     * @param p @en Particle to animate @zh 模块需要更新的粒子
+     * @param dt @en Update interval time @zh 粒子系统更新的间隔时间
+     * @internal
+     */
     public animate (p: Particle, dt: number) {
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
         const randZ = isCurveTwoValues(this.z) ? pseudoRandom(p.randomSeed + ROTATION_OVERTIME_RAND_OFFSET) : 0;

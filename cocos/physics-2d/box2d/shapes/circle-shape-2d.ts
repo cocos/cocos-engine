@@ -40,14 +40,14 @@ export class b2CircleShape extends b2Shape2D implements ICircleShape {
         return this._worldPosition.set(p.x * PHYSICS_2D_PTM_RATIO, p.y * PHYSICS_2D_PTM_RATIO);
     }
 
-    _createShapes (scaleX: number, scaleY: number) {
+    _createShapes (scaleX: number, scaleY: number, relativePositionX: number, relativePositionY: number) {
         scaleX = Math.abs(scaleX);
         scaleY = Math.abs(scaleY);
 
         const comp = this.collider as CircleCollider2D;
 
-        const offsetX = comp.offset.x / PHYSICS_2D_PTM_RATIO * scaleX;
-        const offsetY = comp.offset.y / PHYSICS_2D_PTM_RATIO * scaleY;
+        const offsetX = (relativePositionX + comp.offset.x * scaleX) / PHYSICS_2D_PTM_RATIO;
+        const offsetY = (relativePositionY + comp.offset.y * scaleY) / PHYSICS_2D_PTM_RATIO;
 
         const shape = new b2.CircleShape();
         shape.m_radius = comp.radius / PHYSICS_2D_PTM_RATIO * scaleX;

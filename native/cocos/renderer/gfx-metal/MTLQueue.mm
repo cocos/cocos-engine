@@ -73,6 +73,12 @@ void CCMTLQueue::submit(CommandBuffer *const *cmdBuffs, uint32_t count) {
         [mtlCmdBuffer commit];
         cmdBuffer->reset();
     }
+    CCMTLCommandBuffer* transferCmdBuffer = static_cast<CCMTLCommandBuffer*>(CCMTLDevice::getInstance()->transferCommandBuffer());
+    id<MTLCommandBuffer> mtlCmdBuffer = transferCmdBuffer->gpuCommandBufferObj()->mtlCommandBuffer;
+    if(mtlCmdBuffer) {
+        [mtlCmdBuffer commit];
+        transferCmdBuffer->reset();
+    }
 }
 
 } // namespace gfx

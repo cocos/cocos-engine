@@ -166,7 +166,7 @@ export class Tween<T> {
 
     /**
      * @en
-     * Add an action which calculate with absolute value.
+     * Add an action which calculates with absolute value.
      * @zh
      * 添加一个对属性进行绝对值计算的 action。
      * @method to
@@ -186,7 +186,7 @@ export class Tween<T> {
 
     /**
      * @en
-     * Add an action which calculate with relative value.
+     * Add an action which calculates with relative value.
      * @zh
      * 添加一个对属性进行相对值计算的 action。
      * @method by
@@ -222,7 +222,7 @@ export class Tween<T> {
 
     /**
      * @en
-     * Add an delay action.
+     * Add a delay action.
      * @zh
      * 添加一个延时 action。
      * @method delay
@@ -237,7 +237,7 @@ export class Tween<T> {
 
     /**
      * @en
-     * Add an callback action.
+     * Add a callback action.
      * @zh
      * 添加一个回调 action。
      * @method call
@@ -253,7 +253,7 @@ export class Tween<T> {
 
     /**
      * @en
-     * Add an sequence action.
+     * Add a sequence action.
      * @zh
      * 添加一个队列 action。
      * @method sequence
@@ -267,7 +267,7 @@ export class Tween<T> {
 
     /**
      * @en
-     * Add an parallel action.
+     * Add a parallel action.
      * @zh
      * 添加一个并行 action。
      * @method parallel
@@ -281,7 +281,7 @@ export class Tween<T> {
 
     /**
      * @en
-     * Add an repeat action.
+     * Add a repeat action.
      * This action will integrate before actions to a sequence action as their parameters.
      * @zh
      * 添加一个重复 action，这个 action 会将前一个动作作为他的参数。
@@ -309,7 +309,7 @@ export class Tween<T> {
 
     /**
      * @en
-     * Add an repeat forever action.
+     * Add a repeat forever action.
      * This action will integrate before actions to a sequence action as their parameters.
      * @zh
      * 添加一个永久重复 action，这个 action 会将前一个动作作为他的参数。
@@ -332,7 +332,7 @@ export class Tween<T> {
 
     /**
      * @en
-     * Add an reverse time action.
+     * Add a reverse time action.
      * This action will integrate before actions to a sequence action as their parameters.
      * @zh
      * 添加一个倒置时间 action，这个 action 会将前一个动作作为他的参数。
@@ -355,7 +355,7 @@ export class Tween<T> {
 
     /**
      * @en
-     * Add an hide action, only for node target.
+     * Add a hide action, only for node target.
      * @zh
      * 添加一个隐藏 action，只适用于 target 是节点类型的。
      */
@@ -367,7 +367,7 @@ export class Tween<T> {
 
     /**
      * @en
-     * Add an show action, only for node target.
+     * Add a show action, only for node target.
      * @zh
      * 添加一个显示 action，只适用于 target 是节点类型的。
      */
@@ -379,7 +379,7 @@ export class Tween<T> {
 
     /**
      * @en
-     * Add an removeSelf action, only for node target.
+     * Add a removeSelf action, only for node target.
      * @zh
      * 添加一个移除自己 action，只适用于 target 是节点类型的。
      */
