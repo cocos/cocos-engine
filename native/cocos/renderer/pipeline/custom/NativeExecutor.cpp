@@ -137,6 +137,22 @@ uint32_t getRasterPassPreserveCount(const RasterPass& pass) {
     return 0;
 }
 
+gfx::GeneralBarrier *getGeneralBarrier(gfx::Device *device, const RasterView &view) {
+    if (view.accessType != AccessType::WRITE) { // Input
+        return device->getGeneralBarrier({
+            gfx::AccessFlagBit::COLOR_ATTACHMENT_READ,
+            gfx::AccessFlagBit::COLOR_ATTACHMENT_READ,
+        });
+    }
+
+    if (view.accessType != AccessType::READ) { // Output
+        auto accessFlagBit = view.attachmentType == AttachmentType::RENDER_TARGET ?
+            gfx::AccessFlagBit::COLOR_ATTACHMENT_WRITE : gfx::AccessFlagBit::DEPTH_STENCIL_ATTACHMENT_WRITE;
+        return device->getGeneralBarrier({accessFlagBit, accessFlagBit});
+    }
+    return nullptr;
+}
+
 PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
     RenderGraphVisitorContext& ctx, const RasterPass& pass,
     boost::container::pmr::memory_resource* scratch) {
@@ -186,7 +202,7 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
                         desc.sampleCount,
                         view.loadOp,
                         view.storeOp,
-                        nullptr,
+                        getGeneralBarrier(ctx.device, view),
                         hasFlag(desc.textureFlags, gfx::TextureFlags::GENERAL_LAYOUT),
                     });
                 if (view.accessType != AccessType::WRITE) { // Input
@@ -239,7 +255,7 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
                 dsv.depthStoreOp = view.storeOp;
                 dsv.stencilLoadOp = view.loadOp;
                 dsv.stencilStoreOp = view.storeOp;
-                dsv.barrier = nullptr;
+                dsv.barrier = getGeneralBarrier(ctx.device, view);
                 dsv.isGeneralLayout = hasFlag(desc.textureFlags, gfx::TextureFlags::GENERAL_LAYOUT);
 
                 CC_EXPECTS(numTotalAttachments > 0);
