@@ -215,6 +215,7 @@ CCProgram terrain-vs %{
   precision highp float;
   #include <builtin/uniforms/cc-local>
   // 1. surface internal macros, for technique usage or remapping some user (material) macros to surface internal macros
+  #include <macro-remapping>
   #include <surfaces/effect-macros/terrain>
 
   // 2. common include with corresponding shader stage, include before surface functions
@@ -247,6 +248,7 @@ CCProgram terrain-fs %{
 
   precision highp float;
   // 1. surface internal macros, for technique usage or remapping some user (material) macros to surface internal macros
+  #include <macro-remapping>
   #include <surfaces/effect-macros/terrain>
 
   // 2. common include with corresponding shader stage, include before surface functions

@@ -316,7 +316,7 @@ CCProgram surface-fragment %{
   // see <lighting-models/default-functions/XXXX> for more overrided functions, XXXX is lighting-model name
   #include <lighting-models/includes/common>
   #define CC_SURFACES_LIGHTING_MODIFY_FINAL_RESULT
-  void SurfacesLightingModifyFinalResult(inout LightingResult result, in LightingIntermediateData lightingData, in SurfacesMaterialData surfaceData)
+  void SurfacesLightingModifyFinalResult(inout LightingResult result, in LightingIntermediateData lightingData, in SurfacesMaterialData surfaceData, in LightingMiscData miscData)
   {
   }*/
 }%

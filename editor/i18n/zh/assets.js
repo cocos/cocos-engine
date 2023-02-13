@@ -92,18 +92,18 @@ module.exports = {
             frag: 'Fragment Shader',
         },
         image: {
-            type: 'Type',
-            typeTip: 'Type',
+            type: '类型',
+            typeTip: '类型',
             // bakeOfflineMipmaps: 'Bake Offline Mipmaps',
             // bakeOfflineMipmapsTip: 'Bake Offline Mipmaps',
-            flipVertical: 'Flip Vertical',
-            flipVerticalTip: 'Flip Vertical',
-            fixAlphaTransparencyArtifacts: 'Fix Alpha Transparency Artifacts',
+            flipVertical: '垂直翻转',
+            flipVerticalTip: '垂直翻转',
+            fixAlphaTransparencyArtifacts: '消除透明伪影',
             fixAlphaTransparencyArtifactsTip:
                 '为全透明像素填充相邻像素的颜色，防止纹理过滤引起的黑边问题。当使用 Alpha 透明通道时，请启用此功能。',
-            isRGBE: 'Is RGBE',
-            isRGBETip: 'Is RGBE',
-            flipGreenChannel: '翻转绿通道',
+            isRGBE: '作为 RGBE 格式',
+            isRGBETip: '作为 RGBE 格式',
+            flipGreenChannel: '翻转绿色通道',
         },
         spriteFrame: {
             packable: 'Packable',
@@ -291,7 +291,7 @@ module.exports = {
                     '若不勾选，网格数据被提交到 GPU 后会被自动释放。<br>',
             },
             meshOptimizer: {
-                name: 'Mesh Optimizer',
+                name: 'Mesh 优化',
                 title: 'Mesh Optimizer',
                 simplification: {
                     name: 'Simplification',
@@ -338,6 +338,22 @@ module.exports = {
                     targetRatio: {
                         name: 'LOD 压缩比例',
                         title: 'Target Ratio',
+                    },
+                    preserveSurfaceCurvature: {
+                        name: '保留表面曲率',
+                        title: 'Preserve Surface Curvature',
+                    },
+                    preserveBorderEdges: {
+                        name: '保留边界边',
+                        title: 'Preserve Border Edges',
+                    },
+                    preserveUVSeamEdges: {
+                        name: '保留 UV 缝合边',
+                        title: 'Preserve UV Seam Edges',
+                    },
+                    preserveUVFoldoverEdges: {
+                        name: '保留 UV 折叠边',
+                        title: 'Preserve UV Foldover Edges',
                     },
                     enableSmartLink: {
                         name: '防止破面',

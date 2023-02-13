@@ -414,27 +414,53 @@ void Pass::resetTexture(const ccstd::string &name, uint32_t index) {
 }
 
 void Pass::resetUBOs() {
-    for (const auto &u : _shaderInfo->blocks) {
+    auto updateBuffer = [&](const IBlockInfo &u) {
         uint32_t ofs = 0;
         for (const auto &cur : u.members) {
             const auto &block = _blocks[u.binding];
             const auto &info = _properties[cur.name];
             const auto &givenDefault = info.value;
-            const auto &value = (givenDefault.has_value() ? ccstd::get<ccstd::vector<float>>(givenDefault.value()) : getDefaultFloatArrayFromType(cur.type));
+            const auto &value =
+                (givenDefault.has_value()
+                     ? ccstd::get<ccstd::vector<float>>(givenDefault.value())
+                     : getDefaultFloatArrayFromType(cur.type));
             const uint32_t size = (gfx::getTypeSize(cur.type) >> 2) * cur.count;
             for (size_t k = 0; (k + value.size()) <= size; k += value.size()) {
                 std::copy(value.begin(), value.end(), block.data + ofs + k);
             }
             ofs += size;
         }
+    };
+    auto *programLib = render::getProgramLibrary();
+    if (programLib) {
+        const auto &set = _shaderInfo->descriptors.at(
+            static_cast<size_t>(pipeline::SetIndex::MATERIAL));
+        for (const auto &block : set.blocks) {
+            updateBuffer(block);
+        }
+    } else {
+        for (const auto &u : _shaderInfo->blocks) {
+            updateBuffer(u);
+        }
+        _rootBufferDirty = true;
     }
-    _rootBufferDirty = true;
 }
 
 void Pass::resetTextures() {
-    for (const auto &u : _shaderInfo->samplerTextures) {
-        for (int32_t j = 0; j < u.count; j++) {
-            resetTexture(u.name, j);
+    auto *programLib = render::getProgramLibrary();
+    if (programLib) {
+        const auto &set = _shaderInfo->descriptors.at(
+            static_cast<size_t>(pipeline::SetIndex::MATERIAL));
+        for (const auto &combined : set.samplerTextures) {
+            for (int32_t j = 0; j < combined.count; j++) {
+                resetTexture(combined.name, j);
+            }
+        }
+    } else {
+        for (const auto &u : _shaderInfo->samplerTextures) {
+            for (int32_t j = 0; j < u.count; j++) {
+                resetTexture(u.name, j);
+            }
         }
     }
 }
@@ -630,10 +656,10 @@ void Pass::doInit(const IPassInfoFull &info, bool /*copyDefines*/ /* = false */)
 
     // calculate total size required
     const auto &blocks = _shaderInfo->blocks;
-    const auto *tmplInfo
-        = programLib2
-        ? nullptr
-        : programLib->getTemplateInfo(info.program);
+    const auto *tmplInfo =
+        programLib2
+            ? nullptr
+            : programLib->getTemplateInfo(info.program);
     const auto &blockSizes = [&]() -> const auto & {
         if (programLib2) {
             return programLib2->getBlockSizes(_phaseID, _programName);
@@ -808,6 +834,8 @@ void Pass::initPassFromTarget(Pass *target, const gfx::DepthStencilState &dss, c
     _priority = target->_priority;
     _stage = target->_stage;
     _phase = target->_phase;
+    _passID = target->_passID;
+    _phaseID = target->_phaseID;
     _batchingScheme = target->_batchingScheme;
     _primitive = target->_primitive;
     _dynamicStates = target->_dynamicStates;
@@ -827,7 +855,12 @@ void Pass::initPassFromTarget(Pass *target, const gfx::DepthStencilState &dss, c
 
     _shader = target->_shader;
 
-    _pipelineLayout = ProgramLib::getInstance()->getTemplateInfo(_programName)->pipelineLayout;
+    auto *programLib = render::getProgramLibrary();
+    if (programLib) {
+        _pipelineLayout = programLib->getPipelineLayout(_device, _phaseID, _programName);
+    } else {
+        _pipelineLayout = ProgramLib::getInstance()->getTemplateInfo(_programName)->pipelineLayout;
+    }
     _hash = target->_hash ^ hashFactor;
 }
 

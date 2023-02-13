@@ -4395,6 +4395,7 @@ bool js_register_cc_pipeline_UBOGlobal(se::Object* obj) {
     cls->defineStaticProperty("DEBUG_VIEW_COMPOSITE_PACK_1_OFFSET", nullptr, nullptr); 
     cls->defineStaticProperty("DEBUG_VIEW_COMPOSITE_PACK_2_OFFSET", nullptr, nullptr); 
     cls->defineStaticProperty("DEBUG_VIEW_COMPOSITE_PACK_3_OFFSET", nullptr, nullptr); 
+    cls->defineStaticProperty("DEBUG_VIEW_COMPOSITE_PACK_4_OFFSET", nullptr, nullptr); 
     cls->defineStaticProperty("COUNT", nullptr, nullptr); 
     cls->defineStaticProperty("SIZE", nullptr, nullptr); 
     cls->defineStaticProperty("BINDING", nullptr, nullptr); 
@@ -7879,7 +7880,7 @@ static bool js_cc_pipeline_RenderPipeline_genQuadVertexData(se::State& s)
     size_t argc = args.size();
     cc::pipeline::RenderPipeline *arg1 = (cc::pipeline::RenderPipeline *) NULL ;
     cc::Vec4 *arg2 = 0 ;
-    float *arg3 = (float *) NULL ;
+    float *arg3 ;
     cc::Vec4 temp2 ;
     
     if(argc != 2) {

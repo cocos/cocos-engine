@@ -1413,6 +1413,29 @@ static bool js_cc_gi_LightProbesData_updateTetrahedrons(se::State& s)
 }
 SE_BIND_FUNC(js_cc_gi_LightProbesData_updateTetrahedrons) 
 
+static bool js_cc_gi_LightProbesData_hasCoefficients(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gi::LightProbesData *arg1 = (cc::gi::LightProbesData *) NULL ;
+    bool result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::gi::LightProbesData>(s);
+    if (nullptr == arg1) return true;
+    result = (bool)((cc::gi::LightProbesData const *)arg1)->hasCoefficients();
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_gi_LightProbesData_hasCoefficients) 
+
 static bool js_cc_gi_LightProbesData_getInterpolationSHCoefficients(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -1672,6 +1695,7 @@ bool js_register_cc_gi_LightProbesData(se::Object* obj) {
     cls->defineFunction("reset", _SE(js_cc_gi_LightProbesData_reset)); 
     cls->defineFunction("updateProbes", _SE(js_cc_gi_LightProbesData_updateProbes)); 
     cls->defineFunction("updateTetrahedrons", _SE(js_cc_gi_LightProbesData_updateTetrahedrons)); 
+    cls->defineFunction("hasCoefficients", _SE(js_cc_gi_LightProbesData_hasCoefficients)); 
     cls->defineFunction("getInterpolationSHCoefficients", _SE(js_cc_gi_LightProbesData_getInterpolationSHCoefficients)); 
     cls->defineFunction("getInterpolationWeights", _SE(js_cc_gi_LightProbesData_getInterpolationWeights)); 
     
@@ -2427,6 +2451,46 @@ static bool js_cc_gi_LightProbeInfo_activate(se::State& s)
     return true;
 }
 SE_BIND_FUNC(js_cc_gi_LightProbeInfo_activate) 
+
+static bool js_cc_gi_LightProbeInfo_onProbeBakeFinished(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gi::LightProbeInfo *arg1 = (cc::gi::LightProbeInfo *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::gi::LightProbeInfo>(s);
+    if (nullptr == arg1) return true;
+    (arg1)->onProbeBakeFinished();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_gi_LightProbeInfo_onProbeBakeFinished) 
+
+static bool js_cc_gi_LightProbeInfo_onProbeBakeCleared(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gi::LightProbeInfo *arg1 = (cc::gi::LightProbeInfo *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::gi::LightProbeInfo>(s);
+    if (nullptr == arg1) return true;
+    (arg1)->onProbeBakeCleared();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_gi_LightProbeInfo_onProbeBakeCleared) 
 
 static bool js_cc_gi_LightProbeInfo_clearSHCoefficients(se::State& s)
 {
@@ -3204,6 +3268,8 @@ bool js_register_cc_gi_LightProbeInfo(se::Object* obj) {
     cls->defineProperty("data", _SE(js_cc_gi_LightProbeInfo_data_get), _SE(js_cc_gi_LightProbeInfo_data_set)); 
     
     cls->defineFunction("activate", _SE(js_cc_gi_LightProbeInfo_activate)); 
+    cls->defineFunction("onProbeBakeFinished", _SE(js_cc_gi_LightProbeInfo_onProbeBakeFinished)); 
+    cls->defineFunction("onProbeBakeCleared", _SE(js_cc_gi_LightProbeInfo_onProbeBakeCleared)); 
     cls->defineFunction("clearSHCoefficients", _SE(js_cc_gi_LightProbeInfo_clearSHCoefficients)); 
     cls->defineFunction("isUniqueNode", _SE(js_cc_gi_LightProbeInfo_isUniqueNode)); 
     cls->defineFunction("addNode", _SE(js_cc_gi_LightProbeInfo_addNode)); 

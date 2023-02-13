@@ -831,6 +831,10 @@ using namespace cc;
 #define cc_scene_Model_reflectionProbeType_set(self_, val_) self_->setReflectionProbeType(val_)
   
 
+#define cc_scene_Model_receiveDirLight_get(self_) self_->isReceiveDirLight()
+#define cc_scene_Model_receiveDirLight_set(self_, val_) self_->setReceiveDirLight(val_)
+  
+
 #define cc_scene_SubModel_passes_get(self_) self_->getPasses()
 #define cc_scene_SubModel_passes_set(self_, val_) self_->setPasses(val_)
   
@@ -15297,6 +15301,43 @@ static bool js_cc_scene_Model_reflectionProbeType_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_scene_Model_reflectionProbeType_get) 
 
+static bool js_cc_scene_Model_receiveDirLight_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::Model *arg1 = (cc::scene::Model *) NULL ;
+    bool arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::Model>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2);
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    cc_scene_Model_receiveDirLight_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_scene_Model_receiveDirLight_set) 
+
+static bool js_cc_scene_Model_receiveDirLight_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::scene::Model *arg1 = (cc::scene::Model *) NULL ;
+    bool result;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::Model>(s);
+    if (nullptr == arg1) return true;
+    result = (bool)cc_scene_Model_receiveDirLight_get(arg1);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_scene_Model_receiveDirLight_get) 
+
 bool js_register_cc_scene_Model(se::Object* obj) {
     auto* cls = se::Class::create("Model", obj, nullptr, _SE(js_new_cc_scene_Model)); 
     
@@ -15328,6 +15369,7 @@ bool js_register_cc_scene_Model(se::Object* obj) {
     cls->defineProperty("useLightProbe", _SE(js_cc_scene_Model_useLightProbe_get), _SE(js_cc_scene_Model_useLightProbe_set)); 
     cls->defineProperty("bakeToReflectionProbe", _SE(js_cc_scene_Model_bakeToReflectionProbe_get), _SE(js_cc_scene_Model_bakeToReflectionProbe_set)); 
     cls->defineProperty("reflectionProbeType", _SE(js_cc_scene_Model_reflectionProbeType_get), _SE(js_cc_scene_Model_reflectionProbeType_set)); 
+    cls->defineProperty("receiveDirLight", _SE(js_cc_scene_Model_receiveDirLight_get), _SE(js_cc_scene_Model_receiveDirLight_set)); 
     
     cls->defineFunction("destroy", _SE(js_cc_scene_Model_destroy)); 
     cls->defineFunction("initSubModel", _SE(js_cc_scene_Model_initSubModel)); 
@@ -17987,6 +18029,52 @@ static bool js_cc_scene_Pass_getRootBlock(se::State& s)
 }
 SE_BIND_FUNC(js_cc_scene_Pass_getRootBlock) 
 
+static bool js_cc_scene_Pass_getPassID(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::Pass *arg1 = (cc::scene::Pass *) NULL ;
+    uint32_t result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::Pass>(s);
+    if (nullptr == arg1) return true;
+    result = ((cc::scene::Pass const *)arg1)->getPassID();
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_Pass_getPassID) 
+
+static bool js_cc_scene_Pass_getPhaseID(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::Pass *arg1 = (cc::scene::Pass *) NULL ;
+    uint32_t result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::Pass>(s);
+    if (nullptr == arg1) return true;
+    result = ((cc::scene::Pass const *)arg1)->getPhaseID();
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_Pass_getPhaseID) 
+
 static bool js_cc_scene_Pass__updatePassHash(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -18570,6 +18658,8 @@ bool js_register_cc_scene_Pass(se::Object* obj) {
     cls->defineFunction("getShaderVariant", _SE(js_cc_scene_Pass_getShaderVariant)); 
     cls->defineFunction("getPassInfoFull", _SE(js_cc_scene_Pass_getPassInfoFull)); 
     cls->defineFunction("getRootBlock", _SE(js_cc_scene_Pass_getRootBlock)); 
+    cls->defineFunction("getPassID", _SE(js_cc_scene_Pass_getPassID)); 
+    cls->defineFunction("getPhaseID", _SE(js_cc_scene_Pass_getPhaseID)); 
     cls->defineFunction("_updatePassHash", _SE(js_cc_scene_Pass__updatePassHash)); 
     cls->defineFunction("beginChangeStatesSilently", _SE(js_cc_scene_Pass_beginChangeStatesSilently)); 
     cls->defineFunction("endChangeStatesSilently", _SE(js_cc_scene_Pass_endChangeStatesSilently)); 

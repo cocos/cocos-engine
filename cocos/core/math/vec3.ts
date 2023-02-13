@@ -305,8 +305,8 @@ export class Vec3 extends ValueType {
     }
 
     /**
-     * @en Sets the normalized vector to the out vector
-     * @zh 归一化向量
+     * @en Sets the normalized vector to the out vector, returns a zero vector if input is a zero vector.
+     * @zh 归一化向量，输入零向量将会返回零向量。
      */
     public static normalize<Out extends IVec3Like> (out: Out, a: IVec3Like) {
         const x = a.x;
@@ -319,6 +319,10 @@ export class Vec3 extends ValueType {
             out.x = x * len;
             out.y = y * len;
             out.z = z * len;
+        } else {
+            out.x = 0;
+            out.y = 0;
+            out.z = 0;
         }
         return out;
     }
@@ -699,15 +703,16 @@ export class Vec3 extends ValueType {
      * @zh 求两向量夹角弧度
      */
     public static angle (a: IVec3Like, b: IVec3Like) {
-        Vec3.normalize(v3_1, a);
-        Vec3.normalize(v3_2, b);
-        const cosine = Vec3.dot(v3_1, v3_2);
-        if (cosine > 1.0) {
-            return 0;
+        const magSqr1 = a.x * a.x + a.y * a.y + a.z * a.z;
+        const magSqr2 = b.x * b.x + b.y * b.y + b.z * b.z;
+
+        if (magSqr1 === 0 || magSqr2 === 0) {
+            return 0.0;
         }
-        if (cosine < -1.0) {
-            return Math.PI;
-        }
+
+        const dot = a.x * b.x + a.y * b.y + a.z * b.z;
+        let cosine = dot / (Math.sqrt(magSqr1 * magSqr2));
+        cosine = clamp(cosine, -1.0, 1.0);
         return Math.acos(cosine);
     }
 
@@ -1088,6 +1093,7 @@ export class Vec3 extends ValueType {
             this.y = y * len;
             this.z = z * len;
         }
+
         return this;
     }
 
@@ -1108,9 +1114,6 @@ export class Vec3 extends ValueType {
         return this;
     }
 }
-
-const v3_1 = new Vec3();
-const v3_2 = new Vec3();
 
 CCClass.fastDefine('cc.Vec3', Vec3, { x: 0, y: 0, z: 0 });
 legacyCC.Vec3 = Vec3;

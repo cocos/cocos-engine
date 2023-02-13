@@ -751,6 +751,9 @@ export class Game extends EventTarget {
                 screen.init();
                 garbageCollectionManager.init();
                 deviceManager.init(this.canvas, bindingMappingInfo);
+                if (macro.CUSTOM_PIPELINE_NAME === '') {
+                    cclegacy.rendering = undefined;
+                }
                 assetManager.init();
                 builtinResMgr.init();
                 Layers.init();

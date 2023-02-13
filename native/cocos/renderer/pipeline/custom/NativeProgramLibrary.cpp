@@ -23,10 +23,14 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include <boost/algorithm/string.hpp>
+#include <boost/container/pmr/global_resource.hpp>
 #include <boost/container/pmr/memory_resource.hpp>
+#include <sstream>
 #include <stdexcept>
 #include <tuple>
 #include <utility>
+#include <cctype>
 #include "LayoutGraphGraphs.h"
 #include "LayoutGraphUtils.h"
 #include "NativePipelineTypes.h"
@@ -128,51 +132,59 @@ IProgramInfo makeProgramInfo(const ccstd::string &effectName, const IShaderInfo 
     return programInfo;
 }
 
-std::tuple<std::string_view, gfx::Type> getDescriptorNameAndType(
-    const pipeline::DescriptorSetLayoutInfos &source,
-    uint32_t binding) {
+ccstd::pmr::vector<std::tuple<ccstd::pmr::string, gfx::Type>> getDescriptorNameAndType(
+    const pipeline::DescriptorSetLayoutInfos &source, uint32_t binding,
+    boost::container::pmr::memory_resource *scratch) {
+    ccstd::pmr::vector<std::tuple<ccstd::pmr::string, gfx::Type>> results(scratch);
+
     for (const auto &[name, block] : source.blocks) {
         if (block.binding == binding) {
-            return {name, gfx::Type::UNKNOWN};
+            results.emplace_back(std::tuple{name, gfx::Type::UNKNOWN});
         }
     }
     for (const auto &[name, texture] : source.samplers) {
         if (texture.binding == binding) {
-            return {name, texture.type};
+            results.emplace_back(std::tuple{name, texture.type});
         }
     }
     for (const auto &[name, image] : source.storeImages) {
         if (image.binding == binding) {
-            return {name, image.type};
+            results.emplace_back(std::tuple{name, image.type});
         }
     }
-    return {"", gfx::Type::UNKNOWN};
+    return results;
 }
 
 void makeLocalDescriptorSetLayoutData(
     LayoutGraphData &lg,
     const pipeline::DescriptorSetLayoutInfos &source,
-    DescriptorSetLayoutData &data) {
+    DescriptorSetLayoutData &data,
+    boost::container::pmr::memory_resource *scratch) {
     for (const auto &b : source.bindings) {
-        const auto [name, type] = getDescriptorNameAndType(source, b.binding);
-        const auto nameID = getOrCreateDescriptorID(lg, name);
-        const auto order = getDescriptorTypeOrder(b.descriptorType);
+        const auto &descriptors = getDescriptorNameAndType(source, b.binding, scratch);
+        CC_ENSURES(!descriptors.empty());
         {
+            const auto &[name, type] = descriptors.front();
+            const auto nameID = getOrCreateDescriptorID(lg, name);
+            const auto order = getDescriptorTypeOrder(b.descriptorType);
             auto &block = data.descriptorBlocks.emplace_back(order, b.stageFlags, b.count);
             block.offset = b.binding;
             block.descriptors.emplace_back(nameID, type, b.count);
         }
-        {
-            auto iter = data.bindingMap.find(nameID);
-            if (iter != data.bindingMap.end()) {
-                CC_LOG_ERROR("Duplicate descriptor name: %s", name.data());
+        for (const auto &[name, type] : descriptors) {
+            const auto nameID = getOrCreateDescriptorID(lg, name);
+            {
+                auto iter = data.bindingMap.find(nameID);
+                if (iter != data.bindingMap.end()) {
+                    CC_LOG_ERROR("Duplicate descriptor name: %s", name.data());
+                }
+                data.bindingMap.emplace(nameID, b.binding);
             }
-            data.bindingMap.emplace(nameID, b.binding);
-        }
-        {
-            auto iter = source.blocks.find(ccstd::string(name));
-            if (iter != source.blocks.end()) {
-                data.uniformBlocks.emplace(nameID, iter->second);
+            {
+                auto iter = source.blocks.find(ccstd::string(name));
+                if (iter != source.blocks.end()) {
+                    data.uniformBlocks.emplace(nameID, iter->second);
+                }
             }
         }
     }
@@ -218,7 +230,7 @@ ShaderProgramData &buildProgramData(
         CC_ENSURES(res.second);
         auto &setData = res.first->second;
         auto &perInstance = setData.descriptorSetLayoutData;
-        makeLocalDescriptorSetLayoutData(lg, pipeline::localDescriptorSetLayout, perInstance);
+        makeLocalDescriptorSetLayoutData(lg, pipeline::localDescriptorSetLayout, perInstance, scratch);
         initializeDescriptorSetLayoutInfo(
             setData.descriptorSetLayoutData,
             setData.descriptorSetLayoutInfo);
@@ -272,7 +284,7 @@ void populateMergedShaderInfo(
                         continue;
                     }
                     const auto &uniformBlock = iter->second;
-                    blockSizes.emplace_back(getSize(uniformBlock.members));
+                    blockSizes.emplace_back(getUniformBlockSize(uniformBlock.members));
                     shaderInfo.blocks.emplace_back(
                         gfx::UniformBlock{
                             set,
@@ -388,7 +400,7 @@ void populateGroupedShaderInfo(
                     if (block.stageFlags != visibility) {
                         continue;
                     }
-                    blockSizes.emplace_back(getSize(block.members));
+                    blockSizes.emplace_back(getUniformBlockSize(block.members));
                     shaderInfo.blocks.emplace_back(
                         gfx::UniformBlock{
                             set,
@@ -507,7 +519,7 @@ void populateLocalShaderInfo(
     const IDescriptorInfo &target,
     const pipeline::DescriptorSetLayoutInfos &source,
     gfx::ShaderInfo &shaderInfo, ccstd::vector<int32_t> &blockSizes) {
-    const auto set = setIndex(UpdateFrequency::PER_INSTANCE);
+    constexpr auto set = setIndex(UpdateFrequency::PER_INSTANCE);
     for (const auto &block : target.blocks) {
         auto blockIter = source.blocks.find(block.name);
         if (blockIter == source.blocks.end()) {
@@ -527,7 +539,7 @@ void populateLocalShaderInfo(
         }
 
         const auto &binding = *pBinding;
-        blockSizes.emplace_back(getSize(block.members));
+        blockSizes.emplace_back(getUniformBlockSize(block.members));
         shaderInfo.blocks.emplace_back(
             gfx::UniformBlock{
                 set,
@@ -787,9 +799,176 @@ void makeShaderInfo(
     shaderInfo.stages.emplace_back(gfx::ShaderStage{gfx::ShaderStageFlagBit::FRAGMENT, ""});
 }
 
+std::pair<uint32_t, uint32_t> findBinding(
+    const gfx::ShaderInfo &shaderInfo, std::string_view name) {
+    for (const auto &v : shaderInfo.blocks) {
+        if (v.name == name) {
+            return std::pair{v.set, v.binding};
+        }
+    }
+    for (const auto &v : shaderInfo.buffers) {
+        if (v.name == name) {
+            return std::pair{v.set, v.binding};
+        }
+    }
+    for (const auto &v : shaderInfo.samplerTextures) {
+        if (v.name == name) {
+            return std::pair{v.set, v.binding};
+        }
+    }
+    for (const auto &v : shaderInfo.samplers) {
+        if (v.name == name) {
+            return std::pair{v.set, v.binding};
+        }
+    }
+    for (const auto &v : shaderInfo.textures) {
+        if (v.name == name) {
+            return std::pair{v.set, v.binding};
+        }
+    }
+    for (const auto &v : shaderInfo.images) {
+        if (v.name == name) {
+            return std::pair{v.set, v.binding};
+        }
+    }
+    CC_EXPECTS(false);
+    return {};
+}
+
+void overwriteShaderSourceBinding(
+    const gfx::ShaderInfo &shaderInfo,
+    ccstd::string &source,
+    boost::container::pmr::memory_resource *scratch) {
+    // find first uniform
+    auto pos = source.find(" uniform ");
+    while (pos != ccstd::string::npos) {
+        // uniform statement is separated by ";{}";
+        auto beg = source.find_last_of(";}", pos);
+        auto end = source.find_first_of(";{", pos);
+        if (beg == ccstd::string::npos) {
+            // if separator is not found, start from 0
+            beg = 0;
+        } else {
+            // bypass last separator
+            beg += 1;
+        }
+        // uniform declaration is found
+        CC_EXPECTS(beg != ccstd::string::npos);
+        CC_EXPECTS(end != ccstd::string::npos);
+        CC_ENSURES(end > beg);
+
+        // find uniform name
+        std::string_view name{};
+        {
+            std::string_view decl(source.c_str() + beg, end - beg);
+            auto nameEnd = decl.size();
+            for (; nameEnd-- > 0;) {
+                if (!std::isspace(decl[nameEnd])) {
+                    break;
+                }
+            }
+            auto nameBeg = decl.find_last_of(' ', nameEnd);
+            nameBeg += 1;
+            nameEnd += 1;
+            // uniform name found
+            name = decl.substr(nameBeg, nameEnd - nameBeg);
+        }
+        CC_ENSURES(!name.empty());
+
+        // layout
+        std::ptrdiff_t offset = 0;
+        {
+            std::string_view prevLayout;
+            // find layout expression
+            auto layoutBeg = source.rfind("layout", pos);
+            auto layoutEnd = ccstd::string::npos;
+            if (layoutBeg == ccstd::string::npos || layoutBeg < beg) {
+                // layout not found
+                layoutBeg = ccstd::string::npos;
+                CC_ENSURES(layoutBeg == ccstd::string::npos);
+                CC_ENSURES(layoutEnd == ccstd::string::npos);
+            } else {
+                CC_EXPECTS(layoutBeg >= beg && layoutBeg <= end);
+                layoutEnd = source.find(')', layoutBeg) + 1;
+                CC_EXPECTS(layoutEnd != ccstd::string::npos);
+                CC_ENSURES(layoutBeg < layoutEnd && layoutEnd <= end);
+                prevLayout = std::string_view(source.c_str() + layoutBeg, layoutEnd - layoutBeg);
+
+                // check layout expression is within uniform declaration
+                // prev layout expression is from layoutBeg to layoutEnd
+                CC_ENSURES(layoutBeg >= beg && layoutBeg <= end);
+                CC_ENSURES(layoutEnd >= layoutBeg && layoutEnd <= end);
+            }
+
+            // find uniform set and binding
+            auto [set, binding] = findBinding(shaderInfo, name);
+
+            // compose new layout expression
+            ccstd::pmr::string newLayout(scratch);
+            newLayout.reserve(32);
+            newLayout.append("layout(set = ");
+            newLayout.append(std::to_string(set));
+            newLayout.append(", binding = ");
+            newLayout.append(std::to_string(binding));
+            newLayout.append(")");
+
+            // replace layout expression
+            if (layoutBeg == ccstd::string::npos) { // layout not found
+                source.insert(pos, newLayout);
+                offset = static_cast<std::ptrdiff_t>(newLayout.size());
+            } else {
+                // layout is found
+                source.erase(layoutBeg, prevLayout.size());
+                source.insert(layoutBeg, newLayout);
+                // calculate string difference
+                offset = static_cast<std::ptrdiff_t>(newLayout.size()) -
+                         static_cast<std::ptrdiff_t>(prevLayout.size());
+            }
+        }
+        // offset end of uniform declaration, offset is caused by modification of layout
+        end += offset;
+        // find next uniform
+        pos = source.find(" uniform ", end);
+        auto exceptionPos = source.find(" uniform subpassInput ", end);
+        if (exceptionPos != ccstd::string::npos) {
+            while (pos == exceptionPos) {
+                end += strlen(" uniform subpassInput ");
+                pos = source.find(" uniform ", end);
+                exceptionPos = source.find(" uniform subpassInput ", end);
+            }
+        }
+    }
+}
+
+void overwriteShaderProgramBinding(
+    gfx::Device *device,
+    const gfx::ShaderInfo &shaderInfo, IProgramInfo &programInfo,
+    boost::container::pmr::memory_resource *scratch) {
+    // get shader source to use
+    IShaderSource *src = &programInfo.glsl3;
+    const auto *deviceShaderVersion = getDeviceShaderVersion(device);
+    if (deviceShaderVersion) {
+        if (deviceShaderVersion != std::string_view{"glsl4"}) {
+            return;
+        }
+        src = programInfo.getSource(deviceShaderVersion);
+    } else {
+        CC_LOG_ERROR("Invalid GFX API!");
+    }
+    CC_ENSURES(src);
+
+    overwriteShaderSourceBinding(shaderInfo, src->vert, scratch);
+    overwriteShaderSourceBinding(shaderInfo, src->frag, scratch);
+}
+
 // overwrite IProgramInfo using gfx.ShaderInfo
-void overwriteProgramBlockInfo(const gfx::ShaderInfo &shaderInfo, IProgramInfo &programInfo) {
-    const auto set = setIndex(UpdateFrequency::PER_BATCH);
+void overwriteProgramBlockInfo(
+    gfx::Device *device,
+    const gfx::ShaderInfo &shaderInfo, IProgramInfo &programInfo,
+    boost::container::pmr::memory_resource *scratch) {
+    overwriteShaderProgramBinding(device, shaderInfo, programInfo, scratch);
+
+    constexpr auto set = setIndex(UpdateFrequency::PER_BATCH);
     for (auto &block : programInfo.blocks) {
         auto found = false;
         for (const auto &src : shaderInfo.blocks) {
@@ -944,9 +1123,31 @@ void populatePipelineLayoutInfo(
 
 } // namespace
 
-void NativeProgramLibrary::init(gfx::Device *device) {
+void NativeProgramLibrary::init(gfx::Device *deviceIn) {
+    boost::container::pmr::memory_resource *scratch = &unsycPool;
+    device = deviceIn;
     emptyDescriptorSetLayout = device->createDescriptorSetLayout({});
     emptyPipelineLayout = device->createPipelineLayout({});
+
+    if (false) { // NOLINT(readability-simplify-boolean-expr)
+        std::ostringstream oss;
+        printLayoutGraphData(layoutGraph, oss, scratch);
+        auto content = oss.str();
+        std::istringstream iss(content);
+        std::string line;
+        while (std::getline(iss, line)) {
+            CC_LOG_INFO(line.c_str());
+        }
+    }
+
+    // update ubo
+    // tips: for compatibility with old version, when maxVertexUniformVectors is 128, maxJoints = 30
+    uint maxJoints = (device->getCapabilities().maxVertexUniformVectors - 38) / 3;
+    maxJoints = maxJoints < 256 ? maxJoints : 256;
+    pipeline::SkinningJointCapacity::jointUniformCapacity = maxJoints;
+    pipeline::UBOSkinning::initLayout(maxJoints);
+
+    // init layout graph
     auto &lg = layoutGraph;
     for (const auto v : makeRange(vertices(lg))) {
         auto &layout = get(LayoutGraphData::Layout, lg, v);
@@ -980,6 +1181,35 @@ void NativeProgramLibrary::init(gfx::Device *device) {
         auto &phase = get(RenderPhaseTag{}, phaseID, lg);
         phase.pipelineLayout = device->createPipelineLayout(info);
     }
+
+    // init local descriptor set
+    {
+        const auto &localSetLayout = pipeline::localDescriptorSetLayout;
+        makeLocalDescriptorSetLayoutData(lg, localSetLayout, localLayoutData, scratch);
+        gfx::DescriptorSetLayoutInfo info{};
+        initializeDescriptorSetLayoutInfo(localLayoutData, info);
+        localDescriptorSetLayout = device->createDescriptorSetLayout(info);
+        CC_ENSURES(localDescriptorSetLayout);
+
+        uint32_t numUniformBuffers = 0;
+        for (const auto &block : localLayoutData.descriptorBlocks) {
+            if (block.type != DescriptorTypeOrder::UNIFORM_BUFFER &&
+                block.type != DescriptorTypeOrder::DYNAMIC_UNIFORM_BUFFER) {
+                continue;
+            }
+            for (const auto &d : block.descriptors) {
+                numUniformBuffers += d.count;
+            }
+        }
+        CC_ENSURES(numUniformBuffers == 7); // 7 is currently max uniform binding
+    }
+
+    // generate constant macros string
+    generateConstantMacros(device, lg.constantMacros, false);
+}
+
+void NativeProgramLibrary::setPipeline(PipelineRuntime *pipelineIn) {
+    pipeline = pipelineIn;
 }
 
 void NativeProgramLibrary::destroy() {
@@ -1037,7 +1267,7 @@ void NativeProgramLibrary::addEffect(const EffectAsset *effectAssetIn) {
                            fixedLocal, shaderInfo, blockSizes);
 
             // overwrite programInfo
-            overwriteProgramBlockInfo(shaderInfo, programInfo);
+            overwriteProgramBlockInfo(device, shaderInfo, programInfo, scratch);
 
             // handle map
             auto handleMap = genHandles(shaderInfo);
@@ -1160,6 +1390,9 @@ const gfx::DescriptorSetLayout &NativeProgramLibrary::getLocalDescriptorSetLayou
         return getOrCreateDescriptorSetLayout(
             *this, layoutGraph, passID, phaseID, UpdateFrequency::PER_INSTANCE);
     }
+    if (fixedLocal) {
+        return *localDescriptorSetLayout;
+    }
     return getOrCreateProgramDescriptorSetLayout(
         *this, device, layoutGraph, phaseID, programName, UpdateFrequency::PER_INSTANCE);
 }
@@ -1232,9 +1465,7 @@ ProgramProxy *NativeProgramLibrary::getProgramVariant(
     }
 
     std::string prefix;
-    if (pipeline) {
-        prefix += pipeline->getConstantMacros();
-    }
+    prefix += layoutGraph.constantMacros;
     prefix += programInfo.constantMacros + ss.str();
 
     const IShaderSource *src = &programInfo.glsl3;
