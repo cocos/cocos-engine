@@ -290,6 +290,9 @@ export class Light extends Component {
             case scene.LightType.SPOT:
                 renderScene.addSpotLight(this._light as scene.SpotLight);
                 break;
+            case scene.LightType.POINT:
+                renderScene.addPointLight(this._light as scene.PointLight);
+                break;
             default:
                 break;
             }
@@ -309,6 +312,9 @@ export class Light extends Component {
                 break;
             case scene.LightType.SPOT:
                 renderScene.removeSpotLight(this._light as scene.SpotLight);
+                break;
+            case scene.LightType.POINT:
+                renderScene.removePointLight(this._light as scene.PointLight);
                 break;
             default:
                 break;

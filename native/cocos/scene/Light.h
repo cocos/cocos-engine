@@ -40,6 +40,7 @@ enum class LightType {
     DIRECTIONAL,
     SPHERE,
     SPOT,
+    POINT,
     UNKNOWN,
 };
 

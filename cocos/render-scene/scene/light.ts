@@ -63,6 +63,7 @@ export enum LightType {
     DIRECTIONAL,
     SPHERE,
     SPOT,
+    POINT,
     UNKNOWN,
 }
 
@@ -161,7 +162,7 @@ export class Light {
      * @en The type of the light source, e.g. directional light, spot light, etc
      * @zh 光源的类型，比如方向光、聚光灯等
      */
-    get type () : LightType {
+    get type (): LightType {
         return this._type;
     }
 

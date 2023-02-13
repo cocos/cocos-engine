@@ -25,7 +25,6 @@
 import { legacyCC } from './core/global-exports';
 import { DataPoolManager } from './3d/skeletal-animation/data-pool-manager';
 import { Device, deviceManager } from './gfx';
-import { EDITOR } from "internal:constants";
 import { DebugView } from './rendering/debug-view';
 import { buildDeferredLayout, buildForwardLayout } from './rendering/custom/effect';
 import { settings, Settings, warnID, Pool, macro } from './core';
@@ -40,6 +39,7 @@ enum LightType {
     DIRECTIONAL,
     SPHERE,
     SPOT,
+    POINT,
     UNKNOWN,
 }
 
@@ -173,6 +173,9 @@ rootProto.destroyLight = function (l) {
             case LightType.SPOT:
                 l.scene.removeSpotLight(l);
                 break;
+            case LightType.POINT:
+                l.scene.removePointLight(l);
+                break;
             default:
                 break;
         }
@@ -194,6 +197,9 @@ rootProto.recycleLight = function (l) {
                     break;
                 case LightType.SPOT:
                     l.scene.removeSpotLight(l);
+                    break;
+                case LightType.POINT:
+                    l.scene.removePointLight(l);
                     break;
                 default:
                     break;

@@ -25,6 +25,7 @@
 import { Light } from './light-component';
 import { SpotLight } from './spot-light-component';
 import { SphereLight } from './sphere-light-component';
+import { PointLight } from './point-light-component';
 import { DirectionalLight } from './directional-light-component';
 import { cclegacy, js, replaceProperty } from '../../core';
 
@@ -57,6 +58,14 @@ export { SpotLight as SpotLightComponent };
 cclegacy.SpotLightComponent = SpotLight;
 js.setClassAlias(SpotLight, 'cc.SpotLightComponent');
 
+/**
+ * Alias of [[PointLight]]
+ * @deprecated Since v1.2
+ */
+export { PointLight as PointLightComponent };
+cclegacy.PointLightComponent = PointLight;
+js.setClassAlias(PointLight, 'cc.PointLightComponent');
+
 replaceProperty(SpotLight.prototype, 'SpotLight.prototype', [
     {
         name: 'luminousPower',
@@ -74,6 +83,22 @@ replaceProperty(SpotLight.prototype, 'SpotLight.prototype', [
 ]);
 
 replaceProperty(SphereLight.prototype, 'SphereLight.prototype', [
+    {
+        name: 'luminousPower',
+        newName: 'luminousFlux',
+        customGetter () {
+            // @ts-expect-error deprecation method
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+            return this.luminousFlux;
+        },
+        customSetter (value) {
+            // @ts-expect-error deprecation method
+            this.luminousFlux = value;
+        },
+    },
+]);
+
+replaceProperty(PointLight.prototype, 'PointLight.prototype', [
     {
         name: 'luminousPower',
         newName: 'luminousFlux',

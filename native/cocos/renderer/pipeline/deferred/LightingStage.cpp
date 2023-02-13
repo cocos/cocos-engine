@@ -48,6 +48,7 @@
 #include "scene/RenderScene.h"
 #include "scene/SphereLight.h"
 #include "scene/SpotLight.h"
+#include "scene/PointLight.h"
 
 namespace cc {
 namespace pipeline {
@@ -228,6 +229,56 @@ void LightingStage::gatherLights(scene::Camera *camera) {
         _lightBufferData[offset] = direction.x;
         _lightBufferData[offset + 1] = direction.y;
         _lightBufferData[offset + 2] = direction.z;
+
+        ++idx;
+    }
+
+    for (const auto &light : scene->getPointLights()) {
+        if (idx >= _maxDeferredLights) {
+            break;
+        }
+
+        const auto &position = light->getPosition();
+        sphere.setCenter(position);
+        sphere.setRadius(light->getRange());
+        if (!sphere.sphereFrustum(camera->getFrustum())) {
+            continue;
+        }
+        // position
+        offset = idx * elementLen;
+        _lightBufferData[offset] = position.x;
+        _lightBufferData[offset + 1] = position.y;
+        _lightBufferData[offset + 2] = position.z;
+        _lightBufferData[offset + 3] = 0;
+
+        // color
+        const auto &color = light->getColor();
+        offset = idx * elementLen + fieldLen;
+        tmpArray.set(color.x, color.y, color.z, 0);
+        if (light->isUseColorTemperature()) {
+            const auto &colorTemperatureRGB = light->getColorTemperatureRGB();
+            tmpArray.x *= colorTemperatureRGB.x;
+            tmpArray.y *= colorTemperatureRGB.y;
+            tmpArray.z *= colorTemperatureRGB.z;
+        }
+
+        if (sceneData->isHDR()) {
+            tmpArray.w = light->getLuminanceHDR() * exposure * _lightMeterScale;
+        }
+        else {
+            tmpArray.w = light->getLuminanceLDR();
+        }
+
+        _lightBufferData[offset + 0] = tmpArray.x;
+        _lightBufferData[offset + 1] = tmpArray.y;
+        _lightBufferData[offset + 2] = tmpArray.z;
+        _lightBufferData[offset + 3] = tmpArray.w;
+
+        // size range angle
+        offset = idx * elementLen + fieldLen * 2;
+        _lightBufferData[offset] = 0.0F;
+        _lightBufferData[offset + 1] = light->getRange();
+        _lightBufferData[offset + 2] = 0;
 
         ++idx;
     }

@@ -99,6 +99,7 @@ export class LightingStage extends RenderStage {
 
         const sphereLights = camera.scene!.sphereLights;
         const spotLights = camera.scene!.spotLights;
+        const pointLights = camera.scene!.pointLights;
         const _sphere = Sphere.create(0, 0, 0, 1);
         const _vec4Array = new Float32Array(4);
         const exposure = camera.exposure;
@@ -174,6 +175,40 @@ export class LightingStage extends RenderStage {
                 // cc_lightDir
                 Vec3.toArray(_vec4Array, light.direction);
                 this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 3);
+            }
+        }
+
+        for (let i = 0; i < pointLights.length && idx < this._maxDeferredLights; i++, ++idx) {
+            const light = pointLights[i];
+            Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
+            if (intersect.sphereFrustum(_sphere, camera.frustum)) {
+                // cc_lightPos
+                Vec3.toArray(_vec4Array, light.position);
+                _vec4Array[3] = 0;
+                this._lightBufferData.set(_vec4Array, idx * elementLen);
+
+                // cc_lightColor
+                Vec3.toArray(_vec4Array, light.color);
+                if (light.useColorTemperature) {
+                    const tempRGB = light.colorTemperatureRGB;
+                    _vec4Array[0] *= tempRGB.x;
+                    _vec4Array[1] *= tempRGB.y;
+                    _vec4Array[2] *= tempRGB.z;
+                }
+
+                if (pipeline.pipelineSceneData.isHDR) {
+                    _vec4Array[3] = light.luminance * exposure * this._lightMeterScale;
+                } else {
+                    _vec4Array[3] = light.luminance;
+                }
+
+                this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 1);
+
+                // cc_lightSizeRangeAngle
+                _vec4Array[0] = 0.0;
+                _vec4Array[1] = light.range;
+                _vec4Array[2] = 0.0;
+                this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 2);
             }
         }
 

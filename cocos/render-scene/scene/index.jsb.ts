@@ -85,6 +85,10 @@ export const SphereLight = jsb.SphereLight;
 export type SphereLight = jsb.SphereLight;
 cclegacy.SphereLight = jsb.SphereLight;
 
+export const PointLight = jsb.PointLight;
+export type PointLight = jsb.PointLight;
+legacyCC.PointLight = jsb.PointLight;
+
 /**
  * Fog related.
  */
