@@ -62,6 +62,62 @@ void Device::present() {
     }
 }
 
+void Device::copyBuffersToTexture(const uint8_t *const *buffers, gfx::Texture *dst, const BufferTextureCopy *regions, uint32_t count) {
+    auto *texture = static_cast<Texture *>(dst);
+    auto textureType = texture->getInfo().type;
+
+    auto format = texture->getFormat();
+    const auto blockSize = formatAlignment(format);
+
+    auto *gpuTextureView = texture->getGPUTextureView();
+    auto *gpuFormatInfo = gpuTextureView->texture->format;
+
+    GL_CHECK(glBindTexture(gpuTextureView->texture->target, gpuTextureView->texture->texId));
+    Extent extent{};
+    Offset offset{};
+    Extent stride{};
+    for (uint32_t i = 0; i < count; ++i) {
+        const auto &region = regions[i];
+        uint32_t mipLevel = region.texSubres.mipLevel;
+
+        offset.x = region.texOffset.x == 0 ? 0 : utils::alignTo(region.texOffset.x, static_cast<int32_t>(blockSize.first));
+        offset.y = region.texOffset.y == 0 ? 0 : utils::alignTo(region.texOffset.y, static_cast<int32_t>(blockSize.second));
+        extent.width = utils::alignTo(region.texExtent.width, static_cast<uint32_t>(blockSize.first));
+        extent.height = utils::alignTo(region.texExtent.height, static_cast<uint32_t>(blockSize.second));
+        stride.width = region.buffStride > 0 ? region.buffStride : extent.width;
+        stride.height = region.buffTexHeight > 0 ? region.buffTexHeight : extent.height;
+
+        uint32_t destWidth = 0;
+        uint32_t destHeight = 0;
+        destWidth = (region.texExtent.width + offset.x == (texture->getWidth() >> mipLevel)) ? region.texExtent.width : extent.width;
+        destHeight = (region.texExtent.height + offset.y == (texture->getWidth() >> mipLevel)) ? region.texExtent.height : extent.height;
+        auto *buff = buffers[i] + region.buffOffset;
+        switch (textureType) {
+            case TextureType::TEX2D:
+                if (gpuFormatInfo->isCompressed) {
+                    auto memSize = static_cast<GLsizei>(formatSize(format, extent.width, extent.height, 1));
+                    GL_CHECK(glCompressedTexSubImage2D(GL_TEXTURE_2D, mipLevel, offset.x, offset.y, destWidth, destHeight,
+                                                       gpuFormatInfo->format, memSize, reinterpret_cast<const GLvoid *>(buff)));
+                } else {
+
+                    GL_CHECK(glTexSubImage2D(GL_TEXTURE_2D, mipLevel, offset.x, offset.y, destWidth, destHeight, gpuFormatInfo->format,
+                                             gpuFormatInfo->type, reinterpret_cast<const GLvoid *>(buff)));
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+
+
+}
+
+void Device::copyTextureToBuffers(gfx::Texture *src, uint8_t *const *buffers, const BufferTextureCopy *regions, uint32_t count) {
+
+}
+
+
 void Device::waitIdle() {
     _graphicsQueue->waitIdle();
     _asyncQueue->waitIdle();

@@ -42,8 +42,8 @@ public:
     void present();
 
     // copy
-    void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) {}
-    void copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint32_t count) {}
+    void copyBuffersToTexture(const uint8_t *const *buffers, gfx::Texture *dst, const BufferTextureCopy *regions, uint32_t count) override;
+    void copyTextureToBuffers(gfx::Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint32_t count) override;
     void getQueryPoolResults(QueryPool *queryPool) {}
 
     // status

@@ -15,7 +15,6 @@ PipelineState::~PipelineState() {
 void PipelineState::doInit(const PipelineStateInfo &info) {
     _pso = ccnew GPUPipelineState();
     _pso->shader          = static_cast<Shader *>(_shader)->getGPUShader();
-    _pso->attributes      = _shader->getAttributes();
     _pso->blocks          = _shader->getBlocks();
     _pso->buffers         = _shader->getBuffers();
     _pso->samplerTextures = _shader->getSamplerTextures();
@@ -103,8 +102,20 @@ void GPUPipelineState::setShader(gfx::Shader *gfxShader) {
     shader = static_cast<Shader *>(gfxShader)->getGPUShader();
     if (shader->program == 0) {
         shader->initShader();
+        GL_CHECK(glUseProgram(shader->program));
+        setVertexLayout(gfxShader->getAttributes());
         setBinding();
+        GL_CHECK(glUseProgram(0));
     }
+}
+
+void GPUPipelineState::setVertexLayout(const AttributeList &list) {
+    for (auto &attribute : list) {
+        GLint location = 0;
+        GL_CHECK(location = glGetAttribLocation(shader->program, attribute.name.c_str()));
+        nameLocMap.emplace(attribute.name, location);
+    }
+
 }
 
 void GPUPipelineState::setBinding() {
@@ -112,7 +123,6 @@ void GPUPipelineState::setBinding() {
     uint32_t blockOffset = 0;
     ccstd::vector<GLint> units;
 
-    GL_CHECK(glUseProgram(shader->program));
     for (uint32_t set = 0, descriptorIndex = 0; set < layout->setLayouts.size(); ++set) {
         auto &setLayout = layout->setLayouts[set];
         const auto &bindings = setLayout->bindings;
@@ -169,7 +179,6 @@ void GPUPipelineState::setBinding() {
         descriptorOffsets.emplace_back(offset);
         offset += setLayout->descriptorCount;
     }
-    GL_CHECK(glUseProgram(0));
 }
 
 } // namespace cc::gfx::gles

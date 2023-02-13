@@ -26,7 +26,7 @@ static GLenum getBufferTarget(DescriptorType type) {
 }
 
 static bool checkBuffer(const Descriptor &desc) {
-    return desc.buffer && desc.buffer->buffer && desc.buffer->buffer->bufferId != 0 && desc.buffer->offset != 0;
+    return desc.buffer && desc.buffer->buffer && desc.buffer->buffer->bufferId != 0 && desc.buffer->range != 0;
 }
 
 static bool checkTexture(const Descriptor& desc) {
@@ -108,7 +108,8 @@ void Commands::beginPassInternal() {
      * If the default framebuffer is bound, then attachments may contain:
      *     GL_COLOR, GL_DEPTH, GL_STENCIL
      */
-    auto attachmentFunc = [this](const Attachment &attachment, uint32_t index) {
+    GLbitfield clearBit = 0;
+    auto attachmentFunc = [this, &clearBit](const Attachment &attachment, uint32_t index) {
         bool hasDepth = GFX_FORMAT_INFOS[toNumber(attachment.format)].hasDepth;
         bool hasStencil = GFX_FORMAT_INFOS[toNumber(attachment.format)].hasStencil;
         bool isColor = !(hasDepth || hasStencil);
@@ -127,7 +128,12 @@ void Commands::beginPassInternal() {
                 GL_CHECK(glClearBufferfv(GL_COLOR, index, reinterpret_cast<GLfloat *>(&clearColor)));
             }
             if (hasDepth) {
+                if (_context->ds.depth.depthWrite != true) {
+                    GL_CHECK(glDepthMask(true));
+                    _context->ds.depth.depthWrite = true;
+                }
                 GL_CHECK(glClearDepthf(_clearDepth));
+                clearBit |= GL_DEPTH_BUFFER_BIT;
             }
         }
 
@@ -135,7 +141,16 @@ void Commands::beginPassInternal() {
             if (attachment.stencilLoadOp == LoadOp::DISCARD) {
                 _invalidAttachments.emplace_back(isDefaultFb ? GL_STENCIL : GL_STENCIL_ATTACHMENT);
             } else if (attachment.stencilLoadOp == LoadOp::CLEAR) {
+                if (_context->ds.front.writemask != 0xffffffff) {
+                    GL_CHECK(glStencilMaskSeparate(GL_FRONT, 0xffffffff));
+                    _context->ds.front.writemask = 0xffffffff;
+                }
+                if (_context->ds.back.writemask != 0xffffffff) {
+                    GL_CHECK(glStencilMaskSeparate(GL_BACK, 0xffffffff));
+                    _context->ds.back.writemask = 0xffffffff;
+                }
                 GL_CHECK(glClearStencil(_clearStencil));
+                clearBit |= GL_STENCIL_BUFFER_BIT;
             }
         }
     };
@@ -150,6 +165,9 @@ void Commands::beginPassInternal() {
     }
     if (subPass.depthStencil != INVALID_BINDING) {
         attachmentFunc(renderPass->attachments[subPass.depthStencil], 0);
+    }
+    if (clearBit != 0) {
+        glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     }
 
     if (!_invalidAttachments.empty()) {
@@ -178,7 +196,7 @@ void Commands::endPassInternal() {
             }
         }
 
-        if (hasStencil && attachment.stencilLoadOp == LoadOp::DISCARD) {
+        if (hasStencil && attachment.stencilStoreOp == StoreOp::DISCARD) {
             _invalidAttachments.emplace_back(isDefaultFb ? GL_STENCIL : GL_STENCIL_ATTACHMENT);
         }
     };
@@ -196,7 +214,7 @@ void Commands::endPassInternal() {
     }
 
     if (!_invalidAttachments.empty()) {
-        GL_CHECK(glInvalidateFramebuffer(GL_DRAW_FRAMEBUFFER, utils::toUint(_invalidAttachments.size()), _invalidAttachments.data()));
+        // GL_CHECK(glInvalidateFramebuffer(GL_DRAW_FRAMEBUFFER, utils::toUint(_invalidAttachments.size()), _invalidAttachments.data()));
         _invalidAttachments.clear();
     }
 }
@@ -210,7 +228,7 @@ void Commands::beginRenderPass(const PassBeginInfo &beginInfo) {
 
     auto &currentVp = _context->viewport;
     auto &renderArea = beginInfo.renderArea;
-    setViewport(Viewport{renderArea.x, renderArea.y, renderArea.width, renderArea.height, currentVp.minDepth, currentVp.minDepth});
+    setViewport(Viewport{renderArea.x, renderArea.y, renderArea.width, renderArea.height, currentVp.minDepth, currentVp.maxDepth});
     setScissor(renderArea);
 
     beginPassInternal();
@@ -232,6 +250,28 @@ void Commands::nextSubpass() {
 
 void Commands::bindInputAssembler(const IntrusivePtr<GPUInputAssembler> &ia) {
     _currentIa = ia;
+
+    uint32_t currentBuffer = 0;
+    for (auto &glAttr : ia->attributes) {
+        auto &view = ia->vertexBuffers[glAttr.stream];
+        auto iter = _currentPso->nameLocMap.find(glAttr.name);
+        if (iter == _currentPso->nameLocMap.end() || iter->second == -1) {
+            continue;
+        }
+
+        if (view->buffer->bufferId != currentBuffer) {
+            currentBuffer = view->buffer->bufferId;
+            GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, currentBuffer));
+        }
+
+        GL_CHECK(glVertexAttribPointer(iter->second, glAttr.count, glAttr.type, glAttr.isNormalized, glAttr.stride, glAttr.offset));
+        GL_CHECK(glVertexAttribDivisor(iter->second, glAttr.divisor));
+        GL_CHECK(glEnableVertexAttribArray(iter->second));
+    }
+
+    if (ia->indexBuffer) {
+        GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ia->indexBuffer->buffer->bufferId));
+    }
 }
 
 void Commands::draw(const DrawInfo &drawInfo) {
@@ -451,6 +491,5 @@ void Commands::dispatch(uint32_t groupX, uint32_t groupY, uint32_t groupZ) {
 void Commands::updateBuffer(const IntrusivePtr<GPUBufferView> &buffer, uint8_t *ptr, uint32_t size) {
 
 }
-
 
 } // namespace cc::gfx::gles

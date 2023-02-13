@@ -71,7 +71,12 @@ void Shader::doInit(const ShaderInfo &info) {
         _shader->stages.emplace_back();
         auto &back = _shader->stages.back();
         back.stage = getShaderStage(stage.stage);
+#if CC_DEBUG > 0
+        back.source = stage.source;
+#else
         back.source.swap(stage.source);
+#endif
+
     }
 }
 
@@ -101,7 +106,9 @@ void GPUShader::initShader() {
         GL_CHECK(glDetachShader(program, stage.shader));
         GL_CHECK(glDeleteShader(stage.shader));
     }
+#if CC_DEBUG <= 0
     stages.clear();
+#endif
 }
 
 } // namespace cc::gfx::gles

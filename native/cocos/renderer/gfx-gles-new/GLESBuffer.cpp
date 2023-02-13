@@ -127,12 +127,12 @@ void GPUBufferView::update(const void *src, uint32_t size) {
         void *mappedAddress = nullptr;
         GL_CHECK(mappedAddress = glMapBufferRange(buffer->target, offset, range, GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT));
         if (mappedAddress != nullptr) {
-            memcpy(mappedAddress, buffer, size);
+            memcpy(mappedAddress, src, size);
             GL_CHECK(glUnmapBuffer(buffer->target));
-            return;
         }
+    } else {
+        GL_CHECK(glBufferSubData(buffer->target, offset, size, src));
     }
-
-    GL_CHECK(glBufferSubData(buffer->target, offset, size, src));
+    GL_CHECK(glBindBuffer(buffer->target, 0));
 }
 } // namespace cc::gfx::gles

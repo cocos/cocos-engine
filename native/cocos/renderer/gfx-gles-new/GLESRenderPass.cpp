@@ -57,7 +57,7 @@ void RenderPass::doInit(const RenderPassInfo &info) {
         gpuSubPass.colors = subPass.colors;
         gpuSubPass.resolves = subPass.resolves;
         if (subPass.depthStencil > colorCount) {
-            gpuSubPass.depthStencil = INVALID_BINDING;
+            gpuSubPass.depthStencil = colorCount;
         }
     }
 

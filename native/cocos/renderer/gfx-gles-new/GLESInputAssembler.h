@@ -6,27 +6,28 @@
 #include "gfx-gles-new/GLESBuffer.h"
 
 namespace cc::gfx::gles {
-
 struct GPUAttribute {
-    GLenum glType = 0;
-    uint32_t size = 0;
-    uint32_t count = 0;
-    uint32_t stride = 1;
-    uint32_t componentCount = 1;
-    bool isNormalized = false;
-    bool isInstanced = false;
-    uint32_t offset = 0;
+    GLint  size            = 0;
+    GLint  count           = 0;
+    GLenum type            = 0;
+    GLsizei stride         = 1;
+    GLuint  divisor        = 1;
+    uint32_t stream        = 0;
+    GLboolean isNormalized = false;
+    const void * offset    = 0;
+    ccstd::string name;
 };
 
 struct GPUInputAssembler : public GFXDeviceObject<DefaultDeleter> {
     GPUInputAssembler() noexcept = default;
     ~GPUInputAssembler() noexcept;
 
-    void initVAO(const AttributeList &list);
+    void initInput(const AttributeList &list);
 
     ccstd::vector<IntrusivePtr<GPUBufferView>> vertexBuffers;
     IntrusivePtr<GPUBufferView> indexBuffer;
     GLenum indexType = GL_UNSIGNED_INT;
+    ccstd::vector<GPUAttribute> attributes;
 };
 
 class InputAssembler : public gfx::InputAssembler {

@@ -1,16 +1,17 @@
 #include "GLESInputAssembler.h"
 #include "GLESConversion.h"
+#include <algorithm>
 
 #define BUFFER_OFFSET(idx) (static_cast<char *>(0) + (idx))
 
 namespace cc::gfx::gles {
 
 InputAssembler::InputAssembler() {
-
+    _typedID = generateObjectID<decltype(this)>();
 }
 
 InputAssembler::~InputAssembler() {
-
+    destroy();
 }
 
 void InputAssembler::doInit(const InputAssemblerInfo &info) {
@@ -32,7 +33,7 @@ void InputAssembler::doInit(const InputAssemblerInfo &info) {
             }
         }
     }
-    _gpuIa->initVAO(info.attributes);
+    _gpuIa->initInput(info.attributes);
 }
 
 void InputAssembler::doDestroy() {
@@ -43,25 +44,30 @@ void InputAssembler::doDestroy() {
 GPUInputAssembler::~GPUInputAssembler() noexcept {
 }
 
-void GPUInputAssembler::initVAO(const AttributeList &list) {
-//    GL_CHECK(glGenVertexArrays(1, &vao));
-//    GL_CHECK(glBindVertexArray(vao));
-//    GLuint buffer = 0;
-//
-//    ccstd::vector<uint32_t> streamOffset(vertexBuffers.size(), 0);
-//    for (auto &attribute : list) {
-//        auto &view = vertexBuffers[attribute.stream];
-//        if (view->buffer->bufferId != buffer) {
-//            buffer = view->buffer->bufferId;
-//            glBindBuffer(GL_ARRAY_BUFFER, buffer);
-//        }
-//        auto &format = getInternalType(attribute.format);
+void GPUInputAssembler::initInput(const AttributeList &list) {
+    GLuint buffer = 0;
+    ccstd::vector<uint32_t> streamOffsets(vertexBuffers.size(), 0);
+    attributes.reserve(list.size());
+    for (auto &attribute : list) {
+        const auto &internalFormat = getInternalType(attribute.format);
+        const auto &formatInfo = GFX_FORMAT_INFOS[static_cast<int>(attribute.format)];
+        uint32_t offset = streamOffsets[attribute.stream];
 
-//        GL_CHECK(glVertexAttribPointer(attribute.location, attribute.format.size, format.type, attribute.isNormalized, view->buffer->stride, BUFFER_OFFSET(streamOffset[attribute.stream])));
-//        GL_CHECK(glVertexAttribDivisor(attribute.location, attribute.isInstanced ? 1 : 0));
-//        GL_CHECK(glEnableVertexAttribArray(attribute.location));
-//    }
+        attributes.emplace_back();
+        auto &glAttr = attributes.back();
+        glAttr.size     = formatInfo.size;
+        glAttr.count    = formatInfo.count;
+        glAttr.type     = internalFormat.type;
+        glAttr.stride   = vertexBuffers[attribute.stream]->buffer->stride;
+        glAttr.divisor  = attribute.isInstanced ? 1 : 0;
+        glAttr.offset   = 0;
+        glAttr.isNormalized = attribute.isNormalized;
+        glAttr.offset = BUFFER_OFFSET(offset);
+        glAttr.stream = attribute.stream;
+        glAttr.name   = attribute.name;
 
+        streamOffsets[attribute.stream] += glAttr.size;
+    }
 }
 
 } // namespace cc::gfx::gles

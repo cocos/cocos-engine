@@ -6,6 +6,7 @@
 #include "gfx-gles-new/GLESShader.h"
 #include "gfx-gles-new/GLESPipelineLayout.h"
 #include "base/std/container/vector.h"
+#include "base/std/container/unordered_map.h"
 
 namespace cc::gfx::gles {
 
@@ -25,6 +26,7 @@ struct GPUPipelineState : public GFXDeviceObject<DefaultDeleter> {
     void setDepthStencilState(const gfx::DepthStencilState &ds);
     void setBlendState(const gfx::BlendState &bs);
     void setShader(gfx::Shader *shader);
+    void setVertexLayout(const AttributeList &list);
     void setBinding();
 
     IntrusivePtr<GPUShader>         shader;
@@ -41,8 +43,10 @@ struct GPUPipelineState : public GFXDeviceObject<DefaultDeleter> {
     ccstd::vector<GPUDescriptorIndex> descriptors;
     ccstd::vector<uint32_t> descriptorOffsets;  // set offset to descriptors
 
+    // vertex layout
+    ccstd::unordered_map<ccstd::string, uint32_t> nameLocMap; // map <name, location>
+
     // shader resource list
-    AttributeList              attributes;
     UniformBlockList           blocks;
     UniformStorageBufferList   buffers;
     UniformSamplerTextureList  samplerTextures;

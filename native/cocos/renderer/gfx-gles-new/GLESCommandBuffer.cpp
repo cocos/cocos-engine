@@ -145,7 +145,7 @@ void CommandBuffer::nextSubpass() {
 }
 
 void CommandBuffer::draw(const DrawInfo &info) {
-    // enqueueCmd(&Commands::draw, _commands.get(), info);
+    enqueueCmd(&Commands::draw, _commands.get(), info);
 }
 
 void CommandBuffer::updateBuffer(gfx::Buffer *buff, const void *data, uint32_t size) {
