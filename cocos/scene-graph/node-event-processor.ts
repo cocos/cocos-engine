@@ -173,7 +173,6 @@ export class NodeEventProcessor {
             cancelEvent.touch = this._dispatchingTouch;
             this.dispatchEvent(cancelEvent);
             this.claimedTouchIdList.length = 0;
-            //this.claimedTouchIdList.splice(0, this.claimedTouchIdList.length);
             this._dispatchingTouch = null;
         }
     }
