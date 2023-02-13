@@ -137,6 +137,22 @@ uint32_t getRasterPassPreserveCount(const RasterPass& pass) {
     return 0;
 }
 
+gfx::GeneralBarrier *getGeneralBarrier(gfx::Device *device, const RasterView &view) {
+    if (view.accessType != AccessType::WRITE) { // Input
+        return device->getGeneralBarrier({
+            gfx::AccessFlagBit::COLOR_ATTACHMENT_READ,
+            gfx::AccessFlagBit::COLOR_ATTACHMENT_READ,
+        });
+    }
+
+    if (view.accessType != AccessType::READ) { // Output
+        auto accessFlagBit = view.attachmentType == AttachmentType::RENDER_TARGET ?
+            gfx::AccessFlagBit::COLOR_ATTACHMENT_WRITE : gfx::AccessFlagBit::DEPTH_STENCIL_ATTACHMENT_WRITE;
+        return device->getGeneralBarrier({accessFlagBit, accessFlagBit});
+    }
+    return nullptr;
+}
+
 PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
     RenderGraphVisitorContext& ctx, const RasterPass& pass,
     boost::container::pmr::memory_resource* scratch) {
@@ -186,7 +202,7 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
                         desc.sampleCount,
                         view.loadOp,
                         view.storeOp,
-                        nullptr,
+                        getGeneralBarrier(ctx.device, view),
                         hasFlag(desc.textureFlags, gfx::TextureFlags::GENERAL_LAYOUT),
                     });
                 if (view.accessType != AccessType::WRITE) { // Input
@@ -239,7 +255,7 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
                 dsv.depthStoreOp = view.storeOp;
                 dsv.stencilLoadOp = view.loadOp;
                 dsv.stencilStoreOp = view.storeOp;
-                dsv.barrier = nullptr;
+                dsv.barrier = getGeneralBarrier(ctx.device, view);
                 dsv.isGeneralLayout = hasFlag(desc.textureFlags, gfx::TextureFlags::GENERAL_LAYOUT);
 
                 CC_EXPECTS(numTotalAttachments > 0);
@@ -287,94 +303,6 @@ PersistentRenderPassAndFramebuffer& fetchOrCreateFramebuffer(
         CC_ENSURES(added);
     }
     return iter->second;
-}
-
-gfx::BufferBarrierInfo getBufferBarrier(const render::Barrier& barrier) {
-    gfx::MemoryUsage memUsage = gfx::MemoryUsage::DEVICE;
-
-    const auto& beginUsage = get<gfx::BufferUsage>(barrier.beginStatus.usage);
-    const auto& endUsage = get<gfx::BufferUsage>(barrier.endStatus.usage);
-
-    const auto& bufferRange = get<BufferRange>(barrier.beginStatus.range);
-    CC_EXPECTS(bufferRange.size);
-
-    return {
-        gfx::getAccessFlags(
-            beginUsage, memUsage,
-            barrier.beginStatus.access,
-            barrier.beginStatus.visibility),
-        gfx::getAccessFlags(
-            endUsage, memUsage,
-            barrier.endStatus.access,
-            barrier.endStatus.visibility),
-        barrier.type,
-        bufferRange.offset, bufferRange.size};
-}
-
-std::pair<gfx::TextureBarrierInfo, gfx::Texture*> getTextureBarrier(
-    ResourceGraph& resg, ResourceGraph::vertex_descriptor resID,
-    const render::Barrier& barrier) {
-    gfx::Texture* texture = resg.getTexture(resID);
-    CC_ENSURES(texture);
-
-    const auto& desc = get(ResourceGraph::DescTag{}, resg, resID);
-
-    const bool isExternal = barrier.endStatus.vertID == ResourceAccessGraph::null_vertex();
-
-    const auto barrierType = isExternal ? gfx::BarrierType::FULL : barrier.type;
-    const auto beginUsage = get<gfx::TextureUsage>(barrier.beginStatus.usage);
-    const auto endUsage = [&]() {
-        if (!isExternal) {
-            return get<gfx::TextureUsage>(barrier.endStatus.usage);
-        }
-        return gfx::TextureUsage::NONE;
-    }();
-
-    auto beginAccesFlags = gfx::getAccessFlags(
-        beginUsage,
-        barrier.beginStatus.access,
-        barrier.beginStatus.visibility);
-
-    auto endAccessFlags = [&]() {
-        if (!isExternal) {
-            return gfx::getAccessFlags(
-                endUsage,
-                barrier.endStatus.access,
-                barrier.endStatus.visibility);
-        }
-        auto& states = get(ResourceGraph::States, resg, resID);
-        if (holds<SwapchainTag>(resID, resg)) {
-            states.states = gfx::AccessFlagBit::PRESENT;
-            return states.states;
-        }
-        states.states =
-            gfx::AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE |
-            gfx::AccessFlagBit::VERTEX_SHADER_READ_TEXTURE |
-            gfx::AccessFlagBit::COMPUTE_SHADER_READ_TEXTURE;
-
-        return states.states;
-    }();
-
-    CC_ENSURES(beginAccesFlags != gfx::INVALID_ACCESS_FLAGS);
-    CC_ENSURES(endAccessFlags != gfx::INVALID_ACCESS_FLAGS);
-
-    const auto& textureRange = get<TextureRange>(barrier.beginStatus.range);
-    CC_EXPECTS(textureRange.levelCount);
-    CC_EXPECTS(textureRange.numSlices);
-
-    return {
-        gfx::TextureBarrierInfo{
-            beginAccesFlags,
-            endAccessFlags,
-            barrierType,
-            textureRange.mipLevel,
-            textureRange.levelCount,
-            textureRange.firstSlice,
-            textureRange.numSlices,
-            0,
-            nullptr,
-            nullptr},
-        texture};
 }
 
 struct RenderGraphFilter {
@@ -900,7 +828,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
                 case ResourceDimension::TEXTURE2D:
                 case ResourceDimension::TEXTURE3D:
                 default: {
-                    auto [info, texture] = getTextureBarrier(resg, resID, barrier);
+                    auto* texture = resg.getTexture(resID);
                     const auto* textureBarrier = static_cast<gfx::TextureBarrier*>(barrier.barrier);
                     textures.emplace_back(texture);
                     textureBarriers.emplace_back(textureBarrier);
