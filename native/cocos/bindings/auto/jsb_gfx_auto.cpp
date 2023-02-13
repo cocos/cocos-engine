@@ -28284,6 +28284,30 @@ static bool js_cc_gfx_Device_bindingMappingInfo(se::State& s)
 }
 SE_BIND_FUNC(js_cc_gfx_Device_bindingMappingInfo) 
 
+static bool js_cc_gfx_Device_enableAutoBarrier(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gfx::Device *arg1 = (cc::gfx::Device *) NULL ;
+    bool arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2);
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    (arg1)->enableAutoBarrier(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_gfx_Device_enableAutoBarrier) 
+
 static bool js_cc_gfx_Device_gfxAPI_get(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -28531,6 +28555,7 @@ bool js_register_cc_gfx_Device(se::Object* obj) {
     cls->defineFunction("hasFeature", _SE(js_cc_gfx_Device_hasFeature)); 
     cls->defineFunction("getFormatFeatures", _SE(js_cc_gfx_Device_getFormatFeatures)); 
     cls->defineFunction("bindingMappingInfo", _SE(js_cc_gfx_Device_bindingMappingInfo)); 
+    cls->defineFunction("enableAutoBarrier", _SE(js_cc_gfx_Device_enableAutoBarrier)); 
     
     
     
