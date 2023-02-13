@@ -403,7 +403,7 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
 
             AccessNodeInfo from = {srcAccess->attachmentStatus, srcRearBarriers, u};
             AccessNodeInfo to = {dstAccess->attachmentStatus, dstFrontBarriers, u};
-            fillBarrier(from, to, isAdjacent);
+            fillBarrier(from, to, isAdjacent, std::set<uint32_t>{});
 
             srcAccess = dstAccess;
             dstAccess = dstAccess->nextSubpass;
@@ -431,7 +431,7 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
         }
     }
 
-    void fillBarrier(const AccessNodeInfo &from, const AccessNodeInfo &to, bool isAdjacent) {
+    void fillBarrier(const AccessNodeInfo &from, const AccessNodeInfo &to, bool isAdjacent, std::set<uint32_t> &subpassResourceSet) {
         const auto &[srcStatus, srcRearBarriers, srcVert] = from;
         const auto &[dstStatus, dstFrontBarriers, dstVert] = to;
         std::vector<AccessStatus> commonResources;
@@ -450,6 +450,10 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
         // NOLINTNEXTLINE
         for (uint32_t i = 0; i < commonResources.size(); ++i) {
             uint32_t resourceID = commonResources[i].vertID;
+            if (subpassResourceSet.find(resourceID) != subpassResourceSet.end()) {
+                continue;
+            }
+            subpassResourceSet.emplace(resourceID);
             auto findAccessByID = [resourceID](const AccessStatus &resAccess) { return resAccess.vertID == resourceID; };
             auto fromIter = std::find_if(srcStatus.begin(), srcStatus.end(), findAccessByID);
             auto toIter = std::find_if(dstStatus.begin(), dstStatus.end(), findAccessByID);
@@ -654,12 +658,20 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
         const auto *srcHead = &fromAccess;
         const auto *dstHead = &toAccess;
 
-        uint32_t srcSubpassIndex = 0;
         bool srcHasSubpass = srcHead->nextSubpass;
         bool dstHasSubpass = dstHead->nextSubpass;
         srcHead = srcHasSubpass ? srcHead->nextSubpass : srcHead;
 
+        std::stack <const ResourceAccessNode *> reverseSubpassQ;
         while (srcHead) {
+            reverseSubpassQ.push(srcHead);
+            srcHead = srcHead->nextSubpass;
+        }
+        ccstd::set<uint32_t> subpassResourceSet;
+        while (!reverseSubpassQ.empty()) {
+            uint32_t srcSubpassIndex = reverseSubpassQ.size() - 1;
+            srcHead = reverseSubpassQ.top();
+            reverseSubpassQ.pop();
             const std::vector<AccessStatus> &fromStatus = srcHead->attachmentStatus;
             std::vector<Barrier> &srcRearBarriers = srcHasSubpass ? barrierMap[from].subpassBarriers[srcSubpassIndex].rearBarriers : barrierMap[from].blockBarrier.rearBarriers;
             uint32_t dstSubpassIndex = 0;
@@ -672,16 +684,16 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
                 AccessNodeInfo fromInfo = {fromStatus, srcRearBarriers, from};
                 AccessNodeInfo toInfo = {toStatus, dstFrontBarriers, to};
                 bool isExecAdjacent = isAdjacent && (!srcHead->nextSubpass && !dstSubpassIndex);
-                fillBarrier(fromInfo, toInfo, isAdjacent);
+                fillBarrier(fromInfo, toInfo, isAdjacent, subpassResourceSet);
                 dstHead = dstHead->nextSubpass;
                 ++dstSubpassIndex;
             }
-            srcHead = srcHead->nextSubpass;
-            ++srcSubpassIndex;
         }
 
         auto &rearBarriers = barrierMap[from].blockBarrier.rearBarriers;
         auto &frontBarriers = barrierMap[from].blockBarrier.frontBarriers;
+
+        uint32_t subpassIdx = 0;
         for (const auto &barriers : barrierMap[from].subpassBarriers) {
             for (const auto &barrier : barriers.rearBarriers) {
                 auto resID = barrier.resourceID;
@@ -692,10 +704,41 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
                 auto resFinalPassID = accessRecord.at(resID).currStatus.vertID;
 
                 if (resFinalPassID > from) {
-                    if (iter == rearBarriers.end()) {
-                        rearBarriers.emplace_back(barrier);
-                    } else {
-                        (*iter) = barrier;
+                    const auto *dstHead = dstHasSubpass ? toAccess.nextSubpass : &toAccess;
+                    const AccessStatus *dstAccess{nullptr};
+                    while (dstHead) {
+                        auto iter = std::find_if(dstHead->attachmentStatus.begin(), dstHead->attachmentStatus.end(), [resID](const AccessStatus &access) {
+                            return access.vertID == resID;
+                        });
+                        if (iter != dstHead->attachmentStatus.end()) {
+                            dstAccess = &(*iter);
+                            break;
+                        }
+                    }
+
+                    const auto *srcHead = srcHasSubpass ? fromAccess.nextSubpass : &fromAccess;
+                    uint32_t step = 0;
+                    while (step <= subpassIdx) {
+                        srcHead = srcHead->nextSubpass;
+                        ++step;
+                    }
+
+                    bool laterUse = false;
+                    while (srcHead) {
+                        const auto &attachments = srcHead->attachmentStatus;
+                        laterUse |= std::any_of(attachments.begin(), attachments.end(), [resID](const AccessStatus &access) {
+                            return access.vertID == resID;
+                        });
+                        srcHead = srcHead->nextSubpass;
+                    }
+
+                    const auto &srcAccess = laterUse ? barrier.endStatus : barrier.beginStatus;
+                    if (isTransitionStatusDependent(srcAccess, *dstAccess)) {
+                        if (iter == rearBarriers.end()) {
+                            rearBarriers.emplace_back(barrier);
+                        } else if (barrier.endStatus.vertID >= dstAccess->vertID) {
+                            (*iter) = barrier;
+                        }
                     }
                 }
             }
@@ -713,6 +756,8 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
                     frontBarriers.emplace_back(barrier);
                 }
             }
+            
+            subpassIdx++;
         }
     }
 
@@ -732,9 +777,6 @@ void buildBarriers(FrameGraphDispatcher &fgDispatcher) {
     auto &relationGraph = fgDispatcher.relationGraph;
     auto &externalResMap = fgDispatcher.externalResMap;
     auto &rag = fgDispatcher.resourceAccessGraph;
-
-    // disable gfx internal deduce
-    gfx::Device::getInstance()->enableAutoBarrier(false);
 
     // record resource current in-access and out-access for every single node
     if (!fgDispatcher._accessGraphBuilt) {
