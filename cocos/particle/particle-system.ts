@@ -810,14 +810,7 @@ export class ParticleSystem extends ModelRenderer {
     @serializable
     private _subPercent = 1.0;
 
-    private copyEmitter (subSrc: ParticleSystem, i: number) {
-        const subNode = new Node(subSrc.name + i.toString());
-        subNode.setParent(this.node);
-        subNode.addComponent(ParticleSystem);
-        subNode.setRotation(this.node.children[0].rotation);
-        const sub = subNode.components[0] as ParticleSystem;
-        sub._parentEmitter = this;
-
+    private copyEmitter (subSrc: ParticleSystem, sub: ParticleSystem) {
         sub.loop = subSrc.loop;
         sub.capacity = subSrc.capacity;
         sub.playOnAwake = subSrc.playOnAwake;
@@ -916,6 +909,16 @@ export class ParticleSystem extends ModelRenderer {
             sub.shapeModule.enable = true;
         }
 
+        if (subSrc.forceFieldModule) {
+            if (sub.forceFieldModule) {
+                for (let f = 0; f < subSrc.forceFieldModule.forceList.length; ++f) {
+                    const ff = subSrc.forceFieldModule.forceList[f];
+                    sub.forceFieldModule.forceList.push(ff);
+                }
+                sub.forceFieldModule.enable = subSrc.forceFieldModule.enable;
+            }
+        }
+
         sub.setMaterial(subSrc.getMaterial(1), 1);
 
         if (subSrc._trailModule) {
@@ -935,51 +938,96 @@ export class ParticleSystem extends ModelRenderer {
                 Object.assign(sub._trailModule.lifeTime, subSrc._trailModule.lifeTime);
                 Object.assign(sub._trailModule.widthRatio, subSrc._trailModule.widthRatio);
                 Object.assign(sub._trailModule.colorOverTrail, subSrc._trailModule.colorOverTrail);
-                Object.assign(sub._trailModule.colorOvertime, sub._trailModule.colorOvertime);
+                Object.assign(sub._trailModule.colorOvertime, subSrc._trailModule.colorOvertime);
             }
         }
 
-        sub.name = subSrc.name + i.toString();
         sub.renderer.cpuMaterial = subSrc.renderer.cpuMaterial;
         sub.renderer.alignSpace = subSrc.renderer.alignSpace;
         sub.renderer.mesh = subSrc.renderer.mesh;
         sub.renderer.renderMode = subSrc.renderer.renderMode;
+    }
+
+    private genSubEmitter (base: ParticleSystem, i: number, parent: ParticleSystem, subIndex: number) {
+        const subNode = new Node(base.name + i.toString());
+        subNode.setParent(parent.node);
+        subNode.addComponent(ParticleSystem);
+        subNode.setRotation(parent.node.children[subIndex].rotation);
+        const sub = subNode.components[0] as ParticleSystem;
+        sub._parentEmitter = parent;
+
+        this.copyEmitter(base, sub);
+
+        sub.name = base.name + i.toString();
         sub.stop();
-        this.addSubEmitter(sub);
+        parent.addSubEmitter(sub);
         // sub.node._objFlags |= CCObject.Flags.HideInHierarchy;
+
+        for (let bs = 0; bs < base.node.children.length; ++bs) {
+            const progenyBaseNode = base.node.children[bs];
+            if (progenyBaseNode.components.length > 0 && progenyBaseNode.components[0] instanceof ParticleSystem) {
+                const progenySrc: ParticleSystem = progenyBaseNode.components[0];
+                if (progenySrc.subBase) {
+                    const progenyName = `progenyBase:${progenySrc.name}${i.toString()}`;
+                    const progenyNode = new Node(progenyName);
+                    progenyNode.setParent(subNode);
+                    progenyNode.addComponent(ParticleSystem);
+                    progenyNode.setRotation(base.node.children[bs].rotation);
+                    const progeny = progenyNode.components[0] as ParticleSystem;
+
+                    this.copyEmitter(progenySrc, progeny);
+
+                    progeny.name = progenyName;
+                    progeny.stop();
+                    progenyNode.active = false;
+                    progeny.subBase = progenySrc.subBase;
+                }
+            }
+        }
+
+        return sub;
     }
 
     private refreshSubemitters () {
         if (!this._useSubEmitter) {
-            if (this._subEmitters.length > 0) {
-                while (this._subEmitters.length > 0) {
-                    const subRemove = this._subEmitters.pop();
-                    if (subRemove) {
-                        subRemove.node.parent?.removeChild(subRemove.node);
-                        subRemove.destroy();
-                    }
-                }
-                this._baseEmitters = [];
-                if (this.processor) {
-                    this.processor.clearSubemitter();
-                }
-            }
-            return;
+            this.removeSubEmitters(this);
+        } else {
+            this.createSubEmitterByBase(this);
         }
+    }
 
-        if (this._subEmitters.length === 0) {
-            for (let sub = 0; sub < this.node.children.length; ++sub) {
-                const subNode = this.node.children[sub];
-                if (subNode.components.length > 0 && subNode.components[0] instanceof ParticleSystem) {
-                    const subSrc: ParticleSystem = subNode.components[0];
-                    if (subSrc.subBase) {
-                        this._baseEmitters.push(subSrc);
-                        const cap = Math.round(this.capacity * subSrc.subPercent);
+    private createSubEmitterByBase (ps: ParticleSystem) {
+        if (ps._subEmitters.length === 0) {
+            for (let sub = 0; sub < ps.node.children.length; ++sub) {
+                const baseNode = ps.node.children[sub];
+                if (baseNode.components.length > 0 && baseNode.components[0] instanceof ParticleSystem) {
+                    const base: ParticleSystem = baseNode.components[0];
+                    if (base.subBase) {
+                        ps._baseEmitters.push(base);
+                        const cap = Math.round(ps.capacity * base.subPercent);
                         for (let i = 0; i < cap; ++i) {
-                            this.copyEmitter(subSrc, i);
+                            const subEmit = ps.genSubEmitter(base, i, ps, sub);
+                            subEmit._useSubEmitter = base._useSubEmitter;
                         }
                     }
                 }
+            }
+        }
+    }
+
+    private removeSubEmitters (ps: ParticleSystem) {
+        if (ps._subEmitters.length > 0) {
+            while (ps._subEmitters.length > 0) {
+                const subRemove = ps._subEmitters.pop();
+                if (subRemove) {
+                    this.removeSubEmitters(subRemove);
+                    subRemove.node.parent?.removeChild(subRemove.node);
+                    subRemove.destroy();
+                }
+            }
+            ps._baseEmitters = [];
+            if (ps.processor) {
+                ps.processor.clearSubemitter();
             }
         }
     }
@@ -1356,7 +1404,9 @@ export class ParticleSystem extends ModelRenderer {
     }
 
     protected update (dt: number) {
-        this.refreshSubemitters();
+        if (EDITOR) {
+            this.refreshSubemitters();
+        }
 
         const scaledDeltaTime = dt * this.simulationSpeed;
 
