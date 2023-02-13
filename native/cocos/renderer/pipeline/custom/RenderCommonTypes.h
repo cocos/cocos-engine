@@ -212,6 +212,7 @@ struct RasterView {
     gfx::StoreOp storeOp{gfx::StoreOp::STORE};
     gfx::ClearFlagBit clearFlags{gfx::ClearFlagBit::ALL};
     gfx::Color clearColor;
+    uint32_t slotID{0};
 };
 
 inline bool operator==(const RasterView& lhs, const RasterView& rhs) noexcept {

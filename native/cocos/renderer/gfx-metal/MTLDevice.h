@@ -87,6 +87,10 @@ public:
         }
     }
 
+    CommandBuffer *transferCommandBuffer() const;
+
+    void writeBuffer(Buffer *buffer, const void *data, uint32_t size);
+
 protected:
     static CCMTLDevice *_instance;
 
@@ -134,6 +138,7 @@ protected:
     ccstd::vector<CCMTLSwapchain *> _swapchains;
 
     CCMTLGPUDeviceObject *_gpuDeviceObj = nullptr;
+    uint8_t _inFlightCount = 0;
 };
 
 } // namespace gfx

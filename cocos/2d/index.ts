@@ -23,11 +23,9 @@
 */
 
 import {
-    CanvasPool,
     graphicsAssembler,
     labelAssembler,
     spriteAssembler,
-    earcut,
 } from './assembler';
 import { RenderData, MeshRenderData } from './renderer/render-data';
 import { MeshBuffer } from './renderer/mesh-buffer';
@@ -48,18 +46,16 @@ export * from './utils';
 export {
     MeshBuffer,
     StencilManager,
-    CanvasPool,
-    spriteAssembler,
-    labelAssembler,
-    graphicsAssembler,
-    earcut,
+    spriteAssembler, // use less
+    labelAssembler, // use less
+    graphicsAssembler, // use less
 };
 
 cclegacy.UI = {
-    MeshBuffer,
-    spriteAssembler,
-    graphicsAssembler,
-    labelAssembler,
+    MeshBuffer, // use less
+    spriteAssembler, // use less
+    graphicsAssembler, // use less
+    labelAssembler, // use less
     RenderData,
     MeshRenderData,
 };

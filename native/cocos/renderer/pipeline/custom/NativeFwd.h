@@ -30,16 +30,14 @@
 // clang-format off
 #pragma once
 #include "cocos/base/std/variant.h"
-#include "cocos/renderer/core/ProgramLib.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphFwd.h"
-#include "cocos/renderer/pipeline/custom/RenderInterfaceFwd.h"
+#include "cocos/renderer/pipeline/custom/PrivateFwd.h"
 
 namespace cc {
 
 namespace render {
 
 struct ProgramInfo;
-struct ProgramHost;
 struct ProgramGroup;
 
 } // namespace render

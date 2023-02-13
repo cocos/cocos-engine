@@ -25,11 +25,13 @@
 import { Joint2D } from './joint-2d';
 import { IMouseJoint } from '../../../spec/i-physics-joint';
 import { EJoint2DType } from '../../physics-types';
-import { Vec2, _decorator } from '../../../../core';
+import { CCFloat, Vec2, _decorator } from '../../../../core';
+import { help, serializable, tooltip, type } from '../../../../core/data/decorators';
 
 const { ccclass, menu, property } = _decorator;
 
 @ccclass('cc.MouseJoint2D')
+@help('i18n:cc.Joint2D')
 @menu('Physics2D/Joints/MouseJoint2D')
 export class MouseJoint2D extends Joint2D {
     TYPE = EJoint2DType.MOUSE;
@@ -50,7 +52,8 @@ export class MouseJoint2D extends Joint2D {
      * @zh
      * 弹簧系数。
      */
-    @property
+    @type(CCFloat)
+    @tooltip('i18n:physics2d.joint.frequency')
     get frequency (): number {
         return this._frequency;
     }
@@ -67,7 +70,8 @@ export class MouseJoint2D extends Joint2D {
      * @zh
      * 阻尼，表示关节变形后，恢复到初始状态受到的阻力。
      */
-    @property
+    @type(CCFloat)
+    @tooltip('i18n:physics2d.joint.dampingRatio')
     get dampingRatio (): number {
         return this._dampingRatio;
     }
@@ -84,7 +88,8 @@ export class MouseJoint2D extends Joint2D {
      * @zh
      * 最大阻力值。
      */
-    @property
+    @type(CCFloat)
+    @tooltip('i18n:physics2d.joint.maxForce')
     get maxForce (): number {
         return this._maxForce;
     }
@@ -99,11 +104,14 @@ export class MouseJoint2D extends Joint2D {
         this._joint!.update!(dt);
     }
 
-    @property
+    @serializable
     private _maxForce = 1000;
-    @property
+
+    @serializable
     private _dampingRatio = 0.7;
-    @property
+
+    @serializable
     private _frequency = 5;
+
     private _target = new Vec2();
 }

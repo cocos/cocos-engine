@@ -557,7 +557,7 @@ bool Mat4::decompose(Vec3 *scale, Quaternion *rotation, Vec3 *translation) const
     // In this case, we simply negate a single axis of the scale.
     float det = determinant();
     if (det < 0) {
-        scaleZ = -scaleZ;
+        scaleX = -scaleX;
     }
 
     if (scale) {
@@ -595,10 +595,10 @@ bool Mat4::decompose(Vec3 *scale, Quaternion *rotation, Vec3 *translation) const
     zaxis.z *= rn;
 
     // Now calculate the rotation from the resulting matrix (axes).
-    float trace = xaxis.x + yaxis.y + zaxis.z + 1.0F;
+    float trace = xaxis.x + yaxis.y + zaxis.z;
 
-    if (trace > MATH_EPSILON) {
-        float s = 0.5F / std::sqrt(trace);
+    if (trace > 0.0F) {
+        float s = 0.5F / std::sqrt(trace + 1.0F);
         rotation->w = 0.25F / s;
         rotation->x = (yaxis.z - zaxis.y) * s;
         rotation->y = (zaxis.x - xaxis.z) * s;

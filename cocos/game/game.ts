@@ -31,14 +31,13 @@ import { ConfigOrientation } from 'pal/screen-adapter';
 import assetManager, { IAssetManagerOptions } from '../asset/asset-manager/asset-manager';
 import { EventTarget, AsyncDelegate, sys, macro, VERSION, cclegacy, screen, Settings, settings, assert, garbageCollectionManager, DebugMode, warn, log, _resetDebugSetting } from '../core';
 import { input } from '../input';
-import { deviceManager } from '../gfx';
+import { deviceManager, LegacyRenderMode } from '../gfx';
 import { SplashScreen } from './splash-screen';
 import { RenderPipeline } from '../rendering';
 import { Layers, Node } from '../scene-graph';
 import { builtinResMgr } from '../asset/asset-manager/builtin-res-mgr';
 import { Director, director } from './director';
 import { bindingMappingInfo } from '../rendering/define';
-import { IBundleOptions } from '../asset/asset-manager/shared';
 import { ICustomJointTextureLayout } from '../3d/skeletal-animation/skeletal-animation-utils';
 import { IPhysicsConfig } from '../physics/framework/physics-config';
 import { effectSettings } from '../core/effect-settings';
@@ -174,7 +173,7 @@ export interface IGameConfig {
      * 是否让游戏外框对齐到屏幕上，目前只在 web 平台生效
      * @deprecated Since v3.6, Please use ```overrideSettings: { Settings.Category.SCREEN: { 'exactFitScreen': true }}``` to set this.
      */
-    exactFitScreen: boolean,
+    exactFitScreen?: boolean,
 }
 
 /**
@@ -752,6 +751,9 @@ export class Game extends EventTarget {
                 screen.init();
                 garbageCollectionManager.init();
                 deviceManager.init(this.canvas, bindingMappingInfo);
+                if (macro.CUSTOM_PIPELINE_NAME === '') {
+                    cclegacy.rendering = undefined;
+                }
                 assetManager.init();
                 builtinResMgr.init();
                 Layers.init();
@@ -770,10 +772,15 @@ export class Game extends EventTarget {
                 this.emit(Game.EVENT_PRE_SUBSYSTEM_INIT);
                 return this.onPreSubsystemInitDelegate.dispatch();
             })
-            .then(() => effectSettings.init(config.effectSettingsPath))
+            .then(() => effectSettings.init(settings.querySettings(Settings.Category.RENDERING, 'effectSettingsPath') as string))
             .then(() => {
                 // initialize custom render pipeline
                 if (!cclegacy.rendering || !cclegacy.rendering.enableEffectImport) {
+                    return;
+                }
+                const renderMode = settings.querySettings(Settings.Category.RENDERING, 'renderMode');
+                if (renderMode === LegacyRenderMode.HEADLESS) {
+                    cclegacy.rendering.init(deviceManager.gfxDevice, null);
                     return;
                 }
                 const data = effectSettings.data;
@@ -945,7 +952,7 @@ export class Game extends EventTarget {
         const preloadBundles = settings.querySettings<{ bundle: string, version: string }[]>(Settings.Category.ASSETS, 'preloadBundles');
         if (!preloadBundles) return Promise.resolve([]);
         return Promise.all(preloadBundles.map(({ bundle, version }) => new Promise<void>((resolve, reject) => {
-            const opts: IBundleOptions = {};
+            const opts: Record<string, any> = {};
             if (version) opts.version = version;
             assetManager.loadBundle(bundle, opts, (err) => {
                 if (err) {

@@ -22,27 +22,32 @@
  THE SOFTWARE.
 */
 
-import { Vec2, _decorator } from '../../../../core';
+import { CCFloat, Vec2, _decorator } from '../../../../core';
 import { Collider2D } from './collider-2d';
 import { ECollider2DType } from '../../physics-types';
 import { IPolygonShape } from '../../../spec/i-physics-shape';
+import { displayOrder, help, serializable, tooltip, type } from '../../../../core/data/decorators';
 
 const { ccclass, menu, property } = _decorator;
 
 @ccclass('cc.PolygonCollider2D')
+@help('i18n:cc.PolygonCollider2D')
 @menu('Physics2D/Colliders/PolygonCollider2D')
 export class PolygonCollider2D extends Collider2D {
-    @property({ serializable: false, displayOrder: 0 })
+    @type(CCFloat)
+    @displayOrder(0)
+    @tooltip('i18n:physics2d.collider.threshold')
     threshold = 1;
 
-    @property
+    @serializable
     private _points = [new Vec2(-1, -1), new Vec2(1, -1), new Vec2(1, 1), new Vec2(-1, 1)];
 
     /**
      * @en Polygon points.
      * @zh 多边形顶点数组。
      */
-    @property({ type: Vec2 })
+    @type([Vec2])
+    @tooltip('i18n:physics2d.collider.points')
     get points () {
         return this._points;
     }

@@ -5,6 +5,7 @@ CCEffect %{
     passes:
     - vert: fxaa-vs:vert
       frag: fxaa-edge-fs:frag
+      pass: fxaa
       depthStencilState:
         depthTest: false
         depthWrite: false
@@ -40,6 +41,7 @@ CCProgram fxaa-edge-fs %{
   };
 
   in vec2 v_uv;
+  #pragma rate sceneColorMap pass
   uniform sampler2D sceneColorMap;
 
   vec4 frag () {
@@ -56,6 +58,7 @@ CCProgram copy-fs %{
   };
 
   in vec2 v_uv;
+  #pragma rate sceneColorMap pass
   uniform sampler2D sceneColorMap;
 
   vec4 frag () {

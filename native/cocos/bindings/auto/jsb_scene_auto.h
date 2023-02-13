@@ -96,15 +96,6 @@ extern se::Object *__jsb_cc_SceneGlobals_proto; // NOLINT
 extern se::Class * __jsb_cc_SceneGlobals_class; // NOLINT
 
 
-JSB_REGISTER_OBJECT_TYPE(cc::DebugViewConfig);
-extern se::Object *__jsb_cc_DebugViewConfig_proto; // NOLINT
-extern se::Class * __jsb_cc_DebugViewConfig_class; // NOLINT
-
-
-template<>
-bool sevalue_to_native(const se::Value &from, cc::DebugViewConfig * to, se::Object *ctx);
-
-
 JSB_REGISTER_OBJECT_TYPE(cc::Root);
 extern se::Object *__jsb_cc_Root_proto; // NOLINT
 extern se::Class * __jsb_cc_Root_class; // NOLINT

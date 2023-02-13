@@ -73,6 +73,7 @@ CCMTLDevice::~CCMTLDevice() {
 
 bool CCMTLDevice::doInit(const DeviceInfo &info) {
     _gpuDeviceObj = ccnew CCMTLGPUDeviceObject;
+    
     _inFlightSemaphore = ccnew CCMTLSemaphore(3);
     _currentFrameIndex = 0;
 
@@ -142,6 +143,11 @@ bool CCMTLDevice::doInit(const DeviceInfo &info) {
 
     QueryPoolInfo queryPoolInfo{QueryType::OCCLUSION, DEFAULT_MAX_QUERY_OBJECTS, true};
     _queryPool = createQueryPool(queryPoolInfo);
+    
+    CommandBufferInfo transferCmdBuffInfo;
+    transferCmdBuffInfo.type = CommandBufferType::PRIMARY;
+    transferCmdBuffInfo.queue = _queue;
+    _gpuDeviceObj->_transferCmdBuffer = static_cast<CCMTLCommandBuffer*>(createCommandBuffer(transferCmdBuffInfo));
 
     CommandBufferInfo cmdBuffInfo;
     cmdBuffInfo.type = CommandBufferType::PRIMARY;
@@ -157,6 +163,7 @@ bool CCMTLDevice::doInit(const DeviceInfo &info) {
 
 void CCMTLDevice::doDestroy() {
 
+    CC_SAFE_DESTROY_AND_DELETE(_gpuDeviceObj->_transferCmdBuffer);
     CC_SAFE_DELETE(_gpuDeviceObj);
 
     CC_SAFE_DESTROY_AND_DELETE(_queryPool)
@@ -175,6 +182,7 @@ void CCMTLDevice::doDestroy() {
         CC_SAFE_DELETE(_gpuStagingBufferPools[i]);
         _gpuStagingBufferPools[i] = nullptr;
     }
+    _inFlightCount = 0;
 
     cc::gfx::mu::clearUtilResource();
 
@@ -224,6 +232,7 @@ void CCMTLDevice::present() {
 
     // present drawable
     {
+        ++_inFlightCount;
         id<MTLCommandBuffer> cmdBuffer = [queue->gpuQueueObj()->mtlCommandQueue commandBuffer];
         [cmdBuffer enqueue];
 
@@ -247,6 +256,7 @@ void CCMTLDevice::onPresentCompleted(uint32_t index) {
         }
     }
     _inFlightSemaphore->signal();
+    --_inFlightCount;
 }
 
 Queue *CCMTLDevice::createQueue() {
@@ -322,6 +332,32 @@ void CCMTLDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *t
 void CCMTLDevice::copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint32_t count) {
     CC_PROFILE(CCMTLDeviceCopyTextureToBuffers);
     static_cast<CCMTLCommandBuffer *>(_cmdBuff)->copyTextureToBuffers(src, buffers, region, count);
+}
+
+void CCMTLDevice::writeBuffer(Buffer* buffer, const void* data, uint32_t size) {
+    bool hasFrameInFlight = _inFlightCount;
+    auto* ccBuffer = static_cast<CCMTLBuffer*>(buffer);
+    id<MTLBuffer> mtlBuffer = ccBuffer->getMTLBuffer();
+    if(!hasFrameInFlight && mtlBuffer.storageMode != MTLStorageModePrivate) {
+        if(@available(macOS 10.15, *)) {
+            memcpy(mtlBuffer.contents, data, size);
+#if (CC_PLATFORM == CC_PLATFORM_MACOS)
+            if (mtlBuffer.storageMode == MTLStorageModeManaged) {
+                [mtlBuffer didModifyRange:NSMakeRange(0, size)]; // Synchronize the managed buffer.
+            }
+#endif
+        }
+        if(@available(iOS 11.0, *)) {
+            memcpy(mtlBuffer.contents, data, size);
+        }
+    } else {
+        CCMTLCommandBuffer* transferCmdBuffer = _gpuDeviceObj->_transferCmdBuffer;
+        transferCmdBuffer->updateBuffer(buffer, data, size);
+    }
+}
+
+CommandBuffer* CCMTLDevice::transferCommandBuffer() const {
+    return _gpuDeviceObj ? _gpuDeviceObj->_transferCmdBuffer : nullptr;
 }
 
 void CCMTLDevice::getQueryPoolResults(QueryPool *queryPool) {

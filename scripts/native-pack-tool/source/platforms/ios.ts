@@ -93,7 +93,7 @@ export class IOSPackTool extends MacOSPackTool {
 
         const ext: string[] = ['-DCMAKE_CXX_COMPILER=clang++', '-DCMAKE_C_COMPILER=clang'];
 
-        this.appendCmakeResDirArgs(ext);
+        this.appendCmakeCommonArgs(ext);
 
         const ver = toolHelper.getXcodeMajorVerion() >= 12 ? "12" : "1";
         await toolHelper.runCmake(['-S', `"${this.paths.platformTemplateDirInPrj}"`, '-GXcode', `-B"${nativePrjDir}"`, '-T', `buildsystem=${ver}`,

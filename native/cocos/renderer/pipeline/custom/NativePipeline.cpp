@@ -23,37 +23,39 @@
 ****************************************************************************/
 
 #include <boost/utility/string_view_fwd.hpp>
-#include <memory>
 #include <sstream>
-#include <stdexcept>
-#include <tuple>
-#include <type_traits>
-#include <utility>
 #include "LayoutGraphFwd.h"
 #include "LayoutGraphGraphs.h"
 #include "LayoutGraphNames.h"
 #include "LayoutGraphTypes.h"
+#include "LayoutGraphUtils.h"
 #include "NativePipelineFwd.h"
 #include "NativePipelineTypes.h"
+#include "NativeUtils.h"
 #include "RenderCommonTypes.h"
 #include "RenderGraphGraphs.h"
 #include "RenderGraphTypes.h"
 #include "RenderInterfaceFwd.h"
 #include "RenderInterfaceTypes.h"
+#include "RenderingModule.h"
+#include "cocos/application/ApplicationManager.h"
 #include "cocos/base/Macros.h"
 #include "cocos/base/Ptr.h"
 #include "cocos/base/StringUtil.h"
 #include "cocos/base/std/container/string.h"
+#include "cocos/core/Root.h"
 #include "cocos/math/Mat4.h"
 #include "cocos/renderer/gfx-base/GFXBuffer.h"
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/gfx-base/GFXDescriptorSetLayout.h"
 #include "cocos/renderer/gfx-base/GFXDevice.h"
+#include "cocos/renderer/gfx-base/GFXInputAssembler.h"
 #include "cocos/renderer/gfx-base/GFXSwapchain.h"
 #include "cocos/renderer/gfx-base/states/GFXSampler.h"
 #include "cocos/renderer/pipeline/Enum.h"
 #include "cocos/renderer/pipeline/GlobalDescriptorSetManager.h"
 #include "cocos/renderer/pipeline/PipelineSceneData.h"
+#include "cocos/renderer/pipeline/PipelineStateManager.h"
 #include "cocos/renderer/pipeline/RenderPipeline.h"
 #include "cocos/scene/RenderScene.h"
 #include "cocos/scene/RenderWindow.h"
@@ -76,11 +78,14 @@ SceneTask *NativeSceneTransversal::transverse(SceneVisitor *visitor) const {
 NativePipeline::NativePipeline(const allocator_type &alloc) noexcept
 : device(gfx::Device::getInstance()),
   globalDSManager(std::make_unique<pipeline::GlobalDSManager>()),
-  layoutGraph(alloc),
+  programLibrary(dynamic_cast<NativeProgramLibrary *>(getProgramLibrary())),
   pipelineSceneData(ccnew pipeline::PipelineSceneData()), // NOLINT
-  nativeContext(alloc),
+  nativeContext(std::make_unique<gfx::DefaultResource>(device), alloc),
   resourceGraph(alloc),
-  renderGraph(alloc) {}
+  renderGraph(alloc),
+  name(alloc) {
+    programLibrary->setPipeline(this);
+}
 
 gfx::Device *NativePipeline::getDevice() const {
     return device;
@@ -128,6 +133,9 @@ uint32_t NativePipeline::addRenderTexture(const ccstd::string &name, gfx::Format
 
     CC_ASSERT(renderWindow->getFramebuffer()->getColorTextures().size() == 1);
     CC_ASSERT(renderWindow->getFramebuffer()->getColorTextures().at(0));
+
+    desc.format = renderWindow->getFramebuffer()->getColorTextures()[0]->getFormat();
+
     return addVertex(
         SwapchainTag{},
         std::forward_as_tuple(name.c_str()),
@@ -209,6 +217,12 @@ void NativePipeline::updateRenderWindow(const ccstd::string &name, scene::Render
         },
         [&](RenderSwapchain &sc) {
             CC_EXPECTS(renderWindow->getSwapchain());
+            auto* newSwapchain = renderWindow->getSwapchain();
+            if (sc.generation != newSwapchain->getGeneration()) {
+                resourceGraph.invalidatePersistentRenderPassAndFramebuffer(
+                    sc.swapchain->getColorTexture());
+                sc.generation = newSwapchain->getGeneration();
+            }
             desc.width = renderWindow->getSwapchain()->getWidth();
             desc.height = renderWindow->getSwapchain()->getHeight();
             sc.swapchain = renderWindow->getSwapchain();
@@ -219,11 +233,36 @@ void NativePipeline::updateRenderWindow(const ccstd::string &name, scene::Render
 void NativePipeline::updateRenderTarget(
     const ccstd::string &name,
     uint32_t width, uint32_t height, gfx::Format format) { // NOLINT(bugprone-easily-swappable-parameters)
+    auto resID = findVertex(ccstd::pmr::string(name, get_allocator()), resourceGraph);
+    if (resID == ResourceGraph::null_vertex()) {
+        return;
+    }
+    auto &desc = get(ResourceGraph::Desc, resourceGraph, resID);
+
+    // update format
+    if (format == gfx::Format::UNKNOWN) {
+        format = desc.format;
+    }
+    visitObject(
+        resID, resourceGraph,
+        [&](ManagedTexture &tex) {
+            bool invalidate =
+                std::forward_as_tuple(desc.width, desc.height, desc.format) !=
+                std::forward_as_tuple(width, height, format);
+            if (invalidate) {
+                desc.width = width;
+                desc.height = height;
+                desc.format = format;
+                resourceGraph.invalidatePersistentRenderPassAndFramebuffer(tex.texture.get());
+            }
+        },
+        [](const auto & /*res*/) {});
 }
 
 void NativePipeline::updateDepthStencil(
     const ccstd::string &name,
     uint32_t width, uint32_t height, gfx::Format format) { // NOLINT(bugprone-easily-swappable-parameters)
+    updateRenderTarget(name, width, height, format);
 }
 
 void NativePipeline::beginFrame() {
@@ -231,6 +270,68 @@ void NativePipeline::beginFrame() {
 
 void NativePipeline::endFrame() {
 }
+
+namespace {
+
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
+void updateRasterPassConstants(uint32_t width, uint32_t height, Setter &setter) {
+    const auto &root = *Root::getInstance();
+    const auto shadingWidth = static_cast<float>(width);
+    const auto shadingHeight = static_cast<float>(height);
+    setter.setVec4(
+        "cc_time",
+        Vec4(
+            root.getCumulativeTime(),
+            root.getFrameTime(),
+            static_cast<float>(CC_CURRENT_ENGINE()->getTotalFrames()),
+            0.0F));
+
+    setter.setVec4(
+        "cc_screenSize",
+        Vec4(shadingWidth, shadingHeight, 1.0F / shadingWidth, 1.0F / shadingHeight));
+    setter.setVec4(
+        "cc_nativeSize",
+        Vec4(shadingWidth, shadingHeight, 1.0F / shadingWidth, 1.0F / shadingHeight));
+#if 0
+    const auto *debugView = root.getDebugView();
+    if (debugView) {
+        setter.setVec4(
+            "cc_debug_view_mode",
+            Vec4(static_cast<float>(debugView->getSingleMode()),
+                 debugView->isLightingWithAlbedo() ? 1.0F : 0.0F,
+                 debugView->isCsmLayerColoration() ? 1.0F : 0.0F,
+                 0.0F));
+        Vec4 debugPackVec{};
+        for (auto i = static_cast<uint32_t>(pipeline::DebugViewCompositeType::DIRECT_DIFFUSE);
+             i < static_cast<uint32_t>(pipeline::DebugViewCompositeType::MAX_BIT_COUNT); ++i) {
+            const auto idx = i % 4;
+            (&debugPackVec.x)[idx] = debugView->isCompositeModeEnabled(i) ? 1.0F : 0.0F;
+            const auto packIdx = static_cast<uint32_t>(floor(static_cast<float>(i) / 4.0F));
+            if (idx == 3) {
+                std::string name("cc_debug_view_composite_pack_");
+                name.append(std::to_string(packIdx + 1));
+                setter.setVec4(name, debugPackVec);
+            }
+        }
+    } else {
+        setter.setVec4("cc_debug_view_mode", Vec4(0.0F, 1.0F, 0.0F, 0.0F));
+        Vec4 debugPackVec{};
+        for (auto i = static_cast<uint32_t>(pipeline::DebugViewCompositeType::DIRECT_DIFFUSE);
+             i < static_cast<uint32_t>(pipeline::DebugViewCompositeType::MAX_BIT_COUNT); ++i) {
+            const auto idx = i % 4;
+            (&debugPackVec.x)[idx] = 1.0F;
+            const auto packIdx = static_cast<uint32_t>(floor(i / 4.0));
+            if (idx == 3) {
+                std::string name("cc_debug_view_composite_pack_");
+                name.append(std::to_string(packIdx + 1));
+                setter.setVec4(name, debugPackVec);
+            }
+        }
+    }
+#endif
+}
+
+} // namespace
 
 RasterPassBuilder *NativePipeline::addRasterPass(
     uint32_t width, uint32_t height, // NOLINT(bugprone-easily-swappable-parameters)
@@ -251,10 +352,13 @@ RasterPassBuilder *NativePipeline::addRasterPass(
         std::forward_as_tuple(std::move(pass)),
         renderGraph);
 
-    auto passLayoutID = locate(LayoutGraphData::null_vertex(), layoutName, layoutGraph);
+    auto passLayoutID = locate(LayoutGraphData::null_vertex(), layoutName, programLibrary->layoutGraph);
     CC_EXPECTS(passLayoutID != LayoutGraphData::null_vertex());
 
-    return ccnew NativeRasterPassBuilder(&renderGraph, passID, &layoutGraph, passLayoutID);
+    auto *builder = ccnew NativeRasterPassBuilder(this, &renderGraph, passID, &programLibrary->layoutGraph, passLayoutID);
+    updateRasterPassConstants(width, height, *builder);
+
+    return builder;
 }
 
 // NOLINTNEXTLINE
@@ -269,9 +373,9 @@ ComputePassBuilder *NativePipeline::addComputePass(const ccstd::string &layoutNa
         std::forward_as_tuple(),
         renderGraph);
 
-    auto passLayoutID = locate(LayoutGraphData::null_vertex(), layoutName, layoutGraph);
+    auto passLayoutID = locate(LayoutGraphData::null_vertex(), layoutName, programLibrary->layoutGraph);
 
-    return ccnew NativeComputePassBuilder(&renderGraph, passID, &layoutGraph, passLayoutID);
+    return ccnew NativeComputePassBuilder(&renderGraph, passID, &programLibrary->layoutGraph, passLayoutID);
 }
 
 // NOLINTNEXTLINE
@@ -335,14 +439,11 @@ SceneTransversal *NativePipeline::createSceneTransversal(const scene::Camera *ca
     return ccnew NativeSceneTransversal(camera, scene);
 }
 
-LayoutGraphBuilder *NativePipeline::getLayoutGraphBuilder() {
-    return ccnew NativeLayoutGraphBuilder(device, &layoutGraph);
-}
-
 gfx::DescriptorSetLayout *NativePipeline::getDescriptorSetLayout(const ccstd::string &shaderName, UpdateFrequency freq) {
-    auto iter = layoutGraph.shaderLayoutIndex.find(std::string_view{shaderName});
-    if (iter != layoutGraph.shaderLayoutIndex.end()) {
-        const auto &layouts = get(LayoutGraphData::Layout, layoutGraph, iter->second).descriptorSets;
+    const auto &lg = programLibrary->layoutGraph;
+    auto iter = lg.shaderLayoutIndex.find(std::string_view{shaderName});
+    if (iter != lg.shaderLayoutIndex.end()) {
+        const auto &layouts = get(LayoutGraphData::Layout, lg, iter->second).descriptorSets;
         auto iter2 = layouts.find(freq);
         if (iter2 != layouts.end()) {
             return iter2->second.descriptorSetLayout.get();
@@ -363,33 +464,33 @@ const ccstd::vector<gfx::CommandBuffer *> &NativePipeline::getCommandBuffers() c
 
 namespace {
 
-void generateConstantMacros(
+void buildLayoutGraphNodeBuffer(
     gfx::Device *device,
-    ccstd::string &constantMacros, bool clusterEnabled) {
-    constantMacros = StringUtil::format(
-        R"(
-#define CC_DEVICE_SUPPORT_FLOAT_TEXTURE %d
-#define CC_ENABLE_CLUSTERED_LIGHT_CULLING %d
-#define CC_DEVICE_MAX_VERTEX_UNIFORM_VECTORS %d
-#define CC_DEVICE_MAX_FRAGMENT_UNIFORM_VECTORS %d
-#define CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT %d
-#define CC_PLATFORM_ANDROID_AND_WEBGL 0
-#define CC_ENABLE_WEBGL_HIGHP_STRUCT_VALUES 0
-        )",
-        hasAnyFlags(device->getFormatFeatures(gfx::Format::RGBA32F),
-                    gfx::FormatFeature::RENDER_TARGET | gfx::FormatFeature::SAMPLED_TEXTURE),
-        clusterEnabled ? 1 : 0,
-        device->getCapabilities().maxVertexUniformVectors,
-        device->getCapabilities().maxFragmentUniformVectors,
-        device->hasFeature(gfx::Feature::INPUT_ATTACHMENT_BENEFIT));
+    const DescriptorSetLayoutData &data,
+    LayoutGraphNodeResource &node) {
+    for (const auto &[nameID, uniformBlock] : data.uniformBlocks) {
+        auto res = node.uniformBuffers.emplace(
+            std::piecewise_construct,
+            std::forward_as_tuple(nameID),
+            std::forward_as_tuple());
+        CC_ENSURES(res.second);
+        auto &buffer = res.first->second;
+        CC_EXPECTS(uniformBlock.count);
+        const auto bufferSize =
+            getUniformBlockSize(uniformBlock.members) * uniformBlock.count;
+
+        CC_ENSURES(bufferSize);
+        buffer.init(device, bufferSize, false);
+    }
 }
 
 } // namespace
 
 // NOLINTNEXTLINE
 bool NativePipeline::activate(gfx::Swapchain *swapchainIn) {
+    // setMacroInt("CC_PIPELINE_TYPE", 1);
+
     swapchain = swapchainIn;
-    macros["CC_PIPELINE_TYPE"] = 0;
     globalDSManager->activate(device);
     pipelineSceneData->activate(device);
 #if CC_USE_DEBUG_RENDERER
@@ -401,6 +502,101 @@ bool NativePipeline::activate(gfx::Swapchain *swapchainIn) {
     generateConstantMacros(device, constantMacros, false);
 
     _commandBuffers.resize(1, device->getCommandBuffer());
+
+    // reserve layout graph resource
+    const auto &lg = programLibrary->layoutGraph;
+    const auto numNodes = num_vertices(lg);
+    nativeContext.layoutGraphResources.reserve(numNodes);
+
+    for (uint32_t i = 0; i != numNodes; ++i) {
+        auto &node = nativeContext.layoutGraphResources.emplace_back();
+        const auto &layout = get(LayoutGraphData::Layout, lg, i);
+        if (holds<RenderStageTag>(i, lg)) {
+            auto iter = layout.descriptorSets.find(UpdateFrequency::PER_PASS);
+            if (iter == layout.descriptorSets.end()) {
+                continue;
+            }
+            const auto &set = iter->second;
+            // reserve buffer
+            buildLayoutGraphNodeBuffer(device, set.descriptorSetLayoutData, node);
+            // reserve descriptor sets
+            node.descriptorSetPool.init(device, set.descriptorSetLayout);
+        } else {
+            auto iter = layout.descriptorSets.find(UpdateFrequency::PER_PHASE);
+            if (iter == layout.descriptorSets.end()) {
+                continue;
+            }
+            const auto &set = iter->second;
+            // reserve buffer
+            buildLayoutGraphNodeBuffer(device, set.descriptorSetLayoutData, node);
+            // reserve descriptor sets
+            node.descriptorSetPool.init(device, set.descriptorSetLayout);
+        }
+    }
+
+    // create ia
+    {
+        CC_EXPECTS(device);
+        // create vertex buffer
+        const auto vbStride = sizeof(float) * 4; // 4 float per vertex
+        const auto vbSize = vbStride * 4;        // 4 vertices
+        IntrusivePtr<gfx::Buffer> quadVB = device->createBuffer(gfx::BufferInfo{
+            gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
+            gfx::MemoryUsageBit::DEVICE | gfx::MemoryUsageBit::HOST,
+            vbSize,
+            vbStride});
+
+        CC_ENSURES(quadVB);
+
+        // update vertex buffer
+        float vbData[16] = {};
+        render::setupQuadVertexBuffer(*device, Vec4{0, 0, 1, 1}, vbData);
+        static_assert(sizeof(vbData) == 16 * 4);
+        CC_ENSURES(sizeof(vbData) == vbSize);
+        quadVB->update(vbData, sizeof(vbData));
+
+        // create index buffer
+        const auto ibStride = sizeof(uint16_t);
+        const auto ibSize = ibStride * 6;
+
+        IntrusivePtr<gfx::Buffer> quadIB = device->createBuffer(gfx::BufferInfo{
+            gfx::BufferUsageBit::INDEX | gfx::BufferUsageBit::TRANSFER_DST,
+            gfx::MemoryUsageBit::DEVICE,
+            ibSize,
+            ibStride});
+
+        CC_ENSURES(quadIB);
+
+        ccstd::vector<uint16_t> indices(6);
+        indices[0] = 0;
+        indices[1] = 1;
+        indices[2] = 2;
+        indices[3] = 1;
+        indices[4] = 3;
+        indices[5] = 2;
+
+        quadIB->update(indices.data(),
+                       static_cast<uint32_t>(indices.size() * sizeof(decltype(indices)::value_type)));
+
+        // create input assembler
+        ccstd::vector<gfx::Attribute> attributes;
+        attributes.reserve(2);
+        attributes.emplace_back(gfx::Attribute{"a_position", gfx::Format::RG32F});
+        attributes.emplace_back(gfx::Attribute{"a_texCoord", gfx::Format::RG32F});
+
+        ccstd::vector<gfx::Buffer *> buffers;
+        buffers.emplace_back(quadVB.get());
+
+        IntrusivePtr<gfx::InputAssembler> quadIA = device->createInputAssembler(
+            gfx::InputAssemblerInfo{attributes, buffers, quadIB});
+        CC_ENSURES(quadIA);
+
+        // init fullscreenQuad
+        nativeContext.fullscreenQuad.quadIB = quadIB;
+        nativeContext.fullscreenQuad.quadVB = quadVB;
+        nativeContext.fullscreenQuad.quadIA = quadIA;
+    }
+
     return true;
 }
 
@@ -413,7 +609,7 @@ bool NativePipeline::destroy() noexcept {
         pipelineSceneData->destroy();
         pipelineSceneData = {};
     }
-
+    pipeline::PipelineStateManager::destroyAll();
     return true;
 }
 

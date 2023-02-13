@@ -243,6 +243,7 @@ using namespace cc;
 %attribute(cc::Root, cc::render::PipelineRuntime *, pipeline, getPipeline);
 %attribute(cc::Root, cc::render::Pipeline*, customPipeline, getCustomPipeline);
 %attribute(cc::Root, %arg(ccstd::vector<cc::scene::Camera*> &), cameraList, getCameraList);
+%attribute(cc::Root, cc::pipeline::DebugView*, debugView, getDebugView);
 
 %attribute(cc::scene::RenderWindow, uint32_t, width, getWidth);
 %attribute(cc::scene::RenderWindow, uint32_t, height, getHeight);
@@ -453,6 +454,7 @@ using namespace cc;
 %attribute(cc::scene::Model, bool, useLightProbe, getUseLightProbe, setUseLightProbe);
 %attribute(cc::scene::Model, bool, bakeToReflectionProbe, getBakeToReflectionProbe, setBakeToReflectionProbe);
 %attribute(cc::scene::Model, uint32_t, reflectionProbeType, getReflectionProbeType, setReflectionProbeType);
+%attribute(cc::scene::Model, bool, receiveDirLight, isReceiveDirLight, setReceiveDirLight);
 
 %attribute(cc::scene::SubModel, std::shared_ptr<ccstd::vector<cc::IntrusivePtr<cc::scene::Pass>>> &, passes, getPasses, setPasses);
 %attribute(cc::scene::SubModel, ccstd::vector<cc::IntrusivePtr<cc::gfx::Shader>> &, shaders, getShaders, setShaders);

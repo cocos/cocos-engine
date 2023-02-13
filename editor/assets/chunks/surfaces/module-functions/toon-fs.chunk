@@ -83,10 +83,23 @@ void CCSurfacesLightingCalculateIntermediateData_PerLight(inout LightingIntermed
   CCSurfacesLightingGetIntermediateData_PerLight(lightingData, lightDirWithDist);
 }
 
-// Copy material data to lighting results
+// Copy material data to lighting results for base pass
 void CCSurfacesInitializeLightingResult(inout LightingResult lightingResult, in SurfacesMaterialData surfaceData)
 {
   lightingResult.emissive = surfaceData.emissive;
+}
+
+// Init accumulated lighting results for additive pass
+void CCSurfacesInitializeLightingResult(inout LightingResult lightingResult)
+{
+  lightingResult.directDiffuse = lightingResult.directSpecular = vec3(0.0);
+}
+
+// Accumulated lighting results for additive pass
+void CCSurfacesAccumulateLightingResult(inout LightingResult lightingResultAccumulated, in LightingResult lightingResult)
+{
+  lightingResultAccumulated.directDiffuse += lightingResult.directDiffuse * lightingResult.shadow;
+  lightingResultAccumulated.directSpecular += lightingResult.directSpecular * lightingResult.shadow;
 }
 
 // Lighting

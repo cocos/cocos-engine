@@ -130,6 +130,10 @@ using namespace cc;
 #define cc_pipeline_PipelineSceneData_lightProbes_get(self_) self_->getLightProbes()
   
 
+#define cc_pipeline_PipelineSceneData_validPunctualLights_get(self_) self_->getValidPunctualLights()
+#define cc_pipeline_PipelineSceneData_validPunctualLights_set(self_, val_) self_->setValidPunctualLights(val_)
+  
+
 #define cc_pipeline_RenderStage__name_get(self_) self_->getName()
 #define cc_pipeline_RenderStage__name_set(self_, val_) self_->setName(val_)
   
@@ -168,6 +172,18 @@ using namespace cc;
 
 #define cc_pipeline_RenderFlow__stages_get(self_) self_->getStages()
 #define cc_pipeline_RenderFlow__stages_set(self_, val_) self_->setStages(val_)
+  
+
+#define cc_pipeline_DebugView_singleMode_get(self_) self_->getSingleMode()
+#define cc_pipeline_DebugView_singleMode_set(self_, val_) self_->setSingleMode(val_)
+  
+
+#define cc_pipeline_DebugView_lightingWithAlbedo_get(self_) self_->isLightingWithAlbedo()
+#define cc_pipeline_DebugView_lightingWithAlbedo_set(self_, val_) self_->setLightingWithAlbedo(val_)
+  
+
+#define cc_pipeline_DebugView_csmLayerColoration_get(self_) self_->isCsmLayerColoration()
+#define cc_pipeline_DebugView_csmLayerColoration_set(self_, val_) self_->setCsmLayerColoration(val_)
   
 
 
@@ -4379,6 +4395,7 @@ bool js_register_cc_pipeline_UBOGlobal(se::Object* obj) {
     cls->defineStaticProperty("DEBUG_VIEW_COMPOSITE_PACK_1_OFFSET", nullptr, nullptr); 
     cls->defineStaticProperty("DEBUG_VIEW_COMPOSITE_PACK_2_OFFSET", nullptr, nullptr); 
     cls->defineStaticProperty("DEBUG_VIEW_COMPOSITE_PACK_3_OFFSET", nullptr, nullptr); 
+    cls->defineStaticProperty("DEBUG_VIEW_COMPOSITE_PACK_4_OFFSET", nullptr, nullptr); 
     cls->defineStaticProperty("COUNT", nullptr, nullptr); 
     cls->defineStaticProperty("SIZE", nullptr, nullptr); 
     cls->defineStaticProperty("BINDING", nullptr, nullptr); 
@@ -7863,7 +7880,7 @@ static bool js_cc_pipeline_RenderPipeline_genQuadVertexData(se::State& s)
     size_t argc = args.size();
     cc::pipeline::RenderPipeline *arg1 = (cc::pipeline::RenderPipeline *) NULL ;
     cc::Vec4 *arg2 = 0 ;
-    float *arg3 = (float *) NULL ;
+    float *arg3 ;
     cc::Vec4 temp2 ;
     
     if(argc != 2) {
@@ -9658,6 +9675,301 @@ bool js_register_cc_pipeline_RenderStage(se::Object* obj) {
     
     __jsb_cc_pipeline_RenderStage_proto = cls->getProto();
     __jsb_cc_pipeline_RenderStage_class = cls;
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+
+se::Class* __jsb_cc_pipeline_DebugView_class = nullptr;
+se::Object* __jsb_cc_pipeline_DebugView_proto = nullptr;
+SE_DECLARE_FINALIZE_FUNC(js_delete_cc_pipeline_DebugView) 
+
+static bool js_new_cc_pipeline_DebugView(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    
+    cc::pipeline::DebugView *result;
+    result = (cc::pipeline::DebugView *)new cc::pipeline::DebugView();
+    
+    
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+SE_BIND_CTOR(js_new_cc_pipeline_DebugView, __jsb_cc_pipeline_DebugView_class, js_delete_cc_pipeline_DebugView)
+
+static bool js_delete_cc_pipeline_DebugView(se::State& s)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_delete_cc_pipeline_DebugView) 
+
+static bool js_cc_pipeline_DebugView_isCompositeModeEnabled(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::pipeline::DebugView *arg1 = (cc::pipeline::DebugView *) NULL ;
+    uint32_t arg2 ;
+    bool result;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::pipeline::DebugView>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    result = (bool)((cc::pipeline::DebugView const *)arg1)->isCompositeModeEnabled(arg2);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_pipeline_DebugView_isCompositeModeEnabled) 
+
+static bool js_cc_pipeline_DebugView_enableCompositeMode(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::pipeline::DebugView *arg1 = (cc::pipeline::DebugView *) NULL ;
+    cc::pipeline::DebugViewCompositeType arg2 ;
+    bool arg3 ;
+    
+    if(argc != 2) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::pipeline::DebugView>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    
+    ok &= sevalue_to_native(args[1], &arg3);
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    (arg1)->enableCompositeMode(arg2,arg3);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_pipeline_DebugView_enableCompositeMode) 
+
+static bool js_cc_pipeline_DebugView_enableAllCompositeMode(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::pipeline::DebugView *arg1 = (cc::pipeline::DebugView *) NULL ;
+    bool arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::pipeline::DebugView>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2);
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    (arg1)->enableAllCompositeMode(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_pipeline_DebugView_enableAllCompositeMode) 
+
+static bool js_cc_pipeline_DebugView_isEnabled(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::pipeline::DebugView *arg1 = (cc::pipeline::DebugView *) NULL ;
+    bool result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::pipeline::DebugView>(s);
+    if (nullptr == arg1) return true;
+    result = (bool)((cc::pipeline::DebugView const *)arg1)->isEnabled();
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_pipeline_DebugView_isEnabled) 
+
+static bool js_cc_pipeline_DebugView_reset(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::pipeline::DebugView *arg1 = (cc::pipeline::DebugView *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::pipeline::DebugView>(s);
+    if (nullptr == arg1) return true;
+    (arg1)->reset();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_pipeline_DebugView_reset) 
+
+static bool js_cc_pipeline_DebugView_singleMode_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::pipeline::DebugView *arg1 = (cc::pipeline::DebugView *) NULL ;
+    cc::pipeline::DebugViewSingleType arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::pipeline::DebugView>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    cc_pipeline_DebugView_singleMode_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_pipeline_DebugView_singleMode_set) 
+
+static bool js_cc_pipeline_DebugView_singleMode_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::pipeline::DebugView *arg1 = (cc::pipeline::DebugView *) NULL ;
+    cc::pipeline::DebugViewSingleType result;
+    
+    arg1 = SE_THIS_OBJECT<cc::pipeline::DebugView>(s);
+    if (nullptr == arg1) return true;
+    result = (cc::pipeline::DebugViewSingleType)cc_pipeline_DebugView_singleMode_get(arg1);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_pipeline_DebugView_singleMode_get) 
+
+static bool js_cc_pipeline_DebugView_lightingWithAlbedo_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::pipeline::DebugView *arg1 = (cc::pipeline::DebugView *) NULL ;
+    bool arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::pipeline::DebugView>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2);
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    cc_pipeline_DebugView_lightingWithAlbedo_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_pipeline_DebugView_lightingWithAlbedo_set) 
+
+static bool js_cc_pipeline_DebugView_lightingWithAlbedo_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::pipeline::DebugView *arg1 = (cc::pipeline::DebugView *) NULL ;
+    bool result;
+    
+    arg1 = SE_THIS_OBJECT<cc::pipeline::DebugView>(s);
+    if (nullptr == arg1) return true;
+    result = (bool)cc_pipeline_DebugView_lightingWithAlbedo_get(arg1);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_pipeline_DebugView_lightingWithAlbedo_get) 
+
+static bool js_cc_pipeline_DebugView_csmLayerColoration_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::pipeline::DebugView *arg1 = (cc::pipeline::DebugView *) NULL ;
+    bool arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::pipeline::DebugView>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2);
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    cc_pipeline_DebugView_csmLayerColoration_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_pipeline_DebugView_csmLayerColoration_set) 
+
+static bool js_cc_pipeline_DebugView_csmLayerColoration_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::pipeline::DebugView *arg1 = (cc::pipeline::DebugView *) NULL ;
+    bool result;
+    
+    arg1 = SE_THIS_OBJECT<cc::pipeline::DebugView>(s);
+    if (nullptr == arg1) return true;
+    result = (bool)cc_pipeline_DebugView_csmLayerColoration_get(arg1);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_pipeline_DebugView_csmLayerColoration_get) 
+
+bool js_register_cc_pipeline_DebugView(se::Object* obj) {
+    auto* cls = se::Class::create("DebugView", obj, nullptr, _SE(js_new_cc_pipeline_DebugView)); 
+    
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
+    cls->defineProperty("singleMode", _SE(js_cc_pipeline_DebugView_singleMode_get), _SE(js_cc_pipeline_DebugView_singleMode_set)); 
+    cls->defineProperty("lightingWithAlbedo", _SE(js_cc_pipeline_DebugView_lightingWithAlbedo_get), _SE(js_cc_pipeline_DebugView_lightingWithAlbedo_set)); 
+    cls->defineProperty("csmLayerColoration", _SE(js_cc_pipeline_DebugView_csmLayerColoration_get), _SE(js_cc_pipeline_DebugView_csmLayerColoration_set)); 
+    
+    cls->defineFunction("isCompositeModeEnabled", _SE(js_cc_pipeline_DebugView_isCompositeModeEnabled)); 
+    cls->defineFunction("enableCompositeMode", _SE(js_cc_pipeline_DebugView_enableCompositeMode)); 
+    cls->defineFunction("enableAllCompositeMode", _SE(js_cc_pipeline_DebugView_enableAllCompositeMode)); 
+    cls->defineFunction("isEnabled", _SE(js_cc_pipeline_DebugView_isEnabled)); 
+    cls->defineFunction("reset", _SE(js_cc_pipeline_DebugView_reset)); 
+    
+    
+    
+    
+    cls->defineFinalizeFunction(_SE(js_delete_cc_pipeline_DebugView));
+    
+    
+    cls->install();
+    JSBClassType::registerClass<cc::pipeline::DebugView>(cls);
+    
+    __jsb_cc_pipeline_DebugView_proto = cls->getProto();
+    __jsb_cc_pipeline_DebugView_class = cls;
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -13550,31 +13862,6 @@ static bool js_cc_pipeline_PipelineSceneData_setShadowFramebuffer(se::State& s)
 }
 SE_BIND_FUNC(js_cc_pipeline_PipelineSceneData_setShadowFramebuffer) 
 
-static bool js_cc_pipeline_PipelineSceneData_getValidPunctualLights(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::pipeline::PipelineSceneData *arg1 = (cc::pipeline::PipelineSceneData *) NULL ;
-    ccstd::vector< cc::scene::Light const * > *result = 0 ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
-    if (nullptr == arg1) return true;
-    result = (ccstd::vector< cc::scene::Light const * > *) &((cc::pipeline::PipelineSceneData const *)arg1)->getValidPunctualLights();
-    
-    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_pipeline_PipelineSceneData_getValidPunctualLights) 
-
 static bool js_cc_pipeline_PipelineSceneData_getOctree(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -14060,6 +14347,47 @@ static bool js_cc_pipeline_PipelineSceneData_lightProbes_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_pipeline_PipelineSceneData_lightProbes_get) 
 
+static bool js_cc_pipeline_PipelineSceneData_validPunctualLights_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::pipeline::PipelineSceneData *arg1 = (cc::pipeline::PipelineSceneData *) NULL ;
+    ccstd::vector< cc::scene::Light const * > arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    cc_pipeline_PipelineSceneData_validPunctualLights_set(arg1,SWIG_STD_MOVE(arg2));
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_pipeline_PipelineSceneData_validPunctualLights_set) 
+
+static bool js_cc_pipeline_PipelineSceneData_validPunctualLights_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::pipeline::PipelineSceneData *arg1 = (cc::pipeline::PipelineSceneData *) NULL ;
+    ccstd::vector< cc::scene::Light const * > result;
+    
+    arg1 = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
+    if (nullptr == arg1) return true;
+    result = cc_pipeline_PipelineSceneData_validPunctualLights_get(arg1);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_pipeline_PipelineSceneData_validPunctualLights_get) 
+
 bool js_register_cc_pipeline_PipelineSceneData(se::Object* obj) {
     auto* cls = se::Class::create("PipelineSceneData", obj, nullptr, _SE(js_new_cc_pipeline_PipelineSceneData)); 
     
@@ -14071,12 +14399,12 @@ bool js_register_cc_pipeline_PipelineSceneData(se::Object* obj) {
     cls->defineProperty("skybox", _SE(js_cc_pipeline_PipelineSceneData_skybox_get), nullptr); 
     cls->defineProperty("shadows", _SE(js_cc_pipeline_PipelineSceneData_shadows_get), nullptr); 
     cls->defineProperty("lightProbes", _SE(js_cc_pipeline_PipelineSceneData_lightProbes_get), nullptr); 
+    cls->defineProperty("validPunctualLights", _SE(js_cc_pipeline_PipelineSceneData_validPunctualLights_get), _SE(js_cc_pipeline_PipelineSceneData_validPunctualLights_set)); 
     
     cls->defineFunction("activate", _SE(js_cc_pipeline_PipelineSceneData_activate)); 
     cls->defineFunction("destroy", _SE(js_cc_pipeline_PipelineSceneData_destroy)); 
     cls->defineFunction("updatePipelineSceneData", _SE(js_cc_pipeline_PipelineSceneData_updatePipelineSceneData)); 
     cls->defineFunction("setShadowFramebuffer", _SE(js_cc_pipeline_PipelineSceneData_setShadowFramebuffer)); 
-    cls->defineFunction("getValidPunctualLights", _SE(js_cc_pipeline_PipelineSceneData_getValidPunctualLights)); 
     cls->defineFunction("getOctree", _SE(js_cc_pipeline_PipelineSceneData_getOctree)); 
     cls->defineFunction("getOcclusionQueryInputAssembler", _SE(js_cc_pipeline_PipelineSceneData_getOcclusionQueryInputAssembler)); 
     cls->defineFunction("getOcclusionQueryPass", _SE(js_cc_pipeline_PipelineSceneData_getOcclusionQueryPass)); 
@@ -21401,6 +21729,7 @@ bool register_all_pipeline(se::Object* obj) {
     js_register_cc_pipeline_RenderFlow(ns); 
     js_register_cc_pipeline_RenderStageInfo(ns); 
     js_register_cc_pipeline_RenderStage(ns); 
+    js_register_cc_pipeline_DebugView(ns); 
     js_register_cc_pipeline_ForwardPipeline(ns); 
     js_register_cc_pipeline_ForwardFlow(ns); 
     js_register_cc_pipeline_ForwardStage(ns); 
