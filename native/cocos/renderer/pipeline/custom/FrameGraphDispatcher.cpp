@@ -403,7 +403,8 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
 
             AccessNodeInfo from = {srcAccess->attachmentStatus, srcRearBarriers, u};
             AccessNodeInfo to = {dstAccess->attachmentStatus, dstFrontBarriers, u};
-            fillBarrier(from, to, isAdjacent, std::set<uint32_t>{});
+            std::set<uint32_t> noUseSet;
+            fillBarrier(from, to, isAdjacent, noUseSet);
 
             srcAccess = dstAccess;
             dstAccess = dstAccess->nextSubpass;
@@ -662,7 +663,7 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
         bool dstHasSubpass = dstHead->nextSubpass;
         srcHead = srcHasSubpass ? srcHead->nextSubpass : srcHead;
 
-        std::stack <const ResourceAccessNode *> reverseSubpassQ;
+        std::stack<const ResourceAccessNode *> reverseSubpassQ;
         while (srcHead) {
             reverseSubpassQ.push(srcHead);
             srcHead = srcHead->nextSubpass;
@@ -756,7 +757,7 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
                     frontBarriers.emplace_back(barrier);
                 }
             }
-            
+
             subpassIdx++;
         }
     }
