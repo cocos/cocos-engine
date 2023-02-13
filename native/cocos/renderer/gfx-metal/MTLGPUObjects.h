@@ -47,6 +47,7 @@ class CCMTLFramebuffer;
 class CCMTLInputAssembler;
 class CCMTLPipelineState;
 class CCMTLSemaphore;
+class CCMTLCommandBuffer;
 
 namespace {
 constexpr size_t MegaBytesToBytes = 1024 * 1024;
@@ -312,6 +313,7 @@ struct CCMTLGPUCommandBufferObject {
 };
 
 struct CCMTLGPUDeviceObject {
+    CCMTLCommandBuffer* _transferCmdBuffer{nullptr};
 };
 
 struct CCMTLGPUQueryPool {

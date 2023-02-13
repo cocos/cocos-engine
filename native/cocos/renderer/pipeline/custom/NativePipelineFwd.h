@@ -38,7 +38,6 @@ namespace cc {
 
 namespace render {
 
-class NativeLayoutGraphBuilder;
 class NativeRasterQueueBuilder;
 class NativeRasterPassBuilder;
 class NativeComputeQueueBuilder;
@@ -46,7 +45,6 @@ class NativeComputePassBuilder;
 class NativeMovePassBuilder;
 class NativeCopyPassBuilder;
 class NativeSceneTransversal;
-struct PersistentRenderPassAndFramebuffer;
 struct RenderInstancingQueue;
 struct DrawInstance;
 struct RenderDrawQueue;

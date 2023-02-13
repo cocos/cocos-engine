@@ -40,6 +40,7 @@ namespace render {
 namespace {
 
 NativeRenderingModule* sRenderingModule = nullptr;
+NativePipeline* sPipeline = nullptr;
 
 } // namespace
 
@@ -65,14 +66,18 @@ void Factory::destroy(RenderingModule* renderingModule) noexcept {
         ptr->programLibrary.reset();
         CC_EXPECTS(sRenderingModule == renderingModule);
         sRenderingModule = nullptr;
+        sPipeline = nullptr;
     }
 }
 
 Pipeline* Factory::createPipeline() {
-    auto* ptr = ccnew NativePipeline(boost::container::pmr::get_default_resource());
+    if (sPipeline) {
+        return sPipeline;
+    }
+    sPipeline = ccnew NativePipeline(boost::container::pmr::get_default_resource());
     CC_EXPECTS(sRenderingModule);
-    sRenderingModule->programLibrary->pipeline = ptr;
-    return ptr;
+    sRenderingModule->programLibrary->pipeline = sPipeline;
+    return sPipeline;
 }
 
 ProgramLibrary* getProgramLibrary() {
@@ -83,7 +88,6 @@ ProgramLibrary* getProgramLibrary() {
 }
 
 RenderingModule* getRenderingModule() {
-    CC_EXPECTS(sRenderingModule);
     return sRenderingModule;
 }
 

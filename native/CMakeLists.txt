@@ -1343,7 +1343,6 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/NativeExecutor.cpp
                  cocos/renderer/pipeline/custom/NativeFactory.cpp
                  cocos/renderer/pipeline/custom/NativeFwd.h
-                 cocos/renderer/pipeline/custom/NativeLayoutGraph.cpp
                  cocos/renderer/pipeline/custom/NativePipeline.cpp
                  cocos/renderer/pipeline/custom/NativePipelineFwd.h
                  cocos/renderer/pipeline/custom/NativePipelineGraphs.h
@@ -2781,19 +2780,12 @@ endif()
 ##### ar module
 if(USE_AR_MODULE)
     cocos_source_files(
-        cocos/xr/ar/ARModule.cpp
         cocos/xr/ar/ARModule.h
-        cocos/xr/ar/IARAPI.h
         cocos/renderer/pipeline/xr/ar/ARStage.cpp
         cocos/renderer/pipeline/xr/ar/ARStage.h
         cocos/renderer/pipeline/xr/ar/ARBackground.cpp
         cocos/renderer/pipeline/xr/ar/ARBackground.h
     )
-    if(ANDROID OR IOS)
-        cocos_source_files(
-            cocos/xr/ar/ARLib.h
-        )
-    endif()
 endif()
 
 ##### extensions
