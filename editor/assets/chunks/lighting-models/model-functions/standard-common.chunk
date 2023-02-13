@@ -102,17 +102,14 @@ vec3 SampleEnvironmentSpecular(samplerCube tex, in LightingIntermediateData ligh
     R = fixedR.xyz;
 
     vec3 envmap = SampleEnvironmentSpecular(cc_environment, lightingData, cc_ambientGround.w).xyz;
-    
     #if CC_SURFACES_LIGHTING_ANISOTROPIC && CC_SURFACES_LIGHTING_ANISOTROPIC_ENVCONVOLUTION_COUNT
       envSpec = EnvAnisotropicReflection(tex, fixedR.xyz, roughness, mipCount, lightingData.anisotropyShape, lightingData.V, lightingData.N, lightingData.T, lightingData.B);
       envSpec = mix(envmap, envSpec, fixedR.w);
     #else
       #if CC_SURFACES_USE_REFLECTION_DENOISE && !CC_IBL_CONVOLUTED
         envSpec = EnvReflectionWithMipFiltering(normalize(R), roughness, mipCount, 0.6);
-        envSpec = mix(envmap, envSpec, fixedR.w);
       #else
-        envSpec = EnvReflection(tex, R, roughness, mipCount);
-        envSpec = mix(envmap, envSpec, fixedR.w);
+        envSpec = mix(envmap, EnvReflection(tex, R, roughness, mipCount), fixedR.w);
       #endif
     #endif
     return envSpec;
