@@ -32,8 +32,9 @@ import { calculateTransform } from '../particle-general-function';
 
 const LIMIT_VELOCITY_RAND_OFFSET = ModuleRandSeed.LIMIT;
 
-const _temp_v3 = new Vec3();
-const _temp_v3_1 = new Vec3();
+const animatedVelocity = new Vec3();
+const magVel = new Vec3();
+const normalizedVel = new Vec3();
 
 @ccclass('cc.LimitVelocityOvertimeModule')
 export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
@@ -137,11 +138,13 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
     public multiplyDragByParticleVelocity = false;
     public name = PARTICLE_MODULE_NAME.LIMIT;
     private rotation: Quat;
+    private invRot: Quat;
     private needTransform: boolean;
 
     constructor () {
         super();
         this.rotation = new Quat();
+        this.invRot = new Quat();
         this.needTransform = false;
         this.needUpdate = true;
     }
@@ -152,24 +155,40 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
 
     public animate (p: Particle, dt: number) {
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
-        const dampedVel = _temp_v3;
+
+        animatedVelocity.set(p.animatedVelocity);
+        magVel.set(p.velocity.x + animatedVelocity.x, p.velocity.y + animatedVelocity.y, p.velocity.z + animatedVelocity.z);
+
         if (this.separateAxes) {
-            Vec3.set(_temp_v3_1, this.limitX.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET))!,
-                this.limitY.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET))!,
-                this.limitZ.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET))!);
+            const limitX = this.limitX.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET));
+            const limitY = this.limitY.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET));
+            const limitZ = this.limitZ.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET));
+
             if (this.needTransform) {
-                Vec3.transformQuat(_temp_v3_1, _temp_v3_1, this.rotation);
+                Vec3.transformQuat(magVel, magVel, this.rotation);
             }
-            Vec3.set(dampedVel,
-                dampenBeyondLimit(p.ultimateVelocity.x, _temp_v3_1.x, this.dampen),
-                dampenBeyondLimit(p.ultimateVelocity.y, _temp_v3_1.y, this.dampen),
-                dampenBeyondLimit(p.ultimateVelocity.z, _temp_v3_1.z, this.dampen));
+            Vec3.set(magVel,
+                dampenBeyondLimit(magVel.x, limitX, this.dampen),
+                dampenBeyondLimit(magVel.y, limitY, this.dampen),
+                dampenBeyondLimit(magVel.z, limitZ, this.dampen));
+
+            magVel.set(magVel.x - animatedVelocity.x, magVel.y - animatedVelocity.y, magVel.z - animatedVelocity.z);
+
+            if (this.needTransform) {
+                Quat.invert(this.invRot, this.rotation);
+                Vec3.transformQuat(magVel, magVel, this.invRot);
+            }
         } else {
-            Vec3.normalize(dampedVel, p.ultimateVelocity);
-            Vec3.multiplyScalar(dampedVel, dampedVel, dampenBeyondLimit(p.ultimateVelocity.length(), this.limit.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET))!, this.dampen));
+            const lmt = this.limit.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET));
+            const velLen = magVel.length();
+            Vec3.normalize(normalizedVel, magVel);
+
+            const damped = dampenBeyondLimit(velLen, lmt, this.dampen);
+            magVel.set(normalizedVel.x * damped, normalizedVel.y * damped, normalizedVel.z * damped);
+
+            magVel.set(magVel.x - animatedVelocity.x, magVel.y - animatedVelocity.y, magVel.z - animatedVelocity.z);
         }
-        Vec3.copy(p.ultimateVelocity, dampedVel);
-        Vec3.copy(p.velocity, p.ultimateVelocity);
+        p.velocity.set(magVel);
     }
 }
 
@@ -177,12 +196,7 @@ function dampenBeyondLimit (vel: number, limit: number, dampen: number) {
     const sgn = Math.sign(vel);
     let abs = Math.abs(vel);
     if (abs > limit) {
-        const absToGive = abs - abs * dampen;
-        if (absToGive > limit) {
-            abs = absToGive;
-        } else {
-            abs = limit;
-        }
+        abs = lerp(abs, limit, dampen);
     }
     return abs * sgn;
 }
