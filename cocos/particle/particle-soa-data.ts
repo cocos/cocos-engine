@@ -98,9 +98,9 @@ export class ParticleSOAData {
     private _invStartLifeTime = new Float32Array(this._capacity);
     private _normalizedAliveTime = new Float32Array(this._capacity);
     private _frameIndex = new Float32Array(this._capacity);
-    private _noiseSumX = new Float32Array(this._capacity);
-    private _noiseSumY = new Float32Array(this._capacity);
-    private _noiseSumZ = new Float32Array(this._capacity);
+    private _noiseX = new Float32Array(this._capacity);
+    private _noiseY = new Float32Array(this._capacity);
+    private _noiseZ = new Float32Array(this._capacity);
     // trail
     // One trail segment contains 4 float: x, y, z, timestamp
     private _trailSegmentStride = 4;
@@ -149,16 +149,16 @@ export class ParticleSOAData {
         return this._frameIndex;
     }
 
-    get noiseSumX () {
-        return this._noiseSumX;
+    get noiseX () {
+        return this._noiseX;
     }
 
-    get noiseSumY () {
-        return this._noiseSumY;
+    get noiseY () {
+        return this._noiseY;
     }
 
-    get noiseSumZ () {
-        return this._noiseSumZ;
+    get noiseZ () {
+        return this._noiseZ;
     }
 
     get trailSegmentCapacityPerParticle () {
@@ -516,9 +516,9 @@ export class ParticleSOAData {
         this._invStartLifeTime[handle] = this._invStartLifeTime[lastParticle];
         this._normalizedAliveTime[handle] = this._normalizedAliveTime[lastParticle];
         this._frameIndex[handle] = this._frameIndex[lastParticle];
-        this._noiseSumX[handle] = this._noiseSumX[lastParticle];
-        this._noiseSumY[handle] = this._noiseSumY[lastParticle];
-        this._noiseSumZ[handle] = this._noiseSumZ[lastParticle];
+        this._noiseX[handle] = this._noiseX[lastParticle];
+        this._noiseY[handle] = this._noiseY[lastParticle];
+        this._noiseZ[handle] = this._noiseZ[lastParticle];
         const num = this._trailSegmentNumbers[lastParticle];
         const tempTrailSegment = new TrailSegment();
         for (let i = 0; i < num; i++) {
@@ -566,9 +566,9 @@ export class ParticleSOAData {
         this._invStartLifeTime[handle] = 1;
         this._normalizedAliveTime[handle] = 0;
         this._frameIndex[handle] = 0;
-        this._noiseSumX[handle] = 0;
-        this._noiseSumY[handle] = 0;
-        this._noiseSumZ[handle] = 0;
+        this._noiseX[handle] = 0;
+        this._noiseY[handle] = 0;
+        this._noiseZ[handle] = 0;
         this._startTrailSegmentIndices[handle] = 0;
         this._endTrailSegmentIndices[handle] = 0;
         this._trailSegmentNumbers[handle] = 0;
@@ -611,9 +611,9 @@ export class ParticleSOAData {
         const oldInvStartLifeTime = this._invStartLifeTime;
         const oldNormalizedAliveTime = this._normalizedAliveTime;
         const oldFrameIndex = this._frameIndex;
-        const oldNoiseSumX = this._noiseSumX;
-        const oldNoiseSumY = this._noiseSumY;
-        const oldNoiseSumZ = this._noiseSumZ;
+        const oldNoiseSumX = this._noiseX;
+        const oldNoiseSumY = this._noiseY;
+        const oldNoiseSumZ = this._noiseZ;
         const oldTrailSegmentNumbers = this._trailSegmentNumbers;
         const oldStartTrailSegmentIndices = this._startTrailSegmentIndices;
         const oldEndTrailSegmentIndices = this._endTrailSegmentIndices;
@@ -688,12 +688,12 @@ export class ParticleSOAData {
             this._normalizedAliveTime.set(oldNormalizedAliveTime);
             this._frameIndex = new Float32Array(capacity);
             this._frameIndex.set(oldFrameIndex);
-            this._noiseSumX = new Float32Array(capacity);
-            this._noiseSumX.set(oldNoiseSumX);
-            this._noiseSumY = new Float32Array(capacity);
-            this._noiseSumY.set(oldNoiseSumY);
-            this._noiseSumZ = new Float32Array(capacity);
-            this._noiseSumZ.set(oldNoiseSumZ);
+            this._noiseX = new Float32Array(capacity);
+            this._noiseX.set(oldNoiseSumX);
+            this._noiseY = new Float32Array(capacity);
+            this._noiseY.set(oldNoiseSumY);
+            this._noiseZ = new Float32Array(capacity);
+            this._noiseZ.set(oldNoiseSumZ);
             this._trailSegmentNumbers = new Uint16Array(capacity);
             this._trailSegmentNumbers.set(oldTrailSegmentNumbers);
             this._startTrailSegmentIndices = new Uint16Array(capacity);
@@ -740,9 +740,9 @@ export class ParticleSOAData {
             this._invStartLifeTime = oldInvStartLifeTime.slice(0, capacity);
             this._normalizedAliveTime = oldNormalizedAliveTime.slice(0, capacity);
             this._frameIndex = oldFrameIndex.slice(0, capacity);
-            this._noiseSumX = oldNoiseSumX.slice(0, capacity);
-            this._noiseSumY = oldNoiseSumY.slice(0, capacity);
-            this._noiseSumZ = oldNoiseSumZ.slice(0, capacity);
+            this._noiseX = oldNoiseSumX.slice(0, capacity);
+            this._noiseY = oldNoiseSumY.slice(0, capacity);
+            this._noiseZ = oldNoiseSumZ.slice(0, capacity);
             this._trailSegmentNumbers = oldTrailSegmentNumbers.slice(0, capacity);
             this._startTrailSegmentIndices = oldStartTrailSegmentIndices.slice(0, capacity);
             this._endTrailSegmentIndices = oldEndTrailSegmentIndices.slice(0, capacity);

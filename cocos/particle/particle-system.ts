@@ -55,7 +55,7 @@ import { particleSystemManager } from './particle-system-manager';
 import { EmittingModule } from './modules/emitting';
 import { CompositionModule } from './modules/composition';
 import { BurstEmissionModule } from './modules/burst-emission';
-import { EmissionOverDistanceModule, GravityModule, SpeedModifierModule, StartColorModule, StartLifeTimeModule, StartRotationModule, StartSizeModule, StartSpeedModule } from './modules';
+import { EmissionOverDistanceModule, EventModule, GravityModule, SpeedModifierModule, StartColorModule, StartLifeTimeModule, StartRotationModule, StartSizeModule, StartSpeedModule } from './modules';
 
 enum PlayingState {
     STOPPED,
@@ -520,6 +520,7 @@ export class ParticleSystem extends Component {
         this.getOrAddModule(StartSpeedModule);
         this.getOrAddModule(TextureAnimationModule);
         this.getOrAddModule(VelocityOverLifetimeModule);
+        this.getOrAddModule(EventModule);
     }
 
     protected onEnable () {

@@ -31,7 +31,7 @@ import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { createRealCurve, CurveRange } from '../curve-range';
 import { ParticleSOAData } from '../particle-soa-data';
 import { ParticleUpdateContext } from '../particle-update-context';
-import { assert, RealCurve, RealInterpolationMode } from '../../core';
+import { assert, CCFloat, CCInteger, RealCurve, RealInterpolationMode } from '../../core';
 
 const TEXTURE_ANIMATION_RAND_OFFSET = 90794;
 
@@ -51,21 +51,26 @@ const Mode = Enum({
     // Sprites: 1,
 });
 
+export enum TimeMode {
+    LIFETIME,
+    FPS,
+}
+
 /**
  * 贴图动画的播放方式。
  * @enum textureAnimationModule.Animation
  */
-const Animation = Enum({
+export enum Animation {
     /**
      * 播放贴图中的所有帧。
      */
-    WholeSheet: 0,
+    WHOLE_SHEET,
 
     /**
      * 播放贴图中的其中一行动画。
      */
-    SingleRow: 1,
-});
+    SINGLE_ROW
+}
 
 @ccclass('cc.TextureAnimationModule')
 export class TextureAnimationModule extends ParticleModule {
@@ -88,6 +93,8 @@ export class TextureAnimationModule extends ParticleModule {
     /**
      * @zh X 方向动画帧数。
      */
+    @type(CCInteger)
+    @range([0, Number.MAX_SAFE_INTEGER])
     @displayOrder(2)
     @tooltip('i18n:textureAnimationModule.numTilesX')
     get numTilesX () {
@@ -96,7 +103,7 @@ export class TextureAnimationModule extends ParticleModule {
 
     set numTilesX (val) {
         this._numTilesX = val;
-        if (this.animation === Animation.WholeSheet) {
+        if (this.animation === Animation.WHOLE_SHEET) {
             this.frameOverTime.constant = this._numTilesX * this._numTilesY;
         } else {
             this.frameOverTime.constant = this._numTilesX;
@@ -106,6 +113,8 @@ export class TextureAnimationModule extends ParticleModule {
     /**
      * @zh Y 方向动画帧数。
      */
+    @type(CCInteger)
+    @range([0, Number.MAX_SAFE_INTEGER])
     @displayOrder(3)
     @tooltip('i18n:textureAnimationModule.numTilesY')
     get numTilesY () {
@@ -114,7 +123,7 @@ export class TextureAnimationModule extends ParticleModule {
 
     set numTilesY (val) {
         this._numTilesY = val;
-        if (this.animation === Animation.WholeSheet) {
+        if (this.animation === Animation.WHOLE_SHEET) {
             this.frameOverTime.constant = this._numTilesX * this._numTilesY;
         }
     }
@@ -122,7 +131,7 @@ export class TextureAnimationModule extends ParticleModule {
     /**
      * @zh 动画播放方式 [[Animation]]。
      */
-    @type(Animation)
+    @type(Enum(Animation))
     @displayOrder(4)
     @tooltip('i18n:textureAnimationModule.animation')
     public get animation () {
@@ -131,6 +140,31 @@ export class TextureAnimationModule extends ParticleModule {
 
     public set animation (val) {
         this._animation = val;
+        if (this._animation === Animation.WHOLE_SHEET) {
+            this.frameOverTime.constant = this._numTilesX * this._numTilesY;
+        } else {
+            this.frameOverTime.constant = this._numTilesX;
+        }
+    }
+
+    @type(Enum(TimeMode))
+    public get timeMode () {
+        return this._timeMode;
+    }
+
+    public set timeMode (val) {
+        this._timeMode = val;
+    }
+
+    @type(CCFloat)
+    @range([0.0001, Number.MAX_VALUE])
+    @visible(function (this: TextureAnimationModule) { return this._timeMode === TimeMode.FPS; })
+    public get framesPerSecond () {
+        return this._fps;
+    }
+
+    public set framesPerSecond (val) {
+        this._fps = val;
     }
 
     /**
@@ -141,6 +175,7 @@ export class TextureAnimationModule extends ParticleModule {
     @range([0, 1])
     @displayOrder(7)
     @tooltip('i18n:textureAnimationModule.frameOverTime')
+    @visible(function (this: TextureAnimationModule) { return this._timeMode === TimeMode.LIFETIME; })
     public frameOverTime = new CurveRange(1, createRealCurve([
         [0.0, 0.0],
         [1.0, 1.0],
@@ -162,38 +197,31 @@ export class TextureAnimationModule extends ParticleModule {
     @serializable
     @displayOrder(9)
     @tooltip('i18n:textureAnimationModule.cycleCount')
+    @visible(function (this: TextureAnimationModule) { return this._timeMode === TimeMode.LIFETIME; })
     public cycleCount = 1;
-
-    get uvChannelMask () {
-        return this._uvChannelMask;
-    }
-
-    set uvChannelMask (val) {
-        console.error('particle texture animation\'s uvChannelMask is not supported!');
-    }
 
     /**
      * @zh 随机从动画贴图中选择一行以生成动画。<br>
-     * 此选项仅在动画播放方式为 SingleRow 时生效。
+     * 此选项仅在动画播放方式为 SINGLE_ROW 时生效。
      */
     @serializable
     @displayOrder(5)
     @tooltip('i18n:textureAnimationModule.randomRow')
-    @visible(function (this: TextureAnimationModule) { return this.animation === Animation.SingleRow; })
+    @visible(function (this: TextureAnimationModule) { return this.animation === Animation.SINGLE_ROW; })
     public randomRow = false;
 
     /**
      * @zh 从动画贴图中选择特定行以生成动画。<br>
-     * 此选项仅在动画播放方式为 SingleRow 时且禁用 randomRow 时可用。
+     * 此选项仅在动画播放方式为 SINGLE_ROW 时且禁用 randomRow 时可用。
      */
     @serializable
     @displayOrder(6)
     @tooltip('i18n:textureAnimationModule.rowIndex')
-    @visible(function (this: TextureAnimationModule) { return this.animation === Animation.SingleRow && this.randomRow === false; })
+    @visible(function (this: TextureAnimationModule) { return this.animation === Animation.SINGLE_ROW && this.randomRow === false; })
     public rowIndex = 0;
 
     public get name (): string {
-        return 'textureModule';
+        return 'TextureModule';
     }
 
     public get updateStage (): ParticleUpdateStage {
@@ -211,9 +239,11 @@ export class TextureAnimationModule extends ParticleModule {
     @serializable
     private _mode = Mode.Grid;
     @serializable
-    private _uvChannelMask = -1;
+    private _animation = Animation.WHOLE_SHEET;
     @serializable
-    private _animation = Animation.WholeSheet;
+    private _timeMode = TimeMode.LIFETIME;
+    @serializable
+    private _fps = 30;
 
     public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
         const { count, randomSeed, frameIndex, normalizedAliveTime } = particles;
@@ -221,76 +251,113 @@ export class TextureAnimationModule extends ParticleModule {
             assert(this.startFrame.mode === CurveRange.Mode.Constant || this.startFrame.mode === CurveRange.Mode.TwoConstants,
                 'The mode of startFrame in texture-animation module can not be Curve and TwoCurve!');
         }
-        const cycleCount = this.cycleCount;
-        const invRange = 1 / (this.animation === Animation.WholeSheet ? (this._numTilesX * this._numTilesY) : this._numTilesX);
-        // use frameIndex to cache lerp ratio
-        if (this.startFrame.mode === CurveRange.Mode.Constant) {
-            const startFrame = this.startFrame.constant;
-            if (this.frameOverTime.mode === CurveRange.Mode.Constant) {
-                const frame = repeat(cycleCount * (this.frameOverTime.constant + startFrame) * invRange, 1);
-                for (let i = 0; i < count; i++) {
-                    frameIndex[i] = frame;
+        if (this._timeMode === TimeMode.LIFETIME) {
+            const cycleCount = this.cycleCount;
+            const invRange = 1 / (this.animation === Animation.WHOLE_SHEET ? (this._numTilesX * this._numTilesY) : this._numTilesX);
+            // use frameIndex to cache lerp ratio
+            if (this.startFrame.mode === CurveRange.Mode.Constant) {
+                const startFrame = this.startFrame.constant;
+                if (this.frameOverTime.mode === CurveRange.Mode.Constant) {
+                    const frame = repeat(cycleCount * (this.frameOverTime.constant + startFrame) * invRange, 1);
+                    for (let i = 0; i < count; i++) {
+                        frameIndex[i] = frame;
+                    }
+                } else if (this.frameOverTime.mode === CurveRange.Mode.TwoConstants) {
+                    const { constantMin, constantMax } = this.frameOverTime;
+                    for (let i = 0; i < count; i++) {
+                        frameIndex[i] = repeat(cycleCount * (lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET)) + startFrame) * invRange, 1);
+                    }
+                } else if (this.frameOverTime.mode === CurveRange.Mode.Curve) {
+                    const { spline, multiplier } = this.frameOverTime;
+                    for (let i = 0; i < count; i++) {
+                        frameIndex[i] = repeat(cycleCount * (spline.evaluate(normalizedAliveTime[i]) * multiplier + startFrame) * invRange, 1);
+                    }
+                } else {
+                    const { splineMin, splineMax, multiplier } = this.frameOverTime;
+                    for (let i = 0; i < count; i++) {
+                        frameIndex[i] = repeat(cycleCount * (lerp(splineMin.evaluate(normalizedAliveTime[i]), splineMax.evaluate(normalizedAliveTime[i]), pseudoRandom(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET)) * multiplier + startFrame) * invRange, 1);
+                    }
                 }
-            } else if (this.frameOverTime.mode === CurveRange.Mode.TwoConstants) {
-                const { constantMin, constantMax } = this.frameOverTime;
-                for (let i = 0; i < count; i++) {
-                    frameIndex[i] = repeat(cycleCount * (lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET)) + startFrame) * invRange, 1);
-                }
-            } else if (this.frameOverTime.mode === CurveRange.Mode.Curve) {
-                const { spline, multiplier } = this.frameOverTime;
-                for (let i = 0; i < count; i++) {
-                    frameIndex[i] = repeat(cycleCount * (spline.evaluate(normalizedAliveTime[i]) * multiplier + startFrame) * invRange, 1);
-                }
-            } else {
-                const { splineMin, splineMax, multiplier } = this.frameOverTime;
-                for (let i = 0; i < count; i++) {
-                    frameIndex[i] = repeat(cycleCount * (lerp(splineMin.evaluate(normalizedAliveTime[i]), splineMax.evaluate(normalizedAliveTime[i]), pseudoRandom(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET)) * multiplier + startFrame) * invRange, 1);
+            } else if (this.startFrame.mode === CurveRange.Mode.TwoConstants) {
+                const { constantMin, constantMax } = this.startFrame;
+                if (this.frameOverTime.mode === CurveRange.Mode.Constant) {
+                    const frame = this.frameOverTime.constant;
+                    for (let i = 0; i < count; i++) {
+                        const startFrame = lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET));
+                        frameIndex[i] = repeat(cycleCount * (frame + startFrame) * invRange, 1);
+                    }
+                } else if (this.frameOverTime.mode === CurveRange.Mode.TwoConstants) {
+                    const { constantMin, constantMax } = this.frameOverTime;
+                    for (let i = 0; i < count; i++) {
+                        const startFrame = lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET));
+                        frameIndex[i] = repeat(cycleCount * (lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET)) + startFrame) * invRange, 1);
+                    }
+                } else if (this.frameOverTime.mode === CurveRange.Mode.Curve) {
+                    const { spline, multiplier } = this.frameOverTime;
+                    for (let i = 0; i < count; i++) {
+                        const startFrame = lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET));
+                        frameIndex[i] = repeat(cycleCount * (spline.evaluate(normalizedAliveTime[i]) * multiplier + startFrame) * invRange, 1);
+                    }
+                } else {
+                    const { splineMin, splineMax, multiplier } = this.frameOverTime;
+                    for (let i = 0; i < count; i++) {
+                        const startFrame = lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET));
+                        frameIndex[i] = repeat(cycleCount * (lerp(splineMin.evaluate(normalizedAliveTime[i]), splineMax.evaluate(normalizedAliveTime[i]), pseudoRandom(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET)) * multiplier + startFrame) * invRange, 1);
+                    }
                 }
             }
-        } else if (this.startFrame.mode === CurveRange.Mode.TwoConstants) {
-            const { constantMin, constantMax } = this.startFrame;
-            if (this.frameOverTime.mode === CurveRange.Mode.Constant) {
-                const frame = this.frameOverTime.constant;
-                for (let i = 0; i < count; i++) {
-                    const startFrame = lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET));
-                    frameIndex[i] = repeat(cycleCount * (frame + startFrame) * invRange, 1);
-                }
-            } else if (this.frameOverTime.mode === CurveRange.Mode.TwoConstants) {
-                const { constantMin, constantMax } = this.frameOverTime;
-                for (let i = 0; i < count; i++) {
-                    const startFrame = lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET));
-                    frameIndex[i] = repeat(cycleCount * (lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET)) + startFrame) * invRange, 1);
-                }
-            } else if (this.frameOverTime.mode === CurveRange.Mode.Curve) {
-                const { spline, multiplier } = this.frameOverTime;
-                for (let i = 0; i < count; i++) {
-                    const startFrame = lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET));
-                    frameIndex[i] = repeat(cycleCount * (spline.evaluate(normalizedAliveTime[i]) * multiplier + startFrame) * invRange, 1);
-                }
-            } else {
-                const { splineMin, splineMax, multiplier } = this.frameOverTime;
-                for (let i = 0; i < count; i++) {
-                    const startFrame = lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET));
-                    frameIndex[i] = repeat(cycleCount * (lerp(splineMin.evaluate(normalizedAliveTime[i]), splineMax.evaluate(normalizedAliveTime[i]), pseudoRandom(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET)) * multiplier + startFrame) * invRange, 1);
-                }
-            }
-        }
 
-        if (this.animation === Animation.SingleRow) {
-            const rowLength = 1 / this.numTilesY;
-            if (this.randomRow) {
-                const rows = this.numTilesY;
-                for (let i = 0; i < count; i++) {
-                    const startRow = Math.floor(pseudoRandom(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET) * rows);
-                    const from = startRow * rowLength;
+            if (this.animation === Animation.SINGLE_ROW) {
+                const rowLength = 1 / this.numTilesY;
+                if (this.randomRow) {
+                    const rows = this.numTilesY;
+                    for (let i = 0; i < count; i++) {
+                        const startRow = Math.floor(pseudoRandom(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET) * rows);
+                        const from = startRow * rowLength;
+                        const to = from + rowLength;
+                        frameIndex[i] = lerp(from, to, frameIndex[i]);
+                    }
+                } else {
+                    const from = this.rowIndex * rowLength;
                     const to = from + rowLength;
-                    frameIndex[i] = lerp(from, to, frameIndex[i]);
+                    for (let i = 0; i < count; i++) {
+                        frameIndex[i] = lerp(from, to, frameIndex[i]);
+                    }
                 }
-            } else {
-                const from = this.rowIndex * rowLength;
-                const to = from + rowLength;
+            }
+        } else {
+            const { invStartLifeTime, normalizedAliveTime } = particles;
+            const invRange = 1 / (this.animation === Animation.WHOLE_SHEET ? (this._numTilesX * this._numTilesY) : this._numTilesX);
+            // use frameIndex to cache lerp ratio
+            if (this.startFrame.mode === CurveRange.Mode.Constant) {
+                const startFrame = this.startFrame.constant;
                 for (let i = 0; i < count; i++) {
-                    frameIndex[i] = lerp(from, to, frameIndex[i]);
+                    frameIndex[i] = repeat((normalizedAliveTime[i] / invStartLifeTime[i] * this._fps + startFrame) * invRange, 1);
+                }
+            } else if (this.startFrame.mode === CurveRange.Mode.TwoConstants) {
+                const { constantMin, constantMax } = this.startFrame;
+                for (let i = 0; i < count; i++) {
+                    const startFrame = lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET));
+                    frameIndex[i] = repeat((normalizedAliveTime[i] / invStartLifeTime[i] * this._fps + startFrame) * invRange, 1);
+                }
+            }
+
+            if (this.animation === Animation.SINGLE_ROW) {
+                const rowLength = 1 / this.numTilesY;
+                if (this.randomRow) {
+                    const rows = this.numTilesY;
+                    for (let i = 0; i < count; i++) {
+                        const startRow = Math.floor(pseudoRandom(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET) * rows);
+                        const from = startRow * rowLength;
+                        const to = from + rowLength;
+                        frameIndex[i] = lerp(from, to, frameIndex[i]);
+                    }
+                } else {
+                    const from = this.rowIndex * rowLength;
+                    const to = from + rowLength;
+                    for (let i = 0; i < count; i++) {
+                        frameIndex[i] = lerp(from, to, frameIndex[i]);
+                    }
                 }
             }
         }
