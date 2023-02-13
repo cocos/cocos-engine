@@ -505,6 +505,9 @@ export class ReflectionProbeManager {
     }
 
     private _updateCubemapOfModel (model: Model, probe: ReflectionProbe | null) {
+        if (!model.node) {
+            return;
+        }
         const meshRender = model.node.getComponent(MeshRenderer);
         if (meshRender) {
             meshRender.updateProbeCubemap(probe ? probe.cubemap : null);
