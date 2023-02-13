@@ -40,6 +40,7 @@ import { warnID } from '../core/platform/debug';
 import { Material } from '../asset/assets/material';
 import { cclegacy } from '../core';
 import { Scene } from './scene';
+import { NodeEventType } from './node-event';
 
 const _up = new Vec3(0, 1, 0);
 const _v3 = new Vec3();
@@ -1236,6 +1237,28 @@ export class LightProbeInfo {
         this._scene = scene;
         this._resource = resource;
         this._resource.initialize(this);
+    }
+
+    public onProbeBakeFinished () {
+        this.onProbeBakingChanged(this._scene);
+    }
+
+    public onProbeBakeCleared () {
+        this.clearSHCoefficients();
+        this.onProbeBakingChanged(this._scene);
+    }
+
+    private onProbeBakingChanged (node: Node | null) {
+        if (!node) {
+            return;
+        }
+
+        node.emit(NodeEventType.LIGHT_PROBE_BAKING_CHANGED);
+
+        for (let i = 0; i < node.children.length; i++) {
+            const child = node.children[i];
+            this.onProbeBakingChanged(child);
+        }
     }
 
     public clearSHCoefficients () {

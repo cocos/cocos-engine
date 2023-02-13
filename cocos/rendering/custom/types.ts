@@ -280,6 +280,7 @@ export class RasterView {
     storeOp: StoreOp;
     clearFlags: ClearFlagBit;
     readonly clearColor: Color;
+    slotID = 0;
 }
 
 export enum ClearValueType {
@@ -473,6 +474,7 @@ export function saveRasterView (ar: OutputArchive, v: RasterView) {
     ar.writeNumber(v.storeOp);
     ar.writeNumber(v.clearFlags);
     saveColor(ar, v.clearColor);
+    ar.writeNumber(v.slotID);
 }
 
 export function loadRasterView (ar: InputArchive, v: RasterView) {
@@ -483,6 +485,7 @@ export function loadRasterView (ar: InputArchive, v: RasterView) {
     v.storeOp = ar.readNumber();
     v.clearFlags = ar.readNumber();
     loadColor(ar, v.clearColor);
+    v.slotID = ar.readNumber();
 }
 
 export function saveComputeView (ar: OutputArchive, v: ComputeView) {

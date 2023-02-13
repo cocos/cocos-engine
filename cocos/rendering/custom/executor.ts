@@ -58,13 +58,14 @@ import { WebSceneVisitor } from './web-scene-visitor';
 import { stringify } from './utils';
 import { RenderAdditiveLightQueue } from '../render-additive-light-queue';
 import { RenderShadowMapBatchedQueue } from '../render-shadow-map-batched-queue';
-import { renderProfiler } from '../pipeline-funcs';
 import { PlanarShadowQueue } from '../planar-shadow-queue';
 import { DefaultVisitor, depthFirstSearch, ReferenceGraphView } from './graph';
 import { VectorGraphColorMap } from './effect';
-import { getDescBindingFromName, getDescriptorSetDataFromLayout, getRenderArea, mergeSrcToTargetDesc, updateGlobalDescBinding } from './define';
+import { getDescBindingFromName, getDescriptorSetDataFromLayout, getDescriptorSetDataFromLayoutId, getRenderArea, mergeSrcToTargetDesc, updateGlobalDescBinding } from './define';
 import { RenderReflectionProbeQueue } from '../render-reflection-probe-queue';
 import { ReflectionProbeManager } from '../reflection-probe-manager';
+import { builtinResMgr } from '../../asset/asset-manager/builtin-res-mgr';
+import { Texture2D } from '../../asset/assets/texture-2d';
 
 class DeviceResource {
     protected _context: ExecutorContext;
@@ -739,6 +740,36 @@ class DeviceRenderPass {
             this._viewport = viewport;
         }
     }
+
+    protected _showProfiler (rect: Rect) {
+        const profiler = this.context.pipeline.profiler!;
+        if (!profiler || !profiler.enabled) {
+            return;
+        }
+        const context = this.context;
+        const renderPass = this._renderPass;
+        const cmdBuff = this.context.commandBuffer;
+        const submodel = profiler.subModels[0];
+        const pass = submodel.passes[0];
+        const ia = submodel.inputAssembler;
+        const device = this.context.device;
+        const pso = PipelineStateManager.getOrCreatePipelineState(device, pass,
+            submodel.shaders[0], renderPass, ia);
+        const descData = getDescriptorSetDataFromLayoutId(pass.passID)!;
+        mergeSrcToTargetDesc(descData.descriptorSet, context.pipeline.descriptorSet, true);
+        const profilerViewport = new Viewport();
+        profilerViewport.width = rect.width;
+        profilerViewport.height = rect.height;
+
+        cmdBuff.setViewport(profilerViewport);
+        cmdBuff.setScissor(rect);
+        cmdBuff.bindPipelineState(pso);
+        cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
+        cmdBuff.bindDescriptorSet(SetIndex.LOCAL, submodel.descriptorSet);
+        cmdBuff.bindInputAssembler(ia);
+        cmdBuff.draw(ia);
+    }
+
     // record common buffer
     record () {
         const tex = this.framebuffer.colorTextures[0]!;
@@ -753,6 +784,9 @@ class DeviceRenderPass {
             this._context.pipeline.descriptorSet);
         for (const queue of this._deviceQueues) {
             queue.record();
+        }
+        if (this._rasterInfo.pass.showStatistics) {
+            this._showProfiler(renderArea);
         }
         cmdBuff.endRenderPass();
     }
@@ -885,11 +919,13 @@ class DevicePreSceneTask extends WebSceneTask {
             submitMap.set(this.camera, this._submitInfo);
         }
         // shadowmap
-        if (this._isShadowMap() && !this._submitInfo.shadowMap) {
+        if (this._isShadowMap()) {
             assert(this.graphScene.scene!.light.light);
-            this._submitInfo.shadowMap = context.shadowMapBatched;
-            this._submitInfo.shadowMap.gatherLightPasses(this.camera, this.graphScene.scene!.light.light, this._cmdBuff, this.graphScene.scene!.light.level);
+            if (!this._submitInfo.shadowMap) {
+                this._submitInfo.shadowMap = context.shadowMapBatched;
+            }
             this.sceneData.shadowFrameBufferMap.set(this.graphScene.scene!.light.light, devicePass.framebuffer);
+            this._submitInfo.shadowMap.gatherLightPasses(this.camera, this.graphScene.scene!.light.light, this._cmdBuff, this.graphScene.scene!.light.level);
             return;
         }
         // reflection probe
@@ -1047,9 +1083,14 @@ class DevicePreSceneTask extends WebSceneTask {
             const mainLight = graphScene.scene.camera.scene!.mainLight;
             const shadowFrameBufferMap = this.sceneData.shadowFrameBufferMap;
             if (mainLight && shadowFrameBufferMap.has(mainLight)) {
+                const shadowAttrID = context.layoutGraph.attributeIndex.get('cc_shadowMap');
+                const defaultTex = builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!;
                 for (const [key, value] of data.textures) {
-                    if (key === context.layoutGraph.attributeIndex.get('cc_shadowMap')) {
-                        data.textures.set(key, shadowFrameBufferMap.get(mainLight)!.colorTextures[0]!);
+                    if (key === shadowAttrID) {
+                        const tex = data.textures.get(shadowAttrID);
+                        if (tex === defaultTex) {
+                            data.textures.set(key, shadowFrameBufferMap.get(mainLight)!.colorTextures[0]!);
+                        }
                         return;
                     }
                 }
@@ -1340,10 +1381,6 @@ class DeviceSceneTask extends WebSceneTask {
         if (graphSceneData.flags & SceneFlags.UI) {
             this._recordUI();
         }
-        if (graphSceneData.flags & SceneFlags.PROFILER) {
-            renderProfiler(context.device, devicePass.renderPass,
-                context.commandBuffer, context.pipeline.profiler, this.camera!);
-        }
         if (graphSceneData.flags & SceneFlags.REFLECTION_PROBE) {
             this._recordReflectionProbe();
         }
@@ -1521,7 +1558,8 @@ class PreRenderVisitor extends BaseRenderVisitor implements RenderGraphVisitor {
         } else {
             const passHash = pass.versionName;
             this.currPass = devicePasses.get(passHash);
-            if (!this.currPass || this.currPass.version !== pass.version) {
+            const currRasterPass = this.currPass ? this.currPass.rasterPassInfo.pass : null;
+            if (!this.currPass || currRasterPass.version !== pass.version) {
                 this.currPass = new DeviceRenderPass(this.context, new RasterPassInfo(this.passID, pass));
                 devicePasses.set(passHash, this.currPass);
             } else {

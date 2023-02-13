@@ -33,7 +33,7 @@ export class MacPackTool extends MacOSPackTool {
         const ver = toolHelper.getXcodeMajorVerion() >= 12 ? "12" : "1";
         const cmakeArgs = ['-S', `"${this.paths.platformTemplateDirInPrj}"`, '-GXcode', '-T', `buildsystem=${ver}`,
                            `-B"${nativePrjDir}"`, '-DCMAKE_SYSTEM_NAME=Darwin'];
-        this.appendCmakeResDirArgs(cmakeArgs);
+        this.appendCmakeCommonArgs(cmakeArgs);
 
         await toolHelper.runCmake(cmakeArgs);
 

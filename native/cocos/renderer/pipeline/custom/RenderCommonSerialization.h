@@ -45,6 +45,7 @@ inline void save(OutputArchive& ar, const RasterView& v) {
     save(ar, v.storeOp);
     save(ar, v.clearFlags);
     save(ar, v.clearColor);
+    save(ar, v.slotID);
 }
 
 inline void load(InputArchive& ar, RasterView& v) {
@@ -55,6 +56,7 @@ inline void load(InputArchive& ar, RasterView& v) {
     load(ar, v.storeOp);
     load(ar, v.clearFlags);
     load(ar, v.clearColor);
+    load(ar, v.slotID);
 }
 
 inline void save(OutputArchive& ar, const ComputeView& v) {

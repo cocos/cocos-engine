@@ -34,82 +34,6 @@ namespace cc {
 
 namespace render {
 
-ResourceGraph::ResourceGraph(const allocator_type& alloc) noexcept
-: _vertices(alloc),
-  names(alloc),
-  descs(alloc),
-  traits(alloc),
-  states(alloc),
-  samplerInfo(alloc),
-  resources(alloc),
-  managedBuffers(alloc),
-  managedTextures(alloc),
-  buffers(alloc),
-  textures(alloc),
-  framebuffers(alloc),
-  swapchains(alloc),
-  valueIndex(alloc) {}
-
-ResourceGraph::ResourceGraph(ResourceGraph&& rhs, const allocator_type& alloc)
-: _vertices(std::move(rhs._vertices), alloc),
-  names(std::move(rhs.names), alloc),
-  descs(std::move(rhs.descs), alloc),
-  traits(std::move(rhs.traits), alloc),
-  states(std::move(rhs.states), alloc),
-  samplerInfo(std::move(rhs.samplerInfo), alloc),
-  resources(std::move(rhs.resources), alloc),
-  managedBuffers(std::move(rhs.managedBuffers), alloc),
-  managedTextures(std::move(rhs.managedTextures), alloc),
-  buffers(std::move(rhs.buffers), alloc),
-  textures(std::move(rhs.textures), alloc),
-  framebuffers(std::move(rhs.framebuffers), alloc),
-  swapchains(std::move(rhs.swapchains), alloc),
-  valueIndex(std::move(rhs.valueIndex), alloc),
-  nextFenceValue(rhs.nextFenceValue),
-  version(rhs.version) {}
-
-ResourceGraph::ResourceGraph(ResourceGraph const& rhs, const allocator_type& alloc)
-: _vertices(rhs._vertices, alloc),
-  names(rhs.names, alloc),
-  descs(rhs.descs, alloc),
-  traits(rhs.traits, alloc),
-  states(rhs.states, alloc),
-  samplerInfo(rhs.samplerInfo, alloc),
-  resources(rhs.resources, alloc),
-  managedBuffers(rhs.managedBuffers, alloc),
-  managedTextures(rhs.managedTextures, alloc),
-  buffers(rhs.buffers, alloc),
-  textures(rhs.textures, alloc),
-  framebuffers(rhs.framebuffers, alloc),
-  swapchains(rhs.swapchains, alloc),
-  valueIndex(rhs.valueIndex, alloc),
-  nextFenceValue(rhs.nextFenceValue),
-  version(rhs.version) {}
-
-// ContinuousContainer
-void ResourceGraph::reserve(vertices_size_type sz) {
-    _vertices.reserve(sz);
-    names.reserve(sz);
-    descs.reserve(sz);
-    traits.reserve(sz);
-    states.reserve(sz);
-    samplerInfo.reserve(sz);
-}
-
-ResourceGraph::Vertex::Vertex(const allocator_type& alloc) noexcept
-: outEdges(alloc),
-  inEdges(alloc) {}
-
-ResourceGraph::Vertex::Vertex(Vertex&& rhs, const allocator_type& alloc)
-: outEdges(std::move(rhs.outEdges), alloc),
-  inEdges(std::move(rhs.inEdges), alloc),
-  handle(std::move(rhs.handle)) {}
-
-ResourceGraph::Vertex::Vertex(Vertex const& rhs, const allocator_type& alloc)
-: outEdges(rhs.outEdges, alloc),
-  inEdges(rhs.inEdges, alloc),
-  handle(rhs.handle) {}
-
 RasterSubpass::RasterSubpass(const allocator_type& alloc) noexcept
 : rasterViews(alloc),
   computeViews(alloc) {}
@@ -170,7 +94,8 @@ RasterPass::RasterPass(RasterPass&& rhs, const allocator_type& alloc)
   height(rhs.height),
   viewport(rhs.viewport),
   versionName(std::move(rhs.versionName), alloc),
-  version(rhs.version) {}
+  version(rhs.version),
+  showStatistics(rhs.showStatistics) {}
 
 RasterPass::RasterPass(RasterPass const& rhs, const allocator_type& alloc)
 : rasterViews(rhs.rasterViews, alloc),
@@ -180,7 +105,71 @@ RasterPass::RasterPass(RasterPass const& rhs, const allocator_type& alloc)
   height(rhs.height),
   viewport(rhs.viewport),
   versionName(rhs.versionName, alloc),
-  version(rhs.version) {}
+  version(rhs.version),
+  showStatistics(rhs.showStatistics) {}
+
+PersistentRenderPassAndFramebuffer::PersistentRenderPassAndFramebuffer(const allocator_type& alloc) noexcept
+: clearColors(alloc) {}
+
+PersistentRenderPassAndFramebuffer::PersistentRenderPassAndFramebuffer(IntrusivePtr<gfx::RenderPass> renderPassIn, IntrusivePtr<gfx::Framebuffer> framebufferIn, const allocator_type& alloc) noexcept
+: renderPass(std::move(renderPassIn)),
+  framebuffer(std::move(framebufferIn)),
+  clearColors(alloc) {}
+
+PersistentRenderPassAndFramebuffer::PersistentRenderPassAndFramebuffer(PersistentRenderPassAndFramebuffer&& rhs, const allocator_type& alloc)
+: renderPass(std::move(rhs.renderPass)),
+  framebuffer(std::move(rhs.framebuffer)),
+  clearColors(std::move(rhs.clearColors), alloc),
+  clearDepth(rhs.clearDepth),
+  clearStencil(rhs.clearStencil) {}
+
+PersistentRenderPassAndFramebuffer::PersistentRenderPassAndFramebuffer(PersistentRenderPassAndFramebuffer const& rhs, const allocator_type& alloc)
+: renderPass(rhs.renderPass),
+  framebuffer(rhs.framebuffer),
+  clearColors(rhs.clearColors, alloc),
+  clearDepth(rhs.clearDepth),
+  clearStencil(rhs.clearStencil) {}
+
+ResourceGraph::ResourceGraph(const allocator_type& alloc) noexcept
+: _vertices(alloc),
+  names(alloc),
+  descs(alloc),
+  traits(alloc),
+  states(alloc),
+  samplerInfo(alloc),
+  resources(alloc),
+  managedBuffers(alloc),
+  managedTextures(alloc),
+  buffers(alloc),
+  textures(alloc),
+  framebuffers(alloc),
+  swapchains(alloc),
+  valueIndex(alloc),
+  renderPasses(alloc) {}
+
+// ContinuousContainer
+void ResourceGraph::reserve(vertices_size_type sz) {
+    _vertices.reserve(sz);
+    names.reserve(sz);
+    descs.reserve(sz);
+    traits.reserve(sz);
+    states.reserve(sz);
+    samplerInfo.reserve(sz);
+}
+
+ResourceGraph::Vertex::Vertex(const allocator_type& alloc) noexcept
+: outEdges(alloc),
+  inEdges(alloc) {}
+
+ResourceGraph::Vertex::Vertex(Vertex&& rhs, const allocator_type& alloc)
+: outEdges(std::move(rhs.outEdges), alloc),
+  inEdges(std::move(rhs.inEdges), alloc),
+  handle(std::move(rhs.handle)) {}
+
+ResourceGraph::Vertex::Vertex(Vertex const& rhs, const allocator_type& alloc)
+: outEdges(rhs.outEdges, alloc),
+  inEdges(rhs.inEdges, alloc),
+  handle(rhs.handle) {}
 
 ComputePass::ComputePass(const allocator_type& alloc) noexcept
 : computeViews(alloc) {}

@@ -150,7 +150,7 @@ export class LightProbesData {
         return tetIndex;
     }
 
-    private hasCoefficients () {
+    public hasCoefficients () {
         return !this.empty() && this._probes[0].coefficients.length !== 0;
     }
 

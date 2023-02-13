@@ -59,11 +59,11 @@ public:
     void updateProbes(ccstd::vector<Vec3> &points);
     void updateTetrahedrons();
 
+    inline bool hasCoefficients() const { return !empty() && !_probes[0].coefficients.empty(); }
     bool getInterpolationSHCoefficients(int32_t tetIndex, const Vec4 &weights, ccstd::vector<Vec3> &coefficients) const;
     int32_t getInterpolationWeights(const Vec3 &position, int32_t tetIndex, Vec4 &weights) const;
 
 private:
-    inline bool hasCoefficients() const { return !empty() && !_probes[0].coefficients.empty(); }
     static Vec3 getTriangleBarycentricCoord(const Vec3 &p0, const Vec3 &p1, const Vec3 &p2, const Vec3 &position);
     void getBarycentricCoord(const Vec3 &position, const Tetrahedron &tetrahedron, Vec4 &weights) const;
     void getTetrahedronBarycentricCoord(const Vec3 &position, const Tetrahedron &tetrahedron, Vec4 &weights) const;
@@ -137,6 +137,8 @@ public:
     ~LightProbeInfo() override = default;
 
     void activate(Scene *scene, LightProbes *resource);
+    void onProbeBakeFinished();
+    void onProbeBakeCleared();
     void clearSHCoefficients();
     inline bool isUniqueNode() const { return _nodes.size() == 1; }
     bool addNode(Node *node);
@@ -248,6 +250,7 @@ public:
     IntrusivePtr<LightProbesData> _data;
 
 private:
+    void onProbeBakingChanged(Node *node);
     void clearAllSHUBOs();
     void resetAllTetraIndices();
 

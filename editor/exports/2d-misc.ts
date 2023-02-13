@@ -1,0 +1,1 @@
+export { earcut } from '../../cocos/2d/assembler/graphics/webgl/earcut';

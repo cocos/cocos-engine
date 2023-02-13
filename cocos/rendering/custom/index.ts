@@ -25,7 +25,6 @@
 import { EDITOR } from 'internal:constants';
 import { Pipeline, PipelineBuilder } from './pipeline';
 import { WebPipeline } from './web-pipeline';
-import { buildDeferredLayout, buildForwardLayout } from './effect';
 import { macro } from '../../core/platform/macro';
 import { DeferredPipelineBuilder, ForwardPipelineBuilder } from './builtin-pipelines';
 import { CustomPipelineBuilder, NativePipelineBuilder } from './custom-pipeline';
@@ -49,21 +48,12 @@ export const enableEffectImport = true;
 export const programLib: ProgramLibrary = new WebProgramLibrary(defaultLayoutGraph);
 
 export function createCustomPipeline (): Pipeline {
-    const layoutGraph = enableEffectImport ? defaultLayoutGraph : new LayoutGraphData();
+    const layoutGraph = defaultLayoutGraph;
 
     const ppl = new WebPipeline(layoutGraph);
     const pplName = macro.CUSTOM_PIPELINE_NAME;
     ppl.setCustomPipelineName(pplName);
     (programLib as WebProgramLibrary).pipeline = ppl;
-
-    if (!enableEffectImport) {
-        if (pplName === 'Deferred') {
-            buildDeferredLayout(ppl);
-        } else {
-            buildForwardLayout(ppl);
-        }
-    }
-
     _pipeline = ppl;
     return ppl;
 }
