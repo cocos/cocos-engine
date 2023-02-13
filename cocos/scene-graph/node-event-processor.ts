@@ -162,6 +162,17 @@ export class NodeEventProcessor {
                 child._eventProcessor.setEnabled(value, true);
             }
         }
+        // If a touch event is being received for processing and a disabled node is set.
+        // The touch cancel event needs to be triggered manually. 
+        // Otherwise, it may cause the touch operation of a different node to affect the previous node.
+        if (this._dispatchingTouch) {
+            // Dispatch touch cancel event when node is destroyed.
+            const cancelEvent = new EventTouch([this._dispatchingTouch], true, InputEventType.TOUCH_CANCEL);
+            cancelEvent.touch = this._dispatchingTouch;
+            this.dispatchEvent(cancelEvent);
+            this.claimedTouchIdList.splice(0, this.claimedTouchIdList.length); 
+            this._dispatchingTouch = null;
+        }
     }
 
     public reattach (): void {
