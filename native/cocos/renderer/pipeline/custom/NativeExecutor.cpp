@@ -465,11 +465,12 @@ void updateCpuUniformBuffer(
 void uploadUniformBuffer(
     gfx::DescriptorSet* passSet,
     uint32_t bindID,
-    UniformBlockResource& resource) {
+    UniformBlockResource& resource,
+    gfx::CommandBuffer* cmdBuff) {
     auto* buffer = resource.bufferPool.allocateBuffer();
     CC_ENSURES(buffer);
-    buffer->update(resource.cpuBuffer.data(),
-                   static_cast<uint32_t>(resource.cpuBuffer.size()));
+    
+    cmdBuff->updateBuffer(buffer, resource.cpuBuffer.data(), static_cast<uint32_t>(resource.cpuBuffer.size()));
 
     CC_EXPECTS(passSet);
     passSet->bindBuffer(bindID, buffer);
@@ -503,7 +504,7 @@ gfx::DescriptorSet* initPerPassDescriptorSet(
                     CC_ENSURES(resource.bufferPool.bufferSize == resource.cpuBuffer.size());
 
                     // upload gfx buffer
-                    uploadUniformBuffer(passSet, bindID, resource);
+                    uploadUniformBuffer(passSet, bindID, resource, cmdBuff);
 
                     // increase slot
                     // TODO(zhouzhenglong): here binding will be refactored in the future
@@ -635,7 +636,7 @@ gfx::DescriptorSet* updatePerPassDescriptorSet(
                     updateCpuUniformBuffer(lg, user, uniformBlock, false, resource.cpuBuffer);
 
                     // upload gfx buffer
-                    uploadUniformBuffer(newSet, bindID, resource);
+                    uploadUniformBuffer(newSet, bindID, resource, cmdBuff);
 
                     // increase slot
                     // TODO(zhouzhenglong): here binding will be refactored in the future
