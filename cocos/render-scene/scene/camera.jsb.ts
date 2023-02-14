@@ -272,4 +272,3 @@ cameraProto.worldMatrixToScreen = function worldMatrixToScreen (out: Mat4, world
     return out;
 };
 
-

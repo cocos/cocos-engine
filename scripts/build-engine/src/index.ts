@@ -31,12 +31,14 @@ import { codeAsset } from './rollup-plugins/code-asset';
 import { ModeType, PlatformType } from './constant-manager';
 import { assetUrl } from './rollup-plugins/asset-url';
 
+import * as decoratorRecorder from './babel-plugins/decorator-parser';
+
 export { IOptimizeDecorators } from './config-interface';
 export { ModeType, PlatformType, FlagType, ConstantOptions, BuildTimeConstants, CCEnvConstants } from './constant-manager';
 export { StatsQuery };
 export { ModuleOption, enumerateModuleOptionReps, parseModuleOption };
 
-function equalPathIgnoreDriverLetterCase (lhs: string, rhs: string) {
+function equalPathIgnoreDriverLetterCase(lhs: string, rhs: string) {
     if (lhs.length !== rhs.length) {
         return false;
     }
@@ -53,11 +55,11 @@ const equalPath = process.platform === 'win32'
     ? equalPathIgnoreDriverLetterCase
     : (lhs: string, rhs: string) => lhs === rhs;
 
-function makePathEqualityKey (path: string) {
+function makePathEqualityKey(path: string) {
     return process.platform === 'win32' ? path.toLocaleLowerCase() : path;
 }
 
-async function build (options: build.Options) {
+async function build(options: build.Options) {
     console.debug(`Build-engine options: ${JSON.stringify(options, undefined, 2)}`);
     return doBuild({
         options,
@@ -163,6 +165,11 @@ namespace build {
         };
 
         buildTimeConstants: IBuildTimeConstants;
+
+        /**
+         * Generate cocos/native-binding/decorators.ts for native platforms
+         */
+        generateDecoratorsForJSB?: boolean;
     }
 
     export interface Result {
@@ -187,7 +194,7 @@ namespace build {
         hasCriticalWarns: boolean;
     }
 
-    export async function transform (code: string, moduleOption: ModuleOption, loose?: boolean) {
+    export async function transform(code: string, moduleOption: ModuleOption, loose?: boolean) {
         const babelFormat = moduleOptionsToBabelEnvModules(moduleOption);
         const babelFileResult = await babel.transformAsync(code, {
             presets: [[babelPresetEnv, { modules: babelFormat, loose: loose ?? true } as babelPresetEnv.Options]],
@@ -203,7 +210,7 @@ namespace build {
 
 export { build };
 
-async function doBuild ({
+async function doBuild({
     options,
 }: {
     options: build.Options;
@@ -304,7 +311,7 @@ async function doBuild ({
     }
 
     const rpVirtualOptions: Record<string, string> = {};
-    
+
     const vmInternalConstants = statsQuery.constantManager.exportStaticConstants({
         platform,
         mode,
@@ -404,6 +411,13 @@ async function doBuild ({
             } as babelPresetCC.Options],
         ],
     };
+    
+    if (options.generateDecoratorsForJSB) {
+        babelOptions.presets?.push([() => ({ plugins: [[decoratorRecorder]] })]);
+    }
+
+    const babelOptionsPre = Object.create(babelOptions);
+    babelOptionsPre.plugins = [[decoratorRecorder]];
 
     const rollupPlugins: rollup.Plugin[] = [];
 
@@ -432,14 +446,14 @@ async function doBuild ({
 
         {
             name: '@cocos/build-engine|module-overrides',
-            resolveId (source, importer) {
+            resolveId(source, importer) {
                 if (moduleOverrides[source]) {
                     return source;
                 } else {
                     return null;
                 }
             },
-            load (this, id: string) {
+            load(this, id: string) {
                 const key = makePathEqualityKey(id);
                 if (!(key in moduleOverrides)) {
                     return null;
@@ -465,6 +479,7 @@ async function doBuild ({
         json({
             preferConst: true,
         }),
+
 
         commonjs({
             include: [
@@ -665,7 +680,7 @@ export default Bullet;
 
     return result;
 
-    async function nodeResolveAsync (specifier: string) {
+    async function nodeResolveAsync(specifier: string) {
         return new Promise<string>((r, reject) => {
             nodeResolve(specifier, {
                 basedir: engineRoot,
@@ -680,35 +695,35 @@ export default Bullet;
     }
 }
 
-function moduleOptionsToRollupFormat (moduleOptions: ModuleOption): rollup.ModuleFormat {
+function moduleOptionsToRollupFormat(moduleOptions: ModuleOption): rollup.ModuleFormat {
     switch (moduleOptions) {
-    case ModuleOption.cjs: return 'cjs';
-    case ModuleOption.esm: return 'esm';
-    case ModuleOption.system: return 'system';
-    case ModuleOption.iife: return 'iife';
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-    default: throw new Error(`Unknown module format ${moduleOptions}`);
+        case ModuleOption.cjs: return 'cjs';
+        case ModuleOption.esm: return 'esm';
+        case ModuleOption.system: return 'system';
+        case ModuleOption.iife: return 'iife';
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+        default: throw new Error(`Unknown module format ${moduleOptions}`);
     }
 }
 
-function moduleOptionsToBabelEnvModules (moduleOptions: ModuleOption):
-| false
-| 'commonjs'
-| 'amd'
-| 'umd'
-| 'systemjs'
-| 'auto' {
+function moduleOptionsToBabelEnvModules(moduleOptions: ModuleOption):
+    | false
+    | 'commonjs'
+    | 'amd'
+    | 'umd'
+    | 'systemjs'
+    | 'auto' {
     switch (moduleOptions) {
-    case ModuleOption.cjs: return 'commonjs';
-    case ModuleOption.system: return 'systemjs';
-    case ModuleOption.iife:
-    case ModuleOption.esm: return false;
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-    default: throw new Error(`Unknown module format ${moduleOptions}`);
+        case ModuleOption.cjs: return 'commonjs';
+        case ModuleOption.system: return 'systemjs';
+        case ModuleOption.iife:
+        case ModuleOption.esm: return false;
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+        default: throw new Error(`Unknown module format ${moduleOptions}`);
     }
 }
 
-export async function isSourceChanged (incrementalFile: string) {
+export async function isSourceChanged(incrementalFile: string) {
     let record: Record<string, number>;
     try {
         record = await fs.readJSON(incrementalFile);
@@ -733,7 +748,7 @@ export async function isSourceChanged (incrementalFile: string) {
     return false;
 }
 
-async function getDefaultModuleEntries (engine: string) {
+async function getDefaultModuleEntries(engine: string) {
     type ModuleDivision = any; // import('../../scripts/module-division/tools/division-config').ModuleDivision;
     type GroupItem = any; // import('../../scripts/module-division/tools/division-config').GroupItem;
     type Item = any; // import('../../scripts/module-division/tools/division-config').Item;

@@ -8,12 +8,20 @@ on:
     - 'native/**'
     - 'package.json'
 
-jobs:
+# jobs:
   generate-jsb:
     if: github.event_name == 'pull_request_target' && github.event.action == 'closed' && github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Generate decorators
+        run: |
+          npm install
+          cd scripts/build-engine
+          npm install 
+          npm run build
+          cd ../..
+          node .github/workflows/gen_decorators.js
       - name: Download external libraries
         run: |
           EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`

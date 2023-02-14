@@ -38,6 +38,9 @@
     "yargs": "^15.1.0"
   },
   "devDependencies": {
+    "@babel/generator": "^7.21.1",
+    "@babel/traverse": "^7.21.2",
+    "@babel/types": "^7.21.2",
     "@types/babel__core": "^7.1.19",
     "@types/babel__preset-env": "^7.9.1",
     "@types/dedent": "^0.7.0",

@@ -21,11 +21,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { ccclass } from 'cc.decorator';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
 import dependUtil from '../asset-manager/depend-util';
 import { js, macro, cclegacy } from '../../core';
 import './texture-base';
+import { patch_cc_SimpleTexture } from '../../native-binding/decorators';
 
 declare const jsb: any;
 
@@ -54,8 +54,6 @@ simpleTextureProto.uploadData = function (source, level = 0, arrayIndex = 0) {
     }
     oldUpdateDataFunc.call(this, data, level, arrayIndex);
 };
-
-const clsDecorator = ccclass('cc.SimpleTexture');
 
 simpleTextureProto._ctor = function () {
     jsb.TextureBase.prototype._ctor.apply(this, arguments);
@@ -86,6 +84,7 @@ simpleTextureProto._onAfterAssignImage = function (image) {
     }
 };
 
-clsDecorator(SimpleTexture);
+patch_cc_SimpleTexture({SimpleTexture});
 
 cclegacy.SimpleTexture = jsb.SimpleTexture;
+

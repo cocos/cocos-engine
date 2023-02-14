@@ -102,6 +102,15 @@ jobs:
         run: |
           npm -v
           npm install --registry https://registry.npm.taobao.org
+      - name: Generate decorators
+        shell: bash
+        run: |
+          npm install
+          cd scripts/build-engine
+          npm install 
+          npm run build
+          cd ../..
+          node .github/workflows/gen_decorators.js
       - name: Run test cases
         timeout-minutes: 120
         id: run_test_cases
@@ -206,6 +215,14 @@ jobs:
           git -C $PRECLONE_EXTERNAL reset --hard
           git -C $PRECLONE_EXTERNAL fetch --all --prune
           git -C $PRECLONE_EXTERNAL archive --format=tar $EXT_VERSION | tar -C native/external -xf -
+      - name: Generate decorators
+        run: |
+          npm install
+          cd scripts/build-engine
+          npm install 
+          npm run build
+          cd ../..
+          node .github/workflows/gen_decorators.js 
       - name: Generate bindings
         run: |
           cd ./native/tools/swig-config

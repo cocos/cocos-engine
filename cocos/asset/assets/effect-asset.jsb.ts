@@ -22,9 +22,9 @@
  THE SOFTWARE.
 */
 
-import { ccclass, editable, editorOnly, serializable } from 'cc.decorator';
 import{ cclegacy } from '../../core';
 import './asset';
+import { patch_cc_EffectAsset } from '../../native-binding/decorators';
 
 export type EffectAsset = jsb.EffectAsset;
 export const EffectAsset = jsb.EffectAsset;
@@ -39,13 +39,4 @@ effectAssetProto._ctor = function () {
 };
 
 // handle meta data, it is generated automatically
-const EffectAssetProto = EffectAsset.prototype;
-editable(EffectAssetProto, 'techniques', () => []);
-serializable(EffectAssetProto, 'techniques', () => []);
-editable(EffectAssetProto, 'shaders', () => []);
-serializable(EffectAssetProto, 'shaders', () => []);
-editable(EffectAssetProto, 'combinations', () => []);
-serializable(EffectAssetProto, 'combinations', () => []);
-editorOnly(EffectAssetProto, 'hideInEditor', () => false);
-serializable(EffectAssetProto, 'hideInEditor', () => false);
-ccclass('cc.EffectAsset')(EffectAsset);
+patch_cc_EffectAsset({EffectAsset})
