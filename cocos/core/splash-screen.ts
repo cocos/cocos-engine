@@ -39,6 +39,9 @@ import { Mat4, Vec2 } from './math';
 import { Settings, settings } from './settings';
 import { sys } from './platform/sys';
 
+// TODO: the type Image conflicts with the one on OH platform. 
+declare const Image: any;
+
 const v2_0 = new Vec2();
 type SplashEffectType = 'NONE' | 'FADE-INOUT';
 interface ISplashSetting {

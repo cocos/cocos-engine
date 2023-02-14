@@ -1,3 +1,4 @@
+import type { AnimationClip } from '../../core/animation/animation-clip';
 import { legacyCC } from '../../core/global-exports';
 import { Skeleton } from '../assets/skeleton';
 import { AABB } from '../../core/geometry';

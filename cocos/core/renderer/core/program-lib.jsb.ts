@@ -1,6 +1,9 @@
 import { API, } from '../../gfx';
 import { legacyCC } from '../../global-exports';
-import type { ProgramLib } from './program-lib';
+import type { ProgramLib, IDefineRecord } from './program-lib';
+
+import type { EffectAsset } from '../../assets/effect-asset';
+import type { Attribute, ShaderInfo, DescriptorSetLayout, DescriptorSetLayoutBinding, PipelineLayout, } from '../../gfx';
 
 declare const jsb: any;
 

@@ -38,7 +38,7 @@ import { UpdateFrequency } from '../../pipeline/custom/types';
 
 const _dsLayoutInfo = new DescriptorSetLayoutInfo();
 
-interface IDefineRecord extends EffectAsset.IDefineInfo {
+export interface IDefineRecord extends EffectAsset.IDefineInfo {
     _map: (value: any) => number;
     _offset: number;
 }
