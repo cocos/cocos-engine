@@ -41,13 +41,13 @@ import { CCFloat, CCInteger } from '../../core';
 export class PointLight extends Light {
     @serializable
     @formerlySerializedAs('_luminance')
-    protected _luminanceHDR = 1700 / scene.nt2lm(0.15);
+    private _luminanceHDR = 1700 / scene.nt2lm(0.15);
     @serializable
-    protected _luminanceLDR = 1700 / scene.nt2lm(0.15) * Camera.standardExposureValue * Camera.standardLightMeterScale;
+    private _luminanceLDR = 1700 / scene.nt2lm(0.15) * Camera.standardExposureValue * Camera.standardLightMeterScale;
     @serializable
-    protected _term = PhotometricTerm.LUMINOUS_FLUX;
+    private _term = PhotometricTerm.LUMINOUS_FLUX;
     @serializable
-    protected _range = 1;
+    private _range = 1;
 
     protected _type = scene.LightType.POINT;
     protected _light: scene.PointLight | null = null;

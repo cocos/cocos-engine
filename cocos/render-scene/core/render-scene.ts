@@ -436,7 +436,7 @@ export class RenderScene {
         for (let i = 0; i < this._pointLights.length; ++i) {
             this._pointLights[i].detachFromScene();
         }
-        this._pointLights = [];
+        this._pointLights.length = 0;
     }
 
     /**
