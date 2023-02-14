@@ -648,19 +648,21 @@ void CCVKDevice::acquire(Swapchain *const *swapchains, uint32_t count) {
         vkPresentBarriers[i].image = gpuSwapchains[i]->swapchainImages[vkSwapchainIndices[i]];
     }
 
-    _gpuTransportHub->checkIn(
-        [&](const CCVKGPUCommandBuffer *gpuCommandBuffer) {
-            vkCmdPipelineBarrier(gpuCommandBuffer->vkCommandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-                                 0, 0, nullptr, 0, nullptr, utils::toUint(vkSwapchains.size()), vkAcquireBarriers.data());
-        },
-        false, false);
+    if (this->_options.enableBarrierDeduce) {
+        _gpuTransportHub->checkIn(
+            [&](const CCVKGPUCommandBuffer *gpuCommandBuffer) {
+                vkCmdPipelineBarrier(gpuCommandBuffer->vkCommandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                                     0, 0, nullptr, 0, nullptr, utils::toUint(vkSwapchains.size()), vkAcquireBarriers.data());
+            },
+            false, false);
 
-    _gpuTransportHub->checkIn(
-        [&](const CCVKGPUCommandBuffer *gpuCommandBuffer) {
-            vkCmdPipelineBarrier(gpuCommandBuffer->vkCommandBuffer, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
-                                 0, 0, nullptr, 0, nullptr, utils::toUint(vkSwapchains.size()), vkPresentBarriers.data());
-        },
-        false, true);
+        _gpuTransportHub->checkIn(
+            [&](const CCVKGPUCommandBuffer *gpuCommandBuffer) {
+                vkCmdPipelineBarrier(gpuCommandBuffer->vkCommandBuffer, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                                     0, 0, nullptr, 0, nullptr, utils::toUint(vkSwapchains.size()), vkPresentBarriers.data());
+            },
+            false, true);
+    }
 }
 
 void CCVKDevice::present() {

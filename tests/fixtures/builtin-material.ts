@@ -41,7 +41,7 @@ export function initBuiltinMaterial () {
     clearStencilMtl._uuid = 'default-clear-stencil';
     clearStencilMtl.initialize({
         defines: { USE_TEXTURE: false },
-        effectName: 'builtin-clear-stencil',
+        effectName: 'internal/builtin-clear-stencil',
     });
     builtinResMgr.addAsset(clearStencilMtl._uuid, clearStencilMtl);
     materialsToBeCompiled.push(clearStencilMtl);
@@ -51,7 +51,7 @@ export function initBuiltinMaterial () {
     spriteMtl._uuid = 'ui-base-material';
     spriteMtl.initialize({
         defines: { USE_TEXTURE: false },
-        effectName: 'builtin-sprite',
+        effectName: 'for2d/builtin-sprite',
     });
     builtinResMgr.addAsset(spriteMtl._uuid, spriteMtl);
     materialsToBeCompiled.push(spriteMtl);
@@ -61,7 +61,7 @@ export function initBuiltinMaterial () {
     spriteColorMtl._uuid = 'ui-sprite-material';
     spriteColorMtl.initialize({
         defines: { USE_TEXTURE: true, CC_USE_EMBEDDED_ALPHA: false, IS_GRAY: false },
-        effectName: 'builtin-sprite',
+        effectName: 'for2d/builtin-sprite',
     });
     builtinResMgr.addAsset(spriteColorMtl._uuid, spriteColorMtl);
     materialsToBeCompiled.push(spriteColorMtl);
@@ -71,7 +71,7 @@ export function initBuiltinMaterial () {
     alphaTestMaskMtl._uuid = 'ui-alpha-test-material';
     alphaTestMaskMtl.initialize({
         defines: { USE_TEXTURE: true, USE_ALPHA_TEST: true, CC_USE_EMBEDDED_ALPHA: false, IS_GRAY: false },
-        effectName: 'builtin-sprite',
+        effectName: 'for2d/builtin-sprite',
     });
     builtinResMgr.addAsset(alphaTestMaskMtl._uuid, alphaTestMaskMtl);
     materialsToBeCompiled.push(alphaTestMaskMtl);
@@ -81,7 +81,7 @@ export function initBuiltinMaterial () {
     spriteGrayMtl._uuid = 'ui-sprite-gray-material';
     spriteGrayMtl.initialize({
         defines: { USE_TEXTURE: true, CC_USE_EMBEDDED_ALPHA: false, IS_GRAY: true },
-        effectName: 'builtin-sprite',
+        effectName: 'for2d/builtin-sprite',
     });
     builtinResMgr.addAsset(spriteGrayMtl._uuid, spriteGrayMtl);
     materialsToBeCompiled.push(spriteGrayMtl);
@@ -91,7 +91,7 @@ export function initBuiltinMaterial () {
     spriteAlphaMtl._uuid = 'ui-sprite-alpha-sep-material';
     spriteAlphaMtl.initialize({
         defines: { USE_TEXTURE: true, CC_USE_EMBEDDED_ALPHA: true, IS_GRAY: false },
-        effectName: 'builtin-sprite',
+        effectName: 'for2d/builtin-sprite',
     });
     builtinResMgr.addAsset(spriteAlphaMtl._uuid, spriteAlphaMtl);
     materialsToBeCompiled.push(spriteAlphaMtl);
@@ -101,7 +101,7 @@ export function initBuiltinMaterial () {
     spriteAlphaGrayMtl._uuid = 'ui-sprite-gray-alpha-sep-material';
     spriteAlphaGrayMtl.initialize({
         defines: { USE_TEXTURE: true, CC_USE_EMBEDDED_ALPHA: true, IS_GRAY: true },
-        effectName: 'builtin-sprite',
+        effectName: 'for2d/builtin-sprite',
     });
     builtinResMgr.addAsset(spriteAlphaGrayMtl._uuid, spriteAlphaGrayMtl);
     materialsToBeCompiled.push(spriteAlphaGrayMtl);
@@ -109,35 +109,35 @@ export function initBuiltinMaterial () {
     // ui graphics material
     const defaultGraphicsMtl = new Material();
     defaultGraphicsMtl._uuid = 'ui-graphics-material';
-    defaultGraphicsMtl.initialize({ effectName: 'builtin-graphics' });
+    defaultGraphicsMtl.initialize({ effectName: 'internal/builtin-graphics' });
     builtinResMgr.addAsset(defaultGraphicsMtl._uuid, defaultGraphicsMtl);
     materialsToBeCompiled.push(defaultGraphicsMtl);
 
     // default particle material
     const defaultParticleMtl = new Material();
     defaultParticleMtl._uuid = 'default-particle-material';
-    defaultParticleMtl.initialize({ effectName: 'builtin-particle' });
+    defaultParticleMtl.initialize({ effectName: 'particles/builtin-particle' });
     builtinResMgr.addAsset(defaultParticleMtl._uuid, defaultParticleMtl);
     materialsToBeCompiled.push(defaultParticleMtl);
 
     // default particle gpu material
     const defaultParticleGPUMtl = new Material();
     defaultParticleGPUMtl._uuid = 'default-particle-gpu-material';
-    defaultParticleGPUMtl.initialize({ effectName: 'builtin-particle-gpu' });
+    defaultParticleGPUMtl.initialize({ effectName: 'particles/builtin-particle-gpu' });
     builtinResMgr.addAsset(defaultParticleGPUMtl._uuid, defaultParticleGPUMtl);
     materialsToBeCompiled.push(defaultParticleGPUMtl);
 
     // default particle material
     const defaultTrailMtl = new Material();
     defaultTrailMtl._uuid = 'default-trail-material';
-    defaultTrailMtl.initialize({ effectName: 'builtin-particle-trail' });
+    defaultTrailMtl.initialize({ effectName: 'particles/builtin-particle-trail' });
     builtinResMgr.addAsset(defaultTrailMtl._uuid, defaultTrailMtl);
     materialsToBeCompiled.push(defaultTrailMtl);
 
     // default particle material
     const defaultBillboardMtl = new Material();
     defaultBillboardMtl._uuid = 'default-billboard-material';
-    defaultBillboardMtl.initialize({ effectName: 'builtin-billboard' });
+    defaultBillboardMtl.initialize({ effectName: 'particles/builtin-billboard' });
     builtinResMgr.addAsset(defaultBillboardMtl._uuid, defaultBillboardMtl);
     materialsToBeCompiled.push(defaultBillboardMtl);
 
@@ -150,7 +150,7 @@ export function initBuiltinMaterial () {
             CC_USE_EMBEDDED_ALPHA: false,
             IS_GRAY: false,
         },
-        effectName: 'builtin-spine',
+        effectName: 'for2d/builtin-spine',
     });
     builtinResMgr.addAsset(spineTwoColorMtl._uuid, spineTwoColorMtl);
     materialsToBeCompiled.push(spineTwoColorMtl);
