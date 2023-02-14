@@ -63,7 +63,6 @@ js.setClassAlias(SpotLight, 'cc.SpotLightComponent');
  * @deprecated Since v1.2
  */
 export { PointLight as PointLightComponent };
-cclegacy.PointLightComponent = PointLight;
 js.setClassAlias(PointLight, 'cc.PointLightComponent');
 
 replaceProperty(SpotLight.prototype, 'SpotLight.prototype', [
