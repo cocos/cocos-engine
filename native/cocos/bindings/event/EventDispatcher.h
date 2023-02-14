@@ -55,7 +55,7 @@ private:
     static void dispatchMemoryWarningEvent();
     static void dispatchRestartVM();
     static void dispatchCloseEvent();
-    static void dispatchPointerLockEvent(bool value);
+    static void dispatchPointerlockChangeEvent(bool value);
     static uint32_t hashListenerId; // simple increment hash
 
     static events::EnterForeground::Listener listenerEnterForeground;

@@ -94,7 +94,7 @@ void EventDispatcher::init() {
         listenerLowMemory.bind(&dispatchMemoryWarningEvent);
         listenerClose.bind(&dispatchCloseEvent);
         listenerRestartVM.bind(&dispatchRestartVM);
-        listenerPointerLock.bind(&dispatchPointerLockEvent);
+        listenerPointerLock.bind(&dispatchPointerlockChangeEvent);
         busListenerInited = true;
     }
 }
@@ -394,7 +394,7 @@ void EventDispatcher::dispatchCloseEvent() {
     EventDispatcher::doDispatchJsEvent("onClose", se::EmptyValueArray);
 }
 
-void EventDispatcher::dispatchPointerLockEvent(bool value) {
+void EventDispatcher::dispatchPointerlockChangeEvent(bool value) {
     se::ValueArray args;
     args.emplace_back(se::Value(value));
     EventDispatcher::doDispatchJsEvent("onPointerlockChange", args);
