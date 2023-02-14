@@ -471,7 +471,7 @@ void uploadUniformBuffer(
     gfx::CommandBuffer* cmdBuff) {
     auto* buffer = resource.bufferPool.allocateBuffer();
     CC_ENSURES(buffer);
-    
+
     cmdBuff->updateBuffer(buffer, resource.cpuBuffer.data(), static_cast<uint32_t>(resource.cpuBuffer.size()));
 
     CC_EXPECTS(passSet);
@@ -481,6 +481,7 @@ void uploadUniformBuffer(
 gfx::DescriptorSet* initPerPassDescriptorSet(
     ResourceGraph& resg,
     gfx::Device* device,
+    gfx::CommandBuffer* cmdBuff,
     const gfx::DefaultResource& defaultResource,
     const LayoutGraphData& lg,
     const PmrFlatMap<NameLocalID, ResourceGraph::vertex_descriptor>& resourceIndex,
@@ -614,6 +615,7 @@ gfx::DescriptorSet* initPerPassDescriptorSet(
 }
 
 gfx::DescriptorSet* updatePerPassDescriptorSet(
+    gfx::CommandBuffer* cmdBuff,
     const LayoutGraphData& lg,
     const DescriptorSetData& set,
     const RenderData& user,
@@ -724,7 +726,7 @@ gfx::DescriptorSet* updateCameraUniformBufferAndDescriptorSet(
         auto& set = iter->second;
         auto& node = ctx.context.layoutGraphResources.at(passLayoutID);
         const auto& user = get(RenderGraph::Data, ctx.g, sceneID); // notice: sceneID
-        perPassSet = updatePerPassDescriptorSet(ctx.lg, set, user, node);
+        perPassSet = updatePerPassDescriptorSet(ctx.cmdBuff, ctx.lg, set, user, node);
     }
     return perPassSet;
 }
@@ -842,7 +844,8 @@ struct RenderGraphUploadVisitor : boost::dfs_visitor<> {
             const auto& user = get(RenderGraph::Data, ctx.g, vertID);
             auto& node = ctx.context.layoutGraphResources.at(layoutID);
             auto* perPassSet = initPerPassDescriptorSet(
-                ctx.resourceGraph, ctx.device,
+                ctx.resourceGraph,
+                ctx.device, ctx.cmdBuff,
                 *ctx.context.defaultResource, ctx.lg,
                 resourceIndex, set, user, node);
             CC_ENSURES(perPassSet);
@@ -1282,7 +1285,8 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
                             auto& node = ctx.context.layoutGraphResources.at(pass->getPassID());
                             PmrFlatMap<NameLocalID, ResourceGraph::vertex_descriptor> resourceIndex(ctx.scratch);
                             auto* perPassSet = initPerPassDescriptorSet(
-                                ctx.resourceGraph, ctx.device,
+                                ctx.resourceGraph,
+                                ctx.device, ctx.cmdBuff,
                                 *ctx.context.defaultResource, ctx.lg,
                                 resourceIndex, set, user, node);
                             CC_ENSURES(perPassSet);
