@@ -262,9 +262,11 @@ void SDLHelper::dispatchSDLEvent(uint32_t windowId, const SDL_Event &sdlEvent, b
         case SDL_MOUSEMOTION: {
             const SDL_MouseMotionEvent &event = sdlEvent.motion;
             mouse.type = MouseEvent::Type::MOVE;
+            mouse.button = 0;
             mouse.x = static_cast<float>(event.x);
             mouse.y = static_cast<float>(event.y);
-            mouse.button = 0;
+            mouse.xref = static_cast<float>(event.xrel);
+            mouse.yref = static_cast<float>(event.yrel);
             events::Mouse::broadcast(mouse);
             break;
         }
@@ -355,6 +357,7 @@ SDL_Window *SDLHelper::createWindow(const char *title,
 
 void SDLHelper::setCursorEnabled(bool value) {
     SDL_SetRelativeMouseMode(value ? SDL_FALSE : SDL_TRUE);
+    events::PointerLock::broadcast(!value);
 }
 
 #if (CC_PLATFORM == CC_PLATFORM_LINUX)

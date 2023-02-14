@@ -116,6 +116,7 @@ void SystemWindow::setCursorEnabled(bool value) {
         _pointerLock = true;
     }
     CC_ASSERT(result == kCGErrorSuccess);
+    events::PointerLock::broadcast(!value);
 }
 
 void SystemWindow::copyTextToClipboard(const std::string &text) {

@@ -36,6 +36,7 @@ export class MouseInputSource {
     private _preMousePos: Vec2 = new Vec2();
     private _isPressed = false;
     private _windowManager: any;
+    private _pointLocked = false;
 
     private _handleMouseDown: (mouseEvent: jsb.MouseEvent) => void;
     private _handleMouseMove: (mouseEvent: jsb.MouseEvent) => void;
@@ -70,6 +71,9 @@ export class MouseInputSource {
         jsb.onMouseMove = this._handleMouseMove;
         jsb.onMouseUp =  this._handleMouseUp;
         jsb.onMouseWheel = this._boundedHandleMouseWheel;
+        jsb.onPointerlockChange = (value: boolean) => {
+            this._pointLocked = value;
+        };
     }
 
     private _createCallback (eventType: InputEventType) {
@@ -95,9 +99,14 @@ export class MouseInputSource {
             const eventMouse = new EventMouse(eventType, false, this._preMousePos, mouseEvent.windowId);
             eventMouse.setLocation(location.x, location.y);
             eventMouse.setButton(button);
-            eventMouse.movementX = location.x - this._preMousePos.x;
-            eventMouse.movementY = this._preMousePos.y - location.y;
-
+            if (this._pointLocked && eventType === InputEventType.MOUSE_MOVE) {
+                const dpr = screenAdapter.devicePixelRatio;
+                eventMouse.movementX = mouseEvent.xref === undefined ? 0 : mouseEvent.xref * dpr;
+                eventMouse.movementY = mouseEvent.yref === undefined ? 0 : mouseEvent.yref * dpr;
+            } else {
+                eventMouse.movementX = location.x - this._preMousePos.x;
+                eventMouse.movementY = this._preMousePos.y - location.y;
+            }
             // update previous mouse position.
             this._preMousePos.set(location.x, location.y);
             this._eventTarget.emit(eventType, eventMouse);

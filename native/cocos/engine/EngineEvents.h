@@ -167,6 +167,8 @@ public:
 
     float x = 0.0F;
     float y = 0.0F;
+    float xref = 0.0F;
+    float yref = 0.0F;
     // The button number that was pressed when the mouse event was fired: Left button=0, middle button=1 (if present), right button=2.
     // For mice configured for left handed use in which the button actions are reversed the values are instead read from right to left.
     uint16_t button = 0;
@@ -316,6 +318,7 @@ DECLARE_BUS_EVENT_ARG1(Controller, Engine, const cc::ControllerEvent &)
 DECLARE_BUS_EVENT_ARG1(Tick, Engine, float)
 DECLARE_BUS_EVENT_ARG3(Resize, Engine, int, int, uint32_t /* windowId*/)
 DECLARE_BUS_EVENT_ARG1(Orientation, Engine, int)
+DECLARE_BUS_EVENT_ARG1(PointerLock, Engine, bool)
 DECLARE_BUS_EVENT_ARG0(RestartVM, Engine)
 DECLARE_BUS_EVENT_ARG0(Close, Engine)
 DECLARE_BUS_EVENT_ARG0(SceneLoad, Engine)
