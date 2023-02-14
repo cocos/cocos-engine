@@ -92,11 +92,13 @@ nr.PipelineStateManager.getOrCreatePipelineState = function(device, pass, shader
 
 // ForwardPipeline
 const forwardPipelineProto = ForwardPipeline.prototype;
+// @ts-expect-error Property '_ctor' does not exist on type 'ForwardPipeline'.
 forwardPipelineProto._ctor = function() {
     this._tag = 0;
     this._flows = [];
 };
 
+// @ts-expect-error Property 'init' does not exist on type 'ForwardPipeline'.
 forwardPipelineProto.init = function () {
       for (let i = 0; i < this._flows.length; i++) {
           this._flows[i].init(this);
@@ -117,12 +119,14 @@ forwardPipelineProto.onLoaded = function () {
 }
 
 const forwardFlowProto = ForwardFlow.prototype;
+// @ts-expect-error Property '_ctor' does not exist on type 'ForwardFlow'
 forwardFlowProto._ctor = function() {
     this._name = 0;
     this._priority = 0;
     this._tag = 0;
     this._stages = [];
 }
+// @ts-expect-error Property 'init' does not exist on type 'ForwardFlow'.
 forwardFlowProto.init = function(pipeline) {
     for (let i = 0; i < this._stages.length; i++) {
         this._stages[i].init(pipeline);
@@ -132,12 +136,14 @@ forwardFlowProto.init = function(pipeline) {
 }
 
 const shadowFlowProto = ShadowFlow.prototype;
+// @ts-expect-error Property '_ctor' does not exist on type 'ShadowFlow'.
 shadowFlowProto._ctor = function() {
   this._name = 0;
       this._priority = 0;
       this._tag = 0;
       this._stages = [];
 }
+// @ts-expect-error Property 'init' does not exist on type 'ShadowFlow'.
 shadowFlowProto.init = function (pipeline) {
     for (let i = 0; i < this._stages.length; i++) {
       this._stages[i].init(pipeline);
@@ -147,12 +153,14 @@ shadowFlowProto.init = function (pipeline) {
 }
 
 const forwardStageProto = ForwardStage.prototype;
+// @ts-expect-error Property '_ctor' does not exist on type 'ForwardStage'.
 forwardStageProto._ctor = function() {
     this._name = 0;
     this._priority = 0;
     this._tag = 0;
     this.renderQueues = [];
 }
+// @ts-expect-error Property 'init' does not exist on type 'ForwardStage'.
 forwardStageProto.init = function(pipeline) {
     const queues = [];
     for (let i = 0; i < this.renderQueues.length; i++) {
@@ -164,11 +172,13 @@ forwardStageProto.init = function(pipeline) {
 }
 
 const shadowStageProto = ShadowStage.prototype;
+// @ts-expect-error Property '_ctor' does not exist on type 'ShadowStage'.
 shadowStageProto._ctor = function() {
     this._name = 0;
     this._priority = 0;
     this._tag = 0;
 }
+// @ts-expect-error Property 'init' does not exist on type 'ShadowStage'.
 shadowStageProto.init = function(pipeline) {
     const info = new nr.RenderStageInfo(this._name, this._priority, this._tag, []);
     this.initialize(info);
@@ -191,6 +201,7 @@ export class RenderQueueDesc {
 }
 
 const deferredPipelineProto = DeferredPipeline.prototype;
+// @ts-expect-error Property '_ctor' does not exist on type 'DeferredPipeline'.
 deferredPipelineProto._ctor = function() {
     this._tag = 0;
     this._flows = [];
@@ -211,12 +222,14 @@ deferredPipelineProto.onLoaded = function () {
 }
 
 const mainFlowProto = MainFlow.prototype;
+// @ts-expect-error Property '_ctor' does not exist on type 'MainFlow'.
 mainFlowProto._ctor = function() {
     this._name = 0;
     this._priority = 0;
     this._tag = 0;
     this._stages = [];
 }
+// @ts-expect-error Property 'init' does not exist on type 'MainFlow'.
 mainFlowProto.init = function(pipeline) {
     for (let i = 0; i < this._stages.length; i++) {
       this._stages[i].init(pipeline);
@@ -226,12 +239,14 @@ mainFlowProto.init = function(pipeline) {
 }
 
 const gbufferStageProto = GbufferStage.prototype;
+// @ts-expect-error Property '_ctor' does not exist on type 'GbufferStage'.
 gbufferStageProto._ctor = function() {
     this._name = 0;
     this._priority = 0;
     this._tag = 0;
     this.renderQueues = [];
 }
+// @ts-expect-error Property 'init' does not exist on type 'GbufferStage'.
 gbufferStageProto.init = function(pipeline) {
     const queues = [];
     for (let i = 0; i < this.renderQueues.length; i++) {
@@ -244,6 +259,7 @@ gbufferStageProto.init = function(pipeline) {
 
 
 const lightingStageProto = LightingStage.prototype;
+// @ts-expect-error Property '_ctor' does not exist on type 'LightingStage'.
 lightingStageProto._ctor = function() {
     this._name = 0;
     this._priority = 0;
@@ -251,6 +267,7 @@ lightingStageProto._ctor = function() {
     this.renderQueues = [];
     this._deferredMaterial = null;
 }
+// @ts-expect-error Property 'init' does not exist on type 'LightingStage'.
 lightingStageProto.init = function(pipeline) {
     const queues = [];
     for (let i = 0; i < this.renderQueues.length; i++) {
@@ -263,6 +280,7 @@ lightingStageProto.init = function(pipeline) {
 }
 
 const bloomStageProto = BloomStage.prototype;
+// @ts-expect-error Property 'init' does not exist on type 'LightingStage'.
 bloomStageProto._ctor = function() {
     this._name = 0;
     this._priority = 0;
@@ -270,6 +288,7 @@ bloomStageProto._ctor = function() {
     this.renderQueues = [];
     this._bloomMaterial = null;
 }
+// @ts-expect-error Property 'init' does not exist on type 'BloomStage'.
 bloomStageProto.init = function(pipeline) {
     const queues = [];
     for (let i = 0; i < this.renderQueues.length; i++) {
@@ -282,6 +301,7 @@ bloomStageProto.init = function(pipeline) {
 }
 
 const postProcessStageProto = PostProcessStage.prototype;
+// @ts-expect-error Property '_ctor' does not exist on type 'PostProcessStage'.
 postProcessStageProto._ctor = function() {
     this._name = 0;
     this._priority = 0;
@@ -289,6 +309,7 @@ postProcessStageProto._ctor = function() {
     this.renderQueues = [];
     this._postProcessMaterial = null;
 }
+// @ts-expect-error Property '_ctor' does not exist on type 'PostProcessStage'.
 postProcessStageProto.init = function(pipeline) {
     const queues = [];
     for (let i = 0; i < this.renderQueues.length; i++) {
