@@ -102,11 +102,11 @@ void GPUPipelineState::setShader(gfx::Shader *gfxShader) {
     shader = static_cast<Shader *>(gfxShader)->getGPUShader();
     if (shader->program == 0) {
         shader->initShader();
-        GL_CHECK(glUseProgram(shader->program));
-        setVertexLayout(gfxShader->getAttributes());
-        setBinding();
-        GL_CHECK(glUseProgram(0));
     }
+    GL_CHECK(glUseProgram(shader->program));
+    setVertexLayout(gfxShader->getAttributes());
+    setBinding();
+    GL_CHECK(glUseProgram(0));
 }
 
 void GPUPipelineState::setVertexLayout(const AttributeList &list) {
