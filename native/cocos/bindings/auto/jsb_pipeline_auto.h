@@ -431,6 +431,15 @@ template<>
 bool sevalue_to_native(const se::Value &from, cc::pipeline::REFLECTIONPROBEPLANARMAP * to, se::Object *ctx);
 
 
+JSB_REGISTER_OBJECT_TYPE(cc::pipeline::REFLECTIONPROBEDATAMAP);
+extern se::Object *__jsb_cc_pipeline_REFLECTIONPROBEDATAMAP_proto; // NOLINT
+extern se::Class * __jsb_cc_pipeline_REFLECTIONPROBEDATAMAP_class; // NOLINT
+
+
+template<>
+bool sevalue_to_native(const se::Value &from, cc::pipeline::REFLECTIONPROBEDATAMAP * to, se::Object *ctx);
+
+
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::RenderPipelineInfo);
 extern se::Object *__jsb_cc_pipeline_RenderPipelineInfo_proto; // NOLINT
 extern se::Class * __jsb_cc_pipeline_RenderPipelineInfo_class; // NOLINT
