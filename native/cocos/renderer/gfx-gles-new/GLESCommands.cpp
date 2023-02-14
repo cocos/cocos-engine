@@ -214,7 +214,7 @@ void Commands::endPassInternal() {
     }
 
     if (!_invalidAttachments.empty()) {
-        // GL_CHECK(glInvalidateFramebuffer(GL_DRAW_FRAMEBUFFER, utils::toUint(_invalidAttachments.size()), _invalidAttachments.data()));
+        GL_CHECK(glInvalidateFramebuffer(GL_DRAW_FRAMEBUFFER, utils::toUint(_invalidAttachments.size()), _invalidAttachments.data()));
         _invalidAttachments.clear();
     }
 }

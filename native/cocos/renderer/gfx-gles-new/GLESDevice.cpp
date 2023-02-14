@@ -76,14 +76,18 @@ void Device::copyBuffersToTexture(const uint8_t *const *buffers, gfx::Texture *d
     Extent extent{};
     Offset offset{};
     Extent stride{};
-    for (uint32_t i = 0; i < count; ++i) {
+    for (uint32_t i = 0, n = 0; i < count; ++i) {
         const auto &region = regions[i];
         uint32_t mipLevel = region.texSubres.mipLevel;
 
         offset.x = region.texOffset.x == 0 ? 0 : utils::alignTo(region.texOffset.x, static_cast<int32_t>(blockSize.first));
         offset.y = region.texOffset.y == 0 ? 0 : utils::alignTo(region.texOffset.y, static_cast<int32_t>(blockSize.second));
+        offset.z = region.texOffset.z;
+
         extent.width = utils::alignTo(region.texExtent.width, static_cast<uint32_t>(blockSize.first));
         extent.height = utils::alignTo(region.texExtent.height, static_cast<uint32_t>(blockSize.second));
+        extent.depth = region.texExtent.depth;
+
         stride.width = region.buffStride > 0 ? region.buffStride : extent.width;
         stride.height = region.buffTexHeight > 0 ? region.buffTexHeight : extent.height;
 
@@ -91,26 +95,55 @@ void Device::copyBuffersToTexture(const uint8_t *const *buffers, gfx::Texture *d
         uint32_t destHeight = 0;
         destWidth = (region.texExtent.width + offset.x == (texture->getWidth() >> mipLevel)) ? region.texExtent.width : extent.width;
         destHeight = (region.texExtent.height + offset.y == (texture->getWidth() >> mipLevel)) ? region.texExtent.height : extent.height;
-        auto *buff = buffers[i] + region.buffOffset;
+
+        uint32_t faceBegin = region.texSubres.baseArrayLayer;
+        uint32_t faceEnd = region.texSubres.baseArrayLayer + region.texSubres.layerCount;
+        auto memSize = static_cast<GLsizei>(formatSize(format, extent.width, extent.height, extent.depth));
+
+        GLenum target = GL_NONE;
         switch (textureType) {
             case TextureType::TEX2D:
-                if (gpuFormatInfo->isCompressed) {
-                    auto memSize = static_cast<GLsizei>(formatSize(format, extent.width, extent.height, 1));
-                    GL_CHECK(glCompressedTexSubImage2D(GL_TEXTURE_2D, mipLevel, offset.x, offset.y, destWidth, destHeight,
-                                                       gpuFormatInfo->format, memSize, reinterpret_cast<const GLvoid *>(buff)));
-                } else {
-
-                    GL_CHECK(glTexSubImage2D(GL_TEXTURE_2D, mipLevel, offset.x, offset.y, destWidth, destHeight, gpuFormatInfo->format,
-                                             gpuFormatInfo->type, reinterpret_cast<const GLvoid *>(buff)));
+            case TextureType::CUBE:
+                for (uint32_t f = faceBegin; f < faceEnd; ++f) {
+                    target = textureType == TextureType::TEX2D ? GL_TEXTURE_2D : GL_TEXTURE_CUBE_MAP_POSITIVE_X + f;
+                    auto *buff = buffers[n++] + region.buffOffset;
+                    if (gpuFormatInfo->isCompressed) {
+                        GL_CHECK(glCompressedTexSubImage2D(target, mipLevel, offset.x, offset.y, destWidth, destHeight,
+                                                           gpuFormatInfo->format, memSize, reinterpret_cast<const GLvoid *>(buff)));
+                    } else {
+                        GL_CHECK(glTexSubImage2D(target, mipLevel, offset.x, offset.y, destWidth, destHeight,
+                                                 gpuFormatInfo->format, gpuFormatInfo->type, reinterpret_cast<const GLvoid *>(buff)));
+                    }
                 }
                 break;
+            case TextureType::TEX3D:
+            case TextureType::TEX2D_ARRAY:
+                for (uint32_t f = faceBegin; f < faceEnd; ++f) {
+                    target = textureType == TextureType::TEX2D_ARRAY ? GL_TEXTURE_2D_ARRAY : GL_TEXTURE_3D;
+                    GLint offsetZ = textureType == TextureType::TEX2D_ARRAY ? f : offset.z;
+                    auto *buff = buffers[n++] + region.buffOffset;
+                    if (gpuFormatInfo->isCompressed) {
+                        GL_CHECK(glCompressedTexSubImage3D(target, mipLevel,
+                                                           offset.x, offset.y, offsetZ,
+                                                           destWidth, destHeight, extent.depth,
+                                                           gpuFormatInfo->format, memSize, reinterpret_cast<const GLvoid *>(buff)));
+                    } else {
+                        GL_CHECK(glTexSubImage3D(target, mipLevel,
+                                                 offset.x, offset.y, offsetZ,
+                                                 destWidth, destHeight, extent.depth,
+                                                 gpuFormatInfo->format, gpuFormatInfo->type,
+                                                 reinterpret_cast<const GLvoid *>(buff)));
+                    }
+                }
             default:
+                CC_ABORT();
                 break;
         }
     }
-
-
-
+    if (!gpuFormatInfo->isCompressed && hasFlag(dst->getInfo().flags, TextureFlagBit::GEN_MIPMAP)) {
+        GL_CHECK(glGenerateMipmap(gpuTextureView->texture->target));
+    }
+    GL_CHECK(glBindTexture(gpuTextureView->texture->target, 0));
 }
 
 void Device::copyTextureToBuffers(gfx::Texture *src, uint8_t *const *buffers, const BufferTextureCopy *regions, uint32_t count) {
