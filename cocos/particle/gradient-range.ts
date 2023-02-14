@@ -140,7 +140,7 @@ export class GradientRange {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _onBeforeSerialize (props: any) {
+    public _onBeforeSerialize (props: string[]) {
         return SerializableTable[this._mode];
     }
 }

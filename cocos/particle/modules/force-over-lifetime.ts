@@ -96,7 +96,7 @@ export class ForceOverLifetimeModule extends ParticleModule {
     public randomized = false;
 
     public update (particles: ParticleSOAData, context: ParticleUpdateContext) {
-        const needTransform = calculateTransform(context.simulationSpace, this.space, context.worldTransform, rotation);
+        const needTransform = calculateTransform(context.simulationSpace, this.space, context.localToWorld, rotation);
         const dt = context.deltaTime;
         const { count, normalizedAliveTime, randomSeed } = particles;
         if (DEBUG) {

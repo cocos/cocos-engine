@@ -23,15 +23,19 @@
  THE SOFTWARE.
  */
 
-import { BitMask, CCFloat, Enum } from '../../core';
+import { approx, BitMask, CCFloat, Enum, pseudoRandom, Vec3 } from '../../core';
 import { ccclass, range, serializable, type, visible } from '../../core/data/decorators';
+import { Space } from '../enum';
 import { ParticleModule, ParticleUpdateStage } from '../particle-module';
-import { ParticleSOAData } from '../particle-soa-data';
+import { ParticleSOAData, RecordReason } from '../particle-soa-data';
 import { ParticleSystem } from '../particle-system';
 import { ParticleUpdateContext } from '../particle-update-context';
 
+const emitProbabilityRandomSeedOffset = 199208;
+
 export enum EventCondition {
     BIRTH,
+    LIFETIME,
     DEATH,
 }
 
@@ -66,6 +70,9 @@ export class EventData {
     public probability = 1;
 }
 
+const inheritedPosition = new Vec3();
+const inheritedVelocity = new Vec3();
+
 @ccclass('cc.EventModule')
 export class EventModule extends ParticleModule {
     @type([EventData])
@@ -86,6 +93,25 @@ export class EventModule extends ParticleModule {
     }
 
     public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
-
+        const { particleSnapshots, particleSnapshotCount } = particles;
+        const { simulationSpace, localToWorld } = particleUpdateContext;
+        for (let i = 0; i < particleSnapshotCount; i++) {
+            const particleSnapshot = particleSnapshots[i];
+            if (particleSnapshot.recordReason & RecordReason.DEATH) {
+                for (let j = 0; j < this.spawnEvents.length; j++) {
+                    const spawnEvent = this.spawnEvents[i];
+                    if (spawnEvent.condition === EventCondition.DEATH && spawnEvent.emitter && spawnEvent.emitter.isValid
+                        && !approx(spawnEvent.probability, 0)
+                        && pseudoRandom(particleSnapshot.randomSeed + emitProbabilityRandomSeedOffset) <= spawnEvent.probability) {
+                        Vec3.copy(inheritedPosition, particleSnapshot.position);
+                        Vec3.add(inheritedVelocity, particleSnapshot.velocity, particleSnapshot.animatedVelocity);
+                        if (simulationSpace === Space.LOCAL) {
+                            Vec3.transformMat4(inheritedPosition, inheritedPosition, localToWorld);
+                            Vec3.transformMat4(inheritedVelocity, inheritedVelocity, localToWorld);
+                        }
+                    }
+                }
+            }
+        }
     }
 }

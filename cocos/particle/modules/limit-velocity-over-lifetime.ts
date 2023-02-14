@@ -159,7 +159,7 @@ export class LimitVelocityOverLifetimeModule extends ParticleModule {
 
     public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
         const needTransform = calculateTransform(particleUpdateContext.simulationSpace,
-            this.space, particleUpdateContext.worldTransform, rotation);
+            this.space, particleUpdateContext.localToWorld, rotation);
         const { count, normalizedAliveTime, randomSeed, animatedVelocityX, animatedVelocityY, animatedVelocityZ } = particles;
         if (this.separateAxes) {
             if (DEBUG) {

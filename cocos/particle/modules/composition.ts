@@ -25,7 +25,7 @@
 import { Vec3 } from '../../core';
 import { ccclass } from '../../core/data/decorators';
 import { ParticleModule, ParticleUpdateStage } from '../particle-module';
-import { ParticleSOAData } from '../particle-soa-data';
+import { ParticleSOAData, RecordReason } from '../particle-soa-data';
 import { ParticleUpdateContext } from '../particle-update-context';
 
 const velocity = new Vec3();
@@ -53,7 +53,7 @@ export class CompositionModule extends ParticleModule {
 
     public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
         const deltaTime = particleUpdateContext.deltaTime;
-        const { speedModifier } = particles;
+        const { speedModifier, normalizedAliveTime, invStartLifeTime } = particles;
         const count = particles.count;
         for (let particleHandle = 0; particleHandle < count; particleHandle++) {
             particles.getVelocityAt(velocity, particleHandle);
@@ -65,6 +65,15 @@ export class CompositionModule extends ParticleModule {
         for (let particleHandle = 0; particleHandle < count; particleHandle++) {
             particles.getAngularVelocityAt(angularVelocity, particleHandle);
             particles.addRotationAt(Vec3.multiplyScalar(angularVelocity, angularVelocity, deltaTime), particleHandle);
+        }
+
+        for (let i = particles.count - 1; i >= 0; i--) {
+            normalizedAliveTime[i] += deltaTime * invStartLifeTime[i];
+
+            if (normalizedAliveTime[i] > 1) {
+                particles.recordParticleSnapshot(i, RecordReason.DEATH);
+                particles.removeParticle(i);
+            }
         }
     }
 }

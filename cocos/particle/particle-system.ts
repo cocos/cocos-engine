@@ -36,11 +36,18 @@ import { RotationOverLifetimeModule } from './modules/rotation-over-lifetime';
 import { SizeOverLifetimeModule } from './modules/size-over-lifetime';
 import { TextureAnimationModule } from './modules/texture-animation';
 import { VelocityOverLifetimeModule } from './modules/velocity-over-lifetime';
+import { StartColorModule } from './modules/start-color';
+import { StartSizeModule } from './modules/start-size';
+import { StartSpeedModule } from './modules/start-speed';
+import { StartLifeTimeModule } from './modules/start-life-time';
 import { EmissionOverTimeModule } from './modules/emission-over-time';
+import { EmissionOverDistanceModule } from './modules/emission-over-distance';
+import { GravityModule } from './modules/gravity';
+import { SpeedModifierModule } from './modules/speed-modifier';
+import { StartRotationModule } from './modules/start-rotation';
 import { ShapeModule } from './modules/shape-module';
 import { ParticleUpdateContext } from './particle-update-context';
 import { CullingMode, Space } from './enum';
-import { particleEmitZAxis } from './particle-general-function';
 import { ParticleSystemRenderer } from './particle-system-renderer';
 import { TrailModule } from './modules/trail';
 import { legacyCC } from '../core/global-exports';
@@ -48,14 +55,13 @@ import { TransformBit } from '../core/scene-graph/node-enum';
 import { AABB, intersect } from '../core/geometry';
 import { Camera } from '../core/renderer/scene';
 import { NoiseModule } from './modules/noise';
-import { CCBoolean, CCFloat, Component, Enum, geometry } from '../core';
+import { CCBoolean, CCFloat, Component, Enum, geometry, js } from '../core';
 import { INVALID_HANDLE, ParticleHandle, ParticleSOAData } from './particle-soa-data';
 import { ParticleModule, ParticleUpdateStage } from './particle-module';
 import { particleSystemManager } from './particle-system-manager';
 import { EmittingModule } from './modules/emitting';
 import { CompositionModule } from './modules/composition';
 import { BurstEmissionModule } from './modules/burst-emission';
-import { EmissionOverDistanceModule, EventModule, GravityModule, SpeedModifierModule, StartColorModule, StartLifeTimeModule, StartRotationModule, StartSizeModule, StartSpeedModule } from './modules';
 
 enum PlayingState {
     STOPPED,
@@ -520,7 +526,7 @@ export class ParticleSystem extends Component {
         this.getOrAddModule(StartSpeedModule);
         this.getOrAddModule(TextureAnimationModule);
         this.getOrAddModule(VelocityOverLifetimeModule);
-        this.getOrAddModule(EventModule);
+        this.getOrAddModule(js.getClassById('cc.EventModule') as Constructor<ParticleModule>);
     }
 
     protected onEnable () {
@@ -601,7 +607,7 @@ export class ParticleSystem extends Component {
         particleUpdateContext.duration = this.duration;
         particleUpdateContext.lastPosition.set(particleUpdateContext.currentPosition);
         particleUpdateContext.currentPosition.set(this.node.worldPosition);
-        particleUpdateContext.worldTransform.set(this.node.worldMatrix);
+        particleUpdateContext.localToWorld.set(this.node.worldMatrix);
         Quat.normalize(particleUpdateContext.worldRotation, this.node.worldRotation);
         if (particleUpdateContext.emitterDelayRemaining > 0) {
             particleUpdateContext.emitterDelayRemaining -= particleUpdateContext.emitterDeltaTime;
@@ -613,15 +619,9 @@ export class ParticleSystem extends Component {
         }
         particleUpdateContext.emitterAccumulatedTime += particleUpdateContext.emitterDeltaTime;
         particleUpdateContext.normalizedTimeInCycle = particleUpdateContext.emitterAccumulatedTime / this.duration;
+        particles.clearParticleSnapshots();
 
-        const { normalizedAliveTime, invStartLifeTime, animatedVelocityX, animatedVelocityY, animatedVelocityZ, angularVelocityX, angularVelocityY, angularVelocityZ, color, startColor } = particles;
-        for (let i = particles.count - 1; i >= 0; i--) {
-            normalizedAliveTime[i] += deltaTime * invStartLifeTime[i];
-
-            if (normalizedAliveTime[i] > 1) {
-                particles.removeParticle(i);
-            }
-        }
+        const { animatedVelocityX, animatedVelocityY, animatedVelocityZ, angularVelocityX, angularVelocityY, angularVelocityZ, color, startColor } = particles;
 
         for (let i = 0, length = particles.count; i < length; i++) {
             animatedVelocityX[i] = 0;

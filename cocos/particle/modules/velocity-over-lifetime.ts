@@ -94,7 +94,7 @@ export class VelocityOverLifetimeModule extends ParticleModule {
     }
 
     public update (particles: ParticleSOAData, context: ParticleUpdateContext) {
-        const needTransform = calculateTransform(context.simulationSpace, this.space, context.worldTransform, rotation);
+        const needTransform = calculateTransform(context.simulationSpace, this.space, context.localToWorld, rotation);
         const { count, normalizedAliveTime, randomSeed } = particles;
         if (needTransform) {
             if (this.x.mode === CurveRange.Mode.Constant) {

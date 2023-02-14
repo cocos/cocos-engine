@@ -33,7 +33,7 @@ export class ParticleUpdateContext {
     public deltaTime = 0;
     public duration = 0;
     public simulationSpace = Space.LOCAL;
-    public worldTransform = new Mat4();
+    public localToWorld = new Mat4();
     public worldRotation = new Quat();
     public emittingAccumulatedCount = 0;
     public newParticleIndexStart = -1;

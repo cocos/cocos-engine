@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { assert, Color } from '../core';
+import { assert, Color, Vec3 } from '../core';
 
 export type ParticleHandle = number;
 export const INVALID_HANDLE = -1;
@@ -58,6 +58,28 @@ export class TrailSegment {
 
 export enum ParticleOptionalChannels {
     SPEED_MODIFIER = 1,
+}
+
+export class ParticleSnapshot {
+    public position = new Vec3();
+    public velocity = new Vec3();
+    public animatedVelocity = new Vec3();
+    public speedModifier = 1;
+    public rotation = new Vec3();
+    public startSize = new Vec3();
+    public size = new Vec3();
+    public startColor = new Color();
+    public color = new Color();
+    public randomSeed = 0;
+    public invStartLifeTime = 1;
+    public normalizedAliveTime = 0;
+    public recordReason = -1;
+}
+
+export enum RecordReason {
+    BIRTH,
+    DEATH,
+    CUSTOM,
 }
 
 const tempColor = new Color();
@@ -112,6 +134,8 @@ export class ParticleSOAData {
     // exclude last trail segment
     private _endTrailSegmentIndices = new Uint16Array(this._capacity);
     private _trailSegmentNumbers = new Uint16Array(this._capacity);
+    private _particleSnapshots = [new ParticleSnapshot(), new ParticleSnapshot(), new ParticleSnapshot(), new ParticleSnapshot()];
+    private _snapshotUsed = 0;
 
     get capacity () {
         return this._capacity;
@@ -277,6 +301,14 @@ export class ParticleSOAData {
         return this._color;
     }
 
+    get particleSnapshots (): ReadonlyArray<ParticleSnapshot> {
+        return this._particleSnapshots;
+    }
+
+    get particleSnapshotCount () {
+        return this._snapshotUsed;
+    }
+
     getPositionAt (out: Vec3, handle: ParticleHandle) {
         out.x = this._positionX[handle];
         out.y = this._positionY[handle];
@@ -353,6 +385,12 @@ export class ParticleSOAData {
         this._angularVelocityZ[handle] += val.z;
     }
 
+    getRotationAt (out: Vec3, handle: ParticleHandle) {
+        out.x = this._rotationX[handle];
+        out.y = this._rotationY[handle];
+        out.z = this._rotationZ[handle];
+    }
+
     addRotationAt (val: Vec3, handle: ParticleHandle) {
         this._rotationX[handle] += val.x;
         this._rotationY[handle] += val.y;
@@ -364,6 +402,12 @@ export class ParticleSOAData {
         out.y = this._startSizeY[handle];
         out.z = this._startSizeZ[handle];
         return out;
+    }
+
+    getSizeAt (out: Vec3, handle: ParticleHandle) {
+        out.x = this._sizeX[handle];
+        out.y = this._sizeY[handle];
+        out.z = this._sizeZ[handle];
     }
 
     setSizeAt (val: Vec3, handle: ParticleHandle) {
@@ -528,6 +572,33 @@ export class ParticleSOAData {
         this._endTrailSegmentIndices[handle] = this._endTrailSegmentIndices[lastParticle];
         this._trailSegmentNumbers[handle] = this._trailSegmentNumbers[lastParticle];
         this._count -= 1;
+    }
+
+    clearParticleSnapshots () {
+        this._snapshotUsed = 0;
+    }
+
+    recordParticleSnapshot (handle: ParticleHandle, reason: RecordReason) {
+        if (this._snapshotUsed === this._particleSnapshots.length) {
+            for (let i = 0; i < this._snapshotUsed; i++) {
+                this._particleSnapshots.push(new ParticleSnapshot());
+            }
+        }
+        const particleSnapshot = this._particleSnapshots[this._snapshotUsed];
+        this.getPositionAt(particleSnapshot.position, handle);
+        this.getVelocityAt(particleSnapshot.velocity, handle);
+        this.getAnimatedVelocityAt(particleSnapshot.animatedVelocity, handle);
+        particleSnapshot.speedModifier = this._speedModifier[handle];
+        this.getRotationAt(particleSnapshot.rotation, handle);
+        this.getStartSizeAt(particleSnapshot.startSize, handle);
+        this.getSizeAt(particleSnapshot.size, handle);
+        this.getStartColorAt(particleSnapshot.startColor, handle);
+        this.getColorAt(particleSnapshot.color, handle);
+        particleSnapshot.randomSeed = this._randomSeed[handle];
+        particleSnapshot.invStartLifeTime = this._invStartLifeTime[handle];
+        particleSnapshot.normalizedAliveTime = this._normalizedAliveTime[handle];
+        particleSnapshot.recordReason = reason;
+        this._snapshotUsed++;
     }
 
     resetParticle (handle: ParticleHandle) {
