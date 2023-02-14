@@ -552,7 +552,7 @@ function watchArrayElementsField<S, T> (self: S, list: T[], eleField: string, ca
 }
 
 export class BlendState {
-    private targets: BlendTarget[];
+    public targets: BlendTarget[];
     private _blendColor: Color;
     protected _nativeObj;
     protected _isA2C: boolean = false;

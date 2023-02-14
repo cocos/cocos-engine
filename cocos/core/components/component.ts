@@ -650,31 +650,28 @@ class Component extends CCObject {
 
 const proto = Component.prototype;
 // @ts-expect-error modify prototype
-proto.update = null;
+proto.update = undefined;
 // @ts-expect-error modify prototype
-proto.lateUpdate = null;
+proto.lateUpdate = undefined;
 // @ts-expect-error modify prototype
-proto.__preload = null;
+proto.__preload = undefined;
 // @ts-expect-error modify prototype
-proto.onLoad = null;
+proto.onLoad = undefined;
 // @ts-expect-error modify prototype
-proto.start = null;
+proto.start = undefined;
 // @ts-expect-error modify prototype
-proto.onEnable = null;
+proto.onEnable = undefined;
 // @ts-expect-error modify prototype
-proto.onDisable = null;
+proto.onDisable = undefined;
 // @ts-expect-error modify prototype
-proto.onDestroy = null;
+proto.onDestroy = undefined;
+proto.onFocusInEditor = undefined;
+proto.onLostFocusInEditor = undefined;
+proto.resetInEditor = undefined;
 // @ts-expect-error modify prototype
-proto.onFocusInEditor = null;
+proto._getLocalBounds = undefined;
 // @ts-expect-error modify prototype
-proto.onLostFocusInEditor = null;
-// @ts-expect-error modify prototype
-proto.resetInEditor = null;
-// @ts-expect-error modify prototype
-proto._getLocalBounds = null;
-// @ts-expect-error modify prototype
-proto.onRestore = null;
+proto.onRestore = undefined;
 // @ts-expect-error modify class
 Component._requireComponent = null;
 // @ts-expect-error modify class
