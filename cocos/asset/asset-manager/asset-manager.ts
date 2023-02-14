@@ -775,8 +775,8 @@ export declare namespace AssetManager {
     export { Bundle };
     export { BuiltinBundleName };
     export { CacheManager };
-    export type { ICache };
-    export type { IAssetInfo, IPackInfo, IAddressableInfo, ISceneInfo, IRequest };
+    // export { ICache };
+    // export { IAssetInfo, IPackInfo, IAddressableInfo, ISceneInfo, IRequest };
     export { DependUtil };
     export { Downloader };
     export { Parser };
