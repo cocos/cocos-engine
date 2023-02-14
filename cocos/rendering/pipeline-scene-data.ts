@@ -115,7 +115,7 @@ export class PipelineSceneData {
         for (let tech = 0; tech < GEOMETRY_RENDERER_TECHNIQUE_COUNT; tech++) {
             this._geometryRendererMaterials[tech] = new Material();
             this._geometryRendererMaterials[tech]._uuid = `geometry-renderer-material-${tech}`;
-            this._geometryRendererMaterials[tech].initialize({ effectName: 'builtin-geometry-renderer', technique: tech });
+            this._geometryRendererMaterials[tech].initialize({ effectName: 'internal/builtin-geometry-renderer', technique: tech });
 
             for (let pass = 0; pass < this._geometryRendererMaterials[tech].passes.length; ++pass) {
                 this._geometryRendererPasses[offset] = this._geometryRendererMaterials[tech].passes[pass];
@@ -141,7 +141,7 @@ export class PipelineSceneData {
         if (!this._occlusionQueryMaterial) {
             const mat = new Material();
             mat._uuid = 'default-occlusion-query-material';
-            mat.initialize({ effectName: 'builtin-occlusion-query' });
+            mat.initialize({ effectName: 'internal/builtin-occlusion-query' });
             this._occlusionQueryMaterial = mat;
             if (mat.passes.length > 0) {
                 this._occlusionQueryShader = mat.passes[0].getShaderVariant();
