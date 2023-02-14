@@ -22,9 +22,9 @@
  THE SOFTWARE.
 */
 
-import { ccclass, help, executeInEditMode, menu, tooltip, displayOrder, type, serializable, range, visible, override } from 'cc.decorator';
+import { ccclass, help, executeInEditMode, menu, tooltip, displayOrder, type, serializable, range, visible, override, displayName } from 'cc.decorator';
 import { Material } from '../asset/assets';
-import { Vec3, cclegacy } from '../core';
+import { Vec3, cclegacy, Vec4, Vec2 } from '../core';
 import { LineModel } from './models/line-model';
 import { builtinResMgr } from '../asset/asset-manager';
 import CurveRange from './animator/curve-range';
@@ -32,7 +32,8 @@ import GradientRange from './animator/gradient-range';
 import { ModelRenderer } from '../misc';
 
 const CC_USE_WORLD_SPACE = 'CC_USE_WORLD_SPACE';
-const define = { CC_USE_WORLD_SPACE: false };
+const CC_USE_WORLD_SCALE = 'CC_USE_WORLD_SCALE';
+const define = { CC_USE_WORLD_SPACE: false, CC_USE_WORLD_SCALE: true };
 
 @ccclass('cc.Line')
 @help('i18n:cc.Line')
@@ -42,12 +43,17 @@ export class Line extends ModelRenderer {
     @type(Material)
     @displayOrder(1)
     @tooltip('i18n:line.material')
+    @displayName('Material')
     get lineMaterial () {
         return this.getMaterial(0);
     }
 
     set lineMaterial (val) {
         this.material = val;
+    }
+
+    protected _onMaterialModified (index: number, material: Material | null) {
+        super._onMaterialModified(index, material);
         const matIns = this.getMaterialInstance(0);
         if (matIns) {
             define[CC_USE_WORLD_SPACE] = this.worldSpace;
@@ -135,6 +141,51 @@ export class Line extends ModelRenderer {
     @displayOrder(6)
     @tooltip('i18n:line.color')
     public color = new GradientRange();
+
+    @serializable
+    private _tile = new Vec2(1, 1);
+
+    private _tile_offset: Vec4 = new Vec4();
+
+    /**
+     * @zh 图块数。
+     */
+    @type(Vec2)
+    @displayOrder(4)
+    @tooltip('i18n:line.tile')
+    @visible(false)
+    get tile () {
+        return this._tile;
+    }
+
+    set tile (val) {
+        this._tile.set(val);
+        if (this.material) {
+            this._tile_offset.x = this._tile.x;
+            this._tile_offset.y = this._tile.y;
+            this.material.setProperty('mainTiling_Offset', this._tile_offset);
+        }
+    }
+
+    @serializable
+    private _offset = new Vec2(0, 0);
+
+    @type(Vec2)
+    @displayOrder(5)
+    @tooltip('i18n:line.offset')
+    @visible(false)
+    get offset () {
+        return this._offset;
+    }
+
+    set offset (val) {
+        this._offset.set(val);
+        if (this.material) {
+            this._tile_offset.z = this._offset.x;
+            this._tile_offset.w = this._offset.y;
+            this.material.setProperty('mainTiling_Offset', this._tile_offset);
+        }
+    }
 
     constructor () {
         super();
