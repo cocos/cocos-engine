@@ -38,6 +38,7 @@
 #include "scene/Shadow.h"
 #include "scene/Skybox.h"
 #include "scene/SpotLight.h"
+#include "scene/ReflectionProbeManager.h"
 
 namespace cc {
 
@@ -78,6 +79,8 @@ void PipelineUBO::updateGlobalUBOView(const scene::Camera *camera, ccstd::array<
     uboGlobalView[UBOGlobal::NATIVE_SIZE_OFFSET + 2] = 1.0F / uboGlobalView[UBOGlobal::NATIVE_SIZE_OFFSET];
     uboGlobalView[UBOGlobal::NATIVE_SIZE_OFFSET + 3] = 1.0F / uboGlobalView[UBOGlobal::NATIVE_SIZE_OFFSET + 1];
 
+    uboGlobalView[UBOGlobal::PROBE_INFO_OFFSET + 0] = scene::ReflectionProbeManager::getInstance()->getMaxProbeId() + 1;
+    
     auto *debugView = root->getDebugView();
     uboGlobalView[UBOGlobal::DEBUG_VIEW_MODE_OFFSET] = static_cast<float>(debugView->getSingleMode());
     uboGlobalView[UBOGlobal::DEBUG_VIEW_MODE_OFFSET + 1] = debugView->isLightingWithAlbedo() ? 1.0F : 0.0F;
