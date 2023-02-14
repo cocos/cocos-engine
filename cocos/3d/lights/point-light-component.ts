@@ -23,11 +23,12 @@
 */
 
 import { ccclass, help, executeInEditMode, menu, tooltip, type, displayOrder,
-    serializable, formerlySerializedAs } from 'cc.decorator';
+    serializable, formerlySerializedAs, editable, rangeMin, slide } from 'cc.decorator';
 import { legacyCC } from '../../core/global-exports';
 import { scene } from '../../render-scene';
 import { Camera } from '../../render-scene/scene';
 import { Light, PhotometricTerm } from './light-component';
+import { CCFloat, CCInteger } from '../../core';
 
 /**
  * @en The point light component, multiple point lights can be added to one scene.
@@ -57,6 +58,10 @@ export class PointLight extends Light {
      */
     @displayOrder(-1)
     @tooltip('i18n:lights.luminous_flux')
+    @editable
+    @rangeMin(0)
+    @slide
+    @type(CCInteger)
     get luminousFlux () {
         const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
@@ -85,6 +90,10 @@ export class PointLight extends Light {
      */
     @displayOrder(-1)
     @tooltip('i18n:lights.luminance')
+    @editable
+    @rangeMin(0)
+    @slide
+    @type(CCInteger)
     get luminance () {
         const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
@@ -113,6 +122,10 @@ export class PointLight extends Light {
     @type(PhotometricTerm)
     @displayOrder(-2)
     @tooltip('i18n:lights.term')
+    @editable
+    @rangeMin(0)
+    @slide
+    @type(CCInteger)
     get term (): number {
         return this._term;
     }
@@ -127,6 +140,10 @@ export class PointLight extends Light {
      * 光源范围。
      */
     @tooltip('i18n:lights.range')
+    @editable
+    @rangeMin(0)
+    @slide
+    @type(CCFloat)
     get range () {
         return this._range;
     }

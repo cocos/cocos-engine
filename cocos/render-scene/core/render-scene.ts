@@ -65,72 +65,72 @@ export interface IRaycastResult {
  */
 export class RenderScene {
     /**
-     * @en The root manager of the renderer
-     * @zh 基础渲染管理器
+     * @en The root manager of the renderer.
+     * @zh 基础渲染管理器。
      */
     get root (): Root {
         return this._root;
     }
 
     /**
-     * @en The name of the render scene
-     * @zh 渲染场景的名称
+     * @en The name of the render scene.
+     * @zh 渲染场景的名称。
      */
     get name (): string {
         return this._name;
     }
 
     /**
-     * @en All cameras of the render scene
-     * @zh 渲染场景管理的所有相机
+     * @en All cameras of the render scene.
+     * @zh 渲染场景管理的所有相机。
      */
     get cameras (): Camera[] {
         return this._cameras;
     }
 
     /**
-     * @en The main directional light source of the render scene
-     * @zh 渲染场景管理的主方向光源
+     * @en The main directional light source of the render scene.
+     * @zh 渲染场景管理的主方向光源。
      */
     get mainLight (): DirectionalLight | null {
         return this._mainLight;
     }
 
     /**
-     * @en All sphere light sources of the render scene
-     * @zh 渲染场景管理的所有球面光源
+     * @en All sphere light sources of the render scene.
+     * @zh 渲染场景管理的所有球面光源。
      */
-    get sphereLights (): SphereLight[] {
+    get sphereLights (): Readonly<SphereLight[]> {
         return this._sphereLights;
     }
 
     /**
-     * @en All spot light sources of the render scene
-     * @zh 渲染场景管理的所有聚光灯光源
+     * @en All spot light sources of the render scene.
+     * @zh 渲染场景管理的所有聚光灯光源。
      */
-    get spotLights (): SpotLight[] {
+    get spotLights (): Readonly<SpotLight[]> {
         return this._spotLights;
     }
 
     /**
-     * @en All point light sources of the render scene
-     * @zh 渲染场景管理的所有点光源
+     * @en All point light sources of the render scene.
+     * @zh 渲染场景管理的所有点光源。
      */
-    get pointLights (): PointLight[] {
+    get pointLights (): Readonly<PointLight[]> {
         return this._pointLights;
     }
 
     /**
-     * @en All active models of the render scene
-     * @zh 渲染场景管理的所有模型
+     * @en All active models of the render scene.
+     * @zh 渲染场景管理的所有模型。
      */
     get models (): Model[] {
         return this._models;
     }
 
     /**
-     * @en All active 2d draw batches of the render scene
-     * @zh 渲染场景管理的所有 2D 渲染批次对象
+     * @en All active 2d draw batches of the render scene.
+     * @zh 渲染场景管理的所有 2D 渲染批次对象。
      */
     get batches () {
         return this._batches;
@@ -138,8 +138,8 @@ export class RenderScene {
 
     /**
      * @engineInternal
-     * @en All LOD groups of the render scene
-     * @zh 渲染场景管理的所有 LOD 组
+     * @en All LOD groups of the render scene.
+     * @zh 渲染场景管理的所有 LOD 组。
      */
     get lodGroups (): readonly LODGroup[] { return this._lodGroups; }
 
@@ -400,13 +400,13 @@ export class RenderScene {
         for (let i = 0; i < this._spotLights.length; ++i) {
             this._spotLights[i].detachFromScene();
         }
-        this._spotLights = [];
+        this._spotLights.length = 0;
     }
 
     /**
      * @en Add a point light source.
      * @zh 增加一个点光源。
-     * @param pl The point light.
+     * @param pl @en The point light. @zh 点光源。
      */
     public addPointLight (pl: PointLight) {
         pl.attachToScene(this);
@@ -416,7 +416,7 @@ export class RenderScene {
     /**
          * @en Remove a sphere light source.
          * @zh 删除一个点光源。
-         * @param pl The point light.
+         * @param pl @en The point light. @zh 点光源。
          */
     public removePointLight (pl: PointLight) {
         for (let i = 0; i < this._pointLights.length; ++i) {
