@@ -203,11 +203,11 @@ export class ImageAsset extends Asset {
         if (this.data && this.data instanceof HTMLImageElement) {
             this.data.src = '';
             this._setRawAsset('');
-            // @ts-expect-error JSB element should destroy native data.
-            if (JSB) this.data.destroy();
+            // NOTE: Property 'destroy' does not exist on type 'HTMLImageElement'.
+            if (JSB) (this.data as any).destroy();
         } else if (isImageBitmap(this.data)) {
-            // @ts-expect-error internal api usage
-            this.data.close && this.data.close();
+            // NOTE: Property 'close' does not exist on type 'HTMLCanvasElement'.
+            (this.data as any).close?.();
         }
         return super.destroy();
     }

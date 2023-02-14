@@ -43,8 +43,8 @@ replaceProperty(RenderTexture.prototype, 'RenderTexture.prototype', [
     {
         name: 'getGFXWindow',
         customFunction () {
-            // @ts-expect-error
-            return this._window;
+            // @ts-expect-error private property access
+            return (this as RenderTexture)._window;
         },
     },
 ]);

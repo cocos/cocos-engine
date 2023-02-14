@@ -65,13 +65,11 @@ replaceProperty(SpotLight.prototype, 'SpotLight.prototype', [
         name: 'luminousPower',
         newName: 'luminousFlux',
         customGetter () {
-            // @ts-expect-error deprecation method
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-            return this.luminousFlux;
+            return (this as SpotLight).luminousFlux;
         },
         customSetter (value) {
-            // @ts-expect-error deprecation method
-            this.luminousFlux = value;
+            (this as SpotLight).luminousFlux = value;
         },
     },
 ]);
@@ -81,13 +79,11 @@ replaceProperty(SphereLight.prototype, 'SphereLight.prototype', [
         name: 'luminousPower',
         newName: 'luminousFlux',
         customGetter () {
-            // @ts-expect-error deprecation method
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-            return this.luminousFlux;
+            return (this as SpotLight).luminousFlux;
         },
         customSetter (value) {
-            // @ts-expect-error deprecation method
-            this.luminousFlux = value;
+            (this as SpotLight).luminousFlux = value;
         },
     },
 ]);
