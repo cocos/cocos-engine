@@ -49,7 +49,7 @@ export class Line extends ModelRenderer {
     }
 
     set lineMaterial (val) {
-        this.material = val;
+        this.setMaterial(val, 0);
     }
 
     protected _onMaterialModified (index: number, material: Material | null) {
