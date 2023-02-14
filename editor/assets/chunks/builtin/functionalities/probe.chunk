@@ -38,8 +38,8 @@ void GetCubeReflectionProbeData(out vec3 centerPos, out vec3 boxHalfSize, out fl
       boxHalfSize = texData2.xyz;
       mipCount = texData3.x;
     #else
-       centerPos = cc_reflectionProbeData1.xyz;
-       boxHalfSize = cc_reflectionProbeData2.xyz;
-       mipCount = cc_reflectionProbeData2.w;
+      centerPos = cc_reflectionProbeData1.xyz;
+      boxHalfSize = cc_reflectionProbeData2.xyz;
+      mipCount = cc_reflectionProbeData2.w;
     #endif
 }

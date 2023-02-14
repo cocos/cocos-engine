@@ -125,8 +125,9 @@ void CCSurfacesVertexTransferFog(inout SurfacesStandardVertexIntermediate In)
 
 void CCSurfacesVertexTransferShadow(inout SurfacesStandardVertexIntermediate In)
 {
-  In.shadowBiasAndProbeId = vec4(0.0);
-
+  #if CC_RECEIVE_SHADOW || CC_USE_REFLECTION_PROBE
+    In.shadowBiasAndProbeId = vec4(0.0);
+  #endif
   #if CC_RECEIVE_SHADOW
     In.shadowBiasAndProbeId.xy = vec2(cc_shadowWHPBInfo.w, cc_shadowLPNNInfo.z);
     #if USE_INSTANCING
