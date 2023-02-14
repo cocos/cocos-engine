@@ -89,14 +89,6 @@ Object.defineProperty(rootProto, 'pipelineEvent', {
     }
 });
 
-Object.defineProperty(rootProto, 'debugView', {
-    configurable: true,
-    enumerable: true,
-    get() {
-        return this._debugView;
-    }
-});
-
 class DummyPipelineEvent {
     on(type: any, callback: any, target?: any, once?: boolean) { }
     once(type: any, callback: any, target?: any) { }
@@ -114,8 +106,6 @@ rootProto._ctor = function (device: Device) {
     this._lightPools = new Map();
     this._batcher = null;
     this._pipelineEvent = new DummyPipelineEvent();
-    this._debugView = new DebugView();
-    this.setDebugViewConfig(this._debugView._nativeConfig);
     this._registerListeners();
 };
 
@@ -236,15 +226,8 @@ const oldSetPipeline = rootProto.setRenderPipeline;
 rootProto.setRenderPipeline = function (pipeline) {
     let ppl;
     if (macro.CUSTOM_PIPELINE_NAME !== '' && legacyCC.rendering && this.usesCustomPipeline) {
-        const result = oldSetPipeline.call(this, null);
-        const ppl = this.customPipeline;
-        if (this.useDeferredPipeline) {
-            buildDeferredLayout(ppl);
-        } else {
-            buildForwardLayout(ppl);
-        }
-        ppl.layoutGraphBuilder.compile();
-        return result;
+        legacyCC.rendering.createCustomPipeline();
+        ppl = oldSetPipeline.call(this, null);
     } else {
         if (!pipeline) {
             // pipeline should not be created in C++, ._ctor need to be triggered

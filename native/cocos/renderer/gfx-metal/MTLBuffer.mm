@@ -29,6 +29,7 @@
 #include "MTLBuffer.h"
 #include "MTLCommandBuffer.h"
 #include "MTLDevice.h"
+#include "MTLQueue.h"
 #include "MTLRenderCommandEncoder.h"
 #include "MTLUtils.h"
 #include "MTLGPUObjects.h"
@@ -245,14 +246,7 @@ void CCMTLBuffer::update(const void *buffer, uint32_t size) {
 
 void CCMTLBuffer::updateMTLBuffer(const void *buffer, uint32_t /*offset*/, uint32_t size) {
     if (_gpuBuffer->mtlBuffer) {
-        CommandBuffer *cmdBuffer = CCMTLDevice::getInstance()->getCommandBuffer();
-        cmdBuffer->begin();
-        static_cast<CCMTLCommandBuffer *>(cmdBuffer)->updateBuffer(this, buffer, size);
-#if (CC_PLATFORM == CC_PLATFORM_MACOS)
-        if (_mtlResourceOptions == MTLResourceStorageModeManaged) {
-            [_gpuBuffer->mtlBuffer didModifyRange:NSMakeRange(0, _size)]; // Synchronize the managed buffer.
-        }
-#endif
+        CCMTLDevice::getInstance()->writeBuffer(this, buffer, size);
     }
 }
 

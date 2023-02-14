@@ -55,7 +55,7 @@ struct AdditiveLightPass {
 class RenderAdditiveLightQueue final {
 public:
     explicit RenderAdditiveLightQueue(RenderPipeline *pipeline);
-    ~RenderAdditiveLightQueue();
+    ~RenderAdditiveLightQueue() = default;
 
     void recordCommandBuffer(gfx::Device *device, scene::Camera *camera, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer);
     void gatherLightPasses(const scene::Camera *camera, gfx::CommandBuffer *cmdBuffer);
@@ -79,10 +79,6 @@ private:
 
     // weak reference
     RenderPipeline *_pipeline{nullptr};
-    // manage memory manually
-    RenderInstancedQueue *_instancedQueue{nullptr};
-    // manage memory manually
-    RenderBatchedQueue *_batchedQueue{nullptr};
 
     IntrusivePtr<gfx::Buffer> _lightBuffer;
     IntrusivePtr<gfx::Buffer> _firstLightBufferView;
@@ -100,6 +96,10 @@ private:
 
     // weak reference
     ccstd::vector<const scene::Light *> _validPunctualLights;
+
+    ccstd::vector<IntrusivePtr<RenderInstancedQueue>> _instancedQueues;
+
+    ccstd::vector<IntrusivePtr<RenderBatchedQueue>> _batchedQueues;
 
     ccstd::vector<AdditiveLightPass> _lightPasses;
 

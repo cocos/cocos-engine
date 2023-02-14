@@ -28,7 +28,7 @@ import { Asset } from './asset';
 import { cclegacy } from '../../core';
 
 /**
- * @en Class for text file.
+ * @en The asset for text file.
  * @zh 文本资源。
  */
 @ccclass('cc.TextAsset')

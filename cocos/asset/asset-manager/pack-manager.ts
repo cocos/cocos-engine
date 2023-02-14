@@ -30,12 +30,12 @@ import Cache from './cache';
 import downloader from './downloader';
 import { transform } from './helper';
 import RequestItem from './request-item';
-import { CompleteCallback, files, IDownloadParseOptions } from './shared';
+import { files } from './shared';
 
-export type Unpacker = (packUuid: string[], data: any, options: IDownloadParseOptions, onComplete: CompleteCallback) => void;
+export type Unpacker = (packUuid: string[], data: any, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) => void;
 
 interface IUnpackRequest {
-    onComplete: CompleteCallback;
+    onComplete: ((err: Error | null, data?: any | null) => void);
     id: string;
 }
 
@@ -73,7 +73,7 @@ export class PackManager {
      * });
      *
      */
-    public unpackJson (pack: string[], json: any, options: IDownloadParseOptions, onComplete: CompleteCallback<Record<string, any>>): void {
+    public unpackJson (pack: string[], json: any, options: Record<string, any>, onComplete: ((err: Error | null, data?: Record<string, any> | null) => void)): void {
         let out = js.createMap(true);
         let err: Error | null = null;
 
@@ -170,7 +170,7 @@ export class PackManager {
      * });
      *
      */
-    public unpack (pack: string[], data: any, type: string, options: IDownloadParseOptions, onComplete: CompleteCallback): void {
+    public unpack (pack: string[], data: any, type: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)): void {
         if (!data) {
             onComplete(new Error('package data is wrong!'));
             return;
@@ -200,7 +200,7 @@ export class PackManager {
      * packManager.load(requestItem, null, (err, data) => console.log(err));
      *
      */
-    public load (item: RequestItem, options: IDownloadParseOptions | null, onComplete: CompleteCallback): void {
+    public load (item: RequestItem, options: Record<string, any> | null, onComplete: ((err: Error | null, data?: any | null) => void)): void {
         // if not in any package, download as uausl
         if (item.isNative || !item.info || !item.info.packs) {
             downloader.download(item.id, item.url, item.ext, item.options, onComplete);

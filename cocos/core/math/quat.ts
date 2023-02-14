@@ -396,8 +396,8 @@ export class Quat extends ValueType {
     }
 
     /**
-     * @en Normalize the given quaternion
-     * @zh 归一化四元数
+     * @en Normalize the given quaternion, returns a zero quaternion if input is a zero quaternion.
+     * @zh 归一化四元数，输入零四元数将会返回零四元数。
      */
     public static normalize<Out extends IQuatLike> (out: Out, a: Out) {
         let len = a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w;
@@ -407,6 +407,11 @@ export class Quat extends ValueType {
             out.y = a.y * len;
             out.z = a.z * len;
             out.w = a.w * len;
+        } else {
+            out.x = 0;
+            out.y = 0;
+            out.z = 0;
+            out.w = 0;
         }
         return out;
     }
@@ -452,43 +457,43 @@ export class Quat extends ValueType {
      * @en Calculates the quaternion with the three-dimensional transform matrix, considering no scale included in the matrix
      * @zh 根据三维矩阵信息计算四元数，默认输入矩阵不含有缩放信息
      */
-    public static fromMat3<Out extends IQuatLike> (out: Out, m: Mat3) {
+    public static  fromMat3<Out extends IQuatLike> (out: Out, m: Mat3) {
         const {
-            m00, m03, m06,
-            m01, m04, m07,
-            m02, m05, m08,
+            m00, m03: m01, m06: m02,
+            m01: m10, m04: m11, m07: m12,
+            m02: m20, m05: m21, m08: m22,
         } = m;
 
-        const trace = m00 + m04 + m08;
+        const trace = m00 + m11 + m22;
 
         if (trace > 0) {
             const s = 0.5 / Math.sqrt(trace + 1.0);
 
             out.w = 0.25 / s;
-            out.x = (m05 - m07) * s;
-            out.y = (m06 - m02) * s;
-            out.z = (m01 - m03) * s;
-        } else if ((m00 > m04) && (m00 > m08)) {
-            const s = 2.0 * Math.sqrt(1.0 + m00 - m04 - m08);
+            out.x = (m21 - m12) * s;
+            out.y = (m02 - m20) * s;
+            out.z = (m10 - m01) * s;
+        } else if ((m00 > m11) && (m00 > m22)) {
+            const s = 0.5 / Math.sqrt(1.0 + m00 - m11 - m22);
 
-            out.w = (m05 - m07) / s;
-            out.x = 0.25 * s;
-            out.y = (m03 + m01) / s;
-            out.z = (m06 + m02) / s;
-        } else if (m04 > m08) {
-            const s = 2.0 * Math.sqrt(1.0 + m04 - m00 - m08);
+            out.w = (m21 - m12) * s;
+            out.x = 0.25 / s;
+            out.y = (m01 + m10) * s;
+            out.z = (m02 + m20) * s;
+        } else if (m11 > m22) {
+            const s = 0.5 / Math.sqrt(1.0 + m11 - m00 - m22);
 
-            out.w = (m06 - m02) / s;
-            out.x = (m03 + m01) / s;
-            out.y = 0.25 * s;
-            out.z = (m07 + m05) / s;
+            out.w = (m02 - m20) * s;
+            out.x = (m01 + m10) * s;
+            out.y = 0.25 / s;
+            out.z = (m12 + m21) * s;
         } else {
-            const s = 2.0 * Math.sqrt(1.0 + m08 - m00 - m04);
+            const s = 0.5 / Math.sqrt(1.0 + m22 - m00 - m11);
 
-            out.w = (m01 - m03) / s;
-            out.x = (m06 + m02) / s;
-            out.y = (m07 + m05) / s;
-            out.z = 0.25 * s;
+            out.w = (m10 - m01) * s;
+            out.x = (m02 + m20) * s;
+            out.y = (m12 + m21) * s;
+            out.z = 0.25 / s;
         }
 
         return out;
@@ -611,6 +616,18 @@ export class Quat extends ValueType {
         }
         out.x = bank; out.y = heading; out.z = attitude;
         return out;
+    }
+
+    /**
+     * @en Converts the quaternion to euler angles, result angle y, z in the range of [-180, 180], x in the range of [-90, 90], the rotation order is YXZ
+     * @zh 根据四元数计算欧拉角，返回角度 yz 在 [-180, 180], x 在 [-90, 90]，旋转顺序为 YXZ
+     */
+    public static toEulerInYXZOrder (out: Vec3, q: IQuatLike) {
+        Mat3.fromQuat(m3_1, q);
+        Mat3.toEuler(m3_1, out);
+        out.x = toDegree(out.x);
+        out.y = toDegree(out.y);
+        out.z = toDegree(out.z);
     }
 
     /**

@@ -52,7 +52,6 @@ class CopyPassBuilder;
 class SceneVisitor;
 class SceneTask;
 class SceneTransversal;
-class LayoutGraphBuilder;
 class Pipeline;
 class PipelineBuilder;
 class RenderingModule;

@@ -27,14 +27,15 @@ import { BufferInfo, Buffer, BufferUsageBit, ClearFlagBit, Color, DescriptorSet,
 import { Camera, CSMLevel, DirectionalLight, Light, LightType, ReflectionProbe, ShadowType, SKYBOX_FLAG, SpotLight } from '../../render-scene/scene';
 import { supportsR32FloatTexture } from '../define';
 import { Pipeline } from './pipeline';
-import { AccessType, AttachmentType, ComputeView, LightInfo, QueueHint, RasterView, ResourceResidency, SceneFlags } from './types';
-import { Vec4, macro, geometry, toRadian, cclegacy } from '../../core';
+import { AccessType, AttachmentType, ComputeView, LightInfo, QueueHint, RasterView, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
+import { Vec4, macro, geometry, toRadian, cclegacy, assert } from '../../core';
 import { Material } from '../../asset/assets';
-import { SRGBToLinear } from '../pipeline-funcs';
+import { getProfilerCamera, SRGBToLinear } from '../pipeline-funcs';
 import { RenderWindow } from '../../render-scene/core/render-window';
 import { RenderData } from './render-graph';
 import { WebPipeline } from './web-pipeline';
 import { DescriptorSetData } from './layout-graph';
+import { legacyCC } from '../../core/global-exports';
 
 // Anti-aliasing type, other types will be gradually added in the future
 export enum AntiAliasing {
@@ -493,7 +494,7 @@ export function buildPostprocessPass (camera: Camera,
     const postprocessPassRTName = `postprocessPassRTName${cameraID}`;
     const postprocessPassDS = `postprocessPassDS${cameraID}`;
     if (!ppl.containsResource(postprocessPassRTName)) {
-        ppl.addRenderTexture(postprocessPassRTName, Format.RGBA8, width, height, camera.window);
+        ppl.addRenderTexture(postprocessPassRTName, Format.BGRA8, width, height, camera.window);
         ppl.addDepthStencil(postprocessPassDS, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
     }
     ppl.updateRenderWindow(postprocessPassRTName, camera.window);
@@ -530,7 +531,10 @@ export function buildPostprocessPass (camera: Camera,
         postInfo.postMaterial, 0, SceneFlags.NONE,
     );
     postprocessPass.addQueue(QueueHint.RENDER_TRANSPARENT).addSceneOfCamera(camera, new LightInfo(),
-        SceneFlags.UI | SceneFlags.PROFILER);
+        SceneFlags.UI);
+    if (getProfilerCamera() === camera) {
+        postprocessPass.showStatistics = true;
+    }
     return { rtName: postprocessPassRTName, dsName: postprocessPassDS };
 }
 
@@ -548,7 +552,7 @@ export function buildForwardPass (camera: Camera,
     const forwardPassDSName = `dsForwardPassDS${cameraName}`;
     if (!ppl.containsResource(forwardPassRTName)) {
         if (!isOffScreen) {
-            ppl.addRenderTexture(forwardPassRTName, Format.RGBA8, width, height, camera.window);
+            ppl.addRenderTexture(forwardPassRTName, Format.BGRA8, width, height, camera.window);
         } else {
             ppl.addRenderTarget(forwardPassRTName, Format.RGBA16F, width, height, ResourceResidency.MANAGED);
         }
@@ -556,6 +560,7 @@ export function buildForwardPass (camera: Camera,
     }
     if (!isOffScreen) {
         ppl.updateRenderWindow(forwardPassRTName, camera.window);
+        ppl.updateDepthStencil(forwardPassDSName, width, height);
     } else {
         ppl.updateRenderTarget(forwardPassRTName, width, height);
         ppl.updateDepthStencil(forwardPassDSName, width, height);
@@ -565,13 +570,13 @@ export function buildForwardPass (camera: Camera,
     forwardPass.setViewport(new Viewport(area.x, area.y, width, height));
     for (const dirShadowName of cameraInfo.mainLightShadowNames) {
         if (ppl.containsResource(dirShadowName)) {
-            const computeView = new ComputeView();
+            const computeView = new ComputeView('cc_shadowMap');
             forwardPass.addComputeView(dirShadowName, computeView);
         }
     }
     for (const spotShadowName of cameraInfo.spotLightShadowNames) {
         if (ppl.containsResource(spotShadowName)) {
-            const computeView = new ComputeView();
+            const computeView = new ComputeView('cc_spotShadowMap');
             forwardPass.addComputeView(spotShadowName, computeView);
         }
     }
@@ -596,7 +601,8 @@ export function buildForwardPass (camera: Camera,
              | SceneFlags.DEFAULT_LIGHTING | SceneFlags.DRAW_INSTANCING);
     let sceneFlags = SceneFlags.TRANSPARENT_OBJECT | SceneFlags.GEOMETRY;
     if (!isOffScreen) {
-        sceneFlags |= SceneFlags.UI | SceneFlags.PROFILER;
+        sceneFlags |= SceneFlags.UI;
+        forwardPass.showStatistics = true;
     }
     forwardPass
         .addQueue(QueueHint.RENDER_TRANSPARENT)
@@ -883,13 +889,13 @@ export function buildLightingPass (camera: Camera, ppl: Pipeline, gBuffer: GBuff
     lightingPass.setViewport(new Viewport(area.x, area.y, width, height));
     for (const dirShadowName of cameraInfo.mainLightShadowNames) {
         if (ppl.containsResource(dirShadowName)) {
-            const computeView = new ComputeView();
+            const computeView = new ComputeView('cc_shadowMap');
             lightingPass.addComputeView(dirShadowName, computeView);
         }
     }
     for (const spotShadowName of cameraInfo.spotLightShadowNames) {
         if (ppl.containsResource(spotShadowName)) {
-            const computeView = new ComputeView();
+            const computeView = new ComputeView('cc_spotShadowMap');
             lightingPass.addComputeView(spotShadowName, computeView);
         }
     }
@@ -927,8 +933,8 @@ export function buildLightingPass (camera: Camera, ppl: Pipeline, gBuffer: GBuff
         camera, lightingInfo.deferredLightingMaterial, 0,
         SceneFlags.VOLUMETRIC_LIGHTING,
     );
-    lightingPass.addQueue(QueueHint.RENDER_TRANSPARENT).addSceneOfCamera(camera, new LightInfo(),
-        SceneFlags.TRANSPARENT_OBJECT | SceneFlags.PLANAR_SHADOW | SceneFlags.GEOMETRY);
+    // lightingPass.addQueue(QueueHint.RENDER_TRANSPARENT).addSceneOfCamera(camera, new LightInfo(),
+    //     SceneFlags.TRANSPARENT_OBJECT | SceneFlags.PLANAR_SHADOW | SceneFlags.GEOMETRY);
     return { rtName: deferredLightingPassRTName, dsName: deferredLightingPassDS };
 }
 
@@ -951,6 +957,48 @@ function getClearFlags (attachment: AttachmentType, clearFlag: ClearFlagBit, loa
         } else {
             return ClearFlagBit.NONE;
         }
+    }
+}
+
+export function buildUIPass (camera: Camera,
+    ppl: Pipeline) {
+    const cameraID = getCameraUniqueID(camera);
+    const cameraName = `Camera${cameraID}`;
+    const area = getRenderArea(camera, camera.window.width, camera.window.height);
+    const width = area.width;
+    const height = area.height;
+
+    const dsUIAndProfilerPassRTName = `dsUIAndProfilerPassColor${cameraName}`;
+    const dsUIAndProfilerPassDSName = `dsUIAndProfilerPassDS${cameraName}`;
+    if (!ppl.containsResource(dsUIAndProfilerPassRTName)) {
+        ppl.addRenderTexture(dsUIAndProfilerPassRTName, Format.BGRA8, width, height, camera.window);
+        ppl.addDepthStencil(dsUIAndProfilerPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
+    }
+    ppl.updateRenderWindow(dsUIAndProfilerPassRTName, camera.window);
+    ppl.updateDepthStencil(dsUIAndProfilerPassDSName, width, height);
+    const uIAndProfilerPass = ppl.addRasterPass(width, height, 'default');
+    uIAndProfilerPass.name = `CameraUIAndProfilerPass${cameraID}`;
+    uIAndProfilerPass.setViewport(new Viewport(area.x, area.y, width, height));
+    const passView = new RasterView('_',
+        AccessType.WRITE, AttachmentType.RENDER_TARGET,
+        getLoadOpOfClearFlag(camera.clearFlag, AttachmentType.RENDER_TARGET),
+        StoreOp.STORE,
+        camera.clearFlag,
+        new Color(camera.clearColor.x, camera.clearColor.y, camera.clearColor.z, camera.clearColor.w));
+    const passDSView = new RasterView('_',
+        AccessType.WRITE, AttachmentType.DEPTH_STENCIL,
+        getLoadOpOfClearFlag(camera.clearFlag, AttachmentType.DEPTH_STENCIL),
+        StoreOp.STORE,
+        camera.clearFlag,
+        new Color(camera.clearDepth, camera.clearStencil, 0, 0));
+    uIAndProfilerPass.addRasterView(dsUIAndProfilerPassRTName, passView);
+    uIAndProfilerPass.addRasterView(dsUIAndProfilerPassDSName, passDSView);
+    const sceneFlags = SceneFlags.UI;
+    uIAndProfilerPass
+        .addQueue(QueueHint.RENDER_TRANSPARENT)
+        .addSceneOfCamera(camera, new LightInfo(), sceneFlags);
+    if (getProfilerCamera() === camera) {
+        uIAndProfilerPass.showStatistics = true;
     }
 }
 
@@ -1010,8 +1058,8 @@ export function buildNativeForwardPass (camera: Camera, ppl: Pipeline) {
     forwardPass
         .addQueue(QueueHint.RENDER_TRANSPARENT)
         .addSceneOfCamera(camera, new LightInfo(),
-            SceneFlags.UI
-            | SceneFlags.PROFILER);
+            SceneFlags.UI);
+    forwardPass.showStatistics = true;
 }
 
 export function buildNativeDeferredPipeline (camera: Camera, ppl: Pipeline) {
@@ -1118,11 +1166,11 @@ function bindDescValue (desc: DescriptorSet, binding: number, value) {
     }
 }
 
-function bindGlobalDesc (pipeline: Pipeline, binding: number, value) {
-    bindDescValue(pipeline.descriptorSet, binding, value);
+function bindGlobalDesc (desc: DescriptorSet, binding: number, value) {
+    bindDescValue(desc, binding, value);
 }
 
-function getDescBinding (descId, descData: DescriptorSetData): number {
+export function getDescBinding (descId, descData: DescriptorSetData): number {
     const layoutData = descData;
     // find descriptor binding
     for (const block of layoutData.descriptorSetLayoutData.descriptorBlocks) {
@@ -1159,15 +1207,17 @@ export function getDescBindingFromName (bindingName: string) {
     return -1;
 }
 
-function applyGlobalDescBinding (pipeline: Pipeline, data: RenderData, isUpdate = false) {
+function applyGlobalDescBinding (data: RenderData, layout: string, isUpdate = false) {
     const constants = data.constants;
     const samplers = data.samplers;
     const textures = data.textures;
     const device = cclegacy.director.root.device;
-    const currPip = pipeline as WebPipeline;
+    const descriptorSetData = getDescriptorSetDataFromLayout(layout)!;
+    const descriptorSet = descriptorSetData.descriptorSet!;
     for (const [key, value] of constants) {
-        const bindId = getDescBinding(key, currPip.globalDescriptorSetData);
-        let buffer = pipeline.descriptorSet.getBuffer(bindId);
+        const bindId = getDescBinding(key, descriptorSetData);
+        if (bindId === -1) { continue; }
+        let buffer = descriptorSet.getBuffer(bindId);
         let haveBuff = true;
         if (!buffer && !isUpdate) {
             buffer = device.createBuffer(new BufferInfo(BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
@@ -1177,28 +1227,81 @@ function applyGlobalDescBinding (pipeline: Pipeline, data: RenderData, isUpdate 
             haveBuff = false;
         }
         if (isUpdate) buffer.update(new Float32Array(value));
-        if (!haveBuff) bindGlobalDesc(pipeline, bindId, buffer);
+        if (!haveBuff) bindGlobalDesc(descriptorSet, bindId, buffer);
     }
     for (const [key, value] of textures) {
-        const bindId = getDescBinding(key, currPip.globalDescriptorSetData);
-        const tex = pipeline.descriptorSet.getTexture(bindId);
+        const bindId = getDescBinding(key, descriptorSetData);
+        if (bindId === -1) { continue; }
+        const tex = descriptorSet.getTexture(bindId);
         if (!tex || isUpdate) {
-            bindGlobalDesc(pipeline, bindId, value);
+            bindGlobalDesc(descriptorSet, bindId, value);
         }
     }
     for (const [key, value] of samplers) {
-        const bindId = getDescBinding(key, currPip.globalDescriptorSetData);
-        const sampler = pipeline.descriptorSet.getSampler(bindId);
+        const bindId = getDescBinding(key, descriptorSetData);
+        if (bindId === -1) { continue; }
+        const sampler = descriptorSet.getSampler(bindId);
         if (!sampler || isUpdate) {
-            bindGlobalDesc(pipeline, bindId, value);
+            bindGlobalDesc(descriptorSet, bindId, value);
         }
     }
 }
-
-export function initGlobalDescBinding (pipeline: Pipeline, data: RenderData) {
-    applyGlobalDescBinding(pipeline, data);
+const layouts: Map<string, DescriptorSetData> = new Map();
+export function getDescriptorSetDataFromLayout (layoutName: string) {
+    const descLayout = layouts.get(layoutName);
+    if (descLayout) {
+        return descLayout;
+    }
+    const webPip = cclegacy.director.root.pipeline as WebPipeline;
+    const stageId = webPip.layoutGraph.locateChild(webPip.layoutGraph.nullVertex(), layoutName);
+    assert(stageId !== 0xFFFFFFFF);
+    const layout = webPip.layoutGraph.getLayout(stageId);
+    const layoutData = layout.descriptorSets.get(UpdateFrequency.PER_PASS);
+    layouts.set(layoutName, layoutData!);
+    return layoutData;
 }
 
-export function updateGlobalDescBinding (pipeline: Pipeline, data: RenderData) {
-    applyGlobalDescBinding(pipeline, data, true);
+export function getDescriptorSetDataFromLayoutId (id: number) {
+    const webPip = cclegacy.director.root.pipeline as WebPipeline;
+    const layout = webPip.layoutGraph.getLayout(id);
+    const layoutData = layout.descriptorSets.get(UpdateFrequency.PER_PASS);
+    return layoutData;
+}
+
+export function initGlobalDescBinding (data: RenderData, layoutName = 'default') {
+    applyGlobalDescBinding(data, layoutName);
+}
+
+export function updateGlobalDescBinding (data: RenderData, layoutName = 'default') {
+    applyGlobalDescBinding(data, layoutName, true);
+}
+
+export function mergeSrcToTargetDesc (fromDesc, toDesc, isForce = false) {
+    fromDesc.update();
+    const fromGpuDesc = fromDesc.gpuDescriptorSet;
+    const toGpuDesc = toDesc.gpuDescriptorSet;
+    const extResId: number[] = [];
+    if (isForce) {
+        toGpuDesc.gpuDescriptors = fromGpuDesc.gpuDescriptors;
+        toGpuDesc.descriptorIndices = fromGpuDesc.descriptorIndices;
+        return extResId;
+    }
+    for (let i = 0; i < toGpuDesc.gpuDescriptors.length; i++) {
+        const fromRes = fromGpuDesc.gpuDescriptors[i];
+        if (!fromRes) continue;
+        const currRes = toGpuDesc.gpuDescriptors[i];
+        if (!currRes.gpuBuffer && fromRes.gpuBuffer) {
+            currRes.gpuBuffer = fromRes.gpuBuffer;
+            extResId.push(i);
+        } else if ('gpuTextureView' in currRes && !currRes.gpuTextureView) {
+            currRes.gpuTextureView = fromRes.gpuTextureView;
+            currRes.gpuSampler = fromRes.gpuSampler;
+            extResId.push(i);
+        } else if ('gpuTexture' in currRes && !currRes.gpuTexture) {
+            currRes.gpuTexture = fromRes.gpuTexture;
+            currRes.gpuSampler = fromRes.gpuSampler;
+            extResId.push(i);
+        }
+    }
+    return extResId;
 }

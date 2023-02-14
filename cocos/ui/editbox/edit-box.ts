@@ -124,10 +124,10 @@ export class EditBox extends Component {
 
     /**
      * @en
-     * The Label component attached to the node for EditBox's input text label
+     * The Label component attached to the node for EditBox's input text label.
      *
      * @zh
-     * 输入框输入文本节点上挂载的 Label 组件对象
+     * 输入框输入文本节点上挂载的 Label 组件对象。
      */
     @type(Label)
     @displayOrder(3)
@@ -302,10 +302,29 @@ export class EditBox extends Component {
         }
     }
 
+    /**
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     public static _EditBoxImpl = EditBoxImplBase;
+    /**
+     * @en Keyboard Return Type.
+     * @zh 键盘的返回键类型。
+     */
     public static KeyboardReturnType = KeyboardReturnType;
+    /**
+     * @en Defines some flag bits for setting text display and text formatting.
+     * @zh 定义了一些用于设置文本显示和文本格式化的标志位。
+     */
     public static InputFlag = InputFlag;
+    /**
+     * @en Input Mode.
+     * @zh 输入模式。
+     */
     public static InputMode = InputMode;
+    /**
+     * @en Keyboard event enumeration.
+     * @zh 键盘的事件枚举。
+     */
     public static EventType = EventType;
     /**
      * @en
@@ -351,7 +370,7 @@ export class EditBox extends Component {
      * The event handler to be called when return key is pressed. Windows is not supported.
      *
      * @zh
-     * 当用户按下回车按键时的事件回调，目前不支持 windows 平台
+     * 当用户按下回车按键时的事件回调，目前不支持 windows 平台。
      */
     @type([ComponentEventHandler])
     @serializable
@@ -426,7 +445,7 @@ export class EditBox extends Component {
     }
 
     /**
-     * @en Let the EditBox get focus
+     * @en Let the EditBox get focus.
      * @zh 让当前 EditBox 获得焦点。
      */
     public setFocus () {
@@ -436,8 +455,8 @@ export class EditBox extends Component {
     }
 
     /**
-     * @en Let the EditBox get focus
-     * @zh 让当前 EditBox 获得焦点
+     * @en Let the EditBox get focus.
+     * @zh 让当前 EditBox 获得焦点。
      */
     public focus () {
         if (this._impl) {
@@ -446,8 +465,8 @@ export class EditBox extends Component {
     }
 
     /**
-     * @en Let the EditBox lose focus
-     * @zh 让当前 EditBox 失去焦点
+     * @en Let the EditBox lose focus.
+     * @zh 让当前 EditBox 失去焦点。
      */
     public blur () {
         if (this._impl) {
@@ -589,10 +608,6 @@ export class EditBox extends Component {
             this._textLabel = textLabel;
         }
 
-        // update
-        const transformComp = this._textLabel!.node._uiProps.uiTransformComp;
-        transformComp!.setAnchorPoint(0, 1);
-        textLabel.overflow = Label.Overflow.CLAMP;
         if (this._inputMode === InputMode.ANY) {
             textLabel.verticalAlign = VerticalTextAlignment.TOP;
             textLabel.enableWrapText = true;
@@ -620,9 +635,6 @@ export class EditBox extends Component {
             this._placeholderLabel = placeholderLabel;
         }
 
-        // update
-        const transform = this._placeholderLabel!.node._uiProps.uiTransformComp;
-        transform!.setAnchorPoint(0, 1);
         if (this._inputMode === InputMode.ANY) {
             placeholderLabel.enableWrapText = true;
         } else {
@@ -787,46 +799,6 @@ export class EditBox extends Component {
 if (typeof window === 'object' && typeof document === 'object' && !MINIGAME && !JSB && !RUNTIME_BASED) {
     EditBox._EditBoxImpl = EditBoxImpl;
 }
-
-/**
- * @en
- * Note: This event is emitted from the node to which the component belongs.
- * @zh
- * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
- * @event editing-did-began
- * @param {Event.EventCustom} event
- * @param {EditBox} editbox - The EditBox component.
- */
-
-/**
- * @en
- * Note: This event is emitted from the node to which the component belongs.
- * @zh
- * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
- * @event editing-did-ended
- * @param {Event.EventCustom} event
- * @param {EditBox} editbox - The EditBox component.
- */
-
-/**
- * @en
- * Note: This event is emitted from the node to which the component belongs.
- * @zh
- * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
- * @event text-changed
- * @param {Event.EventCustom} event
- * @param {EditBox} editbox - The EditBox component.
- */
-
-/**
- * @en
- * Note: This event is emitted from the node to which the component belongs.
- * @zh
- * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
- * @event editing-return
- * @param {Event.EventCustom} event
- * @param {EditBox} editbox - The EditBox component.
- */
 
 /**
  * @en if you don't need the EditBox and it isn't in any running Scene, you should

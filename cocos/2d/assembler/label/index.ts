@@ -26,7 +26,6 @@ import { BitmapFont } from '../../assets';
 import { Label } from '../../components';
 import { IAssemblerManager } from '../../renderer/base';
 import { bmfont } from './bmfont';
-import { CanvasPool } from './font-utils';
 import { letter } from './letter';
 import { ttf } from './ttf';
 
@@ -54,7 +53,6 @@ export {
     ttf,
     bmfont,
     letter,
-    CanvasPool,
 };
 
 Label.Assembler = labelAssembler;

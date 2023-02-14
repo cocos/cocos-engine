@@ -145,10 +145,10 @@ public class CocosXRGLHelper {
             + "precision mediump float; \n"
             + "in vec2 texCoord; \n"
             + "uniform samplerExternalOES texSampler2D; \n"
-            + "out vec4 gl_FragColor;\n"
+            + "out vec4 frag_color;\n"
             + "void main() \n"
             + "{ \n"
-            + "    gl_FragColor = texture(texSampler2D, texCoord); \n"
+            + "    frag_color = texture(texSampler2D, texCoord); \n"
             + "}";
         float[] orthoQuadVertices = {
             -1.0f, -1.0f, 0.0f, 1.0f,

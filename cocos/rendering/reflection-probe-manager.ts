@@ -53,8 +53,21 @@ export class ReflectionProbeManager {
      */
     private _usePlanarModels = new Map<Model, ReflectionProbe>();
 
+    private _updateForRuntime = true;
+
     constructor () {
         director.on(Director.EVENT_BEFORE_UPDATE, this.onUpdateProbes, this);
+    }
+
+    /**
+     * @en Set and get whether to detect objects leaving or entering the reflection probe's bounding box at runtime.
+     * @zh 设置和获取是否在运行时检测物体离开或者进入反射探针的包围盒。
+     */
+    set updateForRuntime (val: boolean) {
+        this._updateForRuntime = val;
+    }
+    get updateForRuntime () {
+        return this._updateForRuntime;
     }
 
     /**
@@ -62,6 +75,7 @@ export class ReflectionProbeManager {
      * @zh 刷新所有反射探针
      */
     public onUpdateProbes (forceUpdate = false) {
+        if (!this._updateForRuntime) return;
         if (this._probes.length === 0) return;
         const scene = director.getScene();
         if (!scene || !scene.renderScene) {
@@ -312,6 +326,23 @@ export class ReflectionProbeManager {
     }
 
     /**
+     * @en Get the reflection probe used by the model.
+     * @zh 获取模型使用的反射探针。
+     */
+    public getUsedReflectionProbe (model: Model, probeType: ReflectionProbeType) {
+        if (probeType === ReflectionProbeType.BAKED_CUBEMAP) {
+            if (this._useCubeModels.has(model)) {
+                return this._useCubeModels.get(model);
+            }
+        } else if (probeType === ReflectionProbeType.PLANAR_REFLECTION) {
+            if (this._usePlanarModels.has(model)) {
+                return this._usePlanarModels.get(model);
+            }
+        }
+        return null;
+    }
+
+    /**
      * @en
      * select the probe with the nearest distance.
      * @zh
@@ -360,10 +391,7 @@ export class ReflectionProbeManager {
             const p = this._useCubeModels.get(key);
             if (p !== undefined && p === probe) {
                 this._useCubeModels.delete(key);
-                const meshRender = key.node.getComponent(MeshRenderer);
-                if (meshRender) {
-                    meshRender.updateProbeCubemap(null);
-                }
+                this.updateUseCubeModels(key);
             }
         }
         for (const key of this._usePlanarModels.keys()) {

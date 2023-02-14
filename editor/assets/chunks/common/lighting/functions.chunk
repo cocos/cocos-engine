@@ -1,25 +1,4 @@
-#include <common/lighting/attenuation>
-
 // helper functions for lighting model-functions
-
-float CalculateDistanceAttenuation(float distToLightSqr, float lightRadius, float lightRange)
-{
-  float litRadiusSqr = lightRadius * lightRadius;
-  float attRadiusSqrInv = 1.0 / max(lightRange, 0.01);
-  attRadiusSqrInv *= attRadiusSqrInv;
-  
-  // soft edge fading
-  float edgeAttenuation = litRadiusSqr / max(litRadiusSqr, distToLightSqr);
-  return GetDistAtt(distToLightSqr, attRadiusSqrInv) * edgeAttenuation;
-}
-
-float CalculateAngleAttenuation(vec3 spotLightDir, vec3 L, float cosAngleOuter)
-{
-  float cosInner = max(dot(spotLightDir, L), 0.01);
-  float litAngleScale = 1.0 / max(0.001, cosInner - cosAngleOuter);
-  float litAngleOffset = -cosAngleOuter * litAngleScale;
-  return GetAngleAtt(L, spotLightDir, litAngleScale, litAngleOffset);
-}
 
 // return unnormalized vector, support oppo-side
 // V from pixel to camera
@@ -42,4 +21,29 @@ vec3 CalculateReflectDirection(vec3 N, vec3 V, float NoV)
   float sideSign = NoV < 0.0 ? -1.0 : 1.0;
   N *= sideSign;
   return reflect(-V, N);
+}
+
+// for bumped planar reflection
+vec3 CalculatePlanarReflectPositionOnPlane(vec3 N, vec3 V, vec3 worldPos, vec4 plane, vec3 cameraPos, float probeReflectedDepth)
+{
+  float distPixelToPlane = -dot(plane, vec4(worldPos, 1.0));
+  // bring plane to worldPos, avoid artifacts when reflected point away from plane (do not bring worldPos to plane)
+  plane.w += distPixelToPlane;
+  float distCameraToPlane = abs(-dot(plane, vec4(cameraPos, 1.0)));
+  vec3 planeN = plane.xyz;
+  vec3 virtualCameraPos = cameraPos - 2.0 * distCameraToPlane * planeN;
+  /*support for two-sided reflections
+  float sideSignPlaneN = dot(planeN, V) < 0.0 ? -1.0 : 1.0;
+  float sideSignN = dot(N, V) < 0.0 ? -1.0 : 1.0;
+  planeN *= sideSignPlaneN;
+  N *= sideSignN;*/
+  vec3 bumpedR = normalize(reflect(-V, N)); //R'  
+
+  // actually reflected pos alone bumpedR direction, avoid tracing by specified a fake depth
+  vec3 reflectedPointPos = worldPos + probeReflectedDepth * bumpedR;
+  vec3 virtualCameraToReflectedPoint = normalize(reflectedPointPos - virtualCameraPos);
+
+  // the ray from virtual camera to reflected point, will intersect with plane on P'
+  float y = distCameraToPlane / max(EPSILON_LOWP, dot(planeN, virtualCameraToReflectedPoint));
+  return virtualCameraPos + y * virtualCameraToReflectedPoint;
 }

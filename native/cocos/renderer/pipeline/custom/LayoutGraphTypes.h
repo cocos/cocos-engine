@@ -365,6 +365,8 @@ struct DescriptorSetLayoutData {
 
     uint32_t slot{0xFFFFFFFF};
     uint32_t capacity{0};
+    uint32_t uniformBlockCapacity{0};
+    uint32_t samplerTextureCapacity{0};
     ccstd::pmr::vector<DescriptorBlockData> descriptorBlocks;
     ccstd::pmr::unordered_map<NameLocalID, gfx::UniformBlock> uniformBlocks;
     PmrFlatMap<NameLocalID, uint32_t> bindingMap;
@@ -704,7 +706,7 @@ struct LayoutGraphData {
     PmrFlatMap<ccstd::pmr::string, NameLocalID> constantIndex;
     PmrFlatMap<ccstd::pmr::string, uint32_t> shaderLayoutIndex;
     PmrFlatMap<ccstd::pmr::string, EffectData> effects;
-    ccstd::pmr::string constantMacros;
+    ccstd::string constantMacros;
     // Path
     PmrTransparentMap<ccstd::pmr::string, vertex_descriptor> pathIndex;
 };
