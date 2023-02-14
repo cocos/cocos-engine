@@ -1358,7 +1358,7 @@ void surf (out StandardSurface s) {
       attRadiusSqrInv *= attRadiusSqrInv;
       float att = GetDistAtt(distSqr, attRadiusSqrInv);
       vec3 lspec = specular * CalcSpecular(s.roughness, SNH, SH, N);
-      if (cc_lightPos[i].w > 0.0) {
+      if (IS_SPOT_LIGHT(cc_lightPos[i].w)) {
         float cosInner = max(dot(-cc_lightDir[i].xyz, SL), 0.01);
         float cosOuter = cc_lightSizeRangeAngle[i].z;
         float litAngleScale = 1.0 / max(0.001, cosInner - cosOuter);
@@ -1368,7 +1368,7 @@ void surf (out StandardSurface s) {
       vec3 lightColor = cc_lightColor[i].rgb;
       float shadow = 1.0;
       #if CC_RECEIVE_SHADOW  && CC_SHADOW_TYPE == 2
-        if (cc_lightPos[i].w > 0.0 && cc_lightSizeRangeAngle[i].w > 0.0) {
+        if (IS_SPOT_LIGHT(cc_lightPos[i].w) && cc_lightSizeRangeAngle[i].w > 0.0) {
           shadow = CCSpotShadowFactorBase(shadowPos, position, s.shadowBias);
         }
       #endif
@@ -1472,17 +1472,18 @@ void surf (out StandardSurface s) {
       attRadiusSqrInv *= attRadiusSqrInv;
       float att = GetDistAtt(distSqr, attRadiusSqrInv);
       vec3 lspec = specular * CalcSpecular(s.roughness, SNH, SH, N);
-      if (light.cc_lightPos.w > 0.0) {
+
+      if (IS_SPOT_LIGHT(light.cc_lightPos.w)) {
         float cosInner = max(dot(-light.cc_lightDir.xyz, SL), 0.01);
         float cosOuter = light.cc_lightSizeRangeAngle.z;
         float litAngleScale = 1.0 / max(0.001, cosInner - cosOuter);
         float litAngleOffset = -cosOuter * litAngleScale;
-        att *= GetAngleAtt(SL, -light.cc_lightDir.xyz, litAngleScale, litAngleOffset);
+        att = GetAngleAtt(SL, -light.cc_lightDir.xyz, litAngleScale, litAngleOffset);
       }
       vec3 lightColor = light.cc_lightColor.rgb;
       float shadow = 1.0;
-      #if CC_RECEIVE_SHADOW && CC_SHADOW_TYPE == 2
-        if (light.cc_lightPos.w > 0.0) {
+      #if CC_RECEIVE_SHADOW && CC_SHADOW_TYPE == CC_SHADOW_MAP
+        if (IS_SPOT_LIGHT(light.cc_lightPos.w) && cc_lightSizeRangeAngle.w > 0.0) {
           shadow = CCSpotShadowFactorBase(shadowPos, position, s.shadowBias);
         }
       #endif

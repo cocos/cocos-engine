@@ -32,7 +32,7 @@
 
         float shadow = 1.0;
       #if CC_RECEIVE_SHADOW && CC_SHADOW_TYPE == CC_SHADOW_MAP
-        if (cc_lightPos[i].w > 0.0 && cc_lightSizeRangeAngle[i].w > 0.0) {
+        if (IS_SPOT_LIGHT(cc_lightPos[i].w) && cc_lightSizeRangeAngle[i].w > 0.0) {
           vec4 shadowPos = vec4(0.0), shadowNDCPosWithBias = vec4(0.0);
           if (CCSurfacesLightingEnableShadow(lightingData.NoL)) {
             shadowPos = cc_matLightViewProj * vec4(surfaceData.worldPos, 1.0);
@@ -61,7 +61,7 @@
         float distAtt = CCSurfacesLightingCalculateDistanceAttenuation(lightingData, cc_lightSizeRangeAngle[i]);
 
         float angleAtt = 1.0;
-        if (cc_lightPos[i].w > 0.0) {
+        if (IS_SPOT_LIGHT(cc_lightPos[i].w)) {
           angleAtt = CCSurfacesLightingCalculateAngleAttenuation(lightingData, cc_lightSizeRangeAngle[i], -cc_lightDir[i].xyz);
         }
 
