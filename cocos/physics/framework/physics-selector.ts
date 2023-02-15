@@ -33,6 +33,7 @@ import {
 } from '../spec/i-physics-shape';
 import { IPhysicsWorld } from '../spec/i-physics-world';
 import { IRigidBody } from '../spec/i-rigid-body';
+import { ICharacterController } from '../spec/i-character-controller';
 import { errorID, IVec3Like, warn, cclegacy } from '../../core';
 import { EColliderType, EConstraintType } from './physics-enum';
 import { PhysicsMaterial } from '.';
@@ -42,6 +43,7 @@ export type IPhysicsEngineId = 'builtin' | 'cannon.js' | 'ammo.js' | 'physx' | s
 interface IPhysicsWrapperObject {
     PhysicsWorld?: Constructor<IPhysicsWorld>,
     RigidBody?: Constructor<IRigidBody>,
+    CharacterController?: Constructor<ICharacterController>,
     BoxShape?: Constructor<IBoxShape>,
     SphereShape?: Constructor<ISphereShape>,
     CapsuleShape?: Constructor<ICapsuleShape>,
@@ -208,6 +210,7 @@ const ENTIRE_WORLD: IPhysicsWorld = {
 enum ECheckType {
     World,
     RigidBody,
+    CharacterController,
     // COLLIDER //
     BoxCollider,
     SphereCollider,
@@ -296,6 +299,34 @@ export function createRigidBody (): IRigidBody {
         return ENTIRE_RIGID_BODY;
     }
     return new selector.wrapper.RigidBody!();
+}
+
+/// CREATE CHARACTER CONTROLLER ///
+
+const ENTIRE_CHARACTER_CONTROLLER: ICharacterController = {
+    // impl: null,
+    // characterController: null as unknown as any,
+    initialize: FUNC,
+    onEnable: FUNC,
+    onDisable: FUNC,
+    onDestroy: FUNC,
+    onGround: FUNC,
+    getPosition: FUNC,
+    setPosition: FUNC,
+    setRadius: FUNC,
+    setHeight: FUNC,
+    setStepOffset: FUNC,
+    setSlopeLimit: FUNC,
+    setContactOffset: FUNC,
+    //setMinMoveDistance: FUNC,
+    move: FUNC,
+};
+
+export function createCharacterController (): ICharacterController {
+    if (check(selector.wrapper.CharacterController, ECheckType.CharacterController)) {
+        return ENTIRE_CHARACTER_CONTROLLER;
+    }
+    return new selector.wrapper.CharacterController!();
 }
 
 /// CREATE COLLIDER ///

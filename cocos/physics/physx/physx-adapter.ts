@@ -42,6 +42,7 @@ import { PhysXShape } from './shapes/physx-shape';
 import { PxHitFlag, PxPairFlag, PxQueryFlag, EFilterDataWord3 } from './physx-enum';
 import { Node } from '../../scene-graph';
 import { Director, director, game } from '../../game';
+import { degreesToRadians } from '../../core/utils/misc';
 
 export const PX = {} as any;
 const globalThis = cclegacy._global;
@@ -457,6 +458,61 @@ export function createHeightFieldGeometry (hf: any, flags: number, hs: number, x
         hs, xs, zs);
 }
 
+export function createCapsuleCharacterController (controllerManager: any, radius: number, height: number, worldPos: IVec3Like,
+    stepOffset: number, slopeLimit: number, density: number, scaleCoeff: number, volumeGrowth: number, contactOffset: number,
+    upDirection: IVec3Like, pxMtl: any): any {
+    if (!controllerManager) return null;
+
+    const controllerDesc = new PX.PxCapsuleControllerDesc();
+    controllerDesc.radius = radius;
+    controllerDesc.height = height;
+    controllerDesc.climbingMode = 1;// constraint mode
+    controllerDesc.density = density;
+    controllerDesc.scaleCoeff = scaleCoeff;
+    controllerDesc.volumeGrowth = volumeGrowth;
+    controllerDesc.contactOffset = contactOffset;
+    controllerDesc.stepOffset = stepOffset;
+    controllerDesc.slopeLimit = Math.cos(degreesToRadians(slopeLimit));
+    controllerDesc.upDirection = upDirection;
+    //node is at capsule's center
+    controllerDesc.position = { x: worldPos.x, y: worldPos.y, z: worldPos.z };//PxExtendedVec3
+    controllerDesc.material = pxMtl;
+    controllerDesc.setMaterial(pxMtl);
+    const controller = controllerManager.createController(controllerDesc);
+    console.log(controller.getPosition());
+    const pxFilterData = { word0: 0, word1: 0, word2: 0, word3: 0 };
+    controller.setSimulationFilterData(pxFilterData);
+    return controller;
+}
+
+export function createBoxCharacterController (controllerManager: any, halfHeight: number, halfSideExtent: number,
+    halfForwardExtent: number, worldPos: IVec3Like, stepOffset: number, slopeLimit: number, density: number,
+    scaleCoeff: number, volumeGrowth: number, contactOffset: number, upDirection: IVec3Like, pxMtl: any): any {
+    if (!controllerManager) return null;
+
+    const controllerDesc = new PX.PxBoxControllerDesc();
+    controllerDesc.halfHeight = halfHeight;
+    controllerDesc.halfSideExtent = halfSideExtent;
+    controllerDesc.halfForwardExtent = halfForwardExtent;
+    //capsuleControllerDesc.climbingMode = ;
+    controllerDesc.density = density;
+    controllerDesc.scaleCoeff = scaleCoeff;
+    controllerDesc.volumeGrowth = volumeGrowth;
+    controllerDesc.contactOffset = contactOffset;
+    controllerDesc.stepOffset = stepOffset;
+    controllerDesc.slopeLimit = Math.cos(degreesToRadians(slopeLimit));
+    controllerDesc.upDirection = upDirection;
+    //node is at capsule's center
+    controllerDesc.position = { x: worldPos.x, y: worldPos.y, z: worldPos.z };//PxExtendedVec3
+    controllerDesc.material = pxMtl;
+    controllerDesc.setMaterial(pxMtl);
+    const controller = controllerManager.createController(controllerDesc);
+    console.log(controller.getPosition());
+    const pxFilterData = { word0: 0, word1: 0, word2: 0, word3: 0 };
+    controller.setSimulationFilterData(pxFilterData);
+    return controller;
+}
+
 export function simulateScene (scene: any, deltaTime: number) {
     if (USE_BYTEDANCE) {
         scene.simulate(deltaTime);
@@ -607,6 +663,11 @@ export function initializeWorld (world: any) {
 
         const sceneDesc = PX.getDefaultSceneDesc(PhysXInstance.physics.getTolerancesScale(), 0, PhysXInstance.simulationCB);
         world.scene = PhysXInstance.physics.createScene(sceneDesc);
+        world.controllerManager = PX.PxCreateControllerManager(world.scene, false);
+        // const pos = new Vec3(1, 1, 1);
+        // const upDir = new Vec3(0, 1, 0);
+        // const mat = PhysXInstance.physics.createMaterial(0.5, 0.5, 0.5);
+        // createCapsuleCharacterController(world.controllerManager, 1, 1, pos, 1, 1, upDir, mat);
     }
 }
 

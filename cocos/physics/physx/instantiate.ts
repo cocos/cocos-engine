@@ -26,6 +26,7 @@ import { selector } from '../framework/physics-selector';
 
 import { PhysXWorld } from './physx-world';
 import { PhysXRigidBody } from './physx-rigid-body';
+import { PhysXCharacterController } from './physx-character-controller';
 
 import { PhysXSphereShape } from './shapes/physx-sphere-shape';
 import { PhysXBoxShape } from './shapes/physx-box-shape';
@@ -45,6 +46,7 @@ game.once(Game.EVENT_PRE_SUBSYSTEM_INIT, () => {
     selector.register('physx', {
         PhysicsWorld: PhysXWorld,
         RigidBody: PhysXRigidBody,
+        CharacterController: PhysXCharacterController,
 
         BoxShape: PhysXBoxShape,
         SphereShape: PhysXSphereShape,
