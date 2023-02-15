@@ -27,23 +27,23 @@ import { AABB } from '../../core/geometry';
 import { Light, LightType, nt2lm } from './light';
 
 /**
-  * @en The point light representation in the render scene, it will light up a spherical area in the scene.
-  * It doesn't support shadow generation currently.
-  * @zh 渲染场景中的点光抽象，可以照亮场景中的一个球形区域，目前还不支持生成阴影。
-  */
+ * @en The point light representation in the render scene, it will light up a spherical area in the scene.
+ * It doesn't support shadow generation currently.
+ * @zh 渲染场景中的点光抽象，可以照亮场景中的一个球形区域，目前还不支持生成阴影。
+ */
 export class PointLight extends Light {
     /**
-      * @en The world position of the light source.
-      * @zh 光源中心点的世界坐标。
-      */
+     * @en The world position of the light source.
+     * @zh 光源中心点的世界坐标。
+     */
     get position (): Readonly<Vec3> {
         return this._pos;
     }
 
     /**
-      * @en The lighting range of the light source.
-      * @zh 点光源的光照范围。
-      */
+     * @en The lighting range of the light source.
+     * @zh 点光源的光照范围。
+     */
     set range (range: number) {
         this._range = range;
 
@@ -55,9 +55,9 @@ export class PointLight extends Light {
     }
 
     /**
-      * @en The luminance of the light source.
-      * @zh 光源的亮度。
-      */
+     * @en The luminance of the light source.
+     * @zh 光源的亮度。
+     */
     get luminance (): number {
         const isHDR = cclegacy.director.root.pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
@@ -76,9 +76,9 @@ export class PointLight extends Light {
     }
 
     /**
-      * @en The luminance of the light source in HDR mode.
-      * @zh HDR 模式下光源的亮度。
-      */
+     * @en The luminance of the light source in HDR mode.
+     * @zh HDR 模式下光源的亮度。
+     */
     get luminanceHDR () {
         return this._luminanceHDR;
     }
@@ -87,17 +87,17 @@ export class PointLight extends Light {
     }
 
     /**
-      * @en The luminance of the light source in LDR mode.
-      * @zh LDR 模式下光源的亮度。
-      */
+     * @en The luminance of the light source in LDR mode.
+     * @zh LDR 模式下光源的亮度。
+     */
     set luminanceLDR (value: number) {
         this._luminanceLDR = value;
     }
 
     /**
-      * @en The AABB bounding box of the lighting area.
-      * @zh 受光源影响范围的 AABB 包围盒。
-      */
+     * @en The AABB bounding box of the lighting area.
+     * @zh 受光源影响范围的 AABB 包围盒。
+     */
     get aabb () {
         return this._aabb;
     }
@@ -125,9 +125,9 @@ export class PointLight extends Light {
     }
 
     /**
-      * @en Update the lighting area.
-      * @zh 更新光源影响范围。
-      */
+     * @en Update the lighting area.
+     * @zh 更新光源影响范围。
+     */
     public update () {
         if (this._node && (this._node.hasChangedFlags || this._needUpdate)) {
             this._node.getWorldPosition(this._pos);

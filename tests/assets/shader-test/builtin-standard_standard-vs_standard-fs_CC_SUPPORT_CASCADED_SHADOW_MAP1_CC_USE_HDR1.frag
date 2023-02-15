@@ -1478,7 +1478,7 @@ void surf (out StandardSurface s) {
         float cosOuter = light.cc_lightSizeRangeAngle.z;
         float litAngleScale = 1.0 / max(0.001, cosInner - cosOuter);
         float litAngleOffset = -cosOuter * litAngleScale;
-        att = GetAngleAtt(SL, -light.cc_lightDir.xyz, litAngleScale, litAngleOffset);
+        att *= GetAngleAtt(SL, -light.cc_lightDir.xyz, litAngleScale, litAngleOffset);
       }
       vec3 lightColor = light.cc_lightColor.rgb;
       float shadow = 1.0;

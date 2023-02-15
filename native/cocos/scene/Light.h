@@ -41,6 +41,7 @@ enum class LightType {
     SPHERE,
     SPOT,
     POINT,
+    RANGED_DIRECTIONAL,
     UNKNOWN,
 };
 

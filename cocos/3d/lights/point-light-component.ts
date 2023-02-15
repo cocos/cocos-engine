@@ -133,10 +133,8 @@ export class PointLight extends Light {
     }
 
     /**
-     * @en
-     * Range of the light.
-     * @zh
-     * 光源范围。
+     * @en Range of the light.
+     * @zh 光源范围。
      */
     @tooltip('i18n:lights.range')
     @editable

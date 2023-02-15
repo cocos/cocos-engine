@@ -414,10 +414,10 @@ export class RenderScene {
     }
 
     /**
-         * @en Remove a sphere light source.
-         * @zh 删除一个点光源。
-         * @param pl @en The point light. @zh 点光源。
-         */
+     * @en Remove a sphere light source.
+     * @zh 删除一个点光源。
+     * @param pl @en The point light. @zh 点光源。
+     */
     public removePointLight (pl: PointLight) {
         for (let i = 0; i < this._pointLights.length; ++i) {
             if (this._pointLights[i] === pl) {
