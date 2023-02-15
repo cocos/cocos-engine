@@ -28,7 +28,7 @@ import { Color, pseudoRandom } from '../../core/math';
 import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { GradientRange } from '../gradient-range';
 import { ParticleSOAData } from '../particle-soa-data';
-import { ParticleUpdateContext } from '../particle-update-context';
+import { ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
 
 const COLOR_OVERTIME_RAND_OFFSET = 91041;
 const tempColor2 = new Color();
@@ -48,14 +48,14 @@ export class ColorOverLifetimeModule extends ParticleModule {
     }
 
     public get updateStage (): ParticleUpdateStage {
-        return ParticleUpdateStage.PRE_UPDATE;
+        return ParticleUpdateStage.POST_UPDATE;
     }
 
     public get updatePriority (): number {
         return 0;
     }
 
-    public update (particles: ParticleSOAData, context: ParticleUpdateContext) {
+    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext) {
         const count = particles.count;
         if (this.color.mode === GradientRange.Mode.Color) {
             const color = this.color.color;

@@ -31,7 +31,7 @@ import { clamp, lerp, pseudoRandom, randomRangeInt, Vec2, Vec3 } from '../../cor
 import { CurveRange } from '../curve-range';
 import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
-import { ParticleUpdateContext } from '../particle-update-context';
+import { ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
 import { perlinNoise1D, perlinNoise2D, perlinNoise3D } from './perlin-noise';
 
 const pos = new Vec3();
@@ -263,7 +263,7 @@ export class NoiseModule extends ParticleModule {
     private _randomSeed = randomRangeInt(0, 233280);
     private _scrollOffset = 0;
 
-    public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
+    public update (particles: ParticleSOAData, params: ParticleSystemParams, particleUpdateContext: ParticleUpdateContext) {
         const { normalizedTimeInCycle, deltaTime } = particleUpdateContext;
         const { count, randomSeed, normalizedAliveTime, noiseX, noiseY, noiseZ, rotationX, rotationY, rotationZ, sizeX, sizeY, sizeZ } = particles;
         this._scrollOffset += this._scrollSpeed.evaluate(normalizedTimeInCycle, 1) * deltaTime;

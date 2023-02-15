@@ -30,7 +30,7 @@ import { Space, ModuleRandSeed } from '../enum';
 import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { CurveRange } from '../curve-range';
 import { calculateTransform } from '../particle-general-function';
-import { ParticleUpdateContext } from '../particle-update-context';
+import { ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
 import { ParticleSOAData } from '../particle-soa-data';
 import { assert } from '../../core';
 
@@ -157,8 +157,8 @@ export class LimitVelocityOverLifetimeModule extends ParticleModule {
         return 6;
     }
 
-    public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
-        const needTransform = calculateTransform(particleUpdateContext.simulationSpace,
+    public update (particles: ParticleSOAData, params: ParticleSystemParams, particleUpdateContext: ParticleUpdateContext) {
+        const needTransform = calculateTransform(params.simulationSpace,
             this.space, particleUpdateContext.localToWorld, rotation);
         const { count, normalizedAliveTime, randomSeed, animatedVelocityX, animatedVelocityY, animatedVelocityZ } = particles;
         if (this.separateAxes) {

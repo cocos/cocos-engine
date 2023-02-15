@@ -30,7 +30,7 @@ import { Enum } from '../../core/value-types';
 import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { createRealCurve, CurveRange } from '../curve-range';
 import { ParticleSOAData } from '../particle-soa-data';
-import { ParticleUpdateContext } from '../particle-update-context';
+import { ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
 import { assert, CCFloat, CCInteger, RealCurve, RealInterpolationMode } from '../../core';
 
 const TEXTURE_ANIMATION_RAND_OFFSET = 90794;
@@ -245,7 +245,7 @@ export class TextureAnimationModule extends ParticleModule {
     @serializable
     private _fps = 30;
 
-    public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
+    public update (particles: ParticleSOAData, params: ParticleSystemParams, particleUpdateContext: ParticleUpdateContext) {
         const { count, randomSeed, frameIndex, normalizedAliveTime } = particles;
         if (DEBUG) {
             assert(this.startFrame.mode === CurveRange.Mode.Constant || this.startFrame.mode === CurveRange.Mode.TwoConstants,

@@ -26,7 +26,7 @@
 import { ccclass, displayOrder, range, serializable, tooltip, type } from '../../core/data/decorators';
 import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
-import { ParticleUpdateContext } from '../particle-update-context';
+import { ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
 import { CurveRange } from '../curve-range';
 import { lerp, pseudoRandom, randomRangeInt, Vec3 } from '../../core/math';
 import { INT_MAX } from '../../core/math/bits';
@@ -58,9 +58,9 @@ export class StartSpeedModule extends ParticleModule {
         return 1;
     }
 
-    public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
-        const { newParticleIndexStart, newParticleIndexEnd, normalizedTimeInCycle, worldRotation, simulationSpace } = particleUpdateContext;
-        if (simulationSpace === Space.WORLD) {
+    public update (particles: ParticleSOAData, params: ParticleSystemParams, particleUpdateContext: ParticleUpdateContext) {
+        const { newParticleIndexStart, newParticleIndexEnd, normalizedTimeInCycle, worldRotation } = particleUpdateContext;
+        if (params.simulationSpace === Space.WORLD) {
             if (this.startSpeed.mode === CurveRange.Mode.Constant) {
                 const constant = this.startSpeed.constant;
                 for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {

@@ -26,7 +26,7 @@
 import { ccclass, displayOrder, range, serializable, tooltip, type } from '../../core/data/decorators';
 import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
-import { ParticleUpdateContext } from '../particle-update-context';
+import { ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
 import { CurveRange } from '../curve-range';
 import { approx, EPSILON, lerp, pseudoRandom, Quat, Vec3 } from '../../core/math';
 import { Space } from '../enum';
@@ -58,11 +58,11 @@ export class GravityModule extends ParticleModule {
         return 5;
     }
 
-    public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
-        const { simulationSpace, deltaTime, worldRotation } = particleUpdateContext;
+    public update (particles: ParticleSOAData, params: ParticleSystemParams, particleUpdateContext: ParticleUpdateContext) {
+        const { deltaTime, worldRotation } = particleUpdateContext;
         const { count, normalizedAliveTime, randomSeed, velocityY } = particles;
         const deltaVelocity = 9.8 * deltaTime;
-        if (simulationSpace === Space.LOCAL) {
+        if (params.simulationSpace === Space.LOCAL) {
             const invRotation = Quat.conjugate(rotation, worldRotation);
             if (this.gravityModifier.mode === CurveRange.Mode.Constant) {
                 Vec3.set(gravity, 0, -this.gravityModifier.constant * deltaVelocity, 0);

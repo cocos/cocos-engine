@@ -30,7 +30,7 @@ import { Space } from '../enum';
 import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { calculateTransform } from '../particle-general-function';
 import { ParticleSOAData } from '../particle-soa-data';
-import { ParticleUpdateContext } from '../particle-update-context';
+import { ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
 import { CurveRange } from '../curve-range';
 
 const VELOCITY_X_OVERTIME_RAND_OFFSET = 197866;
@@ -93,8 +93,8 @@ export class VelocityOverLifetimeModule extends ParticleModule {
         return 2;
     }
 
-    public update (particles: ParticleSOAData, context: ParticleUpdateContext) {
-        const needTransform = calculateTransform(context.simulationSpace, this.space, context.localToWorld, rotation);
+    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext) {
+        const needTransform = calculateTransform(params.simulationSpace, this.space, context.localToWorld, rotation);
         const { count, normalizedAliveTime, randomSeed } = particles;
         if (needTransform) {
             if (this.x.mode === CurveRange.Mode.Constant) {

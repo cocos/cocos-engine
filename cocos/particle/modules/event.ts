@@ -29,7 +29,7 @@ import { Space } from '../enum';
 import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { ParticleSOAData, RecordReason } from '../particle-soa-data';
 import { ParticleSystem } from '../particle-system';
-import { ParticleUpdateContext } from '../particle-update-context';
+import { ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
 
 const emitProbabilityRandomSeedOffset = 199208;
 
@@ -92,9 +92,10 @@ export class EventModule extends ParticleModule {
         return 0;
     }
 
-    public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
+    public update (particles: ParticleSOAData, params: ParticleSystemParams, particleUpdateContext: ParticleUpdateContext) {
         const { particleSnapshots, particleSnapshotCount } = particles;
-        const { simulationSpace, localToWorld } = particleUpdateContext;
+        const { localToWorld } = particleUpdateContext;
+        const { simulationSpace } = params;
         for (let i = 0; i < particleSnapshotCount; i++) {
             const particleSnapshot = particleSnapshots[i];
             if (particleSnapshot.recordReason & RecordReason.DEATH) {

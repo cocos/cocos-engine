@@ -29,7 +29,7 @@ import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { CurveRange } from '../curve-range';
 import { ModuleRandSeed } from '../enum';
 import { ParticleSOAData } from '../particle-soa-data';
-import { ParticleUpdateContext } from '../particle-update-context';
+import { ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
 
 const SIZE_OVERTIME_RAND_OFFSET = ModuleRandSeed.SIZE;
 
@@ -118,14 +118,14 @@ export class SizeOverLifetimeModule extends ParticleModule {
     }
 
     public get updateStage (): ParticleUpdateStage {
-        return ParticleUpdateStage.PRE_UPDATE;
+        return ParticleUpdateStage.POST_UPDATE;
     }
 
     public get updatePriority (): number {
         return 0;
     }
 
-    public update (particles: ParticleSOAData, context: ParticleUpdateContext) {
+    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext) {
         const { count, normalizedAliveTime, randomSeed } = particles;
         const size = new Vec3();
         if (!this.separateAxes) {

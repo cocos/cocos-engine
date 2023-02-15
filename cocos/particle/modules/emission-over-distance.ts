@@ -26,7 +26,7 @@
 import { ccclass, displayOrder, serializable, tooltip, type, range } from '../../core/data/decorators';
 import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
-import { ParticleUpdateContext } from '../particle-update-context';
+import { ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
 import { CurveRange } from '../curve-range';
 import { Vec3 } from '../../core';
 
@@ -54,18 +54,9 @@ export class EmissionOverDistanceModule extends ParticleModule {
         return 0;
     }
 
-    private _emitRateDistanceCounter = 0;
-
-    public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
+    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext) {
         // emit by rateOverDistance
-        const distance = Vec3.distance(particleUpdateContext.currentPosition, particleUpdateContext.lastPosition);
-        this._emitRateDistanceCounter += distance * this.rate.evaluate(particleUpdateContext.normalizedTimeInCycle, Math.random())!;
-        const distanceEmitNum = Math.floor(this._emitRateDistanceCounter);
-        this._emitRateDistanceCounter -= distanceEmitNum;
-        particleUpdateContext.emittingAccumulatedCount += distanceEmitNum;
-    }
-
-    public onStop (): void {
-        this._emitRateDistanceCounter = 0.0;
+        const distance = Vec3.distance(context.currentPosition, context.lastPosition);
+        context.emittingOverDistanceAccumulatedCount += distance * this.rate.evaluate(context.normalizedTimeInCycle, Math.random())!;
     }
 }

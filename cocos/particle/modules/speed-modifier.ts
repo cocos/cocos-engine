@@ -28,7 +28,7 @@ import { ccclass, displayOrder, range, serializable, tooltip, type } from '../..
 import { CurveRange } from '../curve-range';
 import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
-import { ParticleUpdateContext } from '../particle-update-context';
+import { ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
 
 const SPEED_MODIFIER_RAND_OFFSET = 388180;
 
@@ -56,7 +56,7 @@ export class SpeedModifierModule extends ParticleModule {
         return 0;
     }
 
-    public update (particles: ParticleSOAData, context: ParticleUpdateContext) {
+    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext) {
         const { count, speedModifier, normalizedAliveTime, randomSeed } = particles;
         if (this.speedModifier.mode === CurveRange.Mode.Constant) {
             const constant = this.speedModifier.constant;

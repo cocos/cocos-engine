@@ -23,19 +23,46 @@
  THE SOFTWARE.
  */
 
-import { Space } from './enum';
+import { CullingMode, Space } from './enum';
 import { Mat4, Quat, Vec3 } from '../core';
+import { ccclass, serializable } from '../core/data/decorators';
+import { CurveRange } from './curve-range';
+
+@ccclass('cc.ParticleSystemParams')
+export class ParticleSystemParams {
+    @serializable
+    public capacity = 100;
+    @serializable
+    public loop = true;
+    @serializable
+    public duration = 5.0;
+    @serializable
+    public prewarm = false;
+    @serializable
+    public simulationSpace = Space.LOCAL;
+    @serializable
+    public scaleSpace = Space.LOCAL;
+    @serializable
+    public simulationSpeed = 1.0;
+    @serializable
+    public playOnAwake = true;
+    @serializable
+    public startDelay = new CurveRange();
+    @serializable
+    public cullingMode = CullingMode.ALWAYS_SIMULATE;
+}
 
 export class ParticleUpdateContext {
     public accumulatedTime = 0;
     public emitterAccumulatedTime = 0;
     public normalizedTimeInCycle = 0;
     public deltaTime = 0;
-    public duration = 0;
-    public simulationSpace = Space.LOCAL;
     public localToWorld = new Mat4();
+    public emitterVelocity = new Vec3();
     public worldRotation = new Quat();
-    public emittingAccumulatedCount = 0;
+    public emittingOverTimeAccumulatedCount = 0;
+    public emittingOverDistanceAccumulatedCount = 0;
+    public burstEmittingCount = 0;
     public newParticleIndexStart = -1;
     public newParticleIndexEnd = -1;
     public lastPosition = new Vec3();
@@ -43,7 +70,6 @@ export class ParticleUpdateContext {
     public emitterStartDelay = 0;
     public emitterDelayRemaining = 0;
     public emitterDeltaTime = 0;
-    public capacity = 0;
 
     constructor () {
 

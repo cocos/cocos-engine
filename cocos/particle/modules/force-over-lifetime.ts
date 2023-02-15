@@ -31,7 +31,7 @@ import { calculateTransform } from '../particle-general-function';
 import { CurveRange } from '../curve-range';
 import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { assert, Enum } from '../../core';
-import { ParticleUpdateContext } from '../particle-update-context';
+import { ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
 import { ParticleSOAData } from '../particle-soa-data';
 
 const FORCE_OVER_LIFETIME_RAND_OFFSET = 212165;
@@ -95,8 +95,8 @@ export class ForceOverLifetimeModule extends ParticleModule {
     // TODO:currently not supported
     public randomized = false;
 
-    public update (particles: ParticleSOAData, context: ParticleUpdateContext) {
-        const needTransform = calculateTransform(context.simulationSpace, this.space, context.localToWorld, rotation);
+    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext) {
+        const needTransform = calculateTransform(params.simulationSpace, this.space, context.localToWorld, rotation);
         const dt = context.deltaTime;
         const { count, normalizedAliveTime, randomSeed } = particles;
         if (DEBUG) {

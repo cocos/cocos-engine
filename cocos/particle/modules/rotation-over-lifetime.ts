@@ -30,7 +30,7 @@ import { Mat4, pseudoRandom, Quat, Vec4, Vec3, lerp } from '../../core/math';
 import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { CurveRange } from '../curve-range';
 import { assert, CCBoolean } from '../../core';
-import { ParticleUpdateContext } from '../particle-update-context';
+import { ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
 import { ParticleSOAData } from '../particle-soa-data';
 
 const ROTATION_OVERTIME_RAND_OFFSET = 125292;
@@ -136,7 +136,7 @@ export class RotationOverLifetimeModule extends ParticleModule {
     @serializable
     private _x: CurveRange | null = null;
 
-    public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
+    public update (particles: ParticleSOAData, params: ParticleSystemParams, particleUpdateContext: ParticleUpdateContext) {
         const { count, angularVelocityZ, normalizedAliveTime, randomSeed } = particles;
         if (!this._separateAxes) {
             if (this.z.mode === CurveRange.Mode.Constant) {

@@ -46,22 +46,24 @@ import { GravityModule } from './modules/gravity';
 import { SpeedModifierModule } from './modules/speed-modifier';
 import { StartRotationModule } from './modules/start-rotation';
 import { ShapeModule } from './modules/shape-module';
-import { ParticleUpdateContext } from './particle-update-context';
+import { ParticleSystemParams, ParticleUpdateContext } from './particle-update-context';
 import { CullingMode, Space } from './enum';
 import { ParticleSystemRenderer } from './particle-system-renderer';
 import { TrailModule } from './modules/trail';
 import { legacyCC } from '../core/global-exports';
 import { TransformBit } from '../core/scene-graph/node-enum';
 import { AABB, intersect } from '../core/geometry';
-import { Camera } from '../core/renderer/scene';
+import { Camera, Model } from '../core/renderer/scene';
 import { NoiseModule } from './modules/noise';
-import { CCBoolean, CCFloat, Component, Enum, geometry, js } from '../core';
-import { INVALID_HANDLE, ParticleHandle, ParticleSOAData } from './particle-soa-data';
+import { CCBoolean, CCFloat, CCInteger, Component, Enum, geometry, js } from '../core';
+import { INVALID_HANDLE, ParticleHandle, ParticleSOAData, RecordReason } from './particle-soa-data';
 import { ParticleModule, ParticleUpdateStage } from './particle-module';
 import { particleSystemManager } from './particle-system-manager';
-import { EmittingModule } from './modules/emitting';
-import { CompositionModule } from './modules/composition';
 import { BurstEmissionModule } from './modules/burst-emission';
+
+const velocity = new Vec3();
+const animatedVelocity = new Vec3();
+const angularVelocity = new Vec3();
 
 enum PlayingState {
     STOPPED,
@@ -76,108 +78,130 @@ enum PlayingState {
 @executeInEditMode
 export class ParticleSystem extends Component {
     public static CullingMode = CullingMode;
+
     /**
-     * @zh 粒子系统能生成的最大粒子数量。
+     * @zh 粒子系统运行时间。
      */
-    @range([0, Number.POSITIVE_INFINITY])
-    @displayOrder(1)
-    @tooltip('i18n:particle_system.capacity')
-    public get capacity () {
-        return this._capacity;
+    @tooltip('i18n:particle_system.duration')
+    public get duration () {
+        return this._particleSystemParams.duration;
     }
 
-    public set capacity (val) {
-        this._capacity = Math.floor(val > 0 ? val : 0);
+    public set duration (val) {
+        this._particleSystemParams.duration = val;
     }
 
-    @type(Enum(Space))
-    @serializable
-    @displayOrder(9)
-    @tooltip('i18n:particle_system.scaleSpace')
-    public scaleSpace = Space.LOCAL;
+    /**
+     * @zh 粒子系统是否循环播放。
+     */
+    @tooltip('i18n:particle_system.loop')
+    public get loop () {
+        return this._particleSystemParams.loop;
+    }
+
+    public set loop (val) {
+        this._particleSystemParams.loop = val;
+    }
+
+    /**
+     * @zh 选中之后，粒子系统会以已播放完一轮之后的状态开始播放（仅当循环播放启用时有效）。
+     */
+    @tooltip('i18n:particle_system.prewarm')
+    public get prewarm () {
+        return this._particleSystemParams.prewarm;
+    }
+
+    public set prewarm (val) {
+        this._particleSystemParams.prewarm = val;
+    }
 
     /**
      * @zh 粒子系统开始运行后，延迟粒子发射的时间。
      */
     @type(CurveRange)
-    @serializable
     @range([0, 1])
-    @displayOrder(6)
     @tooltip('i18n:particle_system.startDelay')
-    public startDelay = new CurveRange();
-
-    /**
-     * @zh 粒子系统运行时间。
-     */
-    @serializable
-    @displayOrder(0)
-    @tooltip('i18n:particle_system.duration')
-    public duration = 5.0;
-
-    /**
-     * @zh 粒子系统是否循环播放。
-     */
-    @serializable
-    @displayOrder(2)
-    @tooltip('i18n:particle_system.loop')
-    public loop = true;
-
-    /**
-     * @zh 选中之后，粒子系统会以已播放完一轮之后的状态开始播放（仅当循环播放启用时有效）。
-     */
-    @displayOrder(3)
-    @tooltip('i18n:particle_system.prewarm')
-    get prewarm () {
-        return this._prewarm;
+    public get startDelay () {
+        return this._particleSystemParams.startDelay;
     }
 
-    set prewarm (val) {
-        this._prewarm = val;
+    public set startDelay (val) {
+        this._particleSystemParams.startDelay = val;
     }
 
     /**
      * @zh 选择粒子系统所在的坐标系[[Space]]。<br>
      */
     @type(Enum(Space))
-    @displayOrder(4)
     @tooltip('i18n:particle_system.simulationSpace')
-    get simulationSpace () {
-        return this._simulationSpace;
+    public get simulationSpace () {
+        return this._particleSystemParams.simulationSpace;
     }
 
-    set simulationSpace (val) {
-        this._simulationSpace = val;
+    public set simulationSpace (val) {
+        this._particleSystemParams.simulationSpace = val;
     }
 
     /**
      * @zh 控制整个粒子系统的更新速度。
      */
-    @serializable
-    @displayOrder(5)
     @tooltip('i18n:particle_system.simulationSpeed')
-    public simulationSpeed = 1.0;
+    public get simulationSpeed () {
+        return this._particleSystemParams.simulationSpeed;
+    }
+
+    public set simulationSpeed (val) {
+        this._particleSystemParams.simulationSpeed = val;
+    }
+
+    @type(Enum(Space))
+    @tooltip('i18n:particle_system.scaleSpace')
+    public get scaleSpace () {
+        return this._particleSystemParams.scaleSpace;
+    }
+
+    public set scaleSpace (val) {
+        this._particleSystemParams.scaleSpace = val;
+    }
+
+    /**
+     * @zh 粒子系统能生成的最大粒子数量。
+     */
+    @type(CCInteger)
+    @range([0, Number.POSITIVE_INFINITY])
+    @tooltip('i18n:particle_system.capacity')
+    public get capacity () {
+        return this._particleSystemParams.capacity;
+    }
+
+    public set capacity (val) {
+        this._particleSystemParams.capacity = Math.floor(val > 0 ? val : 0);
+    }
 
     /**
      * @zh 粒子系统加载后是否自动开始播放。
      */
-    @serializable
-    @displayOrder(2)
     @tooltip('i18n:particle_system.playOnAwake')
-    public playOnAwake = true;
+    public get playOnAwake () {
+        return this._particleSystemParams.playOnAwake;
+    }
+
+    public set playOnAwake (val) {
+        this._particleSystemParams.playOnAwake = val;
+    }
 
     /**
      * @en Particle culling mode option. Includes pause, pause and catchup, always simulate.
      * @zh 粒子剔除模式选择。包括暂停模拟，暂停以后快进继续以及不间断模拟。
      */
     @type(Enum(CullingMode))
-    @displayOrder(17)
     @tooltip('i18n:particle_system.cullingMode')
     get cullingMode () {
-        return this._cullingMode;
+        return this._particleSystemParams.cullingMode;
     }
 
-    set cullingMode (value: CullingMode) {
-        this._cullingMode = value;
+    set cullingMode (val) {
+        this._particleSystemParams.cullingMode = val;
     }
 
     /**
@@ -334,6 +358,7 @@ export class ParticleSystem extends Component {
     }
 
     @type([ParticleModule])
+    @displayName('Modules')
     public get particleModules (): ReadonlyArray<ParticleModule> {
         return this._particleModules;
     }
@@ -360,26 +385,14 @@ export class ParticleSystem extends Component {
 
     @serializable
     private _particleModules: ParticleModule[] = [];
-
     @serializable
-    private _cullingMode = CullingMode.ALWAYS_SIMULATE;
+    private _particleSystemParams = new ParticleSystemParams();
     private _boundingBoxHalfExtents = new Vec3();
     private _state = PlayingState.STOPPED;
     private _isEmitting = false;
     private _isSimulating = true;
-
     private _particles = new ParticleSOAData();
     private _particleUpdateContext = new ParticleUpdateContext();
-    private _updatingModules: ParticleModule[] = [];
-
-    @serializable
-    private _prewarm = false;
-
-    @serializable
-    private _capacity = 100;
-
-    @serializable
-    private _simulationSpace = Space.LOCAL;
 
     private static _sortParticleModule (moduleA: ParticleModule, moduleB: ParticleModule) {
         return (moduleA.updateStage - moduleB.updateStage) || (moduleA.updatePriority - moduleB.updatePriority)
@@ -437,15 +450,8 @@ export class ParticleSystem extends Component {
         this._isEmitting = true;
 
         // prewarm
-        if (this._prewarm) {
+        if (this.prewarm) {
             this._prewarmSystem();
-        }
-        this._updatingModules.length = 0;
-        for (let i = 0; i < this._particleModules.length; i++) {
-            const particleModule = this._particleModules[i];
-            if (particleModule.enable) {
-                this._updatingModules.push(particleModule);
-            }
         }
         this._particleUpdateContext.currentPosition.set(this.node.worldPosition);
         this._particleUpdateContext.emitterDelayRemaining = this._particleUpdateContext.emitterStartDelay = this.startDelay.evaluate(0, 1);
@@ -507,10 +513,8 @@ export class ParticleSystem extends Component {
         }
         this.getOrAddModule(BurstEmissionModule);
         this.getOrAddModule(ColorOverLifetimeModule);
-        this.getOrAddModule(CompositionModule);
         this.getOrAddModule(EmissionOverDistanceModule);
         this.getOrAddModule(EmissionOverTimeModule);
-        this.getOrAddModule(EmittingModule);
         this.getOrAddModule(ForceOverLifetimeModule);
         this.getOrAddModule(GravityModule);
         this.getOrAddModule(LimitVelocityOverLifetimeModule);
@@ -544,7 +548,7 @@ export class ParticleSystem extends Component {
 
         if (this.isPlaying && this._isSimulating) {
             // simulation, update particles.
-            this.updateParticles(scaledDeltaTime);
+            this.updateParticles(this._particles, this._particleSystemParams, this._particleUpdateContext, scaledDeltaTime);
 
             if (this._particles.count === 0 && !this.loop && !this.isEmitting) {
                 this.stop();
@@ -570,10 +574,10 @@ export class ParticleSystem extends Component {
             }
         }
         if (culled) {
-            if (this._cullingMode !== CullingMode.ALWAYS_SIMULATE) {
+            if (this.cullingMode !== CullingMode.ALWAYS_SIMULATE) {
                 this._isSimulating = false;
             }
-            if (this._cullingMode === CullingMode.PAUSE_AND_CATCHUP) {
+            if (this.cullingMode === CullingMode.PAUSE_AND_CATCHUP) {
                 this._particleUpdateContext.accumulatedTime += scaledDeltaTime;
             }
         } else {
@@ -589,36 +593,35 @@ export class ParticleSystem extends Component {
         const cnt = this.duration / dt;
 
         for (let i = 0; i < cnt; ++i) {
-            this.updateParticles(dt);
+            this.updateParticles(this._particles, this._particleSystemParams, this._particleUpdateContext, dt);
         }
+    }
+
+    private getModulesByStage (stage: ParticleUpdateStage) {
+        return this._particleModules.filter((module) => module.updateStage === stage);
     }
 
     // internal function
 
-    private updateParticles (deltaTime: number) {
-        const particleUpdateContext = this._particleUpdateContext;
-        const particles = this._particles;
-        particleUpdateContext.capacity = this._capacity;
-        particleUpdateContext.accumulatedTime += deltaTime;
-        particleUpdateContext.deltaTime = deltaTime;
-        particleUpdateContext.emitterDeltaTime = this._isEmitting ? deltaTime : 0;
-        particleUpdateContext.simulationSpace = this.simulationSpace;
-        particleUpdateContext.newParticleIndexStart = particleUpdateContext.newParticleIndexEnd = -1;
-        particleUpdateContext.duration = this.duration;
-        particleUpdateContext.lastPosition.set(particleUpdateContext.currentPosition);
-        particleUpdateContext.currentPosition.set(this.node.worldPosition);
-        particleUpdateContext.localToWorld.set(this.node.worldMatrix);
-        Quat.normalize(particleUpdateContext.worldRotation, this.node.worldRotation);
-        if (particleUpdateContext.emitterDelayRemaining > 0) {
-            particleUpdateContext.emitterDelayRemaining -= particleUpdateContext.emitterDeltaTime;
-            particleUpdateContext.emitterDeltaTime = 0;
-            if (particleUpdateContext.emitterDelayRemaining < 0) {
-                particleUpdateContext.emitterDeltaTime = Math.abs(particleUpdateContext.emitterDelayRemaining);
-                particleUpdateContext.emitterDelayRemaining = 0;
+    private updateParticles (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext, deltaTime: number) {
+        context.accumulatedTime += deltaTime;
+        context.deltaTime = deltaTime;
+        context.emitterDeltaTime = this._isEmitting ? deltaTime : 0;
+        context.newParticleIndexStart = context.newParticleIndexEnd = -1;
+        context.lastPosition.set(context.currentPosition);
+        context.currentPosition.set(this.node.worldPosition);
+        context.localToWorld.set(this.node.worldMatrix);
+        Quat.normalize(context.worldRotation, this.node.worldRotation);
+        if (context.emitterDelayRemaining > 0) {
+            context.emitterDelayRemaining -= context.emitterDeltaTime;
+            context.emitterDeltaTime = 0;
+            if (context.emitterDelayRemaining < 0) {
+                context.emitterDeltaTime = Math.abs(context.emitterDelayRemaining);
+                context.emitterDelayRemaining = 0;
             }
         }
-        particleUpdateContext.emitterAccumulatedTime += particleUpdateContext.emitterDeltaTime;
-        particleUpdateContext.normalizedTimeInCycle = particleUpdateContext.emitterAccumulatedTime / this.duration;
+        context.emitterAccumulatedTime += context.emitterDeltaTime;
+        context.normalizedTimeInCycle = context.emitterAccumulatedTime / this.duration;
         particles.clearParticleSnapshots();
 
         const { animatedVelocityX, animatedVelocityY, animatedVelocityZ, angularVelocityX, angularVelocityY, angularVelocityZ, color, startColor } = particles;
@@ -633,9 +636,77 @@ export class ParticleSystem extends Component {
             color[i] = startColor[i];
         }
 
-        const updatingModules = this._updatingModules;
-        for (let i = 0, length = updatingModules.length; i < length; i++) {
-            updatingModules[i].update(particles, particleUpdateContext);
+        const emitterModules = this.getModulesByStage(ParticleUpdateStage.EMITTER_UPDATE);
+        for (let i = 0, length = emitterModules.length; i < length; i++) {
+            if (emitterModules[i].enable) {
+                emitterModules[i].update(particles, params, context);
+            }
+        }
+
+        let newEmittingCount = Math.floor(context.emittingAccumulatedCount);
+        context.emittingAccumulatedCount -= newEmittingCount;
+        if (newEmittingCount + particles.count > params.capacity) {
+            newEmittingCount = params.capacity - particles.count;
+        }
+
+        if (newEmittingCount > 0) {
+            this.emitParticle(particles, params);
+        }
+
+        const updateModules = this.getModulesByStage(ParticleUpdateStage.PRE_UPDATE);
+        for (let i = 0, length = updateModules.length; i < length; i++) {
+            if (updateModules[i].enable) {
+                updateModules[i].update(particles, params, context);
+            }
+        }
+
+        this.composite(particles, params, context, deltaTime);
+
+        const particleModules = this._particleModules;
+        for (let i = 0, length = particleModules.length; i < length; i++) {
+            if (particleModules[i].enable) {
+                particleModules[i].update(particles, this._particleSystemParams, context);
+            }
+        }
+    }
+
+    private emitParticle (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext, newEmittingCount: number, deltaTime: number) {
+        const { randomSeed } = particles;
+        const newParticleIndexStart = context.newParticleIndexStart = particles.addParticles(newEmittingCount);
+        const newParticleIndexEnd = context.newParticleIndexEnd = context.newParticleIndexStart + newEmittingCount;
+        if (params.simulationSpace === Space.WORLD) {
+            const position = context.currentPosition;
+            for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                particles.setPositionAt(position, i);
+            }
+        }
+        for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+            randomSeed[i] = randomRangeInt(0, 233280);
+        }
+    }
+
+    private composite (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext, deltaTime: number) {
+        const { speedModifier, normalizedAliveTime, invStartLifeTime } = particles;
+        const count = particles.count;
+        for (let particleHandle = 0; particleHandle < count; particleHandle++) {
+            particles.getVelocityAt(velocity, particleHandle);
+            particles.getAnimatedVelocityAt(animatedVelocity, particleHandle);
+            velocity.add(animatedVelocity);
+            particles.addPositionAt(Vec3.multiplyScalar(velocity, velocity, deltaTime * speedModifier[particleHandle]), particleHandle);
+        }
+
+        for (let particleHandle = 0; particleHandle < count; particleHandle++) {
+            particles.getAngularVelocityAt(angularVelocity, particleHandle);
+            particles.addRotationAt(Vec3.multiplyScalar(angularVelocity, angularVelocity, deltaTime), particleHandle);
+        }
+
+        for (let i = particles.count - 1; i >= 0; i--) {
+            normalizedAliveTime[i] += deltaTime * invStartLifeTime[i];
+
+            if (normalizedAliveTime[i] > 1) {
+                particles.recordParticleSnapshot(i, RecordReason.DEATH);
+                particles.removeParticle(i);
+            }
         }
     }
 }

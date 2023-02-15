@@ -23,17 +23,15 @@
  THE SOFTWARE.
  */
 
-import { ParticleUpdateContext } from './particle-update-context';
+import { ParticleSystemParams, ParticleUpdateContext } from './particle-update-context';
 import { ParticleSOAData } from './particle-soa-data';
 import { ccclass, displayName, serializable, type } from '../core/data/decorators';
 import { CCBoolean, CCString } from '../core';
 
 export enum ParticleUpdateStage {
     EMITTER_UPDATE,
-    EMITTING,
     INITIALIZE,
     PRE_UPDATE,
-    COMPOSITION,
     POST_UPDATE,
 }
 
@@ -78,7 +76,7 @@ export abstract class ParticleModule {
         }
     }
 
-    public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {}
+    public update (particles: ParticleSOAData, particleSystemParams: ParticleSystemParams, particleUpdateContext: ParticleUpdateContext) {}
     public onPlay () {}
     public onStop () {}
     public onPause () {}

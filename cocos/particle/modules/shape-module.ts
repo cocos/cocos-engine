@@ -32,7 +32,7 @@ import { fixedAngleUnitVector2, particleEmitZAxis, randomPointBetweenCircleAtFix
     randomPointInCube, randomSign, randomSortArray, randomUnitVector } from '../particle-general-function';
 import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
-import { ParticleUpdateContext } from '../particle-update-context';
+import { ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
 import { Enum } from '../../core';
 
 const _intermediVec = new Vec3(0, 0, 0);
@@ -338,7 +338,7 @@ export class ShapeModule extends ParticleModule {
     private _angle = toRadian(25);
     private _totalAngle = 0;
 
-    public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
+    public update (particles: ParticleSOAData, params: ParticleSystemParams, particleUpdateContext: ParticleUpdateContext) {
         Quat.fromEuler(quat, this._rotation.x, this._rotation.y, this._rotation.z);
         Mat4.fromRTS(mat, quat, this._position, this._scale);
         const { newParticleIndexStart, newParticleIndexEnd, normalizedTimeInCycle, emitterDeltaTime } = particleUpdateContext;
