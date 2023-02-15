@@ -40,6 +40,7 @@ import { PhysXShape } from './shapes/physx-shape';
 import { EFilterDataWord3 } from './physx-enum';
 import { PhysXInstance } from './physx-instance';
 import { Node } from '../../scene-graph';
+import { PhysXCharacterController } from './physx-character-controller';
 
 export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
     setAllowSleep (_v: boolean): void { }
@@ -52,6 +53,9 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
     readonly scene: any;
     readonly callback = PhysXCallback;
     readonly wrappedBodies: PhysXSharedBody[] = [];
+    readonly ccts: PhysXCharacterController[] = [];
+
+    controllerManager: any;
 
     private _isNeedFetch = false;
 
@@ -66,13 +70,17 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
     }
 
     step (deltaTime: number, _timeSinceLastCalled?: number, _maxSubStep = 0): void {
-        if (this.wrappedBodies.length === 0) return;
+        if (this.wrappedBodies.length === 0 && this.ccts.length === 0) return;
         this._simulate(deltaTime);
         if (!PX.MULTI_THREAD) {
             this._fetchResults();
             for (let i = 0; i < this.wrappedBodies.length; i++) {
                 const body = this.wrappedBodies[i];
                 body.syncPhysicsToScene();
+            }
+            for (let i = 0; i < this.ccts.length; i++) {
+                const cct = this.ccts[i];
+                cct.syncPhysicsToScene();
             }
         }
     }
@@ -131,6 +139,22 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
         if (index >= 0) {
             this.scene.removeActor(body.impl, true);
             js.array.fastRemoveAt(this.wrappedBodies, index);
+        }
+    }
+
+    addCCT (cct: PhysXCharacterController): void {
+        const index = this.ccts.indexOf(cct);
+        if (index < 0) {
+            //addCCTToScene(this.scene, cct.impl);
+            this.ccts.push(cct);
+        }
+    }
+
+    removeCCT (cct: PhysXCharacterController): void {
+        const index = this.ccts.indexOf(cct);
+        if (index >= 0) {
+            //this.scene.removeActor(cct.impl, true);
+            js.array.fastRemoveAt(this.ccts, index);
         }
     }
 

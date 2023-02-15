@@ -45,6 +45,8 @@ import { FixedConstraint } from './components/constraints/fixed-constraint';
 
 import { PointToPointConstraint } from './components/constraints/point-to-point-constraint';
 
+import { CharacterController } from './components/character-controller';
+
 import { cclegacy } from '../../core';
 import { selector } from './physics-selector';
 import * as utils from '../utils/util';
@@ -72,6 +74,7 @@ export {
     RigidBody,
     PhysicsMaterial,
     ConstantForce,
+    CharacterController,
 
     selector,
     utils,

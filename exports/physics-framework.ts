@@ -36,6 +36,7 @@ cclegacy.physics = physics;
 export {
     PhysicsSystem,
     RigidBody,
+    CharacterController,
     ConstantForce,
     PhysicsMaterial,
     PhysicsRayResult,
