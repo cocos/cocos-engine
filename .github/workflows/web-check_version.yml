@@ -3,6 +3,8 @@ name: <Web> Check version
 #on: push
 on: [create, pull_request]
 
+permissions: read-all
+
 jobs:
   Check_pull_request_version:
     runs-on: ubuntu-latest
