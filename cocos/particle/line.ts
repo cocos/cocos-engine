@@ -149,6 +149,7 @@ export class Line extends ModelRenderer {
 
     /**
      * @zh 图块数。
+     * @deprecated since v3.7
      */
     @type(Vec2)
     @displayOrder(4)
@@ -170,6 +171,9 @@ export class Line extends ModelRenderer {
     @serializable
     private _offset = new Vec2(0, 0);
 
+    /**
+     * @deprecated since v3.7
+     */
     @type(Vec2)
     @displayOrder(5)
     @tooltip('i18n:line.offset')
