@@ -549,6 +549,7 @@ export class MeshRenderer extends ModelRenderer {
         this._onUpdateLocalShadowBiasAndProbeId();
         this._updateUseLightProbe();
         this._updateReceiveDirLight();
+        this._onUpdateReflectionProbeDataMap();
         this._attachToScene();
     }
 
