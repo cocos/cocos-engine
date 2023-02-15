@@ -47,6 +47,8 @@ public:
 
     ISystemWindow *createNativeWindow(uint32_t windowId, void *externalHandle) override;
 
+    bool readyToExit();
+    void exit() override;
     /**
      * @brief Implement the main logic of the base platform.
      */
@@ -56,6 +58,8 @@ public:
     void onPause() override;
     void onResume() override;
     void onClose() override;
+private:
+    bool _readyToExit{false};
 };
 
 } // namespace cc

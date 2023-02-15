@@ -307,6 +307,12 @@ export class Game extends EventTarget {
     public static readonly EVENT_RESUME = 'game_on_resume';
 
     /**
+     * @en Triggered when the game will be closed. <br>
+     * @zh 游戏将要关闭时触发的事件。<br>
+     */
+    public static readonly EVENT_CLOSE = 'game_on_close';
+
+    /**
      * @en Web Canvas 2d API as renderer backend.
      * @zh 使用 Web Canvas 2d API 作为渲染器后端。
      */
@@ -1027,6 +1033,7 @@ export class Game extends EventTarget {
     private _initEvents () {
         systemInfo.on('show', this._onShow, this);
         systemInfo.on('hide', this._onHide, this);
+        systemInfo.on('close', this._onClose, this);
     }
 
     private _onHide () {
@@ -1037,6 +1044,12 @@ export class Game extends EventTarget {
     private _onShow () {
         this.emit(Game.EVENT_SHOW);
         this.resumeByEngine();
+    }
+
+    private _onClose () {
+        this.emit(Game.EVENT_CLOSE);
+        // TODO : Release Resources.
+        systemInfo.exit();
     }
 
     //  @ Persist root node section

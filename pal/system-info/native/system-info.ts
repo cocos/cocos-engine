@@ -173,6 +173,11 @@ class SystemInfo extends EventTarget {
         // @ts-expect-error __close() is defined in JSB
         __close();
     }
+
+    public exit () {
+        // @ts-expect-error __exit() is defined in JSB
+        __exit();
+    }
 }
 
 export const systemInfo = new SystemInfo();
