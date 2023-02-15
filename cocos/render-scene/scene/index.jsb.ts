@@ -65,6 +65,8 @@ export enum LightType {
     DIRECTIONAL,
     SPHERE,
     SPOT,
+    POINT,
+    RANGED_DIRECTIONAL,
     UNKNOWN,
 }
 

@@ -25,8 +25,6 @@
 import { legacyCC } from './core/global-exports';
 import { DataPoolManager } from './3d/skeletal-animation/data-pool-manager';
 import { Device, deviceManager } from './gfx';
-import { DebugView } from './rendering/debug-view';
-import { buildDeferredLayout, buildForwardLayout } from './rendering/custom/effect';
 import { settings, Settings, warnID, Pool, macro } from './core';
 import { ForwardPipeline } from './rendering';
 
@@ -40,6 +38,7 @@ enum LightType {
     SPHERE,
     SPOT,
     POINT,
+    RANGED_DIRECTIONAL,
     UNKNOWN,
 }
 
