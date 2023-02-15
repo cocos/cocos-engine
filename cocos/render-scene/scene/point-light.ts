@@ -22,9 +22,8 @@
  THE SOFTWARE.
 */
 
-import { Vec3 } from '../../core';
+import { cclegacy, Vec3 } from '../../core';
 import { AABB } from '../../core/geometry';
-import { legacyCC } from '../../core/global-exports';
 import { Light, LightType, nt2lm } from './light';
 
 /**
@@ -60,7 +59,7 @@ export class PointLight extends Light {
       * @zh 光源的亮度。
       */
     get luminance (): number {
-        const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
+        const isHDR = cclegacy.director.root.pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             return this._luminanceHDR;
         } else {
@@ -68,7 +67,7 @@ export class PointLight extends Light {
         }
     }
     set luminance (value: number) {
-        const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
+        const isHDR = cclegacy.director.root.pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             this.luminanceHDR = value;
         } else {

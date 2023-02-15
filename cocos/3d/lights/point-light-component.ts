@@ -24,11 +24,10 @@
 
 import { ccclass, help, executeInEditMode, menu, tooltip, type, displayOrder,
     serializable, formerlySerializedAs, editable, rangeMin, slide } from 'cc.decorator';
-import { legacyCC } from '../../core/global-exports';
 import { scene } from '../../render-scene';
 import { Camera } from '../../render-scene/scene';
 import { Light, PhotometricTerm } from './light-component';
-import { CCFloat, CCInteger } from '../../core';
+import { CCFloat, CCInteger, cclegacy } from '../../core';
 
 /**
  * @en The point light component, multiple point lights can be added to one scene.
@@ -63,7 +62,7 @@ export class PointLight extends Light {
     @slide
     @type(CCInteger)
     get luminousFlux () {
-        const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
+        const isHDR = cclegacy.director.root.pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             return this._luminanceHDR * scene.nt2lm(1.0);
         } else {
@@ -71,7 +70,7 @@ export class PointLight extends Light {
         }
     }
     set luminousFlux (val) {
-        const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
+        const isHDR = cclegacy.director.root.pipeline.pipelineSceneData.isHDR;
         let result = 0;
         if (isHDR) {
             this._luminanceHDR = val / scene.nt2lm(1.0);
@@ -95,7 +94,7 @@ export class PointLight extends Light {
     @slide
     @type(CCInteger)
     get luminance () {
-        const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
+        const isHDR = cclegacy.director.root.pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             return this._luminanceHDR;
         } else {
@@ -103,7 +102,7 @@ export class PointLight extends Light {
         }
     }
     set luminance (val) {
-        const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
+        const isHDR = cclegacy.director.root.pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             this._luminanceHDR = val;
             // eslint-disable-next-line @typescript-eslint/no-unused-expressions
