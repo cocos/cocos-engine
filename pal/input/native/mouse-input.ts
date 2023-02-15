@@ -99,16 +99,10 @@ export class MouseInputSource {
             const eventMouse = new EventMouse(eventType, false, this._preMousePos, mouseEvent.windowId);
             eventMouse.setLocation(location.x, location.y);
             eventMouse.setButton(button);
-            if (this._pointLocked && eventType === InputEventType.MOUSE_MOVE) {
-                const dpr = screenAdapter.devicePixelRatio;
-                eventMouse.movementX = mouseEvent.xref === undefined ? 0 : mouseEvent.xref * dpr;
-                eventMouse.movementY = mouseEvent.yref === undefined ? 0 : mouseEvent.yref * dpr;
-            } else {
-                eventMouse.movementX = location.x - this._preMousePos.x;
-                eventMouse.movementY = this._preMousePos.y - location.y;
-            }
+            const dpr = screenAdapter.devicePixelRatio;
+            eventMouse.movementX = typeof mouseEvent.xref === 'undefined' ? 0 : mouseEvent.xref * dpr;
+            eventMouse.movementY = typeof mouseEvent.yref === 'undefined' ? 0 : mouseEvent.yref * dpr;
             // update previous mouse position.
-            this._preMousePos.set(location.x, location.y);
             this._eventTarget.emit(eventType, eventMouse);
         };
     }
