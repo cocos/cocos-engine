@@ -51,6 +51,7 @@ export class Line extends Component {
 
     /**
      * @zh 显示的纹理。
+     * @en Line texture.
      */
     @type(Texture2D)
     @displayOrder(0)
