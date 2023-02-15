@@ -43,7 +43,7 @@ struct StencilState {
     GLenum func        = GL_ALWAYS;
     uint32_t readMask  = 0xffffffff;
     uint32_t writemask = 0xffffffff;
-    uint32_t reference = 1;
+    uint32_t reference = 0;
     GLenum failOp      = GL_KEEP;
     GLenum zPassOp     = GL_KEEP;
     GLenum zFailOp     = GL_KEEP;

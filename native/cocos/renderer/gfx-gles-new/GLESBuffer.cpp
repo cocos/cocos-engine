@@ -55,6 +55,16 @@ void Buffer::initGPUBuffer(uint32_t size, uint32_t count) {
     _gpuBufferView->range = size;
 }
 
+void Buffer::resizeGPUBuffer(uint32_t size, uint32_t count) {
+    auto &gpuBuffer = _gpuBufferView->buffer;
+    gpuBuffer->size = size;
+    gpuBuffer->count = count;
+    gpuBuffer->initBuffer();
+
+    _gpuBufferView->offset = 0;
+    _gpuBufferView->range = size;
+}
+
 void Buffer::doInit(const BufferInfo &info) {
     std::ignore = info;
     initGPUBuffer(_size, _count);
@@ -74,7 +84,7 @@ void Buffer::doDestroy() {
 }
 
 void Buffer::doResize(uint32_t size, uint32_t count) {
-    initGPUBuffer(size, count);
+    resizeGPUBuffer(size, count);
 }
 
 GPUBuffer::~GPUBuffer() noexcept {
@@ -113,7 +123,9 @@ void GPUBuffer::initBuffer() {
         freq = BufferAccessFrequency::STATIC;
     }
     GLenum usage = BUFFER_USAGE_MAP[static_cast<int32_t>(nat)][static_cast<int32_t>(freq)];
-    GL_CHECK(glGenBuffers(1, &bufferId));
+    if (bufferId == 0) {
+        GL_CHECK(glGenBuffers(1, &bufferId));
+    }
     if (target != GL_NONE) {
         GL_CHECK(glBindBuffer(target, bufferId));
         GL_CHECK(glBufferData(target, size, nullptr, usage));

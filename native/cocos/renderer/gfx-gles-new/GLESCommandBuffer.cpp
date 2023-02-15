@@ -149,7 +149,7 @@ void CommandBuffer::draw(const DrawInfo &info) {
 }
 
 void CommandBuffer::updateBuffer(gfx::Buffer *buff, const void *data, uint32_t size) {
-
+    buff->update(data, size);
 }
 
 void CommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, gfx::Texture *texture, const BufferTextureCopy *regions, uint32_t count) {

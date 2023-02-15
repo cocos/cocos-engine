@@ -25,6 +25,11 @@ static GLenum getBufferTarget(DescriptorType type) {
     return 0;
 }
 
+static bool isDynamicBuffer(DescriptorType type) {
+    return type == DescriptorType::DYNAMIC_STORAGE_BUFFER ||
+           type == DescriptorType::DYNAMIC_UNIFORM_BUFFER;
+};
+
 static bool checkBuffer(const Descriptor &desc) {
     return desc.buffer && desc.buffer->buffer && desc.buffer->buffer->bufferId != 0 && desc.buffer->range != 0;
 }
@@ -60,11 +65,18 @@ void Commands::bindDescriptorSet(uint32_t set, const DescriptorBindInfo &bindInf
         return;
     }
     _boundSets[set] = bindInfo;
+    uint32_t dynamicIndex = 0;
+
     auto *descriptorSetLayout = _currentPso->layout->setLayouts[set].get();
     for (auto &binding : descriptorSetLayout->bindings) {
         auto offsetToSet = descriptorSetLayout->bindingMap[binding.binding];
         auto offsetToPipelineLayout = _currentPso->descriptorOffsets[set];
 
+        uint32_t *dynamicOffsetPtr = nullptr;
+        if (isDynamicBuffer(binding.type) && dynamicIndex < bindInfo.dynamicCount) {
+            dynamicOffsetPtr = &bindInfo.dynamicOffsets[dynamicIndex];
+            dynamicIndex += binding.count;
+        }
 
         auto *descriptorIndexBase = &_currentPso->descriptors[offsetToSet + offsetToPipelineLayout];
         auto *descriptorBase = &_boundSets[set].descriptorSet->descriptors[offsetToSet];
@@ -73,9 +85,11 @@ void Commands::bindDescriptorSet(uint32_t set, const DescriptorBindInfo &bindInf
             auto &descriptor = descriptorBase[i];
             auto &descriptorIndex  = descriptorIndexBase[i];
             if (isBufferType(binding.type) && checkBuffer(descriptor)) {
+                uint32_t dynamicOffset = dynamicOffsetPtr != nullptr ? dynamicOffsetPtr[i] : 0;
+
                 GL_CHECK(glBindBufferRange(getBufferTarget(binding.type), descriptorIndex.binding,
                                   descriptor.buffer->buffer->bufferId,
-                                  descriptor.buffer->offset,
+                                  descriptor.buffer->offset + dynamicOffset,
                                   descriptor.buffer->range));
             } else if (checkTexture(descriptor)) {
                 GL_CHECK(glActiveTexture(GL_TEXTURE0 + descriptorIndex.unit));
@@ -167,7 +181,7 @@ void Commands::beginPassInternal() {
         attachmentFunc(renderPass->attachments[subPass.depthStencil], 0);
     }
     if (clearBit != 0) {
-        glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        GL_CHECK(glClear(clearBit));
     }
 
     if (!_invalidAttachments.empty()) {
@@ -250,6 +264,10 @@ void Commands::nextSubpass() {
 
 void Commands::bindInputAssembler(const IntrusivePtr<GPUInputAssembler> &ia) {
     _currentIa = ia;
+}
+
+void Commands::bindVertexInternal() {
+    const GPUInputAssembler *ia = _currentIa.get();
 
     uint32_t currentBuffer = 0;
     for (auto &glAttr : ia->attributes) {
@@ -276,6 +294,7 @@ void Commands::bindInputAssembler(const IntrusivePtr<GPUInputAssembler> &ia) {
 
 void Commands::draw(const DrawInfo &drawInfo) {
     if (_currentIa) {
+        bindVertexInternal();
         if (_currentIa->indexBuffer && drawInfo.indexCount > 0) { // draw indexed
             uint8_t *offset = nullptr;
             offset += drawInfo.firstIndex * _currentIa->indexBuffer->buffer->stride;

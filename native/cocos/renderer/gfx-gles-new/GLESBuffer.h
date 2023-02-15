@@ -45,6 +45,7 @@ protected:
     void doResize(uint32_t size, uint32_t count) override;
 
     void initGPUBuffer(uint32_t size, uint32_t count);
+    void resizeGPUBuffer(uint32_t size, uint32_t count);
 
     IntrusivePtr<GPUBufferView> _gpuBufferView;
 };

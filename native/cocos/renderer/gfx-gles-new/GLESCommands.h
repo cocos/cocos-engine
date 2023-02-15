@@ -74,11 +74,12 @@ public:
 private:
     void beginPassInternal();
     void endPassInternal();
+    void bindVertexInternal();
 
     ContextState *_context = nullptr;
-    IntrusivePtr<GPUInputAssembler> _currentIa;
-    IntrusivePtr<GPUFramebuffer> _currentFb;
-    IntrusivePtr<GPUPipelineState> _currentPso;
+    ConstPtr<GPUInputAssembler> _currentIa;
+    ConstPtr<GPUFramebuffer> _currentFb;
+    ConstPtr<GPUPipelineState> _currentPso;
     Color *_clearColors    = nullptr;
     float _clearDepth      = 1.f;
     GLint _clearStencil    = 0;
