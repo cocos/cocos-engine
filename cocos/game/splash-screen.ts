@@ -151,7 +151,7 @@ export class SplashScreen {
                     this.initLogo();
                     resolve();
                 };
-                this.logoImage.onerror = () => { 
+                this.logoImage.onerror = () => {
                     reject();
                 };
                 this.logoImage.src = this.settings.base64src;
