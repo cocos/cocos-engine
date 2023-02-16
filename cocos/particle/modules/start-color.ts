@@ -24,9 +24,9 @@
  */
 
 import { ccclass, displayOrder, formerlySerializedAs, radian, range, serializable, tooltip, type, visible } from '../../core/data/decorators';
-import { ParticleModule, ParticleUpdateStage } from '../particle-module';
+import { InitializationModule, ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
-import { ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
+import { ParticleEmitterContext, ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
 import { GradientRange } from '../gradient-range';
 import { Color, lerp, pseudoRandom, randomRangeInt, Vec3 } from '../../core/math';
 import { INT_MAX } from '../../core/math/bits';
@@ -34,7 +34,7 @@ import { INT_MAX } from '../../core/math/bits';
 const tempColor = new Color();
 
 @ccclass('cc.StartColorModule')
-export class StartColorModule extends ParticleModule {
+export class StartColorModule extends InitializationModule {
     /**
       * @zh 粒子初始颜色。
       */
@@ -46,10 +46,6 @@ export class StartColorModule extends ParticleModule {
 
     public get name (): string {
         return 'StartColorModule';
-    }
-
-    public get updateStage (): ParticleUpdateStage {
-        return ParticleUpdateStage.INITIALIZE;
     }
 
     public get updatePriority (): number {

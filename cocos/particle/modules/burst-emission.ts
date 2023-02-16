@@ -27,12 +27,12 @@ import { lerp } from '../../core';
 import { ccclass, displayOrder, serializable, tooltip, type, range } from '../../core/data/decorators';
 import Burst from '../burst';
 import { CurveRange } from '../curve-range';
-import { ParticleModule, ParticleUpdateStage } from '../particle-module';
+import { EmissionModule, ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
-import { ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
+import { EmittingResult, ParticleEmitterContext, ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
 
 @ccclass('cc.BurstEmissionModule')
-export class BurstEmissionModule extends ParticleModule {
+export class BurstEmissionModule extends EmissionModule {
     /**
       * @zh 设定在指定时间发射指定数量的粒子的 burst 的数量。
       */
@@ -46,42 +46,42 @@ export class BurstEmissionModule extends ParticleModule {
         return 'BurstEmissionModule';
     }
 
-    public get updateStage (): ParticleUpdateStage {
-        return ParticleUpdateStage.EMITTER_UPDATE;
-    }
-
     public get updatePriority (): number {
-        return 0;
+        return 2;
     }
 
     public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext) {
-        const { normalizedTimeInCycle, emitterAccumulatedTime: time, emitterDeltaTime } = context;
-        const preTime = time - emitterDeltaTime;
-        for (let i = 0; i < this.bursts.length; i++) {
-            const burst = this.bursts[i];
-            if ((preTime < burst.time && time > burst.time) || (preTime > burst.time && burst.repeatCount > 1)) {
-                const preEmitTime = Math.floor((preTime - burst.time) / burst.repeatInterval);
-                if (preEmitTime < burst.repeatCount) {
-                    const currentEmitTime = Math.min(Math.floor((time - burst.time) / burst.repeatInterval), burst.repeatCount);
-                    const toEmitTime = currentEmitTime - preEmitTime;
-                    if (burst.count.mode === CurveRange.Mode.Constant) {
-                        for (let j = 0; j < toEmitTime; j++) {
-                            context.burstEmittingCount += Math.floor(burst.count.constant);
-                        }
-                    } else if (burst.count.mode === CurveRange.Mode.Curve) {
-                        const { spline, multiplier } = burst.count;
-                        for (let j = 0; j < toEmitTime; j++) {
-                            context.burstEmittingCount += Math.floor(spline.evaluate(normalizedTimeInCycle[i]) * multiplier);
-                        }
-                    } else if (burst.count.mode === CurveRange.Mode.TwoConstants) {
-                        const { constantMin, constantMax } = burst.count;
-                        for (let j = 0; j < toEmitTime; j++) {
-                            context.burstEmittingCount += Math.floor(lerp(constantMin, constantMax, Math.random()));
-                        }
-                    } else {
-                        const { splineMin, splineMax, multiplier } = burst.count;
-                        for (let j = 0; j < toEmitTime; j++) {
-                            context.burstEmittingCount += Math.floor(lerp(splineMin.evaluate(normalizedTimeInCycle[i]), splineMax.evaluate(normalizedTimeInCycle[i]), Math.random()) * multiplier);
+        const { spawnEvents } = context;
+        for (let i = 0, length = spawnEvents.length; i < length; i++) {
+            const emitterContext = spawnEvents[i].particleEmitterContext;
+            const { prevTime, currentTime, normalizedTimeInCycle } = emitterContext;
+            for (let j = 0, burstCount = this.bursts.length; j < burstCount; j++) {
+                const burst = this.bursts[i];
+                if ((prevTime < burst.time && currentTime > burst.time) || (prevTime > burst.time && burst.repeatCount > 1)) {
+                    const preEmitTime = Math.max(Math.floor((prevTime - burst.time) / burst.repeatInterval), 0);
+                    if (preEmitTime < burst.repeatCount) {
+                        const currentEmitTime = Math.min(Math.floor((currentTime - burst.time) / burst.repeatInterval), burst.repeatCount);
+                        const toEmitTime = currentEmitTime - preEmitTime;
+                        if (toEmitTime === 0) { continue; }
+                        if (burst.count.mode === CurveRange.Mode.Constant) {
+                            for (let j = 0; j < toEmitTime; j++) {
+                                emitterContext.burstAccumulatedCount += Math.floor(burst.count.constant);
+                            }
+                        } else if (burst.count.mode === CurveRange.Mode.Curve) {
+                            const { spline, multiplier } = burst.count;
+                            for (let j = 0; j < toEmitTime; j++) {
+                                emitterContext.burstAccumulatedCount += Math.floor(spline.evaluate(normalizedTimeInCycle) * multiplier);
+                            }
+                        } else if (burst.count.mode === CurveRange.Mode.TwoConstants) {
+                            const { constantMin, constantMax } = burst.count;
+                            for (let j = 0; j < toEmitTime; j++) {
+                                emitterContext.burstAccumulatedCount += Math.floor(lerp(constantMin, constantMax, Math.random()));
+                            }
+                        } else {
+                            const { splineMin, splineMax, multiplier } = burst.count;
+                            for (let j = 0; j < toEmitTime; j++) {
+                                emitterContext.burstAccumulatedCount += Math.floor(lerp(splineMin.evaluate(normalizedTimeInCycle), splineMax.evaluate(normalizedTimeInCycle), Math.random()) * multiplier);
+                            }
                         }
                     }
                 }

@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { ParticleSystemParams, ParticleUpdateContext } from './particle-update-context';
+import { EmittingResult, ParticleEmitterContext, ParticleSystemParams, ParticleUpdateContext } from './particle-update-context';
 import { ParticleSOAData } from './particle-soa-data';
 import { ccclass, displayName, serializable, type } from '../core/data/decorators';
 import { CCBoolean, CCString } from '../core';
@@ -80,4 +80,19 @@ export abstract class ParticleModule {
     public onPlay () {}
     public onStop () {}
     public onPause () {}
+}
+@ccclass('cc.EmissionModule')
+export abstract class EmissionModule extends ParticleModule {
+    public get updateStage (): ParticleUpdateStage {
+        return ParticleUpdateStage.EMITTER_UPDATE;
+    }
+}
+
+@ccclass('cc.InitializationModule')
+export abstract class InitializationModule extends ParticleModule {
+    public get updateStage (): ParticleUpdateStage {
+        return ParticleUpdateStage.INITIALIZE;
+    }
+
+    public abstract initialize (particles: ParticleSOAData, fromIndex: number, toIndex: number, interval: number, offset: number, emitterContext: ParticleEmitterContext);
 }

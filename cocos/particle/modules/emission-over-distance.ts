@@ -24,14 +24,14 @@
  */
 
 import { ccclass, displayOrder, serializable, tooltip, type, range } from '../../core/data/decorators';
-import { ParticleModule, ParticleUpdateStage } from '../particle-module';
-import { ParticleSOAData } from '../particle-soa-data';
-import { ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
+import { EmissionModule, ParticleUpdateStage } from '../particle-module';
+import { EmittingResult, ParticleEmitterContext, ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
 import { CurveRange } from '../curve-range';
 import { Vec3 } from '../../core';
+import { ParticleSOAData } from '../particle-soa-data';
 
 @ccclass('cc.EmissionOverDistanceModule')
-export class EmissionOverDistanceModule extends ParticleModule {
+export class EmissionOverDistanceModule extends EmissionModule {
     /**
       * @zh 每移动单位距离发射的粒子数。
       */
@@ -46,17 +46,19 @@ export class EmissionOverDistanceModule extends ParticleModule {
         return 'EmissionOverDistanceModule';
     }
 
-    public get updateStage (): ParticleUpdateStage {
-        return ParticleUpdateStage.EMITTER_UPDATE;
-    }
-
     public get updatePriority (): number {
-        return 0;
+        return 1;
     }
 
     public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext) {
-        // emit by rateOverDistance
-        const distance = Vec3.distance(context.currentPosition, context.lastPosition);
-        context.emittingOverDistanceAccumulatedCount += distance * this.rate.evaluate(context.normalizedTimeInCycle, Math.random())!;
+        const { spawnEvents } = context;
+        for (let i = 0, length = spawnEvents.length; i < length; i++) {
+            const emitterContext = spawnEvents[i].particleEmitterContext;
+            const { velocity, deltaTime, normalizedTimeInCycle } = emitterContext;
+            const count = velocity.length()
+            * this.rate.evaluate(normalizedTimeInCycle, Math.random()) * deltaTime;
+            emitterContext.distanceInterval = 1 / count;
+            emitterContext.emittingOverDistanceAccumulatedCount += count;
+        }
     }
 }

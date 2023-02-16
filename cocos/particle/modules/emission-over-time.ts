@@ -24,13 +24,13 @@
  */
 
 import { ccclass, displayOrder, serializable, tooltip, type, range } from '../../core/data/decorators';
-import { ParticleModule, ParticleUpdateStage } from '../particle-module';
+import { EmissionModule } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
-import { ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
+import { EmittingResult, ParticleEmitterContext, ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
 import { CurveRange } from '../curve-range';
 
 @ccclass('cc.EmissionOverTimeModule')
-export class EmissionOverTimeModule extends ParticleModule {
+export class EmissionOverTimeModule extends EmissionModule {
     /**
      * @zh 每秒发射的粒子数。
      */
@@ -45,15 +45,18 @@ export class EmissionOverTimeModule extends ParticleModule {
         return 'EmissionOverTimeModule';
     }
 
-    public get updateStage (): ParticleUpdateStage {
-        return ParticleUpdateStage.EMITTER_UPDATE;
-    }
-
     public get updatePriority (): number {
         return 0;
     }
 
     public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext) {
-        context.emittingOverDistanceAccumulatedCount += this.rate.evaluate(context.normalizedTimeInCycle, Math.random()) * context.emitterDeltaTime;
+        const { spawnEvents } = context;
+        for (let i = 0, length = spawnEvents.length; i < length; i++) {
+            const emitterContext = spawnEvents[i].particleEmitterContext;
+            const { deltaTime, normalizedTimeInCycle } = emitterContext;
+            const count = this.rate.evaluate(normalizedTimeInCycle, Math.random()) * deltaTime;
+            emitterContext.timeInterval = 1 / count;
+            emitterContext.emittingOverTimeAccumulatedCount += count;
+        }
     }
 }

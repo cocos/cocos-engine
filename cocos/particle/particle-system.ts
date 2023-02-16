@@ -46,7 +46,7 @@ import { GravityModule } from './modules/gravity';
 import { SpeedModifierModule } from './modules/speed-modifier';
 import { StartRotationModule } from './modules/start-rotation';
 import { ShapeModule } from './modules/shape-module';
-import { ParticleSystemParams, ParticleUpdateContext } from './particle-update-context';
+import { EmittingResult, ParticleSystemParams, ParticleUpdateContext, SpawnEvent } from './particle-update-context';
 import { CullingMode, Space } from './enum';
 import { ParticleSystemRenderer } from './particle-system-renderer';
 import { TrailModule } from './modules/trail';
@@ -57,13 +57,14 @@ import { Camera, Model } from '../core/renderer/scene';
 import { NoiseModule } from './modules/noise';
 import { CCBoolean, CCFloat, CCInteger, Component, Enum, geometry, js } from '../core';
 import { INVALID_HANDLE, ParticleHandle, ParticleSOAData, RecordReason } from './particle-soa-data';
-import { ParticleModule, ParticleUpdateStage } from './particle-module';
+import { EmissionModule, InitializationModule, ParticleModule, ParticleUpdateStage } from './particle-module';
 import { particleSystemManager } from './particle-system-manager';
 import { BurstEmissionModule } from './modules/burst-emission';
 
 const velocity = new Vec3();
 const animatedVelocity = new Vec3();
 const angularVelocity = new Vec3();
+const emittingResult = new EmittingResult();
 
 enum PlayingState {
     STOPPED,
@@ -441,6 +442,10 @@ export class ParticleSystem extends Component {
         return module;
     }
 
+    public dispatchSpawnEvent (event: SpawnEvent) {
+
+    }
+
     /**
      * @en play particle system
      * @zh 播放粒子效果。
@@ -453,6 +458,7 @@ export class ParticleSystem extends Component {
         if (this.prewarm) {
             this._prewarmSystem();
         }
+        this._particleUpdateContext.spawnEvents.length = 0;
         this._particleUpdateContext.currentPosition.set(this.node.worldPosition);
         this._particleUpdateContext.emitterDelayRemaining = this._particleUpdateContext.emitterStartDelay = this.startDelay.evaluate(0, 1);
         particleSystemManager.addParticleSystem(this);
@@ -597,12 +603,15 @@ export class ParticleSystem extends Component {
         }
     }
 
-    private getModulesByStage (stage: ParticleUpdateStage) {
-        return this._particleModules.filter((module) => module.updateStage === stage);
+    private getEmitterModules () {
+        return this._particleModules.filter((module) => module.updateStage === ParticleUpdateStage.EMITTER_UPDATE) as EmissionModule[];
+    }
+
+    private getInitializationModules () {
+        return this._particleModules.filter((module) => module.updateStage === ParticleUpdateStage.INITIALIZE) as InitializationModule[];
     }
 
     // internal function
-
     private updateParticles (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext, deltaTime: number) {
         context.accumulatedTime += deltaTime;
         context.deltaTime = deltaTime;
@@ -636,22 +645,7 @@ export class ParticleSystem extends Component {
             color[i] = startColor[i];
         }
 
-        const emitterModules = this.getModulesByStage(ParticleUpdateStage.EMITTER_UPDATE);
-        for (let i = 0, length = emitterModules.length; i < length; i++) {
-            if (emitterModules[i].enable) {
-                emitterModules[i].update(particles, params, context);
-            }
-        }
-
-        let newEmittingCount = Math.floor(context.emittingAccumulatedCount);
-        context.emittingAccumulatedCount -= newEmittingCount;
-        if (newEmittingCount + particles.count > params.capacity) {
-            newEmittingCount = params.capacity - particles.count;
-        }
-
-        if (newEmittingCount > 0) {
-            this.emitParticle(particles, params);
-        }
+        this.consumeSpawnEvents(particles, params);
 
         const updateModules = this.getModulesByStage(ParticleUpdateStage.PRE_UPDATE);
         for (let i = 0, length = updateModules.length; i < length; i++) {
@@ -667,21 +661,6 @@ export class ParticleSystem extends Component {
             if (particleModules[i].enable) {
                 particleModules[i].update(particles, this._particleSystemParams, context);
             }
-        }
-    }
-
-    private emitParticle (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext, newEmittingCount: number, deltaTime: number) {
-        const { randomSeed } = particles;
-        const newParticleIndexStart = context.newParticleIndexStart = particles.addParticles(newEmittingCount);
-        const newParticleIndexEnd = context.newParticleIndexEnd = context.newParticleIndexStart + newEmittingCount;
-        if (params.simulationSpace === Space.WORLD) {
-            const position = context.currentPosition;
-            for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
-                particles.setPositionAt(position, i);
-            }
-        }
-        for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
-            randomSeed[i] = randomRangeInt(0, 233280);
         }
     }
 
@@ -706,6 +685,34 @@ export class ParticleSystem extends Component {
             if (normalizedAliveTime[i] > 1) {
                 particles.recordParticleSnapshot(i, RecordReason.DEATH);
                 particles.removeParticle(i);
+            }
+        }
+    }
+
+    private consumeSpawnEvents (particles: ParticleSOAData, params: ParticleSystemParams) {
+        for (let i = 0, length = this._spawnEvents.length; i < length; i++) {
+            const event = this._spawnEvents[i];
+            const context = event.particleEmitterContext;
+            let newEmittingCount = Math.floor(context.emittingOverTimeAccumulatedCount);
+            context.emittingOverTimeAccumulatedCount -= newEmittingCount;
+            if (newEmittingCount + particles.count > params.capacity) {
+                newEmittingCount = params.capacity - particles.count;
+            }
+
+            if (newEmittingCount > 0) {
+                const { randomSeed } = particles;
+                const newParticleIndexStart = particles.count;
+                const newParticleIndexEnd = particles.count + newEmittingCount;
+                particles.addParticles(newEmittingCount);
+                if (params.simulationSpace === Space.WORLD) {
+                    const position = context.currentPosition;
+                    for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                        particles.setPositionAt(position, i);
+                    }
+                }
+                for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                    randomSeed[i] = randomRangeInt(0, 233280);
+                }
             }
         }
     }

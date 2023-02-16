@@ -511,7 +511,7 @@ export class ParticleSOAData {
         return this._trailSegmentNumbers[handle];
     }
 
-    addParticles (count: number): ParticleHandle {
+    addParticles (count: number) {
         let reservedCount = this._capacity;
         while (this._count + count > reservedCount) {
             reservedCount *= 2;
@@ -520,7 +520,6 @@ export class ParticleSOAData {
         for (let i = 0; i < count; ++i) {
             this.resetParticle(this._count++);
         }
-        return this._count - count;
     }
 
     removeParticle (handle: ParticleHandle) {

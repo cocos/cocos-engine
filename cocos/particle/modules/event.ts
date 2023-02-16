@@ -29,7 +29,7 @@ import { Space } from '../enum';
 import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { ParticleSOAData, RecordReason } from '../particle-soa-data';
 import { ParticleSystem } from '../particle-system';
-import { ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
+import { ParticleSystemParams, ParticleUpdateContext, SpawnEvent } from '../particle-update-context';
 
 const emitProbabilityRandomSeedOffset = 199208;
 
@@ -78,7 +78,7 @@ export class EventModule extends ParticleModule {
     @type([EventData])
     @visible(true)
     @serializable
-    public spawnEvents: EventData[] = [];
+    public eventInfos: EventData[] = [];
 
     public get name (): string {
         return 'EventModule';
@@ -99,17 +99,20 @@ export class EventModule extends ParticleModule {
         for (let i = 0; i < particleSnapshotCount; i++) {
             const particleSnapshot = particleSnapshots[i];
             if (particleSnapshot.recordReason & RecordReason.DEATH) {
-                for (let j = 0; j < this.spawnEvents.length; j++) {
-                    const spawnEvent = this.spawnEvents[i];
-                    if (spawnEvent.condition === EventCondition.DEATH && spawnEvent.emitter && spawnEvent.emitter.isValid
-                        && !approx(spawnEvent.probability, 0)
-                        && pseudoRandom(particleSnapshot.randomSeed + emitProbabilityRandomSeedOffset) <= spawnEvent.probability) {
+                for (let j = 0; j < this.eventInfos.length; j++) {
+                    const eventInfo = this.eventInfos[i];
+                    if (eventInfo.condition === EventCondition.DEATH && eventInfo.emitter && eventInfo.emitter.isValid
+                        && !approx(eventInfo.probability, 0)
+                        && pseudoRandom(particleSnapshot.randomSeed + emitProbabilityRandomSeedOffset) <= eventInfo.probability) {
                         Vec3.copy(inheritedPosition, particleSnapshot.position);
                         Vec3.add(inheritedVelocity, particleSnapshot.velocity, particleSnapshot.animatedVelocity);
                         if (simulationSpace === Space.LOCAL) {
                             Vec3.transformMat4(inheritedPosition, inheritedPosition, localToWorld);
                             Vec3.transformMat4(inheritedVelocity, inheritedVelocity, localToWorld);
                         }
+                        const spawnEvent = new SpawnEvent();
+                        spawnEvent.emitter = eventInfo.emitter;
+                        spawnEvent.particleEmitterContext;
                     }
                 }
             }
