@@ -68,7 +68,7 @@ static void fillTestGraph(const ViewInfo &rasterData, const ResourceInfo &rescIn
         auto rescVertexID = add_vertex(rescGraph, ManagedTag{}, name.c_str());
         rescGraph.descs[rescVertexID] = std::get<1>(resc);
         rescGraph.traits[rescVertexID] = std::get<2>(resc);
-        rescGraph.states[rescVertexID] = std::get<3>(resc);
+        rescGraph.states[rescVertexID].states = gfx::AccessFlagBit::NONE;
     }
 
     const auto &mem_resource = layoutGraphData.get_allocator();

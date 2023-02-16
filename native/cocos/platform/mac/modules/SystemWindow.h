@@ -57,8 +57,13 @@ public:
      */
     void setCursorEnabled(bool value) override;
     void copyTextToClipboard(const std::string& text) override;
-
+    
+    bool isPointerLock() const;
+    void setLastMousePos(float x, float y);
 private:
+    bool _pointerLock{false};
+    float _lastMousePosX{0.0F};
+    float _lastMousePosY{0.0F};
     int32_t _width{0};
     int32_t _height{0};
 

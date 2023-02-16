@@ -1,16 +1,19 @@
 #if (CC_PIPELINE_TYPE == CC_PIPELINE_TYPE_FORWARD || CC_FORCE_FORWARD_SHADING)
   #if CC_FORWARD_ADD && !CC_ENABLE_CLUSTERED_LIGHT_CULLING
-    void CCSurfacesLighting(inout LightingResult lightingResult, in SurfacesMaterialData surfaceData, in vec2 shadowBias)
+    void CCSurfacesLighting(inout LightingResult lightingResultAccumulated, in SurfacesMaterialData surfaceData, in vec2 shadowBias)
     {
       vec3 worldPos;
       HIGHP_VALUE_FROM_STRUCT_DEFINED(worldPos, surfaceData.worldPos);
 
-      CCSurfacesInitializeLightingResult(lightingResult);
+      CCSurfacesInitializeLightingResult(lightingResultAccumulated);
 
       LightingIntermediateData lightingData;
       CCSurfacesInitializeLightingIntermediateData(lightingData, surfaceData);
 
+      LightingResult lightingResult;
       CCSurfacesLightingInitializeColorWithLighting(lightingResult.diffuseColorWithLighting, lightingResult.specularColorWithLighting, surfaceData, lightingData);
+      lightingResultAccumulated.diffuseColorWithLighting = lightingResult.diffuseColorWithLighting;
+      lightingResultAccumulated.specularColorWithLighting = lightingResult.specularColorWithLighting;
 
       int numLights = CC_PIPELINE_TYPE == CC_PIPELINE_TYPE_FORWARD ? LIGHTS_PER_PASS : int(cc_lightDir[0].w);
       for (int i = 0; i < LIGHTS_PER_PASS; i++) {
@@ -53,6 +56,8 @@
         }
       #endif
 
+        lightingResult.shadow = shadow;
+
         float distAtt = CCSurfacesLightingCalculateDistanceAttenuation(lightingData, cc_lightSizeRangeAngle[i]);
 
         float angleAtt = 1.0;
@@ -60,19 +65,19 @@
           angleAtt = CCSurfacesLightingCalculateAngleAttenuation(lightingData, cc_lightSizeRangeAngle[i], -cc_lightDir[i].xyz);
         }
 
-        float multiplier = distAtt * angleAtt * shadow;
+        float multiplier = distAtt * angleAtt;
 
-        lightingResult.directDiffuse += diffuseLighting * multiplier;
-        lightingResult.directSpecular += specularLighting * multiplier * fresnel;
+        lightingResult.directDiffuse = diffuseLighting * multiplier;
+        lightingResult.directSpecular = specularLighting * multiplier * fresnel;
 
         #if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR
           vec3 transmitSpecularLighting;
           CCSurfacesLightingCalculateDirectTransmitSpecular(transmitSpecularLighting, lightingData, cc_lightColor[i]);
-          lightingResult.directTransmitSpecular += transmitSpecularLighting * multiplier * (1.0 - fresnel);
+          lightingResult.directTransmitSpecular = transmitSpecularLighting * multiplier * (1.0 - fresnel);
         #endif
 
         #if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
-          lightingResult.directTransmitDiffuse += CCSurfacesLightingCalculateDirectTransmitDiffuse(lightingResult, lightingData, cc_lightColor[i]);
+          lightingResult.directTransmitDiffuse = CCSurfacesLightingCalculateDirectTransmitDiffuse(lightingResult, lightingData, cc_lightColor[i]);
         #endif
 
         #if CC_SURFACES_LIGHTING_TRT
@@ -80,8 +85,23 @@
           LightingIntermediateData lightingDataTRT;
           CCSurfacesGetLightingIntermediateDataTRT(lightingDataTRT, lightingData, surfaceData);
           CCSurfacesLightingCalculateDirectTRT(TRTLighting, lightingDataTRT, cc_lightColor[i]);
-          lightingResult.directTRT += TRTLighting;
+          lightingResult.directTRT = TRTLighting;
         #endif
+
+
+        // user-defined lighting model
+        #ifdef CC_SURFACES_LIGHTING_MODIFY_FINAL_RESULT
+          LightingMiscData miscData;
+          miscData.lightType = cc_lightPos[i].w;
+          miscData.lightPos = cc_lightPos[i].xyz;
+          miscData.lightDir = cc_lightDir[i].xyz;
+          miscData.lightColorAndIntensity = cc_lightColor[i];
+          miscData.lightSizeRangeAngle = cc_lightSizeRangeAngle[i];
+          SurfacesLightingModifyFinalResult(lightingResult, lightingData, surfaceData, miscData);
+        #endif     
+
+        // accumulate per-light results
+        CCSurfacesAccumulateLightingResult(lightingResultAccumulated, lightingResult);
       }
     }
   #else
@@ -101,16 +121,13 @@
         if (cc_mainLitDir.w > 0.0) {
           vec4 shadowPos = vec4(0.0), shadowNDCPosWithBias = vec4(0.0);
           if (CCSurfacesLightingEnableShadow(lightingData.NoL)) {
-            if (cc_shadowLPNNInfo.w > 0.0) {
-              #if CC_DIR_LIGHT_SHADOW_TYPE == CC_DIR_LIGHT_SHADOW_CASCADED
-                lightingResult.shadow = CCCSMFactorBase(shadowPos, shadowNDCPosWithBias, surfaceData.worldPos, lightingData.N, shadowBias);
-              #endif
-            } else {
-              #if CC_DIR_LIGHT_SHADOW_TYPE == CC_DIR_LIGHT_SHADOW_UNIFORM
-                shadowPos = cc_matLightViewProj * vec4(surfaceData.worldPos, 1.0);
-                lightingResult.shadow = CCShadowFactorBase(shadowPos, shadowNDCPosWithBias, lightingData.N, shadowBias);
-              #endif
-            }
+            #if CC_DIR_LIGHT_SHADOW_TYPE == CC_DIR_LIGHT_SHADOW_CASCADED
+              lightingResult.shadow = CCCSMFactorBase(shadowPos, shadowNDCPosWithBias, surfaceData.worldPos, lightingData.N, shadowBias);
+            #endif
+            #if CC_DIR_LIGHT_SHADOW_TYPE == CC_DIR_LIGHT_SHADOW_UNIFORM
+              shadowPos = cc_matLightViewProj * vec4(surfaceData.worldPos, 1.0);
+              lightingResult.shadow = CCShadowFactorBase(shadowPos, lightingData.N, shadowBias);
+            #endif
           }
           #if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
             #if CC_SURFACES_LIGHTING_USE_SHADOWMAP_TRANSMIT
@@ -170,17 +187,23 @@
       // apply screen-space shadow and ao
       // lightingResult.shadow/ao *= XXX;
 
-
-
-      //#todo: cluster related lighting flow
-      #if CC_ENABLE_CLUSTERED_LIGHT_CULLING
-        //#include <legacy/shading-cluster-additive>
-      #endif
-
       // user-defined lighting model
       #ifdef CC_SURFACES_LIGHTING_MODIFY_FINAL_RESULT
-        SurfacesLightingModifyFinalResult(lightingResult, lightingData, surfaceData);
+        LightingMiscData miscData;
+        miscData.lightType = LIGHT_TYPE_DIRECTIONAL;
+        miscData.lightPos = vec3(0.0);
+        miscData.lightDir = cc_mainLitDir.xyz;
+        miscData.lightColorAndIntensity = cc_mainLitColor;
+        miscData.lightSizeRangeAngle = vec4(0.0, 0.0, 0.0, 0.0);
+        SurfacesLightingModifyFinalResult(lightingResult, lightingData, surfaceData, miscData);
       #endif      
     }
-  #endif
-#endif
+    #if CC_ENABLE_CLUSTERED_LIGHT_CULLING
+      // #todo: cluster related lighting flow, invoke after CCSurfacesLighting
+      // use same code as additive-pass
+      // void CCSurfacesLighting_Cluster(inout LightingResult lightingResult, in SurfacesMaterialData surfaceData, in vec2 shadowBias)
+      // {
+      // }
+    #endif // cluster lighting
+  #endif // base pass
+#endif // forward shading

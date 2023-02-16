@@ -286,6 +286,16 @@ void NativeRasterPassBuilder::addComputeView(const ccstd::string &name, const Co
     iter->second.emplace_back(view);
 }
 
+bool NativeRasterPassBuilder::getShowStatistics() const {
+    const auto &pass = get(RasterTag{}, passID, *renderGraph);
+    return pass.showStatistics;
+}
+
+void NativeRasterPassBuilder::setShowStatistics(bool enable) {
+    auto &pass = get(RasterTag{}, passID, *renderGraph);
+    pass.showStatistics = enable;
+}
+
 ccstd::string NativeRasterQueueBuilder::getName() const {
     return std::string(get(RenderGraph::Name, *renderGraph, queueID));
 }
@@ -295,6 +305,17 @@ void NativeRasterQueueBuilder::setName(const ccstd::string &name) {
 }
 
 namespace {
+
+uint8_t getCombineSignY(gfx::Device *device) {
+    // 0: vk, 1: metal, 2: none, 3: gl-like
+    static int8_t combineSignY{-1};
+    if (combineSignY < 0) {
+        const float screenSpaceSignY = device->getCapabilities().screenSpaceSignY * 0.5F + 0.5F;
+        const float clipSpaceSignY = device->getCapabilities().clipSpaceSignY * 0.5F + 0.5F;
+        combineSignY = static_cast<int8_t>(screenSpaceSignY) << 1 | static_cast<int8_t>(clipSpaceSignY);
+    }
+    return static_cast<uint8_t>(combineSignY);
+}
 
 void setCameraUBOValues(
     const scene::Camera &camera,
@@ -315,7 +336,7 @@ void setCameraUBOValues(
     setter.setVec4("cc_cameraPos", Vec4(camera.getPosition().x,
                                         camera.getPosition().y,
                                         camera.getPosition().z,
-                                        pipeline::PipelineUBO::getCombineSignY()));
+                                        getCombineSignY(cc::gfx::Device::getInstance())));
     setter.setVec4("cc_surfaceTransform", Vec4(static_cast<float>(camera.getSurfaceTransform()),
                                                0.0F,
                                                cosf(static_cast<float>(mathutils::toRadian(skybox.getRotationAngle()))),

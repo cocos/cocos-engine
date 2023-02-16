@@ -81,7 +81,6 @@ NativePipeline::NativePipeline(const allocator_type &alloc) noexcept
   programLibrary(dynamic_cast<NativeProgramLibrary *>(getProgramLibrary())),
   pipelineSceneData(ccnew pipeline::PipelineSceneData()), // NOLINT
   nativeContext(std::make_unique<gfx::DefaultResource>(device), alloc),
-  dummyLayoutGraph(alloc),
   resourceGraph(alloc),
   renderGraph(alloc),
   name(alloc) {
@@ -218,6 +217,12 @@ void NativePipeline::updateRenderWindow(const ccstd::string &name, scene::Render
         },
         [&](RenderSwapchain &sc) {
             CC_EXPECTS(renderWindow->getSwapchain());
+            auto* newSwapchain = renderWindow->getSwapchain();
+            if (sc.generation != newSwapchain->getGeneration()) {
+                resourceGraph.invalidatePersistentRenderPassAndFramebuffer(
+                    sc.swapchain->getColorTexture());
+                sc.generation = newSwapchain->getGeneration();
+            }
             desc.width = renderWindow->getSwapchain()->getWidth();
             desc.height = renderWindow->getSwapchain()->getHeight();
             sc.swapchain = renderWindow->getSwapchain();
@@ -233,13 +238,22 @@ void NativePipeline::updateRenderTarget(
         return;
     }
     auto &desc = get(ResourceGraph::Desc, resourceGraph, resID);
+
+    // update format
+    if (format == gfx::Format::UNKNOWN) {
+        format = desc.format;
+    }
     visitObject(
         resID, resourceGraph,
-        [&](ManagedTexture & /*tex*/) {
-            desc.width = width;
-            desc.height = height;
-            if (format != gfx::Format::UNKNOWN) {
+        [&](ManagedTexture &tex) {
+            bool invalidate =
+                std::forward_as_tuple(desc.width, desc.height, desc.format) !=
+                std::forward_as_tuple(width, height, format);
+            if (invalidate) {
+                desc.width = width;
+                desc.height = height;
                 desc.format = format;
+                resourceGraph.invalidatePersistentRenderPassAndFramebuffer(tex.texture.get());
             }
         },
         [](const auto & /*res*/) {});
@@ -278,6 +292,7 @@ void updateRasterPassConstants(uint32_t width, uint32_t height, Setter &setter) 
     setter.setVec4(
         "cc_nativeSize",
         Vec4(shadingWidth, shadingHeight, 1.0F / shadingWidth, 1.0F / shadingHeight));
+#if 0
     const auto *debugView = root.getDebugView();
     if (debugView) {
         setter.setVec4(
@@ -313,6 +328,7 @@ void updateRasterPassConstants(uint32_t width, uint32_t height, Setter &setter) 
             }
         }
     }
+#endif
 }
 
 } // namespace
@@ -423,10 +439,6 @@ SceneTransversal *NativePipeline::createSceneTransversal(const scene::Camera *ca
     return ccnew NativeSceneTransversal(camera, scene);
 }
 
-LayoutGraphBuilder *NativePipeline::getLayoutGraphBuilder() {
-    return ccnew NativeLayoutGraphBuilder(device, &dummyLayoutGraph);
-}
-
 gfx::DescriptorSetLayout *NativePipeline::getDescriptorSetLayout(const ccstd::string &shaderName, UpdateFrequency freq) {
     const auto &lg = programLibrary->layoutGraph;
     auto iter = lg.shaderLayoutIndex.find(std::string_view{shaderName});
@@ -477,6 +489,9 @@ void buildLayoutGraphNodeBuffer(
 // NOLINTNEXTLINE
 bool NativePipeline::activate(gfx::Swapchain *swapchainIn) {
     // setMacroInt("CC_PIPELINE_TYPE", 1);
+
+    // disable gfx internal deduce
+    gfx::Device::getInstance()->enableAutoBarrier(false);
 
     swapchain = swapchainIn;
     globalDSManager->activate(device);

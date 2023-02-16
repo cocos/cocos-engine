@@ -118,8 +118,7 @@ public:
     template <typename ExecuteMethod>
     void registerOnAcquireCallback(ExecuteMethod &&execute);
 
-    inline void setOptions(const DeviceOptions &opts) { _options = opts; }
-    inline const DeviceOptions &getOptions() const { return _options; }
+    virtual void enableAutoBarrier(bool en) { _options.enableBarrierDeduce = en; }
 
 protected:
     static Device *instance;

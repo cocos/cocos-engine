@@ -396,8 +396,8 @@ export class Quat extends ValueType {
     }
 
     /**
-     * @en Normalize the given quaternion, returns a zero quaternion if input is a zero quaternion
-     * @zh 归一化四元数，输入零四元数将会返回零四元数
+     * @en Normalize the given quaternion, returns a zero quaternion if input is a zero quaternion.
+     * @zh 归一化四元数，输入零四元数将会返回零四元数。
      */
     public static normalize<Out extends IQuatLike> (out: Out, a: Out) {
         let len = a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w;
@@ -457,7 +457,7 @@ export class Quat extends ValueType {
      * @en Calculates the quaternion with the three-dimensional transform matrix, considering no scale included in the matrix
      * @zh 根据三维矩阵信息计算四元数，默认输入矩阵不含有缩放信息
      */
-    public static fromMat3<Out extends IQuatLike> (out: Out, m: Mat3) {
+    public static  fromMat3<Out extends IQuatLike> (out: Out, m: Mat3) {
         const {
             m00, m03: m01, m06: m02,
             m01: m10, m04: m11, m07: m12,
@@ -474,26 +474,26 @@ export class Quat extends ValueType {
             out.y = (m02 - m20) * s;
             out.z = (m10 - m01) * s;
         } else if ((m00 > m11) && (m00 > m22)) {
-            const s = 2.0 * Math.sqrt(1.0 + m00 - m11 - m22);
+            const s = 0.5 / Math.sqrt(1.0 + m00 - m11 - m22);
 
-            out.w = (m21 - m12) / s;
-            out.x = 0.25 * s;
-            out.y = (m01 + m10) / s;
-            out.z = (m02 + m20) / s;
+            out.w = (m21 - m12) * s;
+            out.x = 0.25 / s;
+            out.y = (m01 + m10) * s;
+            out.z = (m02 + m20) * s;
         } else if (m11 > m22) {
-            const s = 2.0 * Math.sqrt(1.0 + m11 - m00 - m22);
+            const s = 0.5 / Math.sqrt(1.0 + m11 - m00 - m22);
 
-            out.w = (m02 - m20) / s;
-            out.x = (m01 + m10) / s;
-            out.y = 0.25 * s;
-            out.z = (m12 + m21) / s;
+            out.w = (m02 - m20) * s;
+            out.x = (m01 + m10) * s;
+            out.y = 0.25 / s;
+            out.z = (m12 + m21) * s;
         } else {
-            const s = 2.0 * Math.sqrt(1.0 + m22 - m00 - m11);
+            const s = 0.5 / Math.sqrt(1.0 + m22 - m00 - m11);
 
-            out.w = (m10 - m01) / s;
-            out.x = (m02 + m20) / s;
-            out.y = (m12 + m21) / s;
-            out.z = 0.25 * s;
+            out.w = (m10 - m01) * s;
+            out.x = (m02 + m20) * s;
+            out.y = (m12 + m21) * s;
+            out.z = 0.25 / s;
         }
 
         return out;

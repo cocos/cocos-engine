@@ -313,8 +313,8 @@ export class Vec4 extends ValueType {
     }
 
     /**
-     * @en Sets the normalized vector to the out vector, returns a zero vector if input is a zero vector
-     * @zh 归一化向量，输入零向量将会返回零向量
+     * @en Sets the normalized vector to the out vector, returns a zero vector if input is a zero vector.
+     * @zh 归一化向量，输入零向量将会返回零向量。
      */
     public static normalize <Out extends IVec4Like> (out: Out, a: Out) {
         const x = a.x;

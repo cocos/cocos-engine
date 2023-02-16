@@ -23,7 +23,7 @@
 */
 import { ccclass, executeInEditMode, menu, playOnFocus, serializable, tooltip, type, visible } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { CCObject, Color, Enum, size, Vec3 } from '../../core';
+import { cclegacy, CCObject, Color, Enum, size, Vec3 } from '../../core';
 
 import { TextureCube } from '../../asset/assets';
 import { scene } from '../../render-scene';
@@ -111,6 +111,7 @@ export class ReflectionProbe extends Component {
         this.probe.size = this._size;
         if (this.probe) {
             ReflectionProbeManager.probeManager.onUpdateProbes(true);
+            ReflectionProbeManager.probeManager.updateProbeData();
         }
     }
     @type(Vec3)
@@ -292,6 +293,11 @@ export class ReflectionProbe extends Component {
 
     onEnable () {
         if (this._probe) {
+            const probe = ReflectionProbeManager.probeManager.getProbeById(this._probeId);
+            if (probe !== null && probe !== this._probe) {
+                this._probeId = ReflectionProbeManager.probeManager.getNewReflectionProbeId();
+                this._probe.updateProbeId(this._probeId);
+            }
             ReflectionProbeManager.probeManager.register(this._probe);
             ReflectionProbeManager.probeManager.onUpdateProbes(true);
             this._probe.enable();
@@ -309,6 +315,7 @@ export class ReflectionProbe extends Component {
             this.probe.renderPlanarReflection(this.sourceCamera.camera);
             ReflectionProbeManager.probeManager.filterModelsForPlanarReflection();
         }
+        ReflectionProbeManager.probeManager.updateProbeData();
     }
 
     public onDestroy () {
@@ -319,7 +326,7 @@ export class ReflectionProbe extends Component {
 
     public update (dt: number) {
         if (!this.probe) return;
-        if (EDITOR) {
+        if (EDITOR && !cclegacy.GAME_VIEW) {
             if (this.probeType === ProbeType.PLANAR) {
                 const cameraLst: scene.Camera[] | undefined = this.node.scene.renderScene?.cameras;
                 if (cameraLst !== undefined) {
@@ -338,6 +345,7 @@ export class ReflectionProbe extends Component {
             }
             if (this.node.hasChangedFlags & TransformBit.POSITION) {
                 ReflectionProbeManager.probeManager.onUpdateProbes(true);
+                ReflectionProbeManager.probeManager.updateProbeData();
             }
         }
         if (this.probeType === ProbeType.PLANAR && this.sourceCamera) {

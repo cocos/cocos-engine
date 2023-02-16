@@ -120,7 +120,7 @@ function getDefaultFromInitializer (initializer: Initializer) {
         // string boolean number function undefined null
         return value;
     } else {
-        // The default attribute will not be used in ES6 constructor actually,
+        // The default attribute will not be used in the ES6 constructor actually,
         // so we don't need to simplify into `{}` or `[]` or vec2 completely.
         return initializer;
     }
@@ -252,18 +252,18 @@ function setDefaultValue<T> (
         if (typeof descriptorOrInitializer === 'function') {
             propertyStash.default = getDefaultFromInitializer(descriptorOrInitializer);
         } else if (descriptorOrInitializer === null) {
-            // some decorated properties we haven't specified default value, then the initializer should be null.
-            // We fallback to the behavior of v3.6.3, where we don't specify default value automatically.
+            // For some decorated properties we haven't specified the default value, then the initializer should be null.
+            // We fall back to the behavior of v3.6.3, where we don't specify the default value automatically.
             // propertyStash.default = undefined;
         } else if (descriptorOrInitializer.initializer) {
-            // In case of Babel, if an initializer is given for class field.
+            // In the case of Babel, if an initializer is given for a class field.
             // That initializer is passed to `descriptor.initializer`.
             propertyStash.default = getDefaultFromInitializer(descriptorOrInitializer.initializer);
         }
     } else {
-        // In case of TypeScript, we can not directly capture the initializer.
+        // In the case of TypeScript, we can not directly capture the initializer.
         // We have to be hacking to extract the value.
-        // We should fallback to TypeScript case only when `descriptorOrInitializer` is undefined.
+        // We should fall back to the TypeScript case only when `descriptorOrInitializer` is undefined.
         const actualDefaultValues = classStash.default || (classStash.default = extractActualDefaultValues(classConstructor));
         // eslint-disable-next-line no-prototype-builtins
         if ((actualDefaultValues as any).hasOwnProperty(propertyKey)) {

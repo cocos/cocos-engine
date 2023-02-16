@@ -265,8 +265,8 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Sets the normalized vector to the out vector, returns a zero vector if input is a zero vector
-     * @zh 归一化向量，输入零向量将会返回零向量
+     * @en Sets the normalized vector to the out vector, returns a zero vector if input is a zero vector.
+     * @zh 归一化向量，输入零向量将会返回零向量。
      */
     public static normalize <Out extends IVec2Like, Vec2Like extends IVec2Like> (out: Out, a: Vec2Like) {
         const x = a.x;
@@ -415,15 +415,14 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Calculates the radian angle between two vectors, returns zero if either vector is a zero vector
-     * @zh 求两向量夹角弧度，任意一个向量是零向量则返回零
+     * @en Calculates the radian angle between two vectors, returns zero if either vector is a zero vector.
+     * @zh 求两向量夹角弧度，任意一个向量是零向量则返回零。
      */
     public static angle <Out extends IVec2Like> (a: Out, b: Out) {
         const magSqr1 = a.x * a.x + a.y * a.y;
         const magSqr2 = b.x * b.x + b.y * b.y;
 
         if (magSqr1 === 0 || magSqr2 === 0) {
-            console.warn('Can\'t get angle between zero vector');
             return 0.0;
         }
 
@@ -756,9 +755,9 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Calculates radian angle between two vectors, returns zero if either vector is a zero vector
+     * @en Calculates radian angle between two vectors, returns zero if either vector is a zero vector.
      * @zh 获取当前向量和指定向量之间的角度，任意一个向量是零向量则返回零。
-     * @param other specified vector
+     * @param other specified vector.
      * @return The angle between the current vector and the specified vector.
      */
     public angle (other: Vec2) {
@@ -766,7 +765,6 @@ export class Vec2 extends ValueType {
         const magSqr2 = other.lengthSqr();
 
         if (magSqr1 === 0 || magSqr2 === 0) {
-            console.warn('Can\'t get angle between zero vector');
             return 0.0;
         }
 

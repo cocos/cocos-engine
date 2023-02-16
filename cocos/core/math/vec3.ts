@@ -305,8 +305,8 @@ export class Vec3 extends ValueType {
     }
 
     /**
-     * @en Sets the normalized vector to the out vector, returns a zero vector if input is a zero vector
-     * @zh 归一化向量，输入零向量将会返回零向量
+     * @en Sets the normalized vector to the out vector, returns a zero vector if input is a zero vector.
+     * @zh 归一化向量，输入零向量将会返回零向量。
      */
     public static normalize<Out extends IVec3Like> (out: Out, a: IVec3Like) {
         const x = a.x;
@@ -707,7 +707,6 @@ export class Vec3 extends ValueType {
         const magSqr2 = b.x * b.x + b.y * b.y + b.z * b.z;
 
         if (magSqr1 === 0 || magSqr2 === 0) {
-            console.warn('Can\'t get angle between zero vector');
             return 0.0;
         }
 
