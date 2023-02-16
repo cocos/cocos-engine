@@ -468,3 +468,10 @@ replaceProperty(Mat4.prototype, 'Mat4', [
         targetName: 'Mat4',
     },
 ]);
+
+removeProperty(Vec4, 'Vec4', [
+    {
+        name: 'cross',
+        suggest: 'cross product only defined in 3D space, use Vec3.cross instead',
+    },
+]);
