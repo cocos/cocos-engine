@@ -1072,10 +1072,12 @@ export class ClearView {
 }
 
 export class RenderQueue {
-    constructor (hint: QueueHint = QueueHint.RENDER_OPAQUE) {
+    constructor (hint: QueueHint = QueueHint.RENDER_OPAQUE, phaseID = 0xFFFFFFFF) {
         this.hint = hint;
+        this.phaseID = phaseID;
     }
     hint: QueueHint;
+    phaseID: number;
 }
 
 export class SceneData {

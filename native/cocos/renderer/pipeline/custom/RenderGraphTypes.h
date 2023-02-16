@@ -612,10 +612,12 @@ struct ClearView {
 
 struct RenderQueue {
     RenderQueue() = default;
-    RenderQueue(QueueHint hintIn) noexcept // NOLINT
-    : hint(hintIn) {}
+    RenderQueue(QueueHint hintIn, uint32_t phaseIDIn) noexcept
+    : hint(hintIn),
+      phaseID(phaseIDIn) {}
 
     QueueHint hint{QueueHint::RENDER_OPAQUE};
+    uint32_t phaseID{0xFFFFFFFF};
 };
 
 struct SceneData {

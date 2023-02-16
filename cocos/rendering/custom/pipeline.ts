@@ -100,8 +100,9 @@ export interface RasterQueueBuilder extends Setter {
 export interface RasterPassBuilder extends Setter {
     addRasterView (name: string, view: RasterView): void;
     addComputeView (name: string, view: ComputeView): void;
-    addQueue (hint: QueueHint): RasterQueueBuilder;
-    addQueue (/*QueueHint.NONE*/): RasterQueueBuilder;
+    addQueue (hint: QueueHint, layoutName: string): RasterQueueBuilder;
+    addQueue (hint: QueueHint/*, ''*/): RasterQueueBuilder;
+    addQueue (/*QueueHint.NONE, ''*/): RasterQueueBuilder;
     setViewport (viewport: Viewport): void;
     setVersion (name: string, version: number): void;
     showStatistics: boolean;
@@ -113,7 +114,8 @@ export interface ComputeQueueBuilder extends Setter {
 
 export interface ComputePassBuilder extends Setter {
     addComputeView (name: string, view: ComputeView): void;
-    addQueue (): ComputeQueueBuilder;
+    addQueue (layoutName: string): ComputeQueueBuilder;
+    addQueue (/*''*/): ComputeQueueBuilder;
 }
 
 export interface MovePassBuilder extends RenderNode {

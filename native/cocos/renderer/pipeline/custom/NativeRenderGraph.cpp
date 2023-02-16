@@ -45,6 +45,7 @@
 #include "gfx-base/GFXDef-common.h"
 #include "gfx-base/GFXDevice.h"
 #include "pipeline/PipelineSceneData.h"
+#include "RenderingModule.h"
 
 namespace cc {
 
@@ -883,7 +884,16 @@ void NativeRasterQueueBuilder::setSampler(const ccstd::string &name, gfx::Sample
     addSampler(*layoutGraph, name, sampler, data);
 }
 
-RasterQueueBuilder *NativeRasterPassBuilder::addQueue(QueueHint hint) {
+RasterQueueBuilder *NativeRasterPassBuilder::addQueue(
+    QueueHint hint, const ccstd::string &layoutName) {
+    CC_EXPECTS(layoutID != LayoutGraphData::null_vertex());
+
+    auto phaseLayoutID = LayoutGraphData::null_vertex();
+    if (!layoutName.empty()) {
+        phaseLayoutID = locate(layoutID, layoutName, *layoutGraph);
+        CC_ENSURES(phaseLayoutID != LayoutGraphData::null_vertex());
+    }
+
     std::string_view name = "Queue";
     auto queueID = addVertex(
         QueueTag{},
@@ -891,7 +901,7 @@ RasterQueueBuilder *NativeRasterPassBuilder::addQueue(QueueHint hint) {
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
-        std::forward_as_tuple(hint),
+        std::forward_as_tuple(hint, phaseLayoutID),
         *renderGraph, passID);
 
     return new NativeRasterQueueBuilder(pipelineRuntime, renderGraph, queueID, layoutGraph);
@@ -1065,7 +1075,15 @@ void NativeComputePassBuilder::addComputeView(const ccstd::string &name, const C
     iter->second.emplace_back(view);
 }
 
-ComputeQueueBuilder *NativeComputePassBuilder::addQueue() {
+ComputeQueueBuilder *NativeComputePassBuilder::addQueue(const ccstd::string &layoutName) {
+    CC_EXPECTS(layoutID != LayoutGraphData::null_vertex());
+
+    auto phaseLayoutID = LayoutGraphData::null_vertex();
+    if (!layoutName.empty()) {
+        phaseLayoutID = locate(layoutID, layoutName, *layoutGraph);
+        CC_ENSURES(phaseLayoutID != LayoutGraphData::null_vertex());
+    }
+
     std::string_view name("Queue");
     auto queueID = addVertex(
         QueueTag{},
@@ -1073,7 +1091,7 @@ ComputeQueueBuilder *NativeComputePassBuilder::addQueue() {
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
-        std::forward_as_tuple(QueueHint::NONE),
+        std::forward_as_tuple(QueueHint::NONE, phaseLayoutID),
         *renderGraph, passID);
 
     return new NativeComputeQueueBuilder(renderGraph, queueID, layoutGraph);

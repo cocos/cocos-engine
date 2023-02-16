@@ -110,7 +110,7 @@ public:
 
     void addRasterView(const ccstd::string &name, const RasterView &view) override;
     void addComputeView(const ccstd::string &name, const ComputeView &view) override;
-    RasterQueueBuilder *addQueue(QueueHint hint) override;
+    RasterQueueBuilder *addQueue(QueueHint hint, const ccstd::string &layoutName) override;
     void setViewport(const gfx::Viewport &viewport) override;
     void setVersion(const ccstd::string &name, uint64_t version) override;
     bool getShowStatistics() const override;
@@ -178,7 +178,7 @@ public:
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override;
 
     void addComputeView(const ccstd::string &name, const ComputeView &view) override;
-    ComputeQueueBuilder *addQueue() override;
+    ComputeQueueBuilder *addQueue(const ccstd::string &layoutName) override;
 
     RenderGraph* renderGraph{nullptr};
     const LayoutGraphData* layoutGraph{nullptr};
