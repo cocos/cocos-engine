@@ -54,8 +54,8 @@ declare namespace jsb {
     export interface MouseEvent {
         x: number,
         y: number,
-        xref: number | undefined,
-        yref: number | undefined,
+        xDelta: number | undefined,
+        yDelta: number | undefined,
         button: number,
         windowId: number,
     }

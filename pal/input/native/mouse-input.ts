@@ -100,8 +100,8 @@ export class MouseInputSource {
             eventMouse.setLocation(location.x, location.y);
             eventMouse.setButton(button);
             const dpr = screenAdapter.devicePixelRatio;
-            eventMouse.movementX = typeof mouseEvent.xref === 'undefined' ? 0 : mouseEvent.xref * dpr;
-            eventMouse.movementY = typeof mouseEvent.yref === 'undefined' ? 0 : mouseEvent.yref * dpr;
+            eventMouse.movementX = typeof mouseEvent.xDelta === 'undefined' ? 0 : mouseEvent.xDelta * dpr;
+            eventMouse.movementY = typeof mouseEvent.yDelta === 'undefined' ? 0 : mouseEvent.yDelta * dpr;
             // update previous mouse position.
             this._eventTarget.emit(eventType, eventMouse);
         };

@@ -265,8 +265,8 @@ void SDLHelper::dispatchSDLEvent(uint32_t windowId, const SDL_Event &sdlEvent, b
             mouse.button = 0;
             mouse.x = static_cast<float>(event.x);
             mouse.y = static_cast<float>(event.y);
-            mouse.xref = static_cast<float>(event.xrel);
-            mouse.yref = static_cast<float>(event.yrel);
+            mouse.xDelta = static_cast<float>(event.xrel);
+            mouse.yDelta = static_cast<float>(event.yrel);
             events::Mouse::broadcast(mouse);
             break;
         }

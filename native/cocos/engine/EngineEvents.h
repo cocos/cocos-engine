@@ -167,8 +167,8 @@ public:
 
     float x = 0.0F;
     float y = 0.0F;
-    float xref = 0.0F;
-    float yref = 0.0F;
+    float xDelta = 0.0F;
+    float yDelta = 0.0F;
     // The button number that was pressed when the mouse event was fired: Left button=0, middle button=1 (if present), right button=2.
     // For mice configured for left handed use in which the button actions are reversed the values are instead read from right to left.
     uint16_t button = 0;

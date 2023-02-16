@@ -271,8 +271,8 @@
     _mouseEvent.windowId = [self getWindowId];
     _mouseEvent.type = type;
     _mouseEvent.button = button;
-    _mouseEvent.xref = [event deltaX];
-    _mouseEvent.yref = [event deltaY];
+    _mouseEvent.xDelta = [event deltaX];
+    _mouseEvent.yDelta = [event deltaY];
 
     auto *windowMgr = CC_GET_PLATFORM_INTERFACE(cc::SystemWindowManager);
     auto *window = static_cast<cc::SystemWindow*>( windowMgr->getWindowFromNSWindow([self window]));
