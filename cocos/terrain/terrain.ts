@@ -48,6 +48,7 @@ import { CCFloat } from '../core';
 import { PipelineEventType } from '../rendering';
 import { Node } from '../scene-graph';
 
+// the same as dependentAssets: legacy/terrain.effect
 const TERRAIN_EFFECT_UUID = '1d08ef62-a503-4ce2-8b9a-46c90873f7d3';
 
 /**
@@ -1639,7 +1640,6 @@ export class Terrain extends Component {
 
     public getEffectAsset () {
         if (this._effectAsset === null) {
-            // the same as dependentAssets: legacy/terrain.effect
             return legacyCC.EffectAsset.get(TERRAIN_EFFECT_UUID) as EffectAsset;
         }
 
