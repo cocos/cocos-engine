@@ -54,6 +54,10 @@ import { NoiseModule } from './animator/noise-module';
 
 const _world_mat = new Mat4();
 const _world_rol = new Quat();
+const _trans_mat = new Mat4();
+const _rol_mat = new Mat4();
+const _scale_mat = new Mat4();
+const _rol_scale_mat = new Mat4();
 
 const superMaterials = Object.getOwnPropertyDescriptor(Renderer.prototype, 'sharedMaterials')!;
 
@@ -108,10 +112,24 @@ export class ParticleSystem extends ModelRenderer {
      * @zh 计算粒子缩放的空间。
      */
     @type(Space)
-    @serializable
     @displayOrder(9)
     @tooltip('i18n:particle_system.scaleSpace')
-    public scaleSpace = Space.Local;
+    public get scaleSpace () {
+        return this._scaleSpace;
+    }
+
+    public set scaleSpace (val) {
+        if (val !== this._scaleSpace) {
+            this._scaleSpace = val;
+            if (this.processor) {
+                this.processor.updateMaterialParams();
+                this.processor.updateTrailMaterial();
+            }
+        }
+    }
+
+    @serializable
+    public _scaleSpace = Space.Local;
 
     /**
      * @en Whether to modify particle size on XYZ axis.
@@ -1321,8 +1339,21 @@ export class ParticleSystem extends ModelRenderer {
         }
 
         if (this._simulationSpace === Space.World) {
-            this.node.getWorldMatrix(_world_mat);
             this.node.getWorldRotation(_world_rol);
+            Quat.normalize(_world_rol, _world_rol);
+            if (this.scaleSpace === Space.World) {
+                this.node.getWorldMatrix(_world_mat);
+                Mat4.fromQuat(_rol_mat, _world_rol);
+                Mat4.fromScaling(_scale_mat, this.node.getWorldScale());
+                Mat4.multiply(_rol_scale_mat, _rol_mat, _scale_mat);
+            } else {
+                Mat4.fromScaling(_scale_mat, this.node.getScale());
+                Mat4.fromTranslation(_trans_mat, this.node.getWorldPosition());
+                Mat4.fromQuat(_rol_mat, _world_rol);
+                Mat4.multiply(_world_mat, _rol_mat, _scale_mat);
+                Mat4.multiply(_world_mat, _trans_mat, _world_mat);
+                Mat4.multiply(_rol_scale_mat, _rol_mat, _scale_mat);
+            }
         }
 
         for (let i = 0; i < count; ++i) {
@@ -1351,7 +1382,7 @@ export class ParticleSystem extends ModelRenderer {
 
             if (this._simulationSpace === Space.World) {
                 Vec3.transformMat4(particle.position, particle.position, _world_mat);
-                Vec3.transformQuat(particle.velocity, particle.velocity, _world_rol);
+                Vec3.transformMat4(particle.velocity, particle.velocity, _rol_scale_mat);
             }
 
             Vec3.copy(particle.ultimateVelocity, particle.velocity);

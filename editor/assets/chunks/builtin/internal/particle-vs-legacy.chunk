@@ -40,9 +40,10 @@ vec4 lpvs_main () {
 
   #if !CC_USE_WORLD_SPACE
     // simulate in world space. apply cc_matWorld matrix on CPU side.
-    pos = cc_matWorld * pos;
+    mat4 transMat = worldTrans;
+    pos = transMat * pos;
     #if CC_RENDER_MODE == RENDER_MODE_STRETCHED_BILLBOARD
-      velocity = cc_matWorld * velocity;
+      velocity.xyz = mat3(transMat) * velocity.xyz;
     #endif
   #endif
 

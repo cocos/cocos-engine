@@ -42,7 +42,7 @@ const _tempWorldTrans = new Mat4();
 const _tempVec4 = new Vec4();
 const _world_rot = new Quat();
 const _node_rot = new Quat();
-const _node_euler = new Vec3();
+const _rot_mat = new Mat4();
 
 const _sample_num = 32;
 const _sample_interval = 1.0 / _sample_num;
@@ -133,7 +133,11 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
     private _frameTile_velLenScale: Vec4;
     private _unifrom_velLenScale: Vec4;
     private _tmp_velLenScale: Vec4;
+    private _world_rot: Quat;
     private _node_scale: Vec4;
+    private _scale_local_trans: Mat4;
+    private _node_pos: Vec3;
+    private _pos_mat: Mat4;
     protected _vertAttrs: Attribute[] = [];
     protected _defaultMat: Material | null = null;
     private _particleNum = 0;
@@ -162,7 +166,11 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         this._frameTile_velLenScale = new Vec4(1, 1, 0, 0);
         this._unifrom_velLenScale = this._frameTile_velLenScale.clone();
         this._tmp_velLenScale = this._frameTile_velLenScale.clone();
+        this._world_rot = new Quat();
         this._node_scale = new Vec4();
+        this._scale_local_trans = new Mat4();
+        this._node_pos = new Vec3();
+        this._pos_mat = new Mat4();
         this._defines = {
             CC_USE_WORLD_SPACE: true,
             CC_USE_BILLBOARD: true,
@@ -294,32 +302,47 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         switch (this._particleSystem.scaleSpace) {
         case Space.Local:
             this._particleSystem.node.getScale(this._node_scale);
+            Mat4.fromScaling(this._scale_local_trans, this._node_scale);
+            this._particleSystem.node.getWorldRotation(this._world_rot);
+            Quat.normalize(this._world_rot, this._world_rot);
+            Mat4.multiply(this._scale_local_trans, Mat4.fromQuat(_rot_mat, this._world_rot), this._scale_local_trans);
+            this._particleSystem.node.getWorldPosition(this._node_pos);
+            Mat4.fromTranslation(this._pos_mat, this._node_pos);
+            Mat4.multiply(this._scale_local_trans, this._pos_mat, this._scale_local_trans);
+            Mat4.copy(_tempWorldTrans, this._scale_local_trans);
             break;
         case Space.World:
             this._particleSystem.node.getWorldScale(this._node_scale);
+            Mat4.fromScaling(this._scale_local_trans, this._node_scale);
+            this._particleSystem.node.getWorldRotation(this._world_rot);
+            Quat.normalize(this._world_rot, this._world_rot);
+            Mat4.multiply(this._scale_local_trans, Mat4.fromQuat(_rot_mat, this._world_rot), this._scale_local_trans);
+            this._particleSystem.node.getWorldPosition(this._node_pos);
+            Mat4.fromTranslation(this._pos_mat, this._node_pos);
+            Mat4.multiply(this._scale_local_trans, this._pos_mat, this._scale_local_trans);
+            Mat4.copy(_tempWorldTrans, this._scale_local_trans);
             break;
         default:
+            this._particleSystem.node.getScale(this._node_scale);
+            Mat4.fromScaling(this._scale_local_trans, this._node_scale);
+            this._particleSystem.node.getWorldRotation(this._world_rot);
+            Quat.normalize(this._world_rot, this._world_rot);
+            Mat4.multiply(this._scale_local_trans, Mat4.fromQuat(_rot_mat, this._world_rot), this._scale_local_trans);
+            this._particleSystem.node.getWorldPosition(this._node_pos);
+            Mat4.fromTranslation(this._pos_mat, this._node_pos);
+            Mat4.multiply(this._scale_local_trans, this._pos_mat, this._scale_local_trans);
+            Mat4.copy(_tempWorldTrans, this._scale_local_trans);
             break;
         }
+        pass.setUniform(pass.getHandle('worldTrans'), _tempWorldTrans);
         pass.setUniform(pass.getHandle('scale'), this._node_scale);
     }
 
     public updateParticles (dt: number) {
+
         if (EDITOR && !cclegacy.GAME_VIEW) {
             const mat: Material | null = this._particleSystem.getMaterialInstance(0) || this._defaultMat;
-
-            this._particleSystem.node.getWorldMatrix(_tempWorldTrans);
-            switch (this._particleSystem.scaleSpace) {
-            case Space.Local:
-                this._particleSystem.node.getScale(this._node_scale);
-                break;
-            case Space.World:
-                this._particleSystem.node.getWorldScale(this._node_scale);
-                break;
-            default:
-                break;
-            }
-
+            this.doUpdateScale(mat?.passes[0]);
             this.initShaderUniform(mat!);
         }
         this._particleNum = this._model!.updateGPUParticles(this._particleNum, this._particleSystem._time, dt);
@@ -589,8 +612,6 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
             }
         }
         const mat: Material | null = ps.getMaterialInstance(0) || this._defaultMat;
-
-        ps.node.getWorldMatrix(_tempWorldTrans);
 
         if (ps._simulationSpace === Space.World) {
             this._defines[CC_USE_WORLD_SPACE] = true;

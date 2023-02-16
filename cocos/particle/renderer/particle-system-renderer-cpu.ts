@@ -38,13 +38,11 @@ import { Pass } from '../../render-scene';
 import { ParticleNoise } from '../noise';
 import { NoiseModule } from '../animator/noise-module';
 import { isCurveTwoValues } from '../particle-general-function';
-import { Mode } from '../animator/curve-range';
 
 const _tempAttribUV = new Vec3();
 const _tempWorldTrans = new Mat4();
-const _tempParentInverse = new Mat4();
 const _node_rot = new Quat();
-const _node_euler = new Vec3();
+const _rot_mat = new Mat4();
 
 const _anim_module = [
     '_colorOverLifetimeModule',
@@ -65,6 +63,8 @@ const _uvs = [
 ];
 
 const CC_USE_WORLD_SPACE = 'CC_USE_WORLD_SPACE';
+const CC_USE_WORLD_SCALE = 'CC_USE_WORLD_SCALE';
+const CC_USE_LINE = 'CC_USE_LINE';
 
 const CC_RENDER_MODE = 'CC_RENDER_MODE';
 const ROTATION_OVER_TIME_MODULE_ENABLE = 'ROTATION_OVER_TIME_MODULE_ENABLE';
@@ -143,7 +143,12 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     private _frameTile_velLenScale: Vec4;
     private _tmp_velLenScale: Vec4;
     private _defaultMat: Material | null = null;
+    private _trailMat: Material | null = null;
+    private _world_rot: Quat;
     private _node_scale: Vec4;
+    private _scale_local_trans: Mat4;
+    private _node_pos: Vec3;
+    private _pos_mat: Mat4;
     private _attrs: any[];
     private _particles: RecyclePool | null = null;
     private _defaultTrailMat: Material | null = null;
@@ -154,6 +159,8 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     private _uScaleHandle = 0;
     private _uLenHandle = 0;
     private _uNodeRotHandle = 0;
+    private _uTransformHandle = 0;
+    private _uTransTrailHandle = 0;
     private _alignSpace = AlignmentSpace.View;
     private _inited = false;
     private _localMat: Mat4 = new Mat4();
@@ -166,10 +173,15 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
 
         this._frameTile_velLenScale = new Vec4(1, 1, 0, 0);
         this._tmp_velLenScale = this._frameTile_velLenScale.clone();
+        this._world_rot = new Quat();
         this._node_scale = new Vec4();
+        this._scale_local_trans = new Mat4();
+        this._node_pos = new Vec3();
+        this._pos_mat = new Mat4();
         this._attrs = new Array(7);
         this._defines = {
             CC_USE_WORLD_SPACE: true,
+            CC_USE_WORLD_SCALE: true,
             CC_USE_BILLBOARD: true,
             CC_USE_STRETCHED_BILLBOARD: false,
             CC_USE_HORIZONTAL_BILLBOARD: false,
@@ -177,6 +189,8 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         };
         this._trailDefines = {
             CC_USE_WORLD_SPACE: true,
+            CC_USE_WORLD_SCALE: true,
+            CC_USE_LINE: false,
             // CC_DRAW_WIRE_FRAME: true,   // <wireframe debug>
         };
     }
@@ -335,11 +349,50 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         switch (this._particleSystem.scaleSpace) {
         case Space.Local:
             this._particleSystem.node.getScale(this._node_scale);
+            Mat4.fromScaling(this._scale_local_trans, this._node_scale);
+            this._particleSystem.node.getWorldRotation(this._world_rot);
+            Quat.normalize(this._world_rot, this._world_rot);
+            Mat4.multiply(this._scale_local_trans, Mat4.fromQuat(_rot_mat, this._world_rot), this._scale_local_trans);
+            this._particleSystem.node.getWorldPosition(this._node_pos);
+            Mat4.fromTranslation(this._pos_mat, this._node_pos);
+            Mat4.multiply(this._scale_local_trans, this._pos_mat, this._scale_local_trans);
+            Mat4.copy(_tempWorldTrans, this._scale_local_trans);
+            pass.setUniform(this._uTransformHandle, _tempWorldTrans);
+            if (this._trailMat) {
+                this._trailMat.passes[0].setUniform(this._uTransTrailHandle, _tempWorldTrans);
+            }
             break;
         case Space.World:
             this._particleSystem.node.getWorldScale(this._node_scale);
+            Mat4.fromScaling(this._scale_local_trans, this._node_scale);
+            this._particleSystem.node.getWorldRotation(this._world_rot);
+            Quat.normalize(this._world_rot, this._world_rot);
+            Mat4.multiply(this._scale_local_trans, Mat4.fromQuat(_rot_mat, this._world_rot), this._scale_local_trans);
+            this._particleSystem.node.getWorldPosition(this._node_pos);
+            Mat4.fromTranslation(this._pos_mat, this._node_pos);
+            Mat4.multiply(this._scale_local_trans, this._pos_mat, this._scale_local_trans);
+            Mat4.copy(_tempWorldTrans, this._scale_local_trans);
+
+            pass.setUniform(this._uTransformHandle, _tempWorldTrans);
+            if (this._trailMat) {
+                this._trailMat.passes[0].setUniform(this._uTransTrailHandle, _tempWorldTrans);
+            }
             break;
         default:
+            this._particleSystem.node.getScale(this._node_scale);
+            Mat4.fromScaling(this._scale_local_trans, this._node_scale);
+            this._particleSystem.node.getWorldRotation(this._world_rot);
+            Quat.normalize(this._world_rot, this._world_rot);
+            Mat4.multiply(this._scale_local_trans, Mat4.fromQuat(_rot_mat, this._world_rot), this._scale_local_trans);
+            this._particleSystem.node.getWorldPosition(this._node_pos);
+            Mat4.fromTranslation(this._pos_mat, this._node_pos);
+            Mat4.multiply(this._scale_local_trans, this._pos_mat, this._scale_local_trans);
+            Mat4.copy(_tempWorldTrans, this._scale_local_trans);
+
+            pass.setUniform(this._uTransformHandle, _tempWorldTrans);
+            if (this._trailMat) {
+                this._trailMat.passes[0].setUniform(this._uTransTrailHandle, _tempWorldTrans);
+            }
             break;
         }
         pass.setUniform(this._uScaleHandle, this._node_scale);
@@ -352,7 +405,6 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         if (!ps) {
             return this._particles!.length;
         }
-        ps.node.getWorldMatrix(_tempWorldTrans);
         const mat: Material | null = ps.getMaterialInstance(0) || this._defaultMat;
         const pass = mat!.passes[0];
         this.doUpdateScale(pass);
@@ -371,15 +423,11 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         const useGravity = !ps.gravityModifier.isZero();
         if (useGravity) {
             if (ps.simulationSpace === Space.Local) {
-                const r: Quat = ps.node.getRotation();
-                Mat4.fromQuat(this._localMat, r);
-                this._localMat.transpose(); // just consider rotation, use transpose as invert
-            }
-
-            if (ps.node.parent) {
-                const r: Quat = ps.node.parent.getWorldRotation();
-                Mat4.fromQuat(_tempParentInverse, r);
-                _tempParentInverse.transpose();
+                Mat4.invert(this._localMat, _tempWorldTrans);
+                this._localMat.m12 = 0;
+                this._localMat.m13 = 0;
+                this._localMat.m14 = 0;
+                this._localMat.m15 = 1;
             }
         }
 
@@ -408,10 +456,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                     this._gravity.z = 0.0;
                     this._gravity.w = 1.0;
                     if (!approx(gravityFactor, 0.0, EPSILON)) {
-                        if (ps.node.parent) {
-                            this._gravity = this._gravity.transformMat4(_tempParentInverse);
-                        }
-                        this._gravity = this._gravity.transformMat4(this._localMat);
+                        Vec4.transformMat4(this._gravity, this._gravity, this._localMat);
 
                         p.velocity.x += this._gravity.x;
                         p.velocity.y += this._gravity.y;
@@ -661,10 +706,17 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             this._defines[CC_USE_WORLD_SPACE] = false;
         }
 
+        if (ps.scaleSpace === Space.World) {
+            this._defines[CC_USE_WORLD_SCALE] = true;
+        } else {
+            this._defines[CC_USE_WORLD_SCALE] = false;
+        }
+
         const pass = mat.passes[0];
         this._uScaleHandle = pass.getHandle('scale');
         this._uLenHandle = pass.getHandle('frameTile_velLenScale');
         this._uNodeRotHandle = pass.getHandle('nodeRotation');
+        this._uTransformHandle = pass.getHandle('worldTrans');
 
         const renderMode = this._renderInfo!.renderMode;
         const vlenScale = this._frameTile_velLenScale;
@@ -716,8 +768,13 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             } else {
                 this._trailDefines[CC_USE_WORLD_SPACE] = false;
             }
-            let mat = ps.getMaterialInstance(1);
-            if (mat === null && this._defaultTrailMat === null) {
+            if (ps.scaleSpace === Space.World) {
+                this._trailDefines[CC_USE_WORLD_SCALE] = true;
+            } else {
+                this._trailDefines[CC_USE_WORLD_SCALE] = false;
+            }
+            this._trailMat = ps.getMaterialInstance(1);
+            if (this._trailMat === null && this._defaultTrailMat === null) {
                 _matInsInfo.parent = builtinResMgr.get<Material>('default-trail-material');
                 _matInsInfo.owner = this._particleSystem;
                 _matInsInfo.subModelIdx = 1;
@@ -726,9 +783,12 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                 _matInsInfo.owner = null!;
                 _matInsInfo.subModelIdx = 0;
             }
-            mat = mat || this._defaultTrailMat;
-            mat.recompileShaders(this._trailDefines);
-            trailModule.updateMaterial();
+            this._trailMat = this._trailMat || this._defaultTrailMat;
+            if (this._trailMat) {
+                this._uTransTrailHandle = this._trailMat.passes[0].getHandle('worldTrans');
+                this._trailMat.recompileShaders(this._trailDefines);
+                trailModule.updateMaterial();
+            }
         }
     }
 
