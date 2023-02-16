@@ -357,10 +357,6 @@ module.exports = {
                         name: 'UV Foldover Edges',
                         title: 'Preserve UV Foldover Edges',
                     },
-                    enableSmartLink: {
-                        name: 'Smart Link',
-                        title: 'Enable Smart Link',
-                    },
                     agressiveness: {
                         name: 'Agressiveness',
                         title: 'Agressiveness',

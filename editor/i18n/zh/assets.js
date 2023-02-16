@@ -355,10 +355,6 @@ module.exports = {
                         name: '保留 UV 折叠边',
                         title: 'Preserve UV Foldover Edges',
                     },
-                    enableSmartLink: {
-                        name: '防止破面',
-                        title: 'Smart Link',
-                    },
                     agressiveness: {
                         name: '误差距离',
                         title: 'Agressiveness',
