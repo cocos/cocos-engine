@@ -32,7 +32,7 @@ int SystemWindowManager::init() {
     return 0;
 }
 
-void SystemWindowManager::processEvent(bool *quit) {
+void SystemWindowManager::processEvent() {
 }
 
 ISystemWindow *SystemWindowManager::createWindow(const ISystemWindowInfo &info) {

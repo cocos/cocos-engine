@@ -338,6 +338,8 @@ bool Engine::redirectWindowEvent(const WindowEvent &ev) {
     } else if (ev.type == WindowEvent::Type::CLOSE) {
         emit<EngineStatusChange>(ON_CLOSE);
         events::Close::broadcast();
+        // Increase the frame rate and get the program to exit as quickly as possible
+        setPreferredFramesPerSecond(1000);
         isHandled = true;
     } else if (ev.type == WindowEvent::Type::QUIT) {
         // There is no need to process the quit message,
