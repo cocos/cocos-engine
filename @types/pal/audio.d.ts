@@ -16,7 +16,7 @@ declare module 'pal/audio' {
         /**
          * Play the audio.
          */
-        public play (): void;
+        public play (test: number): void;
 
         /**
          * Stops playing the audio.
