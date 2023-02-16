@@ -103,8 +103,8 @@ export class MouseInputSource {
             eventMouse.movementX = typeof mouseEvent.xDelta === 'undefined' ? 0 : mouseEvent.xDelta * dpr;
             eventMouse.movementY = typeof mouseEvent.yDelta === 'undefined' ? 0 : mouseEvent.yDelta * dpr;
             // update previous mouse position.
-            this._eventTarget.emit(eventType, eventMouse);
             this._preMousePos.set(location.x, location.y);
+            this._eventTarget.emit(eventType, eventMouse);
         };
     }
 
