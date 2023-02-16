@@ -32,6 +32,7 @@
 #include "RenderGraphFwd.h"
 #include "RenderGraphGraphs.h"
 #include "RenderGraphTypes.h"
+#include "RenderingModule.h"
 #include "cocos/math/Utils.h"
 #include "cocos/renderer/pipeline/Define.h"
 #include "cocos/renderer/pipeline/PipelineUBO.h"
@@ -45,7 +46,6 @@
 #include "gfx-base/GFXDef-common.h"
 #include "gfx-base/GFXDevice.h"
 #include "pipeline/PipelineSceneData.h"
-#include "RenderingModule.h"
 
 namespace cc {
 
