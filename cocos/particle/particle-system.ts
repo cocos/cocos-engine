@@ -949,6 +949,10 @@ export class ParticleSystem extends ModelRenderer {
             this._isStopped = false;
         }
 
+        for (const burst of this.bursts) {
+            burst.reset();
+        }
+
         this._isPlaying = true;
         this._isEmitting = true;
 
