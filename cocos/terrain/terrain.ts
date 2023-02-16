@@ -48,6 +48,8 @@ import { CCFloat } from '../core';
 import { PipelineEventType } from '../rendering';
 import { Node } from '../scene-graph';
 
+const TERRAIN_EFFECT_UUID = '1d08ef62-a503-4ce2-8b9a-46c90873f7d3';
+
 /**
  * @en Terrain info
  * @zh 地形信息
@@ -1182,7 +1184,7 @@ export class Terrain extends Component {
     protected _lodBias = 0;
 
     // when the terrain undo, __asset is changed by serialize, but the internal block is created by last asset, here saved last asset
-    protected _buitinAsset : TerrainAsset|null = null;
+    protected _buitinAsset: TerrainAsset|null = null;
     protected _tileSize = 1;
     protected _blockCount: number[] = [1, 1];
     protected _weightMapSize = 128;
@@ -1637,7 +1639,8 @@ export class Terrain extends Component {
 
     public getEffectAsset () {
         if (this._effectAsset === null) {
-            return legacyCC.EffectAsset.get('builtin-terrain') as EffectAsset;
+            // the same as dependentAssets: legacy/terrain.effect
+            return legacyCC.EffectAsset.get(TERRAIN_EFFECT_UUID) as EffectAsset;
         }
 
         return this._effectAsset;
@@ -2479,7 +2482,7 @@ export class Terrain extends Component {
             return false;
         }
 
-        const layerBuffer:number[] = [];
+        const layerBuffer: number[] = [];
         layerBuffer.length = info.blockCount[0] * info.blockCount[1] * TERRAIN_MAX_BLEND_LAYERS;
         for (let i = 0; i < layerBuffer.length; ++i) {
             layerBuffer[i] = -1;
