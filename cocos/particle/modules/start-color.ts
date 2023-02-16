@@ -34,7 +34,7 @@ import { INT_MAX } from '../../core/math/bits';
 const tempColor = new Color();
 
 @ccclass('cc.StartColorModule')
-export class StartColorModule extends InitializationModule {
+export class StartColorModule extends ParticleModule {
     /**
       * @zh 粒子初始颜色。
       */
@@ -46,6 +46,10 @@ export class StartColorModule extends InitializationModule {
 
     public get name (): string {
         return 'StartColorModule';
+    }
+
+    public get updateStage (): ParticleUpdateStage {
+        return ParticleUpdateStage.INITIALIZE;
     }
 
     public get updatePriority (): number {

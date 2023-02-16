@@ -49,14 +49,10 @@ export class EmissionOverTimeModule extends EmissionModule {
         return 0;
     }
 
-    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext) {
-        const { spawnEvents } = context;
-        for (let i = 0, length = spawnEvents.length; i < length; i++) {
-            const emitterContext = spawnEvents[i].particleEmitterContext;
-            const { deltaTime, normalizedTimeInCycle } = emitterContext;
-            const count = this.rate.evaluate(normalizedTimeInCycle, Math.random()) * deltaTime;
-            emitterContext.timeInterval = 1 / count;
-            emitterContext.emittingOverTimeAccumulatedCount += count;
-        }
+    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,
+        prevT: number, t: number, dt: number)  {
+        const count = this.rate.evaluate(t / params.duration, Math.random()) * dt;
+        context.timeInterval = 1 / count;
+        context.emittingOverTimeAccumulatedCount += count;
     }
 }

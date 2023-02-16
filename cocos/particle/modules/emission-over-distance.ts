@@ -50,15 +50,12 @@ export class EmissionOverDistanceModule extends EmissionModule {
         return 1;
     }
 
-    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext) {
-        const { spawnEvents } = context;
-        for (let i = 0, length = spawnEvents.length; i < length; i++) {
-            const emitterContext = spawnEvents[i].particleEmitterContext;
-            const { velocity, deltaTime, normalizedTimeInCycle } = emitterContext;
-            const count = velocity.length()
-            * this.rate.evaluate(normalizedTimeInCycle, Math.random()) * deltaTime;
-            emitterContext.distanceInterval = 1 / count;
-            emitterContext.emittingOverDistanceAccumulatedCount += count;
-        }
+    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,
+        prevT: number, t: number, dt: number) {
+        const { emitterVelocity } = context;
+        const count = emitterVelocity.length()
+            * this.rate.evaluate(t / params.duration, Math.random()) * dt;
+        context.distanceInterval = 1 / count;
+        context.emittingOverDistanceAccumulatedCount += count;
     }
 }

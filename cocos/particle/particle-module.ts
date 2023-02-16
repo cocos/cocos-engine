@@ -33,6 +33,7 @@ export enum ParticleUpdateStage {
     INITIALIZE,
     PRE_UPDATE,
     POST_UPDATE,
+    RENDER
 }
 
 @ccclass('cc.ParticleModule')
@@ -76,7 +77,6 @@ export abstract class ParticleModule {
         }
     }
 
-    public update (particles: ParticleSOAData, particleSystemParams: ParticleSystemParams, particleUpdateContext: ParticleUpdateContext) {}
     public onPlay () {}
     public onStop () {}
     public onPause () {}
@@ -86,6 +86,9 @@ export abstract class EmissionModule extends ParticleModule {
     public get updateStage (): ParticleUpdateStage {
         return ParticleUpdateStage.EMITTER_UPDATE;
     }
+
+    public abstract update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,
+        prevT: number, t: number, dt: number)
 }
 
 @ccclass('cc.InitializationModule')
@@ -94,5 +97,12 @@ export abstract class InitializationModule extends ParticleModule {
         return ParticleUpdateStage.INITIALIZE;
     }
 
-    public abstract initialize (particles: ParticleSOAData, fromIndex: number, toIndex: number, interval: number, offset: number, emitterContext: ParticleEmitterContext);
+    public abstract update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,
+        fromIndex: number, toIndex: number, t: number, dt: number);
+}
+
+@ccclass('cc.UpdateModule')
+export abstract class UpdateModule extends ParticleModule {
+    public abstract update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,
+        fromIndex: number, toIndex: number, t: number, dt: number)
 }
