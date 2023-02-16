@@ -51,7 +51,7 @@ struct StencilState {
 
 struct DepthState {
     bool depthWrite  = true;
-    bool depthTest   = true;
+    bool depthTest   = false;
     GLenum depthFunc = GL_LESS;
     GLfloat minDepth = 0.F;
     GLfloat maxDepth = 1.F;
@@ -69,8 +69,8 @@ struct BlendTarget {
 };
 
 struct BlendState {
-    bool isA2C    = true;
-    bool hasColor = true;
+    bool isA2C    = false;
+    bool hasColor = false;
     Color color;
     BlendTarget target;
 };
@@ -90,8 +90,9 @@ struct ContextState {
     GLenum primitive = GL_TRIANGLES;
     GLuint program    = 0;
     GLuint drawBuffer = 0;
-    Viewport viewport = {};
-    Rect scissor      = {};
+    bool scissorTest = false;
+    Viewport viewport = {0, 0, 1, 1, 0.f, 1.f};
+    Rect scissor      = {0, 0, 1, 1};
 };
 
 inline bool isBufferType(DescriptorType type) {

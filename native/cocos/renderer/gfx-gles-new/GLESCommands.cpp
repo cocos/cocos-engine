@@ -43,7 +43,6 @@ void Commands::bindPipelineState(const IntrusivePtr<GPUPipelineState> &pso) {
         _context->program = pso->shader->program;
         GL_CHECK(glUseProgram(_context->program));
     }
-    auto error = glGetError();
     // depth
     setDepthStencil(pso->depthStencilState);
 
@@ -323,9 +322,14 @@ void Commands::setViewport(const Viewport &vp) {
 }
 
 void Commands::setScissor(const Rect &rect) {
+    if (_context->scissorTest != true) {
+        GL_CHECK(glEnable(GL_SCISSOR_TEST));
+        _context->scissorTest = true;
+    }
+
     auto &currentSc = _context->scissor;
-    if (memcmp(&currentSc, &rect, sizeof(Rect)) == 0) {
-        glScissor(rect.x, rect.y, rect.width, rect.height);
+    if (memcmp(&currentSc, &rect, sizeof(Rect)) != 0) {
+        GL_CHECK(glScissor(rect.x, rect.y, rect.width, rect.height));
         currentSc = rect;
     }
 }
@@ -396,10 +400,12 @@ void Commands::setDepthStencil(const DepthStencilState &ds) {
     // front
     setStencilFunc(StencilFace::FRONT, ds.front.func, ds.front.reference, ds.front.readMask);
     setStencilWriteMask(StencilFace::FRONT, ds.front.writemask);
+    setStencilOp(StencilFace::FRONT, ds.front.failOp, ds.front.zFailOp, ds.front.zPassOp);
 
     // back
     setStencilFunc(StencilFace::BACK, ds.back.func, ds.back.reference, ds.back.readMask);
     setStencilWriteMask(StencilFace::BACK, ds.back.writemask);
+    setStencilOp(StencilFace::BACK, ds.back.failOp, ds.back.zFailOp, ds.back.zPassOp);
 }
 
 void Commands::setBlendConstants(const Color &constants) {
@@ -500,6 +506,23 @@ void Commands::setStencilFunc(StencilFace face, GLenum func, uint32_t ref, uint3
     }
     if (hasFlag(face, StencilFace::BACK)) {
         stencilFn(_context->ds.back, GL_BACK, func, ref, mask);
+    }
+}
+
+void Commands::setStencilOp(StencilFace face, GLenum sFail, GLenum dpFail, GLenum dpPass) {
+    auto stencilFn = [](StencilState &state, GLenum face, GLenum sFail, GLenum dpFail, GLenum dpPass) {
+        if (state.failOp != sFail || state.zPassOp != dpPass || state.zFailOp != dpFail) {
+            glStencilOpSeparate(face, sFail, dpFail, dpPass);
+            state.failOp = sFail;
+            state.zPassOp = dpPass;
+            state.zFailOp = dpFail;
+        }
+    };
+    if (hasFlag(face, StencilFace::FRONT)) {
+        stencilFn(_context->ds.front, GL_FRONT, sFail, dpFail, dpPass);
+    }
+    if (hasFlag(face, StencilFace::BACK)) {
+        stencilFn(_context->ds.back, GL_BACK, sFail, dpFail, dpPass);
     }
 }
 

@@ -195,9 +195,6 @@ void Device::initContext() {
     _graphicsQueue->initContext(_graphicsContext.get());
 
     // init async queue
-    info.config.rgb     = 8;
-    info.config.depth   = 0;
-    info.config.stencil = 0;
     _asyncContext = std::make_unique<egl::Context>();
     _asyncContext->init(info);
 

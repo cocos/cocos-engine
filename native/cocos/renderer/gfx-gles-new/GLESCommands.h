@@ -54,6 +54,7 @@ public:
     void setStencilWriteMask(StencilFace face, uint32_t mask);
     void setStencilCompareMask(StencilFace face, uint32_t ref, uint32_t mask);
     void setStencilFunc(StencilFace face, GLenum func, uint32_t ref, uint32_t mask);
+    void setStencilOp(StencilFace face, GLenum sFail, GLenum dpFail, GLenum dpPass);
     void setDepthStencil(const DepthStencilState &depthState);
 
     // rasterizer
