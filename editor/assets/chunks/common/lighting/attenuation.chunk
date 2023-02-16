@@ -28,14 +28,16 @@ float GetAngleAtt (vec3 L, vec3 litDir, float litAngleScale, float litAngleOffse
 
 
 // advanced
-float CalculateDistanceAttenuation(float distToLightSqr, float lightRadius, float lightRange)
+float CalculateDistanceAttenuation(float distToLightSqr, float lightRadius, float lightRange, float lightType)
 {
-  float litRadiusSqr = lightRadius * lightRadius;
+  // physical attenuation
   float attRadiusSqrInv = 1.0 / max(lightRange, 0.01);
   attRadiusSqrInv *= attRadiusSqrInv;
   
-  // soft edge fading
-  float edgeAttenuation = litRadiusSqr / max(litRadiusSqr, distToLightSqr);
+  // artical soft edge fading
+  float litRadiusSqr = lightRadius * lightRadius;
+  float edgeAttenuation = IS_SPHERE_LIGHT(lightType) ? litRadiusSqr / max(litRadiusSqr, distToLightSqr) : 1.0;
+
   return GetDistAtt(distToLightSqr, attRadiusSqrInv) * edgeAttenuation;
 }
 
