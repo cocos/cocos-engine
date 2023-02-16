@@ -292,7 +292,7 @@ module.exports = {
             },
             meshOptimizer: {
                 name: 'Mesh 优化',
-                title: 'Mesh Optimizer',
+                title: 'Mesh 优化可以被用来简化导入的模型，可以在需要模型减面时使用。<br>在一些少数情况下减面后的模型可能会出现显示异常，如发生这种情况请尝试调整参数并重试。',
                 simplification: {
                     name: 'Simplification',
                     title: 'Simplification',
@@ -337,7 +337,7 @@ module.exports = {
                 simplify: {
                     targetRatio: {
                         name: 'LOD 压缩比例',
-                        title: 'Target Ratio',
+                        title: '减面之后的目标面数比例，0 代表减面至最少，1 代表没有减面的原模型。',
                     },
                     preserveSurfaceCurvature: {
                         name: '保留表面曲率',
@@ -357,11 +357,11 @@ module.exports = {
                     },
                     agressiveness: {
                         name: '误差距离',
-                        title: 'Agressiveness',
+                        title: '模型减面算法的激进程度。<br>当设置数值越高时，算法的减免策略会越激进，但是过于激进的策略更有可能导致结果错误。',
                     },
                     maxIterationCount: {
                         name: '计算迭代次数',
-                        title: 'Max Iteration Count',
+                        title: '最大重复计数代表减面算法运行的重复次数。<br>高数值可以使算法运行结果更接近目标，但也会增加运行时间和结果错误的概率。',
                     },
                 },
                 gltfpack: {
