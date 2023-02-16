@@ -215,10 +215,10 @@ void EventDispatcher::dispatchMouseEvent(const MouseEvent &mouseEvent) {
         jsMouseEventObj->setProperty("x", xVal);
         jsMouseEventObj->setProperty("y", yVal);
         if (type == MouseEvent::Type::MOVE) {
-            const auto &xrefVal = se::Value(mouseEvent.xref);
-            const auto &yrefVal = se::Value(mouseEvent.yref);
-            jsMouseEventObj->setProperty("xref", xrefVal);
-            jsMouseEventObj->setProperty("yref", yrefVal);
+            const auto &xDelta = se::Value(mouseEvent.xDelta);
+            const auto &yDelta = se::Value(mouseEvent.yDelta);
+            jsMouseEventObj->setProperty("xDelta", xDelta);
+            jsMouseEventObj->setProperty("yDelta", yDelta);
         }
     }
 
