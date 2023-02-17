@@ -507,12 +507,13 @@ export class RenderAdditiveLightQueue {
                 _vec4Array[3] = 0.0;
                 this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET);
 
+                // cc_lightColor
                 Vec3.toArray(_vec4Array, light.color);
                 if (light.useColorTemperature) {
-                    const tempRGB = light.colorTemperatureRGB;
-                    _vec4Array[0] *= tempRGB.x;
-                    _vec4Array[1] *= tempRGB.y;
-                    _vec4Array[2] *= tempRGB.z;
+                    const finalColor = light.finalColor;
+                    _vec4Array[0] = finalColor.x;
+                    _vec4Array[1] = finalColor.y;
+                    _vec4Array[2] = finalColor.z;
                 }
                 if (isHDR) {
                     _vec4Array[3] = (light as SphereLight).luminance * exposure * this._lightMeterScale;
@@ -536,12 +537,13 @@ export class RenderAdditiveLightQueue {
                 Vec3.toArray(_vec4Array, (light as SpotLight).direction);
                 this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_DIR_OFFSET);
 
+                // cc_lightColor
                 Vec3.toArray(_vec4Array, light.color);
                 if (light.useColorTemperature) {
-                    const tempRGB = light.colorTemperatureRGB;
-                    _vec4Array[0] *= tempRGB.x;
-                    _vec4Array[1] *= tempRGB.y;
-                    _vec4Array[2] *= tempRGB.z;
+                    const finalColor = light.finalColor;
+                    _vec4Array[0] = finalColor.x;
+                    _vec4Array[1] = finalColor.y;
+                    _vec4Array[2] = finalColor.z;
                 }
                 if (isHDR) {
                     _vec4Array[3] = (light as SpotLight).luminance * exposure * this._lightMeterScale;
@@ -562,12 +564,13 @@ export class RenderAdditiveLightQueue {
                 _vec4Array[3] = 0.0;
                 this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET);
 
+                // cc_lightColor
                 Vec3.toArray(_vec4Array, light.color);
                 if (light.useColorTemperature) {
-                    const tempRGB = light.colorTemperatureRGB;
-                    _vec4Array[0] *= tempRGB.x;
-                    _vec4Array[1] *= tempRGB.y;
-                    _vec4Array[2] *= tempRGB.z;
+                    const finalColor = light.finalColor;
+                    _vec4Array[0] = finalColor.x;
+                    _vec4Array[1] = finalColor.y;
+                    _vec4Array[2] = finalColor.z;
                 }
                 if (isHDR) {
                     _vec4Array[3] = (light as PointLight).luminance * exposure * this._lightMeterScale;

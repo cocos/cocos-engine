@@ -276,10 +276,10 @@ class BlitDesc {
                 // cc_lightColor
                 Vec3.toArray(_vec4Array, light.color);
                 if (light.useColorTemperature) {
-                    const tempRGB = light.colorTemperatureRGB;
-                    _vec4Array[0] *= tempRGB.x;
-                    _vec4Array[1] *= tempRGB.y;
-                    _vec4Array[2] *= tempRGB.z;
+                    const finalColor = light.finalColor;
+                    _vec4Array[0] = finalColor.x;
+                    _vec4Array[1] = finalColor.y;
+                    _vec4Array[2] = finalColor.z;
                 }
 
                 if (pipeline.pipelineSceneData.isHDR) {
@@ -310,10 +310,10 @@ class BlitDesc {
                 // cc_lightColor
                 Vec3.toArray(_vec4Array, light.color);
                 if (light.useColorTemperature) {
-                    const tempRGB = light.colorTemperatureRGB;
-                    _vec4Array[0] *= tempRGB.x;
-                    _vec4Array[1] *= tempRGB.y;
-                    _vec4Array[2] *= tempRGB.z;
+                    const finalColor = light.finalColor;
+                    _vec4Array[0] = finalColor.x;
+                    _vec4Array[1] = finalColor.y;
+                    _vec4Array[2] = finalColor.z;
                 }
                 if (pipeline.pipelineSceneData.isHDR) {
                     _vec4Array[3] = light.luminance * exposure * this._lightMeterScale;
@@ -346,10 +346,10 @@ class BlitDesc {
                 // cc_lightColor
                 Vec3.toArray(_vec4Array, light.color);
                 if (light.useColorTemperature) {
-                    const tempRGB = light.colorTemperatureRGB;
-                    _vec4Array[0] *= tempRGB.x;
-                    _vec4Array[1] *= tempRGB.y;
-                    _vec4Array[2] *= tempRGB.z;
+                    const finalColor = light.finalColor;
+                    _vec4Array[0] = finalColor.x;
+                    _vec4Array[1] = finalColor.y;
+                    _vec4Array[2] = finalColor.z;
                 }
 
                 if (pipeline.pipelineSceneData.isHDR) {
