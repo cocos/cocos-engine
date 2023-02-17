@@ -25,33 +25,30 @@
 import { ILifecycle } from './i-lifecycle';
 import { IGroupMask } from './i-group-mask';
 import { IVec3Like } from '../../core';
-import { CharacterController } from '../framework/components/character-controller';
+import { CharacterController } from '../framework/components/character-controllers/character-controller';
 //import { ERigidBodyType } from '../framework';
 
-export interface ICharacterController extends ILifecycle{//}, IGroupMask {
+export interface IBaseCharacterController extends ILifecycle{//}, IGroupMask {
     //readonly impl: any;
     //readonly characterController: CharacterController;
-    //readonly isAwake: boolean;
-    //readonly isSleepy: boolean;
-    //readonly isSleeping: boolean;
 
-    initialize (v: CharacterController): void;
-
-    //setMass: (v: number) => void;
-    //setLinearDamping: (v: number) => void;
-    //setAngularDamping: (v: number) => void;
-    //useGravity: (v: boolean) => void;
-    //setLinearFactor: (v: IVec3Like) => void;
-    //setAngularFactor: (v: IVec3Like) => void;
-    //setAllowSleep: (v: boolean) => void;
-
+    initialize (v: CharacterController): boolean;
     onGround(): boolean;
     getPosition (out: IVec3Like): void;
     setPosition (value: IVec3Like): void;
-    setRadius (value: number): void;
-    setHeight (value: number): void;
     setStepOffset (value: number): void;
     setSlopeLimit (value: number): void;
     setContactOffset (value: number): void;
     move(movement: IVec3Like, minDist: number, elapsedTime: number, filters: any): void;
+}
+
+export interface ICapsuleCharacterController extends IBaseCharacterController {
+    setRadius (value: number): void;
+    setHeight (value: number): void;
+}
+
+export interface IBoxCharacterController extends IBaseCharacterController {
+    setHalfHeight (value: number): void;
+    setHalfSideExtent (value: number): void;
+    setHalfForwardExtent (value: number): void;
 }
