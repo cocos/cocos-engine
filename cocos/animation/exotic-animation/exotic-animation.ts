@@ -1,5 +1,33 @@
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
 import { EDITOR, TEST } from 'internal:constants';
-import { binarySearchEpsilon, clamp, lerp, Quat, Vec3, assertIsTrue, _decorator } from '../../core';
+import { binarySearchEpsilon, clamp, lerp, Quat, Vec3, _decorator } from '../../core';
+import { assertIsTrue } from '../../core/data/utils/asserts';
+import { AnimationClipGraphBindingContext } from '../marionette/animation-graph-animation-clip-binding';
+import { TransformHandle } from '../core/animation-handle';
+import { Pose } from '../core/pose';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 import { Binder, RuntimeBinding, TrackBinding, TrackPath } from '../tracks/track';
 
@@ -23,6 +51,10 @@ function throwIfSplitMethodIsNotValid (): never {
 export class ExoticAnimation {
     public createEvaluator (binder: Binder) {
         return new ExoticTrsAnimationEvaluator(this._nodeAnimations, binder);
+    }
+
+    public createEvaluatorForAnimationGraph (context: AnimationClipGraphBindingContext) {
+        return new ExoticTrsAGEvaluation(this._nodeAnimations, context);
     }
 
     public addNodeAnimation (path: string) {
@@ -83,6 +115,19 @@ class ExoticNodeAnimation {
             this._rotation,
             this._scale,
             binder,
+        );
+    }
+
+    public createEvaluatorForAnimationGraph (context: AnimationClipGraphBindingContext) {
+        const transformHandle = context.bindTransform(this._path);
+        if (!transformHandle) {
+            return null;
+        }
+        return new ExoticNodeAnimationAGEvaluation(
+            transformHandle,
+            this._position,
+            this._rotation,
+            this._scale,
         );
     }
 
@@ -678,6 +723,90 @@ class ExoticTrackEvaluator<TValue> {
 interface ExoticTrackEvaluationRecord<TValue> {
     runtimeBinding: RuntimeBinding;
     evaluator: ExoticTrackEvaluator<TValue>;
+}
+
+/**
+ * Exotic TRS animation graph evaluator.
+ */
+export class ExoticTrsAGEvaluation {
+    constructor (nodeAnimations: ExoticNodeAnimation[], context: AnimationClipGraphBindingContext) {
+        this._nodeEvaluations = nodeAnimations.map(
+            (nodeAnimation) => nodeAnimation.createEvaluatorForAnimationGraph(context),
+        ).filter((x) => !!x) as ExoticNodeAnimationAGEvaluation[];
+    }
+
+    public destroy () {
+        const { _nodeEvaluations: nodeEvaluations } = this;
+        const nNodeEvaluations = nodeEvaluations.length;
+        for (let iNodeEvaluation = 0; iNodeEvaluation < nNodeEvaluations; ++iNodeEvaluation) {
+            nodeEvaluations[iNodeEvaluation].destroy();
+        }
+    }
+
+    public evaluate (time: number, pose: Pose) {
+        const { _nodeEvaluations: nodeEvaluations } = this;
+        const nNodeEvaluations = nodeEvaluations.length;
+        for (let iNodeEvaluation = 0; iNodeEvaluation < nNodeEvaluations; ++iNodeEvaluation) {
+            nodeEvaluations[iNodeEvaluation].evaluate(time, pose);
+        }
+    }
+
+    private _nodeEvaluations: ExoticNodeAnimationAGEvaluation[];
+}
+
+class ExoticNodeAnimationAGEvaluation {
+    constructor (
+        transformHandle: TransformHandle,
+        position: ExoticVec3Track | null,
+        rotation: ExoticQuatTrack | null,
+        scale: ExoticVec3Track | null,
+    ) {
+        this._transformHandle = transformHandle;
+        if (position) {
+            this._position = new ExoticTrackEvaluator(position.times, position.values, Vec3);
+        }
+        if (rotation) {
+            this._rotation = new ExoticTrackEvaluator(rotation.times, rotation.values, Quat);
+        }
+        if (scale) {
+            this._scale = new ExoticTrackEvaluator(scale.times, scale.values, Vec3);
+        }
+    }
+
+    public destroy () {
+        this._transformHandle.destroy();
+    }
+
+    public evaluate (time: number, pose: Pose) {
+        const {
+            _transformHandle: {
+                index: transformIndex,
+            },
+            _position: position,
+            _rotation: rotation,
+            _scale: scale,
+        } = this;
+        const {
+            transforms: poseTransforms,
+        } = pose;
+        if (position) {
+            const value = position.evaluate(time);
+            poseTransforms.setPosition(transformIndex, value);
+        }
+        if (rotation) {
+            const rotationAbs = rotation.evaluate(time);
+            poseTransforms.setRotation(transformIndex, rotationAbs);
+        }
+        if (scale) {
+            const value = scale.evaluate(time);
+            poseTransforms.setScale(transformIndex, value);
+        }
+    }
+
+    private _position: ExoticTrackEvaluator<Vec3> | null = null;
+    private _rotation: ExoticTrackEvaluator<Quat> | null = null;
+    private _scale: ExoticTrackEvaluator<Vec3> | null = null;
+    private _transformHandle: TransformHandle;
 }
 
 interface InputSampleResult {

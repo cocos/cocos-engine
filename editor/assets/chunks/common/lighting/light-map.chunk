@@ -5,10 +5,9 @@ void SampleAndDecodeLightMapColor(out vec3 lightmapColor, out float dirShadow, o
 #if CC_LIGHT_MAP_VERSION > 2
 	// has high precision data
 #elif CC_LIGHT_MAP_VERSION > 1
-	luv.x *= 0.5;
 	vec4 dataLow = texture(lightingMap, luv);
 	vec4 dataHigh = texture(lightingMap, luv + vec2(0.5, 0.0));
-	lightmapColor.xyz = dataLow + dataHigh * 0.00392156862745098;
+	lightmapColor.xyz = dataLow.xyz + dataHigh.xyz * 0.00392156862745098;
     lightmapColor.rgb *= lum;
 	dirShadow = dataLow.a;
 	ao = dataHigh.a;

@@ -1,19 +1,18 @@
 /* eslint-disable max-len */
 /*
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -22,7 +21,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { EDITOR } from 'internal:constants';
 import { MeshRenderer, ReflectionProbeType } from '../3d/framework/mesh-renderer';
@@ -34,7 +33,7 @@ import { ProbeType, ReflectionProbe } from '../render-scene/scene/reflection-pro
 import { Layers } from '../scene-graph/layers';
 
 const REFLECTION_PROBE_DEFAULT_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.UI_3D, Layers.BitMask.GIZMOS, Layers.BitMask.EDITOR,
-    Layers.BitMask.SCENE_GIZMO, Layers.BitMask.PROFILER]);
+    Layers.BitMask.SCENE_GIZMO, Layers.BitMask.PROFILER, Layers.Enum.IGNORE_RAYCAST]);
 export class ReflectionProbeManager {
     public static probeManager: ReflectionProbeManager;
     private _probes: ReflectionProbe[] = [];
@@ -54,10 +53,21 @@ export class ReflectionProbeManager {
      */
     private _usePlanarModels = new Map<Model, ReflectionProbe>();
 
+    private _updateForRuntime = true;
+
     constructor () {
-        if (EDITOR) {
-            director.on(Director.EVENT_BEFORE_UPDATE, this.onUpdateProbes, this);
-        }
+        director.on(Director.EVENT_BEFORE_UPDATE, this.onUpdateProbes, this);
+    }
+
+    /**
+     * @en Set and get whether to detect objects leaving or entering the reflection probe's bounding box at runtime.
+     * @zh 设置和获取是否在运行时检测物体离开或者进入反射探针的包围盒。
+     */
+    set updateForRuntime (val: boolean) {
+        this._updateForRuntime = val;
+    }
+    get updateForRuntime () {
+        return this._updateForRuntime;
     }
 
     /**
@@ -65,6 +75,7 @@ export class ReflectionProbeManager {
      * @zh 刷新所有反射探针
      */
     public onUpdateProbes (forceUpdate = false) {
+        if (!this._updateForRuntime) return;
         if (this._probes.length === 0) return;
         const scene = director.getScene();
         if (!scene || !scene.renderScene) {
@@ -296,8 +307,39 @@ export class ReflectionProbeManager {
         if (!probe || !probe.previewSphere) return;
         const meshRender = probe.previewSphere.getComponent(MeshRenderer);
         if (meshRender) {
-            meshRender.updateProbeCubemap(probe.cubemap);
+            meshRender.updateProbeCubemap(probe.cubemap, !probe.cubemap);
         }
+    }
+
+    /**
+     * @en Update the preview plane of the Reflection Probe planar mode.
+     * @zh 更新反射探针预览平面
+     */
+    public updatePreviewPlane (probe: ReflectionProbe) {
+        if (!probe || !probe.previewPlane) return;
+        const meshRender = probe.previewPlane.getComponent(MeshRenderer);
+        if (meshRender) {
+            if (probe.realtimePlanarTexture) {
+                this.updatePlanarMap(probe, probe.realtimePlanarTexture.getGFXTexture());
+            }
+        }
+    }
+
+    /**
+     * @en Get the reflection probe used by the model.
+     * @zh 获取模型使用的反射探针。
+     */
+    public getUsedReflectionProbe (model: Model, probeType: ReflectionProbeType) {
+        if (probeType === ReflectionProbeType.BAKED_CUBEMAP) {
+            if (this._useCubeModels.has(model)) {
+                return this._useCubeModels.get(model);
+            }
+        } else if (probeType === ReflectionProbeType.PLANAR_REFLECTION) {
+            if (this._usePlanarModels.has(model)) {
+                return this._usePlanarModels.get(model);
+            }
+        }
+        return null;
     }
 
     /**
@@ -349,10 +391,7 @@ export class ReflectionProbeManager {
             const p = this._useCubeModels.get(key);
             if (p !== undefined && p === probe) {
                 this._useCubeModels.delete(key);
-                const meshRender = key.node.getComponent(MeshRenderer);
-                if (meshRender) {
-                    meshRender.updateProbeCubemap(null);
-                }
+                this.updateUseCubeModels(key);
             }
         }
         for (const key of this._usePlanarModels.keys()) {

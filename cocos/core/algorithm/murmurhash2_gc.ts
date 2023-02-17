@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 /*
  * JS Implementation of MurmurHash2
@@ -39,6 +38,13 @@
 const getUint8ForString = String.prototype.charCodeAt;
 function getUint8ForArray (this: Uint8Array, idx: number) { return this[idx]; }
 
+/**
+ * @en JS Implementation of MurmurHash2. Original implementation is http://github.com/garycourt/murmurhash-js.
+ * @zh MurmurHash2 的 JS 实现。原始实现是 http://github.com/garycourt/murmurhash-js 。
+ * @param input @en ASCII string or a Uint8Array to be hashed. @zh 希望被哈希的 ASCII 字符串或者 Uint8Array.
+ * @param seed @en Hash seed. Should be a positive integer. @zh 哈希种子。必须是个正整数。
+ * @returns @en 32-bit positive integer hash. @zh 32位正整数哈希值。
+ */
 export function murmurhash2_32_gc (input: string | Uint8Array, seed: number) {
     let l = input.length;
     let h = seed ^ l;
@@ -62,10 +68,18 @@ export function murmurhash2_32_gc (input: string | Uint8Array, seed: number) {
     }
 
     switch (l) {
+    // Don't break in case 3 and case 2.
     case 3: h ^= (getUint8.call(input, i + 2) & 0xff) << 16;
+    // eslint-disable-next-line no-fallthrough
     case 2: h ^= (getUint8.call(input, i + 1) & 0xff) << 8;
-    case 1: h ^= (getUint8.call(input, i) & 0xff);
+    // eslint-disable-next-line no-fallthrough
+    case 1:
+        h ^= (getUint8.call(input, i) & 0xff);
         h = (((h & 0xffff) * 0x5bd1e995) + ((((h >>> 16) * 0x5bd1e995) & 0xffff) << 16));
+        break;
+    default:
+        // do nothing, just make VSCode happy.
+        break;
     }
 
     h ^= h >>> 13;

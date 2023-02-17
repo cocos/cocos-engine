@@ -93,9 +93,10 @@ void main()  {
                 debugColor.rgb = LinearToSRGB(debugColor.rgb);
           }
       }
-
-    fragColorX = debugColor;
-    return;
+    if (IS_DEBUG_VIEW_ENABLE_WITH_CAMERA) {
+      fragColorX = debugColor;
+      return;
+    }
 
   #elif CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC && CC_SURFACES_ENABLE_DEBUG_VIEW
     CCSurfacesDebugViewCompositeLightingResult(lightingResult);
@@ -118,6 +119,11 @@ void main()  {
 #endif
 
     // Color output
+  #if CC_USE_RGBE_OUTPUT
+    fragColorX = packRGBE(color.rgb); // for reflection-map
+    return;
+  #endif
+
   #if CC_USE_HDR
     #if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC && CC_SURFACES_ENABLE_DEBUG_VIEW
       if (IS_DEBUG_VIEW_COMPOSITE_ENABLE_TONE_MAPPING)

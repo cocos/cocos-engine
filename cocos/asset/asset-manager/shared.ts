@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2019-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,76 +20,14 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { EDITOR } from 'internal:constants';
 import { Asset } from '../assets/asset';
 import Bundle from './bundle';
 import Cache from './cache';
 import { Pipeline } from './pipeline';
-import RequestItem from './request-item';
 import WeakCache from './weak-cache';
-
-export type CompleteCallback<T = any> = (err: Error | null, data?: T | null) => void;
-export type CompleteCallbackNoData = (err?: Error | null) => void;
-export type CompleteCallbackWithData<T = any> = (err: Error | null, data: T) => void;
-export type ProgressCallback = (finished: number, total: number, item: RequestItem) => void;
-export type Request = string | string[] | IRequest | Array<IRequest>;
-
-export interface IRequest extends IOptions {
-    uuid?: string;
-    url?: string;
-    path?: string;
-    dir?: string;
-    scene?: string;
-}
-
-export interface IOptions extends IBundleOptions, IRemoteOptions {
-    type?: typeof Asset;
-    bundle?: string;
-}
-
-export interface IRemoteOptions extends IAssetOptions {
-    ext?: string;
-}
-
-export interface IXHROptions extends Record<string, any> {
-    xhrResponseType?: XMLHttpRequestResponseType;
-    xhrWithCredentials?: boolean;
-    xhrTimeout?: number;
-    xhrHeader?: Record<string, string>;
-    xhrMimeType?: string;
-}
-
-export interface IAssetOptions extends INativeAssetOptions {
-    reloadAsset?: boolean;
-    cacheAsset?: boolean;
-}
-
-export interface IJsonAssetOptions extends IAssetOptions {
-    assetId?: string;
-}
-
-export interface IDownloadParseOptions extends IXHROptions {
-    priority?: number;
-    audioLoadMode?: number;
-    onFileProgress?: (loaded: number, total: number) => void;
-    maxConcurrency?: number;
-    maxRequestsPerFrame?: number;
-    maxRetryCount?: number;
-    cacheEnabled?: boolean;
-}
-
-export interface IBundleOptions extends INativeAssetOptions {
-    version?: string;
-    scriptAsyncLoading?: boolean;
-}
-
-export interface INativeAssetOptions extends IDownloadParseOptions {
-    preset?: string;
-}
-
-export type AssetType<T = Asset> = Constructor<T>;
 
 export const assets = EDITOR ? new WeakCache<Asset>() : new Cache<Asset>();
 export const files = new Cache();
@@ -113,6 +50,14 @@ export enum RequestType {
     URL = 'url',
 
     SCENE = 'scene',
+}
+
+export interface IRequest extends Record<string, any> {
+    uuid?: string;
+    url?: string;
+    path?: string;
+    dir?: string;
+    scene?: string;
 }
 
 export const presets: Record<string, Record<string, any>> = {

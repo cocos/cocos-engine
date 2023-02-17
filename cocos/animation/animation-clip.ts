@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { ccclass, serializable } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
@@ -82,6 +81,11 @@ export const getEmbeddedPlayersTag = Symbol('[[GetEmbeddedPlayers]]');
 export const addEmbeddedPlayerTag = Symbol('[[AddEmbeddedPlayer]]');
 export const removeEmbeddedPlayerTag = Symbol('[[RemoveEmbeddedPlayer]]');
 export const clearEmbeddedPlayersTag = Symbol('[[ClearEmbeddedPlayers]]');
+
+/**
+ * Tag to access the additive settings associated on animation clip.
+ */
+export const additiveSettingsTag = Symbol('[[Additive Settings]]');
 
 /**
  * @zh 动画剪辑表示一段使用动画编辑器编辑的关键帧动画或是外部美术工具生产的骨骼动画。
@@ -230,6 +234,13 @@ export class AnimationClip extends Asset {
 
     set [exoticAnimationTag] (value) {
         this._exoticAnimation = value;
+    }
+
+    /**
+     * Accesses the additive animation settings.
+     */
+    get [additiveSettingsTag] () {
+        return this._additiveSettings;
     }
 
     public onLoaded () {
@@ -646,6 +657,16 @@ export class AnimationClip extends Asset {
         this._embeddedPlayers.length = 0;
     }
 
+    /**
+     * @internal
+     */
+    public _trySyncLegacyData () {
+        if (this._legacyDataDirty) {
+            this._legacyDataDirty = false;
+            this.syncLegacyData();
+        }
+    }
+
     @serializable
     private _duration = 0;
 
@@ -669,6 +690,9 @@ export class AnimationClip extends Asset {
 
     @serializable
     private _embeddedPlayers: EmbeddedPlayer[] = [];
+
+    @serializable
+    private _additiveSettings = new AdditiveSettings();
 
     private _runtimeEvents: {
         ratios: number[];
@@ -694,7 +718,7 @@ export class AnimationClip extends Asset {
             );
         }
 
-        const trackEvalStatues: TrackEvalStatus[] = [];
+        const trackEvalStatues: TrackEvalStatus<unknown>[] = [];
         let exoticAnimationEvaluator: ExoticAnimationEvaluator | undefined;
 
         const { _tracks: tracks } = this;
@@ -707,15 +731,29 @@ export class AnimationClip extends Asset {
             if (Array.from(track.channels()).every(({ curve }) => curve.keyFramesCount === 0)) {
                 continue;
             }
-            const trackTarget = binder(track[trackBindingTag]);
-            if (!trackTarget) {
+            const runtimeBinding = binder(track[trackBindingTag]);
+            if (!runtimeBinding) {
                 continue;
             }
-            const trackEval = track[createEvalSymbol](trackTarget);
-            trackEvalStatues.push({
-                binding: trackTarget,
-                trackEval,
-            });
+
+            let trackEval: TrackEval<unknown>;
+            if (!(track instanceof UntypedTrack)) {
+                trackEval = track[createEvalSymbol]();
+            } else {
+                // Handle untyped track specially.
+                if (!runtimeBinding.getValue) {
+                    // If we can not get a value from binding,
+                    // we're not able to instantiate the untyped track.
+                    // This matches the behavior prior to V3.3.
+                    errorID(3930);
+                    continue;
+                }
+
+                const hintValue = runtimeBinding.getValue();
+                trackEval = track.createLegacyEval(hintValue);
+            }
+
+            trackEvalStatues.push(new TrackEvalStatus(runtimeBinding, trackEval));
         }
 
         if (this._exoticAnimation) {
@@ -756,7 +794,7 @@ export class AnimationClip extends Asset {
         // const { } = rootMotionOptions;
 
         const boneTransform = new BoneTransform();
-        const rootMotionsTrackEvaluations: TrackEvalStatus[] = [];
+        const rootMotionsTrackEvaluations: TrackEvalStatus<unknown>[] = [];
         const { _tracks: tracks } = this;
         const nTracks = tracks.length;
         for (let iTrack = 0; iTrack < nTracks; ++iTrack) {
@@ -772,15 +810,12 @@ export class AnimationClip extends Asset {
             }
             rootMotionTrackExcludes.push(track);
             const property = trsPath.property;
-            const trackTarget = createBoneTransformBinding(boneTransform, property);
-            if (!trackTarget) {
+            const runtimeBinding = createBoneTransformBinding(boneTransform, property);
+            if (!runtimeBinding) {
                 continue;
             }
-            const trackEval = track[createEvalSymbol](trackTarget);
-            rootMotionsTrackEvaluations.push({
-                binding: trackTarget,
-                trackEval,
-            });
+            const trackEval = track[createEvalSymbol]();
+            rootMotionsTrackEvaluations.push(new TrackEvalStatus(runtimeBinding, trackEval));
         }
         const rootMotionEvaluation = new RootMotionEvaluation(
             rootBone,
@@ -885,6 +920,14 @@ export class AnimationClip extends Asset {
     }
 }
 
+@ccclass('cc.AnimationClipAdditiveSettings')
+class AdditiveSettings {
+    @serializable
+    base: AnimationClip | null = null;
+}
+
+export { AdditiveSettings as AnimationClipAdditiveSettings };
+
 type WrapMode_ = WrapMode;
 
 export declare namespace AnimationClip {
@@ -893,9 +936,23 @@ export declare namespace AnimationClip {
 
 cclegacy.AnimationClip = AnimationClip;
 
-interface TrackEvalStatus {
-    binding: RuntimeBinding;
-    trackEval: TrackEval;
+class TrackEvalStatus<TValue> {
+    constructor (binding: RuntimeBinding<TValue>, trackEval: TrackEval<TValue>) {
+        this._binding = binding;
+        this._trackEval = trackEval;
+    }
+
+    public evaluate (time: number) {
+        const { _binding: binding, _trackEval: trackEval } = this;
+        const defaultValue = binding.getValue && trackEval.requiresDefault
+            ? binding.getValue() as TValue extends unknown ? unknown : Readonly<TValue>
+            : undefined;
+        const value = trackEval.evaluate(time, defaultValue);
+        binding.setValue(value);
+    }
+
+    private _binding: RuntimeBinding<TValue>;
+    private _trackEval: TrackEval<TValue>;
 }
 
 interface AnimationClipEvalContext {
@@ -1117,7 +1174,7 @@ class EmbeddedPlayerEvaluation {
 
 class AnimationClipEvaluation {
     constructor (
-        trackEvalStatuses: TrackEvalStatus[],
+        trackEvalStatuses: TrackEvalStatus<unknown>[],
         exoticAnimationEvaluator: ExoticAnimationEvaluator | undefined,
         rootMotionEvaluation: RootMotionEvaluation | undefined,
     ) {
@@ -1138,9 +1195,7 @@ class AnimationClipEvaluation {
 
         const nTrackEvalStatuses = trackEvalStatuses.length;
         for (let iTrackEvalStatus = 0; iTrackEvalStatus < nTrackEvalStatuses; ++iTrackEvalStatus) {
-            const { trackEval, binding } = trackEvalStatuses[iTrackEvalStatus];
-            const value = trackEval.evaluate(time, binding);
-            binding.setValue(value);
+            trackEvalStatuses[iTrackEvalStatus].evaluate(time);
         }
 
         if (exoticAnimationEvaluator) {
@@ -1161,7 +1216,7 @@ class AnimationClipEvaluation {
     }
 
     private _exoticAnimationEvaluator: ExoticAnimationEvaluator | undefined;
-    private _trackEvalStatues:TrackEvalStatus[] = [];
+    private _trackEvalStatues: TrackEvalStatus<unknown>[] = [];
     private _rootMotionEvaluation: RootMotionEvaluation | undefined = undefined;
 }
 
@@ -1206,7 +1261,7 @@ class RootMotionEvaluation {
         private _rootBone: Node,
         private _duration: number,
         private _boneTransform: BoneTransform,
-        private _trackEvalStatuses: TrackEvalStatus[],
+        private _trackEvalStatuses: TrackEvalStatus<unknown>[],
     ) {
 
     }
@@ -1278,9 +1333,7 @@ class RootMotionEvaluation {
 
         const nTrackEvalStatuses = trackEvalStatuses.length;
         for (let iTrackEvalStatus = 0; iTrackEvalStatus < nTrackEvalStatuses; ++iTrackEvalStatus) {
-            const { trackEval, binding } = trackEvalStatuses[iTrackEvalStatus];
-            const value = trackEval.evaluate(time, binding);
-            binding.setValue(value);
+            trackEvalStatuses[iTrackEvalStatus].evaluate(time);
         }
 
         this._boneTransform.getTransform(outTransform);

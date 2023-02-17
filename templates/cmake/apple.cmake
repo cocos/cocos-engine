@@ -1,3 +1,21 @@
+
+
+macro(cc_apple_set_launch_type target_name)
+    if("${CMAKE_VERSION}" VERSION_GREATER_EQUAL "3.25.0" AND DEFINED LAUNCH_TYPE)
+        set_target_properties(${target_name} PROPERTIES
+            XCODE_GENERATE_SCHEME ON
+            XCODE_SCHEME_LAUNCH_CONFIGURATION "${LAUNCH_TYPE}"
+        )
+
+        if("${LAUNCH_TYPE}" STREQUAL "Release")
+            set_target_properties(${target_name} PROPERTIES
+                XCODE_SCHEME_ENABLE_GPU_API_VALIDATION OFF
+                XCODE_SCHEME_ENABLE_GPU_SHADER_VALIDATION OFF
+            )
+        endif()
+    endif()
+endmacro()
+
 macro(cc_ios_before_target target_name)
     list(APPEND CC_UI_RESOURCES
         ${CC_PROJECT_DIR}/LaunchScreenBackground.png
@@ -7,22 +25,25 @@ macro(cc_ios_before_target target_name)
     )
     list(APPEND CC_PROJ_SOURCES
         ${CC_UI_RESOURCES}
-    ) 
+    )
+
     if(NOT EXISTS ${CC_PROJECT_DIR}/LaunchScreenBackground.png)
-        if (USE_PORTRAIT)
+        if(USE_PORTRAIT)
             configure_file(${CC_PROJECT_DIR}/LaunchScreenBackgroundPortrait.png ${CC_PROJECT_DIR}/LaunchScreenBackground.png COPYONLY)
         else()
             configure_file(${CC_PROJECT_DIR}/LaunchScreenBackgroundLandscape.png ${CC_PROJECT_DIR}/LaunchScreenBackground.png COPYONLY)
         endif()
     endif()
+
     if(NOT CUSTOM_COPY_RESOURCE_HOOK)
         cc_include_resources(${RES_DIR}/data CC_ASSET_FILES)
     endif()
+
     source_group(TREE ${RES_DIR}/data PREFIX "Resources" FILES ${CC_ASSET_FILES})
     source_group(TREE ${CC_PROJECT_DIR} PREFIX "Source Files" FILES ${CC_PROJ_SOURCES})
     source_group(TREE ${CC_PROJECT_DIR}/../common PREFIX "Source Files" FILES ${CC_COMMON_SOURCES})
 
-    ## values used in Info.plist templates
+    # # values used in Info.plist templates
     set(EXECUTABLE_NAME ${target_name})
     set(PRODUCT_NAME ${APP_NAME})
 
@@ -41,7 +62,7 @@ macro(cc_ios_before_target target_name)
 endmacro()
 
 macro(cc_ios_after_target target_name)
-    set_target_properties(${target_name} PROPERTIES 
+    set_target_properties(${target_name} PROPERTIES
         MACOSX_BUNDLE 1
         MACOSX_BUNDLE_INFO_PLIST "${CC_PROJECT_DIR}/Info.plist"
         RESOURCE "${CC_UI_RESOURCES}"
@@ -58,13 +79,16 @@ macro(cc_ios_after_target target_name)
         XCODE_ATTRIBUTE_SKIP_INSTALL NO
         XCODE_ATTRIBUTE_INSTALL_PATH "$(LOCAL_APPS_DIR)"
     )
-    ## exclude arm64 arch and specify x86_64 for iphonesimulator by default, this will apply to both target.
+
+    cc_apple_set_launch_type(${target_name})
+
+    # # exclude arm64 arch and specify x86_64 for iphonesimulator by default, this will apply to both target.
     set(CMAKE_XCODE_ATTRIBUTE_EXCLUDED_ARCHS[sdk=iphonesimulator*] "arm64")
     set(CMAKE_XCODE_ATTRIBUTE_ARCHS[sdk=iphoneos*] "arm64")
     set(CMAKE_XCODE_ATTRIBUTE_ARCHS[sdk=iphonesimulator*] "x86_64")
     set(CMAKE_XCODE_ATTRIBUTE_VALID_ARCHS[sdk=iphoneos*] "arm64")
     set(CMAKE_XCODE_ATTRIBUTE_VALID_ARCHS[sdk=iphonesimulator*] "x86_64")
-    
+
     target_link_libraries(${target_name} ${ENGINE_NAME})
 
     target_include_directories(${target_name} PRIVATE
@@ -74,9 +98,7 @@ macro(cc_ios_after_target target_name)
     cc_common_after_target(${target_name})
 endmacro()
 
-
 macro(cc_mac_before_target target_name)
-
     set(CMAKE_OSX_DEPLOYMENT_TARGET ${TARGET_OSX_VERSION})
 
     list(APPEND CC_UI_RESOURCES
@@ -87,11 +109,12 @@ macro(cc_mac_before_target target_name)
         ${CC_PROJECT_DIR}/main.mm
         ${CC_UI_RESOURCES}
     )
+
     if(NOT CUSTOM_COPY_RESOURCE_HOOK)
         cc_include_resources(${RES_DIR}/data CC_ASSET_FILES)
     endif()
 
-    ## values used in Info.plist templates
+    # # values used in Info.plist templates
     set(EXECUTABLE_NAME ${target_name})
     set(PRODUCT_NAME ${APP_NAME})
 
@@ -107,46 +130,46 @@ macro(cc_mac_before_target target_name)
     cc_common_before_target(${target_name})
 endmacro()
 
-
 macro(cc_mac_after_target target_name)
-    
     target_link_libraries(${target_name} ${ENGINE_NAME})
     target_include_directories(${target_name} PRIVATE
         ${CC_PROJECT_DIR}/../common/Classes
     )
-if(USE_SERVER_MODE)
-    if(EXISTS ${RES_DIR}/data/jsb-adapter)
-        set(bin_dir ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR})
-        add_custom_target(copy_resource ALL
-            COMMAND ${CMAKE_COMMAND} -E echo "Copying resources to ${bin_dir}"
-            COMMAND ${CMAKE_COMMAND} -E make_directory ${bin_dir}/Resources
-            COMMAND ${CMAKE_COMMAND} -E copy_directory "${RES_DIR}/data/" "${bin_dir}/Resources/"
-            COMMAND ${CMAKE_COMMAND} -E echo "Copying resources done!"
-        )
-        add_dependencies(${target_name} copy_resource)
-        set_target_properties(copy_resource PROPERTIES FOLDER Utils)
-    endif()
-else()
-    set_target_properties(${target_name} PROPERTIES
-        OSX_ARCHITECTURES "x86_64;arm64"
-        XCODE_ATTRIBUTE_MACOS_DEPLOYMENT_TARGET "${TARGET_OSX_VERSION}"
-        XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH YES
-        XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME "AppIcon"
-        XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_LAUNCHSTORYBOARD_NAME "LaunchScreen"
-        MACOSX_BUNDLE 1
-        RESOURCE "${CC_UI_RESOURCES}"
-        MACOSX_BUNDLE_INFO_PLIST "${CC_PROJECT_DIR}/Info.plist"
-        XCODE_ATTRIBUTE_SKIP_INSTALL NO
-        XCODE_ATTRIBUTE_INSTALL_PATH "$(LOCAL_APPS_DIR)"
-    )
 
-    if(ENABLE_SANDBOX)
+    if(USE_SERVER_MODE)
+        if(EXISTS ${RES_DIR}/data/jsb-adapter)
+            set(bin_dir ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR})
+            add_custom_target(copy_resource ALL
+                COMMAND ${CMAKE_COMMAND} -E echo "Copying resources to ${bin_dir}"
+                COMMAND ${CMAKE_COMMAND} -E make_directory ${bin_dir}/Resources
+                COMMAND ${CMAKE_COMMAND} -E copy_directory "${RES_DIR}/data/" "${bin_dir}/Resources/"
+                COMMAND ${CMAKE_COMMAND} -E echo "Copying resources done!"
+            )
+            add_dependencies(${target_name} copy_resource)
+            set_target_properties(copy_resource PROPERTIES FOLDER Utils)
+        endif()
+    else()
         set_target_properties(${target_name} PROPERTIES
-            XCODE_ATTRIBUTE_CODE_SIGN_ENTITLEMENTS "${CC_PROJECT_DIR}/entitlements.plist"
+            OSX_ARCHITECTURES "x86_64;arm64"
+            XCODE_ATTRIBUTE_MACOS_DEPLOYMENT_TARGET "${TARGET_OSX_VERSION}"
+            XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH YES
+            XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME "AppIcon"
+            XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_LAUNCHSTORYBOARD_NAME "LaunchScreen"
+            MACOSX_BUNDLE 1
+            RESOURCE "${CC_UI_RESOURCES}"
+            MACOSX_BUNDLE_INFO_PLIST "${CC_PROJECT_DIR}/Info.plist"
+            XCODE_ATTRIBUTE_SKIP_INSTALL NO
+            XCODE_ATTRIBUTE_INSTALL_PATH "$(LOCAL_APPS_DIR)"
         )
+
+        cc_apple_set_launch_type(${target_name})
+
+        if(ENABLE_SANDBOX)
+            set_target_properties(${target_name} PROPERTIES
+                XCODE_ATTRIBUTE_CODE_SIGN_ENTITLEMENTS "${CC_PROJECT_DIR}/entitlements.plist"
+            )
+        endif()
     endif()
-endif()
+
     cc_common_after_target(${target_name})
-
 endmacro()
-

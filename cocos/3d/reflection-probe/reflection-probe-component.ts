@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,10 +20,10 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 import { ccclass, executeInEditMode, menu, playOnFocus, serializable, tooltip, type, visible } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { CCObject, Color, Enum, size, Vec3 } from '../../core';
+import { cclegacy, CCObject, Color, Enum, size, Vec3 } from '../../core';
 
 import { TextureCube } from '../../asset/assets';
 import { scene } from '../../render-scene';
@@ -35,6 +34,7 @@ import { Layers } from '../../scene-graph/layers';
 import { Camera } from '../../misc/camera-component';
 import { Node, TransformBit } from '../../scene-graph';
 import { ProbeClearFlag, ProbeType } from '../../render-scene/scene/reflection-probe';
+import { absolute } from '../../physics/utils/util';
 
 export enum ProbeResolution {
     /**
@@ -97,14 +97,17 @@ export class ReflectionProbe extends Component {
     protected _previewSphere: Node | null = null;
     protected _previewPlane: Node | null = null;
 
+    protected _sourceCameraPos = new Vec3(0, 0, 0);
+
     /**
      * @en
      * Gets or sets the size of the box
      * @zh
      * 获取或设置包围盒的大小。
      */
-    set size (value) {
+    set size (value: Vec3) {
         this._size.set(value);
+        absolute(this._size);
         this.probe.size = this._size;
         if (this.probe) {
             ReflectionProbeManager.probeManager.onUpdateProbes(true);
@@ -121,11 +124,11 @@ export class ReflectionProbe extends Component {
      */
     @type(Enum(ProbeType))
     set probeType (value: number) {
+        this.probe.probeType = value;
         if (value !== this._probeType) {
             const lastSize = this._size.clone();
             const lastSizeIsNoExist = Vec3.equals(this._lastSize, Vec3.ZERO);
             this._probeType = value;
-            this.probe.probeType = value;
 
             if (this._probeType === ProbeType.CUBE) {
                 if (lastSizeIsNoExist) {
@@ -273,6 +276,9 @@ export class ReflectionProbe extends Component {
         this._previewPlane = val;
         if (this.probe) {
             this.probe.previewPlane = val;
+            if (this._previewPlane) {
+                ReflectionProbeManager.probeManager.updatePreviewPlane(this.probe);
+            }
         }
     }
 
@@ -281,19 +287,20 @@ export class ReflectionProbe extends Component {
     }
 
     public onLoad () {
-        if (EDITOR || this.probeType === ProbeType.PLANAR) {
-            this._createProbe();
-        }
+        this._createProbe();
     }
 
     onEnable () {
-        if (EDITOR || this.probeType === ProbeType.PLANAR) {
-            ReflectionProbeManager.probeManager.register(this._probe!);
+        if (this._probe) {
+            ReflectionProbeManager.probeManager.register(this._probe);
+            ReflectionProbeManager.probeManager.onUpdateProbes(true);
+            this._probe.enable();
         }
     }
     onDisable () {
-        if (EDITOR || this.probeType === ProbeType.PLANAR) {
-            ReflectionProbeManager.probeManager.unregister(this._probe!);
+        if (this._probe) {
+            ReflectionProbeManager.probeManager.unregister(this._probe);
+            this._probe.disable();
         }
     }
 
@@ -312,7 +319,7 @@ export class ReflectionProbe extends Component {
 
     public update (dt: number) {
         if (!this.probe) return;
-        if (EDITOR) {
+        if (EDITOR && !cclegacy.GAME_VIEW) {
             if (this.probeType === ProbeType.PLANAR) {
                 const cameraLst: scene.Camera[] | undefined = this.node.scene.renderScene?.cameras;
                 if (cameraLst !== undefined) {
@@ -333,8 +340,12 @@ export class ReflectionProbe extends Component {
                 ReflectionProbeManager.probeManager.onUpdateProbes(true);
             }
         }
-        if (this.probeType === ProbeType.PLANAR && this.sourceCamera && (this.sourceCamera.node.hasChangedFlags & TransformBit.TRS)) {
-            this.probe.renderPlanarReflection(this.sourceCamera.camera);
+        if (this.probeType === ProbeType.PLANAR && this.sourceCamera) {
+            if ((this.sourceCamera.node.hasChangedFlags & TransformBit.TRS)
+            || !this._sourceCameraPos.equals(this.sourceCamera.node.getWorldPosition())) {
+                this._sourceCameraPos = this.sourceCamera.node.getWorldPosition();
+                this.probe.renderPlanarReflection(this.sourceCamera.camera);
+            }
         }
     }
 

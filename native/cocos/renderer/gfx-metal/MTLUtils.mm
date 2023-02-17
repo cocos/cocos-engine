@@ -404,9 +404,9 @@ CCMTLGPUPipelineState *getClearRenderPassPipelineState(CCMTLDevice *device, Rend
     pipelineInfo.renderPass = curPass;
 
     DepthStencilState dsState;
-    dsState.depthWrite = 0;
-    dsState.depthTest = 1;
-    dsState.depthFunc = ComparisonFunc::LESS_EQUAL;
+    dsState.depthWrite = curPass->getDepthStencilAttachment().format != Format::UNKNOWN;
+    dsState.depthTest = 0;
+    dsState.depthFunc = ComparisonFunc::ALWAYS;
     pipelineInfo.depthStencilState = dsState;
 
     PipelineState *pipelineState = device->createPipelineState(std::move(pipelineInfo));
@@ -1748,8 +1748,7 @@ void mu::clearRenderArea(CCMTLDevice *device, id<MTLRenderCommandEncoder> render
 
     const auto &colorAttachments = renderPass->getColorAttachments();
     const auto &depthStencilAttachment = renderPass->getDepthStencilAttachment();
-
-    [renderEncoder setViewport:(MTLViewport){0, 0, renderTargetWidth, renderTargetHeight}];
+    [renderEncoder setViewport:(MTLViewport){0, 0, renderTargetWidth, renderTargetHeight, 0, 1}];
     MTLScissorRect scissorArea = {static_cast<NSUInteger>(renderArea.x), static_cast<NSUInteger>(renderArea.y), static_cast<NSUInteger>(renderArea.width), static_cast<NSUInteger>(renderArea.height)};
 #if defined(CC_DEBUG) && (CC_DEBUG > 0)
     scissorArea.width = MIN(scissorArea.width, renderTargetWidth - scissorArea.x);

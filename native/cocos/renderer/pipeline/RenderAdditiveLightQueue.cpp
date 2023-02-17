@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -48,9 +47,7 @@
 namespace cc {
 namespace pipeline {
 
-RenderAdditiveLightQueue::RenderAdditiveLightQueue(RenderPipeline *pipeline) : _pipeline(pipeline),
-                                                                               _instancedQueue(ccnew RenderInstancedQueue),
-                                                                               _batchedQueue(ccnew RenderBatchedQueue) {
+RenderAdditiveLightQueue::RenderAdditiveLightQueue(RenderPipeline *pipeline) : _pipeline(pipeline) {
     auto *device = gfx::Device::getInstance();
     const auto alignment = device->getCapabilities().uboOffsetAlignment;
     _lightBufferStride = ((UBOForwardLight::SIZE + alignment - 1) / alignment) * alignment;
@@ -68,25 +65,20 @@ RenderAdditiveLightQueue::RenderAdditiveLightQueue(RenderPipeline *pipeline) : _
     _shadowUBO.fill(0.F);
 }
 
-RenderAdditiveLightQueue ::~RenderAdditiveLightQueue() {
-    CC_SAFE_DELETE(_instancedQueue);
-    CC_SAFE_DELETE(_batchedQueue);
-}
-
 void RenderAdditiveLightQueue::recordCommandBuffer(gfx::Device *device, scene::Camera *camera, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer) {
     const uint32_t offset = _pipeline->getPipelineUBO()->getCurrentCameraUBOOffset();
-    for (uint32_t i = 0; i < _instancedLightPass.lights.size(); ++i) {
+    for (uint32_t i = 0; i < _instancedQueues.size(); ++i) {
         const auto *light = _instancedLightPass.lights[i];
         _dynamicOffsets[0] = _instancedLightPass.dynamicOffsets[i];
         auto *globalDescriptorSet = _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(light);
-        _instancedQueue->recordCommandBuffer(device, renderPass, cmdBuffer, globalDescriptorSet, offset, &_dynamicOffsets);
+        _instancedQueues[i]->recordCommandBuffer(device, renderPass, cmdBuffer, globalDescriptorSet, offset, &_dynamicOffsets);
     }
 
-    for (size_t i = 0; i < _batchedLightPass.lights.size(); ++i) {
+    for (size_t i = 0; i < _batchedQueues.size(); ++i) {
         const auto *light = _batchedLightPass.lights[i];
         _dynamicOffsets[0] = _batchedLightPass.dynamicOffsets[i];
         auto *globalDescriptorSet = _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(light);
-        _batchedQueue->recordCommandBuffer(device, renderPass, cmdBuffer, globalDescriptorSet, offset, &_dynamicOffsets);
+        _batchedQueues[i]->recordCommandBuffer(device, renderPass, cmdBuffer, globalDescriptorSet, offset, &_dynamicOffsets);
     }
 
     const bool enableOcclusionQuery = _pipeline->isOcclusionQueryEnabled();
@@ -167,13 +159,23 @@ void RenderAdditiveLightQueue::gatherLightPasses(const scene::Camera *camera, gf
         _batchedLightPass.lights.emplace_back(light);
         _batchedLightPass.dynamicOffsets.emplace_back(_lightBufferStride * l);
     }
-    _instancedQueue->uploadBuffers(cmdBuffer);
-    _batchedQueue->uploadBuffers(cmdBuffer);
+    for (const auto &instancedQueue : _instancedQueues) {
+        instancedQueue->uploadBuffers(cmdBuffer);
+    }
+    for (const auto &batchedQueue : _batchedQueues) {
+        batchedQueue->uploadBuffers(cmdBuffer);
+    }
 }
 
 void RenderAdditiveLightQueue::clear() {
-    _instancedQueue->clear();
-    _batchedQueue->clear();
+    for (const auto &instancedQueue : _instancedQueues) {
+        instancedQueue->clear();
+    }
+    _instancedQueues.clear();
+    for (const auto &batchedQueue : _batchedQueues) {
+        batchedQueue->clear();
+    }
+    _batchedQueues.clear();
 
     for (auto lightPass : _lightPasses) {
         lightPass.dynamicOffsets.clear();
@@ -218,13 +220,19 @@ void RenderAdditiveLightQueue::addRenderQueue(scene::SubModel *subModel, const s
                     auto *buffer = pass->getInstancedBuffer(i);
                     buffer->merge(subModel, lightPassIdx);
                     buffer->setDynamicOffset(0, _lightBufferStride);
-                    _instancedQueue->add(buffer);
+                    if (i >= _instancedQueues.size()) {
+                        _instancedQueues.emplace_back(ccnew RenderInstancedQueue());
+                    }
+                    _instancedQueues[i]->add(buffer);
                 } break;
                 case scene::BatchingSchemes::VB_MERGING: {
                     auto *buffer = pass->getBatchedBuffer(i);
                     buffer->merge(subModel, lightPassIdx, model);
                     buffer->setDynamicOffset(0, _lightBufferStride);
-                    _batchedQueue->add(buffer);
+                    if (i >= _batchedQueues.size()) {
+                        _batchedQueues.emplace_back(ccnew RenderBatchedQueue());
+                    }
+                    _batchedQueues[i]->add(buffer);
                 } break;
                 case scene::BatchingSchemes::NONE: {
                     lightPass.lights.emplace_back(light);

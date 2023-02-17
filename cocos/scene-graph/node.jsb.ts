@@ -1,15 +1,16 @@
 /*
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
  http://www.cocos.com
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -181,9 +182,9 @@ nodeProto.addComponent = function (typeOrClassName) {
         throw TypeError(getError(3810));
     }
 
-    // if (EDITOR && (constructor as typeof constructor & { _disallowMultiple?: unknown })._disallowMultiple) {
-    //     this._checkMultipleComp!(constructor);
-    // }
+    if (EDITOR && (constructor as typeof constructor & { _disallowMultiple?: unknown })._disallowMultiple) {
+        this._checkMultipleComp!(constructor);
+    }
 
     // check requirement
 
@@ -234,13 +235,13 @@ nodeProto.removeComponent = function (component) {
 };
 
 const REGISTERED_EVENT_MASK_TRANSFORM_CHANGED = (1 << 0);
-const REGISTERED_EVENT_MASK_ANCESTOR_TRANSFORM_CHANGED = (1 << 1);
-const REGISTERED_EVENT_MASK_PARENT_CHANGED = (1 << 2);
-const REGISTERED_EVENT_MASK_MOBILITY_CHANGED = (1 << 3);
-const REGISTERED_EVENT_MASK_LAYER_CHANGED = (1 << 4);
-const REGISTERED_EVENT_MASK_CHILD_REMOVED_CHANGED = (1 << 5);
-const REGISTERED_EVENT_MASK_CHILD_ADDED_CHANGED = (1 << 6);
-const REGISTERED_EVENT_MASK_SIBLING_ORDER_CHANGED_CHANGED = (1 << 7);
+const REGISTERED_EVENT_MASK_PARENT_CHANGED = (1 << 1);
+const REGISTERED_EVENT_MASK_MOBILITY_CHANGED = (1 << 2);
+const REGISTERED_EVENT_MASK_LAYER_CHANGED = (1 << 3);
+const REGISTERED_EVENT_MASK_CHILD_REMOVED_CHANGED = (1 << 4);
+const REGISTERED_EVENT_MASK_CHILD_ADDED_CHANGED = (1 << 5);
+const REGISTERED_EVENT_MASK_SIBLING_ORDER_CHANGED_CHANGED = (1 << 6);
+const REGISTERED_EVENT_MASK_LIGHT_PROBE_BAKING_CHANGED = (1 << 7);
 
 nodeProto.on = function (type, callback, target, useCapture: any = false) {
     switch (type) {
@@ -249,13 +250,6 @@ nodeProto.on = function (type, callback, target, useCapture: any = false) {
             if (!(this._registeredNodeEventTypeMask & REGISTERED_EVENT_MASK_TRANSFORM_CHANGED)) {
                 this._registerOnTransformChanged();
                 this._registeredNodeEventTypeMask |= REGISTERED_EVENT_MASK_TRANSFORM_CHANGED;
-            }
-            break;
-        case NodeEventType.ANCESTOR_TRANSFORM_CHANGED:
-            this._eventMask |= TRANSFORM_ON;
-            if (!(this._registeredNodeEventTypeMask & REGISTERED_EVENT_MASK_ANCESTOR_TRANSFORM_CHANGED)) {
-                this._registerOnAncestorTransformChanged();
-                this._registeredNodeEventTypeMask |= REGISTERED_EVENT_MASK_ANCESTOR_TRANSFORM_CHANGED;
             }
             break;
         case NodeEventType.PARENT_CHANGED:
@@ -294,6 +288,12 @@ nodeProto.on = function (type, callback, target, useCapture: any = false) {
                 this._registeredNodeEventTypeMask |= REGISTERED_EVENT_MASK_SIBLING_ORDER_CHANGED_CHANGED;
             }
             break;
+        case NodeEventType.LIGHT_PROBE_BAKING_CHANGED:
+            if (!(this._registeredNodeEventTypeMask & REGISTERED_EVENT_MASK_LIGHT_PROBE_BAKING_CHANGED)) {
+                this._registerOnLightProbeBakingChanged();
+                this._registeredNodeEventTypeMask |= REGISTERED_EVENT_MASK_LIGHT_PROBE_BAKING_CHANGED;
+            }
+            break;
         default:
             break;
     }
@@ -308,9 +308,6 @@ nodeProto.off = function (type: string, callback?, target?, useCapture = false) 
     if (!hasListeners) {
         switch (type) {
             case NodeEventType.TRANSFORM_CHANGED:
-                this._eventMask &= ~TRANSFORM_ON;
-                break;
-            case NodeEventType.ANCESTOR_TRANSFORM_CHANGED:
                 this._eventMask &= ~TRANSFORM_ON;
                 break;
             default:
@@ -401,10 +398,6 @@ nodeProto._registerIfAttached = !EDITOR ? undefined : function (this: Node, atta
 
 nodeProto._onTransformChanged = function (transformType) {
     this.emit(NodeEventType.TRANSFORM_CHANGED, transformType);
-};
-
-nodeProto._onAncestorTransformChanged = function (transformType) {
-    this.emit(NodeEventType.ANCESTOR_TRANSFORM_CHANGED, transformType);
 };
 
 nodeProto._onParentChanged = function (oldParent) {
@@ -519,6 +512,10 @@ nodeProto._onPostActivated = function (active: boolean) {
     } else { // deactivated
         this._eventProcessor.setEnabled(false);
     }
+};
+
+nodeProto._onLightProbeBakingChanged = function () {
+    this.emit(NodeEventType.LIGHT_PROBE_BAKING_CHANGED);
 };
 
 // Static functions.

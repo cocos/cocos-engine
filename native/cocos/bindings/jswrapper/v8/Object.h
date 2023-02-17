@@ -1,19 +1,18 @@
 /****************************************************************************
  Copyright (c) 2016 Chukong Technologies Inc.
- Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -179,13 +178,21 @@ public:
     static Object *createObjectWithConstructor(se::Object *constructor, const ValueArray &args);
 
     /**
+     * Gets the Proxy Target object
+     * @param proxy The JavaScript Proxy object.
+     * @return The target JavaScript object of the parameter.
+     */
+    static Object *createProxyTarget(se::Object *proxy);
+
+    /**
      *  @brief Gets a se::Object from an existing native object pointer.
      *  @param[in] ptr The native object pointer associated with the se::Object
      *  @return A JavaScript Native Binding Object, or nullptr if there is an error.
      *  @note The return value (non-null) has to be released manually.
      *  @deprecated Use NativePtrToObjectMap to query the native object.
      */
-    CC_DEPRECATED(3.7) static Object *getObjectWithPtr(void *ptr);
+    CC_DEPRECATED(3.7)
+    static Object *getObjectWithPtr(void *ptr);
 
     /**
      *  @brief Gets a property from an object.
@@ -314,6 +321,11 @@ public:
      */
     bool isTypedArray() const;
 
+    /** @brief Tests whether an object is a proxy object.
+     *  @return true if object is a proxy object, otherwise false.
+     */
+    bool isProxy() const;
+    
     /**
      *  @brief Gets the type of a typed array object.
      *  @return The type of a typed array object.
@@ -656,6 +668,7 @@ private:
     ~Object() override;
 
     bool init(Class *cls, v8::Local<v8::Object> obj);
+    v8::Local<v8::Value> getProxyTarget() const;
 
     Class *_cls{nullptr};
     ObjectWrap _obj;

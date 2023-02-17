@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -173,6 +172,9 @@ public:
     virtual void addComputeView(const ccstd::string &name, const ComputeView &view) = 0;
     virtual RasterQueueBuilder *addQueue(QueueHint hint) = 0;
     virtual void setViewport(const gfx::Viewport &viewport) = 0;
+    virtual void setVersion(const ccstd::string &name, uint64_t version) = 0;
+    virtual bool getShowStatistics() const = 0;
+    virtual void setShowStatistics(bool enable) = 0;
     RasterQueueBuilder *addQueue() {
         return addQueue(QueueHint::NONE);
     }
@@ -253,26 +255,6 @@ public:
     virtual SceneTask *transverse(SceneVisitor *visitor) const = 0;
 };
 
-class LayoutGraphBuilder {
-public:
-    LayoutGraphBuilder() noexcept = default;
-    LayoutGraphBuilder(LayoutGraphBuilder&& rhs) = delete;
-    LayoutGraphBuilder(LayoutGraphBuilder const& rhs) = delete;
-    LayoutGraphBuilder& operator=(LayoutGraphBuilder&& rhs) = delete;
-    LayoutGraphBuilder& operator=(LayoutGraphBuilder const& rhs) = delete;
-    virtual ~LayoutGraphBuilder() noexcept = default;
-
-    virtual void clear() = 0;
-    virtual uint32_t addRenderStage(const ccstd::string &name) = 0;
-    virtual uint32_t addRenderPhase(const ccstd::string &name, uint32_t parentID) = 0;
-    virtual void addShader(const ccstd::string &name, uint32_t parentPhaseID) = 0;
-    virtual void addDescriptorBlock(uint32_t nodeID, const DescriptorBlockIndex &index, const DescriptorBlockFlattened &block) = 0;
-    virtual void addUniformBlock(uint32_t nodeID, const DescriptorBlockIndex &index, const ccstd::string &name, const gfx::UniformBlock &uniformBlock) = 0;
-    virtual void reserveDescriptorBlock(uint32_t nodeID, const DescriptorBlockIndex &index, const DescriptorBlockFlattened &block) = 0;
-    virtual int compile() = 0;
-    virtual ccstd::string print() const = 0;
-};
-
 class Pipeline : public PipelineRuntime {
 public:
     Pipeline() noexcept = default;
@@ -294,7 +276,6 @@ public:
     virtual CopyPassBuilder *addCopyPass() = 0;
     virtual void presentAll() = 0;
     virtual SceneTransversal *createSceneTransversal(const scene::Camera *camera, const scene::RenderScene *scene) = 0;
-    virtual LayoutGraphBuilder *getLayoutGraphBuilder() = 0;
     virtual gfx::DescriptorSetLayout *getDescriptorSetLayout(const ccstd::string &shaderName, UpdateFrequency freq) = 0;
     uint32_t addRenderTarget(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height) {
         return addRenderTarget(name, format, width, height, ResourceResidency::MANAGED);
@@ -325,8 +306,23 @@ public:
     virtual void setup(const ccstd::vector<scene::Camera*> &cameras, Pipeline *pipeline) = 0;
 };
 
+class RenderingModule {
+public:
+    RenderingModule() noexcept = default;
+    RenderingModule(RenderingModule&& rhs) = delete;
+    RenderingModule(RenderingModule const& rhs) = delete;
+    RenderingModule& operator=(RenderingModule&& rhs) = delete;
+    RenderingModule& operator=(RenderingModule const& rhs) = delete;
+    virtual ~RenderingModule() noexcept = default;
+
+    virtual uint32_t getPassID(const ccstd::string &name) const = 0;
+    virtual uint32_t getPhaseID(uint32_t passID, const ccstd::string &name) const = 0;
+};
+
 class Factory {
 public:
+    static RenderingModule* init(gfx::Device* deviceIn, const ccstd::vector<unsigned char>& bufferIn);
+    static void destroy(RenderingModule* renderingModule) noexcept;
     static Pipeline *createPipeline();
 };
 

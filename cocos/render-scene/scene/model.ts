@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 // Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 import { EDITOR } from 'internal:constants';
@@ -56,10 +55,15 @@ const stationaryLightMapPatches: IMacroPatch[] = [
     { name: 'CC_USE_LIGHTMAP', value: 2 },
 ];
 
+const highpLightMapPatches: IMacroPatch[] = [
+    { name: 'CC_LIGHT_MAP_VERSION', value: 2 },
+];
+
 const lightProbePatches: IMacroPatch[] = [
     { name: 'CC_USE_LIGHT_PROBE', value: true },
 ];
 const CC_USE_REFLECTION_PROBE = 'CC_USE_REFLECTION_PROBE';
+const CC_RECEIVE_DIRECTIONAL_LIGHT = 'CC_RECEIVE_DIRECTIONAL_LIGHT';
 export enum ModelType {
     DEFAULT,
     SKINNING,
@@ -239,10 +243,22 @@ export class Model {
     }
 
     /**
+     * @en Gets or sets receive direction Light.
+     * @zh 获取或者设置接收平行光光照。
+     */
+    get receiveDirLight (): boolean {
+        return this._receiveDirLight;
+    }
+    set receiveDirLight (val) {
+        this._receiveDirLight = val;
+        this.onMacroPatchesStateChanged();
+    }
+
+    /**
      * @en The node to which the model belongs
      * @zh 模型所在的节点
      */
-    get node () : Node {
+    get node (): Node {
         return this._node;
     }
 
@@ -254,7 +270,7 @@ export class Model {
      * @en Model's transform
      * @zh 模型的变换
      */
-    get transform () : Node {
+    get transform (): Node {
         return this._transform;
     }
 
@@ -269,7 +285,7 @@ export class Model {
      * @zh 模型的可见性标志
      * 模型的可见性标志与 [[Node.layer]] 不同，它会在剔除阶段与 [[Camera.visibility]] 进行比较
      */
-    get visFlags () : number {
+    get visFlags (): number {
         return this._visFlags;
     }
 
@@ -281,7 +297,7 @@ export class Model {
      * @en Whether the model is enabled in the render scene so that it will be rendered
      * @zh 模型是否在渲染场景中启用并被渲染
      */
-    get enabled () : boolean {
+    get enabled (): boolean {
         return this._enabled;
     }
 
@@ -293,7 +309,7 @@ export class Model {
      * @en Rendering priority in the transparent queue of model.
      * @zh Model 在透明队列中的渲染排序优先级
      */
-    get priority () : number {
+    get priority (): number {
         return this._priority;
     }
 
@@ -460,6 +476,12 @@ export class Model {
      * @zh 是否投射阴影
      */
     protected _castShadow = false;
+
+    /**
+     * @en Is received direction Light.
+     * @zh 是否接收平行光光照。
+     */
+    protected _receiveDirLight = true;
 
     /**
      * @en Shadow bias
@@ -892,7 +914,7 @@ export class Model {
      * @zh 更新反射探针的立方体贴图
      * @param texture probe cubemap
      */
-    public updateReflctionProbeCubemap (texture: TextureCube | null) {
+    public updateReflectionProbeCubemap (texture: TextureCube | null) {
         this._localDataUpdated = true;
         this.onMacroPatchesStateChanged();
 
@@ -918,7 +940,7 @@ export class Model {
      * @zh 更新反射探针的平面反射贴图
      * @param texture planar relflection map
      */
-    public updateReflctionProbePlanarMap (texture: Texture | null) {
+    public updateReflectionProbePlanarMap (texture: Texture | null) {
         this._localDataUpdated = true;
         this.onMacroPatchesStateChanged();
 
@@ -972,6 +994,11 @@ export class Model {
 
             const lightmapPathes = stationary ? stationaryLightMapPatches : staticLightMapPatches;
             patches = patches ? patches.concat(lightmapPathes) : lightmapPathes;
+
+            // use highp lightmap
+            if (this.node.scene.globals.bakedWithHighpLightmap) {
+                patches = patches.concat(highpLightMapPatches);
+            }
         }
         if (this._useLightProbe) {
             patches = patches ? patches.concat(lightProbePatches) : lightProbePatches;
@@ -980,6 +1007,10 @@ export class Model {
             { name: CC_USE_REFLECTION_PROBE, value: this._reflectionProbeType },
         ];
         patches = patches ? patches.concat(reflectionProbePatches) : reflectionProbePatches;
+        const receiveDirLightPatches: IMacroPatch[] = [
+            { name: CC_RECEIVE_DIRECTIONAL_LIGHT, value: this._receiveDirLight },
+        ];
+        patches = patches ? patches.concat(receiveDirLightPatches) : receiveDirLightPatches;
 
         return patches;
     }

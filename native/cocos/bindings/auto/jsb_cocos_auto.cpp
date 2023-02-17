@@ -9,20 +9,19 @@
  * ----------------------------------------------------------------------------- */
 
 /****************************************************************************
- Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -1684,6 +1683,26 @@ static bool js_delete_cc_CCObject(se::State& s)
 }
 SE_BIND_FINALIZE_FUNC(js_delete_cc_CCObject) 
 
+static bool js_cc_CCObject_destruct(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::CCObject *arg1 = (cc::CCObject *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::CCObject>(s);
+    if (nullptr == arg1) return true;
+    (arg1)->destruct();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_CCObject_destruct) 
+
 static bool js_cc_CCObject__destroy(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -1901,6 +1920,7 @@ bool js_register_cc_CCObject(se::Object* obj) {
     cls->defineProperty("replicated", _SE(js_cc_CCObject_replicated_get), _SE(js_cc_CCObject_replicated_set)); 
     cls->defineProperty("isValid", _SE(js_cc_CCObject_isValid_get), nullptr); 
     
+    cls->defineFunction("destruct", _SE(js_cc_CCObject_destruct)); 
     cls->defineFunction("_destroy", _SE(js_cc_CCObject__destroy)); 
     cls->defineFunction("_destroyImmediate", _SE(js_cc_CCObject__destroyImmediate)); 
     cls->defineFunction("toString", _SE(js_cc_CCObject_toString)); 
@@ -4585,18 +4605,14 @@ static bool js_cc_ISystemWindowManager_processEvent(se::State& s)
     const auto& args = s.args();
     size_t argc = args.size();
     cc::ISystemWindowManager *arg1 = (cc::ISystemWindowManager *) NULL ;
-    bool *arg2 = (bool *) NULL ;
     
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
         return false;
     }
     arg1 = SE_THIS_OBJECT<cc::ISystemWindowManager>(s);
     if (nullptr == arg1) return true;
-    
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
-    (arg1)->processEvent(arg2);
+    (arg1)->processEvent();
     
     
     return true;

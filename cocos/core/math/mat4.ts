@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2018-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2018-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -1996,7 +1995,7 @@ export class Mat4 extends ValueType {
 
     /**
      * @en Returns the translation vector component of a transformation matrix.
-     * @zh 从当前矩阵中计算出位移变换的部分，并以各个轴上位移的形式赋值给出口向量。
+     * @zh 从当前矩阵中计算出位移变换的部分，并以各个轴上位移的形式赋值给输出向量。
      * @param out Vector to receive translation component.
      */
     public getTranslation (out: Vec3) {
@@ -2009,7 +2008,7 @@ export class Mat4 extends ValueType {
 
     /**
      * @en Returns the scale factor component of a transformation matrix
-     * @zh 从当前矩阵中计算出缩放变换的部分，并以各个轴上缩放的形式赋值给出口向量。
+     * @zh 从当前矩阵中计算出缩放变换的部分，并以各个轴上缩放的形式赋值给输出向量。
      * @param out Vector to receive scale component
      */
     public getScale (out: Vec3) {
@@ -2025,47 +2024,38 @@ export class Mat4 extends ValueType {
         out.x = Math.sqrt(m00 * m00 + m01 * m01 + m02 * m02);
         out.y = Math.sqrt(m04 * m04 + m05 * m05 + m06 * m06);
         out.z = Math.sqrt(m08 * m08 + m09 * m09 + m10 * m10);
-        // account for refections
+        // account for reflections
         if (Mat3.determinant(m3_1) < 0) { out.x *= -1; }
         return out;
     }
 
     /**
      * @en Returns the rotation factor component of a transformation matrix
-     * @zh 从当前矩阵中计算出旋转变换的部分，并以四元数的形式赋值给出口四元数。
+     * @zh 从当前矩阵中计算出旋转变换的部分，并以四元数的形式赋值给输出四元数。
      * @param out Vector to receive rotation component
      */
     public getRotation (out: Quat) {
-        const trace = this.m00 + this.m05 + this.m10;
-        let S = 0;
-
-        if (trace > 0) {
-            S = Math.sqrt(trace + 1.0) * 2;
-            out.w = 0.25 * S;
-            out.x = (this.m06 - this.m09) / S;
-            out.y = (this.m08 - this.m02) / S;
-            out.z = (this.m01 - this.m04) / S;
-        } else if ((this.m00 > this.m05) && (this.m00 > this.m10)) {
-            S = Math.sqrt(1.0 + this.m00 - this.m05 - this.m10) * 2;
-            out.w = (this.m06 - this.m09) / S;
-            out.x = 0.25 * S;
-            out.y = (this.m01 + this.m04) / S;
-            out.z = (this.m08 + this.m02) / S;
-        } else if (this.m05 > this.m10) {
-            S = Math.sqrt(1.0 + this.m05 - this.m00 - this.m10) * 2;
-            out.w = (this.m08 - this.m02) / S;
-            out.x = (this.m01 + this.m04) / S;
-            out.y = 0.25 * S;
-            out.z = (this.m06 + this.m09) / S;
-        } else {
-            S = Math.sqrt(1.0 + this.m10 - this.m00 - this.m05) * 2;
-            out.w = (this.m01 - this.m04) / S;
-            out.x = (this.m08 + this.m02) / S;
-            out.y = (this.m06 + this.m09) / S;
-            out.z = 0.25 * S;
+        // Extract rotation matrix first
+        const sx = Vec3.set(v3_1, this.m00, this.m01, this.m02).length();
+        const sy = Vec3.set(v3_1, this.m04, this.m05, this.m06).length();
+        const sz = Vec3.set(v3_1, this.m08, this.m09, this.m10).length();
+        m3_1.m00 = this.m00 / sx;
+        m3_1.m01 = this.m01 / sx;
+        m3_1.m02 = this.m02 / sx;
+        m3_1.m03 = this.m04 / sy;
+        m3_1.m04 = this.m05 / sy;
+        m3_1.m05 = this.m06 / sy;
+        m3_1.m06 = this.m08 / sz;
+        m3_1.m07 = this.m09 / sz;
+        m3_1.m08 = this.m10 / sz;
+        const det = Mat3.determinant(m3_1);
+        if (det < 0) {
+            m3_1.m00 *= -1;
+            m3_1.m01 *= -1;
+            m3_1.m02 *= -1;
         }
 
-        return out;
+        return Quat.fromMat3(out, m3_1);
     }
 
     /**

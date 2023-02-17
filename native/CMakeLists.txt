@@ -444,6 +444,7 @@ cocos_source_files(
     cocos/base/StringPool.h
     cocos/base/StringUtil.cpp
     cocos/base/StringUtil.h
+    cocos/base/TemplateUtils.h
     cocos/base/ThreadPool.cpp
     cocos/base/ThreadPool.h
     cocos/base/TypeDef.h
@@ -1087,6 +1088,8 @@ cocos_source_files(
                  cocos/renderer/core/PassUtils.cpp
                  cocos/renderer/core/ProgramLib.h
                  cocos/renderer/core/ProgramLib.cpp
+                 cocos/renderer/core/ProgramUtils.h
+                 cocos/renderer/core/ProgramUtils.cpp
                  cocos/renderer/core/MaterialInstance.h
                  cocos/renderer/core/MaterialInstance.cpp
                  cocos/renderer/core/PassInstance.h
@@ -1248,8 +1251,6 @@ cocos_source_files(
                  cocos/renderer/pipeline/Define.cpp
                  cocos/renderer/pipeline/GlobalDescriptorSetManager.h
                  cocos/renderer/pipeline/GlobalDescriptorSetManager.cpp
-                 cocos/renderer/pipeline/LODModelsUtil.cpp
-                 cocos/renderer/pipeline/LODModelsUtil.h
                  cocos/renderer/pipeline/InstancedBuffer.cpp
                  cocos/renderer/pipeline/InstancedBuffer.h
                  cocos/renderer/pipeline/PipelineStateManager.cpp
@@ -1309,11 +1310,13 @@ cocos_source_files(
                  cocos/renderer/pipeline/deferred/PostProcessStage.h
                  cocos/renderer/pipeline/UIPhase.cpp
                  cocos/renderer/pipeline/UIPhase.h
+                 cocos/renderer/pipeline/DebugView.cpp
+                 cocos/renderer/pipeline/DebugView.h
                  cocos/renderer/pipeline/helper/Utils.h
                  cocos/renderer/pipeline/helper/Utils.cpp
                  cocos/renderer/pipeline/custom/BinaryArchive.h
                  cocos/renderer/pipeline/custom/FrameGraphDispatcher.cpp
-                 cocos/renderer/pipeline/custom/SerializationUtils.h
+                 cocos/renderer/pipeline/custom/details/SerializationUtils.h
                  cocos/renderer/pipeline/custom/test/test.h
                  cocos/renderer/pipeline/custom/NativeDefaultScene.cpp
                  cocos/renderer/pipeline/custom/NativeResourceGraph.cpp
@@ -1331,23 +1334,29 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/FGDispatcherTypes.h
                  cocos/renderer/pipeline/custom/LayoutGraphFwd.h
                  cocos/renderer/pipeline/custom/LayoutGraphGraphs.h
-                 cocos/renderer/pipeline/custom/LayoutGraphJsb.cpp
-                 cocos/renderer/pipeline/custom/LayoutGraphJsb.h
                  cocos/renderer/pipeline/custom/LayoutGraphNames.h
-                 cocos/renderer/pipeline/custom/LayoutGraphReflection.cpp
-                 cocos/renderer/pipeline/custom/LayoutGraphReflection.h
                  cocos/renderer/pipeline/custom/LayoutGraphSerialization.h
                  cocos/renderer/pipeline/custom/LayoutGraphTypes.cpp
                  cocos/renderer/pipeline/custom/LayoutGraphTypes.h
+                 cocos/renderer/pipeline/custom/LayoutGraphUtils.cpp
+                 cocos/renderer/pipeline/custom/LayoutGraphUtils.h
                  cocos/renderer/pipeline/custom/NativeExecutor.cpp
-                 cocos/renderer/pipeline/custom/NativeLayoutGraphImpl.cpp
+                 cocos/renderer/pipeline/custom/NativeFactory.cpp
+                 cocos/renderer/pipeline/custom/NativeFwd.h
+                 cocos/renderer/pipeline/custom/NativePipeline.cpp
                  cocos/renderer/pipeline/custom/NativePipelineFwd.h
                  cocos/renderer/pipeline/custom/NativePipelineGraphs.h
-                 cocos/renderer/pipeline/custom/NativePipelineImpl.cpp
                  cocos/renderer/pipeline/custom/NativePipelineTypes.cpp
                  cocos/renderer/pipeline/custom/NativePipelineTypes.h
+                 cocos/renderer/pipeline/custom/NativePools.cpp
+                 cocos/renderer/pipeline/custom/NativeProgramLibrary.cpp
                  cocos/renderer/pipeline/custom/NativeRenderGraph.cpp
                  cocos/renderer/pipeline/custom/NativeRenderQueue.cpp
+                 cocos/renderer/pipeline/custom/NativeRenderingModule.cpp
+                 cocos/renderer/pipeline/custom/NativeTypes.cpp
+                 cocos/renderer/pipeline/custom/NativeTypes.h
+                 cocos/renderer/pipeline/custom/NativeUtils.cpp
+                 cocos/renderer/pipeline/custom/NativeUtils.h
                  cocos/renderer/pipeline/custom/PrivateFwd.h
                  cocos/renderer/pipeline/custom/PrivateTypes.cpp
                  cocos/renderer/pipeline/custom/PrivateTypes.h
@@ -1355,24 +1364,17 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/RenderCommonJsb.cpp
                  cocos/renderer/pipeline/custom/RenderCommonJsb.h
                  cocos/renderer/pipeline/custom/RenderCommonNames.h
-                 cocos/renderer/pipeline/custom/RenderCommonReflection.cpp
-                 cocos/renderer/pipeline/custom/RenderCommonReflection.h
                  cocos/renderer/pipeline/custom/RenderCommonSerialization.h
                  cocos/renderer/pipeline/custom/RenderCommonTypes.cpp
                  cocos/renderer/pipeline/custom/RenderCommonTypes.h
                  cocos/renderer/pipeline/custom/RenderGraphFwd.h
                  cocos/renderer/pipeline/custom/RenderGraphGraphs.h
-                 cocos/renderer/pipeline/custom/RenderGraphJsb.cpp
-                 cocos/renderer/pipeline/custom/RenderGraphJsb.h
-                 cocos/renderer/pipeline/custom/RenderGraphNames.h
-                 cocos/renderer/pipeline/custom/RenderGraphReflection.cpp
-                 cocos/renderer/pipeline/custom/RenderGraphReflection.h
                  cocos/renderer/pipeline/custom/RenderGraphTypes.cpp
                  cocos/renderer/pipeline/custom/RenderGraphTypes.h
                  cocos/renderer/pipeline/custom/RenderInterfaceFwd.h
-                 cocos/renderer/pipeline/custom/RenderInterfaceImpl.cpp
                  cocos/renderer/pipeline/custom/RenderInterfaceTypes.cpp
                  cocos/renderer/pipeline/custom/RenderInterfaceTypes.h
+                 cocos/renderer/pipeline/custom/RenderingModule.h
 )
 
 if (USE_GEOMETRY_RENDERER)
@@ -2778,19 +2780,12 @@ endif()
 ##### ar module
 if(USE_AR_MODULE)
     cocos_source_files(
-        cocos/xr/ar/ARModule.cpp
         cocos/xr/ar/ARModule.h
-        cocos/xr/ar/IARAPI.h
         cocos/renderer/pipeline/xr/ar/ARStage.cpp
         cocos/renderer/pipeline/xr/ar/ARStage.h
         cocos/renderer/pipeline/xr/ar/ARBackground.cpp
         cocos/renderer/pipeline/xr/ar/ARBackground.h
     )
-    if(ANDROID OR IOS)
-        cocos_source_files(
-            cocos/xr/ar/ARLib.h
-        )
-    endif()
 endif()
 
 ##### extensions

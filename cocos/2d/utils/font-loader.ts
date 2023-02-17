@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,19 +20,21 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { warnID } from '../../core';
 import { safeMeasureText } from './text-utils';
-import { CompleteCallback, IDownloadParseOptions } from '../../asset/asset-manager/shared';
 import downloader from '../../asset/asset-manager/downloader';
 import factory from '../../asset/asset-manager/factory';
 import { TTFFont } from '../assets/ttf-font';
+import { ccwindow } from '../../core/global-exports';
+
+const ccdocument = ccwindow.document;
 
 interface IFontLoadHandle {
     fontFamilyName: string;
     refWidth: number;
-    onComplete: CompleteCallback;
+    onComplete: ((err: Error | null, data?: any | null) => void);
     startTime: number;
 }
 
@@ -53,9 +54,9 @@ const useNativeCheck = (() => {
     let nativeCheck: boolean;
     return (): boolean => {
         if (nativeCheck === undefined) {
-            if ('FontFace' in window) {
-                const match = /Gecko.*Firefox\/(\d+)/.exec(window.navigator.userAgent);
-                const safari10Match = /OS X.*Version\/10\..*Safari/.exec(window.navigator.userAgent) && /Apple/.exec(window.navigator.vendor);
+            if ('FontFace' in ccwindow) {
+                const match = /Gecko.*Firefox\/(\d+)/.exec(ccwindow.navigator.userAgent);
+                const safari10Match = /OS X.*Version\/10\..*Safari/.exec(ccwindow.navigator.userAgent) && /Apple/.exec(ccwindow.navigator.vendor);
 
                 if (match) {
                     nativeCheck = parseInt(match[1], 10) > 42;
@@ -108,7 +109,7 @@ function checkFontLoaded () {
 }
 
 // refer to https://github.com/typekit/webfontloader/blob/master/src/core/nativefontwatchrunner.js
-function nativeCheckFontLoaded (start: number, font: string, callback: CompleteCallback): void {
+function nativeCheckFontLoaded (start: number, font: string, callback: ((err: Error | null, data?: any | null) => void)): void {
     const loader = new Promise<void>((resolve, reject) => {
         const check = () => {
             const now = Date.now();
@@ -116,8 +117,7 @@ function nativeCheckFontLoaded (start: number, font: string, callback: CompleteC
             if (now - start >= _timeout) {
                 reject();
             } else {
-                // @ts-expect-error see https://developer.mozilla.org/en-US/docs/Web/API/Document/fonts
-                document.fonts.load(`40px ${font}`).then((fonts) => {
+                (ccdocument as any).fonts.load(`40px ${font}`).then((fonts) => {
                     if (fonts.length >= 1) {
                         resolve();
                     } else {
@@ -150,9 +150,8 @@ function nativeCheckFontLoaded (start: number, font: string, callback: CompleteC
     });
 }
 
-export function loadFont (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) {
+export function loadFont (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) {
     const fontFamilyName = getFontFamily(url);
-
     // Already loaded fonts
     if (_fontFaces[fontFamilyName]) {
         onComplete(null, fontFamilyName);
@@ -160,7 +159,7 @@ export function loadFont (url: string, options: IDownloadParseOptions, onComplet
     }
 
     if (!_canvasContext) {
-        const labelCanvas = document.createElement('canvas');
+        const labelCanvas = ccdocument.createElement('canvas');
         labelCanvas.width = 100;
         labelCanvas.height = 100;
         _canvasContext = labelCanvas.getContext('2d');
@@ -171,7 +170,7 @@ export function loadFont (url: string, options: IDownloadParseOptions, onComplet
     const refWidth = safeMeasureText(_canvasContext!, _testString, fontDesc);
 
     // Setup font face style
-    const fontStyle = document.createElement('style');
+    const fontStyle = ccdocument.createElement('style');
     fontStyle.type = 'text/css';
     let fontStr = '';
     if (Number.isNaN(fontFamilyName)) {
@@ -181,17 +180,17 @@ export function loadFont (url: string, options: IDownloadParseOptions, onComplet
     }
     fontStr += `url("${url}");`;
     fontStyle.textContent = `${fontStr}}`;
-    document.body.appendChild(fontStyle);
+    ccdocument.body.appendChild(fontStyle);
 
     // Preload font with div
-    const preloadDiv = document.createElement('div');
+    const preloadDiv = ccdocument.createElement('div');
     const divStyle = preloadDiv.style;
     divStyle.fontFamily = fontFamilyName;
     preloadDiv.innerHTML = '.';
     divStyle.position = 'absolute';
     divStyle.left = '-100px';
     divStyle.top = '-100px';
-    document.body.appendChild(preloadDiv);
+    ccdocument.body.appendChild(preloadDiv);
 
     if (useNativeCheck()) {
         nativeCheckFontLoaded(Date.now(), fontFamilyName, onComplete);
@@ -228,7 +227,7 @@ export function getFontFamily (fontHandle: string): string {
     return fontFamilyName;
 }
 
-function createFont (id: string, data: string, options: IDownloadParseOptions, onComplete: CompleteCallback<TTFFont>) {
+function createFont (id: string, data: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: TTFFont | null) => void)) {
     const out = new TTFFont();
     out._nativeUrl = id;
     out._nativeAsset = data;

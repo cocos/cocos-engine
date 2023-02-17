@@ -1,15 +1,15 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
@@ -28,6 +28,8 @@ import { scene } from '../../render-scene';
 import { cclegacy, clamp, warnID, CCBoolean, CCFloat, _decorator, settings, Settings, override } from '../../core';
 import { Camera, PCFType, Shadows, ShadowType, CSMOptimizationMode, CSMLevel } from '../../render-scene/scene';
 import { Root } from '../../root';
+import { MeshRenderer } from '../framework';
+import { director } from '../../game/director';
 
 const { ccclass, menu, executeInEditMode, property, serializable, formerlySerializedAs, tooltip, help, visible, type, editable, slide, range } = _decorator;
 
@@ -113,20 +115,6 @@ export class DirectionalLight extends Light {
             this._illuminanceLDR = val;
             this._light && (this._light.illuminanceLDR = this._illuminanceLDR);
         }
-    }
-
-    /**
-     * @en Turn off the function for directional light.
-     * @zh 方向光关闭该功能。
-     * @engineInternal
-     */
-    @override
-    @visible(false)
-    set visibility (vis: number) {
-        this._visibility = vis;
-    }
-    get visibility (): number {
-        return this._visibility;
     }
 
     /**
@@ -562,6 +550,29 @@ export class DirectionalLight extends Light {
             this._light.csmOptimizationMode = this._csmOptimizationMode;
             this._light.csmLayersTransition = this._csmLayersTransition;
             this._light.csmTransitionRange = this._csmTransitionRange;
+        }
+    }
+
+    protected _onUpdateReceiveDirLight () {
+        if (!this._light) {
+            return;
+        }
+        super._onUpdateReceiveDirLight();
+
+        const scene = director.getScene();
+        if (!scene || !scene.renderScene) {
+            return;
+        }
+        if (scene.renderScene.mainLight !== this._light) {
+            return;
+        }
+        const models = scene.renderScene.models;
+        for (let i = 0; i < models.length; i++) {
+            const model = models[i];
+            if (!model.node) continue;
+            const meshRender = model.node.getComponent(MeshRenderer);
+            if (!meshRender) continue;
+            meshRender.onUpdateReceiveDirLight(this._visibility);
         }
     }
 }

@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -196,17 +195,25 @@ seval_to_type(const se::Value &v, bool &ok) { // NOLINT(readability-identifier-n
     return v.toString();
 }
 
+inline se::HandleObject unwrapProxyObject(se::Object *obj) {
+    if(obj->isProxy()) {
+        return se::HandleObject(se::Object::createProxyTarget(obj));
+    }
+    obj->incRef();
+    return se::HandleObject(obj);
+}
+
 template <typename T>
 typename std::enable_if<std::is_pointer<T>::value && std::is_class<typename std::remove_pointer<T>::type>::value, bool>::type
 seval_to_std_vector(const se::Value &v, ccstd::vector<T> *ret) { // NOLINT(readability-identifier-naming)
     CC_ASSERT_NOT_NULL(ret);
     CC_ASSERT(v.isObject());
-    se::Object *obj = v.toObject();
-    CC_ASSERT(obj->isArray());
+    se::HandleObject array(unwrapProxyObject(v.toObject()));
+    CC_ASSERT(array->isArray());
 
     bool ok = true;
     uint32_t len = 0;
-    ok = obj->getArrayLength(&len);
+    ok = array->getArrayLength(&len);
     if (!ok) {
         ret->clear();
         return false;
@@ -216,7 +223,7 @@ seval_to_std_vector(const se::Value &v, ccstd::vector<T> *ret) { // NOLINT(reada
 
     se::Value tmp;
     for (uint32_t i = 0; i < len; ++i) {
-        ok = obj->getArrayElement(i, &tmp);
+        ok = array->getArrayElement(i, &tmp);
         if (!ok) {
             ret->clear();
             return false;
@@ -241,12 +248,12 @@ typename std::enable_if<!std::is_pointer<T>::value, bool>::type
 seval_to_std_vector(const se::Value &v, ccstd::vector<T> *ret) { // NOLINT(readability-identifier-naming)
     CC_ASSERT_NOT_NULL(ret);
     CC_ASSERT(v.isObject());
-    se::Object *obj = v.toObject();
-    CC_ASSERT(obj->isArray());
+    se::HandleObject array(unwrapProxyObject(v.toObject()));
+    CC_ASSERT(array->isArray());
 
     bool ok = true;
     uint32_t len = 0;
-    ok = obj->getArrayLength(&len);
+    ok = array->getArrayLength(&len);
     if (!ok) {
         ret->clear();
         return false;
@@ -256,7 +263,7 @@ seval_to_std_vector(const se::Value &v, ccstd::vector<T> *ret) { // NOLINT(reada
 
     se::Value tmp;
     for (uint32_t i = 0; i < len; ++i) {
-        ok = obj->getArrayElement(i, &tmp);
+        ok = array->getArrayElement(i, &tmp);
         if (!ok) {
             ret->clear();
             return false;
@@ -629,18 +636,22 @@ bool sevalue_to_native(const se::Value &from, ccstd::array<uint8_t, CNT> *to, se
 }
 
 template <typename T>
-bool sevalue_to_native(const se::Value &from, ccstd::variant<T, ccstd::vector<T>> *to, se::Object *ctx) { // NOLINT
-    se::Object *array = from.toObject();
-    if (array->isArray()) {
+bool sevalue_to_native(const se::Value &from, ccstd::variant<ccstd::monostate, T, ccstd::vector<T>> *to, se::Object *ctx) { // NOLINT
+    bool ok = false;
+    if (from.isObject() && from.toObject()->isArray()) {
         ccstd::vector<T> result;
-        sevalue_to_native(from, &result, ctx);
-        *to = std::move(result);
+        ok = sevalue_to_native(from, &result, ctx);
+        if (ok) {
+            *to = std::move(result);
+        }
     } else {
-        T result;
-        sevalue_to_native(from, &result, ctx);
-        *to = result;
+        T result{};
+        ok = sevalue_to_native(from, &result, ctx);
+        if (ok) {
+            *to = std::move(result);
+        }
     }
-    return true;
+    return ok;
 }
 
 ////////////////// TypedArray
@@ -706,8 +717,8 @@ bool sevalue_to_native(const se::Value &from, ccstd::vector<T> *to, se::Object *
     }
 
     CC_ASSERT(from.toObject());
-    se::Object *array = from.toObject();
-
+    se::HandleObject array(unwrapProxyObject(from.toObject()));
+    
     if (array->isArray()) {
         uint32_t len = 0;
         array->getArrayLength(&len);

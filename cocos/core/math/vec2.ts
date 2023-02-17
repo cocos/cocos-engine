@@ -1,19 +1,18 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -266,8 +265,8 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Sets the normalized vector to the out vector
-     * @zh 归一化向量
+     * @en Sets the normalized vector to the out vector, returns a zero vector if input is a zero vector.
+     * @zh 归一化向量，输入零向量将会返回零向量。
      */
     public static normalize <Out extends IVec2Like, Vec2Like extends IVec2Like> (out: Out, a: Vec2Like) {
         const x = a.x;
@@ -277,6 +276,9 @@ export class Vec2 extends ValueType {
             len = 1 / Math.sqrt(len);
             out.x = x * len;
             out.y = y * len;
+        } else {
+            out.x = 0;
+            out.y = 0;
         }
         return out;
     }
@@ -302,7 +304,7 @@ export class Vec2 extends ValueType {
      */
     public static cross <Out extends IVec2Like> (out: Vec3, a: Out, b: Out): Vec3;
 
-    public static cross (out: IVec2Like | Vec3, a: IVec2Like, b?: IVec2Like) : number | Vec3 {
+    public static cross (out: IVec2Like | Vec3, a: IVec2Like, b?: IVec2Like): number | Vec3 {
         if (out instanceof Vec3) {
             out.x = out.y = 0;
             out.z = a.x * b!.y - a.y * b!.x;
@@ -413,19 +415,20 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Calculates the radian angle between two vectors
-     * @zh 求两向量夹角弧度
+     * @en Calculates the radian angle between two vectors, returns zero if either vector is a zero vector.
+     * @zh 求两向量夹角弧度，任意一个向量是零向量则返回零。
      */
     public static angle <Out extends IVec2Like> (a: Out, b: Out) {
-        Vec2.normalize(v2_1, a);
-        Vec2.normalize(v2_2, b);
-        const cosine = Vec2.dot(v2_1, v2_2);
-        if (cosine > 1.0) {
-            return 0;
+        const magSqr1 = a.x * a.x + a.y * a.y;
+        const magSqr2 = b.x * b.x + b.y * b.y;
+
+        if (magSqr1 === 0 || magSqr2 === 0) {
+            return 0.0;
         }
-        if (cosine < -1.0) {
-            return Math.PI;
-        }
+
+        const dot = a.x * b.x + a.y * b.y;
+        let cosine = dot / (Math.sqrt(magSqr1 * magSqr2));
+        cosine = clamp(cosine, -1.0, 1.0);
         return Math.acos(cosine);
     }
 
@@ -752,24 +755,23 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Calculates radian angle between two vectors
-     * @zh 获取当前向量和指定向量之间的角度。
-     * @param other specified vector
-     * @return The angle between the current vector and the specified vector (in radians); if there are zero vectors in the current vector and the specified vector, 0 is returned.
+     * @en Calculates radian angle between two vectors, returns zero if either vector is a zero vector.
+     * @zh 获取当前向量和指定向量之间的角度，任意一个向量是零向量则返回零。
+     * @param other specified vector.
+     * @return The angle between the current vector and the specified vector.
      */
     public angle (other: Vec2) {
         const magSqr1 = this.lengthSqr();
         const magSqr2 = other.lengthSqr();
 
         if (magSqr1 === 0 || magSqr2 === 0) {
-            console.warn('Can\'t get angle between zero vector');
             return 0.0;
         }
 
         const dot = this.dot(other);
-        let theta = dot / (Math.sqrt(magSqr1 * magSqr2));
-        theta = clamp(theta, -1.0, 1.0);
-        return Math.acos(theta);
+        let cosine = dot / (Math.sqrt(magSqr1 * magSqr2));
+        cosine = clamp(cosine, -1.0, 1.0);
+        return Math.acos(cosine);
     }
 
     /**

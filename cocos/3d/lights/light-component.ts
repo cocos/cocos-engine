@@ -1,15 +1,15 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
@@ -221,8 +221,8 @@ export class Light extends Component {
     }
 
     /**
-     * @en Visibility mask of the light, declaring a set of node layers that will be visible to this light(Does not work with directional light).
-     * @zh 光照的可见性掩码，声明在当前光照中可见的节点层级集合（对方向光不生效）。
+     * @en Visibility mask of the light, declaring a set of node layers that will be visible to this light.
+     * @zh 光照的可见性掩码，声明在当前光照中可见的节点层级集合。
      */
     @tooltip('i18n:lights.visibility')
     @displayOrder(255)
@@ -230,6 +230,7 @@ export class Light extends Component {
     set visibility (vis: number) {
         this._visibility = vis;
         if (this._light) { this._light.visibility = vis; }
+        this._onUpdateReceiveDirLight();
     }
     get visibility (): number {
         return this._visibility;
@@ -315,4 +316,6 @@ export class Light extends Component {
             }
         }
     }
+
+    protected _onUpdateReceiveDirLight () {}
 }

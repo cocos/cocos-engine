@@ -9,20 +9,19 @@
  * ----------------------------------------------------------------------------- */
 
 /****************************************************************************
- Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -11512,6 +11511,43 @@ static bool js_cc_IPassInfoFull_phase_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_IPassInfoFull_phase_get) 
 
+static bool js_cc_IPassInfoFull_pass_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::IPassInfoFull *arg1 = (cc::IPassInfoFull *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IPassInfoFull>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->pass, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_IPassInfoFull_pass_set) 
+
+static bool js_cc_IPassInfoFull_pass_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::IPassInfoFull *arg1 = (cc::IPassInfoFull *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IPassInfoFull>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->pass, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->pass, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_IPassInfoFull_pass_get) 
+
 static bool js_cc_IPassInfoFull_program_set(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -11930,6 +11966,12 @@ bool sevalue_to_native(const se::Value &from, cc::IPassInfoFull * to, se::Object
     }
     
     
+    json->getProperty("pass", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->pass), ctx);
+    }
+    
+    
     json->getProperty("program", &field, true);
     if (!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->program), ctx);
@@ -11994,6 +12036,7 @@ bool js_register_cc_IPassInfoFull(se::Object* obj) {
     cls->defineProperty("blendState", _SE(js_cc_IPassInfoFull_blendState_get), _SE(js_cc_IPassInfoFull_blendState_set)); 
     cls->defineProperty("dynamicStates", _SE(js_cc_IPassInfoFull_dynamicStates_get), _SE(js_cc_IPassInfoFull_dynamicStates_set)); 
     cls->defineProperty("phase", _SE(js_cc_IPassInfoFull_phase_get), _SE(js_cc_IPassInfoFull_phase_set)); 
+    cls->defineProperty("pass", _SE(js_cc_IPassInfoFull_pass_get), _SE(js_cc_IPassInfoFull_pass_set)); 
     cls->defineProperty("program", _SE(js_cc_IPassInfoFull_program_get), _SE(js_cc_IPassInfoFull_program_set)); 
     cls->defineProperty("embeddedMacros", _SE(js_cc_IPassInfoFull_embeddedMacros_get), _SE(js_cc_IPassInfoFull_embeddedMacros_set)); 
     cls->defineProperty("propertyIndex", _SE(js_cc_IPassInfoFull_propertyIndex_get), _SE(js_cc_IPassInfoFull_propertyIndex_set)); 
@@ -16660,20 +16703,52 @@ static bool js_cc_IShaderInfo_subpassInputs_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_IShaderInfo_subpassInputs_get) 
 
-static bool js_cc_IShaderInfo_getSource(se::State& s)
+static bool js_cc_IShaderInfo_descriptors_set(se::State& s)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
     cc::IShaderInfo *arg1 = (cc::IShaderInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IShaderInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->descriptors, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_IShaderInfo_descriptors_set) 
+
+static bool js_cc_IShaderInfo_descriptors_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::IShaderInfo *arg1 = (cc::IShaderInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IShaderInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->descriptors, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->descriptors, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_IShaderInfo_descriptors_get) 
+
+static bool js_cc_IShaderInfo_getSource__SWIG_0(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::IShaderInfo *arg1 = (cc::IShaderInfo *) NULL ;
     ccstd::string *arg2 = 0 ;
     ccstd::string temp2 ;
     cc::IShaderSource *result = 0 ;
     
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
     arg1 = SE_THIS_OBJECT<cc::IShaderInfo>(s);
     if (nullptr == arg1) return true;
     
@@ -16689,6 +16764,55 @@ static bool js_cc_IShaderInfo_getSource(se::State& s)
     
     
     return true;
+}
+
+static bool js_cc_IShaderInfo_getSource__SWIG_1(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::IShaderInfo *arg1 = (cc::IShaderInfo *) NULL ;
+    ccstd::string *arg2 = 0 ;
+    ccstd::string temp2 ;
+    cc::IShaderSource *result = 0 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IShaderInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg2 = &temp2;
+    
+    result = (cc::IShaderSource *)(arg1)->getSource((ccstd::string const &)*arg2);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+
+static bool js_cc_IShaderInfo_getSource(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    
+    
+    if (argc == 1) {
+        ok = js_cc_IShaderInfo_getSource__SWIG_0(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    if (argc == 1) {
+        ok = js_cc_IShaderInfo_getSource__SWIG_1(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
 }
 SE_BIND_FUNC(js_cc_IShaderInfo_getSource) 
 
@@ -16817,6 +16941,12 @@ bool sevalue_to_native(const se::Value &from, cc::IShaderInfo * to, se::Object *
     }
     
     
+    json->getProperty("descriptors", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->descriptors), ctx);
+    }
+    
+    
     return ok;
 }
 
@@ -16840,6 +16970,7 @@ bool js_register_cc_IShaderInfo(se::Object* obj) {
     cls->defineProperty("buffers", _SE(js_cc_IShaderInfo_buffers_get), _SE(js_cc_IShaderInfo_buffers_set)); 
     cls->defineProperty("images", _SE(js_cc_IShaderInfo_images_get), _SE(js_cc_IShaderInfo_images_set)); 
     cls->defineProperty("subpassInputs", _SE(js_cc_IShaderInfo_subpassInputs_get), _SE(js_cc_IShaderInfo_subpassInputs_set)); 
+    cls->defineProperty("descriptors", _SE(js_cc_IShaderInfo_descriptors_get), _SE(js_cc_IShaderInfo_descriptors_set)); 
     
     cls->defineFunction("getSource", _SE(js_cc_IShaderInfo_getSource)); 
     

@@ -14,7 +14,10 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 var spine;
+const ccwindow = typeof globalThis.jsb !== 'undefined' ? ( typeof jsb.window !== 'undefined' ? jsb.window : window) : window;
 (function (spine) {
+
+
     var Animation = (function () {
         function Animation(name, timelines, duration) {
             if (name == null)
@@ -2245,7 +2248,7 @@ var spine;
             if (error === void 0) { error = null; }
             path = this.pathPrefix + path;
             this.toLoad++;
-            var img = new Image();
+            var img = new ccwindow.Image();
             img.crossOrigin = "anonymous";
             img.onload = function (ev) {
                 var texture = _this.textureLoader(img);
@@ -2270,7 +2273,7 @@ var spine;
             if (error === void 0) { error = null; }
             path = this.pathPrefix + path;
             this.toLoad++;
-            var img = new Image();
+            var img = new ccwindow.Image();
             img.onload = function (ev) {
                 var texture = _this.textureLoader(img);
                 _this.assets[path] = texture;
@@ -2301,7 +2304,7 @@ var spine;
                 try {
                     var atlas = new spine.TextureAtlas(atlasData, function (path) {
                         atlasPages.push(parent + "/" + path);
-                        var image = document.createElement("img");
+                        var image = new ccwindow.Image();
                         image.width = 16;
                         image.height = 16;
                         return new spine.FakeTexture(image);
@@ -3543,7 +3546,7 @@ var spine;
             path = this.pathPrefix + path;
             if (!this.queueAsset(clientId, textureLoader, path))
                 return;
-            var img = new Image();
+            var img = new ccwindow.Image();
             img.src = path;
             img.crossOrigin = "anonymous";
             img.onload = function (ev) {

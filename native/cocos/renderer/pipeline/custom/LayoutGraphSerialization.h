@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -29,12 +28,12 @@
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
 #pragma once
-#include <cocos/renderer/pipeline/custom/LayoutGraphGraphs.h>
 #include "cocos/renderer/pipeline/custom/ArchiveTypes.h"
+#include "cocos/renderer/pipeline/custom/LayoutGraphGraphs.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
-#include "cocos/renderer/pipeline/custom/Range.h"
 #include "cocos/renderer/pipeline/custom/RenderCommonSerialization.h"
-#include "cocos/renderer/pipeline/custom/SerializationUtils.h"
+#include "cocos/renderer/pipeline/custom/details/Range.h"
+#include "cocos/renderer/pipeline/custom/details/SerializationUtils.h"
 
 namespace cc {
 
@@ -118,21 +117,21 @@ inline void load(InputArchive& ar, LayoutGraph& g) {
         load(ar, u);
         load(ar, name);
         load(ar, descriptors);
-        switch(id) {
-        case 0: {
-            uint32_t val;
-            load(ar, val);
-            addVertex(std::move(name), std::move(descriptors), val, g, u);
-            break;
-        }
-        case 1: {
-            RenderPhase val(g.get_allocator());
-            load(ar, val);
-            addVertex(std::move(name), std::move(descriptors), std::move(val), g, u);
-            break;
-        }
-        default:
-            throw std::runtime_error("load graph failed");
+        switch (id) {
+            case 0: {
+                uint32_t val;
+                load(ar, val);
+                addVertex(std::move(name), std::move(descriptors), val, g, u);
+                break;
+            }
+            case 1: {
+                RenderPhase val(g.get_allocator());
+                load(ar, val);
+                addVertex(std::move(name), std::move(descriptors), std::move(val), g, u);
+                break;
+            }
+            default:
+                throw std::runtime_error("load graph failed");
         }
     }
 }
@@ -200,15 +199,21 @@ inline void load(InputArchive& ar, DescriptorBlockData& v) {
 inline void save(OutputArchive& ar, const DescriptorSetLayoutData& v) {
     save(ar, v.slot);
     save(ar, v.capacity);
+    save(ar, v.uniformBlockCapacity);
+    save(ar, v.samplerTextureCapacity);
     save(ar, v.descriptorBlocks);
     save(ar, v.uniformBlocks);
+    save(ar, v.bindingMap);
 }
 
 inline void load(InputArchive& ar, DescriptorSetLayoutData& v) {
     load(ar, v.slot);
     load(ar, v.capacity);
+    load(ar, v.uniformBlockCapacity);
+    load(ar, v.samplerTextureCapacity);
     load(ar, v.descriptorBlocks);
     load(ar, v.uniformBlocks);
+    load(ar, v.bindingMap);
 }
 
 inline void save(OutputArchive& ar, const DescriptorSetData& v) {
@@ -371,21 +376,21 @@ inline void load(InputArchive& ar, LayoutGraphData& g) {
         load(ar, name);
         load(ar, update);
         load(ar, layout);
-        switch(id) {
-        case 0: {
-            RenderStageData val(g.get_allocator());
-            load(ar, val);
-            addVertex(std::move(name), update, std::move(layout), std::move(val), g, u);
-            break;
-        }
-        case 1: {
-            RenderPhaseData val(g.get_allocator());
-            load(ar, val);
-            addVertex(std::move(name), update, std::move(layout), std::move(val), g, u);
-            break;
-        }
-        default:
-            throw std::runtime_error("load graph failed");
+        switch (id) {
+            case 0: {
+                RenderStageData val(g.get_allocator());
+                load(ar, val);
+                addVertex(std::move(name), update, std::move(layout), std::move(val), g, u);
+                break;
+            }
+            case 1: {
+                RenderPhaseData val(g.get_allocator());
+                load(ar, val);
+                addVertex(std::move(name), update, std::move(layout), std::move(val), g, u);
+                break;
+            }
+            default:
+                throw std::runtime_error("load graph failed");
         }
     }
     load(ar, g.valueNames);

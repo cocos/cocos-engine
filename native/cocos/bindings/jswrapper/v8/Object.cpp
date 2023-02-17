@@ -1,19 +1,18 @@
 /****************************************************************************
  Copyright (c) 2016 Chukong Technologies Inc.
- Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -151,6 +150,13 @@ void Object::cleanup() {
     SE_ASSERT(NativePtrToObjectMap::size() == 0, "NativePtrToObjectMap should be empty!");
 }
 
+Object *Object::createProxyTarget(se::Object *proxy) {
+    SE_ASSERT(proxy->isProxy(), "parameter is not a Proxy object");
+    v8::Local<v8::Object> jsobj = proxy->getProxyTarget().As<v8::Object>();
+    Object *obj = Object::_createJSObject(nullptr, jsobj);
+    return obj;
+}
+
 Object *Object::createPlainObject() {
     v8::Local<v8::Object> jsobj = v8::Object::New(__isolate);
     Object *obj = _createJSObject(nullptr, jsobj);
@@ -244,9 +250,9 @@ Object *Object::createExternalArrayBufferObject(void *contents, size_t byteLengt
     Object *obj = nullptr;
     #if CC_EDITOR && CC_PLATFORM == CC_PLATFORM_WINDOWS
     auto nodeBuffer = node::Buffer::New(
-                        __isolate, (char *)contents, byteLength, [](char *data, void *hint) {}, nullptr)
-                        .ToLocalChecked()
-                        .As<v8::TypedArray>();
+                          __isolate, (char *)contents, byteLength, [](char *data, void *hint) {}, nullptr)
+                          .ToLocalChecked()
+                          .As<v8::TypedArray>();
     v8::Local<v8::ArrayBuffer> jsobj = nodeBuffer.As<v8::TypedArray>()->Buffer();
     #else
     std::shared_ptr<v8::BackingStore> backingStore = v8::ArrayBuffer::NewBackingStore(contents, byteLength, freeFunc, freeUserData);
@@ -565,6 +571,17 @@ bool Object::isTypedArray() const {
     return const_cast<Object *>(this)->_obj.handle(__isolate)->IsTypedArray();
 }
 
+bool Object::isProxy() const {
+    return const_cast<Object *>(this)->_obj.handle(__isolate)->IsProxy();
+}
+
+v8::Local<v8::Value> Object::getProxyTarget() const {
+    v8::Local<v8::Value> value = const_cast<Object *>(this)->_obj.handle(__isolate);
+    CC_ASSERTF(value->IsProxy(), "Object is not a Proxy");
+    v8::Proxy *proxy = v8::Proxy::Cast(*value);
+    return proxy->GetTarget();
+}
+
 Object::TypedArrayType Object::getTypedArrayType() const {
     v8::Local<v8::Value> value = const_cast<Object *>(this)->_obj.handle(__isolate);
     TypedArrayType ret = TypedArrayType::NONE;
@@ -795,8 +812,7 @@ bool Object::getArrayLength(uint32_t *length) const {
     CC_ASSERT(isArray());
     CC_ASSERT_NOT_NULL(length);
     auto *thiz = const_cast<Object *>(this);
-
-    v8::Local<v8::Array> v8Arr = v8::Local<v8::Array>::Cast(thiz->_obj.handle(__isolate));
+    auto v8Arr = v8::Local<v8::Array>::Cast(thiz->_obj.handle(__isolate));
     *length = v8Arr->Length();
     return true;
 }

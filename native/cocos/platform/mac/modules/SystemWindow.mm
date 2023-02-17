@@ -43,7 +43,9 @@ SystemWindow::SystemWindow(uint32_t windowId, void *externalHandle)
     }
 }
 
-SystemWindow::~SystemWindow() = default;
+SystemWindow::~SystemWindow() {
+    setCursorEnabled(true);
+}
 
 bool SystemWindow::createWindow(const char *title,
                                 int w, int h, int flags) {
@@ -98,6 +100,22 @@ void SystemWindow::closeWindow() {
 }
 
 void SystemWindow::setCursorEnabled(bool value) {
+    CGError result;
+    if(value) {
+        result = CGAssociateMouseAndMouseCursorPosition(YES);
+        [NSCursor unhide];
+        if(_pointerLock) {
+            CGPoint point =
+                CGPointMake((float)_lastMousePosX, _lastMousePosY);
+            CGWarpMouseCursorPosition(point);
+        }
+        _pointerLock = false;
+    } else {
+        result = CGAssociateMouseAndMouseCursorPosition(NO);
+        [NSCursor hide];
+        _pointerLock = true;
+    }
+    CC_ASSERT(result == kCGErrorSuccess);
 }
 
 void SystemWindow::copyTextToClipboard(const std::string &text) {
@@ -118,6 +136,15 @@ SystemWindow::Size SystemWindow::getViewSize() const {
 
 uint32_t SystemWindow::getWindowId() const { 
     return _windowId;
+}
+
+bool SystemWindow::isPointerLock() const {
+    return _pointerLock;
+}
+
+void SystemWindow::setLastMousePos(float x, float y) {
+    _lastMousePosX = x;
+    _lastMousePosY = y;
 }
 
 } // namespace cc

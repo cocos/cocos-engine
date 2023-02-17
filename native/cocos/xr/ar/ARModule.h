@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -25,35 +24,41 @@
 
 #pragma once
 
-#include <memory>
+#include <array>
 #include <string>
-#include "ar/IARAPI.h"
-#include "base/Macros.h"
 
 namespace cc {
 namespace ar {
 
-class CC_DLL ARModule final {
+using Pose      = std::array<float, 7>;
+using Matrix    = std::array<float, 16>;
+using TexCoords = std::array<float, 8>;
+using LightVal  = std::array<float, 3>;
+
+class ARModule {
 public:
+    static ARModule* createARModule();
     static ARModule* get();
 
-    ARModule();
-    ~ARModule();
+    ~ARModule() = default;
 
-    void config(int featureMask);
-    int getSupportMask();
+    void config(uint32_t featureMask);
+    uint32_t getSupportMask() const;
     void start();
-    void onResume();
-    void onPause();
+    void start(void *env, void *context);
+    void stop();
+    void resume();
+    void resume(void *env, void *context);
+    void pause();
     void update();
     int getAPIState();
 
-    void setCameraId(const std::string &id);
-    const std::string &getCameraId() const;
-    Pose getCameraPose() const;
-    Matrix getCameraViewMatrix() const;
-    Matrix getCameraProjectionMatrix() const;
-    TexCoords getCameraTexCoords() const;
+    void setCameraId(const std::string& id);
+    const std::string& getCameraId() const;
+    Pose getCameraPose();
+    Matrix getCameraViewMatrix();
+    Matrix getCameraProjectionMatrix();
+    TexCoords getCameraTexCoords();
 
     void enableCameraAutoFocus(bool enable) const;
     void enableCameraDepth(bool enable) const;
@@ -61,17 +66,19 @@ public:
     void setCameraClip(float near, float far) const;
     void setCameraTextureName(int id) const;
     void* getCameraTextureRef() const;
-    uint8_t* getCameraDepthBuffer() const;
+    uint8_t* getCameraDepthBuffer();
+    bool getTexInitFlag() const;
+    void resetTexInitFlag();
 
     void enableLightEstimate(bool enable) const;
     LightVal getMainLightDirection() const;
     LightVal getMainLightIntensity() const;
 
-    int tryHitAttachAnchor(int trackableId) const;
-    Pose getAnchorPose(int anchorId) const;
+    int tryHitAttachAnchor(int id) const;
+    Pose getAnchorPose(int id);
 
     bool tryHitTest(float xPx, float yPx, uint32_t trackableTypeMask) const;
-    Pose getHitResult() const;
+    Pose getHitResult();
     int getHitId() const;
     int getHitType() const;
 
@@ -81,51 +88,43 @@ public:
     // plane detection
     void enablePlane(bool enable) const;
     void setPlaneDetectionMode(int mode) const;
-    void setPlaneMaxTrackingNumber(int count) const;
-    float* getAddedPlanesInfo() const;
-    float* getUpdatedPlanesInfo() const;
-    float* getRemovedPlanesInfo() const;
-    float* getPlanePolygon(int id) const;
+    float* getAddedPlanesInfo();
+    float* getUpdatedPlanesInfo();
+    float* getRemovedPlanesInfo();
+    float* getPlanePolygon(int id);
 
     // scene mesh reconstruction
     void enableSceneMesh(bool enable) const;
-    float* getAddedSceneMesh() const;
-    float* getUpdatedSceneMesh() const;
-    int* getRemovedSceneMesh() const;
-    int* requireSceneMesh() const;
-    float* getSceneMeshVertices(int meshRef) const;
-    int* getSceneMeshTriangleIndices(int meshRef) const;
+    float* getAddedSceneMesh();
+    float* getUpdatedSceneMesh();
+    float* getRemovedSceneMesh();
+    int* requireSceneMesh();
+    float* getSceneMeshVertices(int id);
+    int* getSceneMeshTriangleIndices(int id);
     void endRequireSceneMesh() const;
 
     // image recognition & tracking
     void enableImageTracking(bool enable) const;
-    void addImageToLib(const std::string& name) const;
     void addImageToLibWithSize(const std::string& name, float widthInMeters) const;
     void setImageMaxTrackingNumber(int number) const;
-    float* getAddedImagesInfo() const;
-    float* getUpdatedImagesInfo() const;
-    float* getRemovedImagesInfo() const;
+    float* getAddedImagesInfo();
+    float* getUpdatedImagesInfo();
+    float* getRemovedImagesInfo();
 
     // object recognition & tracking
     void enableObjectTracking(bool enable) const;
     void addObjectToLib(const std::string& name) const;
-    float* getAddedObjectsInfo() const;
-    float* getUpdatedObjectsInfo() const;
-    float* getRemovedObjectsInfo() const;
+    float* getAddedObjectsInfo();
+    float* getUpdatedObjectsInfo();
+    float* getRemovedObjectsInfo();
 
     // face detection & tracking
     void enableFaceTracking(bool enable) const;
-    float* getAddedFacesInfo() const;
-    float* getUpdatedFacesInfo() const;
-    float* getRemovedFacesInfo() const;
-    float* getFaceBlendShapes(int faceRef) const;
-
-private:
-    std::unique_ptr<IARAPI> _impl;
-    std::string _cameraId;
+    float* getAddedFacesInfo();
+    float* getUpdatedFacesInfo();
+    float* getRemovedFacesInfo();
+    float* getFaceBlendShapes(int id);
 };
-
-static std::unique_ptr<ARModule> arModuleInstance;
 
 } // namespace ar
 } // namespace cc

@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2019-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 import { BUILD, EDITOR, PREVIEW } from 'internal:constants';
 import { Asset } from '../assets/asset';
 import { error, cclegacy } from '../../core';
@@ -29,7 +28,7 @@ import packManager from './pack-manager';
 import parser from './parser';
 import { Pipeline } from './pipeline';
 import RequestItem from './request-item';
-import { CompleteCallbackNoData, assets, files, parsed, pipeline } from './shared';
+import { assets, files, parsed, pipeline } from './shared';
 import Task from './task';
 import { cache, checkCircleReference, clear, forEach, gatherAsset, getDepends, setProperties } from './utilities';
 import { nativeDependMap, onLoadedInvokedMap } from './depend-maps';
@@ -44,10 +43,10 @@ interface ILoadingRequest {
     content: Asset;
     finish: boolean;
     err?: Error | null;
-    callbacks: Array<{ done: CompleteCallbackNoData; item: RequestItem }>;
+    callbacks: Array<{ done: ((err?: Error | null) => void); item: RequestItem }>;
 }
 
-export default function load (task: Task, done: CompleteCallbackNoData) {
+export default function load (task: Task, done: ((err?: Error | null) => void)) {
     let firstTask = false;
     if (!task.progress) {
         task.progress = { finish: 0, total: task.input.length, canInvoke: true };
@@ -67,7 +66,7 @@ export default function load (task: Task, done: CompleteCallbackNoData) {
             options,
             progress,
             onComplete: (err, result) => {
-                if (err && !task.isFinish) {
+                if (err && !task.isFinished) {
                     if (!cclegacy.assetManager.force || firstTask) {
                         if (BUILD) {
                             error(err.message, err.stack);
@@ -88,7 +87,7 @@ export default function load (task: Task, done: CompleteCallbackNoData) {
     }, () => {
         options!.__exclude__ = null;
 
-        if (task.isFinish) {
+        if (task.isFinished) {
             clear(task, true);
             task.dispatch('error');
             return;
@@ -174,7 +173,7 @@ const loadOneAssetPipeline = new Pipeline('loadOneAsset', [
     },
 ]);
 
-function loadDepends (task: Task, asset: Asset, done: CompleteCallbackNoData) {
+function loadDepends (task: Task, asset: Asset, done: ((err?: Error | null) => void)) {
     const { input: item, progress } = task;
     const { uuid, id, options, config } = item as RequestItem;
     const { cacheAsset } = options;

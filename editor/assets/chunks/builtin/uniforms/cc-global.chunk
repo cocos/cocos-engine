@@ -12,6 +12,7 @@ layout(set = 0, binding = 0) uniform CCGlobal {
   mediump vec4 cc_debug_view_composite_pack_1; // x: dir diffuse, y: dir specular, z: env diffuse, w: env specular
   mediump vec4 cc_debug_view_composite_pack_2; // x: emissive, y: lightmap, z: shadow, w: ao
   mediump vec4 cc_debug_view_composite_pack_3; // x: normalmap, y: fog, z: tonemapping, w: gamma correction
+  mediump vec4 cc_debug_view_composite_pack_4; // x: fresnel, y: transmit diffuse, z: transmit specular, w: trt
 };
 
 #pragma builtin(global)
@@ -23,7 +24,7 @@ layout(set = 0, binding = 1) uniform CCCamera {
   highp   mat4 cc_matViewProj; // view-projection matrix
   highp   mat4 cc_matViewProjInv; // inverse view-projection matrix
   highp   vec4 cc_cameraPos; // xyz: camera position w: flip NDC sign
-  mediump vec4 cc_surfaceTransform; // x: surface transform y: unused zw: skybox rotation angle cos/sin value
+  mediump vec4 cc_surfaceTransform; // x: surface transform y: camera usage zw: skybox rotation angle cos/sin value
   mediump vec4 cc_screenScale; // xy: screen scale, zw: inverse screen scale
   mediump vec4 cc_exposure; // x: exposure, y: inverse exposure, z: HDR flag, w: inverse standard exposure value
   mediump vec4 cc_mainLitDir; // xyz: main direcitonal light direction, w: enable shadow

@@ -33,7 +33,7 @@ export class MacPackTool extends MacOSPackTool {
         const ver = toolHelper.getXcodeMajorVerion() >= 12 ? "12" : "1";
         const cmakeArgs = ['-S', `"${this.paths.platformTemplateDirInPrj}"`, '-GXcode', '-T', `buildsystem=${ver}`,
                            `-B"${nativePrjDir}"`, '-DCMAKE_SYSTEM_NAME=Darwin'];
-        this.appendCmakeResDirArgs(cmakeArgs);
+        this.appendCmakeCommonArgs(cmakeArgs);
 
         await toolHelper.runCmake(cmakeArgs);
 
@@ -64,12 +64,16 @@ export class MacPackTool extends MacOSPackTool {
             cp.stdout.on('data', (data) => {
                 console.log(`[open app] ${data}`);
             });
-            cp.stderr.on(`data`, (data) => {
+            cp.stderr.on('data', (data) => {
                 console.error(`[open app error] ${data}`);
             });
             cp.on('close', (code, sig) => {
                 console.log(`${app} exit with ${code}, sig: ${sig}`);
-                resolve();
+                if (code !== 0) {
+                    reject(`[open app error] Child process exit width code ${code}`);
+                } else {
+                    resolve();
+                }
             });
             cp.on('exit', (code, sig) => {
                 resolve();
