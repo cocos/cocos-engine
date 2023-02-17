@@ -174,8 +174,8 @@ void RenderScene::update(uint32_t stamp) {
     for (const auto &light : _pointLights) {
         light->update();
     }
-    for (const auto &rangedDirectionalLights : _rangedDirectionalLights) {
-        rangedDirectionalLights->update();
+    for (const auto &rangedDirLights : _rangedDirLights) {
+        rangedDirLights->update();
     }
     for (const auto &model : _models) {
         if (model->isEnabled()) {
@@ -315,24 +315,24 @@ void RenderScene::removePointLights() {
     _pointLights.clear();
 }
 
-void RenderScene::addRangedDirectionalLight(RangedDirectionalLight *rangedDirLight) {
-    _rangedDirectionalLights.emplace_back(rangedDirLight);
+void RenderScene::addRangedDirlLight(RangedDirectionalLight *rangedDirLight) {
+    _rangedDirLights.emplace_back(rangedDirLight);
 }
 
-void RenderScene::removeRangedDirectionalLight(RangedDirectionalLight *rangedDirLight) {
-    const auto iter = std::find(_rangedDirectionalLights.begin(), _rangedDirectionalLights.end(), rangedDirLight);
-    if (iter != _rangedDirectionalLights.end()) {
-        _rangedDirectionalLights.erase(iter);
+void RenderScene::removeRangedDirLight(RangedDirectionalLight *rangedDirLight) {
+    const auto iter = std::find(_rangedDirLights.begin(), _rangedDirLights.end(), rangedDirLight);
+    if (iter != _rangedDirLights.end()) {
+        _rangedDirLights.erase(iter);
     } else {
         CC_LOG_WARNING("Try to remove invalid ranged directional light.");
     }
 }
 
-void RenderScene::removeRangedDirectionalLights() {
-    for (const auto &rangedDirLight : _rangedDirectionalLights) {
+void RenderScene::removeRangedDirLights() {
+    for (const auto &rangedDirLight : _rangedDirLights) {
         rangedDirLight->detachFromScene();
     }
-    _rangedDirectionalLights.clear();
+    _rangedDirLights.clear();
 }
 
 void RenderScene::addModel(Model *model) {

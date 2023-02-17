@@ -307,12 +307,12 @@ void RenderAdditiveLightQueue::updateUBOs(const scene::Camera *camera, gfx::Comm
             luminanceHDR = pointLight->getLuminanceHDR();
             luminanceLDR = pointLight->getLuminanceLDR();
         } else if (light->getType() == scene::LightType::RANGED_DIRECTIONAL) {
-            const auto *rangedDirectionalLight = static_cast<const scene::RangedDirectionalLight *>(light);
-            position = rangedDirectionalLight->getPosition();
+            const auto *rangedDirLight = static_cast<const scene::RangedDirectionalLight *>(light);
+            position = rangedDirLight->getPosition();
             size = 0.0F;
             range = 0.0F;
-            luminanceHDR = rangedDirectionalLight->getIlluminanceHDR();
-            luminanceLDR = rangedDirectionalLight->getIlluminanceLDR();
+            luminanceHDR = rangedDirLight->getIlluminanceHDR();
+            luminanceLDR = rangedDirLight->getIlluminanceLDR();
         }
         auto index = offset + UBOForwardLight::LIGHT_POS_OFFSET;
         _lightBufferData[index++] = position.x;

@@ -107,7 +107,7 @@ void validPunctualLightsCulling(const RenderPipeline *pipeline, const scene::Cam
         }
     }
 
-    for (const auto &light : scene->getRangedDirectionalLights()) {
+    for (const auto &light : scene->getRangedDirLights()) {
         if (light->isBaked()) {
             continue;
         }
