@@ -26,7 +26,7 @@
 // eslint-disable-next-line max-len
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, type, range, displayName, formerlySerializedAs, override, radian, serializable, visible, requireComponent } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { approx, EPSILON, lerp, Mat4, pseudoRandom, Quat, randomRangeInt, Size, Vec2, Vec3 } from '../core/math';
+import { approx, clamp01, EPSILON, lerp, Mat4, pseudoRandom, Quat, randomRangeInt, Size, Vec2, Vec3 } from '../core/math';
 import { INT_MAX } from '../core/math/bits';
 import { ColorOverLifetimeModule } from './modules/color-over-lifetime';
 import { CurveRange, Mode } from './curve-range';
@@ -46,7 +46,7 @@ import { GravityModule } from './modules/gravity';
 import { SpeedModifierModule } from './modules/speed-modifier';
 import { StartRotationModule } from './modules/start-rotation';
 import { ShapeModule } from './modules/shape-module';
-import { EmittingResult, ParticleSystemParams, ParticleUpdateContext, SpawnEvent } from './particle-update-context';
+import { ParticleSystemParams, ParticleUpdateContext, SpawnEvent } from './particle-update-context';
 import { CullingMode, Space } from './enum';
 import { ParticleSystemRenderer } from './particle-system-renderer';
 import { TrailModule } from './modules/trail';
@@ -60,8 +60,10 @@ import { INVALID_HANDLE, ParticleHandle, ParticleSOAData, RecordReason } from '.
 import { EmissionModule, InitializationModule, ParticleModule, ParticleUpdateStage, UpdateModule } from './particle-module';
 import { particleSystemManager } from './particle-system-manager';
 import { BurstEmissionModule } from './modules/burst-emission';
+import { CompositionModule } from './modules/composition';
+import { InitialModule } from './modules/initial-module';
 
-const emittingResult = new EmittingResult();
+const startPositionOffset = new Vec3();
 
 enum PlayingState {
     STOPPED,
@@ -357,7 +359,7 @@ export class ParticleSystem extends Component {
 
     @type([ParticleModule])
     @displayName('Modules')
-    public get particleModules (): ReadonlyArray<ParticleModule> {
+    private get particleModules (): ReadonlyArray<ParticleModule> {
         return this._particleModules;
     }
 
@@ -455,9 +457,8 @@ export class ParticleSystem extends Component {
         if (this.prewarm) {
             this._prewarmSystem();
         }
-        this._particleUpdateContext.spawnEvents.length = 0;
         this._particleUpdateContext.currentPosition.set(this.node.worldPosition);
-        this._particleUpdateContext.emitterDelayRemaining = this._particleUpdateContext.emitterStartDelay = this.startDelay.evaluate(0, 1);
+        this._particleUpdateContext.emitterDelayRemaining = this.startDelay.evaluate(0, 1);
         particleSystemManager.addParticleSystem(this);
     }
 
@@ -514,6 +515,8 @@ export class ParticleSystem extends Component {
         if (renderer) {
             renderer.setParticleSystem(this);
         }
+        this.getOrAddModule(InitialModule);
+        this.getOrAddModule(CompositionModule);
         this.getOrAddModule(BurstEmissionModule);
         this.getOrAddModule(ColorOverLifetimeModule);
         this.getOrAddModule(EmissionOverDistanceModule);
@@ -608,34 +611,30 @@ export class ParticleSystem extends Component {
         return this._particleModules.filter((module) => module.updateStage === ParticleUpdateStage.INITIALIZE) as InitializationModule[];
     }
 
-    private getPreUpdateModules () {
-        return this._particleModules.filter((module) => module.updateStage === ParticleUpdateStage.PRE_UPDATE) as UpdateModule[];
-    }
-
-    private getPostUpdateModules () {
-        return this._particleModules.filter((module) => module.updateStage === ParticleUpdateStage.POST_UPDATE) as UpdateModule[];
+    private getUpdateModules () {
+        return this._particleModules.filter((module) => module.updateStage === ParticleUpdateStage.PRE_UPDATE || module.updateStage === ParticleUpdateStage.POST_UPDATE) as UpdateModule[];
     }
 
     // internal function
     private updateParticles (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext, deltaTime: number) {
+        let emitterDeltaTime = deltaTime;
         context.accumulatedTime += deltaTime;
-        context.deltaTime = deltaTime;
-        context.emitterDeltaTime = this._isEmitting ? deltaTime : 0;
-        context.newParticleIndexStart = context.newParticleIndexEnd = -1;
         context.lastPosition.set(context.currentPosition);
         context.currentPosition.set(this.node.worldPosition);
         context.localToWorld.set(this.node.worldMatrix);
+        Vec3.subtract(context.emitterVelocity, context.currentPosition, context.lastPosition);
+        Vec3.multiplyScalar(context.emitterVelocity, context.emitterVelocity, 1 / deltaTime);
         Quat.normalize(context.worldRotation, this.node.worldRotation);
         if (context.emitterDelayRemaining > 0) {
-            context.emitterDelayRemaining -= context.emitterDeltaTime;
-            context.emitterDeltaTime = 0;
+            context.emitterDelayRemaining -= emitterDeltaTime;
+            emitterDeltaTime = 0;
             if (context.emitterDelayRemaining < 0) {
-                context.emitterDeltaTime = Math.abs(context.emitterDelayRemaining);
+                emitterDeltaTime = Math.abs(context.emitterDelayRemaining);
                 context.emitterDelayRemaining = 0;
             }
         }
-        context.emitterAccumulatedTime += context.emitterDeltaTime;
-        const normalizedTimeInCycle = context.emitterAccumulatedTime / this.duration;
+        const prevT = context.emitterAccumulatedTime;
+        context.emitterAccumulatedTime += emitterDeltaTime;
         particles.clearParticleSnapshots();
         const { count, animatedVelocityX, animatedVelocityY, animatedVelocityZ, angularVelocityX, angularVelocityY, angularVelocityZ, color, startColor } = particles;
 
@@ -649,86 +648,95 @@ export class ParticleSystem extends Component {
             color[i] = startColor[i];
         }
 
-        const updateModules = this.getPreUpdateModules();
+        const updateModules = this.getUpdateModules();
         for (let i = 0, length = updateModules.length; i < length; i++) {
             if (updateModules[i].enable) {
-                updateModules[i].update(particles, params, context, 0, count, normalizedTimeInCycle, deltaTime);
+                updateModules[i].update(particles, params, context, 0, count, deltaTime);
             }
         }
 
-        this.composite(particles, params, context, 0, normalizedTimeInCycle, deltaTime);
-
-        const postUpdateModules = this.getPostUpdateModules();
-        for (let i = 0, length = postUpdateModules.length; i < length; i++) {
-            if (updateModules[i].enable) {
-                updateModules[i].update(particles, params, context, 0, count, normalizedTimeInCycle, deltaTime);
-            }
-        }
-
-        this.emit(particles, params, context, context.accumulatedTime, count, deltaTime);
-    }
-
-    private composite (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,
-        fromIndex: number, toIndex: number, dt: number) {
-        const { speedModifier, normalizedAliveTime, invStartLifeTime } = particles;
-        for (let particleHandle = fromIndex; particleHandle < toIndex; particleHandle++) {
-            particles.getVelocityAt(velocity, particleHandle);
-            particles.getAnimatedVelocityAt(animatedVelocity, particleHandle);
-            velocity.add(animatedVelocity);
-            particles.addPositionAt(Vec3.multiplyScalar(velocity, velocity, dt * speedModifier[particleHandle]), particleHandle);
-        }
-
-        for (let particleHandle = fromIndex; particleHandle < toIndex; particleHandle++) {
-            particles.getAngularVelocityAt(angularVelocity, particleHandle);
-            particles.addRotationAt(Vec3.multiplyScalar(angularVelocity, angularVelocity, dt), particleHandle);
-        }
-
-        for (let i = toIndex - 1; i >= fromIndex; i--) {
-            normalizedAliveTime[i] += dt * invStartLifeTime[i];
-
-            if (normalizedAliveTime[i] > 1) {
-                particles.recordParticleSnapshot(i, RecordReason.DEATH);
-                particles.removeParticle(i);
-            }
+        if (this._isEmitting) {
+            this.emit(particles, params, context, prevT, context.emitterAccumulatedTime, deltaTime);
         }
     }
 
     private emit (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext, prevT: number, t: number, dt: number) {
         const emissionModules = this.getEmissionModules();
-        const preUpdateModules = this.getPreUpdateModules();
+        const updateModules = this.getUpdateModules();
         const initializationModules = this.getInitializationModules();
-        const postUpdateModules = this.getPostUpdateModules();
 
         for (let i = 0, length = emissionModules.length; i < length; i++) {
-            emissionModules[i].update(particles, params, context, prevT, t, dt);
+            emissionModules[i].update(particles, params, context, prevT, t);
         }
 
-        let newEmittingCount = Math.floor(context.emittingOverTimeAccumulatedCount);
-        context.emittingOverTimeAccumulatedCount -= newEmittingCount;
+        const { emissionState, emitterVelocity } = context;
+
+        let newEmittingCount = Math.floor(emissionState.emittingOverTimeAccumulatedCount);
+        emissionState.emittingOverTimeAccumulatedCount -= newEmittingCount;
         if (newEmittingCount + particles.count > params.capacity) {
             newEmittingCount = params.capacity - particles.count;
         }
 
         if (newEmittingCount > 0) {
-            const { randomSeed } = particles;
-            const newParticleIndexStart = particles.count;
-            const newParticleIndexEnd = particles.count + newEmittingCount;
+            const fromIndex = particles.count;
+            const toIndex = fromIndex + newEmittingCount;
             particles.addParticles(newEmittingCount);
-            for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
-                const offset = context.emittingOverTimeAccumulatedCount + context.timeInterval * i;
+            for (let i = fromIndex; i < toIndex; ++i) {
+                const offset = clamp01((emissionState.emittingOverTimeAccumulatedCount + i) * emissionState.emittingOverTimeInterval);
                 const subDt = dt * offset;
                 const normalizeT = lerp(t, prevT, offset);
-                randomSeed[i] = randomRangeInt(0, 233280);
+                const nextIndex = i + 1;
                 for (let j = 0, length = initializationModules.length; j < length; j++) {
-                    initializationModules[j].update(particles, params, context, i, i + 1, t, dt);
+                    initializationModules[j].update(particles, params, context, i, nextIndex, normalizeT);
                 }
-                for (let j = 0, length = preUpdateModules.length; j < length; j++) {
-                    preUpdateModules[j].update(particles, params, context, i, i + 1, t, dt);
+                for (let j = 0, length = updateModules.length; j < length; j++) {
+                    updateModules[j].update(particles, params, context, i, nextIndex, subDt);
                 }
-                this.composite(particles, params, context, i, i + 1, dt);
-                for (let j = 0, length = postUpdateModules.length; j < length; j++) {
-                    postUpdateModules[j].update(particles, params, context, i, i + 1, t, dt);
+            }
+        }
+
+        newEmittingCount = Math.floor(emissionState.emittingOverDistanceAccumulatedCount);
+        emissionState.emittingOverDistanceAccumulatedCount -= newEmittingCount;
+        if (newEmittingCount + particles.count > params.capacity) {
+            newEmittingCount = params.capacity - particles.count;
+        }
+
+        if (newEmittingCount > 0) {
+            const fromIndex = particles.count;
+            const toIndex = fromIndex + newEmittingCount;
+            particles.addParticles(newEmittingCount);
+            for (let i = fromIndex; i < toIndex; ++i) {
+                const offset = clamp01((emissionState.emittingOverDistanceAccumulatedCount + i) * emissionState.emittingOverDistanceInterval);
+                const subDt = dt * offset;
+                const normalizeT = lerp(t, prevT, offset);
+                const nextIndex = i + 1;
+                for (let j = 0, length = initializationModules.length; j < length; j++) {
+                    initializationModules[j].update(particles, params, context, i, nextIndex, normalizeT);
                 }
+                Vec3.copy(startPositionOffset, emitterVelocity);
+                Vec3.multiplyScalar(startPositionOffset, startPositionOffset, -subDt);
+                particles.addPositionAt(startPositionOffset, i);
+                for (let j = 0, length = updateModules.length; j < length; j++) {
+                    updateModules[j].update(particles, params, context, i, nextIndex, subDt);
+                }
+            }
+        }
+
+        newEmittingCount = Math.floor(emissionState.burstCount);
+        emissionState.burstCount = 0;
+        if (newEmittingCount + particles.count > params.capacity) {
+            newEmittingCount = params.capacity - particles.count;
+        }
+
+        if (newEmittingCount > 0) {
+            const fromIndex = particles.count;
+            const toIndex = fromIndex + newEmittingCount;
+            particles.addParticles(newEmittingCount);
+            for (let j = 0, length = initializationModules.length; j < length; j++) {
+                initializationModules[j].update(particles, params, context, fromIndex, toIndex, t);
+            }
+            for (let j = 0, length = updateModules.length; j < length; j++) {
+                updateModules[j].update(particles, params, context, fromIndex, toIndex, dt);
             }
         }
     }

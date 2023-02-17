@@ -24,7 +24,7 @@
  */
 
 import { ccclass, displayOrder, range, serializable, tooltip, type } from '../../core/data/decorators';
-import { ParticleModule, ParticleUpdateStage } from '../particle-module';
+import { ParticleModule, ParticleUpdateStage, UpdateModule } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
 import { ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
 import { CurveRange } from '../curve-range';
@@ -35,7 +35,7 @@ const rotation = new Quat();
 const gravity = new Vec3();
 const GRAVITY_RAND_OFFSET = 238818;
 @ccclass('cc.GravityModule')
-export class GravityModule extends ParticleModule {
+export class GravityModule extends UpdateModule {
     /**
      * @zh 粒子受重力影响的重力系数。
      */
@@ -58,29 +58,30 @@ export class GravityModule extends ParticleModule {
         return 5;
     }
 
-    public update (particles: ParticleSOAData, params: ParticleSystemParams, particleUpdateContext: ParticleUpdateContext) {
-        const { deltaTime, worldRotation } = particleUpdateContext;
-        const { count, normalizedAliveTime, randomSeed, velocityY } = particles;
-        const deltaVelocity = 9.8 * deltaTime;
+    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,
+        fromIndex: number, toIndex: number, dt: number) {
+        const { worldRotation } = context;
+        const { normalizedAliveTime, randomSeed, velocityY } = particles;
+        const deltaVelocity = 9.8 * dt;
         if (params.simulationSpace === Space.LOCAL) {
             const invRotation = Quat.conjugate(rotation, worldRotation);
             if (this.gravityModifier.mode === CurveRange.Mode.Constant) {
                 Vec3.set(gravity, 0, -this.gravityModifier.constant * deltaVelocity, 0);
                 Vec3.transformQuat(gravity, gravity, invRotation);
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     particles.addVelocityAt(gravity, i);
                 }
             } else if (this.gravityModifier.mode === CurveRange.Mode.Curve) {
                 const { spline } = this.gravityModifier;
                 const multiplier = this.gravityModifier.multiplier * deltaVelocity;
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     Vec3.set(gravity, 0, -spline.evaluate(normalizedAliveTime[i]) * multiplier, 0);
                     Vec3.transformQuat(gravity, gravity, invRotation);
                     particles.addVelocityAt(gravity, i);
                 }
             } else if (this.gravityModifier.mode === CurveRange.Mode.TwoConstants) {
                 const { constantMin, constantMax } = this.gravityModifier;
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     Vec3.set(gravity, 0, -lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + GRAVITY_RAND_OFFSET)) * deltaVelocity, 0);
                     Vec3.transformQuat(gravity, gravity, invRotation);
                     particles.addVelocityAt(gravity, i);
@@ -88,7 +89,7 @@ export class GravityModule extends ParticleModule {
             } else {
                 const { splineMin, splineMax } = this.gravityModifier;
                 const multiplier = this.gravityModifier.multiplier * deltaVelocity;
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     const normalizedTime = normalizedAliveTime[i];
                     Vec3.set(gravity, 0, -lerp(splineMin.evaluate(normalizedTime), splineMax.evaluate(normalizedTime), pseudoRandom(randomSeed[i] + GRAVITY_RAND_OFFSET)) * multiplier, 0);
                     Vec3.transformQuat(gravity, gravity, invRotation);
@@ -99,24 +100,24 @@ export class GravityModule extends ParticleModule {
             // eslint-disable-next-line no-lonely-if
             if (this.gravityModifier.mode === CurveRange.Mode.Constant) {
                 const multiplier = this.gravityModifier.constant * deltaVelocity;
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     velocityY[i] -= multiplier;
                 }
             } else if (this.gravityModifier.mode === CurveRange.Mode.Curve) {
                 const { spline } = this.gravityModifier;
                 const multiplier = this.gravityModifier.multiplier * deltaVelocity;
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     velocityY[i] -= spline.evaluate(normalizedAliveTime[i]) * multiplier;
                 }
             } else if (this.gravityModifier.mode === CurveRange.Mode.TwoConstants) {
                 const { constantMin, constantMax } = this.gravityModifier;
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     velocityY[i] -= lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + GRAVITY_RAND_OFFSET)) * deltaVelocity;
                 }
             } else {
                 const { splineMin, splineMax } = this.gravityModifier;
                 const multiplier = this.gravityModifier.multiplier * deltaVelocity;
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     const normalizedTime = normalizedAliveTime[i];
                     velocityY[i] -= lerp(splineMin.evaluate(normalizedTime), splineMax.evaluate(normalizedTime), pseudoRandom(randomSeed[i] + GRAVITY_RAND_OFFSET)) * multiplier;
                 }

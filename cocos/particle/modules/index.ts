@@ -37,3 +37,4 @@ export * from './start-size';
 export * from './gravity';
 export * from './event';
 export * from './composition';
+export * from './initial-module';

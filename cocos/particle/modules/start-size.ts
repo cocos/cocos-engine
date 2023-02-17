@@ -24,7 +24,7 @@
  */
 
 import { ccclass, displayOrder, formerlySerializedAs, radian, range, serializable, tooltip, type, visible } from '../../core/data/decorators';
-import { ParticleModule, ParticleUpdateStage } from '../particle-module';
+import { InitializationModule, ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
 import { ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
 import { CurveRange } from '../curve-range';
@@ -34,26 +34,22 @@ import { INT_MAX } from '../../core/math/bits';
 import { Space } from '../enum';
 
 @ccclass('cc.StartSizeModule')
-export class StartSizeModule extends ParticleModule {
+export class StartSizeModule extends InitializationModule {
     @serializable
-    @displayOrder(10)
     @tooltip('i18n:particle_system.startSize3D')
     public startSize3D = false;
 
     /**
       * @zh 粒子初始大小。
       */
-    @formerlySerializedAs('startSize')
     @range([0, 1])
     @type(CurveRange)
-    @displayOrder(10)
     @tooltip('i18n:particle_system.startSizeX')
     @visible(function (this: StartSizeModule): boolean { return this.startSize3D; })
     public startSizeX = new CurveRange(1);
 
     @range([0, 1])
     @type(CurveRange)
-    @displayOrder(10)
     @tooltip('i18n:particle_system.startSizeX')
     @visible(function (this: StartSizeModule): boolean { return !this.startSize3D; })
     public get startSize () {
@@ -69,7 +65,6 @@ export class StartSizeModule extends ParticleModule {
       */
     @type(CurveRange)
     @range([0, 1])
-    @displayOrder(10)
     @tooltip('i18n:particle_system.startSizeY')
     @visible(function (this: StartSizeModule): boolean { return this.startSize3D; })
     public get startSizeY () {
@@ -88,7 +83,6 @@ export class StartSizeModule extends ParticleModule {
       */
     @type(CurveRange)
     @range([0, 1])
-    @displayOrder(10)
     @tooltip('i18n:particle_system.startSizeZ')
     @visible(function (this: StartSizeModule): boolean { return this.startSize3D; })
     public get startSizeZ () {
@@ -119,15 +113,16 @@ export class StartSizeModule extends ParticleModule {
     @serializable
     private _startSizeZ: CurveRange | null = null;
 
-    public update (particles: ParticleSOAData, params: ParticleSystemParams,  particleUpdateContext: ParticleUpdateContext) {
-        const { newParticleIndexStart, newParticleIndexEnd, normalizedTimeInCycle } = particleUpdateContext;
+    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,
+        fromIndex: number, toIndex: number, t: number) {
+        const normalizedTimeInCycle = t / params.duration;
         const { startSizeX, startSizeY, startSizeZ, sizeX, sizeY, sizeZ } = particles;
         if (this.startSize3D) {
             if (this.startSizeX.mode === CurveRange.Mode.Constant) {
                 const constantX = this.startSizeX.constant;
                 const constantY = this.startSizeY.constant;
                 const constantZ = this.startSizeZ.constant;
-                for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                for (let i = fromIndex; i < toIndex; ++i) {
                     sizeX[i] = startSizeX[i] = constantX;
                     sizeY[i] = startSizeY[i] = constantY;
                     sizeZ[i] = startSizeZ[i] = constantZ;
@@ -136,7 +131,7 @@ export class StartSizeModule extends ParticleModule {
                 const { constantMin: xMin, constantMax: xMax } = this.startSizeX;
                 const { constantMin: yMin, constantMax: yMax } = this.startSizeY;
                 const { constantMin: zMin, constantMax: zMax } = this.startSizeZ;
-                for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                for (let i = fromIndex; i < toIndex; ++i) {
                     const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
                     sizeX[i] = startSizeX[i] = lerp(xMin, xMax, rand);
                     sizeY[i] = startSizeY[i] = lerp(yMin, yMax, rand);
@@ -146,7 +141,7 @@ export class StartSizeModule extends ParticleModule {
                 const { spline: xCurve, multiplier: xMultiplier } = this.startSizeX;
                 const { spline: yCurve, multiplier: yMultiplier } = this.startSizeY;
                 const { spline: zCurve, multiplier: zMultiplier } = this.startSizeZ;
-                for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                for (let i = fromIndex; i < toIndex; ++i) {
                     sizeX[i] = startSizeX[i] = xCurve.evaluate(normalizedTimeInCycle) * xMultiplier;
                     sizeY[i] = startSizeY[i] = yCurve.evaluate(normalizedTimeInCycle) * yMultiplier;
                     sizeZ[i] = startSizeZ[i] = zCurve.evaluate(normalizedTimeInCycle) * zMultiplier;
@@ -155,7 +150,7 @@ export class StartSizeModule extends ParticleModule {
                 const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.startSizeX;
                 const { splineMin: yMin, splineMax: yMax, multiplier: yMultiplier } = this.startSizeY;
                 const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.startSizeZ;
-                for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                for (let i = fromIndex; i < toIndex; ++i) {
                     const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
                     sizeX[i] = startSizeX[i] = lerp(xMin.evaluate(normalizedTimeInCycle), xMax.evaluate(normalizedTimeInCycle), rand) * xMultiplier;
                     sizeY[i] = startSizeY[i] = lerp(yMin.evaluate(normalizedTimeInCycle), yMax.evaluate(normalizedTimeInCycle), rand) * yMultiplier;
@@ -166,23 +161,23 @@ export class StartSizeModule extends ParticleModule {
             // eslint-disable-next-line no-lonely-if
             if (this.startSizeX.mode === CurveRange.Mode.Constant) {
                 const constantX = this.startSizeX.constant;
-                for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                for (let i = fromIndex; i < toIndex; ++i) {
                     sizeY[i] = startSizeY[i] = sizeX[i] = startSizeX[i] = constantX;
                 }
             } else if (this.startSizeX.mode === CurveRange.Mode.TwoConstants) {
                 const { constantMin: xMin, constantMax: xMax } = this.startSizeX;
-                for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                for (let i = fromIndex; i < toIndex; ++i) {
                     const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
                     sizeY[i] = startSizeY[i] = sizeX[i] = startSizeX[i] = lerp(xMin, xMax, rand);
                 }
             } else if (this.startSizeX.mode === CurveRange.Mode.Curve) {
                 const { spline: xCurve, multiplier: xMultiplier } = this.startSizeX;
-                for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                for (let i = fromIndex; i < toIndex; ++i) {
                     sizeY[i] = startSizeY[i] = sizeX[i] = startSizeX[i] = xCurve.evaluate(normalizedTimeInCycle) * xMultiplier;
                 }
             } else {
                 const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.startSizeX;
-                for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                for (let i = fromIndex; i < toIndex; ++i) {
                     const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
                     sizeY[i] = startSizeY[i] = sizeX[i] = startSizeX[i] = lerp(xMin.evaluate(normalizedTimeInCycle), xMax.evaluate(normalizedTimeInCycle), rand) * xMultiplier;
                 }

@@ -51,7 +51,7 @@ export class BurstEmissionModule extends EmissionModule {
     }
 
     public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,
-        prevT: number, t: number, dt: number) {
+        prevT: number, t: number) {
         const normalizedTimeInCycle = t / params.duration;
         for (let i = 0, burstCount = this.bursts.length; i < burstCount; i++) {
             const burst = this.bursts[i];
@@ -63,22 +63,22 @@ export class BurstEmissionModule extends EmissionModule {
                     if (toEmitTime === 0) { continue; }
                     if (burst.count.mode === CurveRange.Mode.Constant) {
                         for (let j = 0; j < toEmitTime; j++) {
-                            context.burstAccumulatedCount += Math.floor(burst.count.constant);
+                            context.emissionState.burstCount += burst.count.constant;
                         }
                     } else if (burst.count.mode === CurveRange.Mode.Curve) {
                         const { spline, multiplier } = burst.count;
                         for (let j = 0; j < toEmitTime; j++) {
-                            context.burstAccumulatedCount += Math.floor(spline.evaluate(normalizedTimeInCycle) * multiplier);
+                            context.emissionState.burstCount += spline.evaluate(normalizedTimeInCycle) * multiplier;
                         }
                     } else if (burst.count.mode === CurveRange.Mode.TwoConstants) {
                         const { constantMin, constantMax } = burst.count;
                         for (let j = 0; j < toEmitTime; j++) {
-                            context.burstAccumulatedCount += Math.floor(lerp(constantMin, constantMax, Math.random()));
+                            context.emissionState.burstCount += lerp(constantMin, constantMax, Math.random());
                         }
                     } else {
                         const { splineMin, splineMax, multiplier } = burst.count;
                         for (let j = 0; j < toEmitTime; j++) {
-                            context.burstAccumulatedCount += Math.floor(lerp(splineMin.evaluate(normalizedTimeInCycle), splineMax.evaluate(normalizedTimeInCycle), Math.random()) * multiplier);
+                            context.emissionState.burstCount += lerp(splineMin.evaluate(normalizedTimeInCycle), splineMax.evaluate(normalizedTimeInCycle), Math.random()) * multiplier;
                         }
                     }
                 }

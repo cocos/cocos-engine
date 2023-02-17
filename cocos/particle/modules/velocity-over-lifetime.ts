@@ -93,21 +93,22 @@ export class VelocityOverLifetimeModule extends ParticleModule {
         return 2;
     }
 
-    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext) {
+    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,
+        fromIndex: number, toIndex: number, dt: number) {
         const needTransform = calculateTransform(params.simulationSpace, this.space, context.localToWorld, rotation);
-        const { count, normalizedAliveTime, randomSeed } = particles;
+        const { normalizedAliveTime, randomSeed } = particles;
         if (needTransform) {
             if (this.x.mode === CurveRange.Mode.Constant) {
                 velocity.set(this.x.constant, this.y.constant, this.z.constant);
                 Vec3.transformQuat(velocity, velocity, rotation);
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     particles.addAnimatedVelocityAt(velocity, i);
                 }
             } else if (this.x.mode === CurveRange.Mode.Curve) {
                 const { spline: xCurve, multiplier: xMultiplier } = this.x;
                 const { spline: yCurve, multiplier: yMultiplier } = this.y;
                 const { spline: zCurve, multiplier: zMultiplier } = this.z;
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     const normalizedTime = normalizedAliveTime[i];
                     velocity.set(xCurve.evaluate(normalizedTime) * xMultiplier,
                         yCurve.evaluate(normalizedTime) * yMultiplier,
@@ -119,7 +120,7 @@ export class VelocityOverLifetimeModule extends ParticleModule {
                 const { constantMin: xMin, constantMax: xMax } = this.x;
                 const { constantMin: yMin, constantMax: yMax } = this.y;
                 const { constantMin: zMin, constantMax: zMax } = this.z;
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     const seed = randomSeed[i];
                     velocity.set(lerp(xMin, xMax, pseudoRandom(seed + VELOCITY_X_OVERTIME_RAND_OFFSET)),
                         lerp(yMin, yMax, pseudoRandom(seed + VELOCITY_Y_OVERTIME_RAND_OFFSET)),
@@ -131,7 +132,7 @@ export class VelocityOverLifetimeModule extends ParticleModule {
                 const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.x;
                 const { splineMin: yMin, splineMax: yMax, multiplier: yMultiplier } = this.y;
                 const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.z;
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     const seed = randomSeed[i];
                     const normalizedTime = normalizedAliveTime[i];
                     velocity.set(lerp(xMin.evaluate(normalizedTime), xMax.evaluate(normalizedTime), pseudoRandom(seed + VELOCITY_X_OVERTIME_RAND_OFFSET)) * xMultiplier,
@@ -145,14 +146,14 @@ export class VelocityOverLifetimeModule extends ParticleModule {
             // eslint-disable-next-line no-lonely-if
             if (this.x.mode === CurveRange.Mode.Constant) {
                 velocity.set(this.x.constant, this.y.constant, this.z.constant);
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     particles.addAnimatedVelocityAt(velocity, i);
                 }
             } else if (this.x.mode === CurveRange.Mode.Curve) {
                 const { spline: xCurve, multiplier: xMultiplier } = this.x;
                 const { spline: yCurve, multiplier: yMultiplier } = this.y;
                 const { spline: zCurve, multiplier: zMultiplier } = this.z;
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     const normalizedTime = normalizedAliveTime[i];
                     velocity.set(xCurve.evaluate(normalizedTime) * xMultiplier,
                         yCurve.evaluate(normalizedTime) * yMultiplier,
@@ -163,7 +164,7 @@ export class VelocityOverLifetimeModule extends ParticleModule {
                 const { constantMin: xMin, constantMax: xMax } = this.x;
                 const { constantMin: yMin, constantMax: yMax } = this.y;
                 const { constantMin: zMin, constantMax: zMax } = this.z;
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     const seed = randomSeed[i];
                     velocity.set(lerp(xMin, xMax, pseudoRandom(seed + VELOCITY_X_OVERTIME_RAND_OFFSET)),
                         lerp(yMin, yMax, pseudoRandom(seed + VELOCITY_Y_OVERTIME_RAND_OFFSET)),
@@ -174,7 +175,7 @@ export class VelocityOverLifetimeModule extends ParticleModule {
                 const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.x;
                 const { splineMin: yMin, splineMax: yMax, multiplier: yMultiplier } = this.y;
                 const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.z;
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     const seed = randomSeed[i];
                     const normalizedTime = normalizedAliveTime[i];
                     velocity.set(lerp(xMin.evaluate(normalizedTime), xMax.evaluate(normalizedTime), pseudoRandom(seed + VELOCITY_X_OVERTIME_RAND_OFFSET)) * xMultiplier,

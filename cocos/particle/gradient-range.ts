@@ -28,16 +28,14 @@ import { EDITOR } from 'internal:constants';
 import { Color } from '../core/math';
 import { Enum } from '../core/value-types';
 import Gradient, { AlphaKey, ColorKey } from './gradient';
-import { Texture2D } from '../core';
-import { PixelFormat, Filter, WrapMode } from '../core/assets/asset-enum';
 import { legacyCC } from '../core/global-exports';
 
-const SerializableTable = EDITOR && [
-    ['_mode', 'color'],
-    ['_mode', 'gradient'],
-    ['_mode', 'colorMin', 'colorMax'],
-    ['_mode', 'gradientMin', 'gradientMax'],
-    ['_mode', 'gradient'],
+const SerializableTable = [
+    ['_mode', '_color'],
+    ['_mode', '_gradient'],
+    ['_mode', '_colorMin', '_color'],
+    ['_mode', '_gradient', '_gradientMin'],
+    ['_mode', '_gradient'],
 ];
 
 const Mode = Enum({
@@ -48,8 +46,12 @@ const Mode = Enum({
     RandomColor: 4,
 });
 
+const tempColor1 = new Color();
+const tempColor2 = new Color();
+
 @ccclass('cc.GradientRange')
 export class GradientRange {
+    public static Mode = Mode;
     /**
      * @zh 渐变色类型 [[Mode]]。
      */
@@ -72,69 +74,121 @@ export class GradientRange {
         this._mode = m;
     }
 
-    public static Mode = Mode;
-
     /**
      * @zh 当mode为Color时的颜色。
      */
-    @serializable
-    @editable
-    public color = Color.WHITE.clone();
+    @type(Color)
+    public get color () {
+        if (!this._color) {
+            this._color = Color.WHITE.clone();
+        }
+        return this._color;
+    }
+
+    public set color (val) {
+        this._color = val;
+    }
 
     /**
      * @zh 当mode为TwoColors时的颜色下限。
      */
-    @serializable
-    @editable
-    public colorMin = Color.WHITE.clone();
+    @type(Color)
+    public get colorMin () {
+        if (!this._colorMin) {
+            this._colorMin = Color.WHITE.clone();
+        }
+        return this._colorMin;
+    }
+
+    public set colorMin (val) {
+        this._colorMin = val;
+    }
 
     /**
      * @zh 当mode为TwoColors时的颜色上限。
      */
-    @serializable
-    @editable
-    public colorMax = Color.WHITE.clone();
+    @type(Color)
+    public get colorMax () {
+        return this.color;
+    }
+
+    public set colorMax (val) {
+        this.color = val;
+    }
 
     /**
      * @zh 当mode为Gradient时的颜色渐变。
      */
     @type(Gradient)
-    public gradient = new Gradient();
+    public get gradient () {
+        if (!this._gradient) {
+            this._gradient = new Gradient();
+        }
+        return this._gradient;
+    }
+
+    public set gradient (val) {
+        this._gradient = val;
+    }
 
     /**
      * @zh 当mode为TwoGradients时的颜色渐变下限。
      */
     @type(Gradient)
-    public gradientMin = new Gradient();
+    public get gradientMin () {
+        if (!this._gradientMin) {
+            this._gradientMin = new Gradient();
+        }
+        return this._gradientMin;
+    }
+
+    public set gradientMin (val) {
+        this._gradientMin = val;
+    }
 
     /**
      * @zh 当mode为TwoGradients时的颜色渐变上限。
      */
     @type(Gradient)
-    public gradientMax = new Gradient();
+    public get gradientMax () {
+        return this.gradient;
+    }
 
-    @type(Mode)
+    public set gradientMax (val) {
+        this.gradient = val;
+    }
+
+    @serializable
     private _mode = Mode.Color;
+    @serializable
+    private _gradient: Gradient | null = null;
+    @serializable
+    private _gradientMin: Gradient | null = null;
+    @serializable
+    private _color: Color | null = null;
+    @serializable
+    private _colorMin: Color | null = null;
 
-    private _color = Color.WHITE.clone();
-
-    public evaluate (time: number, rndRatio: number) {
+    public evaluate (out: Color, time: number, rndRatio: number) {
         switch (this._mode) {
         case Mode.Color:
-            return this.color;
+            Color.copy(out, this.color);
+            break;
         case Mode.TwoColors:
-            Color.lerp(this._color, this.colorMin, this.colorMax, rndRatio);
-            return this._color;
+            Color.lerp(out, this.colorMin, this.colorMax, rndRatio);
+            break;
         case Mode.RandomColor:
-            return this.gradient.randomColor();
+            this.gradient.randomColor(out);
+            break;
         case Mode.Gradient:
-            return this.gradient.evaluate(time);
+            this.gradient.evaluate(out, time);
+            break;
         case Mode.TwoGradients:
-            Color.lerp(this._color, this.gradientMin.evaluate(time), this.gradientMax.evaluate(time), rndRatio);
-            return this._color;
+            Color.lerp(out, this.gradientMin.evaluate(tempColor1, time), this.gradientMax.evaluate(tempColor2, time), rndRatio);
+            break;
         default:
-            return this.color;
         }
+        return out;
     }
 
     /**

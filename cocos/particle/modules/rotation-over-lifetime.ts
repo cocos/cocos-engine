@@ -27,7 +27,7 @@
 import { ccclass, tooltip, displayOrder, range, type, radian, serializable, visible } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
 import { Mat4, pseudoRandom, Quat, Vec4, Vec3, lerp } from '../../core/math';
-import { ParticleModule, ParticleUpdateStage } from '../particle-module';
+import { ParticleModule, ParticleUpdateStage, UpdateModule } from '../particle-module';
 import { CurveRange } from '../curve-range';
 import { assert, CCBoolean } from '../../core';
 import { ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
@@ -36,7 +36,7 @@ import { ParticleSOAData } from '../particle-soa-data';
 const ROTATION_OVERTIME_RAND_OFFSET = 125292;
 
 @ccclass('cc.RotationOverLifetimeModule')
-export class RotationOverLifetimeModule extends ParticleModule {
+export class RotationOverLifetimeModule extends UpdateModule {
     /**
      * @zh 是否三个轴分开设定旋转。
      */
@@ -136,27 +136,28 @@ export class RotationOverLifetimeModule extends ParticleModule {
     @serializable
     private _x: CurveRange | null = null;
 
-    public update (particles: ParticleSOAData, params: ParticleSystemParams, particleUpdateContext: ParticleUpdateContext) {
-        const { count, angularVelocityZ, normalizedAliveTime, randomSeed } = particles;
+    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,
+        fromIndex: number, toIndex: number, dt: number) {
+        const {  angularVelocityZ, normalizedAliveTime, randomSeed } = particles;
         if (!this._separateAxes) {
             if (this.z.mode === CurveRange.Mode.Constant) {
                 const constant = this.z.constant;
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     angularVelocityZ[i] += constant;
                 }
             } else if (this.z.mode === CurveRange.Mode.Curve) {
                 const { spline, multiplier } = this.z;
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     angularVelocityZ[i] += spline.evaluate(normalizedAliveTime[i]) * multiplier;
                 }
             } else if (this.z.mode === CurveRange.Mode.TwoConstants) {
                 const { constantMin, constantMax } = this.z;
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     angularVelocityZ[i] += lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + ROTATION_OVERTIME_RAND_OFFSET));
                 }
             } else {
                 const { splineMin, splineMax, multiplier } = this.z;
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     angularVelocityZ[i] += lerp(splineMin.evaluate(normalizedAliveTime[i]), splineMax.evaluate(normalizedAliveTime[i]), pseudoRandom(randomSeed[i] + ROTATION_OVERTIME_RAND_OFFSET)) * multiplier;
                 }
             }
@@ -170,7 +171,7 @@ export class RotationOverLifetimeModule extends ParticleModule {
                 const constantX = this.x.constant;
                 const constantY = this.y.constant;
                 const constantZ = this.z.constant;
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     angularVelocityX[i] += constantX;
                     angularVelocityY[i] += constantY;
                     angularVelocityZ[i] += constantZ;
@@ -179,7 +180,7 @@ export class RotationOverLifetimeModule extends ParticleModule {
                 const { spline: splineX, multiplier: xMultiplier } = this.x;
                 const { spline: splineY, multiplier: yMultiplier } = this.y;
                 const { spline: splineZ, multiplier: zMultiplier } = this.z;
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     angularVelocityX[i] += splineX.evaluate(normalizedAliveTime[i]) * xMultiplier;
                     angularVelocityY[i] += splineY.evaluate(normalizedAliveTime[i]) * yMultiplier;
                     angularVelocityZ[i] += splineZ.evaluate(normalizedAliveTime[i]) * zMultiplier;
@@ -188,7 +189,7 @@ export class RotationOverLifetimeModule extends ParticleModule {
                 const { constantMin: xMin, constantMax: xMax } = this.x;
                 const { constantMin: yMin, constantMax: yMax } = this.y;
                 const { constantMin: zMin, constantMax: zMax } = this.z;
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     angularVelocityX[i] += lerp(xMin, xMax, pseudoRandom(randomSeed[i] + ROTATION_OVERTIME_RAND_OFFSET));
                     angularVelocityY[i] += lerp(yMin, yMax, pseudoRandom(randomSeed[i] + ROTATION_OVERTIME_RAND_OFFSET));
                     angularVelocityZ[i] += lerp(zMin, zMax, pseudoRandom(randomSeed[i] + ROTATION_OVERTIME_RAND_OFFSET));
@@ -197,7 +198,7 @@ export class RotationOverLifetimeModule extends ParticleModule {
                 const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.x;
                 const { splineMin: yMin, splineMax: yMax, multiplier: yMultiplier } = this.y;
                 const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.z;
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     angularVelocityX[i] += lerp(xMin.evaluate(normalizedAliveTime[i]), xMax.evaluate(normalizedAliveTime[i]), pseudoRandom(randomSeed[i] + ROTATION_OVERTIME_RAND_OFFSET)) * xMultiplier;
                     angularVelocityY[i] += lerp(yMin.evaluate(normalizedAliveTime[i]), yMax.evaluate(normalizedAliveTime[i]), pseudoRandom(randomSeed[i] + ROTATION_OVERTIME_RAND_OFFSET)) * yMultiplier;
                     angularVelocityZ[i] += lerp(zMin.evaluate(normalizedAliveTime[i]), zMax.evaluate(normalizedAliveTime[i]), pseudoRandom(randomSeed[i] + ROTATION_OVERTIME_RAND_OFFSET)) * zMultiplier;

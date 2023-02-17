@@ -39,8 +39,6 @@ const _intermediVec = new Vec3(0, 0, 0);
 const tmpPosition = new Vec3();
 const tmpDir = new Vec3();
 const shuffleArray = new Float32Array(3);
-const mat = new Mat4();
-const quat = new Quat();
 const boxThickness = new Vec3();
 
 /**
@@ -119,6 +117,7 @@ export class ShapeModule extends ParticleModule {
     }
     set position (val) {
         this._position.set(val);
+        this._isTransformDirty = true;
     }
 
     /**
@@ -131,6 +130,7 @@ export class ShapeModule extends ParticleModule {
     }
     set rotation (val) {
         this._rotation.set(val);
+        this._isTransformDirty = true;
     }
 
     /**
@@ -143,6 +143,7 @@ export class ShapeModule extends ParticleModule {
     }
     set scale (val) {
         this._scale.set(val);
+        this._isTransformDirty = true;
     }
 
     /**
@@ -337,16 +338,25 @@ export class ShapeModule extends ParticleModule {
     @serializable
     private _angle = toRadian(25);
     private _totalAngle = 0;
+    private _mat = new Mat4();
+    private _quat = new Quat();
+    private _isTransformDirty = true;
 
-    public update (particles: ParticleSOAData, params: ParticleSystemParams, particleUpdateContext: ParticleUpdateContext) {
-        Quat.fromEuler(quat, this._rotation.x, this._rotation.y, this._rotation.z);
-        Mat4.fromRTS(mat, quat, this._position, this._scale);
-        const { newParticleIndexStart, newParticleIndexEnd, normalizedTimeInCycle, emitterDeltaTime } = particleUpdateContext;
+    public tick (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext, t: number, deltaTime: number) {
+        this._totalAngle += 2 * Math.PI * this.arcSpeed.evaluate(t / params.duration, 1) * deltaTime;
+        if (this._isTransformDirty) {
+            Quat.fromEuler(this._quat, this._rotation.x, this._rotation.y, this._rotation.z);
+            Mat4.fromRTS(this._mat, this._quat, this._position, this._scale);
+            this._isTransformDirty = false;
+        }
+    }
+
+    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,
+        fromIndex: number, toIndex: number, t: number) {
         const randomPositionAmount = this.randomPositionAmount;
         const minRadius = this.radius * (1 - this.radiusThickness);
         const velocityZ = -Math.cos(this._angle) * this.radius;
         boxThickness.set(1 - this.boxThickness.x, 1 - this.boxThickness.y, 1 - this.boxThickness.z);
-        this._totalAngle += 2 * Math.PI * this.arcSpeed.evaluate(normalizedTimeInCycle, 1) * emitterDeltaTime;
         let angle = this._totalAngle;
         if (this.arcSpread !== 0) {
             angle = Math.floor(angle / (this._arc * this.arcSpread)) * this._arc * this.arcSpread;
@@ -354,7 +364,7 @@ export class ShapeModule extends ParticleModule {
 
         switch (this.shapeType) {
         case ShapeType.BOX:
-            for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+            for (let i = fromIndex; i < toIndex; ++i) {
                 Vec3.set(tmpPosition,
                     randomRange(-0.5, 0.5),
                     randomRange(-0.5, 0.5),
@@ -363,7 +373,7 @@ export class ShapeModule extends ParticleModule {
             }
             break;
         case ShapeType.BOX_SHELL:
-            for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+            for (let i = fromIndex; i < toIndex; ++i) {
                 shuffleArray[0] = randomRange(-0.5, 0.5);
                 shuffleArray[1] = randomRange(-0.5, 0.5);
                 shuffleArray[2] = randomSign() * 0.5;
@@ -374,7 +384,7 @@ export class ShapeModule extends ParticleModule {
             }
             break;
         case ShapeType.BOX_EDGE:
-            for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+            for (let i = fromIndex; i < toIndex; ++i) {
                 shuffleArray[0] = randomRange(-0.5, 0.5);
                 shuffleArray[1] = randomSign() * 0.5;
                 shuffleArray[2] = randomSign() * 0.5;
@@ -386,7 +396,7 @@ export class ShapeModule extends ParticleModule {
             break;
         case ShapeType.CIRCLE:
             if (this.arcMode === ArcMode.RANDOM) {
-                for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                for (let i = fromIndex; i < toIndex; ++i) {
                     const theta = randomRange(0, this._arc);
                     tmpPosition.set(Math.cos(theta), Math.sin(theta), 0);
                     tmpPosition.multiplyScalar(minRadius + (this.radius - minRadius) * random());
@@ -400,7 +410,7 @@ export class ShapeModule extends ParticleModule {
                 } else {
                     angle = pingPong(angle, this._arc);
                 }
-                for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                for (let i = fromIndex; i < toIndex; ++i) {
                     tmpPosition.set(Math.cos(angle), Math.sin(angle), 0);
                     tmpPosition.multiplyScalar(minRadius + (this.radius - minRadius) * random());
                     Vec3.normalize(tmpDir, tmpPosition);
@@ -413,7 +423,7 @@ export class ShapeModule extends ParticleModule {
             if (this.arcMode === ArcMode.RANDOM) {
                 const radiusThickness = this.radius - minRadius;
                 const angleSin = Math.sin(this._angle);
-                for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                for (let i = fromIndex; i < toIndex; ++i) {
                     const theta = randomRange(0, this._arc);
                     Vec3.set(tmpPosition, Math.cos(theta), Math.sin(theta), 0);
                     Vec3.multiplyScalar(tmpPosition, tmpPosition, minRadius + radiusThickness * random());
@@ -430,7 +440,7 @@ export class ShapeModule extends ParticleModule {
                 } else {
                     angle = pingPong(angle, this._arc);
                 }
-                for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                for (let i = fromIndex; i < toIndex; ++i) {
                     tmpPosition.set(Math.cos(angle), Math.sin(angle), 0);
                     tmpPosition.multiplyScalar(minRadius + (this.radius - minRadius) * random());
                     Vec2.multiplyScalar(tmpDir, tmpPosition, Math.sin(this._angle));
@@ -444,7 +454,7 @@ export class ShapeModule extends ParticleModule {
             break;
         case ShapeType.CONE_BASE:
             if (this.arcMode === ArcMode.RANDOM) {
-                for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                for (let i = fromIndex; i < toIndex; ++i) {
                     const theta = randomRange(0, this._arc);
                     tmpPosition.set(Math.cos(theta), Math.sin(theta), 0);
                     tmpPosition.multiplyScalar(minRadius + (this.radius - minRadius) * random());
@@ -461,7 +471,7 @@ export class ShapeModule extends ParticleModule {
                     angle = pingPong(angle, this._arc);
                 }
 
-                for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                for (let i = fromIndex; i < toIndex; ++i) {
                     tmpPosition.set(Math.cos(angle), Math.sin(angle), 0);
                     tmpPosition.multiplyScalar(minRadius + (this.radius - minRadius) * random());
                     Vec2.multiplyScalar(tmpDir, tmpPosition, Math.sin(this._angle));
@@ -474,7 +484,7 @@ export class ShapeModule extends ParticleModule {
             break;
         case ShapeType.CONE_SHELL:
             if (this.arcMode === ArcMode.RANDOM) {
-                for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                for (let i = fromIndex; i < toIndex; ++i) {
                     const theta = randomRange(0, this._arc);
                     tmpPosition.set(Math.cos(theta), Math.sin(theta), 0);
                     Vec2.multiplyScalar(tmpDir, tmpPosition, Math.sin(this._angle));
@@ -491,7 +501,7 @@ export class ShapeModule extends ParticleModule {
                     angle = pingPong(angle, this._arc);
                 }
 
-                for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+                for (let i = fromIndex; i < toIndex; ++i) {
                     tmpPosition.set(Math.cos(angle), Math.sin(angle), 0);
                     Vec2.multiplyScalar(tmpDir, tmpPosition, Math.sin(this._angle));
                     tmpDir.z = -Math.cos(this._angle);
@@ -503,7 +513,7 @@ export class ShapeModule extends ParticleModule {
             }
             break;
         case ShapeType.SPHERE:
-            for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+            for (let i = fromIndex; i < toIndex; ++i) {
                 const z = randomRange(-1, 1);
                 const a = randomRange(0, 2 * Math.PI);
                 const r = Math.sqrt(1 - z * z);
@@ -517,7 +527,7 @@ export class ShapeModule extends ParticleModule {
             }
             break;
         case ShapeType.SPHERE_SHELL:
-            for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+            for (let i = fromIndex; i < toIndex; ++i) {
                 const z = randomRange(-1, 1);
                 const a = randomRange(0, 2 * Math.PI);
                 const r = Math.sqrt(1 - z * z);
@@ -531,7 +541,7 @@ export class ShapeModule extends ParticleModule {
             }
             break;
         case ShapeType.HEMISPHERE:
-            for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+            for (let i = fromIndex; i < toIndex; ++i) {
                 const z = randomRange(-1, 1);
                 const a = randomRange(0, 2 * Math.PI);
                 const r = Math.sqrt(1 - z * z);
@@ -548,7 +558,7 @@ export class ShapeModule extends ParticleModule {
             }
             break;
         case ShapeType.HEMISPHERE_SHELL:
-            for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+            for (let i = fromIndex; i < toIndex; ++i) {
                 const z = randomRange(-1, 1);
                 const a = randomRange(0, 2 * Math.PI);
                 const r = Math.sqrt(1 - z * z);
@@ -568,7 +578,7 @@ export class ShapeModule extends ParticleModule {
             console.warn(`${this.shapeType} shapeType is not supported by ShapeModule.`);
         }
         if (randomPositionAmount > 0) {
-            for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+            for (let i = fromIndex; i < toIndex; ++i) {
                 particles.getPositionAt(tmpPosition, i);
                 tmpPosition.add3f(randomRange(-randomPositionAmount, randomPositionAmount),
                     randomRange(-randomPositionAmount, randomPositionAmount),
@@ -576,16 +586,16 @@ export class ShapeModule extends ParticleModule {
                 particles.setPositionAt(tmpPosition, i);
             }
         }
-        for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+        for (let i = fromIndex; i < toIndex; ++i) {
             particles.getStartDirAt(tmpDir, i);
-            particles.setStartDirAt(Vec3.transformQuat(tmpDir, tmpDir, quat), i);
+            particles.setStartDirAt(Vec3.transformQuat(tmpDir, tmpDir, this._quat), i);
         }
-        for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+        for (let i = fromIndex; i < toIndex; ++i) {
             particles.getPositionAt(tmpPosition, i);
-            particles.setPositionAt(Vec3.transformMat4(tmpPosition, tmpPosition, mat), i);
+            particles.setPositionAt(Vec3.transformMat4(tmpPosition, tmpPosition, this._mat), i);
         }
         if (this.sphericalDirectionAmount > 0) {
-            for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+            for (let i = fromIndex; i < toIndex; ++i) {
                 particles.getPositionAt(tmpPosition, i);
                 particles.getStartDirAt(tmpDir, i);
                 const sphericalVel = Vec3.normalize(_intermediVec, tmpPosition);

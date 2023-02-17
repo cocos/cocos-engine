@@ -29,7 +29,7 @@ import { assert, CCBoolean, CCFloat, CCInteger, Enum, warn } from '../../core';
 import { range, rangeStep, slide, visible } from '../../core/data/decorators/editable';
 import { clamp, lerp, pseudoRandom, randomRangeInt, Vec2, Vec3 } from '../../core/math';
 import { CurveRange } from '../curve-range';
-import { ParticleModule, ParticleUpdateStage } from '../particle-module';
+import { ParticleModule, ParticleUpdateStage, UpdateModule } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
 import { ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
 import { perlinNoise1D, perlinNoise2D, perlinNoise3D } from './perlin-noise';
@@ -51,7 +51,7 @@ enum Quality {
 }
 
 @ccclass('cc.NoiseModule')
-export class NoiseModule extends ParticleModule {
+export class NoiseModule extends UpdateModule {
     @serializable
     @visible(true)
     public separateAxes = false;
@@ -263,10 +263,14 @@ export class NoiseModule extends ParticleModule {
     private _randomSeed = randomRangeInt(0, 233280);
     private _scrollOffset = 0;
 
-    public update (particles: ParticleSOAData, params: ParticleSystemParams, particleUpdateContext: ParticleUpdateContext) {
-        const { normalizedTimeInCycle, deltaTime } = particleUpdateContext;
-        const { count, randomSeed, normalizedAliveTime, noiseX, noiseY, noiseZ, rotationX, rotationY, rotationZ, sizeX, sizeY, sizeZ } = particles;
-        this._scrollOffset += this._scrollSpeed.evaluate(normalizedTimeInCycle, 1) * deltaTime;
+    public tick (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,
+        t: number, dt: number) {
+        this._scrollOffset += this._scrollSpeed.evaluate(t / params.duration, 1) * dt;
+    }
+
+    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,
+        fromIndex: number, toIndex: number, dt: number) {
+        const { randomSeed, normalizedAliveTime, noiseX, noiseY, noiseZ, rotationX, rotationY, rotationZ, sizeX, sizeY, sizeZ } = particles;
         const scrollOffset = this._scrollOffset;
         const frequency = Math.max(this.frequency, 0);
         const offsetX = pseudoRandom(this._randomSeed + RANDOM_SEED_OFFSET_X) * 100;
@@ -275,7 +279,7 @@ export class NoiseModule extends ParticleModule {
         const { octaves,  octaveScale, octaveMultiplier } = this;
         if (octaves > 1) {
             if (this.quality === Quality.MIDDLE) {
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     particles.getPositionAt(pos, i);
                     pos.add3f(offsetX, offsetY, offsetZ);
                     Vec2.set(sample2D, pos.y, pos.x + 100 + scrollOffset);
@@ -286,7 +290,7 @@ export class NoiseModule extends ParticleModule {
                     noiseZ[i] = accumulateNoise2D(sample2D, frequency, octaves, octaveScale, octaveMultiplier);
                 }
             } else if (this.quality === Quality.HIGH) {
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     particles.getPositionAt(pos, i);
                     pos.add3f(offsetX, offsetY, offsetZ);
                     Vec3.set(sample3D, pos.y, pos.x + 100, pos.z + scrollOffset);
@@ -297,7 +301,7 @@ export class NoiseModule extends ParticleModule {
                     noiseZ[i] = accumulateNoise3D(sample3D, frequency, octaves, octaveScale, octaveMultiplier);
                 }
             } else {
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     particles.getPositionAt(pos, i);
                     pos.add3f(offsetX, offsetY, offsetZ);
                     noiseX[i] = accumulateNoise1D(pos.y + scrollOffset, frequency, octaves, octaveScale, octaveMultiplier);
@@ -308,7 +312,7 @@ export class NoiseModule extends ParticleModule {
         } else {
             // eslint-disable-next-line no-lonely-if
             if (this.quality === Quality.HIGH) {
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     particles.getPositionAt(pos, i);
                     pos.add3f(offsetX, offsetY, offsetZ);
                     Vec3.set(sample3D, pos.y, pos.x + 100, pos.z + scrollOffset);
@@ -322,7 +326,7 @@ export class NoiseModule extends ParticleModule {
                     noiseZ[i] = perlinNoise3D(sample3D);
                 }
             } else if (this.quality === Quality.MIDDLE) {
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     particles.getPositionAt(pos, i);
                     pos.add3f(offsetX, offsetY, offsetZ);
                     Vec2.set(sample2D, pos.y, pos.x + 100 + scrollOffset);
@@ -336,7 +340,7 @@ export class NoiseModule extends ParticleModule {
                     noiseZ[i] = perlinNoise2D(sample2D);
                 }
             } else {
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     particles.getPositionAt(pos, i);
                     pos.add3f(offsetX, offsetY, offsetZ);
                     noiseX[i] = perlinNoise1D((pos.y + scrollOffset) * frequency);
@@ -356,7 +360,7 @@ export class NoiseModule extends ParticleModule {
                     const { spline: splineX, multiplier: multiplierX } = this.remapX;
                     const { spline: splineY, multiplier: multiplierY } = this.remapY;
                     const { spline: splineZ, multiplier: multiplierZ } = this.remapZ;
-                    for (let i = 0; i < count; i++) {
+                    for (let i = fromIndex; i < toIndex; i++) {
                         noiseX[i] = splineX.evaluate(clamp(noiseX[i] * 0.5 + 0.5, 0, 1)) * multiplierX;
                         noiseY[i] = splineY.evaluate(clamp(noiseY[i] * 0.5 + 0.5, 0, 1)) * multiplierY;
                         noiseZ[i] = splineZ.evaluate(clamp(noiseY[i] * 0.5 + 0.5, 0, 1)) * multiplierZ;
@@ -368,7 +372,7 @@ export class NoiseModule extends ParticleModule {
                 // eslint-disable-next-line no-lonely-if
                 if (this.remapX.mode === CurveRange.Mode.Curve) {
                     const { spline: splineX, multiplier: multiplierX } = this.remapX;
-                    for (let i = 0; i < count; i++) {
+                    for (let i = fromIndex; i < toIndex; i++) {
                         noiseX[i] = splineX.evaluate(clamp(noiseX[i] * 0.5 + 0.5, 0, 1)) * multiplierX;
                         noiseY[i] = splineX.evaluate(clamp(noiseY[i] * 0.5 + 0.5, 0, 1)) * multiplierX;
                         noiseZ[i] = splineX.evaluate(clamp(noiseY[i] * 0.5 + 0.5, 0, 1)) * multiplierX;
@@ -384,7 +388,7 @@ export class NoiseModule extends ParticleModule {
                 const amplitudeX = this.strengthX.constant;
                 const amplitudeY = this.strengthY.constant;
                 const amplitudeZ = this.strengthZ.constant;
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     noiseX[i] *= amplitudeX;
                     noiseY[i] *= amplitudeY;
                     noiseZ[i] *= amplitudeZ;
@@ -393,7 +397,7 @@ export class NoiseModule extends ParticleModule {
                 const { spline: splineX, multiplier: multiplierX } = this.strengthX;
                 const { spline: splineY, multiplier: multiplierY } = this.strengthY;
                 const { spline: splineZ, multiplier: multiplierZ } = this.strengthZ;
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     const life = normalizedAliveTime[i];
                     noiseX[i] *= splineX.evaluate(life) * multiplierX;
                     noiseY[i] *= splineY.evaluate(life) * multiplierY;
@@ -403,7 +407,7 @@ export class NoiseModule extends ParticleModule {
                 const { constantMax: xMax, constantMin: xMin } = this.strengthX;
                 const { constantMax: yMax, constantMin: yMin } = this.strengthY;
                 const { constantMax: zMax, constantMin: zMin } = this.strengthZ;
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     const seed = randomSeed[i];
                     noiseX[i] *= lerp(xMin, xMax, pseudoRandom(seed + RANDOM_SEED_OFFSET_X));
                     noiseY[i] *= lerp(yMin, yMax, pseudoRandom(seed + RANDOM_SEED_OFFSET_Y));
@@ -413,7 +417,7 @@ export class NoiseModule extends ParticleModule {
                 const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.strengthX;
                 const { splineMin: yMin, splineMax: yMax, multiplier: yMultiplier } = this.strengthY;
                 const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.strengthZ;
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     const life = normalizedAliveTime[i];
                     const seed = randomSeed[i];
                     noiseX[i] *= lerp(xMin.evaluate(life),
@@ -428,14 +432,14 @@ export class NoiseModule extends ParticleModule {
             // eslint-disable-next-line no-lonely-if
             if (this.strengthX.mode === CurveRange.Mode.Constant) {
                 const amplitude = this.strengthX.constant;
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     noiseX[i] *= amplitude;
                     noiseY[i] *= amplitude;
                     noiseZ[i] *= amplitude;
                 }
             } else if (this.strengthX.mode === CurveRange.Mode.Curve) {
                 const { spline, multiplier } = this.strengthX;
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     const amplitude = spline.evaluate(normalizedAliveTime[i]) * multiplier;
                     noiseX[i] *= amplitude;
                     noiseY[i] *= amplitude;
@@ -443,7 +447,7 @@ export class NoiseModule extends ParticleModule {
                 }
             } else if (this.strengthX.mode === CurveRange.Mode.TwoConstants) {
                 const { constantMax, constantMin } = this.strengthX;
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     const amplitude = lerp(constantMin, constantMax, pseudoRandom(randomSeed[i]));
                     noiseX[i] *= amplitude;
                     noiseY[i] *= amplitude;
@@ -451,7 +455,7 @@ export class NoiseModule extends ParticleModule {
                 }
             } else {
                 const { splineMin, splineMax, multiplier } = this.strengthX;
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     const life = normalizedAliveTime[i];
                     const amplitude = lerp(splineMin.evaluate(life),
                         splineMax.evaluate(life), pseudoRandom(randomSeed[i])) * multiplier;
@@ -465,27 +469,27 @@ export class NoiseModule extends ParticleModule {
         if (this.positionAmount.getMax() !== 0) {
             if (this.positionAmount.mode === CurveRange.Mode.Constant) {
                 const amount = this.positionAmount.constant;
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     Vec3.set(velocity, noiseX[i] * amount, noiseY[i] * amount, noiseZ[i] * amount);
                     particles.addAnimatedVelocityAt(velocity, i);
                 }
             } else if (this.positionAmount.mode === CurveRange.Mode.Curve) {
                 const { spline, multiplier } = this.positionAmount;
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     const amount = spline.evaluate(normalizedAliveTime[i]) * multiplier;
                     Vec3.set(velocity, noiseX[i] * amount, noiseY[i] * amount, noiseZ[i] * amount);
                     particles.addAnimatedVelocityAt(velocity, i);
                 }
             } else if (this.positionAmount.mode === CurveRange.Mode.TwoCurves) {
                 const { constantMin, constantMax } = this.positionAmount;
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     const amount = lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + RANDOM_SEED_OFFSET_POSITION));
                     Vec3.set(velocity, noiseX[i] * amount, noiseY[i] * amount, noiseZ[i] * amount);
                     particles.addAnimatedVelocityAt(velocity, i);
                 }
             } else {
                 const { splineMin, splineMax, multiplier } = this.positionAmount;
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     const life = normalizedAliveTime[i];
                     const amount = lerp(splineMin.evaluate(life), splineMax.evaluate(life), pseudoRandom(randomSeed[i] + RANDOM_SEED_OFFSET_POSITION)) * multiplier;
                     Vec3.set(velocity, noiseX[i] * amount, noiseY[i] * amount, noiseZ[i] * amount);
@@ -496,33 +500,33 @@ export class NoiseModule extends ParticleModule {
 
         if (this.rotationAmount.getMax() !== 0) {
             if (this.rotationAmount.mode === CurveRange.Mode.Constant) {
-                const amount = this.rotationAmount.constant * deltaTime;
-                for (let i = 0; i < count; i++) {
+                const amount = this.rotationAmount.constant * dt;
+                for (let i = fromIndex; i < toIndex; i++) {
                     rotationX[i] += noiseX[i] * amount;
                     rotationY[i] += noiseY[i] * amount;
                     rotationZ[i] += noiseZ[i] * amount;
                 }
             } else if (this.rotationAmount.mode === CurveRange.Mode.Curve) {
                 const { spline } = this.rotationAmount;
-                const multiplier = this.rotationAmount.multiplier * deltaTime;
-                for (let i = 0; i < count; i++) {
-                    const amount = spline.evaluate(normalizedAliveTime[i]) * multiplier * deltaTime;
+                const multiplier = this.rotationAmount.multiplier * dt;
+                for (let i = fromIndex; i < toIndex; i++) {
+                    const amount = spline.evaluate(normalizedAliveTime[i]) * multiplier * dt;
                     rotationX[i] += noiseX[i] * amount;
                     rotationY[i] += noiseY[i] * amount;
                     rotationZ[i] += noiseZ[i] * amount;
                 }
             } else if (this.rotationAmount.mode === CurveRange.Mode.TwoConstants) {
                 const { constantMin, constantMax } = this.rotationAmount;
-                for (let i = 0; i < count; i++) {
-                    const amount = lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + RANDOM_SEED_OFFSET_ROTATION)) * deltaTime;
+                for (let i = fromIndex; i < toIndex; i++) {
+                    const amount = lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + RANDOM_SEED_OFFSET_ROTATION)) * dt;
                     rotationX[i] += noiseX[i] * amount;
                     rotationY[i] += noiseY[i] * amount;
                     rotationZ[i] += noiseZ[i] * amount;
                 }
             } else {
                 const { splineMin, splineMax } = this.rotationAmount;
-                const multiplier = this.rotationAmount.multiplier * deltaTime;
-                for (let i = 0; i < count; i++) {
+                const multiplier = this.rotationAmount.multiplier * dt;
+                for (let i = fromIndex; i < toIndex; i++) {
                     const life = normalizedAliveTime[i];
                     const amount = lerp(splineMin.evaluate(life), splineMax.evaluate(life), pseudoRandom(randomSeed[i] + RANDOM_SEED_OFFSET_ROTATION)) * multiplier;
                     rotationX[i] += noiseX[i] * amount;
@@ -535,14 +539,14 @@ export class NoiseModule extends ParticleModule {
         if (this.sizeAmount.getMax() !== 0) {
             if (this.sizeAmount.mode === CurveRange.Mode.Constant) {
                 const amount = this.sizeAmount.constant;
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     sizeX[i] *= (noiseX[i] * amount + 1);
                     sizeY[i] *= (noiseY[i] * amount + 1);
                     sizeZ[i] *= (noiseZ[i] * amount + 1);
                 }
             } else if (this.sizeAmount.mode === CurveRange.Mode.Curve) {
                 const { spline, multiplier } = this.sizeAmount;
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     const amount = spline.evaluate(normalizedAliveTime[i]) * multiplier;
                     sizeX[i] *= (noiseX[i] * amount + 1);
                     sizeY[i] *= (noiseY[i] * amount + 1);
@@ -550,7 +554,7 @@ export class NoiseModule extends ParticleModule {
                 }
             } else if (this.sizeAmount.mode === CurveRange.Mode.TwoConstants) {
                 const { constantMin, constantMax } = this.sizeAmount;
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     const amount = lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + RANDOM_SEED_OFFSET_ROTATION));
                     sizeX[i] *= (noiseX[i] * amount + 1);
                     sizeY[i] *= (noiseY[i] * amount + 1);
@@ -558,7 +562,7 @@ export class NoiseModule extends ParticleModule {
                 }
             } else {
                 const { splineMin, splineMax, multiplier } = this.sizeAmount;
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     const life = normalizedAliveTime[i];
                     const amount = lerp(splineMin.evaluate(life), splineMax.evaluate(life), pseudoRandom(randomSeed[i] + RANDOM_SEED_OFFSET_ROTATION)) * multiplier;
                     sizeX[i] *= (noiseX[i] * amount + 1);
@@ -593,12 +597,12 @@ export class NoiseModule extends ParticleModule {
     }
 }
 
-function accumulateNoise1D (pos: number, frequency: number, octaveCount: number, octaveScale: number, octaveMultiplier: number) {
+function accumulateNoise1D (pos: number, frequency: number, octavetoIndex: number, octaveScale: number, octaveMultiplier: number) {
     pos *= frequency;
     let sum = perlinNoise1D(pos);
     let amplitude = 1;
     let range = 1;
-    for (let i = 1; i < octaveCount; i++) {
+    for (let i = 1; i < octavetoIndex; i++) {
         pos *= octaveScale;
         amplitude *= octaveMultiplier;
         range += amplitude;
@@ -607,12 +611,12 @@ function accumulateNoise1D (pos: number, frequency: number, octaveCount: number,
     return sum / range;
 }
 
-function accumulateNoise2D (pos: Vec2, frequency: number, octaveCount: number, octaveScale: number, octaveMultiplier: number) {
+function accumulateNoise2D (pos: Vec2, frequency: number, octavetoIndex: number, octaveScale: number, octaveMultiplier: number) {
     Vec2.multiplyScalar(pos, pos, frequency);
     let sum = perlinNoise2D(pos);
     let amplitude = 1;
     let range = 1;
-    for (let i = 1; i < octaveCount; i++) {
+    for (let i = 1; i < octavetoIndex; i++) {
         Vec2.multiplyScalar(pos, pos, octaveScale);
         amplitude *= octaveMultiplier;
         range += amplitude;
@@ -621,12 +625,12 @@ function accumulateNoise2D (pos: Vec2, frequency: number, octaveCount: number, o
     return sum / range;
 }
 
-function accumulateNoise3D (pos: Vec3, frequency: number, octaveCount: number, octaveScale: number, octaveMultiplier: number) {
+function accumulateNoise3D (pos: Vec3, frequency: number, octavetoIndex: number, octaveScale: number, octaveMultiplier: number) {
     Vec3.multiplyScalar(pos, pos, frequency);
     let sum = perlinNoise3D(pos);
     let amplitude = 1;
     let range = 1;
-    for (let i = 1; i < octaveCount; i++) {
+    for (let i = 1; i < octavetoIndex; i++) {
         Vec3.multiplyScalar(pos, pos, octaveScale);
         amplitude *= octaveMultiplier;
         range += amplitude;

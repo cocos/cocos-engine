@@ -26,15 +26,17 @@
 import { ccclass, displayOrder, formerlySerializedAs, radian, range, serializable, tooltip, type, visible } from '../../core/data/decorators';
 import { InitializationModule, ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
-import { ParticleEmitterContext, ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
+import { ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
 import { GradientRange } from '../gradient-range';
 import { Color, lerp, pseudoRandom, randomRangeInt, Vec3 } from '../../core/math';
 import { INT_MAX } from '../../core/math/bits';
 
 const tempColor = new Color();
+const tempColor2 = new Color();
+const tempColor3 = new Color();
 
 @ccclass('cc.StartColorModule')
-export class StartColorModule extends ParticleModule {
+export class StartColorModule extends InitializationModule {
     /**
       * @zh 粒子初始颜色。
       */
@@ -56,35 +58,37 @@ export class StartColorModule extends ParticleModule {
         return 1;
     }
 
-    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext) {
-        const { newParticleIndexStart, newParticleIndexEnd, normalizedTimeInCycle } = context;
+    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,
+        fromIndex: number, toIndex: number, t: number) {
+        const normalizedTimeInCycle = t / params.duration;
         const { startColor, color } = particles;
         if (this.startColor.mode === GradientRange.Mode.Color) {
             const colorNum = Color.toUint32(this.startColor.color);
-            for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+            for (let i = fromIndex; i < toIndex; ++i) {
                 color[i] = startColor[i] = colorNum;
             }
         } else if (this.startColor.mode === GradientRange.Mode.Gradient) {
             const { gradient } = this.startColor;
-            for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
-                color[i] = startColor[i] = Color.toUint32(gradient.evaluate(normalizedTimeInCycle));
+            for (let i = fromIndex; i < toIndex; ++i) {
+                color[i] = startColor[i] = Color.toUint32(gradient.evaluate(tempColor, normalizedTimeInCycle));
             }
         } else if (this.startColor.mode === GradientRange.Mode.TwoColors) {
             const { colorMin, colorMax } = this.startColor;
-            for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+            for (let i = fromIndex; i < toIndex; ++i) {
                 const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
                 color[i] = startColor[i] = Color.toUint32(Color.lerp(tempColor, colorMin, colorMax, rand));
             }
         } else if (this.startColor.mode === GradientRange.Mode.TwoGradients) {
             const { gradientMin, gradientMax } = this.startColor;
-            for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+            for (let i = fromIndex; i < toIndex; ++i) {
                 const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
-                color[i] = startColor[i] = Color.toUint32(Color.lerp(tempColor, gradientMin.evaluate(normalizedTimeInCycle), gradientMax.evaluate(normalizedTimeInCycle), rand));
+                color[i] = startColor[i] = Color.toUint32(Color.lerp(tempColor,
+                    gradientMin.evaluate(tempColor2, normalizedTimeInCycle), gradientMax.evaluate(tempColor3, normalizedTimeInCycle), rand));
             }
         } else {
             const { gradient } = this.startColor;
-            for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
-                color[i] = startColor[i] = Color.toUint32(gradient.randomColor());
+            for (let i = fromIndex; i < toIndex; ++i) {
+                color[i] = startColor[i] = Color.toUint32(gradient.randomColor(tempColor));
             }
         }
     }

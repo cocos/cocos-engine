@@ -82,19 +82,17 @@ export default class Gradient {
      * @en Array of color key.
      * @zh 颜色关键帧列表。
      */
-    public colorKeys = new Array<ColorKey>();
+    public colorKeys: ColorKey[] = [];
     /**
      * @en Array of alpha key.
      * @zh 透明度关键帧列表。
      */
-    public alphaKeys = new Array<AlphaKey>();
+    public alphaKeys: AlphaKey[] = [];
     /**
      * @en Blend mode.
      * @zh 混合模式。
      */
     public mode = Mode.Blend;
-
-    private _color = Color.WHITE.clone();
 
     public setKeys (colorKeys: ColorKey[], alphaKeys: AlphaKey[]) {
         this.colorKeys = colorKeys;
@@ -110,21 +108,21 @@ export default class Gradient {
         }
     }
 
-    public evaluate (time: number) {
-        this.getRGB(time);
-        this._color._set_a_unsafe(this.getAlpha(time)!);
-        return this._color;
+    public evaluate (out: Color, time: number) {
+        this.getRGB(out, time);
+        out._set_a_unsafe(this.getAlpha(time)!);
+        return out;
     }
 
-    public randomColor () {
+    public randomColor (out: Color) {
         const c = this.colorKeys[Math.trunc(Math.random() * this.colorKeys.length)];
         const a = this.alphaKeys[Math.trunc(Math.random() * this.alphaKeys.length)];
-        this._color.set(c.color);
-        this._color._set_a_unsafe(a.alpha);
-        return this._color;
+        Color.copy(out, c.color);
+        out._set_a_unsafe(a.alpha);
+        return out;
     }
 
-    private getRGB (time: number) {
+    private getRGB (out: Color, time: number) {
         const colorKeys = this.colorKeys;
         const length = colorKeys.length;
         if (length > 1) {
@@ -134,28 +132,27 @@ export default class Gradient {
                 const curTime = colorKeys[i].time;
                 if (time >= preTime && time < curTime) {
                     if (this.mode === Mode.Fixed) {
-                        return colorKeys[i].color;
+                        Color.copy(out, colorKeys[i].color);
+                        return out;
                     }
                     const factor = (time - preTime) / (curTime - preTime);
-                    Color.lerp(this._color, colorKeys[i - 1].color, colorKeys[i].color, factor);
-                    return this._color;
+                    Color.lerp(out, colorKeys[i - 1].color, colorKeys[i].color, factor);
+                    return out;
                 }
             }
             const lastIndex = length - 1;
             if (time < colorKeys[0].time) {
-                Color.lerp(this._color, Color.BLACK, colorKeys[0].color, time / colorKeys[0].time);
+                Color.lerp(out, Color.BLACK, colorKeys[0].color, time / colorKeys[0].time);
             } else if (time > colorKeys[lastIndex].time) {
-                Color.lerp(this._color, colorKeys[lastIndex].color, Color.BLACK, (time - colorKeys[lastIndex].time) / (1 - colorKeys[lastIndex].time));
+                Color.lerp(out, colorKeys[lastIndex].color, Color.BLACK, (time - colorKeys[lastIndex].time) / (1 - colorKeys[lastIndex].time));
             }
             // console.warn('something went wrong. can not get gradient color.');
-            return this._color;
         } else if (length === 1) {
-            this._color.set(colorKeys[0].color);
-            return this._color;
+            Color.copy(out, colorKeys[0].color);
         } else {
-            this._color.set(Color.WHITE);
-            return this._color;
+            Color.copy(out, Color.WHITE);
         }
+        return out;
     }
 
     private getAlpha (time: number) {

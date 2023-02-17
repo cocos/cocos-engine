@@ -24,6 +24,7 @@
  */
 
 import { Vec3 } from '../../core';
+import { ccclass } from '../../core/data/decorators';
 import { ParticleUpdateStage, UpdateModule } from '../particle-module';
 import { ParticleSOAData, RecordReason } from '../particle-soa-data';
 import { ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
@@ -32,6 +33,7 @@ const velocity = new Vec3();
 const animatedVelocity = new Vec3();
 const angularVelocity = new Vec3();
 
+@ccclass('cc.CompositionModule')
 export class CompositionModule extends UpdateModule {
     public get name (): string {
         return 'ParticleStateModule';
@@ -46,7 +48,7 @@ export class CompositionModule extends UpdateModule {
     }
 
     public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,
-        fromIndex: number, toIndex: number, t: number, dt: number) {
+        fromIndex: number, toIndex: number, dt: number) {
         const { speedModifier, normalizedAliveTime, invStartLifeTime } = particles;
         for (let particleHandle = fromIndex; particleHandle < toIndex; particleHandle++) {
             particles.getVelocityAt(velocity, particleHandle);

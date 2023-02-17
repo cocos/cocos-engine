@@ -24,7 +24,7 @@
  */
 
 import { ccclass, displayOrder, formerlySerializedAs, radian, range, serializable, tooltip, type, visible } from '../../core/data/decorators';
-import { ParticleModule, ParticleUpdateStage } from '../particle-module';
+import { InitializationModule, ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
 import { ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
 import { CurveRange } from '../curve-range';
@@ -34,7 +34,7 @@ import { INT_MAX } from '../../core/math/bits';
 import { Space } from '../enum';
 
 @ccclass('cc.StartLifeTimeModule')
-export class StartLifeTimeModule extends ParticleModule {
+export class StartLifeTimeModule extends InitializationModule {
     /**
       * @zh 粒子生命周期。
       */
@@ -57,28 +57,29 @@ export class StartLifeTimeModule extends ParticleModule {
         return 1;
     }
 
-    public update (particles: ParticleSOAData, params: ParticleSystemParams, particleUpdateContext: ParticleUpdateContext) {
-        const { newParticleIndexStart, newParticleIndexEnd, normalizedTimeInCycle } = particleUpdateContext;
+    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,
+        fromIndex: number, toIndex: number, t: number) {
+        const normalizedTimeInCycle = t / params.duration;
         const { invStartLifeTime } = particles;
         if (this.startLifetime.mode === CurveRange.Mode.Constant) {
             const lifeTime = 1 / this.startLifetime.constant;
-            for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+            for (let i = fromIndex; i < toIndex; ++i) {
                 invStartLifeTime[i] = lifeTime;
             }
         } else if (this.startLifetime.mode ===  CurveRange.Mode.TwoConstants) {
             const { constantMin, constantMax } = this.startLifetime;
-            for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+            for (let i = fromIndex; i < toIndex; ++i) {
                 const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
                 invStartLifeTime[i] = 1 / lerp(constantMin, constantMax, rand);
             }
         } else if (this.startLifetime.mode ===  CurveRange.Mode.Curve) {
             const { spline, multiplier } = this.startLifetime;
-            for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+            for (let i = fromIndex; i < toIndex; ++i) {
                 invStartLifeTime[i] = 1 / (spline.evaluate(normalizedTimeInCycle) * multiplier);
             }
         } else {
             const { splineMin, splineMax, multiplier } = this.startLifetime;
-            for (let i = newParticleIndexStart; i < newParticleIndexEnd; ++i) {
+            for (let i = fromIndex; i < toIndex; ++i) {
                 const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
                 invStartLifeTime[i] = 1 / (lerp(splineMin.evaluate(normalizedTimeInCycle), splineMax.evaluate(normalizedTimeInCycle), rand) * multiplier);
             }

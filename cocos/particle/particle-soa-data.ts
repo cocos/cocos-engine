@@ -373,6 +373,12 @@ export class ParticleSOAData {
         this._animatedVelocityZ[handle] = val.z;
     }
 
+    getFinalVelocity (out: Vec3, handle: ParticleHandle) {
+        out.x = this._velocityX[handle] + this._animatedVelocityX[handle];
+        out.y = this._velocityY[handle] + this._animatedVelocityY[handle];
+        out.z = this._velocityZ[handle] + this._animatedVelocityZ[handle];
+    }
+
     getAngularVelocityAt (out: Vec3, handle: ParticleHandle) {
         out.x = this._angularVelocityX[handle];
         out.y = this._angularVelocityY[handle];

@@ -23,36 +23,31 @@
  THE SOFTWARE.
  */
 
-import { ccclass, displayOrder, serializable, tooltip, type, range } from '../../core/data/decorators';
-import { EmissionModule } from '../particle-module';
-import { ParticleSOAData } from '../particle-soa-data';
+import { randomRangeInt, Vec3 } from '../../core';
+import { ccclass } from '../../core/data/decorators';
+import { InitializationModule, ParticleUpdateStage } from '../particle-module';
+import { ParticleSOAData, RecordReason } from '../particle-soa-data';
 import { ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
-import { CurveRange } from '../curve-range';
 
-@ccclass('cc.EmissionOverTimeModule')
-export class EmissionOverTimeModule extends EmissionModule {
-    /**
-     * @zh 每秒发射的粒子数。
-     */
-    @type(CurveRange)
-    @serializable
-    @range([0, 1])
-    @displayOrder(14)
-    @tooltip('i18n:particle_system.rateOverTime')
-    public rate = new CurveRange(10);
-
+@ccclass('cc.InitialModule')
+export class InitialModule extends InitializationModule {
     public get name (): string {
-        return 'EmissionOverTimeModule';
+        return 'InitialModule';
+    }
+
+    public get updateStage (): ParticleUpdateStage {
+        throw ParticleUpdateStage.INITIALIZE;
     }
 
     public get updatePriority (): number {
-        return 0;
+        return Number.MIN_VALUE;
     }
 
     public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,
-        prevT: number, t: number)  {
-        const count = this.rate.evaluate(t / params.duration, Math.random()) * (t - prevT);
-        context.emissionState.emittingOverTimeInterval = 1 / count;
-        context.emissionState.emittingOverTimeAccumulatedCount += count;
+        fromIndex: number, toIndex: number, t: number) {
+        const { randomSeed } = particles;
+        for (let i = fromIndex; i < toIndex; i++) {
+            randomSeed[i] = randomRangeInt(0, 233280);
+        }
     }
 }

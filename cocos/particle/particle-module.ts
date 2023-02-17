@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { EmittingResult, ParticleEmitterContext, ParticleSystemParams, ParticleUpdateContext } from './particle-update-context';
+import { ParticleSystemParams, ParticleUpdateContext } from './particle-update-context';
 import { ParticleSOAData } from './particle-soa-data';
 import { ccclass, displayName, serializable, type } from '../core/data/decorators';
 import { CCBoolean, CCString } from '../core';
@@ -77,6 +77,8 @@ export abstract class ParticleModule {
         }
     }
 
+    public tick (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,
+        t: number, dt: number) {}
     public onPlay () {}
     public onStop () {}
     public onPause () {}
@@ -88,7 +90,7 @@ export abstract class EmissionModule extends ParticleModule {
     }
 
     public abstract update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,
-        prevT: number, t: number, dt: number)
+        prevT: number, t: number)
 }
 
 @ccclass('cc.InitializationModule')
@@ -98,11 +100,11 @@ export abstract class InitializationModule extends ParticleModule {
     }
 
     public abstract update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,
-        fromIndex: number, toIndex: number, t: number, dt: number);
+        fromIndex: number, toIndex: number, t: number);
 }
 
 @ccclass('cc.UpdateModule')
 export abstract class UpdateModule extends ParticleModule {
     public abstract update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,
-        fromIndex: number, toIndex: number, t: number, dt: number)
+        fromIndex: number, toIndex: number, dt: number)
 }

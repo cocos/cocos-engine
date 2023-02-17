@@ -29,7 +29,7 @@ import { lerp, pseudoRandom, Quat, Vec3 } from '../../core/math';
 import { Space } from '../enum';
 import { calculateTransform } from '../particle-general-function';
 import { CurveRange } from '../curve-range';
-import { ParticleModule, ParticleUpdateStage } from '../particle-module';
+import { ParticleModule, ParticleUpdateStage, UpdateModule } from '../particle-module';
 import { assert, Enum } from '../../core';
 import { ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
 import { ParticleSOAData } from '../particle-soa-data';
@@ -40,7 +40,7 @@ const _temp_v3 = new Vec3();
 const rotation = new Quat();
 
 @ccclass('cc.ForceOverLifetimeModule')
-export class ForceOverLifetimeModule extends ParticleModule {
+export class ForceOverLifetimeModule extends UpdateModule {
     /**
      * @zh X 轴方向上的加速度分量。
      */
@@ -95,10 +95,10 @@ export class ForceOverLifetimeModule extends ParticleModule {
     // TODO:currently not supported
     public randomized = false;
 
-    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext) {
+    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,
+        fromIndex: number, toIndex: number, dt: number) {
         const needTransform = calculateTransform(params.simulationSpace, this.space, context.localToWorld, rotation);
-        const dt = context.deltaTime;
-        const { count, normalizedAliveTime, randomSeed } = particles;
+        const { normalizedAliveTime, randomSeed } = particles;
         if (DEBUG) {
             assert(this.x.mode === this.y.mode && this.y.mode === this.z.mode, 'The curve of x, y, z must have same mode!');
         }
@@ -110,14 +110,14 @@ export class ForceOverLifetimeModule extends ParticleModule {
                     this.z.constant);
                 Vec3.transformQuat(force, force, rotation);
                 Vec3.multiplyScalar(force, force, dt);
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     particles.addVelocityAt(force, i);
                 }
             } else if (this.x.mode === CurveRange.Mode.Curve) {
                 const { spline: xCurve, multiplier: xMultiplier } = this.x;
                 const { spline: yCurve, multiplier: yMultiplier } = this.y;
                 const { spline: zCurve, multiplier: zMultiplier } = this.z;
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     const normalizedTime = normalizedAliveTime[i];
                     const force = Vec3.set(_temp_v3,
                         xCurve.evaluate(normalizedTime) * xMultiplier,
@@ -131,7 +131,7 @@ export class ForceOverLifetimeModule extends ParticleModule {
                 const { constantMin: xMin, constantMax: xMax } = this.x;
                 const { constantMin: yMin, constantMax: yMax } = this.y;
                 const { constantMin: zMin, constantMax: zMax } = this.z;
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     const seed = randomSeed[i] + FORCE_OVER_LIFETIME_RAND_OFFSET;
                     const force = Vec3.set(_temp_v3,
                         lerp(xMin, xMax, pseudoRandom(seed)),
@@ -145,7 +145,7 @@ export class ForceOverLifetimeModule extends ParticleModule {
                 const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.x;
                 const { splineMin: yMin, splineMax: yMax, multiplier: yMultiplier } = this.y;
                 const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.z;
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     const normalizedTime = normalizedAliveTime[i];
                     const seed = randomSeed[i] + FORCE_OVER_LIFETIME_RAND_OFFSET;
                     const force = Vec3.set(_temp_v3,
@@ -165,14 +165,14 @@ export class ForceOverLifetimeModule extends ParticleModule {
                     this.y.constant,
                     this.z.constant);
                 Vec3.multiplyScalar(force, force, dt);
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     particles.addVelocityAt(force, i);
                 }
             } else if (this.x.mode === CurveRange.Mode.Curve) {
                 const { spline: xCurve, multiplier: xMultiplier } = this.x;
                 const { spline: yCurve, multiplier: yMultiplier } = this.y;
                 const { spline: zCurve, multiplier: zMultiplier } = this.z;
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     const normalizedTime = normalizedAliveTime[i];
                     const force = Vec3.set(_temp_v3,
                         xCurve.evaluate(normalizedTime) * xMultiplier,
@@ -185,7 +185,7 @@ export class ForceOverLifetimeModule extends ParticleModule {
                 const { constantMin: xMin, constantMax: xMax } = this.x;
                 const { constantMin: yMin, constantMax: yMax } = this.y;
                 const { constantMin: zMin, constantMax: zMax } = this.z;
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     const seed = randomSeed[i] + FORCE_OVER_LIFETIME_RAND_OFFSET;
                     const force = Vec3.set(_temp_v3,
                         lerp(xMin, xMax, pseudoRandom(seed)),
@@ -198,7 +198,7 @@ export class ForceOverLifetimeModule extends ParticleModule {
                 const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.x;
                 const { splineMin: yMin, splineMax: yMax, multiplier: yMultiplier } = this.y;
                 const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.z;
-                for (let i = 0; i < count; i++) {
+                for (let i = fromIndex; i < toIndex; i++) {
                     const normalizedTime = normalizedAliveTime[i];
                     const seed = randomSeed[i] + FORCE_OVER_LIFETIME_RAND_OFFSET;
                     const force = Vec3.set(_temp_v3,

@@ -26,14 +26,14 @@
 import { lerp, pseudoRandom } from '../../core';
 import { ccclass, displayOrder, range, serializable, tooltip, type } from '../../core/data/decorators';
 import { CurveRange } from '../curve-range';
-import { ParticleModule, ParticleUpdateStage } from '../particle-module';
+import { ParticleModule, ParticleUpdateStage, UpdateModule } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
 import { ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
 
 const SPEED_MODIFIER_RAND_OFFSET = 388180;
 
 @ccclass('cc.SpeedModifierModule')
-export class SpeedModifierModule extends ParticleModule {
+export class SpeedModifierModule extends UpdateModule {
     /**
      * @zh 速度修正系数（只支持 CPU 粒子）。
      */
@@ -56,26 +56,27 @@ export class SpeedModifierModule extends ParticleModule {
         return 0;
     }
 
-    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext) {
-        const { count, speedModifier, normalizedAliveTime, randomSeed } = particles;
+    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,
+        fromIndex: number, toIndex: number, dt: number) {
+        const { speedModifier, normalizedAliveTime, randomSeed } = particles;
         if (this.speedModifier.mode === CurveRange.Mode.Constant) {
             const constant = this.speedModifier.constant;
-            for (let i = 0; i < count; i++) {
+            for (let i = fromIndex; i < toIndex; i++) {
                 speedModifier[i] = constant;
             }
         } else if (this.speedModifier.mode === CurveRange.Mode.Curve) {
             const { spline, multiplier } = this.speedModifier;
-            for (let i = 0; i < count; i++) {
+            for (let i = fromIndex; i < toIndex; i++) {
                 speedModifier[i] = spline.evaluate(normalizedAliveTime[i]) * multiplier;
             }
         } else if (this.speedModifier.mode === CurveRange.Mode.TwoConstants) {
             const { constantMin, constantMax } = this.speedModifier;
-            for (let i = 0; i < count; i++) {
+            for (let i = fromIndex; i < toIndex; i++) {
                 speedModifier[i] = lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + SPEED_MODIFIER_RAND_OFFSET));
             }
         } else {
             const { splineMin, splineMax, multiplier } = this.speedModifier;
-            for (let i = 0; i < count; i++) {
+            for (let i = fromIndex; i < toIndex; i++) {
                 const normalizedTime = normalizedAliveTime[i];
                 speedModifier[i] = lerp(splineMin.evaluate(normalizedTime), splineMax.evaluate(normalizedTime), pseudoRandom(randomSeed[i] + SPEED_MODIFIER_RAND_OFFSET)) * multiplier;
             }
