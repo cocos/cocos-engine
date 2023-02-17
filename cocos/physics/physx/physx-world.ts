@@ -40,7 +40,7 @@ import { PhysXShape } from './shapes/physx-shape';
 import { EFilterDataWord3 } from './physx-enum';
 import { PhysXInstance } from './physx-instance';
 import { Node } from '../../scene-graph';
-import { PhysXCharacterController } from './physx-character-controller';
+import { PhysXCharacterController } from './character-controllers/physx-character-controller';
 
 export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
     setAllowSleep (_v: boolean): void { }

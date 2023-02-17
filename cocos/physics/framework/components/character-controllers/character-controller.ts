@@ -28,68 +28,24 @@ import {
     ccclass, help, disallowMultiple, executeInEditMode, menu, executionOrder,
     tooltip, displayOrder, visible, type, serializable } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
-import { Vec3, error, warn, CCFloat } from '../../../core';
-import { Component } from '../../../scene-graph';
-import { ICharacterController } from '../../spec/i-character-controller';
-import { selector, createCharacterController } from '../physics-selector';
-import { PhysicsSystem } from '../physics-system';
+import { Vec3, error, warn, CCFloat } from '../../../../core';
+import { Component } from '../../../../scene-graph';
+import { IBaseCharacterController } from '../../../spec/i-character-controller';
+import { ECharacterControllerType } from '../../physics-enum';
+import { selector, createCharacterController } from '../../physics-selector';
+import { PhysicsSystem } from '../../physics-system';
 
 const v3_0 = new Vec3(0, 0, 0);
 
 /**
  * @en
- * Character Controller component.
+ * Base class for Character Controller component.
  * @zh
- * 角色控制器组件。
+ * 角色控制器组件基类。
  */
 @ccclass('cc.CharacterController')
-@help('i18n:cc.CharacterController')
-@menu('Physics/CharacterController')
-@executeInEditMode
-@disallowMultiple
-@executionOrder(-1)
 export class CharacterController extends Component {
     /// PUBLIC PROPERTY GETTER\SETTER ///
-    /**
-     * @en
-     * Gets or sets the radius of the sphere on the capsule body, in local space.
-     * @zh
-     * 获取或设置胶囊体在本地坐标系下的球半径。
-     */
-    //@tooltip('i18n:physics3d.collider.capsule_radius')
-    @type(CCFloat)
-    public get radius () {
-        return this._radius;
-    }
-
-    public set radius (value) {
-        if (this._radius === value) return;
-        this._radius = Math.abs(value);
-        if (this._cct) {
-            this._cct.setRadius(value);
-        }
-    }
-
-    /**
-     * @en
-     * Gets or sets the height.
-     * Height the distance between the two sphere centers at the end of the capsule.
-     * @zh
-     * 获取或设置在本地坐标系下的胶囊体两个圆心的距离。
-     */
-    //@tooltip('i18n:physics3d.collider.capsule_cylinderHeight')
-    @type(CCFloat)
-    public get height () {
-        return this._height;
-    }
-
-    public set height (value) {
-        if (this._height === value) return;
-        this._height = Math.abs(value);
-        if (this._cct) {
-            this._cct.setHeight(value);
-        }
-    }
 
     @type(CCFloat)
     public get stepOffset () {
@@ -140,13 +96,22 @@ export class CharacterController extends Component {
         return this._cct;
     }
 
-    private _cct: ICharacterController | null = null; //backend interface
+    /**
+     * @en
+     * Gets the type of this character controller.
+     * @zh
+     * 获取此的类型。
+     */
+    readonly TYPE: ECharacterControllerType;
+
+    constructor (type: ECharacterControllerType) {
+        super();
+        this.TYPE = type;
+    }
+
+    protected _cct: IBaseCharacterController | null = null; //lowLevel instance
 
     /// PRIVATE PROPERTY ///
-    @serializable
-    public _radius = 0.5;
-    @serializable
-    public _height = 1.0;
     @serializable
     public _stepOffset = 1.0;
     @serializable
@@ -162,19 +127,23 @@ export class CharacterController extends Component {
     @serializable
     public _contactOffset = 0.01;
 
+    private _initialized = false;
+
     protected get _isInitialized (): boolean {
-        const r = this._cct === null;
-        if (r) { error('[Physics]: This component has not been call onLoad yet, please make sure the node has been added to the scene.'); }
-        return !r;
+        if (this._cct === null || !this._initialized) {
+            //error('[Physics]: This component has not been call onLoad yet, please make sure the node has been added to the scene.');
+            return false;
+        } else {
+            return true;
+        }
     }
 
     /// COMPONENT LIFECYCLE ///
 
     protected onLoad () {
         if (!selector.runInEditor) return;
-
-        this._cct = createCharacterController();
-        this._cct.initialize(this);
+        this._cct = createCharacterController(this.TYPE);
+        this._initialized = this._cct.initialize(this);
         //this._cct.onLoad();
     }
 

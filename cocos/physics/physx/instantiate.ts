@@ -26,7 +26,6 @@ import { selector } from '../framework/physics-selector';
 
 import { PhysXWorld } from './physx-world';
 import { PhysXRigidBody } from './physx-rigid-body';
-import { PhysXCharacterController } from './physx-character-controller';
 
 import { PhysXSphereShape } from './shapes/physx-sphere-shape';
 import { PhysXBoxShape } from './shapes/physx-box-shape';
@@ -40,13 +39,16 @@ import { PhysXConeShape } from './shapes/physx-cone-shape';
 import { PhysXFixedJoint } from './joints/physx-fixed-joint';
 import { PhysXSphericalJoint } from './joints/physx-spherical-joint';
 import { PhysXRevoluteJoint } from './joints/physx-revolute-joint';
+
+import { PhysXBoxCharacterController } from './character-controllers/physx-box-character-controller';
+import { PhysXCapsuleCharacterController } from './character-controllers/physx-capsule-character-controller';
+
 import { Game, game } from '../../game';
 
 game.once(Game.EVENT_PRE_SUBSYSTEM_INIT, () => {
     selector.register('physx', {
         PhysicsWorld: PhysXWorld,
         RigidBody: PhysXRigidBody,
-        CharacterController: PhysXCharacterController,
 
         BoxShape: PhysXBoxShape,
         SphereShape: PhysXSphereShape,
@@ -62,5 +64,9 @@ game.once(Game.EVENT_PRE_SUBSYSTEM_INIT, () => {
         // PointToPointConstraint: PhysXFixedJoint,
         HingeConstraint: PhysXRevoluteJoint,
         FixedConstraint: PhysXFixedJoint,
+
+        BoxCharacterController: PhysXBoxCharacterController,
+        CapsuleCharacterController: PhysXCapsuleCharacterController,
+
     });
 });

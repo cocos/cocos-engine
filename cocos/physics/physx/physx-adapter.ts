@@ -463,6 +463,8 @@ export function createCapsuleCharacterController (controllerManager: any, radius
     upDirection: IVec3Like, pxMtl: any): any {
     if (!controllerManager) return null;
 
+    const xx = PX.getDerivedInstance();
+
     const controllerDesc = new PX.PxCapsuleControllerDesc();
     controllerDesc.radius = radius;
     controllerDesc.height = height;
@@ -478,10 +480,16 @@ export function createCapsuleCharacterController (controllerManager: any, radius
     controllerDesc.position = { x: worldPos.x, y: worldPos.y, z: worldPos.z };//PxExtendedVec3
     controllerDesc.material = pxMtl;
     controllerDesc.setMaterial(pxMtl);
-    const controller = controllerManager.createController(controllerDesc);
-    console.log(controller.getPosition());
+    //const controller = controllerManager.createController(controllerDesc);
+    //const controller = PX.createCharacterController(controllerManager, controllerDesc);
+    const controller = PX.createCapsuleCharacterController(controllerManager, controllerDesc);
+    console.log('positi ', controller.getPosition());
+    console.log('radius ', controller.getRadius());
+    console.log('height ', controller.getHeight());
     const pxFilterData = { word0: 0, word1: 0, word2: 0, word3: 0 };
     controller.setSimulationFilterData(pxFilterData);
+    console.log(controller.getRadius());
+
     return controller;
 }
 
@@ -506,7 +514,8 @@ export function createBoxCharacterController (controllerManager: any, halfHeight
     controllerDesc.position = { x: worldPos.x, y: worldPos.y, z: worldPos.z };//PxExtendedVec3
     controllerDesc.material = pxMtl;
     controllerDesc.setMaterial(pxMtl);
-    const controller = controllerManager.createController(controllerDesc);
+    //const controller = controllerManager.createController(controllerDesc);
+    const controller = PX.createBoxCharacterController(controllerManager, controllerDesc);
     console.log(controller.getPosition());
     const pxFilterData = { word0: 0, word1: 0, word2: 0, word3: 0 };
     controller.setSimulationFilterData(pxFilterData);
