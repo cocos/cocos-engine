@@ -484,7 +484,6 @@ export class ReflectionProbe {
         this.camera.update(true);
 
         // Transform the plane from world space to reflection camera space use the inverse transpose matrix
-        //const viewSpaceProbe = new Vec4(Vec3.UP.x, Vec3.UP.y, Vec3.UP.z, -Vec3.dot(Vec3.UP, this.node.worldPosition));
         const viewSpaceProbe = new Vec4(this.node.up.x, this.node.up.y, this.node.up.z, -Vec3.dot(this.node.up, this.node.worldPosition));
         viewSpaceProbe.transformMat4(this.camera.matView.clone().invert().transpose());
         this.camera.calculateObliqueMat(viewSpaceProbe);
