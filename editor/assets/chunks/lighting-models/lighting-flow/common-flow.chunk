@@ -19,8 +19,18 @@
       for (int i = 0; i < LIGHTS_PER_PASS; i++) {
         if (i >= numLights) break;
 
-        CCSurfacesLightingCalculateIntermediateData_PerLight(lightingData, surfaceData, cc_lightPos[i].xyz - worldPos);
+        vec3 lightDirWithLength = cc_lightPos[i].xyz - worldPos;
+        if(IS_RANGED_DIRECTIONAL_LIGHT(cc_lightPos[i].w)) {
+          lightDirWithLength = -normalize(cc_lightDir[i].xyz);
+        }
+
+        CCSurfacesLightingCalculateIntermediateData_PerLight(lightingData, surfaceData, lightDirWithLength);
         CCSurfacesLightingCalculateColorWithLighting(lightingResult.diffuseColorWithLighting, lightingResult.specularColorWithLighting, surfaceData, lightingData);
+        if(IS_RANGED_DIRECTIONAL_LIGHT(cc_lightPos[i].w)) {
+          float isOutOfRange = GetOutOfRange(worldPos, cc_lightPos[i].xyz, cc_lightDir[i].xyz, cc_lightSizeRangeAngle[i].xyz, cc_lightBoundingSizeVS[i].xyz);
+          lightingResult.diffuseColorWithLighting *= isOutOfRange;
+          lightingResult.specularColorWithLighting *= isOutOfRange;
+        }
   
         vec3 diffuseLighting, specularLighting;
         CCSurfacesLightingCalculateDirect(diffuseLighting, specularLighting, lightingData, cc_lightColor[i]);

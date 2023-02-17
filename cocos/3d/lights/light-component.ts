@@ -294,6 +294,9 @@ export class Light extends Component {
             case scene.LightType.POINT:
                 renderScene.addPointLight(this._light as scene.PointLight);
                 break;
+            case scene.LightType.RANGED_DIRECTIONAL:
+                renderScene.addRangedDirLight(this._light as scene.RangedDirectionalLight);
+                break;
             default:
                 break;
             }
@@ -316,6 +319,9 @@ export class Light extends Component {
                 break;
             case scene.LightType.POINT:
                 renderScene.removePointLight(this._light as scene.PointLight);
+                break;
+            case scene.LightType.RANGED_DIRECTIONAL:
+                renderScene.removeRangedDirLight(this._light as scene.RangedDirectionalLight);
                 break;
             default:
                 break;

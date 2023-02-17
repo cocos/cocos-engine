@@ -165,6 +165,9 @@ rootProto.destroyLight = function (l) {
             case LightType.POINT:
                 l.scene.removePointLight(l);
                 break;
+            case LightType.RANGED_DIRECTIONAL:
+                l.scene.removeRangedDirLight(l);
+                break;
             default:
                 break;
         }
@@ -189,6 +192,9 @@ rootProto.recycleLight = function (l) {
                     break;
                 case LightType.POINT:
                     l.scene.removePointLight(l);
+                    break;
+                case LightType.RANGED_DIRECTIONAL:
+                    l.scene.removeRangedDirLight(l);
                     break;
                 default:
                     break;
