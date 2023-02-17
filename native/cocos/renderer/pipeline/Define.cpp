@@ -243,6 +243,7 @@ const gfx::UniformBlock UBOForwardLight::LAYOUT = {
         {"cc_lightColor", gfx::Type::FLOAT4, static_cast<uint32_t>(UBOForwardLight::LIGHTS_PER_PASS)},
         {"cc_lightSizeRangeAngle", gfx::Type::FLOAT4, static_cast<uint32_t>(UBOForwardLight::LIGHTS_PER_PASS)},
         {"cc_lightDir", gfx::Type::FLOAT4, static_cast<uint32_t>(UBOForwardLight::LIGHTS_PER_PASS)},
+        {"cc_lightBoundingSizeVS", gfx::Type::FLOAT4, static_cast<uint32_t>(UBOForwardLight::LIGHTS_PER_PASS)},
     },
     1,
 };

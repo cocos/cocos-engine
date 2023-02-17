@@ -36,6 +36,7 @@ class Light;
 class SpotLight;
 class SphereLight;
 class PointLight;
+class RangedDirectionalLight;
 } // namespace scene
 namespace pipeline {
 struct RenderObject;
@@ -64,6 +65,7 @@ private:
     static bool cullSphereLight(const scene::SphereLight *light, const scene::Model *model);
     static bool cullSpotLight(const scene::SpotLight *light, const scene::Model *model);
     static bool cullPointLight(const scene::PointLight *light, const scene::Model *model);
+    static bool cullRangedDirLight(const scene::RangedDirectionalLight *light, const scene::Model *model);
 
     void clear();
     void addRenderQueue(scene::SubModel *subModel, const scene::Model *model, scene::Pass *pass, uint32_t lightPassIdx);

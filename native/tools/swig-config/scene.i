@@ -23,6 +23,7 @@
 #include "scene/SpotLight.h"
 #include "scene/SphereLight.h"
 #include "scene/PointLight.h"
+#include "scene/RangedDirectionalLight.h"
 #include "scene/Model.h"
 #include "scene/SubModel.h"
 #include "scene/Pass.h"
@@ -366,6 +367,10 @@ using namespace cc;
 %attribute(cc::scene::PointLight, float, luminanceLDR, getLuminanceLDR, setLuminanceLDR);
 %attribute(cc::scene::PointLight, cc::geometry::AABB&, aabb, getAABB);
 
+%attribute(cc::scene::RangedDirectionalLight, float, luminance, getLuminance, setLuminance);
+%attribute(cc::scene::RangedDirectionalLight, float, luminanceHDR, getLuminanceHDR, setLuminanceHDR);
+%attribute(cc::scene::RangedDirectionalLight, float, luminanceLDR, getLuminanceLDR, setLuminanceLDR);
+
 %attribute(cc::scene::Camera, cc::scene::CameraISO, iso, getIso, setIso);
 %attribute(cc::scene::Camera, float, isoValue, getIsoValue);
 %attribute(cc::scene::Camera, float, ec, getEc, setEc);
@@ -411,6 +416,7 @@ using namespace cc;
 %attribute(cc::scene::RenderScene, ccstd::vector<cc::IntrusivePtr<cc::scene::SphereLight>>&, sphereLights, getSphereLights);
 %attribute(cc::scene::RenderScene, ccstd::vector<cc::IntrusivePtr<cc::scene::SpotLight>>&, spotLights, getSpotLights);
 %attribute(cc::scene::RenderScene, ccstd::vector<cc::IntrusivePtr<cc::scene::PointLight>>&, pointLights, getPointLights);
+%attribute(cc::scene::RenderScene, ccstd::vector<cc::IntrusivePtr<cc::scene::RangedDirectionalLight>>&, rangedDirectionalLights, getRangedDirectionalLights);
 %attribute(cc::scene::RenderScene, ccstd::vector<cc::IntrusivePtr<cc::scene::Model>>&, models, getModels);
 %attribute(cc::scene::RenderScene, ccstd::vector<cc::IntrusivePtr<cc::scene::LODGroup>>&, lodGroups, getLODGroups);
 
@@ -637,6 +643,7 @@ using namespace cc;
 %include "scene/SpotLight.h"
 %include "scene/SphereLight.h"
 %include "scene/PointLight.h"
+%include "scene/RangedDirectionalLight.h"
 %include "scene/Model.h"
 %include "scene/SubModel.h"
 %include "scene/Pass.h"
