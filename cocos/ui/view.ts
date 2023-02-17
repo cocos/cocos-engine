@@ -168,7 +168,7 @@ export class View extends Eventify(System) {
      * 仅在 Web 平台下有效。
      * @param callback - The callback function
      */
-    public setResizeCallback (callback: (()=> void) | null) {
+    public setResizeCallback (callback: (() => void) | null) {
         if (typeof callback === 'function' || callback == null) {
             this._resizeCallback = callback;
         }
@@ -658,8 +658,12 @@ class ContainerStrategy {
         const locCanvas = cclegacy.game.canvas;
         if (locCanvas) {
             const windowSize = screen.windowSize;
-            locCanvas.width = windowSize.width;
-            locCanvas.height = windowSize.height;
+            if (locCanvas.width !== windowSize.width) {
+                locCanvas.width = windowSize.width;
+            }
+            if (locCanvas.height !== windowSize.height) {
+                locCanvas.height = windowSize.height;
+            }
         }
     }
 }
