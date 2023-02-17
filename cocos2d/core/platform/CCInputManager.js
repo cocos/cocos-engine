@@ -534,8 +534,19 @@ let inputManager = {
                     element.addEventListener(name, function (event) {
                         let location = selfPointer.getPointByEvent(event, canvasBoundingRect);
                         let mouseEvent = selfPointer.getMouseEvent(location, canvasBoundingRect, type);
-                        mouseEvent.setButton(event.button);
-
+                        let targetButton = event.button;
+                        if (type === EventMouse.MOVE) {
+                            // mouseEvent.button doesn't work well in mouse move event
+                            // now we don't support multiple buttons in one mouse event
+                            if (1 & event.buttons) {
+                                targetButton = EventMouse.BUTTON_LEFT;
+                            } else if (2 & event.buttons) {
+                                targetButton = EventMouse.BUTTON_RIGHT;
+                            } else if (4 & event.buttons) {
+                                targetButton = EventMouse.BUTTON_MIDDLE;
+                            }
+                        }
+                        mouseEvent.setButton(targetButton);
                         handler(event, mouseEvent, location, canvasBoundingRect);
 
                         eventManager.dispatchEvent(mouseEvent);
