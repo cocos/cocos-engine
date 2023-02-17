@@ -275,8 +275,8 @@ export class ReflectionProbeManager {
                 // if used other probe,reset texture
                 if (old !== nearest) {
                     this._useCubeModels.set(model, nearest);
+                    nearest.needRefresh = true;
                 }
-                nearest.needRefresh = true;
             } else {
                 this._useCubeModels.set(model, nearest);
                 nearest.needRefresh = true;
