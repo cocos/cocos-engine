@@ -1,8 +1,8 @@
-import { KeyboardCallback } from 'pal/input';
-import { systemInfo } from 'pal/system-info';
 import { KeyCode, EventKeyboard } from '../../../cocos/input/types';
 import { EventTarget } from '../../../cocos/core/event';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
+
+export type KeyboardCallback = (res: EventKeyboard) => void;
 
 const nativeKeyCode2KeyCode: Record<number, KeyCode> = {
     12: KeyCode.NUM_LOCK,
@@ -27,6 +27,9 @@ function getKeyCode (keyCode: number): KeyCode {
 }
 
 export class KeyboardInputSource {
+    public dispatchKeyboardDownEvent? (nativeKeyboardEvent: any);
+    public dispatchKeyboardUpEvent? (nativeKeyboardEvent: any);
+
     private _eventTarget: EventTarget = new EventTarget();
 
     // On native platform, KeyboardEvent.repeat is always false, so we need a map to manage the key state.

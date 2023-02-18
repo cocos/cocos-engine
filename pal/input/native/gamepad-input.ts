@@ -1,5 +1,4 @@
 /* eslint-disable brace-style */
-import { GamepadCallback } from 'pal/input';
 import { systemInfo } from 'pal/system-info';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
 import { Feature } from '../../system-info/enum-type';
@@ -7,6 +6,8 @@ import { EventTarget } from '../../../cocos/core/event/event-target';
 import { EventGamepad } from '../../../cocos/input/types';
 import { InputSourceButton, InputSourceDpad, InputSourceStick } from '../input-source';
 import { fastRemoveAt } from '../../../cocos/core/utils/array';
+
+export type GamepadCallback = (res: EventGamepad) => void;
 
 enum Button {
     BUTTON_SOUTH,

@@ -40,7 +40,7 @@ import { Settings, settings } from './settings';
 import { sys } from './platform/sys';
 
 // TODO: the type Image conflicts with the one on OH platform.
-type Image = any;
+declare const Image: new () => any;
 
 const v2_0 = new Vec2();
 type SplashEffectType = 'NONE' | 'FADE-INOUT';
@@ -115,14 +115,16 @@ export class SplashScreen {
             if (this.settings.displayWatermark) this.initWarterMark();
             return new Promise<void>((resolve, reject) => {
                 this.logoImage = new Image();
-                this.logoImage.onload = () => {
+                // TODO: property onload onerror src doesn't exist on TexImageSource
+                // because we use the typescript 4.2 version of lib.dom.d.ts on OH platform.
+                (this.logoImage as any).onload = () => {
                     this.initLogo();
                     resolve();
                 };
-                this.logoImage.onerror = () => {
+                (this.logoImage as any).onerror = () => {
                     reject();
                 };
-                this.logoImage.src = this.settings.base64src;
+                (this.logoImage as any).src = this.settings.base64src;
             });
         }
         return Promise.resolve();
