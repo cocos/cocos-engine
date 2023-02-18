@@ -44,8 +44,7 @@ class GarbageCollectionManager {
                     let val = Reflect.get(target, property);
                     if (typeof val === 'function' && property !== 'constructor') {
                         const original = val;
-                        val = function newFunc () {
-                            // @ts-expect-error this is referenced to proxy
+                        val = function newFunc (this: any) {
                             return original.apply(this[targetSymbol], arguments) as unknown;
                         };
                     }

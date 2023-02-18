@@ -274,7 +274,7 @@ export const CSMLevel = Enum({
       * @en level 3
       * @readonly
       */
-    DisableRotaitonFix: 3,
+    DisableRotationFix: 3,
 });
 export const EnvironmentLightingType = Enum({
     /**

@@ -79,7 +79,7 @@ export class Size extends ValueType {
 
     constructor (width?: Size | number, height?: number) {
         super();
-        if (width && typeof width === 'object') {
+        if (typeof width === 'object') {
             this.width = width.width;
             this.height = width.height;
         } else {
@@ -114,7 +114,7 @@ export class Size extends ValueType {
     public set (width?: number, height?: number);
 
     public set (width?: Size | number, height?: number) {
-        if (width && typeof width === 'object') {
+        if (typeof width === 'object') {
             this.height = width.height;
             this.width = width.width;
         } else {

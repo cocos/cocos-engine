@@ -622,7 +622,7 @@ export class FogInfo {
      */
     @editable
     @tooltip('i18n:fog.fogColor')
-    set fogColor (val: Color) {
+    set fogColor (val: Readonly<Color>) {
         this._fogColor.set(val);
         if (this._resource) { this._resource.fogColor = this._fogColor; }
     }
@@ -839,7 +839,7 @@ export class ShadowsInfo {
      * @zh 阴影颜色
      */
     @visible(function (this: ShadowsInfo) { return this._type === ShadowType.Planar; })
-    set shadowColor (val: Color) {
+    set shadowColor (val: Readonly<Color>) {
         this._shadowColor.set(val);
         if (this._resource) { this._resource.shadowColor = val; }
     }
@@ -853,7 +853,7 @@ export class ShadowsInfo {
      */
     @visible(function (this: ShadowsInfo) { return this._type === ShadowType.Planar; })
     @tooltip('i18n:shadow.planeDirection')
-    set planeDirection (val: Vec3) {
+    set planeDirection (val: Readonly<Vec3>) {
         Vec3.copy(this._normal, val);
         if (this._resource) { this._resource.normal = val; }
     }

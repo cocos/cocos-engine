@@ -68,6 +68,7 @@ function isNativeImage (imageSource: ImageSource): imageSource is (HTMLImageElem
 
 const imageAssetProto = ImageAsset.prototype;
 
+// @ts-expect-error Property '_ctor' does not exist on type 'ImageAsset'.
 imageAssetProto._ctor = function (nativeAsset?: ImageSource) {
     jsb.Asset.prototype._ctor.apply(this, arguments);
     this._width = 0;
@@ -158,6 +159,7 @@ Object.defineProperty(imageAssetProto, 'height', {
     }
 });
 
+// @ts-expect-error Property '_syncDataToNative' does not exist on type 'ImageAsset'.
 imageAssetProto._syncDataToNative = function () {
     const data: any = this._nativeData;
     this._width = data.width;
@@ -168,9 +170,11 @@ imageAssetProto._syncDataToNative = function () {
     this.url = this.nativeUrl;
 
     if (data instanceof HTMLCanvasElement) {
+        // @ts-expect-error Property '_data' does not exist on type 'HTMLCanvasElement'.
         this.setData(data._data.data);
     }
     else if (data instanceof HTMLImageElement) {
+        // @ts-expect-error Property '_data' does not exist on type 'HTMLImageElement'.
         this.setData(data._data);
     }
     else {

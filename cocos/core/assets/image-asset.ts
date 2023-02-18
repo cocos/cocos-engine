@@ -104,7 +104,8 @@ export class ImageAsset extends Asset {
             return this._nativeData;
         }
 
-        return this._nativeData && this._nativeData._data;
+        // TODO: for OH platform
+        return this._nativeData && (this._nativeData as unknown as IMemoryImageSource)._data;
     }
 
     /**

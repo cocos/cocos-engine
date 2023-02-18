@@ -3,7 +3,6 @@
 import type { Color } from '../core/math/color';
 import type { Vec2 } from '../core/math/vec2';
 
-// @ts-expect-error this is a virtual module
 export * from 'internal:native';
 
 /**

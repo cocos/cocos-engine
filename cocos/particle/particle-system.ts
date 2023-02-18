@@ -462,8 +462,7 @@ export class ParticleSystem extends ModelRenderer {
     }
 
     set sharedMaterials (val) {
-        // @ts-expect-error private property access
-        superMaterials.set.call(this, val);
+        superMaterials.set!.call(this, val);
     }
 
     // color over lifetime module

@@ -133,7 +133,7 @@ export class MouseInputSource {
             default:
                 break;
             }
-
+ 
             const eventMouse = new EventMouse(eventType, false, this._preMousePos);
             eventMouse.setLocation(location.x, location.y);
             eventMouse.setButton(targetButton);

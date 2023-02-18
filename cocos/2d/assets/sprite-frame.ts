@@ -580,8 +580,8 @@ export class SpriteFrame extends Asset {
     protected _capInsets = [0, 0, 0, 0];
 
     protected _atlasUuid = '';
-    // @ts-expect-error not set value at there
-    protected _texture: TextureBase;
+    // TODO: not initialized in constructor
+    protected _texture!: TextureBase;
 
     protected _isFlipUVY = false;
 
