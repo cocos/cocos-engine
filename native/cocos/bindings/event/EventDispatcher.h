@@ -55,6 +55,7 @@ private:
     static void dispatchMemoryWarningEvent();
     static void dispatchRestartVM();
     static void dispatchCloseEvent();
+    static void dispatchPointerlockChangeEvent(bool value);
     static uint32_t hashListenerId; // simple increment hash
 
     static events::EnterForeground::Listener listenerEnterForeground;
@@ -70,6 +71,7 @@ private:
     static events::Orientation::Listener listenerOrientation;
     static events::RestartVM::Listener listenerRestartVM;
     static events::Close::Listener listenerClose;
+    static events::PointerLock::Listener listenerPointerLock;
 };
 
 } // end of namespace cc
