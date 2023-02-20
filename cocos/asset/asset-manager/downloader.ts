@@ -173,7 +173,7 @@ export class Downloader {
      * @zh
      * 下载时的最大并发数。
      */
-    public maxConcurrency = 36;
+    public maxConcurrency = 15;
 
     /**
      * @en
@@ -183,7 +183,7 @@ export class Downloader {
      * 下载时每帧可以启动的最大请求数。
      *
      */
-    public maxRequestsPerFrame = 36;
+    public maxRequestsPerFrame = 15;
 
     /**
      * @en

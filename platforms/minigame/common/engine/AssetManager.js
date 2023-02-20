@@ -7,9 +7,9 @@ const REGEX = /^https?:\/\/.*/;
 const downloader = cc.assetManager.downloader;
 const parser = cc.assetManager.parser;
 const presets = cc.assetManager.presets;
-downloader.maxConcurrency = 36;
+downloader.maxConcurrency = 12;
 downloader.maxRequestsPerFrame = 64;
-presets.scene.maxConcurrency = 36;
+presets.scene.maxConcurrency = 12;
 presets.scene.maxRequestsPerFrame = 64;
 
 const subpackages = {};
