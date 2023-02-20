@@ -465,7 +465,6 @@ export class ParticleSystem extends ModelRenderer {
 
     @override
     @visible(false)
-    @type(Material)
     @serializable
     @displayName('Materials')
     get sharedMaterials () {
@@ -1134,7 +1133,7 @@ export class ParticleSystem extends ModelRenderer {
             let culled = true;
             if (cameraLst !== undefined && this._boundingBox) {
                 for (let i = 0; i < cameraLst.length; ++i) {
-                    const camera:Camera = cameraLst[i];
+                    const camera: Camera = cameraLst[i];
                     const visibility = camera.visibility;
                     if ((visibility & this.node.layer) === this.node.layer) {
                         if (EDITOR && !cclegacy.GAME_VIEW) {

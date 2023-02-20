@@ -67,7 +67,6 @@ export class Line extends ModelRenderer {
 
     @override
     @visible(false)
-    @type(Material)
     @serializable
     get sharedMaterials () {
         return super.sharedMaterials;
@@ -149,7 +148,7 @@ export class Line extends ModelRenderer {
 
     /**
      * @zh 图块数。
-     * @deprecated since v3.7
+     * @deprecated since v3.7.2
      */
     @type(Vec2)
     @displayOrder(4)
@@ -172,7 +171,7 @@ export class Line extends ModelRenderer {
     private _offset = new Vec2(0, 0);
 
     /**
-     * @deprecated since v3.7
+     * @deprecated since v3.7.2
      */
     @type(Vec2)
     @displayOrder(5)
