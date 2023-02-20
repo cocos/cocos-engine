@@ -76,6 +76,7 @@ Object.defineProperty(sceneProto, 'renderScene', {
 });
 
 sceneProto._ctor = function () {
+    // @ts-expect-error TODO: Property '_ctor' does not exist on type 'Node'.
     Node.prototype._ctor.apply(this, arguments);
     this._inited = false;
     this._renderSceneInternal = null;

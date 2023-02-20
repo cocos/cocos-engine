@@ -100,11 +100,11 @@ export class ImageAsset extends Asset {
      * @zh 此图像资源的图像数据。
      */
     get data () {
-        if (this._nativeData && isNativeImage(this._nativeData)) {
+        if (isNativeImage(this._nativeData)) {
             return this._nativeData;
         }
 
-        return this._nativeData && this._nativeData._data;
+        return this._nativeData._data;
     }
 
     /**
@@ -199,15 +199,17 @@ export class ImageAsset extends Asset {
         }
     }
 
-    public destroy () {
+    // TODO: in this method we call some method that doesn't always exists in type definition in Web.
+    // so we marked this as any type.
+    public destroy (this: any) {
         if (this.data && this.data instanceof HTMLImageElement) {
             this.data.src = '';
             this._setRawAsset('');
-            // @ts-expect-error JSB element should destroy native data.
+            // NOTE: Property 'destroy' does not exist on type 'HTMLImageElement'.
             if (JSB) this.data.destroy();
         } else if (isImageBitmap(this.data)) {
-            // @ts-expect-error internal api usage
-            this.data.close && this.data.close();
+            // NOTE: Property 'close' does not exist on type 'HTMLCanvasElement'.
+            this.data.close?.();
         }
         return super.destroy();
     }

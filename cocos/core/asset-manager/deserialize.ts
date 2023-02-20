@@ -32,7 +32,7 @@ import { js } from '../utils/js';
 import { dependMap, nativeDependMap } from './depend-maps';
 import { decodeUuid } from './helper';
 
-const missingClass = EDITOR && EditorExtends.MissingReporter.classInstance;
+const missingClass: any = EDITOR && EditorExtends.MissingReporter.classInstance;
 
 export interface IDependProp {
     uuid: string;

@@ -32,6 +32,8 @@ import { Canvas } from './canvas';
 import { js } from '../../core/utils/js';
 import { legacyCC } from '../../core/global-exports';
 import { Color } from '../../core/math/color';
+import type { ClearFlagBit } from '../../core/gfx/base/define';
+import type { RenderTexture } from '../../core/assets/render-texture';
 
 removeProperty(UIComponent.prototype, 'UIComponent', [
     {
@@ -55,64 +57,54 @@ replaceProperty(Canvas.prototype, 'Canvas.prototype', [
     {
         name: 'camera',
         newName: 'cameraComponent.camera',
-        customGetter () {
-            // @ts-expect-error deprecation method
-            return this._cameraComponent.camera;
+        customGetter (this: Canvas) {
+            return this._cameraComponent?.camera;
         },
     },
     {
         name: 'clearFlag',
         newName: 'cameraComponent.clearFlags',
-        customGetter () {
-            // @ts-expect-error deprecation method
+        customGetter (this: Canvas) {
             return this._cameraComponent ? this._cameraComponent.clearFlags : 0;
         },
-        customSetter (val) {
-            // @ts-expect-error deprecation method
+        customSetter (this: Canvas, val: ClearFlagBit) {
             if (this._cameraComponent) this._cameraComponent.clearFlags = val;
         },
     },
     {
         name: 'color',
         newName: 'cameraComponent.clearColor',
-        customGetter () {
-            // @ts-expect-error deprecation method
+        customGetter (this: Canvas) {
             return this._cameraComponent ? this._cameraComponent.clearColor : Color.BLACK;
         },
-        customSetter (val) {
-            // @ts-expect-error deprecation method
+        customSetter (this: Canvas, val: Readonly<Color>) {
             if (this._cameraComponent) this._cameraComponent.clearColor = val;
         },
     },
     {
         name: 'priority',
         newName: 'cameraComponent.priority',
-        customGetter () {
-            // @ts-expect-error deprecation method
+        customGetter (this: Canvas) {
             return this._cameraComponent ? this._cameraComponent.priority : 0;
         },
-        customSetter (val: number) {
-            // @ts-expect-error deprecation method
+        customSetter (this: Canvas, val: number) {
             if (this._cameraComponent) this._cameraComponent.priority = val;
         },
     },
     {
         name: 'targetTexture',
         newName: 'cameraComponent.targetTexture',
-        customGetter () {
-            // @ts-expect-error deprecation method
+        customGetter (this: Canvas) {
             return this._cameraComponent ? this._cameraComponent.targetTexture : null;
         },
-        customSetter (value) {
-            // @ts-expect-error deprecation method
+        customSetter (this: Canvas, value: RenderTexture) {
             if (this._cameraComponent) this._cameraComponent.targetTexture = value;
         },
     },
     {
         name: 'visibility',
         newName: 'cameraComponent.visibility',
-        customGetter () {
-            // @ts-expect-error deprecation method
+        customGetter (this: Canvas) {
             return this._cameraComponent ? this._cameraComponent.visibility : 0;
         },
     },

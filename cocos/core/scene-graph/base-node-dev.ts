@@ -189,9 +189,9 @@ export function baseNodePolyfill (BaseNode) {
 
     if (DEV) {
         // promote debug info
-        js.get(BaseNode.prototype, ' INFO ', function () {
+        js.get(BaseNode.prototype, ' INFO ', function (this: any) {
             let path = '';
-            // @ts-expect-error
+            // eslint-disable-next-line @typescript-eslint/no-this-alias
             let node = this;
             while (node && !(node instanceof legacyCC.Scene)) {
                 if (path) {
@@ -201,7 +201,6 @@ export function baseNodePolyfill (BaseNode) {
                 }
                 node = node._parent;
             }
-            // @ts-expect-error
             return `${this.name}, path: ${path}`;
         });
     }

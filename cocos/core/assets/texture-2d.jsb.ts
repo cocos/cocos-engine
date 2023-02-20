@@ -48,6 +48,7 @@ export interface ITexture2DSerializeData {
 }
 
 texture2DProto._ctor = function () {
+    // @ts-expect-error TODO: Property '_ctor' does not exist on type 'SimpleTexture'.
     SimpleTexture.prototype._ctor.apply(this, arguments);
     this._mipmaps = [];
 };
