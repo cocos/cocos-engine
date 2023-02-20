@@ -31,6 +31,7 @@ import { BuiltinBundleName } from '../asset-manager/shared';
 import { TEST } from 'internal:constants';
 import { Settings, settings } from '../settings';
 import releaseManager from '../asset-manager/release-manager';
+import type { BuiltinResMgr as JsbBuiltinResMgr } from './builtin-res-mgr';
 
 declare const jsb: any;
 
@@ -131,5 +132,5 @@ builtinResMgrProto.loadBuiltinAssets = function () {
    });
 }
 
-const builtinResMgr = legacyCC.builtinResMgr = BuiltinResMgr.getInstance();
+const builtinResMgr = legacyCC.builtinResMgr = BuiltinResMgr.getInstance() as JsbBuiltinResMgr;
 export { builtinResMgr };

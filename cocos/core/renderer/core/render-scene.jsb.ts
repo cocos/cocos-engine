@@ -25,6 +25,9 @@
 
 import { DrawBatch2D } from '../../../2d/renderer/draw-batch';
 import { Node } from '../../scene-graph';
+import { RenderScene as JsbRenderScene } from './render-scene';
+
+declare const jsb: any;
 
 export interface IRenderSceneInfo {
     name: string;
@@ -41,4 +44,5 @@ export interface IRaycastResult {
     distance: number;
 }
 
-export const RenderScene = jsb.RenderScene;
+export const RenderScene: typeof JsbRenderScene = jsb.RenderScene;
+export type RenderScene = JsbRenderScene;

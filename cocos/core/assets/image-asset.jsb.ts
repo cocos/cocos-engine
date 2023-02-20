@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 import { ccclass, override } from 'cc.decorator';
-import { ALIPAY, XIAOMI, JSB, TEST, BAIDU } from 'internal:constants';
+import { ALIPAY, XIAOMI, JSB, TEST, BAIDU, EDITOR } from 'internal:constants';
 import { Format, FormatFeatureBit, deviceManager } from '../gfx';
 import { legacyCC } from '../global-exports';
 import { PixelFormat } from './asset-enum';
@@ -31,9 +31,12 @@ import { sys } from '../platform/sys';
 import { macro } from '../platform/macro';
 import { warnID } from '../platform/debug';
 import './asset';
+import type { ImageAsset as JsbImageAsset } from './image-asset';
 
-export type ImageAsset = jsb.ImageAsset;
-export const ImageAsset = jsb.ImageAsset;
+declare const jsb: any;
+
+export type ImageAsset = JsbImageAsset;
+export const ImageAsset: typeof JsbImageAsset = jsb.ImageAsset;
 
 export interface IMemoryImageSource {
     _data: ArrayBufferView | null;

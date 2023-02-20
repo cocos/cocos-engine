@@ -23,4 +23,4 @@
  THE SOFTWARE.
  */
 
-export * from './builtin-res-mgr';
+export { builtinResMgr } from './builtin-res-mgr';

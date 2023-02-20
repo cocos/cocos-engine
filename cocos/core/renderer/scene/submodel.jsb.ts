@@ -23,4 +23,9 @@
  THE SOFTWARE.
  */
 
-export const SubModel = jsb.SubModel;
+import type { SubModel as JsbSubModule } from './submodel';
+
+declare const jsb: any;
+
+export const SubModel: typeof JsbSubModule = jsb.SubModel;
+export type SubModel = JsbSubModule;

@@ -24,6 +24,12 @@
  */
 
 import { legacyCC } from '../global-exports';
-export const RenderPipeline = nr.RenderPipeline;
+import type { RenderPipeline as NrRenderPipeline } from './render-pipeline';
+
+declare const nr: any;
+
+export const RenderPipeline: typeof NrRenderPipeline = nr.RenderPipeline;
+export type RenderPipeline = NrRenderPipeline;
+
 // Do not delete, for the class detection of editor
 legacyCC.RenderPipeline = RenderPipeline;

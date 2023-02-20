@@ -1,6 +1,9 @@
 import { ccclass } from "cc.decorator";
 import { Vec3 } from "../math";
 import { Attribute, PrimitiveMode, Buffer } from "../gfx";
+import type { RenderingSubMesh as JsbRenderingSubMesh } from './rendering-sub-mesh';
+
+declare const jsb: any;
 
 /**
  * @en Array views for index buffer
@@ -48,8 +51,8 @@ export interface IFlatBuffer {
     buffer: Uint8Array;
 }
 
-export type RenderingSubMesh = jsb.RenderingSubMesh;
-export const RenderingSubMesh = jsb.RenderingSubMesh;
+export type RenderingSubMesh = JsbRenderingSubMesh;
+export const RenderingSubMesh: typeof JsbRenderingSubMesh = jsb.RenderingSubMesh;
 
 const renderingSubMeshProto = RenderingSubMesh.prototype;
 

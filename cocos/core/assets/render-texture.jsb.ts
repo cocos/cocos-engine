@@ -27,6 +27,7 @@ import { EDITOR, TEST } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
 import './asset';
+import type { RenderTexture as JsbRenderTexture } from './render-texture';
 
 declare const jsb: any;
 const renderTextureProto: any = jsb.RenderTexture.prototype;
@@ -34,9 +35,8 @@ const textureBaseProto: any = jsb.TextureBase.prototype;
 
 renderTextureProto.createNode = null!;
 
-// @ts-ignore
-export type RenderTexture = jsb.RenderTexture;
-export const RenderTexture: any = jsb.RenderTexture;
+export type RenderTexture = JsbRenderTexture;
+export const RenderTexture: typeof JsbRenderTexture = jsb.RenderTexture;
 
 RenderTexture.Filter = Filter;
 RenderTexture.PixelFormat = PixelFormat;

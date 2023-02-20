@@ -26,9 +26,12 @@ import { Node } from './node';
 import { applyTargetOverrides, expandNestedPrefabInstanceNode } from "../utils/prefab/utils";
 import { assert } from "../platform/debug";
 import { updateChildrenForDeserialize } from '../utils/jsb-utils';
+import type { Scene as JsbScene } from './scene';
 
-export const Scene = jsb.Scene;
-export type Scene = jsb.Scene;
+declare const jsb: any;
+
+export const Scene: typeof JsbScene = jsb.Scene;
+export type Scene = JsbScene;
 legacyCC.Scene = Scene;
 
 const sceneProto: any = Scene.prototype;

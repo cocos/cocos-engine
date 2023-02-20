@@ -29,12 +29,12 @@ import { macro } from '../platform/macro';
 import dependUtil from '../asset-manager/depend-util';
 import { fastRemoveAt } from '../utils/array';
 import './texture-base';
+import type { SimpleTexture as JsbSimpleTexture } from './simple-texture';
 
 declare const jsb: any;
 
-// @ts-ignore
-export type SimpleTexture = jsb.SimpleTexture;
-export const SimpleTexture: any = jsb.SimpleTexture;
+export type SimpleTexture = JsbSimpleTexture;
+export const SimpleTexture: typeof JsbSimpleTexture = jsb.SimpleTexture;
 
 SimpleTexture.Filter = Filter;
 SimpleTexture.PixelFormat = PixelFormat;
