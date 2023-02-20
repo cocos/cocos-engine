@@ -20,7 +20,7 @@
 
 import { Light } from './light-component';
 import { ccclass, help, property, menu, executeInEditMode, formerlySerializedAs, serializable, tooltip } from '../../core/data/class-decorator';
-import { Camera } from '../../render-scene/scene';
+import { Camera, LightType } from '../../render-scene/scene';
 import { scene } from '../../render-scene';
 import { cclegacy } from '../../core';
 
@@ -71,6 +71,7 @@ export class RangedDirectionalLight extends Light {
 
     protected _createLight () {
         super._createLight();
+        this._type = LightType.RANGED_DIRECTIONAL;
         if (this._light) {
             (this._light as scene.RangedDirectionalLight).illuminanceHDR = this._illuminanceHDR;
             (this._light as scene.RangedDirectionalLight).illuminanceLDR = this._illuminanceLDR;
