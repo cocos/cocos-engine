@@ -293,6 +293,8 @@ public:
         return _cameraList;
     }
 
+    void frameFence();
+
 private:
     void frameMoveBegin();
     void frameMoveProcess(bool isNeedUpdateScene, int32_t totalFrames);

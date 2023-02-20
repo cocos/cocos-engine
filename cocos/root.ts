@@ -462,6 +462,17 @@ export class Root {
     }
 
     /**
+     * @en frame logic fence
+     * @zh 帧逻辑更新的锁
+     */
+    public frameFence () {
+        const hasCam = this.windows.some((window) => window.cameras.some((cam) => cam.enabled));
+        if (this.pipeline && hasCam) {
+            this.device.acquire([deviceManager.swapchain]);
+        }
+    }
+
+    /**
      * @en The entry function of the render process for every frame.
      * @zh 用于每帧执行渲染流程的入口函数
      * @param deltaTime @en The delta time since last update. @zh 距离上一帧间隔时间
@@ -503,7 +514,7 @@ export class Root {
         }
 
         if (this._pipeline && cameraList.length > 0) {
-            this._device.acquire([deviceManager.swapchain]);
+            // this._device.acquire([deviceManager.swapchain]);
             const scenes = this._scenes;
             const stamp = director.getTotalFrames();
 
