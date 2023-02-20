@@ -150,14 +150,13 @@ function loadFont (url, options, onComplete) {
 }
 
 function doNothing (content, options, onComplete) {
-    // exists(content, (existence) => {
-    //     if (existence) {
-    //         onComplete(null, content);
-    //     } else {
-    //         onComplete(new Error(`file ${content} does not exist!`));
-    //     }
-    // });
-    onComplete(null, content);
+    exists(content, (existence) => {
+        if (existence) {
+            onComplete(null, content);
+        } else {
+            onComplete(new Error(`file ${content} does not exist!`));
+        }
+    });
 }
 
 function downloadAsset (url, options, onComplete) {
