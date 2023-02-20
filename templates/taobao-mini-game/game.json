@@ -2,6 +2,7 @@
   "deviceOrientation": "portrait",
   "window": {
     "allowsBounceVertical": "NO",
-    "transparentTitle": "always"
+    "transparentTitle": "always",
+    "enableAudioAlign": true
   }
 }
