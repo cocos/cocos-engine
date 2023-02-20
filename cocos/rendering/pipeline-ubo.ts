@@ -70,8 +70,10 @@ export class PipelineUBO {
         fv[UBOGlobal.NATIVE_SIZE_OFFSET + 2] = 1.0 / fv[UBOGlobal.NATIVE_SIZE_OFFSET];
         fv[UBOGlobal.NATIVE_SIZE_OFFSET + 3] = 1.0 / fv[UBOGlobal.NATIVE_SIZE_OFFSET + 1];
 
-        // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-        fv[UBOGlobal.PROBE_INFO_OFFSET] = cclegacy.internal.reflectionProbeManager.getMaxProbeId() + 1;
+        if (cclegacy.internal.reflectionProbeManager) {
+            // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
+            fv[UBOGlobal.PROBE_INFO_OFFSET] = cclegacy.internal.reflectionProbeManager.getMaxProbeId() + 1;
+        }
 
         const debugView = root.debugView;
         fv[UBOGlobal.DEBUG_VIEW_MODE_OFFSET] = debugView.singleMode as number;
