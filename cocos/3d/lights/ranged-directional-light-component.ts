@@ -40,9 +40,6 @@ export class RangedDirectionalLight extends Light {
     @serializable
     private _illuminanceLDR = 65000 * Camera.standardExposureValue;
 
-    protected _type = scene.LightType.RANGED_DIRECTIONAL;
-    protected _light: scene.RangedDirectionalLight | null = null;
-
     /**
      * @en The light source intensity.
      * @zh 光源强度。
@@ -60,10 +57,10 @@ export class RangedDirectionalLight extends Light {
         const isHDR = cclegacy.director.root.pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             this._illuminanceHDR = val;
-            this._light && (this._light.illuminanceHDR = this._illuminanceHDR);
+            this._light && ((this._light as scene.RangedDirectionalLight).illuminanceHDR = this._illuminanceHDR);
         } else {
             this._illuminanceLDR = val;
-            this._light && (this._light.illuminanceLDR = this._illuminanceLDR);
+            this._light && ((this._light as scene.RangedDirectionalLight).illuminanceLDR = this._illuminanceLDR);
         }
     }
 
@@ -75,8 +72,8 @@ export class RangedDirectionalLight extends Light {
     protected _createLight () {
         super._createLight();
         if (this._light) {
-            this._light.illuminanceHDR = this._illuminanceHDR;
-            this._light.illuminanceLDR = this._illuminanceLDR;
+            (this._light as scene.RangedDirectionalLight).illuminanceHDR = this._illuminanceHDR;
+            (this._light as scene.RangedDirectionalLight).illuminanceLDR = this._illuminanceLDR;
         }
     }
 }
