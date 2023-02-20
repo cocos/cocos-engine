@@ -27,6 +27,9 @@
 import { getError } from '../platform/debug';
 import { CompleteCallback, IDownloadParseOptions } from './shared';
 
+// TODO: Image type conflicts with the one on OH platform
+declare const Image: any;
+
 export default function downloadDomImage (
     url: string,
     options: IDownloadParseOptions,
@@ -53,5 +56,6 @@ export default function downloadDomImage (
     img.addEventListener('load', loadCallback);
     img.addEventListener('error', errorCallback);
     img.src = url;
-    return img;
+    // TODO: Image type conflicts with the one on OH platform
+    return img as HTMLImageElement;
 }

@@ -780,7 +780,14 @@ export class Game extends EventTarget {
             .then(() => {
                 const scriptPackages = settings.querySettings<string[]>(Settings.Category.SCRIPTING, 'scriptPackages');
                 if (scriptPackages) {
-                    return Promise.all(scriptPackages.map((pack) => import(pack)));
+                    return Promise.all(scriptPackages.map((pack) => {
+                        if (window.oh) {
+                            // TODO: to support 'project://' protocol to import system module instead of relative path.
+                            return window.cc_module_context.import(pack) as Promise<any>;
+                        } else {
+                            return import(pack);
+                        }
+                    }));
                 }
                 return Promise.resolve([]);
             })

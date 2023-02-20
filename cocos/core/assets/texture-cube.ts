@@ -207,7 +207,8 @@ export class TextureCube extends SimpleTexture {
             const layoutInfo = layout[j];
             _forEachFace(faceAtlas, (face, faceIndex) => {
                 ctx!.clearRect(0, 0, imageAtlasAsset.width, imageAtlasAsset.height);
-                const drawImg = face.data as HTMLImageElement;
+                // TODO: drawImg is typeof HTMLImageElement, which conflicts with the type on OH platform.
+                const drawImg = face.data as any;
                 ctx!.drawImage(drawImg, 0, 0);
                 const rawData = ctx!.getImageData(layoutInfo.left, layoutInfo.top, layoutInfo.width, layoutInfo.height);
 
