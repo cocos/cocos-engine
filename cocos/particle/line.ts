@@ -125,21 +125,45 @@ export class Line extends ModelRenderer {
     /**
      * @zh 线段的宽度。
      */
-    @serializable
     @type(CurveRange)
     @range([0, 1])
     @displayOrder(3)
     @tooltip('i18n:line.width')
-    public width = new CurveRange();
+    get width () {
+        return this._width;
+    }
+
+    set width (val) {
+        this._width = val;
+        if (this._models[0]) {
+            const lineModel = this._models[0] as LineModel;
+            lineModel.addLineVertexData(this._positions, this._width, this._color);
+        }
+    }
+
+    @serializable
+    private _width = new CurveRange();
 
     /**
      * @zh 线段颜色。
      */
-    @serializable
     @type(GradientRange)
     @displayOrder(6)
     @tooltip('i18n:line.color')
-    public color = new GradientRange();
+    get color () {
+        return this._color;
+    }
+
+    set color (val) {
+        this._color = val;
+        if (this._models[0]) {
+            const lineModel = this._models[0] as LineModel;
+            lineModel.addLineVertexData(this._positions, this._width, this._color);
+        }
+    }
+
+    @serializable
+    private _color = new GradientRange();
 
     @serializable
     private _tile = new Vec2(1, 1);
@@ -250,13 +274,6 @@ export class Line extends ModelRenderer {
             if (lineModel.scene) {
                 lineModel.scene.removeModel(lineModel);
             }
-        }
-    }
-
-    protected update (dt: number): void {
-        if (this._models.length > 0 && this._models[0]) {
-            const lineModel = this._models[0] as LineModel;
-            lineModel.addLineVertexData(this._positions, this.width, this.color);
         }
     }
 }
