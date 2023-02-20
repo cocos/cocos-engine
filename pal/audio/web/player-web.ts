@@ -69,7 +69,10 @@ export class AudioContextAgent {
     }
 
     public offRunning (cb?: (...args: any[]) => void, target?: any) {
-        this._eventTarget.off(_contextRunningEvent, cb, target);
+        // If the audio is playable, the event can be unregistered.
+        if (this._isRunning) {
+            this._eventTarget.off(_contextRunningEvent, cb, target);
+        }
     }
 
     public decodeAudioData (audioData: ArrayBuffer): Promise<AudioBuffer> {
