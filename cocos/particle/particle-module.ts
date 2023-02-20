@@ -56,6 +56,10 @@ export abstract class ParticleModule {
     @serializable
     private _enable = false;
 
+    public get hideInInspector () {
+        return false;
+    }
+
     public abstract get name (): string;
     public abstract get updateStage (): ParticleUpdateStage;
     public abstract get updatePriority (): number;
@@ -82,6 +86,7 @@ export abstract class ParticleModule {
     public onPlay () {}
     public onStop () {}
     public onPause () {}
+    public onEvent (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext) {}
 }
 @ccclass('cc.EmissionModule')
 export abstract class EmissionModule extends ParticleModule {

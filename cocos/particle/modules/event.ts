@@ -35,7 +35,6 @@ import { ParticleSystemParams, ParticleUpdateContext, SpawnEvent } from '../part
 const emitProbabilityRandomSeedOffset = 199208;
 
 export enum EventCondition {
-    BIRTH,
     LIFETIME,
     DEATH,
 }
@@ -53,7 +52,7 @@ export class EventData {
     @type(Enum(EventCondition))
     @visible(true)
     @serializable
-    public condition = EventCondition.BIRTH;
+    public condition = EventCondition.LIFETIME;
 
     @type(ParticleSystem)
     @visible(true)
@@ -71,8 +70,8 @@ export class EventData {
     public probability = 1;
 }
 
-const inheritedPosition = new Vec3();
-const inheritedVelocity = new Vec3();
+const temp = new Vec3();
+const temp1 = new Vec3();
 
 @ccclass('cc.EventModule')
 export class EventModule extends UpdateModule {
@@ -98,28 +97,64 @@ export class EventModule extends UpdateModule {
         const { randomSeed, invStartLifeTime, normalizedAliveTime } = particles;
         const { localToWorld } = context;
         const { simulationSpace } = params;
+        const eventInfos = this.eventInfos;
         for (let i = fromIndex; i < toIndex; i++) {
-            particles.getPositionAt(inheritedPosition, i);
-            particles.getFinalVelocity(inheritedVelocity, i);
+            particles.getPositionAt(temp, i);
+            particles.getFinalVelocity(temp1, i);
             if (simulationSpace === Space.LOCAL) {
-                Vec3.transformMat4(inheritedPosition, inheritedPosition, localToWorld);
-                Vec3.transformMat4(inheritedVelocity, inheritedVelocity, localToWorld);
+                Vec3.transformMat4(temp, temp, localToWorld);
+                Vec3.transformMat4(temp1, temp1, localToWorld);
             }
-            for (let j = 0; j < this.eventInfos.length; j++) {
-                const eventInfo = this.eventInfos[i];
-                if (eventInfo.condition === EventCondition.BIRTH && eventInfo.emitter && eventInfo.emitter.isValid
+            for (let j = 0, length = eventInfos.length; j < length; j++) {
+                const eventInfo = eventInfos[j];
+                if (eventInfo.condition === EventCondition.LIFETIME && eventInfo.emitter && eventInfo.emitter.isValid
                     && !approx(eventInfo.probability, 0)
                     && pseudoRandom(randomSeed[i] + emitProbabilityRandomSeedOffset) <= eventInfo.probability) {
-                    const spawnEvent = new SpawnEvent();
+                    const spawnEvent = particleSystemManager.dispatchSpawnEvent();
                     spawnEvent.emitter = eventInfo.emitter;
                     spawnEvent.deltaTime = dt;
                     spawnEvent.t = normalizedAliveTime[i] / invStartLifeTime[i];
+                    spawnEvent.context.emissionState.emittingOverDistanceAccumulatedCount = 0;
+                    spawnEvent.context.emissionState.emittingOverTimeAccumulatedCount = 0;
+                    spawnEvent.context.emissionState.burstCount = 0;
                     spawnEvent.prevT = spawnEvent.t - dt;
-                    spawnEvent.particleEmitterContext.localToWorld.set(localToWorld);
-                    spawnEvent.particleEmitterContext.emitterVelocity.set(inheritedVelocity);
-                    spawnEvent.particleEmitterContext.currentPosition.set(inheritedPosition);
-                    spawnEvent.particleEmitterContext.lastPosition.set(inheritedPosition);
-                    particleSystemManager.requestDispatchSpawnEvent(spawnEvent);
+                    spawnEvent.context.localToWorld.set(localToWorld);
+                    spawnEvent.context.emitterVelocity.set(temp1);
+                    spawnEvent.context.currentPosition.set(temp);
+                    spawnEvent.context.lastPosition.set(Vec3.subtract(temp, temp, temp1.multiplyScalar(dt)));
+                }
+            }
+        }
+    }
+
+    public onEvent (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext) {
+        const { particleEventSnapshots, particleEventSnapshotCount } = particles;
+        const eventInfos = this.eventInfos;
+        const { localToWorld } = context;
+        const { simulationSpace } = params;
+        for (let i = 0; i < particleEventSnapshotCount; i++) {
+            const snapshot = particleEventSnapshots[i];
+            if (simulationSpace === Space.LOCAL) {
+                Vec3.transformMat4(temp, snapshot.position, localToWorld);
+                Vec3.transformMat4(temp1, snapshot.velocity, localToWorld);
+            }
+            for (let j = 0, length = eventInfos.length; j < length; j++) {
+                const eventInfo = eventInfos[j];
+                if (eventInfo.condition === EventCondition.DEATH && snapshot.recordReason === RecordReason.DEATH
+                    && eventInfo.emitter && eventInfo.emitter.isValid
+                    && !approx(eventInfo.probability, 0)
+                    && pseudoRandom(snapshot.randomSeed + emitProbabilityRandomSeedOffset) <= eventInfo.probability) {
+                    const spawnEvent = particleSystemManager.dispatchSpawnEvent();
+                    spawnEvent.emitter = eventInfo.emitter;
+                    spawnEvent.deltaTime = EPSILON;
+                    spawnEvent.t = EPSILON;
+                    spawnEvent.prevT = 0;
+                    spawnEvent.context.emissionState.emittingOverDistanceAccumulatedCount = 0;
+                    spawnEvent.context.emissionState.emittingOverTimeAccumulatedCount = 0;
+                    spawnEvent.context.localToWorld.set(localToWorld);
+                    spawnEvent.context.emitterVelocity.set(temp1);
+                    spawnEvent.context.currentPosition.set(temp);
+                    spawnEvent.context.lastPosition.set(temp);
                 }
             }
         }

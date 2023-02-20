@@ -301,11 +301,11 @@ export class ParticleSOAData {
         return this._color;
     }
 
-    get particleSnapshots (): ReadonlyArray<ParticleSnapshot> {
+    get particleEventSnapshots (): ReadonlyArray<ParticleSnapshot> {
         return this._particleSnapshots;
     }
 
-    get particleSnapshotCount () {
+    get particleEventSnapshotCount () {
         return this._snapshotUsed;
     }
 
@@ -579,11 +579,11 @@ export class ParticleSOAData {
         this._count -= 1;
     }
 
-    clearParticleSnapshots () {
+    clearParticleEventSnapshots () {
         this._snapshotUsed = 0;
     }
 
-    recordParticleSnapshot (handle: ParticleHandle, reason: RecordReason) {
+    recordParticleEventSnapshot (handle: ParticleHandle, reason: RecordReason) {
         if (this._snapshotUsed === this._particleSnapshots.length) {
             for (let i = 0; i < this._snapshotUsed; i++) {
                 this._particleSnapshots.push(new ParticleSnapshot());

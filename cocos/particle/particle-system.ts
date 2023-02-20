@@ -60,7 +60,6 @@ import { INVALID_HANDLE, ParticleHandle, ParticleSOAData, RecordReason } from '.
 import { EmissionModule, InitializationModule, ParticleModule, ParticleUpdateStage, UpdateModule } from './particle-module';
 import { particleSystemManager } from './particle-system-manager';
 import { BurstEmissionModule } from './modules/burst-emission';
-import { CompositionModule } from './modules/composition';
 import { InitialModule } from './modules/initial-module';
 
 const startPositionOffset = new Vec3();
@@ -361,7 +360,7 @@ export class ParticleSystem extends Component {
     @type([ParticleModule])
     @displayName('Modules')
     private get particleModules (): ReadonlyArray<ParticleModule> {
-        return this._particleModules;
+        return this._particleModules.filter((module) => !module.hideInInspector);
     }
 
     public get isPlaying () {
@@ -386,6 +385,7 @@ export class ParticleSystem extends Component {
 
     @serializable
     private _particleModules: ParticleModule[] = [];
+    private _activeModules: ParticleModule[] = [];
     @serializable
     private _particleSystemParams = new ParticleSystemParams();
     private _boundingBoxHalfExtents = new Vec3();
@@ -394,6 +394,7 @@ export class ParticleSystem extends Component {
     private _isSimulating = true;
     private _particles = new ParticleSOAData();
     private _particleUpdateContext = new ParticleUpdateContext();
+    private _isSubEmitter = false;
 
     private static _sortParticleModule (moduleA: ParticleModule, moduleB: ParticleModule) {
         return (moduleA.updateStage - moduleB.updateStage) || (moduleA.updatePriority - moduleB.updatePriority)
@@ -442,8 +443,8 @@ export class ParticleSystem extends Component {
         return module;
     }
 
-    public dispatchSpawnEvent (event: SpawnEvent) {
-
+    public emit (currentTime: number, prevT: number, dt: number, context: ParticleUpdateContext) {
+        this.startEmitParticles(this.particles, this._particleSystemParams, context, prevT, currentTime, dt);
     }
 
     /**
@@ -452,11 +453,23 @@ export class ParticleSystem extends Component {
      */
     public play () {
         this._state = PlayingState.PLAYING;
-        this._isEmitting = true;
+        if (!this._isSubEmitter) {
+            this._isEmitting = true;
 
-        // prewarm
-        if (this.prewarm) {
-            this._prewarmSystem();
+            // prewarm
+            if (this.prewarm) {
+                this._prewarmSystem();
+            }
+        } else {
+            this._isEmitting = false;
+        }
+
+        this._activeModules.length = 0;
+        for (let i = 0; i < this._particleModules.length; i++) {
+            if (this._particleModules[i].enable) {
+                this._activeModules.push(this._particleModules[i]);
+                this._activeModules[i].onPlay();
+            }
         }
         this._particleUpdateContext.currentPosition.set(this.node.worldPosition);
         this._particleUpdateContext.emitterDelayRemaining = this.startDelay.evaluate(0, 1);
@@ -517,7 +530,6 @@ export class ParticleSystem extends Component {
             renderer.setParticleSystem(this);
         }
         this.getOrAddModule(InitialModule);
-        this.getOrAddModule(CompositionModule);
         this.getOrAddModule(BurstEmissionModule);
         this.getOrAddModule(ColorOverLifetimeModule);
         this.getOrAddModule(EmissionOverDistanceModule);
@@ -605,19 +617,19 @@ export class ParticleSystem extends Component {
     }
 
     private getEmissionModules () {
-        return this._particleModules.filter((module) => module.updateStage === ParticleUpdateStage.EMITTER_UPDATE) as EmissionModule[];
+        return this._activeModules.filter((module) => module.updateStage === ParticleUpdateStage.EMITTER_UPDATE) as EmissionModule[];
     }
 
     private getInitializationModules () {
-        return this._particleModules.filter((module) => module.updateStage === ParticleUpdateStage.INITIALIZE) as InitializationModule[];
+        return this._activeModules.filter((module) => module.updateStage === ParticleUpdateStage.INITIALIZE) as InitializationModule[];
     }
 
     private getPreUpdateModules () {
-        return this._particleModules.filter((module) => module.updateStage === ParticleUpdateStage.PRE_UPDATE) as UpdateModule[];
+        return this._activeModules.filter((module) => module.updateStage === ParticleUpdateStage.PRE_UPDATE) as UpdateModule[];
     }
 
     private getPostUpdateModules () {
-        return this._particleModules.filter((module) => module.updateStage === ParticleUpdateStage.POST_UPDATE) as UpdateModule[];
+        return this._activeModules.filter((module) => module.updateStage === ParticleUpdateStage.POST_UPDATE) as UpdateModule[];
     }
 
     // internal function
@@ -640,10 +652,38 @@ export class ParticleSystem extends Component {
         }
         const prevT = context.emitterAccumulatedTime;
         context.emitterAccumulatedTime += emitterDeltaTime;
-        particles.clearParticleSnapshots();
-        const { normalizedAliveTime, animatedVelocityX, animatedVelocityY, animatedVelocityZ, angularVelocityX, angularVelocityY, angularVelocityZ, color, startColor } = particles;
 
-        for (let i = 0; i < particles.count; i++) {
+        let particleCount = particles.count;
+        this.resetAnimatedState(particles, 0, particleCount);
+
+        const modules = this._activeModules;
+        for (let i = 0, length = modules.length; i < length; i++) {
+            modules[i].tick(particles, params, context,
+                context.emitterAccumulatedTime, deltaTime);
+        }
+
+        const updateModules = this.getPreUpdateModules();
+        for (let i = 0, length = updateModules.length; i < length; i++) {
+            updateModules[i].update(particles, params, context, 0, particleCount, deltaTime);
+        }
+        this.updateParticleState(particles, 0, particleCount, deltaTime);
+        this.killParticlesOverMaxLifeTime(particles, 0, particleCount);
+        // After kill particles, the count of particle may be changed. so get the current count.
+        particleCount = particles.count;
+        const postUpdateModules = this.getPostUpdateModules();
+        for (let i = 0, length = postUpdateModules.length; i < length; i++) {
+            postUpdateModules[i].update(particles, params, context, 0, particleCount, deltaTime);
+        }
+        this.consumeEvents(particles, params, context);
+
+        if (this._isEmitting) {
+            this.startEmitParticles(particles, params, context, prevT, context.emitterAccumulatedTime, deltaTime);
+        }
+    }
+
+    private resetAnimatedState (particles: ParticleSOAData, fromIndex: number, toIndex: number) {
+        const { animatedVelocityX, animatedVelocityY, animatedVelocityZ, angularVelocityX, angularVelocityY, angularVelocityZ, color, startColor } = particles;
+        for (let i = fromIndex; i < toIndex; i++) {
             animatedVelocityX[i] = 0;
             animatedVelocityY[i] = 0;
             animatedVelocityZ[i] = 0;
@@ -652,28 +692,19 @@ export class ParticleSystem extends Component {
             angularVelocityZ[i] = 0;
             color[i] = startColor[i];
         }
+    }
 
-        const updateModules = this.getPreUpdateModules();
-        for (let i = 0, length = updateModules.length; i < length; i++) {
-            if (updateModules[i].enable) {
-                updateModules[i].update(particles, params, context, 0, particles.count, deltaTime);
+    private consumeEvents (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext) {
+        if (particles.particleEventSnapshotCount > 0) {
+            const modules = this._activeModules;
+            for (let i = 0, length = modules.length; i < length; i++) {
+                modules[i].onEvent(particles, params, context);
             }
-        }
-        this.composite(particles, 0, particles.count, deltaTime);
-        this.killParticlesOverMaxLifeTime(particles, 0, particles.count);
-        const postUpdateModules = this.getPostUpdateModules();
-        for (let i = 0, length = postUpdateModules.length; i < length; i++) {
-            if (postUpdateModules[i].enable) {
-                postUpdateModules[i].update(particles, params, context, 0, particles.count, deltaTime);
-            }
-        }
-
-        if (this._isEmitting) {
-            this.emit(particles, params, context, prevT, context.emitterAccumulatedTime, deltaTime);
+            particles.clearParticleEventSnapshots();
         }
     }
 
-    private composite (particles: ParticleSOAData, fromIndex: number, toIndex: number, dt: number) {
+    private updateParticleState (particles: ParticleSOAData, fromIndex: number, toIndex: number, dt: number) {
         const { speedModifier, normalizedAliveTime, invStartLifeTime } = particles;
         for (let particleHandle = fromIndex; particleHandle < toIndex; particleHandle++) {
             particles.getFinalVelocity(velocity, particleHandle);
@@ -688,22 +719,24 @@ export class ParticleSystem extends Component {
         const { normalizedAliveTime } = particles;
         for (let i = toIndex - 1; i >= fromIndex; i--) {
             if (normalizedAliveTime[i] > 1) {
-                particles.recordParticleSnapshot(i, RecordReason.DEATH);
+                particles.recordParticleEventSnapshot(i, RecordReason.DEATH);
                 particles.removeParticle(i);
             }
         }
     }
 
-    private emit (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext, prevT: number, t: number, dt: number) {
+    private startEmitParticles (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext, prevT: number, t: number, dt: number) {
         const emissionModules = this.getEmissionModules();
         const updateModules = this.getPreUpdateModules();
+        const postUpdateModules = this.getPostUpdateModules();
         const initializationModules = this.getInitializationModules();
+        const { emissionState } = context;
+        const originCount = particles.count;
 
         for (let i = 0, length = emissionModules.length; i < length; i++) {
             emissionModules[i].update(particles, params, context, prevT, t);
         }
-
-        const { emissionState, emitterVelocity } = context;
+        const emitterVelocity = params.simulationSpace === Space.WORLD ? context.emitterVelocity : Vec3.ZERO;
 
         let newEmittingCount = Math.floor(emissionState.emittingOverTimeAccumulatedCount);
         emissionState.emittingOverTimeAccumulatedCount -= newEmittingCount;
@@ -713,36 +746,10 @@ export class ParticleSystem extends Component {
 
         if (newEmittingCount > 0) {
             const fromIndex = particles.count;
-            const toIndex = fromIndex + newEmittingCount;
             particles.addParticles(newEmittingCount);
-            for (let i = fromIndex; i < toIndex; ++i) {
-                const offset = clamp01((emissionState.emittingOverTimeAccumulatedCount + i) * emissionState.emittingOverTimeInterval);
-                const subDt = dt * offset;
-                const normalizeT = lerp(t, prevT, offset);
-                const nextIndex = i + 1;
-                for (let j = 0, length = initializationModules.length; j < length; j++) {
-                    initializationModules[j].update(particles, params, context, i, nextIndex, normalizeT);
-                }
-                for (let j = 0, length = updateModules.length; j < length; j++) {
-                    updateModules[j].update(particles, params, context, i, nextIndex, subDt);
-                }
-                this.composite(particles, i, nextIndex, subDt);
-            }
-            this.killParticlesOverMaxLifeTime(particles, fromIndex, toIndex);
-        }
-
-        newEmittingCount = Math.floor(emissionState.emittingOverDistanceAccumulatedCount);
-        emissionState.emittingOverDistanceAccumulatedCount -= newEmittingCount;
-        if (newEmittingCount + particles.count > params.capacity) {
-            newEmittingCount = params.capacity - particles.count;
-        }
-
-        if (newEmittingCount > 0) {
-            const fromIndex = particles.count;
-            particles.addParticles(newEmittingCount);
-            const toIndex = particles.count;
-            for (let i = fromIndex; i < toIndex; ++i) {
-                const offset = clamp01((emissionState.emittingOverDistanceAccumulatedCount + i) * emissionState.emittingOverDistanceInterval);
+            let num = 0;
+            for (let i = fromIndex, toIndex = particles.count; i < toIndex; ++i) {
+                const offset = clamp01((emissionState.emittingOverTimeAccumulatedCount + num) * emissionState.emittingOverTimeInterval);
                 const subDt = dt * offset;
                 const normalizeT = lerp(t, prevT, offset);
                 const nextIndex = i + 1;
@@ -755,6 +762,43 @@ export class ParticleSystem extends Component {
                 for (let j = 0, length = updateModules.length; j < length; j++) {
                     updateModules[j].update(particles, params, context, i, nextIndex, subDt);
                 }
+                this.updateParticleState(particles, i, nextIndex, subDt);
+                for (let j = 0, length = postUpdateModules.length; j < length; j++) {
+                    postUpdateModules[j].update(particles, params, context, i, nextIndex, subDt);
+                }
+                num++;
+            }
+        }
+
+        newEmittingCount = Math.floor(emissionState.emittingOverDistanceAccumulatedCount);
+        emissionState.emittingOverDistanceAccumulatedCount -= newEmittingCount;
+        if (newEmittingCount + particles.count > params.capacity) {
+            newEmittingCount = params.capacity - particles.count;
+        }
+
+        if (newEmittingCount > 0) {
+            const fromIndex = particles.count;
+            particles.addParticles(newEmittingCount);
+            let num = 0;
+            for (let i = fromIndex, toIndex = particles.count; i < toIndex; ++i) {
+                const offset = clamp01((emissionState.emittingOverDistanceAccumulatedCount + num) * emissionState.emittingOverDistanceInterval);
+                const subDt = dt * offset;
+                const normalizeT = lerp(t, prevT, offset);
+                const nextIndex = i + 1;
+                for (let j = 0, length = initializationModules.length; j < length; j++) {
+                    initializationModules[j].update(particles, params, context, i, nextIndex, normalizeT);
+                }
+                Vec3.copy(startPositionOffset, emitterVelocity);
+                Vec3.multiplyScalar(startPositionOffset, startPositionOffset, -subDt);
+                particles.addPositionAt(startPositionOffset, i);
+                for (let j = 0, length = updateModules.length; j < length; j++) {
+                    updateModules[j].update(particles, params, context, i, nextIndex, subDt);
+                }
+                this.updateParticleState(particles, i, nextIndex, subDt);
+                for (let j = 0, length = postUpdateModules.length; j < length; j++) {
+                    postUpdateModules[j].update(particles, params, context, i, nextIndex, subDt);
+                }
+                num++;
             }
         }
 
@@ -766,14 +810,20 @@ export class ParticleSystem extends Component {
 
         if (newEmittingCount > 0) {
             const fromIndex = particles.count;
-            const toIndex = fromIndex + newEmittingCount;
             particles.addParticles(newEmittingCount);
+            const toIndex = particles.count;
             for (let j = 0, length = initializationModules.length; j < length; j++) {
                 initializationModules[j].update(particles, params, context, fromIndex, toIndex, t);
             }
             for (let j = 0, length = updateModules.length; j < length; j++) {
                 updateModules[j].update(particles, params, context, fromIndex, toIndex, dt);
             }
+            this.updateParticleState(particles, fromIndex, toIndex, dt);
+            for (let j = 0, length = postUpdateModules.length; j < length; j++) {
+                postUpdateModules[j].update(particles, params, context, fromIndex, toIndex, dt);
+            }
         }
+        this.killParticlesOverMaxLifeTime(particles, originCount, particles.count);
+        this.consumeEvents(particles, params, context);
     }
 }

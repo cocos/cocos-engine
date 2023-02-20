@@ -36,11 +36,20 @@ export class InitialModule extends InitializationModule {
     }
 
     public get updateStage (): ParticleUpdateStage {
-        throw ParticleUpdateStage.INITIALIZE;
+        return ParticleUpdateStage.INITIALIZE;
+    }
+
+    public get hideInInspector () {
+        return true;
     }
 
     public get updatePriority (): number {
-        return Number.MIN_VALUE;
+        return Number.NEGATIVE_INFINITY;
+    }
+
+    constructor () {
+        super();
+        this.enable = true;
     }
 
     public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,

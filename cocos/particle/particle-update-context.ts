@@ -58,7 +58,7 @@ export class SpawnEvent {
     public deltaTime = 0;
     public t = 0;
     public prevT = 0;
-    public particleEmitterContext = new ParticleUpdateContext();
+    public context = new ParticleUpdateContext();
 }
 
 export class ParticleSnapshot {
