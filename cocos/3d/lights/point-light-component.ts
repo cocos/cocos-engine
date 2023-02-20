@@ -25,7 +25,7 @@
 import { ccclass, help, executeInEditMode, menu, tooltip, type, displayOrder,
     serializable, formerlySerializedAs, editable, rangeMin, slide } from 'cc.decorator';
 import { scene } from '../../render-scene';
-import { Camera } from '../../render-scene/scene';
+import { Camera, LightType } from '../../render-scene/scene';
 import { Light, PhotometricTerm } from './light-component';
 import { CCFloat, CCInteger, cclegacy } from '../../core';
 
@@ -153,6 +153,7 @@ export class PointLight extends Light {
 
     protected _createLight () {
         super._createLight();
+        this._type = LightType.POINT;
         this.range = this._range;
 
         if (this._light) {
