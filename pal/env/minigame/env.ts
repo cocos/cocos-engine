@@ -28,6 +28,7 @@ import { BAIDU, TAOBAO, TAOBAO_MINIGAME, WECHAT, XIAOMI } from 'internal:constan
 declare const require: (path: string) => any;
 declare const __baiduRequire: (path: string) => any;
 declare const __wxRequire: (path: string) => any;
+declare const __taobaoRequire: (path: string) => any;
 
 export function findCanvas (): { frame: HTMLDivElement, container: HTMLDivElement, canvas: HTMLCanvasElement } {
     const container = document.createElement('div');
@@ -44,7 +45,7 @@ export function loadJsFile (path: string): any {
     if (WECHAT) {
         return __wxRequire(path);
     }
-    if (TAOBAO || TAOBAO_MINIGAME) {
+    if (TAOBAO) {
         // NOTE: Taobao doesn't support dynamic require
         return undefined;
     }

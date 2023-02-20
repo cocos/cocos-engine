@@ -34,9 +34,7 @@ var fsUtils = {
     },
 
     getUserDataPath () {
-        return 'https://usr';
-        //todo:
-        //return my.env.USER_DATA_PATH;
+        return my.env.USER_DATA_PATH;
     },
 
     checkFsValid () {
