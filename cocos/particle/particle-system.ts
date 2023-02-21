@@ -905,8 +905,10 @@ export class ParticleSystem extends ModelRenderer {
                 sub.shapeModule.arcSpeed = subSrc.shapeModule.arcSpeed;
                 sub.shapeModule.length = subSrc.shapeModule.length;
                 sub.shapeModule.boxThickness = subSrc.shapeModule.boxThickness;
+                sub.shapeModule.enable = subSrc.shapeModule.enable;
+            } else {
+                sub.shapeModule.enable = false;
             }
-            sub.shapeModule.enable = true;
         }
 
         if (subSrc.forceFieldModule) {
@@ -981,6 +983,7 @@ export class ParticleSystem extends ModelRenderer {
                     progeny.stop();
                     progenyNode.active = false;
                     progeny.subBase = progenySrc.subBase;
+                    // progeny.node._objFlags |= CCObject.Flags.HideInHierarchy;
                 }
             }
         }
