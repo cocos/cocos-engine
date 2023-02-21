@@ -67,14 +67,6 @@ const Elements = {
             const panel = this;
 
             panel.$.typeSelect.addEventListener('change', (event) => {
-                // metaList take the type of the first asset selected to solve
-                let spriteFrameChange;
-                if (panel.meta.userData.type === 'sprite-frame') {
-                    spriteFrameChange = 'spriteFrameToOthers';
-                } else if (event.target.value === 'sprite-frame') {
-                    spriteFrameChange = 'othersToSpriteFrame';
-                }
-
                 panel.metaList.forEach((meta) => {
                     meta.userData.type = event.target.value;
                 });
@@ -83,7 +75,7 @@ const Elements = {
                 Elements.isRGBE.update.call(panel);
                 Elements.fixAlphaTransparencyArtifacts.update.call(panel);
                 // imageAssets type change to spriteFrame, update mipmaps
-                panel.updatePanel(spriteFrameChange);
+                panel.updatePanel();
                 // need to be dispatched after updatePanel
                 panel.dispatch('change');
             });
@@ -218,18 +210,18 @@ const Elements = {
 };
 
 exports.methods = {
-    updatePanel(spriteFrameChange) {
-        this.setPanel(this.$.panelSection, this.meta.userData.type, spriteFrameChange);
+    updatePanel() {
+        this.setPanel(this.$.panelSection, this.meta.userData.type);
 
         // sprite-frame 需要多显示 texture 面板
         if (this.meta.userData.type === 'sprite-frame') {
-            this.setPanel(this.$.texturePanelSection, 'texture', spriteFrameChange);
+            this.setPanel(this.$.texturePanelSection, 'texture');
         } else {
             this.$.texturePanelSection.style.display = 'none';
         }
     },
 
-    setPanel($section, type, spriteFrameChange) {
+    setPanel($section, type) {
         const assetList = [];
         const metaList = [];
 
@@ -275,13 +267,6 @@ exports.methods = {
                 }
 
                 if (subMeta.importer === imageImporter) {
-                    if (spriteFrameChange === 'othersToSpriteFrame') {
-                        // imageAsset 类型切换到 spriteFrame，禁用 mipmaps
-                        subMeta.userData.mipfilter = 'none';
-                    } else if (spriteFrameChange === 'spriteFrameToOthers' && subMeta.userData.mipfilter === 'none') {
-                        // imageAsset 类型从 spriteFrame 切换到其他，原来没启用的话 mipmaps 默认 nearest
-                        subMeta.userData.mipfilter = 'nearest';
-                    }
                     metaList.push(subMeta);
                     break;
                 }
@@ -302,6 +287,54 @@ exports.methods = {
         $panel.setAttribute('src', join(__dirname, `./${asset.importer}.js`));
         $panel.update(assetList, metaList);
     },
+
+    handleTypeChange(originMetaList) {
+        const srcType = originMetaList[0].userData.type;
+        const destType = this.meta.userData.type;
+        const changeTypes = ['texture', 'normal map', 'texture cube'];
+
+        // imageAsset type changed contains spriteFrame
+        let spriteFrameChange = '';
+        if (srcType === 'sprite-frame' && changeTypes.includes(destType)) {
+            spriteFrameChange = 'spriteFrameToOthers';
+        } else if (destType === 'sprite-frame' && changeTypes.includes(srcType)) {
+            spriteFrameChange = 'othersToSpriteFrame';
+        }
+
+        // change mipFilter
+        let mipChanged = false;
+        if (spriteFrameChange) {
+            this.metaList.forEach((meta) => {
+                if (!meta) {
+                    return;
+                }
+                for (const subUuid in meta.subMetas) {
+                    const subMeta = meta.subMetas[subUuid];
+                    if (!subMeta || subMeta.importer === '*') {
+                        continue;
+                    }
+                    if (subMeta.importer === 'texture') {
+                        if (spriteFrameChange === 'othersToSpriteFrame' && subMeta.userData.mipfilter !== 'none') {
+                            // imageAsset type change to spriteFrame，disabled mipmaps
+                            subMeta.userData.mipfilter = 'none';
+                            mipChanged = true;
+                        } else if (spriteFrameChange === 'spriteFrameToOthers' && subMeta.userData.mipfilter === 'none') {
+                            // imageAsset type change to other type from spriteFrame
+                            subMeta.userData.mipfilter = 'nearest';
+                            mipChanged = true;
+                        }
+
+                        // sync meta
+                        if (mipChanged) {
+                            const content = JSON.stringify(meta);
+                            Editor.Message.request('asset-db', 'save-asset-meta', meta.uuid, content);
+                        }
+                        break;
+                    }
+                }
+            });
+        }
+    }
 };
 
 exports.ready = function() {
@@ -332,6 +365,12 @@ exports.update = function(assetList, metaList) {
     this.metaList = metaList;
     this.asset = assetList[0];
     this.meta = metaList[0];
+
+    if (this.originMetaList) {
+        this.handleTypeChange(this.originMetaList);
+    }
+    // change originMetaList
+    this.originMetaList = JSON.parse(JSON.stringify(this.metaList));
 
     for (const prop in Elements) {
         const element = Elements[prop];
