@@ -27,7 +27,9 @@ struct SurfacesMaterialData
   vec4 transmitDiffuseParams;
 #endif
 #if CC_SURFACES_LIGHTING_TRT
-  float roughnessTRT;
+  vec3 baseColorTRT;
+  float trtIntensity, roughnessTRT;
+  vec3 worldTangentTRT, worldBinormalTRT;
 #endif
   // float sssCurvature;
 };

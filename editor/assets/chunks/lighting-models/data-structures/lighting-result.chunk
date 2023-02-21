@@ -23,6 +23,7 @@ struct LightingResult
 #endif  
 #if CC_SURFACES_LIGHTING_TRT
   vec3 directTRT, environmentTRT;
-#endif  
+  vec3 diffuseColorWithLightingTRT, specularColorWithLightingTRT;
+#endif
   //vec3 scattered;
 };

@@ -40,9 +40,15 @@ void CCSurfacesFragmentGetMaterialData(inout SurfacesMaterialData surfaceData)
 #if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
   surfaceData.transmitDiffuseParams = SurfacesFragmentModifyTransmitDiffuseParams();
 #endif
+
 #if CC_SURFACES_LIGHTING_TRT
-  vec4 trt = SurfacesFragmentModifyTRTParams();
-  surfaceData.roughnessTRT = trt.x;
+  vec4 trtParams = SurfacesFragmentModifyTRTParams();
+  surfaceData.roughnessTRT = saturate(surfaceData.roughness + trtParams.x);
+  surfaceData.trtIntensity = trtParams.w;
+  surfaceData.baseColorTRT = SurfacesFragmentModifyTRTColor();
+  surfaceData.worldTangentTRT = surfaceData.worldTangent;
+  surfaceData.worldBinormalTRT = surfaceData.worldBinormal;
+  RotateTangentAndBinormal(surfaceData.worldTangentTRT, surfaceData.worldBinormalTRT, surfaceData.worldNormal, trtParams.y * PI);
 #endif
 
   SurfacesFragmentModifySharedData(surfaceData);
@@ -56,7 +62,12 @@ void CCSurfacesFragmentGetMaterialData(inout SurfacesMaterialData surfaceData)
 
 #if CC_USE_DEBUG_VIEW
   if (!IS_DEBUG_VIEW_LIGHTING_ENABLE_WITH_ALBEDO)
+  {
       surfaceData.baseColor.rgb = vec3(1.0);
+      #if CC_SURFACES_LIGHTING_TRT
+        surfaceData.baseColorTRT.rgb = vec3(1.0);
+      #endif
+  }
 #endif
 }
 
@@ -117,6 +128,8 @@ void CCSurfacesGetLightingIntermediateDataTRT(out LightingIntermediateData light
 {
   lightingDataTRT = lightingData;
   lightingDataTRT.specularParam = surfaceData.roughnessTRT;
+  lightingDataTRT.T = surfaceData.worldTangentTRT;
+  lightingDataTRT.B = surfaceData.worldBinormalTRT;
 }
 #endif
 
@@ -210,7 +223,7 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
     + lightingResult.directTransmitDiffuse
   #endif
   #if CC_SURFACES_LIGHTING_TRT
-    + lightingResult.directTRT * lightingResult.specularColorWithLighting
+    + lightingResult.directTRT * lightingResult.specularColorWithLightingTRT * surfaceData.trtIntensity
   #endif
     )
     * lightingResult.shadow;
@@ -231,7 +244,7 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
     + lightingResult.environmentTransmitDiffuse
   #endif
   #if CC_SURFACES_LIGHTING_TRT
-    + lightingResult.environmentTRT * lightingResult.specularColorWithLighting
+    + lightingResult.environmentTRT * lightingResult.specularColorWithLightingTRT * surfaceData.trtIntensity
   #endif
     )
     * lightingResult.ao;

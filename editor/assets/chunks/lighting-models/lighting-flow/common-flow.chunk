@@ -15,6 +15,12 @@
       lightingResultAccumulated.diffuseColorWithLighting = lightingResult.diffuseColorWithLighting;
       lightingResultAccumulated.specularColorWithLighting = lightingResult.specularColorWithLighting;
 
+      #if CC_SURFACES_LIGHTING_TRT
+        SurfacesMaterialData surfaceDataTRT = surfaceData;
+        surfaceDataTRT.baseColor = vec4(surfaceData.baseColorTRT, 1.0);
+        CCSurfacesLightingInitializeColorWithLighting(lightingResultAccumulated.diffuseColorWithLightingTRT, lightingResultAccumulated.specularColorWithLightingTRT, surfaceDataTRT, lightingData);
+      #endif
+
       int numLights = CC_PIPELINE_TYPE == CC_PIPELINE_TYPE_FORWARD ? LIGHTS_PER_PASS : int(cc_lightDir[0].w);
       for (int i = 0; i < LIGHTS_PER_PASS; i++) {
         if (i >= numLights) break;
@@ -177,11 +183,16 @@
         CCSurfacesLightingCalculateDirectTransmitDiffuse(lightingResult.directTransmitDiffuse, lightingResult, lightingData, cc_mainLitColor);
         CCSurfacesLightingCalculateEnvironmentTransmitDiffuse(lightingResult.environmentTransmitDiffuse, lightingResult, lightingData, cc_ambientSky.w);
       #endif
+
       #if CC_SURFACES_LIGHTING_TRT
-      LightingIntermediateData lightingDataTRT;
+        LightingIntermediateData lightingDataTRT;
         CCSurfacesGetLightingIntermediateDataTRT(lightingDataTRT, lightingData, surfaceData);
         CCSurfacesLightingCalculateDirectTRT(lightingResult.directTRT, lightingDataTRT, cc_mainLitColor);
         CCSurfacesLightingCalculateEnvironmentTRT(lightingResult.environmentTRT, lightingDataTRT, cc_ambientSky.w);
+
+        SurfacesMaterialData surfaceDataTRT = surfaceData;
+        surfaceDataTRT.baseColor = vec4(surfaceData.baseColorTRT, 1.0);
+        CCSurfacesLightingInitializeColorWithLighting(lightingResult.diffuseColorWithLightingTRT, lightingResult.specularColorWithLightingTRT, surfaceDataTRT, lightingDataTRT);
       #endif
 
       // apply screen-space shadow and ao
