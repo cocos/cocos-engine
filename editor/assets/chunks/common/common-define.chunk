@@ -60,11 +60,9 @@
 #define LIGHT_TYPE_SPOT 2.0
 #define LIGHT_TYPE_POINT 3.0
 #define LIGHT_TYPE_RANGED_DIRECTIONAL 4.0
-#define LIGHT_TYPE_UNKNOWN 5.0
 
 #define IS_DIRECTIONAL_LIGHT(light_type) equalf_lowp(light_type, LIGHT_TYPE_DIRECTIONAL)
 #define IS_SPHERE_LIGHT(light_type) equalf_lowp(light_type, LIGHT_TYPE_SPHERE)
 #define IS_SPOT_LIGHT(light_type) equalf_lowp(light_type, LIGHT_TYPE_SPOT)
 #define IS_POINT_LIGHT(light_type) equalf_lowp(light_type, LIGHT_TYPE_POINT)
 #define IS_RANGED_DIRECTIONAL_LIGHT(light_type) equalf_lowp(light_type, LIGHT_TYPE_RANGED_DIRECTIONAL)
-#define IS_UNKNOWN_LIGHT(light_type) equalf_lowp(light_type, LIGHT_TYPE_UNKNOWN) || (light_type > LIGHT_TYPE_UNKNOWN)
