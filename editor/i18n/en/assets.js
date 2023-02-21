@@ -90,6 +90,9 @@ module.exports = {
             glsl1: 'GLSL 100 Output',
             vert: 'Vertex Shader',
             frag: 'Fragment Shader',
+            propertyTips: {
+                // effect parameter tooltips listed here
+            },
         },
         image: {
             type: 'Type',

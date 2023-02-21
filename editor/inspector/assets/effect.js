@@ -3,6 +3,11 @@
 const { readFileSync, existsSync } = require('fs');
 const { updateElementReadonly } = require('../utils/assets');
 
+const i18nPrefixRE = /^i18n:/;
+function getPropertyTipPath(subPath) {
+    return 'ENGINE.assets.effect.propertyTips.' + String(subPath);
+}
+
 exports.template = /* html */`
 <div class="asset-effect">
     <ui-prop>
@@ -169,6 +174,27 @@ const Elements = {
                 const label = document.createElement('ui-label');
                 label.setAttribute('slot', 'label');
                 label.setAttribute('value', define.name);
+
+                let tooltip = '';
+                if (typeof define.tooltip === 'string' && define.tooltip !== '') {
+                    // start with 'i18n:' and is a valid path, or other string
+                    if (i18nPrefixRE.test(define.tooltip)) {
+                        const tipPath = getPropertyTipPath(define.tooltip.replace(i18nPrefixRE, ''));
+                        if (Editor.I18n.t(tipPath) !== '') {
+                            tooltip = 'i18n:' + tipPath;
+                        }
+                    } else {
+                        tooltip = define.tooltip;
+                    }
+                }
+                // test if fallback path is valid
+                if (tooltip === '' && Editor.I18n.t(getPropertyTipPath(define.name)) !== '') {
+                    tooltip = 'i18n:' + getPropertyTipPath(define.name);
+                }
+                if (tooltip !== '') {
+                    label.setAttribute('tooltip', tooltip);
+                }
+
                 prop.appendChild(label);
 
                 const content = document.createElement('div');
