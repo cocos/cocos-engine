@@ -85,6 +85,71 @@ export class ParticleUtils {
         }
     }
 
+    public static playRecursive (node: Node) {
+        for (let i = 0; i < node.components.length; ++i) {
+            const ps = node.components[i];
+            if (ps instanceof ParticleSystem) {
+                ps.play();
+            }
+        }
+        for (let i = 0; i < node.children.length; ++i) {
+            const child = node.children[i];
+            this.playRecursive(child);
+        }
+    }
+
+    public static pauseRecursive (node: Node) {
+        for (let i = 0; i < node.components.length; ++i) {
+            const ps = node.components[i];
+            if (ps instanceof ParticleSystem) {
+                ps.pause();
+            }
+        }
+        for (let i = 0; i < node.children.length; ++i) {
+            const child = node.children[i];
+            this.pauseRecursive(child);
+        }
+    }
+
+    public static stopEmitRecursive (node: Node) {
+        for (let i = 0; i < node.components.length; ++i) {
+            const ps = node.components[i];
+            if (ps instanceof ParticleSystem) {
+                ps.stopEmitting();
+            }
+        }
+        for (let i = 0; i < node.children.length; ++i) {
+            const child = node.children[i];
+            this.stopEmitRecursive(child);
+        }
+    }
+
+    public static stopRecursive (node: Node) {
+        for (let i = 0; i < node.components.length; ++i) {
+            const ps = node.components[i];
+            if (ps instanceof ParticleSystem) {
+                ps.stop();
+            }
+        }
+        for (let i = 0; i < node.children.length; ++i) {
+            const child = node.children[i];
+            this.stopRecursive(child);
+        }
+    }
+
+    public static clearRecursive (node: Node) {
+        for (let i = 0; i < node.components.length; ++i) {
+            const ps = node.components[i];
+            if (ps instanceof ParticleSystem) {
+                ps.clear();
+            }
+        }
+        for (let i = 0; i < node.children.length; ++i) {
+            const child = node.children[i];
+            this.clearRecursive(child);
+        }
+    }
+
     private static particleSystemPool: Map<string, Pool<CCObject>> = new Map<string, Pool<CCObject>>();
     private static registeredSceneEvent = false;
 
