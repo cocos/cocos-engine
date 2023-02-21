@@ -126,7 +126,8 @@ vec3 CalculateEnvironmentDiffuse(in LightingIntermediateData lightingData, float
   #if CC_USE_IBL
     #if CC_USE_DIFFUSEMAP && !CC_USE_LIGHT_PROBE
       // Diffuse irradiance
-      vec4 diffuseMap = texture(cc_diffuseMap, lightingData.N);
+      vec3 rotationDir = RotationVecFromAxisY(lightingData.N, cc_surfaceTransform.z, cc_surfaceTransform.w);
+      vec4 diffuseMap = texture(cc_diffuseMap, rotationDir);
       #if CC_USE_DIFFUSEMAP == IBL_RGBE
         ambDiff = unpackRGBE(diffuseMap);
       #else
