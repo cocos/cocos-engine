@@ -369,6 +369,12 @@ void Root::resetCumulativeTime() {
     _cumulativeTime = 0;
 }
 
+void Root::frameSync() {
+    if (_device) {
+        _device->frameSync();
+    }
+}
+
 void Root::frameMoveBegin() {
     for (const auto &scene : _scenes) {
         scene->removeBatches();

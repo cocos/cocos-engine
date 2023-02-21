@@ -352,6 +352,12 @@ export abstract class Device {
     public getFormatFeatures (format: Format): FormatFeature {
         return this._formatFeatures[format];
     }
+
+    /**
+     * @en Ensure cpu won't encode ahead of gpu work certain frame(s).
+     * @zh 保证cpu逻辑不会超过gpu一定的量。
+     */
+    public frameSync () {}
 }
 
 export class DefaultResource {

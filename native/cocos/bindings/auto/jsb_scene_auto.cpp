@@ -5417,6 +5417,26 @@ static bool js_cc_Root_createRenderWindowFromSystemWindow(se::State& s)
 }
 SE_BIND_FUNC(js_cc_Root_createRenderWindowFromSystemWindow) 
 
+static bool js_cc_Root_frameSync(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::Root *arg1 = (cc::Root *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::Root>(s);
+    if (nullptr == arg1) return true;
+    (arg1)->frameSync();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_Root_frameSync) 
+
 static bool js_cc_Root_device_set(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -5888,6 +5908,7 @@ bool js_register_cc_Root(se::Object* obj) {
     cls->defineFunction("createCamera", _SE(js_cc_Root_createCamera)); 
     cls->defineFunction("getBatcher2D", _SE(js_cc_Root_getBatcher2D)); 
     cls->defineFunction("createRenderWindowFromSystemWindow", _SE(js_cc_Root_createRenderWindowFromSystemWindow)); 
+    cls->defineFunction("frameSync", _SE(js_cc_Root_frameSync)); 
     
     
     cls->defineStaticFunction("getInstance", _SE(js_cc_Root_getInstance_static)); 

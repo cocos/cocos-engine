@@ -461,6 +461,10 @@ export class Root {
         this._cumulativeTime = 0;
     }
 
+    public frameSync () {
+        this.device?.frameSync();
+    }
+
     /**
      * @en The entry function of the render process for every frame.
      * @zh 用于每帧执行渲染流程的入口函数

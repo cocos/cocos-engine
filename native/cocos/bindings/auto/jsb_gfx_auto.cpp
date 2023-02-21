@@ -27446,6 +27446,26 @@ static bool js_cc_gfx_Device_destroy(se::State& s)
 }
 SE_BIND_FUNC(js_cc_gfx_Device_destroy) 
 
+static bool js_cc_gfx_Device_frameSync(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gfx::Device *arg1 = (cc::gfx::Device *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    if (nullptr == arg1) return true;
+    (arg1)->frameSync();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_gfx_Device_frameSync) 
+
 static bool js_cc_gfx_Device_acquire__SWIG_0(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -28530,6 +28550,7 @@ bool js_register_cc_gfx_Device(se::Object* obj) {
     
     cls->defineFunction("initialize", _SE(js_cc_gfx_Device_initialize)); 
     cls->defineFunction("destroy", _SE(js_cc_gfx_Device_destroy)); 
+    cls->defineFunction("frameSync", _SE(js_cc_gfx_Device_frameSync)); 
     cls->defineFunction("present", _SE(js_cc_gfx_Device_present)); 
     cls->defineFunction("createCommandBuffer", _SE(js_cc_gfx_Device_createCommandBuffer)); 
     cls->defineFunction("createQueue", _SE(js_cc_gfx_Device_createQueue)); 

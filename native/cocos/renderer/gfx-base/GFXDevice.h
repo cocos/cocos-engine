@@ -59,7 +59,7 @@ public:
     void destroy();
     
     // aim to ensure waiting for work on gpu done when cpu encodes ahead of gpu certain frame(s).
-    virtual void frameSync() {};
+    virtual void frameSync() = 0;
 
     virtual void acquire(Swapchain *const *swapchains, uint32_t count) = 0;
     virtual void present() = 0;

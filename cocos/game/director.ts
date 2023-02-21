@@ -701,6 +701,8 @@ export class Director extends EventTarget {
                 // @ts-expect-error _frameDispatchEvents is a private method.
                 input._frameDispatchEvents();
             }
+
+            this._root!.frameSync();
             // Update
             if (!this._paused) {
                 this.emit(Director.EVENT_BEFORE_UPDATE);
