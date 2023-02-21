@@ -1352,10 +1352,6 @@ IntrusivePtr<gfx::PipelineLayout> NativeProgramLibrary::getPipelineLayout(
     if (passSet) {
         info.setLayouts.emplace_back(passSet);
     }
-    auto *phaseSet = getDescriptorSetLayout(lg, passID, phaseID, UpdateFrequency::PER_PHASE);
-    if (phaseSet) {
-        info.setLayouts.emplace_back(phaseSet);
-    }
     auto *batchSet = getProgramDescriptorSetLayout(
         device, lg, phaseID, programName, UpdateFrequency::PER_BATCH);
     if (batchSet) {
@@ -1365,6 +1361,10 @@ IntrusivePtr<gfx::PipelineLayout> NativeProgramLibrary::getPipelineLayout(
         device, lg, phaseID, programName, UpdateFrequency::PER_INSTANCE);
     if (instanceSet) {
         info.setLayouts.emplace_back(instanceSet);
+    }
+    auto *phaseSet = getDescriptorSetLayout(lg, passID, phaseID, UpdateFrequency::PER_PHASE);
+    if (phaseSet) {
+        info.setLayouts.emplace_back(phaseSet);
     }
     programData.pipelineLayout = device->createPipelineLayout(info);
     return programData.pipelineLayout;
