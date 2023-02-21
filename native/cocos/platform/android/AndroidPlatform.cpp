@@ -532,6 +532,11 @@ int AndroidPlatform::init() {
     cc::FileUtilsAndroid::setAssetManager(_app->activity->assetManager);
     _inputProxy = ccnew GameInputProxy(this);
     _inputProxy->registerAppEventCallback([this](int32_t cmd) {
+        IXRInterface *xr = getInterface<IXRInterface>();
+        if (xr) {
+            xr->handleAppCommand(cmd);
+        }
+
         if (APP_CMD_START == cmd || APP_CMD_INIT_WINDOW == cmd) {
             if (_inputProxy->isAnimating()) {
                 _isLowFrequencyLoopEnabled = false;
@@ -541,7 +546,6 @@ int AndroidPlatform::init() {
             _lowFrequencyTimer.reset();
             _loopTimeOut = LOW_FREQUENCY_TIME_INTERVAL;
             _isLowFrequencyLoopEnabled = true;
-            IXRInterface *xr = getInterface<IXRInterface>();
             if (xr && !xr->getXRConfig(xr::XRConfigKey::INSTANCE_CREATED).getBool()) {
                 // xr will sleep,  -1 we will block forever waiting for events.
                 _loopTimeOut = -1;
