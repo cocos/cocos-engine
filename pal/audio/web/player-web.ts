@@ -69,7 +69,7 @@ export class AudioContextAgent {
     }
 
     public offRunning (cb?: (...args: any[]) => void, target?: any) {
-        // If the audio is playable, the event can be unregistered.
+        // Do not unregister listeners until the audio is ready to play.
         if (this._isRunning) {
             this._eventTarget.off(_contextRunningEvent, cb, target);
         }
