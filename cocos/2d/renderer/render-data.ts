@@ -204,7 +204,7 @@ export class BaseRenderData {
                 this._renderDrawInfo.setBufferId(this.chunk.bufferId);
                 this._renderDrawInfo.setVertexOffset(this.chunk.vertexOffset);
                 this._renderDrawInfo.setVB(this.chunk.vb);
-                // TODO: on OH platform, argument of type 'Readonly<Uint16Array>' is not assignable to parameter of type 'Uint16Array'.
+                // TODO: on TS 4.2, argument of type 'Readonly<Uint16Array>' is not assignable to parameter of type 'Uint16Array'.
                 this._renderDrawInfo.setIB(this.chunk.ib as Uint16Array);
                 if (this.chunk.meshBuffer) {
                     this._renderDrawInfo.setIndexOffset(this.chunk.meshBuffer.indexOffset);
@@ -358,7 +358,7 @@ export class RenderData extends BaseRenderData {
             this._renderDrawInfo.setVertexOffset(this.chunk.vertexOffset);
             this._renderDrawInfo.setIndexOffset(this.chunk.meshBuffer.indexOffset);
             this._renderDrawInfo.setVB(this.chunk.vb);
-            // TODO: on OH platform, argument of type 'Readonly<Uint16Array>' is not assignable to parameter of type 'Uint16Array'.
+            // TODO: on TS 4.2, argument of type 'Readonly<Uint16Array>' is not assignable to parameter of type 'Uint16Array'.
             this._renderDrawInfo.setIB(this.chunk.ib as Uint16Array);
             this._renderDrawInfo.setVData(this.chunk.meshBuffer.vData.buffer);
             this._renderDrawInfo.setIData(this.chunk.meshBuffer.iData.buffer);
@@ -391,7 +391,7 @@ export class RenderData extends BaseRenderData {
             drawInfo.setVertexOffset(this.chunk.vertexOffset);
             drawInfo.setIndexOffset(this.chunk.meshBuffer.indexOffset);
             drawInfo.setVB(this.chunk.vb);
-            // TODO: on OH platform, argument of type 'Readonly<Uint16Array>' is not assignable to parameter of type 'Uint16Array'.
+            // TODO: on TS 4.2, argument of type 'Readonly<Uint16Array>' is not assignable to parameter of type 'Uint16Array'.
             drawInfo.setIB(this.chunk.ib as Uint16Array);
             drawInfo.setVData(this.chunk.meshBuffer.vData.buffer);
             drawInfo.setIData(this.chunk.meshBuffer.iData.buffer);
