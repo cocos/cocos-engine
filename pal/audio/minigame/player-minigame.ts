@@ -150,6 +150,11 @@ export class AudioPlayerMinigame implements OperationQueueable {
                     this._needSeek = false;
                 }
             }
+
+            // TaoBao iOS: After calling pause or stop, when seek is called, it will automatically play and call onPlay.
+            if (TAOBAO && systemInfo.os === OS.IOS && (this._state === AudioState.PAUSED || this._state === AudioState.STOPPED)) {
+                innerAudioContext.pause();
+            }
         };
         innerAudioContext.onSeeked(this._onSeeked);
         this._onEnded = () => {

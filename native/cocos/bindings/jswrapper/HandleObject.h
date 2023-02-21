@@ -97,11 +97,11 @@ public:
     inline bool isEmpty() const {
         return (_obj == nullptr);
     }
+    HandleObject(HandleObject &&) noexcept;
+    HandleObject& operator=(HandleObject &&) noexcept;
 
     HandleObject(const HandleObject &) = delete;
-    void operator=(const HandleObject &) = delete;
-    HandleObject(HandleObject &&) = delete;
-    void operator=(HandleObject &&) = delete;
+    HandleObject& operator=(const HandleObject &) = delete;
 
     void *operator new(size_t size) = delete;
     void operator delete(void *, size_t) = delete;

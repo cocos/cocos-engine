@@ -386,6 +386,12 @@ static bool JSB_closeWindow(se::State &s) {
 }
 SE_BIND_FUNC(JSB_closeWindow)
 
+static bool JSB_exit(se::State &s) {
+    BasePlatform::getPlatform()->exit();
+    return true;
+}
+SE_BIND_FUNC(JSB_exit);
+
 static bool JSB_isObjectValid(se::State &s) { // NOLINT
     const auto &args = s.args();
     int argc = static_cast<int>(args.size());
@@ -1431,6 +1437,7 @@ bool jsb_register_global_variables(se::Object *global) { // NOLINT
     global->defineFunction("__restartVM", _SE(JSB_core_restartVM));
     global->defineFunction("__close", _SE(JSB_closeWindow));
     global->defineFunction("__isObjectValid", _SE(JSB_isObjectValid));
+    global->defineFunction("__exit", _SE(JSB_exit));
 
     se::HandleObject performanceObj(se::Object::createPlainObject());
     performanceObj->defineFunction("now", _SE(js_performance_now));

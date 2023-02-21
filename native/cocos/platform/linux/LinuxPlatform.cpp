@@ -83,6 +83,10 @@ static long getCurrentMillSecond() {
     return lLastTime;
 }
 
+void LinuxPlatform::exit() {
+    _quit = true;
+}
+
 int32_t LinuxPlatform::loop() {
     long lastTime = 0L;
     long curTime = 0L;
@@ -92,7 +96,7 @@ int32_t LinuxPlatform::loop() {
     while (!_quit) {
         curTime = getCurrentMillSecond();
         desiredInterval = static_cast<long>(1000.0 / getFps());
-        _windowManager->processEvent(&_quit);
+        _windowManager->processEvent();
         actualInterval = curTime - lastTime;
         if (actualInterval >= desiredInterval) {
             lastTime = getCurrentMillSecond();

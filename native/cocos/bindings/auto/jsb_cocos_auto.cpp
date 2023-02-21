@@ -4605,18 +4605,14 @@ static bool js_cc_ISystemWindowManager_processEvent(se::State& s)
     const auto& args = s.args();
     size_t argc = args.size();
     cc::ISystemWindowManager *arg1 = (cc::ISystemWindowManager *) NULL ;
-    bool *arg2 = (bool *) NULL ;
     
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
         return false;
     }
     arg1 = SE_THIS_OBJECT<cc::ISystemWindowManager>(s);
     if (nullptr == arg1) return true;
-    
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
-    (arg1)->processEvent(arg2);
+    (arg1)->processEvent();
     
     
     return true;

@@ -246,26 +246,7 @@ void CCMTLBuffer::update(const void *buffer, uint32_t size) {
 
 void CCMTLBuffer::updateMTLBuffer(const void *buffer, uint32_t /*offset*/, uint32_t size) {
     if (_gpuBuffer->mtlBuffer) {
-        if(_gpuBuffer->mtlBuffer.storageMode == MTLStorageModeShared) {
-            memcpy(_gpuBuffer->mtlBuffer.contents, buffer, size);
-        } else {
-            auto* ccQueue = static_cast<CCMTLQueue*>(CCMTLDevice::getInstance()->getQueue());
-            id<MTLDevice> device = static_cast<id<MTLDevice>>(CCMTLDevice::getInstance()->getMTLDevice());
-            id<MTLCommandQueue> defaultQueue = ccQueue->gpuQueueObj()->mtlCommandQueue;
-            id<MTLCommandBuffer> cmdBuffer = [defaultQueue commandBuffer];
-            id<MTLBlitCommandEncoder> blit = [cmdBuffer blitCommandEncoder];
-            id<MTLBuffer> stagingbuffer = [device newBufferWithBytes:buffer length:size options:MTLStorageModeShared];
-            [blit copyFromBuffer:stagingbuffer sourceOffset:0 toBuffer:_gpuBuffer->mtlBuffer destinationOffset:0 size:size];
-            [blit endEncoding];
-            [stagingbuffer release];
-            [cmdBuffer commit];
-            
-    #if (CC_PLATFORM == CC_PLATFORM_MACOS)
-            if (_mtlResourceOptions == MTLResourceStorageModeManaged) {
-                [_gpuBuffer->mtlBuffer didModifyRange:NSMakeRange(0, _size)]; // Synchronize the managed buffer.
-            }
-    #endif
-        }
+        CCMTLDevice::getInstance()->writeBuffer(this, buffer, size);
     }
 }
 

@@ -28,7 +28,7 @@ import { CLASS_NAME_PREFIX_ANIM, createEvalSymbol } from '../define';
 import { IValueProxyFactory } from '../value-proxy';
 import { ColorTrack, ColorTrackEval } from './color-track';
 import { SizeTrackEval } from './size-track';
-import { Channel, RealChannel, RuntimeBinding, Track, TrackPath } from './track';
+import { Channel, RealChannel, Track, TrackEval, TrackPath } from './track';
 import { Vec2TrackEval, Vec3TrackEval, Vec4TrackEval, VectorTrack } from './vector-track';
 
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}UntypedTrackChannel`)
@@ -50,37 +50,37 @@ export class UntypedTrack extends Track {
         return this._channels;
     }
 
+    public [createEvalSymbol] (): TrackEval<unknown> {
+        throw new Error(`UntypedTrack should be handled specially. Please file an issue.`);
+    }
+
     /**
      * @internal
      */
-    public [createEvalSymbol] (runtimeBinding: RuntimeBinding) {
-        if (!runtimeBinding.getValue) {
-            throw new Error(getError(3930));
-        }
+    public createLegacyEval (hintValue?: unknown) {
         const trySearchCurve = (property: string) => this._channels.find((channel) => channel.property === property)?.curve;
-        const value = runtimeBinding.getValue();
         switch (true) {
         default:
             throw new Error(getError(3931));
-        case value instanceof Vec2:
+        case hintValue instanceof Vec2:
             return new Vec2TrackEval(
                 trySearchCurve('x'),
                 trySearchCurve('y'),
             );
-        case value instanceof Vec3:
+        case hintValue instanceof Vec3:
             return new Vec3TrackEval(
                 trySearchCurve('x'),
                 trySearchCurve('y'),
                 trySearchCurve('z'),
             );
-        case value instanceof Vec4:
+        case hintValue instanceof Vec4:
             return new Vec4TrackEval(
                 trySearchCurve('x'),
                 trySearchCurve('y'),
                 trySearchCurve('z'),
                 trySearchCurve('w'),
             );
-        case value instanceof Color:
+        case hintValue instanceof Color:
             // TODO: what if x, y, z, w?
             return new ColorTrackEval(
                 trySearchCurve('r'),
@@ -88,7 +88,7 @@ export class UntypedTrack extends Track {
                 trySearchCurve('b'),
                 trySearchCurve('a'),
             );
-        case value instanceof Size:
+        case hintValue instanceof Size:
             return new SizeTrackEval(
                 trySearchCurve('width'),
                 trySearchCurve('height'),

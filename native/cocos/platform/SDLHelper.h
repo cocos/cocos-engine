@@ -54,7 +54,7 @@ public:
     static void setCursorEnabled(bool value);
 
 private:
-    static void dispatchSDLEvent(uint32_t windowId, const SDL_Event& sdlEvent, bool* quit);
+    static void dispatchSDLEvent(uint32_t windowId, const SDL_Event& sdlEvent);
     static void dispatchWindowEvent(uint32_t windowId, const SDL_WindowEvent& wevent);
 };
 } // namespace cc

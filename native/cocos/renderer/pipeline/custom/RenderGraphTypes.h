@@ -41,6 +41,7 @@
 #include "cocos/math/Geometry.h"
 #include "cocos/renderer/gfx-base/GFXBuffer.h"
 #include "cocos/renderer/gfx-base/GFXFramebuffer.h"
+#include "cocos/renderer/gfx-base/GFXRenderPass.h"
 #include "cocos/renderer/gfx-base/GFXSwapchain.h"
 #include "cocos/renderer/gfx-base/GFXTexture.h"
 #include "cocos/renderer/gfx-base/states/GFXSampler.h"
@@ -89,6 +90,7 @@ struct RenderSwapchain {
     gfx::Swapchain* swapchain{nullptr};
     uint32_t currentID{0};
     uint32_t numBackBuffers{0};
+    uint32_t generation{0xFFFFFFFF};
 };
 
 struct ResourceStates {
@@ -117,177 +119,6 @@ struct ManagedTexture {
 
 struct ManagedResource {
     uint32_t unused{0};
-};
-
-struct ManagedTag {};
-struct ManagedBufferTag {};
-struct ManagedTextureTag {};
-struct PersistentBufferTag {};
-struct PersistentTextureTag {};
-struct FramebufferTag {};
-struct SwapchainTag {};
-struct SamplerTag {};
-
-struct ResourceGraph {
-    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
-    allocator_type get_allocator() const noexcept { // NOLINT
-        return {_vertices.get_allocator().resource()};
-    }
-
-    inline boost::container::pmr::memory_resource* resource() const noexcept {
-        return get_allocator().resource();
-    }
-
-    ResourceGraph(const allocator_type& alloc) noexcept; // NOLINT
-    ResourceGraph(ResourceGraph&& rhs, const allocator_type& alloc);
-    ResourceGraph(ResourceGraph const& rhs, const allocator_type& alloc);
-
-    ResourceGraph(ResourceGraph&& rhs) noexcept = default;
-    ResourceGraph(ResourceGraph const& rhs) = delete;
-    ResourceGraph& operator=(ResourceGraph&& rhs) = default;
-    ResourceGraph& operator=(ResourceGraph const& rhs) = default;
-
-    // Graph
-    using directed_category      = boost::bidirectional_tag;
-    using vertex_descriptor      = uint32_t;
-    using edge_descriptor        = impl::EdgeDescriptor<directed_category, vertex_descriptor>;
-    using edge_parallel_category = boost::allow_parallel_edge_tag;
-    struct traversal_category // NOLINT
-    : virtual boost::incidence_graph_tag,
-      virtual boost::bidirectional_graph_tag,
-      virtual boost::adjacency_graph_tag,
-      virtual boost::vertex_list_graph_tag,
-      virtual boost::edge_list_graph_tag {};
-
-    constexpr static vertex_descriptor null_vertex() noexcept { // NOLINT
-        return std::numeric_limits<vertex_descriptor>::max();
-    }
-
-    // IncidenceGraph
-    using OutEdge     = impl::StoredEdge<vertex_descriptor>;
-    using out_edge_iterator = impl::OutEdgeIter<
-        ccstd::pmr::vector<OutEdge>::iterator,
-        vertex_descriptor, edge_descriptor, int32_t>;
-    using degree_size_type = uint32_t;
-
-    // BidirectionalGraph
-    using InEdge     = impl::StoredEdge<vertex_descriptor>;
-    using in_edge_iterator = impl::InEdgeIter<
-        ccstd::pmr::vector<InEdge>::iterator,
-        vertex_descriptor, edge_descriptor, int32_t>;
-
-    // AdjacencyGraph
-    using adjacency_iterator = boost::adjacency_iterator_generator<
-        ResourceGraph, vertex_descriptor, out_edge_iterator>::type;
-
-    // VertexListGraph
-    using vertex_iterator    = boost::integer_range<vertex_descriptor>::iterator;
-    using vertices_size_type = uint32_t;
-
-    // VertexList help functions
-    inline ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
-        return _vertices[v].outEdges;
-    }
-    inline const ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
-        return _vertices[v].outEdges;
-    }
-
-    inline ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
-        return _vertices[v].inEdges;
-    }
-    inline const ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
-        return _vertices[v].inEdges;
-    }
-
-    inline boost::integer_range<vertex_descriptor> getVertexList() const noexcept {
-        return {0, static_cast<vertices_size_type>(_vertices.size())};
-    }
-
-    inline vertex_descriptor getCurrentID() const noexcept {
-        return static_cast<vertex_descriptor>(_vertices.size());
-    }
-
-    inline ccstd::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
-        return ccstd::pmr::vector<boost::default_color_type>(_vertices.size(), mr);
-    }
-
-    // EdgeListGraph
-    using edge_iterator   = impl::DirectedEdgeIterator<vertex_iterator, out_edge_iterator, ResourceGraph>;
-    using edges_size_type = uint32_t;
-
-    // PolymorphicGraph
-    using VertexTag         = ccstd::variant<ManagedTag, ManagedBufferTag, ManagedTextureTag, PersistentBufferTag, PersistentTextureTag, FramebufferTag, SwapchainTag>;
-    using VertexValue       = ccstd::variant<ManagedResource*, ManagedBuffer*, ManagedTexture*, IntrusivePtr<gfx::Buffer>*, IntrusivePtr<gfx::Texture>*, IntrusivePtr<gfx::Framebuffer>*, RenderSwapchain*>;
-    using VertexConstValue = ccstd::variant<const ManagedResource*, const ManagedBuffer*, const ManagedTexture*, const IntrusivePtr<gfx::Buffer>*, const IntrusivePtr<gfx::Texture>*, const IntrusivePtr<gfx::Framebuffer>*, const RenderSwapchain*>;
-    using VertexHandle      = ccstd::variant<
-        impl::ValueHandle<ManagedTag, vertex_descriptor>,
-        impl::ValueHandle<ManagedBufferTag, vertex_descriptor>,
-        impl::ValueHandle<ManagedTextureTag, vertex_descriptor>,
-        impl::ValueHandle<PersistentBufferTag, vertex_descriptor>,
-        impl::ValueHandle<PersistentTextureTag, vertex_descriptor>,
-        impl::ValueHandle<FramebufferTag, vertex_descriptor>,
-        impl::ValueHandle<SwapchainTag, vertex_descriptor>>;
-
-    void mount(gfx::Device* device, vertex_descriptor vertID);
-    void unmount(uint64_t completedFenceValue);
-    gfx::Texture* getTexture(vertex_descriptor resID);
-
-    // ContinuousContainer
-    void reserve(vertices_size_type sz);
-
-    // Members
-    struct Vertex {
-        using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
-        allocator_type get_allocator() const noexcept { // NOLINT
-            return {outEdges.get_allocator().resource()};
-        }
-
-        Vertex(const allocator_type& alloc) noexcept; // NOLINT
-        Vertex(Vertex&& rhs, const allocator_type& alloc);
-        Vertex(Vertex const& rhs, const allocator_type& alloc);
-
-        Vertex(Vertex&& rhs) noexcept = default;
-        Vertex(Vertex const& rhs) = delete;
-        Vertex& operator=(Vertex&& rhs) = default;
-        Vertex& operator=(Vertex const& rhs) = default;
-
-        ccstd::pmr::vector<OutEdge> outEdges;
-        ccstd::pmr::vector<InEdge> inEdges;
-        VertexHandle handle;
-    };
-
-    struct NameTag {
-    } static constexpr Name{}; // NOLINT
-    struct DescTag {
-    } static constexpr Desc{}; // NOLINT
-    struct TraitsTag {
-    } static constexpr Traits{}; // NOLINT
-    struct StatesTag {
-    } static constexpr States{}; // NOLINT
-    struct SamplerTag {
-    } static constexpr Sampler{}; // NOLINT
-
-    // Vertices
-    ccstd::pmr::vector<Vertex> _vertices;
-    // Components
-    ccstd::pmr::vector<ccstd::pmr::string> names;
-    ccstd::pmr::vector<ResourceDesc> descs;
-    ccstd::pmr::vector<ResourceTraits> traits;
-    ccstd::pmr::vector<ResourceStates> states;
-    ccstd::pmr::vector<gfx::SamplerInfo> samplerInfo;
-    // PolymorphicGraph
-    ccstd::pmr::vector<ManagedResource> resources;
-    ccstd::pmr::vector<ManagedBuffer> managedBuffers;
-    ccstd::pmr::vector<ManagedTexture> managedTextures;
-    ccstd::pmr::vector<IntrusivePtr<gfx::Buffer>> buffers;
-    ccstd::pmr::vector<IntrusivePtr<gfx::Texture>> textures;
-    ccstd::pmr::vector<IntrusivePtr<gfx::Framebuffer>> framebuffers;
-    ccstd::pmr::vector<RenderSwapchain> swapchains;
-    // UuidGraph
-    PmrUnorderedStringMap<ccstd::pmr::string, vertex_descriptor> valueIndex;
-    // Members
-    uint64_t nextFenceValue{0};
-    uint64_t version{0};
 };
 
 struct RasterSubpass {
@@ -472,16 +303,211 @@ struct RasterPass {
     gfx::Viewport viewport;
     ccstd::pmr::string versionName;
     uint64_t version{0};
+    bool showStatistics{false};
 };
 
 inline bool operator==(const RasterPass& lhs, const RasterPass& rhs) noexcept {
-    return std::forward_as_tuple(lhs.rasterViews, lhs.computeViews, lhs.subpassGraph, lhs.width, lhs.height, lhs.versionName, lhs.version) ==
-           std::forward_as_tuple(rhs.rasterViews, rhs.computeViews, rhs.subpassGraph, rhs.width, rhs.height, rhs.versionName, rhs.version);
+    return std::forward_as_tuple(lhs.rasterViews, lhs.computeViews, lhs.subpassGraph, lhs.width, lhs.height) ==
+           std::forward_as_tuple(rhs.rasterViews, rhs.computeViews, rhs.subpassGraph, rhs.width, rhs.height);
 }
 
 inline bool operator!=(const RasterPass& lhs, const RasterPass& rhs) noexcept {
     return !(lhs == rhs);
 }
+
+struct PersistentRenderPassAndFramebuffer {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {clearColors.get_allocator().resource()};
+    }
+
+    PersistentRenderPassAndFramebuffer(const allocator_type& alloc) noexcept; // NOLINT
+    PersistentRenderPassAndFramebuffer(IntrusivePtr<gfx::RenderPass> renderPassIn, IntrusivePtr<gfx::Framebuffer> framebufferIn, const allocator_type& alloc) noexcept;
+    PersistentRenderPassAndFramebuffer(PersistentRenderPassAndFramebuffer&& rhs, const allocator_type& alloc);
+    PersistentRenderPassAndFramebuffer(PersistentRenderPassAndFramebuffer const& rhs, const allocator_type& alloc);
+
+    PersistentRenderPassAndFramebuffer(PersistentRenderPassAndFramebuffer&& rhs) noexcept = default;
+    PersistentRenderPassAndFramebuffer(PersistentRenderPassAndFramebuffer const& rhs) = delete;
+    PersistentRenderPassAndFramebuffer& operator=(PersistentRenderPassAndFramebuffer&& rhs) = default;
+    PersistentRenderPassAndFramebuffer& operator=(PersistentRenderPassAndFramebuffer const& rhs) = default;
+
+    IntrusivePtr<gfx::RenderPass> renderPass;
+    IntrusivePtr<gfx::Framebuffer> framebuffer;
+    ccstd::pmr::vector<gfx::Color> clearColors;
+    float clearDepth{0};
+    uint8_t clearStencil{0};
+};
+
+struct ManagedTag {};
+struct ManagedBufferTag {};
+struct ManagedTextureTag {};
+struct PersistentBufferTag {};
+struct PersistentTextureTag {};
+struct FramebufferTag {};
+struct SwapchainTag {};
+struct SamplerTag {};
+
+struct ResourceGraph {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {_vertices.get_allocator().resource()};
+    }
+
+    inline boost::container::pmr::memory_resource* resource() const noexcept {
+        return get_allocator().resource();
+    }
+
+    ResourceGraph(const allocator_type& alloc) noexcept; // NOLINT
+    ResourceGraph(ResourceGraph&& rhs) = delete;
+    ResourceGraph(ResourceGraph const& rhs) = delete;
+    ResourceGraph& operator=(ResourceGraph&& rhs) = delete;
+    ResourceGraph& operator=(ResourceGraph const& rhs) = delete;
+
+    // Graph
+    using directed_category      = boost::bidirectional_tag;
+    using vertex_descriptor      = uint32_t;
+    using edge_descriptor        = impl::EdgeDescriptor<directed_category, vertex_descriptor>;
+    using edge_parallel_category = boost::allow_parallel_edge_tag;
+    struct traversal_category // NOLINT
+    : virtual boost::incidence_graph_tag,
+      virtual boost::bidirectional_graph_tag,
+      virtual boost::adjacency_graph_tag,
+      virtual boost::vertex_list_graph_tag,
+      virtual boost::edge_list_graph_tag {};
+
+    constexpr static vertex_descriptor null_vertex() noexcept { // NOLINT
+        return std::numeric_limits<vertex_descriptor>::max();
+    }
+
+    // IncidenceGraph
+    using OutEdge     = impl::StoredEdge<vertex_descriptor>;
+    using out_edge_iterator = impl::OutEdgeIter<
+        ccstd::pmr::vector<OutEdge>::iterator,
+        vertex_descriptor, edge_descriptor, int32_t>;
+    using degree_size_type = uint32_t;
+
+    // BidirectionalGraph
+    using InEdge     = impl::StoredEdge<vertex_descriptor>;
+    using in_edge_iterator = impl::InEdgeIter<
+        ccstd::pmr::vector<InEdge>::iterator,
+        vertex_descriptor, edge_descriptor, int32_t>;
+
+    // AdjacencyGraph
+    using adjacency_iterator = boost::adjacency_iterator_generator<
+        ResourceGraph, vertex_descriptor, out_edge_iterator>::type;
+
+    // VertexListGraph
+    using vertex_iterator    = boost::integer_range<vertex_descriptor>::iterator;
+    using vertices_size_type = uint32_t;
+
+    // VertexList help functions
+    inline ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
+        return _vertices[v].outEdges;
+    }
+    inline const ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
+        return _vertices[v].outEdges;
+    }
+
+    inline ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
+        return _vertices[v].inEdges;
+    }
+    inline const ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
+        return _vertices[v].inEdges;
+    }
+
+    inline boost::integer_range<vertex_descriptor> getVertexList() const noexcept {
+        return {0, static_cast<vertices_size_type>(_vertices.size())};
+    }
+
+    inline vertex_descriptor getCurrentID() const noexcept {
+        return static_cast<vertex_descriptor>(_vertices.size());
+    }
+
+    inline ccstd::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
+        return ccstd::pmr::vector<boost::default_color_type>(_vertices.size(), mr);
+    }
+
+    // EdgeListGraph
+    using edge_iterator   = impl::DirectedEdgeIterator<vertex_iterator, out_edge_iterator, ResourceGraph>;
+    using edges_size_type = uint32_t;
+
+    // PolymorphicGraph
+    using VertexTag         = ccstd::variant<ManagedTag, ManagedBufferTag, ManagedTextureTag, PersistentBufferTag, PersistentTextureTag, FramebufferTag, SwapchainTag>;
+    using VertexValue       = ccstd::variant<ManagedResource*, ManagedBuffer*, ManagedTexture*, IntrusivePtr<gfx::Buffer>*, IntrusivePtr<gfx::Texture>*, IntrusivePtr<gfx::Framebuffer>*, RenderSwapchain*>;
+    using VertexConstValue = ccstd::variant<const ManagedResource*, const ManagedBuffer*, const ManagedTexture*, const IntrusivePtr<gfx::Buffer>*, const IntrusivePtr<gfx::Texture>*, const IntrusivePtr<gfx::Framebuffer>*, const RenderSwapchain*>;
+    using VertexHandle      = ccstd::variant<
+        impl::ValueHandle<ManagedTag, vertex_descriptor>,
+        impl::ValueHandle<ManagedBufferTag, vertex_descriptor>,
+        impl::ValueHandle<ManagedTextureTag, vertex_descriptor>,
+        impl::ValueHandle<PersistentBufferTag, vertex_descriptor>,
+        impl::ValueHandle<PersistentTextureTag, vertex_descriptor>,
+        impl::ValueHandle<FramebufferTag, vertex_descriptor>,
+        impl::ValueHandle<SwapchainTag, vertex_descriptor>>;
+
+    void validateSwapchains();
+    void mount(gfx::Device* device, vertex_descriptor vertID);
+    void unmount(uint64_t completedFenceValue);
+    gfx::Texture* getTexture(vertex_descriptor resID);
+    void invalidatePersistentRenderPassAndFramebuffer(gfx::Texture* pTexture);
+
+    // ContinuousContainer
+    void reserve(vertices_size_type sz);
+
+    // Members
+    struct Vertex {
+        using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+        allocator_type get_allocator() const noexcept { // NOLINT
+            return {outEdges.get_allocator().resource()};
+        }
+
+        Vertex(const allocator_type& alloc) noexcept; // NOLINT
+        Vertex(Vertex&& rhs, const allocator_type& alloc);
+        Vertex(Vertex const& rhs, const allocator_type& alloc);
+
+        Vertex(Vertex&& rhs) noexcept = default;
+        Vertex(Vertex const& rhs) = delete;
+        Vertex& operator=(Vertex&& rhs) = default;
+        Vertex& operator=(Vertex const& rhs) = default;
+
+        ccstd::pmr::vector<OutEdge> outEdges;
+        ccstd::pmr::vector<InEdge> inEdges;
+        VertexHandle handle;
+    };
+
+    struct NameTag {
+    } static constexpr Name{}; // NOLINT
+    struct DescTag {
+    } static constexpr Desc{}; // NOLINT
+    struct TraitsTag {
+    } static constexpr Traits{}; // NOLINT
+    struct StatesTag {
+    } static constexpr States{}; // NOLINT
+    struct SamplerTag {
+    } static constexpr Sampler{}; // NOLINT
+
+    // Vertices
+    ccstd::pmr::vector<Vertex> _vertices;
+    // Components
+    ccstd::pmr::vector<ccstd::pmr::string> names;
+    ccstd::pmr::vector<ResourceDesc> descs;
+    ccstd::pmr::vector<ResourceTraits> traits;
+    ccstd::pmr::vector<ResourceStates> states;
+    ccstd::pmr::vector<gfx::SamplerInfo> samplerInfo;
+    // PolymorphicGraph
+    ccstd::pmr::vector<ManagedResource> resources;
+    ccstd::pmr::vector<ManagedBuffer> managedBuffers;
+    ccstd::pmr::vector<ManagedTexture> managedTextures;
+    ccstd::pmr::vector<IntrusivePtr<gfx::Buffer>> buffers;
+    ccstd::pmr::vector<IntrusivePtr<gfx::Texture>> textures;
+    ccstd::pmr::vector<IntrusivePtr<gfx::Framebuffer>> framebuffers;
+    ccstd::pmr::vector<RenderSwapchain> swapchains;
+    // UuidGraph
+    PmrUnorderedStringMap<ccstd::pmr::string, vertex_descriptor> valueIndex;
+    // Members
+    ccstd::pmr::unordered_map<RasterPass, PersistentRenderPassAndFramebuffer> renderPasses;
+    uint64_t nextFenceValue{0};
+    uint64_t version{0};
+};
 
 struct ComputePass {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
@@ -942,8 +968,6 @@ inline hash_t hash<cc::render::RasterPass>::operator()(const cc::render::RasterP
     hash_combine(seed, val.subpassGraph);
     hash_combine(seed, val.width);
     hash_combine(seed, val.height);
-    hash_combine(seed, val.versionName);
-    hash_combine(seed, val.version);
     return seed;
 }
 

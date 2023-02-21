@@ -166,6 +166,19 @@ bool ManagedTexture::checkResource(const ResourceDesc& desc) const {
     return desc.width == info.width && desc.height == info.height && desc.format == info.format;
 }
 
+void ResourceGraph::validateSwapchains() {
+    bool swapchainInvalidated = false;
+    for (auto& sc : swapchains) {
+        if (sc.generation != sc.swapchain->getGeneration()) {
+            swapchainInvalidated = true;
+            sc.generation = sc.swapchain->getGeneration();
+        }
+    }
+    if (swapchainInvalidated) {
+        renderPasses.clear();
+    }
+}
+
 void ResourceGraph::mount(gfx::Device* device, vertex_descriptor vertID) {
     std::ignore = device;
     auto& resg = *this;
@@ -212,37 +225,20 @@ void ResourceGraph::mount(gfx::Device* device, vertex_descriptor vertID) {
 void ResourceGraph::unmount(uint64_t completedFenceValue) {
     auto& resg = *this;
     for (const auto& vertID : makeRange(vertices(resg))) {
-        visitObject(
-            vertID, resg,
-            [&](const ManagedResource& resource) {
-                // to be removed
-            },
-            [&](ManagedBuffer& buffer) {
-                if (buffer.fenceValue <= completedFenceValue) {
-                    buffer.buffer.reset();
-                }
-            },
-            [&](ManagedTexture& texture) {
-                if (texture.fenceValue <= completedFenceValue) {
-                    texture.texture.reset();
-                }
-            },
-            [&](const IntrusivePtr<gfx::Buffer>& buffer) {
-                CC_EXPECTS(buffer);
-                std::ignore = buffer;
-            },
-            [&](const IntrusivePtr<gfx::Texture>& texture) {
-                CC_EXPECTS(texture);
-                std::ignore = texture;
-            },
-            [&](const IntrusivePtr<gfx::Framebuffer>& fb) {
-                CC_EXPECTS(fb);
-                std::ignore = fb;
-            },
-            [&](const RenderSwapchain& queue) {
-                CC_EXPECTS(queue.swapchain);
-                std::ignore = queue;
-            });
+        // here msvc has strange behaviour when using visitObject
+        // we use if-else instead.
+        if (holds<ManagedBufferTag>(vertID, resg)) {
+            auto& buffer = get(ManagedBufferTag{}, vertID, resg);
+            if (buffer.buffer && buffer.fenceValue <= completedFenceValue) {
+                buffer.buffer.reset();
+            }
+        } else if (holds<ManagedTextureTag>(vertID, resg)) {
+            auto& texture = get(ManagedTextureTag{}, vertID, resg);
+            if (texture.texture && texture.fenceValue <= completedFenceValue) {
+                invalidatePersistentRenderPassAndFramebuffer(texture.texture.get());
+                texture.texture.reset();
+            }
+        }
     }
 }
 
@@ -270,6 +266,30 @@ gfx::Texture* ResourceGraph::getTexture(vertex_descriptor resID) {
     CC_ENSURES(texture);
 
     return texture;
+}
+
+void ResourceGraph::invalidatePersistentRenderPassAndFramebuffer(gfx::Texture* pTexture) {
+    if (!pTexture) {
+        return;
+    }
+    for (auto iter = renderPasses.begin(); iter != renderPasses.end();) {
+        const auto& pass = iter->second;
+        bool bErase = false;
+        for (const auto& color : pass.framebuffer->getColorTextures()) {
+            if (color == pTexture) {
+                bErase = true;
+                break;
+            }
+        }
+        if (pass.framebuffer->getDepthStencilTexture() == pTexture) {
+            bErase = true;
+        }
+        if (bErase) {
+            iter = renderPasses.erase(iter);
+        } else {
+            ++iter;
+        }
+    }
 }
 
 } // namespace render
