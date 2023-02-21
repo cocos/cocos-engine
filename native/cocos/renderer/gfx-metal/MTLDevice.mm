@@ -74,7 +74,6 @@ CCMTLDevice::~CCMTLDevice() {
 bool CCMTLDevice::doInit(const DeviceInfo &info) {
     _gpuDeviceObj = ccnew CCMTLGPUDeviceObject;
     
-    _inFlightSemaphore = ccnew CCMTLSemaphore(3);
     _currentFrameIndex = 0;
 
     id<MTLDevice> mtlDevice = MTLCreateSystemDefaultDevice();
@@ -172,11 +171,11 @@ void CCMTLDevice::doDestroy() {
 
     CCMTLGPUGarbageCollectionPool::getInstance()->flush();
     
-    if(_inFlightSemaphore) {
-        _inFlightSemaphore->trySyncAll(1000);
-        CC_SAFE_DELETE(_inFlightSemaphore);
-        _inFlightSemaphore = nullptr;
-    }    
+//    if(_inFlightSemaphore) {
+//        _inFlightSemaphore->trySyncAll(1000);
+//        CC_SAFE_DELETE(_inFlightSemaphore);
+//        _inFlightSemaphore = nullptr;
+//    }
 
     for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
         CC_SAFE_DELETE(_gpuStagingBufferPools[i]);
@@ -193,10 +192,15 @@ void CCMTLDevice::doDestroy() {
     CC_ASSERT(!_memoryStatus.textureSize); // Texture memory leaked
 }
 
+void CCMTLDevice::frameSync() {
+    constexpr uint8_t TOTAL_FRAME_COUNT = MAX_FRAMES_IN_FLIGHT;
+    while(_inFlightCount.load(std::memory_order_acquire) == TOTAL_FRAME_COUNT) {
+        ;
+    }
+}
+
 void CCMTLDevice::acquire(Swapchain *const *swapchains, uint32_t count) {
     if (_onAcquire) _onAcquire->execute();
-
-    _inFlightSemaphore->wait();
 
     for (CCMTLSwapchain *swapchain : _swapchains) {
         swapchain->acquire();
@@ -232,7 +236,7 @@ void CCMTLDevice::present() {
 
     // present drawable
     {
-        ++_inFlightCount;
+        _inFlightCount.fetch_add(1, std::memory_order_relaxed);
         id<MTLCommandBuffer> cmdBuffer = [queue->gpuQueueObj()->mtlCommandQueue commandBuffer];
         [cmdBuffer enqueue];
 
@@ -255,8 +259,8 @@ void CCMTLDevice::onPresentCompleted(uint32_t index) {
             CCMTLGPUGarbageCollectionPool::getInstance()->clear(index);
         }
     }
-    _inFlightSemaphore->signal();
-    --_inFlightCount;
+    
+    _inFlightCount.fetch_sub(1, std::memory_order_release);
 }
 
 Queue *CCMTLDevice::createQueue() {

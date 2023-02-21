@@ -62,6 +62,8 @@ public:
     using Device::createRenderPass;
     using Device::createShader;
     using Device::createTexture;
+    
+    void frameSync() override;
 
     void acquire(Swapchain *const *swapchains, uint32_t count) override;
     void present() override;
@@ -138,7 +140,7 @@ protected:
     ccstd::vector<CCMTLSwapchain *> _swapchains;
 
     CCMTLGPUDeviceObject *_gpuDeviceObj = nullptr;
-    uint8_t _inFlightCount = 0;
+    std::atomic<uint8_t> _inFlightCount = 0;
 };
 
 } // namespace gfx
