@@ -566,21 +566,19 @@ void CCMTLCommandBuffer::draw(const DrawInfo &info) {
     auto mtlEncoder = _renderEncoder.getMTLEncoder();
 
     if (indirectBuffer) {
-        const auto indirectMTLBuffer = indirectBuffer->getMTLBuffer();
-
         if (_indirectDrawSuppotred) {
             ++_numDrawCalls;
             if (indirectBuffer->isDrawIndirectByIndex()) {
                 [mtlEncoder drawIndexedPrimitives:_mtlPrimitiveType
                                         indexType:indexBuffer->getIndexType()
-                                      indexBuffer:indexBuffer->getMTLBuffer()
-                                indexBufferOffset:0
-                                   indirectBuffer:indirectMTLBuffer
-                             indirectBufferOffset:0];
+                                      indexBuffer:indexBuffer->mtlBuffer()
+                                indexBufferOffset:indexBuffer->currentOffset()
+                                   indirectBuffer:indirectBuffer->mtlBuffer()
+                             indirectBufferOffset:indirectBuffer->currentOffset()];
             } else {
                 [mtlEncoder drawPrimitives:_mtlPrimitiveType
-                            indirectBuffer:indirectMTLBuffer
-                      indirectBufferOffset:0];
+                            indirectBuffer:indirectBuffer->mtlBuffer()
+                      indirectBufferOffset:indirectBuffer->currentOffset()];
             }
         } else {
             uint32_t stride = indirectBuffer->getStride();
@@ -594,17 +592,18 @@ void CCMTLCommandBuffer::draw(const DrawInfo &info) {
                 offset += drawInfo.firstIndex * stride;
                 if (indirectBuffer->isDrawIndirectByIndex()) {
                     if (drawInfo.instanceCount == 0) {
+                        // indexbuffer offset: [backbuffer(triplebuffer maybe) offset] + [offset in this drawcall]
                         [mtlEncoder drawIndexedPrimitives:_mtlPrimitiveType
                                                indexCount:drawInfo.indexCount
                                                 indexType:indexBuffer->getIndexType()
-                                              indexBuffer:indexBuffer->getMTLBuffer()
-                                        indexBufferOffset:offset];
+                                              indexBuffer:indexBuffer->mtlBuffer()
+                                        indexBufferOffset:offset + indexBuffer->currentOffset()];
                     } else {
                         [mtlEncoder drawIndexedPrimitives:_mtlPrimitiveType
                                                indexCount:drawInfo.indexCount
                                                 indexType:indexBuffer->getIndexType()
-                                              indexBuffer:indexBuffer->getMTLBuffer()
-                                        indexBufferOffset:offset
+                                              indexBuffer:indexBuffer->mtlBuffer()
+                                        indexBufferOffset:offset + indexBuffer->currentOffset()
                                             instanceCount:drawInfo.instanceCount];
                     }
                 } else {
@@ -629,14 +628,14 @@ void CCMTLCommandBuffer::draw(const DrawInfo &info) {
                 [mtlEncoder drawIndexedPrimitives:_mtlPrimitiveType
                                        indexCount:info.indexCount
                                         indexType:indexBuffer->getIndexType()
-                                      indexBuffer:indexBuffer->getMTLBuffer()
-                                indexBufferOffset:offset];
+                                      indexBuffer:indexBuffer->mtlBuffer()
+                                indexBufferOffset:offset + indexBuffer->currentOffset()];
             } else {
                 [mtlEncoder drawIndexedPrimitives:_mtlPrimitiveType
                                        indexCount:info.indexCount
                                         indexType:indexBuffer->getIndexType()
-                                      indexBuffer:indexBuffer->getMTLBuffer()
-                                indexBufferOffset:offset
+                                      indexBuffer:indexBuffer->mtlBuffer()
+                                indexBufferOffset:offset + indexBuffer->currentOffset()
                                     instanceCount:info.instanceCount];
             }
         } else if (info.vertexCount) {
@@ -676,6 +675,7 @@ void CCMTLCommandBuffer::updateBuffer(Buffer *buff, const void *data, uint32_t s
         return;
     }
 
+    auto* ccBuffer = static_cast<CCMTLBuffer *>(buff);
     CCMTLGPUBuffer stagingBuffer;
     stagingBuffer.size = size;
     _mtlDevice->gpuStagingBufferPool()->alloc(&stagingBuffer);
@@ -683,8 +683,8 @@ void CCMTLCommandBuffer::updateBuffer(Buffer *buff, const void *data, uint32_t s
     id<MTLBlitCommandEncoder> encoder = [getMTLCommandBuffer() blitCommandEncoder];
     [encoder copyFromBuffer:stagingBuffer.mtlBuffer
                sourceOffset:stagingBuffer.startOffset
-                   toBuffer:static_cast<CCMTLBuffer *>(buff)->getMTLBuffer()
-          destinationOffset:0
+                   toBuffer:ccBuffer->mtlBuffer()
+          destinationOffset:ccBuffer->currentOffset()
                        size:size];
     [encoder endEncoding];
 }
@@ -987,7 +987,9 @@ void CCMTLCommandBuffer::dispatch(const DispatchInfo &info) {
     }
     MTLSize groupsPerGrid = MTLSizeMake(info.groupCountX, info.groupCountY, info.groupCountZ);
     if (info.indirectBuffer) {
-        _computeEncoder.dispatch(((CCMTLBuffer *)info.indirectBuffer)->getMTLBuffer(), info.indirectOffset, groupsPerGrid);
+        auto* ccBuffer = static_cast<CCMTLBuffer *>(info.indirectBuffer);
+        // offset: [dispatch offset] + [backbuffer offset]
+        _computeEncoder.dispatch(ccBuffer->mtlBuffer(), info.indirectOffset + ccBuffer->currentOffset(), groupsPerGrid);
     } else {
         _computeEncoder.dispatch(groupsPerGrid);
     }

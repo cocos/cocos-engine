@@ -335,25 +335,8 @@ void CCMTLDevice::copyTextureToBuffers(Texture *src, uint8_t *const *buffers, co
 }
 
 void CCMTLDevice::writeBuffer(Buffer* buffer, const void* data, uint32_t size) {
-    bool hasFrameInFlight = _inFlightCount;
-    auto* ccBuffer = static_cast<CCMTLBuffer*>(buffer);
-    id<MTLBuffer> mtlBuffer = ccBuffer->getMTLBuffer();
-    if(!hasFrameInFlight && mtlBuffer.storageMode != MTLStorageModePrivate) {
-        if(@available(macOS 10.15, *)) {
-            memcpy(mtlBuffer.contents, data, size);
-#if (CC_PLATFORM == CC_PLATFORM_MACOS)
-            if (mtlBuffer.storageMode == MTLStorageModeManaged) {
-                [mtlBuffer didModifyRange:NSMakeRange(0, size)]; // Synchronize the managed buffer.
-            }
-#endif
-        }
-        if(@available(iOS 11.0, *)) {
-            memcpy(mtlBuffer.contents, data, size);
-        }
-    } else {
-        CCMTLCommandBuffer* transferCmdBuffer = _gpuDeviceObj->_transferCmdBuffer;
-        transferCmdBuffer->updateBuffer(buffer, data, size);
-    }
+    CCMTLCommandBuffer* transferCmdBuffer = _gpuDeviceObj->_transferCmdBuffer;
+    transferCmdBuffer->updateBuffer(buffer, data, size);
 }
 
 CommandBuffer* CCMTLDevice::transferCommandBuffer() const {
