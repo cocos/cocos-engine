@@ -401,7 +401,6 @@
             "comment": "Running in the taobao mini game.",
             "type": "boolean",
             "value": false,
-            "ccGlobal": true,
             "internal": false
         },
         "BYTEDANCE": {
