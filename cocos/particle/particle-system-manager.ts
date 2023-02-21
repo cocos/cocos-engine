@@ -78,14 +78,21 @@ export class ParticleSystemManager extends System {
         const dt = game.deltaTime;
         const particleSystems = this._particleSystems;
         const renderers = this._particleSystemRenderers;
-        const spawnEvents = this._spawnEvents;
+        for (let i = 0, length = particleSystems.length; i < length; i++) {
+            particleSystems[i].isSubEmitter = false;
+        }
+        for (let i = 0, length = particleSystems.length; i < length; i++) {
+            particleSystems[i].beginUpdate();
+        }
         for (let i = 0, length = particleSystems.length; i < length; i++) {
             particleSystems[i].simulate(dt);
         }
+        const spawnEvents = this._spawnEvents;
         // spawn event maybe generate another spawnEvents, so keep tracking _spawnEventsUsed;
         for (let i = 0; i < this._spawnEventsUsed; i++) {
             const event = spawnEvents[i];
-            event.emitter?.emit(event.t, event.prevT, event.deltaTime, event.context);
+            event.emitter?.emit(event.currentTime, event.prevTime, event.deltaTime, event.context, event.numOverTime,
+                event.numOverDistance, event.burstCount, event.emittingAccumulatedCount);
             // reset emitter for not reference emitter forever
             event.emitter = null;
         }

@@ -62,13 +62,9 @@ export enum ParticleOptionalChannels {
 
 export class ParticleSnapshot {
     public position = new Vec3();
-    public velocity = new Vec3();
-    public animatedVelocity = new Vec3();
-    public speedModifier = 1;
+    public finalVelocity = new Vec3();
     public rotation = new Vec3();
-    public startSize = new Vec3();
     public size = new Vec3();
-    public startColor = new Color();
     public color = new Color();
     public randomSeed = 0;
     public invStartLifeTime = 1;
@@ -81,6 +77,8 @@ export enum RecordReason {
     DEATH,
     CUSTOM,
 }
+
+export const MAX_SUB_EMITTER_ACCUMULATOR = 3;
 
 const tempColor = new Color();
 export class ParticleSOAData {
@@ -123,6 +121,7 @@ export class ParticleSOAData {
     private _noiseX = new Float32Array(this._capacity);
     private _noiseY = new Float32Array(this._capacity);
     private _noiseZ = new Float32Array(this._capacity);
+    private _subEmitterAccumulators = new Float32Array(this._capacity * MAX_SUB_EMITTER_ACCUMULATOR);
     // trail
     // One trail segment contains 4 float: x, y, z, timestamp
     private _trailSegmentStride = 4;
@@ -183,6 +182,10 @@ export class ParticleSOAData {
 
     get noiseZ () {
         return this._noiseZ;
+    }
+
+    get subEmitterAccumulators () {
+        return this._subEmitterAccumulators;
     }
 
     get trailSegmentCapacityPerParticle () {
@@ -373,7 +376,7 @@ export class ParticleSOAData {
         this._animatedVelocityZ[handle] = val.z;
     }
 
-    getFinalVelocity (out: Vec3, handle: ParticleHandle) {
+    getFinalVelocityAt (out: Vec3, handle: ParticleHandle) {
         out.x = this._velocityX[handle] + this._animatedVelocityX[handle];
         out.y = this._velocityY[handle] + this._animatedVelocityY[handle];
         out.z = this._velocityZ[handle] + this._animatedVelocityZ[handle];
@@ -568,6 +571,9 @@ export class ParticleSOAData {
         this._noiseX[handle] = this._noiseX[lastParticle];
         this._noiseY[handle] = this._noiseY[lastParticle];
         this._noiseZ[handle] = this._noiseZ[lastParticle];
+        for (let i = 0; i < MAX_SUB_EMITTER_ACCUMULATOR; i++) {
+            this._subEmitterAccumulators[handle * MAX_SUB_EMITTER_ACCUMULATOR + i] = this._subEmitterAccumulators[lastParticle * MAX_SUB_EMITTER_ACCUMULATOR + i];
+        }
         const num = this._trailSegmentNumbers[lastParticle];
         const tempTrailSegment = new TrailSegment();
         for (let i = 0; i < num; i++) {
@@ -591,13 +597,9 @@ export class ParticleSOAData {
         }
         const particleSnapshot = this._particleSnapshots[this._snapshotUsed];
         this.getPositionAt(particleSnapshot.position, handle);
-        this.getVelocityAt(particleSnapshot.velocity, handle);
-        this.getAnimatedVelocityAt(particleSnapshot.animatedVelocity, handle);
-        particleSnapshot.speedModifier = this._speedModifier[handle];
+        this.getFinalVelocityAt(particleSnapshot.finalVelocity, handle);
         this.getRotationAt(particleSnapshot.rotation, handle);
-        this.getStartSizeAt(particleSnapshot.startSize, handle);
         this.getSizeAt(particleSnapshot.size, handle);
-        this.getStartColorAt(particleSnapshot.startColor, handle);
         this.getColorAt(particleSnapshot.color, handle);
         particleSnapshot.randomSeed = this._randomSeed[handle];
         particleSnapshot.invStartLifeTime = this._invStartLifeTime[handle];
@@ -645,14 +647,16 @@ export class ParticleSOAData {
         this._noiseX[handle] = 0;
         this._noiseY[handle] = 0;
         this._noiseZ[handle] = 0;
+        for (let i = 0; i < MAX_SUB_EMITTER_ACCUMULATOR; i++) {
+            this._subEmitterAccumulators[handle * MAX_SUB_EMITTER_ACCUMULATOR + i] = 0;
+        }
         this._startTrailSegmentIndices[handle] = 0;
         this._endTrailSegmentIndices[handle] = 0;
         this._trailSegmentNumbers[handle] = 0;
     }
 
     reserve (capacity: number) {
-        if (capacity === this._capacity) return;
-        const shouldGrow = capacity > this._capacity;
+        if (capacity <= this._capacity) return;
         this._capacity = capacity;
         const oldPositionX = this._positionX;
         const oldPositionY = this._positionY;
@@ -690,140 +694,96 @@ export class ParticleSOAData {
         const oldNoiseSumX = this._noiseX;
         const oldNoiseSumY = this._noiseY;
         const oldNoiseSumZ = this._noiseZ;
+        const oldSubEmitterAccumulators = this._subEmitterAccumulators;
         const oldTrailSegmentNumbers = this._trailSegmentNumbers;
         const oldStartTrailSegmentIndices = this._startTrailSegmentIndices;
         const oldEndTrailSegmentIndices = this._endTrailSegmentIndices;
         const oldTrailSegments = this._trailSegments;
         const oldSpeedModifier = this._speedModifier;
-        if (shouldGrow) {
-            this._positionX = new Float32Array(capacity);
-            this._positionX.set(oldPositionX);
-            this._positionY = new Float32Array(capacity);
-            this._positionY.set(oldPositionY);
-            this._positionZ = new Float32Array(capacity);
-            this._positionZ.set(oldPositionZ);
-            this._velocityX = new Float32Array(capacity);
-            this._velocityX.set(oldVelocityX);
-            this._velocityY = new Float32Array(capacity);
-            this._velocityY.set(oldVelocityY);
-            this._velocityZ = new Float32Array(capacity);
-            this._velocityZ.set(oldVelocityZ);
-            this._startDirX = new Float32Array(capacity);
-            this._startDirX.set(oldStartDirX);
-            this._startDirY = new Float32Array(capacity);
-            this._startDirY.set(oldStartDirY);
-            this._startDirZ = new Float32Array(capacity);
-            this._startDirZ.set(oldStartDirZ);
-            this._animatedVelocityX = new Float32Array(capacity);
-            this._animatedVelocityX.set(oldAnimatedVelocityX);
-            this._animatedVelocityY = new Float32Array(capacity);
-            this._animatedVelocityY.set(oldAnimatedVelocityY);
-            this._animatedVelocityZ = new Float32Array(capacity);
-            this._animatedVelocityZ.set(oldAnimatedVelocityZ);
-            this._speedModifier = new Float32Array(capacity);
-            this._speedModifier.set(oldSpeedModifier);
-            this._rotationX = new Float32Array(capacity);
-            this._rotationX.set(oldRotationX);
-            this._rotationY = new Float32Array(capacity);
-            this._rotationY.set(oldRotationY);
-            this._rotationZ = new Float32Array(capacity);
-            this._rotationZ.set(oldRotationZ);
-            this._axisOfRotationX = new Float32Array(capacity);
-            this._axisOfRotationX.set(oldAxisOfRotationX);
-            this._axisOfRotationY = new Float32Array(capacity);
-            this._axisOfRotationY.set(oldAxisOfRotationY);
-            this._axisOfRotationZ = new Float32Array(capacity);
-            this._axisOfRotationZ.set(oldAxisOfRotationZ);
-            this._angularVelocityX = new Float32Array(capacity);
-            this._angularVelocityX.set(oldAngularVelocityX);
-            this._angularVelocityY = new Float32Array(capacity);
-            this._angularVelocityY.set(oldAngularVelocityY);
-            this._angularVelocityZ = new Float32Array(capacity);
-            this._angularVelocityZ.set(oldAngularVelocityZ);
-            this._startSizeX = new Float32Array(capacity);
-            this._startSizeX.set(oldStartSizeX);
-            this._startSizeY = new Float32Array(capacity);
-            this._startSizeY.set(oldStartSizeY);
-            this._startSizeZ = new Float32Array(capacity);
-            this._startSizeZ.set(oldStartSizeZ);
-            this._sizeX = new Float32Array(capacity);
-            this._sizeX.set(oldSizeX);
-            this._sizeY = new Float32Array(capacity);
-            this._sizeY.set(oldSizeY);
-            this._sizeZ = new Float32Array(capacity);
-            this._sizeZ.set(oldSizeZ);
-            this._startColor = new Uint32Array(capacity);
-            this._startColor.set(oldStartColor);
-            this._color = new Uint32Array(capacity);
-            this._color.set(oldColor);
-            this._randomSeed = new Uint32Array(capacity);
-            this._randomSeed.set(oldRandomSeed);
-            this._invStartLifeTime = new Float32Array(capacity);
-            this._invStartLifeTime.set(oldInvStartLifeTime);
-            this._normalizedAliveTime = new Float32Array(capacity);
-            this._normalizedAliveTime.set(oldNormalizedAliveTime);
-            this._frameIndex = new Float32Array(capacity);
-            this._frameIndex.set(oldFrameIndex);
-            this._noiseX = new Float32Array(capacity);
-            this._noiseX.set(oldNoiseSumX);
-            this._noiseY = new Float32Array(capacity);
-            this._noiseY.set(oldNoiseSumY);
-            this._noiseZ = new Float32Array(capacity);
-            this._noiseZ.set(oldNoiseSumZ);
-            this._trailSegmentNumbers = new Uint16Array(capacity);
-            this._trailSegmentNumbers.set(oldTrailSegmentNumbers);
-            this._startTrailSegmentIndices = new Uint16Array(capacity);
-            this._startTrailSegmentIndices.set(oldStartTrailSegmentIndices);
-            this._endTrailSegmentIndices = new Uint16Array(capacity);
-            this._endTrailSegmentIndices.set(oldEndTrailSegmentIndices);
-            this._trailSegments = new Float32Array(capacity * this._trailSegmentCapacityPerParticle * this._trailSegmentStride);
-            this._trailSegments.set(oldTrailSegments);
-        } else {
-            if (this._count > capacity) {
-                this._count = capacity;
-            }
-            this._positionX = oldPositionX.slice(0, capacity);
-            this._positionY = oldPositionY.slice(0, capacity);
-            this._positionZ = oldPositionZ.slice(0, capacity);
-            this._velocityX = oldVelocityX.slice(0, capacity);
-            this._velocityY = oldVelocityY.slice(0, capacity);
-            this._velocityZ = oldVelocityZ.slice(0, capacity);
-            this._startDirX = oldStartDirX.slice(0, capacity);
-            this._startDirY = oldStartDirY.slice(0, capacity);
-            this._startDirZ = oldStartDirZ.slice(0, capacity);
-            this._animatedVelocityX = oldAnimatedVelocityX.slice(0, capacity);
-            this._animatedVelocityY = oldAnimatedVelocityY.slice(0, capacity);
-            this._animatedVelocityZ = oldAnimatedVelocityZ.slice(0, capacity);
-            this._speedModifier = oldSpeedModifier.slice(0, capacity);
-            this._rotationX = oldRotationX.slice(0, capacity);
-            this._rotationY = oldRotationY.slice(0, capacity);
-            this._rotationZ = oldRotationZ.slice(0, capacity);
-            this._axisOfRotationX = oldAxisOfRotationX.slice(0, capacity);
-            this._axisOfRotationY = oldAxisOfRotationY.slice(0, capacity);
-            this._axisOfRotationZ = oldAxisOfRotationZ.slice(0, capacity);
-            this._angularVelocityX = oldAngularVelocityX.slice(0, capacity);
-            this._angularVelocityY = oldAngularVelocityY.slice(0, capacity);
-            this._angularVelocityZ = oldAngularVelocityZ.slice(0, capacity);
-            this._startSizeX = oldStartSizeX.slice(0, capacity);
-            this._startSizeY = oldStartSizeY.slice(0, capacity);
-            this._startSizeZ = oldStartSizeZ.slice(0, capacity);
-            this._sizeX = oldSizeX.slice(0, capacity);
-            this._sizeY = oldSizeY.slice(0, capacity);
-            this._sizeZ = oldSizeZ.slice(0, capacity);
-            this._startColor = oldStartColor.slice(0, capacity);
-            this._color = oldColor.slice(0, capacity);
-            this._randomSeed = oldRandomSeed.slice(0, capacity);
-            this._invStartLifeTime = oldInvStartLifeTime.slice(0, capacity);
-            this._normalizedAliveTime = oldNormalizedAliveTime.slice(0, capacity);
-            this._frameIndex = oldFrameIndex.slice(0, capacity);
-            this._noiseX = oldNoiseSumX.slice(0, capacity);
-            this._noiseY = oldNoiseSumY.slice(0, capacity);
-            this._noiseZ = oldNoiseSumZ.slice(0, capacity);
-            this._trailSegmentNumbers = oldTrailSegmentNumbers.slice(0, capacity);
-            this._startTrailSegmentIndices = oldStartTrailSegmentIndices.slice(0, capacity);
-            this._endTrailSegmentIndices = oldEndTrailSegmentIndices.slice(0, capacity);
-            this._trailSegments = oldTrailSegments.slice(0, capacity * this._trailSegmentCapacityPerParticle * this._trailSegmentStride);
-        }
+        this._positionX = new Float32Array(capacity);
+        this._positionX.set(oldPositionX);
+        this._positionY = new Float32Array(capacity);
+        this._positionY.set(oldPositionY);
+        this._positionZ = new Float32Array(capacity);
+        this._positionZ.set(oldPositionZ);
+        this._velocityX = new Float32Array(capacity);
+        this._velocityX.set(oldVelocityX);
+        this._velocityY = new Float32Array(capacity);
+        this._velocityY.set(oldVelocityY);
+        this._velocityZ = new Float32Array(capacity);
+        this._velocityZ.set(oldVelocityZ);
+        this._startDirX = new Float32Array(capacity);
+        this._startDirX.set(oldStartDirX);
+        this._startDirY = new Float32Array(capacity);
+        this._startDirY.set(oldStartDirY);
+        this._startDirZ = new Float32Array(capacity);
+        this._startDirZ.set(oldStartDirZ);
+        this._animatedVelocityX = new Float32Array(capacity);
+        this._animatedVelocityX.set(oldAnimatedVelocityX);
+        this._animatedVelocityY = new Float32Array(capacity);
+        this._animatedVelocityY.set(oldAnimatedVelocityY);
+        this._animatedVelocityZ = new Float32Array(capacity);
+        this._animatedVelocityZ.set(oldAnimatedVelocityZ);
+        this._speedModifier = new Float32Array(capacity);
+        this._speedModifier.set(oldSpeedModifier);
+        this._rotationX = new Float32Array(capacity);
+        this._rotationX.set(oldRotationX);
+        this._rotationY = new Float32Array(capacity);
+        this._rotationY.set(oldRotationY);
+        this._rotationZ = new Float32Array(capacity);
+        this._rotationZ.set(oldRotationZ);
+        this._axisOfRotationX = new Float32Array(capacity);
+        this._axisOfRotationX.set(oldAxisOfRotationX);
+        this._axisOfRotationY = new Float32Array(capacity);
+        this._axisOfRotationY.set(oldAxisOfRotationY);
+        this._axisOfRotationZ = new Float32Array(capacity);
+        this._axisOfRotationZ.set(oldAxisOfRotationZ);
+        this._angularVelocityX = new Float32Array(capacity);
+        this._angularVelocityX.set(oldAngularVelocityX);
+        this._angularVelocityY = new Float32Array(capacity);
+        this._angularVelocityY.set(oldAngularVelocityY);
+        this._angularVelocityZ = new Float32Array(capacity);
+        this._angularVelocityZ.set(oldAngularVelocityZ);
+        this._startSizeX = new Float32Array(capacity);
+        this._startSizeX.set(oldStartSizeX);
+        this._startSizeY = new Float32Array(capacity);
+        this._startSizeY.set(oldStartSizeY);
+        this._startSizeZ = new Float32Array(capacity);
+        this._startSizeZ.set(oldStartSizeZ);
+        this._sizeX = new Float32Array(capacity);
+        this._sizeX.set(oldSizeX);
+        this._sizeY = new Float32Array(capacity);
+        this._sizeY.set(oldSizeY);
+        this._sizeZ = new Float32Array(capacity);
+        this._sizeZ.set(oldSizeZ);
+        this._startColor = new Uint32Array(capacity);
+        this._startColor.set(oldStartColor);
+        this._color = new Uint32Array(capacity);
+        this._color.set(oldColor);
+        this._randomSeed = new Uint32Array(capacity);
+        this._randomSeed.set(oldRandomSeed);
+        this._invStartLifeTime = new Float32Array(capacity);
+        this._invStartLifeTime.set(oldInvStartLifeTime);
+        this._normalizedAliveTime = new Float32Array(capacity);
+        this._normalizedAliveTime.set(oldNormalizedAliveTime);
+        this._frameIndex = new Float32Array(capacity);
+        this._frameIndex.set(oldFrameIndex);
+        this._noiseX = new Float32Array(capacity);
+        this._noiseX.set(oldNoiseSumX);
+        this._noiseY = new Float32Array(capacity);
+        this._noiseY.set(oldNoiseSumY);
+        this._noiseZ = new Float32Array(capacity);
+        this._noiseZ.set(oldNoiseSumZ);
+        this._subEmitterAccumulators = new Float32Array(capacity * MAX_SUB_EMITTER_ACCUMULATOR);
+        this._subEmitterAccumulators.set(oldSubEmitterAccumulators);
+        this._trailSegmentNumbers = new Uint16Array(capacity);
+        this._trailSegmentNumbers.set(oldTrailSegmentNumbers);
+        this._startTrailSegmentIndices = new Uint16Array(capacity);
+        this._startTrailSegmentIndices.set(oldStartTrailSegmentIndices);
+        this._endTrailSegmentIndices = new Uint16Array(capacity);
+        this._endTrailSegmentIndices.set(oldEndTrailSegmentIndices);
+        this._trailSegments = new Float32Array(capacity * this._trailSegmentCapacityPerParticle * this._trailSegmentStride);
+        this._trailSegments.set(oldTrailSegments);
     }
 
     clear () {

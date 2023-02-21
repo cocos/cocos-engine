@@ -28,8 +28,7 @@ import { ccclass, tooltip, displayOrder, type, formerlySerializedAs, serializabl
 import { Mat4, Quat, Vec2, Vec3, clamp, pingPong, random, randomRange, repeat, toDegree, toRadian, randomRangeInt } from '../../core/math';
 
 import { CurveRange } from '../curve-range';
-import { fixedAngleUnitVector2, particleEmitZAxis, randomPointBetweenCircleAtFixedAngle, randomPointBetweenSphere,
-    randomPointInCube, randomSign, randomSortArray, randomUnitVector } from '../particle-general-function';
+import { randomSign } from '../particle-general-function';
 import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
 import { ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';

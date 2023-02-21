@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { ParticleSystemParams, ParticleUpdateContext } from './particle-update-context';
+import { EmissionState, ParticleSystemParams, ParticleUpdateContext } from './particle-update-context';
 import { ParticleSOAData } from './particle-soa-data';
 import { ccclass, displayName, serializable, type } from '../core/data/decorators';
 import { CCBoolean, CCString } from '../core';
@@ -83,6 +83,7 @@ export abstract class ParticleModule {
 
     public tick (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,
         t: number, dt: number) {}
+    public beginUpdate () {}
     public onPlay () {}
     public onStop () {}
     public onPause () {}
@@ -95,7 +96,7 @@ export abstract class EmissionModule extends ParticleModule {
     }
 
     public abstract update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,
-        prevT: number, t: number)
+        prevT: number, t: number, out: EmissionState)
 }
 
 @ccclass('cc.InitializationModule')

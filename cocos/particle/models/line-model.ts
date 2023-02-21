@@ -27,7 +27,7 @@ import { JSB } from 'internal:constants';
 import { RenderingSubMesh } from '../../core/assets/rendering-sub-mesh';
 import { DRAW_INFO_SIZE, Buffer, IndirectBuffer, Attribute, BufferInfo, DrawInfo,
     AttributeName, BufferUsageBit, Format, FormatInfos, MemoryUsageBit, PrimitiveMode } from '../../core/gfx';
-import { Vec3 } from '../../core/math';
+import { Color, Vec3 } from '../../core/math';
 import { scene } from '../../core/renderer';
 import { CurveRange } from '../curve-range';
 import { GradientRange } from '../gradient-range';
@@ -42,6 +42,7 @@ const _vertex_attrs = [
 
 const _temp_v1 = new Vec3();
 const _temp_v2 = new Vec3();
+const tempColor = new Color();
 
 export class LineModel extends scene.Model {
     private _capacity: number;
@@ -154,7 +155,7 @@ export class LineModel extends scene.Model {
             this._vdataF32![offset++] = _temp_v1.x;
             this._vdataF32![offset++] = _temp_v1.y;
             this._vdataF32![offset++] = _temp_v1.z;
-            this._vdataUint32![offset++] = color.evaluate(0, 1)._val;
+            this._vdataUint32![offset++] = color.evaluate(tempColor, 0, 1)._val;
             this._vdataF32![offset++] = positions[0].x;
             this._vdataF32![offset++] = positions[0].y;
             this._vdataF32![offset++] = positions[0].z;
@@ -165,7 +166,7 @@ export class LineModel extends scene.Model {
             this._vdataF32![offset++] = _temp_v1.x;
             this._vdataF32![offset++] = _temp_v1.y;
             this._vdataF32![offset++] = _temp_v1.z;
-            this._vdataUint32![offset++] = color.evaluate(0, 1)._val;
+            this._vdataUint32![offset++] = color.evaluate(tempColor, 0, 1)._val;
             for (let i = 1; i < positions.length - 1; i++) {
                 Vec3.subtract(_temp_v1, positions[i - 1], positions[i]);
                 Vec3.subtract(_temp_v2, positions[i + 1], positions[i]);
@@ -181,7 +182,7 @@ export class LineModel extends scene.Model {
                 this._vdataF32![offset++] = _temp_v2.x;
                 this._vdataF32![offset++] = _temp_v2.y;
                 this._vdataF32![offset++] = _temp_v2.z;
-                this._vdataUint32![offset++] = color.evaluate(seg, 1)._val;
+                this._vdataUint32![offset++] = color.evaluate(tempColor, seg, 1)._val;
                 this._vdataF32![offset++] = positions[i].x;
                 this._vdataF32![offset++] = positions[i].y;
                 this._vdataF32![offset++] = positions[i].z;
@@ -192,7 +193,7 @@ export class LineModel extends scene.Model {
                 this._vdataF32![offset++] = _temp_v2.x;
                 this._vdataF32![offset++] = _temp_v2.y;
                 this._vdataF32![offset++] = _temp_v2.z;
-                this._vdataUint32![offset++] = color.evaluate(seg, 1)._val;
+                this._vdataUint32![offset++] = color.evaluate(tempColor, seg, 1)._val;
             }
             Vec3.subtract(_temp_v1, positions[positions.length - 1], positions[positions.length - 2]);
             this._vdataF32![offset++] = positions[positions.length - 1].x;
@@ -205,7 +206,7 @@ export class LineModel extends scene.Model {
             this._vdataF32![offset++] = _temp_v1.x;
             this._vdataF32![offset++] = _temp_v1.y;
             this._vdataF32![offset++] = _temp_v1.z;
-            this._vdataUint32![offset++] = color.evaluate(1, 1)._val;
+            this._vdataUint32![offset++] = color.evaluate(tempColor, 1, 1)._val;
             this._vdataF32![offset++] = positions[positions.length - 1].x;
             this._vdataF32![offset++] = positions[positions.length - 1].y;
             this._vdataF32![offset++] = positions[positions.length - 1].z;
@@ -216,7 +217,7 @@ export class LineModel extends scene.Model {
             this._vdataF32![offset++] = _temp_v1.x;
             this._vdataF32![offset++] = _temp_v1.y;
             this._vdataF32![offset++] = _temp_v1.z;
-            this._vdataUint32![offset++] = color.evaluate(1, 1)._val;
+            this._vdataUint32![offset++] = color.evaluate(tempColor, 1, 1)._val;
         }
         this.updateIA(Math.max(0, positions.length - 1));
     }

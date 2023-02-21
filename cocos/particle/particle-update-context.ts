@@ -56,8 +56,12 @@ export class ParticleSystemParams {
 export class SpawnEvent {
     public emitter: ParticleSystem | null = null;
     public deltaTime = 0;
-    public t = 0;
-    public prevT = 0;
+    public currentTime = 0;
+    public prevTime = 0;
+    public numOverTime = 0;
+    public numOverDistance = 0;
+    public burstCount = 0;
+    public emittingAccumulatedCount = 0;
     public context = new ParticleUpdateContext();
 }
 
@@ -81,21 +85,38 @@ export class InheritedProperty {
 }
 
 export class EmissionState {
-    public emittingOverTimeAccumulatedCount = 0;
-    public emittingOverTimeInterval = 0;
-    public emittingOverDistanceAccumulatedCount = 0;
-    public emittingOverDistanceInterval = 0;
+    public emittingNumOverTime = 0;
+    public emittingNumOverDistance = 0;
     public burstCount = 0;
+
+    public reset () {
+        this.emittingNumOverDistance = 0;
+        this.emittingNumOverTime = 0;
+        this.burstCount = 0;
+    }
+}
+
+export enum PlayingState {
+    STOPPED,
+    PLAYING,
+    PAUSED,
+}
+
+export class ParticleSystemState {
+    public accumulatedTime = 0;
+    public emitterAccumulatedTime = 0;
+    public emittingAccumulatedCount = 0;
+    public playingState = PlayingState.STOPPED;
+    public isEmitting = false;
+    public isSimulating = true;
+    public isSubEmitter = false;
 }
 
 export class ParticleUpdateContext {
-    public accumulatedTime = 0;
-    public emitterAccumulatedTime = 0;
     public localToWorld = new Mat4();
     public emitterVelocity = new Vec3();
     public worldRotation = new Quat();
     public emitterDelayRemaining = 0;
-    public emissionState = new EmissionState();
     public lastPosition = new Vec3();
     public currentPosition = new Vec3();
     public inheritedProperty: InheritedProperty | null = null;

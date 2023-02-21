@@ -46,7 +46,7 @@ import { GravityModule } from './modules/gravity';
 import { SpeedModifierModule } from './modules/speed-modifier';
 import { StartRotationModule } from './modules/start-rotation';
 import { ShapeModule } from './modules/shape-module';
-import { ParticleSystemParams, ParticleUpdateContext, SpawnEvent } from './particle-update-context';
+import { EmissionState, ParticleSystemParams, ParticleSystemState, ParticleUpdateContext, PlayingState, SpawnEvent } from './particle-update-context';
 import { CullingMode, Space } from './enum';
 import { ParticleSystemRenderer } from './particle-system-renderer';
 import { TrailModule } from './modules/trail';
@@ -64,12 +64,8 @@ import { InitialModule } from './modules/initial-module';
 
 const startPositionOffset = new Vec3();
 const velocity = new Vec3();
+const tempEmissionState = new EmissionState();
 
-enum PlayingState {
-    STOPPED,
-    PLAYING,
-    PAUSED,
-}
 @ccclass('cc.ParticleSystem')
 @help('i18n:cc.ParticleSystem')
 @menu('Effects/ParticleSystem')
@@ -84,11 +80,11 @@ export class ParticleSystem extends Component {
      */
     @tooltip('i18n:particle_system.duration')
     public get duration () {
-        return this._particleSystemParams.duration;
+        return this._params.duration;
     }
 
     public set duration (val) {
-        this._particleSystemParams.duration = val;
+        this._params.duration = val;
     }
 
     /**
@@ -96,11 +92,11 @@ export class ParticleSystem extends Component {
      */
     @tooltip('i18n:particle_system.loop')
     public get loop () {
-        return this._particleSystemParams.loop;
+        return this._params.loop;
     }
 
     public set loop (val) {
-        this._particleSystemParams.loop = val;
+        this._params.loop = val;
     }
 
     /**
@@ -108,11 +104,11 @@ export class ParticleSystem extends Component {
      */
     @tooltip('i18n:particle_system.prewarm')
     public get prewarm () {
-        return this._particleSystemParams.prewarm;
+        return this._params.prewarm;
     }
 
     public set prewarm (val) {
-        this._particleSystemParams.prewarm = val;
+        this._params.prewarm = val;
     }
 
     /**
@@ -122,11 +118,11 @@ export class ParticleSystem extends Component {
     @range([0, 1])
     @tooltip('i18n:particle_system.startDelay')
     public get startDelay () {
-        return this._particleSystemParams.startDelay;
+        return this._params.startDelay;
     }
 
     public set startDelay (val) {
-        this._particleSystemParams.startDelay = val;
+        this._params.startDelay = val;
     }
 
     /**
@@ -135,11 +131,11 @@ export class ParticleSystem extends Component {
     @type(Enum(Space))
     @tooltip('i18n:particle_system.simulationSpace')
     public get simulationSpace () {
-        return this._particleSystemParams.simulationSpace;
+        return this._params.simulationSpace;
     }
 
     public set simulationSpace (val) {
-        this._particleSystemParams.simulationSpace = val;
+        this._params.simulationSpace = val;
     }
 
     /**
@@ -147,21 +143,21 @@ export class ParticleSystem extends Component {
      */
     @tooltip('i18n:particle_system.simulationSpeed')
     public get simulationSpeed () {
-        return this._particleSystemParams.simulationSpeed;
+        return this._params.simulationSpeed;
     }
 
     public set simulationSpeed (val) {
-        this._particleSystemParams.simulationSpeed = val;
+        this._params.simulationSpeed = val;
     }
 
     @type(Enum(Space))
     @tooltip('i18n:particle_system.scaleSpace')
     public get scaleSpace () {
-        return this._particleSystemParams.scaleSpace;
+        return this._params.scaleSpace;
     }
 
     public set scaleSpace (val) {
-        this._particleSystemParams.scaleSpace = val;
+        this._params.scaleSpace = val;
     }
 
     /**
@@ -171,11 +167,11 @@ export class ParticleSystem extends Component {
     @range([0, Number.POSITIVE_INFINITY])
     @tooltip('i18n:particle_system.capacity')
     public get capacity () {
-        return this._particleSystemParams.capacity;
+        return this._params.capacity;
     }
 
     public set capacity (val) {
-        this._particleSystemParams.capacity = Math.floor(val > 0 ? val : 0);
+        this._params.capacity = Math.floor(val > 0 ? val : 0);
     }
 
     /**
@@ -183,11 +179,11 @@ export class ParticleSystem extends Component {
      */
     @tooltip('i18n:particle_system.playOnAwake')
     public get playOnAwake () {
-        return this._particleSystemParams.playOnAwake;
+        return this._params.playOnAwake;
     }
 
     public set playOnAwake (val) {
-        this._particleSystemParams.playOnAwake = val;
+        this._params.playOnAwake = val;
     }
 
     /**
@@ -197,11 +193,11 @@ export class ParticleSystem extends Component {
     @type(Enum(CullingMode))
     @tooltip('i18n:particle_system.cullingMode')
     get cullingMode () {
-        return this._particleSystemParams.cullingMode;
+        return this._params.cullingMode;
     }
 
     set cullingMode (val) {
-        this._particleSystemParams.cullingMode = val;
+        this._params.cullingMode = val;
     }
 
     /**
@@ -364,37 +360,45 @@ export class ParticleSystem extends Component {
     }
 
     public get isPlaying () {
-        return this._state === PlayingState.PLAYING;
+        return this._state.playingState === PlayingState.PLAYING;
     }
 
     public get isPaused () {
-        return this._state === PlayingState.PAUSED;
+        return this._state.playingState === PlayingState.PAUSED;
     }
 
     public get isStopped () {
-        return this._state === PlayingState.STOPPED;
+        return this._state.playingState === PlayingState.STOPPED;
     }
 
     public get isEmitting () {
-        return this._isEmitting;
+        return this._state.isEmitting;
     }
 
     public get time () {
-        return this._particleUpdateContext.accumulatedTime;
+        return this._state.accumulatedTime;
+    }
+
+    public get isSubEmitter () {
+        return this._state.isSubEmitter;
+    }
+
+    public set isSubEmitter (val) {
+        if (val) {
+            this._state.isEmitting = false;
+        }
+        this._state.isSubEmitter = val;
     }
 
     @serializable
     private _particleModules: ParticleModule[] = [];
     private _activeModules: ParticleModule[] = [];
     @serializable
-    private _particleSystemParams = new ParticleSystemParams();
+    private _params = new ParticleSystemParams();
     private _boundingBoxHalfExtents = new Vec3();
-    private _state = PlayingState.STOPPED;
-    private _isEmitting = false;
-    private _isSimulating = true;
     private _particles = new ParticleSOAData();
     private _particleUpdateContext = new ParticleUpdateContext();
-    private _isSubEmitter = false;
+    private _state = new ParticleSystemState();
 
     private static _sortParticleModule (moduleA: ParticleModule, moduleB: ParticleModule) {
         return (moduleA.updateStage - moduleB.updateStage) || (moduleA.updatePriority - moduleB.updatePriority)
@@ -443,8 +447,24 @@ export class ParticleSystem extends Component {
         return module;
     }
 
-    public emit (currentTime: number, prevT: number, dt: number, context: ParticleUpdateContext) {
-        this.startEmitParticles(this.particles, this._particleSystemParams, context, prevT, currentTime, dt);
+    public emit (currentTime: number, prevTime: number, dt: number, context: ParticleUpdateContext,
+        numOverTime: number, numOverDistance: number, burstCount: number, accumulator: number) {
+        this.startEmitParticles(this.particles, this._params, context, prevTime, currentTime, dt,
+            numOverTime, numOverDistance, burstCount, accumulator);
+    }
+
+    public evaluateEmissionState (currentTime: number, prevT: number, dt: number, context: ParticleUpdateContext, out: EmissionState) {
+        out.reset();
+        const emissionModules = this.getEmissionModules();
+        for (let i = 0, length = emissionModules.length; i < length; i++) {
+            emissionModules[i].update(this._particles, this._params, context, prevT, currentTime, out);
+        }
+    }
+
+    public beginUpdate () {
+        for (let i = 0, length = this._activeModules.length; i < length; i++) {
+            this._activeModules[i].beginUpdate();
+        }
     }
 
     /**
@@ -452,23 +472,24 @@ export class ParticleSystem extends Component {
      * @zh 播放粒子效果。
      */
     public play () {
-        this._state = PlayingState.PLAYING;
-        if (!this._isSubEmitter) {
-            this._isEmitting = true;
+        this._state.playingState = PlayingState.PLAYING;
+        if (!this._state.isSubEmitter) {
+            this._state.isEmitting = true;
 
             // prewarm
             if (this.prewarm) {
                 this._prewarmSystem();
             }
         } else {
-            this._isEmitting = false;
+            this._state.isEmitting = false;
         }
 
         this._activeModules.length = 0;
         for (let i = 0; i < this._particleModules.length; i++) {
-            if (this._particleModules[i].enable) {
-                this._activeModules.push(this._particleModules[i]);
-                this._activeModules[i].onPlay();
+            const module = this._particleModules[i];
+            if (module.enable) {
+                this._activeModules.push(module);
+                module.onPlay();
             }
         }
         this._particleUpdateContext.currentPosition.set(this.node.worldPosition);
@@ -485,7 +506,7 @@ export class ParticleSystem extends Component {
             console.warn('pause(): particle system is already stopped.');
             return;
         }
-        this._state = PlayingState.PAUSED;
+        this._state.playingState = PlayingState.PAUSED;
     }
 
     /**
@@ -493,7 +514,7 @@ export class ParticleSystem extends Component {
      * @en Stop emitting particles.
      */
     public stopEmitting () {
-        this._isEmitting = false;
+        this._state.isEmitting = false;
     }
 
     /**
@@ -505,8 +526,8 @@ export class ParticleSystem extends Component {
             this.clear();
         }
         particleSystemManager.removeParticleSystem(this);
-        this._isEmitting = false;
-        this._state = PlayingState.STOPPED;
+        this._state.isEmitting = false;
+        this._state.playingState = PlayingState.STOPPED;
     }
 
     /**
@@ -565,9 +586,10 @@ export class ParticleSystem extends Component {
     public simulate (dt: number) {
         const scaledDeltaTime = dt * this.simulationSpeed;
 
-        if (this.isPlaying && this._isSimulating) {
+        if (this.isPlaying && this._state.isSimulating) {
             // simulation, update particles.
-            this.updateParticles(this._particles, this._particleSystemParams, this._particleUpdateContext, scaledDeltaTime);
+            this._state.accumulatedTime += scaledDeltaTime;
+            this.updateParticles(scaledDeltaTime);
 
             if (this._particles.count === 0 && !this.loop && !this.isEmitting) {
                 this.stop();
@@ -594,13 +616,13 @@ export class ParticleSystem extends Component {
         }
         if (culled) {
             if (this.cullingMode !== CullingMode.ALWAYS_SIMULATE) {
-                this._isSimulating = false;
+                this._state.isSimulating = false;
             }
             if (this.cullingMode === CullingMode.PAUSE_AND_CATCHUP) {
-                this._particleUpdateContext.accumulatedTime += scaledDeltaTime;
+                this._state.accumulatedTime += scaledDeltaTime;
             }
         } else {
-            this._isSimulating = true;
+            this._state.isSimulating = true;
         }
     }
 
@@ -612,7 +634,7 @@ export class ParticleSystem extends Component {
         const cnt = this.duration / dt;
 
         for (let i = 0; i < cnt; ++i) {
-            this.updateParticles(this._particles, this._particleSystemParams, this._particleUpdateContext, dt);
+            this.updateParticles(dt);
         }
     }
 
@@ -633,9 +655,12 @@ export class ParticleSystem extends Component {
     }
 
     // internal function
-    private updateParticles (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext, deltaTime: number) {
+    private updateParticles (deltaTime: number) {
+        const particles = this._particles;
+        const context = this._particleUpdateContext;
+        const params = this._params;
+        const state = this._state;
         let emitterDeltaTime = deltaTime;
-        context.accumulatedTime += deltaTime;
         context.lastPosition.set(context.currentPosition);
         context.currentPosition.set(this.node.worldPosition);
         context.localToWorld.set(this.node.worldMatrix);
@@ -650,16 +675,16 @@ export class ParticleSystem extends Component {
                 context.emitterDelayRemaining = 0;
             }
         }
-        const prevT = context.emitterAccumulatedTime;
-        context.emitterAccumulatedTime += emitterDeltaTime;
+        const prevTime = state.emitterAccumulatedTime;
+        state.emitterAccumulatedTime += emitterDeltaTime;
+        const currentTime = state.emitterAccumulatedTime;
 
         let particleCount = particles.count;
         this.resetAnimatedState(particles, 0, particleCount);
 
         const modules = this._activeModules;
         for (let i = 0, length = modules.length; i < length; i++) {
-            modules[i].tick(particles, params, context,
-                context.emitterAccumulatedTime, deltaTime);
+            modules[i].tick(particles, params, context, currentTime, deltaTime);
         }
 
         const updateModules = this.getPreUpdateModules();
@@ -668,7 +693,7 @@ export class ParticleSystem extends Component {
         }
         this.updateParticleState(particles, 0, particleCount, deltaTime);
         this.killParticlesOverMaxLifeTime(particles, 0, particleCount);
-        // After kill particles, the count of particle may be changed. so get the current count.
+        // After killing particles, the count of particle may be changed. so get the current count.
         particleCount = particles.count;
         const postUpdateModules = this.getPostUpdateModules();
         for (let i = 0, length = postUpdateModules.length; i < length; i++) {
@@ -676,8 +701,13 @@ export class ParticleSystem extends Component {
         }
         this.consumeEvents(particles, params, context);
 
-        if (this._isEmitting) {
-            this.startEmitParticles(particles, params, context, prevT, context.emitterAccumulatedTime, deltaTime);
+        if (state.isEmitting) {
+            const accumulator = state.emittingAccumulatedCount;
+            this.evaluateEmissionState(currentTime, prevTime, deltaTime, context, tempEmissionState);
+            state.emittingAccumulatedCount = accumulator + tempEmissionState.emittingNumOverTime + tempEmissionState.emittingNumOverDistance;
+            state.emittingAccumulatedCount -= Math.floor(state.emittingAccumulatedCount);
+            this.startEmitParticles(particles, params, context, prevTime, currentTime, deltaTime, tempEmissionState.emittingNumOverTime,
+                tempEmissionState.emittingNumOverDistance, tempEmissionState.burstCount, accumulator);
         }
     }
 
@@ -707,7 +737,7 @@ export class ParticleSystem extends Component {
     private updateParticleState (particles: ParticleSOAData, fromIndex: number, toIndex: number, dt: number) {
         const { speedModifier, normalizedAliveTime, invStartLifeTime } = particles;
         for (let particleHandle = fromIndex; particleHandle < toIndex; particleHandle++) {
-            particles.getFinalVelocity(velocity, particleHandle);
+            particles.getFinalVelocityAt(velocity, particleHandle);
             particles.addPositionAt(Vec3.multiplyScalar(velocity, velocity, dt * speedModifier[particleHandle]), particleHandle);
             particles.getAngularVelocityAt(velocity, particleHandle);
             particles.addRotationAt(Vec3.multiplyScalar(velocity, velocity, dt), particleHandle);
@@ -725,105 +755,72 @@ export class ParticleSystem extends Component {
         }
     }
 
-    private startEmitParticles (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext, prevT: number, t: number, dt: number) {
-        const emissionModules = this.getEmissionModules();
+    private startEmitParticles (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,
+        prevTime: number, currentTime: number, dt: number, numOverTime: number, numOverDistance: number, burstCount: number, accumulator: number) {
+        const timeInterval = 1 / numOverTime;
+        accumulator += numOverTime;
+        numOverTime = Math.floor(accumulator);
+        if (numOverTime > 0) {
+            accumulator -= numOverTime;
+            this.initializeParticles(particles, params, context, prevTime, currentTime, dt, numOverTime, timeInterval, accumulator);
+        }
+        const distanceInterval = 1 / numOverDistance;
+        accumulator += numOverDistance;
+        numOverDistance = Math.floor(accumulator);
+        if (numOverDistance > 0) {
+            accumulator -= numOverDistance;
+            this.initializeParticles(particles, params, context, prevTime, currentTime, dt, numOverDistance, distanceInterval, accumulator);
+        }
+        burstCount = Math.floor(burstCount);
+        if (burstCount > 0) {
+            this.initializeParticles(particles, params, context, prevTime, currentTime, dt, burstCount, 0, 0);
+        }
+    }
+
+    private initializeParticles (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext, prevT: number, t: number, dt: number,
+        numToEmit: number, interval: number, frameOffset: number) {
         const updateModules = this.getPreUpdateModules();
         const postUpdateModules = this.getPostUpdateModules();
         const initializationModules = this.getInitializationModules();
-        const { emissionState } = context;
         const originCount = particles.count;
-
-        for (let i = 0, length = emissionModules.length; i < length; i++) {
-            emissionModules[i].update(particles, params, context, prevT, t);
-        }
         const emitterVelocity = params.simulationSpace === Space.WORLD ? context.emitterVelocity : Vec3.ZERO;
-
-        let newEmittingCount = Math.floor(emissionState.emittingOverTimeAccumulatedCount);
-        emissionState.emittingOverTimeAccumulatedCount -= newEmittingCount;
-        if (newEmittingCount + particles.count > params.capacity) {
-            newEmittingCount = params.capacity - particles.count;
+        if (numToEmit + particles.count > params.capacity) {
+            numToEmit = params.capacity - particles.count;
         }
 
-        if (newEmittingCount > 0) {
+        if (numToEmit > 0) {
             const fromIndex = particles.count;
-            particles.addParticles(newEmittingCount);
-            let num = 0;
-            for (let i = fromIndex, toIndex = particles.count; i < toIndex; ++i) {
-                const offset = clamp01((emissionState.emittingOverTimeAccumulatedCount + num) * emissionState.emittingOverTimeInterval);
-                const subDt = dt * offset;
-                const normalizeT = lerp(t, prevT, offset);
-                const nextIndex = i + 1;
+            particles.addParticles(numToEmit);
+            if (!approx(interval, 0)) {
+                let num = 0;
+                for (let i = fromIndex, toIndex = particles.count; i < toIndex; ++i) {
+                    const offset = clamp01((frameOffset + num) * interval);
+                    const subDt = dt * offset;
+                    const normalizeT = lerp(t, prevT, offset);
+                    const nextIndex = i + 1;
+                    for (let j = 0, length = initializationModules.length; j < length; j++) {
+                        initializationModules[j].update(particles, params, context, i, nextIndex, normalizeT);
+                    }
+                    Vec3.copy(startPositionOffset, emitterVelocity);
+                    Vec3.multiplyScalar(startPositionOffset, startPositionOffset, -subDt);
+                    particles.addPositionAt(startPositionOffset, i);
+                    for (let j = 0, length = updateModules.length; j < length; j++) {
+                        updateModules[j].update(particles, params, context, i, nextIndex, subDt);
+                    }
+                    this.updateParticleState(particles, i, nextIndex, subDt);
+                    for (let j = 0, length = postUpdateModules.length; j < length; j++) {
+                        postUpdateModules[j].update(particles, params, context, i, nextIndex, subDt);
+                    }
+                    num++;
+                }
+                this.killParticlesOverMaxLifeTime(particles, originCount, particles.count);
+                this.consumeEvents(particles, params, context);
+            } else {
+                const toIndex = particles.count;
                 for (let j = 0, length = initializationModules.length; j < length; j++) {
-                    initializationModules[j].update(particles, params, context, i, nextIndex, normalizeT);
+                    initializationModules[j].update(particles, params, context, fromIndex, toIndex, t);
                 }
-                Vec3.copy(startPositionOffset, emitterVelocity);
-                Vec3.multiplyScalar(startPositionOffset, startPositionOffset, -subDt);
-                particles.addPositionAt(startPositionOffset, i);
-                for (let j = 0, length = updateModules.length; j < length; j++) {
-                    updateModules[j].update(particles, params, context, i, nextIndex, subDt);
-                }
-                this.updateParticleState(particles, i, nextIndex, subDt);
-                for (let j = 0, length = postUpdateModules.length; j < length; j++) {
-                    postUpdateModules[j].update(particles, params, context, i, nextIndex, subDt);
-                }
-                num++;
             }
         }
-
-        newEmittingCount = Math.floor(emissionState.emittingOverDistanceAccumulatedCount);
-        emissionState.emittingOverDistanceAccumulatedCount -= newEmittingCount;
-        if (newEmittingCount + particles.count > params.capacity) {
-            newEmittingCount = params.capacity - particles.count;
-        }
-
-        if (newEmittingCount > 0) {
-            const fromIndex = particles.count;
-            particles.addParticles(newEmittingCount);
-            let num = 0;
-            for (let i = fromIndex, toIndex = particles.count; i < toIndex; ++i) {
-                const offset = clamp01((emissionState.emittingOverDistanceAccumulatedCount + num) * emissionState.emittingOverDistanceInterval);
-                const subDt = dt * offset;
-                const normalizeT = lerp(t, prevT, offset);
-                const nextIndex = i + 1;
-                for (let j = 0, length = initializationModules.length; j < length; j++) {
-                    initializationModules[j].update(particles, params, context, i, nextIndex, normalizeT);
-                }
-                Vec3.copy(startPositionOffset, emitterVelocity);
-                Vec3.multiplyScalar(startPositionOffset, startPositionOffset, -subDt);
-                particles.addPositionAt(startPositionOffset, i);
-                for (let j = 0, length = updateModules.length; j < length; j++) {
-                    updateModules[j].update(particles, params, context, i, nextIndex, subDt);
-                }
-                this.updateParticleState(particles, i, nextIndex, subDt);
-                for (let j = 0, length = postUpdateModules.length; j < length; j++) {
-                    postUpdateModules[j].update(particles, params, context, i, nextIndex, subDt);
-                }
-                num++;
-            }
-        }
-
-        newEmittingCount = Math.floor(emissionState.burstCount);
-        emissionState.burstCount = 0;
-        if (newEmittingCount + particles.count > params.capacity) {
-            newEmittingCount = params.capacity - particles.count;
-        }
-
-        if (newEmittingCount > 0) {
-            const fromIndex = particles.count;
-            particles.addParticles(newEmittingCount);
-            const toIndex = particles.count;
-            for (let j = 0, length = initializationModules.length; j < length; j++) {
-                initializationModules[j].update(particles, params, context, fromIndex, toIndex, t);
-            }
-            for (let j = 0, length = updateModules.length; j < length; j++) {
-                updateModules[j].update(particles, params, context, fromIndex, toIndex, dt);
-            }
-            this.updateParticleState(particles, fromIndex, toIndex, dt);
-            for (let j = 0, length = postUpdateModules.length; j < length; j++) {
-                postUpdateModules[j].update(particles, params, context, fromIndex, toIndex, dt);
-            }
-        }
-        this.killParticlesOverMaxLifeTime(particles, originCount, particles.count);
-        this.consumeEvents(particles, params, context);
     }
 }
