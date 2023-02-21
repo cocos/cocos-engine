@@ -696,9 +696,6 @@ export class Director extends EventTarget {
      */
     public tick (dt: number) {
         if (!this._invalid) {
-            // no gpu resource update can be performed before fence
-            this.root!.frameFence();
-
             this.emit(Director.EVENT_BEGIN_FRAME);
             if (!EDITOR || cclegacy.GAME_VIEW) {
                 // @ts-expect-error _frameDispatchEvents is a private method.

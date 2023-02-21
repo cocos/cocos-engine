@@ -369,18 +369,6 @@ void Root::resetCumulativeTime() {
     _cumulativeTime = 0;
 }
 
-void Root::frameFence() {
-    bool hasCam = std::any_of(_renderWindows.begin(), _renderWindows.end(), [](const IntrusivePtr<scene::RenderWindow>& window){
-        return std::any_of(window->getCameras().begin(), window->getCameras().end(), [](const IntrusivePtr<scene::Camera>& cam){
-            return cam->isEnabled();
-        });
-    });
-    
-    if(_pipelineRuntime && hasCam) {
-        _device->acquire(_swapchains);
-    }
-}
-
 void Root::frameMoveBegin() {
     for (const auto &scene : _scenes) {
         scene->removeBatches();
@@ -400,6 +388,8 @@ void Root::frameMoveProcess(bool isNeedUpdateScene, int32_t totalFrames) {
     }
 
     if (_pipelineRuntime != nullptr && !_cameraList.empty()) {
+        _device->acquire(_swapchains);
+
         // NOTE: c++ doesn't have a Director, so totalFrames need to be set from JS
         uint32_t stamp = totalFrames;
 
