@@ -294,7 +294,7 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
         mu::clearRenderArea(_mtlDevice, _renderEncoder.getMTLEncoder(), renderPass, renderArea, colors, depth, stencil);
     }
 
-    const auto &targetSize = ccMtlRenderPass->getRenderTargetSizes()[0];
+    const auto &targetSize = ccMtlRenderPass->getRenderTargetSizes().at(0);
     _currentFbWidth = static_cast<int32_t>(targetSize.x);
     _currentFbHeight = static_cast<int32_t>(targetSize.y);
     Rect scissorArea = renderArea;
