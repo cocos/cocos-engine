@@ -82,8 +82,8 @@ export class SkeletonData extends Asset {
     }
 
     /**
-     * @en a atlas text description.
-     * @zh atlas文本描述。
+     * @en An atlas text description.
+     * @zh Atlas文本描述。
      */
     get atlasText () {
         return this._atlasText;
@@ -184,7 +184,7 @@ export class SkeletonData extends Asset {
     }
     /**
      * @internal Since v3.7.2, this is an engine private function, only works in editor.
-     * @en reset skeleton skin and animation enumeration.
+     * @en Reset skeleton skin and animation enumeration.
      * @zh 重置皮肤和动画枚举。
      */
     public resetEnums () {

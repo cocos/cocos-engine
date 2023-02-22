@@ -72,7 +72,7 @@ ccenum(DefaultAnimsEnum);
 
 /**
  * @en Enum for animation cache mode type.
- * @zh Spine动画缓存类型。
+ * @zh Spine 动画缓存类型。
  */
 export enum AnimationCacheMode {
     /**
@@ -388,7 +388,7 @@ export class Skeleton extends UIRenderer {
 
     /**
      * @en Animation mode, with options for real-time mode, private cached, or public cached mode
-     * @zh 动画模式，可选实时模式，私有cached或公共cached模式。
+     * @zh 动画模式，可选实时模式，私有 cached 或公共 cached 模式。
      */
     @displayName('Animation Cache Mode')
     @tooltip('i18n:COMPONENT.skeleton.animation_cache_mode')
@@ -403,7 +403,7 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @en Whether play animations in loop mode
+     * @en Whether play animations in loop mode.
      * @zh 是否循环播放当前骨骼动画。
      */
     @serializable
@@ -411,8 +411,8 @@ export class Skeleton extends UIRenderer {
     public loop = true;
 
     /**
-     * @en Whether premultipliedAlpha enabled
-     * @zh 是否启用alpha预乘。
+     * @en Whether premultipliedAlpha enabled.
+     * @zh 是否启用 alpha 预乘。
      */
     @editable
     @tooltip('i18n:COMPONENT.skeleton.premultipliedAlpha')
@@ -496,10 +496,9 @@ export class Skeleton extends UIRenderer {
         }
     }
     /**
-     * @en Enabled batch model, if skeleton is complex.
-     * Otherwise, do not enable the option, CPU consumption will increase when it is turned on.
-     * @zh 开启合批，如果渲染大量相同纹理，且结构简单的骨骼动画，开启合批可以降低draw call 数量。
-     * 否则请不要开启，因为开启后 cpu 消耗会上升。
+     * @en If rendering a large number of identical textures and simple skeletal animations,
+     * enabling batching can reduce the number of draw calls and improve rendering performance.
+     * @zh 如果渲染大量相同纹理，且结构简单的骨骼动画，开启合批可以降低draw call 数量提升渲染性能。
      */
     @editable
     @tooltip('i18n:COMPONENT.skeleton.enabled_batch')
@@ -857,7 +856,7 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @en update skeleton animation.
+     * @en Update skeleton animation.
      * @zh 更新骨骼动画。
      * @param dt @en delta time. @zh 时间差。
      */
