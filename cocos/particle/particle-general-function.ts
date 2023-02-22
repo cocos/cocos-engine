@@ -29,13 +29,12 @@ import { Space } from './enum';
 
 export const particleEmitZAxis = new Vec3(0, 0, -1);
 
-export function calculateTransform (systemSpace: number, moduleSpace: number, worldTransform: Mat4, outQuat: Quat) {
+export function calculateTransform (systemSpace: number, moduleSpace: number, localToWorld: Mat4, worldToLocal: Mat4, outQuat: Quat) {
     if (moduleSpace !== systemSpace) {
         if (systemSpace === Space.WORLD) {
-            Mat4.getRotation(outQuat, worldTransform);
+            Mat4.getRotation(outQuat, localToWorld);
         } else {
-            Mat4.invert(worldTransform, worldTransform);
-            Mat4.getRotation(outQuat, worldTransform);
+            Mat4.getRotation(outQuat, worldToLocal);
         }
         return true;
     } else {

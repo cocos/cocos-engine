@@ -61,7 +61,6 @@ export class SpawnEvent {
     public numOverTime = 0;
     public numOverDistance = 0;
     public burstCount = 0;
-    public emittingAccumulatedCount = 0;
     public context = new ParticleUpdateContext();
 }
 
@@ -112,9 +111,13 @@ export class ParticleSystemState {
     public isSubEmitter = false;
 }
 
+export class ParticleEmitterContext {
+    public velocity = new Vec3();
+}
+
 export class ParticleUpdateContext {
     public localToWorld = new Mat4();
-    public emitterVelocity = new Vec3();
+    public worldToLocal = new Mat4();
     public worldRotation = new Quat();
     public emitterDelayRemaining = 0;
     public lastPosition = new Vec3();

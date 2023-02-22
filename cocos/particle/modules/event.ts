@@ -32,7 +32,7 @@ import { ParticleSystem } from '../particle-system';
 import { particleSystemManager } from '../particle-system-manager';
 import { EmissionState, ParticleSystemParams, ParticleUpdateContext, SpawnEvent } from '../particle-update-context';
 
-const emitProbabilityRandomSeedOffset = 199208;
+const PROBABILITY_RANDOM_SEED_OFFSET = 199208;
 const emissionState = new EmissionState();
 const tempContext = new ParticleUpdateContext();
 
@@ -111,7 +111,7 @@ export class EventModule extends UpdateModule {
                     continue;
                 }
                 for (let i = fromIndex; i < toIndex; i++) {
-                    if (pseudoRandom(randomSeed[i] + emitProbabilityRandomSeedOffset) > probability) {
+                    if (pseudoRandom(randomSeed[i] + PROBABILITY_RANDOM_SEED_OFFSET) > probability) {
                         continue;
                     }
                     particles.getPositionAt(temp, i);
@@ -123,7 +123,6 @@ export class EventModule extends UpdateModule {
                     let accumulator = subEmitterAccumulators[i * MAX_SUB_EMITTER_ACCUMULATOR + lifeTimeSubEmitterIndex];
                     const currentTime = normalizedAliveTime[i] / invStartLifeTime[i];
                     const prevTime = currentTime - dt;
-                    tempContext.localToWorld.set(localToWorld);
                     tempContext.emitterVelocity.set(temp1);
                     tempContext.currentPosition.set(temp);
                     tempContext.lastPosition.set(Vec3.subtract(temp, temp, temp1.multiplyScalar(dt)));
@@ -134,14 +133,12 @@ export class EventModule extends UpdateModule {
                         spawnEvent.emitter = emitter;
                         spawnEvent.deltaTime = dt;
                         spawnEvent.prevTime = prevTime;
-                        spawnEvent.context.localToWorld.set(localToWorld);
                         spawnEvent.context.emitterVelocity.set(tempContext.emitterVelocity);
                         spawnEvent.context.currentPosition.set(tempContext.currentPosition);
                         spawnEvent.context.lastPosition.set(tempContext.lastPosition);
-                        spawnEvent.numOverTime = emittingNumOverTime;
+                        spawnEvent.numOverTime = emittingNumOverTime + accumulator;
                         spawnEvent.numOverDistance = emittingNumOverDistance;
                         spawnEvent.burstCount = burstCount;
-                        spawnEvent.emittingAccumulatedCount = accumulator;
                     }
 
                     accumulator += emittingNumOverTime + emittingNumOverDistance;
@@ -165,12 +162,11 @@ export class EventModule extends UpdateModule {
                 for (let i = 0; i < particleEventSnapshotCount; i++) {
                     const snapshot = particleEventSnapshots[i];
                     if (snapshot.recordReason === RecordReason.DEATH
-                        && pseudoRandom(snapshot.randomSeed + emitProbabilityRandomSeedOffset) <= probability) {
+                        && pseudoRandom(snapshot.randomSeed + PROBABILITY_RANDOM_SEED_OFFSET) <= probability) {
                         if (simulationSpace === Space.LOCAL) {
                             Vec3.transformMat4(temp, snapshot.position, localToWorld);
                             Vec3.transformMat4(temp1, snapshot.finalVelocity, localToWorld);
                         }
-                        tempContext.localToWorld.set(localToWorld);
                         tempContext.emitterVelocity.set(temp1);
                         tempContext.currentPosition.set(temp);
                         tempContext.lastPosition.set(temp);
@@ -181,7 +177,6 @@ export class EventModule extends UpdateModule {
                             spawnEvent.deltaTime = EPSILON;
                             spawnEvent.currentTime = EPSILON;
                             spawnEvent.prevTime = 0;
-                            spawnEvent.context.localToWorld.set(localToWorld);
                             spawnEvent.context.emitterVelocity.set(temp1);
                             spawnEvent.context.currentPosition.set(temp);
                             spawnEvent.context.lastPosition.set(temp);

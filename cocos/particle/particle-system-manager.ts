@@ -92,7 +92,7 @@ export class ParticleSystemManager extends System {
         for (let i = 0; i < this._spawnEventsUsed; i++) {
             const event = spawnEvents[i];
             event.emitter?.emit(event.currentTime, event.prevTime, event.deltaTime, event.context, event.numOverTime,
-                event.numOverDistance, event.burstCount, event.emittingAccumulatedCount);
+                event.numOverDistance, event.burstCount);
             // reset emitter for not reference emitter forever
             event.emitter = null;
         }

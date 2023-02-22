@@ -97,7 +97,7 @@ export class ForceOverLifetimeModule extends UpdateModule {
 
     public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,
         fromIndex: number, toIndex: number, dt: number) {
-        const needTransform = calculateTransform(params.simulationSpace, this.space, context.localToWorld, rotation);
+        const needTransform = calculateTransform(params.simulationSpace, this.space, context.localToWorld, context.worldToLocal, rotation);
         const { normalizedAliveTime, randomSeed } = particles;
         if (DEBUG) {
             assert(this.x.mode === this.y.mode && this.y.mode === this.z.mode, 'The curve of x, y, z must have same mode!');
