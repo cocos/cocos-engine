@@ -28,10 +28,11 @@ import {
     ccclass, help, disallowMultiple, executeInEditMode, menu, executionOrder,
     tooltip, displayOrder, visible, type, serializable } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
-import { Vec3, error, warn, CCFloat } from '../../../../core';
+import { Vec3, error, warn, CCFloat, Eventify } from '../../../../core';
 import { Component } from '../../../../scene-graph';
 import { IBaseCharacterController } from '../../../spec/i-character-controller';
 import { ECharacterControllerType } from '../../physics-enum';
+import { CharacterCollisionEventType } from '../../physics-interface';
 import { selector, createCharacterController } from '../../physics-selector';
 import { PhysicsSystem } from '../../physics-system';
 
@@ -44,8 +45,18 @@ const v3_0 = new Vec3(0, 0, 0);
  * 角色控制器组件基类。
  */
 @ccclass('cc.CharacterController')
-export class CharacterController extends Component {
+export class CharacterController extends Eventify(Component) {
     /// PUBLIC PROPERTY GETTER\SETTER ///
+
+    @type(CCFloat)
+    public get minMoveDistance () {
+        return this._minMoveDistance;
+    }
+
+    public set minMoveDistance (value) {
+        if (this._minMoveDistance === value) return;
+        this._minMoveDistance = Math.abs(value);
+    }
 
     @type(CCFloat)
     public get stepOffset () {
@@ -113,17 +124,17 @@ export class CharacterController extends Component {
 
     /// PRIVATE PROPERTY ///
     @serializable
+    private _minMoveDistance = 0.001; //[ 0, infinity ]
+    @serializable
     public _stepOffset = 1.0;
     @serializable
     public _slopeLimit = 45.0; //degree
     //@serializable
-    private _minMoveDistance = 0; //[ 0, infinity ]
-    //@serializable
     public _density = 10.0;
     //@serializable
-    public _scaleCoeff = 0.8;//0.8;
+    public _scaleCoeff = 0.8;
     //@serializable
-    public _volumeGrowth = 1.5;//1.5;
+    public _volumeGrowth = 1.5;
     @serializable
     public _contactOffset = 0.01;
 
@@ -212,9 +223,51 @@ export class CharacterController extends Component {
 
         const elapsedTime = PhysicsSystem.instance.fixedTimeStep;
         this._cct!.move(movement, this._minMoveDistance, elapsedTime, 0);
+    }
 
-        //sync physics position to scene
-        // this._cct!.getPosition(v3_0);
-        // this.node.setWorldPosition(v3_0);
+    /// EVENT INTERFACE ///
+    /**
+     * @en
+     * Registers callbacks associated with triggered or collision events.
+     * @zh
+     * 注册触发或碰撞事件相关的回调。
+     * @param type - The event type, onTriggerEnter|onTriggerStay|onTriggerExit|onCollisionEnter|onCollisionStay|onCollisionExit;
+     * @param callback - The event callback, signature:`(event?:ICollisionEvent|ITriggerEvent)=>void`.
+     * @param target - The event callback target.
+     */
+    public on<TFunction extends (...any) => void>(type: CharacterCollisionEventType, callback: TFunction, target?, once?: boolean): any {
+        const ret = super.on(type, callback, target, once);
+        //this._updateNeedEvent(type); //todo
+        return ret;
+    }
+
+    /**
+     * @en
+     * Unregisters callbacks associated with trigger or collision events that have been registered.
+     * @zh
+     * 取消已经注册的触发或碰撞事件相关的回调。
+     * @param type - The event type, onTriggerEnter|onTriggerStay|onTriggerExit|onCollisionEnter|onCollisionStay|onCollisionExit;
+     * @param callback - The event callback, signature:`(event?:ICollisionEvent|ITriggerEvent)=>void`.
+     * @param target - The event callback target.
+     */
+    public off (type: CharacterCollisionEventType, callback?: (...any) => void, target?) {
+        super.off(type, callback, target);
+        //this._updateNeedEvent(); //todo
+    }
+
+    /**
+     * @en
+     * Registers a callback associated with a trigger or collision event, which is automatically unregistered once executed.
+     * @zh
+     * 注册触发或碰撞事件相关的回调，执行一次后会自动取消注册。
+     * @param type - The event type, onTriggerEnter|onTriggerStay|onTriggerExit|onCollisionEnter|onCollisionStay|onCollisionExit;
+     * @param callback - The event callback, signature:`(event?:ICollisionEvent|ITriggerEvent)=>void`.
+     * @param target - The event callback target.
+     */
+    public once<TFunction extends (...any) => void>(type: CharacterCollisionEventType, callback: TFunction, target?): any {
+        // TODO: callback invoker now is a entity, after `once` will not calling the upper `off`.
+        const ret = super.once(type, callback, target);
+        //this._updateNeedEvent(type); //todo
+        return ret;
     }
 }

@@ -25,13 +25,14 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { error, IVec3Like, Vec3 } from '../../../core';
 import { boolean } from '../../../core/data/decorators';
-import { PhysicsSystem, Collider, EColliderType, CapsuleCollider, BoxCollider } from '../../framework';
+import { PhysicsSystem, Collider, EColliderType, CapsuleCollider, BoxCollider, PhysicsGroup } from '../../framework';
 import { CapsuleCharacterController } from '../../framework/components/character-controllers/capsule-character-controller';
 import { ICapsuleCharacterController } from '../../spec/i-character-controller';
 import { createCapsuleCharacterController, PX, _trans } from '../physx-adapter';
 import { PhysXCharacterController } from './physx-character-controller';
 import { PhysXInstance } from '../physx-instance';
 import { PhysXWorld } from '../physx-world';
+import { degreesToRadians } from '../../../core/utils/misc';
 
 const v3_0 = new Vec3(0, 0, 0);
 export class PhysXCapsuleCharacterController extends PhysXCharacterController implements ICapsuleCharacterController {
@@ -42,13 +43,32 @@ export class PhysXCapsuleCharacterController extends PhysXCharacterController im
     onComponentSet (): void {
         this.component.node.getWorldPosition(v3_0);
         const upDir = new Vec3(0, 1, 0);//temp
-        const mat = PhysXInstance.physics.createMaterial(0.5, 0.5, 0.5);//temp
+        const pxMtl = PhysXInstance.physics.createMaterial(0.5, 0.5, 0.5);//temp
         //const mat = collider.material;//PhysXInstance.physics.createMaterial(0.5, 0.5, 0.5);//temp
+        const physxWorld = (PhysicsSystem.instance.physicsWorld as PhysXWorld);
 
-        const cctMgr = (PhysicsSystem.instance.physicsWorld as PhysXWorld).controllerManager;
-        this._impl = createCapsuleCharacterController(cctMgr, this.component._radius, this.component._height,
-            v3_0, this.component._stepOffset, this.component._slopeLimit, this.component._density,
-            this.component._scaleCoeff, this.component._volumeGrowth, this.component._contactOffset, upDir, mat);
+        const controllerDesc = new PX.PxCapsuleControllerDesc();
+        controllerDesc.radius = this.component.radius;
+        controllerDesc.height = this.component.height;
+        //controllerDesc.climbingMode = 1;// constraint mode
+        controllerDesc.density = this.component._density;
+        controllerDesc.scaleCoeff = this.component._scaleCoeff;
+        controllerDesc.volumeGrowth = this.component._volumeGrowth;
+        controllerDesc.contactOffset = this.component._contactOffset;
+        controllerDesc.stepOffset = this.component.stepOffset;
+        controllerDesc.slopeLimit = Math.cos(degreesToRadians(this.component.slopeLimit));
+        controllerDesc.upDirection = upDir;//this.component._upDirection;
+        controllerDesc.position = { x: v3_0.x, y: v3_0.y, z: v3_0.z };//PxExtendedVec3
+        controllerDesc.setMaterial(pxMtl);
+        controllerDesc.setReportCallback(PX.PxUserControllerHitReport.implement(physxWorld.callback.controllerHitReportCB));
+        this._impl = PX.createCapsuleCharacterController(physxWorld.controllerManager, controllerDesc);
+
+        const pxFilterData = { word0: 1, word1: 1, word2: 0, word3: 0 };
+        // pxFilterData.word0 = PhysicsGroup.DEFAULT;
+        // pxFilterData.word1 = PhysicsSystem.instance.collisionMatrix[PhysicsGroup.DEFAULT];
+        this._impl.setSimulationFilterData(pxFilterData);
+
+        if (this._impl.$$) PX.IMPL_PTR[this._impl.$$.ptr] = this;
     }
 
     setRadius (value: number): void {

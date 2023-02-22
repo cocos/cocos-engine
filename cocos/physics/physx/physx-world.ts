@@ -24,7 +24,7 @@
 
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
-import { PhysicsMaterial, PhysicsRayResult, CollisionEventType, TriggerEventType } from '../framework';
+import { PhysicsMaterial, PhysicsRayResult, CollisionEventType, TriggerEventType, CharacterControllerContact } from '../framework';
 import { error, RecyclePool, js, IVec3Like, geometry } from '../../core';
 import { IBaseConstraint } from '../spec/i-physics-constraint';
 import { PhysXRigidBody } from './physx-rigid-body';
@@ -50,7 +50,7 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
     }
 
     get impl (): any { return this.scene; }
-    readonly scene: any;
+    scene: any;
     readonly callback = PhysXCallback;
     readonly wrappedBodies: PhysXSharedBody[] = [];
     readonly ccts: PhysXCharacterController[] = [];
@@ -388,5 +388,39 @@ const PhysXCallback = {
             }
         }
         contactEventDic.reset();
+    },
+    controllerHitReportCB: {
+        onShapeHit (hit: PX.PxControllerShapeHit): void {
+            // console.log(`onShapeHit`, hit);
+            // console.log(`onShapeHit`, hit.getTouchedShape());
+            // console.log(`onShapeHit`, hit.getTouchedActor());
+            const cct = getWrapShape<PhysXCharacterController>(hit.getCurrentController()).characterController;
+            //console.log('onShapeHit current cct:', cct.node.name);
+            const collider = getWrapShape<PhysXShape>(hit.getTouchedShape()).collider;
+            //console.log('onShapeHit hit collider:', collider.node.name);
+            const emitHit = new CharacterControllerContact();
+            emitHit.worldPosition.set(hit.worldPos.x, hit.worldPos.y, hit.worldPos.z);
+            emitHit.worldNormal.set(hit.worldNormal.x, hit.worldNormal.y, hit.worldNormal.z);
+            emitHit.motionDirection.set(hit.dir.x, hit.dir.y, hit.dir.z);
+            emitHit.motionLength = hit.length;
+            cct?.emit('onShapeHit', cct, collider, emitHit);
+        },
+        onControllerHit (hit: PX.PxControllersHit): void {
+            // console.log(`onControllerHit`, hit);
+            // console.log(`onControllerHit`, hit.getTouchedController());
+            const cct = getWrapShape<PhysXCharacterController>(hit.getCurrentController()).characterController;
+            //console.log('onControllerHit current cct:', cct.node.name);
+            const otherCct = getWrapShape<PhysXCharacterController>(hit.getTouchedController()).characterController;
+            //console.log('onControllerHit other cct:', otherCct.node.name);
+            const emitHit = new CharacterControllerContact();
+            emitHit.worldPosition.set(hit.worldPos.x, hit.worldPos.y, hit.worldPos.z);
+            emitHit.worldNormal.set(hit.worldNormal.x, hit.worldNormal.y, hit.worldNormal.z);
+            emitHit.motionDirection.set(hit.dir.x, hit.dir.y, hit.dir.z);
+            emitHit.motionLength = hit.length;
+            cct?.emit('onControllerHit', cct, otherCct, emitHit);
+        },
+        // onObstacleHit (hit): void {
+        //     console.log(`onObstacleHit`, hit);
+        // },
     },
 };

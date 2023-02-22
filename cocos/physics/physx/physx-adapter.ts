@@ -35,7 +35,7 @@ import { BYTEDANCE, DEBUG, EDITOR, TEST } from 'internal:constants';
 import { IQuatLike, IVec3Like, Quat, RecyclePool, Vec3, cclegacy, geometry, Settings, settings } from '../../core';
 import { shrinkPositions } from '../utils/util';
 import { IRaycastOptions } from '../spec/i-physics-world';
-import { IPhysicsConfig, PhysicsRayResult, PhysicsSystem } from '../framework';
+import { IPhysicsConfig, PhysicsRayResult, PhysicsSystem, CharacterControllerContact } from '../framework';
 import { PhysXWorld } from './physx-world';
 import { PhysXInstance } from './physx-instance';
 import { PhysXShape } from './shapes/physx-shape';
@@ -43,6 +43,8 @@ import { PxHitFlag, PxPairFlag, PxQueryFlag, EFilterDataWord3 } from './physx-en
 import { Node } from '../../scene-graph';
 import { Director, director, game } from '../../game';
 import { degreesToRadians } from '../../core/utils/misc';
+import { PhysXCharacterController } from './character-controllers/physx-character-controller';
+import { Contact } from '@cocos/box2d';
 
 export const PX = {} as any;
 const globalThis = cclegacy._global;
@@ -458,70 +460,6 @@ export function createHeightFieldGeometry (hf: any, flags: number, hs: number, x
         hs, xs, zs);
 }
 
-export function createCapsuleCharacterController (controllerManager: any, radius: number, height: number, worldPos: IVec3Like,
-    stepOffset: number, slopeLimit: number, density: number, scaleCoeff: number, volumeGrowth: number, contactOffset: number,
-    upDirection: IVec3Like, pxMtl: any): any {
-    if (!controllerManager) return null;
-
-    const xx = PX.getDerivedInstance();
-
-    const controllerDesc = new PX.PxCapsuleControllerDesc();
-    controllerDesc.radius = radius;
-    controllerDesc.height = height;
-    controllerDesc.climbingMode = 1;// constraint mode
-    controllerDesc.density = density;
-    controllerDesc.scaleCoeff = scaleCoeff;
-    controllerDesc.volumeGrowth = volumeGrowth;
-    controllerDesc.contactOffset = contactOffset;
-    controllerDesc.stepOffset = stepOffset;
-    controllerDesc.slopeLimit = Math.cos(degreesToRadians(slopeLimit));
-    controllerDesc.upDirection = upDirection;
-    //node is at capsule's center
-    controllerDesc.position = { x: worldPos.x, y: worldPos.y, z: worldPos.z };//PxExtendedVec3
-    controllerDesc.material = pxMtl;
-    controllerDesc.setMaterial(pxMtl);
-    //const controller = controllerManager.createController(controllerDesc);
-    //const controller = PX.createCharacterController(controllerManager, controllerDesc);
-    const controller = PX.createCapsuleCharacterController(controllerManager, controllerDesc);
-    console.log('positi ', controller.getPosition());
-    console.log('radius ', controller.getRadius());
-    console.log('height ', controller.getHeight());
-    const pxFilterData = { word0: 0, word1: 0, word2: 0, word3: 0 };
-    controller.setSimulationFilterData(pxFilterData);
-    console.log(controller.getRadius());
-
-    return controller;
-}
-
-export function createBoxCharacterController (controllerManager: any, halfHeight: number, halfSideExtent: number,
-    halfForwardExtent: number, worldPos: IVec3Like, stepOffset: number, slopeLimit: number, density: number,
-    scaleCoeff: number, volumeGrowth: number, contactOffset: number, upDirection: IVec3Like, pxMtl: any): any {
-    if (!controllerManager) return null;
-
-    const controllerDesc = new PX.PxBoxControllerDesc();
-    controllerDesc.halfHeight = halfHeight;
-    controllerDesc.halfSideExtent = halfSideExtent;
-    controllerDesc.halfForwardExtent = halfForwardExtent;
-    //capsuleControllerDesc.climbingMode = ;
-    controllerDesc.density = density;
-    controllerDesc.scaleCoeff = scaleCoeff;
-    controllerDesc.volumeGrowth = volumeGrowth;
-    controllerDesc.contactOffset = contactOffset;
-    controllerDesc.stepOffset = stepOffset;
-    controllerDesc.slopeLimit = Math.cos(degreesToRadians(slopeLimit));
-    controllerDesc.upDirection = upDirection;
-    //node is at capsule's center
-    controllerDesc.position = { x: worldPos.x, y: worldPos.y, z: worldPos.z };//PxExtendedVec3
-    controllerDesc.material = pxMtl;
-    controllerDesc.setMaterial(pxMtl);
-    //const controller = controllerManager.createController(controllerDesc);
-    const controller = PX.createBoxCharacterController(controllerManager, controllerDesc);
-    console.log(controller.getPosition());
-    const pxFilterData = { word0: 0, word1: 0, word2: 0, word3: 0 };
-    controller.setSimulationFilterData(pxFilterData);
-    return controller;
-}
-
 export function simulateScene (scene: any, deltaTime: number) {
     if (USE_BYTEDANCE) {
         scene.simulate(deltaTime);
@@ -617,7 +555,7 @@ export function raycastClosest (world: PhysXWorld, worldRay: geometry.Ray, optio
     return false;
 }
 
-export function initializeWorld (world: any) {
+export function initializeWorld (world: PhysXWorld) {
     if (USE_BYTEDANCE) {
         // construct PhysX instance object only once
         if (!PhysXInstance.physics) {

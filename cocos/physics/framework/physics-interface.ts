@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { IVec3Like } from '../../core';
+import { IVec3Like, Vec3 } from '../../core';
 import { Collider } from './components/colliders/collider';
 
 /**
@@ -240,3 +240,31 @@ export type CollisionEventType = 'onCollisionEnter' | 'onCollisionStay' | 'onCol
  * 碰撞事件的回调函数签名定义。
  */
 export type CollisionCallback = (event?: ICollisionEvent) => void;
+
+//ICharacterCollisionEventTypeEvent?
+export type CharacterCollisionEventType = 'onShapeHit' | 'onControllerHit';
+
+export class CharacterControllerContact {
+    /**
+     * @en
+     * Gets the contact point relative to the rigid body A in the world coordinate system.
+     * @zh
+     * 获取世界坐标系中的碰撞点。
+     * @param out used to storage the output.
+     */
+    worldPosition: Vec3 = new Vec3();
+
+    /**
+     * @en
+     * Gets the contact normal relative to the rigid body A in the world coordinate system.
+     * @zh
+     * 获取世界坐标系中的碰撞法线。
+     * @param out used to storage the output.
+     */
+    worldNormal: Vec3 = new Vec3();
+
+    motionDirection: Vec3 = new Vec3(); //not right
+    motionLength = 0;//not right
+    //getMotionDirection (out: IVec3Like): void;
+    //getMotionLength (): number;
+}
