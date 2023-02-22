@@ -384,7 +384,7 @@ bool native_ptr_to_seval(T *vp, se::Class *cls, se::Value *ret, bool *isReturnCa
         return true;
     }
 
-    if constexpr (has_getScriptObject<DecayT, se::Object *()>::value) {
+    if constexpr (cc::has_getScriptObject<DecayT, se::Object *()>::value) {
         if (v->getScriptObject() != nullptr) {
             if (isReturnCachedValue != nullptr) {
                 *isReturnCachedValue = true;

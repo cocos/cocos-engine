@@ -26,7 +26,7 @@
 
 #include <type_traits>
 
-#define DEFINE_HAS_MEMBER_FUNC(memFunc)                                       \
+#define CC_DEFINE_HAS_MEMBER_FUNC(memFunc)                                       \
     template <typename, typename T>                                           \
     struct has_##memFunc {                                                    \
         static_assert(                                                        \
@@ -51,11 +51,15 @@
         static constexpr bool value = type::value;                            \
     };
 
-DEFINE_HAS_MEMBER_FUNC(serialize)
-DEFINE_HAS_MEMBER_FUNC(serializeInlineData)
-DEFINE_HAS_MEMBER_FUNC(setUuid)
-DEFINE_HAS_MEMBER_FUNC(setScriptObject)
-DEFINE_HAS_MEMBER_FUNC(getScriptObject)
+namespace cc {
 
-DEFINE_HAS_MEMBER_FUNC(onBeforeSerialize)
-DEFINE_HAS_MEMBER_FUNC(onAfterDeserialize)
+CC_DEFINE_HAS_MEMBER_FUNC(serialize)
+CC_DEFINE_HAS_MEMBER_FUNC(serializeInlineData)
+CC_DEFINE_HAS_MEMBER_FUNC(setUuid)
+CC_DEFINE_HAS_MEMBER_FUNC(setScriptObject)
+CC_DEFINE_HAS_MEMBER_FUNC(getScriptObject)
+
+CC_DEFINE_HAS_MEMBER_FUNC(onBeforeSerialize)
+CC_DEFINE_HAS_MEMBER_FUNC(onAfterDeserialize)
+
+}
