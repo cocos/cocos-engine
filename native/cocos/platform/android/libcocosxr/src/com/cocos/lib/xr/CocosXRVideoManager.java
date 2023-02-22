@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright (c) 2018-2022 Xiamen Yaji Software Co., Ltd.
+ * Copyright (c) 2018-2023 Xiamen Yaji Software Co., Ltd.
  *
  * http://www.cocos.com
  *
@@ -36,6 +36,8 @@ import android.opengl.EGLSurface;
 import android.opengl.GLES30;
 import android.util.Log;
 import com.cocos.lib.JsbBridgeWrapper;
+import com.cocos.lib.xr.permission.CocosXRPermissionHelper;
+
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -160,16 +162,16 @@ public class CocosXRVideoManager {
     public void onCreate(Activity activity) {
         activityWeakReference = new WeakReference<>(activity);
         for (int i = 0; i < MAX_COUNT; i++) {
-            JsbBridgeWrapper.getInstance().addScriptEventListener(XR_VIDEO_PLAYER_EVENT_NAME + i, new JsbBridgeWrapper.OnScriptEventListener() {
-                @Override
-                public void onScriptEvent(String eventData) {
-                    if(isPaused) {
-                        return;
-                    }
-                    processVideoEvent(eventData);
+            JsbBridgeWrapper.getInstance().addScriptEventListener(XR_VIDEO_PLAYER_EVENT_NAME + i, eventData -> {
+                if(isPaused) {
+                    return;
                 }
+                processVideoEvent(eventData);
             });
         }
+        JsbBridgeWrapper.getInstance().addScriptEventListener(CocosXRPermissionHelper.XR_PERMISSION_EVENT_NAME, CocosXRPermissionHelper::onScriptEvent);
+
+        CocosXRApi.getInstance().onCreate(activity);
     }
 
     public void onResume() {
@@ -241,12 +243,9 @@ public class CocosXRVideoManager {
             xrVideoPlayerHashMap.get(videoEventData.videoPlayerHandleKey).reset();
         } else if (videoEventData.eventId == VIDEO_EVENT_DESTROY) {
             xrVideoPlayerHashMap.get(videoEventData.videoPlayerHandleKey).release();
-            videoGLThread.queueEvent(new Runnable() {
-                @Override
-                public void run() {
-                    xrVideoPlayerHashMap.get(videoEventData.videoPlayerHandleKey).onGLDestroy();
-                    xrVideoPlayerHashMap.remove(videoEventData.videoPlayerHandleKey);
-                }
+            videoGLThread.queueEvent(() -> {
+                xrVideoPlayerHashMap.get(videoEventData.videoPlayerHandleKey).onGLDestroy();
+                xrVideoPlayerHashMap.remove(videoEventData.videoPlayerHandleKey);
             });
         } else if (videoEventData.eventId == VIDEO_EVENT_GET_POSITION) {
             int position = xrVideoPlayerHashMap.get(videoEventData.videoPlayerHandleKey).getCurrentPosition();
@@ -275,6 +274,7 @@ public class CocosXRVideoManager {
 
     public void onDestroy() {
         Log.d(TAG, "onDestroy:" + xrVideoPlayerHashMap.size());
+        CocosXRApi.getInstance().onDestroy();
         if(videoGLThread != null) {
             videoGLThread.onDestroy();
             videoGLThread = null;
@@ -282,6 +282,7 @@ public class CocosXRVideoManager {
         for (int i = 0; i < MAX_COUNT; i++) {
             JsbBridgeWrapper.getInstance().removeAllListenersForEvent(XR_VIDEO_PLAYER_EVENT_NAME + i);
         }
+        JsbBridgeWrapper.getInstance().removeAllListenersForEvent(CocosXRPermissionHelper.XR_PERMISSION_EVENT_NAME);
         Set<Map.Entry<String, CocosXRVideoPlayer>> entrySets = xrVideoPlayerHashMap.entrySet();
         for (Map.Entry<String, CocosXRVideoPlayer> entrySet : entrySets) {
             entrySet.getValue().release();

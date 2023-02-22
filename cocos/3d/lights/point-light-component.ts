@@ -25,7 +25,7 @@
 import { ccclass, help, executeInEditMode, menu, tooltip, type, displayOrder,
     serializable, formerlySerializedAs, editable, rangeMin, slide } from 'cc.decorator';
 import { scene } from '../../render-scene';
-import { Camera } from '../../render-scene/scene';
+import { Camera, LightType } from '../../render-scene/scene';
 import { Light, PhotometricTerm } from './light-component';
 import { CCFloat, CCInteger, cclegacy } from '../../core';
 
@@ -47,9 +47,6 @@ export class PointLight extends Light {
     private _term = PhotometricTerm.LUMINOUS_FLUX;
     @serializable
     private _range = 1;
-
-    protected _type = scene.LightType.POINT;
-    protected _light: scene.PointLight | null = null;
 
     /**
      * @en Luminous flux of the light.
@@ -80,7 +77,7 @@ export class PointLight extends Light {
             result = this._luminanceLDR;
         }
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        this._light && (this._light.luminance = result);
+        this._light && ((this._light as scene.PointLight).luminance = result);
     }
 
     /**
@@ -106,11 +103,11 @@ export class PointLight extends Light {
         if (isHDR) {
             this._luminanceHDR = val;
             // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-            this._light && (this._light.luminanceHDR = this._luminanceHDR);
+            this._light && ((this._light as scene.PointLight).luminanceHDR = this._luminanceHDR);
         } else {
             this._luminanceLDR = val;
             // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-            this._light && (this._light.luminanceLDR = this._luminanceLDR);
+            this._light && ((this._light as scene.PointLight).luminanceLDR = this._luminanceLDR);
         }
     }
 
@@ -146,7 +143,7 @@ export class PointLight extends Light {
     }
     set range (val) {
         this._range = val;
-        if (this._light) { this._light.range = val; }
+        if (this._light) { (this._light as scene.PointLight).range = val; }
     }
 
     constructor () {
@@ -156,11 +153,12 @@ export class PointLight extends Light {
 
     protected _createLight () {
         super._createLight();
+        this._type = LightType.POINT;
         this.range = this._range;
 
         if (this._light) {
-            this._light.luminanceHDR = this._luminanceHDR;
-            this._light.luminanceLDR = this._luminanceLDR;
+            (this._light as scene.PointLight).luminanceHDR = this._luminanceHDR;
+            (this._light as scene.PointLight).luminanceLDR = this._luminanceLDR;
         }
     }
 }

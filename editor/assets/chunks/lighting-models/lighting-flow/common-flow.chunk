@@ -135,16 +135,13 @@
         if (cc_mainLitDir.w > 0.0) {
           vec4 shadowPos = vec4(0.0), shadowNDCPosWithBias = vec4(0.0);
           if (CCSurfacesLightingEnableShadow(lightingData.NoL)) {
-            if (cc_shadowLPNNInfo.w > 0.0) {
-              #if CC_DIR_LIGHT_SHADOW_TYPE == CC_DIR_LIGHT_SHADOW_CASCADED
-                lightingResult.shadow = CCCSMFactorBase(shadowPos, shadowNDCPosWithBias, surfaceData.worldPos, lightingData.N, shadowBias);
-              #endif
-            } else {
-              #if CC_DIR_LIGHT_SHADOW_TYPE == CC_DIR_LIGHT_SHADOW_UNIFORM
-                shadowPos = cc_matLightViewProj * vec4(surfaceData.worldPos, 1.0);
-                lightingResult.shadow = CCShadowFactorBase(shadowPos, shadowNDCPosWithBias, lightingData.N, shadowBias);
-              #endif
-            }
+            #if CC_DIR_LIGHT_SHADOW_TYPE == CC_DIR_LIGHT_SHADOW_CASCADED
+              lightingResult.shadow = CCCSMFactorBase(shadowPos, shadowNDCPosWithBias, surfaceData.worldPos, lightingData.N, shadowBias);
+            #endif
+            #if CC_DIR_LIGHT_SHADOW_TYPE == CC_DIR_LIGHT_SHADOW_UNIFORM
+              shadowPos = cc_matLightViewProj * vec4(surfaceData.worldPos, 1.0);
+              lightingResult.shadow = CCShadowFactorBase(shadowPos, lightingData.N, shadowBias);
+            #endif
           }
           #if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
             #if CC_SURFACES_LIGHTING_USE_SHADOWMAP_TRANSMIT

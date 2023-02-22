@@ -162,11 +162,11 @@ public:
     }
 
     TypedArrayTemp subarray(uint32_t begin, uint32_t end) {
-        return TypedArrayTemp(_buffer, begin * BYTES_PER_ELEMENT, end - begin);
+        return TypedArrayTemp(_buffer, begin * BYTES_PER_ELEMENT + _byteOffset, end - begin);
     }
 
     TypedArrayTemp subarray(uint32_t begin) {
-        return TypedArrayTemp(_buffer, begin * BYTES_PER_ELEMENT);
+        return TypedArrayTemp(_buffer, begin * BYTES_PER_ELEMENT + _byteOffset);
     }
 
     TypedArrayTemp slice() {

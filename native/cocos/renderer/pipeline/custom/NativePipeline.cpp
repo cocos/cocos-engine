@@ -490,6 +490,9 @@ void buildLayoutGraphNodeBuffer(
 bool NativePipeline::activate(gfx::Swapchain *swapchainIn) {
     // setMacroInt("CC_PIPELINE_TYPE", 1);
 
+    // disable gfx internal deduce
+    gfx::Device::getInstance()->enableAutoBarrier(false);
+
     swapchain = swapchainIn;
     globalDSManager->activate(device);
     pipelineSceneData->activate(device);

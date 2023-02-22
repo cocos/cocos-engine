@@ -91,6 +91,8 @@ public:
     inline bool isRecording() const { return _recording; }
     inline uint64_t currentFrame() const { return _currentFrame; }
 
+    void enableAutoBarrier(bool enable) override;
+
 protected:
     static DeviceValidator *instance;
 

@@ -754,6 +754,11 @@ bool nativevalue_to_se_args_v(se::ValueArray &array, Args &&...args); // NOLINT(
 
 template <typename R>
 inline bool sevalue_to_native(const se::Value &from, std::function<R()> *func, se::Object *self) { // NOLINT(readability-identifier-naming)
+    if (from.isNullOrUndefined()) {
+        *func = nullptr;
+        return true;
+    }
+
     if (from.isObject() && from.toObject()->isFunction()) {
         CC_ASSERT(from.toObject()->isRooted());
         *func = [from, self]() {
@@ -778,6 +783,11 @@ inline bool sevalue_to_native(const se::Value &from, std::function<R()> *func, s
 
 template <typename R, typename... Args>
 inline bool sevalue_to_native(const se::Value &from, std::function<R(Args...)> *func, se::Object *self) { // NOLINT(readability-identifier-naming)
+    if (from.isNullOrUndefined()) {
+        *func = nullptr;
+        return true;
+    }
+
     if (from.isObject() && from.toObject()->isFunction()) {
         CC_ASSERT(from.toObject()->isRooted());
         *func = [from, self](Args... inargs) {
@@ -805,6 +815,11 @@ inline bool sevalue_to_native(const se::Value &from, std::function<R(Args...)> *
 }
 
 inline bool sevalue_to_native(const se::Value &from, std::function<void()> *func, se::Object *self) { // NOLINT(readability-identifier-naming)
+    if (from.isNullOrUndefined()) {
+        *func = nullptr;
+        return true;
+    }
+
     if (from.isObject() && from.toObject()->isFunction()) {
         CC_ASSERT(from.toObject()->isRooted());
         *func = [from, self]() {
@@ -825,6 +840,11 @@ inline bool sevalue_to_native(const se::Value &from, std::function<void()> *func
 
 template <typename... Args>
 inline bool sevalue_to_native(const se::Value &from, std::function<void(Args...)> *func, se::Object *self) { // NOLINT(readability-identifier-naming)
+    if (from.isNullOrUndefined()) {
+        *func = nullptr;
+        return true;
+    }
+
     if (from.isObject() && from.toObject()->isFunction()) {
         CC_ASSERT(from.toObject()->isRooted());
         *func = [from, self](Args... inargs) {

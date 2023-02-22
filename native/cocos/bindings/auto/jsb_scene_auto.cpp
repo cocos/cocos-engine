@@ -835,6 +835,10 @@ using namespace cc;
 #define cc_scene_Model_receiveDirLight_set(self_, val_) self_->setReceiveDirLight(val_)
   
 
+#define cc_scene_Model_reflectionProbeId_get(self_) self_->getReflectionProbeId()
+#define cc_scene_Model_reflectionProbeId_set(self_, val_) self_->setReflectionProbeId(val_)
+  
+
 #define cc_scene_SubModel_passes_get(self_) self_->getPasses()
 #define cc_scene_SubModel_passes_set(self_, val_) self_->setPasses(val_)
   
@@ -14137,6 +14141,50 @@ static bool js_cc_scene_Model_updateReflectionProbePlanarMap(se::State& s)
 }
 SE_BIND_FUNC(js_cc_scene_Model_updateReflectionProbePlanarMap) 
 
+static bool js_cc_scene_Model_updateReflectionProbeId(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::Model *arg1 = (cc::scene::Model *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::Model>(s);
+    if (nullptr == arg1) return true;
+    (arg1)->updateReflectionProbeId();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_Model_updateReflectionProbeId) 
+
+static bool js_cc_scene_Model_updateReflectionProbeDataMap(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::Model *arg1 = (cc::scene::Model *) NULL ;
+    cc::Texture2D *arg2 = (cc::Texture2D *) NULL ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::Model>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    (arg1)->updateReflectionProbeDataMap(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_Model_updateReflectionProbeDataMap) 
+
 static bool js_cc_scene_Model_attachToScene(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -15338,6 +15386,43 @@ static bool js_cc_scene_Model_receiveDirLight_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_scene_Model_receiveDirLight_get) 
 
+static bool js_cc_scene_Model_reflectionProbeId_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::Model *arg1 = (cc::scene::Model *) NULL ;
+    int32_t arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::Model>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    cc_scene_Model_reflectionProbeId_set(arg1,SWIG_STD_MOVE(arg2));
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_scene_Model_reflectionProbeId_set) 
+
+static bool js_cc_scene_Model_reflectionProbeId_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::scene::Model *arg1 = (cc::scene::Model *) NULL ;
+    int32_t result;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::Model>(s);
+    if (nullptr == arg1) return true;
+    result = cc_scene_Model_reflectionProbeId_get(arg1);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_scene_Model_reflectionProbeId_get) 
+
 bool js_register_cc_scene_Model(se::Object* obj) {
     auto* cls = se::Class::create("Model", obj, nullptr, _SE(js_new_cc_scene_Model)); 
     
@@ -15370,6 +15455,7 @@ bool js_register_cc_scene_Model(se::Object* obj) {
     cls->defineProperty("bakeToReflectionProbe", _SE(js_cc_scene_Model_bakeToReflectionProbe_get), _SE(js_cc_scene_Model_bakeToReflectionProbe_set)); 
     cls->defineProperty("reflectionProbeType", _SE(js_cc_scene_Model_reflectionProbeType_get), _SE(js_cc_scene_Model_reflectionProbeType_set)); 
     cls->defineProperty("receiveDirLight", _SE(js_cc_scene_Model_receiveDirLight_get), _SE(js_cc_scene_Model_receiveDirLight_set)); 
+    cls->defineProperty("reflectionProbeId", _SE(js_cc_scene_Model_reflectionProbeId_get), _SE(js_cc_scene_Model_reflectionProbeId_set)); 
     
     cls->defineFunction("destroy", _SE(js_cc_scene_Model_destroy)); 
     cls->defineFunction("initSubModel", _SE(js_cc_scene_Model_initSubModel)); 
@@ -15402,6 +15488,8 @@ bool js_register_cc_scene_Model(se::Object* obj) {
     cls->defineFunction("updateLocalShadowBias", _SE(js_cc_scene_Model_updateLocalShadowBias)); 
     cls->defineFunction("updateReflectionProbeCubemap", _SE(js_cc_scene_Model_updateReflectionProbeCubemap)); 
     cls->defineFunction("updateReflectionProbePlanarMap", _SE(js_cc_scene_Model_updateReflectionProbePlanarMap)); 
+    cls->defineFunction("updateReflectionProbeId", _SE(js_cc_scene_Model_updateReflectionProbeId)); 
+    cls->defineFunction("updateReflectionProbeDataMap", _SE(js_cc_scene_Model_updateReflectionProbeDataMap)); 
     cls->defineFunction("attachToScene", _SE(js_cc_scene_Model_attachToScene)); 
     cls->defineFunction("detachFromScene", _SE(js_cc_scene_Model_detachFromScene)); 
     cls->defineFunction("setLocalSHBuffer", _SE(js_cc_scene_Model_setLocalSHBuffer)); 

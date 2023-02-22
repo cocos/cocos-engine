@@ -115,10 +115,11 @@ void XRInterface::dispatchGamepadEventInternal(const xr::XRControllerEvent &xrCo
                         break;
                     }
                     case xr::XRClick::Type::HOME: {
-                        CC_LOG_INFO("[XRInterface] exit when home click in rokid.");
+                        CC_LOG_INFO("[XRInterface] dispatchGamepadEventInternal exit when home click in rokid.");
 #if CC_USE_XR
                         xr::XrEntry::getInstance()->destroyXrInstance();
                         xr::XrEntry::destroyInstance();
+                        _isXrEntryInstanceValid = false;
 #endif
                         CC_CURRENT_APPLICATION_SAFE()->close();
                         break;
@@ -236,10 +237,11 @@ void XRInterface::dispatchHandleEventInternal(const xr::XRControllerEvent &xrCon
                         break;
                     }
                     case xr::XRClick::Type::HOME: {
-                        CC_LOG_INFO("[XRInterface] exit when home click in rokid.");
+                        CC_LOG_INFO("[XRInterface] dispatchHandleEventInternal exit when home click in rokid.");
 #if CC_USE_XR
                         xr::XrEntry::getInstance()->destroyXrInstance();
                         xr::XrEntry::destroyInstance();
+                        _isXrEntryInstanceValid = false;
 #endif
                         CC_CURRENT_APPLICATION_SAFE()->close();
                         break;
@@ -428,6 +430,7 @@ uint32_t XRInterface::getRuntimeVersion() {
 void XRInterface::initialize(void *javaVM, void *activity) {
 #if CC_USE_XR
     CC_LOG_INFO("[XR] initialize vm.%p,aty.%p | %d", javaVM, activity, (int)gettid());
+    _isXrEntryInstanceValid = true;
     xr::XrEntry::getInstance()->initPlatformData(javaVM, activity);
     xr::XrEntry::getInstance()->setGamepadCallback(std::bind(&XRInterface::dispatchGamepadEventInternal, this, std::placeholders::_1));
     xr::XrEntry::getInstance()->setHandleCallback(std::bind(&XRInterface::dispatchHandleEventInternal, this, std::placeholders::_1));
@@ -509,6 +512,7 @@ void XRInterface::onRenderDestroy() {
     CC_LOG_INFO("[XR] onRenderDestroy");
     xr::XrEntry::getInstance()->destroyXrInstance();
     xr::XrEntry::destroyInstance();
+    _isXrEntryInstanceValid = false;
     if (_jsPoseEventArray != nullptr) {
         _jsPoseEventArray->unroot();
         _jsPoseEventArray->decRef();
@@ -759,6 +763,9 @@ EGLSurfaceType XRInterface::acquireEGLSurfaceType(uint32_t typedID) {
 bool XRInterface::platformLoopStart() {
 #if CC_USE_XR
     // CC_LOG_INFO("[XR] platformLoopStart");
+    if (!_isXrEntryInstanceValid) {
+        return false;
+    }
     #if CC_USE_XR_REMOTE_PREVIEW
     if (_xrRemotePreviewManager && !_xrRemotePreviewManager->isStarted()) {
         _xrRemotePreviewManager->start();
@@ -885,6 +892,9 @@ bool XRInterface::endRenderFrame() {
 
 bool XRInterface::platformLoopEnd() {
 #if CC_USE_XR
+    if (!_isXrEntryInstanceValid) {
+        return false;
+    }
     return xr::XrEntry::getInstance()->platformLoopEnd();
 #else
     return false;

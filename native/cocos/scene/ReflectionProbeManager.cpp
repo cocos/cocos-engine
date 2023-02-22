@@ -49,5 +49,28 @@ void ReflectionProbeManager::unRegisterProbe(scene::ReflectionProbe* probe) {
     }
 }
 
+ReflectionProbe* ReflectionProbeManager::getReflectionProbeById(int32_t probeId) {
+    for (const auto& probe : _probes) {
+        if (probe->getProbeId() == probeId) {
+            return probe;
+        }
+    }
+    return nullptr;
+}
+
+int32_t ReflectionProbeManager::getMaxProbeId() {
+    if (_probes.empty()) {
+        return -1;
+    }
+    if (_probes.size() == 1) {
+        return _probes[0]->getProbeId();
+    }
+
+    std::sort(_probes.begin(), _probes.end(), [](const ReflectionProbe* p1, const ReflectionProbe* p2) {
+        return p1->getProbeId() < p2->getProbeId();
+    });
+    return _probes[_probes.size() - 1]->getProbeId();
+}
+
 } // namespace scene
 } // namespace cc
