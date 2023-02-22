@@ -1010,6 +1010,14 @@ export class SpriteFrame extends Asset {
         const texw = tex.width;
         const texh = tex.height;
 
+        const trimmedLeft = this.offset.x + (this.originalSize.width - rect.width) / 2;
+        const trimmedTop = this.offset.y - (this.originalSize.height - rect.height) / 2;
+        const unBiasRect = new Rect();
+        unBiasRect.x = this._rect.x - trimmedLeft;
+        unBiasRect.y = this._rect.y + trimmedTop;
+        unBiasRect.width = this._originalSize.width;
+        unBiasRect.height = this._originalSize.height;
+
         if (this._rotated) {
             const l = texw === 0 ? 0 : rect.x / texw;
             const r = texw === 0 ? 1 : (rect.x + rect.height) / texw;
@@ -1074,10 +1082,10 @@ export class SpriteFrame extends Asset {
                 uv[7] = b;
             }
 
-            const ul = texw === 0 ? 0 : rect.x / texw;
-            const ur = texw === 0 ? 1 : (rect.x + rect.height) / texw;
-            const ut = texh === 0 ? 0 : rect.y / texh;
-            const ub = texh === 0 ? 1 : (rect.y + rect.width) / texh;
+            const ul = texw === 0 ? 0 : unBiasRect.x / texw;
+            const ur = texw === 0 ? 1 : (unBiasRect.x + unBiasRect.height) / texw;
+            const ut = texh === 0 ? 0 : unBiasRect.y / texh;
+            const ub = texh === 0 ? 1 : (unBiasRect.y + unBiasRect.width) / texh;
             if (this._isFlipUVX && this._isFlipUVY) {
                 unbiasUV[0] = ur;
                 unbiasUV[1] = ub;
@@ -1177,10 +1185,10 @@ export class SpriteFrame extends Asset {
                 uv[6] = r;
                 uv[7] = t;
             }
-            const ul = texw === 0 ? 0 : rect.x / texw;
-            const ur = texw === 0 ? 1 : (rect.x + rect.width) / texw;
-            const ub = texh === 0 ? 1 : (rect.y + rect.height) / texh;
-            const ut = texh === 0 ? 0 : rect.y / texh;
+            const ul = texw === 0 ? 0 : unBiasRect.x / texw;
+            const ur = texw === 0 ? 1 : (unBiasRect.x + unBiasRect.width) / texw;
+            const ub = texh === 0 ? 1 : (unBiasRect.y + unBiasRect.height) / texh;
+            const ut = texh === 0 ? 0 : unBiasRect.y / texh;
             if (this._isFlipUVX && this._isFlipUVY) {
                 unbiasUV[0] = ur;
                 unbiasUV[1] = ut;
