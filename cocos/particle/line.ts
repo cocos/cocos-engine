@@ -81,6 +81,7 @@ export class Line extends ModelRenderer {
 
     /**
      * @zh positions是否为世界空间坐标。
+     * @en Whether positions are world space coordinates.
      */
     @displayOrder(1)
     @tooltip('i18n:line.worldSpace')
@@ -104,7 +105,7 @@ export class Line extends ModelRenderer {
     private _positions = [];
 
     /**
-     * @en Inflection point positions of each polyline
+     * @en Inflection point positions of each polyline.
      * @zh 每段折线的拐点坐标。
      */
     @type([Vec3])
@@ -124,6 +125,7 @@ export class Line extends ModelRenderer {
 
     /**
      * @zh 线段的宽度。
+     * @en Width of this line.
      */
     @type(CurveRange)
     @range([0, 1])
@@ -146,6 +148,7 @@ export class Line extends ModelRenderer {
 
     /**
      * @zh 线段颜色。
+     * @en Color of this line.
      */
     @type(GradientRange)
     @displayOrder(6)
@@ -172,7 +175,8 @@ export class Line extends ModelRenderer {
 
     /**
      * @zh 图块数。
-     * @deprecated since v3.7.2
+     * @en Texture tile count.
+     * @deprecated since v3.7.2, duplicated with mainTiling_Offset in material.
      */
     @type(Vec2)
     @displayOrder(4)
@@ -195,7 +199,7 @@ export class Line extends ModelRenderer {
     private _offset = new Vec2(0, 0);
 
     /**
-     * @deprecated since v3.7.2
+     * @deprecated since v3.7.2, duplicated with mainTiling_Offset in material.
      */
     @type(Vec2)
     @displayOrder(5)
