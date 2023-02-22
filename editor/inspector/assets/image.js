@@ -288,11 +288,8 @@ exports.methods = {
         $panel.update(assetList, metaList);
     },
 
-    handleTypeChange(originMetaList) {
-        const srcType = originMetaList[0].userData.type;
-        const destType = this.meta.userData.type;
+    checkSpriteFrameChange(srcType, destType) {
         const changeTypes = ['texture', 'normal map', 'texture cube'];
-
         // imageAsset type changed contains spriteFrame
         let spriteFrameChange = '';
         if (srcType === 'sprite-frame' && changeTypes.includes(destType)) {
@@ -300,40 +297,53 @@ exports.methods = {
         } else if (destType === 'sprite-frame' && changeTypes.includes(srcType)) {
             spriteFrameChange = 'othersToSpriteFrame';
         }
+        return spriteFrameChange;
+    },
 
+    handleTypeChange(spriteFrameChange, type) {
+        if (!spriteFrameChange || !type) {
+            return;
+        }
+
+        const imageTypeToImporter = {
+            raw: '',
+            texture: 'texture',
+            'normal map': 'texture',
+            'sprite-frame': 'sprite-frame',
+            'texture cube': 'erp-texture-cube',
+        };
         // change mipFilter
         let mipChanged = false;
-        if (spriteFrameChange) {
-            this.metaList.forEach((meta) => {
-                if (!meta) {
-                    return;
-                }
-                for (const subUuid in meta.subMetas) {
-                    const subMeta = meta.subMetas[subUuid];
-                    if (!subMeta || subMeta.importer === '*') {
-                        continue;
+        const imageImporter = imageTypeToImporter[type];
+        this.metaList.forEach((meta) => {
+            if (!meta) {
+                return;
+            }
+            for (const subUuid in meta.subMetas) {
+                const subMeta = meta.subMetas[subUuid];
+                if (!subMeta || subMeta.importer === '*') {
+                    continue;
+                } 
+                if (subMeta.importer === imageImporter) {
+                    if (spriteFrameChange === 'othersToSpriteFrame' && subMeta.userData.mipfilter !== 'none') {
+                        // imageAsset type change to spriteFrame，disabled mipmaps
+                        subMeta.userData.mipfilter = 'none';
+                        mipChanged = true;
+                    } else if (spriteFrameChange === 'spriteFrameToOthers' && subMeta.userData.mipfilter === 'none') {
+                        // imageAsset type change to other type from spriteFrame
+                        subMeta.userData.mipfilter = 'nearest';
+                        mipChanged = true;
                     }
-                    if (subMeta.importer === 'texture') {
-                        if (spriteFrameChange === 'othersToSpriteFrame' && subMeta.userData.mipfilter !== 'none') {
-                            // imageAsset type change to spriteFrame，disabled mipmaps
-                            subMeta.userData.mipfilter = 'none';
-                            mipChanged = true;
-                        } else if (spriteFrameChange === 'spriteFrameToOthers' && subMeta.userData.mipfilter === 'none') {
-                            // imageAsset type change to other type from spriteFrame
-                            subMeta.userData.mipfilter = 'nearest';
-                            mipChanged = true;
-                        }
+                    break;
+                }
+            }
 
-                        // sync meta
-                        if (mipChanged) {
-                            const content = JSON.stringify(meta);
-                            Editor.Message.request('asset-db', 'save-asset-meta', meta.uuid, content);
-                        }
-                        break;
-                    }
-                }
-            });
-        }
+            // sync meta
+            if (mipChanged) {
+                const content = JSON.stringify(meta);
+                Editor.Message.request('asset-db', 'save-asset-meta', meta.uuid, content);
+            }
+        });
     }
 };
 
@@ -367,7 +377,13 @@ exports.update = function(assetList, metaList) {
     this.meta = metaList[0];
 
     if (this.originMetaList) {
-        this.handleTypeChange(this.originMetaList);
+        // if the image type changes between sprite-frame
+        const spriteFrameChange = this.checkSpriteFrameChange(this.originMetaList[0].userData.type, this.meta.userData.type);
+        this.handleTypeChange(spriteFrameChange, this.meta.userData.type);
+        // same as panel handle
+        if (this.meta.userData.type === 'sprite-frame') {
+            this.handleTypeChange(spriteFrameChange, 'texture');
+        }
     }
     // change originMetaList
     this.originMetaList = JSON.parse(JSON.stringify(this.metaList));
