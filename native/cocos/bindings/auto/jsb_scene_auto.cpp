@@ -493,6 +493,29 @@ using namespace cc;
 #define cc_scene_SphereLight_aabb_get(self_) self_->getAABB()
   
 
+#define cc_scene_PointLight_position_get(self_) self_->getPosition()
+#define cc_scene_PointLight_position_set(self_, val_) self_->setPosition(val_)
+  
+
+#define cc_scene_PointLight_range_get(self_) self_->getRange()
+#define cc_scene_PointLight_range_set(self_, val_) self_->setRange(val_)
+  
+
+#define cc_scene_PointLight_luminance_get(self_) self_->getLuminance()
+#define cc_scene_PointLight_luminance_set(self_, val_) self_->setLuminance(val_)
+  
+
+#define cc_scene_PointLight_luminanceHDR_get(self_) self_->getLuminanceHDR()
+#define cc_scene_PointLight_luminanceHDR_set(self_, val_) self_->setLuminanceHDR(val_)
+  
+
+#define cc_scene_PointLight_luminanceLDR_get(self_) self_->getLuminanceLDR()
+#define cc_scene_PointLight_luminanceLDR_set(self_, val_) self_->setLuminanceLDR(val_)
+  
+
+#define cc_scene_PointLight_aabb_get(self_) self_->getAABB()
+  
+
 #define cc_scene_Camera_iso_get(self_) self_->getIso()
 #define cc_scene_Camera_iso_set(self_, val_) self_->setIso(val_)
   
@@ -646,6 +669,9 @@ using namespace cc;
   
 
 #define cc_scene_RenderScene_spotLights_get(self_) self_->getSpotLights()
+  
+
+#define cc_scene_RenderScene_pointLights_get(self_) self_->getPointLights()
   
 
 #define cc_scene_RenderScene_models_get(self_) self_->getModels()
@@ -13322,6 +13348,269 @@ bool js_register_cc_scene_SphereLight(se::Object* obj) {
 }
 
 
+se::Class* __jsb_cc_scene_PointLight_class = nullptr;
+se::Object* __jsb_cc_scene_PointLight_proto = nullptr;
+SE_DECLARE_FINALIZE_FUNC(js_delete_cc_scene_PointLight) 
+
+static bool js_new_cc_scene_PointLight(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    
+    cc::scene::PointLight *result;
+    result = (cc::scene::PointLight *)new cc::scene::PointLight();
+    
+    
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+SE_BIND_CTOR(js_new_cc_scene_PointLight, __jsb_cc_scene_PointLight_class, js_delete_cc_scene_PointLight)
+
+static bool js_delete_cc_scene_PointLight(se::State& s)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_delete_cc_scene_PointLight) 
+
+static bool js_cc_scene_PointLight_position_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::PointLight *arg1 = (cc::scene::PointLight *) NULL ;
+    cc::Vec3 *arg2 = 0 ;
+    cc::Vec3 temp2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::PointLight>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg2 = &temp2;
+    
+    cc_scene_PointLight_position_set(arg1,*arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_scene_PointLight_position_set) 
+
+static bool js_cc_scene_PointLight_position_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::scene::PointLight *arg1 = (cc::scene::PointLight *) NULL ;
+    cc::Vec3 *result = 0 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::PointLight>(s);
+    if (nullptr == arg1) return true;
+    result = (cc::Vec3 *) &cc_scene_PointLight_position_get(arg1);
+    
+    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_scene_PointLight_position_get) 
+
+static bool js_cc_scene_PointLight_range_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::PointLight *arg1 = (cc::scene::PointLight *) NULL ;
+    float arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::PointLight>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    cc_scene_PointLight_range_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_scene_PointLight_range_set) 
+
+static bool js_cc_scene_PointLight_range_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::scene::PointLight *arg1 = (cc::scene::PointLight *) NULL ;
+    float result;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::PointLight>(s);
+    if (nullptr == arg1) return true;
+    result = (float)cc_scene_PointLight_range_get(arg1);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_scene_PointLight_range_get) 
+
+static bool js_cc_scene_PointLight_luminance_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::PointLight *arg1 = (cc::scene::PointLight *) NULL ;
+    float arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::PointLight>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    cc_scene_PointLight_luminance_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_scene_PointLight_luminance_set) 
+
+static bool js_cc_scene_PointLight_luminance_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::scene::PointLight *arg1 = (cc::scene::PointLight *) NULL ;
+    float result;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::PointLight>(s);
+    if (nullptr == arg1) return true;
+    result = (float)cc_scene_PointLight_luminance_get(arg1);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_scene_PointLight_luminance_get) 
+
+static bool js_cc_scene_PointLight_luminanceHDR_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::PointLight *arg1 = (cc::scene::PointLight *) NULL ;
+    float arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::PointLight>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    cc_scene_PointLight_luminanceHDR_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_scene_PointLight_luminanceHDR_set) 
+
+static bool js_cc_scene_PointLight_luminanceHDR_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::scene::PointLight *arg1 = (cc::scene::PointLight *) NULL ;
+    float result;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::PointLight>(s);
+    if (nullptr == arg1) return true;
+    result = (float)cc_scene_PointLight_luminanceHDR_get(arg1);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_scene_PointLight_luminanceHDR_get) 
+
+static bool js_cc_scene_PointLight_luminanceLDR_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::PointLight *arg1 = (cc::scene::PointLight *) NULL ;
+    float arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::PointLight>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    cc_scene_PointLight_luminanceLDR_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_scene_PointLight_luminanceLDR_set) 
+
+static bool js_cc_scene_PointLight_luminanceLDR_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::scene::PointLight *arg1 = (cc::scene::PointLight *) NULL ;
+    float result;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::PointLight>(s);
+    if (nullptr == arg1) return true;
+    result = (float)cc_scene_PointLight_luminanceLDR_get(arg1);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_scene_PointLight_luminanceLDR_get) 
+
+static bool js_cc_scene_PointLight_aabb_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::scene::PointLight *arg1 = (cc::scene::PointLight *) NULL ;
+    cc::geometry::AABB *result = 0 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::PointLight>(s);
+    if (nullptr == arg1) return true;
+    result = (cc::geometry::AABB *) &cc_scene_PointLight_aabb_get(arg1);
+    
+    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_scene_PointLight_aabb_get) 
+
+bool js_register_cc_scene_PointLight(se::Object* obj) {
+    auto* cls = se::Class::create("PointLight", obj, __jsb_cc_scene_Light_proto, _SE(js_new_cc_scene_PointLight)); 
+    
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
+    cls->defineProperty("position", _SE(js_cc_scene_PointLight_position_get), _SE(js_cc_scene_PointLight_position_set)); 
+    cls->defineProperty("range", _SE(js_cc_scene_PointLight_range_get), _SE(js_cc_scene_PointLight_range_set)); 
+    cls->defineProperty("luminance", _SE(js_cc_scene_PointLight_luminance_get), _SE(js_cc_scene_PointLight_luminance_set)); 
+    cls->defineProperty("luminanceHDR", _SE(js_cc_scene_PointLight_luminanceHDR_get), _SE(js_cc_scene_PointLight_luminanceHDR_set)); 
+    cls->defineProperty("luminanceLDR", _SE(js_cc_scene_PointLight_luminanceLDR_get), _SE(js_cc_scene_PointLight_luminanceLDR_set)); 
+    cls->defineProperty("aabb", _SE(js_cc_scene_PointLight_aabb_get), nullptr); 
+    
+    
+    
+    
+    
+    cls->defineFinalizeFunction(_SE(js_delete_cc_scene_PointLight));
+    
+    
+    cls->install();
+    JSBClassType::registerClass<cc::scene::PointLight>(cls);
+    
+    __jsb_cc_scene_PointLight_proto = cls->getProto();
+    __jsb_cc_scene_PointLight_class = cls;
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+
 se::Class* __jsb_cc_scene_Model_class = nullptr;
 se::Object* __jsb_cc_scene_Model_proto = nullptr;
 SE_DECLARE_FINALIZE_FUNC(js_delete_cc_scene_Model) 
@@ -19506,6 +19795,74 @@ static bool js_cc_scene_RenderScene_removeSpotLights(se::State& s)
 }
 SE_BIND_FUNC(js_cc_scene_RenderScene_removeSpotLights) 
 
+static bool js_cc_scene_RenderScene_addPointLight(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::RenderScene *arg1 = (cc::scene::RenderScene *) NULL ;
+    cc::scene::PointLight *arg2 = (cc::scene::PointLight *) NULL ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    (arg1)->addPointLight(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_RenderScene_addPointLight) 
+
+static bool js_cc_scene_RenderScene_removePointLight(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::RenderScene *arg1 = (cc::scene::RenderScene *) NULL ;
+    cc::scene::PointLight *arg2 = (cc::scene::PointLight *) NULL ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    (arg1)->removePointLight(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_RenderScene_removePointLight) 
+
+static bool js_cc_scene_RenderScene_removePointLights(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::RenderScene *arg1 = (cc::scene::RenderScene *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
+    if (nullptr == arg1) return true;
+    (arg1)->removePointLights();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_RenderScene_removePointLights) 
+
 static bool js_cc_scene_RenderScene_addModel(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -19791,6 +20148,25 @@ static bool js_cc_scene_RenderScene_spotLights_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_scene_RenderScene_spotLights_get) 
 
+static bool js_cc_scene_RenderScene_pointLights_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::scene::RenderScene *arg1 = (cc::scene::RenderScene *) NULL ;
+    ccstd::vector< cc::IntrusivePtr< cc::scene::PointLight > > *result = 0 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
+    if (nullptr == arg1) return true;
+    result = (ccstd::vector< cc::IntrusivePtr< cc::scene::PointLight > > *) &cc_scene_RenderScene_pointLights_get(arg1);
+    
+    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_scene_RenderScene_pointLights_get) 
+
 static bool js_cc_scene_RenderScene_models_get(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -19837,6 +20213,7 @@ bool js_register_cc_scene_RenderScene(se::Object* obj) {
     cls->defineProperty("cameras", _SE(js_cc_scene_RenderScene_cameras_get), nullptr); 
     cls->defineProperty("sphereLights", _SE(js_cc_scene_RenderScene_sphereLights_get), nullptr); 
     cls->defineProperty("spotLights", _SE(js_cc_scene_RenderScene_spotLights_get), nullptr); 
+    cls->defineProperty("pointLights", _SE(js_cc_scene_RenderScene_pointLights_get), nullptr); 
     cls->defineProperty("models", _SE(js_cc_scene_RenderScene_models_get), nullptr); 
     cls->defineProperty("lodGroups", _SE(js_cc_scene_RenderScene_lodGroups_get), nullptr); 
     
@@ -19859,6 +20236,9 @@ bool js_register_cc_scene_RenderScene(se::Object* obj) {
     cls->defineFunction("addSpotLight", _SE(js_cc_scene_RenderScene_addSpotLight)); 
     cls->defineFunction("removeSpotLight", _SE(js_cc_scene_RenderScene_removeSpotLight)); 
     cls->defineFunction("removeSpotLights", _SE(js_cc_scene_RenderScene_removeSpotLights)); 
+    cls->defineFunction("addPointLight", _SE(js_cc_scene_RenderScene_addPointLight)); 
+    cls->defineFunction("removePointLight", _SE(js_cc_scene_RenderScene_removePointLight)); 
+    cls->defineFunction("removePointLights", _SE(js_cc_scene_RenderScene_removePointLights)); 
     cls->defineFunction("addModel", _SE(js_cc_scene_RenderScene_addModel)); 
     cls->defineFunction("removeModel", _SE(js_cc_scene_RenderScene_removeModel)); 
     cls->defineFunction("removeModels", _SE(js_cc_scene_RenderScene_removeModels)); 
@@ -28233,6 +28613,7 @@ bool register_all_scene(se::Object* obj) {
     js_register_cc_scene_DirectionalLight(ns); 
     js_register_cc_scene_SpotLight(ns); 
     js_register_cc_scene_SphereLight(ns); 
+    js_register_cc_scene_PointLight(ns); 
     js_register_cc_scene_Model(ns); 
     js_register_cc_scene_InstancedAttributeBlock(ns); 
     js_register_cc_scene_SubModel(ns); 
