@@ -313,9 +313,9 @@ exports.methods = {
             'texture cube': 'erp-texture-cube',
         };
         // change mipFilter
-        let mipChanged = false;
         const imageImporter = imageTypeToImporter[type];
         this.metaList.forEach((meta) => {
+            let mipChanged = false;
             if (!meta) {
                 return;
             }
