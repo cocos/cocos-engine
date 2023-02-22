@@ -22,9 +22,9 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "gtest/gtest.h"
 #include "base/HasMemberFunction.h"
 #include "core/scene-graph/Node.h"
+#include "gtest/gtest.h"
 
 using namespace cc;
 
@@ -38,7 +38,7 @@ public:
     float getScriptObject(int) const { return 1.F; }
     inline Node* getScriptObject() { return _node; }
     inline const Node* getScriptObject() const { return _node; }
-    
+
 private:
     Node* _node{nullptr};
 };
@@ -56,29 +56,25 @@ public:
     Base0() {
         _seObj = reinterpret_cast<se::Object*>(reinterpret_cast<uintptr_t>(&fakeAddr));
     }
-    
+
     se::Object* getScriptObject() const { return _seObj; }
     se::Object* getScriptObject() { return _seObj; }
-    
+
 private:
-    se::Object *_seObj{nullptr};
+    se::Object* _seObj{nullptr};
 };
 
 class Base1 {
 public:
-    
 };
 
 class Sub0 : public Base0 {
-    
 };
 
 class Sub1 : public Base0, public Base1 {
-    
 };
 
 class Sub2 : public Base1, public Base0 {
-    
 };
 
 class BaseVirtual {
@@ -103,12 +99,12 @@ public:
     se::Object* getScriptObject() override { return _seObj; }
     int getScriptObject(int) { return 100; }
     float getScriptObject(float) { return 200.F; }
-    
+
 private:
-    se::Object *_seObj{nullptr};
+    se::Object* _seObj{nullptr};
 };
 
-}
+} // namespace
 
 TEST(HasMemberFunction, test01) {
     static_assert(!cc::has_getScriptObject<BaseWithoutGetScriptObject, se::Object*()>::value);
@@ -161,4 +157,3 @@ TEST(HasMemberFunction, test06) {
         EXPECT_EQ(b->getScriptObject(), reinterpret_cast<se::Object*>(reinterpret_cast<uintptr_t>(&fakeAddr)));
     }
 }
-

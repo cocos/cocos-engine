@@ -26,7 +26,7 @@
 
 #include <type_traits>
 
-#define CC_DEFINE_HAS_MEMBER_FUNC(memFunc)                                       \
+#define CC_DEFINE_HAS_MEMBER_FUNC(memFunc)                                    \
     template <typename, typename T>                                           \
     struct has_##memFunc {                                                    \
         static_assert(                                                        \
@@ -62,4 +62,4 @@ CC_DEFINE_HAS_MEMBER_FUNC(getScriptObject)
 CC_DEFINE_HAS_MEMBER_FUNC(onBeforeSerialize)
 CC_DEFINE_HAS_MEMBER_FUNC(onAfterDeserialize)
 
-}
+} // namespace cc
