@@ -274,9 +274,9 @@ void ClusterLightCulling::updateLights() {
                 _lightBufferData[offset + UBOForwardLight::LIGHT_DIR_OFFSET + 1] = rangedDirLight->getDirection().y;
                 _lightBufferData[offset + UBOForwardLight::LIGHT_DIR_OFFSET + 2] = rangedDirLight->getDirection().z;
                 _lightBufferData[offset + UBOForwardLight::LIGHT_DIR_OFFSET + 3] = 0.0F;
-                _lightBufferData[offset + UBOForwardLight::LIGHT_BOUNDING_SIZE_VS_OFFSET + 0] = rangedDirLight->getScale().x;
-                _lightBufferData[offset + UBOForwardLight::LIGHT_BOUNDING_SIZE_VS_OFFSET + 1] = rangedDirLight->getScale().y;
-                _lightBufferData[offset + UBOForwardLight::LIGHT_BOUNDING_SIZE_VS_OFFSET + 2] = rangedDirLight->getScale().z;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_BOUNDING_SIZE_VS_OFFSET + 0] = rangedDirLight->getScale().x * 0.5F;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_BOUNDING_SIZE_VS_OFFSET + 1] = rangedDirLight->getScale().y * 0.5F;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_BOUNDING_SIZE_VS_OFFSET + 2] = rangedDirLight->getScale().z * 0.5F;
                 _lightBufferData[offset + UBOForwardLight::LIGHT_BOUNDING_SIZE_VS_OFFSET + 3] = 0.0F;
             } break;
             default:

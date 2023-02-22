@@ -345,9 +345,9 @@ void LightingStage::gatherLights(scene::Camera *camera) {
         // scale
         const auto &scale = light->getScale();
         offset = idx * elementLen + fieldLen * 4;
-        _lightBufferData[offset] = scale.x;
-        _lightBufferData[offset + 1] = scale.y;
-        _lightBufferData[offset + 2] = scale.z;
+        _lightBufferData[offset] = scale.x * 0.5F;
+        _lightBufferData[offset + 1] = scale.y * 0.5F;
+        _lightBufferData[offset + 2] = scale.z * 0.5F;
         _lightBufferData[offset + 3] = 0.0F;
 
         ++idx;
