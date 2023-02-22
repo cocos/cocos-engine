@@ -55,7 +55,7 @@ export class SkeletonTexture extends spine.Texture {
 
     /**
      * @en Sets Texture2D resource.
-     * @zh 设置Texture2D资源。
+     * @zh 设置 Texture2D 资源。
      * @param tex @en Texture2D asset. @zh Texture2D 资源。
      */
     setRealTexture (tex: Texture2D) {

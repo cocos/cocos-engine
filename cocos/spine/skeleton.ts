@@ -129,7 +129,7 @@ export interface SkeletonDrawData {
  * @en
  * The Sockets attached to bones, synchronous transform with spine animation.
  * @zh
- * Spine 挂点，可附着在目标骨骼上随spine动画一起运动。
+ * Spine 挂点，可附着在目标骨骼上随 spine 动画一起运动。
  * @class SpineSocket
  */
 @ccclass('sp.Skeleton.SpineSocket')
@@ -173,7 +173,7 @@ js.setClassAlias(SpineSocket, 'sp.Skeleton.SpineSocket');
  * (Skeleton 具有对骨骼数据的引用并且存储了骨骼实例的状态，
  * 它由当前的骨骼动作，slot 颜色，和可见的 slot attachments 组成。<br/>
  * 多个 Skeleton 可以使用相同的骨骼数据，其中包括所有的动画，皮肤和 attachments。
- * Cocos Creator 支持spine版本最高到3.8.99。
+ * Cocos Creator 支持 spine 版本最高到3.8.99。
  * @class Skeleton
  * @extends UIRenderer
  */
@@ -285,7 +285,7 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @internal
+     * @internal Since v3.7.2, this is an engine private interface
      */
     @displayName('Default Skin')
     @type(DefaultSkinsEnum)
@@ -311,7 +311,7 @@ export class Skeleton extends UIRenderer {
         return 0;
     }
     /**
-     * @internal
+     * @internal Since v3.7.2, this is an engine private interface.
      */
     set _defaultSkinIndex (value: number) {
         let skinsEnum;
@@ -498,7 +498,7 @@ export class Skeleton extends UIRenderer {
     /**
      * @en If rendering a large number of identical textures and simple skeletal animations,
      * enabling batching can reduce the number of draw calls and improve rendering performance.
-     * @zh 如果渲染大量相同纹理，且结构简单的骨骼动画，开启合批可以降低draw call 数量提升渲染性能。
+     * @zh 如果渲染大量相同纹理，且结构简单的骨骼动画，开启合批可以降低 draw call 数量提升渲染性能。
      */
     @editable
     @tooltip('i18n:COMPONENT.skeleton.enabled_batch')
@@ -535,7 +535,7 @@ export class Skeleton extends UIRenderer {
     /**
      * @en
      * All the target nodes been set in the array of SpineSocket.
-     * @zh 当前所有设置在 SpineSocket 数组中的 target nodes.
+     * @zh 当前所有设置在 SpineSocket 数组中的 target nodes。
      */
     get socketNodes () { return this._socketNodes; }
 
@@ -899,7 +899,7 @@ export class Skeleton extends UIRenderer {
     /**
      * @en Sets vertex effect delegate.
      * @zh 设置顶点特效动画代理。
-     * @param effectDelegate @en Vertex effect delegate @zh 顶点特效代理
+     * @param effectDelegate @en Vertex effect delegate. @zh 顶点特效代理。
      */
     public setVertexEffectDelegate (effectDelegate: VertexEffectDelegate | null | undefined) {
         this._effectDelegate = effectDelegate;

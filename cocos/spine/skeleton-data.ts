@@ -83,7 +83,7 @@ export class SkeletonData extends Asset {
 
     /**
      * @en An atlas text description.
-     * @zh Atlas文本描述。
+     * @zh Atlas 文本描述。
      */
     get atlasText () {
         return this._atlasText;
@@ -277,7 +277,7 @@ export class SkeletonData extends Asset {
     }
     /**
      * @en Destroy skeleton data.
-     * @zh 销毁skeleton data。
+     * @zh 销毁 skeleton data。
      */
     public destroy () {
         SkeletonCache.sharedCache.removeSkeleton(this._uuid);
