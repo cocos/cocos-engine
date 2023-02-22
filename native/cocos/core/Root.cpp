@@ -531,10 +531,12 @@ void Root::destroyLight(scene::Light *light) { // NOLINT(readability-convert-mem
             light->getScene()->removeSphereLight(static_cast<scene::SphereLight *>(light));
         } else if (light->getType() == scene::LightType::SPOT) {
             light->getScene()->removeSpotLight(static_cast<scene::SpotLight *>(light));
-        }
         } else if (light->getType() == scene::LightType::POINT) {
             light->getScene()->removePointLight(static_cast<scene::PointLight *>(light));
+        } else if (light->getType() == scene::LightType::RANGED_DIRECTIONAL) {
+            light->getScene()->removeRangedDirLight(static_cast<scene::RangedDirectionalLight *>(light));
         }
+    }
     light->destroy();
 }
 
