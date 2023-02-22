@@ -376,7 +376,7 @@ public:
             }
             case APP_CMD_DESTROY: {
                 CC_LOG_INFO("AndroidPlatform: APP_CMD_DESTROY");
-                IXRInterface *xr = _androidPlatform->getInterface<IXRInterface>();
+                IXRInterface *xr = CC_GET_XR_INTERFACE();
                 if (xr) {
                     xr->onRenderDestroy();
                 }
@@ -532,7 +532,7 @@ int AndroidPlatform::init() {
     cc::FileUtilsAndroid::setAssetManager(_app->activity->assetManager);
     _inputProxy = ccnew GameInputProxy(this);
     _inputProxy->registerAppEventCallback([this](int32_t cmd) {
-        IXRInterface *xr = getInterface<IXRInterface>();
+        IXRInterface *xr = CC_GET_XR_INTERFACE();
         if (xr) {
             xr->handleAppCommand(cmd);
         }
@@ -588,7 +588,7 @@ int32_t AndroidPlatform::run(int /*argc*/, const char ** /*argv*/) {
 }
 
 int32_t AndroidPlatform::loop() {
-    IXRInterface *xr = getInterface<IXRInterface>();
+    IXRInterface *xr = CC_GET_XR_INTERFACE();
     while (true) {
         int events;
         struct android_poll_source *source;
