@@ -134,8 +134,8 @@ public:
     const char *getName() const { return _name.c_str(); }
 
     // Private API used in wrapper
-    V8FinalizeFunc _getFinalizeFunction() const; // NOLINT(readability-identifier-naming)
-    void _setCtor(Object *obj); // NOLINT(readability-identifier-naming)
+    V8FinalizeFunc _getFinalizeFunction() const;                               // NOLINT(readability-identifier-naming)
+    void _setCtor(Object *obj);                                                // NOLINT(readability-identifier-naming)
     inline const ccstd::optional<Object *> &_getCtor() const { return _ctor; } // NOLINT(readability-identifier-naming)
 
 private:

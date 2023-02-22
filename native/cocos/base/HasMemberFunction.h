@@ -29,7 +29,7 @@
 /* This macro is used for checking whether a member function exists in a class in compiling time.
 Usage:
  If we have a class called `MyClass` as follows:
- 
+
  ```c++
  class MyClass {
  public:
@@ -40,9 +40,9 @@ Usage:
 Test code:
 ```c++
  #include "base/HasMemberFunction.h"
- 
+
  CC_DEFINE_HAS_MEMBER_FUNC(myMethod)
- 
+
  template <typename T>
  void myTest(T* arg0) {
     if constexpr (has_myMethod<T, int(bool, float)>::value) {
@@ -53,14 +53,14 @@ Test code:
         // ...
     }
  }
- 
+
  static int myTestEntry() {
     MyClass a;
     myTest(&a); // --> Go to <1>
     int b;
     myTest(&b; // --> Go to <2>
  }
- 
+
 ```
 */
 
