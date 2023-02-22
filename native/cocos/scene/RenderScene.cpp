@@ -174,8 +174,8 @@ void RenderScene::update(uint32_t stamp) {
     for (const auto &light : _pointLights) {
         light->update();
     }
-    for (const auto &rangedDirLights : _rangedDirLights) {
-        rangedDirLights->update();
+    for (const auto &light : _rangedDirLights) {
+        light->update();
     }
     for (const auto &model : _models) {
         if (model->isEnabled()) {

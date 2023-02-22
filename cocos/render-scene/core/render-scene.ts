@@ -459,22 +459,22 @@ export class RenderScene {
     /**
      * @en Add a ranged directional light source.
      * @zh 增加一个范围平行光源。
-     * @param sl @en The ranged directional light. @zh 范围平行光。
+     * @param l @en The ranged directional light. @zh 范围平行光。
      */
-    public addRangedDirLight (sl: RangedDirectionalLight) {
-        sl.attachToScene(this);
-        this._rangedDirLights.push(sl);
+    public addRangedDirLight (l: RangedDirectionalLight) {
+        l.attachToScene(this);
+        this._rangedDirLights.push(l);
     }
 
     /**
      * @en Remove a ranged directional light source.
      * @zh 删除一个范围平行光源。
-     * @param sl @en The ranged directional light. @zh 范围平行光。
+     * @param l @en The ranged directional light. @zh 范围平行光。
      */
-    public removeRangedDirLight (sl: RangedDirectionalLight) {
+    public removeRangedDirLight (l: RangedDirectionalLight) {
         for (let i = 0; i < this._rangedDirLights.length; ++i) {
-            if (this._rangedDirLights[i] === sl) {
-                sl.detachFromScene();
+            if (this._rangedDirLights[i] === l) {
+                l.detachFromScene();
                 this._rangedDirLights.splice(i, 1);
                 return;
             }

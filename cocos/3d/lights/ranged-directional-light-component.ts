@@ -19,10 +19,11 @@
 */
 
 import { Light } from './light-component';
-import { ccclass, help, property, menu, executeInEditMode, formerlySerializedAs, serializable, tooltip } from '../../core/data/class-decorator';
+import { ccclass, help, property, menu, executeInEditMode, formerlySerializedAs, serializable, tooltip, editable, slide, type } from '../../core/data/class-decorator';
 import { Camera, LightType } from '../../render-scene/scene';
 import { scene } from '../../render-scene';
-import { cclegacy } from '../../core';
+import { CCInteger, cclegacy } from '../../core';
+import { rangeMin } from '../../core/data/decorators';
 
 /**
  * @en The ranged directional light component, Multiple ranged directional light sources are allowed in a scene.
@@ -45,6 +46,10 @@ export class RangedDirectionalLight extends Light {
      * @zh 光源强度。
      */
     @tooltip('i18n:lights.illuminance')
+    @editable
+    @rangeMin(0)
+    @slide
+    @type(CCInteger)
     get illuminance () {
         const isHDR = cclegacy.director.root.pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
