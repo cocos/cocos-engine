@@ -68,7 +68,8 @@ void CCMTLBuffer::doInit(const BufferInfo &info) {
 
     if (hasFlag(_usage, BufferUsageBit::VERTEX) ||
         hasFlag(_usage, BufferUsageBit::UNIFORM) ||
-        hasFlag(_usage, BufferUsageBit::INDEX)) {
+        hasFlag(_usage, BufferUsageBit::INDEX) ||
+        hasFlag(_usage, BufferUsageBit::STORAGE)) {
         createMTLBuffer(_size, _memUsage);
     } else if (hasFlag(_usage, BufferUsageBit::INDIRECT)) {
         if (_isIndirectDrawSupported) {
