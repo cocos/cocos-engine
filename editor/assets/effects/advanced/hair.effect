@@ -4,7 +4,8 @@ CCEffect %{
   techniques:
   - name: opaque
     passes:
-    - vert: standard-vs
+    - switch: USE_OPAQUE_PASS
+      vert: standard-vs
       frag: standard-fs
       properties: &props
         tilingOffset:                     { value: [1.0, 1.0, 0.0, 0.0] }
@@ -26,12 +27,38 @@ CCEffect %{
         pbrMap:                           { value: grey }
         occlusionMap:                     { value: white }
         emissiveMap:                      { value: grey }
-        anisotropyMap:                    { value: black, editor : { parent: IS_ANISOTROPY } }
-        anisotropyMapNearestFilter:       { value: black, editor : { parent: FIX_ANISOTROPIC_ROTATION_MAP } }
-        roughnessTRT:                     { value: 0.5, target: trtParams.x, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
-        rotationTRT:                      { value: 0.0, target: trtParams.y, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
-        IntensityTRT:                     { value: 1.0, target: trtParams.w, editor: { slide: true, range: [0, 10.0], step: 0.01 } }
-        baseColorTRT:                     { value: [1.0, 1.0, 1.0, 1.0], target: trtColor, linear: true, editor: { displayName: Albedo TRT, type: color } }
+        anisotropyMap:                    { value: black, editor : { parent: IS_ANISOTROPY, tips: 'x: anisotropy intensity; y: anisotropy rotation; zw: reserved' } }
+        anisotropyMapNearestFilter:       { value: black, editor : { parent: FIX_ANISOTROPIC_ROTATION_MAP, tips: 'Same as Anisotropy Map, but use nearest filter to fix artifacts on seams' } }
+        roughnessTRT:                     { value: 0.2, target: trtParams.x, editor: { displayName: TRT Roughness Offset, slide: true, range: [0, 1.0], step: 0.001, tips: 'The extend range of internal reflection lighting compared to direct lighting' } }
+        rotationTRT:                      { value: 0.0, target: trtParams.y, editor: { displayName: TRT Lighting Offset, slide: true, range: [0, 1.0], step: 0.001, tips: 'The position offset of internal reflection lighting compared to direct lighting' } }
+        IntensityTRT:                     { value: 1.0, target: trtParams.w, editor: { displayName: TRT Intensity, slide: true, range: [0, 2.0], step: 0.01 } }
+        baseColorTRT:                     { value: [1.0, 1.0, 1.0, 1.0], target: trtColor, linear: true, editor: { displayName: TRT Albedo, type: color } }
+      rasterizerState:
+        cullMode: None
+      depthStencilState:
+        depthFunc: less_equal
+        depthTest: true
+        depthWrite: true
+        
+    - switch: USE_TRANSPARENCY_PASS
+      vert: standard-vs
+      frag: standard-fs
+      properties: *props
+      rasterizerState:
+        cullMode: None
+      depthStencilState:
+        depthFunc: less
+        depthTest: true
+        depthWrite: false
+      embeddedMacros: { CC_FORCE_FORWARD_SHADING: true, INVERSE_ALPHA_TEST: true }
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendSrcAlpha: one
+          blendDstAlpha: one_minus_src_alpha
+      
     - &forward-add
       vert: standard-vs
       frag: standard-fs
@@ -49,6 +76,25 @@ CCEffect %{
           blendDst: one
           blendSrcAlpha: zero
           blendDstAlpha: one
+    - switch: USE_TRANSPARENCY_PASS
+      vert: standard-vs
+      frag: standard-fs
+      properties: *props
+      rasterizerState:
+        cullMode: None
+      depthStencilState:
+        depthFunc: less
+        depthTest: true
+        depthWrite: false
+      embeddedMacros: { CC_FORWARD_ADD: true, INVERSE_ALPHA_TEST: true }
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one
+          blendSrcAlpha: zero
+          blendDstAlpha: one
+
     - &shadow-caster
       vert: shadow-caster-vs
       frag: shadow-caster-fs
@@ -226,7 +272,11 @@ CCProgram surface-fragment %{
     #endif
 
     #if USE_ALPHA_TEST
-      if (baseColor.ALPHA_TEST_CHANNEL < albedoScaleAndCutoff.w) discard;
+      #if INVERSE_ALPHA_TEST
+        if (baseColor.ALPHA_TEST_CHANNEL >= albedoScaleAndCutoff.w) discard;
+      #else
+        if (baseColor.ALPHA_TEST_CHANNEL < albedoScaleAndCutoff.w) discard;
+      #endif          
     #endif
 
     baseColor.rgb *= albedoScaleAndCutoff.xyz;
