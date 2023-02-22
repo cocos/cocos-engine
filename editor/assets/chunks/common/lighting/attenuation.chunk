@@ -25,6 +25,7 @@ float GetAngleAtt (vec3 L, vec3 litDir, float litAngleScale, float litAngleOffse
   return (attenuation * attenuation);
 }
 
+
 float GetOutOfRange (vec3 worldPos, vec3 lightPos, vec3 lookAt, vec3 right, vec3 BoundingHalfSizeVS) {
   vec3 v = vec3(0.0);
   vec3 up = cross(right, lookAt);
