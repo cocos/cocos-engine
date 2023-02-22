@@ -124,19 +124,19 @@ void ReflectionProbe::switchProbeType(int32_t type, const Camera* sourceCamera) 
 }
 
 void ReflectionProbe::transformReflectionCamera(const Camera* sourceCamera) {
-    float offset = Vec3::dot(_node->getWorldPosition(), Vec3::UNIT_Y);
-    _cameraWorldPos = reflect(sourceCamera->getNode()->getWorldPosition(), Vec3::UNIT_Y, offset);
+    float offset = Vec3::dot(_node->getWorldPosition(), _node->getUp());
+    _cameraWorldPos = reflect(sourceCamera->getNode()->getWorldPosition(), _node->getUp(), offset);
     _cameraNode->setWorldPosition(_cameraWorldPos);
 
     _forward = Vec3::FORWARD;
     _forward.transformQuat(sourceCamera->getNode()->getWorldRotation());
-    _forward = reflect(_forward, Vec3::UNIT_Y, 0);
+    _forward = reflect(_forward, _node->getUp(), 0);
     _forward.normalize();
     _forward *= -1;
 
     _up = Vec3::UNIT_Y;
     _up.transformQuat(sourceCamera->getNode()->getWorldRotation());
-    _up = reflect(_up, Vec3::UNIT_Y, 0);
+    _up = reflect(_up, _node->getUp(), 0);
     _up.normalize();
 
     Quaternion::fromViewUp(_forward, _up, &_cameraWorldRotation);
@@ -144,7 +144,7 @@ void ReflectionProbe::transformReflectionCamera(const Camera* sourceCamera) {
     _camera->update(true);
 
     // Transform the plane from world space to reflection camera space use the inverse transpose matrix
-    Vec4 viewSpaceProbe{Vec3::UNIT_Y.x, Vec3::UNIT_Y.y, Vec3::UNIT_Y.z, -Vec3::dot(Vec3::UNIT_Y, _node->getWorldPosition())};
+    Vec4 viewSpaceProbe{ _node->getUp().x, _node->getUp().y, _node->getUp().z, -Vec3::dot(_node->getUp(), _node->getWorldPosition())};
     Mat4 matView = _camera->getMatView();
     matView.inverse();
     matView.transpose();

@@ -1143,7 +1143,7 @@ export class WebPipeline implements Pipeline {
             name, desc,
             new ResourceTraits(residency),
             new ResourceStates(),
-            new SamplerInfo(),
+            new SamplerInfo(Filter.LINEAR, Filter.LINEAR, Filter.NONE, Address.CLAMP, Address.CLAMP, Address.CLAMP),
         );
     }
     addDepthStencil (name: string, format: Format, width: number, height: number, residency = ResourceResidency.MANAGED) {

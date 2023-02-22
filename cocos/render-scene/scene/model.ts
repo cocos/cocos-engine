@@ -36,10 +36,11 @@ import { IMacroPatch } from '../core/pass';
 import { Mat4, Vec3, Vec4, geometry, cclegacy, EPSILON } from '../../core';
 import { Attribute, DescriptorSet, Device, Buffer, BufferInfo,
     BufferUsageBit, MemoryUsageBit, Filter, Address, SamplerInfo, deviceManager, Texture } from '../../gfx';
-import { UBOLocal, UBOSH, UBOWorldBound, UNIFORM_LIGHTMAP_TEXTURE_BINDING, UNIFORM_REFLECTION_PROBE_CUBEMAP_BINDING, UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING } from '../../rendering/define';
+import { UBOLocal, UBOSH, UBOWorldBound, UNIFORM_LIGHTMAP_TEXTURE_BINDING, UNIFORM_REFLECTION_PROBE_CUBEMAP_BINDING, UNIFORM_REFLECTION_PROBE_DATA_MAP_BINDING, UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING } from '../../rendering/define';
 import { Root } from '../../root';
 import { TextureCube } from '../../asset/assets';
 import { ShadowType } from './shadows';
+import { ProbeType, ReflectionProbe } from './reflection-probe';
 
 const m4_1 = new Mat4();
 
@@ -347,6 +348,18 @@ export class Model {
     }
 
     /**
+     * @en sets or gets reflection probe id
+     * @zh 设置或获取反射探针id。
+     */
+    get reflectionProbeId () {
+        return this._reflectionProbeId;
+    }
+
+    set reflectionProbeId (val) {
+        this._reflectionProbeId = val;
+    }
+
+    /**
      * @en The type of the model
      * @zh 模型类型
      */
@@ -494,6 +507,12 @@ export class Model {
      * @zh 阴影法线偏移
      */
     protected _shadowNormalBias = 0;
+
+    /**
+     * @en Reflect probe Id
+     * @zh 使用第几个反射探针
+     */
+    protected _reflectionProbeId = -1;
 
     /**
      * @en Whether the model is enabled in the render scene so that it will be rendered
@@ -928,9 +947,11 @@ export class Model {
             const subModels = this._subModels;
             for (let i = 0; i < subModels.length; i++) {
                 const { descriptorSet } = subModels[i];
-                descriptorSet.bindSampler(UNIFORM_REFLECTION_PROBE_CUBEMAP_BINDING, reflectionSampler);
-                descriptorSet.bindTexture(UNIFORM_REFLECTION_PROBE_CUBEMAP_BINDING, gfxTexture);
-                descriptorSet.update();
+                if (descriptorSet) {
+                    descriptorSet.bindSampler(UNIFORM_REFLECTION_PROBE_CUBEMAP_BINDING, reflectionSampler);
+                    descriptorSet.bindTexture(UNIFORM_REFLECTION_PROBE_CUBEMAP_BINDING, gfxTexture);
+                    descriptorSet.update();
+                }
             }
         }
     }
@@ -959,9 +980,37 @@ export class Model {
             const subModels = this._subModels;
             for (let i = 0; i < subModels.length; i++) {
                 const { descriptorSet } = subModels[i];
-                descriptorSet.bindTexture(UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING, texture);
-                descriptorSet.bindSampler(UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING, sampler);
-                descriptorSet.update();
+                if (descriptorSet) {
+                    descriptorSet.bindTexture(UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING, texture);
+                    descriptorSet.bindSampler(UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING, sampler);
+                    descriptorSet.update();
+                }
+            }
+        }
+    }
+
+    /**
+     * @en Update the data map of the reflection probe
+     * @zh 更新反射探针的数据贴图
+     * @param texture data map
+     */
+    public updateReflectionProbeDataMap (texture: Texture2D | null) {
+        this._localDataUpdated = true;
+        this.onMacroPatchesStateChanged();
+
+        if (!texture) {
+            texture = builtinResMgr.get<Texture2D>('empty-texture');
+        }
+        const gfxTexture = texture.getGFXTexture();
+        if (gfxTexture) {
+            const subModels = this._subModels;
+            for (let i = 0; i < subModels.length; i++) {
+                const { descriptorSet } = subModels[i];
+                if (descriptorSet) {
+                    descriptorSet.bindTexture(UNIFORM_REFLECTION_PROBE_DATA_MAP_BINDING, gfxTexture);
+                    descriptorSet.bindSampler(UNIFORM_REFLECTION_PROBE_DATA_MAP_BINDING, texture.getGFXSampler());
+                    descriptorSet.update();
+                }
             }
         }
     }
@@ -974,8 +1023,44 @@ export class Model {
         const sv = this._localData;
         sv[UBOLocal.LOCAL_SHADOW_BIAS + 0] = this._shadowBias;
         sv[UBOLocal.LOCAL_SHADOW_BIAS + 1] = this._shadowNormalBias;
-        sv[UBOLocal.LOCAL_SHADOW_BIAS + 2] = 0;
+        this._localDataUpdated = true;
+    }
+
+    /**
+     * @en Update the id of reflection probe
+     * @zh 更新物体使用哪个反射探针
+     */
+    public updateReflectionProbeId  () {
+        const sv = this._localData;
+        sv[UBOLocal.LOCAL_SHADOW_BIAS + 2] = this._reflectionProbeId;
         sv[UBOLocal.LOCAL_SHADOW_BIAS + 3] = 0;
+        let probe: ReflectionProbe | null = null;
+        if (cclegacy.internal.reflectionProbeManager) {
+            probe = cclegacy.internal.reflectionProbeManager.getProbeById(this._reflectionProbeId);
+        }
+        if (probe) {
+            if (probe.probeType === ProbeType.PLANAR) {
+                sv[UBOLocal.REFLECTION_PROBE_DATA1] = probe.node.up.x;
+                sv[UBOLocal.REFLECTION_PROBE_DATA1 + 1] = probe.node.up.y;
+                sv[UBOLocal.REFLECTION_PROBE_DATA1 + 2] = probe.node.up.z;
+                sv[UBOLocal.REFLECTION_PROBE_DATA1 + 3] = 1.0;
+
+                sv[UBOLocal.REFLECTION_PROBE_DATA2] = 1.0;
+                sv[UBOLocal.REFLECTION_PROBE_DATA2 + 1] = 0.0;
+                sv[UBOLocal.REFLECTION_PROBE_DATA2 + 2] = 0.0;
+                sv[UBOLocal.REFLECTION_PROBE_DATA2 + 3] = 1.0;
+            } else {
+                sv[UBOLocal.REFLECTION_PROBE_DATA1] = probe.node.worldPosition.x;
+                sv[UBOLocal.REFLECTION_PROBE_DATA1 + 1] = probe.node.worldPosition.y;
+                sv[UBOLocal.REFLECTION_PROBE_DATA1 + 2] = probe.node.worldPosition.z;
+                sv[UBOLocal.REFLECTION_PROBE_DATA1 + 3] = 0.0;
+
+                sv[UBOLocal.REFLECTION_PROBE_DATA2] = probe.size.x;
+                sv[UBOLocal.REFLECTION_PROBE_DATA2 + 1] = probe.size.y;
+                sv[UBOLocal.REFLECTION_PROBE_DATA2 + 2] = probe.size.z;
+                sv[UBOLocal.REFLECTION_PROBE_DATA2 + 3] = probe.cubemap ? probe.cubemap.mipmapLevel : 1.0;
+            }
+        }
         this._localDataUpdated = true;
     }
 

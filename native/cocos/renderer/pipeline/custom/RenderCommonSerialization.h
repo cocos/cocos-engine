@@ -187,6 +187,34 @@ inline void load(InputArchive& ar, MovePair& v) {
     load(ar, v.targetPlaneSlice);
 }
 
+inline void save(OutputArchive& ar, const PipelineStatistics& v) {
+    save(ar, v.numRenderPasses);
+    save(ar, v.numManagedTextures);
+    save(ar, v.totalManagedTextures);
+    save(ar, v.numUploadBuffers);
+    save(ar, v.numUploadBufferViews);
+    save(ar, v.numFreeUploadBuffers);
+    save(ar, v.numFreeUploadBufferViews);
+    save(ar, v.numDescriptorSets);
+    save(ar, v.numFreeDescriptorSets);
+    save(ar, v.numInstancingBuffers);
+    save(ar, v.numInstancingUniformBlocks);
+}
+
+inline void load(InputArchive& ar, PipelineStatistics& v) {
+    load(ar, v.numRenderPasses);
+    load(ar, v.numManagedTextures);
+    load(ar, v.totalManagedTextures);
+    load(ar, v.numUploadBuffers);
+    load(ar, v.numUploadBufferViews);
+    load(ar, v.numFreeUploadBuffers);
+    load(ar, v.numFreeUploadBufferViews);
+    load(ar, v.numDescriptorSets);
+    load(ar, v.numFreeDescriptorSets);
+    load(ar, v.numInstancingBuffers);
+    load(ar, v.numInstancingUniformBlocks);
+}
+
 } // namespace render
 
 } // namespace cc
