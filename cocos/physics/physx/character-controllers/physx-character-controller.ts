@@ -41,6 +41,7 @@ export class PhysXCharacterController implements IBaseCharacterController {
 
     get isEnabled (): boolean { return this._isEnabled; }
     get impl (): any { return this._impl; }
+    get characterController (): CharacterController { return this._comp; }
 
     // virtual
     protected onComponentSet (): void { }
@@ -115,6 +116,10 @@ export class PhysXCharacterController implements IBaseCharacterController {
 
     onDestroy (): void {
         if (this._impl) {
+            if (this._impl.$$) {
+                PX.IMPL_PTR[this._impl.$$.ptr] = null;
+                delete PX.IMPL_PTR[this._impl.$$.ptr];
+            }
             this._impl.release();
             this._impl = null;
         }
