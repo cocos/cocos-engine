@@ -21,7 +21,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { HTML5, TAOBAO } from 'internal:constants';
+import { HTML5, TAOBAO, TAOBAO_MINIGAME } from 'internal:constants';
 import { legacyCC } from './global-exports';
 
 declare const fsUtils: any;
@@ -77,7 +77,7 @@ export class Settings {
         return new Promise((resolve, reject) => {
             if (!HTML5 && !path.startsWith('http')) {
                 // TODO: readJsonSync not working on Taobao IDE
-                if (TAOBAO) {
+                if (TAOBAO || TAOBAO_MINIGAME) {
                     globalThis.fsUtils.readJson(path, (err, result) => {
                         if (err) {
                             reject(err);
