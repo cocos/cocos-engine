@@ -135,8 +135,8 @@ public:
 
     // Private API used in wrapper
     V8FinalizeFunc _getFinalizeFunction() const; // NOLINT(readability-identifier-naming)
-    void _setCtor(Object *obj);
-    inline const ccstd::optional<Object *> &_getCtor() const { return _ctor; }
+    void _setCtor(Object *obj); // NOLINT(readability-identifier-naming)
+    inline const ccstd::optional<Object *> &_getCtor() const { return _ctor; } // NOLINT(readability-identifier-naming)
 
 private:
     Class();
