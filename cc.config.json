@@ -397,6 +397,12 @@
             "value": false,
             "internal": false
         },
+        "TAOBAO_MINIGAME": {
+            "comment": "Running in the taobao mini game.",
+            "type": "boolean",
+            "value": false,
+            "internal": false
+        },
         "BYTEDANCE": {
             "comment": "Running in the ByteDance's mini game.",
             "type": "boolean",
@@ -506,7 +512,7 @@
         "MINIGAME": {
             "comment": "Running in mini game.",
             "type": "boolean",
-            "value": "$WECHAT || $BAIDU || $XIAOMI || $ALIPAY || $TAOBAO || $BYTEDANCE",
+            "value": "$WECHAT || $BAIDU || $XIAOMI || $ALIPAY || $TAOBAO || $TAOBAO_MINIGAME || $BYTEDANCE",
             "ccGlobal": true,
             "internal": false
         },
