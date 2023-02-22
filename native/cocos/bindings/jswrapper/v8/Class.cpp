@@ -61,8 +61,7 @@ void invalidConstructor(const v8::FunctionCallbackInfo<v8::Value> &args) {
 
 } // namespace
 
-Class::Class()
-{
+Class::Class() {
     __allClasses.push_back(this);
 }
 
@@ -282,7 +281,7 @@ bool Class::defineFinalizeFunction(V8FinalizeFunc finalizeFunc) {
 //        return _createJSObjectWithClass(iter->second);
 //    }
 
-v8::Local<v8::Object> Class::_createJSObjectWithClass(Class *cls) { //NOLINT
+v8::Local<v8::Object> Class::_createJSObjectWithClass(Class *cls) { // NOLINT
     v8::MaybeLocal<v8::Object> ret = cls->_constructorTemplate.Get(__isolate)->InstanceTemplate()->NewInstance(__isolate->GetCurrentContext());
     CC_ASSERT(!ret.IsEmpty());
     return ret.ToLocalChecked();
@@ -292,7 +291,7 @@ Object *Class::getProto() const {
     return _proto;
 }
 
-V8FinalizeFunc Class::_getFinalizeFunction() const { //NOLINT
+V8FinalizeFunc Class::_getFinalizeFunction() const { // NOLINT
     return _finalizeFunc;
 }
 

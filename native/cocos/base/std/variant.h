@@ -1,8 +1,8 @@
 /****************************************************************************
  Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
- 
+
  http://www.cocos.com
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights to
@@ -36,11 +36,11 @@ using std::holds_alternative;
 using std::in_place_index;
 using std::monostate;
 using std::variant;
-using std::visit;
 using std::variant_alternative;
 using std::variant_alternative_t;
 using std::variant_size;
 using std::variant_size_v;
+using std::visit;
 
 }; // namespace ccstd
 
@@ -56,11 +56,11 @@ using boost::variant2::holds_alternative;
 using boost::variant2::in_place_index;
 using boost::variant2::monostate;
 using boost::variant2::variant;
-using boost::variant2::visit;
 using boost::variant2::variant_alternative;
 using boost::variant2::variant_alternative_t;
 using boost::variant2::variant_size;
 using boost::variant2::variant_size_v;
+using boost::variant2::visit;
 
 }; // namespace ccstd
 #endif

@@ -198,7 +198,7 @@ seval_to_type(const se::Value &v, bool &ok) { // NOLINT(readability-identifier-n
 }
 
 inline se::HandleObject unwrapProxyObject(se::Object *obj) {
-    if(obj->isProxy()) {
+    if (obj->isProxy()) {
         return se::HandleObject(se::Object::createProxyTarget(obj));
     }
     obj->incRef();
@@ -361,7 +361,7 @@ native_ptr_to_seval(T &v_ref, se::Value *ret, bool *isReturnCachedValue = nullpt
                     foundCtor = true;
                 }
             }
-            
+
             if (foundCtor) {
                 property.toObject()->call(se::EmptyValueArray, obj);
             }
@@ -383,8 +383,8 @@ bool native_ptr_to_seval(T *vp, se::Class *cls, se::Value *ret, bool *isReturnCa
         ret->setNull();
         return true;
     }
-    
-    if constexpr (has_getScriptObject<DecayT, se::Object*()>::value) {
+
+    if constexpr (has_getScriptObject<DecayT, se::Object *()>::value) {
         if (v->getScriptObject() != nullptr) {
             if (isReturnCachedValue != nullptr) {
                 *isReturnCachedValue = true;
@@ -426,7 +426,7 @@ bool native_ptr_to_seval(T *vp, se::Class *cls, se::Value *ret, bool *isReturnCa
                     foundCtor = true;
                 }
             }
-            
+
             if (foundCtor) {
                 property.toObject()->call(se::EmptyValueArray, obj);
             }
@@ -762,7 +762,7 @@ bool sevalue_to_native(const se::Value &from, ccstd::vector<T> *to, se::Object *
 
     CC_ASSERT(from.toObject());
     se::HandleObject array(unwrapProxyObject(from.toObject()));
-    
+
     if (array->isArray()) {
         uint32_t len = 0;
         array->getArrayLength(&len);
@@ -1151,7 +1151,7 @@ nativevalue_to_se(const T &from, se::Value &to, se::Object * /*ctx*/) { // NOLIN
     return true;
 }
 
-//#endif // HAS_CONSTEXPR
+// #endif // HAS_CONSTEXPR
 
 //////////////////////////////// forward declaration: nativevalue_to_se ////////////////////////////////
 

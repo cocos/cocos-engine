@@ -27,8 +27,8 @@
 #include "base/Ptr.h"
 #include "base/std/any.h"
 #include "bindings/utils/BindingUtils.h"
-//#include "core/components/Component.h"
-//#include "core/event/Event.h"
+// #include "core/components/Component.h"
+// #include "core/event/Event.h"
 #include "core/data/Object.h"
 #include "core/event/EventTarget.h"
 #include "core/scene-graph/Layers.h"
@@ -639,7 +639,7 @@ private:
     Vec3 _localScale{Vec3::ONE};
     Quaternion _localRotation{Quaternion::identity()};
     Vec3 _euler{0, 0, 0};
-    
+
     // world transform
     Vec3 _worldPosition{Vec3::ZERO};
     Vec3 _worldScale{Vec3::ONE};

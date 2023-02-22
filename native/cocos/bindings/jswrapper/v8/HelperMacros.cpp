@@ -25,8 +25,8 @@
 #include "HelperMacros.h"
 #include "../State.h"
 #include "../ValueArrayPool.h"
-#include "Object.h"
 #include "Class.h"
+#include "Object.h"
 #include "ScriptEngine.h"
 #include "Utils.h"
 
@@ -144,7 +144,7 @@ SE_HOT void jsbConstructorWrapper(const v8::FunctionCallbackInfo<v8::Value> &v8a
             foundCtor = true;
         }
     }
-    
+
     if (foundCtor) {
         property.toObject()->call(args, thisObject);
     }
