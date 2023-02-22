@@ -77,9 +77,22 @@ export function validPunctualLightsCulling (pipeline: RenderPipeline, camera: Ca
             validPunctualLights.push(light);
         }
     }
+
+    const { pointLights } = camera.scene!;
+    for (let i = 0; i < pointLights.length; i++) {
+        const light = pointLights[i];
+        if (light.baked) {
+            continue;
+        }
+        geometry.Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
+        if (geometry.intersect.sphereFrustum(_sphere, camera.frustum)) {
+            validPunctualLights.push(light);
+        }
+    }
     // in jsb, std::vector is not synchronized, so we need to assign it manually
     sceneData.validPunctualLights = validPunctualLights;
 }
+
 export function shadowCulling (camera: Camera, sceneData: PipelineSceneData, layer: ShadowLayerVolume) {
     const scene = camera.scene!;
     const mainLight = scene.mainLight!;

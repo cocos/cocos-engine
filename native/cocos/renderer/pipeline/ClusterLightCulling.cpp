@@ -34,6 +34,7 @@
 #include "scene/Camera.h"
 #include "scene/SphereLight.h"
 #include "scene/SpotLight.h"
+#include "scene/PointLight.h"
 
 namespace cc {
 namespace pipeline {
@@ -148,6 +149,14 @@ void ClusterLightCulling::updateLights() {
         }
     }
 
+    for (const auto &light : scene->getPointLights()) {
+        sphere.setCenter(light->getPosition());
+        sphere.setRadius(light->getRange());
+        if (sphere.sphereFrustum(_camera->getFrustum())) {
+            _validLights.emplace_back(static_cast<scene::Light *>(light));
+        }
+    }
+
     const auto exposure = _camera->getExposure();
     const auto validLightCount = _validLights.size();
     auto *const sceneData = _pipeline->getPipelineSceneData();
@@ -160,19 +169,42 @@ void ClusterLightCulling::updateLights() {
 
     for (unsigned l = 0, offset = 0; l < validLightCount; l++, offset += 16) {
         auto *light = _validLights[l];
-        const bool isSpotLight = scene::LightType::SPOT == light->getType();
-        const auto *spotLight = isSpotLight ? static_cast<scene::SpotLight *>(light) : nullptr;
-        const auto *sphereLight = isSpotLight ? nullptr : static_cast<scene::SphereLight *>(light);
+        Vec3 position = Vec3(0.0F, 0.0F, 0.0F);
+        float size = 0.F;
+        float range = 0.F;
+        float luminanceHDR = 0.F;
+        float luminanceLDR = 0.F;
+        if (light->getType() == scene::LightType::SPHERE) {
+            const auto *sphereLight = static_cast<const scene::SphereLight *>(light);
+            position = sphereLight->getPosition();
+            size = sphereLight->getSize();
+            range = sphereLight->getRange();
+            luminanceHDR = sphereLight->getLuminanceHDR();
+            luminanceLDR = sphereLight->getLuminanceLDR();
+        } else if (light->getType() == scene::LightType::SPOT) {
+            const auto *spotLight = static_cast<const scene::SpotLight *>(light);
+            position = spotLight->getPosition();
+            size = spotLight->getSize();
+            range = spotLight->getRange();
+            luminanceHDR = spotLight->getLuminanceHDR();
+            luminanceLDR = spotLight->getLuminanceLDR();
+        } else if (light->getType() == scene::LightType::POINT) {
+            const auto *pointLight = static_cast<const scene::PointLight *>(light);
+            position = pointLight->getPosition();
+            size = 0.0F;
+            range = pointLight->getRange();
+            luminanceHDR = pointLight->getLuminanceHDR();
+            luminanceLDR = pointLight->getLuminanceLDR();
+        }
 
         auto index = offset + UBOForwardLight::LIGHT_POS_OFFSET;
-        const auto &position = isSpotLight ? spotLight->getPosition() : sphereLight->getPosition();
         _lightBufferData[index++] = position.x;
         _lightBufferData[index++] = position.y;
         _lightBufferData[index] = position.z;
 
         index = offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET;
-        _lightBufferData[index++] = isSpotLight ? spotLight->getSize() : sphereLight->getSize();
-        _lightBufferData[index] = isSpotLight ? spotLight->getRange() : sphereLight->getRange();
+        _lightBufferData[index++] = size;
+        _lightBufferData[index] = range;
 
         index = offset + UBOForwardLight::LIGHT_COLOR_OFFSET;
         const auto &color = light->getColor();
@@ -187,8 +219,6 @@ void ClusterLightCulling::updateLights() {
             _lightBufferData[index++] = color.z;
         }
 
-        float luminanceHDR = isSpotLight ? spotLight->getLuminanceHDR() : sphereLight->getLuminanceHDR();
-        float luminanceLDR = isSpotLight ? spotLight->getLuminanceLDR() : sphereLight->getLuminanceLDR();
         if (sceneData->isHDR()) {
             _lightBufferData[index] = luminanceHDR * exposure * _lightMeterScale;
         } else {
@@ -197,11 +227,12 @@ void ClusterLightCulling::updateLights() {
 
         switch (light->getType()) {
             case scene::LightType::SPHERE:
-                _lightBufferData[offset + UBOForwardLight::LIGHT_POS_OFFSET + 3] = 0;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_POS_OFFSET + 3] = static_cast<float>(scene::LightType::SPHERE);
                 _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = 0;
                 break;
             case scene::LightType::SPOT: {
-                _lightBufferData[offset + UBOForwardLight::LIGHT_POS_OFFSET + 3] = 1.0F;
+                const auto *spotLight = static_cast<const scene::SpotLight *>(light);
+                _lightBufferData[offset + UBOForwardLight::LIGHT_POS_OFFSET + 3] = static_cast<float>(scene::LightType::SPOT);
                 _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = spotLight->getSpotAngle();
 
                 index = offset + UBOForwardLight::LIGHT_DIR_OFFSET;
@@ -210,6 +241,11 @@ void ClusterLightCulling::updateLights() {
                 _lightBufferData[index++] = direction.y;
                 _lightBufferData[index] = direction.z;
             } break;
+            case scene::LightType::POINT:
+                _lightBufferData[offset + UBOForwardLight::LIGHT_POS_OFFSET + 3] = static_cast<float>(scene::LightType::POINT);
+                _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = 0;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] = 0;
+                break;
             default:
                 break;
         }

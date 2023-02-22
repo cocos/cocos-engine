@@ -73,6 +73,18 @@ export function validPunctualLightsCulling (pipeline: Pipeline, camera: Camera) 
             validPunctualLights.push(light);
         }
     }
+
+    const { pointLights } = camera.scene!;
+    for (let i = 0; i < pointLights.length; i++) {
+        const light = pointLights[i];
+        if (light.baked) {
+            continue;
+        }
+        geometry.Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
+        if (geometry.intersect.sphereFrustum(_sphere, camera.frustum)) {
+            validPunctualLights.push(light);
+        }
+    }
 }
 
 const _cameras: Camera[] = [];

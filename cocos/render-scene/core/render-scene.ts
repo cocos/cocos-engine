@@ -28,6 +28,7 @@ import { DirectionalLight } from '../scene/directional-light';
 import { Model } from '../scene/model';
 import { SphereLight } from '../scene/sphere-light';
 import { SpotLight } from '../scene/spot-light';
+import { PointLight } from '../scene/point-light';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { DrawBatch2D } from '../../2d/renderer/draw-batch';
 import { LODGroup } from '../scene/lod-group';
@@ -64,64 +65,72 @@ export interface IRaycastResult {
  */
 export class RenderScene {
     /**
-     * @en The root manager of the renderer
-     * @zh 基础渲染管理器
+     * @en The root manager of the renderer.
+     * @zh 基础渲染管理器。
      */
     get root (): Root {
         return this._root;
     }
 
     /**
-     * @en The name of the render scene
-     * @zh 渲染场景的名称
+     * @en The name of the render scene.
+     * @zh 渲染场景的名称。
      */
     get name (): string {
         return this._name;
     }
 
     /**
-     * @en All cameras of the render scene
-     * @zh 渲染场景管理的所有相机
+     * @en All cameras of the render scene.
+     * @zh 渲染场景管理的所有相机。
      */
     get cameras (): Camera[] {
         return this._cameras;
     }
 
     /**
-     * @en The main directional light source of the render scene
-     * @zh 渲染场景管理的主方向光源
+     * @en The main directional light source of the render scene.
+     * @zh 渲染场景管理的主方向光源。
      */
     get mainLight (): DirectionalLight | null {
         return this._mainLight;
     }
 
     /**
-     * @en All sphere light sources of the render scene
-     * @zh 渲染场景管理的所有球面光源
+     * @en All sphere light sources of the render scene.
+     * @zh 渲染场景管理的所有球面光源。
      */
-    get sphereLights (): SphereLight[] {
+    get sphereLights (): Readonly<SphereLight[]> {
         return this._sphereLights;
     }
 
     /**
-     * @en All spot light sources of the render scene
-     * @zh 渲染场景管理的所有聚光灯光源
+     * @en All spot light sources of the render scene.
+     * @zh 渲染场景管理的所有聚光灯光源。
      */
-    get spotLights (): SpotLight[] {
+    get spotLights (): Readonly<SpotLight[]> {
         return this._spotLights;
     }
 
     /**
-     * @en All active models of the render scene
-     * @zh 渲染场景管理的所有模型
+     * @en All point light sources of the render scene.
+     * @zh 渲染场景管理的所有点光源。
+     */
+    get pointLights (): Readonly<PointLight[]> {
+        return this._pointLights;
+    }
+
+    /**
+     * @en All active models of the render scene.
+     * @zh 渲染场景管理的所有模型。
      */
     get models (): Model[] {
         return this._models;
     }
 
     /**
-     * @en All active 2d draw batches of the render scene
-     * @zh 渲染场景管理的所有 2D 渲染批次对象
+     * @en All active 2d draw batches of the render scene.
+     * @zh 渲染场景管理的所有 2D 渲染批次对象。
      */
     get batches () {
         return this._batches;
@@ -129,8 +138,8 @@ export class RenderScene {
 
     /**
      * @engineInternal
-     * @en All LOD groups of the render scene
-     * @zh 渲染场景管理的所有 LOD 组
+     * @en All LOD groups of the render scene.
+     * @zh 渲染场景管理的所有 LOD 组。
      */
     get lodGroups (): readonly LODGroup[] { return this._lodGroups; }
 
@@ -143,6 +152,7 @@ export class RenderScene {
     private _directionalLights: DirectionalLight[] = [];
     private _sphereLights: SphereLight[] = [];
     private _spotLights: SpotLight[] = [];
+    private _pointLights: PointLight[] = [];
     private _mainLight: DirectionalLight | null = null;
     private _modelId = 0;
     private _lodStateCache: LodStateCache = null!;
@@ -191,6 +201,12 @@ export class RenderScene {
         const spotLights = this._spotLights;
         for (let i = 0; i < spotLights.length; i++) {
             const light = spotLights[i];
+            light.update();
+        }
+
+        const pointLights = this._pointLights;
+        for (let i = 0; i < pointLights.length; i++) {
+            const light = pointLights[i];
             light.update();
         }
 
@@ -384,7 +400,43 @@ export class RenderScene {
         for (let i = 0; i < this._spotLights.length; ++i) {
             this._spotLights[i].detachFromScene();
         }
-        this._spotLights = [];
+        this._spotLights.length = 0;
+    }
+
+    /**
+     * @en Add a point light source.
+     * @zh 增加一个点光源。
+     * @param pl @en The point light. @zh 点光源。
+     */
+    public addPointLight (pl: PointLight) {
+        pl.attachToScene(this);
+        this._pointLights.push(pl);
+    }
+
+    /**
+     * @en Remove a sphere light source.
+     * @zh 删除一个点光源。
+     * @param pl @en The point light. @zh 点光源。
+     */
+    public removePointLight (pl: PointLight) {
+        for (let i = 0; i < this._pointLights.length; ++i) {
+            if (this._pointLights[i] === pl) {
+                pl.detachFromScene();
+                this._pointLights.splice(i, 1);
+                return;
+            }
+        }
+    }
+
+    /**
+     * @en Remove all point light sources.
+     * @zh 删除所有点光源。
+     */
+    public removePointLights () {
+        for (let i = 0; i < this._pointLights.length; ++i) {
+            this._pointLights[i].detachFromScene();
+        }
+        this._pointLights.length = 0;
     }
 
     /**

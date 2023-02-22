@@ -1,8 +1,7 @@
 /*
- Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2023 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos2d-x.org
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -23,37 +22,31 @@
  THE SOFTWARE.
 */
 
-import { ccclass, help, executeInEditMode, menu, tooltip, type, displayOrder, serializable, formerlySerializedAs,
-    editable, slide, rangeMin } from 'cc.decorator';
+import { ccclass, help, executeInEditMode, menu, tooltip, type, displayOrder,
+    serializable, formerlySerializedAs, editable, rangeMin, slide } from 'cc.decorator';
 import { scene } from '../../render-scene';
+import { Camera, LightType } from '../../render-scene/scene';
 import { Light, PhotometricTerm } from './light-component';
 import { CCFloat, CCInteger, cclegacy } from '../../core';
-import { Camera } from '../../render-scene/scene';
-import { Root } from '../../root';
 
 /**
- * @en The sphere light component, multiple sphere lights can be added to one scene.
- * @zh 球面光源组件，场景中可以添加多个球面光源。
+ * @en The point light component, multiple point lights can be added to one scene.
+ * @zh 点光源组件，场景中可以添加多个点光源。
  */
-@ccclass('cc.SphereLight')
-@help('i18n:cc.SphereLight')
-@menu('Light/SphereLight')
+@ccclass('cc.PointLight')
+@help('i18n:cc.PointLight')
+@menu('Light/PointLight')
 @executeInEditMode
-export class SphereLight extends Light {
-    @serializable
-    protected _size = 0.15;
+export class PointLight extends Light {
     @serializable
     @formerlySerializedAs('_luminance')
-    protected _luminanceHDR = 1700 / scene.nt2lm(0.15);
+    private _luminanceHDR = 1700 / scene.nt2lm(0.15);
     @serializable
-    protected _luminanceLDR = 1700 / scene.nt2lm(0.15) * Camera.standardExposureValue * Camera.standardLightMeterScale;
+    private _luminanceLDR = 1700 / scene.nt2lm(0.15) * Camera.standardExposureValue * Camera.standardLightMeterScale;
     @serializable
-    protected _term = PhotometricTerm.LUMINOUS_FLUX;
+    private _term = PhotometricTerm.LUMINOUS_FLUX;
     @serializable
-    protected _range = 1;
-
-    protected _type = scene.LightType.SPHERE;
-    protected _light: scene.SphereLight | null = null;
+    private _range = 1;
 
     /**
      * @en Luminous flux of the light.
@@ -66,24 +59,25 @@ export class SphereLight extends Light {
     @slide
     @type(CCInteger)
     get luminousFlux () {
-        const isHDR = (cclegacy.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        const isHDR = cclegacy.director.root.pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
-            return this._luminanceHDR * scene.nt2lm(this._size);
+            return this._luminanceHDR * scene.nt2lm(1.0);
         } else {
             return this._luminanceLDR;
         }
     }
     set luminousFlux (val) {
-        const isHDR = (cclegacy.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        const isHDR = cclegacy.director.root.pipeline.pipelineSceneData.isHDR;
         let result = 0;
         if (isHDR) {
-            this._luminanceHDR = val / scene.nt2lm(this._size);
+            this._luminanceHDR = val / scene.nt2lm(1.0);
             result = this._luminanceHDR;
         } else {
             this._luminanceLDR = val;
             result = this._luminanceLDR;
         }
-        this._light && (this._light.luminance = result);
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        this._light && ((this._light as scene.PointLight).luminance = result);
     }
 
     /**
@@ -97,7 +91,7 @@ export class SphereLight extends Light {
     @slide
     @type(CCInteger)
     get luminance () {
-        const isHDR = (cclegacy.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        const isHDR = cclegacy.director.root.pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             return this._luminanceHDR;
         } else {
@@ -105,13 +99,15 @@ export class SphereLight extends Light {
         }
     }
     set luminance (val) {
-        const isHDR = (cclegacy.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        const isHDR = cclegacy.director.root.pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             this._luminanceHDR = val;
-            this._light && (this._light.luminanceHDR = this._luminanceHDR);
+            // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+            this._light && ((this._light as scene.PointLight).luminanceHDR = this._luminanceHDR);
         } else {
             this._luminanceLDR = val;
-            this._light && (this._light.luminanceLDR = this._luminanceLDR);
+            // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+            this._light && ((this._light as scene.PointLight).luminanceLDR = this._luminanceLDR);
         }
     }
 
@@ -134,29 +130,8 @@ export class SphereLight extends Light {
     }
 
     /**
-     * @en
-     * Size of the light.
-     * @zh
-     * 光源大小。
-     */
-    @tooltip('i18n:lights.size')
-    @editable
-    @rangeMin(0)
-    @slide
-    @type(CCFloat)
-    get size () {
-        return this._size;
-    }
-    set size (val) {
-        this._size = val;
-        if (this._light) { this._light.size = val; }
-    }
-
-    /**
-     * @en
-     * Range of the light.
-     * @zh
-     * 光源范围。
+     * @en Range of the light.
+     * @zh 光源范围。
      */
     @tooltip('i18n:lights.range')
     @editable
@@ -168,22 +143,22 @@ export class SphereLight extends Light {
     }
     set range (val) {
         this._range = val;
-        if (this._light) { this._light.range = val; }
+        if (this._light) { (this._light as scene.PointLight).range = val; }
     }
 
     constructor () {
         super();
-        this._lightType = scene.SphereLight;
+        this._lightType = scene.PointLight;
     }
 
     protected _createLight () {
         super._createLight();
-        this.size = this._size;
+        this._type = LightType.POINT;
         this.range = this._range;
 
         if (this._light) {
-            this._light.luminanceHDR = this._luminanceHDR;
-            this._light.luminanceLDR = this._luminanceLDR;
+            (this._light as scene.PointLight).luminanceHDR = this._luminanceHDR;
+            (this._light as scene.PointLight).luminanceLDR = this._luminanceLDR;
         }
     }
 }

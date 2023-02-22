@@ -1430,6 +1430,8 @@ cocos_source_files(
                  cocos/scene/SphereLight.cpp
                  cocos/scene/SpotLight.h
                  cocos/scene/SpotLight.cpp
+                 cocos/scene/PointLight.h
+                 cocos/scene/PointLight.cpp
                  cocos/scene/SubModel.h
                  cocos/scene/SubModel.cpp
                  cocos/scene/Octree.h

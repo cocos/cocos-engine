@@ -532,7 +532,9 @@ void Root::destroyLight(scene::Light *light) { // NOLINT(readability-convert-mem
         } else if (light->getType() == scene::LightType::SPOT) {
             light->getScene()->removeSpotLight(static_cast<scene::SpotLight *>(light));
         }
-    }
+        } else if (light->getType() == scene::LightType::POINT) {
+            light->getScene()->removePointLight(static_cast<scene::PointLight *>(light));
+        }
     light->destroy();
 }
 

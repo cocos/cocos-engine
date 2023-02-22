@@ -93,6 +93,18 @@ void validPunctualLightsCulling(const RenderPipeline *pipeline, const scene::Cam
             sceneData->addValidPunctualLight(static_cast<scene::Light *>(light));
         }
     }
+
+    for (const auto &light : scene->getPointLights()) {
+        if (light->isBaked()) {
+            continue;
+        }
+
+        sphere.setCenter(light->getPosition());
+        sphere.setRadius(light->getRange());
+        if (sphere.sphereFrustum(camera->getFrustum())) {
+            sceneData->addValidPunctualLight(static_cast<scene::Light *>(light));
+        }
+    }
 }
 
 // Todo If you want to optimize the cutting efficiency, you can get it from the octree

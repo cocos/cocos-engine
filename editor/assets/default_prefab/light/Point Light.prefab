@@ -1,7 +1,7 @@
 [
   {
     "__type__": "cc.Prefab",
-    "_name": "Sphere Light",
+    "_name": "Point Light",
     "_objFlags": 0,
     "_native": "",
     "data": {
@@ -13,7 +13,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "Sphere Light",
+    "_name": "Point Light",
     "_objFlags": 0,
     "_parent": null,
     "_children": [],
@@ -56,7 +56,7 @@
     "_id": ""
   },
   {
-    "__type__": "cc.SphereLight",
+    "__type__": "cc.PointLight",
     "_name": "",
     "_objFlags": 0,
     "node": {
@@ -73,6 +73,7 @@
     "_useColorTemperature": false,
     "_colorTemperature": 6550,
     "_intensity": 1700,
+    "_size": 0.15,
     "_range": 2,
     "_id": "",
     "__prefab": {

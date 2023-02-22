@@ -43,6 +43,7 @@
 #include "scene/Shadow.h"
 #include "scene/SphereLight.h"
 #include "scene/SpotLight.h"
+#include "scene/PointLight.h"
 
 namespace cc {
 namespace pipeline {
@@ -198,6 +199,10 @@ bool RenderAdditiveLightQueue::cullSpotLight(const scene::SpotLight *light, cons
     return model->getWorldBounds() && (!model->getWorldBounds()->aabbAabb(light->getAABB()) || !model->getWorldBounds()->aabbFrustum(light->getFrustum()));
 }
 
+bool RenderAdditiveLightQueue::cullPointLight(const scene::PointLight *light, const scene::Model *model) {
+    return model->getWorldBounds() && !model->getWorldBounds()->aabbAabb(light->getAABB());
+}
+
 void RenderAdditiveLightQueue::addRenderQueue(scene::SubModel *subModel, const scene::Model *model, scene::Pass *pass, uint32_t lightPassIdx) {
     const auto lightCount = _lightIndices.size();
     const auto batchingScheme = pass->getBatchingScheme();
@@ -267,19 +272,41 @@ void RenderAdditiveLightQueue::updateUBOs(const scene::Camera *camera, gfx::Comm
 
     for (unsigned l = 0; l < validLightCount; l++, offset += _lightBufferElementCount) {
         const auto *light = _validPunctualLights[l];
-        const bool isSpotLight = scene::LightType::SPOT == light->getType();
-        const auto *spotLight = isSpotLight ? static_cast<const scene::SpotLight *>(light) : nullptr;
-        const auto *sphereLight = isSpotLight ? nullptr : static_cast<const scene::SphereLight *>(light);
-
+        Vec3 position = Vec3(0.0F, 0.0F, 0.0F);
+        float size = 0.F;
+        float range = 0.F;
+        float luminanceHDR = 0.F;
+        float luminanceLDR = 0.F;
+        if (light->getType() == scene::LightType::SPHERE) {
+            const auto *sphereLight = static_cast<const scene::SphereLight *>(light);
+            position = sphereLight->getPosition();
+            size = sphereLight->getSize();
+            range = sphereLight->getRange();
+            luminanceHDR = sphereLight->getLuminanceHDR();
+            luminanceLDR = sphereLight->getLuminanceLDR();
+        } else if (light->getType() == scene::LightType::SPOT) {
+            const auto *spotLight = static_cast<const scene::SpotLight *>(light);
+            position = spotLight->getPosition();
+            size = spotLight->getSize();
+            range = spotLight->getRange();
+            luminanceHDR = spotLight->getLuminanceHDR();
+            luminanceLDR = spotLight->getLuminanceLDR();
+        } else if (light->getType() == scene::LightType::POINT) {
+            const auto *pointLight = static_cast<const scene::PointLight *>(light);
+            position = pointLight->getPosition();
+            size = 0.0F;
+            range = pointLight->getRange();
+            luminanceHDR = pointLight->getLuminanceHDR();
+            luminanceLDR = pointLight->getLuminanceLDR();
+        }
         auto index = offset + UBOForwardLight::LIGHT_POS_OFFSET;
-        const auto &position = isSpotLight ? spotLight->getPosition() : sphereLight->getPosition();
         _lightBufferData[index++] = position.x;
         _lightBufferData[index++] = position.y;
         _lightBufferData[index] = position.z;
 
         index = offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET;
-        _lightBufferData[index++] = isSpotLight ? spotLight->getSize() : sphereLight->getSize();
-        _lightBufferData[index] = isSpotLight ? spotLight->getRange() : sphereLight->getRange();
+        _lightBufferData[index++] = size;
+        _lightBufferData[index] = range;
 
         index = offset + UBOForwardLight::LIGHT_COLOR_OFFSET;
         const auto &color = light->getColor();
@@ -294,8 +321,6 @@ void RenderAdditiveLightQueue::updateUBOs(const scene::Camera *camera, gfx::Comm
             _lightBufferData[index++] = color.z;
         }
 
-        const float luminanceHDR = isSpotLight ? spotLight->getLuminanceHDR() : sphereLight->getLuminanceHDR();
-        const float luminanceLDR = isSpotLight ? spotLight->getLuminanceLDR() : sphereLight->getLuminanceLDR();
         if (sceneData->isHDR()) {
             _lightBufferData[index] = luminanceHDR * exposure * _lightMeterScale;
         } else {
@@ -304,12 +329,13 @@ void RenderAdditiveLightQueue::updateUBOs(const scene::Camera *camera, gfx::Comm
 
         switch (light->getType()) {
             case scene::LightType::SPHERE:
-                _lightBufferData[offset + UBOForwardLight::LIGHT_POS_OFFSET + 3] = 0;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_POS_OFFSET + 3] = static_cast<float>(scene::LightType::SPHERE);
                 _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = 0;
                 _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] = 0;
                 break;
             case scene::LightType::SPOT: {
-                _lightBufferData[offset + UBOForwardLight::LIGHT_POS_OFFSET + 3] = 1.0F;
+                const auto *spotLight = static_cast<const scene::SpotLight *>(light);
+                _lightBufferData[offset + UBOForwardLight::LIGHT_POS_OFFSET + 3] = static_cast<float>(scene::LightType::SPOT);
                 _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = spotLight->getSpotAngle();
                 _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] = (shadowInfo->isEnabled() &&
                                                                                                  spotLight->isShadowEnabled() &&
@@ -323,6 +349,11 @@ void RenderAdditiveLightQueue::updateUBOs(const scene::Camera *camera, gfx::Comm
                 _lightBufferData[index++] = direction.y;
                 _lightBufferData[index] = direction.z;
             } break;
+            case scene::LightType::POINT:
+                _lightBufferData[offset + UBOForwardLight::LIGHT_POS_OFFSET + 3] = static_cast<float>(scene::LightType::POINT);
+                _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = 0;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] = 0;
+                break;
             default:
                 break;
         }
@@ -414,6 +445,20 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const scene::Camera *cam
                     }
                 }
             } break;
+            case scene::LightType::POINT: {
+                // update planar PROJ
+                if (mainLight) {
+                    PipelineUBO::updatePlanarNormalAndDistance(shadowInfo, &_shadowUBO);
+                }
+
+                // Reserve point light shadow interface
+                const auto &shadowSize = shadowInfo->getSize();
+                float shadowWHPBInfos[4] = {shadowSize.x, shadowSize.y, 1.0F, 0.0F};
+                memcpy(_shadowUBO.data() + UBOShadow::SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET, &shadowWHPBInfos, sizeof(float) * 4);
+
+                float shadowLPNNInfos[4] = {2.0F, packing, 0.0F, 0.0F};
+                memcpy(_shadowUBO.data() + UBOShadow::SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET, &shadowLPNNInfos, sizeof(float) * 4);
+            } break;
             default:
                 break;
         }
@@ -455,6 +500,9 @@ void RenderAdditiveLightQueue::lightCulling(const scene::Model *model) {
                 break;
             case scene::LightType::SPOT:
                 isCulled = cullSpotLight(static_cast<const scene::SpotLight *>(light), model);
+                break;
+            case scene::LightType::POINT:
+                   isCulled = cullSphereLight(static_cast<const scene::SphereLight *>(light), model);
                 break;
             default:
                 isCulled = false;
