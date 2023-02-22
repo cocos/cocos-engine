@@ -176,7 +176,7 @@ export class Line extends ModelRenderer {
     /**
      * @zh 图块数。
      * @en Texture tile count.
-     * @deprecated since v3.7.2, duplicated with mainTiling_Offset in material.
+     * @deprecated since v3.7.2, please use the mainTiling_Offset option in material instead.
      */
     @type(Vec2)
     @displayOrder(4)
@@ -199,7 +199,7 @@ export class Line extends ModelRenderer {
     private _offset = new Vec2(0, 0);
 
     /**
-     * @deprecated since v3.7.2, duplicated with mainTiling_Offset in material.
+     * @deprecated since v3.7.2, please use the mainTiling_Offset option in material instead.
      */
     @type(Vec2)
     @displayOrder(5)
