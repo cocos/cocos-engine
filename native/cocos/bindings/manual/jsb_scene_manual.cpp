@@ -374,7 +374,7 @@ static bool js_cc_Node__initAndReturnSharedBuffer(se::State &s) // NOLINT(readab
     s.rval().setObject(result);
     return true;
 }
-SE_BIND_FUNC(js_cc_Node__initAndReturnSharedBuffer)
+SE_BIND_FUNC(js_cc_Node__initAndReturnSharedBuffer) // NOLINT(readability-identifier-naming)
 
 static bool js_scene_Node_registerOnTransformChanged(se::State &s) // NOLINT(readability-identifier-naming)
 {
