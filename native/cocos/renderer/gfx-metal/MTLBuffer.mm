@@ -55,6 +55,7 @@ void CCMTLBuffer::doInit(const BufferInfo &info) {
     _gpuBuffer->startOffset = _offset;
     _gpuBuffer->stride = _stride;
 
+    _mtlResourceOptions = mu::toMTLResourceOption(_memUsage);
     _isIndirectDrawSupported = CCMTLDevice::getInstance()->isIndirectDrawSupported();
     if (hasFlag(_usage, BufferUsage::INDEX)) {
         switch (_stride) {
@@ -68,6 +69,7 @@ void CCMTLBuffer::doInit(const BufferInfo &info) {
 
     if (hasFlag(_usage, BufferUsageBit::VERTEX) ||
         hasFlag(_usage, BufferUsageBit::UNIFORM) ||
+        hasFlag(_usage, BufferUsageBit::STORAGE) ||
         hasFlag(_usage, BufferUsageBit::INDEX)) {
         createMTLBuffer(_size, _memUsage);
     } else if (hasFlag(_usage, BufferUsageBit::INDIRECT)) {
@@ -98,11 +100,9 @@ void CCMTLBuffer::doInit(const BufferViewInfo &info) {
 }
 
 bool CCMTLBuffer::createMTLBuffer(uint32_t size, MemoryUsage usage) {
-    if (!size) {
+    if (!size || hasFlag(_flags, BufferFlagBit::TRANSIENT)) {
         return false;
     }
-
-    _mtlResourceOptions = mu::toMTLResourceOption(usage);
 
     if (_gpuBuffer->mtlBuffer) {
         id<MTLBuffer> mtlBuffer = _gpuBuffer->mtlBuffer;
@@ -124,6 +124,31 @@ bool CCMTLBuffer::createMTLBuffer(uint32_t size, MemoryUsage usage) {
         return false;
     }
     return true;
+}
+
+MTLSizeAndAlign CCMTLBuffer::getSizeAndAlign() const {
+    id<MTLDevice> mtlDevice = id<MTLDevice>(CCMTLDevice::getInstance()->getMTLDevice());
+    return [mtlDevice heapBufferSizeAndAlignWithLength:_size options:_mtlResourceOptions];
+}
+
+void CCMTLBuffer::initFromHeap(id<MTLHeap> heap, uint64_t alignedSize, uint64_t offset) {
+    if (@available(ios 13, macos 10.15, *)) {
+        _gpuBuffer->mtlBuffer = [heap newBufferWithLength:alignedSize
+                                                  options:_mtlResourceOptions
+                                                   offset:offset];
+    } else {
+        _gpuBuffer->mtlBuffer = [heap newBufferWithLength:alignedSize
+                                                  options:_mtlResourceOptions];
+    }
+//    auto address = [_gpuBuffer->mtlBuffer gpuAddress];
+}
+
+void CCMTLBuffer::setAllocation(Allocator::Handle handle) {
+    _allocation = handle;
+}
+
+Allocator::Handle CCMTLBuffer::getAllocation() const {
+    return _allocation;
 }
 
 void CCMTLBuffer::doDestroy() {

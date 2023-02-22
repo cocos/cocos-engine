@@ -40,11 +40,13 @@
 #include "VKSwapchain.h"
 #include "VKTexture.h"
 #include "VKUtils.h"
+#include "VKTransientPool.h"
 #include "base/Utils.h"
 #include "gfx-base/GFXDef-common.h"
 #include "states/VKGeneralBarrier.h"
 #include "states/VKSampler.h"
 #include "states/VKTextureBarrier.h"
+#include "states/VKBufferBarrier.h"
 
 #include "application/ApplicationManager.h"
 #include "gfx-base/SPIRVUtils.h"
@@ -59,7 +61,6 @@ CC_DISABLE_WARNINGS()
 #define VMA_IMPLEMENTATION
 #include "vk_mem_alloc.h"
 #define THSVS_ERROR_CHECK_MIXED_IMAGE_LAYOUT
-#define THSVS_ERROR_CHECK_COULD_USE_GLOBAL_BARRIER
 #define THSVS_ERROR_CHECK_POTENTIAL_HAZARD
 #define THSVS_SIMPLER_VULKAN_SYNCHRONIZATION_IMPLEMENTATION
 #include "thsvs_simpler_vulkan_synchronization.h"
@@ -849,6 +850,10 @@ PipelineState *CCVKDevice::createPipelineState() {
     return ccnew CCVKPipelineState;
 }
 
+TransientPool *CCVKDevice::createTransientPool() {
+    return ccnew VKTransientPool;
+}
+
 Sampler *CCVKDevice::createSampler(const SamplerInfo &info) {
     return ccnew CCVKSampler(info);
 }
@@ -859,6 +864,10 @@ GeneralBarrier *CCVKDevice::createGeneralBarrier(const GeneralBarrierInfo &info)
 
 TextureBarrier *CCVKDevice::createTextureBarrier(const TextureBarrierInfo &info) {
     return ccnew CCVKTextureBarrier(info);
+}
+
+BufferBarrier *CCVKDevice::createBufferBarrier(const BufferBarrierInfo &info) {
+    return ccnew CCVKBufferBarrier(info);
 }
 
 void CCVKDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) {

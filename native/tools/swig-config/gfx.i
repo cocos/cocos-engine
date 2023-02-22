@@ -85,6 +85,10 @@ namespace cc { namespace gfx {
 %ignore Device::getInstance;
 %ignore Device::setOptions;
 %ignore Device::getOptions;
+%ignore Device::createTransientPool;
+
+%ignore GFXTransientPool;
+%ignore TransientPoolInfo;
 
 %ignore DeviceManager::isDetachDeviceThread;
 %ignore DeviceManager::getGFXName;

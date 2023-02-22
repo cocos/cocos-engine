@@ -82,7 +82,15 @@ void CCVKGPURecycleBin::collect(const CCVKGPUBuffer *buffer) {
     Resource &res = emplaceBack();
     res.type = RecycledType::BUFFER;
     res.buffer.vkBuffer = buffer->vkBuffer;
-    res.buffer.vmaAllocation = buffer->vmaAllocation;
+    if (buffer->allocateMemory) {
+        res.buffer.vmaAllocation = buffer->vmaAllocation;
+    }
+}
+
+void CCVKGPURecycleBin::collect(VmaPool pool) {
+    Resource &res = emplaceBack();
+    res.type = RecycledType::VMA_POOL;
+    res.vmaPool = pool;
 }
 
 void CCVKGPURecycleBin::clear() {
@@ -94,6 +102,8 @@ void CCVKGPURecycleBin::clear() {
                     vmaDestroyBuffer(_device->memoryAllocator, res.buffer.vkBuffer, res.buffer.vmaAllocation);
                     res.buffer.vkBuffer = VK_NULL_HANDLE;
                     res.buffer.vmaAllocation = VK_NULL_HANDLE;
+                } else if (res.buffer.vkBuffer != VK_NULL_HANDLE) {
+                    vkDestroyBuffer(_device->vkDevice, res.buffer.vkBuffer, nullptr);
                 }
                 break;
             case RecycledType::TEXTURE:
@@ -101,6 +111,8 @@ void CCVKGPURecycleBin::clear() {
                     vmaDestroyImage(_device->memoryAllocator, res.image.vkImage, res.image.vmaAllocation);
                     res.image.vkImage = VK_NULL_HANDLE;
                     res.image.vmaAllocation = VK_NULL_HANDLE;
+                } else if (res.image.vkImage != VK_NULL_HANDLE) {
+                    vkDestroyImage(_device->vkDevice, res.image.vkImage, nullptr);
                 }
                 break;
             case RecycledType::TEXTURE_VIEW:
@@ -138,6 +150,11 @@ void CCVKGPURecycleBin::clear() {
             case RecycledType::DESCRIPTOR_SET:
                 if (res.set.vkSet != VK_NULL_HANDLE) {
                     CCVKDevice::getInstance()->gpuDevice()->getDescriptorSetPool(res.set.layoutId)->yield(res.set.vkSet);
+                }
+                break;
+            case RecycledType::VMA_POOL:
+                if (res.vmaPool != VK_NULL_HANDLE) {
+                    vmaDestroyPool(CCVKDevice::getInstance()->gpuDevice()->memoryAllocator, res.vmaPool);
                 }
                 break;
             default: break;

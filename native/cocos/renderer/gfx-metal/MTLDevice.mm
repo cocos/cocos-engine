@@ -42,8 +42,10 @@
 #import "MTLShader.h"
 #import "MTLSwapchain.h"
 #import "MTLTexture.h"
+#import "MTLTransientPool.h"
 #import "base/Log.h"
 #import "profiler/Profiler.h"
+#import "gfx-base/SPIRVUtils.h"
 
 
 namespace cc {
@@ -76,6 +78,8 @@ bool CCMTLDevice::doInit(const DeviceInfo &info) {
     
     _inFlightSemaphore = ccnew CCMTLSemaphore(3);
     _currentFrameIndex = 0;
+
+    SPIRVUtils::getInstance()->initialize(0);
 
     id<MTLDevice> mtlDevice = MTLCreateSystemDefaultDevice();
     _mtlDevice = mtlDevice;
@@ -171,12 +175,12 @@ void CCMTLDevice::doDestroy() {
     CC_SAFE_DESTROY_AND_DELETE(_cmdBuff);
 
     CCMTLGPUGarbageCollectionPool::getInstance()->flush();
-    
+
     if(_inFlightSemaphore) {
         _inFlightSemaphore->trySyncAll(1000);
         CC_SAFE_DELETE(_inFlightSemaphore);
         _inFlightSemaphore = nullptr;
-    }    
+    }
 
     for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
         CC_SAFE_DELETE(_gpuStagingBufferPools[i]);
@@ -188,6 +192,7 @@ void CCMTLDevice::doDestroy() {
 
     CCMTLTexture::deleteDefaultTexture();
     CCMTLSampler::deleteDefaultSampler();
+    SPIRVUtils::getInstance()->destroy();
 
     CC_ASSERT(!_memoryStatus.bufferSize);  // Buffer memory leaked
     CC_ASSERT(!_memoryStatus.textureSize); // Texture memory leaked
@@ -317,6 +322,10 @@ Sampler *CCMTLDevice::createSampler(const SamplerInfo &info) {
 
 Swapchain *CCMTLDevice::createSwapchain() {
     return ccnew CCMTLSwapchain;
+}
+
+TransientPool *CCMTLDevice::createTransientPool() {
+    return ccnew CCMTLTransientPool;
 }
 
 void CCMTLDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint32_t count) {

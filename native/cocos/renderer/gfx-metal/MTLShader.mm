@@ -33,8 +33,6 @@
 namespace cc {
 namespace gfx {
 
-SPIRVUtils* CCMTLShader::spirv = nullptr;
-
 CCMTLShader::CCMTLShader() : Shader() {
     _typedID = generateObjectID<decltype(this)>();
 }
@@ -137,10 +135,7 @@ bool CCMTLShader::createMTLFunction(const ShaderStage& stage) {
     }
 
     id<MTLDevice> mtlDevice = id<MTLDevice>(CCMTLDevice::getInstance()->getMTLDevice());
-    if (!spirv) {
-        spirv = SPIRVUtils::getInstance();
-        spirv->initialize(2); // vulkan >= 1.2  spirv >= 1.5
-    }
+    auto *spirv = SPIRVUtils::getInstance();
 
     spirv->compileGLSL(stage.stage, "#version 450\n" + stage.source);
     if (stage.stage == ShaderStageFlagBit::VERTEX) spirv->compressInputLocations(_attributes);

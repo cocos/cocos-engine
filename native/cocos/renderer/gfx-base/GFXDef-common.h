@@ -132,6 +132,7 @@ enum class ObjectType : uint32_t {
     GLOBAL_BARRIER,
     TEXTURE_BARRIER,
     BUFFER_BARRIER,
+    TRANSIENT_POOL,
     COUNT,
 };
 CC_ENUM_CONVERSION_OPERATOR(ObjectType);
@@ -431,6 +432,7 @@ CC_ENUM_BITWISE_OPERATORS(BufferUsageBit);
 enum class BufferFlagBit : uint32_t {
     NONE = 0,
     ENABLE_STAGING_WRITE = 0x01,
+    TRANSIENT = 0x2,       // For transient texture
 };
 using BufferFlags = BufferFlagBit;
 CC_ENUM_BITWISE_OPERATORS(BufferFlagBit);
@@ -479,6 +481,7 @@ enum class TextureFlagBit : uint32_t {
     NONE = 0,
     GEN_MIPMAP = 0x1,     // Generate mipmaps using bilinear filter
     GENERAL_LAYOUT = 0x2, // For inout framebuffer attachments
+    TRANSIENT = 0x4,      // For transient texture
 };
 using TextureFlags = TextureFlagBit;
 CC_ENUM_BITWISE_OPERATORS(TextureFlagBit);
@@ -793,6 +796,7 @@ enum class BarrierType : uint32_t {
     FULL,
     SPLIT_BEGIN,
     SPLIT_END,
+    ALIASING,
 };
 CC_ENUM_BITWISE_OPERATORS(BarrierType);
 

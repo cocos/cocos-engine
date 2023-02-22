@@ -151,6 +151,11 @@ void cmdFuncCCVKCreateTexture(CCVKDevice *device, CCVKGPUTexture *gpuTexture) {
         createInfo.usage = usageFlags;
         createInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 
+        if (pVmaAllocation == nullptr) {
+            VK_CHECK(vkCreateImage(device->gpuDevice()->vkDevice, &createInfo, nullptr, pVkImage));
+            return;
+        }
+
         VmaAllocationCreateInfo allocInfo{};
         allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
 
@@ -191,7 +196,7 @@ void cmdFuncCCVKCreateTexture(CCVKDevice *device, CCVKGPUTexture *gpuTexture) {
         }
         gpuTexture->memoryless = true;
     } else {
-        createFn(&gpuTexture->vkImage, &gpuTexture->vmaAllocation);
+        createFn(&gpuTexture->vkImage, gpuTexture->memoryless ? nullptr : &gpuTexture->vmaAllocation);
     }
 }
 
@@ -275,11 +280,16 @@ void cmdFuncCCVKCreateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer) {
         bufferInfo.usage |= VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
     }
 
-    VmaAllocationInfo res;
-    VK_CHECK(vmaCreateBuffer(device->gpuDevice()->memoryAllocator, &bufferInfo, &allocInfo,
-                             &gpuBuffer->vkBuffer, &gpuBuffer->vmaAllocation, &res));
+    if (gpuBuffer->allocateMemory) {
+        VmaAllocationInfo res;
+        VK_CHECK(vmaCreateBuffer(device->gpuDevice()->memoryAllocator, &bufferInfo, &allocInfo,
+                                 &gpuBuffer->vkBuffer, &gpuBuffer->vmaAllocation, &res));
 
-    gpuBuffer->mappedData = reinterpret_cast<uint8_t *>(res.pMappedData);
+        gpuBuffer->mappedData = reinterpret_cast<uint8_t *>(res.pMappedData);
+    } else {
+        VK_CHECK(vkCreateBuffer(device->gpuDevice()->vkDevice, &bufferInfo, nullptr, &gpuBuffer->vkBuffer));
+    }
+
 
     // add special access types directly from usage
     if (hasFlag(gpuBuffer->usage, BufferUsageBit::VERTEX)) gpuBuffer->renderAccessTypes.push_back(THSVS_ACCESS_VERTEX_BUFFER);

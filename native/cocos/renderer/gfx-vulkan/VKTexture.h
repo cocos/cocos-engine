@@ -39,6 +39,9 @@ public:
     inline CCVKGPUTexture *gpuTexture() const { return _gpuTexture; }
     inline CCVKGPUTextureView *gpuTextureView() const { return _gpuTextureView; }
 
+    void createTexture(uint32_t width, uint32_t height, uint32_t size);
+    void createTextureView();
+
 protected:
     friend class CCVKSwapchain;
 
@@ -47,9 +50,6 @@ protected:
     void doInit(const SwapchainTextureInfo &info) override;
     void doDestroy() override;
     void doResize(uint32_t width, uint32_t height, uint32_t size) override;
-
-    void createTexture(uint32_t width, uint32_t height, uint32_t size, bool initGPUTexture = true);
-    void createTextureView(bool initGPUTextureView = true);
 
     IntrusivePtr<CCVKGPUTexture> _gpuTexture;
     IntrusivePtr<CCVKGPUTextureView> _gpuTextureView;

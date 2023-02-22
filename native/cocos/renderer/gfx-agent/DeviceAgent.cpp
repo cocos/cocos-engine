@@ -45,6 +45,7 @@
 #include "ShaderAgent.h"
 #include "SwapchainAgent.h"
 #include "TextureAgent.h"
+#include "TransientPoolAgent.h"
 
 namespace cc {
 namespace gfx {
@@ -275,6 +276,11 @@ PipelineState *DeviceAgent::createPipelineState() {
     return ccnew PipelineStateAgent(actor);
 }
 
+TransientPool *DeviceAgent::createTransientPool() {
+    TransientPool *actor = _actor->createTransientPool();
+    return ccnew TransientPoolAgent(actor);
+}
+
 Sampler *DeviceAgent::getSampler(const SamplerInfo &info) {
     return _actor->getSampler(info);
 }
@@ -285,6 +291,10 @@ GeneralBarrier *DeviceAgent::getGeneralBarrier(const GeneralBarrierInfo &info) {
 
 TextureBarrier *DeviceAgent::getTextureBarrier(const TextureBarrierInfo &info) {
     return _actor->getTextureBarrier(info);
+}
+
+BufferBarrier *DeviceAgent::getBufferBarrier(const BufferBarrierInfo &info) {
+    return _actor->getBufferBarrier(info);
 }
 
 template <typename T>

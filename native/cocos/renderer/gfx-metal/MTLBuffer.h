@@ -25,8 +25,10 @@
 #pragma once
 
 #include "gfx-base/GFXBuffer.h"
+#include "gfx-base/allocator/Allocator.h"
 
 #import <Metal/MTLBuffer.h>
+#import <Metal/MTLHeap.h>
 #import <Metal/MTLRenderCommandEncoder.h>
 #import <Metal/MTLStageInputOutputDescriptor.h>
 
@@ -56,6 +58,12 @@ public:
     inline bool isDrawIndirectByIndex() const { return _isDrawIndirectByIndex; }
     inline const DrawInfoList &getDrawInfos() const { return _drawInfos; }
 
+    void initFromHeap(id<MTLHeap> heap, uint64_t alignedSize, uint64_t offset);
+    MTLSizeAndAlign getSizeAndAlign() const;
+
+    void setAllocation(Allocator::Handle handle);
+    Allocator::Handle getAllocation() const;
+
 protected:
     void doInit(const BufferInfo &info) override;
     void doInit(const BufferViewInfo &info) override;
@@ -75,6 +83,7 @@ protected:
     ccstd::vector<MTLDrawPrimitivesIndirectArguments> _primitiveIndirectArguments;
     DrawInfoList _drawInfos;
 
+    Allocator::Handle _allocation = Allocator::INVALID_HANDLE;
     CCMTLGPUBuffer *_gpuBuffer = nullptr;
 };
 

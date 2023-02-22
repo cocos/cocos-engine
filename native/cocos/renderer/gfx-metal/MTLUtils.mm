@@ -948,6 +948,7 @@ ccstd::string mu::spirv2MSL(const uint32_t *ir, size_t word_count,
     options.enable_decoration_binding = true;
 #if (CC_PLATFORM == CC_PLATFORM_MACOS)
     options.platform = spirv_cross::CompilerMSL::Options::Platform::macOS;
+    options.set_msl_version(2, 0, 0);
 #elif (CC_PLATFORM == CC_PLATFORM_IOS)
     options.platform = spirv_cross::CompilerMSL::Options::Platform::iOS;
 #endif
