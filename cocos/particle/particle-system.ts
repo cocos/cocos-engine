@@ -51,6 +51,7 @@ import { TransformBit } from '../scene-graph/node-enum';
 import { Camera } from '../render-scene/scene';
 import { ParticleCuller } from './particle-culler';
 import { NoiseModule } from './animator/noise-module';
+import { Node } from '../scene-graph';
 
 const _world_mat = new Mat4();
 const _world_rol = new Quat();
@@ -1544,6 +1545,91 @@ export class ParticleSystem extends ModelRenderer {
      */
     get time () {
         return this._time;
+    }
+
+    private doPlayRecursive (node: Node) {
+        for (let i = 0; i < node.components.length; ++i) {
+            const ps = node.components[i];
+            if (ps instanceof ParticleSystem) {
+                ps.play();
+            }
+        }
+        for (let i = 0; i < node.children.length; ++i) {
+            const child = node.children[i];
+            this.doPlayRecursive(child);
+        }
+    }
+
+    private doPauseRecursive (node: Node) {
+        for (let i = 0; i < node.components.length; ++i) {
+            const ps = node.components[i];
+            if (ps instanceof ParticleSystem) {
+                ps.pause();
+            }
+        }
+        for (let i = 0; i < node.children.length; ++i) {
+            const child = node.children[i];
+            this.doPauseRecursive(child);
+        }
+    }
+
+    private doStopEmitRecursive (node: Node) {
+        for (let i = 0; i < node.components.length; ++i) {
+            const ps = node.components[i];
+            if (ps instanceof ParticleSystem) {
+                ps.stopEmitting();
+            }
+        }
+        for (let i = 0; i < node.children.length; ++i) {
+            const child = node.children[i];
+            this.doStopEmitRecursive(child);
+        }
+    }
+
+    private doStopRecursive (node: Node) {
+        for (let i = 0; i < node.components.length; ++i) {
+            const ps = node.components[i];
+            if (ps instanceof ParticleSystem) {
+                ps.stop();
+            }
+        }
+        for (let i = 0; i < node.children.length; ++i) {
+            const child = node.children[i];
+            this.doStopRecursive(child);
+        }
+    }
+
+    private doClearRecursive (node: Node) {
+        for (let i = 0; i < node.components.length; ++i) {
+            const ps = node.components[i];
+            if (ps instanceof ParticleSystem) {
+                ps.clear();
+            }
+        }
+        for (let i = 0; i < node.children.length; ++i) {
+            const child = node.children[i];
+            this.doClearRecursive(child);
+        }
+    }
+
+    public playRecursive () {
+        this.doPlayRecursive(this.node);
+    }
+
+    public pauseRecursive () {
+        this.doPauseRecursive(this.node);
+    }
+
+    public stopRecursive () {
+        this.doStopRecursive(this.node);
+    }
+
+    public stopEmitRecursive () {
+        this.doStopEmitRecursive(this.node);
+    }
+
+    public clearRecursive () {
+        this.doClearRecursive(this.node);
     }
 
     /**
