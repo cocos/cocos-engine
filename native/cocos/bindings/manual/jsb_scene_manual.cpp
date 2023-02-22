@@ -364,7 +364,7 @@ static bool js_scene_Node_registerListeners(cc::Node *cobj) // NOLINT(readabilit
     return true;
 }
 
-static bool js_cc_Node__initAndReturnSharedBuffer(se::State &s) // NOLINT(readability-identifier-naming)
+static bool js_cc_Node_initAndReturnSharedBuffer(se::State &s) // NOLINT(readability-identifier-naming)
 {
     auto *cobj = SE_THIS_OBJECT<cc::Node>(s);
     SE_PRECONDITION2(cobj, false, "Invalid Native Object");
@@ -374,7 +374,7 @@ static bool js_cc_Node__initAndReturnSharedBuffer(se::State &s) // NOLINT(readab
     s.rval().setObject(result);
     return true;
 }
-SE_BIND_FUNC(js_cc_Node__initAndReturnSharedBuffer) // NOLINT(readability-identifier-naming)
+SE_BIND_FUNC(js_cc_Node_initAndReturnSharedBuffer) // NOLINT(readability-identifier-naming)
 
 static bool js_scene_Node_registerOnTransformChanged(se::State &s) // NOLINT(readability-identifier-naming)
 {
@@ -851,7 +851,7 @@ bool register_all_scene_manual(se::Object *obj) // NOLINT(readability-identifier
     __jsb_cc_scene_Camera_proto->defineFunction("getMatViewProjInv", _SE(js_scene_Camera_getMatViewProjInv));
 
     // Node TS wrapper will invoke this function to let native object listen some events.
-    __jsb_cc_Node_proto->defineFunction("_initAndReturnSharedBuffer", _SE(js_cc_Node__initAndReturnSharedBuffer));
+    __jsb_cc_Node_proto->defineFunction("_initAndReturnSharedBuffer", _SE(js_cc_Node_initAndReturnSharedBuffer));
 
     __jsb_cc_Node_proto->defineFunction("_registerOnTransformChanged", _SE(js_scene_Node_registerOnTransformChanged));
     __jsb_cc_Node_proto->defineFunction("_registerOnParentChanged", _SE(js_scene_Node_registerOnParentChanged));
