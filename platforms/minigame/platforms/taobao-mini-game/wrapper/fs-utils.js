@@ -235,16 +235,17 @@ var fsUtils = {
 
     loadSubpackage (name, onProgress, onComplete) {
         const task = my.loadSubPackage({
-            packages: [name],
+            name,
             success () {
                 onComplete && onComplete();
             },
             fail (res) {
-                console.warn(`Load Subpackage failed: path: ${name} message: ${res.errMsg}`);
-                onComplete && onComplete(new Error(`Failed to load subpackage ${name}: ${res.errMsg}`));
+                console.warn(`Load Subpackage failed: path: ${name} message: ${res.errorMessage}`);
+                onComplete && onComplete(new Error(`Failed to load subpackage ${name}: ${res.errorMessage}`));
             },
         });
-        onProgress && task.onProgressUpdate(onProgress);
+        task = task || {};
+        // onProgress && task.onProgressUpdate(onProgress);
         return task;
     },
 

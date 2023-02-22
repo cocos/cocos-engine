@@ -1,4 +1,5 @@
 const cacheManager = require('./cache-manager');
+
 const { fs, downloadFile, readText, readArrayBuffer, readJson, loadSubpackage, getUserDataPath, exists } = window.fsUtils;
 
 const REGEX = /^https?:\/\/.*/;
@@ -22,13 +23,10 @@ function downloadScript (url, options, onComplete) {
     if (REGEX.test(url)) {
         onComplete && onComplete(new Error('Can not load remote scripts'));
     } else {
-        //TODO: Can't load scripts dynamically on Taobao platform
-        if (sys.platform !== sys.Platform.TAOBAO_CREATIVE_APP) {
-            if (sys.platform === sys.Platform.TAOBAO_MINI_GAME) {
-                __taobaoRequire(`../../../${url}`);
-            } else {
-                require(`../../../${url}`);
-            }
+        if (sys.platform === sys.Platform.TAOBAO_MINI_GAME) {
+            __taobaoRequire(`../../../${url}`);
+        } else if (sys.platform !== sys.Platform.TAOBAO_CREATIVE_APP) { //Can't load scripts dynamically on Taobao platform
+            require(`../../../${url}`);
         }
         onComplete && onComplete(null);
     }
@@ -230,20 +228,18 @@ function downloadBundle (nameOrUrl, options, onComplete) {
             js = `src/bundle-scripts/${bundleName}/index.${suffix}js`;
             cacheManager.makeBundleFolder(bundleName);
         } else if (downloader.remoteBundles.indexOf(bundleName) !== -1) {
-                url = `${downloader.remoteServerAddress}remote/${bundleName}`;
-                js = `src/bundle-scripts/${bundleName}/index.${suffix}js`;
-                cacheManager.makeBundleFolder(bundleName);
-            } else {
-                url = `assets/${bundleName}`;
-                js = `assets/${bundleName}/index.${suffix}js`;
-            }
-        //TODO: Can't load scripts dynamically on Taobao platform
-        if (sys.platform !== sys.Platform.TAOBAO_CREATIVE_APP) {
-            if (sys.platform === sys.Platform.TAOBAO_MINI_GAME) {
-                __taobaoRequire(js);
-            } else {
-                require(`./${js}`);
-            }
+            url = `${downloader.remoteServerAddress}remote/${bundleName}`;
+            js = `src/bundle-scripts/${bundleName}/index.${suffix}js`;
+            cacheManager.makeBundleFolder(bundleName);
+        } else {
+            url = `assets/${bundleName}`;
+            js = `assets/${bundleName}/index.${suffix}js`;
+        }
+
+        if (sys.platform === sys.Platform.TAOBAO_MINI_GAME) {
+            __taobaoRequire(js);
+        } else if (sys.platform !== sys.Platform.TAOBAO_CREATIVE_APP) { // Can't load scripts dynamically on Taobao platform
+            require(`./${js}`);
         }
         options.__cacheBundleRoot__ = bundleName;
         var config = `${url}/config.${suffix}json`;
