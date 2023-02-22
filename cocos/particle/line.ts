@@ -231,8 +231,7 @@ export class Line extends ModelRenderer {
         }
         model.node = model.transform = this.node;
         if (this.lineMaterial === null) {
-            const mat = new Material();
-            mat.copy(builtinResMgr.get<Material>('default-trail-material'));
+            const mat = builtinResMgr.get<Material>('default-trail-material');
             this.material = mat;
         }
         const matIns = this.getMaterialInstance(0);
