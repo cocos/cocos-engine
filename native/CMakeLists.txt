@@ -426,6 +426,8 @@ cocos_source_files(
     cocos/base/etc1.h
     cocos/base/etc2.cpp
     cocos/base/etc2.h
+    cocos/base/DynamicLibrary.cpp
+    cocos/base/DynamicLibrary.h
     cocos/base/IndexHandle.h
     cocos/base/Locked.h
     cocos/base/Macros.h
@@ -1624,6 +1626,9 @@ if(CC_USE_GLES3)
                      cocos/renderer/gfx-gles3/states/GLES3Sampler.cpp
                      cocos/renderer/gfx-gles3/states/GLES3Sampler.h
     )
+
+    include(${CMAKE_CURRENT_LIST_DIR}/cocos/renderer/gfx-gles-new/gfx-gles-new.cmake)
+    cocos_source_files(${GFX_GLES_NEW_FILES})
 endif()
 
 if(CC_USE_METAL)

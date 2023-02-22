@@ -55,6 +55,7 @@
 
 #ifdef CC_USE_GLES3
     #include "gfx-gles3/GLES3Device.h"
+    #include "gfx-gles-new/GLESDevice.h"
 #endif
 
 #ifdef CC_USE_GLES2
@@ -67,8 +68,8 @@
 namespace cc {
 namespace gfx {
 class CC_DLL DeviceManager final {
-    static constexpr bool DETACH_DEVICE_THREAD{true};
-    static constexpr bool FORCE_DISABLE_VALIDATION{false};
+    static constexpr bool DETACH_DEVICE_THREAD{false};
+    static constexpr bool FORCE_DISABLE_VALIDATION{true};
     static constexpr bool FORCE_ENABLE_VALIDATION{false};
 
 public:
@@ -101,7 +102,7 @@ public:
     #if CC_USE_XR || CC_USE_AR_MODULE
         Device::isSupportDetachDeviceThread = false;
     #endif
-        if (tryCreate<GLES3Device>(info, &device)) return device;
+        if (tryCreate<gles::Device>(info, &device)) return device;
 #endif
 
 #ifdef CC_USE_GLES2
