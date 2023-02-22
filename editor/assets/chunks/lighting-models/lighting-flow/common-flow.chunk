@@ -28,13 +28,9 @@
 
         CCSurfacesLightingCalculateIntermediateData_PerLight(lightingData, surfaceData, lightDirWithLength);
         CCSurfacesLightingCalculateColorWithLighting(lightingResult.diffuseColorWithLighting, lightingResult.specularColorWithLighting, surfaceData, lightingData);
-        lightingResult.diffuseColorWithLighting *= isOutOfRange;
-        lightingResult.specularColorWithLighting *= isOutOfRange;
   
         vec3 diffuseLighting, specularLighting;
         CCSurfacesLightingCalculateDirect(diffuseLighting, specularLighting, lightingData, cc_lightColor[i]);
-        diffuseLighting *= isOutOfRange;
-        specularLighting *= isOutOfRange;
 
         float fresnel = 1.0;
       #if CC_SURFACES_LIGHTING_USE_FRESNEL
@@ -69,17 +65,14 @@
 
         lightingResult.shadow = shadow;
 
-        float distAtt = 1.0;
-        if(!IS_RANGED_DIRECTIONAL_LIGHT(cc_lightPos[i].w)) {
-          distAtt = CCSurfacesLightingCalculateDistanceAttenuation(lightingData, cc_lightSizeRangeAngle[i], cc_lightPos[i].w);
-        }
+        float distAtt = CCSurfacesLightingCalculateDistanceAttenuation(lightingData, cc_lightSizeRangeAngle[i], cc_lightPos[i].w);
 
         float angleAtt = 1.0;
         if (IS_SPOT_LIGHT(cc_lightPos[i].w)) {
           angleAtt = CCSurfacesLightingCalculateAngleAttenuation(lightingData, cc_lightSizeRangeAngle[i], -cc_lightDir[i].xyz);
         }
 
-        float multiplier = distAtt * angleAtt;
+        float multiplier = distAtt * angleAtt * isOutOfRange;
 
         lightingResult.directDiffuse = diffuseLighting * multiplier;
         lightingResult.directSpecular = specularLighting * multiplier * fresnel;
