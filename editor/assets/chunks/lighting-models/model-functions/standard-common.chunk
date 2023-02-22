@@ -1,17 +1,16 @@
 #include <common/lighting/brdf>
 #include <common/lighting/functions>
 
-void LightingCalculateDirect(out vec3 lightingDiffuse, out vec3 lightingSpecular, in LightingIntermediateData lightingData, in vec4 lightSourceColorAndIntensity)
+vec3 CalculateDirectDiffuse(in LightingIntermediateData lightingData, in vec4 lightSourceColorAndIntensity)
+{
+    vec3 irradiance = vec3(lightingData.NoLSat) * lightSourceColorAndIntensity.rgb * lightSourceColorAndIntensity.w;
+    return irradiance * DiffuseCoefficient_EnergyConservation;
+}
+
+vec3 CalculateDirectSpecular(in LightingIntermediateData lightingData, in vec4 lightSourceColorAndIntensity)
 {
     vec3 irradiance = vec3(lightingData.NoLSat) * lightSourceColorAndIntensity.rgb * lightSourceColorAndIntensity.w;
 
-#if CC_SURFACES_LIGHTING_CALCULATE_DIFFUSE
-    lightingDiffuse = irradiance * DiffuseCoefficient_EnergyConservation;
-#else
-    lightingDiffuse = vec3(0.0);
-#endif
-
-#if CC_SURFACES_LIGHTING_CALCULATE_SPECULAR
     float roughness = lightingData.specularParam;
   #if CC_SURFACES_LIGHTING_ANISOTROPIC
       float rT, rB;
@@ -24,10 +23,7 @@ void LightingCalculateDirect(out vec3 lightingDiffuse, out vec3 lightingSpecular
       float calcSpec = D_GGX(roughness, lightingData.NoHSat);
     #endif
   #endif
-    lightingSpecular = irradiance * calcSpec;
-#else
-    lightingSpecular = vec3(0.0);
-#endif
+    return irradiance * calcSpec;
 }
 
 
