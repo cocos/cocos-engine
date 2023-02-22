@@ -37,17 +37,25 @@ struct ToonSurface {
     vec3 finalColor = vec3(0.0);
 
     for (int i = 0; i < LIGHTS_PER_PASS; i++) {
+      // lighting
       vec3 SLU = IS_RANGED_DIRECTIONAL_LIGHT(cc_lightPos[i].w) ? -cc_lightDir[i].xyz : cc_lightPos[i].xyz - position;
       vec3 SL = normalize(SLU);
       vec3 SH = normalize(SL + V);
       float SNL = 0.5 * dot(N, SL) + 0.5;
       float SNH = 0.5 * dot(N, SH) + 0.5;
+      
+      vec3 diffuse = mix(s.shade1, s.shade2,
+        clamp(1.0 + (s.shadeStep - s.shadeFeather - SNL) / s.shadeFeather, 0.0, 1.0));
+      diffuse = mix(s.baseColor.rgb, diffuse,
+        clamp(1.0 + (s.baseStep - s.baseFeather - SNL) / s.baseFeather, 0.0, 1.0));
+      float specularMask = step(specularWeight, SNH);
+      vec3 specular = s.specular.rgb * specularMask;
 
+      // attenuations
       float illum = 1.0;
       float att = 1.0;
-      float outOfRange = 1.0;
       if (IS_RANGED_DIRECTIONAL_LIGHT(cc_lightPos[i].w)) {
-        outOfRange = GetOutOfRange(position, cc_lightPos[i].xyz, cc_lightDir[i].xyz, cc_lightSizeRangeAngle[i].xyz, cc_lightBoundingSizeVS[i].xyz);
+        att = GetOutOfRange(position, cc_lightPos[i].xyz, cc_lightDir[i].xyz, cc_lightSizeRangeAngle[i].xyz, cc_lightBoundingSizeVS[i].xyz);
       } else {
         float distSqr = dot(SLU, SLU);
         float litRadius = cc_lightSizeRangeAngle[i].x;
@@ -65,14 +73,6 @@ struct ToonSurface {
           att *= GetAngleAtt(SL, -cc_lightDir[i].xyz, litAngleScale, litAngleOffset);
         }
       }
-
-      att *= outOfRange;
-      vec3 diffuse = mix(s.shade1, s.shade2,
-        clamp(1.0 + (s.shadeStep - s.shadeFeather - SNL) / s.shadeFeather, 0.0, 1.0));
-      diffuse = mix(s.baseColor.rgb, diffuse,
-        clamp(1.0 + (s.baseStep - s.baseFeather - SNL) / s.baseFeather, 0.0, 1.0));
-      float specularMask = step(specularWeight, SNH);
-      vec3 specular = s.specular.rgb * specularMask;
 
       finalColor += SNL * cc_lightColor[i].rgb * cc_lightColor[i].a * illum * att * s.baseStep * (diffuse + specular);
     }
