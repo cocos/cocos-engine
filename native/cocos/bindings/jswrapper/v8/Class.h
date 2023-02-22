@@ -32,6 +32,7 @@
     #include "../Define.h"
     #include "../Value.h"
     #include "Base.h"
+    #include "base/std/optional.h"
 
 namespace se {
 
@@ -134,6 +135,8 @@ public:
 
     // Private API used in wrapper
     V8FinalizeFunc _getFinalizeFunction() const; // NOLINT(readability-identifier-naming)
+    void _setCtor(Object *obj);
+    inline const ccstd::optional<Object *>& _getCtor() const { return _ctor; }
 
 private:
     Class();
@@ -150,14 +153,15 @@ private:
     static void setIsolate(v8::Isolate *isolate);
 
     ccstd::string _name;
-    Object *_parent;
-    Object *_parentProto;
-    Object *_proto;
+    Object *_parent{nullptr};
+    Object *_parentProto{nullptr};
+    Object *_proto{nullptr};
+    ccstd::optional<Object *> _ctor;
 
-    v8::FunctionCallback _ctor;
-    v8::UniquePersistent<v8::FunctionTemplate> _ctorTemplate;
-    V8FinalizeFunc _finalizeFunc;
-    bool _createProto;
+    v8::FunctionCallback _constructor{nullptr};
+    v8::UniquePersistent<v8::FunctionTemplate> _constructorTemplate;
+    V8FinalizeFunc _finalizeFunc{nullptr};
+    bool _createProto{true};
 
     friend class ScriptEngine;
     friend class Object;

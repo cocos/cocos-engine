@@ -141,6 +141,7 @@ void jsbSetterWrapper(const v8::FunctionCallbackInfo<v8::Value> &,
 
     #define SE_BIND_FUNC_FAST(funcName)                                                                          \
         void funcName##Registry(const v8::FunctionCallbackInfo<v8::Value> &_v8args) {                            \
+            JsbInvokeScope(#funcName);                                                         \
             auto *thisObject = static_cast<se::Object *>(_v8args.This()->GetAlignedPointerFromInternalField(0)); \
             auto *nativeObject = thisObject != nullptr ? thisObject->getPrivateData() : nullptr;                 \
             funcName(nativeObject);                                                                              \

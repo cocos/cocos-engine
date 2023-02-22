@@ -3579,31 +3579,6 @@ static bool js_cc_Node__setChildren(se::State& s)
 }
 SE_BIND_FUNC(js_cc_Node__setChildren) 
 
-static bool js_cc_Node__getSharedArrayBufferObject(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::Node *arg1 = (cc::Node *) NULL ;
-    se::Object *result = 0 ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::Node>(s);
-    if (nullptr == arg1) return true;
-    result = (se::Object *)((cc::Node const *)arg1)->_getSharedArrayBufferObject();
-    
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_Node__getSharedArrayBufferObject) 
-
 static bool js_cc_Node__onPreDestroy(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -3649,43 +3624,6 @@ static bool js_cc_Node__onPreDestroyBase(se::State& s)
     return true;
 }
 SE_BIND_FUNC(js_cc_Node__onPreDestroyBase) 
-
-static bool js_cc_Node_onSiblingIndexChanged_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::Node *arg1 = (cc::Node *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::Node>(s);
-    if (nullptr == arg1) return true;
-    
-    ok &= sevalue_to_native(args[0], &arg1->onSiblingIndexChanged, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_Node_onSiblingIndexChanged_set) 
-
-static bool js_cc_Node_onSiblingIndexChanged_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::Node *arg1 = (cc::Node *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::Node>(s);
-    if (nullptr == arg1) return true;
-    
-    ok &= nativevalue_to_se(arg1->onSiblingIndexChanged, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->onSiblingIndexChanged, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_Node_onSiblingIndexChanged_get) 
 
 static bool js_cc_Node__id_set(se::State& s)
 {
@@ -3995,7 +3933,6 @@ bool js_register_cc_Node(se::Object* obj) {
     auto* cls = se::Class::create("Node", obj, __jsb_cc_CCObject_proto, _SE(js_new_Node)); 
     
     cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
-    cls->defineProperty("onSiblingIndexChanged", _SE(js_cc_Node_onSiblingIndexChanged_get), _SE(js_cc_Node_onSiblingIndexChanged_set)); 
     cls->defineProperty("_id", _SE(js_cc_Node__id_get), _SE(js_cc_Node__id_set)); 
     cls->defineProperty("_parentInternal", _SE(js_cc_Node__parentInternal_get), _SE(js_cc_Node__parentInternal_set)); 
     cls->defineProperty("_mobility", _SE(js_cc_Node__mobility_get), _SE(js_cc_Node__mobility_set)); 
@@ -4054,7 +3991,6 @@ bool js_register_cc_Node(se::Object* obj) {
     cls->defineFunction("setLayer", _SE(js_cc_Node_setLayer)); 
     cls->defineFunction("getLayer", _SE(js_cc_Node_getLayer)); 
     cls->defineFunction("_setChildren", _SE(js_cc_Node__setChildren)); 
-    cls->defineFunction("_getSharedArrayBufferObject", _SE(js_cc_Node__getSharedArrayBufferObject)); 
     cls->defineFunction("_onPreDestroy", _SE(js_cc_Node__onPreDestroy)); 
     cls->defineFunction("_onPreDestroyBase", _SE(js_cc_Node__onPreDestroyBase)); 
     

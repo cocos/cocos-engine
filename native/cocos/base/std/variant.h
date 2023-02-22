@@ -37,6 +37,10 @@ using std::in_place_index;
 using std::monostate;
 using std::variant;
 using std::visit;
+using std::variant_alternative;
+using std::variant_alternative_t;
+using std::variant_size;
+using std::variant_size_v;
 
 }; // namespace ccstd
 
@@ -53,6 +57,10 @@ using boost::variant2::in_place_index;
 using boost::variant2::monostate;
 using boost::variant2::variant;
 using boost::variant2::visit;
+using boost::variant2::variant_alternative;
+using boost::variant2::variant_alternative_t;
+using boost::variant2::variant_size;
+using boost::variant2::variant_size_v;
 
 }; // namespace ccstd
 #endif
