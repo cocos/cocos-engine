@@ -27,13 +27,21 @@ vec4 CCStandardShadingAdditive (StandardSurface s, vec4 shadowPos) {
     float SNL = max(dot(N, SL), 0.0);
     float SNH = max(dot(N, SH), 0.0);
 
-    float distSqr = dot(SLU, SLU);
-    float litRadius = cc_lightSizeRangeAngle[i].x;
-    float litRadiusSqr = litRadius * litRadius;
-    float illum = (IS_POINT_LIGHT(cc_lightPos[i].w) || IS_RANGED_DIRECTIONAL_LIGHT(cc_lightPos[i].w)) ? 1.0 : litRadiusSqr / max(litRadiusSqr, distSqr);
-    float attRadiusSqrInv = 1.0 / max(cc_lightSizeRangeAngle[i].y, 0.01);
-    attRadiusSqrInv *= attRadiusSqrInv;
-    float att = GetDistAtt(distSqr, attRadiusSqrInv);
+    float illum = 1.0;
+    float att = 1.0;
+    float outOfRange = 1.0;
+    if (IS_RANGED_DIRECTIONAL_LIGHT(cc_lightPos[i].w)) {
+      outOfRange = GetOutOfRange(position, cc_lightPos[i].xyz, cc_lightDir[i].xyz, cc_lightSizeRangeAngle[i].xyz, cc_lightBoundingSizeVS[i].xyz);
+    } else {
+      float distSqr = dot(SLU, SLU);
+      float litRadius = cc_lightSizeRangeAngle[i].x;
+      float litRadiusSqr = litRadius * litRadius;
+      illum = (IS_POINT_LIGHT(cc_lightPos[i].w) || IS_RANGED_DIRECTIONAL_LIGHT(cc_lightPos[i].w)) ? 1.0 : litRadiusSqr / max(litRadiusSqr, distSqr);
+      float attRadiusSqrInv = 1.0 / max(cc_lightSizeRangeAngle[i].y, 0.01);
+      attRadiusSqrInv *= attRadiusSqrInv;
+      att = GetDistAtt(distSqr, attRadiusSqrInv);
+    }
+
     vec3 lspec = specular * CalcSpecular(s.roughness, SNH, SH, N);
 
     if (IS_SPOT_LIGHT(cc_lightPos[i].w)) {
@@ -44,10 +52,7 @@ vec4 CCStandardShadingAdditive (StandardSurface s, vec4 shadowPos) {
       att *= GetAngleAtt(SL, -cc_lightDir[i].xyz, litAngleScale, litAngleOffset);
     }
 
-    if (IS_RANGED_DIRECTIONAL_LIGHT(cc_lightPos[i].w)) {
-      att *= GetOutOfRange(position, cc_lightPos[i].xyz, cc_lightDir[i].xyz, cc_lightSizeRangeAngle[i].xyz, cc_lightBoundingSizeVS[i].xyz);
-    }
-
+    att *= outOfRange;
     vec3 lightColor = cc_lightColor[i].rgb;
 
     float shadow = 1.0;
