@@ -75,7 +75,7 @@ export class SkeletonTexture extends spine.Texture {
      * @zh 设置此贴图的过滤算法。
      * @param minFilter @en Filter mode for scale down.
      *                  @zh 控制向下采样方式。
-     * @param magFilter @en Filter mode for scale up
+     * @param magFilter @en Filter mode for scale up.
      *                  @zh 控制向上采样方式。
      */
     setFilters (minFilter: spine.TextureFilter, magFilter: spine.TextureFilter) {

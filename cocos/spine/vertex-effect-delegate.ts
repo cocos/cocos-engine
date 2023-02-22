@@ -40,7 +40,7 @@ export class VertexEffectDelegate {
     name = 'sp.VertexEffectDelegate';
     /**
      * @en Spine vertex effect object instance.
-     * @zh spine 顶点特效对象实例。
+     * @zh Spine 顶点特效对象实例。
      */
     _vertexEffect: spine.VertexEffect | null = null;
     private _interpolation: spine.Interpolation | null = null;
@@ -67,7 +67,7 @@ export class VertexEffectDelegate {
      * @zh 设置顶点抖动特效。
      * @param {Number} jitterX
      * @param {Number} jitterY
-     * @return {spine.VertexEffect} @en return a vertex effect type of jitter. @zh 返回一个 jitter 类型的顶点特效对象实例。
+     * @return {spine.VertexEffect} @en Return a vertex effect type of jitter. @zh 返回一个 jitter 类型的顶点特效对象实例。
      */
     initJitter (jitterX: number, jitterY: number): spine.VertexEffect {
         this._effectType = 'jitter';
@@ -81,7 +81,7 @@ export class VertexEffectDelegate {
      * @method initSwirlWithPow
      * @param {Number} radius
      * @param {Number} power
-     * @return {sp.spine.JitterEffect} @en return a vertex effect type of swirl. @zh 返回一个 swirl 类型的顶点特效对象实例。
+     * @return {sp.spine.JitterEffect} @en Return a vertex effect type of swirl. @zh 返回一个 swirl 类型的顶点特效对象实例。
      */
     initSwirlWithPow (radius: number, power: number): spine.VertexEffect {
         this._effectType = 'swirl';
@@ -96,7 +96,7 @@ export class VertexEffectDelegate {
      * @method initSwirlWithPowOut
      * @param {Number} radius
      * @param {Number} power
-     * @return {sp.spine.SwirlEffect} @en return a vertex effect type of swirl. @zh 返回一个 swirl 类型的顶点特效对象实例。
+     * @return {sp.spine.SwirlEffect} @en Return a vertex effect type of swirl. @zh 返回一个 swirl 类型的顶点特效对象实例。
      */
     initSwirlWithPowOut (radius: number, power: number) {
         this._effectType = 'swirl';

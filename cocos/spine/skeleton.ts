@@ -387,7 +387,7 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @en Animation mode, with options for real-time mode, private cached, or public cached mode
+     * @en Animation mode, with options for real-time mode, private cached, or public cached mode.
      * @zh 动画模式，可选实时模式，私有 cached 或公共 cached 模式。
      */
     @displayName('Animation Cache Mode')
