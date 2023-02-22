@@ -26,6 +26,44 @@
 
 #include <type_traits>
 
+/* This macro is used for checking whether a member function exists in a class in compiling time.
+Usage:
+ If we have a class called `MyClass` as follows:
+ 
+ ```c++
+ class MyClass {
+ public:
+    int myMethod(bool a, float b) { return 100; }
+ };
+```
+
+Test code:
+```c++
+ #include "base/HasMemberFunction.h"
+ 
+ CC_DEFINE_HAS_MEMBER_FUNC(myMethod)
+ 
+ template <typename T>
+ void myTest(T* arg0) {
+    if constexpr (has_myMethod<T, int(bool, float)>::value) {
+        // <1>: DO SOMETHING if T owns `myMethod` function.
+        // ...
+    } else {
+        // <2>: DO SOMETHING if T doesn't own `myMethod` function.
+        // ...
+    }
+ }
+ 
+ static int myTestEntry() {
+    MyClass a;
+    myTest(&a); // --> Go to <1>
+    int b;
+    myTest(&b; // --> Go to <2>
+ }
+ 
+```
+*/
+
 #define CC_DEFINE_HAS_MEMBER_FUNC(memFunc)                                    \
     template <typename, typename T>                                           \
     struct has_##memFunc {                                                    \
@@ -53,13 +91,7 @@
 
 namespace cc {
 
-CC_DEFINE_HAS_MEMBER_FUNC(serialize)
-CC_DEFINE_HAS_MEMBER_FUNC(serializeInlineData)
-CC_DEFINE_HAS_MEMBER_FUNC(setUuid)
 CC_DEFINE_HAS_MEMBER_FUNC(setScriptObject)
 CC_DEFINE_HAS_MEMBER_FUNC(getScriptObject)
-
-CC_DEFINE_HAS_MEMBER_FUNC(onBeforeSerialize)
-CC_DEFINE_HAS_MEMBER_FUNC(onAfterDeserialize)
 
 } // namespace cc
