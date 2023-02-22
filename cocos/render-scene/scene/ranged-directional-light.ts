@@ -43,7 +43,7 @@ export class RangedDirectionalLight extends Light {
      * @en The direction vector of the light
      * @zh 光源的方向
      */
-    get direction (): Vec3 {
+    get direction (): Readonly<Vec3> {
         return this._dir;
     }
 
@@ -51,7 +51,7 @@ export class RangedDirectionalLight extends Light {
      * @en The right vector of the light
      * @zh 光源的右方向
      */
-    get right (): Vec3 {
+    get right (): Readonly<Vec3> {
         return this._right;
     }
 
@@ -59,7 +59,7 @@ export class RangedDirectionalLight extends Light {
      * @en The world position of the light source
      * @zh 光源的世界坐标
      */
-    get position (): Vec3 {
+    get position (): Readonly<Vec3> {
         return this._pos;
     }
 
@@ -67,7 +67,7 @@ export class RangedDirectionalLight extends Light {
      * @en The world scale of the light source
      * @zh 光源的世界缩放
      */
-    get scale (): Vec3 {
+    get scale (): Readonly<Vec3> {
         return this._scale;
     }
 

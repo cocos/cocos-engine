@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2022-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2023 Xiamen Yaji Software Co., Ltd.
  http://www.cocos2d-x.org
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
