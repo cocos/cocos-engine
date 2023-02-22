@@ -210,14 +210,23 @@ function downloadBundle (nameOrUrl, options, onComplete) {
     const suffix = version ? `${version}.` : '';
 
     if (subpackages[bundleName]) {
-        var config = `subpackages/${bundleName}/config.${suffix}json`;
+        var config;
+        if (sys.platform === sys.Platform.TAOBAO_MINI_GAME) {
+            config = `${bundleName}/config.${suffix}json`;
+        } else {
+            config = `subpackages/${bundleName}/config.${suffix}json`;
+        }
         loadSubpackage(bundleName, options.onFileProgress, (err) => {
             if (err) {
                 onComplete(err, null);
                 return;
             }
             downloadJson(config, options, (err, data) => {
-                data && (data.base = `subpackages/${bundleName}/`);
+                if (sys.platform === sys.Platform.TAOBAO_MINI_GAME) {
+                    data && (data.base = `${bundleName}/`);
+                } else {
+                    data && (data.base = `subpackages/${bundleName}/`);
+                }
                 onComplete(err, data);
             });
         });
