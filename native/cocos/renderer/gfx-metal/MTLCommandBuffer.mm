@@ -294,13 +294,18 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
         mu::clearRenderArea(_mtlDevice, _renderEncoder.getMTLEncoder(), renderPass, renderArea, colors, depth, stencil);
     }
 
+    const auto &targetSize = ccMtlRenderPass->getRenderTargetSizes()[0];
+    _currentFbWidth = static_cast<int32_t>(targetSize.x);
+    _currentFbHeight = static_cast<int32_t>(targetSize.y);
     Rect scissorArea = renderArea;
-    const Vec2 renderTargetSize = ccMtlRenderPass->getRenderTargetSizes()[0];
-    _currentFbWidth = MIN(scissorArea.width, renderTargetSize.x - scissorArea.x);
-    _currentFbHeight = MIN(scissorArea.height, renderTargetSize.y - scissorArea.y);
+    CC_ASSERT(_currentFbWidth != 0 && _currentFbWidth >= scissorArea.x);
+    CC_ASSERT(_currentFbHeight != 0 && _currentFbHeight >= scissorArea.y);
 
-    scissorArea.width = _currentFbWidth;
-    scissorArea.height = _currentFbHeight;
+    int32_t w = MIN(static_cast<int32_t>(scissorArea.width), _currentFbWidth - scissorArea.x);
+    int32_t h = MIN(static_cast<int32_t>(scissorArea.height), _currentFbHeight - scissorArea.y);
+
+    scissorArea.width = static_cast<uint32_t>(MAX(w, 0));
+    scissorArea.height = static_cast<uint32_t>(MAX(h, 0));
 
     _renderEncoder.setViewport(scissorArea);
     _renderEncoder.setScissor(scissorArea);
@@ -318,6 +323,8 @@ void CCMTLCommandBuffer::endRenderPass() {
     } else {
         _renderEncoder.endEncoding();
     }
+    _currentFbWidth = 0;
+    _currentFbHeight = 0;
     _gpuCommandBufferObj->renderPass->reset();
 }
 
@@ -487,8 +494,10 @@ void CCMTLCommandBuffer::setViewport(const Viewport &vp) {
 
 void CCMTLCommandBuffer::setScissor(const Rect &rect) {
     Rect validate = rect;
-    int32_t w = MIN(static_cast<int32_t>(rect.width) - rect.x, static_cast<int32_t>(_currentFbWidth));
-    int32_t h = MIN(static_cast<int32_t>(rect.height) - rect.y, static_cast<int32_t>(_currentFbHeight));
+    CC_ASSERT(_currentFbWidth >= rect.x);
+    CC_ASSERT(_currentFbHeight >= rect.y);
+    int32_t w = MIN(static_cast<int32_t>(rect.width), _currentFbWidth - rect.x);
+    int32_t h = MIN(static_cast<int32_t>(rect.height), _currentFbHeight - rect.y);
 
     validate.width = static_cast<uint32_t>(MAX(w, 0));
     validate.height = static_cast<uint32_t>(MAX(h, 0));

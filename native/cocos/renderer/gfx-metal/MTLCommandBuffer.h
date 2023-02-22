@@ -117,8 +117,8 @@ protected:
 
     std::bitset<MAX_COLORATTACHMENTS> _colorAppearedBefore;
 
-    uint32_t _currentFbWidth = 1;
-    uint32_t _currentFbHeight = 1;
+    int32_t _currentFbWidth = 0;
+    int32_t _currentFbHeight = 0;
 };
 
 } // namespace gfx
