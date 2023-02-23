@@ -255,18 +255,18 @@ public:
             _jsTypedArray->incRef();
 
             se::Value tmpVal;
-            _jsTypedArray->getProperty("buffer", &tmpVal);
+            _jsTypedArray->getProperty("buffer", &tmpVal, true);
             CC_ASSERT(tmpVal.isObject());
             CC_ASSERT(tmpVal.toObject()->isArrayBuffer());
 
             _buffer = ccnew ArrayBuffer();
             _buffer->setJSArrayBuffer(tmpVal.toObject());
 
-            _jsTypedArray->getProperty("byteOffset", &tmpVal);
+            _jsTypedArray->getProperty("byteOffset", &tmpVal, true);
             CC_ASSERT(tmpVal.isNumber());
             _byteOffset = tmpVal.toUint32();
 
-            _jsTypedArray->getProperty("byteLength", &tmpVal);
+            _jsTypedArray->getProperty("byteLength", &tmpVal, true);
             CC_ASSERT(tmpVal.isNumber());
             _byteLength = tmpVal.toUint32();
 

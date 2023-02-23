@@ -426,6 +426,7 @@ cocos_source_files(
     cocos/base/etc1.h
     cocos/base/etc2.cpp
     cocos/base/etc2.h
+    cocos/base/HasMemberFunction.h
     cocos/base/IndexHandle.h
     cocos/base/Locked.h
     cocos/base/Macros.h

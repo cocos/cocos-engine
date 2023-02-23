@@ -51,6 +51,8 @@
 #include "math/Math.h"
 #include "renderer/gfx-base/states/GFXSampler.h"
 
+#include "base/HasMemberFunction.h"
+
 #define SE_PRECONDITION2_VOID(condition, ...)                                                                   \
     do {                                                                                                        \
         if (!(condition)) {                                                                                     \
@@ -196,7 +198,7 @@ seval_to_type(const se::Value &v, bool &ok) { // NOLINT(readability-identifier-n
 }
 
 inline se::HandleObject unwrapProxyObject(se::Object *obj) {
-    if(obj->isProxy()) {
+    if (obj->isProxy()) {
         return se::HandleObject(se::Object::createProxyTarget(obj));
     }
     obj->incRef();
@@ -344,7 +346,23 @@ native_ptr_to_seval(T &v_ref, se::Value *ret, bool *isReturnCachedValue = nullpt
             cc_tmp_set_private_data(obj, v);
 
             se::Value property;
-            if (obj->getProperty("_ctor", &property)) {
+            bool foundCtor = false;
+            if (!cls->_getCtor().has_value()) {
+                foundCtor = obj->getProperty("_ctor", &property, true);
+                if (foundCtor) {
+                    cls->_setCtor(property.toObject());
+                } else {
+                    cls->_setCtor(nullptr);
+                }
+            } else {
+                auto *ctorObj = cls->_getCtor().value();
+                if (ctorObj != nullptr) {
+                    property.setObject(ctorObj);
+                    foundCtor = true;
+                }
+            }
+
+            if (foundCtor) {
                 property.toObject()->call(se::EmptyValueArray, obj);
             }
 
@@ -366,6 +384,16 @@ bool native_ptr_to_seval(T *vp, se::Class *cls, se::Value *ret, bool *isReturnCa
         return true;
     }
 
+    if constexpr (cc::has_getScriptObject<DecayT, se::Object *()>::value) {
+        if (v->getScriptObject() != nullptr) {
+            if (isReturnCachedValue != nullptr) {
+                *isReturnCachedValue = true;
+            }
+            ret->setObject(v->getScriptObject());
+            return true;
+        }
+    }
+
     se::NativePtrToObjectMap::filter(v, cls)
         .forEach(
             [&](se::Object *foundObj) {
@@ -383,7 +411,23 @@ bool native_ptr_to_seval(T *vp, se::Class *cls, se::Value *ret, bool *isReturnCa
             cc_tmp_set_private_data(obj, v);
 
             se::Value property;
-            if (obj->getProperty("_ctor", &property)) {
+            bool foundCtor = false;
+            if (!cls->_getCtor().has_value()) {
+                foundCtor = obj->getProperty("_ctor", &property, true);
+                if (foundCtor) {
+                    cls->_setCtor(property.toObject());
+                } else {
+                    cls->_setCtor(nullptr);
+                }
+            } else {
+                auto *ctorObj = cls->_getCtor().value();
+                if (ctorObj != nullptr) {
+                    property.setObject(ctorObj);
+                    foundCtor = true;
+                }
+            }
+
+            if (foundCtor) {
                 property.toObject()->call(se::EmptyValueArray, obj);
             }
 
@@ -718,7 +762,7 @@ bool sevalue_to_native(const se::Value &from, ccstd::vector<T> *to, se::Object *
 
     CC_ASSERT(from.toObject());
     se::HandleObject array(unwrapProxyObject(from.toObject()));
-    
+
     if (array->isArray()) {
         uint32_t len = 0;
         array->getArrayLength(&len);
@@ -1032,6 +1076,7 @@ bool sevalue_to_native(const se::Value &from, ccstd::optional<T> *to, se::Object
     }
     return ret;
 }
+
 //////////////////////  shoter form
 template <typename T>
 inline bool sevalue_to_native(const se::Value &from, T &&to) { // NOLINT(readability-identifier-naming)
@@ -1106,7 +1151,7 @@ nativevalue_to_se(const T &from, se::Value &to, se::Object * /*ctx*/) { // NOLIN
     return true;
 }
 
-//#endif // HAS_CONSTEXPR
+// #endif // HAS_CONSTEXPR
 
 //////////////////////////////// forward declaration: nativevalue_to_se ////////////////////////////////
 
