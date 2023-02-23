@@ -3215,6 +3215,7 @@ bool js_register_cc_pipeline_UBOForwardLight(se::Object* obj) {
     cls->defineStaticProperty("LIGHT_COLOR_OFFSET", nullptr, nullptr); 
     cls->defineStaticProperty("LIGHT_SIZE_RANGE_ANGLE_OFFSET", nullptr, nullptr); 
     cls->defineStaticProperty("LIGHT_DIR_OFFSET", nullptr, nullptr); 
+    cls->defineStaticProperty("LIGHT_BOUNDING_SIZE_VS_OFFSET", nullptr, nullptr); 
     cls->defineStaticProperty("COUNT", nullptr, nullptr); 
     cls->defineStaticProperty("SIZE", nullptr, nullptr); 
     cls->defineStaticProperty("BINDING", nullptr, nullptr); 
