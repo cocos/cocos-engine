@@ -1,4 +1,4 @@
-/****************************************************************************
+g/****************************************************************************
  Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
@@ -136,7 +136,7 @@ se::Value oldConsoleWarn;
 se::Value oldConsoleError;
 se::Value oldConsoleAssert;
 
-bool jsbConsoleFormatLog(State &state, cc::LogLevel level, const char *prefix, int msgIndex = 0) {
+bool jsbConsoleFormatLog(State &state, cc::LogLevel level, int msgIndex = 0) {
     if (msgIndex < 0) {
         return false;
     }
@@ -146,7 +146,7 @@ bool jsbConsoleFormatLog(State &state, cc::LogLevel level, const char *prefix, i
     if ((argc - msgIndex) == 1) {
         ccstd::string msg = args[msgIndex].toStringForce();
         cc::Log::logMessage(cc::LogType::KERNEL, level 
-            ,"JS: %s%s", prefix, msg.c_str());
+            ,"JS: %s", msg.c_str());
     } else if (argc > 1) {
         ccstd::string msg = args[msgIndex].toStringForce();
         size_t pos;
@@ -159,42 +159,42 @@ bool jsbConsoleFormatLog(State &state, cc::LogLevel level, const char *prefix, i
             }
         }
         cc::Log::logMessage(cc::LogType::KERNEL, level
-            ,"JS: %s%s", prefix, msg.c_str());
+            ,"JS: %s", msg.c_str());
     }
 
     return true;
 }
 
 bool jsbConsoleLog(State &s) {
-    jsbConsoleFormatLog(s, cc::LogLevel::LEVEL_DEBUG, "");
+    jsbConsoleFormatLog(s, cc::LogLevel::LEVEL_DEBUG);
     oldConsoleLog.toObject()->call(s.args(), s.thisObject());
     return true;
 }
 SE_BIND_FUNC(jsbConsoleLog)
 
 bool jsbConsoleDebug(State &s) {
-    jsbConsoleFormatLog(s, cc::LogLevel::LEVEL_DEBUG, "[DEBUG]: ");
+    jsbConsoleFormatLog(s, cc::LogLevel::LEVEL_DEBUG);
     oldConsoleDebug.toObject()->call(s.args(), s.thisObject());
     return true;
 }
 SE_BIND_FUNC(jsbConsoleDebug)
 
 bool jsbConsoleInfo(State &s) {
-    jsbConsoleFormatLog(s, cc::LogLevel::INFO, "[INFO]: ");
+    jsbConsoleFormatLog(s, cc::LogLevel::INFO);
     oldConsoleInfo.toObject()->call(s.args(), s.thisObject());
     return true;
 }
 SE_BIND_FUNC(jsbConsoleInfo)
 
 bool jsbConsoleWarn(State &s) {
-    jsbConsoleFormatLog(s, cc::LogLevel::WARN, "[WARN]: ");
+    jsbConsoleFormatLog(s, cc::LogLevel::WARN);
     oldConsoleWarn.toObject()->call(s.args(), s.thisObject());
     return true;
 }
 SE_BIND_FUNC(jsbConsoleWarn)
 
 bool jsbConsoleError(State &s) {
-    jsbConsoleFormatLog(s, cc::LogLevel::ERR, "[ERROR]: ");
+    jsbConsoleFormatLog(s, cc::LogLevel::ERR);
     oldConsoleError.toObject()->call(s.args(), s.thisObject());
     return true;
 }
@@ -204,7 +204,7 @@ bool jsbConsoleAssert(State &s) {
     const auto &args = s.args();
     if (!args.empty()) {
         if (args[0].isBoolean() && !args[0].toBoolean()) {
-            jsbConsoleFormatLog(s, cc::LogLevel::WARN, "[ASSERT]: ", 1);
+            jsbConsoleFormatLog(s, cc::LogLevel::WARN, 1);
             oldConsoleAssert.toObject()->call(s.args(), s.thisObject());
         }
     }
