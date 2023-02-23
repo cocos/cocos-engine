@@ -29,7 +29,7 @@
  */
 /* eslint-disable max-len */
 import { getPhaseID, InstancedBuffer, PipelineStateManager } from '..';
-import { assert, cclegacy } from '../../core';
+import { assert, cclegacy, RecyclePool } from '../../core';
 import intersect from '../../core/geometry/intersect';
 import { Sphere } from '../../core/geometry/sphere';
 import { AccessFlagBit, Attribute, Buffer, BufferInfo, BufferUsageBit, BufferViewInfo, Color, ColorAttachment, CommandBuffer, DepthStencilAttachment, DescriptorSet, DescriptorSetInfo, Device, deviceManager, Format, Framebuffer,
@@ -38,12 +38,12 @@ import { AccessFlagBit, Attribute, Buffer, BufferInfo, BufferUsageBit, BufferVie
 import { legacyCC } from '../../core/global-exports';
 import { Vec3 } from '../../core/math/vec3';
 import { Vec4 } from '../../core/math/vec4';
-import { BatchingSchemes } from '../../render-scene';
+import { BatchingSchemes, Pass } from '../../render-scene';
 import { Camera } from '../../render-scene/scene/camera';
 import { ShadowType } from '../../render-scene/scene/shadows';
 import { Root } from '../../root';
 import { BatchedBuffer } from '../batched-buffer';
-import { isEnableEffect, SetIndex, UBODeferredLight, UBOForwardLight, UBOLocal } from '../define';
+import { IRenderPass, isEnableEffect, SetIndex, UBODeferredLight, UBOForwardLight, UBOLocal } from '../define';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { PipelineInputAssemblerData } from '../render-pipeline';
 import { LayoutGraphData, PipelineLayoutData, RenderPhaseData, RenderStageData } from './layout-graph';
@@ -157,11 +157,12 @@ class DeviceBuffer extends DeviceResource {
     }
 }
 
+const _vec4Array = new Float32Array(4);
 class BlitDesc {
     private _blit: Blit;
     private _screenQuad: PipelineInputAssemblerData | null = null;
     private _queue: DeviceRenderQueue | null = null;
-    private _stageDesc: DescriptorSet | null = null;
+    private _stageDesc: DescriptorSet | undefined;
     // If VOLUMETRIC_LIGHTING is turned on, it needs to be assigned
     private _lightVolumeBuffer: Buffer | null = null;
     private _lightMeterScale = 10000.0;
@@ -179,72 +180,13 @@ class BlitDesc {
      * 创建四边形输入汇集器。
      */
     protected _createQuadInputAssembler (): PipelineInputAssemblerData {
-        // create vertex buffer
-        const inputAssemblerData = new PipelineInputAssemblerData();
-
-        const vbStride = Float32Array.BYTES_PER_ELEMENT * 4;
-        const vbSize = vbStride * 4;
-        const device = this._queue!.devicePass.context.device;
-        const quadVB = device.createBuffer(new BufferInfo(
-            BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.DEVICE | MemoryUsageBit.HOST,
-            vbSize,
-            vbStride,
-        ));
-
-        if (!quadVB) {
-            return inputAssemblerData;
-        }
-
-        // create index buffer
-        const ibStride = Uint8Array.BYTES_PER_ELEMENT;
-        const ibSize = ibStride * 6;
-
-        const quadIB = device.createBuffer(new BufferInfo(
-            BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.DEVICE,
-            ibSize,
-            ibStride,
-        ));
-
-        if (!quadIB) {
-            return inputAssemblerData;
-        }
-
-        const indices = new Uint8Array(6);
-        indices[0] = 0; indices[1] = 1; indices[2] = 2;
-        indices[3] = 1; indices[4] = 3; indices[5] = 2;
-
-        quadIB.update(indices);
-
-        // create input assembler
-
-        const attributes = new Array<Attribute>(2);
-        attributes[0] = new Attribute('a_position', Format.RG32F);
-        attributes[1] = new Attribute('a_texCoord', Format.RG32F);
-
-        const quadIA = device.createInputAssembler(new InputAssemblerInfo(
-            attributes,
-            [quadVB],
-            quadIB,
-        ));
-
-        inputAssemblerData.quadIB = quadIB;
-        inputAssemblerData.quadVB = quadVB;
-        inputAssemblerData.quadIA = quadIA;
-        return inputAssemblerData;
+        const devicePass = this._queue!.devicePass;
+        return devicePass.context.blit.pipelineIAData;
     }
     createScreenQuad () {
         if (!this._screenQuad) {
             this._screenQuad = this._createQuadInputAssembler();
         }
-    }
-    private _updateScreenVB () {
-        const devicePass = this._queue!.devicePass;
-        const width = devicePass.context.width;
-        const height = devicePass.context.height;
-        const vb = devicePass.genQuadVertexData(SurfaceTransform.IDENTITY, new Rect(0, 0, width, height));
-        this._screenQuad!.quadVB!.update(vb);
     }
     private _gatherVolumeLights (camera: Camera) {
         if (!camera.scene) { return; }
@@ -255,7 +197,6 @@ class BlitDesc {
         const sphereLights = camera.scene.sphereLights;
         const spotLights = camera.scene.spotLights;
         const _sphere = Sphere.create(0, 0, 0, 1);
-        const _vec4Array = new Float32Array(4);
         const exposure = camera.exposure;
 
         let idx = 0;
@@ -340,7 +281,6 @@ class BlitDesc {
         cmdBuff.updateBuffer(this._lightVolumeBuffer!, this._lightBufferData);
     }
     update () {
-        this._updateScreenVB();
         if (this.blit.sceneFlags & SceneFlags.VOLUMETRIC_LIGHTING
             && this.blit.camera) {
             this._gatherVolumeLights(this.blit.camera);
@@ -349,36 +289,24 @@ class BlitDesc {
     }
 
     createStageDescriptor () {
-        if (this._stageDesc) {
-            return;
-        }
         const blit = this.blit;
         const pass = blit.material!.passes[blit.passID];
-        const device = this._queue!.devicePass.context.device;
-        this._stageDesc = device.createDescriptorSet(new DescriptorSetInfo(pass.localSetLayout));
+        const context = this._queue!.devicePass.context;
+        const device = context.device;
+        this._stageDesc = context.blit.stageDescs.get(pass);
+        if (!this._stageDesc) {
+            this._stageDesc = device.createDescriptorSet(new DescriptorSetInfo(pass.localSetLayout));
+            context.blit.stageDescs.set(pass, this._stageDesc);
+        }
         if (this.blit.sceneFlags & SceneFlags.VOLUMETRIC_LIGHTING) {
-            let totalSize = Float32Array.BYTES_PER_ELEMENT * 4 * 4 * UBODeferredLight.LIGHTS_PER_PASS;
-            totalSize = Math.ceil(totalSize / device.capabilities.uboOffsetAlignment) * device.capabilities.uboOffsetAlignment;
-
-            this._lightVolumeBuffer = device.createBuffer(new BufferInfo(
-                BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
-                MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
-                totalSize,
-                device.capabilities.uboOffsetAlignment,
-            ));
-
-            const deferredLitsBufView = device.createBuffer(new BufferViewInfo(this._lightVolumeBuffer, 0, totalSize));
-            this._lightBufferData = new Float32Array(totalSize / Float32Array.BYTES_PER_ELEMENT);
+            this._lightVolumeBuffer = context.blit.lightVolumeBuffer;
+            const deferredLitsBufView = context.blit.deferredLitsBufView;
+            this._lightBufferData = context.blit.lightBufferData;
+            this._lightBufferData.fill(0);
             const binding = isEnableEffect() ? getDescBindingFromName('CCForwardLight') : UBOForwardLight.BINDING;
             this._stageDesc.bindBuffer(UBOForwardLight.BINDING, deferredLitsBufView);
         }
-        const _localUBO = device.createBuffer(new BufferInfo(
-            BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.DEVICE,
-            UBOLocal.SIZE,
-            UBOLocal.SIZE,
-        ));
-        this._stageDesc.bindBuffer(UBOLocal.BINDING, _localUBO);
+        this._stageDesc.bindBuffer(UBOLocal.BINDING, context.blit.emptyLocalUBO);
     }
 }
 
@@ -386,7 +314,7 @@ class DeviceRenderQueue {
     private _preSceneTasks: DevicePreSceneTask[] = [];
     private _sceneTasks: DeviceSceneTask[] = [];
     private _postSceneTasks: DevicePostSceneTask[] = [];
-    private _devicePass: DeviceRenderPass;
+    private _devicePass: DeviceRenderPass | undefined;
     private _hint: QueueHint =  QueueHint.NONE;
     private _phaseID: number = getPhaseID('default');
     private _renderPhase: RenderPhaseData | null = null;
@@ -394,22 +322,26 @@ class DeviceRenderQueue {
     get phaseID (): number { return this._phaseID; }
     get renderPhase (): RenderPhaseData | null { return this._renderPhase; }
     set renderPhase (val) { this._renderPhase = val; }
-    private _sceneVisitor: WebSceneVisitor;
+    private _sceneVisitor;
     private _blitDesc: BlitDesc | null = null;
     private _queueId = -1;
     set queueId (val) { this._queueId = val; }
     get queueId () { return this._queueId; }
-    constructor (devicePass: DeviceRenderPass) {
+    init (devicePass: DeviceRenderPass, queueHint: QueueHint, id: number) {
+        this.reset();
+        this.queueHint = queueHint;
+        this.queueId = id;
         this._devicePass = devicePass;
         if (isEnableEffect()) this._phaseID = cclegacy.rendering.getPhaseID(devicePass.passID, 'default');
-        this._sceneVisitor = new WebSceneVisitor(this._devicePass.context.commandBuffer,
-            this._devicePass.context.pipeline.pipelineSceneData);
+        if (!this._sceneVisitor) {
+            this._sceneVisitor = new WebSceneVisitor(devicePass.context.commandBuffer,
+                devicePass.context.pipeline.pipelineSceneData);
+        }
     }
     createBlitDesc (blit: Blit) {
-        if (this._blitDesc) {
-            return;
+        if (!this._blitDesc) {
+            this._blitDesc = new BlitDesc(blit, this);
         }
-        this._blitDesc = new BlitDesc(blit, this);
         this._blitDesc.createScreenQuad();
         this._blitDesc.createStageDescriptor();
     }
@@ -417,17 +349,19 @@ class DeviceRenderQueue {
         if (!this._transversal) {
             this._transversal = new DeviceSceneTransversal(this, this.devicePass.context.pipelineSceneData,  scene);
         }
+        this._transversal.graphScene = scene;
         this._preSceneTasks.push(this._transversal.preRenderPass(this._sceneVisitor));
         this._sceneTasks.push(this._transversal.transverse(this._sceneVisitor));
     }
-    clearTasks () {
-        this._sceneTasks.length = 0;
+    reset () {
+        this._postSceneTasks.length = this._preSceneTasks.length = this._sceneTasks.length = 0;
     }
     get blitDesc () { return this._blitDesc; }
     get sceneTasks () { return this._sceneTasks; }
     set queueHint (value: QueueHint) { this._hint = value; }
     get queueHint () { return this._hint; }
-    get devicePass () { return this._devicePass; }
+    get devicePass () { return this._devicePass!; }
+    get preSceneTasks () { return this._preSceneTasks; }
     preRecord () {
         for (const task of this._preSceneTasks) {
             task.start();
@@ -463,6 +397,21 @@ class SubmitInfo {
     public shadowMap: RenderShadowMapBatchedQueue | null = null;
     public additiveLight: RenderAdditiveLightQueue | null = null;
     public reflectionProbe: RenderReflectionProbeQueue | null = null;
+    private _isInit = false;
+    get isInit () { return this._isInit; }
+    set isInit (val: boolean) { this._isInit = val; }
+    reset () {
+        this._isInit = false;
+        this.instances.clear();
+        this.renderInstanceQueue.length = 0;
+        this.batches.clear();
+        this.opaqueList.length = 0;
+        this.transparentList.length = 0;
+        this.planarQueue = null;
+        this.shadowMap = null;
+        this.additiveLight = null;
+        this.reflectionProbe = null;
+    }
 }
 
 class RenderPassLayoutInfo {
@@ -537,6 +486,8 @@ class RasterPassInfo {
     }
 }
 
+const profilerViewport = new Viewport();
+const renderPassArea = new Rect();
 class DeviceRenderPass {
     protected _renderPass: RenderPass;
     protected _framebuffer: Framebuffer;
@@ -681,54 +632,6 @@ class DeviceRenderPass {
         const layoutData = layout.descriptorSets.get(UpdateFrequency.PER_PASS)!;
         return layoutData;
     }
-    genQuadVertexData (surfaceTransform: SurfaceTransform, renderArea: Rect): Float32Array {
-        const vbData = new Float32Array(4 * 4);
-
-        const minX = renderArea.x / this._context.width;
-        const maxX = (renderArea.x + renderArea.width) / this._context.width;
-        let minY = renderArea.y / this._context.height;
-        let maxY = (renderArea.y + renderArea.height) / this._context.height;
-        if (this._context.root.device.capabilities.screenSpaceSignY > 0) {
-            const temp = maxY;
-            maxY       = minY;
-            minY       = temp;
-        }
-        let n = 0;
-        switch (surfaceTransform) {
-        case (SurfaceTransform.IDENTITY):
-            n = 0;
-            vbData[n++] = -1.0; vbData[n++] = -1.0; vbData[n++] = minX; vbData[n++] = maxY;
-            vbData[n++] = 1.0; vbData[n++] = -1.0; vbData[n++] = maxX; vbData[n++] = maxY;
-            vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = minX; vbData[n++] = minY;
-            vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = maxX; vbData[n++] = minY;
-            break;
-        case (SurfaceTransform.ROTATE_90):
-            n = 0;
-            vbData[n++] = -1.0; vbData[n++] = -1.0; vbData[n++] = maxX; vbData[n++] = maxY;
-            vbData[n++] = 1.0; vbData[n++] = -1.0; vbData[n++] = maxX; vbData[n++] = minY;
-            vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = minX; vbData[n++] = maxY;
-            vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = minX; vbData[n++] = minY;
-            break;
-        case (SurfaceTransform.ROTATE_180):
-            n = 0;
-            vbData[n++] = -1.0; vbData[n++] = -1.0; vbData[n++] = minX; vbData[n++] = minY;
-            vbData[n++] = 1.0; vbData[n++] = -1.0; vbData[n++] = maxX; vbData[n++] = minY;
-            vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = minX; vbData[n++] = maxY;
-            vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = maxX; vbData[n++] = maxY;
-            break;
-        case (SurfaceTransform.ROTATE_270):
-            n = 0;
-            vbData[n++] = -1.0; vbData[n++] = -1.0; vbData[n++] = minX; vbData[n++] = minY;
-            vbData[n++] = 1.0; vbData[n++] = -1.0; vbData[n++] = minX; vbData[n++] = maxY;
-            vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = maxX; vbData[n++] = minY;
-            vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = maxX; vbData[n++] = maxY;
-            break;
-        default:
-            break;
-        }
-
-        return vbData;
-    }
 
     protected _applyViewport (frameTex: Texture) {
         this._viewport = null;
@@ -757,10 +660,8 @@ class DeviceRenderPass {
             submodel.shaders[0], renderPass, ia);
         const descData = getDescriptorSetDataFromLayoutId(pass.passID)!;
         mergeSrcToTargetDesc(descData.descriptorSet, context.pipeline.descriptorSet, true);
-        const profilerViewport = new Viewport();
         profilerViewport.width = rect.width;
         profilerViewport.height = rect.height;
-
         cmdBuff.setViewport(profilerViewport);
         cmdBuff.setScissor(rect);
         cmdBuff.bindPipelineState(pso);
@@ -775,10 +676,17 @@ class DeviceRenderPass {
         const tex = this.framebuffer.colorTextures[0]!;
         this._applyViewport(tex);
         const cmdBuff = this._context.commandBuffer;
-        const renderArea = this._viewport
-            ? new Rect(this._viewport.left, this._viewport.top, this._viewport.width, this._viewport.height)
-            :  new Rect(0, 0, tex.width, tex.height);
-        cmdBuff.beginRenderPass(this.renderPass, this.framebuffer, renderArea,
+        if (this._viewport) {
+            renderPassArea.x = this._viewport.left;
+            renderPassArea.y = this._viewport.top;
+            renderPassArea.width = this._viewport.width;
+            renderPassArea.height = this._viewport.height;
+        } else {
+            renderPassArea.y = renderPassArea.x = 0;
+            renderPassArea.width = tex.width;
+            renderPassArea.height = tex.height;
+        }
+        cmdBuff.beginRenderPass(this.renderPass, this.framebuffer, renderPassArea,
             this.clearColor, this.clearDepth, this.clearStencil);
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL,
             this._context.pipeline.descriptorSet);
@@ -786,7 +694,7 @@ class DeviceRenderPass {
             queue.record();
         }
         if (this._rasterInfo.pass.showStatistics) {
-            this._showProfiler(renderArea);
+            this._showProfiler(renderPassArea);
         }
         cmdBuff.endRenderPass();
     }
@@ -860,21 +768,40 @@ class DeviceRenderPass {
 class DeviceSceneTransversal extends WebSceneTransversal {
     protected _currentQueue: DeviceRenderQueue;
     protected _graphScene: GraphScene;
+    protected _preSceneTask: DevicePreSceneTask | undefined;
+    protected _sceneTask: DeviceSceneTask | undefined;
+    protected _postSceneTask: DevicePostSceneTask | undefined;
     constructor (quque: DeviceRenderQueue, sceneData: PipelineSceneData, graphSceneData: GraphScene) {
         const camera = graphSceneData.scene ? graphSceneData.scene.camera : null;
         super(camera, sceneData, quque.devicePass.context.ubo);
         this._currentQueue = quque;
         this._graphScene = graphSceneData;
     }
+    set graphScene (graphScene: GraphScene) {
+        this._graphScene = graphScene;
+        this._camera = graphScene.scene ? graphScene.scene.camera : null;
+        if (this._camera) this._scene = this._camera.scene!;
+    }
     get graphScene () { return this._graphScene; }
     public preRenderPass (visitor: WebSceneVisitor): DevicePreSceneTask {
-        return new DevicePreSceneTask(this._currentQueue, this._graphScene, visitor);
+        if (!this._preSceneTask) {
+            this._preSceneTask = new DevicePreSceneTask(this._currentQueue, this._graphScene, visitor);
+        }
+        this._preSceneTask.apply(this._currentQueue, this.graphScene);
+        return this._preSceneTask;
     }
     public transverse (visitor: WebSceneVisitor): DeviceSceneTask {
-        return new DeviceSceneTask(this._currentQueue, this._graphScene, visitor);
+        if (!this._sceneTask) {
+            this._sceneTask = new DeviceSceneTask(this._currentQueue, this._graphScene, visitor);
+        }
+        this._sceneTask.apply(this._currentQueue, this.graphScene);
+        return this._sceneTask;
     }
     public postRenderPass (visitor: WebSceneVisitor): DevicePostSceneTask {
-        return new DevicePostSceneTask(this._sceneData, this._currentQueue.devicePass.context.ubo, this._camera, visitor);
+        if (!this._postSceneTask) {
+            this._postSceneTask = new DevicePostSceneTask(this._sceneData, this._currentQueue.devicePass.context.ubo, this._camera, visitor);
+        }
+        return this._postSceneTask;
     }
 }
 class GraphScene {
@@ -882,6 +809,11 @@ class GraphScene {
     blit: Blit | null = null;
     dispatch: Dispatch | null = null;
     sceneID = -1;
+    init (scene, blit, sceneID) {
+        this.scene = scene;
+        this.blit = blit;
+        this.sceneID = sceneID;
+    }
 }
 class DevicePreSceneTask extends WebSceneTask {
     protected _currentQueue: DeviceRenderQueue;
@@ -894,8 +826,19 @@ class DevicePreSceneTask extends WebSceneTask {
             graphScene.scene && graphScene.scene.camera ? graphScene.scene.camera : null, visitor);
         this._currentQueue = queue;
         this._graphScene = graphScene;
-        this._renderPass = this._currentQueue.devicePass.renderPass;
+        this._renderPass = queue.devicePass.renderPass;
         this._cmdBuff = queue.devicePass.context.commandBuffer;
+    }
+    apply (queue: DeviceRenderQueue, graphScene: GraphScene) {
+        this._currentQueue = queue;
+        this._graphScene = graphScene;
+        this._renderPass = queue.devicePass.renderPass;
+        this._cmdBuff = queue.devicePass.context.commandBuffer;
+        const camera = graphScene.scene && graphScene.scene.camera ? graphScene.scene.camera : null;
+        if (camera) {
+            this._scene = camera.scene!;
+            this._camera = camera;
+        }
     }
     get graphScene () { return this._graphScene; }
 
@@ -913,11 +856,13 @@ class DevicePreSceneTask extends WebSceneTask {
         if (submitMap.has(this.camera)) {
             this._submitInfo = submitMap.get(this.camera)!;
         } else {
-            // culling
-            if (!this._isShadowMap() || (this._isShadowMap() && this.graphScene.scene!.light.level === 0)) super.start();
             this._submitInfo = new SubmitInfo();
             submitMap.set(this.camera, this._submitInfo);
         }
+        // culling
+        if ((!this._isShadowMap() || (this._isShadowMap() && this.graphScene.scene!.light.level === 0))
+        && !this._submitInfo.isInit) { super.start(); this._submitInfo.isInit = true; }
+
         // shadowmap
         if (this._isShadowMap()) {
             assert(this.graphScene.scene!.light.light);
@@ -930,7 +875,8 @@ class DevicePreSceneTask extends WebSceneTask {
         }
         // reflection probe
         if (this.graphScene.scene!.flags & SceneFlags.REFLECTION_PROBE && !this._submitInfo.reflectionProbe) {
-            this._submitInfo.reflectionProbe = new RenderReflectionProbeQueue(this._currentQueue.devicePass.context.pipeline);
+            this._submitInfo.reflectionProbe = context.pools.addReflectionProbe();
+            this._submitInfo.reflectionProbe.clear();
             const probes = ReflectionProbeManager.probeManager.getProbes();
             for (let i = 0; i < probes.length; i++) {
                 if (probes[i].hasFrameBuffer(this._currentQueue.devicePass.framebuffer)) {
@@ -947,6 +893,7 @@ class DevicePreSceneTask extends WebSceneTask {
                         && !this._submitInfo.instances.size
                         && !this._submitInfo.batches.size;
         if (isEmpty) {
+            context.pools.resetPassInfo();
             for (const ro of this.sceneData.renderObjects) {
                 const subModels = ro.model.subModels;
                 for (const subModel of subModels) {
@@ -971,13 +918,12 @@ class DevicePreSceneTask extends WebSceneTask {
             }
             this._instancedSort();
         }
-        const pipeline = context.pipeline;
         if (sceneFlag & SceneFlags.DEFAULT_LIGHTING) {
             this._submitInfo.additiveLight = context.additiveLight;
             this._submitInfo.additiveLight.gatherLightPasses(this.camera, this._cmdBuff);
         }
         if (sceneFlag & SceneFlags.PLANAR_SHADOW) {
-            this._submitInfo.planarQueue = new PlanarShadowQueue(pipeline);
+            this._submitInfo.planarQueue = context.planarShadow;
             this._submitInfo.planarQueue.gatherShadowPasses(this.camera, this._cmdBuff);
         }
         if (sceneFlag & SceneFlags.OPAQUE_OBJECT) { this._submitInfo.opaqueList.sort(this._opaqueCompareFn); }
@@ -1008,14 +954,15 @@ class DevicePreSceneTask extends WebSceneTask {
         const pass = subModel.passes[passIdx];
         const shader = subModel.shaders[passIdx];
         const currTransparent = pass.blendState.targets[0].blend;
-        const passId = this._currentQueue.devicePass.passID;
+        const devicePass = this._currentQueue.devicePass;
+        const passId = devicePass.passID;
         const phase = isEnableEffect() ? cclegacy.rendering.getPhaseID(passId, 'default') | cclegacy.rendering.getPhaseID(passId, 'planarShadow')
             : getPhaseID('default') | getPhaseID('planarShadow');
         if (currTransparent !== isTransparent || !(pass.phaseID & (isTransparent ? phase : this._currentQueue.phaseID))) {
             return;
         }
         const hash = (0 << 30) | pass.priority << 16 | subModel.priority << 8 | passIdx;
-        const rp = new RenderInfo();
+        const rp = devicePass.context.pools.addPassInfo();
         rp.priority = ro.model.priority;
         rp.hash = hash;
         rp.depth = ro.depth || 0;
@@ -1132,6 +1079,7 @@ class DevicePreSceneTask extends WebSceneTask {
     }
 }
 
+const sceneViewport = new Viewport();
 class DeviceSceneTask extends WebSceneTask {
     protected _currentQueue: DeviceRenderQueue;
     protected _renderPass: RenderPass;
@@ -1142,6 +1090,16 @@ class DeviceSceneTask extends WebSceneTask {
         this._currentQueue = queue;
         this._renderPass = this._currentQueue.devicePass.renderPass;
         this._graphScene = graphScene;
+    }
+    apply (queue: DeviceRenderQueue, graphScene: GraphScene) {
+        this._currentQueue = queue;
+        this._graphScene = graphScene;
+        this._renderPass = queue.devicePass.renderPass;
+        const camera = graphScene.scene && graphScene.scene.camera ? graphScene.scene.camera : null;
+        if (camera) {
+            this._scene = camera.scene!;
+            this._camera = camera;
+        }
     }
     get graphScene () { return this._graphScene; }
     public start () {}
@@ -1342,7 +1300,11 @@ class DeviceSceneTask extends WebSceneTask {
             const area = this._isShadowMap() && graphScene.scene && lightInfo!.light
                 ? getRenderArea(this.camera!, texture.width, texture.height, lightInfo!.light, lightInfo!.level)
                 : getRenderArea(this.camera!, texture.width, texture.height);
-            this.visitor.setViewport(new Viewport(area.x, area.y, area.width, area.height));
+            sceneViewport.left = area.x;
+            sceneViewport.top = area.y;
+            sceneViewport.width = area.width;
+            sceneViewport.height = area.height;
+            this.visitor.setViewport(sceneViewport);
             this.visitor.setScissor(area);
         }
         // Currently processing blit and camera first
@@ -1389,6 +1351,222 @@ class DeviceSceneTask extends WebSceneTask {
 
 class DevicePostSceneTask extends WebSceneTask {}
 
+class ExecutorPools {
+    constructor (context: ExecutorContext) {
+        this.deviceQueuePool = new RecyclePool<DeviceRenderQueue>(() => new DeviceRenderQueue(), 16);
+        this.graphScenePool = new RecyclePool<GraphScene>(() => new GraphScene(), 16);
+        this.reflectionProbe = new RecyclePool<RenderReflectionProbeQueue>(() => new RenderReflectionProbeQueue(context.pipeline), 8);
+        this.passPool = new RecyclePool<IRenderPass>(() => ({
+            priority: 0,
+            hash: 0,
+            depth: 0,
+            shaderId: 0,
+            subModel: null!,
+            passIdx: 0,
+        }), 64);
+    }
+    addPassInfo () {
+        return this.passPool.add();
+    }
+    resetPassInfo () {
+        this.passPool.reset();
+    }
+    addDeviceQueue () {
+        return this.deviceQueuePool.add();
+    }
+    addGraphScene () {
+        return this.graphScenePool.add();
+    }
+    addReflectionProbe () {
+        return this.reflectionProbe.add();
+    }
+    reset () {
+        this.deviceQueuePool.reset();
+        this.graphScenePool.reset();
+        this.reflectionProbe.reset();
+    }
+    readonly deviceQueuePool: RecyclePool<DeviceRenderQueue>;
+    readonly graphScenePool: RecyclePool<GraphScene>;
+    readonly reflectionProbe: RecyclePool<RenderReflectionProbeQueue>;
+    readonly passPool: RecyclePool<IRenderPass>;
+}
+
+const vbData = new Float32Array(4 * 4);
+const quadRect = new Rect();
+class BlitInfo {
+    private _pipelineIAData: PipelineInputAssemblerData;
+    private _context: ExecutorContext;
+    private _width: number;
+    private _height: number;
+    private _lightVolumeBuffer!: Buffer;
+    private _lightBufferData!: Float32Array;
+    private _deferredLitsBufView!: Buffer;
+    private _localUBO!: Buffer;
+    private _stageDescs: Map<Pass, DescriptorSet> = new Map();
+    get pipelineIAData () {
+        return this._pipelineIAData;
+    }
+    get deferredLitsBufView () {
+        return this._deferredLitsBufView;
+    }
+    get lightVolumeBuffer () {
+        return this._lightVolumeBuffer;
+    }
+    get lightBufferData () {
+        return this._lightBufferData;
+    }
+    get stageDescs () {
+        return this._stageDescs;
+    }
+    get emptyLocalUBO () {
+        return this._localUBO;
+    }
+    constructor (context: ExecutorContext) {
+        this._context = context;
+        this._width = context.width;
+        this._height = context.height;
+        this._pipelineIAData = this._createQuadInputAssembler();
+        const vb = this._genQuadVertexData(SurfaceTransform.IDENTITY, new Rect(0, 0, context.width, context.height));
+        this._pipelineIAData.quadVB!.update(vb);
+        this._createLightVolumes();
+        this._localUBO = context.device.createBuffer(new BufferInfo(
+            BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.DEVICE,
+            UBOLocal.SIZE,
+            UBOLocal.SIZE,
+        ));
+    }
+
+    resize (width, height) {
+        if (width !== this._width || height !== this._height) {
+            quadRect.y = quadRect.x = 0;
+            quadRect.width = width;
+            quadRect.height = height;
+            const vb = this._genQuadVertexData(SurfaceTransform.IDENTITY, quadRect);
+            this._pipelineIAData.quadVB!.update(vb);
+        }
+    }
+
+    private _createLightVolumes () {
+        const device = this._context.root.device;
+        let totalSize = Float32Array.BYTES_PER_ELEMENT * 4 * 4 * UBODeferredLight.LIGHTS_PER_PASS;
+        totalSize = Math.ceil(totalSize / device.capabilities.uboOffsetAlignment) * device.capabilities.uboOffsetAlignment;
+
+        this._lightVolumeBuffer = device.createBuffer(new BufferInfo(
+            BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+            totalSize,
+            device.capabilities.uboOffsetAlignment,
+        ));
+
+        this._deferredLitsBufView = device.createBuffer(new BufferViewInfo(this._lightVolumeBuffer, 0, totalSize));
+        this._lightBufferData = new Float32Array(totalSize / Float32Array.BYTES_PER_ELEMENT);
+    }
+
+    private _genQuadVertexData (surfaceTransform: SurfaceTransform, renderArea: Rect): Float32Array {
+        const minX = renderArea.x / this._context.width;
+        const maxX = (renderArea.x + renderArea.width) / this._context.width;
+        let minY = renderArea.y / this._context.height;
+        let maxY = (renderArea.y + renderArea.height) / this._context.height;
+        if (this._context.root.device.capabilities.screenSpaceSignY > 0) {
+            const temp = maxY;
+            maxY       = minY;
+            minY       = temp;
+        }
+        let n = 0;
+        switch (surfaceTransform) {
+        case (SurfaceTransform.IDENTITY):
+            n = 0;
+            vbData[n++] = -1.0; vbData[n++] = -1.0; vbData[n++] = minX; vbData[n++] = maxY;
+            vbData[n++] = 1.0; vbData[n++] = -1.0; vbData[n++] = maxX; vbData[n++] = maxY;
+            vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = minX; vbData[n++] = minY;
+            vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = maxX; vbData[n++] = minY;
+            break;
+        case (SurfaceTransform.ROTATE_90):
+            n = 0;
+            vbData[n++] = -1.0; vbData[n++] = -1.0; vbData[n++] = maxX; vbData[n++] = maxY;
+            vbData[n++] = 1.0; vbData[n++] = -1.0; vbData[n++] = maxX; vbData[n++] = minY;
+            vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = minX; vbData[n++] = maxY;
+            vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = minX; vbData[n++] = minY;
+            break;
+        case (SurfaceTransform.ROTATE_180):
+            n = 0;
+            vbData[n++] = -1.0; vbData[n++] = -1.0; vbData[n++] = minX; vbData[n++] = minY;
+            vbData[n++] = 1.0; vbData[n++] = -1.0; vbData[n++] = maxX; vbData[n++] = minY;
+            vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = minX; vbData[n++] = maxY;
+            vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = maxX; vbData[n++] = maxY;
+            break;
+        case (SurfaceTransform.ROTATE_270):
+            n = 0;
+            vbData[n++] = -1.0; vbData[n++] = -1.0; vbData[n++] = minX; vbData[n++] = minY;
+            vbData[n++] = 1.0; vbData[n++] = -1.0; vbData[n++] = minX; vbData[n++] = maxY;
+            vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = maxX; vbData[n++] = minY;
+            vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = maxX; vbData[n++] = maxY;
+            break;
+        default:
+            break;
+        }
+
+        return vbData;
+    }
+    private _createQuadInputAssembler (): PipelineInputAssemblerData {
+        // create vertex buffer
+        const inputAssemblerData = new PipelineInputAssemblerData();
+
+        const vbStride = Float32Array.BYTES_PER_ELEMENT * 4;
+        const vbSize = vbStride * 4;
+        const device = cclegacy.director.root.device;
+        const quadVB = device.createBuffer(new BufferInfo(
+            BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.DEVICE | MemoryUsageBit.HOST,
+            vbSize,
+            vbStride,
+        ));
+
+        if (!quadVB) {
+            return inputAssemblerData;
+        }
+
+        // create index buffer
+        const ibStride = Uint8Array.BYTES_PER_ELEMENT;
+        const ibSize = ibStride * 6;
+
+        const quadIB = device.createBuffer(new BufferInfo(
+            BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.DEVICE,
+            ibSize,
+            ibStride,
+        ));
+
+        if (!quadIB) {
+            return inputAssemblerData;
+        }
+
+        const indices = new Uint8Array(6);
+        indices[0] = 0; indices[1] = 1; indices[2] = 2;
+        indices[3] = 1; indices[4] = 3; indices[5] = 2;
+
+        quadIB.update(indices);
+
+        // create input assembler
+
+        const attributes = new Array<Attribute>(2);
+        attributes[0] = new Attribute('a_position', Format.RG32F);
+        attributes[1] = new Attribute('a_texCoord', Format.RG32F);
+
+        const quadIA = device.createInputAssembler(new InputAssemblerInfo(
+            attributes,
+            [quadVB],
+            quadIB,
+        ));
+
+        inputAssemblerData.quadIB = quadIB;
+        inputAssemblerData.quadVB = quadVB;
+        inputAssemblerData.quadIA = quadIA;
+        return inputAssemblerData;
+    }
+}
+
 class ExecutorContext {
     constructor (pipeline: Pipeline,
         ubo: PipelineUBO,
@@ -1411,6 +1589,20 @@ class ExecutorContext {
         this.height = height;
         this.additiveLight = new RenderAdditiveLightQueue(pipeline);
         this.shadowMapBatched = new RenderShadowMapBatchedQueue(pipeline);
+        this.planarShadow = new PlanarShadowQueue(pipeline);
+        this.pools = new ExecutorPools(this);
+        this.blit = new BlitInfo(this);
+    }
+    reset () {
+        this.pools.reset();
+        for (const info of this.submitMap) {
+            info[1].reset();
+        }
+    }
+    resize (width: number, height: number) {
+        this.width = width;
+        this.height = height;
+        this.blit.resize(width, height);
     }
     readonly device: Device;
     readonly pipeline: Pipeline;
@@ -1422,12 +1614,15 @@ class ExecutorContext {
     readonly layoutGraph: LayoutGraphData;
     readonly root: Root;
     readonly ubo: PipelineUBO;
-    readonly width: number;
-    readonly height: number;
     readonly additiveLight: RenderAdditiveLightQueue;
     readonly shadowMapBatched: RenderShadowMapBatchedQueue;
+    readonly planarShadow: PlanarShadowQueue;
     readonly submitMap: Map<Camera, SubmitInfo> = new Map<Camera, SubmitInfo>();
+    readonly pools: ExecutorPools;
+    readonly blit: BlitInfo;
     renderGraph: RenderGraph;
+    width: number;
+    height: number;
 }
 class ResourceVisitor implements ResourceGraphVisitor {
     private _context: ExecutorContext;
@@ -1481,13 +1676,17 @@ export class Executor {
         );
     }
 
+    resize (width: number, height: number) {
+        this._context.resize(width, height);
+    }
+
     execute (rg: RenderGraph) {
         this._context.renderGraph = rg;
-        this._context.submitMap.clear();
+        this._context.reset();
         const cmdBuff = this._context.commandBuffer;
         cmdBuff.begin();
-        const visitor = new RenderVisitor(this._context);
-        depthFirstSearch(visitor.graphView, visitor, visitor.colorMap);
+        if (!this._visitor) this._visitor = new RenderVisitor(this._context);
+        depthFirstSearch(this._visitor.graphView, this._visitor, this._visitor.colorMap);
         cmdBuff.end();
         this._context.device.queue.submit([cmdBuff]);
     }
@@ -1500,14 +1699,15 @@ export class Executor {
         this._context.deviceTextures.clear();
     }
     readonly _context: ExecutorContext;
+    private _visitor: RenderVisitor | undefined;
 }
 
 class BaseRenderVisitor {
     public queueID = 0xFFFFFFFF;
     public sceneID = 0xFFFFFFFF;
     public passID = 0xFFFFFFFF;
-    public currPass;
-    public currQueue;
+    public currPass: DeviceRenderPass | undefined;
+    public currQueue: DeviceRenderQueue | undefined;
     public context: ExecutorContext;
     public rg: RenderGraph;
     constructor (context: ExecutorContext) {
@@ -1559,7 +1759,7 @@ class PreRenderVisitor extends BaseRenderVisitor implements RenderGraphVisitor {
             const passHash = pass.versionName;
             this.currPass = devicePasses.get(passHash);
             const currRasterPass = this.currPass ? this.currPass.rasterPassInfo.pass : null;
-            if (!this.currPass || currRasterPass.version !== pass.version) {
+            if (!this.currPass || currRasterPass!.version !== pass.version) {
                 this.currPass = new DeviceRenderPass(this.context, new RasterPassInfo(this.passID, pass));
                 devicePasses.set(passHash, this.currPass);
             } else {
@@ -1574,32 +1774,30 @@ class PreRenderVisitor extends BaseRenderVisitor implements RenderGraphVisitor {
     raytrace (value: RaytracePass) {}
     queue (value: RenderQueue) {
         if (!this.rg.getValid(this.queueID)) return;
-        const deviceQueue = new DeviceRenderQueue(this.currPass);
-        deviceQueue.queueHint = value.hint;
-        deviceQueue.queueId = this.queueID;
+        const deviceQueue = this.context.pools.addDeviceQueue();
+        deviceQueue.init(this.currPass!, value.hint, this.queueID);
         this.currQueue = deviceQueue;
-        this.currPass.addQueue(deviceQueue);
+        this.currPass!.addQueue(deviceQueue);
         const layoutName = this.rg.getLayout(this.queueID);
         if (layoutName) {
             const layoutGraph = this.context.layoutGraph;
-            if (this.currPass.renderLayout) {
-                const layoutId = layoutGraph.locateChild(this.currPass.renderLayout.layoutID, layoutName);
+            if (this.currPass!.renderLayout) {
+                const layoutId = layoutGraph.locateChild(this.currPass!.renderLayout.layoutID, layoutName);
                 deviceQueue.renderPhase = layoutGraph.tryGetRenderPhase(layoutId);
             }
         }
     }
     scene (value: SceneData) {
         if (!this.rg.getValid(this.sceneID)) return;
-        const graphScene = new GraphScene();
-        graphScene.scene = value;
-        graphScene.sceneID = this.sceneID;
-        this.currQueue.addSceneTask(graphScene);
+        const graphScene = this.context.pools.addGraphScene();
+        graphScene.init(value, null, this.sceneID);
+        this.currQueue!.addSceneTask(graphScene);
     }
     blit (value: Blit) {
         if (!this.rg.getValid(this.sceneID)) return;
-        const graphScene = new GraphScene();
-        graphScene.blit = value;
-        this.currQueue.addSceneTask(graphScene);
+        const graphScene = this.context.pools.addGraphScene();
+        graphScene.init(null, value, -1);
+        this.currQueue!.addSceneTask(graphScene);
     }
     dispatch (value: Dispatch) {}
 }

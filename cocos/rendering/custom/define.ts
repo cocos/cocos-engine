@@ -22,6 +22,7 @@
  THE SOFTWARE.
 */
 
+import { EDITOR } from 'internal:constants';
 import { BufferInfo, Buffer, BufferUsageBit, ClearFlagBit, Color, DescriptorSet, LoadOp,
     Format, Rect, Sampler, StoreOp, Texture, Viewport, MemoryUsageBit } from '../../gfx';
 import { Camera, CSMLevel, DirectionalLight, Light, LightType, ReflectionProbe, ShadowType, SKYBOX_FLAG, SpotLight } from '../../render-scene/scene';
@@ -529,6 +530,9 @@ export function buildPostprocessPass (camera: Camera,
 export function buildForwardPass (camera: Camera,
     ppl: Pipeline,
     isOffScreen: boolean) {
+    if (EDITOR) {
+        ppl.setMacroInt('CC_PIPELINE_TYPE', 0);
+    }
     const cameraID = getCameraUniqueID(camera);
     const cameraName = `Camera${cameraID}`;
     const cameraInfo = buildShadowPasses(cameraName, camera, ppl);
