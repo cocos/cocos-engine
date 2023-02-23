@@ -317,6 +317,7 @@ async function doBuild ({
         platform,
         mode,
         flags,
+        forceJitValue: options.forceJitValue,
     });
     console.debug(`Module source "internal-constants":\n${vmInternalConstants}`);
     rpVirtualOptions['internal:constants'] = vmInternalConstants;
