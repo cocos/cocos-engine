@@ -169,10 +169,10 @@ export const createInstanceofProxy = (() => {
 
     if (!isSymbolHasInstanceAvailable) {
         // eslint-disable-next-line @typescript-eslint/ban-types
-        return <TConstructor extends Function> (constructor: TConstructor): Omit<TConstructor, 'new'> => constructor;
+        return <TConstructor extends Function> (constructor: TConstructor): Omit<TConstructor, never> => constructor;
     } else {
         // eslint-disable-next-line @typescript-eslint/ban-types
-        return <TConstructor extends Function> (constructor: TConstructor): Omit<TConstructor, 'new'> => {
+        return <TConstructor extends Function> (constructor: TConstructor): Omit<TConstructor, never> => {
             function InstanceOfProxy () {
                 throw new Error(`This function can not be called as a constructor.`);
             }
