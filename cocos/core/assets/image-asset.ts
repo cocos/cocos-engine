@@ -23,7 +23,6 @@
  THE SOFTWARE.
 */
 
-// @ts-check
 import { ccclass, override } from 'cc.decorator';
 import { EDITOR, ALIPAY, XIAOMI, JSB, TEST, BAIDU } from 'internal:constants';
 import { Device, Format, FormatFeatureBit, deviceManager } from '../gfx';
