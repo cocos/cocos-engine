@@ -33,6 +33,7 @@ import { PhysXCharacterController } from './physx-character-controller';
 import { PhysXInstance } from '../physx-instance';
 import { PhysXWorld } from '../physx-world';
 import { degreesToRadians } from '../../../core/utils/misc';
+import { EFilterDataWord3 } from '../physx-enum';
 
 const v3_0 = new Vec3(0, 0, 0);
 export class PhysXCapsuleCharacterController extends PhysXCharacterController implements ICapsuleCharacterController {
@@ -63,10 +64,7 @@ export class PhysXCapsuleCharacterController extends PhysXCharacterController im
         controllerDesc.setReportCallback(PX.PxUserControllerHitReport.implement(physxWorld.callback.controllerHitReportCB));
         this._impl = PX.createCapsuleCharacterController(physxWorld.controllerManager, controllerDesc);
 
-        const pxFilterData = { word0: 1, word1: 1, word2: 0, word3: 0 };
-        // pxFilterData.word0 = PhysicsGroup.DEFAULT;
-        // pxFilterData.word1 = PhysicsSystem.instance.collisionMatrix[PhysicsGroup.DEFAULT];
-        this._impl.setSimulationFilterData(pxFilterData);
+        //this._impl.setSimulationFilterData(this.filterData);
 
         if (this._impl.$$) PX.IMPL_PTR[this._impl.$$.ptr] = this;
     }

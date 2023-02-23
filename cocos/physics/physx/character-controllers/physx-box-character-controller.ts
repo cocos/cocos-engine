@@ -62,10 +62,10 @@ export class PhysXBoxCharacterController extends PhysXCharacterController implem
         controllerDesc.setMaterial(pxMtl);
         controllerDesc.setReportCallback(PX.PxUserControllerHitReport.implement(physxWorld.callback.controllerHitReportCB));
         this._impl = PX.createBoxCharacterController(physxWorld.controllerManager, controllerDesc);
-        const pxFilterData = { word0: 1, word1: 1, word2: 0, word3: 0 };
+        //const pxFilterData = { word0: 1, word1: 1, word2: 0, word3: 0 };
         // pxFilterData.word0 = PhysicsGroup.DEFAULT;
         // pxFilterData.word1 = PhysicsSystem.instance.collisionMatrix[PhysicsGroup.DEFAULT];
-        this._impl.setSimulationFilterData(pxFilterData);
+        //this._impl.setSimulationFilterData(this.filterData);
 
         if (this._impl.$$) PX.IMPL_PTR[this._impl.$$.ptr] = this;
     }

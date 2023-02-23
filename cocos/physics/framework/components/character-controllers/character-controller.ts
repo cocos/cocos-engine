@@ -48,6 +48,30 @@ const v3_0 = new Vec3(0, 0, 0);
 export class CharacterController extends Eventify(Component) {
     /// PUBLIC PROPERTY GETTER\SETTER ///
 
+    /**
+     * @en
+     * Gets or sets the group of the rigid body.
+     * @zh
+     * 获取或设置分组。
+     */
+    @type(PhysicsSystem.PhysicsGroup)
+    @displayOrder(-2)
+    @tooltip('i18n:physics3d.charactercontroller.group')
+    public get group (): number {
+        return this._group;
+    }
+
+    public set group (v: number) {
+        if (DEBUG && !Number.isInteger(Math.log2(v >>> 0))) {
+            warn('[Physics]: The group should only have one bit.');
+        }
+        this._group = v;
+        if (this._cct) {
+            // The judgment is added here because the data exists in two places
+            if (this._cct.getGroup() !== v) this._cct.setGroup(v);
+        }
+    }
+
     @type(CCFloat)
     public get minMoveDistance () {
         return this._minMoveDistance;
@@ -124,6 +148,8 @@ export class CharacterController extends Eventify(Component) {
 
     /// PRIVATE PROPERTY ///
     @serializable
+    private _group: number = PhysicsSystem.PhysicsGroup.DEFAULT;
+    @serializable
     private _minMoveDistance = 0.001; //[ 0, infinity ]
     @serializable
     public _stepOffset = 1.0;
@@ -139,6 +165,9 @@ export class CharacterController extends Eventify(Component) {
     public _contactOffset = 0.01;
 
     private _initialized = false;
+
+    protected _needTriggerEvent = false;
+    protected _needCollisionEvent = false;
 
     protected get _isInitialized (): boolean {
         if (this._cct === null || !this._initialized) {
@@ -172,6 +201,9 @@ export class CharacterController extends Eventify(Component) {
 
     protected onDestroy () {
         if (this._cct) {
+            this._needTriggerEvent = false;
+            this._needCollisionEvent = false;
+            this._cct.updateEventListener();
             this._cct.onDestroy!();
         }
     }
@@ -237,7 +269,7 @@ export class CharacterController extends Eventify(Component) {
      */
     public on<TFunction extends (...any) => void>(type: CharacterCollisionEventType, callback: TFunction, target?, once?: boolean): any {
         const ret = super.on(type, callback, target, once);
-        //this._updateNeedEvent(type); //todo
+        this._updateNeedEvent(type);
         return ret;
     }
 
@@ -252,7 +284,7 @@ export class CharacterController extends Eventify(Component) {
      */
     public off (type: CharacterCollisionEventType, callback?: (...any) => void, target?) {
         super.off(type, callback, target);
-        //this._updateNeedEvent(); //todo
+        this._updateNeedEvent();
     }
 
     /**
@@ -267,7 +299,132 @@ export class CharacterController extends Eventify(Component) {
     public once<TFunction extends (...any) => void>(type: CharacterCollisionEventType, callback: TFunction, target?): any {
         // TODO: callback invoker now is a entity, after `once` will not calling the upper `off`.
         const ret = super.once(type, callback, target);
-        //this._updateNeedEvent(type); //todo
+        this._updateNeedEvent(type);
         return ret;
+    }
+
+    /// GROUP MASK ///
+
+    /**
+     * @en
+     * Gets the group value.
+     * @zh
+     * 获取分组值。
+     * @returns @zh 分组值，为 32 位整数，范围为 [2^0, 2^31] @en Group value which is a 32-bits integer, the range is [2^0, 2^31]
+     */
+    public getGroup (): number {
+        if (this._isInitialized) return this._cct!.getGroup();
+        return 0;
+    }
+
+    /**
+     * @en
+     * Sets the group value.
+     * @zh
+     * 设置分组值。
+     * @param v @zh 分组值，为 32 位整数，范围为 [2^0, 2^31] @en Group value which is a 32-bits integer, the range is [2^0, 2^31]
+     */
+    public setGroup (v: number): void {
+        if (this._isInitialized) this._cct!.setGroup(v);
+    }
+
+    /**
+     * @en
+     * Add a grouping value to fill in the group you want to join.
+     * @zh
+     * 添加分组值，可填要加入的 group。
+     * @param v @zh 分组值，为 32 位整数，范围为 [2^0, 2^31] @en Group value which is a 32-bits integer, the range is [2^0, 2^31]
+     */
+    public addGroup (v: number) {
+        if (this._isInitialized) this._cct!.addGroup(v);
+    }
+
+    /**
+     * @en
+     * Subtract the grouping value to fill in the group to be removed.
+     * @zh
+     * 减去分组值，可填要移除的 group。
+     * @param v @zh 分组值，为 32 位整数，范围为 [2^0, 2^31] @en Group value which is a 32-bits integer, the range is [2^0, 2^31]
+     */
+    public removeGroup (v: number) {
+        if (this._isInitialized) this._cct!.removeGroup(v);
+    }
+
+    /**
+     * @en
+     * Gets the mask value.
+     * @zh
+     * 获取掩码值。
+     * @returns {number} @zh 掩码值，为 32 位整数，范围为 [2^0, 2^31] @en Mask value which is a 32-bits integer, the range is [2^0, 2^31]
+     */
+    public getMask (): number {
+        if (this._isInitialized) return this._cct!.getMask();
+        return 0;
+    }
+
+    /**
+     * @en
+     * Sets the mask value.
+     * @zh
+     * 设置掩码值。
+     * @param v @zh 掩码值，为 32 位整数，范围为 [2^0, 2^31] @en Mask value which is a 32-bits integer, the range is [2^0, 2^31]
+     */
+    public setMask (v: number) {
+        if (this._isInitialized) this._cct!.setMask(v);
+    }
+
+    /**
+     * @en
+     * Add mask values to fill in groups that need to be checked.
+     * @zh
+     * 添加掩码值，可填入需要检查的 group。
+     * @param v @zh 掩码值，为 32 位整数，范围为 [2^0, 2^31] @en Mask value which is a 32-bits integer, the range is [2^0, 2^31]
+     */
+    public addMask (v: number) {
+        if (this._isInitialized) this._cct!.addMask(v);
+    }
+
+    /**
+     * @en
+     * Subtract the mask value to fill in the group that does not need to be checked.
+     * @zh
+     * 减去掩码值，可填入不需要检查的 group。
+     * @param v @zh 掩码值，为 32 位整数，范围为 [2^0, 2^31] @en Mask value which is a 32-bits integer, the range is [2^0, 2^31]
+     */
+    public removeMask (v: number) {
+        if (this._isInitialized) this._cct!.removeMask(v);
+    }
+
+    public get needTriggerEvent () {
+        return this._needTriggerEvent;
+    }
+
+    public get needCollisionEvent () {
+        return this._needCollisionEvent;
+    }
+
+    private _updateNeedEvent (type?: string) {
+        if (this.isValid) {
+            if (type !== undefined) {
+                if (type === 'onCollisionEnter' || type === 'onCollisionStay' || type === 'onCollisionExit') {
+                    this._needCollisionEvent = true;
+                }
+                if (type === 'onTriggerEnter' || type === 'onTriggerStay' || type === 'onTriggerExit') {
+                    this._needTriggerEvent = true;
+                }
+            } else {
+                if (!(this.hasEventListener('onTriggerEnter')
+                    || this.hasEventListener('onTriggerStay')
+                    || this.hasEventListener('onTriggerExit'))) {
+                    this._needTriggerEvent = false;
+                }
+                if (!(this.hasEventListener('onCollisionEnter')
+                    || this.hasEventListener('onCollisionStay')
+                    || this.hasEventListener('onCollisionExit'))) {
+                    this._needCollisionEvent = false;
+                }
+            }
+            if (this._cct) this._cct.updateEventListener();
+        }
     }
 }
