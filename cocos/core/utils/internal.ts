@@ -98,3 +98,92 @@ export function renameObjectProperty<T extends Record<PropertyKey, any>> (
 
     return result;
 }
+
+/**
+ * @zh
+ * 创建一个代理对象 `c` 以使得 `o instanceof c`，其中 `o instanceof constructor === true`。
+ * 这个函数用于防止 `new constructor` 但保持 `instanceof` 的可用性。
+ * @en
+ * Creates a proxy object `c` so that `o instanceof c`, where `o instanceof constructor === true`.
+ * This function is used to prevent from `new constructor` in the same time keep `instanceof` usable.
+ *
+ * @param constructor @zh 要代理的构造函数。 @en The constructor to proxy.
+ *
+ * @returns @zh 代理对象。 @en The proxy object.
+ *
+ * @note
+ * @zh 如果系统不支持这样的代理，会直接返回 `constructor`。
+ * @en If such proxy is not available in current system. `constructor` is directly returned.
+ *
+ * @example
+ * @zh
+ * ```ts
+ * // 这是你的类，你希望用户不能直接去 `new Foo`，而是只能通过你提供的其它方式创建 `Foo` 的实例。
+ * // 但同时，你想保证 `Foo` 的实例能使用 `instanceof`。
+ * class Foo {}
+ * function createFoo() { return new Foo(); }
+ *
+ * /// 你可以这样：
+ *
+ * const FooProxy = createInstanceOfProxy(Foo); // 创建 `Foo` 的代理
+ * export { FooProxy as Foo }; // 并不想给用户造成困扰，所以我们改名后再暴露出去
+ *
+ * /// 外部如此使用：
+ *
+ * new FooProxy(); // 这句会抛出异常
+ *                 // 达到了我们的目的：不允许直接 `new Foo`
+ * console.log(createFoo() instanceof FooProxy); // 输出 "true"
+ *                                               // 达到了我们的目的：可以使用 `instanceof`
+ * ```
+ * @en
+ * ```ts
+ * // This is your class.
+ * // You expect users not to `new Foo` directly
+ * // but instead only create instances of `Foo` in other manners you provided.
+ * // In the mean time, you expect the `instanceof` to be available on instances of `Foo`.
+ * class Foo {}
+ * function createFoo() { return new Foo(); }
+ *
+ * /// You can try these:
+ *
+ * const FooProxy = createInstanceOfProxy(Foo); // Create a proxy for `Foo`
+ * export { FooProxy as Foo }; // Don't bother users, so rename then export.
+ *
+ * /// Users may use like these:
+ *
+ * new FooProxy(); // This will throw
+ *                 // This is what we want to achieve: `new Foo` is not allowed
+ * console.log(createFoo() instanceof FooProxy); // Print "true"
+ *                                               // This is what we want to achieve: `instanceof` is available
+ * ```
+ */
+// eslint-disable-next-line @typescript-eslint/ban-types
+export const createInstanceofProxy = (() => {
+    let isSymbolHasInstanceAvailable = false;
+    try {
+        class Array1 { static [Symbol.hasInstance] (instance: unknown) { return Array.isArray(instance); } }
+        isSymbolHasInstanceAvailable = ([] instanceof Array1);
+    } catch {
+        isSymbolHasInstanceAvailable = false;
+    }
+
+    if (!isSymbolHasInstanceAvailable) {
+        // eslint-disable-next-line @typescript-eslint/ban-types
+        return <TConstructor extends Function> (constructor: TConstructor): TConstructor => constructor;
+    } else {
+        // eslint-disable-next-line @typescript-eslint/ban-types
+        return <TConstructor extends Function> (constructor: TConstructor): TConstructor => {
+            function InstanceOfProxy () {
+                throw new Error(`This function can not be called as a constructor.`);
+            }
+
+            Object.defineProperty(InstanceOfProxy, Symbol.hasInstance, {
+                value (instance: unknown) {
+                    return instance instanceof constructor;
+                },
+            });
+
+            return InstanceOfProxy as unknown as TConstructor;
+        };
+    }
+})();
