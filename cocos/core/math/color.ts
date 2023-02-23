@@ -56,7 +56,7 @@ export class Color extends ValueType {
      * @en Copy content of a color into another and save the results to out color.
      * @zh 获得指定颜色的拷贝
      */
-    public static clone<Out extends IColorLike> (a: Out) {
+    public static clone<Out extends IColorLike>(a: Out) {
         const out = new Color();
         if (a._val) {
             out._val = a._val;
@@ -70,7 +70,7 @@ export class Color extends ValueType {
      * @en Clone a color and save the results to out color.
      * @zh 复制目标颜色
      */
-    public static copy<Out extends IColorLike> (out: Out, a: Out) {
+    public static copy<Out extends IColorLike>(out: Out, a: Out) {
         out.r = a.r;
         out.g = a.g;
         out.b = a.b;
@@ -82,7 +82,7 @@ export class Color extends ValueType {
      * @en Set the components of a color to the given values and save the results to out color.
      * @zh 设置颜色值
      */
-    public static set<Out extends IColorLike> (out: Out, r: number, g: number, b: number, a: number) {
+    public static set<Out extends IColorLike>(out: Out, r: number, g: number, b: number, a: number) {
         out.r = r;
         out.g = g;
         out.b = b;
@@ -90,7 +90,7 @@ export class Color extends ValueType {
         return out;
     }
     /**
-     * @en Convert 8bit color to Vec4
+     * @en Fit linear rgb  8bit color 0~255 to Vec4 0~1
      * @zh 将当前颜色转换为到 Vec4
      * @returns Vec4 as float color value
      * @example
@@ -99,16 +99,16 @@ export class Color extends ValueType {
      * color.toVec4();
      * ```
      */
-    public static toVec4 (color:Color, out?: Vec4): Vec4 {
-        out = out !== undefined ?  out : new Vec4();
-        out.x = srgb8BitToLinear(color.r);
-        out.y = srgb8BitToLinear(color.g);
-        out.z = srgb8BitToLinear(color.b);
-        out.w = srgb8BitToLinear(color.a);
+    public static toVec4(color: Color, out?: Vec4): Vec4 {
+        out = out !== undefined ? out : new Vec4();
+        out.x = color.r * toFloat;
+        out.y = color.g * toFloat;
+        out.z = color.b * toFloat;
+        out.w = color.a * toFloat;
         return out;
     }
     /**
-     * @en Set 8bit Color from Vec4
+     * @en Set 8bit linear Color from Vec4
      * @zh 使用 Vec4 设置 8 bit 颜色
      * @returns 8 Bit srgb value
      * @example
@@ -116,19 +116,19 @@ export class Color extends ValueType {
      * color.fromVec4(new Vec4(1,1,1,1));
      * ```
      */
-    public static fromVec4 (value: Vec4, out?: Color): Color {
+    public static fromVec4(value: Vec4, out?: Color): Color {
         out = out === undefined ? new Color() : out;
-        out.r = linearToSrgb8Bit(value.x);
-        out.g = linearToSrgb8Bit(value.y);
-        out.b = linearToSrgb8Bit(value.z);
-        out.a = linearToSrgb8Bit(value.w);
+        out.r = value.x * 255.0;
+        out.g = value.y * 255.0;
+        out.b = value.z * 255.0;
+        out.a = value.w * 255.0;
         return out;
     }
     /**
      * @en Converts the hexadecimal formal color into rgb formal and save the results to out color.
      * @zh 从十六进制颜色字符串中读入颜色到 out 中
      */
-    public static fromHEX<Out extends IColorLike> (out: Out, hexString: string) {
+    public static fromHEX<Out extends IColorLike>(out: Out, hexString: string) {
         hexString = (hexString.indexOf('#') === 0) ? hexString.substring(1) : hexString;
         out.r = parseInt(hexString.substr(0, 2), 16) || 0;
         out.g = parseInt(hexString.substr(2, 2), 16) || 0;
@@ -143,7 +143,7 @@ export class Color extends ValueType {
      * @en Add two colors by components. And save the results to out color.
      * @zh 逐通道颜色加法
      */
-    public static add<Out extends IColorLike> (out: Out, a: Out, b: Out) {
+    public static add<Out extends IColorLike>(out: Out, a: Out, b: Out) {
         out.r = a.r + b.r;
         out.g = a.g + b.g;
         out.b = a.b + b.b;
@@ -155,7 +155,7 @@ export class Color extends ValueType {
      * @en Subtract each components of color b from each components of color a. And save the results to out color.
      * @zh 逐通道颜色减法
      */
-    public static subtract<Out extends IColorLike> (out: Out, a: Out, b: Out) {
+    public static subtract<Out extends IColorLike>(out: Out, a: Out, b: Out) {
         out.r = a.r - b.r;
         out.g = a.g - b.g;
         out.b = a.b - b.b;
@@ -167,7 +167,7 @@ export class Color extends ValueType {
      * @en Multiply each components of two colors. And save the results to out color.
      * @zh 逐通道颜色乘法
      */
-    public static multiply<Out extends IColorLike> (out: Out, a: Out, b: Out) {
+    public static multiply<Out extends IColorLike>(out: Out, a: Out, b: Out) {
         out.r = a.r * b.r;
         out.g = a.g * b.g;
         out.b = a.b * b.b;
@@ -179,7 +179,7 @@ export class Color extends ValueType {
      * @en Divide each components of color a by each components of color b. And save the results to out color.
      * @zh 逐通道颜色除法
      */
-    public static divide<Out extends IColorLike> (out: Out, a: Out, b: Out) {
+    public static divide<Out extends IColorLike>(out: Out, a: Out, b: Out) {
         out.r = a.r / b.r;
         out.g = a.g / b.g;
         out.b = a.b / b.b;
@@ -191,7 +191,7 @@ export class Color extends ValueType {
      * @en Multiply all channels in a color with the given scale factor, and save the results to out color.
      * @zh 全通道统一缩放颜色
      */
-    public static scale<Out extends IColorLike> (out: Out, a: Out, b: number) {
+    public static scale<Out extends IColorLike>(out: Out, a: Out, b: number) {
         out.r = a.r * b;
         out.g = a.g * b;
         out.b = a.b * b;
@@ -203,7 +203,7 @@ export class Color extends ValueType {
      * @en Performs a linear interpolation between two colors.
      * @zh 逐通道颜色线性插值：A + t * (B - A)
      */
-    public static lerp<Out extends IColorLike> (out: Out, from: Out, to: Out, ratio: number) {
+    public static lerp<Out extends IColorLike>(out: Out, from: Out, to: Out, ratio: number) {
         let r = from.r;
         let g = from.g;
         let b = from.b;
@@ -221,7 +221,7 @@ export class Color extends ValueType {
      * @zh 颜色转数组
      * @param ofs Array Start Offset
      */
-    public static toArray<Out extends IWritableArrayLike<number>> (out: Out, a: IColorLike, ofs = 0) {
+    public static toArray<Out extends IWritableArrayLike<number>>(out: Out, a: IColorLike, ofs = 0) {
         const scale = (a instanceof Color || a.a > 1) ? 1 / 255 : 1;
         out[ofs + 0] = a.r * scale;
         out[ofs + 1] = a.g * scale;
@@ -235,7 +235,7 @@ export class Color extends ValueType {
      * @zh 数组转颜色
      * @param ofs Array Start Offset
      */
-    public static fromArray<Out extends IColorLike> (arr: IWritableArrayLike<number>, out: Out, ofs = 0) {
+    public static fromArray<Out extends IColorLike>(arr: IWritableArrayLike<number>, out: Out, ofs = 0) {
         out.r = arr[ofs + 0] * 255;
         out.g = arr[ofs + 1] * 255;
         out.b = arr[ofs + 2] * 255;
@@ -247,7 +247,7 @@ export class Color extends ValueType {
      * @en Check whether the two given colors are identical
      * @zh 颜色等价判断
      */
-    public static strictEquals<Out extends IColorLike> (a: Out, b: Out) {
+    public static strictEquals<Out extends IColorLike>(a: Out, b: Out) {
         return a.r === b.r && a.g === b.g && a.b === b.b && a.a === b.a;
     }
 
@@ -255,7 +255,7 @@ export class Color extends ValueType {
      * @en Check whether the two given colors are approximately equivalent. Difference of each channel is smaller that the epsilon.
      * @zh 排除浮点数误差的颜色近似等价判断
      */
-    public static equals<Out extends IColorLike> (a: Out, b: Out, epsilon = EPSILON) {
+    public static equals<Out extends IColorLike>(a: Out, b: Out, epsilon = EPSILON) {
         return (Math.abs(a.r - b.r) <= epsilon * Math.max(1.0, Math.abs(a.r), Math.abs(b.r))
             && Math.abs(a.g - b.g) <= epsilon * Math.max(1.0, Math.abs(a.g), Math.abs(b.g))
             && Math.abs(a.b - b.b) <= epsilon * Math.max(1.0, Math.abs(a.b), Math.abs(b.b))
@@ -266,7 +266,7 @@ export class Color extends ValueType {
      * @en Convert the given color to a hex color value. And save the results to out color.
      * @zh 获取指定颜色的整型数据表示
      */
-    public static hex<Out extends IColorLike> (a: Out) {
+    public static hex<Out extends IColorLike>(a: Out) {
         return ((a.r * 255) << 24 | (a.g * 255) << 16 | (a.b * 255) << 8 | a.a * 255) >>> 0;
     }
 
@@ -274,11 +274,11 @@ export class Color extends ValueType {
      * @en Get or set red channel value.
      * @zh 获取或设置当前颜色的 Red 通道。
      */
-    get r () {
+    get r() {
         return this._val & 0x000000ff;
     }
 
-    set r (red) {
+    set r(red) {
         red = ~~clamp(red, 0, 255);
         this._val = ((this._val & 0xffffff00) | red) >>> 0;
     }
@@ -287,11 +287,11 @@ export class Color extends ValueType {
      * @en Get or set green channel value.
      * @zh 获取或设置当前颜色的 Green 通道。
      */
-    get g () {
+    get g() {
         return (this._val & 0x0000ff00) >> 8;
     }
 
-    set g (green) {
+    set g(green) {
         green = ~~clamp(green, 0, 255);
         this._val = ((this._val & 0xffff00ff) | (green << 8)) >>> 0;
     }
@@ -300,11 +300,11 @@ export class Color extends ValueType {
      * @en Get or set blue channel value.
      * @zh 获取或设置当前颜色的 Blue 通道。
      */
-    get b () {
+    get b() {
         return (this._val & 0x00ff0000) >> 16;
     }
 
-    set b (blue) {
+    set b(blue) {
         blue = ~~clamp(blue, 0, 255);
         this._val = ((this._val & 0xff00ffff) | (blue << 16)) >>> 0;
     }
@@ -312,24 +312,24 @@ export class Color extends ValueType {
     /** @en Get or set alpha channel value.
      * @zh 获取或设置当前颜色的透明度通道。
      */
-    get a () {
+    get a() {
         return (this._val & 0xff000000) >>> 24;
     }
 
-    set a (alpha) {
+    set a(alpha) {
         alpha = ~~clamp(alpha, 0, 255);
         this._val = ((this._val & 0x00ffffff) | (alpha << 24)) >>> 0;
     }
 
     // compatibility with vector interfaces
-    get x () { return this.r * toFloat; }
-    set x (value) { this.r = value * 255; }
-    get y () { return this.g * toFloat; }
-    set y (value) { this.g = value * 255; }
-    get z () { return this.b * toFloat; }
-    set z (value) { this.b = value * 255; }
-    get w () { return this.a * toFloat; }
-    set w (value) { this.a = value * 255; }
+    get x() { return this.r * toFloat; }
+    set x(value) { this.r = value * 255; }
+    get y() { return this.g * toFloat; }
+    set y(value) { this.g = value * 255; }
+    get z() { return this.b * toFloat; }
+    set z(value) { this.b = value * 255; }
+    get w() { return this.a * toFloat; }
+    set w(value) { this.a = value * 255; }
 
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
@@ -341,7 +341,7 @@ export class Color extends ValueType {
      * @zh 构造与指定颜色相等的颜色。
      * @param other Specified color
      */
-    constructor (other: Color);
+    constructor(other: Color);
 
     /**
      * @en Construct a color form the hex color string
@@ -349,7 +349,7 @@ export class Color extends ValueType {
      * @param hexString Hexadecimal color string.
      */
 
-    constructor (hexString: string);
+    constructor(hexString: string);
 
     /**
      * @en Construct a color
@@ -359,9 +359,9 @@ export class Color extends ValueType {
      * @param b blue component of the color, default value is 0.
      * @param a alpha component of the color, default value is 255.
      */
-    constructor (r?: number, g?: number, b?: number, a?: number);
+    constructor(r?: number, g?: number, b?: number, a?: number);
 
-    constructor (r?: number | Color | string, g?: number, b?: number, a?: number) {
+    constructor(r?: number | Color | string, g?: number, b?: number, a?: number) {
         super();
         if (typeof r === 'string') {
             this.fromHEX(r);
@@ -376,7 +376,7 @@ export class Color extends ValueType {
      * @en Clone a new color from the current color.
      * @zh 克隆当前颜色。
      */
-    public clone () {
+    public clone() {
         const ret = new Color();
         ret._val = this._val;
         return ret;
@@ -388,7 +388,7 @@ export class Color extends ValueType {
      * @param other Specified color
      * @returns Returns `true` when all channels of both colours are equal; otherwise returns `false`.
      */
-    public equals (other: Color) {
+    public equals(other: Color) {
         return other && this._val === other._val;
     }
 
@@ -398,7 +398,7 @@ export class Color extends ValueType {
      * @param to Target color
      * @param ratio The interpolation coefficient.The range is [0,1].
      */
-    public lerp (to: Color, ratio: number) {
+    public lerp(to: Color, ratio: number) {
         let r = this.r;
         let g = this.g;
         let b = this.b;
@@ -416,7 +416,7 @@ export class Color extends ValueType {
      * @zh 返回当前颜色的字符串表示。
      * @returns A string representation of the current color.
      */
-    public toString () {
+    public toString() {
         return `rgba(${this.r.toFixed()}, ${this.g.toFixed()}, ${this.b.toFixed()}, ${this.a.toFixed()})`;
     }
 
@@ -435,7 +435,7 @@ export class Color extends ValueType {
      * color.toCSS("#rrggbb"); // "#000000";
      * ```
      */
-    public toCSS (opt: ('rgba' | 'rgb' | '#rrggbb' | '#rrggbbaa') = 'rgba') {
+    public toCSS(opt: ('rgba' | 'rgb' | '#rrggbb' | '#rrggbbaa') = 'rgba') {
         if (opt === 'rgba') {
             return `rgba(${this.r},${this.g},${this.b},${(this.a * toFloat).toFixed(2)})`;
         } else if (opt === 'rgb') {
@@ -454,7 +454,7 @@ export class Color extends ValueType {
      * @param hexString the hex string
      * @returns `this`
      */
-    public fromHEX (hexString: string) {
+    public fromHEX(hexString: string) {
         hexString = (hexString.indexOf('#') === 0) ? hexString.substring(1) : hexString;
         const r = parseInt(hexString.substr(0, 2), 16) || 0;
         const g = parseInt(hexString.substr(2, 2), 16) || 0;
@@ -480,7 +480,7 @@ export class Color extends ValueType {
      * color.toHEX("#rrggbb");   // "ff0e00"
      * ```
      */
-    public toHEX (fmt: '#rgb' | '#rrggbb' | '#rrggbbaa' = '#rrggbb') {
+    public toHEX(fmt: '#rgb' | '#rrggbb' | '#rrggbbaa' = '#rrggbb') {
         const prefix = '0';
         // #rrggbb
         const hex = [
@@ -509,7 +509,7 @@ export class Color extends ValueType {
      * color.toRGBValue();
      * ```
      */
-    public toRGBValue () {
+    public toRGBValue() {
         return this._val & 0x00ffffff;
     }
 
@@ -526,7 +526,7 @@ export class Color extends ValueType {
      * color.fromHSV(0, 0, 1); // Color {r: 255, g: 255, b: 255, a: 255};
      * ```
      */
-    public fromHSV (h: number, s: number, v: number) {
+    public fromHSV(h: number, s: number, v: number) {
         let r = 0;
         let g = 0;
         let b = 0;
@@ -543,44 +543,44 @@ export class Color extends ValueType {
             const q = v * (1 - (s * f));
             const t = v * (1 - (s * (1 - f)));
             switch (i) {
-            default:
-                assertIsTrue(false);
+                default:
+                    assertIsTrue(false);
                 // eslint-disable-next-line no-fallthrough
-            case 0:
-                r = v;
-                g = t;
-                b = p;
-                break;
+                case 0:
+                    r = v;
+                    g = t;
+                    b = p;
+                    break;
 
-            case 1:
-                r = q;
-                g = v;
-                b = p;
-                break;
+                case 1:
+                    r = q;
+                    g = v;
+                    b = p;
+                    break;
 
-            case 2:
-                r = p;
-                g = v;
-                b = t;
-                break;
+                case 2:
+                    r = p;
+                    g = v;
+                    b = t;
+                    break;
 
-            case 3:
-                r = p;
-                g = q;
-                b = v;
-                break;
+                case 3:
+                    r = p;
+                    g = q;
+                    b = v;
+                    break;
 
-            case 4:
-                r = t;
-                g = p;
-                b = v;
-                break;
+                case 4:
+                    r = t;
+                    g = p;
+                    b = v;
+                    break;
 
-            case 5:
-                r = v;
-                g = p;
-                b = q;
-                break;
+                case 5:
+                    r = v;
+                    g = p;
+                    b = q;
+                    break;
             }
         }
         r *= 255;
@@ -601,7 +601,7 @@ export class Color extends ValueType {
      * color.toHSV(); // {h: 0.1533864541832669, s: 0.9843137254901961, v: 1}
      * ```
      */
-    public toHSV () {
+    public toHSV() {
         const r = this.r * toFloat;
         const g = this.g * toFloat;
         const b = this.b * toFloat;
@@ -639,7 +639,7 @@ export class Color extends ValueType {
      */
     public set(other: Color): Color;
     public set(r?: number, g?: number, b?: number, a?: number): Color;
-    public set (r?: number | Color, g?: number, b?: number, a?: number): Color {
+    public set(r?: number | Color, g?: number, b?: number, a?: number): Color {
         if (typeof r === 'object') {
             if (r._val != null) {
                 this._val = r._val;
@@ -665,7 +665,7 @@ export class Color extends ValueType {
      * @zh 将当前颜色乘以与指定颜色
      * @param other The specified color.
      */
-    public multiply (other: Color) {
+    public multiply(other: Color) {
         const r = ((this._val & 0x000000ff) * other.r) >> 8;
         const g = ((this._val & 0x0000ff00) * other.g) >> 8;
         const b = ((this._val & 0x00ff0000) * other.b) >> 8;
@@ -677,7 +677,7 @@ export class Color extends ValueType {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _set_r_unsafe (red) {
+    public _set_r_unsafe(red) {
         this._val = ((this._val & 0xffffff00) | red) >>> 0;
         return this;
     }
@@ -685,7 +685,7 @@ export class Color extends ValueType {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _set_g_unsafe (green) {
+    public _set_g_unsafe(green) {
         this._val = ((this._val & 0xffff00ff) | (green << 8)) >>> 0;
         return this;
     }
@@ -693,7 +693,7 @@ export class Color extends ValueType {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _set_b_unsafe (blue) {
+    public _set_b_unsafe(blue) {
         this._val = ((this._val & 0xff00ffff) | (blue << 16)) >>> 0;
         return this;
     }
@@ -701,7 +701,7 @@ export class Color extends ValueType {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _set_a_unsafe (alpha) {
+    public _set_a_unsafe(alpha) {
         this._val = ((this._val & 0x00ffffff) | (alpha << 24)) >>> 0;
         return this;
     }
@@ -710,35 +710,35 @@ export class Color extends ValueType {
 CCClass.fastDefine('cc.Color', Color, { r: 0, g: 0, b: 0, a: 255 });
 legacyCC.Color = Color;
 
-export function color (other: Color | string): Color;
-export function color (r?: number, g?: number, b?: number, a?: number): Color;
+export function color(other: Color | string): Color;
+export function color(r?: number, g?: number, b?: number, a?: number): Color;
 
-export function color (r?: number | Color | string, g?: number, b?: number, a?: number) {
+export function color(r?: number | Color | string, g?: number, b?: number, a?: number) {
     return new Color(r as any, g, b, a);
 }
 
 legacyCC.color = color;
 
-export function srgbToLinear (x: number): number {
+export function srgbToLinear(x: number): number {
     if (x <= 0) return 0;
     else if (x >= 1) return 1;
     else if (x < 0.04045) return x / 12.92;
     else return ((x + 0.055) / 1.055) ** 2.4;
 }
 
-export function srgb8BitToLinear (x: number): number {
+export function srgb8BitToLinear(x: number): number {
     if ((x | 0) !== x || (x >>> 8) !== 0) { throw new RangeError('Value out of 8-bit range'); }
     return SRGB_8BIT_TO_LINEAR[x];
 }
 
-export function linearToSrgb (x: number): number {
+export function linearToSrgb(x: number): number {
     if (x <= 0) return 0;
     else if (x >= 1) return 1;
     else if (x < 0.0031308) return x * 12.92;
     else return x ** (1 / 2.4) * 1.055 - 0.055;
 }
 
-export function linearToSrgb8Bit (x: number): number {
+export function linearToSrgb8Bit(x: number): number {
     if (x <= 0) { return 0; }
     const TABLE: Array<number> = SRGB_8BIT_TO_LINEAR;
     if (x >= 1) { return TABLE.length - 1; }
@@ -753,7 +753,7 @@ export function linearToSrgb8Bit (x: number): number {
 let SRGB_8BIT_TO_LINEAR: Array<number> = [];
 for (let i = 0; i < 256; i++) { SRGB_8BIT_TO_LINEAR.push(srgbToLinear(i / 255.0)); }
 
-export function clampVec3 (val: Vec3, min: Vec3, max: Vec3) {
+export function clampVec3(val: Vec3, min: Vec3, max: Vec3) {
     if (min > max) {
         const temp = min;
         min = max;
@@ -762,7 +762,7 @@ export function clampVec3 (val: Vec3, min: Vec3, max: Vec3) {
     return val < min ? min : val > max ? max : val;
 }
 
-export function floorVec3 (val: Vec3) {
+export function floorVec3(val: Vec3) {
     const temp = val.clone();
     temp.x = Math.floor(val.x);
     temp.y = Math.floor(val.y);
@@ -770,7 +770,7 @@ export function floorVec3 (val: Vec3) {
     return temp;
 }
 
-export function stepVec3 (a: Vec3, b: Vec3) {
+export function stepVec3(a: Vec3, b: Vec3) {
     if (a < b) {
         return b;
     } else {
@@ -783,7 +783,7 @@ export function stepVec3 (a: Vec3, b: Vec3) {
  * @zh 三通道rgb颜色pack成四通道rbge格式
  * @param rgb Vec3
  */
-export function packRGBE (rgb: Vec3) {
+export function packRGBE(rgb: Vec3) {
     const maxComp = Math.max(Math.max(rgb.x, rgb.y), rgb.z);
     let e = 128.0;
     if (maxComp > 0.0001) {
