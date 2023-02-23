@@ -4205,9 +4205,7 @@ bool js_register_cc_ISystemWindow(se::Object* obj) {
     cls->defineFunction("setCursorEnabled", _SE(js_cc_ISystemWindow_setCursorEnabled)); 
     cls->defineFunction("copyTextToClipboard", _SE(js_cc_ISystemWindow_copyTextToClipboard)); 
     
-    cls->defineStaticProperty("mainWindowId", nullptr, nullptr); 
-    
-    
+    cls->defineStaticProperty("mainWindowId", nullptr, nullptr);
     
     cls->defineFinalizeFunction(_SE(js_delete_cc_ISystemWindow));
     

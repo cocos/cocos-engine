@@ -21,9 +21,13 @@
     #include <sys/types.h>
 #endif
 
-#include <stdint.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
+#include <sys/cdefs.h>
+#endif
+
 
 /* The memcpy_* conversion routines are designed to work in-place on same dst as src
  * buffers only if the types shrink on copy, with the exception of memcpy_to_i16_from_u8().

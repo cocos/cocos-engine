@@ -28,22 +28,23 @@
 #include <condition_variable>
 #include <mutex>
 #include "audio/android/AudioDecoder.h"
+#include "audio/android/utils/Compat.h"
 
 namespace cc {
 
 class AudioDecoderSLES : public AudioDecoder {
 protected:
     AudioDecoderSLES();
-    virtual ~AudioDecoderSLES();
+    ~AudioDecoderSLES() override;
 
     bool init(SLEngineItf engineItf, const ccstd::string &url, int bufferSizeInFrames, int sampleRate, const FdGetterCallback &fdGetterCallback);
-    virtual bool decodeToPcm() override;
+    bool decodeToPcm() override;
 
 private:
     void queryAudioInfo();
 
     void signalEos();
-    void decodeToPcmCallback(SLAndroidSimpleBufferQueueItf queueItf);
+    void decodeToPcmCallback(CCSLBufferQueueItf queueItf);
     void prefetchCallback(SLPrefetchStatusItf caller, SLuint32 event);
     void decodeProgressCallback(SLPlayItf caller, SLuint32 event);
 

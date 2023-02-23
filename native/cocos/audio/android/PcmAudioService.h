@@ -29,8 +29,9 @@
 #include "audio/android/OpenSLHelper.h"
 #include "audio/android/PcmData.h"
 
-#include <condition_variable>
 #include <mutex>
+#include <condition_variable>
+#include "audio/android/utils/Compat.h"
 
 namespace cc {
 
@@ -51,19 +52,18 @@ private:
 
     bool enqueue();
 
-    void bqFetchBufferCallback(SLAndroidSimpleBufferQueueItf bq);
+    void bqFetchBufferCallback(CCSLBufferQueueItf bq);
 
     void pause();
     void resume();
 
-private:
     SLEngineItf _engineItf;
     SLObjectItf _outputMixObj;
 
     SLObjectItf _playObj;
     SLPlayItf _playItf;
     SLVolumeItf _volumeItf;
-    SLAndroidSimpleBufferQueueItf _bufferQueueItf;
+    CCSLBufferQueueItf _bufferQueueItf;
 
     int _numChannels;
     int _sampleRate;
