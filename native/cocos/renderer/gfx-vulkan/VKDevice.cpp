@@ -107,8 +107,8 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
 
     const VkPhysicalDeviceFeatures2 &deviceFeatures2 = _gpuContext->physicalDeviceFeatures2;
     const VkPhysicalDeviceFeatures &deviceFeatures = deviceFeatures2.features;
-    //const VkPhysicalDeviceVulkan11Features &deviceVulkan11Features = _gpuContext->physicalDeviceVulkan11Features;
-    //const VkPhysicalDeviceVulkan12Features &deviceVulkan12Features = _gpuContext->physicalDeviceVulkan12Features;
+    // const VkPhysicalDeviceVulkan11Features &deviceVulkan11Features = _gpuContext->physicalDeviceVulkan11Features;
+    // const VkPhysicalDeviceVulkan12Features &deviceVulkan12Features = _gpuContext->physicalDeviceVulkan12Features;
 
     ///////////////////// Device Creation /////////////////////
 
@@ -139,7 +139,7 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     requestedFeatures2.features.samplerAnisotropy = deviceFeatures.samplerAnisotropy;
     requestedFeatures2.features.depthBounds = deviceFeatures.depthBounds;
     requestedFeatures2.features.multiDrawIndirect = deviceFeatures.multiDrawIndirect;
-    //requestedFeatures2.features.se
+    // requestedFeatures2.features.se
     requestedVulkan12Features.separateDepthStencilLayouts = _gpuContext->physicalDeviceVulkan12Features.separateDepthStencilLayouts;
 
     if (_gpuContext->validationEnabled) {
@@ -705,6 +705,12 @@ void CCVKDevice::present() {
 
     _gpuDevice->curBackBufferIndex = (_gpuDevice->curBackBufferIndex + 1) % _gpuDevice->backBufferCount;
 
+    if (_xr) {
+        _xr->postGFXDevicePresent(_api);
+    }
+}
+
+void CCVKDevice::frameSync() {
     uint32_t fenceCount = gpuFencePool()->size();
     if (fenceCount) {
         VK_CHECK(vkWaitForFences(_gpuDevice->vkDevice, fenceCount,
@@ -714,9 +720,6 @@ void CCVKDevice::present() {
     gpuFencePool()->reset();
     gpuRecycleBin()->clear();
     gpuStagingBufferPool()->reset();
-    if (_xr) {
-        _xr->postGFXDevicePresent(_api);
-    }
 }
 
 CCVKGPUFencePool *CCVKDevice::gpuFencePool() { return _gpuFencePools[_gpuDevice->curBackBufferIndex].get(); }

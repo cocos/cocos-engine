@@ -336,7 +336,7 @@ export class Director extends EventTarget {
      * @param onBeforeLoadScene - The function invoked at the scene before loading.
      * @param onLaunched - The function invoked at the scene after launch.
      */
-    public runSceneImmediate (scene: Scene|SceneAsset, onBeforeLoadScene?: Director.OnBeforeLoadScene, onLaunched?: Director.OnSceneLaunched) {
+    public runSceneImmediate (scene: Scene | SceneAsset, onBeforeLoadScene?: Director.OnBeforeLoadScene, onLaunched?: Director.OnSceneLaunched) {
         if (scene instanceof SceneAsset) scene = scene.scene!;
         assertID(scene instanceof Scene, 1216);
 
@@ -696,13 +696,13 @@ export class Director extends EventTarget {
      */
     public tick (dt: number) {
         if (!this._invalid) {
+            this._root!.frameSync();
             this.emit(Director.EVENT_BEGIN_FRAME);
             if (!EDITOR || cclegacy.GAME_VIEW) {
                 // @ts-expect-error _frameDispatchEvents is a private method.
                 input._frameDispatchEvents();
             }
 
-            this._root!.frameSync();
             // Update
             if (!this._paused) {
                 this.emit(Director.EVENT_BEFORE_UPDATE);
