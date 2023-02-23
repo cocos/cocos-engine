@@ -26,7 +26,7 @@
 import { ccclass, displayOrder, range, serializable, tooltip, type } from '../../core/data/decorators';
 import { InitializationModule, ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
-import { ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
+import { ParticleEmitterContext, ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
 import { CurveRange } from '../curve-range';
 import { lerp, pseudoRandom, randomRangeInt, Vec3 } from '../../core/math';
 import { INT_MAX } from '../../core/math/bits';
@@ -57,86 +57,42 @@ export class StartSpeedModule extends InitializationModule {
         return 1;
     }
 
-    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,
-        fromIndex: number, toIndex: number, t: number) {
-        const normalizedTimeInCycle = t / params.duration;
-        const { worldRotation } = context;
-        if (params.simulationSpace === Space.WORLD) {
-            if (this.startSpeed.mode === CurveRange.Mode.Constant) {
-                const constant = this.startSpeed.constant;
-                for (let i = fromIndex; i < toIndex; ++i) {
-                    const curveStartSpeed = constant;
-                    particles.getStartDirAt(velocity, i);
-                    Vec3.multiplyScalar(velocity, velocity, curveStartSpeed);
-                    Vec3.transformQuat(velocity, velocity, worldRotation);
-                    particles.setVelocityAt(velocity, i);
-                }
-            } else if (this.startSpeed.mode ===  CurveRange.Mode.TwoConstants) {
-                const { constantMin, constantMax } = this.startSpeed;
-                for (let i = fromIndex; i < toIndex; ++i) {
-                    const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
-                    const curveStartSpeed = lerp(constantMin, constantMax, rand);
-                    particles.getStartDirAt(velocity, i);
-                    Vec3.multiplyScalar(velocity, velocity, curveStartSpeed);
-                    Vec3.transformQuat(velocity, velocity, worldRotation);
-                    particles.setVelocityAt(velocity, i);
-                }
-            } else if (this.startSpeed.mode ===  CurveRange.Mode.Curve) {
-                const { spline, multiplier } = this.startSpeed;
-                for (let i = fromIndex; i < toIndex; ++i) {
-                    const curveStartSpeed = spline.evaluate(normalizedTimeInCycle) * multiplier;
-                    particles.getStartDirAt(velocity, i);
-                    Vec3.multiplyScalar(velocity, velocity, curveStartSpeed);
-                    Vec3.transformQuat(velocity, velocity, worldRotation);
-                    particles.setVelocityAt(velocity, i);
-                }
-            } else {
-                const { splineMin, splineMax, multiplier } = this.startSpeed;
-                for (let i = fromIndex; i < toIndex; ++i) {
-                    const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
-                    const curveStartSpeed = lerp(splineMin.evaluate(normalizedTimeInCycle), splineMax.evaluate(normalizedTimeInCycle), rand) * multiplier;
-                    particles.getStartDirAt(velocity, i);
-                    Vec3.multiplyScalar(velocity, velocity, curveStartSpeed);
-                    Vec3.transformQuat(velocity, velocity, worldRotation);
-                    particles.setVelocityAt(velocity, i);
-                }
+    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleEmitterContext,
+        fromIndex: number, toIndex: number, currentTime: number) {
+        const normalizedTimeInCycle = currentTime / params.duration;
+        if (this.startSpeed.mode === CurveRange.Mode.Constant) {
+            const constant = this.startSpeed.constant;
+            for (let i = fromIndex; i < toIndex; ++i) {
+                const curveStartSpeed = constant;
+                particles.getStartDirAt(velocity, i);
+                Vec3.multiplyScalar(velocity, velocity, curveStartSpeed);
+                particles.setVelocityAt(velocity, i);
+            }
+        } else if (this.startSpeed.mode ===  CurveRange.Mode.TwoConstants) {
+            const { constantMin, constantMax } = this.startSpeed;
+            for (let i = fromIndex; i < toIndex; ++i) {
+                const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
+                const curveStartSpeed = lerp(constantMin, constantMax, rand);
+                particles.getStartDirAt(velocity, i);
+                Vec3.multiplyScalar(velocity, velocity, curveStartSpeed);
+                particles.setVelocityAt(velocity, i);
+            }
+        } else if (this.startSpeed.mode ===  CurveRange.Mode.Curve) {
+            const { spline, multiplier } = this.startSpeed;
+            for (let i = fromIndex; i < toIndex; ++i) {
+                const curveStartSpeed = spline.evaluate(normalizedTimeInCycle) * multiplier;
+                particles.getStartDirAt(velocity, i);
+                Vec3.multiplyScalar(velocity, velocity, curveStartSpeed);
+                particles.setVelocityAt(velocity, i);
             }
         } else {
-            // eslint-disable-next-line no-lonely-if
-            if (this.startSpeed.mode === CurveRange.Mode.Constant) {
-                const constant = this.startSpeed.constant;
-                for (let i = fromIndex; i < toIndex; ++i) {
-                    const curveStartSpeed = constant;
-                    particles.getStartDirAt(velocity, i);
-                    Vec3.multiplyScalar(velocity, velocity, curveStartSpeed);
-                    particles.setVelocityAt(velocity, i);
-                }
-            } else if (this.startSpeed.mode === CurveRange.Mode.TwoConstants) {
-                const { constantMin, constantMax } = this.startSpeed;
-                for (let i = fromIndex; i < toIndex; ++i) {
-                    const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
-                    const curveStartSpeed = lerp(constantMin, constantMax, rand);
-                    particles.getStartDirAt(velocity, i);
-                    Vec3.multiplyScalar(velocity, velocity, curveStartSpeed);
-                    particles.setVelocityAt(velocity, i);
-                }
-            } else if (this.startSpeed.mode ===  CurveRange.Mode.Curve) {
-                const { spline, multiplier } = this.startSpeed;
-                for (let i = fromIndex; i < toIndex; ++i) {
-                    const curveStartSpeed = spline.evaluate(normalizedTimeInCycle) * multiplier;
-                    particles.getStartDirAt(velocity, i);
-                    Vec3.multiplyScalar(velocity, velocity, curveStartSpeed);
-                    particles.setVelocityAt(velocity, i);
-                }
-            } else {
-                const { splineMin, splineMax, multiplier } = this.startSpeed;
-                for (let i = fromIndex; i < toIndex; ++i) {
-                    const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
-                    const curveStartSpeed = lerp(splineMin.evaluate(normalizedTimeInCycle), splineMax.evaluate(normalizedTimeInCycle), rand) * multiplier;
-                    particles.getStartDirAt(velocity, i);
-                    Vec3.multiplyScalar(velocity, velocity, curveStartSpeed);
-                    particles.setVelocityAt(velocity, i);
-                }
+            const { splineMin, splineMax, multiplier } = this.startSpeed;
+            for (let i = fromIndex; i < toIndex; ++i) {
+                const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
+                const curveStartSpeed = lerp(splineMin.evaluate(normalizedTimeInCycle), splineMax.evaluate(normalizedTimeInCycle), rand) * multiplier;
+                particles.getStartDirAt(velocity, i);
+                Vec3.multiplyScalar(velocity, velocity, curveStartSpeed);
+                particles.setVelocityAt(velocity, i);
             }
         }
     }

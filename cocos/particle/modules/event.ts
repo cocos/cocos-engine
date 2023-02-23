@@ -23,18 +23,22 @@
  THE SOFTWARE.
  */
 
-import { approx, BitMask, CCFloat, Enum, EPSILON, pseudoRandom, Vec3, warn } from '../../core';
+import { approx, BitMask, CCFloat, Enum, EPSILON, Mat4, pseudoRandom, Quat, Vec3, warn } from '../../core';
 import { ccclass, range, serializable, type, visible } from '../../core/data/decorators';
 import { Space } from '../enum';
 import { EmissionModule, ParticleModule, ParticleUpdateStage, UpdateModule } from '../particle-module';
 import { MAX_SUB_EMITTER_ACCUMULATOR, ParticleSOAData, RecordReason } from '../particle-soa-data';
 import { ParticleSystem } from '../particle-system';
 import { particleSystemManager } from '../particle-system-manager';
-import { EmissionState, ParticleSystemParams, ParticleUpdateContext, SpawnEvent } from '../particle-update-context';
+import { ParticleEmitterContext, ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
 
 const PROBABILITY_RANDOM_SEED_OFFSET = 199208;
-const emissionState = new EmissionState();
-const tempContext = new ParticleUpdateContext();
+const tempContext = new ParticleEmitterContext();
+const dir = new Vec3();
+const up = new Vec3();
+const rot = new Quat();
+const position = new Vec3();
+const velocity = new Vec3();
 
 export enum EventCondition {
     LIFETIME,
@@ -71,9 +75,6 @@ export class EventData {
     @serializable
     public probability = 1;
 }
-
-const temp = new Vec3();
-const temp1 = new Vec3();
 
 @ccclass('cc.EventModule')
 export class EventModule extends UpdateModule {
@@ -114,31 +115,33 @@ export class EventModule extends UpdateModule {
                     if (pseudoRandom(randomSeed[i] + PROBABILITY_RANDOM_SEED_OFFSET) > probability) {
                         continue;
                     }
-                    particles.getPositionAt(temp, i);
-                    particles.getFinalVelocityAt(temp1, i);
+                    particles.getPositionAt(position, i);
+                    particles.getFinalVelocityAt(velocity, i);
                     if (simulationSpace === Space.LOCAL) {
-                        Vec3.transformMat4(temp, temp, localToWorld);
-                        Vec3.transformMat4(temp1, temp1, localToWorld);
+                        Vec3.transformMat4(position, position, localToWorld);
+                        Vec3.transformMat4(velocity, velocity, localToWorld);
                     }
                     let accumulator = subEmitterAccumulators[i * MAX_SUB_EMITTER_ACCUMULATOR + lifeTimeSubEmitterIndex];
                     const currentTime = normalizedAliveTime[i] / invStartLifeTime[i];
                     const prevTime = currentTime - dt;
-                    tempContext.emitterVelocity.set(temp1);
-                    tempContext.currentPosition.set(temp);
-                    tempContext.lastPosition.set(Vec3.subtract(temp, temp, temp1.multiplyScalar(dt)));
-                    emitter.evaluateEmissionState(currentTime, prevTime, dt, tempContext, emissionState);
-                    const { emittingNumOverTime, emittingNumOverDistance, burstCount } = emissionState;
+                    tempContext.velocity.set(velocity);
+                    emitter.evaluateEmissionState(currentTime, prevTime, tempContext);
+                    const { emittingNumOverTime, emittingNumOverDistance, burstCount } = tempContext;
                     if ((accumulator + emittingNumOverTime + emittingNumOverDistance) >= 1 || burstCount >= 1) {
                         const spawnEvent = particleSystemManager.dispatchSpawnEvent();
                         spawnEvent.emitter = emitter;
                         spawnEvent.deltaTime = dt;
                         spawnEvent.prevTime = prevTime;
-                        spawnEvent.context.emitterVelocity.set(tempContext.emitterVelocity);
-                        spawnEvent.context.currentPosition.set(tempContext.currentPosition);
-                        spawnEvent.context.lastPosition.set(tempContext.lastPosition);
-                        spawnEvent.numOverTime = emittingNumOverTime + accumulator;
-                        spawnEvent.numOverDistance = emittingNumOverDistance;
-                        spawnEvent.burstCount = burstCount;
+                        Vec3.normalize(dir, tempContext.velocity);
+                        const angle = Math.abs(Vec3.dot(dir, Vec3.UNIT_Z));
+                        Vec3.lerp(up, Vec3.UNIT_Z, Vec3.UNIT_Y, angle);
+                        Quat.fromViewUp(rot, dir, up);
+                        Mat4.fromRT(spawnEvent.context.emitterTransform, rot, position);
+                        spawnEvent.context.emittingAccumulatedCount = accumulator;
+                        spawnEvent.context.velocity.set(tempContext.velocity);
+                        spawnEvent.context.emittingNumOverTime = emittingNumOverTime;
+                        spawnEvent.context.emittingNumOverDistance = emittingNumOverDistance;
+                        spawnEvent.context.burstCount = burstCount;
                     }
 
                     accumulator += emittingNumOverTime + emittingNumOverDistance;
@@ -163,26 +166,30 @@ export class EventModule extends UpdateModule {
                     const snapshot = particleEventSnapshots[i];
                     if (snapshot.recordReason === RecordReason.DEATH
                         && pseudoRandom(snapshot.randomSeed + PROBABILITY_RANDOM_SEED_OFFSET) <= probability) {
+                        position.set(snapshot.position);
+                        velocity.set(snapshot.finalVelocity);
                         if (simulationSpace === Space.LOCAL) {
-                            Vec3.transformMat4(temp, snapshot.position, localToWorld);
-                            Vec3.transformMat4(temp1, snapshot.finalVelocity, localToWorld);
+                            Vec3.transformMat4(position, position, localToWorld);
+                            Vec3.transformMat4(velocity, velocity, localToWorld);
                         }
-                        tempContext.emitterVelocity.set(temp1);
-                        tempContext.currentPosition.set(temp);
-                        tempContext.lastPosition.set(temp);
-                        emitter.evaluateEmissionState(EPSILON, 0, EPSILON, tempContext, emissionState);
-                        if (emissionState.burstCount > 1) {
+                        tempContext.velocity.set(velocity);
+                        emitter.evaluateEmissionState(EPSILON, 0, tempContext);
+                        if (tempContext.burstCount > 1) {
                             const spawnEvent = particleSystemManager.dispatchSpawnEvent();
                             spawnEvent.emitter = emitter;
                             spawnEvent.deltaTime = EPSILON;
                             spawnEvent.currentTime = EPSILON;
                             spawnEvent.prevTime = 0;
-                            spawnEvent.context.emitterVelocity.set(temp1);
-                            spawnEvent.context.currentPosition.set(temp);
-                            spawnEvent.context.lastPosition.set(temp);
-                            spawnEvent.numOverTime = 0;
-                            spawnEvent.numOverDistance = 0;
-                            spawnEvent.burstCount = emissionState.burstCount;
+                            Vec3.normalize(dir, tempContext.velocity);
+                            const angle = Math.abs(Vec3.dot(dir, Vec3.UNIT_Z));
+                            Vec3.lerp(up, Vec3.UNIT_Z, Vec3.UNIT_Y, angle);
+                            Quat.fromViewUp(rot, dir, up);
+                            Mat4.fromRT(spawnEvent.context.emitterTransform, rot, position);
+                            spawnEvent.context.velocity.set(tempContext.velocity);
+                            spawnEvent.context.emittingAccumulatedCount = 0;
+                            spawnEvent.context.emittingNumOverDistance = 0;
+                            spawnEvent.context.emittingNumOverTime = 0;
+                            spawnEvent.context.burstCount = tempContext.burstCount;
                         }
                     }
                 }

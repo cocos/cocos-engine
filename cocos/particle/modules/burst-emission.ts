@@ -29,7 +29,7 @@ import Burst from '../burst';
 import { CurveRange } from '../curve-range';
 import { EmissionModule, ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
-import { EmissionState, ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
+import { ParticleEmitterContext, ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
 
 @ccclass('cc.BurstEmissionModule')
 export class BurstEmissionModule extends EmissionModule {
@@ -50,8 +50,8 @@ export class BurstEmissionModule extends EmissionModule {
         return 2;
     }
 
-    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,
-        prevT: number, t: number, out: EmissionState) {
+    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleEmitterContext,
+        prevT: number, t: number) {
         const normalizedTimeInCycle = t / params.duration;
         for (let i = 0, burstCount = this.bursts.length; i < burstCount; i++) {
             const burst = this.bursts[i];
@@ -63,22 +63,22 @@ export class BurstEmissionModule extends EmissionModule {
                     if (toEmitTime === 0) { continue; }
                     if (burst.count.mode === CurveRange.Mode.Constant) {
                         for (let j = 0; j < toEmitTime; j++) {
-                            out.burstCount += burst.count.constant;
+                            context.burstCount += burst.count.constant;
                         }
                     } else if (burst.count.mode === CurveRange.Mode.Curve) {
                         const { spline, multiplier } = burst.count;
                         for (let j = 0; j < toEmitTime; j++) {
-                            out.burstCount += spline.evaluate(normalizedTimeInCycle) * multiplier;
+                            context.burstCount += spline.evaluate(normalizedTimeInCycle) * multiplier;
                         }
                     } else if (burst.count.mode === CurveRange.Mode.TwoConstants) {
                         const { constantMin, constantMax } = burst.count;
                         for (let j = 0; j < toEmitTime; j++) {
-                            out.burstCount += lerp(constantMin, constantMax, Math.random());
+                            context.burstCount += lerp(constantMin, constantMax, Math.random());
                         }
                     } else {
                         const { splineMin, splineMax, multiplier } = burst.count;
                         for (let j = 0; j < toEmitTime; j++) {
-                            out.burstCount += lerp(splineMin.evaluate(normalizedTimeInCycle), splineMax.evaluate(normalizedTimeInCycle), Math.random()) * multiplier;
+                            context.burstCount += lerp(splineMin.evaluate(normalizedTimeInCycle), splineMax.evaluate(normalizedTimeInCycle), Math.random()) * multiplier;
                         }
                     }
                 }

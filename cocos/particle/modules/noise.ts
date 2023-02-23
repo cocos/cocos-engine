@@ -264,8 +264,8 @@ export class NoiseModule extends UpdateModule {
     private _scrollOffset = 0;
 
     public tick (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,
-        t: number, dt: number) {
-        this._scrollOffset += this._scrollSpeed.evaluate(t / params.duration, 1) * dt;
+        currentTime: number, dt: number) {
+        this._scrollOffset += this._scrollSpeed.evaluate(currentTime / params.duration, 1) * dt;
     }
 
     public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,

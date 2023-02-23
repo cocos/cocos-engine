@@ -26,7 +26,7 @@
 import { ccclass, displayOrder, serializable, tooltip, type, range } from '../../core/data/decorators';
 import { EmissionModule } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
-import { EmissionState, ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
+import { ParticleEmitterContext, ParticleSystemParams } from '../particle-update-context';
 import { CurveRange } from '../curve-range';
 
 @ccclass('cc.EmissionOverTimeModule')
@@ -49,8 +49,8 @@ export class EmissionOverTimeModule extends EmissionModule {
         return 0;
     }
 
-    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,
-        prevT: number, t: number, out: EmissionState)  {
-        out.emittingNumOverTime += this.rate.evaluate(t / params.duration, Math.random()) * (t - prevT);
+    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleEmitterContext,
+        prevTime: number, currentTime: number)  {
+        context.emittingNumOverTime += this.rate.evaluate(currentTime / params.duration, Math.random()) * (currentTime - prevTime);
     }
 }

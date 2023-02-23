@@ -58,10 +58,7 @@ export class SpawnEvent {
     public deltaTime = 0;
     public currentTime = 0;
     public prevTime = 0;
-    public numOverTime = 0;
-    public numOverDistance = 0;
-    public burstCount = 0;
-    public context = new ParticleUpdateContext();
+    public context = new ParticleEmitterContext();
 }
 
 export class ParticleSnapshot {
@@ -75,24 +72,12 @@ export class ParticleSnapshot {
     public normalizedAliveTime = 0;
     public recordReason = -1;
 }
-export class InheritedProperty {
+export class InheritedProperties {
     public rotation = new Vec3();
     public size = new Vec3();
     public color = new Color();
     public invStartLifeTime = 1;
     public normalizedAliveTime = 0;
-}
-
-export class EmissionState {
-    public emittingNumOverTime = 0;
-    public emittingNumOverDistance = 0;
-    public burstCount = 0;
-
-    public reset () {
-        this.emittingNumOverDistance = 0;
-        this.emittingNumOverTime = 0;
-        this.burstCount = 0;
-    }
 }
 
 export enum PlayingState {
@@ -103,26 +88,29 @@ export enum PlayingState {
 
 export class ParticleSystemState {
     public accumulatedTime = 0;
-    public emitterAccumulatedTime = 0;
-    public emittingAccumulatedCount = 0;
     public playingState = PlayingState.STOPPED;
-    public isEmitting = false;
+    public lastPosition = new Vec3();
+    public currentPosition = new Vec3();
+    public startDelay = 0;
     public isSimulating = true;
+    public isEmitting = true;
     public isSubEmitter = false;
 }
 
 export class ParticleEmitterContext {
+    public emittingAccumulatedCount = 0;
     public velocity = new Vec3();
+    public inheritedProperties: InheritedProperties | null = null;
+    public emitterTransform = new Mat4();
+    public emittingNumOverTime = 0;
+    public emittingNumOverDistance = 0;
+    public burstCount = 0;
 }
 
 export class ParticleUpdateContext {
     public localToWorld = new Mat4();
     public worldToLocal = new Mat4();
     public worldRotation = new Quat();
-    public emitterDelayRemaining = 0;
-    public lastPosition = new Vec3();
-    public currentPosition = new Vec3();
-    public inheritedProperty: InheritedProperty | null = null;
 
     constructor () {
 

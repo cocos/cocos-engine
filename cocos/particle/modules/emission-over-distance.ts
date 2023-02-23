@@ -25,7 +25,7 @@
 
 import { ccclass, displayOrder, serializable, tooltip, type, range } from '../../core/data/decorators';
 import { EmissionModule, ParticleUpdateStage } from '../particle-module';
-import { EmissionState, ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
+import { ParticleEmitterContext, ParticleSystemParams } from '../particle-update-context';
 import { CurveRange } from '../curve-range';
 import { ParticleSOAData } from '../particle-soa-data';
 
@@ -49,10 +49,10 @@ export class EmissionOverDistanceModule extends EmissionModule {
         return 1;
     }
 
-    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,
-        prevT: number, t: number, out: EmissionState) {
-        const { emitterVelocity } = context;
-        out.emittingNumOverDistance += emitterVelocity.length()
-        * this.rate.evaluate(t / params.duration, Math.random()) * (t - prevT);
+    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleEmitterContext,
+        prevTime: number, currentTime: number) {
+        const { velocity } = context;
+        context.emittingNumOverDistance += velocity.length()
+        * this.rate.evaluate(currentTime / params.duration, Math.random()) * (currentTime - prevTime);
     }
 }

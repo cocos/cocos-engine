@@ -26,7 +26,7 @@
 import { ccclass, displayOrder, formerlySerializedAs, radian, range, serializable, tooltip, type, visible } from '../../core/data/decorators';
 import { InitializationModule, ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
-import { ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
+import { ParticleEmitterContext, ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
 import { CurveRange } from '../curve-range';
 import { GradientRange } from '../gradient-range';
 import { Color, lerp, pseudoRandom, randomRangeInt, Vec3 } from '../../core/math';
@@ -57,9 +57,9 @@ export class StartLifeTimeModule extends InitializationModule {
         return 1;
     }
 
-    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,
-        fromIndex: number, toIndex: number, t: number) {
-        const normalizedTimeInCycle = t / params.duration;
+    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleEmitterContext,
+        fromIndex: number, toIndex: number, currentTime: number) {
+        const normalizedTimeInCycle = currentTime / params.duration;
         const { invStartLifeTime } = particles;
         if (this.startLifetime.mode === CurveRange.Mode.Constant) {
             const lifeTime = 1 / this.startLifetime.constant;

@@ -46,7 +46,7 @@ import { GravityModule } from './modules/gravity';
 import { SpeedModifierModule } from './modules/speed-modifier';
 import { StartRotationModule } from './modules/start-rotation';
 import { ShapeModule } from './modules/shape-module';
-import { EmissionState, ParticleSystemParams, ParticleSystemState, ParticleUpdateContext, PlayingState, SpawnEvent } from './particle-update-context';
+import { ParticleEmitterContext, ParticleSystemParams, ParticleSystemState, ParticleUpdateContext, PlayingState, SpawnEvent } from './particle-update-context';
 import { CullingMode, Space } from './enum';
 import { ParticleSystemRenderer } from './particle-system-renderer';
 import { TrailModule } from './modules/trail';
@@ -63,8 +63,8 @@ import { BurstEmissionModule } from './modules/burst-emission';
 
 const startPositionOffset = new Vec3();
 const velocity = new Vec3();
-const tempEmissionState = new EmissionState();
 const tempPosition = new Vec3();
+const tempDir = new Vec3();
 
 @ccclass('cc.ParticleSystem')
 @help('i18n:cc.ParticleSystem')
@@ -397,7 +397,8 @@ export class ParticleSystem extends Component {
     private _params = new ParticleSystemParams();
     private _boundingBoxHalfExtents = new Vec3();
     private _particles = new ParticleSOAData();
-    private _particleUpdateContext = new ParticleUpdateContext();
+    private _updateContext = new ParticleUpdateContext();
+    private _emitterContext = new ParticleEmitterContext();
     private _state = new ParticleSystemState();
 
     private static _sortParticleModule (moduleA: ParticleModule, moduleB: ParticleModule) {
@@ -447,28 +448,19 @@ export class ParticleSystem extends Component {
         return module;
     }
 
-    public emit (currentTime: number, prevTime: number, dt: number, context: ParticleUpdateContext,
-        numOverTime: number, numOverDistance: number, burstCount: number) {
-        const dir = Vec3.normalize(new Vec3(), context.emitterVelocity);
-        const angle = Math.abs(Vec3.dot(dir, Vec3.UNIT_Z));
-        const up = Vec3.lerp(new Vec3(), Vec3.UNIT_Z, Vec3.UNIT_Y, angle);
-        const rot = Quat.fromViewUp(new Quat(), dir, up);
-        const emitterTransform = Mat4.fromRT(new Mat4(), rot, context.currentPosition);
-        context.localToWorld.set(this._particleUpdateContext.localToWorld);
-        context.worldToLocal.set(this._particleUpdateContext.worldToLocal);
+    public emit (currentTime: number, prevTime: number, dt: number, context: ParticleEmitterContext) {
         if (this._params.simulationSpace === Space.LOCAL) {
-            Mat4.multiply(emitterTransform, this._particleUpdateContext.worldToLocal, context.localToWorld);
-            Vec3.transformMat4(context.emitterVelocity, context.emitterVelocity, this._particleUpdateContext.worldToLocal);
+            Mat4.multiply(context.emitterTransform, this._updateContext.worldToLocal, context.emitterTransform);
+            Vec3.transformMat4(context.velocity, context.velocity, this._updateContext.worldToLocal);
         }
-        this.startEmitParticles(this.particles, this._params, context, emitterTransform, context.emitterVelocity, prevTime, currentTime, dt,
-            numOverTime, numOverDistance, burstCount);
+        this.startEmitParticles(this.particles, this._params, context, this._updateContext, context.velocity, prevTime, currentTime, dt);
     }
 
-    public evaluateEmissionState (currentTime: number, prevT: number, dt: number, context: ParticleUpdateContext, out: EmissionState) {
-        out.reset();
+    public evaluateEmissionState (currentTime: number, prevTime: number, context: ParticleEmitterContext) {
+        context.burstCount = context.emittingNumOverDistance = context.emittingNumOverTime = 0;
         const emissionModules = this.getEmissionModules();
         for (let i = 0, length = emissionModules.length; i < length; i++) {
-            emissionModules[i].update(this._particles, this._params, context, prevT, currentTime, out);
+            emissionModules[i].update(this._particles, this._params, context, prevTime, currentTime);
         }
     }
 
@@ -503,8 +495,8 @@ export class ParticleSystem extends Component {
                 module.onPlay();
             }
         }
-        this._particleUpdateContext.currentPosition.set(this.node.worldPosition);
-        this._particleUpdateContext.emitterDelayRemaining = this.startDelay.evaluate(0, 1);
+        this._state.currentPosition.set(this.node.worldPosition);
+        this._state.startDelay = this.startDelay.evaluate(0, 1);
         particleSystemManager.addParticleSystem(this);
     }
 
@@ -598,7 +590,6 @@ export class ParticleSystem extends Component {
 
         if (this.isPlaying && this._state.isSimulating) {
             // simulation, update particles.
-            this._state.accumulatedTime += scaledDeltaTime;
             this.updateParticles(scaledDeltaTime);
 
             if (this._particles.count === 0 && !this.loop && !this.isEmitting) {
@@ -667,60 +658,50 @@ export class ParticleSystem extends Component {
     // internal function
     private updateParticles (deltaTime: number) {
         const particles = this._particles;
-        const context = this._particleUpdateContext;
+        const updateContext = this._updateContext;
+        const emitterContext = this._emitterContext;
         const params = this._params;
         const state = this._state;
-        let emitterDeltaTime = deltaTime;
-        context.lastPosition.set(context.currentPosition);
-        context.currentPosition.set(this.node.worldPosition);
-        context.localToWorld.set(this.node.worldMatrix);
-        Mat4.invert(context.worldToLocal, context.localToWorld);
-        Vec3.subtract(context.emitterVelocity, context.currentPosition, context.lastPosition);
-        Vec3.multiplyScalar(context.emitterVelocity, context.emitterVelocity, 1 / deltaTime);
-        Quat.normalize(context.worldRotation, this.node.worldRotation);
-        if (context.emitterDelayRemaining > 0) {
-            context.emitterDelayRemaining -= emitterDeltaTime;
-            emitterDeltaTime = 0;
-            if (context.emitterDelayRemaining < 0) {
-                emitterDeltaTime = Math.abs(context.emitterDelayRemaining);
-                context.emitterDelayRemaining = 0;
-            }
-        }
-        const prevTime = state.emitterAccumulatedTime;
-        state.emitterAccumulatedTime += emitterDeltaTime;
-        const currentTime = state.emitterAccumulatedTime;
-
-        let particleCount = particles.count;
-        this.resetAnimatedState(particles, 0, particleCount);
+        state.lastPosition.set(state.currentPosition);
+        state.currentPosition.set(this.node.worldPosition);
+        updateContext.localToWorld.set(this.node.worldMatrix);
+        Mat4.invert(updateContext.worldToLocal, updateContext.localToWorld);
+        Vec3.subtract(emitterContext.velocity, state.currentPosition, state.lastPosition);
+        Vec3.multiplyScalar(emitterContext.velocity, emitterContext.velocity, 1 / deltaTime);
+        Quat.normalize(updateContext.worldRotation, this.node.worldRotation);
+        emitterContext.emitterTransform.set(params.simulationSpace === Space.WORLD ? updateContext.localToWorld : Mat4.IDENTITY);
+        const prevTime = Math.max(state.accumulatedTime - state.startDelay, 0);
+        state.accumulatedTime += deltaTime;
+        const currentTime = Math.max(state.accumulatedTime - state.startDelay, 0);
 
         const modules = this._activeModules;
         for (let i = 0, length = modules.length; i < length; i++) {
-            modules[i].tick(particles, params, context, currentTime, deltaTime);
+            modules[i].tick(particles, params, updateContext, currentTime, currentTime - prevTime);
         }
 
-        const updateModules = this.getPreUpdateModules();
-        for (let i = 0, length = updateModules.length; i < length; i++) {
-            updateModules[i].update(particles, params, context, 0, particleCount, deltaTime);
+        let particleCount = particles.count;
+        if (particleCount > 0) {
+            this.resetAnimatedState(particles, 0, particleCount);
+
+            const updateModules = this.getPreUpdateModules();
+            for (let i = 0, length = updateModules.length; i < length; i++) {
+                updateModules[i].update(particles, params, updateContext, 0, particleCount, deltaTime);
+            }
+            this.updateParticleState(particles, 0, particleCount, deltaTime);
+            this.killParticlesOverMaxLifeTime(particles, 0, particleCount);
+            // After killing particles, the count of particle may be changed. so get the current count.
+            particleCount = particles.count;
+            const postUpdateModules = this.getPostUpdateModules();
+            for (let i = 0, length = postUpdateModules.length; i < length; i++) {
+                postUpdateModules[i].update(particles, params, updateContext, 0, particleCount, deltaTime);
+            }
+            this.consumeEvents(particles, params, updateContext);
         }
-        this.updateParticleState(particles, 0, particleCount, deltaTime);
-        this.killParticlesOverMaxLifeTime(particles, 0, particleCount);
-        // After killing particles, the count of particle may be changed. so get the current count.
-        particleCount = particles.count;
-        const postUpdateModules = this.getPostUpdateModules();
-        for (let i = 0, length = postUpdateModules.length; i < length; i++) {
-            postUpdateModules[i].update(particles, params, context, 0, particleCount, deltaTime);
-        }
-        this.consumeEvents(particles, params, context);
 
         if (state.isEmitting) {
-            const accumulator = state.emittingAccumulatedCount;
-            this.evaluateEmissionState(currentTime, prevTime, deltaTime, context, tempEmissionState);
-            state.emittingAccumulatedCount = accumulator + tempEmissionState.emittingNumOverTime + tempEmissionState.emittingNumOverDistance;
-            state.emittingAccumulatedCount -= Math.floor(state.emittingAccumulatedCount);
-            const emitterVelocity = params.simulationSpace === Space.WORLD ? context.emitterVelocity : Vec3.ZERO;
-            const emitterTransform = params.simulationSpace === Space.WORLD ? context.localToWorld : Mat4.IDENTITY;
-            this.startEmitParticles(particles, params, context, emitterTransform, emitterVelocity, prevTime, currentTime, deltaTime,
-                tempEmissionState.emittingNumOverTime + accumulator, tempEmissionState.emittingNumOverDistance, tempEmissionState.burstCount);
+            this.evaluateEmissionState(currentTime, prevTime, emitterContext);
+            this.startEmitParticles(particles, params, emitterContext, updateContext,
+                params.simulationSpace === Space.WORLD ? emitterContext.velocity : Vec3.ZERO, prevTime, currentTime, currentTime - prevTime);
         }
     }
 
@@ -768,30 +749,30 @@ export class ParticleSystem extends Component {
         }
     }
 
-    private startEmitParticles (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,
-        emitterTransform: Mat4, emitterVelocity: Vec3, prevTime: number, currentTime: number, dt: number, numOverTime: number, numOverDistance: number, burstCount: number) {
-        const timeInterval = 1 / numOverTime;
-        let accumulator = numOverTime;
-        numOverTime = Math.floor(accumulator);
+    private startEmitParticles (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleEmitterContext, updateContext: ParticleUpdateContext,
+        initialVelocity: Vec3, prevTime: number, currentTime: number, dt: number) {
+        const timeInterval = 1 / context.emittingNumOverTime;
+        context.emittingAccumulatedCount += context.emittingNumOverTime;
+        const numOverTime = Math.floor(context.emittingAccumulatedCount);
         if (numOverTime > 0) {
-            accumulator -= numOverTime;
-            this.initializeParticles(particles, params, context, emitterTransform, emitterVelocity, prevTime, currentTime, dt, numOverTime, timeInterval, accumulator);
+            context.emittingAccumulatedCount -= numOverTime;
+            this.initializeParticles(particles, params, context, updateContext, initialVelocity, prevTime, currentTime, dt, numOverTime, timeInterval, context.emittingAccumulatedCount);
         }
-        const distanceInterval = 1 / numOverDistance;
-        accumulator += numOverDistance;
-        numOverDistance = Math.floor(accumulator);
+        const distanceInterval = 1 / context.emittingNumOverDistance;
+        context.emittingAccumulatedCount += context.emittingNumOverDistance;
+        const numOverDistance = Math.floor(context.emittingAccumulatedCount);
         if (numOverDistance > 0) {
-            accumulator -= numOverDistance;
-            this.initializeParticles(particles, params, context, emitterTransform, emitterVelocity, prevTime, currentTime, dt, numOverDistance, distanceInterval, accumulator);
+            context.emittingAccumulatedCount -= numOverDistance;
+            this.initializeParticles(particles, params, context, updateContext, initialVelocity, prevTime, currentTime, dt, numOverDistance, distanceInterval, context.emittingAccumulatedCount);
         }
-        burstCount = Math.floor(burstCount);
+        const burstCount = Math.floor(context.burstCount);
         if (burstCount > 0) {
-            this.initializeParticles(particles, params, context, emitterTransform, emitterVelocity, prevTime, currentTime, dt, burstCount, 0, 0);
+            this.initializeParticles(particles, params, context, updateContext, initialVelocity, prevTime, currentTime, dt, burstCount, 0, 0);
         }
     }
 
-    private initializeParticles (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext, emitterTransform: Mat4, emitterVelocity: Vec3, prevT: number, t: number,
-        dt: number, numToEmit: number, interval: number, frameOffset: number) {
+    private initializeParticles (particles: ParticleSOAData, params: ParticleSystemParams, emitterContext: ParticleEmitterContext, updateContext: ParticleUpdateContext,
+        initialVelocity: Vec3, prevTime: number, currentTime: number, dt: number, numToEmit: number, interval: number, frameOffset: number) {
         const updateModules = this.getPreUpdateModules();
         const postUpdateModules = this.getPostUpdateModules();
         const initializationModules = this.getInitializationModules();
@@ -804,38 +785,39 @@ export class ParticleSystem extends Component {
             const fromIndex = particles.count;
             particles.addParticles(numToEmit);
             const toIndex = particles.count;
-            const initialPosition = emitterTransform.getTranslation(tempPosition);
+            const initialPosition = emitterContext.emitterTransform.getTranslation(tempPosition);
+            const initialDir = Vec3.set(tempDir, emitterContext.emitterTransform.m02, emitterContext.emitterTransform.m06, emitterContext.emitterTransform.m10);
             for (let i = fromIndex; i < toIndex; i++) {
                 randomSeed[i] = randomRangeInt(0, 233280);
                 particles.setPositionAt(initialPosition, i);
+                particles.setStartDirAt(initialDir, i);
             }
             if (!approx(interval, 0)) {
                 let num = 0;
                 for (let i = fromIndex; i < toIndex; ++i) {
                     const offset = clamp01((frameOffset + num) * interval);
                     const subDt = dt * offset;
-                    const normalizeT = lerp(t, prevT, offset);
+                    const normalizeT = lerp(currentTime, prevTime, offset);
                     const nextIndex = i + 1;
                     for (let j = 0, length = initializationModules.length; j < length; j++) {
-                        initializationModules[j].update(particles, params, context, i, nextIndex, normalizeT);
+                        initializationModules[j].update(particles, params, emitterContext, i, nextIndex, normalizeT);
                     }
-                    Vec3.copy(startPositionOffset, emitterVelocity);
-                    Vec3.multiplyScalar(startPositionOffset, startPositionOffset, -subDt);
+                    Vec3.multiplyScalar(startPositionOffset, initialVelocity, -subDt);
                     particles.addPositionAt(startPositionOffset, i);
                     for (let j = 0, length = updateModules.length; j < length; j++) {
-                        updateModules[j].update(particles, params, context, i, nextIndex, subDt);
+                        updateModules[j].update(particles, params, updateContext, i, nextIndex, subDt);
                     }
                     this.updateParticleState(particles, i, nextIndex, subDt);
                     for (let j = 0, length = postUpdateModules.length; j < length; j++) {
-                        postUpdateModules[j].update(particles, params, context, i, nextIndex, subDt);
+                        postUpdateModules[j].update(particles, params, updateContext, i, nextIndex, subDt);
                     }
                     num++;
                 }
                 this.killParticlesOverMaxLifeTime(particles, originCount, particles.count);
-                this.consumeEvents(particles, params, context);
+                this.consumeEvents(particles, params, updateContext);
             } else {
                 for (let j = 0, length = initializationModules.length; j < length; j++) {
-                    initializationModules[j].update(particles, params, context, fromIndex, toIndex, t);
+                    initializationModules[j].update(particles, params, emitterContext, fromIndex, toIndex, currentTime);
                 }
             }
         }
