@@ -46,10 +46,8 @@ export class Line extends ModelRenderer {
     /**
      * @zh 显示的纹理。
      * @en Texture used.
-     * @deprecated Since v3.7.2, please use the 'mainTexture' option in material instead.
      */
     @type(Texture2D)
-    @visible(false)
     @displayOrder(0)
     @tooltip('i18n:line.texture')
     get texture () {
@@ -272,6 +270,7 @@ export class Line extends ModelRenderer {
             return;
         }
         this._attachToScene();
+        this.texture = this._texture;
         const lineModel = this._models[0] as LineModel;
         lineModel.addLineVertexData(this._positions, this.width, this.color);
     }
