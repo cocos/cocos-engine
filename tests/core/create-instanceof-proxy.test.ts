@@ -8,8 +8,10 @@ test(`createInstanceofProxy`, () => {
     } = createEssentials();
 
     // Proxies are not callable or newable.
-    expect(() => new Animal).toThrowError();
-    expect(() => new Dog).toThrowError();
+    // @ts-expect-error
+    expect(() => new Animal()).toThrowError();
+    // @ts-expect-error
+    expect(() => new Dog()).toThrowError();
 
     // `instanceof` should be available.
     const dog = createDog();
