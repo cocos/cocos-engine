@@ -58,3 +58,8 @@ vec4 saturate(vec4 value) { return vec4(saturate(value.x), saturate(value.y), sa
 
 
 // random number
+// seeds value must be between zero to one, otherwise get 0
+// such as fract(cc_time.z * FSInput_texcoord)
+float rand(vec2 seeds_zero_to_one) {
+    return fract(sin(dot(seeds_zero_to_one.xy, vec2(12.9898, 78.233))) * 43758.5453);
+}

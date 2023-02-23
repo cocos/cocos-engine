@@ -21,6 +21,9 @@
 #ifndef CC_SURFACES_TRANSFER_LOCAL_POS
   #define CC_SURFACES_TRANSFER_LOCAL_POS 0
 #endif
+#ifndef CC_SURFACES_TRANSFER_CLIP_POS
+  #define CC_SURFACES_TRANSFER_CLIP_POS 0
+#endif
 
 // force CC_SURFACES_USE_LIGHT_MAP to 0 is valid, force to 1 is invalid
 #ifndef CC_SURFACES_USE_LIGHT_MAP
