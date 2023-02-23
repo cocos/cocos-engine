@@ -30,7 +30,7 @@ import sensor from '@ohos.sensor';
 
 window.oh = {};
 
-module.exports = function systemReady () {
+export function systemReady () {
     return new Promise(resolve => {
         if (typeof XMLHttpRequest === 'undefined') {
             window.XMLHttpRequest = function () {}
