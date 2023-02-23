@@ -23,7 +23,7 @@
 */
 
 import { ccclass, help, executeInEditMode, menu, tooltip, displayOrder, type, serializable, range, visible, override, displayName } from 'cc.decorator';
-import { Material } from '../asset/assets';
+import { Material, Texture2D } from '../asset/assets';
 import { Vec3, cclegacy, Vec4, Vec2 } from '../core';
 import { LineModel } from './models/line-model';
 import { builtinResMgr } from '../asset/asset-manager';
@@ -40,6 +40,29 @@ const define = { CC_USE_WORLD_SPACE: false, CC_USE_WORLD_SCALE: true };
 @menu('Effects/Line')
 @executeInEditMode
 export class Line extends ModelRenderer {
+    @type(Texture2D)
+    private _texture = null;
+
+    /**
+     * @zh 显示的纹理。
+     * @en Texture used.
+     * @deprecated Since v3.7.2, please use the 'mainTexture' option in material instead.
+     */
+    @type(Texture2D)
+    @visible(false)
+    @displayOrder(0)
+    @tooltip('i18n:line.texture')
+    get texture () {
+        return this._texture;
+    }
+
+    set texture (val) {
+        this._texture = val;
+        if (this.material) {
+            this.material.setProperty('mainTexture', val);
+        }
+    }
+
     @type(Material)
     @displayOrder(1)
     @tooltip('i18n:line.material')
