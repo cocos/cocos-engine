@@ -47,6 +47,7 @@ class LODGroup;
 class SphereLight;
 class SpotLight;
 class PointLight;
+class RangedDirectionalLight;
 class LodStateCache;
 
 struct IRaycastResult {
@@ -94,6 +95,10 @@ public:
     void removePointLight(PointLight *);
     void removePointLights();
 
+    void addRangedDirlLight(RangedDirectionalLight *);
+    void removeRangedDirLight(RangedDirectionalLight *);
+    void removeRangedDirLights();
+
     void addModel(Model *);
     void removeModel(Model *model);
     void removeModels();
@@ -114,6 +119,7 @@ public:
     inline const ccstd::vector<IntrusivePtr<SphereLight>> &getSphereLights() const { return _sphereLights; }
     inline const ccstd::vector<IntrusivePtr<SpotLight>> &getSpotLights() const { return _spotLights; }
     inline const ccstd::vector<IntrusivePtr<PointLight>> &getPointLights() const { return _pointLights; }
+    inline const ccstd::vector<IntrusivePtr<RangedDirectionalLight>> &getRangedDirLights() const { return _rangedDirLights; }
     inline const ccstd::vector<IntrusivePtr<Model>> &getModels() const { return _models; }
     inline Octree *getOctree() const { return _octree; }
     void updateOctree(Model *model);
@@ -131,6 +137,7 @@ private:
     ccstd::vector<IntrusivePtr<SphereLight>> _sphereLights;
     ccstd::vector<IntrusivePtr<SpotLight>> _spotLights;
     ccstd::vector<IntrusivePtr<PointLight>> _pointLights;
+    ccstd::vector<IntrusivePtr<RangedDirectionalLight>> _rangedDirLights;
     ccstd::vector<DrawBatch2D *> _batches;
     Octree *_octree{nullptr};
 

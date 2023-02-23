@@ -29,6 +29,7 @@ import { Model } from '../scene/model';
 import { SphereLight } from '../scene/sphere-light';
 import { SpotLight } from '../scene/spot-light';
 import { PointLight } from '../scene/point-light';
+import { RangedDirectionalLight } from '../scene/ranged-directional-light';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { DrawBatch2D } from '../../2d/renderer/draw-batch';
 import { LODGroup } from '../scene/lod-group';
@@ -121,6 +122,14 @@ export class RenderScene {
     }
 
     /**
+     * @en All ranged directional light sources of the render scene.
+     * @zh 渲染场景管理的所有范围平行光光源。
+     */
+    get rangedDirLights (): Readonly<RangedDirectionalLight[]> {
+        return this._rangedDirLights;
+    }
+
+    /**
      * @en All active models of the render scene.
      * @zh 渲染场景管理的所有模型。
      */
@@ -153,6 +162,7 @@ export class RenderScene {
     private _sphereLights: SphereLight[] = [];
     private _spotLights: SpotLight[] = [];
     private _pointLights: PointLight[] = [];
+    private _rangedDirLights: RangedDirectionalLight[] = [];
     private _mainLight: DirectionalLight | null = null;
     private _modelId = 0;
     private _lodStateCache: LodStateCache = null!;
@@ -210,6 +220,12 @@ export class RenderScene {
             light.update();
         }
 
+        const rangedDirLights = this._rangedDirLights;
+        for (let i = 0; i < rangedDirLights.length; i++) {
+            const light = rangedDirLights[i];
+            light.update();
+        }
+
         const models = this._models;
         for (let i = 0; i < models.length; i++) {
             const model = models[i];
@@ -230,6 +246,7 @@ export class RenderScene {
         this.removeCameras();
         this.removeSphereLights();
         this.removeSpotLights();
+        this.removeRangedDirLights();
         this.removeModels();
         this.removeLODGroups();
         this._lodStateCache.clearCache();
@@ -437,6 +454,42 @@ export class RenderScene {
             this._pointLights[i].detachFromScene();
         }
         this._pointLights.length = 0;
+    }
+
+    /**
+     * @en Add a ranged directional light source.
+     * @zh 增加一个范围平行光源。
+     * @param l @en The ranged directional light. @zh 范围平行光。
+     */
+    public addRangedDirLight (l: RangedDirectionalLight) {
+        l.attachToScene(this);
+        this._rangedDirLights.push(l);
+    }
+
+    /**
+     * @en Remove a ranged directional light source.
+     * @zh 删除一个范围平行光源。
+     * @param l @en The ranged directional light. @zh 范围平行光。
+     */
+    public removeRangedDirLight (l: RangedDirectionalLight) {
+        for (let i = 0; i < this._rangedDirLights.length; ++i) {
+            if (this._rangedDirLights[i] === l) {
+                l.detachFromScene();
+                this._rangedDirLights.splice(i, 1);
+                return;
+            }
+        }
+    }
+
+    /**
+     * @en Remove all ranged directional light sources.
+     * @zh 删除所有范围平行光源。
+     */
+    public removeRangedDirLights () {
+        for (let i = 0; i < this._rangedDirLights.length; ++i) {
+            this._rangedDirLights[i].detachFromScene();
+        }
+        this._rangedDirLights.length = 0;
     }
 
     /**

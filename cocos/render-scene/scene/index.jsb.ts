@@ -91,6 +91,10 @@ export const PointLight = jsb.PointLight;
 export type PointLight = jsb.PointLight;
 cclegacy.PointLight = jsb.PointLight;
 
+export const RangedDirectionalLight = jsb.RangedDirectionalLight;
+export type RangedDirectionalLight = jsb.RangedDirectionalLight;
+cclegacy.RangedDirectionalLight = jsb.RangedDirectionalLight;
+
 /**
  * Fog related.
  */

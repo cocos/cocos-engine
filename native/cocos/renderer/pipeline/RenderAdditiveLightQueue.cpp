@@ -44,6 +44,7 @@
 #include "scene/SphereLight.h"
 #include "scene/SpotLight.h"
 #include "scene/PointLight.h"
+#include "scene/RangedDirectionalLight.h"
 
 namespace cc {
 namespace pipeline {
@@ -203,6 +204,13 @@ bool RenderAdditiveLightQueue::cullPointLight(const scene::PointLight *light, co
     return model->getWorldBounds() && !model->getWorldBounds()->aabbAabb(light->getAABB());
 }
 
+bool RenderAdditiveLightQueue::cullRangedDirLight(const scene::RangedDirectionalLight *light, const scene::Model *model) {
+    geometry::AABB rangedDirLightBoundingBox(0.0F, 0.0F, 0.0F, 0.5F, 0.5F, 0.5F);
+    light->getNode()->updateWorldTransform();
+    rangedDirLightBoundingBox.transform(light->getNode()->getWorldMatrix(), &rangedDirLightBoundingBox);
+    return model->getWorldBounds() && (!model->getWorldBounds()->aabbAabb(rangedDirLightBoundingBox));
+}
+
 void RenderAdditiveLightQueue::addRenderQueue(scene::SubModel *subModel, const scene::Model *model, scene::Pass *pass, uint32_t lightPassIdx) {
     const auto lightCount = _lightIndices.size();
     const auto batchingScheme = pass->getBatchingScheme();
@@ -298,6 +306,13 @@ void RenderAdditiveLightQueue::updateUBOs(const scene::Camera *camera, gfx::Comm
             range = pointLight->getRange();
             luminanceHDR = pointLight->getLuminanceHDR();
             luminanceLDR = pointLight->getLuminanceLDR();
+        } else if (light->getType() == scene::LightType::RANGED_DIRECTIONAL) {
+            const auto *rangedDirLight = static_cast<const scene::RangedDirectionalLight *>(light);
+            position = rangedDirLight->getPosition();
+            size = 0.0F;
+            range = 0.0F;
+            luminanceHDR = rangedDirLight->getIlluminanceHDR();
+            luminanceLDR = rangedDirLight->getIlluminanceLDR();
         }
         auto index = offset + UBOForwardLight::LIGHT_POS_OFFSET;
         _lightBufferData[index++] = position.x;
@@ -354,6 +369,28 @@ void RenderAdditiveLightQueue::updateUBOs(const scene::Camera *camera, gfx::Comm
                 _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = 0;
                 _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] = 0;
                 break;
+            case scene::LightType::RANGED_DIRECTIONAL: {
+                _lightBufferData[offset + UBOForwardLight::LIGHT_POS_OFFSET + 3] = static_cast<float>(scene::LightType::RANGED_DIRECTIONAL);
+
+                const auto *rangedDirLight = static_cast<const scene::RangedDirectionalLight *>(light);
+                const Vec3 &right = rangedDirLight->getRight();
+                _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 0] = right.x;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 1] = right.y;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = right.z;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] = 0;
+
+                const auto &direction = rangedDirLight->getDirection();
+                _lightBufferData[offset + UBOForwardLight::LIGHT_DIR_OFFSET + 0] = direction.x;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_DIR_OFFSET + 1] = direction.y;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_DIR_OFFSET + 2] = direction.z;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_DIR_OFFSET + 3] = 0;
+
+                const auto &scale = rangedDirLight->getScale();
+                _lightBufferData[offset + UBOForwardLight::LIGHT_BOUNDING_SIZE_VS_OFFSET + 0] = scale.x * 0.5F;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_BOUNDING_SIZE_VS_OFFSET + 1] = scale.y * 0.5F;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_BOUNDING_SIZE_VS_OFFSET + 2] = scale.z * 0.5F;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_BOUNDING_SIZE_VS_OFFSET + 3] = 0;
+            } break;
             default:
                 break;
         }
@@ -503,6 +540,9 @@ void RenderAdditiveLightQueue::lightCulling(const scene::Model *model) {
                 break;
             case scene::LightType::POINT:
                    isCulled = cullSphereLight(static_cast<const scene::SphereLight *>(light), model);
+                break;
+            case scene::LightType::RANGED_DIRECTIONAL:
+                   isCulled = cullRangedDirLight(static_cast<const scene::RangedDirectionalLight *>(light), model);
                 break;
             default:
                 isCulled = false;

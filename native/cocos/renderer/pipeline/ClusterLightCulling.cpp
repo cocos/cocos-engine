@@ -35,6 +35,7 @@
 #include "scene/SphereLight.h"
 #include "scene/SpotLight.h"
 #include "scene/PointLight.h"
+#include "scene/RangedDirectionalLight.h"
 
 namespace cc {
 namespace pipeline {
@@ -157,6 +158,15 @@ void ClusterLightCulling::updateLights() {
         }
     }
 
+    for (const auto &light : scene->getRangedDirLights()) {
+        geometry::AABB rangedDirLightBoundingBox(0.0F, 0.0F, 0.0F, 0.5F, 0.5F, 0.5F);
+        light->getNode()->updateWorldTransform();
+        rangedDirLightBoundingBox.transform(light->getNode()->getWorldMatrix(), &rangedDirLightBoundingBox);
+        if (rangedDirLightBoundingBox.aabbFrustum(_camera->getFrustum())) {
+            _validLights.emplace_back(static_cast<scene::Light *>(light));
+        }
+    }
+
     const auto exposure = _camera->getExposure();
     const auto validLightCount = _validLights.size();
     auto *const sceneData = _pipeline->getPipelineSceneData();
@@ -195,6 +205,13 @@ void ClusterLightCulling::updateLights() {
             range = pointLight->getRange();
             luminanceHDR = pointLight->getLuminanceHDR();
             luminanceLDR = pointLight->getLuminanceLDR();
+        } else if (light->getType() == scene::LightType::RANGED_DIRECTIONAL) {
+            const auto *rangedDirLight = static_cast<const scene::RangedDirectionalLight *>(light);
+            position = rangedDirLight->getPosition();
+            size = 0.0F;
+            range = 0.0F;
+            luminanceHDR = rangedDirLight->getIlluminanceHDR();
+            luminanceLDR = rangedDirLight->getIlluminanceLDR();
         }
 
         auto index = offset + UBOForwardLight::LIGHT_POS_OFFSET;
@@ -226,10 +243,10 @@ void ClusterLightCulling::updateLights() {
         }
 
         switch (light->getType()) {
-            case scene::LightType::SPHERE:
+            case scene::LightType::SPHERE: {
                 _lightBufferData[offset + UBOForwardLight::LIGHT_POS_OFFSET + 3] = static_cast<float>(scene::LightType::SPHERE);
                 _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = 0;
-                break;
+            } break;
             case scene::LightType::SPOT: {
                 const auto *spotLight = static_cast<const scene::SpotLight *>(light);
                 _lightBufferData[offset + UBOForwardLight::LIGHT_POS_OFFSET + 3] = static_cast<float>(scene::LightType::SPOT);
@@ -241,11 +258,27 @@ void ClusterLightCulling::updateLights() {
                 _lightBufferData[index++] = direction.y;
                 _lightBufferData[index] = direction.z;
             } break;
-            case scene::LightType::POINT:
+            case scene::LightType::POINT: {
                 _lightBufferData[offset + UBOForwardLight::LIGHT_POS_OFFSET + 3] = static_cast<float>(scene::LightType::POINT);
                 _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = 0;
                 _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] = 0;
-                break;
+            } break;
+            case scene::LightType::RANGED_DIRECTIONAL: {
+                const auto *rangedDirLight = static_cast<scene::RangedDirectionalLight *>(light);
+                _lightBufferData[offset + UBOForwardLight::LIGHT_POS_OFFSET + 3] = static_cast<float>(scene::LightType::RANGED_DIRECTIONAL);
+                _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 0] = rangedDirLight->getRight().x;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 1] = rangedDirLight->getRight().y;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = rangedDirLight->getRight().z;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] = 0.0F;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_DIR_OFFSET + 0] = rangedDirLight->getDirection().x;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_DIR_OFFSET + 1] = rangedDirLight->getDirection().y;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_DIR_OFFSET + 2] = rangedDirLight->getDirection().z;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_DIR_OFFSET + 3] = 0.0F;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_BOUNDING_SIZE_VS_OFFSET + 0] = rangedDirLight->getScale().x * 0.5F;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_BOUNDING_SIZE_VS_OFFSET + 1] = rangedDirLight->getScale().y * 0.5F;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_BOUNDING_SIZE_VS_OFFSET + 2] = rangedDirLight->getScale().z * 0.5F;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_BOUNDING_SIZE_VS_OFFSET + 3] = 0.0F;
+            } break;
             default:
                 break;
         }

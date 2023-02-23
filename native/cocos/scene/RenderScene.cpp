@@ -43,6 +43,7 @@
 #include "scene/SphereLight.h"
 #include "scene/SpotLight.h"
 #include "scene/PointLight.h"
+#include "scene/RangedDirectionalLight.h"
 
 namespace cc {
 namespace scene {
@@ -171,6 +172,9 @@ void RenderScene::update(uint32_t stamp) {
         light->update();
     }
     for (const auto &light : _pointLights) {
+        light->update();
+    }
+    for (const auto &light : _rangedDirLights) {
         light->update();
     }
     for (const auto &model : _models) {
@@ -309,6 +313,26 @@ void RenderScene::removePointLights() {
         pointLight->detachFromScene();
     }
     _pointLights.clear();
+}
+
+void RenderScene::addRangedDirlLight(RangedDirectionalLight *rangedDirLight) {
+    _rangedDirLights.emplace_back(rangedDirLight);
+}
+
+void RenderScene::removeRangedDirLight(RangedDirectionalLight *rangedDirLight) {
+    const auto iter = std::find(_rangedDirLights.begin(), _rangedDirLights.end(), rangedDirLight);
+    if (iter != _rangedDirLights.end()) {
+        _rangedDirLights.erase(iter);
+    } else {
+        CC_LOG_WARNING("Try to remove invalid ranged directional light.");
+    }
+}
+
+void RenderScene::removeRangedDirLights() {
+    for (const auto &rangedDirLight : _rangedDirLights) {
+        rangedDirLight->detachFromScene();
+    }
+    _rangedDirLights.clear();
 }
 
 void RenderScene::addModel(Model *model) {

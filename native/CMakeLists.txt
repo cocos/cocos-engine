@@ -1433,6 +1433,8 @@ cocos_source_files(
                  cocos/scene/SpotLight.cpp
                  cocos/scene/PointLight.h
                  cocos/scene/PointLight.cpp
+                 cocos/scene/RangedDirectionalLight.h
+                 cocos/scene/RangedDirectionalLight.cpp
                  cocos/scene/SubModel.h
                  cocos/scene/SubModel.cpp
                  cocos/scene/Octree.h
