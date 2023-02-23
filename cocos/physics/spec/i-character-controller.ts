@@ -28,11 +28,12 @@ import { IVec3Like } from '../../core';
 import { CharacterController } from '../framework/components/character-controllers/character-controller';
 //import { ERigidBodyType } from '../framework';
 
-export interface IBaseCharacterController extends ILifecycle{//}, IGroupMask {
+export interface IBaseCharacterController extends ILifecycle, IGroupMask {
     //readonly impl: any;
     //readonly characterController: CharacterController;
 
     initialize (v: CharacterController): boolean;
+    updateEventListener: () => void;
     onGround(): boolean;
     getPosition (out: IVec3Like): void;
     setPosition (value: IVec3Like): void;

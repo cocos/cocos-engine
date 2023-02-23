@@ -24,11 +24,12 @@
 
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { error, IVec3Like, Vec3 } from '../../../core';
-import { boolean } from '../../../core/data/decorators';
-import { PhysicsSystem, Collider, EColliderType, CapsuleCollider, BoxCollider } from '../../framework';
+import { boolean, group } from '../../../core/data/decorators';
+import { PhysicsSystem, Collider, EColliderType, CapsuleCollider, BoxCollider, PhysicsGroup } from '../../framework';
 import { CharacterController } from '../../framework/components/character-controllers/character-controller';
 import { IBaseCharacterController } from '../../spec/i-character-controller';
 import { createBoxCharacterController, PX, _trans } from '../physx-adapter';
+import { EFilterDataWord3 } from '../physx-enum';
 import { PhysXInstance } from '../physx-instance';
 import { PhysXWorld } from '../physx-world';
 
@@ -38,16 +39,31 @@ export class PhysXCharacterController implements IBaseCharacterController {
     protected _impl: any = null;
     protected _comp: CharacterController = null as any;
     private _pxLastCollisionFlags = 0;//: PX.PxControllerCollisionFlags;
+    private _filterData: any;
+    protected _word3 = 0;
 
     get isEnabled (): boolean { return this._isEnabled; }
     get impl (): any { return this._impl; }
     get characterController (): CharacterController { return this._comp; }
+
+    get filterData () {
+        return this._filterData;
+    }
+
+    constructor () {
+        this._filterData = { word0: 1, word1: 1, word2: 0, word3: 0 };
+    }
 
     // virtual
     protected onComponentSet (): void { }
 
     initialize (comp: CharacterController): boolean {
         this._comp = comp;
+
+        const group = this._comp.group;
+        this._filterData.word0 = this._comp.group;
+        const mask = PhysicsSystem.instance.collisionMatrix[group];
+        this._filterData.word1 = mask;
 
         this.onComponentSet();
 
@@ -56,7 +72,6 @@ export class PhysXCharacterController implements IBaseCharacterController {
             return false;
         } else {
             (PhysicsSystem.instance.physicsWorld as PhysXWorld).addCCT(this);
-            //this._filterData = { word0: 1, word1: 1, word2: 0, word3: 0 };
             return true;
         }
     }
@@ -165,11 +180,77 @@ export class PhysXCharacterController implements IBaseCharacterController {
         // this.getPosition(pos);
         // console.log('before move pos', pos.x, pos.y, pos.z);
 
-        this._pxLastCollisionFlags = this._impl.move(movement, minDist, elapsedTime);
+        this._pxLastCollisionFlags = this._impl.move(movement, minDist, elapsedTime, this.filterData);
 
         // //debug
         // this.getPosition(pos);
         // console.log('after move pos', pos.x, pos.y, pos.z);
         // console.log('this.onGround():', this.onGround());
+    }
+
+    setGroup (v: number): void {
+        v >>>= 0; //convert to unsigned int(32bit) for physx
+        this._filterData.word0 = v;
+        this.updateFilterData();
+    }
+
+    getGroup (): number {
+        return this._filterData.word0;
+    }
+
+    addGroup (v: number): void {
+        v >>>= 0; //convert to unsigned int(32bit) for physx
+        this._filterData.word0 |= v;
+        this.updateFilterData();
+    }
+
+    removeGroup (v: number): void {
+        v >>>= 0; //convert to unsigned int(32bit) for physx
+        this._filterData.word0 &= ~v;
+        this.updateFilterData();
+    }
+
+    setMask (v: number): void {
+        v >>>= 0; //convert to unsigned int(32bit) for physx
+        this._filterData.word1 = v;
+        this.updateFilterData();
+    }
+
+    getMask (): number {
+        return this._filterData.word1;
+    }
+
+    addMask (v: number): void {
+        v >>>= 0; //convert to unsigned int(32bit) for physx
+        this._filterData.word1 |= v;
+        this.updateFilterData();
+    }
+
+    removeMask (v: number): void {
+        v >>>= 0; //convert to unsigned int(32bit) for physx
+        this._filterData.word1 &= ~v;
+        this.updateFilterData();
+    }
+
+    updateFilterData () {
+        this._filterData.word3 = EFilterDataWord3.DETECT_CONTACT_CCD;
+        if (this._comp.needTriggerEvent) {
+            this._filterData.word3 |= EFilterDataWord3.DETECT_TRIGGER_EVENT;
+        }
+        if (this._comp.needCollisionEvent) {
+            this._filterData.word3 |= EFilterDataWord3.DETECT_CONTACT_EVENT | EFilterDataWord3.DETECT_CONTACT_POINT;
+        }
+        //filterData.word2 = this.id;
+        //.word3 = this._word3;
+        //this.setFilerData(filterData);
+    }
+
+    setFilerData (filterData: any) {
+        // this._impl.setQueryFilterData(filterData);
+        // this._impl.setSimulationFilterData(filterData);
+    }
+
+    updateEventListener () {
+        this.updateFilterData();
     }
 }
