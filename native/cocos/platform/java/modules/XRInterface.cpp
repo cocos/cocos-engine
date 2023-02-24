@@ -1009,4 +1009,32 @@ void XRInterface::loadAssetsImage(const std::string &imageInfo) {
     });
 }
 
+void XRInterface::handleAppCommand(int appCmd) {
+#if CC_USE_XR
+    setXRConfig(xr::XRConfigKey::APP_COMMAND, appCmd);
+#else
+    CC_UNUSED_PARAM(appCmd);
+#endif
+}
+#if CC_USE_XR
+
+extern "C" JNIEXPORT void JNICALL Java_com_cocos_lib_xr_CocosXRApi_onAdbCmd(JNIEnv * /*env*/, jobject  /*thiz*/, jstring key, jstring value) {
+    auto cmdKey = cc::JniHelper::jstring2string(key);
+    auto cmdValue = cc::JniHelper::jstring2string(value);
+    if (IS_ENABLE_XR_LOG) {
+        CC_LOG_INFO("CocosXRApi_onAdbCmd_%s_%s", cmdKey.c_str(), cmdValue.c_str());
+    }
+    cc::xr::XrEntry::getInstance()->setXRConfig(cc::xr::XRConfigKey::ADB_COMMAND, cmdKey.append(":").append(cmdValue));
+}
+
+extern "C" JNIEXPORT void JNICALL Java_com_cocos_lib_xr_CocosXRApi_onActivityLifecycleCallback(JNIEnv * /*env*/, jobject  /*thiz*/, jint type, jstring activityClassName) {
+    auto name = cc::JniHelper::jstring2string(activityClassName);
+    if (IS_ENABLE_XR_LOG) {
+        CC_LOG_INFO("CocosXRApi_onActivityLifecycleCallback_%d_%s", type, name.c_str());
+    }
+    cc::xr::XrEntry::getInstance()->setXRConfig(cc::xr::XRConfigKey::ACTIVITY_LIFECYCLE, type);
+    cc::xr::XrEntry::getInstance()->setXRConfig(cc::xr::XRConfigKey::ACTIVITY_LIFECYCLE, name);
+}
+
+#endif
 } // namespace cc

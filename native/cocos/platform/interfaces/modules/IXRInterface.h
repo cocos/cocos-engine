@@ -316,5 +316,12 @@ public:
      * @param eye
      */
     virtual void bindXREyeWithRenderWindow(void *window, xr::XREye eye) = 0;
+
+    /**
+     * @en app's lifecycle callback
+     * @zh 应用程序生命周期回调
+     * @param appCmd
+     */
+    virtual void handleAppCommand(int appCmd) = 0;
 };
 } // namespace cc

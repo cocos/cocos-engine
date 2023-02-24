@@ -376,7 +376,7 @@ public:
             }
             case APP_CMD_DESTROY: {
                 CC_LOG_INFO("AndroidPlatform: APP_CMD_DESTROY");
-                IXRInterface *xr = _androidPlatform->getInterface<IXRInterface>();
+                IXRInterface *xr = CC_GET_XR_INTERFACE();
                 if (xr) {
                     xr->onRenderDestroy();
                 }
@@ -532,6 +532,11 @@ int AndroidPlatform::init() {
     cc::FileUtilsAndroid::setAssetManager(_app->activity->assetManager);
     _inputProxy = ccnew GameInputProxy(this);
     _inputProxy->registerAppEventCallback([this](int32_t cmd) {
+        IXRInterface *xr = CC_GET_XR_INTERFACE();
+        if (xr) {
+            xr->handleAppCommand(cmd);
+        }
+
         if (APP_CMD_START == cmd || APP_CMD_INIT_WINDOW == cmd) {
             if (_inputProxy->isAnimating()) {
                 _isLowFrequencyLoopEnabled = false;
@@ -541,7 +546,6 @@ int AndroidPlatform::init() {
             _lowFrequencyTimer.reset();
             _loopTimeOut = LOW_FREQUENCY_TIME_INTERVAL;
             _isLowFrequencyLoopEnabled = true;
-            IXRInterface *xr = getInterface<IXRInterface>();
             if (xr && !xr->getXRConfig(xr::XRConfigKey::INSTANCE_CREATED).getBool()) {
                 // xr will sleep,  -1 we will block forever waiting for events.
                 _loopTimeOut = -1;
@@ -584,7 +588,7 @@ int32_t AndroidPlatform::run(int /*argc*/, const char ** /*argv*/) {
 }
 
 int32_t AndroidPlatform::loop() {
-    IXRInterface *xr = getInterface<IXRInterface>();
+    IXRInterface *xr = CC_GET_XR_INTERFACE();
     while (true) {
         int events;
         struct android_poll_source *source;
