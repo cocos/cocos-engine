@@ -159,6 +159,8 @@ class DeviceBuffer extends DeviceResource {
 
 const _vec4Array = new Float32Array(4);
 class BlitDesc {
+    private _isUpdate = false;
+    private _isGatherLight = false;
     private _blit: Blit;
     private _screenQuad: PipelineInputAssemblerData | null = null;
     private _queue: DeviceRenderQueue | null = null;
@@ -282,10 +284,20 @@ class BlitDesc {
     }
     update () {
         if (this.blit.sceneFlags & SceneFlags.VOLUMETRIC_LIGHTING
-            && this.blit.camera) {
+            && this.blit.camera && !this._isGatherLight) {
             this._gatherVolumeLights(this.blit.camera);
+            this._isGatherLight = true;
+            this._isUpdate = false;
         }
-        this._stageDesc!.update();
+        if (!this._isUpdate) {
+            this._stageDesc!.update();
+            this._isUpdate = true;
+        }
+    }
+
+    reset () {
+        this._isUpdate = false;
+        this._isGatherLight = false;
     }
 
     createStageDescriptor () {
@@ -318,6 +330,9 @@ class DeviceRenderQueue {
     private _hint: QueueHint =  QueueHint.NONE;
     private _phaseID: number = getPhaseID('default');
     private _renderPhase: RenderPhaseData | null = null;
+    private _isUpdateUBO = false;
+    private _isUploadInstance = false;
+    private _isUploadBatched = false;
     protected _transversal: DeviceSceneTransversal | null = null;
     get phaseID (): number { return this._phaseID; }
     get renderPhase (): RenderPhaseData | null { return this._renderPhase; }
@@ -327,6 +342,12 @@ class DeviceRenderQueue {
     private _queueId = -1;
     set queueId (val) { this._queueId = val; }
     get queueId () { return this._queueId; }
+    set isUpdateUBO (update: boolean) { this._isUpdateUBO = update; }
+    get isUpdateUBO () { return this._isUpdateUBO; }
+    set isUploadInstance (value: boolean) { this._isUploadInstance = value; }
+    get isUploadInstance () { return this._isUploadInstance; }
+    set isUploadBatched (value: boolean) { this._isUploadBatched = value; }
+    get isUploadBatched () { return this._isUploadBatched; }
     init (devicePass: DeviceRenderPass, queueHint: QueueHint, id: number) {
         this.reset();
         this.queueHint = queueHint;
@@ -355,6 +376,10 @@ class DeviceRenderQueue {
     }
     reset () {
         this._postSceneTasks.length = this._preSceneTasks.length = this._sceneTasks.length = 0;
+        this._isUpdateUBO = false;
+        this._isUploadInstance = false;
+        this._isUploadBatched = false;
+        this._blitDesc?.reset();
     }
     get blitDesc () { return this._blitDesc; }
     get sceneTasks () { return this._sceneTasks; }
@@ -989,14 +1014,17 @@ class DevicePreSceneTask extends WebSceneTask {
     }
 
     private _uploadInstanceBuffers () {
+        if (this._currentQueue.isUploadInstance) return;
         const it = this._submitInfo!.instances.values(); let res = it.next();
         while (!res.done) {
             if (res.value.hasPendingModels) res.value.uploadBuffers(this._cmdBuff);
             res = it.next();
         }
+        this._currentQueue.isUploadInstance = true;
     }
 
     private _uploadBatchedBuffers () {
+        if (this._currentQueue.isUploadBatched) return;
         const it = this._submitInfo!.batches.values(); let res = it.next();
         while (!res.done) {
             for (let b = 0; b < res.value.batches.length; ++b) {
@@ -1010,6 +1038,7 @@ class DevicePreSceneTask extends WebSceneTask {
             }
             res = it.next();
         }
+        this._currentQueue.isUploadBatched = true;
     }
 
     private _isShadowMap () {
@@ -1046,6 +1075,7 @@ class DevicePreSceneTask extends WebSceneTask {
     }
 
     protected _updateUbo () {
+        if (this._currentQueue.isUpdateUBO) return;
         const devicePass = this._currentQueue.devicePass;
         const context = devicePass.context;
         const rasterId = devicePass.rasterPassInfo.id;
@@ -1062,6 +1092,7 @@ class DevicePreSceneTask extends WebSceneTask {
             const descSetData = getDescriptorSetDataFromLayout(layoutName);
             mergeSrcToTargetDesc(descSetData!.descriptorSet, context.pipeline.descriptorSet, true);
         }
+        this._currentQueue.isUpdateUBO = true;
     }
 
     public submit () {
@@ -1073,7 +1104,6 @@ class DevicePreSceneTask extends WebSceneTask {
         if (this._isShadowMap()) {
             return;
         }
-
         this._uploadInstanceBuffers();
         this._uploadBatchedBuffers();
     }
