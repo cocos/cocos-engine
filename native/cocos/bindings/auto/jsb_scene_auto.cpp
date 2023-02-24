@@ -516,6 +516,18 @@ using namespace cc;
 #define cc_scene_PointLight_aabb_get(self_) self_->getAABB()
   
 
+#define cc_scene_RangedDirectionalLight_illuminance_get(self_) self_->getIlluminance()
+#define cc_scene_RangedDirectionalLight_illuminance_set(self_, val_) self_->setIlluminance(val_)
+  
+
+#define cc_scene_RangedDirectionalLight_illuminanceHDR_get(self_) self_->getIlluminanceHDR()
+#define cc_scene_RangedDirectionalLight_illuminanceHDR_set(self_, val_) self_->setIlluminanceHDR(val_)
+  
+
+#define cc_scene_RangedDirectionalLight_illuminanceLDR_get(self_) self_->getIlluminanceLDR()
+#define cc_scene_RangedDirectionalLight_illuminanceLDR_set(self_, val_) self_->setIlluminanceLDR(val_)
+  
+
 #define cc_scene_Camera_iso_get(self_) self_->getIso()
 #define cc_scene_Camera_iso_set(self_, val_) self_->setIso(val_)
   
@@ -672,6 +684,9 @@ using namespace cc;
   
 
 #define cc_scene_RenderScene_pointLights_get(self_) self_->getPointLights()
+  
+
+#define cc_scene_RenderScene_rangedDirLights_get(self_) self_->getRangedDirLights()
   
 
 #define cc_scene_RenderScene_models_get(self_) self_->getModels()
@@ -13547,6 +13562,272 @@ bool js_register_cc_scene_PointLight(se::Object* obj) {
 }
 
 
+se::Class* __jsb_cc_scene_RangedDirectionalLight_class = nullptr;
+se::Object* __jsb_cc_scene_RangedDirectionalLight_proto = nullptr;
+SE_DECLARE_FINALIZE_FUNC(js_delete_cc_scene_RangedDirectionalLight) 
+
+static bool js_new_cc_scene_RangedDirectionalLight(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    
+    cc::scene::RangedDirectionalLight *result;
+    result = (cc::scene::RangedDirectionalLight *)new cc::scene::RangedDirectionalLight();
+    
+    
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+SE_BIND_CTOR(js_new_cc_scene_RangedDirectionalLight, __jsb_cc_scene_RangedDirectionalLight_class, js_delete_cc_scene_RangedDirectionalLight)
+
+static bool js_delete_cc_scene_RangedDirectionalLight(se::State& s)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_delete_cc_scene_RangedDirectionalLight) 
+
+static bool js_cc_scene_RangedDirectionalLight_getDirection(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::RangedDirectionalLight *arg1 = (cc::scene::RangedDirectionalLight *) NULL ;
+    cc::Vec3 *result = 0 ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::RangedDirectionalLight>(s);
+    if (nullptr == arg1) return true;
+    result = (cc::Vec3 *) &((cc::scene::RangedDirectionalLight const *)arg1)->getDirection();
+    
+    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_RangedDirectionalLight_getDirection) 
+
+static bool js_cc_scene_RangedDirectionalLight_getPosition(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::RangedDirectionalLight *arg1 = (cc::scene::RangedDirectionalLight *) NULL ;
+    cc::Vec3 *result = 0 ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::RangedDirectionalLight>(s);
+    if (nullptr == arg1) return true;
+    result = (cc::Vec3 *) &((cc::scene::RangedDirectionalLight const *)arg1)->getPosition();
+    
+    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_RangedDirectionalLight_getPosition) 
+
+static bool js_cc_scene_RangedDirectionalLight_getScale(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::RangedDirectionalLight *arg1 = (cc::scene::RangedDirectionalLight *) NULL ;
+    cc::Vec3 *result = 0 ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::RangedDirectionalLight>(s);
+    if (nullptr == arg1) return true;
+    result = (cc::Vec3 *) &((cc::scene::RangedDirectionalLight const *)arg1)->getScale();
+    
+    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_RangedDirectionalLight_getScale) 
+
+static bool js_cc_scene_RangedDirectionalLight_getRight(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::RangedDirectionalLight *arg1 = (cc::scene::RangedDirectionalLight *) NULL ;
+    cc::Vec3 *result = 0 ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::RangedDirectionalLight>(s);
+    if (nullptr == arg1) return true;
+    result = (cc::Vec3 *) &((cc::scene::RangedDirectionalLight const *)arg1)->getRight();
+    
+    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_RangedDirectionalLight_getRight) 
+
+static bool js_cc_scene_RangedDirectionalLight_illuminance_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::RangedDirectionalLight *arg1 = (cc::scene::RangedDirectionalLight *) NULL ;
+    float arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::RangedDirectionalLight>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    cc_scene_RangedDirectionalLight_illuminance_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_scene_RangedDirectionalLight_illuminance_set) 
+
+static bool js_cc_scene_RangedDirectionalLight_illuminance_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::scene::RangedDirectionalLight *arg1 = (cc::scene::RangedDirectionalLight *) NULL ;
+    float result;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::RangedDirectionalLight>(s);
+    if (nullptr == arg1) return true;
+    result = (float)cc_scene_RangedDirectionalLight_illuminance_get(arg1);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_scene_RangedDirectionalLight_illuminance_get) 
+
+static bool js_cc_scene_RangedDirectionalLight_illuminanceHDR_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::RangedDirectionalLight *arg1 = (cc::scene::RangedDirectionalLight *) NULL ;
+    float arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::RangedDirectionalLight>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    cc_scene_RangedDirectionalLight_illuminanceHDR_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_scene_RangedDirectionalLight_illuminanceHDR_set) 
+
+static bool js_cc_scene_RangedDirectionalLight_illuminanceHDR_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::scene::RangedDirectionalLight *arg1 = (cc::scene::RangedDirectionalLight *) NULL ;
+    float result;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::RangedDirectionalLight>(s);
+    if (nullptr == arg1) return true;
+    result = (float)cc_scene_RangedDirectionalLight_illuminanceHDR_get(arg1);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_scene_RangedDirectionalLight_illuminanceHDR_get) 
+
+static bool js_cc_scene_RangedDirectionalLight_illuminanceLDR_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::RangedDirectionalLight *arg1 = (cc::scene::RangedDirectionalLight *) NULL ;
+    float arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::RangedDirectionalLight>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    cc_scene_RangedDirectionalLight_illuminanceLDR_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_scene_RangedDirectionalLight_illuminanceLDR_set) 
+
+static bool js_cc_scene_RangedDirectionalLight_illuminanceLDR_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::scene::RangedDirectionalLight *arg1 = (cc::scene::RangedDirectionalLight *) NULL ;
+    float result;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::RangedDirectionalLight>(s);
+    if (nullptr == arg1) return true;
+    result = (float)cc_scene_RangedDirectionalLight_illuminanceLDR_get(arg1);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_scene_RangedDirectionalLight_illuminanceLDR_get) 
+
+bool js_register_cc_scene_RangedDirectionalLight(se::Object* obj) {
+    auto* cls = se::Class::create("RangedDirectionalLight", obj, __jsb_cc_scene_Light_proto, _SE(js_new_cc_scene_RangedDirectionalLight)); 
+    
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
+    cls->defineProperty("illuminance", _SE(js_cc_scene_RangedDirectionalLight_illuminance_get), _SE(js_cc_scene_RangedDirectionalLight_illuminance_set)); 
+    cls->defineProperty("illuminanceHDR", _SE(js_cc_scene_RangedDirectionalLight_illuminanceHDR_get), _SE(js_cc_scene_RangedDirectionalLight_illuminanceHDR_set)); 
+    cls->defineProperty("illuminanceLDR", _SE(js_cc_scene_RangedDirectionalLight_illuminanceLDR_get), _SE(js_cc_scene_RangedDirectionalLight_illuminanceLDR_set)); 
+    
+    cls->defineFunction("getDirection", _SE(js_cc_scene_RangedDirectionalLight_getDirection)); 
+    cls->defineFunction("getPosition", _SE(js_cc_scene_RangedDirectionalLight_getPosition)); 
+    cls->defineFunction("getScale", _SE(js_cc_scene_RangedDirectionalLight_getScale)); 
+    cls->defineFunction("getRight", _SE(js_cc_scene_RangedDirectionalLight_getRight)); 
+    
+    
+    
+    
+    cls->defineFinalizeFunction(_SE(js_delete_cc_scene_RangedDirectionalLight));
+    
+    
+    cls->install();
+    JSBClassType::registerClass<cc::scene::RangedDirectionalLight>(cls);
+    
+    __jsb_cc_scene_RangedDirectionalLight_proto = cls->getProto();
+    __jsb_cc_scene_RangedDirectionalLight_class = cls;
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+
 se::Class* __jsb_cc_scene_Model_class = nullptr;
 se::Object* __jsb_cc_scene_Model_proto = nullptr;
 SE_DECLARE_FINALIZE_FUNC(js_delete_cc_scene_Model) 
@@ -19799,6 +20080,74 @@ static bool js_cc_scene_RenderScene_removePointLights(se::State& s)
 }
 SE_BIND_FUNC(js_cc_scene_RenderScene_removePointLights) 
 
+static bool js_cc_scene_RenderScene_addRangedDirlLight(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::RenderScene *arg1 = (cc::scene::RenderScene *) NULL ;
+    cc::scene::RangedDirectionalLight *arg2 = (cc::scene::RangedDirectionalLight *) NULL ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    (arg1)->addRangedDirlLight(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_RenderScene_addRangedDirlLight) 
+
+static bool js_cc_scene_RenderScene_removeRangedDirLight(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::RenderScene *arg1 = (cc::scene::RenderScene *) NULL ;
+    cc::scene::RangedDirectionalLight *arg2 = (cc::scene::RangedDirectionalLight *) NULL ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    (arg1)->removeRangedDirLight(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_RenderScene_removeRangedDirLight) 
+
+static bool js_cc_scene_RenderScene_removeRangedDirLights(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::RenderScene *arg1 = (cc::scene::RenderScene *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
+    if (nullptr == arg1) return true;
+    (arg1)->removeRangedDirLights();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_RenderScene_removeRangedDirLights) 
+
 static bool js_cc_scene_RenderScene_addModel(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -20103,6 +20452,25 @@ static bool js_cc_scene_RenderScene_pointLights_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_scene_RenderScene_pointLights_get) 
 
+static bool js_cc_scene_RenderScene_rangedDirLights_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::scene::RenderScene *arg1 = (cc::scene::RenderScene *) NULL ;
+    ccstd::vector< cc::IntrusivePtr< cc::scene::RangedDirectionalLight > > *result = 0 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
+    if (nullptr == arg1) return true;
+    result = (ccstd::vector< cc::IntrusivePtr< cc::scene::RangedDirectionalLight > > *) &cc_scene_RenderScene_rangedDirLights_get(arg1);
+    
+    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_scene_RenderScene_rangedDirLights_get) 
+
 static bool js_cc_scene_RenderScene_models_get(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -20150,6 +20518,7 @@ bool js_register_cc_scene_RenderScene(se::Object* obj) {
     cls->defineProperty("sphereLights", _SE(js_cc_scene_RenderScene_sphereLights_get), nullptr); 
     cls->defineProperty("spotLights", _SE(js_cc_scene_RenderScene_spotLights_get), nullptr); 
     cls->defineProperty("pointLights", _SE(js_cc_scene_RenderScene_pointLights_get), nullptr); 
+    cls->defineProperty("rangedDirLights", _SE(js_cc_scene_RenderScene_rangedDirLights_get), nullptr); 
     cls->defineProperty("models", _SE(js_cc_scene_RenderScene_models_get), nullptr); 
     cls->defineProperty("lodGroups", _SE(js_cc_scene_RenderScene_lodGroups_get), nullptr); 
     
@@ -20175,6 +20544,9 @@ bool js_register_cc_scene_RenderScene(se::Object* obj) {
     cls->defineFunction("addPointLight", _SE(js_cc_scene_RenderScene_addPointLight)); 
     cls->defineFunction("removePointLight", _SE(js_cc_scene_RenderScene_removePointLight)); 
     cls->defineFunction("removePointLights", _SE(js_cc_scene_RenderScene_removePointLights)); 
+    cls->defineFunction("addRangedDirlLight", _SE(js_cc_scene_RenderScene_addRangedDirlLight)); 
+    cls->defineFunction("removeRangedDirLight", _SE(js_cc_scene_RenderScene_removeRangedDirLight)); 
+    cls->defineFunction("removeRangedDirLights", _SE(js_cc_scene_RenderScene_removeRangedDirLights)); 
     cls->defineFunction("addModel", _SE(js_cc_scene_RenderScene_addModel)); 
     cls->defineFunction("removeModel", _SE(js_cc_scene_RenderScene_removeModel)); 
     cls->defineFunction("removeModels", _SE(js_cc_scene_RenderScene_removeModels)); 
@@ -28550,6 +28922,7 @@ bool register_all_scene(se::Object* obj) {
     js_register_cc_scene_SpotLight(ns); 
     js_register_cc_scene_SphereLight(ns); 
     js_register_cc_scene_PointLight(ns); 
+    js_register_cc_scene_RangedDirectionalLight(ns); 
     js_register_cc_scene_Model(ns); 
     js_register_cc_scene_InstancedAttributeBlock(ns); 
     js_register_cc_scene_SubModel(ns); 
