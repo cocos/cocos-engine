@@ -811,7 +811,7 @@ export class Game extends EventTarget {
                 return this.onPostSubsystemInitDelegate.dispatch();
             })
             .then(() => {
-                console.log(`This is Cocos Creator v${VERSION}, with you.`);
+                console.log(`Here is Cocos Creator v${VERSION}, with you.`);
                 this.emit(Game.EVENT_ENGINE_INITED);
                 this._engineInited = true;
             })
