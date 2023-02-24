@@ -969,7 +969,7 @@ export class ParticleSystem2D extends UIRenderer {
                 if (textureData && textureData.length > 0) {
                     let imgPathName = imgPath;
                     if (this.file) {
-                        imgPathName += this.file.name;
+                        imgPathName = this.file.uuid;
                     }
                     let imageAsset = assetManager.assets.get(imgPathName) as ImageAsset;
 
