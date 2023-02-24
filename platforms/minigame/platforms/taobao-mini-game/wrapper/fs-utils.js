@@ -244,9 +244,8 @@ var fsUtils = {
                 onComplete && onComplete(new Error(`Failed to load subpackage ${name}: ${res.errorMessage}`));
             },
         });
-        task = task || {};
         // onProgress && task.onProgressUpdate(onProgress);
-        return task;
+        return {};
     },
 
     unzip (zipFilePath, targetPath, onComplete) {
