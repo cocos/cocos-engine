@@ -24,7 +24,7 @@
  THE SOFTWARE.
  */
 
-import { ccclass, tooltip, displayOrder, range, type, radian, serializable, visible } from 'cc.decorator';
+import { ccclass, tooltip, displayOrder, range, type, radian, serializable, visible, displayName } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
 import { Mat4, pseudoRandom, Quat, Vec4, Vec3, lerp } from '../../core/math';
 import { ParticleModule, ParticleUpdateStage, UpdateModule } from '../particle-module';

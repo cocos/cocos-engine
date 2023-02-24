@@ -317,13 +317,13 @@ export class NoiseModule extends UpdateModule {
                     pos.add3f(offsetX, offsetY, offsetZ);
                     Vec3.set(sample3D, pos.y, pos.x + 100, pos.z + scrollOffset);
                     Vec3.multiplyScalar(sample3D, sample3D, frequency);
-                    noiseX[i] = perlinNoise3D(sample3D);
+                    noiseX[i] = perlinNoise3D(sample3D, frequency);
                     Vec3.set(sample3D, pos.z, pos.y, pos.x + scrollOffset);
                     Vec3.multiplyScalar(sample3D, sample3D, frequency);
-                    noiseY[i] = perlinNoise3D(sample3D);
+                    noiseY[i] = perlinNoise3D(sample3D, frequency);
                     Vec3.set(sample3D, pos.x + 100, pos.z, pos.y + scrollOffset);
                     Vec3.multiplyScalar(sample3D, sample3D, frequency);
-                    noiseZ[i] = perlinNoise3D(sample3D);
+                    noiseZ[i] = perlinNoise3D(sample3D, frequency);
                 }
             } else if (this.quality === Quality.MIDDLE) {
                 for (let i = fromIndex; i < toIndex; i++) {

@@ -60,11 +60,15 @@ function grad3 (hash: number, x: number, y: number, z: number) {
     }
 }
 
+const gradients3D = [
+
+];
+
 function smooth (t: number) { return t * t * t * (t * (t * 6 - 15) + 10); }
 function smoothDerivative (t: number) { return 30 * t * t * (t * (t - 2) + 1); }
 
 const samplePoint = new Vec3();
-export function perlinNoise3D (outDerivative: Vec2, position: Vec3, frequency: number) {
+export function perlin3D (outDerivative: Vec2, position: Vec3, frequency: number) {
     Vec3.multiplyScalar(samplePoint, position, frequency);
     let { x, y, z } = samplePoint;
     const XF = Math.floor(x);
