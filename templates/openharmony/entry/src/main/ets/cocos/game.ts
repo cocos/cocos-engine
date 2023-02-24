@@ -24,12 +24,12 @@
 ****************************************************************************/
 import importMap from './src/<%= importMapUrl%>'
 const commonJSModuleMap: Record<string, Function> = {
-    '/src/<%= applicationUrl%>'() { require('./src/<%= applicationUrl%>'); },
+    '/src/<%= applicationUrl%>'() { return import('./src/<%= applicationUrl%>'); },
 <% if (chunkBundleUrl) { %>
-    '/src/chunks/<%= chunkBundleUrl%>'() { require('./src/chunks/<%= chunkBundleUrl%>') },
+    '/src/chunks/<%= chunkBundleUrl%>'() { return import('./src/chunks/<%= chunkBundleUrl%>') },
 <% }  %> 
 <% for (var j = 0; j < bundleJsList.length; j++) {%> 
-    'assets/<%=bundleJsList[j]%>' () { require('./assets/<%=bundleJsList[j]%>'); },
+    'assets/<%=bundleJsList[j]%>' () { return import('./assets/<%=bundleJsList[j]%>'); },
 <% } %>
     '/src/<%= systemCCUrl%>' () { return import('./src/<%= systemCCUrl%>'); },
     '/src/settings.js' () { return import('./src/settings.js'); },
