@@ -28,18 +28,20 @@ import { boolean, group } from '../../../core/data/decorators';
 import { PhysicsSystem, Collider, EColliderType, CapsuleCollider, BoxCollider, PhysicsGroup } from '../../framework';
 import { CharacterController } from '../../framework/components/character-controllers/character-controller';
 import { IBaseCharacterController } from '../../spec/i-character-controller';
-import { createBoxCharacterController, PX, _trans } from '../physx-adapter';
+import { createBoxCharacterController, getWrapShape, PX, _trans } from '../physx-adapter';
 import { EFilterDataWord3 } from '../physx-enum';
 import { PhysXInstance } from '../physx-instance';
 import { PhysXWorld } from '../physx-world';
+import { PhysXShape } from '../shapes/physx-shape';
 
 const v3_0 = new Vec3(0, 0, 0);
 export class PhysXCharacterController implements IBaseCharacterController {
     private _isEnabled = false;
     protected _impl: any = null;
     protected _comp: CharacterController = null as any;
-    private _pxLastCollisionFlags = 0;//: PX.PxControllerCollisionFlags;
+    private _pxCollisionFlags = 0;//: PX.PxControllerCollisionFlags;
     private _filterData: any;
+    private _queryFilterCB: any = null;
     protected _word3 = 0;
 
     get isEnabled (): boolean { return this._isEnabled; }
@@ -48,6 +50,10 @@ export class PhysXCharacterController implements IBaseCharacterController {
 
     get filterData () {
         return this._filterData;
+    }
+
+    get queryFilterCB () {
+        return this._queryFilterCB;
     }
 
     constructor () {
@@ -60,10 +66,16 @@ export class PhysXCharacterController implements IBaseCharacterController {
     initialize (comp: CharacterController): boolean {
         this._comp = comp;
 
+        //this._queryFilterCB = PX.PxQueryFilterCallback.implement(this.queryCallback);
+        //this._queryFilterCB = PhysXInstance.queryFilterCB;
+
         const group = this._comp.group;
         this._filterData.word0 = this._comp.group;
         const mask = PhysicsSystem.instance.collisionMatrix[group];
         this._filterData.word1 = mask;
+
+        this._filterData.word3 = EFilterDataWord3.DETECT_CONTACT_CCD;//temp
+        this._filterData.word3 |= EFilterDataWord3.DETECT_CONTACT_EVENT | EFilterDataWord3.DETECT_CONTACT_POINT;//temp
 
         this.onComponentSet();
 
@@ -164,13 +176,34 @@ export class PhysXCharacterController implements IBaseCharacterController {
 
     onGround (): boolean {
         //return (this._pxLastControllerCollisionFlags & PX.PxControllerCollisionFlag::Enum::eCOLLISION_DOWN);
-        return (this._pxLastCollisionFlags & (1 << 2)) > 0;
+        return (this._pxCollisionFlags & (1 << 2)) > 0;
     }
 
     syncPhysicsToScene (): void {
         this.getPosition(v3_0);
         this._comp.node.setWorldPosition(v3_0);
     }
+
+    // eNONE = 0,   //!< the query should ignore this shape
+    // eTOUCH = 1,  //!< a hit on the shape touches the intersection geometry of the query but does not block it
+    // eBLOCK = 2   //!< a hit on the shape blocks the query (does not block overlap queries)
+    queryCallback = {
+        preFilter (filterData: any, shape: any, _actor: any, _out: any): number {
+            const collider = getWrapShape<PhysXShape>(shape).collider;
+            console.log('preFilter hit collider: ', collider.node.name);
+
+            return PX.QueryHitType.eBLOCK;
+
+            // const word3 = filterData.word3;
+            // const shapeFlags = shape.getFlags();
+            // if ((word3 & EFilterDataWord3.QUERY_CHECK_TRIGGER)
+            //     && (shapeFlags.isSet(PX.ShapeFlag.eTRIGGER_SHAPE))) {
+            //     return PX.QueryHitType.eNONE;
+            // }
+            // const ret = word3 & EFilterDataWord3.QUERY_SINGLE_HIT ? PX.QueryHitType.eBLOCK : PX.QueryHitType.eTOUCH;
+            // return ret;
+        },
+    };
 
     move (movement: IVec3Like, minDist: number, elapsedTime: number, filters: any) {
         //const filterData = new PX.PxFilterData();
@@ -179,8 +212,7 @@ export class PhysXCharacterController implements IBaseCharacterController {
         // const pos = new Vec3();
         // this.getPosition(pos);
         // console.log('before move pos', pos.x, pos.y, pos.z);
-
-        this._pxLastCollisionFlags = this._impl.move(movement, minDist, elapsedTime, this.filterData);
+        this._pxCollisionFlags = this._impl.move(movement, minDist, elapsedTime, this.filterData, this.queryFilterCB);
 
         // //debug
         // this.getPosition(pos);
