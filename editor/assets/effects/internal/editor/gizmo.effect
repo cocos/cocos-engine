@@ -83,7 +83,6 @@ CCProgram gizmo-vs %{
   in vec3 a_position;
   in vec3 a_normal;
   out vec3 normal_w;
-  out vec3 normal;
   out vec3 pos_w;
   out vec3 pos_l;
   out vec3 right;
@@ -92,10 +91,11 @@ CCProgram gizmo-vs %{
 
   vec4 vert () {
     vec4 pos = vec4(a_position, 1);
-    normal = a_normal;
+    vec4 normal = vec4(a_normal, 0);
+
     pos_l = a_position;
     pos_w = (cc_matWorld * pos).xyz;
-    normal_w = (cc_matWorldIT * vec4(normal,0)).xyz;
+    normal_w = (cc_matWorldIT * normal).xyz;
     right = vec3(cc_matView[0][0], cc_matView[1][0], cc_matView[2][0]);
     up = vec3(cc_matView[0][1], cc_matView[1][1], cc_matView[2][1]);
     forward = vec3(cc_matView[0][2], cc_matView[1][2], cc_matView[2][2]);
@@ -111,16 +111,13 @@ CCProgram gizmo-fs %{
   #include <common/color/gamma>
   #include <legacy/output>
 
-  #if HIGHLIGHT_SELECTED_FACE
-    #include <builtin/internal/editor/highlight-selected>
-  #endif
   in vec3 normal_w;
   in vec3 pos_w;
   in vec3 pos_l;
   in vec3 right;
   in vec3 up;
   in vec3 forward;
-  in vec3 normal;
+
   uniform Constant {
     vec4 mainColor;
 
@@ -132,31 +129,22 @@ CCProgram gizmo-fs %{
     vec4 cc_sh_quadratic_g;
     vec4 cc_sh_quadratic_b;
     vec4 cc_sh_quadratic_a;
-    // highlight selected face
-    vec4 selectedColor;
-    int hightLightFaceType;
   };
 
   vec4 gizmo_fs (float alpha) {
     vec3 N = normalize(normal_w) * (float(gl_FrontFacing) * 2.0 - 1.0);
     vec3 V = normalize(cc_cameraPos.xyz - pos_w);
 
-    #if HIGHLIGHT_SELECTED_FACE
-    vec4 outputColor = vec4(mainColor.rgb, mainColor.a * alpha);
-      highlightSelectedFace(outputColor, normal, selectedColor, hightLightFaceType);
-    #else 
-      vec4 outputColor = vec4(mainColor.rgb, mainColor.a * alpha);
-    #endif
-      vec3 points [4];
-      points[0] = (forward * 3.0 + right + up) * 40.0;
-      points[1] = (forward * 3.0 - right + up) * 40.0;
-      points[2] = (forward * 3.0 - right - up) * 40.0;
-      points[3] = (forward * 3.0 + right - up) * 40.0;
-      vec3 diffuse = LinearToSRGB(outputColor.rgb * LTC_Evaluate(N, V, pos_l, mat3(1), points));
+    vec3 points [4];
+    points[0] = (forward * 3.0 + right + up) * 40.0;
+    points[1] = (forward * 3.0 - right + up) * 40.0;
+    points[2] = (forward * 3.0 - right - up) * 40.0;
+    points[3] = (forward * 3.0 + right - up) * 40.0;
+    vec3 diffuse = LinearToSRGB(mainColor.rgb * LTC_Evaluate(N, V, pos_l, mat3(1), points));
     #if USE_FORWARD_PIPELINE
-      return CCFragOutput(vec4(diffuse, outputColor.a));
+      return CCFragOutput(vec4(diffuse, mainColor.a * alpha));
     #else
-      return vec4(diffuse, outputColor.a);
+      return vec4(diffuse, mainColor.a * alpha);
     #endif
   }
 
@@ -175,23 +163,17 @@ CCProgram line-vs %{
   #include <builtin/uniforms/cc-global>
 
   in highp vec3 a_position;
-  #if HIGHLIGHT_SELECTED_FACE
-    in vec3 a_normal;
-    out vec3 normal;
-  #endif
+
   #if USE_DASHED_LINE
-    in float a_lineDistance;
-    out float lineDistance;
+  in float a_lineDistance;
+  out float lineDistance;
   #endif
 
   vec4 vert () {
-    #if HIGHLIGHT_SELECTED_FACE
-      normal = a_normal;
-    #endif
     vec4 pos = cc_matProj * (cc_matView * cc_matWorld) * vec4(a_position, 1);
     pos.z -= 0.000001;
     #if USE_DASHED_LINE
-      lineDistance = a_lineDistance;
+    lineDistance = a_lineDistance;
     #endif
     return pos;
   }
@@ -200,31 +182,23 @@ CCProgram line-vs %{
 CCProgram line-fs %{
   precision mediump float;
   #include <legacy/output>
-  #if HIGHLIGHT_SELECTED_FACE
-    #include <builtin/internal/editor/highlight-selected>
-    in vec3 normal;
-  #endif
-  in float lineDistance;
+
   uniform Constant {
     vec4 mainColor;
-    vec4 selectedColor;
-    int hightLightFaceType;    
   };
 
+  in float lineDistance;
+
   vec4 front() {
-    vec4 outputColor = mainColor;
-    #if HIGHLIGHT_SELECTED_FACE
-      highlightSelectedFace(outputColor, normal, selectedColor, hightLightFaceType);
-    #endif
     #if USE_FORWARD_PIPELINE
-      return CCFragOutput(outputColor);
+      return CCFragOutput(mainColor);
     #else
         #if USE_DASHED_LINE
             if (mod(lineDistance, 10.0) > 5.0) {
                 discard;
             }
         #endif
-      return outputColor;
+      return mainColor;
     #endif
   }
   vec4 back() {
