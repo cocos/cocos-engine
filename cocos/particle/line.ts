@@ -46,6 +46,7 @@ export class Line extends ModelRenderer {
     /**
      * @zh 显示的纹理。
      * @en Texture used.
+     * @deprecated Since v3.7.2, please use the 'mainTexture' option in material instead.
      */
     @type(Texture2D)
     @displayOrder(0)
@@ -71,19 +72,6 @@ export class Line extends ModelRenderer {
 
     set lineMaterial (val) {
         this.setMaterial(val, 0);
-    }
-
-    protected _onMaterialModified (index: number, material: Material | null) {
-        super._onMaterialModified(index, material);
-        const matIns = this.getMaterialInstance(0);
-        if (matIns) {
-            define[CC_USE_WORLD_SPACE] = this.worldSpace;
-            matIns.recompileShaders(define);
-            if (this._models[0]) {
-                const lineModel = this._models[0] as LineModel;
-                lineModel.updateMaterial(matIns);
-            }
-        }
     }
 
     @override
@@ -298,6 +286,19 @@ export class Line extends ModelRenderer {
             const lineModel = this._models[0];
             if (lineModel.scene) {
                 lineModel.scene.removeModel(lineModel);
+            }
+        }
+    }
+
+    protected _onMaterialModified (index: number, material: Material | null) {
+        super._onMaterialModified(index, material);
+        const matIns = this.getMaterialInstance(0);
+        if (matIns) {
+            define[CC_USE_WORLD_SPACE] = this.worldSpace;
+            matIns.recompileShaders(define);
+            if (this._models[0]) {
+                const lineModel = this._models[0] as LineModel;
+                lineModel.updateMaterial(matIns);
             }
         }
     }
