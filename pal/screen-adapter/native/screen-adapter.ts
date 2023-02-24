@@ -1,7 +1,27 @@
-import { ConfigOrientation, IScreenOptions, SafeAreaEdge } from 'pal/screen-adapter';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { Size } from '../../../cocos/core/math';
 import { Orientation } from '../enum-type';
+
+export interface SafeAreaEdge {
+    top: number;
+    bottom: number;
+    left: number;
+    right: number;
+}
+
+export type ConfigOrientation = 'auto' | 'landscape' | 'portrait';
+
+export interface IScreenOptions {
+    /**
+     * Orientation options from editor builder.
+     */
+    configOrientation: ConfigOrientation;
+    /**
+     * Determine whether the game frame exact fits the screen.
+     * Now it only works on Web platform.
+     */
+    exactFitScreen: boolean,
+}
 
 // these value is defined in the native layer
 const orientationMap: Record<string, Orientation> = {

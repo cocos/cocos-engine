@@ -1,11 +1,17 @@
-import { MouseCallback } from 'pal/input';
 import { screenAdapter } from 'pal/screen-adapter';
 import { EventMouse } from '../../../cocos/input/types';
 import { EventTarget } from '../../../cocos/core/event';
 import { Vec2 } from '../../../cocos/core/math';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
 
+export type MouseCallback = (res: EventMouse) => void;
+
 export class MouseInputSource {
+    public dispatchMouseDownEvent? (nativeMouseEvent: any);
+    public dispatchMouseMoveEvent? (nativeMouseEvent: any);
+    public dispatchMouseUpEvent? (nativeMouseEvent: any);
+    public dispatchScrollEvent? (nativeMouseEvent: any);
+
     private _eventTarget: EventTarget = new EventTarget();
     private _preMousePos: Vec2 = new Vec2();
     private _isPressed = false;
