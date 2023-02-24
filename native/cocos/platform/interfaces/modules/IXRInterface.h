@@ -38,6 +38,9 @@ namespace cc {
 namespace gfx {
 class GLES3GPUContext;
 }
+namespace scene {
+class Camera;
+}
 
 enum class EGLSurfaceType {
     NONE,
@@ -323,5 +326,15 @@ public:
      * @param appCmd
      */
     virtual void handleAppCommand(int appCmd) = 0;
+
+    /**
+     * @en adapt orthographic matrix(projection and view)
+     * @zh 适配正交相机
+     * @param camera
+     * @param preTransform
+     * @param proj
+     * @param view
+     */
+    virtual void adaptOrthographicMatrix(cc::scene::Camera *camera, const ccstd::array<float, 4> &preTransform, Mat4 &proj, Mat4 &view) = 0;
 };
 } // namespace cc
