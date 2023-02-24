@@ -23,11 +23,13 @@
 #pragma once
 
 #include <algorithm>
+#include <unordered_map>
 
 #include "base/Macros.h"
 #include "base/std/container/unordered_map.h"
 #include "gfx-base/GFXDef-common.h"
 #include "gfx-base/GFXDef.h"
+#include "gfx-base/GFXDeviceObject.h"
 #include "gfx-gles-common/GLESCommandPool.h"
 
 #include "GLES3Std.h"
@@ -41,6 +43,8 @@ struct GLES3GPUConstantRegistry {
 
     MSRTSupportLevel mMSRT{MSRTSupportLevel::NONE};
     FBFSupportLevel mFBF{FBFSupportLevel::NONE};
+
+    std::vector<GLint> programBinaryFormats;
 };
 
 class GLES3GPUStateCache;
@@ -332,6 +336,12 @@ struct GLES3GPURenderPass {
 
     ccstd::vector<GLES3GPUGeneralBarrier> subpassBarriers; // per subpass
     GLES3GPUGeneralBarrier blockBarrier;
+};
+
+struct GLES3GPUProgramBinary : public GFXDeviceObject<DefaultDeleter> {
+    ccstd::string name;
+    GLenum format;
+    std::vector<char> data;
 };
 
 class GLES3GPUFramebufferCacheMap;

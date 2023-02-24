@@ -1030,96 +1030,113 @@ GLuint GLES3GPUSampler::getGLSampler(uint16_t minLod, uint16_t maxLod) {
 
 // NOLINTNEXTLINE(google-readability-function-size, readability-function-size)
 void cmdFuncGLES3CreateShader(GLES3Device *device, GLES3GPUShader *gpuShader) {
-    GLenum glShaderStage = 0;
-    ccstd::string shaderStageStr;
-    GLint status;
+    auto *cache = device->fetchProgramCache(gpuShader->name);
+    if (cache != nullptr) {
+        GL_CHECK(gpuShader->glProgram = glCreateProgram());
+        GL_CHECK(glProgramBinary(gpuShader->glProgram, cache->format, cache->data.data(), cache->data.size()));
+    }
 
-    for (size_t i = 0; i < gpuShader->gpuStages.size(); ++i) {
-        GLES3GPUShaderStage &gpuStage = gpuShader->gpuStages[i];
+    if (gpuShader->glProgram == 0) {
+        GLenum glShaderStage = 0;
+        ccstd::string shaderStageStr;
+        GLint status;
 
-        switch (gpuStage.type) {
-            case ShaderStageFlagBit::VERTEX: {
-                glShaderStage = GL_VERTEX_SHADER;
-                shaderStageStr = "Vertex Shader";
-                break;
+        for (size_t i = 0; i < gpuShader->gpuStages.size(); ++i) {
+            GLES3GPUShaderStage &gpuStage = gpuShader->gpuStages[i];
+
+            switch (gpuStage.type) {
+                case ShaderStageFlagBit::VERTEX: {
+                    glShaderStage = GL_VERTEX_SHADER;
+                    shaderStageStr = "Vertex Shader";
+                    break;
+                }
+                case ShaderStageFlagBit::FRAGMENT: {
+                    glShaderStage = GL_FRAGMENT_SHADER;
+                    shaderStageStr = "Fragment Shader";
+                    break;
+                }
+                case ShaderStageFlagBit::COMPUTE: {
+                    glShaderStage = GL_COMPUTE_SHADER;
+                    shaderStageStr = "Compute Shader";
+                    break;
+                }
+                default: {
+                    CC_ABORT();
+                    return;
+                }
             }
-            case ShaderStageFlagBit::FRAGMENT: {
-                glShaderStage = GL_FRAGMENT_SHADER;
-                shaderStageStr = "Fragment Shader";
-                break;
-            }
-            case ShaderStageFlagBit::COMPUTE: {
-                glShaderStage = GL_COMPUTE_SHADER;
-                shaderStageStr = "Compute Shader";
-                break;
-            }
-            default: {
-                CC_ABORT();
+            GL_CHECK(gpuStage.glShader = glCreateShader(glShaderStage));
+            uint32_t version = device->constantRegistry()->glMinorVersion ? 310 : 300;
+            ccstd::string shaderSource = StringUtil::format("#version %u es\n", version) + gpuStage.source;
+            const char *source = shaderSource.c_str();
+            GL_CHECK(glShaderSource(gpuStage.glShader, 1, (const GLchar **)&source, nullptr));
+            GL_CHECK(glCompileShader(gpuStage.glShader));
+
+            GL_CHECK(glGetShaderiv(gpuStage.glShader, GL_COMPILE_STATUS, &status));
+            if (status != GL_TRUE) {
+                GLint logSize = 0;
+                GL_CHECK(glGetShaderiv(gpuStage.glShader, GL_INFO_LOG_LENGTH, &logSize));
+
+                ++logSize;
+                auto *logs = static_cast<GLchar *>(CC_MALLOC(logSize));
+                GL_CHECK(glGetShaderInfoLog(gpuStage.glShader, logSize, nullptr, logs));
+
+                CC_LOG_ERROR("%s in %s compilation failed.", shaderStageStr.c_str(), gpuShader->name.c_str());
+                CC_LOG_ERROR(logs);
+                CC_FREE(logs);
+                GL_CHECK(glDeleteShader(gpuStage.glShader));
+                gpuStage.glShader = 0;
                 return;
             }
         }
-        GL_CHECK(gpuStage.glShader = glCreateShader(glShaderStage));
-        uint32_t version = device->constantRegistry()->glMinorVersion ? 310 : 300;
-        ccstd::string shaderSource = StringUtil::format("#version %u es\n", version) + gpuStage.source;
-        const char *source = shaderSource.c_str();
-        GL_CHECK(glShaderSource(gpuStage.glShader, 1, (const GLchar **)&source, nullptr));
-        GL_CHECK(glCompileShader(gpuStage.glShader));
 
-        GL_CHECK(glGetShaderiv(gpuStage.glShader, GL_COMPILE_STATUS, &status));
-        if (status != GL_TRUE) {
+        GL_CHECK(gpuShader->glProgram = glCreateProgram());
+
+        // link program
+        for (size_t i = 0; i < gpuShader->gpuStages.size(); ++i) {
+            GLES3GPUShaderStage &gpuStage = gpuShader->gpuStages[i];
+            GL_CHECK(glAttachShader(gpuShader->glProgram, gpuStage.glShader));
+        }
+
+        GL_CHECK(glLinkProgram(gpuShader->glProgram));
+
+            GL_CHECK(glGetProgramiv(gpuShader->glProgram, GL_LINK_STATUS, &status));
+        if (status != 1) {
+            CC_LOG_ERROR("Failed to link Shader [%s].", gpuShader->name.c_str());
             GLint logSize = 0;
-            GL_CHECK(glGetShaderiv(gpuStage.glShader, GL_INFO_LOG_LENGTH, &logSize));
+            GL_CHECK(glGetProgramiv(gpuShader->glProgram, GL_INFO_LOG_LENGTH, &logSize));
+            if (logSize) {
+                ++logSize;
+                auto *logs = static_cast<GLchar *>(CC_MALLOC(logSize));
+                GL_CHECK(glGetProgramInfoLog(gpuShader->glProgram, logSize, nullptr, logs));
 
-            ++logSize;
-            auto *logs = static_cast<GLchar *>(CC_MALLOC(logSize));
-            GL_CHECK(glGetShaderInfoLog(gpuStage.glShader, logSize, nullptr, logs));
-
-            CC_LOG_ERROR("%s in %s compilation failed.", shaderStageStr.c_str(), gpuShader->name.c_str());
-            CC_LOG_ERROR(logs);
-            CC_FREE(logs);
-            GL_CHECK(glDeleteShader(gpuStage.glShader));
-            gpuStage.glShader = 0;
-            return;
+                CC_LOG_ERROR(logs);
+                CC_FREE(logs);
+                return;
+            }
         }
-    }
 
-    GL_CHECK(gpuShader->glProgram = glCreateProgram());
+        CC_LOG_INFO("Shader '%s' compilation succeeded.", gpuShader->name.c_str());
 
-    // link program
-    for (size_t i = 0; i < gpuShader->gpuStages.size(); ++i) {
-        GLES3GPUShaderStage &gpuStage = gpuShader->gpuStages[i];
-        GL_CHECK(glAttachShader(gpuShader->glProgram, gpuStage.glShader));
-    }
-
-    GL_CHECK(glLinkProgram(gpuShader->glProgram));
-
-    // detach & delete immediately
-    for (size_t i = 0; i < gpuShader->gpuStages.size(); ++i) {
-        GLES3GPUShaderStage &gpuStage = gpuShader->gpuStages[i];
-        if (gpuStage.glShader) {
-            GL_CHECK(glDetachShader(gpuShader->glProgram, gpuStage.glShader));
-            GL_CHECK(glDeleteShader(gpuStage.glShader));
-            gpuStage.glShader = 0;
+        // detach & delete immediately
+        for (size_t i = 0; i < gpuShader->gpuStages.size(); ++i) {
+            GLES3GPUShaderStage &gpuStage = gpuShader->gpuStages[i];
+            if (gpuStage.glShader) {
+                GL_CHECK(glDetachShader(gpuShader->glProgram, gpuStage.glShader));
+                GL_CHECK(glDeleteShader(gpuStage.glShader));
+                gpuStage.glShader = 0;
+            }
         }
+
+        GLint binaryLength = 0;
+        glGetProgramiv(gpuShader->glProgram, GL_PROGRAM_BINARY_LENGTH, &binaryLength);
+        GLsizei length = 0;
+        IntrusivePtr<GLES3GPUProgramBinary> binary = ccnew GLES3GPUProgramBinary();
+        binary->name = gpuShader->name;
+        binary->data.resize(binaryLength);
+        glGetProgramBinary(gpuShader->glProgram, binaryLength, &length, &binary->format, binary->data.data());
+        device->addProgramCache(binary);
     }
-
-    GL_CHECK(glGetProgramiv(gpuShader->glProgram, GL_LINK_STATUS, &status));
-    if (status != 1) {
-        CC_LOG_ERROR("Failed to link Shader [%s].", gpuShader->name.c_str());
-        GLint logSize = 0;
-        GL_CHECK(glGetProgramiv(gpuShader->glProgram, GL_INFO_LOG_LENGTH, &logSize));
-        if (logSize) {
-            ++logSize;
-            auto *logs = static_cast<GLchar *>(CC_MALLOC(logSize));
-            GL_CHECK(glGetProgramInfoLog(gpuShader->glProgram, logSize, nullptr, logs));
-
-            CC_LOG_ERROR(logs);
-            CC_FREE(logs);
-            return;
-        }
-    }
-
-    CC_LOG_INFO("Shader '%s' compilation succeeded.", gpuShader->name.c_str());
 
     GLint attrMaxLength = 0;
     GLint attrCount = 0;

@@ -1579,6 +1579,8 @@ endif()
 
 if(CC_USE_GLES3)
     cocos_source_files(
+                     cocos/renderer/gfx-gles3/GLES3Archive.cpp
+                     cocos/renderer/gfx-gles3/GLES3Archive.h
                      cocos/renderer/gfx-gles3/GLES3Buffer.cpp
                      cocos/renderer/gfx-gles3/GLES3Buffer.h
                      cocos/renderer/gfx-gles3/GLES3CommandBuffer.cpp

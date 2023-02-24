@@ -39,6 +39,7 @@ class GLES3GPUStateCache;
 class GLES3GPUFramebufferHub;
 struct GLES3GPUConstantRegistry;
 class GLES3GPUFramebufferCacheMap;
+struct GLES3GPUProgramBinary;
 
 class CC_GLES3_API GLES3Device final : public Device {
 public:
@@ -94,6 +95,10 @@ public:
 
     inline bool isTextureExclusive(const Format &format) { return _textureExclusive[static_cast<size_t>(format)]; };
 
+    void addProgramCache(GLES3GPUProgramBinary *binary);
+    GLES3GPUProgramBinary *fetchProgramCache(const std::string &name);
+    bool checkProgramFormat(uint32_t format) const;
+
 protected:
     static GLES3Device *instance;
 
@@ -129,6 +134,9 @@ protected:
 
     void initFormatFeature();
 
+    void saveCache();
+    void loadCache();
+
     GLES3GPUContext *_gpuContext{nullptr};
     GLES3GPUStateCache *_gpuStateCache{nullptr};
     GLES3GPUFramebufferHub *_gpuFramebufferHub{nullptr};
@@ -136,6 +144,7 @@ protected:
     GLES3GPUFramebufferCacheMap *_gpuFramebufferCacheMap{nullptr};
 
     ccstd::vector<GLES3GPUSwapchain *> _swapchains;
+    ccstd::unordered_map<ccstd::string, IntrusivePtr<GLES3GPUProgramBinary>> _programCaches;
 
     GLESBindingMapping _bindingMappings;
 

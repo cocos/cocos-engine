@@ -42,11 +42,14 @@
 #include "GLES3Shader.h"
 #include "GLES3Swapchain.h"
 #include "GLES3Texture.h"
+#include "GLES3Archive.h"
 #include "application/ApplicationManager.h"
 #include "platform/java/modules/XRInterface.h"
 #include "profiler/Profiler.h"
 #include "states/GLES3GeneralBarrier.h"
 #include "states/GLES3Sampler.h"
+#include "platform/FileUtils.h"
+#include <fstream>
 
 // when capturing GLES commands (RENDERDOC_HOOK_EGL=1, default value)
 // renderdoc doesn't support this extension during replay
@@ -204,6 +207,16 @@ bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
         glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 2, reinterpret_cast<GLint *>(&_caps.maxComputeWorkGroupCount.z));
     }
 
+    {
+        GLint shaderBinaryFormats = 0;
+        glGetIntegerv(GL_NUM_PROGRAM_BINARY_FORMATS, &shaderBinaryFormats);
+
+        _gpuConstantRegistry->programBinaryFormats.resize(shaderBinaryFormats);
+        glGetIntegerv(GL_PROGRAM_BINARY_FORMATS, _gpuConstantRegistry->programBinaryFormats.data());
+        loadCache();
+    }
+
+
     if (checkExtension("occlusion_query_boolean")) {
         _caps.supportQuery = true;
     }
@@ -249,6 +262,8 @@ void GLES3Device::doDestroy() {
     CC_SAFE_DESTROY_AND_DELETE(_queryPool)
     CC_SAFE_DESTROY_AND_DELETE(_queue)
     CC_SAFE_DESTROY_AND_DELETE(_gpuContext)
+
+    saveCache();
 }
 
 void GLES3Device::acquire(Swapchain *const *swapchains, uint32_t count) {
@@ -507,6 +522,61 @@ void GLES3Device::initFormatFeature() {
         _formatFeatures[toNumber(Format::ASTC_SRGBA_10X10)] |= compressedFeature;
         _formatFeatures[toNumber(Format::ASTC_SRGBA_12X10)] |= compressedFeature;
         _formatFeatures[toNumber(Format::ASTC_SRGBA_12X12)] |= compressedFeature;
+    }
+}
+
+void GLES3Device::addProgramCache(GLES3GPUProgramBinary* binary) {
+    _programCaches.emplace(binary->name, binary);
+}
+
+GLES3GPUProgramBinary *GLES3Device::fetchProgramCache(const std::string &name) {
+    auto iter = _programCaches.find(name);
+    return iter != _programCaches.end() ? iter->second : nullptr;
+}
+
+bool GLES3Device::checkProgramFormat(uint32_t format) const {
+    return std::any_of(_gpuConstantRegistry->programBinaryFormats.begin(), _gpuConstantRegistry->programBinaryFormats.end(), [format](const auto &fmt) {
+        return format == static_cast<uint32_t>(fmt);
+        });
+}
+
+void GLES3Device::saveCache() {
+    auto path = FileUtils::getInstance()->getWritablePath() + "/program_cache.bin";
+    std::ofstream ostream(path, std::ios::binary);
+    BinaryOutputArchive archive(ostream);
+
+    archive.save(static_cast<uint32_t>(_programCaches.size()));
+    for (auto &[name, cache] : _programCaches) {
+        archive.save(static_cast<uint32_t>(name.size()));
+        archive.save(name.data(), static_cast<uint32_t>(name.size()));
+        archive.save(cache->format);
+        archive.save(static_cast<uint32_t>(cache->data.size()));
+        archive.save(cache->data.data(), static_cast<uint32_t>(cache->data.size()));
+    }
+}
+
+void GLES3Device::loadCache() {
+    auto path = FileUtils::getInstance()->getWritablePath() + "/program_cache.bin";
+    std::ifstream istream(path, std::ios::binary);
+    BinaryInputArchive archive(istream);
+
+    uint32_t size = 0;
+    archive.load(size);
+    for (uint32_t i = 0; i < size; ++i) {
+        IntrusivePtr<GLES3GPUProgramBinary> binary = ccnew GLES3GPUProgramBinary();
+        uint32_t size = 0;
+        archive.load(size);
+        binary->name.resize(size, 0);
+        archive.load(binary->name.data(), size);
+        archive.load(binary->format);
+        size = 0;
+        archive.load(size);
+        binary->data.resize(size, 0);
+        archive.load(binary->data.data(), size);
+
+        if (checkProgramFormat(binary->format)) {
+            addProgramCache(binary);
+        }
     }
 }
 
