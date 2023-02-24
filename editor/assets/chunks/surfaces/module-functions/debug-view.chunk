@@ -270,6 +270,11 @@ vec4 CCSurfacesDebugDisplayInvalidInputData(vec4 color, vec3 data)
         lightingResult.directTRT = lightingResult.environmentTRT = vec3(0.0);
   #endif
 
+  #if CC_SURFACES_LIGHTING_TT
+    if (!IS_DEBUG_VIEW_COMPOSITE_ENABLE_TT)
+        lightingResult.directTT = vec3(0.0);
+  #endif
+
     if (!IS_DEBUG_VIEW_COMPOSITE_ENABLE_EMISSIVE)
       lightingResult.emissive = vec3(0.0);
 
