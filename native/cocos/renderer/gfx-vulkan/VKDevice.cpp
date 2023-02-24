@@ -665,6 +665,8 @@ void CCVKDevice::acquire(Swapchain *const *swapchains, uint32_t count) {
     }
 }
 
+static CCVKGPUStagingBufferPool *tmpPool = nullptr;
+
 void CCVKDevice::present() {
     CC_PROFILE(CCVKDevicePresent);
     bool isGFXDeviceNeedsPresent = _xr ? _xr->isGFXDeviceNeedsPresent(_api) : true;
@@ -715,11 +717,10 @@ void CCVKDevice::frameSync() {
     if (fenceCount) {
         VK_CHECK(vkWaitForFences(_gpuDevice->vkDevice, fenceCount,
                                  gpuFencePool()->data(), VK_TRUE, DEFAULT_TIMEOUT));
+        gpuFencePool()->reset();
+        gpuRecycleBin()->clear();
+        gpuStagingBufferPool()->reset();
     }
-
-    gpuFencePool()->reset();
-    gpuRecycleBin()->clear();
-    gpuStagingBufferPool()->reset();
 }
 
 CCVKGPUFencePool *CCVKDevice::gpuFencePool() { return _gpuFencePools[_gpuDevice->curBackBufferIndex].get(); }

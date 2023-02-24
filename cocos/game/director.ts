@@ -696,7 +696,6 @@ export class Director extends EventTarget {
      */
     public tick (dt: number) {
         if (!this._invalid) {
-            this._root!.frameSync();
             this.emit(Director.EVENT_BEGIN_FRAME);
             if (!EDITOR || cclegacy.GAME_VIEW) {
                 // @ts-expect-error _frameDispatchEvents is a private method.
