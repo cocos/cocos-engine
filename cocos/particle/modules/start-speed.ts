@@ -28,7 +28,7 @@ import { InitializationModule, ParticleModule, ParticleUpdateStage } from '../pa
 import { ParticleSOAData } from '../particle-soa-data';
 import { ParticleEmitterContext, ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
 import { CurveRange } from '../curve-range';
-import { lerp, pseudoRandom, randomRangeInt, Vec3 } from '../../core/math';
+import { lerp, Mat4, pseudoRandom, randomRangeInt, Vec3 } from '../../core/math';
 import { INT_MAX } from '../../core/math/bits';
 import { Space } from '../enum';
 

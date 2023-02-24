@@ -55,10 +55,10 @@ export class BurstEmissionModule extends EmissionModule {
         const normalizedTimeInCycle = t / params.duration;
         for (let i = 0, burstCount = this.bursts.length; i < burstCount; i++) {
             const burst = this.bursts[i];
-            if ((prevT < burst.time && t > burst.time) || (prevT > burst.time && burst.repeatCount > 1)) {
+            if ((prevT <= burst.time && t > burst.time) || (prevT > burst.time && burst.repeatCount > 1)) {
                 const preEmitTime = Math.max(Math.floor((prevT - burst.time) / burst.repeatInterval), 0);
                 if (preEmitTime < burst.repeatCount) {
-                    const currentEmitTime = Math.min(Math.floor((t - burst.time) / burst.repeatInterval), burst.repeatCount);
+                    const currentEmitTime = Math.min(Math.ceil((t - burst.time) / burst.repeatInterval), burst.repeatCount);
                     const toEmitTime = currentEmitTime - preEmitTime;
                     if (toEmitTime === 0) { continue; }
                     if (burst.count.mode === CurveRange.Mode.Constant) {

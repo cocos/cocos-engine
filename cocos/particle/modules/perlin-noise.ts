@@ -1,4 +1,4 @@
-import { lerp, Vec2 } from '../../core/math';
+import { lerp, Vec2, Vec3 } from '../../core/math';
 
 // https://mrl.cs.nyu.edu/~perlin/noise/
 const permutation = [
@@ -61,30 +61,33 @@ function grad3 (hash: number, x: number, y: number, z: number) {
 }
 
 function smooth (t: number) { return t * t * t * (t * (t * 6 - 15) + 10); }
+function smoothDerivative (t: number) { return 30 * t * t * (t * (t - 2) + 1); }
 
-export function perlinNoise3D (position: Vec3) {
-    let { x, y, z } = position;
+const samplePoint = new Vec3();
+export function perlinNoise3D (outDerivative: Vec2, position: Vec3, frequency: number) {
+    Vec3.multiplyScalar(samplePoint, position, frequency);
+    let { x, y, z } = samplePoint;
     const XF = Math.floor(x);
     const YF = Math.floor(y);
     const ZF = Math.floor(z);
-    const X = XF & 255;                  // FIND UNIT CUBE THAT
-    const Y = YF & 255;                  // CONTAINS POINT.
+    const X = XF & 255;
+    const Y = YF & 255;
     const Z = ZF & 255;
-    x -= XF;                                // FIND RELATIVE X,Y,Z
-    y -= YF;                                // OF POINT IN CUBE.
+    x -= XF;
+    y -= YF;
     z -= ZF;
     const x1 = x - 1.0;
     const y1 = y - 1.0;
     const z1 = z - 1.0;
-    const u = smooth(x);                                // COMPUTE FADE CURVES
-    const v = smooth(y);                                // FOR EACH OF X,Y,Z.
+    const u = smooth(x);
+    const v = smooth(y);
     const w = smooth(z);
     const A = permutation[X] + Y;
     const AA = permutation[A] + Z;
-    const AB = permutation[A + 1] + Z;      // HASH COORDINATES OF
+    const AB = permutation[A + 1] + Z;
     const B = permutation[X + 1] + Y;
     const BA = permutation[B] + Z;
-    const BB = permutation[B + 1] + Z;      // THE 8 CUBE CORNERS,
+    const BB = permutation[B + 1] + Z;
 
     return 0.97 * lerp(
         lerp(

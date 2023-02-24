@@ -352,7 +352,6 @@ export class ShapeModule extends ParticleModule {
 
     public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleEmitterContext,
         fromIndex: number, toIndex: number, currentTime: number) {
-        const { emitterTransform } = context;
         const randomPositionAmount = this.randomPositionAmount;
         const minRadius = this.radius * (1 - this.radiusThickness);
         const velocityZ = -Math.cos(this._angle) * this.radius;
