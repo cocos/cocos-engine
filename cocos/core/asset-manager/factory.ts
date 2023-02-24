@@ -40,8 +40,6 @@ import {
 
 import { cache } from './utilities';
 
-declare const System: any;
-
 export type CreateHandler = (id: string, data: any, options: IDownloadParseOptions, onComplete: CompleteCallback<Asset|Bundle>) => void;
 
 function createImageAsset (id: string, data: HTMLImageElement, options: IDownloadParseOptions, onComplete: CompleteCallback<ImageAsset>) {
