@@ -68,6 +68,9 @@
 #ifndef CC_SURFACES_LIGHTING_TRT
   #define CC_SURFACES_LIGHTING_TRT 0
 #endif
+#ifndef CC_SURFACES_LIGHTING_TT
+  #define CC_SURFACES_LIGHTING_TT 0
+#endif
 
 // render-to-color-map can disable functionality to avoid error data map
 #ifndef CC_SURFACES_ENABLE_DEBUG_VIEW

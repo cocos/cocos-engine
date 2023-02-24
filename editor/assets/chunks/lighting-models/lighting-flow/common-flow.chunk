@@ -16,9 +16,10 @@
       lightingResultAccumulated.specularColorWithLighting = lightingResult.specularColorWithLighting;
 
       #if CC_SURFACES_LIGHTING_TRT
-        SurfacesMaterialData surfaceDataTRT = surfaceData;
-        surfaceDataTRT.baseColor = vec4(surfaceData.baseColorTRT, 1.0);
-        CCSurfacesLightingInitializeColorWithLighting(lightingResultAccumulated.diffuseColorWithLightingTRT, lightingResultAccumulated.specularColorWithLightingTRT, surfaceDataTRT, lightingData);
+        vec3 diff;
+        SurfacesMaterialData surfaceDataTRT;
+        CCSurfacesGetSurfacesMaterialDataTRT(surfaceDataTRT, surfaceData);
+        CCSurfacesLightingInitializeColorWithLighting(diff, lightingResultAccumulated.specularColorWithLightingTRT, surfaceDataTRT, lightingData);
       #endif
 
       int numLights = CC_PIPELINE_TYPE == CC_PIPELINE_TYPE_FORWARD ? LIGHTS_PER_PASS : int(cc_lightDir[0].w);
@@ -87,11 +88,13 @@
         #endif
 
         #if CC_SURFACES_LIGHTING_TRT
-          vec3 TRTLighting;
           LightingIntermediateData lightingDataTRT;
           CCSurfacesGetLightingIntermediateDataTRT(lightingDataTRT, lightingData, surfaceData);
-          CCSurfacesLightingCalculateDirectTRT(TRTLighting, lightingDataTRT, cc_lightColor[i]);
-          lightingResult.directTRT = TRTLighting;
+          CCSurfacesLightingCalculateDirectTRT(lightingResult.directTRT, lightingDataTRT, cc_lightColor[i]);
+        #endif
+
+        #if CC_SURFACES_LIGHTING_TT
+          CCSurfacesLightingCalculateDirectTT(lightingResult, lightingData, cc_lightColor[i]);
         #endif
 
 
@@ -190,9 +193,14 @@
         CCSurfacesLightingCalculateDirectTRT(lightingResult.directTRT, lightingDataTRT, cc_mainLitColor);
         CCSurfacesLightingCalculateEnvironmentTRT(lightingResult.environmentTRT, lightingDataTRT, cc_ambientSky.w);
 
-        SurfacesMaterialData surfaceDataTRT = surfaceData;
-        surfaceDataTRT.baseColor = vec4(surfaceData.baseColorTRT, 1.0);
-        CCSurfacesLightingInitializeColorWithLighting(lightingResult.diffuseColorWithLightingTRT, lightingResult.specularColorWithLightingTRT, surfaceDataTRT, lightingDataTRT);
+        vec3 diff;
+        SurfacesMaterialData surfaceDataTRT;
+        CCSurfacesGetSurfacesMaterialDataTRT(surfaceDataTRT, surfaceData);
+        CCSurfacesLightingInitializeColorWithLighting(diff, lightingResult.specularColorWithLightingTRT, surfaceDataTRT, lightingDataTRT);
+      #endif
+
+      #if CC_SURFACES_LIGHTING_TT
+        CCSurfacesLightingCalculateDirectTT(lightingResult, lightingData, cc_mainLitColor);
       #endif
 
       // apply screen-space shadow and ao

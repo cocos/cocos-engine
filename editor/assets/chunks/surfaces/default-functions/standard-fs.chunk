@@ -100,9 +100,25 @@ vec4 SurfacesFragmentModifyTRTParams()
     return vec4(0.2, 0.0, 0.0, 1.0);
 }
 #endif
-#ifndef CC_SURFACES_FRAGMENT_MODIFY_TRT_PARAMS
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_TRT_COLOR
 vec3 SurfacesFragmentModifyTRTColor()
 {
+    return vec3(1.0, 1.0, 1.0);
+}
+#endif
+
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_TT_PARAMS
+vec4 SurfacesFragmentModifyTTParams()
+{
+    //x: scatter coef
+    //w: intensity
+    return vec4(0.0, 0.0, 0.0, 1.0);
+}
+#endif
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_TT_COLOR
+vec3 SurfacesFragmentModifyTTColor(in vec3 baseColor, in vec3 trtColor)
+{
+    // baseColor and trtColor for reference
     return vec3(1.0, 1.0, 1.0);
 }
 #endif

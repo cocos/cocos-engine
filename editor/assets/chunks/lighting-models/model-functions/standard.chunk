@@ -151,5 +151,19 @@ void CCSurfacesLightingCalculateEnvironment(out vec3 lightingDiffuse, out vec3 l
     // todo: modify Color to add some light color influence
     TRTLighting *= Color * lightIntensity;
   }
-    
+#endif
+
+#if CC_SURFACES_LIGHTING_TT
+  // TT is a hacked fabric simulation algorithm
+  void CCSurfacesLightingCalculateDirectTT(inout LightingResult lightingResult, in LightingIntermediateData lightingData, in vec4 lightSourceColorAndIntensity)
+  {
+    lightingResult.diffuseColorWithLightingTT = lightingResult.diffuseColorWithLighting;
+    float w = lightingData.ttIntensity;
+    // w = 0 equals to diffuse lighting without scattering
+    // ttScatterCoef start from 0.0
+    vec3 scatteredLighting = pow(saturate(lightingData.baseColorTT * w + lightingData.NoLSat) * lightingData.NoLSat, vec3(mix(0.5, 0.5 + lightingData.ttScatterCoef, w)));
+    // scattered = tt + origin diffuse
+    vec3 ttLighting = scatteredLighting - lightingData.NoLSat;
+    lightingResult.directTT = ttLighting * DiffuseCoefficient_EnergyConservation * lightSourceColorAndIntensity.xyz* lightSourceColorAndIntensity.w;
+  }
 #endif

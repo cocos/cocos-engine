@@ -31,5 +31,9 @@ struct SurfacesMaterialData
   float trtIntensity, roughnessTRT;
   vec3 worldTangentTRT, worldBinormalTRT;
 #endif
+#if CC_SURFACES_LIGHTING_TT
+  vec3 baseColorTT;
+  float ttIntensity, ttScatterCoef;
+#endif
   // float sssCurvature;
 };

@@ -40,4 +40,3 @@ void CCSurfacesLightingCalculateEnvironment(out vec3 lightingDiffuse, out vec3 l
   lightingDiffuse = vec3(0.0);
   lightingSpecular = vec3(0.0);
 }
-

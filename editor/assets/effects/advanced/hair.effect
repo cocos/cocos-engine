@@ -32,6 +32,8 @@ CCEffect %{
         roughnessTRT:                     { value: 0.2, target: trtParams.x, editor: { displayName: TRT Roughness Offset, slide: true, range: [0, 1.0], step: 0.001, tips: 'The extend range of internal reflection lighting compared to direct lighting' } }
         rotationTRT:                      { value: 0.0, target: trtParams.y, editor: { displayName: TRT Lighting Offset, slide: true, range: [0, 1.0], step: 0.001, tips: 'The position offset of internal reflection lighting compared to direct lighting' } }
         IntensityTRT:                     { value: 1.0, target: trtParams.w, editor: { displayName: TRT Intensity, slide: true, range: [0, 1.0], step: 0.01 } }
+        ScatterCoefTT:                    { value: 0.0, target: ttParams.x, editor: { displayName: TT Scatter Coef, slide: true, range: [0, 1.0], step: 0.01 } }
+        IntensityTT:                      { value: 1.0, target: ttParams.w, editor: { displayName: TT Intensity, slide: true, range: [0, 1.0], step: 0.01 } }
         baseColorTRT:                     { value: [1.0, 1.0, 1.0, 1.0], target: trtColor, linear: true, editor: { displayName: TRT Albedo, type: color } }
       rasterizerState:
         cullMode: None
@@ -143,6 +145,7 @@ CCProgram shared-ubos %{
     vec4 anisotropyParam;
     vec4 trtColor;
     vec4 trtParams;
+    vec4 ttParams;
   };
 }%
 
@@ -159,6 +162,7 @@ CCProgram macro-remapping %{
   #define CC_SURFACES_USE_VERTEX_COLOR USE_VERTEX_COLOR
   
   #define CC_SURFACES_LIGHTING_TRT 1
+  #define CC_SURFACES_LIGHTING_TT 1
 
   // depend on UI macros
 #if IS_ANISOTROPY || USE_NORMAL_MAP
@@ -249,10 +253,22 @@ CCProgram surface-fragment %{
       return trtParams;
   }
 
-  #define CC_SURFACES_FRAGMENT_MODIFY_TRT_PARAMS
+  #define CC_SURFACES_FRAGMENT_MODIFY_TRT_COLOR
   vec3 SurfacesFragmentModifyTRTColor()
   {
-      return trtColor.xyz;
+      return trtColor.rgb;
+  }
+
+  #define CC_SURFACES_FRAGMENT_MODIFY_TT_PARAMS
+  vec4 SurfacesFragmentModifyTTParams()
+  {
+      return ttParams;
+  }
+  #define CC_SURFACES_FRAGMENT_MODIFY_TT_COLOR
+  vec3 SurfacesFragmentModifyTTColor(in vec3 baseColor, in vec3 trtColor)
+  {
+      return trtColor.rgb;
+      // return mix(ttColor, baseColor.rgb, 0.5)); //ttColor can be (0.992, 0.808, 0.516)
   }
 
   #define CC_SURFACES_FRAGMENT_MODIFY_BASECOLOR_AND_TRANSPARENCY
