@@ -44,3 +44,7 @@
 #if CC_SURFACES_TRANSFER_LOCAL_POS
   #define VSOutput_localPos v_localPos
 #endif
+
+#if CC_SURFACES_TRANSFER_CLIP_POS
+  #define VSOutput_clipPos v_clipPos
+#endif
