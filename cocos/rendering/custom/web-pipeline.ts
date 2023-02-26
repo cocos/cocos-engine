@@ -1278,8 +1278,8 @@ export class WebPipeline implements Pipeline {
             }
             debugPackVec[3] += (debugView.lightingWithAlbedo ? 1.0 : 0.0) * (10.0 ** 6.0);
             debugPackVec[3] += (debugView.csmLayerColoration ? 1.0 : 0.0) * (10.0 ** 7.0);
-   
-            setter.setVec4('cc_debug_view_mode', new Vec4(debugPackVec[0], debugPackVec[1], debugPackVec[2], debugPackVec[3]);
+
+            setter.setVec4('cc_debug_view_mode', new Vec4(debugPackVec[0], debugPackVec[1], debugPackVec[2], debugPackVec[3]));
         } else {
             setter.setVec4('cc_debug_view_mode', new Vec4(0.0, 0.0, 0.0, 0.0));
         }
