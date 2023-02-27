@@ -1009,7 +1009,7 @@ function initSys () {
             }).catch(err => {});
         }
         // NOTE: '__wxjs_environment' is defined in wechat miniprogram webview environment
-        // developpers would embed builded web project in a WebView component on wechat miniprogram, so that we need to handle this situation.
+        // developpers would embed builded web project in a webview component on wechat miniprogram, so that we need to handle this situation.
         if (docEle['ontouchstart'] !== undefined || doc['ontouchstart'] !== undefined || nav.msPointerEnabled || (typeof __wxjs_environment === 'string' && __wxjs_environment === 'miniprogram'))
             capabilities["touches"] = true;
         if (docEle['onmouseup'] !== undefined)
