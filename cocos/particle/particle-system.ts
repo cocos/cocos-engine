@@ -953,6 +953,9 @@ export class ParticleSystem extends ModelRenderer {
             burst.reset();
         }
 
+        this._emitRateTimeCounter = 0.0;
+        this._emitRateDistanceCounter = 0.0;
+
         this._isPlaying = true;
         this._isEmitting = true;
 
