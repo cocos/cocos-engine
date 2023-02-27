@@ -39,7 +39,7 @@ const ImageAsset = jsb.ImageAsset;
 const BuiltinResMgr = jsb.BuiltinResMgr;
 const builtinResMgrProto = BuiltinResMgr.prototype;
 
-builtinResMgrProto.init = function (): Promise<void> {
+builtinResMgrProto.init = function () {
     this._resources = {};
     this._materialsToBeCompiled = [];
     const resources = this._resources;

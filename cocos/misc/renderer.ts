@@ -93,7 +93,7 @@ export class Renderer extends Component {
      * @en The default material instance, it will create a new instance from the default shared material if not created yet.
      * @zh 获取默认的材质实例，如果还没有创建，将会根据默认共享材质创建一个新的材质实例
      */
-    get material (): MaterialInstance | null {
+    get material (): Material | MaterialInstance | null {
         return this.getMaterialInstance(0);
     }
 
@@ -108,7 +108,7 @@ export class Renderer extends Component {
      * @en The materials of the model.
      * @zh 所有模型材质。
      */
-    get materials (): (MaterialInstance | null)[] {
+    get materials (): (Material | MaterialInstance | null)[] {
         for (let i = 0; i < this._materials.length; i++) {
             this._materialInstances[i] = this.getMaterialInstance(i) as MaterialInstance;
         }
