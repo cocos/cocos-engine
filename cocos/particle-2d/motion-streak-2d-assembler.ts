@@ -187,8 +187,7 @@ export const MotionStreakAssembler: IAssembler = {
             renderData.updateRenderData(comp, comp.texture!);
             // No need update WorldMatrix, so change dirty flag
             // A dirty hack
-            renderData.renderDrawInfo.setVertDirty(false);
-            comp.node.hasChangedFlags = 0;
+            comp.markForUpdateRenderData();
         }
     },
 
@@ -244,6 +243,10 @@ export const MotionStreakAssembler: IAssembler = {
     },
 
     updateRenderData (comp: MotionStreak) {
+        if (JSB) {
+            comp.renderData!.renderDrawInfo.setVertDirty(false);
+            comp.node.hasChangedFlags = 0;
+        }
     },
 
     updateColor (comp: MotionStreak) {
