@@ -29,7 +29,7 @@ import { Material } from '../../asset/assets/material';
 import { RenderRoot2D, UIRenderer } from '../framework';
 import { Texture, Device, Attribute, Sampler, DescriptorSetInfo, Buffer,
     BufferInfo, BufferUsageBit, MemoryUsageBit, DescriptorSet, InputAssembler, deviceManager, PrimitiveMode } from '../../gfx';
-import { CachedArray, Pool, Mat4, cclegacy, assertIsTrue, assert } from '../../core';
+import { CachedArray, Pool, Mat4, cclegacy, assertIsTrue, assert, approx, EPSILON } from '../../core';
 import { Root } from '../../root';
 import { Node } from '../../scene-graph';
 import { Stage, StencilManager } from './stencil-manager';
@@ -794,7 +794,7 @@ export class Batcher2D implements IBatcher {
         // TODO Set opacity to ui property's opacity before remove it
         // @ts-expect-error temporary force set, will be removed with ui property's opacity
         uiProps._opacity = opacity;
-        if (opacity > 0) {
+        if (!approx(opacity, 0, EPSILON)) {
             if (uiProps.colorDirty) {
             // Cascade color dirty state
                 this._opacityDirty++;

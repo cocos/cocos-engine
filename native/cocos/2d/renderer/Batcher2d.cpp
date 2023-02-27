@@ -123,7 +123,7 @@ void Batcher2d::walk(Node* node, float parentOpacity) { // NOLINT(misc-no-recurs
             entity->setColorDirty(false);
             entity->setVBColorDirty(true);
         }
-        if (entity->getOpacity() <= 0 ) {
+        if (math::isEqualF(entity->getOpacity(), 0)) {
             breakWalk = true;
         } else if (entity->isEnabled()) {
             uint32_t size = entity->getRenderDrawInfosSize();
