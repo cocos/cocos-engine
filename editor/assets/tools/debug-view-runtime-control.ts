@@ -80,6 +80,7 @@ export class debugViewRuntimeControl extends Component {
         'Transmit Diffuse',
         'Transmit Specular',
         'TRT',
+        'TT',
     ];
     private strMisc: string[] = [
         'CSM Layer Coloration',

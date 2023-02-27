@@ -222,6 +222,7 @@ export class AudioPlayerWeb implements OperationQueueable {
     private _loop = false;
     private _state: AudioState = AudioState.INIT;
     private _audioTimer: AudioTimer;
+    private _runningCallback?: () => void;
 
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
@@ -355,11 +356,17 @@ export class AudioPlayerWeb implements OperationQueueable {
     get currentTime (): number {
         return this._audioTimer.currentTime;
     }
+    private offRunning () {
+        if (this._runningCallback) {
+            audioContextAgent!.offRunning(this._runningCallback);
+            this._runningCallback = undefined;
+        }
+    }
 
     @enqueueOperation
     seek (time: number): Promise<void> {
         return new Promise((resolve) => {
-            audioContextAgent!.offRunning();
+            this.offRunning();
             this._audioTimer.seek(time);
             if (this._state === AudioState.PLAYING) {
                 // one AudioBufferSourceNode can't start twice
@@ -373,7 +380,7 @@ export class AudioPlayerWeb implements OperationQueueable {
 
     @enqueueOperation
     play (): Promise<void> {
-        audioContextAgent!.offRunning();
+        this.offRunning();
         if (EDITOR && !legacyCC.GAME_VIEW) {
             return Promise.resolve();
         }
@@ -388,13 +395,15 @@ export class AudioPlayerWeb implements OperationQueueable {
                 this._startSourceNode();
                 resolve();
             } else {
+                this.offRunning();
+                this._runningCallback = () => {
+                    this._startSourceNode();
+                    resolve();
+                };
                 // Running event may be emit when:
                 // - manually resume audio context.
                 // - system automatically resume audio context when enter foreground from background.
-                audioContextAgent!.onceRunning(() => {
-                    this._startSourceNode();
-                    resolve();
-                });
+                audioContextAgent!.onceRunning(this._runningCallback);
                 // Ensure resume context.
                 audioContextAgent!.runContext().catch((e) => {});
             }
@@ -439,7 +448,7 @@ export class AudioPlayerWeb implements OperationQueueable {
 
     @enqueueOperation
     pause (): Promise<void> {
-        audioContextAgent!.offRunning();
+        this.offRunning();
         if (this._state !== AudioState.PLAYING || !this._sourceNode) {
             return Promise.resolve();
         }
@@ -452,7 +461,7 @@ export class AudioPlayerWeb implements OperationQueueable {
 
     @enqueueOperation
     stop (): Promise<void> {
-        audioContextAgent!.offRunning();
+        this.offRunning();
         if (!this._sourceNode) {
             return Promise.resolve();
         }

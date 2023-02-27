@@ -194,10 +194,10 @@ void CCSurfacesAccumulateLightingResult(inout LightingResult lightingResultAccum
     lightingResultAccumulated.directTransmitDiffuse += lightingResult.directTransmitDiffuse;
   #endif
   #if CC_SURFACES_LIGHTING_TRT
-    lightingResultAccumulated.directTRT += lightingResult.directTRT;
+    lightingResultAccumulated.directTRT += lightingResult.directTRT * lightingResult.shadow;
   #endif
   #if CC_SURFACES_LIGHTING_TT
-    lightingResultAccumulated.directTT += lightingResult.directTT;
+    lightingResultAccumulated.directTT += lightingResult.directTT * lightingResult.shadow;
     lightingResultAccumulated.diffuseColorWithLightingTT = lightingResult.diffuseColorWithLightingTT;
   #endif
 }

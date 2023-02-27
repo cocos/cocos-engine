@@ -442,7 +442,7 @@ module.exports = {
             message: 'The modified data has not been saved. Do you want to save it?',
             assetMessage: "${assetName} is modified, it's data has not been saved. Do you want to save it?",
             save: 'Save',
-            abort: 'Abort',
+            abort: 'Discard',
         },
     },
 

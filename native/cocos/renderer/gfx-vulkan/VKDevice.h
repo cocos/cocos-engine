@@ -74,6 +74,7 @@ public:
     using Device::createShader;
     using Device::createTexture;
     using Device::createTextureBarrier;
+    using Device::createBufferBarrier;
 
     void frameSync() override;
     void acquire(Swapchain *const *swapchains, uint32_t count) override;
@@ -130,6 +131,7 @@ protected:
     Sampler *createSampler(const SamplerInfo &info) override;
     GeneralBarrier *createGeneralBarrier(const GeneralBarrierInfo &info) override;
     TextureBarrier *createTextureBarrier(const TextureBarrierInfo &info) override;
+    BufferBarrier *createBufferBarrier(const BufferBarrierInfo &info) override;
 
     void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) override;
     void copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint32_t count) override;

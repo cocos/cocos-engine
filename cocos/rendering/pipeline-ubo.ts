@@ -77,11 +77,18 @@ export class PipelineUBO {
 
         const debugView = root.debugView;
         fv[UBOGlobal.DEBUG_VIEW_MODE_OFFSET] = debugView.singleMode as number;
-        fv[UBOGlobal.DEBUG_VIEW_MODE_OFFSET + 1] = debugView.lightingWithAlbedo ? 1.0 : 0.0;
-        fv[UBOGlobal.DEBUG_VIEW_MODE_OFFSET + 2] = debugView.csmLayerColoration ? 1.0 : 0.0;
-        for (let i = DebugViewCompositeType.DIRECT_DIFFUSE as number; i < DebugViewCompositeType.MAX_BIT_COUNT; i++) {
-            fv[UBOGlobal.DEBUG_VIEW_COMPOSITE_PACK_1_OFFSET + i] = debugView.isCompositeModeEnabled(i) ? 1.0 : 0.0;
+
+        for (let i = 1; i <= 3; i++) {
+            fv[UBOGlobal.DEBUG_VIEW_MODE_OFFSET + i] = 0.0;
         }
+        for (let i = DebugViewCompositeType.DIRECT_DIFFUSE as number; i < DebugViewCompositeType.MAX_BIT_COUNT; i++) {
+            const offset = i >> 3;
+            const bit = i % 8;
+            fv[UBOGlobal.DEBUG_VIEW_MODE_OFFSET + 1 + offset] += (debugView.isCompositeModeEnabled(i) ? 1.0 : 0.0) * (10.0 ** bit);
+        }
+
+        fv[UBOGlobal.DEBUG_VIEW_MODE_OFFSET + 3] += (debugView.lightingWithAlbedo ? 1.0 : 0.0) * (10.0 ** 6.0);
+        fv[UBOGlobal.DEBUG_VIEW_MODE_OFFSET + 3] += (debugView.csmLayerColoration ? 1.0 : 0.0) * (10.0 ** 7.0);
     }
 
     public static updateCameraUBOView (pipeline: PipelineRuntime, bufferView: Float32Array,
