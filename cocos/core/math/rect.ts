@@ -269,7 +269,7 @@ export class Rect extends ValueType {
 
     constructor (x?: Rect | number, y?: number, width?: number, height?: number) {
         super();
-        if (x && typeof x === 'object') {
+        if (typeof x === 'object') {
             this.y = x.y;
             this.width = x.width;
             this.height = x.height;
@@ -310,7 +310,7 @@ export class Rect extends ValueType {
     public set (x?: number, y?: number, width?: number, height?: number);
 
     public set (x?: Rect | number, y?: number, width?: number, height?: number) {
-        if (x && typeof x === 'object') {
+        if (typeof x === 'object') {
             this.y = x.y;
             this.width = x.width;
             this.height = x.height;

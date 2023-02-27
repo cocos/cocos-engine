@@ -35,7 +35,7 @@ import { TMXMapInfo } from './tmx-xml-parser';
 import { Color, IVec2Like, Mat4, Size, Texture2D, Vec2, Vec3, Node, warn, logID, CCBoolean, director } from '../core';
 import { TiledTile } from './tiled-tile';
 import { RenderData } from '../2d/renderer/render-data';
-import { IBatcher } from '../2d/renderer/i-batcher.js';
+import { IBatcher } from '../2d/renderer/i-batcher';
 import {
     MixedGID, GID, Orientation, TiledTextureGrids, TMXTilesetInfo, RenderOrder, StaggerAxis, StaggerIndex, TileFlag,
     GIDFlags, TiledAnimationType, PropertiesInfo, TMXLayerInfo,
