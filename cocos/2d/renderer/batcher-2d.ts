@@ -794,41 +794,44 @@ export class Batcher2D implements IBatcher {
         // TODO Set opacity to ui property's opacity before remove it
         // @ts-expect-error temporary force set, will be removed with ui property's opacity
         uiProps._opacity = opacity;
-        if (uiProps.colorDirty) {
+        if (opacity > 0) {
+            if (uiProps.colorDirty) {
             // Cascade color dirty state
-            this._opacityDirty++;
-        }
+                this._opacityDirty++;
+            }
 
-        // Render assembler update logic
-        if (render && render.enabledInHierarchy) {
-            render.fillBuffers(this);// for rendering
-        }
+            // Render assembler update logic
+            if (render && render.enabledInHierarchy) {
+                render.fillBuffers(this);// for rendering
+            }
 
-        // Update cascaded opacity to vertex buffer
-        if (this._opacityDirty && render && !render.useVertexOpacity && render.renderData && render.renderData.vertexCount > 0) {
+            // Update cascaded opacity to vertex buffer
+            if (this._opacityDirty && render && !render.useVertexOpacity && render.renderData && render.renderData.vertexCount > 0) {
             // HARD COUPLING
-            updateOpacity(render.renderData, opacity);
-            const buffer = render.renderData.getMeshBuffer();
-            if (buffer) {
-                buffer.setDirty();
+                updateOpacity(render.renderData, opacity);
+                const buffer = render.renderData.getMeshBuffer();
+                if (buffer) {
+                    buffer.setDirty();
+                }
             }
-        }
 
-        if (children.length > 0 && !node._static) {
-            for (let i = 0; i < children.length; ++i) {
-                const child = children[i];
-                this.walk(child, level);
+            if (children.length > 0 && !node._static) {
+                for (let i = 0; i < children.length; ++i) {
+                    const child = children[i];
+                    this.walk(child, level);
+                }
             }
-        }
 
-        if (uiProps.colorDirty) {
+            if (uiProps.colorDirty) {
             // Reduce cascaded color dirty state
-            this._opacityDirty--;
-            // Reset color dirty
-            uiProps.colorDirty = false;
+                this._opacityDirty--;
+                // Reset color dirty
+                uiProps.colorDirty = false;
+            }
         }
         // Restore opacity
         this._pOpacity = parentOpacity;
+
         // Post render assembler update logic
         // ATTENTION: Will also reset colorDirty inside postUpdateAssembler
         if (render && render.enabledInHierarchy) {
