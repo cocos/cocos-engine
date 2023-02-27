@@ -162,6 +162,8 @@ using namespace cc;
 %ignore cc::BakedJointInfo;
 %ignore cc::ITemplateInfo;
 
+%ignore cc::Root::frameSync;
+
 // ----- Rename Section ------
 // Brief: Classes, methods or attributes needs to be renamed
 //

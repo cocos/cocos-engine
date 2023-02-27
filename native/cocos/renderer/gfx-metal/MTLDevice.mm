@@ -161,6 +161,10 @@ bool CCMTLDevice::doInit(const DeviceInfo &info) {
 }
 
 void CCMTLDevice::doDestroy() {
+    // force wait done
+    while(_inFlightCount.load(std::memory_order_acquire) != 0) {
+        ;
+    }
 
     CC_SAFE_DESTROY_AND_DELETE(_gpuDeviceObj->_transferCmdBuffer);
     CC_SAFE_DELETE(_gpuDeviceObj);
@@ -170,12 +174,6 @@ void CCMTLDevice::doDestroy() {
     CC_SAFE_DESTROY_AND_DELETE(_cmdBuff);
 
     CCMTLGPUGarbageCollectionPool::getInstance()->flush();
-    
-//    if(_inFlightSemaphore) {
-//        _inFlightSemaphore->trySyncAll(1000);
-//        CC_SAFE_DELETE(_inFlightSemaphore);
-//        _inFlightSemaphore = nullptr;
-//    }
 
     for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
         CC_SAFE_DELETE(_gpuStagingBufferPools[i]);

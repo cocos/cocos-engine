@@ -134,7 +134,6 @@ protected:
     CCMTLGPUStagingBufferPool *_gpuStagingBufferPools[MAX_FRAMES_IN_FLIGHT] = {nullptr};
     uint32_t _currentBufferPoolId = 0;
     uint32_t _currentFrameIndex = 0;
-    CCMTLSemaphore *_inFlightSemaphore = nullptr;
     CC_UNUSED uint32_t _memoryAlarmListenerId = 0;
 
     ccstd::vector<CCMTLSwapchain *> _swapchains;
