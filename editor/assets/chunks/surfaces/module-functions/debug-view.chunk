@@ -220,17 +220,17 @@ vec4 CCSurfacesDebugDisplayInvalidInputData(vec4 color, vec3 data)
 
     if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_TRT_DIRECT))
     {
-        color.rgb = directTRT * lightingResult.specularColorWithLightingTRT;
+        color.rgb = directTRT * specularColorWithLightingTRT;
         isSRGBColor = true;
     }
     if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_TRT_ENVIRONMENT))
     {
-        color.rgb = environmentTRT * lightingResult.specularColorWithLightingTRT;
+        color.rgb = environmentTRT * specularColorWithLightingTRT;
         isSRGBColor = true;
     }
     if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_TRT_ALL))
     {
-        color.rgb = (directTRT + environmentTRT) * lightingResult.specularColorWithLightingTRT;
+        color.rgb = (directTRT + environmentTRT) * specularColorWithLightingTRT;
         isSRGBColor = true;
     }
 
@@ -268,6 +268,11 @@ vec4 CCSurfacesDebugDisplayInvalidInputData(vec4 color, vec3 data)
   #if CC_SURFACES_LIGHTING_TRT
     if (!IS_DEBUG_VIEW_COMPOSITE_ENABLE_TRT)
         lightingResult.directTRT = lightingResult.environmentTRT = vec3(0.0);
+  #endif
+
+  #if CC_SURFACES_LIGHTING_TT
+    if (!IS_DEBUG_VIEW_COMPOSITE_ENABLE_TT)
+        lightingResult.directTT = vec3(0.0);
   #endif
 
     if (!IS_DEBUG_VIEW_COMPOSITE_ENABLE_EMISSIVE)
