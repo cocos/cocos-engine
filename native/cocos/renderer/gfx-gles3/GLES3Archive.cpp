@@ -2,8 +2,8 @@
 
 namespace cc::gfx {
 
-void BinaryInputArchive::load(char *data, uint32_t size) {
-    _stream.rdbuf()->sgetn(data, size);
+bool BinaryInputArchive::load(char *data, uint32_t size) {
+    return _stream.rdbuf()->sgetn(data, size) == size;
 }
 
 void BinaryOutputArchive::save(const char *data, uint32_t size) {

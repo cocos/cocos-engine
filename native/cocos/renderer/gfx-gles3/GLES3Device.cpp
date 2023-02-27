@@ -55,6 +55,8 @@
 // renderdoc doesn't support this extension during replay
 #define ALLOW_MULTISAMPLED_RENDER_TO_TEXTURE_ON_DESKTOP 0
 
+static const uint32_t MAGIC = 0x4343474C; // "CCGL"
+
 namespace cc {
 namespace gfx {
 
@@ -262,8 +264,6 @@ void GLES3Device::doDestroy() {
     CC_SAFE_DESTROY_AND_DELETE(_queryPool)
     CC_SAFE_DESTROY_AND_DELETE(_queue)
     CC_SAFE_DESTROY_AND_DELETE(_gpuContext)
-
-    saveCache();
 }
 
 void GLES3Device::acquire(Swapchain *const *swapchains, uint32_t count) {
@@ -527,6 +527,7 @@ void GLES3Device::initFormatFeature() {
 
 void GLES3Device::addProgramCache(GLES3GPUProgramBinary* binary) {
     _programCaches.emplace(binary->name, binary);
+    saveCache(binary);
 }
 
 GLES3GPUProgramBinary *GLES3Device::fetchProgramCache(const std::string &name) {
@@ -540,44 +541,58 @@ bool GLES3Device::checkProgramFormat(uint32_t format) const {
         });
 }
 
-void GLES3Device::saveCache() {
+void GLES3Device::saveCache(GLES3GPUProgramBinary *binary) {
     auto path = FileUtils::getInstance()->getWritablePath() + "/program_cache.bin";
-    std::ofstream ostream(path, std::ios::binary);
-    BinaryOutputArchive archive(ostream);
-
-    archive.save(static_cast<uint32_t>(_programCaches.size()));
-    for (auto &[name, cache] : _programCaches) {
-        archive.save(static_cast<uint32_t>(name.size()));
-        archive.save(name.data(), static_cast<uint32_t>(name.size()));
-        archive.save(cache->format);
-        archive.save(static_cast<uint32_t>(cache->data.size()));
-        archive.save(cache->data.data(), static_cast<uint32_t>(cache->data.size()));
+    std::ofstream stream(path, std::ios::binary | std::ios::app);
+    if (!stream.is_open() || binary == nullptr) {
+        CC_LOG_INFO("Save program cache failed.");
+        return;
     }
+    BinaryOutputArchive archive(stream);
+
+    archive.save(MAGIC);
+    archive.save(static_cast<uint32_t>(binary->name.size()));
+    archive.save(binary->name.data(), static_cast<uint32_t>(binary->name.size()));
+    archive.save(binary->format);
+    archive.save(static_cast<uint32_t>(binary->data.size()));
+    archive.save(binary->data.data(), static_cast<uint32_t>(binary->data.size()));
+    CC_LOG_INFO("Save program cache success, name %s.", binary->name.c_str());
 }
 
 void GLES3Device::loadCache() {
     auto path = FileUtils::getInstance()->getWritablePath() + "/program_cache.bin";
-    std::ifstream istream(path, std::ios::binary);
-    BinaryInputArchive archive(istream);
+    std::ifstream stream(path, std::ios::binary);
+    if (!stream.is_open()) {
+        CC_LOG_INFO("Load program cache failed.");
+        return;
+    }
+    BinaryInputArchive archive(stream);
+    uint32_t magic = 0;
+    auto loadResult = archive.load(magic);
+    uint32_t count = 0;
 
-    uint32_t size = 0;
-    archive.load(size);
-    for (uint32_t i = 0; i < size; ++i) {
+    while (magic == MAGIC && loadResult) {
         IntrusivePtr<GLES3GPUProgramBinary> binary = ccnew GLES3GPUProgramBinary();
         uint32_t size = 0;
         archive.load(size);
         binary->name.resize(size, 0);
         archive.load(binary->name.data(), size);
         archive.load(binary->format);
+
         size = 0;
         archive.load(size);
         binary->data.resize(size, 0);
         archive.load(binary->data.data(), size);
 
         if (checkProgramFormat(binary->format)) {
-            addProgramCache(binary);
+            _programCaches.emplace(binary->name, binary);
         }
+        ++count;
+
+        magic = 0;
+        loadResult = archive.load(magic);
     }
+    CC_LOG_INFO("Load program cache success. records %u, loaded %u", count, _programCaches.size());
 }
 
 CommandBuffer *GLES3Device::createCommandBuffer(const CommandBufferInfo &info, bool hasAgent) {

@@ -9,11 +9,11 @@ public:
     BinaryInputArchive(std::istream &stream) : _stream(stream) {}
     ~BinaryInputArchive() noexcept = default;
 
-    void load(char *data, uint32_t size);
+    bool load(char *data, uint32_t size);
 
     template <typename T, typename = std::enable_if<std::is_arithmetic_v<T>>>
-    void load(T &val) {
-        load(reinterpret_cast<char*>(std::addressof(val)), sizeof(T));
+    bool load(T &val) {
+        return load(reinterpret_cast<char*>(std::addressof(val)), sizeof(T));
     }
 
 private:

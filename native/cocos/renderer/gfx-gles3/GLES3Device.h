@@ -134,7 +134,7 @@ protected:
 
     void initFormatFeature();
 
-    void saveCache();
+    void saveCache(GLES3GPUProgramBinary *binary);
     void loadCache();
 
     GLES3GPUContext *_gpuContext{nullptr};
