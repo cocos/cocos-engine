@@ -601,6 +601,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
             if (this._onSiblingIndexChanged) {
                 this._onSiblingIndexChanged(index);
             }
+            this._eventProcessor.updateSiblingIndex();
         }
     }
 
