@@ -91,6 +91,8 @@
           LightingIntermediateData lightingDataTRT;
           CCSurfacesGetLightingIntermediateDataTRT(lightingDataTRT, lightingData, surfaceData);
           CCSurfacesLightingCalculateDirectTRT(lightingResult.directTRT, lightingDataTRT, cc_lightColor[i]);
+          lightingResult.directTRT *= multiplier * fresnel;
+          // lightingResult.directTRT -= lightingResult.directSpecular;
         #endif
 
         #if CC_SURFACES_LIGHTING_TT
@@ -192,6 +194,8 @@
         CCSurfacesGetLightingIntermediateDataTRT(lightingDataTRT, lightingData, surfaceData);
         CCSurfacesLightingCalculateDirectTRT(lightingResult.directTRT, lightingDataTRT, cc_mainLitColor);
         CCSurfacesLightingCalculateEnvironmentTRT(lightingResult.environmentTRT, lightingDataTRT, cc_ambientSky.w);
+        // lightingResult.directTRT -= lightingResult.directSpecular;
+        // lightingResult.environmentTRT -= lightingResult.environmentSpecular;
 
         vec3 diff;
         SurfacesMaterialData surfaceDataTRT;

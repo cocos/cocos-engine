@@ -4,8 +4,7 @@ CCEffect %{
   techniques:
   - name: opaque
     passes:
-    - switch: USE_OPAQUE_PASS
-      vert: standard-vs
+    - vert: standard-vs
       frag: standard-fs
       properties: &props
         tilingOffset:                     { value: [1.0, 1.0, 0.0, 0.0] }
@@ -19,16 +18,14 @@ CCEffect %{
         emissive:                         { value: [0.0, 0.0, 0.0, 1.0], linear: true, editor: { type: color } }
         emissiveScale:                    { value: [1.0, 1.0, 1.0], target: emissiveScaleParam.xyz }
         normalStrength:                   { value: 1.0, target: emissiveScaleParam.w, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 5.0], step: 0.001 } }
-        anisotropyIntensity:              { value: 1.0, target: anisotropyParam.x, editor: { parent: IS_ANISOTROPY, slide : true, range : [0.0, 1.0] , step : 0.0001 } }
-        anisotropyRotation:               { value: 0.0, target: anisotropyParam.y, editor: { parent: IS_ANISOTROPY, slide : true, range : [0, 1.0] , step : 0.0001 } }
-        anisotropyMapResolutionHeight:    { value: 0.0, target: anisotropyParam.w, editor: { parent: FIX_ANISOTROPIC_ROTATION_MAP } }
+        anisotropyIntensity:              { value: 1.0, target: anisotropyParam.x, editor: { slide : true, range : [0.0, 1.0] , step : 0.0001 } }
+        anisotropyRotation:               { value: 0.0, target: anisotropyParam.y, editor: { slide : true, range : [0, 1.0] , step : 0.0001 } }
         mainTexture:                      { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
         normalMap:                        { value: normal }
         pbrMap:                           { value: grey }
         occlusionMap:                     { value: white }
         emissiveMap:                      { value: grey }
-        anisotropyMap:                    { value: black, editor : { parent: IS_ANISOTROPY, tips: 'x: anisotropy intensity; y: anisotropy rotation; zw: reserved' } }
-        anisotropyMapNearestFilter:       { value: black, editor : { parent: FIX_ANISOTROPIC_ROTATION_MAP, tips: 'Same as Anisotropy Map, but use nearest filter to fix artifacts on seams' } }
+        anisotropyMap:                    { value: black, editor : { tips: 'x: anisotropy intensity; y: anisotropy rotation; zw: reserved' } }
         roughnessTRT:                     { value: 0.2, target: trtParams.x, editor: { displayName: TRT Roughness Offset, slide: true, range: [0, 1.0], step: 0.001, tips: 'The extend range of internal reflection lighting compared to direct lighting' } }
         rotationTRT:                      { value: 0.0, target: trtParams.y, editor: { displayName: TRT Lighting Offset, slide: true, range: [0, 1.0], step: 0.001, tips: 'The position offset of internal reflection lighting compared to direct lighting' } }
         IntensityTRT:                     { value: 1.0, target: trtParams.w, editor: { displayName: TRT Intensity, slide: true, range: [0, 1.0], step: 0.01 } }
@@ -153,7 +150,7 @@ CCProgram macro-remapping %{
   // ui displayed macros
   #pragma define-meta HAS_SECOND_UV
   #pragma define-meta USE_TWOSIDE
-  #pragma define-meta IS_ANISOTROPY default(true)
+  #pragma define IS_ANISOTROPY 1
   #pragma define-meta USE_VERTEX_COLOR
 
   #define CC_SURFACES_USE_SECOND_UV HAS_SECOND_UV
@@ -234,7 +231,6 @@ CCProgram surface-fragment %{
   #endif
   #if IS_ANISOTROPY && USE_ANISOTROPY_MAP
     uniform sampler2D anisotropyMap;
-    uniform sampler2D anisotropyMapNearestFilter;
   #endif
 
   #pragma define OCCLUSION_CHANNEL          r
@@ -338,22 +334,6 @@ CCProgram surface-fragment %{
       anisotropyRotation = fract(anisotropyRotation * 0.5 + tex.y) * PI2;
       // less value is better for SP exported shape
       anisotropyShape *= tex.x;
-    #endif
-
-    // fix rotation map seam line of black and white
-    #if FIX_ANISOTROPIC_ROTATION_MAP
-      #if IS_ANISOTROPY && USE_ANISOTROPY_MAP
-        vec4 reference = texture(anisotropyMapNearestFilter, DEFAULT_UV);
-        vec2 oneTap = vec2(0.0, 1.0 / anisotropyParam.w);
-        float threshold = 0.2;
-        // scan more taps for stable result
-        vec4 sample1 = texture(anisotropyMapNearestFilter, DEFAULT_UV + oneTap);
-        vec4 sample2 = texture(anisotropyMapNearestFilter, DEFAULT_UV - oneTap);
-        if (abs(sample1.y - reference.y) > threshold || abs(sample2.y - reference.y) > threshold) {
-            tex.y = reference.y;
-        }
-        anisotropyRotation = fract(anisotropyParam.y * PI * 0.5 + tex.y) * PI2;
-      #endif
     #endif
 
     isRotation = 1.0;
