@@ -487,7 +487,8 @@ class _Deserializer {
         case 'TypedArrayRef':
             return this._deserializeTypedArrayViewRef(serialized);
         default:
-            if (serialized.__type__) { // Typed object (including CCClass)
+            // TODO：typescript 4.2 can't infer serialized as SerializedGeneralTypedObject on OH platform.
+            if ((serialized as unknown as SerializedGeneralTypedObject).__type__) { // Typed object (including CCClass)
                 return this._deserializeTypeTaggedObject(serialized, globalIndex, owner, propName);
             } else if (!Array.isArray(serialized)) { // Embedded primitive javascript object
                 return this._deserializePlainObject(serialized);

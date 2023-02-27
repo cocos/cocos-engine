@@ -90,7 +90,8 @@ function createBundle (id: string, data: IConfigOption, options: IDownloadParseO
     }
     //HACK: Can not import scripts in GameView due to the difference of Scripting System between the GameView and Preview
     if (!EDITOR) {
-        import(`virtual:///prerequisite-imports/${bundle.name}`).then(() => {
+        const moduleName = `virtual:///prerequisite-imports/${bundle.name}`;
+        import(moduleName).then(() => {
             onComplete(null, bundle);
         }).catch(onComplete);
     } else {

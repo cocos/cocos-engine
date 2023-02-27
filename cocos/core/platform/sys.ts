@@ -34,6 +34,9 @@ import { warnID, log } from './debug';
 import { NetworkType, Language, OS, Platform, BrowserType, Feature } from '../../../pal/system-info/enum-type';
 import { screen } from './screen';
 
+// TODO: the type Storage conflicts with the one on OH platform.
+type Storage = any;
+
 export declare namespace sys {
     /**
      * @en
@@ -287,7 +290,9 @@ export const sys = {
     /**
      * @internal
      */
-    init () {
+    init (this: any) {
+        // TODO: the 'noImplicitThis' compiler option is close on OH platform.
+        // so we mark this as any type.
         try {
             let localStorage: Storage | null = sys.localStorage = window.localStorage;
             localStorage.setItem('storage', '');
@@ -298,7 +303,6 @@ export const sys = {
                 warnID(5200);
             };
             this.localStorage = {
-                // @ts-expect-error Type '() => void' is not assignable to type '(key: string) => string | null'
                 getItem: warn,
                 setItem: warn,
                 clear: warn,
@@ -311,7 +315,6 @@ export const sys = {
             this.__isWebIOS14OrIPadOS14Env = (sys.os === OS.IOS || sys.os === OS.OSX) && GameGlobal?.isIOSHighPerformanceMode
             && /(OS 1((4\.[0-9])|(5\.[0-3])))|(Version\/1((4\.[0-9])|(5\.[0-3])))/.test(window.navigator.userAgent);
         } else {
-            // @ts-expect-error HACK: this private property only needed on web & wechat JIT
             this.__isWebIOS14OrIPadOS14Env = (sys.os === OS.IOS || sys.os === OS.OSX) && systemInfo.isBrowser
             && /(OS 14)|(Version\/14)/.test(window.navigator.userAgent);
         }
