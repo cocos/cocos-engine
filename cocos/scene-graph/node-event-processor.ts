@@ -370,7 +370,7 @@ export class NodeEventProcessor {
         }
     }
 
-    public updateSiblingIndex () {
+    public onUpdatingSiblingIndex () {
         NodeEventProcessor.callbacksInvoker.emit(DispatcherEventType.MARK_LIST_DIRTY);
     }
 
