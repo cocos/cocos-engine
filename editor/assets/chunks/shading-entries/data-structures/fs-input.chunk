@@ -61,5 +61,5 @@ void CCSurfacesGetFragmentInput(out SurfacesStandardFragmentInput fsInput)
 #endif
 
 #if CC_SURFACES_TRANSFER_CLIP_POS
-  #define FSInput_screenPos v_clipPos
+  #define FSInput_clipPos v_clipPos
 #endif

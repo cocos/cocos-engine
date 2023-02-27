@@ -3,13 +3,19 @@
 #pragma define CC_HANDLE_NDC_SAMPLE_FLIP(uv, flipNDCSign) uv = flipNDCSign == 1.0 ? vec2(uv.x, 1.0 - uv.y) : uv
 
 
-vec2 GetScreenUV(vec3 worldPos, mat4 matViewProj, float flipNDCSign)
+// return 0-1
+vec2 GetScreenUV(vec4 clipPos, float flipNDCSign)
 {
-  vec4 clipPos = matViewProj * vec4(worldPos, 1.0);
   vec2 screenUV = clipPos.xy / clipPos.w * 0.5 + 0.5;
   screenUV = vec2(1.0 - screenUV.x, screenUV.y);
   CC_HANDLE_NDC_SAMPLE_FLIP(screenUV, flipNDCSign);
   return screenUV;
+}
+
+vec2 GetScreenUV(vec3 worldPos, mat4 matViewProj, float flipNDCSign)
+{
+  vec4 clipPos = matViewProj * vec4(worldPos, 1.0);
+  return GetScreenUV(clipPos, flipNDCSign);
 }
 
 vec2 GetPlanarReflectScreenUV(vec3 worldPos, mat4 matVirtualCameraViewProj, float flipNDCSign, vec3 viewDir, vec3 reflectDir)

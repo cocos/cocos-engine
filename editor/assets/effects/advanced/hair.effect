@@ -162,6 +162,7 @@ CCProgram macro-remapping %{
   
   #define CC_SURFACES_LIGHTING_TRT 1
   #define CC_SURFACES_LIGHTING_TT 1
+  #define CC_SURFACES_TRANSFER_CLIP_POS 1
 
   // depend on UI macros
 #if IS_ANISOTROPY || USE_NORMAL_MAP
@@ -212,6 +213,8 @@ CCProgram surface-vertex %{
 }%
 
 CCProgram surface-fragment %{
+  #include <common/effect/special-effects>
+
   #if USE_ALBEDO_MAP
     uniform sampler2D albedoMap;
     #pragma define-meta ALBEDO_UV options([v_uv, v_uv1])
@@ -284,12 +287,18 @@ CCProgram surface-fragment %{
       baseColor *= texColor;
     #endif
 
+    /*#if USE_DITHERED_ALPHA_TEST
+      #if CC_SURFACES_TRANSFER_CLIP_POS
+        DitheredAlphaClip(FSInput_clipPos, cc_viewPort.zw, baseColor.a);
+      #endif
+    #endif*/
+
     #if USE_ALPHA_TEST
       #if INVERSE_ALPHA_TEST
         if (baseColor.ALPHA_TEST_CHANNEL >= albedoScaleAndCutoff.w) discard;
       #else
         if (baseColor.ALPHA_TEST_CHANNEL < albedoScaleAndCutoff.w) discard;
-      #endif          
+      #endif
     #endif
 
     baseColor.rgb *= albedoScaleAndCutoff.xyz;
