@@ -499,20 +499,6 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Convert current Vec2 to Vec3.
-     * @zh 转换当前Vec2到Vec3。
-     * @param out Vec3 value
-     * @return Vec3 value
-     */
-    public toVec3 (out?: Vec3): Vec3 {
-        if (out) {
-            return out.set(this.x, this.y, 0);
-        }
-
-        return new Vec3(this.x, this.y, 0);
-    }
-
-    /**
      * @en Check whether the vector approximately equals another one.
      * @zh 判断当前向量是否在误差范围内与指定向量相等。
      * @param other Specified vector

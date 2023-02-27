@@ -29,7 +29,6 @@ import { Mat4 } from './mat4';
 import { IMat3Like, IMat4Like, IQuatLike, IVec3Like } from './type-define';
 import { clamp, EPSILON, lerp, random } from './utils';
 import { legacyCC } from '../global-exports';
-import { Vec2 } from './vec2';
 
 /**
  * @en Representation of 3D vectors and points.
@@ -850,20 +849,6 @@ export class Vec3 extends ValueType {
             this.z = z || 0;
         }
         return this;
-    }
-
-    /**
-     * @en Convert current Vec3 to Vec2.
-     * @zh 转换当前Vec3到Vec2。
-     * @param out Vec2 value
-     * @return Vec2 value
-     */
-    public toVec2 (out?: Vec2): Vec2 {
-        if (out) {
-            return out.set(this.x, this.y);
-        }
-
-        return new Vec2(this.x, this.y);
     }
 
     /**
