@@ -46,7 +46,6 @@
   "include": [
       "exports/**/*.ts",
       "typedoc-index.ts",
-      "pal/**/*.ts",
-      "editor/exports/**/*.ts"
+      "pal/**/*.ts"
   ]
 }
