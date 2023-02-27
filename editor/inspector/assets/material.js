@@ -283,6 +283,13 @@ exports.methods = {
                     }
                 });
             }
+
+            // when passes length more than one, the ui-section of pipeline state collapse
+            if (technique.passes.length > 1) {
+                $container.querySelectorAll('[cache-expand$="PassStates"]').forEach(($pipelineState) => {
+                    $pipelineState.removeAttribute('expand');
+                });
+            }
         }
 
         this.updateInstancing();
