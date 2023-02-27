@@ -1009,7 +1009,7 @@ function initSys () {
             }).catch(err => {});
         }
         // NOTE: '__wxjs_environment' is defined in wechat miniprogram webview environment
-        // We need to open touch capability on wechat miniprogram webview environment so that touch event listener is registered on canvas element.
+        // developpers would embed builded web project in a WebView component on wechat miniprogram, so that we need to handle this situation.
         if (docEle['ontouchstart'] !== undefined || doc['ontouchstart'] !== undefined || nav.msPointerEnabled || (typeof __wxjs_environment === 'string' && __wxjs_environment === 'miniprogram'))
             capabilities["touches"] = true;
         if (docEle['onmouseup'] !== undefined)
