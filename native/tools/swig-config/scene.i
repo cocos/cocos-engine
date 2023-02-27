@@ -22,6 +22,8 @@
 #include "scene/DirectionalLight.h"
 #include "scene/SpotLight.h"
 #include "scene/SphereLight.h"
+#include "scene/PointLight.h"
+#include "scene/RangedDirectionalLight.h"
 #include "scene/Model.h"
 #include "scene/SubModel.h"
 #include "scene/Pass.h"
@@ -69,8 +71,6 @@ using namespace cc;
 //  2. namespace is needed
 //
 %ignore cc::RefCounted;
-%ignore cc::scene::LODGroup::getVisibleLODLevel;
-%ignore cc::scene::LODGroup::getLockedLODLevels;
 
 %ignore cc::scene::Pass::getBlocks;
 %ignore cc::scene::Pass::initPassFromTarget;
@@ -80,7 +80,6 @@ using namespace cc;
 
 %ignore cc::Node::setRTSInternal;
 %ignore cc::Node::setRTS;
-%ignore cc::scene::Camera::syncCameraEditor;
 //FIXME: These methods binding code will generate SwigValueWrapper type which is not supported now.
 %ignore cc::scene::SubModel::getInstancedAttributeBlock;
 %ignore cc::scene::SubModel::getInstancedWorldMatrixIndex;
@@ -140,12 +139,12 @@ using namespace cc;
 %ignore cc::Node::getWorldMatrix;
 %ignore cc::Node::getWorldRS;
 %ignore cc::Node::getWorldRT;
+%ignore cc::Node::_getSharedArrayBufferObject;
 
 %ignore cc::scene::Camera::screenPointToRay;
 %ignore cc::scene::Camera::screenToWorld;
 %ignore cc::scene::Camera::worldToScreen;
 %ignore cc::scene::Camera::worldMatrixToScreen;
-%ignore cc::scene::Camera::syncCameraEditor;
 %ignore cc::scene::Camera::getMatView;
 %ignore cc::scene::Camera::getMatProj;
 %ignore cc::scene::Camera::getMatProjInv;
@@ -196,6 +195,7 @@ using namespace cc;
 %rename(_initLocalSHDescriptors) cc::scene::Model::initLocalSHDescriptors;
 %rename(_updateLocalSHDescriptors) cc::scene::Model::updateLocalSHDescriptors;
 %rename(_updateInstancedAttributes) cc::scene::Model::updateInstancedAttributes;
+%rename(_updateWorldBoundDescriptors) cc::scene::Model::updateWorldBoundDescriptors;
 
 %rename(_load) cc::Scene::load;
 %rename(_activate) cc::Scene::activate;
@@ -246,6 +246,7 @@ using namespace cc;
 %attribute(cc::Root, cc::render::PipelineRuntime *, pipeline, getPipeline);
 %attribute(cc::Root, cc::render::Pipeline*, customPipeline, getCustomPipeline);
 %attribute(cc::Root, %arg(ccstd::vector<cc::scene::Camera*> &), cameraList, getCameraList);
+%attribute(cc::Root, cc::pipeline::DebugView*, debugView, getDebugView);
 
 %attribute(cc::scene::RenderWindow, uint32_t, width, getWidth);
 %attribute(cc::scene::RenderWindow, uint32_t, height, getHeight);
@@ -334,6 +335,7 @@ using namespace cc;
 %attribute(cc::scene::DirectionalLight, float, csmLayerLambda, getCSMLayerLambda, setCSMLayerLambda);
 %attribute(cc::scene::DirectionalLight, cc::scene::CSMOptimizationMode, csmOptimizationMode, getCSMOptimizationMode, setCSMOptimizationMode);
 %attribute(cc::scene::DirectionalLight, bool, csmLayersTransition, getCSMLayersTransition, setCSMLayersTransition);
+%attribute(cc::scene::DirectionalLight, float, csmTransitionRange, getCSMTransitionRange, setCSMTransitionRange);
 
 %attribute(cc::scene::SpotLight, cc::Vec3&, position, getPosition);
 %attribute(cc::scene::SpotLight, float, range, getRange, setRange);
@@ -358,6 +360,17 @@ using namespace cc;
 %attribute(cc::scene::SphereLight, float, luminanceHDR, getLuminanceHDR, setLuminanceHDR);
 %attribute(cc::scene::SphereLight, float, luminanceLDR, getLuminanceLDR, setLuminanceLDR);
 %attribute(cc::scene::SphereLight, cc::geometry::AABB&, aabb, getAABB);
+
+%attribute(cc::scene::PointLight, cc::Vec3&, position, getPosition, setPosition);
+%attribute(cc::scene::PointLight, float, range, getRange, setRange);
+%attribute(cc::scene::PointLight, float, luminance, getLuminance, setLuminance);
+%attribute(cc::scene::PointLight, float, luminanceHDR, getLuminanceHDR, setLuminanceHDR);
+%attribute(cc::scene::PointLight, float, luminanceLDR, getLuminanceLDR, setLuminanceLDR);
+%attribute(cc::scene::PointLight, cc::geometry::AABB&, aabb, getAABB);
+
+%attribute(cc::scene::RangedDirectionalLight, float, illuminance, getIlluminance, setIlluminance);
+%attribute(cc::scene::RangedDirectionalLight, float, illuminanceHDR, getIlluminanceHDR, setIlluminanceHDR);
+%attribute(cc::scene::RangedDirectionalLight, float, illuminanceLDR, getIlluminanceLDR, setIlluminanceLDR);
 
 %attribute(cc::scene::Camera, cc::scene::CameraISO, iso, getIso, setIso);
 %attribute(cc::scene::Camera, float, isoValue, getIsoValue);
@@ -403,6 +416,8 @@ using namespace cc;
 %attribute(cc::scene::RenderScene, ccstd::vector<cc::IntrusivePtr<cc::scene::Camera>>&, cameras, getCameras);
 %attribute(cc::scene::RenderScene, ccstd::vector<cc::IntrusivePtr<cc::scene::SphereLight>>&, sphereLights, getSphereLights);
 %attribute(cc::scene::RenderScene, ccstd::vector<cc::IntrusivePtr<cc::scene::SpotLight>>&, spotLights, getSpotLights);
+%attribute(cc::scene::RenderScene, ccstd::vector<cc::IntrusivePtr<cc::scene::PointLight>>&, pointLights, getPointLights);
+%attribute(cc::scene::RenderScene, ccstd::vector<cc::IntrusivePtr<cc::scene::RangedDirectionalLight>>&, rangedDirLights, getRangedDirLights);
 %attribute(cc::scene::RenderScene, ccstd::vector<cc::IntrusivePtr<cc::scene::Model>>&, models, getModels);
 %attribute(cc::scene::RenderScene, ccstd::vector<cc::IntrusivePtr<cc::scene::LODGroup>>&, lodGroups, getLODGroups);
 
@@ -451,9 +466,12 @@ using namespace cc;
 %attribute(cc::scene::Model, cc::scene::Model::Type, type, getType, setType);
 %attribute(cc::scene::Model, bool, isDynamicBatching, isDynamicBatching, setDynamicBatching);
 %attribute(cc::scene::Model, uint32_t, priority, getPriority, setPriority);
+%attribute(cc::scene::Model, int32_t, tetrahedronIndex, getTetrahedronIndex, setTetrahedronIndex);
 %attribute(cc::scene::Model, bool, useLightProbe, getUseLightProbe, setUseLightProbe);
 %attribute(cc::scene::Model, bool, bakeToReflectionProbe, getBakeToReflectionProbe, setBakeToReflectionProbe);
 %attribute(cc::scene::Model, uint32_t, reflectionProbeType, getReflectionProbeType, setReflectionProbeType);
+%attribute(cc::scene::Model, bool, receiveDirLight, isReceiveDirLight, setReceiveDirLight);
+%attribute(cc::scene::Model, int32_t, reflectionProbeId, getReflectionProbeId, setReflectionProbeId);
 
 %attribute(cc::scene::SubModel, std::shared_ptr<ccstd::vector<cc::IntrusivePtr<cc::scene::Pass>>> &, passes, getPasses, setPasses);
 %attribute(cc::scene::SubModel, ccstd::vector<cc::IntrusivePtr<cc::gfx::Shader>> &, shaders, getShaders, setShaders);
@@ -508,18 +526,21 @@ using namespace cc;
 %attribute(cc::scene::FogInfo, float, fogTop, getFogTop, setFogTop);
 %attribute(cc::scene::FogInfo, float, fogRange, getFogRange, setFogRange);
 
-%attribute(cc::scene::SkyboxInfo, TextureCube*, _envmap, getEnvmapForJS, setEnvmapForJS);
+%attribute(cc::scene::SkyboxInfo, cc::TextureCube*, _envmap, getEnvmapForJS, setEnvmapForJS);
 %attribute(cc::scene::SkyboxInfo, bool, applyDiffuseMap, isApplyDiffuseMap, setApplyDiffuseMap);
 %attribute(cc::scene::SkyboxInfo, bool, enabled, isEnabled, setEnabled);
 %attribute(cc::scene::SkyboxInfo, bool, useIBL, isUseIBL, setUseIBL);
 %attribute(cc::scene::SkyboxInfo, bool, useHDR, isUseHDR, setUseHDR);
-%attribute(cc::scene::SkyboxInfo, TextureCube*, envmap, getEnvmap, setEnvmap);
-%attribute(cc::scene::SkyboxInfo, TextureCube*, diffuseMap, getDiffuseMap, setDiffuseMap);
+%attribute(cc::scene::SkyboxInfo, cc::TextureCube*, envmap, getEnvmap, setEnvmap);
+%attribute(cc::scene::SkyboxInfo, cc::TextureCube*, diffuseMap, getDiffuseMap, setDiffuseMap);
+%attribute(cc::scene::SkyboxInfo, cc::TextureCube*, reflectionMap, getReflectionMap, setReflectionMap);
+%attribute(cc::scene::SkyboxInfo, cc::Material*, skyboxMaterial, getSkyboxMaterial, setSkyboxMaterial);
+%attribute(cc::scene::SkyboxInfo, float, rotationAngle, getRotationAngle, setRotationAngle);
 %attribute(cc::scene::SkyboxInfo, cc::scene::EnvironmentLightingType, envLightingType, getEnvLightingType, setEnvLightingType);
 
 %attribute(cc::scene::OctreeInfo, bool, enabled, isEnabled, setEnabled);
-%attribute(cc::scene::OctreeInfo, Vec3&, minPos, getMinPos, setMinPos);
-%attribute(cc::scene::OctreeInfo, Vec3&, maxPos, getMaxPos, setMaxPos);
+%attribute(cc::scene::OctreeInfo, cc::Vec3&, minPos, getMinPos, setMinPos);
+%attribute(cc::scene::OctreeInfo, cc::Vec3&, maxPos, getMaxPos, setMaxPos);
 %attribute(cc::scene::OctreeInfo, uint32_t, depth, getDepth, setDepth);
 
 %attribute(cc::Scene, bool, autoReleaseAssets, isAutoReleaseAssets, setAutoReleaseAssets);
@@ -529,8 +550,16 @@ using namespace cc;
 %attribute(cc::scene::ReflectionProbe, cc::gfx::ClearFlagBit, clearFlag, getClearFlag, setClearFlag);
 %attribute(cc::scene::ReflectionProbe, cc::gfx::Color&, backgroundColor, getBackgroundColor, setBackgroundColor);
 %attribute(cc::scene::ReflectionProbe, uint32_t, visibility, getVisibility, setVisibility);
-%attribute(cc::scene::ReflectionProbe, Vec3&, size, getBoudingSize, setBoudingSize);
+%attribute(cc::scene::ReflectionProbe, cc::Vec3&, size, getBoudingSize, setBoudingSize);
+%attribute(cc::scene::ReflectionProbe, cc::geometry::AABB *, boundingBox, getBoundingBox);
+%attribute(cc::scene::ReflectionProbe, cc::Node*, previewSphere, getPreviewSphere, setPreviewSphere);
+%attribute(cc::scene::ReflectionProbe, cc::Node*, previewPlane, getPreviewPlane, setPreviewPlane);
+%attribute(cc::scene::ReflectionProbe, ccstd::vector<cc::IntrusivePtr<cc::RenderTexture>> &, bakedCubeTextures, getBakedCubeTextures);
+%attribute(cc::scene::ReflectionProbe, cc::TextureCube*, cubemap, getCubeMap, setCubeMap);
+%attribute(cc::scene::ReflectionProbe, cc::Node*, node, getNode);
+%attribute(cc::scene::ReflectionProbe, cc::RenderTexture*, realtimePlanarTexture, getRealtimePlanarTexture);
 
+%attribute(cc::SceneGlobals, bool, bakedWithStationaryMainLight, getBakedWithStationaryMainLight, setBakedWithStationaryMainLight);
 
 
 // ----- Import Section ------
@@ -615,6 +644,8 @@ using namespace cc;
 %include "scene/DirectionalLight.h"
 %include "scene/SpotLight.h"
 %include "scene/SphereLight.h"
+%include "scene/PointLight.h"
+%include "scene/RangedDirectionalLight.h"
 %include "scene/Model.h"
 %include "scene/SubModel.h"
 %include "scene/Pass.h"

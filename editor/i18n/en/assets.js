@@ -341,6 +341,22 @@ module.exports = {
                         name: 'Ratio',
                         title: 'Target Ratio',
                     },
+                    preserveSurfaceCurvature: {
+                        name: 'Surface Curvature',
+                        title: 'Preserve Surface Curvature',
+                    },
+                    preserveBorderEdges: {
+                        name: 'Border Edges',
+                        title: 'Preserve Border Edges',
+                    },
+                    preserveUVSeamEdges: {
+                        name: 'UV Seam Edges',
+                        title: 'Preserve UV Seam Edges',
+                    },
+                    preserveUVFoldoverEdges: {
+                        name: 'UV Foldover Edges',
+                        title: 'Preserve UV Foldover Edges',
+                    },
                     enableSmartLink: {
                         name: 'Smart Link',
                         title: 'Enable Smart Link',
@@ -442,7 +458,8 @@ module.exports = {
         reset_node: 'Reset',
         reset_node_position: 'Reset Position',
         reset_node_rotation: 'Reset Rotation',
-        reset_node_scale: 'Reset Scale ',
+        reset_node_scale: 'Reset Scale',
+        reset_node_mobility: 'Reset Mobility',
 
         copy_node_value: 'Copy Node Values',
         paste_node_value: 'Paste Node Values',

@@ -5,38 +5,86 @@ CCEffect %{
   - passes:
     - vert: bloom-vs
       frag: prefilter-fs
-      phase: bloom-prefilter
+      pass: bloom-prefilter
       depthStencilState:
         depthTest: false
         depthWrite: false
     # Supports up to MAX_BLOOM_FILTER_PASS_NUM upsample/downsample passes
-    - &downsample
-        vert: bloom-vs
-        frag: downsample-fs
-        phase: bloom-downsample
-        depthStencilState:
-          depthTest: false
-          depthWrite: false
-    - *downsample
-    - *downsample
-    - *downsample
-    - *downsample
-    - *downsample
-    - &upsample
-        vert: bloom-vs
-        frag: upsample-fs
-        phase: bloom-upsample
-        depthStencilState:
-          depthTest: false
-          depthWrite: false
-    - *upsample
-    - *upsample
-    - *upsample
-    - *upsample
-    - *upsample
+    - vert: bloom-vs
+      frag: downsample-fs
+      pass: bloom-downsample0
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+    - vert: bloom-vs
+      frag: downsample-fs
+      pass: bloom-downsample1
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+    - vert: bloom-vs
+      frag: downsample-fs
+      pass: bloom-downsample2
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+    - vert: bloom-vs
+      frag: downsample-fs
+      pass: bloom-downsample3
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+    - vert: bloom-vs
+      frag: downsample-fs
+      pass: bloom-downsample4
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+    - vert: bloom-vs
+      frag: downsample-fs
+      pass: bloom-downsample5
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+    - vert: bloom-vs
+      frag: upsample-fs
+      pass: bloom-upsample0
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+    - vert: bloom-vs
+      frag: upsample-fs
+      pass: bloom-upsample1
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+    - vert: bloom-vs
+      frag: upsample-fs
+      pass: bloom-upsample2
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+    - vert: bloom-vs
+      frag: upsample-fs
+      pass: bloom-upsample3
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+    - vert: bloom-vs
+      frag: upsample-fs
+      pass: bloom-upsample4
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+    - vert: bloom-vs
+      frag: upsample-fs
+      pass: bloom-upsample5
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
     - vert: bloom-vs
       frag: combine-fs
-      phase: bloom-combine
+      pass: bloom-combine
       depthStencilState:
         depthTest: false
         depthWrite: false
@@ -70,6 +118,7 @@ CCProgram prefilter-fs %{
   uniform BloomUBO {
     mediump vec4 texSize;
   };
+  #pragma rate outputResultMap pass
   uniform sampler2D outputResultMap;
 
   layout(location = 0) out vec4 fragColor;
@@ -98,6 +147,7 @@ CCProgram downsample-fs %{
   uniform BloomUBO {
     mediump vec4 texSize;
   };
+  #pragma rate bloomTexture pass
   uniform sampler2D bloomTexture;
 
   layout(location = 0) out vec4 fragColor;
@@ -140,6 +190,7 @@ CCProgram upsample-fs %{
   uniform BloomUBO {
     mediump vec4 texSize;
   };
+  #pragma rate bloomTexture pass
   uniform sampler2D bloomTexture;
 
   layout(location = 0) out vec4 fragColor;
@@ -182,7 +233,9 @@ CCProgram combine-fs %{
   uniform BloomUBO {
     mediump vec4 texSize;
   };
+  #pragma rate outputResultMap pass
   uniform sampler2D outputResultMap;
+  #pragma rate bloomTexture pass
   uniform sampler2D bloomTexture;
 
   layout(location = 0) out vec4 fragColor;

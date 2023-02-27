@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { Pool, cclegacy, warnID, settings, Settings, macro } from './core';
 import { RenderPipeline, createDefaultPipeline, DeferredPipeline } from './rendering';
@@ -33,8 +32,10 @@ import { IRenderSceneInfo, RenderScene } from './render-scene/core/render-scene'
 import { DirectionalLight } from './render-scene/scene/directional-light';
 import { SphereLight } from './render-scene/scene/sphere-light';
 import { SpotLight } from './render-scene/scene/spot-light';
+import { PointLight } from './render-scene/scene/point-light';
+import { RangedDirectionalLight } from './render-scene/scene/ranged-directional-light';
 import { RenderWindow, IRenderWindowInfo } from './render-scene/core/render-window';
-import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device, Swapchain, Feature, deviceManager } from './gfx';
+import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device, Swapchain, Feature, deviceManager, LegacyRenderMode } from './gfx';
 import { Pipeline, PipelineRuntime } from './rendering/custom/pipeline';
 import { Batcher2D } from './2d/renderer/batcher-2d';
 import { IPipelineEvent } from './rendering/pipeline-event';
@@ -226,7 +227,7 @@ export class Root {
      * @en Whether the built-in deferred pipeline is used.
      * @zh 是否启用内置延迟渲染管线
      */
-    public get useDeferredPipeline () : boolean {
+    public get useDeferredPipeline (): boolean {
         return this._useDeferredPipeline;
     }
 
@@ -335,6 +336,10 @@ export class Root {
         this._curWindow = null;
         this._mainWindow = null;
         this.dataPoolManager.clear();
+
+        if (cclegacy.rendering) {
+            cclegacy.rendering.destroy();
+        }
     }
 
     /**
@@ -359,6 +364,7 @@ export class Root {
      * @returns The setup is successful or not
      */
     public setRenderPipeline (rppl?: RenderPipeline): boolean {
+        const { internal, director, rendering } = cclegacy;
         //-----------------------------------------------
         // prepare classic pipeline
         //-----------------------------------------------
@@ -382,8 +388,8 @@ export class Root {
         //-----------------------------------------------
         // choose pipeline
         //-----------------------------------------------
-        if (macro.CUSTOM_PIPELINE_NAME !== '' && cclegacy.rendering && this.usesCustomPipeline) {
-            this._customPipeline = cclegacy.rendering.createCustomPipeline();
+        if (macro.CUSTOM_PIPELINE_NAME !== '' && rendering && this.usesCustomPipeline) {
+            this._customPipeline = rendering.createCustomPipeline();
             isCreateDefaultPipeline = true;
             this._pipeline = this._customPipeline!;
         } else {
@@ -393,29 +399,32 @@ export class Root {
             this._usesCustomPipeline = false;
         }
 
-        if (!this._pipeline.activate(this._mainWindow!.swapchain)) {
-            if (isCreateDefaultPipeline) {
-                this._pipeline.destroy();
-            }
-            this._classicPipeline = null;
-            this._customPipeline = null;
-            this._pipeline = null;
-            this._pipelineEvent = null;
+        const renderMode = settings.querySettings(Settings.Category.RENDERING, 'renderMode');
+        if (renderMode !== LegacyRenderMode.HEADLESS || this._classicPipeline) {
+            if (!this._pipeline.activate(this._mainWindow!.swapchain)) {
+                if (isCreateDefaultPipeline) {
+                    this._pipeline.destroy();
+                }
+                this._classicPipeline = null;
+                this._customPipeline = null;
+                this._pipeline = null;
+                this._pipelineEvent = null;
 
-            return false;
+                return false;
+            }
         }
 
         //-----------------------------------------------
         // pipeline initialization completed
         //-----------------------------------------------
-        const scene = cclegacy.director.getScene();
+        const scene = director.getScene();
         if (scene) {
             scene.globals.activate();
         }
 
         this.onGlobalPipelineStateChanged();
-        if (!this._batcher && cclegacy.internal.Batcher2D) {
-            this._batcher = new cclegacy.internal.Batcher2D(this);
+        if (!this._batcher && internal.Batcher2D) {
+            this._batcher = new internal.Batcher2D(this);
             if (!this._batcher!.initialize()) {
                 this.destroy();
                 return false;
@@ -460,6 +469,7 @@ export class Root {
      * @param deltaTime @en The delta time since last update. @zh 距离上一帧间隔时间
      */
     public frameMove (deltaTime: number) {
+        const { director, Director } = cclegacy;
         this._frameTime = deltaTime;
 
         /*
@@ -497,7 +507,8 @@ export class Root {
         if (this._pipeline && cameraList.length > 0) {
             this._device.acquire([deviceManager.swapchain]);
             const scenes = this._scenes;
-            const stamp = cclegacy.director.getTotalFrames();
+            const stamp = director.getTotalFrames();
+
             if (this._batcher) {
                 this._batcher.update();
                 this._batcher.uploadBuffers();
@@ -507,14 +518,15 @@ export class Root {
                 scenes[i].update(stamp);
             }
 
-            cclegacy.director.emit(cclegacy.Director.EVENT_BEFORE_COMMIT);
+            director.emit(Director.EVENT_BEFORE_COMMIT);
             cameraList.sort((a: Camera, b: Camera) => a.priority - b.priority);
 
             for (let i = 0; i < cameraList.length; ++i) {
                 cameraList[i].geometryRenderer?.update();
             }
-            cclegacy.director.emit(cclegacy.Director.EVENT_BEFORE_RENDER);
+            director.emit(Director.EVENT_BEFORE_RENDER);
             this._pipeline.render(cameraList);
+            director.emit(Director.EVENT_AFTER_RENDER);
             this._device.present();
         }
 
@@ -675,6 +687,12 @@ export class Root {
             case LightType.SPOT:
                 l.scene.removeSpotLight(l as SpotLight);
                 break;
+            case LightType.POINT:
+                l.scene.removePointLight(l as PointLight);
+                break;
+            case LightType.RANGED_DIRECTIONAL:
+                l.scene.removeRangedDirLight(l as RangedDirectionalLight);
+                break;
             default:
                 break;
             }
@@ -701,6 +719,12 @@ export class Root {
                     break;
                 case LightType.SPOT:
                     l.scene.removeSpotLight(l as SpotLight);
+                    break;
+                case LightType.POINT:
+                    l.scene.removePointLight(l as PointLight);
+                    break;
+                case LightType.RANGED_DIRECTIONAL:
+                    l.scene.removeRangedDirLight(l as RangedDirectionalLight);
                     break;
                 default:
                     break;

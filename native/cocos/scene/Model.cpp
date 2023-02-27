@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,13 +20,15 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+****************************************************************************/
 #include "base/std/container/array.h"
 
 // #include "core/Director.h"
 #include "core/Root.h"
 #include "core/TypedArray.h"
 #include "core/assets/Material.h"
+#include "core/scene-graph/Scene.h"
+#include "core/scene-graph/SceneGlobals.h"
 #include "gfx-base/GFXTexture.h"
 #include "gi/light-probe/LightProbe.h"
 #include "gi/light-probe/SH.h"
@@ -39,6 +40,8 @@
 #include "scene/Pass.h"
 #include "scene/RenderScene.h"
 #include "scene/SubModel.h"
+#include "scene/ReflectionProbeManager.h"
+#include "scene/ReflectionProbe.h"
 
 namespace {
 const cc::gfx::SamplerInfo LIGHTMAP_SAMPLER_HASH{
@@ -62,6 +65,9 @@ const cc::gfx::SamplerInfo LIGHTMAP_SAMPLER_WITH_MIP_HASH{
 const ccstd::vector<cc::scene::IMacroPatch> SHADOW_MAP_PATCHES{{"CC_RECEIVE_SHADOW", true}};
 const ccstd::vector<cc::scene::IMacroPatch> LIGHT_PROBE_PATCHES{{"CC_USE_LIGHT_PROBE", true}};
 const ccstd::string CC_USE_REFLECTION_PROBE = "CC_USE_REFLECTION_PROBE";
+const ccstd::string CC_RECEIVE_DIRECTIONAL_LIGHT = "CC_RECEIVE_DIRECTIONAL_LIGHT";
+const ccstd::vector<cc::scene::IMacroPatch> STATIC_LIGHTMAP_PATHES{{"CC_USE_LIGHTMAP", 1}};
+const ccstd::vector<cc::scene::IMacroPatch> STATIONARY_LIGHTMAP_PATHES{{"CC_USE_LIGHTMAP", 2}};
 } // namespace
 
 namespace cc {
@@ -80,6 +86,8 @@ void Model::initialize() {
     _enabled = true;
     _visFlags = Layers::Enum::NONE;
     _inited = true;
+    _bakeToReflectionProbe = true;
+    _reflectionProbeType = 0;
 }
 
 void Model::destroy() {
@@ -197,6 +205,21 @@ void Model::updateUBOs(uint32_t stamp) {
         _localBuffer->write(mat4, sizeof(float) * pipeline::UBOLocal::MAT_WORLD_IT_OFFSET);
         _localBuffer->write(_lightmapUVParam, sizeof(float) * pipeline::UBOLocal::LIGHTINGMAP_UVPARAM);
         _localBuffer->write(_shadowBias, sizeof(float) * (pipeline::UBOLocal::LOCAL_SHADOW_BIAS));
+        
+        auto * probe = scene::ReflectionProbeManager::getInstance()->getReflectionProbeById(_reflectionProbeId);
+        if (probe) {
+            if (probe->getProbeType() == scene::ReflectionProbe::ProbeType::PLANAR) {
+                const Vec4 plane = {probe->getNode()->getUp().x, probe->getNode()->getUp().y, probe->getNode()->getUp().z, 1.F};
+                _localBuffer->write(plane, sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_DATA1));
+                const Vec4 depthScale = {1.F, 0.F, 0.F, 1.F};
+                _localBuffer->write(depthScale, sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_DATA2));
+            } else {
+                const Vec4 pos = {probe->getNode()->getWorldPosition().x, probe->getNode()->getWorldPosition().y, probe->getNode()->getWorldPosition().z, 0.F};
+                _localBuffer->write(pos, sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_DATA1));
+                const Vec4 boxSize = {probe->getBoudingSize().x, probe->getBoudingSize().y, probe->getBoudingSize().z, static_cast<float>(probe->getCubeMap() ? probe->getCubeMap()->mipmapLevel() : 1)};
+                _localBuffer->write(boxSize, sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_DATA2));
+            }
+        }
 
         _localBuffer->update();
         const bool enableOcclusionQuery = Root::getInstance()->getPipeline()->isOcclusionQueryEnabled();
@@ -430,6 +453,24 @@ ccstd::vector<IMacroPatch> Model::getMacroPatches(index_t subModelIndex) {
 
     patches.push_back({CC_USE_REFLECTION_PROBE, _reflectionProbeType});
 
+    if (_lightmap != nullptr) {
+        bool stationary = false;
+        if (getNode() != nullptr && getNode()->getScene() != nullptr) {
+            stationary = getNode()->getScene()->getSceneGlobals()->getBakedWithStationaryMainLight();
+        }
+
+        if (stationary) {
+            for (const auto &patch : STATIONARY_LIGHTMAP_PATHES) {
+                patches.push_back(patch);
+            }
+        } else {
+            for (const auto &patch : STATIC_LIGHTMAP_PATHES) {
+                patches.push_back(patch);
+            }
+        }
+    }
+    patches.push_back({CC_RECEIVE_DIRECTIONAL_LIGHT, _receiveDirLight});
+
     return patches;
 }
 
@@ -550,7 +591,7 @@ void Model::updateLocalShadowBias() {
     _localDataUpdated = true;
 }
 
-void Model::updateReflctionProbeCubemap(TextureCube *texture) {
+void Model::updateReflectionProbeCubemap(TextureCube *texture) {
     _localDataUpdated = true;
     if (texture == nullptr) {
         texture = BuiltinResMgr::getInstance()->get<TextureCube>(ccstd::string("default-cube-texture"));
@@ -566,7 +607,7 @@ void Model::updateReflctionProbeCubemap(TextureCube *texture) {
         }
     }
 }
-void Model::updateReflctionProbePlanarMap(gfx::Texture *texture) {
+void Model::updateReflectionProbePlanarMap(gfx::Texture *texture) {
     _localDataUpdated = true;
 
     gfx::Texture *bindingTexture = texture;
@@ -590,6 +631,27 @@ void Model::updateReflctionProbePlanarMap(gfx::Texture *texture) {
             descriptorSet->update();
         }
     }
+}
+
+void Model::updateReflectionProbeDataMap(Texture2D *texture) {
+    _localDataUpdated = true;
+
+    if (!texture) {
+        texture = BuiltinResMgr::getInstance()->get<Texture2D>(ccstd::string("empty-texture"));
+    }
+    gfx::Texture *gfxTexture = texture->getGFXTexture();
+    if (gfxTexture) {
+        for (SubModel *subModel : _subModels) {
+            gfx::DescriptorSet *descriptorSet = subModel->getDescriptorSet();
+            descriptorSet->bindTexture(pipeline::REFLECTIONPROBEDATAMAP::BINDING, gfxTexture);
+            descriptorSet->bindSampler(pipeline::REFLECTIONPROBEDATAMAP::BINDING, texture->getGFXSampler());
+            descriptorSet->update();
+        }
+    }
+}
+
+void Model::updateReflectionProbeId() {
+    _localDataUpdated = true;
 }
 
 void Model::setInstancedAttribute(const ccstd::string &name, const float *value, uint32_t byteLength) {

@@ -12,7 +12,7 @@ float D_GGXMobile(float roughness, float NoH) {
   float OneMinusNoHSqr = 1.0 - NoH * NoH;
   float a = roughness * roughness;
   float n = NoH * a;
-  float p = a / (OneMinusNoHSqr + n * n);
+  float p = a / max(EPSILON, OneMinusNoHSqr + n * n);
   return p * p;
 }
 

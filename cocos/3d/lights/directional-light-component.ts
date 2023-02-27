@@ -1,15 +1,15 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
@@ -25,9 +25,12 @@
 
 import { Light } from './light-component';
 import { scene } from '../../render-scene';
-import { cclegacy, clamp, warnID, CCBoolean, CCFloat, _decorator, settings, Settings } from '../../core';
+import { cclegacy, clamp, warnID, CCBoolean, CCFloat, _decorator, settings, Settings, CCInteger } from '../../core';
 import { Camera, PCFType, Shadows, ShadowType, CSMOptimizationMode, CSMLevel } from '../../render-scene/scene';
 import { Root } from '../../root';
+import { MeshRenderer } from '../framework';
+import { director } from '../../game/director';
+import { rangeMin } from '../../core/data/decorators';
 
 const { ccclass, menu, executeInEditMode, property, serializable, formerlySerializedAs, tooltip, help, visible, type, editable, slide, range } = _decorator;
 
@@ -75,6 +78,8 @@ export class DirectionalLight extends Light {
     protected _csmAdvancedOptions = false;
     @serializable
     protected _csmLayersTransition = false;
+    @serializable
+    protected _csmTransitionRange = 0.05;
 
     // fixed area properties
     @serializable
@@ -94,6 +99,10 @@ export class DirectionalLight extends Light {
      * @zh 光源强度。
      */
     @tooltip('i18n:lights.illuminance')
+    @editable
+    @rangeMin(0)
+    @slide
+    @type(CCInteger)
     get illuminance () {
         const isHDR = (cclegacy.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
@@ -111,19 +120,6 @@ export class DirectionalLight extends Light {
             this._illuminanceLDR = val;
             this._light && (this._light.illuminanceLDR = this._illuminanceLDR);
         }
-    }
-
-    /**
-     * @en Turn off the function for directional light.
-     * @zh 方向光关闭该功能。
-     * @engineInternal
-     */
-    @visible(false)
-    set visibility (vis: number) {
-        this._visibility = vis;
-    }
-    get visibility (): number {
-        return this._visibility;
     }
 
     /**
@@ -265,9 +261,10 @@ export class DirectionalLight extends Light {
     @visible(function (this: DirectionalLight) {
         return (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
         && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type
-        === ShadowType.ShadowMap && this._shadowFixedArea === false;
+        === ShadowType.ShadowMap && this._shadowFixedArea === false
+        && this._csmAdvancedOptions;
     })
-    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 10 } })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 22 } })
     @editable
     @tooltip('if shadow has been culled, increase this value to fix it')
     @range([0.0, 2000.0, 1.0])
@@ -288,7 +285,7 @@ export class DirectionalLight extends Light {
      * @zh 获取或者设置阴影层级
      */
     @visible(false)
-    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 11 } })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 10 } })
     @editable
     @tooltip('CSM Level')
     @slide
@@ -314,7 +311,7 @@ export class DirectionalLight extends Light {
         && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type
             === ShadowType.ShadowMap && this._shadowFixedArea === false;
     })
-    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 12 } })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 11 } })
     @editable
     @tooltip('enable CSM')
     @slide
@@ -335,7 +332,7 @@ export class DirectionalLight extends Light {
      * @zh 获取或者设置阴影层级系数
      */
     @visible(false)
-    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 13 } })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 12 } })
     @editable
     @tooltip('CSM Level ratio')
     @range([0.0, 1.0, 0.01])
@@ -358,7 +355,7 @@ export class DirectionalLight extends Light {
      * @internal
      */
     @visible(false)
-    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 14 } })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 13 } })
     @editable
     @tooltip('CSM Performance Optimization Mode')
     @slide
@@ -380,7 +377,7 @@ export class DirectionalLight extends Light {
     @tooltip('i18n:lights.shadowFixedArea')
     @visible(() => (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
     && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
-    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 15 } })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 14 } })
     @editable
     @type(CCBoolean)
     get shadowFixedArea () {
@@ -403,7 +400,7 @@ export class DirectionalLight extends Light {
         && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type
         === ShadowType.ShadowMap && this._shadowFixedArea === true;
     })
-    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 16 } })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 15 } })
     @editable
     @type(CCFloat)
     get shadowNear () {
@@ -426,7 +423,7 @@ export class DirectionalLight extends Light {
         && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type
         === ShadowType.ShadowMap && this._shadowFixedArea === true;
     })
-    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 17 } })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 16 } })
     @editable
     @type(CCFloat)
     get shadowFar () {
@@ -449,7 +446,7 @@ export class DirectionalLight extends Light {
         && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type
         === ShadowType.ShadowMap && this._shadowFixedArea === true;
     })
-    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 18 } })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 17 } })
     @type(CCFloat)
     get shadowOrthoSize () {
         return this._shadowOrthoSize;
@@ -503,6 +500,25 @@ export class DirectionalLight extends Light {
         if (this._light) { this._light.csmLayersTransition = val; }
     }
 
+    /**
+     * @en get or set csm layers transition range
+     * @zh 获取或者设置级联阴影层级过渡范围？
+     */
+    @tooltip('i18n:lights.csmTransitionRange')
+    @visible(false)
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 21 } })
+    @editable
+    @range([0.0, 0.1, 0.01])
+    @slide
+    @type(CCFloat)
+    get csmTransitionRange () {
+        return this._csmTransitionRange;
+    }
+    set csmTransitionRange (val) {
+        this._csmTransitionRange = val;
+        if (this._light) { this._light.csmTransitionRange = val; }
+    }
+
     constructor () {
         super();
         this._lightType = scene.DirectionalLight;
@@ -538,6 +554,30 @@ export class DirectionalLight extends Light {
             this._light.csmLayerLambda = this._csmLayerLambda;
             this._light.csmOptimizationMode = this._csmOptimizationMode;
             this._light.csmLayersTransition = this._csmLayersTransition;
+            this._light.csmTransitionRange = this._csmTransitionRange;
+        }
+    }
+
+    protected _onUpdateReceiveDirLight () {
+        if (!this._light) {
+            return;
+        }
+        super._onUpdateReceiveDirLight();
+
+        const scene = director.getScene();
+        if (!scene || !scene.renderScene) {
+            return;
+        }
+        if (scene.renderScene.mainLight !== this._light) {
+            return;
+        }
+        const models = scene.renderScene.models;
+        for (let i = 0; i < models.length; i++) {
+            const model = models[i];
+            if (!model.node) continue;
+            const meshRender = model.node.getComponent(MeshRenderer);
+            if (!meshRender) continue;
+            meshRender.onUpdateReceiveDirLight(this._visibility);
         }
     }
 }

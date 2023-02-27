@@ -1,3 +1,27 @@
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
 import { EDITOR } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
 import { AudioPCMDataView, AudioEvent, AudioState, AudioType } from '../type';
@@ -7,6 +31,7 @@ import { enqueueOperation, OperationInfo, OperationQueueable } from '../operatio
 import AudioTimer from '../audio-timer';
 import { audioBufferManager } from '../audio-buffer-manager';
 import legacyCC from '../../../predefine';
+import { Game, game } from '../../../cocos/game';
 
 // NOTE: fix CI
 const AudioContextClass = (window.AudioContext || window.webkitAudioContext || window.mozAudioContext);
@@ -77,11 +102,16 @@ export class AudioContextAgent {
             }
             // Force running audio context if state is not 'running', may be 'suspended' or 'interrupted'.
             const canvas = document.getElementById('GameCanvas') as HTMLCanvasElement;
+            // HACK NOTE: if the user slide after touch start, the context cannot be resumed correctly.
             const onGesture = () => {
-                context.resume().then(resolve).catch((e) => {});
+                context.resume().then(() => {
+                    canvas?.removeEventListener('touchend', onGesture, { capture: true });
+                    canvas?.removeEventListener('mouseup', onGesture, { capture: true });
+                    resolve();
+                }).catch((e) => {});
             };
-            canvas?.addEventListener('touchend', onGesture, { once: true, capture: true });
-            canvas?.addEventListener('mouseup', onGesture, { once: true, capture: true });
+            canvas?.addEventListener('touchend', onGesture, { capture: true });
+            canvas?.addEventListener('mouseup', onGesture, { capture: true });
         });
     }
 
@@ -209,8 +239,8 @@ export class AudioPlayerWeb implements OperationQueueable {
         audioContextAgent!.connectContext(this._gainNode);
         this._src = url;
         // event
-        systemInfo.on('hide', this._onHide, this);
-        systemInfo.on('show', this._onShow, this);
+        game.on(Game.EVENT_PAUSE, this._onInterruptedBegin, this);
+        game.on(Game.EVENT_RESUME, this._onInterruptedEnd, this);
     }
     destroy () {
         this._audioTimer.destroy();
@@ -219,8 +249,8 @@ export class AudioPlayerWeb implements OperationQueueable {
             this._audioBuffer = null;
         }
         audioBufferManager.tryReleasingCache(this._src);
-        systemInfo.off('hide', this._onHide, this);
-        systemInfo.off('show', this._onShow, this);
+        game.off(Game.EVENT_PAUSE, this._onInterruptedBegin, this);
+        game.off(Game.EVENT_RESUME, this._onInterruptedEnd, this);
     }
     static load (url: string): Promise<AudioPlayerWeb> {
         return new Promise((resolve) => {
@@ -277,7 +307,7 @@ export class AudioPlayerWeb implements OperationQueueable {
         return new AudioPCMDataView(this._audioBuffer.getChannelData(channelIndex), 1);
     }
 
-    private _onHide () {
+    private _onInterruptedBegin () {
         if (this._state === AudioState.PLAYING) {
             this.pause().then(() => {
                 this._state = AudioState.INTERRUPTED;
@@ -285,7 +315,7 @@ export class AudioPlayerWeb implements OperationQueueable {
             }).catch((e) => {});
         }
     }
-    private _onShow () {
+    private _onInterruptedEnd () {
         if (this._state === AudioState.INTERRUPTED) {
             this.play().then(() => {
                 this._eventTarget.emit(AudioEvent.INTERRUPTION_END);

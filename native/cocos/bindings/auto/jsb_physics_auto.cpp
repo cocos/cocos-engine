@@ -9,20 +9,19 @@
  * ----------------------------------------------------------------------------- */
 
 /****************************************************************************
- Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -57,6 +56,8 @@
 
 
 #include "bindings/auto/jsb_physics_auto.h"
+#include "bindings/auto/jsb_cocos_auto.h"
+#include "bindings/auto/jsb_geometry_auto.h"
 
 
 
@@ -579,6 +580,7 @@ SE_BIND_FUNC(js_cc_physics_World_destroy)
 bool js_register_cc_physics_World(se::Object* obj) {
     auto* cls = se::Class::create("World", obj, nullptr, _SE(js_new_cc_physics_World)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("setGravity", _SE(js_cc_physics_World_setGravity)); 
     cls->defineFunction("setAllowSleep", _SE(js_cc_physics_World_setAllowSleep)); 
@@ -1666,6 +1668,7 @@ SE_BIND_FUNC(js_cc_physics_RigidBody_getObjectID)
 bool js_register_cc_physics_RigidBody(se::Object* obj) {
     auto* cls = se::Class::create("RigidBody", obj, nullptr, _SE(js_new_cc_physics_RigidBody)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("initialize", _SE(js_cc_physics_RigidBody_initialize)); 
     cls->defineFunction("onEnable", _SE(js_cc_physics_RigidBody_onEnable)); 
@@ -2156,6 +2159,7 @@ SE_BIND_FUNC(js_cc_physics_SphereShape_setRadius)
 bool js_register_cc_physics_SphereShape(se::Object* obj) {
     auto* cls = se::Class::create("SphereShape", obj, nullptr, _SE(js_new_cc_physics_SphereShape)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("initialize", _SE(js_cc_physics_SphereShape_initialize)); 
     cls->defineFunction("onEnable", _SE(js_cc_physics_SphereShape_onEnable)); 
@@ -2632,6 +2636,7 @@ SE_BIND_FUNC(js_cc_physics_BoxShape_setSize)
 bool js_register_cc_physics_BoxShape(se::Object* obj) {
     auto* cls = se::Class::create("BoxShape", obj, nullptr, _SE(js_new_cc_physics_BoxShape)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("initialize", _SE(js_cc_physics_BoxShape_initialize)); 
     cls->defineFunction("onEnable", _SE(js_cc_physics_BoxShape_onEnable)); 
@@ -3149,6 +3154,7 @@ SE_BIND_FUNC(js_cc_physics_CapsuleShape_setDirection)
 bool js_register_cc_physics_CapsuleShape(se::Object* obj) {
     auto* cls = se::Class::create("CapsuleShape", obj, nullptr, _SE(js_new_cc_physics_CapsuleShape)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("initialize", _SE(js_cc_physics_CapsuleShape_initialize)); 
     cls->defineFunction("onEnable", _SE(js_cc_physics_CapsuleShape_onEnable)); 
@@ -3651,6 +3657,7 @@ SE_BIND_FUNC(js_cc_physics_PlaneShape_setNormal)
 bool js_register_cc_physics_PlaneShape(se::Object* obj) {
     auto* cls = se::Class::create("PlaneShape", obj, nullptr, _SE(js_new_cc_physics_PlaneShape)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("initialize", _SE(js_cc_physics_PlaneShape_initialize)); 
     cls->defineFunction("onEnable", _SE(js_cc_physics_PlaneShape_onEnable)); 
@@ -4145,6 +4152,7 @@ SE_BIND_FUNC(js_cc_physics_TrimeshShape_useConvex)
 bool js_register_cc_physics_TrimeshShape(se::Object* obj) {
     auto* cls = se::Class::create("TrimeshShape", obj, nullptr, _SE(js_new_cc_physics_TrimeshShape)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("initialize", _SE(js_cc_physics_TrimeshShape_initialize)); 
     cls->defineFunction("onEnable", _SE(js_cc_physics_TrimeshShape_onEnable)); 
@@ -4648,6 +4656,7 @@ SE_BIND_FUNC(js_cc_physics_CylinderShape_setCylinder)
 bool js_register_cc_physics_CylinderShape(se::Object* obj) {
     auto* cls = se::Class::create("CylinderShape", obj, nullptr, _SE(js_new_cc_physics_CylinderShape)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("initialize", _SE(js_cc_physics_CylinderShape_initialize)); 
     cls->defineFunction("onEnable", _SE(js_cc_physics_CylinderShape_onEnable)); 
@@ -5151,6 +5160,7 @@ SE_BIND_FUNC(js_cc_physics_ConeShape_setCone)
 bool js_register_cc_physics_ConeShape(se::Object* obj) {
     auto* cls = se::Class::create("ConeShape", obj, nullptr, _SE(js_new_cc_physics_ConeShape)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("initialize", _SE(js_cc_physics_ConeShape_initialize)); 
     cls->defineFunction("onEnable", _SE(js_cc_physics_ConeShape_onEnable)); 
@@ -5633,6 +5643,7 @@ SE_BIND_FUNC(js_cc_physics_TerrainShape_setTerrain)
 bool js_register_cc_physics_TerrainShape(se::Object* obj) {
     auto* cls = se::Class::create("TerrainShape", obj, nullptr, _SE(js_new_cc_physics_TerrainShape)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("initialize", _SE(js_cc_physics_TerrainShape_initialize)); 
     cls->defineFunction("onEnable", _SE(js_cc_physics_TerrainShape_onEnable)); 
@@ -5948,6 +5959,7 @@ SE_BIND_FUNC(js_cc_physics_RevoluteJoint_setAxis)
 bool js_register_cc_physics_RevoluteJoint(se::Object* obj) {
     auto* cls = se::Class::create("RevoluteJoint", obj, nullptr, _SE(js_new_cc_physics_RevoluteJoint)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("initialize", _SE(js_cc_physics_RevoluteJoint_initialize)); 
     cls->defineFunction("onEnable", _SE(js_cc_physics_RevoluteJoint_onEnable)); 
@@ -6225,6 +6237,7 @@ SE_BIND_FUNC(js_cc_physics_DistanceJoint_setPivotB)
 bool js_register_cc_physics_DistanceJoint(se::Object* obj) {
     auto* cls = se::Class::create("DistanceJoint", obj, nullptr, _SE(js_new_cc_physics_DistanceJoint)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("initialize", _SE(js_cc_physics_DistanceJoint_initialize)); 
     cls->defineFunction("onEnable", _SE(js_cc_physics_DistanceJoint_onEnable)); 
@@ -6485,6 +6498,7 @@ SE_BIND_FUNC(js_cc_physics_FixedJoint_setBreakTorque)
 bool js_register_cc_physics_FixedJoint(se::Object* obj) {
     auto* cls = se::Class::create("FixedJoint", obj, nullptr, _SE(js_new_cc_physics_FixedJoint)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("initialize", _SE(js_cc_physics_FixedJoint_initialize)); 
     cls->defineFunction("onEnable", _SE(js_cc_physics_FixedJoint_onEnable)); 

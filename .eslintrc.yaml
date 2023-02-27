@@ -124,3 +124,13 @@ rules:
         allowNumber: true,
         allowBoolean: true
     }]
+
+    '@typescript-eslint/type-annotation-spacing': warn
+
+    # We choose to use style `... as foo` since it's more common.
+    # In the other hand, angle bracket style can be ambiguous with j/tsx syntax.
+    # For example, https://babeljs.io/docs/en/babel-plugin-transform-typescript#istsx
+    # forbids angle bracket style if `isTSX` is enabled.
+    '@typescript-eslint/consistent-type-assertions': [error, {
+        assertionStyle: 'as'
+    }]

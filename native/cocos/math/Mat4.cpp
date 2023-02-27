@@ -1,7 +1,7 @@
 /**
  Copyright 2013 BlackBerry Inc.
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -47,9 +47,11 @@ Mat4::Mat4() {
     *this = IDENTITY;
 }
 
-Mat4::Mat4(float m11, float m12, float m13, float m14, float m21, float m22, float m23, float m24,
-           float m31, float m32, float m33, float m34, float m41, float m42, float m43, float m44) {
-    set(m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44);
+Mat4::Mat4(float m00, float m01, float m02, float m03,
+           float m10, float m11, float m12, float m13,
+           float m20, float m21, float m22, float m23,
+           float m30, float m31, float m32, float m33) {
+    set(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
 }
 
 Mat4::Mat4(const float *mat) {
@@ -111,7 +113,7 @@ void Mat4::createLookAt(float eyePositionX, float eyePositionY, float eyePositio
 void Mat4::createPerspective(float fieldOfView, float aspectRatio, float zNearPlane, float zFarPlane,
                              bool isFieldOfViewY, float minClipZ, float projectionSignY, int orientation, Mat4 *dst) {
     CC_ASSERT(dst);
-    CC_ASSERT(zFarPlane != zNearPlane);
+    CC_ASSERT_NE(zFarPlane, zNearPlane);
     CC_ASSERT(fieldOfView != 0.0F);
 
     const float f = 1.0F / tanf(fieldOfView / 2.0F);
@@ -151,9 +153,9 @@ void Mat4::createOrthographicOffCenter(float left, float right, float bottom, fl
 
 void Mat4::createOrthographicOffCenter(float left, float right, float bottom, float top, float zNearPlane, float zFarPlane, float minClipZ, float projectionSignY, int orientation, Mat4 *dst) {
     CC_ASSERT(dst);
-    CC_ASSERT(right != left);
-    CC_ASSERT(top != bottom);
-    CC_ASSERT(zFarPlane != zNearPlane);
+    CC_ASSERT_NE(right, left);
+    CC_ASSERT_NE(top, bottom);
+    CC_ASSERT_NE(zFarPlane, zNearPlane);
 
     const ccstd::array<float, 4> &preTransform = PRE_TRANSFORMS[orientation];
     const float lr = 1.F / (left - right);
@@ -555,7 +557,7 @@ bool Mat4::decompose(Vec3 *scale, Quaternion *rotation, Vec3 *translation) const
     // In this case, we simply negate a single axis of the scale.
     float det = determinant();
     if (det < 0) {
-        scaleZ = -scaleZ;
+        scaleX = -scaleX;
     }
 
     if (scale) {
@@ -593,10 +595,10 @@ bool Mat4::decompose(Vec3 *scale, Quaternion *rotation, Vec3 *translation) const
     zaxis.z *= rn;
 
     // Now calculate the rotation from the resulting matrix (axes).
-    float trace = xaxis.x + yaxis.y + zaxis.z + 1.0F;
+    float trace = xaxis.x + yaxis.y + zaxis.z;
 
-    if (trace > MATH_EPSILON) {
-        float s = 0.5F / std::sqrt(trace);
+    if (trace > 0.0F) {
+        float s = 0.5F / std::sqrt(trace + 1.0F);
         rotation->w = 0.25F / s;
         rotation->x = (yaxis.z - zaxis.y) * s;
         rotation->y = (zaxis.x - xaxis.z) * s;
@@ -950,24 +952,26 @@ void Mat4::scale(const Vec3 &s, Mat4 *dst) const {
     scale(s.x, s.y, s.z, dst);
 }
 
-void Mat4::set(float m11, float m12, float m13, float m14, float m21, float m22, float m23, float m24,
-               float m31, float m32, float m33, float m34, float m41, float m42, float m43, float m44) {
-    m[0] = m11;
-    m[1] = m21;
-    m[2] = m31;
-    m[3] = m41;
-    m[4] = m12;
-    m[5] = m22;
-    m[6] = m32;
-    m[7] = m42;
-    m[8] = m13;
-    m[9] = m23;
-    m[10] = m33;
-    m[11] = m43;
-    m[12] = m14;
-    m[13] = m24;
-    m[14] = m34;
-    m[15] = m44;
+void Mat4::set(float m00, float m01, float m02, float m03,
+               float m10, float m11, float m12, float m13,
+               float m20, float m21, float m22, float m23,
+               float m30, float m31, float m32, float m33) {
+    m[0] = m00;
+    m[1] = m10;
+    m[2] = m20;
+    m[3] = m30;
+    m[4] = m01;
+    m[5] = m11;
+    m[6] = m21;
+    m[7] = m31;
+    m[8] = m02;
+    m[9] = m12;
+    m[10] = m22;
+    m[11] = m32;
+    m[12] = m03;
+    m[13] = m13;
+    m[14] = m23;
+    m[15] = m33;
 }
 
 void Mat4::set(const float *mat) {

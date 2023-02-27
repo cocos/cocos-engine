@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 import { EDITOR } from 'internal:constants';
 import { ccclass } from 'cc.decorator';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
@@ -29,7 +28,7 @@ import { ReflectionProbeStage } from './reflection-probe-stage';
 import { RenderFlowTag } from '../pipeline-serialization';
 import { RenderPipeline } from '..';
 import { Camera, ProbeType, ReflectionProbe } from '../../render-scene/scene';
-import { ReflectionProbeManager } from '../reflection-probe-manager';
+import { cclegacy } from '../../core';
 
 /**
  * @en reflection probe render flow
@@ -59,7 +58,10 @@ export class ReflectionProbeFlow extends RenderFlow {
     }
 
     public render (camera: Camera) {
-        const probes = ReflectionProbeManager.probeManager.getProbes();
+        if (!cclegacy.internal.reflectionProbeManager) {
+            return;
+        }
+        const probes = cclegacy.internal.reflectionProbeManager.getProbes();
         for (let i = 0; i < probes.length; i++) {
             if (probes[i].needRender) {
                 if (EDITOR || probes[i].probeType === ProbeType.PLANAR) {
@@ -76,10 +78,10 @@ export class ReflectionProbeFlow extends RenderFlow {
         for (let i = 0; i < this._stages.length; i++) {
             const probeStage = this._stages[i] as ReflectionProbeStage;
             if (probe.probeType === ProbeType.PLANAR) {
-                ReflectionProbeManager.probeManager.updatePlanarMap(probe, null);
+                cclegacy.internal.reflectionProbeManager.updatePlanarMap(probe, null);
                 probeStage.setUsageInfo(probe, probe.realtimePlanarTexture!.window!.framebuffer);
                 probeStage.render(camera);
-                ReflectionProbeManager.probeManager.updatePlanarMap(probe, probe.realtimePlanarTexture!.getGFXTexture());
+                cclegacy.internal.reflectionProbeManager.updatePlanarMap(probe, probe.realtimePlanarTexture!.getGFXTexture());
             } else {
                 for (let faceIdx = 0; faceIdx < 6; faceIdx++) {
                     //update camera dirction

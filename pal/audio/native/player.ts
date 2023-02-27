@@ -1,3 +1,27 @@
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
 import { systemInfo } from 'pal/system-info';
 import { AudioType, AudioState, AudioEvent, AudioPCMDataView, AudioBufferView } from '../type';
 import { EventTarget } from '../../../cocos/core/event';
@@ -5,6 +29,7 @@ import { legacyCC } from '../../../cocos/core/global-exports';
 import { clamp, clamp01 } from '../../../cocos/core';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
 import { Platform } from '../../system-info/enum-type';
+import { Game, game } from '../../../cocos/game';
 
 const urlCount: Record<string, number> = {};
 const audioEngine = jsb.AudioEngine;
@@ -107,17 +132,17 @@ export class AudioPlayer implements OperationQueueable {
         // this._pcmHeader = audioEngine.getPCMHeader(url);
         this._pcmHeader = null;
         // event
-        systemInfo.on('hide', this._onHide, this);
-        systemInfo.on('show', this._onShow, this);
+        game.on(Game.EVENT_PAUSE, this._onInterruptedBegin, this);
+        game.on(Game.EVENT_RESUME, this._onInterruptedEnd, this);
     }
     destroy () {
-        systemInfo.on('hide', this._onHide, this);
-        systemInfo.on('show', this._onShow, this);
+        game.off(Game.EVENT_PAUSE, this._onInterruptedBegin, this);
+        game.off(Game.EVENT_RESUME, this._onInterruptedEnd, this);
         if (--urlCount[this._url] <= 0) {
             audioEngine.uncache(this._url);
         }
     }
-    private _onHide () {
+    private _onInterruptedBegin () {
         if (this._state === AudioState.PLAYING) {
             this.pause().then(() => {
                 this._state = AudioState.INTERRUPTED;
@@ -125,7 +150,7 @@ export class AudioPlayer implements OperationQueueable {
             }).catch((e) => {});
         }
     }
-    private _onShow () {
+    private _onInterruptedEnd () {
         if (this._state === AudioState.INTERRUPTED) {
             this.play().then(() => {
                 this._eventTarget.emit(AudioEvent.INTERRUPTION_END);

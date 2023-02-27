@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { ccclass } from 'cc.decorator';
 import { Color, Rect, Framebuffer, DescriptorSet } from '../../gfx';
@@ -72,6 +71,7 @@ export class ShadowStage extends RenderStage {
     private _light: Light | null = null;
     private _globalDS: DescriptorSet | null = null;
     private _level = 0;
+    private _isShadowMapCleared = false;
 
     public destroy () {
         this._shadowFrameBuffer = null;
@@ -82,7 +82,7 @@ export class ShadowStage extends RenderStage {
     }
 
     public clearFramebuffer (camera: Camera) {
-        if (!this._light || !this._shadowFrameBuffer) { return; }
+        if (!this._light || !this._shadowFrameBuffer || this._isShadowMapCleared) { return; }
 
         colors[0].w = camera.clearColor.w;
         const pipeline = this._pipeline as ForwardPipeline;
@@ -101,6 +101,7 @@ export class ShadowStage extends RenderStage {
         cmdBuff.beginRenderPass(renderPass, this._shadowFrameBuffer, this._renderArea,
             colors, camera.clearDepth, camera.clearStencil);
         cmdBuff.endRenderPass();
+        this._isShadowMapCleared = true;
     }
 
     public render (camera: Camera) {
@@ -157,10 +158,12 @@ export class ShadowStage extends RenderStage {
         this._additiveShadowQueue.recordCommandBuffer(device, renderPass, cmdBuff);
 
         cmdBuff.endRenderPass();
+        this._isShadowMapCleared = false;
     }
 
     public activate (pipeline: ForwardPipeline, flow: ShadowFlow) {
         super.activate(pipeline, flow);
         this._additiveShadowQueue = new RenderShadowMapBatchedQueue(pipeline);
+        this._isShadowMapCleared = false;
     }
 }

@@ -92,12 +92,16 @@ namespace cc {
 %ignore DebugRenderer::activate;
 %ignore DebugRenderer::render;
 %ignore DebugRenderer::destroy;
+%ignore DebugRenderer::update;
 
 %ignore DebugFontInfo;
 %ignore DebugRendererInfo;
 
 %ignore JSBNativeDataHolder::getData;
 %ignore JSBNativeDataHolder::setData;
+
+%ignore CCObject::setScriptObject;
+%ignore CCObject::getScriptObject;
 
 }
 

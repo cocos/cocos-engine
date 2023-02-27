@@ -1,7 +1,7 @@
 /**
  Copyright 2013 BlackBerry Inc.
  Copyright (c) 2014-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -112,25 +112,27 @@ public:
     /**
      * Constructs a matrix initialized to the specified value.
      *
-     * @param m11 The first element of the first row.
-     * @param m12 The second element of the first row.
-     * @param m13 The third element of the first row.
-     * @param m14 The fourth element of the first row.
-     * @param m21 The first element of the second row.
-     * @param m22 The second element of the second row.
-     * @param m23 The third element of the second row.
-     * @param m24 The fourth element of the second row.
-     * @param m31 The first element of the third row.
-     * @param m32 The second element of the third row.
-     * @param m33 The third element of the third row.
-     * @param m34 The fourth element of the third row.
-     * @param m41 The first element of the fourth row.
-     * @param m42 The second element of the fourth row.
-     * @param m43 The third element of the fourth row.
-     * @param m44 The fourth element of the fourth row.
+     * @param m00 The first element of the first row.
+     * @param m01 The second element of the first row.
+     * @param m02 The third element of the first row.
+     * @param m03 The fourth element of the first row.
+     * @param m10 The first element of the second row.
+     * @param m11 The second element of the second row.
+     * @param m12 The third element of the second row.
+     * @param m13 The fourth element of the second row.
+     * @param m20 The first element of the third row.
+     * @param m21 The second element of the third row.
+     * @param m22 The third element of the third row.
+     * @param m23 The fourth element of the third row.
+     * @param m30 The first element of the fourth row.
+     * @param m31 The second element of the fourth row.
+     * @param m32 The third element of the fourth row.
+     * @param m33 The fourth element of the fourth row.
      */
-    Mat4(float m11, float m12, float m13, float m14, float m21, float m22, float m23, float m24,
-         float m31, float m32, float m33, float m34, float m41, float m42, float m43, float m44);
+    Mat4(float m00, float m01, float m02, float m03,
+         float m10, float m11, float m12, float m13,
+         float m20, float m21, float m22, float m23,
+         float m30, float m31, float m32, float m33);
 
     /**
      * Creates a matrix initialized to the specified column-major array.
@@ -725,25 +727,27 @@ public:
     /**
      * Sets the values of this matrix.
      *
-     * @param m11 The first element of the first row.
-     * @param m12 The second element of the first row.
-     * @param m13 The third element of the first row.
-     * @param m14 The fourth element of the first row.
-     * @param m21 The first element of the second row.
-     * @param m22 The second element of the second row.
-     * @param m23 The third element of the second row.
-     * @param m24 The fourth element of the second row.
-     * @param m31 The first element of the third row.
-     * @param m32 The second element of the third row.
-     * @param m33 The third element of the third row.
-     * @param m34 The fourth element of the third row.
-     * @param m41 The first element of the fourth row.
-     * @param m42 The second element of the fourth row.
-     * @param m43 The third element of the fourth row.
-     * @param m44 The fourth element of the fourth row.
+     * @param m00 The first element of the first row.
+     * @param m01 The second element of the first row.
+     * @param m02 The third element of the first row.
+     * @param m03 The fourth element of the first row.
+     * @param m10 The first element of the second row.
+     * @param m11 The second element of the second row.
+     * @param m12 The third element of the second row.
+     * @param m13 The fourth element of the second row.
+     * @param m20 The first element of the third row.
+     * @param m21 The second element of the third row.
+     * @param m22 The third element of the third row.
+     * @param m23 The fourth element of the third row.
+     * @param m30 The first element of the fourth row.
+     * @param m31 The second element of the fourth row.
+     * @param m32 The third element of the fourth row.
+     * @param m33 The fourth element of the fourth row.
      */
-    void set(float m11, float m12, float m13, float m14, float m21, float m22, float m23, float m24,
-             float m31, float m32, float m33, float m34, float m41, float m42, float m43, float m44);
+    void set(float m00, float m01, float m02, float m03,
+             float m10, float m11, float m12, float m13,
+             float m20, float m21, float m22, float m23,
+             float m30, float m31, float m32, float m33);
 
     /**
      * Sets the values of this matrix to those in the specified column-major array.

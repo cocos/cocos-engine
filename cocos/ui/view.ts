@@ -2,16 +2,16 @@
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
@@ -168,7 +168,7 @@ export class View extends Eventify(System) {
      * 仅在 Web 平台下有效。
      * @param callback - The callback function
      */
-    public setResizeCallback (callback: (()=> void) | null) {
+    public setResizeCallback (callback: (() => void) | null) {
         if (typeof callback === 'function' || callback == null) {
             this._resizeCallback = callback;
         }
@@ -588,7 +588,8 @@ export class View extends Eventify(System) {
     }
 
     private _updateAdaptResult (width: number, height: number, windowId?: number) {
-        cclegacy.director.root.resize(width, height, windowId === undefined ? 1 : windowId);
+        // The default invalid windowId is 0
+        cclegacy.director.root.resize(width, height, (windowId === undefined || windowId === 0) ? 1 : windowId);
         // Frame size changed, do resize works
         const w = this._designResolutionSize.width;
         const h = this._designResolutionSize.height;
@@ -657,8 +658,12 @@ class ContainerStrategy {
         const locCanvas = cclegacy.game.canvas;
         if (locCanvas) {
             const windowSize = screen.windowSize;
-            locCanvas.width = windowSize.width;
-            locCanvas.height = windowSize.height;
+            if (locCanvas.width !== windowSize.width) {
+                locCanvas.width = windowSize.width;
+            }
+            if (locCanvas.height !== windowSize.height) {
+                locCanvas.height = windowSize.height;
+            }
         }
     }
 }

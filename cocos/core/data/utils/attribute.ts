@@ -1,19 +1,18 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -69,7 +68,7 @@ export function createAttrs (subclass: any) {
  * Tag the class with any meta attributes, then return all current attributes assigned to it.
  * This function holds only the attributes, not their implementations.
  * @param constructor The class or instance. If instance, the attribute will be dynamic and only available for the specified instance.
- * @param propertyName The name of property or function, used to retrieve the attributes.
+ * @param propertyName The name of the property or function, used to retrieve the attributes.
  * @private
  */
 export function attr (constructor: any, propertyName: string): { [attributeName: string]: any; } {
@@ -85,7 +84,7 @@ export function attr (constructor: any, propertyName: string): { [attributeName:
 }
 
 /**
- * Returns a readonly meta object.
+ * Returns a read-only meta-object.
  */
 export function getClassAttrs (constructor: any) {
     return (constructor.hasOwnProperty('__attrs__') && constructor.__attrs__) || createAttrs(constructor);
@@ -112,14 +111,14 @@ export class PrimitiveType<T> {
 
 /**
  * @en
- * Indicates that the editor should treats this property or array element as a Integer value.
+ * Indicates that the editor should treat this property or array element as an Integer value.
  * @zh
  * 指定编辑器以整数形式对待该属性或数组元素。
  * @example
  * ```ts
  * import { CCInteger, _decorator } from "cc";
  *
- * // in class definition:
+ * // in the class definition:
  *
  * @_decorator.property({type: CCInteger})
  * count = 0;
@@ -134,14 +133,14 @@ legacyCC.CCInteger = CCInteger;
 
 /**
  * @en
- * Indicates that the editor should treats this property or array element as a Float value.
+ * Indicates that the editor should treat this property or array element as a Float value.
  * @zh
  * 指定编辑器以浮点数形式对待该属性或数组元素。
  * @example
  * ```ts
  * import { CCFloat, _decorator } from "cc";
  *
- * // in class definition:
+ * // in the class definition:
  *
  * @_decorator.property({type: CCFloat})
  * x = 0;
@@ -163,14 +162,14 @@ if (EDITOR) {
 
 /**
  * @en
- * Indicates that the editor should treats this property or array element as a Boolean value.
+ * Indicates that the editor should treat this property or array element as a Boolean value.
  * @zh
  * 指定编辑器以布尔值形式对待该属性或数组元素。
  *
  * @example
  * ```ts
  * import { CCBoolean, _decorator } from "cc";
- * // in class definition
+ * // in the class definition
  * @_decorator.property({type: CCBoolean})
  * isTrue = false;
  *
@@ -184,14 +183,14 @@ legacyCC.CCBoolean = CCBoolean;
 
 /**
  * @en
- * Indicates that the editor should treats this property or array element as a String value.
+ * Indicates that the editor should treat this property or array element as a String value.
  * @zh
  * 指定编辑器以字符串形式对待该属性或数组元素。
  * @example
  * ```ts
  * import { CCString, _decorator } from "cc";
  *
- * // in class definition
+ * // in the class definition
  *
  * @_decorator.property({type: CCString})
  * name = '';

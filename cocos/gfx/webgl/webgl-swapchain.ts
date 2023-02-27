@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,9 +20,9 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
-import { ALIPAY, RUNTIME_BASED, BYTEDANCE, WECHAT, LINKSURE, QTT, COCOSPLAY, HUAWEI, EDITOR, VIVO } from 'internal:constants';
+import { ALIPAY, RUNTIME_BASED, BYTEDANCE, WECHAT, LINKSURE, QTT, COCOSPLAY, HUAWEI, EDITOR, VIVO, TAOBAO } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
 import { WebGLCommandAllocator } from './webgl-command-allocator';
 import { WebGLStateCache } from './webgl-state-cache';
@@ -34,6 +33,7 @@ import { Swapchain } from '../base/swapchain';
 import { IWebGLExtensions, WebGLDeviceManager } from './webgl-define';
 import { macro, warnID, warn, debug } from '../../core';
 import { BrowserType, OS } from '../../../pal/system-info/enum-type';
+import { IWebGLBlitManager } from './webgl-gpu-objects';
 
 const eventWebGLContextLost = 'webglcontextlost';
 
@@ -174,6 +174,15 @@ export function getExtensions (gl: WebGLRenderingContext) {
         if (WECHAT) {
             res.noCompressedTexSubImage2D = true;
         }
+
+        // HACK: on Taobao Android, some devices can't query texture float extension correctly, especially Huawei devices
+        // the query interface returns null.
+        if (TAOBAO && systemInfo.os === OS.ANDROID) {
+            res.OES_texture_half_float = { HALF_FLOAT_OES: 36193 };
+            res.OES_texture_half_float_linear = {};
+            res.OES_texture_float = {};
+            res.OES_texture_float_linear = {};
+        }
     }
 
     if (res.OES_vertex_array_object) {
@@ -210,6 +219,10 @@ export class WebGLSwapchain extends Swapchain {
         return this._extensions as IWebGLExtensions;
     }
 
+    get blitManager () {
+        return this._blitManager!;
+    }
+
     public stateCache: WebGLStateCache = new WebGLStateCache();
     public cmdAllocator: WebGLCommandAllocator = new WebGLCommandAllocator();
     public nullTex2D: WebGLTexture = null!;
@@ -218,6 +231,7 @@ export class WebGLSwapchain extends Swapchain {
     private _canvas: HTMLCanvasElement | null = null;
     private _webGLContextLostHandler: ((event: Event) => void) | null = null;
     private _extensions: IWebGLExtensions | null = null;
+    private _blitManager: IWebGLBlitManager | null = null;
 
     public initialize (info: Readonly<SwapchainInfo>) {
         this._canvas = info.windowHandle;
@@ -301,6 +315,7 @@ export class WebGLSwapchain extends Swapchain {
             [nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff],
             this.nullTexCube, [nullTexRegion],
         );
+        this._blitManager = new IWebGLBlitManager();
     }
 
     public destroy (): void {
@@ -317,6 +332,11 @@ export class WebGLSwapchain extends Swapchain {
         if (this.nullTexCube) {
             this.nullTexCube.destroy();
             this.nullTexCube = null!;
+        }
+
+        if (this._blitManager) {
+            this._blitManager.destroy();
+            this._blitManager = null!;
         }
 
         this._extensions = null;

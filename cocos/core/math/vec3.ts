@@ -1,19 +1,18 @@
 /*
  Copyright (c) 2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -28,9 +27,8 @@ import { CCClass } from '../data/class';
 import { ValueType } from '../value-types/value-type';
 import { Mat4 } from './mat4';
 import { IMat3Like, IMat4Like, IQuatLike, IVec3Like } from './type-define';
-import { approx, clamp, EPSILON, lerp, random } from './utils';
+import { clamp, EPSILON, lerp, random } from './utils';
 import { legacyCC } from '../global-exports';
-import type { Quat } from './quat';
 
 /**
  * @en Representation of 3D vectors and points.
@@ -306,8 +304,8 @@ export class Vec3 extends ValueType {
     }
 
     /**
-     * @en Sets the normalized vector to the out vector
-     * @zh 归一化向量
+     * @en Sets the normalized vector to the out vector, returns a zero vector if input is a zero vector.
+     * @zh 归一化向量，输入零向量将会返回零向量。
      */
     public static normalize<Out extends IVec3Like> (out: Out, a: IVec3Like) {
         const x = a.x;
@@ -320,6 +318,10 @@ export class Vec3 extends ValueType {
             out.x = x * len;
             out.y = y * len;
             out.z = z * len;
+        } else {
+            out.x = 0;
+            out.y = 0;
+            out.z = 0;
         }
         return out;
     }
@@ -346,7 +348,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
-     * @en Calculates the linear interpolation between two vectors with a given ratio
+     * @en Calculates the linear interpolation between two vectors with a given ratio: A + t * (B - A)
      * @zh 逐元素向量线性插值： A + t * (B - A)
      */
     public static lerp<Out extends IVec3Like> (out: Out, a: IVec3Like, b: IVec3Like, t: number) {
@@ -359,7 +361,7 @@ export class Vec3 extends ValueType {
     /**
      * @zh 球面线性插值。多用于插值两个方向向量。
      * @en Spherical linear interpolation. Commonly used in interpolation between directional vectors.
-     * @param out @zh 出口向量。 @en Output vector.
+     * @param out @zh 输出向量。 @en Output vector.
      * @param from @zh 起点向量。 @en Start vector.
      * @param to @zh 终点向量。 @en Destination vector.
      * @param t @zh 插值参数。@en Interpolation parameter.
@@ -454,6 +456,8 @@ export class Vec3 extends ValueType {
         const y = a.y;
         const z = a.z;
         let rhw = m.m03 * x + m.m07 * y + m.m11 * z + m.m15;
+        // Important note by stanley:
+        // Math.abs needs to be removed later, because the operation will generate a wrong homogeneous coordinate
         rhw = rhw ? Math.abs(1 / rhw) : 1;
         out.x = (m.m00 * x + m.m04 * y + m.m08 * z + m.m12) * rhw;
         out.y = (m.m01 * x + m.m05 * y + m.m09 * z + m.m13) * rhw;
@@ -470,6 +474,8 @@ export class Vec3 extends ValueType {
         const y = a.y;
         const z = a.z;
         let rhw = m.m03 * x + m.m07 * y + m.m11 * z;
+        // Important note by stanley:
+        // Math.abs needs to be removed later, because the operation will generate a wrong homogeneous coordinate
         rhw = rhw ? Math.abs(1 / rhw) : 1;
         out.x = (m.m00 * x + m.m04 * y + m.m08 * z) * rhw;
         out.y = (m.m01 * x + m.m05 * y + m.m09 * z) * rhw;
@@ -506,8 +512,8 @@ export class Vec3 extends ValueType {
     }
 
     /**
-     * @en Vector quaternion multiplication
-     * @zh 向量四元数乘法
+     * @en Vector quaternion multiplication: q*a*q^{-1}.
+     * @zh 向量四元数乘法：q*a*q^{-1}。
      */
     public static transformQuat<Out extends IVec3Like> (out: Out, a: IVec3Like, q: IQuatLike) {
         // benchmarks: http://jsperf.com/quaternion-transform-Vec3-implementations
@@ -566,7 +572,7 @@ export class Vec3 extends ValueType {
      * @zh 绕 X 轴旋转向量指定弧度
      * @param v rotation vector
      * @param o center of rotation
-     * @param a radius of rotation
+     * @param a radiance of rotation
      */
     public static rotateX<Out extends IVec3Like> (out: Out, v: IVec3Like, o: IVec3Like, a: number) {
         // Translate point to the origin
@@ -594,7 +600,7 @@ export class Vec3 extends ValueType {
      * @zh 绕 Y 轴旋转向量指定弧度
      * @param v rotation vector
      * @param o center of rotation
-     * @param a radius of rotation
+     * @param a radiance of rotation
      */
     public static rotateY<Out extends IVec3Like> (out: Out, v: IVec3Like, o: IVec3Like, a: number) {
         // Translate point to the origin
@@ -622,7 +628,7 @@ export class Vec3 extends ValueType {
      * @zh 绕 Z 轴旋转向量指定弧度
      * @param v rotation vector
      * @param o center of rotation
-     * @param a radius of rotation
+     * @param a radiance of rotation
      */
     public static rotateZ<Out extends IVec3Like> (out: Out, v: IVec3Like, o: IVec3Like, a: number) {
         // Translate point to the origin
@@ -636,6 +642,39 @@ export class Vec3 extends ValueType {
         const rx = x * cos - y * sin;
         const ry = x * sin + y * cos;
         const rz = z;
+
+        // translate to correct position
+        out.x = rx + o.x;
+        out.y = ry + o.y;
+        out.z = rz + o.z;
+
+        return out;
+    }
+
+    /**
+     * @en Rotates the vector with specified angle around any n axis
+     * @zh 绕任意 n 轴旋转向量指定弧度
+     * @param v rotation vector
+     * @param o center of rotation
+     * @param n axis of rotation
+     * @param a radiance of rotation
+     */
+    public static rotateN<Out extends IVec3Like> (out: Out, v: IVec3Like, o: IVec3Like, n: IVec3Like, a: number) {
+        // Translate point to the origin
+        const x = v.x - o.x;
+        const y = v.y - o.y;
+        const z = v.z - o.z;
+
+        // perform rotation
+        const nx = n.x;
+        const ny = n.y;
+        const nz = n.z;
+
+        const cos = Math.cos(a);
+        const sin = Math.sin(a);
+        const rx = x * (nx * nx * (1.0 - cos) + cos) + y * (nx * ny * (1.0 - cos) - nx * sin) + z * (nx * nz * (1.0 - cos) + ny * sin);
+        const ry = x * (nx * ny * (1.0 - cos) + nz * sin) + y * (ny * ny * (1.0 - cos) + cos) + z * (ny * nz * (1.0 - cos) - nx * sin);
+        const rz = x * (nx * nz * (1.0 - cos) - ny * sin) + y * (ny * nz * (1.0 - cos) + nx * sin) + z * (nz * nz * (1.0 - cos) + cos);
 
         // translate to correct position
         out.x = rx + o.x;
@@ -700,15 +739,16 @@ export class Vec3 extends ValueType {
      * @zh 求两向量夹角弧度
      */
     public static angle (a: IVec3Like, b: IVec3Like) {
-        Vec3.normalize(v3_1, a);
-        Vec3.normalize(v3_2, b);
-        const cosine = Vec3.dot(v3_1, v3_2);
-        if (cosine > 1.0) {
-            return 0;
+        const magSqr1 = a.x * a.x + a.y * a.y + a.z * a.z;
+        const magSqr2 = b.x * b.x + b.y * b.y + b.z * b.z;
+
+        if (magSqr1 === 0 || magSqr2 === 0) {
+            return 0.0;
         }
-        if (cosine < -1.0) {
-            return Math.PI;
-        }
+
+        const dot = a.x * b.x + a.y * b.y + a.z * b.z;
+        let cosine = dot / (Math.sqrt(magSqr1 * magSqr2));
+        cosine = clamp(cosine, -1.0, 1.0);
         return Math.acos(cosine);
     }
 
@@ -726,7 +766,7 @@ export class Vec3 extends ValueType {
      * @en Calculates the projection on the specified vector
      * @zh 计算向量在指定向量上的投影
      * @param a projection vector
-     * @param n target vector
+     * @param b target vector
      */
     public static project<Out extends IVec3Like> (out: Out, a: IVec3Like, b: IVec3Like) {
         const sqrLen = Vec3.lengthSqr(b);
@@ -1089,6 +1129,7 @@ export class Vec3 extends ValueType {
             this.y = y * len;
             this.z = z * len;
         }
+
         return this;
     }
 
@@ -1109,9 +1150,6 @@ export class Vec3 extends ValueType {
         return this;
     }
 }
-
-const v3_1 = new Vec3();
-const v3_2 = new Vec3();
 
 CCClass.fastDefine('cc.Vec3', Vec3, { x: 0, y: 0, z: 0 });
 legacyCC.Vec3 = Vec3;

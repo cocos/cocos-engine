@@ -9,20 +9,19 @@
  * ----------------------------------------------------------------------------- */
 
 /****************************************************************************
- Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -302,6 +301,7 @@ SE_BIND_FINALIZE_FUNC(js_delete_cc_Vec2)
 bool js_register_cc_Vec2(se::Object* obj) {
     auto* cls = se::Class::create("Vec2", obj, nullptr, _SE(js_new_Vec2)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     
     
@@ -519,6 +519,7 @@ SE_BIND_FINALIZE_FUNC(js_delete_cc_Color)
 bool js_register_cc_Color(se::Object* obj) {
     auto* cls = se::Class::create("Color", obj, nullptr, _SE(js_new_Color)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     
     
@@ -702,6 +703,7 @@ SE_BIND_FINALIZE_FUNC(js_delete_cc_Vec3)
 bool js_register_cc_Vec3(se::Object* obj) {
     auto* cls = se::Class::create("Vec3", obj, nullptr, _SE(js_new_Vec3)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     
     
@@ -889,6 +891,7 @@ SE_BIND_FINALIZE_FUNC(js_delete_cc_Vec4)
 bool js_register_cc_Vec4(se::Object* obj) {
     auto* cls = se::Class::create("Vec4", obj, nullptr, _SE(js_new_Vec4)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     
     
@@ -1117,6 +1120,7 @@ SE_BIND_FINALIZE_FUNC(js_delete_cc_Mat3)
 bool js_register_cc_Mat3(se::Object* obj) {
     auto* cls = se::Class::create("Mat3", obj, nullptr, _SE(js_new_Mat3)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     
     
@@ -1317,6 +1321,7 @@ SE_BIND_FINALIZE_FUNC(js_delete_cc_Mat4)
 bool js_register_cc_Mat4(se::Object* obj) {
     auto* cls = se::Class::create("Mat4", obj, nullptr, _SE(js_new_Mat4)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     
     
@@ -1501,6 +1506,7 @@ SE_BIND_FINALIZE_FUNC(js_delete_cc_Quaternion)
 bool js_register_cc_Quaternion(se::Object* obj) {
     auto* cls = se::Class::create("Quat", obj, nullptr, _SE(js_new_Quat)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     
     
@@ -1676,6 +1682,26 @@ static bool js_delete_cc_CCObject(se::State& s)
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_delete_cc_CCObject) 
+
+static bool js_cc_CCObject_destruct(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::CCObject *arg1 = (cc::CCObject *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::CCObject>(s);
+    if (nullptr == arg1) return true;
+    (arg1)->destruct();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_CCObject_destruct) 
 
 static bool js_cc_CCObject__destroy(se::State& s)
 {
@@ -1886,6 +1912,7 @@ SE_BIND_PROP_GET(js_cc_CCObject_isValid_get)
 bool js_register_cc_CCObject(se::Object* obj) {
     auto* cls = se::Class::create("CCObject", obj, nullptr, _SE(js_new_CCObject)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("_objFlags", _SE(js_cc_CCObject__objFlags_get), _SE(js_cc_CCObject__objFlags_set)); 
     cls->defineProperty("_name", _SE(js_cc_CCObject__name_get), _SE(js_cc_CCObject__name_set)); 
     cls->defineProperty("name", _SE(js_cc_CCObject_name_get), _SE(js_cc_CCObject_name_set)); 
@@ -1893,6 +1920,7 @@ bool js_register_cc_CCObject(se::Object* obj) {
     cls->defineProperty("replicated", _SE(js_cc_CCObject_replicated_get), _SE(js_cc_CCObject_replicated_set)); 
     cls->defineProperty("isValid", _SE(js_cc_CCObject_isValid_get), nullptr); 
     
+    cls->defineFunction("destruct", _SE(js_cc_CCObject_destruct)); 
     cls->defineFunction("_destroy", _SE(js_cc_CCObject__destroy)); 
     cls->defineFunction("_destroyImmediate", _SE(js_cc_CCObject__destroyImmediate)); 
     cls->defineFunction("toString", _SE(js_cc_CCObject_toString)); 
@@ -2067,6 +2095,7 @@ SE_BIND_FUNC(js_cc_JSBNativeDataHolder_destroy)
 bool js_register_cc_JSBNativeDataHolder(se::Object* obj) {
     auto* cls = se::Class::create("JSBNativeDataHolder", obj, nullptr, _SE(js_new_JSBNativeDataHolder)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("destroy", _SE(js_cc_JSBNativeDataHolder_destroy)); 
     
@@ -2130,6 +2159,7 @@ SE_BIND_FUNC(js_cc_ICanvasGradient_addColorStop)
 bool js_register_cc_ICanvasGradient(se::Object* obj) {
     auto* cls = se::Class::create("ICanvasGradient", obj, nullptr, nullptr); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("addColorStop", _SE(js_cc_ICanvasGradient_addColorStop)); 
     
@@ -3025,6 +3055,7 @@ SE_BIND_FINALIZE_FUNC(js_delete_cc_ICanvasRenderingContext2D)
 bool js_register_cc_ICanvasRenderingContext2D(se::Object* obj) {
     auto* cls = se::Class::create("ICanvasRenderingContext2D", obj, nullptr, nullptr); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("width", nullptr, _SE(js_cc_ICanvasRenderingContext2D_width_set)); 
     cls->defineProperty("height", nullptr, _SE(js_cc_ICanvasRenderingContext2D_height_set)); 
     cls->defineProperty("lineWidth", nullptr, _SE(js_cc_ICanvasRenderingContext2D_lineWidth_set)); 
@@ -3105,6 +3136,7 @@ SE_BIND_FINALIZE_FUNC(js_delete_cc_CanvasGradient)
 bool js_register_cc_CanvasGradient(se::Object* obj) {
     auto* cls = se::Class::create("CanvasGradient", obj, __jsb_cc_ICanvasGradient_proto, _SE(js_new_cc_CanvasGradient)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     
     
@@ -3560,6 +3592,7 @@ SE_BIND_PROP_GET(js_cc_CanvasRenderingContext2D__globalCompositeOperation_get)
 bool js_register_cc_CanvasRenderingContext2D(se::Object* obj) {
     auto* cls = se::Class::create("CanvasRenderingContext2D", obj, __jsb_cc_ICanvasRenderingContext2D_proto, _SE(js_new_cc_CanvasRenderingContext2D)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("_width", _SE(js_cc_CanvasRenderingContext2D__width_get), _SE(js_cc_CanvasRenderingContext2D__width_set)); 
     cls->defineProperty("_height", _SE(js_cc_CanvasRenderingContext2D__height_get), _SE(js_cc_CanvasRenderingContext2D__height_set)); 
     cls->defineProperty("_lineWidth", _SE(js_cc_CanvasRenderingContext2D__lineWidth_get), _SE(js_cc_CanvasRenderingContext2D__lineWidth_set)); 
@@ -3840,6 +3873,7 @@ SE_BIND_FINALIZE_FUNC(js_delete_cc_Device)
 bool js_register_cc_Device(se::Object* obj) {
     auto* cls = se::Class::create("Device", obj, nullptr, nullptr); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     
     
@@ -4160,6 +4194,7 @@ SE_BIND_FINALIZE_FUNC(js_delete_cc_ISystemWindow)
 bool js_register_cc_ISystemWindow(se::Object* obj) {
     auto* cls = se::Class::create("ISystemWindow", obj, nullptr, nullptr); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("createWindow", _SE(js_cc_ISystemWindow_createWindow)); 
     cls->defineFunction("getWindowId", _SE(js_cc_ISystemWindow_getWindowId)); 
@@ -4511,6 +4546,7 @@ bool sevalue_to_native(const se::Value &from, cc::ISystemWindowInfo * to, se::Ob
 bool js_register_cc_ISystemWindowInfo(se::Object* obj) {
     auto* cls = se::Class::create("ISystemWindowInfo", obj, nullptr, _SE(js_new_cc_ISystemWindowInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("title", _SE(js_cc_ISystemWindowInfo_title_get), _SE(js_cc_ISystemWindowInfo_title_set)); 
     cls->defineProperty("x", _SE(js_cc_ISystemWindowInfo_x_get), _SE(js_cc_ISystemWindowInfo_x_set)); 
     cls->defineProperty("y", _SE(js_cc_ISystemWindowInfo_y_get), _SE(js_cc_ISystemWindowInfo_y_set)); 
@@ -4569,18 +4605,14 @@ static bool js_cc_ISystemWindowManager_processEvent(se::State& s)
     const auto& args = s.args();
     size_t argc = args.size();
     cc::ISystemWindowManager *arg1 = (cc::ISystemWindowManager *) NULL ;
-    bool *arg2 = (bool *) NULL ;
     
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
         return false;
     }
     arg1 = SE_THIS_OBJECT<cc::ISystemWindowManager>(s);
     if (nullptr == arg1) return true;
-    
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
-    (arg1)->processEvent(arg2);
+    (arg1)->processEvent();
     
     
     return true;
@@ -4683,6 +4715,7 @@ SE_BIND_FINALIZE_FUNC(js_delete_cc_ISystemWindowManager)
 bool js_register_cc_ISystemWindowManager(se::Object* obj) {
     auto* cls = se::Class::create("ISystemWindowManager", obj, nullptr, nullptr); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("init", _SE(js_cc_ISystemWindowManager_init)); 
     cls->defineFunction("processEvent", _SE(js_cc_ISystemWindowManager_processEvent)); 
@@ -5950,6 +5983,7 @@ SE_BIND_FUNC(js_cc_FileUtils_getFileDir)
 bool js_register_cc_FileUtils(se::Object* obj) {
     auto* cls = se::Class::create("FileUtils", obj, nullptr, nullptr); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("purgeCachedEntries", _SE(js_cc_FileUtils_purgeCachedEntries)); 
     cls->defineFunction("getStringFromFile", _SE(js_cc_FileUtils_getStringFromFile)); 
@@ -6114,6 +6148,7 @@ SE_BIND_FUNC(js_cc_PlistParser_parse)
 bool js_register_cc_SAXParser(se::Object* obj) {
     auto* cls = se::Class::create("PlistParser", obj, nullptr, _SE(js_new_cc_SAXParser)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("init", _SE(js_cc_PlistParser_init)); 
     cls->defineFunction("parse", _SE(js_cc_PlistParser_parse)); 
@@ -6463,6 +6498,7 @@ bool sevalue_to_native(const se::Value &from, cc::DebugTextInfo * to, se::Object
 bool js_register_cc_DebugTextInfo(se::Object* obj) {
     auto* cls = se::Class::create("DebugTextInfo", obj, nullptr, _SE(js_new_cc_DebugTextInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("color", _SE(js_cc_DebugTextInfo_color_get), _SE(js_cc_DebugTextInfo_color_set)); 
     cls->defineProperty("bold", _SE(js_cc_DebugTextInfo_bold_get), _SE(js_cc_DebugTextInfo_bold_set)); 
     cls->defineProperty("italic", _SE(js_cc_DebugTextInfo_italic_get), _SE(js_cc_DebugTextInfo_italic_set)); 
@@ -6628,6 +6664,7 @@ SE_BIND_FUNC(js_cc_DebugRenderer_addText)
 bool js_register_cc_DebugRenderer(se::Object* obj) {
     auto* cls = se::Class::create("DebugRenderer", obj, nullptr, _SE(js_new_cc_DebugRenderer)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("addText", _SE(js_cc_DebugRenderer_addText)); 
     

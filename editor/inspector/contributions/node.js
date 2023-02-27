@@ -2,6 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 const utils = require('./utils');
+const { trackEventWithTimer } = require('../utils/metrics');
 
 exports.listeners = {
     async 'change-dump'(event) {
@@ -635,6 +636,9 @@ const Elements = {
                 }
                 panel.$.active.dispatch('change-dump');
             });
+            panel.$.active.addEventListener('confirm', () => {
+                panel.snapshotLock = false;
+            });
 
             panel.$.name.addEventListener('change', (event) => {
                 const value = event.target.value;
@@ -648,6 +652,9 @@ const Elements = {
                     });
                 }
                 panel.$.name.dispatch('change-dump');
+            });
+            panel.$.name.addEventListener('confirm', () => {
+                panel.snapshotLock = false;
             });
         },
         update() {
@@ -666,13 +673,20 @@ const Elements = {
                 activeDisabled = true;
                 nameDisabled = true;
             } else {
+
                 if (panel.dumps && panel.dumps.length > 1) {
-                    if (panel.dumps.some((dump) => dump.active.value !== panel.dump.active.value)) {
-                        activeInvalid = true;
+                    // when changing, stop validating
+                    if (!panel.$.active.hasAttribute('focused')) {
+                        if (panel.dumps.some((dump) => dump.active.value !== panel.dump.active.value)) {
+                            activeInvalid = true;
+                        }
                     }
 
-                    if (panel.dumps.some((dump) => dump.name.value !== panel.dump.name.value)) {
-                        nameInvalid = true;
+                    // when changing, stop validating
+                    if (!panel.$.name.hasAttribute('focused')) {
+                        if (panel.dumps.some((dump) => dump.name.value !== panel.dump.name.value)) {
+                            nameInvalid = true;
+                        }
                     }
                 }
             }
@@ -910,6 +924,9 @@ const Elements = {
             panel.$.nodeLink.addEventListener('click', (event) => {
                 event.stopPropagation();
             });
+
+            Elements.node.i18nChangeBind = Elements.node.i18nChange.bind(panel);
+            Editor.Message.addBroadcastListener('i18n:change', Elements.node.i18nChangeBind);
         },
         async update() {
             const panel = this;
@@ -1148,6 +1165,32 @@ const Elements = {
                 delete panel.$.nodeSection.__node_panels__;
             }
         },
+        close() {
+            Editor.Message.removeBroadcastListener('i18n:change', Elements.node.i18nChangeBind);
+        },
+        i18nChange() {
+            const panel = this;
+
+            panel.$.nodeLink.value = Editor.I18n.t('ENGINE.help.cc.Node');
+
+            const sectionBody = panel.$.sectionBody;
+            for (let index = 0; index < sectionBody.__sections__.length; index++) {
+                const $section = sectionBody.__sections__[index];
+                const $link = $section.querySelector('ui-link');
+
+                if (!$link) {
+                    continue;
+                }
+
+                const dump = $section.dump;
+                const url = panel.getHelpUrl(dump.editor);
+                if (url) {
+                    $link.setAttribute('value', url);
+                } else {
+                    $link.removeAttribute('value');
+                }
+            }
+        },
     },
     missingComponent: {
         ready() {
@@ -1276,6 +1319,9 @@ const Elements = {
                                     uuid,
                                     component: data.cid,
                                 });
+                            }
+                            if (data.name) {
+                                trackEventWithTimer('laber', `A100000_${data.name}`);
                             }
 
                             Editor.Message.send('scene', 'snapshot');
@@ -1490,6 +1536,10 @@ exports.methods = {
                                         path: '__comps__',
                                         index,
                                     });
+
+                                    if (nodeDump.__comps__[index].type) {
+                                        trackEventWithTimer('laber', `A100001_${nodeDump.__comps__[index].type}`);
+                                    }
                                 }
                             }
                         }
@@ -1616,6 +1666,13 @@ exports.methods = {
         const clipboardNodeWorldTransform = Editor.Clipboard.read('_dump_node_world_transform_');
         const clipboardComponentInfo = Editor.Clipboard.read('_dump_component_');
 
+        function notEqualDefaultValueVec3(propName) {
+            const keys = ['x', 'y', 'z'];
+            return keys.some(key => {
+                return dump[propName].value[key] !== dump[propName].default.value[key].value;
+            });
+        }
+
         Editor.Menu.popup({
             menu: [
                 {
@@ -1640,7 +1697,7 @@ exports.methods = {
                     async click() {
                         Editor.Clipboard.write('_dump_node_', {
                             type: dump.type,
-                            attrs: ['position', 'rotation', 'scale', 'layer'],
+                            attrs: ['position', 'rotation', 'scale', 'mobility', 'layer'],
                             dump: JSON.parse(JSON.stringify(dump)),
                         });
                     },
@@ -1737,7 +1794,7 @@ exports.methods = {
                 { type: 'separator' },
                 {
                     label: Editor.I18n.t('ENGINE.menu.reset_node_position'),
-                    enabled: !dump.position.readonly && JSON.stringify(dump.position.value) !== JSON.stringify(dump.position.default),
+                    enabled: !dump.position.readonly && notEqualDefaultValueVec3('position'),
                     async click() {
                         Editor.Message.send('scene', 'snapshot');
 
@@ -1753,7 +1810,7 @@ exports.methods = {
                 },
                 {
                     label: Editor.I18n.t('ENGINE.menu.reset_node_rotation'),
-                    enabled: !dump.rotation.readonly && JSON.stringify(dump.rotation.value) !== JSON.stringify(dump.rotation.default),
+                    enabled: !dump.rotation.readonly && notEqualDefaultValueVec3('rotation'),
                     async click() {
                         Editor.Message.send('scene', 'snapshot');
 
@@ -1769,7 +1826,7 @@ exports.methods = {
                 },
                 {
                     label: Editor.I18n.t('ENGINE.menu.reset_node_scale'),
-                    enabled: !dump.rotation.readonly && JSON.stringify(dump.scale.value) !== JSON.stringify(dump.scale.default),
+                    enabled: !dump.scale.readonly && notEqualDefaultValueVec3('scale'),
                     async click() {
                         Editor.Message.send('scene', 'snapshot');
 
@@ -1777,6 +1834,22 @@ exports.methods = {
                             await Editor.Message.request('scene', 'reset-property', {
                                 uuid,
                                 path: 'scale',
+                            });
+                        }
+
+                        Editor.Message.send('scene', 'snapshot');
+                    },
+                },
+                {
+                    label: Editor.I18n.t('ENGINE.menu.reset_node_mobility'),
+                    enabled: !dump.mobility.readonly && dump.mobility.value !== dump.mobility.default,
+                    async click() {
+                        Editor.Message.send('scene', 'snapshot');
+
+                        for (const uuid of uuidList) {
+                            await Editor.Message.request('scene', 'reset-property', {
+                                uuid,
+                                path: 'mobility',
                             });
                         }
 

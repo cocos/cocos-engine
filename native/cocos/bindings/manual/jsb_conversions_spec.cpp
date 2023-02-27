@@ -1,15 +1,16 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
  http://www.cocos.com
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -20,8 +21,9 @@
 ****************************************************************************/
 
 #include <sstream>
+#include "base/DeferredReleasePool.h"
+#include "base/TemplateUtils.h"
 #include "base/Value.h"
-#include "cocos/base/DeferredReleasePool.h"
 #include "cocos/base/RefMap.h"
 #include "cocos/base/RefVector.h"
 #include "cocos/core/TypedArray.h"
@@ -48,28 +50,13 @@
 
 ///////////////////////// utils /////////////////////////
 
-template <class... Fs>
-struct overloaded;
-
-template <class F0, class... Fs>
-struct overloaded<F0, Fs...> : F0, overloaded<Fs...> {
-    overloaded(F0 f0, Fs... rest) : F0(f0), overloaded<Fs...>(rest...) {} // NOLINT(google-explicit-constructor)
-
-    using F0::operator();
-    using overloaded<Fs...>::operator();
-};
-
-template <class F0>
-struct overloaded<F0> : F0 {
-    overloaded(F0 f0) : F0(f0) {} // NOLINT(google-explicit-constructor)
-
-    using F0::operator();
-};
-
-template <class... Fs>
-auto make_overloaded(Fs... fs) { // NOLINT(readability-identifier-naming)
-    return overloaded<Fs...>(fs...);
-}
+#define CHECK_ASSIGN_PRVOBJ_RET(jsObj, nativeObj)                            \
+    se::PrivateObjectBase *_privateObjL = jsObj->getPrivateObject();         \
+    if (_privateObjL) {                                                      \
+        using target_type = typename std::decay<decltype(*nativeObj)>::type; \
+        *nativeObj = *_privateObjL->get<target_type>();                      \
+        return true;                                                         \
+    }
 
 template <typename A, typename T, typename F>
 typename std::enable_if<std::is_member_function_pointer<F>::value, bool>::type
@@ -135,7 +122,7 @@ bool Vec4_to_seval(const cc::Vec4 &v, se::Value *ret) { // NOLINT(readability-id
 }
 
 bool Mat4_to_seval(const cc::Mat4 &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
-    CC_ASSERT(ret != nullptr);
+    CC_ASSERT_NOT_NULL(ret);
     se::HandleObject obj(se::Object::createArrayObject(16));
 
     for (uint8_t i = 0; i < 16; ++i) {
@@ -163,7 +150,7 @@ bool seval_to_ccvalue(const se::Value &v, cc::Value *ret) { // NOLINT
     return sevalue_to_native(v, ret, nullptr);
 }
 bool sevalue_to_native(const se::Value &from, cc::Value *to, se::Object * /*ctx*/) { // NOLINT
-    CC_ASSERT(to != nullptr);
+    CC_ASSERT_NOT_NULL(to);
     bool ok = true;
     if (from.isObject()) {
         se::Object *jsobj = from.toObject();
@@ -201,7 +188,7 @@ bool seval_to_ccvaluemap(const se::Value &v, cc::ValueMap *ret) { // NOLINT
 }
 
 bool sevalue_to_native(const se::Value &from, cc::ValueMap *to, se::Object * /*ctx*/) { // NOLINT
-    CC_ASSERT(to != nullptr);
+    CC_ASSERT_NOT_NULL(to);
 
     if (from.isNullOrUndefined()) {
         to->clear();
@@ -233,7 +220,7 @@ bool sevalue_to_native(const se::Value &from, cc::ValueMap *to, se::Object * /*c
 
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool seval_to_ccvaluemapintkey(const se::Value &v, cc::ValueMapIntKey *ret) {
-    CC_ASSERT(ret != nullptr);
+    CC_ASSERT_NOT_NULL(ret);
     if (v.isNullOrUndefined()) {
         ret->clear();
         return true;
@@ -272,7 +259,7 @@ bool seval_to_ccvaluemapintkey(const se::Value &v, cc::ValueMapIntKey *ret) {
 
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool seval_to_ccvaluevector(const se::Value &v, cc::ValueVector *ret) { // NOLINT
-    CC_ASSERT(ret != nullptr);
+    CC_ASSERT_NOT_NULL(ret);
 
     SE_PRECONDITION3(v.isObject(), false, ret->clear());
 
@@ -315,7 +302,7 @@ bool seval_to_Data(const se::Value &v, cc::Data *ret) {
     return sevalue_to_native(v, ret, nullptr);
 }
 bool sevalue_to_native(const se::Value &v, cc::Data *ret, se::Object * /*ctx*/) { // NOLINT
-    CC_ASSERT(ret != nullptr);
+    CC_ASSERT_NOT_NULL(ret);
     SE_PRECONDITION2(v.isObject() && (v.toObject()->isTypedArray() || v.toObject()->isArrayBuffer()), false, "Convert parameter to Data failed!");
     uint8_t *ptr = nullptr;
     size_t length = 0;
@@ -337,7 +324,7 @@ bool sevalue_to_native(const se::Value &v, cc::Data *ret, se::Object * /*ctx*/) 
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool seval_to_DownloaderHints(const se::Value &v, cc::network::DownloaderHints *ret) {
     const static cc::network::DownloaderHints ZERO{0, 0, ""};
-    CC_ASSERT(ret != nullptr);
+    CC_ASSERT_NOT_NULL(ret);
     SE_PRECONDITION2(v.isObject(), false, "Convert parameter to DownloaderHints failed!");
     se::Value tmp;
     se::Object *obj = v.toObject();
@@ -362,10 +349,7 @@ bool seval_to_DownloaderHints(const se::Value &v, cc::network::DownloaderHints *
 bool sevalue_to_native(const se::Value &from, cc::Vec4 *to, se::Object * /*ctx*/) {
     SE_PRECONDITION2(from.isObject(), false, "Convert parameter to Vec4 failed!");
     se::Object *obj = from.toObject();
-    if (obj->getPrivateData()) {
-        *to = *obj->getTypedPrivateData<cc::Vec4>();
-        return true;
-    }
+    CHECK_ASSIGN_PRVOBJ_RET(obj, to)
     se::Value tmp;
     set_member_field(obj, to, "x", &cc::Vec4::x, tmp);
     set_member_field(obj, to, "y", &cc::Vec4::y, tmp);
@@ -405,10 +389,7 @@ bool sevalue_to_native(const se::Value &from, cc::Mat3 *to, se::Object * /*ctx*/
     SE_PRECONDITION2(from.isObject(), false, "Convert parameter to Matrix3 failed!");
     se::Object *obj = from.toObject();
 
-    if (obj->getPrivateData()) {
-        *to = *obj->getTypedPrivateData<cc::Mat3>();
-        return true;
-    }
+    CHECK_ASSIGN_PRVOBJ_RET(obj, to)
 
     if (obj->isTypedArray()) {
         // typed array
@@ -451,10 +432,7 @@ bool sevalue_to_native(const se::Value &from, cc::Mat3 *to, se::Object * /*ctx*/
 bool sevalue_to_native(const se::Value &from, cc::Mat4 *to, se::Object * /*unused*/) {
     SE_PRECONDITION2(from.isObject(), false, "Convert parameter to Matrix4 failed!");
     se::Object *obj = from.toObject();
-    if (obj->getPrivateData()) {
-        *to = *obj->getTypedPrivateData<cc::Mat4>();
-        return true;
-    }
+    CHECK_ASSIGN_PRVOBJ_RET(obj, to)
 
     if (obj->isTypedArray()) {
         // typed array
@@ -499,10 +477,7 @@ bool sevalue_to_native(const se::Value &from, cc::Vec3 *to, se::Object * /*unuse
     SE_PRECONDITION2(from.isObject(), false, "Convert parameter to Vec3 failed!");
 
     se::Object *obj = from.toObject();
-    if (obj->getPrivateData() != nullptr) {
-        *to = *obj->getTypedPrivateData<cc::Vec3>();
-        return true;
-    }
+    CHECK_ASSIGN_PRVOBJ_RET(obj, to)
     se::Value tmp;
     set_member_field(obj, to, "x", &cc::Vec3::x, tmp);
     set_member_field(obj, to, "y", &cc::Vec3::y, tmp);
@@ -513,12 +488,8 @@ bool sevalue_to_native(const se::Value &from, cc::Vec3 *to, se::Object * /*unuse
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool sevalue_to_native(const se::Value &from, cc::Color *to, se::Object * /*unused*/) {
     SE_PRECONDITION2(from.isObject(), false, "Convert parameter to Color failed!");
-
     se::Object *obj = from.toObject();
-    if (obj->getPrivateObject()) {
-        *to = *obj->getTypedPrivateData<cc::Color>();
-        return true;
-    }
+    CHECK_ASSIGN_PRVOBJ_RET(obj, to)
     se::Value t;
     set_member_field(obj, to, "r", &cc::Color::r, t);
     set_member_field(obj, to, "g", &cc::Color::g, t);
@@ -532,10 +503,7 @@ bool sevalue_to_native(const se::Value &from, cc::Vec2 *to, se::Object * /*unuse
     SE_PRECONDITION2(from.isObject(), false, "Convert parameter to Vec2 failed!");
 
     se::Object *obj = from.toObject();
-    if (obj->getPrivateObject()) {
-        *to = *obj->getTypedPrivateData<cc::Vec2>();
-        return true;
-    }
+    CHECK_ASSIGN_PRVOBJ_RET(obj, to)
     se::Value tmp;
     set_member_field(obj, to, "x", &cc::Vec2::x, tmp);
     set_member_field(obj, to, "y", &cc::Vec2::y, tmp);
@@ -557,10 +525,7 @@ bool sevalue_to_native(const se::Value &from, cc::Size *to, se::Object * /*unuse
 bool sevalue_to_native(const se::Value &from, cc::Quaternion *to, se::Object * /*unused*/) {
     SE_PRECONDITION2(from.isObject(), false, "Convert parameter to Quaternion failed!");
     se::Object *obj = from.toObject();
-    if (obj->getPrivateObject()) {
-        *to = *obj->getTypedPrivateData<cc::Quaternion>();
-        return true;
-    }
+    CHECK_ASSIGN_PRVOBJ_RET(obj, to);
     se::Value tmp;
     set_member_field(obj, to, "x", &cc::Quaternion::x, tmp);
     set_member_field(obj, to, "y", &cc::Quaternion::y, tmp);
@@ -575,6 +540,7 @@ bool sevalue_to_native(const se::Value &from, cc::Quaternion *to, se::Object * /
 bool sevalue_to_native(const se::Value &from, cc::geometry::AABB *to, se::Object * /*ctx*/) {
     SE_PRECONDITION2(from.isObject(), false, "Convert parameter to AABB failed!");
     se::Object *obj = from.toObject();
+    CHECK_ASSIGN_PRVOBJ_RET(obj, to)
     se::Value tmp;
     set_member_field(obj, to, "halfExtents", &cc::geometry::AABB::halfExtents, tmp);
     set_member_field(obj, to, "center", &cc::geometry::AABB::center, tmp);
@@ -585,6 +551,7 @@ bool sevalue_to_native(const se::Value &from, cc::geometry::AABB *to, se::Object
 bool sevalue_to_native(const se::Value &from, cc::geometry::Capsule *to, se::Object * /*ctx*/) {
     SE_PRECONDITION2(from.isObject(), false, "Convert parameter to Capsule failed!");
     se::Object *obj = from.toObject();
+    CHECK_ASSIGN_PRVOBJ_RET(obj, to)
     se::Value tmp;
     set_member_field(obj, to, "radius", &cc::geometry::Capsule::radius, tmp);
     set_member_field(obj, to, "halfHeight", &cc::geometry::Capsule::halfHeight, tmp);
@@ -596,6 +563,7 @@ bool sevalue_to_native(const se::Value &from, cc::geometry::Capsule *to, se::Obj
 bool sevalue_to_native(const se::Value &from, cc::geometry::Line *to, se::Object * /*ctx*/) {
     SE_PRECONDITION2(from.isObject(), false, "Convert parameter to Line failed!");
     se::Object *obj = from.toObject();
+    CHECK_ASSIGN_PRVOBJ_RET(obj, to)
     se::Value tmp;
     set_member_field(obj, to, "s", &cc::geometry::Line::s, tmp);
     set_member_field(obj, to, "e", &cc::geometry::Line::e, tmp);
@@ -604,8 +572,9 @@ bool sevalue_to_native(const se::Value &from, cc::geometry::Line *to, se::Object
 
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool sevalue_to_native(const se::Value &from, cc::geometry::Ray *to, se::Object * /*ctx*/) {
-    SE_PRECONDITION2(from.isObject(), false, "Convert parameter to Sphere failed!");
+    SE_PRECONDITION2(from.isObject(), false, "Convert parameter to Ray failed!");
     se::Object *obj = from.toObject();
+    CHECK_ASSIGN_PRVOBJ_RET(obj, to)
     se::Value tmp;
     set_member_field(obj, to, "o", &cc::geometry::Ray::o, tmp);
     set_member_field(obj, to, "d", &cc::geometry::Ray::d, tmp);
@@ -616,6 +585,7 @@ bool sevalue_to_native(const se::Value &from, cc::geometry::Ray *to, se::Object 
 bool sevalue_to_native(const se::Value &from, cc::geometry::Sphere *to, se::Object * /*ctx*/) {
     SE_PRECONDITION2(from.isObject(), false, "Convert parameter to Sphere failed!");
     se::Object *obj = from.toObject();
+    CHECK_ASSIGN_PRVOBJ_RET(obj, to)
     se::Value tmp;
     set_member_field<float>(obj, to, "radius", &cc::geometry::Sphere::setRadius, tmp);
     set_member_field<cc::Vec3>(obj, to, "center", &cc::geometry::Sphere::setCenter, tmp);
@@ -626,6 +596,7 @@ bool sevalue_to_native(const se::Value &from, cc::geometry::Sphere *to, se::Obje
 bool sevalue_to_native(const se::Value &from, cc::geometry::Triangle *to, se::Object * /*ctx*/) {
     SE_PRECONDITION2(from.isObject(), false, "Convert parameter to Plane failed!");
     se::Object *obj = from.toObject();
+    CHECK_ASSIGN_PRVOBJ_RET(obj, to)
     se::Value tmp;
     set_member_field(obj, to, "a", &cc::geometry::Triangle::a, tmp);
     set_member_field(obj, to, "b", &cc::geometry::Triangle::b, tmp);
@@ -637,6 +608,7 @@ bool sevalue_to_native(const se::Value &from, cc::geometry::Triangle *to, se::Ob
 bool sevalue_to_native(const se::Value &from, cc::geometry::Plane *to, se::Object * /*unused*/) {
     SE_PRECONDITION2(from.isObject(), false, "Convert parameter to Plane failed!");
     se::Object *obj = from.toObject();
+    CHECK_ASSIGN_PRVOBJ_RET(obj, to)
     se::Value tmp;
     set_member_field(obj, to, "n", &cc::geometry::Plane::n, tmp);
     set_member_field(obj, to, "d", &cc::geometry::Plane::d, tmp);
@@ -652,6 +624,7 @@ bool sevalue_to_native(const se::Value &from, cc::geometry::Plane **to, se::Obje
 bool sevalue_to_native(const se::Value &from, cc::geometry::Frustum *to, se::Object * /*unused*/) {
     SE_PRECONDITION2(from.isObject(), false, "Convert parameter to Frustum failed!");
     se::Object *obj = from.toObject();
+    CHECK_ASSIGN_PRVOBJ_RET(obj, to)
     se::Value tmp;
     set_member_field(obj, to, "planes", &cc::geometry::Frustum::planes, tmp);
     set_member_field(obj, to, "vertices", &cc::geometry::Frustum::vertices, tmp);
@@ -662,6 +635,7 @@ bool sevalue_to_native(const se::Value &from, cc::geometry::Frustum *to, se::Obj
 bool sevalue_to_native(const se::Value &from, cc::geometry::Spline *to, se::Object * /*unused*/) {
     SE_PRECONDITION2(from.isObject(), false, "Convert parameter to Spline failed!");
     se::Object *obj = from.toObject();
+    CHECK_ASSIGN_PRVOBJ_RET(obj, to)
     se::Value tmp;
     set_member_field<cc::geometry::SplineMode>(obj, to, "_mode", &cc::geometry::Spline::setMode, tmp);
     set_member_field<ccstd::vector<cc::Vec3>>(obj, to, "_knots", &cc::geometry::Spline::setKnots, tmp);
@@ -719,18 +693,20 @@ bool sevalue_to_native(const se::Value &from, cc::scene::SkyboxInfo *to, se::Obj
     return true;
 }
 
-// ccstd::variant<int32_t, bool, ccstd::string>;
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool sevalue_to_native(const se::Value &from, cc::MacroValue *to, se::Object * /*ctx*/) {
+    bool ret = true;
     if (from.isBoolean()) {
         *to = from.toBoolean();
     } else if (from.isNumber()) {
         *to = from.toInt32(); // NOTE: We only support macro with int32_t type now.
     } else if (from.isString()) {
         *to = from.toString();
+    } else {
+        ret = false;
     }
 
-    return true;
+    return ret;
 }
 
 // NOLINTNEXTLINE(readability-identifier-naming)
@@ -928,7 +904,40 @@ bool sevalue_to_native(const se::Value &from, cc::IPreCompileInfoValueType *to, 
 }
 
 // NOLINTNEXTLINE(readability-identifier-naming)
-bool sevalue_to_native(const se::Value &from, ccstd::variant<ccstd::vector<float>, ccstd::string> *to, se::Object * /*ctx*/) {
+bool sevalue_to_native(const se::Value &from, cc::IPropertyEditorValueType *to, se::Object *ctx) {
+    bool ret = true;
+    switch (from.getType()) {
+        case se::Value::Type::String: {
+            ccstd::string str;
+            ret = sevalue_to_native(from, &str, ctx);
+            *to = std::move(str);
+        } break;
+        case se::Value::Type::Boolean: {
+            bool v{false};
+            ret = sevalue_to_native(from, &v, ctx);
+            *to = v;
+        } break;
+        case se::Value::Type::Number: {
+            float v{0.F};
+            ret = sevalue_to_native(from, &v, ctx);
+            *to = v;
+        } break;
+        case se::Value::Type::Object: {
+            CC_ASSERT_TRUE(from.toObject()->isArray());
+            ccstd::vector<float> v;
+            ret = sevalue_to_native(from, &v, ctx);
+            *to = std::move(v);
+        } break;
+        default:
+            *to = {};
+            break;
+    }
+
+    return ret;
+}
+
+// NOLINTNEXTLINE(readability-identifier-naming)
+bool sevalue_to_native(const se::Value &from, cc::IPropertyValue *to, se::Object * /*ctx*/) {
     if (from.isObject() && from.toObject()->isArray()) {
         uint32_t len = 0;
         bool ok = from.toObject()->getArrayLength(&len);
@@ -947,28 +956,8 @@ bool sevalue_to_native(const se::Value &from, ccstd::variant<ccstd::vector<float
     } else if (from.isString()) {
         *to = from.toString();
     } else {
-        CC_ASSERT(false);
+        CC_ABORT();
     }
-    return true;
-}
-
-// NOLINTNEXTLINE(readability-identifier-naming)
-bool sevalue_to_native(const se::Value &from, ccstd::variant<ccstd::monostate, cc::MaterialProperty, cc::MaterialPropertyList> *to, se::Object *ctx) {
-    bool ok = false;
-    if (from.isObject() && from.toObject()->isArray()) {
-        cc::MaterialPropertyList propertyList{};
-        ok = sevalue_to_native(from, &propertyList, ctx);
-        if (ok) {
-            *to = std::move(propertyList);
-        }
-    } else {
-        cc::MaterialProperty property;
-        ok = sevalue_to_native(from, &property, ctx);
-        if (ok) {
-            *to = std::move(property);
-        }
-    }
-
     return true;
 }
 
@@ -1098,24 +1087,26 @@ bool sevalue_to_native(const se::Value &from, cc::TypedArray *to, se::Object * /
                 *to = cc::Float64Array();
                 break;
             default:
-                CC_ASSERT(false);
+                CC_ABORT();
         }
     }
 
-    ccstd::visit(make_overloaded(
+    ccstd::visit(cc::overloaded{
                      [&](auto &typedArray) {
                          typedArray.setJSTypedArray(from.toObject());
                      },
-                     [](ccstd::monostate /*unused*/) {}),
+                     [](ccstd::monostate & /*unused*/) {}},
                  *to);
     return true;
 }
 
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool sevalue_to_native(const se::Value &from, cc::IBArray *to, se::Object * /*ctx*/) {
-    ccstd::visit([&](auto &typedArray) {
-        typedArray.setJSTypedArray(from.toObject());
-    },
+    ccstd::visit(cc::overloaded{
+                     [&](auto &typedArray) {
+                         typedArray.setJSTypedArray(from.toObject());
+                     },
+                     [](ccstd::monostate & /*unused*/) {}},
                  *to);
 
     return true;
@@ -1162,7 +1153,7 @@ bool sevalue_to_native(const se::Value &v, spine::Vector<spine::String> *ret, se
 #if CC_USE_MIDDLEWARE
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool seval_to_Map_string_key(const se::Value &v, cc::RefMap<ccstd::string, cc::middleware::Texture2D *> *ret) {
-    CC_ASSERT(ret != nullptr);
+    CC_ASSERT_NOT_NULL(ret);
     CC_ASSERT(v.isObject());
     se::Object *obj = v.toObject();
 
@@ -1212,7 +1203,7 @@ bool ccvaluemap_to_seval(const cc::ValueMap &v, se::Value *ret) { // NOLINT
 
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool ccvaluemapintkey_to_seval(const cc::ValueMapIntKey &v, se::Value *ret) { // NOLINT
-    CC_ASSERT(ret != nullptr);
+    CC_ASSERT_NOT_NULL(ret);
 
     se::HandleObject obj(se::Object::createPlainObject());
     bool ok = true;
@@ -1244,7 +1235,7 @@ bool ccvaluemapintkey_to_seval(const cc::ValueMapIntKey &v, se::Value *ret) { //
 
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool ccvaluevector_to_seval(const cc::ValueVector &v, se::Value *ret) { // NOLINT
-    CC_ASSERT(ret != nullptr);
+    CC_ASSERT_NOT_NULL(ret);
     se::HandleObject obj(se::Object::createArrayObject(v.size()));
     bool ok = true;
 
@@ -1280,7 +1271,7 @@ bool Data_to_seval(const cc::Data &v, se::Value *ret) {
 
 bool Data_to_TypedArray(const cc::Data &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
     // NOTICE: should remove this function, kept for backward compatibility
-    CC_ASSERT(ret != nullptr);
+    CC_ASSERT_NOT_NULL(ret);
     if (v.isNull()) {
         ret->setNull();
     } else {
@@ -1428,18 +1419,6 @@ bool nativevalue_to_se(const cc::extension::ManifestAsset &from, se::Value &to, 
     obj->setProperty("compressed", se::Value(from.compressed));
     obj->setProperty("size", se::Value(from.size));
     obj->setProperty("downloadState", se::Value(from.downloadState));
-    to.setObject(obj);
-    return true;
-}
-
-// NOLINTNEXTLINE(readability-identifier-naming)
-bool nativevalue_to_se(const cc::Quaternion &from, se::Value &to, se::Object * /*ctx*/) {
-    se::HandleObject obj(se::Object::createPlainObject());
-    obj->setProperty("x", se::Value(from.x));
-    obj->setProperty("y", se::Value(from.y));
-    obj->setProperty("z", se::Value(from.z));
-    obj->setProperty("w", se::Value(from.w));
-    obj->setProperty("type", se::Value(static_cast<uint32_t>(MathType::QUATERNION)));
     to.setObject(obj);
     return true;
 }
@@ -1711,24 +1690,6 @@ bool sevalue_to_native(const se::Value &from, cc::physics::RaycastOptions *to, s
     if (!field.isNullOrUndefined()) ok &= sevalue_to_native(field, &to->queryTrigger, ctx);
 
     return ok;
-}
-
-bool nativevalue_to_se(const cc::geometry::AABB &from, se::Value &to, se::Object *ctx) {
-    se::HandleObject obj(se::Object::createPlainObject());
-    se::Value tmp;
-    if (nativevalue_to_se(from.getCenter(), tmp, ctx)) obj->setProperty("center", tmp);
-    if (nativevalue_to_se(from.getHalfExtents(), tmp, ctx)) obj->setProperty("halfExtents", tmp);
-    to.setObject(obj);
-    return true;
-}
-
-bool nativevalue_to_se(const cc::geometry::Sphere &from, se::Value &to, se::Object *ctx) {
-    se::HandleObject obj(se::Object::createPlainObject());
-    se::Value tmp(from.getRadius());
-    obj->setProperty("radius", tmp);
-    if (nativevalue_to_se(from.getCenter(), tmp, ctx)) obj->setProperty("center", tmp);
-    to.setObject(obj);
-    return true;
 }
 
 #endif // CC_USE_PHYSICS_PHYSX

@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -256,7 +255,6 @@ public:
                     addTouchEvent(i, motionEvent);
                 }
             }
-
             events::Touch::broadcast(touchEvent);
             touchEvent.touches.clear();
             return true;
@@ -384,7 +382,6 @@ public:
                 WindowEvent ev;
                 ev.type = WindowEvent::Type::CLOSE;
                 events::WindowEvent::broadcast(ev);
-                _androidPlatform->onDestroy();
                 break;
             }
             case APP_CMD_STOP: {
@@ -530,7 +527,7 @@ int AndroidPlatform::init() {
         JniHelper::getEnv();
         xr->initialize(JniHelper::getJavaVM(), getActivity());
     }
-    cc::FileUtilsAndroid::setassetmanager(_app->activity->assetManager);
+    cc::FileUtilsAndroid::setAssetManager(_app->activity->assetManager);
     _inputProxy = ccnew GameInputProxy(this);
     _inputProxy->registerAppEventCallback([this](int32_t cmd) {
         if (APP_CMD_START == cmd || APP_CMD_INIT_WINDOW == cmd) {
@@ -567,6 +564,7 @@ int AndroidPlatform::init() {
 void AndroidPlatform::onDestroy() {
     UniversalPlatform::onDestroy();
     unregisterAllInterfaces();
+    JniHelper::onDestroy();
     CC_SAFE_DELETE(_inputProxy)
 }
 
@@ -581,6 +579,10 @@ int AndroidPlatform::getSdkVersion() const {
 int32_t AndroidPlatform::run(int /*argc*/, const char ** /*argv*/) {
     loop();
     return 0;
+}
+
+void AndroidPlatform::exit() {
+    _app->destroyRequested = 1;
 }
 
 int32_t AndroidPlatform::loop() {
@@ -599,10 +601,13 @@ int32_t AndroidPlatform::loop() {
 
             // Exit the game loop when the Activity is destroyed
             if (_app->destroyRequested) {
-                return 0;
+                break;
             }
         }
-
+        // Exit the game loop when the Activity is destroyed
+        if (_app->destroyRequested) {
+            break;
+        }
         if (xr && !xr->platformLoopStart()) continue;
         _inputProxy->handleInput();
         if (_inputProxy->isAnimating() && (xr ? xr->getXRConfig(xr::XRConfigKey::SESSION_RUNNING).getBool() : true)) {
@@ -626,6 +631,8 @@ int32_t AndroidPlatform::loop() {
 #endif
         if (xr) xr->platformLoopEnd();
     }
+    onDestroy();
+    return 0;
 }
 
 void AndroidPlatform::pollEvent() {

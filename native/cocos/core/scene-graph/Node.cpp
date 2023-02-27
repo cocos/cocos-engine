@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+****************************************************************************/
 
 #include "core/scene-graph/Node.h"
 #include "base/StringUtil.h"
@@ -76,13 +75,13 @@ Node::~Node() {
 
 void Node::onBatchCreated(bool dontChildPrefab) {
     // onBatchCreated was implemented in TS, so code should never go here.
-    CC_ASSERT(false);
+    CC_ABORT();
     emit<BatchCreated>(dontChildPrefab);
 }
 
 Node *Node::instantiate(Node *cloned, bool isSyncedNode) {
     if (!cloned) {
-        CC_ASSERT(false);
+        CC_ABORT();
         // TODO(): cloned = legacyCC.instantiate._clone(this, this);
         return nullptr;
     }
@@ -366,9 +365,7 @@ void Node::setSiblingIndex(index_t index) {
             siblings.emplace_back(this);
         }
         _parent->updateSiblingIndex();
-        if (onSiblingIndexChanged != nullptr) {
-            onSiblingIndexChanged(index);
-        }
+        emit<SiblingIndexChanged>(index);
     }
 }
 
@@ -476,7 +473,7 @@ void Node::updateWorldTransformRecursive(uint32_t &dirtyBits) { // NOLINT(misc-n
             Mat4::fromRTS(_localRotation, _localPosition, _localScale, &_worldMatrix);
             Mat4::multiply(parent->_worldMatrix, _worldMatrix, &_worldMatrix);
             const bool rotChanged = dirtyBits & static_cast<uint32_t>(TransformBit::ROTATION);
-            Quaternion *rotTmp =  rotChanged ? &_worldRotation : nullptr;
+            Quaternion *rotTmp = rotChanged ? &_worldRotation : nullptr;
             Mat4::toRTS(_worldMatrix, rotTmp, nullptr, &_worldScale);
         }
     } else {
@@ -525,7 +522,6 @@ void Node::invalidateChildren(TransformBit dirtyBit) { // NOLINT(misc-no-recursi
     if (isValid() && (dirtyFlags & hasChangedFlags & curDirtyBit) != curDirtyBit) {
         setDirtyFlag(dirtyFlags | curDirtyBit);
         setChangedFlags(hasChangedFlags | curDirtyBit);
-        emit<AncestorTransformChanged>(dirtyBit);
 
         for (Node *child : getChildren()) {
             child->invalidateChildren(dirtyBit | TransformBit::POSITION);
@@ -549,7 +545,6 @@ void Node::setWorldPosition(float x, float y, float z) {
 
     if (_eventMask & TRANSFORM_ON) {
         emit<TransformChanged>(TransformBit::POSITION);
-
     }
 }
 
@@ -570,13 +565,13 @@ void Node::setWorldRotation(float x, float y, float z, float w) {
 
     _eulerDirty = true;
 
+    notifyLocalRotationUpdated();
+
     invalidateChildren(TransformBit::ROTATION);
 
     if (_eventMask & TRANSFORM_ON) {
         emit<TransformChanged>(TransformBit::ROTATION);
     }
-
-    notifyLocalRotationUpdated();
 }
 
 const Quaternion &Node::getWorldRotation() const { // NOLINT(misc-no-recursion)
@@ -585,10 +580,10 @@ const Quaternion &Node::getWorldRotation() const { // NOLINT(misc-no-recursion)
 }
 
 void Node::setWorldScale(float x, float y, float z) {
-    Vec3 oldWorldScale = _worldScale;
-    _worldScale.set(x, y, z);
     if (_parent != nullptr) {
-        _parent->updateWorldTransform();
+        updateWorldTransform(); // ensure reentryability
+        Vec3 oldWorldScale = _worldScale;
+        _worldScale.set(x, y, z);
         Mat3 localRS;
         Mat3 localRotInv;
         Mat4 worldMatrixTmp = _worldMatrix;
@@ -600,14 +595,15 @@ void Node::setWorldScale(float x, float y, float z) {
         // convert to Matrix 3 x 3
         Mat3::fromMat4(tmpLocalTransform, &localRS);
         Mat3::fromQuat(_localRotation.getConjugated(), &localRotInv);
-        // remove rotation part of the local matrix 
-        Mat3::multiply(localRS, localRotInv, &localRS);
+        // remove rotation part of the local matrix
+        Mat3::multiply(localRotInv, localRS, &localRS);
 
         // extract scaling part from local matrix
         _localScale.x = Vec3{localRS.m[0], localRS.m[1], localRS.m[2]}.length();
         _localScale.y = Vec3{localRS.m[3], localRS.m[4], localRS.m[5]}.length();
         _localScale.z = Vec3{localRS.m[6], localRS.m[7], localRS.m[8]}.length();
     } else {
+        _worldScale.set(x, y, z);
         _localScale = _worldScale;
     }
 
@@ -875,6 +871,13 @@ void Node::onHierarchyChanged(Node *oldParent) {
 //
 void Node::_setChildren(ccstd::vector<IntrusivePtr<Node>> &&children) {
     _children = std::move(children);
+}
+
+void Node::destruct() {
+    CCObject::destruct();
+    _children.clear();
+    _scene = nullptr;
+    _userData = nullptr;
 }
 
 //

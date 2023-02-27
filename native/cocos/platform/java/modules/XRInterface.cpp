@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -28,10 +27,10 @@
 #include <unistd.h>
 #include <functional>
 #include <unordered_map>
-#include "base/StringUtil.h"
 #include "android/AndroidPlatform.h"
 #include "base/Log.h"
 #include "base/Macros.h"
+#include "base/StringUtil.h"
 #include "bindings/event/EventDispatcher.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "java/jni/JniHelper.h"
@@ -116,10 +115,11 @@ void XRInterface::dispatchGamepadEventInternal(const xr::XRControllerEvent &xrCo
                         break;
                     }
                     case xr::XRClick::Type::HOME: {
-                        CC_LOG_INFO("[XRInterface] exit when home click in rokid.");
+                        CC_LOG_INFO("[XRInterface] dispatchGamepadEventInternal exit when home click in rokid.");
 #if CC_USE_XR
                         xr::XrEntry::getInstance()->destroyXrInstance();
                         xr::XrEntry::destroyInstance();
+                        _isXrEntryInstanceValid = false;
 #endif
                         CC_CURRENT_APPLICATION_SAFE()->close();
                         break;
@@ -231,8 +231,19 @@ void XRInterface::dispatchHandleEventInternal(const xr::XRControllerEvent &xrCon
                     case xr::XRClick::Type::TRIGGER_RIGHT:
                     case xr::XRClick::Type::THUMBSTICK_RIGHT:
                     case xr::XRClick::Type::A:
-                    case xr::XRClick::Type::B: {
+                    case xr::XRClick::Type::B:
+                    case xr::XRClick::Type::START: {
                         controllerInfo->buttonInfos.emplace_back(ControllerInfo::ButtonInfo(stickKeyCode, xrClick->isPress));
+                        break;
+                    }
+                    case xr::XRClick::Type::HOME: {
+                        CC_LOG_INFO("[XRInterface] dispatchHandleEventInternal exit when home click in rokid.");
+#if CC_USE_XR
+                        xr::XrEntry::getInstance()->destroyXrInstance();
+                        xr::XrEntry::destroyInstance();
+                        _isXrEntryInstanceValid = false;
+#endif
+                        CC_CURRENT_APPLICATION_SAFE()->close();
                         break;
                     }
                     default:
@@ -419,6 +430,7 @@ uint32_t XRInterface::getRuntimeVersion() {
 void XRInterface::initialize(void *javaVM, void *activity) {
 #if CC_USE_XR
     CC_LOG_INFO("[XR] initialize vm.%p,aty.%p | %d", javaVM, activity, (int)gettid());
+    _isXrEntryInstanceValid = true;
     xr::XrEntry::getInstance()->initPlatformData(javaVM, activity);
     xr::XrEntry::getInstance()->setGamepadCallback(std::bind(&XRInterface::dispatchGamepadEventInternal, this, std::placeholders::_1));
     xr::XrEntry::getInstance()->setHandleCallback(std::bind(&XRInterface::dispatchHandleEventInternal, this, std::placeholders::_1));
@@ -434,8 +446,8 @@ void XRInterface::initialize(void *javaVM, void *activity) {
             if (value.getInt() == 1) {
                 this->endRenderEyeFrame(key == xr::XRConfigKey::RENDER_EYE_FRAME_LEFT ? 0 : 1);
             }
-        } else if(key == xr::XRConfigKey::IMAGE_TRACKING_CANDIDATEIMAGE && value.isString()) {
-            if(!_gThreadPool) {
+        } else if (key == xr::XRConfigKey::IMAGE_TRACKING_CANDIDATEIMAGE && value.isString()) {
+            if (!_gThreadPool) {
                 _gThreadPool = LegacyThreadPool::newSingleThreadPool();
             }
 
@@ -500,6 +512,7 @@ void XRInterface::onRenderDestroy() {
     CC_LOG_INFO("[XR] onRenderDestroy");
     xr::XrEntry::getInstance()->destroyXrInstance();
     xr::XrEntry::destroyInstance();
+    _isXrEntryInstanceValid = false;
     if (_jsPoseEventArray != nullptr) {
         _jsPoseEventArray->unroot();
         _jsPoseEventArray->decRef();
@@ -750,6 +763,9 @@ EGLSurfaceType XRInterface::acquireEGLSurfaceType(uint32_t typedID) {
 bool XRInterface::platformLoopStart() {
 #if CC_USE_XR
     // CC_LOG_INFO("[XR] platformLoopStart");
+    if (!_isXrEntryInstanceValid) {
+        return false;
+    }
     #if CC_USE_XR_REMOTE_PREVIEW
     if (_xrRemotePreviewManager && !_xrRemotePreviewManager->isStarted()) {
         _xrRemotePreviewManager->start();
@@ -876,6 +892,9 @@ bool XRInterface::endRenderFrame() {
 
 bool XRInterface::platformLoopEnd() {
 #if CC_USE_XR
+    if (!_isXrEntryInstanceValid) {
+        return false;
+    }
     return xr::XrEntry::getInstance()->platformLoopEnd();
 #else
     return false;
@@ -976,7 +995,7 @@ void XRInterface::loadAssetsImage(const std::string &imageInfo) {
         return;
     }
     auto engine = app->getEngine();
-    CC_ASSERT(engine != nullptr);
+    CC_ASSERT_NOT_NULL(engine);
     engine->getScheduler()->performFunctionInCocosThread([=]() {
         xr::XRTrackingImageData candidateImage;
         candidateImage.friendlyName = imageName;

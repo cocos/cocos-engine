@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -148,9 +147,13 @@ Object.defineProperty(meshAssetProto, 'maxPosition', {
 });
 
 meshAssetProto.onLoaded = function () {
-    // might be undefined
-    if (this._struct != undefined) {
-        this.setStruct(this._struct);
+    // might be undefined or null
+    const meshStruct = this._struct;
+    if (meshStruct) {
+        // Synchronize to native if the struct contains valid values.
+        if (meshStruct.vertexBundles.length !== 0 || meshStruct.primitives.length !== 0) {
+            this.setStruct(this._struct);
+        }
     }
     // Set to null to release memory in JS
     this._struct = null;
@@ -161,7 +164,7 @@ cclegacy.Mesh = jsb.Mesh;
 
 // handle meta data, it is generated automatically
 const MeshProto = Mesh.prototype;
-serializable(MeshProto, '_struct');
-serializable(MeshProto, '_hash');
-serializable(MeshProto, '_allowDataAccess');
+serializable(MeshProto, '_struct', () => { return { vertexBundles: [], primitives: [] } });
+serializable(MeshProto, '_hash', () => 0);
+serializable(MeshProto, '_allowDataAccess', () => true);
 ccclass('cc.Mesh')(Mesh);

@@ -9,20 +9,19 @@
  * ----------------------------------------------------------------------------- */
 
 /****************************************************************************
- Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -71,6 +70,9 @@ using namespace cc::render;
 #define cc_render_PipelineRuntime_device_get(self_) self_->getDevice()
   
 
+#define cc_render_PipelineRuntime_macros_get(self_) self_->getMacros()
+  
+
 #define cc_render_PipelineRuntime_globalDSManager_get(self_) self_->getGlobalDSManager()
   
 
@@ -104,13 +106,14 @@ using namespace cc::render;
 #define cc_render_RenderNode_name_set(self_, val_) self_->setName(val_)
   
 
+#define cc_render_RasterPassBuilder_showStatistics_get(self_) self_->getShowStatistics()
+#define cc_render_RasterPassBuilder_showStatistics_set(self_, val_) self_->setShowStatistics(val_)
+  
+
 #define cc_render_SceneVisitor_pipelineSceneData_get(self_) self_->getPipelineSceneData()
   
 
 #define cc_render_SceneTask_taskType_get(self_) self_->getTaskType()
-  
-
-#define cc_render_Pipeline_layoutGraphBuilder_get(self_) self_->getLayoutGraphBuilder()
   
 
 
@@ -428,6 +431,25 @@ static bool js_cc_render_PipelineRuntime_device_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_render_PipelineRuntime_device_get) 
 
+static bool js_cc_render_PipelineRuntime_macros_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::render::PipelineRuntime *arg1 = (cc::render::PipelineRuntime *) NULL ;
+    cc::MacroRecord *result = 0 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::render::PipelineRuntime>(s);
+    if (nullptr == arg1) return true;
+    result = (cc::MacroRecord *) &cc_render_PipelineRuntime_macros_get(arg1);
+    
+    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_render_PipelineRuntime_macros_get) 
+
 static bool js_cc_render_PipelineRuntime_globalDSManager_get(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -643,7 +665,9 @@ SE_BIND_PROP_GET(js_cc_render_PipelineRuntime_shadingScale_get)
 bool js_register_cc_render_PipelineRuntime(se::Object* obj) {
     auto* cls = se::Class::create("PipelineRuntime", obj, nullptr, nullptr); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("device", _SE(js_cc_render_PipelineRuntime_device_get), nullptr); 
+    cls->defineProperty("macros", _SE(js_cc_render_PipelineRuntime_macros_get), nullptr); 
     cls->defineProperty("globalDSManager", _SE(js_cc_render_PipelineRuntime_globalDSManager_get), nullptr); 
     cls->defineProperty("descriptorSetLayout", _SE(js_cc_render_PipelineRuntime_descriptorSetLayout_get), nullptr); 
     cls->defineProperty("descriptorSet", _SE(js_cc_render_PipelineRuntime_descriptorSet_get), nullptr); 
@@ -735,6 +759,7 @@ SE_BIND_PROP_GET(js_cc_render_RenderNode_name_get)
 bool js_register_cc_render_RenderNode(se::Object* obj) {
     auto* cls = se::Class::create("RenderNode", obj, nullptr, nullptr); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("name", _SE(js_cc_render_RenderNode_name_get), _SE(js_cc_render_RenderNode_name_set)); 
     
     
@@ -1123,6 +1148,7 @@ SE_BIND_FINALIZE_FUNC(js_delete_cc_render_Setter)
 bool js_register_cc_render_Setter(se::Object* obj) {
     auto* cls = se::Class::create("Setter", obj, __jsb_cc_render_RenderNode_proto, nullptr); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("setMat4", _SE(js_cc_render_Setter_setMat4)); 
     cls->defineFunction("setQuaternion", _SE(js_cc_render_Setter_setQuaternion)); 
@@ -1569,6 +1595,7 @@ SE_BIND_FINALIZE_FUNC(js_delete_cc_render_RasterQueueBuilder)
 bool js_register_cc_render_RasterQueueBuilder(se::Object* obj) {
     auto* cls = se::Class::create("RasterQueueBuilder", obj, __jsb_cc_render_Setter_proto, nullptr); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("setViewport", _SE(js_cc_render_RasterQueueBuilder_setViewport)); 
     cls->defineFunction("addSceneOfCamera", _SE(js_cc_render_RasterQueueBuilder_addSceneOfCamera)); 
@@ -1684,6 +1711,7 @@ static bool js_cc_render_RasterPassBuilder_addQueue__SWIG_0(se::State& s)
     ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments");
     SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    s.rval().toObject()->getPrivateObject()->tryAllowDestroyInGC();
     
     
     return true;
@@ -1716,6 +1744,38 @@ static bool js_cc_render_RasterPassBuilder_setViewport(se::State& s)
 }
 SE_BIND_FUNC(js_cc_render_RasterPassBuilder_setViewport) 
 
+static bool js_cc_render_RasterPassBuilder_setVersion(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::render::RasterPassBuilder *arg1 = (cc::render::RasterPassBuilder *) NULL ;
+    ccstd::string *arg2 = 0 ;
+    uint64_t arg3 ;
+    ccstd::string temp2 ;
+    
+    if(argc != 2) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::render::RasterPassBuilder>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg2 = &temp2;
+    
+    
+    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    (arg1)->setVersion((ccstd::string const &)*arg2,arg3);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_render_RasterPassBuilder_setVersion) 
+
 static bool js_cc_render_RasterPassBuilder_addQueue__SWIG_1(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -1730,6 +1790,7 @@ static bool js_cc_render_RasterPassBuilder_addQueue__SWIG_1(se::State& s)
     ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments");
     SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    s.rval().toObject()->getPrivateObject()->tryAllowDestroyInGC();
     
     
     return true;
@@ -1759,6 +1820,43 @@ static bool js_cc_render_RasterPassBuilder_addQueue(se::State& s)
 }
 SE_BIND_FUNC(js_cc_render_RasterPassBuilder_addQueue) 
 
+static bool js_cc_render_RasterPassBuilder_showStatistics_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::render::RasterPassBuilder *arg1 = (cc::render::RasterPassBuilder *) NULL ;
+    bool arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::render::RasterPassBuilder>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2);
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    cc_render_RasterPassBuilder_showStatistics_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_render_RasterPassBuilder_showStatistics_set) 
+
+static bool js_cc_render_RasterPassBuilder_showStatistics_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::render::RasterPassBuilder *arg1 = (cc::render::RasterPassBuilder *) NULL ;
+    bool result;
+    
+    arg1 = SE_THIS_OBJECT<cc::render::RasterPassBuilder>(s);
+    if (nullptr == arg1) return true;
+    result = (bool)cc_render_RasterPassBuilder_showStatistics_get(arg1);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_render_RasterPassBuilder_showStatistics_get) 
+
 static bool js_delete_cc_render_RasterPassBuilder(se::State& s)
 {
     return true;
@@ -1768,10 +1866,13 @@ SE_BIND_FINALIZE_FUNC(js_delete_cc_render_RasterPassBuilder)
 bool js_register_cc_render_RasterPassBuilder(se::Object* obj) {
     auto* cls = se::Class::create("RasterPassBuilder", obj, __jsb_cc_render_Setter_proto, nullptr); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
+    cls->defineProperty("showStatistics", _SE(js_cc_render_RasterPassBuilder_showStatistics_get), _SE(js_cc_render_RasterPassBuilder_showStatistics_set)); 
     
     cls->defineFunction("addRasterView", _SE(js_cc_render_RasterPassBuilder_addRasterView)); 
     cls->defineFunction("addComputeView", _SE(js_cc_render_RasterPassBuilder_addComputeView)); 
     cls->defineFunction("setViewport", _SE(js_cc_render_RasterPassBuilder_setViewport)); 
+    cls->defineFunction("setVersion", _SE(js_cc_render_RasterPassBuilder_setVersion)); 
     cls->defineFunction("addQueue", _SE(js_cc_render_RasterPassBuilder_addQueue)); 
     
     
@@ -1845,6 +1946,7 @@ SE_BIND_FINALIZE_FUNC(js_delete_cc_render_ComputeQueueBuilder)
 bool js_register_cc_render_ComputeQueueBuilder(se::Object* obj) {
     auto* cls = se::Class::create("ComputeQueueBuilder", obj, __jsb_cc_render_Setter_proto, nullptr); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("addDispatch", _SE(js_cc_render_ComputeQueueBuilder_addDispatch)); 
     
@@ -1936,6 +2038,7 @@ SE_BIND_FINALIZE_FUNC(js_delete_cc_render_ComputePassBuilder)
 bool js_register_cc_render_ComputePassBuilder(se::Object* obj) {
     auto* cls = se::Class::create("ComputePassBuilder", obj, __jsb_cc_render_Setter_proto, nullptr); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("addComputeView", _SE(js_cc_render_ComputePassBuilder_addComputeView)); 
     cls->defineFunction("addQueue", _SE(js_cc_render_ComputePassBuilder_addQueue)); 
@@ -1996,6 +2099,7 @@ SE_BIND_FINALIZE_FUNC(js_delete_cc_render_MovePassBuilder)
 bool js_register_cc_render_MovePassBuilder(se::Object* obj) {
     auto* cls = se::Class::create("MovePassBuilder", obj, __jsb_cc_render_RenderNode_proto, nullptr); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("addPair", _SE(js_cc_render_MovePassBuilder_addPair)); 
     
@@ -2055,6 +2159,7 @@ SE_BIND_FINALIZE_FUNC(js_delete_cc_render_CopyPassBuilder)
 bool js_register_cc_render_CopyPassBuilder(se::Object* obj) {
     auto* cls = se::Class::create("CopyPassBuilder", obj, __jsb_cc_render_RenderNode_proto, nullptr); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("addPair", _SE(js_cc_render_CopyPassBuilder_addPair)); 
     
@@ -2235,6 +2340,7 @@ SE_BIND_PROP_GET(js_cc_render_SceneVisitor_pipelineSceneData_get)
 bool js_register_cc_render_SceneVisitor(se::Object* obj) {
     auto* cls = se::Class::create("SceneVisitor", obj, nullptr, nullptr); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("pipelineSceneData", _SE(js_cc_render_SceneVisitor_pipelineSceneData_get), nullptr); 
     
     cls->defineFunction("setViewport", _SE(js_cc_render_SceneVisitor_setViewport)); 
@@ -2352,6 +2458,7 @@ SE_BIND_PROP_GET(js_cc_render_SceneTask_taskType_get)
 bool js_register_cc_render_SceneTask(se::Object* obj) {
     auto* cls = se::Class::create("SceneTask", obj, nullptr, nullptr); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("taskType", _SE(js_cc_render_SceneTask_taskType_get), nullptr); 
     
     cls->defineFunction("start", _SE(js_cc_render_SceneTask_start)); 
@@ -2416,6 +2523,7 @@ SE_BIND_FUNC(js_cc_render_SceneTransversal_transverse)
 bool js_register_cc_render_SceneTransversal(se::Object* obj) {
     auto* cls = se::Class::create("SceneTransversal", obj, nullptr, nullptr); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("transverse", _SE(js_cc_render_SceneTransversal_transverse)); 
     
@@ -2430,336 +2538,6 @@ bool js_register_cc_render_SceneTransversal(se::Object* obj) {
     
     __jsb_cc_render_SceneTransversal_proto = cls->getProto();
     __jsb_cc_render_SceneTransversal_class = cls;
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-
-
-se::Class* __jsb_cc_render_LayoutGraphBuilder_class = nullptr;
-se::Object* __jsb_cc_render_LayoutGraphBuilder_proto = nullptr;
-SE_DECLARE_FINALIZE_FUNC(js_delete_cc_render_LayoutGraphBuilder) 
-
-static bool js_delete_cc_render_LayoutGraphBuilder(se::State& s)
-{
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_delete_cc_render_LayoutGraphBuilder) 
-
-static bool js_cc_render_LayoutGraphBuilder_clear(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::render::LayoutGraphBuilder *arg1 = (cc::render::LayoutGraphBuilder *) NULL ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::render::LayoutGraphBuilder>(s);
-    if (nullptr == arg1) return true;
-    (arg1)->clear();
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_render_LayoutGraphBuilder_clear) 
-
-static bool js_cc_render_LayoutGraphBuilder_addRenderStage(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::render::LayoutGraphBuilder *arg1 = (cc::render::LayoutGraphBuilder *) NULL ;
-    ccstd::string *arg2 = 0 ;
-    ccstd::string temp2 ;
-    uint32_t result;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::render::LayoutGraphBuilder>(s);
-    if (nullptr == arg1) return true;
-    
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    arg2 = &temp2;
-    
-    result = (arg1)->addRenderStage((ccstd::string const &)*arg2);
-    
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_render_LayoutGraphBuilder_addRenderStage) 
-
-static bool js_cc_render_LayoutGraphBuilder_addRenderPhase(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::render::LayoutGraphBuilder *arg1 = (cc::render::LayoutGraphBuilder *) NULL ;
-    ccstd::string *arg2 = 0 ;
-    uint32_t arg3 ;
-    ccstd::string temp2 ;
-    uint32_t result;
-    
-    if(argc != 2) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::render::LayoutGraphBuilder>(s);
-    if (nullptr == arg1) return true;
-    
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    arg2 = &temp2;
-    
-    
-    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    
-    result = (arg1)->addRenderPhase((ccstd::string const &)*arg2,arg3);
-    
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_render_LayoutGraphBuilder_addRenderPhase) 
-
-static bool js_cc_render_LayoutGraphBuilder_addShader(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::render::LayoutGraphBuilder *arg1 = (cc::render::LayoutGraphBuilder *) NULL ;
-    ccstd::string *arg2 = 0 ;
-    uint32_t arg3 ;
-    ccstd::string temp2 ;
-    
-    if(argc != 2) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::render::LayoutGraphBuilder>(s);
-    if (nullptr == arg1) return true;
-    
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    arg2 = &temp2;
-    
-    
-    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    
-    (arg1)->addShader((ccstd::string const &)*arg2,arg3);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_render_LayoutGraphBuilder_addShader) 
-
-static bool js_cc_render_LayoutGraphBuilder_addDescriptorBlock(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::render::LayoutGraphBuilder *arg1 = (cc::render::LayoutGraphBuilder *) NULL ;
-    uint32_t arg2 ;
-    DescriptorBlockIndex *arg3 = 0 ;
-    DescriptorBlockFlattened *arg4 = 0 ;
-    DescriptorBlockIndex temp3 ;
-    DescriptorBlockFlattened temp4 ;
-    
-    if(argc != 3) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::render::LayoutGraphBuilder>(s);
-    if (nullptr == arg1) return true;
-    
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    
-    
-    ok &= sevalue_to_native(args[1], &temp3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    arg3 = &temp3;
-    
-    
-    ok &= sevalue_to_native(args[2], &temp4, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    arg4 = &temp4;
-    
-    (arg1)->addDescriptorBlock(arg2,(DescriptorBlockIndex const &)*arg3,(DescriptorBlockFlattened const &)*arg4);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_render_LayoutGraphBuilder_addDescriptorBlock) 
-
-static bool js_cc_render_LayoutGraphBuilder_addUniformBlock(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::render::LayoutGraphBuilder *arg1 = (cc::render::LayoutGraphBuilder *) NULL ;
-    uint32_t arg2 ;
-    DescriptorBlockIndex *arg3 = 0 ;
-    ccstd::string *arg4 = 0 ;
-    gfx::UniformBlock *arg5 = 0 ;
-    DescriptorBlockIndex temp3 ;
-    ccstd::string temp4 ;
-    gfx::UniformBlock temp5 ;
-    
-    if(argc != 4) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::render::LayoutGraphBuilder>(s);
-    if (nullptr == arg1) return true;
-    
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    
-    
-    ok &= sevalue_to_native(args[1], &temp3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    arg3 = &temp3;
-    
-    
-    ok &= sevalue_to_native(args[2], &temp4, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    arg4 = &temp4;
-    
-    
-    ok &= sevalue_to_native(args[3], &temp5, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    arg5 = &temp5;
-    
-    (arg1)->addUniformBlock(arg2,(DescriptorBlockIndex const &)*arg3,(ccstd::string const &)*arg4,(gfx::UniformBlock const &)*arg5);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_render_LayoutGraphBuilder_addUniformBlock) 
-
-static bool js_cc_render_LayoutGraphBuilder_reserveDescriptorBlock(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::render::LayoutGraphBuilder *arg1 = (cc::render::LayoutGraphBuilder *) NULL ;
-    uint32_t arg2 ;
-    DescriptorBlockIndex *arg3 = 0 ;
-    DescriptorBlockFlattened *arg4 = 0 ;
-    DescriptorBlockIndex temp3 ;
-    DescriptorBlockFlattened temp4 ;
-    
-    if(argc != 3) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::render::LayoutGraphBuilder>(s);
-    if (nullptr == arg1) return true;
-    
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    
-    
-    ok &= sevalue_to_native(args[1], &temp3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    arg3 = &temp3;
-    
-    
-    ok &= sevalue_to_native(args[2], &temp4, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    arg4 = &temp4;
-    
-    (arg1)->reserveDescriptorBlock(arg2,(DescriptorBlockIndex const &)*arg3,(DescriptorBlockFlattened const &)*arg4);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_render_LayoutGraphBuilder_reserveDescriptorBlock) 
-
-static bool js_cc_render_LayoutGraphBuilder_compile(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::render::LayoutGraphBuilder *arg1 = (cc::render::LayoutGraphBuilder *) NULL ;
-    int result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::render::LayoutGraphBuilder>(s);
-    if (nullptr == arg1) return true;
-    result = (int)(arg1)->compile();
-    
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_render_LayoutGraphBuilder_compile) 
-
-static bool js_cc_render_LayoutGraphBuilder_print(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::render::LayoutGraphBuilder *arg1 = (cc::render::LayoutGraphBuilder *) NULL ;
-    ccstd::string result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::render::LayoutGraphBuilder>(s);
-    if (nullptr == arg1) return true;
-    result = ((cc::render::LayoutGraphBuilder const *)arg1)->print();
-    
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_render_LayoutGraphBuilder_print) 
-
-bool js_register_cc_render_LayoutGraphBuilder(se::Object* obj) {
-    auto* cls = se::Class::create("LayoutGraphBuilder", obj, nullptr, nullptr); 
-    
-    
-    cls->defineFunction("clear", _SE(js_cc_render_LayoutGraphBuilder_clear)); 
-    cls->defineFunction("addRenderStage", _SE(js_cc_render_LayoutGraphBuilder_addRenderStage)); 
-    cls->defineFunction("addRenderPhase", _SE(js_cc_render_LayoutGraphBuilder_addRenderPhase)); 
-    cls->defineFunction("addShader", _SE(js_cc_render_LayoutGraphBuilder_addShader)); 
-    cls->defineFunction("addDescriptorBlock", _SE(js_cc_render_LayoutGraphBuilder_addDescriptorBlock)); 
-    cls->defineFunction("addUniformBlock", _SE(js_cc_render_LayoutGraphBuilder_addUniformBlock)); 
-    cls->defineFunction("reserveDescriptorBlock", _SE(js_cc_render_LayoutGraphBuilder_reserveDescriptorBlock)); 
-    cls->defineFunction("compile", _SE(js_cc_render_LayoutGraphBuilder_compile)); 
-    cls->defineFunction("print", _SE(js_cc_render_LayoutGraphBuilder_print)); 
-    
-    
-    
-    
-    cls->defineFinalizeFunction(_SE(js_delete_cc_render_LayoutGraphBuilder));
-    
-    
-    cls->install();
-    JSBClassType::registerClass<cc::render::LayoutGraphBuilder>(cls);
-    
-    __jsb_cc_render_LayoutGraphBuilder_proto = cls->getProto();
-    __jsb_cc_render_LayoutGraphBuilder_class = cls;
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -3150,6 +2928,7 @@ static bool js_cc_render_Pipeline_addRasterPass__SWIG_0(se::State& s)
     ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments");
     SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    s.rval().toObject()->getPrivateObject()->tryAllowDestroyInGC();
     
     
     return true;
@@ -3587,6 +3366,7 @@ static bool js_cc_render_Pipeline_addRasterPass__SWIG_1(se::State& s)
     ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments");
     SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    s.rval().toObject()->getPrivateObject()->tryAllowDestroyInGC();
     
     
     return true;
@@ -3616,25 +3396,6 @@ static bool js_cc_render_Pipeline_addRasterPass(se::State& s)
 }
 SE_BIND_FUNC(js_cc_render_Pipeline_addRasterPass) 
 
-static bool js_cc_render_Pipeline_layoutGraphBuilder_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::render::Pipeline *arg1 = (cc::render::Pipeline *) NULL ;
-    cc::render::LayoutGraphBuilder *result = 0 ;
-    
-    arg1 = SE_THIS_OBJECT<cc::render::Pipeline>(s);
-    if (nullptr == arg1) return true;
-    result = (cc::render::LayoutGraphBuilder *)cc_render_Pipeline_layoutGraphBuilder_get(arg1);
-    
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_render_Pipeline_layoutGraphBuilder_get) 
-
 static bool js_delete_cc_render_Pipeline(se::State& s)
 {
     return true;
@@ -3644,7 +3405,7 @@ SE_BIND_FINALIZE_FUNC(js_delete_cc_render_Pipeline)
 bool js_register_cc_render_Pipeline(se::Object* obj) {
     auto* cls = se::Class::create("Pipeline", obj, __jsb_cc_render_PipelineRuntime_proto, nullptr); 
     
-    cls->defineProperty("layoutGraphBuilder", _SE(js_cc_render_Pipeline_layoutGraphBuilder_get), nullptr); 
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("beginSetup", _SE(js_cc_render_Pipeline_beginSetup)); 
     cls->defineFunction("endSetup", _SE(js_cc_render_Pipeline_endSetup)); 
@@ -3725,6 +3486,7 @@ SE_BIND_FUNC(js_cc_render_PipelineBuilder_setup)
 bool js_register_cc_render_PipelineBuilder(se::Object* obj) {
     auto* cls = se::Class::create("PipelineBuilder", obj, nullptr, nullptr); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("setup", _SE(js_cc_render_PipelineBuilder_setup)); 
     
@@ -3744,9 +3506,162 @@ bool js_register_cc_render_PipelineBuilder(se::Object* obj) {
 }
 
 
+se::Class* __jsb_cc_render_RenderingModule_class = nullptr;
+se::Object* __jsb_cc_render_RenderingModule_proto = nullptr;
+SE_DECLARE_FINALIZE_FUNC(js_delete_cc_render_RenderingModule) 
+
+static bool js_delete_cc_render_RenderingModule(se::State& s)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_delete_cc_render_RenderingModule) 
+
+static bool js_cc_render_RenderingModule_getPassID(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::render::RenderingModule *arg1 = (cc::render::RenderingModule *) NULL ;
+    ccstd::string *arg2 = 0 ;
+    ccstd::string temp2 ;
+    uint32_t result;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::render::RenderingModule>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg2 = &temp2;
+    
+    result = ((cc::render::RenderingModule const *)arg1)->getPassID((ccstd::string const &)*arg2);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_render_RenderingModule_getPassID) 
+
+static bool js_cc_render_RenderingModule_getPhaseID(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::render::RenderingModule *arg1 = (cc::render::RenderingModule *) NULL ;
+    uint32_t arg2 ;
+    ccstd::string *arg3 = 0 ;
+    ccstd::string temp3 ;
+    uint32_t result;
+    
+    if(argc != 2) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::render::RenderingModule>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    
+    ok &= sevalue_to_native(args[1], &temp3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg3 = &temp3;
+    
+    result = ((cc::render::RenderingModule const *)arg1)->getPhaseID(arg2,(ccstd::string const &)*arg3);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_render_RenderingModule_getPhaseID) 
+
+bool js_register_cc_render_RenderingModule(se::Object* obj) {
+    auto* cls = se::Class::create("RenderingModule", obj, nullptr, nullptr); 
+    
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
+    
+    cls->defineFunction("getPassID", _SE(js_cc_render_RenderingModule_getPassID)); 
+    cls->defineFunction("getPhaseID", _SE(js_cc_render_RenderingModule_getPhaseID)); 
+    
+    
+    
+    
+    cls->defineFinalizeFunction(_SE(js_delete_cc_render_RenderingModule));
+    
+    
+    cls->install();
+    JSBClassType::registerClass<cc::render::RenderingModule>(cls);
+    
+    __jsb_cc_render_RenderingModule_proto = cls->getProto();
+    __jsb_cc_render_RenderingModule_class = cls;
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+
 se::Class* __jsb_cc_render_Factory_class = nullptr;
 se::Object* __jsb_cc_render_Factory_proto = nullptr;
 SE_DECLARE_FINALIZE_FUNC(js_delete_cc_render_Factory) 
+
+static bool js_cc_render_Factory_init_static(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    gfx::Device *arg1 = (gfx::Device *) NULL ;
+    ccstd::vector< unsigned char > *arg2 = 0 ;
+    ccstd::vector< unsigned char > temp2 ;
+    cc::render::RenderingModule *result = 0 ;
+    
+    if(argc != 2) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+        return false;
+    }
+    
+    ok &= sevalue_to_native(args[0], &arg1, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    ok &= sevalue_to_native(args[1], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg2 = &temp2;
+    
+    result = (cc::render::RenderingModule *)cc::render::Factory::init(arg1,(ccstd::vector< unsigned char > const &)*arg2);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_render_Factory_init_static) 
+
+static bool js_cc_render_Factory_destroy_static(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::render::RenderingModule *arg1 = (cc::render::RenderingModule *) NULL ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    
+    ok &= sevalue_to_native(args[0], &arg1, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    cc::render::Factory::destroy(arg1);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_render_Factory_destroy_static) 
 
 static bool js_cc_render_Factory_createPipeline_static(se::State& s)
 {
@@ -3795,9 +3710,12 @@ SE_BIND_FINALIZE_FUNC(js_delete_cc_render_Factory)
 bool js_register_cc_render_Factory(se::Object* obj) {
     auto* cls = se::Class::create("Factory", obj, nullptr, _SE(js_new_cc_render_Factory)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     
     
+    cls->defineStaticFunction("init", _SE(js_cc_render_Factory_init_static)); 
+    cls->defineStaticFunction("destroy", _SE(js_cc_render_Factory_destroy_static)); 
     cls->defineStaticFunction("createPipeline", _SE(js_cc_render_Factory_createPipeline_static)); 
     
     
@@ -3839,9 +3757,9 @@ bool register_all_render(se::Object* obj) {
     js_register_cc_render_SceneVisitor(ns); 
     js_register_cc_render_SceneTask(ns); 
     js_register_cc_render_SceneTransversal(ns); 
-    js_register_cc_render_LayoutGraphBuilder(ns); 
     js_register_cc_render_Pipeline(ns); 
     js_register_cc_render_PipelineBuilder(ns); 
+    js_register_cc_render_RenderingModule(ns); 
     js_register_cc_render_Factory(ns); 
     
     /* Register global variables & global functions */

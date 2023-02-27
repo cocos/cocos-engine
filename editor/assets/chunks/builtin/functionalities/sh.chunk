@@ -3,17 +3,16 @@
 #if CC_USE_LIGHT_PROBE
 vec3 SHEvaluate(vec3 normal)
 {
-#if USE_INSTANCING
     vec3 result;    
+
+#if USE_INSTANCING
     // calculate linear and const terms
     vec4 normal4 = vec4(normal, 1.0);
     result.r = dot(v_sh_linear_const_r, normal4);
     result.g = dot(v_sh_linear_const_g, normal4);
     result.b = dot(v_sh_linear_const_b, normal4);
 
-    return result;
 #else
-    vec3 result;    
     // calculate linear and const terms
     vec4 normal4 = vec4(normal, 1.0);
     result.r = dot(cc_sh_linear_const_r, normal4);
@@ -28,8 +27,14 @@ vec3 SHEvaluate(vec3 normal)
     result.g += dot(cc_sh_quadratic_g, n14);
     result.b += dot(cc_sh_quadratic_b, n14);
     result += (cc_sh_quadratic_a.rgb * n5);
-
-    return result;
 #endif
+
+  #if CC_USE_HDR
+    // convert from standard camera exposure parameters to current exposure value
+    // baked in LDR scene still regarded as exposured with standard camera parameters
+    result *= cc_exposure.w * cc_exposure.x;
+  #endif
+
+  return result;
 }
 #endif

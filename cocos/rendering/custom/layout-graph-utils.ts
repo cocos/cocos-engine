@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -25,12 +24,15 @@
 
 /* eslint-disable max-len */
 import { EffectAsset } from '../../asset/assets';
-import { ShaderStageFlagBit, Type, Uniform, UniformBlock } from '../../gfx';
+import { assert } from '../../core';
+import { DescriptorSetInfo, DescriptorSetLayout, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo, DescriptorType, Device, PipelineLayout, PipelineLayoutInfo, ShaderStageFlagBit, Type, Uniform, UniformBlock } from '../../gfx';
 import { DefaultVisitor, depthFirstSearch, GraphColor, MutableVertexPropertyMap } from './graph';
-import { DescriptorBlockData, DescriptorData, DescriptorDB, DescriptorSetData, LayoutGraph, LayoutGraphData, LayoutGraphDataValue, LayoutGraphValue, PipelineLayoutData, RenderPhase, RenderPhaseData, RenderStageData, ShaderProgramData } from './layout-graph';
-import { LayoutGraphBuilder } from './pipeline';
+import { DescriptorBlockData, DescriptorData, DescriptorDB, DescriptorSetData, DescriptorSetLayoutData, LayoutGraph, LayoutGraphData, LayoutGraphDataValue, LayoutGraphValue, PipelineLayoutData, RenderPhase, RenderPhaseData, RenderStageData, ShaderProgramData } from './layout-graph';
 import { UpdateFrequency, getUpdateFrequencyName, getDescriptorTypeOrderName, Descriptor, DescriptorBlock, DescriptorBlockFlattened, DescriptorBlockIndex, DescriptorTypeOrder, ParameterType } from './types';
 
+export const INVALID_ID = 0xFFFFFFFF;
+
+// get name of gfx.Type
 function getGfxTypeName (type: Type): string {
     switch (type) {
     case Type.UNKNOWN: return 'Unknown';
@@ -84,10 +86,83 @@ function getGfxTypeName (type: Type): string {
     }
 }
 
+// get DescriptorType from DescriptorTypeOrder
+export function getGfxDescriptorType (type: DescriptorTypeOrder): DescriptorType {
+    switch (type) {
+    case DescriptorTypeOrder.UNIFORM_BUFFER:
+        return DescriptorType.UNIFORM_BUFFER;
+    case DescriptorTypeOrder.DYNAMIC_UNIFORM_BUFFER:
+        return DescriptorType.DYNAMIC_UNIFORM_BUFFER;
+    case DescriptorTypeOrder.SAMPLER_TEXTURE:
+        return DescriptorType.SAMPLER_TEXTURE;
+    case DescriptorTypeOrder.SAMPLER:
+        return DescriptorType.SAMPLER;
+    case DescriptorTypeOrder.TEXTURE:
+        return DescriptorType.TEXTURE;
+    case DescriptorTypeOrder.STORAGE_BUFFER:
+        return DescriptorType.STORAGE_BUFFER;
+    case DescriptorTypeOrder.DYNAMIC_STORAGE_BUFFER:
+        return DescriptorType.DYNAMIC_STORAGE_BUFFER;
+    case DescriptorTypeOrder.STORAGE_IMAGE:
+        return DescriptorType.STORAGE_IMAGE;
+    case DescriptorTypeOrder.INPUT_ATTACHMENT:
+        return DescriptorType.INPUT_ATTACHMENT;
+    default:
+        console.error('DescriptorType not found');
+        return DescriptorType.INPUT_ATTACHMENT;
+    }
+}
+
+// get DescriptorTypeOrder from DescriptorType
+export function getDescriptorTypeOrder (type: DescriptorType): DescriptorTypeOrder {
+    switch (type) {
+    case DescriptorType.UNIFORM_BUFFER:
+        return DescriptorTypeOrder.UNIFORM_BUFFER;
+    case DescriptorType.DYNAMIC_UNIFORM_BUFFER:
+        return DescriptorTypeOrder.DYNAMIC_UNIFORM_BUFFER;
+    case DescriptorType.SAMPLER_TEXTURE:
+        return DescriptorTypeOrder.SAMPLER_TEXTURE;
+    case DescriptorType.SAMPLER:
+        return DescriptorTypeOrder.SAMPLER;
+    case DescriptorType.TEXTURE:
+        return DescriptorTypeOrder.TEXTURE;
+    case DescriptorType.STORAGE_BUFFER:
+        return DescriptorTypeOrder.STORAGE_BUFFER;
+    case DescriptorType.DYNAMIC_STORAGE_BUFFER:
+        return DescriptorTypeOrder.DYNAMIC_STORAGE_BUFFER;
+    case DescriptorType.STORAGE_IMAGE:
+        return DescriptorTypeOrder.STORAGE_IMAGE;
+    case DescriptorType.INPUT_ATTACHMENT:
+        return DescriptorTypeOrder.INPUT_ATTACHMENT;
+    case DescriptorType.UNKNOWN:
+    default:
+        console.error('DescriptorTypeOrder not found');
+        return DescriptorTypeOrder.INPUT_ATTACHMENT;
+    }
+}
+
+// find passID using name
+export function getCustomPassID (lg: LayoutGraphData, name: string | undefined): number {
+    return lg.locateChild(lg.nullVertex(), name || 'default');
+}
+
+// find phaseID using passID and phase name
+export function getCustomPhaseID (lg: LayoutGraphData, passID: number, name: string | number | undefined): number {
+    if (name === undefined) {
+        return lg.locateChild(passID, 'default');
+    }
+    if (typeof (name) === 'number') {
+        return lg.locateChild(passID, name.toString());
+    }
+    return lg.locateChild(passID, name);
+}
+
+// check ShaderStageFlagBit has certain bits
 function hasFlag (flags: ShaderStageFlagBit, flagToTest: ShaderStageFlagBit): boolean {
     return (flags & flagToTest) !== 0;
 }
 
+// get name of visibility
 function getVisibilityName (stage: ShaderStageFlagBit): string {
     let count = 0;
     let str = '';
@@ -136,6 +211,7 @@ function getVisibilityName (stage: ShaderStageFlagBit): string {
     return str;
 }
 
+// print LayoutGraphData
 export class PrintVisitor extends DefaultVisitor {
     discoverVertex (u: number, g: LayoutGraphData) {
         const ppl: PipelineLayoutData = g.getLayout(u);
@@ -207,21 +283,26 @@ export class PrintVisitor extends DefaultVisitor {
     oss = '';
 }
 
+// text tools, indent 4 spaces
 function indent (space: string): string {
     return `${space}    `;
 }
 
+// text tools, unindent 4 spaces
 function unindent (space: string): string {
     return space.substring(0, space.length > 4 ? space.length - 4 : 0);
 }
 
+// flatten DescriptorBlock to DescriptorBlockFlattened
 function convertDescriptorBlock (block: DescriptorBlock): DescriptorBlockFlattened {
     const flattened = new DescriptorBlockFlattened();
 
+    // sort descriptors by name
     const descriptors = Array.from(block.descriptors).sort(
         (a, b) => String(a[0]).localeCompare(b[0]),
     );
 
+    // flatten descriptors
     descriptors.forEach((v: [string, Descriptor]) => {
         const name: string = v[0];
         const d = v[1];
@@ -229,23 +310,31 @@ function convertDescriptorBlock (block: DescriptorBlock): DescriptorBlockFlatten
         flattened.descriptors.push(d);
     });
 
+    // sort uniforms by name
     const uniformBlocks = Array.from(block.uniformBlocks).sort(
         (a, b) => String(a[0]).localeCompare(b[0]),
     );
 
+    // flatten uniforms
     uniformBlocks.forEach((v: [string, UniformBlock]) => {
         const name = v[0];
         const uniformBlock = v[1];
         flattened.uniformBlockNames.push(name);
         flattened.uniformBlocks.push(uniformBlock);
     });
+
+    // calculate count and capacity
     flattened.count = block.count;
     flattened.capacity = block.capacity;
     return flattened;
 }
 
+// cache of descriptor blocks
 class DescriptorCounter {
     public addDescriptor (key: string, name: string, count: number) {
+        // key is DescriptorBlockIndex
+        // name is Descriptor name
+        // count is Descriptor count
         const v = this.counter.get(key);
         if (v === undefined) {
             this.counter.set(key, count);
@@ -255,10 +344,12 @@ class DescriptorCounter {
         this.counter.set(key, v + count);
         this.inspector.get(key)?.push(name);
     }
+    // counter is the num of descriptors in each block
     readonly counter = new Map<string, number>();
     readonly inspector = new Map<string, Array<string>>();
 }
 
+// print LayoutGraph (not LayoutGraphData)
 class LayoutGraphPrintVisitor extends DefaultVisitor {
     discoverVertex (v: number, g: LayoutGraph) {
         const info: DescriptorDB = g.getDescriptors(v);
@@ -313,12 +404,15 @@ class LayoutGraphPrintVisitor extends DefaultVisitor {
     oss = '';
 }
 
+// get pass name from effect
 function getPassName (pass: EffectAsset.IPassInfo): string {
     if (pass.pass === undefined) {
         return 'default';
     }
     return pass.pass;
 }
+
+// get phase name from effect
 function getPhaseName (pass: EffectAsset.IPassInfo): string {
     if (pass.phase === undefined) {
         return 'default';
@@ -329,6 +423,7 @@ function getPhaseName (pass: EffectAsset.IPassInfo): string {
     return pass.phase;
 }
 
+// key of Visibility
 export class VisibilityIndex {
     constructor (
         updateFrequency = UpdateFrequency.PER_INSTANCE,
@@ -344,8 +439,11 @@ export class VisibilityIndex {
     descriptorType: DescriptorTypeOrder;
 }
 
+// descriptors of same visibility
 export class VisibilityBlock {
     public mergeVisibility (name: string, vis: ShaderStageFlagBit) {
+        // for each descriptor, merge visibility
+        // rate must >= PER_PHASE
         const v0 = this.descriptors.get(name);
         if (v0 === undefined) {
             this.descriptors.set(name, vis);
@@ -364,6 +462,7 @@ export class VisibilityBlock {
     descriptors = new Map<string, ShaderStageFlagBit>();
 }
 
+// visibility database of phase
 export class VisibilityDB {
     public getBlock (index: VisibilityIndex): VisibilityBlock {
         const key = JSON.stringify(index);
@@ -377,6 +476,7 @@ export class VisibilityDB {
     blocks = new Map<string, VisibilityBlock>();
 }
 
+// visibility database of pass
 export class VisibilityPass {
     public getPhase (phaseName: string): VisibilityDB {
         const phase = this.phases.get(phaseName);
@@ -444,6 +544,10 @@ export class VisibilityGraph {
                 const phaseName = getPhaseName(pass);
                 const phaseData = passData.getPhase(phaseName);
                 for (const list of shader.descriptors) {
+                    if (list.rate < UpdateFrequency.PER_PHASE) {
+                        // do not merger PER_BATCH, PER_INSTANCE descriptors
+                        continue;
+                    }
                     this.merge(list.rate, DescriptorTypeOrder.UNIFORM_BUFFER, list.blocks, phaseData);
                     this.merge(list.rate, DescriptorTypeOrder.STORAGE_BUFFER, list.buffers, phaseData);
                     this.merge(list.rate, DescriptorTypeOrder.TEXTURE, list.textures, phaseData);
@@ -458,6 +562,7 @@ export class VisibilityGraph {
     passes = new Map<string, VisibilityPass>();
 }
 
+// graph coloring help class
 class VectorGraphColorMap implements MutableVertexPropertyMap<GraphColor> {
     constructor (sz: number) {
         this.colors = new Array<GraphColor>(sz);
@@ -471,6 +576,7 @@ class VectorGraphColorMap implements MutableVertexPropertyMap<GraphColor> {
     readonly colors: Array<GraphColor>;
 }
 
+// class to layout all descriptors
 export class LayoutGraphInfo {
     constructor (visg: VisibilityGraph) {
         this.visg = visg;
@@ -573,7 +679,7 @@ export class LayoutGraphInfo {
                 rate,
                 ParameterType.TABLE,
                 DescriptorTypeOrder.UNIFORM_BUFFER,
-                visBlock.getVisibility(info.name),
+                rate >= UpdateFrequency.PER_PHASE ? visBlock.getVisibility(info.name) : info.stageFlags,
             );
             const key = JSON.stringify(blockIndex);
             const block = this.getDescriptorBlock(key, db);
@@ -601,7 +707,7 @@ export class LayoutGraphInfo {
                 rate,
                 ParameterType.TABLE,
                 DescriptorTypeOrder.STORAGE_BUFFER,
-                visBlock.getVisibility(info.name),
+                rate >= UpdateFrequency.PER_PHASE ? visBlock.getVisibility(info.name) : info.stageFlags,
             );
             const key = JSON.stringify(blockIndex);
             const block = this.getDescriptorBlock(key, db);
@@ -629,7 +735,7 @@ export class LayoutGraphInfo {
                 rate,
                 ParameterType.TABLE,
                 order,
-                visBlock.getVisibility(info.name),
+                rate >= UpdateFrequency.PER_PHASE ? visBlock.getVisibility(info.name) : info.stageFlags,
             );
             const key = JSON.stringify(blockIndex);
             const block = this.getDescriptorBlock(key, db);
@@ -657,7 +763,7 @@ export class LayoutGraphInfo {
                 rate,
                 ParameterType.TABLE,
                 order,
-                visBlock.getVisibility(info.name),
+                rate >= UpdateFrequency.PER_PHASE ? visBlock.getVisibility(info.name) : info.stageFlags,
             );
             const key = JSON.stringify(blockIndex);
             const block = this.getDescriptorBlock(key, db);
@@ -734,6 +840,7 @@ export class LayoutGraphInfo {
         // merge phase to pass
         for (const v of lg.vertices()) {
             if (lg.id(v) === LayoutGraphValue.RenderStage) {
+                // create visibility database
                 visMap.set(v, new VisibilityDB());
                 continue;
             }
@@ -749,6 +856,7 @@ export class LayoutGraphInfo {
                 console.error(`pass: ${lg.getName(parentID)} has no visibility database`);
                 return 1;
             }
+            // merge phase visibility to pass visibility
             for (const [key, block] of phaseDB.blocks) {
                 const index: DescriptorBlockIndex = JSON.parse(key);
                 if (index.updateFrequency <= UpdateFrequency.PER_PHASE) {
@@ -854,6 +962,7 @@ export class LayoutGraphInfo {
                 }
             }
         }
+        // console.debug(this.print());
         return 0;
     }
     public print (): string {
@@ -864,7 +973,23 @@ export class LayoutGraphInfo {
     }
 }
 
-function buildLayoutGraphDataImpl (graph: LayoutGraph, builder: LayoutGraphBuilder) {
+// sort descriptorBlocks using DescriptorBlockIndex
+function sortDescriptorBlocks<T> (lhs: [string, T], rhs: [string, T]): number {
+    const lhsIndex: DescriptorBlockIndex = JSON.parse(lhs[0]);
+    const rhsIndex: DescriptorBlockIndex = JSON.parse(rhs[0]);
+    const lhsValue = lhsIndex.updateFrequency * 10000
+        + lhsIndex.parameterType * 1000
+        + lhsIndex.descriptorType * 100
+        + lhsIndex.visibility;
+    const rhsValue = rhsIndex.updateFrequency * 10000
+        + rhsIndex.parameterType * 1000
+        + rhsIndex.descriptorType * 100
+        + rhsIndex.visibility;
+    return lhsValue - rhsValue;
+}
+
+// build LayoutGraphData
+function buildLayoutGraphDataImpl (graph: LayoutGraph, builder: LayoutGraphBuilder2) {
     for (const v of graph.vertices()) {
         const db = graph.getDescriptors(v);
         let minLevel = UpdateFrequency.PER_INSTANCE;
@@ -900,21 +1025,7 @@ function buildLayoutGraphDataImpl (graph: LayoutGraph, builder: LayoutGraphBuild
             break;
         }
 
-        const flattenedBlocks = Array.from(db.blocks).sort(
-            (lhs: [string, DescriptorBlock], rhs: [string, DescriptorBlock]) => {
-                const lhsIndex: DescriptorBlockIndex = JSON.parse(lhs[0]);
-                const rhsIndex: DescriptorBlockIndex = JSON.parse(rhs[0]);
-                const lhsValue =                    lhsIndex.updateFrequency * 10000
-                    + lhsIndex.parameterType * 1000
-                    + lhsIndex.descriptorType * 100
-                    + lhsIndex.visibility;
-                const rhsValue =                    rhsIndex.updateFrequency * 10000
-                    + rhsIndex.parameterType * 1000
-                    + rhsIndex.descriptorType * 100
-                    + rhsIndex.visibility;
-                return lhsValue - rhsValue;
-            },
-        );
+        const flattenedBlocks = Array.from(db.blocks).sort(sortDescriptorBlocks);
 
         flattenedBlocks.forEach((value: [string, DescriptorBlock]) => {
             const key = value[0];
@@ -940,7 +1051,31 @@ function buildLayoutGraphDataImpl (graph: LayoutGraph, builder: LayoutGraphBuild
     }
 }
 
-class LayoutGraphBuilder2 implements LayoutGraphBuilder {
+// get descriptor nameID from name
+export function getOrCreateDescriptorID (lg: LayoutGraphData, name: string): number {
+    const nameID = lg.attributeIndex.get(name);
+    if (nameID === undefined) {
+        const newID = lg.valueNames.length;
+        lg.attributeIndex.set(name, newID);
+        lg.valueNames.push(name);
+        return newID;
+    }
+    return nameID;
+}
+
+export function getOrCreateConstantID (lg: LayoutGraphData, name: string): number {
+    const nameID = lg.constantIndex.get(name);
+    if (nameID === undefined) {
+        const newID = lg.valueNames.length;
+        lg.constantIndex.set(name, newID);
+        lg.valueNames.push(name);
+        return newID;
+    }
+    return nameID;
+}
+
+// LayoutGraphData builder
+class LayoutGraphBuilder2 {
     public constructor (lg: LayoutGraphData) {
         this.lg = lg;
     }
@@ -982,17 +1117,6 @@ class LayoutGraphBuilder2 implements LayoutGraphBuilder {
         }
         return data;
     }
-    private getDescriptorID (name: string): number {
-        const lg = this.lg;
-        const nameID = lg.attributeIndex.get(name);
-        if (nameID === undefined) {
-            const newID = lg.valueNames.length;
-            lg.attributeIndex.set(name, newID);
-            lg.valueNames.push(name);
-            return newID;
-        }
-        return nameID;
-    }
     addDescriptorBlock (nodeID: number, index: DescriptorBlockIndex, block: Readonly<DescriptorBlockFlattened>): void {
         if (block.capacity <= 0) {
             console.error('empty block');
@@ -1023,19 +1147,29 @@ class LayoutGraphBuilder2 implements LayoutGraphBuilder {
         for (let j = 0; j < block.descriptors.length; ++j) {
             const name: string = block.descriptorNames[j];
             const d: Descriptor = block.descriptors[j];
-            const nameID = this.getDescriptorID(name);
-            const data = new DescriptorData(nameID, d.count);
+            const nameID = getOrCreateDescriptorID(lg, name);
+            const data = new DescriptorData(nameID, d.type, d.count);
             dstBlock.descriptors.push(data);
         }
         layout.capacity += block.capacity;
+        if (index.descriptorType === DescriptorTypeOrder.UNIFORM_BUFFER
+            || index.descriptorType === DescriptorTypeOrder.DYNAMIC_UNIFORM_BUFFER) {
+            layout.uniformBlockCapacity += block.capacity;
+        } else if (index.descriptorType === DescriptorTypeOrder.SAMPLER_TEXTURE) {
+            layout.samplerTextureCapacity += block.capacity;
+        }
     }
     addUniformBlock (nodeID: number, index: DescriptorBlockIndex, name: string, uniformBlock: UniformBlock): void {
         const g: LayoutGraphData = this.lg;
         const ppl: PipelineLayoutData = g.getLayout(nodeID);
         const setData = this.getDescriptorSetData(ppl, index.updateFrequency);
         const layout = setData.descriptorSetLayoutData;
-        const nameID = this.getDescriptorID(name);
+        const nameID = getOrCreateDescriptorID(g, name);
         layout.uniformBlocks.set(nameID, uniformBlock);
+        // register constant names
+        for (const member of uniformBlock.members) {
+            getOrCreateConstantID(g, member.name);
+        }
     }
     reserveDescriptorBlock (nodeID: number, index: DescriptorBlockIndex, block: DescriptorBlockFlattened): void {
         if (block.capacity <= 0) {
@@ -1051,8 +1185,15 @@ class LayoutGraphBuilder2 implements LayoutGraphBuilder {
         dstBlock.offset = layout.capacity;
         layout.descriptorBlocks.push(dstBlock);
         layout.capacity += block.capacity;
+        if (index.descriptorType === DescriptorTypeOrder.UNIFORM_BUFFER
+            || index.descriptorType === DescriptorTypeOrder.DYNAMIC_UNIFORM_BUFFER) {
+            layout.uniformBlockCapacity += block.capacity;
+        } else if (index.descriptorType === DescriptorTypeOrder.SAMPLER_TEXTURE) {
+            layout.samplerTextureCapacity += block.capacity;
+        }
     }
     compile (): number {
+        // console.debug(this.print());
         return 0;
     }
     print (): string {
@@ -1071,9 +1212,447 @@ export function buildLayoutGraphData (lg: LayoutGraph, lgData: LayoutGraphData) 
     builder.compile();
 }
 
+function createDescriptorInfo (layoutData: DescriptorSetLayoutData, info: DescriptorSetLayoutInfo) {
+    for (let i = 0; i < layoutData.descriptorBlocks.length; ++i) {
+        const block = layoutData.descriptorBlocks[i];
+        let slot = block.offset;
+        for (let j = 0; j < block.descriptors.length; ++j) {
+            const d = block.descriptors[j];
+            const binding: DescriptorSetLayoutBinding = new DescriptorSetLayoutBinding();
+            binding.binding = slot;
+            binding.descriptorType = getGfxDescriptorType(block.type);
+            binding.count = d.count;
+            binding.stageFlags = block.visibility;
+            binding.immutableSamplers = [];
+            info.bindings.push(binding);
+            slot += d.count;
+        }
+    }
+}
+
+function createDescriptorSetLayout (device: Device | null, layoutData: DescriptorSetLayoutData) {
+    const info: DescriptorSetLayoutInfo = new DescriptorSetLayoutInfo();
+    createDescriptorInfo(layoutData, info);
+
+    if (device) {
+        return device.createDescriptorSetLayout(info);
+    } else {
+        return null;
+    }
+}
+
+export function createGfxDescriptorSetsAndPipelines (device: Device | null, g: LayoutGraphData) {
+    for (let i = 0; i < g._layouts.length; ++i) {
+        const ppl: PipelineLayoutData = g.getLayout(i);
+        ppl.descriptorSets.forEach((value, key) => {
+            const level = value;
+            const layoutData = level.descriptorSetLayoutData;
+            if (device) {
+                const layout: DescriptorSetLayout | null = createDescriptorSetLayout(device, layoutData);
+                if (layout) {
+                    level.descriptorSetLayout = (layout);
+                    level.descriptorSet = (device.createDescriptorSet(new DescriptorSetInfo(layout)));
+                }
+            } else {
+                createDescriptorInfo(layoutData, level.descriptorSetLayoutInfo);
+            }
+        });
+    }
+}
+
 export function printLayoutGraphData (g: LayoutGraphData): string {
     const visitor = new PrintVisitor();
     const colorMap = new VectorGraphColorMap(g.numVertices());
     depthFirstSearch(g, visitor, colorMap);
     return visitor.oss;
+}
+
+// lookup DescriptorBlockData from Map
+function getDescriptorBlockData (map: Map<string, DescriptorBlockData>, index: DescriptorBlockIndex): DescriptorBlockData {
+    const key = JSON.stringify(index);
+    const block = map.get(key);
+    if (block) {
+        return block;
+    }
+    const newBlock = new DescriptorBlockData(index.descriptorType, index.visibility, 0);
+    map.set(key, newBlock);
+    return newBlock;
+}
+
+// make DescriptorSetLayoutData from effect directly
+export function makeDescriptorSetLayoutData (lg: LayoutGraphData,
+    rate: UpdateFrequency, set: number,
+    descriptors: EffectAsset.IDescriptorInfo): DescriptorSetLayoutData {
+    const map = new Map<string, DescriptorBlockData>();
+    const uniformBlocks: Map<number, UniformBlock> = new Map<number, UniformBlock>();
+    for (let i = 0; i < descriptors.blocks.length; i++) {
+        const cb = descriptors.blocks[i];
+        const block = getDescriptorBlockData(map, {
+            updateFrequency: rate,
+            parameterType: ParameterType.TABLE,
+            descriptorType: DescriptorTypeOrder.UNIFORM_BUFFER,
+            visibility: cb.stageFlags,
+        });
+        const nameID = getOrCreateDescriptorID(lg, cb.name);
+        block.descriptors.push(new DescriptorData(nameID, Type.UNKNOWN, 1));
+        // add uniform buffer
+        uniformBlocks.set(nameID, new UniformBlock(set, 0xFFFFFFFF, cb.name, cb.members, 1));
+    }
+    for (let i = 0; i < descriptors.samplerTextures.length; i++) {
+        const samplerTexture = descriptors.samplerTextures[i];
+        const block = getDescriptorBlockData(map, {
+            updateFrequency: rate,
+            parameterType: ParameterType.TABLE,
+            descriptorType: DescriptorTypeOrder.SAMPLER_TEXTURE,
+            visibility: samplerTexture.stageFlags,
+        });
+        const nameID = getOrCreateDescriptorID(lg, samplerTexture.name);
+        block.descriptors.push(new DescriptorData(nameID, samplerTexture.type, samplerTexture.count));
+    }
+    for (let i = 0; i < descriptors.samplers.length; i++) {
+        const sampler = descriptors.samplers[i];
+        const block = getDescriptorBlockData(map, {
+            updateFrequency: rate,
+            parameterType: ParameterType.TABLE,
+            descriptorType: DescriptorTypeOrder.SAMPLER,
+            visibility: sampler.stageFlags,
+        });
+        const nameID = getOrCreateDescriptorID(lg, sampler.name);
+        block.descriptors.push(new DescriptorData(nameID, Type.SAMPLER, sampler.count));
+    }
+    for (let i = 0; i < descriptors.textures.length; i++) {
+        const texture = descriptors.textures[i];
+        const block = getDescriptorBlockData(map, {
+            updateFrequency: rate,
+            parameterType: ParameterType.TABLE,
+            descriptorType: DescriptorTypeOrder.TEXTURE,
+            visibility: texture.stageFlags,
+        });
+        const nameID = getOrCreateDescriptorID(lg, texture.name);
+        block.descriptors.push(new DescriptorData(nameID, texture.type, texture.count));
+    }
+    for (let i = 0; i < descriptors.buffers.length; i++) {
+        const buffer = descriptors.buffers[i];
+        const block = getDescriptorBlockData(map, {
+            updateFrequency: rate,
+            parameterType: ParameterType.TABLE,
+            descriptorType: DescriptorTypeOrder.STORAGE_BUFFER,
+            visibility: buffer.stageFlags,
+        });
+        const nameID = getOrCreateDescriptorID(lg, buffer.name);
+        block.descriptors.push(new DescriptorData(nameID, Type.UNKNOWN, 1));
+    }
+    for (let i = 0; i < descriptors.images.length; i++) {
+        const image = descriptors.images[i];
+        const block = getDescriptorBlockData(map, {
+            updateFrequency: rate,
+            parameterType: ParameterType.TABLE,
+            descriptorType: DescriptorTypeOrder.STORAGE_IMAGE,
+            visibility: image.stageFlags,
+        });
+        const nameID = getOrCreateDescriptorID(lg, image.name);
+        block.descriptors.push(new DescriptorData(nameID, image.type, image.count));
+    }
+    for (let i = 0; i < descriptors.subpassInputs.length; i++) {
+        const subpassInput = descriptors.subpassInputs[i];
+        const block = getDescriptorBlockData(map, {
+            updateFrequency: rate,
+            parameterType: ParameterType.TABLE,
+            descriptorType: DescriptorTypeOrder.INPUT_ATTACHMENT,
+            visibility: subpassInput.stageFlags,
+        });
+        const nameID = getOrCreateDescriptorID(lg, subpassInput.name);
+        block.descriptors.push(new DescriptorData(nameID, Type.UNKNOWN, subpassInput.count));
+    }
+
+    // sort blocks
+    const flattenedBlocks = Array.from(map).sort(sortDescriptorBlocks);
+    const data = new DescriptorSetLayoutData(set, 0);
+    // calculate bindings
+    let capacity = 0;
+    for (const [key, block] of flattenedBlocks) {
+        const index = JSON.parse(key) as DescriptorBlockIndex;
+        block.offset = capacity;
+        for (const d of block.descriptors) {
+            if (index.descriptorType === DescriptorTypeOrder.UNIFORM_BUFFER) {
+                // update uniform buffer binding
+                const ub = uniformBlocks.get(d.descriptorID);
+                if (!ub) {
+                    console.error(`Uniform block not found for ${d.descriptorID}`);
+                    continue;
+                }
+                assert(ub.binding === 0xFFFFFFFF);
+                ub.binding = block.capacity;
+                // add uniform buffer to output
+                data.uniformBlocks.set(d.descriptorID, ub);
+            }
+            // update block capacity
+            const binding = data.bindingMap.get(d.descriptorID);
+            if (binding !== undefined) {
+                console.error(`Duplicated descriptor ${d.descriptorID}`);
+            }
+            data.bindingMap.set(d.descriptorID, block.offset + block.capacity);
+            block.capacity += d.count;
+        }
+        // increate total capacity
+        capacity += block.capacity;
+        data.capacity += block.capacity;
+        if (index.descriptorType === DescriptorTypeOrder.UNIFORM_BUFFER
+            || index.descriptorType === DescriptorTypeOrder.DYNAMIC_UNIFORM_BUFFER) {
+            data.uniformBlockCapacity += block.capacity;
+        } else if (index.descriptorType === DescriptorTypeOrder.SAMPLER_TEXTURE) {
+            data.samplerTextureCapacity += block.capacity;
+        }
+        data.descriptorBlocks.push(block);
+    }
+    return data;
+}
+
+// fill DescriptorSetLayoutInfo from DescriptorSetLayoutData
+export function initializeDescriptorSetLayoutInfo (layoutData: DescriptorSetLayoutData,
+    info: DescriptorSetLayoutInfo): void {
+    for (let i = 0; i < layoutData.descriptorBlocks.length; ++i) {
+        const block = layoutData.descriptorBlocks[i];
+        let slot = block.offset;
+        for (let j = 0; j < block.descriptors.length; ++j) {
+            const d = block.descriptors[j];
+            const binding = new DescriptorSetLayoutBinding();
+            binding.binding = slot;
+            binding.descriptorType = getGfxDescriptorType(block.type);
+            binding.count = d.count;
+            binding.stageFlags = block.visibility;
+            binding.immutableSamplers = [];
+            info.bindings.push(binding);
+            slot += d.count;
+        }
+    }
+}
+
+let _emptyDescriptorSetLayout: DescriptorSetLayout;
+let _emptyPipelineLayout: PipelineLayout;
+
+function populatePipelineLayoutInfo (layout: PipelineLayoutData,
+    rate: UpdateFrequency, info: PipelineLayoutInfo) {
+    const set = layout.descriptorSets.get(rate);
+    if (set && set.descriptorSetLayout) {
+        info.setLayouts.push(set.descriptorSetLayout);
+    } else {
+        info.setLayouts.push(_emptyDescriptorSetLayout);
+    }
+}
+
+// initialize layout graph module
+export function initializeLayoutGraphData (device: Device, lg: LayoutGraphData) {
+    // create descriptor sets
+    _emptyDescriptorSetLayout = device.createDescriptorSetLayout(new DescriptorSetLayoutInfo());
+    _emptyPipelineLayout = device.createPipelineLayout(new PipelineLayoutInfo());
+    for (const v of lg.vertices()) {
+        const layoutData = lg.getLayout(v);
+        for (const [_, set] of layoutData.descriptorSets) {
+            if (set.descriptorSetLayout !== null) {
+                console.warn('descriptor set layout already initialized. It will be overwritten');
+            }
+            initializeDescriptorSetLayoutInfo(set.descriptorSetLayoutData,
+                set.descriptorSetLayoutInfo);
+            set.descriptorSetLayout = device.createDescriptorSetLayout(set.descriptorSetLayoutInfo);
+        }
+    }
+    // create pipeline layouts
+    for (const v of lg.vertices()) {
+        if (!lg.holds(LayoutGraphDataValue.RenderPhase, v)) {
+            continue;
+        }
+        const passID = lg.getParent(v);
+        const phaseID = v;
+        const passLayout = lg.getLayout(passID);
+        const phaseLayout = lg.getLayout(phaseID);
+        const info = new PipelineLayoutInfo();
+        populatePipelineLayoutInfo(passLayout, UpdateFrequency.PER_PASS, info);
+        populatePipelineLayoutInfo(phaseLayout, UpdateFrequency.PER_PHASE, info);
+        populatePipelineLayoutInfo(phaseLayout, UpdateFrequency.PER_BATCH, info);
+        populatePipelineLayoutInfo(phaseLayout, UpdateFrequency.PER_INSTANCE, info);
+        const phase = lg.getRenderPhase(phaseID);
+        phase.pipelineLayout = device.createPipelineLayout(info);
+    }
+}
+
+// terminate layout graph module
+export function terminateLayoutGraphData (lg: LayoutGraphData) {
+    for (const v of lg.vertices()) {
+        const layoutData = lg.getLayout(v);
+        for (const [_, set] of layoutData.descriptorSets) {
+            if (set.descriptorSetLayout !== null) {
+                set.descriptorSetLayout.destroy();
+            }
+        }
+    }
+    _emptyPipelineLayout.destroy();
+    _emptyDescriptorSetLayout.destroy();
+}
+
+// get empty descriptor set layout
+export function getEmptyDescriptorSetLayout (): DescriptorSetLayout {
+    return _emptyDescriptorSetLayout;
+}
+
+// get empty pipeline layout
+export function getEmptyPipelineLayout (): PipelineLayout {
+    return _emptyPipelineLayout;
+}
+
+// get descriptor set from LayoutGraphData (not from ProgramData)
+export function getOrCreateDescriptorSetLayout (lg: LayoutGraphData,
+    passID: number, phaseID: number, rate: UpdateFrequency): DescriptorSetLayout {
+    if (rate < UpdateFrequency.PER_PASS) {
+        const phaseData = lg.getLayout(phaseID);
+        const data = phaseData.descriptorSets.get(rate);
+        if (data) {
+            if (!data.descriptorSetLayout) {
+                console.error('descriptor set layout not initialized');
+                return _emptyDescriptorSetLayout;
+            }
+            return data.descriptorSetLayout;
+        }
+        return _emptyDescriptorSetLayout;
+    }
+
+    assert(rate === UpdateFrequency.PER_PASS);
+    assert(passID === lg.getParent(phaseID));
+
+    const passData = lg.getLayout(passID);
+    const data = passData.descriptorSets.get(rate);
+    if (data) {
+        if (!data.descriptorSetLayout) {
+            console.error('descriptor set layout not initialized');
+            return _emptyDescriptorSetLayout;
+        }
+        return data.descriptorSetLayout;
+    }
+    return _emptyDescriptorSetLayout;
+}
+
+// getDescriptorSetLayout from LayoutGraphData
+export function getDescriptorSetLayout (lg: LayoutGraphData,
+    passID: number, phaseID: number, rate: UpdateFrequency): DescriptorSetLayout | null {
+    if (rate < UpdateFrequency.PER_PASS) {
+        const phaseData = lg.getLayout(phaseID);
+        const data = phaseData.descriptorSets.get(rate);
+        if (data) {
+            if (!data.descriptorSetLayout) {
+                console.error('descriptor set layout not initialized');
+                return null;
+            }
+            return data.descriptorSetLayout;
+        }
+        return null;
+    }
+
+    assert(rate === UpdateFrequency.PER_PASS);
+    assert(passID === lg.getParent(phaseID));
+
+    const passData = lg.getLayout(passID);
+    const data = passData.descriptorSets.get(rate);
+    if (data) {
+        if (!data.descriptorSetLayout) {
+            console.error('descriptor set layout not initialized');
+            return null;
+        }
+        return data.descriptorSetLayout;
+    }
+    return null;
+}
+
+// get or create DescriptorBlockData from DescriptorSetLayoutData
+export function getOrCreateDescriptorBlockData (data: DescriptorSetLayoutData,
+    type: DescriptorType, vis: ShaderStageFlagBit): DescriptorBlockData {
+    const order = getDescriptorTypeOrder(type);
+    for (const block of data.descriptorBlocks) {
+        if (block.type === order && block.visibility === vis) {
+            return block;
+        }
+    }
+    const block = new DescriptorBlockData(order, vis);
+    data.descriptorBlocks.push(block);
+    return block;
+}
+
+export function getProgramID (lg: LayoutGraphData, phaseID: number, programName: string): number {
+    assert(phaseID !== lg.nullVertex());
+    const phase = lg.getRenderPhase(phaseID);
+    const programID = phase.shaderIndex.get(programName);
+    if (programID === undefined) {
+        return INVALID_ID;
+    }
+    return programID;
+}
+
+export function getDescriptorNameID (lg: LayoutGraphData, name: string): number {
+    const nameID = lg.attributeIndex.get(name);
+    if (nameID === undefined) {
+        return INVALID_ID;
+    }
+    return nameID;
+}
+
+export function getDescriptorName (lg: LayoutGraphData, nameID: number): string {
+    if (nameID >= lg.valueNames.length) {
+        return '';
+    }
+    return lg.valueNames[nameID];
+}
+
+export function getPerPassDescriptorSetLayoutData (lg: LayoutGraphData,
+    passID: number): DescriptorSetLayoutData | null {
+    assert(passID !== lg.nullVertex());
+    const node = lg.getLayout(passID);
+    const set = node.descriptorSets.get(UpdateFrequency.PER_PASS);
+    if (set === undefined) {
+        return null;
+    }
+    return set.descriptorSetLayoutData;
+}
+
+export function getPerPhaseDescriptorSetLayoutData (lg: LayoutGraphData,
+    phaseID: number): DescriptorSetLayoutData | null {
+    assert(phaseID !== lg.nullVertex());
+    const node = lg.getLayout(phaseID);
+    const set = node.descriptorSets.get(UpdateFrequency.PER_PHASE);
+    if (set === undefined) {
+        return null;
+    }
+    return set.descriptorSetLayoutData;
+}
+
+export function getPerBatchDescriptorSetLayoutData (lg: LayoutGraphData,
+    phaseID: number, programID): DescriptorSetLayoutData | null {
+    assert(phaseID !== lg.nullVertex());
+    const phase = lg.getRenderPhase(phaseID);
+    assert(programID < phase.shaderPrograms.length);
+    const program = phase.shaderPrograms[programID];
+    const set = program.layout.descriptorSets.get(UpdateFrequency.PER_BATCH);
+    if (set === undefined) {
+        return null;
+    }
+    return set.descriptorSetLayoutData;
+}
+
+export function getPerInstanceDescriptorSetLayoutData (lg: LayoutGraphData,
+    phaseID: number, programID): DescriptorSetLayoutData | null {
+    assert(phaseID !== lg.nullVertex());
+    const phase = lg.getRenderPhase(phaseID);
+    assert(programID < phase.shaderPrograms.length);
+    const program = phase.shaderPrograms[programID];
+    const set = program.layout.descriptorSets.get(UpdateFrequency.PER_INSTANCE);
+    if (set === undefined) {
+        return null;
+    }
+    return set.descriptorSetLayoutData;
+}
+
+export function getBinding (layout: DescriptorSetLayoutData, nameID: number) {
+    const binding = layout.bindingMap.get(nameID);
+    if (binding === undefined) {
+        return 0xFFFFFFFF;
+    }
+    return binding;
 }

@@ -9,20 +9,19 @@
  * ----------------------------------------------------------------------------- */
 
 /****************************************************************************
- Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -53,6 +52,9 @@
 #include "renderer/pipeline/PipelineSceneData.h"
 #include "renderer/pipeline/BatchedBuffer.h"
 #include "renderer/pipeline/GeometryRenderer.h"
+#include "renderer/pipeline/DebugView.h"
+#include "renderer/pipeline/reflection-probe/ReflectionProbeFlow.h"
+#include "renderer/pipeline/reflection-probe/ReflectionProbeStage.h"
 
 
 
@@ -148,10 +150,6 @@ bool sevalue_to_native(const se::Value &from, cc::pipeline::RenderQueueCreateInf
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::RenderQueueDesc);
 extern se::Object *__jsb_cc_pipeline_RenderQueueDesc_proto; // NOLINT
 extern se::Class * __jsb_cc_pipeline_RenderQueueDesc_class; // NOLINT
-
-
-template<>
-bool sevalue_to_native(const se::Value &from, cc::pipeline::RenderQueueDesc * to, se::Object *ctx);
 
 
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::UBOLocalBatched);
@@ -433,6 +431,15 @@ template<>
 bool sevalue_to_native(const se::Value &from, cc::pipeline::REFLECTIONPROBEPLANARMAP * to, se::Object *ctx);
 
 
+JSB_REGISTER_OBJECT_TYPE(cc::pipeline::REFLECTIONPROBEDATAMAP);
+extern se::Object *__jsb_cc_pipeline_REFLECTIONPROBEDATAMAP_proto; // NOLINT
+extern se::Class * __jsb_cc_pipeline_REFLECTIONPROBEDATAMAP_class; // NOLINT
+
+
+template<>
+bool sevalue_to_native(const se::Value &from, cc::pipeline::REFLECTIONPROBEDATAMAP * to, se::Object *ctx);
+
+
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::RenderPipelineInfo);
 extern se::Object *__jsb_cc_pipeline_RenderPipelineInfo_proto; // NOLINT
 extern se::Class * __jsb_cc_pipeline_RenderPipelineInfo_class; // NOLINT
@@ -473,6 +480,11 @@ bool sevalue_to_native(const se::Value &from, cc::pipeline::RenderStageInfo * to
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::RenderStage);
 extern se::Object *__jsb_cc_pipeline_RenderStage_proto; // NOLINT
 extern se::Class * __jsb_cc_pipeline_RenderStage_class; // NOLINT
+
+
+JSB_REGISTER_OBJECT_TYPE(cc::pipeline::DebugView);
+extern se::Object *__jsb_cc_pipeline_DebugView_proto; // NOLINT
+extern se::Class * __jsb_cc_pipeline_DebugView_class; // NOLINT
 
 
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::ForwardPipeline);
@@ -598,4 +610,14 @@ extern se::Object *__jsb_cc_pipeline_GeometryRenderer_proto; // NOLINT
 extern se::Class * __jsb_cc_pipeline_GeometryRenderer_class; // NOLINT
 
 #endif // CC_USE_GEOMETRY_RENDERER
+
+JSB_REGISTER_OBJECT_TYPE(cc::pipeline::ReflectionProbeFlow);
+extern se::Object *__jsb_cc_pipeline_ReflectionProbeFlow_proto; // NOLINT
+extern se::Class * __jsb_cc_pipeline_ReflectionProbeFlow_class; // NOLINT
+
+
+JSB_REGISTER_OBJECT_TYPE(cc::pipeline::ReflectionProbeStage);
+extern se::Object *__jsb_cc_pipeline_ReflectionProbeStage_proto; // NOLINT
+extern se::Class * __jsb_cc_pipeline_ReflectionProbeStage_class; // NOLINT
+
 // clang-format on

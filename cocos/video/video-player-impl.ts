@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { legacyCC } from '../core/global-exports';
 import { UITransform } from '../2d/framework';
@@ -36,8 +35,8 @@ export abstract class VideoPlayerImpl {
     protected _state = EventType.NONE;
     protected _video: HTMLVideoElement | null = null;
 
-    protected _onHide: () => void;
-    protected _onShow: () => void;
+    protected _onInterruptedBegin: () => void;
+    protected _onInterruptedEnd: () => void;
     protected _interrupted = false;
 
     protected _loaded = false;
@@ -75,20 +74,20 @@ export abstract class VideoPlayerImpl {
         this._component = component;
         this._node = component.node;
         this._uiTrans = component.node.getComponent(UITransform);
-        this._onHide = () => {
+        this._onInterruptedBegin = () => {
             if (!this.video || this._state !== EventType.PLAYING) { return; }
             this.video.pause();
             this._interrupted = true;
         };
-        this._onShow = () => {
+        this._onInterruptedEnd = () => {
             if (!this._interrupted || !this.video) { return; }
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.video.play();
             this._interrupted = false;
         };
-        /* handle hide & show */
-        legacyCC.game.on(legacyCC.Game.EVENT_HIDE, this._onHide);
-        legacyCC.game.on(legacyCC.Game.EVENT_SHOW, this._onShow);
+        /* handle pause & resume */
+        legacyCC.game.on(legacyCC.Game.EVENT_PAUSE, this._onInterruptedBegin);
+        legacyCC.game.on(legacyCC.Game.EVENT_RESUME, this._onInterruptedEnd);
     }
 
     //
@@ -114,7 +113,7 @@ export abstract class VideoPlayerImpl {
     public abstract syncPlaybackRate(val: number): void;
     public abstract syncVolume(val: number): void;
     public abstract syncMute(enabled: boolean): void;
-    public abstract syncLoop(enabled: boolean):void
+    public abstract syncLoop(enabled: boolean): void
     public abstract syncMatrix(): void;
 
     // get video player data
@@ -253,8 +252,8 @@ export abstract class VideoPlayerImpl {
     public destroy () {
         this.removeVideoPlayer();
         this._componentEventList.clear();
-        legacyCC.game.off(legacyCC.Game.EVENT_HIDE, this._onHide);
-        legacyCC.game.off(legacyCC.Game.EVENT_SHOW, this._onShow);
+        legacyCC.game.off(legacyCC.Game.EVENT_PAUSE, this._onInterruptedBegin);
+        legacyCC.game.off(legacyCC.Game.EVENT_RESUME, this._onInterruptedEnd);
     }
 }
 

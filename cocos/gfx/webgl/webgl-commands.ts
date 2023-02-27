@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,9 +20,9 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
-import { debug, error, errorID, CachedArray } from '../../core';
+import { debug, error, errorID, CachedArray, cclegacy } from '../../core';
 import { WebGLCommandAllocator } from './webgl-command-allocator';
 import { WebGLEXT } from './webgl-define';
 import { WebGLDevice } from './webgl-device';
@@ -34,8 +33,11 @@ import {
 import {
     BufferUsageBit, ClearFlagBit, ClearFlags, ColorMask, CullMode, Format, BufferTextureCopy, Color, Rect,
     FormatInfos, FormatSize, LoadOp, MemoryUsageBit, ShaderStageFlagBit, UniformSamplerTexture,
-    TextureFlagBit, TextureType, Type, FormatInfo, DynamicStateFlagBit, BufferSource, DrawInfo, IndirectBuffer, DynamicStates, Extent, getTypedArrayConstructor, formatAlignment, Offset, alignTo,
+    TextureFlagBit, TextureType, Type, FormatInfo, DynamicStateFlagBit, BufferSource, DrawInfo,
+    IndirectBuffer, DynamicStates, Extent, getTypedArrayConstructor, formatAlignment, Offset, alignTo,
+    TextureBlit, Filter,
 } from '../base/define';
+import { WebGLStateCache } from './webgl-state-cache';
 
 export function GFXFormatToWebGLType (format: Format, gl: WebGLRenderingContext): GLenum {
     switch (format) {
@@ -439,6 +441,7 @@ export enum WebGLCmd {
     DRAW,
     UPDATE_BUFFER,
     COPY_BUFFER_TO_TEXTURE,
+    BLIT_TEXTURE,
     COUNT,
 }
 
@@ -534,6 +537,23 @@ export class WebGLCmdCopyBufferToTexture extends WebGLCmdObject {
     }
 }
 
+export class WebGLCmdBlitTexture extends WebGLCmdObject {
+    public srcTexture: IWebGLGPUTexture | null = null;
+    public dstTexture: IWebGLGPUTexture | null = null;
+    public regions: TextureBlit[] = [];
+    public filter: Filter = Filter.LINEAR;
+
+    constructor () {
+        super(WebGLCmd.BLIT_TEXTURE);
+    }
+
+    public clear () {
+        this.srcTexture = null;
+        this.dstTexture = null;
+        this.regions.length = 0;
+    }
+}
+
 export class WebGLCmdPackage {
     public cmds: CachedArray<WebGLCmd> = new CachedArray(1);
     public beginRenderPassCmds: CachedArray<WebGLCmdBeginRenderPass> = new CachedArray(1);
@@ -541,6 +561,7 @@ export class WebGLCmdPackage {
     public drawCmds: CachedArray<WebGLCmdDraw> = new CachedArray(1);
     public updateBufferCmds: CachedArray<WebGLCmdUpdateBuffer> = new CachedArray(1);
     public copyBufferToTextureCmds: CachedArray<WebGLCmdCopyBufferToTexture> = new CachedArray(1);
+    public blitTextureCmds: CachedArray<WebGLCmdBlitTexture> = new CachedArray(1);
 
     public clearCmds (allocator: WebGLCommandAllocator) {
         if (this.beginRenderPassCmds.length) {
@@ -566,6 +587,11 @@ export class WebGLCmdPackage {
         if (this.copyBufferToTextureCmds.length) {
             allocator.copyBufferToTextureCmdPool.freeCmds(this.copyBufferToTextureCmds);
             this.copyBufferToTextureCmds.clear();
+        }
+
+        if (this.blitTextureCmds.length) {
+            allocator.blitTextureCmdPool.freeCmds(this.blitTextureCmds);
+            this.blitTextureCmds.clear();
         }
 
         this.cmds.clear();
@@ -1434,26 +1460,40 @@ export function WebGLCmdFuncCreateShader (device: WebGLDevice, gpuShader: IWebGL
     const { bindingMappings } = device;
     const { texUnitCacheMap } = device.stateCache;
 
-    let flexibleSetBaseOffset = 0;
-    for (let i = 0; i < gpuShader.blocks.length; ++i) {
-        if (gpuShader.blocks[i].set === bindingMappings.flexibleSet) {
-            flexibleSetBaseOffset++;
+    if (!(cclegacy.rendering && cclegacy.rendering.enableEffectImport)) {
+        let flexibleSetBaseOffset = 0;
+        for (let i = 0; i < gpuShader.blocks.length; ++i) {
+            if (gpuShader.blocks[i].set === bindingMappings.flexibleSet) {
+                flexibleSetBaseOffset++;
+            }
         }
-    }
 
-    let arrayOffset = 0;
-    for (let i = 0; i < gpuShader.samplerTextures.length; ++i) {
-        const sampler = gpuShader.samplerTextures[i];
-        const glLoc = gl.getUniformLocation(gpuShader.glProgram, sampler.name);
-        if (device.extensions.isLocationActive(glLoc)) {
-            glActiveSamplers.push(gpuShader.glSamplerTextures[i]);
-            glActiveSamplerLocations.push(glLoc);
+        let arrayOffset = 0;
+        for (let i = 0; i < gpuShader.samplerTextures.length; ++i) {
+            const sampler = gpuShader.samplerTextures[i];
+            const glLoc = gl.getUniformLocation(gpuShader.glProgram, sampler.name);
+            if (device.extensions.isLocationActive(glLoc)) {
+                glActiveSamplers.push(gpuShader.glSamplerTextures[i]);
+                glActiveSamplerLocations.push(glLoc);
+            }
+            if (texUnitCacheMap[sampler.name] === undefined) {
+                let binding = sampler.binding + bindingMappings.samplerTextureOffsets[sampler.set] + arrayOffset;
+                if (sampler.set === bindingMappings.flexibleSet) { binding -= flexibleSetBaseOffset; }
+                texUnitCacheMap[sampler.name] = binding % device.capabilities.maxTextureUnits;
+                arrayOffset += sampler.count - 1;
+            }
         }
-        if (texUnitCacheMap[sampler.name] === undefined) {
-            let binding = sampler.binding + bindingMappings.samplerTextureOffsets[sampler.set] + arrayOffset;
-            if (sampler.set === bindingMappings.flexibleSet) { binding -= flexibleSetBaseOffset; }
-            texUnitCacheMap[sampler.name] = binding % device.capabilities.maxTextureUnits;
-            arrayOffset += sampler.count - 1;
+    } else {
+        for (let i = 0; i < gpuShader.samplerTextures.length; ++i) {
+            const sampler = gpuShader.samplerTextures[i];
+            const glLoc = gl.getUniformLocation(gpuShader.glProgram, sampler.name);
+            if (device.extensions.isLocationActive(glLoc)) {
+                glActiveSamplers.push(gpuShader.glSamplerTextures[i]);
+                glActiveSamplerLocations.push(glLoc);
+            }
+            if (texUnitCacheMap[sampler.name] === undefined) {
+                texUnitCacheMap[sampler.name] = sampler.flattened;
+            }
         }
     }
 
@@ -2644,6 +2684,11 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLDevice, cmdPackage: WebGLC
             WebGLCmdFuncCopyBuffersToTexture(device, cmd5.buffers, cmd5.gpuTexture as IWebGLGPUTexture, cmd5.regions);
             break;
         }
+        case WebGLCmd.BLIT_TEXTURE: {
+            const cmd6 = cmdPackage.blitTextureCmds.array[cmdId];
+            WebGLCmdFuncBlitTexture(device, cmd6.srcTexture as IWebGLGPUTexture, cmd6.dstTexture as IWebGLGPUTexture, cmd6.regions, cmd6.filter);
+            break;
+        }
         default:
         } // switch
     } // for
@@ -2751,7 +2796,7 @@ export function WebGLCmdFuncCopyBuffersToTexture (
     let n = 0;
     let f = 0;
     const fmtInfo: FormatInfo = FormatInfos[gpuTexture.format];
-    const ArrayBufferCtor : TypedArrayConstructor = getTypedArrayConstructor(fmtInfo);
+    const ArrayBufferCtor: TypedArrayConstructor = getTypedArrayConstructor(fmtInfo);
     const { isCompressed } = fmtInfo;
 
     const blockSize = formatAlignment(gpuTexture.format);
@@ -2777,7 +2822,7 @@ export function WebGLCmdFuncCopyBuffersToTexture (
             const destWidth  = (region.texExtent.width + offset.x === (gpuTexture.width >> mipLevel)) ? region.texExtent.width : extent.width;
             const destHeight = (region.texExtent.height + offset.y === (gpuTexture.height >> mipLevel)) ? region.texExtent.height : extent.height;
 
-            let pixels : ArrayBufferView;
+            let pixels: ArrayBufferView;
             const buffer = buffers[n++];
             if (stride.width === extent.width && stride.height === extent.height) {
                 pixels = new ArrayBufferCtor(buffer.buffer, buffer.byteOffset + region.buffOffset);
@@ -2900,4 +2945,10 @@ export function WebGLCmdFuncCopyTextureToBuffers (
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     cache.glFramebuffer = null;
     gl.deleteFramebuffer(framebuffer);
+}
+
+export function WebGLCmdFuncBlitTexture (device: WebGLDevice,
+    srcTexture: Readonly<IWebGLGPUTexture>, dstTexture: IWebGLGPUTexture, regions: Readonly<TextureBlit []>, filter: Filter) {
+    // logic different from native, because framebuffer map is not implemented in webgl
+    device.blitManager.draw(srcTexture, dstTexture, regions as TextureBlit[], filter);
 }

@@ -9,20 +9,19 @@
  * ----------------------------------------------------------------------------- */
 
 /****************************************************************************
- Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -356,6 +355,7 @@ bool sevalue_to_native(const se::Value &from, cc::gi::Vertex * to, se::Object *c
 bool js_register_cc_gi_Vertex(se::Object* obj) {
     auto* cls = se::Class::create("Vertex", obj, nullptr, _SE(js_new_Vertex)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("coefficients", _SE(js_cc_gi_Vertex_coefficients_get), _SE(js_cc_gi_Vertex_coefficients_set)); 
     cls->defineProperty("position", _SE(js_cc_gi_Vertex_position_get), _SE(js_cc_gi_Vertex_position_set)); 
     cls->defineProperty("normal", _SE(js_cc_gi_Vertex_normal_get), _SE(js_cc_gi_Vertex_normal_set)); 
@@ -553,6 +553,7 @@ bool sevalue_to_native(const se::Value &from, cc::gi::CircumSphere * to, se::Obj
 bool js_register_cc_gi_CircumSphere(se::Object* obj) {
     auto* cls = se::Class::create("CircumSphere", obj, nullptr, _SE(js_new_cc_gi_CircumSphere)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("radiusSquared", _SE(js_cc_gi_CircumSphere_radiusSquared_get), _SE(js_cc_gi_CircumSphere_radiusSquared_set)); 
     cls->defineProperty("center", _SE(js_cc_gi_CircumSphere_center_get), _SE(js_cc_gi_CircumSphere_center_set)); 
     
@@ -1183,6 +1184,7 @@ bool sevalue_to_native(const se::Value &from, cc::gi::Tetrahedron * to, se::Obje
 bool js_register_cc_gi_Tetrahedron(se::Object* obj) {
     auto* cls = se::Class::create("Tetrahedron", obj, nullptr, _SE(js_new_Tetrahedron)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("invalid", _SE(js_cc_gi_Tetrahedron_invalid_get), _SE(js_cc_gi_Tetrahedron_invalid_set)); 
     cls->defineProperty("vertex0", _SE(js_cc_gi_Tetrahedron_vertex0_get), _SE(js_cc_gi_Tetrahedron_vertex0_set)); 
     cls->defineProperty("vertex1", _SE(js_cc_gi_Tetrahedron_vertex1_get), _SE(js_cc_gi_Tetrahedron_vertex1_set)); 
@@ -1224,8 +1226,20 @@ static bool js_new_cc_gi_Delaunay(se::State& s) // NOLINT(readability-identifier
     const auto& args = s.args();
     size_t argc = args.size();
     
+    if (argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    
+    ccstd::vector< cc::gi::Vertex > *arg1 = 0 ;
+    ccstd::vector< cc::gi::Vertex > temp1 ;
     cc::gi::Delaunay *result;
-    result = (cc::gi::Delaunay *)new cc::gi::Delaunay();
+    
+    ok &= sevalue_to_native(args[0], &temp1, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg1 = &temp1;
+    
+    result = (cc::gi::Delaunay *)new cc::gi::Delaunay(*arg1);
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
@@ -1240,78 +1254,21 @@ static bool js_delete_cc_gi_Delaunay(se::State& s)
 }
 SE_BIND_FINALIZE_FUNC(js_delete_cc_gi_Delaunay) 
 
-static bool js_cc_gi_Delaunay_getProbes(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::gi::Delaunay *arg1 = (cc::gi::Delaunay *) NULL ;
-    ccstd::vector< cc::gi::Vertex > *result = 0 ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::gi::Delaunay>(s);
-    if (nullptr == arg1) return true;
-    result = (ccstd::vector< cc::gi::Vertex > *) &((cc::gi::Delaunay const *)arg1)->getProbes();
-    
-    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_gi_Delaunay_getProbes) 
-
-static bool js_cc_gi_Delaunay_getTetrahedrons(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::gi::Delaunay *arg1 = (cc::gi::Delaunay *) NULL ;
-    ccstd::vector< cc::gi::Tetrahedron > *result = 0 ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::gi::Delaunay>(s);
-    if (nullptr == arg1) return true;
-    result = (ccstd::vector< cc::gi::Tetrahedron > *) &((cc::gi::Delaunay const *)arg1)->getTetrahedrons();
-    
-    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_gi_Delaunay_getTetrahedrons) 
-
 static bool js_cc_gi_Delaunay_build(se::State& s)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
     cc::gi::Delaunay *arg1 = (cc::gi::Delaunay *) NULL ;
-    ccstd::vector< cc::gi::Vertex > *arg2 = 0 ;
-    ccstd::vector< cc::gi::Vertex > temp2 ;
     ccstd::vector< cc::gi::Tetrahedron > result;
     
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
         return false;
     }
     arg1 = SE_THIS_OBJECT<cc::gi::Delaunay>(s);
     if (nullptr == arg1) return true;
-    
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    arg2 = &temp2;
-    
-    result = (arg1)->build((ccstd::vector< cc::gi::Vertex > const &)*arg2);
+    result = (arg1)->build();
     
     ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
@@ -1326,9 +1283,8 @@ SE_BIND_FUNC(js_cc_gi_Delaunay_build)
 bool js_register_cc_gi_Delaunay(se::Object* obj) {
     auto* cls = se::Class::create("Delaunay", obj, nullptr, _SE(js_new_cc_gi_Delaunay)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
-    cls->defineFunction("getProbes", _SE(js_cc_gi_Delaunay_getProbes)); 
-    cls->defineFunction("getTetrahedrons", _SE(js_cc_gi_Delaunay_getTetrahedrons)); 
     cls->defineFunction("build", _SE(js_cc_gi_Delaunay_build)); 
     
     
@@ -1456,6 +1412,29 @@ static bool js_cc_gi_LightProbesData_updateTetrahedrons(se::State& s)
     return true;
 }
 SE_BIND_FUNC(js_cc_gi_LightProbesData_updateTetrahedrons) 
+
+static bool js_cc_gi_LightProbesData_hasCoefficients(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gi::LightProbesData *arg1 = (cc::gi::LightProbesData *) NULL ;
+    bool result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::gi::LightProbesData>(s);
+    if (nullptr == arg1) return true;
+    result = (bool)((cc::gi::LightProbesData const *)arg1)->hasCoefficients();
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_gi_LightProbesData_hasCoefficients) 
 
 static bool js_cc_gi_LightProbesData_getInterpolationSHCoefficients(se::State& s)
 {
@@ -1706,6 +1685,7 @@ SE_BIND_FINALIZE_FUNC(js_delete_cc_gi_LightProbesData)
 bool js_register_cc_gi_LightProbesData(se::Object* obj) {
     auto* cls = se::Class::create("LightProbesData", obj, nullptr, _SE(js_new_cc_gi_LightProbesData)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("_probes", _SE(js_cc_gi_LightProbesData__probes_get), _SE(js_cc_gi_LightProbesData__probes_set)); 
     cls->defineProperty("_tetrahedrons", _SE(js_cc_gi_LightProbesData__tetrahedrons_get), _SE(js_cc_gi_LightProbesData__tetrahedrons_set)); 
     cls->defineProperty("probes", _SE(js_cc_gi_LightProbesData_probes_get), _SE(js_cc_gi_LightProbesData_probes_set)); 
@@ -1715,6 +1695,7 @@ bool js_register_cc_gi_LightProbesData(se::Object* obj) {
     cls->defineFunction("reset", _SE(js_cc_gi_LightProbesData_reset)); 
     cls->defineFunction("updateProbes", _SE(js_cc_gi_LightProbesData_updateProbes)); 
     cls->defineFunction("updateTetrahedrons", _SE(js_cc_gi_LightProbesData_updateTetrahedrons)); 
+    cls->defineFunction("hasCoefficients", _SE(js_cc_gi_LightProbesData_hasCoefficients)); 
     cls->defineFunction("getInterpolationSHCoefficients", _SE(js_cc_gi_LightProbesData_getInterpolationSHCoefficients)); 
     cls->defineFunction("getInterpolationWeights", _SE(js_cc_gi_LightProbesData_getInterpolationWeights)); 
     
@@ -2380,6 +2361,7 @@ SE_BIND_PROP_GET(js_cc_gi_LightProbes_data_get)
 bool js_register_cc_gi_LightProbes(se::Object* obj) {
     auto* cls = se::Class::create("LightProbes", obj, nullptr, _SE(js_new_cc_gi_LightProbes)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("_giScale", _SE(js_cc_gi_LightProbes__giScale_get), _SE(js_cc_gi_LightProbes__giScale_set)); 
     cls->defineProperty("_giSamples", _SE(js_cc_gi_LightProbes__giSamples_get), _SE(js_cc_gi_LightProbes__giSamples_set)); 
     cls->defineProperty("_bounces", _SE(js_cc_gi_LightProbes__bounces_get), _SE(js_cc_gi_LightProbes__bounces_set)); 
@@ -2469,6 +2451,46 @@ static bool js_cc_gi_LightProbeInfo_activate(se::State& s)
     return true;
 }
 SE_BIND_FUNC(js_cc_gi_LightProbeInfo_activate) 
+
+static bool js_cc_gi_LightProbeInfo_onProbeBakeFinished(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gi::LightProbeInfo *arg1 = (cc::gi::LightProbeInfo *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::gi::LightProbeInfo>(s);
+    if (nullptr == arg1) return true;
+    (arg1)->onProbeBakeFinished();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_gi_LightProbeInfo_onProbeBakeFinished) 
+
+static bool js_cc_gi_LightProbeInfo_onProbeBakeCleared(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gi::LightProbeInfo *arg1 = (cc::gi::LightProbeInfo *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::gi::LightProbeInfo>(s);
+    if (nullptr == arg1) return true;
+    (arg1)->onProbeBakeCleared();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_gi_LightProbeInfo_onProbeBakeCleared) 
 
 static bool js_cc_gi_LightProbeInfo_clearSHCoefficients(se::State& s)
 {
@@ -3227,6 +3249,7 @@ SE_BIND_PROP_GET(js_cc_gi_LightProbeInfo_data_get)
 bool js_register_cc_gi_LightProbeInfo(se::Object* obj) {
     auto* cls = se::Class::create("LightProbeInfo", obj, nullptr, _SE(js_new_cc_gi_LightProbeInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("_giScale", _SE(js_cc_gi_LightProbeInfo__giScale_get), _SE(js_cc_gi_LightProbeInfo__giScale_set)); 
     cls->defineProperty("_giSamples", _SE(js_cc_gi_LightProbeInfo__giSamples_get), _SE(js_cc_gi_LightProbeInfo__giSamples_set)); 
     cls->defineProperty("_bounces", _SE(js_cc_gi_LightProbeInfo__bounces_get), _SE(js_cc_gi_LightProbeInfo__bounces_set)); 
@@ -3245,6 +3268,8 @@ bool js_register_cc_gi_LightProbeInfo(se::Object* obj) {
     cls->defineProperty("data", _SE(js_cc_gi_LightProbeInfo_data_get), _SE(js_cc_gi_LightProbeInfo_data_set)); 
     
     cls->defineFunction("activate", _SE(js_cc_gi_LightProbeInfo_activate)); 
+    cls->defineFunction("onProbeBakeFinished", _SE(js_cc_gi_LightProbeInfo_onProbeBakeFinished)); 
+    cls->defineFunction("onProbeBakeCleared", _SE(js_cc_gi_LightProbeInfo_onProbeBakeCleared)); 
     cls->defineFunction("clearSHCoefficients", _SE(js_cc_gi_LightProbeInfo_clearSHCoefficients)); 
     cls->defineFunction("isUniqueNode", _SE(js_cc_gi_LightProbeInfo_isUniqueNode)); 
     cls->defineFunction("addNode", _SE(js_cc_gi_LightProbeInfo_addNode)); 

@@ -1,0 +1,13 @@
+{
+  "deviceOrientation": "portrait",
+  "pages": [
+    "pages/index/index"
+  ],
+  "window": {
+    "defaultTitle": "CocosCreator",
+    "allowsBounceVertical":"NO",
+    "enableMultiAudio":true,
+    "enableAudioAlign":true,
+    "enableSkia":true
+  }
+}

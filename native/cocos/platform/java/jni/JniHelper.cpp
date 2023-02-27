@@ -1,20 +1,19 @@
 /****************************************************************************
  Copyright (c) 2010-2012 cocos2d-x.org
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -138,6 +137,16 @@ void JniHelper::init(JNIEnv *env, jobject activity) {
     CC_ASSERT(ok);
 }
 
+void JniHelper::onDestroy() {
+    if (JniHelper::sJavaVM) {
+        if (JniHelper::sActivity) {
+            cc::JniHelper::getEnv()->DeleteGlobalRef(JniHelper::sActivity);
+            JniHelper::sActivity = nullptr;
+        }
+        LOGD("JniHelper::onDestroy");
+    }
+}
+
 JNIEnv *JniHelper::cacheEnv() {
     JavaVM *jvm = JniHelper::sJavaVM;
     JNIEnv *env = nullptr;
@@ -189,31 +198,34 @@ jobject JniHelper::getActivity() {
 
 #if CC_PLATFORM == CC_PLATFORM_OHOS
 bool JniHelper::setClassLoaderFrom(jobject activityinstance) {
-    JniMethodInfo getclassloaderMethod;
-    if (!JniHelper::getMethodInfoDefaultClassLoader(getclassloaderMethod,
-                                                    "ohos/app/AbilityContext",
-                                                    "getClassloader", // typo ?
-                                                    "()Ljava/lang/ClassLoader;")) {
-        return false;
+    if (!JniHelper::classloader) {
+        JniMethodInfo getclassloaderMethod;
+        if (!JniHelper::getMethodInfoDefaultClassLoader(getclassloaderMethod,
+                                                        "ohos/app/AbilityContext",
+                                                        "getClassloader", // typo ?
+                                                        "()Ljava/lang/ClassLoader;")) {
+            return false;
+        }
+
+        jobject klassLoader = cc::JniHelper::getEnv()->CallObjectMethod(activityinstance,
+                                                                        getclassloaderMethod.methodID);
+
+        if (nullptr == klassLoader) {
+            return false;
+        }
+
+        JniMethodInfo loadClass;
+        if (!JniHelper::getMethodInfoDefaultClassLoader(loadClass,
+                                                        "java/lang/ClassLoader",
+                                                        "loadClass",
+                                                        "(Ljava/lang/String;)Ljava/lang/Class;")) {
+            return false;
+        }
+
+        JniHelper::classloader = cc::JniHelper::getEnv()->NewGlobalRef(klassLoader);
+        JniHelper::loadclassMethodMethodId = loadClass.methodID;
     }
 
-    jobject klassLoader = cc::JniHelper::getEnv()->CallObjectMethod(activityinstance,
-                                                                    getclassloaderMethod.methodID);
-
-    if (nullptr == klassLoader) {
-        return false;
-    }
-
-    JniMethodInfo loadClass;
-    if (!JniHelper::getMethodInfoDefaultClassLoader(loadClass,
-                                                    "java/lang/ClassLoader",
-                                                    "loadClass",
-                                                    "(Ljava/lang/String;)Ljava/lang/Class;")) {
-        return false;
-    }
-
-    JniHelper::classloader = cc::JniHelper::getEnv()->NewGlobalRef(klassLoader);
-    JniHelper::loadclassMethodMethodId = loadClass.methodID;
     JniHelper::sActivity = cc::JniHelper::getEnv()->NewGlobalRef(activityinstance);
     if (JniHelper::classloaderCallback != nullptr) {
         JniHelper::classloaderCallback();
@@ -223,31 +235,34 @@ bool JniHelper::setClassLoaderFrom(jobject activityinstance) {
 }
 #elif CC_PLATFORM == CC_PLATFORM_ANDROID
 bool JniHelper::setClassLoaderFrom(jobject activityinstance) {
-    JniMethodInfo getClassloaderMethod;
-    if (!JniHelper::getMethodInfoDefaultClassLoader(getClassloaderMethod,
-                                                    "android/content/Context",
-                                                    "getClassLoader",
-                                                    "()Ljava/lang/ClassLoader;")) {
-        return false;
+    if (!JniHelper::classloader) {
+        JniMethodInfo getClassloaderMethod;
+        if (!JniHelper::getMethodInfoDefaultClassLoader(getClassloaderMethod,
+                                                        "android/content/Context",
+                                                        "getClassLoader",
+                                                        "()Ljava/lang/ClassLoader;")) {
+            return false;
+        }
+
+        jobject classLoader = cc::JniHelper::getEnv()->CallObjectMethod(activityinstance,
+                                                                        getClassloaderMethod.methodID);
+
+        if (nullptr == classLoader) {
+            return false;
+        }
+
+        JniMethodInfo loadClass;
+        if (!JniHelper::getMethodInfoDefaultClassLoader(loadClass,
+                                                        "java/lang/ClassLoader",
+                                                        "loadClass",
+                                                        "(Ljava/lang/String;)Ljava/lang/Class;")) {
+            return false;
+        }
+
+        JniHelper::classloader = cc::JniHelper::getEnv()->NewGlobalRef(classLoader);
+        JniHelper::loadclassMethodMethodId = loadClass.methodID;
     }
 
-    jobject classLoader = cc::JniHelper::getEnv()->CallObjectMethod(activityinstance,
-                                                                    getClassloaderMethod.methodID);
-
-    if (nullptr == classLoader) {
-        return false;
-    }
-
-    JniMethodInfo loadClass;
-    if (!JniHelper::getMethodInfoDefaultClassLoader(loadClass,
-                                                    "java/lang/ClassLoader",
-                                                    "loadClass",
-                                                    "(Ljava/lang/String;)Ljava/lang/Class;")) {
-        return false;
-    }
-
-    JniHelper::classloader = cc::JniHelper::getEnv()->NewGlobalRef(classLoader);
-    JniHelper::loadclassMethodMethodId = loadClass.methodID;
     JniHelper::sActivity = cc::JniHelper::getEnv()->NewGlobalRef(activityinstance);
     if (JniHelper::classloaderCallback != nullptr) {
         JniHelper::classloaderCallback();

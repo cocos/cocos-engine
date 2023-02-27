@@ -9,20 +9,19 @@
  * ----------------------------------------------------------------------------- */
 
 /****************************************************************************
- Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -625,6 +624,7 @@ SE_BIND_FINALIZE_FUNC(js_delete_cc_extension_EventAssetsManagerEx)
 bool js_register_cc_extension_EventAssetsManagerEx(se::Object* obj) {
     auto* cls = se::Class::create("EventAssetsManager", obj, nullptr, _SE(js_new_EventAssetsManager)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("getEventCode", _SE(js_cc_extension_EventAssetsManager_getEventCode)); 
     cls->defineFunction("getCURLECode", _SE(js_cc_extension_EventAssetsManager_getCURLECode)); 
@@ -870,6 +870,7 @@ bool sevalue_to_native(const se::Value &from, cc::extension::DownloadUnit * to, 
 bool js_register_cc_extension_DownloadUnit(se::Object* obj) {
     auto* cls = se::Class::create("DownloadUnit", obj, nullptr, _SE(js_new_cc_extension_DownloadUnit)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("srcUrl", _SE(js_cc_extension_DownloadUnit_srcUrl_get), _SE(js_cc_extension_DownloadUnit_srcUrl_set)); 
     cls->defineProperty("storagePath", _SE(js_cc_extension_DownloadUnit_storagePath_get), _SE(js_cc_extension_DownloadUnit_storagePath_set)); 
     cls->defineProperty("customId", _SE(js_cc_extension_DownloadUnit_customId_get), _SE(js_cc_extension_DownloadUnit_customId_set)); 
@@ -1141,6 +1142,7 @@ bool sevalue_to_native(const se::Value &from, cc::extension::ManifestAsset * to,
 bool js_register_cc_extension_ManifestAsset(se::Object* obj) {
     auto* cls = se::Class::create("ManifestAsset", obj, nullptr, _SE(js_new_cc_extension_ManifestAsset)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("md5", _SE(js_cc_extension_ManifestAsset_md5_get), _SE(js_cc_extension_ManifestAsset_md5_set)); 
     cls->defineProperty("path", _SE(js_cc_extension_ManifestAsset_path_get), _SE(js_cc_extension_ManifestAsset_path_set)); 
     cls->defineProperty("compressed", _SE(js_cc_extension_ManifestAsset_compressed_get), _SE(js_cc_extension_ManifestAsset_compressed_set)); 
@@ -1300,6 +1302,7 @@ bool sevalue_to_native(const se::Value &from, cc::extension::Manifest::AssetDiff
 bool js_register_cc_extension_Manifest_AssetDiff(se::Object* obj) {
     auto* cls = se::Class::create({"Manifest", "AssetDiff"}, obj, nullptr, _SE(js_new_cc_extension_Manifest_AssetDiff)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("asset", _SE(js_cc_extension_Manifest_AssetDiff_asset_get), _SE(js_cc_extension_Manifest_AssetDiff_asset_set)); 
     cls->defineProperty("type", _SE(js_cc_extension_Manifest_AssetDiff_type_get), _SE(js_cc_extension_Manifest_AssetDiff_type_set)); 
     
@@ -1728,6 +1731,7 @@ SE_BIND_FINALIZE_FUNC(js_delete_cc_extension_Manifest)
 bool js_register_cc_extension_Manifest(se::Object* obj) {
     auto* cls = se::Class::create("Manifest", obj, nullptr, _SE(js_new_Manifest)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("isVersionLoaded", _SE(js_cc_extension_Manifest_isVersionLoaded)); 
     cls->defineFunction("isLoaded", _SE(js_cc_extension_Manifest_isLoaded)); 
@@ -2453,6 +2457,7 @@ SE_BIND_FUNC(js_cc_extension_AssetsManager_setEventCallback)
 bool js_register_cc_extension_AssetsManagerEx(se::Object* obj) {
     auto* cls = se::Class::create("AssetsManager", obj, nullptr, _SE(js_new_AssetsManager)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("checkUpdate", _SE(js_cc_extension_AssetsManager_checkUpdate)); 
     cls->defineFunction("prepareUpdate", _SE(js_cc_extension_AssetsManager_prepareUpdate)); 

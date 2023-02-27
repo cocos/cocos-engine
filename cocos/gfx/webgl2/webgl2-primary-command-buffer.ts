@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,18 +20,18 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { Buffer } from '../base/buffer';
 import { CommandBuffer } from '../base/command-buffer';
-import { BufferUsageBit, BufferTextureCopy, Color, Rect, BufferSource, DrawInfo, Viewport } from '../base/define';
+import { BufferUsageBit, BufferTextureCopy, Color, Rect, BufferSource, DrawInfo, Viewport, TextureBlit, Filter } from '../base/define';
 import { Framebuffer } from '../base/framebuffer';
 import { InputAssembler } from '../base/input-assembler';
 import { Texture } from '../base/texture';
 import { WebGL2Buffer } from './webgl2-buffer';
 import { WebGL2CommandBuffer } from './webgl2-command-buffer';
 import {
-    WebGL2CmdFuncBeginRenderPass, WebGL2CmdFuncBindStates, WebGL2CmdFuncCopyBuffersToTexture,
+    WebGL2CmdFuncBeginRenderPass, WebGL2CmdFuncBindStates, WebGL2CmdFuncBlitTexture, WebGL2CmdFuncCopyBuffersToTexture,
     WebGL2CmdFuncDraw, WebGL2CmdFuncExecuteCmds, WebGL2CmdFuncUpdateBuffer } from './webgl2-commands';
 import { WebGL2Framebuffer } from './webgl2-framebuffer';
 import { WebGL2Texture } from './webgl2-texture';
@@ -169,5 +168,11 @@ export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
         WebGL2CmdFuncBindStates(WebGL2DeviceManager.instance, this._curGPUPipelineState, this._curGPUInputAssembler,
             this._curGPUDescriptorSets, this._curDynamicOffsets, this._curDynamicStates);
         this._isStateInvalied = false;
+    }
+
+    public blitTexture (srcTexture: Readonly<Texture>, dstTexture: Texture, regions: Readonly<TextureBlit []>, filter: Filter): void {
+        const gpuTextureSrc = (srcTexture as WebGL2Texture).gpuTexture;
+        const gpuTextureDst = (dstTexture as WebGL2Texture).gpuTexture;
+        WebGL2CmdFuncBlitTexture(WebGL2DeviceManager.instance, gpuTextureSrc, gpuTextureDst, regions, filter);
     }
 }

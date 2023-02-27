@@ -1,15 +1,16 @@
 /*
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
  http://www.cocos.com
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -36,8 +37,13 @@ import { CCFloat, CCInteger } from '../core/data';
 import { TextureCube } from '../asset/assets/texture-cube';
 import { Enum } from '../core/value-types';
 import { ccclass, displayOrder, rangeMin, rangeStep, slide } from '../core/data/decorators';
-import { EnvironmentLightingType } from '../render-scene/scene';
+import { Ambient, EnvironmentLightingType } from '../render-scene/scene';
 import { Material } from '../asset/assets/material';
+import { Vec2, Vec3, Color, Vec4 } from '../core/math';
+
+export const DEFAULT_WORLD_MIN_POS = new Vec3(-1024.0, -1024.0, -1024.0);
+export const DEFAULT_WORLD_MAX_POS = new Vec3(1024.0, 1024.0, 1024.0);
+export const DEFAULT_OCTREE_DEPTH = 8;
 
 /**
  * @zh
@@ -293,27 +299,27 @@ function checkFieldNot(attr: string, value: number) {
 // handle meta data, it is generated automatically
 
 const SceneGlobalsProto = SceneGlobals.prototype;
-editable(SceneGlobalsProto, 'ambient');
-serializable(SceneGlobalsProto, 'ambient');
-editable(SceneGlobalsProto, 'shadows');
-serializable(SceneGlobalsProto, 'shadows');
-serializable(SceneGlobalsProto, '_skybox');
-serializable(SceneGlobalsProto, 'fog');
-editable(SceneGlobalsProto, 'fog');
+editable(SceneGlobalsProto, 'ambient', () => new AmbientInfo());
+serializable(SceneGlobalsProto, 'ambient', () => new AmbientInfo());
+editable(SceneGlobalsProto, 'shadows', () => new ShadowsInfo());
+serializable(SceneGlobalsProto, 'shadows', () => new ShadowsInfo());
+serializable(SceneGlobalsProto, '_skybox', () => new SkyboxInfo());
+serializable(SceneGlobalsProto, 'fog', () => new FogInfo());
+editable(SceneGlobalsProto, 'fog', () => new FogInfo());
 const skyboxDescriptor = Object.getOwnPropertyDescriptor(SceneGlobalsProto, 'skybox');
 type(SkyboxInfo)(SceneGlobalsProto, 'skybox', skyboxDescriptor);
 editable(SceneGlobalsProto, 'skybox', skyboxDescriptor);
-serializable(SceneGlobalsProto, 'octree');
-editable(SceneGlobalsProto, 'octree');
-serializable(SceneGlobalsProto, 'lightProbeInfo');
-editable(SceneGlobalsProto, 'lightProbeInfo');
+serializable(SceneGlobalsProto, 'octree', () => new OctreeInfo());
+editable(SceneGlobalsProto, 'octree', () => new OctreeInfo());
+serializable(SceneGlobalsProto, 'lightProbeInfo', () => new LightProbeInfo());
+editable(SceneGlobalsProto, 'lightProbeInfo', () => new LightProbeInfo());
 ccclass('cc.SceneGlobals')(SceneGlobals);
 
 const OctreeInfoProto = OctreeInfo.prototype;
-serializable(OctreeInfoProto, '_enabled');
-serializable(OctreeInfoProto, '_minPos');
-serializable(OctreeInfoProto, '_maxPos');
-serializable(OctreeInfoProto, '_depth');
+serializable(OctreeInfoProto, '_enabled', () => false);
+serializable(OctreeInfoProto, '_minPos', () => new Vec3(DEFAULT_WORLD_MIN_POS));
+serializable(OctreeInfoProto, '_maxPos', () => new Vec3(DEFAULT_WORLD_MAX_POS));
+serializable(OctreeInfoProto, '_depth', () => DEFAULT_OCTREE_DEPTH);
 const enabledDescriptor = Object.getOwnPropertyDescriptor(OctreeInfoProto, 'enabled');
 tooltip('i18n:octree_culling.enabled')(OctreeInfoProto, 'enabled', enabledDescriptor);
 editable(OctreeInfoProto, 'enabled', enabledDescriptor);
@@ -334,20 +340,22 @@ editable(OctreeInfoProto, 'depth', depthDescriptor);
 ccclass('cc.OctreeInfo')(OctreeInfo);
 
 const ShadowsInfoProto = ShadowsInfo.prototype;
-serializable(ShadowsInfoProto, '_enabled');
-serializable(ShadowsInfoProto, '_type');
-serializable(ShadowsInfoProto, '_normal');
-serializable(ShadowsInfoProto, '_distance');
-serializable(ShadowsInfoProto, '_shadowColor');
-serializable(ShadowsInfoProto, '_maxReceived');
-serializable(ShadowsInfoProto, '_size');
+serializable(ShadowsInfoProto, '_enabled', () => false);
+serializable(ShadowsInfoProto, '_type', () => ShadowType.Planar);
+serializable(ShadowsInfoProto, '_normal', () => new Vec3(0, 1, 0));
+serializable(ShadowsInfoProto, '_distance', () => 0);
+serializable(ShadowsInfoProto, '_shadowColor', () => new Color(0, 0, 0, 76));
+serializable(ShadowsInfoProto, '_maxReceived', () => 4);
+serializable(ShadowsInfoProto, '_size', () => new Vec2(1024, 1024));
 const shadowEnabledDescriptor = Object.getOwnPropertyDescriptor(ShadowsInfoProto, 'enabled');
 tooltip('i18n:shadow.enabled')(ShadowsInfoProto, 'enabled', shadowEnabledDescriptor);
 editable(ShadowsInfoProto, 'enabled', shadowEnabledDescriptor);
 const typeDescriptor = Object.getOwnPropertyDescriptor(ShadowsInfoProto, 'type');
+tooltip('i18n:shadow.type')(ShadowsInfoProto, 'type', typeDescriptor)
 type(ShadowType)(ShadowsInfoProto, 'type', typeDescriptor);
 editable(ShadowsInfoProto, 'type', typeDescriptor);
 const shadowColorDescriptor = Object.getOwnPropertyDescriptor(ShadowsInfoProto, 'shadowColor');
+tooltip('i18n:shadow.shadowColor')(ShadowsInfoProto, 'shadowColor', shadowColorDescriptor);
 visible(checkFieldIs("_type", ShadowType.Planar))(ShadowsInfoProto, 'shadowColor', shadowColorDescriptor);
 const planeDirectionDescriptor = Object.getOwnPropertyDescriptor(ShadowsInfoProto, 'planeDirection');
 tooltip('i18n:shadow.planeDirection')(ShadowsInfoProto, 'planeDirection', planeDirectionDescriptor);
@@ -368,16 +376,16 @@ type(ShadowSize)(ShadowsInfoProto, 'shadowMapSize', shadowMapSizeDescriptor);
 ccclass('cc.ShadowsInfo')(ShadowsInfo);
 
 const FogInfoProto = FogInfo.prototype;
-serializable(FogInfoProto, '_type');
-serializable(FogInfoProto, '_fogColor');
-serializable(FogInfoProto, '_enabled');
-serializable(FogInfoProto, '_fogDensity');
-serializable(FogInfoProto, '_fogStart');
-serializable(FogInfoProto, '_fogEnd');
-serializable(FogInfoProto, '_fogAtten');
-serializable(FogInfoProto, '_fogTop');
-serializable(FogInfoProto, '_fogRange');
-serializable(FogInfoProto, '_accurate');
+serializable(FogInfoProto, '_type', () => FogType.LINEAR);
+serializable(FogInfoProto, '_fogColor', () => new Color('#C8C8C8'));
+serializable(FogInfoProto, '_enabled', () => false);
+serializable(FogInfoProto, '_fogDensity', () => 0.3);
+serializable(FogInfoProto, '_fogStart', () => 0.5);
+serializable(FogInfoProto, '_fogEnd', () => 300);
+serializable(FogInfoProto, '_fogAtten', () => 5);
+serializable(FogInfoProto, '_fogTop', () => 1.5);
+serializable(FogInfoProto, '_fogRange', () => 1.2);
+serializable(FogInfoProto, '_accurate', () => false);
 const fogEnabledDescriptor = Object.getOwnPropertyDescriptor(FogInfoProto, 'enabled');
 displayOrder(0)(FogInfoProto, 'enabled', fogEnabledDescriptor);
 tooltip('i18n:fog.enabled')(FogInfoProto, 'enabled', fogEnabledDescriptor);
@@ -430,24 +438,38 @@ visible(checkFieldIs("_type", FogType.LAYERED))(FogInfoProto, 'fogRange', fogRan
 ccclass('cc.FogInfo')(FogInfo);
 
 const SkyboxInfoProto = SkyboxInfo.prototype;
-serializable(SkyboxInfoProto, '_envLightingType');
-formerlySerializedAs('_envmap')(SkyboxInfoProto, '_envmapHDR');
-type(TextureCube)(SkyboxInfoProto, '_envmapHDR');
-serializable(SkyboxInfoProto, '_envmapHDR');
-type(TextureCube)(SkyboxInfoProto, '_envmapLDR');
-serializable(SkyboxInfoProto, '_envmapLDR');
-type(TextureCube)(SkyboxInfoProto, '_diffuseMapHDR');
-serializable(SkyboxInfoProto, '_diffuseMapHDR');
-type(TextureCube)(SkyboxInfoProto, '_diffuseMapLDR');
-serializable(SkyboxInfoProto, '_diffuseMapLDR');
-serializable(SkyboxInfoProto, '_enabled');
-serializable(SkyboxInfoProto, '_useHDR');
-type(Material)(SkyboxInfoProto, '_editableMaterial');
-serializable(SkyboxInfoProto, '_editableMaterial');
-type(TextureCube)(SkyboxInfoProto, '_reflectionHDR');
-serializable(SkyboxInfoProto, '_reflectionHDR');
-type(TextureCube)(SkyboxInfoProto, '_reflectionLDR');
-serializable(SkyboxInfoProto, '_reflectionLDR');
+serializable(SkyboxInfoProto, '_envLightingType', () => EnvironmentLightingType.HEMISPHERE_DIFFUSE);
+formerlySerializedAs('_envmap')(SkyboxInfoProto, '_envmapHDR', () => null);
+type(TextureCube)(SkyboxInfoProto, '_envmapHDR', () => null);
+serializable(SkyboxInfoProto, '_envmapHDR', () => null);
+type(TextureCube)(SkyboxInfoProto, '_envmapLDR', () => null);
+serializable(SkyboxInfoProto, '_envmapLDR', () => null);
+type(TextureCube)(SkyboxInfoProto, '_diffuseMapHDR', () => null);
+serializable(SkyboxInfoProto, '_diffuseMapHDR', () => null);
+type(TextureCube)(SkyboxInfoProto, '_diffuseMapLDR', () => null);
+serializable(SkyboxInfoProto, '_diffuseMapLDR', () => null);
+serializable(SkyboxInfoProto, '_enabled', () => false);
+serializable(SkyboxInfoProto, '_useHDR', () => true);
+type(Material)(SkyboxInfoProto, '_editableMaterial', () => null);
+serializable(SkyboxInfoProto, '_editableMaterial', () => null);
+type(TextureCube)(SkyboxInfoProto, '_reflectionHDR', () => null);
+serializable(SkyboxInfoProto, '_reflectionHDR', () => null);
+type(TextureCube)(SkyboxInfoProto, '_reflectionLDR', () => null);
+serializable(SkyboxInfoProto, '_reflectionLDR', () => null);
+
+const skyboxRotationAngleDescriptor = Object.getOwnPropertyDescriptor(SkyboxInfoProto, 'rotationAngle');
+type(CCFloat)(SkyboxInfoProto, 'rotationAngle', skyboxRotationAngleDescriptor);
+range([0, 360])(SkyboxInfoProto, 'rotationAngle', skyboxRotationAngleDescriptor);
+rangeStep(1)(SkyboxInfoProto, 'rotationAngle', skyboxRotationAngleDescriptor);
+slide(SkyboxInfoProto, 'rotationAngle', skyboxRotationAngleDescriptor);
+tooltip('i18n:skybox.rotationAngle')(SkyboxInfoProto, 'rotationAngle', skyboxRotationAngleDescriptor);
+
+const skyboxReflectionMapDescriptor = Object.getOwnPropertyDescriptor(SkyboxInfoProto, 'reflectionMap');
+editable(SkyboxInfoProto, 'reflectionMap', skyboxReflectionMapDescriptor);
+readOnly(SkyboxInfoProto, 'reflectionMap', skyboxReflectionMapDescriptor)
+type(TextureCube)(SkyboxInfoProto, 'reflectionMap', skyboxReflectionMapDescriptor)
+displayOrder(100)(SkyboxInfoProto, 'reflectionMap', skyboxReflectionMapDescriptor)
+
 const skyboxEnabledDescriptor = Object.getOwnPropertyDescriptor(SkyboxInfoProto, 'enabled');
 tooltip('i18n:skybox.enabled')(SkyboxInfoProto, 'enabled', skyboxEnabledDescriptor);
 editable(SkyboxInfoProto, 'enabled', skyboxEnabledDescriptor);
@@ -472,18 +494,19 @@ const skyboxMaterialDescriptor = Object.getOwnPropertyDescriptor(SkyboxInfoProto
 tooltip('i18n:skybox.material')(SkyboxInfoProto, 'skyboxMaterial', skyboxMaterialDescriptor);
 type(Material)(SkyboxInfoProto, 'skyboxMaterial', skyboxMaterialDescriptor);
 editable(SkyboxInfoProto, 'skyboxMaterial', skyboxMaterialDescriptor);
+serializable(SkyboxInfoProto, '_rotationAngle', () => 0);
 ccclass('cc.SkyboxInfo')(SkyboxInfo);
 
 const AmbientInfoProto = AmbientInfo.prototype;
-formerlySerializedAs('_skyColor')(AmbientInfoProto, '_skyColorHDR');
-serializable(AmbientInfoProto, '_skyColorHDR');
-formerlySerializedAs('_skyIllum')(AmbientInfoProto, '_skyIllumHDR');
-serializable(AmbientInfoProto, '_skyIllumHDR');
-formerlySerializedAs('_groundAlbedo')(AmbientInfoProto, '_groundAlbedoHDR');
-serializable(AmbientInfoProto, '_groundAlbedoHDR');
-serializable(AmbientInfoProto, '_skyColorLDR');
-serializable(AmbientInfoProto, '_skyIllumLDR');
-serializable(AmbientInfoProto, '_groundAlbedoLDR');
+formerlySerializedAs('_skyColor')(AmbientInfoProto, '_skyColorHDR', () => new Vec4(0.2, 0.5, 0.8, 1.0));
+serializable(AmbientInfoProto, '_skyColorHDR', () => new Vec4(0.2, 0.5, 0.8, 1.0));
+formerlySerializedAs('_skyIllum')(AmbientInfoProto, '_skyIllumHDR', () => Ambient.SKY_ILLUM);
+serializable(AmbientInfoProto, '_skyIllumHDR', () => Ambient.SKY_ILLUM);
+formerlySerializedAs('_groundAlbedo')(AmbientInfoProto, '_groundAlbedoHDR', () => new Vec4(0.2, 0.2, 0.2, 1.0));
+serializable(AmbientInfoProto, '_groundAlbedoHDR', () => new Vec4(0.2, 0.2, 0.2, 1.0));
+serializable(AmbientInfoProto, '_skyColorLDR', () => new Vec4(0.2, 0.5, 0.8, 1.0));
+serializable(AmbientInfoProto, '_skyIllumLDR', () => Ambient.SKY_ILLUM);
+serializable(AmbientInfoProto, '_groundAlbedoLDR', () => new Vec4(0.2, 0.2, 0.2, 1.0));
 const skyLightingColorDescriptor = Object.getOwnPropertyDescriptor(AmbientInfoProto, 'skyLightingColor');
 tooltip('i18n:ambient.skyLightingColor')(AmbientInfoProto, 'skyLightingColor', skyLightingColorDescriptor);
 editable(AmbientInfoProto, 'skyLightingColor', skyLightingColorDescriptor);
@@ -499,33 +522,53 @@ visible(ambientSkyLightEnable)(AmbientInfoProto, 'groundLightingColor', groundLi
 ccclass('cc.AmbientInfo')(AmbientInfo);
 
 const LightProbeInfoProto = LightProbeInfo.prototype;
-serializable(LightProbeInfoProto, '_giScale');
-serializable(LightProbeInfoProto, '_giSamples');
-serializable(LightProbeInfoProto, '_bounces');
-serializable(LightProbeInfoProto, '_reduceRinging');
-serializable(LightProbeInfoProto, '_showProbe');
-serializable(LightProbeInfoProto, '_showWireframe');
-serializable(LightProbeInfoProto, '_showConvex');
-serializable(LightProbeInfoProto, '_data');
-const lightProbeGIScaleRingingDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfo, 'giScale');
-tooltip('i18n:light_probe.giScale')(LightProbeInfo, 'giScale', lightProbeGIScaleRingingDescriptor);
-editable(LightProbeInfo, 'giScale', lightProbeGIScaleRingingDescriptor);
-const lightProbeGISamplesRingingDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfo, 'giSamples');
-tooltip('i18n:light_probe.giSamples')(LightProbeInfo, 'giSamples', lightProbeGISamplesRingingDescriptor);
-editable(LightProbeInfo, 'giSamples', lightProbeGISamplesRingingDescriptor);
-const lightProbeBouncesRingingDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfo, 'bounces');
-tooltip('i18n:light_probe.bounces')(LightProbeInfo, 'bounces', lightProbeBouncesRingingDescriptor);
-editable(LightProbeInfo, 'bounces', lightProbeBouncesRingingDescriptor);
-const lightProbeReduceRingingDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfo, 'reduceRinging');
-tooltip('i18n:light_probe.reduceRinging')(LightProbeInfo, 'reduceRinging', lightProbeReduceRingingDescriptor);
-editable(LightProbeInfo, 'reduceRinging', lightProbeReduceRingingDescriptor);
-const lightProbeShowProbeDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfo, 'showProbe');
-tooltip('i18n:light_probe.showProbe')(LightProbeInfo, 'showProbe', lightProbeShowProbeDescriptor);
-editable(LightProbeInfo, 'showProbe', lightProbeShowProbeDescriptor);
-const lightProbeShowWireframeDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfo, 'showWireframe');
-tooltip('i18n:light_probe.showWireframe')(LightProbeInfo, 'showWireframe', lightProbeShowWireframeDescriptor);
-editable(LightProbeInfo, 'showWireframe', lightProbeShowWireframeDescriptor);
-const lightProbeShowConvexDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfo, 'showConvex');
-tooltip('i18n:light_probe.showConvex')(LightProbeInfo, 'showConvex', lightProbeShowConvexDescriptor);
-editable(LightProbeInfo, 'showConvex', lightProbeShowConvexDescriptor);
+serializable(LightProbeInfoProto, '_giScale', () => 1.0);
+serializable(LightProbeInfoProto, '_giSamples', () => 1024);
+serializable(LightProbeInfoProto, '_bounces', () => 2);
+serializable(LightProbeInfoProto, '_reduceRinging', () => 0.0);
+serializable(LightProbeInfoProto, '_showProbe', () => true);
+serializable(LightProbeInfoProto, '_showWireframe', () => true);
+serializable(LightProbeInfoProto, '_showConvex', () => false);
+serializable(LightProbeInfoProto, '_data', () => null);
+
+const lightProbeGIScaleDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfoProto, 'giScale');
+range([0, 100, 1])(LightProbeInfoProto, 'giScale', lightProbeGIScaleDescriptor)
+type(CCFloat)(LightProbeInfoProto, 'giScale', lightProbeGIScaleDescriptor)
+displayName('GIScale')(LightProbeInfoProto, 'giScale', lightProbeGIScaleDescriptor)
+tooltip('i18n:light_probe.giScale')(LightProbeInfoProto, 'giScale', lightProbeGIScaleDescriptor);
+editable(LightProbeInfoProto, 'giScale', lightProbeGIScaleDescriptor);
+
+const lightProbeGISamplesDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfoProto, 'giSamples');
+tooltip('i18n:light_probe.giSamples')(LightProbeInfoProto, 'giSamples', lightProbeGISamplesDescriptor);
+editable(LightProbeInfoProto, 'giSamples', lightProbeGISamplesDescriptor);
+range([64, 65536, 1])(LightProbeInfoProto, 'giSamples', lightProbeGISamplesDescriptor);
+type(CCInteger)(LightProbeInfoProto, 'giSamples', lightProbeGISamplesDescriptor);
+displayName('GISamples')(LightProbeInfoProto, 'giSamples', lightProbeGISamplesDescriptor);
+
+const lightProbeBouncesDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfoProto, 'bounces');
+tooltip('i18n:light_probe.bounces')(LightProbeInfoProto, 'bounces', lightProbeBouncesDescriptor);
+editable(LightProbeInfoProto, 'bounces', lightProbeBouncesDescriptor);
+range([1, 4, 1])(LightProbeInfoProto, 'bounces', lightProbeBouncesDescriptor);
+type(CCInteger)(LightProbeInfoProto, 'bounces', lightProbeBouncesDescriptor);
+tooltip('i18n:light_probe.bounces')(LightProbeInfoProto, 'bounces', lightProbeBouncesDescriptor);
+
+const lightProbeReduceRingingDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfoProto, 'reduceRinging');
+tooltip('i18n:light_probe.reduceRinging')(LightProbeInfoProto, 'reduceRinging', lightProbeReduceRingingDescriptor);
+editable(LightProbeInfoProto, 'reduceRinging', lightProbeReduceRingingDescriptor);
+range([0.0, 0.05, 0.001])(LightProbeInfoProto, 'reduceRinging', lightProbeReduceRingingDescriptor);
+slide(LightProbeInfoProto, 'reduceRinging', lightProbeReduceRingingDescriptor);
+type(CCFloat)(LightProbeInfoProto, 'reduceRinging', lightProbeReduceRingingDescriptor);
+
+const lightProbeShowProbeDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfoProto, 'showProbe');
+tooltip('i18n:light_probe.showProbe')(LightProbeInfoProto, 'showProbe', lightProbeShowProbeDescriptor);
+editable(LightProbeInfoProto, 'showProbe', lightProbeShowProbeDescriptor);
+
+const lightProbeShowWireframeDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfoProto, 'showWireframe');
+tooltip('i18n:light_probe.showWireframe')(LightProbeInfoProto, 'showWireframe', lightProbeShowWireframeDescriptor);
+editable(LightProbeInfoProto, 'showWireframe', lightProbeShowWireframeDescriptor);
+
+const lightProbeShowConvexDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfoProto, 'showConvex');
+tooltip('i18n:light_probe.showConvex')(LightProbeInfoProto, 'showConvex', lightProbeShowConvexDescriptor);
+editable(LightProbeInfoProto, 'showConvex', lightProbeShowConvexDescriptor);
+
 ccclass('cc.LightProbeInfo')(LightProbeInfo);

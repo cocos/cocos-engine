@@ -1,19 +1,18 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -38,6 +37,7 @@ import { preTransforms, System, sys, cclegacy, Settings, settings } from '../cor
 import { Root } from '../root';
 import { PipelineRuntime } from '../rendering/custom/pipeline';
 import { director } from '../game';
+import { ccwindow } from '../core/global-exports';
 
 const _characters = '0123456789. ';
 
@@ -66,6 +66,7 @@ interface IProfilerState {
     logic: ICounterOption;
     physics: ICounterOption;
     render: ICounterOption;
+    present: ICounterOption;
     textureMemory: ICounterOption;
     bufferMemory: ICounterOption;
 }
@@ -79,6 +80,7 @@ const _profileInfo = {
     logic: { desc: 'Game Logic (ms)', min: 0, max: 50, average: _average, color: '#080' },
     physics: { desc: 'Physics (ms)', min: 0, max: 50, average: _average },
     render: { desc: 'Renderer (ms)', min: 0, max: 50, average: _average, color: '#f90' },
+    present: { desc: 'Present (ms)', min: 0, max: 50, average: _average, color: '#f90' },
     textureMemory: { desc: 'GFX Texture Mem(M)' },
     bufferMemory: { desc: 'GFX Buffer Mem(M)' },
 };
@@ -87,8 +89,8 @@ const _constants = {
     fontSize: 23,
     quadHeight: 0.4,
     segmentsPerLine: 8,
-    textureWidth: 256,
-    textureHeight: 256,
+    textureWidth: 280,
+    textureHeight: 280,
 };
 
 export class Profiler extends System {
@@ -102,7 +104,6 @@ export class Profiler extends System {
     private _rootNode: Node | null = null;
     private _device: Device | null = null;
     private _swapchain: Swapchain | null = null;
-    private _pipeline: PipelineRuntime = null!;
     private _meshRenderer: MeshRenderer = null!;
     private readonly _canvas: HTMLCanvasElement | null = null;
     private readonly _ctx: CanvasRenderingContext2D | null = null;
@@ -128,7 +129,7 @@ export class Profiler extends System {
     constructor () {
         super();
         if (!TEST) {
-            this._canvas = document.createElement('canvas');
+            this._canvas = ccwindow.document.createElement('canvas');
             this._ctx = this._canvas.getContext('2d')!;
             this._canvasArr.push(this._canvas);
         }
@@ -158,7 +159,8 @@ export class Profiler extends System {
             cclegacy.director.off(cclegacy.Director.EVENT_BEFORE_PHYSICS, this.beforePhysics, this);
             cclegacy.director.off(cclegacy.Director.EVENT_AFTER_PHYSICS, this.afterPhysics, this);
             cclegacy.director.off(cclegacy.Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
-            cclegacy.director.off(cclegacy.Director.EVENT_AFTER_DRAW, this.afterDraw, this);
+            cclegacy.director.off(cclegacy.Director.EVENT_AFTER_RENDER, this.afterRender, this);
+            cclegacy.director.off(cclegacy.Director.EVENT_AFTER_DRAW, this.afterPresent, this);
             this._showFPS = false;
             director.root!.pipeline.profiler = null;
             cclegacy.game.config.showFPS = false;
@@ -171,18 +173,13 @@ export class Profiler extends System {
                 const root = cclegacy.director.root as Root;
                 this._device = deviceManager.gfxDevice;
                 this._swapchain = root.mainWindow!.swapchain;
-                this._pipeline = root.pipeline;
             }
-            if (!EDITOR || cclegacy.GAME_VIEW) {
-                this.generateCanvas();
-            }
+
+            this.generateCanvas();
             this.generateStats();
-            if (!EDITOR || cclegacy.GAME_VIEW) {
-                cclegacy.game.once(cclegacy.Game.EVENT_ENGINE_INITED, this.generateNode, this);
-                cclegacy.game.on(cclegacy.Game.EVENT_RESTART, this.generateNode, this);
-            } else {
-                this._inited = true;
-            }
+            cclegacy.game.once(cclegacy.Game.EVENT_ENGINE_INITED, this.generateNode, this);
+            cclegacy.game.on(cclegacy.Game.EVENT_RESTART, this.generateNode, this);
+
             if (this._rootNode) {
                 this._rootNode.active = true;
             }
@@ -192,7 +189,8 @@ export class Profiler extends System {
             cclegacy.director.on(cclegacy.Director.EVENT_BEFORE_PHYSICS, this.beforePhysics, this);
             cclegacy.director.on(cclegacy.Director.EVENT_AFTER_PHYSICS, this.afterPhysics, this);
             cclegacy.director.on(cclegacy.Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
-            cclegacy.director.on(cclegacy.Director.EVENT_AFTER_DRAW, this.afterDraw, this);
+            cclegacy.director.on(cclegacy.Director.EVENT_AFTER_RENDER, this.afterRender, this);
+            cclegacy.director.on(cclegacy.Director.EVENT_AFTER_DRAW, this.afterPresent, this);
 
             this._showFPS = true;
             this._canvasDone = true;
@@ -245,26 +243,24 @@ export class Profiler extends System {
         let i = 0;
         for (const id in _profileInfo) {
             const element = _profileInfo[id];
-            if (!EDITOR || cclegacy.GAME_VIEW) this._ctx.fillText(element.desc, 0, i * this._lineHeight);
+            this._ctx.fillText(element.desc, 0, i * this._lineHeight);
             element.counter = new PerfCounter(id, element, now);
             i++;
         }
         this._totalLines = i;
         this._wordHeight = this._totalLines * this._lineHeight / this._canvas.height;
-        if (!EDITOR || cclegacy.GAME_VIEW) {
-            for (let j = 0; j < _characters.length; ++j) {
-                const offset = this._ctx.measureText(_characters[j]).width;
-                this._eachNumWidth = Math.max(this._eachNumWidth, offset);
-            }
-            for (let j = 0; j < _characters.length; ++j) {
-                this._ctx.fillText(_characters[j], j * this._eachNumWidth, this._totalLines * this._lineHeight);
-            }
+        for (let j = 0; j < _characters.length; ++j) {
+            const offset = this._ctx.measureText(_characters[j]).width;
+            this._eachNumWidth = Math.max(this._eachNumWidth, offset);
+        }
+        for (let j = 0; j < _characters.length; ++j) {
+            this._ctx.fillText(_characters[j], j * this._eachNumWidth, this._totalLines * this._lineHeight);
         }
         this._eachNumWidth /= this._canvas.width;
 
         this._stats = _profileInfo as IProfilerState;
         this._canvasArr[0] = this._canvas;
-        if (!EDITOR || cclegacy.GAME_VIEW) this._device!.copyTexImagesToTexture(this._canvasArr, this._texture!, this._regionArr);
+        this._device!.copyTexImagesToTexture(this._canvasArr, this._texture!, this._regionArr);
     }
 
     public generateNode () {
@@ -390,24 +386,22 @@ export class Profiler extends System {
             return;
         }
 
-        if (!EDITOR || cclegacy.GAME_VIEW) {
-            const surfaceTransform = this._swapchain!.surfaceTransform;
-            const clipSpaceSignY = this._device!.capabilities.clipSpaceSignY;
-            if (surfaceTransform !== this.offsetData[3]) {
-                const preTransform = preTransforms[surfaceTransform];
-                let x = -0.9; let y = -0.9 * clipSpaceSignY;
-                if (sys.isXR) {
-                    x = -0.5; y = -0.5 * clipSpaceSignY;
-                }
-                this.offsetData[0] = x * preTransform[0] + y * preTransform[2];
-                this.offsetData[1] = x * preTransform[1] + y * preTransform[3];
-                this.offsetData[2] = this._eachNumWidth;
-                this.offsetData[3] = surfaceTransform;
+        const surfaceTransform = this._swapchain!.surfaceTransform;
+        const clipSpaceSignY = this._device!.capabilities.clipSpaceSignY;
+        if (surfaceTransform !== this.offsetData[3]) {
+            const preTransform = preTransforms[surfaceTransform];
+            let x = -0.9; let y = -0.9 * clipSpaceSignY;
+            if (sys.isXR) {
+                x = -0.5; y = -0.5 * clipSpaceSignY;
             }
-
-            // @ts-expect-error using private members for efficiency.
-            this.pass._rootBufferDirty = true;
+            this.offsetData[0] = x * preTransform[0] + y * preTransform[2];
+            this.offsetData[1] = x * preTransform[1] + y * preTransform[3];
+            this.offsetData[2] = this._eachNumWidth;
+            this.offsetData[3] = surfaceTransform;
         }
+
+        // @ts-expect-error using private members for efficiency.
+        this.pass._rootBufferDirty = true;
 
         if (this._meshRenderer.model) {
             director.root!.pipeline.profiler = this._meshRenderer.model;
@@ -419,15 +413,24 @@ export class Profiler extends System {
         (this._stats.render.counter as PerfCounter).start(now);
     }
 
-    public afterDraw () {
+    public afterRender () {
         if (!this._stats || !this._inited) {
             return;
         }
         const now = performance.now();
+        (this._stats.render.counter as PerfCounter).end(now);
+        (this._stats.present.counter as PerfCounter).start(now);
+    }
 
+    public afterPresent () {
+        if (!this._stats || !this._inited) {
+            return;
+        }
+
+        const now = performance.now();
         (this._stats.frame.counter as PerfCounter).end(now);
         (this._stats.fps.counter as PerfCounter).frame(now);
-        (this._stats.render.counter as PerfCounter).end(now);
+        (this._stats.present.counter as PerfCounter).end(now);
 
         if (now - this.lastTime < _average) {
             return;
@@ -442,21 +445,19 @@ export class Profiler extends System {
         (this._stats.tricount.counter as PerfCounter).value = device.numTris;
 
         let i = 0;
-        if (!EDITOR || cclegacy.GAME_VIEW) {
-            const view = this.digitsData;
-            for (const id in this._stats) {
-                const stat = this._stats[id] as ICounterOption;
-                stat.counter.sample(now);
-                const result = stat.counter.human().toString();
-                for (let j = _constants.segmentsPerLine - 1; j >= 0; j--) {
-                    const index = i * _constants.segmentsPerLine + j;
-                    const character = result[result.length - (_constants.segmentsPerLine - j)];
-                    let offset = _string2offset[character];
-                    if (offset === undefined) { offset = 11; }
-                    view[index] = offset;
-                }
-                i++;
+        const view = this.digitsData;
+        for (const id in this._stats) {
+            const stat = this._stats[id] as ICounterOption;
+            stat.counter.sample(now);
+            const result = stat.counter.human().toString();
+            for (let j = _constants.segmentsPerLine - 1; j >= 0; j--) {
+                const index = i * _constants.segmentsPerLine + j;
+                const character = result[result.length - (_constants.segmentsPerLine - j)];
+                let offset = _string2offset[character];
+                if (offset === undefined) { offset = 11; }
+                view[index] = offset;
             }
+            i++;
         }
     }
 }

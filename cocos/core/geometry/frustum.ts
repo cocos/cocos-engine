@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { Mat4, Vec3 } from '../math';
 import enums from './enums';
@@ -46,13 +45,12 @@ const _temp_v3 = new Vec3();
  * @en
  * Basic Geometry: frustum.
  * @zh
- * 基础几何 截头锥体。
+ * 基础几何：视锥体。
  */
-
 export class Frustum {
     /**
      * @en
-     * Create an orthogonal frustum.
+     * Creates an orthogonal frustum.
      * @zh
      * 创建一个正交视锥体。
      * @param out @en The result orthogonal frustum. @zh 输出的正交视锥体。
@@ -61,9 +59,9 @@ export class Frustum {
      * @param near @en The near plane of the frustum. @zh 正交视锥体的近平面值。
      * @param far @en The far plane of the frustum. @zh 正交视锥体的远平面值。
      * @param transform @en The transform matrix of the frustum. @zh 正交视锥体的变换矩阵。
-     * @return @en The out object @zh 返回正交视锥体.
+     * @returns @en The result frustum, same as the `out` parameter. @zh 存储结果的视锥体，与 `out` 参数为同一个对象。
      */
-    public static createOrtho = (() => (out: Frustum, width: number, height: number, near: number, far: number, transform: Mat4) => {
+    public static createOrtho (out: Frustum, width: number, height: number, near: number, far: number, transform: Mat4) {
         const halfWidth = width / 2;
         const halfHeight = height / 2;
         Vec3.set(_temp_v3, halfWidth, halfHeight, -near);
@@ -89,16 +87,16 @@ export class Frustum {
         Plane.fromPoints(out.planes[3], out.vertices[0], out.vertices[5], out.vertices[4]);
         Plane.fromPoints(out.planes[4], out.vertices[2], out.vertices[0], out.vertices[3]);
         Plane.fromPoints(out.planes[5], out.vertices[7], out.vertices[5], out.vertices[6]);
-    })();
+    }
 
     /**
-     * @en Create a frustum from an AABB box.
-     * @zh 从 AABB 包围盒中创建一个视锥体。
-     * @param out @en The result frustum @zh 输出的视锥体对象。
-     * @param aabb @en The AABB bounding box of the frustum @zh AABB 包围盒。
-     * @return @en The out object @zh 返回视锥体.
+     * @en Creates a frustum from an AABB instance.
+     * @zh 根据一个 AABB 实例创建一个视锥体。
+     * @param out @en The result frustum. @zh 输出的视锥体对象。
+     * @param aabb @en The AABB to create the result frustum. @zh 用于创建视锥体 AABB。
+     * @returns @en The result frustum, same as the `out` parameter. @zh 存储结果的视锥体，与 `out` 参数为同一个对象。
      */
-    public static createFromAABB (out: Frustum, aabb: AABB | Readonly<AABB>) : Frustum {
+    public static createFromAABB (out: Frustum, aabb: AABB | Readonly<AABB>): Frustum {
         const vec3_min = new Vec3(); const vec3_max = new Vec3();
         Vec3.subtract(vec3_min, aabb.center, aabb.halfExtents);
         Vec3.add(vec3_max, aabb.center, aabb.halfExtents);
@@ -122,13 +120,13 @@ export class Frustum {
     }
 
     /**
-     * @en Calculate a split frustum.
+     * @en Calculates a split frustum.
      * @zh 计算出一个分割的视锥体。
-     * @param start @en The split start position @zh 分割开始位置
-     * @param end @en The split end position @zh 分割末尾位置
-     * @param aspect @en The aspect ratio of the camera @zh 相机视图的长宽比
-     * @param fov @en Field of view of the camera @zh 相机的视角大小
-     * @param m @en The transform matrix @zh 变换矩阵
+     * @param start @en The split start position. @zh 分割开始位置。
+     * @param end @en The split end position. @zh 分割末尾位置。
+     * @param aspect @en The aspect ratio of the camera. @zh 相机视图的长宽比。
+     * @param fov @en The field of view of the camera. @zh 相机的视角大小。
+     * @param m @en The transform matrix. @zh 变换矩阵。
      */
     public split (start: number, end: number, aspect: number, fov: number, m: Mat4) {
         // 0: cameraNear  1:cameraFar
@@ -163,10 +161,10 @@ export class Frustum {
 
     /**
      * @en
-     * Create a new frustum.
+     * Creates a new frustum.
      * @zh
-     * 创建一个新的截锥体。
-     * @return @en An empty frustum. @zh 一个空截椎体
+     * 创建一个新的视椎体。
+     * @returns @en An empty frustum. @zh 一个空视椎体。
      */
     public static create (): Frustum {
         return new Frustum();
@@ -174,11 +172,11 @@ export class Frustum {
 
     /**
      * @en
-     * Clone a frustum.
+     * Clones a frustum.
      * @zh
-     * 克隆一个截锥体。
-     * @param f @en The frustum to clone from @zh 用于克隆的截锥体
-     * @return @en The cloned frustum @zh 克隆出的新截锥体
+     * 克隆一个视椎体。
+     * @param f @en The frustum to clone from. @zh 用于克隆的视椎体。
+     * @return @en The cloned frustum. @zh 克隆出的新视椎体。
      */
     public static clone (f: Frustum): Frustum {
         return Frustum.copy(new Frustum(), f);
@@ -186,12 +184,12 @@ export class Frustum {
 
     /**
      * @en
-     * Copy the values from one frustum to another.
+     * Copies the values from one frustum to another.
      * @zh
      * 从一个视锥体拷贝到另一个视锥体。
      * @param out @en The result frustum @zh 用于存储拷贝数据的截锥体
      * @param f @en The frustum to copy from @zh 用于克隆的截锥体
-     * @return @en The out object @zh 传入的 out 对象
+     * @returns @en The result frustum, same as the `out` parameter. @zh 存储结果的视锥体，与 `out` 参数为同一个对象。
      */
     public static copy (out: Frustum, f: Readonly<Frustum>): Frustum {
         out._type = f.type;
@@ -206,7 +204,7 @@ export class Frustum {
 
     /**
      * @en
-     * Set whether to use accurate intersection testing function on this frustum.
+     * Sets whether to use accurate intersection testing function on this frustum.
      * @zh
      * 设置是否在此截锥体上使用精确的相交测试函数。
      */
@@ -216,16 +214,29 @@ export class Frustum {
 
     /**
      * @en
-     * Gets the type of the shape.
+     * Gets the type of the shape. The value may be `enums.SHAPE_FRUSTUM_ACCURATE` or `enums.SHAPE_FRUSTUM`.
      * @zh
-     * 获取形状的类型。
+     * 获取形状的类型。值可能为 `enums.SHAPE_FRUSTUM_ACCURATE` 或 `enums.SHAPE_FRUSTUM`。
      * @readonly
      */
     get type () {
         return this._type;
     }
 
+    /**
+     * @en
+     * The 6 planes of the frustum.
+     * @zh
+     * 视椎体的 6 个面。
+     */
     public planes: Plane[];
+
+    /**
+     * @en
+     * The 8 vertices of the frustum.
+     * @zh
+     * 视椎体的 8 个顶点。
+     */
     public vertices: Vec3[];
 
     protected _type: number;
@@ -244,12 +255,12 @@ export class Frustum {
 
     /**
      * @en
-     * Update the frustum information according to the given transform matrix.
+     * Updates the frustum information according to the given transform matrix.
      * Note that the resulting planes are not normalized under normal mode.
      * @zh
      * 根据给定的变换矩阵更新截锥体信息，注意得到的平面不是在标准模式下归一化的。
-     * @param m @en The view-projection matrix @zh 视图投影矩阵
-     * @param inv @en The inverse view-projection matrix @zh 视图投影逆矩阵
+     * @param m @en The view-projection matrix. @zh 视图投影矩阵。
+     * @param inv @en The inverse view-projection matrix. @zh 视图投影逆矩阵。
      */
     public update (m: Mat4, inv: Mat4) {
         // RTR4, ch. 22.14.1, p. 983
@@ -292,10 +303,10 @@ export class Frustum {
 
     /**
      * @en
-     * Transform this frustum.
+     * Transforms this frustum.
      * @zh
      * 变换此视锥体。
-     * @param mat @en The transform matrix @zh 变换矩阵
+     * @param mat @en The transform matrix. @zh 变换矩阵。
      */
     public transform (mat: Mat4) {
         if (this._type !== enums.SHAPE_FRUSTUM_ACCURATE) {
@@ -308,8 +319,8 @@ export class Frustum {
     }
 
     /**
-     * @en Initialize the frustum
-     * @zh 初始化视锥体
+     * @en Makes the frustum empty, all vertices will be zero values.
+     * @zh 置空此视锥体，所有顶点将被赋值为 0。
      */
     public zero () {
         for (let i = 0; i < 8; i++) {
@@ -319,8 +330,8 @@ export class Frustum {
     }
 
     /**
-     * @en Update all six planes of the frustum
-     * @zh 更新视锥体的所有面数据
+     * @en Updates all six planes of the frustum.
+     * @zh 更新视锥体的所有面数据。
      */
     public updatePlanes () {
         // left plane

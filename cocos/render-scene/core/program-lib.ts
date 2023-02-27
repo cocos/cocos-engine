@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,15 +22,20 @@
  THE SOFTWARE.
 */
 
+import * as env from 'internal:constants';
 import { EffectAsset } from '../../asset/assets/effect-asset';
 import { SetIndex, IDescriptorSetLayoutInfo, globalDescriptorSetLayout, localDescriptorSetLayout } from '../../rendering/define';
 import { PipelineRuntime } from '../../rendering/custom/pipeline';
-import { genHandle, MacroRecord } from './pass-utils';
-import { PipelineLayoutInfo, Device, Attribute, UniformBlock, ShaderInfo,
+import { MacroRecord } from './pass-utils';
+import {
+    PipelineLayoutInfo, Device, Attribute, UniformBlock, ShaderInfo,
     Uniform, ShaderStage, DESCRIPTOR_SAMPLER_TYPE, DESCRIPTOR_BUFFER_TYPE,
     DescriptorSetLayout, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo,
-    DescriptorType, GetTypeSize, ShaderStageFlagBit, API, UniformSamplerTexture, PipelineLayout,
-    Shader, UniformStorageBuffer, UniformStorageImage, UniformSampler, UniformTexture, UniformInputAttachment } from '../../gfx';
+    DescriptorType, ShaderStageFlagBit, API, UniformSamplerTexture, PipelineLayout,
+    Shader, UniformStorageBuffer, UniformStorageImage, UniformSampler, UniformTexture, UniformInputAttachment,
+} from '../../gfx';
+import { genHandles, getActiveAttributes, getShaderInstanceName, getSize,
+    getVariantKey, IMacroInfo, populateMacros, prepareDefines } from './program-utils';
 import { debug, cclegacy } from '../../core';
 
 const _dsLayoutInfo = new DescriptorSetLayoutInfo();
@@ -57,44 +61,6 @@ export interface IProgramInfo extends EffectAsset.IShaderInfo {
     defines: IDefineRecord[];
     constantMacros: string;
     uber: boolean; // macro number exceeds default limits, will fallback to string hash
-}
-
-interface IMacroInfo {
-    name: string;
-    value: string;
-    isDefault: boolean;
-}
-
-function getBitCount (cnt: number) {
-    return Math.ceil(Math.log2(Math.max(cnt, 2)));
-}
-
-function mapDefine (info: EffectAsset.IDefineInfo, def: number | string | boolean) {
-    switch (info.type) {
-    case 'boolean': return typeof def === 'number' ? def.toString() : (def ? '1' : '0');
-    case 'string': return def !== undefined ? def as string : info.options![0];
-    case 'number': return def !== undefined ? def.toString() : info.range![0].toString();
-    default:
-        console.warn(`unknown define type '${info.type}'`);
-        return '-1'; // should neven happen
-    }
-}
-
-function prepareDefines (defs: MacroRecord, tDefs: EffectAsset.IDefineInfo[]) {
-    const macros: IMacroInfo[] = [];
-    for (let i = 0; i < tDefs.length; i++) {
-        const tmpl = tDefs[i];
-        const name = tmpl.name;
-        const v = defs[name];
-        const value = mapDefine(tmpl, v);
-        const isDefault = !v || v === '0';
-        macros.push({ name, value, isDefault });
-    }
-    return macros;
-}
-
-function getShaderInstanceName (name: string, macros: IMacroInfo[]) {
-    return name + macros.reduce((acc, cur) => (cur.isDefault ? acc : `${acc}|${cur.name}${cur.value}`), '');
 }
 
 function insertBuiltinBindings (
@@ -131,51 +97,218 @@ function insertBuiltinBindings (
     if (outBindings) outBindings.sort((a, b) => a.binding - b.binding);
 }
 
-function getSize (block: EffectAsset.IBlockInfo) {
-    return block.members.reduce((s, m) => s + GetTypeSize(m.type) * m.count, 0);
+// find those location which won't be affected by defines, and replace by ascending order of existing slot if location > 15
+function findDefineIndependent (source: string, tmpl: IProgramInfo, attrMap: Map<string, number>, locSet: Set<number>) {
+    const locExistingRegStr = `layout\\(location = (\\d+)\\)\\s+in.*?\\s(\\w+)[;,\\)]`;
+    const locExistingReg = new RegExp(locExistingRegStr, 'g');
+    let locExistingRes = locExistingReg.exec(source);
+    let code = source;
+    // layout(location = 3) in mediump vec3 v_normal;
+    // 3
+    // v_normal
+    while (locExistingRes) {
+        const attrName = locExistingRes[2];
+        const attrInfo = tmpl.attributes.find((ele) => ele.name === attrName);
+        // no define required.
+        const preExisted = attrInfo?.defines.length === 0 || attrInfo?.defines.every((ele) => ele === '');
+        if (preExisted) {
+            let loc = parseInt(locExistingRes[1]);
+            if (loc > 15) {
+                // fill hole by ascending order if location > 15
+                let n = 0;
+                while (locSet.has(n)) {
+                    n++;
+                }
+                loc = n;
+                // flatten location index
+                const locDefStr = locExistingRes[0].replace(locExistingRes[1], `${loc}`);
+                code = source.replace(locExistingRes[0], locDefStr);
+            }
+            locSet.add(loc);
+            attrMap.set(locExistingRes[2], loc);
+        }
+        locExistingRes = locExistingReg.exec(source);
+    }
+    return code;
 }
 
-function genHandles (tmpl: IProgramInfo) {
-    const handleMap: Record<string, number> = {};
-    // block member handles
-    for (let i = 0; i < tmpl.blocks.length; i++) {
-        const block = tmpl.blocks[i];
-        const members = block.members;
-        let offset = 0;
-        for (let j = 0; j < members.length; j++) {
-            const uniform = members[j];
-            handleMap[uniform.name] = genHandle(block.binding, uniform.type, uniform.count, offset);
-            offset += (GetTypeSize(uniform.type) >> 2) * uniform.count; // assumes no implicit padding, which is guaranteed by effect compiler
+// replace those which could be affected by defines
+function replaceVertexMutableLocation (
+    source: string,
+    tmpl: IProgramInfo,
+    macroInfo: IMacroInfo[],
+    inOrOut: string,
+    attrMap: Map<string, number>,
+    locSet: Set<number> = new Set<number>(),
+) {
+    const locHolderRegStr = `layout\\(location = ([^\\)]+)\\)\\s+${inOrOut}.*?\\s(\\w+)[;,\\)]`;
+    const locHolderReg = new RegExp(locHolderRegStr, 'g');
+
+    let code = source;
+    // layout(location = 3) in mediump vec3 v_normal;
+    // 3
+    // v_normal
+    let locHolder = locHolderReg.exec(source);
+    while (locHolder) {
+        const attrName = locHolder[2];
+        if (!attrMap.has(attrName)) {
+            const attrInfo = tmpl.attributes.find((ele) => ele.name === attrName);
+            let active = true;
+            let location = 0;
+            // only vertexshader input is checked
+            if (inOrOut === 'in') {
+                const targetStr = source.slice(0, locHolder.index);
+                // attrInfo?.defines store defines need to be satisfied
+                // macroInfo stores value of defines
+                // '!CC_USE_XXX' starts with a '!' is inverse condition.
+                // all defines satisfied?
+                active = !!attrInfo?.defines.every((defStrIn) => {
+                    const inverseCond = defStrIn.startsWith('!');
+                    const defStr = inverseCond ? defStrIn.slice(1) : defStrIn;
+                    const v = macroInfo.find((ele) => ele.name === defStr);
+                    let res = !!v;
+                    if (v) {
+                        res = !(v.value === '0' || v.value === 'false' || v.value === 'FALSE');
+                    }
+                    res = inverseCond ? !res : res;
+                    if (res) {
+                        // #if CC_RENDER_MODE == xx ......
+                        // 'CC_RENDER_MODE == 1' or ' CC_RENDER_MODE == 1 ||  CC_RENDER_MODE == 4'
+                        const lastIfRegStr = `[\\n|\\s]+#(?:if|elif)(.*?${defStr}.*?(?:(?!#if|#elif).)*)[\\n|\\s]+$`;
+                        const lastIfReg = new RegExp(lastIfRegStr, 'g');
+                        const lastIfRes = lastIfReg.exec(targetStr);
+                        if (lastIfRes) {
+                            const evalStr = lastIfRes[1];
+                            const evalORElements = evalStr.split('||');
+                            // simple grammar, no parenthesses support yet.
+                            const evalRes = evalORElements.some((eleOrTestStr) => {
+                                const evalANDElements = eleOrTestStr.split('&&');
+                                return evalANDElements.every((eleAndTestStr) => {
+                                    let evalEleRes = true;
+                                    if (eleAndTestStr.includes('==')) {
+                                        const opVars = eleAndTestStr.split('==');
+                                        if ((opVars[0] as any).replaceAll(' ', '') === defStr) {
+                                            evalEleRes = (opVars[1] as any).replaceAll(' ', '') === v!.value;
+                                        }
+                                    } else if (eleAndTestStr.includes('!=')) {
+                                        const opVars = eleAndTestStr.split('!=');
+                                        if ((opVars[0] as any).replaceAll(' ', '') === defStr) {
+                                            evalEleRes = (opVars[1] as any).replaceAll(' ', '') !== v!.value;
+                                        }
+                                    } else {
+                                        // no compare just define or not
+                                        // expect to be true
+                                    }
+                                    return evalEleRes;
+                                });
+                            });
+                            res = res && evalRes;
+                        }
+                    }
+                    return res;
+                });
+            }
+
+            // those didn't pass the check above are deactive, ignore
+            if (active) {
+                while (locSet.has(location)) {
+                    location++;
+                }
+                locSet.add(location);
+                // const attrInfo = tmpl.attributes.find((ele) => ele.name === attrName);
+                if (attrInfo) {
+                    attrInfo.location = location;
+                }
+
+                attrMap.set(attrName, location);
+            }
+
+            const locInstStr = locHolder[0].replace(locHolder[1], `${location}`);
+            code = code.replace(locHolder[0], locInstStr);
         }
+        locHolder = locHolderReg.exec(source);
     }
-    // samplerTexture handles
-    for (let i = 0; i < tmpl.samplerTextures.length; i++) {
-        const samplerTexture = tmpl.samplerTextures[i];
-        handleMap[samplerTexture.name] = genHandle(samplerTexture.binding, samplerTexture.type, samplerTexture.count);
-    }
-    return handleMap;
+    return code;
 }
 
-function dependencyCheck (dependencies: string[], defines: MacroRecord) {
-    for (let i = 0; i < dependencies.length; i++) {
-        const d = dependencies[i];
-        if (d[0] === '!') { // negative dependency
-            if (defines[d.slice(1)]) { return false; }
-        } else if (!defines[d]) {
-            return false;
+function replaceFragmentLocation (
+    source: string,
+    inOrOut: string,
+    attrMap: Map<string, number>,
+) {
+    let code = source;
+    const locHolderRegStr = `layout\\(location = ([^\\)]+)\\)\\s+${inOrOut}.*?\\s(\\w+)[;,\\)]`;
+    const locHolderReg = new RegExp(locHolderRegStr, 'g');
+
+    // layout(location = 3) in mediump vec3 v_normal;
+    // 3
+    // v_normal
+    let locHolder = locHolderReg.exec(source);
+    while (locHolder) {
+        const attrName = locHolder[2];
+        if (!attrMap.has(attrName)) {
+            let location = 0;
+
+            if (inOrOut === 'in') {
+                // {...fragment_in} === {...vertex_out}
+                location = attrMap.get(attrName) || 0;
+
+                const locInstStr = locHolder[0].replace(locHolder[1], `${location}`);
+                code = code.replace(locHolder[0], locInstStr);
+            }
+        }
+        locHolder = locHolderReg.exec(source);
+    }
+    return code;
+}
+
+// eslint-disable-next-line max-len
+export function flattenShaderLocation (
+    source: string,
+    tmpl: IProgramInfo,
+    macroInfo: IMacroInfo[],
+    shaderStage,
+    attrMap: Map<string, number>,
+) {
+    let code = source;
+    if (shaderStage === 'vert') {
+        const locSet = new Set<number>();
+        code = findDefineIndependent(source, tmpl, attrMap, locSet);
+        code = replaceVertexMutableLocation(code, tmpl, macroInfo, 'in', attrMap, locSet);
+
+        code = replaceVertexMutableLocation(code, tmpl, macroInfo, 'out', attrMap);
+    } else if (shaderStage === 'frag') {
+        code = replaceFragmentLocation(code, 'in', attrMap);
+    } else {
+        // error
+    }
+
+    return code;
+}
+
+function processShaderInfo (
+    tmpl: IProgramInfo,
+    macroInfo: IMacroInfo[],
+    shaderInfo,
+) {
+    // during configuring vertex state when make a pipelinestate
+    // webgpu request max location of vertex attribute should not be greater than 15
+    // shader source comes from offline effect-compiler can't have sense what macro is activate
+    // so here we flatten attribute location in runtime
+    const attrMap = new Map<string, number>();
+
+    shaderInfo.stages[0].source = flattenShaderLocation(shaderInfo.stages[0].source, tmpl, macroInfo, 'vert', attrMap);
+    shaderInfo.stages[1].source = flattenShaderLocation(shaderInfo.stages[1].source, tmpl, macroInfo, 'frag', attrMap);
+    // don't forget to change location 'shaderInfo.attributes' which comes from serialization
+    // to keep consistency with shader source
+    for (let i = 0; i < shaderInfo.attributes.length; ++i) {
+        const name = shaderInfo.attributes[i].name;
+        let loc = 0;
+        if (attrMap.has(name)) {
+            loc = attrMap.get(name)!;
+            shaderInfo.attributes[i].location = loc;
         }
     }
-    return true;
-}
-function getActiveAttributes (tmpl: IProgramInfo, tmplInfo: ITemplateInfo, defines: MacroRecord) {
-    const out: Attribute[] = [];
-    const attributes = tmpl.attributes;
-    const gfxAttributes = tmplInfo.gfxAttributes;
-    for (let i = 0; i < attributes.length; i++) {
-        if (!dependencyCheck(attributes[i].defines, defines)) { continue; }
-        out.push(gfxAttributes[i]);
-    }
-    return out;
 }
 
 /**
@@ -212,30 +345,10 @@ class ProgramLib {
         const curTmpl = this._templates[shader.name];
         if (curTmpl && curTmpl.hash === shader.hash) { return curTmpl; }
         const tmpl = ({ ...shader }) as IProgramInfo;
-        // calculate option mask offset
-        let offset = 0;
-        for (let i = 0; i < tmpl.defines.length; i++) {
-            const def = tmpl.defines[i];
-            let cnt = 1;
-            if (def.type === 'number') {
-                const range = def.range!;
-                cnt = getBitCount(range[1] - range[0] + 1); // inclusive on both ends
-                def._map = (value: number) => value - range[0];
-            } else if (def.type === 'string') {
-                cnt = getBitCount(def.options!.length);
-                def._map = (value: any) => Math.max(0, def.options!.findIndex((s) => s === value));
-            } else if (def.type === 'boolean') {
-                def._map = (value: any) => (value ? 1 : 0);
-            }
-            def._offset = offset;
-            offset += cnt;
-        }
-        if (offset > 31) { tmpl.uber = true; }
-        // generate constant macros
-        tmpl.constantMacros = '';
-        for (const key in tmpl.builtins.statistics) {
-            tmpl.constantMacros += `#define ${key} ${tmpl.builtins.statistics[key]}\n`;
-        }
+
+        // update defines and constant macros
+        populateMacros(tmpl);
+
         // store it
         this._templates[shader.name] = tmpl;
         if (!this._templateInfos[tmpl.hash]) {
@@ -246,7 +359,7 @@ class ProgramLib {
             tmplInfo.blockSizes = []; tmplInfo.bindings = [];
             for (let i = 0; i < tmpl.blocks.length; i++) {
                 const block = tmpl.blocks[i];
-                tmplInfo.blockSizes.push(getSize(block));
+                tmplInfo.blockSizes.push(getSize(block.members));
                 tmplInfo.bindings.push(new DescriptorSetLayoutBinding(block.binding,
                     DescriptorType.UNIFORM_BUFFER, 1, block.stageFlags));
                 tmplInfo.shaderInfo.blocks.push(new UniformBlock(SetIndex.MATERIAL, block.binding, block.name,
@@ -373,33 +486,7 @@ class ProgramLib {
      */
     public getKey (name: string, defines: MacroRecord) {
         const tmpl = this._templates[name];
-        const tmplDefs = tmpl.defines;
-        if (tmpl.uber) {
-            let key = '';
-            for (let i = 0; i < tmplDefs.length; i++) {
-                const tmplDef = tmplDefs[i];
-                const value = defines[tmplDef.name];
-                if (!value || !tmplDef._map) {
-                    continue;
-                }
-                const mapped = tmplDef._map(value);
-                const offset = tmplDef._offset;
-                key += `${offset}${mapped}|`;
-            }
-            return `${key}${tmpl.hash}`;
-        }
-        let key = 0;
-        for (let i = 0; i < tmplDefs.length; i++) {
-            const tmplDef = tmplDefs[i];
-            const value = defines[tmplDef.name];
-            if (!value || !tmplDef._map) {
-                continue;
-            }
-            const mapped = tmplDef._map(value);
-            const offset = tmplDef._offset;
-            key |= mapped << offset;
-        }
-        return `${key.toString(16)}|${tmpl.hash}`;
+        return getVariantKey(tmpl, defines);
     }
 
     /**
@@ -462,10 +549,19 @@ class ProgramLib {
         tmplInfo.shaderInfo.stages[1].source = prefix + src.frag;
 
         // strip out the active attributes only, instancing depend on this
-        tmplInfo.shaderInfo.attributes = getActiveAttributes(tmpl, tmplInfo, defines);
+        tmplInfo.shaderInfo.attributes = getActiveAttributes(tmpl, tmplInfo.gfxAttributes, defines);
 
         tmplInfo.shaderInfo.name = getShaderInstanceName(name, macroArray);
-        return this._cache[key] = device.createShader(tmplInfo.shaderInfo);
+
+        let shaderInfo = tmplInfo.shaderInfo;
+        if (env.WEBGPU) {
+            // keep 'tmplInfo.shaderInfo' originally
+            shaderInfo = new ShaderInfo();
+            shaderInfo.copy(tmplInfo.shaderInfo);
+            processShaderInfo(tmpl, macroArray, shaderInfo);
+        }
+
+        return this._cache[key] = device.createShader(shaderInfo);
     }
 }
 

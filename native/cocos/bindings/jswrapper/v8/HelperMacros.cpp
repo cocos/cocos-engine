@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -25,10 +24,11 @@
 
 #include "HelperMacros.h"
 #include "../State.h"
+#include "../ValueArrayPool.h"
+#include "Class.h"
+#include "Object.h"
 #include "ScriptEngine.h"
 #include "Utils.h"
-#include "Object.h"
-#include "../ValueArrayPool.h"
 
 #if defined(RECORD_JSB_INVOKING)
 
@@ -129,12 +129,28 @@ SE_HOT void jsbConstructorWrapper(const v8::FunctionCallbackInfo<v8::Value> &v8a
         SE_LOGE("[ERROR] Failed to invoke %s\n", funcName);
     }
     se::Value property;
-    bool found = false;
-    found = thisObject->getProperty("_ctor", &property);
-    if (found) property.toObject()->call(args, thisObject);
+    bool foundCtor = false;
+    if (!cls->_getCtor().has_value()) {
+        foundCtor = thisObject->getProperty("_ctor", &property, true);
+        if (foundCtor) {
+            cls->_setCtor(property.toObject());
+        } else {
+            cls->_setCtor(nullptr);
+        }
+    } else {
+        auto *ctorObj = cls->_getCtor().value();
+        if (ctorObj != nullptr) {
+            property.setObject(ctorObj);
+            foundCtor = true;
+        }
+    }
+
+    if (foundCtor) {
+        property.toObject()->call(args, thisObject);
+    }
 }
 
-SE_HOT void jsbGetterWrapper(const v8::PropertyCallbackInfo<v8::Value> &v8args, se_function_ptr func, const char *funcName) {
+SE_HOT void jsbGetterWrapper(const v8::FunctionCallbackInfo<v8::Value> &v8args, se_function_ptr func, const char *funcName) {
     v8::Isolate *isolate = v8args.GetIsolate();
     v8::HandleScope scope(isolate);
     bool ret = true;
@@ -147,7 +163,7 @@ SE_HOT void jsbGetterWrapper(const v8::PropertyCallbackInfo<v8::Value> &v8args, 
     se::internal::setReturnValue(state.rval(), v8args);
 }
 
-SE_HOT void jsbSetterWrapper(v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &v8args, se_function_ptr func, const char *funcName) {
+SE_HOT void jsbSetterWrapper(const v8::FunctionCallbackInfo<v8::Value> &v8args, se_function_ptr func, const char *funcName) {
     v8::Isolate *isolate = v8args.GetIsolate();
     v8::HandleScope scope(isolate);
     bool ret = true;
@@ -156,7 +172,7 @@ SE_HOT void jsbSetterWrapper(v8::Local<v8::Value> value, const v8::PropertyCallb
     se::ValueArray &args = se::gValueArrayPool.get(1, needDeleteValueArray);
     se::CallbackDepthGuard depthGuard{args, se::gValueArrayPool._depth, needDeleteValueArray};
     se::Value &data{args[0]};
-    se::internal::jsToSeValue(isolate, value, &data);
+    se::internal::jsToSeValue(isolate, v8args[0], &data);
     se::State state(thisObject, args);
     ret = func(state);
     if (!ret) {

@@ -59,6 +59,11 @@
 // %ignore cc::Mesh::copyIndices;
 %ignore cc::Material::setProperty;
 %ignore cc::ImageAsset::setData;
+%ignore cc::EffectAsset::_techniques;
+%ignore cc::EffectAsset::_shaders;
+%ignore cc::EffectAsset::_combinations;
+%ignore cc::IPassInfoFull::passID;
+%ignore cc::IPassInfoFull::phaseID;
 
 // ----- Rename Section ------
 // Brief: Classes, methods or attributes needs to be renamed

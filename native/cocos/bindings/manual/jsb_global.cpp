@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -128,7 +127,7 @@ ccstd::unordered_map<ccstd::string, se::Value> gModuleCache;
 static bool require(se::State &s) { // NOLINT
     const auto &args = s.args();
     int argc = static_cast<int>(args.size());
-    CC_ASSERT(argc >= 1);
+    CC_ASSERT_GE(argc, 1);
     CC_ASSERT(args[0].isString());
 
     return jsb_run_script(args[0].toString(), &s.rval());
@@ -235,14 +234,14 @@ static bool doModuleRequire(const ccstd::string &path, se::Value *ret, const ccs
     }
 
     SE_LOGE("doModuleRequire %s, buffer is empty!\n", path.c_str());
-    CC_ASSERT(false);
+    CC_ABORT();
     return false;
 }
 
 static bool moduleRequire(se::State &s) { // NOLINT
     const auto &args = s.args();
     int argc = static_cast<int>(args.size());
-    CC_ASSERT(argc >= 2);
+    CC_ASSERT_GE(argc, 2);
     CC_ASSERT(args[0].isString());
     CC_ASSERT(args[1].isString());
 
@@ -308,7 +307,7 @@ static bool jsc_dumpNativePtrToSeObjectMap(se::State &s) { // NOLINT
 SE_BIND_FUNC(jsc_dumpNativePtrToSeObjectMap)
 
 static bool jsc_dumpRoot(se::State &s) { // NOLINT
-    CC_ASSERT(false);
+    CC_ABORT();
     return true;
 }
 SE_BIND_FUNC(jsc_dumpRoot)
@@ -349,7 +348,7 @@ SE_BIND_FUNC(JSBCore_os)
 
 static bool JSBCore_getCurrentLanguage(se::State &s) { // NOLINT
     ISystem *systemIntf = CC_GET_PLATFORM_INTERFACE(ISystem);
-    CC_ASSERT(systemIntf != nullptr);
+    CC_ASSERT_NOT_NULL(systemIntf);
     ccstd::string languageStr = systemIntf->getCurrentLanguageToString();
     s.rval().setString(languageStr);
     return true;
@@ -358,7 +357,7 @@ SE_BIND_FUNC(JSBCore_getCurrentLanguage)
 
 static bool JSBCore_getCurrentLanguageCode(se::State &s) { // NOLINT
     ISystem *systemIntf = CC_GET_PLATFORM_INTERFACE(ISystem);
-    CC_ASSERT(systemIntf != nullptr);
+    CC_ASSERT_NOT_NULL(systemIntf);
     ccstd::string language = systemIntf->getCurrentLanguageCode();
     s.rval().setString(language);
     return true;
@@ -367,7 +366,7 @@ SE_BIND_FUNC(JSBCore_getCurrentLanguageCode)
 
 static bool JSB_getOSVersion(se::State &s) { // NOLINT
     ISystem *systemIntf = CC_GET_PLATFORM_INTERFACE(ISystem);
-    CC_ASSERT(systemIntf != nullptr);
+    CC_ASSERT_NOT_NULL(systemIntf);
     ccstd::string systemVersion = systemIntf->getSystemVersion();
     s.rval().setString(systemVersion);
     return true;
@@ -386,6 +385,12 @@ static bool JSB_closeWindow(se::State &s) {
     return true;
 }
 SE_BIND_FUNC(JSB_closeWindow)
+
+static bool JSB_exit(se::State &s) {
+    BasePlatform::getPlatform()->exit();
+    return true;
+}
+SE_BIND_FUNC(JSB_exit);
 
 static bool JSB_isObjectValid(se::State &s) { // NOLINT
     const auto &args = s.args();
@@ -412,7 +417,7 @@ static bool JSB_setCursorEnabled(se::State &s) { // NOLINT
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     auto *systemWindowIntf = CC_GET_SYSTEM_WINDOW(ISystemWindow::mainWindowId);
-    CC_ASSERT(systemWindowIntf != nullptr);
+    CC_ASSERT_NOT_NULL(systemWindowIntf);
     systemWindowIntf->setCursorEnabled(value);
     return true;
 }
@@ -435,8 +440,8 @@ static bool JSB_saveByteCode(se::State &s) { // NOLINT
 SE_BIND_FUNC(JSB_saveByteCode)
 
 static bool getOrCreatePlainObject_r(const char *name, se::Object *parent, se::Object **outObj) { // NOLINT
-    CC_ASSERT(parent != nullptr);
-    CC_ASSERT(outObj != nullptr);
+    CC_ASSERT_NOT_NULL(parent);
+    CC_ASSERT_NOT_NULL(outObj);
     se::Value tmp;
 
     if (parent->getProperty(name, &tmp) && tmp.isObject()) {
@@ -587,7 +592,7 @@ bool jsb_global_load_image(const ccstd::string &path, const se::Value &callbackV
                 return;
             }
             auto engine = app->getEngine();
-            CC_ASSERT(engine != nullptr);
+            CC_ASSERT_NOT_NULL(engine);
             engine->getScheduler()->performFunctionInCocosThread([=]() {
                 se::AutoHandleScope hs;
                 se::ValueArray seArgs;
@@ -600,7 +605,7 @@ bool jsb_global_load_image(const ccstd::string &path, const se::Value &callbackV
                     retObj->setProperty("data", se::Value(obj));
                     retObj->setProperty("width", se::Value(imgInfo->width));
                     retObj->setProperty("height", se::Value(imgInfo->height));
-                    
+
                     se::Value mipmapLevelDataSizeArr;
                     nativevalue_to_se(imgInfo->mipmapLevelDataSize, mipmapLevelDataSizeArr, nullptr);
                     retObj->setProperty("mipmapLevelDataSize", mipmapLevelDataSizeArr);
@@ -752,7 +757,7 @@ static bool JSB_openURL(se::State &s) { // NOLINT
         ok = sevalue_to_native(args[0], &url);
         SE_PRECONDITION2(ok, false, "url is invalid!");
         ISystem *systemIntf = CC_GET_PLATFORM_INTERFACE(ISystem);
-        CC_ASSERT(systemIntf != nullptr);
+        CC_ASSERT_NOT_NULL(systemIntf);
         systemIntf->openURL(url);
         return true;
     }
@@ -771,7 +776,7 @@ static bool JSB_copyTextToClipboard(se::State &s) { // NOLINT
         ok = sevalue_to_native(args[0], &text);
         SE_PRECONDITION2(ok, false, "text is invalid!");
         ISystemWindow *systemWindowIntf = CC_GET_PLATFORM_INTERFACE(ISystemWindow);
-        CC_ASSERT(systemWindowIntf != nullptr);
+        CC_ASSERT_NOT_NULL(systemWindowIntf);
         systemWindowIntf->copyTextToClipboard(text);
         return true;
     }
@@ -1379,7 +1384,11 @@ SE_BIND_PROP_GET(JSB_process_get_argv)
 bool jsb_register_global_variables(se::Object *global) { // NOLINT
     gThreadPool = LegacyThreadPool::newFixedThreadPool(3);
 
+#if CC_EDITOR
+    global->defineFunction("__require", _SE(require));
+#else
     global->defineFunction("require", _SE(require));
+#endif
     global->defineFunction("requireModule", _SE(moduleRequire));
 
     getOrCreatePlainObject_r("jsb", global, &__jsbObj);
@@ -1428,6 +1437,7 @@ bool jsb_register_global_variables(se::Object *global) { // NOLINT
     global->defineFunction("__restartVM", _SE(JSB_core_restartVM));
     global->defineFunction("__close", _SE(JSB_closeWindow));
     global->defineFunction("__isObjectValid", _SE(JSB_isObjectValid));
+    global->defineFunction("__exit", _SE(JSB_exit));
 
     se::HandleObject performanceObj(se::Object::createPlainObject());
     performanceObj->defineFunction("now", _SE(js_performance_now));

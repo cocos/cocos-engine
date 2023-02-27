@@ -1,19 +1,18 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -407,8 +406,6 @@ export function expandPrefabInstanceNode (node: Node, recursively = false) {
                 });
             }
         }
-        // nested prefab children's id will be the same: 3dtask#12511
-        // applyNodeAndComponentId(node, node.uuid);
 
         const targetMap: Record<string, any | Node | Component> = {};
         prefabInstance.targetMap = targetMap;
@@ -434,48 +431,35 @@ export function expandNestedPrefabInstanceNode (node: Node) {
     if (prefabInfo && prefabInfo.nestedPrefabInstanceRoots) {
         prefabInfo.nestedPrefabInstanceRoots.forEach((instanceNode: Node) => {
             expandPrefabInstanceNode(instanceNode);
-            applyPrefabInstanceIds(instanceNode);
+            // when expanding the prefab,it's children will be change,so need to apply after expanded
+            if (!EDITOR) {
+                // @ts-expect-error private member access
+                applyNodeAndComponentId(instanceNode, instanceNode._prefab?.instance?.fileId);
+            }
         });
     }
 }
 
-export function applyNodeAndComponentId (node: Node, rootId: string) {
-    const { components, children } = node;
+// make sure prefab instance's children id is fixed
+export function applyNodeAndComponentId (prefabInstanceNode: Node, rootId: string) {
+    const { components, children } = prefabInstanceNode;
     for (let i = 0; i < components.length; i++) {
         const comp = components[i];
-        comp._id = `${rootId}${comp.__prefab?.fileId}`;
+        const fileID = comp.__prefab?.fileId ?? '';
+        comp._id = `${rootId}${fileID}`;
     }
     for (let i = 0; i < children.length; i++) {
         const child = children[i];
         // @ts-expect-error private member access
-        child._id = `${rootId}${child._prefab?.fileId}`;
-        applyNodeAndComponentId(child, rootId);
-    }
-}
+        const prefabInfo = child._prefab!;
+        const fileId = prefabInfo?.instance ? prefabInfo.instance.fileId : prefabInfo?.fileId;
+        if (!fileId) continue;
+        // @ts-expect-error private member access
+        child._id = `${rootId}${fileId}`;
 
-export function applyPrefabInstanceIds (node: Node) {
-    // @ts-expect-error private member access
-    const prefab = node._prefab;
-    if (prefab?.instance?.ids) {
-        const ids: string[] = prefab.instance.ids;
-        const idsLength: number = ids.length;
-        if (idsLength === 0) return;
-        let index = 0;
-        let childrenCount = 0;
-        let matched = true;
-        node.walk((child) => {
-            childrenCount++;
-            matched = index < idsLength;
-            // @ts-expect-error private member access
-            child._id = matched ? ids[index++] : child._id;
-            child.components.forEach((component) => {
-                childrenCount++;
-                matched = index < idsLength;
-                component._id = matched ? ids[index++] : component._id;
-            });
-        });
-        if (!matched) {
-            warn(`node:${node.name} applyPrefabInstanceIds failed:${childrenCount} id expected,only have ${idsLength}`);
+        // ignore prefab instance,because it will be apply in 'nestedPrefabInstanceRoots' for loop;
+        if (!prefabInfo?.instance) {
+            applyNodeAndComponentId(child, rootId);
         }
     }
 }

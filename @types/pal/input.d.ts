@@ -274,6 +274,17 @@ declare module 'pal/input' {
         public get buttonRightStick (): InputSourceButton;
 
         /**
+         * @en The button Options
+         * @zh 选项按键
+         */
+        public get buttonOptions (): InputSourceButton;
+        /**
+         * @en The button Start
+         * @zh 开始按键
+         */
+        public get buttonStart (): InputSourceButton;
+
+        /**
          * @en The position Left hand
          * @zh 左手位置
          */

@@ -1,18 +1,18 @@
 /*
  Copyright (c) Huawei Technologies Co., Ltd. 2020-2021.
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,14 +21,14 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 /**
  * @category pipeline
  */
 
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
-import { Camera } from '../../render-scene/scene';
+import { Camera, LightType } from '../../render-scene/scene';
 import { UBODeferredLight, SetIndex, UBOForwardLight, UBOLocal } from '../define';
 import { getPhaseID } from '../pass-phase';
 import { Color, Rect, Buffer, BufferUsageBit, MemoryUsageBit, BufferInfo, BufferViewInfo, DescriptorSet,
@@ -47,7 +47,12 @@ import { renderQueueClearFunc, RenderQueue, convertRenderQueue, renderQueueSortF
 import { RenderQueueDesc } from '../pipeline-serialization';
 import { UIPhase } from '../ui-phase';
 import { Pass } from '../../render-scene/core/pass';
+import { AABB } from '../../core/geometry/aabb';
+import { geometry } from '../../core';
 
+const _v3 = new Vec3();
+const _rangedDirLightBoundingBox = new AABB(0.0, 0.0, 0.0, 0.5, 0.5, 0.5);
+const _tmpBoundingBox = new AABB();
 const colors: Color[] = [new Color(0, 0, 0, 1)];
 
 /**
@@ -99,6 +104,8 @@ export class LightingStage extends RenderStage {
 
         const sphereLights = camera.scene!.sphereLights;
         const spotLights = camera.scene!.spotLights;
+        const pointLights = camera.scene!.pointLights;
+        const rangedDirLights = camera.scene!.rangedDirLights;
         const _sphere = Sphere.create(0, 0, 0, 1);
         const _vec4Array = new Float32Array(4);
         const exposure = camera.exposure;
@@ -113,16 +120,16 @@ export class LightingStage extends RenderStage {
             if (intersect.sphereFrustum(_sphere, camera.frustum)) {
                 // cc_lightPos
                 Vec3.toArray(_vec4Array, light.position);
-                _vec4Array[3] = 0;
+                _vec4Array[3] = LightType.SPHERE;
                 this._lightBufferData.set(_vec4Array, idx * elementLen);
 
                 // cc_lightColor
                 Vec3.toArray(_vec4Array, light.color);
                 if (light.useColorTemperature) {
-                    const tempRGB = light.colorTemperatureRGB;
-                    _vec4Array[0] *= tempRGB.x;
-                    _vec4Array[1] *= tempRGB.y;
-                    _vec4Array[2] *= tempRGB.z;
+                    const finalColor = light.finalColor;
+                    _vec4Array[0] = finalColor.x;
+                    _vec4Array[1] = finalColor.y;
+                    _vec4Array[2] = finalColor.z;
                 }
 
                 if (pipeline.pipelineSceneData.isHDR) {
@@ -147,16 +154,16 @@ export class LightingStage extends RenderStage {
             if (intersect.sphereFrustum(_sphere, camera.frustum)) {
                 // cc_lightPos
                 Vec3.toArray(_vec4Array, light.position);
-                _vec4Array[3] = 1;
+                _vec4Array[3] = LightType.SPOT;
                 this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 0);
 
                 // cc_lightColor
                 Vec3.toArray(_vec4Array, light.color);
                 if (light.useColorTemperature) {
-                    const tempRGB = light.colorTemperatureRGB;
-                    _vec4Array[0] *= tempRGB.x;
-                    _vec4Array[1] *= tempRGB.y;
-                    _vec4Array[2] *= tempRGB.z;
+                    const finalColor = light.finalColor;
+                    _vec4Array[0] = finalColor.x;
+                    _vec4Array[1] = finalColor.y;
+                    _vec4Array[2] = finalColor.z;
                 }
                 if (pipeline.pipelineSceneData.isHDR) {
                     _vec4Array[3] = light.luminance * exposure * this._lightMeterScale;
@@ -174,6 +181,81 @@ export class LightingStage extends RenderStage {
                 // cc_lightDir
                 Vec3.toArray(_vec4Array, light.direction);
                 this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 3);
+            }
+        }
+
+        for (let i = 0; i < pointLights.length && idx < this._maxDeferredLights; i++, ++idx) {
+            const light = pointLights[i];
+            Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
+            if (intersect.sphereFrustum(_sphere, camera.frustum)) {
+                // cc_lightPos
+                Vec3.toArray(_vec4Array, light.position);
+                _vec4Array[3] = LightType.POINT;
+                this._lightBufferData.set(_vec4Array, idx * elementLen);
+
+                // cc_lightColor
+                Vec3.toArray(_vec4Array, light.color);
+                if (light.useColorTemperature) {
+                    const finalColor = light.finalColor;
+                    _vec4Array[0] = finalColor.x;
+                    _vec4Array[1] = finalColor.y;
+                    _vec4Array[2] = finalColor.z;
+                }
+
+                if (pipeline.pipelineSceneData.isHDR) {
+                    _vec4Array[3] = light.luminance * exposure * this._lightMeterScale;
+                } else {
+                    _vec4Array[3] = light.luminance;
+                }
+
+                this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 1);
+
+                // cc_lightSizeRangeAngle
+                _vec4Array[0] = 0.0;
+                _vec4Array[1] = light.range;
+                _vec4Array[2] = 0.0;
+                this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 2);
+            }
+        }
+
+        for (let i = 0; i < rangedDirLights.length && idx < this._maxDeferredLights; i++, ++idx) {
+            const light = rangedDirLights[i];
+            AABB.transform(_tmpBoundingBox, _rangedDirLightBoundingBox, light.node!.getWorldMatrix());
+            if (geometry.intersect.aabbFrustum(_tmpBoundingBox, camera.frustum)) {
+                // UBOForwardLight
+                Vec3.toArray(_vec4Array, light.position);
+                _vec4Array[3] = LightType.RANGED_DIRECTIONAL;
+                this._lightBufferData.set(_vec4Array, idx * elementLen);
+
+                // cc_lightColor
+                Vec3.toArray(_vec4Array, light.color);
+                if (light.useColorTemperature) {
+                    const finalColor = light.finalColor;
+                    _vec4Array[0] = finalColor.x;
+                    _vec4Array[1] = finalColor.y;
+                    _vec4Array[2] = finalColor.z;
+                }
+                if (pipeline.pipelineSceneData.isHDR) {
+                    _vec4Array[3] = light.illuminance * exposure;
+                } else {
+                    _vec4Array[3] = light.illuminance;
+                }
+                this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 1);
+
+                Vec3.toArray(_vec4Array, light.right);
+                _vec4Array[3] = 0;
+                this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 2);
+
+                Vec3.toArray(_vec4Array, light.direction);
+                _vec4Array[3] = 0;
+                this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 3);
+
+                // eslint-disable-next-line no-case-declarations
+                const scale = light.scale;
+                _v3.set(scale.x * 0.5, scale.y * 0.5, scale.z * 0.5);
+                Vec3.toArray(_vec4Array, _v3);
+                _vec4Array[3] = 0;
+                this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 4);
             }
         }
 
@@ -280,7 +362,7 @@ export class LightingStage extends RenderStage {
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
 
         const inputAssembler = pipeline.quadIAOffscreen;
-        let pso:PipelineState|null = null;
+        let pso: PipelineState|null = null;
         if (pass != null && shader != null && inputAssembler != null) {
             pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, inputAssembler);
         }

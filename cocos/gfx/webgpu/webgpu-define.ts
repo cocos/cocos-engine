@@ -3,20 +3,19 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable func-names */
 /*
- Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -25,7 +24,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { WEBGPU } from 'internal:constants';
 import { gfx, webgpuAdapter, glslalgWasmModule, promiseForWebGPUInstantiation } from '../../webgpu/instantiated';
@@ -35,6 +34,9 @@ import {
 import {
     DeviceInfo, BufferTextureCopy, ShaderInfo, ShaderStageFlagBit, TextureViewInfo, TextureInfo, DrawInfo, BufferViewInfo, BufferInfo, BufferUsageBit, IndirectBuffer,
 } from '../base/define';
+
+import { ccwindow } from '../../core/global-exports';
+
 
 WEBGPU && promiseForWebGPUInstantiation.then(() => {
     const originDeviceInitializeFunc = Device.prototype.initialize;
@@ -170,7 +172,7 @@ WEBGPU && promiseForWebGPUInstantiation.then(() => {
                 buffers[i] = data;
             } else if (texImages[i] instanceof HTMLImageElement || texImages[i] instanceof ImageBitmap) {
                 const img = texImages[i];
-                const canvas = document.createElement('canvas');
+                const canvas = ccwindow.document.createElement('canvas');
                 canvas.width = img.width;
                 canvas.height = img.height;
                 const ctx = canvas.getContext('2d');
@@ -532,10 +534,10 @@ WEBGPU && promiseForWebGPUInstantiation.then(() => {
         if (isNanIndex !== -1) {
             // getPrecision(isNanIndex);
             functionDefs += `\n
-            bool isNan(${precisionKeyWord} float val) {
-                return (val < 0.0 || 0.0 < val || val == 0.0) ? false : true;
-            }
-            \n`;
+             bool isNan(${precisionKeyWord} float val) {
+                 return (val < 0.0 || 0.0 < val || val == 0.0) ? false : true;
+             }
+             \n`;
             code = code.replace(/isnan\(/gi, 'isNan(');
         }
 
@@ -543,10 +545,10 @@ WEBGPU && promiseForWebGPUInstantiation.then(() => {
         if (isInfIndex !== -1) {
             // getPrecision(isInfIndex);
             functionDefs += `\n
-            bool isInf(${precisionKeyWord} float x) {
-                return x == x * 2.0 && x != 0.0;
-            }
-            \n`;
+             bool isInf(${precisionKeyWord} float x) {
+                 return x == x * 2.0 && x != 0.0;
+             }
+             \n`;
             code = code.replace(/isinf\(/gi, 'isInf(');
         }
 

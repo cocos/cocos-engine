@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -30,13 +29,13 @@
 #include "gfx-base/GFXDef-common.h"
 #include "gfx-base/GFXDevice.h"
 #include "gfx-base/GFXFramebuffer.h"
+#include "gi/light-probe/LightProbe.h"
 #include "scene/Ambient.h"
 #include "scene/Fog.h"
 #include "scene/Octree.h"
 #include "scene/Pass.h"
 #include "scene/Shadow.h"
 #include "scene/Skybox.h"
-#include "gi/light-probe/LightProbe.h"
 
 namespace cc {
 namespace pipeline {
@@ -94,7 +93,7 @@ void PipelineSceneData::initOcclusionQuery() {
         _occlusionQueryMaterial = ccnew Material();
         _occlusionQueryMaterial->setUuid("default-occlusion-query-material");
         IMaterialInfo info;
-        info.effectName = "builtin-occlusion-query";
+        info.effectName = "internal/builtin-occlusion-query";
         _occlusionQueryMaterial->initialize(info);
         if (!_occlusionQueryMaterial->getPasses()->empty()) {
             _occlusionQueryPass = (*_occlusionQueryMaterial->getPasses())[0];
@@ -116,7 +115,7 @@ void PipelineSceneData::initGeometryRenderer() {
         _geometryRendererMaterials[tech]->setUuid(ss.str());
 
         IMaterialInfo materialInfo;
-        materialInfo.effectName = "builtin-geometry-renderer";
+        materialInfo.effectName = "internal/builtin-geometry-renderer";
         materialInfo.technique = tech;
         _geometryRendererMaterials[tech]->initialize(materialInfo);
 
@@ -133,7 +132,7 @@ void PipelineSceneData::initDebugRenderer() {
         _debugRendererMaterial = ccnew Material();
         _debugRendererMaterial->setUuid("default-debug-renderer-material");
         IMaterialInfo info;
-        info.effectName = "builtin-debug-renderer";
+        info.effectName = "internal/builtin-debug-renderer";
         _debugRendererMaterial->initialize(info);
         _debugRendererPass = (*_debugRendererMaterial->getPasses())[0];
         _debugRendererShader = _debugRendererPass->getShaderVariant();

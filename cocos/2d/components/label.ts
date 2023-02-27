@@ -1,19 +1,18 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -98,7 +97,7 @@ ccenum(VerticalTextAlignment);
 /**
  * @en Enum for Overflow.
  *
- * @zh 文本超载类型。
+ * @zh 文本溢出行为类型。
  */
 export enum Overflow {
     /**
@@ -162,23 +161,6 @@ export enum CacheMode {
 ccenum(CacheMode);
 
 /**
- * @zh
- * Type 类型。
- */
-/**
- * @zh
- * TTF字体。
- */
-/**
- * @zh
- * 位图字体。
- */
-/**
- * @zh
- * 系统字体。
- */
-
-/**
  * @en
  * The Label Component.
  *
@@ -190,12 +172,32 @@ ccenum(CacheMode);
 @executionOrder(110)
 @menu('2D/Label')
 export class Label extends UIRenderer {
+    /**
+     * @en Enum for horizontal text alignment.
+     *
+     * @zh 文本横向对齐类型。
+     */
     public static HorizontalAlign = HorizontalTextAlignment;
+    /**
+     * @en Enum for vertical text alignment.
+     *
+     * @zh 文本垂直对齐类型。
+     */
     public static VerticalAlign = VerticalTextAlignment;
+    /**
+     * @en Enum for label overflow mode.
+     *
+     * @zh 文本溢出行为类型。
+     */
     public static Overflow = Overflow;
+    /**
+     * @en Enum for cache mode.
+     *
+     * @zh 文本图集缓存类型。
+     */
     public static CacheMode = CacheMode;
     /**
-     * @internal
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public static _canvasPool = CanvasPool.getInstance();
 
@@ -598,18 +600,30 @@ export class Label extends UIRenderer {
         this.markForUpdateRenderData();
     }
 
+    /**
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     get spriteFrame () {
         return this._texture;
     }
 
+    /**
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     get ttfSpriteFrame () {
         return this._ttfSpriteFrame;
     }
 
+    /**
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     get assemblerData () {
         return this._assemblerData;
     }
 
+    /**
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     get fontAtlas () {
         return this._fontAtlas;
     }
@@ -740,6 +754,11 @@ export class Label extends UIRenderer {
         super.onDestroy();
     }
 
+    /**
+     * @en update render data.
+     * @zh 更新渲染相关数据。
+     * @param force @en Whether to force an immediate update. @zh 是否立马强制更新渲染数据。
+     */
     public updateRenderData (force = false) {
         if (force) {
             this._flushAssembler();
@@ -763,6 +782,9 @@ export class Label extends UIRenderer {
         this.markForUpdateRenderData();
     }
 
+    /**
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     public setEntityColor (color: Color) {
         if (JSB) {
             if (this._font instanceof BitmapFont) {

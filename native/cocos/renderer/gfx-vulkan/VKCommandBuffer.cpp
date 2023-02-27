@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -64,6 +63,22 @@ void CCVKCommandBuffer::doInit(const CommandBufferInfo & /*info*/) {
 }
 
 void CCVKCommandBuffer::doDestroy() {
+    if (_gpuCommandBuffer) {
+        auto cleanEvent = [this](VkEvent event) {
+            auto res = vkResetEvent(CCVKDevice::getInstance()->gpuDevice()->vkDevice, event);
+            CC_ASSERT(res == VK_SUCCESS);
+            vkDestroyEvent(CCVKDevice::getInstance()->gpuDevice()->vkDevice, event, nullptr);
+        };
+        while (!_availableEvents.empty()) {
+            VkEvent event = _availableEvents.front();
+            cleanEvent(event);
+            _availableEvents.pop();
+        }
+        for (auto pair : _barrierEvents) {
+            cleanEvent(pair.second);
+        }
+    }
+    
     _gpuCommandBuffer = nullptr;
 }
 
@@ -650,13 +665,13 @@ void CCVKCommandBuffer::pipelineBarrier(const GeneralBarrier *barrier, const Buf
             VkEventCreateInfo eventInfo = {
                 VK_STRUCTURE_TYPE_EVENT_CREATE_INFO,
                 nullptr,
-                VK_EVENT_CREATE_DEVICE_ONLY_BIT_KHR,
+                0,
             };
             VkResult res = vkCreateEvent(CCVKDevice::getInstance()->gpuDevice()->vkDevice,
                                          &eventInfo,
                                          nullptr,
                                          &event);
-            CC_ASSERT(res == VK_SUCCESS);
+            CC_ASSERT_EQ(res, VK_SUCCESS);
         }
         vkCmdSetEvent(_gpuCommandBuffer->vkCommandBuffer, event, stageMask);
         _barrierEvents.insert({obj, event});
@@ -674,7 +689,6 @@ void CCVKCommandBuffer::pipelineBarrier(const GeneralBarrier *barrier, const Buf
             } else {
                 bool fullBarrier = ccBarrier->getInfo().type == BarrierType::FULL;
                 if (!fullBarrier) {
-                    auto key = ccstd::hash_value(gpuTexture);
                     CC_ASSERT(_barrierEvents.find(ccTexture) != _barrierEvents.end());
                     VkEvent event = _barrierEvents.at(ccTexture);
                     scheduledEvents.push_back(event);

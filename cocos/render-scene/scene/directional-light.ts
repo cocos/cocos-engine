@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { Vec3, cclegacy } from '../../core';
 import { Ambient } from './ambient';
@@ -37,8 +36,6 @@ const _v3 = new Vec3();
  * @zh 渲染场景中的方向光抽象，这是场景中的主光源。作为主光源，每个场景只能有一个方向光，它也包含阴影配置，用来生成实时阴影。
  */
 export class DirectionalLight extends Light {
-    public static readonly CSM_TRANSITION_RANGE = 0.05;
-
     protected _dir: Vec3 = new Vec3(1.0, -1.0, -1.0);
     protected _illuminanceHDR: number = Ambient.SUN_ILLUM;
     protected _illuminanceLDR = 1.0;
@@ -57,8 +54,8 @@ export class DirectionalLight extends Light {
     protected _csmNeedUpdate = false;
     protected _csmLayerLambda = 0.75;
     protected _csmOptimizationMode = CSMOptimizationMode.DisableRotationFix;
-
     protected _csmLayersTransition = false;
+    protected _csmTransitionRange = 0.05;
 
     // fixed area properties
     protected _shadowFixedArea = false;
@@ -300,6 +297,17 @@ export class DirectionalLight extends Light {
     set csmLayersTransition (val) {
         this._csmLayersTransition = val;
         this._activate();
+    }
+
+    /**
+     * @en get or set csm layers transition range
+     * @zh 获取或者设置级联阴影层级过渡范围？
+     */
+    get csmTransitionRange () {
+        return this._csmTransitionRange;
+    }
+    set csmTransitionRange (val) {
+        this._csmTransitionRange = val;
     }
 
     constructor () {

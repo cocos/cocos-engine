@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -28,7 +27,7 @@
 
 namespace cc {
 
-ccstd::unordered_map<int, ccstd::string> debugInfos = {
+ccstd::unordered_map<uint32_t, ccstd::string> debugInfos = {
 { 0100, "%s not yet implemented." },
 { 0200, "You should specify a valid DOM canvas element." },
 { 1006, "[Action step]. override me" },
@@ -223,6 +222,7 @@ ccstd::unordered_map<int, ccstd::string> debugInfos = {
 { 4300, "Can not found the %s page." },
 { 4301, "Can not add a page without UITransform." },
 { 4302, "Can not set the scroll view content when it hasn't UITransform or its parent hasn't UITransform." },
+{ 4303, "The %s scrollBar on the '%s' node is not available, please check it." },
 { 4400, "Invalid RichText img tag! The sprite frame name can't be found in the ImageAtlas!" },
 { 4500, "Graphics: There is no model in %s." },
 { 4600, "Script attached to '%s' is missing or invalid." },
@@ -460,6 +460,7 @@ ccstd::unordered_map<int, ccstd::string> debugInfos = {
 { 16101, "The effect('%s') you are looking for does not exist, please confirm the effect name in the editor. NOTE: Since 3.6, the name of the built-in effect has been changed to its name in the editor, please check it out. More information please refer to https://docs.cocos.com/creator/manual/en/shader/effect-inspector.html" },
 { 16201, "The asset replacing failed, can not found override asset('%s') for '%s'" },
 { 16301, "node '%s' doesn't have any ModelRenderer component, this component will not work. please add ModelRenderer component first" },
+{ 16302, "There is no reflection probe in the scene or no probe is near the current object. No reflection probe will take effect on this object. Please create a new reflection probe or move existing ones closer." },
 
 };
 }//namespace cc
