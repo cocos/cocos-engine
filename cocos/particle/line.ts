@@ -24,7 +24,7 @@
 
 import { ccclass, help, executeInEditMode, menu, tooltip, displayOrder, type, serializable, range, visible, override, displayName } from 'cc.decorator';
 import { Material, Texture2D } from '../asset/assets';
-import { Vec3, cclegacy, Vec4, Vec2 } from '../core';
+import { Vec3, cclegacy, Vec4, Vec2, CCBoolean } from '../core';
 import { LineModel } from './models/line-model';
 import { builtinResMgr } from '../asset/asset-manager';
 import CurveRange from './animator/curve-range';
@@ -40,17 +40,29 @@ const define = { CC_USE_WORLD_SPACE: false, CC_USE_WORLD_SCALE: true };
 @menu('Effects/Line')
 @executeInEditMode
 export class Line extends ModelRenderer {
+    @type(CCBoolean)
+    @serializable
+    private _customMaterial = false;
+
+    get customMaterial () {
+        return this._customMaterial;
+    }
+
+    set customMaterial (val) {
+        this._customMaterial = val;
+    }
+
     @type(Texture2D)
     private _texture = null;
 
     /**
      * @zh 显示的纹理。
      * @en Texture used.
-     * @deprecated Since v3.7.2, please use the 'mainTexture' option in material instead.
      */
     @type(Texture2D)
     @displayOrder(0)
     @tooltip('i18n:line.texture')
+    @visible(function (this: Line): boolean { return !this.customMaterial; })
     get texture () {
         return this._texture;
     }
@@ -66,6 +78,7 @@ export class Line extends ModelRenderer {
     @displayOrder(1)
     @tooltip('i18n:line.material')
     @displayName('Material')
+    @visible(function (this: Line): boolean { return this.customMaterial; })
     get lineMaterial () {
         return this.getMaterial(0);
     }
@@ -185,12 +198,11 @@ export class Line extends ModelRenderer {
     /**
      * @zh 图块数。
      * @en Texture tile count.
-     * @deprecated Since v3.7.2, please use the 'mainTiling_Offset' option in material instead.
      */
     @type(Vec2)
     @displayOrder(4)
     @tooltip('i18n:line.tile')
-    @visible(false)
+    @visible(function (this: Line): boolean { return !this.customMaterial; })
     get tile () {
         return this._tile;
     }
@@ -207,13 +219,10 @@ export class Line extends ModelRenderer {
     @serializable
     private _offset = new Vec2(0, 0);
 
-    /**
-     * @deprecated Since v3.7.2, please use the 'mainTiling_Offset' option in material instead.
-     */
     @type(Vec2)
     @displayOrder(5)
     @tooltip('i18n:line.offset')
-    @visible(false)
+    @visible(function (this: Line): boolean { return !this.customMaterial; })
     get offset () {
         return this._offset;
     }
