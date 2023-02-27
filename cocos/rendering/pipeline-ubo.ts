@@ -78,7 +78,9 @@ export class PipelineUBO {
         const debugView = root.debugView;
         fv[UBOGlobal.DEBUG_VIEW_MODE_OFFSET] = debugView.singleMode as number;
 
-        fv[UBOGlobal.DEBUG_VIEW_MODE_OFFSET + 1] = fv[UBOGlobal.DEBUG_VIEW_MODE_OFFSET + 2] = fv[UBOGlobal.DEBUG_VIEW_MODE_OFFSET + 3] = 0;
+        for (let i = 1; i <= 3; i++) {
+            fv[UBOGlobal.DEBUG_VIEW_MODE_OFFSET + i] = 0.0;
+        }
         for (let i = DebugViewCompositeType.DIRECT_DIFFUSE as number; i < DebugViewCompositeType.MAX_BIT_COUNT; i++) {
             const offset = i >> 3;
             const bit = i % 8;

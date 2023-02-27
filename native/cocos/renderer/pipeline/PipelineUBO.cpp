@@ -84,7 +84,9 @@ void PipelineUBO::updateGlobalUBOView(const scene::Camera *camera, ccstd::array<
     auto *debugView = root->getDebugView();
     uboGlobalView[UBOGlobal::DEBUG_VIEW_MODE_OFFSET] = static_cast<float>(debugView->getSingleMode());
     
-    uboGlobalView[UBOGlobal::DEBUG_VIEW_MODE_OFFSET + 1] = uboGlobalView[UBOGlobal::DEBUG_VIEW_MODE_OFFSET + 2] = uboGlobalView[UBOGlobal::DEBUG_VIEW_MODE_OFFSET + 3] = 0.0F;
+    for (int i = 1; i <= 3; ++i) {
+        uboGlobalView[UBOGlobal::DEBUG_VIEW_MODE_OFFSET + i] = 0.0F;
+    }
     for (int i = 0; i < static_cast<int>(pipeline::DebugViewCompositeType::MAX_BIT_COUNT); ++i) {
         int offset = i >> 3;
         int bit = i % 8;
