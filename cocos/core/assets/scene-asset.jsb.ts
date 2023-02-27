@@ -25,9 +25,12 @@
 import { ccclass, editable, serializable } from 'cc.decorator';
 import { legacyCC } from '../global-exports';
 import './asset';
+import type { SceneAsset as JsbSceneAsset } from './scene-asset';
 
-export const SceneAsset = jsb.SceneAsset;
-export type SceneAsset = jsb.SceneAsset;
+declare const jsb: any;
+
+export const SceneAsset: typeof JsbSceneAsset = jsb.SceneAsset;
+export type SceneAsset = JsbSceneAsset;
 
 legacyCC.SceneAsset = SceneAsset;
 

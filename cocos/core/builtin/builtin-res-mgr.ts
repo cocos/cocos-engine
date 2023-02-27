@@ -37,7 +37,7 @@ import { Settings, settings } from '../settings';
 import releaseManager from '../asset-manager/release-manager';
 import { Material } from '../assets';
 
-class BuiltinResMgr {
+export class BuiltinResMgr {
     protected _resources: Record<string, Asset> = {};
     protected _materialsToBeCompiled: Material[] = [];
 

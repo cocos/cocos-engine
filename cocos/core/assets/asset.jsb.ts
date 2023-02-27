@@ -33,6 +33,7 @@ import { getUrlWithUuid } from '../asset-manager/helper';
 import { extname } from '../utils/path';
 import { ExtraEventMethods } from '../utils/jsb-utils'
 import '../data/object';
+import type { Asset as JsbAsset } from './asset';
 
 declare const jsb: any;
 
@@ -121,9 +122,8 @@ assetProto.toString = function () {
 
 assetProto.createNode = null!;
 
-// @ts-ignore
-export type Asset = jsb.Asset;
-export const Asset = jsb.Asset;
+export type Asset = JsbAsset;
+export const Asset: typeof JsbAsset = jsb.Asset;
 
 legacyCC.Asset = jsb.Asset;
 

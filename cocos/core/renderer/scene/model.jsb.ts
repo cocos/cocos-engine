@@ -25,6 +25,9 @@
 
 import { Attribute, deviceManager } from '../../gfx';
 import { Vec3 } from '../../math';
+import type { Model as JsbModel } from './model';
+
+declare const jsb: any;
 
 export interface IInstancedAttributeBlock {
     buffer: Uint8Array;
@@ -41,7 +44,8 @@ export enum ModelType {
     LINE,
 }
 
-export const Model = jsb.Model;
+export const Model: typeof JsbModel = jsb.Model;
+export type Model = JsbModel;
 
 const modelProto: any = Model.prototype;
 

@@ -28,6 +28,7 @@ import { Filter, PixelFormat, WrapMode } from './asset-enum';
 import { js } from '../utils/js';
 import './simple-texture';
 import { EDITOR, TEST } from 'internal:constants';
+import type { TextureCube as JsbTextureCube } from './texture-cube';
 
 const textureCubeProto: any = jsb.TextureCube.prototype;
 interface ITextureCubeSerializeData {
@@ -70,9 +71,8 @@ textureCubeProto.createNode = null!;
 
 declare const jsb: any;
 
-// @ts-expect-error jsb.TextureCube is exported from cpp
-export type TextureCube = jsb.TextureCube;
-export const TextureCube: any = jsb.TextureCube;
+export type TextureCube = JsbTextureCube;
+export const TextureCube: typeof JsbTextureCube = jsb.TextureCube;
 
 TextureCube.Filter = Filter;
 TextureCube.PixelFormat = PixelFormat;

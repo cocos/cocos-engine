@@ -22,6 +22,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+
+import type { RenderWindow as JsbRenderWindow } from './render-window';
+
 export interface IRenderWindowInfo {
     title?: string;
     width: number;
@@ -31,6 +34,5 @@ export interface IRenderWindowInfo {
 }
 
 declare const jsb: any;
-export const RenderWindow = jsb.RenderWindow;
-// @ts-ignore
-export type RenderWindow = jsb.RenderWindow;
+export const RenderWindow: typeof JsbRenderWindow = jsb.RenderWindow;
+export type RenderWindow = JsbRenderWindow;

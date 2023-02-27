@@ -23,8 +23,12 @@
  THE SOFTWARE.
 */
 import { legacyCC } from "../../core/global-exports";
+import type { MeshUtils as JsbMeshUtils } from './create-mesh';
 
-export const MeshUtils = jsb.MeshUtils;
+declare const jsb: any;
+
+export const MeshUtils: typeof JsbMeshUtils = jsb.MeshUtils;
+export type MeshUtils = JsbMeshUtils;
 export const createMesh = MeshUtils.createMesh;
 export const createDynamicMesh = MeshUtils.createDynamicMesh;
 legacyCC.MeshUtils = jsb.MeshUtils;
