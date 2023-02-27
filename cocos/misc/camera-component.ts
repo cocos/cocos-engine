@@ -681,6 +681,7 @@ export class Camera extends Component {
             this._camera!.aperture = this._aperture;
             this._camera!.shutter = this._shutter;
             this._camera!.iso = this._iso;
+            this._camera!.update(true);
         }
 
         this._updateTargetTexture();
