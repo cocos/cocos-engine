@@ -44,7 +44,7 @@
 #import "MTLTexture.h"
 #import "base/Log.h"
 #import "profiler/Profiler.h"
-
+#import <thread>
 
 namespace cc {
 namespace gfx {
@@ -163,7 +163,7 @@ bool CCMTLDevice::doInit(const DeviceInfo &info) {
 void CCMTLDevice::doDestroy() {
     // force wait done
     while(_inFlightCount.load(std::memory_order_acquire) != 0) {
-        ;
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 
     CC_SAFE_DESTROY_AND_DELETE(_gpuDeviceObj->_transferCmdBuffer);
@@ -193,7 +193,7 @@ void CCMTLDevice::doDestroy() {
 void CCMTLDevice::frameSync() {
     constexpr uint8_t TOTAL_FRAME_COUNT = MAX_FRAMES_IN_FLIGHT;
     while(_inFlightCount.load(std::memory_order_acquire) == TOTAL_FRAME_COUNT) {
-        ;
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 }
 
