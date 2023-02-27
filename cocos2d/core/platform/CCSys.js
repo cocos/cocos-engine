@@ -1008,7 +1008,8 @@ function initSys () {
                 imageBitmap.close && imageBitmap.close();
             }).catch(err => {});
         }
-        if (docEle['ontouchstart'] !== undefined || doc['ontouchstart'] !== undefined || nav.msPointerEnabled)
+        // NOTE: '__wxjs_environment' is defined in wechat miniprogram webview environment
+        if (docEle['ontouchstart'] !== undefined || doc['ontouchstart'] !== undefined || nav.msPointerEnabled || (typeof __wxjs_environment === 'string' && __wxjs_environment === 'miniprogram'))
             capabilities["touches"] = true;
         if (docEle['onmouseup'] !== undefined)
             capabilities["mouse"] = true;
