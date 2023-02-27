@@ -116,6 +116,9 @@ protected:
     CCMTLSemaphore *_texCopySemaphore = nullptr;
 
     std::bitset<MAX_COLORATTACHMENTS> _colorAppearedBefore;
+
+    int32_t _currentFbWidth = 0;
+    int32_t _currentFbHeight = 0;
 };
 
 } // namespace gfx
