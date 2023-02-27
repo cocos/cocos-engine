@@ -161,11 +161,6 @@ bool CCMTLDevice::doInit(const DeviceInfo &info) {
 }
 
 void CCMTLDevice::doDestroy() {
-    // force wait done
-    while(_inFlightCount.load(std::memory_order_acquire) != 0) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    }
-
     CC_SAFE_DESTROY_AND_DELETE(_gpuDeviceObj->_transferCmdBuffer);
     CC_SAFE_DELETE(_gpuDeviceObj);
 
@@ -179,7 +174,6 @@ void CCMTLDevice::doDestroy() {
         CC_SAFE_DELETE(_gpuStagingBufferPools[i]);
         _gpuStagingBufferPools[i] = nullptr;
     }
-    _inFlightCount = 0;
 
     cc::gfx::mu::clearUtilResource();
 
@@ -191,10 +185,9 @@ void CCMTLDevice::doDestroy() {
 }
 
 void CCMTLDevice::frameSync() {
-    constexpr uint8_t TOTAL_FRAME_COUNT = MAX_FRAMES_IN_FLIGHT;
-    while(_inFlightCount.load(std::memory_order_acquire) == TOTAL_FRAME_COUNT) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    }
+    CC_ASSERT(_cmdBuff);
+    auto* cmdBuff = static_cast<CCMTLCommandBuffer*>(_cmdBuff);
+    cmdBuff->waitFence();
 }
 
 void CCMTLDevice::acquire(Swapchain *const *swapchains, uint32_t count) {
@@ -234,7 +227,6 @@ void CCMTLDevice::present() {
 
     // present drawable
     {
-        _inFlightCount.fetch_add(1, std::memory_order_relaxed);
         id<MTLCommandBuffer> cmdBuffer = [queue->gpuQueueObj()->mtlCommandQueue commandBuffer];
         [cmdBuffer enqueue];
 
@@ -257,8 +249,6 @@ void CCMTLDevice::onPresentCompleted(uint32_t index) {
             CCMTLGPUGarbageCollectionPool::getInstance()->clear(index);
         }
     }
-    
-    _inFlightCount.fetch_sub(1, std::memory_order_release);
 }
 
 Queue *CCMTLDevice::createQueue() {

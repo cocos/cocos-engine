@@ -64,10 +64,16 @@ CCMTLCommandBuffer::~CCMTLCommandBuffer() {
 
 void CCMTLCommandBuffer::doInit(const CommandBufferInfo &info) {
     _gpuCommandBufferObj = ccnew CCMTLGPUCommandBufferObject;
+    _inFlightSem = ccnew CCMTLSemaphore(3);
 }
 
 void CCMTLCommandBuffer::doDestroy() {
     CC_SAFE_DELETE(_texCopySemaphore);
+    
+    if(_inFlightSem) {
+        _inFlightSem->syncAll();
+        CC_SAFE_DELETE(_inFlightSem);
+    }
 
     if (_commandBufferBegan) {
         if (_gpuCommandBufferObj && _gpuCommandBufferObj->mtlCommandBuffer) {
@@ -1103,6 +1109,18 @@ void CCMTLCommandBuffer::completeQueryPool(QueryPool *queryPool) {
     [mtlCommandBuffer addCompletedHandler:^(id<MTLCommandBuffer> commandBuffer) {
         gpuQueryPool->semaphore->signal();
     }];
+}
+
+void CCMTLCommandBuffer::signalFence() {
+    CC_ASSERT(_inFlightSem);
+    _inFlightSem->signal();
+}
+
+void CCMTLCommandBuffer::waitFence() {
+    CC_ASSERT(_inFlightSem);
+    if(!_gpuCommandBufferObj->mtlCommandBuffer) {
+        _inFlightSem->wait();
+    }
 }
 
 } // namespace gfx

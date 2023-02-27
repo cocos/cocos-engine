@@ -139,7 +139,6 @@ protected:
     ccstd::vector<CCMTLSwapchain *> _swapchains;
 
     CCMTLGPUDeviceObject *_gpuDeviceObj = nullptr;
-    std::atomic<uint8_t> _inFlightCount = 0;
 };
 
 } // namespace gfx

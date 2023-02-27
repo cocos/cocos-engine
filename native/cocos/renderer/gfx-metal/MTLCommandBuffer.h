@@ -84,6 +84,9 @@ public:
     inline CCMTLGPUCommandBufferObject *gpuCommandBufferObj() const { return _gpuCommandBufferObj; }
 
     void reset();
+    
+    void signalFence();
+    void waitFence();
 
 protected:
     friend class CCMTLQueue;
@@ -116,6 +119,8 @@ protected:
     CCMTLSemaphore *_texCopySemaphore = nullptr;
 
     std::bitset<MAX_COLORATTACHMENTS> _colorAppearedBefore;
+    
+    CCMTLSemaphore* _inFlightSem{nullptr};
 };
 
 } // namespace gfx
