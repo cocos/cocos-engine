@@ -297,10 +297,13 @@ export class Vec2 extends ValueType {
      * @override (a:Vec2, b:Vec2) => number
      * @override [deprecated] (out:Vec3, a:Vec2, b:Vec2) => Vec3
      */
+    /**
+     * @deprecated since v3.8.0, There is no physical meaning.
+     */
     public static cross (a: IVec2Like, b: IVec2Like): number;
 
     /**
-     * @deprecated Consider use another overrides please.
+     * @deprecated since v3.8.0, There is no physical meaning.
      */
     public static cross <Out extends IVec2Like> (out: Vec3, a: Out, b: Out): Vec3;
 
@@ -315,7 +318,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Calculates the linear interpolation between two vectors with a given ratio
+     * @en Calculates the linear interpolation between two vectors with a given ratio: A + t * (B - A)
      * @zh 逐元素向量线性插值： A + t * (B - A)
      */
     public static lerp <Out extends IVec2Like> (out: Out, a: Out, b: Out, t: number) {
@@ -493,6 +496,20 @@ export class Vec2 extends ValueType {
             this.y = y || 0;
         }
         return this;
+    }
+
+    /**
+     * @en Convert current Vec2 to Vec3.
+     * @zh 转换当前Vec2到Vec3。
+     * @param out Vec3 value
+     * @return Vec3 value
+     */
+    public toVec3 (out?: Vec3): Vec3 {
+        if (out) {
+            return out.set(this.x, this.y, 0);
+        }
+
+        return new Vec3(this.x, this.y, 0);
     }
 
     /**
@@ -716,6 +733,9 @@ export class Vec2 extends ValueType {
      * @param other specified vector
      * @return `out`
      */
+    /**
+     * @deprecated since v3.8.0, There is no physical meaning.
+     */
     public cross (other: Vec2) {
         return this.x * other.y - this.y * other.x;
     }
@@ -787,9 +807,9 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Rotates the current vector by an angle in radian value
-     * @zh 将当前向量的旋转
-     * @param radians radius of rotation
+     * @en Rotates the current vector by an angle in radian value. Counterclockwise is the positive direction.
+     * @zh 将当前向量进行旋转，逆时针为正方向。
+     * @param radians radians of rotation.
      */
     public rotate (radians: number) {
         const x = this.x;
@@ -828,9 +848,6 @@ export class Vec2 extends ValueType {
         return this;
     }
 }
-
-const v2_1 = new Vec2();
-const v2_2 = new Vec2();
 
 CCClass.fastDefine('cc.Vec2', Vec2, { x: 0, y: 0 });
 legacyCC.Vec2 = Vec2;

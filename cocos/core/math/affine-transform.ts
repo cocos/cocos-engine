@@ -59,7 +59,8 @@ export class AffineTransform {
 
     /**
      * @en Concatenate a transform matrix to another. The results are reflected in the out `AffineTransform`.
-     * @zh 将两个矩阵相乘的结果赋值给输出矩阵。
+     * First apply t1, then t2: out * v = t2 * (t1 * v).
+     * @zh 将两个矩阵相乘的结果赋值给输出矩阵，先应用t1再应用t2: out * v = t2 * (t1 * v)。
      * @param out Out object to store the concat result
      * @param t1 The first transform object.
      * @param t2 The transform object to concatenate.
@@ -198,7 +199,8 @@ export class AffineTransform {
      * @param rect The rect object to apply transform.
      * @param anAffineTransform transform matrix.
      */
-    public static transformObb (out_bl: Vec2, out_tl: Vec2, out_tr: Vec2, out_br: Vec2, rect: Rect, anAffineTransform: AffineTransform) {
+    public static transformObb (out_bl: Vec2, out_tl: Vec2, out_tr: Vec2, out_br: Vec2, rect: Rect,
+        anAffineTransform: AffineTransform, flipY = true) {
         const tx = anAffineTransform.a * rect.x + anAffineTransform.c * rect.y + anAffineTransform.tx;
         const ty = anAffineTransform.b * rect.x + anAffineTransform.d * rect.y + anAffineTransform.ty;
         const xa = anAffineTransform.a * rect.width;
@@ -206,16 +208,33 @@ export class AffineTransform {
         const yc = anAffineTransform.c * rect.height;
         const yd = anAffineTransform.d * rect.height;
 
-        out_tl.x = tx;
-        out_tl.y = ty;
-        out_tr.x = xa + tx;
-        out_tr.y = xb + ty;
-        out_bl.x = yc + tx;
-        out_bl.y = yd + ty;
-        out_br.x = xa + yc + tx;
-        out_br.y = xb + yd + ty;
+        if (flipY) {
+            out_tl.x = tx;
+            out_tl.y = ty;
+            out_tr.x = xa + tx;
+            out_tr.y = xb + ty;
+            out_bl.x = yc + tx;
+            out_bl.y = yd + ty;
+            out_br.x = xa + yc + tx;
+            out_br.y = xb + yd + ty;
+        } else {
+            out_bl.x = tx;
+            out_bl.y = ty;
+            out_br.x = xa + tx;
+            out_br.y = xb + ty;
+            out_tl.x = yc + tx;
+            out_tl.y = yd + ty;
+            out_tr.x = xa + yc + tx;
+            out_tr.y = xb + yd + ty;
+        }
     }
 
+    /**
+     * matrix layout
+     * |a  c  tx|
+     * |b  d  ty|
+     * |0  0  1 |
+     */
     public declare a: number;
     public declare b: number;
     public declare c: number;
