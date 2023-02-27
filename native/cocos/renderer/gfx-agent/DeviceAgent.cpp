@@ -421,6 +421,16 @@ void DeviceAgent::getQueryPoolResults(QueryPool *queryPool) {
     queryPoolAgent->_results = actorQueryPoolAgent->_results;
 }
 
+void DeviceAgent::enableAutoBarrier(bool en) {
+    ENQUEUE_MESSAGE_2(
+        _mainMessageQueue, enableAutoBarrier,
+        actor, getActor(),
+        en, en,
+        {
+            actor->enableAutoBarrier(en);
+        });
+}
+
 void DeviceAgent::presentSignal() {
     _frameBoundarySemaphore.signal();
 }

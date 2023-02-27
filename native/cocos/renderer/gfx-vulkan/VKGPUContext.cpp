@@ -54,11 +54,11 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugUtilsMessengerCallback(VkDebugUtilsMessageSe
         return VK_FALSE;
     }
     if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT) {
-        //CC_LOG_INFO("%s: %s", callbackData->pMessageIdName, callbackData->pMessage);
+        // CC_LOG_INFO("%s: %s", callbackData->pMessageIdName, callbackData->pMessage);
         return VK_FALSE;
     }
     if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT) {
-        //CC_LOG_DEBUG("%s: %s", callbackData->pMessageIdName, callbackData->pMessage);
+        // CC_LOG_DEBUG("%s: %s", callbackData->pMessageIdName, callbackData->pMessage);
         return VK_FALSE;
     }
     CC_LOG_ERROR("%s: %s", callbackData->pMessageIdName, callbackData->pMessage);
@@ -83,11 +83,11 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugReportCallback(VkDebugReportFlagsEXT flags,
         return VK_FALSE;
     }
     if (flags & VK_DEBUG_REPORT_INFORMATION_BIT_EXT) {
-        //CC_LOG_INFO("%s: %s", layerPrefix, message);
+        // CC_LOG_INFO("%s: %s", layerPrefix, message);
         return VK_FALSE;
     }
     if (flags & VK_DEBUG_REPORT_DEBUG_BIT_EXT) {
-        //CC_LOG_DEBUG("%s: %s", layerPrefix, message);
+        // CC_LOG_DEBUG("%s: %s", layerPrefix, message);
         return VK_FALSE;
     }
     CC_LOG_ERROR("%s: %s", layerPrefix, message);

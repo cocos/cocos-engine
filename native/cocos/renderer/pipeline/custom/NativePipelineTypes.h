@@ -630,6 +630,7 @@ public:
     NativeRenderContext nativeContext;
     ResourceGraph resourceGraph;
     RenderGraph renderGraph;
+    PipelineStatistics statistics;
 };
 
 class NativeProgramProxy final : public ProgramProxy {

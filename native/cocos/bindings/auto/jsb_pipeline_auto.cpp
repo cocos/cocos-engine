@@ -2962,6 +2962,8 @@ bool js_register_cc_pipeline_UBOLocal(se::Object* obj) {
     cls->defineStaticProperty("MAT_WORLD_IT_OFFSET", nullptr, nullptr); 
     cls->defineStaticProperty("LIGHTINGMAP_UVPARAM", nullptr, nullptr); 
     cls->defineStaticProperty("LOCAL_SHADOW_BIAS", nullptr, nullptr); 
+    cls->defineStaticProperty("REFLECTION_PROBE_DATA1", nullptr, nullptr); 
+    cls->defineStaticProperty("REFLECTION_PROBE_DATA2", nullptr, nullptr); 
     cls->defineStaticProperty("COUNT", nullptr, nullptr); 
     cls->defineStaticProperty("SIZE", nullptr, nullptr); 
     cls->defineStaticProperty("BINDING", nullptr, nullptr); 
@@ -3213,6 +3215,7 @@ bool js_register_cc_pipeline_UBOForwardLight(se::Object* obj) {
     cls->defineStaticProperty("LIGHT_COLOR_OFFSET", nullptr, nullptr); 
     cls->defineStaticProperty("LIGHT_SIZE_RANGE_ANGLE_OFFSET", nullptr, nullptr); 
     cls->defineStaticProperty("LIGHT_DIR_OFFSET", nullptr, nullptr); 
+    cls->defineStaticProperty("LIGHT_BOUNDING_SIZE_VS_OFFSET", nullptr, nullptr); 
     cls->defineStaticProperty("COUNT", nullptr, nullptr); 
     cls->defineStaticProperty("SIZE", nullptr, nullptr); 
     cls->defineStaticProperty("BINDING", nullptr, nullptr); 
@@ -4391,6 +4394,7 @@ bool js_register_cc_pipeline_UBOGlobal(se::Object* obj) {
     cls->defineStaticProperty("TIME_OFFSET", nullptr, nullptr); 
     cls->defineStaticProperty("SCREEN_SIZE_OFFSET", nullptr, nullptr); 
     cls->defineStaticProperty("NATIVE_SIZE_OFFSET", nullptr, nullptr); 
+    cls->defineStaticProperty("PROBE_INFO_OFFSET", nullptr, nullptr); 
     cls->defineStaticProperty("DEBUG_VIEW_MODE_OFFSET", nullptr, nullptr); 
     cls->defineStaticProperty("DEBUG_VIEW_COMPOSITE_PACK_1_OFFSET", nullptr, nullptr); 
     cls->defineStaticProperty("DEBUG_VIEW_COMPOSITE_PACK_2_OFFSET", nullptr, nullptr); 
@@ -7043,6 +7047,126 @@ bool js_register_cc_pipeline_REFLECTIONPROBEPLANARMAP(se::Object* obj) {
     
     __jsb_cc_pipeline_REFLECTIONPROBEPLANARMAP_proto = cls->getProto();
     __jsb_cc_pipeline_REFLECTIONPROBEPLANARMAP_class = cls;
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+
+se::Class* __jsb_cc_pipeline_REFLECTIONPROBEDATAMAP_class = nullptr;
+se::Object* __jsb_cc_pipeline_REFLECTIONPROBEDATAMAP_proto = nullptr;
+SE_DECLARE_FINALIZE_FUNC(js_delete_cc_pipeline_REFLECTIONPROBEDATAMAP) 
+
+static bool js_cc_pipeline_REFLECTIONPROBEDATAMAP_DESCRIPTOR_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gfx::DescriptorSetLayoutBinding result;
+    
+    result = cc::pipeline::REFLECTIONPROBEDATAMAP::DESCRIPTOR;
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_pipeline_REFLECTIONPROBEDATAMAP_DESCRIPTOR_get) 
+
+static bool js_cc_pipeline_REFLECTIONPROBEDATAMAP_LAYOUT_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gfx::UniformSamplerTexture result;
+    
+    result = cc::pipeline::REFLECTIONPROBEDATAMAP::LAYOUT;
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_pipeline_REFLECTIONPROBEDATAMAP_LAYOUT_get) 
+
+static bool js_cc_pipeline_REFLECTIONPROBEDATAMAP_NAME_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    ccstd::string result;
+    
+    result = (ccstd::string)cc::pipeline::REFLECTIONPROBEDATAMAP::NAME;
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_pipeline_REFLECTIONPROBEDATAMAP_NAME_get) 
+
+static bool js_new_cc_pipeline_REFLECTIONPROBEDATAMAP(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    
+    cc::pipeline::REFLECTIONPROBEDATAMAP *result;
+    result = (cc::pipeline::REFLECTIONPROBEDATAMAP *)new cc::pipeline::REFLECTIONPROBEDATAMAP();
+    
+    
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+SE_BIND_CTOR(js_new_cc_pipeline_REFLECTIONPROBEDATAMAP, __jsb_cc_pipeline_REFLECTIONPROBEDATAMAP_class, js_delete_cc_pipeline_REFLECTIONPROBEDATAMAP)
+
+static bool js_delete_cc_pipeline_REFLECTIONPROBEDATAMAP(se::State& s)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_delete_cc_pipeline_REFLECTIONPROBEDATAMAP) 
+
+template<>
+bool sevalue_to_native(const se::Value &from, cc::pipeline::REFLECTIONPROBEDATAMAP * to, se::Object *ctx)
+{
+    assert(from.isObject());
+    se::Object *json = from.toObject();
+    auto* data = reinterpret_cast<cc::pipeline::REFLECTIONPROBEDATAMAP*>(json->getPrivateData());
+    if (data) {
+        *to = *data;
+        return true;
+    }
+    se::Value field;
+    bool ok = true;
+    
+    return ok;
+}
+
+
+bool js_register_cc_pipeline_REFLECTIONPROBEDATAMAP(se::Object* obj) {
+    auto* cls = se::Class::create("REFLECTIONPROBEDATAMAP", obj, nullptr, _SE(js_new_cc_pipeline_REFLECTIONPROBEDATAMAP)); 
+    
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
+    
+    
+    cls->defineStaticProperty("BINDING", nullptr, nullptr); 
+    cls->defineStaticProperty("DESCRIPTOR", _SE(js_cc_pipeline_REFLECTIONPROBEDATAMAP_DESCRIPTOR_get), nullptr); 
+    cls->defineStaticProperty("LAYOUT", _SE(js_cc_pipeline_REFLECTIONPROBEDATAMAP_LAYOUT_get), nullptr); 
+    cls->defineStaticProperty("NAME", _SE(js_cc_pipeline_REFLECTIONPROBEDATAMAP_NAME_get), nullptr); 
+    
+    
+    
+    cls->defineFinalizeFunction(_SE(js_delete_cc_pipeline_REFLECTIONPROBEDATAMAP));
+    
+    
+    cls->install();
+    JSBClassType::registerClass<cc::pipeline::REFLECTIONPROBEDATAMAP>(cls);
+    
+    __jsb_cc_pipeline_REFLECTIONPROBEDATAMAP_proto = cls->getProto();
+    __jsb_cc_pipeline_REFLECTIONPROBEDATAMAP_class = cls;
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -21723,6 +21847,7 @@ bool register_all_pipeline(se::Object* obj) {
     js_register_cc_pipeline_REFLECTIONSTORAGE(ns); 
     js_register_cc_pipeline_REFLECTIONPROBECUBEMAP(ns); 
     js_register_cc_pipeline_REFLECTIONPROBEPLANARMAP(ns); 
+    js_register_cc_pipeline_REFLECTIONPROBEDATAMAP(ns); 
     js_register_cc_pipeline_RenderPipelineInfo(ns); 
     js_register_cc_pipeline_RenderPipeline(ns); 
     js_register_cc_pipeline_RenderFlowInfo(ns); 

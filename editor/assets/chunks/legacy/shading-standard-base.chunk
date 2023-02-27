@@ -7,9 +7,9 @@
 #include <legacy/shadow-map-base>
 #include <common/data/unpack>
 #include <common/texture/texture-lod>
+#include <builtin/uniforms/cc-environment>
+#include <common/lighting/functions>
 #if CC_USE_IBL
-  #include <builtin/uniforms/cc-environment>
-
   #if CC_USE_DIFFUSEMAP
     #include <builtin/uniforms/cc-diffusemap>
   #endif
@@ -17,6 +17,7 @@
 
 #if CC_USE_REFLECTION_PROBE
   #include <builtin/uniforms/cc-reflection-probe>
+  #include <builtin/functionalities/probe>
 #endif
 #if CC_USE_LIGHT_PROBE
 #include <legacy/sh-fs>
@@ -101,6 +102,9 @@ struct StandardSurface {
   #if CC_RECEIVE_SHADOW
     vec2 shadowBias;
   #endif
+  #if CC_RECEIVE_SHADOW || CC_USE_REFLECTION_PROBE
+    float reflectionProbeId;
+  #endif
 };
 
 vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
@@ -120,15 +124,12 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
   float shadow = 1.0;
   #if CC_RECEIVE_SHADOW && CC_SHADOW_TYPE == CC_SHADOW_MAP
     if (NL > 0.0 && cc_mainLitDir.w > 0.0) {
-      if (cc_shadowLPNNInfo.w > 0.0) {
-        #if CC_DIR_LIGHT_SHADOW_TYPE == CC_DIR_LIGHT_SHADOW_CASCADED
-          shadow = CCCSMFactorBase(position, N, s.shadowBias);
-        #endif
-      } else {
-        #if CC_DIR_LIGHT_SHADOW_TYPE == CC_DIR_LIGHT_SHADOW_UNIFORM
-          shadow = CCShadowFactorBase(shadowPos, N, s.shadowBias);
-        #endif
-      }
+      #if CC_DIR_LIGHT_SHADOW_TYPE == CC_DIR_LIGHT_SHADOW_CASCADED
+        shadow = CCCSMFactorBase(position, N, s.shadowBias);
+      #endif
+      #if CC_DIR_LIGHT_SHADOW_TYPE == CC_DIR_LIGHT_SHADOW_UNIFORM
+        shadow = CCShadowFactorBase(shadowPos, N, s.shadowBias);
+      #endif
     }
   #endif
 
@@ -203,10 +204,29 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
     vec4 probe = vec4(0.0);
     vec3 R = normalize(reflect(-V, N));
     #if CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_CUBE
-      probe = fragTextureLod(cc_reflectionProbeCubemap, R, s.roughness * (cc_ambientGround.w - 1.0));
+      if(s.reflectionProbeId < 0.0){
+        probe = fragTextureLod(cc_reflectionProbeCubemap, R, s.roughness * (cc_ambientGround.w - 1.0));
+      }else{
+        vec3 centerPos, boxHalfSize;
+        float mipCount;
+        GetCubeReflectionProbeData(centerPos, boxHalfSize, mipCount, s.reflectionProbeId);
+        vec4 fixedR = CalculateBoxProjectedDirection(R, position, centerPos, boxHalfSize);
+        probe = mix(fragTextureLod(cc_environment, R, s.roughness * (cc_ambientGround.w - 1.0)),
+          fragTextureLod(cc_reflectionProbeCubemap, fixedR.xyz, s.roughness * (mipCount - 1.0)), fixedR.w);
+      }
     #elif CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_PLANAR
-      vec2 screenUV = GetPlanarReflectScreenUV(s.position, cc_matViewProj, cc_cameraPos.w, V, R);
-      probe = texture(cc_reflectionProbePlanarMap, screenUV);
+      if(s.reflectionProbeId < 0.0){
+        vec2 screenUV = GetPlanarReflectScreenUV(s.position, cc_matViewProj, cc_cameraPos.w, V, R);
+        probe = fragTextureLod(cc_reflectionProbePlanarMap, screenUV, 1.0);
+      }else{
+        vec4 plane;
+        float planarReflectionDepthScale, mipCount;
+        GetPlanarReflectionProbeData(plane, planarReflectionDepthScale, mipCount, s.reflectionProbeId);
+        R = normalize(CalculateReflectDirection(N, V, max(abs(dot(N, V)), 0.0)));
+        vec3 worldPosOffset = CalculatePlanarReflectPositionOnPlane(N, V, s.position, plane, cc_cameraPos.xyz, planarReflectionDepthScale);
+        vec2 screenUV = GetPlanarReflectScreenUV(worldPosOffset, cc_matViewProj, cc_cameraPos.w, V, R);
+        probe = fragTextureLod(cc_reflectionProbePlanarMap, screenUV, mipCount);
+      } 
     #endif
     env = unpackRGBE(probe);
   #endif
