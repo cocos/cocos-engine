@@ -749,14 +749,17 @@ export class WebComputeQueueBuilder extends WebSetter implements ComputeQueueBui
     set name (name: string) {
         this._renderGraph.setName(this._vertID, name);
     }
-    addDispatch (shader: string,
+    addDispatch (
         threadGroupCountX: number,
         threadGroupCountY: number,
         threadGroupCountZ: number,
-        name = 'Dispatch') {
+        material: Material | null = null,
+        passID = 0,
+        name = 'Dispatch',
+    ) {
         this._renderGraph.addVertex<RenderGraphValue.Dispatch>(
             RenderGraphValue.Dispatch,
-            new Dispatch(shader, threadGroupCountX, threadGroupCountY, threadGroupCountZ),
+            new Dispatch(material, passID, threadGroupCountX, threadGroupCountY, threadGroupCountZ),
             name, '', new RenderData(), false, this._vertID,
         );
     }
@@ -800,17 +803,6 @@ export class WebComputePassBuilder extends WebSetter implements ComputePassBuild
             RenderGraphValue.Queue, queue, name, '', data, false, this._vertID,
         );
         return new WebComputeQueueBuilder(data, this._renderGraph, this._layoutGraph, queueID, queue, this._pipeline);
-    }
-    addDispatch (shader: string,
-        threadGroupCountX: number,
-        threadGroupCountY: number,
-        threadGroupCountZ: number,
-        name = 'Dispatch') {
-        this._renderGraph.addVertex<RenderGraphValue.Dispatch>(
-            RenderGraphValue.Dispatch,
-            new Dispatch(shader, threadGroupCountX, threadGroupCountY, threadGroupCountZ),
-            name, '', new RenderData(), false, this._vertID,
-        );
     }
     private readonly _renderGraph: RenderGraph;
     private readonly _layoutGraph: LayoutGraphData;

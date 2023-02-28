@@ -86,7 +86,7 @@ struct RenderGraphVisitorContext {
         gfx::DescriptorSet*>& profilerPerPassDescriptorSets;
     ccstd::pmr::unordered_map<
         RenderGraph::vertex_descriptor,
-        gfx::DescriptorSet*>& blitPerInstanceDescriptorSets;
+        gfx::DescriptorSet*>& perInstanceDescriptorSets;
     ProgramLibrary* programLib = nullptr;
     boost::container::pmr::memory_resource* scratch = nullptr;
     gfx::RenderPass* currentPass = nullptr;
@@ -835,6 +835,88 @@ struct RenderGraphUploadVisitor : boost::dfs_visitor<> {
             ctx.renderGraphDescriptorSet[vertID] = perPassSet;
         }
     }
+    void uploadBlitOrDispatchUniformBlokcs(
+        RenderGraph::vertex_descriptor vertID,
+        scene::Pass& pass) const {
+        pass.update();
+
+        // get shader
+        auto& shader = *pass.getShaderVariant();
+        // update material ubo and descriptor set
+        // get or create program per-instance descriptor set
+        auto& node = ctx.context.layoutGraphResources.at(pass.getPhaseID());
+        auto iter = node.programResources.find(std::string_view{shader.getName()});
+        if (iter == node.programResources.end()) {
+            // make program resource
+            auto res = node.programResources.emplace(
+                std::piecewise_construct,
+                std::forward_as_tuple(shader.getName()),
+                std::forward_as_tuple());
+            CC_ENSURES(res.second);
+            iter = res.first;
+            auto& instance = res.first->second;
+
+            // make per-instance layout
+            IntrusivePtr<gfx::DescriptorSetLayout> instanceSetLayout =
+                &const_cast<gfx::DescriptorSetLayout&>(
+                    ctx.programLib->getLocalDescriptorSetLayout(
+                        ctx.device, pass.getPhaseID(), shader.getName()));
+
+            // init per-instance descriptor set pool
+            instance.descriptorSetPool.init(ctx.device, std::move(instanceSetLayout));
+
+            for (const auto& block : shader.getBlocks()) {
+                if (static_cast<pipeline::SetIndex>(block.set) != pipeline::SetIndex::LOCAL) {
+                    continue;
+                }
+                const auto& name = block.name;
+                auto iter = ctx.lg.attributeIndex.find(std::string_view{name});
+                CC_EXPECTS(iter != ctx.lg.attributeIndex.end());
+                const auto attrID = iter->second;
+                auto sz = getUniformBlockSize(block.members);
+                const auto bDynamic = isDynamicUniformBlock(block.name);
+                instance.uniformBuffers[attrID].init(ctx.device, sz, bDynamic);
+            }
+        }
+
+        // update per-instance buffer and descriptor set
+        const auto& programLib = *dynamic_cast<const NativeProgramLibrary*>(ctx.programLib);
+        const auto& data = programLib.localLayoutData;
+        auto& instance = iter->second;
+        auto* set = instance.descriptorSetPool.allocateDescriptorSet();
+        CC_ENSURES(set);
+        for (const auto& block : shader.getBlocks()) {
+            if (static_cast<pipeline::SetIndex>(block.set) != pipeline::SetIndex::LOCAL) {
+                continue;
+            }
+            // find descriptor name ID
+            const auto& name = block.name;
+            auto iter = ctx.lg.attributeIndex.find(std::string_view{name});
+            CC_EXPECTS(iter != ctx.lg.attributeIndex.end());
+            const auto attrID = iter->second;
+
+            // get uniformBuffer
+            auto& uniformBuffer = instance.uniformBuffers[attrID];
+            CC_EXPECTS(uniformBuffer.cpuBuffer.size() == uniformBuffer.bufferPool.bufferSize);
+
+            // fill cpu buffer
+            auto& cpuData = uniformBuffer.cpuBuffer;
+            if (false) { // NOLINT(readability-simplify-boolean-expr)
+                for (const auto& v : block.members) {
+                    CC_LOG_INFO(v.name.c_str());
+                }
+            }
+
+            // create and upload buffer
+            auto* buffer = uniformBuffer.createFromCpuBuffer();
+
+            // set buffer descriptor
+            const auto binding = data.bindingMap.at(attrID);
+            set->bindBuffer(binding, buffer);
+        }
+        ctx.perInstanceDescriptorSets[vertID] = set;
+    }
+
     void discover_vertex(
         RenderGraph::vertex_descriptor vertID,
         const boost::filtered_graph<
@@ -842,7 +924,7 @@ struct RenderGraphUploadVisitor : boost::dfs_visitor<> {
         std::ignore = gv;
         CC_EXPECTS(ctx.currentPassLayoutID != LayoutGraphData::null_vertex());
 
-        if (holds<RasterTag>(vertID, ctx.g)) {
+        if (holds<RasterTag>(vertID, ctx.g) || holds<ComputeTag>(vertID, ctx.g)) {
             const auto& pass = get(RasterTag{}, vertID, ctx.g);
             // render pass
             const auto& layoutName = get(RenderGraph::Layout, ctx.g, vertID);
@@ -919,86 +1001,13 @@ struct RenderGraphUploadVisitor : boost::dfs_visitor<> {
                 updateAndCreatePerPassDescriptorSet(vertID);
                 ctx.currentProjMatrix = blit.camera->getMatProj();
             }
-
             // get pass
             auto& pass = *blit.material->getPasses()->at(static_cast<size_t>(blit.passID));
-            pass.update();
-
-            // get shader
-            auto& shader = *pass.getShaderVariant();
-            // update material ubo and descriptor set
-            // get or create program per-instance descriptor set
-            auto& node = ctx.context.layoutGraphResources.at(pass.getPhaseID());
-            auto iter = node.programResources.find(std::string_view{shader.getName()});
-            if (iter == node.programResources.end()) {
-                // make program resource
-                auto res = node.programResources.emplace(
-                    std::piecewise_construct,
-                    std::forward_as_tuple(shader.getName()),
-                    std::forward_as_tuple());
-                CC_ENSURES(res.second);
-                iter = res.first;
-                auto& instance = res.first->second;
-
-                // make per-instance layout
-                IntrusivePtr<gfx::DescriptorSetLayout> instanceSetLayout =
-                    &const_cast<gfx::DescriptorSetLayout&>(
-                        ctx.programLib->getLocalDescriptorSetLayout(
-                            ctx.device, pass.getPhaseID(), shader.getName()));
-
-                // init per-instance descriptor set pool
-                instance.descriptorSetPool.init(ctx.device, std::move(instanceSetLayout));
-
-                for (const auto& block : shader.getBlocks()) {
-                    if (static_cast<pipeline::SetIndex>(block.set) != pipeline::SetIndex::LOCAL) {
-                        continue;
-                    }
-                    const auto& name = block.name;
-                    auto iter = ctx.lg.attributeIndex.find(std::string_view{name});
-                    CC_EXPECTS(iter != ctx.lg.attributeIndex.end());
-                    const auto attrID = iter->second;
-                    auto sz = getUniformBlockSize(block.members);
-                    const auto bDynamic = isDynamicUniformBlock(block.name);
-                    instance.uniformBuffers[attrID].init(ctx.device, sz, bDynamic);
-                }
-            }
-
-            // update per-instance buffer and descriptor set
-            const auto& programLib = *dynamic_cast<const NativeProgramLibrary*>(ctx.programLib);
-            const auto& data = programLib.localLayoutData;
-            auto& instance = iter->second;
-            auto* set = instance.descriptorSetPool.allocateDescriptorSet();
-            CC_ENSURES(set);
-            for (const auto& block : shader.getBlocks()) {
-                if (static_cast<pipeline::SetIndex>(block.set) != pipeline::SetIndex::LOCAL) {
-                    continue;
-                }
-                // find descriptor name ID
-                const auto& name = block.name;
-                auto iter = ctx.lg.attributeIndex.find(std::string_view{name});
-                CC_EXPECTS(iter != ctx.lg.attributeIndex.end());
-                const auto attrID = iter->second;
-
-                // get uniformBuffer
-                auto& uniformBuffer = instance.uniformBuffers[attrID];
-                CC_EXPECTS(uniformBuffer.cpuBuffer.size() == uniformBuffer.bufferPool.bufferSize);
-
-                // fill cpu buffer
-                auto& cpuData = uniformBuffer.cpuBuffer;
-                if (false) { // NOLINT(readability-simplify-boolean-expr)
-                    for (const auto& v : block.members) {
-                        CC_LOG_INFO(v.name.c_str());
-                    }
-                }
-
-                // create and upload buffer
-                auto* buffer = uniformBuffer.createFromCpuBuffer();
-
-                // set buffer descriptor
-                const auto binding = data.bindingMap.at(attrID);
-                set->bindBuffer(binding, buffer);
-            }
-            ctx.blitPerInstanceDescriptorSets[vertID] = set;
+            uploadBlitOrDispatchUniformBlokcs(vertID, pass);
+        } else if (holds<DispatchTag>(vertID, ctx.g)) {
+            const auto& dispatch = get(DispatchTag{}, vertID, ctx.g);
+            auto& pass = *dispatch.material->getPasses()->at(static_cast<size_t>(dispatch.passID));
+            uploadBlitOrDispatchUniformBlokcs(vertID, pass);
         }
     }
 
@@ -1214,7 +1223,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         if (!pso) {
             return;
         }
-        auto* perInstanceSet = ctx.blitPerInstanceDescriptorSets.at(vertID);
+        auto* perInstanceSet = ctx.perInstanceDescriptorSets.at(vertID);
         // execution
         ctx.cmdBuff->bindPipelineState(pso);
         ctx.cmdBuff->bindDescriptorSet(
@@ -1224,7 +1233,32 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         ctx.cmdBuff->bindInputAssembler(ctx.context.fullscreenQuad.quadIA.get());
         ctx.cmdBuff->draw(ctx.context.fullscreenQuad.quadIA.get());
     }
-    void begin(const Dispatch& pass, RenderGraph::vertex_descriptor vertID) const {
+    void begin(const Dispatch& dispatch, RenderGraph::vertex_descriptor vertID) const {
+        const auto& programLib = *dynamic_cast<const NativeProgramLibrary*>(ctx.programLib);
+        CC_EXPECTS(dispatch.material);
+        CC_EXPECTS(dispatch.material->getPasses());
+        // get pass
+        auto& pass = *dispatch.material->getPasses()->at(static_cast<size_t>(dispatch.passID));
+        // get shader
+        auto& shader = *pass.getShaderVariant();
+        // get pso
+        // auto* pso = pipeline::PipelineStateManager::getOrCreatePipelineState(
+        //     &pass, &shader, ctx.context.fullscreenQuad.quadIA.get(), ctx.currentPass);
+        // if (!pso) {
+        //     return;
+        // }
+        auto* perInstanceSet = ctx.perInstanceDescriptorSets.at(vertID);
+        // execution
+        // ctx.cmdBuff->bindPipelineState(pso);
+        ctx.cmdBuff->bindDescriptorSet(
+            static_cast<uint32_t>(pipeline::SetIndex::MATERIAL), pass.getDescriptorSet());
+        ctx.cmdBuff->bindDescriptorSet(
+            static_cast<uint32_t>(pipeline::SetIndex::LOCAL), perInstanceSet);
+        ctx.cmdBuff->dispatch(gfx::DispatchInfo{
+            dispatch.threadGroupCountX,
+            dispatch.threadGroupCountY,
+            dispatch.threadGroupCountZ,
+        });
     }
     void begin(const ccstd::pmr::vector<ClearView>& pass, RenderGraph::vertex_descriptor vertID) const {
     }
@@ -1895,7 +1929,7 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
         ccstd::pmr::unordered_map<
             RenderGraph::vertex_descriptor,
             gfx::DescriptorSet*>
-            blitPerInstanceDescriptorSets(scratch);
+            perInstanceDescriptorSets(scratch);
 
         // submit commands
         RenderGraphVisitorContext ctx{
@@ -1908,7 +1942,7 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
             &ppl,
             renderGraphDescriptorSet,
             profilerPerPassDescriptorSets,
-            blitPerInstanceDescriptorSets,
+            perInstanceDescriptorSets,
             programLibrary,
             scratch};
 

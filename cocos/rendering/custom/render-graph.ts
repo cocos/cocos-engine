@@ -1094,13 +1094,21 @@ export class SceneData {
 }
 
 export class Dispatch {
-    constructor (shader = '', threadGroupCountX = 0, threadGroupCountY = 0, threadGroupCountZ = 0) {
-        this.shader = shader;
+    constructor (
+        material: Material | null,
+        passID: number,
+        threadGroupCountX: number,
+        threadGroupCountY: number,
+        threadGroupCountZ: number,
+    ) {
+        this.material = material;
+        this.passID = passID;
         this.threadGroupCountX = threadGroupCountX;
         this.threadGroupCountY = threadGroupCountY;
         this.threadGroupCountZ = threadGroupCountZ;
     }
-    shader: string;
+    /*refcount*/ material: Material | null;
+    passID: number;
     threadGroupCountX: number;
     threadGroupCountY: number;
     threadGroupCountZ: number;

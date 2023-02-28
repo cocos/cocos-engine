@@ -109,7 +109,9 @@ export interface RasterPassBuilder extends Setter {
 }
 
 export interface ComputeQueueBuilder extends Setter {
-    addDispatch (shader: string, threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number): void;
+    addDispatch (threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number, material: Material, passID: number): void;
+    addDispatch (threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number, material: Material/*, 0*/): void;
+    addDispatch (threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number/*, null, 0*/): void;
 }
 
 export interface ComputePassBuilder extends Setter {

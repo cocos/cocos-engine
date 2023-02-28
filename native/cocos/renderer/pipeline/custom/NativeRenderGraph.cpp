@@ -980,7 +980,9 @@ void NativeComputeQueueBuilder::setName(const ccstd::string &name) {
     get(RenderGraph::Name, *renderGraph, queueID) = std::string_view{name};
 }
 
-void NativeComputeQueueBuilder::addDispatch(const ccstd::string &shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ) {
+void NativeComputeQueueBuilder::addDispatch(
+    uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ,
+    Material *material, uint32_t passID) {
     std::string_view name("Dispatch");
     addVertex(
         DispatchTag{},
@@ -989,7 +991,8 @@ void NativeComputeQueueBuilder::addDispatch(const ccstd::string &shader, uint32_
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(
-            shader.c_str(),
+            material,
+            passID,
             threadGroupCountX,
             threadGroupCountY,
             threadGroupCountZ),

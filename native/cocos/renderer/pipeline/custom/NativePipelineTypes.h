@@ -146,7 +146,7 @@ public:
     void setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) override;
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override;
 
-    void addDispatch(const ccstd::string &shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ) override;
+    void addDispatch(uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ, Material *material, uint32_t passID) override;
 
     RenderGraph* renderGraph{nullptr};
     const LayoutGraphData* layoutGraph{nullptr};

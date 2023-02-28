@@ -187,7 +187,13 @@ class ComputeQueueBuilder : public Setter {
 public:
     ComputeQueueBuilder() noexcept = default;
 
-    virtual void addDispatch(const ccstd::string &shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ) = 0;
+    virtual void addDispatch(uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ, Material *material, uint32_t passID) = 0;
+    void addDispatch(uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ) {
+        addDispatch(threadGroupCountX, threadGroupCountY, threadGroupCountZ, nullptr, 0);
+    }
+    void addDispatch(uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ, Material *material) {
+        addDispatch(threadGroupCountX, threadGroupCountY, threadGroupCountZ, material, 0);
+    }
 };
 
 class ComputePassBuilder : public Setter {
