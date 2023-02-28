@@ -601,6 +601,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
             if (this._onSiblingIndexChanged) {
                 this._onSiblingIndexChanged(index);
             }
+            this._eventProcessor.onUpdatingSiblingIndex();
         }
     }
 
@@ -1469,7 +1470,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     @serializable
     protected _euler = new Vec3();
 
-    protected _dirtyFlags = TransformBit.NONE; // does the world transform need to update?
+    protected _transformFlags = TransformBit.NONE; // does the world transform need to update?
     protected _eulerDirty = false;
 
     protected _flagChangeVersion = 0;
@@ -1776,7 +1777,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
                 parent.updateWorldTransform();
                 if (approx(Mat4.determinant(parent._mat), 0, EPSILON)) {
                     warnID(14300);
-                    this._dirtyFlags |= TransformBit.TRS;
+                    this._transformFlags |= TransformBit.TRS;
                     this.updateWorldTransform();
                 } else {
                     Mat4.multiply(m4_1, Mat4.invert(m4_1, parent._mat), this._mat);
@@ -1803,7 +1804,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      */
     public _onBatchCreated (dontSyncChildPrefab: boolean) {
         this.hasChangedFlags = TransformBit.TRS;
-        this._dirtyFlags |= TransformBit.TRS;
+        this._transformFlags |= TransformBit.TRS;
         const len = this._children.length;
         for (let i = 0; i < len; ++i) {
             this._children[i]._siblingIndex = i;
@@ -1935,8 +1936,8 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         while (i >= 0) {
             cur = dirtyNodes[i--];
             hasChangedFlags = cur.hasChangedFlags;
-            if (cur.isValid && (cur._dirtyFlags & hasChangedFlags & dirtyBit) !== dirtyBit) {
-                cur._dirtyFlags |= dirtyBit;
+            if (cur.isValid && (cur._transformFlags & hasChangedFlags & dirtyBit) !== dirtyBit) {
+                cur._transformFlags |= dirtyBit;
                 cur.hasChangedFlags = hasChangedFlags | dirtyBit;
 
                 children = cur._children;
@@ -1954,12 +1955,12 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @zh 更新节点的世界变换信息
      */
     public updateWorldTransform () {
-        if (!this._dirtyFlags) { return; }
+        if (!this._transformFlags) { return; }
         // we need to recursively iterate this
         // eslint-disable-next-line @typescript-eslint/no-this-alias
         let cur: this | null = this;
         let i = 0;
-        while (cur && cur._dirtyFlags) {
+        while (cur && cur._transformFlags) {
             // top level node
             dirtyNodes[i++] = cur;
             cur = cur._parent;
@@ -1968,7 +1969,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
 
         while (i) {
             child = dirtyNodes[--i];
-            dirtyBits |= child._dirtyFlags;
+            dirtyBits |= child._transformFlags;
             if (cur) {
                 if (dirtyBits & TransformBit.POSITION) {
                     Vec3.transformMat4(child._pos, child._lpos, cur._mat);
@@ -2001,7 +2002,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
                 }
             }
 
-            child._dirtyFlags = TransformBit.NONE;
+            child._transformFlags = TransformBit.NONE;
             cur = child;
         }
     }
@@ -2465,6 +2466,14 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
                 this.emit(NodeEventType.TRANSFORM_CHANGED, dirtyBit);
             }
         }
+    }
+
+    /**
+     * @en Does the world transform information of this node need to be updated?
+     * @zh 这个节点的空间变换信息是否需要更新？
+     */
+    public isTransformDirty () {
+        return this._transformFlags !== TransformBit.NONE;
     }
 
     /**

@@ -110,7 +110,7 @@ function _getSlotMaterial (tex: TextureBase | null, blendMode: BlendMode) {
     return _comp!.getMaterialForBlend(src, dst);
 }
 
-function _handleColor (color: {r:number, g:number, b:number, a:number}, parentOpacity: number) {
+function _handleColor (color: {r: number, g: number, b: number, a: number}, parentOpacity: number) {
     const _a = color.a * parentOpacity * _nodeA;
     const _multiply = _premultipliedAlpha ? _a / 255.0 : 1.0;
     const _r = color.r * _nodeR * _multiply / 255.0;
@@ -205,7 +205,7 @@ function realTimeTraverse (armature: Armature, parentOpacity: number, worldMat?:
 
         if (worldMat) {
             /* enable batch or recursive armature */
-            slot._mulMat(slot._worldMatrix, worldMat, slot._matrix);
+            Mat4.multiply(slot._worldMatrix, worldMat, slot._matrix);
         } else {
             Mat4.copy(slot._worldMatrix, slot._matrix);
         }

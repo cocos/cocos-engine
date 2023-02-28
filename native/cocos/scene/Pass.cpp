@@ -442,8 +442,8 @@ void Pass::resetUBOs() {
         for (const auto &u : _shaderInfo->blocks) {
             updateBuffer(u);
         }
-        _rootBufferDirty = true;
     }
+    _rootBufferDirty = true;
 }
 
 void Pass::resetTextures() {

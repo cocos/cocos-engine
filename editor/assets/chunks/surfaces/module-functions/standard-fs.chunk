@@ -40,9 +40,23 @@ void CCSurfacesFragmentGetMaterialData(inout SurfacesMaterialData surfaceData)
 #if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
   surfaceData.transmitDiffuseParams = SurfacesFragmentModifyTransmitDiffuseParams();
 #endif
+
+  vec3 baseColorTRT = vec3(0.0);
 #if CC_SURFACES_LIGHTING_TRT
-  vec4 trt = SurfacesFragmentModifyTRTParams();
-  surfaceData.roughnessTRT = trt.x;
+  vec4 trtParams = SurfacesFragmentModifyTRTParams();
+  surfaceData.roughnessTRT = saturate(surfaceData.roughness + trtParams.x);
+  surfaceData.trtIntensity = trtParams.w;
+  surfaceData.baseColorTRT = baseColorTRT = SurfacesFragmentModifyTRTColor();
+  surfaceData.worldTangentTRT = surfaceData.worldTangent;
+  surfaceData.worldBinormalTRT = surfaceData.worldBinormal;
+  RotateTangentAndBinormal(surfaceData.worldTangentTRT, surfaceData.worldBinormalTRT, surfaceData.worldNormal, trtParams.y * PI);
+#endif
+
+#if CC_SURFACES_LIGHTING_TT
+  vec4 ttParams = SurfacesFragmentModifyTTParams();
+  surfaceData.ttScatterCoef = ttParams.x;
+  surfaceData.ttIntensity = ttParams.w;
+  surfaceData.baseColorTT = SurfacesFragmentModifyTTColor(surfaceData.baseColor.rgb, baseColorTRT);
 #endif
 
   SurfacesFragmentModifySharedData(surfaceData);
@@ -56,7 +70,15 @@ void CCSurfacesFragmentGetMaterialData(inout SurfacesMaterialData surfaceData)
 
 #if CC_USE_DEBUG_VIEW
   if (!IS_DEBUG_VIEW_LIGHTING_ENABLE_WITH_ALBEDO)
+  {
       surfaceData.baseColor.rgb = vec3(1.0);
+      #if CC_SURFACES_LIGHTING_TRT
+        surfaceData.baseColorTRT.rgb = vec3(1.0);
+      #endif
+      #if CC_SURFACES_LIGHTING_TT
+        surfaceData.baseColorTT.rgb = vec3(1.0);
+      #endif
+  }
 #endif
 }
 
@@ -104,6 +126,11 @@ void CCSurfacesInitializeLightingIntermediateData(inout LightingIntermediateData
 #if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
   lightingData.transmitDiffuseParams = surfaceData.transmitDiffuseParams;
 #endif
+#if CC_SURFACES_LIGHTING_TT
+  lightingData.baseColorTT = surfaceData.baseColorTT;
+  lightingData.ttIntensity = surfaceData.ttIntensity;
+  lightingData.ttScatterCoef = surfaceData.ttScatterCoef;
+#endif
 }
 
 void CCSurfacesLightingCalculateIntermediateData_PerLight(inout LightingIntermediateData lightingData, in SurfacesMaterialData surfaceData, vec3 lightDirWithDist)
@@ -113,13 +140,20 @@ void CCSurfacesLightingCalculateIntermediateData_PerLight(inout LightingIntermed
 
 // pass original lightingData, get TRT lightingData
 #if CC_SURFACES_LIGHTING_TRT
-void CCSurfacesGetLightingIntermediateDataTRT(out LightingIntermediateData lightingDataTRT, in LightingIntermediateData lightingData, in SurfacesMaterialData surfaceData)
+void CCSurfacesGetLightingIntermediateDataTRT(inout LightingIntermediateData lightingDataTRT, in LightingIntermediateData lightingData, in SurfacesMaterialData surfaceData)
 {
   lightingDataTRT = lightingData;
   lightingDataTRT.specularParam = surfaceData.roughnessTRT;
+  lightingDataTRT.T = surfaceData.worldTangentTRT;
+  lightingDataTRT.B = surfaceData.worldBinormalTRT;
+}
+// pass original surfaceData, get TRT surfaceData
+void CCSurfacesGetSurfacesMaterialDataTRT(inout SurfacesMaterialData surfaceDataTRT, in SurfacesMaterialData surfaceData)
+{
+  surfaceDataTRT = surfaceData;
+  surfaceDataTRT.baseColor = vec4(surfaceData.baseColorTRT, 1.0);
 }
 #endif
-
 
 // Copy material data to lighting results for base pass
 void CCSurfacesInitializeLightingResult(inout LightingResult lightingResult, in SurfacesMaterialData surfaceData)
@@ -142,6 +176,9 @@ void CCSurfacesInitializeLightingResult(inout LightingResult lightingResult)
 #if CC_SURFACES_LIGHTING_TRT
   lightingResult.directTRT = vec3(0.0);
 #endif
+#if CC_SURFACES_LIGHTING_TT
+  lightingResult.directTT = vec3(0.0);
+#endif
 }
 
 // Accumulated lighting results for additive pass
@@ -157,7 +194,11 @@ void CCSurfacesAccumulateLightingResult(inout LightingResult lightingResultAccum
     lightingResultAccumulated.directTransmitDiffuse += lightingResult.directTransmitDiffuse;
   #endif
   #if CC_SURFACES_LIGHTING_TRT
-    lightingResultAccumulated.directTRT += lightingResult.directTRT;
+    lightingResultAccumulated.directTRT += lightingResult.directTRT * lightingResult.shadow;
+  #endif
+  #if CC_SURFACES_LIGHTING_TT
+    lightingResultAccumulated.directTT += lightingResult.directTT * lightingResult.shadow;
+    lightingResultAccumulated.diffuseColorWithLightingTT = lightingResult.diffuseColorWithLightingTT;
   #endif
 }
 
@@ -210,7 +251,10 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
     + lightingResult.directTransmitDiffuse
   #endif
   #if CC_SURFACES_LIGHTING_TRT
-    + lightingResult.directTRT * lightingResult.specularColorWithLighting
+    + lightingResult.directTRT * lightingResult.specularColorWithLightingTRT * surfaceData.trtIntensity
+  #endif
+  #if CC_SURFACES_LIGHTING_TT
+    + lightingResult.directTT * lightingResult.diffuseColorWithLightingTT
   #endif
     )
     * lightingResult.shadow;
@@ -231,7 +275,7 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
     + lightingResult.environmentTransmitDiffuse
   #endif
   #if CC_SURFACES_LIGHTING_TRT
-    + lightingResult.environmentTRT * lightingResult.specularColorWithLighting
+    + lightingResult.environmentTRT * lightingResult.specularColorWithLightingTRT * surfaceData.trtIntensity
   #endif
     )
     * lightingResult.ao;

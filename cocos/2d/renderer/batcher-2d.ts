@@ -1017,8 +1017,7 @@ class LocalDescriptorSet  {
 
     public uploadLocalData () {
         const node = this._transform!;
-        // @ts-expect-error TS2445
-        if (node.hasChangedFlags || node._dirtyFlags) {
+        if (node.hasChangedFlags || node.isTransformDirty()) {
             node.updateWorldTransform();
             this._transformUpdate = true;
         }

@@ -1,8 +1,8 @@
 /****************************************************************************
  Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
- 
+
  http://www.cocos.com
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights to
@@ -117,7 +117,7 @@ void SkinningModel::bindSkeleton(Skeleton *skeleton, Node *skinningRoot, Mesh *m
 
 void SkinningModel::updateTransform(uint32_t stamp) {
     auto *root = getTransform();
-    if (root->getChangedFlags() || root->getDirtyFlag()) {
+    if (root->getChangedFlags() || root->isTransformDirty()) {
         root->updateWorldTransform();
         _localDataUpdated = true;
     }

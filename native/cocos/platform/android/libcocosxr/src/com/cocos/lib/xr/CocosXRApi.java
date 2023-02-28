@@ -162,6 +162,6 @@ public class CocosXRApi {
     }
 
     // native
-    //private native void onActivityLifecycleCallback(int id, String activityClassName);
-    //private native void onAdbCmd(String key, String value);
+    private native void onActivityLifecycleCallback(int id, String activityClassName);
+    private native void onAdbCmd(String key, String value);
 }

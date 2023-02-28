@@ -1270,32 +1270,18 @@ export class WebPipeline implements Pipeline {
         setter.setVec4('cc_nativeSize', new Vec4(shadingWidth, shadingHeight, 1.0 / shadingWidth, 1.0 / shadingHeight));
         const debugView = root.debugView;
         if (debugView) {
-            setter.setVec4('cc_debug_view_mode', new Vec4(debugView.singleMode as number,
-                debugView.lightingWithAlbedo ? 1.0 : 0.0, debugView.csmLayerColoration ? 1.0 : 0.0));
-            const debugPackVec: number[] = [];
+            const debugPackVec: number[] = [debugView.singleMode as number, 0.0, 0.0, 0.0];
             for (let i = DebugViewCompositeType.DIRECT_DIFFUSE as number; i < DebugViewCompositeType.MAX_BIT_COUNT; i++) {
-                const idx = i % 4;
-                debugPackVec[idx] = debugView.isCompositeModeEnabled(i) ? 1.0 : 0.0;
-                const packIdx = Math.floor(i / 4.0);
-                if (idx === 3) {
-                    const outVec = new Vec4();
-                    Vec4.fromArray(outVec, debugPackVec);
-                    setter.setVec4(`cc_debug_view_composite_pack_${packIdx + 1}`, outVec);
-                }
+                const idx = i >> 3;
+                const bit = i % 8;
+                debugPackVec[idx + 1] += (debugView.isCompositeModeEnabled(i) ? 1.0 : 0.0) * (10.0 ** bit);
             }
+            debugPackVec[3] += (debugView.lightingWithAlbedo ? 1.0 : 0.0) * (10.0 ** 6.0);
+            debugPackVec[3] += (debugView.csmLayerColoration ? 1.0 : 0.0) * (10.0 ** 7.0);
+
+            setter.setVec4('cc_debug_view_mode', new Vec4(debugPackVec[0], debugPackVec[1], debugPackVec[2], debugPackVec[3]));
         } else {
-            setter.setVec4('cc_debug_view_mode', new Vec4(0.0, 1.0, 0.0));
-            const debugPackVec: number[] = [];
-            for (let i = DebugViewCompositeType.DIRECT_DIFFUSE as number; i < DebugViewCompositeType.MAX_BIT_COUNT; i++) {
-                const idx = i % 4;
-                debugPackVec[idx] = 1.0;
-                const packIdx = Math.floor(i / 4.0);
-                if (idx === 3) {
-                    const outVec = new Vec4();
-                    Vec4.fromArray(outVec, debugPackVec);
-                    setter.setVec4(`cc_debug_view_composite_pack_${packIdx + 1}`, outVec);
-                }
-            }
+            setter.setVec4('cc_debug_view_mode', new Vec4(0.0, 0.0, 0.0, 0.0));
         }
     }
 

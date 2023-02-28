@@ -209,15 +209,32 @@ function downloadBundle (nameOrUrl, options, onComplete) {
     const version = options.version || cc.assetManager.downloader.bundleVers[bundleName];
     const suffix = version ? `${version}.` : '';
 
+    function getConfigPathForSubPackage () {
+        if (sys.platform === sys.Platform.TAOBAO_MINI_GAME) {
+            return `${bundleName}/config.${suffix}json`;
+        }
+        return `subpackages/${bundleName}/config.${suffix}json`;
+    }
+
+    function appendBaseToJsonData (data) {
+        if (!data) return;
+
+        if (sys.platform === sys.Platform.TAOBAO_MINI_GAME) {
+            data.base = `${bundleName}/`;
+        } else {
+            data.base = `subpackages/${bundleName}/`;
+        }
+    }
+
     if (subpackages[bundleName]) {
-        var config = `subpackages/${bundleName}/config.${suffix}json`;
+        const config = getConfigPathForSubPackage();
         loadSubpackage(bundleName, options.onFileProgress, (err) => {
             if (err) {
                 onComplete(err, null);
                 return;
             }
             downloadJson(config, options, (err, data) => {
-                data && (data.base = `subpackages/${bundleName}/`);
+                appendBaseToJsonData(data);
                 onComplete(err, data);
             });
         });
@@ -242,7 +259,7 @@ function downloadBundle (nameOrUrl, options, onComplete) {
             require(`./${js}`);
         }
         options.__cacheBundleRoot__ = bundleName;
-        var config = `${url}/config.${suffix}json`;
+        const config = `${url}/config.${suffix}json`;
         downloadJson(config, options, (err, data) => {
             if (err) {
                 onComplete && onComplete(err);

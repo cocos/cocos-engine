@@ -98,7 +98,8 @@ public:
     // renderwindow
     xr::XREye getXREyeByRenderWindow(void *window) override;
     void bindXREyeWithRenderWindow(void *window, xr::XREye eye) override;
-
+    void handleAppCommand(int appCmd) override;
+    void adaptOrthographicMatrix(cc::scene::Camera *camera, const ccstd::array<float, 4> &preTransform, Mat4 &proj, Mat4 &view) override;
 private:
     void loadAssetsImage(const std::string &imageInfo);
     void dispatchGamepadEventInternal(const xr::XRControllerEvent &xrControllerEvent);

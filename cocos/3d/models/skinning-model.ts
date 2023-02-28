@@ -170,8 +170,7 @@ export class SkinningModel extends MorphModel {
      */
     public updateTransform (stamp: number) {
         const root = this.transform;
-        // @ts-expect-error TS2445
-        if (root.hasChangedFlags || root._dirtyFlags) {
+        if (root.hasChangedFlags || root.isTransformDirty()) {
             root.updateWorldTransform();
             this._localDataUpdated = true;
         }

@@ -120,7 +120,7 @@ void Model::updateTransform(uint32_t stamp) {
     }
 
     Node *node = _transform;
-    if (node->getChangedFlags() || node->getDirtyFlag()) {
+    if (node->getChangedFlags() || node->isTransformDirty()) {
         node->updateWorldTransform();
         _localDataUpdated = true;
         if (_modelBounds != nullptr && _modelBounds->isValid() && _worldBounds != nullptr) {
@@ -205,7 +205,7 @@ void Model::updateUBOs(uint32_t stamp) {
         _localBuffer->write(mat4, sizeof(float) * pipeline::UBOLocal::MAT_WORLD_IT_OFFSET);
         _localBuffer->write(_lightmapUVParam, sizeof(float) * pipeline::UBOLocal::LIGHTINGMAP_UVPARAM);
         _localBuffer->write(_shadowBias, sizeof(float) * (pipeline::UBOLocal::LOCAL_SHADOW_BIAS));
-        
+
         auto * probe = scene::ReflectionProbeManager::getInstance()->getReflectionProbeById(_reflectionProbeId);
         if (probe) {
             if (probe->getProbeType() == scene::ReflectionProbe::ProbeType::PLANAR) {

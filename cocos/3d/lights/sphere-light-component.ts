@@ -40,19 +40,16 @@ import { Root } from '../../root';
 @executeInEditMode
 export class SphereLight extends Light {
     @serializable
-    protected _size = 0.15;
+    private _size = 0.15;
     @serializable
     @formerlySerializedAs('_luminance')
-    protected _luminanceHDR = 1700 / scene.nt2lm(0.15);
+    private _luminanceHDR = 1700 / scene.nt2lm(0.15);
     @serializable
-    protected _luminanceLDR = 1700 / scene.nt2lm(0.15) * Camera.standardExposureValue * Camera.standardLightMeterScale;
+    private _luminanceLDR = 1700 / scene.nt2lm(0.15) * Camera.standardExposureValue * Camera.standardLightMeterScale;
     @serializable
-    protected _term = PhotometricTerm.LUMINOUS_FLUX;
+    private _term = PhotometricTerm.LUMINOUS_FLUX;
     @serializable
-    protected _range = 1;
-
-    protected _type = scene.LightType.SPHERE;
-    protected _light: scene.SphereLight | null = null;
+    private _range = 1;
 
     /**
      * @en Luminous flux of the light.
@@ -78,7 +75,7 @@ export class SphereLight extends Light {
             this._luminanceLDR = val;
             result = this._luminanceLDR;
         }
-        this._light && (this._light.luminance = result);
+        this._light && ((this._light as scene.SphereLight).luminance = result);
     }
 
     /**
@@ -99,10 +96,10 @@ export class SphereLight extends Light {
         const isHDR = (cclegacy.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             this._luminanceHDR = val;
-            this._light && (this._light.luminanceHDR = this._luminanceHDR);
+            this._light && ((this._light as scene.SphereLight).luminanceHDR = this._luminanceHDR);
         } else {
             this._luminanceLDR = val;
-            this._light && (this._light.luminanceLDR = this._luminanceLDR);
+            this._light && ((this._light as scene.SphereLight).luminanceLDR = this._luminanceLDR);
         }
     }
 
@@ -132,7 +129,7 @@ export class SphereLight extends Light {
     }
     set size (val) {
         this._size = val;
-        if (this._light) { this._light.size = val; }
+        if (this._light) { (this._light as scene.SphereLight).size = val; }
     }
 
     /**
@@ -147,7 +144,7 @@ export class SphereLight extends Light {
     }
     set range (val) {
         this._range = val;
-        if (this._light) { this._light.range = val; }
+        if (this._light) { (this._light as scene.SphereLight).range = val; }
     }
 
     constructor () {
@@ -157,12 +154,13 @@ export class SphereLight extends Light {
 
     protected _createLight () {
         super._createLight();
+        this._type = scene.LightType.SPHERE;
         this.size = this._size;
         this.range = this._range;
 
         if (this._light) {
-            this._light.luminanceHDR = this._luminanceHDR;
-            this._light.luminanceLDR = this._luminanceLDR;
+            (this._light as scene.SphereLight).luminanceHDR = this._luminanceHDR;
+            (this._light as scene.SphereLight).luminanceLDR = this._luminanceLDR;
         }
     }
 }
