@@ -62,6 +62,8 @@ const _world_mat = new Mat4();
 const _world_rol = new Quat();
 const _inv_world_rol = new Quat();
 const _inv_velo = new Vec3();
+const _temp_rol = new Quat();
+const _temp_velo = new Vec3();
 
 const superMaterials = Object.getOwnPropertyDescriptor(Renderer.prototype, 'sharedMaterials')!;
 
@@ -1672,11 +1674,13 @@ export class ParticleSystem extends ModelRenderer {
                 Vec3.transformQuat(particle.velocity, particle.velocity, _world_rol);
             }
 
-            Vec3.copy(particle.ultimateVelocity, particle.velocity);
-
             if (this._particle) {
-                particle.position.add3f(this._particle.velocity.x * i * dd, this._particle.velocity.y * i * dd, this._particle.velocity.z * i * dd);
+                this._particle.particleSystem.node.getWorldRotation(_temp_rol);
+                Vec3.transformQuat(_temp_velo, this._particle.ultimateVelocity, _temp_rol);
+                particle.position.add3f(_temp_velo.x * i * dd, _temp_velo.y * i * dd, _temp_velo.z * i * dd);
             }
+
+            Vec3.copy(particle.ultimateVelocity, particle.velocity);
 
             // apply startRotation.
             if (this.startRotation3D) {
