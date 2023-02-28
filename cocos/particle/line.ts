@@ -40,19 +40,6 @@ const define = { CC_USE_WORLD_SPACE: false, CC_USE_WORLD_SCALE: true };
 @menu('Effects/Line')
 @executeInEditMode
 export class Line extends ModelRenderer {
-    // @serializable
-    // private _customMaterial = false;
-
-    // @type(CCBoolean)
-    // @displayOrder(0)
-    // get customMaterial () {
-    //     return this._customMaterial;
-    // }
-
-    // set customMaterial (val) {
-    //     this._customMaterial = val;
-    // }
-
     @type(Texture2D)
     private _texture = null;
 
@@ -63,7 +50,6 @@ export class Line extends ModelRenderer {
     @type(Texture2D)
     @displayOrder(0)
     @tooltip('i18n:line.texture')
-    // @visible(function (this: Line): boolean { return !this.customMaterial; })
     get texture () {
         return this._texture;
     }
@@ -79,7 +65,6 @@ export class Line extends ModelRenderer {
     @displayOrder(1)
     @tooltip('i18n:line.material')
     @displayName('Material')
-    // @visible(function (this: Line): boolean { return this.customMaterial; })
     get lineMaterial () {
         return this.getMaterial(0);
     }
@@ -203,7 +188,6 @@ export class Line extends ModelRenderer {
     @type(Vec2)
     @displayOrder(4)
     @tooltip('i18n:line.tile')
-    // @visible(function (this: Line): boolean { return !this.customMaterial; })
     get tile () {
         return this._tile;
     }
@@ -223,7 +207,6 @@ export class Line extends ModelRenderer {
     @type(Vec2)
     @displayOrder(5)
     @tooltip('i18n:line.offset')
-    // @visible(function (this: Line): boolean { return !this.customMaterial; })
     get offset () {
         return this._offset;
     }
@@ -269,6 +252,8 @@ export class Line extends ModelRenderer {
         }
         this._attachToScene();
         this.texture = this._texture;
+        this.tile = this._tile;
+        this.offset = this._offset;
         const lineModel = this._models[0] as LineModel;
         lineModel.addLineVertexData(this._positions, this.width, this.color);
     }
