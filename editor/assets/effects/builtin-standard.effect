@@ -97,7 +97,7 @@ CCProgram shared-ubos %{
 CCProgram macro-remapping %{
   // ui displayed macros
   #pragma define-meta HAS_SECOND_UV
-  #pragma define-meta USE_TWOSIDE
+  #pragma define-meta USE_TWOSIDE editor({ tooltip: i18n:ENGINE.assets.effect.propertyTips.useTwoSide })
   #pragma define-meta IS_ANISOTROPY
   #pragma define-meta USE_VERTEX_COLOR
 

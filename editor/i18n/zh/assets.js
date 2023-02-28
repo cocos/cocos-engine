@@ -90,6 +90,11 @@ module.exports = {
             glsl1: 'GLSL 100 Output',
             vert: 'Vertex Shader',
             frag: 'Fragment Shader',
+            propertyTips: {
+                // listed here
+                useTwoSide: '使用两边',
+                IS_ANISOTROPY: '各项异性',
+            },
         },
         image: {
             type: '类型',
