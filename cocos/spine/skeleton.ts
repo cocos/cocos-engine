@@ -817,8 +817,6 @@ export class Skeleton extends UIRenderer {
 
         this._updateSkeletonData();
         this._updateDebugDraw();
-        this._indexBoneSockets();
-        this._updateSocketBindings();
 
         if (EDITOR && !legacyCC.GAME_VIEW) { this._refreshInspector(); }
     }
@@ -1727,6 +1725,7 @@ export class Skeleton extends UIRenderer {
             warn(e);
         }
         this._indexBoneSockets();
+        this._updateSocketBindings();
         this.attachUtil.init(this);
         this._preCacheMode = this._cacheMode;
         this.animation = this.defaultAnimation;
