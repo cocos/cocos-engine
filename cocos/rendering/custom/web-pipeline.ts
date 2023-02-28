@@ -1090,7 +1090,8 @@ export class WebPipeline implements Pipeline {
         // do nothing
     }
     beginSetup (): void {
-        this._renderGraph = new RenderGraph();
+        if (!this._renderGraph) this._renderGraph = new RenderGraph();
+        // this.renderGraph!.clear();
     }
     endSetup (): void {
         this.compile();
@@ -1168,7 +1169,8 @@ export class WebPipeline implements Pipeline {
         // noop
     }
     endFrame () {
-        this._renderGraph = null;
+        // this._renderGraph = null;
+        this.renderGraph?.clear();
     }
 
     compile () {
@@ -1189,6 +1191,7 @@ export class WebPipeline implements Pipeline {
             this._executor = new Executor(this, this._pipelineUBO, this._device,
                 this._resourceGraph, this.layoutGraph, this.width, this.height);
         }
+        this._executor.resize(this.width, this.height);
         this._executor.execute(this._renderGraph);
     }
     protected _applySize (cameras: Camera[]) {
