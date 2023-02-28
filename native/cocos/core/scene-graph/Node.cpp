@@ -454,13 +454,13 @@ void Node::updateWorldTransform() { // NOLINT(misc-no-recursion)
 }
 
 void Node::updateWorldTransformRecursive(uint32_t &dirtyBits) { // NOLINT(misc-no-recursion)
-    const uint32_t currDirtyBits = getDirtyFlag();
+    const uint32_t currDirtyBits = _transformFlags;
     if (!currDirtyBits) {
         return;
     }
 
     Node *parent = getParent();
-    if (parent && parent->getDirtyFlag()) {
+    if (parent && parent->_transformFlags) {
         parent->updateWorldTransformRecursive(dirtyBits);
     }
     dirtyBits |= currDirtyBits;
@@ -495,7 +495,7 @@ void Node::updateWorldTransformRecursive(uint32_t &dirtyBits) { // NOLINT(misc-n
             }
         }
     }
-    setDirtyFlag(static_cast<uint32_t>(TransformBit::NONE));
+    _transformFlags = (static_cast<uint32_t>(TransformBit::NONE));
 }
 
 const Mat4 &Node::getWorldMatrix() const { // NOLINT(misc-no-recursion)
@@ -520,9 +520,9 @@ Mat4 Node::getWorldRT() {
 void Node::invalidateChildren(TransformBit dirtyBit) { // NOLINT(misc-no-recursion)
     auto curDirtyBit{static_cast<uint32_t>(dirtyBit)};
     const uint32_t hasChangedFlags = getChangedFlags();
-    const uint32_t dirtyFlags = getDirtyFlag();
+    const uint32_t dirtyFlags = _transformFlags;
     if (isValid() && (dirtyFlags & hasChangedFlags & curDirtyBit) != curDirtyBit) {
-        setDirtyFlag(dirtyFlags | curDirtyBit);
+        _transformFlags = (dirtyFlags | curDirtyBit);
         setChangedFlags(hasChangedFlags | curDirtyBit);
 
         for (Node *child : getChildren()) {
@@ -654,7 +654,7 @@ void Node::onSetParent(Node *oldParent, bool keepWorldTransform) {
             _parent->updateWorldTransform();
             if (mathutils::approx<float>(_parent->_worldMatrix.determinant(), 0.F, mathutils::EPSILON)) {
                 CC_LOG_WARNING("14300");
-                _dirtyFlag |= static_cast<uint32_t>(TransformBit::TRS);
+                _transformFlags |= static_cast<uint32_t>(TransformBit::TRS);
                 updateWorldTransform();
             } else {
                 Mat4 tmpMat4 = _parent->_worldMatrix.getInversed() * _worldMatrix;

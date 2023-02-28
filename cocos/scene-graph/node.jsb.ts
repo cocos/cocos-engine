@@ -1015,14 +1015,14 @@ nodeProto.getSiblingIndex = function getSiblingIndex() {
     return this._sharedInt32Arr[0]; // Int32, 0: siblingIndex
 };
 
-Object.defineProperty(nodeProto, '_dirtyFlags', {
+Object.defineProperty(nodeProto, '_transformFlags', {
     configurable: true,
     enumerable: true,
     get () {
-        return this._sharedUint32Arr[2]; // Uint32, 2: dirtyFlags
+        return this._sharedUint32Arr[2]; // Uint32, 2: _transformFlags
     },
     set (v) {
-        this._sharedUint32Arr[2] = v; // Uint32, 2: dirtyFlags
+        this._sharedUint32Arr[2] = v; // Uint32, 2: _transformFlags
     },
 });
 
@@ -1217,7 +1217,7 @@ nodeProto._onActiveNode = function (shouldActiveNow: boolean) {
 
 nodeProto._onBatchCreated = function (dontSyncChildPrefab: boolean) {
     this.hasChangedFlags = TRANSFORMBIT_TRS;
-    this._dirtyFlags |= TRANSFORMBIT_TRS;
+    this._transformFlags |= TRANSFORMBIT_TRS;
     const children = this._children;
     const len = children.length;
     let child;

@@ -632,8 +632,7 @@ export class Model {
      */
     public updateTransform (stamp: number) {
         const node = this.transform;
-        // @ts-expect-error TS2445
-        if (node.hasChangedFlags || node._dirtyFlags) {
+        if (node.hasChangedFlags || node.isTransformDirty()) {
             node.updateWorldTransform();
             this._localDataUpdated = true;
             const worldBounds = this._worldBounds;

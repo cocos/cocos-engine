@@ -471,8 +471,7 @@ public:
         _hasChangedFlags = value;
     }
 
-    inline void setDirtyFlag(uint32_t value) { _dirtyFlag = value; }
-    inline uint32_t getDirtyFlag() const { return _dirtyFlag; }
+    inline bool isTransformDirty() const { return _transformFlags != static_cast<uint32_t>(TransformBit::TRS); }
     inline void setLayer(uint32_t layer) {
         _layer = layer;
         emit<LayerChanged>(layer);
@@ -651,7 +650,7 @@ private:
     // NOTE: TypeArray created in node.jsb.ts _ctor should have the same memory layout
     uint32_t _eventMask{0};                                             // Uint32: 0
     uint32_t _layer{static_cast<uint32_t>(Layers::LayerList::DEFAULT)}; // Uint32: 1
-    uint32_t _dirtyFlag{0};                                             // Uint32: 2
+    uint32_t _transformFlags{0};                                             // Uint32: 2
     index_t _siblingIndex{0};                                           // Int32: 0
     uint8_t _activeInHierarchy{0};                                      // Uint8: 0
     uint8_t _active{1};                                                 // Uint8: 1
