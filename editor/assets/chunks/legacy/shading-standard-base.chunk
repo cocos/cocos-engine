@@ -150,7 +150,7 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
     #endif
   #endif
   
-  #if CC_RECEIVE_DIRECTIONAL_LIGHT
+  #if !CC_DISABLE_DIRECTIONAL_LIGHT
     float NV = max(abs(dot(N, V)), 0.0);
     specular = BRDFApprox(specular, s.roughness, NV);
   
