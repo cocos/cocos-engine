@@ -471,7 +471,7 @@ public:
         _hasChangedFlags = value;
     }
 
-    inline bool isTransformDirty() const { return _transformFlags != static_cast<uint32_t>(TransformBit::None); }
+    inline bool isTransformDirty() const { return _transformFlags != static_cast<uint32_t>(TransformBit::NONE); }
     inline void setLayer(uint32_t layer) {
         _layer = layer;
         emit<LayerChanged>(layer);
