@@ -84,9 +84,10 @@ export class ReflectionProbeFlow extends RenderFlow {
                 cclegacy.internal.reflectionProbeManager.updatePlanarMap(probe, probe.realtimePlanarTexture!.getGFXTexture());
             } else {
                 for (let faceIdx = 0; faceIdx < 6; faceIdx++) {
+                    const renderTexture = probe.bakedCubeTextures[faceIdx];
+                    if (!renderTexture) return;
                     //update camera dirction
                     probe.updateCameraDir(faceIdx);
-                    const renderTexture = probe.bakedCubeTextures[faceIdx];
                     probeStage.setUsageInfo(probe, renderTexture.window!.framebuffer);
                     probeStage.render(camera);
                 }
