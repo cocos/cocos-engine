@@ -146,9 +146,7 @@ struct CCMTLGPUTextureViewObject {
 };
 
 struct CCMTLGPUInputAssembler {
-    id<MTLBuffer> mtlIndexBuffer = nil;
-    id<MTLBuffer> mtlIndirectBuffer = nil;
-    ccstd::vector<id<MTLBuffer>> mtlVertexBufers;
+    // 
 };
 
 struct CCMTLGPUDescriptor {
