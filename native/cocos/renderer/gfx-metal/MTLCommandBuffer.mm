@@ -64,7 +64,8 @@ CCMTLCommandBuffer::~CCMTLCommandBuffer() {
 
 void CCMTLCommandBuffer::doInit(const CommandBufferInfo &info) {
     _gpuCommandBufferObj = ccnew CCMTLGPUCommandBufferObject;
-    _inFlightSem = ccnew CCMTLSemaphore(3);
+    constexpr uint8_t backBufferCount = MAX_FRAMES_IN_FLIGHT;
+    _inFlightSem = ccnew CCMTLSemaphore(backBufferCount);
 }
 
 void CCMTLCommandBuffer::doDestroy() {
