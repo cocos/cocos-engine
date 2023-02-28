@@ -1672,11 +1672,13 @@ export class ParticleSystem extends ModelRenderer {
                 Vec3.transformQuat(particle.velocity, particle.velocity, _world_rol);
             }
 
-            Vec3.copy(particle.ultimateVelocity, particle.velocity);
-
             if (this._particle) {
-                particle.position.add3f(this._particle.velocity.x * i * dd, this._particle.velocity.y * i * dd, this._particle.velocity.z * i * dd);
+                this._particle.particleSystem.node.getWorldRotation(_inv_world_rol);
+                Vec3.transformQuat(_inv_velo, this._particle.velocity, _inv_world_rol);
+                particle.position.add3f(_inv_velo.x * i * dd, _inv_velo.y * i * dd, _inv_velo.z * i * dd);
             }
+
+            Vec3.copy(particle.ultimateVelocity, particle.velocity);
 
             // apply startRotation.
             if (this.startRotation3D) {
