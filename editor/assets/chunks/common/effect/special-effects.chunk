@@ -1,5 +1,5 @@
 
-// dithered transparency use alpha-test, better looking with TAA
+// dithered transparency (dithered alpha test), better looking with TAA
 // arguments: FSInput_clipPos, cc_viewPort.zw, baseColor.a
 void DitheredAlphaClip(vec4 clipPos, vec2 screen_resolution, float transparency)
 {
