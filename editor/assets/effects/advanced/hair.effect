@@ -10,7 +10,7 @@ CCEffect %{
         tilingOffset:                     { value: [1.0, 1.0, 0.0, 0.0] }
         mainColor:                        { value: [1.0, 1.0, 1.0, 1.0], target: albedo, linear: true, editor: { displayName: Albedo, type: color } }
         albedoScale:                      { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
-        alphaThreshold:                   { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST, slide: true, range: [0, 1.0], step: 0.001 } }
+        alphaThreshold:                   { value: 0.5, target: albedoScaleAndCutoff.w, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         occlusion:                        { value: 0.0, target: pbrParams.x, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         roughness:                        { value: 0.5, target: pbrParams.y, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         metallic:                         { value: 0.0, target: pbrParams.z, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
@@ -287,11 +287,11 @@ CCProgram surface-fragment %{
       baseColor *= texColor;
     #endif
 
-    /*#if USE_DITHERED_ALPHA_TEST
+    #if USE_DITHERED_ALPHA_TEST
       #if CC_SURFACES_TRANSFER_CLIP_POS
-        DitheredAlphaClip(FSInput_clipPos, cc_viewPort.zw, baseColor.a);
+        DitheredAlphaClip(FSInput_clipPos, cc_viewPort.zw, baseColor.ALPHA_TEST_CHANNEL + (1.0 - albedoScaleAndCutoff.w));
       #endif
-    #endif*/
+    #endif
 
     #if USE_ALPHA_TEST
       #if INVERSE_ALPHA_TEST

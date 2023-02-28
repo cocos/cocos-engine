@@ -7,7 +7,7 @@
 vec2 GetScreenUV(vec4 clipPos, float flipNDCSign)
 {
   vec2 screenUV = clipPos.xy / clipPos.w * 0.5 + 0.5;
-  screenUV = vec2(1.0 - screenUV.x, screenUV.y);
+  screenUV = vec2(screenUV.x, screenUV.y);
   CC_HANDLE_NDC_SAMPLE_FLIP(screenUV, flipNDCSign);
   return screenUV;
 }
