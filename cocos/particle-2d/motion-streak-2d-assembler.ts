@@ -243,6 +243,10 @@ export const MotionStreakAssembler: IAssembler = {
     },
 
     updateRenderData (comp: MotionStreak) {
+        if (JSB) {
+            comp.renderData!.renderDrawInfo.setVertDirty(false);
+            comp.node.hasChangedFlags = 0;
+        }
     },
 
     updateColor (comp: MotionStreak) {
