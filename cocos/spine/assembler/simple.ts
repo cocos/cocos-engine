@@ -247,7 +247,7 @@ export const simple: IAssembler = {
 };
 
 function updateComponentRenderData (comp: Skeleton, batcher: Batcher2D) {
-    if (!comp._skeleton) return;
+    if (!comp._skeleton || comp.renderData === null) return;
 
     const nodeColor = comp.color;
     _nodeR = nodeColor.r / 255;
