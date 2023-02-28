@@ -192,7 +192,7 @@ export class UIRenderer extends Renderer {
         }
         this._color.set(value);
         this._updateColor();
-        if (EDITOR) {
+        if (EDITOR && !cclegacy.GAME_VIEW) {
             const clone = value.clone();
             this.node.emit(NodeEventType.COLOR_CHANGED, clone);
         }
