@@ -64,7 +64,7 @@ const lightProbePatches: IMacroPatch[] = [
     { name: 'CC_USE_LIGHT_PROBE', value: true },
 ];
 const CC_USE_REFLECTION_PROBE = 'CC_USE_REFLECTION_PROBE';
-const CC_RECEIVE_DIRECTIONAL_LIGHT = 'CC_RECEIVE_DIRECTIONAL_LIGHT';
+const CC_DISABLE_DIRECTIONAL_LIGHT = 'CC_DISABLE_DIRECTIONAL_LIGHT';
 export enum ModelType {
     DEFAULT,
     SKINNING,
@@ -1092,7 +1092,7 @@ export class Model {
         ];
         patches = patches ? patches.concat(reflectionProbePatches) : reflectionProbePatches;
         const receiveDirLightPatches: IMacroPatch[] = [
-            { name: CC_RECEIVE_DIRECTIONAL_LIGHT, value: this._receiveDirLight },
+            { name: CC_DISABLE_DIRECTIONAL_LIGHT, value: !this._receiveDirLight },
         ];
         patches = patches ? patches.concat(receiveDirLightPatches) : receiveDirLightPatches;
 

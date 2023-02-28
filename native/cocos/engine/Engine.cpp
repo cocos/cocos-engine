@@ -258,6 +258,8 @@ void Engine::tick() {
     {
         CC_PROFILE(EngineTick);
 
+        _gfxDevice->frameSync();
+
         if (_needRestart) {
             doRestart();
             _needRestart = false;

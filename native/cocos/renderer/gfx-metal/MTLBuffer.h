@@ -49,7 +49,8 @@ public:
 
     void encodeBuffer(CCMTLCommandEncoder &encoder, uint32_t offset, uint32_t binding, ShaderStageFlags stages);
 
-    id<MTLBuffer> getMTLBuffer() const;
+    uint32_t currentOffset() const;
+    id<MTLBuffer> mtlBuffer() const;
 
     inline CCMTLGPUBuffer *gpuBuffer() { return _gpuBuffer; }
     inline MTLIndexType getIndexType() const { return _indexType; }
@@ -69,6 +70,7 @@ protected:
     MTLResourceOptions _mtlResourceOptions = MTLResourceStorageModePrivate;
     bool _isIndirectDrawSupported = false;
     uint32_t _bufferViewOffset = 0;
+    uint8_t _lastUpdateCycle{0};
 
     bool _isDrawIndirectByIndex = false;
     ccstd::vector<MTLDrawIndexedPrimitivesIndirectArguments> _indexedPrimitivesIndirectArguments;
