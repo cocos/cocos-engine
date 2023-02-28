@@ -116,7 +116,7 @@ export class Quat extends ValueType {
      * @zh 获取四元数的旋转轴和旋转弧度
      * @param outAxis output axis
      * @param q input quaternion
-     * @return radius of rotation
+     * @return radian of rotation
      */
     public static getAxisAngle<Out extends IQuatLike, VecLike extends IVec3Like> (outAxis: VecLike, q: Out) {
         const rad = Math.acos(q.w) * 2.0;
@@ -135,8 +135,8 @@ export class Quat extends ValueType {
     }
 
     /**
-     * @en Quaternion multiplication and save the results to out quaternion
-     * @zh 四元数乘法
+     * @en Quaternion multiplication and save the results to out quaternion, that is a * b.
+     * @zh 四元数乘法，即a * b。
      */
     public static multiply<Out extends IQuatLike, QuatLike_1 extends IQuatLike, QuatLike_2 extends IQuatLike> (out: Out, a: QuatLike_1, b: QuatLike_2) {
         const x = a.x * b.w + a.w * b.x + a.y * b.z - a.z * b.y;
@@ -177,7 +177,7 @@ export class Quat extends ValueType {
     /**
      * @en Sets the out quaternion to represent a radian rotation around x axis
      * @zh 绕 X 轴旋转指定四元数
-     * @param rad radius of rotation
+     * @param rad radian of rotation
      */
     public static rotateX<Out extends IQuatLike> (out: Out, a: Out, rad: number) {
         rad *= 0.5;
@@ -196,7 +196,7 @@ export class Quat extends ValueType {
     /**
      * @en Sets the out quaternion to represent a radian rotation around y axis
      * @zh 绕 Y 轴旋转指定四元数
-     * @param rad radius of rotation
+     * @param rad radian of rotation
      */
     public static rotateY<Out extends IQuatLike> (out: Out, a: Out, rad: number) {
         rad *= 0.5;
@@ -215,7 +215,7 @@ export class Quat extends ValueType {
     /**
      * @en Sets the out quaternion to represent a radian rotation around z axis
      * @zh 绕 Z 轴旋转指定四元数
-     * @param rad radius of rotation
+     * @param rad radian of rotation
      */
     public static rotateZ<Out extends IQuatLike> (out: Out, a: Out, rad: number) {
         rad *= 0.5;
@@ -235,7 +235,7 @@ export class Quat extends ValueType {
      * @en Sets the out quaternion to represent a radian rotation around a given rotation axis in world space
      * @zh 绕世界空间下指定轴旋转四元数
      * @param axis axis of rotation, normalized by default
-     * @param rad radius of rotation
+     * @param rad radian of rotation
      */
     public static rotateAround<Out extends IQuatLike, VecLike extends IVec3Like> (out: Out, rot: Out, axis: VecLike, rad: number) {
         // get inv-axis (local to rot)
@@ -251,7 +251,7 @@ export class Quat extends ValueType {
      * @en Sets the out quaternion to represent a radian rotation around a given rotation axis in local space
      * @zh 绕本地空间下指定轴旋转四元数
      * @param axis axis of rotation
-     * @param rad radius of rotation
+     * @param rad radian of rotation
      */
     public static rotateAroundLocal<Out extends IQuatLike, VecLike extends IVec3Like> (out: Out, rot: Out, axis: VecLike, rad: number) {
         Quat.fromAxisAngle(qt_1, axis, rad);
@@ -457,7 +457,7 @@ export class Quat extends ValueType {
      * @en Calculates the quaternion with the three-dimensional transform matrix, considering no scale included in the matrix
      * @zh 根据三维矩阵信息计算四元数，默认输入矩阵不含有缩放信息
      */
-    public static  fromMat3<Out extends IQuatLike> (out: Out, m: Mat3) {
+    public static fromMat3<Out extends IQuatLike> (out: Out, m: Mat3) {
         const {
             m00, m03: m01, m06: m02,
             m01: m10, m04: m11, m07: m12,
@@ -500,8 +500,8 @@ export class Quat extends ValueType {
     }
 
     /**
-     * @en Calculates the quaternion with Euler angles, the rotation order is YZX
-     * @zh 根据欧拉角信息计算四元数，旋转顺序为 YZX
+     * @en Calculates the quaternion with Euler angles, the rotation order is YZX, first rotate around Y, then around Z, and finally around X.
+     * @zh 根据欧拉角信息计算四元数，旋转顺序为 YZX，即先绕Y旋转，再绕Z，最后绕X旋转。
      */
     public static fromEuler<Out extends IQuatLike> (out: Out, x: number, y: number, z: number) {
         x *= halfToRad;
@@ -547,7 +547,7 @@ export class Quat extends ValueType {
         const fz = 2.0 * q.z;
         out.x = 1.0 - fy * q.y - fz * q.z;
         out.y = fy * q.x + fz * q.w;
-        out.z = fz * q.x + fy * q.w;
+        out.z = fz * q.x - fy * q.w;
 
         return out;
     }
@@ -575,7 +575,7 @@ export class Quat extends ValueType {
         const fx = 2.0 * q.x;
         const fy = 2.0 * q.y;
         const fz = 2.0 * q.z;
-        out.x = fz * q.x - fy * q.w;
+        out.x = fz * q.x + fy * q.w;
         out.y = fz * q.y - fx * q.w;
         out.z = 1.0 - fx * q.x - fy * q.y;
 
@@ -583,8 +583,9 @@ export class Quat extends ValueType {
     }
 
     /**
-     * @en Converts the quaternion to angles, result angle x, y in the range of [-180, 180], z in the range of [-90, 90] interval, the rotation order is YZX
-     * @zh 根据四元数计算欧拉角，返回角度 x, y 在 [-180, 180] 区间内, z 默认在 [-90, 90] 区间内，旋转顺序为 YZX
+     * @en Converts the quaternion to angles, result angle x, y in the range of [-180, 180], z in the range of [-90, 90] interval,
+     * the rotation order is YZX, first rotate around Y, then around Z, and finally around X
+     * @zh 根据四元数计算欧拉角，返回角度 x, y 在 [-180, 180] 区间内, z 默认在 [-90, 90] 区间内，旋转顺序为 YZX，即先绕Y旋转，再绕Z，最后绕X旋转。
      * @param outerZ change z value range to [-180, -90] U [90, 180]
      */
     public static toEuler (out: IVec3Like, q: IQuatLike, outerZ?: boolean) {
@@ -619,8 +620,9 @@ export class Quat extends ValueType {
     }
 
     /**
-     * @en Converts the quaternion to euler angles, result angle y, z in the range of [-180, 180], x in the range of [-90, 90], the rotation order is YXZ
-     * @zh 根据四元数计算欧拉角，返回角度 yz 在 [-180, 180], x 在 [-90, 90]，旋转顺序为 YXZ
+     * @en Converts the quaternion to euler angles, result angle y, z in the range of [-180, 180], x in the range of [-90, 90],
+     * the rotation order is YXZ, first rotate around Y, then around X, and finally around Z.
+     * @zh 根据四元数计算欧拉角，返回角度 yz 在 [-180, 180], x 在 [-90, 90]，旋转顺序为 YXZ，即先绕Y旋转，再绕X，最后绕Z旋转。
      */
     public static toEulerInYXZOrder (out: Vec3, q: IQuatLike) {
         Mat3.fromQuat(m3_1, q);
