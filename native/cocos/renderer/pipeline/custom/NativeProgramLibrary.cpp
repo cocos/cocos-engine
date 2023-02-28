@@ -797,6 +797,7 @@ void makeShaderInfo(
     calculateFlattenedBinding(descriptorSets, fixedInstanceDescriptorSetLayout, shaderInfo);
     shaderInfo.stages.emplace_back(gfx::ShaderStage{gfx::ShaderStageFlagBit::VERTEX, ""});
     shaderInfo.stages.emplace_back(gfx::ShaderStage{gfx::ShaderStageFlagBit::FRAGMENT, ""});
+    shaderInfo.stages.emplace_back(gfx::ShaderStage{gfx::ShaderStageFlagBit::COMPUTE, ""});
 }
 
 std::pair<uint32_t, uint32_t> findBinding(
@@ -1477,6 +1478,9 @@ ProgramProxy *NativeProgramLibrary::getProgramVariant(
     }
     info.shaderInfo.stages[0].source = prefix + src->vert;
     info.shaderInfo.stages[1].source = prefix + src->frag;
+    if (src->compute) {
+        info.shaderInfo.stages.at(2).source = prefix + *src->compute;
+    }
 
     // strip out the active attributes only, instancing depend on this
     info.shaderInfo.attributes = getActiveAttributes(programInfo, info.attributes, defines);

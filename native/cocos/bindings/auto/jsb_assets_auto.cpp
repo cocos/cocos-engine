@@ -16070,6 +16070,43 @@ static bool js_cc_IShaderSource_frag_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_IShaderSource_frag_get) 
 
+static bool js_cc_IShaderSource_compute_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::IShaderSource *arg1 = (cc::IShaderSource *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IShaderSource>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->compute, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_IShaderSource_compute_set) 
+
+static bool js_cc_IShaderSource_compute_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::IShaderSource *arg1 = (cc::IShaderSource *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IShaderSource>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->compute, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->compute, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_IShaderSource_compute_get) 
+
 static bool js_new_cc_IShaderSource(se::State& s) // NOLINT(readability-identifier-naming)
 {
     CC_UNUSED bool ok = true;
@@ -16117,6 +16154,12 @@ bool sevalue_to_native(const se::Value &from, cc::IShaderSource * to, se::Object
     }
     
     
+    json->getProperty("compute", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->compute), ctx);
+    }
+    
+    
     return ok;
 }
 
@@ -16127,6 +16170,7 @@ bool js_register_cc_IShaderSource(se::Object* obj) {
     cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("vert", _SE(js_cc_IShaderSource_vert_get), _SE(js_cc_IShaderSource_vert_set)); 
     cls->defineProperty("frag", _SE(js_cc_IShaderSource_frag_get), _SE(js_cc_IShaderSource_frag_set)); 
+    cls->defineProperty("compute", _SE(js_cc_IShaderSource_compute_get), _SE(js_cc_IShaderSource_compute_set)); 
     
     
     

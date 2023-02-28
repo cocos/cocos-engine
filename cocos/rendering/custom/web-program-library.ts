@@ -521,6 +521,7 @@ function makeShaderInfo (
     calculateFlattenedBinding(descriptorSets, fixedInstanceDescriptorSetLayout, shaderInfo);
     shaderInfo.stages.push(new ShaderStage(ShaderStageFlagBit.VERTEX, ''));
     shaderInfo.stages.push(new ShaderStage(ShaderStageFlagBit.FRAGMENT, ''));
+    shaderInfo.stages.push(new ShaderStage(ShaderStageFlagBit.COMPUTE, ''));
     return [shaderInfo, blockSizes];
 }
 
@@ -880,6 +881,9 @@ export class WebProgramLibrary implements ProgramLibrary {
         const shaderInfo = info.shaderInfo;
         shaderInfo.stages[0].source = prefix + src.vert;
         shaderInfo.stages[1].source = prefix + src.frag;
+        if (src.compute) {
+            shaderInfo.stages[2].source = prefix + src.compute;
+        }
         shaderInfo.attributes = getActiveAttributes(programInfo, info.attributes, defines);
         shaderInfo.name = getShaderInstanceName(name, macroArray);
 
