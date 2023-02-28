@@ -452,8 +452,15 @@ export class UIRenderer extends Renderer {
         if (this._assembler) {
             this._assembler.updateColor(this);
             // Need update rendFlag when opacity changes from 0 to !0 or 0 to !0
+            const renderFlag = this._renderFlag;
             this._renderFlag = this._canRender();
             this.setEntityEnabled(this._renderFlag);
+            if (renderFlag !== this._renderFlag) {
+                const renderData = this.renderData;
+                if (renderData) {
+                    renderData.vertDirty = true;
+                }
+            }
         }
     }
 
