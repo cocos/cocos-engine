@@ -1599,6 +1599,7 @@ export class ParticleSystem extends ModelRenderer {
             this.node.getWorldRotation(_world_rol);
         }
 
+        const dd = dt / count;
         for (let i = 0; i < count; ++i) {
             const particle = this.processor.getFreeParticle();
             if (particle === null) {
@@ -1672,6 +1673,10 @@ export class ParticleSystem extends ModelRenderer {
             }
 
             Vec3.copy(particle.ultimateVelocity, particle.velocity);
+
+            if (this._particle) {
+                particle.position.add3f(this._particle.velocity.x * i * dd, this._particle.velocity.y * i * dd, this._particle.velocity.z * i * dd);
+            }
 
             // apply startRotation.
             if (this.startRotation3D) {
