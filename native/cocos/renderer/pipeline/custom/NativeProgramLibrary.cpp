@@ -795,9 +795,9 @@ void makeShaderInfo(
         }
     }
     calculateFlattenedBinding(descriptorSets, fixedInstanceDescriptorSetLayout, shaderInfo);
+    shaderInfo.stages.reserve(2);
     shaderInfo.stages.emplace_back(gfx::ShaderStage{gfx::ShaderStageFlagBit::VERTEX, ""});
     shaderInfo.stages.emplace_back(gfx::ShaderStage{gfx::ShaderStageFlagBit::FRAGMENT, ""});
-    shaderInfo.stages.emplace_back(gfx::ShaderStage{gfx::ShaderStageFlagBit::COMPUTE, ""});
 }
 
 std::pair<uint32_t, uint32_t> findBinding(
@@ -1476,10 +1476,15 @@ ProgramProxy *NativeProgramLibrary::getProgramVariant(
     } else {
         CC_LOG_ERROR("Invalid GFX API!");
     }
-    info.shaderInfo.stages[0].source = prefix + src->vert;
-    info.shaderInfo.stages[1].source = prefix + src->frag;
+
     if (src->compute) {
-        info.shaderInfo.stages.at(2).source = prefix + *src->compute;
+        info.shaderInfo.stages.clear();
+        info.shaderInfo.stages.emplace_back(
+            gfx::ShaderStage{gfx::ShaderStageFlagBit::COMPUTE,
+            prefix + *src->compute});
+    } else {
+        info.shaderInfo.stages[0].source = prefix + src->vert;
+        info.shaderInfo.stages[1].source = prefix + src->frag;
     }
 
     // strip out the active attributes only, instancing depend on this
