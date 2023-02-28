@@ -370,6 +370,10 @@ export class NodeEventProcessor {
         }
     }
 
+    public onUpdatingSiblingIndex () {
+        NodeEventProcessor.callbacksInvoker.emit(DispatcherEventType.MARK_LIST_DIRTY);
+    }
+
     private _searchComponentsInParent<T extends Component> (ctor: Constructor<T> | null) {
         const node = this.node;
         if (ctor) {
