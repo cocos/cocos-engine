@@ -72,7 +72,7 @@ export class TouchInputSource {
                 handleTouches.push(touch);
             }
             event.stopPropagation();
-            if (event.target === this._canvas || InputEventType.TOUCH_MOVE) {
+            if (event.target === this._canvas) {
                 event.preventDefault();
             }
             if (eventType === InputEventType.TOUCH_START) {

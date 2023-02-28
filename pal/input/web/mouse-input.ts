@@ -40,11 +40,11 @@ export class MouseInputSource {
     private _preMousePos: Vec2 = new Vec2();
 
     // @ts-expect-error maybe not initialized
-    private _handleMouseDown: (event: MouseEvent) => void;
+    private _handleMouseDown: (event: PointerEvent) => void;
     // @ts-expect-error maybe not initialized
-    private _handleMouseMove: (event: MouseEvent) => void;
+    private _handleMouseMove: (event: PointerEvent) => void;
     // @ts-expect-error maybe not initialized
-    private _handleMouseUp: (event: MouseEvent) => void;
+    private _handleMouseUp: (event: PointerEvent) => void;
 
     constructor () {
         if (systemInfo.hasFeature(Feature.EVENT_MOUSE)) {
@@ -96,13 +96,13 @@ export class MouseInputSource {
         window.addEventListener('pointerdown', () => {
             this._isPressed = true;
         });
-        this._canvas?.addEventListener('pointerdown', this._createCallback(InputEventType.MOUSE_DOWN));
+        this._canvas?.addEventListener('pointerdown', this._handleMouseDown);
 
         // register mouse move event
-        this._canvas?.addEventListener('pointermove', this._createCallback(InputEventType.MOUSE_MOVE));
+        this._canvas?.addEventListener('pointermove', this._handleMouseMove);
 
         // register mouse up event
-        const handleMouseUp = this._createCallback(InputEventType.MOUSE_UP);
+        const handleMouseUp = this._handleMouseUp;
         window.addEventListener('pointerup', handleMouseUp);
         this._canvas?.addEventListener('pointerup', handleMouseUp);
 
@@ -130,9 +130,9 @@ export class MouseInputSource {
     }
 
     private _createCallback (eventType: InputEventType) {
-        return (mouseEvent: MouseEvent) => {
-            const location = this._getLocation(mouseEvent);
-            const { button, buttons } = mouseEvent;
+        return (pointerEvent: PointerEvent) => {
+            const location = this._getLocation(pointerEvent);
+            const { button, buttons } = pointerEvent;
             let targetButton = button;
             switch (eventType) {
             case InputEventType.MOUSE_DOWN:
@@ -162,14 +162,14 @@ export class MouseInputSource {
             const eventMouse = new EventMouse(eventType, false, this._preMousePos);
             eventMouse.setLocation(location.x, location.y);
             eventMouse.setButton(targetButton);
-            eventMouse.movementX = mouseEvent.movementX;
-            eventMouse.movementY = mouseEvent.movementY;
+            eventMouse.movementX = pointerEvent.movementX;
+            eventMouse.movementY = pointerEvent.movementY;
 
             // update previous mouse position.
             this._preMousePos.set(location.x, location.y);
-            mouseEvent.stopPropagation();
-            if (mouseEvent.target === this._canvas) {
-                mouseEvent.preventDefault();
+            pointerEvent.stopPropagation();
+            if (pointerEvent.target === this._canvas) {
+                pointerEvent.preventDefault();
             }
             this._eventTarget.emit(eventType, eventMouse);
         };
