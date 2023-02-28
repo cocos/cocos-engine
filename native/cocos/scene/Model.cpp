@@ -65,7 +65,7 @@ const cc::gfx::SamplerInfo LIGHTMAP_SAMPLER_WITH_MIP_HASH{
 const ccstd::vector<cc::scene::IMacroPatch> SHADOW_MAP_PATCHES{{"CC_RECEIVE_SHADOW", true}};
 const ccstd::vector<cc::scene::IMacroPatch> LIGHT_PROBE_PATCHES{{"CC_USE_LIGHT_PROBE", true}};
 const ccstd::string CC_USE_REFLECTION_PROBE = "CC_USE_REFLECTION_PROBE";
-const ccstd::string CC_RECEIVE_DIRECTIONAL_LIGHT = "CC_RECEIVE_DIRECTIONAL_LIGHT";
+const ccstd::string CC_DISABLE_DIRECTIONAL_LIGHT = "CC_DISABLE_DIRECTIONAL_LIGHT";
 const ccstd::vector<cc::scene::IMacroPatch> STATIC_LIGHTMAP_PATHES{{"CC_USE_LIGHTMAP", 1}};
 const ccstd::vector<cc::scene::IMacroPatch> STATIONARY_LIGHTMAP_PATHES{{"CC_USE_LIGHTMAP", 2}};
 } // namespace
@@ -469,7 +469,7 @@ ccstd::vector<IMacroPatch> Model::getMacroPatches(index_t subModelIndex) {
             }
         }
     }
-    patches.push_back({CC_RECEIVE_DIRECTIONAL_LIGHT, _receiveDirLight});
+    patches.push_back({CC_DISABLE_DIRECTIONAL_LIGHT, !_receiveDirLight});
 
     return patches;
 }
