@@ -2472,7 +2472,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @zh 这个节点的空间变换信息是否需要更新？
      */
     public isTransformDirty () {
-        return this._transformFlags | TransformBit.NONE;
+        return this._transformFlags !== TransformBit.NONE;
     }
 
     /**

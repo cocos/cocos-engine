@@ -520,9 +520,9 @@ Mat4 Node::getWorldRT() {
 void Node::invalidateChildren(TransformBit dirtyBit) { // NOLINT(misc-no-recursion)
     auto curDirtyBit{static_cast<uint32_t>(dirtyBit)};
     const uint32_t hasChangedFlags = getChangedFlags();
-    const uint32_t dirtyFlags = _transformFlags;
-    if (isValid() && (dirtyFlags & hasChangedFlags & curDirtyBit) != curDirtyBit) {
-        _transformFlags = (dirtyFlags | curDirtyBit);
+    const uint32_t transformFlags = _transformFlags;
+    if (isValid() && (transformFlags & hasChangedFlags & curDirtyBit) != curDirtyBit) {
+        _transformFlags = (transformFlags | curDirtyBit);
         setChangedFlags(hasChangedFlags | curDirtyBit);
 
         for (Node *child : getChildren()) {

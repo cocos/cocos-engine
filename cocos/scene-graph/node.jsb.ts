@@ -812,6 +812,10 @@ nodeProto.getWorldRS = function getWorldRS (out?: Mat4): Mat4 {
     return out;
 };
 
+nodeProto.isTransformDirty = function(): Boolean {
+    return this._transformFlags !== TransformBit.NONE;
+};
+
 Object.defineProperty(nodeProto, 'name', {
     configurable: true,
     enumerable: true,
