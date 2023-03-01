@@ -27,6 +27,7 @@
 #include <unistd.h>
 #include <functional>
 #include <unordered_map>
+#include "cocos-version.h"
 #include "android/AndroidPlatform.h"
 #include "base/Log.h"
 #include "base/Macros.h"
@@ -441,6 +442,7 @@ void XRInterface::initialize(void *javaVM, void *activity) {
     xr::XrEntry::getInstance()->setHandleCallback(std::bind(&XRInterface::dispatchHandleEventInternal, this, std::placeholders::_1));
     xr::XrEntry::getInstance()->setHMDCallback(std::bind(&XRInterface::dispatchHMDEventInternal, this, std::placeholders::_1));
     xr::XrEntry::getInstance()->setXRConfig(xr::XRConfigKey::LOGIC_THREAD_ID, static_cast<int>(gettid()));
+    xr::XrEntry::getInstance()->setXRConfig(xr::XRConfigKey::ENGINE_VERSION, COCOS_VERSION);
     xr::XrEntry::getInstance()->setXRConfigCallback([this](xr::XRConfigKey key, xr::XRConfigValue value) {
         if (IS_ENABLE_XR_LOG) CC_LOG_INFO("XRConfigCallback.%d", key);
         if (key == xr::XRConfigKey::RENDER_EYE_FRAME_LEFT || key == xr::XRConfigKey::RENDER_EYE_FRAME_RIGHT) {

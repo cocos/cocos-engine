@@ -1,7 +1,7 @@
 /*
- Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2023 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -22,8 +22,61 @@
  THE SOFTWARE.
 */
 
-import './font-loader';
+/**
+ * @en XR Eye Enum.
+ * @zh XR视窗枚举。
+ */
+export enum XREye {
+    /**
+     * @en None.
+     * @zh 无。
+     */
+    NONE = -1,
+    /**
+     * @en Left eye.
+     * @zh 左眼。
+     */
+    LEFT = 0,
+    /**
+     * @en Right eye.
+     * @zh 右眼。
+     */
+    RIGHT = 1
+}
 
-export * from './html-text-parser';
-export * from './text-utils';
-export { dynamicAtlasManager } from './dynamic-atlas/atlas-manager';
+/**
+ * @en XR Config Key Enum.
+ * @zh XR配置键值枚举。
+ */
+export enum XRConfigKey {
+    /**
+     * @en Session running.
+     * @zh 会话运行中。
+     */
+    SESSION_RUNNING = 2,
+    /**
+     * @en View count.
+     * @zh 视窗数量。
+     */
+    VIEW_COUNT = 6,
+    /**
+     * @en Swapchain width.
+     * @zh 交换链宽度。
+     */
+    SWAPCHAIN_WIDTH = 7,
+    /**
+     * @en Swapchain height.
+     * @zh 交换链高度。
+     */
+    SWAPCHAIN_HEIGHT = 8,
+    /**
+     * @en Device IPD.
+     * @zh 设备瞳距。
+     */
+    DEVICE_IPD = 37,
+    /**
+     * @en Split AR Glasses.
+     * @zh 分体式AR眼镜。
+     */
+    SPLIT_AR_GLASSES = 42
+}

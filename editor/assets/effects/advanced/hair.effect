@@ -10,7 +10,7 @@ CCEffect %{
         tilingOffset:                     { value: [1.0, 1.0, 0.0, 0.0] }
         mainColor:                        { value: [1.0, 1.0, 1.0, 1.0], target: albedo, linear: true, editor: { displayName: Albedo, type: color } }
         albedoScale:                      { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
-        alphaThreshold:                   { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST, slide: true, range: [0, 1.0], step: 0.001 } }
+        alphaThreshold:                   { value: 0.5, target: albedoScaleAndCutoff.w, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         occlusion:                        { value: 0.0, target: pbrParams.x, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         roughness:                        { value: 0.5, target: pbrParams.y, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         metallic:                         { value: 0.0, target: pbrParams.z, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
@@ -25,13 +25,14 @@ CCEffect %{
         pbrMap:                           { value: grey }
         occlusionMap:                     { value: white }
         emissiveMap:                      { value: grey }
-        anisotropyMap:                    { value: black, editor : { tips: 'x: anisotropy intensity; y: anisotropy rotation; zw: reserved' } }
-        roughnessTRT:                     { value: 0.2, target: trtParams.x, editor: { displayName: TRT Roughness Offset, slide: true, range: [0, 1.0], step: 0.001, tips: 'The extend range of internal reflection lighting compared to direct lighting' } }
-        rotationTRT:                      { value: 0.0, target: trtParams.y, editor: { displayName: TRT Lighting Offset, slide: true, range: [0, 1.0], step: 0.001, tips: 'The position offset of internal reflection lighting compared to direct lighting' } }
+        anisotropyMap:                    { value: black, editor : { tootip: 'x: anisotropy intensity; y: anisotropy rotation; zw: reserved' } }
+        roughnessTRT:                     { value: 0.2, target: trtParams.x, editor: { displayName: TRT Roughness Offset, slide: true, range: [0, 1.0], step: 0.001, tootip: 'The extend range of internal reflection lighting compared to direct lighting' } }
+        rotationTRT:                      { value: 0.0, target: trtParams.y, editor: { displayName: TRT Lighting Offset, slide: true, range: [0, 1.0], step: 0.001, tootip: 'The position offset of internal reflection lighting compared to direct lighting' } }
         IntensityTRT:                     { value: 1.0, target: trtParams.w, editor: { displayName: TRT Intensity, slide: true, range: [0, 1.0], step: 0.01 } }
+        baseColorTRT:                     { value: [0.5, 0.33, 0.18, 1.0], target: trtColor, linear: true, editor: { displayName: TRT Albedo, type: color } }
         ScatterCoefTT:                    { value: 0.0, target: ttParams.x, editor: { displayName: TT Scatter Coef, slide: true, range: [0, 1.0], step: 0.01 } }
         IntensityTT:                      { value: 1.0, target: ttParams.w, editor: { displayName: TT Intensity, slide: true, range: [0, 1.0], step: 0.01 } }
-        baseColorTRT:                     { value: [1.0, 1.0, 1.0, 1.0], target: trtColor, linear: true, editor: { displayName: TRT Albedo, type: color } }
+        baseColorTT:                      { value: [0.5, 0.33, 0.18, 1.0], target: ttColor, linear: true, editor: { displayName: TT Albedo, type: color } }
       rasterizerState:
         cullMode: None
       depthStencilState:
@@ -142,6 +143,7 @@ CCProgram shared-ubos %{
     vec4 anisotropyParam;
     vec4 trtColor;
     vec4 trtParams;
+    vec4 ttColor;
     vec4 ttParams;
   };
 }%
@@ -160,6 +162,7 @@ CCProgram macro-remapping %{
   
   #define CC_SURFACES_LIGHTING_TRT 1
   #define CC_SURFACES_LIGHTING_TT 1
+  #define CC_SURFACES_TRANSFER_CLIP_POS 1
 
   // depend on UI macros
 #if IS_ANISOTROPY || USE_NORMAL_MAP
@@ -210,6 +213,8 @@ CCProgram surface-vertex %{
 }%
 
 CCProgram surface-fragment %{
+  #include <common/effect/special-effects>
+
   #if USE_ALBEDO_MAP
     uniform sampler2D albedoMap;
     #pragma define-meta ALBEDO_UV options([v_uv, v_uv1])
@@ -263,8 +268,7 @@ CCProgram surface-fragment %{
   #define CC_SURFACES_FRAGMENT_MODIFY_TT_COLOR
   vec3 SurfacesFragmentModifyTTColor(in vec3 baseColor, in vec3 trtColor)
   {
-      return trtColor.rgb;
-      // return mix(ttColor, baseColor.rgb, 0.5)); //ttColor can be (0.992, 0.808, 0.516)
+      return mix(baseColor.rgb, ttColor.rgb, ttColor.a); //ttColor can be (0.992, 0.808, 0.516)
   }
 
   #define CC_SURFACES_FRAGMENT_MODIFY_BASECOLOR_AND_TRANSPARENCY
@@ -283,12 +287,18 @@ CCProgram surface-fragment %{
       baseColor *= texColor;
     #endif
 
+    #if USE_DITHERED_ALPHA_TEST
+      #if CC_SURFACES_TRANSFER_CLIP_POS
+        DitheredAlphaClip(FSInput_clipPos, cc_viewPort.zw, baseColor.ALPHA_TEST_CHANNEL + (1.0 - albedoScaleAndCutoff.w));
+      #endif
+    #endif
+
     #if USE_ALPHA_TEST
       #if INVERSE_ALPHA_TEST
         if (baseColor.ALPHA_TEST_CHANNEL >= albedoScaleAndCutoff.w) discard;
       #else
         if (baseColor.ALPHA_TEST_CHANNEL < albedoScaleAndCutoff.w) discard;
-      #endif          
+      #endif
     #endif
 
     baseColor.rgb *= albedoScaleAndCutoff.xyz;

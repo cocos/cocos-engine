@@ -1,0 +1,12 @@
+
+// dithered transparency (dithered alpha test), better looking with TAA
+// arguments: FSInput_clipPos, cc_viewPort.zw, baseColor.a
+void DitheredAlphaClip(vec4 clipPos, vec2 screen_resolution, float transparency)
+{
+  // can not be floor or ceil
+  vec2 screenPos = (clipPos.xy / clipPos.w * 0.5 + vec2(0.5)) * floor(screen_resolution);
+  float dither5 = fract( ( screenPos.x + screenPos.y * 2.0 - 1.5 /*+ ResolvedView.TemporalAAParams.x*/ ) / 5.0 );
+  float noiseValue = fract( dot( vec2( 171.0, 231.0 ) / 71.0, screenPos.xy ) );
+  float dither = ( dither5 * 5.0 + noiseValue ) * (1.0 / 6.0);
+  if( transparency + dither < 0.833333333 ) discard;
+}
