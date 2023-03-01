@@ -78,13 +78,11 @@ bool Vec4::isOne() const {
 }
 
 float Vec4::angle(const Vec4 &v1, const Vec4 &v2) {
-    const float dw = v1.w * v2.w;
-    const float dx = (v1.y * v2.z - v1.z * v2.y) / dw;
-    const float dy = (v1.z * v2.x - v1.x * v2.z) / dw;
-    const float dz = (v1.x * v2.y - v1.y * v2.x) / dw;
-    const float dotVal = (v1.x * v2.x + v1.y * v2.y + v1.z * v2.z) / dw;
+    float dx = v1.w * v2.x - v1.x * v2.w - v1.y * v2.z + v1.z * v2.y;
+    float dy = v1.w * v2.y - v1.y * v2.w - v1.z * v2.x + v1.x * v2.z;
+    float dz = v1.w * v2.z - v1.z * v2.w - v1.x * v2.y + v1.y * v2.x;
 
-    return std::atan2(std::sqrt(dx * dx + dy * dy + dz * dz) + MATH_FLOAT_SMALL, dotVal);
+    return std::atan2(std::sqrt(dx * dx + dy * dy + dz * dz) + MATH_FLOAT_SMALL, dot(v1, v2));
 }
 
 void Vec4::add(const Vec4 &v) {
@@ -219,21 +217,6 @@ void Vec4::negate() {
     y = -y;
     z = -z;
     w = -w;
-}
-
-/**
-* The inverse value of this vector.
-* 
-* This method set each component to its inverse value, zero
-* will become infinity.
-*/
-void Vec4::inverse(const Vec4 &v, Vec4 *dst) {
-    CC_ASSERT(dst);
-
-    dst->x = 1.0F / v.x;
-    dst->y = 1.0F / v.y;
-    dst->z = 1.0F / v.z;
-    dst->w = 1.0F / v.w;
 }
 
 void Vec4::normalize() {
