@@ -40,7 +40,6 @@ public:
     bool createWindow(const char* title,
                       int x, int y, int w,
                       int h, int flags) override;
-    void setNativeXComponent(OH_NativeXComponent* component);
 
     uint32_t getWindowId() const override;
     uintptr_t getWindowHandle() const override;

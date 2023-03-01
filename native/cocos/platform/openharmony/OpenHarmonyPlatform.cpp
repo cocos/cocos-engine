@@ -56,16 +56,12 @@ void sendMsgToWorker(const cc::MessageType& type, OH_NativeXComponent* component
 void onSurfaceCreatedCB(OH_NativeXComponent* component, void* window) {
     // It is possible that when the message is sent, the worker thread has not yet started.
     //sendMsgToWorker(cc::MessageType::WM_XCOMPONENT_SURFACE_CREATED, component, window);
-    uint64_t width  = 0;
-    uint64_t height = 0;
-    int32_t ret = OH_NativeXComponent_GetXComponentSize(component, window, &width, &height);
-    CC_ASSERT(ret == OH_NATIVEXCOMPONENT_RESULT_SUCCESS);
     cc::ISystemWindowInfo info;
     info.title = "";
     info.x = 0;
     info.y = 0;
-    info.width = width;
-    info.height = height;
+    info.width = 0;
+    info.height = 0;
     info.flags = 0;
     info.externalHandle = window;
     cc::ISystemWindowManager* windowMgr = 
@@ -97,7 +93,7 @@ OpenHarmonyPlatform::OpenHarmonyPlatform() {
     registerInterface(std::make_shared<Battery>());
     registerInterface(std::make_shared<Accelerometer>());
     registerInterface(std::make_shared<SystemWindowManager>());
-    CC_LOG_ERROR("QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ");
+
     _callback.OnSurfaceCreated   = onSurfaceCreatedCB;
     _callback.OnSurfaceChanged   = onSurfaceChangedCB;
     _callback.OnSurfaceDestroyed = onSurfaceDestroyedCB;
@@ -260,6 +256,7 @@ void OpenHarmonyPlatform::dispatchTouchEvent(OH_NativeXComponent* component, voi
     }
 
     TouchEvent ev;
+    ev.windowId = 1;
     if (touchEvent.type == OH_NATIVEXCOMPONENT_DOWN) {
         ev.type = cc::TouchEvent::Type::BEGAN;
     } else if (touchEvent.type == OH_NATIVEXCOMPONENT_MOVE) {
@@ -273,11 +270,18 @@ void OpenHarmonyPlatform::dispatchTouchEvent(OH_NativeXComponent* component, voi
         ev.touches.emplace_back(touchEvent.touchPoints[i].x, touchEvent.touchPoints[i].y, touchEvent.touchPoints[i].id);
     }
 
-     events::Touch::broadcast(ev);
+    events::Touch::broadcast(ev);
 }
 
 ISystemWindow *OpenHarmonyPlatform::createNativeWindow(uint32_t windowId, void *externalHandle) {
-    return ccnew SystemWindow(windowId, externalHandle);
+    SystemWindow* window = ccnew SystemWindow(windowId, externalHandle);
+    uint64_t width  = 0;
+    uint64_t height = 0;
+    CC_ASSERT_NOT_NULL(_component);
+    int32_t ret = OH_NativeXComponent_GetXComponentSize(_component, externalHandle, &width, &height);
+    CC_ASSERT(ret == OH_NATIVEXCOMPONENT_RESULT_SUCCESS);
+    window->setViewSize(width, height);
+    return window;
 }
 
 }; // namespace cc
