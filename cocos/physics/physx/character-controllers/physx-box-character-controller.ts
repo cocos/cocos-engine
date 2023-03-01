@@ -23,12 +23,11 @@
 */
 
 /* eslint-disable @typescript-eslint/no-unsafe-return */
-import { error, IVec3Like, Vec3 } from '../../../core';
-import { boolean } from '../../../core/data/decorators';
-import { PhysicsSystem, Collider, EColliderType, CapsuleCollider, BoxCollider, PhysicsGroup } from '../../framework';
+import { Vec3 } from '../../../core';
+import { PhysicsSystem } from '../../framework';
 import { BoxCharacterController } from '../../framework/components/character-controllers/box-character-controller';
 import { IBoxCharacterController } from '../../spec/i-character-controller';
-import { createBoxCharacterController, PX, _trans } from '../physx-adapter';
+import { PX, _trans } from '../physx-adapter';
 import { PhysXCharacterController } from './physx-character-controller';
 import { PhysXInstance } from '../physx-instance';
 import { PhysXWorld } from '../physx-world';
@@ -62,10 +61,6 @@ export class PhysXBoxCharacterController extends PhysXCharacterController implem
         controllerDesc.setMaterial(pxMtl);
         controllerDesc.setReportCallback(PX.PxUserControllerHitReport.implement(physxWorld.callback.controllerHitReportCB));
         this._impl = PX.createBoxCharacterController(physxWorld.controllerManager, controllerDesc);
-        //const pxFilterData = { word0: 1, word1: 1, word2: 0, word3: 0 };
-        // pxFilterData.word0 = PhysicsGroup.DEFAULT;
-        // pxFilterData.word1 = PhysicsSystem.instance.collisionMatrix[PhysicsGroup.DEFAULT];
-        //this._impl.setSimulationFilterData(this.filterData);
 
         if (this._impl.$$) PX.IMPL_PTR[this._impl.$$.ptr] = this;
     }

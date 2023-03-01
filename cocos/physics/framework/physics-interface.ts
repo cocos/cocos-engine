@@ -23,6 +23,7 @@
 */
 
 import { IVec3Like, Vec3 } from '../../core';
+import { CharacterController } from './components/character-controllers/character-controller';
 import { Collider } from './components/colliders/collider';
 
 /**
@@ -242,9 +243,25 @@ export type CollisionEventType = 'onCollisionEnter' | 'onCollisionStay' | 'onCol
 export type CollisionCallback = (event?: ICollisionEvent) => void;
 
 //ICharacterCollisionEventTypeEvent?
-export type CharacterCollisionEventType = 'onShapeHit' | 'onControllerHit';
+export type CharacterCollisionEventType = 'onColliderHit';
 
 export class CharacterControllerContact {
+    /**
+     * @en
+     * Character Controller in collision.
+     * @zh
+     * 碰撞中的角色控制器。
+     */
+    selfCCT: any = null;
+
+    /**
+     * @en
+     * Collider in collision.
+     * @zh
+     * 碰撞中的碰撞器。
+     */
+    otherCollider: any = null;
+
     /**
      * @en
      * Gets the contact point relative to the rigid body A in the world coordinate system.

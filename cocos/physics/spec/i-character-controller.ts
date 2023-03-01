@@ -40,7 +40,7 @@ export interface IBaseCharacterController extends ILifecycle, IGroupMask {
     setStepOffset (value: number): void;
     setSlopeLimit (value: number): void;
     setContactOffset (value: number): void;
-    move(movement: IVec3Like, minDist: number, elapsedTime: number, filters: any): void;
+    move(movement: IVec3Like, minDist: number, elapsedTime: number): void;
 }
 
 export interface ICapsuleCharacterController extends IBaseCharacterController {

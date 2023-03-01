@@ -154,7 +154,7 @@ export class CharacterController extends Eventify(Component) {
     @serializable
     public _stepOffset = 1.0;
     @serializable
-    public _slopeLimit = 45.0; //degree
+    public _slopeLimit = 45.0; //degree[ 0, 180]
     //@serializable
     public _density = 10.0;
     //@serializable
@@ -254,7 +254,7 @@ export class CharacterController extends Eventify(Component) {
         if (!this._isInitialized) { return; }
 
         const elapsedTime = PhysicsSystem.instance.fixedTimeStep;
-        this._cct!.move(movement, this._minMoveDistance, elapsedTime, 0);
+        this._cct!.move(movement, this._minMoveDistance, elapsedTime);
     }
 
     /// EVENT INTERFACE ///
@@ -405,25 +405,8 @@ export class CharacterController extends Eventify(Component) {
 
     private _updateNeedEvent (type?: string) {
         if (this.isValid) {
-            if (type !== undefined) {
-                if (type === 'onCollisionEnter' || type === 'onCollisionStay' || type === 'onCollisionExit') {
-                    this._needCollisionEvent = true;
-                }
-                if (type === 'onTriggerEnter' || type === 'onTriggerStay' || type === 'onTriggerExit') {
-                    this._needTriggerEvent = true;
-                }
-            } else {
-                if (!(this.hasEventListener('onTriggerEnter')
-                    || this.hasEventListener('onTriggerStay')
-                    || this.hasEventListener('onTriggerExit'))) {
-                    this._needTriggerEvent = false;
-                }
-                if (!(this.hasEventListener('onCollisionEnter')
-                    || this.hasEventListener('onCollisionStay')
-                    || this.hasEventListener('onCollisionExit'))) {
-                    this._needCollisionEvent = false;
-                }
-            }
+            this._needTriggerEvent = false;
+            this._needCollisionEvent = false;
             if (this._cct) this._cct.updateEventListener();
         }
     }

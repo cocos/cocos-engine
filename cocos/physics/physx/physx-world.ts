@@ -391,36 +391,27 @@ const PhysXCallback = {
     },
     controllerHitReportCB: {
         onShapeHit (hit: PX.PxControllerShapeHit): void {
-            // console.log(`onShapeHit`, hit);
-            // console.log(`onShapeHit`, hit.getTouchedShape());
-            // console.log(`onShapeHit`, hit.getTouchedActor());
             const cct = getWrapShape<PhysXCharacterController>(hit.getCurrentController()).characterController;
-            //console.log('onShapeHit current cct:', cct.node.name);
             const collider = getWrapShape<PhysXShape>(hit.getTouchedShape()).collider;
-            //console.log('onShapeHit hit collider:', collider.node.name);
             const emitHit = new CharacterControllerContact();
+            emitHit.selfCCT = cct;
+            emitHit.otherCollider = collider;
             emitHit.worldPosition.set(hit.worldPos.x, hit.worldPos.y, hit.worldPos.z);
             emitHit.worldNormal.set(hit.worldNormal.x, hit.worldNormal.y, hit.worldNormal.z);
             emitHit.motionDirection.set(hit.dir.x, hit.dir.y, hit.dir.z);
             emitHit.motionLength = hit.length;
-            cct?.emit('onShapeHit', cct, collider, emitHit);
+            cct?.emit('onColliderHit', cct, collider, emitHit);
         },
         onControllerHit (hit: PX.PxControllersHit): void {
-            // console.log(`onControllerHit`, hit);
-            // console.log(`onControllerHit`, hit.getTouchedController());
-            const cct = getWrapShape<PhysXCharacterController>(hit.getCurrentController()).characterController;
-            //console.log('onControllerHit current cct:', cct.node.name);
-            const otherCct = getWrapShape<PhysXCharacterController>(hit.getTouchedController()).characterController;
-            //console.log('onControllerHit other cct:', otherCct.node.name);
-            const emitHit = new CharacterControllerContact();
-            emitHit.worldPosition.set(hit.worldPos.x, hit.worldPos.y, hit.worldPos.z);
-            emitHit.worldNormal.set(hit.worldNormal.x, hit.worldNormal.y, hit.worldNormal.z);
-            emitHit.motionDirection.set(hit.dir.x, hit.dir.y, hit.dir.z);
-            emitHit.motionLength = hit.length;
-            cct?.emit('onControllerHit', cct, otherCct, emitHit);
+            // todo
+            // const cct = getWrapShape<PhysXCharacterController>(hit.getCurrentController()).characterController;
+            // const otherCct = getWrapShape<PhysXCharacterController>(hit.getTouchedController()).characterController;
+            // const emitHit = new CharacterControllerContact();
+            // emitHit.worldPosition.set(hit.worldPos.x, hit.worldPos.y, hit.worldPos.z);
+            // emitHit.worldNormal.set(hit.worldNormal.x, hit.worldNormal.y, hit.worldNormal.z);
+            // emitHit.motionDirection.set(hit.dir.x, hit.dir.y, hit.dir.z);
+            // emitHit.motionLength = hit.length;
+            // cct?.emit('onControllerHit', cct, otherCct, emitHit);
         },
-        // onObstacleHit (hit): void {
-        //     console.log(`onObstacleHit`, hit);
-        // },
     },
 };
