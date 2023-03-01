@@ -24,7 +24,7 @@
 
 import { EDITOR, TAOBAO, TAOBAO_MINIGAME } from 'internal:constants';
 import { Material } from '../asset/assets/material';
-import { clamp01, Mat4, Vec2, Settings, settings, sys, cclegacy, easing } from '../core';
+import { clamp01, Mat4, Vec2, Settings, settings, sys, cclegacy, easing, preTransforms } from '../core';
 import {
     Sampler, SamplerInfo, Shader, Texture, TextureInfo, Device, InputAssembler, InputAssemblerInfo, Attribute, Buffer,
     BufferInfo, Rect, Color, BufferTextureCopy, CommandBuffer, BufferUsageBit, Format,
@@ -33,6 +33,7 @@ import {
 import { PipelineStateManager } from '../rendering';
 import { SetIndex } from '../rendering/define';
 import { ccwindow } from '../core/global-exports';
+import { XREye } from '../xr/xr-enums';
 
 const v2_0 = new Vec2();
 type SplashEffectType = 'default' | 'custom' | 'off';
@@ -429,24 +430,27 @@ export class SplashScreen {
             for (let xrEye = 0; xrEye < renderSize; xrEye++) {
                 if (sys.isXR) {
                     xr.entry.renderLoopStart(xrEye);
-                    const xrConfigDeviceVendor = 13;
-                    const compatibleDevice = 4;
-                    if (xr.entry.getXRIntConfig(xrConfigDeviceVendor) !== compatibleDevice) {
-                        const xrFov = xr.entry.getEyeFov(xrEye);
-                        const left = Math.tan(xrFov[0]);
-                        const right = Math.tan(xrFov[1]);
-                        const bottom = Math.tan(xrFov[2]);
-                        const top = Math.tan(xrFov[3]);
-                        Mat4.ortho(this.projection, left, right, bottom, top, -1, 1, device.capabilities.clipSpaceMinZ,
-                            device.capabilities.clipSpaceSignY, swapchain.surfaceTransform);
-                        this.bgMat.setProperty('u_projection', this.projection);
-                        this.bgMat.passes[0].update();
-                        this.logoMat.setProperty('u_projection', this.projection);
-                        this.logoMat.passes[0].update();
-                        if (this.watermarkMat) {
-                            this.watermarkMat.setProperty('u_projection', this.projection);
-                            this.watermarkMat.passes[0].update();
-                        }
+                    const xrFov = xr.entry.getEyeFov(xrEye);
+                    // device's fov may be asymmetry
+                    let radioLeft = 1.0;
+                    let radioRight = 1.0;
+                    if (xrEye === XREye.LEFT) {
+                        radioLeft = Math.abs(Math.tan(xrFov[0])) / Math.abs(Math.tan(xrFov[1]));
+                    } else if (xrEye === XREye.RIGHT) {
+                        radioRight = Math.abs(Math.tan(xrFov[1])) / Math.abs(Math.tan(xrFov[0]));
+                    }
+                    Mat4.ortho(this.projection, -radioLeft, radioRight, -1, 1, -1, 1, device.capabilities.clipSpaceMinZ,
+                        device.capabilities.clipSpaceSignY, swapchain.surfaceTransform);
+                    // keep scale to [-1, 1] only use offset
+                    this.projection.m00 = preTransforms[swapchain.surfaceTransform][0];
+                    this.projection.m05 = preTransforms[swapchain.surfaceTransform][3] * device.capabilities.clipSpaceSignY;
+                    this.bgMat.setProperty('u_projection', this.projection);
+                    this.bgMat.passes[0].update();
+                    this.logoMat.setProperty('u_projection', this.projection);
+                    this.logoMat.passes[0].update();
+                    if (this.watermarkMat) {
+                        this.watermarkMat.setProperty('u_projection', this.projection);
+                        this.watermarkMat.passes[0].update();
                     }
                 }
 
