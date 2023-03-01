@@ -1590,9 +1590,9 @@ export class SpriteFrame extends Asset {
         const units = 1 / this._pixelsToUnit;
         const PosX = -(this._pivot.x - 0.5) * this.rect.width * units;
         const PosY = -(this._pivot.y - 0.5) * this.rect.height * units;
-        const temp_vec3 = new Vec3(units, units, 1);
-        temp_vec3.set(PosX, PosY, 0);
+        const temp_vec3 = new Vec3(PosX, PosY, 0);
         temp_matrix.transform(temp_vec3);
+        temp_vec3.set(units, units, 1);
         temp_matrix.scale(temp_vec3);
         const vertices = this.vertices!;
 

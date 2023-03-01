@@ -382,11 +382,10 @@ export class Vec4 extends ValueType {
      * @zh 逐元素向量线性插值： A + t * (B - A)
      */
     public static lerp <Out extends IVec4Like> (out: Out, a: Out, b: Out, t: number) {
-        const tt = 1 - t;
-        out.x = a.x * tt + b.x * t;
-        out.y = a.y * tt + b.y * t;
-        out.z = a.z * tt + b.z * t;
-        out.w = a.w * tt + b.w * t;
+        out.x = a.x + t * (b.x - a.x);
+        out.y = a.y + t * (b.y - a.y);
+        out.z = a.z + t * (b.z - a.z);
+        out.w = a.w + t * (b.w - a.w);
         return out;
     }
 
