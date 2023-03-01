@@ -24,11 +24,10 @@
 
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { error, IVec3Like, Vec3 } from '../../../core';
-import { boolean, group } from '../../../core/data/decorators';
-import { PhysicsSystem, Collider, EColliderType, CapsuleCollider, BoxCollider, PhysicsGroup } from '../../framework';
+import { PhysicsSystem  } from '../../framework';
 import { CharacterController } from '../../framework/components/character-controllers/character-controller';
 import { IBaseCharacterController } from '../../spec/i-character-controller';
-import { createBoxCharacterController, getWrapShape, PX, _trans } from '../physx-adapter';
+import { getWrapShape, PX, _trans } from '../physx-adapter';
 import { EFilterDataWord3 } from '../physx-enum';
 import { PhysXInstance } from '../physx-instance';
 import { PhysXWorld } from '../physx-world';
@@ -57,7 +56,7 @@ export class PhysXCharacterController implements IBaseCharacterController {
     }
 
     constructor () {
-        this._filterData = { word0: 1, word1: 1, word2: 0, word3: 0 };
+        this._filterData = { word0: 1, word1: 1, word2: 10000, word3: 0 };
     }
 
     // virtual
@@ -66,16 +65,12 @@ export class PhysXCharacterController implements IBaseCharacterController {
     initialize (comp: CharacterController): boolean {
         this._comp = comp;
 
-        //this._queryFilterCB = PX.PxQueryFilterCallback.implement(this.queryCallback);
-        //this._queryFilterCB = PhysXInstance.queryFilterCB;
+        this._queryFilterCB = PX.PxQueryFilterCallback.implement(this.queryCallback);
 
         const group = this._comp.group;
         this._filterData.word0 = this._comp.group;
         const mask = PhysicsSystem.instance.collisionMatrix[group];
         this._filterData.word1 = mask;
-
-        this._filterData.word3 = EFilterDataWord3.DETECT_CONTACT_CCD;//temp
-        this._filterData.word3 |= EFilterDataWord3.DETECT_CONTACT_EVENT | EFilterDataWord3.DETECT_CONTACT_POINT;//temp
 
         this.onComponentSet();
 
@@ -87,51 +82,6 @@ export class PhysXCharacterController implements IBaseCharacterController {
             return true;
         }
     }
-
-    // initialize (comp: CharacterController): boolean {
-    //     this._comp = comp;
-
-    //     const collider = comp.node.getComponent(Collider);
-    //     if (!collider) {
-    //         error('[Physics]: Character Controller Needs A Capsule or Box Collider');
-    //         return false;
-    //     }
-
-    //     if (collider.type !== EColliderType.BOX && collider.type !== EColliderType.CAPSULE) {
-    //         error('[Physics]: Character Controller Only Supports Capsule and Box Collider');
-    //         return false;
-    //     }
-
-    //     comp.node.getWorldPosition(v3_0);
-    //     console.log('initialize pos', v3_0.x, v3_0.y, v3_0.z);
-    //     const upDir = new Vec3(0, 1, 0);//temp
-    //     const mat = PhysXInstance.physics.createMaterial(0.5, 0.5, 0.5);//temp
-    //     //const mat = collider.material;//PhysXInstance.physics.createMaterial(0.5, 0.5, 0.5);//temp
-    //     this._pxWorld = PhysicsSystem.instance.physicsWorld as PhysXWorld;
-
-    //     const cctMgr = this._pxWorld.controllerManager;
-    //     if (collider.type === EColliderType.CAPSULE) {
-    //         const capsuleCollider = (collider as CapsuleCollider);
-    //         this._impl = createCapsuleCharacterController(cctMgr, capsuleCollider.radius,
-    //             capsuleCollider.cylinderHeight, v3_0, comp._stepOffset,
-    //             comp._slopeLimit, comp._density, comp._scaleCoeff, comp._volumeGrowth, comp._contactOffset, upDir, mat);
-    //     } else if (collider.type === EColliderType.BOX) {
-    //         const boxCollider = (collider as BoxCollider);
-    //         this._impl = createBoxCharacterController(cctMgr, boxCollider.size.x * 0.5,
-    //             boxCollider.size.y * 0.5, boxCollider.size.z * 0.5, v3_0, comp._stepOffset,
-    //             comp._slopeLimit, comp._density, comp._scaleCoeff, comp._volumeGrowth, comp._contactOffset, upDir, mat);
-    //     }
-
-    //     if (this._impl == null) {
-    //         error('[Physics]: PhysXCharacterController Initialize createCapsuleCharacterController Failed');
-    //         return false;
-    //     }
-
-    //     this._pxWorld.addCCT(this);
-    //     //this._filterData = { word0: 1, word1: 1, word2: 0, word3: 0 };
-
-    //     return true;
-    // }
 
     onEnable (): void {
         this._isEnabled = true;
@@ -175,8 +125,7 @@ export class PhysXCharacterController implements IBaseCharacterController {
     }
 
     onGround (): boolean {
-        //return (this._pxLastControllerCollisionFlags & PX.PxControllerCollisionFlag::Enum::eCOLLISION_DOWN);
-        return (this._pxCollisionFlags & (1 << 2)) > 0;
+        return (this._pxCollisionFlags & (1 << 2)) > 0;//PxControllerCollisionFlag::Enum::eCOLLISION_DOWN
     }
 
     syncPhysicsToScene (): void {
@@ -190,34 +139,24 @@ export class PhysXCharacterController implements IBaseCharacterController {
     queryCallback = {
         preFilter (filterData: any, shape: any, _actor: any, _out: any): number {
             const collider = getWrapShape<PhysXShape>(shape).collider;
-            console.log('preFilter hit collider: ', collider.node.name);
+            if (!(filterData.word0 & collider.getMask()) || !(filterData.word1 & collider.getGroup())) {
+                return PX.QueryHitType.eNONE;
+            }
 
-            return PX.QueryHitType.eBLOCK;
-
-            // const word3 = filterData.word3;
+            // Ignore trigger shape
+            // this is done in physx::Cct::findTouchedGeometry
+            // Ubi (EA) : Discarding Triggers
             // const shapeFlags = shape.getFlags();
-            // if ((word3 & EFilterDataWord3.QUERY_CHECK_TRIGGER)
-            //     && (shapeFlags.isSet(PX.ShapeFlag.eTRIGGER_SHAPE))) {
+            // if (shapeFlags.isSet(PX.ShapeFlag.eTRIGGER_SHAPE)) {
             //     return PX.QueryHitType.eNONE;
             // }
-            // const ret = word3 & EFilterDataWord3.QUERY_SINGLE_HIT ? PX.QueryHitType.eBLOCK : PX.QueryHitType.eTOUCH;
-            // return ret;
+
+            return PX.QueryHitType.eBLOCK;
         },
     };
 
-    move (movement: IVec3Like, minDist: number, elapsedTime: number, filters: any) {
-        //const filterData = new PX.PxFilterData();
-        //const filter = new PX.PxControllerFilters(this._filterData, 0, 0);
-        //debug
-        // const pos = new Vec3();
-        // this.getPosition(pos);
-        // console.log('before move pos', pos.x, pos.y, pos.z);
+    move (movement: IVec3Like, minDist: number, elapsedTime: number) {
         this._pxCollisionFlags = this._impl.move(movement, minDist, elapsedTime, this.filterData, this.queryFilterCB);
-
-        // //debug
-        // this.getPosition(pos);
-        // console.log('after move pos', pos.x, pos.y, pos.z);
-        // console.log('this.onGround():', this.onGround());
     }
 
     setGroup (v: number): void {
@@ -265,23 +204,17 @@ export class PhysXCharacterController implements IBaseCharacterController {
     }
 
     updateFilterData () {
-        this._filterData.word3 = EFilterDataWord3.DETECT_CONTACT_CCD;
         if (this._comp.needTriggerEvent) {
             this._filterData.word3 |= EFilterDataWord3.DETECT_TRIGGER_EVENT;
         }
-        if (this._comp.needCollisionEvent) {
-            this._filterData.word3 |= EFilterDataWord3.DETECT_CONTACT_EVENT | EFilterDataWord3.DETECT_CONTACT_POINT;
-        }
-        //filterData.word2 = this.id;
-        //.word3 = this._word3;
-        //this.setFilerData(filterData);
+       
+        this.setFilerData(this.filterData);
     }
 
     setFilerData (filterData: any) {
         // this._impl.setQueryFilterData(filterData);
-        // this._impl.setSimulationFilterData(filterData);
+        this._impl.setSimulationFilterData(filterData);
     }
-
     updateEventListener () {
         this.updateFilterData();
     }
