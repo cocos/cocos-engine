@@ -193,7 +193,7 @@ export class UIRenderer extends Renderer {
         this._color.set(value);
         this._updateColor();
         if (EDITOR) {
-            const clone = value.clone();
+            const clone = this._color.clone();
             this.node.emit(NodeEventType.COLOR_CHANGED, clone);
         }
     }
