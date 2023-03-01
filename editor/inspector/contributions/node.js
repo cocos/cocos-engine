@@ -412,6 +412,16 @@ const Elements = {
 
             Editor.Message.addBroadcastListener('scene:change-node', panel.__nodeChanged__);
 
+            panel.__animationTimeChange__ = () => {
+                if (!panel.isAnimationMode()) {
+                    return;
+                }
+
+                panel.__nodeChanged__(panel.uuidList[0]);
+            };
+
+            Editor.Message.addBroadcastListener('scene:animation-time-change', panel.__animationTimeChange__);
+
             panel.__projectSettingChanged__ = async function(name) {
                 if (name !== 'layers') {
                     return;
@@ -516,6 +526,7 @@ const Elements = {
             }
 
             Editor.Message.removeBroadcastListener('scene:change-node', panel.__nodeChanged__);
+            Editor.Message.removeBroadcastListener('scene:animation-time-change', panel.__animationTimeChange__);
             Editor.Message.removeBroadcastListener('project:setting-change', panel.__projectSettingChanged__);
         },
     },
