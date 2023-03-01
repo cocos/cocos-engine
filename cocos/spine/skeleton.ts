@@ -177,7 +177,7 @@ js.setClassAlias(SpineSocket, 'sp.Skeleton.SpineSocket');
  * @extends UIRenderer
  */
 @ccclass('sp.Skeleton')
-@help('i18n:sp.Skeleton')
+@help('i18n:cc.Spine')
 @menu('Spine/Skeleton')
 @executeInEditMode
 export class Skeleton extends UIRenderer {
