@@ -61,6 +61,9 @@ export class Line extends ModelRenderer {
         }
     }
 
+    @serializable
+    private _material: Material | null = null;
+
     @type(Material)
     @displayOrder(1)
     @tooltip('i18n:line.material')
@@ -232,6 +235,10 @@ export class Line extends ModelRenderer {
             this._models[0] = model;
         }
         model.node = model.transform = this.node;
+        if (this._material) {
+            this.lineMaterial = this._material;
+            this._material = null;
+        }
         if (this.lineMaterial === null) {
             const mat = builtinResMgr.get<Material>('default-trail-material');
             this.material = mat;
