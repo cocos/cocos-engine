@@ -235,22 +235,14 @@ export class Line extends ModelRenderer {
             this._models[0] = model;
         }
         model.node = model.transform = this.node;
+        if (this._material) {
+            this.lineMaterial = this._material;
+            this.material = this._material;
+            this._material = null;
+        }
         if (this.lineMaterial === null) {
             const mat = builtinResMgr.get<Material>('default-trail-material');
             this.material = mat;
-        }
-        if (this._material) {
-            const tileCopy = this._material.getProperty('mainTiling_Offset');
-            const texCopy = this._material.getProperty('mainTexture');
-            if (this.lineMaterial) {
-                if (tileCopy) {
-                    this.lineMaterial.setProperty('mainTiling_Offset', tileCopy as Vec4);
-                }
-                if (texCopy) {
-                    this.lineMaterial.setProperty('mainTexture', texCopy as Texture2D);
-                }
-            }
-            this._material = null;
         }
         const matIns = this.getMaterialInstance(0);
         if (matIns) {
