@@ -1234,7 +1234,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         ctx.cmdBuff->draw(ctx.context.fullscreenQuad.quadIA.get());
     }
     void begin(const Dispatch& dispatch, RenderGraph::vertex_descriptor vertID) const {
-        const auto& programLib = *dynamic_cast<const NativeProgramLibrary*>(ctx.programLib);
+        auto& programLib = *ctx.programLib;
         CC_EXPECTS(dispatch.material);
         CC_EXPECTS(dispatch.material->getPasses());
         // get pass
@@ -1242,14 +1242,12 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         // get shader
         auto& shader = *pass.getShaderVariant();
         // get pso
-        // auto* pso = pipeline::PipelineStateManager::getOrCreatePipelineState(
-        //     &pass, &shader, ctx.context.fullscreenQuad.quadIA.get(), ctx.currentPass);
-        // if (!pso) {
-        //     return;
-        // }
+        auto* pso = programLib.getComputePipelineState(
+            pass.getDevice(), pass.getPhaseID(), pass.getProgram(), pass.getDefines(), nullptr);
+        CC_EXPECTS(pso);
         auto* perInstanceSet = ctx.perInstanceDescriptorSets.at(vertID);
         // execution
-        // ctx.cmdBuff->bindPipelineState(pso);
+        ctx.cmdBuff->bindPipelineState(pso);
         ctx.cmdBuff->bindDescriptorSet(
             static_cast<uint32_t>(pipeline::SetIndex::MATERIAL), pass.getDescriptorSet());
         ctx.cmdBuff->bindDescriptorSet(

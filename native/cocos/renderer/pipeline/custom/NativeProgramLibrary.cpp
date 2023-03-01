@@ -26,11 +26,11 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/container/pmr/global_resource.hpp>
 #include <boost/container/pmr/memory_resource.hpp>
+#include <cctype>
 #include <sstream>
 #include <stdexcept>
 #include <tuple>
 #include <utility>
-#include <cctype>
 #include "LayoutGraphGraphs.h"
 #include "LayoutGraphUtils.h"
 #include "NativePipelineTypes.h"
@@ -1480,8 +1480,9 @@ ProgramProxy *NativeProgramLibrary::getProgramVariant(
     if (src->compute) {
         info.shaderInfo.stages.clear();
         info.shaderInfo.stages.emplace_back(
-            gfx::ShaderStage{gfx::ShaderStageFlagBit::COMPUTE,
-            prefix + *src->compute});
+            gfx::ShaderStage{
+                gfx::ShaderStageFlagBit::COMPUTE,
+                prefix + *src->compute});
     } else {
         info.shaderInfo.stages[0].source = prefix + src->vert;
         info.shaderInfo.stages[1].source = prefix + src->frag;
@@ -1499,6 +1500,36 @@ ProgramProxy *NativeProgramLibrary::getProgramVariant(
     CC_ENSURES(res.second);
 
     return res.first->second.get();
+}
+
+gfx::PipelineState* NativeProgramLibrary::getComputePipelineState(
+    gfx::Device *device, uint32_t phaseID, const ccstd::string &name,
+    MacroRecord &defines, const ccstd::pmr::string *key) {
+    auto *program = getProgramVariant(device, phaseID, name, defines, key);
+    auto *native = static_cast<NativeProgramProxy *>(program);
+    CC_EXPECTS(native->shader->getStages().size() == 1);
+    CC_EXPECTS(native->shader->getStages().at(0).stage == gfx::ShaderStageFlagBit::COMPUTE);
+
+    if (native->pipelineState) {
+        return native->pipelineState;
+    }
+
+    gfx::PipelineStateInfo info{
+        native->shader.get(),
+        getPipelineLayout(device, phaseID, name),
+        nullptr,
+        gfx::InputState{},
+        gfx::RasterizerState{},
+        gfx::DepthStencilState{},
+        gfx::BlendState{},
+        gfx::PrimitiveMode::TRIANGLE_LIST,
+        gfx::DynamicStateFlagBit::NONE,
+        gfx::PipelineBindPoint::COMPUTE,
+        0,
+    };
+    native->pipelineState = device->createPipelineState(info);
+    CC_ENSURES(native->pipelineState);
+    return native->pipelineState.get();
 }
 
 const ccstd::vector<int32_t> &NativeProgramLibrary::getBlockSizes(

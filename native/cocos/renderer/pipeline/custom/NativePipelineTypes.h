@@ -531,6 +531,7 @@ public:
     const IProgramInfo &getProgramInfo(uint32_t phaseID, const ccstd::string &programName) const override;
     const gfx::ShaderInfo &getShaderInfo(uint32_t phaseID, const ccstd::string &programName) const override;
     ProgramProxy *getProgramVariant(gfx::Device *device, uint32_t phaseID, const ccstd::string &name, MacroRecord &defines, const ccstd::pmr::string *key) override;
+    gfx::PipelineState *getComputePipelineState(gfx::Device *device, uint32_t phaseID, const ccstd::string &name, MacroRecord &defines, const ccstd::pmr::string *key) override;
     const ccstd::vector<int32_t> &getBlockSizes(uint32_t phaseID, const ccstd::string &programName) const override;
     const Record<ccstd::string, uint32_t> &getHandleMap(uint32_t phaseID, const ccstd::string &programName) const override;
     uint32_t getProgramID(uint32_t phaseID, const ccstd::pmr::string &programName) override;
@@ -638,11 +639,15 @@ public:
     NativeProgramProxy() = default;
     NativeProgramProxy(IntrusivePtr<gfx::Shader> shaderIn) // NOLINT
     : shader(std::move(shaderIn)) {}
+    NativeProgramProxy(IntrusivePtr<gfx::Shader> shaderIn, IntrusivePtr<gfx::PipelineState> pipelineStateIn)
+    : shader(std::move(shaderIn)),
+      pipelineState(std::move(pipelineStateIn)) {}
 
     const ccstd::string &getName() const noexcept override;
     gfx::Shader *getShader() const noexcept override;
 
     IntrusivePtr<gfx::Shader> shader;
+    IntrusivePtr<gfx::PipelineState> pipelineState;
 };
 
 class NativeRenderingModule final : public RenderingModule {
