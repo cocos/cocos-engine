@@ -240,7 +240,16 @@ export class Line extends ModelRenderer {
             this.material = mat;
         }
         if (this._material) {
-            this.lineMaterial?.copy(this._material);
+            const tileCopy = this._material.getProperty('mainTiling_Offset');
+            const texCopy = this._material.getProperty('mainTexture');
+            if (this.lineMaterial) {
+                if (tileCopy) {
+                    this.lineMaterial.setProperty('mainTiling_Offset', tileCopy as Vec4);
+                }
+                if (texCopy) {
+                    this.lineMaterial.setProperty('mainTexture', texCopy as Texture2D);
+                }
+            }
             this._material = null;
         }
         const matIns = this.getMaterialInstance(0);
