@@ -249,27 +249,6 @@ SceneData::SceneData(SceneData const& rhs, const allocator_type& alloc)
   flags(rhs.flags),
   scenes(rhs.scenes, alloc) {}
 
-Dispatch::Dispatch(const allocator_type& alloc) noexcept
-: shader(alloc) {}
-
-Dispatch::Dispatch(ccstd::pmr::string shaderIn, uint32_t threadGroupCountXIn, uint32_t threadGroupCountYIn, uint32_t threadGroupCountZIn, const allocator_type& alloc) noexcept // NOLINT
-: shader(std::move(shaderIn), alloc),
-  threadGroupCountX(threadGroupCountXIn),
-  threadGroupCountY(threadGroupCountYIn),
-  threadGroupCountZ(threadGroupCountZIn) {}
-
-Dispatch::Dispatch(Dispatch&& rhs, const allocator_type& alloc)
-: shader(std::move(rhs.shader), alloc),
-  threadGroupCountX(rhs.threadGroupCountX),
-  threadGroupCountY(rhs.threadGroupCountY),
-  threadGroupCountZ(rhs.threadGroupCountZ) {}
-
-Dispatch::Dispatch(Dispatch const& rhs, const allocator_type& alloc)
-: shader(rhs.shader, alloc),
-  threadGroupCountX(rhs.threadGroupCountX),
-  threadGroupCountY(rhs.threadGroupCountY),
-  threadGroupCountZ(rhs.threadGroupCountZ) {}
-
 PresentPass::PresentPass(const allocator_type& alloc) noexcept
 : presents(alloc) {}
 

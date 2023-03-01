@@ -26,11 +26,11 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/container/pmr/global_resource.hpp>
 #include <boost/container/pmr/memory_resource.hpp>
+#include <cctype>
 #include <sstream>
 #include <stdexcept>
 #include <tuple>
 #include <utility>
-#include <cctype>
 #include "LayoutGraphGraphs.h"
 #include "LayoutGraphUtils.h"
 #include "NativePipelineTypes.h"
@@ -795,6 +795,7 @@ void makeShaderInfo(
         }
     }
     calculateFlattenedBinding(descriptorSets, fixedInstanceDescriptorSetLayout, shaderInfo);
+    shaderInfo.stages.reserve(2);
     shaderInfo.stages.emplace_back(gfx::ShaderStage{gfx::ShaderStageFlagBit::VERTEX, ""});
     shaderInfo.stages.emplace_back(gfx::ShaderStage{gfx::ShaderStageFlagBit::FRAGMENT, ""});
 }
@@ -1352,10 +1353,6 @@ IntrusivePtr<gfx::PipelineLayout> NativeProgramLibrary::getPipelineLayout(
     if (passSet) {
         info.setLayouts.emplace_back(passSet);
     }
-    auto *phaseSet = getDescriptorSetLayout(lg, passID, phaseID, UpdateFrequency::PER_PHASE);
-    if (phaseSet) {
-        info.setLayouts.emplace_back(phaseSet);
-    }
     auto *batchSet = getProgramDescriptorSetLayout(
         device, lg, phaseID, programName, UpdateFrequency::PER_BATCH);
     if (batchSet) {
@@ -1365,6 +1362,10 @@ IntrusivePtr<gfx::PipelineLayout> NativeProgramLibrary::getPipelineLayout(
         device, lg, phaseID, programName, UpdateFrequency::PER_INSTANCE);
     if (instanceSet) {
         info.setLayouts.emplace_back(instanceSet);
+    }
+    auto *phaseSet = getDescriptorSetLayout(lg, passID, phaseID, UpdateFrequency::PER_PHASE);
+    if (phaseSet) {
+        info.setLayouts.emplace_back(phaseSet);
     }
     programData.pipelineLayout = device->createPipelineLayout(info);
     return programData.pipelineLayout;
@@ -1475,8 +1476,17 @@ ProgramProxy *NativeProgramLibrary::getProgramVariant(
     } else {
         CC_LOG_ERROR("Invalid GFX API!");
     }
-    info.shaderInfo.stages[0].source = prefix + src->vert;
-    info.shaderInfo.stages[1].source = prefix + src->frag;
+
+    if (src->compute) {
+        info.shaderInfo.stages.clear();
+        info.shaderInfo.stages.emplace_back(
+            gfx::ShaderStage{
+                gfx::ShaderStageFlagBit::COMPUTE,
+                prefix + *src->compute});
+    } else {
+        info.shaderInfo.stages[0].source = prefix + src->vert;
+        info.shaderInfo.stages[1].source = prefix + src->frag;
+    }
 
     // strip out the active attributes only, instancing depend on this
     info.shaderInfo.attributes = getActiveAttributes(programInfo, info.attributes, defines);
@@ -1490,6 +1500,36 @@ ProgramProxy *NativeProgramLibrary::getProgramVariant(
     CC_ENSURES(res.second);
 
     return res.first->second.get();
+}
+
+gfx::PipelineState* NativeProgramLibrary::getComputePipelineState(
+    gfx::Device *device, uint32_t phaseID, const ccstd::string &name,
+    MacroRecord &defines, const ccstd::pmr::string *key) {
+    auto *program = getProgramVariant(device, phaseID, name, defines, key);
+    auto *native = static_cast<NativeProgramProxy *>(program);
+    CC_EXPECTS(native->shader->getStages().size() == 1);
+    CC_EXPECTS(native->shader->getStages().at(0).stage == gfx::ShaderStageFlagBit::COMPUTE);
+
+    if (native->pipelineState) {
+        return native->pipelineState;
+    }
+
+    gfx::PipelineStateInfo info{
+        native->shader.get(),
+        getPipelineLayout(device, phaseID, name),
+        nullptr,
+        gfx::InputState{},
+        gfx::RasterizerState{},
+        gfx::DepthStencilState{},
+        gfx::BlendState{},
+        gfx::PrimitiveMode::TRIANGLE_LIST,
+        gfx::DynamicStateFlagBit::NONE,
+        gfx::PipelineBindPoint::COMPUTE,
+        0,
+    };
+    native->pipelineState = device->createPipelineState(info);
+    CC_ENSURES(native->pipelineState);
+    return native->pipelineState.get();
 }
 
 const ccstd::vector<int32_t> &NativeProgramLibrary::getBlockSizes(

@@ -170,13 +170,16 @@ public:
 
     virtual void addRasterView(const ccstd::string &name, const RasterView &view) = 0;
     virtual void addComputeView(const ccstd::string &name, const ComputeView &view) = 0;
-    virtual RasterQueueBuilder *addQueue(QueueHint hint) = 0;
+    virtual RasterQueueBuilder *addQueue(QueueHint hint, const ccstd::string &layoutName) = 0;
     virtual void setViewport(const gfx::Viewport &viewport) = 0;
     virtual void setVersion(const ccstd::string &name, uint64_t version) = 0;
     virtual bool getShowStatistics() const = 0;
     virtual void setShowStatistics(bool enable) = 0;
     RasterQueueBuilder *addQueue() {
-        return addQueue(QueueHint::NONE);
+        return addQueue(QueueHint::NONE, "");
+    }
+    RasterQueueBuilder *addQueue(QueueHint hint) {
+        return addQueue(hint, "");
     }
 };
 
@@ -184,7 +187,13 @@ class ComputeQueueBuilder : public Setter {
 public:
     ComputeQueueBuilder() noexcept = default;
 
-    virtual void addDispatch(const ccstd::string &shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ) = 0;
+    virtual void addDispatch(uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ, Material *material, uint32_t passID) = 0;
+    void addDispatch(uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ) {
+        addDispatch(threadGroupCountX, threadGroupCountY, threadGroupCountZ, nullptr, 0);
+    }
+    void addDispatch(uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ, Material *material) {
+        addDispatch(threadGroupCountX, threadGroupCountY, threadGroupCountZ, material, 0);
+    }
 };
 
 class ComputePassBuilder : public Setter {
@@ -192,7 +201,10 @@ public:
     ComputePassBuilder() noexcept = default;
 
     virtual void addComputeView(const ccstd::string &name, const ComputeView &view) = 0;
-    virtual ComputeQueueBuilder *addQueue() = 0;
+    virtual ComputeQueueBuilder *addQueue(const ccstd::string &layoutName) = 0;
+    ComputeQueueBuilder *addQueue() {
+        return addQueue("");
+    }
 };
 
 class MovePassBuilder : public RenderNode {

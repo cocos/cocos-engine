@@ -32,6 +32,7 @@
 #include "RenderGraphFwd.h"
 #include "RenderGraphGraphs.h"
 #include "RenderGraphTypes.h"
+#include "RenderingModule.h"
 #include "cocos/math/Utils.h"
 #include "cocos/renderer/pipeline/Define.h"
 #include "cocos/renderer/pipeline/PipelineUBO.h"
@@ -883,7 +884,16 @@ void NativeRasterQueueBuilder::setSampler(const ccstd::string &name, gfx::Sample
     addSampler(*layoutGraph, name, sampler, data);
 }
 
-RasterQueueBuilder *NativeRasterPassBuilder::addQueue(QueueHint hint) {
+RasterQueueBuilder *NativeRasterPassBuilder::addQueue(
+    QueueHint hint, const ccstd::string &layoutName) {
+    CC_EXPECTS(layoutID != LayoutGraphData::null_vertex());
+
+    auto phaseLayoutID = LayoutGraphData::null_vertex();
+    if (!layoutName.empty()) {
+        phaseLayoutID = locate(layoutID, layoutName, *layoutGraph);
+        CC_ENSURES(phaseLayoutID != LayoutGraphData::null_vertex());
+    }
+
     std::string_view name = "Queue";
     auto queueID = addVertex(
         QueueTag{},
@@ -891,7 +901,7 @@ RasterQueueBuilder *NativeRasterPassBuilder::addQueue(QueueHint hint) {
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
-        std::forward_as_tuple(hint),
+        std::forward_as_tuple(hint, phaseLayoutID),
         *renderGraph, passID);
 
     return new NativeRasterQueueBuilder(pipelineRuntime, renderGraph, queueID, layoutGraph);
@@ -970,7 +980,9 @@ void NativeComputeQueueBuilder::setName(const ccstd::string &name) {
     get(RenderGraph::Name, *renderGraph, queueID) = std::string_view{name};
 }
 
-void NativeComputeQueueBuilder::addDispatch(const ccstd::string &shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ) {
+void NativeComputeQueueBuilder::addDispatch(
+    uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ,
+    Material *material, uint32_t passID) {
     std::string_view name("Dispatch");
     addVertex(
         DispatchTag{},
@@ -979,7 +991,8 @@ void NativeComputeQueueBuilder::addDispatch(const ccstd::string &shader, uint32_
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(
-            shader.c_str(),
+            material,
+            passID,
             threadGroupCountX,
             threadGroupCountY,
             threadGroupCountZ),
@@ -1065,7 +1078,15 @@ void NativeComputePassBuilder::addComputeView(const ccstd::string &name, const C
     iter->second.emplace_back(view);
 }
 
-ComputeQueueBuilder *NativeComputePassBuilder::addQueue() {
+ComputeQueueBuilder *NativeComputePassBuilder::addQueue(const ccstd::string &layoutName) {
+    CC_EXPECTS(layoutID != LayoutGraphData::null_vertex());
+
+    auto phaseLayoutID = LayoutGraphData::null_vertex();
+    if (!layoutName.empty()) {
+        phaseLayoutID = locate(layoutID, layoutName, *layoutGraph);
+        CC_ENSURES(phaseLayoutID != LayoutGraphData::null_vertex());
+    }
+
     std::string_view name("Queue");
     auto queueID = addVertex(
         QueueTag{},
@@ -1073,7 +1094,7 @@ ComputeQueueBuilder *NativeComputePassBuilder::addQueue() {
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
-        std::forward_as_tuple(QueueHint::NONE),
+        std::forward_as_tuple(QueueHint::NONE, phaseLayoutID),
         *renderGraph, passID);
 
     return new NativeComputeQueueBuilder(renderGraph, queueID, layoutGraph);

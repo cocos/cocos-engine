@@ -161,14 +161,14 @@ export enum SetIndex {
 }
 // parameters passed to GFX Device
 export const bindingMappingInfo = new BindingMappingInfo(
-    [GLOBAL_UBO_COUNT, 0, LOCAL_UBO_COUNT],         // Uniform Buffer Counts
-    [GLOBAL_SAMPLER_COUNT, 0, LOCAL_SAMPLER_COUNT], // Combined Sampler Texture Counts
-    [0, 0, 0],                                      // Sampler Counts
-    [0, 0, 0],                                      // Texture Counts
-    [0, 0, 0],                                      // Storage Buffer Counts
-    [0, 0, LOCAL_STORAGE_IMAGE_COUNT],              // Storage Image Counts
-    [0, 0, 0],                                      // Subpass Input Counts
-    [0, 2, 1],                                      // Set Order Indices
+    [GLOBAL_UBO_COUNT, 0, LOCAL_UBO_COUNT, 0],         // Uniform Buffer Counts
+    [GLOBAL_SAMPLER_COUNT, 0, LOCAL_SAMPLER_COUNT, 0], // Combined Sampler Texture Counts
+    [0, 0, 0, 0],                                      // Sampler Counts
+    [0, 0, 0, 0],                                      // Texture Counts
+    [0, 0, 0, 0],                                      // Storage Buffer Counts
+    [0, 0, LOCAL_STORAGE_IMAGE_COUNT, 0],              // Storage Image Counts
+    [0, 0, 0, 0],                                      // Subpass Input Counts
+    [0, 2, 1, 3],                                      // Set Order Indices
 );
 
 /**

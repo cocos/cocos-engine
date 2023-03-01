@@ -612,10 +612,12 @@ struct ClearView {
 
 struct RenderQueue {
     RenderQueue() = default;
-    RenderQueue(QueueHint hintIn) noexcept // NOLINT
-    : hint(hintIn) {}
+    RenderQueue(QueueHint hintIn, uint32_t phaseIDIn) noexcept
+    : hint(hintIn),
+      phaseID(phaseIDIn) {}
 
     QueueHint hint{QueueHint::RENDER_OPAQUE};
+    uint32_t phaseID{0xFFFFFFFF};
 };
 
 struct SceneData {
@@ -642,22 +644,16 @@ struct SceneData {
 };
 
 struct Dispatch {
-    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
-    allocator_type get_allocator() const noexcept { // NOLINT
-        return {shader.get_allocator().resource()};
-    }
+    Dispatch() = default;
+    Dispatch(IntrusivePtr<Material> materialIn, uint32_t passIDIn, uint32_t threadGroupCountXIn, uint32_t threadGroupCountYIn, uint32_t threadGroupCountZIn) noexcept // NOLINT
+    : material(std::move(materialIn)),
+      passID(passIDIn),
+      threadGroupCountX(threadGroupCountXIn),
+      threadGroupCountY(threadGroupCountYIn),
+      threadGroupCountZ(threadGroupCountZIn) {}
 
-    Dispatch(const allocator_type& alloc) noexcept; // NOLINT
-    Dispatch(ccstd::pmr::string shaderIn, uint32_t threadGroupCountXIn, uint32_t threadGroupCountYIn, uint32_t threadGroupCountZIn, const allocator_type& alloc) noexcept;
-    Dispatch(Dispatch&& rhs, const allocator_type& alloc);
-    Dispatch(Dispatch const& rhs, const allocator_type& alloc);
-
-    Dispatch(Dispatch&& rhs) noexcept = default;
-    Dispatch(Dispatch const& rhs) = delete;
-    Dispatch& operator=(Dispatch&& rhs) = default;
-    Dispatch& operator=(Dispatch const& rhs) = default;
-
-    ccstd::pmr::string shader;
+    IntrusivePtr<Material> material;
+    uint32_t passID{0};
     uint32_t threadGroupCountX{0};
     uint32_t threadGroupCountY{0};
     uint32_t threadGroupCountZ{0};

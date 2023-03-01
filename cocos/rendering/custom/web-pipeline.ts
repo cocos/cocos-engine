@@ -749,14 +749,17 @@ export class WebComputeQueueBuilder extends WebSetter implements ComputeQueueBui
     set name (name: string) {
         this._renderGraph.setName(this._vertID, name);
     }
-    addDispatch (shader: string,
+    addDispatch (
         threadGroupCountX: number,
         threadGroupCountY: number,
         threadGroupCountZ: number,
-        name = 'Dispatch') {
+        material: Material | null = null,
+        passID = 0,
+        name = 'Dispatch',
+    ) {
         this._renderGraph.addVertex<RenderGraphValue.Dispatch>(
             RenderGraphValue.Dispatch,
-            new Dispatch(shader, threadGroupCountX, threadGroupCountY, threadGroupCountZ),
+            new Dispatch(material, passID, threadGroupCountX, threadGroupCountY, threadGroupCountZ),
             name, '', new RenderData(), false, this._vertID,
         );
     }
@@ -800,17 +803,6 @@ export class WebComputePassBuilder extends WebSetter implements ComputePassBuild
             RenderGraphValue.Queue, queue, name, '', data, false, this._vertID,
         );
         return new WebComputeQueueBuilder(data, this._renderGraph, this._layoutGraph, queueID, queue, this._pipeline);
-    }
-    addDispatch (shader: string,
-        threadGroupCountX: number,
-        threadGroupCountY: number,
-        threadGroupCountZ: number,
-        name = 'Dispatch') {
-        this._renderGraph.addVertex<RenderGraphValue.Dispatch>(
-            RenderGraphValue.Dispatch,
-            new Dispatch(shader, threadGroupCountX, threadGroupCountY, threadGroupCountZ),
-            name, '', new RenderData(), false, this._vertID,
-        );
     }
     private readonly _renderGraph: RenderGraph;
     private readonly _layoutGraph: LayoutGraphData;
@@ -1090,7 +1082,8 @@ export class WebPipeline implements Pipeline {
         // do nothing
     }
     beginSetup (): void {
-        this._renderGraph = new RenderGraph();
+        if (!this._renderGraph) this._renderGraph = new RenderGraph();
+        // this.renderGraph!.clear();
     }
     endSetup (): void {
         this.compile();
@@ -1168,7 +1161,8 @@ export class WebPipeline implements Pipeline {
         // noop
     }
     endFrame () {
-        this._renderGraph = null;
+        // this._renderGraph = null;
+        this.renderGraph?.clear();
     }
 
     compile () {
@@ -1189,6 +1183,7 @@ export class WebPipeline implements Pipeline {
             this._executor = new Executor(this, this._pipelineUBO, this._device,
                 this._resourceGraph, this.layoutGraph, this.width, this.height);
         }
+        this._executor.resize(this.width, this.height);
         this._executor.execute(this._renderGraph);
     }
     protected _applySize (cameras: Camera[]) {
