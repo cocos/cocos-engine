@@ -30,6 +30,7 @@
 #include "base/Ptr.h"
 #include "base/RefCounted.h"
 #include "base/memory/Memory.h"
+#include "base/HasMemberFunction.h"
 
 namespace se {
 
@@ -114,7 +115,11 @@ public:
     CCIntrusivePtrPrivateObject() = default;
     explicit CCIntrusivePtrPrivateObject(const cc::IntrusivePtr<T> &p) : _ptr(p) {}
     explicit CCIntrusivePtrPrivateObject(cc::IntrusivePtr<T> &&p) : _ptr(std::move(p)) {}
-    ~CCIntrusivePtrPrivateObject() override = default;
+    ~CCIntrusivePtrPrivateObject() override {
+        if constexpr (cc::has_setScriptObject<T,void(se::Object *)>::value) {
+            _ptr->setScriptObject(nullptr);
+        }
+    }
 
     inline const cc::IntrusivePtr<T> &getData() const { return _ptr; }
     inline cc::IntrusivePtr<T> &getData() { return _ptr; }
