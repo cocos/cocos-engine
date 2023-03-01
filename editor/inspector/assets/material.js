@@ -83,6 +83,10 @@ exports.methods = {
         await Editor.Message.request('scene', 'apply-material', this.asset.uuid, this.material);
     },
 
+    async abort() {
+        await Editor.Message.request('scene', 'preview-material', this.asset.uuid);
+    },
+
     reset() {
         this.dirtyData.uuid = '';
         this.cacheData = {};
