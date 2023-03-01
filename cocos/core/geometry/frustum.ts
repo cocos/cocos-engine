@@ -93,7 +93,7 @@ export class Frustum {
      * @param transform @en The transform matrix of the frustum. @zh 正交视锥体的变换矩阵。
      * @returns @en The result frustum, same as the `out` parameter. @zh 存储结果的视锥体，与 `out` 参数为同一个对象。
      *
-     * @depraecated since v3.3.0, please use [[createOrthogonal]] instead.
+     * @deprecated since v3.8.0, please use [[createOrthogonal]] instead.
      */
     public static createOrtho (out: Frustum, width: number, height: number, near: number, far: number, transform: Mat4) {
         return Frustum.createOrthogonal(out, width, height, near, far, transform);
@@ -104,16 +104,16 @@ export class Frustum {
      * @zh 创建一个透视视锥体。
      * @param aspect @en The aspect ratio of the camera. @zh 相机视图的长宽比。
      * @param fov @en The field of view of the camera. @zh 相机的视角大小。
-     * @param start @en The split start position. @zh 分割开始位置。
-     * @param end @en The split end position. @zh 分割末尾位置。
+     * @param near @en The near plane of the frustum. @zh 视锥体的近平面值。
+     * @param far @en The far plane of the frustum. @zh 视锥体的远平面值。
      * @param transform @en The transform matrix. @zh 变换矩阵。
      * @returns @en The result frustum, same as the `out` parameter. @zh 存储结果的视锥体，与 `out` 参数为同一个对象。
      */
-    public static createPerspective (out: Frustum, aspect: number, fov: number, start: number, end: number, transform: Mat4) {
+    public static createPerspective (out: Frustum, aspect: number, fov: number, near: number, far: number, transform: Mat4) {
         const h = Math.tan(fov * 0.5);
         const w = h * aspect;
-        _nearTemp.set(start * w,  start * h, start);
-        _farTemp.set(end * w, end * h, end);
+        _nearTemp.set(near * w,  near * h, near);
+        _farTemp.set(far * w, far * h, far);
 
         const vertexes = out.vertices;
         // startHalfWidth startHalfHeight
@@ -146,7 +146,7 @@ export class Frustum {
      * @param aabb @en The AABB to create the result frustum. @zh 用于创建视锥体 AABB。
      * @returns @en The result frustum, same as the `out` parameter. @zh 存储结果的视锥体，与 `out` 参数为同一个对象。
      *
-     * @deprecated since v3.3.0, please use [[createFromAABB]] instead.
+     * @deprecated since v3.8.0, please use [[createOrthogonal]] instead.
      */
     public static createFromAABB (out: Frustum, aabb: AABB | Readonly<AABB>): Frustum {
         const vec3_min = new Vec3(); const vec3_max = new Vec3();
@@ -180,7 +180,7 @@ export class Frustum {
      * @param fov @en The field of view of the camera. @zh 相机的视角大小。
      * @param m @en The transform matrix. @zh 变换矩阵。
      *
-     * @deprecated since v3.3.0, please use [[createPerspective]] instead.
+     * @deprecated since v3.8.0, please use [[createPerspective]] instead.
      */
     public split (start: number, end: number, aspect: number, fov: number, m: Mat4) {
         return Frustum.createPerspective(this, aspect, fov, start, end, m);
