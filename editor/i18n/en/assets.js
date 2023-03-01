@@ -294,7 +294,7 @@ module.exports = {
             },
             meshOptimizer: {
                 name: 'Mesh Optimizer',
-                title: 'Mesh Optimizer',
+                title: 'Mesh Optimizer is used to simplify imported mesh.<br>Use it when you need to reduce model face count.<br>In some cases, face reduction could lead to various model defect. <br>Tweak properties and try again in those cases.',
                 simplification: {
                     name: 'Simplification',
                     title: 'Simplification',
@@ -339,7 +339,7 @@ module.exports = {
                 simplify:{
                     targetRatio: {
                         name: 'Ratio',
-                        title: 'Target Ratio',
+                        title: 'The target face count ratio after face reduction. <br>0 means reduce to minimum, and 1 means no face reduction at all. ',
                     },
                     preserveSurfaceCurvature: {
                         name: 'Surface Curvature',
@@ -357,17 +357,13 @@ module.exports = {
                         name: 'UV Foldover Edges',
                         title: 'Preserve UV Foldover Edges',
                     },
-                    enableSmartLink: {
-                        name: 'Smart Link',
-                        title: 'Enable Smart Link',
-                    },
                     agressiveness: {
                         name: 'Agressiveness',
-                        title: 'Agressiveness',
+                        title: 'Face reduction algorithm aggressiveness. <br>The higher it sets, the more aggressive the face reduction algorithm tries to delete faces. <br>High aggressiveness setting is more likely to cause defects in result.',
                     },
                     maxIterationCount: {
                         name: 'Max Iteration Count',
-                        title: 'Max Iteration Count',
+                        title: 'The max iteration counts that the algorithm tries to further reduce faces of a model. <br>High iteration count is more likely to reach face reduction target, yet it is more likely to take more time and has higher chance to cause mistakes.',
                     },
                 },
                 gltfpack: {
