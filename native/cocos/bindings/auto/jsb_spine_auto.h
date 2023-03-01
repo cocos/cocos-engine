@@ -92,6 +92,11 @@ extern se::Object *__jsb_spine_AttachmentTimeline_proto; // NOLINT
 extern se::Class * __jsb_spine_AttachmentTimeline_class; // NOLINT
 
 
+JSB_REGISTER_OBJECT_TYPE(spine::VertexAttachment);
+extern se::Object *__jsb_spine_VertexAttachment_proto; // NOLINT
+extern se::Class * __jsb_spine_VertexAttachment_class; // NOLINT
+
+
 JSB_REGISTER_OBJECT_TYPE(spine::BoundingBoxAttachment);
 extern se::Object *__jsb_spine_BoundingBoxAttachment_proto; // NOLINT
 extern se::Class * __jsb_spine_BoundingBoxAttachment_class; // NOLINT
@@ -117,14 +122,14 @@ extern se::Object *__jsb_spine_Color_proto; // NOLINT
 extern se::Class * __jsb_spine_Color_class; // NOLINT
 
 
-JSB_REGISTER_OBJECT_TYPE(spine::ColorTimeline);
-extern se::Object *__jsb_spine_ColorTimeline_proto; // NOLINT
-extern se::Class * __jsb_spine_ColorTimeline_class; // NOLINT
-
-
 JSB_REGISTER_OBJECT_TYPE(spine::CurveTimeline);
 extern se::Object *__jsb_spine_CurveTimeline_proto; // NOLINT
 extern se::Class * __jsb_spine_CurveTimeline_class; // NOLINT
+
+
+JSB_REGISTER_OBJECT_TYPE(spine::ColorTimeline);
+extern se::Object *__jsb_spine_ColorTimeline_proto; // NOLINT
+extern se::Class * __jsb_spine_ColorTimeline_class; // NOLINT
 
 
 JSB_REGISTER_OBJECT_TYPE(spine::DeformTimeline);
@@ -150,6 +155,11 @@ extern se::Class * __jsb_spine_EventData_class; // NOLINT
 JSB_REGISTER_OBJECT_TYPE(spine::EventTimeline);
 extern se::Object *__jsb_spine_EventTimeline_proto; // NOLINT
 extern se::Class * __jsb_spine_EventTimeline_class; // NOLINT
+
+
+JSB_REGISTER_OBJECT_TYPE(spine::ConstraintData);
+extern se::Object *__jsb_spine_ConstraintData_proto; // NOLINT
+extern se::Class * __jsb_spine_ConstraintData_class; // NOLINT
 
 
 JSB_REGISTER_OBJECT_TYPE(spine::IkConstraint);
@@ -210,6 +220,16 @@ extern se::Class * __jsb_spine_PointAttachment_class; // NOLINT
 JSB_REGISTER_OBJECT_TYPE(spine::RegionAttachment);
 extern se::Object *__jsb_spine_RegionAttachment_proto; // NOLINT
 extern se::Class * __jsb_spine_RegionAttachment_class; // NOLINT
+
+
+JSB_REGISTER_OBJECT_TYPE(spine::TranslateTimeline);
+extern se::Object *__jsb_spine_TranslateTimeline_proto; // NOLINT
+extern se::Class * __jsb_spine_TranslateTimeline_class; // NOLINT
+
+
+JSB_REGISTER_OBJECT_TYPE(spine::TwoColorTimeline);
+extern se::Object *__jsb_spine_TwoColorTimeline_proto; // NOLINT
+extern se::Class * __jsb_spine_TwoColorTimeline_class; // NOLINT
 
 
 JSB_REGISTER_OBJECT_TYPE(spine::RotateTimeline);
@@ -277,21 +297,6 @@ extern se::Object *__jsb_spine_TransformConstraintTimeline_proto; // NOLINT
 extern se::Class * __jsb_spine_TransformConstraintTimeline_class; // NOLINT
 
 
-JSB_REGISTER_OBJECT_TYPE(spine::TranslateTimeline);
-extern se::Object *__jsb_spine_TranslateTimeline_proto; // NOLINT
-extern se::Class * __jsb_spine_TranslateTimeline_class; // NOLINT
-
-
-JSB_REGISTER_OBJECT_TYPE(spine::TwoColorTimeline);
-extern se::Object *__jsb_spine_TwoColorTimeline_proto; // NOLINT
-extern se::Class * __jsb_spine_TwoColorTimeline_class; // NOLINT
-
-
-JSB_REGISTER_OBJECT_TYPE(spine::VertexAttachment);
-extern se::Object *__jsb_spine_VertexAttachment_proto; // NOLINT
-extern se::Class * __jsb_spine_VertexAttachment_class; // NOLINT
-
-
 JSB_REGISTER_OBJECT_TYPE(spine::VertexEffect);
 extern se::Object *__jsb_spine_VertexEffect_proto; // NOLINT
 extern se::Class * __jsb_spine_VertexEffect_class; // NOLINT
@@ -305,11 +310,6 @@ extern se::Class * __jsb_spine_JitterVertexEffect_class; // NOLINT
 JSB_REGISTER_OBJECT_TYPE(spine::SwirlVertexEffect);
 extern se::Object *__jsb_spine_SwirlVertexEffect_proto; // NOLINT
 extern se::Class * __jsb_spine_SwirlVertexEffect_class; // NOLINT
-
-
-JSB_REGISTER_OBJECT_TYPE(spine::ConstraintData);
-extern se::Object *__jsb_spine_ConstraintData_proto; // NOLINT
-extern se::Class * __jsb_spine_ConstraintData_class; // NOLINT
 
 
 JSB_REGISTER_OBJECT_TYPE(spine::VertexEffectDelegate);
