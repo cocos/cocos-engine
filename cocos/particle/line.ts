@@ -237,7 +237,6 @@ export class Line extends ModelRenderer {
         model.node = model.transform = this.node;
         if (this._material) {
             this.lineMaterial = this._material;
-            this.material = this._material;
             this._material = null;
         }
         if (this.lineMaterial === null) {
