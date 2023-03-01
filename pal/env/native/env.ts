@@ -53,6 +53,9 @@ export function loadJsFile (path: string): Promise<void> {
                 window.eval(`${xhr.response as string}\n//# sourceURL=${sourceURL}`);
                 resolve();
             };
+            xhr.onerror = () => {
+                reject(new Error(`load js file failed: ${sourceURL}`));
+            };
             xhr.open('GET', sourceURL, true);
             xhr.send(null);
         });
