@@ -101,14 +101,14 @@ export class Frustum {
         Vec3.subtract(vec3_min, aabb.center, aabb.halfExtents);
         Vec3.add(vec3_max, aabb.center, aabb.halfExtents);
 
-        out.vertices[0].set(vec3_min.x, vec3_max.y, vec3_min.z);
-        out.vertices[1].set(vec3_max.x, vec3_max.y, vec3_min.z);
-        out.vertices[2].set(vec3_max.x, vec3_min.y, vec3_min.z);
-        out.vertices[3].set(vec3_min.x, vec3_min.y, vec3_min.z);
-        out.vertices[4].set(vec3_min.x, vec3_max.y, vec3_max.z);
-        out.vertices[5].set(vec3_max.x, vec3_max.y, vec3_max.z);
-        out.vertices[6].set(vec3_max.x, vec3_min.y, vec3_max.z);
-        out.vertices[7].set(vec3_min.x, vec3_min.y, vec3_max.z);
+        out.vertices[0].set(vec3_max.x, vec3_max.y, -vec3_min.z);
+        out.vertices[1].set(vec3_min.x, vec3_max.y, -vec3_min.z);
+        out.vertices[2].set(vec3_min.x, vec3_min.y, -vec3_min.z);
+        out.vertices[3].set(vec3_max.x, vec3_min.y, -vec3_min.z);
+        out.vertices[4].set(vec3_max.x, vec3_max.y, -vec3_max.z);
+        out.vertices[5].set(vec3_min.x, vec3_max.y, -vec3_max.z);
+        out.vertices[6].set(vec3_min.x, vec3_min.y, -vec3_max.z);
+        out.vertices[7].set(vec3_max.x, vec3_min.y, -vec3_max.z);
 
         if (out._type !== enums.SHAPE_FRUSTUM_ACCURATE) {
             return out;
@@ -137,23 +137,23 @@ export class Frustum {
 
         const vertexes = this.vertices;
         // startHalfWidth startHalfHeight
-        _temp_v3.set(_nearTemp.x, _nearTemp.y, _nearTemp.z);
+        _temp_v3.set(_nearTemp.x, _nearTemp.y, -_nearTemp.z);
         Vec3.transformMat4(vertexes[0], _temp_v3, m);
-        _temp_v3.set(-_nearTemp.x, _nearTemp.y, _nearTemp.z);
+        _temp_v3.set(-_nearTemp.x, _nearTemp.y, -_nearTemp.z);
         Vec3.transformMat4(vertexes[1], _temp_v3, m);
-        _temp_v3.set(-_nearTemp.x, -_nearTemp.y, _nearTemp.z);
+        _temp_v3.set(-_nearTemp.x, -_nearTemp.y, -_nearTemp.z);
         Vec3.transformMat4(vertexes[2], _temp_v3, m);
-        _temp_v3.set(_nearTemp.x, -_nearTemp.y, _nearTemp.z);
+        _temp_v3.set(_nearTemp.x, -_nearTemp.y, -_nearTemp.z);
         Vec3.transformMat4(vertexes[3], _temp_v3, m);
 
         // endHalfWidth, endHalfHeight
-        _temp_v3.set(_farTemp.x, _farTemp.y, _farTemp.z);
+        _temp_v3.set(_farTemp.x, _farTemp.y, -_farTemp.z);
         Vec3.transformMat4(vertexes[4], _temp_v3, m);
-        _temp_v3.set(-_farTemp.x, _farTemp.y, _farTemp.z);
+        _temp_v3.set(-_farTemp.x, _farTemp.y, -_farTemp.z);
         Vec3.transformMat4(vertexes[5], _temp_v3, m);
-        _temp_v3.set(-_farTemp.x, -_farTemp.y, _farTemp.z);
+        _temp_v3.set(-_farTemp.x, -_farTemp.y, -_farTemp.z);
         Vec3.transformMat4(vertexes[6], _temp_v3, m);
-        _temp_v3.set(_farTemp.x, -_farTemp.y, _farTemp.z);
+        _temp_v3.set(_farTemp.x, -_farTemp.y, -_farTemp.z);
         Vec3.transformMat4(vertexes[7], _temp_v3, m);
 
         this.updatePlanes();

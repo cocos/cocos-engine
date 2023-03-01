@@ -95,12 +95,11 @@ export class Vec4 extends ValueType {
      */
     public static angle <Out extends IVec4Like> (a: Out, b: Out) {
         // use atan2 to get the sign of the angle correctly
-        const dw = a.w * b.w;
-        const dx = (a.y * b.z - a.z * b.y) / dw;
-        const dy = (a.z * b.x - a.x * b.z) / dw;
-        const dz = (a.x * b.y - a.y * b.x) / dw;
+        const dx = (a.y * b.z - a.z * b.y);
+        const dy = (a.z * b.x - a.x * b.z);
+        const dz = (a.x * b.y - a.y * b.x);
 
-        const dotVal = (a.x * b.x + a.y * b.y + a.z * b.z) / dw;
+        const dotVal = (a.x * b.x + a.y * b.y + a.z * b.z);
         return Math.atan2(Math.sqrt(dx * dx + dy * dy + dz * dz), dotVal);
     }
 
