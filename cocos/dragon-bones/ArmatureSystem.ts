@@ -77,6 +77,7 @@ export class ArmatureSystem extends System {
         }
         this._armatures.forEach((armature) => {
             armature.updateAnimation(dt);
+            armature.syncAttachedNode();
         });
     }
 

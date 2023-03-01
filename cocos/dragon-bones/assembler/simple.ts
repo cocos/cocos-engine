@@ -483,10 +483,6 @@ function updateComponentRenderData (comp: ArmatureDisplay, batcher: Batcher2D) {
     // Ensure mesh buffer update
     _accessor.getMeshBuffer(_renderData.chunk.bufferId).setDirty();
 
-    // sync attached node matrix
-    // renderer.worldMatDirty++;
-    comp.attachUtil._syncAttachedNode();
-
     // Clear temp var.
     _node = undefined;
     _comp = undefined;

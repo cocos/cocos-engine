@@ -1389,6 +1389,14 @@ export class ArmatureDisplay extends UIRenderer {
             this._debugDraw.markForUpdateRenderData(enable);
         }
     }
+
+    /**
+     * @engineInternal since v3.7.2 this is an engine private function.
+     */
+    public syncAttachedNode () {
+        // sync attached node matrix
+        this.attachUtil._syncAttachedNode();
+    }
 }
 
 cclegacy.internal.ArmatureDisplay = ArmatureDisplay;
