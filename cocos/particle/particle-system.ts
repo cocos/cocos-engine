@@ -492,7 +492,6 @@ export class ParticleSystem extends ModelRenderer {
 
     @override
     @visible(false)
-    @type(Material)
     @serializable
     @displayName('Materials')
     get sharedMaterials () {
