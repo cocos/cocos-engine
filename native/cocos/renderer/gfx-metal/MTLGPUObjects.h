@@ -131,8 +131,9 @@ struct CCMTLGPUBuffer {
     uint32_t count = 0;
     uint32_t size = 0;
     uint32_t startOffset = 0;
-    uint8_t *mappedData = nullptr;
     id<MTLBuffer> mtlBuffer = nil;
+    uint8_t lastUpdateCycle = 0;
+    uint8_t *mappedData = nullptr;
 };
 
 struct CCMTLGPUTextureObject {

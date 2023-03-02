@@ -253,9 +253,10 @@ void CCMTLBuffer::updateMTLBuffer(const void *buffer, uint32_t /*offset*/, uint3
     id<MTLBuffer> mtlBuffer = _gpuBuffer->mtlBuffer;
     auto* ccDevice = CCMTLDevice::getInstance();
     if(mtlBuffer.storageMode != MTLStorageModePrivate) {
-        _lastUpdateCycle = ccDevice->currentFrameIndex();
+        auto& lastUpdateCycle = _gpuBuffer->lastUpdateCycle;
+        lastUpdateCycle = ccDevice->currentFrameIndex();
         bool backBuffer = _memUsage == (gfx::MemoryUsage::HOST | gfx::MemoryUsage::DEVICE);
-        uint32_t offset = backBuffer ? _lastUpdateCycle * _size : 0;
+        uint32_t offset = backBuffer ? lastUpdateCycle * _size : 0;
         uint8_t* mappedData = static_cast<uint8_t*>(mtlBuffer.contents) + offset;
         memcpy(mappedData, buffer, size);
 #if (CC_PLATFORM == CC_PLATFORM_MACOS)
@@ -292,7 +293,14 @@ void CCMTLBuffer::encodeBuffer(CCMTLCommandEncoder &encoder, uint32_t offset, ui
 
 uint32_t CCMTLBuffer::currentOffset() const {
     bool backBuffer = _memUsage == (gfx::MemoryUsage::HOST | gfx::MemoryUsage::DEVICE);
-    return backBuffer ? _lastUpdateCycle * _size : 0;
+    uint32_t offset = 0;
+    if(_isBufferView) {
+        offset = backBuffer ? _gpuBuffer->lastUpdateCycle * _gpuBuffer->size : 0;
+    } else {
+        offset = backBuffer ? _gpuBuffer->lastUpdateCycle *  _size : 0; // backbuffer offset
+        offset += _offset; // buffer view offset
+    }
+    return offset;
 }
 
 id<MTLBuffer> CCMTLBuffer::mtlBuffer() const {
