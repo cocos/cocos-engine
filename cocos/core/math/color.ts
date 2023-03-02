@@ -118,10 +118,10 @@ export class Color extends ValueType {
      */
     public static fromVec4 (value: Vec4, out?: Color): Color {
         out = out === undefined ? new Color() : out;
-        out.r = value.x / toFloat;
-        out.g = value.y / toFloat;
-        out.b = value.z / toFloat;
-        out.a = value.w / toFloat;
+        out.r = Math.floor(value.x / toFloat);
+        out.g = Math.floor(value.y / toFloat);
+        out.b = Math.floor(value.z / toFloat);
+        out.a = Math.floor(value.w / toFloat);
         return out;
     }
     /**
