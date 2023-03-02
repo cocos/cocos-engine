@@ -90,6 +90,11 @@ module.exports = {
             glsl1: 'GLSL 100 Output',
             vert: 'Vertex Shader',
             frag: 'Fragment Shader',
+            propertyTips: {
+                // listed here
+                USE_DITHERED_ALPHA_TEST: '使用抖动透贴的方式来实现半透明效果，最好同时开启TAA',
+                USE_TWOSIDE: '双面材质，通常用于单面物体，正面和背面的法线相反。还需将Cull Mode设为None',
+            },
         },
         image: {
             type: '类型',

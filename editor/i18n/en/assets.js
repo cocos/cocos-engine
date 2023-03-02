@@ -90,6 +90,10 @@ module.exports = {
             glsl1: 'GLSL 100 Output',
             vert: 'Vertex Shader',
             frag: 'Fragment Shader',
+            propertyTips: {
+                USE_DITHERED_ALPHA_TEST: 'Make transparency using opaque dithered alpha clip with TAA',
+                USE_TWOSIDE: 'Two sided material for single-face objects, normal get inverse on back-face. Cull mode should set to None',
+            },
         },
         image: {
             type: 'Type',
