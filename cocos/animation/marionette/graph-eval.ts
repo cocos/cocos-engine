@@ -486,9 +486,9 @@ class LayerEval {
     public getCurrentStateStatus (): Readonly<MotionStateStatus> | null {
         const { _currentNode: currentNode } = this;
         if (currentNode.kind === NodeKind.animation) {
-            return currentNode.getFromPortStatus();
+            return currentNode.getFromPortStatus(this._currentStateStatusCache);
         } else if (currentNode.kind === NodeKind.transitionSnapshot) {
-            return currentNode.first.getFromPortStatus();
+            return currentNode.first.getFromPortStatus(this._currentStateStatusCache);
         } else {
             return null;
         }
@@ -536,7 +536,7 @@ class LayerEval {
             || this._currentTransitionToNode.kind === NodeKind.empty) {
             return null;
         }
-        return this._currentTransitionToNode.getToPortStatus();
+        return this._currentTransitionToNode.getToPortStatus(this._nextStateStatusCache);
     }
 
     public getNextClipStatuses (): Iterable<ClipStatus> {
@@ -590,6 +590,8 @@ class LayerEval {
      * Preserved here for clip overriding.
      */
     private _mask: AnimationMask | null = null;
+    private _currentStateStatusCache = createStateStatusCache();
+    private _nextStateStatusCache = createStateStatusCache();
 
     private _addStateMachine (
         graph: StateMachine,
@@ -843,12 +845,18 @@ class LayerEval {
 
         if (this._fromUpdated && this._currentNode.kind === NodeKind.animation) {
             this._fromUpdated = false;
-            this._currentNode.triggerFromPortUpdate(this._controller);
+            this._currentNode.components.callMotionStateUpdateMethods(
+                this._controller,
+                this._currentNode.getFromPortStatus(this._currentStateStatusCache),
+            );
         }
 
         if (this._currentTransitionToNode && this._toUpdated && this._currentTransitionToNode.kind === NodeKind.animation) {
             this._toUpdated = false;
-            this._currentTransitionToNode.triggerToPortUpdate(this._controller);
+            this._currentTransitionToNode.components.callMotionStateUpdateMethods(
+                this._controller,
+                this._currentTransitionToNode.getToPortStatus(this._nextStateStatusCache),
+            );
         }
 
         return remainTimePiece;
@@ -1486,7 +1494,7 @@ class LayerEval {
         default:
             break;
         case NodeKind.animation: {
-            node.components.callMotionStateEnterMethods(controller, node.getToPortStatus());
+            node.components.callMotionStateEnterMethods(controller, node.getToPortStatus(this._nextStateStatusCache));
             break;
         }
         case NodeKind.entry:
@@ -1501,7 +1509,7 @@ class LayerEval {
         default:
             break;
         case NodeKind.animation: {
-            node.components.callMotionStateExitMethods(controller, node.getFromPortStatus());
+            node.components.callMotionStateExitMethods(controller, node.getFromPortStatus(this._currentStateStatusCache));
             break;
         }
         case NodeKind.exit:
@@ -1785,24 +1793,16 @@ export class MotionStateEval extends StateEval {
         );
     }
 
-    public triggerFromPortUpdate (controller: AnimationController) {
-        this.components.callMotionStateUpdateMethods(controller, this.getFromPortStatus());
+    public getFromPortStatus (out: MotionStateStatus): Readonly<MotionStateStatus> {
+        return this._fromPort.getStatus(out, this.name);
     }
 
-    public triggerToPortUpdate (controller: AnimationController) {
-        this.components.callMotionStateUpdateMethods(controller, this.getToPortStatus());
-    }
-
-    public getFromPortStatus (): Readonly<MotionStateStatus> {
-        return this._fromPort.getStatus(this.name);
-    }
-
-    public getToPortStatus (): Readonly<MotionStateStatus> {
+    public getToPortStatus (out: MotionStateStatus): Readonly<MotionStateStatus> {
         if (DEBUG) {
             // See `this.finishTransition()`
             assertIsTrue(!Number.isNaN(this._toPort.progress));
         }
-        return this._toPort.getStatus(this.name);
+        return this._toPort.getStatus(out, this.name);
     }
 
     public resetToPort (at: number) {
@@ -1870,19 +1870,16 @@ class MotionStateEvalPort {
 
     public progress = 0.0;
 
-    public readonly statusCache: MotionStateStatus = createStateStatusCache();
-
     public evaluate (context: AnimationGraphEvaluationContext) {
         return this.motionPort?.evaluate(this.progress, context);
     }
 
-    public getStatus (name: string): Readonly<MotionStateStatus> {
-        const { statusCache: stateStatus } = this;
+    public getStatus (out: MotionStateStatus, name: string): Readonly<MotionStateStatus> {
         if (DEBUG) {
-            stateStatus.__DEBUG_ID__ = name;
+            out.__DEBUG_ID__ = name;
         }
-        stateStatus.progress = normalizeProgress(this.progress);
-        return stateStatus;
+        out.progress = normalizeProgress(this.progress);
+        return out;
     }
 }
 
