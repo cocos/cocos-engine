@@ -20,6 +20,7 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
                 <category android:name="org.khronos.openxr.intent.category.IMMERSIVE_HMD" />
+                <category android:name="com.cocos.intent.category.XR" />
             </intent-filter>
         </activity>
     </application>
