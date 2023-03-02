@@ -409,7 +409,7 @@ function updateComponentRenderData (comp: ArmatureDisplay, batcher: Batcher2D) {
     // comp.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
 
     const armature = comp._armature;
-    if (!armature) return;
+    if (!armature || comp.renderData === null) return;
 
     // Init temp var.
     _mustFlush = true;
