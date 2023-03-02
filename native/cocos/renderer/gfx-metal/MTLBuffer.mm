@@ -271,10 +271,6 @@ void CCMTLBuffer::updateMTLBuffer(const void *buffer, uint32_t /*offset*/, uint3
 }
 
 void CCMTLBuffer::encodeBuffer(CCMTLCommandEncoder &encoder, uint32_t offset, uint32_t binding, ShaderStageFlags stages) {
-    if (_isBufferView) {
-        offset += _bufferViewOffset;
-    }
-
     if (hasFlag(stages, ShaderStageFlagBit::VERTEX)) {
         CCMTLRenderCommandEncoder *renderEncoder = static_cast<CCMTLRenderCommandEncoder *>(&encoder);
         renderEncoder->setVertexBuffer(_gpuBuffer->mtlBuffer, offset + currentOffset(), binding);
@@ -296,9 +292,9 @@ uint32_t CCMTLBuffer::currentOffset() const {
     uint32_t offset = 0;
     if(_isBufferView) {
         offset = backBuffer ? _gpuBuffer->lastUpdateCycle * _gpuBuffer->size : 0;
+        offset += _offset; // buffer view offset
     } else {
         offset = backBuffer ? _gpuBuffer->lastUpdateCycle *  _size : 0; // backbuffer offset
-        offset += _offset; // buffer view offset
     }
     return offset;
 }
