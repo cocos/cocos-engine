@@ -79,10 +79,21 @@ const gradientsMask1D = 1;
 function smooth (t: number) { return t * t * t * (t * (t * 6 - 15) + 10); }
 function smoothDerivative (t: number) { return 30 * t * t * (t * (t - 2) + 1); }
 
-const sample3D = new Vec3();
+const db3 = new Vec3();
+const dc3 = new Vec3();
+const dd3 = new Vec3();
+const de3 = new Vec3();
+const df3 = new Vec3();
+const dg3 = new Vec3();
+const dh3 = new Vec3();
+
+const temp1 = new Vec3();
+const temp2 = new Vec3();
+
 export function perlin3D (outDerivative: Vec2, position: Vec3, frequency: number) {
-    Vec3.multiplyScalar(sample3D, position, frequency);
-    const { x, y, z } = sample3D;
+    const x = position.x * frequency;
+    const y = position.y * frequency;
+    const z = position.z * frequency;
     let ix0 = Math.floor(x);
     let iy0 = Math.floor(y);
     let iz0 = Math.floor(z);
@@ -124,26 +135,46 @@ export function perlin3D (outDerivative: Vec2, position: Vec3, frequency: number
     const tx = smooth(tx0);
     const ty = smooth(ty0);
     const tz = smooth(tz0);
+    const dtx = smoothDerivative(tx0);
+    const dty = smoothDerivative(ty0);
 
-    return lerp(
-        lerp(
-            lerp(v000, v100, tx),
-            lerp(v010, v110, tx),
-            ty,
-        ),
-        lerp(
-            lerp(v001, v101, tx),
-            lerp(v011, v111, tx),
-            ty,
-        ),
-        tz,
-    );
+    const b = v100 - v000;
+    const c = v010 - v000;
+    const e = v110 - v010 - v100 + v000;
+    const f = v101 - v001 - v100 + v000;
+    const g = v011 - v001 - v010 + v000;
+    const h = v111 - v011 - v101 + v001 - v110 + v010 + v100 - v000;
+
+    Vec2.subtract(db3, g100, g000);
+    Vec2.subtract(dc3, g010, g000);
+    Vec2.subtract(dd3, g001, g000);
+    Vec2.subtract(de3, g110, g010);
+    Vec2.subtract(de3, de3, db3);
+    Vec2.subtract(df3, g101, g001);
+    Vec2.subtract(df3, df3, db3);
+    Vec2.subtract(dg3, g011, g001);
+    Vec2.subtract(dg3, dg3, dc3);
+    Vec2.subtract(dh3, g111, g011);
+    Vec2.subtract(dh3, dh3, df3);
+    Vec2.subtract(dh3, dh3, de3);
+    Vec2.subtract(dh3, dh3, db3);
+
+    Vec2.scaleAndAdd(temp1,
+        Vec2.scaleAndAdd(temp1, Vec2.scaleAndAdd(temp1, g000, Vec2.scaleAndAdd(temp1, dc3, de3, tx), ty), db3, tx),
+        Vec2.scaleAndAdd(temp2, Vec2.scaleAndAdd(temp2, dd3, Vec2.scaleAndAdd(temp2, dg3, dh3, tx), ty), df3, tx),
+        tz);
+    outDerivative.x = temp1.x + (b + e * ty + (f + h * ty) * tz) * dtx;
+    outDerivative.y = temp1.y + (c + e * tx + (g + h * tx) * tz) * dty;
+    Vec2.multiplyScalar(outDerivative, outDerivative, frequency);
+    return outDerivative;
 }
 
-const sample2D = new Vec2();
-export function perlin2D (position: Vec2, frequency: number) {
-    Vec2.multiplyScalar(sample2D, position, frequency);
-    const { x, y } = sample2D;
+const db2 = new Vec2();
+const dc2 = new Vec2();
+const dd2 = new Vec2();
+export function perlin2D (outDerivative: Vec2, position: Vec2, frequency: number) {
+    const x = position.x * frequency;
+    const y = position.y * frequency;
     let ix0 = Math.floor(x);
     let iy0 = Math.floor(y);
     const tx0 = x - ix0;
@@ -168,12 +199,41 @@ export function perlin2D (position: Vec2, frequency: number) {
     const v11 = dot2(g11, tx1, ty1);
     const tx = smooth(tx0);
     const ty = smooth(ty0);
+    const dtx = smoothDerivative(tx0);
+    const dty = smoothDerivative(ty0);
 
-    return lerp(
-        lerp(v00, v10, tx),
-        lerp(v01, v11, tx),
-        ty,
-    ) * Math.SQRT2;
+    const b = v10 - v00;
+    const c = v01 - v00;
+    const d = v11 - v01 - b;
+
+    Vec2.subtract(db2, g10, g00);
+    Vec2.subtract(dc2, g01, g00);
+    Vec2.subtract(dd2, g11, g01);
+    Vec2.subtract(dd2, dd2, db2);
+
+    Vec2.scaleAndAdd(outDerivative, Vec2.scaleAndAdd(outDerivative, g00, Vec2.scaleAndAdd(outDerivative, dc2, dd2, tx), ty), db2, tx);
+    outDerivative.x += (b + d * ty) * dtx;
+    outDerivative.y += (c + d * tx) * dty;
+    Vec2.multiplyScalar(outDerivative, outDerivative, frequency * Math.SQRT2);
+    return outDerivative;
+}
+
+export function perlin1D (outDerivative: Vec2, x: number, frequency: number) {
+    x *= frequency;
+    let i0 = Math.floor(x);
+    const t0 = x - i0;
+    const t1 = t0 - 1;
+    i0 &= 255;
+    const i1 = i0 + 1;
+    const g0 = gradients1D[permutation[i0] & gradientsMask1D];
+    const g1 = gradients1D[permutation[i1] & gradientsMask1D];
+    const v0 = g0 * t0;
+    const v1 = g1 * t1;
+    const dt = smoothDerivative(t0);
+    const t = smooth(t0);
+    outDerivative.x = (g0 + (g1 - g0) * t + (v1 - v0) * dt) * frequency * 2.0;
+    outDerivative.y = 0;
+    return outDerivative;
 }
 
 function dot2 (a: Vec2, bx: number, by: number) {
@@ -182,19 +242,4 @@ function dot2 (a: Vec2, bx: number, by: number) {
 
 function dot3 (a: Vec3, bx: number, by: number, bz: number) {
     return a.x * bx + a.y * by + a.z * bz;
-}
-
-export function perlin1D (x: number, frequency: number) {
-    x *= frequency;
-    let i0 = Math.floor(x);
-    const t0 = x - i0;
-    const t1 = t0 - 1;
-    i0 &= 255;
-    const i1 = i0 + 1;
-    const t = smooth(t0);
-    const g0 = gradients1D[permutation[i0] & gradientsMask1D];
-    const g1 = gradients1D[permutation[i1] & gradientsMask1D];
-    const v0 = g0 * t0;
-    const v1 = g1 * t1;
-    return 2 * lerp(v0, v1, t);
 }
