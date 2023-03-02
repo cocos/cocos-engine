@@ -8,10 +8,10 @@ const path = require('path');
 const fs = require('fs');
 const os = require('os');
 
-const lines = [];
+const contentLines = [];
 process.on('message', (msg) => {
     if (msg.event === 'write-decorator') {
-        lines.push({ className: msg.className, lines: msg.lines });
+        contentLines.push({ className: msg.className, lines: msg.lines });
     }
 });
 
@@ -95,9 +95,9 @@ buildEngine.build(BUILD_CONFIG.options).then((result) => {
     console.log('done!!!');
 
     console.log(result);
-    const sortedLines = lines.sort((a, b) => a.className.localeCompare(b.className)).map((x) => x.lines.join('\n')).join('\n');
-    const pp = path.join(engineDir, 'cocos/native-binding/decorators.ts');
-    fs.writeFileSync(pp, `${sortedLines}\n`, 'utf8');
+    const sortedLines = contentLines.sort((a, b) => a.className.localeCompare(b.className)).map((x) => x.lines.join('\n')).join('\n');
+    const destFile = path.join(engineDir, 'cocos/native-binding/decorators.ts');
+    fs.writeFileSync(destFile, `${sortedLines}\n`, 'utf8');
     process.exit(0);
 }).catch((err) => {
     console.error(err);
