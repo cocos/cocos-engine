@@ -690,7 +690,6 @@ const cacheManager = require('./jsb-cache-manager');
 
             this._indexBoneSockets();
             this.attachUtil.init(this);
-            this._preCacheMode = this._cacheMode;
 
             this.defaultSkin && this._nativeSkeleton.setSkin(this.defaultSkin);
             this.animation = this.defaultAnimation;

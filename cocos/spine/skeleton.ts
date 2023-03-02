@@ -581,9 +581,6 @@ export class Skeleton extends UIRenderer {
 
     @serializable
     protected _useTint = false;
-    // Record pre cache mode.
-    @serializable
-    protected _preCacheMode = -1;
     @serializable
     protected _cacheMode = AnimationCacheMode.REALTIME;
     @serializable
@@ -780,17 +777,17 @@ export class Skeleton extends UIRenderer {
 
     /**
      * @en
-     * It's best to set cache mode before set property 'dragonAsset', or will waste some cpu time.
+     * It's best to set cache mode before set property 'SkeletonData', or will waste some cpu time.
      * If set the mode in editor, then no need to worry about order problem.
      * @zh
-     * 若想切换渲染模式，最好在设置'dragonAsset'之前，先设置好渲染模式，否则有运行时开销。
+     * 若想切换渲染模式，最好在设置'SkeletonData'之前，先设置好渲染模式，否则有运行时开销。
      * 若在编辑中设置渲染模式，则无需担心设置次序的问题。
      *
      * @example
      * skeleton.setAnimationCacheMode(sp.Skeleton.AnimationCacheMode.SHARED_CACHE);
      */
     public setAnimationCacheMode (cacheMode: AnimationCacheMode) {
-        if (this._preCacheMode !== cacheMode) {
+        if (this._cacheMode !== cacheMode) {
             this._cacheMode = cacheMode;
             this._needUpdateSkeltonData = true;
             this._updateSkeletonData();
@@ -1650,7 +1647,6 @@ export class Skeleton extends UIRenderer {
         }
         this._indexBoneSockets();
         this.attachUtil.init(this);
-        this._preCacheMode = this._cacheMode;
         this.animation = this.defaultAnimation;
     }
 
