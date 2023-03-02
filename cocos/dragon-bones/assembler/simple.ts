@@ -124,6 +124,7 @@ function _handleColor (color: {r: number, g: number, b: number, a: number}, pare
 
 let _accessor: StaticVBAccessor = null!;
 /**
+ * @engineInternal Since v3.7.2 this is an engine private object.
  * simple 组装器
  * 可通过 `UI.simple` 获取该组装器。
  */
