@@ -90,7 +90,7 @@ export class Color extends ValueType {
         return out;
     }
     /**
-     * @en Convert 8bit color to Vec4
+     * @en Convert linear color from rgb8 0~255 to Vec4 0~1
      * @zh 将当前颜色转换为到 Vec4
      * @returns Vec4 as float color value
      * @example
@@ -101,14 +101,14 @@ export class Color extends ValueType {
      */
     public static toVec4 (color:Color, out?: Vec4): Vec4 {
         out = out !== undefined ?  out : new Vec4();
-        out.x = srgb8BitToLinear(color.r);
-        out.y = srgb8BitToLinear(color.g);
-        out.z = srgb8BitToLinear(color.b);
-        out.w = srgb8BitToLinear(color.a);
+        out.x = color.r * toFloat;
+        out.y = color.g * toFloat;
+        out.z = color.b * toFloat;
+        out.w = color.a * toFloat;
         return out;
     }
     /**
-     * @en Set 8bit Color from Vec4
+     * @en Convert 8bit linear color from Vec4
      * @zh 使用 Vec4 设置 8 bit 颜色
      * @returns 8 Bit srgb value
      * @example
@@ -118,10 +118,10 @@ export class Color extends ValueType {
      */
     public static fromVec4 (value: Vec4, out?: Color): Color {
         out = out === undefined ? new Color() : out;
-        out.r = linearToSrgb8Bit(value.x);
-        out.g = linearToSrgb8Bit(value.y);
-        out.b = linearToSrgb8Bit(value.z);
-        out.a = linearToSrgb8Bit(value.w);
+        out.r = value.x / toFloat;
+        out.g = value.y / toFloat;
+        out.b = value.z / toFloat;
+        out.a = value.w / toFloat;
         return out;
     }
     /**
