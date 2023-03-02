@@ -23,12 +23,51 @@
 */
 
 import { IVec3Like, Quat, Vec3 } from '../../../core';
-import { HingeConstraint } from '../../framework';
+import { HingeConstraint, PhysicsSystem } from '../../framework';
 import { IHingeConstraint } from '../../spec/i-physics-constraint';
 import { getTempTransform, PX, _pxtrans, _trans } from '../physx-adapter';
 import { PhysXJoint } from './physx-joint';
+import { toRadian } from '../../../core/math';
 
 export class PhysXRevoluteJoint extends PhysXJoint implements IHingeConstraint {
+    private _limitPair = new PX.PxJointAngularLimitPair(0, 0);
+
+    setLimitEnabled (v: boolean): void {
+        this._impl.setRevoluteJointFlag(PX.RevoluteJointFlags.eLIMIT_ENABLED, v);
+        if (v) {
+            this._impl.setLimit(this._limitPair);
+        }
+    }
+    setLowerLimit (min: number): void {
+        this._limitPair.lower = toRadian(this.constraint.lowerLimit);
+        if (this.constraint.limitEnabled) {
+            this._impl.setLimit(this._limitPair);
+        }
+    }
+    setUpperLimit (max: number): void {
+        this._limitPair.upper = toRadian(this.constraint.upperLimit);
+        if (this.constraint.limitEnabled) {
+            this._impl.setLimit(this._limitPair);
+        }
+    }
+    setMotorEnabled (v: boolean): void {
+        this._impl.setRevoluteJointFlag(PX.RevoluteJointFlags.eDRIVE_ENABLED, v);
+        if (v) {
+            this._impl.setDriveVelocity(this.constraint.motorVelocity * PhysicsSystem.instance.fixedTimeStep, false);
+            this._impl.setDriveForceLimit(this.constraint.motorForceLimit);
+        }
+    }
+    setMotorVelocity (v: number): void {
+        if (this.constraint.motorEnabled) {
+            this._impl.setDriveVelocity(PhysicsSystem.instance.fixedTimeStep * v, false);
+        }
+    }
+    setMotorForceLimit (v: number): void {
+        if (this.constraint.motorEnabled) {
+            this._impl.setDriveForceLimit(v);
+        }
+    }
+
     setPivotA (v: IVec3Like): void {
         const cs = this.constraint;
         const pos = _trans.translation;
@@ -68,8 +107,25 @@ export class PhysXRevoluteJoint extends PhysXJoint implements IHingeConstraint {
 
     onComponentSet (): void {
         this._impl = PX.createRevoluteJoint(PhysXJoint.tempActor, _pxtrans, null, _pxtrans);
+
+        this._limitPair.stiffness = 1;
+        this._limitPair.damping = 0.1;
+        this._limitPair.restitution = 0.1;
+
+        this._impl.setConstraintFlag(6, true);
+        this._impl.setProjectionAngularTolerance(0.2);
+        this._impl.setProjectionLinearTolerance(0.2);
+
         this.setPivotA(this.constraint.pivotA);
         this.setPivotB(this.constraint.pivotB);
+
+        const constraint = this.constraint;
+        this.setLimitEnabled(constraint.limitEnabled);
+        this.setMotorEnabled(constraint.motorEnabled);
+        this.setLowerLimit(constraint.lowerLimit);
+        this.setUpperLimit(constraint.upperLimit);
+        this.setMotorVelocity(constraint.motorVelocity);
+        this.setMotorForceLimit(constraint.motorForceLimit);
     }
 
     updateScale0 () {

@@ -32,6 +32,14 @@ namespace physics {
 
 void PhysXRevolute::onComponentSet() {
     _mJoint = PxRevoluteJointCreate(PxGetPhysics(), &getTempRigidActor(), physx::PxTransform{physx::PxIdentity}, nullptr, physx::PxTransform{physx::PxIdentity});
+    _mlimit.stiffness = 1.0;
+    _mlimit.damping = 0.1;
+    _mlimit.restitution = 0.1;
+
+    auto *joint = static_cast<physx::PxRevoluteJoint *>(_mJoint);
+    joint->setConstraintFlag(physx::PxConstraintFlag::ePROJECTION, true);
+    joint->setProjectionAngularTolerance(0.2);
+    joint->setProjectionLinearTolerance(0.2);
 }
 
 void PhysXRevolute::setPivotA(float x, float y, float z) {
@@ -47,6 +55,59 @@ void PhysXRevolute::setPivotB(float x, float y, float z) {
 void PhysXRevolute::setAxis(float x, float y, float z) {
     _mAxis = physx::PxVec3{x, y, z};
     updatePose();
+}
+
+void PhysXRevolute::setLimitEnabled(bool v) {
+    _limitEnabled = v;
+    auto *joint = static_cast<physx::PxRevoluteJoint *>(_mJoint);
+    joint->setRevoluteJointFlags(physx::PxRevoluteJointFlag::eLIMIT_ENABLED);
+    if (v) {
+        joint->setLimit(_mlimit);
+    }
+}
+
+void PhysXRevolute::setLowerLimit(float v) {
+    _lowerLimit = v;
+    _mlimit.lower = _lowerLimit;
+    if (_limitEnabled) {
+        auto *joint = static_cast<physx::PxRevoluteJoint *>(_mJoint);
+        joint->setLimit(_mlimit);
+    }
+}
+
+void PhysXRevolute::setUpperLimit(float v) {
+    _upperLimit = v;
+    _mlimit.upper = _upperLimit;
+    if (_limitEnabled) {
+        auto *joint = static_cast<physx::PxRevoluteJoint *>(_mJoint);
+        joint->setLimit(_mlimit);
+    }
+}
+
+void PhysXRevolute::setMotorEnabled(bool v) {
+    _motorEnabled = v;
+    auto *joint = static_cast<physx::PxRevoluteJoint *>(_mJoint);
+    joint->setRevoluteJointFlags(physx::PxRevoluteJointFlag::eDRIVE_ENABLED);
+    if (v) {
+        joint->setDriveVelocity(_motorVelocity);
+        joint->setDriveForceLimit(_motorForceLimit);
+    }
+}
+
+void PhysXRevolute::setMotorVelocity(float v) {
+    _motorVelocity = v;
+    if (_motorEnabled) {
+        auto *joint = static_cast<physx::PxRevoluteJoint *>(_mJoint);
+        joint->setDriveVelocity(_motorVelocity);
+    }
+}
+
+void PhysXRevolute::setMotorForceLimit(float v) {
+    _motorForceLimit = v;
+    if (_motorEnabled) {
+        auto *joint = static_cast<physx::PxRevoluteJoint *>(_mJoint);
+        joint->setDriveForceLimit(_motorForceLimit);
+    }
 }
 
 void PhysXRevolute::updateScale0() {

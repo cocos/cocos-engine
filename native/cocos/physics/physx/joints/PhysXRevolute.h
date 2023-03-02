@@ -38,6 +38,12 @@ public:
     void setPivotA(float x, float y, float z) override;
     void setPivotB(float x, float y, float z) override;
     void setAxis(float x, float y, float z) override;
+    void setLimitEnabled(bool v) override;
+    void setLowerLimit(float v) override;
+    void setUpperLimit(float v) override;
+    void setMotorEnabled(bool v) override;
+    void setMotorVelocity(float v) override;
+    void setMotorForceLimit(float v) override;
     void updateScale0() override;
     void updateScale1() override;
 
@@ -47,6 +53,14 @@ private:
     physx::PxVec3 _mPivotA;
     physx::PxVec3 _mPivotB;
     physx::PxVec3 _mAxis;
+    physx::PxJointAngularLimitPair _mlimit{0, 0};
+
+    bool _limitEnabled{false};
+    float _lowerLimit{0.0F};
+    float _upperLimit{0.0F};
+    bool _motorEnabled{false};
+    float _motorVelocity{0.0F};
+    float _motorForceLimit{0.0F};
 };
 
 } // namespace physics

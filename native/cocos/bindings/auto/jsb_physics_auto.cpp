@@ -5956,6 +5956,150 @@ static bool js_cc_physics_RevoluteJoint_setAxis(se::State& s)
 }
 SE_BIND_FUNC(js_cc_physics_RevoluteJoint_setAxis) 
 
+static bool js_cc_physics_RevoluteJoint_setLimitEnabled(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RevoluteJoint *arg1 = (cc::physics::RevoluteJoint *) NULL ;
+    bool arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RevoluteJoint>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2);
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    (arg1)->setLimitEnabled(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RevoluteJoint_setLimitEnabled) 
+
+static bool js_cc_physics_RevoluteJoint_setLowerLimit(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RevoluteJoint *arg1 = (cc::physics::RevoluteJoint *) NULL ;
+    float arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RevoluteJoint>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    (arg1)->setLowerLimit(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RevoluteJoint_setLowerLimit) 
+
+static bool js_cc_physics_RevoluteJoint_setUpperLimit(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RevoluteJoint *arg1 = (cc::physics::RevoluteJoint *) NULL ;
+    float arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RevoluteJoint>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    (arg1)->setUpperLimit(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RevoluteJoint_setUpperLimit) 
+
+static bool js_cc_physics_RevoluteJoint_setMotorEnabled(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RevoluteJoint *arg1 = (cc::physics::RevoluteJoint *) NULL ;
+    bool arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RevoluteJoint>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2);
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    (arg1)->setMotorEnabled(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RevoluteJoint_setMotorEnabled) 
+
+static bool js_cc_physics_RevoluteJoint_setMotorVelocity(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RevoluteJoint *arg1 = (cc::physics::RevoluteJoint *) NULL ;
+    float arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RevoluteJoint>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    (arg1)->setMotorVelocity(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RevoluteJoint_setMotorVelocity) 
+
+static bool js_cc_physics_RevoluteJoint_setMotorForceLimit(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RevoluteJoint *arg1 = (cc::physics::RevoluteJoint *) NULL ;
+    float arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RevoluteJoint>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    (arg1)->setMotorForceLimit(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RevoluteJoint_setMotorForceLimit) 
+
 bool js_register_cc_physics_RevoluteJoint(se::Object* obj) {
     auto* cls = se::Class::create("RevoluteJoint", obj, nullptr, _SE(js_new_cc_physics_RevoluteJoint)); 
     
@@ -5971,8 +6115,12 @@ bool js_register_cc_physics_RevoluteJoint(se::Object* obj) {
     cls->defineFunction("setPivotA", _SE(js_cc_physics_RevoluteJoint_setPivotA)); 
     cls->defineFunction("setPivotB", _SE(js_cc_physics_RevoluteJoint_setPivotB)); 
     cls->defineFunction("setAxis", _SE(js_cc_physics_RevoluteJoint_setAxis)); 
-    
-    
+    cls->defineFunction("setLimitEnabled", _SE(js_cc_physics_RevoluteJoint_setLimitEnabled)); 
+    cls->defineFunction("setLowerLimit", _SE(js_cc_physics_RevoluteJoint_setLowerLimit)); 
+    cls->defineFunction("setUpperLimit", _SE(js_cc_physics_RevoluteJoint_setUpperLimit)); 
+    cls->defineFunction("setMotorEnabled", _SE(js_cc_physics_RevoluteJoint_setMotorEnabled)); 
+    cls->defineFunction("setMotorVelocity", _SE(js_cc_physics_RevoluteJoint_setMotorVelocity)); 
+    cls->defineFunction("setMotorForceLimit", _SE(js_cc_physics_RevoluteJoint_setMotorForceLimit)); 
     
     
     cls->defineFinalizeFunction(_SE(js_delete_cc_physics_RevoluteJoint));

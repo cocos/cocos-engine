@@ -53,6 +53,12 @@ public:
     virtual void setPivotA(float x, float y, float z) = 0;
     virtual void setPivotB(float x, float y, float z) = 0;
     virtual void setAxis(float x, float y, float z) = 0;
+    virtual void setLimitEnabled(bool v) = 0;
+    virtual void setLowerLimit(float v) = 0;
+    virtual void setUpperLimit(float v) = 0;
+    virtual void setMotorEnabled(bool v) = 0;
+    virtual void setMotorVelocity(float v) = 0;
+    virtual void setMotorForceLimit(float v) = 0;
 };
 
 class IFixedJoint : virtual public IBaseJoint {

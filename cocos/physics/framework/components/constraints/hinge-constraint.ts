@@ -32,9 +32,151 @@ import {
 } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Constraint } from './constraint';
-import { Vec3, cclegacy } from '../../../../core';
+import { Vec3, cclegacy, CCFloat, CCBoolean } from '../../../../core';
 import { EConstraintType } from '../../physics-enum';
 import { IHingeConstraint } from '../../../spec/i-physics-constraint';
+
+@ccclass('cc.HingeLimitData')
+@help('i18n:cc.HingeLimitData')
+@menu('Physics/HingeLimitData')
+export class HingeLimitData {
+    @serializable
+    @formerlySerializedAs('enabled')
+    private _enabled = false;
+
+    @serializable
+    @formerlySerializedAs('upperLimit')
+    private _upperLimit = Number.MAX_VALUE;
+
+    @serializable
+    @formerlySerializedAs('lowerLimit')
+    private _lowerLimit = -Number.MAX_VALUE;
+
+    private _constraint: HingeConstraint | null = null;
+
+    constructor (constraint: HingeConstraint | null) {
+        this._constraint = constraint;
+    }
+
+    /**
+     * @en
+     * Whether to enable the rotation limit of the hinge constraint.
+     * @zh
+     * 是否开启旋转限制。
+     */
+    @type(Boolean)
+    get enabled (): boolean {
+        return this._enabled;
+    }
+    set enabled (v: boolean) {
+        this._enabled = v;
+        if (!EDITOR || cclegacy.GAME_VIEW) {
+            this._constraint!.constraint.setLimitEnabled(v);
+        }
+    }
+
+    /**
+     * @en
+     * The upper limit to the rotation of pivotB related to pivotB's local position. (in degrees)
+     * @zh
+     * 转轴约束的旋转上限。（以度为单位）
+     */
+    @type(CCFloat)
+    get upperLimit (): number {
+        return this._upperLimit;
+    }
+    set upperLimit (v: number) {
+        this._upperLimit = v;
+    }
+
+    /**
+     * @en
+     * The lower limit to the rotation of pivotB related to pivotB's local position. (in degrees)
+     * @zh
+     * 转轴约束的旋转下限。（以度为单位）
+     */
+    @type(CCFloat)
+    get lowerLimit (): number {
+        return this._lowerLimit;
+    }
+    set lowerLimit (v: number) {
+        this._lowerLimit = v;
+    }
+}
+
+@ccclass('cc.HingeMotorData')
+@help('i18n:cc.HingeMotorData')
+@menu('Physics/HingeMotorData')
+export class HingeMotorData {
+    @serializable
+    @formerlySerializedAs('enabled')
+    private _enabled = false;
+
+    @serializable
+    @formerlySerializedAs('motorVelocity')
+    private _motorVelocity = 0;
+
+    @serializable
+    @formerlySerializedAs('motorForceLimit')
+    private _motorForceLimit = 0;
+
+    private _constraint: HingeConstraint | null = null;
+
+    constructor (constraint) {
+        this._constraint = constraint;
+    }
+
+    /**
+     * @en
+     * Whether the motor is enabled or not.
+     * @zh
+     * 转轴约束是否启用 Motor
+     */
+    @type(CCBoolean)
+    get enabled (): boolean {
+        return this._enabled;
+    }
+    set enabled (v: boolean) {
+        this._enabled = v;
+        if (!EDITOR || cclegacy.GAME_VIEW) {
+            this._constraint!.constraint.setMotorEnabled(v);
+        }
+    }
+
+    /**
+     * @en
+     * The rotation speed of pivotA related to pivotB. (in degrees per second)
+     * @zh
+     * 转轴约束的旋转速度。（以度每秒为单位）
+     */
+    @type(CCFloat)
+    get motorVelocity (): number {
+        return this._motorVelocity;
+    }
+    set motorVelocity (v: number) {
+        this._motorVelocity = v;
+        if (!EDITOR || cclegacy.GAME_VIEW) {
+            this._constraint!.constraint.setMotorVelocity(v);
+        }
+    }
+
+    /**
+     * @en
+     * The max drive force of the motor.
+     * @zh
+     * 转轴约束的最大驱动力。
+     */
+    @type(CCFloat)
+    get motorForceLimit (): number {
+        return this._motorForceLimit;
+    }
+    set motorForceLimit (v: number) {
+        this._motorForceLimit = v;
+        if (!EDITOR || cclegacy.GAME_VIEW) {
+            this._constraint!.constraint.setMotorForceLimit(v);
+        }
+    }
+}
 
 @ccclass('cc.HingeConstraint')
 @help('i18n:cc.HingeConstraint')
@@ -94,6 +236,90 @@ export class HingeConstraint extends Constraint {
         }
     }
 
+    /**
+     * @en
+     * Whether to enable the rotation limit of the hinge constraint.
+     * @zh
+     * 是否开启旋转限制。
+     */
+    @type(CCBoolean)
+    get limitEnabled (): boolean {
+        return this.limitData.enabled;
+    }
+    set limitEnabled (v: boolean) {
+        this.limitData.enabled = v;
+    }
+
+    /**
+             * @en
+             * The upper limit to the rotation of pivotB related to pivotB's local position.
+             * @zh
+             * 转轴约束的旋转上限。
+             */
+    @type(CCFloat)
+    get upperLimit (): number {
+        return this.limitData.upperLimit;
+    }
+    set upperLimit (v: number) {
+        this.limitData.upperLimit = v;
+    }
+
+    /**
+             * @en
+             * The lower limit to the rotation of pivotB related to pivotB's local position.
+             * @zh
+             * 转轴约束的旋转下限。
+             */
+    @type(CCFloat)
+    get lowerLimit (): number {
+        return this.limitData.lowerLimit;
+    }
+    set lowerLimit (v: number) {
+        this.limitData.lowerLimit = v;
+    }
+
+    /**
+         * @en
+         * Whether the motor is enabled or not.
+         * @zh
+         * 转轴约束是否启用 Motor
+         */
+    @type(CCBoolean)
+    get motorEnabled (): boolean {
+        return this.motorData.enabled;
+    }
+    set motorEnabled (v: boolean) {
+        this.motorData.enabled = v;
+    }
+
+    /**
+         * @en
+         * The rotation speed of pivotA related to pivotB.
+         * @zh
+         * 转轴约束的旋转速度。
+         */
+    @type(CCFloat)
+    get motorVelocity (): number {
+        return this.motorData.motorVelocity;
+    }
+    set motorVelocity (v: number) {
+        this.motorData.motorVelocity = v;
+    }
+
+    /**
+         * @en
+         * The max drive force of the motor.
+         * @zh
+         * 转轴约束的最大驱动力。
+         */
+    @type(CCFloat)
+    get motorForceLimit (): number {
+        return this.motorData.motorForceLimit;
+    }
+    set motorForceLimit (v: number) {
+        this.motorData.motorForceLimit = v;
+    }
+
     @serializable
     @formerlySerializedAs('axisA')
     private readonly _axis: Vec3 = new Vec3();
@@ -105,6 +331,14 @@ export class HingeConstraint extends Constraint {
     @serializable
     @formerlySerializedAs('pivotB')
     private readonly _pivotB: Vec3 = new Vec3();
+
+    @serializable
+    @formerlySerializedAs('limitData')
+    public limitData =  new HingeLimitData(this);
+
+    @serializable
+    @formerlySerializedAs('motorData')
+    public motorData =  new HingeMotorData(this);
 
     get constraint (): IHingeConstraint {
         return this._constraint as IHingeConstraint;
