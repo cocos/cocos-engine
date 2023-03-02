@@ -416,9 +416,6 @@ async function doBuild({
         babelOptions.presets?.push([() => ({ plugins: [[decoratorRecorder]] })]);
     }
 
-    const babelOptionsPre = Object.create(babelOptions);
-    babelOptionsPre.plugins = [[decoratorRecorder]];
-
     const rollupPlugins: rollup.Plugin[] = [];
 
     const codeAssetMapping: Record<string, string> = {};
