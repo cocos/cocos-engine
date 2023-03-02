@@ -88,6 +88,7 @@ const defineAttrFloat = (kls: Constructor, attr: string) => {
     const desc: FieldDesc = (kls as any).__nativeFields__[attr];
     const cacheKey = `_$_${attr}`;
     if (!window.oh) {
+        // openharmony does not support the console.assert interface at this time.
         console.assert(desc.fieldSize === 4, `field ${attr} size ${desc.fieldSize}`);
     }
     Object.defineProperty(kls.prototype, desc.fieldName, {
@@ -120,6 +121,7 @@ const defineAttrInt = (kls: Constructor, attr: string) => {
     }
     const cacheKey = `_$_${attr}`;
     if (!window.oh) {
+        // openharmony does not support the console.assert interface at this time.
         console.assert(desc.fieldSize === 4, `field ${attr} size ${desc.fieldSize}`);
     }
     Object.defineProperty(kls.prototype, desc.fieldName, {
