@@ -119,7 +119,7 @@ bool CCMTLBuffer::createMTLBuffer(uint32_t size, MemoryUsage usage) {
         CCMTLGPUGarbageCollectionPool::getInstance()->collect(destroyFunc);
     }
 
-    auto allocatedSize = _size;
+    auto allocatedSize = size;
     if(_memUsage == (gfx::MemoryUsage::HOST | gfx::MemoryUsage::DEVICE)) {
         constexpr uint8_t backBufferCount = MAX_FRAMES_IN_FLIGHT;
         auto alignedSize = utils::alignTo(size, CCMTLDevice::getInstance()->getCapabilities().uboOffsetAlignment);
