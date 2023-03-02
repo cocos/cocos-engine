@@ -1110,4 +1110,7 @@ module.exports = {
         minPos: '生成光照探针的包围盒最小点',
         maxPos: '生成光照探针的包围盒最大点',
     },
+    reflection_probe: {
+        fastBake: '勾选则不会对生成的cubemap进行GGX卷积，烘焙速度非常快。',
+    },
 };

@@ -23,7 +23,7 @@
 */
 import { ccclass, executeInEditMode, menu, playOnFocus, serializable, tooltip, type, visible } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { cclegacy, CCObject, Color, Enum, size, Vec3 } from '../../core';
+import { CCBoolean, cclegacy, CCObject, Color, Enum, size, Vec3 } from '../../core';
 
 import { TextureCube } from '../../asset/assets';
 import { scene } from '../../render-scene';
@@ -91,6 +91,9 @@ export class ReflectionProbe extends Component {
 
     @serializable
     private _probeId = -1;
+
+    @serializable
+    private _fastBake = false;
 
     protected _probe: scene.ReflectionProbe | null = null;
 
@@ -239,6 +242,20 @@ export class ReflectionProbe extends Component {
     }
     get sourceCamera () {
         return this._sourceCamera!;
+    }
+
+    /**
+     * @en fast bake no convolution.
+     * @zh 快速烘焙不会进行卷积。
+     */
+    @type(CCBoolean)
+    @tooltip('i18n:reflection_probe.fastBake')
+    get fastBake () {
+        return this._fastBake;
+    }
+
+    set fastBake (val) {
+        this._fastBake = val;
     }
 
     set cubemap (val: TextureCube | null) {
