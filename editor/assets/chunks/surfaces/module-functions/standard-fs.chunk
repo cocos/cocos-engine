@@ -251,7 +251,7 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
     + lightingResult.directTransmitDiffuse
   #endif
   #if CC_SURFACES_LIGHTING_TRT
-    + lightingResult.directTRT * lightingResult.specularColorWithLightingTRT * surfaceData.trtIntensity
+    + lightingResult.directTRT * lightingResult.specularColorWithLightingTRT * surfaceData.trtIntensity * surfaceData.baseColorTRT
   #endif
   #if CC_SURFACES_LIGHTING_TT
     + lightingResult.directTT * lightingResult.diffuseColorWithLightingTT
@@ -275,7 +275,7 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
     + lightingResult.environmentTransmitDiffuse
   #endif
   #if CC_SURFACES_LIGHTING_TRT
-    + lightingResult.environmentTRT * lightingResult.specularColorWithLightingTRT * surfaceData.trtIntensity
+    + lightingResult.environmentTRT * lightingResult.specularColorWithLightingTRT * surfaceData.trtIntensity * surfaceData.baseColorTRT
   #endif
     )
     * lightingResult.ao;
