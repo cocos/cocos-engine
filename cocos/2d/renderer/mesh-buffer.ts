@@ -42,7 +42,7 @@ enum MeshBufferSharedBufferView {
     count,
 }
 
-const IAPoolUsedScale = 1 / 2;
+const IAPOOLUSEDSCALE = 1 / 2;
 
 /**
  * @en Mesh buffer used for 2d rendering, used internally and not of concern to the user.
@@ -372,8 +372,8 @@ export class MeshBuffer {
         // @ts-expect-error Property '__isWebIOS14OrIPadOS14Env' does not exist on 'sys'
         const iOS14 = sys.__isWebIOS14OrIPadOS14Env;
         const submitCount = iOS14 ? this._nextFreeIAHandle : 1;
-        if (iOS14 && (submitCount / this._iaPool.length < IAPoolUsedScale)) {
-            const count = submitCount / IAPoolUsedScale;
+        if (iOS14 && (submitCount / this._iaPool.length < IAPOOLUSEDSCALE)) {
+            const count = submitCount / IAPOOLUSEDSCALE;
             const length = this._iaPool.length;
             // Destroy InputAssemblers
             for (let i = length - 1; i >= count; i--) {
