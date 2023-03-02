@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -115,9 +115,9 @@ constexpr inline T *SE_THIS_OBJECT(STATE &s) { // NOLINT(readability-identifier-
         bool           ret = false;                                                                     \
         napi_value     _this;                                                                           \
         se::ValueArray seArgs;                                                                          \
-        seArgs.reserve(10);                                                                             \
-        size_t     argc = 10;                                                                           \
-        napi_value args[10];                                                                            \
+        seArgs.reserve(15);                                                                             \
+        size_t     argc = 15;                                                                           \
+        napi_value args[15];                                                                            \
         NODE_API_CALL(status, env, napi_get_cb_info(env, info, &argc, args, &_this, NULL));             \
         se::Object *nativeThisObject = nullptr;                                                         \
         status                 = napi_unwrap(env, _this, reinterpret_cast<void **>(&nativeThisObject)); \
