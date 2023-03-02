@@ -1110,4 +1110,7 @@ module.exports = {
         minPos: '生成光照探针的包围盒最小点',
         maxPos: '生成光照探针的包围盒最大点',
     },
+    reflection_probe: {
+        lowQuality: '低质量烘焙速度快，但不会对生成的cubemap进行卷积，高质量使用GGX对cubemap进行卷积，但是烘焙速度慢',
+    },
 };
