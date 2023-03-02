@@ -1103,7 +1103,10 @@ class DescriptorSetCache {
             }
         }
         for (let i = uselessArray.length - 1; i >= 0; i--) {
-            caches.splice(uselessArray[i], 1);
+            const index = uselessArray[i];
+            const localDs = caches[index];
+            caches.splice(index, 1);
+            this._localCachePool.free(localDs);
         }
     }
 
