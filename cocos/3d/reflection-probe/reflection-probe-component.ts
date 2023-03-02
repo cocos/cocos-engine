@@ -93,7 +93,7 @@ export class ReflectionProbe extends Component {
     private _probeId = -1;
 
     @serializable
-    private _lowQuality = false;
+    private _fastBake = false;
 
     protected _probe: scene.ReflectionProbe | null = null;
 
@@ -245,17 +245,17 @@ export class ReflectionProbe extends Component {
     }
 
     /**
-     * @en Low quality baking, no convolution.
-     * @zh 低质量的烘焙，不会进行卷积。
+     * @en fast bake no convolution.
+     * @zh 快速烘焙不会进行卷积。
      */
     @type(CCBoolean)
-    @tooltip('i18n:reflection_probe.lowQuality')
-    get lowQuality () {
-        return this._lowQuality;
+    @tooltip('i18n:reflection_probe.fastBake')
+    get fastBake () {
+        return this._fastBake;
     }
 
-    set lowQuality (val) {
-        this._lowQuality = val;
+    set fastBake (val) {
+        this._fastBake = val;
     }
 
     set cubemap (val: TextureCube | null) {

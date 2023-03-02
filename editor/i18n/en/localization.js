@@ -1129,4 +1129,7 @@ module.exports = {
         minPos: 'The minimum point of the bounding box of the generated probes.',
         maxPos: 'The maximum point of the bounding box of the generated probes.',
     },
+    reflection_probe: {
+        fastBake: 'If checked, generating progress will ignore GGX convolution for cubemap, very fast generation.',
+    },
 };
