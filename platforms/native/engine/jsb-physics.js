@@ -624,11 +624,23 @@ class RevoluteJoint extends Joint {
     setAxis (v) { this._impl.setAxis(v.x, v.y, v.z); }
     setPivotA (v) { this._impl.setPivotA(v.x, v.y, v.z); }
     setPivotB (v) { this._impl.setPivotB(v.x, v.y, v.z); }
+    setLimitEnabled (v) { this._impl.setLimitEnabled(v); }
+    setLowerLimit (v) { this._impl.setLowerLimit(v); }
+    setUpperLimit (v) { this._impl.setUpperLimit(v); }
+    setMotorEnabled (v) { this._impl.setMotorEnabled(v); }
+    setMotorVelocity (v) { this._impl.setMotorVelocity(v); }
+    setMotorForceLimit (v) { this._impl.setMotorForceLimit(v); }
     onLoad () {
         super.onLoad();
         this.setAxis(this._com.axis);
         this.setPivotA(this._com.pivotA);
         this.setPivotB(this._com.pivotB);
+        this.setLimitEnabled(this._com.limitEnabled);
+        this.setLowerLimit(this._com.lowerLimit);
+        this.setUpperLimit(this._com.upperLimit);
+        this.setMotorEnabled(this._com.motorEnabled);
+        this.setMotorVelocity(this._com.motorVelocity);
+        this.setMotorForceLimit(this._com.motorForceLimit);
     }
 }
 
