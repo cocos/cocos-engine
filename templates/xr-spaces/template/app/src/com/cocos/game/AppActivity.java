@@ -65,6 +65,8 @@ public class AppActivity extends CocosActivity {
         }
         CocosXRVideoManager.getInstance().onDestroy();
         SDKWrapper.shared().onDestroy();
+        // because windowmanager not remove monadoview, cause activity exit failed, so we kill the process
+        System.exit(0);
     }
 
     @Override
