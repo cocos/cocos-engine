@@ -90,9 +90,11 @@ export function clamp01 (val: number) {
 }
 
 /**
- * @param from
- * @param to
- * @param ratio - The interpolation coefficient.
+ * @en Linear interpolation between two numbers
+ * @zh 两个数之间的线性插值。
+ * @param from - The starting number.
+ * @param to - The ending number.
+ * @param ratio - The interpolation coefficient, t should be in the range [0, 1].
  */
 export function lerp (from: number, to: number, ratio: number) {
     return from + (to - from) * ratio;

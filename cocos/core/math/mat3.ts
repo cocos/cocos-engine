@@ -642,7 +642,7 @@ export class Mat3 extends ValueType {
      *  x in the range of [-PI/2, PI/2], the rotation order is YXZ, first rotate around Y, then around X, and finally around Z.
      * @zh 将矩阵转换成欧拉角, 返回角度 y,z 在 [-PI, PI] 区间内, x 在 [-PI/2, PI/2] 区间内，旋转顺序为 YXZ，即先绕Y旋转，再绕X，最后绕Z旋转。
      */
-    public static toEuler (matrix: Mat3,  v: Vec3): boolean {
+    public static toEuler<InType extends IMat3Like, VecLike extends IVec3Like> (matrix: InType,  v: VecLike): boolean {
         //a[col][row]
         const a00 = matrix.m00; const a01 = matrix.m01; const a02 = matrix.m02;
         const a10 = matrix.m03; const a11 = matrix.m04; const a12 = matrix.m05;

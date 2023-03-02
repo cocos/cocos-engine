@@ -51,6 +51,18 @@ export class Size extends ValueType {
         return out;
     }
 
+    /**
+     * @en Check whether `Size` a is equal to `Size` b.
+     * @zh 判断两个尺寸是否相等。
+     * @param a Size a.
+     * @param b Size b.
+     * @returns Returns `true' when both dimensions are equal in width and height; otherwise returns `false'.
+     */
+    public static equals <InType extends ISizeLike> (a: InType, b: InType) {
+        return a.width === b.width
+                && a.height === b.height;
+    }
+
     // compatibility with vector interfaces
     set x (val) { this.width = val; }
     get x () { return this.width; }

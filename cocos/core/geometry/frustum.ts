@@ -49,10 +49,8 @@ const _temp_v3 = new Vec3();
  */
 export class Frustum {
     /**
-     * @en
-     * Creates an orthogonal frustum.
-     * @zh
-     * 创建一个正交视锥体。
+     * @en Creates an orthogonal frustum.
+     * @zh 创建一个正交视锥体。
      * @param out @en The result orthogonal frustum. @zh 输出的正交视锥体。
      * @param width @en The width of the frustum. @zh 正交视锥体的宽度。
      * @param height @en The height of the frustum. @zh 正交视锥体的高度。
@@ -61,7 +59,7 @@ export class Frustum {
      * @param transform @en The transform matrix of the frustum. @zh 正交视锥体的变换矩阵。
      * @returns @en The result frustum, same as the `out` parameter. @zh 存储结果的视锥体，与 `out` 参数为同一个对象。
      */
-    public static createOrtho (out: Frustum, width: number, height: number, near: number, far: number, transform: Mat4) {
+    public static createOrthogonal (out: Frustum, width: number, height: number, near: number, far: number, transform: Mat4) {
         const halfWidth = width / 2;
         const halfHeight = height / 2;
         Vec3.set(_temp_v3, halfWidth, halfHeight, -near);
@@ -81,12 +79,64 @@ export class Frustum {
         Vec3.set(_temp_v3, halfWidth, -halfHeight, -far);
         Vec3.transformMat4(out.vertices[7], _temp_v3, transform);
 
-        Plane.fromPoints(out.planes[0], out.vertices[1], out.vertices[6], out.vertices[5]);
-        Plane.fromPoints(out.planes[1], out.vertices[3], out.vertices[4], out.vertices[7]);
-        Plane.fromPoints(out.planes[2], out.vertices[6], out.vertices[3], out.vertices[7]);
-        Plane.fromPoints(out.planes[3], out.vertices[0], out.vertices[5], out.vertices[4]);
-        Plane.fromPoints(out.planes[4], out.vertices[2], out.vertices[0], out.vertices[3]);
-        Plane.fromPoints(out.planes[5], out.vertices[7], out.vertices[5], out.vertices[6]);
+        out.updatePlanes();
+    }
+
+    /**
+     * @en Creates an orthogonal frustum.
+     * @zh 创建一个正交视锥体。
+     * @param out @en The result orthogonal frustum. @zh 输出的正交视锥体。
+     * @param width @en The width of the frustum. @zh 正交视锥体的宽度。
+     * @param height @en The height of the frustum. @zh 正交视锥体的高度。
+     * @param near @en The near plane of the frustum. @zh 正交视锥体的近平面值。
+     * @param far @en The far plane of the frustum. @zh 正交视锥体的远平面值。
+     * @param transform @en The transform matrix of the frustum. @zh 正交视锥体的变换矩阵。
+     * @returns @en The result frustum, same as the `out` parameter. @zh 存储结果的视锥体，与 `out` 参数为同一个对象。
+     *
+     * @deprecated since v3.8.0, please use [[createOrthogonal]] instead.
+     */
+    public static createOrtho (out: Frustum, width: number, height: number, near: number, far: number, transform: Mat4) {
+        return Frustum.createOrthogonal(out, width, height, near, far, transform);
+    }
+
+    /**
+     * @en Creates a perspective frustum.
+     * @zh 创建一个透视视锥体。
+     * @param aspect @en The aspect ratio of the camera. @zh 相机视图的长宽比。
+     * @param fov @en The field of view of the camera. @zh 相机的视角大小。
+     * @param near @en The near plane of the frustum. @zh 视锥体的近平面值。
+     * @param far @en The far plane of the frustum. @zh 视锥体的远平面值。
+     * @param transform @en The transform matrix. @zh 变换矩阵。
+     * @returns @en The result frustum, same as the `out` parameter. @zh 存储结果的视锥体，与 `out` 参数为同一个对象。
+     */
+    public static createPerspective (out: Frustum, aspect: number, fov: number, near: number, far: number, transform: Mat4) {
+        const h = Math.tan(fov * 0.5);
+        const w = h * aspect;
+        _nearTemp.set(near * w,  near * h, near);
+        _farTemp.set(far * w, far * h, far);
+
+        const vertexes = out.vertices;
+        // startHalfWidth startHalfHeight
+        _temp_v3.set(_nearTemp.x, _nearTemp.y, -_nearTemp.z);
+        Vec3.transformMat4(vertexes[0], _temp_v3, transform);
+        _temp_v3.set(-_nearTemp.x, _nearTemp.y, -_nearTemp.z);
+        Vec3.transformMat4(vertexes[1], _temp_v3, transform);
+        _temp_v3.set(-_nearTemp.x, -_nearTemp.y, -_nearTemp.z);
+        Vec3.transformMat4(vertexes[2], _temp_v3, transform);
+        _temp_v3.set(_nearTemp.x, -_nearTemp.y, -_nearTemp.z);
+        Vec3.transformMat4(vertexes[3], _temp_v3, transform);
+
+        // endHalfWidth, endHalfHeight
+        _temp_v3.set(_farTemp.x, _farTemp.y, -_farTemp.z);
+        Vec3.transformMat4(vertexes[4], _temp_v3, transform);
+        _temp_v3.set(-_farTemp.x, _farTemp.y, -_farTemp.z);
+        Vec3.transformMat4(vertexes[5], _temp_v3, transform);
+        _temp_v3.set(-_farTemp.x, -_farTemp.y, -_farTemp.z);
+        Vec3.transformMat4(vertexes[6], _temp_v3, transform);
+        _temp_v3.set(_farTemp.x, -_farTemp.y, -_farTemp.z);
+        Vec3.transformMat4(vertexes[7], _temp_v3, transform);
+
+        out.updatePlanes();
     }
 
     /**
@@ -95,20 +145,22 @@ export class Frustum {
      * @param out @en The result frustum. @zh 输出的视锥体对象。
      * @param aabb @en The AABB to create the result frustum. @zh 用于创建视锥体 AABB。
      * @returns @en The result frustum, same as the `out` parameter. @zh 存储结果的视锥体，与 `out` 参数为同一个对象。
+     *
+     * @deprecated since v3.8.0, please use [[createOrthogonal]] instead.
      */
     public static createFromAABB (out: Frustum, aabb: AABB | Readonly<AABB>): Frustum {
         const vec3_min = new Vec3(); const vec3_max = new Vec3();
         Vec3.subtract(vec3_min, aabb.center, aabb.halfExtents);
         Vec3.add(vec3_max, aabb.center, aabb.halfExtents);
 
-        out.vertices[0].set(vec3_min.x, vec3_max.y, vec3_min.z);
-        out.vertices[1].set(vec3_max.x, vec3_max.y, vec3_min.z);
-        out.vertices[2].set(vec3_max.x, vec3_min.y, vec3_min.z);
-        out.vertices[3].set(vec3_min.x, vec3_min.y, vec3_min.z);
-        out.vertices[4].set(vec3_min.x, vec3_max.y, vec3_max.z);
-        out.vertices[5].set(vec3_max.x, vec3_max.y, vec3_max.z);
-        out.vertices[6].set(vec3_max.x, vec3_min.y, vec3_max.z);
-        out.vertices[7].set(vec3_min.x, vec3_min.y, vec3_max.z);
+        out.vertices[0].set(vec3_max.x, vec3_max.y, -vec3_min.z);
+        out.vertices[1].set(vec3_min.x, vec3_max.y, -vec3_min.z);
+        out.vertices[2].set(vec3_min.x, vec3_min.y, -vec3_min.z);
+        out.vertices[3].set(vec3_max.x, vec3_min.y, -vec3_min.z);
+        out.vertices[4].set(vec3_max.x, vec3_max.y, -vec3_max.z);
+        out.vertices[5].set(vec3_min.x, vec3_max.y, -vec3_max.z);
+        out.vertices[6].set(vec3_min.x, vec3_min.y, -vec3_max.z);
+        out.vertices[7].set(vec3_max.x, vec3_min.y, -vec3_max.z);
 
         if (out._type !== enums.SHAPE_FRUSTUM_ACCURATE) {
             return out;
@@ -127,36 +179,11 @@ export class Frustum {
      * @param aspect @en The aspect ratio of the camera. @zh 相机视图的长宽比。
      * @param fov @en The field of view of the camera. @zh 相机的视角大小。
      * @param m @en The transform matrix. @zh 变换矩阵。
+     *
+     * @deprecated since v3.8.0, please use [[createPerspective]] instead.
      */
     public split (start: number, end: number, aspect: number, fov: number, m: Mat4) {
-        // 0: cameraNear  1:cameraFar
-        const h = Math.tan(fov * 0.5);
-        const w = h * aspect;
-        _nearTemp.set(start * w,  start * h, start);
-        _farTemp.set(end * w, end * h, end);
-
-        const vertexes = this.vertices;
-        // startHalfWidth startHalfHeight
-        _temp_v3.set(_nearTemp.x, _nearTemp.y, _nearTemp.z);
-        Vec3.transformMat4(vertexes[0], _temp_v3, m);
-        _temp_v3.set(-_nearTemp.x, _nearTemp.y, _nearTemp.z);
-        Vec3.transformMat4(vertexes[1], _temp_v3, m);
-        _temp_v3.set(-_nearTemp.x, -_nearTemp.y, _nearTemp.z);
-        Vec3.transformMat4(vertexes[2], _temp_v3, m);
-        _temp_v3.set(_nearTemp.x, -_nearTemp.y, _nearTemp.z);
-        Vec3.transformMat4(vertexes[3], _temp_v3, m);
-
-        // endHalfWidth, endHalfHeight
-        _temp_v3.set(_farTemp.x, _farTemp.y, _farTemp.z);
-        Vec3.transformMat4(vertexes[4], _temp_v3, m);
-        _temp_v3.set(-_farTemp.x, _farTemp.y, _farTemp.z);
-        Vec3.transformMat4(vertexes[5], _temp_v3, m);
-        _temp_v3.set(-_farTemp.x, -_farTemp.y, _farTemp.z);
-        Vec3.transformMat4(vertexes[6], _temp_v3, m);
-        _temp_v3.set(_farTemp.x, -_farTemp.y, _farTemp.z);
-        Vec3.transformMat4(vertexes[7], _temp_v3, m);
-
-        this.updatePlanes();
+        return Frustum.createPerspective(this, aspect, fov, start, end, m);
     }
 
     /**

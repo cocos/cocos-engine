@@ -693,7 +693,9 @@ export class Model {
         }
         if ((hasNonInstancingPass || forceUpdateUBO) && this._localBuffer) {
             Mat4.toArray(this._localData, worldMatrix, UBOLocal.MAT_WORLD_OFFSET);
-            Mat4.inverseTranspose(m4_1, worldMatrix);
+
+            Mat4.invert(m4_1, worldMatrix);
+            Mat4.transpose(m4_1, m4_1);
 
             Mat4.toArray(this._localData, m4_1, UBOLocal.MAT_WORLD_IT_OFFSET);
             this._localBuffer.update(this._localData);

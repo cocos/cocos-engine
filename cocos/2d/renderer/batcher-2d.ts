@@ -1025,7 +1025,10 @@ class LocalDescriptorSet  {
         if (this._transformUpdate) {
             const worldMatrix = node.worldMatrix;
             Mat4.toArray(this._localData, worldMatrix, UBOLocal.MAT_WORLD_OFFSET);
-            Mat4.inverseTranspose(m4_1, worldMatrix);
+
+            Mat4.invert(m4_1, worldMatrix);
+            Mat4.transpose(m4_1, m4_1);
+
             if (!JSB) {
                 // fix precision lost of webGL on android device
                 // scale worldIT mat to around 1.0 by product its sqrt of determinant.
