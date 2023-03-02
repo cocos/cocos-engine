@@ -158,7 +158,13 @@ export function renameObjectProperty<T extends Record<PropertyKey, any>> (
  * ```
  */
 // eslint-disable-next-line @typescript-eslint/ban-types
-export const createInstanceofProxy = (() => {
+export const createInstanceofProxy = ((): CreateInstanceofProxySignature => {
+    // Test if we can proxy the instanceof operator by
+    // [`Symbol.hasInstance`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol/hasInstance).
+    //
+    // This symbol was introduced in ES2015 and has been supported in most platforms:
+    // https://caniuse.com/?search=Symbol.hasInstance
+    // To guarantee we won't suffer from platform issue, we do check here.
     let isSymbolHasInstanceAvailable = false;
     try {
         class Array1 { static [Symbol.hasInstance] (instance: unknown) { return Array.isArray(instance); } }
@@ -167,26 +173,29 @@ export const createInstanceofProxy = (() => {
         isSymbolHasInstanceAvailable = false;
     }
 
-    // May be hacky?
-    type ExcludeConstructor<T> = Omit<T, never>;
-
+    // If `Symbol.hasInstance` is not available, fallback to return the original constructor.
     if (!isSymbolHasInstanceAvailable) {
-        // eslint-disable-next-line @typescript-eslint/ban-types
-        return <TConstructor extends Function> (constructor: TConstructor): ExcludeConstructor<TConstructor> => constructor;
-    } else {
-        // eslint-disable-next-line @typescript-eslint/ban-types
-        return <TConstructor extends Function> (constructor: TConstructor): ExcludeConstructor<TConstructor> => {
-            function InstanceOfProxy () {
-                throw new Error(`This function can not be called as a constructor.`);
-            }
-
-            Object.defineProperty(InstanceOfProxy, Symbol.hasInstance, {
-                value (instance: unknown) {
-                    return instance instanceof constructor;
-                },
-            });
-
-            return InstanceOfProxy as unknown as TConstructor;
-        };
+        return (constructor) => constructor;
     }
+
+    // Otherwise, proxy it.
+    return (constructor) => {
+        function InstanceOfProxy () {
+            throw new Error(`This function can not be called as a constructor.`);
+        }
+
+        Object.defineProperty(InstanceOfProxy, Symbol.hasInstance, {
+            value (instance: unknown) {
+                return instance instanceof constructor;
+            },
+        });
+
+        return InstanceOfProxy as unknown as typeof constructor;
+    };
 })();
+
+// May be hacky?
+type ExcludeConstructor<T> = Omit<T, never>;
+
+// eslint-disable-next-line @typescript-eslint/ban-types
+type CreateInstanceofProxySignature = <TConstructor extends Function> (constructor: TConstructor) => ExcludeConstructor<TConstructor>;
