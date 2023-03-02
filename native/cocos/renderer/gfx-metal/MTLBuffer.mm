@@ -51,7 +51,7 @@ void CCMTLBuffer::doInit(const BufferInfo &info) {
     _gpuBuffer = ccnew CCMTLGPUBuffer;
     _gpuBuffer->count = _count;
     _gpuBuffer->mappedData = nullptr;
-    _gpuBuffer->size = _size;
+    _gpuBuffer->instanceSize = _size;
     _gpuBuffer->startOffset = _offset;
     _gpuBuffer->stride = _stride;
 
@@ -119,12 +119,16 @@ bool CCMTLBuffer::createMTLBuffer(uint32_t size, MemoryUsage usage) {
         CCMTLGPUGarbageCollectionPool::getInstance()->collect(destroyFunc);
     }
 
+    auto allocatedSize = _size;
     if(_memUsage == (gfx::MemoryUsage::HOST | gfx::MemoryUsage::DEVICE)) {
-        size *= MAX_FRAMES_IN_FLIGHT;
+        constexpr uint8_t backBufferCount = MAX_FRAMES_IN_FLIGHT;
+        auto alignedSize = utils::alignTo(size, CCMTLDevice::getInstance()->getCapabilities().uboOffsetAlignment);
+        allocatedSize = alignedSize * backBufferCount;
+        _gpuBuffer->instanceSize = alignedSize;
     }
 
     id<MTLDevice> mtlDevice = id<MTLDevice>(CCMTLDevice::getInstance()->getMTLDevice());
-    _gpuBuffer->mtlBuffer = [mtlDevice newBufferWithLength:size options:_mtlResourceOptions];
+    _gpuBuffer->mtlBuffer = [mtlDevice newBufferWithLength:allocatedSize options:_mtlResourceOptions];
     if (_gpuBuffer->mtlBuffer == nil) {
         return false;
     }
@@ -256,7 +260,7 @@ void CCMTLBuffer::updateMTLBuffer(const void *buffer, uint32_t /*offset*/, uint3
         auto& lastUpdateCycle = _gpuBuffer->lastUpdateCycle;
         lastUpdateCycle = ccDevice->currentFrameIndex();
         bool backBuffer = _memUsage == (gfx::MemoryUsage::HOST | gfx::MemoryUsage::DEVICE);
-        uint32_t offset = backBuffer ? lastUpdateCycle * _size : 0;
+        uint32_t offset = backBuffer ? lastUpdateCycle * _gpuBuffer->instanceSize : 0;
         uint8_t* mappedData = static_cast<uint8_t*>(mtlBuffer.contents) + offset;
         memcpy(mappedData, buffer, size);
 #if (CC_PLATFORM == CC_PLATFORM_MACOS)
@@ -289,12 +293,9 @@ void CCMTLBuffer::encodeBuffer(CCMTLCommandEncoder &encoder, uint32_t offset, ui
 
 uint32_t CCMTLBuffer::currentOffset() const {
     bool backBuffer = _memUsage == (gfx::MemoryUsage::HOST | gfx::MemoryUsage::DEVICE);
-    uint32_t offset = 0;
+    uint32_t offset = backBuffer ? _gpuBuffer->lastUpdateCycle * _gpuBuffer->instanceSize : 0;
     if(_isBufferView) {
-        offset = backBuffer ? _gpuBuffer->lastUpdateCycle * _gpuBuffer->size : 0;
         offset += _offset; // buffer view offset
-    } else {
-        offset = backBuffer ? _gpuBuffer->lastUpdateCycle *  _size : 0; // backbuffer offset
     }
     return offset;
 }

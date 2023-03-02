@@ -702,7 +702,7 @@ void CCMTLCommandBuffer::updateBuffer(Buffer *buff, const void *data, uint32_t s
 
     auto* ccBuffer = static_cast<CCMTLBuffer *>(buff);
     CCMTLGPUBuffer stagingBuffer;
-    stagingBuffer.size = size;
+    stagingBuffer.instanceSize = size;
     _mtlDevice->gpuStagingBufferPool()->alloc(&stagingBuffer);
     memcpy(stagingBuffer.mappedData, data, size);
     id<MTLBlitCommandEncoder> encoder = [getMTLCommandBuffer() blitCommandEncoder];
@@ -1062,7 +1062,7 @@ void CCMTLCommandBuffer::copyTextureToBuffers(Texture *src, uint8_t *const *buff
 
             id<MTLBlitCommandEncoder> encoder = [mtlCommandBuffer blitCommandEncoder];
             CCMTLGPUBuffer stagingBuffer;
-            stagingBuffer.size = bytesPerImage;
+            stagingBuffer.instanceSize = bytesPerImage;
             _mtlDevice->gpuStagingBufferPool()->alloc(&stagingBuffer);
             [encoder copyFromTexture:mtlTexture
                              sourceSlice:regions[i].texSubres.baseArrayLayer
