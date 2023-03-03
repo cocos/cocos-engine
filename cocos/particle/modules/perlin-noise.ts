@@ -1,3 +1,4 @@
+import { assert } from '../../core';
 import { lerp, Vec2, Vec3 } from '../../core/math';
 
 // https://mrl.cs.nyu.edu/~perlin/noise/
@@ -76,16 +77,35 @@ const gradients1D = [
 ];
 const gradientsMask1D = 1;
 
+function dot2 (a: Vec2, bx: number, by: number) {
+    return a.x * bx + a.y * by;
+}
+
+function dot3 (hash: number, x: number, y: number, z: number) {
+    switch (hash) {
+    case 0: return x + y;
+    case 1: return -x + y;
+    case 2: return x - y;
+    case 3: return -x - y;
+    case 4: return x + z;
+    case 5: return -x + z;
+    case 6: return x - z;
+    case 7: return -x - z;
+    case 8: return y + z;
+    case 9: return -y + z;
+    case 10: return y - z;
+    case 11: return -y - z;
+    case 12: return x + y;
+    case 13: return -x + y;
+    case 14: return -y + z;
+    case 15: return -y - z;
+    default:
+        throw new Error('Can not happen!');
+    }
+}
+
 function smooth (t: number) { return t * t * t * (t * (t * 6 - 15) + 10); }
 function smoothDerivative (t: number) { return 30 * t * t * (t * (t - 2) + 1); }
-
-// const db3 = new Vec3();
-// const dc3 = new Vec3();
-// const dd3 = new Vec3();
-// const de3 = new Vec3();
-// const df3 = new Vec3();
-// const dg3 = new Vec3();
-// const dh3 = new Vec3();
 
 const temp1 = new Vec3();
 const temp2 = new Vec3();
@@ -143,14 +163,31 @@ export class PerlinNoise3DCache {
         const h10 = permutation[h1 + iy0];
         const h01 = permutation[h0 + iy1];
         const h11 = permutation[h1 + iy1];
-        const g000 = this.g000 = gradients3D[permutation[h00 + iz0] & gradientMask3D];
-        const g100 = this.g100 = gradients3D[permutation[h10 + iz0] & gradientMask3D];
-        const g010 = this.g010 = gradients3D[permutation[h01 + iz0] & gradientMask3D];
-        const g110 = this.g110 = gradients3D[permutation[h11 + iz0] & gradientMask3D];
-        const g001 = this.g001 = gradients3D[permutation[h00 + iz1] & gradientMask3D];
-        const g101 = this.g101 = gradients3D[permutation[h10 + iz1] & gradientMask3D];
-        const g011 = this.g011 = gradients3D[permutation[h01 + iz1] & gradientMask3D];
-        const g111 = this.g111 = gradients3D[permutation[h11 + iz1] & gradientMask3D];
+        this.g000Hash = permutation[h00 + iz0] & gradientMask3D;
+        const g000 = this.g000 = gradients3D[this.g000Hash];
+        this.g100Hash = permutation[h10 + iz0] & gradientMask3D;
+        const g100 = this.g100 = gradients3D[this.g100Hash];
+        this.g010Hash = permutation[h01 + iz0] & gradientMask3D;
+        const g010 = this.g010 = gradients3D[this.g010Hash];
+        this.g110Hash = permutation[h11 + iz0] & gradientMask3D;
+        const g110 = this.g110 = gradients3D[this.g110Hash];
+        this.g001Hash = permutation[h00 + iz1] & gradientMask3D;
+        const g001 = this.g001 = gradients3D[this.g001Hash];
+        this.g101Hash = permutation[h10 + iz1] & gradientMask3D;
+        const g101 = this.g101 = gradients3D[this.g101Hash];
+        this.g011Hash = permutation[h01 + iz1] & gradientMask3D;
+        const g011 = this.g011 = gradients3D[this.g011Hash];
+        this.g111Hash = permutation[h11 + iz1] & gradientMask3D;
+        const g111 = this.g111 = gradients3D[this.g111Hash];
+
+        // const g000 = this.g000 = gradients3D[permutation[h00 + iz0] & gradientMask3D];
+        // const g100 = this.g100 = gradients3D[permutation[h10 + iz0] & gradientMask3D];
+        // const g010 = this.g010 = gradients3D[permutation[h01 + iz0] & gradientMask3D];
+        // const g110 = this.g110 = gradients3D[permutation[h11 + iz0] & gradientMask3D];
+        // const g001 = this.g001 = gradients3D[permutation[h00 + iz1] & gradientMask3D];
+        // const g101 = this.g101 = gradients3D[permutation[h10 + iz1] & gradientMask3D];
+        // const g011 = this.g011 = gradients3D[permutation[h01 + iz1] & gradientMask3D];
+        // const g111 = this.g111 = gradients3D[permutation[h11 + iz1] & gradientMask3D];
         const db = this.db;
         const dc = this.dc;
         const de = this.de;
@@ -184,14 +221,14 @@ export function perlin3D (outDerivative: Vec2, position: Vec3, frequency: number
     const tx1 = tx0 - 1;
     const ty1 = ty0 - 1;
     const tz1 = tz0 - 1;
-    const v000 = dot3(cache.g000, tx0, ty0, tz0);
-    const v100 = dot3(cache.g100, tx1, ty0, tz0);
-    const v010 = dot3(cache.g010, tx0, ty1, tz0);
-    const v110 = dot3(cache.g110, tx1, ty1, tz0);
-    const v001 = dot3(cache.g001, tx0, ty0, tz1);
-    const v101 = dot3(cache.g101, tx1, ty0, tz1);
-    const v011 = dot3(cache.g011, tx0, ty1, tz1);
-    const v111 = dot3(cache.g111, tx1, ty1, tz1);
+    const v000 = dot3(cache.g000Hash, tx0, ty0, tz0);
+    const v100 = dot3(cache.g100Hash, tx1, ty0, tz0);
+    const v010 = dot3(cache.g010Hash, tx0, ty1, tz0);
+    const v110 = dot3(cache.g110Hash, tx1, ty1, tz0);
+    const v001 = dot3(cache.g001Hash, tx0, ty0, tz1);
+    const v101 = dot3(cache.g101Hash, tx1, ty0, tz1);
+    const v011 = dot3(cache.g011Hash, tx0, ty1, tz1);
+    const v111 = dot3(cache.g111Hash, tx1, ty1, tz1);
     const tx = smooth(tx0);
     const ty = smooth(ty0);
     const tz = smooth(tz0);
@@ -279,12 +316,4 @@ export function perlin1D (outDerivative: Vec2, x: number, frequency: number) {
     outDerivative.x = (g0 + (g1 - g0) * t + (v1 - v0) * dt) * frequency * 2.0;
     outDerivative.y = 0;
     return outDerivative;
-}
-
-function dot2 (a: Vec2, bx: number, by: number) {
-    return a.x * bx + a.y * by;
-}
-
-function dot3 (a: Vec3, bx: number, by: number, bz: number) {
-    return a.x * bx + a.y * by + a.z * bz;
 }
