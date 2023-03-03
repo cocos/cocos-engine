@@ -236,11 +236,7 @@ bool Vec2::isLineParallel(const Vec2 &a, const Vec2 &b,
 
     if (crossProduct2Vector(a, b, c, d) == 0) {
         // line overlap
-        if (crossProduct2Vector(c, d, c, a) == 0 || crossProduct2Vector(a, b, c, a) == 0) {
-            return false;
-        }
-
-        return true;
+        return !(crossProduct2Vector(c, d, c, a) == 0 || crossProduct2Vector(a, b, c, a) == 0);
     }
 
     return false;
@@ -253,12 +249,7 @@ bool Vec2::isLineOverlap(const Vec2 &a, const Vec2 &b,
         return false;
     }
 
-    if (crossProduct2Vector(a, b, c, d) == 0 &&
-        (crossProduct2Vector(c, d, c, a) == 0 || crossProduct2Vector(a, b, c, a) == 0)) {
-        return true;
-    }
-
-    return false;
+    return (crossProduct2Vector(a, b, c, d) == 0 && (crossProduct2Vector(c, d, c, a) == 0 || crossProduct2Vector(a, b, c, a) == 0));
 }
 
 bool Vec2::isSegmentOverlap(const Vec2 &a, const Vec2 &b, const Vec2 &c, const Vec2 &d, Vec2 *s, Vec2 *e) {
