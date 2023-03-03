@@ -194,15 +194,6 @@ public:
     void cross(const Vec3 &v);
 
     /**
-     * Calculate cross product.
-     *
-     * @param v1 is a vector.
-     * @param v2 is a vector.
-     * @param dst is a vector used to calculate the cross product of v1 and v2. 
-     */
-    static void crossProduct(const Vec3 &v1, const Vec3 &v2, Vec3 *dst);
-
-    /**
      * Computes the cross product of the specified vectors and stores the result in dst.
      *
      * @param v1 The first vector.

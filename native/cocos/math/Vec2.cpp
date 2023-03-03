@@ -60,8 +60,17 @@ float crossProduct2Vector(const Vec2 &a, const Vec2 &b, const Vec2 &c, const Vec
 }
 
 float Vec2::angle(const Vec2 &v1, const Vec2 &v2) {
-    float dz = v1.x * v2.y - v1.y * v2.x;
-    return atan2f(fabsf(dz) + MATH_FLOAT_SMALL, dot(v1, v2));
+    const auto magSqr1 = v1.x * v1.x + v1.y * v1.y;
+    const auto magSqr2 = v2.x * v2.x + v2.y * v2.y;
+
+    if (magSqr1 == 0.0F || magSqr2 == 0.0F) {
+        return 0.0F;
+    }
+
+    const auto dot = v1.x * v2.x + v1.y * v2.y;
+    auto cosine = dot / (sqrt(magSqr1 * magSqr2));
+    cosine = clampf(cosine, -1.0, 1.0);
+    return acos(cosine);
 }
 
 void Vec2::add(const Vec2 &v1, const Vec2 &v2, Vec2 *dst) {
@@ -130,21 +139,12 @@ float Vec2::length() const {
 }
 
 void Vec2::normalize() {
-    float n = x * x + y * y;
-    // Already normalized.
-    if (n == 1.0F) {
-        return;
+    float len = x * x + y * y;
+    if (len > 0.0F) {
+        len = 1.0F / std::sqrt(len);
+        x *= len;
+        y *= len;
     }
-
-    n = std::sqrt(n);
-    // Too close to zero.
-    if (n < MATH_TOLERANCE) {
-        return;
-    }
-
-    n = 1.0F / n;
-    x *= n;
-    y *= n;
 }
 
 Vec2 Vec2::getNormalized() const {
@@ -199,13 +199,7 @@ bool Vec2::fuzzyEquals(const Vec2 &b, float var) const {
 }
 
 float Vec2::getAngle(const Vec2 &other) const {
-    Vec2 a2 = getNormalized();
-    Vec2 b2 = other.getNormalized();
-    float angle = atan2f(a2.cross(b2), a2.dot(b2));
-    if (std::abs(angle) < FLT_EPSILON) {
-        return 0.F;
-    }
-    return angle;
+    return Vec2::angle(*this, other);
 }
 
 Vec2 Vec2::rotateByAngle(const Vec2 &pivot, float angle) const {

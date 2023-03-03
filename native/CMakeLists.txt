@@ -862,8 +862,6 @@ cocos_source_files(MODULE ccmath
     cocos/math/Math.h
     cocos/math/Math.cpp
     cocos/math/MathBase.h
-    cocos/math/Vertex.cpp
-    cocos/math/Vertex.h
     cocos/math/Mat3.cpp
     cocos/math/Mat3.h
     cocos/math/Mat4.cpp

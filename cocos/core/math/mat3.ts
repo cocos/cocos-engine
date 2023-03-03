@@ -673,6 +673,13 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * matrix layout
+     * |m00  m03  m06|
+     * |m01  m04  m07|
+     * |m02  m05  m08|
+     */
+
+    /**
      * @en Value at column 0 row 0 of the matrix.
      * @zh 矩阵第 0 列第 0 行的元素。
      */
