@@ -202,10 +202,6 @@ jsb.generateGetSet = function (moduleObj) {
 for (const key in jsbWindow) {
     if (globalThis[key] === undefined) {
         globalThis[key] = jsbWindow[key];
-        console.debug(`[web-adapter] override window.${key}`);
-    } else {
-        // globalThis[key] = jsbWindow[key];
-        console.debug(`[web-adapter] skip window.${key}`);
     }
 }
 
