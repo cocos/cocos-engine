@@ -257,6 +257,14 @@ public:
     void negate();
 
     /**
+    * The inverse value of this vector.
+    * 
+    * This method set each component to its inverse value, zero
+    * will become infinity.
+    */
+    static void inverse(const Vec4 &v, Vec4 *dst);
+
+    /**
      * Normalizes this vector.
      *
      * This method normalizes this Vec4 so that it is of
