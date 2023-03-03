@@ -73,7 +73,10 @@ const m4_2 = new Mat4();
 const dirtyNodes: any[] = [];
 
 const reserveContentsForAllSyncablePrefabTag = Symbol('ReserveContentsForAllSyncablePrefab');
-let globalFlagChangeVersion = 0;
+
+// The default value of the global version should be higher than the default value of the node's changedVersion,
+// to ensure that the changeFlags of a node are initialized to 0.
+let globalFlagChangeVersion = 1;
 
 /**
  * @zh
@@ -1475,8 +1478,8 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     protected _dirtyFlags = TransformBit.NONE; // does the world transform need to update?
     protected _eulerDirty = false;
 
-    protected _flagChangeVersion = 0;
-    protected _hasChangedFlags = 0;
+    // The high bits are used to store the version number of the changedFlag, and the low 3 bits represent its specific value
+    protected _versionedChangedFlags = 0;
 
     constructor (name?: string) {
         super(name);
@@ -1707,12 +1710,11 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @zh 这个节点的空间变换信息在当前帧内是否有变过？
      */
     get hasChangedFlags () {
-        return this._flagChangeVersion === globalFlagChangeVersion ? this._hasChangedFlags : 0;
+        return (this._versionedChangedFlags >>> 3) === globalFlagChangeVersion ? (this._versionedChangedFlags & 7) : 0;
     }
 
     set hasChangedFlags (val: number) {
-        this._flagChangeVersion = globalFlagChangeVersion;
-        this._hasChangedFlags = val;
+        this._versionedChangedFlags = (globalFlagChangeVersion << 3) | val;
     }
 
     /**
@@ -2506,7 +2508,12 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * 清除所有节点的脏标记。
      */
     public static resetHasChangedFlags () {
-        globalFlagChangeVersion += 1;
+        // This code uses 32 bits for bit operations:
+        //   1 bit for sign,
+        //   28 bits for global flag version,
+        //   3 bits for transform flags.
+        // Using 26 bits for the flags is sufficient.
+        globalFlagChangeVersion = (globalFlagChangeVersion + 1) & 0x3FFFFFF;
     }
 
     /**
