@@ -3160,7 +3160,7 @@ Can't getGFXSampler with out device
 
 ### 9630
 
-[Physics]: A dynamic rigid body can not have the following collider shapes: Terrain, Plane, Mesh and Simplex. Node name: %s
+[Physics]: A dynamic rigid body can not have the following collider shapes: Terrain, Plane and Mesh. Node name: %s
 
 ### 10001
 

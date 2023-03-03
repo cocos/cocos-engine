@@ -430,7 +430,6 @@ export class Collider extends Eventify(Component) {
             case EColliderType.PLANE:
             case EColliderType.TERRAIN:
             case EColliderType.MESH:
-            case EColliderType.SIMPLEX:
                 warnID(9630, this.node.name);
                 break;
 
