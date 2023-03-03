@@ -82,6 +82,68 @@ function smoothDerivative (t: number) { return 30 * t * t * (t * (t - 2) + 1); }
 const temp1 = new Vec3();
 const temp2 = new Vec3();
 
+export class PerlinNoise1DCache {
+    i0 = 0;
+    i1 = 0;
+    g0 = 0;
+    g1 = 0;
+    db = 0;
+
+    updateCache (x: number) {
+        if (x < this.i1 && x > this.i0) {
+            return;
+        }
+        let i0 = this.i0 = Math.floor(x);
+        this.i1 = i0 + 1;
+        i0 &= 255;
+        const i1 = i0 + 1;
+        const g0 = this.g0 = gradients1D[permutation[i0] & gradientsMask1D];
+        const g1 = this.g1 = gradients1D[permutation[i1] & gradientsMask1D];
+        this.db = g1 - g0;
+    }
+}
+
+export class PerlinNoise2DCache {
+    ix0 = 0;
+    iy0 = 0;
+    ix1 = 0;
+    iy1 = 0;
+    g00 = new Vec2();
+    g10 = new Vec2();
+    g01 = new Vec2();
+    g11 = new Vec2();
+    db = new Vec2();
+    dc = new Vec2();
+    dd = new Vec2();
+
+    updateCache (x: number, y: number) {
+        if (x < this.ix1 && x > this.ix0 && y < this.iy1 && y > this.iy0) {
+            return;
+        }
+        let ix0 = this.ix0 = Math.floor(x);
+        let iy0 = this.iy0 = Math.floor(y);
+        this.ix1 = ix0 + 1;
+        this.iy1 = iy0 + 1;
+        ix0 &= 255;
+        iy0 &= 255;
+        const ix1 = ix0 + 1.0;
+        const iy1 = iy0 + 1.0;
+
+        const h0 = permutation[ix0];
+        const h1 = permutation[ix1];
+
+        const g00 = this.g00 = gradients2D[permutation[h0 + iy0] & gradientMask2D];
+        const g10 = this.g10 = gradients2D[permutation[h1 + iy0] & gradientMask2D];
+        const g01 = this.g01 = gradients2D[permutation[h0 + iy1] & gradientMask2D];
+        const g11 = this.g11 = gradients2D[permutation[h1 + iy1] & gradientMask2D];
+
+        Vec2.subtract(this.db, g10, g00);
+        Vec2.subtract(this.dc, g01, g00);
+        Vec2.subtract(this.dd, g11, g01);
+        Vec2.subtract(this.dd, this.dd, this.db);
+    }
+}
+
 export class PerlinNoise3DCache {
     ix0 = 0;
     iy0 = 0;
@@ -198,34 +260,19 @@ export function perlin3D (outDerivative: Vec2, position: Vec3, frequency: number
     return outDerivative;
 }
 
-const db2 = new Vec2();
-const dc2 = new Vec2();
-const dd2 = new Vec2();
-export function perlin2D (outDerivative: Vec2, position: Vec2, frequency: number) {
+export function perlin2D (outDerivative: Vec2, position: Vec2, frequency: number, cache: PerlinNoise2DCache) {
     const x = position.x * frequency;
     const y = position.y * frequency;
-    let ix0 = Math.floor(x);
-    let iy0 = Math.floor(y);
-    const tx0 = x - ix0;
-    const ty0 = y - iy0;
+    cache.updateCache(x, y);
+    const tx0 = x - cache.ix0;
+    const ty0 = y - cache.iy0;
     const tx1 = tx0 - 1;
     const ty1 = ty0 - 1;
-    ix0 &= 255;
-    iy0 &= 255;
-    const ix1 = ix0 + 1.0;
-    const iy1 = iy0 + 1.0;
 
-    const h0 = permutation[ix0];
-    const h1 = permutation[ix1];
-
-    const g00 = gradients2D[permutation[h0 + iy0] & gradientMask2D];
-    const g10 = gradients2D[permutation[h1 + iy0] & gradientMask2D];
-    const g01 = gradients2D[permutation[h0 + iy1] & gradientMask2D];
-    const g11 = gradients2D[permutation[h1 + iy1] & gradientMask2D];
-    const v00 = dot2(g00, tx0, ty0);
-    const v10 = dot2(g10, tx1, ty0);
-    const v01 = dot2(g01, tx0, ty1);
-    const v11 = dot2(g11, tx1, ty1);
+    const v00 = dot2(cache.g00, tx0, ty0);
+    const v10 = dot2(cache.g10, tx1, ty0);
+    const v01 = dot2(cache.g01, tx0, ty1);
+    const v11 = dot2(cache.g11, tx1, ty1);
     const tx = smooth(tx0);
     const ty = smooth(ty0);
     const dtx = smoothDerivative(tx0);
@@ -235,32 +282,24 @@ export function perlin2D (outDerivative: Vec2, position: Vec2, frequency: number
     const c = v01 - v00;
     const d = v11 - v01 - b;
 
-    Vec2.subtract(db2, g10, g00);
-    Vec2.subtract(dc2, g01, g00);
-    Vec2.subtract(dd2, g11, g01);
-    Vec2.subtract(dd2, dd2, db2);
-
-    Vec2.scaleAndAdd(outDerivative, Vec2.scaleAndAdd(outDerivative, g00, Vec2.scaleAndAdd(outDerivative, dc2, dd2, tx), ty), db2, tx);
+    Vec2.scaleAndAdd(outDerivative, Vec2.scaleAndAdd(outDerivative, cache.g00, Vec2.scaleAndAdd(outDerivative, cache.dc, cache.dd, tx), ty), cache.db, tx);
     outDerivative.x += (b + d * ty) * dtx;
     outDerivative.y += (c + d * tx) * dty;
     Vec2.multiplyScalar(outDerivative, outDerivative, frequency * Math.SQRT2);
     return outDerivative;
 }
 
-export function perlin1D (outDerivative: Vec2, x: number, frequency: number) {
+export function perlin1D (outDerivative: Vec2, x: number, frequency: number, cache: PerlinNoise1DCache) {
     x *= frequency;
-    let i0 = Math.floor(x);
-    const t0 = x - i0;
+    cache.updateCache(x);
+    const t0 = x - cache.i0;
     const t1 = t0 - 1;
-    i0 &= 255;
-    const i1 = i0 + 1;
-    const g0 = gradients1D[permutation[i0] & gradientsMask1D];
-    const g1 = gradients1D[permutation[i1] & gradientsMask1D];
-    const v0 = g0 * t0;
-    const v1 = g1 * t1;
+
+    const v0 = cache.g0 * t0;
+    const v1 = cache.g1 * t1;
     const dt = smoothDerivative(t0);
     const t = smooth(t0);
-    outDerivative.x = (g0 + (g1 - g0) * t + (v1 - v0) * dt) * frequency * 2.0;
+    outDerivative.x = (cache.g0 + cache.db * t + (v1 - v0) * dt) * frequency * 2.0;
     outDerivative.y = 0;
     return outDerivative;
 }

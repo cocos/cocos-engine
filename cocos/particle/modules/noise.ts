@@ -32,7 +32,7 @@ import { CurveRange } from '../curve-range';
 import { ParticleModule, ParticleUpdateStage, UpdateModule } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
 import { ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
-import { perlin1D, perlin2D, perlin3D, PerlinNoise3DCache } from './perlin-noise';
+import { perlin1D, perlin2D, perlin3D, PerlinNoise1DCache, PerlinNoise2DCache, PerlinNoise3DCache } from './perlin-noise';
 
 const pos = new Vec3();
 const point3D = new Vec3();
@@ -46,9 +46,15 @@ const RANDOM_SEED_OFFSET_Y = 291830;
 const RANDOM_SEED_OFFSET_Z = 616728;
 const RANDOM_SEED_OFFSET_POSITION = 943728;
 const RANDOM_SEED_OFFSET_ROTATION = 746210;
-const noiseXCache = new PerlinNoise3DCache();
-const noiseYCache = new PerlinNoise3DCache();
-const noiseZCache = new PerlinNoise3DCache();
+const noiseXCache3D = new PerlinNoise3DCache();
+const noiseYCache3D = new PerlinNoise3DCache();
+const noiseZCache3D = new PerlinNoise3DCache();
+const noiseXCache2D = new PerlinNoise2DCache();
+const noiseYCache2D = new PerlinNoise2DCache();
+const noiseZCache2D = new PerlinNoise2DCache();
+const noiseXCache1D = new PerlinNoise1DCache();
+const noiseYCache1D = new PerlinNoise1DCache();
+const noiseZCache1D = new PerlinNoise1DCache();
 
 enum Quality {
     LOW,
@@ -297,11 +303,11 @@ export class NoiseModule extends UpdateModule {
                     particles.getPositionAt(pos, i);
                     pos.add3f(offsetX, offsetY, offsetZ);
                     Vec2.set(point2D, pos.z, pos.y + scrollOffset);
-                    accumulateNoise2D(sampleX, point2D, frequency, octaves, octaveScale, octaveMultiplier);
+                    accumulateNoise2D(sampleX, point2D, frequency, noiseXCache2D, octaves, octaveScale, octaveMultiplier);
                     Vec2.set(point2D, pos.x + 100, pos.z + scrollOffset);
-                    accumulateNoise2D(sampleY, point2D, frequency, octaves, octaveScale, octaveMultiplier);
+                    accumulateNoise2D(sampleY, point2D, frequency, noiseYCache2D, octaves, octaveScale, octaveMultiplier);
                     Vec2.set(point2D, pos.y, pos.x + 100 + scrollOffset);
-                    accumulateNoise2D(sampleZ, point2D, frequency, octaves, octaveScale, octaveMultiplier);
+                    accumulateNoise2D(sampleZ, point2D, frequency, noiseZCache2D, octaves, octaveScale, octaveMultiplier);
                     noiseX[i] = sampleZ.x - sampleY.y;
                     noiseY[i] = sampleX.x - sampleZ.y;
                     noiseZ[i] = sampleY.x - sampleX.y;
@@ -311,11 +317,11 @@ export class NoiseModule extends UpdateModule {
                     particles.getPositionAt(pos, i);
                     pos.add3f(offsetX, offsetY, offsetZ);
                     Vec3.set(point3D, pos.z, pos.y, pos.x + scrollOffset);
-                    accumulateNoise3D(sampleX, point3D, frequency, noiseXCache, octaves, octaveScale, octaveMultiplier);
+                    accumulateNoise3D(sampleX, point3D, frequency, noiseXCache3D, octaves, octaveScale, octaveMultiplier);
                     Vec3.set(point3D, pos.x + 100, pos.z, pos.y + scrollOffset);
-                    accumulateNoise3D(sampleY, point3D, frequency, noiseYCache, octaves, octaveScale, octaveMultiplier);
+                    accumulateNoise3D(sampleY, point3D, frequency, noiseYCache3D, octaves, octaveScale, octaveMultiplier);
                     Vec3.set(point3D, pos.y, pos.x + 100, pos.z + scrollOffset);
-                    accumulateNoise3D(sampleZ, point3D, frequency, noiseZCache, octaves, octaveScale, octaveMultiplier);
+                    accumulateNoise3D(sampleZ, point3D, frequency, noiseZCache3D, octaves, octaveScale, octaveMultiplier);
                     noiseX[i] = sampleZ.x - sampleY.y;
                     noiseY[i] = sampleX.x - sampleZ.y;
                     noiseZ[i] = sampleY.x - sampleX.y;
@@ -324,9 +330,9 @@ export class NoiseModule extends UpdateModule {
                 for (let i = fromIndex; i < toIndex; i++) {
                     particles.getPositionAt(pos, i);
                     pos.add3f(offsetX, offsetY, offsetZ);
-                    accumulateNoise1D(sampleX, pos.z + scrollOffset, frequency, octaves, octaveScale, octaveMultiplier);
-                    accumulateNoise1D(sampleY, pos.x + 100 + scrollOffset, frequency, octaves, octaveScale, octaveMultiplier);
-                    accumulateNoise1D(sampleZ, pos.y + scrollOffset, frequency, octaves, octaveScale, octaveMultiplier);
+                    accumulateNoise1D(sampleX, pos.z + scrollOffset, frequency, noiseXCache1D, octaves, octaveScale, octaveMultiplier);
+                    accumulateNoise1D(sampleY, pos.x + 100 + scrollOffset, frequency, noiseYCache1D, octaves, octaveScale, octaveMultiplier);
+                    accumulateNoise1D(sampleZ, pos.y + scrollOffset, frequency, noiseZCache1D, octaves, octaveScale, octaveMultiplier);
                     noiseX[i] = sampleZ.x - sampleY.y;
                     noiseY[i] = sampleX.x - sampleZ.y;
                     noiseZ[i] = sampleY.x - sampleX.y;
@@ -338,9 +344,9 @@ export class NoiseModule extends UpdateModule {
                 for (let i = fromIndex; i < toIndex; i++) {
                     particles.getPositionAt(pos, i);
                     pos.add3f(offsetX, offsetY, offsetZ);
-                    perlin3D(sampleX, Vec3.set(point3D, pos.z, pos.y, pos.x + scrollOffset), frequency, noiseXCache);
-                    perlin3D(sampleY, Vec3.set(point3D, pos.x + 100, pos.z, pos.y + scrollOffset), frequency, noiseYCache);
-                    perlin3D(sampleZ, Vec3.set(point3D, pos.y, pos.x + 100, pos.z + scrollOffset), frequency, noiseZCache);
+                    perlin3D(sampleX, Vec3.set(point3D, pos.z, pos.y, pos.x + scrollOffset), frequency, noiseXCache3D);
+                    perlin3D(sampleY, Vec3.set(point3D, pos.x + 100, pos.z, pos.y + scrollOffset), frequency, noiseYCache3D);
+                    perlin3D(sampleZ, Vec3.set(point3D, pos.y, pos.x + 100, pos.z + scrollOffset), frequency, noiseZCache3D);
                     noiseX[i] = sampleZ.x - sampleY.y;
                     noiseY[i] = sampleX.x - sampleZ.y;
                     noiseZ[i] = sampleY.x - sampleX.y;
@@ -349,9 +355,9 @@ export class NoiseModule extends UpdateModule {
                 for (let i = fromIndex; i < toIndex; i++) {
                     particles.getPositionAt(pos, i);
                     pos.add3f(offsetX, offsetY, offsetZ);
-                    perlin2D(sampleX, Vec2.set(point2D, pos.z, pos.y + scrollOffset), frequency);
-                    perlin2D(sampleY, Vec2.set(point2D, pos.x + 100, pos.z + scrollOffset), frequency);
-                    perlin2D(sampleZ, Vec2.set(point2D, pos.y, pos.x + 100 + scrollOffset), frequency);
+                    perlin2D(sampleX, Vec2.set(point2D, pos.z, pos.y + scrollOffset), frequency, noiseXCache2D);
+                    perlin2D(sampleY, Vec2.set(point2D, pos.x + 100, pos.z + scrollOffset), frequency, noiseYCache2D);
+                    perlin2D(sampleZ, Vec2.set(point2D, pos.y, pos.x + 100 + scrollOffset), frequency, noiseZCache2D);
                     noiseX[i] = sampleZ.x - sampleY.y;
                     noiseY[i] = sampleX.x - sampleZ.y;
                     noiseZ[i] = sampleY.x - sampleX.y;
@@ -360,9 +366,9 @@ export class NoiseModule extends UpdateModule {
                 for (let i = fromIndex; i < toIndex; i++) {
                     particles.getPositionAt(pos, i);
                     pos.add3f(offsetX, offsetY, offsetZ);
-                    perlin1D(sampleX, pos.z + scrollOffset, frequency);
-                    perlin1D(sampleY, pos.x + 100 + scrollOffset, frequency);
-                    perlin1D(sampleZ, pos.y + scrollOffset, frequency);
+                    perlin1D(sampleX, pos.z + scrollOffset, frequency, noiseXCache1D);
+                    perlin1D(sampleY, pos.x + 100 + scrollOffset, frequency, noiseYCache1D);
+                    perlin1D(sampleZ, pos.y + scrollOffset, frequency, noiseZCache1D);
                     noiseX[i] = sampleZ.x - sampleY.y;
                     noiseY[i] = sampleX.x - sampleZ.y;
                     noiseZ[i] = sampleY.x - sampleX.y;
@@ -631,28 +637,28 @@ export class NoiseModule extends UpdateModule {
 
 const tempSample = new Vec2();
 
-function accumulateNoise1D (outSample: Vec2, pos: number, frequency: number, octaveToIndex: number, octaveScale: number, octaveMultiplier: number) {
-    const sum = perlin1D(outSample, pos, frequency);
+function accumulateNoise1D (outSample: Vec2, pos: number, frequency: number, cache: PerlinNoise1DCache, octaveToIndex: number, octaveScale: number, octaveMultiplier: number) {
+    const sum = perlin1D(outSample, pos, frequency, cache);
     let amplitude = 1;
     let range = 1;
     for (let i = 1; i < octaveToIndex; i++) {
         frequency *= octaveScale;
         amplitude *= octaveMultiplier;
         range += amplitude;
-        Vec2.scaleAndAdd(sum, sum, perlin1D(tempSample, pos, frequency), amplitude);
+        Vec2.scaleAndAdd(sum, sum, perlin1D(tempSample, pos, frequency, cache), amplitude);
     }
     return Vec2.multiplyScalar(sum, sum, 1 / range);
 }
 
-function accumulateNoise2D (outSample: Vec2, pos: Vec2, frequency: number, octaveToIndex: number, octaveScale: number, octaveMultiplier: number) {
-    const sum = perlin2D(outSample, pos, frequency);
+function accumulateNoise2D (outSample: Vec2, pos: Vec2, frequency: number, cache: PerlinNoise2DCache, octaveToIndex: number, octaveScale: number, octaveMultiplier: number) {
+    const sum = perlin2D(outSample, pos, frequency, cache);
     let amplitude = 1;
     let range = 1;
     for (let i = 1; i < octaveToIndex; i++) {
         frequency *= octaveScale;
         amplitude *= octaveMultiplier;
         range += amplitude;
-        Vec2.scaleAndAdd(sum, sum, perlin2D(tempSample, pos, frequency), amplitude);
+        Vec2.scaleAndAdd(sum, sum, perlin2D(tempSample, pos, frequency, cache), amplitude);
     }
     return Vec2.multiplyScalar(sum, sum, 1 / range);
 }

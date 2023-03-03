@@ -1,5 +1,5 @@
 import { Vec2, Vec3 } from '../../cocos/core/math';
-import { perlin3D, perlin2D, perlin1D, PerlinNoise3DCache } from '../../cocos/particle/modules/perlin-noise';
+import { perlin3D, perlin2D, perlin1D, PerlinNoise3DCache, PerlinNoise2DCache, PerlinNoise1DCache } from '../../cocos/particle/modules/perlin-noise';
 
 test('perlin noise 3d', () => {
     const cache = new PerlinNoise3DCache();
@@ -22,39 +22,41 @@ test('perlin noise 3d', () => {
 });
 
 test('perlin noise 2d', () => {
-    expect(perlin2D(new Vec2(), new Vec2(43.95186583691032, 166.74661091753669), 2.0908227764214917)).toStrictEqual(new Vec2(0.39279254547182013, -1.7728426082759474));
-    expect(perlin2D(new Vec2(), new Vec2(169.83841488396263, 72.23537982948368), 0.2633728820195058)).toStrictEqual(new Vec2(0.026562939010896965, -0.02590993220132363));
-    expect(perlin2D(new Vec2(), new Vec2(61.39228391470055, 219.0917121432015), 2.576929536238529)).toStrictEqual(new Vec2(-2.597762981074881, -3.853793178862189));
-    expect(perlin2D(new Vec2(), new Vec2(147.01394640567895, 36.72242799515236), 2.178157945972081)).toStrictEqual(new Vec2(-0.2700945205357459, 2.0114290750940653));
-    expect(perlin2D(new Vec2(), new Vec2(83.27240416950676, 208.1158731498391), 1.1118242259962552)).toStrictEqual(new Vec2(0.8560778711136466, -0.8710470398314392));
-    expect(perlin2D(new Vec2(), new Vec2(2.42237148625148, 83.99479792434519), 1.216188381362266)).toStrictEqual(new Vec2(1.1790477439369793, -1.0015233040275524));
-    expect(perlin2D(new Vec2(), new Vec2(213.46515523721766, 236.42375022174923), 2.1369568891430326)).toStrictEqual(new Vec2(-2.6533743704808144, 2.9846872517388605));
-    expect(perlin2D(new Vec2(), new Vec2(51.7507427401679, 219.6069770452385), 1.8817045601135554)).toStrictEqual(new Vec2(1.571144147809877, 2.5155066455371093));
-    expect(perlin2D(new Vec2(), new Vec2(149.20315590648767, 165.8867129377844), 0.5892680897846703)).toStrictEqual(new Vec2(-0.5877046374630648, 0.8733729068120767));
-    expect(perlin2D(new Vec2(), new Vec2(233.3465881373153, 7.0284941368871365), 1.3745769001585475)).toStrictEqual(new Vec2(-0.9310913981937616, 0.29457801820486385));
-    expect(perlin2D(new Vec2(), new Vec2(65.10051439995082, 201.20631670016675), 1.71681085901488)).toStrictEqual(new Vec2(1.0232000372502863, -0.062125851635599576));
-    expect(perlin2D(new Vec2(), new Vec2(159.73284902154094, 194.45118975414204), 2.3789547650476113)).toStrictEqual(new Vec2(-0.7910830290139963, 1.5697183574308877));
-    expect(perlin2D(new Vec2(), new Vec2(32.12235628075468, 118.65746742738361), 2.570533829481021)).toStrictEqual(new Vec2(-1.8439945497500796, -1.3539722748001655));
-    expect(perlin2D(new Vec2(), new Vec2(179.23219103123043, 4.251042427970905), 0.528896428468272)).toStrictEqual(new Vec2(0.0613051962529055, -0.6727784304565081));
-    expect(perlin2D(new Vec2(), new Vec2(87.22606735912927, 73.19815356692618), 2.854484055382801)).toStrictEqual(new Vec2(-2.8498012097176724, -2.508464928863999));
-    expect(perlin2D(new Vec2(), new Vec2(123.38593810363005, 216.79746766206287), 2.798991429582103)).toStrictEqual(new Vec2(-1.8596873603074424, 4.9789233690142884));
+    const cache = new PerlinNoise2DCache();
+    expect(perlin2D(new Vec2(), new Vec2(43.95186583691032, 166.74661091753669), 2.0908227764214917, cache)).toStrictEqual(new Vec2(0.39279254547182013, -1.7728426082759474));
+    expect(perlin2D(new Vec2(), new Vec2(169.83841488396263, 72.23537982948368), 0.2633728820195058, cache)).toStrictEqual(new Vec2(0.026562939010896965, -0.02590993220132363));
+    expect(perlin2D(new Vec2(), new Vec2(61.39228391470055, 219.0917121432015), 2.576929536238529, cache)).toStrictEqual(new Vec2(-2.597762981074881, -3.853793178862189));
+    expect(perlin2D(new Vec2(), new Vec2(147.01394640567895, 36.72242799515236), 2.178157945972081, cache)).toStrictEqual(new Vec2(-0.2700945205357459, 2.0114290750940653));
+    expect(perlin2D(new Vec2(), new Vec2(83.27240416950676, 208.1158731498391), 1.1118242259962552, cache)).toStrictEqual(new Vec2(0.8560778711136466, -0.8710470398314392));
+    expect(perlin2D(new Vec2(), new Vec2(2.42237148625148, 83.99479792434519), 1.216188381362266, cache)).toStrictEqual(new Vec2(1.1790477439369793, -1.0015233040275524));
+    expect(perlin2D(new Vec2(), new Vec2(213.46515523721766, 236.42375022174923), 2.1369568891430326, cache)).toStrictEqual(new Vec2(-2.6533743704808144, 2.9846872517388605));
+    expect(perlin2D(new Vec2(), new Vec2(51.7507427401679, 219.6069770452385), 1.8817045601135554, cache)).toStrictEqual(new Vec2(1.571144147809877, 2.5155066455371093));
+    expect(perlin2D(new Vec2(), new Vec2(149.20315590648767, 165.8867129377844), 0.5892680897846703, cache)).toStrictEqual(new Vec2(-0.5877046374630648, 0.8733729068120767));
+    expect(perlin2D(new Vec2(), new Vec2(233.3465881373153, 7.0284941368871365), 1.3745769001585475, cache)).toStrictEqual(new Vec2(-0.9310913981937616, 0.29457801820486385));
+    expect(perlin2D(new Vec2(), new Vec2(65.10051439995082, 201.20631670016675), 1.71681085901488, cache)).toStrictEqual(new Vec2(1.0232000372502863, -0.062125851635599576));
+    expect(perlin2D(new Vec2(), new Vec2(159.73284902154094, 194.45118975414204), 2.3789547650476113, cache)).toStrictEqual(new Vec2(-0.7910830290139963, 1.5697183574308877));
+    expect(perlin2D(new Vec2(), new Vec2(32.12235628075468, 118.65746742738361), 2.570533829481021, cache)).toStrictEqual(new Vec2(-1.8439945497500796, -1.3539722748001655));
+    expect(perlin2D(new Vec2(), new Vec2(179.23219103123043, 4.251042427970905), 0.528896428468272, cache)).toStrictEqual(new Vec2(0.0613051962529055, -0.6727784304565081));
+    expect(perlin2D(new Vec2(), new Vec2(87.22606735912927, 73.19815356692618), 2.854484055382801, cache)).toStrictEqual(new Vec2(-2.8498012097176724, -2.508464928863999));
+    expect(perlin2D(new Vec2(), new Vec2(123.38593810363005, 216.79746766206287), 2.798991429582103, cache)).toStrictEqual(new Vec2(-1.8596873603074424, 4.9789233690142884));
 });
 
 test('perlin noise 1d', () => {
-    expect(perlin1D(new Vec2(), 191.9331070441688, 1.2970563992584345)).toStrictEqual(new Vec2(-2.756475290672333, 0));
-    expect(perlin1D(new Vec2(), 2.6244940717387455, 1.1748651382073159)).toStrictEqual(new Vec2(-2.6691468768107716, 0));
-    expect(perlin1D(new Vec2(), 35.14535598733898, 1.9924106333227367)).toStrictEqual(new Vec2(-4.046111087633536, 0));
-    expect(perlin1D(new Vec2(), 30.063852762338776, 1.1267555338073538)).toStrictEqual(new Vec2(1.4404540744205603, 0));
-    expect(perlin1D(new Vec2(), 163.25708044292477, 1.8417782917339176)).toStrictEqual(new Vec2(1.4905907773318114, 0));
-    expect(perlin1D(new Vec2(), 67.30410097592578, 1.0868634609812922)).toStrictEqual(new Vec2(1.1093403140754459, 0));
-    expect(perlin1D(new Vec2(), 225.55060711672306, 0.8999461933541599)).toStrictEqual(new Vec2(1.7855204525540849, 0));
-    expect(perlin1D(new Vec2(), 225.39020438009038, 2.092832604571915)).toStrictEqual(new Vec2(1.2677439760901512, 0));
-    expect(perlin1D(new Vec2(), 229.21622205775967, 2.8517784354440403)).toStrictEqual(new Vec2(-6.303885226043316, 0));
-    expect(perlin1D(new Vec2(), 10.8248324961715, 2.83809007844377)).toStrictEqual(new Vec2(-1.1886537827269492, 0));
-    expect(perlin1D(new Vec2(), 227.30587347188035, 1.7310260017439858)).toStrictEqual(new Vec2(-0.7143187282787739, 0));
-    expect(perlin1D(new Vec2(), 206.86025303199511, 0.7330575174182421)).toStrictEqual(new Vec2(1.3877651965361244, 0));
-    expect(perlin1D(new Vec2(), 229.38849548637745, 2.0464934572577036)).toStrictEqual(new Vec2(1.7470952933038517, 0));
-    expect(perlin1D(new Vec2(), 109.91962475112592, 1.4292797051142618)).toStrictEqual(new Vec2(-3.4069058207350427, 0));
-    expect(perlin1D(new Vec2(), 100.00687781961663, 1.1585631956769131)).toStrictEqual(new Vec2(1.3607591718722434, 0));
-    expect(perlin1D(new Vec2(), 211.90863480615866, 1.0177487890100478)).toStrictEqual(new Vec2(0.951909021626049, 0));                
+    const cache = new PerlinNoise1DCache();
+    expect(perlin1D(new Vec2(), 191.9331070441688, 1.2970563992584345, cache)).toStrictEqual(new Vec2(-2.756475290672333, 0));
+    expect(perlin1D(new Vec2(), 2.6244940717387455, 1.1748651382073159, cache)).toStrictEqual(new Vec2(-2.6691468768107716, 0));
+    expect(perlin1D(new Vec2(), 35.14535598733898, 1.9924106333227367, cache)).toStrictEqual(new Vec2(-4.046111087633536, 0));
+    expect(perlin1D(new Vec2(), 30.063852762338776, 1.1267555338073538, cache)).toStrictEqual(new Vec2(1.4404540744205603, 0));
+    expect(perlin1D(new Vec2(), 163.25708044292477, 1.8417782917339176, cache)).toStrictEqual(new Vec2(1.4905907773318114, 0));
+    expect(perlin1D(new Vec2(), 67.30410097592578, 1.0868634609812922, cache)).toStrictEqual(new Vec2(1.1093403140754459, 0));
+    expect(perlin1D(new Vec2(), 225.55060711672306, 0.8999461933541599, cache)).toStrictEqual(new Vec2(1.7855204525540849, 0));
+    expect(perlin1D(new Vec2(), 225.39020438009038, 2.092832604571915, cache)).toStrictEqual(new Vec2(1.2677439760901512, 0));
+    expect(perlin1D(new Vec2(), 229.21622205775967, 2.8517784354440403, cache)).toStrictEqual(new Vec2(-6.303885226043316, 0));
+    expect(perlin1D(new Vec2(), 10.8248324961715, 2.83809007844377, cache)).toStrictEqual(new Vec2(-1.1886537827269492, 0));
+    expect(perlin1D(new Vec2(), 227.30587347188035, 1.7310260017439858, cache)).toStrictEqual(new Vec2(-0.7143187282787739, 0));
+    expect(perlin1D(new Vec2(), 206.86025303199511, 0.7330575174182421, cache)).toStrictEqual(new Vec2(1.3877651965361244, 0));
+    expect(perlin1D(new Vec2(), 229.38849548637745, 2.0464934572577036, cache)).toStrictEqual(new Vec2(1.7470952933038517, 0));
+    expect(perlin1D(new Vec2(), 109.91962475112592, 1.4292797051142618, cache)).toStrictEqual(new Vec2(-3.4069058207350427, 0));
+    expect(perlin1D(new Vec2(), 100.00687781961663, 1.1585631956769131, cache)).toStrictEqual(new Vec2(1.3607591718722434, 0));
+    expect(perlin1D(new Vec2(), 211.90863480615866, 1.0177487890100478, cache)).toStrictEqual(new Vec2(0.951909021626049, 0));                
 });
