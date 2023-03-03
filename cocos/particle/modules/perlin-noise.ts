@@ -79,59 +79,119 @@ const gradientsMask1D = 1;
 function smooth (t: number) { return t * t * t * (t * (t * 6 - 15) + 10); }
 function smoothDerivative (t: number) { return 30 * t * t * (t * (t - 2) + 1); }
 
-const db3 = new Vec3();
-const dc3 = new Vec3();
-const dd3 = new Vec3();
-const de3 = new Vec3();
-const df3 = new Vec3();
-const dg3 = new Vec3();
-const dh3 = new Vec3();
+// const db3 = new Vec3();
+// const dc3 = new Vec3();
+// const dd3 = new Vec3();
+// const de3 = new Vec3();
+// const df3 = new Vec3();
+// const dg3 = new Vec3();
+// const dh3 = new Vec3();
 
 const temp1 = new Vec3();
 const temp2 = new Vec3();
 
-export function perlin3D (outDerivative: Vec2, position: Vec3, frequency: number) {
+export class PerlinNoise3DCache {
+    ix0 = 0;
+    iy0 = 0;
+    iz0 = 0;
+    ix1 = 0;
+    iy1 = 0;
+    iz1 = 0;
+    g000 = new Vec3();
+    g000Hash = 0;
+    g100 = new Vec3();
+    g100Hash = 0;
+    g010 = new Vec3();
+    g010Hash = 0;
+    g110 = new Vec3();
+    g110Hash = 0;
+    g001 = new Vec3();
+    g001Hash = 0;
+    g101 = new Vec3();
+    g101Hash = 0;
+    g011 = new Vec3();
+    g011Hash = 0
+    g111 = new Vec3();
+    g111Hash = 0;
+    db = new Vec3();
+    dc = new Vec3();
+    dd = new Vec3();
+    de = new Vec3();
+    df = new Vec3();
+    dg = new Vec3();
+    dh = new Vec3();
+
+    updateCache (x: number, y: number, z: number) {
+        if (x < this.ix1 && x > this.ix0 && y < this.iy1 && y > this.iy0 && z < this.iz1 && z > this.iz0) {
+            return;
+        }
+        let ix0 = this.ix0 = Math.floor(x);
+        let iy0 = this.iy0 = Math.floor(y);
+        let iz0 = this.iz0 = Math.floor(z);
+        this.ix1 = this.ix0 + 1;
+        this.iy1 = this.iy0 + 1;
+        this.iz1 = this.iz0 + 1;
+        ix0 &= 255;
+        iy0 &= 255;
+        iz0 &= 255;
+        const ix1 = ix0 + 1;
+        const iy1 = iy0 + 1;
+        const iz1 = iz0 + 1;
+        const h0 = permutation[ix0];
+        const h1 = permutation[ix1];
+        const h00 = permutation[h0 + iy0];
+        const h10 = permutation[h1 + iy0];
+        const h01 = permutation[h0 + iy1];
+        const h11 = permutation[h1 + iy1];
+        const g000 = this.g000 = gradients3D[permutation[h00 + iz0] & gradientMask3D];
+        const g100 = this.g100 = gradients3D[permutation[h10 + iz0] & gradientMask3D];
+        const g010 = this.g010 = gradients3D[permutation[h01 + iz0] & gradientMask3D];
+        const g110 = this.g110 = gradients3D[permutation[h11 + iz0] & gradientMask3D];
+        const g001 = this.g001 = gradients3D[permutation[h00 + iz1] & gradientMask3D];
+        const g101 = this.g101 = gradients3D[permutation[h10 + iz1] & gradientMask3D];
+        const g011 = this.g011 = gradients3D[permutation[h01 + iz1] & gradientMask3D];
+        const g111 = this.g111 = gradients3D[permutation[h11 + iz1] & gradientMask3D];
+        const db = this.db;
+        const dc = this.dc;
+        const de = this.de;
+        const df = this.df;
+        const dg = this.dg;
+        const dh = this.dh;
+        Vec2.subtract(db, g100, g000);
+        Vec2.subtract(dc, g010, g000);
+        Vec2.subtract(this.dd, g001, g000);
+        Vec2.subtract(de, g110, g010);
+        Vec2.subtract(de, de, db);
+        Vec2.subtract(df, g101, g001);
+        Vec2.subtract(df, df, db);
+        Vec2.subtract(dg, g011, g001);
+        Vec2.subtract(dg, dg, dc);
+        Vec2.subtract(dh, g111, g011);
+        Vec2.subtract(dh, dh, df);
+        Vec2.subtract(dh, dh, de);
+        Vec2.subtract(dh, dh, db);
+    }
+}
+
+export function perlin3D (outDerivative: Vec2, position: Vec3, frequency: number, cache: PerlinNoise3DCache) {
     const x = position.x * frequency;
     const y = position.y * frequency;
     const z = position.z * frequency;
-    let ix0 = Math.floor(x);
-    let iy0 = Math.floor(y);
-    let iz0 = Math.floor(z);
-    const tx0 = x - ix0;
-    const ty0 = y - iy0;
-    const tz0 = z - iz0;
+    cache.updateCache(x, y, z);
+    const tx0 = x - cache.ix0;
+    const ty0 = y - cache.iy0;
+    const tz0 = z - cache.iz0;
     const tx1 = tx0 - 1;
     const ty1 = ty0 - 1;
     const tz1 = tz0 - 1;
-    ix0 &= 255;
-    iy0 &= 255;
-    iz0 &= 255;
-    const ix1 = ix0 + 1;
-    const iy1 = iy0 + 1;
-    const iz1 = iz0 + 1;
-
-    const h0 = permutation[ix0];
-    const h1 = permutation[ix1];
-    const h00 = permutation[h0 + iy0];
-    const h10 = permutation[h1 + iy0];
-    const h01 = permutation[h0 + iy1];
-    const h11 = permutation[h1 + iy1];
-    const g000 = gradients3D[permutation[h00 + iz0] & gradientMask3D];
-    const g100 = gradients3D[permutation[h10 + iz0] & gradientMask3D];
-    const g010 = gradients3D[permutation[h01 + iz0] & gradientMask3D];
-    const g110 = gradients3D[permutation[h11 + iz0] & gradientMask3D];
-    const g001 = gradients3D[permutation[h00 + iz1] & gradientMask3D];
-    const g101 = gradients3D[permutation[h10 + iz1] & gradientMask3D];
-    const g011 = gradients3D[permutation[h01 + iz1] & gradientMask3D];
-    const g111 = gradients3D[permutation[h11 + iz1] & gradientMask3D];
-    const v000 = dot3(g000, tx0, ty0, tz0);
-    const v100 = dot3(g100, tx1, ty0, tz0);
-    const v010 = dot3(g010, tx0, ty1, tz0);
-    const v110 = dot3(g110, tx1, ty1, tz0);
-    const v001 = dot3(g001, tx0, ty0, tz1);
-    const v101 = dot3(g101, tx1, ty0, tz1);
-    const v011 = dot3(g011, tx0, ty1, tz1);
-    const v111 = dot3(g111, tx1, ty1, tz1);
+    const v000 = dot3(cache.g000, tx0, ty0, tz0);
+    const v100 = dot3(cache.g100, tx1, ty0, tz0);
+    const v010 = dot3(cache.g010, tx0, ty1, tz0);
+    const v110 = dot3(cache.g110, tx1, ty1, tz0);
+    const v001 = dot3(cache.g001, tx0, ty0, tz1);
+    const v101 = dot3(cache.g101, tx1, ty0, tz1);
+    const v011 = dot3(cache.g011, tx0, ty1, tz1);
+    const v111 = dot3(cache.g111, tx1, ty1, tz1);
     const tx = smooth(tx0);
     const ty = smooth(ty0);
     const tz = smooth(tz0);
@@ -140,28 +200,13 @@ export function perlin3D (outDerivative: Vec2, position: Vec3, frequency: number
 
     const b = v100 - v000;
     const c = v010 - v000;
-    const e = v110 - v010 - v100 + v000;
-    const f = v101 - v001 - v100 + v000;
-    const g = v011 - v001 - v010 + v000;
-    const h = v111 - v011 - v101 + v001 - v110 + v010 + v100 - v000;
-
-    Vec2.subtract(db3, g100, g000);
-    Vec2.subtract(dc3, g010, g000);
-    Vec2.subtract(dd3, g001, g000);
-    Vec2.subtract(de3, g110, g010);
-    Vec2.subtract(de3, de3, db3);
-    Vec2.subtract(df3, g101, g001);
-    Vec2.subtract(df3, df3, db3);
-    Vec2.subtract(dg3, g011, g001);
-    Vec2.subtract(dg3, dg3, dc3);
-    Vec2.subtract(dh3, g111, g011);
-    Vec2.subtract(dh3, dh3, df3);
-    Vec2.subtract(dh3, dh3, de3);
-    Vec2.subtract(dh3, dh3, db3);
-
+    const e = v110 - v010 - b;
+    const f = v101 - v001 - b;
+    const g = v011 - v001 - c;
+    const h = v111 - v011 - f - e - b;
     Vec2.scaleAndAdd(temp1,
-        Vec2.scaleAndAdd(temp1, Vec2.scaleAndAdd(temp1, g000, Vec2.scaleAndAdd(temp1, dc3, de3, tx), ty), db3, tx),
-        Vec2.scaleAndAdd(temp2, Vec2.scaleAndAdd(temp2, dd3, Vec2.scaleAndAdd(temp2, dg3, dh3, tx), ty), df3, tx),
+        Vec2.scaleAndAdd(temp1, Vec2.scaleAndAdd(temp1, cache.g000, Vec2.scaleAndAdd(temp1, cache.dc, cache.de, tx), ty), cache.db, tx),
+        Vec2.scaleAndAdd(temp2, Vec2.scaleAndAdd(temp2, cache.dd, Vec2.scaleAndAdd(temp2, cache.dg, cache.dh, tx), ty), cache.df, tx),
         tz);
     outDerivative.x = temp1.x + (b + e * ty + (f + h * ty) * tz) * dtx;
     outDerivative.y = temp1.y + (c + e * tx + (g + h * tx) * tz) * dty;
@@ -190,8 +235,8 @@ export function perlin2D (outDerivative: Vec2, position: Vec2, frequency: number
     const h1 = permutation[ix1];
 
     const g00 = gradients2D[permutation[h0 + iy0] & gradientMask2D];
-    const g01 = gradients2D[permutation[h1 + iy0] & gradientMask2D];
-    const g10 = gradients2D[permutation[h0 + iy1] & gradientMask2D];
+    const g10 = gradients2D[permutation[h1 + iy0] & gradientMask2D];
+    const g01 = gradients2D[permutation[h0 + iy1] & gradientMask2D];
     const g11 = gradients2D[permutation[h1 + iy1] & gradientMask2D];
     const v00 = dot2(g00, tx0, ty0);
     const v10 = dot2(g10, tx1, ty0);

@@ -32,7 +32,7 @@ import { CurveRange } from '../curve-range';
 import { ParticleModule, ParticleUpdateStage, UpdateModule } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
 import { ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
-import { perlin1D, perlin2D, perlin3D } from './perlin-noise';
+import { perlin1D, perlin2D, perlin3D, PerlinNoise3DCache } from './perlin-noise';
 
 const pos = new Vec3();
 const point3D = new Vec3();
@@ -46,6 +46,9 @@ const RANDOM_SEED_OFFSET_Y = 291830;
 const RANDOM_SEED_OFFSET_Z = 616728;
 const RANDOM_SEED_OFFSET_POSITION = 943728;
 const RANDOM_SEED_OFFSET_ROTATION = 746210;
+const noiseXCache = new PerlinNoise3DCache();
+const noiseYCache = new PerlinNoise3DCache();
+const noiseZCache = new PerlinNoise3DCache();
 
 enum Quality {
     LOW,
@@ -120,6 +123,10 @@ export class NoiseModule extends UpdateModule {
         this._scrollSpeed = val;
     }
 
+    @serializable
+    @visible(true)
+    public damping = true;
+
     @type(CCInteger)
     @range([1, 4])
     @rangeStep(1)
@@ -163,10 +170,6 @@ export class NoiseModule extends UpdateModule {
     @serializable
     @visible(true)
     public enableRemap = false;
-
-    @serializable
-    @visible(true)
-    public damping = true;
 
     @type(CurveRange)
     @range([-1, 1])
@@ -273,6 +276,9 @@ export class NoiseModule extends UpdateModule {
     public tick (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,
         currentTime: number, dt: number) {
         this._scrollOffset += this._scrollSpeed.evaluate(currentTime / params.duration, 1) * dt;
+        if (this._scrollOffset > 256) {
+            this._scrollOffset -= 256;
+        }
     }
 
     public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,
@@ -305,11 +311,11 @@ export class NoiseModule extends UpdateModule {
                     particles.getPositionAt(pos, i);
                     pos.add3f(offsetX, offsetY, offsetZ);
                     Vec3.set(point3D, pos.z, pos.y, pos.x + scrollOffset);
-                    accumulateNoise3D(sampleX, point3D, frequency, octaves, octaveScale, octaveMultiplier);
+                    accumulateNoise3D(sampleX, point3D, frequency, noiseXCache, octaves, octaveScale, octaveMultiplier);
                     Vec3.set(point3D, pos.x + 100, pos.z, pos.y + scrollOffset);
-                    accumulateNoise3D(sampleY, point3D, frequency, octaves, octaveScale, octaveMultiplier);
+                    accumulateNoise3D(sampleY, point3D, frequency, noiseYCache, octaves, octaveScale, octaveMultiplier);
                     Vec3.set(point3D, pos.y, pos.x + 100, pos.z + scrollOffset);
-                    accumulateNoise3D(sampleZ, point3D, frequency, octaves, octaveScale, octaveMultiplier);
+                    accumulateNoise3D(sampleZ, point3D, frequency, noiseZCache, octaves, octaveScale, octaveMultiplier);
                     noiseX[i] = sampleZ.x - sampleY.y;
                     noiseY[i] = sampleX.x - sampleZ.y;
                     noiseZ[i] = sampleY.x - sampleX.y;
@@ -332,9 +338,9 @@ export class NoiseModule extends UpdateModule {
                 for (let i = fromIndex; i < toIndex; i++) {
                     particles.getPositionAt(pos, i);
                     pos.add3f(offsetX, offsetY, offsetZ);
-                    perlin3D(sampleX, Vec3.set(point3D, pos.z, pos.y, pos.x + scrollOffset), frequency);
-                    perlin3D(sampleY, Vec3.set(point3D, pos.x + 100, pos.z, pos.y + scrollOffset), frequency);
-                    perlin3D(sampleZ, Vec3.set(point3D, pos.y, pos.x + 100, pos.z + scrollOffset), frequency);
+                    perlin3D(sampleX, Vec3.set(point3D, pos.z, pos.y, pos.x + scrollOffset), frequency, noiseXCache);
+                    perlin3D(sampleY, Vec3.set(point3D, pos.x + 100, pos.z, pos.y + scrollOffset), frequency, noiseYCache);
+                    perlin3D(sampleZ, Vec3.set(point3D, pos.y, pos.x + 100, pos.z + scrollOffset), frequency, noiseZCache);
                     noiseX[i] = sampleZ.x - sampleY.y;
                     noiseY[i] = sampleX.x - sampleZ.y;
                     noiseZ[i] = sampleY.x - sampleX.y;
@@ -609,7 +615,7 @@ export class NoiseModule extends UpdateModule {
 
     protected getSerializedProps () {
         const serializedProps = ['separateAxes', '_strengthX', '_scrollSpeed', '_frequency',
-            'enableRemap', '_octaves', '_octaveScale', '_octaveMultiplier'];
+            'enableRemap', '_octaves', '_octaveScale', '_octaveMultiplier', 'quality', 'damping'];
         if (this.enableRemap) {
             serializedProps.push('_remapX');
         }
@@ -651,15 +657,15 @@ function accumulateNoise2D (outSample: Vec2, pos: Vec2, frequency: number, octav
     return Vec2.multiplyScalar(sum, sum, 1 / range);
 }
 
-function accumulateNoise3D (outSample: Vec2, pos: Vec3, frequency: number, octaveToIndex: number, octaveScale: number, octaveMultiplier: number) {
-    const sum = perlin3D(outSample, pos, frequency);
+function accumulateNoise3D (outSample: Vec2, pos: Vec3, frequency: number, cache: PerlinNoise3DCache, octaveToIndex: number, octaveScale: number, octaveMultiplier: number) {
+    const sum = perlin3D(outSample, pos, frequency, cache);
     let amplitude = 1;
     let range = 1;
     for (let i = 1; i < octaveToIndex; i++) {
         frequency *= octaveScale;
         amplitude *= octaveMultiplier;
         range += amplitude;
-        Vec2.scaleAndAdd(sum, sum, perlin3D(tempSample, pos, frequency), amplitude);
+        Vec2.scaleAndAdd(sum, sum, perlin3D(tempSample, pos, frequency, cache), amplitude);
     }
     return Vec2.multiplyScalar(sum, sum, 1 / range);
 }
