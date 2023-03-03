@@ -214,6 +214,9 @@ nodeProto.addComponent = function (typeOrClassName) {
     if (this._activeInHierarchy) {
         legacyCC.director._nodeActivator.activateComp(component);
     }
+    if (EDITOR && !legacyCC.GAME_VIEW) {
+        component.resetInEditor?.()
+    }
 
     return component;
 };
