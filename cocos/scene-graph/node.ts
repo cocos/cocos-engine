@@ -996,6 +996,9 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         if (this._activeInHierarchy) {
             legacyCC.director._nodeActivator.activateComp(component);
         }
+        if (EDITOR && !legacyCC.GAME_VIEW) {
+            component.resetInEditor?.()
+        }
 
         return component;
     }
