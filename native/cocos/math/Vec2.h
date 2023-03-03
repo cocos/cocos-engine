@@ -461,7 +461,7 @@ public:
     /** @returns if points have fuzzy equality which means equal with some degree of variance.
      @since v2.1.4
      */
-    bool fuzzyEquals(const Vec2 &target, float variance) const;
+    bool fuzzyEquals(const Vec2 &b, float var) const;
 
     /** Calculates distance between point an origin
      @return float

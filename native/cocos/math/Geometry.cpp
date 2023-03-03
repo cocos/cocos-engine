@@ -71,7 +71,7 @@ Size Size::operator*(float a) const {
 
 Size Size::operator/(float a) const {
     CC_ASSERT_NE(a, 0);
-    float inv = 1.0f / a;
+    float inv = 1.0F / a;
     return Size(this->width * inv, this->height * inv);
 }
 

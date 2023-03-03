@@ -250,13 +250,13 @@ void Quaternion::slerp(const Quaternion &a, const Quaternion &b, float t, Quater
     if ((1.F - cosom) > 0.000001F) {
         // standard case (slerp)
         const float omega = acos(cosom);
-        const float sinom = sin(omega);
-        scale0 = sin((1.0 - t) * omega) / sinom;
-        scale1 = sin(t * omega) / sinom;
+        const float sinom = sinf(omega);
+        scale0 = sinf((1.0F - t) * omega) / sinom;
+        scale1 = sinf(t * omega) / sinom;
     } else {
         // "from" and "to" quaternions are very close
         //  ... so we can do a linear interpolation
-        scale0 = 1.0 - t;
+        scale0 = 1.0F - t;
         scale1 = t;
     }
     // calculate final values

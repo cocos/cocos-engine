@@ -36,22 +36,22 @@ bool isOneDimensionSegmentOverlap(float a, float b, float c, float d, float *s, 
     if (abmax < cdmin || cdmax < abmin) {
         // abmin->abmax->cdmin->cdmax or cdmin->cdmax->abmin->abmax
         return false;
-    } else {
-        if (abmin >= cdmin && abmin <= cdmax) {
-            // cdmin->abmin->cdmax->abmax or cdmin->abmin->abmax->cdmax
-            if (s != nullptr) *s = abmin;
-            if (e != nullptr) *e = cdmax < abmax ? cdmax : abmax;
-        } else if (abmax >= cdmin && abmax <= cdmax) {
-            // ABmin->CDmin->ABmax->CDmax
-            if (s != nullptr) *s = cdmin;
-            if (e != nullptr) *e = abmax;
-        } else {
-            // ABmin->CDmin->CDmax->ABmax
-            if (s != nullptr) *s = cdmin;
-            if (e != nullptr) *e = cdmax;
-        }
-        return true;
     }
+
+    if (abmin >= cdmin && abmin <= cdmax) {
+        // cdmin->abmin->cdmax->abmax or cdmin->abmin->abmax->cdmax
+        if (s != nullptr) *s = abmin;
+        if (e != nullptr) *e = cdmax < abmax ? cdmax : abmax;
+    } else if (abmax >= cdmin && abmax <= cdmax) {
+        // ABmin->CDmin->ABmax->CDmax
+        if (s != nullptr) *s = cdmin;
+        if (e != nullptr) *e = abmax;
+    } else {
+        // ABmin->CDmin->CDmax->ABmax
+        if (s != nullptr) *s = cdmin;
+        if (e != nullptr) *e = cdmax;
+    }
+    return true;
 }
 
 // cross product of 2 vector. a->b X c->d
@@ -271,7 +271,8 @@ bool Vec2::isSegmentOverlap(const Vec2 &a, const Vec2 &b, const Vec2 &c, const V
 }
 
 bool Vec2::isSegmentIntersect(const Vec2 &a, const Vec2 &b, const Vec2 &c, const Vec2 &d) {
-    float s, t;
+    float s;
+    float t;
 
     if (isLineIntersect(a, b, c, d, &s, &t) &&
         (s >= 0.0F && s <= 1.0F && t >= 0.0F && t <= 1.0F)) {
@@ -282,7 +283,8 @@ bool Vec2::isSegmentIntersect(const Vec2 &a, const Vec2 &b, const Vec2 &c, const
 }
 
 Vec2 Vec2::getIntersectPoint(const Vec2 &a, const Vec2 &b, const Vec2 &c, const Vec2 &d) {
-    float s, t;
+    float s;
+    float t;
 
     if (isLineIntersect(a, b, c, d, &s, &t)) {
         // Vec2 of intersection
