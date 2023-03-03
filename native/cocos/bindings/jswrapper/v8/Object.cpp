@@ -1101,16 +1101,23 @@ bool Object::detachObject(Object *obj) {
 }
 
 ccstd::string Object::toString() const {
-    ccstd::string ret;
+    v8::Local<v8::Object> v8Obj = const_cast<Object *>(this)->_obj.handle(__isolate);
     if (isFunction() || isArray() || isTypedArray()) {
-        v8::String::Utf8Value utf8(__isolate, const_cast<Object *>(this)->_obj.handle(__isolate));
-        ret = *utf8;
+        v8::String::Utf8Value utf8(__isolate, v8Obj);
+        return  *utf8;
     } else if (isArrayBuffer()) {
-        ret = "[object ArrayBuffer]";
+        return "[object ArrayBuffer]";
     } else {
-        ret = "[object Object]";
+        v8::Local<v8::String> strObj;
+        v8::Local<v8::Value> v8Val{v8Obj};
+        if (!v8Val->ToString(__isolate->GetCurrentContext()).ToLocal(&strObj)) {
+            return "[object Object]";
+        }
+
+        v8::String::Utf8Value str(__isolate, strObj);
+        return *str;
     }
-    return ret;
+    return "[unknown]";
 }
 
 ccstd::string Object::toStringExt() const {
