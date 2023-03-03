@@ -211,7 +211,7 @@ export class PhysicsSystem extends System implements IWorldInitData {
      * @zh
      * 设置默认物理材质。
      */
-    public setDefaultPhysicsMaterial (material : PhysicsMaterial) {
+    public setDefaultPhysicsMaterial (material: PhysicsMaterial) {
         this._material = material;
         this.physicsWorld.setDefaultMaterial(this._material);
         this._material.on(PhysicsMaterial.EVENT_UPDATE, this._updateMaterial, this);

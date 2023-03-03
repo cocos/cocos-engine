@@ -24,8 +24,10 @@
 
 #include "physics/physx/joints/PhysXRevolute.h"
 #include "math/Quaternion.h"
+#include "math/Utils.h"
 #include "physics/physx/PhysXSharedBody.h"
 #include "physics/physx/PhysXUtils.h"
+#include "physics/physx/PhysXWorld.h"
 
 namespace cc {
 namespace physics {
@@ -33,11 +35,13 @@ namespace physics {
 void PhysXRevolute::onComponentSet() {
     _mJoint = PxRevoluteJointCreate(PxGetPhysics(), &getTempRigidActor(), physx::PxTransform{physx::PxIdentity}, nullptr, physx::PxTransform{physx::PxIdentity});
     _mlimit.stiffness = 1.0;
-    _mlimit.damping = 0.1;
-    _mlimit.restitution = 0.1;
+    _mlimit.damping = 0;
+    _mlimit.restitution = 0.4;
+    _mlimit.contactDistance = 0.1;
 
     auto *joint = static_cast<physx::PxRevoluteJoint *>(_mJoint);
     joint->setConstraintFlag(physx::PxConstraintFlag::ePROJECTION, true);
+    joint->setConstraintFlag(physx::PxConstraintFlag::eDRIVE_LIMITS_ARE_FORCES, true);
     joint->setProjectionAngularTolerance(0.2);
     joint->setProjectionLinearTolerance(0.2);
 }
@@ -68,7 +72,7 @@ void PhysXRevolute::setLimitEnabled(bool v) {
 
 void PhysXRevolute::setLowerLimit(float v) {
     _lowerLimit = v;
-    _mlimit.lower = _lowerLimit;
+    _mlimit.lower = mathutils::toRadian(_lowerLimit);
     if (_limitEnabled) {
         auto *joint = static_cast<physx::PxRevoluteJoint *>(_mJoint);
         joint->setLimit(_mlimit);
@@ -77,7 +81,7 @@ void PhysXRevolute::setLowerLimit(float v) {
 
 void PhysXRevolute::setUpperLimit(float v) {
     _upperLimit = v;
-    _mlimit.upper = _upperLimit;
+    _mlimit.upper = mathutils::toRadian(_upperLimit);
     if (_limitEnabled) {
         auto *joint = static_cast<physx::PxRevoluteJoint *>(_mJoint);
         joint->setLimit(_mlimit);
@@ -89,7 +93,7 @@ void PhysXRevolute::setMotorEnabled(bool v) {
     auto *joint = static_cast<physx::PxRevoluteJoint *>(_mJoint);
     joint->setRevoluteJointFlags(physx::PxRevoluteJointFlag::eDRIVE_ENABLED);
     if (v) {
-        joint->setDriveVelocity(_motorVelocity);
+        joint->setDriveVelocity(_motorVelocity * PhysXWorld::getInstance().getFixedTimeStep());
         joint->setDriveForceLimit(_motorForceLimit);
     }
 }
@@ -98,7 +102,7 @@ void PhysXRevolute::setMotorVelocity(float v) {
     _motorVelocity = v;
     if (_motorEnabled) {
         auto *joint = static_cast<physx::PxRevoluteJoint *>(_mJoint);
-        joint->setDriveVelocity(_motorVelocity);
+        joint->setDriveVelocity(_motorVelocity * PhysXWorld::getInstance().getFixedTimeStep());
     }
 }
 

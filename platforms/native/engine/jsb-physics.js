@@ -130,7 +130,11 @@ function emitCollisionEvent (t, c0, c1, impl, b) {
 
 class PhysicsWorld {
     get impl () { return this._impl; }
-    constructor () { this._impl = new jsbPhy.World(); }
+    constructor () {
+        this._impl = new jsbPhy.World();
+        const phy = cc.PhysicsSystem.instance;
+        this._impl.setFixedTimeStep(phy.fixedTimeStep);
+    }
 
     setGravity (v) {
         this._impl.setGravity(v.x, v.y, v.z);

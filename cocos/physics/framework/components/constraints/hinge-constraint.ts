@@ -251,11 +251,11 @@ export class HingeConstraint extends Constraint {
     }
 
     /**
-             * @en
-             * The upper limit to the rotation of pivotB related to pivotB's local position.
-             * @zh
-             * 转轴约束的旋转上限。
-             */
+     * @en
+     * The upper limit to the rotation of pivotB related to pivotB's local position.
+     * @zh
+     * 转轴约束的旋转上限。
+     */
     @type(CCFloat)
     get upperLimit (): number {
         return this.limitData.upperLimit;
@@ -265,11 +265,11 @@ export class HingeConstraint extends Constraint {
     }
 
     /**
-             * @en
-             * The lower limit to the rotation of pivotB related to pivotB's local position.
-             * @zh
-             * 转轴约束的旋转下限。
-             */
+     * @en
+     * The lower limit to the rotation of pivotB related to pivotB's local position.
+     * @zh
+     * 转轴约束的旋转下限。
+     */
     @type(CCFloat)
     get lowerLimit (): number {
         return this.limitData.lowerLimit;
@@ -279,11 +279,11 @@ export class HingeConstraint extends Constraint {
     }
 
     /**
-         * @en
-         * Whether the motor is enabled or not.
-         * @zh
-         * 转轴约束是否启用 Motor
-         */
+     * @en
+     * Whether the motor is enabled or not.
+     * @zh
+     * 转轴约束是否启用 Motor
+     */
     @type(CCBoolean)
     get motorEnabled (): boolean {
         return this.motorData.enabled;
@@ -293,11 +293,11 @@ export class HingeConstraint extends Constraint {
     }
 
     /**
-         * @en
-         * The rotation speed of pivotA related to pivotB.
-         * @zh
-         * 转轴约束的旋转速度。
-         */
+     * @en
+     * The rotation speed of pivotA related to pivotB.
+     * @zh
+     * 转轴约束的旋转速度。
+     */
     @type(CCFloat)
     get motorVelocity (): number {
         return this.motorData.motorVelocity;
@@ -307,11 +307,11 @@ export class HingeConstraint extends Constraint {
     }
 
     /**
-         * @en
-         * The max drive force of the motor.
-         * @zh
-         * 转轴约束的最大驱动力。
-         */
+     * @en
+     * The max drive force of the motor.
+     * @zh
+     * 转轴约束的最大驱动力。
+     */
     @type(CCFloat)
     get motorForceLimit (): number {
         return this.motorData.motorForceLimit;

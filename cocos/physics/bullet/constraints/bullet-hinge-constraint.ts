@@ -69,8 +69,8 @@ export class BulletHingeConstraint extends BulletConstraint implements IHingeCon
     setMotorEnabled (v: boolean): void {
         const motorData = this.constraint.motorData;
         bt.HingeConstraint_enableMotor(this._impl, v);
-        const velocity = -v * PhysicsSystem.instance.fixedTimeStep;
-        const impulse = force2Impulse(v, PhysicsSystem.instance.fixedTimeStep);
+        const velocity = -motorData.motorVelocity * PhysicsSystem.instance.fixedTimeStep;
+        const impulse = force2Impulse(motorData.motorForceLimit, PhysicsSystem.instance.fixedTimeStep);
         bt.HingeConstraint_setMotorVelocity(this._impl, velocity);
         bt.HingeConstraint_setMaxMotorImpulse(this._impl, impulse);
     }

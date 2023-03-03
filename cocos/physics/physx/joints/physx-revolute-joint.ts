@@ -109,10 +109,12 @@ export class PhysXRevoluteJoint extends PhysXJoint implements IHingeConstraint {
         this._impl = PX.createRevoluteJoint(PhysXJoint.tempActor, _pxtrans, null, _pxtrans);
 
         this._limitPair.stiffness = 1;
-        this._limitPair.damping = 0.1;
-        this._limitPair.restitution = 0.1;
+        this._limitPair.damping = 0;
+        this._limitPair.restitution = 0.4;
+        this._limitPair.contactDistance = 0.01;
 
-        this._impl.setConstraintFlag(6, true);
+        this._impl.setConstraintFlag(6, true); // enable projection for both bodies
+        this._impl.setConstraintFlag(32, true); // enable force limit
         this._impl.setProjectionAngularTolerance(0.2);
         this._impl.setProjectionLinearTolerance(0.2);
 
