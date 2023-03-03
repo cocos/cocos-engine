@@ -593,8 +593,8 @@ export class PhysicsSystem extends System implements IWorldInitData {
             // Construct physics world and physics system only once
             const sys = new PhysicsSystem();
             sys.resetConfiguration();
-            constructDefaultWorld(sys);
             (PhysicsSystem._instance as unknown as PhysicsSystem) = sys;
+            constructDefaultWorld(sys);
             director.registerSystem(PhysicsSystem.ID, sys, sys.priority);
 
             game.onPostProjectInitDelegate.add(sys.initDefaultMaterial.bind(sys));

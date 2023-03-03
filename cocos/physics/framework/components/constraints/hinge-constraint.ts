@@ -52,11 +52,7 @@ export class HingeLimitData {
     @formerlySerializedAs('lowerLimit')
     private _lowerLimit = -Number.MAX_VALUE;
 
-    private _constraint: HingeConstraint | null = null;
-
-    constructor (constraint: HingeConstraint | null) {
-        this._constraint = constraint;
-    }
+    constructor () {}
 
     /**
      * @en
@@ -64,15 +60,12 @@ export class HingeLimitData {
      * @zh
      * 是否开启旋转限制。
      */
-    @type(Boolean)
+    @type(CCBoolean)
     get enabled (): boolean {
         return this._enabled;
     }
     set enabled (v: boolean) {
         this._enabled = v;
-        if (!EDITOR || cclegacy.GAME_VIEW) {
-            this._constraint!.constraint.setLimitEnabled(v);
-        }
     }
 
     /**
@@ -120,11 +113,7 @@ export class HingeMotorData {
     @formerlySerializedAs('motorForceLimit')
     private _motorForceLimit = 0;
 
-    private _constraint: HingeConstraint | null = null;
-
-    constructor (constraint) {
-        this._constraint = constraint;
-    }
+    constructor () {}
 
     /**
      * @en
@@ -138,9 +127,6 @@ export class HingeMotorData {
     }
     set enabled (v: boolean) {
         this._enabled = v;
-        if (!EDITOR || cclegacy.GAME_VIEW) {
-            this._constraint!.constraint.setMotorEnabled(v);
-        }
     }
 
     /**
@@ -155,9 +141,6 @@ export class HingeMotorData {
     }
     set motorVelocity (v: number) {
         this._motorVelocity = v;
-        if (!EDITOR || cclegacy.GAME_VIEW) {
-            this._constraint!.constraint.setMotorVelocity(v);
-        }
     }
 
     /**
@@ -172,9 +155,6 @@ export class HingeMotorData {
     }
     set motorForceLimit (v: number) {
         this._motorForceLimit = v;
-        if (!EDITOR || cclegacy.GAME_VIEW) {
-            this._constraint!.constraint.setMotorForceLimit(v);
-        }
     }
 }
 
@@ -248,6 +228,9 @@ export class HingeConstraint extends Constraint {
     }
     set limitEnabled (v: boolean) {
         this.limitData.enabled = v;
+        if (!EDITOR || cclegacy.GAME_VIEW) {
+            this.constraint.setLimitEnabled(v);
+        }
     }
 
     /**
@@ -262,6 +245,9 @@ export class HingeConstraint extends Constraint {
     }
     set upperLimit (v: number) {
         this.limitData.upperLimit = v;
+        if (!EDITOR || cclegacy.GAME_VIEW) {
+            this.constraint.setUpperLimit(v);
+        }
     }
 
     /**
@@ -276,6 +262,9 @@ export class HingeConstraint extends Constraint {
     }
     set lowerLimit (v: number) {
         this.limitData.lowerLimit = v;
+        if (!EDITOR || cclegacy.GAME_VIEW) {
+            this.constraint.setLowerLimit(v);
+        }
     }
 
     /**
@@ -290,6 +279,9 @@ export class HingeConstraint extends Constraint {
     }
     set motorEnabled (v: boolean) {
         this.motorData.enabled = v;
+        if (!EDITOR || cclegacy.GAME_VIEW) {
+            this.constraint.setMotorEnabled(v);
+        }
     }
 
     /**
@@ -304,6 +296,9 @@ export class HingeConstraint extends Constraint {
     }
     set motorVelocity (v: number) {
         this.motorData.motorVelocity = v;
+        if (!EDITOR || cclegacy.GAME_VIEW) {
+            this.constraint.setMotorVelocity(v);
+        }
     }
 
     /**
@@ -318,6 +313,9 @@ export class HingeConstraint extends Constraint {
     }
     set motorForceLimit (v: number) {
         this.motorData.motorForceLimit = v;
+        if (!EDITOR || cclegacy.GAME_VIEW) {
+            this.constraint.setMotorForceLimit(v);
+        }
     }
 
     @serializable
@@ -334,11 +332,11 @@ export class HingeConstraint extends Constraint {
 
     @serializable
     @formerlySerializedAs('limitData')
-    public limitData =  new HingeLimitData(this);
+    public limitData =  new HingeLimitData();
 
     @serializable
     @formerlySerializedAs('motorData')
-    public motorData =  new HingeMotorData(this);
+    public motorData =  new HingeMotorData();
 
     get constraint (): IHingeConstraint {
         return this._constraint as IHingeConstraint;

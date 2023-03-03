@@ -110,5 +110,13 @@ RaycastResult &World::raycastClosestResult() {
     return _impl->raycastClosestResult();
 }
 
+float World::getFixedTimeStep() const {
+    return _impl->getFixedTimeStep();
+}
+
+void World::setFixedTimeStep(float fixedTimeStep) {
+    _impl->setFixedTimeStep(fixedTimeStep);
+}
+
 } // namespace physics
 } // namespace cc
