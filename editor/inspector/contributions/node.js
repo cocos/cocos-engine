@@ -787,6 +787,7 @@ const Elements = {
 
             // these properties have custom editing interface
             const customProperties = ['envmap', 'useHDR', '_envmapHDR', '_envmapLDR'];
+            const afterPositionProperties = ['reflectionMap', 'diffuseMap'];
 
             for (const key in panel.dump._globals.skybox.value) {
                 const dump = panel.dump._globals.skybox.value[key];
@@ -811,6 +812,12 @@ const Elements = {
                 let $prop = panel.$skyboxProps[id];
                 newSkyboxProps.push(id);
 
+                if (afterPositionProperties.includes(key)) {
+                    $sceneSkyboxContainer = panel.$.sceneSkyboxAfter;
+                } else {
+                    $sceneSkyboxContainer = panel.$.sceneSkyboxBefore;
+                }
+
                 if (!$prop) {
                     $prop = document.createElement('ui-prop');
                     $prop.setAttribute('type', 'dump');
@@ -820,10 +827,6 @@ const Elements = {
                     $sceneSkyboxContainer.appendChild($prop);
                 }
 
-                if (dump.name === 'enabled') {
-                    // enabled 之后的属性放在后面的容器
-                    $sceneSkyboxContainer = panel.$.sceneSkyboxAfter;
-                }
                 $prop.render(dump);
             }
 
@@ -946,7 +949,7 @@ const Elements = {
                 $skyProps.forEach(($prop) => {
                     if ($prop.dump.name === 'reflectionMap') {
                         $prop.dump.value.uuid = '';
-                        $prop.dispatch('change');
+                        $prop.dispatch('change-dump');
                     }
                 });
             }
