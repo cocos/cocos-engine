@@ -1,5 +1,6 @@
 globalThis.__EDITOR__ = globalThis.process && ('electron' in globalThis.process.versions);
 
+require('./wasm');
 const jsbWindow = require('../jsbWindow');
 
 jsb.device = jsb.Device; // cc namespace will be reset to {} in creator, use jsb namespace instead.
