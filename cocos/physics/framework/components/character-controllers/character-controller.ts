@@ -152,17 +152,11 @@ export class CharacterController extends Eventify(Component) {
     @serializable
     private _minMoveDistance = 0.001; //[ 0, infinity ]
     @serializable
-    public _stepOffset = 1.0;
+    private _stepOffset = 1.0;
     @serializable
-    public _slopeLimit = 45.0; //degree[ 0, 180]
-    //@serializable
-    public _density = 10.0;
-    //@serializable
-    public _scaleCoeff = 0.8;
-    //@serializable
-    public _volumeGrowth = 1.5;
+    private _slopeLimit = 45.0; //degree[ 0, 180]
     @serializable
-    public _contactOffset = 0.01;
+    private _contactOffset = 0.01;
 
     private _initialized = false;
 

@@ -50,10 +50,10 @@ export class PhysXCapsuleCharacterController extends PhysXCharacterController im
         controllerDesc.radius = this.component.radius;
         controllerDesc.height = this.component.height;
         controllerDesc.climbingMode = 1;// constraint mode
-        controllerDesc.density = this.component._density;
-        controllerDesc.scaleCoeff = this.component._scaleCoeff;
-        controllerDesc.volumeGrowth = this.component._volumeGrowth;
-        controllerDesc.contactOffset = this.component._contactOffset;
+        controllerDesc.density = 10.0;
+        controllerDesc.scaleCoeff = 0.8;
+        controllerDesc.volumeGrowth = 1.5;
+        controllerDesc.contactOffset = this.component.contactOffset;
         controllerDesc.stepOffset = this.component.stepOffset;
         controllerDesc.slopeLimit = Math.cos(degreesToRadians(this.component.slopeLimit));
         controllerDesc.upDirection = upDir;//this.component._upDirection;
