@@ -365,7 +365,7 @@ bool Material::uploadProperty(scene::Pass *pass, const ccstd::string &name, cons
             pass->setUniformArray(handle, ccstd::get<MaterialPropertyList>(val));
         } else if (val.index() == MATERIAL_PROPERTY_INDEX_SINGLE) {
             const auto &passProps = pass->getProperties();
-            auto iter = passProps.find(name);
+            auto iter = retrieveProperty(passProps, name);
             if (iter != passProps.end() && iter->second.linear.has_value()) {
                 CC_ASSERT(ccstd::holds_alternative<MaterialProperty>(val));
                 const auto &prop = ccstd::get<MaterialProperty>(val);

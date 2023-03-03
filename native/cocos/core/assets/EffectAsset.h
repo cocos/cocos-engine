@@ -25,6 +25,7 @@
 #pragma once
 
 #include <tuple>
+#include <type_traits>
 #include "base/std/container/string.h"
 #include "base/std/container/unordered_map.h"
 #include "base/std/optional.h"
@@ -36,15 +37,48 @@
 #include "renderer/core/PassUtils.h"
 #include "renderer/gfx-base/GFXDef.h"
 #include "renderer/pipeline/Define.h"
-
 namespace cc {
+
+template <typename T>
+struct IsVectorContainer : std::false_type {};
+
+template <typename E, typename A>
+struct IsVectorContainer<ccstd::vector<E, A>> : std::true_type {};
+
+/**
+ * This function retrieves the value of a specific property from an attribute container. 
+ * The type of container used for storing the properties depends on whether the CC_EDITOR macro is enabled or not.
+ * If the macro is enabled, the container is a list, otherwise it is an unordered map.
+ */
+template <typename T, typename K>
+inline auto retrieveProperty(T &collection, K &key) {
+    if constexpr (IsVectorContainer<std::remove_cv_t<T>>::value) {
+        return std::find_if(collection.begin(), collection.end(), [&](auto &e) { return e.first == key; });
+    } else {
+        return collection.find(key);
+    }
+}
+
+template <typename K, typename V>
+using UnstablePropertyContainer = ccstd::unordered_map<K, V>;
+
+template <typename K, typename V>
+using StablePropertyContainer = ccstd::vector<std::pair<K, V>>;
+
+#if CC_EDITOR
+template <typename K, typename V>
+using PropertyContainer = StablePropertyContainer<K, V>;
+#else
+template <typename K, typename V>
+using PropertyContainer = UnstablePropertyContainer<K, V>;
+#endif
 
 using IPropertyHandleInfo = std::tuple<ccstd::string, uint32_t, gfx::Type>;
 
 using IPropertyValue = ccstd::variant<ccstd::monostate, ccstd::vector<float>, ccstd::string>;
 
 using IPropertyEditorValueType = ccstd::variant<ccstd::monostate, ccstd::string, bool, float, ccstd::vector<float>>;
-using IPropertyEditorInfo = ccstd::unordered_map<ccstd::string, IPropertyEditorValueType>;
+using IPropertyEditorInfo = PropertyContainer<ccstd::string, IPropertyEditorValueType>;
 
 struct IPropertyInfo {
     int32_t type{0};                                 // auto-extracted from shader
@@ -351,7 +385,7 @@ struct IPassStates {
 };
 using PassOverrides = IPassStates;
 
-using PassPropertyInfoMap = ccstd::unordered_map<ccstd::string, IPropertyInfo>;
+using PassPropertyInfoMap = PropertyContainer<ccstd::string, IPropertyInfo>;
 
 struct IPassInfoFull final { // cjh } : public IPassInfo {
     // IPassStates

@@ -790,6 +790,30 @@ bool sevalue_to_native(const se::Value &from, ccstd::vector<T> *to, se::Object *
     return false;
 }
 
+template<typename K, typename V>
+bool sevalue_to_native(const se::Value& from, ccstd::vector<std::pair<K, V>>* to, se::Object* ctx) {
+    // convert object to attribute/value list: [{"prop1", v1}, {"prop2", v2}... {"propN", vn}]
+    CC_ASSERT_NOT_NULL(to);
+    CC_ASSERT(from.isObject());
+    auto *jsObj = from.toObject();
+    ccstd::vector<ccstd::string> objectKeys;
+    jsObj->getAllKeys(&objectKeys);
+    to->clear();
+    se::Value valueJS;
+    for (auto &attr : objectKeys) {
+        V value;
+
+        if (!jsObj->getProperty(attr, &valueJS)) {
+            continue;
+        }
+        if (!sevalue_to_native(valueJS, &value, ctx)) {
+            continue;
+        } 
+        to->emplace_back(std::make_pair(std::move(attr), std::move(value))); 
+    }
+    return true;
+}
+
 ///////////////////// function
 ///
 
@@ -1298,6 +1322,27 @@ inline bool nativevalue_to_se(const std::function<R(Args...)> & /*from*/, se::Va
     SE_LOGE("Can not convert C++ const lambda to JS object");
     return false;
 }
+
+
+template <typename K, typename V>
+bool nativevalue_to_se(const ccstd::vector<std::pair<K, V>> &from, se::Value &to, se::Object *ctx) {
+    // convert to object from  attribute/value list: [{"prop1", v1}, {"prop2", v2}... {"propN", vn}]
+    se::HandleObject ret(se::Object::createPlainObject());
+    for (const auto &ele : from) {
+        se::Value keyJS;
+        se::Value valueJS;
+        if (!nativevalue_to_se(ele.first, keyJS, ctx)) {
+            continue;
+        }
+        if (!nativevalue_to_se(ele.second, valueJS, ctx)) {
+            continue;
+        }
+        ret->setProperty(keyJS.toString(), valueJS);
+    }
+    to.setObject(ret);
+    return true;
+}
+
 
 ///////////////////////// function ///////////////////////
 
