@@ -8,11 +8,11 @@ CCEffect %{
       frag: standard-fs
       properties: &props
         mainColor:                        { value: [1.0, 1.0, 1.0, 1.0], target: albedo, linear: true, editor: { displayName: Albedo, type: color } }
-        normalStrength:                   { value: 1.0, target: pbrParams.w, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 5.0], step: 0.001, tooltip: i18n:ENGINE.assets.effect.propertyTips.normalStrength } }
+        normalStrength:                   { value: 1.0, target: pbrParams.w, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 5.0], step: 0.001 } }
         mainTexture:                      { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
-        roughness:                        { value: 0.5, target: pbrParams.y, editor: { slide: true, range: [0, 1.0], step: 0.001, tooltip: i18n:ENGINE.assets.effect.propertyTips.roughness } }
+        roughness:                        { value: 0.5, target: pbrParams.y, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         fresnelIntensity:                 { value: 1.5, target: pbrParams.z, editor: { slide: true, range: [0, 3.0], step: 0.001 } }
-        normalMap:                        { value: normal, editor : { tooltip: i18n:ENGINE.assets.effect.propertyTips.normalMap } }
+        normalMap:                        { value: normal }
         normalMapDetailed:                { value: normal, editor : { tooltip: i18n:ENGINE.assets.effect.propertyTips.normalMap } }
         baseTiling:                       { value: 100.0, target: pbrParams.x, editor: { parent: USE_NORMAL_MAP, range: [1.0, 10000.0] } }
         waterSpeed:                       { value: 0.2, target: waterParam.x, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 1.0], step: 0.001 } }
