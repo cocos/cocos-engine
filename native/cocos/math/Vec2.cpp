@@ -265,12 +265,7 @@ bool Vec2::isSegmentIntersect(const Vec2 &a, const Vec2 &b, const Vec2 &c, const
     float s;
     float t;
 
-    if (isLineIntersect(a, b, c, d, &s, &t) &&
-        (s >= 0.0F && s <= 1.0F && t >= 0.0F && t <= 1.0F)) {
-        return true;
-    }
-
-    return false;
+    return (isLineIntersect(a, b, c, d, &s, &t) && (s >= 0.0F && s <= 1.0F && t >= 0.0F && t <= 1.0F));
 }
 
 Vec2 Vec2::getIntersectPoint(const Vec2 &a, const Vec2 &b, const Vec2 &c, const Vec2 &d) {
