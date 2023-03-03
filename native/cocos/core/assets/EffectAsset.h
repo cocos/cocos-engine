@@ -39,6 +39,8 @@
 #include "renderer/pipeline/Define.h"
 namespace cc {
 
+#if !SWIGCOCOS
+
 template <typename T>
 struct IsVectorContainer : std::false_type {};
 
@@ -58,6 +60,8 @@ inline auto retrieveProperty(T &collection, K &key) {
         return collection.find(key);
     }
 }
+
+#endif
 
 template <typename K, typename V>
 using UnstablePropertyContainer = ccstd::unordered_map<K, V>;
