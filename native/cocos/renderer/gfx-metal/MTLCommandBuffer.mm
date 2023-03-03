@@ -771,7 +771,7 @@ void CCMTLCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
         auto macroPixelHeight = targetHeight / blockSize.second;
         
         auto copyFunc = [&](const uint8_t * const buffer, const MTLRegion& mtlRegion, uint32_t size, uint32_t slice, uint8_t depth) {
-            if(dstTexture.storageMode != MTLStorageModePrivate) {
+            if(dstTexture.storageMode != MTLStorageModePrivate || mtlTexture->isPVRTC()) {
                 ccstd::vector<uint8_t> data(size);
                 memcpy(data.data(), buffer, size);
 
@@ -782,11 +782,6 @@ void CCMTLCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
                               bytesPerRow:bytesPerRowForTarget
                             bytesPerImage:bytesPerImageForTarget];
             } else {
-                MTLRegion mtlRegion = {
-                    {targetOffset.x, targetOffset.y, depth},
-                    {targetSize.width, targetSize.height, 1}
-                };
-                
                 CCMTLGPUBuffer stagingBuffer;
                 stagingBuffer.instanceSize = bufferSliceSize;
                 _mtlDevice->gpuStagingBufferPool()->alloc(&stagingBuffer);
@@ -806,7 +801,7 @@ void CCMTLCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
 
                     MTLRegion mtlRegion = {
                         {targetOffset.x, targetOffset.y, d},
-                        {targetSize.width, targetSize.height, 1}
+                        {targetWidth, targetHeight, 1}
                     };
                     
                     copyFunc(convertedData, mtlRegion, bufferSliceSize, l, d);
@@ -822,7 +817,7 @@ void CCMTLCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
 
                         MTLRegion mtlRegion = {
                             {targetOffset.x, targetOffset.y + h, d},
-                            {targetSize.width, blockSize.second, 1}
+                            {targetWidth, blockSize.second, 1}
                         };
                         
                         copyFunc(convertedData, mtlRegion, bytesPerRowForTarget, l, d);
