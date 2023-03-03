@@ -7,20 +7,20 @@ CCEffect %{
     - vert: standard-vs
       frag: standard-fs
       properties: &props
-        tilingOffset:         { value: [1.0, 1.0, 0.0, 0.0], editor : { tooltip: i18n:ENGINE.assets.effect.propertyTips.tilingOffset } }
+        tilingOffset:         { value: [1.0, 1.0, 0.0, 0.0] }
         mainColor:            { value: [1.0, 1.0, 1.0, 1.0], target: albedo, linear: true, editor: { displayName: Albedo, type: color } }
         albedoScale:          { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
-        alphaThreshold:       { value: 0.5, target: albedoScaleAndCutoff.w, editor: { slide: true, range: [0, 1.0], step: 0.001, tooltip: i18n:ENGINE.assets.effect.propertyTips.alphaThreshold } }
-        occlusion:            { value: 0.0, target: pbrParams.x, editor: { slide: true, range: [0, 1.0], step: 0.001, tooltip: i18n:ENGINE.assets.effect.propertyTips.occlusion } }
-        roughness:            { value: 0.5, target: pbrParams.y, editor: { slide: true, range: [0, 1.0], step: 0.001, tooltip: i18n:ENGINE.assets.effect.propertyTips.roughness } }
-        metallic:             { value: 0.0, target: pbrParams.z, editor: { slide: true, range: [0, 1.0], step: 0.001, tooltip: i18n:ENGINE.assets.effect.propertyTips.metallic } }
-        specularIntensity:    { value: 0.5, target: pbrParams.w, editor: { slide: true, range: [0.0, 1.0], step: 0.001, tooltip: i18n:ENGINE.assets.effect.propertyTips.specularIntensity } }
+        alphaThreshold:       { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST, slide: true, range: [0, 1.0], step: 0.001 } }
+        occlusion:            { value: 0.0, target: pbrParams.x, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        roughness:            { value: 0.5, target: pbrParams.y, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        metallic:             { value: 0.0, target: pbrParams.z, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        specularIntensity:    { value: 0.5, target: pbrParams.w, editor: { slide: true, range: [0.0, 1.0], step: 0.001 } }
         emissive:             { value: [0.0, 0.0, 0.0, 1.0], linear: true, editor: { type: color } }
         emissiveScale:        { value: [1.0, 1.0, 1.0], target: emissiveScaleParam.xyz }
-        normalStrength:       { value: 1.0, target: emissiveScaleParam.w, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 5.0], step: 0.001, tooltip: i18n:ENGINE.assets.effect.propertyTips.normalStrength } }
+        normalStrength:       { value: 1.0, target: emissiveScaleParam.w, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 5.0], step: 0.001 } }
         mainTexture:          { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
-        normalMap:            { value: normal, editor : { tooltip: i18n:ENGINE.assets.effect.propertyTips.normalMap } }
-        pbrMap:               { value: grey, editor : { tooltip: i18n:ENGINE.assets.effect.propertyTips.pbrMap } }
+        normalMap:            { value: normal }
+        pbrMap:               { value: grey }
         metallicRoughnessMap: { value: grey }
         occlusionMap:         { value: white }
         emissiveMap:          { value: grey }
