@@ -79,14 +79,6 @@ const gradientsMask1D = 1;
 function smooth (t: number) { return t * t * t * (t * (t * 6 - 15) + 10); }
 function smoothDerivative (t: number) { return 30 * t * t * (t * (t - 2) + 1); }
 
-// const db3 = new Vec3();
-// const dc3 = new Vec3();
-// const dd3 = new Vec3();
-// const de3 = new Vec3();
-// const df3 = new Vec3();
-// const dg3 = new Vec3();
-// const dh3 = new Vec3();
-
 const temp1 = new Vec3();
 const temp2 = new Vec3();
 
@@ -98,21 +90,13 @@ export class PerlinNoise3DCache {
     iy1 = 0;
     iz1 = 0;
     g000 = new Vec3();
-    g000Hash = 0;
     g100 = new Vec3();
-    g100Hash = 0;
     g010 = new Vec3();
-    g010Hash = 0;
     g110 = new Vec3();
-    g110Hash = 0;
     g001 = new Vec3();
-    g001Hash = 0;
     g101 = new Vec3();
-    g101Hash = 0;
     g011 = new Vec3();
-    g011Hash = 0
     g111 = new Vec3();
-    g111Hash = 0;
     db = new Vec3();
     dc = new Vec3();
     dd = new Vec3();
