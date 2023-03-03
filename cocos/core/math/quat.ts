@@ -342,6 +342,13 @@ export class Quat extends ValueType {
     /**
      * @en Spherical quaternion interpolation with two control points
      * @zh 带两个控制点的四元数球面插值
+     * @param out the receiving quaternion
+     * @param a the first operand
+     * @param b the second operand
+     * @param c the third operand
+     * @param d the fourth operand
+     * @param t interpolation amount, in the range [0-1], between the two inputs
+     * @returns out
      */
     public static sqlerp<Out extends IQuatLike> (out: Out, a: Out, b: Out, c: Out, d: Out, t: number) {
         Quat.slerp(qt_1, a, d, t);

@@ -1657,6 +1657,14 @@ export class Mat4 extends ValueType {
     }
 
     /**
+     * matrix layout
+     * |m00  m04  m08 m12|
+     * |m01  m05  m09 m13|
+     * |m02  m06  m10 m14|
+     * |m03  m07  m11 m15|
+     */
+
+    /**
      * @en Value at column 0 row 0 of the matrix.
      * @zh 矩阵第 0 列第 0 行的元素。
      */

@@ -66,7 +66,7 @@ inline bool isPowerOfTwo(T n) {
 }
 
 inline bool isEqualF(float lhs, float rhs, float precision = 0.000001F) {
-    return (std::fabs(lhs - rhs) < precision);
+    return (std::fabs(lhs - rhs) <= precision);
 }
 
 inline bool isNotEqualF(float lhs, float rhs, float precision = 0.000001F) {

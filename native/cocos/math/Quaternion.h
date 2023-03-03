@@ -38,7 +38,7 @@ class Mat3;
 /**
  * Defines a 4-element quaternion that represents the orientation of an object in space.
  *
- * Quaternions are typically used as a replacement for euler angles and rotation matrices as a way to achieve smooth interpolation and avoid gimbal lock.
+ * Quaternions are typically used as a replacement for Euler angles and rotation matrices as a way to achieve smooth interpolation and avoid gimbal lock.
  *
  * Note that this quaternion class does not automatically keep the quaternion normalized. Therefore, care must be taken to normalize the quaternion when necessary, by calling the normalize method.
  * This class provides three methods for doing quaternion interpolation: lerp, slerp, and squad.
@@ -64,9 +64,6 @@ class Mat3;
  * For the point p = (1.0, 1.0, 1.0), the following figures show the trajectories of p using lerp, slerp, and squad.
  */
 class CC_DLL Quaternion {
-    friend class Curve;
-    friend class Transform;
-
 public:
     /**
      * The x-value of the quaternion's vector component.
@@ -206,10 +203,8 @@ public:
      * when the quaternion is unit-length. For this reason, it is more
      * efficient to use the conjugate method directly when you know your
      * quaternion is already unit-length.
-     *
-     * @return true if the inverse can be computed, false otherwise.
      */
-    bool inverse();
+    void inverse();
 
     /**
      * Gets the inverse of this quaternion.
@@ -346,7 +341,20 @@ public:
      * @param t The interpolation coefficient.
      * @param dst A quaternion to store the result in.
      */
-    static void slerp(const Quaternion &q1, const Quaternion &q2, float t, Quaternion *dst);
+    static void slerp(const Quaternion &a, const Quaternion &b, float t, Quaternion *dst);
+
+    /**
+     * @en Spherical quaternion interpolation with two control points
+     * 
+     * @param out the receiving quaternion
+     * @param a the first operand
+     * @param b the second operand
+     * @param c the third operand
+     * @param d the fourth operand
+     * @param t interpolation amount, in the range [0-1], between the two inputs
+     * @returns out
+     */
+    static void sqlerp(const Quaternion &a, const Quaternion &b, const Quaternion &c, const Quaternion &d, float t, Quaternion *dst);
 
     /**
      * Interpolates over a series of quaternions using spherical spline interpolation.
@@ -365,6 +373,9 @@ public:
      * @param t The interpolation coefficient.
      * @param dst A quaternion to store the result in.
      */
+    /**
+     * @deprecated since v3.8.0 please use [[sqlerp]] instead
+     */
     static void squad(const Quaternion &q1, const Quaternion &q2, const Quaternion &s1, const Quaternion &s2, float t, Quaternion *dst);
 
     /**
@@ -376,13 +387,6 @@ public:
      * @return The quaternion product.
      */
     inline const Quaternion operator*(const Quaternion &q) const;
-
-    /**
-     * Calculates the quaternion product of this quaternion with the given vec3.
-     * @param v The vec3 to multiply.
-     * @return The vec3 product.
-     */
-    inline Vec3 operator*(const Vec3 &v) const;
 
     /**
      * Multiplies this quaternion with the given quaternion.
@@ -427,8 +431,14 @@ private:
      * @param dstz A pointer to store the z component of the slerp in.
      * @param dstw A pointer to store the w component of the slerp in.
      */
+    /**
+     * @deprecated since v3.8.0
+     */
     static void slerp(float q1x, float q1y, float q1z, float q1w, float q2x, float q2y, float q2z, float q2w, float t, float *dstx, float *dsty, float *dstz, float *dstw);
 
+    /**
+     * @deprecated since v3.8.0
+     */
     static void slerpForSquad(const Quaternion &q1, const Quaternion &q2, float t, Quaternion *dst);
 };
 

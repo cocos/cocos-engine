@@ -135,8 +135,8 @@ public:
     inline void merge(const Vec3 &point) { mergePoint(point); }
     void merge(const ccstd::vector<Vec3> &points);
     inline void merge(const Frustum &frustum) { mergeFrustum(frustum); }
-    bool interset(const Frustum &frustum) const;
-    int interset(const Plane &plane) const;
+    bool intersect(const Frustum &frustum) const;
+    int intersect(const Plane &plane) const;
     int spherePlane(const Plane &plane) const;
     bool sphereFrustum(const Frustum &frustum) const;
 
