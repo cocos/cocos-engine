@@ -727,7 +727,6 @@ void Pass::buildUniformBlock(
     gfx::BufferViewInfo &bufferViewInfo,
     ccstd::vector<uint32_t> &startOffsets,
     size_t &count) {
-
     const auto alignment = _device->getCapabilities().uboOffsetAlignment;
     bufferViewInfo.buffer = _rootBuffer;
     bufferViewInfo.offset = startOffsets[count++];

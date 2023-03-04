@@ -1502,7 +1502,7 @@ ProgramProxy *NativeProgramLibrary::getProgramVariant(
     return res.first->second.get();
 }
 
-gfx::PipelineState* NativeProgramLibrary::getComputePipelineState(
+gfx::PipelineState *NativeProgramLibrary::getComputePipelineState(
     gfx::Device *device, uint32_t phaseID, const ccstd::string &name,
     MacroRecord &defines, const ccstd::pmr::string *key) {
     auto *program = getProgramVariant(device, phaseID, name, defines, key);

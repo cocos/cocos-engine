@@ -34,7 +34,7 @@
 
 namespace cc {
 
-//class RenderableComponent;
+// class RenderableComponent;
 
 namespace scene {
 class Pass;
