@@ -70,7 +70,7 @@ using MacroValue = ccstd::variant<ccstd::monostate, int32_t, bool, ccstd::string
  * @en Combination of preprocess macros
  * @zh 预处理宏组合
  */
-using MacroRecord = Record<ccstd::string, MacroValue>;
+using MacroRecord = ccstd::unordered_map<ccstd::string, MacroValue>;
 
 using MaterialProperty = ccstd::variant<ccstd::monostate /*0*/, float /*1*/, int32_t /*2*/, Vec2 /*3*/, Vec3 /*4*/, Vec4 /*5*/, Color, /*6*/ Mat3 /*7*/, Mat4 /*8*/, Quaternion /*9*/, IntrusivePtr<TextureBase> /*10*/, IntrusivePtr<gfx::Texture> /*11*/>;
 

@@ -266,7 +266,7 @@ public:
     inline const IProgramInfo *getShaderInfo() const { return _shaderInfo; }
     const gfx::DescriptorSetLayout *getLocalSetLayout() const;
     inline const ccstd::string &getProgram() const { return _programName; }
-    inline const Record<ccstd::string, IPropertyInfo> &getProperties() const { return _properties; }
+    inline const ccstd::unordered_map<ccstd::string, IPropertyInfo> &getProperties() const { return _properties; }
     inline const MacroRecord &getDefines() const { return _defines; }
     inline MacroRecord &getDefines() { return _defines; }
     inline index_t getPassIndex() const { return _passIndex; }
@@ -336,13 +336,13 @@ protected:
     index_t _propertyIndex{0};
     ccstd::string _programName;
     IPassDynamics _dynamics;
-    Record<ccstd::string, uint32_t> _propertyHandleMap;
+    ccstd::unordered_map<ccstd::string, uint32_t> _propertyHandleMap;
     IntrusivePtr<ArrayBuffer> _rootBlock;
     ccstd::vector<IBlockRef> _blocks; // Point to position in _rootBlock
 
     const IProgramInfo *_shaderInfo; // weakref to template of ProgramLib
     MacroRecord _defines;
-    Record<ccstd::string, IPropertyInfo> _properties;
+    ccstd::unordered_map<ccstd::string, IPropertyInfo> _properties;
     IntrusivePtr<gfx::Shader> _shader;
     gfx::BlendState _blendState{};
     gfx::DepthStencilState _depthStencilState{};
@@ -356,8 +356,8 @@ protected:
     gfx::PrimitiveMode _primitive{gfx::PrimitiveMode::TRIANGLE_LIST};
     BatchingSchemes _batchingScheme{BatchingSchemes::NONE};
     gfx::DynamicStateFlagBit _dynamicStates{gfx::DynamicStateFlagBit::NONE};
-    Record<int32_t, IntrusivePtr<pipeline::InstancedBuffer>> _instancedBuffers;
-    Record<int32_t, IntrusivePtr<pipeline::BatchedBuffer>> _batchedBuffers;
+    ccstd::unordered_map<int32_t, IntrusivePtr<pipeline::InstancedBuffer>> _instancedBuffers;
+    ccstd::unordered_map<int32_t, IntrusivePtr<pipeline::BatchedBuffer>> _batchedBuffers;
 
     ccstd::hash_t _hash{0U};
     // external references
