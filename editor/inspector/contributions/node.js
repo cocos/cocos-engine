@@ -283,14 +283,31 @@ exports.template = /* html*/`
                 </ui-link>
             </div>
             <div class="before"></div>
-            <ui-prop class="reflection">
-                <ui-label slot="label">Reflection Convolution</ui-label>
-                <div slot="content">
-                    <ui-loading style="display:none; position: relative;top: 4px;"></ui-loading>
-                    <ui-button class="blue bake" style="display:none;">Bake</ui-button>
-                    <ui-button class="red remove" style="display:none;">Remove</ui-button>
-                </div>
-            </ui-prop>
+            <ui-section class="envmap" expand>
+                <ui-label slot="header" value="Envmap"></ui-label>
+                <ui-radio-group class="useHDR" default-value="HDR" value="HDR">
+                    <ui-prop class="envmap-prop">
+                        <ui-radio class="envmap-radio" slot="label" type="single" value="HDR" tabindex="0">
+                            <ui-label value="HDR"></ui-label>
+                        </ui-radio>
+                        <ui-prop slot="content" class="envmapHDR" type="dump" no-label></ui-prop>
+                    </ui-prop>
+                    <ui-prop class="envmap-prop">
+                        <ui-radio class="envmap-radio" slot="label" type="single" value="LDR" tabindex="0">
+                            <ui-label value="LDR"></ui-label>
+                        </ui-radio>
+                        <ui-prop slot="content" class="envmapLDR" type="dump" no-label></ui-prop>
+                    </ui-prop>
+                </ui-radio-group>
+                <ui-prop class="reflection">
+                    <ui-label slot="label">Reflection Convolution</ui-label>
+                    <div slot="content">
+                        <ui-loading style="display:none; position: relative;top: 4px;"></ui-loading>
+                        <ui-button class="blue bake" style="display:none;">Bake</ui-button>
+                        <ui-button class="red remove" style="display:none;">Remove</ui-button>
+                    </div>
+                </ui-prop>
+            </ui-section>
             <div class="after"></div>
         </ui-section>
         <ui-prop class="postProcess" type="dump"></ui-prop>
@@ -357,10 +374,13 @@ exports.$ = {
     sceneShadows: '.scene > .shadows',
     sceneSkybox: '.scene > .skybox',
     sceneSkyboxBefore: '.scene > .skybox > .before',
-    sceneSkyboxReflection: '.scene > .skybox > .reflection',
-    sceneSkyboxReflectionLoading: '.scene > .skybox > .reflection ui-loading',
-    sceneSkyboxReflectionBake: '.scene > .skybox > .reflection .bake',
-    sceneSkyboxReflectionRemove: '.scene > .skybox > .reflection .remove',
+    sceneSkyboxUseHDR: '.scene > .skybox .useHDR',
+    sceneSkyboxEnvmapHDR: '.scene > .skybox .envmapHDR',
+    sceneSkyboxEnvmapLDR: '.scene > .skybox .envmapLDR',
+    sceneSkyboxReflection: '.scene > .skybox .reflection',
+    sceneSkyboxReflectionLoading: '.scene > .skybox .reflection ui-loading',
+    sceneSkyboxReflectionBake: '.scene > .skybox .reflection .bake',
+    sceneSkyboxReflectionRemove: '.scene > .skybox .reflection .remove',
     sceneSkyboxAfter: '.scene > .skybox > .after',
     postProcess: '.scene > .postProcess',
     sceneOctree: '.scene > .octree',
@@ -724,6 +744,9 @@ const Elements = {
                 event.preventDefault();
             });
 
+            panel.$.sceneSkyboxUseHDR.addEventListener('change', Elements.scene.skyboxUseHDRChange.bind(panel));
+            panel.$.sceneSkyboxEnvmapHDR.addEventListener('change-dump', Elements.scene.skyboxEnvmapChange.bind(panel, true));
+            panel.$.sceneSkyboxEnvmapLDR.addEventListener('change-dump', Elements.scene.skyboxEnvmapChange.bind(panel, false));
             panel.$.sceneSkyboxReflectionBake.addEventListener('confirm', Elements.scene.skyboxReflectionConvolutionBake.bind(panel));
             panel.$.sceneSkyboxReflectionRemove.addEventListener('confirm', Elements.scene.skyboxReflectionConvolutionRemove.bind(panel));
         },
@@ -762,14 +785,38 @@ const Elements = {
             const oldSkyboxProps = Object.keys(panel.$skyboxProps);
             const newSkyboxProps = [];
 
+            // these properties have custom editing interface
+            const customProperties = ['envmap', 'useHDR', '_envmapHDR', '_envmapLDR'];
+            const afterPositionProperties = ['reflectionMap', 'diffuseMap'];
+
             for (const key in panel.dump._globals.skybox.value) {
                 const dump = panel.dump._globals.skybox.value[key];
+
+                if (customProperties.includes(key)) {
+                    if (key === 'useHDR') {
+                        panel.$.sceneSkyboxUseHDR.value = dump.value ? 'HDR' : 'LDR';
+                        panel.$.sceneSkyboxUseHDR.dump = dump;
+                    } else if (key === '_envmapHDR') {
+                        panel.$.sceneSkyboxEnvmapHDR.render(dump);
+                    } else if (key === '_envmapLDR') {
+                        panel.$.sceneSkyboxEnvmapLDR.render(dump);
+                    }
+                    continue;
+                }
+
                 if (!dump.visible) {
                     continue;
                 }
+
                 const id = `${dump.type || dump.name}:${dump.path}`;
                 let $prop = panel.$skyboxProps[id];
                 newSkyboxProps.push(id);
+
+                if (afterPositionProperties.includes(key)) {
+                    $sceneSkyboxContainer = panel.$.sceneSkyboxAfter;
+                } else {
+                    $sceneSkyboxContainer = panel.$.sceneSkyboxBefore;
+                }
 
                 if (!$prop) {
                     $prop = document.createElement('ui-prop');
@@ -780,10 +827,6 @@ const Elements = {
                     $sceneSkyboxContainer.appendChild($prop);
                 }
 
-                if (dump.name === 'envmap') {
-                    // envmap 之后的属性放在后面的容器
-                    $sceneSkyboxContainer = panel.$.sceneSkyboxAfter;
-                }
                 $prop.render(dump);
             }
 
@@ -811,15 +854,10 @@ const Elements = {
 
             const $skyProps = panel.$.sceneSkybox.querySelectorAll('ui-prop[type="dump"]');
             $skyProps.forEach(($prop) => {
-                if ($prop.dump.name === 'envLightingType' || $prop.dump.name === 'envmap') {
+                if ($prop.dump.name === 'envLightingType') {
                     if (!$prop.regenerate) {
                         $prop.regenerate = Elements.scene.regenerate.bind(panel);
                         $prop.addEventListener('change-dump', $prop.regenerate);
-                    }
-
-                    if (!$prop.setReflectionConvolutionMap && $prop.dump.name === 'envmap') {
-                        $prop.setReflectionConvolutionMap = Elements.scene.setReflectionConvolutionMap.bind(panel);
-                        $prop.addEventListener('change-dump', $prop.setReflectionConvolutionMap);
                     }
                 }
             });
@@ -854,14 +892,12 @@ const Elements = {
                 });
             }
         },
-        async setReflectionConvolutionMap() {
-            const panel = this;
-            const envMapData = panel.dump._globals.skybox.value['envmap'];
-            if (envMapData.value && envMapData.value.uuid) {
+        async setReflectionConvolutionMap(uuid) {
+            if (uuid) {
                 await Editor.Message.request('scene', 'execute-scene-script', {
                     name: 'inspector',
                     method: 'setReflectionConvolutionMap',
-                    args: [envMapData.value.uuid],
+                    args: [uuid],
                 });
             }
         },
@@ -913,10 +949,34 @@ const Elements = {
                 $skyProps.forEach(($prop) => {
                     if ($prop.dump.name === 'reflectionMap') {
                         $prop.dump.value.uuid = '';
-                        $prop.dispatch('change');
+                        $prop.dispatch('change-dump');
                     }
                 });
             }
+        },
+        skyboxUseHDRChange(event) {
+            const panel = this;
+
+            const $radioGraph = event.currentTarget;
+            const useHDR = $radioGraph.value === 'HDR';
+
+            $radioGraph.dump.value = useHDR;
+            $radioGraph.dispatch('change-dump');
+
+            const $prop = useHDR ? panel.$.sceneSkyboxEnvmapHDR : panel.$.sceneSkyboxEnvmapLDR;
+            const uuid = $prop.dump.value.uuid;
+            Elements.scene.setReflectionConvolutionMap.call(panel, uuid);
+        },
+        skyboxEnvmapChange(useHDR, event) {
+            const panel = this;
+            if (panel.dump._globals.skybox.value['useHDR'].value !== useHDR) {
+                // 未选中项的变动，不需要后续执行
+                return;
+            }
+
+            const $prop = event.currentTarget;
+            const uuid = $prop.dump.value.uuid;
+            Elements.scene.setReflectionConvolutionMap.call(panel, uuid);
         },
     },
     node: {

@@ -124,6 +124,7 @@ function _handleColor (color: {r: number, g: number, b: number, a: number}, pare
 
 let _accessor: StaticVBAccessor = null!;
 /**
+ * @engineInternal Since v3.7.2 this is an engine private object.
  * simple 组装器
  * 可通过 `UI.simple` 获取该组装器。
  */
@@ -409,7 +410,7 @@ function updateComponentRenderData (comp: ArmatureDisplay, batcher: Batcher2D) {
     // comp.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
 
     const armature = comp._armature;
-    if (!armature) return;
+    if (!armature || comp.renderData === null) return;
 
     // Init temp var.
     _mustFlush = true;
@@ -482,10 +483,6 @@ function updateComponentRenderData (comp: ArmatureDisplay, batcher: Batcher2D) {
     }
     // Ensure mesh buffer update
     _accessor.getMeshBuffer(_renderData.chunk.bufferId).setDirty();
-
-    // sync attached node matrix
-    // renderer.worldMatDirty++;
-    comp.attachUtil._syncAttachedNode();
 
     // Clear temp var.
     _node = undefined;

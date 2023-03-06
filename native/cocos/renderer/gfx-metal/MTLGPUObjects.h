@@ -129,10 +129,11 @@ struct CCMTLGPUPipelineState {
 struct CCMTLGPUBuffer {
     uint32_t stride = 0;
     uint32_t count = 0;
-    uint32_t size = 0;
+    uint32_t instanceSize = 0;
     uint32_t startOffset = 0;
-    uint8_t *mappedData = nullptr;
     id<MTLBuffer> mtlBuffer = nil;
+    uint8_t lastUpdateCycle = 0;
+    uint8_t *mappedData = nullptr;
 };
 
 struct CCMTLGPUTextureObject {
@@ -184,13 +185,13 @@ public:
         for (size_t idx = 0; idx < bufferCount; idx++) {
             auto *cur = &_pool[idx];
             offset = mu::alignUp(cur->curOffset, alignment);
-            if (gpuBuffer->size + offset <= [cur->mtlBuffer length]) {
+            if (gpuBuffer->instanceSize + offset <= [cur->mtlBuffer length]) {
                 buffer = cur;
                 break;
             }
         }
         if (!buffer) {
-            uint32_t needs = mu::alignUp(gpuBuffer->size, MegaBytesToBytes);
+            uint32_t needs = mu::alignUp(gpuBuffer->instanceSize, MegaBytesToBytes);
 
             _pool.resize(bufferCount + 1);
             buffer = &_pool.back();
@@ -202,7 +203,7 @@ public:
         gpuBuffer->mtlBuffer = buffer->mtlBuffer;
         gpuBuffer->startOffset = offset;
         gpuBuffer->mappedData = buffer->mappedData + offset;
-        buffer->curOffset = offset + gpuBuffer->size;
+        buffer->curOffset = offset + gpuBuffer->instanceSize;
     }
 
     void reset() {

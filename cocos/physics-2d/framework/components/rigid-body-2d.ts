@@ -52,7 +52,6 @@ export class RigidBody2D extends Component {
         this._group = v;
     }
 
-    @type(CCBoolean)
     @serializable
     @tooltip('i18n:physics2d.rigidbody.enabledContactListener')
     enabledContactListener = false;
@@ -70,7 +69,6 @@ export class RigidBody2D extends Component {
      *  - 所有刚体都被禁止从 运动刚体 和 静态刚体 中穿过。此选项只关注于 动态刚体。
      *  - 应该尽量少的使用此选项，因为它会增加程序处理时间。
      */
-    @type(CCBoolean)
     @serializable
     @tooltip('i18n:physics2d.rigidbody.bullet')
     bullet = false;
@@ -241,7 +239,6 @@ export class RigidBody2D extends Component {
      * @zh
      * 是否在初始化时唤醒此刚体。
      */
-    @type(CCBoolean)
     @serializable
     @tooltip('i18n:physics2d.rigidbody.awakeOnLoad')
     awakeOnLoad = true;

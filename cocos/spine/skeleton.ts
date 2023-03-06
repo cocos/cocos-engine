@@ -817,8 +817,6 @@ export class Skeleton extends UIRenderer {
 
         this._updateSkeletonData();
         this._updateDebugDraw();
-        this._indexBoneSockets();
-        this._updateSocketBindings();
 
         if (EDITOR && !legacyCC.GAME_VIEW) { this._refreshInspector(); }
     }
@@ -1727,6 +1725,7 @@ export class Skeleton extends UIRenderer {
             warn(e);
         }
         this._indexBoneSockets();
+        this._updateSocketBindings();
         this.attachUtil.init(this);
         this._preCacheMode = this._cacheMode;
         this.animation = this.defaultAnimation;
@@ -1835,6 +1834,14 @@ export class Skeleton extends UIRenderer {
         if (this._debugRenderer) {
             this._debugRenderer.markForUpdateRenderData(enable);
         }
+    }
+
+    /**
+     * @engineInternal since v3.7.2 this is an engine private function.
+     */
+    public syncAttachedNode () {
+        // sync attached node matrix
+        this.attachUtil._syncAttachedNode();
     }
 }
 

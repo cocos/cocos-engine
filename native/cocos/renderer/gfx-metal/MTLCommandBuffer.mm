@@ -702,7 +702,7 @@ void CCMTLCommandBuffer::updateBuffer(Buffer *buff, const void *data, uint32_t s
 
     auto* ccBuffer = static_cast<CCMTLBuffer *>(buff);
     CCMTLGPUBuffer stagingBuffer;
-    stagingBuffer.size = size;
+    stagingBuffer.instanceSize = size;
     _mtlDevice->gpuStagingBufferPool()->alloc(&stagingBuffer);
     memcpy(stagingBuffer.mappedData, data, size);
     id<MTLBlitCommandEncoder> encoder = [getMTLCommandBuffer() blitCommandEncoder];
@@ -769,29 +769,42 @@ void CCMTLCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
         auto bufferBytesPerImage = region.texExtent.depth * bufferBytesPerRow;
 
         auto macroPixelHeight = targetHeight / blockSize.second;
+        
+        auto copyFunc = [&](const uint8_t * const buffer, const MTLRegion& mtlRegion, uint32_t size, uint32_t slice, uint8_t depth) {
+            if(dstTexture.storageMode != MTLStorageModePrivate || mtlTexture->isPVRTC()) {
+                ccstd::vector<uint8_t> data(size);
+                memcpy(data.data(), buffer, size);
+
+                [dstTexture replaceRegion:mtlRegion
+                              mipmapLevel:region.texSubres.mipLevel
+                                    slice:slice
+                                withBytes:data.data()
+                              bytesPerRow:bytesPerRowForTarget
+                            bytesPerImage:bytesPerImageForTarget];
+            } else {
+                CCMTLGPUBuffer stagingBuffer;
+                stagingBuffer.instanceSize = bufferSliceSize;
+                _mtlDevice->gpuStagingBufferPool()->alloc(&stagingBuffer);
+                memcpy(stagingBuffer.mappedData, buffer, bufferSliceSize);
+                
+                [encoder copyFromBuffer:stagingBuffer.mtlBuffer sourceOffset:stagingBuffer.startOffset sourceBytesPerRow:bytesPerRowForTarget sourceBytesPerImage:bytesPerImageForTarget sourceSize:mtlRegion.size toTexture:dstTexture destinationSlice:slice destinationLevel:region.texSubres.mipLevel destinationOrigin:mtlRegion.origin];
+            }
+        };
 
         bool compactMemory = bufferPixelWidth == region.texExtent.width;
-        for(size_t l = region.texSubres.baseArrayLayer; l < region.texSubres.layerCount + region.texSubres.baseArrayLayer; ++l) {
-            for(size_t d = targetOffset.z; d < targetSize.depth + targetOffset.z; ++d) {
+        for(uint32_t l = region.texSubres.baseArrayLayer; l < region.texSubres.layerCount + region.texSubres.baseArrayLayer; ++l) {
+            for(uint32_t d = static_cast<uint32_t>(targetOffset.z); d < targetSize.depth + static_cast<uint32_t>(targetOffset.z); ++d) {
                 if(compactMemory) {
                     const auto *convertedData = mu::convertData(buffers[i] + region.buffOffset + (l - region.texSubres.baseArrayLayer) * bufferBytesPerImage
                                                                 + (d - targetOffset.z) * bufferSliceSize,
                                                                 bufferPixelWidth * blockSize.second, format);
 
-                    ccstd::vector<uint8_t> data(bufferSliceSize);
-                    memcpy(data.data(), convertedData, bufferSliceSize);
-
                     MTLRegion mtlRegion = {
                         {targetOffset.x, targetOffset.y, d},
-                        {targetSize.width, targetSize.height, 1}
+                        {targetWidth, targetHeight, 1}
                     };
-
-                    [dstTexture replaceRegion:mtlRegion
-                                  mipmapLevel:region.texSubres.mipLevel
-                                        slice:l
-                                    withBytes:data.data()
-                                  bytesPerRow:bytesPerRowForTarget
-                                bytesPerImage:bytesPerImageForTarget];
+                    
+                    copyFunc(convertedData, mtlRegion, bufferSliceSize, l, d);
 
                     if (format == Format::RGB8 || format == Format::RGB32F) {
                         CC_FREE(convertedData);
@@ -802,20 +815,12 @@ void CCMTLCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
                                                                     + (d - targetOffset.z) * bufferSliceSize + h / blockSize.second * bufferBytesPerRow,
                                                                     bufferPixelWidth * blockSize.second, format);
 
-                        ccstd::vector<uint8_t> data(bytesPerRowForTarget);
-                        memcpy(data.data(), convertedData, bytesPerRowForTarget );
-
                         MTLRegion mtlRegion = {
                             {targetOffset.x, targetOffset.y + h, d},
-                            {targetSize.width, blockSize.second, 1}
+                            {targetWidth, blockSize.second, 1}
                         };
-
-                        [dstTexture replaceRegion:mtlRegion
-                                      mipmapLevel:region.texSubres.mipLevel
-                                            slice:l
-                                        withBytes:data.data()
-                                      bytesPerRow:bytesPerRowForTarget
-                                    bytesPerImage:bytesPerImageForTarget];
+                        
+                        copyFunc(convertedData, mtlRegion, bytesPerRowForTarget, l, d);
 
                         if (format == Format::RGB8 || format == Format::RGB32F) {
                             CC_FREE(convertedData);
@@ -1062,7 +1067,7 @@ void CCMTLCommandBuffer::copyTextureToBuffers(Texture *src, uint8_t *const *buff
 
             id<MTLBlitCommandEncoder> encoder = [mtlCommandBuffer blitCommandEncoder];
             CCMTLGPUBuffer stagingBuffer;
-            stagingBuffer.size = bytesPerImage;
+            stagingBuffer.instanceSize = bytesPerImage;
             _mtlDevice->gpuStagingBufferPool()->alloc(&stagingBuffer);
             [encoder copyFromTexture:mtlTexture
                              sourceSlice:regions[i].texSubres.baseArrayLayer

@@ -81,7 +81,11 @@ android {
                     arguments "-DHIDE_SYMBOLS=ON"
                 }
             }
-            
+
+            if (PROP_IS_DEBUG == "false") {
+                getIsDefault().set(true)
+            }
+
             // resValue  "string", "app_name", PROP_APP_NAME
         }
 

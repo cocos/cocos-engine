@@ -247,7 +247,7 @@ export const simple: IAssembler = {
 };
 
 function updateComponentRenderData (comp: Skeleton, batcher: Batcher2D) {
-    if (!comp._skeleton) return;
+    if (!comp._skeleton || comp.renderData === null) return;
 
     const nodeColor = comp.color;
     _nodeR = nodeColor.r / 255;
@@ -290,9 +290,6 @@ function updateComponentRenderData (comp: Skeleton, batcher: Batcher2D) {
     // Ensure mesh buffer update
     const accessor = _useTint ? _tintAccessor : _accessor;
     accessor.getMeshBuffer(_renderData.chunk.bufferId).setDirty();
-
-    // sync attached node matrix
-    comp.attachUtil._syncAttachedNode();
 
     // Clear temp var.
     _comp = undefined;

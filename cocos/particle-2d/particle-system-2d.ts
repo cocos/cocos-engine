@@ -968,7 +968,11 @@ export class ParticleSystem2D extends UIRenderer {
                 const textureData = dict.textureImageData;
 
                 if (textureData && textureData.length > 0) {
-                    let imageAsset = assetManager.assets.get(imgPath) as ImageAsset;
+                    let imgPathName = imgPath;
+                    if (this.file) {
+                        imgPathName += `-${this.file.uuid}`;
+                    }
+                    let imageAsset = assetManager.assets.get(imgPathName) as ImageAsset;
 
                     if (!imageAsset) {
                         const buffer = codec.unzipBase64AsArray(textureData, 1);
@@ -994,7 +998,7 @@ export class ParticleSystem2D extends UIRenderer {
                             this._tiffReader.parseTIFF(buffer, canvasObj);
                         }
                         imageAsset = new ImageAsset(canvasObj);
-                        assetManager.assets.add(imgPath, imageAsset);
+                        assetManager.assets.add(imgPathName, imageAsset);
                     }
 
                     if (!imageAsset) {
