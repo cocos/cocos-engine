@@ -83,7 +83,7 @@ export const simple: IAssembler = {
             const x = curData.x;
             const y = curData.y;
             let rhw = m.m03 * x + m.m07 * y + m.m15;
-            rhw = rhw ? Math.abs(1 / rhw) : 1;
+            rhw = rhw ? 1 / rhw : 1;
 
             offset = i * stride;
             vData[offset + 0] = (m.m00 * x + m.m04 * y + m.m12) * rhw;
