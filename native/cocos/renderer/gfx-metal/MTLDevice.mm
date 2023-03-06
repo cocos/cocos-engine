@@ -46,6 +46,7 @@
 #import "profiler/Profiler.h"
 #import <thread>
 
+#include "engine/EngineEvents.h"
 namespace cc {
 namespace gfx {
 
@@ -69,6 +70,13 @@ CCMTLDevice::CCMTLDevice() {
 
 CCMTLDevice::~CCMTLDevice() {
     CCMTLDevice::_instance = nullptr;
+}
+
+void listenKey(const KeyboardEvent &keyboardEvent) {
+    if (keyboardEvent.key == 32 && keyboardEvent.action == KeyboardEvent::Action::RELEASE) {
+        auto* device = CCMTLDevice::getInstance();
+        device->_vrr = !device->_vrr;
+    }
 }
 
 bool CCMTLDevice::doInit(const DeviceInfo &info) {
@@ -156,6 +164,10 @@ bool CCMTLDevice::doInit(const DeviceInfo &info) {
     CCMTLGPUGarbageCollectionPool::getInstance()->initialize(std::bind(&CCMTLDevice::currentFrameIndex, this));
 
     CC_LOG_INFO("Metal Feature Set: %s", mu::featureSetToString(MTLFeatureSet(_mtlFeatureSet)).c_str());
+    
+    
+    static events::Keyboard::Listener listenerKeyboard;
+    listenerKeyboard.bind(&listenKey);
 
     return true;
 }

@@ -49,7 +49,7 @@ public:
 
     uint32_t getAvailableBufferBindingIndex(ShaderStageFlagBit stage, uint32_t stream);
 
-    id<MTLFunction> getSpecializedFragFunction(uint32_t *index, int *val, uint32_t count);
+    id<MTLFunction> getSpecializedFragFunction(uint32_t *index, int *val, uint32_t count, bool flag = false);
 
 #ifdef DEBUG_SHADER
     inline const ccstd::string &getVertGlslShader() const { return _vertGlslShader; }
@@ -59,7 +59,9 @@ public:
     inline const ccstd::string &getcompGlslShader() const { return _cmptGlslShader; }
     inline const ccstd::string &getcompMtlSahder() const { return _cmptMtlShader; }
 #endif
-
+    
+    id<MTLFunction> _backFragFunction = nil;
+    id<MTLLibrary> _backFragLibrary = nil;
 protected:
     void doInit(const ShaderInfo &info) override;
     void doDestroy() override;
@@ -74,6 +76,8 @@ protected:
     id<MTLLibrary> _vertLibrary = nil;
     id<MTLLibrary> _fragLibrary = nil;
     id<MTLLibrary> _cmptLibrary = nil;
+    
+    
 
     // function constant hash , specialized MTLFunction
     NSMutableDictionary<NSString *, id<MTLFunction>> *_specializedFragFuncs = nil;

@@ -221,8 +221,8 @@ fragment main0_out main0(main0_in in [[stage_in]], constant CCCamera& _500 [[buf
 {
     main0_out out = {};
 rasterization_rate_map_decoder map(data);
-float2 screensize = {1239, 697};
-float2 phySize = {747, 438};
+float2 screensize = {1600, 1200};
+float2 phySize = {956, 724};
 float2 physCoords = map.map_screen_to_physical_coordinates(in.v_uv * screensize) * (1 / phySize);
     
     float4 _1350 = gbuffer_albedoMap.sample(gbuffer_albedoMapSmplr, physCoords);
@@ -578,7 +578,14 @@ float2 physCoords = map.map_screen_to_physical_coordinates(in.v_uv * screensize)
 
 
 )";
-            shader = [NSString stringWithUTF8String:str.c_str()];
+            NSString* sd = [NSString stringWithUTF8String:str.c_str()];
+            _backFragLibrary = [mtlDevice newLibraryWithSource:sd options:opts error:&error];
+            if (!_backFragLibrary) {
+                CC_LOG_ERROR("Can not compile %s shader: %s", shaderStage.c_str(), [[error localizedDescription] UTF8String]);
+                CC_LOG_ERROR("%s", stage.source.c_str());
+                [opts release];
+                return false;
+            }
         }
         if (@available(iOS 11.0, *)) {
             library = [mtlDevice newLibraryWithSource:shader options:opts error:&error];
@@ -650,14 +657,17 @@ float2 physCoords = map.map_screen_to_physical_coordinates(in.v_uv * screensize)
     return true;
 }
 
-id<MTLFunction> CCMTLShader::getSpecializedFragFunction(uint32_t* index, int* val, uint32_t count) {
+id<MTLFunction> CCMTLShader::getSpecializedFragFunction(uint32_t* index, int* val, uint32_t count, bool flag) {
     uint32_t notEvenHash = 0;
     for (size_t i = 0; i < count; i++) {
         notEvenHash += val[i] * std::pow(10, index[i]);
     }
     NSString* hashStr = [NSString stringWithFormat:@"%d", notEvenHash];
+    if(flag) {
+        hashStr = [hashStr stringByAppendingString:@"back"];
+    }
     id<MTLFunction> specFunc = [_specializedFragFuncs objectForKey:hashStr];
-
+    
     if (!specFunc) {
         if (_gpuShader->specializeColor) {
             MTLFunctionConstantValues* constantValues = [MTLFunctionConstantValues new];
@@ -666,12 +676,17 @@ id<MTLFunction> CCMTLShader::getSpecializedFragFunction(uint32_t* index, int* va
             }
 
             NSError* error = nil;
-            id<MTLFunction> specFragFunc = [_fragLibrary newFunctionWithName:@"main0" constantValues:constantValues error:&error];
-            [constantValues release];
-            if (!specFragFunc) {
-                CC_LOG_ERROR("Can not specialize shader: %s", [[error localizedDescription] UTF8String]);
+            if(flag && _backFragLibrary) {
+                id<MTLFunction> backspecFragFunc = [_backFragLibrary newFunctionWithName:@"main0" constantValues:constantValues error:&error];
+                [_specializedFragFuncs setObject:backspecFragFunc forKey:hashStr];
+            } else {
+                id<MTLFunction> specFragFunc = [_fragLibrary newFunctionWithName:@"main0" constantValues:constantValues error:&error];
+                if (!specFragFunc) {
+                    CC_LOG_ERROR("Can not specialize shader: %s", [[error localizedDescription] UTF8String]);
+                }
+                [_specializedFragFuncs setObject:specFragFunc forKey:hashStr];
             }
-            [_specializedFragFuncs setObject:specFragFunc forKey:hashStr];
+            [constantValues release];
         } else {
             NSString* res = nil;
             for (size_t i = 0; i < count; i++) {
