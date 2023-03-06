@@ -103,6 +103,9 @@ export class ConstantManager {
             const info = config[key];
             jsonObj[key] = info.value as ValueType;
         }
+        if (typeof options.forceJitValue !== 'undefined') {
+            jsonObj['SUPPORT_JIT'] = options.forceJitValue;
+        }
         return jsonObj as BuildTimeConstants;
     }
 

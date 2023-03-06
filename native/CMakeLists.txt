@@ -2716,6 +2716,7 @@ if(USE_SE_NAPI)
                      cocos/bindings/jswrapper/napi/Class.h
                      cocos/bindings/jswrapper/napi/CommonHeader.h
                      cocos/bindings/jswrapper/napi/HelperMacros.h
+                     cocos/bindings/jswrapper/napi/HelperMacros.cpp
                      cocos/bindings/jswrapper/napi/Object.cpp
                      cocos/bindings/jswrapper/napi/Object.h
         NO_WERROR    cocos/bindings/jswrapper/napi/ScriptEngine.cpp

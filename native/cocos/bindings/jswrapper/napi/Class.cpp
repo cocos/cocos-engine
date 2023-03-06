@@ -210,10 +210,26 @@ napi_value Class::_getCtorFunc() const {
     return result;
 }
 
+void Class::_setCtor(Object *obj) {
+    assert(!_ctor.has_value());
+    _ctor = obj;
+    if (obj != nullptr) {
+        obj->root();
+        obj->incRef();
+    }
+}
+
 void Class::destroy() {
     SAFE_DEC_REF(_parent);
     SAFE_DEC_REF(_proto);
     SAFE_DEC_REF(_parentProto);
+    if (_ctor.has_value()) {
+        if (_ctor.value() != nullptr) {
+            _ctor.value()->unroot();
+            _ctor.value()->decRef();
+        }
+        _ctor.reset();
+    }
 }
 
 void Class::cleanup() {

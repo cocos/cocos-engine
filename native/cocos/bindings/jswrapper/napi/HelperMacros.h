@@ -40,6 +40,38 @@
     #define LOGW
     #define LOGE
 #endif
+namespace se {
+class Class;
+class Object;
+class State;
+} // namespace se
+using se_function_ptr = bool (*)(se::State &state);
+using se_finalize_ptr = void (*)(napi_env env, void *nativeObject, void *hint);
+
+napi_value jsbFunctionWrapper(napi_env, napi_callback_info,
+                              se_function_ptr,
+                              const char *);
+void jsbFinalizeWrapper(void *thisObject,
+                        se_function_ptr,
+                        const char *);
+napi_value jsbConstructorWrapper(napi_env, napi_callback_info,
+                                 se_function_ptr,
+                                 se_finalize_ptr finalizeCb,
+                                 se::Class *,
+                                 const char *);
+napi_value jsbGetterWrapper(napi_env, napi_callback_info,
+                            se_function_ptr,
+                            const char *);
+napi_value jsbSetterWrapper(napi_env, napi_callback_info,
+                            se_function_ptr,
+                            const char *);
+#ifdef __GNUC__
+    #define SE_UNUSED __attribute__((unused))
+    #define SE_HOT    __attribute__((hot))
+#else
+    #define SE_UNUSED
+    #define SE_HOT
+#endif
 
 template <typename T, typename STATE>
 constexpr inline T *SE_THIS_OBJECT(STATE &s) { // NOLINT(readability-identifier-naming)
@@ -53,6 +85,7 @@ constexpr inline T *SE_THIS_OBJECT(STATE &s) { // NOLINT(readability-identifier-
         (obj)->decRef();    \
         (obj) = nullptr;    \
     }
+#define _SE(name) name##Registry // NOLINT(readability-identifier-naming, bugprone-reserved-identifier)
 
 #define SE_QUOTEME_(x)            #x // NOLINT(readability-identifier-naming)
 #define SE_QUOTEME(x)             SE_QUOTEME_(x)
@@ -60,21 +93,7 @@ constexpr inline T *SE_THIS_OBJECT(STATE &s) { // NOLINT(readability-identifier-
 
 #define SE_BIND_PROP_GET_IMPL(funcName, postFix)                                                      \
     napi_value funcName##postFix##Registry(napi_env env, napi_callback_info info) {                            \
-        napi_value _this;                                                                             \
-        napi_status status;                                                                           \
-        NODE_API_CALL(status, env,                                                                    \
-                      napi_get_cb_info(env, info, nullptr, nullptr, &_this, nullptr));                \
-        se::Object *obj;                                                                              \
-        napi_unwrap(env, _this, reinterpret_cast<void **>(&obj));                                     \
-        se::State state(obj);                                                                         \
-        bool ret = funcName(state);                                                                   \
-        if (!ret) {                                                                                   \
-            SE_LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
-            return nullptr;                                                                           \
-        }                                                                                             \
-        napi_value retVal;                                                                            \
-        se::internal::setReturnValue(state.rval(), retVal);                                           \
-        return retVal;                                                                                \
+        return jsbGetterWrapper(env, info, funcName, #funcName);                                                                                \
     }
 
 #define SE_BIND_PROP_GET(funcName)         SE_BIND_PROP_GET_IMPL(funcName, )
@@ -82,24 +101,7 @@ constexpr inline T *SE_THIS_OBJECT(STATE &s) { // NOLINT(readability-identifier-
 
 #define SE_BIND_PROP_SET_IMPL(funcName, postFix)                                                                    \
     napi_value funcName##postFix##Registry(napi_env env, napi_callback_info info) {                            \
-        napi_status status;                                                                           \
-        size_t      argc = 1;                                                                         \
-        napi_value  args[1];                                                                          \
-        napi_value  _this;                                                                            \
-        se::Value   data;                                                                             \
-        NODE_API_CALL(status, env, napi_get_cb_info(env, info, &argc, args, &_this, nullptr));        \
-        se::internal::jsToSeValue(args[0], &data);                                                    \
-        se::ValueArray args2;                                                                         \
-        args2.reserve(10);                                                                            \
-        args2.push_back(std::move(data));                                                             \
-        se::Object *nativeThisObject;                                                                       \
-        napi_unwrap(env, _this, reinterpret_cast<void **>(&nativeThisObject));                        \
-        se::State state(nativeThisObject, args2);                                                     \
-        bool      ret = funcName(state);                                                              \
-        if (!ret) {                                                                                   \
-            SE_LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
-        }                                                                                             \
-        return nullptr;                                                                               \
+        return jsbSetterWrapper(env, info, funcName, #funcName);                                                                               \
     }
 
 #define SE_BIND_PROP_SET(funcName)         SE_BIND_PROP_SET_IMPL(funcName, )
@@ -111,27 +113,7 @@ constexpr inline T *SE_THIS_OBJECT(STATE &s) { // NOLINT(readability-identifier-
 #define SE_BIND_FUNC(funcName)                                                                          \
     napi_value funcName##Registry(                                                                      \
         napi_env env, napi_callback_info info) {                                                        \
-        napi_status    status;                                                                          \
-        bool           ret = false;                                                                     \
-        napi_value     _this;                                                                           \
-        se::ValueArray seArgs;                                                                          \
-        seArgs.reserve(15);                                                                             \
-        size_t     argc = 15;                                                                           \
-        napi_value args[15];                                                                            \
-        NODE_API_CALL(status, env, napi_get_cb_info(env, info, &argc, args, &_this, NULL));             \
-        se::Object *nativeThisObject = nullptr;                                                         \
-        status                 = napi_unwrap(env, _this, reinterpret_cast<void **>(&nativeThisObject)); \
-        se::internal::jsToSeArgs(argc, args, &seArgs);                                                  \
-        se::State state(nativeThisObject, seArgs);                                                      \
-        ret = funcName(state);                                                                          \
-        if (!ret) {                                                                                     \
-            SE_LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__);   \
-            return nullptr;                                                                             \
-        }                                                                                               \
-        napi_value retVal;                                                                              \
-        if (se::internal::setReturnValue(state.rval(), retVal))                                         \
-            return retVal;                                                                              \
-        return nullptr;                                                                                 \
+        return jsbFunctionWrapper(env, info, funcName, #funcName);                                      \
     }
 
 #define SE_BIND_FUNC_FAST(funcName)                                                                      \
@@ -151,30 +133,7 @@ constexpr inline T *SE_THIS_OBJECT(STATE &s) { // NOLINT(readability-identifier-
 #define SE_BIND_CTOR(funcName, cls, finalizeCb)                                                       \
     napi_value funcName##Registry(                                                                    \
         napi_env env, napi_callback_info info) {                                                      \
-        napi_status    status;                                                                        \
-        bool           ret = false;                                                                   \
-        napi_value     _this;                                                                         \
-        se::ValueArray seArgs;                                                                        \
-        seArgs.reserve(10);                                                                           \
-        size_t     argc = 10;                                                                         \
-        napi_value args[10];                                                                          \
-        NODE_API_CALL(status, env, napi_get_cb_info(env, info, &argc, args, &_this, NULL));           \
-        if (!se::ScriptEngine::getInstance()->_needCallConstructor()) {                               \
-            return _this;                                                                             \
-        }                                                                                             \
-        se::internal::jsToSeArgs(argc, args, &seArgs);                                                \
-        se::Object *thisObject = se::Object::_createJSObject(env, _this, cls);                        \
-        thisObject->_setFinalizeCallback(_SE(finalizeCb));                                            \
-        se::State state(thisObject, seArgs);                                                          \
-        ret = funcName(state);                                                                        \
-        if (!ret) {                                                                                   \
-            SE_LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
-        }                                                                                             \
-        se::Value _property;                                                                          \
-        bool      _found = false;                                                                     \
-        _found           = thisObject->getProperty("_ctor", &_property);                              \
-        if (_found) _property.toObject()->call(seArgs, thisObject);                                   \
-        return _this;                                                                                 \
+        return jsbConstructorWrapper(env, info, funcName, _SE(finalizeCb), cls, #funcName);           \
     }
 
 #define SE_BIND_SUB_CLS_CTOR SE_BIND_CTOR
@@ -189,11 +148,6 @@ constexpr inline T *SE_THIS_OBJECT(STATE &s) { // NOLINT(readability-identifier-
         if (nativeObject == nullptr) {                                                                \
             return;                                                                                   \
         }                                                                                             \
-        se::State state(reinterpret_cast<se::Object *>(nativeObject));                                                                \
-        bool      ret = funcName(state);                                                              \
-        if (!ret) {                                                                                   \
-            SE_LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
-        }                                                                                             \
+        jsbFinalizeWrapper(nativeObject, funcName, #funcName);                                        \
     }
 
-#define _SE(name) name##Registry // NOLINT(readability-identifier-naming, bugprone-reserved-identifier)

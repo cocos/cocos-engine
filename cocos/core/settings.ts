@@ -25,6 +25,7 @@ import { HTML5, TAOBAO } from 'internal:constants';
 import { legacyCC } from './global-exports';
 
 declare const fsUtils: any;
+declare const require: (path: string) =>  Promise<void>;
 
 /**
  * @zh

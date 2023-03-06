@@ -84,7 +84,7 @@ void getAudioInfo() {
     method                = env->GetStaticMethodID(audioSystem, "getPrimaryOutputFrameCount", "()I");
     bufferSizeInFrames    = env->CallStaticIntMethod(audioSystem, method);
 #else
-    // In openharmony, setting to 96K does not cause audio delays
+    // In openharmony, setting to 48K does not cause audio delays
     outputSampleRate      = 48000;
 #endif
 }

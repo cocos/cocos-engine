@@ -28,6 +28,7 @@
 #include "CommonHeader.h"
 #include "Object.h"
 #include "../Define.h"
+#include "base/std/optional.h"
 
 namespace se {
 class Class {
@@ -57,7 +58,9 @@ public:
     const char *  getName() const { return _name.c_str(); }
     static void   setExports(napi_value *expPtr) { _exports = expPtr; }
     static void cleanup();
-
+    // Private API used in wrapper
+    void _setCtor(Object *obj);                                                // NOLINT(readability-identifier-naming)
+    inline const ccstd::optional<Object *> &_getCtor() const { return _ctor; } // NOLINT(readability-identifier-naming)
 private:
     Class();
     ~Class();
@@ -66,6 +69,7 @@ private:
     static napi_value _defaultCtor(napi_env env, napi_callback_info info);
 
 private:
+    ccstd::optional<Object *>             _ctor;
     static napi_value *                   _exports;
     std::string                           _name;
     Object *                              _parent = nullptr;

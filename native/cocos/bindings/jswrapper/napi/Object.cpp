@@ -499,8 +499,19 @@ PrivateObjectBase* Object::getPrivateObject() const {
 
 void Object::setPrivateObject(PrivateObjectBase* data) {
     assert(_privateData == nullptr);
-    assert(NativePtrToObjectMap::find(data->getRaw()) == NativePtrToObjectMap::end());
-
+    #if CC_DEBUG
+    if (data != nullptr) {
+        NativePtrToObjectMap::filter(data->getRaw(), _getClass())
+            .forEach([&](se::Object *seObj) {
+                auto *pri = seObj->getPrivateObject();
+                SE_LOGE("Already exists object %s/[%s], trying to add %s/[%s]\n", pri->getName(), typeid(*pri).name(), data->getName(), typeid(*data).name());
+        #if JSB_TRACK_OBJECT_CREATION
+                SE_LOGE(" previous object created at %s\n", it->second->_objectCreationStackFrame.c_str());
+        #endif
+                CC_ABORT();
+            });
+    }
+    #endif
     napi_status status;
     if (data) {
         _privateData = data->getRaw();

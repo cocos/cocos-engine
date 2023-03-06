@@ -59,6 +59,12 @@ PcmAudioService::~PcmAudioService() {
 }
 
 bool PcmAudioService::enqueue() {
+    #if CC_PLATFORM == CC_PLATFORM_OPENHARMONY
+        // We need to call this interface in openharmony, otherwise there will be noise
+        SLuint8 *buffer = nullptr;
+        SLuint32 size = 0;
+        (*_bufferQueueItf)->GetBuffer(_bufferQueueItf, &buffer, &size);
+    #endif
     if (_controller->hasPlayingTacks()) {
         if (_controller->isPaused()) {
             SLresult r = (*_bufferQueueItf)->Enqueue(_bufferQueueItf, __silenceData.data(), __silenceData.size());
@@ -156,7 +162,12 @@ bool PcmAudioService::init(AudioMixerController *controller, int numChannels, in
     if (__silenceData.empty()) {
         __silenceData.resize(_numChannels * _bufferSizeInBytes, 0x00);
     }
-
+    #if CC_PLATFORM == CC_PLATFORM_OPENHARMONY
+        // We need to call this interface in openharmony, otherwise there will be noise
+        SLuint8 *buffer = nullptr;
+        SLuint32 size = 0;
+        (*_bufferQueueItf)->GetBuffer(_bufferQueueItf, &buffer, &size);
+    #endif
     r = (*_bufferQueueItf)->Enqueue(_bufferQueueItf, __silenceData.data(), __silenceData.size());
     SL_RETURN_VAL_IF_FAILED(r, false, "_bufferQueueItf Enqueue failed");
 
