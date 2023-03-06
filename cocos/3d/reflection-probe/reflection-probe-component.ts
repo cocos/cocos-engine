@@ -33,7 +33,7 @@ import { Component } from '../../scene-graph/component';
 import { Layers } from '../../scene-graph/layers';
 import { Camera } from '../../misc/camera-component';
 import { Node, TransformBit } from '../../scene-graph';
-import { ProbeClearFlag, ProbeType } from '../../render-scene/scene/reflection-probe';
+import { ProbeClearFlag, ProbeType, RefreshMode, RenderMode } from '../../render-scene/scene/reflection-probe';
 import { absolute } from '../../physics/utils/util';
 
 export enum ProbeResolution {
@@ -95,12 +95,47 @@ export class ReflectionProbe extends Component {
     @serializable
     private _fastBake = false;
 
+    @serializable
+    private _renderMode = RenderMode.BAKE;
+
+    @serializable
+    private _refreshMode= RefreshMode.EVERY_FRAME;
+
     protected _probe: scene.ReflectionProbe | null = null;
 
     protected _previewSphere: Node | null = null;
     protected _previewPlane: Node | null = null;
 
     protected _sourceCameraPos = new Vec3(0, 0, 0);
+
+    /**
+     * @en
+     * Gets or sets the type of the probe
+     * @zh
+     * 设置反射探针的渲染类型。
+     */
+    @type(Enum(RenderMode))
+    set renderMode (val) {
+        this._renderMode = val;
+    }
+    get renderMode () {
+        return this._renderMode;
+    }
+
+    /**
+     * @en
+     * Gets or sets the frequency of the realtime probe
+     * @zh
+     * 设置实时反射探针的刷新频率。
+     */
+    @visible(function (this: ReflectionProbe) { return this._renderMode === RenderMode.REALTIME; })
+    @type(Enum(RefreshMode))
+    set refreshMode (val) {
+        this._refreshMode = val;
+    }
+    get refreshMode () {
+        return this._refreshMode;
+    }
 
     /**
      * @en

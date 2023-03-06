@@ -39,6 +39,16 @@ export enum ProbeType {
     CUBE = 0,
     PLANAR = 1,
 }
+
+export enum RenderMode {
+    BAKE = 0,
+    REALTIME = 1,
+}
+export enum RefreshMode {
+    EVERY_FRAME  = 0,
+    INTERVAL_FRAME = 1,
+}
+
 // right left up down front back
 const cameraDir: Vec3[] = [
     new Vec3(0, -90, 0),
@@ -120,6 +130,10 @@ export class ReflectionProbe {
     protected _previewSphere: Node | null = null;
 
     protected _previewPlane: Node | null = null;
+
+    private _renderMode = RenderMode.BAKE;
+
+    private _refreshMode= RefreshMode.EVERY_FRAME;
 
     /**
      * @en Set probe type,cube or planar.
@@ -271,6 +285,32 @@ export class ReflectionProbe {
 
     get previewPlane () {
         return this._previewPlane!;
+    }
+
+    /**
+     * @en
+     * Gets or sets the type of the probe
+     * @zh
+     * 设置反射探针的渲染类型。
+     */
+    set renderMode (val) {
+        this._renderMode = val;
+    }
+    get renderMode () {
+        return this._renderMode;
+    }
+
+    /**
+     * @en
+     * Gets or sets the frequency of the realtime probe
+     * @zh
+     * 设置实时反射探针的刷新频率。
+     */
+    set refreshMode (val) {
+        this._refreshMode = val;
+    }
+    get refreshMode () {
+        return this._refreshMode;
     }
 
     constructor (id: number) {

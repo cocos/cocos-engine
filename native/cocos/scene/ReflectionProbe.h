@@ -48,6 +48,14 @@ public:
         BAKED_CUBEMAP = 1,
         PLANAR_REFLECTION = 2,
     };
+    enum class RenderMode {
+        BAKE = 0,
+        REALTIME = 1,
+    };
+    enum class RefreshMode {
+        EVERY_FRAME = 0,
+        INTERVAL_FRAME = 1,
+    };
     /**
      * @en Set probe type,cube or planar.
      * @zh 设置探针类型，cube或者planar
@@ -143,6 +151,50 @@ public:
     Vec2 getRenderArea() const;
     void packBackgroundColor();
 
+    inline void setProbeType(ProbeType type) {
+        _probeType = type;
+    }
+
+    void setRenderMode(RenderMode mode)
+    {
+        _renderMode = mode;
+    }
+    RenderMode getRenderMode() const
+    {
+        return _renderMode;
+    }
+
+    /**
+     * @en
+     * Gets or sets the type of the probe
+     * @zh
+     * 设置反射探针的渲染类型。
+     */
+    void setRenderMode(RenderMode mode)
+    {
+        _renderMode = mode;
+    }
+    RenderMode getRenderMode() const
+    {
+        return _renderMode;
+    }
+
+    /**
+     * @en
+     * Gets or sets the frequency of the realtime probe
+     * @zh
+     * 设置实时反射探针的刷新频率。
+     */
+
+    void setRefreshMode(RefreshMode mode)
+    {
+        _refreshMode = mode;
+    }
+    RefreshMode getRefreshMode() const
+    {
+        return _refreshMode;
+    }
+
 private:
     ccstd::vector<IntrusivePtr<cc::RenderTexture>> _bakedCubeTextures;
     IntrusivePtr<cc::RenderTexture> _realtimePlanarTexture{nullptr};
@@ -208,6 +260,10 @@ private:
      * @zh 世界空间相机朝上的方向向量
      */
     Vec3 _up;
+
+    RenderMode _renderMode = RenderMode::BAKE;
+
+    RefreshMode _refreshMode = RefreshMode::EVERY_FRAME;
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(ReflectionProbe);
 };
