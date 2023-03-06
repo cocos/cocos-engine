@@ -135,9 +135,13 @@ public:
     inline bool validate() const { return _cubemap != nullptr; }
 
     void initBakedTextures();
+    void initRealTimeFrameBuffers();
+
     void captureCubemap();
 
     inline const ccstd::vector<IntrusivePtr<cc::RenderTexture>>& getBakedCubeTextures() const { return _bakedCubeTextures; }
+    gfx::Framebuffer* getFrameBuffer(uint32_t face) const;
+
     void resetCameraParams();
     void updateCameraDir(int32_t faceIdx);
     Vec2 getRenderArea() const;
@@ -153,6 +157,11 @@ private:
     int32_t _visibility = 0;
     ProbeType _probeType = ProbeType::CUBE;
     IntrusivePtr<TextureCube> _cubemap{nullptr};
+    std::vector<IntrusivePtr<gfx::Texture>> _views;
+    std::vector<IntrusivePtr<gfx::Framebuffer>> _frameBuffers;
+    IntrusivePtr<gfx::RenderPass> _renderPass;
+    IntrusivePtr<gfx::Texture> _depthStencil;
+
     Vec3 _size;
     /**
      * @en Objects inside bouding box.

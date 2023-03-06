@@ -87,6 +87,8 @@ void ReflectionProbeStage::render(scene::Camera *camera) {
 
     cmdBuffer->endRenderPass();
 
+    // TODO barrier -- vulkan
+
     _pipeline->getPipelineUBO()->updateCameraUBO(camera);
 }
 
