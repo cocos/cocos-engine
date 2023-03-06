@@ -1483,7 +1483,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      *
      * | 31 - 29 reserved | 28 - 3 version number | 2  - 0 : Scale Rotation Translation|
      */
-    protected _hasChangedFlagsWithVersion = 0;
+    protected _changedVersionAndRTS = 0;
 
     constructor (name?: string) {
         super(name);
@@ -1714,11 +1714,11 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @zh 这个节点的空间变换信息在当前帧内是否有变过？
      */
     get hasChangedFlags () {
-        return (this._hasChangedFlagsWithVersion >>> 3) === globalFlagChangeVersion ? (this._hasChangedFlagsWithVersion & 7) : 0;
+        return (this._changedVersionAndRTS >>> 3) === globalFlagChangeVersion ? (this._changedVersionAndRTS & 7) : 0;
     }
 
     set hasChangedFlags (val: number) {
-        this._hasChangedFlagsWithVersion = (globalFlagChangeVersion << 3) | val;
+        this._changedVersionAndRTS = (globalFlagChangeVersion << 3) | val;
     }
 
     /**

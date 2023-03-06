@@ -467,10 +467,10 @@ public:
      * @zh 这个节点的空间变换信息在当前帧内是否有变过？
      */
     inline uint32_t getChangedFlags() const {
-        return (_hasChangedFlagWithVersion >> 3) == globalFlagChangeVersion ? (_hasChangedFlagWithVersion & 0x7) : 0;
+        return (_changedVersionAndRTS >> 3) == globalFlagChangeVersion ? (_changedVersionAndRTS & 0x7) : 0;
     }
     inline void setChangedFlags(uint32_t value) {
-        _hasChangedFlagWithVersion = (globalFlagChangeVersion << 3) | value;
+        _changedVersionAndRTS = (globalFlagChangeVersion << 3) | value;
     }
 
     inline void setDirtyFlag(uint32_t value) { _dirtyFlag = value; }
@@ -665,7 +665,7 @@ private:
      *
      * | 31 - 29 reserved | 28 - 3 version number | 2  - 0 : Scale Rotation Translation|
     */
-    uint32_t _hasChangedFlagWithVersion{0};
+    uint32_t _changedVersionAndRTS{0};
 
     bool _eulerDirty{false};
 
