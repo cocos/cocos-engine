@@ -33,6 +33,7 @@ struct RenderTargetAttachment final {
     using StoreOp = gfx::StoreOp;
     using LoadOp = gfx::LoadOp;
     using Color = gfx::Color;
+    using SampleCount = gfx::SampleCount;
 
     enum class Usage : uint8_t {
         COLOR,
@@ -49,9 +50,10 @@ struct RenderTargetAttachment final {
         Color clearColor;
         float clearDepth{1.F};
         uint8_t clearStencil{0U};
-
         gfx::AccessFlags beginAccesses{gfx::AccessFlagBit::NONE};
         gfx::AccessFlags endAccesses{gfx::AccessFlagBit::NONE};
+        gfx::SampleCount samples{gfx::SampleCount::ONE};
+        TextureHandle resolveSource{};
     };
 
     struct Sorter {

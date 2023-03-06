@@ -27,10 +27,12 @@ import { PIPELINE_FLOW_SHADOW, supportsR32FloatTexture, UBOCamera, UBOCSM, UBOGl
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { ForwardFlowPriority } from '../enum';
 import { ShadowStage } from './shadow-stage';
-import { RenderPass, LoadOp, StoreOp,
+import {
+    RenderPass, LoadOp, StoreOp,
     Format, Texture, TextureType, TextureUsageBit, ColorAttachment,
     DepthStencilAttachment, RenderPassInfo, TextureInfo, FramebufferInfo, Swapchain,
-    Framebuffer, DescriptorSet, API } from '../../gfx';
+    Framebuffer, DescriptorSet, API, SampleCount,
+} from '../../gfx';
 import { RenderFlowTag } from '../pipeline-serialization';
 import { ForwardPipeline } from '../forward/forward-pipeline';
 import { RenderPipeline } from '..';
@@ -58,7 +60,7 @@ export class ShadowFlow extends RenderFlow {
         stages: [],
     };
 
-    private _shadowRenderPass: RenderPass|null = null;
+    private _shadowRenderPass: RenderPass | null = null;
 
     public initialize (info: IRenderFlowInfo): boolean {
         super.initialize(info);
@@ -113,7 +115,7 @@ export class ShadowFlow extends RenderFlow {
 
         let n = 0;
         let m = 0;
-        for (;n < shadowInfo.maxReceived && m < validPunctualLights.length;) {
+        for (; n < shadowInfo.maxReceived && m < validPunctualLights.length;) {
             const light = validPunctualLights[m];
             if (light.type === LightType.SPOT) {
                 const spotLight = light as SpotLight;
@@ -196,7 +198,7 @@ export class ShadowFlow extends RenderFlow {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _initShadowFrameBuffer  (pipeline: RenderPipeline, light: Light, swapchain: Swapchain) {
+    public _initShadowFrameBuffer (pipeline: RenderPipeline, light: Light, swapchain: Swapchain) {
         const { device } = pipeline;
         const shadows = pipeline.pipelineSceneData.shadows;
         const shadowMapSize = shadows.size;
@@ -208,7 +210,7 @@ export class ShadowFlow extends RenderFlow {
             colorAttachment.format = format;
             colorAttachment.loadOp = LoadOp.CLEAR; // should clear color attachment
             colorAttachment.storeOp = StoreOp.STORE;
-            colorAttachment.sampleCount = 1;
+            colorAttachment.sampleCount = SampleCount.ONE;
 
             const depthStencilAttachment = new DepthStencilAttachment();
             depthStencilAttachment.format = Format.DEPTH_STENCIL;
@@ -216,7 +218,7 @@ export class ShadowFlow extends RenderFlow {
             depthStencilAttachment.depthStoreOp = StoreOp.DISCARD;
             depthStencilAttachment.stencilLoadOp = LoadOp.CLEAR;
             depthStencilAttachment.stencilStoreOp = StoreOp.DISCARD;
-            depthStencilAttachment.sampleCount = 1;
+            depthStencilAttachment.sampleCount = SampleCount.ONE;
 
             const renderPassInfo = new RenderPassInfo([colorAttachment], depthStencilAttachment);
             this._shadowRenderPass = device.createRenderPass(renderPassInfo);

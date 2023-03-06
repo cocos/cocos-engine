@@ -132,6 +132,9 @@ using namespace cc;
 #define cc_scene_RenderWindow_height_get(self_) self_->getHeight()
   
 
+#define cc_scene_RenderWindow_sampleCount_get(self_) self_->getSampleCount()
+  
+
 #define cc_scene_RenderWindow_framebuffer_get(self_) self_->getFramebuffer()
   
 
@@ -20754,6 +20757,43 @@ static bool js_cc_scene_IRenderWindowInfo_swapchain_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_scene_IRenderWindowInfo_swapchain_get) 
 
+static bool js_cc_scene_IRenderWindowInfo_sampleCount_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::IRenderWindowInfo *arg1 = (cc::scene::IRenderWindowInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::IRenderWindowInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->sampleCount, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_scene_IRenderWindowInfo_sampleCount_set) 
+
+static bool js_cc_scene_IRenderWindowInfo_sampleCount_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::scene::IRenderWindowInfo *arg1 = (cc::scene::IRenderWindowInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::IRenderWindowInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->sampleCount, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->sampleCount, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_scene_IRenderWindowInfo_sampleCount_get) 
+
 static bool js_new_cc_scene_IRenderWindowInfo(se::State& s) // NOLINT(readability-identifier-naming)
 {
     CC_UNUSED bool ok = true;
@@ -20819,6 +20859,12 @@ bool sevalue_to_native(const se::Value &from, cc::scene::IRenderWindowInfo * to,
     }
     
     
+    json->getProperty("sampleCount", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->sampleCount), ctx);
+    }
+    
+    
     return ok;
 }
 
@@ -20832,6 +20878,7 @@ bool js_register_cc_scene_IRenderWindowInfo(se::Object* obj) {
     cls->defineProperty("height", _SE(js_cc_scene_IRenderWindowInfo_height_get), _SE(js_cc_scene_IRenderWindowInfo_height_set)); 
     cls->defineProperty("renderPassInfo", _SE(js_cc_scene_IRenderWindowInfo_renderPassInfo_get), _SE(js_cc_scene_IRenderWindowInfo_renderPassInfo_set)); 
     cls->defineProperty("swapchain", _SE(js_cc_scene_IRenderWindowInfo_swapchain_get), _SE(js_cc_scene_IRenderWindowInfo_swapchain_set)); 
+    cls->defineProperty("sampleCount", _SE(js_cc_scene_IRenderWindowInfo_sampleCount_get), _SE(js_cc_scene_IRenderWindowInfo_sampleCount_set)); 
     
     
     
@@ -21075,6 +21122,31 @@ static bool js_cc_scene_RenderWindow_sortCameras(se::State& s)
 }
 SE_BIND_FUNC(js_cc_scene_RenderWindow_sortCameras) 
 
+static bool js_cc_scene_RenderWindow_getOutputTexture(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::RenderWindow *arg1 = (cc::scene::RenderWindow *) NULL ;
+    cc::gfx::Texture *result = 0 ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::RenderWindow>(s);
+    if (nullptr == arg1) return true;
+    result = (cc::gfx::Texture *)((cc::scene::RenderWindow const *)arg1)->getOutputTexture();
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_RenderWindow_getOutputTexture) 
+
 static bool js_cc_scene_RenderWindow_width_get(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -21108,6 +21180,26 @@ static bool js_cc_scene_RenderWindow_height_get(se::State& s)
     return true;
 }
 SE_BIND_PROP_GET(js_cc_scene_RenderWindow_height_get) 
+
+static bool js_cc_scene_RenderWindow_sampleCount_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::scene::RenderWindow *arg1 = (cc::scene::RenderWindow *) NULL ;
+    cc::gfx::SampleCount result;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::RenderWindow>(s);
+    if (nullptr == arg1) return true;
+    result = cc_scene_RenderWindow_sampleCount_get(arg1);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_scene_RenderWindow_sampleCount_get) 
 
 static bool js_cc_scene_RenderWindow_framebuffer_get(se::State& s)
 {
@@ -21172,6 +21264,7 @@ bool js_register_cc_scene_RenderWindow(se::Object* obj) {
     cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("width", _SE(js_cc_scene_RenderWindow_width_get), nullptr); 
     cls->defineProperty("height", _SE(js_cc_scene_RenderWindow_height_get), nullptr); 
+    cls->defineProperty("sampleCount", _SE(js_cc_scene_RenderWindow_sampleCount_get), nullptr); 
     cls->defineProperty("framebuffer", _SE(js_cc_scene_RenderWindow_framebuffer_get), nullptr); 
     cls->defineProperty("cameras", _SE(js_cc_scene_RenderWindow_cameras_get), nullptr); 
     cls->defineProperty("swapchain", _SE(js_cc_scene_RenderWindow_swapchain_get), nullptr); 
@@ -21184,6 +21277,7 @@ bool js_register_cc_scene_RenderWindow(se::Object* obj) {
     cls->defineFunction("detachCamera", _SE(js_cc_scene_RenderWindow_detachCamera)); 
     cls->defineFunction("clearCameras", _SE(js_cc_scene_RenderWindow_clearCameras)); 
     cls->defineFunction("sortCameras", _SE(js_cc_scene_RenderWindow_sortCameras)); 
+    cls->defineFunction("getOutputTexture", _SE(js_cc_scene_RenderWindow_getOutputTexture)); 
     
     
     

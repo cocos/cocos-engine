@@ -171,25 +171,31 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
     // if not rendering to full framebuffer(eg. left top area), draw a quad to pretend viewport clear.
     bool renderingFullFramebuffer = isRenderingEntireDrawable(renderArea, static_cast<CCMTLFramebuffer *>(fbo));
     bool needPartialClear = false;
+    Vec2 attachmentSize{0, 0};
+    ccstd::vector<Texture*> texturesInUse;
     if (subpasses.empty()) {
         if (dsTexture) {
             auto *ccMtlTexture = static_cast<CCMTLTexture *>(dsTexture);
             ccMtlRenderPass->setDepthStencilAttachment(ccMtlTexture, 0);
+            texturesInUse.emplace_back(ccMtlTexture);
         } else {
             const DepthStencilAttachment &dsa = renderPass->getDepthStencilAttachment();
             if (dsa.format != Format::UNKNOWN) {
                 ccMtlRenderPass->setDepthStencilAttachment(swapchain->depthStencilTexture(), 0);
+                texturesInUse.emplace_back(swapchain->depthStencilTexture());
             }
         }
 
         if (colorAttachments.empty()) {
             if(swapchain) {
                 ccMtlRenderPass->setColorAttachment(0, swapchain->colorTexture(), 0);
+                texturesInUse.emplace_back(swapchain->colorTexture());
             }
         } else {
             for (size_t i = 0; i < colorAttachments.size(); ++i) {
                 auto *ccMtlTexture = static_cast<CCMTLTexture *>(colorTextures[i]);
                 ccMtlRenderPass->setColorAttachment(i, ccMtlTexture, 0);
+                texturesInUse.emplace_back(ccMtlTexture);
                 mtlRenderPassDescriptor.colorAttachments[i].clearColor = mu::toMTLClearColor(colors[i]);
                 if (!renderingFullFramebuffer) {
                     if (!_colorAppearedBefore[i]) {
@@ -233,6 +239,7 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
                     continue;
                 auto *ccMtlTexture = static_cast<CCMTLTexture *>(colorTextures[color]);
                 ccMtlRenderPass->setColorAttachment(color, ccMtlTexture, 0);
+                texturesInUse.emplace_back(ccMtlTexture);
                 mtlRenderPassDescriptor.colorAttachments[color].clearColor = mu::toMTLClearColor(colors[color]);
                 if (!renderingFullFramebuffer) {
                     if (!_colorAppearedBefore[color]) {
@@ -250,13 +257,13 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
                 if (subpasses[i].resolves.size() > j) {
                     uint32_t resolve = subpasses[i].resolves[j];
                     auto *resolveTex = static_cast<CCMTLTexture *>(colorTextures[resolve]);
-                    if (resolveTex->textureInfo().samples == SampleCount::ONE)
+                    if (resolveTex->textureInfo().samples != SampleCount::ONE)
                         continue;
                     mtlRenderPassDescriptor.colorAttachments[color].resolveTexture = resolveTex->getMTLTexture();
                     mtlRenderPassDescriptor.colorAttachments[color].resolveLevel = 0;
                     mtlRenderPassDescriptor.colorAttachments[color].resolveSlice = 0;
                     mtlRenderPassDescriptor.colorAttachments[color].resolveDepthPlane = 0;
-                    mtlRenderPassDescriptor.colorAttachments[color].storeAction = MTLStoreActionMultisampleResolve;
+                    mtlRenderPassDescriptor.colorAttachments[color].storeAction = colorAttachments[color].storeOp == StoreOp::STORE ? MTLStoreActionStoreAndMultisampleResolve : MTLStoreActionMultisampleResolve;
                 }
             }
 
@@ -296,9 +303,13 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
 
     Rect scissorArea = renderArea;
 #if defined(CC_DEBUG) && (CC_DEBUG > 0)
-    const Vec2 renderTargetSize = ccMtlRenderPass->getRenderTargetSizes()[0];
-    scissorArea.width = MIN(scissorArea.width, renderTargetSize.x - scissorArea.x);
-    scissorArea.height = MIN(scissorArea.height, renderTargetSize.y - scissorArea.y);
+    const Vec2 renderTargetSize{0, 0};
+    for(const auto* rt : texturesInUse) {
+        if(rt) {
+            scissorArea.width = MIN(scissorArea.width, rt->getWidth() - scissorArea.x);
+            scissorArea.height = MIN(scissorArea.height, rt->getHeight() - scissorArea.y);
+        }
+    }
 #endif
     _renderEncoder.setViewport(scissorArea);
     _renderEncoder.setScissor(scissorArea);

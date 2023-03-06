@@ -23,6 +23,7 @@
 ****************************************************************************/
 
 #include <thread>
+#include "GFXExternalDefines.h"
 #include "GLES3GPUObjects.h"
 #include "base/StringUtil.h"
 

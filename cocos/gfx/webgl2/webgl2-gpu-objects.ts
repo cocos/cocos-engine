@@ -48,7 +48,7 @@ export class WebGL2IndirectDrawInfos {
     constructor () {
         this.counts = new Int32Array(this._capacity);
         this.offsets = new Int32Array(this._capacity);
-        this.instances  = new Int32Array(this._capacity);
+        this.instances = new Int32Array(this._capacity);
         this.byteOffsets = new Int32Array(this._capacity);
     }
 
@@ -122,6 +122,11 @@ export interface IWebGL2GPUBuffer {
     indirects: WebGL2IndirectDrawInfos;
 }
 
+export interface IWebGL2ResolveTexture {
+    glTexture: WebGLTexture | null;
+    dirty: boolean;
+}
+
 export interface IWebGL2GPUTexture {
     type: TextureType;
     format: Format;
@@ -135,6 +140,7 @@ export interface IWebGL2GPUTexture {
     samples: SampleCount;
     flags: TextureFlags;
     isPowerOf2: boolean;
+    resolve: IWebGL2ResolveTexture;
 
     glTarget: GLenum;
     glInternalFmt: GLenum;

@@ -1097,6 +1097,7 @@ cocos_source_files(
                  cocos/renderer/core/TextureBufferPool.cpp
 
                  cocos/renderer/GFXDeviceManager.h
+                 cocos/renderer/GFXExternalDefines.h
 
                  cocos/renderer/gfx-base/SPIRVUtils.h
                  cocos/renderer/gfx-base/SPIRVUtils.cpp
