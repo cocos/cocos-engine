@@ -39,35 +39,26 @@
 #include "renderer/pipeline/Define.h"
 namespace cc {
 
+
 #if !SWIGCOCOS
-
-template <typename T>
-struct IsVectorContainer : std::false_type {};
-
-template <typename E, typename A>
-struct IsVectorContainer<ccstd::vector<E, A>> : std::true_type {};
-
-/**
- * This function retrieves the value of a specific property from an attribute container. 
- * The type of container used for storing the properties depends on whether the CC_EDITOR macro is enabled or not.
- * If the macro is enabled, the container is a list, otherwise it is an unordered map.
- */
-template <typename T, typename K>
-inline auto retrieveProperty(T &collection, K &key) {
-    if constexpr (IsVectorContainer<std::remove_cv_t<T>>::value) {
-        return std::find_if(collection.begin(), collection.end(), [&](auto &e) { return e.first == key; });
-    } else {
-        return collection.find(key);
+template <typename K, typename V>
+class StablePropertyMap : public ccstd::vector<std::pair<K, V>> { // NOLINT
+    using Super = ccstd::vector<std::pair<K, V>>;
+public:
+    auto find(const K &key) const {
+        auto *self = static_cast<const Super*>(this);
+        return std::find_if(self->begin(), self->end(), [&](auto &ele) {
+            return ele.first == key;
+        });
     }
-}
-
+};
 #endif
 
 template <typename K, typename V>
 using UnstablePropertyContainer = ccstd::unordered_map<K, V>;
 
 template <typename K, typename V>
-using StablePropertyContainer = ccstd::vector<std::pair<K, V>>;
+using StablePropertyContainer = StablePropertyMap<K, V>;
 
 #if CC_EDITOR
 template <typename K, typename V>

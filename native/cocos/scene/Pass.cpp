@@ -348,7 +348,7 @@ void Pass::resetUniform(const ccstd::string &name) {
     const uint32_t count = Pass::getCountFromHandle(handle);
     auto &block = _blocks[binding];
     ccstd::optional<IPropertyValue> givenDefaultOpt;
-    auto iter = retrieveProperty(_properties, name);
+    auto iter = _properties.find(name);
     if (iter != _properties.end()) {
         givenDefaultOpt = iter->second.value;
     }
@@ -380,12 +380,12 @@ void Pass::resetTexture(const ccstd::string &name, uint32_t index) {
     const gfx::Type type = Pass::getTypeFromHandle(handle);
     const uint32_t binding = Pass::getBindingFromHandle(handle);
     ccstd::string texName;
-    IPropertyInfo *info = nullptr;
-    auto iter = retrieveProperty(_properties, name);
+    const IPropertyInfo *info = nullptr;
+    auto iter = _properties.find(name);
     if (iter != _properties.end()) {
         if (iter->second.value.has_value()) {
             info = &iter->second;
-            ccstd::string *pStrVal = ccstd::get_if<ccstd::string>(&iter->second.value.value());
+            const ccstd::string *pStrVal = ccstd::get_if<ccstd::string>(&iter->second.value.value());
             if (pStrVal != nullptr) {
                 texName = (*pStrVal) + getStringFromType(type);
             }
@@ -419,7 +419,7 @@ void Pass::resetUBOs() {
         uint32_t ofs = 0;
         for (const auto &cur : u.members) {
             const auto &block = _blocks[u.binding];
-            auto iter = retrieveProperty(_properties, cur.name);
+            auto iter = _properties.find(cur.name);
             const auto &value =
                 (iter != _properties.end() && iter->second.value.has_value()
                      ? ccstd::get<ccstd::vector<float>>(iter->second.value.value())

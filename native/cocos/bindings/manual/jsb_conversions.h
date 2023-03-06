@@ -46,6 +46,7 @@
     #include "cocos/editor-support/spine-creator-support/spine-cocos2dx.h"
 #endif
 
+#include "core/assets/EffectAsset.h"
 #include "core/geometry/Geometry.h"
 #include "math/Color.h"
 #include "math/Math.h"
@@ -790,8 +791,8 @@ bool sevalue_to_native(const se::Value &from, ccstd::vector<T> *to, se::Object *
     return false;
 }
 
-template<typename K, typename V>
-bool sevalue_to_native(const se::Value& from, ccstd::vector<std::pair<K, V>>* to, se::Object* ctx) {
+template <typename K, typename V>
+bool sevalue_to_native(const se::Value &from, cc::StablePropertyMap<K, V> *to, se::Object *ctx) { // NOLINT
     // convert object to attribute/value list: [{"prop1", v1}, {"prop2", v2}... {"propN", vn}]
     CC_ASSERT_NOT_NULL(to);
     CC_ASSERT(from.isObject());
@@ -808,8 +809,8 @@ bool sevalue_to_native(const se::Value& from, ccstd::vector<std::pair<K, V>>* to
         }
         if (!sevalue_to_native(valueJS, &value, ctx)) {
             continue;
-        } 
-        to->emplace_back(std::make_pair(std::move(attr), std::move(value))); 
+        }
+        to->emplace_back(std::make_pair(std::move(attr), std::move(value)));
     }
     return true;
 }
@@ -1323,9 +1324,8 @@ inline bool nativevalue_to_se(const std::function<R(Args...)> & /*from*/, se::Va
     return false;
 }
 
-
 template <typename K, typename V>
-bool nativevalue_to_se(const ccstd::vector<std::pair<K, V>> &from, se::Value &to, se::Object *ctx) {
+bool nativevalue_to_se(const cc::StablePropertyMap<K, V> &from, se::Value &to, se::Object *ctx) { // NOLINT(readability-identifier-naming
     // convert to object from  attribute/value list: [{"prop1", v1}, {"prop2", v2}... {"propN", vn}]
     se::HandleObject ret(se::Object::createPlainObject());
     for (const auto &ele : from) {
@@ -1342,7 +1342,6 @@ bool nativevalue_to_se(const ccstd::vector<std::pair<K, V>> &from, se::Value &to
     to.setObject(ret);
     return true;
 }
-
 
 ///////////////////////// function ///////////////////////
 
