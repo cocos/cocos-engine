@@ -39,14 +39,20 @@
 #include "renderer/pipeline/Define.h"
 namespace cc {
 
-
+// To avoid errors when generating code using SWIG.
 #if !SWIGCOCOS
+
+// The properties in Pass are obtained from an asset file. If they are directly stored in an unordered_map,
+// the order of these properties may become scrambled. To maintain their order, a vector<pair> is used
+// instead. Since there is no scenario where these data objects are randomly inserted,
+// only a find interface is provided.
 template <typename K, typename V>
 class StablePropertyMap : public ccstd::vector<std::pair<K, V>> { // NOLINT
     using Super = ccstd::vector<std::pair<K, V>>;
+
 public:
     auto find(const K &key) const {
-        auto *self = static_cast<const Super*>(this);
+        auto *self = static_cast<const Super *>(this);
         return std::find_if(self->begin(), self->end(), [&](auto &ele) {
             return ele.first == key;
         });
