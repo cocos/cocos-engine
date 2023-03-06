@@ -128,10 +128,6 @@ public:
     static bool isNode(T *obj);
 
     inline static void resetChangedFlags() {
-        // This code uses 32 bits for bit operations:
-        //   1 bit for sign,
-        //   28 bits for global flag version,
-        //   3 bits for transform flags.
         // Using 26 bits for the flags is sufficient.
         globalFlagChangeVersion = (globalFlagChangeVersion + 1) & 0x3FFFFFF;
     }
@@ -471,10 +467,10 @@ public:
      * @zh 这个节点的空间变换信息在当前帧内是否有变过？
      */
     inline uint32_t getChangedFlags() const {
-        return (_versionedChangedFlags >> 3) == globalFlagChangeVersion ? (_versionedChangedFlags & 0x7) : 0;
+        return (_hasChangedFlagWithVersion >> 3) == globalFlagChangeVersion ? (_hasChangedFlagWithVersion & 0x7) : 0;
     }
     inline void setChangedFlags(uint32_t value) {
-        _versionedChangedFlags = (globalFlagChangeVersion << 3) | value;
+        _hasChangedFlagWithVersion = (globalFlagChangeVersion << 3) | value;
     }
 
     inline void setDirtyFlag(uint32_t value) { _dirtyFlag = value; }
@@ -664,8 +660,12 @@ private:
     uint8_t _isStatic{0};                                               // Uint8: 2
     uint8_t _padding{0};                                                // Uint8: 3
 
-    // The high bits are used to store the version number of the changeflag, and the low 3 bits represent its specific value
-    uint32_t _versionedChangedFlags{0};
+    /**
+     * The high bits are used to store the version number of the changeflag, and the low 3 bits represent its specific value
+     *
+     * | 31 - 29 reserved | 28 - 3 version number | 2  - 0 : Scale Rotation Translation|
+    */
+    uint32_t _hasChangedFlagWithVersion{0};
 
     bool _eulerDirty{false};
 
