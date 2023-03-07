@@ -103,7 +103,7 @@ void AmbientInfo::setGroundLightingColor(const Color &val) {
     if (isHDR) {
         _groundAlbedoHDR.set(v4);
     } else {
-        _groundAlbedoHDR.set(v4);
+        _groundAlbedoLDR.set(v4);
     }
 
     if (_resource != nullptr) {
