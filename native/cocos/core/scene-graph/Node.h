@@ -127,7 +127,11 @@ public:
     template <typename T>
     static bool isNode(T *obj);
 
-    static void resetChangedFlags();
+    inline static void resetChangedFlags() {
+        // Using 26 bits for the flags is sufficient.
+        globalFlagChangeVersion = (globalFlagChangeVersion + 1) & 0x3FFFFFF;
+    }
+
     static void clearNodeArray();
 
     Node();
@@ -463,11 +467,10 @@ public:
      * @zh 这个节点的空间变换信息在当前帧内是否有变过？
      */
     inline uint32_t getChangedFlags() const {
-        return _hasChangedFlagsVersion == globalFlagChangeVersion ? _hasChangedFlags : 0;
+        return (_changedVersionAndRTS >> 3) == globalFlagChangeVersion ? (_changedVersionAndRTS & 0x7) : 0;
     }
     inline void setChangedFlags(uint32_t value) {
-        _hasChangedFlagsVersion = globalFlagChangeVersion;
-        _hasChangedFlags = value;
+        _changedVersionAndRTS = (globalFlagChangeVersion << 3) | value;
     }
 
     inline void setDirtyFlag(uint32_t value) { _dirtyFlag = value; }
@@ -657,11 +660,12 @@ private:
     uint8_t _isStatic{0};                                               // Uint8: 2
     uint8_t _padding{0};                                                // Uint8: 3
 
-    /* set _hasChangedFlagsVersion to globalFlagChangeVersion when `_hasChangedFlags` updated.
-     * `globalFlagChangeVersion == _hasChangedFlagsVersion` means that "_hasChangedFlags is dirty in current frametime".
-     */
-    uint32_t _hasChangedFlagsVersion{0};
-    uint32_t _hasChangedFlags{0};
+    /**
+     * The high bits are used to store the version number of the changeflag, and the low 3 bits represent its specific value
+     *
+     * | 31 - 29 reserved | 28 - 3 version number | 2  - 0 : Scale Rotation Translation|
+    */
+    uint32_t _changedVersionAndRTS{0};
 
     bool _eulerDirty{false};
 
