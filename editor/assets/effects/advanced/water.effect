@@ -177,17 +177,21 @@ CCProgram surface-fragment %{
       return 1.33;
   }
 #define CC_SURFACES_FRAGMENT_MODIFY_TRANSMIT_PARAMS
-void SurfacesFragmentModifyTransmitParams(out vec4 transmitParams, out vec3 inScatteringLightColor)
+vec4 SurfacesFragmentModifyTransmitParams()
 {
   #if USE_WATER_SCATTERING
     float depth = max(abs(FSInput_texcoord.x - 0.5), abs(FSInput_texcoord.y - 0.5)) * 2.0;
     depth = saturate(1.0 - depth);
-    transmitParams = vec4(waterColor.ww, 1.0, depth);
+    return vec4(waterColor.ww, 1.0, depth);
   #else
-    transmitParams = vec4(0.0, 0.0, 0.0, 0.0);
+    return vec4(0.0, 0.0, 0.0, 0.0);
   #endif
+}
 
-    inScatteringLightColor = waterColor.rgb;
+#define CC_SURFACES_FRAGMENT_MODIFY_TRANSMIT_IN_SCATTERING_COLOR
+vec3 SurfacesFragmentModifyTransmitInScatteringColor()
+{
+    return waterColor.rgb;
 }
 
   #include <surfaces/data-structures/standard>

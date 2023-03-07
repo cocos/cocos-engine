@@ -84,15 +84,17 @@
         #endif
 
         #if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
-          lightingResult.directTransmitDiffuse = CCSurfacesLightingCalculateDirectTransmitDiffuse(lightingResult, lightingData, cc_lightColor[i]);
+          LightingIntermediateData lightingDataTD;
+          CCSurfacesGetLightingIntermediateDataTransmitDiffuse(lightingDataTD, lightingData, surfaceData);
+          CCSurfacesLightingCalculateIntermediateData_PerLight(lightingDataTD, surfaceData, cc_lightPos[i].xyz - worldPos);
+          CCSurfacesLightingCalculateDirectTransmitDiffuse(lightingResult.directTransmitDiffuse, lightingDataTD, cc_lightColor[i], lightingResult.shadow);
         #endif
 
         #if CC_SURFACES_LIGHTING_TRT
           LightingIntermediateData lightingDataTRT;
           CCSurfacesGetLightingIntermediateDataTRT(lightingDataTRT, lightingData, surfaceData);
-          CCSurfacesLightingCalculateDirectTRT(lightingResult.directTRT, lightingDataTRT, cc_lightColor[i]);
+          CCSurfacesLightingCalculateDirectTRT(lightingResult.directTRT, lightingDataTRT, cc_lightColor[i], lightingResult.directSpecular);
           lightingResult.directTRT *= multiplier * fresnel;
-          // lightingResult.directTRT -= lightingResult.directSpecular;
         #endif
 
         #if CC_SURFACES_LIGHTING_TT
@@ -175,6 +177,9 @@
       // apply SSR, local probe & global probe
       CCSurfacesLightingCalculateEnvironment(lightingResult.environmentDiffuse, lightingResult.environmentSpecular, lightingData, cc_ambientSky.w);
 
+      // apply screen-space shadow and ao
+      // lightingResult.shadow/ao *= XXX;
+
       #if CC_SURFACES_LIGHTING_USE_FRESNEL
         lightingResult.fresnel = CCSurfaceLightingCalculateFresnel(lightingData);
       #endif
@@ -185,17 +190,18 @@
       #endif
       
       #if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
-        CCSurfacesLightingCalculateDirectTransmitDiffuse(lightingResult.directTransmitDiffuse, lightingResult, lightingData, cc_mainLitColor);
-        CCSurfacesLightingCalculateEnvironmentTransmitDiffuse(lightingResult.environmentTransmitDiffuse, lightingResult, lightingData, cc_ambientSky.w);
+        LightingIntermediateData lightingDataTD;
+        CCSurfacesGetLightingIntermediateDataTransmitDiffuse(lightingDataTD, lightingData, surfaceData);
+        CCSurfacesLightingCalculateIntermediateData_PerLight(lightingDataTD, surfaceData, -cc_mainLitDir.xyz);
+        CCSurfacesLightingCalculateDirectTransmitDiffuse(lightingResult.directTransmitDiffuse, lightingDataTD, cc_mainLitColor, lightingResult.shadow);
+        CCSurfacesLightingCalculateEnvironmentTransmitDiffuse(lightingResult.environmentTransmitDiffuse, lightingDataTD, cc_ambientSky.w, lightingResult.ao);
       #endif
 
       #if CC_SURFACES_LIGHTING_TRT
         LightingIntermediateData lightingDataTRT;
         CCSurfacesGetLightingIntermediateDataTRT(lightingDataTRT, lightingData, surfaceData);
-        CCSurfacesLightingCalculateDirectTRT(lightingResult.directTRT, lightingDataTRT, cc_mainLitColor);
-        CCSurfacesLightingCalculateEnvironmentTRT(lightingResult.environmentTRT, lightingDataTRT, cc_ambientSky.w);
-        // lightingResult.directTRT -= lightingResult.directSpecular;
-        // lightingResult.environmentTRT -= lightingResult.environmentSpecular;
+        CCSurfacesLightingCalculateDirectTRT(lightingResult.directTRT, lightingDataTRT, cc_mainLitColor, lightingResult.directSpecular);
+        CCSurfacesLightingCalculateEnvironmentTRT(lightingResult.environmentTRT, lightingDataTRT, cc_ambientSky.w, lightingResult.environmentSpecular);
 
         vec3 diff;
         SurfacesMaterialData surfaceDataTRT;
@@ -206,9 +212,6 @@
       #if CC_SURFACES_LIGHTING_TT
         CCSurfacesLightingCalculateDirectTT(lightingResult, lightingData, cc_mainLitColor);
       #endif
-
-      // apply screen-space shadow and ao
-      // lightingResult.shadow/ao *= XXX;
 
       // user-defined lighting model
       #ifdef CC_SURFACES_LIGHTING_MODIFY_FINAL_RESULT

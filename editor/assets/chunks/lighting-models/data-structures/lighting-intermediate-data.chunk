@@ -23,11 +23,11 @@ struct LightingIntermediateData
 
 #if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
   vec4 shadowPosAndDepth; //xy: shadowmap uv, z: camera depth from pixel LVP, w: camera depth from shadowmap
-  vec4 transmitDiffuseParams; //zw: min/max DepthWS for shadowmap and 0 means disable shadow transmit,  x: transmit irradiance apply shadow, y: additional transmit depth mask, 可补充shadowmap cover不到的地方，也可以在minmax屏蔽掉shadowmap之后给专门的薄片穿透
+  vec4 transmitDiffuseParams; //zw: min/max DepthWS for shadowmap and 0 means disable shadow transmit,  x: transmit irradiance apply shadow, y: additional transmit mask, for shadowmap uncovered area
 #endif
 #if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR || CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
   vec4 transmitParams; // xy: extinction coef for out/in-scattering, z: in-scattering coef, w: transmit distance(water depth, leaf thickness)
-  vec3 inScatteringLightColor;
+  vec3 outScatteringColor, inScatteringColor;
 #endif
 #if CC_SURFACES_LIGHTING_TT
   vec3 baseColorTT;
@@ -65,7 +65,8 @@ void CCSurfacesLightingGetIntermediateData_PerPixel(inout LightingIntermediateDa
   data.anisotropyShape = anisotropyShape;
 #endif
 #if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR || CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
-  data.inScatteringLightColor = vec3(0.0);
+  data.outScatteringColor = vec3(1.0);
+  data.inScatteringColor = vec3(0.0);
   data.transmitParams = vec4(0.0);
 #endif
 #if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE

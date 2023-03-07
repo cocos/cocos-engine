@@ -35,7 +35,9 @@ void CCSurfacesFragmentGetMaterialData(inout SurfacesMaterialData surfaceData)
   surfaceData.specularIntensity = pbr.w;
 
 #if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR || CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
-  SurfacesFragmentModifyTransmitParams(surfaceData.transmitParams, surfaceData.inScatteringLightColor);
+  surfaceData.transmitParams = SurfacesFragmentModifyTransmitParams();
+  surfaceData.inScatteringColor = SurfacesFragmentModifyTransmitInScatteringColor();
+  surfaceData.outScatteringColor = SurfacesFragmentModifyTransmitOutScatteringColor();
 #endif
 #if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
   surfaceData.transmitDiffuseParams = SurfacesFragmentModifyTransmitDiffuseParams();
@@ -121,7 +123,8 @@ void CCSurfacesInitializeLightingIntermediateData(inout LightingIntermediateData
   lightingData.ior = surfaceData.ior;
 #if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR || CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
   lightingData.transmitParams = surfaceData.transmitParams;
-  lightingData.inScatteringLightColor = surfaceData.inScatteringLightColor;
+  lightingData.inScatteringColor = surfaceData.inScatteringColor;
+  lightingData.outScatteringColor = surfaceData.outScatteringColor;
 #endif
 #if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
   lightingData.transmitDiffuseParams = surfaceData.transmitDiffuseParams;
@@ -138,8 +141,17 @@ void CCSurfacesLightingCalculateIntermediateData_PerLight(inout LightingIntermed
   CCSurfacesLightingGetIntermediateData_PerLight(lightingData, lightDirWithDist);
 }
 
-// pass original lightingData, get TRT lightingData
+#if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
+// pass original lightingData, get TD lightingData
+void CCSurfacesGetLightingIntermediateDataTransmitDiffuse(inout LightingIntermediateData lightingDataTD, in LightingIntermediateData lightingData, in SurfacesMaterialData surfaceData)
+{
+  lightingDataTD = lightingData;
+  lightingDataTD.N *= -1.0;
+}
+#endif
+
 #if CC_SURFACES_LIGHTING_TRT
+// pass original lightingData, get TRT lightingData
 void CCSurfacesGetLightingIntermediateDataTRT(inout LightingIntermediateData lightingDataTRT, in LightingIntermediateData lightingData, in SurfacesMaterialData surfaceData)
 {
   lightingDataTRT = lightingData;

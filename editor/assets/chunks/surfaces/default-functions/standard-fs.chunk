@@ -71,13 +71,27 @@ vec4 SurfacesFragmentModifyPBRParams()
 #endif
 
 #ifndef CC_SURFACES_FRAGMENT_MODIFY_TRANSMIT_PARAMS
-void SurfacesFragmentModifyTransmitParams(out vec4 transmitParams, out vec3 inScatteringLightColor)
+vec4 SurfacesFragmentModifyTransmitParams()
 {
     // xy: extinction coef for out/in-scattering (should be same)
     // z: in-scattering coef (constant phase function)
     // w: transmit distance(water depth, leaf thickness)
-    transmitParams = vec4(0.0, 0.0, 0.0, 0.0);
-    inScatteringLightColor = vec3(0.0);
+    return vec4(0.0, 0.0, 0.0, 0.0);
+}
+#endif
+
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_TRANSMIT_IN_SCATTERING_COLOR
+vec3 SurfacesFragmentModifyTransmitInScatteringColor()
+{
+    // added light multiplier
+    return vec3(0.0);
+}
+#endif
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_TRANSMIT_OUT_SCATTERING_COLOR
+vec3 SurfacesFragmentModifyTransmitOutScatteringColor()
+{
+    // background multiplier
+    return vec3(1.0);
 }
 #endif
 
@@ -85,7 +99,7 @@ void SurfacesFragmentModifyTransmitParams(out vec4 transmitParams, out vec3 inSc
 vec4 SurfacesFragmentModifyTransmitDiffuseParams()
 {
     // x: transmit irradiance apply shadow
-    // y: additional transmit depth mask, add light transport for area which cannot be covered by shadowmap transmittance, or stand for thin transmittance
+    // y: additional transmit mask, add light transport for area which cannot be covered by shadowmap transmittance
     // zw: min/max DepthWS for shadowmap, 0 means disable shadow transmit
     return vec4(1.0, 0.0, 0.0, 0.0);
 }
