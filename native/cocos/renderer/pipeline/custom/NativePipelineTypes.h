@@ -610,7 +610,6 @@ public:
     ComputePassBuilder *addComputePass(const ccstd::string &layoutName) override;
     MovePassBuilder *addMovePass() override;
     CopyPassBuilder *addCopyPass() override;
-    void presentAll() override;
     SceneTransversal *createSceneTransversal(const scene::Camera *camera, const scene::RenderScene *scene) override;
     gfx::DescriptorSetLayout *getDescriptorSetLayout(const ccstd::string &shaderName, UpdateFrequency freq) override;
 

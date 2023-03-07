@@ -908,10 +908,12 @@ RasterQueueBuilder *NativeRasterPassBuilder::addQueue(
 }
 
 RasterSubpassBuilder* NativeRasterPassBuilder::addRasterSubpass(const ccstd::string& layoutName) {
+    std::ignore = layoutName;
     return nullptr;
 }
 
 ComputeSubpassBuilder* NativeRasterPassBuilder::addComputeSubpass(const ccstd::string& layoutName) {
+    std::ignore = layoutName;
     return nullptr;
 }
 

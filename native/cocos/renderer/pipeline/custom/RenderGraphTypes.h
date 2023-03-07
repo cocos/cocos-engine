@@ -617,7 +617,6 @@ struct QueueTag {};
 struct SceneTag {};
 struct DispatchTag {};
 struct BlitTag {};
-struct PresentTag {};
 struct ClearTag {};
 struct ViewportTag {};
 
@@ -703,34 +702,6 @@ struct Blit {
     uint32_t passID{0};
     SceneFlags sceneFlags{SceneFlags::NONE};
     scene::Camera* camera{nullptr};
-};
-
-struct Present {
-    Present() = default;
-    Present(uint32_t syncIntervalIn, uint32_t flagsIn) noexcept // NOLINT
-    : syncInterval(syncIntervalIn),
-      flags(flagsIn) {}
-
-    uint32_t syncInterval{0};
-    uint32_t flags{0};
-};
-
-struct PresentPass {
-    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
-    allocator_type get_allocator() const noexcept { // NOLINT
-        return {presents.get_allocator().resource()};
-    }
-
-    PresentPass(const allocator_type& alloc) noexcept; // NOLINT
-    PresentPass(PresentPass&& rhs, const allocator_type& alloc);
-    PresentPass(PresentPass const& rhs, const allocator_type& alloc);
-
-    PresentPass(PresentPass&& rhs) noexcept = default;
-    PresentPass(PresentPass const& rhs) = delete;
-    PresentPass& operator=(PresentPass&& rhs) = default;
-    PresentPass& operator=(PresentPass const& rhs) = default;
-
-    PmrTransparentMap<ccstd::pmr::string, Present> presents;
 };
 
 struct RenderData {
@@ -872,15 +843,14 @@ struct RenderGraph {
     }
 
     // PolymorphicGraph
-    using VertexTag         = ccstd::variant<RasterTag, ComputeTag, CopyTag, MoveTag, PresentTag, RaytraceTag, QueueTag, SceneTag, BlitTag, DispatchTag, ClearTag, ViewportTag>;
-    using VertexValue       = ccstd::variant<RasterPass*, ComputePass*, CopyPass*, MovePass*, PresentPass*, RaytracePass*, RenderQueue*, SceneData*, Blit*, Dispatch*, ccstd::pmr::vector<ClearView>*, gfx::Viewport*>;
-    using VertexConstValue = ccstd::variant<const RasterPass*, const ComputePass*, const CopyPass*, const MovePass*, const PresentPass*, const RaytracePass*, const RenderQueue*, const SceneData*, const Blit*, const Dispatch*, const ccstd::pmr::vector<ClearView>*, const gfx::Viewport*>;
+    using VertexTag         = ccstd::variant<RasterTag, ComputeTag, CopyTag, MoveTag, RaytraceTag, QueueTag, SceneTag, BlitTag, DispatchTag, ClearTag, ViewportTag>;
+    using VertexValue       = ccstd::variant<RasterPass*, ComputePass*, CopyPass*, MovePass*, RaytracePass*, RenderQueue*, SceneData*, Blit*, Dispatch*, ccstd::pmr::vector<ClearView>*, gfx::Viewport*>;
+    using VertexConstValue = ccstd::variant<const RasterPass*, const ComputePass*, const CopyPass*, const MovePass*, const RaytracePass*, const RenderQueue*, const SceneData*, const Blit*, const Dispatch*, const ccstd::pmr::vector<ClearView>*, const gfx::Viewport*>;
     using VertexHandle      = ccstd::variant<
         impl::ValueHandle<RasterTag, vertex_descriptor>,
         impl::ValueHandle<ComputeTag, vertex_descriptor>,
         impl::ValueHandle<CopyTag, vertex_descriptor>,
         impl::ValueHandle<MoveTag, vertex_descriptor>,
-        impl::ValueHandle<PresentTag, vertex_descriptor>,
         impl::ValueHandle<RaytraceTag, vertex_descriptor>,
         impl::ValueHandle<QueueTag, vertex_descriptor>,
         impl::ValueHandle<SceneTag, vertex_descriptor>,
@@ -953,7 +923,6 @@ struct RenderGraph {
     ccstd::pmr::vector<ComputePass> computePasses;
     ccstd::pmr::vector<CopyPass> copyPasses;
     ccstd::pmr::vector<MovePass> movePasses;
-    ccstd::pmr::vector<PresentPass> presentPasses;
     ccstd::pmr::vector<RaytracePass> raytracePasses;
     ccstd::pmr::vector<RenderQueue> renderQueues;
     ccstd::pmr::vector<SceneData> scenes;

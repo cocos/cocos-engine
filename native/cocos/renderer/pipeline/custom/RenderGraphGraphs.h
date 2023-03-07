@@ -2426,9 +2426,6 @@ id(RenderGraph::vertex_descriptor u, const RenderGraph& g) noexcept {
             [](const impl::ValueHandle<MoveTag, vertex_descriptor>& h) {
                 return h.value;
             },
-            [](const impl::ValueHandle<PresentTag, vertex_descriptor>& h) {
-                return h.value;
-            },
             [](const impl::ValueHandle<RaytraceTag, vertex_descriptor>& h) {
                 return h.value;
             },
@@ -2469,9 +2466,6 @@ tag(RenderGraph::vertex_descriptor u, const RenderGraph& g) noexcept {
             },
             [](const impl::ValueHandle<MoveTag, vertex_descriptor>&) {
                 return RenderGraph::VertexTag{MoveTag{}};
-            },
-            [](const impl::ValueHandle<PresentTag, vertex_descriptor>&) {
-                return RenderGraph::VertexTag{PresentTag{}};
             },
             [](const impl::ValueHandle<RaytraceTag, vertex_descriptor>&) {
                 return RenderGraph::VertexTag{RaytraceTag{}};
@@ -2514,9 +2508,6 @@ value(RenderGraph::vertex_descriptor u, RenderGraph& g) noexcept {
             [&](const impl::ValueHandle<MoveTag, vertex_descriptor>& h) {
                 return RenderGraph::VertexValue{&g.movePasses[h.value]};
             },
-            [&](const impl::ValueHandle<PresentTag, vertex_descriptor>& h) {
-                return RenderGraph::VertexValue{&g.presentPasses[h.value]};
-            },
             [&](const impl::ValueHandle<RaytraceTag, vertex_descriptor>& h) {
                 return RenderGraph::VertexValue{&g.raytracePasses[h.value]};
             },
@@ -2557,9 +2548,6 @@ value(RenderGraph::vertex_descriptor u, const RenderGraph& g) noexcept {
             },
             [&](const impl::ValueHandle<MoveTag, vertex_descriptor>& h) {
                 return RenderGraph::VertexConstValue{&g.movePasses[h.value]};
-            },
-            [&](const impl::ValueHandle<PresentTag, vertex_descriptor>& h) {
-                return RenderGraph::VertexConstValue{&g.presentPasses[h.value]};
             },
             [&](const impl::ValueHandle<RaytraceTag, vertex_descriptor>& h) {
                 return RenderGraph::VertexConstValue{&g.raytracePasses[h.value]};
@@ -2618,14 +2606,6 @@ inline bool
 holds<MoveTag>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noexcept {
     return ccstd::holds_alternative<
         impl::ValueHandle<MoveTag, RenderGraph::vertex_descriptor>>(
-        g._vertices[v].handle);
-}
-
-template <>
-inline bool
-holds<PresentTag>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noexcept {
-    return ccstd::holds_alternative<
-        impl::ValueHandle<PresentTag, RenderGraph::vertex_descriptor>>(
         g._vertices[v].handle);
 }
 
@@ -2723,14 +2703,6 @@ holds_alternative<MovePass>(RenderGraph::vertex_descriptor v, const RenderGraph&
 
 template <>
 inline bool
-holds_alternative<PresentPass>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noexcept { // NOLINT
-    return ccstd::holds_alternative<
-        impl::ValueHandle<PresentTag, RenderGraph::vertex_descriptor>>(
-        g._vertices[v].handle);
-}
-
-template <>
-inline bool
 holds_alternative<RaytracePass>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noexcept { // NOLINT
     return ccstd::holds_alternative<
         impl::ValueHandle<RaytraceTag, RenderGraph::vertex_descriptor>>(
@@ -2823,15 +2795,6 @@ get<MovePass>(RenderGraph::vertex_descriptor v, RenderGraph& g) {
         impl::ValueHandle<MoveTag, RenderGraph::vertex_descriptor>>(
         g._vertices[v].handle);
     return g.movePasses[handle.value];
-}
-
-template <>
-inline PresentPass&
-get<PresentPass>(RenderGraph::vertex_descriptor v, RenderGraph& g) {
-    auto& handle = ccstd::get<
-        impl::ValueHandle<PresentTag, RenderGraph::vertex_descriptor>>(
-        g._vertices[v].handle);
-    return g.presentPasses[handle.value];
 }
 
 template <>
@@ -2938,15 +2901,6 @@ get<MovePass>(RenderGraph::vertex_descriptor v, const RenderGraph& g) {
 }
 
 template <>
-inline const PresentPass&
-get<PresentPass>(RenderGraph::vertex_descriptor v, const RenderGraph& g) {
-    const auto& handle = ccstd::get<
-        impl::ValueHandle<PresentTag, RenderGraph::vertex_descriptor>>(
-        g._vertices[v].handle);
-    return g.presentPasses[handle.value];
-}
-
-template <>
 inline const RaytracePass&
 get<RaytracePass>(RenderGraph::vertex_descriptor v, const RenderGraph& g) {
     const auto& handle = ccstd::get<
@@ -3041,14 +2995,6 @@ get(MoveTag /*tag*/, RenderGraph::vertex_descriptor v, RenderGraph& g) {
     return g.movePasses[handle.value];
 }
 
-inline PresentPass&
-get(PresentTag /*tag*/, RenderGraph::vertex_descriptor v, RenderGraph& g) {
-    auto& handle = ccstd::get<
-        impl::ValueHandle<PresentTag, RenderGraph::vertex_descriptor>>(
-        g._vertices[v].handle);
-    return g.presentPasses[handle.value];
-}
-
 inline RaytracePass&
 get(RaytraceTag /*tag*/, RenderGraph::vertex_descriptor v, RenderGraph& g) {
     auto& handle = ccstd::get<
@@ -3135,14 +3081,6 @@ get(MoveTag /*tag*/, RenderGraph::vertex_descriptor v, const RenderGraph& g) {
         impl::ValueHandle<MoveTag, RenderGraph::vertex_descriptor>>(
         g._vertices[v].handle);
     return g.movePasses[handle.value];
-}
-
-inline const PresentPass&
-get(PresentTag /*tag*/, RenderGraph::vertex_descriptor v, const RenderGraph& g) {
-    const auto& handle = ccstd::get<
-        impl::ValueHandle<PresentTag, RenderGraph::vertex_descriptor>>(
-        g._vertices[v].handle);
-    return g.presentPasses[handle.value];
 }
 
 inline const RaytracePass&
@@ -3269,23 +3207,6 @@ get_if<MovePass>(RenderGraph::vertex_descriptor v, RenderGraph* pGraph) noexcept
         &g._vertices[v].handle);
     if (pHandle) {
         ptr = &g.movePasses[pHandle->value];
-    }
-    return ptr;
-}
-
-template <>
-inline PresentPass*
-get_if<PresentPass>(RenderGraph::vertex_descriptor v, RenderGraph* pGraph) noexcept { // NOLINT
-    PresentPass* ptr = nullptr;
-    if (!pGraph) {
-        return ptr;
-    }
-    auto& g       = *pGraph;
-    auto* pHandle = ccstd::get_if<
-        impl::ValueHandle<PresentTag, RenderGraph::vertex_descriptor>>(
-        &g._vertices[v].handle);
-    if (pHandle) {
-        ptr = &g.presentPasses[pHandle->value];
     }
     return ptr;
 }
@@ -3477,23 +3398,6 @@ get_if<MovePass>(RenderGraph::vertex_descriptor v, const RenderGraph* pGraph) no
         &g._vertices[v].handle);
     if (pHandle) {
         ptr = &g.movePasses[pHandle->value];
-    }
-    return ptr;
-}
-
-template <>
-inline const PresentPass*
-get_if<PresentPass>(RenderGraph::vertex_descriptor v, const RenderGraph* pGraph) noexcept { // NOLINT
-    const PresentPass* ptr = nullptr;
-    if (!pGraph) {
-        return ptr;
-    }
-    const auto& g       = *pGraph;
-    const auto* pHandle = ccstd::get_if<
-        impl::ValueHandle<PresentTag, RenderGraph::vertex_descriptor>>(
-        &g._vertices[v].handle);
-    if (pHandle) {
-        ptr = &g.presentPasses[pHandle->value];
     }
     return ptr;
 }
@@ -3717,13 +3621,6 @@ inline void remove_vertex_value_impl(const RenderGraph::VertexHandle& h, RenderG
                 }
                 impl::reindexVectorHandle<MoveTag>(g._vertices, h.value);
             },
-            [&](const impl::ValueHandle<PresentTag, vertex_descriptor>& h) {
-                g.presentPasses.erase(g.presentPasses.begin() + static_cast<std::ptrdiff_t>(h.value));
-                if (h.value == g.presentPasses.size()) {
-                    return;
-                }
-                impl::reindexVectorHandle<PresentTag>(g._vertices, h.value);
-            },
             [&](const impl::ValueHandle<RaytraceTag, vertex_descriptor>& h) {
                 g.raytracePasses.erase(g.raytracePasses.begin() + static_cast<std::ptrdiff_t>(h.value));
                 if (h.value == g.raytracePasses.size()) {
@@ -3824,15 +3721,6 @@ void addVertexImpl( // NOLINT
     vert.handle = impl::ValueHandle<MoveTag, RenderGraph::vertex_descriptor>{
         gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.movePasses.size())};
     g.movePasses.emplace_back(std::forward<ValueT>(val));
-}
-
-template <class ValueT>
-void addVertexImpl( // NOLINT
-    ValueT &&val, RenderGraph &g, RenderGraph::Vertex &vert, // NOLINT
-    std::enable_if_t<std::is_same<std::decay_t<ValueT>, PresentPass>::value>* dummy = nullptr) { // NOLINT
-    vert.handle = impl::ValueHandle<PresentTag, RenderGraph::vertex_descriptor>{
-        gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.presentPasses.size())};
-    g.presentPasses.emplace_back(std::forward<ValueT>(val));
 }
 
 template <class ValueT>
@@ -3962,17 +3850,6 @@ void addVertexImpl(MoveTag /*tag*/, Tuple &&val, RenderGraph &g, RenderGraph::Ve
             vert.handle = impl::ValueHandle<MoveTag, RenderGraph::vertex_descriptor>{
                 gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.movePasses.size())};
             g.movePasses.emplace_back(std::forward<decltype(args)>(args)...);
-        },
-        std::forward<Tuple>(val));
-}
-
-template <class Tuple>
-void addVertexImpl(PresentTag /*tag*/, Tuple &&val, RenderGraph &g, RenderGraph::Vertex &vert) {
-    std::apply(
-        [&](auto&&... args) {
-            vert.handle = impl::ValueHandle<PresentTag, RenderGraph::vertex_descriptor>{
-                gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.presentPasses.size())};
-            g.presentPasses.emplace_back(std::forward<decltype(args)>(args)...);
         },
         std::forward<Tuple>(val));
 }

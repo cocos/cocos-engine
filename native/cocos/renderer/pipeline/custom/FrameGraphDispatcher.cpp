@@ -169,7 +169,6 @@ void processRasterPass(const Graphs &graphs, uint32_t passID, const RasterPass &
 void processComputePass(const Graphs &graphs, uint32_t passID, const ComputePass &pass);
 void processCopyPass(const Graphs &graphs, uint32_t passID, const CopyPass &pass);
 void processRaytracePass(const Graphs &graphs, uint32_t passID, const RaytracePass &pass);
-void processPresentPass(const Graphs &graphs, uint32_t passID, const PresentPass &pass);
 auto getResourceStatus(PassType passType, const PmrString &name, gfx::MemoryAccess memAccess, gfx::ShaderStageFlags visibility, const ResourceGraph &resourceGraph);
 
 // execution order BUT NOT LOGICALLY
@@ -250,9 +249,6 @@ void buildAccessGraph(const RenderGraph &renderGraph, const Graphs &graphs) {
             },
             [&](const RaytracePass &pass) {
                 processRaytracePass(graphs, passID, pass);
-            },
-            [&](const PresentPass &pass) {
-                processPresentPass(graphs, passID, pass);
             },
             [&](const auto & /*pass*/) {
                 // do nothing
@@ -1865,36 +1861,6 @@ void processRaytracePass(const Graphs &graphs, uint32_t passID, const RaytracePa
         tryAddEdge(EXPECT_START_ID, vertID, resourceAccessGraph);
         tryAddEdge(EXPECT_START_ID, rlgVertID, relationGraph);
     }
-}
-
-void processPresentPass(const Graphs &graphs, uint32_t passID, const PresentPass &pass) {
-    const auto &[resourceGraph, layoutGraphData, resourceAccessGraph, relationGraph] = graphs;
-
-    auto vertID = add_vertex(resourceAccessGraph, passID);
-    auto rlgVertID = add_vertex(relationGraph, vertID);
-    CC_EXPECTS(static_cast<uint32_t>(rlgVertID) == static_cast<uint32_t>(vertID));
-
-    auto &node = get(RAG::AccessNodeTag{}, resourceAccessGraph, vertID);
-    bool dependent = false;
-    for (const auto &pair : pass.presents) {
-        ViewStatus viewStatus{pair.first, PassType::PRESENT, gfx::ShaderStageFlagBit::NONE, gfx::MemoryAccessBit::READ_ONLY, gfx::AccessFlags::PRESENT, gfx::TextureUsage::NONE};
-
-        auto lastVertId = dependencyCheck(resourceAccessGraph, vertID, resourceGraph, viewStatus);
-        addAccessStatus(resourceAccessGraph, resourceGraph, node, viewStatus);
-        if (lastVertId != INVALID_ID) {
-            tryAddEdge(lastVertId, vertID, resourceAccessGraph);
-            tryAddEdge(lastVertId, rlgVertID, relationGraph);
-            dependent = true;
-        }
-    }
-    if (!dependent) {
-        // LOG("~~~~~~~~~~ Found an empty pipeline! ~~~~~~~~~~");
-        tryAddEdge(EXPECT_START_ID, vertID, resourceAccessGraph);
-        tryAddEdge(EXPECT_START_ID, rlgVertID, relationGraph);
-    }
-
-    resourceAccessGraph.presentPassID = vertID;
-    std::sort(node.attachmentStatus.begin(), node.attachmentStatus.end(), [](const AccessStatus &lhs, const AccessStatus &rhs) { return lhs.vertID < rhs.vertID; });
 }
 
 #pragma endregion assisstantFuncDefinition

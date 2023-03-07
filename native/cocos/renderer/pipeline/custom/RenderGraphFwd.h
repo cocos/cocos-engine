@@ -68,7 +68,6 @@ struct QueueTag;
 struct SceneTag;
 struct DispatchTag;
 struct BlitTag;
-struct PresentTag;
 struct ClearTag;
 struct ViewportTag;
 struct ClearView;
@@ -76,8 +75,6 @@ struct RenderQueue;
 struct SceneData;
 struct Dispatch;
 struct Blit;
-struct Present;
-struct PresentPass;
 struct RenderData;
 struct RenderGraph;
 

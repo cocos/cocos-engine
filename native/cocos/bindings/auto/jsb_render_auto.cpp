@@ -3775,26 +3775,6 @@ static bool js_cc_render_Pipeline_addCopyPass(se::State& s)
 }
 SE_BIND_FUNC(js_cc_render_Pipeline_addCopyPass) 
 
-static bool js_cc_render_Pipeline_presentAll(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::render::Pipeline *arg1 = (cc::render::Pipeline *) NULL ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::render::Pipeline>(s);
-    if (nullptr == arg1) return true;
-    (arg1)->presentAll();
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_render_Pipeline_presentAll) 
-
 static bool js_cc_render_Pipeline_createSceneTransversal(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -4176,7 +4156,6 @@ bool js_register_cc_render_Pipeline(se::Object* obj) {
     cls->defineFunction("addComputePass", _SE(js_cc_render_Pipeline_addComputePass)); 
     cls->defineFunction("addMovePass", _SE(js_cc_render_Pipeline_addMovePass)); 
     cls->defineFunction("addCopyPass", _SE(js_cc_render_Pipeline_addCopyPass)); 
-    cls->defineFunction("presentAll", _SE(js_cc_render_Pipeline_presentAll)); 
     cls->defineFunction("createSceneTransversal", _SE(js_cc_render_Pipeline_createSceneTransversal)); 
     cls->defineFunction("getDescriptorSetLayout", _SE(js_cc_render_Pipeline_getDescriptorSetLayout)); 
     cls->defineFunction("addRenderTarget", _SE(js_cc_render_Pipeline_addRenderTarget)); 

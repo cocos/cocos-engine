@@ -960,9 +960,6 @@ export class WebPipeline implements Pipeline {
     public addCopyPass (): CopyPassBuilder {
         throw new Error('Method not implemented.');
     }
-    public presentAll (): void {
-        throw new Error('Method not implemented.');
-    }
     public createSceneTransversal (camera: Camera, scene: RenderScene): SceneTransversal {
         throw new Error('Method not implemented.');
     }

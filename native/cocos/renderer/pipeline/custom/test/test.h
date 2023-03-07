@@ -113,7 +113,7 @@ static void fillTestGraph(const ViewInfo &rasterData, const ResourceInfo &rescIn
             if (hasSubpass) {
                 const ccstd::string subpassName = "subpass" + std::to_string(passID);
                 auto subpassVertexID = add_vertex(subpassGraph, subpassName.c_str());
-                subpass = &get(SubpassGraph::Subpass, subpassGraph, subpassVertexID);
+                subpass = &get(SubpassGraph::SubpassTag{}, subpassGraph, subpassVertexID);
             }
 
             for (size_t k = 0; k < attachments.size(); ++k) {
@@ -184,20 +184,7 @@ static void fillTestGraph(const ViewInfo &rasterData, const ResourceInfo &rescIn
                 break;
             }
             case PassType::PRESENT: {
-                // const string name = pass.first;
-                const auto &subpasses = pass.second;
-                // addRasterNode(subpasses, subpasses.size() - 1, passCount++);
-
-                const ccstd::string name = "pass" + std::to_string(passCount++);
-                const auto vertexID = add_vertex(renderGraph, PresentTag{}, name.c_str());
-                assert(subpasses.back().size() == 2); // inputs and outputs
-                assert(subpasses.back()[1].empty());  // present pass no output
-                auto &presentPass = get(PresentTag{}, vertexID, renderGraph);
-                const auto &resName = subpasses.back()[0].back();
-                if (presentPass.presents.find(resName.c_str()) == presentPass.presents.end()) {
-                    // ?
-                    presentPass.presents.emplace(resName.c_str(), Present{0, 0});
-                }
+                // noop
                 break;
             }
             case PassType::COPY: {
@@ -238,8 +225,8 @@ static void fillTestGraph(const ViewInfo &rasterData, const ResourceInfo &rescIn
 static void fillBarriers(const ResourceGraph &resourceGraph, const BarrierPair &barrierInfo, framegraph::PassNodeBuilder &builder, PassBarrierPair &barriers) {
     auto doFill = [&builder, &resourceGraph](const std::vector<Barrier> &edgeInfo, std::vector<ResourceBarrier> &edgeBarriers) {
         for (const auto &resBarrier : edgeInfo) {
-            const auto &name = get(ResourceGraph::Name, resourceGraph, resBarrier.resourceID);
-            const auto &desc = get(ResourceGraph::Desc, resourceGraph, resBarrier.resourceID);
+            const auto &name = get(ResourceGraph::NameTag{}, resourceGraph, resBarrier.resourceID);
+            const auto &desc = get(ResourceGraph::DescTag{}, resourceGraph, resBarrier.resourceID);
             auto type = desc.dimension == ResourceDimension::BUFFER ? cc::framegraph::ResourceType::BUFFER : cc::framegraph::ResourceType::TEXTURE;
             framegraph::Range layerRange;
             framegraph::Range mipRange;
@@ -408,7 +395,7 @@ static void addPassToFrameGraph(const FrameGraphPassInfo &info) {
         }*/
     };
 
-    auto passHandle = framegraph::FrameGraph::stringToHandle(get(RenderGraph::Name, renderGraph, passID).c_str());
+    auto passHandle = framegraph::FrameGraph::stringToHandle(get(RenderGraph::NameTag{}, renderGraph, passID).c_str());
 
     string presentHandle;
 
@@ -438,7 +425,7 @@ static void runTestGraph(const RenderGraph &renderGraph, const ResourceGraph &re
             passID, renderGraph,
             [&](const RasterPass &pass) {
                 // TestRenderData tmpData;
-                const auto &subpasses = get(SubpassGraph::Subpass, pass.subpassGraph);
+                const auto &subpasses = get(SubpassGraph::SubpassTag{}, pass.subpassGraph);
                 uint32_t count = 0;
                 for (const auto &subpass : *subpasses.container) {
                     FrameGraphPassInfo info = {
@@ -520,51 +507,10 @@ static void runTestGraph(const RenderGraph &renderGraph, const ResourceGraph &re
                                       const framegraph::DevicePassResourceTable &table) {
                 };
 
-                auto passHandle = framegraph::FrameGraph::stringToHandle(get(RenderGraph::Name, renderGraph, passID).c_str());
+                auto passHandle = framegraph::FrameGraph::stringToHandle(get(RenderGraph::NameTag{}, renderGraph, passID).c_str());
                 framegraph.addPass<TestRenderData>(static_cast<uint32_t>(ForwardInsertPoint::IP_FORWARD), passHandle, forwardSetup, forwardExec);
             },
             [&](const RaytracePass &pass) {},
-            [&](const PresentPass &pass) {
-                auto forwardSetup = [&](framegraph::PassNodeBuilder &builder, TestRenderData &data) {
-                    for (const auto &pair : pass.presents) {
-                        auto *externalRes = gfx::Device::getInstance()->createTexture(gfx::TextureInfo{
-                            gfx::TextureType::TEX2D,
-                            gfx::TextureUsageBit::COLOR_ATTACHMENT,
-                            gfx::Format::RGBA8,
-                            960,
-                            640,
-                        });
-
-                        const auto handle = framegraph::FrameGraph::stringToHandle(pair.first.c_str());
-                        auto typedHandle = builder.readFromBlackboard(handle);
-                        data.outputTexes.emplace_back();
-                        auto &lastTex = data.outputTexes.back();
-                        framegraph::Texture::Descriptor colorTexInfo;
-                        colorTexInfo.format = gfx::Format::RGBA8;
-                        colorTexInfo.usage = gfx::TextureUsage::SAMPLED;
-
-                        lastTex.second = static_cast<framegraph::TextureHandle>(typedHandle);
-
-                        if (framegraph::Handle::IndexType(typedHandle) == framegraph::Handle::UNINITIALIZED) {
-                            colorTexInfo.width = 960;
-                            colorTexInfo.height = 640;
-
-                            lastTex.second = builder.create(handle, colorTexInfo);
-                        }
-
-                        auto res = builder.read(framegraph::TextureHandle(builder.readFromBlackboard(handle)));
-                        builder.writeToBlackboard(handle, res);
-
-                        framegraph.presentFromBlackboard(framegraph::FrameGraph::stringToHandle(pair.first.c_str()), externalRes, false);
-                    }
-                };
-
-                auto forwardExec = [](const TestRenderData &data,
-                                      const framegraph::DevicePassResourceTable &table) {
-                };
-                auto passHandle = framegraph::FrameGraph::stringToHandle(get(RenderGraph::Name, renderGraph, passID).c_str());
-                framegraph.addPass<TestRenderData>(static_cast<uint32_t>(ForwardInsertPoint::IP_FORWARD), passHandle, forwardSetup, forwardExec);
-            },
             [&](const auto & /*pass*/) {});
     }
     framegraph.compile();

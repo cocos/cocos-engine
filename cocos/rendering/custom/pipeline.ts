@@ -193,7 +193,6 @@ export interface Pipeline extends PipelineRuntime {
     addComputePass (layoutName: string): ComputePassBuilder;
     addMovePass (): MovePassBuilder;
     addCopyPass (): CopyPassBuilder;
-    presentAll (): void;
     createSceneTransversal (camera: Camera, scene: RenderScene): SceneTransversal;
     getDescriptorSetLayout (shaderName: string, freq: UpdateFrequency): DescriptorSetLayout | null;
 }

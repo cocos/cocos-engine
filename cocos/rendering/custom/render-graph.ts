@@ -1138,19 +1138,6 @@ export class Blit {
     /*pointer*/ camera: Camera | null;
 }
 
-export class Present {
-    constructor (syncInterval = 0, flags = 0) {
-        this.syncInterval = syncInterval;
-        this.flags = flags;
-    }
-    syncInterval: number;
-    flags: number;
-}
-
-export class PresentPass {
-    readonly presents: Map<string, Present> = new Map<string, Present>();
-}
-
 export class RenderData {
     readonly constants: Map<number, number[]> = new Map<number, number[]>();
     readonly buffers: Map<number, Buffer> = new Map<number, Buffer>();
@@ -1167,7 +1154,6 @@ export const enum RenderGraphValue {
     Compute,
     Copy,
     Move,
-    Present,
     Raytrace,
     Queue,
     Scene,
@@ -1183,7 +1169,6 @@ export function getRenderGraphValueName (e: RenderGraphValue): string {
     case RenderGraphValue.Compute: return 'Compute';
     case RenderGraphValue.Copy: return 'Copy';
     case RenderGraphValue.Move: return 'Move';
-    case RenderGraphValue.Present: return 'Present';
     case RenderGraphValue.Raytrace: return 'Raytrace';
     case RenderGraphValue.Queue: return 'Queue';
     case RenderGraphValue.Scene: return 'Scene';
@@ -1200,7 +1185,6 @@ export interface RenderGraphValueType {
     [RenderGraphValue.Compute]: ComputePass
     [RenderGraphValue.Copy]: CopyPass
     [RenderGraphValue.Move]: MovePass
-    [RenderGraphValue.Present]: PresentPass
     [RenderGraphValue.Raytrace]: RaytracePass
     [RenderGraphValue.Queue]: RenderQueue
     [RenderGraphValue.Scene]: SceneData
@@ -1215,7 +1199,6 @@ export interface RenderGraphVisitor {
     compute(value: ComputePass): unknown;
     copy(value: CopyPass): unknown;
     move(value: MovePass): unknown;
-    present(value: PresentPass): unknown;
     raytrace(value: RaytracePass): unknown;
     queue(value: RenderQueue): unknown;
     scene(value: SceneData): unknown;
@@ -1229,7 +1212,6 @@ export type RenderGraphObject = RasterPass
 | ComputePass
 | CopyPass
 | MovePass
-| PresentPass
 | RaytracePass
 | RenderQueue
 | SceneData
@@ -1686,8 +1668,6 @@ export class RenderGraph implements BidirectionalGraph
             return visitor.copy(vert._object as CopyPass);
         case RenderGraphValue.Move:
             return visitor.move(vert._object as MovePass);
-        case RenderGraphValue.Present:
-            return visitor.present(vert._object as PresentPass);
         case RenderGraphValue.Raytrace:
             return visitor.raytrace(vert._object as RaytracePass);
         case RenderGraphValue.Queue:
@@ -1730,13 +1710,6 @@ export class RenderGraph implements BidirectionalGraph
     getMove (v: number): MovePass {
         if (this._vertices[v]._id === RenderGraphValue.Move) {
             return this._vertices[v]._object as MovePass;
-        } else {
-            throw Error('value id not match');
-        }
-    }
-    getPresent (v: number): PresentPass {
-        if (this._vertices[v]._id === RenderGraphValue.Present) {
-            return this._vertices[v]._object as PresentPass;
         } else {
             throw Error('value id not match');
         }
@@ -1814,13 +1787,6 @@ export class RenderGraph implements BidirectionalGraph
     tryGetMove (v: number): MovePass | null {
         if (this._vertices[v]._id === RenderGraphValue.Move) {
             return this._vertices[v]._object as MovePass;
-        } else {
-            return null;
-        }
-    }
-    tryGetPresent (v: number): PresentPass | null {
-        if (this._vertices[v]._id === RenderGraphValue.Present) {
-            return this._vertices[v]._object as PresentPass;
         } else {
             return null;
         }

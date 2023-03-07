@@ -1152,13 +1152,6 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         for (const auto& copy : pass.movePairs) {
         }
     }
-    void begin(const PresentPass& pass, RenderGraph::vertex_descriptor vertID) const { // NOLINT(readability-convert-member-functions-to-static)
-        std::ignore = pass;
-        std::ignore = vertID;
-        for (const auto& [name, present] : pass.presents) {
-            // do presents
-        }
-    }
     void begin(const RaytracePass& pass, RenderGraph::vertex_descriptor vertID) const { // NOLINT(readability-convert-member-functions-to-static)
         std::ignore = pass;
         std::ignore = vertID;
@@ -1275,8 +1268,6 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
     void end(const CopyPass& pass) const {
     }
     void end(const MovePass& pass) const {
-    }
-    void end(const PresentPass& pass) const {
     }
     void end(const RaytracePass& pass) const { // NOLINT(readability-convert-member-functions-to-static)
         std::ignore = pass;
@@ -1418,10 +1409,6 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
                 frontBarriers(vertID);
                 begin(pass, vertID);
             },
-            [&](const PresentPass& pass) {
-                frontBarriers(vertID);
-                begin(pass, vertID);
-            },
             [&](const RaytracePass& pass) {
                 mountResources(pass);
                 frontBarriers(vertID);
@@ -1451,10 +1438,6 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
                 rearBarriers(vertID);
             },
             [&](const MovePass& pass) {
-                end(pass);
-                rearBarriers(vertID);
-            },
-            [&](const PresentPass& pass) {
                 end(pass);
                 rearBarriers(vertID);
             },

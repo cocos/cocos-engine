@@ -275,15 +275,6 @@ SceneData::SceneData(SceneData const& rhs, const allocator_type& alloc)
   flags(rhs.flags),
   scenes(rhs.scenes, alloc) {}
 
-PresentPass::PresentPass(const allocator_type& alloc) noexcept
-: presents(alloc) {}
-
-PresentPass::PresentPass(PresentPass&& rhs, const allocator_type& alloc)
-: presents(std::move(rhs.presents), alloc) {}
-
-PresentPass::PresentPass(PresentPass const& rhs, const allocator_type& alloc)
-: presents(rhs.presents, alloc) {}
-
 RenderData::RenderData(const allocator_type& alloc) noexcept
 : constants(alloc),
   buffers(alloc),
@@ -307,7 +298,6 @@ RenderGraph::RenderGraph(const allocator_type& alloc) noexcept
   computePasses(alloc),
   copyPasses(alloc),
   movePasses(alloc),
-  presentPasses(alloc),
   raytracePasses(alloc),
   renderQueues(alloc),
   scenes(alloc),
@@ -328,7 +318,6 @@ RenderGraph::RenderGraph(RenderGraph&& rhs, const allocator_type& alloc)
   computePasses(std::move(rhs.computePasses), alloc),
   copyPasses(std::move(rhs.copyPasses), alloc),
   movePasses(std::move(rhs.movePasses), alloc),
-  presentPasses(std::move(rhs.presentPasses), alloc),
   raytracePasses(std::move(rhs.raytracePasses), alloc),
   renderQueues(std::move(rhs.renderQueues), alloc),
   scenes(std::move(rhs.scenes), alloc),
