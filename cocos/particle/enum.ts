@@ -207,4 +207,5 @@ export const ModuleRandSeed = {
     VELOCITY_X: 197866,
     VELOCITY_Y: 156497,
     VELOCITY_Z: 984136,
+    INHERIT_VELOCITY: 955354,
 };

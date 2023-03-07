@@ -120,6 +120,7 @@ export const PARTICLE_MODULE_NAME = {
     TEXTURE: 'textureModule',
     NOISE: 'noiseModule',
     FORCEFIELD: 'forcefieldModule',
+    INHERIT: 'inheritVelocityModule',
 };
 
 export const PARTICLE_MODULE_ORDER = [
@@ -132,6 +133,7 @@ export const PARTICLE_MODULE_ORDER = [
     'textureModule',
     'noiseModule',
     'forcefieldModule',
+    'inheritVelocityModule',
 ];
 
 export const PARTICLE_MODULE_PROPERTY = [
@@ -146,6 +148,7 @@ export const PARTICLE_MODULE_PROPERTY = [
     '_noiseModule',
     '_trailModule',
     '_forcefieldModule',
+    '_inheritVelocityModule',
 ];
 
 export interface IParticleModule {
