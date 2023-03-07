@@ -78,7 +78,7 @@ void ReflectionProbeFlow::renderStage(scene::Camera *camera, scene::ReflectionPr
             reflectionProbeStage->render(camera);
             probe->updatePlanarTexture(camera->getScene());
         } else {
-            //realtime render
+            //render the 6 faces of the cubemap
             for (uint32_t faceIdx = 0; faceIdx < 6; faceIdx++) {
                 //update camera dirction
                 probe->updateCameraDir(faceIdx);
