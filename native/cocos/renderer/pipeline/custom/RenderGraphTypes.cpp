@@ -86,11 +86,13 @@ RasterSubpass::RasterSubpass(const allocator_type& alloc) noexcept
 
 RasterSubpass::RasterSubpass(RasterSubpass&& rhs, const allocator_type& alloc)
 : rasterViews(std::move(rhs.rasterViews), alloc),
-  computeViews(std::move(rhs.computeViews), alloc) {}
+  computeViews(std::move(rhs.computeViews), alloc),
+  showStatistics(rhs.showStatistics) {}
 
 RasterSubpass::RasterSubpass(RasterSubpass const& rhs, const allocator_type& alloc)
 : rasterViews(rhs.rasterViews, alloc),
-  computeViews(rhs.computeViews, alloc) {}
+  computeViews(rhs.computeViews, alloc),
+  showStatistics(rhs.showStatistics) {}
 
 ComputeSubpass::ComputeSubpass(const allocator_type& alloc) noexcept
 : rasterViews(alloc),

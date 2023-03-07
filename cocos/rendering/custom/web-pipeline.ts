@@ -27,8 +27,8 @@ import { systemInfo } from 'pal/system-info';
 import { Color, Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, ClearFlagBit, DescriptorSet, deviceManager, Viewport, API, CommandBuffer, Type, SamplerInfo, Filter, Address, DescriptorSetInfo } from '../../gfx';
 import { Mat4, Quat, toRadian, Vec2, Vec3, Vec4, assert, macro, cclegacy } from '../../core';
 import { ComputeView, CopyPair, LightInfo, LightingMode, MovePair, QueueHint, RasterView, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
-import { Blit, ClearView, ComputePass, CopyPass, Dispatch, ManagedResource, MovePass, RasterPass, RenderData, RenderGraph, RenderGraphComponent, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData } from './render-graph';
-import { ComputePassBuilder, ComputeQueueBuilder, CopyPassBuilder, MovePassBuilder, Pipeline, PipelineBuilder, RasterPassBuilder, RasterQueueBuilder, SceneTransversal } from './pipeline';
+import { Blit, ClearView, ComputePass, ComputeSubpass, CopyPass, Dispatch, ManagedResource, MovePass, RasterPass, RasterSubpass, RenderData, RenderGraph, RenderGraphComponent, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData } from './render-graph';
+import { ComputePassBuilder, ComputeQueueBuilder, ComputeSubpassBuilder, CopyPassBuilder, MovePassBuilder, Pipeline, PipelineBuilder, RasterPassBuilder, RasterQueueBuilder, RasterSubpassBuilder, SceneTransversal } from './pipeline';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { Model, Camera, ShadowType, CSMLevel, DirectionalLight, SpotLight, PCFType, Shadows } from '../../render-scene/scene';
 import { Light, LightType } from '../../render-scene/scene/light';
@@ -650,6 +650,59 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
     private readonly _pipeline: PipelineSceneData;
 }
 
+export class WebRasterSubpassBuilder extends WebSetter implements RasterSubpassBuilder {
+    constructor (data: RenderData, renderGraph: RenderGraph, layoutGraph: LayoutGraphData,
+        vertID: number, subpass: RasterSubpass, pipeline: PipelineSceneData) {
+        super(data, layoutGraph);
+        this._renderGraph = renderGraph;
+        this._layoutGraph = layoutGraph;
+        this._vertID = vertID;
+        this._subpass = subpass;
+        this._pipeline = pipeline;
+
+        const layoutName = this._renderGraph.component<RenderGraphComponent.Layout>(
+            RenderGraphComponent.Layout, this._vertID,
+        );
+        this._layoutID = layoutGraph.locateChild(layoutGraph.nullVertex(), layoutName);
+    }
+    get name () {
+        return this._renderGraph.getName(this._vertID);
+    }
+    set name (name: string) {
+        this._renderGraph.setName(this._vertID, name);
+    }
+    addRasterView (name: string, view: RasterView): void {
+
+    }
+    addComputeView (name: string, view: ComputeView): void {
+
+    }
+    setViewport (viewport: Viewport): void {
+
+    }
+    addQueue (hint: QueueHint = QueueHint.RENDER_OPAQUE, name = 'Queue'): RasterQueueBuilder {
+        const queue = new RenderQueue(hint);
+        const data = new RenderData();
+        const queueID = this._renderGraph.addVertex<RenderGraphValue.Queue>(
+            RenderGraphValue.Queue, queue, name, '', data, false, this._vertID,
+        );
+        return new WebRasterQueueBuilder(data, this._renderGraph, this._layoutGraph, queueID, queue, this._pipeline);
+    }
+    get showStatistics (): boolean {
+        return this._subpass.showStatistics;
+    }
+    set showStatistics (enable: boolean) {
+        this._subpass.showStatistics = enable;
+    }
+
+    private readonly _renderGraph: RenderGraph;
+    private readonly _vertID: number;
+    private readonly _layoutID: number;
+    private readonly _subpass: RasterSubpass;
+    private readonly _pipeline: PipelineSceneData;
+    private readonly _layoutGraph: LayoutGraphData;
+}
+
 export class WebRasterPassBuilder extends WebSetter implements RasterPassBuilder {
     constructor (data: RenderData, renderGraph: RenderGraph, layoutGraph: LayoutGraphData, vertID: number, pass: RasterPass, pipeline: PipelineSceneData) {
         super(data, layoutGraph);
@@ -684,7 +737,20 @@ export class WebRasterPassBuilder extends WebSetter implements RasterPassBuilder
             this._pass.computeViews.set(name, [view]);
         }
     }
-
+    addRasterSubpass (layoutName = ''): RasterSubpassBuilder {
+        const name = 'Raster';
+        const subpass = new RasterSubpass();
+        const data = new RenderData();
+        // const vertID = this._renderGraph.addVertex<RenderGraphValue.Raster>(
+        //     RenderGraphValue.Raster, subpass, name, layoutName, data, false,
+        // );
+        const vertID = this._renderGraph.nullVertex();
+        const result = new WebRasterSubpassBuilder(data, this._renderGraph, this._layoutGraph, vertID, subpass, this._pipeline);
+        return result;
+    }
+    addComputeSubpass (layoutName = ''): ComputeSubpassBuilder {
+        throw new Error('Method not implemented.');
+    }
     addQueue (hint: QueueHint = QueueHint.RENDER_OPAQUE, name = 'Queue') {
         const queue = new RenderQueue(hint);
         const data = new RenderData();
