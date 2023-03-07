@@ -224,7 +224,7 @@ void ReflectionProbe::disable() {
     scene::ReflectionProbeManager::getInstance()->unRegisterProbe(this);
 }
 
-void ReflectionProbe::update(float dt){
+void ReflectionProbe::update(){
     if (_renderMode != ProbeRenderMode::REALTIME) {
         return;
     }

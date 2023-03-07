@@ -24289,18 +24289,14 @@ static bool js_cc_scene_ReflectionProbe_update(se::State& s)
     const auto& args = s.args();
     size_t argc = args.size();
     cc::scene::ReflectionProbe *arg1 = (cc::scene::ReflectionProbe *) NULL ;
-    float arg2 ;
     
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
         return false;
     }
     arg1 = SE_THIS_OBJECT<cc::scene::ReflectionProbe>(s);
     if (nullptr == arg1) return true;
-    
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
-    (arg1)->update(arg2);
+    (arg1)->update();
     
     
     return true;

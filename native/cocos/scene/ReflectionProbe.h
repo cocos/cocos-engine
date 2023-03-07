@@ -139,7 +139,7 @@ public:
     void destroy();
     void enable();
     void disable();
-    void update(float dt);
+    void update();
 
     inline bool validate() const { return _cubemap != nullptr; }
 

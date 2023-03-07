@@ -429,7 +429,7 @@ export class ReflectionProbe {
     }
     public disable () {
     }
-    public update (dt: number) {
+    public update () {
         if (this.renderMode !== ProbeRenderMode.REALTIME) {
             return;
         }

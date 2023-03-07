@@ -383,7 +383,7 @@ export class ReflectionProbe extends Component {
 
     public update (dt: number) {
         if (!this.probe) return;
-        this.probe.update(dt);
+        this.probe.update();
         if (EDITOR && !cclegacy.GAME_VIEW) {
             if (this.probeType === ProbeType.PLANAR) {
                 const cameraLst: scene.Camera[] | undefined = this.node.scene.renderScene?.cameras;
