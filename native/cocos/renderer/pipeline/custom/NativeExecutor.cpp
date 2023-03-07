@@ -1168,12 +1168,12 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         // not implemented yet
         CC_EXPECTS(false);
     }
-    void begin(const RenderQueue& queue, RenderGraph::vertex_descriptor vertID) const {
+    void begin(const RenderQueue& queue, RenderGraph::vertex_descriptor vertID) const { // NOLINT(readability-convert-member-functions-to-static)
         // PerPhase DescriptorSet
         std::ignore = queue;
         tryBindPerPhaseDescriptorSet(vertID);
     }
-    void begin(const SceneData& sceneData, RenderGraph::vertex_descriptor sceneID) const {
+    void begin(const SceneData& sceneData, RenderGraph::vertex_descriptor sceneID) const { // NOLINT(readability-convert-member-functions-to-static)
         auto* camera = sceneData.camera;
         CC_EXPECTS(camera);
         if (camera) { // update camera data
@@ -1273,12 +1273,12 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         ctx.currentPass = nullptr;
         ctx.currentPassLayoutID = LayoutGraphData::null_vertex();
     }
-    void end(const RasterSubpass& subpass, RenderGraph::vertex_descriptor vertID) const {
+    void end(const RasterSubpass& subpass, RenderGraph::vertex_descriptor vertID) const { // NOLINT(readability-convert-member-functions-to-static)
         std::ignore = subpass;
         std::ignore = vertID;
         // noop
     }
-    void end(const ComputeSubpass& subpass, RenderGraph::vertex_descriptor vertID) const {
+    void end(const ComputeSubpass& subpass, RenderGraph::vertex_descriptor vertID) const { // NOLINT(readability-convert-member-functions-to-static)
         std::ignore = subpass;
         std::ignore = vertID;
         // noop
