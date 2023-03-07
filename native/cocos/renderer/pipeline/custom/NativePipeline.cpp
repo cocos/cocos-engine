@@ -206,7 +206,7 @@ void NativePipeline::updateRenderWindow(const ccstd::string &name, scene::Render
     if (resID == ResourceGraph::null_vertex()) {
         return;
     }
-    auto &desc = get(ResourceGraph::Desc, resourceGraph, resID);
+    auto &desc = get(ResourceGraph::DescTag{}, resourceGraph, resID);
     visitObject(
         resID, resourceGraph,
         [&](IntrusivePtr<gfx::Framebuffer> &fb) {
@@ -237,7 +237,7 @@ void NativePipeline::updateRenderTarget(
     if (resID == ResourceGraph::null_vertex()) {
         return;
     }
-    auto &desc = get(ResourceGraph::Desc, resourceGraph, resID);
+    auto &desc = get(ResourceGraph::DescTag{}, resourceGraph, resID);
 
     // update format
     if (format == gfx::Format::UNKNOWN) {
@@ -415,7 +415,7 @@ void NativePipeline::presentAll() {
     for (const auto &rasterPass : renderGraph.rasterPasses) {
         for (const auto &[name, view] : rasterPass.rasterViews) {
             const auto &resourceID = findVertex(name, resourceGraph);
-            const auto &traits = get(ResourceGraph::Traits, resourceGraph, resourceID);
+            const auto &traits = get(ResourceGraph::TraitsTag{}, resourceGraph, resourceID);
             if (traits.residency == ResourceResidency::BACKBUFFER) {
                 present.presents.emplace(
                     std::piecewise_construct,
@@ -443,7 +443,7 @@ gfx::DescriptorSetLayout *NativePipeline::getDescriptorSetLayout(const ccstd::st
     const auto &lg = programLibrary->layoutGraph;
     auto iter = lg.shaderLayoutIndex.find(std::string_view{shaderName});
     if (iter != lg.shaderLayoutIndex.end()) {
-        const auto &layouts = get(LayoutGraphData::Layout, lg, iter->second).descriptorSets;
+        const auto &layouts = get(LayoutGraphData::LayoutTag{}, lg, iter->second).descriptorSets;
         auto iter2 = layouts.find(freq);
         if (iter2 != layouts.end()) {
             return iter2->second.descriptorSetLayout.get();
@@ -513,7 +513,7 @@ bool NativePipeline::activate(gfx::Swapchain *swapchainIn) {
 
     for (uint32_t i = 0; i != numNodes; ++i) {
         auto &node = nativeContext.layoutGraphResources.emplace_back();
-        const auto &layout = get(LayoutGraphData::Layout, lg, i);
+        const auto &layout = get(LayoutGraphData::LayoutTag{}, lg, i);
         if (holds<RenderStageTag>(i, lg)) {
             auto iter = layout.descriptorSets.find(UpdateFrequency::PER_PASS);
             if (iter == layout.descriptorSets.end()) {

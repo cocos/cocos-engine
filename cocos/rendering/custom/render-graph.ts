@@ -88,7 +88,7 @@ export class ManagedResource {
     unused = 0;
 }
 
-export class RasterSubpass {
+export class Subpass {
     readonly rasterViews: Map<string, RasterView> = new Map<string, RasterView>();
     readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
 }
@@ -120,13 +120,13 @@ export class SubpassGraphNameMap implements PropertyMap {
 }
 
 export class SubpassGraphSubpassMap implements PropertyMap {
-    constructor (readonly subpasses: RasterSubpass[]) {
+    constructor (readonly subpasses: Subpass[]) {
         this._subpasses = subpasses;
     }
-    get (v: number): RasterSubpass {
+    get (v: number): Subpass {
         return this._subpasses[v];
     }
-    readonly _subpasses: RasterSubpass[];
+    readonly _subpasses: Subpass[];
 }
 
 //-----------------------------------------------------------------
@@ -138,7 +138,7 @@ export const enum SubpassGraphComponent {
 
 export interface SubpassGraphComponentType {
     [SubpassGraphComponent.Name]: string;
-    [SubpassGraphComponent.Subpass]: RasterSubpass;
+    [SubpassGraphComponent.Subpass]: Subpass;
 }
 
 export interface SubpassGraphComponentPropertyMap {
@@ -236,7 +236,7 @@ export class SubpassGraph implements BidirectionalGraph
     }
     addVertex (
         name: string,
-        subpass: RasterSubpass,
+        subpass: Subpass,
     ): number {
         const vert = new SubpassGraphVertex();
         const v = this._vertices.length;
@@ -386,14 +386,24 @@ export class SubpassGraph implements BidirectionalGraph
     setName (v: number, value: string) {
         this._names[v] = value;
     }
-    getSubpass (v: number): RasterSubpass {
+    getSubpass (v: number): Subpass {
         return this._subpasses[v];
     }
 
     readonly components: string[] = ['Name', 'Subpass'];
     readonly _vertices: SubpassGraphVertex[] = [];
     readonly _names: string[] = [];
-    readonly _subpasses: RasterSubpass[] = [];
+    readonly _subpasses: Subpass[] = [];
+}
+
+export class RasterSubpass {
+    readonly rasterViews: Map<string, RasterView> = new Map<string, RasterView>();
+    readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
+}
+
+export class ComputeSubpass {
+    readonly rasterViews: Map<string, RasterView> = new Map<string, RasterView>();
+    readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
 }
 
 export class RasterPass {

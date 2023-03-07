@@ -241,10 +241,8 @@ struct LayoutGraph {
         VertexHandle handle;
     };
 
-    struct NameTag {
-    } static constexpr Name{}; // NOLINT
-    struct DescriptorsTag {
-    } static constexpr Descriptors{}; // NOLINT
+    struct NameTag {};
+    struct DescriptorsTag {};
 
     // Vertices
     ccstd::pmr::vector<Vertex> _vertices;
@@ -684,12 +682,9 @@ struct LayoutGraphData {
         VertexHandle handle;
     };
 
-    struct NameTag {
-    } static constexpr Name{}; // NOLINT
-    struct UpdateTag {
-    } static constexpr Update{}; // NOLINT
-    struct LayoutTag {
-    } static constexpr Layout{}; // NOLINT
+    struct NameTag {};
+    struct UpdateTag {};
+    struct LayoutTag {};
 
     // Vertices
     ccstd::pmr::vector<Vertex> _vertices;

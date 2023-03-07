@@ -992,7 +992,7 @@ gfx::DescriptorSetLayout *getDescriptorSetLayout(
     const LayoutGraphData &lg,
     uint32_t passID, uint32_t phaseID, UpdateFrequency rate) { // NOLINT(bugprone-easily-swappable-parameters)
     if (rate < UpdateFrequency::PER_PASS) {
-        const auto &phaseData = get(LayoutGraphData::Layout, lg, phaseID);
+        const auto &phaseData = get(LayoutGraphData::LayoutTag{}, lg, phaseID);
         auto iter = phaseData.descriptorSets.find(rate);
         if (iter != phaseData.descriptorSets.end()) {
             const auto &data = iter->second;
@@ -1008,7 +1008,7 @@ gfx::DescriptorSetLayout *getDescriptorSetLayout(
     CC_EXPECTS(rate == UpdateFrequency::PER_PASS);
     CC_EXPECTS(passID == parent(phaseID, lg));
 
-    const auto &passData = get(LayoutGraphData::Layout, lg, passID);
+    const auto &passData = get(LayoutGraphData::LayoutTag{}, lg, passID);
     auto iter = passData.descriptorSets.find(rate);
     if (iter != passData.descriptorSets.end()) {
         const auto &data = iter->second;
@@ -1052,7 +1052,7 @@ const gfx::DescriptorSetLayout &getOrCreateDescriptorSetLayout(
     const LayoutGraphData &lg,
     uint32_t passID, uint32_t phaseID, UpdateFrequency rate) { // NOLINT(bugprone-easily-swappable-parameters)
     if (rate < UpdateFrequency::PER_PASS) {
-        const auto &phaseData = get(LayoutGraphData::Layout, lg, phaseID);
+        const auto &phaseData = get(LayoutGraphData::LayoutTag{}, lg, phaseID);
         auto iter = phaseData.descriptorSets.find(rate);
         if (iter != phaseData.descriptorSets.end()) {
             const auto &data = iter->second;
@@ -1068,7 +1068,7 @@ const gfx::DescriptorSetLayout &getOrCreateDescriptorSetLayout(
     CC_EXPECTS(rate == UpdateFrequency::PER_PASS);
     CC_EXPECTS(passID == parent(phaseID, lg));
 
-    const auto &passData = get(LayoutGraphData::Layout, lg, passID);
+    const auto &passData = get(LayoutGraphData::LayoutTag{}, lg, passID);
     const auto iter = passData.descriptorSets.find(rate);
     if (iter != passData.descriptorSets.end()) {
         const auto &data = iter->second;
@@ -1151,7 +1151,7 @@ void NativeProgramLibrary::init(gfx::Device *deviceIn) {
     // init layout graph
     auto &lg = layoutGraph;
     for (const auto v : makeRange(vertices(lg))) {
-        auto &layout = get(LayoutGraphData::Layout, lg, v);
+        auto &layout = get(LayoutGraphData::LayoutTag{}, lg, v);
         for (auto &&[update, set] : layout.descriptorSets) {
             if (set.descriptorSetLayout) {
                 CC_LOG_WARNING("descriptor set layout already initialized. It will be overwritten");
@@ -1172,8 +1172,8 @@ void NativeProgramLibrary::init(gfx::Device *deviceIn) {
         }
         const auto phaseID = v;
         const auto passID = parent(phaseID, lg);
-        const auto &passLayout = get(LayoutGraphData::Layout, lg, passID);
-        const auto &phaseLayout = get(LayoutGraphData::Layout, lg, phaseID);
+        const auto &passLayout = get(LayoutGraphData::LayoutTag{}, lg, passID);
+        const auto &phaseLayout = get(LayoutGraphData::LayoutTag{}, lg, phaseID);
         gfx::PipelineLayoutInfo info;
         populatePipelineLayoutInfo(*this, passLayout, UpdateFrequency::PER_PASS, info);
         populatePipelineLayoutInfo(*this, phaseLayout, UpdateFrequency::PER_PHASE, info);
@@ -1233,8 +1233,8 @@ void NativeProgramLibrary::addEffect(const EffectAsset *effectAssetIn) {
             }
             const auto &srcShaderInfo = *pShaderInfo;
             CC_ENSURES(passID != INVALID_ID && phaseID != INVALID_ID);
-            const auto &passLayout = get(LayoutGraphData::Layout, lg, passID);
-            const auto &phaseLayout = get(LayoutGraphData::Layout, lg, phaseID);
+            const auto &passLayout = get(LayoutGraphData::LayoutTag{}, lg, passID);
+            const auto &phaseLayout = get(LayoutGraphData::LayoutTag{}, lg, phaseID);
 
             // programs
             auto iter = this->phases.find(phaseID);

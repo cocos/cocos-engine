@@ -720,12 +720,12 @@ gfx::DescriptorSet* updateCameraUniformBufferAndDescriptorSet(
     // update states
     CC_EXPECTS(ctx.currentPassLayoutID != LayoutGraphData::null_vertex());
     const auto& passLayoutID = ctx.currentPassLayoutID;
-    auto& layout = get(LayoutGraphData::Layout, ctx.lg, passLayoutID);
+    auto& layout = get(LayoutGraphData::LayoutTag{}, ctx.lg, passLayoutID);
     auto iter = layout.descriptorSets.find(UpdateFrequency::PER_PASS);
     if (iter != layout.descriptorSets.end()) {
         auto& set = iter->second;
         auto& node = ctx.context.layoutGraphResources.at(passLayoutID);
-        const auto& user = get(RenderGraph::Data, ctx.g, sceneID); // notice: sceneID
+        const auto& user = get(RenderGraph::DataTag{}, ctx.g, sceneID); // notice: sceneID
         perPassSet = updatePerPassDescriptorSet(ctx.cmdBuff, ctx.lg, set, user, node);
     }
     return perPassSet;
@@ -927,11 +927,11 @@ struct RenderGraphUploadVisitor : boost::dfs_visitor<> {
         if (holds<RasterTag>(vertID, ctx.g) || holds<ComputeTag>(vertID, ctx.g)) {
             const auto& pass = get(RasterTag{}, vertID, ctx.g);
             // render pass
-            const auto& layoutName = get(RenderGraph::Layout, ctx.g, vertID);
+            const auto& layoutName = get(RenderGraph::LayoutTag{}, ctx.g, vertID);
             const auto& layoutID = locate(LayoutGraphData::null_vertex(), layoutName, ctx.lg);
             CC_EXPECTS(layoutID == ctx.currentPassLayoutID);
             // get layout
-            auto& layout = get(LayoutGraphData::Layout, ctx.lg, layoutID);
+            auto& layout = get(LayoutGraphData::LayoutTag{}, ctx.lg, layoutID);
 
             // update states
             auto iter = layout.descriptorSets.find(UpdateFrequency::PER_PASS);
@@ -945,7 +945,7 @@ struct RenderGraphUploadVisitor : boost::dfs_visitor<> {
 
             // populate set
             auto& set = iter->second;
-            const auto& user = get(RenderGraph::Data, ctx.g, vertID);
+            const auto& user = get(RenderGraph::DataTag{}, ctx.g, vertID);
             auto& node = ctx.context.layoutGraphResources.at(layoutID);
             auto* perPassSet = initDescriptorSet(
                 ctx.resourceGraph,
@@ -966,7 +966,7 @@ struct RenderGraphUploadVisitor : boost::dfs_visitor<> {
             const auto& computeViews = getComputeViews(passID, ctx.g);
 
             // get layout
-            auto& layout = get(LayoutGraphData::Layout, ctx.lg, layoutID);
+            auto& layout = get(LayoutGraphData::LayoutTag{}, ctx.lg, layoutID);
             auto iter = layout.descriptorSets.find(UpdateFrequency::PER_PHASE);
             if (iter == layout.descriptorSets.end()) {
                 return;
@@ -978,7 +978,7 @@ struct RenderGraphUploadVisitor : boost::dfs_visitor<> {
 
             // populate set
             auto& set = iter->second;
-            const auto& user = get(RenderGraph::Data, ctx.g, vertID);
+            const auto& user = get(RenderGraph::DataTag{}, ctx.g, vertID);
             auto& node = ctx.context.layoutGraphResources.at(layoutID);
 
             auto* perPhaseSet = initDescriptorSet(
@@ -1357,7 +1357,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
             [&](const RasterPass& pass) {
                 mountResources(pass);
                 {
-                    const auto& layoutName = get(RenderGraph::Layout, ctx.g, vertID);
+                    const auto& layoutName = get(RenderGraph::LayoutTag{}, ctx.g, vertID);
                     const auto& layoutID = locate(LayoutGraphData::null_vertex(), layoutName, ctx.lg);
                     ctx.currentPassLayoutID = layoutID;
                 }
@@ -1379,7 +1379,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
                         auto* cmdBuff = ctx.cmdBuff;
                         const auto& submodel = profiler->getSubModels()[0];
                         auto* pass = submodel->getPass(0);
-                        auto& layout = get(LayoutGraphData::Layout, ctx.lg, pass->getPassID());
+                        auto& layout = get(LayoutGraphData::LayoutTag{}, ctx.lg, pass->getPassID());
                         auto iter = layout.descriptorSets.find(UpdateFrequency::PER_PASS);
                         if (iter != layout.descriptorSets.end()) {
                             auto& set = iter->second;
@@ -1733,7 +1733,7 @@ void mergeSceneFlags(
         CC_ENSURES(queueID != RenderGraph::null_vertex());
         const auto passID = parent(queueID, rg);
         CC_ENSURES(passID != RenderGraph::null_vertex());
-        const auto& layoutName = get(RenderGraph::Layout, rg, passID);
+        const auto& layoutName = get(RenderGraph::LayoutTag{}, rg, passID);
         CC_ENSURES(!layoutName.empty());
         const auto layoutID = locate(LayoutGraphData::null_vertex(), layoutName, lg);
         CC_ENSURES(layoutID != LayoutGraphData::null_vertex());
@@ -1870,7 +1870,7 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
     { // Mark all culled vertices
         RenderGraphCullVisitor visitor{{}, validPasses};
         for (const auto& vertID : fgd.resourceAccessGraph.culledPasses) {
-            const auto nodeID = get(ResourceAccessGraph::PassID, fgd.resourceAccessGraph, vertID);
+            const auto nodeID = get(ResourceAccessGraph::PassIDTag{}, fgd.resourceAccessGraph, vertID);
             if (nodeID == RenderGraph::null_vertex()) {
                 continue;
             }

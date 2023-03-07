@@ -102,14 +102,14 @@ static void fillTestGraph(const ViewInfo &rasterData, const ResourceInfo &rescIn
 
         bool hasSubpass = count > 1;
 
-        RasterSubpass *subpass = nullptr;
+        Subpass *subpass = nullptr;
 
         for (size_t j = 0; j < count; ++j) {
             assert(subpasses[j].size() == 2); // inputs and outputs
             const auto &attachments = subpasses[j];
             bool isOutput = false;
 
-            RasterSubpass *subpass = nullptr;
+            Subpass *subpass = nullptr;
             if (hasSubpass) {
                 const ccstd::string subpassName = "subpass" + std::to_string(passID);
                 auto subpassVertexID = add_vertex(subpassGraph, subpassName.c_str());

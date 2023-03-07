@@ -111,6 +111,8 @@ public:
     void addRasterView(const ccstd::string &name, const RasterView &view) override;
     void addComputeView(const ccstd::string &name, const ComputeView &view) override;
     RasterQueueBuilder *addQueue(QueueHint hint, const ccstd::string &layoutName) override;
+    RasterSubpassBuilder *addRasterSubpass(const ccstd::string &layoutName) override;
+    ComputeSubpassBuilder *addComputeSubpass(const ccstd::string &layoutName) override;
     void setViewport(const gfx::Viewport &viewport) override;
     void setVersion(const ccstd::string &name, uint64_t version) override;
     bool getShowStatistics() const override;

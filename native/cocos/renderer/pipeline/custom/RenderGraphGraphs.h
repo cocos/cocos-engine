@@ -979,34 +979,34 @@ struct property_map<cc::render::SubpassGraph, cc::render::SubpassGraph::SubpassT
     using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         const cc::render::SubpassGraph,
-        const ccstd::pmr::vector<cc::render::RasterSubpass>,
-        cc::render::RasterSubpass,
-        const cc::render::RasterSubpass&>;
+        const ccstd::pmr::vector<cc::render::Subpass>,
+        cc::render::Subpass,
+        const cc::render::Subpass&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         lvalue_property_map_tag,
         cc::render::SubpassGraph,
-        ccstd::pmr::vector<cc::render::RasterSubpass>,
-        cc::render::RasterSubpass,
-        cc::render::RasterSubpass&>;
+        ccstd::pmr::vector<cc::render::Subpass>,
+        cc::render::Subpass,
+        cc::render::Subpass&>;
 };
 
 // Vertex ComponentMember
 template <class T>
-struct property_map<cc::render::SubpassGraph, T cc::render::RasterSubpass::*> {
+struct property_map<cc::render::SubpassGraph, T cc::render::Subpass::*> {
     using const_type = cc::render::impl::VectorVertexComponentMemberPropertyMap<
         lvalue_property_map_tag,
         const cc::render::SubpassGraph,
-        const ccstd::pmr::vector<cc::render::RasterSubpass>,
+        const ccstd::pmr::vector<cc::render::Subpass>,
         T,
         const T&,
-        T cc::render::RasterSubpass::*>;
+        T cc::render::Subpass::*>;
     using type = cc::render::impl::VectorVertexComponentMemberPropertyMap<
         lvalue_property_map_tag,
         cc::render::SubpassGraph,
-        ccstd::pmr::vector<cc::render::RasterSubpass>,
+        ccstd::pmr::vector<cc::render::Subpass>,
         T,
         T&,
-        T cc::render::RasterSubpass::*>;
+        T cc::render::Subpass::*>;
 };
 
 // Vertex Index
@@ -1338,14 +1338,14 @@ get(SubpassGraph::SubpassTag /*tag*/, SubpassGraph& g) noexcept {
 
 // Vertex ComponentMember
 template <class T>
-inline typename boost::property_map<SubpassGraph, T RasterSubpass::*>::const_type
-get(T RasterSubpass::*memberPointer, const SubpassGraph& g) noexcept {
+inline typename boost::property_map<SubpassGraph, T Subpass::*>::const_type
+get(T Subpass::*memberPointer, const SubpassGraph& g) noexcept {
     return {g.subpasses, memberPointer};
 }
 
 template <class T>
-inline typename boost::property_map<SubpassGraph, T RasterSubpass::*>::type
-get(T RasterSubpass::*memberPointer, SubpassGraph& g) noexcept {
+inline typename boost::property_map<SubpassGraph, T Subpass::*>::type
+get(T Subpass::*memberPointer, SubpassGraph& g) noexcept {
     return {g.subpasses, memberPointer};
 }
 

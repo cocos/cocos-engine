@@ -97,14 +97,13 @@ export interface RasterQueueBuilder extends Setter {
     setViewport (viewport: Viewport): void;
 }
 
-export interface RasterPassBuilder extends Setter {
+export interface RasterSubpassBuilder extends Setter {
     addRasterView (name: string, view: RasterView): void;
     addComputeView (name: string, view: ComputeView): void;
+    setViewport (viewport: Viewport): void;
     addQueue (hint: QueueHint, layoutName: string): RasterQueueBuilder;
     addQueue (hint: QueueHint/*, ''*/): RasterQueueBuilder;
     addQueue (/*QueueHint.NONE, ''*/): RasterQueueBuilder;
-    setViewport (viewport: Viewport): void;
-    setVersion (name: string, version: number): void;
     showStatistics: boolean;
 }
 
@@ -112,6 +111,28 @@ export interface ComputeQueueBuilder extends Setter {
     addDispatch (threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number, material: Material, passID: number): void;
     addDispatch (threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number, material: Material/*, 0*/): void;
     addDispatch (threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number/*, null, 0*/): void;
+}
+
+export interface ComputeSubpassBuilder extends Setter {
+    addRasterView (name: string, view: RasterView): void;
+    addComputeView (name: string, view: ComputeView): void;
+    addQueue (layoutName: string): ComputeQueueBuilder;
+    addQueue (/*''*/): ComputeQueueBuilder;
+}
+
+export interface RasterPassBuilder extends Setter {
+    addRasterView (name: string, view: RasterView): void;
+    addComputeView (name: string, view: ComputeView): void;
+    addQueue (hint: QueueHint, layoutName: string): RasterQueueBuilder;
+    addQueue (hint: QueueHint/*, ''*/): RasterQueueBuilder;
+    addQueue (/*QueueHint.NONE, ''*/): RasterQueueBuilder;
+    addRasterSubpass (layoutName: string): RasterSubpassBuilder;
+    addRasterSubpass (/*''*/): RasterSubpassBuilder;
+    addComputeSubpass (layoutName: string): ComputeSubpassBuilder;
+    addComputeSubpass (/*''*/): ComputeSubpassBuilder;
+    setViewport (viewport: Viewport): void;
+    setVersion (name: string, version: number): void;
+    showStatistics: boolean;
 }
 
 export interface ComputePassBuilder extends Setter {

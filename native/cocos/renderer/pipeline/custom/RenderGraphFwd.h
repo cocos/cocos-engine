@@ -45,8 +45,10 @@ struct ResourceStates;
 struct ManagedBuffer;
 struct ManagedTexture;
 struct ManagedResource;
-struct RasterSubpass;
+struct Subpass;
 struct SubpassGraph;
+struct RasterSubpass;
+struct ComputeSubpass;
 struct RasterPass;
 struct PersistentRenderPassAndFramebuffer;
 struct ManagedTag;
@@ -86,8 +88,8 @@ struct RenderGraph;
 namespace ccstd {
 
 template <>
-struct hash<cc::render::RasterSubpass> {
-    hash_t operator()(const cc::render::RasterSubpass& val) const noexcept;
+struct hash<cc::render::Subpass> {
+    hash_t operator()(const cc::render::Subpass& val) const noexcept;
 };
 
 template <>
