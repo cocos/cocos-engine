@@ -1127,12 +1127,12 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         // PerPass DescriptorSet
         tryBindPerPassDescriptorSet(vertID);
     }
-    void begin(const RasterSubpass& subpass, RenderGraph::vertex_descriptor vertID) const {
+    void begin(const RasterSubpass& subpass, RenderGraph::vertex_descriptor vertID) const { // NOLINT(readability-convert-member-functions-to-static)
         std::ignore = subpass;
         std::ignore = vertID;
         // noop
     }
-    void begin(const ComputeSubpass& subpass, RenderGraph::vertex_descriptor vertID) const {
+    void begin(const ComputeSubpass& subpass, RenderGraph::vertex_descriptor vertID) const { // NOLINT(readability-convert-member-functions-to-static)
         std::ignore = subpass;
         std::ignore = vertID;
         // noop
