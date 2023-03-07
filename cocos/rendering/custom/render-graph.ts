@@ -1151,6 +1151,8 @@ export class RenderData {
 // PolymorphicGraph Concept
 export const enum RenderGraphValue {
     Raster,
+    RasterSubpass,
+    ComputeSubpass,
     Compute,
     Copy,
     Move,
@@ -1166,6 +1168,8 @@ export const enum RenderGraphValue {
 export function getRenderGraphValueName (e: RenderGraphValue): string {
     switch (e) {
     case RenderGraphValue.Raster: return 'Raster';
+    case RenderGraphValue.RasterSubpass: return 'RasterSubpass';
+    case RenderGraphValue.ComputeSubpass: return 'ComputeSubpass';
     case RenderGraphValue.Compute: return 'Compute';
     case RenderGraphValue.Copy: return 'Copy';
     case RenderGraphValue.Move: return 'Move';
@@ -1182,6 +1186,8 @@ export function getRenderGraphValueName (e: RenderGraphValue): string {
 
 export interface RenderGraphValueType {
     [RenderGraphValue.Raster]: RasterPass
+    [RenderGraphValue.RasterSubpass]: RasterSubpass
+    [RenderGraphValue.ComputeSubpass]: ComputeSubpass
     [RenderGraphValue.Compute]: ComputePass
     [RenderGraphValue.Copy]: CopyPass
     [RenderGraphValue.Move]: MovePass
@@ -1196,6 +1202,8 @@ export interface RenderGraphValueType {
 
 export interface RenderGraphVisitor {
     raster(value: RasterPass): unknown;
+    rasterSubpass(value: RasterSubpass): unknown;
+    computeSubpass(value: ComputeSubpass): unknown;
     compute(value: ComputePass): unknown;
     copy(value: CopyPass): unknown;
     move(value: MovePass): unknown;
@@ -1209,6 +1217,8 @@ export interface RenderGraphVisitor {
 }
 
 export type RenderGraphObject = RasterPass
+| RasterSubpass
+| ComputeSubpass
 | ComputePass
 | CopyPass
 | MovePass
@@ -1662,6 +1672,10 @@ export class RenderGraph implements BidirectionalGraph
         switch (vert._id) {
         case RenderGraphValue.Raster:
             return visitor.raster(vert._object as RasterPass);
+        case RenderGraphValue.RasterSubpass:
+            return visitor.rasterSubpass(vert._object as RasterSubpass);
+        case RenderGraphValue.ComputeSubpass:
+            return visitor.computeSubpass(vert._object as ComputeSubpass);
         case RenderGraphValue.Compute:
             return visitor.compute(vert._object as ComputePass);
         case RenderGraphValue.Copy:
@@ -1689,6 +1703,20 @@ export class RenderGraph implements BidirectionalGraph
     getRaster (v: number): RasterPass {
         if (this._vertices[v]._id === RenderGraphValue.Raster) {
             return this._vertices[v]._object as RasterPass;
+        } else {
+            throw Error('value id not match');
+        }
+    }
+    getRasterSubpass (v: number): RasterSubpass {
+        if (this._vertices[v]._id === RenderGraphValue.RasterSubpass) {
+            return this._vertices[v]._object as RasterSubpass;
+        } else {
+            throw Error('value id not match');
+        }
+    }
+    getComputeSubpass (v: number): ComputeSubpass {
+        if (this._vertices[v]._id === RenderGraphValue.ComputeSubpass) {
+            return this._vertices[v]._object as ComputeSubpass;
         } else {
             throw Error('value id not match');
         }
@@ -1766,6 +1794,20 @@ export class RenderGraph implements BidirectionalGraph
     tryGetRaster (v: number): RasterPass | null {
         if (this._vertices[v]._id === RenderGraphValue.Raster) {
             return this._vertices[v]._object as RasterPass;
+        } else {
+            return null;
+        }
+    }
+    tryGetRasterSubpass (v: number): RasterSubpass | null {
+        if (this._vertices[v]._id === RenderGraphValue.RasterSubpass) {
+            return this._vertices[v]._object as RasterSubpass;
+        } else {
+            return null;
+        }
+    }
+    tryGetComputeSubpass (v: number): ComputeSubpass | null {
+        if (this._vertices[v]._id === RenderGraphValue.ComputeSubpass) {
+            return this._vertices[v]._object as ComputeSubpass;
         } else {
             return null;
         }

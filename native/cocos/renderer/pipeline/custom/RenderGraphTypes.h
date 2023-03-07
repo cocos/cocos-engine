@@ -843,11 +843,13 @@ struct RenderGraph {
     }
 
     // PolymorphicGraph
-    using VertexTag         = ccstd::variant<RasterTag, ComputeTag, CopyTag, MoveTag, RaytraceTag, QueueTag, SceneTag, BlitTag, DispatchTag, ClearTag, ViewportTag>;
-    using VertexValue       = ccstd::variant<RasterPass*, ComputePass*, CopyPass*, MovePass*, RaytracePass*, RenderQueue*, SceneData*, Blit*, Dispatch*, ccstd::pmr::vector<ClearView>*, gfx::Viewport*>;
-    using VertexConstValue = ccstd::variant<const RasterPass*, const ComputePass*, const CopyPass*, const MovePass*, const RaytracePass*, const RenderQueue*, const SceneData*, const Blit*, const Dispatch*, const ccstd::pmr::vector<ClearView>*, const gfx::Viewport*>;
+    using VertexTag         = ccstd::variant<RasterTag, RasterSubpassTag, ComputeSubpassTag, ComputeTag, CopyTag, MoveTag, RaytraceTag, QueueTag, SceneTag, BlitTag, DispatchTag, ClearTag, ViewportTag>;
+    using VertexValue       = ccstd::variant<RasterPass*, RasterSubpass*, ComputeSubpass*, ComputePass*, CopyPass*, MovePass*, RaytracePass*, RenderQueue*, SceneData*, Blit*, Dispatch*, ccstd::pmr::vector<ClearView>*, gfx::Viewport*>;
+    using VertexConstValue = ccstd::variant<const RasterPass*, const RasterSubpass*, const ComputeSubpass*, const ComputePass*, const CopyPass*, const MovePass*, const RaytracePass*, const RenderQueue*, const SceneData*, const Blit*, const Dispatch*, const ccstd::pmr::vector<ClearView>*, const gfx::Viewport*>;
     using VertexHandle      = ccstd::variant<
         impl::ValueHandle<RasterTag, vertex_descriptor>,
+        impl::ValueHandle<RasterSubpassTag, vertex_descriptor>,
+        impl::ValueHandle<ComputeSubpassTag, vertex_descriptor>,
         impl::ValueHandle<ComputeTag, vertex_descriptor>,
         impl::ValueHandle<CopyTag, vertex_descriptor>,
         impl::ValueHandle<MoveTag, vertex_descriptor>,
@@ -920,6 +922,8 @@ struct RenderGraph {
     ccstd::pmr::vector<bool> valid;
     // PolymorphicGraph
     ccstd::pmr::vector<RasterPass> rasterPasses;
+    ccstd::pmr::vector<RasterSubpass> rasterSubpasses;
+    ccstd::pmr::vector<ComputeSubpass> computeSubpasses;
     ccstd::pmr::vector<ComputePass> computePasses;
     ccstd::pmr::vector<CopyPass> copyPasses;
     ccstd::pmr::vector<MovePass> movePasses;

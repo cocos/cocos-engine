@@ -1299,6 +1299,12 @@ struct RenderGraphPrintVisitor : boost::dfs_visitor<> {
                     OSS << "}\n";
                 }
             },
+            [&](const RasterSubpass &subpass) {
+                std::ignore = subpass;
+            },
+            [&](const ComputeSubpass &subpass) {
+                std::ignore = subpass;
+            },
             [&](const ComputePass &pass) {
                 OSS << "ComputePass \"" << name << "\" {\n";
                 indent(space);
@@ -1422,6 +1428,12 @@ struct RenderGraphPrintVisitor : boost::dfs_visitor<> {
                 std::ignore = pass;
                 unindent(space);
                 OSS << "}\n";
+            },
+            [&](const RasterSubpass &subpass) {
+                std::ignore = subpass;
+            },
+            [&](const ComputeSubpass &subpass) {
+                std::ignore = subpass;
             },
             [&](const ComputePass &pass) {
                 std::ignore = pass;

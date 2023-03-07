@@ -26,7 +26,7 @@
 import { Viewport } from '../../gfx';
 import { assert } from '../../core';
 import { DefaultVisitor, ReferenceGraphView, ED} from './graph';
-import { Blit, ClearView, ComputePass, CopyPass, Dispatch, getRenderGraphValueName, MovePass, RasterPass, RaytracePass, RenderGraph, RenderGraphVisitor, RenderQueue, SceneData } from './render-graph';
+import { Blit, ClearView, ComputePass, ComputeSubpass, CopyPass, Dispatch, getRenderGraphValueName, MovePass, RasterPass, RasterSubpass, RaytracePass, RenderGraph, RenderGraphVisitor, RenderQueue, SceneData } from './render-graph';
 import { getQueueHintName } from './types';
 
 export const enableDebug = true;
@@ -54,6 +54,8 @@ class PrePrintVisitor implements RenderGraphVisitor {
             oss += `${space}"${computeView[0]}": ComputeView[]\n`;
         }
     }
+    rasterSubpass(value: RasterSubpass) {}
+    computeSubpass(value: ComputeSubpass) {}
     compute (value: ComputePass) {
         for (const computeView of value.computeViews) {
             oss += `${space}"${computeView[0]}": ComputeView[]\n`;
@@ -154,6 +156,8 @@ class PostPrintVisitor implements RenderGraphVisitor {
     raster (value: RasterPass) {
         // post raster pass
     }
+    rasterSubpass(value: RasterSubpass) {}
+    computeSubpass(value: ComputeSubpass) {}
     compute (value: ComputePass) {}
     copy (value: CopyPass) {}
     move (value: MovePass) {}

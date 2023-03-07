@@ -1127,6 +1127,16 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         // PerPass DescriptorSet
         tryBindPerPassDescriptorSet(vertID);
     }
+    void begin(const RasterSubpass& subpass, RenderGraph::vertex_descriptor vertID) const {
+        std::ignore = subpass;
+        std::ignore = vertID;
+        // noop
+    }
+    void begin(const ComputeSubpass& subpass, RenderGraph::vertex_descriptor vertID) const {
+        std::ignore = subpass;
+        std::ignore = vertID;
+        // noop
+    }
     void begin(const ComputePass& pass, RenderGraph::vertex_descriptor vertID) const { // NOLINT(readability-convert-member-functions-to-static)
         std::ignore = pass;
         std::ignore = vertID;
@@ -1263,6 +1273,16 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         ctx.currentPass = nullptr;
         ctx.currentPassLayoutID = LayoutGraphData::null_vertex();
     }
+    void end(const RasterSubpass& subpass, RenderGraph::vertex_descriptor vertID) const {
+        std::ignore = subpass;
+        std::ignore = vertID;
+        // noop
+    }
+    void end(const ComputeSubpass& subpass, RenderGraph::vertex_descriptor vertID) const {
+        std::ignore = subpass;
+        std::ignore = vertID;
+        // noop
+    }
     void end(const ComputePass& pass) const {
     }
     void end(const CopyPass& pass) const {
@@ -1394,6 +1414,12 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
                 frontBarriers(vertID);
                 begin(pass, vertID);
             },
+            [&](const RasterSubpass& subpass) {
+                begin(subpass, vertID);
+            },
+            [&](const ComputeSubpass& subpass) {
+                begin(subpass, vertID);
+            },
             [&](const ComputePass& pass) {
                 mountResources(pass);
                 frontBarriers(vertID);
@@ -1428,6 +1454,12 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
             [&](const RasterPass& pass) {
                 end(pass, vertID);
                 rearBarriers(vertID);
+            },
+            [&](const RasterSubpass& subpass) {
+                end(subpass, vertID);
+            },
+            [&](const ComputeSubpass& subpass) {
+                end(subpass, vertID);
             },
             [&](const ComputePass& pass) {
                 end(pass);

@@ -2417,6 +2417,12 @@ id(RenderGraph::vertex_descriptor u, const RenderGraph& g) noexcept {
             [](const impl::ValueHandle<RasterTag, vertex_descriptor>& h) {
                 return h.value;
             },
+            [](const impl::ValueHandle<RasterSubpassTag, vertex_descriptor>& h) {
+                return h.value;
+            },
+            [](const impl::ValueHandle<ComputeSubpassTag, vertex_descriptor>& h) {
+                return h.value;
+            },
             [](const impl::ValueHandle<ComputeTag, vertex_descriptor>& h) {
                 return h.value;
             },
@@ -2457,6 +2463,12 @@ tag(RenderGraph::vertex_descriptor u, const RenderGraph& g) noexcept {
         overload(
             [](const impl::ValueHandle<RasterTag, vertex_descriptor>&) {
                 return RenderGraph::VertexTag{RasterTag{}};
+            },
+            [](const impl::ValueHandle<RasterSubpassTag, vertex_descriptor>&) {
+                return RenderGraph::VertexTag{RasterSubpassTag{}};
+            },
+            [](const impl::ValueHandle<ComputeSubpassTag, vertex_descriptor>&) {
+                return RenderGraph::VertexTag{ComputeSubpassTag{}};
             },
             [](const impl::ValueHandle<ComputeTag, vertex_descriptor>&) {
                 return RenderGraph::VertexTag{ComputeTag{}};
@@ -2499,6 +2511,12 @@ value(RenderGraph::vertex_descriptor u, RenderGraph& g) noexcept {
             [&](const impl::ValueHandle<RasterTag, vertex_descriptor>& h) {
                 return RenderGraph::VertexValue{&g.rasterPasses[h.value]};
             },
+            [&](const impl::ValueHandle<RasterSubpassTag, vertex_descriptor>& h) {
+                return RenderGraph::VertexValue{&g.rasterSubpasses[h.value]};
+            },
+            [&](const impl::ValueHandle<ComputeSubpassTag, vertex_descriptor>& h) {
+                return RenderGraph::VertexValue{&g.computeSubpasses[h.value]};
+            },
             [&](const impl::ValueHandle<ComputeTag, vertex_descriptor>& h) {
                 return RenderGraph::VertexValue{&g.computePasses[h.value]};
             },
@@ -2539,6 +2557,12 @@ value(RenderGraph::vertex_descriptor u, const RenderGraph& g) noexcept {
         overload(
             [&](const impl::ValueHandle<RasterTag, vertex_descriptor>& h) {
                 return RenderGraph::VertexConstValue{&g.rasterPasses[h.value]};
+            },
+            [&](const impl::ValueHandle<RasterSubpassTag, vertex_descriptor>& h) {
+                return RenderGraph::VertexConstValue{&g.rasterSubpasses[h.value]};
+            },
+            [&](const impl::ValueHandle<ComputeSubpassTag, vertex_descriptor>& h) {
+                return RenderGraph::VertexConstValue{&g.computeSubpasses[h.value]};
             },
             [&](const impl::ValueHandle<ComputeTag, vertex_descriptor>& h) {
                 return RenderGraph::VertexConstValue{&g.computePasses[h.value]};
@@ -2582,6 +2606,22 @@ inline bool
 holds<RasterTag>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noexcept {
     return ccstd::holds_alternative<
         impl::ValueHandle<RasterTag, RenderGraph::vertex_descriptor>>(
+        g._vertices[v].handle);
+}
+
+template <>
+inline bool
+holds<RasterSubpassTag>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noexcept {
+    return ccstd::holds_alternative<
+        impl::ValueHandle<RasterSubpassTag, RenderGraph::vertex_descriptor>>(
+        g._vertices[v].handle);
+}
+
+template <>
+inline bool
+holds<ComputeSubpassTag>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noexcept {
+    return ccstd::holds_alternative<
+        impl::ValueHandle<ComputeSubpassTag, RenderGraph::vertex_descriptor>>(
         g._vertices[v].handle);
 }
 
@@ -2679,6 +2719,22 @@ holds_alternative<RasterPass>(RenderGraph::vertex_descriptor v, const RenderGrap
 
 template <>
 inline bool
+holds_alternative<RasterSubpass>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noexcept { // NOLINT
+    return ccstd::holds_alternative<
+        impl::ValueHandle<RasterSubpassTag, RenderGraph::vertex_descriptor>>(
+        g._vertices[v].handle);
+}
+
+template <>
+inline bool
+holds_alternative<ComputeSubpass>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noexcept { // NOLINT
+    return ccstd::holds_alternative<
+        impl::ValueHandle<ComputeSubpassTag, RenderGraph::vertex_descriptor>>(
+        g._vertices[v].handle);
+}
+
+template <>
+inline bool
 holds_alternative<ComputePass>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noexcept { // NOLINT
     return ccstd::holds_alternative<
         impl::ValueHandle<ComputeTag, RenderGraph::vertex_descriptor>>(
@@ -2768,6 +2824,24 @@ get<RasterPass>(RenderGraph::vertex_descriptor v, RenderGraph& g) {
         impl::ValueHandle<RasterTag, RenderGraph::vertex_descriptor>>(
         g._vertices[v].handle);
     return g.rasterPasses[handle.value];
+}
+
+template <>
+inline RasterSubpass&
+get<RasterSubpass>(RenderGraph::vertex_descriptor v, RenderGraph& g) {
+    auto& handle = ccstd::get<
+        impl::ValueHandle<RasterSubpassTag, RenderGraph::vertex_descriptor>>(
+        g._vertices[v].handle);
+    return g.rasterSubpasses[handle.value];
+}
+
+template <>
+inline ComputeSubpass&
+get<ComputeSubpass>(RenderGraph::vertex_descriptor v, RenderGraph& g) {
+    auto& handle = ccstd::get<
+        impl::ValueHandle<ComputeSubpassTag, RenderGraph::vertex_descriptor>>(
+        g._vertices[v].handle);
+    return g.computeSubpasses[handle.value];
 }
 
 template <>
@@ -2874,6 +2948,24 @@ get<RasterPass>(RenderGraph::vertex_descriptor v, const RenderGraph& g) {
 }
 
 template <>
+inline const RasterSubpass&
+get<RasterSubpass>(RenderGraph::vertex_descriptor v, const RenderGraph& g) {
+    const auto& handle = ccstd::get<
+        impl::ValueHandle<RasterSubpassTag, RenderGraph::vertex_descriptor>>(
+        g._vertices[v].handle);
+    return g.rasterSubpasses[handle.value];
+}
+
+template <>
+inline const ComputeSubpass&
+get<ComputeSubpass>(RenderGraph::vertex_descriptor v, const RenderGraph& g) {
+    const auto& handle = ccstd::get<
+        impl::ValueHandle<ComputeSubpassTag, RenderGraph::vertex_descriptor>>(
+        g._vertices[v].handle);
+    return g.computeSubpasses[handle.value];
+}
+
+template <>
 inline const ComputePass&
 get<ComputePass>(RenderGraph::vertex_descriptor v, const RenderGraph& g) {
     const auto& handle = ccstd::get<
@@ -2971,6 +3063,22 @@ get(RasterTag /*tag*/, RenderGraph::vertex_descriptor v, RenderGraph& g) {
     return g.rasterPasses[handle.value];
 }
 
+inline RasterSubpass&
+get(RasterSubpassTag /*tag*/, RenderGraph::vertex_descriptor v, RenderGraph& g) {
+    auto& handle = ccstd::get<
+        impl::ValueHandle<RasterSubpassTag, RenderGraph::vertex_descriptor>>(
+        g._vertices[v].handle);
+    return g.rasterSubpasses[handle.value];
+}
+
+inline ComputeSubpass&
+get(ComputeSubpassTag /*tag*/, RenderGraph::vertex_descriptor v, RenderGraph& g) {
+    auto& handle = ccstd::get<
+        impl::ValueHandle<ComputeSubpassTag, RenderGraph::vertex_descriptor>>(
+        g._vertices[v].handle);
+    return g.computeSubpasses[handle.value];
+}
+
 inline ComputePass&
 get(ComputeTag /*tag*/, RenderGraph::vertex_descriptor v, RenderGraph& g) {
     auto& handle = ccstd::get<
@@ -3057,6 +3165,22 @@ get(RasterTag /*tag*/, RenderGraph::vertex_descriptor v, const RenderGraph& g) {
         impl::ValueHandle<RasterTag, RenderGraph::vertex_descriptor>>(
         g._vertices[v].handle);
     return g.rasterPasses[handle.value];
+}
+
+inline const RasterSubpass&
+get(RasterSubpassTag /*tag*/, RenderGraph::vertex_descriptor v, const RenderGraph& g) {
+    const auto& handle = ccstd::get<
+        impl::ValueHandle<RasterSubpassTag, RenderGraph::vertex_descriptor>>(
+        g._vertices[v].handle);
+    return g.rasterSubpasses[handle.value];
+}
+
+inline const ComputeSubpass&
+get(ComputeSubpassTag /*tag*/, RenderGraph::vertex_descriptor v, const RenderGraph& g) {
+    const auto& handle = ccstd::get<
+        impl::ValueHandle<ComputeSubpassTag, RenderGraph::vertex_descriptor>>(
+        g._vertices[v].handle);
+    return g.computeSubpasses[handle.value];
 }
 
 inline const ComputePass&
@@ -3156,6 +3280,40 @@ get_if<RasterPass>(RenderGraph::vertex_descriptor v, RenderGraph* pGraph) noexce
         &g._vertices[v].handle);
     if (pHandle) {
         ptr = &g.rasterPasses[pHandle->value];
+    }
+    return ptr;
+}
+
+template <>
+inline RasterSubpass*
+get_if<RasterSubpass>(RenderGraph::vertex_descriptor v, RenderGraph* pGraph) noexcept { // NOLINT
+    RasterSubpass* ptr = nullptr;
+    if (!pGraph) {
+        return ptr;
+    }
+    auto& g       = *pGraph;
+    auto* pHandle = ccstd::get_if<
+        impl::ValueHandle<RasterSubpassTag, RenderGraph::vertex_descriptor>>(
+        &g._vertices[v].handle);
+    if (pHandle) {
+        ptr = &g.rasterSubpasses[pHandle->value];
+    }
+    return ptr;
+}
+
+template <>
+inline ComputeSubpass*
+get_if<ComputeSubpass>(RenderGraph::vertex_descriptor v, RenderGraph* pGraph) noexcept { // NOLINT
+    ComputeSubpass* ptr = nullptr;
+    if (!pGraph) {
+        return ptr;
+    }
+    auto& g       = *pGraph;
+    auto* pHandle = ccstd::get_if<
+        impl::ValueHandle<ComputeSubpassTag, RenderGraph::vertex_descriptor>>(
+        &g._vertices[v].handle);
+    if (pHandle) {
+        ptr = &g.computeSubpasses[pHandle->value];
     }
     return ptr;
 }
@@ -3347,6 +3505,40 @@ get_if<RasterPass>(RenderGraph::vertex_descriptor v, const RenderGraph* pGraph) 
         &g._vertices[v].handle);
     if (pHandle) {
         ptr = &g.rasterPasses[pHandle->value];
+    }
+    return ptr;
+}
+
+template <>
+inline const RasterSubpass*
+get_if<RasterSubpass>(RenderGraph::vertex_descriptor v, const RenderGraph* pGraph) noexcept { // NOLINT
+    const RasterSubpass* ptr = nullptr;
+    if (!pGraph) {
+        return ptr;
+    }
+    const auto& g       = *pGraph;
+    const auto* pHandle = ccstd::get_if<
+        impl::ValueHandle<RasterSubpassTag, RenderGraph::vertex_descriptor>>(
+        &g._vertices[v].handle);
+    if (pHandle) {
+        ptr = &g.rasterSubpasses[pHandle->value];
+    }
+    return ptr;
+}
+
+template <>
+inline const ComputeSubpass*
+get_if<ComputeSubpass>(RenderGraph::vertex_descriptor v, const RenderGraph* pGraph) noexcept { // NOLINT
+    const ComputeSubpass* ptr = nullptr;
+    if (!pGraph) {
+        return ptr;
+    }
+    const auto& g       = *pGraph;
+    const auto* pHandle = ccstd::get_if<
+        impl::ValueHandle<ComputeSubpassTag, RenderGraph::vertex_descriptor>>(
+        &g._vertices[v].handle);
+    if (pHandle) {
+        ptr = &g.computeSubpasses[pHandle->value];
     }
     return ptr;
 }
@@ -3600,6 +3792,20 @@ inline void remove_vertex_value_impl(const RenderGraph::VertexHandle& h, RenderG
                 }
                 impl::reindexVectorHandle<RasterTag>(g._vertices, h.value);
             },
+            [&](const impl::ValueHandle<RasterSubpassTag, vertex_descriptor>& h) {
+                g.rasterSubpasses.erase(g.rasterSubpasses.begin() + static_cast<std::ptrdiff_t>(h.value));
+                if (h.value == g.rasterSubpasses.size()) {
+                    return;
+                }
+                impl::reindexVectorHandle<RasterSubpassTag>(g._vertices, h.value);
+            },
+            [&](const impl::ValueHandle<ComputeSubpassTag, vertex_descriptor>& h) {
+                g.computeSubpasses.erase(g.computeSubpasses.begin() + static_cast<std::ptrdiff_t>(h.value));
+                if (h.value == g.computeSubpasses.size()) {
+                    return;
+                }
+                impl::reindexVectorHandle<ComputeSubpassTag>(g._vertices, h.value);
+            },
             [&](const impl::ValueHandle<ComputeTag, vertex_descriptor>& h) {
                 g.computePasses.erase(g.computePasses.begin() + static_cast<std::ptrdiff_t>(h.value));
                 if (h.value == g.computePasses.size()) {
@@ -3694,6 +3900,24 @@ void addVertexImpl( // NOLINT
     vert.handle = impl::ValueHandle<RasterTag, RenderGraph::vertex_descriptor>{
         gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.rasterPasses.size())};
     g.rasterPasses.emplace_back(std::forward<ValueT>(val));
+}
+
+template <class ValueT>
+void addVertexImpl( // NOLINT
+    ValueT &&val, RenderGraph &g, RenderGraph::Vertex &vert, // NOLINT
+    std::enable_if_t<std::is_same<std::decay_t<ValueT>, RasterSubpass>::value>* dummy = nullptr) { // NOLINT
+    vert.handle = impl::ValueHandle<RasterSubpassTag, RenderGraph::vertex_descriptor>{
+        gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.rasterSubpasses.size())};
+    g.rasterSubpasses.emplace_back(std::forward<ValueT>(val));
+}
+
+template <class ValueT>
+void addVertexImpl( // NOLINT
+    ValueT &&val, RenderGraph &g, RenderGraph::Vertex &vert, // NOLINT
+    std::enable_if_t<std::is_same<std::decay_t<ValueT>, ComputeSubpass>::value>* dummy = nullptr) { // NOLINT
+    vert.handle = impl::ValueHandle<ComputeSubpassTag, RenderGraph::vertex_descriptor>{
+        gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.computeSubpasses.size())};
+    g.computeSubpasses.emplace_back(std::forward<ValueT>(val));
 }
 
 template <class ValueT>
@@ -3817,6 +4041,28 @@ void addVertexImpl(RasterTag /*tag*/, Tuple &&val, RenderGraph &g, RenderGraph::
             vert.handle = impl::ValueHandle<RasterTag, RenderGraph::vertex_descriptor>{
                 gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.rasterPasses.size())};
             g.rasterPasses.emplace_back(std::forward<decltype(args)>(args)...);
+        },
+        std::forward<Tuple>(val));
+}
+
+template <class Tuple>
+void addVertexImpl(RasterSubpassTag /*tag*/, Tuple &&val, RenderGraph &g, RenderGraph::Vertex &vert) {
+    std::apply(
+        [&](auto&&... args) {
+            vert.handle = impl::ValueHandle<RasterSubpassTag, RenderGraph::vertex_descriptor>{
+                gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.rasterSubpasses.size())};
+            g.rasterSubpasses.emplace_back(std::forward<decltype(args)>(args)...);
+        },
+        std::forward<Tuple>(val));
+}
+
+template <class Tuple>
+void addVertexImpl(ComputeSubpassTag /*tag*/, Tuple &&val, RenderGraph &g, RenderGraph::Vertex &vert) {
+    std::apply(
+        [&](auto&&... args) {
+            vert.handle = impl::ValueHandle<ComputeSubpassTag, RenderGraph::vertex_descriptor>{
+                gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.computeSubpasses.size())};
+            g.computeSubpasses.emplace_back(std::forward<decltype(args)>(args)...);
         },
         std::forward<Tuple>(val));
 }

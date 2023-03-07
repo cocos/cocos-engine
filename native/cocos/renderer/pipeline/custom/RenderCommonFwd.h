@@ -41,6 +41,8 @@ enum class UpdateFrequency;
 enum class ParameterType;
 
 struct RasterTag;
+struct RasterSubpassTag;
+struct ComputeSubpassTag;
 struct ComputeTag;
 struct CopyTag;
 struct MoveTag;
