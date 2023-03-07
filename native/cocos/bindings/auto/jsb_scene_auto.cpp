@@ -24346,6 +24346,26 @@ static bool js_cc_scene_ReflectionProbe_initBakedTextures(se::State& s)
 }
 SE_BIND_FUNC(js_cc_scene_ReflectionProbe_initBakedTextures) 
 
+static bool js_cc_scene_ReflectionProbe_initRealTimeFrameBuffers(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::ReflectionProbe *arg1 = (cc::scene::ReflectionProbe *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::ReflectionProbe>(s);
+    if (nullptr == arg1) return true;
+    (arg1)->initRealTimeFrameBuffers();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_ReflectionProbe_initRealTimeFrameBuffers) 
+
 static bool js_cc_scene_ReflectionProbe_captureCubemap(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -24365,6 +24385,36 @@ static bool js_cc_scene_ReflectionProbe_captureCubemap(se::State& s)
     return true;
 }
 SE_BIND_FUNC(js_cc_scene_ReflectionProbe_captureCubemap) 
+
+static bool js_cc_scene_ReflectionProbe_getFrameBuffer(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::ReflectionProbe *arg1 = (cc::scene::ReflectionProbe *) NULL ;
+    uint32_t arg2 ;
+    cc::gfx::Framebuffer *result = 0 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::ReflectionProbe>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    result = (cc::gfx::Framebuffer *)((cc::scene::ReflectionProbe const *)arg1)->getFrameBuffer(arg2);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_ReflectionProbe_getFrameBuffer) 
 
 static bool js_cc_scene_ReflectionProbe_resetCameraParams(se::State& s)
 {
@@ -25039,7 +25089,9 @@ bool js_register_cc_scene_ReflectionProbe(se::Object* obj) {
     cls->defineFunction("update", _SE(js_cc_scene_ReflectionProbe_update)); 
     cls->defineFunction("validate", _SE(js_cc_scene_ReflectionProbe_validate)); 
     cls->defineFunction("initBakedTextures", _SE(js_cc_scene_ReflectionProbe_initBakedTextures)); 
+    cls->defineFunction("initRealTimeFrameBuffers", _SE(js_cc_scene_ReflectionProbe_initRealTimeFrameBuffers)); 
     cls->defineFunction("captureCubemap", _SE(js_cc_scene_ReflectionProbe_captureCubemap)); 
+    cls->defineFunction("getFrameBuffer", _SE(js_cc_scene_ReflectionProbe_getFrameBuffer)); 
     cls->defineFunction("resetCameraParams", _SE(js_cc_scene_ReflectionProbe_resetCameraParams)); 
     cls->defineFunction("updateCameraDir", _SE(js_cc_scene_ReflectionProbe_updateCameraDir)); 
     cls->defineFunction("getRenderArea", _SE(js_cc_scene_ReflectionProbe_getRenderArea)); 
