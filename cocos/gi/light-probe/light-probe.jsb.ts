@@ -22,21 +22,15 @@
  THE SOFTWARE.
 */
 import { _decorator } from '../../core';
+import { patch_cc_LightProbesData } from '../../native-binding/decorators';
 import { Tetrahedron, Vertex } from './delaunay';
 
-const { ccclass, serializable, type } = _decorator;
 
 export const LightProbes = jsb.LightProbes;
-ccclass('cc.LightProbes')(LightProbes);
+_decorator.ccclass('cc.LightProbes')(LightProbes);
+// patch_cc_LightProbes({LightProbes}); // not exists
 
 export const LightProbesData = jsb.LightProbesData;
-const LightProbesDataProto = LightProbesData.prototype;
 
-// @ts-expect-error
-type([Vertex])(LightProbesDataProto, '_probes', () => []);
-serializable(LightProbesDataProto, '_probes', () => []);
+patch_cc_LightProbesData({LightProbesData, Vertex, Tetrahedron});
 
-// @ts-expect-error
-type([Tetrahedron])(LightProbesDataProto, '_tetrahedrons', () => []);
-serializable(LightProbesDataProto, '_tetrahedrons', () => []);
-ccclass('cc.LightProbesData')(LightProbesData);
