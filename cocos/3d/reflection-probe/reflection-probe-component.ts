@@ -434,6 +434,8 @@ export class ReflectionProbe extends Component {
             const cameraNode = new Node('ReflectionProbeCamera');
             cameraNode.hideFlags |= CCObject.Flags.DontSave | CCObject.Flags.HideInHierarchy;
             this.node.scene.addChild(cameraNode);
+
+            this._probe.initialize(this.node, cameraNode);
             if (this.enabled) {
                 ReflectionProbeManager.probeManager.register(this._probe);
             }
@@ -446,7 +448,6 @@ export class ReflectionProbe extends Component {
             this._probe.cubemap = this._cubemap!;
             this._probe.renderMode = this.renderMode;
             this._probe.refreshMode = this.refreshMode;
-            this._probe.initialize(this.node, cameraNode);
         }
     }
 }
