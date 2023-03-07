@@ -61,11 +61,11 @@ TEST(fgDispatherCulling, test13) {
     ExpectEq(rag.leafPasses.find(11) != rag.leafPasses.end(), true);
 
     // an empty vert as head so index offset + 1
-    const auto& node5 = get(ResourceAccessGraph::AccessNode, rag, static_cast<ResourceAccessGraph::vertex_descriptor>(5));
-    const auto& node7 = get(ResourceAccessGraph::AccessNode, rag, static_cast<ResourceAccessGraph::vertex_descriptor>(7));
-    const auto& node8 = get(ResourceAccessGraph::AccessNode, rag, static_cast<ResourceAccessGraph::vertex_descriptor>(8));
-    const auto& node9 = get(ResourceAccessGraph::AccessNode, rag, static_cast<ResourceAccessGraph::vertex_descriptor>(9));
-    const auto& node11 = get(ResourceAccessGraph::AccessNode, rag, static_cast<ResourceAccessGraph::vertex_descriptor>(11));
+    const auto& node5 = get(ResourceAccessGraph::AccessNodeTag{}, rag, static_cast<ResourceAccessGraph::vertex_descriptor>(5));
+    const auto& node7 = get(ResourceAccessGraph::AccessNodeTag{}, rag, static_cast<ResourceAccessGraph::vertex_descriptor>(7));
+    const auto& node8 = get(ResourceAccessGraph::AccessNodeTag{}, rag, static_cast<ResourceAccessGraph::vertex_descriptor>(8));
+    const auto& node9 = get(ResourceAccessGraph::AccessNodeTag{}, rag, static_cast<ResourceAccessGraph::vertex_descriptor>(9));
+    const auto& node11 = get(ResourceAccessGraph::AccessNodeTag{}, rag, static_cast<ResourceAccessGraph::vertex_descriptor>(11));
     ExpectEq(!node5.attachmentStatus.empty() && node5.nextSubpass == nullptr &&
                  node7.attachmentStatus.empty() && node7.nextSubpass == nullptr &&
                  !node8.attachmentStatus.empty() && node8.nextSubpass != nullptr &&
