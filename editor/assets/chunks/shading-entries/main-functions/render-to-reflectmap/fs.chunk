@@ -45,6 +45,10 @@ layout(location = 0) out vec4 fragColorX;
   #endif
   
     // Color output (RGBE)
-    fragColorX = packRGBE(color.rgb);
+  #if CC_USE_RGBE_OUTPUT
+    fragColorX = packRGBE(color.rgb); // for reflection-map
+  #else
+    fragColorX = color;
+  #endif
   }
 #endif

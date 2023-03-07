@@ -27,7 +27,7 @@ import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { ReflectionProbeStage } from './reflection-probe-stage';
 import { RenderFlowTag } from '../pipeline-serialization';
 import { RenderPipeline } from '..';
-import { Camera, ProbeType, ReflectionProbe } from '../../render-scene/scene';
+import { Camera, ProbeRenderMode, ProbeType, ReflectionProbe, RefreshMode } from '../../render-scene/scene';
 import { cclegacy } from '../../core';
 
 /**
@@ -82,6 +82,10 @@ export class ReflectionProbeFlow extends RenderFlow {
                 probeStage.setUsageInfo(probe, probe.realtimePlanarTexture!.window!.framebuffer);
                 probeStage.render(camera);
                 cclegacy.internal.reflectionProbeManager.updatePlanarMap(probe, probe.realtimePlanarTexture!.getGFXTexture());
+            } else if (probe.renderMode === ProbeRenderMode.REALTIME) {
+                if (probe.refreshMode === RefreshMode.INTERVAL_FRAME) {
+                    probe.needRender = false;
+                }
             } else {
                 for (let faceIdx = 0; faceIdx < 6; faceIdx++) {
                     const renderTexture = probe.bakedCubeTextures[faceIdx];

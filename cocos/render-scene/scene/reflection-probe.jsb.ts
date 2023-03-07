@@ -35,6 +35,16 @@ export enum ProbeType {
     PLANAR = 1,
 }
 
+export enum ProbeRenderMode {
+    BAKE = 0,
+    REALTIME = 1,
+}
+
+export enum RefreshMode {
+    EVERY_FRAME  = 0,
+    INTERVAL_FRAME = 1,
+}
+
 export const ReflectionProbe = jsb.ReflectionProbe;
 const reflectionProbeProto: any = jsb.ReflectionProbe.prototype;
 reflectionProbeProto._ctor = function (id:number) {

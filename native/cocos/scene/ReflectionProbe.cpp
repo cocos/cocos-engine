@@ -39,6 +39,7 @@ const std::array<Vec3, 6> CAMERA_DIR{
     Vec3(0, 180, 0)};
 ReflectionProbe::ReflectionProbe(int32_t id) {
     _probeId = id;
+    _realtimeCubeMap = ccnew TextureCube();
 }
 
 void ReflectionProbe::setResolution(int32_t resolution) {
@@ -162,6 +163,13 @@ Vec3 ReflectionProbe::reflect(const Vec3& point, const Vec3& normal, float offse
     return mirrorPos;
 }
 
+const cc::TextureCube* ReflectionProbe::getCubeMap() const {
+    if (_renderMode == ProbeRenderMode::REALTIME) {
+        return _realtimeCubeMap;
+    }
+    return _cubemap;
+}
+
 void ReflectionProbe::updateBoundingBox() {
     if (_node) {
         auto pos = _node->getWorldPosition();
@@ -206,6 +214,7 @@ void ReflectionProbe::destroy() {
         rt->destroy();
     }
     _bakedCubeTextures.clear();
+    _realtimeCubeMap->destroy();
 }
 
 void ReflectionProbe::enable() {
@@ -213,6 +222,19 @@ void ReflectionProbe::enable() {
 }
 void ReflectionProbe::disable() {
     scene::ReflectionProbeManager::getInstance()->unRegisterProbe(this);
+}
+
+void ReflectionProbe::update(float dt){
+    if (_renderMode != ProbeRenderMode::REALTIME) {
+        return;
+    }
+    if (_refreshMode == RefreshMode::INTERVAL_FRAME) {
+        if (_frames > 1) {
+            _frames = 0;
+            _needRender = true;
+        }
+        _frames++;
+    }
 }
 
 void ReflectionProbe::initBakedTextures() {
@@ -255,6 +277,9 @@ void ReflectionProbe::resetCameraParams() {
     _camera->update(true);
 }
 void ReflectionProbe::captureCubemap() {
+    if (_renderMode == ProbeRenderMode::REALTIME) {
+        return;
+    }
     initBakedTextures();
     resetCameraParams();
     packBackgroundColor();
@@ -290,6 +315,17 @@ void ReflectionProbe::packBackgroundColor() {
     Vec3 stepVec3 = sub < Vec3(0.5F, 0.5F, 0.5F) ? Vec3(0.5F, 0.5F, 0.5F) : sub;
     Vec3 encodeRounded(fVec3 + stepVec3);
     _camera->setClearColor(gfx::Color{encodeRounded.x / 255.F, encodeRounded.y / 255.F, encodeRounded.z / 255.F, e / 255.F});
+}
+
+void ReflectionProbe::setRenderMode(ProbeRenderMode mode) {
+    _renderMode = mode;
+    _needRender = false;
+}
+void ReflectionProbe::setRefreshMode(RefreshMode mode) {
+    _refreshMode = mode;
+    if (_renderMode == ProbeRenderMode::REALTIME) {
+        _needRender = true;
+    }
 }
 
 } // namespace scene

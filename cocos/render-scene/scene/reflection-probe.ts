@@ -40,7 +40,7 @@ export enum ProbeType {
     PLANAR = 1,
 }
 
-export enum RenderMode {
+export enum ProbeRenderMode {
     BAKE = 0,
     REALTIME = 1,
 }
@@ -131,9 +131,13 @@ export class ReflectionProbe {
 
     protected _previewPlane: Node | null = null;
 
-    private _renderMode = RenderMode.BAKE;
+    private _renderMode = ProbeRenderMode.BAKE;
 
     private _refreshMode= RefreshMode.EVERY_FRAME;
+
+    private _realtimeCubemap: TextureCube = new TextureCube();
+
+    private _frames = 0;
 
     /**
      * @en Set probe type,cube or planar.
@@ -217,6 +221,9 @@ export class ReflectionProbe {
     }
 
     get cubemap () {
+        if (this.renderMode === ProbeRenderMode.REALTIME) {
+            return this._realtimeCubemap;
+        }
         return this._cubemap!;
     }
 
@@ -295,6 +302,7 @@ export class ReflectionProbe {
      */
     set renderMode (val) {
         this._renderMode = val;
+        this._needRefresh = false;
     }
     get renderMode () {
         return this._renderMode;
@@ -308,9 +316,19 @@ export class ReflectionProbe {
      */
     set refreshMode (val) {
         this._refreshMode = val;
+        if (this._renderMode === ProbeRenderMode.REALTIME) {
+            this._needRender = true;
+        }
     }
     get refreshMode () {
         return this._refreshMode;
+    }
+
+    set realtimeCubemap (val: TextureCube) {
+        this._realtimeCubemap = val;
+    }
+    get realtimeCubemap (): TextureCube {
+        return this._realtimeCubemap;
     }
 
     constructor (id: number) {
@@ -335,6 +353,9 @@ export class ReflectionProbe {
     }
 
     public captureCubemap () {
+        if (this._renderMode === ProbeRenderMode.REALTIME) {
+            return;
+        }
         this.initBakedTextures();
         this._resetCameraParams();
         this._needRender = true;
@@ -407,6 +428,18 @@ export class ReflectionProbe {
     public enable () {
     }
     public disable () {
+    }
+    public update (dt: number) {
+        if (this.renderMode !== ProbeRenderMode.REALTIME) {
+            return;
+        }
+        if (this.refreshMode === RefreshMode.INTERVAL_FRAME) {
+            if (this._frames > 1) {
+                this._frames = 0;
+                this._needRender = true;
+            }
+            this._frames++;
+        }
     }
 
     public updateCameraDir (faceIdx: number) {

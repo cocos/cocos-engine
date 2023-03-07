@@ -545,8 +545,8 @@ using namespace cc;
 %attribute(cc::scene::ReflectionProbe, cc::TextureCube*, cubemap, getCubeMap, setCubeMap);
 %attribute(cc::scene::ReflectionProbe, cc::Node*, node, getNode);
 %attribute(cc::scene::ReflectionProbe, cc::RenderTexture*, realtimePlanarTexture, getRealtimePlanarTexture);
-%attribute(cc::scene::ReflectionProbe, uint32_t, depth, renderMode, getRenderMode, setRenderMode);
-%attribute(cc::scene::ReflectionProbe, uint32_t, depth, refreshMode, getRefreshMode, setRefreshMode);
+%attribute(cc::scene::ReflectionProbe, cc::scene::ReflectionProbe::ProbeRenderMode, renderMode, getRenderMode, setRenderMode);
+%attribute(cc::scene::ReflectionProbe, cc::scene::ReflectionProbe::RefreshMode, refreshMode, getRefreshMode, setRefreshMode);
 
 %attribute(cc::SceneGlobals, bool, bakedWithStationaryMainLight, getBakedWithStationaryMainLight, setBakedWithStationaryMainLight);
 

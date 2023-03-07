@@ -77,6 +77,13 @@ void ReflectionProbeFlow::renderStage(scene::Camera *camera, scene::ReflectionPr
             reflectionProbeStage->setUsage(framebuffer, probe);
             reflectionProbeStage->render(camera);
             probe->updatePlanarTexture(camera->getScene());
+        } else if (probe->getRenderMode() == scene::ReflectionProbe::ProbeRenderMode::REALTIME) {
+            //realtime render
+
+
+            if (probe->getRefreshMode() == scene::ReflectionProbe::RefreshMode::INTERVAL_FRAME) {
+                probe->setNeedRender(false);
+            }
         } else {
             //render the 6 faces of the cubemap
             for (uint32_t faceIdx = 0; faceIdx < 6; faceIdx++) {

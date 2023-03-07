@@ -33,7 +33,7 @@ import { Component } from '../../scene-graph/component';
 import { Layers } from '../../scene-graph/layers';
 import { Camera } from '../../misc/camera-component';
 import { Node, TransformBit } from '../../scene-graph';
-import { ProbeClearFlag, ProbeType, RefreshMode, RenderMode } from '../../render-scene/scene/reflection-probe';
+import { ProbeClearFlag, ProbeRenderMode, ProbeType, RefreshMode } from '../../render-scene/scene/reflection-probe';
 import { absolute } from '../../physics/utils/util';
 
 export enum ProbeResolution {
@@ -96,7 +96,7 @@ export class ReflectionProbe extends Component {
     private _fastBake = false;
 
     @serializable
-    private _renderMode = RenderMode.BAKE;
+    private _renderMode = ProbeRenderMode.BAKE;
 
     @serializable
     private _refreshMode= RefreshMode.EVERY_FRAME;
@@ -114,11 +114,13 @@ export class ReflectionProbe extends Component {
      * @zh
      * 设置反射探针的渲染类型。
      */
-    @type(Enum(RenderMode))
+    //@type(Enum(ProbeRenderMode))
     set renderMode (val) {
         this._renderMode = val;
+        this.probe.renderMode = val;
+        ReflectionProbeManager.probeManager.updateBakedCubemap(this.probe);
     }
-    get renderMode () {
+    get renderMode (): ProbeRenderMode {
         return this._renderMode;
     }
 
@@ -128,12 +130,13 @@ export class ReflectionProbe extends Component {
      * @zh
      * 设置实时反射探针的刷新频率。
      */
-    @visible(function (this: ReflectionProbe) { return this._renderMode === RenderMode.REALTIME; })
-    @type(Enum(RefreshMode))
+    //@visible(function (this: ReflectionProbe) { return this._renderMode === ProbeRenderMode.REALTIME; })
+    //@type(Enum(RefreshMode))
     set refreshMode (val) {
         this._refreshMode = val;
+        this.probe.refreshMode = val;
     }
-    get refreshMode () {
+    get refreshMode (): RefreshMode {
         return this._refreshMode;
     }
 
@@ -283,6 +286,7 @@ export class ReflectionProbe extends Component {
      * @en fast bake no convolution.
      * @zh 快速烘焙不会进行卷积。
      */
+    @visible(function (this: ReflectionProbe) { return this.probeType === ProbeType.CUBE; })
     @type(CCBoolean)
     @tooltip('i18n:reflection_probe.fastBake')
     get fastBake () {
@@ -379,6 +383,7 @@ export class ReflectionProbe extends Component {
 
     public update (dt: number) {
         if (!this.probe) return;
+        this.probe.update(dt);
         if (EDITOR && !cclegacy.GAME_VIEW) {
             if (this.probeType === ProbeType.PLANAR) {
                 const cameraLst: scene.Camera[] | undefined = this.node.scene.renderScene?.cameras;
@@ -441,6 +446,8 @@ export class ReflectionProbe extends Component {
             this._probe.probeType = this._probeType;
             this._probe.size = this._size;
             this._probe.cubemap = this._cubemap!;
+            this._probe.renderMode = this.renderMode;
+            this._probe.refreshMode = this.refreshMode;
         }
     }
 }

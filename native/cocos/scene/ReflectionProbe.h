@@ -48,7 +48,7 @@ public:
         BAKED_CUBEMAP = 1,
         PLANAR_REFLECTION = 2,
     };
-    enum class RenderMode {
+    enum class ProbeRenderMode {
         BAKE = 0,
         REALTIME = 1,
     };
@@ -124,7 +124,7 @@ public:
     inline const Node* getPreviewPlane() const { return _previewPlane; }
 
     inline void setCubeMap(cc::TextureCube* cubeMap) { _cubemap = cubeMap; }
-    inline const cc::TextureCube* getCubeMap() const { return _cubemap; }
+    const cc::TextureCube* getCubeMap() const;
 
     inline RenderTexture* getRealtimePlanarTexture() const { return _realtimePlanarTexture; }
     void updateBoundingBox();
@@ -139,6 +139,7 @@ public:
     void destroy();
     void enable();
     void disable();
+    void update(float dt);
 
     inline bool validate() const { return _cubemap != nullptr; }
 
@@ -151,33 +152,14 @@ public:
     Vec2 getRenderArea() const;
     void packBackgroundColor();
 
-    inline void setProbeType(ProbeType type) {
-        _probeType = type;
-    }
-
-    void setRenderMode(RenderMode mode)
-    {
-        _renderMode = mode;
-    }
-    RenderMode getRenderMode() const
-    {
-        return _renderMode;
-    }
-
     /**
      * @en
      * Gets or sets the type of the probe
      * @zh
      * 设置反射探针的渲染类型。
      */
-    void setRenderMode(RenderMode mode)
-    {
-        _renderMode = mode;
-    }
-    RenderMode getRenderMode() const
-    {
-        return _renderMode;
-    }
+    void setRenderMode(ProbeRenderMode mode);
+    inline ProbeRenderMode getRenderMode() const { return _renderMode; }
 
     /**
      * @en
@@ -185,15 +167,10 @@ public:
      * @zh
      * 设置实时反射探针的刷新频率。
      */
+    void setRefreshMode(RefreshMode mode);
+    inline RefreshMode getRefreshMode() const { return _refreshMode; }
 
-    void setRefreshMode(RefreshMode mode)
-    {
-        _refreshMode = mode;
-    }
-    RefreshMode getRefreshMode() const
-    {
-        return _refreshMode;
-    }
+    inline cc::TextureCube* getRealtimeCubeMap() { return _realtimeCubeMap; }
 
 private:
     ccstd::vector<IntrusivePtr<cc::RenderTexture>> _bakedCubeTextures;
@@ -261,9 +238,13 @@ private:
      */
     Vec3 _up;
 
-    RenderMode _renderMode = RenderMode::BAKE;
+    ProbeRenderMode _renderMode = ProbeRenderMode::BAKE;
 
     RefreshMode _refreshMode = RefreshMode::EVERY_FRAME;
+
+    IntrusivePtr<TextureCube> _realtimeCubeMap{nullptr};
+
+    uint32_t _frames{0};
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(ReflectionProbe);
 };
