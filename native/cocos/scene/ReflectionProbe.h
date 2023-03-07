@@ -144,9 +144,11 @@ public:
     inline bool validate() const { return _cubemap != nullptr; }
 
     void initBakedTextures();
+    void initRealTimeFrameBuffers();
     void captureCubemap();
 
     inline const ccstd::vector<IntrusivePtr<cc::RenderTexture>>& getBakedCubeTextures() const { return _bakedCubeTextures; }
+    gfx::Framebuffer* getFrameBuffer(uint32_t face) const;
     void resetCameraParams();
     void updateCameraDir(int32_t faceIdx);
     Vec2 getRenderArea() const;
@@ -176,7 +178,7 @@ private:
     ccstd::vector<IntrusivePtr<cc::RenderTexture>> _bakedCubeTextures;
     IntrusivePtr<cc::RenderTexture> _realtimePlanarTexture{nullptr};
 
-    int32_t _resolution = 256;
+    uint32_t _resolution = 256;
     gfx::ClearFlagBit _clearFlag = gfx::ClearFlagBit::NONE;
     gfx::Color _backgroundColor{1.0, 1.0, 1.0, 1.0};
     int32_t _visibility = 0;
@@ -245,6 +247,11 @@ private:
     IntrusivePtr<TextureCube> _realtimeCubeMap{nullptr};
 
     uint32_t _frames{0};
+
+    std::vector<IntrusivePtr<gfx::Texture>> _views;
+    std::vector<IntrusivePtr<gfx::Framebuffer>> _frameBuffers;
+    IntrusivePtr<gfx::RenderPass> _renderPass;
+    IntrusivePtr<gfx::Texture> _depthStencil;
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(ReflectionProbe);
 };
