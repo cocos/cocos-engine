@@ -83,6 +83,81 @@ public:
     uint32_t queueID{RenderGraph::null_vertex()};
 };
 
+class NativeRasterSubpassBuilder final : public RasterSubpassBuilder {
+public:
+    NativeRasterSubpassBuilder() = default;
+    NativeRasterSubpassBuilder(const PipelineRuntime* pipelineRuntimeIn, RenderGraph* renderGraphIn, uint32_t subpassIDIn, const LayoutGraphData* layoutGraphIn, uint32_t layoutIDIn) noexcept // NOLINT
+    : pipelineRuntime(pipelineRuntimeIn),
+      renderGraph(renderGraphIn),
+      layoutGraph(layoutGraphIn),
+      subpassID(subpassIDIn),
+      layoutID(layoutIDIn) {}
+
+    ccstd::string getName() const override;
+    void setName(const ccstd::string &name) override;
+
+    void setMat4(const ccstd::string &name, const Mat4 &mat) override;
+    void setQuaternion(const ccstd::string &name, const Quaternion &quat) override;
+    void setColor(const ccstd::string &name, const gfx::Color &color) override;
+    void setVec4(const ccstd::string &name, const Vec4 &vec) override;
+    void setVec2(const ccstd::string &name, const Vec2 &vec) override;
+    void setFloat(const ccstd::string &name, float v) override;
+    void setBuffer(const ccstd::string &name, gfx::Buffer *buffer) override;
+    void setTexture(const ccstd::string &name, gfx::Texture *texture) override;
+    void setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) override;
+    void setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) override;
+    void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override;
+
+    void addRasterView(const ccstd::string &name, const RasterView &view) override;
+    void addComputeView(const ccstd::string &name, const ComputeView &view) override;
+    void setViewport(const gfx::Viewport &viewport) override;
+    RasterQueueBuilder *addQueue(QueueHint hint, const ccstd::string &layoutName) override;
+    bool getShowStatistics() const override;
+    void setShowStatistics(bool enable) override;
+
+    const PipelineRuntime* pipelineRuntime{nullptr};
+    RenderGraph* renderGraph{nullptr};
+    const LayoutGraphData* layoutGraph{nullptr};
+    uint32_t subpassID{RenderGraph::null_vertex()};
+    uint32_t layoutID{LayoutGraphData::null_vertex()};
+};
+
+class NativeComputeSubpassBuilder final : public ComputeSubpassBuilder {
+public:
+    NativeComputeSubpassBuilder() = default;
+    NativeComputeSubpassBuilder(const PipelineRuntime* pipelineRuntimeIn, RenderGraph* renderGraphIn, uint32_t subpassIDIn, const LayoutGraphData* layoutGraphIn, uint32_t layoutIDIn) noexcept // NOLINT
+    : pipelineRuntime(pipelineRuntimeIn),
+      renderGraph(renderGraphIn),
+      layoutGraph(layoutGraphIn),
+      subpassID(subpassIDIn),
+      layoutID(layoutIDIn) {}
+
+    ccstd::string getName() const override;
+    void setName(const ccstd::string &name) override;
+
+    void setMat4(const ccstd::string &name, const Mat4 &mat) override;
+    void setQuaternion(const ccstd::string &name, const Quaternion &quat) override;
+    void setColor(const ccstd::string &name, const gfx::Color &color) override;
+    void setVec4(const ccstd::string &name, const Vec4 &vec) override;
+    void setVec2(const ccstd::string &name, const Vec2 &vec) override;
+    void setFloat(const ccstd::string &name, float v) override;
+    void setBuffer(const ccstd::string &name, gfx::Buffer *buffer) override;
+    void setTexture(const ccstd::string &name, gfx::Texture *texture) override;
+    void setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) override;
+    void setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) override;
+    void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override;
+
+    void addRasterView(const ccstd::string &name, const RasterView &view) override;
+    void addComputeView(const ccstd::string &name, const ComputeView &view) override;
+    ComputeQueueBuilder *addQueue(const ccstd::string &layoutName) override;
+
+    const PipelineRuntime* pipelineRuntime{nullptr};
+    RenderGraph* renderGraph{nullptr};
+    const LayoutGraphData* layoutGraph{nullptr};
+    uint32_t subpassID{RenderGraph::null_vertex()};
+    uint32_t layoutID{LayoutGraphData::null_vertex()};
+};
+
 class NativeRasterPassBuilder final : public RasterPassBuilder {
 public:
     NativeRasterPassBuilder() = default;

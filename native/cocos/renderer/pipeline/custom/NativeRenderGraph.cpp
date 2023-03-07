@@ -297,6 +297,133 @@ void NativeRasterPassBuilder::setShowStatistics(bool enable) {
     pass.showStatistics = enable;
 }
 
+ccstd::string NativeRasterSubpassBuilder::getName() const {
+    return std::string(get(RenderGraph::NameTag{}, *renderGraph, subpassID));
+}
+
+void NativeRasterSubpassBuilder::setName(const ccstd::string& name) {
+    get(RenderGraph::NameTag{}, *renderGraph, subpassID) = std::string_view{name};
+}
+
+void NativeRasterSubpassBuilder::setMat4(const ccstd::string &name, const Mat4 &mat) {
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, subpassID);
+    addMat4(*layoutGraph, name, mat, data);
+}
+
+void NativeRasterSubpassBuilder::setQuaternion(const ccstd::string &name, const Quaternion &quat) {
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, subpassID);
+    addQuaternion(*layoutGraph, name, quat, data);
+}
+
+void NativeRasterSubpassBuilder::setColor(const ccstd::string &name, const gfx::Color &color) {
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, subpassID);
+    addColor(*layoutGraph, name, color, data);
+}
+
+void NativeRasterSubpassBuilder::setVec4(const ccstd::string &name, const Vec4 &vec) {
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, subpassID);
+    addVec4(*layoutGraph, name, vec, data);
+}
+
+void NativeRasterSubpassBuilder::setVec2(const ccstd::string &name, const Vec2 &vec) {
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, subpassID);
+    addVec2(*layoutGraph, name, vec, data);
+}
+
+void NativeRasterSubpassBuilder::setFloat(const ccstd::string &name, float v) {
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, subpassID);
+    addFloat(*layoutGraph, name, v, data);
+}
+
+void NativeRasterSubpassBuilder::setBuffer(const ccstd::string &name, gfx::Buffer *buffer) {
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, subpassID);
+    addBuffer(*layoutGraph, name, buffer, data);
+}
+
+void NativeRasterSubpassBuilder::setTexture(const ccstd::string &name, gfx::Texture *texture) {
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, subpassID);
+    addTexture(*layoutGraph, name, texture, data);
+}
+
+void NativeRasterSubpassBuilder::setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) {
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, subpassID);
+    addReadWriteBuffer(*layoutGraph, name, buffer, data);
+}
+
+void NativeRasterSubpassBuilder::setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) {
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, subpassID);
+    addReadWriteTexture(*layoutGraph, name, texture, data);
+}
+
+void NativeRasterSubpassBuilder::setSampler(const ccstd::string &name, gfx::Sampler *sampler) {
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, subpassID);
+    addSampler(*layoutGraph, name, sampler, data);
+}
+
+void NativeRasterSubpassBuilder::addRasterView(const ccstd::string& name, const RasterView& view) {
+    auto &subpass = get(RasterSubpassTag{}, subpassID, *renderGraph);
+    auto slotID = static_cast<uint32_t>(subpass.rasterViews.size());
+    auto res = subpass.rasterViews.emplace(
+        std::piecewise_construct,
+        std::forward_as_tuple(name.c_str()),
+        std::forward_as_tuple(view));
+    CC_ENSURES(res.second);
+    res.first->second.slotID = slotID;
+}
+
+void NativeRasterSubpassBuilder::addComputeView(const ccstd::string& name, const ComputeView& view) {
+    CC_EXPECTS(!name.empty());
+    CC_EXPECTS(!view.name.empty());
+    auto &subpass = get(RasterSubpassTag{}, subpassID, *renderGraph);
+    auto iter = subpass.computeViews.find(name.c_str());
+    if (iter == subpass.computeViews.end()) {
+        bool added = false;
+        std::tie(iter, added) = subpass.computeViews.emplace(
+            std::piecewise_construct,
+            std::forward_as_tuple(name.c_str()),
+            std::forward_as_tuple());
+        CC_ENSURES(added);
+    }
+    iter->second.emplace_back(view);
+}
+
+void NativeRasterSubpassBuilder::setViewport(const gfx::Viewport& viewport) {
+    auto &subpass = get(RasterSubpassTag{}, subpassID, *renderGraph);
+    subpass.viewport = viewport;
+}
+
+RasterQueueBuilder* NativeRasterSubpassBuilder::addQueue(QueueHint hint, const ccstd::string& layoutName) {
+    CC_EXPECTS(layoutID != LayoutGraphData::null_vertex());
+
+    auto phaseLayoutID = LayoutGraphData::null_vertex();
+    if (!layoutName.empty()) {
+        phaseLayoutID = locate(layoutID, layoutName, *layoutGraph);
+        CC_ENSURES(phaseLayoutID != LayoutGraphData::null_vertex());
+    }
+
+    std::string_view name = "Queue";
+    auto queueID = addVertex(
+        QueueTag{},
+        std::forward_as_tuple(name),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(hint, phaseLayoutID),
+        *renderGraph, subpassID);
+
+    return new NativeRasterQueueBuilder(pipelineRuntime, renderGraph, queueID, layoutGraph);
+}
+
+bool NativeRasterSubpassBuilder::getShowStatistics() const {
+    const auto &subpass = get(RasterSubpassTag{}, subpassID, *renderGraph);
+    return subpass.showStatistics;
+}
+
+void NativeRasterSubpassBuilder::setShowStatistics(bool enable) {
+    auto &subpass = get(RasterSubpassTag{}, subpassID, *renderGraph);
+    subpass.showStatistics = enable;
+}
+
 ccstd::string NativeRasterQueueBuilder::getName() const {
     return std::string(get(RenderGraph::NameTag{}, *renderGraph, queueID));
 }
