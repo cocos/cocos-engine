@@ -96,6 +96,8 @@ void ReflectionProbe::initialize(Node* probeNode, Node* cameraNode) {
 
     _realtimeCubeMap->reset({ _resolution, _resolution, PixelFormat::RGBA32F, 1, 0, 0 });
 
+    //initRealTimeFrameBuffers();
+
 }
 
 void ReflectionProbe::syncCameraParams(const Camera* camera) {
