@@ -1,8 +1,8 @@
 /****************************************************************************
  Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
- 
+
  http://www.cocos.com
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights to
@@ -70,7 +70,7 @@ using MacroValue = ccstd::variant<ccstd::monostate, int32_t, bool, ccstd::string
  * @en Combination of preprocess macros
  * @zh 预处理宏组合
  */
-using MacroRecord = Record<ccstd::string, MacroValue>;
+using MacroRecord = ccstd::unordered_map<ccstd::string, MacroValue>;
 
 using MaterialProperty = ccstd::variant<ccstd::monostate /*0*/, float /*1*/, int32_t /*2*/, Vec2 /*3*/, Vec3 /*4*/, Vec4 /*5*/, Color, /*6*/ Mat3 /*7*/, Mat4 /*8*/, Quaternion /*9*/, IntrusivePtr<TextureBase> /*10*/, IntrusivePtr<gfx::Texture> /*11*/>;
 
@@ -85,9 +85,9 @@ using GFXTypeReaderCallback = void (*)(const float *, MaterialProperty &, index_
 using GFXTypeWriterCallback = void (*)(float *, const MaterialProperty &, index_t);
 using GFXTypeValidatorCallback = bool (*)(const MaterialProperty &);
 
-extern const ccstd::unordered_map<gfx::Type, GFXTypeReaderCallback> type2reader;       //NOLINT(readability-identifier-naming)
-extern const ccstd::unordered_map<gfx::Type, GFXTypeWriterCallback> type2writer;       //NOLINT(readability-identifier-naming)
-extern const ccstd::unordered_map<gfx::Type, GFXTypeValidatorCallback> type2validator; //NOLINT(readability-identifier-naming)
+extern const ccstd::unordered_map<gfx::Type, GFXTypeReaderCallback> type2reader;       // NOLINT(readability-identifier-naming)
+extern const ccstd::unordered_map<gfx::Type, GFXTypeWriterCallback> type2writer;       // NOLINT(readability-identifier-naming)
+extern const ccstd::unordered_map<gfx::Type, GFXTypeValidatorCallback> type2validator; // NOLINT(readability-identifier-naming)
 
 /**
  * @en Gets the default values for the given type of uniform

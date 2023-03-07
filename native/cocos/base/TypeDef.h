@@ -39,8 +39,6 @@ using FlagBits = std::uint32_t;
 using index_t = int32_t;
 #define CC_INVALID_INDEX (-1)
 
-#define Record ccstd::unordered_map // NOLINT(readability-identifier-naming)
-
 #define CC_ENUM_CONVERSION_OPERATOR(T) \
     inline std::underlying_type<T>::type toNumber(const T v) { return static_cast<std::underlying_type<T>::type>(v); }
 

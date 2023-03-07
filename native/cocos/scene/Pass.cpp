@@ -687,7 +687,7 @@ void Pass::doInit(const IPassInfoFull &info, bool /*copyDefines*/ /* = false */)
     // store handles
     _propertyHandleMap = handleMap;
     auto &directHandleMap = _propertyHandleMap;
-    Record<ccstd::string, uint32_t> indirectHandleMap;
+    ccstd::unordered_map<ccstd::string, uint32_t> indirectHandleMap;
     for (const auto &properties : _properties) {
         if (!properties.second.handleInfo.has_value()) {
             continue;
@@ -727,7 +727,6 @@ void Pass::buildUniformBlock(
     gfx::BufferViewInfo &bufferViewInfo,
     ccstd::vector<uint32_t> &startOffsets,
     size_t &count) {
-
     const auto alignment = _device->getCapabilities().uboOffsetAlignment;
     bufferViewInfo.buffer = _rootBuffer;
     bufferViewInfo.offset = startOffsets[count++];
