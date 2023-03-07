@@ -1341,14 +1341,6 @@ struct RenderGraphPrintVisitor : boost::dfs_visitor<> {
                 }
                 indent(space);
             },
-            [&](const PresentPass &pass) {
-                OSS << "PresentPass \"" << name << "\" {\n";
-                for (const auto &[name, present] : pass.presents) {
-                    INDENT();
-                    OSS << "present: \"" << name << "\", sync: " << present.syncInterval << ";\n";
-                }
-                indent(space);
-            },
             [&](const RaytracePass &pass) {
                 std::ignore = pass;
                 OSS << "RaytracePass \"" << name << "\" {\n";
@@ -1442,11 +1434,6 @@ struct RenderGraphPrintVisitor : boost::dfs_visitor<> {
                 OSS << "}\n";
             },
             [&](const MovePass &pass) {
-                std::ignore = pass;
-                unindent(space);
-                OSS << "}\n";
-            },
-            [&](const PresentPass &pass) {
                 std::ignore = pass;
                 unindent(space);
                 OSS << "}\n";
