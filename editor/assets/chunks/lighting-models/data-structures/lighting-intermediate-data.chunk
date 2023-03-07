@@ -22,8 +22,8 @@ struct LightingIntermediateData
 #endif
 
 #if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
-  vec4 shadowPosAndDepth; //xy: shadowmap uv, z: camera depth from pixel LVP, w: camera depth from shadowmap
-  vec4 transmitDiffuseParams; //zw: min/max DepthWS for shadowmap and 0 means disable shadow transmit,  x: transmit irradiance apply shadow, y: additional transmit mask, for shadowmap uncovered area
+  vec4 shadowPosAndDepth; //xy: shadowmap uv, z: camera depth from pixel LVP, w: camera depth from shadowmap, (z == w && z > 999998.0) means disable get distance from shadowmap
+  vec4 transmitDiffuseParams; //zw: min/max DepthWS for shadowmap,  x: transmit irradiance apply shadow, y: additional transmit mask, for shadowmap uncovered area
 #endif
 #if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR || CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
   vec4 transmitParams; // xy: extinction coef for out/in-scattering, z: in-scattering coef, w: transmit distance(water depth, leaf thickness)

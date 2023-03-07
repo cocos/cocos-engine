@@ -6,7 +6,12 @@
 
 bool CCSurfacesLightingEnableShadow(in float NoL)
 {
+#if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
+  // for back light shadows
+  return true;
+#else
   return NoL > 0.0;
+#endif
 }
 
 float CCSurfacesLightingCalculateDistanceAttenuation(in LightingIntermediateData lightingData, in vec4 lightSizeRangeAngle)
@@ -95,26 +100,33 @@ void CCSurfacesLightingCalculateEnvironment(out vec3 lightingDiffuse, out vec3 l
 #if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
   void CCSurfacesLightingCalculateDirectTransmitDiffuse(out vec3 transmitDiffuse, in LightingIntermediateData lightingData, in vec4 lightSourceColorAndIntensity, float shadow)
   {
+    //公用：使用transmitDiffuseParams.y作为mask，0表示全遮挡
+  #define needApplyShadow lightingData.transmitDiffuseParams.x
+  #define addonDepthMask lightingData.transmitDiffuseParams.y
+  #define DONOT_USE_SHADOW_DISTANCE (equalf(lightingData.shadowPosAndDepth.z, lightingData.shadowPosAndDepth.w) && lightingData.shadowPosAndDepth.z > 999900.0)
+  // view space depth is negative value
+  #define GET_SHADOW_DISTANCE clamp(lightingData.shadowPosAndDepth.w - lightingData.shadowPosAndDepth.z, lightingData.transmitDiffuseParams.z, lightingData.transmitDiffuseParams.w)
+    float distance = lightingData.transmitParams.w;
+    if (!DONOT_USE_SHADOW_DISTANCE)
+    {
+      distance *= GET_SHADOW_DISTANCE;
+    }
+    //屏蔽掉shadow：transmitDiffuseParams.zw的情况下使用transmitParams.w作为距离
+    //不屏蔽shadow：使用zw * transmitParams.w作为distance
+    shadow = mix(1.0, shadow, needApplyShadow);
+
     // vec3 backIrradiance = vec3(saturate(-lightingData.NoL)) * lightSourceColorAndIntensity.rgb * lightSourceColorAndIntensity.w;
     // vec3 transmitDiffuse = backIrradiance * DiffuseCoefficient_EnergyConservation;
     vec3 backIrradiance = CalculateDirectDiffuse(lightingData, lightSourceColorAndIntensity);
+    backIrradiance *= shadow * addonDepthMask;
+    transmitDiffuse = CalculateScattering(backIrradiance, distance, lightingData.transmitParams.x, lightingData.transmitParams.y, lightingData.transmitParams.z, lightingData.inScatteringColor.rgb, lightingData.outScatteringColor.rgb);
     
-    //公用：使用transmitDiffuseParams.y作为mask，0表示全遮挡
-    //屏蔽掉shadow：transmitDiffuseParams.zw的情况下使用transmitParams.w作为距离
-    //不屏蔽shadow：使用zw * transmitParams.w作为distance
-    shadow = mix(1.0, shadow, lightingData.transmitDiffuseParams.x);
-    //y: additional transmit depth mask
-    transmitDiffuse = CalculateScattering(backIrradiance, lightingData.transmitParams.w, lightingData.transmitParams.x, lightingData.transmitParams.y, lightingData.transmitParams.z, lightingData.inScatteringColor.rgb, lightingData.outScatteringColor.rgb);
-
-    lightingData.transmitParams;
-    lightingData.transmitDiffuseParams;
-    // transmitDiffuse = vec3(0.0);
+    //test
+    transmitDiffuse = vec3(distance * 100.0);
   }
   void CCSurfacesLightingCalculateEnvironmentTransmitDiffuse(out vec3 transmitDiffuse, in LightingIntermediateData lightingData, float lightIntensity, float ao)
   {
     vec3 backIrradiance = CalculateEnvironmentDiffuse(lightingData, lightIntensity);
-    lightingData.transmitParams;
-    lightingData.transmitDiffuseParams;
     transmitDiffuse = vec3(0.0); //backIrradiance * lightingResult.ao;
   }
 #endif

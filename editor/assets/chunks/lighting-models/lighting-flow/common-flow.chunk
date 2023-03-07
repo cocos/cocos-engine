@@ -40,19 +40,18 @@
         float shadow = 1.0;
       #if CC_RECEIVE_SHADOW && CC_SHADOW_TYPE == CC_SHADOW_MAP
         if (cc_lightPos[i].w > 0.0 && cc_lightSizeRangeAngle[i].w > 0.0) {
-          vec4 shadowPos = vec4(0.0), shadowNDCPosWithBias = vec4(0.0);
+          vec4 shadowPos = vec4(0.0), shadowPosWithDepthBias = vec4(0.0);
           if (CCSurfacesLightingEnableShadow(lightingData.NoL)) {
-            shadowPos = cc_matLightViewProj * vec4(surfaceData.worldPos, 1.0);
-            shadow = CCSpotShadowFactorBase(shadowNDCPosWithBias, shadowPos, worldPos, shadowBias);
+            shadowPos = cc_matLightViewProj * vec4(worldPos, 1.0);
+            shadow = CCSpotShadowFactorBase(shadowPosWithDepthBias, shadowPos, worldPos, shadowBias);
           }
-          #if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
-            #if CC_SURFACES_LIGHTING_USE_SHADOWMAP_TRANSMIT
-              lightingData.shadowPosAndDepth.xy = shadowNDCPosWithBias.xy;
-              lightingData.shadowPosAndDepth.z = shadowPos.z;
-              lightingData.shadowPosAndDepth.w = GetViewSpaceDepthFromNDCDepth_Perspective(SampleShadowMap(shadowNDCPosWithBias.xyz, cc_spotShadowMap), shadowNDCPosWithBias.w, cc_shadowInvProjDepthInfo.x, cc_shadowInvProjDepthInfo.y);
-            #else
-              lightingData.transmitDiffuseParams.zw = vec2(0.0);
-            #endif
+          #if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE && CC_SURFACES_LIGHTING_USE_SHADOWMAP_TRANSMIT
+            vec3 shadowNDCPos;
+            GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias);
+            lightingData.shadowPosAndDepth.xy = shadowNDCPos.xy;
+            // notice: view space z value is negative
+            lightingData.shadowPosAndDepth.z = GetViewSpaceDepthFromNDCDepth_Perspective(shadowNDCPos.z, shadowPosWithDepthBias.w, cc_shadowInvProjDepthInfo.x, cc_shadowInvProjDepthInfo.y);
+            lightingData.shadowPosAndDepth.w = GetViewSpaceDepthFromNDCDepth_Perspective(SampleShadowMap(shadowNDCPos, cc_spotShadowMap), shadowNDCPosWithBias.w, cc_shadowInvProjDepthInfo.x, cc_shadowInvProjDepthInfo.y);
           #endif
         }
       #endif
@@ -120,6 +119,9 @@
   #else
     void CCSurfacesLighting(inout LightingResult lightingResult, in SurfacesMaterialData surfaceData, in vec2 shadowBias)
     {
+      vec3 worldPos;
+      HIGHP_VALUE_FROM_STRUCT_DEFINED(worldPos, surfaceData.worldPos);
+      
       LightingIntermediateData lightingData;
       CCSurfacesInitializeLightingIntermediateData(lightingData, surfaceData);
       CCSurfacesInitializeLightingResult(lightingResult, surfaceData);
@@ -132,24 +134,30 @@
       lightingResult.shadow = 1.0;
       #if CC_RECEIVE_SHADOW && CC_SHADOW_TYPE == CC_SHADOW_MAP
         if (cc_mainLitDir.w > 0.0) {
-          vec4 shadowPos = vec4(0.0), shadowNDCPosWithBias = vec4(0.0);
+          vec4 shadowPos = vec4(0.0), shadowPosWithDepthBias = vec4(0.0);
+          vec4 shadowProjDepthInfo = vec4(0.0);
           if (CCSurfacesLightingEnableShadow(lightingData.NoL)) {
             #if CC_DIR_LIGHT_SHADOW_TYPE == CC_DIR_LIGHT_SHADOW_CASCADED
-              lightingResult.shadow = CCCSMFactorBase(shadowPos, shadowNDCPosWithBias, surfaceData.worldPos, lightingData.N, shadowBias);
+              lightingResult.shadow = CCCSMFactorBase(worldPos, lightingData.N, shadowBias);
+              #if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE && CC_SURFACES_LIGHTING_USE_SHADOWMAP_TRANSMIT
+                vec4 shadowProjInfo;
+                vec3 shadowViewDir0, shadowViewDir1, shadowViewDir2;
+                CCGetCSMLevel(shadowPosWithDepthBias, shadowProjDepthInfo, shadowProjInfo, shadowViewDir0, shadowViewDir1, shadowViewDir2, worldPos);
+              #endif
             #endif
             #if CC_DIR_LIGHT_SHADOW_TYPE == CC_DIR_LIGHT_SHADOW_UNIFORM
-              shadowPos = cc_matLightViewProj * vec4(surfaceData.worldPos, 1.0);
-              lightingResult.shadow = CCShadowFactorBase(shadowPos, lightingData.N, shadowBias);
+              shadowPos = cc_matLightViewProj * vec4(worldPos, 1.0);
+              lightingResult.shadow = CCShadowFactorBase(shadowPosWithDepthBias, shadowPos, lightingData.N, shadowBias);
+              shadowProjDepthInfo = cc_shadowProjDepthInfo;
             #endif
           }
-          #if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
-            #if CC_SURFACES_LIGHTING_USE_SHADOWMAP_TRANSMIT
-              lightingData.shadowPosAndDepth.xy = shadowNDCPosWithBias.xy;
-              lightingData.shadowPosAndDepth.z = shadowPos.z;
-              lightingData.shadowPosAndDepth.w = GetViewSpaceDepthFromNDCDepth_Orthgraphic(SampleShadowMap(shadowNDCPosWithBias.xyz, cc_shadowMap), cc_shadowProjDepthInfo.x, cc_shadowProjDepthInfo.y);
-            #else
-              lightingData.transmitDiffuseParams.zw = vec2(0.0);
-            #endif
+          #if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE && CC_SURFACES_LIGHTING_USE_SHADOWMAP_TRANSMIT
+            vec3 shadowNDCPos;
+            GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias);
+            lightingData.shadowPosAndDepth.xy = shadowNDCPos.xy;
+            // notice: view space z value is negative
+            lightingData.shadowPosAndDepth.z = GetViewSpaceDepthFromNDCDepth_Orthgraphic(shadowNDCPos.z, shadowProjDepthInfo.x, shadowProjDepthInfo.y);
+            lightingData.shadowPosAndDepth.w = GetViewSpaceDepthFromNDCDepth_Orthgraphic(SampleShadowMap(shadowNDCPos, cc_shadowMap), shadowProjDepthInfo.x, shadowProjDepthInfo.y);
           #endif
         }
       #endif

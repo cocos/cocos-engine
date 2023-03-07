@@ -199,6 +199,7 @@ CCProgram macro-remapping %{
   
   #define CC_SURFACES_LIGHTING_TRT 1
   #define CC_SURFACES_LIGHTING_TT 1
+  #define CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE 1
   #define CC_SURFACES_TRANSFER_CLIP_POS 1
 
   // depend on UI macros
@@ -306,6 +307,30 @@ CCProgram surface-fragment %{
   vec3 SurfacesFragmentModifyTTColor(in vec3 baseColor, in vec3 trtColor)
   {
       return mix(baseColor.rgb, ttColor.rgb, ttColor.a); //ttColor can be (0.992, 0.808, 0.516)
+  }
+
+  #define CC_SURFACES_FRAGMENT_MODIFY_TRANSMIT_PARAMS
+  vec4 SurfacesFragmentModifyTransmitParams()
+  {
+    return vec4(0.0, 0.0, 0.0, 0.0);
+  }
+
+  #define CC_SURFACES_FRAGMENT_MODIFY_TRANSMIT_DIFFUSE_PARAMS
+  vec4 SurfacesFragmentModifyTransmitDiffuseParams()
+  {
+    return vec4(1.0, 1.0, 0.0, 0.0);
+  }
+
+  #define CC_SURFACES_FRAGMENT_MODIFY_TRANSMIT_IN_SCATTERING_COLOR
+  vec3 SurfacesFragmentModifyTransmitInScatteringColor()
+  {
+    return vec3(0.0);
+  }
+  
+  #define CC_SURFACES_FRAGMENT_MODIFY_TRANSMIT_OUT_SCATTERING_COLOR
+  vec3 SurfacesFragmentModifyTransmitOutScatteringColor()
+  {
+    return vec3(1.0);
   }
 
   #define CC_SURFACES_FRAGMENT_MODIFY_BASECOLOR_AND_TRANSPARENCY

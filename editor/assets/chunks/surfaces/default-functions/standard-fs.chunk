@@ -75,7 +75,8 @@ vec4 SurfacesFragmentModifyTransmitParams()
 {
     // xy: extinction coef for out/in-scattering (should be same)
     // z: in-scattering coef (constant phase function)
-    // w: transmit distance(water depth, leaf thickness)
+    // w: transmit distance(water depth, leaf / hair thickness)
+    //    or distance multiplier for CC_SURFACES_LIGHTING_USE_SHADOWMAP_TRANSMIT(ear, nose, nephrite)
     return vec4(0.0, 0.0, 0.0, 0.0);
 }
 #endif
@@ -100,8 +101,8 @@ vec4 SurfacesFragmentModifyTransmitDiffuseParams()
 {
     // x: transmit irradiance apply shadow
     // y: additional transmit mask, add light transport for area which cannot be covered by shadowmap transmittance
-    // zw: min/max DepthWS for shadowmap, 0 means disable shadow transmit
-    return vec4(1.0, 0.0, 0.0, 0.0);
+    // zw: min/max DepthWS for shadowmap, should use cull none for shadow caster pass, enable both shadow cast and receive
+    return vec4(1.0, 1.0, 0.0, 1.0);
 }
 #endif
 
