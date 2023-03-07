@@ -1,8 +1,8 @@
 import { Color, Canvas, UITransform, instantiate, math, Toggle, TextureCube, _decorator, Component, Button, labelAssembler, game, director, Node, Scene, renderer, CameraComponent, Label, ForwardPipeline, RichText } from 'cc';
 const { ccclass, property } = _decorator;
 
-@ccclass('debugViewRuntimeControl')
-export class debugViewRuntimeControl extends Component {
+@ccclass('internal.DebugViewRuntimeControl')
+export class DebugViewRuntimeControl extends Component {
     @property(Node)
     compositeModeToggle: Node | null = null;
     @property(Node)
