@@ -27,6 +27,7 @@
 #include "LayoutGraphGraphs.h"
 #include "NativePipelineGraphs.h"
 #include "NativePipelineTypes.h"
+#include "NativeUtils.h"
 #include "RenderCommonNames.h"
 #include "RenderCommonTypes.h"
 #include "RenderGraphFwd.h"
@@ -46,7 +47,7 @@
 #include "gfx-base/GFXDef-common.h"
 #include "gfx-base/GFXDevice.h"
 #include "pipeline/PipelineSceneData.h"
-#include "NativeUtils.h"
+
 
 namespace cc {
 
@@ -1356,7 +1357,7 @@ void NativeComputePassBuilder::setName(const ccstd::string &name) {
 void NativeComputePassBuilder::addComputeView(const ccstd::string &name, const ComputeView &view) {
     CC_EXPECTS(!name.empty());
     CC_EXPECTS(!view.name.empty());
-    auto &pass = get(ComputePassTag{}, passID, *renderGraph);
+    auto &pass = get(ComputeTag{}, passID, *renderGraph);
     auto iter = pass.computeViews.find(name.c_str());
     if (iter == pass.computeViews.end()) {
         bool added = false;

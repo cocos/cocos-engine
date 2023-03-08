@@ -61,7 +61,7 @@ enum class ParameterType {
 struct RasterPassTag {};
 struct RasterSubpassTag {};
 struct ComputeSubpassTag {};
-struct ComputePassTag {};
+struct ComputeTag {};
 struct CopyTag {};
 struct MoveTag {};
 struct RaytraceTag {};

@@ -156,7 +156,7 @@ static void fillTestGraph(const ViewInfo &rasterData, const ResourceInfo &rescIn
                 const auto &subpasses = pass.second;
 
                 const ccstd::string name = "pass" + std::to_string(passCount++);
-                const auto vertexID = add_vertex(renderGraph, ComputePassTag{}, name.c_str());
+                const auto vertexID = add_vertex(renderGraph, ComputeTag{}, name.c_str());
 
                 assert(subpasses.back().size() == 2); // inputs and outputs
                 auto &computePass = get(ComputePassTag{}, vertexID, renderGraph);

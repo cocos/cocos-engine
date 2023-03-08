@@ -56,7 +56,7 @@ class PrePrintVisitor implements RenderGraphVisitor {
     }
     rasterSubpass(value: RasterSubpass) {}
     computeSubpass(value: ComputeSubpass) {}
-    computePass (value: ComputePass) {
+    compute (value: ComputePass) {
         for (const computeView of value.computeViews) {
             oss += `${space}"${computeView[0]}": ComputeView[]\n`;
         }
@@ -158,7 +158,7 @@ class PostPrintVisitor implements RenderGraphVisitor {
     }
     rasterSubpass(value: RasterSubpass) {}
     computeSubpass(value: ComputeSubpass) {}
-    computePass (value: ComputePass) {}
+    compute (value: ComputePass) {}
     copy (value: CopyPass) {}
     move (value: MovePass) {}
     raytrace (value: RaytracePass) {}

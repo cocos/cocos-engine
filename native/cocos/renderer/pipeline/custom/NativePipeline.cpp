@@ -215,7 +215,7 @@ void NativePipeline::updateRenderWindow(const ccstd::string &name, scene::Render
         },
         [&](RenderSwapchain &sc) {
             CC_EXPECTS(renderWindow->getSwapchain());
-            auto* newSwapchain = renderWindow->getSwapchain();
+            auto *newSwapchain = renderWindow->getSwapchain();
             if (sc.generation != newSwapchain->getGeneration()) {
                 resourceGraph.invalidatePersistentRenderPassAndFramebuffer(
                     sc.swapchain->getColorTexture());
@@ -301,7 +301,7 @@ RasterPassBuilder *NativePipeline::addRasterPass(
 ComputePassBuilder *NativePipeline::addComputePass(const ccstd::string &layoutName) {
     std::string_view name("Compute");
     auto passID = addVertex(
-        ComputePassTag{},
+        ComputeTag{},
         std::forward_as_tuple(name),
         std::forward_as_tuple(layoutName.c_str()),
         std::forward_as_tuple(),
