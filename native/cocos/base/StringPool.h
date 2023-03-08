@@ -35,7 +35,7 @@
 
 namespace cc {
 
-namespace impl {
+namespace {
 class StringHasher final {
 public:
     ccstd::hash_t operator()(const char *str) const noexcept {
@@ -70,7 +70,7 @@ private:
     char const *doHandleToString(const StringHandle &handle) const noexcept;
     StringHandle doFind(const char *str) const noexcept;
 
-    ccstd::unordered_map<char const *, StringHandle, impl::StringHasher, impl::StringEqual> _stringToHandles{};
+    ccstd::unordered_map<char const *, StringHandle, StringHasher, StringEqual> _stringToHandles{};
     ccstd::vector<char const *> _handleToStrings{};
     mutable ReadWriteLock _readWriteLock{};
 };

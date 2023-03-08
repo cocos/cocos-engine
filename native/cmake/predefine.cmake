@@ -122,7 +122,7 @@ if("$ENV{COCOS_ENGINE_DEV}" EQUAL "1")
     endif()
 
     if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-        set(WERROR_FLAGS " ${WERROR_FLAGS} -Wno-invalid-offsetof")
+        set(WERROR_FLAGS " ${WERROR_FLAGS} -Wno-invalid-offsetof -Wno-subobject-linkage")
     endif()
 
     if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
