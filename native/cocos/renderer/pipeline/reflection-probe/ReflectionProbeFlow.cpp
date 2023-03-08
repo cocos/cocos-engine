@@ -82,7 +82,6 @@ void ReflectionProbeFlow::renderStage(scene::Camera *camera, scene::ReflectionPr
             for (uint32_t faceIdx = 0; faceIdx < 6; faceIdx++) {
                 //update camera dirction
                 probe->updateCameraDir(faceIdx);
-                RenderTexture *rt = probe->getBakedCubeTextures()[faceIdx];
                 auto *reflectionProbeStage = static_cast<ReflectionProbeStage *>(stage.get());
                 reflectionProbeStage->setUsage(probe->getFrameBuffer(faceIdx), probe);
                 reflectionProbeStage->render(camera);

@@ -114,7 +114,7 @@ export class ReflectionProbe extends Component {
      * @zh
      * 设置反射探针的渲染类型。
      */
-    //@type(Enum(ProbeRenderMode))
+    @type(Enum(ProbeRenderMode))
     set renderMode (val) {
         this._renderMode = val;
         this.probe.renderMode = val;
@@ -130,8 +130,8 @@ export class ReflectionProbe extends Component {
      * @zh
      * 设置实时反射探针的刷新频率。
      */
-    //@visible(function (this: ReflectionProbe) { return this._renderMode === ProbeRenderMode.REALTIME; })
-    //@type(Enum(RefreshMode))
+    @visible(function (this: ReflectionProbe) { return this._renderMode === ProbeRenderMode.REALTIME; })
+    @type(Enum(RefreshMode))
     set refreshMode (val) {
         this._refreshMode = val;
         this.probe.refreshMode = val;
