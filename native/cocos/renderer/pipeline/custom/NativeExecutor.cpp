@@ -290,11 +290,11 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
                         CC_EXPECTS(false);
                     });
             } else {
+                CC_EXPECTS(view.attachmentType == AttachmentType::SHADING_RATE);
                 CC_EXPECTS(false);
             }
         }
     } else {
-        CC_EXPECTS(view.attachmentType == AttachmentType::SHADING_RATE);
         CC_EXPECTS(false);
     }
 
