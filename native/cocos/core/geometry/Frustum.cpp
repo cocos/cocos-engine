@@ -46,6 +46,14 @@ void Frustum::createOrtho(Frustum *out, float width,
                           float near,
                           float far,
                           const Mat4 &transform) {
+    createOrthogonal(out, width, height, near, far, transform);
+}
+
+void Frustum::createOrthogonal(Frustum *out, float width,
+                               float height,
+                               float near,
+                               float far,
+                               const Mat4 &transform) {
     auto halfWidth = width / 2.0F;
     auto halfHeight = height / 2.0F;
     Vec3::transformMat4({halfWidth, halfHeight, -near}, transform, &out->vertices[0]);
@@ -57,12 +65,7 @@ void Frustum::createOrtho(Frustum *out, float width,
     Vec3::transformMat4({-halfWidth, -halfHeight, -far}, transform, &out->vertices[6]);
     Vec3::transformMat4({halfWidth, -halfHeight, -far}, transform, &out->vertices[7]);
 
-    Plane::fromPoints(out->planes[0], out->vertices[1], out->vertices[6], out->vertices[5]);
-    Plane::fromPoints(out->planes[1], out->vertices[3], out->vertices[4], out->vertices[7]);
-    Plane::fromPoints(out->planes[2], out->vertices[6], out->vertices[3], out->vertices[7]);
-    Plane::fromPoints(out->planes[3], out->vertices[0], out->vertices[5], out->vertices[4]);
-    Plane::fromPoints(out->planes[4], out->vertices[2], out->vertices[0], out->vertices[3]);
-    Plane::fromPoints(out->planes[5], out->vertices[7], out->vertices[5], out->vertices[6]);
+    out->updatePlanes();
 }
 
 Frustum *Frustum::createFromAABB(Frustum *out, const AABB &aabb) {
@@ -79,13 +82,31 @@ Frustum *Frustum::createFromAABB(Frustum *out, const AABB &aabb) {
     out->vertices[6].set(maxPos.x, minPos.y, maxPos.z);
     out->vertices[7].set(minPos.x, minPos.y, maxPos.z);
 
-    if (out->getType() != ShapeEnum::SHAPE_FRUSTUM_ACCURATE) {
-        return out;
-    }
-
     out->updatePlanes();
 
     return out;
+}
+
+void Frustum::createPerspective(Frustum *out, float fov,
+                                float aspect,
+                                float near,
+                                float far,
+                                const Mat4 &transform) {
+    const float h = tanf(fov * 0.5F);
+    const float w = h * aspect;
+    const Vec3 nearTemp(near * w, near * h, near);
+    const Vec3 farTemp(far * w, far * h, far);
+
+    out->vertices[0].transformMat4(Vec3(nearTemp.x, nearTemp.y, nearTemp.z), transform);
+    out->vertices[1].transformMat4(Vec3(-nearTemp.x, nearTemp.y, nearTemp.z), transform);
+    out->vertices[2].transformMat4(Vec3(-nearTemp.x, -nearTemp.y, nearTemp.z), transform);
+    out->vertices[3].transformMat4(Vec3(nearTemp.x, -nearTemp.y, nearTemp.z), transform);
+    out->vertices[4].transformMat4(Vec3(farTemp.x, farTemp.y, farTemp.z), transform);
+    out->vertices[5].transformMat4(Vec3(-farTemp.x, farTemp.y, farTemp.z), transform);
+    out->vertices[6].transformMat4(Vec3(-farTemp.x, -farTemp.y, farTemp.z), transform);
+    out->vertices[7].transformMat4(Vec3(farTemp.x, -farTemp.y, farTemp.z), transform);
+
+    out->updatePlanes();
 }
 
 void Frustum::update(const Mat4 &m, const Mat4 &inv) {
@@ -108,10 +129,6 @@ void Frustum::update(const Mat4 &m, const Mat4 &inv) {
     planes[5]->n.set(m.m[3] - m.m[2], m.m[7] - m.m[6], m.m[11] - m.m[10]);
     planes[5]->d = -(m.m[15] - m.m[14]);
 
-    if (getType() != ShapeEnum::SHAPE_FRUSTUM_ACCURATE) {
-        return;
-    }
-
     for (Plane *plane : planes) {
         float invDist = 1 / plane->n.length();
         plane->n *= invDist;
@@ -125,40 +142,22 @@ void Frustum::update(const Mat4 &m, const Mat4 &inv) {
 }
 
 void Frustum::transform(const Mat4 &mat) {
-    if (getType() != ShapeEnum::SHAPE_FRUSTUM_ACCURATE) {
-        return;
-    }
     for (auto i = 0; i < 8; i++) {
         vertices[i].transformMat4(vertices[i], mat);
     }
-    Plane::fromPoints(planes[0], vertices[1], vertices[6], vertices[5]);
-    Plane::fromPoints(planes[1], vertices[3], vertices[4], vertices[7]);
-    Plane::fromPoints(planes[2], vertices[6], vertices[3], vertices[7]);
-    Plane::fromPoints(planes[3], vertices[0], vertices[5], vertices[4]);
-    Plane::fromPoints(planes[4], vertices[2], vertices[0], vertices[3]);
-    Plane::fromPoints(planes[5], vertices[7], vertices[5], vertices[6]);
+    updatePlanes();
+}
+
+void Frustum::createOrthogonal(float width, float height, float near, float far, const Mat4 &transform) {
+    createOrthogonal(this, width, height, near, far, transform);
 }
 
 void Frustum::createOrtho(const float width, const float height, const float near, const float far, const Mat4 &transform) {
-    createOrtho(this, width, height, near, far, transform);
+    createOrthogonal(width, height, near, far, transform);
 }
 
 void Frustum::split(float start, float end, float aspect, float fov, const Mat4 &transform) {
-    const float h = tanf(fov * 0.5F);
-    const float w = h * aspect;
-    const Vec3 nearTemp(start * w, start * h, start);
-    const Vec3 farTemp(end * w, end * h, end);
-
-    vertices[0].transformMat4(Vec3(nearTemp.x, nearTemp.y, nearTemp.z), transform);
-    vertices[1].transformMat4(Vec3(-nearTemp.x, nearTemp.y, nearTemp.z), transform);
-    vertices[2].transformMat4(Vec3(-nearTemp.x, -nearTemp.y, nearTemp.z), transform);
-    vertices[3].transformMat4(Vec3(nearTemp.x, -nearTemp.y, nearTemp.z), transform);
-    vertices[4].transformMat4(Vec3(farTemp.x, farTemp.y, farTemp.z), transform);
-    vertices[5].transformMat4(Vec3(-farTemp.x, farTemp.y, farTemp.z), transform);
-    vertices[6].transformMat4(Vec3(-farTemp.x, -farTemp.y, farTemp.z), transform);
-    vertices[7].transformMat4(Vec3(farTemp.x, -farTemp.y, farTemp.z), transform);
-
-    updatePlanes();
+    createPerspective(this, fov, aspect, start, end, transform);
 }
 
 void Frustum::updatePlanes() {

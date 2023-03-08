@@ -48,13 +48,36 @@ public:
      * @param near @en The near plane of the frustum. @zh 正交视锥体的近平面值。
      * @param far @en The far plane of the frustum. @zh 正交视锥体的远平面值。
      * @param transform @en The transform matrix of the frustum. @zh 正交视锥体的变换矩阵。
-     * @return @en The out object @zh 返回正交视锥体.
      */
     static void createOrtho(Frustum *out, float width,
                             float height,
                             float near,
                             float far,
                             const Mat4 &transform);
+    static void createOrthogonal(Frustum *out, float width,
+                                 float height,
+                                 float near,
+                                 float far,
+                                 const Mat4 &transform);
+
+    /**
+     * @en
+     * Create a perspective frustum.
+     * @zh
+     * 创建一个透视视锥体。
+     * @param out @en The result perspective frustum. @zh 输出的透视视锥体。
+     * @param fov @en The field of view of the frustum. @zh 视锥体的视野。
+     * @param aspect @en The aspect ratio of the frustum. @zh 视锥体的宽高比。
+     * @param near @en The near plane of the frustum. @zh 视锥体的近平面值。
+     * @param far @en The far plane of the frustum. @zh 视锥体的远平面值。
+     * @param transform @en The transform matrix of the frustum. @zh 视锥体的变换矩阵。
+     */
+    static void createPerspective(Frustum *out, float fov,
+                                  float aspect,
+                                  float near,
+                                  float far,
+                                  const Mat4 &transform);
+
     /**
      * @en Create a frustum from an AABB box.
      * @zh 从 AABB 包围盒中创建一个视锥体。
@@ -125,6 +148,7 @@ public:
     void transform(const Mat4 &);
 
     void createOrtho(float width, float height, float near, float far, const Mat4 &transform);
+    void createOrthogonal(float width, float height, float near, float far, const Mat4 &transform);
     void split(float start, float end, float aspect, float fov, const Mat4 &transform);
     void updatePlanes();
     void update(const Mat4 &m, const Mat4 &inv);

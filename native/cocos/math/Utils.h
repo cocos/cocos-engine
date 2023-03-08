@@ -215,6 +215,7 @@ auto pseudoRandomRangeInt(In seed, In min, In max) {
  */
 template <typename T>
 auto nextPow2(T val) {
+    // ref: https://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
     --val;
     val = (val >> 1) | val;
     val = (val >> 2) | val;
