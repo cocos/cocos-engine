@@ -158,6 +158,8 @@ public:
      * Set whether to use accurate intersection testing function on this frustum.
      * @zh
      * 设置是否在此截锥体上使用精确的相交测试函数。
+     * 
+     * @deprecated since v3.8.0 no need to set accurate flag since it doesn't affect the calculation at all.
      */
     inline void setAccurate(bool accurate) {
         setType(accurate ? ShapeEnum::SHAPE_FRUSTUM_ACCURATE : ShapeEnum::SHAPE_FRUSTUM);

@@ -73,14 +73,14 @@ Frustum *Frustum::createFromAABB(Frustum *out, const AABB &aabb) {
     Vec3 maxPos;
     aabb.getBoundary(&minPos, &maxPos);
 
-    out->vertices[0].set(minPos.x, maxPos.y, minPos.z);
-    out->vertices[1].set(maxPos.x, maxPos.y, minPos.z);
-    out->vertices[2].set(maxPos.x, minPos.y, minPos.z);
-    out->vertices[3].set(minPos.x, minPos.y, minPos.z);
-    out->vertices[4].set(minPos.x, maxPos.y, maxPos.z);
-    out->vertices[5].set(maxPos.x, maxPos.y, maxPos.z);
-    out->vertices[6].set(maxPos.x, minPos.y, maxPos.z);
-    out->vertices[7].set(minPos.x, minPos.y, maxPos.z);
+    out->vertices[0].set(maxPos.x, maxPos.y, -minPos.z);
+    out->vertices[1].set(minPos.x, maxPos.y, -minPos.z);
+    out->vertices[2].set(minPos.x, minPos.y, -minPos.z);
+    out->vertices[3].set(maxPos.x, minPos.y, -minPos.z);
+    out->vertices[4].set(maxPos.x, maxPos.y, -maxPos.z);
+    out->vertices[5].set(minPos.x, maxPos.y, -maxPos.z);
+    out->vertices[6].set(minPos.x, minPos.y, -maxPos.z);
+    out->vertices[7].set(maxPos.x, minPos.y, -maxPos.z);
 
     out->updatePlanes();
 
@@ -97,14 +97,14 @@ void Frustum::createPerspective(Frustum *out, float fov,
     const Vec3 nearTemp(near * w, near * h, near);
     const Vec3 farTemp(far * w, far * h, far);
 
-    out->vertices[0].transformMat4(Vec3(nearTemp.x, nearTemp.y, nearTemp.z), transform);
-    out->vertices[1].transformMat4(Vec3(-nearTemp.x, nearTemp.y, nearTemp.z), transform);
-    out->vertices[2].transformMat4(Vec3(-nearTemp.x, -nearTemp.y, nearTemp.z), transform);
-    out->vertices[3].transformMat4(Vec3(nearTemp.x, -nearTemp.y, nearTemp.z), transform);
-    out->vertices[4].transformMat4(Vec3(farTemp.x, farTemp.y, farTemp.z), transform);
-    out->vertices[5].transformMat4(Vec3(-farTemp.x, farTemp.y, farTemp.z), transform);
-    out->vertices[6].transformMat4(Vec3(-farTemp.x, -farTemp.y, farTemp.z), transform);
-    out->vertices[7].transformMat4(Vec3(farTemp.x, -farTemp.y, farTemp.z), transform);
+    out->vertices[0].transformMat4(Vec3(nearTemp.x, nearTemp.y, -nearTemp.z), transform);
+    out->vertices[1].transformMat4(Vec3(-nearTemp.x, nearTemp.y, -nearTemp.z), transform);
+    out->vertices[2].transformMat4(Vec3(-nearTemp.x, -nearTemp.y, -nearTemp.z), transform);
+    out->vertices[3].transformMat4(Vec3(nearTemp.x, -nearTemp.y, -nearTemp.z), transform);
+    out->vertices[4].transformMat4(Vec3(farTemp.x, farTemp.y, -farTemp.z), transform);
+    out->vertices[5].transformMat4(Vec3(-farTemp.x, farTemp.y, -farTemp.z), transform);
+    out->vertices[6].transformMat4(Vec3(-farTemp.x, -farTemp.y, -farTemp.z), transform);
+    out->vertices[7].transformMat4(Vec3(farTemp.x, -farTemp.y, -farTemp.z), transform);
 
     out->updatePlanes();
 }

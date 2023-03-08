@@ -231,7 +231,7 @@ export class Frustum {
      * @zh
      * 设置是否在此截锥体上使用精确的相交测试函数。
      *
-     * @deprecated since v3.8.0, no need to set accurate flag since we use accurate intersection testing function by default.
+     * @deprecated since v3.8.0 no need to set accurate flag since it doesn't affect the calculation at all.
      */
     set accurate (b: boolean) {
         this._type = b ? enums.SHAPE_FRUSTUM_ACCURATE : enums.SHAPE_FRUSTUM;
