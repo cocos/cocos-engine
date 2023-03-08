@@ -46,7 +46,7 @@ import { BatchedBuffer } from '../batched-buffer';
 import { IRenderPass, isEnableEffect, SetIndex, UBODeferredLight, UBOForwardLight, UBOLocal } from '../define';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { PipelineInputAssemblerData } from '../render-pipeline';
-import { LayoutGraphData, PipelineLayoutData, RenderPhaseData, RenderStageData } from './layout-graph';
+import { DescriptorSetData, LayoutGraphData, PipelineLayoutData, RenderPhaseData, RenderStageData } from './layout-graph';
 import { Pipeline, SceneVisitor } from './pipeline';
 import { Blit, ClearView, ComputePass, ComputeSubpass, CopyPass, Dispatch, ManagedBuffer, ManagedResource, ManagedTexture, MovePass,
     RasterPass, RasterSubpass, RaytracePass, RenderData, RenderGraph, RenderGraphVisitor, RenderQueue, RenderSwapchain, ResourceDesc,
@@ -330,13 +330,23 @@ class DeviceRenderQueue {
     private _hint: QueueHint =  QueueHint.NONE;
     private _phaseID: number = getPhaseID('default');
     private _renderPhase: RenderPhaseData | null = null;
+    private _descSetData: DescriptorSetData | null = null;
+    private _layoutID = -1;
     private _isUpdateUBO = false;
     private _isUploadInstance = false;
     private _isUploadBatched = false;
     protected _transversal: DeviceSceneTransversal | null = null;
     get phaseID (): number { return this._phaseID; }
+    set layoutID (value: number) {
+        this._layoutID = value;
+        const layoutGraph = this.devicePass.context.layoutGraph;
+        this._renderPhase = layoutGraph.tryGetRenderPhase(value);
+        const layout = layoutGraph.getLayout(value);
+        this._descSetData = layout.descriptorSets.get(UpdateFrequency.PER_PHASE)!;
+    }
+    get layoutID (): number { return this._layoutID; }
+    get descSetData (): DescriptorSetData | null { return this._descSetData; }
     get renderPhase (): RenderPhaseData | null { return this._renderPhase; }
-    set renderPhase (val) { this._renderPhase = val; }
     private _sceneVisitor;
     private _blitDesc: BlitDesc | null = null;
     private _queueId = -1;
@@ -396,6 +406,10 @@ class DeviceRenderQueue {
     }
 
     record () {
+        if (this._descSetData && this._descSetData.descriptorSet) {
+            this._devicePass?.context.commandBuffer
+                .bindDescriptorSet(SetIndex.COUNT, this._descSetData.descriptorSet);
+        }
         for (const task of this._sceneTasks) {
             task.start();
             task.join();
@@ -1812,7 +1826,7 @@ class PreRenderVisitor extends BaseRenderVisitor implements RenderGraphVisitor {
             const layoutGraph = this.context.layoutGraph;
             if (this.currPass!.renderLayout) {
                 const layoutId = layoutGraph.locateChild(this.currPass!.renderLayout.layoutID, layoutName);
-                deviceQueue.renderPhase = layoutGraph.tryGetRenderPhase(layoutId);
+                this.currQueue.layoutID = layoutId;
             }
         }
     }
