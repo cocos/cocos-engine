@@ -80,33 +80,39 @@ SubpassGraph::Vertex::Vertex(Vertex const& rhs, const allocator_type& alloc)
 : outEdges(rhs.outEdges, alloc),
   inEdges(rhs.inEdges, alloc) {}
 
-RasterSubpass::RasterSubpass(const allocator_type& alloc) noexcept
+RasterSubpass::RasterSubpass(uint32_t subpassIDIn, const allocator_type& alloc) noexcept
 : rasterViews(alloc),
-  computeViews(alloc) {}
+  computeViews(alloc),
+  subpassID(subpassIDIn) {}
 
 RasterSubpass::RasterSubpass(RasterSubpass&& rhs, const allocator_type& alloc)
 : rasterViews(std::move(rhs.rasterViews), alloc),
   computeViews(std::move(rhs.computeViews), alloc),
+  subpassID(rhs.subpassID),
   viewport(rhs.viewport),
   showStatistics(rhs.showStatistics) {}
 
 RasterSubpass::RasterSubpass(RasterSubpass const& rhs, const allocator_type& alloc)
 : rasterViews(rhs.rasterViews, alloc),
   computeViews(rhs.computeViews, alloc),
+  subpassID(rhs.subpassID),
   viewport(rhs.viewport),
   showStatistics(rhs.showStatistics) {}
 
-ComputeSubpass::ComputeSubpass(const allocator_type& alloc) noexcept
+ComputeSubpass::ComputeSubpass(uint32_t subpassIDIn, const allocator_type& alloc) noexcept
 : rasterViews(alloc),
-  computeViews(alloc) {}
+  computeViews(alloc),
+  subpassID(subpassIDIn) {}
 
 ComputeSubpass::ComputeSubpass(ComputeSubpass&& rhs, const allocator_type& alloc)
 : rasterViews(std::move(rhs.rasterViews), alloc),
-  computeViews(std::move(rhs.computeViews), alloc) {}
+  computeViews(std::move(rhs.computeViews), alloc),
+  subpassID(rhs.subpassID) {}
 
 ComputeSubpass::ComputeSubpass(ComputeSubpass const& rhs, const allocator_type& alloc)
 : rasterViews(rhs.rasterViews, alloc),
-  computeViews(rhs.computeViews, alloc) {}
+  computeViews(rhs.computeViews, alloc),
+  subpassID(rhs.subpassID) {}
 
 RasterPass::RasterPass(const allocator_type& alloc) noexcept
 : rasterViews(alloc),

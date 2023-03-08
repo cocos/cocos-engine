@@ -397,15 +397,23 @@ export class SubpassGraph implements BidirectionalGraph
 }
 
 export class RasterSubpass {
+    constructor (subpassID: number) {
+        this.subpassID = subpassID;
+    }
     readonly rasterViews: Map<string, RasterView> = new Map<string, RasterView>();
     readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
+    subpassID: number;
     readonly viewport: Viewport = new Viewport();
     showStatistics = false;
 }
 
 export class ComputeSubpass {
+    constructor (subpassID: number) {
+        this.subpassID = subpassID;
+    }
     readonly rasterViews: Map<string, RasterView> = new Map<string, RasterView>();
     readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
+    subpassID: number;
 }
 
 export class RasterPass {

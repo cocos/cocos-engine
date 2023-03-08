@@ -284,7 +284,7 @@ struct RasterSubpass {
         return {rasterViews.get_allocator().resource()};
     }
 
-    RasterSubpass(const allocator_type& alloc) noexcept; // NOLINT
+    RasterSubpass(uint32_t subpassIDIn, const allocator_type& alloc) noexcept;
     RasterSubpass(RasterSubpass&& rhs, const allocator_type& alloc);
     RasterSubpass(RasterSubpass const& rhs, const allocator_type& alloc);
 
@@ -295,6 +295,7 @@ struct RasterSubpass {
 
     PmrTransparentMap<ccstd::pmr::string, RasterView> rasterViews;
     PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>> computeViews;
+    uint32_t subpassID{0xFFFFFFFF};
     gfx::Viewport viewport;
     bool showStatistics{false};
 };
@@ -305,7 +306,7 @@ struct ComputeSubpass {
         return {rasterViews.get_allocator().resource()};
     }
 
-    ComputeSubpass(const allocator_type& alloc) noexcept; // NOLINT
+    ComputeSubpass(uint32_t subpassIDIn, const allocator_type& alloc) noexcept;
     ComputeSubpass(ComputeSubpass&& rhs, const allocator_type& alloc);
     ComputeSubpass(ComputeSubpass const& rhs, const allocator_type& alloc);
 
@@ -316,6 +317,7 @@ struct ComputeSubpass {
 
     PmrTransparentMap<ccstd::pmr::string, RasterView> rasterViews;
     PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>> computeViews;
+    uint32_t subpassID{0xFFFFFFFF};
 };
 
 struct RasterPass {
