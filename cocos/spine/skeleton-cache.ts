@@ -362,13 +362,12 @@ export class AnimationCache {
         _preFinalColor = null;
         _preDarkColor = null;
 
-        this.frames[index] = this.frames[index] || {
+        this.frames[index] ??= {
             segments: [],
             colors: [],
             boneInfos: [],
-            vertices: null,
-            uintVert: null,
-            indices: null,
+            vertices: new Float32Array(),
+            indices: new Uint16Array(),
         };
         const frame = this.frames[index];
 

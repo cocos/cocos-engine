@@ -995,7 +995,7 @@ export class TiledLayer extends UIRenderer {
         }
 
         const rowData = vertices[cullingRow] = vertices[cullingRow] || { minCol: 0, maxCol: 0 };
-        const colData = rowData[cullingCol] = rowData[cullingCol] || {};
+        const colData = rowData[cullingCol] ??= { index: 0, left: 0, bottom: 0 };
 
         // record each row range, it will faster when culling grid
         if (rowData.minCol > cullingCol) {
