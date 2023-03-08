@@ -256,7 +256,7 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
                 CC_ENSURES(rpInfo.colorAttachments.size() == subpass.colors.size());
                 CC_ENSURES(rpInfo.colorAttachments.size() == data.clearColors.size());
                 CC_ENSURES(rpInfo.colorAttachments.size() == fbInfo.colorTextures.size());
-            } else { // DepthStencil
+            } else if (view.attachmentType == AttachmentType::DEPTH_STENCIL) { // DepthStencil
                 auto& dsv = rpInfo.depthStencilAttachment;
                 CC_EXPECTS(desc.format != gfx::Format::UNKNOWN);
                 dsv.format = desc.format;
@@ -289,9 +289,12 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
                     [](const auto& /*unused*/) {
                         CC_EXPECTS(false);
                     });
+            } else {
+                CC_EXPECTS(false);
             }
         }
     } else {
+        CC_EXPECTS(view.attachmentType == AttachmentType::SHADING_RATE);
         CC_EXPECTS(false);
     }
 

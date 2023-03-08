@@ -112,6 +112,7 @@ inline const char* getName(AttachmentType e) noexcept {
     switch (e) {
         case AttachmentType::RENDER_TARGET: return "RENDER_TARGET";
         case AttachmentType::DEPTH_STENCIL: return "DEPTH_STENCIL";
+        case AttachmentType::SHADING_RATE: return "SHADING_RATE";
     }
     return "";
 }

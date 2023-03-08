@@ -612,6 +612,9 @@ class DeviceRenderPass {
                 this._clearDepth = rasterV.clearColor.x;
                 this._clearStencil = rasterV.clearColor.y;
                 break;
+            case AttachmentType.SHADING_RATE:
+                // noop
+                break;
             default:
             }
         }
@@ -788,6 +791,9 @@ class DeviceRenderPass {
                     break;
                 case AttachmentType.DEPTH_STENCIL:
                     depTexture = deviceTex.texture;
+                    break;
+                case AttachmentType.SHADING_RATE:
+                    // noop
                     break;
                 default:
                 }

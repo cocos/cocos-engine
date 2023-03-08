@@ -183,6 +183,7 @@ enum class LightingMode : uint32_t {
 enum class AttachmentType {
     RENDER_TARGET,
     DEPTH_STENCIL,
+    SHADING_RATE,
 };
 
 enum class AccessType {
