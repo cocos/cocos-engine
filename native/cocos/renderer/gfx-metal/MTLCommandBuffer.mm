@@ -156,6 +156,8 @@ void CCMTLCommandBuffer::end() {
     }
 }
 
+#define VRR_ON 1
+id<MTLBuffer> rrmBuffer = nil;
 void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint32_t stencil, CommandBuffer *const *secondaryCBs, uint32_t secondaryCBCount) {
     // Sub CommandBuffer shouldn't call begin render pass
     if (_gpuCommandBufferObj->isSecondary) {
@@ -171,9 +173,55 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
     const ColorAttachmentList &colorAttachments = renderPass->getColorAttachments();
 
     MTLRenderPassDescriptor *mtlRenderPassDescriptor = static_cast<CCMTLRenderPass *>(renderPass)->getMTLRenderPassDescriptor();
-    const TextureList &colorTextures = fbo->getColorTextures();
+    TextureList &colorTextures = const_cast<TextureList&>(fbo->getColorTextures());
     Texture *dsTexture = fbo->getDepthStencilTexture();
     auto *swapchain = static_cast<CCMTLSwapchain *>(_gpuCommandBufferObj->fbo->swapChain());
+    
+    static bool init = false;
+    static id<MTLRasterizationRateMap> rrm = nil;
+    bool rrmset = false;
+    bool enable = CCMTLDevice::getInstance()->_vrr;
+    bool flag = false;
+    
+    
+    static TextureList originGTex;
+    if(!init && colorTextures.size() == 4 && enable) {
+        float arr[5] = {0.25, 0.5, 1.0, 0.5, 0.25};
+        
+        MTLRasterizationRateLayerDescriptor* rrld = [MTLRasterizationRateLayerDescriptor alloc];
+        [rrld initWithSampleCount:MTLSizeMake(5, 5, 1) horizontal:arr vertical:arr];
+        
+        MTLRasterizationRateMapDescriptor* rrmd = [MTLRasterizationRateMapDescriptor rasterizationRateMapDescriptorWithScreenSize:MTLSizeMake(colorTextures[0]->getWidth(), colorTextures[0]->getHeight(), 1) layer:rrld];
+        
+        auto* ccd = CCMTLDevice::getInstance();
+        id<MTLDevice> device = static_cast<id<MTLDevice>>(ccd->getMTLDevice());
+        rrm = [device newRasterizationRateMapWithDescriptor:rrmd];
+        
+        MTLSizeAndAlign sz = rrm.parameterBufferSizeAndAlign;
+        rrmBuffer = [device newBufferWithLength:sz.size options:MTLResourceStorageModeShared];
+        [rrm copyParameterDataToBuffer:rrmBuffer offset:0];
+        
+        init = true;
+        originGTex.assign(colorTextures.begin(), colorTextures.end());
+    }
+    static bool lastGbufferPass = false;
+    if(colorTextures.size() == 4) {
+        if(enable) {
+            for(int c = 0; c < 4; ++c) {
+                auto& color = colorTextures[c];
+                auto info = color->getInfo();
+                auto phySize = [rrm physicalSizeForLayer:0];
+                info.width = phySize.width;
+                info.height = phySize.height;
+                colorTextures[c]->destroy();
+                colorTextures[c]->initialize(info);
+            }
+            flag = true;
+            lastGbufferPass = colorTextures.size() == 4;
+        } else {
+            flag = false;
+        }
+    }
 
     // if not rendering to full framebuffer(eg. left top area), draw a quad to pretend viewport clear.
     bool renderingFullFramebuffer = isRenderingEntireDrawable(renderArea, static_cast<CCMTLFramebuffer *>(fbo));
@@ -210,6 +258,12 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
                 }
                 _colorAppearedBefore.set(i);
                 mtlRenderPassDescriptor.colorAttachments[i].storeAction = mu::isFramebufferFetchSupported() ? mu::toMTLStoreAction(colorAttachments[i].storeOp) : MTLStoreActionStore;
+                if(rrm && flag) {
+                    mtlRenderPassDescriptor.rasterizationRateMap = rrm;
+                    rrmset = true;
+                } else {
+                    mtlRenderPassDescriptor.rasterizationRateMap = nil;
+                }
             }
         }
     } else {
@@ -252,6 +306,12 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
                     mtlRenderPassDescriptor.colorAttachments[color].loadAction = mu::toMTLLoadAction(colorAttachments[color].loadOp);
                 }
                 mtlRenderPassDescriptor.colorAttachments[color].storeAction = mu::isFramebufferFetchSupported() ? mu::toMTLStoreAction(colorAttachments[color].storeOp) : MTLStoreActionStore;
+                if(rrm && flag) {
+                    mtlRenderPassDescriptor.rasterizationRateMap = rrm;
+                    rrmset = true;
+                } else {
+                    mtlRenderPassDescriptor.rasterizationRateMap = nil;
+                }
                 visited[color] = true;
                 _colorAppearedBefore.set(color);
                 if (subpasses[i].resolves.size() > j) {
@@ -296,7 +356,7 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
         //[_renderEncoder.getMTLEncoder() memoryBarrierWithScope:MTLBarrierScopeTextures afterStages:MTLRenderStageFragment beforeStages:MTLRenderStageFragment];
     }
 
-    if (!renderingFullFramebuffer && needPartialClear) {
+    if (!renderingFullFramebuffer && false) {
         //Metal doesn't apply the viewports and scissors to renderpass load-action clearing.
         mu::clearRenderArea(_mtlDevice, _renderEncoder.getMTLEncoder(), renderPass, renderArea, colors, depth, stencil);
     }
@@ -314,8 +374,15 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
     scissorArea.width = static_cast<uint32_t>(MAX(w, 0));
     scissorArea.height = static_cast<uint32_t>(MAX(h, 0));
 
-    _renderEncoder.setViewport(scissorArea);
-    _renderEncoder.setScissor(scissorArea);
+    if(rrmset) {
+        scissorArea.x = 0;
+        scissorArea.y = 0;
+        scissorArea.width = colorTextures[0]->getWidth();
+        scissorArea.height = colorTextures[0]->getHeight();
+    } else {
+        _renderEncoder.setViewport(scissorArea);
+//        _renderEncoder.setScissor(scissorArea);
+    }
 
     if (_firstRenderPass) {
         _firstRenderPass = false;
@@ -455,6 +522,9 @@ void CCMTLCommandBuffer::bindPipelineState(PipelineState *pso) {
         _renderEncoder.setDepthClipMode(pplState->depthClipMode);
         _renderEncoder.setTriangleFillMode(pplState->fillMode);
         _renderEncoder.setRenderPipelineState(pplState->mtlRenderPipelineState);
+        if(CCMTLDevice::getInstance()->_vrr && ccPipeline->backPipelineState) {
+            _renderEncoder.setRenderPipelineState(ccPipeline->backPipelineState);
+        }
 
         if (pplState->mtlDepthStencilState) {
             _renderEncoder.setStencilFrontBackReferenceValue(pplState->stencilRefFront, pplState->stencilRefBack);
@@ -509,7 +579,7 @@ void CCMTLCommandBuffer::setScissor(const Rect &rect) {
     validate.width = static_cast<uint32_t>(MAX(w, 0));
     validate.height = static_cast<uint32_t>(MAX(h, 0));
 
-    _renderEncoder.setScissor(validate);
+//    _renderEncoder.setScissor(validate);
 }
 
 void CCMTLCommandBuffer::setLineWidth(float /*width*/) {
@@ -888,6 +958,10 @@ void CCMTLCommandBuffer::bindDescriptorSets() {
                                                    block.stages);
             }
         }
+    }
+    
+    if(strcmp(_gpuCommandBufferObj->pipelineState->getShader()->getName().c_str(), "../resources/effects/deferred-lighting|lighting-vs|lighting-fs|USE_INSTANCING0|CC_RECEIVE_SHADOW1|CC_USE_IBL2|CC_USE_DIFFUSEMAP2|CC_USE_HDR1|CC_PIPELINE_TYPE1|CC_USE_FOG4|REFLECTION_PROBE_COUNT3|ENABLE_SHADOW0|ENABLE_CLUSTER_LIGHTING1|ENABLE_IBL1") == 0) {
+        [_renderEncoder.getMTLEncoder() setFragmentBuffer:rrmBuffer offset:0 atIndex:2];
     }
 
     const auto &samplers = pipelineStateObj->gpuShader->samplers;

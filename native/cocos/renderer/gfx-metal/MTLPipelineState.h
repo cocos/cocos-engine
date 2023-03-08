@@ -47,7 +47,9 @@ public:
 
     inline CCMTLGPUPipelineState *getGPUPipelineState() const { return _GPUPipelineState; }
 
-    void check(CCMTLRenderPass *renderPass = nullptr);
+    void check(CCMTLRenderPass *renderPass = nullptr, bool flag = false);
+    
+    id<MTLRenderPipelineState> backPipelineState{nil};
 
 protected:
     void doInit(const PipelineStateInfo &info) override;
@@ -59,7 +61,7 @@ protected:
     bool createMTLComputePipelineState();
     bool createMTLRenderPipelineState();
     bool setVertexDescriptor(MTLRenderPipelineDescriptor *);
-    bool setMTLFunctionsAndFormats(MTLRenderPipelineDescriptor *);
+    bool setMTLFunctionsAndFormats(MTLRenderPipelineDescriptor *, bool flag = false);
     bool setBlendStates(MTLRenderPipelineDescriptor *);
     bool createMTLRenderPipeline(MTLRenderPipelineDescriptor *);
 

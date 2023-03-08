@@ -92,6 +92,10 @@ public:
     CommandBuffer *transferCommandBuffer() const;
 
     void writeBuffer(Buffer *buffer, const void *data, uint32_t size);
+    
+    void switchVRR(bool en) { _vrr = en; }
+    
+    bool _vrr{false};
 
 protected:
     static CCMTLDevice *_instance;

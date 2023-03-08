@@ -99,9 +99,12 @@ bool CCMTLPipelineState::initRenderPipeline() {
     return true;
 }
 
-void CCMTLPipelineState::check(CCMTLRenderPass *renderPass) {
+void CCMTLPipelineState::check(CCMTLRenderPass *renderPass, bool flag) {
     if (renderPass)
         _renderPass = renderPass;
+    static bool flagChanged = CCMTLDevice::getInstance()->_vrr;
+    bool changed = flagChanged != flag;
+//    bool target = strcmp(_shader->getName().c_str(), "../resources/effects/deferred-lighting|lighting-vs|lighting-fs|USE_INSTANCING0|CC_RECEIVE_SHADOW1|CC_USE_IBL2|CC_USE_DIFFUSEMAP2|CC_USE_HDR1|CC_PIPELINE_TYPE1|CC_USE_FOG4|REFLECTION_PROBE_COUNT3|ENABLE_SHADOW0|ENABLE_CLUSTER_LIGHTING1|ENABLE_IBL1") == 0;
     if (!_renderPipelineReady) {
         initRenderPipeline();
     }
@@ -212,6 +215,18 @@ bool CCMTLPipelineState::createMTLRenderPipelineState() {
     if(ret) ret = setVertexDescriptor(descriptor);
     if(ret) ret = setBlendStates(descriptor);
     if(ret) ret = createMTLRenderPipeline(descriptor);
+    
+    auto* shader = static_cast<CCMTLShader*>(_shader);
+    if(shader->_backFragLibrary) {
+        setMTLFunctionsAndFormats(descriptor, true);
+        id<MTLDevice> mtlDevice = id<MTLDevice>(CCMTLDevice::getInstance()->getMTLDevice());
+        NSError *nsError = nil;
+        backPipelineState = [mtlDevice newRenderPipelineStateWithDescriptor:descriptor error:&nsError];
+        if (!backPipelineState) {
+            CC_LOG_ERROR("Failed to create MTLRenderPipelineState: %s", [nsError.localizedDescription UTF8String]);
+            return false;
+        }
+    }
     [descriptor release];
 
     if(!ret) {
@@ -286,7 +301,7 @@ bool CCMTLPipelineState::setVertexDescriptor(MTLRenderPipelineDescriptor *descri
     return res;
 }
 
-bool CCMTLPipelineState::setMTLFunctionsAndFormats(MTLRenderPipelineDescriptor *descriptor) {
+bool CCMTLPipelineState::setMTLFunctionsAndFormats(MTLRenderPipelineDescriptor *descriptor, bool flag) {
     const SubpassInfoList &subpasses = _renderPass->getSubpasses();
     const ColorAttachmentList &colorAttachments = _renderPass->getColorAttachments();
     const auto &ccShader = static_cast<CCMTLShader *>(_shader);
@@ -357,7 +372,7 @@ bool CCMTLPipelineState::setMTLFunctionsAndFormats(MTLRenderPipelineDescriptor *
 
     auto *ccMTLShader = static_cast<CCMTLShader *>(_shader);
     descriptor.vertexFunction = ccMTLShader->getVertMTLFunction();
-    descriptor.fragmentFunction = ccMTLShader->getSpecializedFragFunction(bindingIndices.data(), bindingOffsets.data(), static_cast<uint32_t>(bindingIndices.size()));
+    descriptor.fragmentFunction = ccMTLShader->getSpecializedFragFunction(bindingIndices.data(), bindingOffsets.data(), static_cast<uint32_t>(bindingIndices.size()), flag);
 
     mtlPixelFormat = mu::toMTLPixelFormat(depthStencilFormat);
     if (mtlPixelFormat != MTLPixelFormatInvalid) {
