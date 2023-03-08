@@ -143,11 +143,6 @@ bool CCMTLDevice::doInit(const DeviceInfo &info) {
     QueryPoolInfo queryPoolInfo{QueryType::OCCLUSION, DEFAULT_MAX_QUERY_OBJECTS, true};
     _queryPool = createQueryPool(queryPoolInfo);
     
-    CommandBufferInfo transferCmdBuffInfo;
-    transferCmdBuffInfo.type = CommandBufferType::PRIMARY;
-    transferCmdBuffInfo.queue = _queue;
-    _gpuDeviceObj->_transferCmdBuffer = static_cast<CCMTLCommandBuffer*>(createCommandBuffer(transferCmdBuffInfo));
-
     CommandBufferInfo cmdBuffInfo;
     cmdBuffInfo.type = CommandBufferType::PRIMARY;
     cmdBuffInfo.queue = _queue;
@@ -161,7 +156,6 @@ bool CCMTLDevice::doInit(const DeviceInfo &info) {
 }
 
 void CCMTLDevice::doDestroy() {
-    CC_SAFE_DESTROY_AND_DELETE(_gpuDeviceObj->_transferCmdBuffer);
     CC_SAFE_DELETE(_gpuDeviceObj);
 
     CC_SAFE_DESTROY_AND_DELETE(_queryPool)
@@ -247,6 +241,7 @@ void CCMTLDevice::onPresentCompleted(uint32_t index) {
         if (bufferPool) {
             bufferPool->reset();
             CCMTLGPUGarbageCollectionPool::getInstance()->clear(index);
+            static_cast<CCMTLCommandBuffer*>(_cmdBuff)->signalFence();
         }
     }
 }
@@ -324,15 +319,6 @@ void CCMTLDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *t
 void CCMTLDevice::copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint32_t count) {
     CC_PROFILE(CCMTLDeviceCopyTextureToBuffers);
     static_cast<CCMTLCommandBuffer *>(_cmdBuff)->copyTextureToBuffers(src, buffers, region, count);
-}
-
-void CCMTLDevice::writeBuffer(Buffer* buffer, const void* data, uint32_t size) {
-    CCMTLCommandBuffer* transferCmdBuffer = _gpuDeviceObj->_transferCmdBuffer;
-    transferCmdBuffer->updateBuffer(buffer, data, size);
-}
-
-CommandBuffer* CCMTLDevice::transferCommandBuffer() const {
-    return _gpuDeviceObj ? _gpuDeviceObj->_transferCmdBuffer : nullptr;
 }
 
 void CCMTLDevice::getQueryPoolResults(QueryPool *queryPool) {

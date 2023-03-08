@@ -269,8 +269,8 @@ void CCMTLBuffer::updateMTLBuffer(const void *buffer, uint32_t /*offset*/, uint3
         }
 #endif
     } else {
-        auto* transferCmdBuffer = ccDevice->transferCommandBuffer();
-        transferCmdBuffer->updateBuffer(this, buffer, size);
+        auto* cmdBuffer = ccDevice->getCommandBuffer();
+        cmdBuffer->updateBuffer(this, buffer, size);
     }
 }
 

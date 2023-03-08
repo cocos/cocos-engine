@@ -89,10 +89,6 @@ public:
         }
     }
 
-    CommandBuffer *transferCommandBuffer() const;
-
-    void writeBuffer(Buffer *buffer, const void *data, uint32_t size);
-
 protected:
     static CCMTLDevice *_instance;
 
