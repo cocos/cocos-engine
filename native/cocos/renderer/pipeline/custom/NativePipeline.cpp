@@ -280,7 +280,7 @@ RasterPassBuilder *NativePipeline::addRasterPass(
     pass.viewport.height = height;
 
     auto passID = addVertex(
-        RasterTag{},
+        RasterPassTag{},
         std::forward_as_tuple(name),
         std::forward_as_tuple(layoutName.c_str()),
         std::forward_as_tuple(),
@@ -301,7 +301,7 @@ RasterPassBuilder *NativePipeline::addRasterPass(
 ComputePassBuilder *NativePipeline::addComputePass(const ccstd::string &layoutName) {
     std::string_view name("Compute");
     auto passID = addVertex(
-        ComputeTag{},
+        ComputePassTag{},
         std::forward_as_tuple(name),
         std::forward_as_tuple(layoutName.c_str()),
         std::forward_as_tuple(),

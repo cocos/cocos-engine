@@ -262,7 +262,7 @@ void NativeRasterPassBuilder::setName(const ccstd::string &name) {
 }
 
 void NativeRasterPassBuilder::addRasterView(const ccstd::string &name, const RasterView &view) {
-    auto &pass = get(RasterTag{}, passID, *renderGraph);
+    auto &pass = get(RasterPassTag{}, passID, *renderGraph);
     auto slotID = static_cast<uint32_t>(pass.rasterViews.size());
     auto res = pass.rasterViews.emplace(
         std::piecewise_construct,
@@ -275,7 +275,7 @@ void NativeRasterPassBuilder::addRasterView(const ccstd::string &name, const Ras
 void NativeRasterPassBuilder::addComputeView(const ccstd::string &name, const ComputeView &view) {
     CC_EXPECTS(!name.empty());
     CC_EXPECTS(!view.name.empty());
-    auto &pass = get(RasterTag{}, passID, *renderGraph);
+    auto &pass = get(RasterPassTag{}, passID, *renderGraph);
     auto iter = pass.computeViews.find(name.c_str());
     if (iter == pass.computeViews.end()) {
         bool added = false;
@@ -289,12 +289,12 @@ void NativeRasterPassBuilder::addComputeView(const ccstd::string &name, const Co
 }
 
 bool NativeRasterPassBuilder::getShowStatistics() const {
-    const auto &pass = get(RasterTag{}, passID, *renderGraph);
+    const auto &pass = get(RasterPassTag{}, passID, *renderGraph);
     return pass.showStatistics;
 }
 
 void NativeRasterPassBuilder::setShowStatistics(bool enable) {
-    auto &pass = get(RasterTag{}, passID, *renderGraph);
+    auto &pass = get(RasterPassTag{}, passID, *renderGraph);
     pass.showStatistics = enable;
 }
 
@@ -1150,7 +1150,7 @@ RasterQueueBuilder *NativeRasterPassBuilder::addQueue(
 
 RasterSubpassBuilder *NativeRasterPassBuilder::addRasterSubpass(const ccstd::string &layoutName) {
     std::string_view name("RasterSubpass");
-    const auto &pass = get(RasterTag{}, passID, *renderGraph);
+    const auto &pass = get(RasterPassTag{}, passID, *renderGraph);
     RasterSubpass subpass(renderGraph->get_allocator());
     subpass.viewport.width = pass.width;
     subpass.viewport.height = pass.height;
@@ -1176,7 +1176,7 @@ RasterSubpassBuilder *NativeRasterPassBuilder::addRasterSubpass(const ccstd::str
 
 ComputeSubpassBuilder *NativeRasterPassBuilder::addComputeSubpass(const ccstd::string &layoutName) {
     std::string_view name("ComputeSubpass");
-    const auto &pass = get(RasterTag{}, passID, *renderGraph);
+    const auto &pass = get(RasterPassTag{}, passID, *renderGraph);
     ComputeSubpass subpass(renderGraph->get_allocator());
 
     auto subpassID = addVertex(
@@ -1199,7 +1199,7 @@ ComputeSubpassBuilder *NativeRasterPassBuilder::addComputeSubpass(const ccstd::s
 }
 
 void NativeRasterPassBuilder::setViewport(const gfx::Viewport &viewport) {
-    auto &pass = get(RasterTag{}, passID, *renderGraph);
+    auto &pass = get(RasterPassTag{}, passID, *renderGraph);
     pass.viewport = viewport;
 }
 
@@ -1356,7 +1356,7 @@ void NativeComputePassBuilder::setName(const ccstd::string &name) {
 void NativeComputePassBuilder::addComputeView(const ccstd::string &name, const ComputeView &view) {
     CC_EXPECTS(!name.empty());
     CC_EXPECTS(!view.name.empty());
-    auto &pass = get(ComputeTag{}, passID, *renderGraph);
+    auto &pass = get(ComputePassTag{}, passID, *renderGraph);
     auto iter = pass.computeViews.find(name.c_str());
     if (iter == pass.computeViews.end()) {
         bool added = false;

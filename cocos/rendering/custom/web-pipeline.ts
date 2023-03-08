@@ -741,10 +741,9 @@ export class WebRasterPassBuilder extends WebSetter implements RasterPassBuilder
         const name = 'Raster';
         const subpass = new RasterSubpass();
         const data = new RenderData();
-        // const vertID = this._renderGraph.addVertex<RenderGraphValue.Raster>(
-        //     RenderGraphValue.Raster, subpass, name, layoutName, data, false,
-        // );
-        const vertID = this._renderGraph.nullVertex();
+        const vertID = this._renderGraph.addVertex<RenderGraphValue.RasterSubpass>(
+            RenderGraphValue.RasterSubpass, subpass, name, layoutName, data, false,
+        );
         const result = new WebRasterSubpassBuilder(data, this._renderGraph, this._layoutGraph, vertID, subpass, this._pipeline);
         return result;
     }
@@ -1289,8 +1288,8 @@ export class WebPipeline implements Pipeline {
         pass.viewport.height = height;
 
         const data = new RenderData();
-        const vertID = this._renderGraph!.addVertex<RenderGraphValue.Raster>(
-            RenderGraphValue.Raster, pass, name, layoutName, data, false,
+        const vertID = this._renderGraph!.addVertex<RenderGraphValue.RasterPass>(
+            RenderGraphValue.RasterPass, pass, name, layoutName, data, false,
         );
         const result = new WebRasterPassBuilder(data, this._renderGraph!, this._layoutGraph, vertID, pass, this._pipelineSceneData);
         this._updateRasterPassConstants(result, width, height, isEnableEffect() ? layoutName : 'default');

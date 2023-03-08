@@ -1151,10 +1151,10 @@ export class RenderData {
 //=================================================================
 // PolymorphicGraph Concept
 export const enum RenderGraphValue {
-    Raster,
+    RasterPass,
     RasterSubpass,
     ComputeSubpass,
-    Compute,
+    ComputePass,
     Copy,
     Move,
     Raytrace,
@@ -1168,10 +1168,10 @@ export const enum RenderGraphValue {
 
 export function getRenderGraphValueName (e: RenderGraphValue): string {
     switch (e) {
-    case RenderGraphValue.Raster: return 'Raster';
+    case RenderGraphValue.RasterPass: return 'RasterPass';
     case RenderGraphValue.RasterSubpass: return 'RasterSubpass';
     case RenderGraphValue.ComputeSubpass: return 'ComputeSubpass';
-    case RenderGraphValue.Compute: return 'Compute';
+    case RenderGraphValue.ComputePass: return 'ComputePass';
     case RenderGraphValue.Copy: return 'Copy';
     case RenderGraphValue.Move: return 'Move';
     case RenderGraphValue.Raytrace: return 'Raytrace';
@@ -1186,10 +1186,10 @@ export function getRenderGraphValueName (e: RenderGraphValue): string {
 }
 
 export interface RenderGraphValueType {
-    [RenderGraphValue.Raster]: RasterPass
+    [RenderGraphValue.RasterPass]: RasterPass
     [RenderGraphValue.RasterSubpass]: RasterSubpass
     [RenderGraphValue.ComputeSubpass]: ComputeSubpass
-    [RenderGraphValue.Compute]: ComputePass
+    [RenderGraphValue.ComputePass]: ComputePass
     [RenderGraphValue.Copy]: CopyPass
     [RenderGraphValue.Move]: MovePass
     [RenderGraphValue.Raytrace]: RaytracePass
@@ -1202,10 +1202,10 @@ export interface RenderGraphValueType {
 }
 
 export interface RenderGraphVisitor {
-    raster(value: RasterPass): unknown;
+    rasterPass(value: RasterPass): unknown;
     rasterSubpass(value: RasterSubpass): unknown;
     computeSubpass(value: ComputeSubpass): unknown;
-    compute(value: ComputePass): unknown;
+    computePass(value: ComputePass): unknown;
     copy(value: CopyPass): unknown;
     move(value: MovePass): unknown;
     raytrace(value: RaytracePass): unknown;
@@ -1671,14 +1671,14 @@ export class RenderGraph implements BidirectionalGraph
     visitVertex (visitor: RenderGraphVisitor, v: number): unknown {
         const vert = this._vertices[v];
         switch (vert._id) {
-        case RenderGraphValue.Raster:
-            return visitor.raster(vert._object as RasterPass);
+        case RenderGraphValue.RasterPass:
+            return visitor.rasterPass(vert._object as RasterPass);
         case RenderGraphValue.RasterSubpass:
             return visitor.rasterSubpass(vert._object as RasterSubpass);
         case RenderGraphValue.ComputeSubpass:
             return visitor.computeSubpass(vert._object as ComputeSubpass);
-        case RenderGraphValue.Compute:
-            return visitor.compute(vert._object as ComputePass);
+        case RenderGraphValue.ComputePass:
+            return visitor.computePass(vert._object as ComputePass);
         case RenderGraphValue.Copy:
             return visitor.copy(vert._object as CopyPass);
         case RenderGraphValue.Move:
@@ -1701,8 +1701,8 @@ export class RenderGraph implements BidirectionalGraph
             throw Error('polymorphic type not found');
         }
     }
-    getRaster (v: number): RasterPass {
-        if (this._vertices[v]._id === RenderGraphValue.Raster) {
+    getRasterPass (v: number): RasterPass {
+        if (this._vertices[v]._id === RenderGraphValue.RasterPass) {
             return this._vertices[v]._object as RasterPass;
         } else {
             throw Error('value id not match');
@@ -1722,8 +1722,8 @@ export class RenderGraph implements BidirectionalGraph
             throw Error('value id not match');
         }
     }
-    getCompute (v: number): ComputePass {
-        if (this._vertices[v]._id === RenderGraphValue.Compute) {
+    getComputePass (v: number): ComputePass {
+        if (this._vertices[v]._id === RenderGraphValue.ComputePass) {
             return this._vertices[v]._object as ComputePass;
         } else {
             throw Error('value id not match');
@@ -1792,8 +1792,8 @@ export class RenderGraph implements BidirectionalGraph
             throw Error('value id not match');
         }
     }
-    tryGetRaster (v: number): RasterPass | null {
-        if (this._vertices[v]._id === RenderGraphValue.Raster) {
+    tryGetRasterPass (v: number): RasterPass | null {
+        if (this._vertices[v]._id === RenderGraphValue.RasterPass) {
             return this._vertices[v]._object as RasterPass;
         } else {
             return null;
@@ -1813,8 +1813,8 @@ export class RenderGraph implements BidirectionalGraph
             return null;
         }
     }
-    tryGetCompute (v: number): ComputePass | null {
-        if (this._vertices[v]._id === RenderGraphValue.Compute) {
+    tryGetComputePass (v: number): ComputePass | null {
+        if (this._vertices[v]._id === RenderGraphValue.ComputePass) {
             return this._vertices[v]._object as ComputePass;
         } else {
             return null;

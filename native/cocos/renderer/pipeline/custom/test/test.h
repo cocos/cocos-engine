@@ -96,8 +96,8 @@ static void fillTestGraph(const ViewInfo &rasterData, const ResourceInfo &rescIn
     std::set<ccstd::string> nameSet;
     auto addRasterNode = [&](const vector<vector<vector<string>>> &subpasses, uint32_t count, uint32_t passID) {
         const ccstd::string name = "pass" + std::to_string(passID);
-        const auto vertexID = add_vertex(renderGraph, RasterTag{}, name.c_str());
-        auto &raster = get(RasterTag{}, vertexID, renderGraph);
+        const auto vertexID = add_vertex(renderGraph, RasterPassTag{}, name.c_str());
+        auto &raster = get(RasterPassTag{}, vertexID, renderGraph);
         auto &subpassGraph = raster.subpassGraph;
 
         bool hasSubpass = count > 1;
@@ -156,10 +156,10 @@ static void fillTestGraph(const ViewInfo &rasterData, const ResourceInfo &rescIn
                 const auto &subpasses = pass.second;
 
                 const ccstd::string name = "pass" + std::to_string(passCount++);
-                const auto vertexID = add_vertex(renderGraph, ComputeTag{}, name.c_str());
+                const auto vertexID = add_vertex(renderGraph, ComputePassTag{}, name.c_str());
 
                 assert(subpasses.back().size() == 2); // inputs and outputs
-                auto &computePass = get(ComputeTag{}, vertexID, renderGraph);
+                auto &computePass = get(ComputePassTag{}, vertexID, renderGraph);
                 const auto &inputsAndOutputs = subpasses.back();
                 const auto &inputs = inputsAndOutputs.front();
                 const auto &outputs = inputsAndOutputs.back();

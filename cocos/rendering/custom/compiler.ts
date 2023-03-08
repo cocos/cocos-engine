@@ -43,8 +43,8 @@ class PassVisitor implements RenderGraphVisitor {
     constructor (context: CompilerContext) {
         this.context = context;
     }
-    protected _isRaster (u: number): boolean {
-        return !!this.context.renderGraph.tryGetRaster(u);
+    protected _isRasterPass (u: number): boolean {
+        return !!this.context.renderGraph.tryGetRasterPass(u);
     }
     protected _isQueue (u: number): boolean {
         return !!this.context.renderGraph.tryGetQueue(u);
@@ -105,7 +105,7 @@ class PassVisitor implements RenderGraphVisitor {
     }
     applyID (id: number, resId: number): void {
         this.resID = resId;
-        if (this._isRaster(id)) {
+        if (this._isRasterPass(id)) {
             this.passID = id;
         } else if (this._isQueue(id)) {
             this.queueID = id;
@@ -113,7 +113,7 @@ class PassVisitor implements RenderGraphVisitor {
             this.sceneID = id;
         }
     }
-    raster (pass: RasterPass) {
+    rasterPass (pass: RasterPass) {
         // const rg = this.context.renderGraph;
         // Since the pass is valid, there is no need to continue traversing.
         // if (rg.getValid(this.passID)) {
@@ -123,7 +123,7 @@ class PassVisitor implements RenderGraphVisitor {
     }
     rasterSubpass (value: RasterSubpass) {}
     computeSubpass (value: ComputeSubpass) {}
-    compute (value: ComputePass) {}
+    computePass (value: ComputePass) {}
     copy (value: CopyPass) {}
     move (value: MovePass) {}
     raytrace (value: RaytracePass) {}

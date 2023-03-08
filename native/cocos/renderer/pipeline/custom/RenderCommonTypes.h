@@ -58,10 +58,10 @@ enum class ParameterType {
     SSV,
 };
 
-struct RasterTag {};
+struct RasterPassTag {};
 struct RasterSubpassTag {};
 struct ComputeSubpassTag {};
-struct ComputeTag {};
+struct ComputePassTag {};
 struct CopyTag {};
 struct MoveTag {};
 struct RaytraceTag {};

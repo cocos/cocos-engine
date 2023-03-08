@@ -44,7 +44,7 @@ class PrePrintVisitor implements RenderGraphVisitor {
     viewport (value: Viewport) {
         // do nothing
     }
-    raster (value: RasterPass) {
+    rasterPass (value: RasterPass) {
         oss += `${space}width = ${value.width}\n`;
         oss += `${space}height = ${value.height}\n`;
         for (const rasterView of value.rasterViews) {
@@ -56,7 +56,7 @@ class PrePrintVisitor implements RenderGraphVisitor {
     }
     rasterSubpass(value: RasterSubpass) {}
     computeSubpass(value: ComputeSubpass) {}
-    compute (value: ComputePass) {
+    computePass (value: ComputePass) {
         for (const computeView of value.computeViews) {
             oss += `${space}"${computeView[0]}": ComputeView[]\n`;
         }
@@ -153,12 +153,12 @@ class PostPrintVisitor implements RenderGraphVisitor {
     viewport (value: Viewport) {
         // do nothing
     }
-    raster (value: RasterPass) {
+    rasterPass (value: RasterPass) {
         // post raster pass
     }
     rasterSubpass(value: RasterSubpass) {}
     computeSubpass(value: ComputeSubpass) {}
-    compute (value: ComputePass) {}
+    computePass (value: ComputePass) {}
     copy (value: CopyPass) {}
     move (value: MovePass) {}
     raytrace (value: RaytracePass) {}
@@ -185,7 +185,7 @@ export class RenderGraphPrintVisitor extends DefaultVisitor {
     startVertex (v: number, gv: ReferenceGraphView<RenderGraph>): void {
         const g = gv.g;
         // passes begin
-        // assert(g.holds(RenderGraphValue.Raster, v)
+        // assert(g.holds(RenderGraphValue.RasterPass, v)
         //     || g.holds(RenderGraphValue.Compute, v)
         //     || g.holds(RenderGraphValue.Copy, v)
         //     || g.holds(RenderGraphValue.Move, v)

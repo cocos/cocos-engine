@@ -1758,8 +1758,8 @@ class BaseRenderVisitor {
         this.context = context;
         this.rg = context.renderGraph;
     }
-    protected _isRaster (u: number): boolean {
-        return !!this.context.renderGraph.tryGetRaster(u);
+    protected _isRasterPass (u: number): boolean {
+        return !!this.context.renderGraph.tryGetRasterPass(u);
     }
     protected _isQueue (u: number): boolean {
         return !!this.context.renderGraph.tryGetQueue(u);
@@ -1771,7 +1771,7 @@ class BaseRenderVisitor {
         return !!this.context.renderGraph.tryGetBlit(u);
     }
     applyID (id: number): void {
-        if (this._isRaster(id)) { this.passID = id; } else if (this._isQueue(id)) { this.queueID = id; } else if (this._isScene(id) || this._isBlit(id)) { this.sceneID = id; }
+        if (this._isRasterPass(id)) { this.passID = id; } else if (this._isQueue(id)) { this.queueID = id; } else if (this._isScene(id) || this._isBlit(id)) { this.sceneID = id; }
     }
 }
 
@@ -1785,7 +1785,7 @@ class PreRenderVisitor extends BaseRenderVisitor implements RenderGraphVisitor {
     viewport (value: Viewport) {
         // do nothing
     }
-    raster (pass: RasterPass) {
+    rasterPass (pass: RasterPass) {
         if (!this.rg.getValid(this.passID)) return;
         const devicePasses = this.context.devicePasses;
         if (pass.versionName === '') {
@@ -1811,7 +1811,7 @@ class PreRenderVisitor extends BaseRenderVisitor implements RenderGraphVisitor {
     }
     rasterSubpass (value: RasterSubpass) {}
     computeSubpass (value: ComputeSubpass) {}
-    compute (value: ComputePass) {}
+    computePass (value: ComputePass) {}
     copy (value: CopyPass) {}
     move (value: MovePass) {}
     raytrace (value: RaytracePass) {}
@@ -1855,7 +1855,7 @@ class PostRenderVisitor extends BaseRenderVisitor implements RenderGraphVisitor 
     viewport (value: Viewport) {
         // do nothing
     }
-    raster (pass: RasterPass) {
+    rasterPass (pass: RasterPass) {
         const devicePasses = this.context.devicePasses;
         const passHash = pass.versionName === ''
             ? stringify(pass)
@@ -1869,7 +1869,7 @@ class PostRenderVisitor extends BaseRenderVisitor implements RenderGraphVisitor 
     }
     rasterSubpass (value: RasterSubpass) {}
     computeSubpass (value: ComputeSubpass) {}
-    compute (value: ComputePass) {}
+    computePass (value: ComputePass) {}
     copy (value: CopyPass) {}
     move (value: MovePass) {}
     raytrace (value: RaytracePass) {}
