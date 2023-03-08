@@ -55,7 +55,7 @@ export class ResourceTraits {
 }
 
 export class RenderSwapchain {
-    constructor (swapchain: Swapchain | null) {
+    constructor (swapchain: Swapchain | null = null) {
         this.swapchain = swapchain;
     }
     /*pointer*/ swapchain: Swapchain | null;
