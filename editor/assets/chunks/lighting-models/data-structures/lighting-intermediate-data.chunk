@@ -26,7 +26,7 @@ struct LightingIntermediateData
   vec4 transmitDiffuseParams; //zw: min/max DepthWS for shadowmap,  x: transmit irradiance apply shadow, y: additional transmit mask, for shadowmap uncovered area
 #endif
 #if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR || CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
-  vec4 transmitParams; // xy: extinction coef for out/in-scattering, z: in-scattering coef, w: transmit distance(water depth, leaf thickness)
+  vec4 transmitScatteringParams; // xy: extinction coef for out/in-scattering, z: in-scattering coef, w: transmit distance(water depth, leaf thickness)
   vec3 outScatteringColor, inScatteringColor;
 #endif
 #if CC_SURFACES_LIGHTING_TT
@@ -67,7 +67,7 @@ void CCSurfacesLightingGetIntermediateData_PerPixel(inout LightingIntermediateDa
 #if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR || CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
   data.outScatteringColor = vec3(1.0);
   data.inScatteringColor = vec3(0.0);
-  data.transmitParams = vec4(0.0);
+  data.transmitScatteringParams = vec4(0.0);
 #endif
 #if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
   data.shadowPosAndDepth = vec4(0.0, 0.0, 999999.0, 999999.0);

@@ -21,7 +21,7 @@ struct SurfacesMaterialData
 
 #if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR || CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
   vec3 outScatteringColor, inScatteringColor;
-  vec4 transmitParams;
+  vec4 transmitScatteringParams;
 #endif  
 #if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
   vec4 transmitDiffuseParams;

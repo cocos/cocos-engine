@@ -309,8 +309,8 @@ CCProgram surface-fragment %{
       return mix(baseColor.rgb, ttColor.rgb, ttColor.a); //ttColor can be (0.992, 0.808, 0.516)
   }
 
-  #define CC_SURFACES_FRAGMENT_MODIFY_TRANSMIT_PARAMS
-  vec4 SurfacesFragmentModifyTransmitParams()
+  #define CC_SURFACES_FRAGMENT_MODIFY_TRANSMIT_SCATTERING_PARAMS
+  vec4 SurfacesFragmentModifyTransmitScatteringParams()
   {
     return vec4(0.0, 0.0, 0.0, 0.0);
   }

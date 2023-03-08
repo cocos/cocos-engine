@@ -176,8 +176,8 @@ CCProgram surface-fragment %{
   {
       return 1.33;
   }
-#define CC_SURFACES_FRAGMENT_MODIFY_TRANSMIT_PARAMS
-vec4 SurfacesFragmentModifyTransmitParams()
+#define CC_SURFACES_FRAGMENT_MODIFY_TRANSMIT_SCATTERING_PARAMS
+vec4 SurfacesFragmentModifyTransmitScatteringParams()
 {
   #if USE_WATER_SCATTERING
     float depth = max(abs(FSInput_texcoord.x - 0.5), abs(FSInput_texcoord.y - 0.5)) * 2.0;

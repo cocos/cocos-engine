@@ -51,7 +51,7 @@
             lightingData.shadowPosAndDepth.xy = shadowNDCPos.xy;
             // notice: view space z value is negative
             lightingData.shadowPosAndDepth.z = GetViewSpaceDepthFromNDCDepth_Perspective(shadowNDCPos.z, shadowPosWithDepthBias.w, cc_shadowInvProjDepthInfo.x, cc_shadowInvProjDepthInfo.y);
-            lightingData.shadowPosAndDepth.w = GetViewSpaceDepthFromNDCDepth_Perspective(SampleShadowMap(shadowNDCPos, cc_spotShadowMap), shadowNDCPosWithBias.w, cc_shadowInvProjDepthInfo.x, cc_shadowInvProjDepthInfo.y);
+            lightingData.shadowPosAndDepth.w = GetViewSpaceDepthFromNDCDepth_Perspective(SampleShadowMapSoft(shadowNDCPos, cc_spotShadowMap, cc_shadowWHPBInfo.xy), shadowNDCPosWithBias.w, cc_shadowInvProjDepthInfo.x, cc_shadowInvProjDepthInfo.y);
           #endif
         }
       #endif
@@ -157,7 +157,7 @@
             lightingData.shadowPosAndDepth.xy = shadowNDCPos.xy;
             // notice: view space z value is negative
             lightingData.shadowPosAndDepth.z = GetViewSpaceDepthFromNDCDepth_Orthgraphic(shadowNDCPos.z, shadowProjDepthInfo.x, shadowProjDepthInfo.y);
-            lightingData.shadowPosAndDepth.w = GetViewSpaceDepthFromNDCDepth_Orthgraphic(SampleShadowMap(shadowNDCPos, cc_shadowMap), shadowProjDepthInfo.x, shadowProjDepthInfo.y);
+            lightingData.shadowPosAndDepth.w = GetViewSpaceDepthFromNDCDepth_Orthgraphic(SampleShadowMapSoft(shadowNDCPos, cc_shadowMap, cc_shadowWHPBInfo.xy), shadowProjDepthInfo.x, shadowProjDepthInfo.y);
           #endif
         }
       #endif

@@ -35,7 +35,7 @@ void CCSurfacesFragmentGetMaterialData(inout SurfacesMaterialData surfaceData)
   surfaceData.specularIntensity = pbr.w;
 
 #if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR || CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
-  surfaceData.transmitParams = SurfacesFragmentModifyTransmitParams();
+  surfaceData.transmitScatteringParams = SurfacesFragmentModifyTransmitScatteringParams();
   surfaceData.inScatteringColor = SurfacesFragmentModifyTransmitInScatteringColor();
   surfaceData.outScatteringColor = SurfacesFragmentModifyTransmitOutScatteringColor();
 #endif
@@ -122,7 +122,7 @@ void CCSurfacesInitializeLightingIntermediateData(inout LightingIntermediateData
   lightingData.specularParam = surfaceData.roughness;
   lightingData.ior = surfaceData.ior;
 #if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR || CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
-  lightingData.transmitParams = surfaceData.transmitParams;
+  lightingData.transmitScatteringParams = surfaceData.transmitScatteringParams;
   lightingData.inScatteringColor = surfaceData.inScatteringColor;
   lightingData.outScatteringColor = surfaceData.outScatteringColor;
 #endif
