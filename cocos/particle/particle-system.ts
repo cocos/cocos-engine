@@ -1697,6 +1697,8 @@ export class ParticleSystem extends ModelRenderer {
                 particle.position.add3f(_temp_velo.x * i * dd, _temp_velo.y * i * dd, _temp_velo.z * i * dd);
             }
 
+            Vec3.copy(particle.ultimateVelocity, particle.velocity);
+
             // apply startRotation.
             if (this.startRotation3D) {
                 // eslint-disable-next-line max-len
