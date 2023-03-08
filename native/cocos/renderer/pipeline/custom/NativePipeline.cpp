@@ -38,12 +38,10 @@
 #include "RenderInterfaceFwd.h"
 #include "RenderInterfaceTypes.h"
 #include "RenderingModule.h"
-#include "cocos/application/ApplicationManager.h"
 #include "cocos/base/Macros.h"
 #include "cocos/base/Ptr.h"
 #include "cocos/base/StringUtil.h"
 #include "cocos/base/std/container/string.h"
-#include "cocos/core/Root.h"
 #include "cocos/math/Mat4.h"
 #include "cocos/renderer/gfx-base/GFXBuffer.h"
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
@@ -270,68 +268,6 @@ void NativePipeline::beginFrame() {
 
 void NativePipeline::endFrame() {
 }
-
-namespace {
-
-// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
-void updateRasterPassConstants(uint32_t width, uint32_t height, Setter &setter) {
-    const auto &root = *Root::getInstance();
-    const auto shadingWidth = static_cast<float>(width);
-    const auto shadingHeight = static_cast<float>(height);
-    setter.setVec4(
-        "cc_time",
-        Vec4(
-            root.getCumulativeTime(),
-            root.getFrameTime(),
-            static_cast<float>(CC_CURRENT_ENGINE()->getTotalFrames()),
-            0.0F));
-
-    setter.setVec4(
-        "cc_screenSize",
-        Vec4(shadingWidth, shadingHeight, 1.0F / shadingWidth, 1.0F / shadingHeight));
-    setter.setVec4(
-        "cc_nativeSize",
-        Vec4(shadingWidth, shadingHeight, 1.0F / shadingWidth, 1.0F / shadingHeight));
-#if 0
-    const auto *debugView = root.getDebugView();
-    if (debugView) {
-        setter.setVec4(
-            "cc_debug_view_mode",
-            Vec4(static_cast<float>(debugView->getSingleMode()),
-                 debugView->isLightingWithAlbedo() ? 1.0F : 0.0F,
-                 debugView->isCsmLayerColoration() ? 1.0F : 0.0F,
-                 0.0F));
-        Vec4 debugPackVec{};
-        for (auto i = static_cast<uint32_t>(pipeline::DebugViewCompositeType::DIRECT_DIFFUSE);
-             i < static_cast<uint32_t>(pipeline::DebugViewCompositeType::MAX_BIT_COUNT); ++i) {
-            const auto idx = i % 4;
-            (&debugPackVec.x)[idx] = debugView->isCompositeModeEnabled(i) ? 1.0F : 0.0F;
-            const auto packIdx = static_cast<uint32_t>(floor(static_cast<float>(i) / 4.0F));
-            if (idx == 3) {
-                std::string name("cc_debug_view_composite_pack_");
-                name.append(std::to_string(packIdx + 1));
-                setter.setVec4(name, debugPackVec);
-            }
-        }
-    } else {
-        setter.setVec4("cc_debug_view_mode", Vec4(0.0F, 1.0F, 0.0F, 0.0F));
-        Vec4 debugPackVec{};
-        for (auto i = static_cast<uint32_t>(pipeline::DebugViewCompositeType::DIRECT_DIFFUSE);
-             i < static_cast<uint32_t>(pipeline::DebugViewCompositeType::MAX_BIT_COUNT); ++i) {
-            const auto idx = i % 4;
-            (&debugPackVec.x)[idx] = 1.0F;
-            const auto packIdx = static_cast<uint32_t>(floor(i / 4.0));
-            if (idx == 3) {
-                std::string name("cc_debug_view_composite_pack_");
-                name.append(std::to_string(packIdx + 1));
-                setter.setVec4(name, debugPackVec);
-            }
-        }
-    }
-#endif
-}
-
-} // namespace
 
 RasterPassBuilder *NativePipeline::addRasterPass(
     uint32_t width, uint32_t height, // NOLINT(bugprone-easily-swappable-parameters)

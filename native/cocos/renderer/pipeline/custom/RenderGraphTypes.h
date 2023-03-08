@@ -647,6 +647,8 @@ struct RenderQueue {
     RenderQueue(QueueHint hintIn, uint32_t phaseIDIn) noexcept
     : hint(hintIn),
       phaseID(phaseIDIn) {}
+    RenderQueue(uint32_t phaseIDIn) noexcept // NOLINT
+    : phaseID(phaseIDIn) {}
 
     QueueHint hint{QueueHint::RENDER_OPAQUE};
     uint32_t phaseID{0xFFFFFFFF};
