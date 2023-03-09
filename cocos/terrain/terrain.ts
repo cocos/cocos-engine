@@ -345,7 +345,6 @@ class TerrainRenderable extends ModelRenderer {
     }
 
     protected _updateReceiveDirLight () {
-        if (!this._model) { return; }
         const scene = this.node.scene;
         if (!scene || !scene.renderScene) { return; }
         const mainLight = scene.renderScene.mainLight;
