@@ -335,7 +335,7 @@ void CCMTLCommandBuffer::endRenderPass() {
     _gpuCommandBufferObj->renderPass->reset();
 }
 
-void CCMTLCommandBuffer::reset() {
+void CCMTLCommandBuffer::afterCommit() {
     _gpuCommandBufferObj->renderPass = nullptr;
     _gpuCommandBufferObj->fbo = nullptr;
     _gpuCommandBufferObj->inputAssembler = nullptr;
@@ -344,6 +344,7 @@ void CCMTLCommandBuffer::reset() {
         [_gpuCommandBufferObj->mtlCommandBuffer release];
         _gpuCommandBufferObj->mtlCommandBuffer = nil;
     }
+    _inFlightSem->wait();
 }
 
 void CCMTLCommandBuffer::updateDepthStencilState(uint32_t index, MTLRenderPassDescriptor *descriptor) {
@@ -1141,10 +1142,9 @@ void CCMTLCommandBuffer::signalFence() {
 }
 
 void CCMTLCommandBuffer::waitFence() {
-    CC_ASSERT(_inFlightSem);
-    if(!_gpuCommandBufferObj->mtlCommandBuffer) {
-        _inFlightSem->wait();
-    }
+    _inFlightSem->wait();
+    _inFlightSem->signal();
+    
 }
 
 } // namespace gfx
