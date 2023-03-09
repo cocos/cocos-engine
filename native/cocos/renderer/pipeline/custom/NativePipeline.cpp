@@ -265,7 +265,7 @@ uint32_t NativePipeline::addShadingRateTexture(const ccstd::string &name, uint32
     desc.textureFlags = gfx::TextureFlagBit::NONE;
     desc.flags = ResourceFlags::SHADING_RATE | ResourceFlags::STORAGE | ResourceFlags::SAMPLED;
 
-    CC_EXPECTS(residency == ResourceResidency::MANAGED || residency == ResourceResidency::MEMORYLESS);
+    CC_EXPECTS(residency == ResourceResidency::MANAGED || residen   cy == ResourceResidency::MEMORYLESS);
 
     gfx::SamplerInfo samplerInfo{};
     samplerInfo.magFilter = gfx::Filter::POINT;
@@ -327,13 +327,14 @@ void NativePipeline::updateStorageBuffer(
     visitObject(
         resID, resourceGraph,
         [&](ManagedBuffer &buffer) {
+            std::ignore = buffer;
             bool invalidate =
                 std::forward_as_tuple(desc.width, desc.format) !=
                 std::forward_as_tuple(size, format);
             if (invalidate) {
                 desc.width = size;
                 desc.format = format;
-                // TODO: invalidate buffer
+                // TODO(zhouzhenglong): invalidate buffer
             }
         },
         [](const auto & /*res*/) {});
@@ -390,6 +391,7 @@ void NativePipeline::updateStorageTexture(
     visitObject(
         resID, resourceGraph,
         [&](ManagedTexture &tex) {
+            std::ignore = tex;
             bool invalidate =
                 std::forward_as_tuple(desc.width, desc.height, desc.format) !=
                 std::forward_as_tuple(width, height, format);
@@ -397,7 +399,7 @@ void NativePipeline::updateStorageTexture(
                 desc.width = width;
                 desc.height = height;
                 desc.format = format;
-                // TODO: invalidate storage texture
+                // TODO(zhouzhenglong): invalidate storage texture
             }
         },
         [](const auto & /*res*/) {});
@@ -415,13 +417,14 @@ void NativePipeline::updateShadingRateTexture(
     visitObject(
         resID, resourceGraph,
         [&](ManagedTexture &tex) {
+            std::ignore = tex;
             bool invalidate =
                 std::forward_as_tuple(desc.width, desc.height) !=
                 std::forward_as_tuple(width, height);
             if (invalidate) {
                 desc.width = width;
                 desc.height = height;
-                // TODO: invalidate shading rate texture
+                // TODO(zhouzhenglong): invalidate shading rate texture
             }
         },
         [](const auto & /*res*/) {});
