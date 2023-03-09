@@ -674,11 +674,17 @@ public:
     void endSetup() override;
     bool containsResource(const ccstd::string &name) const override;
     uint32_t addRenderTexture(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow *renderWindow) override;
+    void updateRenderWindow(const ccstd::string &name, scene::RenderWindow *renderWindow) override;
+    uint32_t addStorageBuffer(const ccstd::string &name, gfx::Format format, uint32_t size, ResourceResidency residency) override;
     uint32_t addRenderTarget(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) override;
     uint32_t addDepthStencil(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) override;
-    void updateRenderWindow(const ccstd::string &name, scene::RenderWindow *renderWindow) override;
+    uint32_t addStorageTexture(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) override;
+    uint32_t addShadingRateTexture(const ccstd::string &name, uint32_t width, uint32_t height, ResourceResidency residency) override;
+    void updateStorageBuffer(const ccstd::string &name, uint32_t size, gfx::Format format) override;
     void updateRenderTarget(const ccstd::string &name, uint32_t width, uint32_t height, gfx::Format format) override;
     void updateDepthStencil(const ccstd::string &name, uint32_t width, uint32_t height, gfx::Format format) override;
+    void updateStorageTexture(const ccstd::string &name, uint32_t width, uint32_t height, gfx::Format format) override;
+    void updateShadingRateTexture(const ccstd::string &name, uint32_t width, uint32_t height) override;
     void beginFrame() override;
     void endFrame() override;
     RasterPassBuilder *addRasterPass(uint32_t width, uint32_t height, const ccstd::string &layoutName) override;
