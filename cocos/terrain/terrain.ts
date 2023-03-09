@@ -2266,6 +2266,17 @@ export class Terrain extends Component {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _updateLightmap (blockId: number, tex: Texture2D|null, uOff: number, vOff: number, uScale: number, vScale: number) {
+        if (tex) {
+            // ensure the lightmap infos is initialized
+            if (this._lightmapInfos.length == 0) {
+                for (let i = 0; i < this._blockCount[0] * this._blockCount[1]; ++i) {
+                    this._lightmapInfos.push(new TerrainBlockLightmapInfo());
+                }
+            }
+        } else if (this._lightmapInfos.length == 0) {
+            return;
+        }
+
         this._lightmapInfos[blockId].texture = tex;
         this._lightmapInfos[blockId].UOff = uOff;
         this._lightmapInfos[blockId].VOff = vOff;
