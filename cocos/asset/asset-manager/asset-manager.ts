@@ -200,7 +200,7 @@ export class AssetManager {
      * 是否优先使用 image bitmap 来加载图片，启用之后，图片加载速度会更快, 但内存占用会变高。
      *
      */
-    public allowImageBitmap = !sys.isMobile;
+    public allowImageBitmap = !EDITOR && !sys.isMobile;
 
     /**
      * @en
@@ -775,8 +775,9 @@ export declare namespace AssetManager {
     export { Bundle };
     export { BuiltinBundleName };
     export { CacheManager };
-    export type { ICache };
-    export type { IAssetInfo, IPackInfo, IAddressableInfo, ISceneInfo, IRequest };
+    // Can not export interface in namespace for now.
+    // export { ICache };
+    // export { IAssetInfo, IPackInfo, IAddressableInfo, ISceneInfo, IRequest };
     export { DependUtil };
     export { Downloader };
     export { Parser };

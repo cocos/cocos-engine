@@ -265,15 +265,14 @@ auto inverseLerp(T from, T to, T value) {
     return (value - from) / (to - from);
 }
 
-using Vec3ElementType = decltype(static_cast<Vec3 *>(nullptr)->x);
 /**
  * @zh 对所有分量的绝对值进行比较大小，返回绝对值最大的分量。
  * @param v 类 Vec3 结构
  * @returns 绝对值最大的分量
  */
-Vec3ElementType absMaxComponent(const Vec3 &v);
+float absMaxComponent(const Vec3 &v);
 
-Vec3ElementType maxComponent(const Vec3 &v);
+float maxComponent(const Vec3 &v);
 
 /**
  * @zh 对 a b 的绝对值进行比较大小，返回绝对值最大的值。

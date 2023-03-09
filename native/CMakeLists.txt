@@ -426,6 +426,7 @@ cocos_source_files(
     cocos/base/etc1.h
     cocos/base/etc2.cpp
     cocos/base/etc2.h
+    cocos/base/HasMemberFunction.h
     cocos/base/IndexHandle.h
     cocos/base/Locked.h
     cocos/base/Macros.h
@@ -861,8 +862,6 @@ cocos_source_files(MODULE ccmath
     cocos/math/Math.h
     cocos/math/Math.cpp
     cocos/math/MathBase.h
-    cocos/math/Vertex.cpp
-    cocos/math/Vertex.h
     cocos/math/Mat3.cpp
     cocos/math/Mat3.h
     cocos/math/Mat4.cpp
@@ -1430,6 +1429,10 @@ cocos_source_files(
                  cocos/scene/SphereLight.cpp
                  cocos/scene/SpotLight.h
                  cocos/scene/SpotLight.cpp
+                 cocos/scene/PointLight.h
+                 cocos/scene/PointLight.cpp
+                 cocos/scene/RangedDirectionalLight.h
+                 cocos/scene/RangedDirectionalLight.cpp
                  cocos/scene/SubModel.h
                  cocos/scene/SubModel.cpp
                  cocos/scene/Octree.h

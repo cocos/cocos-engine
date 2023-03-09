@@ -122,6 +122,7 @@ private:
     std::vector<cc::xr::XRSwapchain> _xrSwapchains;
     bool _renderPaused{false};
     bool _renderResumed{false};
+    bool _isXrEntryInstanceValid{false};
     std::unordered_map<void *, xr::XREye> _xrWindowMap;
     std::unordered_map<uint32_t, EGLSurfaceType> _eglSurfaceTypeMap;
     bool _committedFrame{false};

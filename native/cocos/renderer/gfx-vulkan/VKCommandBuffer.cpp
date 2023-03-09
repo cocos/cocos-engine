@@ -63,6 +63,22 @@ void CCVKCommandBuffer::doInit(const CommandBufferInfo & /*info*/) {
 }
 
 void CCVKCommandBuffer::doDestroy() {
+    if (_gpuCommandBuffer) {
+        auto cleanEvent = [this](VkEvent event) {
+            auto res = vkResetEvent(CCVKDevice::getInstance()->gpuDevice()->vkDevice, event);
+            CC_ASSERT(res == VK_SUCCESS);
+            vkDestroyEvent(CCVKDevice::getInstance()->gpuDevice()->vkDevice, event, nullptr);
+        };
+        while (!_availableEvents.empty()) {
+            VkEvent event = _availableEvents.front();
+            cleanEvent(event);
+            _availableEvents.pop();
+        }
+        for (auto pair : _barrierEvents) {
+            cleanEvent(pair.second);
+        }
+    }
+    
     _gpuCommandBuffer = nullptr;
 }
 
@@ -649,7 +665,7 @@ void CCVKCommandBuffer::pipelineBarrier(const GeneralBarrier *barrier, const Buf
             VkEventCreateInfo eventInfo = {
                 VK_STRUCTURE_TYPE_EVENT_CREATE_INFO,
                 nullptr,
-                VK_EVENT_CREATE_DEVICE_ONLY_BIT_KHR,
+                0,
             };
             VkResult res = vkCreateEvent(CCVKDevice::getInstance()->gpuDevice()->vkDevice,
                                          &eventInfo,
@@ -673,7 +689,6 @@ void CCVKCommandBuffer::pipelineBarrier(const GeneralBarrier *barrier, const Buf
             } else {
                 bool fullBarrier = ccBarrier->getInfo().type == BarrierType::FULL;
                 if (!fullBarrier) {
-                    auto key = ccstd::hash_value(gpuTexture);
                     CC_ASSERT(_barrierEvents.find(ccTexture) != _barrierEvents.end());
                     VkEvent event = _barrierEvents.at(ccTexture);
                     scheduledEvents.push_back(event);

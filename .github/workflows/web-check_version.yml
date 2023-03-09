@@ -11,6 +11,9 @@ concurrency:
 jobs:
   Check_package_version:
     runs-on: ubuntu-latest
+    
+    permissions: read-all
+    
     if: 
       (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
     steps:

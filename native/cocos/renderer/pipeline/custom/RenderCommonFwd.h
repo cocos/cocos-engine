@@ -75,6 +75,7 @@ struct DescriptorBlockFlattened;
 struct DescriptorBlockIndex;
 struct CopyPair;
 struct MovePair;
+struct PipelineStatistics;
 
 } // namespace render
 

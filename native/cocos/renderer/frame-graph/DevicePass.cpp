@@ -51,11 +51,7 @@ DevicePass::DevicePass(const FrameGraph &graph, ccstd::vector<PassNode *> const 
     // _enableAutoBarrier: auto barrier in framegraph
     // barrierDeduce: deduce barrier gfx internally
     // to avoid redundant instructions, either inside or outside
-    auto opts = device->getOptions();
-    opts.enableBarrierDeduce = !gfx::ENABLE_GRAPH_AUTO_BARRIER;
-    device->setOptions(opts);
-
-    CC_ASSERT(gfx::ENABLE_GRAPH_AUTO_BARRIER ^ gfx::Device::getInstance()->getOptions().enableBarrierDeduce);
+    device->enableAutoBarrier(!gfx::ENABLE_GRAPH_AUTO_BARRIER);
 
     // Important Notice:
     // here attchment index has changed.

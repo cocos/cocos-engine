@@ -19,7 +19,8 @@
       for (int i = 0; i < LIGHTS_PER_PASS; i++) {
         if (i >= numLights) break;
 
-        CCSurfacesLightingCalculateIntermediateData_PerLight(lightingData, surfaceData, cc_lightPos[i].xyz - worldPos);
+        vec3 lightDirWithLength = IS_RANGED_DIRECTIONAL_LIGHT(cc_lightPos[i].w) ? -normalize(cc_lightDir[i].xyz) : cc_lightPos[i].xyz - worldPos;
+        CCSurfacesLightingCalculateIntermediateData_PerLight(lightingData, surfaceData, lightDirWithLength);
         CCSurfacesLightingCalculateColorWithLighting(lightingResult.diffuseColorWithLighting, lightingResult.specularColorWithLighting, surfaceData, lightingData);
   
         vec3 diffuseLighting, specularLighting;
@@ -30,9 +31,10 @@
         fresnel = lightingResult.fresnel = CCSurfaceLightingCalculateFresnel(lightingData);
       #endif
 
+        // shadows
         float shadow = 1.0;
       #if CC_RECEIVE_SHADOW && CC_SHADOW_TYPE == CC_SHADOW_MAP
-        if (cc_lightPos[i].w > 0.0 && cc_lightSizeRangeAngle[i].w > 0.0) {
+        if (IS_SPOT_LIGHT(cc_lightPos[i].w) && cc_lightSizeRangeAngle[i].w > 0.0) {
           vec4 shadowPos = vec4(0.0), shadowNDCPosWithBias = vec4(0.0);
           if (CCSurfacesLightingEnableShadow(lightingData.NoL)) {
             shadowPos = cc_matLightViewProj * vec4(surfaceData.worldPos, 1.0);
@@ -57,16 +59,23 @@
       #endif
 
         lightingResult.shadow = shadow;
-
-        float distAtt = CCSurfacesLightingCalculateDistanceAttenuation(lightingData, cc_lightSizeRangeAngle[i]);
+      
+        // attenuations
+        float distAtt = 1.0;
+        if(IS_RANGED_DIRECTIONAL_LIGHT(cc_lightPos[i].w)) {
+          distAtt = GetOutOfRange(worldPos, cc_lightPos[i].xyz, cc_lightDir[i].xyz, cc_lightSizeRangeAngle[i].xyz, cc_lightBoundingSizeVS[i].xyz);
+        } else {
+          distAtt = CCSurfacesLightingCalculateDistanceAttenuation(lightingData, cc_lightSizeRangeAngle[i], cc_lightPos[i].w);
+        }
 
         float angleAtt = 1.0;
-        if (cc_lightPos[i].w > 0.0) {
+        if (IS_SPOT_LIGHT(cc_lightPos[i].w)) {
           angleAtt = CCSurfacesLightingCalculateAngleAttenuation(lightingData, cc_lightSizeRangeAngle[i], -cc_lightDir[i].xyz);
         }
 
         float multiplier = distAtt * angleAtt;
 
+        // output
         lightingResult.directDiffuse = diffuseLighting * multiplier;
         lightingResult.directSpecular = specularLighting * multiplier * fresnel;
 
@@ -121,16 +130,13 @@
         if (cc_mainLitDir.w > 0.0) {
           vec4 shadowPos = vec4(0.0), shadowNDCPosWithBias = vec4(0.0);
           if (CCSurfacesLightingEnableShadow(lightingData.NoL)) {
-            if (cc_shadowLPNNInfo.w > 0.0) {
-              #if CC_DIR_LIGHT_SHADOW_TYPE == CC_DIR_LIGHT_SHADOW_CASCADED
-                lightingResult.shadow = CCCSMFactorBase(shadowPos, shadowNDCPosWithBias, surfaceData.worldPos, lightingData.N, shadowBias);
-              #endif
-            } else {
-              #if CC_DIR_LIGHT_SHADOW_TYPE == CC_DIR_LIGHT_SHADOW_UNIFORM
-                shadowPos = cc_matLightViewProj * vec4(surfaceData.worldPos, 1.0);
-                lightingResult.shadow = CCShadowFactorBase(shadowPos, shadowNDCPosWithBias, lightingData.N, shadowBias);
-              #endif
-            }
+            #if CC_DIR_LIGHT_SHADOW_TYPE == CC_DIR_LIGHT_SHADOW_CASCADED
+              lightingResult.shadow = CCCSMFactorBase(shadowPos, shadowNDCPosWithBias, surfaceData.worldPos, lightingData.N, shadowBias);
+            #endif
+            #if CC_DIR_LIGHT_SHADOW_TYPE == CC_DIR_LIGHT_SHADOW_UNIFORM
+              shadowPos = cc_matLightViewProj * vec4(surfaceData.worldPos, 1.0);
+              lightingResult.shadow = CCShadowFactorBase(shadowPos, lightingData.N, shadowBias);
+            #endif
           }
           #if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
             #if CC_SURFACES_LIGHTING_USE_SHADOWMAP_TRANSMIT

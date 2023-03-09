@@ -122,7 +122,9 @@ export class AnimationGraphEval {
         const nLayers = layerEvaluations.length;
         for (let iLayer = 0; iLayer < nLayers; ++iLayer) {
             const layerEval = layerEvaluations[iLayer];
-            const layerPose = layerEval.update(deltaTime, evaluationContext);
+            layerEval.update(deltaTime);
+            const layerPose = layerEval.evaluate(evaluationContext);
+
             const layerActualWeight = layerEval.weight * layerEval.passthroughWeight;
             if (layerEval.additive) {
                 applyDeltaPose(finalPose, layerPose, layerActualWeight, layerEval.transformFilter);
@@ -470,15 +472,17 @@ class LayerEval {
         return this._currentNode === this._topLevelExit;
     }
 
-    public update (deltaTime: number, context: AnimationGraphEvaluationContext): Pose {
+    public update (deltaTime: number) {
+        this._transitionAlpha = 0.0;
         if (!this.exited) {
-            this._transitionAlpha = 0.0;
             this._eval(deltaTime);
-            const sampled = this._sample(context);
-            if (sampled) {
-                return sampled;
-            }
-            // fallthrough
+        }
+    }
+
+    public evaluate (context: AnimationGraphEvaluationContext): Pose {
+        const sampled = this._sample(context);
+        if (sampled) {
+            return sampled;
         }
         return this._pushNullishPose(context);
     }
@@ -532,11 +536,14 @@ class LayerEval {
     }
 
     public getNextStateStatus (): Readonly<MotionStateStatus> | null {
-        if (!this._currentTransitionToNode
-            || this._currentTransitionToNode.kind === NodeKind.empty) {
+        const {
+            _currentTransitionToNode: currentTransitionToNode,
+        } = this;
+        if (!currentTransitionToNode
+            || currentTransitionToNode.kind === NodeKind.empty) {
             return null;
         }
-        return this._currentTransitionToNode.getToPortStatus();
+        return currentTransitionToNode.getToPortStatus();
     }
 
     public getNextClipStatuses (): Iterable<ClipStatus> {
@@ -814,10 +821,7 @@ class LayerEval {
 
                 remainTimePiece -= updateRequires;
 
-                if (currentNode.kind === NodeKind.animation) {
-                    currentNode.updateFromPort(updateRequires);
-                    this._fromUpdated = true;
-                }
+                this._accumulateCurrentStateDeltaTime(updateRequires);
 
                 const ranIntoNonMotionState = this._switchTo(transition);
                 if (ranIntoNonMotionState) {
@@ -826,32 +830,37 @@ class LayerEval {
 
                 continueNextIterationForce = true;
             } else { // If no transition matched, we update current node.
-                if (currentNode.kind === NodeKind.animation) {
-                    currentNode.updateFromPort(remainTimePiece);
-                    this._fromUpdated = true;
-                    // Animation play eat all times.
-                    remainTimePiece = 0.0;
-                } else {
-                    // Happened when firstly entered the layer's top level entry
-                    // and no further transition.
-                    // I'm sure conscious of it's redundant with above statement, just emphasize.
-                    remainTimePiece = 0.0;
-                }
+                this._accumulateCurrentStateDeltaTime(remainTimePiece);
+                remainTimePiece = 0.0;
                 continue;
             }
         }
 
-        if (this._fromUpdated && this._currentNode.kind === NodeKind.animation) {
-            this._fromUpdated = false;
-            this._currentNode.triggerFromPortUpdate(this._controller);
-        }
-
-        if (this._currentTransitionToNode && this._toUpdated && this._currentTransitionToNode.kind === NodeKind.animation) {
-            this._toUpdated = false;
-            this._currentTransitionToNode.triggerToPortUpdate(this._controller);
-        }
+        this._commitStateUpdates();
 
         return remainTimePiece;
+    }
+
+    private _commitStateUpdates () {
+        if (this._fromUpdated) {
+            const {
+                _currentNode: currentState,
+            } = this;
+            this._fromUpdated = false;
+            if (currentState.kind === NodeKind.animation) {
+                currentState.triggerFromPortUpdate(this._controller);
+            }
+        }
+
+        if (this._toUpdated) {
+            const {
+                _currentTransitionToNode: currentTransitionToNode,
+            } = this;
+            this._toUpdated = false;
+            if (currentTransitionToNode && currentTransitionToNode.kind === NodeKind.animation) {
+                currentTransitionToNode.triggerToPortUpdate(this._controller);
+            }
+        }
     }
 
     private _sample (context: AnimationGraphEvaluationContext): Pose | null {
@@ -1230,9 +1239,8 @@ class LayerEval {
         const shouldUpdatePorts = contrib !== 0;
         const hasFinished = ratio === 1.0;
 
-        if (fromNode.kind === NodeKind.animation && shouldUpdatePorts) {
-            fromNode.updateFromPort(contrib);
-            this._fromUpdated = true;
+        if (shouldUpdatePorts) {
+            this._accumulateCurrentStateDeltaTime(contrib);
         }
 
         if (toNode.kind === NodeKind.animation && shouldUpdatePorts) {
@@ -1407,10 +1415,8 @@ class LayerEval {
         assertIsTrue(currentNode.kind === NodeKind.animation || currentNode.kind === NodeKind.transitionSnapshot);
         // If we're interrupting motion->*,
         // we update the motion then do the first enqueue to transition snapshot.
+        this._accumulateCurrentStateDeltaTime(transitionRequires);
         if (currentNode.kind === NodeKind.animation) {
-            currentNode.updateFromPort(transitionRequires);
-            this._fromUpdated = true;
-
             const { _transitionSnapshot: transitionSnapshot } = this;
             assertIsTrue(transitionSnapshot.empty);
             transitionSnapshot.enqueue(currentNode, 1.0);
@@ -1462,6 +1468,14 @@ class LayerEval {
 
         transitionSnapshot.enqueue(currentTransitionToNode, ratio);
         transitionSnapshot.transferTransitions(currentTransitionPath);
+    }
+
+    private _accumulateCurrentStateDeltaTime (deltaTime: number) {
+        const { _currentNode: currentNode } = this;
+        this._fromUpdated = true;
+        if (currentNode.kind === NodeKind.animation) {
+            currentNode.updateFromPort(deltaTime);
+        }
     }
 
     private _resetTriggersOnTransition (transition: TransitionEval) {

@@ -80,6 +80,11 @@ public:
      */
     virtual void onDestroy();
 
+    /**
+     * @brief Exit platform.
+     */
+    void exit() override;
+
 private:
     ThreadCallback _mainTask{nullptr};
 

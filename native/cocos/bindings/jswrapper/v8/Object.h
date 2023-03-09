@@ -34,6 +34,7 @@
     #include "../Value.h"
     #include "Base.h"
     #include "ObjectWrap.h"
+    #include "base/HasMemberFunction.h"
 
     #include <memory>
 
@@ -325,7 +326,7 @@ public:
      *  @return true if object is a proxy object, otherwise false.
      */
     bool isProxy() const;
-    
+
     /**
      *  @brief Gets the type of a typed array object.
      *  @return The type of a typed array object.
@@ -443,6 +444,15 @@ public:
     ValueArray getAllElementsInSet() const;
 
     void setPrivateObject(PrivateObjectBase *data);
+
+    template <typename T>
+    inline void setPrivateObject(TypedPrivateObject<T> *data) {
+        setPrivateObject(static_cast<PrivateObjectBase *>(data));
+        if constexpr (cc::has_setScriptObject<T, void(Object *)>::value) {
+            data->template get<T>()->setScriptObject(this);
+        }
+    }
+
     PrivateObjectBase *getPrivateObject() const;
 
     /*

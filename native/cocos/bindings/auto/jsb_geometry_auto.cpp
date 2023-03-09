@@ -1750,6 +1750,78 @@ static bool js_delete_cc_geometry_Sphere(se::State& s)
 }
 SE_BIND_FINALIZE_FUNC(js_delete_cc_geometry_Sphere) 
 
+static bool js_cc_geometry_Sphere_intersect__SWIG_0(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::geometry::Sphere *arg1 = (cc::geometry::Sphere *) NULL ;
+    cc::geometry::Frustum *arg2 = 0 ;
+    cc::geometry::Frustum temp2 ;
+    bool result;
+    
+    arg1 = SE_THIS_OBJECT<cc::geometry::Sphere>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg2 = &temp2;
+    
+    result = (bool)((cc::geometry::Sphere const *)arg1)->intersect((cc::geometry::Frustum const &)*arg2);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
+    
+    
+    return true;
+}
+
+static bool js_cc_geometry_Sphere_intersect__SWIG_1(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::geometry::Sphere *arg1 = (cc::geometry::Sphere *) NULL ;
+    cc::geometry::Plane *arg2 = 0 ;
+    cc::geometry::Plane temp2 ;
+    int result;
+    
+    arg1 = SE_THIS_OBJECT<cc::geometry::Sphere>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg2 = &temp2;
+    
+    result = (int)((cc::geometry::Sphere const *)arg1)->intersect((cc::geometry::Plane const &)*arg2);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+
+static bool js_cc_geometry_Sphere_intersect(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    
+    
+    if (argc == 1) {
+        ok = js_cc_geometry_Sphere_intersect__SWIG_0(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    if (argc == 1) {
+        ok = js_cc_geometry_Sphere_intersect__SWIG_1(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_FUNC(js_cc_geometry_Sphere_intersect) 
+
 static bool js_cc_geometry_Sphere__radius_set(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -1827,6 +1899,7 @@ bool js_register_cc_geometry_Sphere(se::Object* obj) {
     cls->defineProperty("_radius", _SE(js_cc_geometry_Sphere__radius_get), _SE(js_cc_geometry_Sphere__radius_set)); 
     cls->defineProperty("_center", _SE(js_cc_geometry_Sphere__center_get), _SE(js_cc_geometry_Sphere__center_set)); 
     
+    cls->defineFunction("intersect", _SE(js_cc_geometry_Sphere_intersect)); 
     
     
     

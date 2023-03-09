@@ -21,8 +21,8 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { ccclass, editable, serializable } from 'cc.decorator';
 import { cclegacy } from '../../core';
+import { patch_cc_SceneAsset } from '../../native-binding/decorators';
 import './asset';
 
 export const SceneAsset = jsb.SceneAsset;
@@ -53,7 +53,4 @@ sceneAssetProto._ctor = function () {
 };
 
 // handle meta data, it is generated automatically
-const SceneAssetProto = SceneAsset.prototype;
-serializable(SceneAssetProto, 'scene', () => null);
-editable(SceneAssetProto, 'scene', () => null);
-ccclass('cc.SceneAsset')(SceneAsset);
+patch_cc_SceneAsset({SceneAsset});
