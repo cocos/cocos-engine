@@ -806,6 +806,8 @@ bool Mat4::inverse() {
     inverse.m[14] = (-m[12] * a3 + m[13] * a1 - m[14] * a0) * det;
     inverse.m[15] = (m[8] * a3 - m[9] * a1 + m[10] * a0) * det;
 
+    *this = inverse;
+
     return true;
 }
 

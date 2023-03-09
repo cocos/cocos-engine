@@ -191,12 +191,19 @@ TEST(mathMat4Test, test5) {
     ExpectEq(isInverse == true, true);
     // getInversed
     logLabel = "test the mat4 getInversed function";
-    cc::Mat4 inversed;
-    inversed.m[1] = 10;
-    inversed.m[2] = 13;
-    inversed.m[4] = 2;
+    cc::Mat4 inversed(
+        1, 1, 1, 3,
+        5, 4, 1, 7,
+        9, 3, 2, 1,
+        4, 4, 3, 1);
+
     cc::Mat4 inversedMat = inversed.getInversed();
-    ExpectEq(IsEqualF(inversedMat.m[6], -1.36842108), true);
+    auto inversedMat2 = cc::Mat4(
+        4.0F / 165, -1.0F / 55, 28.0F / 165, -19.0F / 165,
+        -41.0F / 55, 17.0F / 55, -12.0F / 55, 16.0F / 55,
+        13.0F / 15, -2.0F / 5, 1.0F / 15, 2.0F / 15,
+        47.0F / 165, 2.0F / 55, -1.0F / 165, -17.0F / 165);
+    ExpectEq(inversedMat.approxEquals(inversedMat2), true);
     // identity
     logLabel = "test the mat4 isIdentity function";
     ExpectEq(outMat.isIdentity(), false);

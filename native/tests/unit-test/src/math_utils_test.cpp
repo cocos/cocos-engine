@@ -52,7 +52,7 @@ TEST(mathUtilsTest, test9) {
     bool res2 = cc::mathutils::approx(2.0F, 2.0000001F);
     ExpectEq(res2, true);
     bool res3 = cc::mathutils::approx(2.0F, 2.0000001F, 0.000001F);
-    ExpectEq(res3, false);
+    ExpectEq(res3, true);
     // clamp
     logLabel = "test the MathUtil clamp function";
     float res4 = cc::mathutils::clamp(2.0F, 1.0F, 3.0F);
@@ -85,7 +85,7 @@ TEST(mathUtilsTest, test9) {
     ExpectEq(IsEqualF(cc::mathutils::repeat(0.0F, 1.0F), 0.0F), true);
     ExpectEq(IsEqualF(cc::mathutils::repeat(1.0F, 1.0F), 0.0F), true);
     ExpectEq(IsEqualF(cc::mathutils::repeat(2.0F, 1.0F), 0.0F), true);
-    ExpectEq(IsEqualF(cc::mathutils::repeat(3.0F, 1.0F), 0.5F), true);
+    ExpectEq(IsEqualF(cc::mathutils::repeat(3.0F, 1.0F), 0.0F), true);
     // pingPong
     logLabel = "test the MathUtil pingPong function";
     ExpectEq(IsEqualF(cc::mathutils::pingPong(0.0F, 1.0F), 0.0F), true);
@@ -107,5 +107,5 @@ TEST(mathUtilsTest, test9) {
     logLabel = "test the MathUtil absMax function";
     ExpectEq(IsEqualF(cc::mathutils::absMax(1.0F, 3.0F), 3.0F), true);
     ExpectEq(IsEqualF(cc::mathutils::absMax(-1.0F, 3.0F), 3.0F), true);
-    ExpectEq(IsEqualF(cc::mathutils::absMax(1.0F, -3.0F), 3.0F), true);
+    ExpectEq(IsEqualF(cc::mathutils::absMax(1.0F, -3.0F), -3.0F), true);
 }
