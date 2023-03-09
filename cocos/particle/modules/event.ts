@@ -77,7 +77,7 @@ export class EventData {
 }
 
 @ccclass('cc.EventModule')
-export class EventModule extends UpdateModule {
+export class EventGeneratorModule extends UpdateModule {
     @type([EventData])
     @visible(true)
     @serializable
