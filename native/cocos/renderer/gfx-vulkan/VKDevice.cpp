@@ -325,6 +325,7 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     // UNASSIGNED-BestPractices-vkCreateComputePipelines-compute-work-group-size
     _caps.maxComputeWorkGroupInvocations = std::min(_caps.maxComputeWorkGroupInvocations, 64U);
 #endif // defined(VK_USE_PLATFORM_ANDROID_KHR)
+    initExtensionCapability();
 
     ///////////////////// Resource Initialization /////////////////////
 
@@ -791,7 +792,22 @@ void CCVKDevice::initFormatFeature() {
         if (properties.bufferFeatures & formatFeature) {
             _formatFeatures[i] |= FormatFeature::VERTEX_ATTRIBUTE;
         }
+        // shading reate support
+        formatFeature = VK_FORMAT_FEATURE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR;
+        if (properties.optimalTilingFeatures & formatFeature) {
+            _formatFeatures[i] |= FormatFeature ::SHADING_RATE;
+        }
     }
+}
+
+void CCVKDevice::initExtensionCapability()
+{
+    _caps.supportVariableRateShading = checkExtension(VK_KHR_FRAGMENT_SHADING_RATE_EXTENSION_NAME);
+    _caps.supportVariableRateShading &= _gpuContext->physicalDeviceFragmentShadingRateFeatures.pipelineFragmentShadingRate &&
+                                        _gpuContext->physicalDeviceFragmentShadingRateFeatures.attachmentFragmentShadingRate;
+    _caps.supportVariableRateShading &= hasFlag(_formatFeatures[static_cast<uint32_t>(Format::R8UI)], FormatFeatureBit::SHADING_RATE);
+
+    _caps.supportSubPassShading = checkExtension(VK_HUAWEI_SUBPASS_SHADING_EXTENSION_NAME);
 }
 
 CommandBuffer *CCVKDevice::createCommandBuffer(const CommandBufferInfo & /*info*/, bool /*hasAgent*/) {

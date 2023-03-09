@@ -490,6 +490,7 @@ enum class FormatFeatureBit : uint32_t {
     LINEAR_FILTER = 0x4,     // Allow linear filtering when sampling in shaders or blitting
     STORAGE_TEXTURE = 0x8,   // Allow storage reads & writes in shaders
     VERTEX_ATTRIBUTE = 0x10, // Allow usages as vertex input attributes
+    SHADING_RATE = 0x20,     // Allow usages as shading rate
 };
 using FormatFeature = FormatFeatureBit;
 CC_ENUM_BITWISE_OPERATORS(FormatFeatureBit);
@@ -654,6 +655,7 @@ enum class AccessFlagBit : uint32_t {
     TRANSFER_READ = 1 << 16,                                      // Read as the source of a transfer operation
     HOST_READ = 1 << 17,                                          // Read on the host
     PRESENT = 1 << 18,                                            // Read by the presentation engine
+    SHADING_RATE = 1 << 27,                                       // Read as a shading rate image
 
     // Write accesses
     VERTEX_SHADER_WRITE = 1 << 19,            // Written as any resource in a vertex shader
@@ -844,6 +846,8 @@ struct DeviceCaps {
     Size maxComputeWorkGroupCount;
 
     bool supportQuery{false};
+    bool supportVariableRateShading{false};
+    bool supportSubPassShading{false};
 
     float clipSpaceMinZ{-1.F};
     float screenSpaceSignY{1.F};
@@ -1308,6 +1312,7 @@ struct SubpassInfo {
 
     uint32_t depthStencil{INVALID_BINDING};
     uint32_t depthStencilResolve{INVALID_BINDING};
+    uint32_t shadingRate{INVALID_BINDING};
     ResolveMode depthResolveMode{ResolveMode::NONE};
     ResolveMode stencilResolveMode{ResolveMode::NONE};
 

@@ -142,8 +142,12 @@ bool CCVKGPUContext::initialize() {
     requestedExtensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
 #elif defined(VK_USE_PLATFORM_VI_NN)
     requestedExtensions.push_back(VK_NN_VI_SURFACE_EXTENSION_NAME);
-#elif defined(VK_USE_PLATFORM_METAL_EXT)
-    requestedExtensions.push_back(VK_EXT_METAL_SURFACE_EXTENSION_NAME);
+#elif defined(VK_USE_PLATFORM_MACOS_MVK)
+    requestedExtensions.push_back(VK_MVK_MACOS_SURFACE_EXTENSION_NAME);
+    if (minorVersion >= 3) {
+        requestedExtensions.push_back("VK_KHR_portability_enumeration");
+        requestedExtensions.push_back("VK_KHR_portability_subset");
+    }
 #elif defined(VK_USE_PLATFORM_WAYLAND_KHR)
     requestedExtensions.push_back(VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME);
 #elif defined(VK_USE_PLATFORM_XCB_KHR)
@@ -214,6 +218,12 @@ bool CCVKGPUContext::initialize() {
     app.apiVersion = apiVersion;
 
     VkInstanceCreateInfo instanceInfo{VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO};
+#if defined(VK_USE_PLATFORM_MACOS_MVK)
+    if (minorVersion >= 3) {
+        instanceInfo.flags |= 0x01; // VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+    }
+#endif
+
     instanceInfo.pApplicationInfo = &app;
     instanceInfo.enabledExtensionCount = utils::toUint(extensions.size());
     instanceInfo.ppEnabledExtensionNames = extensions.data();
@@ -313,6 +323,7 @@ bool CCVKGPUContext::initialize() {
         physicalDeviceFeatures2.pNext = &physicalDeviceVulkan11Features;
         physicalDeviceVulkan11Features.pNext = &physicalDeviceVulkan12Features;
         physicalDeviceProperties2.pNext = &physicalDeviceDepthStencilResolveProperties;
+        physicalDeviceDepthStencilResolveProperties.pNext = &physicalDeviceFragmentShadingRateFeatures;
         if (minorVersion >= 1) {
             vkGetPhysicalDeviceProperties2(physicalDevice, &physicalDeviceProperties2);
             vkGetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);

@@ -551,6 +551,7 @@ static constexpr ThsvsAccessType THSVS_ACCESS_TYPES[] = {
     THSVS_ACCESS_TRANSFER_READ,                                              // TRANSFER_READ
     THSVS_ACCESS_HOST_READ,                                                  // HOST_READ
     THSVS_ACCESS_PRESENT,                                                    // PRESENT
+    THSVS_ACCESS_SHADING_RATE_READ_NV,                                       // SHADING_RATE
     THSVS_ACCESS_VERTEX_SHADER_WRITE,                                        // VERTEX_SHADER_WRITE
     THSVS_ACCESS_FRAGMENT_SHADER_WRITE,                                      // FRAGMENT_SHADER_WRITE
     THSVS_ACCESS_COLOR_ATTACHMENT_WRITE,                                     // COLOR_ATTACHMENT_WRITE
@@ -559,6 +560,7 @@ static constexpr ThsvsAccessType THSVS_ACCESS_TYPES[] = {
     THSVS_ACCESS_TRANSFER_WRITE,                                             // TRANSFER_WRITE
     THSVS_ACCESS_HOST_PREINITIALIZED,                                        // HOST_PREINITIALIZED
     THSVS_ACCESS_HOST_WRITE,                                                 // HOST_WRITE
+
 };
 
 const ThsvsAccessType *getAccessType(AccessFlagBit flag) {

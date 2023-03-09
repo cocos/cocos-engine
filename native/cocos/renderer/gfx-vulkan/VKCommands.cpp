@@ -355,6 +355,7 @@ void cmdFuncCCVKCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
     static ccstd::vector<CCVKAccessInfo> endAccessInfos;
     static ccstd::vector<AttachmentStatistics> attachmentStatistics;
     static SubpassDependencyManager dependencyManager;
+    ccstd::vector<VkFragmentShadingRateAttachmentInfoKHR> shadingRateReferences;
 
     const size_t colorAttachmentCount = gpuRenderPass->colorAttachments.size();
     const size_t hasDepth = gpuRenderPass->depthStencilAttachment.format != Format::UNKNOWN ? 1 : 0;
@@ -362,6 +363,7 @@ void cmdFuncCCVKCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
     gpuRenderPass->clearValues.resize(colorAttachmentCount + hasDepth);
     beginAccessInfos.resize(colorAttachmentCount + hasDepth);
     endAccessInfos.resize(colorAttachmentCount + hasDepth);
+    shadingRateReferences.resize(gpuRenderPass->subpasses.size());
 
     for (size_t i = 0U; i < colorAttachmentCount; ++i) {
         const auto &attachment{gpuRenderPass->colorAttachments[i]};
@@ -484,6 +486,11 @@ void cmdFuncCCVKCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
             attachmentReferences.push_back({VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2, nullptr, subpassInfo.depthStencilResolve, layout, aspect});
         }
 
+        if (subpassInfo.shadingRate != INVALID_BINDING && subpassInfo.shadingRate < colorAttachmentCount) {
+            const ColorAttachment &desc = gpuRenderPass->colorAttachments[subpassInfo.depthStencilResolve];
+            attachmentReferences.push_back({VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2, nullptr, subpassInfo.shadingRate, VK_IMAGE_LAYOUT_FRAGMENT_SHADING_RATE_ATTACHMENT_OPTIMAL_KHR, VK_IMAGE_ASPECT_COLOR_BIT});
+        }
+
         gpuRenderPass->sampleCounts.push_back(sampleCount);
     }
 
@@ -544,6 +551,13 @@ void cmdFuncCCVKCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
             resolveDesc.stencilResolveMode = stencilResolveMode;
             resolveDesc.pDepthStencilResolveAttachment = attachmentReferences.data() + offset++;
             desc.pNext = &resolveDesc;
+        }
+
+        if (subpassInfo.shadingRate != INVALID_BINDING) {
+            VkFragmentShadingRateAttachmentInfoKHR &attachment = shadingRateReferences[subpassInfo.shadingRate];
+            attachment.pFragmentShadingRateAttachment = attachmentReferences.data() + offset++;
+            attachment.shadingRateAttachmentTexelSize = {16, 16}; // todo
+            desc.pNext = &attachment;
         }
     }
 
@@ -1130,6 +1144,15 @@ void cmdFuncCCVKCreateGraphicsPipelineState(CCVKDevice *device, CCVKGPUPipelineS
     colorBlendState.blendConstants[2] = blendColor.z;
     colorBlendState.blendConstants[3] = blendColor.w;
     createInfo.pColorBlendState = &colorBlendState;
+
+    ///////////////////// ShadingRate /////////////////////
+    VkPipelineFragmentShadingRateStateCreateInfoKHR shadingRateInfo = {VK_STRUCTURE_TYPE_PIPELINE_FRAGMENT_SHADING_RATE_STATE_CREATE_INFO_KHR};
+    if (device->getCapabilities().supportVariableRateShading) {
+        shadingRateInfo.fragmentSize = {1, 1}; // per draw shading rate not support.s
+        shadingRateInfo.combinerOps[0] = VK_FRAGMENT_SHADING_RATE_COMBINER_OP_KEEP_KHR;
+        shadingRateInfo.combinerOps[1] = VK_FRAGMENT_SHADING_RATE_COMBINER_OP_REPLACE_KHR;
+        createInfo.pNext = &shadingRateInfo;
+    }
 
     ///////////////////// References /////////////////////
 
