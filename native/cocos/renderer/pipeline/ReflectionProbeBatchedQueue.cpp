@@ -117,10 +117,8 @@ void ReflectionProbeBatchedQueue::clear() {
 void ReflectionProbeBatchedQueue::add(const scene::Model *model, bool isUseRGBE) {
     for (const auto &subModel : model->getSubModels()) {
         auto passIdx = getReflectMapPassIndex(subModel);
-        bool bUseReflectPass = true;
         if (passIdx == -1) {
             passIdx = getDefaultPassIndex(subModel);
-            bUseReflectPass = false;
         }
         if (passIdx == -1) {
             continue;
@@ -129,7 +127,7 @@ void ReflectionProbeBatchedQueue::add(const scene::Model *model, bool isUseRGBE)
         auto *pass = subModel->getPass(passIdx);
         const auto batchingScheme = pass->getBatchingScheme();
 
-        if (!bUseReflectPass && isUseRGBE) {
+        if (isUseRGBE) {
             auto patches = const_cast<ccstd::vector<cc::scene::IMacroPatch> &>(subModel->getPatches());
             patches.emplace_back(MACRO_PATCH_RGBE_OUTPUT);
             subModel->onMacroPatchesStateChanged(patches);

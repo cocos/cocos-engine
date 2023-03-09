@@ -139,17 +139,15 @@ export class RenderReflectionProbeQueue {
             const subModel = subModels[j];
 
             let passIdx = getReflectMapPassIndex(subModel);
-            let bUseReflectPass = true;
             if (passIdx < 0) {
                 passIdx = getPassIndex(subModel);
-                bUseReflectPass = false;
             }
             if (passIdx < 0) { continue; }
 
             const pass = subModel.passes[passIdx];
             const batchingScheme = pass.batchingScheme;
 
-            if (!bUseReflectPass && useRGBE) {
+            if (useRGBE) {
                 let patches: IMacroPatch[] | null = subModel.patches;
                 const useRGBEPatchs: IMacroPatch[] = [
                     { name: CC_USE_RGBE_OUTPUT, value: true },
