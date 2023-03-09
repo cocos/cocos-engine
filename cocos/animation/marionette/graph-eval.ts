@@ -963,16 +963,16 @@ class LayerEval {
      * Notes the real node is used:
      * - to determinate the starting state machine from where the any states are matched;
      * - so we can solve transitions' relative durations.
-     * @param isHeadState See `_matchTransition`.
+     * @param isCurrentState See `_matchTransition`.
      */
-    private _matchAnyScoped (realNode: MotionStateEval, isHeadState: boolean, deltaTime: number, result: TransitionMatchCache) {
+    private _matchAnyScoped (realNode: MotionStateEval, isCurrentState: boolean, deltaTime: number, result: TransitionMatchCache) {
         let transitionMatchUpdated = false;
         for (let ancestor: StateMachineInfo | null = realNode.stateMachine;
             ancestor !== null;
             ancestor = ancestor.parent) {
             const updated = this._matchTransition(
                 ancestor.any,
-                isHeadState,
+                isCurrentState,
                 realNode,
                 deltaTime,
                 result,
@@ -991,10 +991,18 @@ class LayerEval {
      * Searches for a transition which should be performed
      * if specified node updates for no more than `deltaTime` and less than `result.requires`.
      * We solve the relative durations of transitions based on duration of `realNode`.
+     *
+     * @param isCurrentState True if `node` is current state or "interruption source state"(see `getInterruptionSourceMotion`) of current state.
+     * In detail:
+     * | State machine                          | This method is used for            | `isCurrentState` should |
+     * | -------------------------------------- | ---------------------------------- | ----------------------- |
+     * | No transition <br/> Current state is A | detecting transition from A        | true                    |
+     * | In transition <br/> A --> B            | detecting interruption from A or B | A: true <br/> B: false  |
+     *
      * @returns True if a transition match is updated into the `result`.
      */
     private _matchTransition (
-        node: NodeEval, isHeadState: boolean, realNode: NodeEval, deltaTime: Readonly<number>, result: TransitionMatchCache,
+        node: NodeEval, isCurrentState: boolean, realNode: NodeEval, deltaTime: Readonly<number>, result: TransitionMatchCache,
     ) {
         assertIsTrue(node === realNode || node.kind === NodeKind.any);
         const { outgoingTransitions } = node;
@@ -1027,7 +1035,7 @@ class LayerEval {
 
             if (realNode.kind === NodeKind.animation && transition.exitConditionEnabled) {
                 const exitTime = realNode.duration * transition.exitCondition;
-                const currentStateTime = isHeadState ? realNode.fromPortTime : realNode.toPortTime;
+                const currentStateTime = isCurrentState ? realNode.fromPortTime : realNode.toPortTime;
                 deltaTimeRequired = Math.max(exitTime - currentStateTime, 0.0);
                 // Note: the >= is reasonable in compare to >: we select the first-minimal requires.
                 if (deltaTimeRequired > deltaTime || deltaTimeRequired >= result.requires) {
@@ -1362,18 +1370,18 @@ class LayerEval {
         }
 
         let motion0: MotionStateEval;
-        let motion0IsHeadState = false;
+        let motion0IsCurrentState = false;
         if (interruption === TransitionInterruptionSource.CURRENT_STATE
             || interruption === TransitionInterruptionSource.CURRENT_STATE_THEN_NEXT_STATE) {
             motion0 = getInterruptionSourceMotion(currentNode);
-            motion0IsHeadState = true;
+            motion0IsCurrentState = true;
         } else {
             motion0 = currentTransitionToNode;
-            motion0IsHeadState = false;
+            motion0IsCurrentState = false;
         }
         transitionMatchUpdated = this._matchTransition(
             motion0,
-            motion0IsHeadState,
+            motion0IsCurrentState,
             motion0,
             remainTimePiece,
             transitionMatch,
@@ -1386,18 +1394,18 @@ class LayerEval {
         }
 
         let motion1: MotionStateEval | null = null;
-        let motion1IsHeadState = false;
+        let motion1IsCurrentState = false;
         if (interruption === TransitionInterruptionSource.NEXT_STATE_THEN_CURRENT_STATE) {
             motion1 = getInterruptionSourceMotion(currentNode);
-            motion1IsHeadState = true;
+            motion1IsCurrentState = true;
         } else if (interruption === TransitionInterruptionSource.CURRENT_STATE_THEN_NEXT_STATE) {
             motion1 = currentTransitionToNode;
-            motion1IsHeadState = false;
+            motion1IsCurrentState = false;
         }
         if (motion1) {
             transitionMatchUpdated = this._matchTransition(
                 motion1,
-                motion1IsHeadState,
+                motion1IsCurrentState,
                 motion1,
                 remainTimePiece,
                 transitionMatch,
