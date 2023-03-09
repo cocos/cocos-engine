@@ -994,10 +994,10 @@ class LayerEval {
      *
      * @param isCurrentState True if `node` is current state or "interruption source state"(see `getInterruptionSourceMotion`) of current state.
      * In detail:
-     * | State machine                          | This method is used for            | `isCurrentState` should |
-     * | -------------------------------------- | ---------------------------------- | ----------------------- |
-     * | No transition <br/> Current state is A | detecting transition from A        | true                    |
-     * | In transition <br/> A --> B            | detecting interruption from A or B | A: true <br/> B: false  |
+     * | State machine                          | This method is used for            | `isCurrentState` should be    |
+     * | -------------------------------------- | ---------------------------------- | ----------------------------- |
+     * | No transition <br/> Current state is A | detecting transition from A        | true                          |
+     * | In transition <br/> A --> B            | detecting interruption from A or B | true for A <br/> false for B  |
      *
      * @returns True if a transition match is updated into the `result`.
      */
