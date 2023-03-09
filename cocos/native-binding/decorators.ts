@@ -101,125 +101,6 @@ export function patch_cc_BufferAsset(ctx: cc_BufferAsset_Context_Args, apply = d
   apply(() => { $.ccclass('cc.BufferAsset')(BufferAsset); }, 'ccclass', null);
 } // end of patch_cc_BufferAsset
 
-//---- class cc_Camera
-interface cc_Camera_Context_Args {
-   Camera: any;
-   ProjectionType: any;
-   FOVAxis: any;
-   Color: any;
-   ClearFlag: any;
-   Rect: any;
-   Aperture: any;
-   Shutter: any;
-   ISO: any;
-   CAMERA_DEFAULT_MASK: any;
-   CameraType: any;
-   TrackingType: any;
-   Layers: any;
-   RenderTexture: any;
-}
-export function patch_cc_Camera(ctx: cc_Camera_Context_Args, apply = defaultExec) {
-  type Camera = any;
-  const { Camera, ProjectionType, FOVAxis, Color, ClearFlag, Rect, Aperture, Shutter, ISO, CAMERA_DEFAULT_MASK, CameraType, TrackingType, Layers, RenderTexture } = { ...ctx };
-  const priorityDescriptor = Object.getOwnPropertyDescriptor(Camera.prototype, 'priority');
-  const visibilityDescriptor = Object.getOwnPropertyDescriptor(Camera.prototype, 'visibility');
-  const clearFlagsDescriptor = Object.getOwnPropertyDescriptor(Camera.prototype, 'clearFlags');
-  const clearColorDescriptor = Object.getOwnPropertyDescriptor(Camera.prototype, 'clearColor');
-  const clearDepthDescriptor = Object.getOwnPropertyDescriptor(Camera.prototype, 'clearDepth');
-  const clearStencilDescriptor = Object.getOwnPropertyDescriptor(Camera.prototype, 'clearStencil');
-  const projectionDescriptor = Object.getOwnPropertyDescriptor(Camera.prototype, 'projection');
-  const fovAxisDescriptor = Object.getOwnPropertyDescriptor(Camera.prototype, 'fovAxis');
-  const fovDescriptor = Object.getOwnPropertyDescriptor(Camera.prototype, 'fov');
-  const orthoHeightDescriptor = Object.getOwnPropertyDescriptor(Camera.prototype, 'orthoHeight');
-  const nearDescriptor = Object.getOwnPropertyDescriptor(Camera.prototype, 'near');
-  const farDescriptor = Object.getOwnPropertyDescriptor(Camera.prototype, 'far');
-  const apertureDescriptor = Object.getOwnPropertyDescriptor(Camera.prototype, 'aperture');
-  const shutterDescriptor = Object.getOwnPropertyDescriptor(Camera.prototype, 'shutter');
-  const isoDescriptor = Object.getOwnPropertyDescriptor(Camera.prototype, 'iso');
-  const rectDescriptor = Object.getOwnPropertyDescriptor(Camera.prototype, 'rect');
-  const targetTextureDescriptor = Object.getOwnPropertyDescriptor(Camera.prototype, 'targetTexture');
-  apply(() => { $.serializable(Camera.prototype, '_projection',  () => { return ProjectionType.PERSPECTIVE; }); }, 'serializable', '_projection');
-  apply(() => { $.serializable(Camera.prototype, '_priority',  () => { return 0; }); }, 'serializable', '_priority');
-  apply(() => { $.serializable(Camera.prototype, '_fov',  () => { return 45; }); }, 'serializable', '_fov');
-  apply(() => { $.serializable(Camera.prototype, '_fovAxis',  () => { return FOVAxis.VERTICAL; }); }, 'serializable', '_fovAxis');
-  apply(() => { $.serializable(Camera.prototype, '_orthoHeight',  () => { return 10; }); }, 'serializable', '_orthoHeight');
-  apply(() => { $.serializable(Camera.prototype, '_near',  () => { return 1; }); }, 'serializable', '_near');
-  apply(() => { $.serializable(Camera.prototype, '_far',  () => { return 1000; }); }, 'serializable', '_far');
-  apply(() => { $.serializable(Camera.prototype, '_color',  () => { return new Color('#333333'); }); }, 'serializable', '_color');
-  apply(() => { $.serializable(Camera.prototype, '_depth',  () => { return 1; }); }, 'serializable', '_depth');
-  apply(() => { $.serializable(Camera.prototype, '_stencil',  () => { return 0; }); }, 'serializable', '_stencil');
-  apply(() => { $.serializable(Camera.prototype, '_clearFlags',  () => { return ClearFlag.SOLID_COLOR; }); }, 'serializable', '_clearFlags');
-  apply(() => { $.serializable(Camera.prototype, '_rect',  () => { return new Rect(0, 0, 1, 1); }); }, 'serializable', '_rect');
-  apply(() => { $.serializable(Camera.prototype, '_aperture',  () => { return Aperture.F16_0; }); }, 'serializable', '_aperture');
-  apply(() => { $.serializable(Camera.prototype, '_shutter',  () => { return Shutter.D125; }); }, 'serializable', '_shutter');
-  apply(() => { $.serializable(Camera.prototype, '_iso',  () => { return ISO.ISO100; }); }, 'serializable', '_iso');
-  apply(() => { $.serializable(Camera.prototype, '_screenScale',  () => { return 1; }); }, 'serializable', '_screenScale');
-  apply(() => { $.serializable(Camera.prototype, '_visibility',  () => { return CAMERA_DEFAULT_MASK; }); }, 'serializable', '_visibility');
-  apply(() => { $.serializable(Camera.prototype, '_targetTexture',  () => { return null; }); }, 'serializable', '_targetTexture');
-  apply(() => { $.serializable(Camera.prototype, '_cameraType',  () => { return CameraType.DEFAULT; }); }, 'serializable', '_cameraType');
-  apply(() => { $.serializable(Camera.prototype, '_trackingType',  () => { return TrackingType.NO_TRACKING; }); }, 'serializable', '_trackingType');
-  apply(() => { $.tooltip('i18n:camera.priority')(Camera.prototype, 'priority',  priorityDescriptor); }, 'tooltip', 'priority');
-  apply(() => { $.range([0, 65535, 1])(Camera.prototype, 'priority',  priorityDescriptor); }, 'range', 'priority');
-  apply(() => { $.displayOrder(0)(Camera.prototype, 'priority',  priorityDescriptor); }, 'displayOrder', 'priority');
-  apply(() => { $.tooltip('i18n:camera.visibility')(Camera.prototype, 'visibility',  visibilityDescriptor); }, 'tooltip', 'visibility');
-  apply(() => { $.displayOrder(1)(Camera.prototype, 'visibility',  visibilityDescriptor); }, 'displayOrder', 'visibility');
-  apply(() => { $.type(Layers.BitMask)(Camera.prototype, 'visibility'); }, 'type', 'visibility');
-  apply(() => { $.tooltip('i18n:camera.clear_flags')(Camera.prototype, 'clearFlags',  clearFlagsDescriptor); }, 'tooltip', 'clearFlags');
-  apply(() => { $.displayOrder(2)(Camera.prototype, 'clearFlags',  clearFlagsDescriptor); }, 'displayOrder', 'clearFlags');
-  apply(() => { $.type(ClearFlag)(Camera.prototype, 'clearFlags'); }, 'type', 'clearFlags');
-  apply(() => { $.tooltip('i18n:camera.color')(Camera.prototype, 'clearColor',  clearColorDescriptor); }, 'tooltip', 'clearColor');
-  apply(() => { $.displayOrder(3)(Camera.prototype, 'clearColor',  clearColorDescriptor); }, 'displayOrder', 'clearColor');
-  apply(() => { $.tooltip('i18n:camera.depth')(Camera.prototype, 'clearDepth',  clearDepthDescriptor); }, 'tooltip', 'clearDepth');
-  apply(() => { $.displayOrder(4)(Camera.prototype, 'clearDepth',  clearDepthDescriptor); }, 'displayOrder', 'clearDepth');
-  apply(() => { $.tooltip('i18n:camera.stencil')(Camera.prototype, 'clearStencil',  clearStencilDescriptor); }, 'tooltip', 'clearStencil');
-  apply(() => { $.displayOrder(5)(Camera.prototype, 'clearStencil',  clearStencilDescriptor); }, 'displayOrder', 'clearStencil');
-  apply(() => { $.tooltip('i18n:camera.projection')(Camera.prototype, 'projection',  projectionDescriptor); }, 'tooltip', 'projection');
-  apply(() => { $.displayOrder(6)(Camera.prototype, 'projection',  projectionDescriptor); }, 'displayOrder', 'projection');
-  apply(() => { $.type(ProjectionType)(Camera.prototype, 'projection'); }, 'type', 'projection');
-  apply(() => { $.tooltip('i18n:camera.fov_axis')(Camera.prototype, 'fovAxis',  fovAxisDescriptor); }, 'tooltip', 'fovAxis');
-  apply(() => { $.visible(function (this: Camera) {
-  return this._projection === ProjectionType.PERSPECTIVE;
-})(Camera.prototype, 'fovAxis',  fovAxisDescriptor); }, 'visible', 'fovAxis');
-  apply(() => { $.displayOrder(7)(Camera.prototype, 'fovAxis',  fovAxisDescriptor); }, 'displayOrder', 'fovAxis');
-  apply(() => { $.type(FOVAxis)(Camera.prototype, 'fovAxis'); }, 'type', 'fovAxis');
-  apply(() => { $.tooltip('i18n:camera.fov')(Camera.prototype, 'fov',  fovDescriptor); }, 'tooltip', 'fov');
-  apply(() => { $.range([1, 180, 1])(Camera.prototype, 'fov',  fovDescriptor); }, 'range', 'fov');
-  apply(() => { $.visible(function (this: Camera) {
-  return this._projection === ProjectionType.PERSPECTIVE;
-})(Camera.prototype, 'fov',  fovDescriptor); }, 'visible', 'fov');
-  apply(() => { $.displayOrder(8)(Camera.prototype, 'fov',  fovDescriptor); }, 'displayOrder', 'fov');
-  apply(() => { $.tooltip('i18n:camera.ortho_height')(Camera.prototype, 'orthoHeight',  orthoHeightDescriptor); }, 'tooltip', 'orthoHeight');
-  apply(() => { $$.rangeMin(1)(Camera.prototype, 'orthoHeight',  orthoHeightDescriptor); }, 'rangeMin', 'orthoHeight');
-  apply(() => { $.visible(function (this: Camera) {
-  return this._projection === ProjectionType.ORTHO;
-})(Camera.prototype, 'orthoHeight',  orthoHeightDescriptor); }, 'visible', 'orthoHeight');
-  apply(() => { $.displayOrder(9)(Camera.prototype, 'orthoHeight',  orthoHeightDescriptor); }, 'displayOrder', 'orthoHeight');
-  apply(() => { $.tooltip('i18n:camera.near')(Camera.prototype, 'near',  nearDescriptor); }, 'tooltip', 'near');
-  apply(() => { $$.rangeMin(0)(Camera.prototype, 'near',  nearDescriptor); }, 'rangeMin', 'near');
-  apply(() => { $.displayOrder(10)(Camera.prototype, 'near',  nearDescriptor); }, 'displayOrder', 'near');
-  apply(() => { $.tooltip('i18n:camera.far')(Camera.prototype, 'far',  farDescriptor); }, 'tooltip', 'far');
-  apply(() => { $$.rangeMin(0)(Camera.prototype, 'far',  farDescriptor); }, 'rangeMin', 'far');
-  apply(() => { $.displayOrder(11)(Camera.prototype, 'far',  farDescriptor); }, 'displayOrder', 'far');
-  apply(() => { $.tooltip('i18n:camera.aperture')(Camera.prototype, 'aperture',  apertureDescriptor); }, 'tooltip', 'aperture');
-  apply(() => { $.displayOrder(12)(Camera.prototype, 'aperture',  apertureDescriptor); }, 'displayOrder', 'aperture');
-  apply(() => { $.type(Aperture)(Camera.prototype, 'aperture'); }, 'type', 'aperture');
-  apply(() => { $.tooltip('i18n:camera.shutter')(Camera.prototype, 'shutter',  shutterDescriptor); }, 'tooltip', 'shutter');
-  apply(() => { $.displayOrder(13)(Camera.prototype, 'shutter',  shutterDescriptor); }, 'displayOrder', 'shutter');
-  apply(() => { $.type(Shutter)(Camera.prototype, 'shutter'); }, 'type', 'shutter');
-  apply(() => { $.tooltip('i18n:camera.ISO')(Camera.prototype, 'iso',  isoDescriptor); }, 'tooltip', 'iso');
-  apply(() => { $.displayOrder(14)(Camera.prototype, 'iso',  isoDescriptor); }, 'displayOrder', 'iso');
-  apply(() => { $.type(ISO)(Camera.prototype, 'iso'); }, 'type', 'iso');
-  apply(() => { $.tooltip('i18n:camera.rect')(Camera.prototype, 'rect',  rectDescriptor); }, 'tooltip', 'rect');
-  apply(() => { $.displayOrder(15)(Camera.prototype, 'rect',  rectDescriptor); }, 'displayOrder', 'rect');
-  apply(() => { $.tooltip('i18n:camera.target_texture')(Camera.prototype, 'targetTexture',  targetTextureDescriptor); }, 'tooltip', 'targetTexture');
-  apply(() => { $.displayOrder(16)(Camera.prototype, 'targetTexture',  targetTextureDescriptor); }, 'displayOrder', 'targetTexture');
-  apply(() => { $.type(RenderTexture)(Camera.prototype, 'targetTexture'); }, 'type', 'targetTexture');
-  apply(() => { $.executeInEditMode(Camera); }, 'executeInEditMode', null);
-  apply(() => { $.menu('Rendering/Camera')(Camera); }, 'menu', null);
-  apply(() => { $.help('i18n:cc.Camera')(Camera); }, 'help', null);
-  apply(() => { $.ccclass('cc.Camera')(Camera); }, 'ccclass', null);
-} // end of patch_cc_Camera
-
 //---- class cc_CircumSphere
 interface cc_CircumSphere_Context_Args {
    CircumSphere: any;
@@ -239,6 +120,7 @@ interface cc_DirectionalLight_Context_Args {
    PCFType: any;
    CSMLevel: any;
    CSMOptimizationMode: any;
+   CCInteger: any;
    cclegacy: any;
    ShadowType: any;
    CCBoolean: any;
@@ -247,7 +129,7 @@ interface cc_DirectionalLight_Context_Args {
 export function patch_cc_DirectionalLight(ctx: cc_DirectionalLight_Context_Args, apply = defaultExec) {
   type Root = any;
   type DirectionalLight = any;
-  const { DirectionalLight, Camera, PCFType, CSMLevel, CSMOptimizationMode, cclegacy, ShadowType, CCBoolean, CCFloat } = { ...ctx };
+  const { DirectionalLight, Camera, PCFType, CSMLevel, CSMOptimizationMode, CCInteger, cclegacy, ShadowType, CCBoolean, CCFloat } = { ...ctx };
   const illuminanceDescriptor = Object.getOwnPropertyDescriptor(DirectionalLight.prototype, 'illuminance');
   const shadowEnabledDescriptor = Object.getOwnPropertyDescriptor(DirectionalLight.prototype, 'shadowEnabled');
   const shadowPcfDescriptor = Object.getOwnPropertyDescriptor(DirectionalLight.prototype, 'shadowPcf');
@@ -287,6 +169,10 @@ export function patch_cc_DirectionalLight(ctx: cc_DirectionalLight_Context_Args,
   apply(() => { $.serializable(DirectionalLight.prototype, '_shadowNear',  () => { return 0.1; }); }, 'serializable', '_shadowNear');
   apply(() => { $.serializable(DirectionalLight.prototype, '_shadowFar',  () => { return 10.0; }); }, 'serializable', '_shadowFar');
   apply(() => { $.serializable(DirectionalLight.prototype, '_shadowOrthoSize',  () => { return 5; }); }, 'serializable', '_shadowOrthoSize');
+  apply(() => { $.type(CCInteger)(DirectionalLight.prototype, 'illuminance'); }, 'type', 'illuminance');
+  apply(() => { $.slide(DirectionalLight.prototype, 'illuminance',  illuminanceDescriptor); }, 'slide', 'illuminance');
+  apply(() => { $$.rangeMin(0)(DirectionalLight.prototype, 'illuminance',  illuminanceDescriptor); }, 'rangeMin', 'illuminance');
+  apply(() => { $.editable(DirectionalLight.prototype, 'illuminance',  illuminanceDescriptor); }, 'editable', 'illuminance');
   apply(() => { $.tooltip('i18n:lights.illuminance')(DirectionalLight.prototype, 'illuminance',  illuminanceDescriptor); }, 'tooltip', 'illuminance');
   apply(() => { $.type(CCBoolean)(DirectionalLight.prototype, 'shadowEnabled'); }, 'type', 'shadowEnabled');
   apply(() => { $.editable(DirectionalLight.prototype, 'shadowEnabled',  shadowEnabledDescriptor); }, 'editable', 'shadowEnabled');
@@ -616,39 +502,6 @@ export function patch_cc_ImageAsset(ctx: cc_ImageAsset_Context_Args, apply = def
   apply(() => { $.ccclass('cc.ImageAsset')(ImageAsset); }, 'ccclass', null);
 } // end of patch_cc_ImageAsset
 
-//---- class cc_Light
-interface cc_Light_Context_Args {
-   Light: any;
-   Color: any;
-   StaticLightSettings: any;
-   CAMERA_DEFAULT_MASK: any;
-   Layers: any;
-}
-export function patch_cc_Light(ctx: cc_Light_Context_Args, apply = defaultExec) {
-  const { Light, Color, StaticLightSettings, CAMERA_DEFAULT_MASK, Layers } = { ...ctx };
-  const colorDescriptor = Object.getOwnPropertyDescriptor(Light.prototype, 'color');
-  const useColorTemperatureDescriptor = Object.getOwnPropertyDescriptor(Light.prototype, 'useColorTemperature');
-  const colorTemperatureDescriptor = Object.getOwnPropertyDescriptor(Light.prototype, 'colorTemperature');
-  const staticSettingsDescriptor = Object.getOwnPropertyDescriptor(Light.prototype, 'staticSettings');
-  const visibilityDescriptor = Object.getOwnPropertyDescriptor(Light.prototype, 'visibility');
-  apply(() => { $.serializable(Light.prototype, '_color',  () => { return Color.WHITE.clone(); }); }, 'serializable', '_color');
-  apply(() => { $.serializable(Light.prototype, '_useColorTemperature',  () => { return false; }); }, 'serializable', '_useColorTemperature');
-  apply(() => { $.serializable(Light.prototype, '_colorTemperature',  () => { return 6550; }); }, 'serializable', '_colorTemperature');
-  apply(() => { $.serializable(Light.prototype, '_staticSettings',  () => { return new StaticLightSettings(); }); }, 'serializable', '_staticSettings');
-  apply(() => { $.serializable(Light.prototype, '_visibility',  () => { return CAMERA_DEFAULT_MASK; }); }, 'serializable', '_visibility');
-  apply(() => { $.tooltip('i18n:lights.color')(Light.prototype, 'color',  colorDescriptor); }, 'tooltip', 'color');
-  apply(() => { $.tooltip('i18n:lights.use_color_temperature')(Light.prototype, 'useColorTemperature',  useColorTemperatureDescriptor); }, 'tooltip', 'useColorTemperature');
-  apply(() => { $.tooltip('i18n:lights.color_temperature')(Light.prototype, 'colorTemperature',  colorTemperatureDescriptor); }, 'tooltip', 'colorTemperature');
-  apply(() => { $.range([1000, 15000, 1])(Light.prototype, 'colorTemperature',  colorTemperatureDescriptor); }, 'range', 'colorTemperature');
-  apply(() => { $.slide(Light.prototype, 'colorTemperature',  colorTemperatureDescriptor); }, 'slide', 'colorTemperature');
-  apply(() => { $.displayOrder(50)(Light.prototype, 'staticSettings',  staticSettingsDescriptor); }, 'displayOrder', 'staticSettings');
-  apply(() => { $.type(StaticLightSettings)(Light.prototype, 'staticSettings'); }, 'type', 'staticSettings');
-  apply(() => { $.type(Layers.BitMask)(Light.prototype, 'visibility'); }, 'type', 'visibility');
-  apply(() => { $.displayOrder(255)(Light.prototype, 'visibility',  visibilityDescriptor); }, 'displayOrder', 'visibility');
-  apply(() => { $.tooltip('i18n:lights.visibility')(Light.prototype, 'visibility',  visibilityDescriptor); }, 'tooltip', 'visibility');
-  apply(() => { $.ccclass('cc.Light')(Light); }, 'ccclass', null);
-} // end of patch_cc_Light
-
 //---- class cc_LightProbeInfo
 interface cc_LightProbeInfo_Context_Args {
    LightProbeInfo: any;
@@ -714,83 +567,6 @@ export function patch_cc_LightProbesData(ctx: cc_LightProbesData_Context_Args, a
   apply(() => { $.serializable(LightProbesData.prototype, '_tetrahedrons',  () => { return []; }); }, 'serializable', '_tetrahedrons');
   apply(() => { $.ccclass('cc.LightProbesData')(LightProbesData); }, 'ccclass', null);
 } // end of patch_cc_LightProbesData
-
-//---- class cc_Line
-interface cc_Line_Context_Args {
-   Line: any;
-   Texture2D: any;
-   Material: any;
-   Vec3: any;
-   CurveRange: any;
-   Vec2: any;
-   GradientRange: any;
-}
-export function patch_cc_Line(ctx: cc_Line_Context_Args, apply = defaultExec) {
-  const { Line, Texture2D, Material, Vec3, CurveRange, Vec2, GradientRange } = { ...ctx };
-  const textureDescriptor = Object.getOwnPropertyDescriptor(Line.prototype, 'texture');
-  const materialDescriptor = Object.getOwnPropertyDescriptor(Line.prototype, 'material');
-  const worldSpaceDescriptor = Object.getOwnPropertyDescriptor(Line.prototype, 'worldSpace');
-  const positionsDescriptor = Object.getOwnPropertyDescriptor(Line.prototype, 'positions');
-  const widthDescriptor = Object.getOwnPropertyDescriptor(Line.prototype, 'width');
-  const tileDescriptor = Object.getOwnPropertyDescriptor(Line.prototype, 'tile');
-  const offsetDescriptor = Object.getOwnPropertyDescriptor(Line.prototype, 'offset');
-  const colorDescriptor = Object.getOwnPropertyDescriptor(Line.prototype, 'color');
-  apply(() => { $.type(Texture2D)(Line.prototype, '_texture'); }, 'type', '_texture');
-  apply(() => { $.tooltip('i18n:line.texture')(Line.prototype, 'texture',  textureDescriptor); }, 'tooltip', 'texture');
-  apply(() => { $.displayOrder(0)(Line.prototype, 'texture',  textureDescriptor); }, 'displayOrder', 'texture');
-  apply(() => { $.type(Texture2D)(Line.prototype, 'texture'); }, 'type', 'texture');
-  apply(() => { $.serializable(Line.prototype, '_material',  () => { return null; }); }, 'serializable', '_material');
-  apply(() => { $.tooltip('i18n:line.material')(Line.prototype, 'material',  materialDescriptor); }, 'tooltip', 'material');
-  apply(() => { $.displayOrder(1)(Line.prototype, 'material',  materialDescriptor); }, 'displayOrder', 'material');
-  apply(() => { $.type(Material)(Line.prototype, 'material'); }, 'type', 'material');
-  apply(() => { $.serializable(Line.prototype, '_worldSpace',  () => { return false; }); }, 'serializable', '_worldSpace');
-  apply(() => { $.tooltip('i18n:line.worldSpace')(Line.prototype, 'worldSpace',  worldSpaceDescriptor); }, 'tooltip', 'worldSpace');
-  apply(() => { $.displayOrder(1)(Line.prototype, 'worldSpace',  worldSpaceDescriptor); }, 'displayOrder', 'worldSpace');
-  apply(() => { $.type([Vec3])(Line.prototype, '_positions'); }, 'type', '_positions');
-  apply(() => { $.tooltip('i18n:line.positions')(Line.prototype, 'positions',  positionsDescriptor); }, 'tooltip', 'positions');
-  apply(() => { $.displayOrder(2)(Line.prototype, 'positions',  positionsDescriptor); }, 'displayOrder', 'positions');
-  apply(() => { $.type([Vec3])(Line.prototype, 'positions'); }, 'type', 'positions');
-  apply(() => { $.type(CurveRange)(Line.prototype, '_width'); }, 'type', '_width');
-  apply(() => { $.tooltip('i18n:line.width')(Line.prototype, 'width',  widthDescriptor); }, 'tooltip', 'width');
-  apply(() => { $.displayOrder(3)(Line.prototype, 'width',  widthDescriptor); }, 'displayOrder', 'width');
-  apply(() => { $.range([0, 1])(Line.prototype, 'width',  widthDescriptor); }, 'range', 'width');
-  apply(() => { $.type(CurveRange)(Line.prototype, 'width'); }, 'type', 'width');
-  apply(() => { $.serializable(Line.prototype, '_tile',  () => { return new Vec2(1, 1); }); }, 'serializable', '_tile');
-  apply(() => { $.tooltip('i18n:line.tile')(Line.prototype, 'tile',  tileDescriptor); }, 'tooltip', 'tile');
-  apply(() => { $.displayOrder(4)(Line.prototype, 'tile',  tileDescriptor); }, 'displayOrder', 'tile');
-  apply(() => { $.type(Vec2)(Line.prototype, 'tile'); }, 'type', 'tile');
-  apply(() => { $.serializable(Line.prototype, '_offset',  () => { return new Vec2(0, 0); }); }, 'serializable', '_offset');
-  apply(() => { $.tooltip('i18n:line.offset')(Line.prototype, 'offset',  offsetDescriptor); }, 'tooltip', 'offset');
-  apply(() => { $.displayOrder(5)(Line.prototype, 'offset',  offsetDescriptor); }, 'displayOrder', 'offset');
-  apply(() => { $.type(Vec2)(Line.prototype, 'offset'); }, 'type', 'offset');
-  apply(() => { $.type(GradientRange)(Line.prototype, '_color'); }, 'type', '_color');
-  apply(() => { $.tooltip('i18n:line.color')(Line.prototype, 'color',  colorDescriptor); }, 'tooltip', 'color');
-  apply(() => { $.displayOrder(6)(Line.prototype, 'color',  colorDescriptor); }, 'displayOrder', 'color');
-  apply(() => { $.type(GradientRange)(Line.prototype, 'color'); }, 'type', 'color');
-  apply(() => { $.executeInEditMode(Line); }, 'executeInEditMode', null);
-  apply(() => { $.menu('Effects/Line')(Line); }, 'menu', null);
-  apply(() => { $.help('i18n:cc.Line')(Line); }, 'help', null);
-  apply(() => { $.ccclass('cc.Line')(Line); }, 'ccclass', null);
-} // end of patch_cc_Line
-
-//---- class cc_LODGroup
-interface cc_LODGroup_Context_Args {
-   LODGroup: any;
-   Vec3: any;
-   CCFloat: any;
-   LOD: any;
-}
-export function patch_cc_LODGroup(ctx: cc_LODGroup_Context_Args, apply = defaultExec) {
-  const { LODGroup, Vec3, CCFloat, LOD } = { ...ctx };
-  apply(() => { $.serializable(LODGroup.prototype, '_localBoundaryCenter',  () => { return new Vec3(0, 0, 0); }); }, 'serializable', '_localBoundaryCenter');
-  apply(() => { $.serializable(LODGroup.prototype, '_objectSize',  () => { return 0; }); }, 'serializable', '_objectSize');
-  apply(() => { $.serializable(LODGroup.prototype, '_LODs',  () => { return []; }); }, 'serializable', '_LODs');
-  apply(() => { $.type(CCFloat)(LODGroup.prototype, 'objectSize'); }, 'type', 'objectSize');
-  apply(() => { $.type([LOD])(LODGroup.prototype, 'LODs'); }, 'type', 'LODs');
-  apply(() => { $.executeInEditMode(LODGroup); }, 'executeInEditMode', null);
-  apply(() => { $.menu('Rendering/LOD Group')(LODGroup); }, 'menu', null);
-  apply(() => { $.ccclass('cc.LODGroup')(LODGroup); }, 'ccclass', null);
-} // end of patch_cc_LODGroup
 
 //---- class cc_Material
 interface cc_Material_Context_Args {
@@ -901,57 +677,78 @@ export function patch_cc_OctreeInfo(ctx: cc_OctreeInfo_Context_Args, apply = def
   apply(() => { $.ccclass('cc.OctreeInfo')(OctreeInfo); }, 'ccclass', null);
 } // end of patch_cc_OctreeInfo
 
-//---- class cc_ReflectionProbe
-interface cc_ReflectionProbe_Context_Args {
-   ReflectionProbe: any;
-   ProbeClearFlag: any;
-   Color: any;
-   CAMERA_DEFAULT_MASK: any;
-   ProbeType: any;
-   Vec3: any;
-   Enum: any;
-   ProbeResolution: any;
-   Layers: any;
+//---- class cc_PointLight
+interface cc_PointLight_Context_Args {
+   PointLight: any;
+   scene: any;
    Camera: any;
+   PhotometricTerm: any;
+   CCInteger: any;
+   CCFloat: any;
 }
-export function patch_cc_ReflectionProbe(ctx: cc_ReflectionProbe_Context_Args, apply = defaultExec) {
-  type ReflectionProbe = any;
-  const { ReflectionProbe, ProbeClearFlag, Color, CAMERA_DEFAULT_MASK, ProbeType, Vec3, Enum, ProbeResolution, Layers, Camera } = { ...ctx };
-  const resolutionDescriptor = Object.getOwnPropertyDescriptor(ReflectionProbe.prototype, 'resolution');
-  const backgroundColorDescriptor = Object.getOwnPropertyDescriptor(ReflectionProbe.prototype, 'backgroundColor');
-  const visibilityDescriptor = Object.getOwnPropertyDescriptor(ReflectionProbe.prototype, 'visibility');
-  const sourceCameraDescriptor = Object.getOwnPropertyDescriptor(ReflectionProbe.prototype, 'sourceCamera');
-  apply(() => { $.serializable(ReflectionProbe.prototype, '_resolution',  () => { return 256; }); }, 'serializable', '_resolution');
-  apply(() => { $.serializable(ReflectionProbe.prototype, '_clearFlag',  () => { return ProbeClearFlag.SKYBOX; }); }, 'serializable', '_clearFlag');
-  apply(() => { $.serializable(ReflectionProbe.prototype, '_backgroundColor',  () => { return new Color(0, 0, 0, 255); }); }, 'serializable', '_backgroundColor');
-  apply(() => { $.serializable(ReflectionProbe.prototype, '_visibility',  () => { return CAMERA_DEFAULT_MASK; }); }, 'serializable', '_visibility');
-  apply(() => { $.serializable(ReflectionProbe.prototype, '_probeType',  () => { return ProbeType.CUBE; }); }, 'serializable', '_probeType');
-  apply(() => { $.serializable(ReflectionProbe.prototype, '_cubemap',  () => { return null; }); }, 'serializable', '_cubemap');
-  apply(() => { $.serializable(ReflectionProbe.prototype, '_size',  () => { return new Vec3(1, 1, 1); }); }, 'serializable', '_size');
-  apply(() => { $.serializable(ReflectionProbe.prototype, '_sourceCamera',  () => { return null; }); }, 'serializable', '_sourceCamera');
-  apply(() => { $.serializable(ReflectionProbe.prototype, '_probeId',  () => { return -1; }); }, 'serializable', '_probeId');
-  apply(() => { $.type(Vec3)(ReflectionProbe.prototype, 'size'); }, 'type', 'size');
-  apply(() => { $.type(Enum(ProbeType))(ReflectionProbe.prototype, 'probeType'); }, 'type', 'probeType');
-  apply(() => { $.type(Enum(ProbeResolution))(ReflectionProbe.prototype, 'resolution'); }, 'type', 'resolution');
-  apply(() => { $.visible(function (this: ReflectionProbe) {
-  return this.probeType === ProbeType.CUBE;
-})(ReflectionProbe.prototype, 'resolution',  resolutionDescriptor); }, 'visible', 'resolution');
-  apply(() => { $.type(Enum(ProbeClearFlag))(ReflectionProbe.prototype, 'clearFlag'); }, 'type', 'clearFlag');
-  apply(() => { $.type(Color)(ReflectionProbe.prototype, 'backgroundColor'); }, 'type', 'backgroundColor');
-  apply(() => { $.visible(function (this: ReflectionProbe) {
-  return this._clearFlag === ProbeClearFlag.SOLID_COLOR;
-})(ReflectionProbe.prototype, 'backgroundColor',  backgroundColorDescriptor); }, 'visible', 'backgroundColor');
-  apply(() => { $.tooltip('i18n:camera.visibility')(ReflectionProbe.prototype, 'visibility',  visibilityDescriptor); }, 'tooltip', 'visibility');
-  apply(() => { $.type(Layers.BitMask)(ReflectionProbe.prototype, 'visibility'); }, 'type', 'visibility');
-  apply(() => { $.type(Camera)(ReflectionProbe.prototype, 'sourceCamera'); }, 'type', 'sourceCamera');
-  apply(() => { $.visible(function (this: ReflectionProbe) {
-  return this.probeType === ProbeType.PLANAR;
-})(ReflectionProbe.prototype, 'sourceCamera',  sourceCameraDescriptor); }, 'visible', 'sourceCamera');
-  apply(() => { $.playOnFocus(ReflectionProbe); }, 'playOnFocus', null);
-  apply(() => { $.executeInEditMode(ReflectionProbe); }, 'executeInEditMode', null);
-  apply(() => { $.menu('Rendering/ReflectionProbe')(ReflectionProbe); }, 'menu', null);
-  apply(() => { $.ccclass('cc.ReflectionProbe')(ReflectionProbe); }, 'ccclass', null);
-} // end of patch_cc_ReflectionProbe
+export function patch_cc_PointLight(ctx: cc_PointLight_Context_Args, apply = defaultExec) {
+  const { PointLight, scene, Camera, PhotometricTerm, CCInteger, CCFloat } = { ...ctx };
+  const luminousFluxDescriptor = Object.getOwnPropertyDescriptor(PointLight.prototype, 'luminousFlux');
+  const luminanceDescriptor = Object.getOwnPropertyDescriptor(PointLight.prototype, 'luminance');
+  const termDescriptor = Object.getOwnPropertyDescriptor(PointLight.prototype, 'term');
+  const rangeDescriptor = Object.getOwnPropertyDescriptor(PointLight.prototype, 'range');
+  apply(() => { $.formerlySerializedAs('_luminance')(PointLight.prototype, '_luminanceHDR',  () => { return 1700 / scene.nt2lm(0.15); }); }, 'formerlySerializedAs', '_luminanceHDR');
+  apply(() => { $.serializable(PointLight.prototype, '_luminanceHDR',  () => { return 1700 / scene.nt2lm(0.15); }); }, 'serializable', '_luminanceHDR');
+  apply(() => { $.serializable(PointLight.prototype, '_luminanceLDR',  () => { return 1700 / scene.nt2lm(0.15) * Camera.standardExposureValue * Camera.standardLightMeterScale; }); }, 'serializable', '_luminanceLDR');
+  apply(() => { $.serializable(PointLight.prototype, '_term',  () => { return PhotometricTerm.LUMINOUS_FLUX; }); }, 'serializable', '_term');
+  apply(() => { $.serializable(PointLight.prototype, '_range',  () => { return 1; }); }, 'serializable', '_range');
+  apply(() => { $.type(CCInteger)(PointLight.prototype, 'luminousFlux'); }, 'type', 'luminousFlux');
+  apply(() => { $.slide(PointLight.prototype, 'luminousFlux',  luminousFluxDescriptor); }, 'slide', 'luminousFlux');
+  apply(() => { $$.rangeMin(0)(PointLight.prototype, 'luminousFlux',  luminousFluxDescriptor); }, 'rangeMin', 'luminousFlux');
+  apply(() => { $.editable(PointLight.prototype, 'luminousFlux',  luminousFluxDescriptor); }, 'editable', 'luminousFlux');
+  apply(() => { $.tooltip('i18n:lights.luminous_flux')(PointLight.prototype, 'luminousFlux',  luminousFluxDescriptor); }, 'tooltip', 'luminousFlux');
+  apply(() => { $.displayOrder(-1)(PointLight.prototype, 'luminousFlux',  luminousFluxDescriptor); }, 'displayOrder', 'luminousFlux');
+  apply(() => { $.type(CCInteger)(PointLight.prototype, 'luminance'); }, 'type', 'luminance');
+  apply(() => { $.slide(PointLight.prototype, 'luminance',  luminanceDescriptor); }, 'slide', 'luminance');
+  apply(() => { $$.rangeMin(0)(PointLight.prototype, 'luminance',  luminanceDescriptor); }, 'rangeMin', 'luminance');
+  apply(() => { $.editable(PointLight.prototype, 'luminance',  luminanceDescriptor); }, 'editable', 'luminance');
+  apply(() => { $.tooltip('i18n:lights.luminance')(PointLight.prototype, 'luminance',  luminanceDescriptor); }, 'tooltip', 'luminance');
+  apply(() => { $.displayOrder(-1)(PointLight.prototype, 'luminance',  luminanceDescriptor); }, 'displayOrder', 'luminance');
+  apply(() => { $.type(CCInteger)(PointLight.prototype, 'term'); }, 'type', 'term');
+  apply(() => { $.slide(PointLight.prototype, 'term',  termDescriptor); }, 'slide', 'term');
+  apply(() => { $$.rangeMin(0)(PointLight.prototype, 'term',  termDescriptor); }, 'rangeMin', 'term');
+  apply(() => { $.editable(PointLight.prototype, 'term',  termDescriptor); }, 'editable', 'term');
+  apply(() => { $.tooltip('i18n:lights.term')(PointLight.prototype, 'term',  termDescriptor); }, 'tooltip', 'term');
+  apply(() => { $.displayOrder(-2)(PointLight.prototype, 'term',  termDescriptor); }, 'displayOrder', 'term');
+  apply(() => { $.type(PhotometricTerm)(PointLight.prototype, 'term'); }, 'type', 'term');
+  apply(() => { $.type(CCFloat)(PointLight.prototype, 'range'); }, 'type', 'range');
+  apply(() => { $.slide(PointLight.prototype, 'range',  rangeDescriptor); }, 'slide', 'range');
+  apply(() => { $$.rangeMin(0)(PointLight.prototype, 'range',  rangeDescriptor); }, 'rangeMin', 'range');
+  apply(() => { $.editable(PointLight.prototype, 'range',  rangeDescriptor); }, 'editable', 'range');
+  apply(() => { $.tooltip('i18n:lights.range')(PointLight.prototype, 'range',  rangeDescriptor); }, 'tooltip', 'range');
+  apply(() => { $.executeInEditMode(PointLight); }, 'executeInEditMode', null);
+  apply(() => { $.menu('Light/PointLight')(PointLight); }, 'menu', null);
+  apply(() => { $.help('i18n:cc.PointLight')(PointLight); }, 'help', null);
+  apply(() => { $.ccclass('cc.PointLight')(PointLight); }, 'ccclass', null);
+} // end of patch_cc_PointLight
+
+//---- class cc_RangedDirectionalLight
+interface cc_RangedDirectionalLight_Context_Args {
+   RangedDirectionalLight: any;
+   Camera: any;
+   CCInteger: any;
+}
+export function patch_cc_RangedDirectionalLight(ctx: cc_RangedDirectionalLight_Context_Args, apply = defaultExec) {
+  const { RangedDirectionalLight, Camera, CCInteger } = { ...ctx };
+  const illuminanceDescriptor = Object.getOwnPropertyDescriptor(RangedDirectionalLight.prototype, 'illuminance');
+  apply(() => { $.formerlySerializedAs('_illuminance')(RangedDirectionalLight.prototype, '_illuminanceHDR',  () => { return 65000; }); }, 'formerlySerializedAs', '_illuminanceHDR');
+  apply(() => { $.property(RangedDirectionalLight.prototype, '_illuminanceHDR',  () => { return 65000; }); }, 'property', '_illuminanceHDR');
+  apply(() => { $.serializable(RangedDirectionalLight.prototype, '_illuminanceLDR',  () => { return 65000 * Camera.standardExposureValue; }); }, 'serializable', '_illuminanceLDR');
+  apply(() => { $.type(CCInteger)(RangedDirectionalLight.prototype, 'illuminance'); }, 'type', 'illuminance');
+  apply(() => { $.slide(RangedDirectionalLight.prototype, 'illuminance',  illuminanceDescriptor); }, 'slide', 'illuminance');
+  apply(() => { $$.rangeMin(0)(RangedDirectionalLight.prototype, 'illuminance',  illuminanceDescriptor); }, 'rangeMin', 'illuminance');
+  apply(() => { $.editable(RangedDirectionalLight.prototype, 'illuminance',  illuminanceDescriptor); }, 'editable', 'illuminance');
+  apply(() => { $.tooltip('i18n:lights.illuminance')(RangedDirectionalLight.prototype, 'illuminance',  illuminanceDescriptor); }, 'tooltip', 'illuminance');
+  apply(() => { $.executeInEditMode(RangedDirectionalLight); }, 'executeInEditMode', null);
+  apply(() => { $.menu('Light/RangedDirectionalLight')(RangedDirectionalLight); }, 'menu', null);
+  apply(() => { $.help('i18n:cc.RangedDirectionalLight')(RangedDirectionalLight); }, 'help', null);
+  apply(() => { $.ccclass('cc.RangedDirectionalLight')(RangedDirectionalLight); }, 'ccclass', null);
+} // end of patch_cc_RangedDirectionalLight
 
 //---- class cc_RenderPipeline
 interface cc_RenderPipeline_Context_Args {
@@ -976,69 +773,6 @@ export function patch_cc_RenderTexture(ctx: cc_RenderTexture_Context_Args, apply
   const { RenderTexture } = { ...ctx };
   apply(() => { $.ccclass('cc.RenderTexture')(RenderTexture); }, 'ccclass', null);
 } // end of patch_cc_RenderTexture
-
-//---- class cc_RigidBody
-interface cc_RigidBody_Context_Args {
-   RigidBody: any;
-   PhysicsSystem: any;
-   ERigidBodyType: any;
-   isDynamicBody: any;
-   Vec3: any;
-}
-export function patch_cc_RigidBody(ctx: cc_RigidBody_Context_Args, apply = defaultExec) {
-  const { RigidBody, PhysicsSystem, ERigidBodyType, isDynamicBody, Vec3 } = { ...ctx };
-  const groupDescriptor = Object.getOwnPropertyDescriptor(RigidBody.prototype, 'group');
-  const typeDescriptor = Object.getOwnPropertyDescriptor(RigidBody.prototype, 'type');
-  const massDescriptor = Object.getOwnPropertyDescriptor(RigidBody.prototype, 'mass');
-  const allowSleepDescriptor = Object.getOwnPropertyDescriptor(RigidBody.prototype, 'allowSleep');
-  const linearDampingDescriptor = Object.getOwnPropertyDescriptor(RigidBody.prototype, 'linearDamping');
-  const angularDampingDescriptor = Object.getOwnPropertyDescriptor(RigidBody.prototype, 'angularDamping');
-  const useGravityDescriptor = Object.getOwnPropertyDescriptor(RigidBody.prototype, 'useGravity');
-  const linearFactorDescriptor = Object.getOwnPropertyDescriptor(RigidBody.prototype, 'linearFactor');
-  const angularFactorDescriptor = Object.getOwnPropertyDescriptor(RigidBody.prototype, 'angularFactor');
-  apply(() => { $.tooltip('i18n:physics3d.rigidbody.group')(RigidBody.prototype, 'group',  groupDescriptor); }, 'tooltip', 'group');
-  apply(() => { $.displayOrder(-2)(RigidBody.prototype, 'group',  groupDescriptor); }, 'displayOrder', 'group');
-  apply(() => { $.type(PhysicsSystem.PhysicsGroup)(RigidBody.prototype, 'group'); }, 'type', 'group');
-  apply(() => { $.tooltip('i18n:physics3d.rigidbody.type')(RigidBody.prototype, 'type',  typeDescriptor); }, 'tooltip', 'type');
-  apply(() => { $.displayOrder(-1)(RigidBody.prototype, 'type',  typeDescriptor); }, 'displayOrder', 'type');
-  apply(() => { $.type(ERigidBodyType)(RigidBody.prototype, 'type'); }, 'type', 'type');
-  apply(() => { $.tooltip('i18n:physics3d.rigidbody.mass')(RigidBody.prototype, 'mass',  massDescriptor); }, 'tooltip', 'mass');
-  apply(() => { $.displayOrder(0)(RigidBody.prototype, 'mass',  massDescriptor); }, 'displayOrder', 'mass');
-  apply(() => { $.visible(isDynamicBody)(RigidBody.prototype, 'mass',  massDescriptor); }, 'visible', 'mass');
-  apply(() => { $.tooltip('i18n:physics3d.rigidbody.allowSleep')(RigidBody.prototype, 'allowSleep',  allowSleepDescriptor); }, 'tooltip', 'allowSleep');
-  apply(() => { $.displayOrder(0.5)(RigidBody.prototype, 'allowSleep',  allowSleepDescriptor); }, 'displayOrder', 'allowSleep');
-  apply(() => { $.visible(isDynamicBody)(RigidBody.prototype, 'allowSleep',  allowSleepDescriptor); }, 'visible', 'allowSleep');
-  apply(() => { $.tooltip('i18n:physics3d.rigidbody.linearDamping')(RigidBody.prototype, 'linearDamping',  linearDampingDescriptor); }, 'tooltip', 'linearDamping');
-  apply(() => { $.displayOrder(1)(RigidBody.prototype, 'linearDamping',  linearDampingDescriptor); }, 'displayOrder', 'linearDamping');
-  apply(() => { $.visible(isDynamicBody)(RigidBody.prototype, 'linearDamping',  linearDampingDescriptor); }, 'visible', 'linearDamping');
-  apply(() => { $.tooltip('i18n:physics3d.rigidbody.angularDamping')(RigidBody.prototype, 'angularDamping',  angularDampingDescriptor); }, 'tooltip', 'angularDamping');
-  apply(() => { $.displayOrder(2)(RigidBody.prototype, 'angularDamping',  angularDampingDescriptor); }, 'displayOrder', 'angularDamping');
-  apply(() => { $.visible(isDynamicBody)(RigidBody.prototype, 'angularDamping',  angularDampingDescriptor); }, 'visible', 'angularDamping');
-  apply(() => { $.tooltip('i18n:physics3d.rigidbody.useGravity')(RigidBody.prototype, 'useGravity',  useGravityDescriptor); }, 'tooltip', 'useGravity');
-  apply(() => { $.displayOrder(4)(RigidBody.prototype, 'useGravity',  useGravityDescriptor); }, 'displayOrder', 'useGravity');
-  apply(() => { $.visible(isDynamicBody)(RigidBody.prototype, 'useGravity',  useGravityDescriptor); }, 'visible', 'useGravity');
-  apply(() => { $.tooltip('i18n:physics3d.rigidbody.linearFactor')(RigidBody.prototype, 'linearFactor',  linearFactorDescriptor); }, 'tooltip', 'linearFactor');
-  apply(() => { $.displayOrder(6)(RigidBody.prototype, 'linearFactor',  linearFactorDescriptor); }, 'displayOrder', 'linearFactor');
-  apply(() => { $.visible(isDynamicBody)(RigidBody.prototype, 'linearFactor',  linearFactorDescriptor); }, 'visible', 'linearFactor');
-  apply(() => { $.tooltip('i18n:physics3d.rigidbody.angularFactor')(RigidBody.prototype, 'angularFactor',  angularFactorDescriptor); }, 'tooltip', 'angularFactor');
-  apply(() => { $.displayOrder(7)(RigidBody.prototype, 'angularFactor',  angularFactorDescriptor); }, 'displayOrder', 'angularFactor');
-  apply(() => { $.visible(isDynamicBody)(RigidBody.prototype, 'angularFactor',  angularFactorDescriptor); }, 'visible', 'angularFactor');
-  apply(() => { $.serializable(RigidBody.prototype, '_group',  () => { return PhysicsSystem.PhysicsGroup.DEFAULT; }); }, 'serializable', '_group');
-  apply(() => { $.serializable(RigidBody.prototype, '_type',  () => { return ERigidBodyType.DYNAMIC; }); }, 'serializable', '_type');
-  apply(() => { $.serializable(RigidBody.prototype, '_mass',  () => { return 1; }); }, 'serializable', '_mass');
-  apply(() => { $.serializable(RigidBody.prototype, '_allowSleep',  () => { return true; }); }, 'serializable', '_allowSleep');
-  apply(() => { $.serializable(RigidBody.prototype, '_linearDamping',  () => { return 0.1; }); }, 'serializable', '_linearDamping');
-  apply(() => { $.serializable(RigidBody.prototype, '_angularDamping',  () => { return 0.1; }); }, 'serializable', '_angularDamping');
-  apply(() => { $.serializable(RigidBody.prototype, '_useGravity',  () => { return true; }); }, 'serializable', '_useGravity');
-  apply(() => { $.serializable(RigidBody.prototype, '_linearFactor',  () => { return new Vec3(1, 1, 1); }); }, 'serializable', '_linearFactor');
-  apply(() => { $.serializable(RigidBody.prototype, '_angularFactor',  () => { return new Vec3(1, 1, 1); }); }, 'serializable', '_angularFactor');
-  apply(() => { $.executionOrder(-1)(RigidBody); }, 'executionOrder', null);
-  apply(() => { $.disallowMultiple(RigidBody); }, 'disallowMultiple', null);
-  apply(() => { $.executeInEditMode(RigidBody); }, 'executeInEditMode', null);
-  apply(() => { $.menu('Physics/RigidBody')(RigidBody); }, 'menu', null);
-  apply(() => { $.help('i18n:cc.RigidBody')(RigidBody); }, 'help', null);
-  apply(() => { $.ccclass('cc.RigidBody')(RigidBody); }, 'ccclass', null);
-} // end of patch_cc_RigidBody
 
 //---- class cc_Scene
 interface cc_Scene_Context_Args {
@@ -1266,9 +1000,11 @@ interface cc_SphereLight_Context_Args {
    scene: any;
    Camera: any;
    PhotometricTerm: any;
+   CCInteger: any;
+   CCFloat: any;
 }
 export function patch_cc_SphereLight(ctx: cc_SphereLight_Context_Args, apply = defaultExec) {
-  const { SphereLight, scene, Camera, PhotometricTerm } = { ...ctx };
+  const { SphereLight, scene, Camera, PhotometricTerm, CCInteger, CCFloat } = { ...ctx };
   const luminousFluxDescriptor = Object.getOwnPropertyDescriptor(SphereLight.prototype, 'luminousFlux');
   const luminanceDescriptor = Object.getOwnPropertyDescriptor(SphereLight.prototype, 'luminance');
   const termDescriptor = Object.getOwnPropertyDescriptor(SphereLight.prototype, 'term');
@@ -1280,14 +1016,34 @@ export function patch_cc_SphereLight(ctx: cc_SphereLight_Context_Args, apply = d
   apply(() => { $.serializable(SphereLight.prototype, '_luminanceLDR',  () => { return 1700 / scene.nt2lm(0.15) * Camera.standardExposureValue * Camera.standardLightMeterScale; }); }, 'serializable', '_luminanceLDR');
   apply(() => { $.serializable(SphereLight.prototype, '_term',  () => { return PhotometricTerm.LUMINOUS_FLUX; }); }, 'serializable', '_term');
   apply(() => { $.serializable(SphereLight.prototype, '_range',  () => { return 1; }); }, 'serializable', '_range');
+  apply(() => { $.type(CCInteger)(SphereLight.prototype, 'luminousFlux'); }, 'type', 'luminousFlux');
+  apply(() => { $.slide(SphereLight.prototype, 'luminousFlux',  luminousFluxDescriptor); }, 'slide', 'luminousFlux');
+  apply(() => { $$.rangeMin(0)(SphereLight.prototype, 'luminousFlux',  luminousFluxDescriptor); }, 'rangeMin', 'luminousFlux');
+  apply(() => { $.editable(SphereLight.prototype, 'luminousFlux',  luminousFluxDescriptor); }, 'editable', 'luminousFlux');
   apply(() => { $.tooltip('i18n:lights.luminous_flux')(SphereLight.prototype, 'luminousFlux',  luminousFluxDescriptor); }, 'tooltip', 'luminousFlux');
   apply(() => { $.displayOrder(-1)(SphereLight.prototype, 'luminousFlux',  luminousFluxDescriptor); }, 'displayOrder', 'luminousFlux');
+  apply(() => { $.type(CCInteger)(SphereLight.prototype, 'luminance'); }, 'type', 'luminance');
+  apply(() => { $.slide(SphereLight.prototype, 'luminance',  luminanceDescriptor); }, 'slide', 'luminance');
+  apply(() => { $$.rangeMin(0)(SphereLight.prototype, 'luminance',  luminanceDescriptor); }, 'rangeMin', 'luminance');
+  apply(() => { $.editable(SphereLight.prototype, 'luminance',  luminanceDescriptor); }, 'editable', 'luminance');
   apply(() => { $.tooltip('i18n:lights.luminance')(SphereLight.prototype, 'luminance',  luminanceDescriptor); }, 'tooltip', 'luminance');
   apply(() => { $.displayOrder(-1)(SphereLight.prototype, 'luminance',  luminanceDescriptor); }, 'displayOrder', 'luminance');
+  apply(() => { $.type(CCInteger)(SphereLight.prototype, 'term'); }, 'type', 'term');
+  apply(() => { $.slide(SphereLight.prototype, 'term',  termDescriptor); }, 'slide', 'term');
+  apply(() => { $$.rangeMin(0)(SphereLight.prototype, 'term',  termDescriptor); }, 'rangeMin', 'term');
+  apply(() => { $.editable(SphereLight.prototype, 'term',  termDescriptor); }, 'editable', 'term');
   apply(() => { $.tooltip('i18n:lights.term')(SphereLight.prototype, 'term',  termDescriptor); }, 'tooltip', 'term');
   apply(() => { $.displayOrder(-2)(SphereLight.prototype, 'term',  termDescriptor); }, 'displayOrder', 'term');
   apply(() => { $.type(PhotometricTerm)(SphereLight.prototype, 'term'); }, 'type', 'term');
+  apply(() => { $.type(CCFloat)(SphereLight.prototype, 'size'); }, 'type', 'size');
+  apply(() => { $.slide(SphereLight.prototype, 'size',  sizeDescriptor); }, 'slide', 'size');
+  apply(() => { $$.rangeMin(0)(SphereLight.prototype, 'size',  sizeDescriptor); }, 'rangeMin', 'size');
+  apply(() => { $.editable(SphereLight.prototype, 'size',  sizeDescriptor); }, 'editable', 'size');
   apply(() => { $.tooltip('i18n:lights.size')(SphereLight.prototype, 'size',  sizeDescriptor); }, 'tooltip', 'size');
+  apply(() => { $.type(CCFloat)(SphereLight.prototype, 'range'); }, 'type', 'range');
+  apply(() => { $.slide(SphereLight.prototype, 'range',  rangeDescriptor); }, 'slide', 'range');
+  apply(() => { $$.rangeMin(0)(SphereLight.prototype, 'range',  rangeDescriptor); }, 'rangeMin', 'range');
+  apply(() => { $.editable(SphereLight.prototype, 'range',  rangeDescriptor); }, 'editable', 'range');
   apply(() => { $.tooltip('i18n:lights.range')(SphereLight.prototype, 'range',  rangeDescriptor); }, 'tooltip', 'range');
   apply(() => { $.executeInEditMode(SphereLight); }, 'executeInEditMode', null);
   apply(() => { $.menu('Light/SphereLight')(SphereLight); }, 'menu', null);
@@ -1487,89 +1243,6 @@ export function patch_cc_Vertex(ctx: cc_Vertex_Context_Args, apply = defaultExec
   apply(() => { $.serializable(Vertex.prototype, 'coefficients',  () => { return []; }); }, 'serializable', 'coefficients');
   apply(() => { $.ccclass('cc.Vertex')(Vertex); }, 'ccclass', null);
 } // end of patch_cc_Vertex
-
-//---- class cc_VideoPlayer
-interface cc_VideoPlayer_Context_Args {
-   VideoPlayer: any;
-   UITransform: any;
-   ResourceType: any;
-   VideoClip: any;
-   ComponentEventHandler: any;
-}
-export function patch_cc_VideoPlayer(ctx: cc_VideoPlayer_Context_Args, apply = defaultExec) {
-  const { VideoPlayer, UITransform, ResourceType, VideoClip, ComponentEventHandler } = { ...ctx };
-  const resourceTypeDescriptor = Object.getOwnPropertyDescriptor(VideoPlayer.prototype, 'resourceType');
-  const remoteURLDescriptor = Object.getOwnPropertyDescriptor(VideoPlayer.prototype, 'remoteURL');
-  const clipDescriptor = Object.getOwnPropertyDescriptor(VideoPlayer.prototype, 'clip');
-  const playOnAwakeDescriptor = Object.getOwnPropertyDescriptor(VideoPlayer.prototype, 'playOnAwake');
-  const playbackRateDescriptor = Object.getOwnPropertyDescriptor(VideoPlayer.prototype, 'playbackRate');
-  const volumeDescriptor = Object.getOwnPropertyDescriptor(VideoPlayer.prototype, 'volume');
-  const muteDescriptor = Object.getOwnPropertyDescriptor(VideoPlayer.prototype, 'mute');
-  const loopDescriptor = Object.getOwnPropertyDescriptor(VideoPlayer.prototype, 'loop');
-  const keepAspectRatioDescriptor = Object.getOwnPropertyDescriptor(VideoPlayer.prototype, 'keepAspectRatio');
-  const fullScreenOnAwakeDescriptor = Object.getOwnPropertyDescriptor(VideoPlayer.prototype, 'fullScreenOnAwake');
-  const stayOnBottomDescriptor = Object.getOwnPropertyDescriptor(VideoPlayer.prototype, 'stayOnBottom');
-  apply(() => { $.serializable(VideoPlayer.prototype, '_resourceType',  () => { return ResourceType.LOCAL; }); }, 'serializable', '_resourceType');
-  apply(() => { $.serializable(VideoPlayer.prototype, '_remoteURL',  () => { return ''; }); }, 'serializable', '_remoteURL');
-  apply(() => { $.serializable(VideoPlayer.prototype, '_clip',  () => { return null; }); }, 'serializable', '_clip');
-  apply(() => { $.type(VideoClip)(VideoPlayer.prototype, '_clip'); }, 'type', '_clip');
-  apply(() => { $.serializable(VideoPlayer.prototype, '_playOnAwake',  () => { return true; }); }, 'serializable', '_playOnAwake');
-  apply(() => { $.serializable(VideoPlayer.prototype, '_volume',  () => { return 1.0; }); }, 'serializable', '_volume');
-  apply(() => { $.serializable(VideoPlayer.prototype, '_mute',  () => { return false; }); }, 'serializable', '_mute');
-  apply(() => { $.serializable(VideoPlayer.prototype, '_playbackRate',  () => { return 1; }); }, 'serializable', '_playbackRate');
-  apply(() => { $.serializable(VideoPlayer.prototype, '_loop',  () => { return false; }); }, 'serializable', '_loop');
-  apply(() => { $.serializable(VideoPlayer.prototype, '_fullScreenOnAwake',  () => { return false; }); }, 'serializable', '_fullScreenOnAwake');
-  apply(() => { $.serializable(VideoPlayer.prototype, '_stayOnBottom',  () => { return false; }); }, 'serializable', '_stayOnBottom');
-  apply(() => { $.serializable(VideoPlayer.prototype, '_keepAspectRatio',  () => { return true; }); }, 'serializable', '_keepAspectRatio');
-  apply(() => { $.tooltip('i18n:videoplayer.resourceType')(VideoPlayer.prototype, 'resourceType',  resourceTypeDescriptor); }, 'tooltip', 'resourceType');
-  apply(() => { $.type(ResourceType)(VideoPlayer.prototype, 'resourceType'); }, 'type', 'resourceType');
-  apply(() => { $.tooltip('i18n:videoplayer.remoteURL')(VideoPlayer.prototype, 'remoteURL',  remoteURLDescriptor); }, 'tooltip', 'remoteURL');
-  apply(() => { $.tooltip('i18n:videoplayer.clip')(VideoPlayer.prototype, 'clip',  clipDescriptor); }, 'tooltip', 'clip');
-  apply(() => { $.type(VideoClip)(VideoPlayer.prototype, 'clip'); }, 'type', 'clip');
-  apply(() => { $.tooltip('i18n:videoplayer.playOnAwake')(VideoPlayer.prototype, 'playOnAwake',  playOnAwakeDescriptor); }, 'tooltip', 'playOnAwake');
-  apply(() => { $.tooltip('i18n:videoplayer.playbackRate')(VideoPlayer.prototype, 'playbackRate',  playbackRateDescriptor); }, 'tooltip', 'playbackRate');
-  apply(() => { $.range([0.0, 10, 1.0])(VideoPlayer.prototype, 'playbackRate',  playbackRateDescriptor); }, 'range', 'playbackRate');
-  apply(() => { $.slide(VideoPlayer.prototype, 'playbackRate',  playbackRateDescriptor); }, 'slide', 'playbackRate');
-  apply(() => { $.tooltip('i18n:videoplayer.volume')(VideoPlayer.prototype, 'volume',  volumeDescriptor); }, 'tooltip', 'volume');
-  apply(() => { $.range([0.0, 1.0, 0.1])(VideoPlayer.prototype, 'volume',  volumeDescriptor); }, 'range', 'volume');
-  apply(() => { $.slide(VideoPlayer.prototype, 'volume',  volumeDescriptor); }, 'slide', 'volume');
-  apply(() => { $.tooltip('i18n:videoplayer.mute')(VideoPlayer.prototype, 'mute',  muteDescriptor); }, 'tooltip', 'mute');
-  apply(() => { $.tooltip('i18n:videoplayer.loop')(VideoPlayer.prototype, 'loop',  loopDescriptor); }, 'tooltip', 'loop');
-  apply(() => { $.tooltip('i18n:videoplayer.keepAspectRatio')(VideoPlayer.prototype, 'keepAspectRatio',  keepAspectRatioDescriptor); }, 'tooltip', 'keepAspectRatio');
-  apply(() => { $.tooltip('i18n:videoplayer.fullScreenOnAwake')(VideoPlayer.prototype, 'fullScreenOnAwake',  fullScreenOnAwakeDescriptor); }, 'tooltip', 'fullScreenOnAwake');
-  apply(() => { $.tooltip('i18n:videoplayer.stayOnBottom')(VideoPlayer.prototype, 'stayOnBottom',  stayOnBottomDescriptor); }, 'tooltip', 'stayOnBottom');
-  apply(() => { $.tooltip('i18n:videoplayer.videoPlayerEvent')(VideoPlayer.prototype, 'videoPlayerEvent',  () => { return []; }); }, 'tooltip', 'videoPlayerEvent');
-  apply(() => { $.displayOrder(100)(VideoPlayer.prototype, 'videoPlayerEvent',  () => { return []; }); }, 'displayOrder', 'videoPlayerEvent');
-  apply(() => { $.type([ComponentEventHandler])(VideoPlayer.prototype, 'videoPlayerEvent'); }, 'type', 'videoPlayerEvent');
-  apply(() => { $.serializable(VideoPlayer.prototype, 'videoPlayerEvent',  () => { return []; }); }, 'serializable', 'videoPlayerEvent');
-  apply(() => { $.executeInEditMode(VideoPlayer); }, 'executeInEditMode', null);
-  apply(() => { $.requireComponent(UITransform)(VideoPlayer); }, 'requireComponent', null);
-  apply(() => { $.menu('Video/VideoPlayer')(VideoPlayer); }, 'menu', null);
-  apply(() => { $.help('i18n:cc.VideoPlayer')(VideoPlayer); }, 'help', null);
-  apply(() => { $.ccclass('cc.VideoPlayer')(VideoPlayer); }, 'ccclass', null);
-} // end of patch_cc_VideoPlayer
-
-//---- class cc_WebView
-interface cc_WebView_Context_Args {
-   WebView: any;
-   UITransform: any;
-   ComponentEventHandler: any;
-}
-export function patch_cc_WebView(ctx: cc_WebView_Context_Args, apply = defaultExec) {
-  const { WebView, UITransform, ComponentEventHandler } = { ...ctx };
-  const urlDescriptor = Object.getOwnPropertyDescriptor(WebView.prototype, 'url');
-  apply(() => { $.serializable(WebView.prototype, '_url',  () => { return 'https://cocos.com'; }); }, 'serializable', '_url');
-  apply(() => { $.tooltip('i18n:webview.url')(WebView.prototype, 'url',  urlDescriptor); }, 'tooltip', 'url');
-  apply(() => { $.tooltip('i18n:webview.webviewEvents')(WebView.prototype, 'webviewEvents',  () => { return []; }); }, 'tooltip', 'webviewEvents');
-  apply(() => { $.displayOrder(20)(WebView.prototype, 'webviewEvents',  () => { return []; }); }, 'displayOrder', 'webviewEvents');
-  apply(() => { $.type([ComponentEventHandler])(WebView.prototype, 'webviewEvents'); }, 'type', 'webviewEvents');
-  apply(() => { $.serializable(WebView.prototype, 'webviewEvents',  () => { return []; }); }, 'serializable', 'webviewEvents');
-  apply(() => { $.executeInEditMode(WebView); }, 'executeInEditMode', null);
-  apply(() => { $.requireComponent(UITransform)(WebView); }, 'requireComponent', null);
-  apply(() => { $.menu('Miscellaneous/WebView')(WebView); }, 'menu', null);
-  apply(() => { $.help('i18n:cc.WebView')(WebView); }, 'help', null);
-  apply(() => { $.ccclass('cc.WebView')(WebView); }, 'ccclass', null);
-} // end of patch_cc_WebView
 
 //---- class DeferredPipeline
 interface DeferredPipeline_Context_Args {
