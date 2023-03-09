@@ -49,7 +49,7 @@ constexpr auto HALF_TO_RAD = 0.5 * D2R;
 template <typename F>
 bool equals(F a, F b) {
     static_assert(std::is_floating_point<F>::value, "number expected");
-    return std::fabs(a - b) <= EPSILON * std::max(1.0, std::fabs(a), std::fabs(b));
+    return std::fabs(a - b) <= EPSILON * std::max(1.0F, std::max(std::fabs(a), std::fabs(b)));
 }
 
 /**

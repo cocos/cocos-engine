@@ -81,6 +81,21 @@ TEST(mathVec4Test, test3) {
     logLabel = "test the vec4 length function";
     vec4.set(8, 6, 0, 0);
     ExpectEq(IsEqualF(vec4.length(), 10), true);
+    // negate
+    logLabel = "test the vec4 negate function";
+    vec4.set(8, 6, 0, 0);
+    vec4.negate();
+    ExpectEq(vec4.approxEquals(cc::Vec4(-8, -6, 0, 0)), true);
+    // inverse
+    logLabel = "test the vec4 inverse function";
+    vec4.set(8, 6, 1, 1);
+    cc::Vec4::inverse(vec4, &vec4);
+    ExpectEq(vec4.approxEquals(cc::Vec4(0.125F, 0.16666667F, 1.0F, 1.0F)), true);
+    // scale
+    logLabel = "test the vec4 scale function";
+    vec4.set(8, 6, 0, 0);
+    vec4.scale(2);
+    ExpectEq(vec4.approxEquals(cc::Vec4(16, 12, 0, 0)), true);
     // normalize
     logLabel = "test whether vec4 is normalized";
     vec4.normalize();
@@ -101,6 +116,11 @@ TEST(mathVec4Test, test3) {
     ExpectEq(vec4 == cc::Vec4(3, 3, 0, 0), true);
     cc::Vec4::subtract(cc::Vec4(4, 5, 0, 1), cc::Vec4(1, 2, 0, 1), &vec4);
     ExpectEq(vec4 == cc::Vec4(3, 3, 0, 0), true);
+    // lerp
+    logLabel = "test whether vec4 lerp function";
+    vec4.set(4, 5, 0, 1);
+    cc::Vec4::lerp(vec4, cc::Vec4(1, 2, 0, 1), 0.5F, &vec4);
+    ExpectEq(vec4 == cc::Vec4(2.5F, 3.5F, 0, 1), true);
     // fromColor
     logLabel = "test whether vec3 fromColor function";
     vec4 = cc::Vec4::fromColor(255);

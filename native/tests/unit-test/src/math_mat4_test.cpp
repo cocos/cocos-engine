@@ -120,6 +120,11 @@ TEST(mathMat4Test, test5) {
     cc::Vec3 transVec(1, 1, 2);
     cc::Mat4::fromRT(rotVec, transVec, &outMat);
     ExpectEq(outMat.m[5] == -3 && outMat.m[9] == -2 && outMat.m[14] == 2, true);
+    // fromRTS
+    logLabel = "test the mat4 fromRTS function";
+    cc::Vec3 scaleVec(1, 1, 1);
+    cc::Mat4::fromRTS(rotVec, transVec, scaleVec, &outMat);
+    ExpectEq(outMat.m[5] == -3 && outMat.m[9] == -2 && outMat.m[14] == 2, true);
     // decompose
     logLabel = "test the mat4 decompose function";
     outMat.decompose(&scale, &rot, &transVec);
