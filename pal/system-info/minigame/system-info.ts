@@ -162,41 +162,43 @@ class SystemInfo extends EventTarget {
     private _supportsWebp (): Promise<boolean> {
         return new Promise<boolean>((resolve, reject) => {
             // HACK: webp base64 doesn't support on Wechat Android, which reports some internal error log.
-            if (WECHAT && this.os === OS.ANDROID) {
-                resolve(false);
-                return;
-            }
-            try {
-                const img = document.createElement('img');
-                const timer = setTimeout(() => {
-                    resolve(false);
-                }, 500);
-                img.onload = function onload () {
-                    clearTimeout(timer);
-                    const result = (img.width > 0) && (img.height > 0);
-                    resolve(result);
-                };
-                img.onerror = function onerror (err) {
-                    clearTimeout(timer);
-                    if (DEBUG) {
-                        console.warn('Create Webp image failed, message: '.concat(err.toString()));
-                    }
-                    resolve(false);
-                };
-                img.src = 'data:image/webp;base64,UklGRiIAAABXRUJQVlA4IBYAAAAwAQCdASoBAAEADsD+JaQAA3AAAAAA';
-            } catch (error) {
-                resolve(false);
-            }
+            resolve(true);
+            // if (WECHAT && this.os === OS.ANDROID) {
+            //     resolve(false);
+            //     return;
+            // }
+            // try {
+            //     const img = document.createElement('img');
+            //     const timer = setTimeout(() => {
+            //         resolve(false);
+            //     }, 500);
+            //     img.onload = function onload () {
+            //         clearTimeout(timer);
+            //         const result = (img.width > 0) && (img.height > 0);
+            //         resolve(result);
+            //     };
+            //     img.onerror = function onerror (err) {
+            //         clearTimeout(timer);
+            //         if (DEBUG) {
+            //             console.warn('Create Webp image failed, message: '.concat(err.toString()));
+            //         }
+            //         resolve(false);
+            //     };
+            //     img.src = 'data:image/webp;base64,UklGRiIAAABXRUJQVlA4IBYAAAAwAQCdASoBAAEADsD+JaQAA3AAAAAA';
+            // } catch (error) {
+            //     resolve(false);
+            // }
         });
     }
 
     private _registerEvent () {
-        minigame.onHide(() => {
-            this.emit('hide');
-        });
-        minigame.onShow(() => {
-            this.emit('show');
-        });
+        // TODO(xwx): need to implement for wechat mini program
+        // minigame.onHide(() => {
+        //     this.emit('hide');
+        // });
+        // minigame.onShow(() => {
+        //     this.emit('show');
+        // });
     }
 
     private _setFeature (feature: Feature, value: boolean) {
