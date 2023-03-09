@@ -265,7 +265,7 @@ uint32_t NativePipeline::addShadingRateTexture(const ccstd::string &name, uint32
     desc.textureFlags = gfx::TextureFlagBit::NONE;
     desc.flags = ResourceFlags::SHADING_RATE | ResourceFlags::STORAGE | ResourceFlags::SAMPLED;
 
-    CC_EXPECTS(residency == ResourceResidency::MANAGED || residen   cy == ResourceResidency::MEMORYLESS);
+    CC_EXPECTS(residency == ResourceResidency::MANAGED || residency == ResourceResidency::MEMORYLESS);
 
     gfx::SamplerInfo samplerInfo{};
     samplerInfo.magFilter = gfx::Filter::POINT;
