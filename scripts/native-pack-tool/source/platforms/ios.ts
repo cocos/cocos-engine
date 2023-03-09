@@ -99,7 +99,7 @@ export class IOSPackTool extends MacOSPackTool {
         await toolHelper.runCmake(['-S', `"${this.paths.platformTemplateDirInPrj}"`, '-GXcode', `-B"${nativePrjDir}"`, '-T', `buildsystem=${ver}`,
                                     '-DCMAKE_SYSTEM_NAME=iOS'].concat(ext));
 
-        await this.skipUpdateXcodeProject();
+        await this.modifyXcodeProject();
 
         return true;
     }
