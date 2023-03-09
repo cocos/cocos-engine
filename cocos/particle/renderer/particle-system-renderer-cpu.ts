@@ -67,6 +67,8 @@ const _anim_module = [
     '_rotationOvertimeModule',
     '_textureAnimationModule',
     '_noiseModule',
+    '_forcefieldModule',
+    '_inheritVelocityModule',
 ];
 
 const _uvs = [

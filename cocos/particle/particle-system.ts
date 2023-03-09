@@ -56,6 +56,7 @@ import { Camera } from '../core/renderer/scene';
 import { ParticleCuller } from './particle-culler';
 import { NoiseModule } from './animator/noise-module';
 import { ForceFieldModule } from './animator/force-field-module';
+import InheritVelocityModule from './animator/inherit-velocity';
 import { CCBoolean, CCFloat, CCObject, Node } from '../core';
 
 const _world_mat = new Mat4();
@@ -695,7 +696,7 @@ export class ParticleSystem extends ModelRenderer {
         if (EDITOR) {
             if (!this._forceFieldModule) {
                 this._forceFieldModule = new ForceFieldModule();
-                this._noiseModule?.bindTarget(this.processor);
+                this._forceFieldModule.bindTarget(this.processor);
             }
         }
         return this._forceFieldModule;
@@ -704,6 +705,26 @@ export class ParticleSystem extends ModelRenderer {
     public set forceFieldModule (val) {
         if (!val) return;
         this._forceFieldModule = val;
+    }
+
+    @type(InheritVelocityModule)
+    private _inheritVelocityModule: InheritVelocityModule | null = null;
+
+    @type(InheritVelocityModule)
+    @displayOrder(25)
+    public get inheritVelocityModule () {
+        if (EDITOR) {
+            if (!this._inheritVelocityModule) {
+                this._inheritVelocityModule = new InheritVelocityModule();
+                this._inheritVelocityModule.bindTarget(this.processor);
+            }
+        }
+        return this._inheritVelocityModule;
+    }
+
+    public set inheritVelocityModule (val) {
+        if (!val) return;
+        this._inheritVelocityModule = val;
     }
 
     // trail module
@@ -786,19 +807,6 @@ export class ParticleSystem extends ModelRenderer {
     @serializable
     private _inheritColor = false;
 
-    @type(CCBoolean)
-    @visible(function (this: ParticleSystem): boolean { return this._subBase; })
-    public get inheritVelocity () {
-        return this._inheritVelocity;
-    }
-
-    public set inheritVelocity (value) {
-        this._inheritVelocity = value;
-    }
-
-    @serializable
-    private _inheritVelocity = false;
-
     @type(CCFloat)
     @visible(function (this: ParticleSystem): boolean { return this._subBase; })
     public get subPercent () {
@@ -821,7 +829,6 @@ export class ParticleSystem extends ModelRenderer {
         sub.scaleSpace = subSrc.scaleSpace;
         sub.actDie = subSrc.actDie;
         sub.inheritColor = subSrc.inheritColor;
-        sub.inheritVelocity = subSrc.inheritVelocity;
         sub.startSize3D = subSrc.startSize3D;
         sub.startRotation3D = subSrc.startRotation3D;
         sub.simulationSpeed = subSrc.simulationSpeed;
@@ -920,6 +927,14 @@ export class ParticleSystem extends ModelRenderer {
                     sub.forceFieldModule.forceList.push(ff);
                 }
                 sub.forceFieldModule.enable = subSrc.forceFieldModule.enable;
+            }
+        }
+
+        if (subSrc.inheritVelocityModule) {
+            if (sub.inheritVelocityModule) {
+                sub.inheritVelocityModule.mode = subSrc.inheritVelocityModule.mode;
+                Object.assign(sub.inheritVelocityModule.speedModifier, subSrc.inheritVelocityModule.speedModifier);
+                sub.inheritVelocityModule.enable = subSrc.inheritVelocityModule.enable;
             }
         }
 
@@ -1073,6 +1088,8 @@ export class ParticleSystem extends ModelRenderer {
 
     private _particle: Particle | null;
 
+    private _initialVelocity: Vec3;
+
     private _needAttach: boolean;
 
     private _trigged: boolean;
@@ -1126,6 +1143,7 @@ export class ParticleSystem extends ModelRenderer {
         this._trigged = false;
 
         this._particle = null;
+        this._initialVelocity = new Vec3();
     }
 
     public onFocusInEditor () {
@@ -1205,6 +1223,7 @@ export class ParticleSystem extends ModelRenderer {
         if (this._textureAnimationModule) this._textureAnimationModule.bindTarget(this.processor);
         if (this._noiseModule) this._noiseModule.bindTarget(this.processor);
         if (this._forceFieldModule) this._forceFieldModule.bindTarget(this.processor);
+        if (this._inheritVelocityModule) this._inheritVelocityModule.bindTarget(this.processor);
     }
 
     // TODO: Fast forward current particle system by simulating particles over given period of time, then pause it.
@@ -1649,34 +1668,32 @@ export class ParticleSystem extends ModelRenderer {
             const curveStartSpeed = this.startSpeed.evaluate(loopDelta, rand)!;
             Vec3.multiplyScalar(particle.velocity, particle.velocity, curveStartSpeed);
 
-            if (this._particle && this.inheritVelocity) {
-                const veloLen = particle.velocity.length();
-
-                if (this._particle.particleSystem._simulationSpace === Space.World) {
-                    this._particle.particleSystem.node.getWorldRotation(_inv_world_rol);
-                    Quat.invert(_inv_world_rol, _inv_world_rol);
-                    Vec3.transformQuat(_inv_velo, this._particle.velocity, _inv_world_rol);
-                } else {
-                    _inv_velo.set(this._particle.velocity);
-                }
-
-                const pLen = _inv_velo.length();
-                const scaledLen = pLen * 0.1;
-                const vx = _inv_velo.x / pLen * scaledLen * random();
-                const vy = _inv_velo.y / pLen * scaledLen * random();
-                const vz = _inv_velo.z / pLen * scaledLen * random();
-
-                particle.velocity.set(veloLen * vx, veloLen * vy, veloLen * vz);
-            }
-
             if (this._simulationSpace === Space.World) {
                 Vec3.transformMat4(particle.position, particle.position, _world_mat);
                 Vec3.transformQuat(particle.velocity, particle.velocity, _world_rol);
             }
 
+            if (this._simulationSpace === Space.World) {
+                for (let se = 0; se < particle.subemitter.length; ++se) {
+                    Vec3.copy(particle.subemitter[se]._initialVelocity, particle.velocity);
+                }
+            } else {
+                this.node.getWorldRotation(_world_rol);
+                Vec3.transformQuat(_temp_velo, particle.velocity, _world_rol);
+                for (let se = 0; se < particle.subemitter.length; ++se) {
+                    Vec3.copy(particle.subemitter[se]._initialVelocity, _temp_velo);
+                }
+            }
+
+            Vec3.copy(particle.ultimateVelocity, particle.velocity);
+
             if (this._particle) {
-                this._particle.particleSystem.node.getWorldRotation(_temp_rol);
-                Vec3.transformQuat(_temp_velo, this._particle.ultimateVelocity, _temp_rol);
+                if (this._particle.particleSystem.simulationSpace === Space.World) {
+                    Vec3.copy(_temp_velo, this._particle.ultimateVelocity);
+                } else {
+                    this._particle.particleSystem.node.getWorldRotation(_temp_rol);
+                    Vec3.transformQuat(_temp_velo, this._particle.ultimateVelocity, _temp_rol);
+                }
                 particle.position.add3f(_temp_velo.x * i * dd, _temp_velo.y * i * dd, _temp_velo.z * i * dd);
             }
 
