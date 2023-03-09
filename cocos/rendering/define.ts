@@ -158,6 +158,7 @@ export enum SetIndex {
     GLOBAL,
     MATERIAL,
     LOCAL,
+    COUNT
 }
 // parameters passed to GFX Device
 export const bindingMappingInfo = new BindingMappingInfo(
