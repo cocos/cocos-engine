@@ -1,4 +1,4 @@
-name: <Native> Glue
+name: <Native> Generate Code
 
 on:
   pull_request_target:
@@ -7,24 +7,30 @@ on:
     - 'templates/**'
     - 'native/**'
     - 'package.json'
+    - '.github/workflows/native-bindings.yml'
 
 jobs:
   generate-jsb:
     if: github.event_name == 'pull_request_target' && github.event.action == 'closed' && github.event.pull_request.merged == true
+    strategy:
+      matrix:
+        node-version: [14.x]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: Generate decorators
         run: |
           npm install
+          echo "Installing babel dependencies..."
           cd scripts/build-engine
-          npm install 
           npm install @babel/types @babel/traverse @babel/generator
+          echo " build ast parser..."
           npm run build
           cd ../..
+          echo " parsing ..."
           node .github/workflows/gen_decorators.js
-          cd scripts/build-engine
-          git checkout HEAD . # revert all changes within build-engine/
+          git checkout HEAD package.json package-lock.json
+          git checkout HEAD scripts # revert all changes within build-engine/
 
       - name: Download external libraries
         run: |
