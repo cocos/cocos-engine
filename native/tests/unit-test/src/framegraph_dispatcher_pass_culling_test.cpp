@@ -45,39 +45,40 @@ TEST(fgDispatherCulling, test13) {
     const auto& rag = fgDispatcher.resourceAccessGraph;
     ExpectEq(rag.access.size() == 12, true);
 
-    ExpectEq(rag.leafPasses.size() == 5, true);
+    ExpectEq(rag.leafPasses.size() == 6, true);
 
-    // 5, 7, 8, 9, 11 are leaf passes in real, logically they may attached to present pass
+    // 5, 7, 8, 9, 10 are leaf passes in real, logically they may attached to present pass
     // 5: writes to an externalRes, reserved;
     // 7: writes no externalRes, culled
     // 8: subpass with writing to externalRes, reserved;
     // 9: subpass with read on externalRes, no writes to any external, culled;
+    // 10: writes to an backbuffer, reserved;
+    // 
     // 11: present pass, reserved.
 
     ExpectEq(rag.leafPasses.find(5) != rag.leafPasses.end(), true);
     ExpectEq(rag.leafPasses.find(7) != rag.leafPasses.end(), true);
     ExpectEq(rag.leafPasses.find(8) != rag.leafPasses.end(), true);
     ExpectEq(rag.leafPasses.find(9) != rag.leafPasses.end(), true);
-    ExpectEq(rag.leafPasses.find(11) != rag.leafPasses.end(), true);
+    ExpectEq(rag.leafPasses.find(10) != rag.leafPasses.end(), true);
 
     // an empty vert as head so index offset + 1
     const auto& node5 = get(ResourceAccessGraph::AccessNodeTag{}, rag, static_cast<ResourceAccessGraph::vertex_descriptor>(5));
     const auto& node7 = get(ResourceAccessGraph::AccessNodeTag{}, rag, static_cast<ResourceAccessGraph::vertex_descriptor>(7));
     const auto& node8 = get(ResourceAccessGraph::AccessNodeTag{}, rag, static_cast<ResourceAccessGraph::vertex_descriptor>(8));
     const auto& node9 = get(ResourceAccessGraph::AccessNodeTag{}, rag, static_cast<ResourceAccessGraph::vertex_descriptor>(9));
-    const auto& node11 = get(ResourceAccessGraph::AccessNodeTag{}, rag, static_cast<ResourceAccessGraph::vertex_descriptor>(11));
+    const auto& node10 = get(ResourceAccessGraph::AccessNodeTag{}, rag, static_cast<ResourceAccessGraph::vertex_descriptor>(10));
     ExpectEq(!node5.attachmentStatus.empty() && node5.nextSubpass == nullptr &&
                  node7.attachmentStatus.empty() && node7.nextSubpass == nullptr &&
                  !node8.attachmentStatus.empty() && node8.nextSubpass != nullptr &&
                  node9.attachmentStatus.empty() && node9.nextSubpass == nullptr &&
-                 !node11.attachmentStatus.empty() && node11.nextSubpass == nullptr,
+                 !node10.attachmentStatus.empty() && node10.nextSubpass == nullptr,
              true);
 
     ExpectEq(in_degree(5, rag) != 0 && out_degree(5, rag) != 0 &&
                  in_degree(7, rag) == 0 && out_degree(7, rag) == 0 &&
                  in_degree(8, rag) != 0 && out_degree(8, rag) != 0 &&
-                 in_degree(9, rag) == 0 && out_degree(9, rag) == 0 &&
-                 in_degree(11, rag) != 0 && out_degree(11, rag) == 0,
+                 in_degree(9, rag) == 0 && out_degree(9, rag) == 0,
              true);
 
     // 6, 7, 9 were culled.

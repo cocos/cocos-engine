@@ -454,6 +454,9 @@ export class SplashScreen {
                     }
                 }
 
+                // for legacy pipeline
+                device.enableAutoBarrier(true);
+
                 device.acquire([swapchain]);
                 // record command
                 const cmdBuff = this.cmdBuff;
@@ -499,6 +502,7 @@ export class SplashScreen {
                 device.flushCommands([cmdBuff]);
                 device.queue.submit([cmdBuff]);
                 device.present();
+                device.enableAutoBarrier(false);
 
                 if (sys.isXR) {
                     xr.entry.renderLoopEnd(xrEye);
@@ -554,7 +558,7 @@ export class SplashScreen {
         return SplashScreen._ins;
     }
 
-    private constructor () { }
+    private constructor () {}
 }
 
 cclegacy.internal.SplashScreen = SplashScreen;

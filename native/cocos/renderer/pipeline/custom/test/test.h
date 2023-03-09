@@ -618,7 +618,7 @@ static void runTestGraph(const RenderGraph &renderGraph, const ResourceGraph &re
          {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                                                                             \
         {"22",                                                                                                                                                               \
          {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT}, \
-         {ResourceResidency::EXTERNAL},                                                                                                                                      \
+         {ResourceResidency::BACKBUFFER},                                                                                                                                      \
          {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                                                                             \
     };
 
@@ -636,13 +636,7 @@ static void runTestGraph(const RenderGraph &renderGraph, const ResourceGraph &re
         {                                                                \
             PassType::RASTER,                                            \
             {                                                            \
-                {{"3"}, {"5"}},                                          \
-            },                                                           \
-        },                                                               \
-        {                                                                \
-            PassType::PRESENT,                                           \
-            {                                                            \
-                {{"5"}, {}},                                             \
+                {{"3"}, {"22"}},                                         \
             },                                                           \
         },                                                               \
     };                                                                   \
@@ -656,10 +650,7 @@ static void runTestGraph(const RenderGraph &renderGraph, const ResourceGraph &re
         },                                                               \
         {                                                                \
             {"3", 3, cc::gfx::ShaderStageFlagBit::VERTEX},               \
-            {"5", 5, cc::gfx::ShaderStageFlagBit::VERTEX},               \
-        },                                                               \
-        {                                                                \
-            {"5", 5, cc::gfx::ShaderStageFlagBit::COMPUTE /*whatever*/}, \
+            {"22", 22, cc::gfx::ShaderStageFlagBit::VERTEX},             \
         }};
 
 #define TEST_CASE_2                                            \
@@ -711,13 +702,7 @@ static void runTestGraph(const RenderGraph &renderGraph, const ResourceGraph &re
         {                                                      \
             PassType::RASTER,                                  \
             {                                                  \
-                {{"7", "9"}, {"10"}},                          \
-            },                                                 \
-        },                                                     \
-        {                                                      \
-            PassType::PRESENT,                                 \
-            {                                                  \
-                {{"10"}, {}},                                  \
+                {{"7", "9"}, {"22"}},                          \
             },                                                 \
         },                                                     \
     };                                                         \
@@ -759,10 +744,7 @@ static void runTestGraph(const RenderGraph &renderGraph, const ResourceGraph &re
         {                                                      \
             {"7", 7, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \
             {"9", 9, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \
-            {"10", 10, cc::gfx::ShaderStageFlagBit::FRAGMENT}, \
-        },                                                     \
-        {                                                      \
-            {"10", 10, cc::gfx::ShaderStageFlagBit::FRAGMENT}, \
+            {"22", 22, cc::gfx::ShaderStageFlagBit::FRAGMENT}, \
         },                                                     \
     };
 
@@ -860,13 +842,7 @@ static void runTestGraph(const RenderGraph &renderGraph, const ResourceGraph &re
         {                                                      \
             PassType::RASTER,                                  \
             {                                                  \
-                {{"12"}, {"13"}},                              \
-            },                                                 \
-        },                                                     \
-        {                                                      \
-            PassType::PRESENT,                                 \
-            {                                                  \
-                {{"13"}, {}},                                  \
+                {{"12"}, {"22"}},                              \
             },                                                 \
         },                                                     \
     };                                                         \
@@ -937,10 +913,7 @@ static void runTestGraph(const RenderGraph &renderGraph, const ResourceGraph &re
         },                                                     \
         {                                                      \
             {"12", 12, cc::gfx::ShaderStageFlagBit::FRAGMENT}, \
-            {"13", 13, cc::gfx::ShaderStageFlagBit::FRAGMENT}, \
-        },                                                     \
-        {                                                      \
-            {"13", 13, cc::gfx::ShaderStageFlagBit::FRAGMENT}, \
+            {"22", 22, cc::gfx::ShaderStageFlagBit::FRAGMENT}, \
         },                                                     \
     };
 
@@ -1007,13 +980,7 @@ static void runTestGraph(const RenderGraph &renderGraph, const ResourceGraph &re
         {                                                      \
             PassType::RASTER,                                  \
             {                                                  \
-                {{"2"}, {"10"}},                               \
-            },                                                 \
-        },                                                     \
-        {                                                      \
-            PassType::PRESENT,                                 \
-            {                                                  \
-                {{"10"}, {}},                                  \
+                {{"2"}, {"22"}},                               \
             },                                                 \
         },                                                     \
     };                                                         \
@@ -1059,10 +1026,7 @@ static void runTestGraph(const RenderGraph &renderGraph, const ResourceGraph &re
         },                                                     \
         {                                                      \
             {"2", 2, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \
-            {"10", 10, cc::gfx::ShaderStageFlagBit::FRAGMENT}, \
-        },                                                     \
-        {                                                      \
-            {"10", 10, cc::gfx::ShaderStageFlagBit::FRAGMENT}, \
+            {"22", 22, cc::gfx::ShaderStageFlagBit::FRAGMENT}, \
         },                                                     \
     };
 } // namespace render
