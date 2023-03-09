@@ -31,4 +31,18 @@ THE SOFTWARE.
 TEST(mathColorTest, test) {
     logLabel = "test the Color set function";
     cc::Color color;
+    uint32_t val = 0x12345678;
+    color.set(val);
+    EXPECT_EQ(color.a, 0x12);
+    EXPECT_EQ(color.b, 0x34);
+    EXPECT_EQ(color.g, 0x56);
+    EXPECT_EQ(color.r, 0x78);
+
+    logLabel = "test the color to Vec4 function";
+    color.set(0xff, 0xff, 0x00, 0xff);
+    cc::Vec4 vec4 = color.toVec4();
+    EXPECT_EQ(vec4.x, 1.0F);
+    EXPECT_EQ(vec4.y, 1.0F);
+    EXPECT_EQ(vec4.z, 0.0F);
+    EXPECT_EQ(vec4.w, 1.0F);
 }
