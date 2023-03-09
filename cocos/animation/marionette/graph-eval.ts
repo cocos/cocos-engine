@@ -931,6 +931,7 @@ class LayerEval {
 
         this._matchTransition(
             currentNode,
+            true,
             currentNode,
             deltaTime,
             transitionMatch,
@@ -942,6 +943,7 @@ class LayerEval {
         if (currentNode.kind === NodeKind.animation) {
             this._matchAnyScoped(
                 currentNode,
+                true,
                 deltaTime,
                 transitionMatch,
             );
@@ -961,14 +963,16 @@ class LayerEval {
      * Notes the real node is used:
      * - to determinate the starting state machine from where the any states are matched;
      * - so we can solve transitions' relative durations.
+     * @param isCurrentState See `_matchTransition`.
      */
-    private _matchAnyScoped (realNode: MotionStateEval, deltaTime: number, result: TransitionMatchCache) {
+    private _matchAnyScoped (realNode: MotionStateEval, isCurrentState: boolean, deltaTime: number, result: TransitionMatchCache) {
         let transitionMatchUpdated = false;
         for (let ancestor: StateMachineInfo | null = realNode.stateMachine;
             ancestor !== null;
             ancestor = ancestor.parent) {
             const updated = this._matchTransition(
                 ancestor.any,
+                isCurrentState,
                 realNode,
                 deltaTime,
                 result,
@@ -987,10 +991,18 @@ class LayerEval {
      * Searches for a transition which should be performed
      * if specified node updates for no more than `deltaTime` and less than `result.requires`.
      * We solve the relative durations of transitions based on duration of `realNode`.
+     *
+     * @param isCurrentState True if `node` is current state or "interruption source state"(see `getInterruptionSourceMotion`) of current state.
+     * In detail:
+     * | State machine                          | This method is used for            | `isCurrentState` should be    |
+     * | -------------------------------------- | ---------------------------------- | ----------------------------- |
+     * | No transition <br/> Current state is A | detecting transition from A        | true                          |
+     * | In transition <br/> A --> B            | detecting interruption from A or B | true for A <br/> false for B  |
+     *
      * @returns True if a transition match is updated into the `result`.
      */
     private _matchTransition (
-        node: NodeEval, realNode: NodeEval, deltaTime: Readonly<number>, result: TransitionMatchCache,
+        node: NodeEval, isCurrentState: boolean, realNode: NodeEval, deltaTime: Readonly<number>, result: TransitionMatchCache,
     ) {
         assertIsTrue(node === realNode || node.kind === NodeKind.any);
         const { outgoingTransitions } = node;
@@ -1023,7 +1035,8 @@ class LayerEval {
 
             if (realNode.kind === NodeKind.animation && transition.exitConditionEnabled) {
                 const exitTime = realNode.duration * transition.exitCondition;
-                deltaTimeRequired = Math.max(exitTime - realNode.fromPortTime, 0.0);
+                const currentStateTime = isCurrentState ? realNode.fromPortTime : realNode.toPortTime;
+                deltaTimeRequired = Math.max(exitTime - currentStateTime, 0.0);
                 // Note: the >= is reasonable in compare to >: we select the first-minimal requires.
                 if (deltaTimeRequired > deltaTime || deltaTimeRequired >= result.requires) {
                     continue;
@@ -1120,6 +1133,7 @@ class LayerEval {
             const transitionMatch = transitionMatchCache.reset();
             this._matchTransition(
                 tailNode,
+                false,
                 tailNode,
                 0.0,
                 transitionMatch,
@@ -1344,6 +1358,7 @@ class LayerEval {
             : currentNode.first;
         let transitionMatchUpdated = this._matchAnyScoped(
             anyTransitionMeasureBaseState,
+            true,
             remainTimePiece,
             transitionMatch,
         );
@@ -1354,12 +1369,19 @@ class LayerEval {
             // TODO
         }
 
-        const motion0: MotionStateEval                = interruption === TransitionInterruptionSource.CURRENT_STATE
-                || interruption === TransitionInterruptionSource.CURRENT_STATE_THEN_NEXT_STATE
-            ? getInterruptionSourceMotion(currentNode)
-            : currentTransitionToNode;
+        let motion0: MotionStateEval;
+        let motion0IsCurrentState = false;
+        if (interruption === TransitionInterruptionSource.CURRENT_STATE
+            || interruption === TransitionInterruptionSource.CURRENT_STATE_THEN_NEXT_STATE) {
+            motion0 = getInterruptionSourceMotion(currentNode);
+            motion0IsCurrentState = true;
+        } else {
+            motion0 = currentTransitionToNode;
+            motion0IsCurrentState = false;
+        }
         transitionMatchUpdated = this._matchTransition(
             motion0,
+            motion0IsCurrentState,
             motion0,
             remainTimePiece,
             transitionMatch,
@@ -1371,12 +1393,19 @@ class LayerEval {
             // TODO
         }
 
-        const motion1 = interruption === TransitionInterruptionSource.NEXT_STATE_THEN_CURRENT_STATE ? getInterruptionSourceMotion(currentNode)
-            : interruption === TransitionInterruptionSource.CURRENT_STATE_THEN_NEXT_STATE ? currentTransitionToNode
-                : null;
+        let motion1: MotionStateEval | null = null;
+        let motion1IsCurrentState = false;
+        if (interruption === TransitionInterruptionSource.NEXT_STATE_THEN_CURRENT_STATE) {
+            motion1 = getInterruptionSourceMotion(currentNode);
+            motion1IsCurrentState = true;
+        } else if (interruption === TransitionInterruptionSource.CURRENT_STATE_THEN_NEXT_STATE) {
+            motion1 = currentTransitionToNode;
+            motion1IsCurrentState = false;
+        }
         if (motion1) {
             transitionMatchUpdated = this._matchTransition(
                 motion1,
+                motion1IsCurrentState,
                 motion1,
                 remainTimePiece,
                 transitionMatch,
@@ -1777,6 +1806,14 @@ export class MotionStateEval extends StateEval {
 
     get fromPortTime () {
         return this._fromPort.progress * this.duration;
+    }
+
+    get toPortTime () {
+        if (DEBUG) {
+            // See `this.finishTransition()`
+            assertIsTrue(!Number.isNaN(this._toPort.progress));
+        }
+        return this._toPort.progress * this.duration;
     }
 
     public updateFromPort (deltaTime: number) {
