@@ -10,4 +10,3 @@ layout(set = 2, binding = 0) uniform CCLocal {
   highp vec4 cc_reflectionProbeData2; // x: planar reflection depth scale or xyz: cube box half size, w: isRGBE(1000) and mipCount
 };
 
-#define IS_REFLECTION_PROBE_RGBE ( cc_reflectionProbeData2.w > 100.0 )

@@ -43,3 +43,7 @@ void GetCubeReflectionProbeData(out vec3 centerPos, out vec3 boxHalfSize, out fl
       mipCount = cc_reflectionProbeData2.w - 1000.0;
     #endif
 }
+bool isUseRGBE()
+{
+  return cc_reflectionProbeData2.w > 100.0;
+}

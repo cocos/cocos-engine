@@ -399,7 +399,7 @@ void ReflectionProbe::setRefreshMode(RefreshMode mode) {
 }
 
 bool ReflectionProbe::isUseRGBE() const {
-    return _renderMode == ProbeRenderMode::REALTIME ? false : true;
+    return _renderMode != ProbeRenderMode::REALTIME;
 }
 
 } // namespace scene
