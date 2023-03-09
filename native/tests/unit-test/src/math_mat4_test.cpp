@@ -269,9 +269,14 @@ TEST(mathMat4Test, test5) {
     ExpectEq(translate.m[12] = 2 && translate.m[13] == 6, true);
     // transpose
     logLabel = "test the mat4 transpose function";
-    cc::Mat4 matTranspose(11, 21, 31, 2, 12, 22, 32, 4, 13, 23, 33, 5, 0, 0, 0, 1);
+    cc::Mat4 matTranspose(
+        11, 21, 31, 2,
+        12, 22, 32, 4,
+        13, 23, 33, 5,
+        0, 0, 0, 1
+    );
     matTranspose.transpose();
-    ExpectEq(matTranspose.m[1] == 21 && matTranspose.m[4] == 12 && matTranspose.m[7] == 4, true);
+    ExpectEq(matTranspose.m[1] == 12 && matTranspose.m[4] == 21 && matTranspose.m[7] == 0, true);
 
     // approxEqual
     logLabel = "test the mat4 approx equal function";

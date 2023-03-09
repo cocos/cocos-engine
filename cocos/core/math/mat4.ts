@@ -1813,23 +1813,6 @@ export class Mat4 extends ValueType {
      * @en Set the matrix with values of all elements
      * @zh 设置当前矩阵指定元素值。
      *
-     * @param m00 Component in column 0, row 0 position (index 0)
-     * @param m01 Component in column 0, row 1 position (index 1)
-     * @param m02 Component in column 0, row 2 position (index 2)
-     * @param m03 Component in column 0, row 3 position (index 3)
-     * @param m10 Component in column 1, row 0 position (index 4)
-     * @param m11 Component in column 1, row 1 position (index 5)
-     * @param m12 Component in column 1, row 2 position (index 6)
-     * @param m13 Component in column 1, row 3 position (index 7)
-     * @param m20 Component in column 2, row 0 position (index 8)
-     * @param m21 Component in column 2, row 1 position (index 9)
-     * @param m22 Component in column 2, row 2 position (index 10)
-     * @param m23 Component in column 2, row 3 position (index 11)
-     * @param m30 Component in column 3, row 0 position (index 12)
-     * @param m31 Component in column 3, row 1 position (index 13)
-     * @param m32 Component in column 3, row 2 position (index 14)
-     * @param m33 Component in column 3, row 3 position (index 15)
-
      * @return this
      */
     public set(
