@@ -93,7 +93,6 @@ add_definitions(-DCC_PLATFORM_NX=${CC_PLATFORM_NX})
 add_definitions(-DCC_PLATFORM_EMSCRIPTEN=${CC_PLATFORM_EMSCRIPTEN})
 add_definitions(-DCC_PLATFORM=${CC_PLATFORM})
 
-include_directories(${CMAKE_CURRENT_LIST_DIR}/../external/sources)
 
 # simplify generator condition, please use them everywhere
 if(CMAKE_GENERATOR STREQUAL Xcode)

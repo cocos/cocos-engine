@@ -183,6 +183,9 @@ if(NOT EXISTS ${EXTERNAL_ROOT}/CMakeLists.txt)
         message(FATAL_ERROR "Please download external libraries! File ${CMAKE_CURRENT_LIST_DIR}/external/CMakeLists.txt not exist!")
     endif()
 endif()
+
+include_directories(${EXTERNAL_ROOT}/sources)
+
 ################################# list all option values ##############################
 
 cc_inspect_values(
