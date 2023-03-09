@@ -148,12 +148,17 @@ export class WebGL2Device extends Device {
 
         this._caps.maxVertexAttributes = gl.getParameter(gl.MAX_VERTEX_ATTRIBS);
         this._caps.maxVertexUniformVectors = gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS);
-        // WECHAT browser in IOS implementation of WebGL2 exist bugs.
-        // iOS15.5 or higher 15.x version the max valid vertex uniform vectors is 256.
-        // iOS16.0 or higher 16.x version the max valid vertex uniform vectors is 520?
-        // So limit wechat browser in IOS using vertex uniform vectors no more than 256.
-        if (systemInfo.os === OS.IOS && sys.browserType === BrowserType.WECHAT) {
-            this._caps.maxVertexUniformVectors = 256;
+        // Implementation of WebGL2 in WECHAT browser and Safari in IOS exist bugs.
+        // It seems to be related to Safari's experimental features 'WebGL via Metal'.
+        // So limit using vertex uniform vectors no more than 256 in wechat browser,
+        // and using vertex uniform vectors no more than 512 in safari.
+        if (systemInfo.os === OS.IOS) {
+            const maxVertexUniformVectors = this._caps.maxVertexUniformVectors;
+            if (sys.browserType === BrowserType.WECHAT) {
+                this._caps.maxVertexUniformVectors = maxVertexUniformVectors < 256 ? maxVertexUniformVectors : 256;
+            } else if (sys.browserType === BrowserType.SAFARI) {
+                this._caps.maxVertexUniformVectors = maxVertexUniformVectors < 512 ? maxVertexUniformVectors : 512;
+            }
         }
         this._caps.maxFragmentUniformVectors = gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS);
         this._caps.maxTextureUnits = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
