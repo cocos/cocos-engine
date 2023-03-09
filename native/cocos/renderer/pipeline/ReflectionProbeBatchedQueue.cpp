@@ -74,7 +74,7 @@ void ReflectionProbeBatchedQueue::gatherRenderObjects(const scene::Camera *camer
 
     if (static_cast<uint32_t>(probe->getCamera()->getClearFlag()) & skyboxFlag) {
         if (skyBox != nullptr && skyBox->isEnabled() && skyBox->getModel()) {
-            add(skyBox->getModel());
+            add(skyBox->getModel(), probe->isUseRGBE());
         }
     }
     for (const auto &model : scene->getModels()) {
@@ -89,13 +89,13 @@ void ReflectionProbeBatchedQueue::gatherRenderObjects(const scene::Camera *camer
             if (((visibility & node->getLayer()) == node->getLayer()) ||
                 (visibility & static_cast<uint32_t>(model->getVisFlags()))) {
                 if (aabbWithAABB(*worldBounds, *probe->getBoundingBox())) {
-                    add(model);
+                    add(model, probe->isUseRGBE());
                 }
             }
         } else {
             if (((node->getLayer() & REFLECTION_PROBE_DEFAULT_MASK) == node->getLayer()) || (REFLECTION_PROBE_DEFAULT_MASK & static_cast<uint32_t>(model->getVisFlags()))) {
                 if (worldBounds->aabbFrustum(probe->getCamera()->getFrustum())) {
-                    add(model);
+                    add(model, probe->isUseRGBE());
                 }
             }
         }
@@ -114,7 +114,7 @@ void ReflectionProbeBatchedQueue::clear() {
     if (_batchedQueue) _batchedQueue->clear();
 }
 
-void ReflectionProbeBatchedQueue::add(const scene::Model *model) {
+void ReflectionProbeBatchedQueue::add(const scene::Model *model, bool isUseRGBE) {
     for (const auto &subModel : model->getSubModels()) {
         auto passIdx = getReflectMapPassIndex(subModel);
         bool bUseReflectPass = true;
@@ -129,7 +129,7 @@ void ReflectionProbeBatchedQueue::add(const scene::Model *model) {
         auto *pass = subModel->getPass(passIdx);
         const auto batchingScheme = pass->getBatchingScheme();
 
-        if (!bUseReflectPass) {
+        if (!bUseReflectPass && isUseRGBE) {
             auto patches = const_cast<ccstd::vector<cc::scene::IMacroPatch> &>(subModel->getPatches());
             patches.emplace_back(MACRO_PATCH_RGBE_OUTPUT);
             subModel->onMacroPatchesStateChanged(patches);

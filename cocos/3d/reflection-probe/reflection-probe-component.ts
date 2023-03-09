@@ -120,7 +120,7 @@ export class ReflectionProbe extends Component {
         this.probe.renderMode = val;
         ReflectionProbeManager.probeManager.updateBakedCubemap(this.probe);
     }
-    get renderMode (): ProbeRenderMode {
+    get renderMode () {
         return this._renderMode;
     }
 

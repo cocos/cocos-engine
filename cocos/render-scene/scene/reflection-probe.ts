@@ -466,6 +466,13 @@ export class ReflectionProbe {
         return false;
     }
 
+    public isUseRGBE () {
+        if (this._renderMode === ProbeRenderMode.REALTIME) {
+            return false;
+        }
+        return true;
+    }
+
     private _syncCameraParams (camera: Camera) {
         this.camera.projectionType = camera.projectionType;
         this.camera.orthoHeight = camera.orthoHeight;

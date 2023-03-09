@@ -94,7 +94,7 @@ export class RenderReflectionProbeQueue {
         const skybox = sceneData.skybox;
 
         if (skybox.enabled && skybox.model && (probe.camera.clearFlag & SKYBOX_FLAG)) {
-            this.add(skybox.model);
+            this.add(skybox.model, probe.isUseRGBE());
         }
 
         const models = scene.models;
@@ -110,12 +110,12 @@ export class RenderReflectionProbeQueue {
                 if (probe.probeType === ProbeType.CUBE) {
                     if ((((visibility & model.node.layer) === model.node.layer) || (visibility & model.visFlags))
                         && geometry.intersect.aabbWithAABB(model.worldBounds, probe.boundingBox!)) {
-                        this.add(model);
+                        this.add(model, probe.isUseRGBE());
                     }
                 } else if (((model.node.layer & REFLECTION_PROBE_DEFAULT_MASK) === model.node.layer)
                     || (REFLECTION_PROBE_DEFAULT_MASK & model.visFlags)) {
                     if (geometry.intersect.aabbFrustum(model.worldBounds, probe.camera.frustum)) {
-                        this.add(model);
+                        this.add(model, probe.isUseRGBE());
                     }
                 }
             }
@@ -133,7 +133,7 @@ export class RenderReflectionProbeQueue {
         this._rgbeSubModelsArray.length = 0;
     }
 
-    public add (model: Model) {
+    public add (model: Model, useRGBE: boolean) {
         const subModels = model.subModels;
         for (let j = 0; j < subModels.length; j++) {
             const subModel = subModels[j];
@@ -149,7 +149,7 @@ export class RenderReflectionProbeQueue {
             const pass = subModel.passes[passIdx];
             const batchingScheme = pass.batchingScheme;
 
-            if (!bUseReflectPass) {
+            if (!bUseReflectPass && useRGBE) {
                 let patches: IMacroPatch[] | null = subModel.patches;
                 const useRGBEPatchs: IMacroPatch[] = [
                     { name: CC_USE_RGBE_OUTPUT, value: true },

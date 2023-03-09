@@ -174,6 +174,8 @@ public:
 
     inline cc::TextureCube* getRealtimeCubeMap() { return _realtimeCubeMap; }
 
+    bool isUseRGBE() const;
+
 private:
     ccstd::vector<IntrusivePtr<cc::RenderTexture>> _bakedCubeTextures;
     IntrusivePtr<cc::RenderTexture> _realtimePlanarTexture{nullptr};
@@ -252,6 +254,8 @@ private:
     std::vector<IntrusivePtr<gfx::Framebuffer>> _frameBuffers;
     IntrusivePtr<gfx::RenderPass> _renderPass;
     IntrusivePtr<gfx::Texture> _depthStencil;
+
+    bool _isRGBE{false};
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(ReflectionProbe);
 };
