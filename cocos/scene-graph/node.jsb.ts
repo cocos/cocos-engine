@@ -84,6 +84,7 @@ const nodeProto: any = jsb.Node.prototype;
 export const TRANSFORM_ON = 1 << 0;
 const Destroying = CCObject.Flags.Destroying;
 
+// @ts-expect-error TODO: Property '_setTempFloatArray' does not exist on type 'typeof Node'.
 Node._setTempFloatArray(_tempFloatArray.buffer);
 
 function getConstructor<T>(typeOrClassName) {
@@ -379,6 +380,7 @@ nodeProto._registerIfAttached = !EDITOR ? undefined : function (this: Node, atta
     const children = this._children;
     for (let i = 0, len = children.length; i < len; ++i) {
         const child = children[i];
+        // @ts-expect-error TODO: Property '_registerIfAttached' does not exist on type 'Node'.
         child._registerIfAttached(attached);
     }
 };
@@ -1266,6 +1268,7 @@ nodeProto._instantiate = function (cloned: Node, isSyncedNode: boolean) {
         cloned = legacyCC.instantiate._clone(this, this);
     }
 
+    // @ts-expect-error TODO: access protected property
     const newPrefabInfo = cloned._prefab;
     if (EDITOR && newPrefabInfo) {
         if (cloned === newPrefabInfo.root) {
@@ -1276,13 +1279,16 @@ nodeProto._instantiate = function (cloned: Node, isSyncedNode: boolean) {
         }
     }
     if (EDITOR && legacyCC.GAME_VIEW) {
+        // @ts-expect-error TODO: Property 'sync' does not exist on type 'PrefabInfo'.
         const syncing = newPrefabInfo && cloned === newPrefabInfo.root && newPrefabInfo.sync;
         if (!syncing) {
+            // @ts-expect-error TODO: access protected property
             cloned._name += ' (Clone)';
         }
     }
 
     // reset and init
+    // @ts-expect-error access protected property
     cloned._parent = null;
     cloned._onBatchCreated(isSyncedNode);
 

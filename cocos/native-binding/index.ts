@@ -26,7 +26,6 @@
 
 import type { Color, Vec2 } from '../core';
 
-// @ts-expect-error this is a virtual module
 export * from 'internal:native';
 
 /**

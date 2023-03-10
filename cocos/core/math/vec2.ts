@@ -453,7 +453,7 @@ export class Vec2 extends ValueType {
 
     constructor (x?: number | Vec2, y?: number) {
         super();
-        if (x && typeof x === 'object') {
+        if (typeof x === 'object') {
             this.x = x.x;
             this.y = x.y;
         } else {
@@ -488,7 +488,7 @@ export class Vec2 extends ValueType {
     public set (x?: number, y?: number): Vec2;
 
     public set (x?: number | Vec2, y?: number) {
-        if (x && typeof x === 'object') {
+        if (typeof x === 'object') {
             this.x = x.x;
             this.y = x.y;
         } else {

@@ -797,7 +797,7 @@ export class Vec3 extends ValueType {
 
     constructor (x?: number | Vec3, y?: number, z?: number) {
         super();
-        if (x && typeof x === 'object') {
+        if (typeof x === 'object') {
             this.x = x.x;
             this.y = x.y;
             this.z = x.z;
@@ -835,7 +835,7 @@ export class Vec3 extends ValueType {
     public set (x?: number, y?: number, z?: number): Vec3;
 
     public set (x?: number | Vec3, y?: number, z?: number) {
-        if (x && typeof x === 'object') {
+        if (typeof x === 'object') {
             this.x = x.x;
             this.y = x.y;
             this.z = x.z;
