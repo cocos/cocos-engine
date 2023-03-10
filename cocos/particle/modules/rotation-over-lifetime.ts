@@ -27,7 +27,7 @@
 import { ccclass, tooltip, displayOrder, range, type, radian, serializable, visible, displayName } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
 import { Mat4, pseudoRandom, Quat, Vec4, Vec3, lerp } from '../../core/math';
-import { ParticleModule, ParticleUpdateStage, UpdateModule } from '../particle-module';
+import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { CurveRange } from '../curve-range';
 import { assert, CCBoolean } from '../../core';
 import { ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
@@ -36,7 +36,7 @@ import { ParticleSOAData } from '../particle-soa-data';
 const ROTATION_OVERTIME_RAND_OFFSET = 125292;
 
 @ccclass('cc.RotationOverLifetimeModule')
-export class RotationOverLifetimeModule extends UpdateModule {
+export class RotationOverLifetimeModule extends ParticleModule {
     /**
      * @zh 是否三个轴分开设定旋转。
      */
@@ -122,7 +122,7 @@ export class RotationOverLifetimeModule extends UpdateModule {
     }
 
     public get updateStage (): ParticleUpdateStage {
-        return ParticleUpdateStage.PRE_UPDATE;
+        return ParticleUpdateStage.UPDATE;
     }
 
     public get updatePriority (): number {

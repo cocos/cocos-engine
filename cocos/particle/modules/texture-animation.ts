@@ -27,7 +27,7 @@ import { ccclass, tooltip, displayOrder, type, formerlySerializedAs, serializabl
 import { DEBUG } from 'internal:constants';
 import { lerp, pseudoRandom, repeat } from '../../core/math';
 import { Enum } from '../../core/value-types';
-import { ParticleModule, ParticleUpdateStage, UpdateModule } from '../particle-module';
+import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { createRealCurve, CurveRange } from '../curve-range';
 import { ParticleSOAData } from '../particle-soa-data';
 import { ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
@@ -73,7 +73,7 @@ export enum Animation {
 }
 
 @ccclass('cc.TextureAnimationModule')
-export class TextureAnimationModule extends UpdateModule {
+export class TextureAnimationModule extends ParticleModule {
     /**
      * @zh 设定粒子贴图动画的类型（暂只支持 Grid 模式）[[Mode]]。
      */
@@ -217,7 +217,7 @@ export class TextureAnimationModule extends UpdateModule {
     }
 
     public get updateStage (): ParticleUpdateStage {
-        return ParticleUpdateStage.POST_UPDATE;
+        return ParticleUpdateStage.UPDATE;
     }
 
     public get updatePriority (): number {

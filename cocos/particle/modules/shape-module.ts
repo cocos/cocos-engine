@@ -350,7 +350,7 @@ export class ShapeModule extends ParticleModule {
         }
     }
 
-    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleEmitterContext,
+    public initialize (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleEmitterContext,
         fromIndex: number, toIndex: number, currentTime: number) {
         const randomPositionAmount = this.randomPositionAmount;
         const minRadius = this.radius * (1 - this.radiusThickness);

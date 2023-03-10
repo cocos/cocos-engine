@@ -25,7 +25,7 @@
 
 import { ccclass, tooltip, displayOrder, type, serializable, range, visible } from 'cc.decorator';
 import { lerp, pseudoRandom, Vec3 } from '../../core/math';
-import { ParticleModule, ParticleUpdateStage, UpdateModule } from '../particle-module';
+import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { CurveRange } from '../curve-range';
 import { ModuleRandSeed } from '../enum';
 import { ParticleSOAData } from '../particle-soa-data';
@@ -35,7 +35,7 @@ const SIZE_OVERTIME_RAND_OFFSET = ModuleRandSeed.SIZE;
 const size = new Vec3();
 
 @ccclass('cc.SizeOverLifetimeModule')
-export class SizeOverLifetimeModule extends UpdateModule {
+export class SizeOverLifetimeModule extends ParticleModule {
     /**
      * @zh 决定是否在每个轴上独立控制粒子大小。
      */
@@ -119,7 +119,7 @@ export class SizeOverLifetimeModule extends UpdateModule {
     }
 
     public get updateStage (): ParticleUpdateStage {
-        return ParticleUpdateStage.POST_UPDATE;
+        return ParticleUpdateStage.UPDATE;
     }
 
     public get updatePriority (): number {

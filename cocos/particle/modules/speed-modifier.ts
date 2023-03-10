@@ -26,14 +26,14 @@
 import { lerp, pseudoRandom } from '../../core';
 import { ccclass, displayOrder, range, serializable, tooltip, type } from '../../core/data/decorators';
 import { CurveRange } from '../curve-range';
-import { ParticleModule, ParticleUpdateStage, UpdateModule } from '../particle-module';
+import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
 import { ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
 
 const SPEED_MODIFIER_RAND_OFFSET = 388180;
 
 @ccclass('cc.SpeedModifierModule')
-export class SpeedModifierModule extends UpdateModule {
+export class SpeedModifierModule extends ParticleModule {
     /**
      * @zh 速度修正系数（只支持 CPU 粒子）。
      */
@@ -49,7 +49,7 @@ export class SpeedModifierModule extends UpdateModule {
     }
 
     public get updateStage (): ParticleUpdateStage {
-        return ParticleUpdateStage.PRE_UPDATE;
+        return ParticleUpdateStage.UPDATE;
     }
 
     public get updatePriority (): number {

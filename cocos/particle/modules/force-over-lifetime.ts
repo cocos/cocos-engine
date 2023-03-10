@@ -29,7 +29,7 @@ import { lerp, pseudoRandom, Quat, Vec3 } from '../../core/math';
 import { Space } from '../enum';
 import { calculateTransform } from '../particle-general-function';
 import { CurveRange } from '../curve-range';
-import { ParticleModule, ParticleUpdateStage, UpdateModule } from '../particle-module';
+import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { assert, Enum } from '../../core';
 import { ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
 import { ParticleSOAData } from '../particle-soa-data';
@@ -40,7 +40,7 @@ const _temp_v3 = new Vec3();
 const rotation = new Quat();
 
 @ccclass('cc.ForceOverLifetimeModule')
-export class ForceOverLifetimeModule extends UpdateModule {
+export class ForceOverLifetimeModule extends ParticleModule {
     /**
      * @zh X 轴方向上的加速度分量。
      */
@@ -85,7 +85,7 @@ export class ForceOverLifetimeModule extends UpdateModule {
     }
 
     public get updateStage (): ParticleUpdateStage {
-        return ParticleUpdateStage.PRE_UPDATE;
+        return ParticleUpdateStage.UPDATE;
     }
 
     public get updatePriority (): number {

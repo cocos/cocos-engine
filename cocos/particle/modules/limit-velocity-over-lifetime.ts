@@ -27,7 +27,7 @@ import { ccclass, tooltip, displayOrder, range, type, serializable, visible } fr
 import { DEBUG } from 'internal:constants';
 import { lerp, pseudoRandom, Vec3, Mat4, Quat } from '../../core/math';
 import { Space, ModuleRandSeed } from '../enum';
-import { ParticleModule, ParticleUpdateStage, UpdateModule } from '../particle-module';
+import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { CurveRange } from '../curve-range';
 import { calculateTransform } from '../particle-general-function';
 import { ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
@@ -41,7 +41,7 @@ const rotation = new Quat();
 const velocity = new Vec3();
 
 @ccclass('cc.LimitVelocityOverLifetimeModule')
-export class LimitVelocityOverLifetimeModule extends UpdateModule {
+export class LimitVelocityOverLifetimeModule extends ParticleModule {
     /**
      * @zh X 轴方向上的速度下限。
      */
@@ -150,7 +150,7 @@ export class LimitVelocityOverLifetimeModule extends UpdateModule {
     }
 
     public get updateStage (): ParticleUpdateStage {
-        return ParticleUpdateStage.PRE_UPDATE;
+        return ParticleUpdateStage.UPDATE;
     }
 
     public get updatePriority (): number {

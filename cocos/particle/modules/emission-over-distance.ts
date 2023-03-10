@@ -24,13 +24,13 @@
  */
 
 import { ccclass, displayOrder, serializable, tooltip, type, range } from '../../core/data/decorators';
-import { EmissionModule, ParticleUpdateStage } from '../particle-module';
+import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { ParticleEmitterContext, ParticleSystemParams } from '../particle-update-context';
 import { CurveRange } from '../curve-range';
 import { ParticleSOAData } from '../particle-soa-data';
 
 @ccclass('cc.EmissionOverDistanceModule')
-export class EmissionOverDistanceModule extends EmissionModule {
+export class EmissionOverDistanceModule extends ParticleModule {
     /**
       * @zh 每移动单位距离发射的粒子数。
       */
@@ -49,7 +49,11 @@ export class EmissionOverDistanceModule extends EmissionModule {
         return 1;
     }
 
-    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleEmitterContext,
+    public get updateStage (): ParticleUpdateStage {
+        return ParticleUpdateStage.EMITTER_UPDATE;
+    }
+
+    public spawn (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleEmitterContext,
         prevTime: number, currentTime: number) {
         const { velocity } = context;
         context.emittingNumOverDistance += velocity.length()

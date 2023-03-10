@@ -24,13 +24,13 @@
  */
 
 import { ccclass, displayOrder, serializable, tooltip, type, range } from '../../core/data/decorators';
-import { EmissionModule } from '../particle-module';
+import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
 import { ParticleEmitterContext, ParticleSystemParams } from '../particle-update-context';
 import { CurveRange } from '../curve-range';
 
 @ccclass('cc.EmissionOverTimeModule')
-export class EmissionOverTimeModule extends EmissionModule {
+export class EmissionOverTimeModule extends ParticleModule {
     /**
      * @zh 每秒发射的粒子数。
      */
@@ -49,7 +49,11 @@ export class EmissionOverTimeModule extends EmissionModule {
         return 0;
     }
 
-    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleEmitterContext,
+    public get updateStage (): ParticleUpdateStage {
+        return ParticleUpdateStage.INITIALIZE;
+    }
+
+    public spawn (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleEmitterContext,
         prevTime: number, currentTime: number)  {
         context.emittingNumOverTime += this.rate.evaluate(currentTime / params.duration, Math.random()) * (currentTime - prevTime);
     }

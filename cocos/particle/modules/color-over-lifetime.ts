@@ -25,7 +25,7 @@
 
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { Color, pseudoRandom } from '../../core/math';
-import { ParticleModule, ParticleUpdateStage, UpdateModule } from '../particle-module';
+import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { GradientRange } from '../gradient-range';
 import { ParticleSOAData } from '../particle-soa-data';
 import { ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
@@ -36,7 +36,7 @@ const tempColor2 = new Color();
 const tempColor3 = new Color();
 
 @ccclass('cc.ColorOverLifetimeModule')
-export class ColorOverLifetimeModule extends UpdateModule {
+export class ColorOverLifetimeModule extends ParticleModule {
     /**
      * @zh 颜色随时间变化的参数，各个 key 之间线性差值变化。
      */
@@ -50,7 +50,7 @@ export class ColorOverLifetimeModule extends UpdateModule {
     }
 
     public get updateStage (): ParticleUpdateStage {
-        return ParticleUpdateStage.POST_UPDATE;
+        return ParticleUpdateStage.UPDATE;
     }
 
     public get updatePriority (): number {

@@ -24,7 +24,7 @@
  */
 
 import { ccclass, displayOrder, formerlySerializedAs, radian, range, serializable, tooltip, type, visible } from '../../core/data/decorators';
-import { InitializationModule, ParticleModule, ParticleUpdateStage } from '../particle-module';
+import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
 import { ParticleEmitterContext, ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
 import { CurveRange } from '../curve-range';
@@ -34,7 +34,7 @@ import { INT_MAX } from '../../core/math/bits';
 import { Space } from '../enum';
 
 @ccclass('cc.StartSizeModule')
-export class StartSizeModule extends InitializationModule {
+export class StartSizeModule extends ParticleModule {
     @serializable
     @tooltip('i18n:particle_system.startSize3D')
     public startSize3D = false;
@@ -113,7 +113,7 @@ export class StartSizeModule extends InitializationModule {
     @serializable
     private _startSizeZ: CurveRange | null = null;
 
-    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleEmitterContext,
+    public initialize (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleEmitterContext,
         fromIndex: number, toIndex: number, currentTime: number) {
         const normalizedTimeInCycle = currentTime / params.duration;
         const { startSizeX, startSizeY, startSizeZ, sizeX, sizeY, sizeZ } = particles;

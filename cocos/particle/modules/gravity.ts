@@ -24,7 +24,7 @@
  */
 
 import { ccclass, displayOrder, range, serializable, tooltip, type } from '../../core/data/decorators';
-import { ParticleModule, ParticleUpdateStage, UpdateModule } from '../particle-module';
+import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
 import { ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
 import { CurveRange } from '../curve-range';
@@ -35,7 +35,7 @@ const rotation = new Quat();
 const gravity = new Vec3();
 const GRAVITY_RAND_OFFSET = 238818;
 @ccclass('cc.GravityModule')
-export class GravityModule extends UpdateModule {
+export class GravityModule extends ParticleModule {
     /**
      * @zh 粒子受重力影响的重力系数。
      */
@@ -51,7 +51,7 @@ export class GravityModule extends UpdateModule {
     }
 
     public get updateStage (): ParticleUpdateStage {
-        return ParticleUpdateStage.PRE_UPDATE;
+        return ParticleUpdateStage.UPDATE;
     }
 
     public get updatePriority (): number {

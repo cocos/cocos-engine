@@ -31,9 +31,14 @@ import { CCBoolean, CCString, Mat4 } from '../core';
 export enum ParticleUpdateStage {
     EMITTER_UPDATE,
     INITIALIZE,
-    PRE_UPDATE,
-    POST_UPDATE,
-    RENDER
+    UPDATE,
+    EVENT_HANDLER,
+    RENDER,
+}
+
+@ccclass('cc.ParticleModuleStage')
+export class ParticleModuleStage {
+
 }
 
 @ccclass('cc.ParticleModule')
@@ -81,36 +86,18 @@ export abstract class ParticleModule {
         }
     }
 
+    public spawn (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleEmitterContext,
+        prevTime: number, currentTime: number) {}
+    public initialize (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleEmitterContext,
+        fromIndex: number, toIndex: number, currentTime: number) {}
+    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,
+        fromIndex: number, toIndex: number, dt: number) {}
     public tick (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,
         currentTime: number, dt: number) {}
+    public render (particles: ParticleSOAData, params: ParticleSystemParams, dt: number) {}
     public beginUpdate () {}
     public onPlay () {}
     public onStop () {}
     public onPause () {}
     public onEvent (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext) {}
-}
-@ccclass('cc.EmissionModule')
-export abstract class EmissionModule extends ParticleModule {
-    public get updateStage (): ParticleUpdateStage {
-        return ParticleUpdateStage.EMITTER_UPDATE;
-    }
-
-    public abstract update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleEmitterContext,
-        prevTime: number, currentTime: number)
-}
-
-@ccclass('cc.InitializationModule')
-export abstract class InitializationModule extends ParticleModule {
-    public get updateStage (): ParticleUpdateStage {
-        return ParticleUpdateStage.INITIALIZE;
-    }
-
-    public abstract update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleEmitterContext,
-        fromIndex: number, toIndex: number, currentTime: number);
-}
-
-@ccclass('cc.UpdateModule')
-export abstract class UpdateModule extends ParticleModule {
-    public abstract update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,
-        fromIndex: number, toIndex: number, dt: number)
 }

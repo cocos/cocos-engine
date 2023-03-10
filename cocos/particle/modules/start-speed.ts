@@ -24,7 +24,7 @@
  */
 
 import { ccclass, displayOrder, range, serializable, tooltip, type } from '../../core/data/decorators';
-import { InitializationModule, ParticleModule, ParticleUpdateStage } from '../particle-module';
+import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
 import { ParticleEmitterContext, ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
 import { CurveRange } from '../curve-range';
@@ -35,7 +35,7 @@ import { Space } from '../enum';
 const velocity = new Vec3();
 
 @ccclass('cc.StartSpeedModule')
-export class StartSpeedModule extends InitializationModule {
+export class StartSpeedModule extends ParticleModule {
     /**
       * @zh 粒子初始速度。
       */
@@ -57,7 +57,7 @@ export class StartSpeedModule extends InitializationModule {
         return 1;
     }
 
-    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleEmitterContext,
+    public initialize (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleEmitterContext,
         fromIndex: number, toIndex: number, currentTime: number) {
         const normalizedTimeInCycle = currentTime / params.duration;
         if (this.startSpeed.mode === CurveRange.Mode.Constant) {

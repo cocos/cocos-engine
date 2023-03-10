@@ -24,7 +24,7 @@
  */
 
 import { ccclass, displayOrder, formerlySerializedAs, radian, range, serializable, tooltip, type, visible } from '../../core/data/decorators';
-import { InitializationModule, ParticleModule, ParticleUpdateStage } from '../particle-module';
+import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
 import { ParticleEmitterContext, ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
 import { CurveRange } from '../curve-range';
@@ -34,7 +34,7 @@ import { INT_MAX } from '../../core/math/bits';
 import { Space } from '../enum';
 
 @ccclass('cc.StartLifeTimeModule')
-export class StartLifeTimeModule extends InitializationModule {
+export class StartLifeTimeModule extends ParticleModule {
     /**
       * @zh 粒子生命周期。
       */
@@ -57,7 +57,7 @@ export class StartLifeTimeModule extends InitializationModule {
         return 1;
     }
 
-    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleEmitterContext,
+    public initialize (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleEmitterContext,
         fromIndex: number, toIndex: number, currentTime: number) {
         const normalizedTimeInCycle = currentTime / params.duration;
         const { invStartLifeTime } = particles;

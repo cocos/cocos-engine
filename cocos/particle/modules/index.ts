@@ -36,3 +36,5 @@ export * from './start-life-time';
 export * from './start-size';
 export * from './gravity';
 export * from './event';
+export * from './solve';
+export * from './state';

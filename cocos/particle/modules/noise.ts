@@ -29,7 +29,7 @@ import { assert, CCBoolean, CCFloat, CCInteger, Enum, warn } from '../../core';
 import { range, rangeStep, slide, visible } from '../../core/data/decorators/editable';
 import { clamp, lerp, pseudoRandom, randomRangeInt, Vec2, Vec3 } from '../../core/math';
 import { CurveRange } from '../curve-range';
-import { ParticleModule, ParticleUpdateStage, UpdateModule } from '../particle-module';
+import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
 import { ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
 import { perlin1D, perlin2D, perlin3D, PerlinNoise1DCache, PerlinNoise2DCache, PerlinNoise3DCache } from './perlin-noise';
@@ -63,7 +63,7 @@ enum Quality {
 }
 
 @ccclass('cc.NoiseModule')
-export class NoiseModule extends UpdateModule {
+export class NoiseModule extends ParticleModule {
     @serializable
     @visible(true)
     public separateAxes = false;
@@ -246,7 +246,7 @@ export class NoiseModule extends UpdateModule {
     }
 
     public get updateStage (): ParticleUpdateStage {
-        return ParticleUpdateStage.PRE_UPDATE;
+        return ParticleUpdateStage.UPDATE;
     }
 
     public get updatePriority (): number {

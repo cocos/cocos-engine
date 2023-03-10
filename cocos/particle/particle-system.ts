@@ -57,7 +57,7 @@ import { Camera, Model } from '../core/renderer/scene';
 import { NoiseModule } from './modules/noise';
 import { CCBoolean, CCFloat, CCInteger, Component, Enum, geometry, js } from '../core';
 import { INVALID_HANDLE, ParticleHandle, ParticleSOAData, RecordReason } from './particle-soa-data';
-import { EmissionModule, InitializationModule, ParticleModule, ParticleUpdateStage, UpdateModule } from './particle-module';
+import { ParticleModule, ParticleUpdateStage } from './particle-module';
 import { particleSystemManager } from './particle-system-manager';
 import { BurstEmissionModule } from './modules/burst-emission';
 
@@ -460,7 +460,7 @@ export class ParticleSystem extends Component {
         context.burstCount = context.emittingNumOverDistance = context.emittingNumOverTime = 0;
         const emissionModules = this.getEmissionModules();
         for (let i = 0, length = emissionModules.length; i < length; i++) {
-            emissionModules[i].update(this._particles, this._params, context, prevTime, currentTime);
+            emissionModules[i].spawn(this._particles, this._params, context, prevTime, currentTime);
         }
     }
 
@@ -640,19 +640,19 @@ export class ParticleSystem extends Component {
     }
 
     private getEmissionModules () {
-        return this._activeModules.filter((module) => module.updateStage === ParticleUpdateStage.EMITTER_UPDATE) as EmissionModule[];
+        return this._activeModules.filter((module) => module.updateStage === ParticleUpdateStage.EMITTER_UPDATE);
     }
 
     private getInitializationModules () {
-        return this._activeModules.filter((module) => module.updateStage === ParticleUpdateStage.INITIALIZE) as InitializationModule[];
+        return this._activeModules.filter((module) => module.updateStage === ParticleUpdateStage.INITIALIZE);
     }
 
     private getPreUpdateModules () {
-        return this._activeModules.filter((module) => module.updateStage === ParticleUpdateStage.PRE_UPDATE) as UpdateModule[];
+        return this._activeModules.filter((module) => module.updateStage === ParticleUpdateStage.UPDATE);
     }
 
     private getPostUpdateModules () {
-        return this._activeModules.filter((module) => module.updateStage === ParticleUpdateStage.POST_UPDATE) as UpdateModule[];
+        return this._activeModules.filter((module) => module.updateStage === ParticleUpdateStage.UPDATE);
     }
 
     // internal function
@@ -800,7 +800,7 @@ export class ParticleSystem extends Component {
                     const normalizeT = lerp(currentTime, prevTime, offset);
                     const nextIndex = i + 1;
                     for (let j = 0, length = initializationModules.length; j < length; j++) {
-                        initializationModules[j].update(particles, params, emitterContext, i, nextIndex, normalizeT);
+                        initializationModules[j].initialize(particles, params, emitterContext, i, nextIndex, normalizeT);
                     }
                     Vec3.multiplyScalar(startPositionOffset, initialVelocity, -subDt);
                     particles.addPositionAt(startPositionOffset, i);
@@ -817,7 +817,7 @@ export class ParticleSystem extends Component {
                 this.consumeEvents(particles, params, updateContext);
             } else {
                 for (let j = 0, length = initializationModules.length; j < length; j++) {
-                    initializationModules[j].update(particles, params, emitterContext, fromIndex, toIndex, currentTime);
+                    initializationModules[j].initialize(particles, params, emitterContext, fromIndex, toIndex, currentTime);
                 }
             }
         }

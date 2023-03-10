@@ -138,7 +138,7 @@ export class TrailModule extends ParticleModule {
     }
 
     public get updateStage (): ParticleUpdateStage {
-        return ParticleUpdateStage.POST_UPDATE;
+        return ParticleUpdateStage.UPDATE;
     }
 
     public get updatePriority (): number {

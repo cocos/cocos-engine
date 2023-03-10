@@ -27,12 +27,12 @@ import { lerp } from '../../core';
 import { ccclass, displayOrder, serializable, tooltip, type, range } from '../../core/data/decorators';
 import Burst from '../burst';
 import { CurveRange } from '../curve-range';
-import { EmissionModule, ParticleModule, ParticleUpdateStage } from '../particle-module';
+import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
 import { ParticleEmitterContext, ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
 
 @ccclass('cc.BurstEmissionModule')
-export class BurstEmissionModule extends EmissionModule {
+export class BurstEmissionModule extends ParticleModule {
     /**
       * @zh 设定在指定时间发射指定数量的粒子的 burst 的数量。
       */
@@ -50,7 +50,11 @@ export class BurstEmissionModule extends EmissionModule {
         return 2;
     }
 
-    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleEmitterContext,
+    public get updateStage (): ParticleUpdateStage {
+        return ParticleUpdateStage.EMITTER_UPDATE;
+    }
+
+    public spawn (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleEmitterContext,
         prevT: number, t: number) {
         const normalizedTimeInCycle = t / params.duration;
         for (let i = 0, burstCount = this.bursts.length; i < burstCount; i++) {

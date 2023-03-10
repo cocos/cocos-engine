@@ -24,7 +24,7 @@
  */
 
 import { ccclass, displayOrder, formerlySerializedAs, radian, range, serializable, tooltip, type, visible } from '../../core/data/decorators';
-import { InitializationModule, ParticleModule, ParticleUpdateStage } from '../particle-module';
+import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
 import { ParticleEmitterContext, ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
 import { CurveRange } from '../curve-range';
@@ -32,7 +32,7 @@ import { lerp, pseudoRandom, randomRangeInt, Vec3 } from '../../core/math';
 import { INT_MAX } from '../../core/math/bits';
 
 @ccclass('cc.StartRotationModule')
-export class StartRotationModule extends InitializationModule {
+export class StartRotationModule extends ParticleModule {
     @serializable
     @tooltip('i18n:particle_system.startRotation3D')
     public startRotation3D = false;
@@ -116,7 +116,7 @@ export class StartRotationModule extends InitializationModule {
     @serializable
     private _startRotationY: CurveRange | null = null;
 
-    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleEmitterContext,
+    public initialize (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleEmitterContext,
         fromIndex: number, toIndex: number, currentTime: number) {
         const normalizedTimeInCycle = currentTime / params.duration;
         const { rotationX, rotationY, rotationZ } = particles;

@@ -26,7 +26,7 @@
 import { approx, BitMask, CCFloat, Enum, EPSILON, Mat4, pseudoRandom, Quat, Vec3, warn } from '../../core';
 import { ccclass, range, serializable, type, visible } from '../../core/data/decorators';
 import { Space } from '../enum';
-import { EmissionModule, ParticleModule, ParticleUpdateStage, UpdateModule } from '../particle-module';
+import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { MAX_SUB_EMITTER_ACCUMULATOR, ParticleSOAData, RecordReason } from '../particle-soa-data';
 import { ParticleSystem } from '../particle-system';
 import { particleSystemManager } from '../particle-system-manager';
@@ -77,7 +77,7 @@ export class EventData {
 }
 
 @ccclass('cc.EventModule')
-export class EventGeneratorModule extends UpdateModule {
+export class EventGeneratorModule extends ParticleModule {
     @type([EventData])
     @visible(true)
     @serializable
@@ -88,7 +88,7 @@ export class EventGeneratorModule extends UpdateModule {
     }
 
     public get updateStage (): ParticleUpdateStage {
-        return ParticleUpdateStage.POST_UPDATE;
+        return ParticleUpdateStage.UPDATE;
     }
 
     public get updatePriority (): number {

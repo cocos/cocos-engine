@@ -24,7 +24,7 @@
  */
 
 import { ccclass, displayOrder, formerlySerializedAs, radian, range, serializable, tooltip, type, visible } from '../../core/data/decorators';
-import { InitializationModule, ParticleModule, ParticleUpdateStage } from '../particle-module';
+import { ParticleModule, ParticleUpdateStage } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
 import { ParticleEmitterContext, ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
 import { GradientRange } from '../gradient-range';
@@ -36,7 +36,7 @@ const tempColor2 = new Color();
 const tempColor3 = new Color();
 
 @ccclass('cc.StartColorModule')
-export class StartColorModule extends InitializationModule {
+export class StartColorModule extends ParticleModule {
     /**
       * @zh 粒子初始颜色。
       */
@@ -58,7 +58,7 @@ export class StartColorModule extends InitializationModule {
         return 1;
     }
 
-    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleEmitterContext,
+    public initialize (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleEmitterContext,
         fromIndex: number, toIndex: number, currentTime: number) {
         const normalizedTimeInCycle = currentTime / params.duration;
         const { startColor, color } = particles;
