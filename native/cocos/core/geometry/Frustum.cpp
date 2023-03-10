@@ -46,14 +46,14 @@ void Frustum::createOrtho(Frustum *out, float width,
                           float near,
                           float far,
                           const Mat4 &transform) {
-    createOrthogonal(out, width, height, near, far, transform);
+    createOrthographic(out, width, height, near, far, transform);
 }
 
-void Frustum::createOrthogonal(Frustum *out, float width,
-                               float height,
-                               float near,
-                               float far,
-                               const Mat4 &transform) {
+void Frustum::createOrthographic(Frustum *out, float width,
+                                 float height,
+                                 float near,
+                                 float far,
+                                 const Mat4 &transform) {
     auto halfWidth = width / 2.0F;
     auto halfHeight = height / 2.0F;
     Vec3::transformMat4({halfWidth, halfHeight, -near}, transform, &out->vertices[0]);
@@ -148,16 +148,16 @@ void Frustum::transform(const Mat4 &mat) {
     updatePlanes();
 }
 
-void Frustum::createOrthogonal(float width, float height, float near, float far, const Mat4 &transform) {
-    createOrthogonal(this, width, height, near, far, transform);
+void Frustum::createOrthographic(float width, float height, float near, float far, const Mat4 &transform) {
+    createOrthographic(this, width, height, near, far, transform);
 }
 
 void Frustum::createOrtho(const float width, const float height, const float near, const float far, const Mat4 &transform) {
-    createOrthogonal(width, height, near, far, transform);
+    createOrthographic(width, height, near, far, transform);
 }
 
-void Frustum::split(float start, float end, float aspect, float fov, const Mat4 &transform) {
-    createPerspective(this, fov, aspect, start, end, transform);
+void Frustum::split(float near, float far, float aspect, float fov, const Mat4 &transform) {
+    createPerspective(this, fov, aspect, near, far, transform);
 }
 
 void Frustum::updatePlanes() {

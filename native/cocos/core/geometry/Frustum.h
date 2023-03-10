@@ -42,23 +42,38 @@ public:
      * Create a ortho frustum.
      * @zh
      * 创建一个正交视锥体。
-     * @param out @en The result orthogonal frustum. @zh 输出的正交视锥体。
+     * @param out @en The result orthographic frustum. @zh 输出的正交视锥体。
      * @param width @en The width of the frustum. @zh 正交视锥体的宽度。
      * @param height @en The height of the frustum. @zh 正交视锥体的高度。
      * @param near @en The near plane of the frustum. @zh 正交视锥体的近平面值。
      * @param far @en The far plane of the frustum. @zh 正交视锥体的远平面值。
      * @param transform @en The transform matrix of the frustum. @zh 正交视锥体的变换矩阵。
+     *
+     * @deprecated since 3.8.0, please use [createOrthographic] instead of it.
      */
     static void createOrtho(Frustum *out, float width,
                             float height,
                             float near,
                             float far,
                             const Mat4 &transform);
-    static void createOrthogonal(Frustum *out, float width,
-                                 float height,
-                                 float near,
-                                 float far,
-                                 const Mat4 &transform);
+
+    /**
+     * @en
+     * Create a ortho frustum.
+     * @zh
+     * 创建一个正交视锥体。
+     * @param out @en The result orthographic frustum. @zh 输出的正交视锥体。
+     * @param width @en The width of the frustum. @zh 正交视锥体的宽度。
+     * @param height @en The height of the frustum. @zh 正交视锥体的高度。
+     * @param near @en The near plane of the frustum. @zh 正交视锥体的近平面值。
+     * @param far @en The far plane of the frustum. @zh 正交视锥体的远平面值。
+     * @param transform @en The transform matrix of the frustum. @zh 正交视锥体的变换矩阵。
+     */
+    static void createOrthographic(Frustum *out, float width,
+                                   float height,
+                                   float near,
+                                   float far,
+                                   const Mat4 &transform);
 
     /**
      * @en
@@ -84,6 +99,8 @@ public:
      * @param out @en The result frustum @zh 输出的视锥体对象。
      * @param aabb @en The AABB bounding box of the frustum @zh AABB 包围盒。
      * @return @en The out object @zh 返回视锥体.
+     *
+     * @deprecated since 3.8.0, please use [createOrthographic] instead of it.
      */
     static Frustum *createFromAABB(Frustum *out, const AABB &aabb);
 
@@ -148,8 +165,22 @@ public:
     void transform(const Mat4 &);
 
     void createOrtho(float width, float height, float near, float far, const Mat4 &transform);
-    void createOrthogonal(float width, float height, float near, float far, const Mat4 &transform);
-    void split(float start, float end, float aspect, float fov, const Mat4 &transform);
+    void createOrthographic(float width, float height, float near, float far, const Mat4 &transform);
+
+    /**
+     * @en
+     * Set as a perspective frustum.
+     * @zh
+     * 设置为一个透视视锥体。
+     * @param near @en The near plane of the frustum. @zh 视锥体的近平面值。
+     * @param far @en The far plane of the frustum. @zh 视锥体的远平面值。
+     * @param fov @en The field of view of the frustum. @zh 视锥体的视野。
+     * @param aspect @en The aspect ratio of the frustum. @zh 视锥体的宽高比。
+     * @param transform @en The transform matrix of the frustum. @zh 视锥体的变换矩阵。
+     * 
+     * @deprecated since 3.8.0, please use [createPerspective] instead of it.
+     */
+    void split(float near, float far, float aspect, float fov, const Mat4 &transform);
     void updatePlanes();
     void update(const Mat4 &m, const Mat4 &inv);
 

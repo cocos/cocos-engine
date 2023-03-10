@@ -49,9 +49,9 @@ const _temp_v3 = new Vec3();
  */
 export class Frustum {
     /**
-     * @en Creates an orthogonal frustum.
+     * @en Creates an orthographic frustum.
      * @zh 创建一个正交视锥体。
-     * @param out @en The result orthogonal frustum. @zh 输出的正交视锥体。
+     * @param out @en The result orthographic frustum. @zh 输出的正交视锥体。
      * @param width @en The width of the frustum. @zh 正交视锥体的宽度。
      * @param height @en The height of the frustum. @zh 正交视锥体的高度。
      * @param near @en The near plane of the frustum. @zh 正交视锥体的近平面值。
@@ -59,7 +59,7 @@ export class Frustum {
      * @param transform @en The transform matrix of the frustum. @zh 正交视锥体的变换矩阵。
      * @returns @en The result frustum, same as the `out` parameter. @zh 存储结果的视锥体，与 `out` 参数为同一个对象。
      */
-    public static createOrthogonal (out: Frustum, width: number, height: number, near: number, far: number, transform: Mat4) {
+    public static createOrthographic (out: Frustum, width: number, height: number, near: number, far: number, transform: Mat4) {
         const halfWidth = width / 2;
         const halfHeight = height / 2;
         Vec3.set(_temp_v3, halfWidth, halfHeight, -near);
@@ -83,9 +83,9 @@ export class Frustum {
     }
 
     /**
-     * @en Creates an orthogonal frustum.
+     * @en Creates an orthographic frustum.
      * @zh 创建一个正交视锥体。
-     * @param out @en The result orthogonal frustum. @zh 输出的正交视锥体。
+     * @param out @en The result orthographic frustum. @zh 输出的正交视锥体。
      * @param width @en The width of the frustum. @zh 正交视锥体的宽度。
      * @param height @en The height of the frustum. @zh 正交视锥体的高度。
      * @param near @en The near plane of the frustum. @zh 正交视锥体的近平面值。
@@ -93,10 +93,10 @@ export class Frustum {
      * @param transform @en The transform matrix of the frustum. @zh 正交视锥体的变换矩阵。
      * @returns @en The result frustum, same as the `out` parameter. @zh 存储结果的视锥体，与 `out` 参数为同一个对象。
      *
-     * @deprecated since v3.8.0, please use [[createOrthogonal]] instead.
+     * @deprecated since v3.8.0, please use [[createOrthographic]] instead.
      */
     public static createOrtho (out: Frustum, width: number, height: number, near: number, far: number, transform: Mat4) {
-        return Frustum.createOrthogonal(out, width, height, near, far, transform);
+        return Frustum.createOrthographic(out, width, height, near, far, transform);
     }
 
     /**
@@ -146,7 +146,7 @@ export class Frustum {
      * @param aabb @en The AABB to create the result frustum. @zh 用于创建视锥体 AABB。
      * @returns @en The result frustum, same as the `out` parameter. @zh 存储结果的视锥体，与 `out` 参数为同一个对象。
      *
-     * @deprecated since v3.8.0, please use [[createOrthogonal]] instead.
+     * @deprecated since v3.8.0, please use [[createOrthographic]] instead.
      */
     public static createFromAABB (out: Frustum, aabb: AABB | Readonly<AABB>): Frustum {
         const vec3_min = new Vec3(); const vec3_max = new Vec3();
