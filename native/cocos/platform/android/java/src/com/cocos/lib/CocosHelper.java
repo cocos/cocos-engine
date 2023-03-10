@@ -76,7 +76,6 @@ public class CocosHelper {
     // Fields
     // ===========================================================
 
-    private static Activity sActivity;
     private static Vibrator sVibrateService;
     private static BatteryReceiver sBatteryReceiver = new BatteryReceiver();
 
@@ -163,7 +162,7 @@ public class CocosHelper {
         int status = NETWORK_TYPE_NONE;
         NetworkInfo networkInfo;
         try {
-            ConnectivityManager connMgr = (ConnectivityManager) sActivity.getSystemService(Context.CONNECTIVITY_SERVICE);
+            ConnectivityManager connMgr = (ConnectivityManager) GlobalObject.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
             networkInfo = connMgr.getActiveNetworkInfo();
         } catch (Exception e) {
             e.printStackTrace();
@@ -187,10 +186,9 @@ public class CocosHelper {
 
     private static boolean sInited = false;
 
-    public static void init(final Activity activity) {
-        sActivity = activity;
+    public static void init() {
         if (!sInited) {
-            CocosHelper.sVibrateService = (Vibrator) activity.getSystemService(Context.VIBRATOR_SERVICE);
+            CocosHelper.sVibrateService = (Vibrator) GlobalObject.getContext().getSystemService(Context.VIBRATOR_SERVICE);
             CocosHelper.initObbFilePath();
             CocosHelper.initializeOBBFile();
 
@@ -207,7 +205,7 @@ public class CocosHelper {
     }
 
     public static String getWritablePath() {
-        return sActivity.getFilesDir().getAbsolutePath();
+        return GlobalObject.getContext().getFilesDir().getAbsolutePath();
     }
 
     public static String getCurrentLanguage() {
@@ -263,11 +261,16 @@ public class CocosHelper {
     }
 
     public static boolean openURL(String url) {
+        if (GlobalObject.getActivity() == null) {
+            Log.e(TAG, "sActivity is null");
+            return false;
+        }
+
         boolean ret = false;
         try {
             Intent i = new Intent(Intent.ACTION_VIEW);
             i.setData(Uri.parse(url));
-            sActivity.startActivity(i);
+            GlobalObject.getActivity().startActivity(i);
             ret = true;
         } catch (Exception e) {
         }
@@ -275,10 +278,10 @@ public class CocosHelper {
     }
 
     public static void copyTextToClipboard(final String text) {
-        sActivity.runOnUiThread(new Runnable() {
+        GlobalObject.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                ClipboardManager myClipboard = (ClipboardManager) sActivity.getSystemService(Context.CLIPBOARD_SERVICE);
+                ClipboardManager myClipboard = (ClipboardManager) GlobalObject.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
                 ClipData myClip = ClipData.newPlainText("text", text);
                 myClipboard.setPrimaryClip(myClip);
             }
@@ -310,7 +313,7 @@ public class CocosHelper {
 
     public static int getDeviceRotation() {
         try {
-            Display display = ((WindowManager) sActivity.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+            Display display = ((WindowManager) GlobalObject.getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
             return display.getRotation();
         } catch (NullPointerException e) {
             e.printStackTrace();
@@ -327,9 +330,9 @@ public class CocosHelper {
     // - else empty string.
     private static void initObbFilePath() {
         int versionCode = 1;
-        final ApplicationInfo applicationInfo = sActivity.getApplicationInfo();
+        final ApplicationInfo applicationInfo = GlobalObject.getContext().getApplicationInfo();
         try {
-            versionCode = CocosHelper.sActivity.getPackageManager().getPackageInfo(applicationInfo.packageName, 0).versionCode;
+            versionCode = GlobalObject.getContext().getPackageManager().getPackageInfo(applicationInfo.packageName, 0).versionCode;
         } catch (NameNotFoundException e) {
             e.printStackTrace();
         }
@@ -341,22 +344,24 @@ public class CocosHelper {
 
     private static void initializeOBBFile() {
         int versionCode = 1;
-        final ApplicationInfo applicationInfo = sActivity.getApplicationInfo();
+        final ApplicationInfo applicationInfo = GlobalObject.getContext().getApplicationInfo();
         try {
-            versionCode = sActivity.getPackageManager().getPackageInfo(applicationInfo.packageName, 0).versionCode;
+            versionCode = GlobalObject.getContext().getPackageManager().getPackageInfo(applicationInfo.packageName, 0).versionCode;
         } catch (NameNotFoundException e) {
             e.printStackTrace();
         }
         try {
-            CocosHelper.sOBBFile = APKExpansionSupport.getAPKExpansionZipFile(sActivity, versionCode, 0);
+            CocosHelper.sOBBFile = APKExpansionSupport.getAPKExpansionZipFile(GlobalObject.getContext(), versionCode, 0);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public static Activity getActivity() {return sActivity;}
-
     public static float[] getSafeArea() {
+        if (GlobalObject.getActivity() == null) {
+            Log.e(TAG, "sActivity is null");
+            return new float[]{0, 0, 0, 0};
+        }
         if (android.os.Build.VERSION.SDK_INT >= 28) {
             do {
                 Object windowInsectObj = GlobalObject.getActivity().getWindow().getDecorView().getRootWindowInsets();
@@ -395,21 +400,29 @@ public class CocosHelper {
         return new float[]{0, 0, 0, 0};
     }
     public static void finishActivity() {
-        sActivity.runOnUiThread(new Runnable() {
+        if (GlobalObject.getActivity() == null) {
+            Log.e(TAG, "sActivity is null");
+            return;
+        }
+        GlobalObject.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                sActivity.finish();
+                GlobalObject.getActivity().finish();
             }
         });
     }
     public static void setKeepScreenOn(boolean keepScreenOn) {
-        sActivity.runOnUiThread(new Runnable() {
+        if (GlobalObject.getActivity() == null) {
+            Log.e(TAG, "sActivity is null");
+            return;
+        }
+        GlobalObject.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 if (keepScreenOn) {
-                    sActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                    GlobalObject.getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
                 } else {
-                    sActivity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                    GlobalObject.getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
                 }
             }
         });

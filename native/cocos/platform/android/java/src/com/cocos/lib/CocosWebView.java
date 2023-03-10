@@ -26,6 +26,7 @@
 package com.cocos.lib;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 import android.webkit.WebChromeClient;
@@ -104,8 +105,6 @@ import java.util.concurrent.CountDownLatch;
      class Cocos2dxWebViewClient extends WebViewClient {
          @Override
          public boolean shouldOverrideUrlLoading(WebView view, final String urlString) {
-             CocosActivity activity = (CocosActivity)GlobalObject.getActivity();
-
              try {
                  URI uri = URI.create(urlString);
                  if (uri != null && uri.getScheme().equals(mJSScheme)) {
@@ -125,7 +124,7 @@ import java.util.concurrent.CountDownLatch;
              CountDownLatch latch = new CountDownLatch(1);
 
              // run worker on cocos thread
-             activity.runOnUiThread(new ShouldStartLoadingWorker(latch, result, mViewTag, urlString));
+             GlobalObject.runOnUiThread(new ShouldStartLoadingWorker(latch, result, mViewTag, urlString));
 
              // wait for result from cocos thread
              try {
