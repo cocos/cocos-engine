@@ -206,7 +206,7 @@
         CCSurfacesGetLightingIntermediateDataTransmitDiffuse(lightingDataTD, lightingData, surfaceData);
         CCSurfacesLightingCalculateIntermediateData_PerLight(lightingDataTD, surfaceData, -cc_mainLitDir.xyz);
         CCSurfacesLightingCalculateDirectTransmitDiffuse(lightingResult.directTransmitDiffuse, lightingDataTD, cc_mainLitColor, lightingResult.shadow);
-        CCSurfacesLightingCalculateEnvironmentTransmitDiffuse(lightingResult.environmentTransmitDiffuse, lightingDataTD, cc_ambientSky.w, lightingResult.ao);
+        CCSurfacesLightingCalculateEnvironmentTransmitDiffuse(lightingResult.environmentTransmitDiffuse, lightingDataTD, cc_ambientSky.w, lightingResult.ao, -cc_mainLitDir.xyz);
       #endif
 
       #if CC_SURFACES_LIGHTING_TRT
