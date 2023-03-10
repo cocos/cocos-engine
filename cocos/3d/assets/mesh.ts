@@ -1104,7 +1104,7 @@ export class Mesh extends Asset {
             const vertexCount = vertexBundle.view.count;
             const { format } = vertexBundle.attributes[iAttribute];
             const StorageConstructor = getTypedArrayConstructor(FormatInfos[format]);
-            if (vertexCount === 0 || vertexCount === undefined) {
+            if (vertexCount === 0) {
                 return;
             }
 
