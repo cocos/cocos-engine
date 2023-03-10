@@ -3,7 +3,7 @@ import { error, Quat, Vec3, warnID } from '../../core';
 import { assertIsTrue } from '../../core/data/utils/asserts';
 import { Node } from '../../scene-graph/node';
 import { AnimationClip, exoticAnimationTag } from '../animation-clip';
-import { TransformHandle } from '../core/animation-handle';
+import { AuxiliaryCurveHandle, TransformHandle } from '../core/animation-handle';
 import { Pose } from '../core/pose';
 import { createEvalSymbol } from '../define';
 import { ExoticTrsAGEvaluation } from '../exotic-animation/exotic-animation';
@@ -39,6 +39,12 @@ export interface AnimationClipGraphBindingContext {
      * @returns The transform handle if successfully bound, `null` otherwise.
      */
     bindTransform(path: string): TransformHandle | null;
+
+    /**
+     * Binds an auxiliary curve.
+     * @param curveName Curve name.
+     */
+    bindAuxiliaryCurve(curveName: string): AuxiliaryCurveHandle;
 }
 
 /**
@@ -153,6 +159,24 @@ class PoseScaleBinding extends PoseBindingBase implements PoseBinding<Vec3> {
     }
 }
 
+class AuxiliaryCurveBinding implements PoseBinding<number> {
+    constructor (private _handle: AuxiliaryCurveHandle) {
+
+    }
+
+    public destroy (): void {
+        this._handle.destroy();
+    }
+
+    public setValue (value: number, pose: Pose): void {
+        pose.metaValues[this._handle.index] = value;
+    }
+
+    public getValue (pose: Pose) {
+        return pose.metaValues[this._handle.index];
+    }
+}
+
 /**
  * Creates a corresponding pose binding.
  * @param transformHandle Handle to the transform.
@@ -226,6 +250,14 @@ function createRuntimeBindingAG (track: TrackBinding, bindContext: AnimationClip
         origin,
     } = bindContext;
     const { path, proxy } = track;
+
+    if (path.isAuxiliaryCurve()) {
+        const curveName = path.parseAuxiliaryCurve();
+        const handle = bindContext.bindAuxiliaryCurve(curveName);
+        const binding = new AuxiliaryCurveBinding(handle);
+        return binding;
+    }
+
     const nPaths = path.length;
     const iLastPath = nPaths - 1;
 

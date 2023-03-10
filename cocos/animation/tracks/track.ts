@@ -23,7 +23,7 @@
 */
 
 import { ccclass, serializable, uniquelyReferenced } from 'cc.decorator';
-import { SUPPORT_JIT } from 'internal:constants';
+import { DEBUG, SUPPORT_JIT } from 'internal:constants';
 import type { Component } from '../../scene-graph/component';
 import { error, ObjectCurve, QuatCurve, RealCurve, errorID, warnID, js } from '../../core';
 import { assertIsTrue } from '../../core/data/utils/asserts';
@@ -32,7 +32,7 @@ import { Node } from '../../scene-graph';
 import { CLASS_NAME_PREFIX_ANIM, createEvalSymbol } from '../define';
 import type { AnimationMask } from '../marionette/animation-mask';
 import { PoseOutput } from '../pose-output';
-import { ComponentPath, HierarchyPath, isPropertyPath, TargetPath } from '../target-path';
+import { ComponentPath, HierarchyPath, ICustomTargetPath, isPropertyPath, TargetPath } from '../target-path';
 import { IValueProxyFactory } from '../value-proxy';
 import { Range } from './utils';
 
@@ -51,6 +51,12 @@ export type RuntimeBinding<T = unknown> = {
 export type Binder = (binding: TrackBinding) => undefined | RuntimeBinding;
 
 export type TrsTrackPath = [HierarchyPath, 'position' | 'rotation' | 'scale' | 'eulerAngles'];
+
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}AuxiliaryCurvePath`)
+class AuxiliaryCurvePath {
+    @serializable
+    public curveName = '';
+}
 
 /**
  * @en Describes how to find the animation target.
@@ -73,7 +79,7 @@ class TrackPath {
      * @returns `this`
      */
     public toProperty (name: string) {
-        this._paths.push(name);
+        this._pushPath(name);
         return this;
     }
 
@@ -84,7 +90,7 @@ class TrackPath {
      * @returns `this`
      */
     public toElement (index: number) {
-        this._paths.push(index);
+        this._pushPath(index);
         return this;
     }
 
@@ -95,7 +101,7 @@ class TrackPath {
      * @returns `this`
      */
     public toHierarchy (nodePath: string) {
-        this._paths.push(new HierarchyPath(nodePath));
+        this._pushPath(new HierarchyPath(nodePath));
         return this;
     }
 
@@ -107,7 +113,28 @@ class TrackPath {
      */
     public toComponent<T extends Component> (constructor: Constructor<T> | string) {
         const path = new ComponentPath(typeof constructor === 'string' ? constructor : js.getClassName(constructor));
-        this._paths.push(path);
+        this._pushPath(path);
+        return this;
+    }
+
+    /**
+     * @en Appends a auxiliary curve path.
+     * @zh 附加一段辅助曲线路径。
+     * @param curveName @en Curve name. @zh 曲线名。
+     * @returns `this`
+     * @note @zh 辅助曲线只能作为唯一的路径出现。
+     * @en The auxiliary curve path, if presented, should be the the only path in a track path.
+     */
+    public toAuxiliaryCurve (curveName: string) {
+        if (DEBUG) {
+            if (this._paths.length !== 0) {
+                throwAuxiliaryCurveUniqueness();
+            }
+        }
+
+        const path = new AuxiliaryCurvePath();
+        path.curveName = curveName;
+        this._pushPath(path);
         return this;
     }
 
@@ -115,7 +142,7 @@ class TrackPath {
      * @internal Reserved for backward compatibility. DO NOT USE IT IN YOUR CODE.
      */
     public toCustomized (resolver: CustomizedTrackPathResolver) {
-        this._paths.push(resolver);
+        this._pushPath(resolver);
         return this;
     }
 
@@ -126,7 +153,36 @@ class TrackPath {
      * @returns `this`.
      */
     public append (...trackPaths: TrackPath[]) {
-        const paths = this._paths.concat(...trackPaths.map((trackPath) => trackPath._paths));
+        if (DEBUG) {
+            let seenAuxiliaryCurve = false;
+            let sumSubpaths = 0;
+            for (const trackPath of trackPaths) {
+                const nSubpath = trackPath.length;
+                // Continue outer loop until we found a violation.
+                let foundViolation = false;
+                for (let iSubpath = 0; iSubpath < nSubpath; ++iSubpath, ++sumSubpaths) {
+                    if (seenAuxiliaryCurve) {
+                        foundViolation = true;
+                        break;
+                    }
+                    const subpath = trackPath._paths[iSubpath];
+                    if (subpath instanceof AuxiliaryCurvePath) {
+                        if (sumSubpaths) {
+                            foundViolation = true;
+                            break;
+                        }
+                        seenAuxiliaryCurve = true;
+                    }
+                }
+                if (foundViolation) {
+                    throwAuxiliaryCurveUniqueness();
+                    break;
+                }
+            }
+        }
+
+        const paths = (this._paths as (TargetPath | AuxiliaryCurvePath)[])
+            .concat(...trackPaths.map((trackPath) => trackPath._paths)) as TrackPath['_paths'];
         this._paths = paths;
         return this;
     }
@@ -214,6 +270,25 @@ class TrackPath {
     }
 
     /**
+     * @zh 判断 **此轨道路径** 是否是伴随曲线路径。
+     * @en Decides if **this path** is an adjoint curve path.
+     * @returns The judgement result.
+     */
+    public isAuxiliaryCurve () {
+        return this._paths.length === 1 && this._paths[0] instanceof AuxiliaryCurvePath;
+    }
+
+    /**
+     * @zh 将 **此轨道路径** 视为伴随曲线路径，获取其描述的伴随曲线的名称。
+     * @en Treats **this path** as an adjoint curve path. Obtains the name of the adjoint curve it describes.
+     * @returns The curve name.
+     */
+    public parseAuxiliaryCurve () {
+        assertIsTrue(this.isAuxiliaryCurve());
+        return (this._paths[0] as AuxiliaryCurvePath).curveName;
+    }
+
+    /**
      * @en Slices a interval of the path.
      * @zh 分割指定区段上的路径。
      * @param beginIndex Begin index to the segment. Default to 0.
@@ -222,7 +297,7 @@ class TrackPath {
      */
     public slice (beginIndex?: number, endIndex?: number) {
         const trackPath = new TrackPath();
-        trackPath._paths = this._paths.slice(beginIndex, endIndex);
+        trackPath._paths = this._paths.slice(beginIndex, endIndex) as TrackPath['_paths'];
         return trackPath;
     }
 
@@ -285,7 +360,12 @@ class TrackPath {
      * @internal
      */
     public [normalizedFollowTag] (root: unknown, beginIndex: number, endIndex: number) {
-        const { _paths: paths } = this;
+        if (this.isAuxiliaryCurve()) {
+            return null;
+        }
+
+        const paths = this._paths as TargetPath[];
+
         let result = root;
         for (let iPath = beginIndex; iPath < endIndex; ++iPath) {
             const path = paths[iPath];
@@ -307,7 +387,22 @@ class TrackPath {
     }
 
     @serializable
-    private _paths: TargetPath[] = [];
+    private _paths: TargetPath[] | [AuxiliaryCurvePath] = [];
+
+    private _pushPath (path: TargetPath | AuxiliaryCurvePath) {
+        if (DEBUG) {
+            const paths = this._paths;
+            if (paths.length !== 0 && paths[paths.length - 1] instanceof AuxiliaryCurvePath) {
+                throwAuxiliaryCurveUniqueness();
+            }
+        }
+
+        (this._paths as (TargetPath | AuxiliaryCurvePath)[]).push(path);
+    }
+}
+
+function throwAuxiliaryCurveUniqueness (): void {
+    throw new Error(`Auxiliary curve path can only be used as the only path in a track path.`);
 }
 
 /**
@@ -324,7 +419,7 @@ export class TrackBinding {
     @serializable
     public proxy: IValueProxyFactory | undefined;
 
-    private static _animationFunctions = new WeakMap<Constructor, Map<string | number, { getValue:() => any, setValue: (val: any) => void}>>();
+    private static _animationFunctions = new WeakMap<Constructor, Map<string | number, { getValue: () => any, setValue: (val: any) => void}>>();
 
     public parseTrsPath () {
         if (this.proxy) {
@@ -336,6 +431,10 @@ export class TrackBinding {
 
     public createRuntimeBinding (target: unknown, poseOutput: PoseOutput | undefined, isConstant: boolean) {
         const { path, proxy } = this;
+        if (path.isAuxiliaryCurve()) {
+            // Auxiliary curves are ignored in legacy animation system.
+            return null;
+        }
         const nPaths = path.length;
         const iLastPath = nPaths - 1;
         if (nPaths !== 0 && (path.isPropertyAt(iLastPath) || path.isElementAt(iLastPath)) && !proxy) {

@@ -14,8 +14,8 @@ export interface TransformHandle {
     destroy(): void;
 }
 
-export interface MetaValueHandle {
-    __brand: 'MetaValueHandle';
+export interface AuxiliaryCurveHandle {
+    __brand: 'AuxiliaryCurveHandle';
 
     /**
      * Index of the meta value in pose's meta value array.
