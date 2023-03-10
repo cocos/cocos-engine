@@ -67,16 +67,16 @@ inline bool isPowerOfTwo(T n) {
 
 inline bool isEqualF(float lhs, float rhs, float precision = 0.000001F) {
     const bool hasInf = std::isinf(lhs) || std::isinf(rhs);
-    return !hasInf && (std::fabs(lhs - rhs) <= std::max(std::max(std::fabs(lhs), std::fabs(rhs)), 1.0F) * precision);
+    return !hasInf && (std::fabs(lhs - rhs) <= (std::max(std::max(std::fabs(lhs), std::fabs(rhs)), 1.0F) * precision));
 }
 
 inline bool isNotEqualF(float lhs, float rhs, float precision = 0.000001F) { // same as !isEqualF
     const bool hasInf = std::isinf(lhs) || std::isinf(rhs);
-    return hasInf || (std::fabs(lhs - rhs) > std::max(std::max(std::fabs(lhs), std::fabs(rhs)), 1.0F) * precision);
+    return hasInf || (std::fabs(lhs - rhs) > (std::max(std::max(std::fabs(lhs), std::fabs(rhs)), 1.0F) * precision));
 }
 
 inline bool isNotZeroF(float v, float precision = 0.000001F) { // same as isNotEqualF(v, 0.0F)
-    return std::isinf(v) || (std::fabs(v) > std::max(std::abs(v), 1.0F) * precision);
+    return std::isinf(v) || (std::fabs(v) > (std::max(std::abs(v), 1.0F) * precision));
 }
 
 } // namespace math
