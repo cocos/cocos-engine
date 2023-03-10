@@ -100,6 +100,7 @@ void CCSurfacesLightingCalculateEnvironment(out vec3 lightingDiffuse, out vec3 l
 #if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
   #define objectThickness lightingData.transmitDiffuseParams.x
   #define transmitMask lightingData.transmitDiffuseParams.y
+  #define envTransmitScale lightingData.transmitDiffuseParams.z
   #define DONOT_USE_SHADOWMAP_DISTANCE (equalf(lightingData.shadowPosAndDepth.z, lightingData.shadowPosAndDepth.w) && equalf(lightingData.shadowPosAndDepth.z, SURFACES_MAX_TRANSMIT_DEPTH_VALUE))
   // view space depth is negative value, so use shadowMap - current
   #define SHADOWMAP_DISTANCE max(lightingData.shadowPosAndDepth.w - lightingData.shadowPosAndDepth.z, 0.0)
@@ -130,10 +131,12 @@ void CCSurfacesLightingCalculateEnvironment(out vec3 lightingDiffuse, out vec3 l
     vec3 backIrradiance = CalculateEnvironmentDiffuse(lightingData, lightIntensity);
     backIrradiance *= ao * transmitMask;
     transmitDiffuse = CalculateScattering(backIrradiance, distance, lightingData.transmitScatteringParams.x, lightingData.transmitScatteringParams.y, lightingData.transmitScatteringParams.z, lightingData.inScatteringColor.rgb, lightingData.outScatteringColor.rgb);
+    transmitDiffuse *= envTransmitScale;
   }
 
   #undef objectThickness
   #undef transmitMask
+  #undef envTransmitScale
   #undef DONOT_USE_SHADOWMAP_DISTANCE
   #undef SHADOWMAP_DISTANCE
 #endif
