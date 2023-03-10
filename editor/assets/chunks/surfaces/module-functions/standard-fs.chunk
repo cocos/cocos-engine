@@ -240,9 +240,18 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
 #if CC_FORWARD_ADD
   // shadow and fresnel has already been applied with common flow
   color.xyz += lightingResult.directDiffuse * lightingResult.diffuseColorWithLighting
-    + lightingResult.directSpecular * lightingResult.specularColorWithLighting;
+    + lightingResult.directSpecular * lightingResult.specularColorWithLighting
   #if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR
     + lightingResult.directTransmitSpecular * lightingResult.specularColorWithLighting
+  #endif
+  #if CC_SURFACES_LIGHTING_TRT
+    + lightingResult.directTRT * lightingResult.specularColorWithLightingTRT * surfaceData.trtIntensity * surfaceData.baseColorTRT
+  #endif
+  #if CC_SURFACES_LIGHTING_TT
+    + lightingResult.directTT * lightingResult.diffuseColorWithLightingTT
+  #endif
+  #if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
+    + lightingResult.directTransmitDiffuse
   #endif
   ;
   

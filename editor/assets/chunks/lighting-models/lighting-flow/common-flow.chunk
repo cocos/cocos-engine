@@ -76,9 +76,11 @@
         lightingResult.directDiffuse = diffuseLighting * multiplier;
         lightingResult.directSpecular = specularLighting * multiplier * fresnel;
 
+        vec4 attenuatedLightColorAndIntensity = vec4(cc_lightColor[i].xyz, cc_lightColor[i].w * multiplier);
+
         #if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR
           vec3 transmitSpecularLighting;
-          CCSurfacesLightingCalculateDirectTransmitSpecular(transmitSpecularLighting, lightingData, cc_lightColor[i]);
+          CCSurfacesLightingCalculateDirectTransmitSpecular(transmitSpecularLighting, lightingData, attenuatedLightColorAndIntensity);
           lightingResult.directTransmitSpecular = transmitSpecularLighting * multiplier * (1.0 - fresnel);
         #endif
 
@@ -86,18 +88,18 @@
           LightingIntermediateData lightingDataTD;
           CCSurfacesGetLightingIntermediateDataTransmitDiffuse(lightingDataTD, lightingData, surfaceData);
           CCSurfacesLightingCalculateIntermediateData_PerLight(lightingDataTD, surfaceData, cc_lightPos[i].xyz - worldPos);
-          CCSurfacesLightingCalculateDirectTransmitDiffuse(lightingResult.directTransmitDiffuse, lightingDataTD, cc_lightColor[i], lightingResult.shadow);
+          CCSurfacesLightingCalculateDirectTransmitDiffuse(lightingResult.directTransmitDiffuse, lightingDataTD, attenuatedLightColorAndIntensity, lightingResult.shadow);
         #endif
 
         #if CC_SURFACES_LIGHTING_TRT
           LightingIntermediateData lightingDataTRT;
           CCSurfacesGetLightingIntermediateDataTRT(lightingDataTRT, lightingData, surfaceData);
-          CCSurfacesLightingCalculateDirectTRT(lightingResult.directTRT, lightingDataTRT, cc_lightColor[i], lightingResult.directSpecular);
+          CCSurfacesLightingCalculateDirectTRT(lightingResult.directTRT, lightingDataTRT, attenuatedLightColorAndIntensity, lightingResult.directSpecular);
           lightingResult.directTRT *= multiplier * fresnel;
         #endif
 
         #if CC_SURFACES_LIGHTING_TT
-          CCSurfacesLightingCalculateDirectTT(lightingResult, lightingData, cc_lightColor[i]);
+          CCSurfacesLightingCalculateDirectTT(lightingResult, lightingData, attenuatedLightColorAndIntensity);
         #endif
 
 
