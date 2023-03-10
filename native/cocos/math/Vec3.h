@@ -258,6 +258,15 @@ public:
     static void transformMat4Normal(const Vec3 &v, const Mat4 &m, Vec3 *dst);
 
     /**
+     * @en Calculates a new position from current to target no more than `maxStep` distance.
+     * @zh 计算一个新位置从当前位置移动不超过 `maxStep` 距离到目标位置。
+     * @param current current position
+     * @param target target position
+     * @param maxStep maximum moving distance
+     */
+    static void moveTowards(const Vec3 &current, const Vec3 &target, float maxStep, Vec3 *dst);
+
+    /**
      * Transforms this vector by the specified quaternion and stores the result in this vector.
      *
      * @param q The quaternion to multiply.

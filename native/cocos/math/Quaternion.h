@@ -379,6 +379,35 @@ public:
     static void squad(const Quaternion &q1, const Quaternion &q2, const Quaternion &s1, const Quaternion &s2, float t, Quaternion *dst);
 
     /**
+     * @en Quaternion dot product (scalar product)
+     * @zh 四元数点积（数量积）
+     * @param a The first unit quaternion
+     * @param b The second unit quaternion
+     */
+    static inline float dot(const Quaternion &a, const Quaternion &b) {
+        return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
+    }
+
+    /**
+     * @en Gets the angular distance between two unit quaternions
+     * @zh 获取两个单位四元数的夹角
+     * @param a The first unit quaternion
+     * @param b The second unit quaternion
+     * @returns Angle between the two quaternions in radians
+     */
+    static float angle(const Quaternion &a, const Quaternion &b);
+
+    /**
+     * @en Rotate a `from` unit quaternion towards `to` unit quaternion
+     * @zh 将一个起始单位四元数旋转到一个目标单位四元数
+     * @param from The first unit quaternion
+     * @param to The second unit quaternion
+     * @param maxStep The maximum angle of rotation in degrees
+     * @returns new unit quaternion generated during rotation
+     */
+    static void rotateTowards(const Quaternion &from, const Quaternion &to, float maxStep, Quaternion *dst);
+
+    /**
      * Calculates the quaternion product of this quaternion with the given quaternion.
      *
      * Note: this does not modify this quaternion.

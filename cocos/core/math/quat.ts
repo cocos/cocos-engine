@@ -685,6 +685,40 @@ export class Quat extends ValueType {
     }
 
     /**
+     * @en Gets the angular distance between two unit quaternions
+     * @zh 获取两个单位四元数的夹角
+     * @param a The first unit quaternion
+     * @param b The second unit quaternion
+     * @returns Angle between the two quaternions in radians
+     */
+    public static angle (a: IQuatLike, b: IQuatLike) {
+        const dot = Math.min(Math.abs(Quat.dot(a, b)), 1.0);
+        return Math.acos(dot) * 2.0;
+    }
+
+    /**
+     * @en Rotate a `from` unit quaternion towards `to` unit quaternion
+     * @zh 将一个起始单位四元数旋转到一个目标单位四元数
+     * @param from The first unit quaternion
+     * @param to The second unit quaternion
+     * @param maxStep The maximum angle of rotation in degrees
+     * @returns new unit quaternion generated during rotation
+     */
+    public static rotateTowards (out: IQuatLike, from: IQuatLike, to: IQuatLike, maxStep: number) {
+        const angle = Quat.angle(from, to);
+        if (angle === 0) {
+            out.x = to.x;
+            out.y = to.y;
+            out.z = to.z;
+            out.w = to.w;
+            return out;
+        }
+
+        const t = Math.min(maxStep / toDegree(angle), 1.0);
+        return Quat.slerp(out, from, to, t);
+    }
+
+    /**
      * @en x component.
      * @zh x 分量。
      */

@@ -774,6 +774,34 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Calculates a new position from current to target no more than `maxStep` distance.
+     * @zh 计算一个新位置从当前位置移动不超过 `maxStep` 距离到目标位置。
+     * @param current current position
+     * @param target target position
+     * @param maxStep maximum moving distance
+     */
+    public static moveTowards<Out extends IVec3Like> (out: Out, current: IVec3Like, target: IVec3Like, maxStep: number) {
+        const deltaX = target.x - current.x;
+        const deltaY = target.y - current.y;
+        const deltaZ = target.z - current.z;
+
+        const distanceSqr = deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ;
+        if (distanceSqr === 0 || (maxStep >= 0 && distanceSqr < maxStep * maxStep)) {
+            out.x = target.x;
+            out.y = target.y;
+            out.z = target.z;
+            return out;
+        }
+
+        const distance = Math.sqrt(distanceSqr);
+        const scale = maxStep / distance;
+        out.x = current.x + deltaX * scale;
+        out.y = current.y + deltaY * scale;
+        out.z = current.z + deltaZ * scale;
+        return out;
+    }
+
+    /**
      * @en x component.
      * @zh x 分量。
      */
