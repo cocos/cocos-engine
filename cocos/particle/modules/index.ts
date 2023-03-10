@@ -38,3 +38,4 @@ export * from './gravity';
 export * from './event';
 export * from './solve';
 export * from './state';
+export * from './death-event-generator';

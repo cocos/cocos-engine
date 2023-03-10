@@ -21,8 +21,11 @@ export class StateModule extends ParticleModule {
     public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,
         fromIndex: number, toIndex: number, dt: number) {
         const { normalizedAliveTime, invStartLifeTime } = particles;
-        for (let particleHandle = fromIndex; particleHandle < toIndex; particleHandle++) {
+        for (let particleHandle = toIndex - 1; particleHandle >= fromIndex; particleHandle--) {
             normalizedAliveTime[particleHandle] += dt * invStartLifeTime[particleHandle];
+            if (normalizedAliveTime[particleHandle] > 1) {
+                particles.removeParticle(particleHandle);
+            }
         }
     }
 }

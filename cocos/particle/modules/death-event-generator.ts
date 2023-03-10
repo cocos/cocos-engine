@@ -40,51 +40,15 @@ const rot = new Quat();
 const position = new Vec3();
 const velocity = new Vec3();
 
-export enum EventCondition {
-    LIFETIME,
-    DEATH,
-}
-
-export enum InheritedProperty {
-    COLOR = 1,
-    SIZE = 1 << 1,
-    ROTATION = 1 << 2,
-    LIFETIME = 1 << 3,
-    DURATION = 1 << 4
-}
-
-@ccclass('cc.EventData')
-export class EventData {
-    @type(Enum(EventCondition))
-    @visible(true)
-    @serializable
-    public condition = EventCondition.LIFETIME;
-
-    @type(ParticleSystem)
-    @visible(true)
-    @serializable
-    public emitter: ParticleSystem | null = null;
-
-    @type(BitMask(InheritedProperty))
-    @visible(true)
-    @serializable
-    public inheritedProperties = 0;
-
+@ccclass('cc.DeathEventGeneratorModule')
+export class DeathEventGeneratorModule extends ParticleModule {
     @type(CCFloat)
     @range([0, 1])
     @serializable
     public probability = 1;
-}
-
-@ccclass('cc.EventModule')
-export class EventGeneratorModule extends ParticleModule {
-    @type([EventData])
-    @visible(true)
-    @serializable
-    public eventInfos: EventData[] = [];
 
     public get name (): string {
-        return 'EventModule';
+        return 'DeathEventGenerator';
     }
 
     public get updateStage (): ParticleUpdateStage {
@@ -106,7 +70,7 @@ export class EventGeneratorModule extends ParticleModule {
             const eventInfo = eventInfos[j];
             const { emitter, probability } = eventInfo;
             if (eventInfo.condition === EventCondition.LIFETIME && emitter && emitter.isValid
-                && !approx(probability, 0)) {
+                 && !approx(probability, 0)) {
                 if (lifeTimeSubEmitterIndex >= MAX_SUB_EMITTER_ACCUMULATOR) {
                     warn('Event module only supports 3 sub-emitter with lifetime mode at most!');
                     continue;
@@ -165,7 +129,7 @@ export class EventGeneratorModule extends ParticleModule {
                 for (let i = 0; i < particleEventSnapshotCount; i++) {
                     const snapshot = particleEventSnapshots[i];
                     if (snapshot.recordReason === RecordReason.DEATH
-                        && pseudoRandom(snapshot.randomSeed + PROBABILITY_RANDOM_SEED_OFFSET) <= probability) {
+                         && pseudoRandom(snapshot.randomSeed + PROBABILITY_RANDOM_SEED_OFFSET) <= probability) {
                         position.set(snapshot.position);
                         velocity.set(snapshot.finalVelocity);
                         if (simulationSpace === Space.LOCAL) {
@@ -193,15 +157,6 @@ export class EventGeneratorModule extends ParticleModule {
                         }
                     }
                 }
-            }
-        }
-    }
-
-    public beginUpdate () {
-        for (let i = 0; i < this.eventInfos.length; i++) {
-            const eventInfo = this.eventInfos[i];
-            if (eventInfo.emitter && eventInfo.emitter.isValid) {
-                eventInfo.emitter.isSubEmitter = true;
             }
         }
     }
