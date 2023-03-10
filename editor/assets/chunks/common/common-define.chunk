@@ -66,3 +66,6 @@
 #define IS_SPOT_LIGHT(light_type) equalf_lowp(light_type, LIGHT_TYPE_SPOT)
 #define IS_POINT_LIGHT(light_type) equalf_lowp(light_type, LIGHT_TYPE_POINT)
 #define IS_RANGED_DIRECTIONAL_LIGHT(light_type) equalf_lowp(light_type, LIGHT_TYPE_RANGED_DIRECTIONAL)
+
+// Material
+#define SURFACES_MAX_TRANSMIT_DEPTH_VALUE 999999.0

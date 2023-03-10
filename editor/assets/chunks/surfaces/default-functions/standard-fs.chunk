@@ -77,8 +77,8 @@ vec4 SurfacesFragmentModifyTransmitScatteringParams()
     // xy: extinction coef for out/in-scattering (should be same), 0 means disable scattering
     // z: in-scattering coef (constant phase function)
     // w: transmit distance(water depth, leaf / hair thickness), 0 means disable scattering
-    //    or distance multiplier for CC_SURFACES_LIGHTING_USE_SHADOWMAP_TRANSMIT(ear, nose, nephrite)
-    return vec4(0.0, 0.0, 0.0, 0.0);
+    //    or transmit distance multiplier for CC_SURFACES_LIGHTING_USE_SHADOWMAP_TRANSMIT(ear, nose, nephrite)
+    return vec4(1.0, 1.0, 1.0, 1.0);
 }
 #endif
 
@@ -92,7 +92,7 @@ vec3 SurfacesFragmentModifyTransmitInScatteringColor()
 #ifndef CC_SURFACES_FRAGMENT_MODIFY_TRANSMIT_OUT_SCATTERING_COLOR
 vec3 SurfacesFragmentModifyTransmitOutScatteringColor()
 {
-    // background multiplier
+    // transmit background multiplier
     return vec3(1.0);
 }
 #endif
@@ -101,10 +101,12 @@ vec3 SurfacesFragmentModifyTransmitOutScatteringColor()
 vec4 SurfacesFragmentModifyTransmitDiffuseParams()
 {
     // CC_SURFACES_LIGHTING_USE_SHADOWMAP_TRANSMIT related parameters
-    // x: transmit back irradiance apply shadow, default 1.0 means enable shadow
+    // x: object thickness (worldspace unit bounding box max length), apply shadows for backlit only when shadowmap distance > object thickness, 0 means always apply shadows(thin object), SURFACES_MAX_TRANSMIT_DEPTH_VALUE means do not apply shadows.
+    //    notice: setting too small a value for thick objects, no transmit light will disappear.
     // y: transmit area mask, limit area to avoid shadowmap coverage precision artifacts, default 1.0 means enable full transmit, and gradient value makes transmit lighting look smoother
-    // zw: min/max DepthWS for shadowmap, should use cull none for shadow caster pass, enable both shadow cast and receive
-    return vec4(1.0, 1.0, 0.0, 1.0);
+    // zw: reserved
+    // material should use cull none for shadow caster pass, and enable shadow casting and receive shadow
+    return vec4(1.0, 1.0, 0.0, 0.0);
 }
 #endif
 

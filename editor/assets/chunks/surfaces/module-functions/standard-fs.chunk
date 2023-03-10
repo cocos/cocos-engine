@@ -259,9 +259,6 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
   #if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR
     + lightingResult.directTransmitSpecular * lightingResult.specularColorWithLighting * invFresnel
   #endif
-  #if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
-    + lightingResult.directTransmitDiffuse
-  #endif
   #if CC_SURFACES_LIGHTING_TRT
     + lightingResult.directTRT * lightingResult.specularColorWithLightingTRT * surfaceData.trtIntensity * surfaceData.baseColorTRT
   #endif
@@ -269,7 +266,11 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
     + lightingResult.directTT * lightingResult.diffuseColorWithLightingTT
   #endif
     )
-    * lightingResult.shadow;
+    * lightingResult.shadow
+  #if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
+    + lightingResult.directTransmitDiffuse
+  #endif
+  ;
 
   #if CC_SURFACES_USE_LIGHT_MAP == LIGHT_MAP_TYPE_ALL_IN_ONE
     color.xyz += lightingResult.lightmapColor * lightingResult.diffuseColorWithLighting * lightingResult.shadow; //apply real-time shadows
@@ -283,15 +284,16 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
   #if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR
     + lightingResult.environmentTransmitSpecular * lightingResult.specularColorWithLighting * invFresnel
   #endif
-  #if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
-    + lightingResult.environmentTransmitDiffuse
-  #endif
   #if CC_SURFACES_LIGHTING_TRT
     + lightingResult.environmentTRT * lightingResult.specularColorWithLightingTRT * surfaceData.trtIntensity * surfaceData.baseColorTRT
   #endif
     )
-    * lightingResult.ao;
-
+    * lightingResult.ao
+  #if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
+    + lightingResult.environmentTransmitDiffuse
+  #endif
+  ;
+  
   color.xyz += lightingResult.emissive;
 #endif
  

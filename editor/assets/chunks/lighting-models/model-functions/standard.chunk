@@ -98,43 +98,44 @@ void CCSurfacesLightingCalculateEnvironment(out vec3 lightingDiffuse, out vec3 l
 #endif
 
 #if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
-    //公用：使用transmitDiffuseParams.y作为mask，0表示全遮挡
-  #define needApplyShadow lightingData.transmitDiffuseParams.x
+  #define objectThickness lightingData.transmitDiffuseParams.x
   #define transmitMask lightingData.transmitDiffuseParams.y
-  #define DONOT_USE_SHADOW_DISTANCE (equalf(lightingData.shadowPosAndDepth.z, lightingData.shadowPosAndDepth.w) && lightingData.shadowPosAndDepth.z > 999900.0)
+  #define DONOT_USE_SHADOWMAP_DISTANCE (equalf(lightingData.shadowPosAndDepth.z, lightingData.shadowPosAndDepth.w) && equalf(lightingData.shadowPosAndDepth.z, SURFACES_MAX_TRANSMIT_DEPTH_VALUE))
   // view space depth is negative value, so use shadowMap - current
-  #define GET_SHADOW_DISTANCE clamp(lightingData.shadowPosAndDepth.w - lightingData.shadowPosAndDepth.z, lightingData.transmitDiffuseParams.z, lightingData.transmitDiffuseParams.w)
+  #define SHADOWMAP_DISTANCE max(lightingData.shadowPosAndDepth.w - lightingData.shadowPosAndDepth.z, 0.0)
+  //clamp(lightingData.shadowPosAndDepth.w - lightingData.shadowPosAndDepth.z, lightingData.transmitDiffuseParams.z, lightingData.transmitDiffuseParams.w)
 
   void CCSurfacesLightingCalculateDirectTransmitDiffuse(out vec3 transmitDiffuse, in LightingIntermediateData lightingData, in vec4 lightSourceColorAndIntensity, float shadow)
   {
     float distance = lightingData.transmitScatteringParams.w;
-    if (!DONOT_USE_SHADOW_DISTANCE)
+    if (!DONOT_USE_SHADOWMAP_DISTANCE)
     {
-      distance *= GET_SHADOW_DISTANCE;
+      distance *= SHADOWMAP_DISTANCE;
+      shadow = step(SHADOWMAP_DISTANCE, objectThickness) > 0.0 ? 1.0 : shadow;
     }
-    //屏蔽掉shadow：transmitDiffuseParams.zw的情况下使用transmitScatteringParams.w作为距离
-    //不屏蔽shadow：使用zw * transmitScatteringParams.w作为distance
-    shadow = mix(1.0, shadow, needApplyShadow);
 
-    // vec3 backIrradiance = vec3(saturate(-lightingData.NoL)) * lightSourceColorAndIntensity.rgb * lightSourceColorAndIntensity.w;
-    // vec3 transmitDiffuse = backIrradiance * DiffuseCoefficient_EnergyConservation;
     vec3 backIrradiance = CalculateDirectDiffuse(lightingData, lightSourceColorAndIntensity);
     backIrradiance *= shadow * transmitMask;
     transmitDiffuse = CalculateScattering(backIrradiance, distance, lightingData.transmitScatteringParams.x, lightingData.transmitScatteringParams.y, lightingData.transmitScatteringParams.z, lightingData.inScatteringColor.rgb, lightingData.outScatteringColor.rgb);
-    
-    //test
-    transmitDiffuse = vec3(distance * 100.0);
   }
+  // depend on dir-light shadow direction, if there are some occluders in front of the light source, env transmit will dark
   void CCSurfacesLightingCalculateEnvironmentTransmitDiffuse(out vec3 transmitDiffuse, in LightingIntermediateData lightingData, float lightIntensity, float ao)
   {
+    float distance = lightingData.transmitScatteringParams.w;
+    if (!DONOT_USE_SHADOWMAP_DISTANCE)
+    {
+      distance *= SHADOWMAP_DISTANCE;
+    }
+
     vec3 backIrradiance = CalculateEnvironmentDiffuse(lightingData, lightIntensity);
-    transmitDiffuse = vec3(0.0); //backIrradiance * lightingResult.ao;
+    backIrradiance *= ao * transmitMask;
+    transmitDiffuse = CalculateScattering(backIrradiance, distance, lightingData.transmitScatteringParams.x, lightingData.transmitScatteringParams.y, lightingData.transmitScatteringParams.z, lightingData.inScatteringColor.rgb, lightingData.outScatteringColor.rgb);
   }
 
-  #undef needApplyShadow
+  #undef objectThickness
   #undef transmitMask
-  #undef DONOT_USE_SHADOW_DISTANCE
-  #undef GET_SHADOW_DISTANCE
+  #undef DONOT_USE_SHADOWMAP_DISTANCE
+  #undef SHADOWMAP_DISTANCE
 #endif
 
 #if CC_SURFACES_LIGHTING_TRT

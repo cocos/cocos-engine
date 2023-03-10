@@ -70,7 +70,7 @@ void CCSurfacesLightingGetIntermediateData_PerPixel(inout LightingIntermediateDa
   data.transmitScatteringParams = vec4(0.0);
 #endif
 #if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
-  data.shadowPosAndDepth = vec4(0.0, 0.0, 999999.0, 999999.0);
+  data.shadowPosAndDepth = vec4(0.0, 0.0, SURFACES_MAX_TRANSMIT_DEPTH_VALUE, SURFACES_MAX_TRANSMIT_DEPTH_VALUE);
 #endif
 #if CC_SURFACES_LIGHTING_TT
   data.baseColorTT = vec3(0.0);

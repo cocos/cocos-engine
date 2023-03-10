@@ -47,11 +47,11 @@
           }
           #if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE && CC_SURFACES_LIGHTING_USE_SHADOWMAP_TRANSMIT
             vec3 shadowNDCPos;
-            GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias);
+            bool isExceedShadowMap = !GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias);
             lightingData.shadowPosAndDepth.xy = shadowNDCPos.xy;
             // notice: view space z value is negative
-            lightingData.shadowPosAndDepth.z = GetViewSpaceDepthFromNDCDepth_Perspective(shadowNDCPos.z, shadowPosWithDepthBias.w, cc_shadowInvProjDepthInfo.x, cc_shadowInvProjDepthInfo.y);
-            lightingData.shadowPosAndDepth.w = GetViewSpaceDepthFromNDCDepth_Perspective(SampleShadowMapSoft(shadowNDCPos, cc_spotShadowMap, cc_shadowWHPBInfo.xy), shadowNDCPosWithBias.w, cc_shadowInvProjDepthInfo.x, cc_shadowInvProjDepthInfo.y);
+            lightingData.shadowPosAndDepth.z = isExceedShadowMap ? 0.0 : GetViewSpaceDepthFromNDCDepth_Perspective(shadowNDCPos.z, shadowPosWithDepthBias.w, cc_shadowInvProjDepthInfo.x, cc_shadowInvProjDepthInfo.y);
+            lightingData.shadowPosAndDepth.w = isExceedShadowMap ? lightingData.shadowPosAndDepth.w : GetViewSpaceDepthFromNDCDepth_Perspective(SampleShadowMapSoft(shadowNDCPos, cc_spotShadowMap, cc_shadowWHPBInfo.xy), shadowPosWithDepthBias.w, cc_shadowInvProjDepthInfo.x, cc_shadowInvProjDepthInfo.y);
           #endif
         }
       #endif
@@ -136,28 +136,30 @@
         if (cc_mainLitDir.w > 0.0) {
           vec4 shadowPos = vec4(0.0), shadowPosWithDepthBias = vec4(0.0);
           vec4 shadowProjDepthInfo = vec4(0.0);
+          vec3 shadowNDCPos;
+          bool isExceedShadowMap = true;
           if (CCSurfacesLightingEnableShadow(lightingData.NoL)) {
             #if CC_DIR_LIGHT_SHADOW_TYPE == CC_DIR_LIGHT_SHADOW_CASCADED
               lightingResult.shadow = CCCSMFactorBase(worldPos, lightingData.N, shadowBias);
               #if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE && CC_SURFACES_LIGHTING_USE_SHADOWMAP_TRANSMIT
                 vec4 shadowProjInfo;
                 vec3 shadowViewDir0, shadowViewDir1, shadowViewDir2;
-                CCGetCSMLevel(shadowPosWithDepthBias, shadowProjDepthInfo, shadowProjInfo, shadowViewDir0, shadowViewDir1, shadowViewDir2, worldPos);
+                isExceedShadowMap = 0 > CCGetCSMLevel(shadowPosWithDepthBias, shadowProjDepthInfo, shadowProjInfo, shadowViewDir0, shadowViewDir1, shadowViewDir2, worldPos);
+                GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias);
               #endif
             #endif
             #if CC_DIR_LIGHT_SHADOW_TYPE == CC_DIR_LIGHT_SHADOW_UNIFORM
               shadowPos = cc_matLightViewProj * vec4(worldPos, 1.0);
               lightingResult.shadow = CCShadowFactorBase(shadowPosWithDepthBias, shadowPos, lightingData.N, shadowBias);
               shadowProjDepthInfo = cc_shadowProjDepthInfo;
+              isExceedShadowMap = !GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias);
             #endif
           }
           #if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE && CC_SURFACES_LIGHTING_USE_SHADOWMAP_TRANSMIT
-            vec3 shadowNDCPos;
-            GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias);
             lightingData.shadowPosAndDepth.xy = shadowNDCPos.xy;
             // notice: view space z value is negative
-            lightingData.shadowPosAndDepth.z = GetViewSpaceDepthFromNDCDepth_Orthgraphic(shadowNDCPos.z, shadowProjDepthInfo.x, shadowProjDepthInfo.y);
-            lightingData.shadowPosAndDepth.w = GetViewSpaceDepthFromNDCDepth_Orthgraphic(SampleShadowMapSoft(shadowNDCPos, cc_shadowMap, cc_shadowWHPBInfo.xy), shadowProjDepthInfo.x, shadowProjDepthInfo.y);
+            lightingData.shadowPosAndDepth.z = isExceedShadowMap ? 0.0 : GetViewSpaceDepthFromNDCDepth_Orthgraphic(shadowNDCPos.z, shadowProjDepthInfo.x, shadowProjDepthInfo.y);
+            lightingData.shadowPosAndDepth.w = isExceedShadowMap ? lightingData.shadowPosAndDepth.w : GetViewSpaceDepthFromNDCDepth_Orthgraphic(SampleShadowMapSoft(shadowNDCPos, cc_shadowMap, cc_shadowWHPBInfo.xy), shadowProjDepthInfo.x, shadowProjDepthInfo.y);
           #endif
         }
       #endif
