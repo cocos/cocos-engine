@@ -161,7 +161,9 @@ export default class Gradient {
 
     private getRGB (time: number) {
         if (this.colorKeys.length > 1) {
-            time = repeat(time, 1);
+            if (time !== 1) {
+                time = repeat(time, 1);
+            }
             for (let i = 1; i < this.colorKeys.length; ++i) {
                 const preTime = this.colorKeys[i - 1].time;
                 const curTime = this.colorKeys[i].time;
@@ -181,6 +183,7 @@ export default class Gradient {
                 Color.lerp(this._color, this.colorKeys[lastIndex].color, Color.BLACK, (time - this.colorKeys[lastIndex].time) / (1 - this.colorKeys[lastIndex].time));
             }
             // console.warn('something went wrong. can not get gradient color.');
+            this._color.set(this.colorKeys[lastIndex].color);
             return this._color;
         } else if (this.colorKeys.length === 1) {
             this._color.set(this.colorKeys[0].color);
@@ -194,7 +197,9 @@ export default class Gradient {
     private getAlpha (time: number) {
         const basicAlpha = 0; // default alpha is 0
         if (this.alphaKeys.length > 1) {
-            time = repeat(time, 1);
+            if (time !== 1) {
+                time = repeat(time, 1);
+            }
             for (let i = 1; i < this.alphaKeys.length; ++i) {
                 const preTime = this.alphaKeys[i - 1].time;
                 const curTime = this.alphaKeys[i].time;
@@ -212,7 +217,7 @@ export default class Gradient {
             } else if (time > this.alphaKeys[lastIndex].time) {
                 return lerp(this.alphaKeys[lastIndex].alpha, basicAlpha, (time - this.alphaKeys[lastIndex].time) / (1 - this.alphaKeys[lastIndex].time));
             }
-            return 255;
+            return this.alphaKeys[lastIndex].alpha;
         } else if (this.alphaKeys.length === 1) {
             return this.alphaKeys[0].alpha;
         } else {
