@@ -100,8 +100,8 @@ void CCSurfacesLightingCalculateEnvironment(out vec3 lightingDiffuse, out vec3 l
 #if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
   #define objectThickness lightingData.transmitDiffuseParams.x
   #define transmitMask lightingData.transmitDiffuseParams.y
-  #define shadowMapDistancePower lightingData.transmitDiffuseParams.z
-  #define envTransmitScale lightingData.transmitDiffuseParams.w
+  #define envTransmitScale lightingData.transmitDiffuseParams.z
+  #define envFixedDistanceScale lightingData.transmitDiffuseParams.w
   #define DONOT_USE_SHADOWMAP_DISTANCE (equalf(lightingData.shadowPosAndDepth.z, lightingData.shadowPosAndDepth.w) && equalf(lightingData.shadowPosAndDepth.z, SURFACES_MAX_TRANSMIT_DEPTH_VALUE))
   // view space depth is negative value, so use shadowMap - current
   #define SHADOWMAP_DISTANCE max(lightingData.shadowPosAndDepth.w - lightingData.shadowPosAndDepth.z, 0.0)
@@ -112,7 +112,7 @@ void CCSurfacesLightingCalculateEnvironment(out vec3 lightingDiffuse, out vec3 l
     float distance = lightingData.transmitScatteringParams.w;
     if (!DONOT_USE_SHADOWMAP_DISTANCE)
     {
-      distance *= pow(SHADOWMAP_DISTANCE, shadowMapDistancePower);
+      distance *= SHADOWMAP_DISTANCE;
       shadow = step(SHADOWMAP_DISTANCE, objectThickness) > 0.0 ? 1.0 : shadow;
     }
 
@@ -126,21 +126,22 @@ void CCSurfacesLightingCalculateEnvironment(out vec3 lightingDiffuse, out vec3 l
     float distance = lightingData.transmitScatteringParams.w;
     if (!DONOT_USE_SHADOWMAP_DISTANCE)
     {
-      float shadowMapDistance = distance * pow(SHADOWMAP_DISTANCE, shadowMapDistancePower);
+      float shadowMapDistance = distance * SHADOWMAP_DISTANCE;
+      float fixedDistance = distance * envFixedDistanceScale;
       // lerp between shadowmap distance and fix distance to fix shadow and normal direction not match
       float lerpCoef = saturate(dot(lightingData.N, shadowLightDirection));
-      distance = mix(distance, shadowMapDistance, lerpCoef);
+      distance = mix(fixedDistance, shadowMapDistance, lerpCoef);
     }
 
     vec3 backIrradiance = CalculateEnvironmentDiffuse(lightingData, lightIntensity);
     backIrradiance *= ao * transmitMask;
     transmitDiffuse = CalculateScattering(backIrradiance, distance, lightingData.transmitScatteringParams.x, lightingData.transmitScatteringParams.y, lightingData.transmitScatteringParams.z, lightingData.inScatteringColor.rgb, lightingData.outScatteringColor.rgb);
-    transmitDiffuse *= envTransmitScale;
   }
 
   #undef objectThickness
   #undef transmitMask
   #undef envTransmitScale
+  #undef envFixedDistanceScale
   #undef DONOT_USE_SHADOWMAP_DISTANCE
   #undef SHADOWMAP_DISTANCE
 #endif
