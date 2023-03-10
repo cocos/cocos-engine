@@ -35,7 +35,7 @@ import { Settings, settings, cclegacy } from '../../core';
 import releaseManager from './release-manager';
 import { Material } from '../assets';
 
-class BuiltinResMgr {
+export class BuiltinResMgr {
     protected _resources: Record<string, Asset> = {};
     protected _materialsToBeCompiled: Material[] = [];
 

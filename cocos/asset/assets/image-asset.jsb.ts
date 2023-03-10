@@ -21,15 +21,19 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { ALIPAY, XIAOMI, JSB, TEST, BAIDU } from 'internal:constants';
+
+import { ALIPAY, XIAOMI, JSB, TEST, BAIDU, EDITOR } from 'internal:constants';
 import { Format, FormatFeatureBit, deviceManager } from '../../gfx';
 import { PixelFormat } from './asset-enum';
 import { sys, macro, warnID, cclegacy } from '../../core';
 import { patch_cc_ImageAsset } from '../../native-binding/decorators';
 import './asset';
+import type { ImageAsset as JsbImageAsset } from './image-asset';
 
-export type ImageAsset = jsb.ImageAsset;
-export const ImageAsset = jsb.ImageAsset;
+declare const jsb: any;
+
+export type ImageAsset = JsbImageAsset;
+export const ImageAsset: typeof JsbImageAsset = jsb.ImageAsset;
 const jsbWindow = jsb.window;
 
 export interface IMemoryImageSource {

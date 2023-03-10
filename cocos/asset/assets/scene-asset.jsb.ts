@@ -24,9 +24,12 @@
 import { cclegacy } from '../../core';
 import { patch_cc_SceneAsset } from '../../native-binding/decorators';
 import './asset';
+import type { SceneAsset as JsbSceneAsset } from './scene-asset';
 
-export const SceneAsset = jsb.SceneAsset;
-export type SceneAsset = jsb.SceneAsset;
+declare const jsb: any;
+
+export const SceneAsset: typeof JsbSceneAsset = jsb.SceneAsset;
+export type SceneAsset = JsbSceneAsset;
 
 cclegacy.SceneAsset = SceneAsset;
 
