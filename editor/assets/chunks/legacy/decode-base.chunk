@@ -39,12 +39,13 @@ layout(location = 3) in vec4 a_tangent;
   #if CC_USE_LIGHTMAP
     in vec4 a_lightingMapUVParam;
   #endif
-
+  
   // TODO (jk20012001)
-  #if CC_USE_REFLECTION_PROBE
+  #if CC_USE_REFLECTION_PROBE || CC_RECEIVE_SHADOW
+  // temporary hack for effect-parser: can't detect logic OR.
+    #if CC_RECEIVE_SHADOW
+    #endif
     in vec4 a_localShadowBiasAndProbeId; // x:shadow bias, y:shadow normal bias, z: reflection probe id, w: reserved for blend reflection probe id
-  #elif CC_RECEIVE_SHADOW
-    in vec4 a_localShadowBiasAndProbeId;
   #endif
 
   #if CC_USE_LIGHT_PROBE
