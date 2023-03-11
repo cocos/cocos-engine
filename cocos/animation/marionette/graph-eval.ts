@@ -226,6 +226,10 @@ export class AnimationGraphEval {
         this._updateAfterPossiblePoseLayoutChange();
     }
 
+    public getAuxiliaryCurveValue (curveName: string) {
+        return this._metaValueRegistry.get(curveName);
+    }
+
     private _varInstances: Record<string, VarInstance> = {};
     private _hasAutoTrigger = false;
     private _metaValueRegistry = new MetaValueRegistry();

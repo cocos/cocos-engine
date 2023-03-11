@@ -4,7 +4,7 @@ import { assertIsTrue } from '../../core/data/utils/asserts';
 import { Pose, TransformFilter } from '../core/pose';
 import { PoseAllocator } from '../core/pose-allocator';
 import { TransformArray } from '../core/transform-array';
-import { TransformHandle, MetaValueHandle } from '../core/animation-handle';
+import { TransformHandle, AuxiliaryCurveHandle } from '../core/animation-handle';
 import { Transform, ZERO_DELTA_TRANSFORM } from '../core/transform';
 import { VarInstance } from './variable';
 import { AnimationMask } from './animation-mask';
@@ -98,7 +98,7 @@ export class AnimationGraphBindingContext {
         return boneNode.children.map((childNode) => childNode.name);
     }
 
-    public bineMetaValue (name: string): MetaValueHandle {
+    public bindAuxiliaryCurve (name: string): AuxiliaryCurveHandle {
         return this._layoutMaintainer.getOrCreateMetaValueBinding(name);
     }
 
@@ -542,13 +542,13 @@ class TransformHandleInternal implements TransformHandle {
     private _host: AnimationGraphPoseLayoutMaintainer;
 }
 
-class MetaValueHandleInternal implements MetaValueHandle {
+class MetaValueHandleInternal implements AuxiliaryCurveHandle {
     constructor (host: AnimationGraphPoseLayoutMaintainer, index: number) {
         this._host = host;
         this.index = index;
     }
 
-    declare __brand: MetaValueHandle['__brand'];
+    declare __brand: AuxiliaryCurveHandle['__brand'];
 
     public index = -1;
 
