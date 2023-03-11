@@ -76,8 +76,9 @@ vec4 SurfacesFragmentModifyTransmitScatteringParams()
 {
     // xy: extinction coef for out/in-scattering (should be same), 0 means disable scattering, thin object needs larger value such as 100-1000
     // z: in-scattering coef (constant phase function)
-    // w: transmit distance(water depth, leaf / hair thickness), 0 means disable scattering
-    //    or transmit distance multiplier for CC_SURFACES_LIGHTING_USE_SHADOWMAP_TRANSMIT(ear, nose, nephrite)
+    // w: transmit distance, depending on CC_SURFACES_LIGHTING_USE_SHADOWMAP_TRANSMIT macro value:
+    //    macro is 0: affect direct / env transmit lighting, 0 means disable scattering, (water depth, leaf / hair thickness)
+    //    macro is 1:  only affect env transmit when shadow dir not match normal, (ear, nose, nephrite)
     return vec4(1.0, 1.0, 1.0, 1.0);
 }
 #endif
@@ -100,12 +101,12 @@ vec3 SurfacesFragmentModifyTransmitOutScatteringColor()
 #ifndef CC_SURFACES_FRAGMENT_MODIFY_TRANSMIT_DIFFUSE_PARAMS
 vec4 SurfacesFragmentModifyTransmitDiffuseParams()
 {
-    // CC_SURFACES_LIGHTING_USE_SHADOWMAP_TRANSMIT related parameters
-    // x: object thickness (worldspace unit bounding box max length), apply shadows for backlit only when shadowmap distance > object thickness, 0 means always apply shadows(thin object), SURFACES_MAX_TRANSMIT_DEPTH_VALUE means do not apply shadows.
+    // CC_SURFACES_LIGHTING_USE_SHADOWMAP_TRANSMIT related parameters, valid for macro is 1 only
+    // x: object (material part) thickness (worldspace unit bounding box max length), apply shadows for backlit only when shadowmap distance > object thickness, 0 means always apply shadows(thin object), SURFACES_MAX_TRANSMIT_DEPTH_VALUE means do not apply shadows.
     //    notice: setting too small a value for thick objects, no transmit light will disappear.
     // y: transmit area mask, limit area to avoid shadowmap coverage precision artifacts, default 1.0 means enable full transmit, and gradient value makes transmit lighting look smoother
     // z: environment transmit scale (env transmit is not accuracy, some material should give 0 to disable, or use area mask instead)
-    // w: environment distance world space unit (when shadow dir not match normal, use this value * scatteringParams.w for smooth lerp)
+    // w: shadowmap transmit distance scale, useless
     // material should use cull none for shadow caster pass, and enable shadow casting and receive shadow
     return vec4(1.0, 1.0, 1.0, 1.0);
 }
