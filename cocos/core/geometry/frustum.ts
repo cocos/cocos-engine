@@ -49,9 +49,9 @@ const _temp_v3 = new Vec3();
  */
 export class Frustum {
     /**
-     * @en Creates an orthogonal frustum.
+     * @en Creates an orthographic frustum.
      * @zh 创建一个正交视锥体。
-     * @param out @en The result orthogonal frustum. @zh 输出的正交视锥体。
+     * @param out @en The result orthographic frustum. @zh 输出的正交视锥体。
      * @param width @en The width of the frustum. @zh 正交视锥体的宽度。
      * @param height @en The height of the frustum. @zh 正交视锥体的高度。
      * @param near @en The near plane of the frustum. @zh 正交视锥体的近平面值。
@@ -59,7 +59,7 @@ export class Frustum {
      * @param transform @en The transform matrix of the frustum. @zh 正交视锥体的变换矩阵。
      * @returns @en The result frustum, same as the `out` parameter. @zh 存储结果的视锥体，与 `out` 参数为同一个对象。
      */
-    public static createOrthogonal (out: Frustum, width: number, height: number, near: number, far: number, transform: Mat4) {
+    public static createOrthographic (out: Frustum, width: number, height: number, near: number, far: number, transform: Mat4) {
         const halfWidth = width / 2;
         const halfHeight = height / 2;
         Vec3.set(_temp_v3, halfWidth, halfHeight, -near);
@@ -83,9 +83,9 @@ export class Frustum {
     }
 
     /**
-     * @en Creates an orthogonal frustum.
+     * @en Creates an orthographic frustum.
      * @zh 创建一个正交视锥体。
-     * @param out @en The result orthogonal frustum. @zh 输出的正交视锥体。
+     * @param out @en The result orthographic frustum. @zh 输出的正交视锥体。
      * @param width @en The width of the frustum. @zh 正交视锥体的宽度。
      * @param height @en The height of the frustum. @zh 正交视锥体的高度。
      * @param near @en The near plane of the frustum. @zh 正交视锥体的近平面值。
@@ -93,10 +93,10 @@ export class Frustum {
      * @param transform @en The transform matrix of the frustum. @zh 正交视锥体的变换矩阵。
      * @returns @en The result frustum, same as the `out` parameter. @zh 存储结果的视锥体，与 `out` 参数为同一个对象。
      *
-     * @deprecated since v3.8.0, please use [[createOrthogonal]] instead.
+     * @deprecated since v3.8.0, please use [[createOrthographic]] instead.
      */
     public static createOrtho (out: Frustum, width: number, height: number, near: number, far: number, transform: Mat4) {
-        return Frustum.createOrthogonal(out, width, height, near, far, transform);
+        return Frustum.createOrthographic(out, width, height, near, far, transform);
     }
 
     /**
@@ -146,7 +146,7 @@ export class Frustum {
      * @param aabb @en The AABB to create the result frustum. @zh 用于创建视锥体 AABB。
      * @returns @en The result frustum, same as the `out` parameter. @zh 存储结果的视锥体，与 `out` 参数为同一个对象。
      *
-     * @deprecated since v3.8.0, please use [[createOrthogonal]] instead.
+     * @deprecated since v3.8.0, please use [[createOrthographic]] instead.
      */
     public static createFromAABB (out: Frustum, aabb: AABB | Readonly<AABB>): Frustum {
         const vec3_min = new Vec3(); const vec3_max = new Vec3();
@@ -161,10 +161,6 @@ export class Frustum {
         out.vertices[5].set(vec3_min.x, vec3_max.y, -vec3_max.z);
         out.vertices[6].set(vec3_min.x, vec3_min.y, -vec3_max.z);
         out.vertices[7].set(vec3_max.x, vec3_min.y, -vec3_max.z);
-
-        if (out._type !== enums.SHAPE_FRUSTUM_ACCURATE) {
-            return out;
-        }
 
         out.updatePlanes();
 
@@ -234,6 +230,8 @@ export class Frustum {
      * Sets whether to use accurate intersection testing function on this frustum.
      * @zh
      * 设置是否在此截锥体上使用精确的相交测试函数。
+     *
+     * @deprecated since v3.8.0 no need to set accurate flag since it doesn't affect the calculation at all.
      */
     set accurate (b: boolean) {
         this._type = b ? enums.SHAPE_FRUSTUM_ACCURATE : enums.SHAPE_FRUSTUM;
@@ -312,8 +310,6 @@ export class Frustum {
         Vec3.set(this.planes[5].n, m.m03 - m.m02, m.m07 - m.m06, m.m11 - m.m10);
         this.planes[5].d = -(m.m15 - m.m14);
 
-        if (this._type !== enums.SHAPE_FRUSTUM_ACCURATE) { return; }
-
         // normalize planes
         for (let i = 0; i < 6; i++) {
             const pl = this.planes[i];
@@ -336,9 +332,6 @@ export class Frustum {
      * @param mat @en The transform matrix. @zh 变换矩阵。
      */
     public transform (mat: Mat4) {
-        if (this._type !== enums.SHAPE_FRUSTUM_ACCURATE) {
-            return;
-        }
         for (let i = 0; i < 8; i++) {
             Vec3.transformMat4(this.vertices[i], this.vertices[i], mat);
         }
@@ -350,10 +343,13 @@ export class Frustum {
      * @zh 置空此视锥体，所有顶点将被赋值为 0。
      */
     public zero () {
+        // reset to initial state
         for (let i = 0; i < 8; i++) {
             this.vertices[i].set(0.0, 0.0, 0.0);
         }
-        this.updatePlanes();
+        for (let i = 0; i < 6; i++) {
+            Plane.set(this.planes[i], 0, 0, 0, 0);
+        }
     }
 
     /**
