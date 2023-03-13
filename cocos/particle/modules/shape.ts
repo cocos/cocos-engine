@@ -107,7 +107,7 @@ export enum ArcMode {
 @ccclass('cc.ShapeModule')
 @moduleName('Shape')
 @execStages(ModuleExecStage.SPAWN)
-@execOrder(1)
+@execOrder(0)
 export class ShapeModule extends ParticleModule {
     /**
      * @zh 粒子发射器位置。

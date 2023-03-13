@@ -28,12 +28,12 @@ import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displa
 import { EDITOR } from 'internal:constants';
 import { approx, clamp01, EPSILON, lerp, Mat3, Mat4, pseudoRandom, Quat, randomRangeInt, Size, Vec2, Vec3, Vec4 } from '../core/math';
 import { INT_MAX } from '../core/math/bits';
-import { ColorOverLifetimeModule } from './modules/color-over-lifetime';
+import { ColorOverLifetimeModule } from './modules/color';
 import { CurveRange, Mode } from './curve-range';
-import { ForceOverLifetimeModule } from './modules/force-over-lifetime';
-import { LimitVelocityOverLifetimeModule } from './modules/limit-velocity-over-lifetime';
-import { RotationOverLifetimeModule } from './modules/rotation-over-lifetime';
-import { SizeOverLifetimeModule } from './modules/size-over-lifetime';
+import { ForceOverLifetimeModule } from './modules/force';
+import { LimitVelocityOverLifetimeModule } from './modules/limit-velocity';
+import { RotationOverLifetimeModule } from './modules/rotation';
+import { SizeOverLifetimeModule } from './modules/size';
 import { TextureAnimationModule } from './modules/texture-animation';
 import { VelocityOverLifetimeModule } from './modules/velocity-over-lifetime';
 import { StartColorModule } from './modules/start-color';
@@ -45,7 +45,7 @@ import { SpawnPerUnitModule } from './modules/spawn-per-unit';
 import { GravityModule } from './modules/gravity';
 import { SpeedModifierModule } from './modules/speed-modifier';
 import { StartRotationModule } from './modules/start-rotation';
-import { ShapeModule } from './modules/shape-module';
+import { ShapeModule } from './modules/shape';
 import { ParticleEmitterContext, ParticleEmitterParams, ParticleEmitterState, ParticleUpdateContext, PlayingState, SpawnEvent } from './particle-update-context';
 import { CullingMode, Space } from './enum';
 import { ParticleSystemRenderer } from './particle-system-renderer';
@@ -240,6 +240,7 @@ export class ParticleEmitter extends Component {
     @serializable
     private _renderStage = new ParticleModuleStage(ModuleExecStage.RENDER);
     @serializable
+    private _ownerSystem: 
     private _params = new ParticleEmitterParams();
     private _boundingBoxHalfExtents = new Vec3();
     private _particles = new ParticleSOAData();

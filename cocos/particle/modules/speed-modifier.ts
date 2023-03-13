@@ -33,9 +33,10 @@ import { ParticleEmitterParams, ParticleUpdateContext } from '../particle-update
 const SPEED_MODIFIER_RAND_OFFSET = 388180;
 
 @ccclass('cc.SpeedModifierModule')
+
 export class SpeedModifierModule extends ParticleModule {
     /**
-     * @zh 速度修正系数（只支持 CPU 粒子）。
+     * @zh 速度修正系数。
      */
     @type(CurveRange)
     @serializable

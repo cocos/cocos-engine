@@ -24,7 +24,7 @@
  */
 
 import { ccclass, displayOrder, serializable, tooltip, type, range } from '../../core/data/decorators';
-import { ParticleModule, ModuleExecStage } from '../particle-module';
+import { ParticleModule, ModuleExecStage, moduleName, execStages, execOrder } from '../particle-module';
 import { ParticleEmitterContext, ParticleEmitterParams } from '../particle-update-context';
 import { CurveRange } from '../curve-range';
 import { ParticleSOAData } from '../particle-soa-data';

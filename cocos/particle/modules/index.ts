@@ -23,9 +23,9 @@
  THE SOFTWARE.
  */
 
-export * from './color-over-lifetime';
+export * from './color';
 export * from './speed-modifier';
-export * from './shape-module';
+export * from './shape';
 export * from './spawn-over-time';
 export * from './spawn-per-unit';
 export * from './burst';
