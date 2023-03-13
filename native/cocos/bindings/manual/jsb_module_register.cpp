@@ -79,10 +79,11 @@
     #include "cocos/bindings/manual/JavaScriptJavaBridge.h"
 #endif
 
-#if (CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
-
-    #if CC_USE_VIDEO
-        #include "cocos/bindings/auto/jsb_video_auto.h"
+#if (CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS || CC_PLATFORM == CC_PLATFORM_OPENHARMONY)
+    #if(CC_PLATFORM != CC_PLATFORM_OPENHARMONY)
+        #if CC_USE_VIDEO
+            #include "cocos/bindings/auto/jsb_video_auto.h"
+    #endif
     #endif
 
     #if CC_USE_WEBVIEW
@@ -130,7 +131,6 @@ bool jsb_register_all_modules() {
     se->addRegisterCallback(register_platform_bindings);
     se->addRegisterCallback(register_all_gfx);
     se->addRegisterCallback(register_all_gfx_manual);
-
     se->addRegisterCallback(register_all_network);
     se->addRegisterCallback(register_all_network_manual);
     se->addRegisterCallback(register_all_xmlhttprequest);
@@ -198,10 +198,11 @@ bool jsb_register_all_modules() {
     se->addRegisterCallback(register_all_ar_manual);
 #endif // CC_USE_AR_MODULE
 
-#if (CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
-
-    #if CC_USE_VIDEO
-    se->addRegisterCallback(register_all_video);
+#if (CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS || CC_PLATFORM == CC_PLATFORM_OPENHARMONY)
+    #if(CC_PLATFORM != CC_PLATFORM_OPENHARMONY)
+        #if CC_USE_VIDEO
+        se->addRegisterCallback(register_all_video);
+    #endif
     #endif
 
     #if CC_USE_WEBVIEW

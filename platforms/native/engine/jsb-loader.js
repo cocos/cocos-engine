@@ -55,7 +55,10 @@ function downloadScript (url, options, onComplete) {
     if (loadedScripts[url]) return onComplete && onComplete();
 
     download(url, (src, options, onComplete) => {
-        if (__EDITOR__) {
+        if (window.oh) {
+            // TODO(qgh):OpenHarmony does not currently support dynamic require expressions
+            window.oh.loadModule(src);
+        } else if (__EDITOR__) {
             // in editor mode,require is from electron,__require is from engine
             globalThis.__require(src);
         } else {
@@ -438,8 +441,11 @@ cc.assetManager.transformPipeline.append((task) => {
 const originInit = cc.assetManager.init;
 cc.assetManager.init = function (options) {
     originInit.call(cc.assetManager, options);
-    const jsbDownloaderMaxTasks = cc.settings.querySettings('assets', 'jsbDownloaderMaxTasks');
-    const jsbDownloaderTimeout = cc.settings.querySettings('assets', 'jsbDownloaderTimeout');
-    initJsbDownloader(jsbDownloaderMaxTasks, jsbDownloaderTimeout);
+    // TODO: JsbDownloader is not supported for OpenHarmony for now
+    if (!window.oh) {
+        const jsbDownloaderMaxTasks = cc.settings.querySettings('assets', 'jsbDownloaderMaxTasks');
+        const jsbDownloaderTimeout = cc.settings.querySettings('assets', 'jsbDownloaderTimeout');
+        initJsbDownloader(jsbDownloaderMaxTasks, jsbDownloaderTimeout);
+    }
     cacheManager.init();
 };

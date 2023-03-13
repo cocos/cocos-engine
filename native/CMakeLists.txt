@@ -101,14 +101,19 @@ if(NOT USE_SOCKET)
     set(USE_WEBSOCKET_SERVER OFF)
 endif()
 
-if(OHOS)
+if(OPENHARMONY AND OHOS)
     set(CC_USE_GLES2 OFF)
 endif()
 
 ## disable videoplay on non-mobile platforms
-if(NOT ANDROID AND NOT IOS AND NOT OHOS)
+if(NOT ANDROID AND NOT IOS AND NOT OHOS AND NOT OPENHARMONY)
     set(USE_VIDEO OFF)
     set(USE_WEBVIEW OFF)
+endif()
+
+if(OPENHARMONY)
+    set(USE_SE_V8 OFF)
+    set(USE_SE_NAPI ON)
 endif()
 
 ## disable middleware when dragonbones and spine are disabled
@@ -280,7 +285,7 @@ NO_WERROR   cocos/audio/common/utils/primitives.cpp
             cocos/audio/oalsoft/AudioPlayer.cpp
             cocos/audio/oalsoft/AudioPlayer.h
         )
-    elseif(ANDROID)
+    elseif(ANDROID OR OPENHARMONY)
         cocos_source_files(
             cocos/audio/common/utils/include/primitives.h
             cocos/audio/common/utils/include/format.h
@@ -536,6 +541,16 @@ elseif(ANDROID)
         cocos/platform/android/AndroidPlatform.cpp
         cocos/platform/android/AndroidPlatform.h
     )
+elseif(OPENHARMONY)
+    cocos_source_files(
+        cocos/platform/openharmony/napi/NapiHelper.cpp
+        cocos/platform/openharmony/napi/NapiHelper.h
+
+        cocos/platform/openharmony/WorkerMessageQueue.cpp
+        cocos/platform/openharmony/WorkerMessageQueue.h
+        cocos/platform/openharmony/OpenHarmonyPlatform.cpp
+        cocos/platform/openharmony/OpenHarmonyPlatform.h
+    )
 elseif(OHOS)
     cocos_source_files(
         cocos/platform/ohos/OhosPlatform.cpp
@@ -566,6 +581,7 @@ cocos_source_files(
 )
 
 ############ platform : Interface definition
+if(NOT OPENHARMONY)
 cocos_source_files(
     cocos/platform/interfaces/modules/Device.cpp
     cocos/platform/interfaces/modules/Device.h
@@ -581,6 +597,16 @@ cocos_source_files(
     cocos/platform/interfaces/modules/XRCommon.h
     cocos/platform/interfaces/modules/IXRInterface.h
 )
+elseif(OPENHARMONY)
+    cocos_source_files(
+        cocos/platform/interfaces/modules/ISystem.h
+        cocos/platform/interfaces/modules/ISystem.cpp
+        cocos/platform/interfaces/modules/ISystemWindow.h
+        cocos/platform/interfaces/modules/Device.cpp
+        cocos/platform/interfaces/modules/Device.h
+        cocos/platform/interfaces/modules/IScreen.h
+    )
+endif()
 
 cocos_source_files(
     cocos/platform/interfaces/modules/canvas/CanvasRenderingContext2D.cpp
@@ -597,6 +623,11 @@ elseif(WINDOWS)
     cocos_source_files(
         cocos/platform/win32/modules/CanvasRenderingContext2DDelegate.cpp
         cocos/platform/win32/modules/CanvasRenderingContext2DDelegate.h
+    )
+elseif(OPENHARMONY)
+    cocos_source_files(
+        cocos/platform/openharmony/modules/CanvasRenderingContext2DDelegate.cpp
+        cocos/platform/openharmony/modules/CanvasRenderingContext2DDelegate.h
     )
 elseif(ANDROID OR OHOS)
     cocos_source_files(
@@ -649,6 +680,27 @@ if(WINDOWS)
             cocos/platform/win32/modules/SystemWindowManager.h
         )
     endif()
+elseif(OPENHARMONY)
+    cocos_source_files(
+        cocos/platform/openharmony/modules/System.cpp
+        cocos/platform/openharmony/modules/System.h
+        cocos/platform/openharmony/modules/SystemWindow.cpp
+        cocos/platform/openharmony/modules/SystemWindow.h
+        cocos/platform/openharmony/modules/Screen.cpp
+        cocos/platform/openharmony/modules/Screen.h
+        cocos/platform/openharmony/modules/Accelerometer.cpp
+        cocos/platform/openharmony/modules/Accelerometer.h
+        cocos/platform/openharmony/modules/Battery.cpp
+        cocos/platform/openharmony/modules/Battery.h
+        cocos/platform/openharmony/modules/System.cpp
+        cocos/platform/openharmony/modules/SystemWindow.cpp
+        cocos/platform/openharmony/modules/SystemWindowManager.h
+        cocos/platform/openharmony/modules/SystemWindowManager.cpp
+        cocos/platform/empty/modules/Network.cpp
+        cocos/platform/empty/modules/Network.h
+        cocos/platform/empty/modules/Vibrator.cpp
+        cocos/platform/empty/modules/Vibrator.h
+    )
 elseif(ANDROID OR OHOS)
     cocos_source_files(
         cocos/platform/java/modules/Accelerometer.cpp
@@ -679,6 +731,8 @@ if(ANDROID)
         cocos/platform/android/modules/System.cpp
         cocos/platform/android/modules/System.h
     )
+elseif(OPENHARMONY)
+    # Because there will be a definition of OHOS in harmonyos, it is necessary to define the macro of OPENHARMONY.
 elseif(OHOS)
     cocos_source_files(
         cocos/platform/ohos/modules/Screen.cpp
@@ -892,6 +946,9 @@ cocos_source_files(
                  cocos/network/Downloader.cpp
                  cocos/network/Downloader.h
                  cocos/network/DownloaderImpl.h
+)
+# The xmlhttprequest module of OpenHarmony is implemented in the ts layer
+cocos_source_files(
                  cocos/network/HttpClient.h
                  cocos/network/HttpCookie.cpp
                  cocos/network/HttpCookie.h
@@ -934,7 +991,7 @@ if(APPLE)
     endif()
 endif()
 
-if(ANDROID OR OHOS)
+if(ANDROID OR (NOT OPENHARMONY AND OHOS))
     cocos_source_files(
         cocos/network/Downloader-java.cpp
         cocos/network/Downloader-java.h
@@ -954,14 +1011,14 @@ if(NOT APPLE AND USE_SOCKET)
     endif()
 endif()
 
-if(WINDOWS OR LINUX OR QNX)
+if(WINDOWS OR LINUX OR QNX OR OPENHARMONY)
     cocos_source_files(
         NO_WERROR    cocos/network/Downloader-curl.cpp
                      cocos/network/Downloader-curl.h
     )
 endif()
 
-if(WINDOWS OR MACOSX OR LINUX OR QNX)
+if(WINDOWS OR MACOSX OR LINUX OR QNX OR OPENHARMONY)
     cocos_source_files(
         NO_WERROR   NO_UBUILD   cocos/network/HttpClient.cpp
     )
@@ -1029,6 +1086,12 @@ elseif(ANDROID)
     cocos_source_files(MODULE ccfilesystem
         cocos/platform/android/FileUtils-android.cpp
         cocos/platform/android/FileUtils-android.h
+    )
+elseif(OPENHARMONY)
+    # Because there will be a definition of OHOS in harmonyos, it is necessary to define the macro of OPENHARMONY.
+    cocos_source_files(MODULE ccfilesystem
+        cocos/platform/openharmony/FileUtils-OpenHarmony.cpp
+        cocos/platform/openharmony/FileUtils-OpenHarmony.h
     )
 elseif(OHOS)
     set(CC_JNI_SRC_FILES
@@ -2116,14 +2179,14 @@ cocos_source_files(
 
 ######## auto
 cocos_source_files(
+    NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_network_auto.cpp
+                            cocos/bindings/auto/jsb_network_auto.h
     NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_cocos_auto.cpp
                             cocos/bindings/auto/jsb_cocos_auto.h
     NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_extension_auto.cpp
                             cocos/bindings/auto/jsb_extension_auto.h
     NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_gfx_auto.cpp
                             cocos/bindings/auto/jsb_gfx_auto.h
-    NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_network_auto.cpp
-                            cocos/bindings/auto/jsb_network_auto.h
     NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_pipeline_auto.cpp
                             cocos/bindings/auto/jsb_pipeline_auto.h
     NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_scene_auto.cpp
@@ -2139,6 +2202,7 @@ cocos_source_files(
     NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_2d_auto.cpp
                             cocos/bindings/auto/jsb_2d_auto.h
 )
+
 
 if(USE_AUDIO)
     cocos_source_files(
@@ -2479,6 +2543,14 @@ endif()
 
 ######## manual
 cocos_source_files(
+    NO_WERROR    cocos/bindings/manual/jsb_network_manual.cpp
+                cocos/bindings/manual/jsb_network_manual.h
+    NO_WERROR    cocos/bindings/manual/jsb_xmlhttprequest.cpp
+                cocos/bindings/manual/jsb_xmlhttprequest.h
+
+)
+
+cocos_source_files(
             cocos/bindings/manual/jsb_classtype.cpp
             cocos/bindings/manual/jsb_classtype.h
             cocos/bindings/manual/jsb_cocos_manual.cpp
@@ -2535,6 +2607,10 @@ if(ANDROID)
                     cocos/bindings/manual/jsb_platform_android.cpp
                     cocos/bindings/manual/JavaScriptJavaBridge.cpp
                     cocos/bindings/manual/JavaScriptJavaBridge.h
+    )
+elseif(OPENHARMONY)
+    cocos_source_files(
+        cocos/bindings/manual/jsb_platform_openharmony.cpp
     )
 elseif(OHOS)
     cocos_source_files(
@@ -2645,6 +2721,23 @@ if(USE_SE_SM)
     )
 endif()
 
+if(USE_SE_NAPI)
+    cocos_source_files(MODULE ccbindings
+                     cocos/bindings/jswrapper/napi/Class.cpp
+                     cocos/bindings/jswrapper/napi/Class.h
+                     cocos/bindings/jswrapper/napi/CommonHeader.h
+                     cocos/bindings/jswrapper/napi/HelperMacros.h
+                     cocos/bindings/jswrapper/napi/HelperMacros.cpp
+                     cocos/bindings/jswrapper/napi/Object.cpp
+                     cocos/bindings/jswrapper/napi/Object.h
+        NO_WERROR    cocos/bindings/jswrapper/napi/ScriptEngine.cpp
+                     cocos/bindings/jswrapper/napi/ScriptEngine.h
+                     cocos/bindings/jswrapper/napi/SeApi.h
+        NO_WERROR    cocos/bindings/jswrapper/napi/Utils.cpp
+                     cocos/bindings/jswrapper/napi/Utils.h
+    )
+endif()
+
 cocos_source_files(MODULE ccbindings
                  cocos/bindings/jswrapper/config.h
                  cocos/bindings/jswrapper/config.cpp
@@ -2694,7 +2787,7 @@ if(USE_EDIT_BOX)
     )
 endif()
 
-if(ANDROID OR IOS OR OHOS)
+if(NOT OPENHARMONY AND (ANDROID OR IOS OR OHOS))
     if(USE_VIDEO)
         cocos_source_files(
                          cocos/ui/videoplayer/VideoPlayer.h
@@ -2723,6 +2816,20 @@ if(ANDROID)
         cocos_source_files(
                          cocos/ui/webview/WebViewImpl-java.h
                          cocos/ui/webview/WebViewImpl-android.cpp
+        )
+    endif()
+elseif(OPENHARMONY)
+    if(USE_EDIT_BOX)
+        cocos_source_files(
+                        cocos/ui/edit-box/EditBox-openharmony.h
+                        cocos/ui/edit-box/EditBox-openharmony.cpp
+    )
+    endif()
+    if(USE_WEBVIEW)
+        cocos_source_files(
+            cocos/ui/webview/WebViewImpl-java.h
+            cocos/ui/webview/WebViewImpl-openharmony.h
+            cocos/ui/webview/WebViewImpl-openharmony.cpp
         )
     endif()
 elseif(OHOS)
@@ -2896,6 +3003,8 @@ if(USE_MODULES)
         target_link_libraries(ccfilesystem PUBLIC
             cocos_jni
         )
+    elseif(OPENHARMONY)
+
     elseif(OHOS)
         target_link_libraries(cclog PUBLIC
             hilog_ndk.z
@@ -2946,7 +3055,7 @@ if(USE_MODULES)
 endif()
 
 
-if(ANDROID OR OHOS)
+if(ANDROID OR (NOT OPENHARMONY AND OHOS))
     cc_enable_werror("${CC_JNI_SRC_FILES}")
     add_library(cocos_jni STATIC ${CC_JNI_SRC_FILES})
     target_include_directories(cocos_jni PUBLIC
@@ -3155,7 +3264,7 @@ if(ANDROID)
     )
 endif()
 
-if(OHOS)
+if(NOT OPENHARMONY AND OHOS)
     target_link_libraries(${ENGINE_NAME} PUBLIC
         EGL
         GLESv3
@@ -3165,6 +3274,30 @@ if(OHOS)
         z
         OpenSLES
         hilog_ndk.z
+        ${CC_EXTERNAL_LIBS}
+    )
+endif()
+
+if(OPENHARMONY)
+    find_library( # Sets the name of the path variable.
+                EGL-lib
+                # Specifies the name of the NDK library that
+                # you want CMake to locate.
+                EGL )
+    find_library( # Sets the name of the path variable.
+                GLESv3-lib
+                # Specifies the name of the NDK library that
+                # you want CMake to locate.
+                GLESv3)
+
+    find_library( hilog-lib
+                hilog_ndk.z )
+
+    find_library( libace-lib
+                libace_ndk.z )
+
+    target_link_libraries(${ENGINE_NAME} PUBLIC
+        ${EGL-lib} ${GLESv3-lib} ${hilog-lib} libace_napi.z.so libace_ndk.z.so libz.so libuv.so libnative_drawing.so librawfile.z.so libOpenSLES.so
         ${CC_EXTERNAL_LIBS}
     )
 endif()

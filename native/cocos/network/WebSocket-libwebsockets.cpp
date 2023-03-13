@@ -284,7 +284,7 @@ static struct lws_context *wsContext{nullptr};
 static WsThreadHelper *wsHelper{nullptr};
 static std::atomic_bool wsPolling{false};
 
-#if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS || CC_PLATFORM == CC_PLATFORM_OPENHARMONY)
 static ccstd::string getFileNameForPath(const ccstd::string &filePath) {
     ccstd::string fileName = filePath;
     const size_t lastSlashIdx = fileName.find_last_of("\\/");
@@ -870,7 +870,7 @@ struct lws_vhost *WebSocketImpl::createVhost(struct lws_protocols *protocols, in
     int sslConnection = *sslConnectionOut;
     if (sslConnection != 0) {
         if (isCAFileExist) {
-#if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS || CC_PLATFORM == CC_PLATFORM_OPENHARMONY)
             // if ca file is in the apk, try to extract it to writable path
             ccstd::string writablePath = fileUtils->getWritablePath();
             ccstd::string caFileName = getFileNameForPath(_caFilePath);

@@ -277,7 +277,7 @@ export class cchelper {
         await cpRAsync(srcRoot, from, copyTo);
     }
 
-    static async replaceInFile(patterns: { reg: string, text: string }[], filepath: string) {
+    static async replaceInFile(patterns: { reg: string | RegExp, text: string }[], filepath: string) {
         filepath = this.replaceEnvVariables(filepath);
         if (!fs.existsSync(filepath)) {
             console.log(`While replace template content, file ${filepath}`);
