@@ -37,10 +37,6 @@ export class Point extends Vec2 {
     public dmy = 0;
     public flags = 0;
     public len = 0;
-    constructor (x: number, y: number) {
-        super(x, y);
-        this.reset();
-    }
 
     public reset () {
         this.dx = 0;
@@ -57,20 +53,12 @@ export class Path {
     public bevel = 0;
     public complex = true;
     public points: Point[] = [];
-    constructor () {
-        this.reset();
-    }
 
     public reset () {
         this.closed = false;
         this.bevel = 0;
         this.complex = true;
-
-        if (this.points) {
-            this.points.length = 0;
-        } else {
-            this.points = [];
-        }
+        this.points.length = 0;
     }
 }
 
