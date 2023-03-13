@@ -286,6 +286,25 @@ void Vec3::transformMat4Normal(const Vec3 &v, const Mat4 &m, Vec3 *dst) {
     dst->z = (m.m[2] * x + m.m[6] * y + m.m[10] * z) * rhw;
 }
 
+void Vec3::moveTowards(const Vec3 &current, const Vec3 &target, float maxStep, Vec3 *dst) {
+    const auto deltaX = target.x - current.x;
+    const auto deltaY = target.y - current.y;
+    const auto deltaZ = target.z - current.z;
+
+    const auto distanceSqr = deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ;
+    if (distanceSqr == 0.0F || (maxStep >= 0.0F && distanceSqr < maxStep * maxStep)) {
+        dst->set(target);
+        return;
+    }
+
+    const auto distance = std::sqrt(distanceSqr);
+    const auto scale = maxStep / distance;
+    dst->set(
+        current.x + deltaX * scale,
+        current.y + deltaY * scale,
+        current.z + deltaZ * scale);
+}
+
 void Vec3::transformQuat(const Quaternion &q) {
     const float qx = q.x;
     const float qy = q.y;

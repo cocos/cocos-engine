@@ -128,4 +128,9 @@ TEST(mathQuaternionTest, test6) {
     logLabel = "test the quaternion createFromAngleZ function";
     cc::Quaternion::createFromAngleZ(60, &q1);
     ExpectEq(q1.approxEquals(cc::Quaternion(0, 0, sin(M_PI / 6), cos(M_PI / 6))), true);
+    // rotateTowards
+    cc::Quaternion qfrom(std::sin(M_PI / 8), 0, 0, std::cos(M_PI / 8));
+    cc::Quaternion qto(std::sin(M_PI / 3), 0, 0, std::cos(M_PI / 3));
+    cc::Quaternion::rotateTowards(qfrom, qto, 180.0F / 8, &q1);
+    ExpectEq(q1.approxEquals(cc::Quaternion(std::sin(M_PI * 3 / 16), 0, 0, std::cos(M_PI * 3 / 16))), true);
 }

@@ -175,4 +175,9 @@ TEST(mathVec3Test, test2) {
     cc::Vec3 a{0.123456F, 1.234567F, 2.345678F};
     cc::Vec3 b{0.123455F, 1.234568F, 2.345679F};
     ExpectEq(a.approxEquals(b), true);
+    //moveTowards
+    cc::Vec3 from(1, 1, 0);
+    cc::Vec3 to(5, 1, 0);
+    cc::Vec3::moveTowards(from, to, 2, &vec3);
+    ExpectEq(vec3 == cc::Vec3(3, 1, 0), true);
 }

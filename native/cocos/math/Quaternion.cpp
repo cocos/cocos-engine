@@ -286,6 +286,22 @@ void Quaternion::squad(const Quaternion &q1, const Quaternion &q2, const Quatern
     slerpForSquad(dstQ, dstS, 2.F * t * (1.F - t), dst);
 }
 
+float Quaternion::angle(const Quaternion &a, const Quaternion &b) {
+    const auto dot = std::min(std::abs(Quaternion::dot(a, b)), 1.0F);
+    return std::acos(dot) * 2.0F;
+}
+
+void Quaternion::rotateTowards(const Quaternion &from, const Quaternion &to, float maxStep, Quaternion *dst) {
+    const auto angle = Quaternion::angle(from, to);
+    if (angle == 0.0F) {
+        dst->set(to);
+        return;
+    }
+
+    const auto t = std::min(maxStep / (angle * 180.F / math::PI), 1.0F);
+    Quaternion::slerp(from, to, t, dst);
+}
+
 void Quaternion::fromViewUp(const Vec3 &view, Quaternion *out) {
     CC_ASSERT(out);
     fromViewUp(view, Vec3(0, 1, 0), out);
