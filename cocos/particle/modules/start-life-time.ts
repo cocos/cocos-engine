@@ -24,9 +24,9 @@
  */
 
 import { ccclass, displayOrder, formerlySerializedAs, radian, range, serializable, tooltip, type, visible } from '../../core/data/decorators';
-import { ParticleModule, ParticleUpdateStage } from '../particle-module';
+import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
-import { ParticleEmitterContext, ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
+import { ParticleEmitterContext, ParticleEmitterParams, ParticleUpdateContext } from '../particle-update-context';
 import { CurveRange } from '../curve-range';
 import { GradientRange } from '../gradient-range';
 import { Color, lerp, pseudoRandom, randomRangeInt, Vec3 } from '../../core/math';
@@ -49,15 +49,15 @@ export class StartLifeTimeModule extends ParticleModule {
         return 'StartLifeTimeModule';
     }
 
-    public get updateStage (): ParticleUpdateStage {
-        return ParticleUpdateStage.INITIALIZE;
+    public get execStage (): ModuleExecStage {
+        return ModuleExecStage.SPAWN;
     }
 
-    public get updatePriority (): number {
+    public get execPriority (): number {
         return 1;
     }
 
-    public initialize (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleEmitterContext,
+    public spawn (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleEmitterContext,
         fromIndex: number, toIndex: number, currentTime: number) {
         const normalizedTimeInCycle = currentTime / params.duration;
         const { invStartLifeTime } = particles;

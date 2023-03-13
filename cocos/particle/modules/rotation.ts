@@ -27,16 +27,19 @@
 import { ccclass, tooltip, displayOrder, range, type, radian, serializable, visible, displayName } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
 import { Mat4, pseudoRandom, Quat, Vec4, Vec3, lerp } from '../../core/math';
-import { ParticleModule, ParticleUpdateStage } from '../particle-module';
+import { ParticleModule, ModuleExecStage, moduleName, execStages, execOrder } from '../particle-module';
 import { CurveRange } from '../curve-range';
 import { assert, CCBoolean } from '../../core';
-import { ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
+import { ParticleEmitterParams, ParticleUpdateContext } from '../particle-update-context';
 import { ParticleSOAData } from '../particle-soa-data';
 
 const ROTATION_OVERTIME_RAND_OFFSET = 125292;
 
-@ccclass('cc.RotationOverLifetimeModule')
-export class RotationOverLifetimeModule extends ParticleModule {
+@ccclass('cc.RotationModule')
+@moduleName('Rotation')
+@execStages(ModuleExecStage.UPDATE)
+@execOrder(1)
+export class RotationModule extends ParticleModule {
     /**
      * @zh 是否三个轴分开设定旋转。
      */
@@ -59,7 +62,7 @@ export class RotationOverLifetimeModule extends ParticleModule {
     @radian
     @displayOrder(2)
     @tooltip('i18n:rotationOvertimeModule.x')
-    @visible(function (this: RotationOverLifetimeModule): boolean { return this.separateAxes; })
+    @visible(function (this: RotationModule): boolean { return this.separateAxes; })
     public get x () {
         if (!this._x) {
             this._x = new CurveRange();
@@ -79,7 +82,7 @@ export class RotationOverLifetimeModule extends ParticleModule {
     @radian
     @displayOrder(3)
     @tooltip('i18n:rotationOvertimeModule.y')
-    @visible(function (this: RotationOverLifetimeModule): boolean { return this.separateAxes; })
+    @visible(function (this: RotationModule): boolean { return this.separateAxes; })
     public get y () {
         if (!this._y) {
             this._y = new CurveRange();
@@ -100,7 +103,7 @@ export class RotationOverLifetimeModule extends ParticleModule {
     @radian
     @displayOrder(4)
     @tooltip('i18n:rotationOvertimeModule.z')
-    @visible(function (this: RotationOverLifetimeModule): boolean { return this.separateAxes; })
+    @visible(function (this: RotationModule): boolean { return this.separateAxes; })
     public z = new CurveRange();
 
     @type(CurveRange)
@@ -108,25 +111,13 @@ export class RotationOverLifetimeModule extends ParticleModule {
     @radian
     @displayOrder(4)
     @tooltip('i18n:rotationOvertimeModule.z')
-    @visible(function (this: RotationOverLifetimeModule): boolean { return !this.separateAxes; })
+    @visible(function (this: RotationModule): boolean { return !this.separateAxes; })
     public get angularVelocity () {
         return this.z;
     }
 
     public set angularVelocity (val) {
         this.z = val;
-    }
-
-    public get name (): string {
-        return 'RotationModule';
-    }
-
-    public get updateStage (): ParticleUpdateStage {
-        return ParticleUpdateStage.UPDATE;
-    }
-
-    public get updatePriority (): number {
-        return 1;
     }
 
     @serializable
@@ -136,7 +127,7 @@ export class RotationOverLifetimeModule extends ParticleModule {
     @serializable
     private _x: CurveRange | null = null;
 
-    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,
+    public update (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleUpdateContext,
         fromIndex: number, toIndex: number, dt: number) {
         const {  angularVelocityZ, normalizedAliveTime, randomSeed } = particles;
         if (!this._separateAxes) {

@@ -1,8 +1,8 @@
 import { Vec3 } from '../../core';
 import { ccclass } from '../../core/data/decorators';
-import { ParticleModule, ParticleUpdateStage } from '../particle-module';
+import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
-import { ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
+import { ParticleEmitterParams, ParticleUpdateContext } from '../particle-update-context';
 
 @ccclass('cc.StateModule')
 export class StateModule extends ParticleModule {
@@ -10,15 +10,15 @@ export class StateModule extends ParticleModule {
         return 'ParticleState';
     }
 
-    public get updateStage (): ParticleUpdateStage {
-        return ParticleUpdateStage.UPDATE;
+    public get execStage (): ModuleExecStage {
+        return ModuleExecStage.UPDATE;
     }
 
-    public get updatePriority (): number {
+    public get execPriority (): number {
         return 1;
     }
 
-    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,
+    public update (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleUpdateContext,
         fromIndex: number, toIndex: number, dt: number) {
         const { normalizedAliveTime, invStartLifeTime } = particles;
         for (let particleHandle = toIndex - 1; particleHandle >= fromIndex; particleHandle--) {

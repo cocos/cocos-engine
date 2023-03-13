@@ -56,10 +56,6 @@ export class TrailSegment {
     }
 }
 
-export enum ParticleOptionalChannels {
-    SPEED_MODIFIER = 1,
-}
-
 export class ParticleSnapshot {
     public position = new Vec3();
     public finalVelocity = new Vec3();
@@ -77,8 +73,6 @@ export enum RecordReason {
     DEATH,
     CUSTOM,
 }
-
-export const MAX_SUB_EMITTER_ACCUMULATOR = 3;
 
 const tempColor = new Color();
 export class ParticleSOAData {
@@ -121,7 +115,6 @@ export class ParticleSOAData {
     private _noiseX = new Float32Array(this._capacity);
     private _noiseY = new Float32Array(this._capacity);
     private _noiseZ = new Float32Array(this._capacity);
-    private _subEmitterAccumulators = new Float32Array(this._capacity * MAX_SUB_EMITTER_ACCUMULATOR);
     // trail
     // One trail segment contains 4 float: x, y, z, timestamp
     private _trailSegmentStride = 4;
@@ -182,10 +175,6 @@ export class ParticleSOAData {
 
     get noiseZ () {
         return this._noiseZ;
-    }
-
-    get subEmitterAccumulators () {
-        return this._subEmitterAccumulators;
     }
 
     get trailSegmentCapacityPerParticle () {
@@ -571,9 +560,6 @@ export class ParticleSOAData {
         this._noiseX[handle] = this._noiseX[lastParticle];
         this._noiseY[handle] = this._noiseY[lastParticle];
         this._noiseZ[handle] = this._noiseZ[lastParticle];
-        for (let i = 0; i < MAX_SUB_EMITTER_ACCUMULATOR; i++) {
-            this._subEmitterAccumulators[handle * MAX_SUB_EMITTER_ACCUMULATOR + i] = this._subEmitterAccumulators[lastParticle * MAX_SUB_EMITTER_ACCUMULATOR + i];
-        }
         const num = this._trailSegmentNumbers[lastParticle];
         const tempTrailSegment = new TrailSegment();
         for (let i = 0; i < num; i++) {
@@ -647,9 +633,6 @@ export class ParticleSOAData {
         this._noiseX[handle] = 0;
         this._noiseY[handle] = 0;
         this._noiseZ[handle] = 0;
-        for (let i = 0; i < MAX_SUB_EMITTER_ACCUMULATOR; i++) {
-            this._subEmitterAccumulators[handle * MAX_SUB_EMITTER_ACCUMULATOR + i] = 0;
-        }
         this._startTrailSegmentIndices[handle] = 0;
         this._endTrailSegmentIndices[handle] = 0;
         this._trailSegmentNumbers[handle] = 0;
@@ -694,7 +677,6 @@ export class ParticleSOAData {
         const oldNoiseSumX = this._noiseX;
         const oldNoiseSumY = this._noiseY;
         const oldNoiseSumZ = this._noiseZ;
-        const oldSubEmitterAccumulators = this._subEmitterAccumulators;
         const oldTrailSegmentNumbers = this._trailSegmentNumbers;
         const oldStartTrailSegmentIndices = this._startTrailSegmentIndices;
         const oldEndTrailSegmentIndices = this._endTrailSegmentIndices;
@@ -774,8 +756,6 @@ export class ParticleSOAData {
         this._noiseY.set(oldNoiseSumY);
         this._noiseZ = new Float32Array(capacity);
         this._noiseZ.set(oldNoiseSumZ);
-        this._subEmitterAccumulators = new Float32Array(capacity * MAX_SUB_EMITTER_ACCUMULATOR);
-        this._subEmitterAccumulators.set(oldSubEmitterAccumulators);
         this._trailSegmentNumbers = new Uint16Array(capacity);
         this._trailSegmentNumbers.set(oldTrailSegmentNumbers);
         this._startTrailSegmentIndices = new Uint16Array(capacity);

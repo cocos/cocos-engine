@@ -29,9 +29,9 @@ import { lerp, pseudoRandom, Quat, Vec3 } from '../../core/math';
 import { Space } from '../enum';
 import { calculateTransform } from '../particle-general-function';
 import { CurveRange } from '../curve-range';
-import { ParticleModule, ParticleUpdateStage } from '../particle-module';
+import { ParticleModule, ModuleExecStage, moduleName, execStages, execOrder } from '../particle-module';
 import { assert, Enum } from '../../core';
-import { ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
+import { ParticleEmitterParams, ParticleUpdateContext } from '../particle-update-context';
 import { ParticleSOAData } from '../particle-soa-data';
 
 const FORCE_OVER_LIFETIME_RAND_OFFSET = 212165;
@@ -39,8 +39,11 @@ const FORCE_OVER_LIFETIME_RAND_OFFSET = 212165;
 const _temp_v3 = new Vec3();
 const rotation = new Quat();
 
-@ccclass('cc.ForceOverLifetimeModule')
-export class ForceOverLifetimeModule extends ParticleModule {
+@ccclass('cc.ForceModule')
+@moduleName('Force')
+@execStages(ModuleExecStage.UPDATE)
+@execOrder(4)
+export class ForceModule extends ParticleModule {
     /**
      * @zh X 轴方向上的加速度分量。
      */
@@ -80,22 +83,10 @@ export class ForceOverLifetimeModule extends ParticleModule {
     @tooltip('i18n:forceOvertimeModule.space')
     public space = Space.LOCAL;
 
-    public get name (): string {
-        return 'ForceModule';
-    }
-
-    public get updateStage (): ParticleUpdateStage {
-        return ParticleUpdateStage.UPDATE;
-    }
-
-    public get updatePriority (): number {
-        return 4;
-    }
-
     // TODO:currently not supported
     public randomized = false;
 
-    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,
+    public update (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleUpdateContext,
         fromIndex: number, toIndex: number, dt: number) {
         const needTransform = calculateTransform(params.simulationSpace, this.space, context.localToWorld, context.worldToLocal, rotation);
         const { normalizedAliveTime, randomSeed } = particles;

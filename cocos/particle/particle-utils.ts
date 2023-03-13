@@ -28,7 +28,7 @@ import { CCObject } from '../core/data/object';
 import { Director, director } from '../core/director';
 import { Pool } from '../core/memop';
 import { Node } from '../core/scene-graph';
-import { ParticleSystem } from './particle-system';
+import { ParticleEmitter } from './particle-emitter';
 
 export class ParticleUtils {
     /**
@@ -55,13 +55,13 @@ export class ParticleUtils {
     }
 
     public static play (rootNode: Node) {
-        for (const ps of rootNode.getComponentsInChildren(ParticleSystem)) {
+        for (const ps of rootNode.getComponentsInChildren(ParticleEmitter)) {
             (ps).play();
         }
     }
 
     public static stop (rootNode: Node) {
-        for (const ps of rootNode.getComponentsInChildren(ParticleSystem)) {
+        for (const ps of rootNode.getComponentsInChildren(ParticleEmitter)) {
             (ps).stop();
         }
     }

@@ -26,9 +26,9 @@
 import { lerp, pseudoRandom } from '../../core';
 import { ccclass, displayOrder, range, serializable, tooltip, type } from '../../core/data/decorators';
 import { CurveRange } from '../curve-range';
-import { ParticleModule, ParticleUpdateStage } from '../particle-module';
+import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
-import { ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
+import { ParticleEmitterParams, ParticleUpdateContext } from '../particle-update-context';
 
 const SPEED_MODIFIER_RAND_OFFSET = 388180;
 
@@ -48,15 +48,15 @@ export class SpeedModifierModule extends ParticleModule {
         return 'SpeedModifierModule';
     }
 
-    public get updateStage (): ParticleUpdateStage {
-        return ParticleUpdateStage.UPDATE;
+    public get execStage (): ModuleExecStage {
+        return ModuleExecStage.UPDATE;
     }
 
-    public get updatePriority (): number {
+    public get execPriority (): number {
         return 0;
     }
 
-    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,
+    public update (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleUpdateContext,
         fromIndex: number, toIndex: number, dt: number) {
         const { speedModifier, normalizedAliveTime, randomSeed } = particles;
         if (this.speedModifier.mode === CurveRange.Mode.Constant) {

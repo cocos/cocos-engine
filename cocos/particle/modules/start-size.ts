@@ -24,9 +24,9 @@
  */
 
 import { ccclass, displayOrder, formerlySerializedAs, radian, range, serializable, tooltip, type, visible } from '../../core/data/decorators';
-import { ParticleModule, ParticleUpdateStage } from '../particle-module';
+import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
-import { ParticleEmitterContext, ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
+import { ParticleEmitterContext, ParticleEmitterParams, ParticleUpdateContext } from '../particle-update-context';
 import { CurveRange } from '../curve-range';
 import { GradientRange } from '../gradient-range';
 import { Color, lerp, pseudoRandom, randomRangeInt, Vec3 } from '../../core/math';
@@ -100,11 +100,11 @@ export class StartSizeModule extends ParticleModule {
         return 'StartSizeModule';
     }
 
-    public get updateStage (): ParticleUpdateStage {
-        return ParticleUpdateStage.INITIALIZE;
+    public get execStage (): ModuleExecStage {
+        return ModuleExecStage.SPAWN;
     }
 
-    public get updatePriority (): number {
+    public get execPriority (): number {
         return 1;
     }
 
@@ -113,7 +113,7 @@ export class StartSizeModule extends ParticleModule {
     @serializable
     private _startSizeZ: CurveRange | null = null;
 
-    public initialize (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleEmitterContext,
+    public spawn (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleEmitterContext,
         fromIndex: number, toIndex: number, currentTime: number) {
         const normalizedTimeInCycle = currentTime / params.duration;
         const { startSizeX, startSizeY, startSizeZ, sizeX, sizeY, sizeZ } = particles;

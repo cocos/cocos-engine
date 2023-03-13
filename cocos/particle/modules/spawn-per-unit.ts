@@ -24,37 +24,30 @@
  */
 
 import { ccclass, displayOrder, serializable, tooltip, type, range } from '../../core/data/decorators';
-import { ParticleModule, ParticleUpdateStage } from '../particle-module';
-import { ParticleSOAData } from '../particle-soa-data';
-import { ParticleEmitterContext, ParticleSystemParams } from '../particle-update-context';
+import { ParticleModule, ModuleExecStage } from '../particle-module';
+import { ParticleEmitterContext, ParticleEmitterParams } from '../particle-update-context';
 import { CurveRange } from '../curve-range';
+import { ParticleSOAData } from '../particle-soa-data';
 
-@ccclass('cc.EmissionOverTimeModule')
-export class EmissionOverTimeModule extends ParticleModule {
+@ccclass('cc.SpawnPerUnitModule')
+@moduleName('SpawnPerUnit')
+@execStages(ModuleExecStage.EMITTER_UPDATE | ModuleExecStage.EVENT_HANDLER)
+@execOrder(1)
+export class SpawnPerUnitModule extends ParticleModule {
     /**
-     * @zh 每秒发射的粒子数。
-     */
+      * @zh 每移动单位距离发射的粒子数。
+      */
     @type(CurveRange)
     @serializable
     @range([0, 1])
-    @displayOrder(14)
-    @tooltip('i18n:particle_system.rateOverTime')
-    public rate = new CurveRange(10);
+    @displayOrder(15)
+    @tooltip('i18n:particle_system.rateOverDistance')
+    public rate = new CurveRange();
 
-    public get name (): string {
-        return 'EmissionOverTimeModule';
-    }
-
-    public get updatePriority (): number {
-        return 0;
-    }
-
-    public get updateStage (): ParticleUpdateStage {
-        return ParticleUpdateStage.INITIALIZE;
-    }
-
-    public spawn (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleEmitterContext,
-        prevTime: number, currentTime: number)  {
-        context.emittingNumOverTime += this.rate.evaluate(currentTime / params.duration, Math.random()) * (currentTime - prevTime);
+    public emitterUpdate (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleEmitterContext,
+        prevTime: number, currentTime: number) {
+        const { velocity } = context;
+        context.emittingNumOverDistance += velocity.length()
+        * this.rate.evaluate(currentTime / params.duration, Math.random()) * (currentTime - prevTime);
     }
 }

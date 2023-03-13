@@ -27,10 +27,10 @@ import { CullingMode, Space } from './enum';
 import { Color, Mat4, Quat, Vec3 } from '../core';
 import { ccclass, serializable } from '../core/data/decorators';
 import { CurveRange } from './curve-range';
-import { ParticleSystem } from './particle-system';
+import { ParticleEmitter } from './particle-emitter';
 
-@ccclass('cc.ParticleSystemParams')
-export class ParticleSystemParams {
+@ccclass('cc.ParticleEmitterParams')
+export class ParticleEmitterParams {
     @serializable
     public capacity = 100;
     @serializable
@@ -54,11 +54,16 @@ export class ParticleSystemParams {
 }
 
 export class SpawnEvent {
-    public emitter: ParticleSystem | null = null;
     public deltaTime = 0;
     public currentTime = 0;
     public prevTime = 0;
-    public context = new ParticleEmitterContext();
+    public velocity = new Vec3();
+    public rotation = new Vec3();
+    public size = new Vec3();
+    public color = new Color();
+    public invStartLifeTime = 1;
+    public normalizedAliveTime = 0;
+    public transform = new Mat4();
 }
 
 export class ParticleSnapshot {
@@ -86,7 +91,7 @@ export enum PlayingState {
     PAUSED,
 }
 
-export class ParticleSystemState {
+export class ParticleEmitterState {
     public accumulatedTime = 0;
     public playingState = PlayingState.STOPPED;
     public lastPosition = new Vec3();
@@ -94,7 +99,6 @@ export class ParticleSystemState {
     public startDelay = 0;
     public isSimulating = true;
     public isEmitting = true;
-    public isSubEmitter = false;
 }
 
 export class ParticleEmitterContext {

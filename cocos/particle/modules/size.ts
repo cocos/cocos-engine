@@ -25,17 +25,20 @@
 
 import { ccclass, tooltip, displayOrder, type, serializable, range, visible } from 'cc.decorator';
 import { lerp, pseudoRandom, Vec3 } from '../../core/math';
-import { ParticleModule, ParticleUpdateStage } from '../particle-module';
+import { ParticleModule, ModuleExecStage, moduleName, execStages, execOrder } from '../particle-module';
 import { CurveRange } from '../curve-range';
 import { ModuleRandSeed } from '../enum';
 import { ParticleSOAData } from '../particle-soa-data';
-import { ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
+import { ParticleEmitterParams, ParticleUpdateContext } from '../particle-update-context';
 
 const SIZE_OVERTIME_RAND_OFFSET = ModuleRandSeed.SIZE;
 const size = new Vec3();
 
-@ccclass('cc.SizeOverLifetimeModule')
-export class SizeOverLifetimeModule extends ParticleModule {
+@ccclass('cc.SizeModule')
+@moduleName('Size')
+@execStages(ModuleExecStage.UPDATE)
+@execOrder(0)
+export class SizeModule extends ParticleModule {
     /**
      * @zh 决定是否在每个轴上独立控制粒子大小。
      */
@@ -51,7 +54,7 @@ export class SizeOverLifetimeModule extends ParticleModule {
     @range([0, 1])
     @displayOrder(2)
     @tooltip('i18n:sizeOvertimeModule.size')
-    @visible(function (this: SizeOverLifetimeModule): boolean { return !this.separateAxes; })
+    @visible(function (this: SizeModule): boolean { return !this.separateAxes; })
     public get size () {
         return this.x;
     }
@@ -68,7 +71,7 @@ export class SizeOverLifetimeModule extends ParticleModule {
     @range([0, 1])
     @displayOrder(3)
     @tooltip('i18n:sizeOvertimeModule.x')
-    @visible(function (this: SizeOverLifetimeModule): boolean { return this.separateAxes; })
+    @visible(function (this: SizeModule): boolean { return this.separateAxes; })
     public x = new CurveRange(1);
 
     /**
@@ -78,7 +81,7 @@ export class SizeOverLifetimeModule extends ParticleModule {
     @range([0, 1])
     @displayOrder(4)
     @tooltip('i18n:sizeOvertimeModule.y')
-    @visible(function (this: SizeOverLifetimeModule): boolean { return this.separateAxes; })
+    @visible(function (this: SizeModule): boolean { return this.separateAxes; })
     public get y () {
         if (!this._y) {
             this._y = new CurveRange(1);
@@ -97,7 +100,7 @@ export class SizeOverLifetimeModule extends ParticleModule {
     @range([0, 1])
     @displayOrder(5)
     @tooltip('i18n:sizeOvertimeModule.z')
-    @visible(function (this: SizeOverLifetimeModule): boolean { return this.separateAxes; })
+    @visible(function (this: SizeModule): boolean { return this.separateAxes; })
     public get z () {
         if (!this._z) {
             this._z = new CurveRange(1);
@@ -114,19 +117,7 @@ export class SizeOverLifetimeModule extends ParticleModule {
     @serializable
     private _z: CurveRange | null = null;
 
-    public get name (): string {
-        return 'SizeModule';
-    }
-
-    public get updateStage (): ParticleUpdateStage {
-        return ParticleUpdateStage.UPDATE;
-    }
-
-    public get updatePriority (): number {
-        return 0;
-    }
-
-    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,
+    public update (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleUpdateContext,
         fromIndex: number, toIndex: number, dt: number) {
         const { normalizedAliveTime, randomSeed } = particles;
         if (!this.separateAxes) {

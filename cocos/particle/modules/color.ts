@@ -25,18 +25,19 @@
 
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { Color, pseudoRandom } from '../../core/math';
-import { ParticleModule, ParticleUpdateStage } from '../particle-module';
+import { ParticleModule, ModuleExecStage, execStages, moduleName, execOrder, registerParticleModule } from '../particle-module';
 import { GradientRange } from '../gradient-range';
 import { ParticleSOAData } from '../particle-soa-data';
-import { ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
+import { ParticleEmitterParams, ParticleUpdateContext } from '../particle-update-context';
 
 const COLOR_OVERTIME_RAND_OFFSET = 91041;
 const tempColor = new Color();
 const tempColor2 = new Color();
 const tempColor3 = new Color();
 
-@ccclass('cc.ColorOverLifetimeModule')
-export class ColorOverLifetimeModule extends ParticleModule {
+@ccclass('cc.ColorModule')
+@registerParticleModule('Color', ModuleExecStage.UPDATE, 0)
+export class ColorModule extends ParticleModule {
     /**
      * @zh 颜色随时间变化的参数，各个 key 之间线性差值变化。
      */
@@ -45,19 +46,7 @@ export class ColorOverLifetimeModule extends ParticleModule {
     @displayOrder(1)
     public color = new GradientRange();
 
-    public get name (): string {
-        return 'ColorModule';
-    }
-
-    public get updateStage (): ParticleUpdateStage {
-        return ParticleUpdateStage.UPDATE;
-    }
-
-    public get updatePriority (): number {
-        return 0;
-    }
-
-    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,
+    public update (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleUpdateContext,
         fromIndex: number, toIndex: number, dt: number) {
         if (this.color.mode === GradientRange.Mode.Color) {
             const color = this.color.color;

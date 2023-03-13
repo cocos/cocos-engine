@@ -33,7 +33,7 @@ import { legacyCC } from '../core/global-exports';
 import { builtinResMgr, director, Enum, errorID, gfx, Mat4, ModelRenderer, Quat, RenderingSubMesh, Vec2, Vec4, warnID } from '../core';
 import { MacroRecord, MaterialInstance, Pass, scene } from '../core/renderer';
 import ParticleBatchModel from './models/particle-batch-model';
-import { ParticleSystem } from './particle-system';
+import { ParticleEmitter } from './particle-emitter';
 import { Camera } from '../core/renderer/scene/camera';
 import { particleSystemManager } from './particle-system-manager';
 import { TextureAnimationModule } from './modules/texture-animation';
@@ -188,7 +188,7 @@ export class ParticleSystemRenderer extends ModelRenderer {
     private _mainTexture: Texture2D | null = null;
     private _model: ParticleBatchModel | null = null;
     private _vertAttrs: Attribute[] = [];
-    private _particleSystem: ParticleSystem | null = null;
+    private _particleSystem: ParticleEmitter | null = null;
 
     constructor () {
         super();
@@ -217,7 +217,7 @@ export class ParticleSystemRenderer extends ModelRenderer {
         // }
     }
 
-    public setParticleSystem (particleSystem: ParticleSystem) {
+    public setParticleSystem (particleSystem: ParticleEmitter) {
         this._particleSystem = particleSystem;
     }
 

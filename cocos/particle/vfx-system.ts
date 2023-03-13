@@ -23,48 +23,9 @@
  THE SOFTWARE.
  */
 
-import { removeProperty, replaceProperty } from '../core/utils/x-deprecated';
-import Burst from './burst';
-import { ParticleEmitter } from './particle-emitter';
-import { Billboard } from './billboard';
-import { Line } from './line';
-import { js } from '../core/utils/js';
-import { legacyCC } from '../core/global-exports';
+import { Component } from "../core";
+import { ParticleEmitter } from "./particle-emitter";
 
-removeProperty(Burst.prototype, 'Burst.prototype', [
-    {
-        name: 'minCount',
-    },
-    {
-        name: 'maxCount',
-    },
-]);
-
-replaceProperty(ParticleEmitter.prototype, 'ParticleEmitter.prototype', [
-    {
-        name: 'enableCulling',
-        newName: 'dataCulling',
-    },
-]);
-
-/**
- * Alias of [[ParticleEmitter]]
- * @deprecated Since v1.2
- */
-export { ParticleEmitter as ParticleSystemComponent };
-legacyCC.ParticleSystemComponent = ParticleEmitter;
-js.setClassAlias(ParticleEmitter, 'cc.ParticleSystemComponent');
-/**
- * Alias of [[Billboard]]
- * @deprecated Since v1.2
- */
-export { Billboard as BillboardComponent };
-legacyCC.BillboardComponent = Billboard;
-js.setClassAlias(Billboard, 'cc.BillboardComponent');
-/**
- * Alias of [[Line]]
- * @deprecated Since v1.2
- */
-export { Line as LineComponent };
-legacyCC.LineComponent = Line;
-js.setClassAlias(Line, 'cc.LineComponent');
+export class VFXSystem extends Component {
+    private _emitters: ParticleEmitter[] = [];
+}

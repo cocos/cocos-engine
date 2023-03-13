@@ -28,7 +28,7 @@ import { Color, Mat4, Quat, toRadian, Vec3 } from '../../core/math';
 import { CurveRange } from '../curve-range';
 import { GradientRange } from '../gradient-range';
 import { Space, TextureMode, TrailMode } from '../enum';
-import { ParticleModule, ParticleUpdateStage } from '../particle-module';
+import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { Enum } from '../../core';
 
 const PRE_TRIANGLE_INDEX = 1;
@@ -137,11 +137,11 @@ export class TrailModule extends ParticleModule {
         return 'TrailModule';
     }
 
-    public get updateStage (): ParticleUpdateStage {
-        return ParticleUpdateStage.UPDATE;
+    public get execStage (): ModuleExecStage {
+        return ModuleExecStage.UPDATE;
     }
 
-    public get updatePriority (): number {
+    public get execPriority (): number {
         return 0;
     }
 

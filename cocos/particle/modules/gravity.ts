@@ -24,9 +24,9 @@
  */
 
 import { ccclass, displayOrder, range, serializable, tooltip, type } from '../../core/data/decorators';
-import { ParticleModule, ParticleUpdateStage } from '../particle-module';
+import { ParticleModule, ModuleExecStage, moduleName, execStages, execOrder } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
-import { ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
+import { ParticleEmitterParams, ParticleUpdateContext } from '../particle-update-context';
 import { CurveRange } from '../curve-range';
 import { approx, EPSILON, lerp, pseudoRandom, Quat, Vec3 } from '../../core/math';
 import { Space } from '../enum';
@@ -35,6 +35,9 @@ const rotation = new Quat();
 const gravity = new Vec3();
 const GRAVITY_RAND_OFFSET = 238818;
 @ccclass('cc.GravityModule')
+@moduleName('Gravity')
+@execStages(ModuleExecStage.UPDATE)
+@execOrder(5)
 export class GravityModule extends ParticleModule {
     /**
      * @zh 粒子受重力影响的重力系数。
@@ -46,19 +49,7 @@ export class GravityModule extends ParticleModule {
     @tooltip('i18n:particle_system.gravityModifier')
     public gravityModifier = new CurveRange();
 
-    public get name (): string {
-        return 'GravityModule';
-    }
-
-    public get updateStage (): ParticleUpdateStage {
-        return ParticleUpdateStage.UPDATE;
-    }
-
-    public get updatePriority (): number {
-        return 5;
-    }
-
-    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,
+    public update (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleUpdateContext,
         fromIndex: number, toIndex: number, dt: number) {
         const { worldRotation } = context;
         const { normalizedAliveTime, randomSeed, velocityY } = particles;

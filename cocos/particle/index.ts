@@ -25,29 +25,29 @@
 
 import { Billboard } from './billboard';
 import { Line } from './line';
-import { ParticleSystem } from './particle-system';
+import { ParticleEmitter } from './particle-emitter';
 import { ParticleUtils } from './particle-utils';
 import { CurveRange } from './curve-range';
 import { legacyCC } from '../core/global-exports';
 import { GradientRange } from './gradient-range';
 import Gradient, { AlphaKey, ColorKey } from './gradient';
 import './particle-system-manager';
-import Burst from './burst';
 
 export {
     Billboard,
     Line,
-    ParticleSystem,
+    ParticleEmitter,
     ParticleUtils,
     CurveRange,
     GradientRange,
     Gradient,
     AlphaKey,
     ColorKey,
-    Burst,
 };
 
 export * from './modules';
+export * from './event-receiver';
 export * from './deprecated';
+export * from './vfx-system';
 
 legacyCC.ParticleUtils = ParticleUtils;

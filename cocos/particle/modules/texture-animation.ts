@@ -27,10 +27,10 @@ import { ccclass, tooltip, displayOrder, type, formerlySerializedAs, serializabl
 import { DEBUG } from 'internal:constants';
 import { lerp, pseudoRandom, repeat } from '../../core/math';
 import { Enum } from '../../core/value-types';
-import { ParticleModule, ParticleUpdateStage } from '../particle-module';
+import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { createRealCurve, CurveRange } from '../curve-range';
 import { ParticleSOAData } from '../particle-soa-data';
-import { ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
+import { ParticleEmitterParams, ParticleUpdateContext } from '../particle-update-context';
 import { assert, CCFloat, CCInteger, RealCurve, RealInterpolationMode } from '../../core';
 
 const TEXTURE_ANIMATION_RAND_OFFSET = 90794;
@@ -216,11 +216,11 @@ export class TextureAnimationModule extends ParticleModule {
         return 'TextureModule';
     }
 
-    public get updateStage (): ParticleUpdateStage {
-        return ParticleUpdateStage.UPDATE;
+    public get execStage (): ModuleExecStage {
+        return ModuleExecStage.UPDATE;
     }
 
-    public get updatePriority (): number {
+    public get execPriority (): number {
         return 0;
     }
 
@@ -237,7 +237,7 @@ export class TextureAnimationModule extends ParticleModule {
     @serializable
     private _fps = 30;
 
-    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,
+    public update (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleUpdateContext,
         fromIndex: number, toIndex: number, dt: number) {
         const { randomSeed, frameIndex, normalizedAliveTime } = particles;
         if (DEBUG) {

@@ -24,39 +24,28 @@
  */
 
 import { ccclass, displayOrder, serializable, tooltip, type, range } from '../../core/data/decorators';
-import { ParticleModule, ParticleUpdateStage } from '../particle-module';
-import { ParticleEmitterContext, ParticleSystemParams } from '../particle-update-context';
-import { CurveRange } from '../curve-range';
+import { ParticleModule, ModuleExecStage, moduleName, execStages, execOrder } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
+import { ParticleEmitterContext, ParticleEmitterParams } from '../particle-update-context';
+import { CurveRange } from '../curve-range';
 
-@ccclass('cc.EmissionOverDistanceModule')
-export class EmissionOverDistanceModule extends ParticleModule {
+@ccclass('cc.SpawnOverTimeModule')
+@moduleName('SpawnOverTime')
+@execStages(ModuleExecStage.EMITTER_UPDATE | ModuleExecStage.EVENT_HANDLER)
+@execOrder(0)
+export class SpawnOverTimeModule extends ParticleModule {
     /**
-      * @zh 每移动单位距离发射的粒子数。
-      */
+     * @zh 每秒发射的粒子数。
+     */
     @type(CurveRange)
     @serializable
     @range([0, 1])
-    @displayOrder(15)
-    @tooltip('i18n:particle_system.rateOverDistance')
-    public rate = new CurveRange();
+    @displayOrder(14)
+    @tooltip('i18n:particle_system.rateOverTime')
+    public rate = new CurveRange(10);
 
-    public get name (): string {
-        return 'EmissionOverDistanceModule';
-    }
-
-    public get updatePriority (): number {
-        return 1;
-    }
-
-    public get updateStage (): ParticleUpdateStage {
-        return ParticleUpdateStage.EMITTER_UPDATE;
-    }
-
-    public spawn (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleEmitterContext,
-        prevTime: number, currentTime: number) {
-        const { velocity } = context;
-        context.emittingNumOverDistance += velocity.length()
-        * this.rate.evaluate(currentTime / params.duration, Math.random()) * (currentTime - prevTime);
+    public emitterUpdate (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleEmitterContext,
+        prevTime: number, currentTime: number)  {
+        context.emittingNumOverTime += this.rate.evaluate(currentTime / params.duration, Math.random()) * (currentTime - prevTime);
     }
 }

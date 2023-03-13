@@ -24,15 +24,65 @@
  */
 
 import { lerp } from '../../core';
-import { ccclass, displayOrder, serializable, tooltip, type, range } from '../../core/data/decorators';
-import Burst from '../burst';
+import { ccclass, displayOrder, serializable, tooltip, type, range, editable } from '../../core/data/decorators';
 import { CurveRange } from '../curve-range';
-import { ParticleModule, ParticleUpdateStage } from '../particle-module';
+import { ParticleModule, ModuleExecStage, execStages, moduleName, execOrder, registerParticleModule } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
-import { ParticleEmitterContext, ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
+import { ParticleEmitterContext, ParticleEmitterParams, ParticleUpdateContext } from '../particle-update-context';
 
-@ccclass('cc.BurstEmissionModule')
-export class BurstEmissionModule extends ParticleModule {
+@ccclass('cc.Burst')
+export default class Burst {
+    /**
+     * @zh 粒子系统开始运行到触发此次 Burst 的时间。
+     */
+    @editable
+    get time () {
+        return this._time;
+    }
+
+    set time (val) {
+        this._time = val;
+    }
+
+    /**
+     * @zh Burst 的触发次数。
+     */
+    @editable
+    get repeatCount () {
+        return this._repeatCount;
+    }
+
+    set repeatCount (val) {
+        this._repeatCount = val;
+    }
+
+    /**
+     * @zh 发射的粒子的数量。
+     */
+    @type(CurveRange)
+    @serializable
+    @range([0, 1])
+    public count: CurveRange = new CurveRange();
+
+    /**
+     * @zh 每次触发的间隔时间。
+     */
+    @serializable
+    @editable
+    public repeatInterval = 1;
+    @serializable
+    private _repeatCount = 1;
+    @serializable
+    private _time = 0;
+
+    public getMaxCount (psys) {
+        return this.count.getMax() * Math.min(Math.ceil(psys.duration / this.repeatInterval), this.repeatCount);
+    }
+}
+
+@ccclass('cc.BurstModule')
+@registerParticleModule('Burst', ModuleExecStage.EMITTER_UPDATE | ModuleExecStage.EVENT_HANDLER, 2)
+export class BurstModule extends ParticleModule {
     /**
       * @zh 设定在指定时间发射指定数量的粒子的 burst 的数量。
       */
@@ -42,19 +92,7 @@ export class BurstEmissionModule extends ParticleModule {
     @tooltip('i18n:particle_system.bursts')
     public bursts: Burst[] = [];
 
-    public get name (): string {
-        return 'BurstEmissionModule';
-    }
-
-    public get updatePriority (): number {
-        return 2;
-    }
-
-    public get updateStage (): ParticleUpdateStage {
-        return ParticleUpdateStage.EMITTER_UPDATE;
-    }
-
-    public spawn (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleEmitterContext,
+    public emitterUpdate (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleEmitterContext,
         prevT: number, t: number) {
         const normalizedTimeInCycle = t / params.duration;
         for (let i = 0, burstCount = this.bursts.length; i < burstCount; i++) {

@@ -27,10 +27,10 @@ import { ccclass, tooltip, displayOrder, range, type, serializable } from 'cc.de
 import { Enum } from '../../core';
 import { lerp, Mat4, pseudoRandom, Quat, Vec3 } from '../../core/math';
 import { Space } from '../enum';
-import { ParticleModule, ParticleUpdateStage } from '../particle-module';
+import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { calculateTransform } from '../particle-general-function';
 import { ParticleSOAData } from '../particle-soa-data';
-import { ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
+import { ParticleEmitterParams, ParticleUpdateContext } from '../particle-update-context';
 import { CurveRange } from '../curve-range';
 
 const VELOCITY_X_OVERTIME_RAND_OFFSET = 197866;
@@ -85,15 +85,15 @@ export class VelocityOverLifetimeModule extends ParticleModule {
         return 'VelocityModule';
     }
 
-    public get updateStage (): ParticleUpdateStage {
-        return ParticleUpdateStage.UPDATE;
+    public get execStage (): ModuleExecStage {
+        return ModuleExecStage.UPDATE;
     }
 
-    public get updatePriority (): number {
+    public get execPriority (): number {
         return 2;
     }
 
-    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,
+    public update (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleUpdateContext,
         fromIndex: number, toIndex: number, dt: number) {
         const needTransform = calculateTransform(params.simulationSpace, this.space, context.localToWorld, context.worldToLocal, rotation);
         const { normalizedAliveTime, randomSeed } = particles;

@@ -29,9 +29,9 @@ import { assert, CCBoolean, CCFloat, CCInteger, Enum, warn } from '../../core';
 import { range, rangeStep, slide, visible } from '../../core/data/decorators/editable';
 import { clamp, lerp, pseudoRandom, randomRangeInt, Vec2, Vec3 } from '../../core/math';
 import { CurveRange } from '../curve-range';
-import { ParticleModule, ParticleUpdateStage } from '../particle-module';
+import { ParticleModule, ModuleExecStage, moduleName, execStages, execOrder } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
-import { ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
+import { ParticleEmitterParams, ParticleUpdateContext } from '../particle-update-context';
 import { perlin1D, perlin2D, perlin3D, PerlinNoise1DCache, PerlinNoise2DCache, PerlinNoise3DCache } from './perlin-noise';
 
 const pos = new Vec3();
@@ -63,6 +63,9 @@ enum Quality {
 }
 
 @ccclass('cc.NoiseModule')
+@moduleName('Noise')
+@execStages(ModuleExecStage.UPDATE)
+@execOrder(3)
 export class NoiseModule extends ParticleModule {
     @serializable
     @visible(true)
@@ -241,18 +244,6 @@ export class NoiseModule extends ParticleModule {
     @visible(true)
     public sizeAmount = new CurveRange();
 
-    public get name (): string {
-        return 'NoiseModule';
-    }
-
-    public get updateStage (): ParticleUpdateStage {
-        return ParticleUpdateStage.UPDATE;
-    }
-
-    public get updatePriority (): number {
-        return 3;
-    }
-
     @serializable
     private _strengthX = new CurveRange(1);
     @serializable
@@ -279,15 +270,14 @@ export class NoiseModule extends ParticleModule {
     private _randomSeed = randomRangeInt(0, 233280);
     private _scrollOffset = 0;
 
-    public tick (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,
-        currentTime: number, dt: number) {
+    public preTick (params: ParticleEmitterParams, currentTime: number, dt: number) {
         this._scrollOffset += this._scrollSpeed.evaluate(currentTime / params.duration, 1) * dt;
         if (this._scrollOffset > 256) {
             this._scrollOffset -= 256;
         }
     }
 
-    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,
+    public update (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleUpdateContext,
         fromIndex: number, toIndex: number, dt: number) {
         const { randomSeed, normalizedAliveTime, noiseX, noiseY, noiseZ, rotationX, rotationY, rotationZ, sizeX, sizeY, sizeZ } = particles;
         const scrollOffset = this._scrollOffset;

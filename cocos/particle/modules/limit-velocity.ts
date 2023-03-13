@@ -27,10 +27,10 @@ import { ccclass, tooltip, displayOrder, range, type, serializable, visible } fr
 import { DEBUG } from 'internal:constants';
 import { lerp, pseudoRandom, Vec3, Mat4, Quat } from '../../core/math';
 import { Space, ModuleRandSeed } from '../enum';
-import { ParticleModule, ParticleUpdateStage } from '../particle-module';
+import { ParticleModule, ModuleExecStage, moduleName, execStages, execOrder } from '../particle-module';
 import { CurveRange } from '../curve-range';
 import { calculateTransform } from '../particle-general-function';
-import { ParticleSystemParams, ParticleUpdateContext } from '../particle-update-context';
+import { ParticleEmitterParams, ParticleUpdateContext } from '../particle-update-context';
 import { ParticleSOAData } from '../particle-soa-data';
 import { assert } from '../../core';
 
@@ -40,8 +40,11 @@ const _temp_v3_1 = new Vec3();
 const rotation = new Quat();
 const velocity = new Vec3();
 
-@ccclass('cc.LimitVelocityOverLifetimeModule')
-export class LimitVelocityOverLifetimeModule extends ParticleModule {
+@ccclass('cc.LimitVelocity')
+@moduleName('LimitVelocity')
+@execStages(ModuleExecStage.UPDATE)
+@execOrder(6)
+export class LimitVelocityModule extends ParticleModule {
     /**
      * @zh X 轴方向上的速度下限。
      */
@@ -50,7 +53,7 @@ export class LimitVelocityOverLifetimeModule extends ParticleModule {
     @range([-1, 1])
     @displayOrder(4)
     @tooltip('i18n:limitVelocityOvertimeModule.limitX')
-    @visible(function (this: LimitVelocityOverLifetimeModule): boolean {
+    @visible(function (this: LimitVelocityModule): boolean {
         return this.separateAxes;
     })
     public limitX = new CurveRange(1)
@@ -62,7 +65,7 @@ export class LimitVelocityOverLifetimeModule extends ParticleModule {
     @range([-1, 1])
     @displayOrder(5)
     @tooltip('i18n:limitVelocityOvertimeModule.limitY')
-    @visible(function (this: LimitVelocityOverLifetimeModule): boolean {
+    @visible(function (this: LimitVelocityModule): boolean {
         return this.separateAxes;
     })
     public get limitY () {
@@ -83,7 +86,7 @@ export class LimitVelocityOverLifetimeModule extends ParticleModule {
     @range([-1, 1])
     @displayOrder(6)
     @tooltip('i18n:limitVelocityOvertimeModule.limitZ')
-    @visible(function (this: LimitVelocityOverLifetimeModule): boolean {
+    @visible(function (this: LimitVelocityModule): boolean {
         return this.separateAxes;
     })
     public get limitZ () {
@@ -104,7 +107,7 @@ export class LimitVelocityOverLifetimeModule extends ParticleModule {
     @range([-1, 1])
     @displayOrder(3)
     @tooltip('i18n:limitVelocityOvertimeModule.limit')
-    @visible(function (this: LimitVelocityOverLifetimeModule): boolean {
+    @visible(function (this: LimitVelocityModule): boolean {
         return !this.separateAxes;
     })
     public get limit () {
@@ -145,19 +148,7 @@ export class LimitVelocityOverLifetimeModule extends ParticleModule {
     @serializable
     private _z: CurveRange | null = null;
 
-    public get name (): string {
-        return 'limitModule';
-    }
-
-    public get updateStage (): ParticleUpdateStage {
-        return ParticleUpdateStage.UPDATE;
-    }
-
-    public get updatePriority (): number {
-        return 6;
-    }
-
-    public update (particles: ParticleSOAData, params: ParticleSystemParams, context: ParticleUpdateContext,
+    public update (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleUpdateContext,
         fromIndex: number, toIndex: number, dt: number) {
         const needTransform = calculateTransform(params.simulationSpace,
             this.space, context.localToWorld, context.worldToLocal, rotation);

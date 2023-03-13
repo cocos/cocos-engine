@@ -25,12 +25,12 @@
 
 import { Director, director, game, js } from '../core';
 import System from '../core/components/system';
-import { ParticleSystem } from './particle-system';
+import { ParticleEmitter } from './particle-emitter';
 import { ParticleSystemRenderer } from './particle-system-renderer';
 import { SpawnEvent } from './particle-update-context';
 
 export class ParticleSystemManager extends System {
-    private _particleSystems: ParticleSystem[] = [];
+    private _particleSystems: ParticleEmitter[] = [];
     private _particleSystemRenderers: ParticleSystemRenderer[] = [];
     private _spawnEvents: SpawnEvent[] = [];
     private _spawnEventsUsed = 0;
@@ -42,11 +42,11 @@ export class ParticleSystemManager extends System {
         director.on(Director.EVENT_UPDATE_PARTICLE, this.tick, this);
     }
 
-    addParticleSystem (particleSystem: ParticleSystem) {
+    addParticleSystem (particleSystem: ParticleEmitter) {
         this._particleSystems.push(particleSystem);
     }
 
-    removeParticleSystem (particleSystem: ParticleSystem) {
+    removeParticleSystem (particleSystem: ParticleEmitter) {
         const index = this._particleSystems.indexOf(particleSystem);
         if (index !== -1) {
             js.array.fastRemoveAt(this._particleSystems, index);
@@ -79,21 +79,7 @@ export class ParticleSystemManager extends System {
         const particleSystems = this._particleSystems;
         const renderers = this._particleSystemRenderers;
         for (let i = 0, length = particleSystems.length; i < length; i++) {
-            particleSystems[i].isSubEmitter = false;
-        }
-        for (let i = 0, length = particleSystems.length; i < length; i++) {
-            particleSystems[i].beginUpdate();
-        }
-        for (let i = 0, length = particleSystems.length; i < length; i++) {
             particleSystems[i].simulate(dt);
-        }
-        const spawnEvents = this._spawnEvents;
-        // spawn event maybe generate another spawnEvents, so keep tracking _spawnEventsUsed;
-        for (let i = 0; i < this._spawnEventsUsed; i++) {
-            const event = spawnEvents[i];
-            event.emitter?.emit(event.currentTime, event.prevTime, event.deltaTime, event.context);
-            // reset emitter for not reference emitter forever
-            event.emitter = null;
         }
         this._spawnEventsUsed = 0;
         for (let i = 0, length = renderers.length; i < length; i++) {
