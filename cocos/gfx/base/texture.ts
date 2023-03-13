@@ -177,7 +177,10 @@ export abstract class Texture extends GFXObject {
      */
     public abstract resize (width: number, height: number): void;
 
-    protected abstract initAsSwapchainTexture (info: Readonly<ISwapchainTextureInfo>): void;
+    /**
+     * @engineInternal
+     */
+    public abstract initAsSwapchainTexture (info: Readonly<ISwapchainTextureInfo>): void;
 
     public static getLevelCount (width: number, height: number): number {
         return Math.floor(Math.log2(Math.max(width, height)));

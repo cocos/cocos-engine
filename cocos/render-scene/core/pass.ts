@@ -188,7 +188,10 @@ export class Pass {
     protected _bs: BlendState = new BlendState();
     protected _dss: DepthStencilState = new DepthStencilState();
     protected _rs: RasterizerState = new RasterizerState();
-    protected _priority: RenderPriority = RenderPriority.DEFAULT;
+    /**
+     * @engineInternal
+     */
+    public _priority: RenderPriority = RenderPriority.DEFAULT;
     protected _stage: RenderPassStage = RenderPassStage.DEFAULT;
     protected _phase = getPhaseID('default');
     protected _passID = 0xFFFFFFFF;
@@ -203,7 +206,10 @@ export class Pass {
     protected _root: Root;
     protected _device: Device;
 
-    protected  _rootBufferDirty = false;
+    /**
+     * @engineInternal
+     */
+    public  _rootBufferDirty = false;
 
     constructor (root: Root) {
         this._root = root;
@@ -770,8 +776,11 @@ export class Pass {
         return type < Type.FLOAT ? this._blocksInt[binding] : this._blocks[binding];
     }
 
-    // Only for UI
-    private _initPassFromTarget (target: Pass, dss: DepthStencilState, hashFactor: number) {
+    /**
+     * @engineInternal
+     * Only for UI
+     */
+    public _initPassFromTarget (target: Pass, dss: DepthStencilState, hashFactor: number) {
         this._priority = target.priority;
         this._stage = target.stage;
         this._phase = target.phase;
@@ -807,7 +816,10 @@ export class Pass {
     }
 
     // Only for UI
-    private _updatePassHash () {
+    /**
+     * @engineInternal
+     */
+    public _updatePassHash () {
         this._hash = Pass.getPassHash(this);
     }
 

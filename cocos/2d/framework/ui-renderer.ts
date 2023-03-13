@@ -32,7 +32,7 @@ import { builtinResMgr } from '../../asset/asset-manager';
 import { Material } from '../../asset/assets';
 import { BlendFactor } from '../../gfx';
 import { IAssembler, IAssemblerManager } from '../renderer/base';
-import { RenderData } from '../renderer/render-data';
+import { BaseRenderData, RenderData } from '../renderer/render-data';
 import { IBatcher } from '../renderer/i-batcher';
 import { Node } from '../../scene-graph';
 import { TransformBit } from '../../scene-graph/node-enum';
@@ -198,7 +198,10 @@ export class UIRenderer extends Renderer {
         }
     }
 
-    protected _renderData: RenderData | null = null;
+    /**
+     * @engineInternal
+     */
+    public _renderData: BaseRenderData | null = null;
     /**
      * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      */
@@ -231,8 +234,11 @@ export class UIRenderer extends Renderer {
     @type(Material)
     protected _customMaterial: Material | null = null;
 
+    /**
+     * @engineInternal
+     */
     @serializable
-    protected _srcBlendFactor = BlendFactor.SRC_ALPHA;
+    public _srcBlendFactor = BlendFactor.SRC_ALPHA;
     @serializable
     protected _dstBlendFactor = BlendFactor.ONE_MINUS_SRC_ALPHA;
     @serializable
@@ -428,7 +434,10 @@ export class UIRenderer extends Renderer {
 
     protected _postCanRender () { }
 
-    protected updateMaterial () {
+    /**
+     * @engineInternal
+     */
+    public updateMaterial () {
         if (this._customMaterial) {
             if (this.getMaterial(0) !== this._customMaterial) {
                 this.setMaterial(this._customMaterial, 0);
@@ -527,7 +536,6 @@ export class UIRenderer extends Renderer {
             target.blendSrc = this._srcBlendFactor;
             const targetPass = this.getMaterialInstance(0)!.passes[0];
             targetPass.blendState.setTarget(0, target);
-            // @ts-expect-error hack for UI use pass object
             targetPass._updatePassHash();
             this._dstBlendFactorCache = this._dstBlendFactor;
             this._srcBlendFactorCache = this._srcBlendFactor;

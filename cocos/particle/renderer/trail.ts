@@ -335,7 +335,10 @@ export default class TrailModule {
     private _iBuffer: Uint16Array | null = null;
     private _needTransform = false;
     private _material: Material | null = null;
-    private _inited: boolean;
+    /**\
+     * @engineInternal
+     */
+    public _inited: boolean;
 
     constructor () {
         this._iaInfo = new IndirectBuffer([new DrawInfo()]);

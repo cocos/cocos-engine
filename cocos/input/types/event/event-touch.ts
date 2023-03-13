@@ -246,5 +246,5 @@ export class EventTouch extends Event {
     }
 }
 
-// @ts-expect-error TODO
-Event.EventTouch = EventTouch;
+// TODO: this is an injected property, should be deprecated
+(Event as any).EventTouch = EventTouch;

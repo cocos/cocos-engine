@@ -238,7 +238,6 @@ export function _resetDebugSetting (mode: DebugMode) {
         ccLog = console.log.bind(console);
     } else if (mode <= DebugMode.INFO) {
         if (JSB) {
-            // @ts-expect-error We have no typing for this
             if (scriptEngineType === 'JavaScriptCore') {
                 // console.log has to use `console` as its context for iOS 8~9. Therefore, apply it.
                 ccLog = (message?: any, ...optionalParams: any[]) => console.log.apply(console, [message, ...optionalParams]);

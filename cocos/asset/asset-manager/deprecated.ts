@@ -108,8 +108,7 @@ export class CCLoader {
      */
     public get _cache (): Record<string, Asset> {
         if (assets instanceof Cache) {
-            // @ts-expect-error return private property
-            return assets._map;
+            return assets._map!;
         } else {
             const map = {};
             assets.forEach((val, key) => {

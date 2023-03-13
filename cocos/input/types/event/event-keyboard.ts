@@ -93,5 +93,5 @@ export class EventKeyboard extends Event {
     }
 }
 
-// @ts-expect-error TODO
-Event.EventKeyboard = EventKeyboard;
+// TODO: this is an injected property, should be deprecated
+(Event as any).EventKeyboard = EventKeyboard;

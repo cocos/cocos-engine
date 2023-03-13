@@ -136,7 +136,10 @@ export interface ICache<T> {
  *
  */
 export default class Cache<T = any> implements ICache<T> {
-    protected _map: Record<string, T> | null = null;
+    /**
+     * @engineInternal
+     */
+    public _map: Record<string, T> | null = null;
     protected _count = 0;
 
     /**

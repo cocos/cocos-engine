@@ -35,6 +35,7 @@ import { Buffer, BufferInfo, BufferUsageBit, Device, Attribute, InputAssembler, 
 import { RenderDrawInfo, RenderDrawInfoType } from './render-draw-info';
 import { Batcher2D } from './batcher-2d';
 import { RenderEntity, RenderEntityType } from './render-entity';
+import { UIMeshRenderer } from '../components';
 
 /**
  * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
@@ -152,7 +153,7 @@ export class BaseRenderData {
     }
 
     // it should be invoked at where a render data is allocated.
-    public initRenderDrawInfo (comp: UIRenderer, drawInfoType: RenderDrawInfoType = RenderDrawInfoType.COMP) {
+    public initRenderDrawInfo (comp: UIRenderer | UIMeshRenderer, drawInfoType: RenderDrawInfoType = RenderDrawInfoType.COMP) {
         if (JSB) {
             const renderEntity: RenderEntity = comp.renderEntity;
 

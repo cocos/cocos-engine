@@ -117,8 +117,9 @@ export class BakedSkinningModel extends MorphModel {
         const skelBound = boundsInfo![animInfo.data[0]];
         const worldBounds = this._worldBounds;
         if (worldBounds && skelBound) {
-            const node = this.transform;
-            // @ts-expect-error TS2339
+            // TODO: should not access private property
+            // workaround: mark node as any
+            const node: any = this.transform;
             skelBound.transform(node._mat, node._pos, node._rot, node._scale, worldBounds);
         }
     }

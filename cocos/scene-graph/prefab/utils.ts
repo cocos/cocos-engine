@@ -33,7 +33,6 @@ import { ValueType } from '../../core/value-types';
 export * from './prefab-info';
 
 export function createNodeWithPrefab (node: Node) {
-    // @ts-expect-error: private member access
     const prefabInfo = node._prefab;
     if (!prefabInfo) {
         return;
@@ -58,18 +57,14 @@ export function createNodeWithPrefab (node: Node) {
 
     // save root's preserved props to avoid overwritten by prefab
     const _objFlags = node._objFlags;
-    // @ts-expect-error: private member access
     const _parent = node._parent;
-    // @ts-expect-error: private member access
     const _id = node._id;
-    // @ts-expect-error: private member access
     const _prefab = node._prefab;
     const editorExtras = node[editorExtrasTag];
 
     // instantiate prefab
     cclegacy.game._isCloning = true;
     if (SUPPORT_JIT) {
-        // @ts-expect-error: private member access
         prefabInfo.asset._doInstantiate(node);
     } else {
         // root in prefab asset is always synced
@@ -85,18 +80,14 @@ export function createNodeWithPrefab (node: Node) {
 
     // restore preserved props
     node._objFlags = _objFlags;
-    // @ts-expect-error: private member access
     node._parent = _parent;
-    // @ts-expect-error: private member access
     node._id = _id;
     if (EDITOR) {
         node[editorExtrasTag] = editorExtras;
     }
 
-    // @ts-expect-error: private member access
     if (node._prefab) {
         // just keep the instance
-        // @ts-expect-error: private member access
         node._prefab.instance = _prefab?.instance;
     }
 }
@@ -113,14 +104,12 @@ export function generateTargetMap (node: Node, targetMap: any, isRoot: boolean) 
 
     let curTargetMap = targetMap;
 
-    // @ts-expect-error: private member access
     const prefabInstance = node._prefab?.instance;
     if (!isRoot && prefabInstance) {
         targetMap[prefabInstance.fileId] = {};
         curTargetMap = targetMap[prefabInstance.fileId];
     }
 
-    // @ts-expect-error: private member access
     const prefabInfo = node._prefab;
     if (prefabInfo) {
         curTargetMap[prefabInfo.fileId] = node;
@@ -183,26 +172,23 @@ export function applyMountedChildren (node: Node, mountedChildren: MountedChildr
                 for (let i = 0; i < childInfo.nodes.length; i++) {
                     const childNode = childInfo.nodes[i];
 
-                    // @ts-expect-error private member access
                     if (!childNode || target._children.includes(childNode)) {
                         continue;
                     }
 
-                    // @ts-expect-error private member access
                     target._children.push(childNode);
-                    // @ts-expect-error: private member access
                     childNode._parent = target;
                     if (EDITOR) {
                         if (!childNode[editorExtrasTag]) {
                             childNode[editorExtrasTag] = {};
                         }
-                        // @ts-expect-error editor polyfill
-                        childNode[editorExtrasTag].mountedRoot = node;
+                        // NOTE: editor polyfill
+                        (childNode[editorExtrasTag] as any).mountedRoot = node;
                     }
                     // mounted node need to add to the target map
                     generateTargetMap(childNode, curTargetMap, false);
                     // siblingIndex update is in _onBatchCreated function, and it p needs a parent.
-                    // @ts-expect-error private member access
+                    // TODO: access private property
                     childNode._siblingIndex = target._children.length - 1;
                     expandPrefabInstanceNode(childNode, true);
                 }
@@ -236,10 +222,9 @@ export function applyMountedComponents (node: Node, mountedComponents: MountedCo
                         if (!comp[editorExtrasTag]) {
                             comp[editorExtrasTag] = {};
                         }
-                        // @ts-expect-error editor polyfill
-                        comp[editorExtrasTag].mountedRoot = node;
+                        // TODO: editor polyfill
+                        (comp[editorExtrasTag] as any).mountedRoot = node;
                     }
-                    // @ts-expect-error private member access
                     target._components.push(comp);
                 }
             }
@@ -262,7 +247,6 @@ export function applyRemovedComponents (node: Node, removedComponents: TargetInf
 
             const index = target.node.components.indexOf(target);
             if (index >= 0) {
-                // @ts-expect-error private member access
                 target.node._components.splice(index, 1);
             }
         }
@@ -328,7 +312,6 @@ export function applyPropertyOverrides (node: Node, propertyOverrides: PropertyO
 }
 
 export function applyTargetOverrides (node: Node) {
-    // @ts-expect-error private member access
     const targetOverrides = node._prefab?.targetOverrides;
     if (targetOverrides) {
         for (let i = 0; i < targetOverrides.length; i++) {
@@ -337,8 +320,8 @@ export function applyTargetOverrides (node: Node) {
             let source: Node | Component | null = targetOverride.source;
             const sourceInfo = targetOverride.sourceInfo;
             if (sourceInfo) {
-                // @ts-expect-error private member access
-                const sourceInstance = targetOverride.source?._prefab?.instance;
+                // TODO: targetOverride.source is type of `Node | Component`, while `_prefab` does not exist on type 'Component'.
+                const sourceInstance = (targetOverride.source as Node)?._prefab?.instance;
                 if (sourceInstance && sourceInstance.targetMap) {
                     source = getTarget(sourceInfo.localID, sourceInstance.targetMap);
                 }
@@ -355,7 +338,6 @@ export function applyTargetOverrides (node: Node) {
                 continue;
             }
 
-            // @ts-expect-error private member access
             const targetInstance = targetOverride.target?._prefab?.instance;
             if (!targetInstance || !targetInstance.targetMap) {
                 continue;
@@ -393,7 +375,6 @@ export function applyTargetOverrides (node: Node) {
 }
 
 export function expandPrefabInstanceNode (node: Node, recursively = false) {
-    // @ts-expect-error private member access
     const prefabInfo = node._prefab;
     const prefabInstance = prefabInfo?.instance;
     if (prefabInstance && !prefabInstance.expanded) {
@@ -425,7 +406,6 @@ export function expandPrefabInstanceNode (node: Node, recursively = false) {
 }
 
 export function expandNestedPrefabInstanceNode (node: Node) {
-    // @ts-expect-error private member access
     const prefabInfo = node._prefab;
 
     if (prefabInfo && prefabInfo.nestedPrefabInstanceRoots) {
@@ -433,7 +413,6 @@ export function expandNestedPrefabInstanceNode (node: Node) {
             expandPrefabInstanceNode(instanceNode);
             // when expanding the prefab,it's children will be change,so need to apply after expanded
             if (!EDITOR) {
-                // @ts-expect-error private member access
                 applyNodeAndComponentId(instanceNode, instanceNode._prefab?.instance?.fileId);
             }
         });
@@ -450,11 +429,9 @@ export function applyNodeAndComponentId (prefabInstanceNode: Node, rootId: strin
     }
     for (let i = 0; i < children.length; i++) {
         const child = children[i];
-        // @ts-expect-error private member access
         const prefabInfo = child._prefab!;
         const fileId = prefabInfo?.instance ? prefabInfo.instance.fileId : prefabInfo?.fileId;
         if (!fileId) continue;
-        // @ts-expect-error private member access
         child._id = `${rootId}${fileId}`;
 
         // ignore prefab instance,because it will be apply in 'nestedPrefabInstanceRoots' for loop;

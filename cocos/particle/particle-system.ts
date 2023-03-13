@@ -45,7 +45,7 @@ import { CullingMode, Space } from './enum';
 import { particleEmitZAxis } from './particle-general-function';
 import ParticleSystemRenderer from './renderer/particle-system-renderer-data';
 import TrailModule from './renderer/trail';
-import { IParticleSystemRenderer } from './renderer/particle-system-renderer-base';
+import { ParticleSystemRendererBase } from './renderer/particle-system-renderer-base';
 import { PARTICLE_MODULE_PROPERTY } from './particle';
 import { TransformBit } from '../scene-graph/node-enum';
 import { Camera } from '../render-scene/scene';
@@ -86,9 +86,7 @@ export class ParticleSystem extends ModelRenderer {
 
     public set capacity (val) {
         this._capacity = Math.floor(val > 0 ? val : 0);
-        // @ts-expect-error private property access
         if (this.processor && this.processor._model) {
-            // @ts-expect-error private property access
             this.processor._model.setCapacity(this._capacity);
         }
     }
@@ -812,7 +810,7 @@ export class ParticleSystem extends ModelRenderer {
      * @en Particle update processor (update every particle).
      * @zh 粒子更新器（负责更新每个粒子）。
      */
-    public processor: IParticleSystemRenderer = null!;
+    public processor: ParticleSystemRendererBase = null!;
 
     constructor () {
         super();
@@ -1267,7 +1265,6 @@ export class ParticleSystem extends ModelRenderer {
         }
 
         if (!this.renderer.useGPU && this._trailModule && this._trailModule.enable) {
-            // @ts-expect-error private property access
             if (!this._trailModule._inited) {
                 this._trailModule.clear();
                 this._trailModule.destroy();
@@ -1301,9 +1298,7 @@ export class ParticleSystem extends ModelRenderer {
     }
 
     protected _onVisibilityChange (val) {
-        // @ts-expect-error private property access
         if (this.processor._model) {
-            // @ts-expect-error private property access
             this.processor._model.visFlags = val;
         }
     }

@@ -123,6 +123,8 @@ export class SystemEvent extends EventTarget {
      * @param target - The event listener's target and callee
      * @param once - Register the event listener once
      */
+    // TODO: don't know how to fix this typing
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-expect-error Property 'on' in type 'SystemEvent' is not assignable to the same property in base type
     public on<K extends keyof SystemEventMap> (type: K, callback: SystemEventMap[K], target?: any, once?: boolean) {
         super.on(type, callback, target, once);

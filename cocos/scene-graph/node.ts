@@ -268,8 +268,8 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     protected static _findComponent<T extends Component> (node: Node, constructor: Constructor<T> | AbstractedConstructor<T>): T | null {
         const cls = constructor;
         const comps = node._components;
-        // @ts-expect-error internal rtti property
-        if (cls._sealed) {
+        // NOTE: internal rtti property
+        if ((cls as any)._sealed) {
             for (let i = 0; i < comps.length; ++i) {
                 const comp = comps[i];
                 if (comp.constructor === constructor) {
@@ -290,8 +290,8 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     protected static _findComponents<T extends Component> (node: Node, constructor: Constructor<T> | AbstractedConstructor<T>, components: Component[]) {
         const cls = constructor;
         const comps = node._components;
-        // @ts-expect-error internal rtti property
-        if (cls._sealed) {
+        // NOTE: internal rtti property
+        if ((cls as any)._sealed) {
             for (let i = 0; i < comps.length; ++i) {
                 const comp = comps[i];
                 if (comp.constructor === constructor) {
@@ -336,34 +336,54 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         }
     }
 
+    /**
+     * @engineInternal
+     */
     @serializable
-    protected _parent: this | null = null;
+    public _parent: this | null = null;
 
+    /**
+     * @engineInternal
+     */
     @serializable
-    protected _children: this[] = [];
+    public _children: this[] = [];
 
     @serializable
     protected _active = true;
 
+    /**
+     * @engineInternal
+     */
     @serializable
-    protected _components: Component[] = [];
+    public _components: Component[] = [];
 
-    // The PrefabInfo object
+    /**
+     * @engineInternal The PrefabInfo object
+     */
     @serializable
-    protected _prefab: PrefabInfo | null = null;
+    public _prefab: PrefabInfo | null = null;
 
     protected _scene: Scene = null!;
 
     protected _activeInHierarchy = false;
 
-    protected _id: string = idGenerator.getNewId();
+    /**
+     * @engineInternal
+     */
+    public _id: string = idGenerator.getNewId();
 
     protected _name: string;
 
-    protected _eventProcessor: any = new legacyCC.NodeEventProcessor(this);
+    /**
+     * @engineInternal
+     */
+    public _eventProcessor: any = new legacyCC.NodeEventProcessor(this);
     protected _eventMask = 0;
 
-    protected _siblingIndex = 0;
+    /**
+     * @engineInternal
+     */
+    public _siblingIndex = 0;
 
     /**
      * @en
@@ -1313,12 +1333,12 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
             const inCurrentSceneNow = newParent && newParent.isChildOf(scene);
             if (!inCurrentSceneBefore && inCurrentSceneNow) {
                 // attached
-                // @ts-expect-error Polyfilled functions in node-dev.ts
-                this._registerIfAttached!(true);
+                // TODO: `_registerIfAttached` is injected property
+                (this as any)._registerIfAttached!(true);
             } else if (inCurrentSceneBefore && !inCurrentSceneNow) {
                 // detached
-                // @ts-expect-error Polyfilled functions in node-dev.ts
-                this._registerIfAttached!(false);
+                // TODO: `_registerIfAttached` is injected property
+                (this as any)._registerIfAttached!(false);
             }
 
             // conflict detection
@@ -1339,8 +1359,8 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         const parent = this._parent;
         const destroyByParent: boolean = (!!parent) && ((parent._objFlags & Destroying) !== 0);
         if (!destroyByParent && EDITOR) {
-            // @ts-expect-error Polyfilled functions in node-dev.ts
-            this._registerIfAttached!(false);
+            // TODO: `_registerIfAttached` is injected property
+            (this as any)._registerIfAttached!(false);
         }
 
         // remove from persist
@@ -1447,14 +1467,25 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      */
     public _static = false;
 
-    // world transform, don't access this directly
-    protected declare _pos: Vec3;
+    /**
+     * @engineInternal world transform, don't access this directly
+     */
+    public declare _pos: Vec3;
 
-    protected declare _rot: Quat;
+    /**
+     * @engineInternal
+     */
+    public declare _rot: Quat;
 
-    protected declare _scale: Vec3;
+    /**
+     * @engineInternal
+     */
+    public declare _scale: Vec3;
 
-    protected declare _mat: Mat4;
+    /**
+     * @engineInternal
+     */
+    public declare _mat: Mat4;
 
     // local transform
     @serializable

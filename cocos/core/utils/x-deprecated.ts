@@ -308,7 +308,7 @@ interface IDeprecateInfo {
  * @engineInternal
  */
 interface TopLevelDeprecateList {
-    [name: string]: IDeprecateInfo | undefined;
+    [name: string | symbol]: IDeprecateInfo | undefined;
 }
 
 const topLevelDeprecateList: TopLevelDeprecateList = {
@@ -337,7 +337,7 @@ export function deprecateModuleExportedName (deprecateList: TopLevelDeprecateLis
     }
 }
 
-function _checkObsoleteByName (checkName: string) {
+function _checkObsoleteByName (checkName: string | symbol) {
     const deprecateInfo = topLevelDeprecateList[checkName];
     if (!deprecateInfo) {
         return;
@@ -392,7 +392,6 @@ export function __checkObsoleteInNamespace__ (ccNamespace: object) {
         } else {
             _cachedProxy = new Proxy(ccNamespace, {
                 get (target, name, receiver) {
-                    // @ts-expect-error name could be a symbol
                     _checkObsoleteByName(name);
                     return Reflect.get(target, name, receiver);
                 },

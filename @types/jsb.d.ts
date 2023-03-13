@@ -363,3 +363,8 @@ declare namespace ns {
     export class Frustum extends jsb.NativePOD {
     }
 }
+
+/**
+ * Only defined on native platforms.
+ */
+declare const scriptEngineType: 'JavaScriptCore' | 'SpiderMonkey' | 'V8';

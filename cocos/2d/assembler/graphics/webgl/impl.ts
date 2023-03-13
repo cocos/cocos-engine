@@ -197,10 +197,8 @@ export class Impl {
         this._renderDataList.push(renderData);
         if (JSB) {
             renderData.initRenderDrawInfo(this._comp, RenderDrawInfoType.MODEL);
-            // @ts-expect-error temporary no care
             this._comp._renderData = renderData;
-            // @ts-expect-error temporary no care
-            this._comp._renderData!.material = this._comp.getMaterialInstance(0)!;// hack
+            this._comp._renderData.material = this._comp.getMaterialInstance(0)!;// hack
         }
 
         return renderData;

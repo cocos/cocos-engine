@@ -45,8 +45,11 @@ export interface AudioMeta {
 export class AudioClip extends Asset {
     public static AudioType = AudioType;
 
+    /**
+     * @engineInternal
+     */
     @serializable
-    protected _duration = 0; // we serialize this because it's unavailable at runtime on some platforms
+    public _duration = 0; // we serialize this because it's unavailable at runtime on some platforms
 
     protected _loadMode = AudioType.UNKNOWN_AUDIO;
 
