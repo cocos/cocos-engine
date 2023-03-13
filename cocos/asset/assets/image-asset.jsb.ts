@@ -21,11 +21,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { ccclass, override } from 'cc.decorator';
 import { ALIPAY, XIAOMI, JSB, TEST, BAIDU } from 'internal:constants';
 import { Format, FormatFeatureBit, deviceManager } from '../../gfx';
 import { PixelFormat } from './asset-enum';
 import { sys, macro, warnID, cclegacy } from '../../core';
+import { patch_cc_ImageAsset } from '../../native-binding/decorators';
 import './asset';
 
 export type ImageAsset = jsb.ImageAsset;
@@ -63,6 +63,7 @@ function isNativeImage (imageSource: ImageSource): imageSource is (HTMLImageElem
 
 const imageAssetProto = ImageAsset.prototype;
 
+// @ts-expect-error TODO: Property '_ctor' does not exist on type 'ImageAsset'.
 imageAssetProto._ctor = function (nativeAsset?: ImageSource) {
     jsb.Asset.prototype._ctor.apply(this, arguments);
     this._width = 0;
@@ -157,6 +158,7 @@ Object.defineProperty(imageAssetProto, 'height', {
     }
 });
 
+// @ts-expect-error TODO: Property '_syncDataToNative' does not exist on type 'ImageAsset'.
 imageAssetProto._syncDataToNative = function () {
     const data: any = this._nativeData;
     this._width = data.width;
@@ -273,7 +275,5 @@ imageAssetProto._deserialize = function (data: any) {
 cclegacy.ImageAsset = jsb.ImageAsset;
 
 // handle meta data, it is generated automatically
-const ImageAssetProto = ImageAsset.prototype;
-const _nativeAssetDescriptor = Object.getOwnPropertyDescriptor(ImageAssetProto, '_nativeAsset');
-override(ImageAssetProto, '_nativeAsset', _nativeAssetDescriptor);
-ccclass('cc.ImageAsset')(ImageAsset);
+patch_cc_ImageAsset({ImageAsset});
+

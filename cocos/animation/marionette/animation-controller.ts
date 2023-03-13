@@ -105,6 +105,10 @@ export class AnimationController extends Component {
         }
     }
 
+    public onDestroy () {
+        this._graphEval?.destroy();
+    }
+
     public update (deltaTime: number) {
         this._graphEval?.update(deltaTime);
     }

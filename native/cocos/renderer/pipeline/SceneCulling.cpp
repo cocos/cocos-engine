@@ -42,6 +42,7 @@
 #include "scene/LODGroup.h"
 #include "scene/Light.h"
 #include "scene/Octree.h"
+#include "scene/RangedDirectionalLight.h"
 #include "scene/RenderScene.h"
 #include "scene/Shadow.h"
 #include "scene/Skybox.h"
@@ -90,6 +91,31 @@ void validPunctualLightsCulling(const RenderPipeline *pipeline, const scene::Cam
         sphere.setCenter(light->getPosition());
         sphere.setRadius(light->getRange());
         if (sphere.sphereFrustum(camera->getFrustum())) {
+            sceneData->addValidPunctualLight(static_cast<scene::Light *>(light));
+        }
+    }
+
+    for (const auto &light : scene->getPointLights()) {
+        if (light->isBaked()) {
+            continue;
+        }
+
+        sphere.setCenter(light->getPosition());
+        sphere.setRadius(light->getRange());
+        if (sphere.sphereFrustum(camera->getFrustum())) {
+            sceneData->addValidPunctualLight(static_cast<scene::Light *>(light));
+        }
+    }
+
+    for (const auto &light : scene->getRangedDirLights()) {
+        if (light->isBaked()) {
+            continue;
+        }
+
+        geometry::AABB rangedDirLightBoundingBox(0.0F, 0.0F, 0.0F, 0.5F, 0.5F, 0.5F);
+        light->getNode()->updateWorldTransform();
+        rangedDirLightBoundingBox.transform(light->getNode()->getWorldMatrix(), &rangedDirLightBoundingBox);
+        if (rangedDirLightBoundingBox.aabbFrustum(camera->getFrustum())) {
             sceneData->addValidPunctualLight(static_cast<scene::Light *>(light));
         }
     }

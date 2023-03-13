@@ -21,8 +21,8 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { ccclass, serializable } from 'cc.decorator';
 import { cclegacy, Vec3 } from '../../core';
+import { patch_cc_Mesh } from '../../native-binding/decorators';
 
 declare const jsb: any;
 
@@ -163,8 +163,4 @@ meshAssetProto.onLoaded = function () {
 cclegacy.Mesh = jsb.Mesh;
 
 // handle meta data, it is generated automatically
-const MeshProto = Mesh.prototype;
-serializable(MeshProto, '_struct', () => { return { vertexBundles: [], primitives: [] } });
-serializable(MeshProto, '_hash', () => 0);
-serializable(MeshProto, '_allowDataAccess', () => true);
-ccclass('cc.Mesh')(Mesh);
+patch_cc_Mesh({Mesh});

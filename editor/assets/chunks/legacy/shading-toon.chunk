@@ -37,19 +37,13 @@ struct ToonSurface {
     vec3 finalColor = vec3(0.0);
 
     for (int i = 0; i < LIGHTS_PER_PASS; i++) {
-      vec3 SLU = cc_lightPos[i].xyz - position;
+      // lighting
+      vec3 SLU = IS_RANGED_DIRECTIONAL_LIGHT(cc_lightPos[i].w) ? -cc_lightDir[i].xyz : cc_lightPos[i].xyz - position;
       vec3 SL = normalize(SLU);
       vec3 SH = normalize(SL + V);
       float SNL = 0.5 * dot(N, SL) + 0.5;
       float SNH = 0.5 * dot(N, SH) + 0.5;
-
-      float distSqr = dot(SLU, SLU);
-      float litRadius = cc_lightSizeRangeAngle[i].x;
-      float litRadiusSqr = litRadius * litRadius;
-      float illum = litRadiusSqr / max(litRadiusSqr , distSqr);
-      float attRadiusSqrInv = 1.0 / max(cc_lightSizeRangeAngle[i].y, 0.01);
-      attRadiusSqrInv *= attRadiusSqrInv;
-      float att = GetDistAtt(distSqr, attRadiusSqrInv);
+      
       vec3 diffuse = mix(s.shade1, s.shade2,
         clamp(1.0 + (s.shadeStep - s.shadeFeather - SNL) / s.shadeFeather, 0.0, 1.0));
       diffuse = mix(s.baseColor.rgb, diffuse,
@@ -57,12 +51,27 @@ struct ToonSurface {
       float specularMask = step(specularWeight, SNH);
       vec3 specular = s.specular.rgb * specularMask;
 
-      if (cc_lightPos[i].w > 0.0) {
-        float cosInner = max(dot(-cc_lightDir[i].xyz, SL), 0.01);
-        float cosOuter = cc_lightSizeRangeAngle[i].z;
-        float litAngleScale = 1.0 / max(0.001, cosInner - cosOuter);
-        float litAngleOffset = -cosOuter * litAngleScale;
-        att *= GetAngleAtt(SL, -cc_lightDir[i].xyz, litAngleScale, litAngleOffset);
+      // attenuations
+      float illum = 1.0;
+      float att = 1.0;
+      if (IS_RANGED_DIRECTIONAL_LIGHT(cc_lightPos[i].w)) {
+        att = GetOutOfRange(position, cc_lightPos[i].xyz, cc_lightDir[i].xyz, cc_lightSizeRangeAngle[i].xyz, cc_lightBoundingSizeVS[i].xyz);
+      } else {
+        float distSqr = dot(SLU, SLU);
+        float litRadius = cc_lightSizeRangeAngle[i].x;
+        float litRadiusSqr = litRadius * litRadius;
+        illum = (IS_POINT_LIGHT(cc_lightPos[i].w) || IS_RANGED_DIRECTIONAL_LIGHT(cc_lightPos[i].w)) ? 1.0 : litRadiusSqr / max(litRadiusSqr , distSqr);
+        float attRadiusSqrInv = 1.0 / max(cc_lightSizeRangeAngle[i].y, 0.01);
+        attRadiusSqrInv *= attRadiusSqrInv;
+        att = GetDistAtt(distSqr, attRadiusSqrInv);
+
+        if (IS_SPOT_LIGHT(cc_lightPos[i].w)) {
+          float cosInner = max(dot(-cc_lightDir[i].xyz, SL), 0.01);
+          float cosOuter = cc_lightSizeRangeAngle[i].z;
+          float litAngleScale = 1.0 / max(0.001, cosInner - cosOuter);
+          float litAngleOffset = -cosOuter * litAngleScale;
+          att *= GetAngleAtt(SL, -cc_lightDir[i].xyz, litAngleScale, litAngleOffset);
+        }
       }
 
       finalColor += SNL * cc_lightColor[i].rgb * cc_lightColor[i].a * illum * att * s.baseStep * (diffuse + specular);

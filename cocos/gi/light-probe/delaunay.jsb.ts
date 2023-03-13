@@ -22,31 +22,14 @@
  THE SOFTWARE.
 */
 import { Mat3, Vec3, _decorator } from "../../core";
+import { patch_cc_CircumSphere, patch_cc_Tetrahedron, patch_cc_Vertex } from "../../native-binding/decorators";
 
-const { ccclass, serializable } = _decorator;
 
 export const Vertex = jsb.Vertex;
-const VertexProto = Vertex.prototype;
-serializable(VertexProto, 'position', () => new Vec3(0, 0, 0));
-serializable(VertexProto, 'normal', () => new Vec3(0, 0, 0));
-serializable(VertexProto, 'coefficients', () => []);
-ccclass('cc.Vertex')(Vertex);
+patch_cc_Vertex({Vertex, Vec3});
 
 export const CircumSphere = jsb.CircumSphere;
-const CircumSphereProto = CircumSphere.prototype;
-serializable(CircumSphereProto, 'center', () => new Vec3(0, 0, 0));
-serializable(CircumSphereProto, 'radiusSquared', () => 0.0);
-ccclass('cc.CircumSphere')(CircumSphere);
+patch_cc_CircumSphere({CircumSphere, Vec3});
 
 export const Tetrahedron = jsb.Tetrahedron;
-const TetrahedronProto = Tetrahedron.prototype;
-serializable(TetrahedronProto, 'invalid', () => false);
-serializable(TetrahedronProto, 'vertex0', () => -1);
-serializable(TetrahedronProto, 'vertex1', () => -1);
-serializable(TetrahedronProto, 'vertex2', () => -1);
-serializable(TetrahedronProto, 'vertex3', () => -1);
-serializable(TetrahedronProto, 'neighbours', () => [-1, -1, -1, -1]);
-serializable(TetrahedronProto, 'matrix', () => new Mat3());
-serializable(TetrahedronProto, 'offset', () => new Vec3(0.0, 0.0, 0.0));
-serializable(TetrahedronProto, 'sphere', () => new CircumSphere());
-ccclass('cc.Tetrahedron')(Tetrahedron);
+patch_cc_Tetrahedron({Tetrahedron, Mat3, Vec3, CircumSphere});

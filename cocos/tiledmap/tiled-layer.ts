@@ -34,7 +34,7 @@ import { TMXMapInfo } from './tmx-xml-parser';
 import { Color, IVec2Like, Mat4, Size, Vec2, Vec3, warn, logID } from '../core';
 import { TiledTile } from './tiled-tile';
 import { RenderData } from '../2d/renderer/render-data';
-import { IBatcher } from '../2d/renderer/i-batcher.js';
+import { IBatcher } from '../2d/renderer/i-batcher';
 import {
     MixedGID, GID, Orientation, TiledTextureGrids, TMXTilesetInfo, RenderOrder, StaggerAxis, StaggerIndex, TileFlag,
     GIDFlags, TiledAnimationType, PropertiesInfo, TMXLayerInfo,
@@ -175,7 +175,7 @@ export class TiledLayer extends UIRenderer {
     get leftDownToCenterX () { return this._leftDownToCenterX; }
     get leftDownToCenterY () { return this._leftDownToCenterY; }
 
-    private _drawInfoList : RenderDrawInfo[] = [];
+    private _drawInfoList: RenderDrawInfo[] = [];
     private requestDrawInfo (idx: number) {
         if (!this._drawInfoList[idx]) {
             this._drawInfoList[idx] = new RenderDrawInfo();
@@ -797,16 +797,13 @@ export class TiledLayer extends UIRenderer {
             _tempRowCol.col++;
         }
 
-        // avoid range out of max rect
-        if (_tempRowCol.row > this._rightTop.row) _tempRowCol.row = this._rightTop.row;
-        if (_tempRowCol.col > this._rightTop.col) _tempRowCol.col = this._rightTop.col;
-
         if (_tempRowCol.row !== rightTop.row || _tempRowCol.col !== rightTop.col) {
             rightTop.row = _tempRowCol.row;
             rightTop.col = _tempRowCol.col;
             this._cullingDirty = true;
-            this.markForUpdateRenderData();
         }
+
+        if (this._cullingDirty) this.markForUpdateRenderData();
     }
 
     // the result may not precise, but it dose't matter, it just uses to be got range
@@ -1345,18 +1342,20 @@ export class TiledLayer extends UIRenderer {
         if (this._layerOrientation === Orientation.HEX) {
             let width = 0;
             let height = 0;
+            const tileWidth = maptw & ~1;
+            const tileHeight = mapth & ~1;
 
             this._odd_even = (this._staggerIndex === StaggerIndex.STAGGERINDEX_ODD) ? 1 : -1;
             if (this._staggerAxis === StaggerAxis.STAGGERAXIS_X) {
-                this._diffX1 = (maptw - this._hexSideLength) / 2;
+                this._diffX1 = (tileWidth - this._hexSideLength) / 2;
                 this._diffY1 = 0;
-                height = mapth * (layerH + 0.5);
-                width = (maptw + this._hexSideLength) * Math.floor(layerW / 2) + maptw * (layerW % 2);
+                width = (this._diffX1 + this._hexSideLength) * layerW + this._diffX1;
+                height = (tileHeight * layerH) + tileHeight / 2;
             } else {
                 this._diffX1 = 0;
-                this._diffY1 = (mapth - this._hexSideLength) / 2;
-                width = maptw * (layerW + 0.5);
-                height = (mapth + this._hexSideLength) * Math.floor(layerH / 2) + mapth * (layerH % 2);
+                this._diffY1 = (tileHeight - this._hexSideLength) / 2;
+                width = (tileWidth * layerW) + tileWidth / 2;
+                height = (this._diffY1 + this._hexSideLength) * layerH + this._diffY1;
             }
             this.node._uiProps.uiTransformComp!.setContentSize(width, height);
         } else if (this._layerOrientation === Orientation.ISO) {

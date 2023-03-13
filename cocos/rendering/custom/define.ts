@@ -36,7 +36,10 @@ import { RenderWindow } from '../../render-scene/core/render-window';
 import { RenderData } from './render-graph';
 import { WebPipeline } from './web-pipeline';
 import { DescriptorSetData } from './layout-graph';
-import { legacyCC } from '../../core/global-exports';
+import { AABB } from '../../core/geometry';
+
+const _rangedDirLightBoundingBox = new AABB(0.0, 0.0, 0.0, 0.5, 0.5, 0.5);
+const _tmpBoundingBox = new AABB();
 
 // Anti-aliasing type, other types will be gradually added in the future
 export enum AntiAliasing {
@@ -71,6 +74,27 @@ export function validPunctualLightsCulling (pipeline: Pipeline, camera: Camera) 
         }
         geometry.Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
         if (geometry.intersect.sphereFrustum(_sphere, camera.frustum)) {
+            validPunctualLights.push(light);
+        }
+    }
+
+    const { pointLights } = camera.scene!;
+    for (let i = 0; i < pointLights.length; i++) {
+        const light = pointLights[i];
+        if (light.baked) {
+            continue;
+        }
+        geometry.Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
+        if (geometry.intersect.sphereFrustum(_sphere, camera.frustum)) {
+            validPunctualLights.push(light);
+        }
+    }
+
+    const { rangedDirLights } = camera.scene!;
+    for (let i = 0; i < rangedDirLights.length; i++) {
+        const light = rangedDirLights[i];
+        AABB.transform(_tmpBoundingBox, _rangedDirLightBoundingBox, light.node!.getWorldMatrix());
+        if (geometry.intersect.aabbFrustum(_tmpBoundingBox, camera.frustum)) {
             validPunctualLights.push(light);
         }
     }

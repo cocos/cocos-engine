@@ -116,27 +116,27 @@ void Sphere::transform(const Mat4 &m,
     out->_radius = _radius * mathutils::maxComponent(scale);
 }
 
-int Sphere::interset(const Plane &plane) const {
+int Sphere::intersect(const Plane &plane) const {
     const float dot = plane.n.dot(_center);
     const float r = _radius * plane.n.length();
     if (dot + r < plane.d) {
-        return -1;
+        return -1; // Sphere is on the back of the plane
     }
 
     if (dot - r > plane.d) {
-        return 0;
+        return 0; // Sphere is on the front of the plane
     }
 
-    return 1;
+    return 1; // intersect
 }
 
-bool Sphere::interset(const Frustum &frustum) const {
+bool Sphere::intersect(const Frustum &frustum) const {
     const auto &planes = frustum.planes;
     const auto *self = this;
     return std::all_of(planes.begin(),
                        planes.end(),
                        // frustum plane normal points to the inside
-                       [self](const Plane *plane) { return self->interset(*plane) != -1; });
+                       [self](const Plane *plane) { return self->intersect(*plane) != -1; });
 }
 
 void Sphere::mergePoint(const Vec3 &point) {
@@ -184,24 +184,11 @@ void Sphere::mergeAABB(const AABB *aabb) {
 }
 
 int Sphere::spherePlane(const Plane &plane) const {
-    const auto dot = cc::Vec3::dot(plane.n, _center);
-    const auto r = _radius * plane.n.length();
-    if (dot + r < plane.d) {
-        return -1;
-    }
-    if (dot - r > plane.d) {
-        return 0;
-    }
-    return 1;
+    return intersect(plane);
 }
 
 bool Sphere::sphereFrustum(const Frustum &frustum) const {
-    const auto &planes = frustum.planes;
-    const auto *self = this;
-    return std::all_of(planes.begin(),
-                       planes.end(),
-                       // frustum plane normal points to the inside
-                       [self](const Plane *plane) { return self->interset(*plane) != -1; });
+    return intersect(frustum);
 }
 
 void Sphere::mergeFrustum(const Frustum &frustum) {

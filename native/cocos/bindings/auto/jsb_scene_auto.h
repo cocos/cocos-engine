@@ -48,6 +48,8 @@
 #include "scene/DirectionalLight.h"
 #include "scene/SpotLight.h"
 #include "scene/SphereLight.h"
+#include "scene/PointLight.h"
+#include "scene/RangedDirectionalLight.h"
 #include "scene/Model.h"
 #include "scene/SubModel.h"
 #include "scene/Pass.h"
@@ -168,6 +170,16 @@ extern se::Class * __jsb_cc_scene_SpotLight_class; // NOLINT
 JSB_REGISTER_OBJECT_TYPE(cc::scene::SphereLight);
 extern se::Object *__jsb_cc_scene_SphereLight_proto; // NOLINT
 extern se::Class * __jsb_cc_scene_SphereLight_class; // NOLINT
+
+
+JSB_REGISTER_OBJECT_TYPE(cc::scene::PointLight);
+extern se::Object *__jsb_cc_scene_PointLight_proto; // NOLINT
+extern se::Class * __jsb_cc_scene_PointLight_class; // NOLINT
+
+
+JSB_REGISTER_OBJECT_TYPE(cc::scene::RangedDirectionalLight);
+extern se::Object *__jsb_cc_scene_RangedDirectionalLight_proto; // NOLINT
+extern se::Class * __jsb_cc_scene_RangedDirectionalLight_class; // NOLINT
 
 
 JSB_REGISTER_OBJECT_TYPE(cc::scene::Model);

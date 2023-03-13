@@ -65,6 +65,8 @@ export enum LightType {
     DIRECTIONAL,
     SPHERE,
     SPOT,
+    POINT,
+    RANGED_DIRECTIONAL,
     UNKNOWN,
 }
 
@@ -84,6 +86,14 @@ cclegacy.SpotLight = jsb.SpotLight;
 export const SphereLight = jsb.SphereLight;
 export type SphereLight = jsb.SphereLight;
 cclegacy.SphereLight = jsb.SphereLight;
+
+export const PointLight = jsb.PointLight;
+export type PointLight = jsb.PointLight;
+cclegacy.PointLight = jsb.PointLight;
+
+export const RangedDirectionalLight = jsb.RangedDirectionalLight;
+export type RangedDirectionalLight = jsb.RangedDirectionalLight;
+cclegacy.RangedDirectionalLight = jsb.RangedDirectionalLight;
 
 /**
  * Fog related.

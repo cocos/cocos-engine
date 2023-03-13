@@ -27,9 +27,8 @@ import { CCClass } from '../data/class';
 import { ValueType } from '../value-types/value-type';
 import { Mat4 } from './mat4';
 import { IMat3Like, IMat4Like, IQuatLike, IVec3Like } from './type-define';
-import { approx, clamp, EPSILON, lerp, random } from './utils';
+import { clamp, EPSILON, lerp, random } from './utils';
 import { legacyCC } from '../global-exports';
-import type { Quat } from './quat';
 
 /**
  * @en Representation of 3D vectors and points.
@@ -349,7 +348,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
-     * @en Calculates the linear interpolation between two vectors with a given ratio
+     * @en Calculates the linear interpolation between two vectors with a given ratio: A + t * (B - A)
      * @zh 逐元素向量线性插值： A + t * (B - A)
      */
     public static lerp<Out extends IVec3Like> (out: Out, a: IVec3Like, b: IVec3Like, t: number) {
@@ -457,7 +456,7 @@ export class Vec3 extends ValueType {
         const y = a.y;
         const z = a.z;
         let rhw = m.m03 * x + m.m07 * y + m.m11 * z + m.m15;
-        rhw = rhw ? Math.abs(1 / rhw) : 1;
+        rhw = rhw ? 1 / rhw : 1;
         out.x = (m.m00 * x + m.m04 * y + m.m08 * z + m.m12) * rhw;
         out.y = (m.m01 * x + m.m05 * y + m.m09 * z + m.m13) * rhw;
         out.z = (m.m02 * x + m.m06 * y + m.m10 * z + m.m14) * rhw;
@@ -473,7 +472,7 @@ export class Vec3 extends ValueType {
         const y = a.y;
         const z = a.z;
         let rhw = m.m03 * x + m.m07 * y + m.m11 * z;
-        rhw = rhw ? Math.abs(1 / rhw) : 1;
+        rhw = rhw ? 1 / rhw : 1;
         out.x = (m.m00 * x + m.m04 * y + m.m08 * z) * rhw;
         out.y = (m.m01 * x + m.m05 * y + m.m09 * z) * rhw;
         out.z = (m.m02 * x + m.m06 * y + m.m10 * z) * rhw;
@@ -509,8 +508,8 @@ export class Vec3 extends ValueType {
     }
 
     /**
-     * @en Vector quaternion multiplication
-     * @zh 向量四元数乘法
+     * @en Vector quaternion multiplication: q*a*q^{-1}.
+     * @zh 向量四元数乘法：q*a*q^{-1}。
      */
     public static transformQuat<Out extends IVec3Like> (out: Out, a: IVec3Like, q: IQuatLike) {
         // benchmarks: http://jsperf.com/quaternion-transform-Vec3-implementations
@@ -569,7 +568,7 @@ export class Vec3 extends ValueType {
      * @zh 绕 X 轴旋转向量指定弧度
      * @param v rotation vector
      * @param o center of rotation
-     * @param a radius of rotation
+     * @param a radiance of rotation
      */
     public static rotateX<Out extends IVec3Like> (out: Out, v: IVec3Like, o: IVec3Like, a: number) {
         // Translate point to the origin
@@ -597,7 +596,7 @@ export class Vec3 extends ValueType {
      * @zh 绕 Y 轴旋转向量指定弧度
      * @param v rotation vector
      * @param o center of rotation
-     * @param a radius of rotation
+     * @param a radiance of rotation
      */
     public static rotateY<Out extends IVec3Like> (out: Out, v: IVec3Like, o: IVec3Like, a: number) {
         // Translate point to the origin
@@ -625,7 +624,7 @@ export class Vec3 extends ValueType {
      * @zh 绕 Z 轴旋转向量指定弧度
      * @param v rotation vector
      * @param o center of rotation
-     * @param a radius of rotation
+     * @param a radiance of rotation
      */
     public static rotateZ<Out extends IVec3Like> (out: Out, v: IVec3Like, o: IVec3Like, a: number) {
         // Translate point to the origin
@@ -639,6 +638,39 @@ export class Vec3 extends ValueType {
         const rx = x * cos - y * sin;
         const ry = x * sin + y * cos;
         const rz = z;
+
+        // translate to correct position
+        out.x = rx + o.x;
+        out.y = ry + o.y;
+        out.z = rz + o.z;
+
+        return out;
+    }
+
+    /**
+     * @en Rotates the vector with specified angle around any n axis
+     * @zh 绕任意 n 轴旋转向量指定弧度
+     * @param v rotation vector
+     * @param o center of rotation
+     * @param n axis of rotation
+     * @param a radiance of rotation
+     */
+    public static rotateN<Out extends IVec3Like> (out: Out, v: IVec3Like, o: IVec3Like, n: IVec3Like, a: number) {
+        // Translate point to the origin
+        const x = v.x - o.x;
+        const y = v.y - o.y;
+        const z = v.z - o.z;
+
+        // perform rotation
+        const nx = n.x;
+        const ny = n.y;
+        const nz = n.z;
+
+        const cos = Math.cos(a);
+        const sin = Math.sin(a);
+        const rx = x * (nx * nx * (1.0 - cos) + cos) + y * (nx * ny * (1.0 - cos) - nx * sin) + z * (nx * nz * (1.0 - cos) + ny * sin);
+        const ry = x * (nx * ny * (1.0 - cos) + nz * sin) + y * (ny * ny * (1.0 - cos) + cos) + z * (ny * nz * (1.0 - cos) - nx * sin);
+        const rz = x * (nx * nz * (1.0 - cos) - ny * sin) + y * (ny * nz * (1.0 - cos) + nx * sin) + z * (nz * nz * (1.0 - cos) + cos);
 
         // translate to correct position
         out.x = rx + o.x;
@@ -730,7 +762,7 @@ export class Vec3 extends ValueType {
      * @en Calculates the projection on the specified vector
      * @zh 计算向量在指定向量上的投影
      * @param a projection vector
-     * @param n target vector
+     * @param b target vector
      */
     public static project<Out extends IVec3Like> (out: Out, a: IVec3Like, b: IVec3Like) {
         const sqrLen = Vec3.lengthSqr(b);
@@ -739,6 +771,34 @@ export class Vec3 extends ValueType {
         } else {
             return Vec3.multiplyScalar(out, b, Vec3.dot(a, b) / sqrLen);
         }
+    }
+
+    /**
+     * @en Calculates a new position from current to target no more than `maxStep` distance.
+     * @zh 计算一个新位置从当前位置移动不超过 `maxStep` 距离到目标位置。
+     * @param current current position
+     * @param target target position
+     * @param maxStep maximum moving distance
+     */
+    public static moveTowards<Out extends IVec3Like> (out: Out, current: IVec3Like, target: IVec3Like, maxStep: number) {
+        const deltaX = target.x - current.x;
+        const deltaY = target.y - current.y;
+        const deltaZ = target.z - current.z;
+
+        const distanceSqr = deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ;
+        if (distanceSqr === 0 || (maxStep >= 0 && distanceSqr < maxStep * maxStep)) {
+            out.x = target.x;
+            out.y = target.y;
+            out.z = target.z;
+            return out;
+        }
+
+        const distance = Math.sqrt(distanceSqr);
+        const scale = maxStep / distance;
+        out.x = current.x + deltaX * scale;
+        out.y = current.y + deltaY * scale;
+        out.z = current.z + deltaZ * scale;
+        return out;
     }
 
     /**
@@ -765,7 +825,7 @@ export class Vec3 extends ValueType {
 
     constructor (x?: number | Vec3, y?: number, z?: number) {
         super();
-        if (x && typeof x === 'object') {
+        if (typeof x === 'object') {
             this.x = x.x;
             this.y = x.y;
             this.z = x.z;
@@ -803,7 +863,7 @@ export class Vec3 extends ValueType {
     public set (x?: number, y?: number, z?: number): Vec3;
 
     public set (x?: number | Vec3, y?: number, z?: number) {
-        if (x && typeof x === 'object') {
+        if (typeof x === 'object') {
             this.x = x.x;
             this.y = x.y;
             this.z = x.z;

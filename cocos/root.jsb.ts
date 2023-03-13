@@ -37,6 +37,8 @@ enum LightType {
     DIRECTIONAL,
     SPHERE,
     SPOT,
+    POINT,
+    RANGED_DIRECTIONAL,
     UNKNOWN,
 }
 
@@ -160,6 +162,12 @@ rootProto.destroyLight = function (l) {
             case LightType.SPOT:
                 l.scene.removeSpotLight(l);
                 break;
+            case LightType.POINT:
+                l.scene.removePointLight(l);
+                break;
+            case LightType.RANGED_DIRECTIONAL:
+                l.scene.removeRangedDirLight(l);
+                break;
             default:
                 break;
         }
@@ -181,6 +189,12 @@ rootProto.recycleLight = function (l) {
                     break;
                 case LightType.SPOT:
                     l.scene.removeSpotLight(l);
+                    break;
+                case LightType.POINT:
+                    l.scene.removePointLight(l);
+                    break;
+                case LightType.RANGED_DIRECTIONAL:
+                    l.scene.removeRangedDirLight(l);
                     break;
                 default:
                     break;

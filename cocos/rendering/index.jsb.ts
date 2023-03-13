@@ -28,8 +28,9 @@ declare const jsb: any;
 import { getPhaseID } from './pass-phase';
 import { ccenum, CCString, js } from '../core';
 import * as pipeline from './define';
-import { ccclass, serializable, editable, type, visible } from '../core/data/class-decorator';
+import { ccclass, serializable, editable, type } from '../core/data/class-decorator';
 import { legacyCC } from '../core/global-exports';
+import * as decors from '../native-binding/decorators';
 export { pipeline };
 
 nr.getPhaseID = getPhaseID;
@@ -389,98 +390,36 @@ function proxyArrayAttributeImpl(proto: any, attr: string) {
     });
 }
 
-function declType(proto: any, attrType: any, attr: string, dft: () => any) {
-    (type(attrType) as any)(proto, attr, dft);
-}
-
-
-
-
 
 let proxyArrayAttribute = proxyArrayAttributeImpl;
 
-editable(RenderStage.prototype, '_name', () => '');
-editable(RenderStage.prototype, '_tag', () => 0);
-editable(RenderStage.prototype, '_priority', () => 0);
-serializable(RenderStage.prototype, '_tag', () => 0);
-serializable(RenderStage.prototype, '_priority', () => 0);
-
-editable(RenderFlow.prototype, '_name', () => '');
-editable(RenderFlow.prototype, '_priority', () => 0);
-editable(RenderFlow.prototype, '_tag', () => 0);
-editable(RenderFlow.prototype, '_stages', () => []);
-declType(RenderFlow.prototype, [RenderStage], '_stages', () => []);
 proxyArrayAttribute(RenderFlow.prototype, '_stages');
-serializable(RenderFlow.prototype, '_name', () => '');
-serializable(RenderFlow.prototype, '_priority', () => 0);
-serializable(RenderFlow.prototype, '_tag', () => 0);
-serializable(RenderFlow.prototype, '_stages', () => []);
 
-editable(RenderPipeline.prototype, '_tag', () => 0);
-editable(RenderPipeline.prototype, '_name', () => []);
-serializable(RenderPipeline.prototype, '_tag', () => 0);
-serializable(RenderPipeline.prototype, '_name', () => '');
-
-editable(RenderPipeline.prototype, '_flows', () => []);
-declType(RenderPipeline.prototype, [RenderFlow], '_flows', () => []);
 proxyArrayAttribute(RenderPipeline.prototype, '_flows');
-serializable(RenderPipeline.prototype, '_flows', () => []);
-
-editable(DeferredPipeline.prototype, 'renderTextures', () => []);
-declType(DeferredPipeline.prototype, [RenderTextureConfig], "renderTextures", () => []);
-serializable(DeferredPipeline.prototype, 'renderTextures', () => []);
-editable(DeferredPipeline.prototype, 'renderTextures', () => []);
-
-
-editable(ForwardPipeline.prototype, 'renderTextures', () => []);
-declType(ForwardPipeline.prototype, [RenderTextureConfig], "renderTextures", () => []);
-serializable(ForwardPipeline.prototype, 'renderTextures', () => []);
-
-declType(GbufferStage.prototype, [RenderQueueDesc], 'renderQueues', () => []);
-serializable(GbufferStage.prototype, 'renderQueues', () => []);
-editable(GbufferStage.prototype, 'renderQueues', () => []);
-
-
-editable(LightingStage.prototype, '_deferredMaterial', () => null);
-declType(LightingStage.prototype, jsb.Material, '_deferredMaterial', () => null);
-declType(LightingStage.prototype, [RenderQueueDesc], 'renderQueues', () => []);
-serializable(LightingStage.prototype, '_deferredMaterial', () => null);
-serializable(LightingStage.prototype, 'renderQueue', () => []);
-editable(LightingStage.prototype, 'renderQueue', () => []);
-
-editable(BloomStage.prototype, '_bloomMaterial', () => null);
-declType(BloomStage.prototype, jsb.Material, '_bloomMaterial', () => []);
-serializable(BloomStage.prototype, '_bloomMaterial', () => null);
-
-
-declType(PostProcessStage.prototype, [RenderQueueDesc], 'renderQueues', () => []);
-editable(PostProcessStage.prototype, '_postProcessMaterial', () => null);
-declType(PostProcessStage.prototype, jsb.Material, '_postProcessMaterial', () => null);
-serializable(PostProcessStage.prototype, 'renderQueues', () => []);
-editable(PostProcessStage.prototype, 'renderQueues', () => []);
-serializable(PostProcessStage.prototype, '_postProcessMaterial', () => null);
-
-declType(ForwardStage.prototype, [RenderQueueDesc], 'renderQueues', () => []);
-serializable(ForwardStage.prototype, 'renderQueues', () => []);
-editable(ForwardStage.prototype, 'renderQueues', () => []);
 
 //-------------------- register types -------------------- 
-ccclass('RenderQueueDesc')(RenderQueueDesc);
-ccclass('RenderStage')(RenderStage)
-ccclass('ReflectionProbeStage')(ReflectionProbeStage);
-ccclass('GbufferStage')(GbufferStage);
-ccclass('LightingStage')(LightingStage);
-ccclass('BloomStage')(BloomStage);
-ccclass('PostProcessStage')(PostProcessStage);
-ccclass('ForwardStage')(ForwardStage);
-ccclass('ShadowStage')(ShadowStage);
 
-ccclass('RenderFlow')(RenderFlow)
-ccclass('MainFlow')(MainFlow);
-ccclass('ForwardFlow')(ForwardFlow);
-ccclass('ShadowFlow')(ShadowFlow);
-ccclass('ReflectionProbeFlow')(ReflectionProbeFlow);
+const Material = jsb.Material;
 
-ccclass('cc.RenderPipeline')(RenderPipeline);
-ccclass('ForwardPipeline')(ForwardPipeline);
-ccclass('DeferredPipeline')(DeferredPipeline);
+decors.patch_RenderQueueDesc({RenderQueueDesc, RenderQueueSortMode, CCString});
+decors.patch_RenderStage({RenderStage});
+decors.patch_ReflectionProbeStage({ReflectionProbeStage});
+decors.patch_GbufferStage({GbufferStage, RenderQueueDesc});
+decors.patch_LightingStage({LightingStage, RenderQueueDesc, Material});
+decors.patch_BloomStage({BloomStage, Material});
+decors.patch_PostProcessStage({PostProcessStage, Material, RenderQueueDesc});
+decors.patch_ForwardStage({ForwardStage, RenderQueueDesc});
+decors.patch_ShadowStage({ShadowStage});
+
+decors.patch_RenderFlow({RenderFlow, RenderStage});
+decors.patch_MainFlow({MainFlow});
+decors.patch_ForwardFlow({ForwardFlow});
+decors.patch_ShadowFlow({ShadowFlow});
+decors.patch_ReflectionProbeFlow({ReflectionProbeFlow});
+
+decors.patch_cc_RenderPipeline({RenderPipeline, RenderFlow});
+decors.patch_ForwardPipeline({ForwardPipeline, RenderTextureConfig});
+decors.patch_DeferredPipeline({DeferredPipeline, RenderTextureConfig});
+
+
+

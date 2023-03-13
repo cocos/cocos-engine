@@ -113,9 +113,13 @@ int32_t WindowsPlatform::init() {
     return _windowManager->init();
 }
 
+void WindowsPlatform::exit() {
+    _quit = true;
+}
+
 int32_t WindowsPlatform::loop() {
 #if CC_EDITOR
-    _windowManager->processEvent(&_quit);
+    _windowManager->processEvent();
     runTask();
 #else
     ///////////////////////////////////////////////////////////////////////////
@@ -147,7 +151,7 @@ int32_t WindowsPlatform::loop() {
     onResume();
     while (!_quit) {
         desiredInterval = (LONGLONG)(1.0 / getFps() * nFreq.QuadPart);
-        _windowManager->processEvent(&_quit);
+        _windowManager->processEvent();
 
         QueryPerformanceCounter(&nNow);
         actualInterval = nNow.QuadPart - nLast.QuadPart;

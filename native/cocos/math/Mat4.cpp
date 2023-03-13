@@ -26,6 +26,7 @@
 #include <cstring>
 #include "base/Log.h"
 #include "base/std/container/array.h"
+#include "math/Math.h"
 #include "math/MathUtil.h"
 #include "math/Quaternion.h"
 
@@ -47,9 +48,11 @@ Mat4::Mat4() {
     *this = IDENTITY;
 }
 
-Mat4::Mat4(float m11, float m12, float m13, float m14, float m21, float m22, float m23, float m24,
-           float m31, float m32, float m33, float m34, float m41, float m42, float m43, float m44) {
-    set(m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44);
+Mat4::Mat4(float m00, float m01, float m02, float m03,
+           float m10, float m11, float m12, float m13,
+           float m20, float m21, float m22, float m23,
+           float m30, float m31, float m32, float m33) {
+    set(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
 }
 
 Mat4::Mat4(const float *mat) {
@@ -225,25 +228,6 @@ void Mat4::createBillboardHelper(const Vec3 &objectPosition, const Vec3 &cameraP
     }
 }
 
-// void Mat4::createReflection(const Plane& plane, Mat4* dst)
-// {
-//     Vec3 normal(plane.getNormal());
-//     float k = -2.0f * plane.getDistance();
-
-//     dst->setIdentity();
-
-//     dst->m[0] -= 2.0f * normal.x * normal.x;
-//     dst->m[5] -= 2.0f * normal.y * normal.y;
-//     dst->m[10] -= 2.0f * normal.z * normal.z;
-//     dst->m[1] = dst->m[4] = -2.0f * normal.x * normal.y;
-//     dst->m[2] = dst->m[8] = -2.0f * normal.x * normal.z;
-//     dst->m[6] = dst->m[9] = -2.0f * normal.y * normal.z;
-
-//     dst->m[3] = k * normal.x;
-//     dst->m[7] = k * normal.y;
-//     dst->m[11] = k * normal.z;
-// }
-
 void Mat4::createScale(const Vec3 &scale, Mat4 *dst) {
     CC_ASSERT(dst);
 
@@ -311,17 +295,17 @@ void Mat4::createRotation(const Vec3 &axis, float angle, Mat4 *dst) {
 
     // Make sure the input axis is normalized.
     float n = x * x + y * y + z * z;
-    if (n != 1.0F) {
-        // Not normalized.
-        n = std::sqrt(n);
-        // Prevent divide too close to zero.
-        if (n > 0.000001F) {
-            n = 1.0F / n;
-            x *= n;
-            y *= n;
-            z *= n;
-        }
+    n = std::sqrt(n);
+
+    // do nothing for invalid axis
+    if (n < math::EPSILON) {
+        return;
     }
+
+    n = 1.0F / n;
+    x *= n;
+    y *= n;
+    z *= n;
 
     float c = std::cos(angle);
     float s = std::sin(angle);
@@ -800,28 +784,29 @@ bool Mat4::inverse() {
     }
 
     // Support the case where m == dst.
+    det = 1.0F / det;
     Mat4 inverse;
-    inverse.m[0] = m[5] * b5 - m[6] * b4 + m[7] * b3;
-    inverse.m[1] = -m[1] * b5 + m[2] * b4 - m[3] * b3;
-    inverse.m[2] = m[13] * a5 - m[14] * a4 + m[15] * a3;
-    inverse.m[3] = -m[9] * a5 + m[10] * a4 - m[11] * a3;
+    inverse.m[0] = (m[5] * b5 - m[6] * b4 + m[7] * b3) * det;
+    inverse.m[1] = (-m[1] * b5 + m[2] * b4 - m[3] * b3) * det;
+    inverse.m[2] = (m[13] * a5 - m[14] * a4 + m[15] * a3) * det;
+    inverse.m[3] = (-m[9] * a5 + m[10] * a4 - m[11] * a3) * det;
 
-    inverse.m[4] = -m[4] * b5 + m[6] * b2 - m[7] * b1;
-    inverse.m[5] = m[0] * b5 - m[2] * b2 + m[3] * b1;
-    inverse.m[6] = -m[12] * a5 + m[14] * a2 - m[15] * a1;
-    inverse.m[7] = m[8] * a5 - m[10] * a2 + m[11] * a1;
+    inverse.m[4] = (-m[4] * b5 + m[6] * b2 - m[7] * b1) * det;
+    inverse.m[5] = (m[0] * b5 - m[2] * b2 + m[3] * b1) * det;
+    inverse.m[6] = (-m[12] * a5 + m[14] * a2 - m[15] * a1) * det;
+    inverse.m[7] = (m[8] * a5 - m[10] * a2 + m[11] * a1) * det;
 
-    inverse.m[8] = m[4] * b4 - m[5] * b2 + m[7] * b0;
-    inverse.m[9] = -m[0] * b4 + m[1] * b2 - m[3] * b0;
-    inverse.m[10] = m[12] * a4 - m[13] * a2 + m[15] * a0;
-    inverse.m[11] = -m[8] * a4 + m[9] * a2 - m[11] * a0;
+    inverse.m[8] = (m[4] * b4 - m[5] * b2 + m[7] * b0) * det;
+    inverse.m[9] = (-m[0] * b4 + m[1] * b2 - m[3] * b0) * det;
+    inverse.m[10] = (m[12] * a4 - m[13] * a2 + m[15] * a0) * det;
+    inverse.m[11] = (-m[8] * a4 + m[9] * a2 - m[11] * a0) * det;
 
-    inverse.m[12] = -m[4] * b3 + m[5] * b1 - m[6] * b0;
-    inverse.m[13] = m[0] * b3 - m[1] * b1 + m[2] * b0;
-    inverse.m[14] = -m[12] * a3 + m[13] * a1 - m[14] * a0;
-    inverse.m[15] = m[8] * a3 - m[9] * a1 + m[10] * a0;
+    inverse.m[12] = (-m[4] * b3 + m[5] * b1 - m[6] * b0) * det;
+    inverse.m[13] = (m[0] * b3 - m[1] * b1 + m[2] * b0) * det;
+    inverse.m[14] = (-m[12] * a3 + m[13] * a1 - m[14] * a0) * det;
+    inverse.m[15] = (m[8] * a3 - m[9] * a1 + m[10] * a0) * det;
 
-    multiply(inverse, 1.0F / det, this);
+    *this = inverse;
 
     return true;
 }
@@ -950,24 +935,29 @@ void Mat4::scale(const Vec3 &s, Mat4 *dst) const {
     scale(s.x, s.y, s.z, dst);
 }
 
-void Mat4::set(float m11, float m12, float m13, float m14, float m21, float m22, float m23, float m24,
-               float m31, float m32, float m33, float m34, float m41, float m42, float m43, float m44) {
-    m[0] = m11;
-    m[1] = m21;
-    m[2] = m31;
-    m[3] = m41;
-    m[4] = m12;
-    m[5] = m22;
-    m[6] = m32;
-    m[7] = m42;
-    m[8] = m13;
-    m[9] = m23;
-    m[10] = m33;
-    m[11] = m43;
-    m[12] = m14;
-    m[13] = m24;
-    m[14] = m34;
-    m[15] = m44;
+void Mat4::set(float m00, float m01, float m02, float m03,
+               float m10, float m11, float m12, float m13,
+               float m20, float m21, float m22, float m23,
+               float m30, float m31, float m32, float m33) {
+    m[0] = m00;
+    m[1] = m01;
+    m[2] = m02;
+    m[3] = m03;
+
+    m[4] = m10;
+    m[5] = m11;
+    m[6] = m12;
+    m[7] = m13;
+
+    m[8] = m20;
+    m[9] = m21;
+    m[10] = m22;
+    m[11] = m23;
+
+    m[12] = m30;
+    m[13] = m31;
+    m[14] = m32;
+    m[15] = m33;
 }
 
 void Mat4::set(const float *mat) {
@@ -1047,7 +1037,14 @@ Mat4 Mat4::getTransposed() const {
 }
 
 bool Mat4::approxEquals(const Mat4 &v, float precision /* = CC_FLOAT_CMP_PRECISION */) const {
-    return math::isEqualF(m[0], v.m[0], precision) && math::isEqualF(m[1], v.m[1], precision) && math::isEqualF(m[2], v.m[2], precision) && math::isEqualF(m[3], v.m[3], precision) && math::isEqualF(m[4], v.m[4], precision) && math::isEqualF(m[5], v.m[5], precision) && math::isEqualF(m[6], v.m[6], precision) && math::isEqualF(m[7], v.m[7], precision) && math::isEqualF(m[8], v.m[8], precision) && math::isEqualF(m[9], v.m[9], precision) && math::isEqualF(m[10], v.m[10], precision) && math::isEqualF(m[11], v.m[11], precision) && math::isEqualF(m[12], v.m[12], precision) && math::isEqualF(m[13], v.m[13], precision) && math::isEqualF(m[14], v.m[14], precision) && math::isEqualF(m[15], v.m[15], precision);
+    return math::isEqualF(m[0], v.m[0], precision) && math::isEqualF(m[1], v.m[1], precision) &&
+           math::isEqualF(m[2], v.m[2], precision) && math::isEqualF(m[3], v.m[3], precision) &&
+           math::isEqualF(m[4], v.m[4], precision) && math::isEqualF(m[5], v.m[5], precision) &&
+           math::isEqualF(m[6], v.m[6], precision) && math::isEqualF(m[7], v.m[7], precision) &&
+           math::isEqualF(m[8], v.m[8], precision) && math::isEqualF(m[9], v.m[9], precision) &&
+           math::isEqualF(m[10], v.m[10], precision) && math::isEqualF(m[11], v.m[11], precision) &&
+           math::isEqualF(m[12], v.m[12], precision) && math::isEqualF(m[13], v.m[13], precision) &&
+           math::isEqualF(m[14], v.m[14], precision) && math::isEqualF(m[15], v.m[15], precision);
 }
 
 const Mat4 Mat4::IDENTITY = Mat4(
