@@ -52,6 +52,7 @@
 #include "renderer/pipeline/PipelineSceneData.h"
 #include "renderer/pipeline/BatchedBuffer.h"
 #include "renderer/pipeline/GeometryRenderer.h"
+#include "renderer/pipeline/DebugView.h"
 #include "renderer/pipeline/reflection-probe/ReflectionProbeFlow.h"
 #include "renderer/pipeline/reflection-probe/ReflectionProbeStage.h"
 
@@ -430,6 +431,15 @@ template<>
 bool sevalue_to_native(const se::Value &from, cc::pipeline::REFLECTIONPROBEPLANARMAP * to, se::Object *ctx);
 
 
+JSB_REGISTER_OBJECT_TYPE(cc::pipeline::REFLECTIONPROBEDATAMAP);
+extern se::Object *__jsb_cc_pipeline_REFLECTIONPROBEDATAMAP_proto; // NOLINT
+extern se::Class * __jsb_cc_pipeline_REFLECTIONPROBEDATAMAP_class; // NOLINT
+
+
+template<>
+bool sevalue_to_native(const se::Value &from, cc::pipeline::REFLECTIONPROBEDATAMAP * to, se::Object *ctx);
+
+
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::RenderPipelineInfo);
 extern se::Object *__jsb_cc_pipeline_RenderPipelineInfo_proto; // NOLINT
 extern se::Class * __jsb_cc_pipeline_RenderPipelineInfo_class; // NOLINT
@@ -470,6 +480,11 @@ bool sevalue_to_native(const se::Value &from, cc::pipeline::RenderStageInfo * to
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::RenderStage);
 extern se::Object *__jsb_cc_pipeline_RenderStage_proto; // NOLINT
 extern se::Class * __jsb_cc_pipeline_RenderStage_class; // NOLINT
+
+
+JSB_REGISTER_OBJECT_TYPE(cc::pipeline::DebugView);
+extern se::Object *__jsb_cc_pipeline_DebugView_proto; // NOLINT
+extern se::Class * __jsb_cc_pipeline_DebugView_class; // NOLINT
 
 
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::ForwardPipeline);

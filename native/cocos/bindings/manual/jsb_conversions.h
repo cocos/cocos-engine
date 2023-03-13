@@ -51,6 +51,8 @@
 #include "math/Math.h"
 #include "renderer/gfx-base/states/GFXSampler.h"
 
+#include "base/HasMemberFunction.h"
+
 #define SE_PRECONDITION2_VOID(condition, ...)                                                                   \
     do {                                                                                                        \
         if (!(condition)) {                                                                                     \
@@ -195,17 +197,25 @@ seval_to_type(const se::Value &v, bool &ok) { // NOLINT(readability-identifier-n
     return v.toString();
 }
 
+inline se::HandleObject unwrapProxyObject(se::Object *obj) {
+    if (obj->isProxy()) {
+        return se::HandleObject(se::Object::createProxyTarget(obj));
+    }
+    obj->incRef();
+    return se::HandleObject(obj);
+}
+
 template <typename T>
 typename std::enable_if<std::is_pointer<T>::value && std::is_class<typename std::remove_pointer<T>::type>::value, bool>::type
 seval_to_std_vector(const se::Value &v, ccstd::vector<T> *ret) { // NOLINT(readability-identifier-naming)
     CC_ASSERT_NOT_NULL(ret);
     CC_ASSERT(v.isObject());
-    se::Object *obj = v.toObject();
-    CC_ASSERT(obj->isArray());
+    se::HandleObject array(unwrapProxyObject(v.toObject()));
+    CC_ASSERT(array->isArray());
 
     bool ok = true;
     uint32_t len = 0;
-    ok = obj->getArrayLength(&len);
+    ok = array->getArrayLength(&len);
     if (!ok) {
         ret->clear();
         return false;
@@ -215,7 +225,7 @@ seval_to_std_vector(const se::Value &v, ccstd::vector<T> *ret) { // NOLINT(reada
 
     se::Value tmp;
     for (uint32_t i = 0; i < len; ++i) {
-        ok = obj->getArrayElement(i, &tmp);
+        ok = array->getArrayElement(i, &tmp);
         if (!ok) {
             ret->clear();
             return false;
@@ -240,12 +250,12 @@ typename std::enable_if<!std::is_pointer<T>::value, bool>::type
 seval_to_std_vector(const se::Value &v, ccstd::vector<T> *ret) { // NOLINT(readability-identifier-naming)
     CC_ASSERT_NOT_NULL(ret);
     CC_ASSERT(v.isObject());
-    se::Object *obj = v.toObject();
-    CC_ASSERT(obj->isArray());
+    se::HandleObject array(unwrapProxyObject(v.toObject()));
+    CC_ASSERT(array->isArray());
 
     bool ok = true;
     uint32_t len = 0;
-    ok = obj->getArrayLength(&len);
+    ok = array->getArrayLength(&len);
     if (!ok) {
         ret->clear();
         return false;
@@ -255,7 +265,7 @@ seval_to_std_vector(const se::Value &v, ccstd::vector<T> *ret) { // NOLINT(reada
 
     se::Value tmp;
     for (uint32_t i = 0; i < len; ++i) {
-        ok = obj->getArrayElement(i, &tmp);
+        ok = array->getArrayElement(i, &tmp);
         if (!ok) {
             ret->clear();
             return false;
@@ -336,7 +346,23 @@ native_ptr_to_seval(T &v_ref, se::Value *ret, bool *isReturnCachedValue = nullpt
             cc_tmp_set_private_data(obj, v);
 
             se::Value property;
-            if (obj->getProperty("_ctor", &property)) {
+            bool foundCtor = false;
+            if (!cls->_getCtor().has_value()) {
+                foundCtor = obj->getProperty("_ctor", &property, true);
+                if (foundCtor) {
+                    cls->_setCtor(property.toObject());
+                } else {
+                    cls->_setCtor(nullptr);
+                }
+            } else {
+                auto *ctorObj = cls->_getCtor().value();
+                if (ctorObj != nullptr) {
+                    property.setObject(ctorObj);
+                    foundCtor = true;
+                }
+            }
+
+            if (foundCtor) {
                 property.toObject()->call(se::EmptyValueArray, obj);
             }
 
@@ -358,6 +384,16 @@ bool native_ptr_to_seval(T *vp, se::Class *cls, se::Value *ret, bool *isReturnCa
         return true;
     }
 
+    if constexpr (cc::has_getScriptObject<DecayT, se::Object *()>::value) {
+        if (v->getScriptObject() != nullptr) {
+            if (isReturnCachedValue != nullptr) {
+                *isReturnCachedValue = true;
+            }
+            ret->setObject(v->getScriptObject());
+            return true;
+        }
+    }
+
     se::NativePtrToObjectMap::filter(v, cls)
         .forEach(
             [&](se::Object *foundObj) {
@@ -375,7 +411,23 @@ bool native_ptr_to_seval(T *vp, se::Class *cls, se::Value *ret, bool *isReturnCa
             cc_tmp_set_private_data(obj, v);
 
             se::Value property;
-            if (obj->getProperty("_ctor", &property)) {
+            bool foundCtor = false;
+            if (!cls->_getCtor().has_value()) {
+                foundCtor = obj->getProperty("_ctor", &property, true);
+                if (foundCtor) {
+                    cls->_setCtor(property.toObject());
+                } else {
+                    cls->_setCtor(nullptr);
+                }
+            } else {
+                auto *ctorObj = cls->_getCtor().value();
+                if (ctorObj != nullptr) {
+                    property.setObject(ctorObj);
+                    foundCtor = true;
+                }
+            }
+
+            if (foundCtor) {
                 property.toObject()->call(se::EmptyValueArray, obj);
             }
 
@@ -709,7 +761,7 @@ bool sevalue_to_native(const se::Value &from, ccstd::vector<T> *to, se::Object *
     }
 
     CC_ASSERT(from.toObject());
-    se::Object *array = from.toObject();
+    se::HandleObject array(unwrapProxyObject(from.toObject()));
 
     if (array->isArray()) {
         uint32_t len = 0;
@@ -746,6 +798,11 @@ bool nativevalue_to_se_args_v(se::ValueArray &array, Args &&...args); // NOLINT(
 
 template <typename R>
 inline bool sevalue_to_native(const se::Value &from, std::function<R()> *func, se::Object *self) { // NOLINT(readability-identifier-naming)
+    if (from.isNullOrUndefined()) {
+        *func = nullptr;
+        return true;
+    }
+
     if (from.isObject() && from.toObject()->isFunction()) {
         CC_ASSERT(from.toObject()->isRooted());
         *func = [from, self]() {
@@ -770,6 +827,11 @@ inline bool sevalue_to_native(const se::Value &from, std::function<R()> *func, s
 
 template <typename R, typename... Args>
 inline bool sevalue_to_native(const se::Value &from, std::function<R(Args...)> *func, se::Object *self) { // NOLINT(readability-identifier-naming)
+    if (from.isNullOrUndefined()) {
+        *func = nullptr;
+        return true;
+    }
+
     if (from.isObject() && from.toObject()->isFunction()) {
         CC_ASSERT(from.toObject()->isRooted());
         *func = [from, self](Args... inargs) {
@@ -797,6 +859,11 @@ inline bool sevalue_to_native(const se::Value &from, std::function<R(Args...)> *
 }
 
 inline bool sevalue_to_native(const se::Value &from, std::function<void()> *func, se::Object *self) { // NOLINT(readability-identifier-naming)
+    if (from.isNullOrUndefined()) {
+        *func = nullptr;
+        return true;
+    }
+
     if (from.isObject() && from.toObject()->isFunction()) {
         CC_ASSERT(from.toObject()->isRooted());
         *func = [from, self]() {
@@ -817,6 +884,11 @@ inline bool sevalue_to_native(const se::Value &from, std::function<void()> *func
 
 template <typename... Args>
 inline bool sevalue_to_native(const se::Value &from, std::function<void(Args...)> *func, se::Object *self) { // NOLINT(readability-identifier-naming)
+    if (from.isNullOrUndefined()) {
+        *func = nullptr;
+        return true;
+    }
+
     if (from.isObject() && from.toObject()->isFunction()) {
         CC_ASSERT(from.toObject()->isRooted());
         *func = [from, self](Args... inargs) {
@@ -1004,6 +1076,7 @@ bool sevalue_to_native(const se::Value &from, ccstd::optional<T> *to, se::Object
     }
     return ret;
 }
+
 //////////////////////  shoter form
 template <typename T>
 inline bool sevalue_to_native(const se::Value &from, T &&to) { // NOLINT(readability-identifier-naming)
@@ -1078,7 +1151,7 @@ nativevalue_to_se(const T &from, se::Value &to, se::Object * /*ctx*/) { // NOLIN
     return true;
 }
 
-//#endif // HAS_CONSTEXPR
+// #endif // HAS_CONSTEXPR
 
 //////////////////////////////// forward declaration: nativevalue_to_se ////////////////////////////////
 

@@ -20,7 +20,6 @@
  THE SOFTWARE.
 */
 
-import { ccclass, editable, serializable } from 'cc.decorator';
 import { EDITOR, TEST } from "internal:constants";
 import { legacyCC } from '../core/global-exports';
 import { Node } from './node';
@@ -28,6 +27,7 @@ import { applyTargetOverrides, expandNestedPrefabInstanceNode } from "./prefab/u
 import { assert } from "../core/platform/debug";
 import { updateChildrenForDeserialize } from '../core/utils/jsb-utils';
 import { SceneGlobals } from './scene-globals';
+import { patch_cc_Scene } from '../native-binding/decorators';
 
 export const Scene = jsb.Scene;
 export type Scene = jsb.Scene;
@@ -78,6 +78,7 @@ Object.defineProperty(sceneProto, 'renderScene', {
 });
 
 sceneProto._ctor = function () {
+    // @ts-expect-error TODO: Property '_ctor' does not exist on type 'Node'.
     Node.prototype._ctor.apply(this, arguments);
     this._inited = false;
     this._renderSceneInternal = null;
@@ -86,16 +87,17 @@ sceneProto._ctor = function () {
 };
 
 sceneProto._onBatchCreated = function (dontSyncChildPrefab: boolean) {
-    // Don't invoke Node.prototype._onBatchCreated because we refactor Node&BaseNode, BaseNode is empty just for
-    // instanceof check in ts engine. After ts engine removes BaseNode, we could remove BaseNode.h/.cpp too.
     if (this._parent) {
         this._siblingIndex = this._parent.children.indexOf(this);
     }
     //
-    const len = this._children.length;
+    const children = this._children;
+    const len = children.length;
+    let child;
     for (let i = 0; i < len; ++i) {
-        this.children[i]._siblingIndex = i;
-        this._children[i]._onBatchCreated(dontSyncChildPrefab);
+        child = children[i];
+        child._siblingIndex = i;
+        child._onBatchCreated(dontSyncChildPrefab);
     }
 };
 
@@ -133,10 +135,4 @@ sceneProto._activate = function (active: boolean) {
 };
 
 // handle meta data, it is generated automatically
-const SceneProto = Scene.prototype;
-const globalsDescriptor = Object.getOwnPropertyDescriptor(SceneProto, 'globals');
-editable(SceneProto, 'globals', globalsDescriptor);
-editable(SceneProto, 'autoReleaseAssets', () => false);
-serializable(SceneProto, 'autoReleaseAssets', () => false);
-serializable(SceneProto, '_globals', () => new SceneGlobals());
-ccclass('cc.Scene')(Scene);
+patch_cc_Scene({Scene, SceneGlobals});

@@ -25,7 +25,6 @@
 import { EDITOR } from 'internal:constants';
 import { Pipeline, PipelineBuilder } from './pipeline';
 import { WebPipeline } from './web-pipeline';
-import { buildDeferredLayout, buildForwardLayout } from './effect';
 import { macro } from '../../core/platform/macro';
 import { DeferredPipelineBuilder, ForwardPipelineBuilder } from './builtin-pipelines';
 import { CustomPipelineBuilder, NativePipelineBuilder } from './custom-pipeline';
@@ -45,24 +44,16 @@ export * from './types';
 export * from './pipeline';
 export * from './archive';
 
-export const enableEffectImport = !EDITOR;
+export const enableEffectImport = true;
 export const programLib: ProgramLibrary = new WebProgramLibrary(defaultLayoutGraph);
 
 export function createCustomPipeline (): Pipeline {
-    const layoutGraph = enableEffectImport ? defaultLayoutGraph : new LayoutGraphData();
+    const layoutGraph = defaultLayoutGraph;
 
     const ppl = new WebPipeline(layoutGraph);
     const pplName = macro.CUSTOM_PIPELINE_NAME;
     ppl.setCustomPipelineName(pplName);
-
-    if (!enableEffectImport) {
-        if (pplName === 'Deferred') {
-            buildDeferredLayout(ppl);
-        } else {
-            buildForwardLayout(ppl);
-        }
-    }
-
+    (programLib as WebProgramLibrary).pipeline = ppl;
     _pipeline = ppl;
     return ppl;
 }
@@ -90,9 +81,11 @@ function addCustomBuiltinPipelines (map: Map<string, PipelineBuilder>) {
 
 addCustomBuiltinPipelines(customPipelineBuilderMap);
 
-export function init (device: Device, arrayBuffer: ArrayBuffer) {
-    const readBinaryData = new BinaryInputArchive(arrayBuffer);
-    loadLayoutGraphData(readBinaryData, defaultLayoutGraph);
+export function init (device: Device, arrayBuffer: ArrayBuffer | null) {
+    if (arrayBuffer) {
+        const readBinaryData = new BinaryInputArchive(arrayBuffer);
+        loadLayoutGraphData(readBinaryData, defaultLayoutGraph);
+    }
     initializeLayoutGraphData(device, defaultLayoutGraph);
 }
 

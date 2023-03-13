@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.8)
 
 set(APP_NAME "game" CACHE STRING "Project Name")
-set(CMAKE_C_COMPILER "/usr/bin/clang")
-set(CMAKE_CXX_COMPILER "/usr/bin/clang++")
+#set(CMAKE_C_COMPILER "/usr/bin/clang")
+#set(CMAKE_CXX_COMPILER "/usr/bin/clang++")
 
 project(${APP_NAME} CXX)
 

@@ -26,7 +26,7 @@ import { cclegacy } from '../core';
 import { Device, BufferUsageBit, MemoryUsageBit, BufferInfo, Filter, Address, Sampler, DescriptorSet,
     DescriptorSetInfo, Buffer, Texture, DescriptorSetLayoutInfo, DescriptorSetLayout, SamplerInfo } from '../gfx';
 import { Light } from '../render-scene/scene';
-import { getDescBindingFromName } from './custom/define';
+import { getDescBindingFromName, getDescriptorSetDataFromLayout } from './custom/define';
 import { UBOShadow, globalDescriptorSetLayout, PipelineGlobalBindings, isEnableEffect } from './define';
 
 const _samplerLinearInfo = new SamplerInfo(
@@ -178,8 +178,9 @@ export class GlobalDSManager {
 
         // The global descriptorSet is managed by the pipeline and binds the buffer
         if (!this._descriptorSetMap.has(light)) {
-            const globalDescriptorSet = this._globalDescriptorSet;
-            const descriptorSet = device.createDescriptorSet(new DescriptorSetInfo(this._descriptorSetLayout));
+            const globalDescriptorSet = isEnableEffect() ? getDescriptorSetDataFromLayout('default')!.descriptorSet! : this._globalDescriptorSet;
+            const descriptorSet = device.createDescriptorSet(new DescriptorSetInfo(isEnableEffect()
+                ? getDescriptorSetDataFromLayout('default')!.descriptorSetLayout! : this._descriptorSetLayout));
             this._descriptorSetMap.set(light, descriptorSet);
 
             // Create & Sync ALL UBO Buffer, Texture, Sampler

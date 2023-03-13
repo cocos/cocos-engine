@@ -121,8 +121,8 @@ export class ToggleContainer extends Component {
      * @zh
      * 刷新管理的 toggle 状态。
      *
-     * @param toggle @en The toggle to be updated @zh 需要被更新的切换键
-     * @param emitEvent @en Whether events are needed to be emitted @zh 是否需要触发事件
+     * @param toggle @en The toggle to be updated. @zh 需要被更新的切换键。
+     * @param emitEvent @en Whether events are needed to be emitted. @zh 是否需要触发事件。
      */
     public notifyToggleCheck (toggle: Toggle, emitEvent = true) {
         if (!this.enabledInHierarchy) { return; }
@@ -144,6 +144,10 @@ export class ToggleContainer extends Component {
         }
     }
 
+    /**
+     * @en Ensure toggles state valid.
+     * @zh 确保 toggles 状态有效。
+     */
     public ensureValidState () {
         const toggles = this.toggleItems;
         if (!this._allowSwitchOff && !this.anyTogglesChecked() && toggles.length !== 0) {

@@ -24,7 +24,7 @@
 
 // @ts-check
 import { ccclass, override } from 'cc.decorator';
-import { EDITOR, ALIPAY, XIAOMI, JSB, TEST, BAIDU } from 'internal:constants';
+import { EDITOR, ALIPAY, XIAOMI, JSB, TEST, BAIDU, TAOBAO } from 'internal:constants';
 import { Device, Format, FormatFeatureBit, deviceManager } from '../../gfx';
 import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
@@ -163,7 +163,7 @@ function fetchImageSource (imageSource: ImageSource) {
 
 // 返回该图像源是否是平台提供的图像对象。
 function isNativeImage (imageSource: ImageSource): imageSource is (HTMLImageElement | HTMLCanvasElement | ImageBitmap) {
-    if (ALIPAY || XIAOMI || BAIDU) {
+    if (ALIPAY || TAOBAO || XIAOMI || BAIDU) {
         // We're unable to grab the constructors of Alipay native image or canvas object.
         return !('_data' in imageSource);
     }
@@ -175,8 +175,8 @@ function isNativeImage (imageSource: ImageSource): imageSource is (HTMLImageElem
 }
 
 /**
- * @en Image Asset.
- * @zh 图像资源。
+ * @en Image Asset. The image resource stores the raw data of the image and you can use this resource to create any Texture resource.
+ * @zh 图像资源。图像资源存储了图像的原始数据，你可以使用此资源来创建任意 [[TextureBase]] 资源。
  */
 @ccclass('cc.ImageAsset')
 export class ImageAsset extends Asset {
@@ -202,8 +202,8 @@ export class ImageAsset extends Asset {
      *    *                            *   *
      *    ******************************   *
      * *************************************
-     * @param files @zh 压缩纹理数组 @en Compressed Texture Arrays
-     * @returns out @zh 合并后的压缩纹理数据 @en Merged compressed texture data
+     * @param files @zh 压缩纹理数组。 @en Compressed Texture Arrays.
+     * @returns out @zh 合并后的压缩纹理数据。 @en Merged compressed texture data.
      */
     public static mergeCompressedTextureMips (files: ArrayBuffer[] | ArrayBufferView[]) {
         let out = new Uint8Array(0);
@@ -253,8 +253,8 @@ export class ImageAsset extends Asset {
     }
 
     /**
-     * @param file 解析压缩纹理
-     * @param type 压缩纹理类型
+     * @param file 解析压缩纹理。
+     * @param type 压缩纹理类型。
      * @engineInternal
      */
     public static parseCompressedTextures (file: ArrayBuffer | ArrayBufferView, type: number) {
@@ -296,13 +296,13 @@ export class ImageAsset extends Asset {
     }
 
     /**
-     * @zh 解析压缩纹理
-     * @param file @zh ccon 文件
-     * @param levelIndex @zh 当前 mipmap 层级
-     * @param beginOffset @zh 压缩纹理开始时的偏移
-     * @param endOffset @zh 压缩纹理结束时的偏移
-     * @param type @zh 压缩纹理类型
-     * @param out @zh 压缩纹理输出
+     * @zh 解析压缩纹理。
+     * @param file @zh 压缩纹理原始数据。
+     * @param levelIndex @zh 当前 mipmap 层级。
+     * @param beginOffset @zh 压缩纹理开始时的偏移。
+     * @param endOffset @zh 压缩纹理结束时的偏移。
+     * @param type @zh 压缩纹理类型。
+     * @param out @zh 压缩纹理输出。
      * @engineInternal
      */
     public static parseCompressedTexture (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
@@ -323,12 +323,12 @@ export class ImageAsset extends Asset {
     }
 
     /**
-     * @zh 解析 PVR 格式的压缩纹理
-     * @param file @zh ccon 文件
-     * @param levelIndex @zh 当前 mipmap 层级
-     * @param beginOffset @zh 压缩纹理开始时的偏移
-     * @param endOffset @zh 压缩纹理结束时的偏移
-     * @param out @zh 压缩纹理输出
+     * @zh 解析 PVR 格式的压缩纹理。
+     * @param file @zh 压缩纹理原始数据。
+     * @param levelIndex @zh 当前 mipmap 层级。
+     * @param beginOffset @zh 压缩纹理开始时的偏移。
+     * @param endOffset @zh 压缩纹理结束时的偏移。
+     * @param out @zh 压缩纹理输出。
      * @engineInternal
      */
     public static parsePVRTexture (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
@@ -375,12 +375,12 @@ export class ImageAsset extends Asset {
     }
 
     /**
-     * @zh 解析 PKM 格式的压缩纹理
-     * @param file @zh ccon 文件
-     * @param levelIndex @zh 当前 mipmap 层级
-     * @param beginOffset @zh 压缩纹理开始时的偏移
-     * @param endOffset @zh 压缩纹理结束时的偏移
-     * @param out @zh 压缩纹理输出
+     * @zh 解析 PKM 格式的压缩纹理。
+     * @param file @zh 压缩纹理原始数据。
+     * @param levelIndex @zh 当前 mipmap 层级。
+     * @param beginOffset @zh 压缩纹理开始时的偏移。
+     * @param endOffset @zh 压缩纹理结束时的偏移。
+     * @param out @zh 压缩纹理输出。
      * @engineInternal
      */
     public static parsePKMTexture (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
@@ -409,12 +409,12 @@ export class ImageAsset extends Asset {
     }
 
     /**
-     * @zh 解析 ASTC 格式的压缩纹理
-     * @param file @zh ccon 文件
-     * @param levelIndex @zh 当前 mipmap 层级
-     * @param beginOffset @zh 压缩纹理开始时的偏移
-     * @param endOffset @zh 压缩纹理结束时的偏移
-     * @param out @zh 压缩纹理输出
+     * @zh 解析 ASTC 格式的压缩纹理。
+     * @param file @zh 压缩纹理原始数据。
+     * @param levelIndex @zh 当前 mipmap 层级。
+     * @param beginOffset @zh 压缩纹理开始时的偏移。
+     * @param endOffset @zh 压缩纹理结束时的偏移。
+     * @param out @zh 压缩纹理输出。
      * @engineInternal
      */
     public static parseASTCTexture (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
@@ -571,7 +571,7 @@ export class ImageAsset extends Asset {
     /**
      * @en Reset the source of the image asset.
      * @zh 重置此图像资源使用的原始图像源。
-     * @param data The new source
+     * @param data @en The new source. @zh 新的图片数据源。
      */
     public reset (data: ImageSource) {
         if (isImageBitmap(data)) {
@@ -602,7 +602,7 @@ export class ImageAsset extends Asset {
     // SERIALIZATION
 
     /**
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     * @engineInternal
      */
     // eslint-disable-next-line consistent-return
     public _serialize () {
@@ -631,7 +631,7 @@ export class ImageAsset extends Asset {
     }
 
     /**
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     * @engineInternal
      */
     public _deserialize (data: any) {
         let fmtStr = '';

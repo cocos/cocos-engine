@@ -25,10 +25,9 @@
 /* eslint-disable max-len */
 import { EffectAsset } from '../../asset/assets';
 import { assert } from '../../core';
-import { DescriptorSetLayout, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo, DescriptorType, Device, PipelineLayout, PipelineLayoutInfo, ShaderStageFlagBit, Type, Uniform, UniformBlock } from '../../gfx';
+import { DescriptorSetInfo, DescriptorSetLayout, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo, DescriptorType, Device, PipelineLayout, PipelineLayoutInfo, ShaderStageFlagBit, Type, Uniform, UniformBlock } from '../../gfx';
 import { DefaultVisitor, depthFirstSearch, GraphColor, MutableVertexPropertyMap } from './graph';
 import { DescriptorBlockData, DescriptorData, DescriptorDB, DescriptorSetData, DescriptorSetLayoutData, LayoutGraph, LayoutGraphData, LayoutGraphDataValue, LayoutGraphValue, PipelineLayoutData, RenderPhase, RenderPhaseData, RenderStageData, ShaderProgramData } from './layout-graph';
-import { LayoutGraphBuilder } from './pipeline';
 import { UpdateFrequency, getUpdateFrequencyName, getDescriptorTypeOrderName, Descriptor, DescriptorBlock, DescriptorBlockFlattened, DescriptorBlockIndex, DescriptorTypeOrder, ParameterType } from './types';
 
 export const INVALID_ID = 0xFFFFFFFF;
@@ -990,7 +989,7 @@ function sortDescriptorBlocks<T> (lhs: [string, T], rhs: [string, T]): number {
 }
 
 // build LayoutGraphData
-function buildLayoutGraphDataImpl (graph: LayoutGraph, builder: LayoutGraphBuilder) {
+function buildLayoutGraphDataImpl (graph: LayoutGraph, builder: LayoutGraphBuilder2) {
     for (const v of graph.vertices()) {
         const db = graph.getDescriptors(v);
         let minLevel = UpdateFrequency.PER_INSTANCE;
@@ -1064,8 +1063,19 @@ export function getOrCreateDescriptorID (lg: LayoutGraphData, name: string): num
     return nameID;
 }
 
+export function getOrCreateConstantID (lg: LayoutGraphData, name: string): number {
+    const nameID = lg.constantIndex.get(name);
+    if (nameID === undefined) {
+        const newID = lg.valueNames.length;
+        lg.constantIndex.set(name, newID);
+        lg.valueNames.push(name);
+        return newID;
+    }
+    return nameID;
+}
+
 // LayoutGraphData builder
-class LayoutGraphBuilder2 implements LayoutGraphBuilder {
+class LayoutGraphBuilder2 {
     public constructor (lg: LayoutGraphData) {
         this.lg = lg;
     }
@@ -1142,6 +1152,12 @@ class LayoutGraphBuilder2 implements LayoutGraphBuilder {
             dstBlock.descriptors.push(data);
         }
         layout.capacity += block.capacity;
+        if (index.descriptorType === DescriptorTypeOrder.UNIFORM_BUFFER
+            || index.descriptorType === DescriptorTypeOrder.DYNAMIC_UNIFORM_BUFFER) {
+            layout.uniformBlockCapacity += block.capacity;
+        } else if (index.descriptorType === DescriptorTypeOrder.SAMPLER_TEXTURE) {
+            layout.samplerTextureCapacity += block.capacity;
+        }
     }
     addUniformBlock (nodeID: number, index: DescriptorBlockIndex, name: string, uniformBlock: UniformBlock): void {
         const g: LayoutGraphData = this.lg;
@@ -1150,6 +1166,10 @@ class LayoutGraphBuilder2 implements LayoutGraphBuilder {
         const layout = setData.descriptorSetLayoutData;
         const nameID = getOrCreateDescriptorID(g, name);
         layout.uniformBlocks.set(nameID, uniformBlock);
+        // register constant names
+        for (const member of uniformBlock.members) {
+            getOrCreateConstantID(g, member.name);
+        }
     }
     reserveDescriptorBlock (nodeID: number, index: DescriptorBlockIndex, block: DescriptorBlockFlattened): void {
         if (block.capacity <= 0) {
@@ -1165,6 +1185,12 @@ class LayoutGraphBuilder2 implements LayoutGraphBuilder {
         dstBlock.offset = layout.capacity;
         layout.descriptorBlocks.push(dstBlock);
         layout.capacity += block.capacity;
+        if (index.descriptorType === DescriptorTypeOrder.UNIFORM_BUFFER
+            || index.descriptorType === DescriptorTypeOrder.DYNAMIC_UNIFORM_BUFFER) {
+            layout.uniformBlockCapacity += block.capacity;
+        } else if (index.descriptorType === DescriptorTypeOrder.SAMPLER_TEXTURE) {
+            layout.samplerTextureCapacity += block.capacity;
+        }
     }
     compile (): number {
         // console.debug(this.print());
@@ -1184,6 +1210,54 @@ export function buildLayoutGraphData (lg: LayoutGraph, lgData: LayoutGraphData) 
     const builder = new LayoutGraphBuilder2(lgData);
     buildLayoutGraphDataImpl(lg, builder);
     builder.compile();
+}
+
+function createDescriptorInfo (layoutData: DescriptorSetLayoutData, info: DescriptorSetLayoutInfo) {
+    for (let i = 0; i < layoutData.descriptorBlocks.length; ++i) {
+        const block = layoutData.descriptorBlocks[i];
+        let slot = block.offset;
+        for (let j = 0; j < block.descriptors.length; ++j) {
+            const d = block.descriptors[j];
+            const binding: DescriptorSetLayoutBinding = new DescriptorSetLayoutBinding();
+            binding.binding = slot;
+            binding.descriptorType = getGfxDescriptorType(block.type);
+            binding.count = d.count;
+            binding.stageFlags = block.visibility;
+            binding.immutableSamplers = [];
+            info.bindings.push(binding);
+            slot += d.count;
+        }
+    }
+}
+
+function createDescriptorSetLayout (device: Device | null, layoutData: DescriptorSetLayoutData) {
+    const info: DescriptorSetLayoutInfo = new DescriptorSetLayoutInfo();
+    createDescriptorInfo(layoutData, info);
+
+    if (device) {
+        return device.createDescriptorSetLayout(info);
+    } else {
+        return null;
+    }
+}
+
+export function createGfxDescriptorSetsAndPipelines (device: Device | null, g: LayoutGraphData) {
+    for (let i = 0; i < g._layouts.length; ++i) {
+        const ppl: PipelineLayoutData = g.getLayout(i);
+        ppl.descriptorSets.forEach((value, key) => {
+            const level = value;
+            const layoutData = level.descriptorSetLayoutData;
+            if (device) {
+                const layout: DescriptorSetLayout | null = createDescriptorSetLayout(device, layoutData);
+                if (layout) {
+                    level.descriptorSetLayout = (layout);
+                    level.descriptorSet = (device.createDescriptorSet(new DescriptorSetInfo(layout)));
+                }
+            } else {
+                createDescriptorInfo(layoutData, level.descriptorSetLayoutInfo);
+            }
+        });
+    }
 }
 
 export function printLayoutGraphData (g: LayoutGraphData): string {
@@ -1322,6 +1396,13 @@ export function makeDescriptorSetLayoutData (lg: LayoutGraphData,
         }
         // increate total capacity
         capacity += block.capacity;
+        data.capacity += block.capacity;
+        if (index.descriptorType === DescriptorTypeOrder.UNIFORM_BUFFER
+            || index.descriptorType === DescriptorTypeOrder.DYNAMIC_UNIFORM_BUFFER) {
+            data.uniformBlockCapacity += block.capacity;
+        } else if (index.descriptorType === DescriptorTypeOrder.SAMPLER_TEXTURE) {
+            data.samplerTextureCapacity += block.capacity;
+        }
         data.descriptorBlocks.push(block);
     }
     return data;

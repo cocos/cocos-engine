@@ -23,9 +23,11 @@
 */
 
 import { EDITOR } from 'internal:constants';
-import { Camera } from '../../render-scene/scene';
+import { Camera, CameraUsage } from '../../render-scene/scene';
 import { Pipeline, PipelineBuilder } from './pipeline';
-import { buildForwardPass, buildGBufferPass, buildLightingPass, buildPostprocessPass, buildReflectionProbePasss } from './define';
+import { buildForwardPass, buildGBufferPass, buildLightingPass, buildPostprocessPass,
+    buildReflectionProbePasss, buildUIPass } from './define';
+import { isUICamera } from './utils';
 
 export class ForwardPipelineBuilder implements PipelineBuilder {
     public setup (cameras: Camera[], ppl: Pipeline): void {
@@ -50,16 +52,23 @@ export class DeferredPipelineBuilder implements PipelineBuilder {
             if (!camera.scene) {
                 continue;
             }
-            if (EDITOR) {
+            const isGameView = camera.cameraUsage === CameraUsage.GAME
+                || camera.cameraUsage === CameraUsage.GAME_VIEW;
+            if (!isGameView) {
                 buildForwardPass(camera, ppl, false);
                 continue;
             }
+            if (!isUICamera(camera)) {
             // GBuffer Pass
-            const gBufferInfo = buildGBufferPass(camera, ppl);
-            // Lighting Pass
-            const lightInfo = buildLightingPass(camera, ppl, gBufferInfo);
-            // Postprocess
-            buildPostprocessPass(camera, ppl, lightInfo.rtName);
+                const gBufferInfo = buildGBufferPass(camera, ppl);
+                // Lighting Pass
+                const lightInfo = buildLightingPass(camera, ppl, gBufferInfo);
+                // Postprocess
+                buildPostprocessPass(camera, ppl, lightInfo.rtName);
+                continue;
+            }
+            // render ui
+            buildUIPass(camera, ppl);
         }
     }
 }

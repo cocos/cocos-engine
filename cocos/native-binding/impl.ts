@@ -23,7 +23,10 @@
 */
 import { sys } from "../core";
 import { NATIVE } from 'internal:constants';
-const globalJsb = globalThis.jsb ?? {};
+
+const globalJsb: any = globalThis.jsb ?? {};
+declare const ScriptNativeBridge: any;
+
 if (NATIVE) {
     Object.defineProperty(globalJsb, 'reflection', {
         get() {
@@ -109,7 +112,7 @@ if (NATIVE) {
             if (globalThis.ScriptNativeBridge && sys.os === sys.OS.ANDROID || sys.os === sys.OS.IOS || sys.os === sys.OS.OSX || sys.os === sys.OS.OHOS) {
                 globalJsb.__JsbBridgeWrapper = JsbBridgeWrapper;
                 globalJsb.bridge.onNative = (methodName, arg1) => {
-                    console.log(`Trigger event: ${methodName} with argeter: ${arg1}`);
+                    // console.log(`Trigger event: ${methodName} with argeter: ${arg1}`);
                     globalJsb.__JsbBridgeWrapper.triggerEvent(methodName, arg1);
                 };
             } else {

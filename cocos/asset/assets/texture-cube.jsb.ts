@@ -21,11 +21,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { ccclass, serializable } from 'cc.decorator';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
 import { js, cclegacy } from '../../core';
 import './simple-texture';
 import { EDITOR, TEST } from 'internal:constants';
+import { patch_cc_TextureCube } from '../../native-binding/decorators';
 
 const textureCubeProto: any = jsb.TextureCube.prototype;
 interface ITextureCubeSerializeData {
@@ -226,9 +226,4 @@ textureCubeProto._deserialize = function (serializedData: ITextureCubeSerializeD
 cclegacy.TextureCube = jsb.TextureCube;
 
 // handle meta data, it is generated automatically
-const TextureCubeProto = TextureCube.prototype;
-serializable(TextureCubeProto, 'isRGBE', () => false);
-serializable(TextureCubeProto, '_mipmaps', () => []);
-serializable(TextureCubeProto, '_mipmapMode', () => MipmapMode.NONE);
-serializable(TextureCubeProto, '_mipmapAtlas', () => null);
-ccclass('cc.TextureCube')(TextureCube);
+patch_cc_TextureCube({TextureCube, MipmapMode});

@@ -199,6 +199,8 @@ inline void load(InputArchive& ar, DescriptorBlockData& v) {
 inline void save(OutputArchive& ar, const DescriptorSetLayoutData& v) {
     save(ar, v.slot);
     save(ar, v.capacity);
+    save(ar, v.uniformBlockCapacity);
+    save(ar, v.samplerTextureCapacity);
     save(ar, v.descriptorBlocks);
     save(ar, v.uniformBlocks);
     save(ar, v.bindingMap);
@@ -207,6 +209,8 @@ inline void save(OutputArchive& ar, const DescriptorSetLayoutData& v) {
 inline void load(InputArchive& ar, DescriptorSetLayoutData& v) {
     load(ar, v.slot);
     load(ar, v.capacity);
+    load(ar, v.uniformBlockCapacity);
+    load(ar, v.samplerTextureCapacity);
     load(ar, v.descriptorBlocks);
     load(ar, v.uniformBlocks);
     load(ar, v.bindingMap);

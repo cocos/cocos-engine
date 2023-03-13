@@ -1419,7 +1419,7 @@ struct DescriptorSetLayoutInfo {
 };
 
 struct DescriptorSetInfo {
-    DescriptorSetLayout *layout{nullptr};
+    const DescriptorSetLayout *layout{nullptr};
 
     EXPOSE_COPY_FN(DescriptorSetInfo)
 };
@@ -1515,7 +1515,7 @@ struct BlendState {
 
     void setTarget(index_t index, const BlendTarget &target) {
         if (index >= targets.size()) {
-            targets.resize(index + 1);
+            targets.resize(static_cast<size_t>(index) + 1);
         }
         targets[index] = target;
     }

@@ -25,6 +25,19 @@
 // https://stackoverflow.com/questions/56714318/how-to-disable-multiple-rules-for-eslint-nextline?msclkid=5d4c2298ba7911eca34d0ab30591752e
 
 import { Type } from '../../gfx';
+import { Camera } from '../../render-scene/scene/camera';
+
+export function isUICamera (camera: Camera): boolean {
+    const scene = camera.scene!;
+    const batches = scene.batches;
+    for (let i = 0; i < batches.length; i++) {
+        const batch = batches[i];
+        if (camera.visibility & batch.visFlags) {
+            return true;
+        }
+    }
+    return false;
+}
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function replacer (key: unknown, value: unknown) {

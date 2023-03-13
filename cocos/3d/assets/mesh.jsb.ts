@@ -21,8 +21,8 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { ccclass, serializable } from 'cc.decorator';
 import { cclegacy, Vec3 } from '../../core';
+import { patch_cc_Mesh } from '../../native-binding/decorators';
 
 declare const jsb: any;
 
@@ -147,9 +147,13 @@ Object.defineProperty(meshAssetProto, 'maxPosition', {
 });
 
 meshAssetProto.onLoaded = function () {
-    // might be undefined
-    if (this._struct != undefined) {
-        this.setStruct(this._struct);
+    // might be undefined or null
+    const meshStruct = this._struct;
+    if (meshStruct) {
+        // Synchronize to native if the struct contains valid values.
+        if (meshStruct.vertexBundles.length !== 0 || meshStruct.primitives.length !== 0) {
+            this.setStruct(this._struct);
+        }
     }
     // Set to null to release memory in JS
     this._struct = null;
@@ -159,8 +163,4 @@ meshAssetProto.onLoaded = function () {
 cclegacy.Mesh = jsb.Mesh;
 
 // handle meta data, it is generated automatically
-const MeshProto = Mesh.prototype;
-serializable(MeshProto, '_struct', () => { return { vertexBundles: [], primitives: [] } });
-serializable(MeshProto, '_hash', () => 0);
-serializable(MeshProto, '_allowDataAccess', () => true);
-ccclass('cc.Mesh')(Mesh);
+patch_cc_Mesh({Mesh});

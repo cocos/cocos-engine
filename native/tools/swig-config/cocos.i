@@ -100,6 +100,9 @@ namespace cc {
 %ignore JSBNativeDataHolder::getData;
 %ignore JSBNativeDataHolder::setData;
 
+%ignore CCObject::setScriptObject;
+%ignore CCObject::getScriptObject;
+
 }
 
 

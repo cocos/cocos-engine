@@ -65,7 +65,7 @@ export class CompactValueTypeArray {
     public static ElementType = ElementType;
 
     /**
-     * Offset into buffer, in bytes.
+     * Offset into the buffer, in bytes.
      */
     @serializable
     private _byteOffset = 0;

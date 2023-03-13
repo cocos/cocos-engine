@@ -35,6 +35,8 @@ class Pass;
 class Light;
 class SpotLight;
 class SphereLight;
+class PointLight;
+class RangedDirectionalLight;
 } // namespace scene
 namespace pipeline {
 struct RenderObject;
@@ -54,7 +56,7 @@ struct AdditiveLightPass {
 class RenderAdditiveLightQueue final {
 public:
     explicit RenderAdditiveLightQueue(RenderPipeline *pipeline);
-    ~RenderAdditiveLightQueue();
+    ~RenderAdditiveLightQueue() = default;
 
     void recordCommandBuffer(gfx::Device *device, scene::Camera *camera, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer);
     void gatherLightPasses(const scene::Camera *camera, gfx::CommandBuffer *cmdBuffer);
@@ -62,6 +64,8 @@ public:
 private:
     static bool cullSphereLight(const scene::SphereLight *light, const scene::Model *model);
     static bool cullSpotLight(const scene::SpotLight *light, const scene::Model *model);
+    static bool cullPointLight(const scene::PointLight *light, const scene::Model *model);
+    static bool cullRangedDirLight(const scene::RangedDirectionalLight *light, const scene::Model *model);
 
     void clear();
     void addRenderQueue(scene::SubModel *subModel, const scene::Model *model, scene::Pass *pass, uint32_t lightPassIdx);
@@ -77,10 +81,6 @@ private:
 
     // weak reference
     RenderPipeline *_pipeline{nullptr};
-    // manage memory manually
-    RenderInstancedQueue *_instancedQueue{nullptr};
-    // manage memory manually
-    RenderBatchedQueue *_batchedQueue{nullptr};
 
     IntrusivePtr<gfx::Buffer> _lightBuffer;
     IntrusivePtr<gfx::Buffer> _firstLightBufferView;
@@ -98,6 +98,10 @@ private:
 
     // weak reference
     ccstd::vector<const scene::Light *> _validPunctualLights;
+
+    ccstd::vector<IntrusivePtr<RenderInstancedQueue>> _instancedQueues;
+
+    ccstd::vector<IntrusivePtr<RenderBatchedQueue>> _batchedQueues;
 
     ccstd::vector<AdditiveLightPass> _lightPasses;
 

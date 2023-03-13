@@ -21,13 +21,13 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { ccclass, type } from 'cc.decorator';
 import { ImageAsset } from './image-asset';
 import { SimpleTexture } from './simple-texture';
 import { TextureBase } from './texture-base.jsb';
 import { js, cclegacy } from '../../core';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
 import './simple-texture';
+import { patch_cc_Texture2D } from '../../native-binding/decorators';
 
 const texture2DProto: any = jsb.Texture2D.prototype;
 
@@ -46,6 +46,7 @@ export interface ITexture2DSerializeData {
 }
 
 texture2DProto._ctor = function () {
+    // @ts-expect-error TODO: Property '_ctor' does not exist on type 'SimpleTexture'.
     SimpleTexture.prototype._ctor.apply(this, arguments);
     this._mipmaps = [];
 };
@@ -121,6 +122,4 @@ Object.defineProperty(texture2DProto, 'mipmaps', {
 cclegacy.Texture2D = jsb.Texture2D;
 
 // handle meta data, it is generated automatically
-const Texture2DProto = Texture2D.prototype;
-type([ImageAsset])(Texture2DProto, '_mipmaps');
-ccclass('cc.Texture2D')(Texture2D);
+patch_cc_Texture2D({Texture2D, ImageAsset});

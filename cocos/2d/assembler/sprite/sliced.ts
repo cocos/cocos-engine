@@ -197,7 +197,7 @@ export const sliced: IAssembler = {
                 const x = colD.x;
                 const y = rowD.y;
                 let rhw = m.m03 * x + m.m07 * y + m.m15;
-                rhw = rhw ? Math.abs(1 / rhw) : 1;
+                rhw = rhw ? 1 / rhw : 1;
 
                 offset = (row * 4 + col) * stride;
                 vData[offset + 0] = (m.m00 * x + m.m04 * y + m.m12) * rhw;

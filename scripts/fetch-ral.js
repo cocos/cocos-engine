@@ -161,8 +161,13 @@ async function removeDir (dirPath) {
         }
         await cleanOldRal();
         await removeDir(repositoryPath);
-        let exitCode = await runCommand('git clone git@github.com:yangws/runtime-web-adapter.git', __dirname);
-        if (exitCode !== 0) {
+        try {
+            let exitCode = await runCommand('git clone git@github.com:yangws/runtime-web-adapter.git', __dirname);
+            if (exitCode !== 0) {
+                await removeDir(repositoryPath);
+                await runCommand('git clone https://github.com/yangws/runtime-web-adapter', __dirname);
+            }
+        } catch (e) {
             await removeDir(repositoryPath);
             await runCommand('git clone https://github.com/yangws/runtime-web-adapter', __dirname);
         }

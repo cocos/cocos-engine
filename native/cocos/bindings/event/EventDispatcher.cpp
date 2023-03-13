@@ -67,6 +67,7 @@ events::Resize::Listener EventDispatcher::listenerResize;
 events::Orientation::Listener EventDispatcher::listenerOrientation;
 events::RestartVM::Listener EventDispatcher::listenerRestartVM;
 events::Close::Listener EventDispatcher::listenerClose;
+events::PointerLock::Listener EventDispatcher::listenerPointerLock;
 
 uint32_t EventDispatcher::hashListenerId = 1;
 
@@ -93,6 +94,7 @@ void EventDispatcher::init() {
         listenerLowMemory.bind(&dispatchMemoryWarningEvent);
         listenerClose.bind(&dispatchCloseEvent);
         listenerRestartVM.bind(&dispatchRestartVM);
+        listenerPointerLock.bind(&dispatchPointerlockChangeEvent);
         busListenerInited = true;
     }
 }
@@ -212,6 +214,12 @@ void EventDispatcher::dispatchMouseEvent(const MouseEvent &mouseEvent) {
         }
         jsMouseEventObj->setProperty("x", xVal);
         jsMouseEventObj->setProperty("y", yVal);
+        if (type == MouseEvent::Type::MOVE) {
+            const auto &xDelta = se::Value(mouseEvent.xDelta);
+            const auto &yDelta = se::Value(mouseEvent.yDelta);
+            jsMouseEventObj->setProperty("xDelta", xDelta);
+            jsMouseEventObj->setProperty("yDelta", yDelta);
+        }
     }
 
     jsMouseEventObj->setProperty("windowId", se::Value(mouseEvent.windowId));
@@ -384,6 +392,12 @@ void EventDispatcher::dispatchRestartVM() {
 
 void EventDispatcher::dispatchCloseEvent() {
     EventDispatcher::doDispatchJsEvent("onClose", se::EmptyValueArray);
+}
+
+void EventDispatcher::dispatchPointerlockChangeEvent(bool value) {
+    se::ValueArray args;
+    args.emplace_back(se::Value(value));
+    EventDispatcher::doDispatchJsEvent("onPointerlockChange", args);
 }
 
 void EventDispatcher::doDispatchJsEvent(const char *jsFunctionName, const std::vector<se::Value> &args) {

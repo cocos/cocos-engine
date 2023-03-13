@@ -23,7 +23,7 @@
 */
 import { ccclass, executeInEditMode, menu, playOnFocus, serializable, tooltip, type, visible } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { CCObject, Color, Enum, size, Vec3 } from '../../core';
+import { cclegacy, CCObject, Color, Enum, size, Vec3 } from '../../core';
 
 import { TextureCube } from '../../asset/assets';
 import { scene } from '../../render-scene';
@@ -34,6 +34,7 @@ import { Layers } from '../../scene-graph/layers';
 import { Camera } from '../../misc/camera-component';
 import { Node, TransformBit } from '../../scene-graph';
 import { ProbeClearFlag, ProbeType } from '../../render-scene/scene/reflection-probe';
+import { absolute } from '../../physics/utils/util';
 
 export enum ProbeResolution {
     /**
@@ -105,13 +106,12 @@ export class ReflectionProbe extends Component {
      * 获取或设置包围盒的大小。
      */
     set size (value: Vec3) {
-        if (value.x < 0) value.x = 0;
-        if (value.y < 0) value.y = 0;
-        if (value.z < 0) value.z = 0;
         this._size.set(value);
+        absolute(this._size);
         this.probe.size = this._size;
         if (this.probe) {
             ReflectionProbeManager.probeManager.onUpdateProbes(true);
+            ReflectionProbeManager.probeManager.updateProbeData();
         }
     }
     @type(Vec3)
@@ -125,11 +125,11 @@ export class ReflectionProbe extends Component {
      */
     @type(Enum(ProbeType))
     set probeType (value: number) {
+        this.probe.probeType = value;
         if (value !== this._probeType) {
             const lastSize = this._size.clone();
             const lastSizeIsNoExist = Vec3.equals(this._lastSize, Vec3.ZERO);
             this._probeType = value;
-            this.probe.probeType = value;
 
             if (this._probeType === ProbeType.CUBE) {
                 if (lastSizeIsNoExist) {
@@ -293,7 +293,13 @@ export class ReflectionProbe extends Component {
 
     onEnable () {
         if (this._probe) {
+            const probe = ReflectionProbeManager.probeManager.getProbeById(this._probeId);
+            if (probe !== null && probe !== this._probe) {
+                this._probeId = ReflectionProbeManager.probeManager.getNewReflectionProbeId();
+                this._probe.updateProbeId(this._probeId);
+            }
             ReflectionProbeManager.probeManager.register(this._probe);
+            ReflectionProbeManager.probeManager.onUpdateProbes(true);
             this._probe.enable();
         }
     }
@@ -309,6 +315,7 @@ export class ReflectionProbe extends Component {
             this.probe.renderPlanarReflection(this.sourceCamera.camera);
             ReflectionProbeManager.probeManager.filterModelsForPlanarReflection();
         }
+        ReflectionProbeManager.probeManager.updateProbeData();
     }
 
     public onDestroy () {
@@ -319,7 +326,7 @@ export class ReflectionProbe extends Component {
 
     public update (dt: number) {
         if (!this.probe) return;
-        if (EDITOR) {
+        if (EDITOR && !cclegacy.GAME_VIEW) {
             if (this.probeType === ProbeType.PLANAR) {
                 const cameraLst: scene.Camera[] | undefined = this.node.scene.renderScene?.cameras;
                 if (cameraLst !== undefined) {
@@ -338,6 +345,7 @@ export class ReflectionProbe extends Component {
             }
             if (this.node.hasChangedFlags & TransformBit.POSITION) {
                 ReflectionProbeManager.probeManager.onUpdateProbes(true);
+                ReflectionProbeManager.probeManager.updateProbeData();
             }
         }
         if (this.probeType === ProbeType.PLANAR && this.sourceCamera) {

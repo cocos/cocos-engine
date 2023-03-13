@@ -22,6 +22,8 @@
 #include "scene/DirectionalLight.h"
 #include "scene/SpotLight.h"
 #include "scene/SphereLight.h"
+#include "scene/PointLight.h"
+#include "scene/RangedDirectionalLight.h"
 #include "scene/Model.h"
 #include "scene/SubModel.h"
 #include "scene/Pass.h"
@@ -137,6 +139,7 @@ using namespace cc;
 %ignore cc::Node::getWorldMatrix;
 %ignore cc::Node::getWorldRS;
 %ignore cc::Node::getWorldRT;
+%ignore cc::Node::_getSharedArrayBufferObject;
 
 %ignore cc::scene::Camera::screenPointToRay;
 %ignore cc::scene::Camera::screenToWorld;
@@ -243,6 +246,7 @@ using namespace cc;
 %attribute(cc::Root, cc::render::PipelineRuntime *, pipeline, getPipeline);
 %attribute(cc::Root, cc::render::Pipeline*, customPipeline, getCustomPipeline);
 %attribute(cc::Root, %arg(ccstd::vector<cc::scene::Camera*> &), cameraList, getCameraList);
+%attribute(cc::Root, cc::pipeline::DebugView*, debugView, getDebugView);
 
 %attribute(cc::scene::RenderWindow, uint32_t, width, getWidth);
 %attribute(cc::scene::RenderWindow, uint32_t, height, getHeight);
@@ -357,6 +361,17 @@ using namespace cc;
 %attribute(cc::scene::SphereLight, float, luminanceLDR, getLuminanceLDR, setLuminanceLDR);
 %attribute(cc::scene::SphereLight, cc::geometry::AABB&, aabb, getAABB);
 
+%attribute(cc::scene::PointLight, cc::Vec3&, position, getPosition, setPosition);
+%attribute(cc::scene::PointLight, float, range, getRange, setRange);
+%attribute(cc::scene::PointLight, float, luminance, getLuminance, setLuminance);
+%attribute(cc::scene::PointLight, float, luminanceHDR, getLuminanceHDR, setLuminanceHDR);
+%attribute(cc::scene::PointLight, float, luminanceLDR, getLuminanceLDR, setLuminanceLDR);
+%attribute(cc::scene::PointLight, cc::geometry::AABB&, aabb, getAABB);
+
+%attribute(cc::scene::RangedDirectionalLight, float, illuminance, getIlluminance, setIlluminance);
+%attribute(cc::scene::RangedDirectionalLight, float, illuminanceHDR, getIlluminanceHDR, setIlluminanceHDR);
+%attribute(cc::scene::RangedDirectionalLight, float, illuminanceLDR, getIlluminanceLDR, setIlluminanceLDR);
+
 %attribute(cc::scene::Camera, cc::scene::CameraISO, iso, getIso, setIso);
 %attribute(cc::scene::Camera, float, isoValue, getIsoValue);
 %attribute(cc::scene::Camera, float, ec, getEc, setEc);
@@ -401,6 +416,8 @@ using namespace cc;
 %attribute(cc::scene::RenderScene, ccstd::vector<cc::IntrusivePtr<cc::scene::Camera>>&, cameras, getCameras);
 %attribute(cc::scene::RenderScene, ccstd::vector<cc::IntrusivePtr<cc::scene::SphereLight>>&, sphereLights, getSphereLights);
 %attribute(cc::scene::RenderScene, ccstd::vector<cc::IntrusivePtr<cc::scene::SpotLight>>&, spotLights, getSpotLights);
+%attribute(cc::scene::RenderScene, ccstd::vector<cc::IntrusivePtr<cc::scene::PointLight>>&, pointLights, getPointLights);
+%attribute(cc::scene::RenderScene, ccstd::vector<cc::IntrusivePtr<cc::scene::RangedDirectionalLight>>&, rangedDirLights, getRangedDirLights);
 %attribute(cc::scene::RenderScene, ccstd::vector<cc::IntrusivePtr<cc::scene::Model>>&, models, getModels);
 %attribute(cc::scene::RenderScene, ccstd::vector<cc::IntrusivePtr<cc::scene::LODGroup>>&, lodGroups, getLODGroups);
 
@@ -453,6 +470,8 @@ using namespace cc;
 %attribute(cc::scene::Model, bool, useLightProbe, getUseLightProbe, setUseLightProbe);
 %attribute(cc::scene::Model, bool, bakeToReflectionProbe, getBakeToReflectionProbe, setBakeToReflectionProbe);
 %attribute(cc::scene::Model, uint32_t, reflectionProbeType, getReflectionProbeType, setReflectionProbeType);
+%attribute(cc::scene::Model, bool, receiveDirLight, isReceiveDirLight, setReceiveDirLight);
+%attribute(cc::scene::Model, int32_t, reflectionProbeId, getReflectionProbeId, setReflectionProbeId);
 
 %attribute(cc::scene::SubModel, std::shared_ptr<ccstd::vector<cc::IntrusivePtr<cc::scene::Pass>>> &, passes, getPasses, setPasses);
 %attribute(cc::scene::SubModel, ccstd::vector<cc::IntrusivePtr<cc::gfx::Shader>> &, shaders, getShaders, setShaders);
@@ -625,6 +644,8 @@ using namespace cc;
 %include "scene/DirectionalLight.h"
 %include "scene/SpotLight.h"
 %include "scene/SphereLight.h"
+%include "scene/PointLight.h"
+%include "scene/RangedDirectionalLight.h"
 %include "scene/Model.h"
 %include "scene/SubModel.h"
 %include "scene/Pass.h"

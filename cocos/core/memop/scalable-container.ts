@@ -21,8 +21,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-
-import { containerManager } from './container-manager';
+import { fastRemoveAt } from '../utils/array';
 
 export abstract class ScalableContainer {
     /**
@@ -30,12 +29,72 @@ export abstract class ScalableContainer {
      */
     public _poolHandle = -1;
     constructor () {
-        containerManager.addContainer(this);
+        scalableContainerManager.addContainer(this);
     }
 
     abstract tryShrink (): void;
 
     destroy () {
-        containerManager.removeContainer(this);
+        scalableContainerManager.removeContainer(this);
     }
 }
+
+/**
+ * @en ScalableContainerManager is a sequence container that stores ScalableContainers.
+ * It will shrink all managed ScalableContainer in a fixed interval.
+ */
+class ScalableContainerManager {
+    private _pools: ScalableContainer[] = [];
+    private _lastShrinkPassed = 0;
+    /**
+     * @en Shrink interval in seconds.
+     */
+    public shrinkTimeSpan = 5;
+
+    /**
+     * @en Add a ScalableContainer. Will add the same ScalableContainer instance once.
+     * @param pool @en The ScalableContainer to add.
+     */
+    addContainer (pool: ScalableContainer) {
+        if (pool._poolHandle !== -1) return;
+        pool._poolHandle = this._pools.length;
+        this._pools.push(pool);
+    }
+
+    /**
+     * @en Remove a ScalableContainer.
+     * @param pool @en The ScalableContainer to remove.
+     */
+    removeContainer (pool: ScalableContainer) {
+        if (pool._poolHandle === -1) return;
+        this._pools[this._pools.length - 1]._poolHandle = pool._poolHandle;
+        fastRemoveAt(this._pools, pool._poolHandle);
+        pool._poolHandle = -1;
+    }
+
+    /**
+     * @en Try to shrink all managed ScalableContainers.
+     */
+    tryShrink () {
+        for (let i = 0; i < this._pools.length; i++) {
+            this._pools[i].tryShrink();
+        }
+    }
+
+    /**
+     * @en An update function invoked every frame.
+     * @param dt @en Delta time of frame interval in secondes.
+     */
+    update (dt: number) {
+        this._lastShrinkPassed += dt;
+        if (this._lastShrinkPassed > this.shrinkTimeSpan) {
+            this.tryShrink();
+            this._lastShrinkPassed -= this.shrinkTimeSpan;
+        }
+    }
+}
+
+/**
+ * @en A global ScalableContainerManager instance.
+ */
+export const scalableContainerManager = new ScalableContainerManager();

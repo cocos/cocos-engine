@@ -21,11 +21,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { ccclass } from 'cc.decorator';
 import { EDITOR, TEST } from 'internal:constants';
 import { cclegacy } from '../../core';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
 import './asset';
+import { patch_cc_RenderTexture } from '../../native-binding/decorators';
 
 declare const jsb: any;
 const renderTextureProto: any = jsb.RenderTexture.prototype;
@@ -76,4 +76,4 @@ renderTextureProto.readPixels = function readPixels (x: number, y: number, width
 cclegacy.RenderTexture = jsb.RenderTexture;
 
 // handle meta data, it is generated automatically
-ccclass('cc.RenderTexture')(RenderTexture);
+patch_cc_RenderTexture({RenderTexture});

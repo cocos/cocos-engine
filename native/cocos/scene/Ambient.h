@@ -1,8 +1,8 @@
 /****************************************************************************
  Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
- 
+
  http://www.cocos.com
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights to
@@ -59,6 +59,7 @@ public:
      */
 
     Vec4 &getSkyColor();
+    const Vec4 &getSkyColor() const;
     void setSkyColor(const Vec4 &color);
 
     /**
@@ -168,9 +169,9 @@ public:
 
     void activate(Ambient *resource);
 
-    //cjh JSB need to bind the property, so need to make it public
-    // @serializable
-    // @formerlySerializedAs('_skyColor'));
+    // cjh JSB need to bind the property, so need to make it public
+    //  @serializable
+    //  @formerlySerializedAs('_skyColor'));
     Vec4 _skyColorHDR{0.2F, 0.5F, 0.8F, 1.F};
     // @serializable
     // @formerlySerializedAs('_skyIllum')

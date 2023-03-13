@@ -234,10 +234,10 @@ export class RichText extends Component {
 
     /**
      * @en
-     * Custom System font of RichText
+     * Custom System font of RichText.
      *
      * @zh
-     * 富文本定制系统字体
+     * 富文本定制系统字体。
      */
     @tooltip('i18n:richtext.font_family')
     get fontFamily () {
@@ -425,7 +425,17 @@ export class RichText extends Component {
             }
         }
     }
+    /**
+     * @en Enum for horizontal text alignment.
+     *
+     * @zh 文本横向对齐类型。
+     */
     public static HorizontalAlign = HorizontalTextAlignment;
+    /**
+     * @en Enum for vertical text alignment.
+     *
+     * @zh 文本垂直对齐类型。
+     */
     public static VerticalAlign = VerticalTextAlignment;
 
     @serializable

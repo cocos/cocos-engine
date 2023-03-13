@@ -32,8 +32,10 @@ import { IRenderSceneInfo, RenderScene } from './render-scene/core/render-scene'
 import { DirectionalLight } from './render-scene/scene/directional-light';
 import { SphereLight } from './render-scene/scene/sphere-light';
 import { SpotLight } from './render-scene/scene/spot-light';
+import { PointLight } from './render-scene/scene/point-light';
+import { RangedDirectionalLight } from './render-scene/scene/ranged-directional-light';
 import { RenderWindow, IRenderWindowInfo } from './render-scene/core/render-window';
-import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device, Swapchain, Feature, deviceManager } from './gfx';
+import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device, Swapchain, Feature, deviceManager, LegacyRenderMode } from './gfx';
 import { Pipeline, PipelineRuntime } from './rendering/custom/pipeline';
 import { Batcher2D } from './2d/renderer/batcher-2d';
 import { IPipelineEvent } from './rendering/pipeline-event';
@@ -397,16 +399,19 @@ export class Root {
             this._usesCustomPipeline = false;
         }
 
-        if (!this._pipeline.activate(this._mainWindow!.swapchain)) {
-            if (isCreateDefaultPipeline) {
-                this._pipeline.destroy();
-            }
-            this._classicPipeline = null;
-            this._customPipeline = null;
-            this._pipeline = null;
-            this._pipelineEvent = null;
+        const renderMode = settings.querySettings(Settings.Category.RENDERING, 'renderMode');
+        if (renderMode !== LegacyRenderMode.HEADLESS || this._classicPipeline) {
+            if (!this._pipeline.activate(this._mainWindow!.swapchain)) {
+                if (isCreateDefaultPipeline) {
+                    this._pipeline.destroy();
+                }
+                this._classicPipeline = null;
+                this._customPipeline = null;
+                this._pipeline = null;
+                this._pipelineEvent = null;
 
-            return false;
+                return false;
+            }
         }
 
         //-----------------------------------------------
@@ -682,6 +687,12 @@ export class Root {
             case LightType.SPOT:
                 l.scene.removeSpotLight(l as SpotLight);
                 break;
+            case LightType.POINT:
+                l.scene.removePointLight(l as PointLight);
+                break;
+            case LightType.RANGED_DIRECTIONAL:
+                l.scene.removeRangedDirLight(l as RangedDirectionalLight);
+                break;
             default:
                 break;
             }
@@ -708,6 +719,12 @@ export class Root {
                     break;
                 case LightType.SPOT:
                     l.scene.removeSpotLight(l as SpotLight);
+                    break;
+                case LightType.POINT:
+                    l.scene.removePointLight(l as PointLight);
+                    break;
+                case LightType.RANGED_DIRECTIONAL:
+                    l.scene.removeRangedDirLight(l as RangedDirectionalLight);
                     break;
                 default:
                     break;

@@ -444,7 +444,7 @@ export const toolHelper = {
             cp.stdout.on('data', (data: any) => {
                 const msg = iconv.decode(data, 'gbk').toString();
                 if(/warning/i.test(msg)) {
-                    console.warn(`[cmake-warn] ${msg}`);
+                    console.log(`[cmake-warn] ${msg}`);
                 } else {
                     console.log(`[cmake] ${msg}`);
                 }
@@ -452,7 +452,7 @@ export const toolHelper = {
             cp.stderr.on('data', (data: any) => {
                 const msg = iconv.decode(data, 'gbk').toString();
                 if(/CMake Warning/.test(msg) || /warning/i.test(msg)) {
-                    console.warn(`[cmake-warn] ${msg}`);
+                    console.log(`[cmake-warn] ${msg}`);
                 }else{
                     console.error(`[cmake-err] ${msg}`);
                 }

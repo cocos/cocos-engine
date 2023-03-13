@@ -116,7 +116,13 @@ if("$ENV{COCOS_ENGINE_DEV}" EQUAL "1")
     set(WERROR_FLAGS "-Werror -Werror=return-type") # -Wshorten-64-to-32 -Werror=return-type
     
     if(APPLE)
-        set(WERROR_FLAGS "${WERROR_FLAGS} -Wno-deprecated-declarations")
+        set(WERROR_FLAGS " ${WERROR_FLAGS} -Wno-deprecated-declarations")
+    elseif(LINUX)
+        set(WERROR_FLAGS " ${WERROR_FLAGS} -Wno-nullability-completeness -Wno-deprecated-declarations")
+    endif()
+
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+        set(WERROR_FLAGS " ${WERROR_FLAGS} -Wno-invalid-offsetof")
     endif()
 
     if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")

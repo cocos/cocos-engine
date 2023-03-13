@@ -40,6 +40,8 @@
 #include "scene/Pass.h"
 #include "scene/RenderScene.h"
 #include "scene/SubModel.h"
+#include "scene/ReflectionProbeManager.h"
+#include "scene/ReflectionProbe.h"
 
 namespace {
 const cc::gfx::SamplerInfo LIGHTMAP_SAMPLER_HASH{
@@ -63,6 +65,7 @@ const cc::gfx::SamplerInfo LIGHTMAP_SAMPLER_WITH_MIP_HASH{
 const ccstd::vector<cc::scene::IMacroPatch> SHADOW_MAP_PATCHES{{"CC_RECEIVE_SHADOW", true}};
 const ccstd::vector<cc::scene::IMacroPatch> LIGHT_PROBE_PATCHES{{"CC_USE_LIGHT_PROBE", true}};
 const ccstd::string CC_USE_REFLECTION_PROBE = "CC_USE_REFLECTION_PROBE";
+const ccstd::string CC_RECEIVE_DIRECTIONAL_LIGHT = "CC_RECEIVE_DIRECTIONAL_LIGHT";
 const ccstd::vector<cc::scene::IMacroPatch> STATIC_LIGHTMAP_PATHES{{"CC_USE_LIGHTMAP", 1}};
 const ccstd::vector<cc::scene::IMacroPatch> STATIONARY_LIGHTMAP_PATHES{{"CC_USE_LIGHTMAP", 2}};
 } // namespace
@@ -202,6 +205,21 @@ void Model::updateUBOs(uint32_t stamp) {
         _localBuffer->write(mat4, sizeof(float) * pipeline::UBOLocal::MAT_WORLD_IT_OFFSET);
         _localBuffer->write(_lightmapUVParam, sizeof(float) * pipeline::UBOLocal::LIGHTINGMAP_UVPARAM);
         _localBuffer->write(_shadowBias, sizeof(float) * (pipeline::UBOLocal::LOCAL_SHADOW_BIAS));
+        
+        auto * probe = scene::ReflectionProbeManager::getInstance()->getReflectionProbeById(_reflectionProbeId);
+        if (probe) {
+            if (probe->getProbeType() == scene::ReflectionProbe::ProbeType::PLANAR) {
+                const Vec4 plane = {probe->getNode()->getUp().x, probe->getNode()->getUp().y, probe->getNode()->getUp().z, 1.F};
+                _localBuffer->write(plane, sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_DATA1));
+                const Vec4 depthScale = {1.F, 0.F, 0.F, 1.F};
+                _localBuffer->write(depthScale, sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_DATA2));
+            } else {
+                const Vec4 pos = {probe->getNode()->getWorldPosition().x, probe->getNode()->getWorldPosition().y, probe->getNode()->getWorldPosition().z, 0.F};
+                _localBuffer->write(pos, sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_DATA1));
+                const Vec4 boxSize = {probe->getBoudingSize().x, probe->getBoudingSize().y, probe->getBoudingSize().z, static_cast<float>(probe->getCubeMap() ? probe->getCubeMap()->mipmapLevel() : 1)};
+                _localBuffer->write(boxSize, sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_DATA2));
+            }
+        }
 
         _localBuffer->update();
         const bool enableOcclusionQuery = Root::getInstance()->getPipeline()->isOcclusionQueryEnabled();
@@ -451,6 +469,7 @@ ccstd::vector<IMacroPatch> Model::getMacroPatches(index_t subModelIndex) {
             }
         }
     }
+    patches.push_back({CC_RECEIVE_DIRECTIONAL_LIGHT, _receiveDirLight});
 
     return patches;
 }
@@ -612,6 +631,27 @@ void Model::updateReflectionProbePlanarMap(gfx::Texture *texture) {
             descriptorSet->update();
         }
     }
+}
+
+void Model::updateReflectionProbeDataMap(Texture2D *texture) {
+    _localDataUpdated = true;
+
+    if (!texture) {
+        texture = BuiltinResMgr::getInstance()->get<Texture2D>(ccstd::string("empty-texture"));
+    }
+    gfx::Texture *gfxTexture = texture->getGFXTexture();
+    if (gfxTexture) {
+        for (SubModel *subModel : _subModels) {
+            gfx::DescriptorSet *descriptorSet = subModel->getDescriptorSet();
+            descriptorSet->bindTexture(pipeline::REFLECTIONPROBEDATAMAP::BINDING, gfxTexture);
+            descriptorSet->bindSampler(pipeline::REFLECTIONPROBEDATAMAP::BINDING, texture->getGFXSampler());
+            descriptorSet->update();
+        }
+    }
+}
+
+void Model::updateReflectionProbeId() {
+    _localDataUpdated = true;
 }
 
 void Model::setInstancedAttribute(const ccstd::string &name, const float *value, uint32_t byteLength) {

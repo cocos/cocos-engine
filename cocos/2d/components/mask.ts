@@ -160,9 +160,9 @@ export class Mask extends Component {
 
     /**
      * @en
-     * Reverse mask
+     * Reverse mask.
      * @zh
-     * 反向遮罩
+     * 反向遮罩。
      */
     @displayOrder(14)
     @tooltip('i18n:mask.inverted')
@@ -260,6 +260,10 @@ export class Mask extends Component {
         }
     }
 
+    /**
+     * @en Rendering component for providing stencil buffer information.
+     * @zh 用于提供 stencil buffer 信息的渲染组件。
+     */
     get subComp () {
         return this._graphics || this._sprite;
     }
@@ -299,10 +303,6 @@ export class Mask extends Component {
         this.node.on(NodeEventType.SIZE_CHANGED, this._nodeStateChange, this);
     }
 
-    /**
-     * @zh
-     * 图形内容重塑。
-     */
     public onRestore () {
         this._changeRenderType();
         this._updateGraphics();
@@ -319,9 +319,9 @@ export class Mask extends Component {
     }
 
     /**
-     * Hit test with point in World Space.
-     *
-     * @param worldPt point in World Space.
+     * @en Hit test with point in World Space.
+     * @zh 世界空间中的点击测试。
+     * @param worldPt @en point in World Space. @zh 世界空间中的点击点。
      */
     public isHit (worldPt: Vec2) {
         const uiTrans = this.node._uiProps.uiTransformComp!;

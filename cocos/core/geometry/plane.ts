@@ -34,8 +34,10 @@ const temp_vec4 = legacyCC.v4();
 /**
  * @en
  * Basic Geometry: Plane.
+ * Plane Equation: a*x + b*y + c*z - d = 0.
  * @zh
  * 基础几何：平面。
+ * 平面方程: a*x + b*y + c*z - d = 0。
  */
 
 export class Plane {
@@ -223,9 +225,9 @@ export class Plane {
     public transform (mat: Mat4): void {
         Mat4.invert(temp_mat, mat);
         Mat4.transpose(temp_mat, temp_mat);
-        Vec4.set(temp_vec4, this.n.x, this.n.y, this.n.z, this.d);
+        Vec4.set(temp_vec4, this.n.x, this.n.y, this.n.z, -this.d);
         Vec4.transformMat4(temp_vec4, temp_vec4, temp_mat);
         Vec3.set(this.n, temp_vec4.x, temp_vec4.y, temp_vec4.z);
-        this.d = temp_vec4.w;
+        this.d = -temp_vec4.w;
     }
 }

@@ -426,6 +426,7 @@ cocos_source_files(
     cocos/base/etc1.h
     cocos/base/etc2.cpp
     cocos/base/etc2.h
+    cocos/base/HasMemberFunction.h
     cocos/base/IndexHandle.h
     cocos/base/Locked.h
     cocos/base/Macros.h
@@ -560,7 +561,6 @@ endif()
 
 ############ platform : Abstract interface
 cocos_source_files(
-    cocos/platform/interfaces/OSInterface.cpp
     cocos/platform/interfaces/OSInterface.h
 )
 
@@ -584,7 +584,6 @@ cocos_source_files(
 cocos_source_files(
     cocos/platform/interfaces/modules/canvas/CanvasRenderingContext2D.cpp
     cocos/platform/interfaces/modules/canvas/CanvasRenderingContext2D.h
-    cocos/platform/interfaces/modules/canvas/ICanvasRenderingContext2D.cpp
     cocos/platform/interfaces/modules/canvas/ICanvasRenderingContext2D.h
 )
 if(USE_SERVER_MODE)
@@ -861,8 +860,6 @@ cocos_source_files(MODULE ccmath
     cocos/math/Math.h
     cocos/math/Math.cpp
     cocos/math/MathBase.h
-    cocos/math/Vertex.cpp
-    cocos/math/Vertex.h
     cocos/math/Mat3.cpp
     cocos/math/Mat3.h
     cocos/math/Mat4.cpp
@@ -1310,6 +1307,8 @@ cocos_source_files(
                  cocos/renderer/pipeline/deferred/PostProcessStage.h
                  cocos/renderer/pipeline/UIPhase.cpp
                  cocos/renderer/pipeline/UIPhase.h
+                 cocos/renderer/pipeline/DebugView.cpp
+                 cocos/renderer/pipeline/DebugView.h
                  cocos/renderer/pipeline/helper/Utils.h
                  cocos/renderer/pipeline/helper/Utils.cpp
                  cocos/renderer/pipeline/custom/BinaryArchive.h
@@ -1341,18 +1340,20 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/NativeExecutor.cpp
                  cocos/renderer/pipeline/custom/NativeFactory.cpp
                  cocos/renderer/pipeline/custom/NativeFwd.h
-                 cocos/renderer/pipeline/custom/NativeLayoutGraph.cpp
                  cocos/renderer/pipeline/custom/NativePipeline.cpp
                  cocos/renderer/pipeline/custom/NativePipelineFwd.h
                  cocos/renderer/pipeline/custom/NativePipelineGraphs.h
                  cocos/renderer/pipeline/custom/NativePipelineTypes.cpp
                  cocos/renderer/pipeline/custom/NativePipelineTypes.h
+                 cocos/renderer/pipeline/custom/NativePools.cpp
                  cocos/renderer/pipeline/custom/NativeProgramLibrary.cpp
                  cocos/renderer/pipeline/custom/NativeRenderGraph.cpp
                  cocos/renderer/pipeline/custom/NativeRenderQueue.cpp
                  cocos/renderer/pipeline/custom/NativeRenderingModule.cpp
                  cocos/renderer/pipeline/custom/NativeTypes.cpp
                  cocos/renderer/pipeline/custom/NativeTypes.h
+                 cocos/renderer/pipeline/custom/NativeUtils.cpp
+                 cocos/renderer/pipeline/custom/NativeUtils.h
                  cocos/renderer/pipeline/custom/PrivateFwd.h
                  cocos/renderer/pipeline/custom/PrivateTypes.cpp
                  cocos/renderer/pipeline/custom/PrivateTypes.h
@@ -1370,6 +1371,7 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/RenderInterfaceFwd.h
                  cocos/renderer/pipeline/custom/RenderInterfaceTypes.cpp
                  cocos/renderer/pipeline/custom/RenderInterfaceTypes.h
+                 cocos/renderer/pipeline/custom/RenderingModule.h
 )
 
 if (USE_GEOMETRY_RENDERER)
@@ -1400,7 +1402,6 @@ cocos_source_files(
                  cocos/scene/Camera.h
                  cocos/scene/Camera.cpp
                  cocos/scene/Define.h
-                 cocos/scene/Define.cpp
                  cocos/scene/DirectionalLight.h
                  cocos/scene/DirectionalLight.cpp
                  cocos/scene/DrawBatch2D.h
@@ -1425,6 +1426,10 @@ cocos_source_files(
                  cocos/scene/SphereLight.cpp
                  cocos/scene/SpotLight.h
                  cocos/scene/SpotLight.cpp
+                 cocos/scene/PointLight.h
+                 cocos/scene/PointLight.cpp
+                 cocos/scene/RangedDirectionalLight.h
+                 cocos/scene/RangedDirectionalLight.cpp
                  cocos/scene/SubModel.h
                  cocos/scene/SubModel.cpp
                  cocos/scene/Octree.h
@@ -1482,20 +1487,12 @@ cocos_source_files(
 
 ##### components
 cocos_source_files(
-    # cocos/core/components/Component.h
-    # cocos/core/components/Component.cpp
-    # cocos/core/components/RenderableComponent.h
-    # cocos/core/components/RenderableComponent.cpp
-    # cocos/core/components/CameraComponent.h
-    # cocos/core/components/CameraComponent.cpp
     cocos/3d/models/BakedSkinningModel.h
     cocos/3d/models/BakedSkinningModel.cpp
     cocos/3d/models/MorphModel.h
     cocos/3d/models/MorphModel.cpp
     cocos/3d/models/SkinningModel.h
     cocos/3d/models/SkinningModel.cpp
-    # cocos/3d/framework/MeshRenderer.h
-    # cocos/3d/framework/MeshRenderer.cpp
 )
 
 ##### animations
@@ -1565,7 +1562,6 @@ if(CC_USE_GLES2)
                      cocos/renderer/gfx-gles2/GLES2Shader.h
                      cocos/renderer/gfx-gles2/GLES2Swapchain.cpp
                      cocos/renderer/gfx-gles2/GLES2Swapchain.h
-                     cocos/renderer/gfx-gles2/GLES2Std.cpp
                      cocos/renderer/gfx-gles2/GLES2Std.h
                      cocos/renderer/gfx-gles2/GLES2Texture.cpp
                      cocos/renderer/gfx-gles2/GLES2Texture.h
@@ -1612,7 +1608,6 @@ if(CC_USE_GLES3)
                      cocos/renderer/gfx-gles3/GLES3Shader.h
                      cocos/renderer/gfx-gles3/GLES3Swapchain.cpp
                      cocos/renderer/gfx-gles3/GLES3Swapchain.h
-                     cocos/renderer/gfx-gles3/GLES3Std.cpp
                      cocos/renderer/gfx-gles3/GLES3Std.h
                      cocos/renderer/gfx-gles3/GLES3Texture.cpp
                      cocos/renderer/gfx-gles3/GLES3Texture.h
@@ -1851,11 +1846,9 @@ cocos_source_files(
 ##### 3d
 cocos_source_files(
     cocos/3d/assets/Types.h
-    cocos/3d/assets/Types.cpp
     cocos/3d/assets/Mesh.h
     cocos/3d/assets/Mesh.cpp
     cocos/3d/assets/Morph.h
-    cocos/3d/assets/Morph.cpp
     cocos/3d/assets/MorphRendering.h
     cocos/3d/assets/MorphRendering.cpp
     cocos/3d/assets/Skeleton.h
@@ -1868,8 +1861,6 @@ cocos_source_files(
     cocos/3d/misc/Buffer.h
     cocos/3d/misc/Buffer.cpp
 
-    # cocos/3d/skeletal-animation/DataPoolManager.h
-    # cocos/3d/skeletal-animation/DataPoolManager.cpp
     cocos/3d/skeletal-animation/SkeletalAnimationUtils.h
     cocos/3d/skeletal-animation/SkeletalAnimationUtils.cpp
 )
@@ -1882,93 +1873,23 @@ cocos_source_files(
 
     cocos/core/DataView.h
     cocos/core/DataView.cpp
-    # cocos/core/Director.cpp
-    # cocos/core/Director.h
-    # cocos/core/Game.cpp
-    # cocos/core/Game.h
     cocos/core/Root.cpp
     cocos/core/Root.h
 
     cocos/core/System.h
 
-    # cocos/core/Scheduler.cpp
-    # cocos/core/Scheduler.h
-    # cocos/core/SplashScreen.cpp
-    # cocos/core/SplashScreen.h
     cocos/core/Types.h
-    cocos/core/Types.cpp
     cocos/core/TypedArray.h
     cocos/core/TypedArray.cpp
 
     # memop
     cocos/core/memop/CachedArray.h
     cocos/core/memop/Pool.h
-    cocos/core/memop/Pool.cpp
     cocos/core/memop/RecyclePool.h
-    cocos/core/memop/RecyclePool.cpp
 
-
-    # cocos/core/asset-manager/AssetManager.cpp
-    # cocos/core/asset-manager/AssetManager.h
-    # cocos/core/asset-manager/AssetManagerModuleHeader.h
-    # cocos/core/asset-manager/Bundle.cpp
-    # cocos/core/asset-manager/Bundle.h
-    # cocos/core/asset-manager/Cache.cpp
-    # cocos/core/asset-manager/Cache.h
-    # cocos/core/asset-manager/CacheManager.cpp
-    # cocos/core/asset-manager/CacheManager.h
-    # cocos/core/asset-manager/AssetManagerConfig.cpp
-    # cocos/core/asset-manager/AssetManagerConfig.h
-    # cocos/core/asset-manager/DependMaps.cpp
-    # cocos/core/asset-manager/DependMaps.h
-    # cocos/core/asset-manager/DependUtil.cpp
-    # cocos/core/asset-manager/DependUtil.h
-    # cocos/core/asset-manager/Deserialize.cpp
-    # cocos/core/asset-manager/Deserialize.h
-    # cocos/core/asset-manager/DownloadFile.cpp
-    # cocos/core/asset-manager/DownloadFile.h
-    # cocos/core/asset-manager/DownloadImage.cpp
-    # cocos/core/asset-manager/DownloadImage.h
-    # cocos/core/asset-manager/DownloadScript.cpp
-    # cocos/core/asset-manager/DownloadScript.h
-    # cocos/core/asset-manager/Downloader.cpp
-    # cocos/core/asset-manager/Downloader.h
-    # cocos/core/asset-manager/Factory.cpp
-    # cocos/core/asset-manager/Factory.h
-    # cocos/core/asset-manager/Fetch.cpp
-    # cocos/core/asset-manager/Fetch.h
-    # cocos/core/asset-manager/Helper.cpp
-    # cocos/core/asset-manager/Helper.h
-    # cocos/core/asset-manager/Load.cpp
-    # cocos/core/asset-manager/Load.h
-    # cocos/core/asset-manager/PackManager.cpp
-    # cocos/core/asset-manager/PackManager.h
-    # cocos/core/asset-manager/Parser.cpp
-    # cocos/core/asset-manager/Parser.h
-    # cocos/core/asset-manager/Pipeline.cpp
-    # cocos/core/asset-manager/Pipeline.h
-    # cocos/core/asset-manager/PlistParser.cpp
-    # cocos/core/asset-manager/PlistParser.h
-    # cocos/core/asset-manager/PreProcess.cpp
-    # cocos/core/asset-manager/PreProcess.h
-    # cocos/core/asset-manager/ReleaseManager.cpp
-    # cocos/core/asset-manager/ReleaseManager.h
-    # cocos/core/asset-manager/RequestItem.cpp
-    # cocos/core/asset-manager/RequestItem.h
-    # cocos/core/asset-manager/Shared.cpp
-    # cocos/core/asset-manager/Shared.h
-    # cocos/core/asset-manager/Task.cpp
-    # cocos/core/asset-manager/Task.h
-    # cocos/core/asset-manager/UrlTransformer.cpp
-    # cocos/core/asset-manager/UrlTransformer.h
-    # cocos/core/asset-manager/Utilities.cpp
-    # cocos/core/asset-manager/Utilities.h
-    # cocos/core/asset-manager/WeakCache.cpp
-    # cocos/core/asset-manager/WeakCache.h
 
     cocos/core/assets/Asset.cpp
     cocos/core/assets/Asset.h
-    cocos/core/assets/AssetEnum.cpp
     cocos/core/assets/AssetEnum.h
     cocos/core/assets/AssetsModuleHeader.h
     cocos/core/assets/BufferAsset.cpp
@@ -1977,21 +1898,15 @@ cocos_source_files(
     cocos/core/assets/EffectAsset.h
     cocos/core/assets/ImageAsset.cpp
     cocos/core/assets/ImageAsset.h
-    # cocos/core/assets/JsonAsset.cpp
-    # cocos/core/assets/JsonAsset.h
     cocos/core/assets/Material.cpp
     cocos/core/assets/Material.h
-    # cocos/core/assets/Prefab.cpp
-    # cocos/core/assets/Prefab.h
     cocos/core/assets/RenderTexture.cpp
-    cocos/core/assets/RenderTexture.h
     cocos/core/assets/RenderingSubMesh.cpp
     cocos/core/assets/RenderingSubMesh.h
     cocos/core/assets/SceneAsset.cpp
     cocos/core/assets/SceneAsset.h
     cocos/core/assets/SimpleTexture.cpp
     cocos/core/assets/SimpleTexture.h
-    cocos/core/assets/TextAsset.cpp
     cocos/core/assets/TextAsset.h
     cocos/core/assets/Texture2D.cpp
     cocos/core/assets/Texture2D.h
@@ -2025,8 +1940,6 @@ cocos_source_files(
     cocos/core/utils/IDGenerator.h
     cocos/core/utils/Path.cpp
     cocos/core/utils/Path.h
-    cocos/core/utils/MutableForwardIterator.cpp
-    cocos/core/utils/MutableForwardIterator.h
     cocos/core/utils/Pool.h
     cocos/core/utils/ImageUtils.h
     cocos/core/utils/ImageUtils.cpp
@@ -2648,7 +2561,6 @@ cocos_source_files(MODULE ccbindings
                  cocos/bindings/jswrapper/RefCounter.cpp
                  cocos/bindings/jswrapper/RefCounter.h
                  cocos/bindings/jswrapper/SeApi.h
-                 cocos/bindings/jswrapper/State.cpp
                  cocos/bindings/jswrapper/State.h
                  cocos/bindings/jswrapper/PrivateObject.h
                  cocos/bindings/jswrapper/Value.cpp
@@ -2775,19 +2687,12 @@ endif()
 ##### ar module
 if(USE_AR_MODULE)
     cocos_source_files(
-        cocos/xr/ar/ARModule.cpp
         cocos/xr/ar/ARModule.h
-        cocos/xr/ar/IARAPI.h
         cocos/renderer/pipeline/xr/ar/ARStage.cpp
         cocos/renderer/pipeline/xr/ar/ARStage.h
         cocos/renderer/pipeline/xr/ar/ARBackground.cpp
         cocos/renderer/pipeline/xr/ar/ARBackground.h
     )
-    if(ANDROID OR IOS)
-        cocos_source_files(
-            cocos/xr/ar/ARLib.h
-        )
-    endif()
 endif()
 
 ##### extensions

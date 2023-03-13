@@ -1939,6 +1939,10 @@ Can not add a page without UITransform.
 
 Can not set the scroll view content when it hasn't UITransform or its parent hasn't UITransform.
 
+### 4303
+
+The %s scrollBar on the '%s' node is not available, please check it.
+
 ### 4400
 
 Invalid RichText img tag! The sprite frame name can't be found in the ImageAtlas!
@@ -3328,3 +3332,7 @@ The asset replacing failed, can not found override asset('%s') for '%s'
 ### 16301
 
 node '%s' doesn't have any ModelRenderer component, this component will not work. please add ModelRenderer component first
+
+### 16302
+
+There is no reflection probe in the scene or no probe is near the current object. No reflection probe will take effect on this object. Please create a new reflection probe or move existing ones closer.
