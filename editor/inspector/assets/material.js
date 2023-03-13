@@ -83,6 +83,10 @@ exports.methods = {
         await Editor.Message.request('scene', 'apply-material', this.asset.uuid, this.material);
     },
 
+    async abort() {
+        await Editor.Message.request('scene', 'preview-material', this.asset.uuid);
+    },
+
     reset() {
         this.dirtyData.uuid = '';
         this.cacheData = {};
@@ -281,6 +285,13 @@ exports.methods = {
                             $prop.$children.setAttribute('hidden', '');
                         }
                     }
+                });
+            }
+
+            // when passes length more than one, the ui-section of pipeline state collapse
+            if (technique.passes.length > 1) {
+                $container.querySelectorAll('[cache-expand$="PassStates"]').forEach(($pipelineState) => {
+                    $pipelineState.removeAttribute('expand');
                 });
             }
         }

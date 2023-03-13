@@ -25,13 +25,14 @@
 import { director } from '../game/director';
 import { System, cclegacy } from '../core';
 import { ArmatureDisplay } from './ArmatureDisplay';
-
+/**
+ * @en The ArmatureSystem is mainly responsible for triggering and updating the animation uniformly.
+ * @zh 骨架系统，主要负责统一触发更新骨骼动画。
+ */
 export class ArmatureSystem extends System {
     /**
-     * @en
-     * The ID flag of the system.
-     * @zh
-     * 此系统的 ID 标记。
+     * @en The ID flag of the system.
+     * @zh 此系统的 ID 标记。
      */
     static readonly ID = 'ARMATURE';
 
@@ -42,10 +43,8 @@ export class ArmatureSystem extends System {
     }
 
     /**
-     * @en
-     * Gets the instance of the ArmatureSystem system.
-     * @zh
-     * 获取 Dragonbones Armature系统的单例。
+     * @en Gets the instance of the ArmatureSystem system.
+     * @zh 获取 Dragonbones Armature 系统的单例。
      */
     public static getInstance () {
         if (!ArmatureSystem._instance) {
@@ -56,30 +55,45 @@ export class ArmatureSystem extends System {
     }
 
     private _armatures = new Set<ArmatureDisplay>();
-
+    /**
+     * @en Add the ArmatureDisplay components into ArmatureSystem system.
+     * @zh 将龙骨组件添加到系统中。
+     */
     public add (armature: ArmatureDisplay | null) {
         if (!armature) return;
         if (!this._armatures.has(armature)) {
             this._armatures.add(armature);
         }
     }
-
+    /**
+     * @en Remove the ArmatureDisplay components from ArmatureSystem system.
+     * @zh 将龙骨组件从系统移除。
+     */
     public remove (armature: ArmatureDisplay | null) {
         if (!armature) return;
         if (this._armatures.has(armature)) {
             this._armatures.delete(armature);
         }
     }
-
+    /**
+     * @en Trigger animation update of Armature objects.
+     * @zh 触发更新龙骨动画。
+     */
     postUpdate (dt: number) {
         if (!this._armatures) {
             return;
         }
         this._armatures.forEach((armature) => {
             armature.updateAnimation(dt);
+            armature.syncAttachedNode();
         });
     }
-
+    /**
+     * @en
+     * Trigger update of rendering data for all Dragonbone components.
+     * @zh
+     * 触发标记更新所有龙骨组件的渲染数据。
+     */
     public prepareRenderData () {
         if (!this._armatures) {
             return;

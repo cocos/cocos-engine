@@ -45,6 +45,7 @@
 #include "states/VKGeneralBarrier.h"
 #include "states/VKSampler.h"
 #include "states/VKTextureBarrier.h"
+#include "states/VKBufferBarrier.h"
 
 #include "application/ApplicationManager.h"
 #include "gfx-base/SPIRVUtils.h"
@@ -59,7 +60,6 @@ CC_DISABLE_WARNINGS()
 #define VMA_IMPLEMENTATION
 #include "vk_mem_alloc.h"
 #define THSVS_ERROR_CHECK_MIXED_IMAGE_LAYOUT
-#define THSVS_ERROR_CHECK_COULD_USE_GLOBAL_BARRIER
 #define THSVS_ERROR_CHECK_POTENTIAL_HAZARD
 #define THSVS_SIMPLER_VULKAN_SYNCHRONIZATION_IMPLEMENTATION
 #include "thsvs_simpler_vulkan_synchronization.h"
@@ -107,8 +107,8 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
 
     const VkPhysicalDeviceFeatures2 &deviceFeatures2 = _gpuContext->physicalDeviceFeatures2;
     const VkPhysicalDeviceFeatures &deviceFeatures = deviceFeatures2.features;
-    //const VkPhysicalDeviceVulkan11Features &deviceVulkan11Features = _gpuContext->physicalDeviceVulkan11Features;
-    //const VkPhysicalDeviceVulkan12Features &deviceVulkan12Features = _gpuContext->physicalDeviceVulkan12Features;
+    // const VkPhysicalDeviceVulkan11Features &deviceVulkan11Features = _gpuContext->physicalDeviceVulkan11Features;
+    // const VkPhysicalDeviceVulkan12Features &deviceVulkan12Features = _gpuContext->physicalDeviceVulkan12Features;
 
     ///////////////////// Device Creation /////////////////////
 
@@ -139,7 +139,7 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     requestedFeatures2.features.samplerAnisotropy = deviceFeatures.samplerAnisotropy;
     requestedFeatures2.features.depthBounds = deviceFeatures.depthBounds;
     requestedFeatures2.features.multiDrawIndirect = deviceFeatures.multiDrawIndirect;
-    //requestedFeatures2.features.se
+    // requestedFeatures2.features.se
     requestedVulkan12Features.separateDepthStencilLayouts = _gpuContext->physicalDeviceVulkan12Features.separateDepthStencilLayouts;
 
     if (_gpuContext->validationEnabled) {
@@ -665,6 +665,8 @@ void CCVKDevice::acquire(Swapchain *const *swapchains, uint32_t count) {
     }
 }
 
+static CCVKGPUStagingBufferPool *tmpPool = nullptr;
+
 void CCVKDevice::present() {
     CC_PROFILE(CCVKDevicePresent);
     bool isGFXDeviceNeedsPresent = _xr ? _xr->isGFXDeviceNeedsPresent(_api) : true;
@@ -705,17 +707,19 @@ void CCVKDevice::present() {
 
     _gpuDevice->curBackBufferIndex = (_gpuDevice->curBackBufferIndex + 1) % _gpuDevice->backBufferCount;
 
+    if (_xr) {
+        _xr->postGFXDevicePresent(_api);
+    }
+}
+
+void CCVKDevice::frameSync() {
     uint32_t fenceCount = gpuFencePool()->size();
     if (fenceCount) {
         VK_CHECK(vkWaitForFences(_gpuDevice->vkDevice, fenceCount,
                                  gpuFencePool()->data(), VK_TRUE, DEFAULT_TIMEOUT));
-    }
-
-    gpuFencePool()->reset();
-    gpuRecycleBin()->clear();
-    gpuStagingBufferPool()->reset();
-    if (_xr) {
-        _xr->postGFXDevicePresent(_api);
+        gpuFencePool()->reset();
+        gpuRecycleBin()->clear();
+        gpuStagingBufferPool()->reset();
     }
 }
 
@@ -859,6 +863,10 @@ GeneralBarrier *CCVKDevice::createGeneralBarrier(const GeneralBarrierInfo &info)
 
 TextureBarrier *CCVKDevice::createTextureBarrier(const TextureBarrierInfo &info) {
     return ccnew CCVKTextureBarrier(info);
+}
+
+BufferBarrier *CCVKDevice::createBufferBarrier(const BufferBarrierInfo &info) {
+    return ccnew CCVKBufferBarrier(info);
 }
 
 void CCVKDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) {

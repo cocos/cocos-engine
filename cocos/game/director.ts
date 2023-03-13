@@ -336,7 +336,7 @@ export class Director extends EventTarget {
      * @param onBeforeLoadScene - The function invoked at the scene before loading.
      * @param onLaunched - The function invoked at the scene after launch.
      */
-    public runSceneImmediate (scene: Scene|SceneAsset, onBeforeLoadScene?: Director.OnBeforeLoadScene, onLaunched?: Director.OnSceneLaunched) {
+    public runSceneImmediate (scene: Scene | SceneAsset, onBeforeLoadScene?: Director.OnBeforeLoadScene, onLaunched?: Director.OnSceneLaunched) {
         if (scene instanceof SceneAsset) scene = scene.scene!;
         assertID(scene instanceof Scene, 1216);
 
@@ -701,6 +701,7 @@ export class Director extends EventTarget {
                 // @ts-expect-error _frameDispatchEvents is a private method.
                 input._frameDispatchEvents();
             }
+
             // Update
             if (!this._paused) {
                 this.emit(Director.EVENT_BEFORE_UPDATE);

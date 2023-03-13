@@ -58,7 +58,7 @@ TEST(complicatedBarrierTest, test12) {
 
     // 1st node
     const auto& node1 = barrierMap.at(1);
-    ExpectEq(node1.blockBarrier.frontBarriers.empty(), true);
+    ExpectEq(node1.blockBarrier.frontBarriers.size() == 2, true);
     ExpectEq(node1.blockBarrier.rearBarriers.size() == 1, true);
     ExpectEq(node1.subpassBarriers.empty(), false);
 
@@ -99,7 +99,7 @@ TEST(complicatedBarrierTest, test12) {
 
     //node2
     const auto& node2 = barrierMap.at(2);
-    ExpectEq(node2.blockBarrier.frontBarriers.empty(), true);
+    ExpectEq(node2.blockBarrier.frontBarriers.size() == 2, true);
     ExpectEq(node2.blockBarrier.rearBarriers.size() == 1, true);
     ExpectEq(node2.subpassBarriers.size() == 2, true);
 
@@ -129,7 +129,7 @@ TEST(complicatedBarrierTest, test12) {
 
     //node3
     const auto& node3 = barrierMap.at(3);
-    ExpectEq(node3.blockBarrier.frontBarriers.empty(), true);
+    ExpectEq(node3.blockBarrier.frontBarriers.size() == 1, true);
     ExpectEq(node3.blockBarrier.rearBarriers.size() == 1, true);
     ExpectEq(node3.subpassBarriers.empty(), true);
 
@@ -143,7 +143,7 @@ TEST(complicatedBarrierTest, test12) {
 
     //node4
     const auto& node4 = barrierMap.at(4);
-    ExpectEq(node4.blockBarrier.frontBarriers.empty(), true);
+    ExpectEq(node4.blockBarrier.frontBarriers.size() == 2, true);
     ExpectEq(node4.blockBarrier.rearBarriers.size() == 1, true);
     ExpectEq(node4.subpassBarriers.empty(), false);
 
@@ -179,7 +179,7 @@ TEST(complicatedBarrierTest, test12) {
     ExpectEq(node4subpass1.rearBarriers[0].endStatus.access == MemoryAccessBit::READ_ONLY, true);
 
     const auto& node5 = barrierMap.at(5);
-    ExpectEq(node5.blockBarrier.frontBarriers.empty(), true);
+    ExpectEq(node5.blockBarrier.frontBarriers.size() == 1, true);
     ExpectEq(node5.blockBarrier.rearBarriers.size() == 1, true);
     ExpectEq(node5.subpassBarriers.empty(), true);
 
@@ -195,7 +195,7 @@ TEST(complicatedBarrierTest, test12) {
     ExpectEq(res7in5.endStatus.access == MemoryAccessBit::READ_ONLY, true);
 
     const auto& node6 = barrierMap.at(6);
-    ExpectEq(node6.blockBarrier.frontBarriers.empty(), true);
+    ExpectEq(node6.blockBarrier.frontBarriers.size() == 1, true);
     ExpectEq(node6.blockBarrier.rearBarriers.size() == 1, true);
     ExpectEq(node6.subpassBarriers.empty(), true);
 
@@ -212,7 +212,7 @@ TEST(complicatedBarrierTest, test12) {
 
     // node7
     const auto& node7 = barrierMap.at(7);
-    ExpectEq(node7.blockBarrier.frontBarriers.empty(), true);
+    ExpectEq(node7.blockBarrier.frontBarriers.size() == 1, true);
     ExpectEq(node7.blockBarrier.rearBarriers.empty(), false);
     ExpectEq(node7.subpassBarriers.empty(), true);
 
@@ -233,7 +233,7 @@ TEST(complicatedBarrierTest, test12) {
 
     //node13
     const auto& node13 = barrierMap.at(13);
-    ExpectEq(node13.blockBarrier.frontBarriers.size() == 2, true);
+    ExpectEq(node13.blockBarrier.frontBarriers.size() == 3, true);
     ExpectEq(node13.blockBarrier.rearBarriers.size() == 1, true);
     ExpectEq(node13.subpassBarriers.empty(), true);
 
@@ -275,10 +275,9 @@ TEST(complicatedBarrierTest, test12) {
     //node15: ditto
     const auto& node15 = barrierMap.at(15);
     const auto& theone = node15.blockBarrier.rearBarriers.front();
-    ExpectEq(theone.resourceID == 13, true);
+    ExpectEq(theone.resourceID == 22, true);
     ExpectEq(theone.type == cc::gfx::BarrierType::FULL, true);
-    ExpectEq(theone.endStatus.vertID == 15, true);
-    ExpectEq(theone.endStatus.passType == PassType::PRESENT, true);
+    ExpectEq(theone.endStatus.vertID == 0xFFFFFFFF, true);
 
     //node16
     const auto& node16 = barrierMap.at(16);

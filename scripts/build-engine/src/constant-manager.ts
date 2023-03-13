@@ -4,7 +4,7 @@ import { Config, IConstantConfig, IConstantInfo } from './config-interface';
 
 export type ModeType = 'EDITOR' | 'PREVIEW' | 'BUILD' | 'TEST';
 export type PlatformType = 'HTML5' | 'NATIVE' |
-        'WECHAT' | 'BAIDU' | 'XIAOMI' | 'ALIPAY' | 'TAOBAO' | 'BYTEDANCE' |
+        'WECHAT' | 'BAIDU' | 'XIAOMI' | 'ALIPAY' | 'TAOBAO' | 'TAOBAO_MINIGAME' | 'BYTEDANCE' |
         'OPPO' | 'VIVO' | 'HUAWEI' | 'COCOSPLAY' | 'QTT' | 'LINKSURE';
 export type InternalFlagType = 'SERVER_MODE' | 'NOT_PACK_PHYSX_LIBS' | 'WEBGPU';
 export type PublicFlagType = 'DEBUG' | 'NET_MODE';

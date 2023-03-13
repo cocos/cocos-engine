@@ -67,13 +67,14 @@ void main()  {
   // Debug view
   #if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_SINGLE && CC_SURFACES_ENABLE_DEBUG_VIEW
     vec4 debugColor = vec4(0.0, 0.0, 0.0, 1.0);
+    float materialTransparency = CCSurfacesShading(surfaceData, lightingResult).a;
+
     #if !CC_FORWARD_ADD
       CCSurfacesDebugViewMeshData(debugColor);
       CCSurfacesDebugViewSurfaceData(debugColor, surfaceData);
       if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_FOG))
       {
-        fogFactor = 1.0 - fogFactor;
-        debugColor = vec4(fogFactor, fogFactor, fogFactor, 1.0);
+        debugColor.rgb = vec3(1.0 - fogFactor);
       }
     #endif
 
@@ -84,6 +85,9 @@ void main()  {
       {
           if (CCSurfacesDebugViewLightingResult(debugColor, lightingResult))
           {
+            // Use material alpha
+            debugColor.a = materialTransparency;
+
             // lighting needs color space conversion          
             #if CC_USE_HDR
               if (IS_DEBUG_VIEW_COMPOSITE_ENABLE_TONE_MAPPING)

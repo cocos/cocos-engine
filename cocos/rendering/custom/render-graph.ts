@@ -55,7 +55,7 @@ export class ResourceTraits {
 }
 
 export class RenderSwapchain {
-    constructor (swapchain: Swapchain | null) {
+    constructor (swapchain: Swapchain | null = null) {
         this.swapchain = swapchain;
     }
     /*pointer*/ swapchain: Swapchain | null;
@@ -88,7 +88,7 @@ export class ManagedResource {
     unused = 0;
 }
 
-export class RasterSubpass {
+export class Subpass {
     readonly rasterViews: Map<string, RasterView> = new Map<string, RasterView>();
     readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
 }
@@ -120,13 +120,13 @@ export class SubpassGraphNameMap implements PropertyMap {
 }
 
 export class SubpassGraphSubpassMap implements PropertyMap {
-    constructor (readonly subpasses: RasterSubpass[]) {
+    constructor (readonly subpasses: Subpass[]) {
         this._subpasses = subpasses;
     }
-    get (v: number): RasterSubpass {
+    get (v: number): Subpass {
         return this._subpasses[v];
     }
-    readonly _subpasses: RasterSubpass[];
+    readonly _subpasses: Subpass[];
 }
 
 //-----------------------------------------------------------------
@@ -138,7 +138,7 @@ export const enum SubpassGraphComponent {
 
 export interface SubpassGraphComponentType {
     [SubpassGraphComponent.Name]: string;
-    [SubpassGraphComponent.Subpass]: RasterSubpass;
+    [SubpassGraphComponent.Subpass]: Subpass;
 }
 
 export interface SubpassGraphComponentPropertyMap {
@@ -236,7 +236,7 @@ export class SubpassGraph implements BidirectionalGraph
     }
     addVertex (
         name: string,
-        subpass: RasterSubpass,
+        subpass: Subpass,
     ): number {
         const vert = new SubpassGraphVertex();
         const v = this._vertices.length;
@@ -386,14 +386,34 @@ export class SubpassGraph implements BidirectionalGraph
     setName (v: number, value: string) {
         this._names[v] = value;
     }
-    getSubpass (v: number): RasterSubpass {
+    getSubpass (v: number): Subpass {
         return this._subpasses[v];
     }
 
     readonly components: string[] = ['Name', 'Subpass'];
     readonly _vertices: SubpassGraphVertex[] = [];
     readonly _names: string[] = [];
-    readonly _subpasses: RasterSubpass[] = [];
+    readonly _subpasses: Subpass[] = [];
+}
+
+export class RasterSubpass {
+    constructor (subpassID: number) {
+        this.subpassID = subpassID;
+    }
+    readonly rasterViews: Map<string, RasterView> = new Map<string, RasterView>();
+    readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
+    subpassID: number;
+    readonly viewport: Viewport = new Viewport();
+    showStatistics = false;
+}
+
+export class ComputeSubpass {
+    constructor (subpassID: number) {
+        this.subpassID = subpassID;
+    }
+    readonly rasterViews: Map<string, RasterView> = new Map<string, RasterView>();
+    readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
+    subpassID: number;
 }
 
 export class RasterPass {
@@ -1072,10 +1092,12 @@ export class ClearView {
 }
 
 export class RenderQueue {
-    constructor (hint: QueueHint = QueueHint.RENDER_OPAQUE) {
+    constructor (hint: QueueHint = QueueHint.RENDER_OPAQUE, phaseID = 0xFFFFFFFF) {
         this.hint = hint;
+        this.phaseID = phaseID;
     }
     hint: QueueHint;
+    phaseID: number;
 }
 
 export class SceneData {
@@ -1092,13 +1114,21 @@ export class SceneData {
 }
 
 export class Dispatch {
-    constructor (shader = '', threadGroupCountX = 0, threadGroupCountY = 0, threadGroupCountZ = 0) {
-        this.shader = shader;
+    constructor (
+        material: Material | null,
+        passID: number,
+        threadGroupCountX: number,
+        threadGroupCountY: number,
+        threadGroupCountZ: number,
+    ) {
+        this.material = material;
+        this.passID = passID;
         this.threadGroupCountX = threadGroupCountX;
         this.threadGroupCountY = threadGroupCountY;
         this.threadGroupCountZ = threadGroupCountZ;
     }
-    shader: string;
+    /*refcount*/ material: Material | null;
+    passID: number;
     threadGroupCountX: number;
     threadGroupCountY: number;
     threadGroupCountZ: number;
@@ -1117,19 +1147,6 @@ export class Blit {
     /*pointer*/ camera: Camera | null;
 }
 
-export class Present {
-    constructor (syncInterval = 0, flags = 0) {
-        this.syncInterval = syncInterval;
-        this.flags = flags;
-    }
-    syncInterval: number;
-    flags: number;
-}
-
-export class PresentPass {
-    readonly presents: Map<string, Present> = new Map<string, Present>();
-}
-
 export class RenderData {
     readonly constants: Map<number, number[]> = new Map<number, number[]>();
     readonly buffers: Map<number, Buffer> = new Map<number, Buffer>();
@@ -1142,11 +1159,12 @@ export class RenderData {
 //=================================================================
 // PolymorphicGraph Concept
 export const enum RenderGraphValue {
-    Raster,
+    RasterPass,
+    RasterSubpass,
+    ComputeSubpass,
     Compute,
     Copy,
     Move,
-    Present,
     Raytrace,
     Queue,
     Scene,
@@ -1158,11 +1176,12 @@ export const enum RenderGraphValue {
 
 export function getRenderGraphValueName (e: RenderGraphValue): string {
     switch (e) {
-    case RenderGraphValue.Raster: return 'Raster';
+    case RenderGraphValue.RasterPass: return 'RasterPass';
+    case RenderGraphValue.RasterSubpass: return 'RasterSubpass';
+    case RenderGraphValue.ComputeSubpass: return 'ComputeSubpass';
     case RenderGraphValue.Compute: return 'Compute';
     case RenderGraphValue.Copy: return 'Copy';
     case RenderGraphValue.Move: return 'Move';
-    case RenderGraphValue.Present: return 'Present';
     case RenderGraphValue.Raytrace: return 'Raytrace';
     case RenderGraphValue.Queue: return 'Queue';
     case RenderGraphValue.Scene: return 'Scene';
@@ -1175,11 +1194,12 @@ export function getRenderGraphValueName (e: RenderGraphValue): string {
 }
 
 export interface RenderGraphValueType {
-    [RenderGraphValue.Raster]: RasterPass
+    [RenderGraphValue.RasterPass]: RasterPass
+    [RenderGraphValue.RasterSubpass]: RasterSubpass
+    [RenderGraphValue.ComputeSubpass]: ComputeSubpass
     [RenderGraphValue.Compute]: ComputePass
     [RenderGraphValue.Copy]: CopyPass
     [RenderGraphValue.Move]: MovePass
-    [RenderGraphValue.Present]: PresentPass
     [RenderGraphValue.Raytrace]: RaytracePass
     [RenderGraphValue.Queue]: RenderQueue
     [RenderGraphValue.Scene]: SceneData
@@ -1190,11 +1210,12 @@ export interface RenderGraphValueType {
 }
 
 export interface RenderGraphVisitor {
-    raster(value: RasterPass): unknown;
+    rasterPass(value: RasterPass): unknown;
+    rasterSubpass(value: RasterSubpass): unknown;
+    computeSubpass(value: ComputeSubpass): unknown;
     compute(value: ComputePass): unknown;
     copy(value: CopyPass): unknown;
     move(value: MovePass): unknown;
-    present(value: PresentPass): unknown;
     raytrace(value: RaytracePass): unknown;
     queue(value: RenderQueue): unknown;
     scene(value: SceneData): unknown;
@@ -1205,10 +1226,11 @@ export interface RenderGraphVisitor {
 }
 
 export type RenderGraphObject = RasterPass
+| RasterSubpass
+| ComputeSubpass
 | ComputePass
 | CopyPass
 | MovePass
-| PresentPass
 | RaytracePass
 | RenderQueue
 | SceneData
@@ -1657,16 +1679,18 @@ export class RenderGraph implements BidirectionalGraph
     visitVertex (visitor: RenderGraphVisitor, v: number): unknown {
         const vert = this._vertices[v];
         switch (vert._id) {
-        case RenderGraphValue.Raster:
-            return visitor.raster(vert._object as RasterPass);
+        case RenderGraphValue.RasterPass:
+            return visitor.rasterPass(vert._object as RasterPass);
+        case RenderGraphValue.RasterSubpass:
+            return visitor.rasterSubpass(vert._object as RasterSubpass);
+        case RenderGraphValue.ComputeSubpass:
+            return visitor.computeSubpass(vert._object as ComputeSubpass);
         case RenderGraphValue.Compute:
             return visitor.compute(vert._object as ComputePass);
         case RenderGraphValue.Copy:
             return visitor.copy(vert._object as CopyPass);
         case RenderGraphValue.Move:
             return visitor.move(vert._object as MovePass);
-        case RenderGraphValue.Present:
-            return visitor.present(vert._object as PresentPass);
         case RenderGraphValue.Raytrace:
             return visitor.raytrace(vert._object as RaytracePass);
         case RenderGraphValue.Queue:
@@ -1685,9 +1709,23 @@ export class RenderGraph implements BidirectionalGraph
             throw Error('polymorphic type not found');
         }
     }
-    getRaster (v: number): RasterPass {
-        if (this._vertices[v]._id === RenderGraphValue.Raster) {
+    getRasterPass (v: number): RasterPass {
+        if (this._vertices[v]._id === RenderGraphValue.RasterPass) {
             return this._vertices[v]._object as RasterPass;
+        } else {
+            throw Error('value id not match');
+        }
+    }
+    getRasterSubpass (v: number): RasterSubpass {
+        if (this._vertices[v]._id === RenderGraphValue.RasterSubpass) {
+            return this._vertices[v]._object as RasterSubpass;
+        } else {
+            throw Error('value id not match');
+        }
+    }
+    getComputeSubpass (v: number): ComputeSubpass {
+        if (this._vertices[v]._id === RenderGraphValue.ComputeSubpass) {
+            return this._vertices[v]._object as ComputeSubpass;
         } else {
             throw Error('value id not match');
         }
@@ -1709,13 +1747,6 @@ export class RenderGraph implements BidirectionalGraph
     getMove (v: number): MovePass {
         if (this._vertices[v]._id === RenderGraphValue.Move) {
             return this._vertices[v]._object as MovePass;
-        } else {
-            throw Error('value id not match');
-        }
-    }
-    getPresent (v: number): PresentPass {
-        if (this._vertices[v]._id === RenderGraphValue.Present) {
-            return this._vertices[v]._object as PresentPass;
         } else {
             throw Error('value id not match');
         }
@@ -1769,9 +1800,23 @@ export class RenderGraph implements BidirectionalGraph
             throw Error('value id not match');
         }
     }
-    tryGetRaster (v: number): RasterPass | null {
-        if (this._vertices[v]._id === RenderGraphValue.Raster) {
+    tryGetRasterPass (v: number): RasterPass | null {
+        if (this._vertices[v]._id === RenderGraphValue.RasterPass) {
             return this._vertices[v]._object as RasterPass;
+        } else {
+            return null;
+        }
+    }
+    tryGetRasterSubpass (v: number): RasterSubpass | null {
+        if (this._vertices[v]._id === RenderGraphValue.RasterSubpass) {
+            return this._vertices[v]._object as RasterSubpass;
+        } else {
+            return null;
+        }
+    }
+    tryGetComputeSubpass (v: number): ComputeSubpass | null {
+        if (this._vertices[v]._id === RenderGraphValue.ComputeSubpass) {
+            return this._vertices[v]._object as ComputeSubpass;
         } else {
             return null;
         }
@@ -1793,13 +1838,6 @@ export class RenderGraph implements BidirectionalGraph
     tryGetMove (v: number): MovePass | null {
         if (this._vertices[v]._id === RenderGraphValue.Move) {
             return this._vertices[v]._object as MovePass;
-        } else {
-            return null;
-        }
-    }
-    tryGetPresent (v: number): PresentPass | null {
-        if (this._vertices[v]._id === RenderGraphValue.Present) {
-            return this._vertices[v]._object as PresentPass;
         } else {
             return null;
         }

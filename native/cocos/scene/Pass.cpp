@@ -442,8 +442,8 @@ void Pass::resetUBOs() {
         for (const auto &u : _shaderInfo->blocks) {
             updateBuffer(u);
         }
-        _rootBufferDirty = true;
     }
+    _rootBufferDirty = true;
 }
 
 void Pass::resetTextures() {
@@ -713,7 +713,8 @@ void calculateTotalSize(
         bufferInfo.usage = gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST;
         bufferInfo.memUsage = gfx::MemoryUsageBit::DEVICE;
         // https://bugs.chromium.org/p/chromium/issues/detail?id=988988
-        bufferInfo.size = static_cast<int32_t>(std::ceil(static_cast<float>(totalSize) / 16.F)) * 16;
+        const auto alignment = device->getCapabilities().uboOffsetAlignment;
+        bufferInfo.size = static_cast<int32_t>(std::ceil(static_cast<float>(totalSize) / static_cast<float>(alignment))) * alignment;
         rootBuffer = device->createBuffer(bufferInfo);
         rootBlock = ccnew ArrayBuffer(totalSize);
     }
@@ -726,9 +727,11 @@ void Pass::buildUniformBlock(
     gfx::BufferViewInfo &bufferViewInfo,
     ccstd::vector<uint32_t> &startOffsets,
     size_t &count) {
+
+    const auto alignment = _device->getCapabilities().uboOffsetAlignment;
     bufferViewInfo.buffer = _rootBuffer;
     bufferViewInfo.offset = startOffsets[count++];
-    bufferViewInfo.range = static_cast<int32_t>(std::ceil(static_cast<float>(size) / 16.F)) * 16;
+    bufferViewInfo.range = static_cast<int32_t>(std::ceil(static_cast<float>(size) / static_cast<float>(alignment))) * alignment;
     if (binding >= _buffers.size()) {
         _buffers.resize(binding + 1);
     }

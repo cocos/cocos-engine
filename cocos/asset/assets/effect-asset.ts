@@ -158,8 +158,8 @@ export declare namespace EffectAsset {
     export interface IShaderInfo {
         name: string;
         hash: number;
-        glsl4: { vert: string, frag: string };
-        glsl3: { vert: string, frag: string };
+        glsl4: { vert: string, frag: string, compute?: string };
+        glsl3: { vert: string, frag: string, compute?: string };
         glsl1: { vert: string, frag: string };
         builtins: { globals: IBuiltinInfo, locals: IBuiltinInfo, statistics: Record<string, number> };
         defines: IDefineInfo[];

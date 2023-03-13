@@ -4396,10 +4396,6 @@ bool js_register_cc_pipeline_UBOGlobal(se::Object* obj) {
     cls->defineStaticProperty("NATIVE_SIZE_OFFSET", nullptr, nullptr); 
     cls->defineStaticProperty("PROBE_INFO_OFFSET", nullptr, nullptr); 
     cls->defineStaticProperty("DEBUG_VIEW_MODE_OFFSET", nullptr, nullptr); 
-    cls->defineStaticProperty("DEBUG_VIEW_COMPOSITE_PACK_1_OFFSET", nullptr, nullptr); 
-    cls->defineStaticProperty("DEBUG_VIEW_COMPOSITE_PACK_2_OFFSET", nullptr, nullptr); 
-    cls->defineStaticProperty("DEBUG_VIEW_COMPOSITE_PACK_3_OFFSET", nullptr, nullptr); 
-    cls->defineStaticProperty("DEBUG_VIEW_COMPOSITE_PACK_4_OFFSET", nullptr, nullptr); 
     cls->defineStaticProperty("COUNT", nullptr, nullptr); 
     cls->defineStaticProperty("SIZE", nullptr, nullptr); 
     cls->defineStaticProperty("BINDING", nullptr, nullptr); 

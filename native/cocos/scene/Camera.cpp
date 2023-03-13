@@ -210,15 +210,8 @@ void Camera::update(bool forceUpdate /*false*/) {
                 const auto &projFloat = _xr->getXRViewProjectionData(static_cast<uint32_t>(wndXREye), _nearClip, _farClip);
                 std::memcpy(_matProj.m, projFloat.data(), sizeof(float) * 16);
             } else {
-                const auto &xrFov = _xr->getXREyeFov(static_cast<uint32_t>(wndXREye));
-                const float left = _orthoHeight * tanf(xrFov[0]);
-                const float right = _orthoHeight * tanf(xrFov[1]);
-                const float bottom = _orthoHeight * tanf(xrFov[2]);
-                const float top = _orthoHeight * tanf(xrFov[3]);
-                const float projectionSignY = _device->getCapabilities().clipSpaceSignY;
-                Mat4::createOrthographicOffCenter(left, right, bottom, top, _nearClip, _farClip,
-                                                  _device->getCapabilities().clipSpaceMinZ, projectionSignY,
-                                                  static_cast<int>(orientation), &_matProj);
+                const ccstd::array<float, 4> &preTransform = PRE_TRANSFORMS[static_cast<int>(orientation)];
+                _xr->adaptOrthographicMatrix(this, preTransform, _matProj, _matView);
             }
             _matProjInv = _matProj.getInversed();
             viewProjDirty = true;

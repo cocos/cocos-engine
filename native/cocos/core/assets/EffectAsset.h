@@ -518,6 +518,7 @@ struct IDescriptorInfo {
 struct IShaderSource {
     ccstd::string vert;
     ccstd::string frag;
+    ccstd::optional<ccstd::string> compute;
 };
 
 struct IShaderInfo {
