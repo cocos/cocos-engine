@@ -74,6 +74,8 @@ public:
     static JavaVM *getJavaVM();
     static JNIEnv *getEnv();
     static jobject getActivity();
+    static jobject getContext();
+
     static void init(JNIEnv *env, jobject activity);
     static void onDestroy();
 
@@ -388,10 +390,10 @@ public:
         }
         return ret;
     }
-    static bool setClassLoaderFrom(jobject activityInstance);
+    static bool setClassLoaderFrom(jobject contextInstance);
 
 private:
-    static jobject sActivity;
+    static jobject sContext;
     static JavaVM *sJavaVM;
 
     static JNIEnv *cacheEnv();
