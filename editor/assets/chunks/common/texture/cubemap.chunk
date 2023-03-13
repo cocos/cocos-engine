@@ -30,7 +30,7 @@
     #endif
   }
 
-  vec3 EnvReflection(samplerCube tex, vec3 R, float roughness, float mipCount) {
+  vec3 EnvReflection(samplerCube tex, vec3 R, float roughness, float mipCount,bool useRGBE) {
     // simulate GGX convolution
     #if !CC_SURFACES_USE_LEGACY_COMPATIBLE_LIGHTING && !CC_IBL_CONVOLUTED
       roughness = pow(roughness, 0.5);
@@ -40,7 +40,7 @@
     vec4 envmap = fragTextureLod(tex, rotationDir, roughness * (mipCount - 1.0));
     
     #if CC_USE_IBL == IBL_RGBE || CC_USE_REFLECTION_PROBE != REFLECTION_PROBE_TYPE_NONE
-      return unpackRGBE(envmap);
+      return useRGBE ? unpackRGBE(envmap) : SRGBToLinear(envmap.rgb);
     #else
       return SRGBToLinear(envmap.rgb);
     #endif

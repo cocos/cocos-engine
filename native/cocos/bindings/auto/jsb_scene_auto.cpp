@@ -24533,6 +24533,29 @@ static bool js_cc_scene_ReflectionProbe_getRealtimeCubeMap(se::State& s)
 }
 SE_BIND_FUNC(js_cc_scene_ReflectionProbe_getRealtimeCubeMap) 
 
+static bool js_cc_scene_ReflectionProbe_isUseRGBE(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::ReflectionProbe *arg1 = (cc::scene::ReflectionProbe *) NULL ;
+    bool result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::ReflectionProbe>(s);
+    if (nullptr == arg1) return true;
+    result = (bool)((cc::scene::ReflectionProbe const *)arg1)->isUseRGBE();
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_ReflectionProbe_isUseRGBE) 
+
 static bool js_cc_scene_ReflectionProbe_probeType_set(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -25097,6 +25120,7 @@ bool js_register_cc_scene_ReflectionProbe(se::Object* obj) {
     cls->defineFunction("getRenderArea", _SE(js_cc_scene_ReflectionProbe_getRenderArea)); 
     cls->defineFunction("packBackgroundColor", _SE(js_cc_scene_ReflectionProbe_packBackgroundColor)); 
     cls->defineFunction("getRealtimeCubeMap", _SE(js_cc_scene_ReflectionProbe_getRealtimeCubeMap)); 
+    cls->defineFunction("isUseRGBE", _SE(js_cc_scene_ReflectionProbe_isUseRGBE)); 
     
     
     cls->defineStaticFunction("reflect", _SE(js_cc_scene_ReflectionProbe_reflect_static)); 

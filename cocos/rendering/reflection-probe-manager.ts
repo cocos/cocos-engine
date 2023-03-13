@@ -351,7 +351,8 @@ export class ReflectionProbeManager {
                 buffer[bufferOffset + 5] = probe.size.y;
                 buffer[bufferOffset + 6] = probe.size.z;
                 buffer[bufferOffset + 7] = 0.0;
-                buffer[bufferOffset + 8] = probe.cubemap ? probe.cubemap.mipmapLevel : 1.0;
+                const mipAndUseRGBE = probe.isUseRGBE() ? 1000 : 0;
+                buffer[bufferOffset + 8] = probe.cubemap ? probe.cubemap.mipmapLevel + mipAndUseRGBE : 1.0 + mipAndUseRGBE;
             } else {
                 //plane.xyz;
                 buffer[bufferOffset] = probe.node.up.x;

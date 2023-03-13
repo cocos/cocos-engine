@@ -1057,7 +1057,8 @@ export class Model {
                 sv[UBOLocal.REFLECTION_PROBE_DATA2] = probe.size.x;
                 sv[UBOLocal.REFLECTION_PROBE_DATA2 + 1] = probe.size.y;
                 sv[UBOLocal.REFLECTION_PROBE_DATA2 + 2] = probe.size.z;
-                sv[UBOLocal.REFLECTION_PROBE_DATA2 + 3] = probe.cubemap ? probe.cubemap.mipmapLevel + 1000.0 : 1.0 + 1000.0;
+                const mipAndUseRGBE = probe.isUseRGBE() ? 1000 : 0;
+                sv[UBOLocal.REFLECTION_PROBE_DATA2 + 3] = probe.cubemap ? probe.cubemap.mipmapLevel + mipAndUseRGBE : 1.0 + mipAndUseRGBE;
             }
         }
         this._localDataUpdated = true;

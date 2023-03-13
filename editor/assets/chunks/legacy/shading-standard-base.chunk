@@ -215,11 +215,11 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
         probe = mix(fragTextureLod(cc_environment, R, s.roughness * (cc_ambientGround.w - 1.0)),
           fragTextureLod(cc_reflectionProbeCubemap, fixedR.xyz, s.roughness * (mipCount - 1.0)), fixedR.w);
       }
-      if (isUseRGBE()) {
+      if (isUseRGBE(s.reflectionProbeId)) {
         env = unpackRGBE(probe);
       }
       else {
-        env = probe.rgb;
+        env = SRGBToLinear(probe.rgb);
       }
     #elif CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_PLANAR
       if(s.reflectionProbeId < 0.0){
