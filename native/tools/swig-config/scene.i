@@ -139,6 +139,8 @@ using namespace cc;
 %ignore cc::Node::getWorldMatrix;
 %ignore cc::Node::getWorldRS;
 %ignore cc::Node::getWorldRT;
+%ignore cc::Node::isTransformDirty;
+%ignore cc::Node::_getSharedArrayBufferObject;
 
 %ignore cc::scene::Camera::screenPointToRay;
 %ignore cc::scene::Camera::screenToWorld;
