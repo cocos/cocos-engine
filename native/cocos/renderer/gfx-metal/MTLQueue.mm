@@ -70,20 +70,8 @@ void CCMTLQueue::submit(CommandBuffer *const *cmdBuffs, uint32_t count) {
         _gpuQueueObj->numInstances += cmdBuffer->getNumInstances();
         _gpuQueueObj->numTriangles += cmdBuffer->getNumTris();
         id<MTLCommandBuffer> mtlCmdBuffer = cmdBuffer->gpuCommandBufferObj()->mtlCommandBuffer;
-        [mtlCmdBuffer addCompletedHandler:^(id<MTLCommandBuffer> mtlCmdBUffer) {
-            cmdBuffer->signalFence();
-        }];
         [mtlCmdBuffer commit];
-        cmdBuffer->reset();
-    }
-    CCMTLCommandBuffer* transferCmdBuffer = static_cast<CCMTLCommandBuffer*>(CCMTLDevice::getInstance()->transferCommandBuffer());
-    id<MTLCommandBuffer> mtlCmdBuffer = transferCmdBuffer->gpuCommandBufferObj()->mtlCommandBuffer;
-    if(mtlCmdBuffer) {
-        [mtlCmdBuffer addCompletedHandler:^(id<MTLCommandBuffer> mtlCmdBUffer) {
-            transferCmdBuffer->signalFence();
-        }];
-        [mtlCmdBuffer commit];
-        transferCmdBuffer->reset();
+        cmdBuffer->afterCommit();
     }
 }
 

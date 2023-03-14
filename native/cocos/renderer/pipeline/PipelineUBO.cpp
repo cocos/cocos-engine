@@ -118,7 +118,7 @@ void PipelineUBO::updateCameraUBOView(const RenderPipeline *pipeline, float *out
     output[UBOCamera::EXPOSURE_OFFSET + 0] = exposure;
     output[UBOCamera::EXPOSURE_OFFSET + 1] = 1.0F / exposure;
     output[UBOCamera::EXPOSURE_OFFSET + 2] = isHDR ? 1.0F : 0.0F;
-    output[UBOCamera::EXPOSURE_OFFSET + 3] = 0.0F;
+    output[UBOCamera::EXPOSURE_OFFSET + 3] = 1.0F / scene::Camera::getStandardExposureValue();
 
     if (mainLight) {
         const float shadowEnable = (mainLight->isShadowEnabled() && shadowInfo->getType() == scene::ShadowType::SHADOW_MAP) ? 1.0F : 0.0F;
