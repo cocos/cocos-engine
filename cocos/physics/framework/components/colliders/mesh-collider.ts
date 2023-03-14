@@ -36,8 +36,7 @@ import { Collider } from './collider';
 import { Mesh } from '../../../../3d/assets';
 import { ITrimeshShape } from '../../../spec/i-physics-shape';
 import { EColliderType, ERigidBodyType } from '../../physics-enum';
-import { Node } from '../../../../scene-graph';
-import { warn, warnID } from '../../../../core';
+import { warnID } from '../../../../core';
 import { RigidBody } from '../rigid-body';
 
 /**

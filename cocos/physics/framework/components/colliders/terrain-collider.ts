@@ -37,7 +37,7 @@ import { ITerrainAsset } from '../../../spec/i-external';
 import { TerrainAsset } from '../../../../terrain/terrain-asset';
 import { EColliderType, ERigidBodyType } from '../../physics-enum';
 import { RigidBody } from '../rigid-body';
-import { warn, warnID } from '../../../../core';
+import { warnID } from '../../../../core';
 
 /**
  * @en

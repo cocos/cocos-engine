@@ -32,7 +32,7 @@ import {
     editable,
     serializable,
 } from 'cc.decorator';
-import { Vec3, warn, warnID } from '../../../../core';
+import { Vec3, warnID } from '../../../../core';
 import { Collider } from './collider';
 import { IPlaneShape } from '../../../spec/i-physics-shape';
 import { EColliderType, ERigidBodyType } from '../../physics-enum';
