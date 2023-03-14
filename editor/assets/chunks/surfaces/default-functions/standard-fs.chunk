@@ -74,8 +74,9 @@ vec4 SurfacesFragmentModifyPBRParams()
 // scattering related parameters and colors
 vec4 SurfacesFragmentModifyTransmitScatteringParams()
 {
-    // xy: extinction coef for out/in-scattering (should be same), 0 means disable scattering, thin object needs larger value such as 100-1000
-    // z: in-scattering coef (constant phase function)
+    // x: extinction coef for out/in-scattering, 0 means disable scattering, thin object needs larger value such as 100-1000
+    // y: in-scattering coef (constant phase function)
+    // z: transmit normal type, default is 1 means using back face normal, 0 means using view-dependent normal, for shapeless materials such as hair
     // w: transmit distance, depending on CC_SURFACES_LIGHTING_USE_SHADOWMAP_TRANSMIT macro value:
     //    macro is 0: affect direct / env transmit lighting, 0 means disable scattering, (water depth, leaf / hair thicknessMap, ear / nose thicknessMap)
     //    macro is 1: only affect env transmit when shadow dir not match back normal (actual mesh thickness for ear / nose, nephrite)

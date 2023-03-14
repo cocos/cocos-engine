@@ -182,7 +182,7 @@ vec4 SurfacesFragmentModifyTransmitScatteringParams()
   #if USE_WATER_SCATTERING
     float depth = max(abs(FSInput_texcoord.x - 0.5), abs(FSInput_texcoord.y - 0.5)) * 2.0;
     depth = saturate(1.0 - depth);
-    return vec4(waterColor.ww, 1.0, depth);
+    return vec4(waterColor.w, 1.0, 1.0, depth);
   #else
     return vec4(0.0, 0.0, 0.0, 0.0);
   #endif

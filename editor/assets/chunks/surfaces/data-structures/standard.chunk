@@ -28,7 +28,7 @@ struct SurfacesMaterialData
 #endif
 #if CC_SURFACES_LIGHTING_TRT
   vec3 baseColorTRT;
-  float trtIntensity, roughnessTRT;
+  float trtIntensity, roughnessTRT, anisotropicOffsetTRT;
   vec3 worldTangentTRT, worldBinormalTRT;
 #endif
 #if CC_SURFACES_LIGHTING_TT

@@ -93,7 +93,7 @@ void CCSurfacesLightingCalculateEnvironment(out vec3 lightingDiffuse, out vec3 l
     envSpec = EnvReflection(cc_environment, R, roughness, cc_ambientGround.w);
   #endif
 
-    lightingSpecular = CalculateScattering(envSpec * lightIntensity, lightingData.transmitScatteringParams.w, lightingData.transmitScatteringParams.x, lightingData.transmitScatteringParams.y, lightingData.transmitScatteringParams.z, lightingData.inScatteringColor.rgb, lightingData.outScatteringColor.rgb);
+    lightingSpecular = CalculateScattering(envSpec * lightIntensity, lightingData.transmitScatteringParams.w, lightingData.transmitScatteringParams.x, lightingData.transmitScatteringParams.x, lightingData.transmitScatteringParams.y, lightingData.inScatteringColor.rgb, lightingData.outScatteringColor.rgb);
   }
 #endif
 
@@ -119,7 +119,7 @@ void CCSurfacesLightingCalculateEnvironment(out vec3 lightingDiffuse, out vec3 l
 
     vec3 backIrradiance = CalculateDirectDiffuse(lightingData, lightSourceColorAndIntensity);
     backIrradiance *= shadow * transmitMask;
-    transmitDiffuse = CalculateScattering(backIrradiance, distance, lightingData.transmitScatteringParams.x, lightingData.transmitScatteringParams.y, lightingData.transmitScatteringParams.z, lightingData.inScatteringColor.rgb, lightingData.outScatteringColor.rgb);
+    transmitDiffuse = CalculateScattering(backIrradiance, distance, lightingData.transmitScatteringParams.x, lightingData.transmitScatteringParams.x, lightingData.transmitScatteringParams.y, lightingData.inScatteringColor.rgb, lightingData.outScatteringColor.rgb);
   }
   // depend on dir-light shadow direction, if there are some occluders in front of the light source, env transmit will dark
   void CCSurfacesLightingCalculateEnvironmentTransmitDiffuse(out vec3 transmitDiffuse, in LightingIntermediateData lightingData, float lightIntensity, float ao, vec3 shadowLightDirection)
@@ -136,7 +136,7 @@ void CCSurfacesLightingCalculateEnvironment(out vec3 lightingDiffuse, out vec3 l
 
     vec3 backIrradiance = CalculateEnvironmentDiffuse(lightingData, lightIntensity);
     backIrradiance *= ao * transmitMask;
-    transmitDiffuse = CalculateScattering(backIrradiance, distance, lightingData.transmitScatteringParams.x, lightingData.transmitScatteringParams.y, lightingData.transmitScatteringParams.z, lightingData.inScatteringColor.rgb, lightingData.outScatteringColor.rgb);
+    transmitDiffuse = CalculateScattering(backIrradiance, distance, lightingData.transmitScatteringParams.x, lightingData.transmitScatteringParams.x, lightingData.transmitScatteringParams.y, lightingData.inScatteringColor.rgb, lightingData.outScatteringColor.rgb);
     transmitDiffuse *= envTransmitScale;
   }
 

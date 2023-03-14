@@ -29,6 +29,7 @@ void GetAnisotropicRoughness(float roughness, float anisotropyShape, out float r
     roughnessY = saturate(r2);
 }
 
+// H intend to V can get an anisotropic offset along T/B
 float D_GGXAniso(float RoughnessX, float RoughnessY, float NoH, vec3 H, vec3 X, vec3 Y)
 {
     float mx = max(EPSILON_LOWP, RoughnessX * RoughnessX);
