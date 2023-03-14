@@ -438,12 +438,7 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
                               [](const AccessStatus &lhs, const AccessStatus &rhs) {
                                   return lhs.vertID < rhs.vertID;
                               });
-        auto checkMeet = [&](const AccessStatus &status) {
-            const auto &resName = get(ResourceGraph::NameTag{}, resourceGraph, status.vertID);
-            return resourceNames.find(resName) == resourceNames.end();
-        };
-        bool newRes = std::any_of(srcStatus.begin(), srcStatus.end(), checkMeet) || std::any_of(dstStatus.begin(), dstStatus.end(), checkMeet);
-        if (commonResources.empty() && !newRes) {
+        if (commonResources.empty()) {
             // this edge is a logic edge added during pass reorder,
             // no real dependency between this two vertices.
             return;
@@ -572,7 +567,7 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
         }
 
         //----------------------------------------------check external----------------------------------------------
-        auto barrierExternalResOrFirstMeet = [&](const AccessStatus &resourcecAccess, Vertex vert) {
+        auto barrierExternalRes = [&](const AccessStatus &resourcecAccess, Vertex vert) {
             uint32_t rescID = resourcecAccess.vertID;
             const auto &states = get(ResourceGraph::StatesTag{}, resourceGraph, rescID);
             const auto &traits = get(ResourceGraph::TraitsTag{}, resourceGraph, rescID);
@@ -646,43 +641,15 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
                         }
                     }
                 }
-            } else {
-                if (resourceNames.find(resName) == resourceNames.end()) {
-                    auto lastRescAccess = AccessStatus{
-                        vert,
-                        gfx::ShaderStageFlagBit::NONE,
-                        gfx::MemoryAccessBit::NONE,
-                        gfx::PassType::RASTER,
-                        gfx::AccessFlagBit::NONE,
-                        gfx::TextureUsageBit::NONE,
-                        TextureRange{},
-                    };
-                    auto currRescAccess = resourcecAccess;
-
-                    // resource id in access -> pass id in barrier
-                    currRescAccess.vertID = vert;
-
-                    lastRescAccess.accessFlag = gfx::AccessFlagBit::NONE;
-
-                    // add undefined layout -> write at first meet
-                    barrierMap[vert].blockBarrier.frontBarriers.emplace_back(Barrier{
-                        rescID,
-                        gfx::BarrierType::FULL,
-                        nullptr,
-                        lastRescAccess,
-                        currRescAccess,
-                    });
-                    resourceNames.emplace(resName);
-                }
             }
         };
 
         for (const AccessStatus &rescAccess : srcStatus) {
-            barrierExternalResOrFirstMeet(rescAccess, from.vertID);
+            barrierExternalRes(rescAccess, from.vertID);
         }
 
         for (const AccessStatus &rescAccess : dstStatus) {
-            barrierExternalResOrFirstMeet(rescAccess, to.vertID);
+            barrierExternalRes(rescAccess, to.vertID);
         }
         //---------------------------------------------------------------------------------------------------------
     }
@@ -812,7 +779,7 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
     BarrierMap &barrierMap;
     const ResourceGraph &resourceGraph;
     ExternalResMap &externalMap;  // last frame to curr frame status transition
-    ResourceNames &resourceNames; // isExternal ? record those which been written : record those which first meet
+    ResourceNames &resourceNames; // record those which been written
     ResourceLifeRecordMap &resourceLifeRecord;
 };
 
@@ -835,8 +802,55 @@ void buildBarriers(FrameGraphDispatcher &fgDispatcher) {
     // found pass id in this map ? barriers you should commit when run into this pass
     // : or no extra barrier needed.
     BarrierMap &batchedBarriers = fgDispatcher.barrierMap;
+
+    {
+        // barrier first meet
+        // O(N) actually
+        ccstd::set<ResourceGraph::vertex_descriptor> firstMeet;
+        for (size_t i = 0; i < rag.access.size(); ++i) {
+            const auto *status = &rag.access[i];
+            while (status) {
+                for (const auto& attachment : status->attachmentStatus) {
+                    if (get(ResourceGraph::TraitsTag{}, resourceGraph, attachment.vertID).hasSideEffects()) {
+                        continue;
+                    }
+                    if (firstMeet.find(attachment.vertID) == firstMeet.end()) {
+                        firstMeet.emplace(attachment.vertID);
+
+                        if (batchedBarriers.find(i) == batchedBarriers.end()) {
+                            batchedBarriers.emplace(i, BarrierNode{});
+                        }
+
+                        auto &blockFrontBarrier = batchedBarriers.at(i).blockBarrier.frontBarriers;
+                        auto resIter = std::find_if(blockFrontBarrier.begin(), blockFrontBarrier.end(), [&attachment](const Barrier &barrier) { return barrier.resourceID == attachment.vertID; });
+                        if (resIter == blockFrontBarrier.end()) {
+                            Barrier firstMeetBarrier{
+                                attachment.vertID,
+                                gfx::BarrierType::FULL,
+                                nullptr,
+                                {
+                                    static_cast<uint32_t>(i),
+                                    gfx::ShaderStageFlagBit::NONE,
+                                    gfx::MemoryAccessBit::NONE,
+                                    gfx::PassType::RASTER,
+                                    gfx::AccessFlagBit::NONE,
+                                    gfx::TextureUsageBit::NONE,
+                                    TextureRange{},
+                                },
+                                attachment,
+                            };
+                            blockFrontBarrier.emplace_back(firstMeetBarrier);
+                        }
+                    }
+                }
+                status = status->nextSubpass;
+            }
+        }
+    }
+
     ResourceNames namesSet;
     {
+        // barrier between passes
         BarrierVisitor visitor(resourceGraph, batchedBarriers, externalResMap, namesSet, rag.accessRecord, rag.resourceLifeRecord);
         auto colors = rag.colors(scratch);
         boost::queue<AccessVertex> q;
