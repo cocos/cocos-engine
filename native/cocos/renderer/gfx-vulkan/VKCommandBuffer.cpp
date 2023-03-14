@@ -773,19 +773,20 @@ void CCVKCommandBuffer::pipelineBarrier(const GeneralBarrier *barrier, const Buf
         // split end detect
         if (!splitBufferBarriers.empty() || !splitImageBarriers.empty()) {
             {
-                ccstd::vector<VkImageMemoryBarrier> vkImageBarriers;
-                ccstd::vector<VkBufferMemoryBarrier> vkBufferBarriers;
-                for (const auto &imageBarrier : splitImageBarriers) {
-                    vkImageBarriers.emplace_back(imageBarrier.second);
+                ccstd::vector<VkImageMemoryBarrier> vkImageBarriers(splitImageBarriers.size());
+                ccstd::vector<VkBufferMemoryBarrier> vkBufferBarriers(splitBufferBarriers.size());
+                for (size_t idx = 0; idx < splitImageBarriers.size(); ++idx) {
+                    vkImageBarriers[idx] = splitImageBarriers[idx].second;
                 }
-                for (const auto &bufferBarrier : splitBufferBarriers) {
-                    vkBufferBarriers.emplace_back(bufferBarrier.second);
+                for (size_t idx = 0; idx < splitBufferBarriers.size(); ++idx) {
+                    vkBufferBarriers[idx] = splitBufferBarriers[idx].second;
                 }
 
                 vkCmdWaitEvents(_gpuCommandBuffer->vkCommandBuffer, scheduledEvents.size(), scheduledEvents.data(), splitSrcStageMask, splitDstStageMask, 0, nullptr, vkBufferBarriers.size(),
                                 vkBufferBarriers.data(), vkImageBarriers.size(), vkImageBarriers.data());
             }
 
+            // NOLINT(range-based-for)
             for (size_t i = 0; i < splitImageBarriers.size(); ++i) {
                 auto index = splitImageBarriers[i].first;
                 VkEvent event = _barrierEvents.at(textures[index]);
@@ -795,7 +796,7 @@ void CCVKCommandBuffer::pipelineBarrier(const GeneralBarrier *barrier, const Buf
                 _barrierEvents.erase(textures[index]);
                 _availableEvents.push(event);
             }
-
+            // NOLINT(range-based-for)
             for (size_t i = 0; i < splitBufferBarriers.size(); ++i) {
                 auto index = splitBufferBarriers[i].first;
                 VkEvent event = _barrierEvents.at(buffers[index]);
