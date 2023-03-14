@@ -164,6 +164,7 @@ export enum ResourceFlags {
     COLOR_ATTACHMENT = 0x10,
     DEPTH_STENCIL_ATTACHMENT = 0x20,
     INPUT_ATTACHMENT = 0x40,
+    SHADING_RATE = 0x80,
 }
 
 export enum TaskType {
@@ -223,6 +224,7 @@ export function getLightingModeName (e: LightingMode): string {
 export enum AttachmentType {
     RENDER_TARGET,
     DEPTH_STENCIL,
+    SHADING_RATE,
 }
 
 export function getAttachmentTypeName (e: AttachmentType): string {
@@ -231,6 +233,8 @@ export function getAttachmentTypeName (e: AttachmentType): string {
         return 'RENDER_TARGET';
     case AttachmentType.DEPTH_STENCIL:
         return 'DEPTH_STENCIL';
+    case AttachmentType.SHADING_RATE:
+        return 'SHADING_RATE';
     default:
         return '';
     }

@@ -120,7 +120,7 @@ bool CCMTLBuffer::createMTLBuffer(uint32_t size, MemoryUsage usage) {
     }
 
     auto allocatedSize = size;
-    if(_memUsage == (gfx::MemoryUsage::HOST | gfx::MemoryUsage::DEVICE)) {
+    if(hasFlag(_memUsage, MemoryUsageBit::HOST)) {
         constexpr uint8_t backBufferCount = MAX_FRAMES_IN_FLIGHT;
         auto alignedSize = utils::alignTo(size, CCMTLDevice::getInstance()->getCapabilities().uboOffsetAlignment);
         allocatedSize = alignedSize * backBufferCount;
@@ -259,7 +259,7 @@ void CCMTLBuffer::updateMTLBuffer(const void *buffer, uint32_t /*offset*/, uint3
     if(mtlBuffer.storageMode != MTLStorageModePrivate) {
         auto& lastUpdateCycle = _gpuBuffer->lastUpdateCycle;
         lastUpdateCycle = ccDevice->currentFrameIndex();
-        bool backBuffer = _memUsage == (gfx::MemoryUsage::HOST | gfx::MemoryUsage::DEVICE);
+        bool backBuffer = hasFlag(_memUsage, MemoryUsageBit::HOST);
         uint32_t offset = backBuffer ? lastUpdateCycle * _gpuBuffer->instanceSize : 0;
         uint8_t* mappedData = static_cast<uint8_t*>(mtlBuffer.contents) + offset;
         memcpy(mappedData, buffer, size);
@@ -269,8 +269,8 @@ void CCMTLBuffer::updateMTLBuffer(const void *buffer, uint32_t /*offset*/, uint3
         }
 #endif
     } else {
-        auto* transferCmdBuffer = ccDevice->transferCommandBuffer();
-        transferCmdBuffer->updateBuffer(this, buffer, size);
+        auto* cmdBuffer = ccDevice->getCommandBuffer();
+        cmdBuffer->updateBuffer(this, buffer, size);
     }
 }
 
@@ -292,7 +292,7 @@ void CCMTLBuffer::encodeBuffer(CCMTLCommandEncoder &encoder, uint32_t offset, ui
 }
 
 uint32_t CCMTLBuffer::currentOffset() const {
-    bool backBuffer = _memUsage == (gfx::MemoryUsage::HOST | gfx::MemoryUsage::DEVICE);
+    bool backBuffer = hasFlag(_memUsage, MemoryUsageBit::HOST);
     uint32_t offset = backBuffer ? _gpuBuffer->lastUpdateCycle * _gpuBuffer->instanceSize : 0;
     if(_isBufferView) {
         offset += _offset; // buffer view offset
