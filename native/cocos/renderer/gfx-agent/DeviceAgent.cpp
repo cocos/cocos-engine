@@ -442,5 +442,14 @@ void DeviceAgent::presentWait() {
     _frameBoundarySemaphore.wait();
 }
 
+void DeviceAgent::frameSync() {
+    ENQUEUE_MESSAGE_1(
+        _mainMessageQueue, FrameSync,
+        actor, _actor,
+        {
+            actor->frameSync();
+        });
+}
+
 } // namespace gfx
 } // namespace cc

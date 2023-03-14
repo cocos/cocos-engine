@@ -21,6 +21,9 @@
 #ifndef CC_SURFACES_TRANSFER_LOCAL_POS
   #define CC_SURFACES_TRANSFER_LOCAL_POS 0
 #endif
+#ifndef CC_SURFACES_TRANSFER_CLIP_POS
+  #define CC_SURFACES_TRANSFER_CLIP_POS 0
+#endif
 
 // force CC_SURFACES_USE_LIGHT_MAP to 0 is valid, force to 1 is invalid
 #ifndef CC_SURFACES_USE_LIGHT_MAP
@@ -64,6 +67,9 @@
 #endif
 #ifndef CC_SURFACES_LIGHTING_TRT
   #define CC_SURFACES_LIGHTING_TRT 0
+#endif
+#ifndef CC_SURFACES_LIGHTING_TT
+  #define CC_SURFACES_LIGHTING_TT 0
 #endif
 
 // render-to-color-map can disable functionality to avoid error data map

@@ -391,6 +391,18 @@ export class Tween<T> {
 
     /**
      * @en
+     * Add a destroySelf action, only for node target.
+     * @zh
+     * 添加一个移除并销毁自己 action，只适用于 target 是节点类型的。
+     */
+    destroySelf (): Tween<T> {
+        const action = removeSelf(true);
+        this._actions.push(action);
+        return this;
+    }
+
+    /**
+     * @en
      * Stop all tweens
      * @zh
      * 停止所有缓动

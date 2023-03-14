@@ -119,6 +119,7 @@
   
 
 #define cc_Mesh__hash_get(self_) self_->getHash()
+#define cc_Mesh__hash_set(self_, val_) self_->setHash(val_)
   
 
 #define cc_Mesh_hash_get(self_) self_->getHash()
@@ -16069,6 +16070,43 @@ static bool js_cc_IShaderSource_frag_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_IShaderSource_frag_get) 
 
+static bool js_cc_IShaderSource_compute_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::IShaderSource *arg1 = (cc::IShaderSource *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IShaderSource>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->compute, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_IShaderSource_compute_set) 
+
+static bool js_cc_IShaderSource_compute_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::IShaderSource *arg1 = (cc::IShaderSource *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IShaderSource>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->compute, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->compute, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_IShaderSource_compute_get) 
+
 static bool js_new_cc_IShaderSource(se::State& s) // NOLINT(readability-identifier-naming)
 {
     CC_UNUSED bool ok = true;
@@ -16116,6 +16154,12 @@ bool sevalue_to_native(const se::Value &from, cc::IShaderSource * to, se::Object
     }
     
     
+    json->getProperty("compute", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->compute), ctx);
+    }
+    
+    
     return ok;
 }
 
@@ -16126,6 +16170,7 @@ bool js_register_cc_IShaderSource(se::Object* obj) {
     cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("vert", _SE(js_cc_IShaderSource_vert_get), _SE(js_cc_IShaderSource_vert_set)); 
     cls->defineProperty("frag", _SE(js_cc_IShaderSource_frag_get), _SE(js_cc_IShaderSource_frag_set)); 
+    cls->defineProperty("compute", _SE(js_cc_IShaderSource_compute_get), _SE(js_cc_IShaderSource_compute_set)); 
     
     
     
@@ -25154,31 +25199,6 @@ static bool js_cc_Mesh_setData(se::State& s)
 }
 SE_BIND_FUNC(js_cc_Mesh_setData) 
 
-static bool js_cc_Mesh_setHash(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::Mesh *arg1 = (cc::Mesh *) NULL ;
-    ccstd::hash_t arg2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::Mesh>(s);
-    if (nullptr == arg1) return true;
-    
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
-    
-    (arg1)->setHash(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_Mesh_setHash) 
-
 static bool js_cc_Mesh_initialize(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -25698,6 +25718,27 @@ static bool js_cc_Mesh_morphRendering_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_Mesh_morphRendering_get) 
 
+static bool js_cc_Mesh__hash_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::Mesh *arg1 = (cc::Mesh *) NULL ;
+    ccstd::hash_t arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::Mesh>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    cc_Mesh__hash_set(arg1,SWIG_STD_MOVE(arg2));
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_Mesh__hash_set) 
+
 static bool js_cc_Mesh__hash_get(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -25949,7 +25990,7 @@ bool js_register_cc_Mesh(se::Object* obj) {
     
     cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("morphRendering", _SE(js_cc_Mesh_morphRendering_get), _SE(js_cc_Mesh_morphRendering_set)); 
-    cls->defineProperty("_hash", _SE(js_cc_Mesh__hash_get), nullptr); 
+    cls->defineProperty("_hash", _SE(js_cc_Mesh__hash_get), _SE(js_cc_Mesh__hash_set)); 
     cls->defineProperty("hash", _SE(js_cc_Mesh_hash_get), nullptr); 
     cls->defineProperty("data", _SE(js_cc_Mesh_data_get), nullptr); 
     cls->defineProperty("_data", _SE(js_cc_Mesh__data_get), nullptr); 
@@ -25965,7 +26006,6 @@ bool js_register_cc_Mesh(se::Object* obj) {
     cls->defineFunction("getStruct", _SE(js_cc_Mesh_getStruct)); 
     cls->defineFunction("setStruct", _SE(js_cc_Mesh_setStruct)); 
     cls->defineFunction("setData", _SE(js_cc_Mesh_setData)); 
-    cls->defineFunction("setHash", _SE(js_cc_Mesh_setHash)); 
     cls->defineFunction("initialize", _SE(js_cc_Mesh_initialize)); 
     cls->defineFunction("destroyRenderingMesh", _SE(js_cc_Mesh_destroyRenderingMesh)); 
     cls->defineFunction("assign", _SE(js_cc_Mesh_assign)); 

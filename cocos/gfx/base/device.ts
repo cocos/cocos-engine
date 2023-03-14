@@ -352,6 +352,13 @@ export abstract class Device {
     public getFormatFeatures (format: Format): FormatFeature {
         return this._formatFeatures[format];
     }
+
+    /**
+     * @en Enable automatically barrier deduction GFX inside, no effect on web.
+     * @zh 是否开启自动GFX内部barrier推导，web无影响。
+     * @param format The GFX format to be queried.
+     */
+    public enableAutoBarrier (en: boolean) {}
 }
 
 export class DefaultResource {

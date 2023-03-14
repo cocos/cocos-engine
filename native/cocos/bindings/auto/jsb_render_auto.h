@@ -63,14 +63,24 @@ extern se::Object *__jsb_cc_render_RasterQueueBuilder_proto; // NOLINT
 extern se::Class * __jsb_cc_render_RasterQueueBuilder_class; // NOLINT
 
 
-JSB_REGISTER_OBJECT_TYPE(cc::render::RasterPassBuilder);
-extern se::Object *__jsb_cc_render_RasterPassBuilder_proto; // NOLINT
-extern se::Class * __jsb_cc_render_RasterPassBuilder_class; // NOLINT
+JSB_REGISTER_OBJECT_TYPE(cc::render::RasterSubpassBuilder);
+extern se::Object *__jsb_cc_render_RasterSubpassBuilder_proto; // NOLINT
+extern se::Class * __jsb_cc_render_RasterSubpassBuilder_class; // NOLINT
 
 
 JSB_REGISTER_OBJECT_TYPE(cc::render::ComputeQueueBuilder);
 extern se::Object *__jsb_cc_render_ComputeQueueBuilder_proto; // NOLINT
 extern se::Class * __jsb_cc_render_ComputeQueueBuilder_class; // NOLINT
+
+
+JSB_REGISTER_OBJECT_TYPE(cc::render::ComputeSubpassBuilder);
+extern se::Object *__jsb_cc_render_ComputeSubpassBuilder_proto; // NOLINT
+extern se::Class * __jsb_cc_render_ComputeSubpassBuilder_class; // NOLINT
+
+
+JSB_REGISTER_OBJECT_TYPE(cc::render::RasterPassBuilder);
+extern se::Object *__jsb_cc_render_RasterPassBuilder_proto; // NOLINT
+extern se::Class * __jsb_cc_render_RasterPassBuilder_class; // NOLINT
 
 
 JSB_REGISTER_OBJECT_TYPE(cc::render::ComputePassBuilder);

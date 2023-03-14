@@ -51,7 +51,7 @@ TEST(barrierTest, test10) {
 
     // 1st node
     const auto& node1 = barrierMap.at(1);
-    ExpectEq(node1.blockBarrier.frontBarriers.empty(), true);
+    ExpectEq(node1.blockBarrier.frontBarriers.size() == 4, true);
     ExpectEq(node1.blockBarrier.rearBarriers.size() == 1, true);
 
     ExpectEq(node1.subpassBarriers[0].frontBarriers.empty(), true);
@@ -68,13 +68,13 @@ TEST(barrierTest, test10) {
 
     //// 2nd node
     const auto& node2 = barrierMap.at(2);
-    ExpectEq(node2.blockBarrier.frontBarriers.empty(), true);
+    ExpectEq(node2.blockBarrier.frontBarriers.size() == 1, true);
     ExpectEq(node2.blockBarrier.rearBarriers.size() == 1, true);
 
     const auto& node2RearBarrier0 = node2.blockBarrier.rearBarriers.back();
     ExpectEq(node2RearBarrier0.beginStatus.access == MemoryAccessBit::WRITE_ONLY, true);
     ExpectEq(node2RearBarrier0.beginStatus.visibility == ShaderStageFlagBit::VERTEX, true);
-    ExpectEq(node2RearBarrier0.endStatus.access == MemoryAccessBit::READ_ONLY, true);
+    ExpectEq(node2RearBarrier0.endStatus.accessFlag == AccessFlagBit::PRESENT, true);
     //endstatus: whatever it was, it's COLOR_ATTACHMENT_OPTIMAL
 
     //runTestGraph(renderGraph, rescGraph, layoutGraphData, fgDispatcher);

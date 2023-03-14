@@ -1,4 +1,6 @@
-include(${CMAKE_CURRENT_LIST_DIR}/cmake/predefine.cmake)
+if(NOT USE_XR AND NOT USE_AR_MODULE)
+    include(${CMAKE_CURRENT_LIST_DIR}/cmake/predefine.cmake)
+endif()
 
 ################################# engine source code ##################################
 set(CWD ${CMAKE_CURRENT_LIST_DIR})
@@ -2066,13 +2068,6 @@ if(USE_WEBVIEW)
     )
 endif()
 
-if(USE_XR)
-    cocos_source_files(
-        NO_WERROR    cocos/bindings/auto/jsb_xr_auto.cpp
-                     cocos/bindings/auto/jsb_xr_auto.h
-    )
-endif()
-
 if(USE_XR_REMOTE_PREVIEW)
     cocos_source_files(
             NO_WERROR    cocos/xr/XRRemotePreviewManager.h
@@ -2375,13 +2370,6 @@ if(USE_MIDDLEWARE)
     endif()
 endif()
 
-if(USE_AR_MODULE)
-    cocos_source_files(
-            cocos/bindings/auto/jsb_ar_auto.cpp
-            cocos/bindings/auto/jsb_ar_auto.h
-    )
-endif()
-
 ######## manual
 cocos_source_files(
             cocos/bindings/manual/jsb_classtype.cpp
@@ -2464,13 +2452,6 @@ elseif(WIN32)
 elseif(LINUX)
     cocos_source_files(
         NO_WERROR    cocos/bindings/manual/jsb_platform_linux.cpp
-    )
-endif()
-
-if(USE_AR_MODULE)
-    cocos_source_files(
-                     cocos/bindings/manual/jsb_ar_manual.cpp
-                     cocos/bindings/manual/jsb_ar_manual.h
     )
 endif()
 
@@ -2687,12 +2668,16 @@ endif()
 ##### ar module
 if(USE_AR_MODULE)
     cocos_source_files(
-        cocos/xr/ar/ARModule.h
         cocos/renderer/pipeline/xr/ar/ARStage.cpp
         cocos/renderer/pipeline/xr/ar/ARStage.h
         cocos/renderer/pipeline/xr/ar/ARBackground.cpp
         cocos/renderer/pipeline/xr/ar/ARBackground.h
     )
+endif()
+
+if(USE_XR OR USE_AR_MODULE)
+    list(APPEND COCOS_SOURCE_LIST ${XR_COMMON_SOURCES})
+    list(APPEND CC_EXTERNAL_LIBS ${XR_LIBS})
 endif()
 
 ##### extensions
@@ -3153,8 +3138,25 @@ if(USE_BUILTIN_EXTERNAL)
     foreach(x IN LISTS CC_EXTERNAL_SOURCES)
         list(REMOVE_ITEM EXCLUDE_EXTERANL_LIST ${x})
     endforeach()
+    if(USE_XR OR USE_AR_MODULE)
+        foreach(x IN LISTS XR_COMMON_SOURCES)
+            list(REMOVE_ITEM EXCLUDE_EXTERANL_LIST ${x})
+        endforeach()
+    endif()
     source_group(TREE ${CWD} PREFIX "Source Files" FILES ${EXCLUDE_EXTERANL_LIST})
     source_group(TREE ${EXTERNAL_ROOT} PREFIX "Source Files/external" FILES ${CC_EXTERNAL_SOURCES})
+    if(USE_XR OR USE_AR_MODULE)
+        source_group(TREE ${XR_COMMON_PATH} PREFIX "Source Files/common" FILES ${XR_COMMON_SOURCES})
+    endif()
 else()
-    source_group(TREE ${CWD} PREFIX "Source Files" FILES ${COCOS_SOURCE_LIST})
+    if(USE_XR OR USE_AR_MODULE)
+        set(EXCLUDE_XR_LIST ${COCOS_SOURCE_LIST})
+        foreach(x IN LISTS XR_COMMON_SOURCES)
+            list(REMOVE_ITEM EXCLUDE_XR_LIST ${x})
+        endforeach()
+        source_group(TREE ${CWD} PREFIX "Source Files" FILES ${EXCLUDE_XR_LIST})
+        source_group(TREE ${XR_COMMON_PATH} PREFIX "Source Files/common" FILES ${XR_COMMON_SOURCES})
+    else()
+        source_group(TREE ${CWD} PREFIX "Source Files" FILES ${COCOS_SOURCE_LIST})
+    endif()
 endif()

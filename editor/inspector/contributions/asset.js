@@ -536,6 +536,18 @@ exports.methods = {
             Editor.Message.request('asset-db', 'save-asset-meta', uuid, content);
         });
     },
+    async abort() {
+        const panel = this;
+        panel.$.header.removeAttribute('dirty');
+
+        for (const renderName in panel.contentRenders) {
+            const { contentRender } = panel.contentRenders[renderName];
+
+            for (let i = 0; i < contentRender.__panels__.length; i++) {
+                await contentRender.__panels__[i].callMethod('abort');
+            }
+        }
+    },
     async reset() {
         const panel = this;
         panel.$.header.removeAttribute('dirty');
@@ -647,7 +659,7 @@ exports.beforeClose = async function beforeClose() {
 
     if (result === 0) {
         // abort
-        panel.$.header.removeAttribute('dirty');
+        await panel.abort();
         return true;
     }
 

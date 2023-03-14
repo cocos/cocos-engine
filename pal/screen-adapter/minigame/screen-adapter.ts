@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { ALIPAY, BAIDU, COCOSPLAY, RUNTIME_BASED, VIVO, WECHAT } from 'internal:constants';
+import { ALIPAY, BAIDU, BYTEDANCE, COCOSPLAY, RUNTIME_BASED, VIVO, WECHAT } from 'internal:constants';
 import { minigame } from 'pal/minigame';
 import { ConfigOrientation, IScreenOptions, SafeAreaEdge } from 'pal/screen-adapter';
 import { systemInfo } from 'pal/system-info';
@@ -72,6 +72,10 @@ class ScreenAdapter extends EventTarget {
         const dpr = this.devicePixelRatio;
         let screenWidth = sysInfo.windowWidth;
         let screenHeight = sysInfo.windowHeight;
+        if (BYTEDANCE) {
+            screenWidth = sysInfo.screenWidth;
+            screenHeight = sysInfo.screenHeight;
+        }
         if (ALIPAY && rotateLandscape  && screenWidth < screenHeight) {
             const temp = screenWidth;
             screenWidth = screenHeight;

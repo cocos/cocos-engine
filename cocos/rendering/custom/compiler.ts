@@ -27,8 +27,8 @@ import { VectorGraphColorMap } from './effect';
 import { DefaultVisitor, depthFirstSearch, ReferenceGraphView } from './graph';
 import { LayoutGraphData } from './layout-graph';
 import { Pipeline } from './pipeline';
-import { Blit, ClearView, ComputePass, CopyPass, Dispatch, ManagedBuffer, ManagedResource, ManagedTexture, MovePass,
-    PresentPass, RasterPass, RaytracePass, RenderGraph, RenderGraphVisitor,
+import { Blit, ClearView, ComputePass, ComputeSubpass, CopyPass, Dispatch, ManagedBuffer, ManagedResource, ManagedTexture, MovePass,
+    RasterPass, RasterSubpass, RaytracePass, RenderGraph, RenderGraphVisitor,
     RenderQueue, RenderSwapchain, ResourceGraph, ResourceGraphVisitor, SceneData } from './render-graph';
 import { AccessType, RasterView, ResourceResidency } from './types';
 
@@ -43,8 +43,8 @@ class PassVisitor implements RenderGraphVisitor {
     constructor (context: CompilerContext) {
         this.context = context;
     }
-    protected _isRaster (u: number): boolean {
-        return !!this.context.renderGraph.tryGetRaster(u);
+    protected _isRasterPass (u: number): boolean {
+        return !!this.context.renderGraph.tryGetRasterPass(u);
     }
     protected _isQueue (u: number): boolean {
         return !!this.context.renderGraph.tryGetQueue(u);
@@ -105,7 +105,7 @@ class PassVisitor implements RenderGraphVisitor {
     }
     applyID (id: number, resId: number): void {
         this.resID = resId;
-        if (this._isRaster(id)) {
+        if (this._isRasterPass(id)) {
             this.passID = id;
         } else if (this._isQueue(id)) {
             this.queueID = id;
@@ -113,7 +113,7 @@ class PassVisitor implements RenderGraphVisitor {
             this.sceneID = id;
         }
     }
-    raster (pass: RasterPass) {
+    rasterPass (pass: RasterPass) {
         // const rg = this.context.renderGraph;
         // Since the pass is valid, there is no need to continue traversing.
         // if (rg.getValid(this.passID)) {
@@ -121,10 +121,11 @@ class PassVisitor implements RenderGraphVisitor {
         // }
         this._currPass = pass;
     }
+    rasterSubpass (value: RasterSubpass) {}
+    computeSubpass (value: ComputeSubpass) {}
     compute (value: ComputePass) {}
     copy (value: CopyPass) {}
     move (value: MovePass) {}
-    present (value: PresentPass) {}
     raytrace (value: RaytracePass) {}
     queue (value: RenderQueue) {}
     scene (value: SceneData) {

@@ -94,8 +94,32 @@ vec4 SurfacesFragmentModifyTransmitDiffuseParams()
 #ifndef CC_SURFACES_FRAGMENT_MODIFY_TRT_PARAMS
 vec4 SurfacesFragmentModifyTRTParams()
 {
-    //x: roughness
-    return vec4(0.5, 0.0, 0.0, 0.0);
+    //x: roughness offset
+    //y: lighting rotation offset
+    //w: intensity
+    return vec4(0.2, 0.0, 0.0, 1.0);
+}
+#endif
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_TRT_COLOR
+vec3 SurfacesFragmentModifyTRTColor()
+{
+    return vec3(1.0, 1.0, 1.0);
+}
+#endif
+
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_TT_PARAMS
+vec4 SurfacesFragmentModifyTTParams()
+{
+    //x: scatter coef
+    //w: intensity
+    return vec4(0.0, 0.0, 0.0, 1.0);
+}
+#endif
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_TT_COLOR
+vec3 SurfacesFragmentModifyTTColor(in vec3 baseColor, in vec3 trtColor)
+{
+    // baseColor and trtColor for reference
+    return vec3(1.0, 1.0, 1.0);
 }
 #endif
 

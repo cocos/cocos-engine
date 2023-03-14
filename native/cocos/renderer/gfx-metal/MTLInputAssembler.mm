@@ -43,16 +43,6 @@ void CCMTLInputAssembler::doInit(const InputAssemblerInfo &info) {
     if (!_GPUInputAssembler) {
         return;
     }
-
-    if (info.indexBuffer) {
-        _GPUInputAssembler->mtlIndexBuffer = static_cast<CCMTLBuffer *>(info.indexBuffer)->getMTLBuffer();
-    }
-    if (info.indirectBuffer) {
-        _GPUInputAssembler->mtlIndirectBuffer = static_cast<CCMTLBuffer *>(info.indirectBuffer)->getMTLBuffer();
-    }
-
-    for (const auto &vertexBuffer : info.vertexBuffers)
-        _GPUInputAssembler->mtlVertexBufers.push_back(static_cast<CCMTLBuffer *>(vertexBuffer)->getMTLBuffer());
 }
 
 void CCMTLInputAssembler::doDestroy() {

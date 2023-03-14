@@ -109,11 +109,7 @@ CCProgram gizmo-fs %{
   #include <common/lighting/rect-area-light>
   #include <builtin/uniforms/cc-global>
   #include <common/color/gamma>
-  #if CC_USE_LIGHT_PROBE
-    #include <legacy/output-standard>
-  #else
-    #include <legacy/output>
-  #endif
+  #include <legacy/output>
 
   in vec3 normal_w;
   in vec3 pos_w;
@@ -135,39 +131,20 @@ CCProgram gizmo-fs %{
     vec4 cc_sh_quadratic_a;
   };
 
-  #if CC_USE_LIGHT_PROBE
-    #include <builtin/functionalities/sh>
-  #endif
-  
   vec4 gizmo_fs (float alpha) {
-    #if CC_USE_LIGHT_PROBE
-      vec3 N = normalize(normal_w) * (float(gl_FrontFacing) * 2.0 - 1.0);
-      vec3 diffuse = SHEvaluate(N);
+    vec3 N = normalize(normal_w) * (float(gl_FrontFacing) * 2.0 - 1.0);
+    vec3 V = normalize(cc_cameraPos.xyz - pos_w);
 
-      #if USE_FORWARD_PIPELINE
-        return CCFragOutput(vec4(diffuse, mainColor.a * alpha));
-      #else
-        return vec4(diffuse, mainColor.a * alpha);
-      #endif
+    vec3 points [4];
+    points[0] = (forward * 3.0 + right + up) * 40.0;
+    points[1] = (forward * 3.0 - right + up) * 40.0;
+    points[2] = (forward * 3.0 - right - up) * 40.0;
+    points[3] = (forward * 3.0 + right - up) * 40.0;
+    vec3 diffuse = LinearToSRGB(mainColor.rgb * LTC_Evaluate(N, V, pos_l, mat3(1), points));
+    #if USE_FORWARD_PIPELINE
+      return CCFragOutput(vec4(diffuse, mainColor.a * alpha));
     #else
-      vec3 N = normalize(normal_w) * (float(gl_FrontFacing) * 2.0 - 1.0);
-      vec3 V = normalize(cc_cameraPos.xyz - pos_w);
-
-      // vec3 L = normalize(cross(forward, vec3(0, 1, 0)));
-      // vec3 diffuse = color.rgb * (0.2 + max(0.0, dot(N, L)) * 0.8);
-
-      vec3 points [4];
-      //vec3 up = vec3(0, 1, 0);
-      points[0] = (forward * 3.0 + right + up) * 40.0;
-      points[1] = (forward * 3.0 - right + up) * 40.0;
-      points[2] = (forward * 3.0 - right - up) * 40.0;
-      points[3] = (forward * 3.0 + right - up) * 40.0;
-      vec3 diffuse = LinearToSRGB(mainColor.rgb * LTC_Evaluate(N, V, pos_l, mat3(1), points));
-      #if USE_FORWARD_PIPELINE
-        return CCFragOutput(vec4(diffuse, mainColor.a * alpha));
-      #else
-        return vec4(diffuse, mainColor.a * alpha);
-      #endif
+      return vec4(diffuse, mainColor.a * alpha);
     #endif
   }
 

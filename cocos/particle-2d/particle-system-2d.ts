@@ -193,6 +193,7 @@ export class ParticleSystem2D extends UIRenderer {
         if (this._custom !== value) {
             this._custom = value;
             this._applyFile();
+            this._updateMaterial();
         }
     }
 
@@ -967,7 +968,11 @@ export class ParticleSystem2D extends UIRenderer {
                 const textureData = dict.textureImageData;
 
                 if (textureData && textureData.length > 0) {
-                    let imageAsset = assetManager.assets.get(imgPath) as ImageAsset;
+                    let imgPathName = imgPath;
+                    if (this.file) {
+                        imgPathName += `-${this.file.uuid}`;
+                    }
+                    let imageAsset = assetManager.assets.get(imgPathName) as ImageAsset;
 
                     if (!imageAsset) {
                         const buffer = codec.unzipBase64AsArray(textureData, 1);
@@ -993,7 +998,7 @@ export class ParticleSystem2D extends UIRenderer {
                             this._tiffReader.parseTIFF(buffer, canvasObj);
                         }
                         imageAsset = new ImageAsset(canvasObj);
-                        assetManager.assets.add(imgPath, imageAsset);
+                        assetManager.assets.add(imgPathName, imageAsset);
                     }
 
                     if (!imageAsset) {
@@ -1170,13 +1175,11 @@ export class ParticleSystem2D extends UIRenderer {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _updateMaterial () {
-        if (!this._useFile) {
-            if (this._customMaterial) {
-                this.setMaterial(this._customMaterial, 0);
-                const target = this.getRenderMaterial(0)!.passes[0].blendState.targets[0];
-                this._dstBlendFactor = target.blendDst;
-                this._srcBlendFactor = target.blendSrc;
-            }
+        if (this._customMaterial) {
+            this.setMaterial(this._customMaterial, 0);
+            const target = this.getRenderMaterial(0)!.passes[0].blendState.targets[0];
+            this._dstBlendFactor = target.blendDst;
+            this._srcBlendFactor = target.blendSrc;
         }
         const mat = this.getMaterialInstance(0);
         if (mat) mat.recompileShaders({ USE_LOCAL: this._positionType !== PositionType.FREE });

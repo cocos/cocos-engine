@@ -27,7 +27,6 @@ import { MeshRenderer, ReflectionProbeType } from '../3d/framework/mesh-renderer
 import { ImageAsset, Texture2D } from '../asset/assets';
 import { PixelFormat } from '../asset/assets/asset-enum';
 import { Vec3, geometry, cclegacy } from '../core';
-import { director, Director } from '../game';
 import { Texture } from '../gfx';
 import { Camera, Model } from '../render-scene/scene';
 import { ProbeType, ReflectionProbe } from '../render-scene/scene/reflection-probe';
@@ -55,9 +54,7 @@ export class ReflectionProbeManager {
     private _usePlanarModels = new Map<Model, ReflectionProbe>();
     private _updateForRuntime = true;
     private _dataTexture: Texture2D | null = null;
-    constructor () {
-        director.on(Director.EVENT_BEFORE_UPDATE, this.onUpdateProbes, this);
-    }
+    private _registeredEvent = false;
     /**
      * @en Set and get whether to detect objects leaving or entering the reflection probe's bounding box at runtime.
      * @zh 设置和获取是否在运行时检测物体离开或者进入反射探针的包围盒。
@@ -69,13 +66,19 @@ export class ReflectionProbeManager {
         return this._updateForRuntime;
     }
 
+    public registerEvent () {
+        if (!this._registeredEvent) {
+            cclegacy.director.on(cclegacy.Director.EVENT_BEFORE_UPDATE, this.onUpdateProbes, this);
+            this._registeredEvent = true;
+        }
+    }
     /**
      * @en refresh all reflection probe
      * @zh 刷新所有反射探针
      */
     public onUpdateProbes (forceUpdate = false) {
         if (!this._updateForRuntime || this._probes.length === 0) return;
-        const scene = director.getScene();
+        const scene = cclegacy.director.getScene();
         if (!scene || !scene.renderScene) {
             return;
         }
@@ -95,7 +98,7 @@ export class ReflectionProbeManager {
 
     public filterModelsForPlanarReflection () {
         if (this._probes.length === 0) return;
-        const scene = director.getScene();
+        const scene = cclegacy.director.getScene();
         if (!scene || !scene.renderScene) {
             return;
         }
