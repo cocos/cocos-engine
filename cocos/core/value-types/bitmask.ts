@@ -119,6 +119,10 @@ BitMask.getList = (BitMaskDef) => {
     return bitlist;
 };
 
+BitMask.update = <T> (obj: T): T => {
+    delete obj.__bitmask__;
+};
+
 /**
  * @en Similar to [[BitMask]], but it doesn't add properties to the object.
  * @zh 和 [[BitMask]] 类似功能，但不会往对象添加属性。
