@@ -383,7 +383,9 @@ export function patch_cc_DirectionalLight(ctx: cc_DirectionalLight_Context_Args,
     displayOrder: 21
   }
 })(DirectionalLight.prototype, 'csmTransitionRange',  csmTransitionRangeDescriptor); }, 'property', 'csmTransitionRange');
-  apply(() => { $.visible(false)(DirectionalLight.prototype, 'csmTransitionRange',  csmTransitionRangeDescriptor); }, 'visible', 'csmTransitionRange');
+  apply(() => { $.visible(function (this: DirectionalLight) {
+  return (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.enabled && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap && this._csmLevel > CSMLevel.LEVEL_1 && this._csmAdvancedOptions;
+})(DirectionalLight.prototype, 'csmTransitionRange',  csmTransitionRangeDescriptor); }, 'visible', 'csmTransitionRange');
   apply(() => { $.tooltip('i18n:lights.csmTransitionRange')(DirectionalLight.prototype, 'csmTransitionRange',  csmTransitionRangeDescriptor); }, 'tooltip', 'csmTransitionRange');
   apply(() => { $.executeInEditMode(DirectionalLight); }, 'executeInEditMode', null);
   apply(() => { $.menu('Light/DirectionalLight')(DirectionalLight); }, 'menu', null);
@@ -567,6 +569,69 @@ export function patch_cc_LightProbesData(ctx: cc_LightProbesData_Context_Args, a
   apply(() => { $.serializable(LightProbesData.prototype, '_tetrahedrons',  () => { return []; }); }, 'serializable', '_tetrahedrons');
   apply(() => { $.ccclass('cc.LightProbesData')(LightProbesData); }, 'ccclass', null);
 } // end of patch_cc_LightProbesData
+
+//---- class cc_Line
+interface cc_Line_Context_Args {
+   Line: any;
+   Texture2D: any;
+   Material: any;
+   Vec3: any;
+   CurveRange: any;
+   GradientRange: any;
+   Vec2: any;
+}
+export function patch_cc_Line(ctx: cc_Line_Context_Args, apply = defaultExec) {
+  const { Line, Texture2D, Material, Vec3, CurveRange, GradientRange, Vec2 } = { ...ctx };
+  const textureDescriptor = Object.getOwnPropertyDescriptor(Line.prototype, 'texture');
+  const lineMaterialDescriptor = Object.getOwnPropertyDescriptor(Line.prototype, 'lineMaterial');
+  const sharedMaterialsDescriptor = Object.getOwnPropertyDescriptor(Line.prototype, 'sharedMaterials');
+  const worldSpaceDescriptor = Object.getOwnPropertyDescriptor(Line.prototype, 'worldSpace');
+  const positionsDescriptor = Object.getOwnPropertyDescriptor(Line.prototype, 'positions');
+  const widthDescriptor = Object.getOwnPropertyDescriptor(Line.prototype, 'width');
+  const colorDescriptor = Object.getOwnPropertyDescriptor(Line.prototype, 'color');
+  const tileDescriptor = Object.getOwnPropertyDescriptor(Line.prototype, 'tile');
+  const offsetDescriptor = Object.getOwnPropertyDescriptor(Line.prototype, 'offset');
+  apply(() => { $.type(Texture2D)(Line.prototype, '_texture'); }, 'type', '_texture');
+  apply(() => { $.tooltip('i18n:line.texture')(Line.prototype, 'texture',  textureDescriptor); }, 'tooltip', 'texture');
+  apply(() => { $.displayOrder(0)(Line.prototype, 'texture',  textureDescriptor); }, 'displayOrder', 'texture');
+  apply(() => { $.type(Texture2D)(Line.prototype, 'texture'); }, 'type', 'texture');
+  apply(() => { $.serializable(Line.prototype, '_material',  () => { return null; }); }, 'serializable', '_material');
+  apply(() => { $.displayName('Material')(Line.prototype, 'lineMaterial',  lineMaterialDescriptor); }, 'displayName', 'lineMaterial');
+  apply(() => { $.tooltip('i18n:line.material')(Line.prototype, 'lineMaterial',  lineMaterialDescriptor); }, 'tooltip', 'lineMaterial');
+  apply(() => { $.displayOrder(1)(Line.prototype, 'lineMaterial',  lineMaterialDescriptor); }, 'displayOrder', 'lineMaterial');
+  apply(() => { $.type(Material)(Line.prototype, 'lineMaterial'); }, 'type', 'lineMaterial');
+  apply(() => { $.serializable(Line.prototype, 'sharedMaterials',  sharedMaterialsDescriptor); }, 'serializable', 'sharedMaterials');
+  apply(() => { $.visible(false)(Line.prototype, 'sharedMaterials',  sharedMaterialsDescriptor); }, 'visible', 'sharedMaterials');
+  apply(() => { $.override(Line.prototype, 'sharedMaterials',  sharedMaterialsDescriptor); }, 'override', 'sharedMaterials');
+  apply(() => { $.serializable(Line.prototype, '_worldSpace',  () => { return false; }); }, 'serializable', '_worldSpace');
+  apply(() => { $.tooltip('i18n:line.worldSpace')(Line.prototype, 'worldSpace',  worldSpaceDescriptor); }, 'tooltip', 'worldSpace');
+  apply(() => { $.displayOrder(1)(Line.prototype, 'worldSpace',  worldSpaceDescriptor); }, 'displayOrder', 'worldSpace');
+  apply(() => { $.type([Vec3])(Line.prototype, '_positions'); }, 'type', '_positions');
+  apply(() => { $.tooltip('i18n:line.positions')(Line.prototype, 'positions',  positionsDescriptor); }, 'tooltip', 'positions');
+  apply(() => { $.displayOrder(2)(Line.prototype, 'positions',  positionsDescriptor); }, 'displayOrder', 'positions');
+  apply(() => { $.type([Vec3])(Line.prototype, 'positions'); }, 'type', 'positions');
+  apply(() => { $.tooltip('i18n:line.width')(Line.prototype, 'width',  widthDescriptor); }, 'tooltip', 'width');
+  apply(() => { $.displayOrder(3)(Line.prototype, 'width',  widthDescriptor); }, 'displayOrder', 'width');
+  apply(() => { $.range([0, 1])(Line.prototype, 'width',  widthDescriptor); }, 'range', 'width');
+  apply(() => { $.type(CurveRange)(Line.prototype, 'width'); }, 'type', 'width');
+  apply(() => { $.serializable(Line.prototype, '_width',  () => { return new CurveRange(); }); }, 'serializable', '_width');
+  apply(() => { $.tooltip('i18n:line.color')(Line.prototype, 'color',  colorDescriptor); }, 'tooltip', 'color');
+  apply(() => { $.displayOrder(6)(Line.prototype, 'color',  colorDescriptor); }, 'displayOrder', 'color');
+  apply(() => { $.type(GradientRange)(Line.prototype, 'color'); }, 'type', 'color');
+  apply(() => { $.serializable(Line.prototype, '_color',  () => { return new GradientRange(); }); }, 'serializable', '_color');
+  apply(() => { $.serializable(Line.prototype, '_tile',  () => { return new Vec2(1, 1); }); }, 'serializable', '_tile');
+  apply(() => { $.tooltip('i18n:line.tile')(Line.prototype, 'tile',  tileDescriptor); }, 'tooltip', 'tile');
+  apply(() => { $.displayOrder(4)(Line.prototype, 'tile',  tileDescriptor); }, 'displayOrder', 'tile');
+  apply(() => { $.type(Vec2)(Line.prototype, 'tile'); }, 'type', 'tile');
+  apply(() => { $.serializable(Line.prototype, '_offset',  () => { return new Vec2(0, 0); }); }, 'serializable', '_offset');
+  apply(() => { $.tooltip('i18n:line.offset')(Line.prototype, 'offset',  offsetDescriptor); }, 'tooltip', 'offset');
+  apply(() => { $.displayOrder(5)(Line.prototype, 'offset',  offsetDescriptor); }, 'displayOrder', 'offset');
+  apply(() => { $.type(Vec2)(Line.prototype, 'offset'); }, 'type', 'offset');
+  apply(() => { $.executeInEditMode(Line); }, 'executeInEditMode', null);
+  apply(() => { $.menu('Effects/Line')(Line); }, 'menu', null);
+  apply(() => { $.help('i18n:cc.Line')(Line); }, 'help', null);
+  apply(() => { $.ccclass('cc.Line')(Line); }, 'ccclass', null);
+} // end of patch_cc_Line
 
 //---- class cc_Material
 interface cc_Material_Context_Args {
