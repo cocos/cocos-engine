@@ -1399,7 +1399,7 @@ const Elements = {
                             type: 'add-component',
                         },
                     ],
-                    events: {
+                    listeners: {
                         async confirm(detail/* info */) {
                             Editor.Message.send('scene', 'snapshot');
 
