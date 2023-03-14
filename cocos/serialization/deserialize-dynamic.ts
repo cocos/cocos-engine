@@ -351,26 +351,25 @@ class DeserializerPool extends js.Pool<_Deserializer> {
             deserializer.clear();
         }, 1);
     }
-
-    // TODO: don't know how to fix this typing
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error We only use this signature.
-    public get (
-        details: Details,
-        classFinder: ClassFinder,
-        reportMissingClass: ReportMissingClass,
-        customEnv: unknown,
-        ignoreEditorOnly: boolean | undefined,
-    ) {
-        const cache = this._get();
-        if (cache) {
-            cache.reset(details, classFinder, reportMissingClass, customEnv, ignoreEditorOnly);
-            return cache;
-        } else {
-            return new _Deserializer(details, classFinder, reportMissingClass, customEnv, ignoreEditorOnly);
-        }
-    }
 }
+
+// HACK: we've changed the method signature
+(DeserializerPool.prototype as any).get = function (
+    this: DeserializerPool,
+    details: Details,
+    classFinder: ClassFinder,
+    reportMissingClass: ReportMissingClass,
+    customEnv: unknown,
+    ignoreEditorOnly: boolean | undefined,
+) {
+    const cache = this._get();
+    if (cache) {
+        cache.reset(details, classFinder, reportMissingClass, customEnv, ignoreEditorOnly);
+        return cache;
+    } else {
+        return new _Deserializer(details, classFinder, reportMissingClass, customEnv, ignoreEditorOnly);
+    }
+};
 
 class _Deserializer {
     public static pool: DeserializerPool = new DeserializerPool();
