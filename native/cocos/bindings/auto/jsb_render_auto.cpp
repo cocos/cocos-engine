@@ -988,6 +988,37 @@ static bool js_cc_render_Setter_setFloat(se::State& s)
 }
 SE_BIND_FUNC(js_cc_render_Setter_setFloat) 
 
+static bool js_cc_render_Setter_setArrayBuffer(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::render::Setter *arg1 = (cc::render::Setter *) NULL ;
+    ccstd::string *arg2 = 0 ;
+    ArrayBuffer *arg3 = (ArrayBuffer *) NULL ;
+    ccstd::string temp2 ;
+    
+    if(argc != 2) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::render::Setter>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg2 = &temp2;
+    
+    
+    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    (arg1)->setArrayBuffer((ccstd::string const &)*arg2,(ArrayBuffer const *)arg3);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_render_Setter_setArrayBuffer) 
+
 static bool js_cc_render_Setter_setBuffer(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -1160,6 +1191,7 @@ bool js_register_cc_render_Setter(se::Object* obj) {
     cls->defineFunction("setVec4", _SE(js_cc_render_Setter_setVec4)); 
     cls->defineFunction("setVec2", _SE(js_cc_render_Setter_setVec2)); 
     cls->defineFunction("setFloat", _SE(js_cc_render_Setter_setFloat)); 
+    cls->defineFunction("setArrayBuffer", _SE(js_cc_render_Setter_setArrayBuffer)); 
     cls->defineFunction("setBuffer", _SE(js_cc_render_Setter_setBuffer)); 
     cls->defineFunction("setTexture", _SE(js_cc_render_Setter_setTexture)); 
     cls->defineFunction("setReadWriteBuffer", _SE(js_cc_render_Setter_setReadWriteBuffer)); 

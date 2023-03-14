@@ -29,6 +29,7 @@
  */
 // clang-format off
 #pragma once
+#include "cocos/core/ArrayBuffer.h"
 #include "cocos/core/assets/EffectAsset.h"
 #include "cocos/renderer/core/PassUtils.h"
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
@@ -130,6 +131,7 @@ public:
     virtual void setVec4(const ccstd::string &name, const Vec4 &vec) = 0;
     virtual void setVec2(const ccstd::string &name, const Vec2 &vec) = 0;
     virtual void setFloat(const ccstd::string &name, float v) = 0;
+    virtual void setArrayBuffer(const ccstd::string &name, const ArrayBuffer *arrayBuffer) = 0;
     virtual void setBuffer(const ccstd::string &name, gfx::Buffer *buffer) = 0;
     virtual void setTexture(const ccstd::string &name, gfx::Texture *texture) = 0;
     virtual void setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) = 0;
