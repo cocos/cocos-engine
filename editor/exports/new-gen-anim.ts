@@ -39,3 +39,7 @@ export {
     visitAnimationClipsInController,
     visitAnimationGraphEditorExtras,
 } from '../src/marionette/visit';
+
+export {
+    getVariableValueAttributes,
+} from '../src/marionette/get-variable-value-attributes';
