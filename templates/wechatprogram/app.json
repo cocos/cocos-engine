@@ -7,7 +7,8 @@
     "navigationBarBackgroundColor": "#fff",
     "navigationBarTitleText": "CocosCreator",
     "navigationBarTextStyle":"black",
-    "navigationStyle": "custom"
+    "navigationStyle": "custom",
+    "pageOrientation": "auto"
   },
   "style": "v2",
   "sitemapLocation": "sitemap.json"
