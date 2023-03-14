@@ -786,8 +786,7 @@ void CCVKCommandBuffer::pipelineBarrier(const GeneralBarrier *barrier, const Buf
                                 vkBufferBarriers.data(), vkImageBarriers.size(), vkImageBarriers.data());
             }
 
-            // NOLINT(range-based-for)
-            for (size_t i = 0; i < splitImageBarriers.size(); ++i) {
+            for (size_t i = 0; i < splitImageBarriers.size(); ++i) { // NOLINT (range-based-for)
                 auto index = splitImageBarriers[i].first;
                 VkEvent event = _barrierEvents.at(textures[index]);
                 const auto *ccBarrier = static_cast<const CCVKTextureBarrier *const>(textureBarriers[index]);
@@ -796,8 +795,8 @@ void CCVKCommandBuffer::pipelineBarrier(const GeneralBarrier *barrier, const Buf
                 _barrierEvents.erase(textures[index]);
                 _availableEvents.push(event);
             }
-            // NOLINT(range-based-for)
-            for (size_t i = 0; i < splitBufferBarriers.size(); ++i) {
+            
+            for (size_t i = 0; i < splitBufferBarriers.size(); ++i) { // NOLINT (range-based-for)
                 auto index = splitBufferBarriers[i].first;
                 VkEvent event = _barrierEvents.at(buffers[index]);
                 const auto *ccBarrier = static_cast<const CCVKBufferBarrier *const>(bufferBarriers[index]);
