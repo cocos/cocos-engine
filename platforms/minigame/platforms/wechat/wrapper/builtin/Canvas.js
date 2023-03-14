@@ -32,13 +32,23 @@ export default function Canvas () {
   };
 
   canvas.addEventListener = function (type, listener, options = {}) {
-    //TODO(xwx):refine for wechat program
-    GameGlobal.document.addEventListener(type, listener, options);
+    if (typeof getApp === 'function') {
+      // for wechat miniprogram
+      GameGlobal.document.addEventListener(type, listener, options);
+    } else {
+      // for wechat minigame
+      document.addEventListener(type, listener, options);
+    }
   };
 
   canvas.removeEventListener = function (type, listener) {
-    //TODO(xwx): refine for wechat program
-    GameGlobal.document.removeEventListener(type, listener);
+    if (typeof getApp === 'function') {
+      // for wechat miniprogram
+      GameGlobal.document.removeEventListener(type, listener);
+    } else {
+      // for wechat minigame
+      document.removeEventListener(type, listener);
+    }
   };
 
   canvas.dispatchEvent = function (event = {}) {
