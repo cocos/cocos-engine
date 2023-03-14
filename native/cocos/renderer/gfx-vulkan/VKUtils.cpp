@@ -238,6 +238,7 @@ VkImageUsageFlagBits mapVkImageUsageFlagBits(TextureUsage usage) {
     if (hasFlag(usage, TextureUsage::COLOR_ATTACHMENT)) flags |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
     if (hasFlag(usage, TextureUsage::DEPTH_STENCIL_ATTACHMENT)) flags |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
     if (hasFlag(usage, TextureUsage::INPUT_ATTACHMENT)) flags |= VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
+    if (hasFlag(usage, TextureUsage::SHADING_RATE)) flags |= VK_IMAGE_USAGE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR;
     return static_cast<VkImageUsageFlagBits>(flags);
 }
 

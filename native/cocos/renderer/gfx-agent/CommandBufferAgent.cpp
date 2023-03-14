@@ -450,7 +450,7 @@ void CommandBufferAgent::pipelineBarrier(const GeneralBarrier *barrier, const Bu
         actor, getActor(),
         barrier, barrier,
         bufferBarriers, actorBufferBarriers,
-        buffers, buffers,
+        buffers, actorBuffers,
         bufferBarrierCount, bufferBarrierCount,
         textureBarriers, actorTextureBarriers,
         textures, actorTextures,

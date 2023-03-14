@@ -927,7 +927,7 @@ void buildBarriers(FrameGraphDispatcher &fgDispatcher) {
                 gfx::BufferBarrierInfo info;
                 info.prevAccesses = passBarrier.beginStatus.accessFlag;
                 info.nextAccesses = passBarrier.endStatus.accessFlag;
-                const auto &range = ccstd::get<BufferRange>(passBarrier.beginStatus.range);
+                const auto &range = ccstd::get<BufferRange>(passBarrier.endStatus.range);
                 info.offset = range.offset;
                 info.size = range.size;
                 info.type = passBarrier.type;
@@ -1540,6 +1540,10 @@ auto getResourceStatus(PassType passType, const PmrString &name, gfx::MemoryAcce
         } else {
             bufferUsage = gfx::BufferUsage::NONE;
         }
+        if (passType == PassType::COMPUTE) {
+            vis |= gfx::ShaderStageFlagBit::COMPUTE;
+        }
+
         // those buffers not found in descriptorlayout but appear here,
         // can and only can be VERTEX/INDEX/INDIRECT BUFFER,
         // only copy pass is allowed.
@@ -1551,14 +1555,14 @@ auto getResourceStatus(PassType passType, const PmrString &name, gfx::MemoryAcce
     } else {
         // can't find this resource in layoutdata, not in descriptor so either input or output attachment.
         gfx::TextureUsage texUsage = gfx::TextureUsage::NONE;
-        bool isAttachment = visibility == gfx::ShaderStageFlags::NONE;
+        bool isAttachment = passType != PassType::COMPUTE && visibility == gfx::ShaderStageFlags::NONE;
         if (isAttachment) {
             vis = gfx::ShaderStageFlags::FRAGMENT;
             bool outColorFlag = (desc.flags & ResourceFlags::COLOR_ATTACHMENT) != ResourceFlags::NONE;
             bool inputFlag = (desc.flags & ResourceFlags::INPUT_ATTACHMENT) != ResourceFlags::NONE;
             bool depthStencilFlag = (desc.flags & ResourceFlags::DEPTH_STENCIL_ATTACHMENT) != ResourceFlags::NONE;
 
-            CC_EXPECTS(outColorFlag ^ depthStencilFlag);
+//            CC_EXPECTS(outColorFlag ^ depthStencilFlag);
 
             inputFlag &= gfx::hasFlag(memAccess, gfx::MemoryAccess::READ_ONLY);
 
@@ -1615,7 +1619,7 @@ void addAccessStatus(RAG &rag, const ResourceGraph &rg, ResourceAccessNode &node
     const auto &resourceDesc = get(ResourceGraph::DescTag{}, rg, rescID);
     Range range;
     if (resourceDesc.dimension == ResourceDimension::BUFFER) {
-        range = BufferRange{0, resourceDesc.depthOrArraySize};
+        range = BufferRange{0, resourceDesc.width};
     } else {
         range = TextureRange{0, 1, 0, resourceDesc.mipLevels};
     }

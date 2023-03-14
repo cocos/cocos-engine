@@ -322,8 +322,8 @@ bool CCVKGPUContext::initialize() {
     if (minorVersion >= 1 || checkExtension(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME)) {
         physicalDeviceFeatures2.pNext = &physicalDeviceVulkan11Features;
         physicalDeviceVulkan11Features.pNext = &physicalDeviceVulkan12Features;
+        physicalDeviceVulkan12Features.pNext = &physicalDeviceFragmentShadingRateFeatures;
         physicalDeviceProperties2.pNext = &physicalDeviceDepthStencilResolveProperties;
-        physicalDeviceDepthStencilResolveProperties.pNext = &physicalDeviceFragmentShadingRateFeatures;
         if (minorVersion >= 1) {
             vkGetPhysicalDeviceProperties2(physicalDevice, &physicalDeviceProperties2);
             vkGetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
