@@ -24,15 +24,13 @@
  */
 
 import { ccclass, displayOrder, serializable, tooltip, type, range } from '../../core/data/decorators';
-import { ParticleModule, ModuleExecStage, moduleName, execStages, execOrder } from '../particle-module';
+import { ParticleModule, ModuleExecStage, moduleName, execStages, execOrder, registerParticleModule } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
 import { ParticleEmitterContext, ParticleEmitterParams } from '../particle-update-context';
 import { CurveRange } from '../curve-range';
 
 @ccclass('cc.SpawnOverTimeModule')
-@moduleName('SpawnOverTime')
-@execStages(ModuleExecStage.EMITTER_UPDATE | ModuleExecStage.EVENT_HANDLER)
-@execOrder(0)
+@registerParticleModule('SpawnOverTime', ModuleExecStage.EMITTER_UPDATE | ModuleExecStage.EVENT_HANDLER, 0)
 export class SpawnOverTimeModule extends ParticleModule {
     /**
      * @zh 每秒发射的粒子数。

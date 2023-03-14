@@ -26,7 +26,7 @@
 import { approx, BitMask, CCFloat, Enum, EPSILON, Mat4, pseudoRandom, Quat, Vec3, warn } from '../../core';
 import { ccclass, range, serializable, type, visible } from '../../core/data/decorators';
 import { Space } from '../enum';
-import { ParticleModule, ModuleExecStage, moduleName, execStages, execOrder } from '../particle-module';
+import { ParticleModule, ModuleExecStage, moduleName, execStages, execOrder, registerParticleModule } from '../particle-module';
 import { ParticleSOAData, RecordReason } from '../particle-soa-data';
 import { ParticleEmitter } from '../particle-emitter';
 import { particleSystemManager } from '../particle-system-manager';
@@ -41,9 +41,7 @@ const position = new Vec3();
 const velocity = new Vec3();
 
 @ccclass('cc.LocationEventGeneratorModule')
-@moduleName('LocationEventGenerator')
-@execStages(ModuleExecStage.UPDATE)
-@execOrder(0)
+@registerParticleModule('LocationEventGenerator', ModuleExecStage.UPDATE, 6)
 export class LocationEventGeneratorModule extends ParticleModule {
     @type(CCFloat)
     @range([0, 1])

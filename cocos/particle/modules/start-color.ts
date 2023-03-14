@@ -24,7 +24,7 @@
  */
 
 import { ccclass, displayOrder, formerlySerializedAs, radian, range, serializable, tooltip, type, visible } from '../../core/data/decorators';
-import { ParticleModule, ModuleExecStage } from '../particle-module';
+import { ParticleModule, ModuleExecStage, registerParticleModule } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
 import { ParticleEmitterContext, ParticleEmitterParams, ParticleUpdateContext } from '../particle-update-context';
 import { GradientRange } from '../gradient-range';
@@ -36,6 +36,7 @@ const tempColor2 = new Color();
 const tempColor3 = new Color();
 
 @ccclass('cc.StartColorModule')
+@registerParticleModule('StartColor', ModuleExecStage.SPAWN, 1)
 export class StartColorModule extends ParticleModule {
     /**
       * @zh 粒子初始颜色。
@@ -45,18 +46,6 @@ export class StartColorModule extends ParticleModule {
     @displayOrder(8)
     @tooltip('i18n:particle_system.startColor')
     public startColor = new GradientRange();
-
-    public get name (): string {
-        return 'StartColorModule';
-    }
-
-    public get execStage (): ModuleExecStage {
-        return ModuleExecStage.SPAWN;
-    }
-
-    public get execPriority (): number {
-        return 1;
-    }
 
     public spawn (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleEmitterContext,
         fromIndex: number, toIndex: number, currentTime: number) {

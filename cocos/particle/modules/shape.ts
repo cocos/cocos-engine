@@ -29,7 +29,7 @@ import { Mat4, Quat, Vec2, Vec3, clamp, pingPong, random, randomRange, repeat, t
 
 import { CurveRange } from '../curve-range';
 import { randomSign } from '../particle-general-function';
-import { ParticleModule, ModuleExecStage, moduleName, execStages, execOrder } from '../particle-module';
+import { ParticleModule, ModuleExecStage, moduleName, execStages, execOrder, registerParticleModule } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
 import { ParticleEmitterContext, ParticleEmitterParams, ParticleUpdateContext } from '../particle-update-context';
 import { Enum } from '../../core';
@@ -105,9 +105,7 @@ export enum ArcMode {
 }
 
 @ccclass('cc.ShapeModule')
-@moduleName('Shape')
-@execStages(ModuleExecStage.SPAWN)
-@execOrder(0)
+@registerParticleModule('Shape', ModuleExecStage.SPAWN, 0)
 export class ShapeModule extends ParticleModule {
     /**
      * @zh 粒子发射器位置。

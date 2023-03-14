@@ -24,7 +24,7 @@
  */
 
 import { ccclass, displayOrder, formerlySerializedAs, radian, range, serializable, tooltip, type, visible } from '../../core/data/decorators';
-import { ParticleModule, ModuleExecStage } from '../particle-module';
+import { ParticleModule, ModuleExecStage, registerParticleModule } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
 import { ParticleEmitterContext, ParticleEmitterParams, ParticleUpdateContext } from '../particle-update-context';
 import { CurveRange } from '../curve-range';
@@ -34,6 +34,7 @@ import { INT_MAX } from '../../core/math/bits';
 import { Space } from '../enum';
 
 @ccclass('cc.StartLifeTimeModule')
+@registerParticleModule('StartLifeTime', ModuleExecStage.SPAWN, 1)
 export class StartLifeTimeModule extends ParticleModule {
     /**
       * @zh 粒子生命周期。
@@ -44,18 +45,6 @@ export class StartLifeTimeModule extends ParticleModule {
     @displayOrder(7)
     @tooltip('i18n:particle_system.startLifetime')
     public startLifetime = new CurveRange(5);
-
-    public get name (): string {
-        return 'StartLifeTimeModule';
-    }
-
-    public get execStage (): ModuleExecStage {
-        return ModuleExecStage.SPAWN;
-    }
-
-    public get execPriority (): number {
-        return 1;
-    }
 
     public spawn (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleEmitterContext,
         fromIndex: number, toIndex: number, currentTime: number) {

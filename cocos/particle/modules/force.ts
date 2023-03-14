@@ -29,7 +29,7 @@ import { lerp, pseudoRandom, Quat, Vec3 } from '../../core/math';
 import { Space } from '../enum';
 import { calculateTransform } from '../particle-general-function';
 import { CurveRange } from '../curve-range';
-import { ParticleModule, ModuleExecStage, moduleName, execStages, execOrder } from '../particle-module';
+import { ParticleModule, ModuleExecStage, moduleName, execStages, execOrder, registerParticleModule } from '../particle-module';
 import { assert, Enum } from '../../core';
 import { ParticleEmitterParams, ParticleUpdateContext } from '../particle-update-context';
 import { ParticleSOAData } from '../particle-soa-data';
@@ -40,9 +40,7 @@ const _temp_v3 = new Vec3();
 const rotation = new Quat();
 
 @ccclass('cc.ForceModule')
-@moduleName('Force')
-@execStages(ModuleExecStage.UPDATE)
-@execOrder(4)
+@registerParticleModule('Force', ModuleExecStage.UPDATE, 4)
 export class ForceModule extends ParticleModule {
     /**
      * @zh X 轴方向上的加速度分量。

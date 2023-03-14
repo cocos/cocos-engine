@@ -24,15 +24,13 @@
  */
 
 import { ccclass, displayOrder, serializable, tooltip, type, range } from '../../core/data/decorators';
-import { ParticleModule, ModuleExecStage, moduleName, execStages, execOrder } from '../particle-module';
+import { ParticleModule, ModuleExecStage, moduleName, execStages, execOrder, registerParticleModule } from '../particle-module';
 import { ParticleEmitterContext, ParticleEmitterParams } from '../particle-update-context';
 import { CurveRange } from '../curve-range';
 import { ParticleSOAData } from '../particle-soa-data';
 
 @ccclass('cc.SpawnPerUnitModule')
-@moduleName('SpawnPerUnit')
-@execStages(ModuleExecStage.EMITTER_UPDATE | ModuleExecStage.EVENT_HANDLER)
-@execOrder(1)
+@registerParticleModule('SpawnPerUnit', ModuleExecStage.EMITTER_UPDATE | ModuleExecStage.EVENT_HANDLER, 1)
 export class SpawnPerUnitModule extends ParticleModule {
     /**
       * @zh 每移动单位距离发射的粒子数。

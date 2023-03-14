@@ -28,7 +28,7 @@ import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displa
 import { EDITOR } from 'internal:constants';
 import { approx, clamp01, EPSILON, lerp, Mat3, Mat4, pseudoRandom, Quat, randomRangeInt, Size, Vec2, Vec3, Vec4 } from '../core/math';
 import { INT_MAX } from '../core/math/bits';
-import { ColorOverLifetimeModule } from './modules/color';
+import { ColorModule } from './modules/color';
 import { CurveRange, Mode } from './curve-range';
 import { ForceOverLifetimeModule } from './modules/force';
 import { LimitVelocityOverLifetimeModule } from './modules/limit-velocity';

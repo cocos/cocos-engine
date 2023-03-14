@@ -29,7 +29,7 @@ import { assert, CCBoolean, CCFloat, CCInteger, Enum, warn } from '../../core';
 import { range, rangeStep, slide, visible } from '../../core/data/decorators/editable';
 import { clamp, lerp, pseudoRandom, randomRangeInt, Vec2, Vec3 } from '../../core/math';
 import { CurveRange } from '../curve-range';
-import { ParticleModule, ModuleExecStage, moduleName, execStages, execOrder } from '../particle-module';
+import { ParticleModule, ModuleExecStage, moduleName, execStages, execOrder, registerParticleModule } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
 import { ParticleEmitterParams, ParticleUpdateContext } from '../particle-update-context';
 import { perlin1D, perlin2D, perlin3D, PerlinNoise1DCache, PerlinNoise2DCache, PerlinNoise3DCache } from './perlin-noise';
@@ -63,9 +63,7 @@ enum Quality {
 }
 
 @ccclass('cc.NoiseModule')
-@moduleName('Noise')
-@execStages(ModuleExecStage.UPDATE)
-@execOrder(3)
+@registerParticleModule('Noise', ModuleExecStage.UPDATE, 3)
 export class NoiseModule extends ParticleModule {
     @serializable
     @visible(true)

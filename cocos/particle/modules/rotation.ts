@@ -27,7 +27,7 @@
 import { ccclass, tooltip, displayOrder, range, type, radian, serializable, visible, displayName } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
 import { Mat4, pseudoRandom, Quat, Vec4, Vec3, lerp } from '../../core/math';
-import { ParticleModule, ModuleExecStage, moduleName, execStages, execOrder } from '../particle-module';
+import { ParticleModule, ModuleExecStage, moduleName, execStages, execOrder, registerParticleModule } from '../particle-module';
 import { CurveRange } from '../curve-range';
 import { assert, CCBoolean } from '../../core';
 import { ParticleEmitterParams, ParticleUpdateContext } from '../particle-update-context';
@@ -36,9 +36,7 @@ import { ParticleSOAData } from '../particle-soa-data';
 const ROTATION_OVERTIME_RAND_OFFSET = 125292;
 
 @ccclass('cc.RotationModule')
-@moduleName('Rotation')
-@execStages(ModuleExecStage.UPDATE)
-@execOrder(1)
+@registerParticleModule('Rotation', ModuleExecStage.UPDATE, 1)
 export class RotationModule extends ParticleModule {
     /**
      * @zh 是否三个轴分开设定旋转。

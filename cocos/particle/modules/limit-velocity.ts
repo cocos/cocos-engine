@@ -27,7 +27,7 @@ import { ccclass, tooltip, displayOrder, range, type, serializable, visible } fr
 import { DEBUG } from 'internal:constants';
 import { lerp, pseudoRandom, Vec3, Mat4, Quat } from '../../core/math';
 import { Space, ModuleRandSeed } from '../enum';
-import { ParticleModule, ModuleExecStage, moduleName, execStages, execOrder } from '../particle-module';
+import { ParticleModule, ModuleExecStage, moduleName, execStages, execOrder, registerParticleModule } from '../particle-module';
 import { CurveRange } from '../curve-range';
 import { calculateTransform } from '../particle-general-function';
 import { ParticleEmitterParams, ParticleUpdateContext } from '../particle-update-context';
@@ -41,9 +41,7 @@ const rotation = new Quat();
 const velocity = new Vec3();
 
 @ccclass('cc.LimitVelocity')
-@moduleName('LimitVelocity')
-@execStages(ModuleExecStage.UPDATE)
-@execOrder(6)
+@registerParticleModule('LimitVelocity', ModuleExecStage.UPDATE, 6)
 export class LimitVelocityModule extends ParticleModule {
     /**
      * @zh X 轴方向上的速度下限。
