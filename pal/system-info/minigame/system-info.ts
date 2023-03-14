@@ -192,13 +192,12 @@ class SystemInfo extends EventTarget {
     }
 
     private _registerEvent () {
-        // TODO(xwx): need to implement for wechat mini program
-        // minigame.onHide(() => {
-        //     this.emit('hide');
-        // });
-        // minigame.onShow(() => {
-        //     this.emit('show');
-        // });
+        minigame.onHide(() => {
+            this.emit('hide');
+        });
+        minigame.onShow(() => {
+            this.emit('show');
+        });
     }
 
     private _setFeature (feature: Feature, value: boolean) {

@@ -264,7 +264,6 @@ function start(alpha, antialias, useWebgl2) {
         window.WebGL2RenderingContext = false;
         gl = window.canvas.getContext("webgl", options);
     }
-    //NOTE(xwx):
     canvas = gl.canvas;
     initVertexBuffer();
     initProgressVertexBuffer();
