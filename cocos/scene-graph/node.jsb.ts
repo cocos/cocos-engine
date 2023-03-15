@@ -34,18 +34,17 @@ import { editorExtrasTag, SerializationContext, SerializationOutput, serializeTa
 import { _tempFloatArray, fillMat4WithTempFloatArray } from './utils.jsb';
 import { getClassByName, isChildClassOf } from '../core/utils/js-typed';
 import { syncNodeValues } from "../core/utils/jsb-utils";
-import { property } from '../core/data/class-decorator';
 import { nodePolyfill } from './node-dev';
 import * as js from '../core/utils/js';
 import { patch_cc_Node } from '../native-binding/decorators';
+import type { Node as JsbNode } from './node';
 
 const reserveContentsForAllSyncablePrefabTag = Symbol('ReserveContentsForAllSyncablePrefab');
 
 declare const jsb: any;
 
-export const Node = jsb.Node;
-// @ts-ignore
-export type Node = jsb.Node;
+export const Node: typeof JsbNode = jsb.Node;
+export type Node = JsbNode;
 legacyCC.Node = Node;
 
 const NodeCls: any = Node;

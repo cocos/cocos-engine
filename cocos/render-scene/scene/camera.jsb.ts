@@ -26,7 +26,7 @@ import { RenderWindow } from '../core/render-window';
 import { ClearFlagBit } from '../../gfx';
 import { _tempFloatArray, fillMat4WithTempFloatArray } from '../../scene-graph/utils.jsb';
 import { Mat4, Vec3 } from '../../core';
-
+import type { Camera as JsbCamera } from './camera';
 
 declare const jsb: any;
 
@@ -125,7 +125,8 @@ export interface ICameraInfo {
 
 export const SKYBOX_FLAG = ClearFlagBit.STENCIL << 1;
 
-export const Camera = jsb.Camera;
+export const Camera: typeof JsbCamera = jsb.Camera;
+export type Camera = JsbCamera;
 const cameraProto: any = jsb.Camera.prototype;
 
 Object.defineProperty(Camera, "standardExposureValue", {
