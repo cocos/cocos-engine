@@ -73,6 +73,8 @@
 
         float multiplier = distAtt * angleAtt;
 
+        lightingData.angleAttenuation = angleAtt;
+        lightingData.distAttenuation = distAtt;
         lightingResult.directDiffuse = diffuseLighting * multiplier;
         lightingResult.directSpecular = specularLighting * multiplier * fresnel;
 
