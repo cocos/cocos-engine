@@ -81,7 +81,7 @@ export function createNodeWithPrefab (node: Node) {
     // restore preserved props
     node._objFlags = _objFlags;
     node.setParent(_parent);
-    node._id = _id;
+    node.id = _id;
     if (EDITOR) {
         node[editorExtrasTag] = editorExtras;
     }

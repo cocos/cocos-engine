@@ -353,7 +353,7 @@ class DeserializerPool extends js.Pool<_Deserializer> {
     }
 }
 
-// HACK: we've changed the method signature
+// TODO: this is should be a HACK, we've changed the method signature
 (DeserializerPool.prototype as any).get = function (
     this: DeserializerPool,
     details: Details,
@@ -839,7 +839,9 @@ export function deserializeDynamic (data: SerializedData | CCON, details: Detail
 
     details.init();
 
-    const deserializer = _Deserializer.pool.get(details, classFinder, reportMissingClass, customEnv, ignoreEditorOnly);
+    // TODO: this should be a HACK, we've changed the method signature
+    // workaround: mark pool as type of any.
+    const deserializer = (_Deserializer.pool as any).get(details, classFinder, reportMissingClass, customEnv, ignoreEditorOnly);
 
     cclegacy.game._isCloning = true;
     const res = deserializer.deserialize(data);

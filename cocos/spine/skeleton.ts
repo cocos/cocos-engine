@@ -207,7 +207,10 @@ export class Skeleton extends UIRenderer {
         this.markForUpdateRenderData();
     }
 
-    protected updateMaterial () {
+    /**
+     * @engineInternal
+     */
+    public updateMaterial () {
         let mat;
         if (this._customMaterial) mat = this._customMaterial;
         else mat = this._updateBuiltinMaterial();

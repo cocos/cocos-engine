@@ -899,7 +899,10 @@ export class ParticleSystem extends ModelRenderer {
         }
     }
 
-    protected _detachFromScene () {
+    /**
+     * @engineInternal
+     */
+    public _detachFromScene () {
         this.processor.detachFromScene();
         if (this._trailModule && this._trailModule.enable) {
             this._trailModule._detachFromScene();

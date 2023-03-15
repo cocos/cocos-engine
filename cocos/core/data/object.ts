@@ -195,13 +195,6 @@ class CCObject implements EditorExtendableObject {
     public declare [editorExtrasTag]: unknown;
 
     /**
-     * Called before the object being destroyed.
-     * @method _onPreDestroy
-     * @private
-     */
-    private _onPreDestroy: (() => void) | null = null;
-
-    /**
      * @internal
      */
     public _objFlags: number;
@@ -379,11 +372,8 @@ class CCObject implements EditorExtendableObject {
             errorID(5000);
             return;
         }
-        // engine internal callback
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        if (this._onPreDestroy) {
-            this._onPreDestroy();
-        }
+        // TODO: '_onPreDestroy' should be define in CCObject class.
+        ((this as any)._onPreDestroy)?.();
 
         if (!EDITOR || legacyCC.GAME_VIEW) {
             /*Native properties cannot be reset by _destruct, because the native properties are hung on the prototype and

@@ -157,5 +157,5 @@ export function getClassCache (ctor, decoratorName?) {
 }
 
 export function getSubDict<T, TKey extends keyof T> (obj: T, key: TKey): NonNullable<T[TKey]> {
-    return obj[key] || ((obj[key]) = {} as NonNullable<T[TKey]>);
+    return obj[key] as NonNullable<T[TKey]> || ((obj[key]) = {} as NonNullable<T[TKey]>);
 }
