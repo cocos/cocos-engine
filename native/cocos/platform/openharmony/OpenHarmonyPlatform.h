@@ -61,6 +61,7 @@ public:
     bool dequeue(WorkerMessageData* data);
 
     void triggerMessageSignal();
+    ISystemWindow *createNativeWindow(uint32_t windowId, void *externalHandle) override;
 public:
     // Callback, called by ACE XComponent
     void onSurfaceCreated(OH_NativeXComponent* component, void* window);

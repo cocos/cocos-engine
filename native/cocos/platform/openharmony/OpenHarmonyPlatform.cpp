@@ -33,6 +33,7 @@
 #include "platform/UniversalPlatform.h"
 
 #include "platform/openharmony/modules/SystemWindow.h"
+#include "platform/openharmony/modules/SystemWindowManager.h"
 
 #include "platform/openharmony/modules/System.h"
 #include "platform/empty/modules/Screen.h"
@@ -55,13 +56,17 @@ void sendMsgToWorker(const cc::MessageType& type, OH_NativeXComponent* component
 void onSurfaceCreatedCB(OH_NativeXComponent* component, void* window) {
     // It is possible that when the message is sent, the worker thread has not yet started.
     //sendMsgToWorker(cc::MessageType::WM_XCOMPONENT_SURFACE_CREATED, component, window);
-    uint64_t width  = 0;
-    uint64_t height = 0;
-    int32_t ret = OH_NativeXComponent_GetXComponentSize(component, window, &width, &height);
-    CC_ASSERT(ret == OH_NATIVEXCOMPONENT_RESULT_SUCCESS);
-    cc::SystemWindow* intf = cc::BasePlatform::getPlatform()->getInterface<cc::SystemWindow>();
-    intf->createWindow("", 0, 0, width, height, 0);
-    intf->setWindowHandle(window);
+    cc::ISystemWindowInfo info;
+    info.title = "";
+    info.x = 0;
+    info.y = 0;
+    info.width = 0;
+    info.height = 0;
+    info.flags = 0;
+    info.externalHandle = window;
+    cc::ISystemWindowManager* windowMgr = 
+        cc::OpenHarmonyPlatform::getInstance()->getInterface<cc::ISystemWindowManager>();
+    windowMgr->createWindow(info);
 }
 
 void dispatchTouchEventCB(OH_NativeXComponent* component, void* window) {
@@ -81,13 +86,13 @@ void onSurfaceDestroyedCB(OH_NativeXComponent* component, void* window) {
 namespace cc {
 
 OpenHarmonyPlatform::OpenHarmonyPlatform() {
-    registerInterface(std::make_shared<SystemWindow>());
     registerInterface(std::make_shared<System>());
     registerInterface(std::make_shared<Screen>());
     registerInterface(std::make_shared<Vibrator>());
     registerInterface(std::make_shared<Network>());
     registerInterface(std::make_shared<Battery>());
     registerInterface(std::make_shared<Accelerometer>());
+    registerInterface(std::make_shared<SystemWindowManager>());
 
     _callback.OnSurfaceCreated   = onSurfaceCreatedCB;
     _callback.OnSurfaceChanged   = onSurfaceChangedCB;
@@ -191,13 +196,13 @@ void OpenHarmonyPlatform::onCreateNative(napi_env env, uv_loop_t* loop) {
 void OpenHarmonyPlatform::onShowNative() {
     WindowEvent ev;
     ev.type = WindowEvent::Type::SHOW;
-    dispatchEvent(ev);
+    events::WindowEvent::broadcast(ev);
 }
 
 void OpenHarmonyPlatform::onHideNative() {
     WindowEvent ev;
     ev.type = WindowEvent::Type::HIDDEN;
-    dispatchEvent(ev);
+    events::WindowEvent::broadcast(ev);
 }
 
 void OpenHarmonyPlatform::onDestroyNative() {
@@ -251,6 +256,7 @@ void OpenHarmonyPlatform::dispatchTouchEvent(OH_NativeXComponent* component, voi
     }
 
     TouchEvent ev;
+    ev.windowId = 1;
     if (touchEvent.type == OH_NATIVEXCOMPONENT_DOWN) {
         ev.type = cc::TouchEvent::Type::BEGAN;
     } else if (touchEvent.type == OH_NATIVEXCOMPONENT_MOVE) {
@@ -264,8 +270,18 @@ void OpenHarmonyPlatform::dispatchTouchEvent(OH_NativeXComponent* component, voi
         ev.touches.emplace_back(touchEvent.touchPoints[i].x, touchEvent.touchPoints[i].y, touchEvent.touchPoints[i].id);
     }
 
-    dispatchEvent(ev);
+    events::Touch::broadcast(ev);
 }
 
+ISystemWindow *OpenHarmonyPlatform::createNativeWindow(uint32_t windowId, void *externalHandle) {
+    SystemWindow* window = ccnew SystemWindow(windowId, externalHandle);
+    uint64_t width  = 0;
+    uint64_t height = 0;
+    CC_ASSERT_NOT_NULL(_component);
+    int32_t ret = OH_NativeXComponent_GetXComponentSize(_component, externalHandle, &width, &height);
+    CC_ASSERT(ret == OH_NATIVEXCOMPONENT_RESULT_SUCCESS);
+    window->setViewSize(width, height);
+    return window;
+}
 
 }; // namespace cc

@@ -34,27 +34,30 @@ namespace cc {
 
 class SystemWindow : public ISystemWindow {
 public:
-    SystemWindow();
+    explicit SystemWindow(uint32_t windowId, void* externalHandle);
+    ~SystemWindow() override;
+    
     bool createWindow(const char* title,
                       int x, int y, int w,
                       int h, int flags) override;
-    void setNativeXComponent(OH_NativeXComponent* component);
+
+    uint32_t getWindowId() const override;
+    uintptr_t getWindowHandle() const override;
+    void setWindowHandle(void* window);
+    Size getViewSize() const override;
+    void setViewSize(uint32_t width, uint32_t height) override;
+
     /**
      @brief enable/disable(lock) the cursor, default is enabled
      */
     void               setCursorEnabled(bool value) override;
     void               copyTextToClipboard(const std::string& text) override;
-
-    void setWindowHandle(void* window);
-    uintptr_t          getWindowHandle() const override;
-    Size getViewSize() const override;
-
 private:
-
-    void* windowHandler_{nullptr};
-    std::string id_{""};
-    uint64_t width_{0};
-    uint64_t height_{0};
+    void* _windowHandle{nullptr};
+    uint32_t _windowId{0};
+    std::string _id{""};
+    uint64_t _width{0};
+    uint64_t _height{0};
 };
 
 } // namespace cc

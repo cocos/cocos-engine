@@ -113,7 +113,7 @@ if(NOT ANDROID AND NOT IOS AND NOT OHOS AND NOT OPENHARMONY)
     set(USE_WEBVIEW OFF)
 endif()
 
-if(OPENHARMONY) # TODO:May be removed later
+if(OPENHARMONY)
     set(USE_SE_V8 OFF)
     set(USE_SE_NAPI ON)
 endif()
@@ -603,8 +603,6 @@ elseif(OPENHARMONY)
         cocos/platform/interfaces/modules/ISystem.h
         cocos/platform/interfaces/modules/ISystem.cpp
         cocos/platform/interfaces/modules/ISystemWindow.h
-        cocos/platform/openharmony/modules/System.cpp
-        cocos/platform/openharmony/modules/SystemWindow.cpp
         cocos/platform/interfaces/modules/Device.cpp
         cocos/platform/interfaces/modules/Device.h
         cocos/platform/interfaces/modules/IScreen.h
@@ -694,6 +692,10 @@ elseif(OPENHARMONY)
         cocos/platform/openharmony/modules/Accelerometer.h
         cocos/platform/openharmony/modules/Battery.cpp
         cocos/platform/openharmony/modules/Battery.h
+        cocos/platform/openharmony/modules/System.cpp
+        cocos/platform/openharmony/modules/SystemWindow.cpp
+        cocos/platform/openharmony/modules/SystemWindowManager.h
+        cocos/platform/openharmony/modules/SystemWindowManager.cpp
         cocos/platform/empty/modules/Network.cpp
         cocos/platform/empty/modules/Network.h
         cocos/platform/empty/modules/Vibrator.cpp
@@ -2611,6 +2613,7 @@ if(USE_SE_NAPI)
                      cocos/bindings/jswrapper/napi/Class.h
                      cocos/bindings/jswrapper/napi/CommonHeader.h
                      cocos/bindings/jswrapper/napi/HelperMacros.h
+                     cocos/bindings/jswrapper/napi/HelperMacros.cpp
                      cocos/bindings/jswrapper/napi/Object.cpp
                      cocos/bindings/jswrapper/napi/Object.h
         NO_WERROR    cocos/bindings/jswrapper/napi/ScriptEngine.cpp

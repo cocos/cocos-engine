@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -110,6 +110,20 @@ bool Object::isTypedArray() const {
     bool        ret = false;
     NODE_API_CALL(status, _env, napi_is_typedarray(_env, _objRef.getValue(_env), &ret));
     return ret;
+}
+
+bool Object::isProxy() const {
+    //return const_cast<Object *>(this)->_obj.handle(__isolate)->IsProxy();
+    // todo:
+    return false;
+}
+
+Object *Object::createProxyTarget(se::Object *proxy) {
+    // SE_ASSERT(proxy->isProxy(), "parameter is not a Proxy object");
+    // v8::Local<v8::Object> jsobj = proxy->getProxyTarget().As<v8::Object>();
+    // Object *obj = Object::_createJSObject(nullptr, jsobj);
+    // return obj;
+    return nullptr;
 }
 
 Object::TypedArrayType Object::getTypedArrayType() const {
@@ -261,6 +275,7 @@ Object* Object::createTypedArrayWithBuffer(TypedArrayType type, const Object *ob
     }
 
     CC_ASSERT(false);
+    return nullptr;
 }
 
 Object* Object::createTypedArrayWithBuffer(TypedArrayType type, const Object *obj, size_t offset, size_t byteLength) {
@@ -484,8 +499,19 @@ PrivateObjectBase* Object::getPrivateObject() const {
 
 void Object::setPrivateObject(PrivateObjectBase* data) {
     assert(_privateData == nullptr);
-    assert(NativePtrToObjectMap::find(data->getRaw()) == NativePtrToObjectMap::end());
-
+    #if CC_DEBUG
+    if (data != nullptr) {
+        NativePtrToObjectMap::filter(data->getRaw(), _getClass())
+            .forEach([&](se::Object *seObj) {
+                auto *pri = seObj->getPrivateObject();
+                SE_LOGE("Already exists object %s/[%s], trying to add %s/[%s]\n", pri->getName(), typeid(*pri).name(), data->getName(), typeid(*data).name());
+        #if JSB_TRACK_OBJECT_CREATION
+                SE_LOGE(" previous object created at %s\n", it->second->_objectCreationStackFrame.c_str());
+        #endif
+                CC_ABORT();
+            });
+    }
+    #endif
     napi_status status;
     if (data) {
         _privateData = data->getRaw();

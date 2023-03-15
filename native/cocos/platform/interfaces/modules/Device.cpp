@@ -31,24 +31,28 @@
 #include "platform/interfaces/modules/IScreen.h"
 #include "platform/interfaces/modules/IVibrator.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
+#include "platform/interfaces/modules/ISystemWindowManager.h"
 
 namespace cc {
 
 uint32_t Device::getInnerWidth() {
-    CC_ASSERT(CC_GET_PLATFORM_INTERFACE(ISystemWindow) != nullptr);
-    auto viewSize = CC_GET_PLATFORM_INTERFACE(ISystemWindow)->getViewSize();
-    return static_cast<uint32_t>(viewSize.x);
+    ISystemWindow* systemWindow = CC_GET_MAIN_SYSTEM_WINDOW();
+    CC_ASSERT_NOT_NULL(systemWindow);
+    auto viewSize = systemWindow->getViewSize();
+    return static_cast<uint32_t>(viewSize.width);
 }
 
 uint32_t Device::getInnerHeight() {
-    CC_ASSERT(CC_GET_PLATFORM_INTERFACE(ISystemWindow) != nullptr);
-    auto viewSize = CC_GET_PLATFORM_INTERFACE(ISystemWindow)->getViewSize();
-    return static_cast<uint32_t>(viewSize.y);
+    ISystemWindow* systemWindow = CC_GET_MAIN_SYSTEM_WINDOW();
+    CC_ASSERT_NOT_NULL(systemWindow);
+    auto viewSize = systemWindow->getViewSize();
+    return static_cast<uint32_t>(viewSize.height);
 }
 
 uintptr_t Device::getWindowHandle() {
-    CC_ASSERT(CC_GET_PLATFORM_INTERFACE(ISystemWindow) != nullptr);
-    auto handler = CC_GET_PLATFORM_INTERFACE(ISystemWindow)->getWindowHandle();
+    ISystemWindow* systemWindow = CC_GET_MAIN_SYSTEM_WINDOW();
+    CC_ASSERT_NOT_NULL(systemWindow);
+    auto handler = systemWindow->getWindowHandle();
     return static_cast<uintptr_t>(handler);
 }
 

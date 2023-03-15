@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -27,20 +27,29 @@
 #include <string>
 #include "CommonHeader.h"
 #include "Object.h"
+#include "../Define.h"
+#include "base/std/optional.h"
 
 namespace se {
 class Class {
 public:
     static Class *create(const std::string &clsName, se::Object *parent, Object *parentProto, napi_callback ctor = nullptr);
     static Class *create(const std::initializer_list<const char *> &classPath, se::Object *parent, Object *parentProto, napi_callback ctor = nullptr);
-    static napi_value    _createJSObjectWithClass(Class *cls);
+
+    void          defineFunction(const char* name, napi_callback func);
     void          defineProperty(const char* name, napi_callback g, napi_callback s);
     void          defineProperty(const std::initializer_list<const char *> &names, napi_callback g, napi_callback s);
+
+    void          defineStaticFunction(const char* name, napi_callback func);
     void          defineStaticProperty(const char* name, napi_callback g, napi_callback s);
+    bool          defineStaticProperty(const char *name, const Value &value, PropertyAttribute attribute = PropertyAttribute::NONE);
+
+    static napi_value    _createJSObjectWithClass(Class *cls);
+    
     void          defineFinalizeFunction(napi_finalize func);
     napi_finalize _getFinalizeFunction() const;
-    void          defineFunction(const char* name, napi_callback func);
-    void          defineStaticFunction(const char* name, napi_callback func);
+    
+    
     Object *      getProto() const;
     void          install();
     napi_status   inherit(napi_env env, napi_value subclass, napi_value superclass);
@@ -49,7 +58,9 @@ public:
     const char *  getName() const { return _name.c_str(); }
     static void   setExports(napi_value *expPtr) { _exports = expPtr; }
     static void cleanup();
-
+    // Private API used in wrapper
+    void _setCtor(Object *obj);                                                // NOLINT(readability-identifier-naming)
+    inline const ccstd::optional<Object *> &_getCtor() const { return _ctor; } // NOLINT(readability-identifier-naming)
 private:
     Class();
     ~Class();
@@ -58,6 +69,7 @@ private:
     static napi_value _defaultCtor(napi_env env, napi_callback_info info);
 
 private:
+    ccstd::optional<Object *>             _ctor;
     static napi_value *                   _exports;
     std::string                           _name;
     Object *                              _parent = nullptr;

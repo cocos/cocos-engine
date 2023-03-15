@@ -1,8 +1,7 @@
 /****************************************************************************
- Copyright (c) 2016 Chukong Technologies Inc.
- Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2023 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos2d-x.org
+ http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -22,13 +21,43 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 ****************************************************************************/
-#include "audio/android/utils/Utils.h"
+
+#include "SystemWindowManager.h"
 #include "platform/BasePlatform.h"
+#include "platform/SDLHelper.h"
+#include "platform/interfaces/modules/ISystemWindowManager.h"
+#include "platform/openharmony/modules/SystemWindow.h"
 
 namespace cc {
 
-int getSDKVersion() {
-    return BasePlatform::getPlatform()->getSdkVersion();
+int SystemWindowManager::init() {
+    return 0;
 }
 
-} // end of namespace cc
+void SystemWindowManager::processEvent() {
+}
+
+ISystemWindow *SystemWindowManager::createWindow(const ISystemWindowInfo &info) {
+    ISystemWindow *window = BasePlatform::getPlatform()->createNativeWindow(_nextWindowId, info.externalHandle);
+    if (window) {
+        if (!info.externalHandle) {
+            window->createWindow(info.title.c_str(), info.x, info.y, info.width, info.height, info.flags);
+        }
+        _windows[_nextWindowId] = std::shared_ptr<ISystemWindow>(window);
+        _nextWindowId++;
+    }
+    return window;
+}
+
+ISystemWindow *SystemWindowManager::getWindow(uint32_t windowId) const {
+    if (windowId == 0) {
+        return nullptr;
+    }
+
+    auto iter = _windows.find(windowId);
+    if (iter != _windows.end())
+        return iter->second.get();
+    return nullptr;
+}
+
+} // namespace cc

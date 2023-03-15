@@ -30,7 +30,17 @@
 
 namespace cc {
 
-SystemWindow::SystemWindow() = default;
+SystemWindow::SystemWindow(uint32_t windowId, void *externalHandle)
+: _windowId(windowId) {
+    if (externalHandle) {
+        _windowHandle = reinterpret_cast<void*>(externalHandle);
+    }
+}
+
+SystemWindow::~SystemWindow() {
+    _windowHandle = 0;
+    _windowId = 0;
+}
 
 bool SystemWindow::createWindow(const char* title,
                                 int x, int y, int w,
@@ -40,8 +50,8 @@ bool SystemWindow::createWindow(const char* title,
     CC_UNUSED_PARAM(y);
     CC_UNUSED_PARAM(flags);
 
-    width_ = w;
-    height_ = h;
+    _width = w;
+    _height = h;
     return true;
 }
 
@@ -53,17 +63,26 @@ void SystemWindow::copyTextToClipboard(const std::string& text) {
     //copyTextToClipboardJNI(text);
 }
 
+uint32_t SystemWindow::getWindowId() const {
+    return _windowId;
+}
+
 uintptr_t SystemWindow::getWindowHandle() const {
-    return reinterpret_cast<uintptr_t>(windowHandler_);
+    return reinterpret_cast<uintptr_t>(_windowHandle);
 }
 
 void SystemWindow::setWindowHandle(void* window) {
-    windowHandler_ = window;
+    _windowHandle = window;
+}
+
+void SystemWindow::setViewSize(uint32_t width, uint32_t height) {
+    _width = width;
+    _height = height;
 }
 
 SystemWindow::Size SystemWindow::getViewSize() const {
-    return Size{static_cast<float>(width_),
-                static_cast<float>(height_)};
+    return Size{static_cast<float>(_width),
+                static_cast<float>(_height)};
 }
 
 

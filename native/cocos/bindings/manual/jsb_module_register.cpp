@@ -80,6 +80,12 @@
     #include "cocos/bindings/manual/JavaScriptJavaBridge.h"
 #endif
 
+#if(CC_PLATFORM == CC_PLATFORM_OPENHARMONY)
+    #if CC_USE_WEBVIEW
+        #include "cocos/bindings/auto/jsb_webview_auto.h"
+    #endif
+#endif
+
 #if (CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
 
     #if CC_USE_VIDEO
@@ -194,17 +200,16 @@ bool jsb_register_all_modules() {
 #if CC_USE_PHYSICS_PHYSX
     se->addRegisterCallback(register_all_physics);
 #endif
-#if (CC_PLATFORM == CC_PLATFORM_OPENHARMONY)
-    #if CC_USE_VIDEO
-    se->addRegisterCallback(register_all_video);
-    #endif
-#endif
 
 #if CC_USE_AR_MODULE
     se->addRegisterCallback(register_all_ar);
     se->addRegisterCallback(register_all_ar_manual);
 #endif // CC_USE_AR_MODULE
-
+#if (CC_PLATFORM == CC_PLATFORM_OPENHARMONY)
+    #if CC_USE_WEBVIEW
+    se->addRegisterCallback(register_all_webview);
+    #endif
+#endif
 #if (CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
 
     #if CC_USE_VIDEO

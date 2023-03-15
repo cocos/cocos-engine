@@ -1,8 +1,7 @@
 /****************************************************************************
- Copyright (c) 2016 Chukong Technologies Inc.
- Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2023 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos2d-x.org
+ http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -22,13 +21,30 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 ****************************************************************************/
-#include "audio/android/utils/Utils.h"
-#include "platform/BasePlatform.h"
+
+#pragma once
+
+#include "base/std/container/unordered_map.h"
+#include "platform/interfaces/modules/ISystemWindowManager.h"
 
 namespace cc {
 
-int getSDKVersion() {
-    return BasePlatform::getPlatform()->getSdkVersion();
-}
+class ISystemWindow;
 
-} // end of namespace cc
+class SystemWindowManager : public ISystemWindowManager {
+public:
+    SystemWindowManager() = default;
+
+    int init() override;
+    void processEvent() override;
+
+    ISystemWindow *createWindow(const ISystemWindowInfo &info) override;
+    ISystemWindow *getWindow(uint32_t windowId) const override;
+    const SystemWindowMap &getWindows() const override { return _windows; }
+
+private:
+    uint32_t _nextWindowId{1}; // start from 1, 0 means an invalid ID
+
+    SystemWindowMap _windows;
+};
+} // namespace cc

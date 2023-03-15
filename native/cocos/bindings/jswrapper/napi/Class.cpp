@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -27,6 +27,7 @@
 #include <string>
 #include "CommonHeader.h"
 #include "ScriptEngine.h"
+#include "Utils.h"
 
 namespace se {
 
@@ -94,7 +95,15 @@ void Class::defineProperty(const std::initializer_list<const char *> &names, nap
 }
 
 void Class::defineStaticProperty(const char* name, napi_callback g, napi_callback s) {
-    _properties.push_back({name, nullptr, nullptr, g, s, 0, napi_static, 0});
+    if(g != nullptr && s != nullptr) 
+        _properties.push_back({name, nullptr, nullptr, g, s, 0, napi_static, 0});
+}
+
+bool Class::defineStaticProperty(const char *name, const Value &v, PropertyAttribute attribute /* = PropertyAttribute::NONE */) {
+    //napi_value value;
+    //internal::seToJsValue(v, &value);
+    //_properties.push_back({name, nullptr, nullptr, nullptr, nullptr, value, napi_static, 0});
+    return true;
 }
 
 void Class::defineFunction(const char* name, napi_callback func) {
@@ -141,7 +150,7 @@ napi_status Class::inherit(napi_env env, napi_value subclass, napi_value superPr
     napi_value global, objectClass, setProto;
     napi_value argv[2];
     napi_value callbackResult = nullptr;
-	
+
     napi_get_global(env, &global);
     napi_status status = napi_get_named_property(env, global, "Object", &objectClass);
     if (status != napi_ok) {
@@ -201,10 +210,26 @@ napi_value Class::_getCtorFunc() const {
     return result;
 }
 
+void Class::_setCtor(Object *obj) {
+    assert(!_ctor.has_value());
+    _ctor = obj;
+    if (obj != nullptr) {
+        obj->root();
+        obj->incRef();
+    }
+}
+
 void Class::destroy() {
     SAFE_DEC_REF(_parent);
     SAFE_DEC_REF(_proto);
     SAFE_DEC_REF(_parentProto);
+    if (_ctor.has_value()) {
+        if (_ctor.value() != nullptr) {
+            _ctor.value()->unroot();
+            _ctor.value()->decRef();
+        }
+        _ctor.reset();
+    }
 }
 
 void Class::cleanup() {

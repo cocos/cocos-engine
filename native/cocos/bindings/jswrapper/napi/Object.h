@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -290,6 +290,11 @@ public:
          */
     bool isTypedArray() const;
 
+    /** @brief Tests whether an object is a proxy object.
+     *  @return true if object is a proxy object, otherwise false.
+     */
+    bool isProxy() const;
+
     /**
          *  @brief Gets the type of a typed array object.
          *  @return The type of a typed array object.
@@ -408,7 +413,12 @@ public:
          *  @note The return value (non-null) has to be released manually.
          */
     static Object *createArrayBufferObject(const void *data, size_t byteLength);
-
+    /**
+     * Gets the Proxy Target object
+     * @param proxy The JavaScript Proxy object.
+     * @return The target JavaScript object of the parameter.
+     */
+    static Object *createProxyTarget(se::Object *proxy);
     /**
          *  @brief Roots an object from garbage collection.
          *  @note Use this method when you want to store an object in a global or on the heap, where the garbage collector will not be able to discover your reference to it.
