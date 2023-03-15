@@ -13,12 +13,7 @@ import * as t from '@babel/types';
 import path from 'path';
 import fs from 'fs';
 
-const enginePath = process.env.ENGINE_PATH!;
 const applyFnName = `apply`;
-
-if (!enginePath) {
-    throw new Error('ENGINE_PATH environment variable not set');
-}
 
 interface DecoratorParseResult {
     decoratorName?: string;
@@ -318,6 +313,11 @@ const cppClassMap: Map<string, { name: string, file: string, tip: string }[]> = 
 function getExportedClassesFromCppSourceCode() {
     if (cppClassMap.size > 0) {
         return cppClassMap;
+    }
+
+    const enginePath = process.env.ENGINE_PATH!;
+    if (!enginePath) {
+        throw new Error('ENGINE_PATH environment variable not set');
     }
 
     const cppSourceFiles: string[] = [];
