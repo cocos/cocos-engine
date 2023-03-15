@@ -194,6 +194,11 @@ bool jsb_register_all_modules() {
 #if CC_USE_PHYSICS_PHYSX
     se->addRegisterCallback(register_all_physics);
 #endif
+#if (CC_PLATFORM == CC_PLATFORM_OPENHARMONY)
+    #if CC_USE_VIDEO
+    se->addRegisterCallback(register_all_video);
+    #endif
+#endif
 
 #if CC_USE_AR_MODULE
     se->addRegisterCallback(register_all_ar);
