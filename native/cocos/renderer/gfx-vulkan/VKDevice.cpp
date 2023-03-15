@@ -42,10 +42,10 @@
 #include "VKUtils.h"
 #include "base/Utils.h"
 #include "gfx-base/GFXDef-common.h"
+#include "states/VKBufferBarrier.h"
 #include "states/VKGeneralBarrier.h"
 #include "states/VKSampler.h"
 #include "states/VKTextureBarrier.h"
-#include "states/VKBufferBarrier.h"
 
 #include "application/ApplicationManager.h"
 #include "gfx-base/SPIRVUtils.h"
@@ -665,8 +665,6 @@ void CCVKDevice::acquire(Swapchain *const *swapchains, uint32_t count) {
     }
 }
 
-static CCVKGPUStagingBufferPool *tmpPool = nullptr;
-
 void CCVKDevice::present() {
     CC_PROFILE(CCVKDevicePresent);
     bool isGFXDeviceNeedsPresent = _xr ? _xr->isGFXDeviceNeedsPresent(_api) : true;
@@ -707,20 +705,21 @@ void CCVKDevice::present() {
 
     _gpuDevice->curBackBufferIndex = (_gpuDevice->curBackBufferIndex + 1) % _gpuDevice->backBufferCount;
 
+    uint32_t fenceCount = gpuFencePool()->size();
+    if (fenceCount) {
+        VK_CHECK(vkWaitForFences(_gpuDevice->vkDevice, fenceCount,
+                                 gpuFencePool()->data(), VK_TRUE, DEFAULT_TIMEOUT));
+    }
+
+    gpuFencePool()->reset();
+    gpuRecycleBin()->clear();
+    gpuStagingBufferPool()->reset();
     if (_xr) {
         _xr->postGFXDevicePresent(_api);
     }
 }
 
 void CCVKDevice::frameSync() {
-    uint32_t fenceCount = gpuFencePool()->size();
-    if (fenceCount) {
-        VK_CHECK(vkWaitForFences(_gpuDevice->vkDevice, fenceCount,
-                                 gpuFencePool()->data(), VK_TRUE, DEFAULT_TIMEOUT));
-        gpuFencePool()->reset();
-        gpuRecycleBin()->clear();
-        gpuStagingBufferPool()->reset();
-    }
 }
 
 CCVKGPUFencePool *CCVKDevice::gpuFencePool() { return _gpuFencePools[_gpuDevice->curBackBufferIndex].get(); }
