@@ -808,7 +808,7 @@ static bool JSB_setPreferredFramesPerSecond(se::State &s) { // NOLINT
 }
 SE_BIND_FUNC(JSB_setPreferredFramesPerSecond)
 
-#if CC_USE_EDITBOX 
+#if CC_USE_EDITBOX
 static bool JSB_showInputBox(se::State &s) { // NOLINT
     const auto &args = s.args();
     size_t argc = args.size();
