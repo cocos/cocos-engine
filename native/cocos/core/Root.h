@@ -295,6 +295,8 @@ public:
         return _cameraList;
     }
 
+    void frameSync();
+
 private:
     void frameMoveBegin();
     void frameMoveProcess(bool isNeedUpdateScene, int32_t totalFrames);

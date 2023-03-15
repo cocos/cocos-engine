@@ -23,7 +23,7 @@
 using namespace cc::utils;
 #endif
 
-//namespace {
+// namespace {
 void ditherAndClamp(int32_t *out, const int32_t *sums, size_t c) {
     size_t i;
     for (i = 0; i < c; i++) {
@@ -317,7 +317,7 @@ size_t nonZeroStereo16(const int16_t *frames, size_t count) {
  */
 #define COPY_FRAME_BY_MASK(dst, dmask, src, smask, count, zero) \
     {                                                           \
-        uint32_t bit, ormask;                                   \
+        int32_t bit, ormask;                                    \
         while ((count)--) {                                     \
             ormask = (dmask) | (smask);                         \
             while (ormask) {                                    \
@@ -437,8 +437,8 @@ size_t memcpy_by_index_array_initialization(int8_t *idxary, size_t idxcount,
                                             uint32_t dstMask, uint32_t srcMask) {
     size_t n = 0;
     int srcidx = 0;
-    uint32_t bit;
-    uint32_t ormask = srcMask | dstMask;
+    int32_t bit;
+    int32_t ormask = srcMask | dstMask;
 
     while (ormask && n < idxcount) {
         bit = ormask & -ormask;        /* get lowest bit */

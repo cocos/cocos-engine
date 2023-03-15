@@ -160,4 +160,13 @@ describe('Test Vec3', () => {
         log('angle: ', value0);
         expect(value0).toBe(expect0);
     });
+
+    test('moveTowards', () => {
+        const v0 = new Vec3(1, 1, 0);
+        const v1 = new Vec3(5, 1, 0);
+        const expect0 = new Vec3(3, 1, 0);
+        const value0 = Vec3.moveTowards(new Vec3(), v0, v1, 2);
+        log('moveTowards: ', value0);
+        expect(Vec3.equals(value0, expect0)).toBe(true);
+    });
 });

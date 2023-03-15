@@ -27,7 +27,7 @@ export abstract class MacOSPackTool extends NativePackTool {
         return true;
     }
 
-    abstract generate() :Promise<boolean>;
+    abstract generate(): Promise<boolean>;
 
     shouldSkipGenerate() {
         const nativePrjDir = this.paths.nativePrjDir;
@@ -50,7 +50,7 @@ export abstract class MacOSPackTool extends NativePackTool {
         return /Apple/.test(model) && process.platform === 'darwin';
     }
 
-    protected getXcodeMajorVerion():number {
+    protected getXcodeMajorVerion(): number {
         try {
             const output = execSync('xcrun xcodebuild -version').toString('utf8');
             return Number.parseInt(output.match(/Xcode\s(\d+)\.\d+/)![1]);
@@ -61,17 +61,24 @@ export abstract class MacOSPackTool extends NativePackTool {
         }
     }
 
-    async skipUpdateXcodeProject() {
+    async modifyXcodeProject() {
         if (this.params.platformParams.skipUpdateXcodeProject) {
-            if(this.getXcodeMajorVerion() < 12) {
+            if (this.getXcodeMajorVerion() < 12) {
                 console.error(`SKIP UPDATE XCODE PROJECT is only supported with Xcode 12 or later`);
                 return;
             }
-            await this.xcodeDestroyZEROCHECK();
+            await this.xcodeFixAssetsReferences();
         }
     }
-
-    async xcodeDestroyZEROCHECK() {
+    
+    /**
+     * When "Skip Xcode Project Update" is checked, changes to the contents of the "data" directory
+     * still need to be synchronized with Xcode. One way to achieve this is to modify the Xcode
+     * project file directly and use directory references to access the "data" directory.
+     * However, this method is not supported in Xcode 11 and earlier project formats due to 
+     * differences in their formats.
+     */
+    async xcodeFixAssetsReferences() {
         const nativePrjDir = this.paths.nativePrjDir;
         const xcode = require(ps.join(this.params.enginePath, 'scripts/native-pack-tool/xcode'));
         const projs = fs.readdirSync(nativePrjDir).filter((x) => x.endsWith('.xcodeproj')).map((x) => ps.join(nativePrjDir, x));
@@ -83,7 +90,7 @@ export abstract class MacOSPackTool extends NativePackTool {
                     const pbxfile = ps.join(proj, 'project.pbxproj');
                     console.log(`parsing pbxfile ${pbxfile}`);
                     const projectFile = xcode.project(pbxfile);
-                    await (function() {
+                    await (function () {
                         return new Promise((resolve, reject) => {
                             projectFile.parse((err: Error) => {
                                 if (err) {
@@ -99,12 +106,12 @@ export abstract class MacOSPackTool extends NativePackTool {
                         const assetsDir = this.paths.buildDir;
                         const objects = projectFile.hash.project.objects;
                         const KeyResource = `Resources`;
-                        type ResourceItem = [string, {children:{value:string, comment:string}[]}];
-                        const resources:ResourceItem[] = Object.entries(objects.PBXGroup).filter(([, x]) => (x as any).name === KeyResource) as any;
-                        let hash : string = resources[0][0];
+                        type ResourceItem = [string, { children: { value: string, comment: string }[] }];
+                        const resources: ResourceItem[] = Object.entries(objects.PBXGroup).filter(([, x]) => (x as any).name === KeyResource) as any;
+                        let hash: string = resources[0][0];
                         if (resources.length > 1) {
                             console.log(`   multiple Resources/ group found!`);
-                            const itemWeight = (a:ResourceItem) : number => {
+                            const itemWeight = (a: ResourceItem): number => {
                                 const hasImageAsset = a[1].children.filter((c) => c.comment.endsWith('.xcassets')).length > 0;
                                 const finalBuildTarget = a[1].children.filter((c) => c.comment.indexOf(`CMakeFiles/${this.params.projectName}`) > -1).length > 0;
                                 console.log(`   ${a[0]} hasImageAsset ${hasImageAsset}, is final target ${finalBuildTarget}`);
@@ -114,7 +121,7 @@ export abstract class MacOSPackTool extends NativePackTool {
                             console.log(`   select ${hash}`);
                         }
 
-                        const filterFolders = (name:string) :boolean => {
+                        const filterFolders = (name: string): boolean => {
                             // NOTE: `assets/remote` should not be linked into Resources/
                             // return name !== '.' && name !== '..' && name !== 'remote';
                             return name === 'data'; // only accept `data` folder
@@ -149,19 +156,6 @@ export abstract class MacOSPackTool extends NativePackTool {
                                 });
                             }
                         });
-                    }
-                    {
-                        // remove all actions in ZERO_CHECK target
-                        const scriptBuildPhase = projectFile.hash.project.objects.PBXShellScriptBuildPhase;
-                        const keys = Object.keys(scriptBuildPhase);
-                        const zeroChecks: any[] = [];
-                        for (const t of keys) {
-                            const x = scriptBuildPhase[t];
-                            if (x.name && x.name.indexOf('ZERO_CHECK') > 0) {
-                                zeroChecks.push(x);
-                            }
-                        }
-                        zeroChecks.forEach((c) => c.shellScript = `"echo 'Skip Xcode Update'"`);
                     }
                     fs.writeFileSync(pbxfile, projectFile.writeSync());
                     console.log(`  replace pbxfile: ${pbxfile}.`);

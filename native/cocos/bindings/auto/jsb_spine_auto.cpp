@@ -2741,25 +2741,152 @@ bool js_register_spine_AttachmentTimeline(se::Object* obj) {
 }
 
 
-se::Class* __jsb_spine_BoundingBoxAttachment_class = nullptr;
-se::Object* __jsb_spine_BoundingBoxAttachment_proto = nullptr;
-SE_DECLARE_FINALIZE_FUNC(js_delete_spine_BoundingBoxAttachment) 
+se::Class* __jsb_spine_VertexAttachment_class = nullptr;
+se::Object* __jsb_spine_VertexAttachment_proto = nullptr;
+SE_DECLARE_FINALIZE_FUNC(js_delete_spine_VertexAttachment) 
 
-static bool js_spine_BoundingBoxAttachment_copy(se::State& s)
+static bool js_delete_spine_VertexAttachment(se::State& s)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_delete_spine_VertexAttachment) 
+
+static bool js_spine_VertexAttachment_getId(se::State& s)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    spine::BoundingBoxAttachment *arg1 = (spine::BoundingBoxAttachment *) NULL ;
-    spine::Attachment *result = 0 ;
+    spine::VertexAttachment *arg1 = (spine::VertexAttachment *) NULL ;
+    int result;
     
     if(argc != 0) {
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
         return false;
     }
-    arg1 = SE_THIS_OBJECT<spine::BoundingBoxAttachment>(s);
+    arg1 = SE_THIS_OBJECT<spine::VertexAttachment>(s);
     if (nullptr == arg1) return true;
-    result = (spine::Attachment *)(arg1)->copy();
+    result = (int)(arg1)->getId();
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_spine_VertexAttachment_getId) 
+
+static bool js_spine_VertexAttachment_getBones(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    spine::VertexAttachment *arg1 = (spine::VertexAttachment *) NULL ;
+    spine::Vector< size_t > *result = 0 ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<spine::VertexAttachment>(s);
+    if (nullptr == arg1) return true;
+    result = (spine::Vector< size_t > *) &(arg1)->getBones();
+    
+    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_spine_VertexAttachment_getBones) 
+
+static bool js_spine_VertexAttachment_getVertices(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    spine::VertexAttachment *arg1 = (spine::VertexAttachment *) NULL ;
+    spine::Vector< float > *result = 0 ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<spine::VertexAttachment>(s);
+    if (nullptr == arg1) return true;
+    result = (spine::Vector< float > *) &(arg1)->getVertices();
+    
+    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_spine_VertexAttachment_getVertices) 
+
+static bool js_spine_VertexAttachment_getWorldVerticesLength(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    spine::VertexAttachment *arg1 = (spine::VertexAttachment *) NULL ;
+    size_t result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<spine::VertexAttachment>(s);
+    if (nullptr == arg1) return true;
+    result = (arg1)->getWorldVerticesLength();
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_spine_VertexAttachment_getWorldVerticesLength) 
+
+static bool js_spine_VertexAttachment_setWorldVerticesLength(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    spine::VertexAttachment *arg1 = (spine::VertexAttachment *) NULL ;
+    size_t arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<spine::VertexAttachment>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    (arg1)->setWorldVerticesLength(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_spine_VertexAttachment_setWorldVerticesLength) 
+
+static bool js_spine_VertexAttachment_getDeformAttachment(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    spine::VertexAttachment *arg1 = (spine::VertexAttachment *) NULL ;
+    spine::VertexAttachment *result = 0 ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<spine::VertexAttachment>(s);
+    if (nullptr == arg1) return true;
+    result = (spine::VertexAttachment *)(arg1)->getDeformAttachment();
     
     ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments");
@@ -2768,7 +2895,89 @@ static bool js_spine_BoundingBoxAttachment_copy(se::State& s)
     
     return true;
 }
-SE_BIND_FUNC(js_spine_BoundingBoxAttachment_copy) 
+SE_BIND_FUNC(js_spine_VertexAttachment_getDeformAttachment) 
+
+static bool js_spine_VertexAttachment_setDeformAttachment(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    spine::VertexAttachment *arg1 = (spine::VertexAttachment *) NULL ;
+    spine::VertexAttachment *arg2 = (spine::VertexAttachment *) NULL ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<spine::VertexAttachment>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    (arg1)->setDeformAttachment(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_spine_VertexAttachment_setDeformAttachment) 
+
+static bool js_spine_VertexAttachment_copyTo(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    spine::VertexAttachment *arg1 = (spine::VertexAttachment *) NULL ;
+    spine::VertexAttachment *arg2 = (spine::VertexAttachment *) NULL ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<spine::VertexAttachment>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    (arg1)->copyTo(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_spine_VertexAttachment_copyTo) 
+
+bool js_register_spine_VertexAttachment(se::Object* obj) {
+    auto* cls = se::Class::create("VertexAttachment", obj, __jsb_spine_Attachment_proto, nullptr); 
+    
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
+    
+    cls->defineFunction("getId", _SE(js_spine_VertexAttachment_getId)); 
+    cls->defineFunction("getBones", _SE(js_spine_VertexAttachment_getBones)); 
+    cls->defineFunction("getVertices", _SE(js_spine_VertexAttachment_getVertices)); 
+    cls->defineFunction("getWorldVerticesLength", _SE(js_spine_VertexAttachment_getWorldVerticesLength)); 
+    cls->defineFunction("setWorldVerticesLength", _SE(js_spine_VertexAttachment_setWorldVerticesLength)); 
+    cls->defineFunction("getDeformAttachment", _SE(js_spine_VertexAttachment_getDeformAttachment)); 
+    cls->defineFunction("setDeformAttachment", _SE(js_spine_VertexAttachment_setDeformAttachment)); 
+    cls->defineFunction("copyTo", _SE(js_spine_VertexAttachment_copyTo)); 
+    
+    
+    
+    
+    cls->defineFinalizeFunction(_SE(js_delete_spine_VertexAttachment));
+    
+    
+    cls->install();
+    JSBClassType::registerClass<spine::VertexAttachment>(cls);
+    
+    __jsb_spine_VertexAttachment_proto = cls->getProto();
+    __jsb_spine_VertexAttachment_class = cls;
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+
+se::Class* __jsb_spine_BoundingBoxAttachment_class = nullptr;
+se::Object* __jsb_spine_BoundingBoxAttachment_proto = nullptr;
+SE_DECLARE_FINALIZE_FUNC(js_delete_spine_BoundingBoxAttachment) 
 
 static bool js_delete_spine_BoundingBoxAttachment(se::State& s)
 {
@@ -2777,11 +2986,10 @@ static bool js_delete_spine_BoundingBoxAttachment(se::State& s)
 SE_BIND_FINALIZE_FUNC(js_delete_spine_BoundingBoxAttachment) 
 
 bool js_register_spine_BoundingBoxAttachment(se::Object* obj) {
-    auto* cls = se::Class::create("BoundingBoxAttachment", obj, nullptr, nullptr); 
+    auto* cls = se::Class::create("BoundingBoxAttachment", obj, __jsb_spine_VertexAttachment_proto, nullptr); 
     
     cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
-    cls->defineFunction("copy", _SE(js_spine_BoundingBoxAttachment_copy)); 
     
     
     
@@ -5059,31 +5267,6 @@ static bool js_spine_ClippingAttachment_setEndSlot(se::State& s)
 }
 SE_BIND_FUNC(js_spine_ClippingAttachment_setEndSlot) 
 
-static bool js_spine_ClippingAttachment_copy(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    spine::ClippingAttachment *arg1 = (spine::ClippingAttachment *) NULL ;
-    spine::Attachment *result = 0 ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<spine::ClippingAttachment>(s);
-    if (nullptr == arg1) return true;
-    result = (spine::Attachment *)(arg1)->copy();
-    
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_spine_ClippingAttachment_copy) 
-
 static bool js_delete_spine_ClippingAttachment(se::State& s)
 {
     return true;
@@ -5091,13 +5274,12 @@ static bool js_delete_spine_ClippingAttachment(se::State& s)
 SE_BIND_FINALIZE_FUNC(js_delete_spine_ClippingAttachment) 
 
 bool js_register_spine_ClippingAttachment(se::Object* obj) {
-    auto* cls = se::Class::create("ClippingAttachment", obj, nullptr, nullptr); 
+    auto* cls = se::Class::create("ClippingAttachment", obj, __jsb_spine_VertexAttachment_proto, nullptr); 
     
     cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("getEndSlot", _SE(js_spine_ClippingAttachment_getEndSlot)); 
     cls->defineFunction("setEndSlot", _SE(js_spine_ClippingAttachment_setEndSlot)); 
-    cls->defineFunction("copy", _SE(js_spine_ClippingAttachment_copy)); 
     
     
     
@@ -5304,197 +5486,6 @@ bool js_register_spine_Color(se::Object* obj) {
     
     __jsb_spine_Color_proto = cls->getProto();
     __jsb_spine_Color_class = cls;
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-
-
-se::Class* __jsb_spine_ColorTimeline_class = nullptr;
-se::Object* __jsb_spine_ColorTimeline_proto = nullptr;
-SE_DECLARE_FINALIZE_FUNC(js_delete_spine_ColorTimeline) 
-
-static bool js_spine_ColorTimeline_ENTRIES_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    int result;
-    
-    result = (int)(int)spine::ColorTimeline::ENTRIES;
-    
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_spine_ColorTimeline_ENTRIES_get) 
-
-static bool js_spine_ColorTimeline_getPropertyId(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    spine::ColorTimeline *arg1 = (spine::ColorTimeline *) NULL ;
-    int result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<spine::ColorTimeline>(s);
-    if (nullptr == arg1) return true;
-    result = (int)(arg1)->getPropertyId();
-    
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_spine_ColorTimeline_getPropertyId) 
-
-static bool js_spine_ColorTimeline_setFrame(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    spine::ColorTimeline *arg1 = (spine::ColorTimeline *) NULL ;
-    int arg2 ;
-    float arg3 ;
-    float arg4 ;
-    float arg5 ;
-    float arg6 ;
-    float arg7 ;
-    
-    if(argc != 6) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 6);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<spine::ColorTimeline>(s);
-    if (nullptr == arg1) return true;
-    
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
-    
-    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
-    
-    ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
-    
-    ok &= sevalue_to_native(args[3], &arg5, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
-    
-    ok &= sevalue_to_native(args[4], &arg6, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
-    
-    ok &= sevalue_to_native(args[5], &arg7, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
-    (arg1)->setFrame(arg2,arg3,arg4,arg5,arg6,arg7);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_spine_ColorTimeline_setFrame) 
-
-static bool js_spine_ColorTimeline_getSlotIndex(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    spine::ColorTimeline *arg1 = (spine::ColorTimeline *) NULL ;
-    int result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<spine::ColorTimeline>(s);
-    if (nullptr == arg1) return true;
-    result = (int)(arg1)->getSlotIndex();
-    
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_spine_ColorTimeline_getSlotIndex) 
-
-static bool js_spine_ColorTimeline_setSlotIndex(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    spine::ColorTimeline *arg1 = (spine::ColorTimeline *) NULL ;
-    int arg2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<spine::ColorTimeline>(s);
-    if (nullptr == arg1) return true;
-    
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
-    (arg1)->setSlotIndex(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_spine_ColorTimeline_setSlotIndex) 
-
-static bool js_spine_ColorTimeline_getFrames(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    spine::ColorTimeline *arg1 = (spine::ColorTimeline *) NULL ;
-    spine::Vector< float > *result = 0 ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<spine::ColorTimeline>(s);
-    if (nullptr == arg1) return true;
-    result = (spine::Vector< float > *) &(arg1)->getFrames();
-    
-    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_spine_ColorTimeline_getFrames) 
-
-static bool js_delete_spine_ColorTimeline(se::State& s)
-{
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_delete_spine_ColorTimeline) 
-
-bool js_register_spine_ColorTimeline(se::Object* obj) {
-    auto* cls = se::Class::create("ColorTimeline", obj, nullptr, nullptr); 
-    
-    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
-    
-    cls->defineFunction("getPropertyId", _SE(js_spine_ColorTimeline_getPropertyId)); 
-    cls->defineFunction("setFrame", _SE(js_spine_ColorTimeline_setFrame)); 
-    cls->defineFunction("getSlotIndex", _SE(js_spine_ColorTimeline_getSlotIndex)); 
-    cls->defineFunction("setSlotIndex", _SE(js_spine_ColorTimeline_setSlotIndex)); 
-    cls->defineFunction("getFrames", _SE(js_spine_ColorTimeline_getFrames)); 
-    
-    cls->defineStaticProperty("ENTRIES", _SE(js_spine_ColorTimeline_ENTRIES_get), nullptr); 
-    
-    
-    
-    cls->defineFinalizeFunction(_SE(js_delete_spine_ColorTimeline));
-    
-    
-    cls->install();
-    JSBClassType::registerClass<spine::ColorTimeline>(cls);
-    
-    __jsb_spine_ColorTimeline_proto = cls->getProto();
-    __jsb_spine_ColorTimeline_class = cls;
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -5707,6 +5698,173 @@ bool js_register_spine_CurveTimeline(se::Object* obj) {
     
     __jsb_spine_CurveTimeline_proto = cls->getProto();
     __jsb_spine_CurveTimeline_class = cls;
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+
+se::Class* __jsb_spine_ColorTimeline_class = nullptr;
+se::Object* __jsb_spine_ColorTimeline_proto = nullptr;
+SE_DECLARE_FINALIZE_FUNC(js_delete_spine_ColorTimeline) 
+
+static bool js_spine_ColorTimeline_ENTRIES_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    int result;
+    
+    result = (int)(int)spine::ColorTimeline::ENTRIES;
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_spine_ColorTimeline_ENTRIES_get) 
+
+static bool js_spine_ColorTimeline_setFrame(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    spine::ColorTimeline *arg1 = (spine::ColorTimeline *) NULL ;
+    int arg2 ;
+    float arg3 ;
+    float arg4 ;
+    float arg5 ;
+    float arg6 ;
+    float arg7 ;
+    
+    if(argc != 6) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 6);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<spine::ColorTimeline>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    ok &= sevalue_to_native(args[3], &arg5, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    ok &= sevalue_to_native(args[4], &arg6, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    ok &= sevalue_to_native(args[5], &arg7, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    (arg1)->setFrame(arg2,arg3,arg4,arg5,arg6,arg7);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_spine_ColorTimeline_setFrame) 
+
+static bool js_spine_ColorTimeline_getSlotIndex(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    spine::ColorTimeline *arg1 = (spine::ColorTimeline *) NULL ;
+    int result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<spine::ColorTimeline>(s);
+    if (nullptr == arg1) return true;
+    result = (int)(arg1)->getSlotIndex();
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_spine_ColorTimeline_getSlotIndex) 
+
+static bool js_spine_ColorTimeline_setSlotIndex(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    spine::ColorTimeline *arg1 = (spine::ColorTimeline *) NULL ;
+    int arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<spine::ColorTimeline>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    (arg1)->setSlotIndex(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_spine_ColorTimeline_setSlotIndex) 
+
+static bool js_spine_ColorTimeline_getFrames(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    spine::ColorTimeline *arg1 = (spine::ColorTimeline *) NULL ;
+    spine::Vector< float > *result = 0 ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<spine::ColorTimeline>(s);
+    if (nullptr == arg1) return true;
+    result = (spine::Vector< float > *) &(arg1)->getFrames();
+    
+    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_spine_ColorTimeline_getFrames) 
+
+static bool js_delete_spine_ColorTimeline(se::State& s)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_delete_spine_ColorTimeline) 
+
+bool js_register_spine_ColorTimeline(se::Object* obj) {
+    auto* cls = se::Class::create("ColorTimeline", obj, __jsb_spine_CurveTimeline_proto, nullptr); 
+    
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
+    
+    cls->defineFunction("setFrame", _SE(js_spine_ColorTimeline_setFrame)); 
+    cls->defineFunction("getSlotIndex", _SE(js_spine_ColorTimeline_getSlotIndex)); 
+    cls->defineFunction("setSlotIndex", _SE(js_spine_ColorTimeline_setSlotIndex)); 
+    cls->defineFunction("getFrames", _SE(js_spine_ColorTimeline_getFrames)); 
+    
+    cls->defineStaticProperty("ENTRIES", _SE(js_spine_ColorTimeline_ENTRIES_get), nullptr); 
+    
+    
+    
+    cls->defineFinalizeFunction(_SE(js_delete_spine_ColorTimeline));
+    
+    
+    cls->install();
+    JSBClassType::registerClass<spine::ColorTimeline>(cls);
+    
+    __jsb_spine_ColorTimeline_proto = cls->getProto();
+    __jsb_spine_ColorTimeline_class = cls;
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -6785,6 +6943,163 @@ bool js_register_spine_EventTimeline(se::Object* obj) {
 }
 
 
+se::Class* __jsb_spine_ConstraintData_class = nullptr;
+se::Object* __jsb_spine_ConstraintData_proto = nullptr;
+SE_DECLARE_FINALIZE_FUNC(js_delete_spine_ConstraintData) 
+
+static bool js_delete_spine_ConstraintData(se::State& s)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_delete_spine_ConstraintData) 
+
+static bool js_spine_ConstraintData_getName(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    spine::ConstraintData *arg1 = (spine::ConstraintData *) NULL ;
+    spine::String *result = 0 ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<spine::ConstraintData>(s);
+    if (nullptr == arg1) return true;
+    result = (spine::String *) &(arg1)->getName();
+    
+    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_spine_ConstraintData_getName) 
+
+static bool js_spine_ConstraintData_getOrder(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    spine::ConstraintData *arg1 = (spine::ConstraintData *) NULL ;
+    size_t result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<spine::ConstraintData>(s);
+    if (nullptr == arg1) return true;
+    result = (arg1)->getOrder();
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_spine_ConstraintData_getOrder) 
+
+static bool js_spine_ConstraintData_setOrder(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    spine::ConstraintData *arg1 = (spine::ConstraintData *) NULL ;
+    size_t arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<spine::ConstraintData>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    (arg1)->setOrder(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_spine_ConstraintData_setOrder) 
+
+static bool js_spine_ConstraintData_isSkinRequired(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    spine::ConstraintData *arg1 = (spine::ConstraintData *) NULL ;
+    bool result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<spine::ConstraintData>(s);
+    if (nullptr == arg1) return true;
+    result = (bool)(arg1)->isSkinRequired();
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_spine_ConstraintData_isSkinRequired) 
+
+static bool js_spine_ConstraintData_setSkinRequired(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    spine::ConstraintData *arg1 = (spine::ConstraintData *) NULL ;
+    bool arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<spine::ConstraintData>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2);
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    (arg1)->setSkinRequired(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_spine_ConstraintData_setSkinRequired) 
+
+bool js_register_spine_ConstraintData(se::Object* obj) {
+    auto* cls = se::Class::create("ConstraintData", obj, nullptr, nullptr); 
+    
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
+    
+    cls->defineFunction("getName", _SE(js_spine_ConstraintData_getName)); 
+    cls->defineFunction("getOrder", _SE(js_spine_ConstraintData_getOrder)); 
+    cls->defineFunction("setOrder", _SE(js_spine_ConstraintData_setOrder)); 
+    cls->defineFunction("isSkinRequired", _SE(js_spine_ConstraintData_isSkinRequired)); 
+    cls->defineFunction("setSkinRequired", _SE(js_spine_ConstraintData_setSkinRequired)); 
+    
+    
+    
+    
+    cls->defineFinalizeFunction(_SE(js_delete_spine_ConstraintData));
+    
+    
+    cls->install();
+    JSBClassType::registerClass<spine::ConstraintData>(cls);
+    
+    __jsb_spine_ConstraintData_proto = cls->getProto();
+    __jsb_spine_ConstraintData_class = cls;
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+
 se::Class* __jsb_spine_IkConstraint_class = nullptr;
 se::Object* __jsb_spine_IkConstraint_proto = nullptr;
 SE_DECLARE_FINALIZE_FUNC(js_delete_spine_IkConstraint) 
@@ -7626,7 +7941,7 @@ static bool js_delete_spine_IkConstraintData(se::State& s)
 SE_BIND_FINALIZE_FUNC(js_delete_spine_IkConstraintData) 
 
 bool js_register_spine_IkConstraintData(se::Object* obj) {
-    auto* cls = se::Class::create("IkConstraintData", obj, nullptr, nullptr); 
+    auto* cls = se::Class::create("IkConstraintData", obj, __jsb_spine_ConstraintData_proto, nullptr); 
     
     cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
@@ -8719,31 +9034,6 @@ static bool js_spine_MeshAttachment_setHeight(se::State& s)
 }
 SE_BIND_FUNC(js_spine_MeshAttachment_setHeight) 
 
-static bool js_spine_MeshAttachment_copy(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    spine::MeshAttachment *arg1 = (spine::MeshAttachment *) NULL ;
-    spine::Attachment *result = 0 ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<spine::MeshAttachment>(s);
-    if (nullptr == arg1) return true;
-    result = (spine::Attachment *)(arg1)->copy();
-    
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_spine_MeshAttachment_copy) 
-
 static bool js_spine_MeshAttachment_newLinkedMesh(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -8770,7 +9060,7 @@ static bool js_spine_MeshAttachment_newLinkedMesh(se::State& s)
 SE_BIND_FUNC(js_spine_MeshAttachment_newLinkedMesh) 
 
 bool js_register_spine_MeshAttachment(se::Object* obj) {
-    auto* cls = se::Class::create("MeshAttachment", obj, nullptr, nullptr); 
+    auto* cls = se::Class::create("MeshAttachment", obj, __jsb_spine_VertexAttachment_proto, nullptr); 
     
     cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
@@ -8814,7 +9104,6 @@ bool js_register_spine_MeshAttachment(se::Object* obj) {
     cls->defineFunction("setWidth", _SE(js_spine_MeshAttachment_setWidth)); 
     cls->defineFunction("getHeight", _SE(js_spine_MeshAttachment_getHeight)); 
     cls->defineFunction("setHeight", _SE(js_spine_MeshAttachment_setHeight)); 
-    cls->defineFunction("copy", _SE(js_spine_MeshAttachment_copy)); 
     cls->defineFunction("newLinkedMesh", _SE(js_spine_MeshAttachment_newLinkedMesh)); 
     
     
@@ -8956,31 +9245,6 @@ static bool js_spine_PathAttachment_setConstantSpeed(se::State& s)
 }
 SE_BIND_FUNC(js_spine_PathAttachment_setConstantSpeed) 
 
-static bool js_spine_PathAttachment_copy(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    spine::PathAttachment *arg1 = (spine::PathAttachment *) NULL ;
-    spine::Attachment *result = 0 ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<spine::PathAttachment>(s);
-    if (nullptr == arg1) return true;
-    result = (spine::Attachment *)(arg1)->copy();
-    
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_spine_PathAttachment_copy) 
-
 static bool js_delete_spine_PathAttachment(se::State& s)
 {
     return true;
@@ -8988,7 +9252,7 @@ static bool js_delete_spine_PathAttachment(se::State& s)
 SE_BIND_FINALIZE_FUNC(js_delete_spine_PathAttachment) 
 
 bool js_register_spine_PathAttachment(se::Object* obj) {
-    auto* cls = se::Class::create("PathAttachment", obj, nullptr, nullptr); 
+    auto* cls = se::Class::create("PathAttachment", obj, __jsb_spine_VertexAttachment_proto, nullptr); 
     
     cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
@@ -8997,7 +9261,6 @@ bool js_register_spine_PathAttachment(se::Object* obj) {
     cls->defineFunction("setClosed", _SE(js_spine_PathAttachment_setClosed)); 
     cls->defineFunction("isConstantSpeed", _SE(js_spine_PathAttachment_isConstantSpeed)); 
     cls->defineFunction("setConstantSpeed", _SE(js_spine_PathAttachment_setConstantSpeed)); 
-    cls->defineFunction("copy", _SE(js_spine_PathAttachment_copy)); 
     
     
     
@@ -9934,7 +10197,7 @@ static bool js_delete_spine_PathConstraintData(se::State& s)
 SE_BIND_FINALIZE_FUNC(js_delete_spine_PathConstraintData) 
 
 bool js_register_spine_PathConstraintData(se::Object* obj) {
-    auto* cls = se::Class::create("PathConstraintData", obj, nullptr, nullptr); 
+    auto* cls = se::Class::create("PathConstraintData", obj, __jsb_spine_ConstraintData_proto, nullptr); 
     
     cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
@@ -11175,6 +11438,243 @@ bool js_register_spine_RegionAttachment(se::Object* obj) {
 }
 
 
+se::Class* __jsb_spine_TranslateTimeline_class = nullptr;
+se::Object* __jsb_spine_TranslateTimeline_proto = nullptr;
+SE_DECLARE_FINALIZE_FUNC(js_delete_spine_TranslateTimeline) 
+
+static bool js_spine_TranslateTimeline_ENTRIES_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    int result;
+    
+    result = (int)(int)spine::TranslateTimeline::ENTRIES;
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_spine_TranslateTimeline_ENTRIES_get) 
+
+static bool js_delete_spine_TranslateTimeline(se::State& s)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_delete_spine_TranslateTimeline) 
+
+static bool js_spine_TranslateTimeline_setFrame(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    spine::TranslateTimeline *arg1 = (spine::TranslateTimeline *) NULL ;
+    int arg2 ;
+    float arg3 ;
+    float arg4 ;
+    float arg5 ;
+    
+    if(argc != 4) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<spine::TranslateTimeline>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    ok &= sevalue_to_native(args[3], &arg5, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    (arg1)->setFrame(arg2,arg3,arg4,arg5);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_spine_TranslateTimeline_setFrame) 
+
+bool js_register_spine_TranslateTimeline(se::Object* obj) {
+    auto* cls = se::Class::create("TranslateTimeline", obj, __jsb_spine_CurveTimeline_proto, nullptr); 
+    
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
+    
+    cls->defineFunction("setFrame", _SE(js_spine_TranslateTimeline_setFrame)); 
+    
+    cls->defineStaticProperty("ENTRIES", _SE(js_spine_TranslateTimeline_ENTRIES_get), nullptr); 
+    
+    
+    
+    cls->defineFinalizeFunction(_SE(js_delete_spine_TranslateTimeline));
+    
+    
+    cls->install();
+    JSBClassType::registerClass<spine::TranslateTimeline>(cls);
+    
+    __jsb_spine_TranslateTimeline_proto = cls->getProto();
+    __jsb_spine_TranslateTimeline_class = cls;
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+
+se::Class* __jsb_spine_TwoColorTimeline_class = nullptr;
+se::Object* __jsb_spine_TwoColorTimeline_proto = nullptr;
+SE_DECLARE_FINALIZE_FUNC(js_delete_spine_TwoColorTimeline) 
+
+static bool js_spine_TwoColorTimeline_ENTRIES_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    int result;
+    
+    result = (int)(int)spine::TwoColorTimeline::ENTRIES;
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_spine_TwoColorTimeline_ENTRIES_get) 
+
+static bool js_spine_TwoColorTimeline_setFrame(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    spine::TwoColorTimeline *arg1 = (spine::TwoColorTimeline *) NULL ;
+    int arg2 ;
+    float arg3 ;
+    float arg4 ;
+    float arg5 ;
+    float arg6 ;
+    float arg7 ;
+    float arg8 ;
+    float arg9 ;
+    float arg10 ;
+    
+    if(argc != 9) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 9);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<spine::TwoColorTimeline>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    ok &= sevalue_to_native(args[3], &arg5, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    ok &= sevalue_to_native(args[4], &arg6, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    ok &= sevalue_to_native(args[5], &arg7, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    ok &= sevalue_to_native(args[6], &arg8, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    ok &= sevalue_to_native(args[7], &arg9, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    ok &= sevalue_to_native(args[8], &arg10, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    (arg1)->setFrame(arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_spine_TwoColorTimeline_setFrame) 
+
+static bool js_spine_TwoColorTimeline_getSlotIndex(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    spine::TwoColorTimeline *arg1 = (spine::TwoColorTimeline *) NULL ;
+    int result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<spine::TwoColorTimeline>(s);
+    if (nullptr == arg1) return true;
+    result = (int)(arg1)->getSlotIndex();
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_spine_TwoColorTimeline_getSlotIndex) 
+
+static bool js_spine_TwoColorTimeline_setSlotIndex(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    spine::TwoColorTimeline *arg1 = (spine::TwoColorTimeline *) NULL ;
+    int arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<spine::TwoColorTimeline>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    (arg1)->setSlotIndex(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_spine_TwoColorTimeline_setSlotIndex) 
+
+static bool js_delete_spine_TwoColorTimeline(se::State& s)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_delete_spine_TwoColorTimeline) 
+
+bool js_register_spine_TwoColorTimeline(se::Object* obj) {
+    auto* cls = se::Class::create("TwoColorTimeline", obj, __jsb_spine_CurveTimeline_proto, nullptr); 
+    
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
+    
+    cls->defineFunction("setFrame", _SE(js_spine_TwoColorTimeline_setFrame)); 
+    cls->defineFunction("getSlotIndex", _SE(js_spine_TwoColorTimeline_getSlotIndex)); 
+    cls->defineFunction("setSlotIndex", _SE(js_spine_TwoColorTimeline_setSlotIndex)); 
+    
+    cls->defineStaticProperty("ENTRIES", _SE(js_spine_TwoColorTimeline_ENTRIES_get), nullptr); 
+    
+    
+    
+    cls->defineFinalizeFunction(_SE(js_delete_spine_TwoColorTimeline));
+    
+    
+    cls->install();
+    JSBClassType::registerClass<spine::TwoColorTimeline>(cls);
+    
+    __jsb_spine_TwoColorTimeline_proto = cls->getProto();
+    __jsb_spine_TwoColorTimeline_class = cls;
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+
 se::Class* __jsb_spine_RotateTimeline_class = nullptr;
 se::Object* __jsb_spine_RotateTimeline_proto = nullptr;
 SE_DECLARE_FINALIZE_FUNC(js_delete_spine_RotateTimeline) 
@@ -11320,29 +11820,6 @@ se::Class* __jsb_spine_ScaleTimeline_class = nullptr;
 se::Object* __jsb_spine_ScaleTimeline_proto = nullptr;
 SE_DECLARE_FINALIZE_FUNC(js_delete_spine_ScaleTimeline) 
 
-static bool js_spine_ScaleTimeline_getPropertyId(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    spine::ScaleTimeline *arg1 = (spine::ScaleTimeline *) NULL ;
-    int result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<spine::ScaleTimeline>(s);
-    if (nullptr == arg1) return true;
-    result = (int)(arg1)->getPropertyId();
-    
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_spine_ScaleTimeline_getPropertyId) 
-
 static bool js_delete_spine_ScaleTimeline(se::State& s)
 {
     return true;
@@ -11350,11 +11827,10 @@ static bool js_delete_spine_ScaleTimeline(se::State& s)
 SE_BIND_FINALIZE_FUNC(js_delete_spine_ScaleTimeline) 
 
 bool js_register_spine_ScaleTimeline(se::Object* obj) {
-    auto* cls = se::Class::create("ScaleTimeline", obj, nullptr, nullptr); 
+    auto* cls = se::Class::create("ScaleTimeline", obj, __jsb_spine_TranslateTimeline_proto, nullptr); 
     
     cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
-    cls->defineFunction("getPropertyId", _SE(js_spine_ScaleTimeline_getPropertyId)); 
     
     
     
@@ -11376,29 +11852,6 @@ se::Class* __jsb_spine_ShearTimeline_class = nullptr;
 se::Object* __jsb_spine_ShearTimeline_proto = nullptr;
 SE_DECLARE_FINALIZE_FUNC(js_delete_spine_ShearTimeline) 
 
-static bool js_spine_ShearTimeline_getPropertyId(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    spine::ShearTimeline *arg1 = (spine::ShearTimeline *) NULL ;
-    int result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<spine::ShearTimeline>(s);
-    if (nullptr == arg1) return true;
-    result = (int)(arg1)->getPropertyId();
-    
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_spine_ShearTimeline_getPropertyId) 
-
 static bool js_delete_spine_ShearTimeline(se::State& s)
 {
     return true;
@@ -11406,11 +11859,10 @@ static bool js_delete_spine_ShearTimeline(se::State& s)
 SE_BIND_FINALIZE_FUNC(js_delete_spine_ShearTimeline) 
 
 bool js_register_spine_ShearTimeline(se::Object* obj) {
-    auto* cls = se::Class::create("ShearTimeline", obj, nullptr, nullptr); 
+    auto* cls = se::Class::create("ShearTimeline", obj, __jsb_spine_TranslateTimeline_proto, nullptr); 
     
     cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
-    cls->defineFunction("getPropertyId", _SE(js_spine_ShearTimeline_getPropertyId)); 
     
     
     
@@ -15874,7 +16326,7 @@ static bool js_delete_spine_TransformConstraintData(se::State& s)
 SE_BIND_FINALIZE_FUNC(js_delete_spine_TransformConstraintData) 
 
 bool js_register_spine_TransformConstraintData(se::Object* obj) {
-    auto* cls = se::Class::create("TransformConstraintData", obj, nullptr, nullptr); 
+    auto* cls = se::Class::create("TransformConstraintData", obj, __jsb_spine_ConstraintData_proto, nullptr); 
     
     cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
@@ -15997,451 +16449,6 @@ bool js_register_spine_TransformConstraintTimeline(se::Object* obj) {
     
     __jsb_spine_TransformConstraintTimeline_proto = cls->getProto();
     __jsb_spine_TransformConstraintTimeline_class = cls;
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-
-
-se::Class* __jsb_spine_TranslateTimeline_class = nullptr;
-se::Object* __jsb_spine_TranslateTimeline_proto = nullptr;
-SE_DECLARE_FINALIZE_FUNC(js_delete_spine_TranslateTimeline) 
-
-static bool js_spine_TranslateTimeline_ENTRIES_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    int result;
-    
-    result = (int)(int)spine::TranslateTimeline::ENTRIES;
-    
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_spine_TranslateTimeline_ENTRIES_get) 
-
-static bool js_delete_spine_TranslateTimeline(se::State& s)
-{
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_delete_spine_TranslateTimeline) 
-
-static bool js_spine_TranslateTimeline_setFrame(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    spine::TranslateTimeline *arg1 = (spine::TranslateTimeline *) NULL ;
-    int arg2 ;
-    float arg3 ;
-    float arg4 ;
-    float arg5 ;
-    
-    if(argc != 4) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<spine::TranslateTimeline>(s);
-    if (nullptr == arg1) return true;
-    
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
-    
-    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
-    
-    ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
-    
-    ok &= sevalue_to_native(args[3], &arg5, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
-    (arg1)->setFrame(arg2,arg3,arg4,arg5);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_spine_TranslateTimeline_setFrame) 
-
-bool js_register_spine_TranslateTimeline(se::Object* obj) {
-    auto* cls = se::Class::create("TranslateTimeline", obj, __jsb_spine_CurveTimeline_proto, nullptr); 
-    
-    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
-    
-    cls->defineFunction("setFrame", _SE(js_spine_TranslateTimeline_setFrame)); 
-    
-    cls->defineStaticProperty("ENTRIES", _SE(js_spine_TranslateTimeline_ENTRIES_get), nullptr); 
-    
-    
-    
-    cls->defineFinalizeFunction(_SE(js_delete_spine_TranslateTimeline));
-    
-    
-    cls->install();
-    JSBClassType::registerClass<spine::TranslateTimeline>(cls);
-    
-    __jsb_spine_TranslateTimeline_proto = cls->getProto();
-    __jsb_spine_TranslateTimeline_class = cls;
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-
-
-se::Class* __jsb_spine_TwoColorTimeline_class = nullptr;
-se::Object* __jsb_spine_TwoColorTimeline_proto = nullptr;
-SE_DECLARE_FINALIZE_FUNC(js_delete_spine_TwoColorTimeline) 
-
-static bool js_spine_TwoColorTimeline_ENTRIES_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    int result;
-    
-    result = (int)(int)spine::TwoColorTimeline::ENTRIES;
-    
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_spine_TwoColorTimeline_ENTRIES_get) 
-
-static bool js_spine_TwoColorTimeline_setFrame(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    spine::TwoColorTimeline *arg1 = (spine::TwoColorTimeline *) NULL ;
-    int arg2 ;
-    float arg3 ;
-    float arg4 ;
-    float arg5 ;
-    float arg6 ;
-    float arg7 ;
-    float arg8 ;
-    float arg9 ;
-    float arg10 ;
-    
-    if(argc != 9) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 9);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<spine::TwoColorTimeline>(s);
-    if (nullptr == arg1) return true;
-    
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
-    
-    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
-    
-    ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
-    
-    ok &= sevalue_to_native(args[3], &arg5, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
-    
-    ok &= sevalue_to_native(args[4], &arg6, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
-    
-    ok &= sevalue_to_native(args[5], &arg7, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
-    
-    ok &= sevalue_to_native(args[6], &arg8, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
-    
-    ok &= sevalue_to_native(args[7], &arg9, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
-    
-    ok &= sevalue_to_native(args[8], &arg10, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
-    (arg1)->setFrame(arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_spine_TwoColorTimeline_setFrame) 
-
-static bool js_spine_TwoColorTimeline_getSlotIndex(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    spine::TwoColorTimeline *arg1 = (spine::TwoColorTimeline *) NULL ;
-    int result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<spine::TwoColorTimeline>(s);
-    if (nullptr == arg1) return true;
-    result = (int)(arg1)->getSlotIndex();
-    
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_spine_TwoColorTimeline_getSlotIndex) 
-
-static bool js_spine_TwoColorTimeline_setSlotIndex(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    spine::TwoColorTimeline *arg1 = (spine::TwoColorTimeline *) NULL ;
-    int arg2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<spine::TwoColorTimeline>(s);
-    if (nullptr == arg1) return true;
-    
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
-    (arg1)->setSlotIndex(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_spine_TwoColorTimeline_setSlotIndex) 
-
-static bool js_delete_spine_TwoColorTimeline(se::State& s)
-{
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_delete_spine_TwoColorTimeline) 
-
-bool js_register_spine_TwoColorTimeline(se::Object* obj) {
-    auto* cls = se::Class::create("TwoColorTimeline", obj, __jsb_spine_CurveTimeline_proto, nullptr); 
-    
-    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
-    
-    cls->defineFunction("setFrame", _SE(js_spine_TwoColorTimeline_setFrame)); 
-    cls->defineFunction("getSlotIndex", _SE(js_spine_TwoColorTimeline_getSlotIndex)); 
-    cls->defineFunction("setSlotIndex", _SE(js_spine_TwoColorTimeline_setSlotIndex)); 
-    
-    cls->defineStaticProperty("ENTRIES", _SE(js_spine_TwoColorTimeline_ENTRIES_get), nullptr); 
-    
-    
-    
-    cls->defineFinalizeFunction(_SE(js_delete_spine_TwoColorTimeline));
-    
-    
-    cls->install();
-    JSBClassType::registerClass<spine::TwoColorTimeline>(cls);
-    
-    __jsb_spine_TwoColorTimeline_proto = cls->getProto();
-    __jsb_spine_TwoColorTimeline_class = cls;
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-
-
-se::Class* __jsb_spine_VertexAttachment_class = nullptr;
-se::Object* __jsb_spine_VertexAttachment_proto = nullptr;
-SE_DECLARE_FINALIZE_FUNC(js_delete_spine_VertexAttachment) 
-
-static bool js_delete_spine_VertexAttachment(se::State& s)
-{
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_delete_spine_VertexAttachment) 
-
-static bool js_spine_VertexAttachment_getId(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    spine::VertexAttachment *arg1 = (spine::VertexAttachment *) NULL ;
-    int result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<spine::VertexAttachment>(s);
-    if (nullptr == arg1) return true;
-    result = (int)(arg1)->getId();
-    
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_spine_VertexAttachment_getId) 
-
-static bool js_spine_VertexAttachment_getVertices(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    spine::VertexAttachment *arg1 = (spine::VertexAttachment *) NULL ;
-    spine::Vector< float > *result = 0 ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<spine::VertexAttachment>(s);
-    if (nullptr == arg1) return true;
-    result = (spine::Vector< float > *) &(arg1)->getVertices();
-    
-    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_spine_VertexAttachment_getVertices) 
-
-static bool js_spine_VertexAttachment_getWorldVerticesLength(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    spine::VertexAttachment *arg1 = (spine::VertexAttachment *) NULL ;
-    size_t result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<spine::VertexAttachment>(s);
-    if (nullptr == arg1) return true;
-    result = (arg1)->getWorldVerticesLength();
-    
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_spine_VertexAttachment_getWorldVerticesLength) 
-
-static bool js_spine_VertexAttachment_setWorldVerticesLength(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    spine::VertexAttachment *arg1 = (spine::VertexAttachment *) NULL ;
-    size_t arg2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<spine::VertexAttachment>(s);
-    if (nullptr == arg1) return true;
-    
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    
-    (arg1)->setWorldVerticesLength(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_spine_VertexAttachment_setWorldVerticesLength) 
-
-static bool js_spine_VertexAttachment_getDeformAttachment(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    spine::VertexAttachment *arg1 = (spine::VertexAttachment *) NULL ;
-    spine::VertexAttachment *result = 0 ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<spine::VertexAttachment>(s);
-    if (nullptr == arg1) return true;
-    result = (spine::VertexAttachment *)(arg1)->getDeformAttachment();
-    
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_spine_VertexAttachment_getDeformAttachment) 
-
-static bool js_spine_VertexAttachment_setDeformAttachment(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    spine::VertexAttachment *arg1 = (spine::VertexAttachment *) NULL ;
-    spine::VertexAttachment *arg2 = (spine::VertexAttachment *) NULL ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<spine::VertexAttachment>(s);
-    if (nullptr == arg1) return true;
-    
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
-    (arg1)->setDeformAttachment(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_spine_VertexAttachment_setDeformAttachment) 
-
-static bool js_spine_VertexAttachment_copyTo(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    spine::VertexAttachment *arg1 = (spine::VertexAttachment *) NULL ;
-    spine::VertexAttachment *arg2 = (spine::VertexAttachment *) NULL ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<spine::VertexAttachment>(s);
-    if (nullptr == arg1) return true;
-    
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
-    (arg1)->copyTo(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_spine_VertexAttachment_copyTo) 
-
-bool js_register_spine_VertexAttachment(se::Object* obj) {
-    auto* cls = se::Class::create("VertexAttachment", obj, __jsb_spine_Attachment_proto, nullptr); 
-    
-    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
-    
-    cls->defineFunction("getId", _SE(js_spine_VertexAttachment_getId)); 
-    cls->defineFunction("getVertices", _SE(js_spine_VertexAttachment_getVertices)); 
-    cls->defineFunction("getWorldVerticesLength", _SE(js_spine_VertexAttachment_getWorldVerticesLength)); 
-    cls->defineFunction("setWorldVerticesLength", _SE(js_spine_VertexAttachment_setWorldVerticesLength)); 
-    cls->defineFunction("getDeformAttachment", _SE(js_spine_VertexAttachment_getDeformAttachment)); 
-    cls->defineFunction("setDeformAttachment", _SE(js_spine_VertexAttachment_setDeformAttachment)); 
-    cls->defineFunction("copyTo", _SE(js_spine_VertexAttachment_copyTo)); 
-    
-    
-    
-    
-    cls->defineFinalizeFunction(_SE(js_delete_spine_VertexAttachment));
-    
-    
-    cls->install();
-    JSBClassType::registerClass<spine::VertexAttachment>(cls);
-    
-    __jsb_spine_VertexAttachment_proto = cls->getProto();
-    __jsb_spine_VertexAttachment_class = cls;
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -16930,163 +16937,6 @@ bool js_register_spine_SwirlVertexEffect(se::Object* obj) {
     
     __jsb_spine_SwirlVertexEffect_proto = cls->getProto();
     __jsb_spine_SwirlVertexEffect_class = cls;
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-
-
-se::Class* __jsb_spine_ConstraintData_class = nullptr;
-se::Object* __jsb_spine_ConstraintData_proto = nullptr;
-SE_DECLARE_FINALIZE_FUNC(js_delete_spine_ConstraintData) 
-
-static bool js_delete_spine_ConstraintData(se::State& s)
-{
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_delete_spine_ConstraintData) 
-
-static bool js_spine_ConstraintData_getName(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    spine::ConstraintData *arg1 = (spine::ConstraintData *) NULL ;
-    spine::String *result = 0 ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<spine::ConstraintData>(s);
-    if (nullptr == arg1) return true;
-    result = (spine::String *) &(arg1)->getName();
-    
-    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_spine_ConstraintData_getName) 
-
-static bool js_spine_ConstraintData_getOrder(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    spine::ConstraintData *arg1 = (spine::ConstraintData *) NULL ;
-    size_t result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<spine::ConstraintData>(s);
-    if (nullptr == arg1) return true;
-    result = (arg1)->getOrder();
-    
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_spine_ConstraintData_getOrder) 
-
-static bool js_spine_ConstraintData_setOrder(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    spine::ConstraintData *arg1 = (spine::ConstraintData *) NULL ;
-    size_t arg2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<spine::ConstraintData>(s);
-    if (nullptr == arg1) return true;
-    
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    
-    (arg1)->setOrder(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_spine_ConstraintData_setOrder) 
-
-static bool js_spine_ConstraintData_isSkinRequired(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    spine::ConstraintData *arg1 = (spine::ConstraintData *) NULL ;
-    bool result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<spine::ConstraintData>(s);
-    if (nullptr == arg1) return true;
-    result = (bool)(arg1)->isSkinRequired();
-    
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_spine_ConstraintData_isSkinRequired) 
-
-static bool js_spine_ConstraintData_setSkinRequired(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    spine::ConstraintData *arg1 = (spine::ConstraintData *) NULL ;
-    bool arg2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<spine::ConstraintData>(s);
-    if (nullptr == arg1) return true;
-    
-    ok &= sevalue_to_native(args[0], &arg2);
-    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
-    (arg1)->setSkinRequired(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_spine_ConstraintData_setSkinRequired) 
-
-bool js_register_spine_ConstraintData(se::Object* obj) {
-    auto* cls = se::Class::create("ConstraintData", obj, nullptr, nullptr); 
-    
-    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
-    
-    cls->defineFunction("getName", _SE(js_spine_ConstraintData_getName)); 
-    cls->defineFunction("getOrder", _SE(js_spine_ConstraintData_getOrder)); 
-    cls->defineFunction("setOrder", _SE(js_spine_ConstraintData_setOrder)); 
-    cls->defineFunction("isSkinRequired", _SE(js_spine_ConstraintData_isSkinRequired)); 
-    cls->defineFunction("setSkinRequired", _SE(js_spine_ConstraintData_setSkinRequired)); 
-    
-    
-    
-    
-    cls->defineFinalizeFunction(_SE(js_delete_spine_ConstraintData));
-    
-    
-    cls->install();
-    JSBClassType::registerClass<spine::ConstraintData>(cls);
-    
-    __jsb_spine_ConstraintData_proto = cls->getProto();
-    __jsb_spine_ConstraintData_class = cls;
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -21542,18 +21392,20 @@ bool register_all_spine(se::Object* obj) {
     js_register_spine_AnimationStateData(ns); 
     js_register_spine_Attachment(ns); 
     js_register_spine_AttachmentTimeline(ns); 
+    js_register_spine_VertexAttachment(ns); 
     js_register_spine_BoundingBoxAttachment(ns); 
     js_register_spine_Bone(ns); 
     js_register_spine_BoneData(ns); 
     js_register_spine_ClippingAttachment(ns); 
     js_register_spine_Color(ns); 
-    js_register_spine_ColorTimeline(ns); 
     js_register_spine_CurveTimeline(ns); 
+    js_register_spine_ColorTimeline(ns); 
     js_register_spine_DeformTimeline(ns); 
     js_register_spine_DrawOrderTimeline(ns); 
     js_register_spine_Event(ns); 
     js_register_spine_EventData(ns); 
     js_register_spine_EventTimeline(ns); 
+    js_register_spine_ConstraintData(ns); 
     js_register_spine_IkConstraint(ns); 
     js_register_spine_IkConstraintData(ns); 
     js_register_spine_IkConstraintTimeline(ns); 
@@ -21566,6 +21418,8 @@ bool register_all_spine(se::Object* obj) {
     js_register_spine_PathConstraintSpacingTimeline(ns); 
     js_register_spine_PointAttachment(ns); 
     js_register_spine_RegionAttachment(ns); 
+    js_register_spine_TranslateTimeline(ns); 
+    js_register_spine_TwoColorTimeline(ns); 
     js_register_spine_RotateTimeline(ns); 
     js_register_spine_ScaleTimeline(ns); 
     js_register_spine_ShearTimeline(ns); 
@@ -21579,13 +21433,9 @@ bool register_all_spine(se::Object* obj) {
     js_register_spine_TransformConstraint(ns); 
     js_register_spine_TransformConstraintData(ns); 
     js_register_spine_TransformConstraintTimeline(ns); 
-    js_register_spine_TranslateTimeline(ns); 
-    js_register_spine_TwoColorTimeline(ns); 
-    js_register_spine_VertexAttachment(ns); 
     js_register_spine_VertexEffect(ns); 
     js_register_spine_JitterVertexEffect(ns); 
     js_register_spine_SwirlVertexEffect(ns); 
-    js_register_spine_ConstraintData(ns); 
     js_register_spine_VertexEffectDelegate(ns); 
     js_register_spine_SkeletonRenderer(ns); 
     js_register_spine_SkeletonAnimation(ns); 

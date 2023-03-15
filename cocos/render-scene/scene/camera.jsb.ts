@@ -132,6 +132,7 @@ Object.defineProperty(Camera, "standardExposureValue", {
     configurable: true,
     enumerable: true,
     get () {
+        // @ts-expect-error Property 'getStandardExposureValue' does not exist on type 'typeof Camera'.
         return Camera.getStandardExposureValue();
     },
 });
@@ -140,6 +141,7 @@ Object.defineProperty(Camera, "standardLightMeterScale", {
     configurable: true,
     enumerable: true,
     get () {
+        // @ts-expect-error Property 'getStandardLightMeterScale' does not exist on type 'typeof Camera'.
         return Camera.getStandardLightMeterScale();
     },
 });
@@ -271,5 +273,4 @@ cameraProto.worldMatrixToScreen = function worldMatrixToScreen (out: Mat4, world
     fillMat4WithTempFloatArray(out);
     return out;
 };
-
 

@@ -456,9 +456,7 @@ export class Vec3 extends ValueType {
         const y = a.y;
         const z = a.z;
         let rhw = m.m03 * x + m.m07 * y + m.m11 * z + m.m15;
-        // Important note by stanley:
-        // Math.abs needs to be removed later, because the operation will generate a wrong homogeneous coordinate
-        rhw = rhw ? Math.abs(1 / rhw) : 1;
+        rhw = rhw ? 1 / rhw : 1;
         out.x = (m.m00 * x + m.m04 * y + m.m08 * z + m.m12) * rhw;
         out.y = (m.m01 * x + m.m05 * y + m.m09 * z + m.m13) * rhw;
         out.z = (m.m02 * x + m.m06 * y + m.m10 * z + m.m14) * rhw;
@@ -474,9 +472,7 @@ export class Vec3 extends ValueType {
         const y = a.y;
         const z = a.z;
         let rhw = m.m03 * x + m.m07 * y + m.m11 * z;
-        // Important note by stanley:
-        // Math.abs needs to be removed later, because the operation will generate a wrong homogeneous coordinate
-        rhw = rhw ? Math.abs(1 / rhw) : 1;
+        rhw = rhw ? 1 / rhw : 1;
         out.x = (m.m00 * x + m.m04 * y + m.m08 * z) * rhw;
         out.y = (m.m01 * x + m.m05 * y + m.m09 * z) * rhw;
         out.z = (m.m02 * x + m.m06 * y + m.m10 * z) * rhw;
@@ -778,6 +774,34 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Calculates a new position from current to target no more than `maxStep` distance.
+     * @zh 计算一个新位置从当前位置移动不超过 `maxStep` 距离到目标位置。
+     * @param current current position
+     * @param target target position
+     * @param maxStep maximum moving distance
+     */
+    public static moveTowards<Out extends IVec3Like> (out: Out, current: IVec3Like, target: IVec3Like, maxStep: number) {
+        const deltaX = target.x - current.x;
+        const deltaY = target.y - current.y;
+        const deltaZ = target.z - current.z;
+
+        const distanceSqr = deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ;
+        if (distanceSqr === 0 || (maxStep >= 0 && distanceSqr < maxStep * maxStep)) {
+            out.x = target.x;
+            out.y = target.y;
+            out.z = target.z;
+            return out;
+        }
+
+        const distance = Math.sqrt(distanceSqr);
+        const scale = maxStep / distance;
+        out.x = current.x + deltaX * scale;
+        out.y = current.y + deltaY * scale;
+        out.z = current.z + deltaZ * scale;
+        return out;
+    }
+
+    /**
      * @en x component.
      * @zh x 分量。
      */
@@ -801,7 +825,7 @@ export class Vec3 extends ValueType {
 
     constructor (x?: number | Vec3, y?: number, z?: number) {
         super();
-        if (x && typeof x === 'object') {
+        if (typeof x === 'object') {
             this.x = x.x;
             this.y = x.y;
             this.z = x.z;
@@ -839,7 +863,7 @@ export class Vec3 extends ValueType {
     public set (x?: number, y?: number, z?: number): Vec3;
 
     public set (x?: number | Vec3, y?: number, z?: number) {
-        if (x && typeof x === 'object') {
+        if (typeof x === 'object') {
             this.x = x.x;
             this.y = x.y;
             this.z = x.z;

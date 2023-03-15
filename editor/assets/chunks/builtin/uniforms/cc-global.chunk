@@ -9,11 +9,7 @@ layout(set = 0, binding = 0) uniform CCGlobal {
   mediump vec4 cc_nativeSize; // xy: shading size, zw: inverse shading size
   mediump vec4 cc_probeInfo; // x: reflection probe count
 
-  mediump vec4 cc_debug_view_mode; // x: single mode, y: lighting with albedo, z: csm layer coloration w: unused
-  mediump vec4 cc_debug_view_composite_pack_1; // x: dir diffuse, y: dir specular, z: env diffuse, w: env specular
-  mediump vec4 cc_debug_view_composite_pack_2; // x: emissive, y: lightmap, z: shadow, w: ao
-  mediump vec4 cc_debug_view_composite_pack_3; // x: normalmap, y: fog, z: tonemapping, w: gamma correction
-  mediump vec4 cc_debug_view_composite_pack_4; // x: fresnel, y: transmit diffuse, z: transmit specular, w: trt
+  mediump vec4 cc_debug_view_mode; // x: single mode, yzw: composite and misc flags combination value
 };
 
 #pragma builtin(global)

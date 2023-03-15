@@ -73,7 +73,7 @@ const PersistentMask = ~(ToDestroy | Dirty | Destroying | DontDestroy | Deactiva
 const AllHideMasks = DontSave | EditorOnly | LockedInEditor | HideInHierarchy;
 
 const objectsToDestroy: any = [];
-let deferredDestroyTimer = null;
+let deferredDestroyTimer: number | null = null;
 
 function compileDestruct (obj, ctor) {
     const shouldSkipId = obj instanceof legacyCC.Node || obj instanceof legacyCC.Component;
@@ -314,7 +314,6 @@ class CCObject implements EditorExtendableObject {
 
         if (EDITOR && deferredDestroyTimer === null && legacyCC.engine && !legacyCC.engine._isUpdating) {
             // auto destroy immediate in edit mode
-            // @ts-expect-error no function
             deferredDestroyTimer = setTimeout(CCObject._deferredDestroy);
         }
 

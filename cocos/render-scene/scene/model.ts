@@ -64,7 +64,7 @@ const lightProbePatches: IMacroPatch[] = [
     { name: 'CC_USE_LIGHT_PROBE', value: true },
 ];
 const CC_USE_REFLECTION_PROBE = 'CC_USE_REFLECTION_PROBE';
-const CC_RECEIVE_DIRECTIONAL_LIGHT = 'CC_RECEIVE_DIRECTIONAL_LIGHT';
+const CC_DISABLE_DIRECTIONAL_LIGHT = 'CC_DISABLE_DIRECTIONAL_LIGHT';
 export enum ModelType {
     DEFAULT,
     SKINNING,
@@ -632,8 +632,7 @@ export class Model {
      */
     public updateTransform (stamp: number) {
         const node = this.transform;
-        // @ts-expect-error TS2445
-        if (node.hasChangedFlags || node._dirtyFlags) {
+        if (node.hasChangedFlags || node.isTransformDirty()) {
             node.updateWorldTransform();
             this._localDataUpdated = true;
             const worldBounds = this._worldBounds;
@@ -693,7 +692,9 @@ export class Model {
         }
         if ((hasNonInstancingPass || forceUpdateUBO) && this._localBuffer) {
             Mat4.toArray(this._localData, worldMatrix, UBOLocal.MAT_WORLD_OFFSET);
-            Mat4.inverseTranspose(m4_1, worldMatrix);
+
+            Mat4.invert(m4_1, worldMatrix);
+            Mat4.transpose(m4_1, m4_1);
 
             Mat4.toArray(this._localData, m4_1, UBOLocal.MAT_WORLD_IT_OFFSET);
             this._localBuffer.update(this._localData);
@@ -1093,7 +1094,7 @@ export class Model {
         ];
         patches = patches ? patches.concat(reflectionProbePatches) : reflectionProbePatches;
         const receiveDirLightPatches: IMacroPatch[] = [
-            { name: CC_RECEIVE_DIRECTIONAL_LIGHT, value: this._receiveDirLight },
+            { name: CC_DISABLE_DIRECTIONAL_LIGHT, value: !this._receiveDirLight },
         ];
         patches = patches ? patches.concat(receiveDirLightPatches) : receiveDirLightPatches;
 

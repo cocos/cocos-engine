@@ -27,6 +27,7 @@
 #include <unistd.h>
 #include <functional>
 #include <unordered_map>
+#include "cocos-version.h"
 #include "android/AndroidPlatform.h"
 #include "base/Log.h"
 #include "base/Macros.h"
@@ -35,6 +36,11 @@
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "java/jni/JniHelper.h"
 #include "renderer/GFXDeviceManager.h"
+#include "platform/interfaces/modules/ISystemWindow.h"
+#include "platform/interfaces/modules/ISystemWindowManager.h"
+#include "scene/Camera.h"
+#include "scene/RenderWindow.h"
+#include "core/scene-graph/Node.h"
 #ifdef CC_USE_VULKAN
     #include "gfx-vulkan/VKDevice.h"
 #endif
@@ -436,6 +442,7 @@ void XRInterface::initialize(void *javaVM, void *activity) {
     xr::XrEntry::getInstance()->setHandleCallback(std::bind(&XRInterface::dispatchHandleEventInternal, this, std::placeholders::_1));
     xr::XrEntry::getInstance()->setHMDCallback(std::bind(&XRInterface::dispatchHMDEventInternal, this, std::placeholders::_1));
     xr::XrEntry::getInstance()->setXRConfig(xr::XRConfigKey::LOGIC_THREAD_ID, static_cast<int>(gettid()));
+    xr::XrEntry::getInstance()->setXRConfig(xr::XRConfigKey::ENGINE_VERSION, COCOS_VERSION);
     xr::XrEntry::getInstance()->setXRConfigCallback([this](xr::XRConfigKey key, xr::XRConfigValue value) {
         if (IS_ENABLE_XR_LOG) CC_LOG_INFO("XRConfigCallback.%d", key);
         if (key == xr::XRConfigKey::RENDER_EYE_FRAME_LEFT || key == xr::XRConfigKey::RENDER_EYE_FRAME_RIGHT) {
@@ -1009,4 +1016,103 @@ void XRInterface::loadAssetsImage(const std::string &imageInfo) {
     });
 }
 
+void XRInterface::handleAppCommand(int appCmd) {
+#if CC_USE_XR
+    setXRConfig(xr::XRConfigKey::APP_COMMAND, appCmd);
+#else
+    CC_UNUSED_PARAM(appCmd);
+#endif
+}
+
+void XRInterface::adaptOrthographicMatrix(cc::scene::Camera *camera, const ccstd::array<float, 4> &preTransform, Mat4 &proj, Mat4 &view) {
+#if CC_USE_XR
+    const float orthoHeight = camera->getOrthoHeight();
+    const float near = camera->getNearClip();
+    const float far = camera->getFarClip();
+    const float aspect = camera->getAspect();
+    auto *swapchain = camera->getWindow()->getSwapchain();
+    const auto &orientation = swapchain ? swapchain->getSurfaceTransform() : gfx::SurfaceTransform::IDENTITY;
+    cc::xr::XREye wndXREye = getXREyeByRenderWindow(camera->getWindow());
+    const auto &xrFov = getXREyeFov(static_cast<uint32_t>(wndXREye));
+    const float ipdValue = getXRConfig(xr::XRConfigKey::DEVICE_IPD).getFloat();
+    const float projectionSignY = gfx::Device::getInstance()->getCapabilities().clipSpaceSignY;
+    Mat4 orthoProj;
+    auto *systemWindow = CC_GET_MAIN_SYSTEM_WINDOW();
+    const float deviceAspect = systemWindow ? (systemWindow->getViewSize().width / systemWindow->getViewSize().height) : 1.777F;
+    // device's fov may be asymmetry
+    float radioLeft = 1.0F;
+    float radioRight = 1.0F;
+    if (wndXREye == xr::XREye::LEFT) {
+        radioLeft = fabs(tanf(xrFov[0])) / fabs(tanf(xrFov[1]));
+    } else if (wndXREye == xr::XREye::RIGHT) {
+        radioRight = fabs(tanf(xrFov[1])) / fabs(tanf(xrFov[0]));
+    }
+
+    const float x = orthoHeight * deviceAspect;
+    const float y = orthoHeight;
+    Mat4::createOrthographicOffCenter(-x * radioLeft, x * radioRight, -y, y, near, far,
+                                      gfx::Device::getInstance()->getCapabilities().clipSpaceMinZ, projectionSignY,
+                                      static_cast<int>(orientation), &orthoProj);
+    // keep scale to [-1, 1] only use offset
+    orthoProj.m[0] = preTransform[0] / x;
+    orthoProj.m[5] = preTransform[3] * projectionSignY / y;
+
+    Mat4 eyeCameraProj;
+    const auto &projFloat = getXRViewProjectionData(static_cast<uint32_t>(wndXREye), 0.001F, 1000.0F);
+    std::memcpy(eyeCameraProj.m, projFloat.data(), sizeof(float) * 16);
+    Vec4 point{ipdValue * 0.5F, 0.0F, -1.0F, 1.0F};
+    eyeCameraProj.transformVector(&point);
+
+    Mat4 objectTranslateMat;
+    // point in [-1,1] convert to [-aspect,aspect]
+    if (wndXREye == xr::XREye::LEFT) {
+        objectTranslateMat.translate(point.x * orthoHeight * 0.5F * aspect, 0.0F, 0.0F);
+    } else if (wndXREye == xr::XREye::RIGHT) {
+        objectTranslateMat.translate(-point.x * orthoHeight * 0.5F * aspect, 0.0F, 0.0F);
+    }
+    // update view matrix
+    view = camera->getNode()->getWorldMatrix().getInversed();
+    Mat4 scaleMat{};
+    scaleMat.scale(camera->getNode()->getWorldScale());
+    // remove scale
+    Mat4::multiply(scaleMat, view, &view);
+    Mat4::multiply(objectTranslateMat, view, &view);
+
+    // fit width, scale deviceAspect to aspect
+    const float ndcXScale = getXRConfig(xr::XRConfigKey::SPLIT_AR_GLASSES).getBool() ? (1.0F + point.x * 0.5F) : 1.0F;
+    const float ndcYScale = aspect / deviceAspect;
+    Mat4 ndcScaleMat;
+    ndcScaleMat.scale(ndcXScale, ndcYScale, 1.0F);
+
+    proj = ndcScaleMat * orthoProj;
+#else
+    CC_UNUSED_PARAM(camera);
+    CC_UNUSED_PARAM(preTransform);
+    CC_UNUSED_PARAM(proj);
+    CC_UNUSED_PARAM(view);
+#endif
+}
+
+
+#if CC_USE_XR
+
+extern "C" JNIEXPORT void JNICALL Java_com_cocos_lib_xr_CocosXRApi_onAdbCmd(JNIEnv * /*env*/, jobject  /*thiz*/, jstring key, jstring value) {
+    auto cmdKey = cc::JniHelper::jstring2string(key);
+    auto cmdValue = cc::JniHelper::jstring2string(value);
+    if (IS_ENABLE_XR_LOG) {
+        CC_LOG_INFO("CocosXRApi_onAdbCmd_%s_%s", cmdKey.c_str(), cmdValue.c_str());
+    }
+    cc::xr::XrEntry::getInstance()->setXRConfig(cc::xr::XRConfigKey::ADB_COMMAND, cmdKey.append(":").append(cmdValue));
+}
+
+extern "C" JNIEXPORT void JNICALL Java_com_cocos_lib_xr_CocosXRApi_onActivityLifecycleCallback(JNIEnv * /*env*/, jobject  /*thiz*/, jint type, jstring activityClassName) {
+    auto name = cc::JniHelper::jstring2string(activityClassName);
+    if (IS_ENABLE_XR_LOG) {
+        CC_LOG_INFO("CocosXRApi_onActivityLifecycleCallback_%d_%s", type, name.c_str());
+    }
+    cc::xr::XrEntry::getInstance()->setXRConfig(cc::xr::XRConfigKey::ACTIVITY_LIFECYCLE, type);
+    cc::xr::XrEntry::getInstance()->setXRConfig(cc::xr::XRConfigKey::ACTIVITY_LIFECYCLE, name);
+}
+
+#endif
 } // namespace cc

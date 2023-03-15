@@ -23,7 +23,6 @@
  THE SOFTWARE.
 */
 
-// @ts-check
 import { EDITOR, TEST } from 'internal:constants';
 import { ccclass, serializable } from 'cc.decorator';
 import { Asset } from './asset';

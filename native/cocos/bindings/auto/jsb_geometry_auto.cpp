@@ -929,6 +929,88 @@ se::Class* __jsb_cc_geometry_Frustum_class = nullptr;
 se::Object* __jsb_cc_geometry_Frustum_proto = nullptr;
 SE_DECLARE_FINALIZE_FUNC(js_delete_cc_geometry_Frustum) 
 
+static bool js_cc_geometry_Frustum_createOrthographic_static__SWIG_0(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::geometry::Frustum *arg1 = (cc::geometry::Frustum *) NULL ;
+    float arg2 ;
+    float arg3 ;
+    float arg4 ;
+    float arg5 ;
+    cc::Mat4 *arg6 = 0 ;
+    cc::Mat4 temp6 ;
+    
+    
+    ok &= sevalue_to_native(args[0], &arg1, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    ok &= sevalue_to_native(args[1], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    ok &= sevalue_to_native(args[2], &arg3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    ok &= sevalue_to_native(args[3], &arg4, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    ok &= sevalue_to_native(args[4], &arg5, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    ok &= sevalue_to_native(args[5], &temp6, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg6 = &temp6;
+    
+    cc::geometry::Frustum::createOrthographic(arg1,arg2,arg3,arg4,arg5,(cc::Mat4 const &)*arg6);
+    
+    
+    return true;
+}
+
+static bool js_cc_geometry_Frustum_createPerspective_static(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::geometry::Frustum *arg1 = (cc::geometry::Frustum *) NULL ;
+    float arg2 ;
+    float arg3 ;
+    float arg4 ;
+    float arg5 ;
+    cc::Mat4 *arg6 = 0 ;
+    cc::Mat4 temp6 ;
+    
+    if(argc != 6) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 6);
+        return false;
+    }
+    
+    ok &= sevalue_to_native(args[0], &arg1, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    ok &= sevalue_to_native(args[1], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    ok &= sevalue_to_native(args[2], &arg3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    ok &= sevalue_to_native(args[3], &arg4, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    ok &= sevalue_to_native(args[4], &arg5, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    ok &= sevalue_to_native(args[5], &temp6, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg6 = &temp6;
+    
+    cc::geometry::Frustum::createPerspective(arg1,arg2,arg3,arg4,arg5,(cc::Mat4 const &)*arg6);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_geometry_Frustum_createPerspective_static) 
+
 static bool js_new_cc_geometry_Frustum__SWIG_0(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
@@ -993,6 +1075,67 @@ static bool js_delete_cc_geometry_Frustum(se::State& s)
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_delete_cc_geometry_Frustum) 
+
+static bool js_cc_geometry_Frustum_createOrthographic__SWIG_1(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::geometry::Frustum *arg1 = (cc::geometry::Frustum *) NULL ;
+    float arg2 ;
+    float arg3 ;
+    float arg4 ;
+    float arg5 ;
+    cc::Mat4 *arg6 = 0 ;
+    cc::Mat4 temp6 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::geometry::Frustum>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    ok &= sevalue_to_native(args[3], &arg5, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    ok &= sevalue_to_native(args[4], &temp6, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg6 = &temp6;
+    
+    (arg1)->createOrthographic(arg2,arg3,arg4,arg5,(cc::Mat4 const &)*arg6);
+    
+    
+    return true;
+}
+
+static bool js_cc_geometry_Frustum_createOrthographic(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    
+    
+    if (argc == 6) {
+        ok = js_cc_geometry_Frustum_createOrthographic_static__SWIG_0(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    if (argc == 5) {
+        ok = js_cc_geometry_Frustum_createOrthographic__SWIG_1(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_FUNC(js_cc_geometry_Frustum_createOrthographic) 
 
 static bool js_cc_geometry_Frustum_vertices_set(se::State& s)
 {
@@ -1075,8 +1218,10 @@ bool js_register_cc_geometry_Frustum(se::Object* obj) {
     cls->defineProperty("vertices", _SE(js_cc_geometry_Frustum_vertices_get), _SE(js_cc_geometry_Frustum_vertices_set)); 
     cls->defineProperty("planes", _SE(js_cc_geometry_Frustum_planes_get), _SE(js_cc_geometry_Frustum_planes_set)); 
     
+    cls->defineFunction("createOrthographic", _SE(js_cc_geometry_Frustum_createOrthographic)); 
     
     
+    cls->defineStaticFunction("createPerspective", _SE(js_cc_geometry_Frustum_createPerspective_static)); 
     
     
     cls->defineFinalizeFunction(_SE(js_delete_cc_geometry_Frustum));
@@ -1750,6 +1895,78 @@ static bool js_delete_cc_geometry_Sphere(se::State& s)
 }
 SE_BIND_FINALIZE_FUNC(js_delete_cc_geometry_Sphere) 
 
+static bool js_cc_geometry_Sphere_intersect__SWIG_0(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::geometry::Sphere *arg1 = (cc::geometry::Sphere *) NULL ;
+    cc::geometry::Frustum *arg2 = 0 ;
+    cc::geometry::Frustum temp2 ;
+    bool result;
+    
+    arg1 = SE_THIS_OBJECT<cc::geometry::Sphere>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg2 = &temp2;
+    
+    result = (bool)((cc::geometry::Sphere const *)arg1)->intersect((cc::geometry::Frustum const &)*arg2);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
+    
+    
+    return true;
+}
+
+static bool js_cc_geometry_Sphere_intersect__SWIG_1(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::geometry::Sphere *arg1 = (cc::geometry::Sphere *) NULL ;
+    cc::geometry::Plane *arg2 = 0 ;
+    cc::geometry::Plane temp2 ;
+    int result;
+    
+    arg1 = SE_THIS_OBJECT<cc::geometry::Sphere>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg2 = &temp2;
+    
+    result = (int)((cc::geometry::Sphere const *)arg1)->intersect((cc::geometry::Plane const &)*arg2);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+
+static bool js_cc_geometry_Sphere_intersect(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    
+    
+    if (argc == 1) {
+        ok = js_cc_geometry_Sphere_intersect__SWIG_0(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    if (argc == 1) {
+        ok = js_cc_geometry_Sphere_intersect__SWIG_1(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_FUNC(js_cc_geometry_Sphere_intersect) 
+
 static bool js_cc_geometry_Sphere__radius_set(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -1827,6 +2044,7 @@ bool js_register_cc_geometry_Sphere(se::Object* obj) {
     cls->defineProperty("_radius", _SE(js_cc_geometry_Sphere__radius_get), _SE(js_cc_geometry_Sphere__radius_set)); 
     cls->defineProperty("_center", _SE(js_cc_geometry_Sphere__center_get), _SE(js_cc_geometry_Sphere__center_set)); 
     
+    cls->defineFunction("intersect", _SE(js_cc_geometry_Sphere_intersect)); 
     
     
     

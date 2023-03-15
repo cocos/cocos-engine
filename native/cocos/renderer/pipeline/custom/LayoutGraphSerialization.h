@@ -69,8 +69,8 @@ inline void save(OutputArchive& ar, const LayoutGraph& g) {
     save(ar, static_cast<SizeT>(g.stages.size()));
     save(ar, static_cast<SizeT>(g.phases.size()));
 
-    const auto nameMap = get(Graph::Name, g);
-    const auto descriptorsMap = get(Graph::Descriptors, g);
+    const auto nameMap = get(Graph::NameTag{}, g);
+    const auto descriptorsMap = get(Graph::DescriptorsTag{}, g);
     for (const auto& v : makeRange(vertices(g))) {
         const auto typeID = static_cast<SizeT>(tag(v, g).index());
         static_assert(std::is_same_v<decltype(typeID), const SizeT>);
@@ -106,8 +106,8 @@ inline void load(InputArchive& ar, LayoutGraph& g) {
     g.stages.reserve(stages);
     g.phases.reserve(phases);
 
-    const auto nameMap = get(Graph::Name, g);
-    const auto descriptorsMap = get(Graph::Descriptors, g);
+    const auto nameMap = get(Graph::NameTag{}, g);
+    const auto descriptorsMap = get(Graph::DescriptorsTag{}, g);
     for (SizeT v = 0; v != numVertices; ++v) {
         SizeT id = std::numeric_limits<SizeT>::max();
         VertexT u = Graph::null_vertex();
@@ -318,9 +318,9 @@ inline void save(OutputArchive& ar, const LayoutGraphData& g) {
     save(ar, static_cast<SizeT>(g.stages.size()));
     save(ar, static_cast<SizeT>(g.phases.size()));
 
-    const auto nameMap = get(Graph::Name, g);
-    const auto updateMap = get(Graph::Update, g);
-    const auto layoutMap = get(Graph::Layout, g);
+    const auto nameMap = get(Graph::NameTag{}, g);
+    const auto updateMap = get(Graph::UpdateTag{}, g);
+    const auto layoutMap = get(Graph::LayoutTag{}, g);
     for (const auto& v : makeRange(vertices(g))) {
         const auto typeID = static_cast<SizeT>(tag(v, g).index());
         static_assert(std::is_same_v<decltype(typeID), const SizeT>);
@@ -362,9 +362,9 @@ inline void load(InputArchive& ar, LayoutGraphData& g) {
     g.stages.reserve(stages);
     g.phases.reserve(phases);
 
-    const auto nameMap = get(Graph::Name, g);
-    const auto updateMap = get(Graph::Update, g);
-    const auto layoutMap = get(Graph::Layout, g);
+    const auto nameMap = get(Graph::NameTag{}, g);
+    const auto updateMap = get(Graph::UpdateTag{}, g);
+    const auto layoutMap = get(Graph::LayoutTag{}, g);
     for (SizeT v = 0; v != numVertices; ++v) {
         SizeT id = std::numeric_limits<SizeT>::max();
         VertexT u = Graph::null_vertex();

@@ -151,8 +151,8 @@ export class WebSceneTask implements SceneTask {
     get visitor () { return this._visitor; }
     get dirLightFrustum () { return this._dirLightFrustum; }
     get sceneData (): PipelineSceneData { return this._sceneData; }
-    private _scene: RenderScene | null = null;
-    private _camera: Camera | null = null;
+    protected _scene: RenderScene | null = null;
+    protected _camera: Camera | null = null;
     private _visitor: SceneVisitor;
     private _sceneData: PipelineSceneData;
     private _dirLightFrustum = new Frustum();

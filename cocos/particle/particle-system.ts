@@ -328,7 +328,7 @@ export class ParticleSystem extends ModelRenderer {
      */
     @type(CurveRange)
     @serializable
-    @range([0, 2147483647])
+    @range([0, Number.POSITIVE_INFINITY])
     @displayOrder(14)
     @tooltip('i18n:particle_system.rateOverTime')
     public rateOverTime = new CurveRange();
@@ -339,7 +339,7 @@ export class ParticleSystem extends ModelRenderer {
      */
     @type(CurveRange)
     @serializable
-    @range([0, 2147483647])
+    @range([0, Number.POSITIVE_INFINITY])
     @displayOrder(15)
     @tooltip('i18n:particle_system.rateOverDistance')
     public rateOverDistance = new CurveRange();
@@ -492,7 +492,6 @@ export class ParticleSystem extends ModelRenderer {
 
     @override
     @visible(false)
-    @type(Material)
     @serializable
     @displayName('Materials')
     get sharedMaterials () {
@@ -502,8 +501,8 @@ export class ParticleSystem extends ModelRenderer {
     }
 
     set sharedMaterials (val) {
-        // @ts-expect-error private property access
-        superMaterials.set.call(this, val);
+        // TODO: can we assert that superMaterials.set is defined ?
+        superMaterials.set!.call(this, val);
     }
 
     // color over lifetime module

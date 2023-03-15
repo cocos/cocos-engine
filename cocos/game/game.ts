@@ -828,9 +828,8 @@ export class Game extends EventTarget {
                 const jsList = settings.querySettings<string[]>(Settings.Category.PLUGINS, 'jsList');
                 let promise = Promise.resolve();
                 if (jsList) {
-                    const projectPath = settings.querySettings<string>(Settings.Category.PATH, 'projectPath') || '';
                     jsList.forEach((jsListFile) => {
-                        promise = promise.then(() => loadJsFile(`${PREVIEW ? NATIVE ? projectPath : 'plugins' : 'src'}/${jsListFile}`));
+                        promise = promise.then(() => loadJsFile(`${PREVIEW ? 'plugins' : 'src'}/${jsListFile}`));
                     });
                 }
                 return promise;

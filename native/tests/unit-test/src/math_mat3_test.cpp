@@ -38,31 +38,31 @@ TEST(mathMat3Test, test4) {
     ExpectEq(mat3.m[0] == 1 && mat3.m[4] == 1 && mat3.m[8] == 1, true);
     // transpose
     logLabel = "test the mat3 transpose function";
-    mat3.set(11, 21, 31, 12, 22, 32, 13, 23, 33);
+    mat3.set(11, 12, 13, 21, 22, 23, 31, 32, 33);
     mat3.transpose();
     ExpectEq(mat3.m[1] == 21 && mat3.m[4] == 22 && mat3.m[7] == 23, true);
-    cc::Mat3 matTemp(11, 21, 31, 12, 22, 32, 13, 23, 33);
+    cc::Mat3 matTemp(11, 12, 13, 21, 22, 23, 31, 32, 33);
     cc::Mat3::transpose(matTemp, &mat3);
     ExpectEq(mat3.m[1] == 21 && mat3.m[4] == 22 && mat3.m[7] == 23, true);
     // inverse
     logLabel = "test the mat3 inverse function";
-    mat3.set(0, 2, 0, 3, 0, 0, 2, 0, 1);
+    mat3.set(0, 3, 2, 2, 0, 0, 0, 0, 1);
     mat3.inverse();
     ExpectEq(mat3.m[1] == 0.5f && mat3.m[8] == 1, true);
     // adjoint
     logLabel = "test the mat3 adjoint function";
-    cc::Mat3 matAdj(0, 2, 0, 3, 0, 0, 2, 0, 1);
+    cc::Mat3 matAdj(0, 3, 2, 2, 0, 0, 0, 0, 1);
     cc::Mat3::adjoint(matAdj, &mat3);
     ExpectEq(mat3.m[1] == -3 && mat3.m[3] == -2 && mat3.m[8] == -6, true);
     // determinant
     logLabel = "test the mat3 determinant function";
-    mat3.set(1, 0, 3, 2, 1, 0, 4, 0, 2);
+    mat3.set(1, 2, 4, 0, 1, 0, 3, 0, 2);
     float det = mat3.determinant();
     ExpectEq(det == -10, true);
     // multiply
     logLabel = "test the mat3 multiply function";
-    cc::Mat3 lm(2, 3, 1, 4, 7, 3, 8, 2, 0);
-    cc::Mat3 rm(5, 2, 6, 8, 1, 0, 6, 5, 4);
+    cc::Mat3 lm(2, 4, 8, 3, 7, 2, 1, 3, 0);
+    cc::Mat3 rm(5, 8, 6, 2, 1, 5, 6, 0, 4);
     cc::Mat3::multiply(lm, rm, &mat3);
     ExpectEq(mat3.m[0] == 40 && mat3.m[4] == 30 && mat3.m[8] == 48, true);
     // translate
@@ -105,13 +105,16 @@ TEST(mathMat3Test, test4) {
     // fromQuat
     logLabel = "test the mat3 fromQuat function";
     cc::Mat3 fromQuat;
-    cc::Quaternion quat(0, 0, 3, 1);
+    cc::Quaternion quat;
+    cc::Quaternion::createFromAxisAngle(cc::Vec3(0, 0, 1), M_PI / 2, &quat);
     cc::Mat3::fromQuat(quat, &fromQuat);
-    ExpectEq(copyMat.m[0] == 3 && copyMat.m[3] == 6 && copyMat.m[4] == 7, true);
+    cc::Vec3 vec3;
+    vec3.transformMat3(cc::Vec3(1, 1, 0), fromQuat);
+    ExpectEq(vec3.approxEquals(cc::Vec3(-1, 1, 0)), true);
     // add
     logLabel = "test the mat3 add function";
-    cc::Mat3 lAdd(9, 0, 0, 3, 8, 0, 9, 0, 0);
-    cc::Mat3 rAdd(1, 0, 0, 5, 2, 0, 1, 0, 0);
+    cc::Mat3 lAdd(9, 3, 9, 0, 8, 0, 0, 0, 0);
+    cc::Mat3 rAdd(1, 5, 1, 0, 2, 0, 0, 0, 0);
     cc::Mat3 addOut;
     cc::Mat3::add(lAdd, rAdd, &addOut);
     ExpectEq(addOut.m[0] == 10 && addOut.m[2] == 10 && addOut.m[4] == 10, true);

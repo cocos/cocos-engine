@@ -29,6 +29,10 @@ struct LightingIntermediateData
   vec4 transmitParams; // xy: extinction coef for out/in-scattering, z: in-scattering coef, w: transmit distance(water depth, leaf thickness)
   vec3 inScatteringLightColor;
 #endif
+#if CC_SURFACES_LIGHTING_TT
+  vec3 baseColorTT;
+  float ttIntensity, ttScatterCoef;
+#endif
   // #if CC_SURFACES_LIGHTING_CLEAR_COAT
   // float roughnessClearCoat; // for clear coat or multi-layer pbr
   // #endif
@@ -66,6 +70,10 @@ void CCSurfacesLightingGetIntermediateData_PerPixel(inout LightingIntermediateDa
 #endif
 #if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
   data.shadowPosAndDepth = vec4(0.0, 0.0, 999999.0, 999999.0);
+#endif
+#if CC_SURFACES_LIGHTING_TT
+  data.baseColorTT = vec3(0.0);
+  data.ttIntensity = data.ttScatterCoef = 0.0;
 #endif
 }
 

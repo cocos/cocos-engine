@@ -266,7 +266,7 @@ public:
     inline const IProgramInfo *getShaderInfo() const { return _shaderInfo; }
     const gfx::DescriptorSetLayout *getLocalSetLayout() const;
     inline const ccstd::string &getProgram() const { return _programName; }
-    inline const Record<ccstd::string, IPropertyInfo> &getProperties() const { return _properties; }
+    inline const PassPropertyInfoMap &getProperties() const { return _properties; }
     inline const MacroRecord &getDefines() const { return _defines; }
     inline MacroRecord &getDefines() { return _defines; }
     inline index_t getPassIndex() const { return _passIndex; }
@@ -342,7 +342,7 @@ protected:
 
     const IProgramInfo *_shaderInfo; // weakref to template of ProgramLib
     MacroRecord _defines;
-    Record<ccstd::string, IPropertyInfo> _properties;
+    PassPropertyInfoMap _properties;
     IntrusivePtr<gfx::Shader> _shader;
     gfx::BlendState _blendState{};
     gfx::DepthStencilState _depthStencilState{};

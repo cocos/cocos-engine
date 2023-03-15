@@ -28,10 +28,6 @@
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
             android:launchMode="singleTask"
             android:exported="true">
-
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-            </intent-filter>
         </activity>
         <activity
             android:name="com.cocos.lib.CocosEditBoxActivity"
@@ -39,7 +35,7 @@
             android:screenOrientation="behind"
             android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen" />
 
-    <meta-data android:name="com.qualcomm.snapdragon.spaces.SKIP_PERMISSION_CHECKS" android:value="true" />
+    <meta-data android:name="com.qualcomm.snapdragon.spaces.SKIP_PERMISSION_CHECKS" android:value="false" />
     </application>
 
 </manifest>

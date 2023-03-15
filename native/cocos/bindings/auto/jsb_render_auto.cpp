@@ -106,6 +106,10 @@ using namespace cc::render;
 #define cc_render_RenderNode_name_set(self_, val_) self_->setName(val_)
   
 
+#define cc_render_RasterSubpassBuilder_showStatistics_get(self_) self_->getShowStatistics()
+#define cc_render_RasterSubpassBuilder_showStatistics_set(self_, val_) self_->setShowStatistics(val_)
+  
+
 #define cc_render_RasterPassBuilder_showStatistics_get(self_) self_->getShowStatistics()
 #define cc_render_RasterPassBuilder_showStatistics_set(self_, val_) self_->setShowStatistics(val_)
   
@@ -1620,6 +1624,614 @@ bool js_register_cc_render_RasterQueueBuilder(se::Object* obj) {
 }
 
 
+se::Class* __jsb_cc_render_RasterSubpassBuilder_class = nullptr;
+se::Object* __jsb_cc_render_RasterSubpassBuilder_proto = nullptr;
+SE_DECLARE_FINALIZE_FUNC(js_delete_cc_render_RasterSubpassBuilder) 
+
+static bool js_cc_render_RasterSubpassBuilder_addRasterView(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::render::RasterSubpassBuilder *arg1 = (cc::render::RasterSubpassBuilder *) NULL ;
+    ccstd::string *arg2 = 0 ;
+    RasterView *arg3 = 0 ;
+    ccstd::string temp2 ;
+    RasterView temp3 ;
+    
+    if(argc != 2) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::render::RasterSubpassBuilder>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg2 = &temp2;
+    
+    
+    ok &= sevalue_to_native(args[1], &temp3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg3 = &temp3;
+    
+    (arg1)->addRasterView((ccstd::string const &)*arg2,(RasterView const &)*arg3);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_render_RasterSubpassBuilder_addRasterView) 
+
+static bool js_cc_render_RasterSubpassBuilder_addComputeView(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::render::RasterSubpassBuilder *arg1 = (cc::render::RasterSubpassBuilder *) NULL ;
+    ccstd::string *arg2 = 0 ;
+    ComputeView *arg3 = 0 ;
+    ccstd::string temp2 ;
+    ComputeView temp3 ;
+    
+    if(argc != 2) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::render::RasterSubpassBuilder>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg2 = &temp2;
+    
+    
+    ok &= sevalue_to_native(args[1], &temp3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg3 = &temp3;
+    
+    (arg1)->addComputeView((ccstd::string const &)*arg2,(ComputeView const &)*arg3);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_render_RasterSubpassBuilder_addComputeView) 
+
+static bool js_cc_render_RasterSubpassBuilder_setViewport(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::render::RasterSubpassBuilder *arg1 = (cc::render::RasterSubpassBuilder *) NULL ;
+    gfx::Viewport *arg2 = 0 ;
+    gfx::Viewport temp2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::render::RasterSubpassBuilder>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg2 = &temp2;
+    
+    (arg1)->setViewport((gfx::Viewport const &)*arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_render_RasterSubpassBuilder_setViewport) 
+
+static bool js_cc_render_RasterSubpassBuilder_addQueue__SWIG_0(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::render::RasterSubpassBuilder *arg1 = (cc::render::RasterSubpassBuilder *) NULL ;
+    QueueHint arg2 ;
+    ccstd::string *arg3 = 0 ;
+    ccstd::string temp3 ;
+    cc::render::RasterQueueBuilder *result = 0 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::render::RasterSubpassBuilder>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    
+    ok &= sevalue_to_native(args[1], &temp3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg3 = &temp3;
+    
+    result = (cc::render::RasterQueueBuilder *)(arg1)->addQueue(arg2,(ccstd::string const &)*arg3);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+
+static bool js_cc_render_RasterSubpassBuilder_addQueue__SWIG_1(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::render::RasterSubpassBuilder *arg1 = (cc::render::RasterSubpassBuilder *) NULL ;
+    cc::render::RasterQueueBuilder *result = 0 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::render::RasterSubpassBuilder>(s);
+    if (nullptr == arg1) return true;
+    result = (cc::render::RasterQueueBuilder *)(arg1)->addQueue();
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+
+static bool js_cc_render_RasterSubpassBuilder_addQueue__SWIG_2(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::render::RasterSubpassBuilder *arg1 = (cc::render::RasterSubpassBuilder *) NULL ;
+    QueueHint arg2 ;
+    cc::render::RasterQueueBuilder *result = 0 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::render::RasterSubpassBuilder>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    result = (cc::render::RasterQueueBuilder *)(arg1)->addQueue(arg2);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+
+static bool js_cc_render_RasterSubpassBuilder_addQueue(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    
+    
+    if (argc == 2) {
+        ok = js_cc_render_RasterSubpassBuilder_addQueue__SWIG_0(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    if (argc == 0) {
+        ok = js_cc_render_RasterSubpassBuilder_addQueue__SWIG_1(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    if (argc == 1) {
+        ok = js_cc_render_RasterSubpassBuilder_addQueue__SWIG_2(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_FUNC(js_cc_render_RasterSubpassBuilder_addQueue) 
+
+static bool js_cc_render_RasterSubpassBuilder_showStatistics_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::render::RasterSubpassBuilder *arg1 = (cc::render::RasterSubpassBuilder *) NULL ;
+    bool arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::render::RasterSubpassBuilder>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2);
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    cc_render_RasterSubpassBuilder_showStatistics_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_render_RasterSubpassBuilder_showStatistics_set) 
+
+static bool js_cc_render_RasterSubpassBuilder_showStatistics_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::render::RasterSubpassBuilder *arg1 = (cc::render::RasterSubpassBuilder *) NULL ;
+    bool result;
+    
+    arg1 = SE_THIS_OBJECT<cc::render::RasterSubpassBuilder>(s);
+    if (nullptr == arg1) return true;
+    result = (bool)cc_render_RasterSubpassBuilder_showStatistics_get(arg1);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_render_RasterSubpassBuilder_showStatistics_get) 
+
+static bool js_delete_cc_render_RasterSubpassBuilder(se::State& s)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_delete_cc_render_RasterSubpassBuilder) 
+
+bool js_register_cc_render_RasterSubpassBuilder(se::Object* obj) {
+    auto* cls = se::Class::create("RasterSubpassBuilder", obj, __jsb_cc_render_Setter_proto, nullptr); 
+    
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
+    cls->defineProperty("showStatistics", _SE(js_cc_render_RasterSubpassBuilder_showStatistics_get), _SE(js_cc_render_RasterSubpassBuilder_showStatistics_set)); 
+    
+    cls->defineFunction("addRasterView", _SE(js_cc_render_RasterSubpassBuilder_addRasterView)); 
+    cls->defineFunction("addComputeView", _SE(js_cc_render_RasterSubpassBuilder_addComputeView)); 
+    cls->defineFunction("setViewport", _SE(js_cc_render_RasterSubpassBuilder_setViewport)); 
+    cls->defineFunction("addQueue", _SE(js_cc_render_RasterSubpassBuilder_addQueue)); 
+    
+    
+    
+    
+    cls->defineFinalizeFunction(_SE(js_delete_cc_render_RasterSubpassBuilder));
+    
+    
+    cls->install();
+    JSBClassType::registerClass<cc::render::RasterSubpassBuilder>(cls);
+    
+    __jsb_cc_render_RasterSubpassBuilder_proto = cls->getProto();
+    __jsb_cc_render_RasterSubpassBuilder_class = cls;
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+
+se::Class* __jsb_cc_render_ComputeQueueBuilder_class = nullptr;
+se::Object* __jsb_cc_render_ComputeQueueBuilder_proto = nullptr;
+SE_DECLARE_FINALIZE_FUNC(js_delete_cc_render_ComputeQueueBuilder) 
+
+static bool js_cc_render_ComputeQueueBuilder_addDispatch__SWIG_0(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::render::ComputeQueueBuilder *arg1 = (cc::render::ComputeQueueBuilder *) NULL ;
+    uint32_t arg2 ;
+    uint32_t arg3 ;
+    uint32_t arg4 ;
+    Material *arg5 = (Material *) NULL ;
+    uint32_t arg6 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::render::ComputeQueueBuilder>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    
+    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    
+    ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    
+    ok &= sevalue_to_native(args[3], &arg5, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    ok &= sevalue_to_native(args[4], &arg6, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    (arg1)->addDispatch(arg2,arg3,arg4,arg5,arg6);
+    
+    
+    return true;
+}
+
+static bool js_cc_render_ComputeQueueBuilder_addDispatch__SWIG_1(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::render::ComputeQueueBuilder *arg1 = (cc::render::ComputeQueueBuilder *) NULL ;
+    uint32_t arg2 ;
+    uint32_t arg3 ;
+    uint32_t arg4 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::render::ComputeQueueBuilder>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    
+    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    
+    ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    (arg1)->addDispatch(arg2,arg3,arg4);
+    
+    
+    return true;
+}
+
+static bool js_cc_render_ComputeQueueBuilder_addDispatch__SWIG_2(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::render::ComputeQueueBuilder *arg1 = (cc::render::ComputeQueueBuilder *) NULL ;
+    uint32_t arg2 ;
+    uint32_t arg3 ;
+    uint32_t arg4 ;
+    Material *arg5 = (Material *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::render::ComputeQueueBuilder>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    
+    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    
+    ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    
+    ok &= sevalue_to_native(args[3], &arg5, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    (arg1)->addDispatch(arg2,arg3,arg4,arg5);
+    
+    
+    return true;
+}
+
+static bool js_cc_render_ComputeQueueBuilder_addDispatch(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    
+    
+    if (argc == 5) {
+        ok = js_cc_render_ComputeQueueBuilder_addDispatch__SWIG_0(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    if (argc == 3) {
+        ok = js_cc_render_ComputeQueueBuilder_addDispatch__SWIG_1(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    if (argc == 4) {
+        ok = js_cc_render_ComputeQueueBuilder_addDispatch__SWIG_2(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_FUNC(js_cc_render_ComputeQueueBuilder_addDispatch) 
+
+static bool js_delete_cc_render_ComputeQueueBuilder(se::State& s)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_delete_cc_render_ComputeQueueBuilder) 
+
+bool js_register_cc_render_ComputeQueueBuilder(se::Object* obj) {
+    auto* cls = se::Class::create("ComputeQueueBuilder", obj, __jsb_cc_render_Setter_proto, nullptr); 
+    
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
+    
+    cls->defineFunction("addDispatch", _SE(js_cc_render_ComputeQueueBuilder_addDispatch)); 
+    
+    
+    
+    
+    cls->defineFinalizeFunction(_SE(js_delete_cc_render_ComputeQueueBuilder));
+    
+    
+    cls->install();
+    JSBClassType::registerClass<cc::render::ComputeQueueBuilder>(cls);
+    
+    __jsb_cc_render_ComputeQueueBuilder_proto = cls->getProto();
+    __jsb_cc_render_ComputeQueueBuilder_class = cls;
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+
+se::Class* __jsb_cc_render_ComputeSubpassBuilder_class = nullptr;
+se::Object* __jsb_cc_render_ComputeSubpassBuilder_proto = nullptr;
+SE_DECLARE_FINALIZE_FUNC(js_delete_cc_render_ComputeSubpassBuilder) 
+
+static bool js_cc_render_ComputeSubpassBuilder_addRasterView(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::render::ComputeSubpassBuilder *arg1 = (cc::render::ComputeSubpassBuilder *) NULL ;
+    ccstd::string *arg2 = 0 ;
+    RasterView *arg3 = 0 ;
+    ccstd::string temp2 ;
+    RasterView temp3 ;
+    
+    if(argc != 2) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::render::ComputeSubpassBuilder>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg2 = &temp2;
+    
+    
+    ok &= sevalue_to_native(args[1], &temp3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg3 = &temp3;
+    
+    (arg1)->addRasterView((ccstd::string const &)*arg2,(RasterView const &)*arg3);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_render_ComputeSubpassBuilder_addRasterView) 
+
+static bool js_cc_render_ComputeSubpassBuilder_addComputeView(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::render::ComputeSubpassBuilder *arg1 = (cc::render::ComputeSubpassBuilder *) NULL ;
+    ccstd::string *arg2 = 0 ;
+    ComputeView *arg3 = 0 ;
+    ccstd::string temp2 ;
+    ComputeView temp3 ;
+    
+    if(argc != 2) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::render::ComputeSubpassBuilder>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg2 = &temp2;
+    
+    
+    ok &= sevalue_to_native(args[1], &temp3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg3 = &temp3;
+    
+    (arg1)->addComputeView((ccstd::string const &)*arg2,(ComputeView const &)*arg3);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_render_ComputeSubpassBuilder_addComputeView) 
+
+static bool js_cc_render_ComputeSubpassBuilder_addQueue__SWIG_0(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::render::ComputeSubpassBuilder *arg1 = (cc::render::ComputeSubpassBuilder *) NULL ;
+    ccstd::string *arg2 = 0 ;
+    ccstd::string temp2 ;
+    cc::render::ComputeQueueBuilder *result = 0 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::render::ComputeSubpassBuilder>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg2 = &temp2;
+    
+    result = (cc::render::ComputeQueueBuilder *)(arg1)->addQueue((ccstd::string const &)*arg2);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+
+static bool js_cc_render_ComputeSubpassBuilder_addQueue__SWIG_1(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::render::ComputeSubpassBuilder *arg1 = (cc::render::ComputeSubpassBuilder *) NULL ;
+    cc::render::ComputeQueueBuilder *result = 0 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::render::ComputeSubpassBuilder>(s);
+    if (nullptr == arg1) return true;
+    result = (cc::render::ComputeQueueBuilder *)(arg1)->addQueue();
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+
+static bool js_cc_render_ComputeSubpassBuilder_addQueue(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    
+    
+    if (argc == 1) {
+        ok = js_cc_render_ComputeSubpassBuilder_addQueue__SWIG_0(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    if (argc == 0) {
+        ok = js_cc_render_ComputeSubpassBuilder_addQueue__SWIG_1(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_FUNC(js_cc_render_ComputeSubpassBuilder_addQueue) 
+
+static bool js_delete_cc_render_ComputeSubpassBuilder(se::State& s)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_delete_cc_render_ComputeSubpassBuilder) 
+
+bool js_register_cc_render_ComputeSubpassBuilder(se::Object* obj) {
+    auto* cls = se::Class::create("ComputeSubpassBuilder", obj, __jsb_cc_render_Setter_proto, nullptr); 
+    
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
+    
+    cls->defineFunction("addRasterView", _SE(js_cc_render_ComputeSubpassBuilder_addRasterView)); 
+    cls->defineFunction("addComputeView", _SE(js_cc_render_ComputeSubpassBuilder_addComputeView)); 
+    cls->defineFunction("addQueue", _SE(js_cc_render_ComputeSubpassBuilder_addQueue)); 
+    
+    
+    
+    
+    cls->defineFinalizeFunction(_SE(js_delete_cc_render_ComputeSubpassBuilder));
+    
+    
+    cls->install();
+    JSBClassType::registerClass<cc::render::ComputeSubpassBuilder>(cls);
+    
+    __jsb_cc_render_ComputeSubpassBuilder_proto = cls->getProto();
+    __jsb_cc_render_ComputeSubpassBuilder_class = cls;
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+
 se::Class* __jsb_cc_render_RasterPassBuilder_class = nullptr;
 se::Object* __jsb_cc_render_RasterPassBuilder_proto = nullptr;
 SE_DECLARE_FINALIZE_FUNC(js_delete_cc_render_RasterPassBuilder) 
@@ -1698,6 +2310,8 @@ static bool js_cc_render_RasterPassBuilder_addQueue__SWIG_0(se::State& s)
     const auto& args = s.args();
     cc::render::RasterPassBuilder *arg1 = (cc::render::RasterPassBuilder *) NULL ;
     QueueHint arg2 ;
+    ccstd::string *arg3 = 0 ;
+    ccstd::string temp3 ;
     cc::render::RasterQueueBuilder *result = 0 ;
     
     arg1 = SE_THIS_OBJECT<cc::render::RasterPassBuilder>(s);
@@ -1706,12 +2320,69 @@ static bool js_cc_render_RasterPassBuilder_addQueue__SWIG_0(se::State& s)
     ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments"); 
     
-    result = (cc::render::RasterQueueBuilder *)(arg1)->addQueue(arg2);
+    
+    ok &= sevalue_to_native(args[1], &temp3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg3 = &temp3;
+    
+    result = (cc::render::RasterQueueBuilder *)(arg1)->addQueue(arg2,(ccstd::string const &)*arg3);
     
     ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments");
     SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
     s.rval().toObject()->getPrivateObject()->tryAllowDestroyInGC();
+    
+    
+    return true;
+}
+
+static bool js_cc_render_RasterPassBuilder_addRasterSubpass__SWIG_0(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::render::RasterPassBuilder *arg1 = (cc::render::RasterPassBuilder *) NULL ;
+    ccstd::string *arg2 = 0 ;
+    ccstd::string temp2 ;
+    cc::render::RasterSubpassBuilder *result = 0 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::render::RasterPassBuilder>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg2 = &temp2;
+    
+    result = (cc::render::RasterSubpassBuilder *)(arg1)->addRasterSubpass((ccstd::string const &)*arg2);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+
+static bool js_cc_render_RasterPassBuilder_addComputeSubpass__SWIG_0(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::render::RasterPassBuilder *arg1 = (cc::render::RasterPassBuilder *) NULL ;
+    ccstd::string *arg2 = 0 ;
+    ccstd::string temp2 ;
+    cc::render::ComputeSubpassBuilder *result = 0 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::render::RasterPassBuilder>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg2 = &temp2;
+    
+    result = (cc::render::ComputeSubpassBuilder *)(arg1)->addComputeSubpass((ccstd::string const &)*arg2);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
     
     
     return true;
@@ -1796,6 +2467,31 @@ static bool js_cc_render_RasterPassBuilder_addQueue__SWIG_1(se::State& s)
     return true;
 }
 
+static bool js_cc_render_RasterPassBuilder_addQueue__SWIG_2(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::render::RasterPassBuilder *arg1 = (cc::render::RasterPassBuilder *) NULL ;
+    QueueHint arg2 ;
+    cc::render::RasterQueueBuilder *result = 0 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::render::RasterPassBuilder>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    result = (cc::render::RasterQueueBuilder *)(arg1)->addQueue(arg2);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    s.rval().toObject()->getPrivateObject()->tryAllowDestroyInGC();
+    
+    
+    return true;
+}
+
 static bool js_cc_render_RasterPassBuilder_addQueue(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -1803,7 +2499,7 @@ static bool js_cc_render_RasterPassBuilder_addQueue(se::State& s)
     size_t argc = args.size();
     
     
-    if (argc == 1) {
+    if (argc == 2) {
         ok = js_cc_render_RasterPassBuilder_addQueue__SWIG_0(s);
         if (ok) {
             return true; 
@@ -1815,10 +2511,102 @@ static bool js_cc_render_RasterPassBuilder_addQueue(se::State& s)
             return true; 
         }
     } 
+    if (argc == 1) {
+        ok = js_cc_render_RasterPassBuilder_addQueue__SWIG_2(s);
+        if (ok) {
+            return true; 
+        }
+    } 
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
 SE_BIND_FUNC(js_cc_render_RasterPassBuilder_addQueue) 
+
+static bool js_cc_render_RasterPassBuilder_addRasterSubpass__SWIG_1(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::render::RasterPassBuilder *arg1 = (cc::render::RasterPassBuilder *) NULL ;
+    cc::render::RasterSubpassBuilder *result = 0 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::render::RasterPassBuilder>(s);
+    if (nullptr == arg1) return true;
+    result = (cc::render::RasterSubpassBuilder *)(arg1)->addRasterSubpass();
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+
+static bool js_cc_render_RasterPassBuilder_addRasterSubpass(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    
+    
+    if (argc == 1) {
+        ok = js_cc_render_RasterPassBuilder_addRasterSubpass__SWIG_0(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    if (argc == 0) {
+        ok = js_cc_render_RasterPassBuilder_addRasterSubpass__SWIG_1(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_FUNC(js_cc_render_RasterPassBuilder_addRasterSubpass) 
+
+static bool js_cc_render_RasterPassBuilder_addComputeSubpass__SWIG_1(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::render::RasterPassBuilder *arg1 = (cc::render::RasterPassBuilder *) NULL ;
+    cc::render::ComputeSubpassBuilder *result = 0 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::render::RasterPassBuilder>(s);
+    if (nullptr == arg1) return true;
+    result = (cc::render::ComputeSubpassBuilder *)(arg1)->addComputeSubpass();
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+
+static bool js_cc_render_RasterPassBuilder_addComputeSubpass(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    
+    
+    if (argc == 1) {
+        ok = js_cc_render_RasterPassBuilder_addComputeSubpass__SWIG_0(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    if (argc == 0) {
+        ok = js_cc_render_RasterPassBuilder_addComputeSubpass__SWIG_1(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_FUNC(js_cc_render_RasterPassBuilder_addComputeSubpass) 
 
 static bool js_cc_render_RasterPassBuilder_showStatistics_set(se::State& s)
 {
@@ -1874,6 +2662,8 @@ bool js_register_cc_render_RasterPassBuilder(se::Object* obj) {
     cls->defineFunction("setViewport", _SE(js_cc_render_RasterPassBuilder_setViewport)); 
     cls->defineFunction("setVersion", _SE(js_cc_render_RasterPassBuilder_setVersion)); 
     cls->defineFunction("addQueue", _SE(js_cc_render_RasterPassBuilder_addQueue)); 
+    cls->defineFunction("addRasterSubpass", _SE(js_cc_render_RasterPassBuilder_addRasterSubpass)); 
+    cls->defineFunction("addComputeSubpass", _SE(js_cc_render_RasterPassBuilder_addComputeSubpass)); 
     
     
     
@@ -1886,81 +2676,6 @@ bool js_register_cc_render_RasterPassBuilder(se::Object* obj) {
     
     __jsb_cc_render_RasterPassBuilder_proto = cls->getProto();
     __jsb_cc_render_RasterPassBuilder_class = cls;
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-
-
-se::Class* __jsb_cc_render_ComputeQueueBuilder_class = nullptr;
-se::Object* __jsb_cc_render_ComputeQueueBuilder_proto = nullptr;
-SE_DECLARE_FINALIZE_FUNC(js_delete_cc_render_ComputeQueueBuilder) 
-
-static bool js_cc_render_ComputeQueueBuilder_addDispatch(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::render::ComputeQueueBuilder *arg1 = (cc::render::ComputeQueueBuilder *) NULL ;
-    ccstd::string *arg2 = 0 ;
-    uint32_t arg3 ;
-    uint32_t arg4 ;
-    uint32_t arg5 ;
-    ccstd::string temp2 ;
-    
-    if(argc != 4) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::render::ComputeQueueBuilder>(s);
-    if (nullptr == arg1) return true;
-    
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    arg2 = &temp2;
-    
-    
-    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    
-    
-    ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    
-    
-    ok &= sevalue_to_native(args[3], &arg5, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    
-    (arg1)->addDispatch((ccstd::string const &)*arg2,arg3,arg4,arg5);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_render_ComputeQueueBuilder_addDispatch) 
-
-static bool js_delete_cc_render_ComputeQueueBuilder(se::State& s)
-{
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_delete_cc_render_ComputeQueueBuilder) 
-
-bool js_register_cc_render_ComputeQueueBuilder(se::Object* obj) {
-    auto* cls = se::Class::create("ComputeQueueBuilder", obj, __jsb_cc_render_Setter_proto, nullptr); 
-    
-    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
-    
-    cls->defineFunction("addDispatch", _SE(js_cc_render_ComputeQueueBuilder_addDispatch)); 
-    
-    
-    
-    
-    cls->defineFinalizeFunction(_SE(js_delete_cc_render_ComputeQueueBuilder));
-    
-    
-    cls->install();
-    JSBClassType::registerClass<cc::render::ComputeQueueBuilder>(cls);
-    
-    __jsb_cc_render_ComputeQueueBuilder_proto = cls->getProto();
-    __jsb_cc_render_ComputeQueueBuilder_class = cls;
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -2004,18 +2719,39 @@ static bool js_cc_render_ComputePassBuilder_addComputeView(se::State& s)
 }
 SE_BIND_FUNC(js_cc_render_ComputePassBuilder_addComputeView) 
 
-static bool js_cc_render_ComputePassBuilder_addQueue(se::State& s)
+static bool js_cc_render_ComputePassBuilder_addQueue__SWIG_0(se::State& s)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
-    size_t argc = args.size();
+    cc::render::ComputePassBuilder *arg1 = (cc::render::ComputePassBuilder *) NULL ;
+    ccstd::string *arg2 = 0 ;
+    ccstd::string temp2 ;
+    cc::render::ComputeQueueBuilder *result = 0 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::render::ComputePassBuilder>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg2 = &temp2;
+    
+    result = (cc::render::ComputeQueueBuilder *)(arg1)->addQueue((ccstd::string const &)*arg2);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+
+static bool js_cc_render_ComputePassBuilder_addQueue__SWIG_1(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
     cc::render::ComputePassBuilder *arg1 = (cc::render::ComputePassBuilder *) NULL ;
     cc::render::ComputeQueueBuilder *result = 0 ;
     
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
     arg1 = SE_THIS_OBJECT<cc::render::ComputePassBuilder>(s);
     if (nullptr == arg1) return true;
     result = (cc::render::ComputeQueueBuilder *)(arg1)->addQueue();
@@ -2026,6 +2762,29 @@ static bool js_cc_render_ComputePassBuilder_addQueue(se::State& s)
     
     
     return true;
+}
+
+static bool js_cc_render_ComputePassBuilder_addQueue(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    
+    
+    if (argc == 1) {
+        ok = js_cc_render_ComputePassBuilder_addQueue__SWIG_0(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    if (argc == 0) {
+        ok = js_cc_render_ComputePassBuilder_addQueue__SWIG_1(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
 }
 SE_BIND_FUNC(js_cc_render_ComputePassBuilder_addQueue) 
 
@@ -2666,6 +3425,76 @@ static bool js_cc_render_Pipeline_addRenderTexture(se::State& s)
 }
 SE_BIND_FUNC(js_cc_render_Pipeline_addRenderTexture) 
 
+static bool js_cc_render_Pipeline_updateRenderWindow(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::render::Pipeline *arg1 = (cc::render::Pipeline *) NULL ;
+    ccstd::string *arg2 = 0 ;
+    cc::scene::RenderWindow *arg3 = (cc::scene::RenderWindow *) NULL ;
+    ccstd::string temp2 ;
+    
+    if(argc != 2) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::render::Pipeline>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg2 = &temp2;
+    
+    
+    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    (arg1)->updateRenderWindow((ccstd::string const &)*arg2,arg3);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_render_Pipeline_updateRenderWindow) 
+
+static bool js_cc_render_Pipeline_addStorageBuffer__SWIG_0(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::render::Pipeline *arg1 = (cc::render::Pipeline *) NULL ;
+    ccstd::string *arg2 = 0 ;
+    gfx::Format arg3 ;
+    uint32_t arg4 ;
+    ResourceResidency arg5 ;
+    ccstd::string temp2 ;
+    uint32_t result;
+    
+    arg1 = SE_THIS_OBJECT<cc::render::Pipeline>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg2 = &temp2;
+    
+    
+    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    
+    ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    
+    ok &= sevalue_to_native(args[3], &arg5, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    result = (arg1)->addStorageBuffer((ccstd::string const &)*arg2,arg3,arg4,arg5);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+
 static bool js_cc_render_Pipeline_addRenderTarget__SWIG_0(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -2754,20 +3583,19 @@ static bool js_cc_render_Pipeline_addDepthStencil__SWIG_0(se::State& s)
     return true;
 }
 
-static bool js_cc_render_Pipeline_updateRenderWindow(se::State& s)
+static bool js_cc_render_Pipeline_addStorageTexture__SWIG_0(se::State& s)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
-    size_t argc = args.size();
     cc::render::Pipeline *arg1 = (cc::render::Pipeline *) NULL ;
     ccstd::string *arg2 = 0 ;
-    cc::scene::RenderWindow *arg3 = (cc::scene::RenderWindow *) NULL ;
+    gfx::Format arg3 ;
+    uint32_t arg4 ;
+    uint32_t arg5 ;
+    ResourceResidency arg6 ;
     ccstd::string temp2 ;
+    uint32_t result;
     
-    if(argc != 2) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-        return false;
-    }
     arg1 = SE_THIS_OBJECT<cc::render::Pipeline>(s);
     if (nullptr == arg1) return true;
     
@@ -2778,12 +3606,96 @@ static bool js_cc_render_Pipeline_updateRenderWindow(se::State& s)
     
     ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments"); 
-    (arg1)->updateRenderWindow((ccstd::string const &)*arg2,arg3);
+    
+    
+    ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    
+    ok &= sevalue_to_native(args[3], &arg5, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    
+    ok &= sevalue_to_native(args[4], &arg6, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    result = (arg1)->addStorageTexture((ccstd::string const &)*arg2,arg3,arg4,arg5,arg6);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
     
     
     return true;
 }
-SE_BIND_FUNC(js_cc_render_Pipeline_updateRenderWindow) 
+
+static bool js_cc_render_Pipeline_addShadingRateTexture__SWIG_0(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::render::Pipeline *arg1 = (cc::render::Pipeline *) NULL ;
+    ccstd::string *arg2 = 0 ;
+    uint32_t arg3 ;
+    uint32_t arg4 ;
+    ResourceResidency arg5 ;
+    ccstd::string temp2 ;
+    uint32_t result;
+    
+    arg1 = SE_THIS_OBJECT<cc::render::Pipeline>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg2 = &temp2;
+    
+    
+    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    
+    ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    
+    ok &= sevalue_to_native(args[3], &arg5, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    result = (arg1)->addShadingRateTexture((ccstd::string const &)*arg2,arg3,arg4,arg5);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+
+static bool js_cc_render_Pipeline_updateStorageBuffer__SWIG_0(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::render::Pipeline *arg1 = (cc::render::Pipeline *) NULL ;
+    ccstd::string *arg2 = 0 ;
+    uint32_t arg3 ;
+    gfx::Format arg4 ;
+    ccstd::string temp2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::render::Pipeline>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg2 = &temp2;
+    
+    
+    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    
+    ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    (arg1)->updateStorageBuffer((ccstd::string const &)*arg2,arg3,arg4);
+    
+    
+    return true;
+}
 
 static bool js_cc_render_Pipeline_updateRenderTarget__SWIG_0(se::State& s)
 {
@@ -2856,6 +3768,79 @@ static bool js_cc_render_Pipeline_updateDepthStencil__SWIG_0(se::State& s)
     
     return true;
 }
+
+static bool js_cc_render_Pipeline_updateStorageTexture__SWIG_0(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::render::Pipeline *arg1 = (cc::render::Pipeline *) NULL ;
+    ccstd::string *arg2 = 0 ;
+    uint32_t arg3 ;
+    uint32_t arg4 ;
+    gfx::Format arg5 ;
+    ccstd::string temp2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::render::Pipeline>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg2 = &temp2;
+    
+    
+    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    
+    ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    
+    ok &= sevalue_to_native(args[3], &arg5, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    (arg1)->updateStorageTexture((ccstd::string const &)*arg2,arg3,arg4,arg5);
+    
+    
+    return true;
+}
+
+static bool js_cc_render_Pipeline_updateShadingRateTexture(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::render::Pipeline *arg1 = (cc::render::Pipeline *) NULL ;
+    ccstd::string *arg2 = 0 ;
+    uint32_t arg3 ;
+    uint32_t arg4 ;
+    ccstd::string temp2 ;
+    
+    if(argc != 3) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::render::Pipeline>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg2 = &temp2;
+    
+    
+    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    
+    ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    (arg1)->updateShadingRateTexture((ccstd::string const &)*arg2,arg3,arg4);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_render_Pipeline_updateShadingRateTexture) 
 
 static bool js_cc_render_Pipeline_beginFrame(se::State& s)
 {
@@ -3016,26 +4001,6 @@ static bool js_cc_render_Pipeline_addCopyPass(se::State& s)
 }
 SE_BIND_FUNC(js_cc_render_Pipeline_addCopyPass) 
 
-static bool js_cc_render_Pipeline_presentAll(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::render::Pipeline *arg1 = (cc::render::Pipeline *) NULL ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::render::Pipeline>(s);
-    if (nullptr == arg1) return true;
-    (arg1)->presentAll();
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_render_Pipeline_presentAll) 
-
 static bool js_cc_render_Pipeline_createSceneTransversal(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -3105,6 +4070,64 @@ static bool js_cc_render_Pipeline_getDescriptorSetLayout(se::State& s)
     return true;
 }
 SE_BIND_FUNC(js_cc_render_Pipeline_getDescriptorSetLayout) 
+
+static bool js_cc_render_Pipeline_addStorageBuffer__SWIG_1(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::render::Pipeline *arg1 = (cc::render::Pipeline *) NULL ;
+    ccstd::string *arg2 = 0 ;
+    gfx::Format arg3 ;
+    uint32_t arg4 ;
+    ccstd::string temp2 ;
+    uint32_t result;
+    
+    arg1 = SE_THIS_OBJECT<cc::render::Pipeline>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg2 = &temp2;
+    
+    
+    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    
+    ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    result = (arg1)->addStorageBuffer((ccstd::string const &)*arg2,arg3,arg4);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+
+static bool js_cc_render_Pipeline_addStorageBuffer(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    
+    
+    if (argc == 4) {
+        ok = js_cc_render_Pipeline_addStorageBuffer__SWIG_0(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    if (argc == 3) {
+        ok = js_cc_render_Pipeline_addStorageBuffer__SWIG_1(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_FUNC(js_cc_render_Pipeline_addStorageBuffer) 
 
 static bool js_cc_render_Pipeline_addRenderTarget__SWIG_1(se::State& s)
 {
@@ -3232,6 +4255,177 @@ static bool js_cc_render_Pipeline_addDepthStencil(se::State& s)
 }
 SE_BIND_FUNC(js_cc_render_Pipeline_addDepthStencil) 
 
+static bool js_cc_render_Pipeline_addStorageTexture__SWIG_1(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::render::Pipeline *arg1 = (cc::render::Pipeline *) NULL ;
+    ccstd::string *arg2 = 0 ;
+    gfx::Format arg3 ;
+    uint32_t arg4 ;
+    uint32_t arg5 ;
+    ccstd::string temp2 ;
+    uint32_t result;
+    
+    arg1 = SE_THIS_OBJECT<cc::render::Pipeline>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg2 = &temp2;
+    
+    
+    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    
+    ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    
+    ok &= sevalue_to_native(args[3], &arg5, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    result = (arg1)->addStorageTexture((ccstd::string const &)*arg2,arg3,arg4,arg5);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+
+static bool js_cc_render_Pipeline_addStorageTexture(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    
+    
+    if (argc == 5) {
+        ok = js_cc_render_Pipeline_addStorageTexture__SWIG_0(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    if (argc == 4) {
+        ok = js_cc_render_Pipeline_addStorageTexture__SWIG_1(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_FUNC(js_cc_render_Pipeline_addStorageTexture) 
+
+static bool js_cc_render_Pipeline_addShadingRateTexture__SWIG_1(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::render::Pipeline *arg1 = (cc::render::Pipeline *) NULL ;
+    ccstd::string *arg2 = 0 ;
+    uint32_t arg3 ;
+    uint32_t arg4 ;
+    ccstd::string temp2 ;
+    uint32_t result;
+    
+    arg1 = SE_THIS_OBJECT<cc::render::Pipeline>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg2 = &temp2;
+    
+    
+    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    
+    ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    result = (arg1)->addShadingRateTexture((ccstd::string const &)*arg2,arg3,arg4);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+
+static bool js_cc_render_Pipeline_addShadingRateTexture(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    
+    
+    if (argc == 4) {
+        ok = js_cc_render_Pipeline_addShadingRateTexture__SWIG_0(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    if (argc == 3) {
+        ok = js_cc_render_Pipeline_addShadingRateTexture__SWIG_1(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_FUNC(js_cc_render_Pipeline_addShadingRateTexture) 
+
+static bool js_cc_render_Pipeline_updateStorageBuffer__SWIG_1(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::render::Pipeline *arg1 = (cc::render::Pipeline *) NULL ;
+    ccstd::string *arg2 = 0 ;
+    uint32_t arg3 ;
+    ccstd::string temp2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::render::Pipeline>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg2 = &temp2;
+    
+    
+    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    (arg1)->updateStorageBuffer((ccstd::string const &)*arg2,arg3);
+    
+    
+    return true;
+}
+
+static bool js_cc_render_Pipeline_updateStorageBuffer(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    
+    
+    if (argc == 3) {
+        ok = js_cc_render_Pipeline_updateStorageBuffer__SWIG_0(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    if (argc == 2) {
+        ok = js_cc_render_Pipeline_updateStorageBuffer__SWIG_1(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_FUNC(js_cc_render_Pipeline_updateStorageBuffer) 
+
 static bool js_cc_render_Pipeline_updateRenderTarget__SWIG_1(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -3342,6 +4536,61 @@ static bool js_cc_render_Pipeline_updateDepthStencil(se::State& s)
 }
 SE_BIND_FUNC(js_cc_render_Pipeline_updateDepthStencil) 
 
+static bool js_cc_render_Pipeline_updateStorageTexture__SWIG_1(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::render::Pipeline *arg1 = (cc::render::Pipeline *) NULL ;
+    ccstd::string *arg2 = 0 ;
+    uint32_t arg3 ;
+    uint32_t arg4 ;
+    ccstd::string temp2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::render::Pipeline>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg2 = &temp2;
+    
+    
+    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    
+    ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    (arg1)->updateStorageTexture((ccstd::string const &)*arg2,arg3,arg4);
+    
+    
+    return true;
+}
+
+static bool js_cc_render_Pipeline_updateStorageTexture(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    
+    
+    if (argc == 4) {
+        ok = js_cc_render_Pipeline_updateStorageTexture__SWIG_0(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    if (argc == 3) {
+        ok = js_cc_render_Pipeline_updateStorageTexture__SWIG_1(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_FUNC(js_cc_render_Pipeline_updateStorageTexture) 
+
 static bool js_cc_render_Pipeline_addRasterPass__SWIG_1(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -3412,18 +4661,23 @@ bool js_register_cc_render_Pipeline(se::Object* obj) {
     cls->defineFunction("containsResource", _SE(js_cc_render_Pipeline_containsResource)); 
     cls->defineFunction("addRenderTexture", _SE(js_cc_render_Pipeline_addRenderTexture)); 
     cls->defineFunction("updateRenderWindow", _SE(js_cc_render_Pipeline_updateRenderWindow)); 
+    cls->defineFunction("updateShadingRateTexture", _SE(js_cc_render_Pipeline_updateShadingRateTexture)); 
     cls->defineFunction("beginFrame", _SE(js_cc_render_Pipeline_beginFrame)); 
     cls->defineFunction("endFrame", _SE(js_cc_render_Pipeline_endFrame)); 
     cls->defineFunction("addComputePass", _SE(js_cc_render_Pipeline_addComputePass)); 
     cls->defineFunction("addMovePass", _SE(js_cc_render_Pipeline_addMovePass)); 
     cls->defineFunction("addCopyPass", _SE(js_cc_render_Pipeline_addCopyPass)); 
-    cls->defineFunction("presentAll", _SE(js_cc_render_Pipeline_presentAll)); 
     cls->defineFunction("createSceneTransversal", _SE(js_cc_render_Pipeline_createSceneTransversal)); 
     cls->defineFunction("getDescriptorSetLayout", _SE(js_cc_render_Pipeline_getDescriptorSetLayout)); 
+    cls->defineFunction("addStorageBuffer", _SE(js_cc_render_Pipeline_addStorageBuffer)); 
     cls->defineFunction("addRenderTarget", _SE(js_cc_render_Pipeline_addRenderTarget)); 
     cls->defineFunction("addDepthStencil", _SE(js_cc_render_Pipeline_addDepthStencil)); 
+    cls->defineFunction("addStorageTexture", _SE(js_cc_render_Pipeline_addStorageTexture)); 
+    cls->defineFunction("addShadingRateTexture", _SE(js_cc_render_Pipeline_addShadingRateTexture)); 
+    cls->defineFunction("updateStorageBuffer", _SE(js_cc_render_Pipeline_updateStorageBuffer)); 
     cls->defineFunction("updateRenderTarget", _SE(js_cc_render_Pipeline_updateRenderTarget)); 
     cls->defineFunction("updateDepthStencil", _SE(js_cc_render_Pipeline_updateDepthStencil)); 
+    cls->defineFunction("updateStorageTexture", _SE(js_cc_render_Pipeline_updateStorageTexture)); 
     cls->defineFunction("addRasterPass", _SE(js_cc_render_Pipeline_addRasterPass)); 
     
     
@@ -3749,8 +5003,10 @@ bool register_all_render(se::Object* obj) {
     js_register_cc_render_RenderNode(ns); 
     js_register_cc_render_Setter(ns); 
     js_register_cc_render_RasterQueueBuilder(ns); 
-    js_register_cc_render_RasterPassBuilder(ns); 
+    js_register_cc_render_RasterSubpassBuilder(ns); 
     js_register_cc_render_ComputeQueueBuilder(ns); 
+    js_register_cc_render_ComputeSubpassBuilder(ns); 
+    js_register_cc_render_RasterPassBuilder(ns); 
     js_register_cc_render_ComputePassBuilder(ns); 
     js_register_cc_render_MovePassBuilder(ns); 
     js_register_cc_render_CopyPassBuilder(ns); 

@@ -216,7 +216,7 @@ class CallbackTimer {
     private _delay: number;
     private  _interval: number;
     private _target: ISchedulable | null;
-    private _callback: (dt?: number) => void | null;
+    private _callback?: (dt?: number) => void;
 
     constructor () {
         this._lock = false;
@@ -230,7 +230,6 @@ class CallbackTimer {
         this._interval = 0;
 
         this._target = null;
-        this._callback = null!;
     }
 
     public initWithCallback (scheduler: any, callback: any, target: ISchedulable, seconds: number, repeat: number, delay: number) {
@@ -299,7 +298,6 @@ class CallbackTimer {
                     this._timesExecuted += 1;
                 }
 
-                // @ts-expect-error Notes written for over eslint
                 if (this._callback && !this._runForever && this._timesExecuted > this._repeat) {
                     this.cancel();
                 }

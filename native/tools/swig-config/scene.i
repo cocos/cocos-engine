@@ -139,6 +139,7 @@ using namespace cc;
 %ignore cc::Node::getWorldMatrix;
 %ignore cc::Node::getWorldRS;
 %ignore cc::Node::getWorldRT;
+%ignore cc::Node::isTransformDirty;
 %ignore cc::Node::_getSharedArrayBufferObject;
 
 %ignore cc::scene::Camera::screenPointToRay;
@@ -164,6 +165,8 @@ using namespace cc;
 %ignore cc::JointInfo;
 %ignore cc::BakedJointInfo;
 %ignore cc::ITemplateInfo;
+
+%ignore cc::Root::frameSync;
 
 // ----- Rename Section ------
 // Brief: Classes, methods or attributes needs to be renamed
@@ -560,6 +563,7 @@ using namespace cc;
 %attribute(cc::scene::ReflectionProbe, cc::RenderTexture*, realtimePlanarTexture, getRealtimePlanarTexture);
 
 %attribute(cc::SceneGlobals, bool, bakedWithStationaryMainLight, getBakedWithStationaryMainLight, setBakedWithStationaryMainLight);
+%attribute(cc::SceneGlobals, bool, bakedWithHighpLightmap, getBakedWithHighpLightmap, setBakedWithHighpLightmap);
 
 
 // ----- Import Section ------
