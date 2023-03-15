@@ -756,12 +756,13 @@ void CCMTLCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
 
         auto bytesPerRowForTarget = formatSize(convertedFormat, targetWidth, 1, 1);
         auto bytesPerImageForTarget = formatSize(convertedFormat, static_cast<uint32_t>(targetSize.width), static_cast<uint32_t>(targetSize.height), static_cast<uint32_t>(targetSize.depth));
-
+        auto alignment = formatSize(convertedFormat, 1, 1, 1);
+        
         if(textureType == TextureType::TEX1D || textureType == TextureType::TEX1D_ARRAY || mtlTexture->isPVRTC()) {
             bytesPerRowForTarget = 0;
         }
 
-        if(textureType != TextureType::TEX3D || mtlTexture->isPVRTC()) {
+        if(textureType == TextureType::TEX2D || mtlTexture->isPVRTC()) {
             bytesPerImageForTarget = 0;
         }
 
@@ -785,8 +786,10 @@ void CCMTLCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
             } else {
                 CCMTLGPUBuffer stagingBuffer;
                 stagingBuffer.instanceSize = bufferSliceSize;
-                _mtlDevice->gpuStagingBufferPool()->alloc(&stagingBuffer);
+                _mtlDevice->gpuStagingBufferPool()->alloc(&stagingBuffer, alignment);
                 memcpy(stagingBuffer.mappedData, buffer, bufferSliceSize);
+                
+                CC_ASSERT(stagingBuffer.startOffset % alignment == 0);
                 
                 [encoder copyFromBuffer:stagingBuffer.mtlBuffer sourceOffset:stagingBuffer.startOffset sourceBytesPerRow:bytesPerRowForTarget sourceBytesPerImage:bytesPerImageForTarget sourceSize:mtlRegion.size toTexture:dstTexture destinationSlice:slice destinationLevel:region.texSubres.mipLevel destinationOrigin:mtlRegion.origin];
             }
