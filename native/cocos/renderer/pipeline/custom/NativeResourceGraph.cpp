@@ -237,9 +237,9 @@ void ResourceGraph::unmount(uint64_t completedFenceValue) {
             if (texture.texture && texture.fenceValue <= completedFenceValue) {
                 invalidatePersistentRenderPassAndFramebuffer(texture.texture.get());
                 texture.texture.reset();
-                const auto& traits = get(ResourceGraph::Traits, resg, vertID);
+                const auto& traits = get(ResourceGraph::TraitsTag{}, resg, vertID);
                 if (traits.hasSideEffects()) {
-                    auto& states = get(ResourceGraph::States, resg, vertID);
+                    auto& states = get(ResourceGraph::StatesTag{}, resg, vertID);
                     states.states = cc::gfx::AccessFlagBit::NONE;
                 }
             }

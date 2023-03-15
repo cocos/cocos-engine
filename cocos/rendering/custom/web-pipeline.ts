@@ -27,8 +27,8 @@ import { systemInfo } from 'pal/system-info';
 import { Color, Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, ClearFlagBit, DescriptorSet, deviceManager, Viewport, API, CommandBuffer, Type, SamplerInfo, Filter, Address, DescriptorSetInfo } from '../../gfx';
 import { Mat4, Quat, toRadian, Vec2, Vec3, Vec4, assert, macro, cclegacy } from '../../core';
 import { ComputeView, CopyPair, LightInfo, LightingMode, MovePair, QueueHint, RasterView, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
-import { Blit, ClearView, ComputePass, CopyPass, Dispatch, ManagedResource, MovePass, RasterPass, RenderData, RenderGraph, RenderGraphComponent, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData } from './render-graph';
-import { ComputePassBuilder, ComputeQueueBuilder, CopyPassBuilder, MovePassBuilder, Pipeline, PipelineBuilder, RasterPassBuilder, RasterQueueBuilder, SceneTransversal } from './pipeline';
+import { Blit, ClearView, ComputePass, CopyPass, Dispatch, ManagedBuffer, ManagedResource, MovePass, RasterPass, RasterSubpass, RenderData, RenderGraph, RenderGraphComponent, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData, Subpass } from './render-graph';
+import { ComputePassBuilder, ComputeQueueBuilder, ComputeSubpassBuilder, CopyPassBuilder, MovePassBuilder, Pipeline, PipelineBuilder, RasterPassBuilder, RasterQueueBuilder, RasterSubpassBuilder, SceneTransversal } from './pipeline';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { Model, Camera, ShadowType, CSMLevel, DirectionalLight, SpotLight, PCFType, Shadows } from '../../render-scene/scene';
 import { Light, LightType } from '../../render-scene/scene/light';
@@ -650,6 +650,59 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
     private readonly _pipeline: PipelineSceneData;
 }
 
+export class WebRasterSubpassBuilder extends WebSetter implements RasterSubpassBuilder {
+    constructor (data: RenderData, renderGraph: RenderGraph, layoutGraph: LayoutGraphData,
+        vertID: number, subpass: RasterSubpass, pipeline: PipelineSceneData) {
+        super(data, layoutGraph);
+        this._renderGraph = renderGraph;
+        this._layoutGraph = layoutGraph;
+        this._vertID = vertID;
+        this._subpass = subpass;
+        this._pipeline = pipeline;
+
+        const layoutName = this._renderGraph.component<RenderGraphComponent.Layout>(
+            RenderGraphComponent.Layout, this._vertID,
+        );
+        this._layoutID = layoutGraph.locateChild(layoutGraph.nullVertex(), layoutName);
+    }
+    get name () {
+        return this._renderGraph.getName(this._vertID);
+    }
+    set name (name: string) {
+        this._renderGraph.setName(this._vertID, name);
+    }
+    addRasterView (name: string, view: RasterView): void {
+
+    }
+    addComputeView (name: string, view: ComputeView): void {
+
+    }
+    setViewport (viewport: Viewport): void {
+
+    }
+    addQueue (hint: QueueHint = QueueHint.RENDER_OPAQUE, name = 'Queue'): RasterQueueBuilder {
+        const queue = new RenderQueue(hint);
+        const data = new RenderData();
+        const queueID = this._renderGraph.addVertex<RenderGraphValue.Queue>(
+            RenderGraphValue.Queue, queue, name, '', data, false, this._vertID,
+        );
+        return new WebRasterQueueBuilder(data, this._renderGraph, this._layoutGraph, queueID, queue, this._pipeline);
+    }
+    get showStatistics (): boolean {
+        return this._subpass.showStatistics;
+    }
+    set showStatistics (enable: boolean) {
+        this._subpass.showStatistics = enable;
+    }
+
+    private readonly _renderGraph: RenderGraph;
+    private readonly _vertID: number;
+    private readonly _layoutID: number;
+    private readonly _subpass: RasterSubpass;
+    private readonly _pipeline: PipelineSceneData;
+    private readonly _layoutGraph: LayoutGraphData;
+}
+
 export class WebRasterPassBuilder extends WebSetter implements RasterPassBuilder {
     constructor (data: RenderData, renderGraph: RenderGraph, layoutGraph: LayoutGraphData, vertID: number, pass: RasterPass, pipeline: PipelineSceneData) {
         super(data, layoutGraph);
@@ -684,7 +737,21 @@ export class WebRasterPassBuilder extends WebSetter implements RasterPassBuilder
             this._pass.computeViews.set(name, [view]);
         }
     }
-
+    addRasterSubpass (layoutName = ''): RasterSubpassBuilder {
+        const name = 'Raster';
+        const subpassID = this._pass.subpassGraph.numVertices();
+        this._pass.subpassGraph.addVertex(name, new Subpass());
+        const subpass = new RasterSubpass(subpassID);
+        const data = new RenderData();
+        const vertID = this._renderGraph.addVertex<RenderGraphValue.RasterSubpass>(
+            RenderGraphValue.RasterSubpass, subpass, name, layoutName, data, false,
+        );
+        const result = new WebRasterSubpassBuilder(data, this._renderGraph, this._layoutGraph, vertID, subpass, this._pipeline);
+        return result;
+    }
+    addComputeSubpass (layoutName = ''): ComputeSubpassBuilder {
+        throw new Error('Method not implemented.');
+    }
     addQueue (hint: QueueHint = QueueHint.RENDER_OPAQUE, name = 'Queue') {
         const queue = new RenderQueue(hint);
         const data = new RenderData();
@@ -868,6 +935,14 @@ export class WebPipeline implements Pipeline {
             this.resourceGraph._vertices[resId]._object = renderWindow.framebuffer;
         }
     }
+    updateStorageBuffer (name: string, size: number, format = Format.UNKNOWN): void {
+        const resId = this.resourceGraph.vertex(name);
+        const desc = this.resourceGraph.getDesc(resId);
+        desc.width = size;
+        if (format !== Format.UNKNOWN) {
+            desc.format = format;
+        }
+    }
     updateRenderTarget (name: string, width: number, height: number, format: Format = Format.UNKNOWN): void {
         const resId = this.resourceGraph.vertex(name);
         const desc = this.resourceGraph.getDesc(resId);
@@ -882,6 +957,21 @@ export class WebPipeline implements Pipeline {
         desc.height = height;
         if (format !== Format.UNKNOWN) desc.format = format;
     }
+    updateStorageTexture (name: string, width: number, height: number, format = Format.UNKNOWN): void {
+        const resId = this.resourceGraph.vertex(name);
+        const desc = this.resourceGraph.getDesc(resId);
+        desc.width = width;
+        desc.height = height;
+        if (format !== Format.UNKNOWN) {
+            desc.format = format;
+        }
+    }
+    updateShadingRateTexture (name: string, width: number, height: number): void {
+        const resId = this.resourceGraph.vertex(name);
+        const desc = this.resourceGraph.getDesc(resId);
+        desc.width = width;
+        desc.height = height;
+    }
     public containsResource (name: string): boolean {
         return this._resourceGraph.contains(name);
     }
@@ -892,9 +982,6 @@ export class WebPipeline implements Pipeline {
         throw new Error('Method not implemented.');
     }
     public addCopyPass (): CopyPassBuilder {
-        throw new Error('Method not implemented.');
-    }
-    public presentAll (): void {
         throw new Error('Method not implemented.');
     }
     public createSceneTransversal (camera: Camera, scene: RenderScene): SceneTransversal {
@@ -1120,6 +1207,25 @@ export class WebPipeline implements Pipeline {
             );
         }
     }
+    addStorageBuffer (name: string, format: Format, size: number, residency = ResourceResidency.MANAGED): number {
+        const desc = new ResourceDesc();
+        desc.dimension = ResourceDimension.BUFFER;
+        desc.width = size;
+        desc.height = 1;
+        desc.depthOrArraySize = 1;
+        desc.mipLevels = 1;
+        desc.format = format;
+        desc.flags = ResourceFlags.STORAGE;
+
+        return this._resourceGraph.addVertex<ResourceGraphValue.ManagedBuffer>(
+            ResourceGraphValue.ManagedBuffer,
+            new ManagedBuffer(),
+            name, desc,
+            new ResourceTraits(residency),
+            new ResourceStates(),
+            new SamplerInfo(),
+        );
+    }
     addRenderTarget (name: string, format: Format, width: number, height: number, residency = ResourceResidency.MANAGED) {
         const desc = new ResourceDesc();
         desc.dimension = ResourceDimension.TEXTURE2D;
@@ -1155,6 +1261,43 @@ export class WebPipeline implements Pipeline {
             new ResourceTraits(residency),
             new ResourceStates(),
             new SamplerInfo(Filter.POINT, Filter.POINT, Filter.NONE),
+        );
+    }
+    addStorageTexture (name: string, format: Format, width: number, height: number, residency = ResourceResidency.MANAGED) {
+        const desc = new ResourceDesc();
+        desc.dimension = ResourceDimension.TEXTURE2D;
+        desc.width = width;
+        desc.height = height;
+        desc.depthOrArraySize = 1;
+        desc.mipLevels = 1;
+        desc.format = format;
+        desc.flags = ResourceFlags.STORAGE | ResourceFlags.SAMPLED;
+        return this._resourceGraph.addVertex<ResourceGraphValue.Managed>(
+            ResourceGraphValue.Managed,
+            new ManagedResource(),
+            name, desc,
+            new ResourceTraits(residency),
+            new ResourceStates(),
+            new SamplerInfo(Filter.POINT, Filter.POINT, Filter.NONE),
+        );
+    }
+    addShadingRateTexture (name: string, width: number, height: number, residency = ResourceResidency.MANAGED) {
+        const desc = new ResourceDesc();
+        desc.dimension = ResourceDimension.TEXTURE2D;
+        desc.width = width;
+        desc.height = height;
+        desc.depthOrArraySize = 1;
+        desc.mipLevels = 1;
+        desc.format = Format.R8UI;
+        desc.flags = ResourceFlags.SHADING_RATE | ResourceFlags.STORAGE | ResourceFlags.SAMPLED;
+
+        return this._resourceGraph.addVertex<ResourceGraphValue.Managed>(
+            ResourceGraphValue.Managed,
+            new ManagedResource(),
+            name, desc,
+            new ResourceTraits(residency),
+            new ResourceStates(),
+            new SamplerInfo(Filter.LINEAR, Filter.LINEAR, Filter.NONE, Address.CLAMP, Address.CLAMP, Address.CLAMP),
         );
     }
     beginFrame () {
@@ -1226,8 +1369,8 @@ export class WebPipeline implements Pipeline {
         pass.viewport.height = height;
 
         const data = new RenderData();
-        const vertID = this._renderGraph!.addVertex<RenderGraphValue.Raster>(
-            RenderGraphValue.Raster, pass, name, layoutName, data, false,
+        const vertID = this._renderGraph!.addVertex<RenderGraphValue.RasterPass>(
+            RenderGraphValue.RasterPass, pass, name, layoutName, data, false,
         );
         const result = new WebRasterPassBuilder(data, this._renderGraph!, this._layoutGraph, vertID, pass, this._pipelineSceneData);
         this._updateRasterPassConstants(result, width, height, isEnableEffect() ? layoutName : 'default');

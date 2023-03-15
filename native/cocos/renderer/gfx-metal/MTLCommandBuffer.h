@@ -83,7 +83,7 @@ public:
     inline bool isCommandBufferBegan() const { return _commandBufferBegan; }
     inline CCMTLGPUCommandBufferObject *gpuCommandBufferObj() const { return _gpuCommandBufferObj; }
 
-    void reset();
+    void afterCommit();
     
     void signalFence();
     void waitFence();
