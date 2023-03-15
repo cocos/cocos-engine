@@ -67,9 +67,13 @@ export class NodeUIProperties {
     /**
      * @en The opacity of the UI node for final rendering
      * @zh 最终显示的 UI 透明度，受父节点透明度影响
+     */
+    private _opacity = 1;
+    /**
+     * NOTE: engineInternal tag cannot only mark opacity setter as internal.
      * @engineInternal
      */
-    public _opacity = 1;
+    public setOpacity (v: number) { this._opacity = v; }
     public get opacity () { return this._opacity; }
 
     /**

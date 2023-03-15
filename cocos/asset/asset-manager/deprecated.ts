@@ -108,7 +108,7 @@ export class CCLoader {
      */
     public get _cache (): Record<string, Asset> {
         if (assets instanceof Cache) {
-            return assets._map!;
+            return assets.map!;
         } else {
             const map = {};
             assets.forEach((val, key) => {

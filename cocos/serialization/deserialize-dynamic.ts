@@ -105,7 +105,7 @@ function compileDeserializeJIT (self: _Deserializer, klass: CCClassConstructor<u
 
     for (let p = 0; p < props.length; p++) {
         const propName = props[p];
-        if ((PREVIEW || (EDITOR && self._ignoreEditorOnly)) && attrs[propName + POSTFIX_EDITOR_ONLY]) {
+        if ((PREVIEW || (EDITOR && self.ignoreEditorOnly)) && attrs[propName + POSTFIX_EDITOR_ONLY]) {
             continue;   // skip editor only if in preview
         }
 
@@ -161,7 +161,7 @@ function compileDeserializeJIT (self: _Deserializer, klass: CCClassConstructor<u
         sources.push('}');
     }
     if (js.isChildClassOf(klass, cclegacy.Node) || js.isChildClassOf(klass, cclegacy.Component)) {
-        if (PREVIEW || (EDITOR && self._ignoreEditorOnly)) {
+        if (PREVIEW || (EDITOR && self.ignoreEditorOnly)) {
             const mayUsedInPersistRoot = js.isChildClassOf(klass, cclegacy.Node);
             if (mayUsedInPersistRoot) {
                 sources.push('d._id&&(o._id=d._id);');
@@ -384,7 +384,8 @@ class _Deserializer {
     /**
      * @engineInternal
      */
-    public _ignoreEditorOnly: any;
+    public get ignoreEditorOnly () { return this._ignoreEditorOnly; }
+    private _ignoreEditorOnly: unknown;
     private declare _mainBinChunk: Uint8Array;
     private declare _serializedData: SerializedObject | SerializedObject[];
     private declare _context: DeserializationContext;

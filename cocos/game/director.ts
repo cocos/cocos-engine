@@ -386,7 +386,7 @@ export class Director extends EventTarget {
             if (BUILD && DEBUG) {
                 console.time('AutoRelease');
             }
-            assetManager._releaseManager._autoRelease(oldScene!, scene, this._persistRootNodes);
+            assetManager.releaseManager._autoRelease(oldScene!, scene, this._persistRootNodes);
             if (BUILD && DEBUG) {
                 console.timeEnd('AutoRelease');
             }
@@ -806,7 +806,7 @@ export class Director extends EventTarget {
             }
             this._persistRootNodes[id] = node;
             node._persistNode = true;
-            assetManager._releaseManager._addPersistNodeRef(node);
+            assetManager.releaseManager._addPersistNodeRef(node);
         }
     }
 
@@ -821,7 +821,7 @@ export class Director extends EventTarget {
             delete this._persistRootNodes[id];
             node._persistNode = false;
             node._originalSceneId = '';
-            assetManager._releaseManager._removePersistNodeRef(node);
+            assetManager.releaseManager._removePersistNodeRef(node);
         }
     }
 

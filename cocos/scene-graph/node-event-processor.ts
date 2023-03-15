@@ -158,7 +158,8 @@ export class NodeEventProcessor {
         if (recursive && children.length > 0) {
             for (let i = 0; i < children.length; ++i) {
                 const child = children[i];
-                child._eventProcessor.setEnabled(value, true);
+                // NOTE: for circular reference reason, eventProcessor is typeof any, so it's OK to mark child as any
+                (child as any)._eventProcessor.setEnabled(value, true);
             }
         }
         // When a node is dispatching touch events and the node is set to disabled,

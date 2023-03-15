@@ -86,8 +86,8 @@ export class ParticleSystem extends ModelRenderer {
 
     public set capacity (val) {
         this._capacity = Math.floor(val > 0 ? val : 0);
-        if (this.processor && this.processor._model) {
-            this.processor._model.setCapacity(this._capacity);
+        if (this.processor && this.processor.model) {
+            this.processor.model.setCapacity(this._capacity);
         }
     }
 
@@ -1265,7 +1265,7 @@ export class ParticleSystem extends ModelRenderer {
         }
 
         if (!this.renderer.useGPU && this._trailModule && this._trailModule.enable) {
-            if (!this._trailModule._inited) {
+            if (!this._trailModule.inited) {
                 this._trailModule.clear();
                 this._trailModule.destroy();
                 this._trailModule.onInit(this);
@@ -1298,8 +1298,8 @@ export class ParticleSystem extends ModelRenderer {
     }
 
     protected _onVisibilityChange (val) {
-        if (this.processor._model) {
-            this.processor._model.visFlags = val;
+        if (this.processor.model) {
+            this.processor.model.visFlags = val;
         }
     }
 

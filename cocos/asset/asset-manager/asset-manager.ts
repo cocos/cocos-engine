@@ -301,7 +301,10 @@ export class AssetManager {
     /**
      * @engineInternal
      */
-    public _releaseManager = releaseManager;
+    public get releaseManager () {
+        return this._releaseManager;
+    }
+    private _releaseManager = releaseManager;
     private _files = files;
     private _parsed = parsed;
     private _parsePipeline = BUILD ? null : new Pipeline('parse existing json', [this.loadPipe]);

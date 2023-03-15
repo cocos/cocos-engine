@@ -336,32 +336,29 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         }
     }
 
-    /**
-     * @engineInternal
-     */
     @serializable
-    public _parent: this | null = null;
+    protected _parent: this | null = null;
 
-    /**
-     * @engineInternal
-     */
     @serializable
-    public _children: this[] = [];
+    protected _children: this[] = [];
 
     @serializable
     protected _active = true;
 
     /**
+     * NOTE: components getter is typeof ReadonlyArray
      * @engineInternal
      */
+    public getWritableComponents () { return this._components; }
     @serializable
-    public _components: Component[] = [];
+    protected _components: Component[] = [];
 
     /**
      * @engineInternal The PrefabInfo object
      */
+    public get prefab () { return this._prefab; }
     @serializable
-    public _prefab: PrefabInfo | null = null;
+    protected _prefab: PrefabInfo | null = null;
 
     protected _scene: Scene = null!;
 
@@ -370,20 +367,15 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     /**
      * @engineInternal
      */
-    public _id: string = idGenerator.getNewId();
+    public set id (v: string) { this._id = v; }
+    protected _id: string = idGenerator.getNewId();
 
     protected _name: string;
 
-    /**
-     * @engineInternal
-     */
-    public _eventProcessor: any = new legacyCC.NodeEventProcessor(this);
+    protected _eventProcessor: any = new legacyCC.NodeEventProcessor(this);
     protected _eventMask = 0;
 
-    /**
-     * @engineInternal
-     */
-    public _siblingIndex = 0;
+    protected _siblingIndex = 0;
 
     /**
      * @en
@@ -1470,22 +1462,34 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     /**
      * @engineInternal world transform, don't access this directly
      */
-    public declare _pos: Vec3;
+    public get w_pos () {
+        return this._pos;
+    }
+    protected declare _pos: Vec3;
 
     /**
-     * @engineInternal
+     * @engineInternal world transform, don't access this directly
      */
-    public declare _rot: Quat;
+    public get w_rot () {
+        return this._rot;
+    }
+    protected declare _rot: Quat;
 
     /**
-     * @engineInternal
+     * @engineInternal world transform, don't access this directly
      */
-    public declare _scale: Vec3;
+    public get w_scale () {
+        return this._scale;
+    }
+    protected declare _scale: Vec3;
 
     /**
-     * @engineInternal
+     * @engineInternal world transform, don't access this directly
      */
-    public declare _mat: Mat4;
+    public get w_mat () {
+        return this._mat;
+    }
+    protected declare _mat: Mat4;
 
     // local transform
     @serializable

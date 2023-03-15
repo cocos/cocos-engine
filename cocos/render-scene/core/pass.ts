@@ -188,10 +188,7 @@ export class Pass {
     protected _bs: BlendState = new BlendState();
     protected _dss: DepthStencilState = new DepthStencilState();
     protected _rs: RasterizerState = new RasterizerState();
-    /**
-     * @engineInternal
-     */
-    public _priority: RenderPriority = RenderPriority.DEFAULT;
+    protected _priority: RenderPriority = RenderPriority.DEFAULT;
     protected _stage: RenderPassStage = RenderPassStage.DEFAULT;
     protected _phase = getPhaseID('default');
     protected _passID = 0xFFFFFFFF;
@@ -206,10 +203,7 @@ export class Pass {
     protected _root: Root;
     protected _device: Device;
 
-    /**
-     * @engineInternal
-     */
-    public  _rootBufferDirty = false;
+    protected _rootBufferDirty = false;
 
     constructor (root: Root) {
         this._root = root;
@@ -845,8 +839,18 @@ export class Pass {
     get blocks (): Float32Array[] { return this._blocks; }
     get blocksInt (): Int32Array[] { return this._blocksInt; }
     get rootBufferDirty (): boolean { return this._rootBufferDirty; }
+    /**
+     * NOTE: engineInternal tag cannot only mark rootBufferDirty setter as internal
+     * @engineInternal
+     */
+    public setRootBufferDirty (v: boolean) { this._rootBufferDirty = v; }
     // states
     get priority (): RenderPriority { return this._priority; }
+    /**
+     * NOTE: engineInternal tag cannot set only for priority setter
+     * @engineInternal
+     */
+    public setPriority (p: RenderPriority) { this._priority = p; }
     get primitive (): PrimitiveMode { return this._primitive; }
     get stage (): RenderPassStage { return this._stage; }
     get phase (): number { return this._phase; }

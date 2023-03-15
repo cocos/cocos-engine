@@ -48,8 +48,11 @@ export class AudioClip extends Asset {
     /**
      * @engineInternal
      */
+    public set duration (v: number) {
+        this._duration = v;
+    }
     @serializable
-    public _duration = 0; // we serialize this because it's unavailable at runtime on some platforms
+    protected _duration = 0; // we serialize this because it's unavailable at runtime on some platforms
 
     protected _loadMode = AudioType.UNKNOWN_AUDIO;
 

@@ -37,7 +37,10 @@ export abstract class ParticleSystemRendererBase {
     /**
      * @engineInternal
      */
-    public _model: ParticleBatchModel | null = null;
+    public get model () {
+        return this._model;
+    }
+    protected _model: ParticleBatchModel | null = null;
     protected _renderInfo: ParticleSystemRenderer | null = null;
     protected _vertAttrs: Attribute[] = [];
     protected _useInstance: boolean;

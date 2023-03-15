@@ -637,7 +637,7 @@ export class Model {
             this._localDataUpdated = true;
             const worldBounds = this._worldBounds;
             if (this._modelBounds && worldBounds) {
-                this._modelBounds.transform(node._mat, node._pos, node._rot, node._scale, worldBounds);
+                this._modelBounds.transform(node.w_mat, node.w_pos, node.w_rot, node.w_scale, worldBounds);
             }
         }
     }
@@ -653,7 +653,7 @@ export class Model {
             this._localDataUpdated = true;
             const worldBounds = this._worldBounds;
             if (this._modelBounds && worldBounds) {
-                this._modelBounds.transform(node._mat, node._pos, node._rot, node._scale, worldBounds);
+                this._modelBounds.transform(node.w_mat, node.w_pos, node.w_rot, node.w_scale, worldBounds);
             }
         }
     }
@@ -676,7 +676,7 @@ export class Model {
         if (!this._localDataUpdated) { return; }
         this._localDataUpdated = false;
 
-        const worldMatrix = this.transform._mat;
+        const worldMatrix = this.transform.w_mat;
         let hasNonInstancingPass = false;
         for (let i = 0; i < subModels.length; i++) {
             const subModel = subModels[i];
