@@ -223,6 +223,9 @@ void Log::logMessage(LogType type, LogLevel level, const char *formats, ...) {
         case LogLevel::FATAL:
         ohosLoglevel = ::LogLevel::LOG_FATAL;
         break;
+        default:
+        ohosLoglevel = ::LogLevel::LOG_INFO;
+        break;
     }
     OH_LOG_Print(LOG_APP, ohosLoglevel, LOG_DOMAIN, "HMG_LOG", "%{public}s", buff);
 #else
