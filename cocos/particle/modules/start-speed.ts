@@ -26,7 +26,7 @@
 import { ccclass, displayOrder, range, serializable, tooltip, type } from '../../core/data/decorators';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
-import { ParticleEmitterContext, ParticleEmitterParams, ParticleUpdateContext } from '../particle-update-context';
+import { ParticleExecContext, ParticleEmitterParams } from '../particle-base';
 import { CurveRange } from '../curve-range';
 import { lerp, Mat4, pseudoRandom, randomRangeInt, Vec3 } from '../../core/math';
 import { INT_MAX } from '../../core/math/bits';
@@ -35,6 +35,7 @@ import { Space } from '../enum';
 const velocity = new Vec3();
 
 @ccclass('cc.StartSpeedModule')
+@ParticleModule.register('StartSpeed', ModuleExecStage.SPAWN, 1)
 export class StartSpeedModule extends ParticleModule {
     /**
       * @zh 粒子初始速度。
@@ -45,21 +46,8 @@ export class StartSpeedModule extends ParticleModule {
     @tooltip('i18n:particle_system.startSpeed')
     public startSpeed = new CurveRange(5);
 
-    public get name (): string {
-        return 'StartSpeedModule';
-    }
-
-    public get execStage (): ModuleExecStage {
-        return ModuleExecStage.SPAWN;
-    }
-
-    public get execPriority (): number {
-        return 1;
-    }
-
-    public spawn (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleEmitterContext,
-        fromIndex: number, toIndex: number, currentTime: number) {
-        const normalizedTimeInCycle = currentTime / params.duration;
+    public execute (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext) {
+        const { fromIndex, toIndex, normalizedTimeInCycle } = context;
         if (this.startSpeed.mode === CurveRange.Mode.Constant) {
             const constant = this.startSpeed.constant;
             for (let i = fromIndex; i < toIndex; ++i) {

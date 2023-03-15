@@ -30,7 +30,7 @@ import { Enum } from '../../core/value-types';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { createRealCurve, CurveRange } from '../curve-range';
 import { ParticleSOAData } from '../particle-soa-data';
-import { ParticleEmitterParams, ParticleUpdateContext } from '../particle-update-context';
+import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { assert, CCFloat, CCInteger, RealCurve, RealInterpolationMode } from '../../core';
 
 const TEXTURE_ANIMATION_RAND_OFFSET = 90794;
@@ -72,8 +72,9 @@ export enum Animation {
     SINGLE_ROW
 }
 
-@ccclass('cc.TextureAnimationModule')
-export class TextureAnimationModule extends ParticleModule {
+@ccclass('cc.SubUVAnimationModule')
+@ParticleModule.register('SubUVAnimation', ModuleExecStage.UPDATE, 0)
+export class SubUVAnimationModule extends ParticleModule {
     /**
      * @zh 设定粒子贴图动画的类型（暂只支持 Grid 模式）[[Mode]]。
      */
@@ -149,7 +150,7 @@ export class TextureAnimationModule extends ParticleModule {
      */
     @serializable
     @tooltip('i18n:textureAnimationModule.randomRow')
-    @visible(function (this: TextureAnimationModule) { return this.animation === Animation.SINGLE_ROW; })
+    @visible(function (this: SubUVAnimationModule) { return this.animation === Animation.SINGLE_ROW; })
     public randomRow = false;
 
     /**
@@ -158,7 +159,7 @@ export class TextureAnimationModule extends ParticleModule {
      */
     @serializable
     @tooltip('i18n:textureAnimationModule.rowIndex')
-    @visible(function (this: TextureAnimationModule) { return this.animation === Animation.SINGLE_ROW && this.randomRow === false; })
+    @visible(function (this: SubUVAnimationModule) { return this.animation === Animation.SINGLE_ROW && this.randomRow === false; })
     public rowIndex = 0;
 
     @type(Enum(TimeMode))
@@ -173,7 +174,7 @@ export class TextureAnimationModule extends ParticleModule {
 
     @type(CCFloat)
     @range([0.0001, Number.MAX_VALUE])
-    @visible(function (this: TextureAnimationModule) { return this._timeMode === TimeMode.FPS; })
+    @visible(function (this: SubUVAnimationModule) { return this._timeMode === TimeMode.FPS; })
     public get framesPerSecond () {
         return this._fps;
     }
@@ -189,7 +190,7 @@ export class TextureAnimationModule extends ParticleModule {
     @serializable
     @range([0, 1])
     @tooltip('i18n:textureAnimationModule.frameOverTime')
-    @visible(function (this: TextureAnimationModule) { return this._timeMode === TimeMode.LIFETIME; })
+    @visible(function (this: SubUVAnimationModule) { return this._timeMode === TimeMode.LIFETIME; })
     public frameOverTime = new CurveRange(1, createRealCurve([
         [0.0, 0.0],
         [1.0, 1.0],
@@ -209,20 +210,8 @@ export class TextureAnimationModule extends ParticleModule {
      */
     @serializable
     @tooltip('i18n:textureAnimationModule.cycleCount')
-    @visible(function (this: TextureAnimationModule) { return this._timeMode === TimeMode.LIFETIME; })
+    @visible(function (this: SubUVAnimationModule) { return this._timeMode === TimeMode.LIFETIME; })
     public cycleCount = 1;
-
-    public get name (): string {
-        return 'TextureModule';
-    }
-
-    public get execStage (): ModuleExecStage {
-        return ModuleExecStage.UPDATE;
-    }
-
-    public get execPriority (): number {
-        return 0;
-    }
 
     @serializable
     private _numTilesX = 1;
@@ -237,9 +226,9 @@ export class TextureAnimationModule extends ParticleModule {
     @serializable
     private _fps = 30;
 
-    public update (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleUpdateContext,
-        fromIndex: number, toIndex: number, dt: number) {
+    public execute (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext) {
         const { randomSeed, frameIndex, normalizedAliveTime } = particles;
+        const { fromIndex, toIndex } = context;
         if (DEBUG) {
             assert(this.startFrame.mode === CurveRange.Mode.Constant || this.startFrame.mode === CurveRange.Mode.TwoConstants,
                 'The mode of startFrame in texture-animation module can not be Curve and TwoCurve!');

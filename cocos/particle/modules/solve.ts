@@ -1,22 +1,22 @@
 import { Vec3 } from '../../core';
 import { ccclass } from '../../core/data/decorators';
-import { ParticleModule, ModuleExecStage, moduleName, execStages, execOrder, registerParticleModule } from '../particle-module';
+import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
-import { ParticleEmitterParams, ParticleUpdateContext } from '../particle-update-context';
+import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 
 const velocity = new Vec3();
 
 @ccclass('SolveModule')
-@registerParticleModule('Solve', ModuleExecStage.UPDATE, 0)
+@ParticleModule.register('Solve', ModuleExecStage.UPDATE, 0)
 export class SolveModule extends ParticleModule {
-    public update (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleUpdateContext,
-        fromIndex: number, toIndex: number, dt: number) {
+    public execute (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext) {
+        const { fromIndex, toIndex, deltaTime } = context;
         const { speedModifier } = particles;
         for (let particleHandle = fromIndex; particleHandle < toIndex; particleHandle++) {
             particles.getFinalVelocityAt(velocity, particleHandle);
-            particles.addPositionAt(Vec3.multiplyScalar(velocity, velocity, dt * speedModifier[particleHandle]), particleHandle);
+            particles.addPositionAt(Vec3.multiplyScalar(velocity, velocity, deltaTime * speedModifier[particleHandle]), particleHandle);
             particles.getAngularVelocityAt(velocity, particleHandle);
-            particles.addRotationAt(Vec3.multiplyScalar(velocity, velocity, dt), particleHandle);
+            particles.addRotationAt(Vec3.multiplyScalar(velocity, velocity, deltaTime), particleHandle);
         }
     }
 }

@@ -27,16 +27,16 @@
 import { ccclass, tooltip, displayOrder, range, type, radian, serializable, visible, displayName } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
 import { Mat4, pseudoRandom, Quat, Vec4, Vec3, lerp } from '../../core/math';
-import { ParticleModule, ModuleExecStage, moduleName, execStages, execOrder, registerParticleModule } from '../particle-module';
+import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { CurveRange } from '../curve-range';
 import { assert, CCBoolean } from '../../core';
-import { ParticleEmitterParams, ParticleUpdateContext } from '../particle-update-context';
+import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { ParticleSOAData } from '../particle-soa-data';
 
 const ROTATION_OVERTIME_RAND_OFFSET = 125292;
 
 @ccclass('cc.RotationModule')
-@registerParticleModule('Rotation', ModuleExecStage.UPDATE, 1)
+@ParticleModule.register('Rotation', ModuleExecStage.UPDATE, 1)
 export class RotationModule extends ParticleModule {
     /**
      * @zh 是否三个轴分开设定旋转。
@@ -125,9 +125,9 @@ export class RotationModule extends ParticleModule {
     @serializable
     private _x: CurveRange | null = null;
 
-    public update (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleUpdateContext,
-        fromIndex: number, toIndex: number, dt: number) {
+    public execute (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext) {
         const {  angularVelocityZ, normalizedAliveTime, randomSeed } = particles;
+        const { fromIndex, toIndex } = context;
         if (!this._separateAxes) {
             if (this.z.mode === CurveRange.Mode.Constant) {
                 const constant = this.z.constant;

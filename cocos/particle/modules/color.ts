@@ -25,10 +25,10 @@
 
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { Color, pseudoRandom } from '../../core/math';
-import { ParticleModule, ModuleExecStage, execStages, moduleName, execOrder, registerParticleModule } from '../particle-module';
+import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { GradientRange } from '../gradient-range';
 import { ParticleSOAData } from '../particle-soa-data';
-import { ParticleEmitterParams, ParticleUpdateContext } from '../particle-update-context';
+import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 
 const COLOR_OVERTIME_RAND_OFFSET = 91041;
 const tempColor = new Color();
@@ -36,7 +36,7 @@ const tempColor2 = new Color();
 const tempColor3 = new Color();
 
 @ccclass('cc.ColorModule')
-@registerParticleModule('Color', ModuleExecStage.UPDATE, 0)
+@ParticleModule.register('Color', ModuleExecStage.UPDATE, 0)
 export class ColorModule extends ParticleModule {
     /**
      * @zh 颜色随时间变化的参数，各个 key 之间线性差值变化。
@@ -46,8 +46,8 @@ export class ColorModule extends ParticleModule {
     @displayOrder(1)
     public color = new GradientRange();
 
-    public update (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleUpdateContext,
-        fromIndex: number, toIndex: number, dt: number) {
+    public execute (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext) {
+        const { fromIndex, toIndex } = context;
         if (this.color.mode === GradientRange.Mode.Color) {
             const color = this.color.color;
             for (let i = fromIndex; i < toIndex; i++) {

@@ -24,9 +24,9 @@
  */
 
 import { ccclass, displayOrder, formerlySerializedAs, radian, range, serializable, tooltip, type, visible } from '../../core/data/decorators';
-import { ParticleModule, ModuleExecStage, registerParticleModule } from '../particle-module';
+import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
-import { ParticleEmitterContext, ParticleEmitterParams, ParticleUpdateContext } from '../particle-update-context';
+import { ParticleExecContext, ParticleEmitterParams } from '../particle-base';
 import { CurveRange } from '../curve-range';
 import { GradientRange } from '../gradient-range';
 import { Color, lerp, pseudoRandom, randomRangeInt, Vec3 } from '../../core/math';
@@ -34,7 +34,7 @@ import { INT_MAX } from '../../core/math/bits';
 import { Space } from '../enum';
 
 @ccclass('cc.StartLifeTimeModule')
-@registerParticleModule('StartLifeTime', ModuleExecStage.SPAWN, 1)
+@ParticleModule.register('StartLifeTime', ModuleExecStage.SPAWN, 1)
 export class StartLifeTimeModule extends ParticleModule {
     /**
       * @zh 粒子生命周期。
@@ -46,10 +46,9 @@ export class StartLifeTimeModule extends ParticleModule {
     @tooltip('i18n:particle_system.startLifetime')
     public startLifetime = new CurveRange(5);
 
-    public spawn (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleEmitterContext,
-        fromIndex: number, toIndex: number, currentTime: number) {
-        const normalizedTimeInCycle = currentTime / params.duration;
+    public execute (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext) {
         const { invStartLifeTime } = particles;
+        const { fromIndex, toIndex, normalizedTimeInCycle } = context;
         if (this.startLifetime.mode === CurveRange.Mode.Constant) {
             const lifeTime = 1 / this.startLifetime.constant;
             for (let i = fromIndex; i < toIndex; ++i) {

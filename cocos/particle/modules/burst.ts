@@ -26,9 +26,9 @@
 import { lerp } from '../../core';
 import { ccclass, displayOrder, serializable, tooltip, type, range, editable } from '../../core/data/decorators';
 import { CurveRange } from '../curve-range';
-import { ParticleModule, ModuleExecStage, execStages, moduleName, execOrder, registerParticleModule } from '../particle-module';
+import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
-import { ParticleEmitterContext, ParticleEmitterParams, ParticleUpdateContext } from '../particle-update-context';
+import { ParticleExecContext, ParticleEmitterParams } from '../particle-base';
 
 @ccclass('cc.Burst')
 export default class Burst {
@@ -81,7 +81,7 @@ export default class Burst {
 }
 
 @ccclass('cc.BurstModule')
-@registerParticleModule('Burst', ModuleExecStage.EMITTER_UPDATE | ModuleExecStage.EVENT_HANDLER, 2)
+@ParticleModule.register('Burst', ModuleExecStage.EMITTER_UPDATE | ModuleExecStage.EVENT_HANDLER, 2)
 export class BurstModule extends ParticleModule {
     /**
       * @zh 设定在指定时间发射指定数量的粒子的 burst 的数量。
@@ -92,15 +92,14 @@ export class BurstModule extends ParticleModule {
     @tooltip('i18n:particle_system.bursts')
     public bursts: Burst[] = [];
 
-    public emitterUpdate (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleEmitterContext,
-        prevT: number, t: number) {
-        const normalizedTimeInCycle = t / params.duration;
+    public execute (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext) {
+        const { normalizedTimeInCycle, previousTime, currentTime } = context;
         for (let i = 0, burstCount = this.bursts.length; i < burstCount; i++) {
             const burst = this.bursts[i];
-            if ((prevT <= burst.time && t > burst.time) || (prevT > burst.time && burst.repeatCount > 1)) {
-                const preEmitTime = Math.max(Math.floor((prevT - burst.time) / burst.repeatInterval), 0);
+            if ((previousTime <= burst.time && currentTime > burst.time) || (previousTime > burst.time && burst.repeatCount > 1)) {
+                const preEmitTime = Math.max(Math.floor((previousTime - burst.time) / burst.repeatInterval), 0);
                 if (preEmitTime < burst.repeatCount) {
-                    const currentEmitTime = Math.min(Math.ceil((t - burst.time) / burst.repeatInterval), burst.repeatCount);
+                    const currentEmitTime = Math.min(Math.ceil((currentTime - burst.time) / burst.repeatInterval), burst.repeatCount);
                     const toEmitTime = currentEmitTime - preEmitTime;
                     if (toEmitTime === 0) { continue; }
                     if (burst.count.mode === CurveRange.Mode.Constant) {

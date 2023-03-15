@@ -26,4 +26,4 @@
 import { ccclass, type, serializable, editable, range } from 'cc.decorator';
 import { repeat } from '../core/math';
 import { CurveRange } from './curve-range';
-import { ParticleUpdateContext } from './particle-update-context';
+import { ParticleExecContext } from './particle-base';

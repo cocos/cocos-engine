@@ -29,9 +29,9 @@ import { Mat4, Quat, Vec2, Vec3, clamp, pingPong, random, randomRange, repeat, t
 
 import { CurveRange } from '../curve-range';
 import { randomSign } from '../particle-general-function';
-import { ParticleModule, ModuleExecStage, moduleName, execStages, execOrder, registerParticleModule } from '../particle-module';
+import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
-import { ParticleEmitterContext, ParticleEmitterParams, ParticleUpdateContext } from '../particle-update-context';
+import { ParticleExecContext, ParticleEmitterParams } from '../particle-base';
 import { Enum } from '../../core';
 
 const _intermediVec = new Vec3(0, 0, 0);
@@ -105,7 +105,7 @@ export enum ArcMode {
 }
 
 @ccclass('cc.ShapeModule')
-@registerParticleModule('Shape', ModuleExecStage.SPAWN, 0)
+@ParticleModule.register('Shape', ModuleExecStage.SPAWN, 0)
 export class ShapeModule extends ParticleModule {
     /**
      * @zh 粒子发射器位置。
@@ -330,8 +330,8 @@ export class ShapeModule extends ParticleModule {
     private _quat = new Quat();
     private _isTransformDirty = true;
 
-    public preTick (params: ParticleEmitterParams, currentTime: number, deltaTime: number) {
-        this._totalAngle += 2 * Math.PI * this.arcSpeed.evaluate(currentTime / params.duration, 1) * deltaTime;
+    public tick (particles: ParticleSOAData,  params: ParticleEmitterParams, context: ParticleExecContext) {
+        this._totalAngle += 2 * Math.PI * this.arcSpeed.evaluate(context.normalizedTimeInCycle, 1) * context.deltaTime;
         if (this._isTransformDirty) {
             Quat.fromEuler(this._quat, this._rotation.x, this._rotation.y, this._rotation.z);
             Mat4.fromRTS(this._mat, this._quat, this._position, this._scale);
@@ -339,8 +339,8 @@ export class ShapeModule extends ParticleModule {
         }
     }
 
-    public spawn (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleEmitterContext,
-        fromIndex: number, toIndex: number, currentTime: number) {
+    public execute (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext) {
+        const { fromIndex, toIndex } = context;
         const randomPositionAmount = this.randomPositionAmount;
         const minRadius = this.radius * (1 - this.radiusThickness);
         const velocityZ = -Math.cos(this._angle) * this.radius;

@@ -27,18 +27,12 @@ import { Director, director, game, js } from '../core';
 import System from '../core/components/system';
 import { ParticleEmitter } from './particle-emitter';
 import { ParticleSystemRenderer } from './particle-system-renderer';
-import { SpawnEvent } from './particle-update-context';
 
 export class ParticleSystemManager extends System {
     private _particleSystems: ParticleEmitter[] = [];
     private _particleSystemRenderers: ParticleSystemRenderer[] = [];
-    private _spawnEvents: SpawnEvent[] = [];
-    private _spawnEventsUsed = 0;
 
     init () {
-        for (let i = 0; i < 4; i++) {
-            this._spawnEvents.push(new SpawnEvent());
-        }
         director.on(Director.EVENT_UPDATE_PARTICLE, this.tick, this);
     }
 
@@ -51,16 +45,6 @@ export class ParticleSystemManager extends System {
         if (index !== -1) {
             js.array.fastRemoveAt(this._particleSystems, index);
         }
-    }
-
-    dispatchSpawnEvent (): SpawnEvent {
-        if (this._spawnEventsUsed === this._spawnEvents.length) {
-            for (let i = 0; i < this._spawnEventsUsed; i++) {
-                const event = new SpawnEvent();
-                this._spawnEvents.push(event);
-            }
-        }
-        return this._spawnEvents[this._spawnEventsUsed++];
     }
 
     addParticleSystemRenderer (particleSystemRenderer: ParticleSystemRenderer) {
@@ -81,7 +65,6 @@ export class ParticleSystemManager extends System {
         for (let i = 0, length = particleSystems.length; i < length; i++) {
             particleSystems[i].simulate(dt);
         }
-        this._spawnEventsUsed = 0;
         for (let i = 0, length = renderers.length; i < length; i++) {
             renderers[i].updateRenderData();
         }

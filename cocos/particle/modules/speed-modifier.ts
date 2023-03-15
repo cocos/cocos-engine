@@ -26,14 +26,14 @@
 import { lerp, pseudoRandom } from '../../core';
 import { ccclass, displayOrder, range, serializable, tooltip, type } from '../../core/data/decorators';
 import { CurveRange } from '../curve-range';
-import { ParticleModule, ModuleExecStage, registerParticleModule } from '../particle-module';
+import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
-import { ParticleEmitterParams, ParticleUpdateContext } from '../particle-update-context';
+import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 
 const SPEED_MODIFIER_RAND_OFFSET = 388180;
 
 @ccclass('cc.SpeedModifierModule')
-@registerParticleModule('SpeedModifie', ModuleExecStage.UPDATE, 0)
+@ParticleModule.register('SpeedModifie', ModuleExecStage.UPDATE, 0)
 export class SpeedModifierModule extends ParticleModule {
     /**
      * @zh 速度修正系数。
@@ -45,9 +45,9 @@ export class SpeedModifierModule extends ParticleModule {
     @tooltip('i18n:velocityOvertimeModule.speedModifier')
     public speedModifier = new CurveRange(1);
 
-    public update (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleUpdateContext,
-        fromIndex: number, toIndex: number, dt: number) {
+    public execute (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext) {
         const { speedModifier, normalizedAliveTime, randomSeed } = particles;
+        const { fromIndex, toIndex } = context;
         if (this.speedModifier.mode === CurveRange.Mode.Constant) {
             const constant = this.speedModifier.constant;
             for (let i = fromIndex; i < toIndex; i++) {

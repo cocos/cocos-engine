@@ -27,7 +27,31 @@ import { CullingMode, Space } from './enum';
 import { Color, Mat4, Quat, Vec3 } from '../core';
 import { ccclass, serializable } from '../core/data/decorators';
 import { CurveRange } from './curve-range';
-import { ParticleEmitter } from './particle-emitter';
+
+export enum ParticleEventType {
+    UNKNOWN,
+    LOCATION,
+    DEATH,
+    BIRTH,
+    COLLISION,
+    TRIGGER,
+    MANUAL,
+}
+
+export class ParticleEvent {
+    public type = ParticleEventType.UNKNOWN;
+    public particleId = -1;
+    public currentTime = 0;
+    public prevTime = 0;
+    public position = new Vec3();
+    public velocity = new Vec3();
+    public rotation = new Vec3();
+    public size = new Vec3();
+    public color = new Color();
+    public startLifeTime = 5;
+    public randomSeed = 0;
+    public normalizedAliveTime = 0;
+}
 
 @ccclass('cc.ParticleEmitterParams')
 export class ParticleEmitterParams {
@@ -36,7 +60,7 @@ export class ParticleEmitterParams {
     @serializable
     public loop = true;
     @serializable
-    public duration = 5.0;
+    public invDuration = 0.2;
     @serializable
     public prewarm = false;
     @serializable
@@ -53,30 +77,14 @@ export class ParticleEmitterParams {
     public cullingMode = CullingMode.ALWAYS_SIMULATE;
 }
 
-export class SpawnEvent {
-    public deltaTime = 0;
-    public currentTime = 0;
-    public prevTime = 0;
-    public velocity = new Vec3();
-    public rotation = new Vec3();
-    public size = new Vec3();
-    public color = new Color();
-    public invStartLifeTime = 1;
-    public normalizedAliveTime = 0;
-    public transform = new Mat4();
+export enum InheritedProperty {
+    COLOR = 1,
+    SIZE = 1 << 1,
+    ROTATION = 1 << 2,
+    LIFETIME = 1 << 3,
+    DURATION = 1 << 4
 }
 
-export class ParticleSnapshot {
-    public rotation = new Vec3();
-    public startSize = new Vec3();
-    public size = new Vec3();
-    public startColor = new Color();
-    public color = new Color();
-    public randomSeed = 0;
-    public invStartLifeTime = 1;
-    public normalizedAliveTime = 0;
-    public recordReason = -1;
-}
 export class InheritedProperties {
     public rotation = new Vec3();
     public size = new Vec3();
@@ -93,6 +101,7 @@ export enum PlayingState {
 
 export class ParticleEmitterState {
     public accumulatedTime = 0;
+    public spawnFraction = 0;
     public playingState = PlayingState.STOPPED;
     public lastPosition = new Vec3();
     public currentPosition = new Vec3();
@@ -101,22 +110,67 @@ export class ParticleEmitterState {
     public isEmitting = true;
 }
 
-export class ParticleEmitterContext {
-    public emittingAccumulatedCount = 0;
+export class ParticleExecContext {
+    public currentTime = 0;
+    public previousTime = 0;
+    public normalizedTimeInCycle = 0;
+    public deltaTime = 0;
     public velocity = new Vec3();
     public inheritedProperties: InheritedProperties | null = null;
     public emitterTransform = new Mat4();
     public emittingNumOverTime = 0;
     public emittingNumOverDistance = 0;
     public burstCount = 0;
-}
-
-export class ParticleUpdateContext {
     public localToWorld = new Mat4();
     public worldToLocal = new Mat4();
     public worldRotation = new Quat();
+    public fromIndex = 0;
+    public toIndex = 0;
+
+    public get eventCount () {
+        return this._eventsUsed;
+    }
+
+    public get events (): ReadonlyArray<ParticleEvent> {
+        return this._events;
+    }
+
+    private _events: ParticleEvent[] = [];
+    private _eventsUsed = 0;
 
     constructor () {
+        for (let i = 0; i < 4; i++) {
+            this._events.push(new ParticleEvent());
+        }
+    }
 
+    setExecuteRange (fromIndex: number, toIndex: number) {
+        this.fromIndex = fromIndex;
+        this.toIndex = toIndex;
+    }
+
+    setTime (currentTime: number, previousTime: number, invCycle: number) {
+        this.previousTime = previousTime;
+        this.currentTime = currentTime;
+        this.deltaTime = currentTime - previousTime;
+        this.normalizedTimeInCycle = currentTime * invCycle;
+    }
+
+    resetSpawningState () {
+        this.burstCount = this.emittingNumOverDistance = this.emittingNumOverTime = 0;
+    }
+
+    clearEvents () {
+        this._eventsUsed = 0;
+    }
+
+    dispatchEvent (): ParticleEvent {
+        if (this._eventsUsed === this._events.length) {
+            for (let i = 0; i < this._eventsUsed; i++) {
+                const event = new ParticleEvent();
+                this._events.push(event);
+            }
+        }
+        return this._events[this._eventsUsed++];
     }
 }

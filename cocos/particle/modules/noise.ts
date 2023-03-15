@@ -29,9 +29,9 @@ import { assert, CCBoolean, CCFloat, CCInteger, Enum, warn } from '../../core';
 import { range, rangeStep, slide, visible } from '../../core/data/decorators/editable';
 import { clamp, lerp, pseudoRandom, randomRangeInt, Vec2, Vec3 } from '../../core/math';
 import { CurveRange } from '../curve-range';
-import { ParticleModule, ModuleExecStage, moduleName, execStages, execOrder, registerParticleModule } from '../particle-module';
+import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
-import { ParticleEmitterParams, ParticleUpdateContext } from '../particle-update-context';
+import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { perlin1D, perlin2D, perlin3D, PerlinNoise1DCache, PerlinNoise2DCache, PerlinNoise3DCache } from './perlin-noise';
 
 const pos = new Vec3();
@@ -63,7 +63,7 @@ enum Quality {
 }
 
 @ccclass('cc.NoiseModule')
-@registerParticleModule('Noise', ModuleExecStage.UPDATE, 3)
+@ParticleModule.register('Noise', ModuleExecStage.UPDATE, 3)
 export class NoiseModule extends ParticleModule {
     @serializable
     @visible(true)
@@ -268,16 +268,16 @@ export class NoiseModule extends ParticleModule {
     private _randomSeed = randomRangeInt(0, 233280);
     private _scrollOffset = 0;
 
-    public preTick (params: ParticleEmitterParams, currentTime: number, dt: number) {
-        this._scrollOffset += this._scrollSpeed.evaluate(currentTime / params.duration, 1) * dt;
+    public tick (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext) {
+        this._scrollOffset += this._scrollSpeed.evaluate(context.normalizedTimeInCycle, 1) * context.deltaTime;
         if (this._scrollOffset > 256) {
             this._scrollOffset -= 256;
         }
     }
 
-    public update (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleUpdateContext,
-        fromIndex: number, toIndex: number, dt: number) {
+    public execute (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext) {
         const { randomSeed, normalizedAliveTime, noiseX, noiseY, noiseZ, rotationX, rotationY, rotationZ, sizeX, sizeY, sizeZ } = particles;
+        const { fromIndex, toIndex, deltaTime } = context;
         const scrollOffset = this._scrollOffset;
         const frequency = Math.max(this.frequency, 0);
         const offsetX = pseudoRandom(this._randomSeed + RANDOM_SEED_OFFSET_X) * 100;
@@ -526,7 +526,7 @@ export class NoiseModule extends ParticleModule {
 
         if (this.rotationAmount.getMax() !== 0) {
             if (this.rotationAmount.mode === CurveRange.Mode.Constant) {
-                const amount = this.rotationAmount.constant * dt;
+                const amount = this.rotationAmount.constant * deltaTime;
                 for (let i = fromIndex; i < toIndex; i++) {
                     rotationX[i] += noiseX[i] * amount;
                     rotationY[i] += noiseY[i] * amount;
@@ -534,9 +534,9 @@ export class NoiseModule extends ParticleModule {
                 }
             } else if (this.rotationAmount.mode === CurveRange.Mode.Curve) {
                 const { spline } = this.rotationAmount;
-                const multiplier = this.rotationAmount.multiplier * dt;
+                const multiplier = this.rotationAmount.multiplier * deltaTime;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const amount = spline.evaluate(normalizedAliveTime[i]) * multiplier * dt;
+                    const amount = spline.evaluate(normalizedAliveTime[i]) * multiplier * deltaTime;
                     rotationX[i] += noiseX[i] * amount;
                     rotationY[i] += noiseY[i] * amount;
                     rotationZ[i] += noiseZ[i] * amount;
@@ -544,14 +544,14 @@ export class NoiseModule extends ParticleModule {
             } else if (this.rotationAmount.mode === CurveRange.Mode.TwoConstants) {
                 const { constantMin, constantMax } = this.rotationAmount;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const amount = lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + RANDOM_SEED_OFFSET_ROTATION)) * dt;
+                    const amount = lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + RANDOM_SEED_OFFSET_ROTATION)) * deltaTime;
                     rotationX[i] += noiseX[i] * amount;
                     rotationY[i] += noiseY[i] * amount;
                     rotationZ[i] += noiseZ[i] * amount;
                 }
             } else {
                 const { splineMin, splineMax } = this.rotationAmount;
-                const multiplier = this.rotationAmount.multiplier * dt;
+                const multiplier = this.rotationAmount.multiplier * deltaTime;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const life = normalizedAliveTime[i];
                     const amount = lerp(splineMin.evaluate(life), splineMax.evaluate(life), pseudoRandom(randomSeed[i] + RANDOM_SEED_OFFSET_ROTATION)) * multiplier;

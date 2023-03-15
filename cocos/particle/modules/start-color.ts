@@ -24,9 +24,9 @@
  */
 
 import { ccclass, displayOrder, formerlySerializedAs, radian, range, serializable, tooltip, type, visible } from '../../core/data/decorators';
-import { ParticleModule, ModuleExecStage, registerParticleModule } from '../particle-module';
+import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
-import { ParticleEmitterContext, ParticleEmitterParams, ParticleUpdateContext } from '../particle-update-context';
+import { ParticleExecContext, ParticleEmitterParams } from '../particle-base';
 import { GradientRange } from '../gradient-range';
 import { Color, lerp, pseudoRandom, randomRangeInt, Vec3 } from '../../core/math';
 import { INT_MAX } from '../../core/math/bits';
@@ -36,7 +36,7 @@ const tempColor2 = new Color();
 const tempColor3 = new Color();
 
 @ccclass('cc.StartColorModule')
-@registerParticleModule('StartColor', ModuleExecStage.SPAWN, 1)
+@ParticleModule.register('StartColor', ModuleExecStage.SPAWN, 1)
 export class StartColorModule extends ParticleModule {
     /**
       * @zh 粒子初始颜色。
@@ -47,10 +47,9 @@ export class StartColorModule extends ParticleModule {
     @tooltip('i18n:particle_system.startColor')
     public startColor = new GradientRange();
 
-    public spawn (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleEmitterContext,
-        fromIndex: number, toIndex: number, currentTime: number) {
-        const normalizedTimeInCycle = currentTime / params.duration;
+    public execute (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext) {
         const { startColor, color } = particles;
+        const { fromIndex, toIndex, normalizedTimeInCycle } = context;
         if (this.startColor.mode === GradientRange.Mode.Color) {
             const colorNum = Color.toUint32(this.startColor.color);
             for (let i = fromIndex; i < toIndex; ++i) {

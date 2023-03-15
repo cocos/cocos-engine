@@ -36,7 +36,7 @@ import ParticleBatchModel from './models/particle-batch-model';
 import { ParticleEmitter } from './particle-emitter';
 import { Camera } from '../core/renderer/scene/camera';
 import { particleSystemManager } from './particle-system-manager';
-import { TextureAnimationModule } from './modules/texture-animation';
+import { SubUVAnimationModule } from './modules/sub-uv-animation';
 
 const CC_USE_WORLD_SPACE = 'CC_USE_WORLD_SPACE';
 
@@ -349,7 +349,7 @@ export class ParticleSystemRenderer extends ModelRenderer {
             this._frameTile_velLenScale.w = this.lengthScale;
         }
         this._defines[CC_RENDER_MODE] = renderMode;
-        const textureModule = this._particleSystem.getModule(TextureAnimationModule);
+        const textureModule = this._particleSystem.getModule(SubUVAnimationModule);
         if (textureModule && textureModule.enable) {
             Vec4.copy(this._tmp_velLenScale, this._frameTile_velLenScale); // fix textureModule switch bug
             Vec2.set(this._tmp_velLenScale, textureModule.numTilesX, textureModule.numTilesY);

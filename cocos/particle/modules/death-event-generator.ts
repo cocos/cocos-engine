@@ -26,52 +26,47 @@
 import { approx, BitMask, CCFloat, Enum, EPSILON, Mat4, pseudoRandom, Quat, Vec3, warn } from '../../core';
 import { ccclass, range, serializable, type, visible } from '../../core/data/decorators';
 import { Space } from '../enum';
-import { ParticleModule, ModuleExecStage, moduleName, execStages, execOrder, registerParticleModule } from '../particle-module';
-import { ParticleSOAData, RecordReason } from '../particle-soa-data';
-import { particleSystemManager } from '../particle-system-manager';
-import { ParticleEmitterContext, ParticleEmitterParams, ParticleUpdateContext } from '../particle-update-context';
+import { ParticleModule, ModuleExecStage } from '../particle-module';
+import { ParticleSOAData } from '../particle-soa-data';
+import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 
 const PROBABILITY_RANDOM_SEED_OFFSET = 199208;
-const dir = new Vec3();
-const up = new Vec3();
-const rot = new Quat();
-const position = new Vec3();
-const velocity = new Vec3();
-
 @ccclass('cc.DeathEventGeneratorModule')
-@registerParticleModule('DeathEventGenerator', ModuleExecStage.UPDATE, 0)
+@ParticleModule.register('DeathEventGenerator', ModuleExecStage.UPDATE, 0)
 export class DeathEventGeneratorModule extends ParticleModule {
     @type(CCFloat)
     @range([0, 1])
     @serializable
     public probability = 1;
 
-    public update (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleUpdateContext,
-        fromIndex: number, toIndex: number, dt: number) {
+    public execute (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext) {
         const { randomSeed, invStartLifeTime, normalizedAliveTime } = particles;
+        const { fromIndex, toIndex, deltaTime } = context;
         const { localToWorld } = context;
         const { simulationSpace } = params;
         if (!approx(this.probability, 0)) {
             for (let i = fromIndex; i < toIndex; i++) {
+                if (invStartLifeTime[i] * deltaTime + normalizedAliveTime[i] < 1.0) {
+                    continue;
+                }
                 if (pseudoRandom(randomSeed[i] + PROBABILITY_RANDOM_SEED_OFFSET) > this.probability) {
                     continue;
                 }
-                particles.getPositionAt(position, i);
-                particles.getFinalVelocityAt(velocity, i);
+                const event = context.dispatchEvent();
+                particles.getRotationAt(event.rotation, i);
+                particles.getSizeAt(event.size, i);
+                particles.getColorAt(event.color, i);
+                particles.getPositionAt(event.position, i);
+                particles.getFinalVelocityAt(event.velocity, i);
                 if (simulationSpace === Space.LOCAL) {
-                    Vec3.transformMat4(position, position, localToWorld);
-                    Vec3.transformMat4(velocity, velocity, localToWorld);
+                    Vec3.transformMat4(event.position, event.position, localToWorld);
+                    Vec3.transformMat4(event.velocity, event.velocity, localToWorld);
                 }
-                const spawnEvent = particleSystemManager.dispatchSpawnEvent();
-                spawnEvent.velocity.set(velocity);
-                spawnEvent.deltaTime = dt;
-                spawnEvent.prevTime = 0;
-                spawnEvent.currentTime = EPSILON;
-                Vec3.normalize(dir, velocity);
-                const angle = Math.abs(Vec3.dot(dir, Vec3.UNIT_Z));
-                Vec3.lerp(up, Vec3.UNIT_Z, Vec3.UNIT_Y, angle);
-                Quat.fromViewUp(rot, dir, up);
-                Mat4.fromRT(spawnEvent.transform, rot, position);
+                event.prevTime = 0;
+                event.currentTime = EPSILON;
+                event.randomSeed = randomSeed[i];
+                event.startLifeTime = 1 / invStartLifeTime[i];
+                event.normalizedAliveTime = normalizedAliveTime[i];
             }
         }
     }

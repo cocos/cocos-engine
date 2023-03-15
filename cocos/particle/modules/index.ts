@@ -39,3 +39,5 @@ export * from './location-event-generator';
 export * from './death-event-generator';
 export * from './solve';
 export * from './state';
+export * from './legacy-trail';
+export * from './sub-uv-animation';

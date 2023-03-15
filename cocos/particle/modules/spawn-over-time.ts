@@ -24,13 +24,13 @@
  */
 
 import { ccclass, displayOrder, serializable, tooltip, type, range } from '../../core/data/decorators';
-import { ParticleModule, ModuleExecStage, moduleName, execStages, execOrder, registerParticleModule } from '../particle-module';
+import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
-import { ParticleEmitterContext, ParticleEmitterParams } from '../particle-update-context';
+import { ParticleExecContext, ParticleEmitterParams } from '../particle-base';
 import { CurveRange } from '../curve-range';
 
 @ccclass('cc.SpawnOverTimeModule')
-@registerParticleModule('SpawnOverTime', ModuleExecStage.EMITTER_UPDATE | ModuleExecStage.EVENT_HANDLER, 0)
+@ParticleModule.register('SpawnOverTime', ModuleExecStage.EMITTER_UPDATE | ModuleExecStage.EVENT_HANDLER, 0)
 export class SpawnOverTimeModule extends ParticleModule {
     /**
      * @zh 每秒发射的粒子数。
@@ -42,8 +42,7 @@ export class SpawnOverTimeModule extends ParticleModule {
     @tooltip('i18n:particle_system.rateOverTime')
     public rate = new CurveRange(10);
 
-    public emitterUpdate (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleEmitterContext,
-        prevTime: number, currentTime: number)  {
-        context.emittingNumOverTime += this.rate.evaluate(currentTime / params.duration, Math.random()) * (currentTime - prevTime);
+    public execute (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext)  {
+        context.emittingNumOverTime += this.rate.evaluate(context.normalizedTimeInCycle, Math.random()) * (context.deltaTime);
     }
 }

@@ -28,56 +28,12 @@ import { assert, Color, Vec3 } from '../core';
 export type ParticleHandle = number;
 export const INVALID_HANDLE = -1;
 
-export class TrailSegment {
-    public x = 0;
-    public y = 0;
-    public z = 0;
-    public timeStamp = 0;
-
-    set (x: number, y: number, z: number, timeStamp: number) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
-        this.timeStamp = timeStamp;
-    }
-
-    fromArray (array: Float32Array, offset: number) {
-        this.x = array[offset];
-        this.y = array[offset + 1];
-        this.z = array[offset + 2];
-        this.timeStamp = array[offset + 3];
-    }
-
-    toArray (array: Float32Array, offset: number) {
-        array[offset] = this.x;
-        array[offset + 1] = this.y;
-        array[offset + 2] = this.z;
-        array[offset + 3] = this.timeStamp;
-    }
-}
-
-export class ParticleSnapshot {
-    public position = new Vec3();
-    public finalVelocity = new Vec3();
-    public rotation = new Vec3();
-    public size = new Vec3();
-    public color = new Color();
-    public randomSeed = 0;
-    public invStartLifeTime = 1;
-    public normalizedAliveTime = 0;
-    public recordReason = -1;
-}
-
-export enum RecordReason {
-    BIRTH,
-    DEATH,
-    CUSTOM,
-}
-
 const tempColor = new Color();
 export class ParticleSOAData {
+    private static maxId = 1;
     private _count = 0;
     private _capacity = 16;
+    private _id = new Uint32Array(this._capacity);
     private _positionX = new Float32Array(this._capacity);
     private _positionY = new Float32Array(this._capacity);
     private _positionZ = new Float32Array(this._capacity);
@@ -115,19 +71,6 @@ export class ParticleSOAData {
     private _noiseX = new Float32Array(this._capacity);
     private _noiseY = new Float32Array(this._capacity);
     private _noiseZ = new Float32Array(this._capacity);
-    // trail
-    // One trail segment contains 4 float: x, y, z, timestamp
-    private _trailSegmentStride = 4;
-    private _trailSegmentCapacityPerParticle = 16;
-    // It's a ring buffer of trail segment per particle
-    private _trailSegments = new Float32Array(this._capacity * this._trailSegmentCapacityPerParticle * this._trailSegmentStride);
-    // include first trail segment
-    private _startTrailSegmentIndices = new Uint16Array(this._capacity);
-    // exclude last trail segment
-    private _endTrailSegmentIndices = new Uint16Array(this._capacity);
-    private _trailSegmentNumbers = new Uint16Array(this._capacity);
-    private _particleSnapshots = [new ParticleSnapshot(), new ParticleSnapshot(), new ParticleSnapshot(), new ParticleSnapshot()];
-    private _snapshotUsed = 0;
 
     get capacity () {
         return this._capacity;
@@ -135,6 +78,10 @@ export class ParticleSOAData {
 
     get count () {
         return this._count;
+    }
+
+    get id () {
+        return this._id;
     }
 
     get positionX () {
@@ -175,14 +122,6 @@ export class ParticleSOAData {
 
     get noiseZ () {
         return this._noiseZ;
-    }
-
-    get trailSegmentCapacityPerParticle () {
-        return this._trailSegmentCapacityPerParticle;
-    }
-
-    get trailSegmentNumbers () {
-        return this._trailSegmentNumbers;
     }
 
     get velocityX () {
@@ -291,14 +230,6 @@ export class ParticleSOAData {
 
     get color () {
         return this._color;
-    }
-
-    get particleEventSnapshots (): ReadonlyArray<ParticleSnapshot> {
-        return this._particleSnapshots;
-    }
-
-    get particleEventSnapshotCount () {
-        return this._snapshotUsed;
     }
 
     getPositionAt (out: Vec3, handle: ParticleHandle) {
@@ -438,77 +369,6 @@ export class ParticleSOAData {
         this._color[handle] = Color.toUint32(tempColor);
     }
 
-    addTrailSegment (handle: ParticleHandle) {
-        if (this._trailSegmentNumbers[handle] >= this._trailSegmentCapacityPerParticle) {
-            this.reserveTrailSegment(this._trailSegmentCapacityPerParticle * 2);
-        }
-        this._endTrailSegmentIndices[handle] = (this._endTrailSegmentIndices[handle] + 1) % this._trailSegmentCapacityPerParticle;
-        const num = this._trailSegmentNumbers[handle];
-        this._trailSegmentNumbers[handle]++;
-        return num;
-    }
-
-    reserveTrailSegment (trailSegmentCapacity: number) {
-        if (this._trailSegmentCapacityPerParticle === trailSegmentCapacity) {
-            return;
-        }
-        const newTrailSegments = new Float32Array(trailSegmentCapacity * this._trailSegmentStride * this._capacity);
-        const tempTrailSegment = new TrailSegment();
-        if (this._trailSegmentCapacityPerParticle < trailSegmentCapacity) {
-            for (let i = 0; i < this._count; i++) {
-                const num = this._trailSegmentNumbers[i];
-                for (let j = 0; j < num; j++) {
-                    this.getTrailSegmentAt(i, j, tempTrailSegment).toArray(newTrailSegments,
-                        (i * trailSegmentCapacity + j) * this._trailSegmentStride);
-                }
-                this._endTrailSegmentIndices[i] = num;
-            }
-        } else {
-            const newTrailSegments = new Float32Array(trailSegmentCapacity * this._trailSegmentStride * this._capacity);
-            const tempTrailSegment = new TrailSegment();
-            for (let i = 0; i < this._count; i++) {
-                const num = Math.min(this._trailSegmentNumbers[i], trailSegmentCapacity);
-                for (let j = 0; j < num; j++) {
-                    this.getTrailSegmentAt(i, j, tempTrailSegment).toArray(newTrailSegments,
-                        (i * trailSegmentCapacity + j) * this._trailSegmentStride);
-                }
-                this._trailSegmentNumbers[i] = num;
-                this._endTrailSegmentIndices[i] = num;
-            }
-        }
-        this._startTrailSegmentIndices.fill(0);
-        this._trailSegments = newTrailSegments;
-        this._trailSegmentCapacityPerParticle = trailSegmentCapacity;
-    }
-
-    removeTrailSegment (handle: ParticleHandle) {
-        this._startTrailSegmentIndices[handle] = (this._startTrailSegmentIndices[handle] + 1) % this._trailSegmentCapacityPerParticle;
-        this._trailSegmentNumbers[handle]--;
-    }
-
-    setTrailSegmentAt (handle: ParticleHandle, trailIndex: number, trailSegment: TrailSegment) {
-        const offset = (handle * this._trailSegmentCapacityPerParticle + this._startTrailSegmentIndices[handle] + trailIndex)
-            % this._trailSegmentCapacityPerParticle * this._trailSegmentStride;
-        this._trailSegments[offset] = trailSegment.x;
-        this._trailSegments[offset + 1] = trailSegment.y;
-        this._trailSegments[offset + 2] = trailSegment.z;
-        this._trailSegments[offset + 3] = trailSegment.timeStamp;
-    }
-
-    getTrailSegmentAt (handle: ParticleHandle, trailIndex: number, out: TrailSegment) {
-        const offset = (handle * this._trailSegmentCapacityPerParticle + this._startTrailSegmentIndices[handle] + trailIndex)
-            % this._trailSegmentCapacityPerParticle * this._trailSegmentStride;
-        out.x = this._trailSegments[offset];
-        out.y = this._trailSegments[offset + 1];
-        out.z = this._trailSegments[offset + 2];
-        out.timeStamp = this._trailSegments[offset + 3];
-        return out;
-    }
-
-    getTrailSegmentNumberAt (handle: ParticleHandle) {
-        return this._trailSegmentNumbers[handle];
-    }
-
     addParticles (count: number) {
         let reservedCount = this._capacity;
         while (this._count + count > reservedCount) {
@@ -523,78 +383,51 @@ export class ParticleSOAData {
     removeParticle (handle: ParticleHandle) {
         assert(handle >= 0 && handle < this._count);
         const lastParticle = this._count - 1;
-        this._positionX[handle] = this._positionX[lastParticle];
-        this._positionY[handle] = this._positionY[lastParticle];
-        this._positionZ[handle] = this._positionZ[lastParticle];
-        this._velocityX[handle] = this._velocityX[lastParticle];
-        this._velocityY[handle] = this._velocityY[lastParticle];
-        this._velocityZ[handle] = this._velocityZ[lastParticle];
-        this._startDirX[handle] = this._startDirX[lastParticle];
-        this._startDirY[handle] = this._startDirY[lastParticle];
-        this._startDirZ[handle] = this._startDirZ[lastParticle];
-        this._animatedVelocityX[handle] = this._animatedVelocityX[lastParticle];
-        this._animatedVelocityY[handle] = this._animatedVelocityY[lastParticle];
-        this._animatedVelocityZ[handle] = this._animatedVelocityZ[lastParticle];
-        this._speedModifier[handle] = this._speedModifier[lastParticle];
-        this._rotationX[handle] = this._rotationX[lastParticle];
-        this._rotationY[handle] = this._rotationY[lastParticle];
-        this._rotationZ[handle] = this._rotationZ[lastParticle];
-        this._axisOfRotationX[handle] = this._axisOfRotationX[lastParticle];
-        this._axisOfRotationY[handle] = this._axisOfRotationY[lastParticle];
-        this._axisOfRotationZ[handle] = this._axisOfRotationZ[lastParticle];
-        this._angularVelocityX[handle] = this._angularVelocityX[lastParticle];
-        this._angularVelocityY[handle] = this._angularVelocityY[lastParticle];
-        this._angularVelocityZ[handle] = this._angularVelocityZ[lastParticle];
-        this._startSizeX[handle] = this._startSizeX[lastParticle];
-        this._startSizeY[handle] = this._startSizeY[lastParticle];
-        this._startSizeZ[handle] = this._startSizeZ[lastParticle];
-        this._sizeX[handle] = this._sizeX[lastParticle];
-        this._sizeY[handle] = this._sizeY[lastParticle];
-        this._sizeZ[handle] = this._sizeZ[lastParticle];
-        this._startColor[handle] = this._startColor[lastParticle];
-        this._color[handle] = this._color[lastParticle];
-        this._randomSeed[handle] = this._randomSeed[lastParticle];
-        this._invStartLifeTime[handle] = this._invStartLifeTime[lastParticle];
-        this._normalizedAliveTime[handle] = this._normalizedAliveTime[lastParticle];
-        this._frameIndex[handle] = this._frameIndex[lastParticle];
-        this._noiseX[handle] = this._noiseX[lastParticle];
-        this._noiseY[handle] = this._noiseY[lastParticle];
-        this._noiseZ[handle] = this._noiseZ[lastParticle];
-        const num = this._trailSegmentNumbers[lastParticle];
-        const tempTrailSegment = new TrailSegment();
-        for (let i = 0; i < num; i++) {
-            this.setTrailSegmentAt(handle, i, this.getTrailSegmentAt(lastParticle, i, tempTrailSegment));
+        if (lastParticle !== handle) {
+            this._id[handle] = this._id[lastParticle];
+            this._positionX[handle] = this._positionX[lastParticle];
+            this._positionY[handle] = this._positionY[lastParticle];
+            this._positionZ[handle] = this._positionZ[lastParticle];
+            this._velocityX[handle] = this._velocityX[lastParticle];
+            this._velocityY[handle] = this._velocityY[lastParticle];
+            this._velocityZ[handle] = this._velocityZ[lastParticle];
+            this._startDirX[handle] = this._startDirX[lastParticle];
+            this._startDirY[handle] = this._startDirY[lastParticle];
+            this._startDirZ[handle] = this._startDirZ[lastParticle];
+            this._animatedVelocityX[handle] = this._animatedVelocityX[lastParticle];
+            this._animatedVelocityY[handle] = this._animatedVelocityY[lastParticle];
+            this._animatedVelocityZ[handle] = this._animatedVelocityZ[lastParticle];
+            this._speedModifier[handle] = this._speedModifier[lastParticle];
+            this._rotationX[handle] = this._rotationX[lastParticle];
+            this._rotationY[handle] = this._rotationY[lastParticle];
+            this._rotationZ[handle] = this._rotationZ[lastParticle];
+            this._axisOfRotationX[handle] = this._axisOfRotationX[lastParticle];
+            this._axisOfRotationY[handle] = this._axisOfRotationY[lastParticle];
+            this._axisOfRotationZ[handle] = this._axisOfRotationZ[lastParticle];
+            this._angularVelocityX[handle] = this._angularVelocityX[lastParticle];
+            this._angularVelocityY[handle] = this._angularVelocityY[lastParticle];
+            this._angularVelocityZ[handle] = this._angularVelocityZ[lastParticle];
+            this._startSizeX[handle] = this._startSizeX[lastParticle];
+            this._startSizeY[handle] = this._startSizeY[lastParticle];
+            this._startSizeZ[handle] = this._startSizeZ[lastParticle];
+            this._sizeX[handle] = this._sizeX[lastParticle];
+            this._sizeY[handle] = this._sizeY[lastParticle];
+            this._sizeZ[handle] = this._sizeZ[lastParticle];
+            this._startColor[handle] = this._startColor[lastParticle];
+            this._color[handle] = this._color[lastParticle];
+            this._randomSeed[handle] = this._randomSeed[lastParticle];
+            this._invStartLifeTime[handle] = this._invStartLifeTime[lastParticle];
+            this._normalizedAliveTime[handle] = this._normalizedAliveTime[lastParticle];
+            this._frameIndex[handle] = this._frameIndex[lastParticle];
+            this._noiseX[handle] = this._noiseX[lastParticle];
+            this._noiseY[handle] = this._noiseY[lastParticle];
+            this._noiseZ[handle] = this._noiseZ[lastParticle];
         }
-        this._startTrailSegmentIndices[handle] = this._startTrailSegmentIndices[lastParticle];
-        this._endTrailSegmentIndices[handle] = this._endTrailSegmentIndices[lastParticle];
-        this._trailSegmentNumbers[handle] = this._trailSegmentNumbers[lastParticle];
         this._count -= 1;
     }
 
-    clearParticleEventSnapshots () {
-        this._snapshotUsed = 0;
-    }
-
-    recordParticleEventSnapshot (handle: ParticleHandle, reason: RecordReason) {
-        if (this._snapshotUsed === this._particleSnapshots.length) {
-            for (let i = 0; i < this._snapshotUsed; i++) {
-                this._particleSnapshots.push(new ParticleSnapshot());
-            }
-        }
-        const particleSnapshot = this._particleSnapshots[this._snapshotUsed];
-        this.getPositionAt(particleSnapshot.position, handle);
-        this.getFinalVelocityAt(particleSnapshot.finalVelocity, handle);
-        this.getRotationAt(particleSnapshot.rotation, handle);
-        this.getSizeAt(particleSnapshot.size, handle);
-        this.getColorAt(particleSnapshot.color, handle);
-        particleSnapshot.randomSeed = this._randomSeed[handle];
-        particleSnapshot.invStartLifeTime = this._invStartLifeTime[handle];
-        particleSnapshot.normalizedAliveTime = this._normalizedAliveTime[handle];
-        particleSnapshot.recordReason = reason;
-        this._snapshotUsed++;
-    }
-
     resetParticle (handle: ParticleHandle) {
+        this._id[handle] = ParticleSOAData.maxId++;
         this._positionX[handle] = 0;
         this._positionY[handle] = 0;
         this._positionZ[handle] = 0;
@@ -603,7 +436,6 @@ export class ParticleSOAData {
         this._velocityZ[handle] = 0;
         this._startDirX[handle] = 0;
         this._startDirY[handle] = 0;
-        // init as particleEmitZAxis
         this._startDirZ[handle] = 1;
         this._animatedVelocityX[handle] = 0;
         this._animatedVelocityY[handle] = 0;
@@ -633,14 +465,12 @@ export class ParticleSOAData {
         this._noiseX[handle] = 0;
         this._noiseY[handle] = 0;
         this._noiseZ[handle] = 0;
-        this._startTrailSegmentIndices[handle] = 0;
-        this._endTrailSegmentIndices[handle] = 0;
-        this._trailSegmentNumbers[handle] = 0;
     }
 
     reserve (capacity: number) {
         if (capacity <= this._capacity) return;
         this._capacity = capacity;
+        const oldId = this._id;
         const oldPositionX = this._positionX;
         const oldPositionY = this._positionY;
         const oldPositionZ = this._positionZ;
@@ -677,11 +507,9 @@ export class ParticleSOAData {
         const oldNoiseSumX = this._noiseX;
         const oldNoiseSumY = this._noiseY;
         const oldNoiseSumZ = this._noiseZ;
-        const oldTrailSegmentNumbers = this._trailSegmentNumbers;
-        const oldStartTrailSegmentIndices = this._startTrailSegmentIndices;
-        const oldEndTrailSegmentIndices = this._endTrailSegmentIndices;
-        const oldTrailSegments = this._trailSegments;
         const oldSpeedModifier = this._speedModifier;
+        this._id = new Uint32Array(capacity);
+        this._id.set(oldId);
         this._positionX = new Float32Array(capacity);
         this._positionX.set(oldPositionX);
         this._positionY = new Float32Array(capacity);
@@ -756,14 +584,6 @@ export class ParticleSOAData {
         this._noiseY.set(oldNoiseSumY);
         this._noiseZ = new Float32Array(capacity);
         this._noiseZ.set(oldNoiseSumZ);
-        this._trailSegmentNumbers = new Uint16Array(capacity);
-        this._trailSegmentNumbers.set(oldTrailSegmentNumbers);
-        this._startTrailSegmentIndices = new Uint16Array(capacity);
-        this._startTrailSegmentIndices.set(oldStartTrailSegmentIndices);
-        this._endTrailSegmentIndices = new Uint16Array(capacity);
-        this._endTrailSegmentIndices.set(oldEndTrailSegmentIndices);
-        this._trailSegments = new Float32Array(capacity * this._trailSegmentCapacityPerParticle * this._trailSegmentStride);
-        this._trailSegments.set(oldTrailSegments);
     }
 
     clear () {

@@ -1,37 +1,40 @@
 import { ParticleEmitter } from './particle-emitter';
-import { BitMask, Enum } from '../core';
+import { BitMask, Color, Enum, Mat4, Vec3 } from '../core';
 import { ccclass, serializable, type, visible } from '../core/data/decorators';
 import { ModuleExecStage, ParticleModuleStage } from './particle-module';
+import { InheritedProperty, ParticleEventType } from './particle-base';
 
-export enum EventType {
-    LOCATION,
-    DEATH,
-    BIRTH,
-    COLLISION,
-}
-
-export enum InheritedProperty {
-    COLOR = 1,
-    SIZE = 1 << 1,
-    ROTATION = 1 << 2,
-    LIFETIME = 1 << 3,
-    DURATION = 1 << 4
-}
 @ccclass('cc.EventReceiver')
 export class EventReceiver {
     @type(ParticleEmitter)
     @serializable
-    target: ParticleEmitter | null = null;
+    public target: ParticleEmitter | null = null;
 
-    @type(Enum(EventType))
+    @type(Enum(ParticleEventType))
     @serializable
-    eventType = EventType.LOCATION;
+    public eventType = ParticleEventType.UNKNOWN;
 
     @type(BitMask(InheritedProperty))
     @visible(true)
     @serializable
     public inheritedProperties = 0;
 
+    @type(ParticleModuleStage)
+    get stage () {
+        return this._stage;
+    }
+
     @serializable
     private _stage = new ParticleModuleStage(ModuleExecStage.EVENT_HANDLER);
+    private _accumulatorCapacity = 16;
+    private _accumulatorId: Uint32Array | null = null;
+    private _accumulator: Float32Array | null = null;
+
+    getAccumulator (id: number) {
+        return 0;
+    }
+
+    setAccumulator (id: number, accumulator: number) {
+
+    }
 }

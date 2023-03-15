@@ -30,6 +30,7 @@ import { GradientRange } from '../gradient-range';
 import { Space, TextureMode, TrailMode } from '../enum';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { Enum } from '../../core';
+import { ParticleHandle } from '../particle-soa-data';
 
 const PRE_TRIANGLE_INDEX = 1;
 const NEXT_TRIANGLE_INDEX = 1 << 2;
@@ -41,8 +42,37 @@ const _temp_vec3 = new Vec3();
 const _temp_vec3_1 = new Vec3();
 const _temp_color = new Color();
 
+export class TrailSegment {
+    public x = 0;
+    public y = 0;
+    public z = 0;
+    public timeStamp = 0;
+
+    set (x: number, y: number, z: number, timeStamp: number) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.timeStamp = timeStamp;
+    }
+
+    fromArray (array: Float32Array, offset: number) {
+        this.x = array[offset];
+        this.y = array[offset + 1];
+        this.z = array[offset + 2];
+        this.timeStamp = array[offset + 3];
+    }
+
+    toArray (array: Float32Array, offset: number) {
+        array[offset] = this.x;
+        array[offset + 1] = this.y;
+        array[offset + 2] = this.z;
+        array[offset + 3] = this.timeStamp;
+    }
+}
+
 @ccclass('cc.TrailModule')
-export class TrailModule extends ParticleModule {
+@ParticleModule.register('LegacyTrail', ModuleExecStage.RENDER, 0)
+export class LegacyTrail extends ParticleModule {
     /**
      * 设定粒子生成轨迹的方式。
      */
@@ -133,16 +163,12 @@ export class TrailModule extends ParticleModule {
     @tooltip('i18n:trailSegment.colorOvertime')
     public colorOvertime = new GradientRange();
 
-    public get name (): string {
-        return 'TrailModule';
+    get trailSegmentCapacityPerParticle () {
+        return this._trailSegmentCapacityPerParticle;
     }
 
-    public get execStage (): ModuleExecStage {
-        return ModuleExecStage.UPDATE;
-    }
-
-    public get execPriority (): number {
-        return 0;
+    get trailSegmentNumbers () {
+        return this._trailSegmentNumbers;
     }
 
     /**
@@ -153,8 +179,99 @@ export class TrailModule extends ParticleModule {
     private _needTransform = false;
     @serializable
     private _minParticleDistance = 0.1;
+    private _capacity = 16;
+    // trail
+    // One trail segment contains 4 float: x, y, z, timestamp
+    private _trailSegmentStride = 4;
+    private _trailSegmentCapacityPerParticle = 16;
+    // It's a ring buffer of trail segment per particle
+    private _trailSegments = new Float32Array(this._capacity * this._trailSegmentCapacityPerParticle * this._trailSegmentStride);
+    // include first trail segment
+    private _startTrailSegmentIndices = new Uint16Array(this._capacity);
+    // exclude last trail segment
+    private _endTrailSegmentIndices = new Uint16Array(this._capacity);
+    private _trailSegmentNumbers = new Uint16Array(this._capacity);
 
-    // public update () {
+    addTrailSegment (handle: ParticleHandle) {
+        if (this._trailSegmentNumbers[handle] >= this._trailSegmentCapacityPerParticle) {
+            this.reserveTrailSegment(this._trailSegmentCapacityPerParticle * 2);
+        }
+        this._endTrailSegmentIndices[handle] = (this._endTrailSegmentIndices[handle] + 1) % this._trailSegmentCapacityPerParticle;
+        const num = this._trailSegmentNumbers[handle];
+        this._trailSegmentNumbers[handle]++;
+        return num;
+    }
+
+    reserveTrailSegment (trailSegmentCapacity: number) {
+        if (this._trailSegmentCapacityPerParticle === trailSegmentCapacity) {
+            return;
+        }
+        const newTrailSegments = new Float32Array(trailSegmentCapacity * this._trailSegmentStride * this._capacity);
+        const tempTrailSegment = new TrailSegment();
+        if (this._trailSegmentCapacityPerParticle < trailSegmentCapacity) {
+            for (let i = 0; i < this._count; i++) {
+                const num = this._trailSegmentNumbers[i];
+                for (let j = 0; j < num; j++) {
+                    this.getTrailSegmentAt(i, j, tempTrailSegment).toArray(newTrailSegments,
+                        (i * trailSegmentCapacity + j) * this._trailSegmentStride);
+                }
+                this._endTrailSegmentIndices[i] = num;
+            }
+        } else {
+            const newTrailSegments = new Float32Array(trailSegmentCapacity * this._trailSegmentStride * this._capacity);
+            const tempTrailSegment = new TrailSegment();
+            for (let i = 0; i < this._count; i++) {
+                const num = Math.min(this._trailSegmentNumbers[i], trailSegmentCapacity);
+                for (let j = 0; j < num; j++) {
+                    this.getTrailSegmentAt(i, j, tempTrailSegment).toArray(newTrailSegments,
+                        (i * trailSegmentCapacity + j) * this._trailSegmentStride);
+                }
+                this._trailSegmentNumbers[i] = num;
+                this._endTrailSegmentIndices[i] = num;
+            }
+        }
+        this._startTrailSegmentIndices.fill(0);
+        this._trailSegments = newTrailSegments;
+        this._trailSegmentCapacityPerParticle = trailSegmentCapacity;
+    }
+
+    removeTrailSegment (handle: ParticleHandle) {
+        this._startTrailSegmentIndices[handle] = (this._startTrailSegmentIndices[handle] + 1) % this._trailSegmentCapacityPerParticle;
+        this._trailSegmentNumbers[handle]--;
+    }
+
+    setTrailSegmentAt (handle: ParticleHandle, trailIndex: number, trailSegment: TrailSegment) {
+        const offset = (handle * this._trailSegmentCapacityPerParticle + this._startTrailSegmentIndices[handle] + trailIndex)
+            % this._trailSegmentCapacityPerParticle * this._trailSegmentStride;
+        this._trailSegments[offset] = trailSegment.x;
+        this._trailSegments[offset + 1] = trailSegment.y;
+        this._trailSegments[offset + 2] = trailSegment.z;
+        this._trailSegments[offset + 3] = trailSegment.timeStamp;
+    }
+
+    getTrailSegmentAt (handle: ParticleHandle, trailIndex: number, out: TrailSegment) {
+        const offset = (handle * this._trailSegmentCapacityPerParticle + this._startTrailSegmentIndices[handle] + trailIndex)
+            % this._trailSegmentCapacityPerParticle * this._trailSegmentStride;
+        out.x = this._trailSegments[offset];
+        out.y = this._trailSegments[offset + 1];
+        out.z = this._trailSegments[offset + 2];
+        out.timeStamp = this._trailSegments[offset + 3];
+        return out;
+    }
+
+    getTrailSegmentNumberAt (handle: ParticleHandle) {
+        return this._trailSegmentNumbers[handle];
+    }
+
+    // public execute () {
+    // const num = this._trailSegmentNumbers[lastParticle];
+    // const tempTrailSegment = new TrailSegment();
+    // for (let i = 0; i < num; i++) {
+    //     this.setTrailSegmentAt(handle, i, this.getTrailSegmentAt(lastParticle, i, tempTrailSegment));
+    // }
+    // this._startTrailSegmentIndices[handle] = this._startTrailSegmentIndices[lastParticle];
+    // this._endTrailSegmentIndices[handle] = this._endTrailSegmentIndices[lastParticle];
+    // this._trailSegmentNumbers[handle] = this._trailSegmentNumbers[lastParticle];
     //     this._trailLifetime = this.lifeTime.evaluate(this._particleSystem._time, 1)!;
     //     if (this.space === Space.World && this._particleSystem._simulationSpace === Space.Local) {
     //         this._needTransform = true;

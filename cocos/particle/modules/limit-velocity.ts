@@ -27,10 +27,10 @@ import { ccclass, tooltip, displayOrder, range, type, serializable, visible } fr
 import { DEBUG } from 'internal:constants';
 import { lerp, pseudoRandom, Vec3, Mat4, Quat } from '../../core/math';
 import { Space, ModuleRandSeed } from '../enum';
-import { ParticleModule, ModuleExecStage, moduleName, execStages, execOrder, registerParticleModule } from '../particle-module';
+import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { CurveRange } from '../curve-range';
 import { calculateTransform } from '../particle-general-function';
-import { ParticleEmitterParams, ParticleUpdateContext } from '../particle-update-context';
+import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { ParticleSOAData } from '../particle-soa-data';
 import { assert } from '../../core';
 
@@ -41,7 +41,7 @@ const rotation = new Quat();
 const velocity = new Vec3();
 
 @ccclass('cc.LimitVelocity')
-@registerParticleModule('LimitVelocity', ModuleExecStage.UPDATE, 6)
+@ParticleModule.register('LimitVelocity', ModuleExecStage.UPDATE, 6)
 export class LimitVelocityModule extends ParticleModule {
     /**
      * @zh X 轴方向上的速度下限。
@@ -146,8 +146,8 @@ export class LimitVelocityModule extends ParticleModule {
     @serializable
     private _z: CurveRange | null = null;
 
-    public update (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleUpdateContext,
-        fromIndex: number, toIndex: number, dt: number) {
+    public execute (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext) {
+        const { fromIndex, toIndex } = context;
         const needTransform = calculateTransform(params.simulationSpace,
             this.space, context.localToWorld, context.worldToLocal, rotation);
         const { normalizedAliveTime, randomSeed, animatedVelocityX, animatedVelocityY, animatedVelocityZ } = particles;

@@ -30,7 +30,7 @@ import { Space } from '../enum';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { calculateTransform } from '../particle-general-function';
 import { ParticleSOAData } from '../particle-soa-data';
-import { ParticleEmitterParams, ParticleUpdateContext } from '../particle-update-context';
+import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { CurveRange } from '../curve-range';
 
 const VELOCITY_X_OVERTIME_RAND_OFFSET = 197866;
@@ -40,8 +40,9 @@ const VELOCITY_Z_OVERTIME_RAND_OFFSET = 984136;
 const velocity = new Vec3();
 const rotation = new Quat();
 
-@ccclass('cc.VelocityOverLifetimeModule')
-export class VelocityOverLifetimeModule extends ParticleModule {
+@ccclass('cc.VelocityModule')
+@ParticleModule.register('Velocity', ModuleExecStage.UPDATE, 2)
+export class VelocityModule extends ParticleModule {
     /**
      * @zh X 轴方向上的速度分量。
      */
@@ -81,22 +82,10 @@ export class VelocityOverLifetimeModule extends ParticleModule {
     @tooltip('i18n:velocityOvertimeModule.space')
     public space = Space.LOCAL;
 
-    public get name (): string {
-        return 'VelocityModule';
-    }
-
-    public get execStage (): ModuleExecStage {
-        return ModuleExecStage.UPDATE;
-    }
-
-    public get execPriority (): number {
-        return 2;
-    }
-
-    public update (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleUpdateContext,
-        fromIndex: number, toIndex: number, dt: number) {
+    public execute (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext) {
         const needTransform = calculateTransform(params.simulationSpace, this.space, context.localToWorld, context.worldToLocal, rotation);
         const { normalizedAliveTime, randomSeed } = particles;
+        const { fromIndex, toIndex } = context;
         if (needTransform) {
             if (this.x.mode === CurveRange.Mode.Constant) {
                 velocity.set(this.x.constant, this.y.constant, this.z.constant);

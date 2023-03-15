@@ -29,9 +29,9 @@ import { lerp, pseudoRandom, Quat, Vec3 } from '../../core/math';
 import { Space } from '../enum';
 import { calculateTransform } from '../particle-general-function';
 import { CurveRange } from '../curve-range';
-import { ParticleModule, ModuleExecStage, moduleName, execStages, execOrder, registerParticleModule } from '../particle-module';
+import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { assert, Enum } from '../../core';
-import { ParticleEmitterParams, ParticleUpdateContext } from '../particle-update-context';
+import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { ParticleSOAData } from '../particle-soa-data';
 
 const FORCE_OVER_LIFETIME_RAND_OFFSET = 212165;
@@ -40,7 +40,7 @@ const _temp_v3 = new Vec3();
 const rotation = new Quat();
 
 @ccclass('cc.ForceModule')
-@registerParticleModule('Force', ModuleExecStage.UPDATE, 4)
+@ParticleModule.register('Force', ModuleExecStage.UPDATE, 4)
 export class ForceModule extends ParticleModule {
     /**
      * @zh X 轴方向上的加速度分量。
@@ -84,10 +84,10 @@ export class ForceModule extends ParticleModule {
     // TODO:currently not supported
     public randomized = false;
 
-    public update (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleUpdateContext,
-        fromIndex: number, toIndex: number, dt: number) {
+    public execute (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext) {
         const needTransform = calculateTransform(params.simulationSpace, this.space, context.localToWorld, context.worldToLocal, rotation);
         const { normalizedAliveTime, randomSeed } = particles;
+        const { fromIndex, toIndex, deltaTime } = context;
         if (DEBUG) {
             assert(this.x.mode === this.y.mode && this.y.mode === this.z.mode, 'The curve of x, y, z must have same mode!');
         }
@@ -98,7 +98,7 @@ export class ForceModule extends ParticleModule {
                     this.y.constant,
                     this.z.constant);
                 Vec3.transformQuat(force, force, rotation);
-                Vec3.multiplyScalar(force, force, dt);
+                Vec3.multiplyScalar(force, force, deltaTime);
                 for (let i = fromIndex; i < toIndex; i++) {
                     particles.addVelocityAt(force, i);
                 }
@@ -113,7 +113,7 @@ export class ForceModule extends ParticleModule {
                         yCurve.evaluate(normalizedTime) * yMultiplier,
                         zCurve.evaluate(normalizedTime) * zMultiplier);
                     Vec3.transformQuat(force, force, rotation);
-                    Vec3.multiplyScalar(force, force, dt);
+                    Vec3.multiplyScalar(force, force, deltaTime);
                     particles.addVelocityAt(force, i);
                 }
             } else if (this.x.mode === CurveRange.Mode.TwoConstants) {
@@ -127,7 +127,7 @@ export class ForceModule extends ParticleModule {
                         lerp(yMin, yMax, pseudoRandom(seed)),
                         lerp(zMin, zMax, pseudoRandom(seed)));
                     Vec3.transformQuat(force, force, rotation);
-                    Vec3.multiplyScalar(force, force, dt);
+                    Vec3.multiplyScalar(force, force, deltaTime);
                     particles.addVelocityAt(force, i);
                 }
             } else {
@@ -142,7 +142,7 @@ export class ForceModule extends ParticleModule {
                         lerp(yMin.evaluate(normalizedTime), yMax.evaluate(normalizedTime), pseudoRandom(seed))  * yMultiplier,
                         lerp(zMin.evaluate(normalizedTime), zMax.evaluate(normalizedTime), pseudoRandom(seed))  * zMultiplier);
                     Vec3.transformQuat(force, force, rotation);
-                    Vec3.multiplyScalar(force, force, dt);
+                    Vec3.multiplyScalar(force, force, deltaTime);
                     particles.addVelocityAt(force, i);
                 }
             }
@@ -153,7 +153,7 @@ export class ForceModule extends ParticleModule {
                     this.x.constant,
                     this.y.constant,
                     this.z.constant);
-                Vec3.multiplyScalar(force, force, dt);
+                Vec3.multiplyScalar(force, force, deltaTime);
                 for (let i = fromIndex; i < toIndex; i++) {
                     particles.addVelocityAt(force, i);
                 }
@@ -167,7 +167,7 @@ export class ForceModule extends ParticleModule {
                         xCurve.evaluate(normalizedTime) * xMultiplier,
                         yCurve.evaluate(normalizedTime) * yMultiplier,
                         zCurve.evaluate(normalizedTime) * zMultiplier);
-                    Vec3.multiplyScalar(force, force, dt);
+                    Vec3.multiplyScalar(force, force, deltaTime);
                     particles.addVelocityAt(force, i);
                 }
             } else if (this.x.mode === CurveRange.Mode.TwoConstants) {
@@ -180,7 +180,7 @@ export class ForceModule extends ParticleModule {
                         lerp(xMin, xMax, pseudoRandom(seed)),
                         lerp(yMin, yMax, pseudoRandom(seed)),
                         lerp(zMin, zMax, pseudoRandom(seed)));
-                    Vec3.multiplyScalar(force, force, dt);
+                    Vec3.multiplyScalar(force, force, deltaTime);
                     particles.addVelocityAt(force, i);
                 }
             } else {
@@ -194,7 +194,7 @@ export class ForceModule extends ParticleModule {
                         lerp(xMin.evaluate(normalizedTime), xMax.evaluate(normalizedTime), pseudoRandom(seed))  * xMultiplier,
                         lerp(yMin.evaluate(normalizedTime), yMax.evaluate(normalizedTime), pseudoRandom(seed))  * yMultiplier,
                         lerp(zMin.evaluate(normalizedTime), zMax.evaluate(normalizedTime), pseudoRandom(seed))  * zMultiplier);
-                    Vec3.multiplyScalar(force, force, dt);
+                    Vec3.multiplyScalar(force, force, deltaTime);
                     particles.addVelocityAt(force, i);
                 }
             }

@@ -26,12 +26,13 @@
 import { ccclass, displayOrder, formerlySerializedAs, radian, range, serializable, tooltip, type, visible } from '../../core/data/decorators';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
-import { ParticleEmitterContext, ParticleEmitterParams, ParticleUpdateContext } from '../particle-update-context';
+import { ParticleExecContext, ParticleEmitterParams } from '../particle-base';
 import { CurveRange } from '../curve-range';
 import { lerp, pseudoRandom, randomRangeInt, Vec3 } from '../../core/math';
 import { INT_MAX } from '../../core/math/bits';
 
 @ccclass('cc.StartRotationModule')
+@ParticleModule.register('StartRotation', ModuleExecStage.SPAWN, 1)
 export class StartRotationModule extends ParticleModule {
     @serializable
     @tooltip('i18n:particle_system.startRotation3D')
@@ -99,27 +100,14 @@ export class StartRotationModule extends ParticleModule {
         this.startRotationZ = val;
     }
 
-    public get name (): string {
-        return 'StartRotationModule';
-    }
-
-    public get execStage (): ModuleExecStage {
-        return ModuleExecStage.SPAWN;
-    }
-
-    public get execPriority (): number {
-        return 1;
-    }
-
     @serializable
     private _startRotationX: CurveRange | null = null;
     @serializable
     private _startRotationY: CurveRange | null = null;
 
-    public spawn (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleEmitterContext,
-        fromIndex: number, toIndex: number, currentTime: number) {
-        const normalizedTimeInCycle = currentTime / params.duration;
+    public execute (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext) {
         const { rotationX, rotationY, rotationZ } = particles;
+        const { fromIndex, toIndex, normalizedTimeInCycle } = context;
         if (this.startRotation3D) {
             if (this.startRotationX.mode === CurveRange.Mode.Constant) {
                 const constantX = this.startRotationX.constant;

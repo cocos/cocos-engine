@@ -26,7 +26,7 @@
 import { ccclass, displayOrder, formerlySerializedAs, radian, range, serializable, tooltip, type, visible } from '../../core/data/decorators';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
-import { ParticleEmitterContext, ParticleEmitterParams, ParticleUpdateContext } from '../particle-update-context';
+import { ParticleExecContext, ParticleEmitterParams } from '../particle-base';
 import { CurveRange } from '../curve-range';
 import { GradientRange } from '../gradient-range';
 import { Color, lerp, pseudoRandom, randomRangeInt, Vec3 } from '../../core/math';
@@ -34,6 +34,7 @@ import { INT_MAX } from '../../core/math/bits';
 import { Space } from '../enum';
 
 @ccclass('cc.StartSizeModule')
+@ParticleModule.register('StartSize', ModuleExecStage.SPAWN, 1)
 export class StartSizeModule extends ParticleModule {
     @serializable
     @tooltip('i18n:particle_system.startSize3D')
@@ -96,27 +97,14 @@ export class StartSizeModule extends ParticleModule {
         this._startSizeZ = val;
     }
 
-    public get name (): string {
-        return 'StartSizeModule';
-    }
-
-    public get execStage (): ModuleExecStage {
-        return ModuleExecStage.SPAWN;
-    }
-
-    public get execPriority (): number {
-        return 1;
-    }
-
     @serializable
     private _startSizeY: CurveRange | null = null;
     @serializable
     private _startSizeZ: CurveRange | null = null;
 
-    public spawn (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleEmitterContext,
-        fromIndex: number, toIndex: number, currentTime: number) {
-        const normalizedTimeInCycle = currentTime / params.duration;
+    public execute (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext) {
         const { startSizeX, startSizeY, startSizeZ, sizeX, sizeY, sizeZ } = particles;
+        const { fromIndex, toIndex, normalizedTimeInCycle } = context;
         if (this.startSize3D) {
             if (this.startSizeX.mode === CurveRange.Mode.Constant) {
                 const constantX = this.startSizeX.constant;

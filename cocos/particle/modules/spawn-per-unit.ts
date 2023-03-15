@@ -24,13 +24,13 @@
  */
 
 import { ccclass, displayOrder, serializable, tooltip, type, range } from '../../core/data/decorators';
-import { ParticleModule, ModuleExecStage, moduleName, execStages, execOrder, registerParticleModule } from '../particle-module';
-import { ParticleEmitterContext, ParticleEmitterParams } from '../particle-update-context';
+import { ParticleModule, ModuleExecStage } from '../particle-module';
+import { ParticleExecContext, ParticleEmitterParams } from '../particle-base';
 import { CurveRange } from '../curve-range';
 import { ParticleSOAData } from '../particle-soa-data';
 
 @ccclass('cc.SpawnPerUnitModule')
-@registerParticleModule('SpawnPerUnit', ModuleExecStage.EMITTER_UPDATE | ModuleExecStage.EVENT_HANDLER, 1)
+@ParticleModule.register('SpawnPerUnit', ModuleExecStage.EMITTER_UPDATE | ModuleExecStage.EVENT_HANDLER, 1)
 export class SpawnPerUnitModule extends ParticleModule {
     /**
       * @zh 每移动单位距离发射的粒子数。
@@ -42,10 +42,9 @@ export class SpawnPerUnitModule extends ParticleModule {
     @tooltip('i18n:particle_system.rateOverDistance')
     public rate = new CurveRange();
 
-    public emitterUpdate (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleEmitterContext,
-        prevTime: number, currentTime: number) {
-        const { velocity } = context;
+    public execute (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext) {
+        const { velocity, normalizedTimeInCycle, deltaTime } = context;
         context.emittingNumOverDistance += velocity.length()
-        * this.rate.evaluate(currentTime / params.duration, Math.random()) * (currentTime - prevTime);
+        * this.rate.evaluate(normalizedTimeInCycle, Math.random()) * deltaTime;
     }
 }

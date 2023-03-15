@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { ParticleEmitterContext, ParticleEmitterParams, ParticleUpdateContext } from './particle-update-context';
+import { ParticleExecContext, ParticleEmitterParams } from './particle-base';
 import { ParticleSOAData } from './particle-soa-data';
 import { ccclass, displayName, serializable, type } from '../core/data/decorators';
 import { CCBoolean, CCString, Mat4 } from '../core';
@@ -50,11 +50,6 @@ export class ParticleModuleStage {
         return this._modules;
     }
 
-    private static _sortParticleModule (moduleA: ParticleModule, moduleB: ParticleModule) {
-        return (moduleA.execPriority - moduleB.execPriority)
-            || moduleA.name.localeCompare(moduleB.name);
-    }
-
     constructor (stage: ModuleExecStage = ModuleExecStage.NONE) {
         this._execStage = stage;
     }
@@ -63,10 +58,11 @@ export class ParticleModuleStage {
      * @zh 添加粒子模块
      */
     public addModule<T extends ParticleModule> (ModuleType: Constructor<T>): T {
-        if ((ModuleType as unknown as typeof ParticleModule).execStages & this._execStage) {
+        const id = ParticleModule.getModuleIdentityByClass(ModuleType);
+        if (id.execStages & this._execStage) {
             const newModule = new ModuleType();
             this._modules.push(newModule);
-            this._modules.sort(ParticleModuleStage._sortParticleModule);
+            this._modules.sort(ParticleModule.particleModuleSorter);
             return newModule;
         } else {
             throw new Error('This stage does not support this module!');
@@ -109,100 +105,94 @@ export class ParticleModuleStage {
         return module;
     }
 
-    public preTick (params: ParticleEmitterParams, currentTime: number, dt: number) {
+    public tick (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext) {
         for (let i = 0, length = this._modules.length; i < length; i++) {
             const module = this._modules[i];
-            if (module.enable) {
-                module.preTick(params, currentTime, dt);
+            if (module.enabled) {
+                module.tick(particles, params, context);
             }
         }
     }
 
-    public emitterUpdate (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleEmitterContext,
-        prevTime: number, currentTime: number) {
+    public execute (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext) {
         for (let i = 0, length = this._modules.length; i < length; i++) {
             const module = this._modules[i];
-            if (module.enable) {
-                module.emitterUpdate(particles, params, context, prevTime, currentTime);
+            if (module.enabled) {
+                module.execute(particles, params, context);
             }
         }
     }
-
-    public spawn (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleEmitterContext,
-        fromIndex: number, toIndex: number, currentTime: number) {
-        for (let i = 0, length = this._modules.length; i < length; i++) {
-            const module = this._modules[i];
-            if (module.enable) {
-                module.spawn(particles, params, context, fromIndex, toIndex, currentTime);
-            }
-        }
-    }
-
-    public update (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleUpdateContext, dt: number) {
-        for (let i = 0, length = this._modules.length; i < length; i++) {
-            const module = this._modules[i];
-            if (module.enable) {
-                module.update(particles, params, context, 0, particles.count, dt);
-            }
-        }
-    }
-
-    public handleEvent (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleUpdateContext) {
-
-    }
-
-    public render (particles: ParticleSOAData, params: ParticleEmitterParams, dt: number) {
-
-    }
-
-    public postTick (params: ParticleEmitterParams, currentTime: number, dt: number) {
-
-    }
 }
 
-export function execStages (stages: ModuleExecStage) {
-    return function (ctor: typeof ParticleModule) {
-        (ctor as unknown as typeof ParticleModule).execStages = stages;
-    };
-}
+class ParticleModuleIdentity {
+    public readonly ctor: Constructor<ParticleModule> | null = null;
+    public readonly name: string = '';
+    public readonly execStages = ModuleExecStage.NONE;
+    public readonly execOrder: number = 0;
 
-export function execOrder (order: number) {
-    return function (ctor: typeof ParticleModule) {
-        (ctor as unknown as typeof ParticleModule).execOrder = order;
-    };
-}
-
-export function moduleName (name: string) {
-    return function (ctor: typeof ParticleModule) {
-        (ctor as unknown as typeof ParticleModule).moduleName = name;
-    };
-}
-
-export function registerParticleModule (name: string, stages: ModuleExecStage, order: number) {
-    return function (ctor: typeof ParticleModule) {
-        (ctor as unknown as typeof ParticleModule).moduleName = name;
-        (ctor as unknown as typeof ParticleModule).execStages = stages;
-        (ctor as unknown as typeof ParticleModule).execOrder = order;
-    };
+    constructor (ctor: Constructor<ParticleModule>, name: string, execStages: ModuleExecStage, execOrder: number) {
+        this.ctor = ctor;
+        this.name = name;
+        this.execStages = execStages;
+        this.execOrder = execOrder;
+    }
 }
 
 @ccclass('cc.ParticleModule')
 export abstract class ParticleModule {
-    @type(CCBoolean)
-    public get enable () {
-        return this._enable;
+    public static register (name: string, stages: ModuleExecStage, order: number) {
+        return function (ctor: Constructor<ParticleModule>) {
+            for (let i = 0, length = ParticleModule._allRegisteredModules.length; i < length; i++) {
+                if (ParticleModule._allRegisteredModules[i].ctor === ctor) {
+                    throw new Error('Duplicated calling registered module!');
+                }
+                if (ParticleModule._allRegisteredModules[i].name === name) {
+                    throw new Error('Duplicated name with other module!');
+                }
+            }
+            const identity = new ParticleModuleIdentity(ctor, name, stages, order);
+            ParticleModule._allRegisteredModules.push(identity);
+        };
     }
 
-    public set enable (val) {
-        this._enable = val;
+    public static get allRegisteredModules (): ReadonlyArray<ParticleModuleIdentity> {
+        return this._allRegisteredModules;
+    }
+
+    public static getModuleIdentityByClass (ctor: Constructor<ParticleModule>) {
+        for (let i = 0, length = ParticleModule._allRegisteredModules.length; i < length; i++) {
+            if (ParticleModule._allRegisteredModules[i].ctor === ctor) {
+                return ParticleModule._allRegisteredModules[i];
+            }
+        }
+        throw new Error(`ParticleModule ${ctor} has not been registered!`);
+    }
+
+    public static particleModuleSorter (moduleA: ParticleModule, moduleB: ParticleModule) {
+        const idA = ParticleModule.getModuleIdentityByClass(moduleA.constructor as Constructor<ParticleModule>);
+        const idB = ParticleModule.getModuleIdentityByClass(moduleB.constructor as Constructor<ParticleModule>);
+        return (idA.execOrder - idB.execOrder)
+            || idA.name.localeCompare(idB.name);
+    }
+
+    private static _allRegisteredModules: ParticleModuleIdentity[] = [];
+
+    @type(CCBoolean)
+    public get enabled () {
+        return this._enabled;
+    }
+
+    public set enabled (val) {
+        this._enabled = val;
+    }
+
+    @type(CCString)
+    private get name () {
+        return ParticleModule.getModuleIdentityByClass(this.constructor as Constructor<ParticleModule>).name;
     }
 
     @serializable
-    private _enable = false;
-
-    public static execStages = ModuleExecStage.NONE;
-    public static execOrder = 0;
-    public static moduleName = '';
+    private _enabled = false;
 
     protected needsFilterSerialization () {
         return false;
@@ -222,14 +212,6 @@ export abstract class ParticleModule {
         }
     }
 
-    public preTick (params: ParticleEmitterParams, currentTime: number, dt: number) {}
-    public emitterUpdate (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleEmitterContext,
-        prevTime: number, currentTime: number) {}
-    public spawn (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleEmitterContext,
-        fromIndex: number, toIndex: number, currentTime: number) {}
-    public update (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleUpdateContext,
-        fromIndex: number, toIndex: number, dt: number) {}
-    public handleEvent (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleUpdateContext) {}
-    public render (particles: ParticleSOAData, params: ParticleEmitterParams, dt: number) {}
-    public postTick (params: ParticleEmitterParams, currentTime: number, dt: number) {}
+    public tick (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext) {}
+    public execute (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext) {}
 }

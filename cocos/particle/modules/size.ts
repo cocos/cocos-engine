@@ -25,17 +25,17 @@
 
 import { ccclass, tooltip, displayOrder, type, serializable, range, visible } from 'cc.decorator';
 import { lerp, pseudoRandom, Vec3 } from '../../core/math';
-import { ParticleModule, ModuleExecStage, moduleName, execStages, execOrder, registerParticleModule } from '../particle-module';
+import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { CurveRange } from '../curve-range';
 import { ModuleRandSeed } from '../enum';
 import { ParticleSOAData } from '../particle-soa-data';
-import { ParticleEmitterParams, ParticleUpdateContext } from '../particle-update-context';
+import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 
 const SIZE_OVERTIME_RAND_OFFSET = ModuleRandSeed.SIZE;
 const size = new Vec3();
 
 @ccclass('cc.SizeModule')
-@registerParticleModule('Size', ModuleExecStage.UPDATE, 0)
+@ParticleModule.register('Size', ModuleExecStage.UPDATE, 0)
 export class SizeModule extends ParticleModule {
     /**
      * @zh 决定是否在每个轴上独立控制粒子大小。
@@ -115,9 +115,9 @@ export class SizeModule extends ParticleModule {
     @serializable
     private _z: CurveRange | null = null;
 
-    public update (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleUpdateContext,
-        fromIndex: number, toIndex: number, dt: number) {
+    public execute (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext) {
         const { normalizedAliveTime, randomSeed } = particles;
+        const { fromIndex, toIndex } = context;
         if (!this.separateAxes) {
             if (this.size.mode === CurveRange.Mode.Constant) {
                 const constant = this.size.constant;
