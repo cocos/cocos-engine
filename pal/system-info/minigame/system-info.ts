@@ -127,7 +127,7 @@ class SystemInfo extends EventTarget {
 
         this.isXR = false;
 
-        const isPCWechat = (WECHAT || WECHAT_MINI_PROGRAM) && this.os === OS.WINDOWS && !minigame.isDevTool;
+        const isPCWechat = WECHAT && this.os === OS.WINDOWS && !minigame.isDevTool;
         this._featureMap = {
             [Feature.WEBP]: false,      // Initialize in Promise,
             [Feature.IMAGE_BITMAP]: false,

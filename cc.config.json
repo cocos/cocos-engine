@@ -374,7 +374,6 @@
             "comment": "Running in the Wechat's mini program.",
             "type": "boolean",
             "value": false,
-            "ccGlobal": true,
             "internal": false
         },
         "BAIDU": {
