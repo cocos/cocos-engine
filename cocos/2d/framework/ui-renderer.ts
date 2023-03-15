@@ -32,7 +32,7 @@ import { builtinResMgr } from '../../asset/asset-manager';
 import { Material } from '../../asset/assets';
 import { BlendFactor } from '../../gfx';
 import { IAssembler, IAssemblerManager } from '../renderer/base';
-import { BaseRenderData, RenderData } from '../renderer/render-data';
+import { RenderData } from '../renderer/render-data';
 import { IBatcher } from '../renderer/i-batcher';
 import { Node } from '../../scene-graph';
 import { TransformBit } from '../../scene-graph/node-enum';
@@ -199,9 +199,9 @@ export class UIRenderer extends Renderer {
     }
 
     /**
-     * @engineInternal
+     * @engineInternal NOTE: this is engine internal only, we need to access `_renderData` for we don't wan't to see the deprecated warning.
      */
-    public _renderData: BaseRenderData | null = null;
+    public _renderData: RenderData | null = null;
     /**
      * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      */

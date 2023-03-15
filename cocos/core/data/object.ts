@@ -168,23 +168,6 @@ function compileDestruct (obj, ctor) {
  * @private
  */
 class CCObject implements EditorExtendableObject {
-    /**
-     * The customized serialization for this object. (Editor Only)
-     * @method _serialize
-     * @param {Boolean} exporting
-     * @return {object} the serialized json data object
-     * @engineInternal
-     */
-    public _serialize: ((exporting: boolean) => Record<string, any>) | null = null;
-
-    /**
-     * Init this object from the custom serialized data.
-     * @method _deserialize
-     * @param {Object} data - the serialized json data
-     * @param {_Deserializer} ctx
-     * @engineInternal
-     */
-    public _deserialize: ((data: Record<string, any>, ctx: any) => void) | null = null;
     public static _deferredDestroy () {
         const deleteCount = objectsToDestroy.length;
         for (let i = 0; i < deleteCount; ++i) {
@@ -217,11 +200,6 @@ class CCObject implements EditorExtendableObject {
      * @private
      */
     private _onPreDestroy: (() => void) | null = null;
-
-    /**
-     * @engineInternal
-     */
-    public realDestroyInEditor: (() => void) | null = null;
 
     /**
      * @internal
@@ -450,8 +428,9 @@ if (EDITOR || TEST) {
     * 析构操作将在 Undo 系统中**延后**执行。
     * @method realDestroyInEditor
     * @private
+    * TODO: this is a dynamic inject method, should be define in class
     */
-    prototype.realDestroyInEditor = function () {
+    (prototype as any).realDestroyInEditor = function () {
         if (!(this._objFlags & Destroyed)) {
             warnID(5001);
             return;
@@ -474,11 +453,24 @@ if (EDITOR) {
             deferredDestroyTimer = null;
         }
     });
-
-    prototype._serialize = null;
+    /**
+     * The customized serialization for this object. (Editor Only)
+     * @method _serialize
+     * @param {Boolean} exporting
+     * @return {object} the serialized json data object
+     * TODO: this is a dynamic inject method, should be define in class
+     */
+    (prototype as any)._serialize = null;
 }
 
-prototype._deserialize = null;
+/**
+ * Init this object from the custom serialized data.
+ * @method _deserialize
+ * @param {Object} data - the serialized json data
+ * @param {_Deserializer} ctx
+ * TODO: this is a dynamic inject method, should be define in class
+ */
+(prototype as any)._deserialize = null;
 
 CCClass.fastDefine('cc.Object', CCObject, { _name: '', _objFlags: 0, [editorExtrasTag]: {} });
 CCClass.Attr.setClassAttr(CCObject, editorExtrasTag, 'editorOnly', true);

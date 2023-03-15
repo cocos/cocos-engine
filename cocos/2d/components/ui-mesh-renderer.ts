@@ -33,7 +33,7 @@ import { Component } from '../../scene-graph/component';
 import { NativeUIModelProxy } from '../renderer/native-2d';
 import { uiRendererManager } from '../framework/ui-renderer-manager';
 import { RenderEntity, RenderEntityType } from '../renderer/render-entity';
-import { BaseRenderData, MeshRenderData, RenderData } from '../renderer/render-data';
+import { MeshRenderData, RenderData } from '../renderer/render-data';
 import { assert, cclegacy } from '../../core';
 import { RenderDrawInfoType } from '../renderer/render-draw-info';
 
@@ -179,7 +179,9 @@ export class UIMeshRenderer extends Component {
         if (JSB) {
             const renderData = MeshRenderData.add();
             renderData.initRenderDrawInfo(this, RenderDrawInfoType.MODEL);
-            this._renderData = renderData;
+            // TODO: MeshRenderData and RenderData a both sub class of BaseRenderData, here we weirdly use MeshRenderData as RenderData
+            // please fix the type @holycanvas
+            this._renderData = renderData as unknown as RenderData;
             this._renderData.material = this._modelComponent!.getMaterialInstance(index);
         }
     }
@@ -218,7 +220,7 @@ export class UIMeshRenderer extends Component {
             const passNum = passes.length;
             for (let j = 0; j < passNum; j++) {
                 const pass = passes[j];
-                pass._priority = RenderPriority.MAX - 11;
+                pass.setPriority(RenderPriority.MAX - 11);
                 // Because the deferred pipeline cannot perform lighting processing on the uimodel,
                 // it may even cause the uimodel to crash in the metal backend,
                 // so force rendering uimodel in forward pipeline
@@ -266,7 +268,7 @@ export class UIMeshRenderer extends Component {
         return this._renderEntity;
     }
 
-    protected _renderData: BaseRenderData | null = null;
+    protected _renderData: RenderData | null = null;
     /**
      * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      */
