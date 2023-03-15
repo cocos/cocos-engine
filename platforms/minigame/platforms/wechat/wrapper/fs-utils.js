@@ -136,29 +136,27 @@ var fsUtils = {
         }
     },
 
-    readFile(filePath, encoding, onComplete) {
-        // try {
-        //     console.time(`phase readFileSync ${filePath}`);
-        //     const str = fs.readFileSync(filePath, encoding);
-        //     console.timeEnd(`phase readFileSync ${filePath}`);
-        //     onComplete && onComplete(null, str);
-        // } catch (e) {
-        //     console.warn(`Read json failed: path: ${filePath} message: ${e.message}`);
-        //     onComplete && onComplete(new Error(e.message));
-        // }
-        console.time(`phase readFile 异步 ${filePath}`);
-        fs.readFile({
-            filePath,
-            encoding,
-            success(res) {
-                console.timeEnd(`phase readFile 异步 ${filePath}`);
-                onComplete && onComplete(null, res.data);
-            },
-            fail(res) {
-                console.warn(`Read file failed: path: ${filePath} message: ${res.errMsg}`);
-                onComplete && onComplete(new Error(res.errMsg), null);
-            },
-        });
+    readFile (filePath, encoding, onComplete) {
+        try {
+            console.time(`phase readFile ${filePath}`);
+            const str = fs.readFileSync(filePath, encoding);
+            console.timeEnd(`phase readFile ${filePath}`);
+            onComplete && onComplete(null, str);
+        } catch (e) {
+            console.warn(`Read json failed: path: ${filePath} message: ${e.message}`);
+            onComplete && onComplete(new Error(e.message));
+        }
+        // fs.readFile({
+        //     filePath,
+        //     encoding,
+        //     success (res) {
+        //         onComplete && onComplete(null, res.data);
+        //     },
+        //     fail (res) {
+        //         console.warn(`Read file failed: path: ${filePath} message: ${res.errMsg}`);
+        //         onComplete && onComplete(new Error(res.errMsg), null);
+        //     },
+        // });
     },
 
     readDir (filePath, onComplete) {
