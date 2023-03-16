@@ -366,5 +366,6 @@ declare namespace ns {
 
 /**
  * Only defined on native platforms.
+ * Now we only support 'V8'
  */
-declare const scriptEngineType: 'JavaScriptCore' | 'SpiderMonkey' | 'V8';
+declare const scriptEngineType: 'V8';
