@@ -400,7 +400,8 @@ export class Profiler extends System {
             this.offsetData[3] = surfaceTransform;
         }
 
-        this.pass.setRootBufferDirty(true);
+        // TODO: on native, we only binding the `_rootBufferDirty` setter. @dumganhar
+        this.pass._rootBufferDirty = true;
 
         if (this._meshRenderer.model) {
             director.root!.pipeline.profiler = this._meshRenderer.model;

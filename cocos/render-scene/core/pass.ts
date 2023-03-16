@@ -203,7 +203,10 @@ export class Pass {
     protected _root: Root;
     protected _device: Device;
 
-    protected _rootBufferDirty = false;
+    /**
+     * @engineInternal TODO: on native, we only binding the `_rootBufferDirty` setter.
+     */
+    public _rootBufferDirty = false;
 
     constructor (root: Root) {
         this._root = root;
@@ -839,11 +842,6 @@ export class Pass {
     get blocks (): Float32Array[] { return this._blocks; }
     get blocksInt (): Int32Array[] { return this._blocksInt; }
     get rootBufferDirty (): boolean { return this._rootBufferDirty; }
-    /**
-     * NOTE: engineInternal tag cannot only mark rootBufferDirty setter as internal
-     * @engineInternal
-     */
-    public setRootBufferDirty (v: boolean) { this._rootBufferDirty = v; }
     // states
     get priority (): RenderPriority { return this._priority; }
     /**
