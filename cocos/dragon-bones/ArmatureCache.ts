@@ -109,7 +109,7 @@ export class AnimationCache {
     _inited = false;
     _invalid = true;
     _enableCacheAttachedInfo = false;
-    frames: ArmatureFrame[] = [];
+    frames: SafeArray<ArmatureFrame> = [];
     totalTime = 0;
     isCompleted = false;
     _frameIdx = -1;
@@ -286,11 +286,14 @@ export class AnimationCache {
             segments: [],
             colors: [],
             boneInfos: [],
-            vertices: null,
-            uintVert: null,
-            indices: null,
+            vertices: new Float32Array(),
+            uintVert: new Uint32Array(),
+            indices: new Uint16Array(),
         };
         const frame = this.frames[index];
+        if (!frame) {
+            return;
+        }
 
         const segments = this._tempSegments = frame.segments;
         const colors = this._tempColors = frame.colors;

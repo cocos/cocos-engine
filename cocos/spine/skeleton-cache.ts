@@ -112,7 +112,7 @@ export interface AnimationFrame {
 
 // Cache all frames in an animation
 export class AnimationCache {
-    public frames: AnimationFrame[] = [];
+    public frames: SafeArray<AnimationFrame> = [];
     public totalTime = 0;
     public isCompleted = false;
     public maxVertexCount = 0;
@@ -366,11 +366,13 @@ export class AnimationCache {
             segments: [],
             colors: [],
             boneInfos: [],
-            vertices: null,
-            uintVert: null,
-            indices: null,
+            vertices: new Float32Array(),
+            indices: new Uint16Array(),
         };
         const frame = this.frames[index];
+        if (!frame) {
+            return;
+        }
 
         const segments = this._tempSegments = frame.segments;
         const colors = this._tempColors = frame.colors;
