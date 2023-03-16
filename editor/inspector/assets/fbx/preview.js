@@ -679,16 +679,16 @@ exports.methods = {
 
     addAssetChangeListener(add = true) {
         if (!add && this.hasListenAssetsChange) {
-            Editor.Message.removeBroadcastListener('asset-db:asset-change', this.onAssetChangeBind);
+            Editor.Message.__protected__.removeBroadcastListener('scene:all-asset-changed', this.onAssetChangeBind);
             this.hasListenAssetsChange = false;
             return;
         }
-        Editor.Message.addBroadcastListener('asset-db:asset-change', this.onAssetChangeBind);
+        Editor.Message.__protected__.addBroadcastListener('scene:all-asset-changed', this.onAssetChangeBind);
         this.hasListenAssetsChange = true;
     },
 
-    async onAssetChange(uuid) {
-        if (this.asset.uuid === uuid) {
+    async onAssetChange(uuids) {
+        if (uuids.includes(this.asset.uuid)) {
             // Update the animation dump when the parent assets changes
             this.meta = await Editor.Message.request('asset-db', 'query-asset-meta', this.asset.uuid);
             const clipInfo = animation.methods.getCurClipInfo.call(this);
