@@ -36,6 +36,7 @@ import { RenderEntity, RenderEntityType } from '../renderer/render-entity';
 import { MeshRenderData, RenderData } from '../renderer/render-data';
 import { assert, cclegacy } from '../../core';
 import { RenderDrawInfoType } from '../renderer/render-draw-info';
+import type { UIRenderer } from '../framework/ui-renderer';
 
 /**
  * @en
@@ -178,7 +179,9 @@ export class UIMeshRenderer extends Component {
     private _uploadRenderData (index) {
         if (JSB) {
             const renderData = MeshRenderData.add();
-            renderData.initRenderDrawInfo(this, RenderDrawInfoType.MODEL);
+            // TODO: here we weirdly use UIMeshRenderer as UIRenderer
+            // please fix the type @holycanvas
+            renderData.initRenderDrawInfo(this as unknown as UIRenderer, RenderDrawInfoType.MODEL);
             // TODO: MeshRenderData and RenderData are both sub class of BaseRenderData, here we weirdly use MeshRenderData as RenderData
             // please fix the type @holycanvas
             this._renderData = renderData as unknown as RenderData;
