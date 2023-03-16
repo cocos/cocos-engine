@@ -35,7 +35,7 @@ import { MacroRecord, MaterialInstance, Pass, scene } from '../core/renderer';
 import ParticleBatchModel from './models/particle-batch-model';
 import { ParticleEmitter } from './particle-emitter';
 import { Camera } from '../core/renderer/scene/camera';
-import { particleSystemManager } from './particle-system-manager';
+import { vfxManager } from './vfx-manager';
 import { SubUVAnimationModule } from './modules/sub-uv-animation';
 
 const CC_USE_WORLD_SPACE = 'CC_USE_WORLD_SPACE';
@@ -44,8 +44,8 @@ const CC_RENDER_MODE = 'CC_RENDER_MODE';
 const ROTATION_OVER_TIME_MODULE_ENABLE = 'ROTATION_OVER_TIME_MODULE_ENABLE';
 const INSTANCE_PARTICLE = 'CC_INSTANCE_PARTICLE';
 
-@ccclass('cc.ParticleSystemRenderer')
-export class ParticleSystemRenderer extends ModelRenderer {
+@ccclass('cc.ParticleEmitterRenderer')
+export class ParticleEmitterRenderer extends ModelRenderer {
     public static AlignmentSpace = AlignmentSpace;
     /**
      * @zh 设定粒子生成模式。
@@ -75,7 +75,7 @@ export class ParticleSystemRenderer extends ModelRenderer {
      * @zh 在粒子生成方式为 StretchedBillboard 时,对粒子在运动方向上按速度大小进行拉伸。
      */
     @displayOrder(1)
-    @visible(function (this: ParticleSystemRenderer) { return this._renderMode === RenderMode.STRETCHED_BILLBOARD; })
+    @visible(function (this: ParticleEmitterRenderer) { return this._renderMode === RenderMode.STRETCHED_BILLBOARD; })
     @tooltip('i18n:particleSystemRenderer.velocityScale')
     public get velocityScale () {
         return this._velocityScale;
@@ -89,7 +89,7 @@ export class ParticleSystemRenderer extends ModelRenderer {
      * @zh 在粒子生成方式为 StretchedBillboard 时,对粒子在运动方向上按粒子大小进行拉伸。
      */
     @displayOrder(2)
-    @visible(function (this: ParticleSystemRenderer) { return this._renderMode === RenderMode.STRETCHED_BILLBOARD; })
+    @visible(function (this: ParticleEmitterRenderer) { return this._renderMode === RenderMode.STRETCHED_BILLBOARD; })
     @tooltip('i18n:particleSystemRenderer.lengthScale')
     public get lengthScale () {
         return this._lengthScale;
@@ -103,7 +103,7 @@ export class ParticleSystemRenderer extends ModelRenderer {
      * @zh 粒子发射的模型。
      */
     @type(Mesh)
-    @visible(function (this: ParticleSystemRenderer) { return this._renderMode === RenderMode.MESH; })
+    @visible(function (this: ParticleEmitterRenderer) { return this._renderMode === RenderMode.MESH; })
     @displayOrder(7)
     @tooltip('i18n:particleSystemRenderer.mesh')
     public get mesh () {
@@ -188,7 +188,7 @@ export class ParticleSystemRenderer extends ModelRenderer {
     private _mainTexture: Texture2D | null = null;
     private _model: ParticleBatchModel | null = null;
     private _vertAttrs: Attribute[] = [];
-    private _particleSystem: ParticleEmitter | null = null;
+    private _emitter: ParticleEmitter | null = null;
 
     constructor () {
         super();
@@ -217,8 +217,8 @@ export class ParticleSystemRenderer extends ModelRenderer {
         // }
     }
 
-    public setParticleSystem (particleSystem: ParticleEmitter) {
-        this._particleSystem = particleSystem;
+    public setEmitter (emitter: ParticleEmitter) {
+        this._emitter = emitter;
     }
 
     public onLoad () {
@@ -236,12 +236,12 @@ export class ParticleSystemRenderer extends ModelRenderer {
 
     public onEnable () {
         this._getRenderScene().addModel(this._model!);
-        particleSystemManager.addParticleSystemRenderer(this);
+        vfxManager.addRenderer(this);
     }
 
     public onDisable () {
         this._model!.scene!.removeModel(this._model!);
-        particleSystemManager.removeParticleSystemRenderer(this);
+        vfxManager.removeRenderer(this);
     }
 
     public onDestroy () {
@@ -309,8 +309,8 @@ export class ParticleSystemRenderer extends ModelRenderer {
 
     // internal function
     public updateRenderData () {
-        if (!this._particleSystem) return;
-        const { particles } = this._particleSystem;
+        if (!this._emitter) return;
+        const { particles } = this._emitter;
         this._model!.setCapacity(particles.capacity);
         this._updateRotation();
         this._updateScale();
@@ -321,7 +321,7 @@ export class ParticleSystemRenderer extends ModelRenderer {
     }
 
     private _updateMaterialParams () {
-        if (!this._particleSystem) {
+        if (!this._emitter) {
             return;
         }
 
@@ -342,15 +342,15 @@ export class ParticleSystemRenderer extends ModelRenderer {
                 this._defaultMat.setProperty('mainTexture', this._mainTexture);
             }
         }
-        this._defines[CC_USE_WORLD_SPACE] = this._particleSystem.simulationSpace === Space.WORLD;
+        this._defines[CC_USE_WORLD_SPACE] = this._emitter.simulationSpace === Space.WORLD;
         const renderMode = this.renderMode;
         if (renderMode === RenderMode.STRETCHED_BILLBOARD) {
             this._frameTile_velLenScale.z = this.velocityScale;
             this._frameTile_velLenScale.w = this.lengthScale;
         }
         this._defines[CC_RENDER_MODE] = renderMode;
-        const textureModule = this._particleSystem.getModule(SubUVAnimationModule);
-        if (textureModule && textureModule.enable) {
+        const textureModule = this._emitter.updateStage.getModule(SubUVAnimationModule);
+        if (textureModule && textureModule.enabled) {
             Vec4.copy(this._tmp_velLenScale, this._frameTile_velLenScale); // fix textureModule switch bug
             Vec2.set(this._tmp_velLenScale, textureModule.numTilesX, textureModule.numTilesY);
             mat!.setProperty('frameTile_velLenScale', this._tmp_velLenScale);
@@ -525,10 +525,10 @@ export class ParticleSystemRenderer extends ModelRenderer {
     // }
 
     // public updateTrailMaterial () {
-    //     if (!this._particleSystem) {
+    //     if (!this._emitter) {
     //         return;
     //     }
-    //     const ps = this._particleSystem;
+    //     const ps = this._emitter;
     //     const trailModule = ps._trailModule;
     //     if (trailModule && trailModule.enable) {
     //         if (ps.simulationSpace === Space.WORLD || trailModule.space === Space.WORLD) {

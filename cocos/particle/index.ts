@@ -31,7 +31,7 @@ import { CurveRange } from './curve-range';
 import { legacyCC } from '../core/global-exports';
 import { GradientRange } from './gradient-range';
 import Gradient, { AlphaKey, ColorKey } from './gradient';
-import './particle-system-manager';
+import './vfx-manager';
 
 export {
     Billboard,

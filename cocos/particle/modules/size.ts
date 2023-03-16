@@ -35,7 +35,7 @@ const SIZE_OVERTIME_RAND_OFFSET = ModuleRandSeed.SIZE;
 const size = new Vec3();
 
 @ccclass('cc.SizeModule')
-@ParticleModule.register('Size', ModuleExecStage.UPDATE, 0)
+@ParticleModule.register('Size', ModuleExecStage.UPDATE, 24)
 export class SizeModule extends ParticleModule {
     /**
      * @zh 决定是否在每个轴上独立控制粒子大小。

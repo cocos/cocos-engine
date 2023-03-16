@@ -70,9 +70,9 @@ export class TrailSegment {
     }
 }
 
-@ccclass('cc.TrailModule')
+@ccclass('cc.LegacyTrailModule')
 @ParticleModule.register('LegacyTrail', ModuleExecStage.RENDER, 0)
-export class LegacyTrail extends ParticleModule {
+export class LegacyTrailModule extends ParticleModule {
     /**
      * 设定粒子生成轨迹的方式。
      */
@@ -180,6 +180,7 @@ export class LegacyTrail extends ParticleModule {
     @serializable
     private _minParticleDistance = 0.1;
     private _capacity = 16;
+    private _count = 0;
     // trail
     // One trail segment contains 4 float: x, y, z, timestamp
     private _trailSegmentStride = 4;

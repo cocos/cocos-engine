@@ -26,7 +26,7 @@
 import { ParticleExecContext, ParticleEmitterParams } from './particle-base';
 import { ParticleSOAData } from './particle-soa-data';
 import { ccclass, displayName, serializable, type } from '../core/data/decorators';
-import { CCBoolean, CCString, Mat4 } from '../core';
+import { assert, CCBoolean, CCString, Mat4 } from '../core';
 
 export enum ModuleExecStage {
     NONE,
@@ -36,6 +36,85 @@ export enum ModuleExecStage {
     EVENT_HANDLER = 1 << 3,
     RENDER = 1 << 4,
     SIMULATION = 1 << 5,
+}
+
+@ccclass('cc.ParticleModule')
+export abstract class ParticleModule {
+    public static register (name: string, stages: ModuleExecStage, order: number) {
+        return function (ctor: Constructor<ParticleModule>) {
+            for (let i = 0, length = ParticleModule._allRegisteredModules.length; i < length; i++) {
+                if (ParticleModule._allRegisteredModules[i].ctor === ctor) {
+                    throw new Error('Duplicated calling registered module!');
+                }
+                if (ParticleModule._allRegisteredModules[i].name === name) {
+                    throw new Error('Duplicated name with other module!');
+                }
+            }
+            const identity = new ParticleModuleIdentity(ctor, name, stages, order);
+            ParticleModule._allRegisteredModules.push(identity);
+        };
+    }
+
+    public static get allRegisteredModules (): ReadonlyArray<ParticleModuleIdentity> {
+        return this._allRegisteredModules;
+    }
+
+    public static getModuleIdentityByClass (ctor: Constructor<ParticleModule>) {
+        for (let i = 0, length = ParticleModule._allRegisteredModules.length; i < length; i++) {
+            if (ParticleModule._allRegisteredModules[i].ctor === ctor) {
+                return ParticleModule._allRegisteredModules[i];
+            }
+        }
+        return null;
+    }
+
+    public static particleModuleSorter (moduleA: ParticleModule, moduleB: ParticleModule) {
+        const idA = ParticleModule.getModuleIdentityByClass(moduleA.constructor as Constructor<ParticleModule>);
+        const idB = ParticleModule.getModuleIdentityByClass(moduleB.constructor as Constructor<ParticleModule>);
+        assert(idA && idB);
+        return (idA.execOrder - idB.execOrder)
+            || idA.name.localeCompare(idB.name);
+    }
+
+    private static _allRegisteredModules: ParticleModuleIdentity[] = [];
+
+    @type(CCBoolean)
+    public get enabled () {
+        return this._enabled;
+    }
+
+    public set enabled (val) {
+        this._enabled = val;
+    }
+
+    @type(CCString)
+    private get name () {
+        return ParticleModule.getModuleIdentityByClass(this.constructor as Constructor<ParticleModule>)?.name;
+    }
+
+    @serializable
+    private _enabled = false;
+
+    protected needsFilterSerialization () {
+        return false;
+    }
+
+    protected getSerializedProps (): string[] {
+        return [];
+    }
+
+    private _onBeforeSerialize (props: string[]) {
+        if (!this.needsFilterSerialization()) {
+            return props;
+        } else {
+            const serializableProps = this.getSerializedProps();
+            serializableProps.push('_enabled');
+            return serializableProps;
+        }
+    }
+
+    public tick (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext) {}
+    public execute (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext) {}
 }
 
 @ccclass('cc.ParticleModuleStage')
@@ -59,6 +138,7 @@ export class ParticleModuleStage {
      */
     public addModule<T extends ParticleModule> (ModuleType: Constructor<T>): T {
         const id = ParticleModule.getModuleIdentityByClass(ModuleType);
+        assert(id, 'Particle Module should be registered!');
         if (id.execStages & this._execStage) {
             const newModule = new ModuleType();
             this._modules.push(newModule);
@@ -136,82 +216,4 @@ class ParticleModuleIdentity {
         this.execStages = execStages;
         this.execOrder = execOrder;
     }
-}
-
-@ccclass('cc.ParticleModule')
-export abstract class ParticleModule {
-    public static register (name: string, stages: ModuleExecStage, order: number) {
-        return function (ctor: Constructor<ParticleModule>) {
-            for (let i = 0, length = ParticleModule._allRegisteredModules.length; i < length; i++) {
-                if (ParticleModule._allRegisteredModules[i].ctor === ctor) {
-                    throw new Error('Duplicated calling registered module!');
-                }
-                if (ParticleModule._allRegisteredModules[i].name === name) {
-                    throw new Error('Duplicated name with other module!');
-                }
-            }
-            const identity = new ParticleModuleIdentity(ctor, name, stages, order);
-            ParticleModule._allRegisteredModules.push(identity);
-        };
-    }
-
-    public static get allRegisteredModules (): ReadonlyArray<ParticleModuleIdentity> {
-        return this._allRegisteredModules;
-    }
-
-    public static getModuleIdentityByClass (ctor: Constructor<ParticleModule>) {
-        for (let i = 0, length = ParticleModule._allRegisteredModules.length; i < length; i++) {
-            if (ParticleModule._allRegisteredModules[i].ctor === ctor) {
-                return ParticleModule._allRegisteredModules[i];
-            }
-        }
-        throw new Error(`ParticleModule ${ctor} has not been registered!`);
-    }
-
-    public static particleModuleSorter (moduleA: ParticleModule, moduleB: ParticleModule) {
-        const idA = ParticleModule.getModuleIdentityByClass(moduleA.constructor as Constructor<ParticleModule>);
-        const idB = ParticleModule.getModuleIdentityByClass(moduleB.constructor as Constructor<ParticleModule>);
-        return (idA.execOrder - idB.execOrder)
-            || idA.name.localeCompare(idB.name);
-    }
-
-    private static _allRegisteredModules: ParticleModuleIdentity[] = [];
-
-    @type(CCBoolean)
-    public get enabled () {
-        return this._enabled;
-    }
-
-    public set enabled (val) {
-        this._enabled = val;
-    }
-
-    @type(CCString)
-    private get name () {
-        return ParticleModule.getModuleIdentityByClass(this.constructor as Constructor<ParticleModule>).name;
-    }
-
-    @serializable
-    private _enabled = false;
-
-    protected needsFilterSerialization () {
-        return false;
-    }
-
-    protected getSerializedProps (): string[] {
-        return [];
-    }
-
-    private _onBeforeSerialize (props: string[]) {
-        if (!this.needsFilterSerialization()) {
-            return props;
-        } else {
-            const serializableProps = this.getSerializedProps();
-            serializableProps.push('_enable');
-            return serializableProps;
-        }
-    }
-
-    public tick (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext) {}
-    public execute (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext) {}
 }

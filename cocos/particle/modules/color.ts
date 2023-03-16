@@ -36,7 +36,7 @@ const tempColor2 = new Color();
 const tempColor3 = new Color();
 
 @ccclass('cc.ColorModule')
-@ParticleModule.register('Color', ModuleExecStage.UPDATE, 0)
+@ParticleModule.register('Color', ModuleExecStage.UPDATE, 21)
 export class ColorModule extends ParticleModule {
     /**
      * @zh 颜色随时间变化的参数，各个 key 之间线性差值变化。

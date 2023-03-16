@@ -38,9 +38,8 @@ export enum ParticleEventType {
     MANUAL,
 }
 
-export class ParticleEvent {
-    public type = ParticleEventType.UNKNOWN;
-    public particleId = -1;
+export class ParticleEventInfo {
+    public particleId = 0;
     public currentTime = 0;
     public prevTime = 0;
     public position = new Vec3();
@@ -51,6 +50,131 @@ export class ParticleEvent {
     public startLifeTime = 5;
     public randomSeed = 0;
     public normalizedAliveTime = 0;
+}
+
+export class ParticleEvents {
+    get count () {
+        return this._count;
+    }
+
+    get capacity () {
+        return this._capacity;
+    }
+
+    get particleId () {
+        return this._particleId;
+    }
+
+    private _count = 0;
+    private _capacity = 16;
+    private _particleId = new Uint32Array(this._capacity);
+    private _currentTime = new Float32Array(this._capacity);
+    private _prevTime = new Float32Array(this._capacity);
+    private _position = new Float32Array(this._capacity * 3);
+    private _velocity = new Float32Array(this._capacity * 3);
+    private _rotation = new Float32Array(this._capacity * 3);
+    private _size = new Float32Array(this._capacity * 3);
+    private _color = new Uint32Array(this._capacity);
+    private _startLifeTime = new Float32Array(this._capacity);
+    private _randomSeed = new Uint32Array(this._capacity);
+    private _normalizedAliveTime = new Float32Array(this._capacity);
+
+    clear () {
+        this._count = 0;
+    }
+
+    reserve (capacity: number) {
+        if (capacity > this._capacity) {
+            const oldParticleId = this._particleId;
+            const oldCurrentTime = this._currentTime;
+            const oldPrevTime = this._prevTime;
+            const oldPosition = this._position;
+            const oldVelocity = this._velocity;
+            const oldRotation = this._rotation;
+            const oldSize = this._size;
+            const oldColor = this._color;
+            const oldStartLifeTime = this._startLifeTime;
+            const oldRandomSeed = this._randomSeed;
+            const oldNormalizedAliveTime = this._normalizedAliveTime;
+            this._particleId = new Uint32Array(capacity);
+            this._particleId.set(oldParticleId);
+            this._currentTime = new Float32Array(capacity);
+            this._currentTime.set(oldCurrentTime);
+            this._prevTime = new Float32Array(capacity);
+            this._prevTime.set(oldPrevTime);
+            this._position = new Float32Array(capacity * 3);
+            this._position.set(oldPosition);
+            this._velocity = new Float32Array(capacity * 3);
+            this._velocity.set(oldVelocity);
+            this._rotation = new Float32Array(capacity * 3);
+            this._rotation.set(oldRotation);
+            this._size = new Float32Array(capacity * 3);
+            this._size.set(oldSize);
+            this._color = new Uint32Array(capacity);
+            this._color.set(oldColor);
+            this._startLifeTime = new Float32Array(capacity);
+            this._startLifeTime.set(oldStartLifeTime);
+            this._randomSeed = new Uint32Array(capacity);
+            this._randomSeed.set(oldRandomSeed);
+            this._normalizedAliveTime = new Float32Array(capacity);
+            this._normalizedAliveTime.set(oldNormalizedAliveTime);
+            this._capacity = capacity;
+        }
+    }
+
+    dispatch (eventInfo: ParticleEventInfo) {
+        if (this._count === this._capacity) {
+            this.reserve(this._capacity * 2);
+        }
+        const handle = this._count++;
+        this._particleId[handle] = eventInfo.particleId;
+        this._currentTime[handle] = eventInfo.currentTime;
+        this._prevTime[handle] = eventInfo.prevTime;
+        const xOffset = handle * 3;
+        const yOffset = xOffset + 1;
+        const zOffset = yOffset + 1;
+        this._position[xOffset] = eventInfo.position.x;
+        this._position[yOffset] = eventInfo.position.y;
+        this._position[zOffset] = eventInfo.position.z;
+        this._velocity[xOffset] = eventInfo.velocity.x;
+        this._velocity[yOffset] = eventInfo.velocity.y;
+        this._velocity[zOffset] = eventInfo.velocity.z;
+        this._rotation[xOffset] = eventInfo.rotation.x;
+        this._rotation[yOffset] = eventInfo.rotation.y;
+        this._rotation[zOffset] = eventInfo.rotation.z;
+        this._size[xOffset] = eventInfo.size.x;
+        this._size[yOffset] = eventInfo.size.y;
+        this._size[zOffset] = eventInfo.size.z;
+        this._color[handle] = Color.toUint32(eventInfo.color);
+        this._startLifeTime[handle] = eventInfo.startLifeTime;
+        this._randomSeed[handle] = eventInfo.randomSeed;
+        this._normalizedAliveTime[handle] = eventInfo.normalizedAliveTime;
+    }
+
+    getEventInfoAt (out: ParticleEventInfo, handle: number) {
+        const xOffset = handle * 3;
+        const yOffset = xOffset + 1;
+        const zOffset = yOffset + 1;
+        out.particleId = this._particleId[handle];
+        out.currentTime = this._currentTime[handle];
+        out.prevTime = this._prevTime[handle];
+        out.position.x = this._position[xOffset];
+        out.position.y = this._position[yOffset];
+        out.position.z = this._position[zOffset];
+        out.velocity.x = this._velocity[xOffset];
+        out.velocity.y = this._velocity[yOffset];
+        out.velocity.z = this._velocity[zOffset];
+        out.rotation.x = this._rotation[xOffset];
+        out.rotation.y = this._rotation[yOffset];
+        out.rotation.z = this._rotation[zOffset];
+        out.size.x = this._size[xOffset];
+        out.size.y = this._size[yOffset];
+        out.size.z = this._size[zOffset];
+        Color.fromUint32(out.color, this._color[handle]);
+        out.startLifeTime = this._startLifeTime[handle];
+        out.randomSeed = this._randomSeed[handle];
+        out.normalizedAliveTime = this._normalizedAliveTime[handle];
+    }
 }
 
 @ccclass('cc.ParticleEmitterParams')
@@ -108,6 +232,7 @@ export class ParticleEmitterState {
     public startDelay = 0;
     public isSimulating = true;
     public isEmitting = true;
+    public lastSimulateFrame = 0;
 }
 
 export class ParticleExecContext {
@@ -127,21 +252,21 @@ export class ParticleExecContext {
     public fromIndex = 0;
     public toIndex = 0;
 
-    public get eventCount () {
-        return this._eventsUsed;
-    }
+    private _locationEvents: ParticleEvents | null = null;
+    private _deathEvents: ParticleEvents | null = null;
 
-    public get events (): ReadonlyArray<ParticleEvent> {
-        return this._events;
-    }
-
-    private _events: ParticleEvent[] = [];
-    private _eventsUsed = 0;
-
-    constructor () {
-        for (let i = 0; i < 4; i++) {
-            this._events.push(new ParticleEvent());
+    public get locationEvents (): ParticleEvents {
+        if (!this._locationEvents) {
+            this._locationEvents = new ParticleEvents();
         }
+        return this._locationEvents;
+    }
+
+    public get deathEvents (): ParticleEvents {
+        if (!this._deathEvents) {
+            this._deathEvents = new ParticleEvents();
+        }
+        return this._deathEvents;
     }
 
     setExecuteRange (fromIndex: number, toIndex: number) {
@@ -161,16 +286,7 @@ export class ParticleExecContext {
     }
 
     clearEvents () {
-        this._eventsUsed = 0;
-    }
-
-    dispatchEvent (): ParticleEvent {
-        if (this._eventsUsed === this._events.length) {
-            for (let i = 0; i < this._eventsUsed; i++) {
-                const event = new ParticleEvent();
-                this._events.push(event);
-            }
-        }
-        return this._events[this._eventsUsed++];
+        this._deathEvents?.clear();
+        this._locationEvents?.clear();
     }
 }

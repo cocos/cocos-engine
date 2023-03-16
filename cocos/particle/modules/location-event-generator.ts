@@ -28,17 +28,13 @@ import { ccclass, range, serializable, type, visible } from '../../core/data/dec
 import { Space } from '../enum';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { ParticleSOAData } from '../particle-soa-data';
-import { ParticleExecContext, ParticleEmitterParams } from '../particle-base';
+import { ParticleExecContext, ParticleEmitterParams, ParticleEventInfo } from '../particle-base';
 
 const PROBABILITY_RANDOM_SEED_OFFSET = 199208;
-const dir = new Vec3();
-const up = new Vec3();
-const rot = new Quat();
-const position = new Vec3();
-const velocity = new Vec3();
+const eventInfo = new ParticleEventInfo();
 
 @ccclass('cc.LocationEventGeneratorModule')
-@ParticleModule.register('LocationEventGenerator', ModuleExecStage.UPDATE, 6)
+@ParticleModule.register('LocationEventGenerator', ModuleExecStage.UPDATE, 23)
 export class LocationEventGeneratorModule extends ParticleModule {
     @type(CCFloat)
     @range([0, 1])
@@ -46,8 +42,8 @@ export class LocationEventGeneratorModule extends ParticleModule {
     public probability = 1;
 
     public execute (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext) {
-        const { randomSeed, invStartLifeTime, normalizedAliveTime } = particles;
-        const { fromIndex, toIndex, deltaTime } = context;
+        const { randomSeed, invStartLifeTime, normalizedAliveTime, id } = particles;
+        const { fromIndex, toIndex, deltaTime, locationEvents } = context;
         const { localToWorld } = context;
         const { simulationSpace } = params;
         if (!approx(this.probability, 0)) {
@@ -55,22 +51,23 @@ export class LocationEventGeneratorModule extends ParticleModule {
                 if (pseudoRandom(randomSeed[i] + PROBABILITY_RANDOM_SEED_OFFSET) > this.probability) {
                     continue;
                 }
-                const event = context.dispatchEvent();
-                particles.getPositionAt(event.position, i);
-                particles.getFinalVelocityAt(event.velocity, i);
+                particles.getPositionAt(eventInfo.position, i);
+                particles.getFinalVelocityAt(eventInfo.velocity, i);
                 if (simulationSpace === Space.LOCAL) {
-                    Vec3.transformMat4(event.position, event.position, localToWorld);
-                    Vec3.transformMat4(event.velocity, event.velocity, localToWorld);
+                    Vec3.transformMat4(eventInfo.position, eventInfo.position, localToWorld);
+                    Vec3.transformMat4(eventInfo.velocity, eventInfo.velocity, localToWorld);
                 }
-                particles.getRotationAt(event.rotation, i);
-                particles.getSizeAt(event.size, i);
-                particles.getColorAt(event.color, i);
+                particles.getRotationAt(eventInfo.rotation, i);
+                particles.getSizeAt(eventInfo.size, i);
+                particles.getColorAt(eventInfo.color, i);
                 const currentTime = normalizedAliveTime[i] / invStartLifeTime[i];
-                event.currentTime = currentTime;
-                event.prevTime = currentTime - deltaTime;
-                event.randomSeed = randomSeed[i];
-                event.startLifeTime = 1 / invStartLifeTime[i];
-                event.normalizedAliveTime = normalizedAliveTime[i];
+                eventInfo.particleId = id[i];
+                eventInfo.currentTime = currentTime;
+                eventInfo.prevTime = currentTime - deltaTime;
+                eventInfo.randomSeed = randomSeed[i];
+                eventInfo.startLifeTime = 1 / invStartLifeTime[i];
+                eventInfo.normalizedAliveTime = normalizedAliveTime[i];
+                locationEvents.dispatch(eventInfo);
             }
         }
     }

@@ -33,7 +33,7 @@ import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 const SPEED_MODIFIER_RAND_OFFSET = 388180;
 
 @ccclass('cc.SpeedModifierModule')
-@ParticleModule.register('SpeedModifie', ModuleExecStage.UPDATE, 0)
+@ParticleModule.register('SpeedModifie', ModuleExecStage.UPDATE, 9)
 export class SpeedModifierModule extends ParticleModule {
     /**
      * @zh 速度修正系数。

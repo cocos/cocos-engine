@@ -24,7 +24,7 @@
  */
 
 import { removeProperty, replaceProperty } from '../core/utils/x-deprecated';
-import Burst from './burst';
+import Burst from './modules/burst';
 import { ParticleEmitter } from './particle-emitter';
 import { Billboard } from './billboard';
 import { Line } from './line';
@@ -54,6 +54,7 @@ replaceProperty(ParticleEmitter.prototype, 'ParticleEmitter.prototype', [
 export { ParticleEmitter as ParticleSystemComponent };
 legacyCC.ParticleSystemComponent = ParticleEmitter;
 js.setClassAlias(ParticleEmitter, 'cc.ParticleSystemComponent');
+
 /**
  * Alias of [[Billboard]]
  * @deprecated Since v1.2
@@ -68,3 +69,6 @@ js.setClassAlias(Billboard, 'cc.BillboardComponent');
 export { Line as LineComponent };
 legacyCC.LineComponent = Line;
 js.setClassAlias(Line, 'cc.LineComponent');
+
+export { ParticleEmitter as ParticleSystem };
+js.setClassAlias(ParticleEmitter, 'cc.ParticleSystem');

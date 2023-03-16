@@ -7,8 +7,13 @@ import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 const velocity = new Vec3();
 
 @ccclass('SolveModule')
-@ParticleModule.register('Solve', ModuleExecStage.UPDATE, 0)
+@ParticleModule.register('Solve', ModuleExecStage.UPDATE, 10)
 export class SolveModule extends ParticleModule {
+    constructor () {
+        super();
+        this.enabled = true;
+    }
+
     public execute (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext) {
         const { fromIndex, toIndex, deltaTime } = context;
         const { speedModifier } = particles;

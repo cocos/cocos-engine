@@ -26,8 +26,9 @@
 // eslint-disable-next-line max-len
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, type, range, displayName, formerlySerializedAs, override, radian, serializable, visible, requireComponent } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
+import { Particle } from '@cocos/cannon';
 import { approx, clamp01, EPSILON, lerp, Mat3, Mat4, pseudoRandom, Quat, randomRangeInt, Size, Vec2, Vec3, Vec4 } from '../core/math';
-import { INT_MAX } from '../core/math/bits';
+import { countTrailingZeros, INT_MAX } from '../core/math/bits';
 import { ColorModule } from './modules/color';
 import { CurveRange, Mode } from './curve-range';
 import { ForceModule } from './modules/force';
@@ -43,12 +44,14 @@ import { StartLifeTimeModule } from './modules/start-life-time';
 import { SpawnOverTimeModule } from './modules/spawn-over-time';
 import { SpawnPerUnitModule } from './modules/spawn-per-unit';
 import { GravityModule } from './modules/gravity';
+import { StateModule } from './modules/state';
+import { SolveModule } from './modules/solve';
 import { SpeedModifierModule } from './modules/speed-modifier';
 import { StartRotationModule } from './modules/start-rotation';
 import { ShapeModule } from './modules/shape';
-import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext, PlayingState } from './particle-base';
+import { ParticleEmitterParams, ParticleEmitterState, ParticleEventInfo, ParticleEventType, ParticleExecContext, PlayingState } from './particle-base';
 import { CullingMode, Space } from './enum';
-import { ParticleSystemRenderer } from './particle-system-renderer';
+import { ParticleEmitterRenderer } from './particle-emitter-renderer';
 import { legacyCC } from '../core/global-exports';
 import { TransformBit } from '../core/scene-graph/node-enum';
 import { AABB, intersect } from '../core/geometry';
@@ -57,10 +60,10 @@ import { NoiseModule } from './modules/noise';
 import { CCBoolean, CCFloat, CCInteger, Component, Enum, geometry, js } from '../core';
 import { INVALID_HANDLE, ParticleHandle, ParticleSOAData } from './particle-soa-data';
 import { ParticleModule, ParticleModuleStage, ModuleExecStage } from './particle-module';
-import { particleSystemManager } from './particle-system-manager';
+import { vfxManager } from './vfx-manager';
 import { BurstModule } from './modules/burst';
 import { EventReceiver } from './event-receiver';
-import { LocationEventGeneratorModule } from './modules';
+import { DeathEventGeneratorModule, LegacyTrailModule, LocationEventGeneratorModule } from './modules';
 import { VFXSystem } from './vfx-system';
 
 const startPositionOffset = new Vec3();
@@ -69,12 +72,13 @@ const tempDir = new Vec3();
 const dir = new Vec3();
 const up = new Vec3();
 const rot = new Quat();
+const eventInfo = new ParticleEventInfo();
 
 @ccclass('cc.ParticleEmitter')
 @help('i18n:cc.ParticleEmitter')
 @menu('Effects/ParticleEmitter')
 @executionOrder(99)
-@requireComponent(ParticleSystemRenderer)
+@requireComponent(ParticleEmitterRenderer)
 @executeInEditMode
 export class ParticleEmitter extends Component {
     public static CullingMode = CullingMode;
@@ -204,12 +208,157 @@ export class ParticleEmitter extends Component {
         this._params.cullingMode = val;
     }
 
+    /**
+     * @deprecated since v3.8, please use [[StartColorModule.startColor]] instead.
+     */
+    get startColor () {
+        return this._spawningStage.getOrAddModule(StartColorModule).startColor;
+    }
+
+    set startColor (val) {
+        this._spawningStage.getOrAddModule(StartColorModule).startColor = val;
+    }
+
+    /**
+     * @deprecated since v3.8, please use [[StartSizeModule.startSize3D]] instead.
+     */
+    get startSize3D () {
+        return this._spawningStage.getOrAddModule(StartSizeModule).startSize3D;
+    }
+
+    set startSize3D (val) {
+        this._spawningStage.getOrAddModule(StartSizeModule).startSize3D = val;
+    }
+
+    /**
+     * @deprecated since v3.8, please use [[StartSizeModule.startSizeX]] instead.
+     */
+    get startSizeX () {
+        return this._spawningStage.getOrAddModule(StartSizeModule).startSizeX;
+    }
+
+    set startSizeX (val) {
+        this._spawningStage.getOrAddModule(StartSizeModule).startSizeX = val;
+    }
+
+    /**
+     * @deprecated since v3.8, please use [[StartSizeModule.startSizeY]] instead.
+     */
+    get startSizeY () {
+        return this._spawningStage.getOrAddModule(StartSizeModule).startSizeY;
+    }
+
+    set startSizeY (val) {
+        this._spawningStage.getOrAddModule(StartSizeModule).startSizeY = val;
+    }
+
+    /**
+     * @deprecated since v3.8, please use [[StartSizeModule.startSizeZ]] instead.
+     */
+    get startSizeZ () {
+        return this._spawningStage.getOrAddModule(StartSizeModule).startSizeZ;
+    }
+
+    set startSizeZ (val) {
+        this._spawningStage.getOrAddModule(StartSizeModule).startSizeZ = val;
+    }
+
+    /**
+     * @deprecated since v3.8, please use [[StartSpeedModule.startSpeed]] instead.
+     */
+    get startSpeed () {
+        return this._spawningStage.getOrAddModule(StartSpeedModule).startSpeed;
+    }
+
+    set startSpeed (val) {
+        this._spawningStage.getOrAddModule(StartSpeedModule).startSpeed = val;
+    }
+
+    /**
+     * @zh 颜色控制模块。
+     * @deprecated since v3.8, please use [[ParticleSystem.getModule]] instead.
+     */
+    public get colorOverLifetimeModule () {
+        return this._updateStage.getOrAddModule(ColorModule);
+    }
+
+    /**
+     * @zh 粒子发射器模块。
+     * @deprecated since v3.8, please use [[ParticleSystem.getModule]] instead.
+     */
+    public get shapeModule () {
+        return this._spawningStage.getOrAddModule(ShapeModule);
+    }
+
+    /**
+     * @zh 粒子大小模块。
+     * @deprecated since v3.8, please use [[ParticleSystem.getModule]] instead.
+     */
+    public get sizeOverLifetimeModule () {
+        return this._updateStage.getOrAddModule(SizeModule);
+    }
+
+    /**
+     * @zh 粒子速度模块。
+     * @deprecated since v3.8, please use [[ParticleSystem.getModule]] instead.
+     */
+    public get velocityOverLifetimeModule () {
+        return this._updateStage.getOrAddModule(VelocityModule);
+    }
+
+    /**
+     * @zh 粒子加速度模块。
+     * @deprecated since v3.8, please use [[ParticleSystem.getModule]] instead.
+     */
+    public get forceOverLifetimeModule () {
+        return this._updateStage.getOrAddModule(ForceModule);
+    }
+
+    /**
+     * @zh 粒子限制速度模块（只支持 CPU 粒子）
+     * @deprecated since v3.8, please use [[ParticleSystem.getModule]] instead.。
+     */
+    public get limitVelocityOverLifetimeModule () {
+        return this._updateStage.getOrAddModule(LimitVelocityModule);
+    }
+
+    /**
+     * @zh 粒子旋转模块。
+     * @deprecated since v3.8, please use [[ParticleSystem.getModule]] instead.
+     */
+    public get rotationOverLifetimeModule () {
+        return this._updateStage.getOrAddModule(RotationModule);
+    }
+
+    /**
+     * @zh 贴图动画模块。
+     * @deprecated since v3.8, please use [[ParticleSystem.getModule]] instead.
+     */
+    public get textureAnimationModule () {
+        return this._updateStage.getOrAddModule(SubUVAnimationModule);
+    }
+
+    /**
+     * @deprecated since v3.8, please use [[ParticleSystem.getModule]] instead.
+     */
+    public get noiseModule () {
+        return this._updateStage.getOrAddModule(NoiseModule);
+    }
+
+    /**
+     * @zh 粒子轨迹模块。
+     * @deprecated since v3.8, please use [[ParticleSystem.getModule]] instead.
+     */
+    public get trailModule () {
+        return this._updateStage.getOrAddModule(LegacyTrailModule);
+    }
+
     public get particles () {
         return this._particles;
     }
 
     public get renderer () {
-        return this.getComponent(ParticleSystemRenderer);
+        return this.getComponent(ParticleEmitterRenderer);
     }
 
     public get isPlaying () {
@@ -232,23 +381,53 @@ export class ParticleEmitter extends Component {
         return this._state.accumulatedTime;
     }
 
+    @displayName('发射器更新')
     @type(ParticleModuleStage)
+    public get emitterStage () {
+        return this._emitterStage;
+    }
+
+    @displayName('粒子生成')
+    @type(ParticleModuleStage)
+    public get spawningStage () {
+        return this._spawningStage;
+    }
+
+    @displayName('粒子更新')
+    @type(ParticleModuleStage)
+    public get updateStage () {
+        return this._updateStage;
+    }
+
+    @displayName('事件接收器')
+    @type([EventReceiver])
+    public get eventReceivers () {
+        return this._eventReceivers;
+    }
+
+    @displayName('渲染')
+    @type(ParticleModuleStage)
+    public get renderStage () {
+        return this._renderStage;
+    }
+
+    public get lastSimulateFrame () {
+        return this._state.lastSimulateFrame;
+    }
+
     @serializable
     private _emitterStage = new ParticleModuleStage(ModuleExecStage.EMITTER_UPDATE);
-    @type(ParticleModuleStage)
     @serializable
     private _spawningStage = new ParticleModuleStage(ModuleExecStage.SPAWN);
-    @type(ParticleModuleStage)
     @serializable
     private _updateStage = new ParticleModuleStage(ModuleExecStage.UPDATE);
-    @type([EventReceiver])
     @serializable
     private _eventReceivers: EventReceiver[] = [];
-    @type(ParticleModuleStage)
     @serializable
     private _renderStage = new ParticleModuleStage(ModuleExecStage.RENDER);
+    @serializable
     private _params = new ParticleEmitterParams();
-    private _boundingBoxHalfExtents = new Vec3();
+    private _bounds = new Vec3();
     private _particles = new ParticleSOAData();
     private _context = new ParticleExecContext();
     private _state = new ParticleEmitterState();
@@ -259,10 +438,10 @@ export class ParticleEmitter extends Component {
      */
     public play () {
         this._state.playingState = PlayingState.PLAYING;
-        this._state.isEmitting = false;
+        this._state.isEmitting = true;
         this._state.currentPosition.set(this.node.worldPosition);
         this._state.startDelay = this.startDelay.evaluate(0, 1);
-        particleSystemManager.addParticleSystem(this);
+        vfxManager.addEmitter(this);
     }
 
     /**
@@ -293,7 +472,7 @@ export class ParticleEmitter extends Component {
         if (this.isPlaying || this.isPaused) {
             this.clear();
         }
-        particleSystemManager.removeParticleSystem(this);
+        vfxManager.removeEmitter(this);
         this._state.isEmitting = false;
         this._state.playingState = PlayingState.STOPPED;
     }
@@ -314,9 +493,9 @@ export class ParticleEmitter extends Component {
     }
 
     protected onLoad () {
-        const renderer = this.getComponent(ParticleSystemRenderer);
+        const renderer = this.getComponent(ParticleEmitterRenderer);
         if (renderer) {
-            renderer.setParticleSystem(this);
+            renderer.setEmitter(this);
         }
         this._emitterStage.getOrAddModule(BurstModule);
         this._emitterStage.getOrAddModule(SpawnPerUnitModule);
@@ -334,9 +513,12 @@ export class ParticleEmitter extends Component {
         this._updateStage.getOrAddModule(NoiseModule);
         this._updateStage.getOrAddModule(RotationModule);
         this._updateStage.getOrAddModule(SizeModule);
+        this._updateStage.getOrAddModule(StateModule);
+        this._updateStage.getOrAddModule(SolveModule);
         this._updateStage.getOrAddModule(SpeedModifierModule);
         this._updateStage.getOrAddModule(SubUVAnimationModule);
         this._updateStage.getOrAddModule(VelocityModule);
+        this._updateStage.getOrAddModule(DeathEventGeneratorModule);
         this._updateStage.getOrAddModule(LocationEventGeneratorModule);
     }
 
@@ -351,6 +533,7 @@ export class ParticleEmitter extends Component {
     }
 
     public simulate (dt: number) {
+        this._state.lastSimulateFrame = vfxManager.totalFrames;
         const scaledDeltaTime = dt * this.simulationSpeed;
 
         if (this.isPlaying && this._state.isSimulating) {
@@ -364,7 +547,7 @@ export class ParticleEmitter extends Component {
 
         const currentPosition = this.node.worldPosition;
         const boundingBox = new AABB(currentPosition.x, currentPosition.y, currentPosition.z,
-            this._boundingBoxHalfExtents.x, this._boundingBoxHalfExtents.y, this._boundingBoxHalfExtents.z);
+            this._bounds.x, this._bounds.y, this._bounds.z);
 
         const cameraLst: Camera[]| undefined = this.node.scene.renderScene?.cameras;
         let culled = true;
@@ -459,29 +642,37 @@ export class ParticleEmitter extends Component {
         for (let i = 0, length = this._eventReceivers.length; i < length; i++) {
             const eventReceiver = this._eventReceivers[i];
             const emitter = eventReceiver.target;
+            const spawnFractionCollection = eventReceiver.spawnFractionCollection;
             if (emitter && emitter.isValid) {
-                const events = emitter._context.events;
-                for (let i = 0, length = emitter._context.eventCount; i < length; i++) {
-                    const event = events[i];
-                    if (event.type === eventReceiver.eventType) {
-                        Vec3.normalize(dir, event.velocity);
-                        const angle = Math.abs(Vec3.dot(dir, Vec3.UNIT_Z));
-                        Vec3.lerp(up, Vec3.UNIT_Z, Vec3.UNIT_Y, angle);
-                        Quat.fromViewUp(rot, dir, up);
-                        Mat4.fromRT(this._context.emitterTransform, rot, event.position);
-                        if (this._params.simulationSpace === Space.LOCAL) {
-                            Mat4.multiply(this._context.emitterTransform, this._context.worldToLocal, this._context.emitterTransform);
-                            Vec3.transformMat4(this._context.velocity, event.velocity, this._context.worldToLocal);
-                        } else {
-                            Vec3.copy(this._context.velocity, event.velocity);
-                        }
-                        const accumulator = eventReceiver.getAccumulator(event.particleId);
-                        this._context.setExecuteRange(0, 0);
-                        this._context.resetSpawningState();
-                        this._context.setTime(event.currentTime, event.prevTime, this._params.invDuration);
-                        eventReceiver.stage.execute(this._particles, this._params, this._context);
-                        const spawnFraction = this.emit(this.particles, this._params, this._context.velocity, event.prevTime, event.currentTime, accumulator);
-                        eventReceiver.setAccumulator(event.particleId, spawnFraction);
+                let events = emitter._context.locationEvents;
+                if (eventReceiver.eventType === ParticleEventType.DEATH) {
+                    events = emitter._context.deathEvents;
+                } else if (eventReceiver.eventType === ParticleEventType.LOCATION) {
+                    spawnFractionCollection.sync(events);
+                }
+                for (let i = 0, length = events.count; i < length; i++) {
+                    events.getEventInfoAt(eventInfo, i);
+                    Vec3.normalize(dir, eventInfo.velocity);
+                    const angle = Math.abs(Vec3.dot(dir, Vec3.UNIT_Z));
+                    Vec3.lerp(up, Vec3.UNIT_Z, Vec3.UNIT_Y, angle);
+                    Quat.fromViewUp(rot, dir, up);
+                    Mat4.fromRT(this._context.emitterTransform, rot, eventInfo.position);
+                    Vec3.copy(this._context.velocity, eventInfo.velocity);
+                    if (this._params.simulationSpace === Space.LOCAL) {
+                        Mat4.multiply(this._context.emitterTransform, this._context.worldToLocal, this._context.emitterTransform);
+                        Vec3.transformMat4(this._context.velocity, this._context.velocity, this._context.worldToLocal);
+                    }
+                    let accumulator = 0;
+                    if (eventReceiver.eventType === ParticleEventType.LOCATION) {
+                        accumulator = spawnFractionCollection.spawnFraction[i];
+                    }
+                    this._context.setExecuteRange(0, 0);
+                    this._context.resetSpawningState();
+                    this._context.setTime(eventInfo.currentTime, eventInfo.prevTime, this._params.invDuration);
+                    eventReceiver.stage.execute(this._particles, this._params, this._context);
+                    const spawnFraction = this.emit(this.particles, this._params, this._context.velocity, eventInfo.prevTime, eventInfo.currentTime, accumulator);
+                    if (eventReceiver.eventType === ParticleEventType.LOCATION) {
+                        spawnFractionCollection.spawnFraction[i] = spawnFraction;
                     }
                 }
             }

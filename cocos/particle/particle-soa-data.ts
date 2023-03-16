@@ -30,48 +30,6 @@ export const INVALID_HANDLE = -1;
 
 const tempColor = new Color();
 export class ParticleSOAData {
-    private static maxId = 1;
-    private _count = 0;
-    private _capacity = 16;
-    private _id = new Uint32Array(this._capacity);
-    private _positionX = new Float32Array(this._capacity);
-    private _positionY = new Float32Array(this._capacity);
-    private _positionZ = new Float32Array(this._capacity);
-    private _velocityX = new Float32Array(this._capacity);
-    private _velocityY = new Float32Array(this._capacity);
-    private _velocityZ = new Float32Array(this._capacity);
-    private _startDirX = new Float32Array(this._capacity);
-    private _startDirY = new Float32Array(this._capacity);
-    private _startDirZ = new Float32Array(this._capacity);
-    private _animatedVelocityX = new Float32Array(this._capacity);
-    private _animatedVelocityY = new Float32Array(this._capacity);
-    private _animatedVelocityZ = new Float32Array(this._capacity);
-    private _speedModifier = new Float32Array(this._capacity);
-    private _rotationX = new Float32Array(this._capacity);
-    private _rotationY = new Float32Array(this._capacity);
-    private _rotationZ = new Float32Array(this._capacity);
-    private _axisOfRotationX = new Float32Array(this._capacity);
-    private _axisOfRotationY = new Float32Array(this._capacity);
-    private _axisOfRotationZ = new Float32Array(this._capacity);
-    private _angularVelocityX = new Float32Array(this._capacity);
-    private _angularVelocityY = new Float32Array(this._capacity);
-    private _angularVelocityZ = new Float32Array(this._capacity);
-    private _startSizeX = new Float32Array(this._capacity);
-    private _startSizeY = new Float32Array(this._capacity);
-    private _startSizeZ = new Float32Array(this._capacity);
-    private _sizeX = new Float32Array(this._capacity);
-    private _sizeY = new Float32Array(this._capacity);
-    private _sizeZ = new Float32Array(this._capacity);
-    private _startColor = new Uint32Array(this._capacity);
-    private _color = new Uint32Array(this._capacity);
-    private _randomSeed = new Uint32Array(this._capacity);
-    private _invStartLifeTime = new Float32Array(this._capacity);
-    private _normalizedAliveTime = new Float32Array(this._capacity);
-    private _frameIndex = new Float32Array(this._capacity);
-    private _noiseX = new Float32Array(this._capacity);
-    private _noiseY = new Float32Array(this._capacity);
-    private _noiseZ = new Float32Array(this._capacity);
-
     get capacity () {
         return this._capacity;
     }
@@ -231,6 +189,47 @@ export class ParticleSOAData {
     get color () {
         return this._color;
     }
+    private static maxId = 1;
+    private _count = 0;
+    private _capacity = 16;
+    private _id = new Uint32Array(this._capacity);
+    private _positionX = new Float32Array(this._capacity);
+    private _positionY = new Float32Array(this._capacity);
+    private _positionZ = new Float32Array(this._capacity);
+    private _velocityX = new Float32Array(this._capacity);
+    private _velocityY = new Float32Array(this._capacity);
+    private _velocityZ = new Float32Array(this._capacity);
+    private _startDirX = new Float32Array(this._capacity);
+    private _startDirY = new Float32Array(this._capacity);
+    private _startDirZ = new Float32Array(this._capacity);
+    private _animatedVelocityX = new Float32Array(this._capacity);
+    private _animatedVelocityY = new Float32Array(this._capacity);
+    private _animatedVelocityZ = new Float32Array(this._capacity);
+    private _speedModifier = new Float32Array(this._capacity);
+    private _rotationX = new Float32Array(this._capacity);
+    private _rotationY = new Float32Array(this._capacity);
+    private _rotationZ = new Float32Array(this._capacity);
+    private _axisOfRotationX = new Float32Array(this._capacity);
+    private _axisOfRotationY = new Float32Array(this._capacity);
+    private _axisOfRotationZ = new Float32Array(this._capacity);
+    private _angularVelocityX = new Float32Array(this._capacity);
+    private _angularVelocityY = new Float32Array(this._capacity);
+    private _angularVelocityZ = new Float32Array(this._capacity);
+    private _startSizeX = new Float32Array(this._capacity);
+    private _startSizeY = new Float32Array(this._capacity);
+    private _startSizeZ = new Float32Array(this._capacity);
+    private _sizeX = new Float32Array(this._capacity);
+    private _sizeY = new Float32Array(this._capacity);
+    private _sizeZ = new Float32Array(this._capacity);
+    private _startColor = new Uint32Array(this._capacity);
+    private _color = new Uint32Array(this._capacity);
+    private _randomSeed = new Uint32Array(this._capacity);
+    private _invStartLifeTime = new Float32Array(this._capacity);
+    private _normalizedAliveTime = new Float32Array(this._capacity);
+    private _frameIndex = new Float32Array(this._capacity);
+    private _noiseX = new Float32Array(this._capacity);
+    private _noiseY = new Float32Array(this._capacity);
+    private _noiseZ = new Float32Array(this._capacity);
 
     getPositionAt (out: Vec3, handle: ParticleHandle) {
         out.x = this._positionX[handle];

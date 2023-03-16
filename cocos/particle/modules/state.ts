@@ -5,8 +5,13 @@ import { ParticleSOAData } from '../particle-soa-data';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 
 @ccclass('cc.StateModule')
-@ParticleModule.register('State', ModuleExecStage.UPDATE, 1)
+@ParticleModule.register('State', ModuleExecStage.UPDATE, 20)
 export class StateModule extends ParticleModule {
+    constructor () {
+        super();
+        this.enabled = true;
+    }
+
     public execute (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext) {
         const { normalizedAliveTime, invStartLifeTime } = particles;
         const { fromIndex, toIndex, deltaTime } = context;

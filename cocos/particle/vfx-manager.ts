@@ -26,50 +26,71 @@
 import { Director, director, game, js } from '../core';
 import System from '../core/components/system';
 import { ParticleEmitter } from './particle-emitter';
-import { ParticleSystemRenderer } from './particle-system-renderer';
+import { ParticleEmitterRenderer } from './particle-emitter-renderer';
 
-export class ParticleSystemManager extends System {
-    private _particleSystems: ParticleEmitter[] = [];
-    private _particleSystemRenderers: ParticleSystemRenderer[] = [];
+export class VFXManager extends System {
+    get totalFrames () {
+        return this._totalFrames;
+    }
+
+    private _emitters: ParticleEmitter[] = [];
+    private _renderers: ParticleEmitterRenderer[] = [];
+    private _totalFrames = 0;
 
     init () {
         director.on(Director.EVENT_UPDATE_PARTICLE, this.tick, this);
     }
 
-    addParticleSystem (particleSystem: ParticleEmitter) {
-        this._particleSystems.push(particleSystem);
+    addEmitter (particleSystem: ParticleEmitter) {
+        this._emitters.push(particleSystem);
     }
 
-    removeParticleSystem (particleSystem: ParticleEmitter) {
-        const index = this._particleSystems.indexOf(particleSystem);
+    removeEmitter (particleSystem: ParticleEmitter) {
+        const index = this._emitters.indexOf(particleSystem);
         if (index !== -1) {
-            js.array.fastRemoveAt(this._particleSystems, index);
+            js.array.fastRemoveAt(this._emitters, index);
         }
     }
 
-    addParticleSystemRenderer (particleSystemRenderer: ParticleSystemRenderer) {
-        this._particleSystemRenderers.push(particleSystemRenderer);
+    addRenderer (renderer: ParticleEmitterRenderer) {
+        this._renderers.push(renderer);
     }
 
-    removeParticleSystemRenderer (particleSystemRenderer: ParticleSystemRenderer) {
-        const index = this._particleSystemRenderers.indexOf(particleSystemRenderer);
+    removeRenderer (renderer: ParticleEmitterRenderer) {
+        const index = this._renderers.indexOf(renderer);
         if (index !== -1) {
-            js.array.fastRemoveAt(this._particleSystemRenderers, index);
+            js.array.fastRemoveAt(this._renderers, index);
         }
     }
 
     tick () {
+        this._totalFrames++;
         const dt = game.deltaTime;
-        const particleSystems = this._particleSystems;
-        const renderers = this._particleSystemRenderers;
-        for (let i = 0, length = particleSystems.length; i < length; i++) {
-            particleSystems[i].simulate(dt);
+        const emitters = this._emitters;
+        const renderers = this._renderers;
+        for (let i = 0, length = emitters.length; i < length; i++) {
+            this.simulate(emitters[i], dt);
         }
         for (let i = 0, length = renderers.length; i < length; i++) {
             renderers[i].updateRenderData();
         }
     }
+
+    simulate (emitter: ParticleEmitter, dt: number) {
+        if (emitter.lastSimulateFrame === this._totalFrames) {
+            return;
+        }
+        if (emitter.eventReceivers.length > 0) {
+            for (let i = 0, length = emitter.eventReceivers.length; i < length; i++) {
+                const parentEmitter = emitter.eventReceivers[i].target;
+                if (parentEmitter && parentEmitter.isValid && parentEmitter.isPlaying) {
+                    this.simulate(parentEmitter, dt);
+                }
+            }
+        }
+        emitter.simulate(dt);
+    }
 }
 
-export const particleSystemManager = new ParticleSystemManager();
-director.registerSystem('particle-system', particleSystemManager, 0);
+export const vfxManager = new VFXManager();
+director.registerSystem('particle-system', vfxManager, 0);
