@@ -32,7 +32,7 @@ import dependUtil from './depend-util';
 import downloader from './downloader';
 import { getUuidFromURL, transform } from './helper';
 import parser from './parser';
-import releaseManager from './release-manager';
+import { releaseManager } from './release-manager';
 import { assets, BuiltinBundleName, bundles } from './shared';
 import { parseLoadResArgs, setDefaultProgressCallback } from './utilities';
 import factory from './factory';

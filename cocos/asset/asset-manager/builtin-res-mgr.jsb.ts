@@ -29,7 +29,7 @@ import assetManager from '../asset-manager/asset-manager';
 import { BuiltinBundleName } from '../asset-manager/shared';
 import Bundle from '../asset-manager/bundle';
 import { Settings, settings, cclegacy } from '../../core';
-import releaseManager from '../asset-manager/release-manager';
+import { releaseManager } from '../asset-manager/release-manager';
 import type { BuiltinResMgr as JsbBuiltinResMgr } from './builtin-res-mgr';
 
 declare const jsb: any;

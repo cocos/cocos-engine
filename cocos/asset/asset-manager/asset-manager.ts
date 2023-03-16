@@ -39,7 +39,7 @@ import packManager from './pack-manager';
 import parser, { Parser } from './parser';
 import { Pipeline } from './pipeline';
 import preprocess from './preprocess';
-import releaseManager from './release-manager';
+import { releaseManager } from './release-manager';
 import RequestItem from './request-item';
 import {
     presets,
@@ -298,12 +298,6 @@ export class AssetManager {
      */
     public references = references;
 
-    /**
-     * @engineInternal
-     */
-    public get releaseManager () {
-        return this._releaseManager;
-    }
     private _releaseManager = releaseManager;
     private _files = files;
     private _parsed = parsed;

@@ -39,6 +39,7 @@ import { scalableContainerManager } from '../core/memop/scalable-container';
 import { uiRendererManager } from '../2d/framework/ui-renderer-manager';
 import { assetManager } from '../asset/asset-manager';
 import { deviceManager } from '../gfx';
+import { releaseManager } from '../asset/asset-manager/release-manager';
 
 // ----------------------------------------------------------------------------------------------------------------------
 
@@ -386,7 +387,7 @@ export class Director extends EventTarget {
             if (BUILD && DEBUG) {
                 console.time('AutoRelease');
             }
-            assetManager.releaseManager._autoRelease(oldScene!, scene, this._persistRootNodes);
+            releaseManager._autoRelease(oldScene!, scene, this._persistRootNodes);
             if (BUILD && DEBUG) {
                 console.timeEnd('AutoRelease');
             }
@@ -806,7 +807,7 @@ export class Director extends EventTarget {
             }
             this._persistRootNodes[id] = node;
             node._persistNode = true;
-            assetManager.releaseManager._addPersistNodeRef(node);
+            releaseManager._addPersistNodeRef(node);
         }
     }
 
@@ -821,7 +822,7 @@ export class Director extends EventTarget {
             delete this._persistRootNodes[id];
             node._persistNode = false;
             node._originalSceneId = '';
-            assetManager.releaseManager._removePersistNodeRef(node);
+            releaseManager._removePersistNodeRef(node);
         }
     }
 
