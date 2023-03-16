@@ -112,6 +112,10 @@ exports.template = /* html */`
                 <ui-checkbox slot="content" class="meshOptimizer-preserveUVFoldoverEdges-checkbox"></ui-checkbox>
             </ui-prop>
             <ui-prop>
+                <ui-label slot="label" value="i18n:ENGINE.assets.fbx.meshOptimizer.simplify.enableSmartLink.name" tooltip="i18n:ENGINE.assets.fbx.meshOptimizer.simplify.enableSmartLink.title"></ui-label>
+                <ui-checkbox slot="content" class="meshOptimizer-enableSmartLink-checkbox"></ui-checkbox>
+            </ui-prop>
+            <ui-prop>
                 <ui-label slot="label" value="i18n:ENGINE.assets.fbx.meshOptimizer.simplify.agressiveness.name" tooltip="i18n:ENGINE.assets.fbx.meshOptimizer.simplify.agressiveness.title"></ui-label>
                 <ui-slider slot="content" class="meshOptimizer-agressiveness-slider" min="5" max="20" step="1"></ui-slider>
             </ui-prop>
@@ -120,6 +124,13 @@ exports.template = /* html */`
                 <ui-slider slot="content" class="meshOptimizer-maxIterationCount-slider" min="100" max="200" step="1"></ui-slider>
             </ui-prop>
         </div>
+    </ui-section>
+    <ui-section class="lods config" cache-expand="fbx-mode-lods">
+        <div slot="header" class="lods-header">
+            <ui-checkbox slot="content" class="lods-checkbox"></ui-checkbox>
+            <ui-label value="LODS" tooltip="To import LODs, please make sure the LOD mesh names are ending with _LOD#"></ui-label>
+        </div>
+        <div class="lod-items"></div>
     </ui-section>
 </div>
 `;
@@ -142,7 +153,8 @@ ui-section {
 .mesh-optimizer .simplify-options > ui-prop {
     padding-left: 20px;
 }
-.mesh-optimizer ui-section > ui-prop {
+.mesh-optimizer ui-section > ui-prop,
+.lods ui-section > ui-prop {
     padding-left: 10px;
 }
 .mesh-optimizer .warn-words {
@@ -151,6 +163,75 @@ ui-section {
 .mesh-optimizer .gltfpack-options .warn-words {
     padding-left: 10px;
     margin-top: 0;
+}
+
+.lod-item {
+    padding-left: 20px;
+}
+.lod-item .lod-item-header {
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+.lod-item .lod-item-header .left {
+    flex: 1;
+}
+.lod-item .lod-item-header .middle,
+.lod-item .lod-item-header .right {
+    display: flex;
+    flex: 2;
+    text-align: right;
+}
+.lod-item .lod-item-header .middle {
+    margin: 0 4px;
+}
+.lod-item .lod-item-header .middle[hidden] {
+    display: none;
+}
+.lod-item .lod-item-header .middle > ui-num-input {
+    width: 48px;
+    margin-left: 4px;
+}
+.lod-item .lod-item-header .middle .face-count,
+.lod-item .lod-item-header .right .triangles {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 0;
+}
+.lod-item .lod-item-header .right .operator {
+    display: none;
+    margin-left: 8px;
+    background: var(--color-default-fill);
+    border-color: var(--color-default-border);
+    border-radius: calc(var(--size-normal-radius) * 1px);
+}
+.lod-item .lod-item-header .right .operator > ui-icon {
+    padding: 0 5px;
+    transition: color 0.15s;
+    color: var(--color-default-contrast-emphasis);
+    position: relative;
+}
+.lod-item .lod-item-header .right .operator > ui-icon + ui-icon {
+    margin-left: 1px;
+}
+.lod-item .lod-item-header .right .operator > ui-icon + ui-icon::after {
+    content: '';
+    display: block;
+    width: 1px;
+    height: 12px;
+    position: absolute;
+    top: 6px;
+    left: -1px;
+    background: var(--color-normal-fill-normal);
+}
+.lod-item .lod-item-header:hover .right .operator:not([hidden]) {
+    display: flex;
+}
+.lod-item .lod-item-header .right .operator > ui-icon:hover {
+    background: var(--color-hover-fill-weaker);
+    color: var(--color-focus-contrast-emphasis);
 }
 `;
 
@@ -181,8 +262,12 @@ exports.$ = {
     meshOptimizerPreserveBorderEdgesCheckbox: '.meshOptimizer-preserveBorderEdges-checkbox',
     meshOptimizerPreserveUVSeamEdgesCheckbox: '.meshOptimizer-preserveUVSeamEdges-checkbox',
     meshOptimizerPreserveUVFoldoverEdgesCheckbox: '.meshOptimizer-preserveUVFoldoverEdges-checkbox',
+    meshOptimizerEnableSmartLinkCheckbox: '.meshOptimizer-enableSmartLink-checkbox',
     meshOptimizerAgressivenessSlider: '.meshOptimizer-agressiveness-slider',
     meshOptimizerMaxIterationCountSlider: '.meshOptimizer-maxIterationCount-slider',
+    // lods
+    lodsCheckbox: '.lods-checkbox',
+    lodItems: '.lod-items',
 };
 
 const Elements = {
@@ -553,6 +638,23 @@ const Elements = {
             updateElementReadonly.call(panel, panel.$.meshOptimizerTargetRatioSlider);
         },
     },
+    enableSmartLink: {
+        ready() {
+            const panel = this;
+            panel.$.meshOptimizerEnableSmartLinkCheckbox.addEventListener('change', panel.setProp.bind(panel, 'meshOptimizer.simplifyOptions.enableSmartLink', 'boolean'));
+            panel.$.meshOptimizerEnableSmartLinkCheckbox.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
+        },
+        update() {
+            const panel = this;
+
+            panel.$.meshOptimizerEnableSmartLinkCheckbox.value = getPropValue.call(panel, panel.meta.userData, true, 'meshOptimizer.simplifyOptions.enableSmartLink');
+
+            updateElementInvalid.call(panel, panel.$.meshOptimizerEnableSmartLinkCheckbox, 'meshOptimizer.simplifyOptions.enableSmartLink');
+            updateElementReadonly.call(panel, panel.$.meshOptimizerEnableSmartLinkCheckbox);
+        },
+    },
     preserveSurfaceCurvature: {
         ready() {
             const panel = this;
@@ -656,7 +758,43 @@ const Elements = {
         },
     },
     // simplifyOptions end
+    // lods start
+    lods: {
+        ready() {
+            const panel = this;
 
+            // 监听 LODS 的开启和关闭
+            panel.$.lodsCheckbox.addEventListener('change', panel.setProp.bind(panel, 'lods.enable', 'boolean'));
+            panel.$.lodsCheckbox.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
+            // TODO: 需要自定义监听 LOD# 的修改和提交
+            panel.$.lodItems.addEventListener('change', (event) => {
+                const path = event.target.getAttribute('path');
+                if (path === 'screenRatio') {
+                    // TODO: 补充各层级 LOD 的 screenRatio 的 min/max
+                    panel.setProp.bind(panel, '');
+                }
+            });
+        },
+        update() {
+            const panel = this;
+
+            panel.$.lodsCheckbox.value = getPropValue.call(panel, panel.meta.userData.lods, false, 'enable');
+            const lodItems = panel.meta.userData.lods.options || [];
+            const disable = panel.meta.userData.lods.disable;
+            if (Object.keys(lodItems).length) {
+                panel.$.lodItems.innerHTML = getLodItemHTML(lodItems, disable);
+            } else {
+                // TODO: 没有 options，没有包含 lod 显示生成按钮
+                panel.$.lodItems.innerHTML = '不包含 LOD，请开启 LODS 后自动生成';
+            }
+
+            updateElementInvalid.call(panel, panel.$.lodsCheckbox, 'lods.enable');
+            // updateElementReadonly.call(panel, panel.$.lodsCheckbox, 'lods.disable');
+        },
+    },
+    // lods end
 };
 
 exports.methods = {
@@ -702,3 +840,40 @@ exports.close = function() {
         }
     }
 };
+
+function getLodItemHTML(lodItems, disable = false) {
+    let lodItemsStr = '';
+    for (const index in lodItems) {
+        const lodItem = lodItems[index];
+        lodItemsStr += `
+<div class="lod-item">
+    <ui-section>
+        <header slot="header" class="lod-item-header">
+            <div class="left">
+                <span>LOD ${index}</span>
+            </div>
+            <div class="middle" ${ index == 0 ? 'hidden' : '' }>
+                <span class="face-count">Face count(%)</span>
+                <ui-num-input path="faceCount" value="${Editor.Utils.Math.multi(lodItem.faceCount, 100)}" ${ disable ? 'disabled' : '' }></ui-num-input>
+            </div>
+            <div class="right">
+                <div class="triangles">
+                    <span> ${lodItem.triangleCount} Triangles</span>
+                </div>
+                <div class="operator" ${ disable ? 'hidden' : '' }>
+                    <ui-icon value="add" tooltip="insert after this LOD"></ui-icon>
+                    <ui-icon value="reduce" tooltip="delete this LOD"></ui-icon>
+                </div>
+            </div>
+        </header>
+        <div class="lod-item-content">
+            <ui-prop>
+                <ui-label slot="label" value="Screen Ratio (%)"></ui-label>
+                <ui-num-input slot="content" path="screenRatio" value="${Editor.Utils.Math.multi(lodItem.screenRatio, 100)}"></ui-num-input>
+            </ui-prop>
+        </div>
+    </ui-section>
+</div>`;
+    }
+    return lodItemsStr;
+}
