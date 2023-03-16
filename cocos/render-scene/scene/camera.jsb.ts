@@ -132,7 +132,7 @@ const cameraProto: any = jsb.Camera.prototype;
 Object.defineProperty(Camera, "standardExposureValue", {
     configurable: true,
     enumerable: true,
-    get() {
+    get () {
         // TODO: `getStandardExposureValue` only implemented on native platforms. @dumganhar
         return (Camera as any).getStandardExposureValue();
     },
@@ -141,7 +141,7 @@ Object.defineProperty(Camera, "standardExposureValue", {
 Object.defineProperty(Camera, "standardLightMeterScale", {
     configurable: true,
     enumerable: true,
-    get() {
+    get () {
         // TODO: `getStandardLightMeterScale` only implemented on native platforms. @dumganhar
         return (Camera as any).getStandardLightMeterScale();
     },
@@ -150,7 +150,7 @@ Object.defineProperty(Camera, "standardLightMeterScale", {
 Object.defineProperty(cameraProto, 'matView', {
     configurable: true,
     enumerable: true,
-    get() {
+    get () {
         this.getMatView();
         fillMat4WithTempFloatArray(this._matView);
         return this._matView;
@@ -160,7 +160,7 @@ Object.defineProperty(cameraProto, 'matView', {
 Object.defineProperty(cameraProto, 'matProj', {
     configurable: true,
     enumerable: true,
-    get() {
+    get () {
         this.getMatProj();
         fillMat4WithTempFloatArray(this._matProj);
         return this._matProj;
@@ -170,7 +170,7 @@ Object.defineProperty(cameraProto, 'matProj', {
 Object.defineProperty(cameraProto, 'matProjInv', {
     configurable: true,
     enumerable: true,
-    get() {
+    get () {
         this.getMatProjInv();
         fillMat4WithTempFloatArray(this._matProjInv);
         return this._matProjInv;
@@ -180,7 +180,7 @@ Object.defineProperty(cameraProto, 'matProjInv', {
 Object.defineProperty(cameraProto, 'matViewProj', {
     configurable: true,
     enumerable: true,
-    get() {
+    get () {
         this.getMatViewProj();
         fillMat4WithTempFloatArray(this._matViewProj);
         return this._matViewProj;
@@ -190,7 +190,7 @@ Object.defineProperty(cameraProto, 'matViewProj', {
 Object.defineProperty(cameraProto, 'matViewProjInv', {
     configurable: true,
     enumerable: true,
-    get() {
+    get () {
         this.getMatViewProjInv();
         fillMat4WithTempFloatArray(this._matViewProjInv);
         return this._matViewProjInv;
@@ -216,7 +216,7 @@ const oldWorldMatrixToScreen = cameraProto.worldMatrixToScreen;
 /**
  * transform a screen position (in oriented space) to a world space ray
  */
-cameraProto.screenPointToRay = function screenPointToRay(out: geometry.Ray, x: number, y: number): geometry.Ray {
+cameraProto.screenPointToRay = function screenPointToRay (out: geometry.Ray, x: number, y: number): geometry.Ray {
     _tempFloatArray[0] = x;
     _tempFloatArray[1] = y;
     oldScreenPointToRay.call(this);
@@ -231,7 +231,7 @@ cameraProto.screenPointToRay = function screenPointToRay(out: geometry.Ray, x: n
     return out;
 };
 
-cameraProto.screenToWorld = function screenToWorld(out: Vec3, screenPos: Vec3): Vec3 {
+cameraProto.screenToWorld = function screenToWorld (out: Vec3, screenPos: Vec3): Vec3 {
     _tempFloatArray[0] = screenPos.x;
     _tempFloatArray[1] = screenPos.y;
     _tempFloatArray[2] = screenPos.z;
@@ -240,7 +240,7 @@ cameraProto.screenToWorld = function screenToWorld(out: Vec3, screenPos: Vec3): 
     return out;
 };
 
-cameraProto.worldToScreen = function worldToScreen(out: Vec3, worldPos: Vec3 | Readonly<Vec3>): Vec3 {
+cameraProto.worldToScreen = function worldToScreen (out: Vec3, worldPos: Vec3 | Readonly<Vec3>): Vec3 {
     _tempFloatArray[0] = worldPos.x;
     _tempFloatArray[1] = worldPos.y;
     _tempFloatArray[2] = worldPos.z;
@@ -249,7 +249,7 @@ cameraProto.worldToScreen = function worldToScreen(out: Vec3, worldPos: Vec3 | R
     return out;
 };
 
-cameraProto.worldMatrixToScreen = function worldMatrixToScreen(out: Mat4, worldMatrix: Mat4, width: number, height: number) {
+cameraProto.worldMatrixToScreen = function worldMatrixToScreen (out: Mat4, worldMatrix: Mat4, width: number, height: number) {
     _tempFloatArray[0] = worldMatrix.m00;
     _tempFloatArray[1] = worldMatrix.m01;
     _tempFloatArray[2] = worldMatrix.m02;
