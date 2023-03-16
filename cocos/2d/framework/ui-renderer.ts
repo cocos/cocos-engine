@@ -199,7 +199,7 @@ export class UIRenderer extends Renderer {
     }
 
     /**
-     * @engineInternal NOTE: this is engine internal only, we need to access `_renderData` for we don't wan't to see the deprecated warning.
+     * @engineInternal NOTE: this is engine internal only, we need to access `_renderData` for we don't want to see the deprecated warning.
      */
     public _renderData: RenderData | null = null;
     /**

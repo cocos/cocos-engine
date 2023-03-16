@@ -179,7 +179,7 @@ export class UIMeshRenderer extends Component {
         if (JSB) {
             const renderData = MeshRenderData.add();
             renderData.initRenderDrawInfo(this, RenderDrawInfoType.MODEL);
-            // TODO: MeshRenderData and RenderData a both sub class of BaseRenderData, here we weirdly use MeshRenderData as RenderData
+            // TODO: MeshRenderData and RenderData are both sub class of BaseRenderData, here we weirdly use MeshRenderData as RenderData
             // please fix the type @holycanvas
             this._renderData = renderData as unknown as RenderData;
             this._renderData.material = this._modelComponent!.getMaterialInstance(index);
