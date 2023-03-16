@@ -1459,36 +1459,12 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      */
     public _static = false;
 
-    /**
-     * @engineInternal world transform, don't access this directly
-     */
-    public get w_pos () {
-        return this._pos;
-    }
     protected declare _pos: Vec3;
 
-    /**
-     * @engineInternal world transform, don't access this directly
-     */
-    public get w_rot () {
-        return this._rot;
-    }
     protected declare _rot: Quat;
 
-    /**
-     * @engineInternal world transform, don't access this directly
-     */
-    public get w_scale () {
-        return this._scale;
-    }
     protected declare _scale: Vec3;
 
-    /**
-     * @engineInternal world transform, don't access this directly
-     */
-    public get w_mat () {
-        return this._mat;
-    }
     protected declare _mat: Mat4;
 
     // local transform

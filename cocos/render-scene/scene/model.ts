@@ -637,7 +637,7 @@ export class Model {
             this._localDataUpdated = true;
             const worldBounds = this._worldBounds;
             if (this._modelBounds && worldBounds) {
-                this._modelBounds.transform(node.w_mat, node.w_pos, node.w_rot, node.w_scale, worldBounds);
+                this._modelBounds.transform(node.worldMatrix, node.worldPosition, node.worldRotation, node.worldScale, worldBounds);
             }
         }
     }
@@ -653,7 +653,7 @@ export class Model {
             this._localDataUpdated = true;
             const worldBounds = this._worldBounds;
             if (this._modelBounds && worldBounds) {
-                this._modelBounds.transform(node.w_mat, node.w_pos, node.w_rot, node.w_scale, worldBounds);
+                this._modelBounds.transform(node.worldMatrix, node.worldPosition, node.worldRotation, node.worldScale, worldBounds);
             }
         }
     }

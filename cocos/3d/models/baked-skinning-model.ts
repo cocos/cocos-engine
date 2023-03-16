@@ -118,7 +118,7 @@ export class BakedSkinningModel extends MorphModel {
         const worldBounds = this._worldBounds;
         if (worldBounds && skelBound) {
             const node = this.transform;
-            skelBound.transform(node.w_mat, node.w_pos, node.w_rot, node.w_scale, worldBounds);
+            skelBound.transform(node.worldMatrix, node.worldPosition, node.worldRotation, node.worldScale, worldBounds);
         }
     }
 
