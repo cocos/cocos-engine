@@ -142,7 +142,7 @@ export class AnimationCache {
     clear () {
         this._inited = false;
         for (let i = 0, n = this.frames.length; i < n; i++) {
-            const frame = this.frames[i];
+            const frame = this.frames[i]!;
             frame.segments.length = 0;
         }
         this.invalidAllFrame();
