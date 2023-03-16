@@ -35,5 +35,7 @@ struct SurfacesMaterialData
   vec3 baseColorTT;
   float ttIntensity, ttScatterCoef;
 #endif
-  // float sssCurvature;
+#if CC_SURFACES_LIGHTING_SSS
+  vec4 sssParams;
+#endif
 };

@@ -146,6 +146,17 @@ vec3 SurfacesFragmentModifyTTColor(in vec3 baseColor, in vec3 trtColor)
 }
 #endif
 
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_SSS_PARAMS
+vec4 SurfacesFragmentModifySSSParams()
+{
+    // x: sssIntensity
+    // y: sssCurvature
+    // z: sssColoration
+    // w: cavity for specular
+    return vec4(1.0, 0.2, 1.0, 1.0);
+}
+#endif
+
 // some material datas use shared raw data, avoid sample / calculate same raw data multiply times, use this function for better performance
 // this function invokes at last
 // should use corresponding shading-model header: #include <surfaces/data-structures/XXX> before function define

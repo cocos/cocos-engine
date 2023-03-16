@@ -62,6 +62,10 @@ void CCSurfacesFragmentGetMaterialData(inout SurfacesMaterialData surfaceData)
   surfaceData.baseColorTT = SurfacesFragmentModifyTTColor(surfaceData.baseColor.rgb, baseColorTRT);
 #endif
 
+#if CC_SURFACES_LIGHTING_SSS
+  surfaceData.sssParams = SurfacesFragmentModifySSSParams();
+#endif
+
   SurfacesFragmentModifySharedData(surfaceData);
 
 #if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC
