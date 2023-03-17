@@ -447,7 +447,6 @@ export const BLUR_PRE_FILTER_PASS_INDEX = 0;
 export const BLUR_DOWNSAMPLING_PASS_INDEX = 1;
 export const BLUR_UPSAMPLING_PASS_INDEX = BLUR_DOWNSAMPLING_PASS_INDEX + MAX_BLUR_FILTER_PASS_NUM;
 export const BLUR_COMBINE_PASS_INDEX = BLUR_UPSAMPLING_PASS_INDEX + MAX_BLUR_FILTER_PASS_NUM;
-
 class BlurData {
     declare blurMaterial: Material;
     threshold = 0.1;
@@ -524,7 +523,7 @@ export function buildBlurPass (camera: Camera,
 
     // ==== Blur pre filter ===
     const blurPassPreFilterRTName = `dsBlurPassPreFilterColor${cameraName}`;
-    const blurPassPreFilterDSName = `dsBlurPassPreFilter${cameraName}`;
+    const blurPassPreFilterDSName = `dsBlurPassPreFilterDS${cameraName}`;
     width >>= 1;
     height >>= 1;
     if (!ppl.containsResource(blurPassPreFilterRTName)) {
@@ -611,7 +610,7 @@ export function buildBlurPass (camera: Camera,
         if (i === 0) {
             blurUpsamplingPass.addComputeView(`dsBlurPassDownsamplingColor${cameraName}${index}`, computeView);
         } else {
-            blurUpsamplingPass.addComputeView(`dsBlurPassUpsamplingColor${cameraName}${index}`, computeView);
+            blurUpsamplingPass.addComputeView(`dsBlurPassUpsamplingColor${cameraName}${blurData.iterations - i}`, computeView);
         }
         const upSamplingPassView = new RasterView('_',
             AccessType.WRITE, AttachmentType.RENDER_TARGET,
