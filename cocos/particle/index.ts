@@ -46,7 +46,6 @@ export {
 };
 
 export * from './modules';
-export * from './event-receiver';
 export * from './deprecated';
 export * from './vfx-system';
 

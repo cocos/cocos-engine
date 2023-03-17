@@ -216,53 +216,51 @@ export default class ParticleBatchModel extends scene.Model {
     }
 
     public updateIA (particles: ParticleSOAData) {
-        if (particles.count <= 0) {
-            return;
-        }
-        const dynamicBuffer = this._dynamicBuffer!;
-        const dynamicBufferUintView = this._dynamicBufferUintView!;
-        const { positionX, positionY, positionZ, rotationX, rotationY, rotationZ, sizeX, sizeY, sizeZ, frameIndex, color, count } = particles;
-        if (!this._hasVelocityChanel) {
-            for (let i = 0; i < count; i++) {
-                const offset = i * this._vertDynamicAttrsFloatCount;
-                dynamicBuffer[offset] = positionX[i];
-                dynamicBuffer[offset + 1] = positionY[i];
-                dynamicBuffer[offset + 2] = positionZ[i];
-                dynamicBuffer[offset + 3] = rotationX[i];
-                dynamicBuffer[offset + 4] = rotationY[i];
-                dynamicBuffer[offset + 5] = rotationZ[i];
-                dynamicBuffer[offset + 6] = sizeX[i];
-                dynamicBuffer[offset + 7] = sizeY[i];
-                dynamicBuffer[offset + 8] = sizeZ[i];
-                dynamicBuffer[offset + 9] = frameIndex[i];
-                dynamicBufferUintView[offset + 10] = color[i];
+        if (particles.count > 0) {
+            const dynamicBuffer = this._dynamicBuffer!;
+            const dynamicBufferUintView = this._dynamicBufferUintView!;
+            const { positionX, positionY, positionZ, rotationX, rotationY, rotationZ, sizeX, sizeY, sizeZ, frameIndex, color, count } = particles;
+            if (!this._hasVelocityChanel) {
+                for (let i = 0; i < count; i++) {
+                    const offset = i * this._vertDynamicAttrsFloatCount;
+                    dynamicBuffer[offset] = positionX[i];
+                    dynamicBuffer[offset + 1] = positionY[i];
+                    dynamicBuffer[offset + 2] = positionZ[i];
+                    dynamicBuffer[offset + 3] = rotationX[i];
+                    dynamicBuffer[offset + 4] = rotationY[i];
+                    dynamicBuffer[offset + 5] = rotationZ[i];
+                    dynamicBuffer[offset + 6] = sizeX[i];
+                    dynamicBuffer[offset + 7] = sizeY[i];
+                    dynamicBuffer[offset + 8] = sizeZ[i];
+                    dynamicBuffer[offset + 9] = frameIndex[i];
+                    dynamicBufferUintView[offset + 10] = color[i];
+                }
+            } else {
+                const { velocityX, velocityY, velocityZ, animatedVelocityX, animatedVelocityY, animatedVelocityZ } = particles;
+                for (let i = 0; i < count; i++) {
+                    const offset = i * this._vertDynamicAttrsFloatCount;
+                    dynamicBuffer[offset] = positionX[i];
+                    dynamicBuffer[offset + 1] = positionY[i];
+                    dynamicBuffer[offset + 2] = positionZ[i];
+                    dynamicBuffer[offset + 3] = rotationX[i];
+                    dynamicBuffer[offset + 4] = rotationY[i];
+                    dynamicBuffer[offset + 5] = rotationZ[i];
+                    dynamicBuffer[offset + 6] = sizeX[i];
+                    dynamicBuffer[offset + 7] = sizeY[i];
+                    dynamicBuffer[offset + 8] = sizeZ[i];
+                    dynamicBuffer[offset + 9] = frameIndex[i];
+                    dynamicBufferUintView[offset + 10] = color[i];
+                    dynamicBuffer[offset + 11] = velocityX[i] + animatedVelocityX[i];
+                    dynamicBuffer[offset + 12] = velocityY[i] + animatedVelocityY[i];
+                    dynamicBuffer[offset + 13] = velocityZ[i] + animatedVelocityZ[i];
+                }
             }
-        } else {
-            const { velocityX, velocityY, velocityZ, animatedVelocityX, animatedVelocityY, animatedVelocityZ } = particles;
-            for (let i = 0; i < count; i++) {
-                const offset = i * this._vertDynamicAttrsFloatCount;
-                dynamicBuffer[offset] = positionX[i];
-                dynamicBuffer[offset + 1] = positionY[i];
-                dynamicBuffer[offset + 2] = positionZ[i];
-                dynamicBuffer[offset + 3] = rotationX[i];
-                dynamicBuffer[offset + 4] = rotationY[i];
-                dynamicBuffer[offset + 5] = rotationZ[i];
-                dynamicBuffer[offset + 6] = sizeX[i];
-                dynamicBuffer[offset + 7] = sizeY[i];
-                dynamicBuffer[offset + 8] = sizeZ[i];
-                dynamicBuffer[offset + 9] = frameIndex[i];
-                dynamicBufferUintView[offset + 10] = color[i];
-                dynamicBuffer[offset + 11] = velocityX[i] + animatedVelocityX[i];
-                dynamicBuffer[offset + 12] = velocityY[i] + animatedVelocityY[i];
-                dynamicBuffer[offset + 13] = velocityZ[i] + animatedVelocityZ[i];
-            }
+            this._insBuffers[1].update(dynamicBuffer); // update dynamic buffer
         }
-
-        this._insBuffers[1].update(dynamicBuffer); // update dynamic buffer
-        this._subModels[0].inputAssembler.instanceCount = count;
+        this._subModels[0].inputAssembler.instanceCount = particles.count;
         this._iaInfo.drawInfos[0].firstIndex = 0;
         this._iaInfo.drawInfos[0].indexCount = this._indexCount;
-        this._iaInfo.drawInfos[0].instanceCount = count;
+        this._iaInfo.drawInfos[0].instanceCount = particles.count;
         this._iaInfoBuffer!.update(this._iaInfo);
     }
 

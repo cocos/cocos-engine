@@ -33,9 +33,18 @@ export class VFXManager extends System {
         return this._totalFrames;
     }
 
+    get maxEmitterDeltaTime () {
+        return this._maxEmitterDeltaTime;
+    }
+
+    set maxEmitterDeltaTime (val) {
+        this._maxEmitterDeltaTime = Math.max(val, 0);
+    }
+
     private _emitters: ParticleEmitter[] = [];
     private _renderers: ParticleEmitterRenderer[] = [];
     private _totalFrames = 0;
+    private _maxEmitterDeltaTime = 0.03;
 
     init () {
         director.on(Director.EVENT_UPDATE_PARTICLE, this.tick, this);

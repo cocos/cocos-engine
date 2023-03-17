@@ -41,3 +41,4 @@ export * from './solve';
 export * from './state';
 export * from './legacy-trail';
 export * from './sub-uv-animation';
+export * from './sphere-shape';

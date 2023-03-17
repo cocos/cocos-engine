@@ -180,8 +180,6 @@ export class ShapeModule extends ParticleModule {
         this._angle = toRadian(val);
     }
 
-    private _shapeType = ShapeType.CONE;
-
     @type(Enum(ShapeType))
     @tooltip('i18n:shapeModule.shapeType')
     public get shapeType () {
@@ -322,6 +320,9 @@ export class ShapeModule extends ParticleModule {
 
     @serializable
     private _arc = toRadian(360);
+
+    @serializable
+    private _shapeType = ShapeType.CONE;
 
     @serializable
     private _angle = toRadian(25);

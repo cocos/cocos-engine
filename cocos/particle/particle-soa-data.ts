@@ -189,7 +189,7 @@ export class ParticleSOAData {
     get color () {
         return this._color;
     }
-    private static maxId = 1;
+    private _maxId = 1;
     private _count = 0;
     private _capacity = 16;
     private _id = new Uint32Array(this._capacity);
@@ -426,7 +426,7 @@ export class ParticleSOAData {
     }
 
     resetParticle (handle: ParticleHandle) {
-        this._id[handle] = ParticleSOAData.maxId++;
+        this._id[handle] = this._maxId++;
         this._positionX[handle] = 0;
         this._positionY[handle] = 0;
         this._positionZ[handle] = 0;
