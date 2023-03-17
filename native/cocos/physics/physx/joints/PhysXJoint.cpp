@@ -69,16 +69,17 @@ void PhysXJoint::setConnectedBody(uint32_t rigidBodyID) {
     if (pxRigidBody == nullptr)
         return;
 
-    const auto *oldConnectedActor = _ConnectedBody->getImpl().rigidActor;
+     const auto &oldConnectedActor = _mConnectedBody->getImpl();
 
-    if (_mConnectedBody) {
-        _mConnectedBody->removeJoint(*this, physx::PxJointActorIndex::eACTOR1);
-    }
+     if (_mConnectedBody) {
+         _mConnectedBody->removeJoint(*this, physx::PxJointActorIndex::eACTOR1);
+     }
 
     uintptr_t nodePtr = reinterpret_cast<uintptr_t>(pxRigidBody->getSharedBody().getNode());
     if (nodePtr) {
         auto &ins = PhysXWorld::getInstance();
         _mConnectedBody = ins.getSharedBody(reinterpret_cast<Node *>(nodePtr));
+        _mConnectedBody->addJoint(*this, physx::PxJointActorIndex::eACTOR1);
     } else {
         _mConnectedBody = nullptr;
     }
@@ -86,9 +87,9 @@ void PhysXJoint::setConnectedBody(uint32_t rigidBodyID) {
         _mJoint->setActors(_mSharedBody->getImpl().rigidActor, _mConnectedBody ? _mConnectedBody->getImpl().rigidActor : nullptr);
     }
 
-    if (oldConnectedActor) {
-        oldConnectedActor->wakeUp();
-    }
+     if (oldConnectedActor.rigidDynamic) {
+         oldConnectedActor.rigidDynamic->wakeUp();
+     }
 }
 
 void PhysXJoint::setEnableCollision(const bool v) {
