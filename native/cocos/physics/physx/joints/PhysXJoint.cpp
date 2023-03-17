@@ -69,6 +69,12 @@ void PhysXJoint::setConnectedBody(uint32_t rigidBodyID) {
     if (pxRigidBody == nullptr)
         return;
 
+    const auto *oldConnectedActor = _ConnectedBody->getImpl().rigidActor;
+
+    if (_mConnectedBody) {
+        _mConnectedBody->removeJoint(*this, physx::PxJointActorIndex::eACTOR1);
+    }
+
     uintptr_t nodePtr = reinterpret_cast<uintptr_t>(pxRigidBody->getSharedBody().getNode());
     if (nodePtr) {
         auto &ins = PhysXWorld::getInstance();
@@ -78,6 +84,10 @@ void PhysXJoint::setConnectedBody(uint32_t rigidBodyID) {
     }
     if (_mJoint) {
         _mJoint->setActors(_mSharedBody->getImpl().rigidActor, _mConnectedBody ? _mConnectedBody->getImpl().rigidActor : nullptr);
+    }
+
+    if (oldConnectedActor) {
+        oldConnectedActor->wakeUp();
     }
 }
 

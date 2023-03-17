@@ -240,13 +240,13 @@ export class PhysXSharedBody {
         }
     }
 
-    setLinearDamping (linDamp:number) {
+    setLinearDamping (linDamp: number) {
         if (!this._dynamicActor) return;
         const dt = PhysicsSystem.instance.fixedTimeStep;
         this._dynamicActor.setLinearDamping((1 - (1 - linDamp) ** dt) / dt);
     }
 
-    setAngularDamping (angDamp:number) {
+    setAngularDamping (angDamp: number) {
         if (!this._dynamicActor) return;
         const dt = PhysicsSystem.instance.fixedTimeStep;
         this._dynamicActor.setAngularDamping((1 - (1 - angDamp) ** dt) / dt);
