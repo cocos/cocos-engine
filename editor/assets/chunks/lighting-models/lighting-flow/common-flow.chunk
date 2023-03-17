@@ -96,6 +96,7 @@
         #if CC_SURFACES_LIGHTING_TRT
           LightingIntermediateData lightingDataTRT;
           CCSurfacesGetLightingIntermediateDataTRT(lightingDataTRT, lightingData, surfaceData);
+          CCSurfacesLightingCalculateIntermediateData_PerLight(lightingDataTRT, surfaceData, cc_lightPos[i].xyz - worldPos);
           CCSurfacesLightingCalculateDirectTRT(lightingResult.directTRT, lightingDataTRT, attenuatedLightColorAndIntensity, lightingResult.directSpecular);
           lightingResult.directTRT *= multiplier * fresnel;
         #endif
@@ -214,6 +215,7 @@
       #if CC_SURFACES_LIGHTING_TRT
         LightingIntermediateData lightingDataTRT;
         CCSurfacesGetLightingIntermediateDataTRT(lightingDataTRT, lightingData, surfaceData);
+        CCSurfacesLightingCalculateIntermediateData_PerLight(lightingDataTRT, surfaceData, -cc_mainLitDir.xyz);
         CCSurfacesLightingCalculateDirectTRT(lightingResult.directTRT, lightingDataTRT, cc_mainLitColor, lightingResult.directSpecular);
         CCSurfacesLightingCalculateEnvironmentTRT(lightingResult.environmentTRT, lightingDataTRT, cc_ambientSky.w, lightingResult.environmentSpecular);
 

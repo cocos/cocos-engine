@@ -9,6 +9,9 @@ bool CCSurfacesLightingEnableShadow(in float NoL)
 #if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
   // for back light shadows
   return true;
+#elif CC_SURFACES_LIGHTING_SSS
+  // for over-bumped surfaces
+  return true;
 #else
   return NoL > 0.0;
 #endif
