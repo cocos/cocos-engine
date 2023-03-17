@@ -517,6 +517,7 @@ function parseAttributes (constructor: Function, attributes: PropertyStash, clas
         parseSimpleAttribute('slide', 'boolean');
         parseSimpleAttribute('unit', 'string');
         parseSimpleAttribute('userData', 'object');
+        parseSimpleAttribute('radioGroup', 'boolean');
     }
 
     const isStandaloneMode = attributes.__internalFlags & PropertyStashInternalFlag.STANDALONE;

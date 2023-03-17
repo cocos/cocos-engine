@@ -370,6 +370,7 @@ export class MeshRenderer extends ModelRenderer {
     @tooltip('i18n:model.shadow_casting_model')
     @group({ id: 'DynamicShadow', name: 'DynamicShadowSettings' })
     @disallowAnimation
+    @visible(false)
     get shadowCastingMode () {
         return this._shadowCastingMode;
     }
@@ -377,6 +378,16 @@ export class MeshRenderer extends ModelRenderer {
     set shadowCastingMode (val) {
         this._shadowCastingMode = val;
         this._updateCastShadow();
+    }
+
+    @tooltip('i18n:model.shadow_casting_model')
+    @group({ id: 'DynamicShadow', name: 'DynamicShadowSettings' })
+    @disallowAnimation
+    get shadowCastingModeBool (): boolean {
+        return this.shadowCastingMode === ModelShadowCastingMode.ON;
+    }
+    set shadowCastingModeBool (val) {
+        this.shadowCastingMode = val === true ? ModelShadowCastingMode.ON : ModelShadowCastingMode.OFF;
     }
 
     /**
