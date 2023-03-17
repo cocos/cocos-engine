@@ -49,10 +49,10 @@ void CCSurfacesFragmentGetMaterialData(inout SurfacesMaterialData surfaceData)
   surfaceData.roughnessTRT = saturate(surfaceData.roughness + trtParams.x);
   surfaceData.trtIntensity = trtParams.w;
   surfaceData.baseColorTRT = baseColorTRT = SurfacesFragmentModifyTRTColor();
+  surfaceData.worldNormalTRT = surfaceData.worldNormal;
   surfaceData.worldTangentTRT = surfaceData.worldTangent;
   surfaceData.worldBinormalTRT = surfaceData.worldBinormal;
-  surfaceData.anisotropicOffsetTRT = trtParams.y;
-  // RotateTangentAndBinormal(surfaceData.worldTangentTRT, surfaceData.worldBinormalTRT, surfaceData.worldNormal, trtParams.y * PI);
+  RotateNormalAndBinormal(surfaceData.worldBinormalTRT, surfaceData.worldNormalTRT, surfaceData.worldTangentTRT, trtParams.y);
 #endif
 
 #if CC_SURFACES_LIGHTING_TT
@@ -163,10 +163,10 @@ void CCSurfacesGetLightingIntermediateDataTRT(inout LightingIntermediateData lig
 {
   lightingDataTRT = lightingData;
   lightingDataTRT.specularParam = surfaceData.roughnessTRT;
+  // new TBN with anisotropic offset
+  lightingDataTRT.N = surfaceData.worldNormalTRT;
   lightingDataTRT.T = surfaceData.worldTangentTRT;
   lightingDataTRT.B = surfaceData.worldBinormalTRT;
-  // anisotropic offset
-  lightingDataTRT.H = normalize(lightingDataTRT.H + lightingDataTRT.V * surfaceData.anisotropicOffsetTRT);
 }
 // pass original surfaceData, get TRT surfaceData
 void CCSurfacesGetSurfacesMaterialDataTRT(inout SurfacesMaterialData surfaceDataTRT, in SurfacesMaterialData surfaceData)

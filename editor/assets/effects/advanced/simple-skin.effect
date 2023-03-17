@@ -26,7 +26,7 @@ CCEffect %{
         sssIntensity:                     { value: 1.0, target: scatterParams.z, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 1.0], step: 0.001 } }
         preIntegratedSkinMap:             { value: grey, editor: { parent: USE_PREINTEGRATED_SKIN } }
         sssCurvatureMap:                  { value: white, editor: { parent: USE_PREINTEGRATED_SKIN } }
-        sssCurvature:                     { value: 0.2, target: scatterParams.w, editor: { parent: USE_PREINTEGRATED_SKIN, slide: true, range: [0, 1.0], step: 0.001 } }
+        sssCurvature:                     { value: 0.1, target: scatterParams.w, editor: { parent: USE_PREINTEGRATED_SKIN, slide: true, range: [0, 1.0], step: 0.001 } }
         sssColoration:                    { value: 1.0, target: scatterColor.w, editor: { parent: USE_PREINTEGRATED_SKIN, slide: true, range: [0, 10.0], step: 0.001 } }
         cavityMap:                        { value: white }
         maskMap:                          { value: white, editor: { parent: USE_BACK_LIT } }
