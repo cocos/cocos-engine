@@ -241,8 +241,8 @@ public:
         _timeoutInSeconds = timeoutInSeconds;
     }
 
-    inline long getTimeout() const {
-        return static_cast<long>(_timeoutInSeconds);
+    inline float getTimeout() const {
+        return _timeoutInSeconds;
     }
 
 protected:

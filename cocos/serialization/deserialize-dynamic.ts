@@ -253,7 +253,7 @@ function compileDeserializeNative (_self: _Deserializer, klass: CCClassConstruct
             if (prop === undefined) {
                 continue;
             }
-            if (typeof prop !== 'object') {
+            if (!fastMode && typeof prop !== 'object') {
                 o[propName] = prop;
             } else {
                 // fastMode (so will not simpleProp) or object

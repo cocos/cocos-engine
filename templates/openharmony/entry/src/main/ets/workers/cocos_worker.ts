@@ -58,9 +58,9 @@ uiPort._messageHandle = function(e) {
             const renderContext = nativerender.getContext(ContextType.NATIVE_RENDER_API);
             renderContext.nativeEngineInit();
             launchEngine().then(() => {
-                console.info('launch CC engien finished');
+                console.info('launch CC engine finished');
             }).catch(e => {
-                console.error('launch CC engien failed');
+                console.error('launch CC engine failed');
             });
            // @ts-ignore
             window.oh.postMessage = nativeContext.postMessage;

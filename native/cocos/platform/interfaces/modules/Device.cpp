@@ -35,20 +35,6 @@
 
 namespace cc {
 
-uint32_t Device::getInnerWidth() {
-    ISystemWindow* systemWindow = CC_GET_MAIN_SYSTEM_WINDOW();
-    CC_ASSERT_NOT_NULL(systemWindow);
-    auto viewSize = systemWindow->getViewSize();
-    return static_cast<uint32_t>(viewSize.width);
-}
-
-uint32_t Device::getInnerHeight() {
-    ISystemWindow* systemWindow = CC_GET_MAIN_SYSTEM_WINDOW();
-    CC_ASSERT_NOT_NULL(systemWindow);
-    auto viewSize = systemWindow->getViewSize();
-    return static_cast<uint32_t>(viewSize.height);
-}
-
 uintptr_t Device::getWindowHandle() {
     ISystemWindow* systemWindow = CC_GET_MAIN_SYSTEM_WINDOW();
     CC_ASSERT_NOT_NULL(systemWindow);
