@@ -183,6 +183,7 @@ const legacyBuiltinEffectNames = [
     'skybox',
     'deferred-lighting',
     'bloom',
+    'blur',
     'post-process',
     'profiler',
     'splash-screen',

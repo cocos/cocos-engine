@@ -37,6 +37,7 @@ import { RenderData } from './render-graph';
 import { WebPipeline } from './web-pipeline';
 import { DescriptorSetData } from './layout-graph';
 import { legacyCC } from '../../core/global-exports';
+import { ClearFlag } from '../../misc/camera-component';
 
 // Anti-aliasing type, other types will be gradually added in the future
 export enum AntiAliasing {
@@ -441,6 +442,225 @@ export function buildBloomPass (camera: Camera,
     return { rtName: bloomPassCombineRTName, dsName: bloomPassCombineDSName };
 }
 
+export const MAX_BLUR_FILTER_PASS_NUM = 6;
+export const BLUR_PRE_FILTER_PASS_INDEX = 0;
+export const BLUR_DOWNSAMPLING_PASS_INDEX = 1;
+export const BLUR_UPSAMPLING_PASS_INDEX = BLUR_DOWNSAMPLING_PASS_INDEX + MAX_BLUR_FILTER_PASS_NUM;
+export const BLUR_COMBINE_PASS_INDEX = BLUR_UPSAMPLING_PASS_INDEX + MAX_BLUR_FILTER_PASS_NUM;
+
+class BlurData {
+    declare blurMaterial: Material;
+    threshold = 0.1;
+    iterations = 2;
+    intensity = 0.8;
+
+    private _updateBlurPass () {
+        if (!this.blurMaterial) return;
+
+        const preFilterPass = this.blurMaterial.passes[BLUR_PRE_FILTER_PASS_INDEX];
+        preFilterPass.beginChangeStatesSilently();
+        preFilterPass.tryCompile();
+        preFilterPass.endChangeStatesSilently();
+        for (let i = 0; i < MAX_BLUR_FILTER_PASS_NUM; ++i) {
+            const downsamplingPass = this.blurMaterial.passes[BLUR_DOWNSAMPLING_PASS_INDEX + i];
+            downsamplingPass.beginChangeStatesSilently();
+            downsamplingPass.tryCompile();
+            downsamplingPass.endChangeStatesSilently();
+
+            const upsamplingPass = this.blurMaterial.passes[BLUR_UPSAMPLING_PASS_INDEX + i];
+            upsamplingPass.beginChangeStatesSilently();
+            upsamplingPass.tryCompile();
+            upsamplingPass.endChangeStatesSilently();
+        }
+        const combinePass = this.blurMaterial.passes[BLUR_COMBINE_PASS_INDEX];
+        combinePass.beginChangeStatesSilently();
+        combinePass.tryCompile();
+        combinePass.endChangeStatesSilently();
+    }
+
+    private _init () {
+        if (this.blurMaterial) return;
+
+        this.blurMaterial = new Material();
+        this.blurMaterial._uuid = 'builtin-blur-material';
+        this.blurMaterial.initialize({ effectName: 'pipeline/blur' });
+        for (let i = 0; i < this.blurMaterial.passes.length; ++i) {
+            this.blurMaterial.passes[i].tryCompile();
+        }
+        this._updateBlurPass();
+    }
+
+    constructor () {
+        this._init();
+    }
+}
+
+let blurData: BlurData | null = null;
+export function buildBlurPass (camera: Camera,
+    ppl: Pipeline,
+    inputRT: string,
+    threshold = 0.1,
+    iterations = 2,
+    intensity = 0.8) {
+    if (!blurData) blurData = new BlurData();
+    blurData.threshold = threshold;
+    blurData.iterations = iterations;
+    blurData.intensity = intensity;
+
+    const cameraID = getCameraUniqueID(camera);
+    const cameraName = `Camera${cameraID}`;
+    const area = getRenderArea(camera, camera.window.width, camera.window.height);
+    let width = area.width;
+    let height = area.height;
+
+    // Start blur
+    const blurClearColor = new Color(0, 0, 0, 1);
+    if (camera.clearFlag & ClearFlagBit.COLOR) {
+        blurClearColor.x = camera.clearColor.x;
+        blurClearColor.y = camera.clearColor.y;
+        blurClearColor.z = camera.clearColor.z;
+    }
+    blurClearColor.w = camera.clearColor.w;
+
+    // ==== Blur pre filter ===
+    const blurPassPreFilterRTName = `dsBlurPassPreFilterColor${cameraName}`;
+    const blurPassPreFilterDSName = `dsBlurPassPreFilter${cameraName}`;
+    width >>= 1;
+    height >>= 1;
+    if (!ppl.containsResource(blurPassPreFilterRTName)) {
+        ppl.addRenderTarget(blurPassPreFilterRTName, Format.RGBA8, width, height, ResourceResidency.MANAGED);
+        ppl.addDepthStencil(blurPassPreFilterDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
+    }
+    ppl.updateRenderTarget(blurPassPreFilterRTName, width, height);
+    ppl.updateDepthStencil(blurPassPreFilterDSName, width, height);
+    const blurPreFilterPass = ppl.addRasterPass(width, height, 'blur-prefilter');
+    blurPreFilterPass.name = `CameraBlurPreFilterPass${cameraID}`;
+    blurPreFilterPass.setViewport(new Viewport(area.x, area.y, width, height));
+    if (ppl.containsResource(inputRT)) {
+        const computeView = new ComputeView();
+        computeView.name = 'outputResultMap';
+        blurPreFilterPass.addComputeView(inputRT, computeView);
+    }
+    const preFilterPassView = new RasterView('_',
+        AccessType.WRITE, AttachmentType.RENDER_TARGET,
+        LoadOp.CLEAR, StoreOp.STORE,
+        camera.clearFlag,
+        blurClearColor);
+    blurPreFilterPass.addRasterView(blurPassPreFilterRTName, preFilterPassView);
+    blurData.blurMaterial.setProperty('texSize', new Vec4(0, 0, blurData.threshold, 0), 0);
+    blurPreFilterPass.addQueue(QueueHint.RENDER_TRANSPARENT).addCameraQuad(
+        camera, blurData.blurMaterial, 0,
+        SceneFlags.NONE,
+    );
+
+    // === Blur downsampling ===
+    for (let i = 0; i < blurData.iterations; ++i) {
+        const texSize = new Vec4(width, height, 0, 0);
+        const blurPassDownsamplingRTName = `dsBlurPassDownsamplingColor${cameraName}${i}`;
+        const blurPassDownsamplingDSName = `dsBlurPassDownsamplingDS${cameraName}${i}`;
+        width >>= 1;
+        height >>= 1;
+        if (!ppl.containsResource(blurPassDownsamplingRTName)) {
+            ppl.addRenderTarget(blurPassDownsamplingRTName, Format.RGBA8, width, height, ResourceResidency.MANAGED);
+            ppl.addDepthStencil(blurPassDownsamplingDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
+        }
+        ppl.updateRenderTarget(blurPassDownsamplingRTName, width, height);
+        ppl.updateDepthStencil(blurPassDownsamplingDSName, width, height);
+        const blurDownsamplingPass = ppl.addRasterPass(width, height, `blur-downsampling${i}`);
+        blurDownsamplingPass.name = `CameraBlurDownsamplingPass${cameraID}${i}`;
+        blurDownsamplingPass.setViewport(new Viewport(area.x, area.y, width, height));
+        const computeView = new ComputeView();
+        computeView.name = 'blurTexture';
+        if (i === 0) {
+            blurDownsamplingPass.addComputeView(blurPassPreFilterRTName, computeView);
+        } else {
+            blurDownsamplingPass.addComputeView(`dsBlurPassDownsamplingColor${cameraName}${i - 1}`, computeView);
+        }
+        const downsamplingPassView = new RasterView('_',
+            AccessType.WRITE, AttachmentType.RENDER_TARGET,
+            LoadOp.CLEAR, StoreOp.STORE,
+            camera.clearFlag,
+            blurClearColor);
+        blurDownsamplingPass.addRasterView(blurPassDownsamplingRTName, downsamplingPassView);
+        blurData.blurMaterial.setProperty('texSize', texSize, BLUR_DOWNSAMPLING_PASS_INDEX + i);
+        blurDownsamplingPass.addQueue(QueueHint.RENDER_TRANSPARENT).addCameraQuad(
+            camera, blurData.blurMaterial, BLUR_DOWNSAMPLING_PASS_INDEX + i,
+            SceneFlags.NONE,
+        );
+    }
+
+    // === Blur upsampling ===
+    for (let i = 0; i < blurData.iterations; ++i) {
+        const index = blurData.iterations - 1 - i;
+        const texSize = new Vec4(width, height, 0, 0);
+        const blurPassUpsamplingRTName = `dsBlurPassUpsamplingColor${cameraName}${index}`;
+        const blurPassUpsamplingDSName = `dsBlurPassUpsamplingDS${cameraName}${index}`;
+        width <<= 1;
+        height <<= 1;
+        if (!ppl.containsResource(blurPassUpsamplingRTName)) {
+            ppl.addRenderTarget(blurPassUpsamplingRTName, Format.RGBA8, width, height, ResourceResidency.MANAGED);
+            ppl.addDepthStencil(blurPassUpsamplingDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
+        }
+        ppl.updateRenderTarget(blurPassUpsamplingRTName, width, height);
+        ppl.updateDepthStencil(blurPassUpsamplingDSName, width, height);
+        const blurUpsamplingPass = ppl.addRasterPass(width, height, `blur-upsampling${i}`);
+        blurUpsamplingPass.name = `CameraBlurUpsamplingPass${cameraID}${index}`;
+        blurUpsamplingPass.setViewport(new Viewport(area.x, area.y, width, height));
+        const computeView = new ComputeView();
+        computeView.name = 'blurTexture';
+        if (i === 0) {
+            blurUpsamplingPass.addComputeView(`dsBlurPassDownsamplingColor${cameraName}${index}`, computeView);
+        } else {
+            blurUpsamplingPass.addComputeView(`dsBlurPassUpsamplingColor${cameraName}${index}`, computeView);
+        }
+        const upSamplingPassView = new RasterView('_',
+            AccessType.WRITE, AttachmentType.RENDER_TARGET,
+            LoadOp.CLEAR, StoreOp.STORE,
+            camera.clearFlag,
+            blurClearColor);
+        blurUpsamplingPass.addRasterView(blurPassUpsamplingRTName, upSamplingPassView);
+        blurData.blurMaterial.setProperty('texSize', texSize, BLUR_UPSAMPLING_PASS_INDEX + i);
+        blurUpsamplingPass.addQueue(QueueHint.RENDER_TRANSPARENT).addCameraQuad(
+            camera, blurData.blurMaterial, BLUR_UPSAMPLING_PASS_INDEX + i,
+            SceneFlags.NONE,
+        );
+    }
+
+    // === Blur combine pass ===
+    const blurPassCombineRTName = `dsBlurPassCombineColor${cameraName}`;
+    const blurPassCombineDSName = `dsBlurPassCombineDS${cameraName}`;
+
+    width = area.width;
+    height = area.height;
+    if (!ppl.containsResource(blurPassCombineRTName)) {
+        ppl.addRenderTarget(blurPassCombineRTName, Format.RGBA8, width, height, ResourceResidency.MANAGED);
+        ppl.addDepthStencil(blurPassCombineDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
+    }
+    ppl.updateRenderTarget(blurPassCombineRTName, width, height);
+    ppl.updateDepthStencil(blurPassCombineDSName, width, height);
+    const blurCombinePass = ppl.addRasterPass(width, height, 'blur-combine');
+    blurCombinePass.name = `CameraBlurCombinePass${cameraID}`;
+    blurCombinePass.setViewport(new Viewport(area.x, area.y, width, height));
+    const computeViewOut = new ComputeView();
+    computeViewOut.name = 'outputResultMap';
+    blurCombinePass.addComputeView(inputRT, computeViewOut);
+    const computeViewBt = new ComputeView();
+    computeViewBt.name = 'blurTexture';
+    blurCombinePass.addComputeView(`dsBlurPassUpsamplingColor${cameraName}${0}`, computeViewBt);
+    const combinePassView = new RasterView('_',
+        AccessType.WRITE, AttachmentType.RENDER_TARGET,
+        LoadOp.CLEAR, StoreOp.STORE,
+        camera.clearFlag,
+        blurClearColor);
+    blurCombinePass.addRasterView(blurPassCombineRTName, combinePassView);
+    blurData.blurMaterial.setProperty('texSize', new Vec4(0, 0, 0, blurData.intensity), BLUR_COMBINE_PASS_INDEX);
+    blurCombinePass.addQueue(QueueHint.RENDER_TRANSPARENT).addCameraQuad(
+        camera, blurData.blurMaterial, BLUR_COMBINE_PASS_INDEX,
+        SceneFlags.NONE,
+    );
+    return { rtName: blurPassCombineRTName, dsName: blurPassCombineDSName };
+}
+
 class PostInfo {
     declare postMaterial: Material;
     antiAliasing: AntiAliasing = AntiAliasing.NONE;
@@ -599,6 +819,8 @@ export function buildForwardPass (camera: Camera,
     forwardPass
         .addQueue(QueueHint.RENDER_TRANSPARENT)
         .addSceneOfCamera(camera, new LightInfo(), sceneFlags);
+
+    // forwardPass.addQueue(QueueHint.RENDER_OPAQUE, 'forward-add');
     return { rtName: forwardPassRTName, dsName: forwardPassDSName };
 }
 
