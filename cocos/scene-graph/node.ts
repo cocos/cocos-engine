@@ -336,8 +336,11 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         }
     }
 
+    /**
+     * @engineInternal this is engineInternal for it doesn't have side effect of setting parent.
+     */
     @serializable
-    protected _parent: this | null = null;
+    public _parent: this | null = null;
 
     @serializable
     protected _children: this[] = [];
@@ -356,9 +359,8 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     /**
      * @engineInternal The PrefabInfo object
      */
-    public get prefab () { return this._prefab; }
     @serializable
-    protected _prefab: PrefabInfo | null = null;
+    public _prefab: PrefabInfo | null = null;
 
     protected _scene: Scene = null!;
 
@@ -375,7 +377,10 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     protected _eventProcessor: any = new legacyCC.NodeEventProcessor(this);
     protected _eventMask = 0;
 
-    protected _siblingIndex = 0;
+    /**
+     * @engineInternal this is engineInternal for it doesn't have side effect of setting sibling index
+     */
+    public _siblingIndex = 0;
 
     /**
      * @en
@@ -1458,14 +1463,22 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _static = false;
-
-    protected declare _pos: Vec3;
-
-    protected declare _rot: Quat;
-
-    protected declare _scale: Vec3;
-
-    protected declare _mat: Mat4;
+    /**
+     * @engineInternal NOTE: this is engineInternal interface that doesn't have a side effect of updating the transforms
+     */
+    public declare _pos: Vec3;
+    /**
+     * @engineInternal NOTE: this is engineInternal interface that doesn't have a side effect of updating the transforms
+     */
+    public declare _rot: Quat;
+    /**
+     * @engineInternal NOTE: this is engineInternal interface that doesn't have a side effect of updating the transforms
+     */
+    public declare _scale: Vec3;
+    /**
+     * @engineInternal NOTE: this is engineInternal interface that doesn't have a side effect of updating the transforms
+     */
+    public declare _mat: Mat4;
 
     // local transform
     @serializable

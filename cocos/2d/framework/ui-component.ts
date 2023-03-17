@@ -45,7 +45,7 @@ export class UIComponent extends Component {
     protected _lastParent: Node | null = null;
 
     public __preload () {
-        // TODO: UIComponent should not be assigned to UIMeshRenderer | UIRenderer
+        // TODO: UIComponent should not be assigned to UIMeshRenderer | UIRenderer @holycanvas
         // workaround: mark this as any
         (this as any).node._uiProps.uiComp = this;
     }
@@ -58,7 +58,7 @@ export class UIComponent extends Component {
     }
 
     public onDestroy () {
-        // TODO: UIComponent should not be assigned to UIMeshRenderer | UIRenderer
+        // TODO: UIComponent should not be assigned to UIMeshRenderer | UIRenderer @holycanvas
         // workaround: mark this as any
         if ((this as any).node._uiProps.uiComp === this) {
             (this as any).node._uiProps.uiComp = null;

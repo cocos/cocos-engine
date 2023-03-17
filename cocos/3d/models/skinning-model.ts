@@ -189,7 +189,7 @@ export class SkinningModel extends MorphModel {
         const worldBounds = this._worldBounds;
         if (this._modelBounds && worldBounds) {
             geometry.AABB.fromPoints(this._modelBounds, v3_min, v3_max);
-            this._modelBounds.transform(root.worldMatrix, root.worldPosition, root.worldRotation, root.worldScale, this._worldBounds!);
+            this._modelBounds.transform(root._mat, root._pos, root._rot, root._scale, this._worldBounds!);
         }
     }
 

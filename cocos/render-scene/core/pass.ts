@@ -188,7 +188,10 @@ export class Pass {
     protected _bs: BlendState = new BlendState();
     protected _dss: DepthStencilState = new DepthStencilState();
     protected _rs: RasterizerState = new RasterizerState();
-    protected _priority: RenderPriority = RenderPriority.DEFAULT;
+    /**
+     * @engineInternal TODO: we haven't bind 'setPriority' setter on native, this is engineInternal only
+     */
+    public _priority: RenderPriority = RenderPriority.DEFAULT;
     protected _stage: RenderPassStage = RenderPassStage.DEFAULT;
     protected _phase = getPhaseID('default');
     protected _passID = 0xFFFFFFFF;
@@ -204,7 +207,7 @@ export class Pass {
     protected _device: Device;
 
     /**
-     * @engineInternal TODO: on native, we only binding the `_rootBufferDirty` setter.
+     * @engineInternal TODO: on native, we only bind the `_rootBufferDirty` setter.
      */
     public _rootBufferDirty = false;
 
@@ -844,11 +847,6 @@ export class Pass {
     get rootBufferDirty (): boolean { return this._rootBufferDirty; }
     // states
     get priority (): RenderPriority { return this._priority; }
-    /**
-     * NOTE: engineInternal tag cannot set only for priority setter
-     * @engineInternal
-     */
-    public setPriority (p: RenderPriority) { this._priority = p; }
     get primitive (): PrimitiveMode { return this._primitive; }
     get stage (): RenderPassStage { return this._stage; }
     get phase (): number { return this._phase; }

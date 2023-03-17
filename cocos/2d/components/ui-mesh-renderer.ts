@@ -223,7 +223,7 @@ export class UIMeshRenderer extends Component {
             const passNum = passes.length;
             for (let j = 0; j < passNum; j++) {
                 const pass = passes[j];
-                pass.setPriority(RenderPriority.MAX - 11);
+                pass._priority = RenderPriority.MAX - 11;
                 // Because the deferred pipeline cannot perform lighting processing on the uimodel,
                 // it may even cause the uimodel to crash in the metal backend,
                 // so force rendering uimodel in forward pipeline

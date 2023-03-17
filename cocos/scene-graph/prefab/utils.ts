@@ -33,7 +33,7 @@ import { ValueType } from '../../core/value-types';
 export * from './prefab-info';
 
 export function createNodeWithPrefab (node: Node) {
-    const prefabInfo = node.prefab;
+    const prefabInfo = node._prefab;
     if (!prefabInfo) {
         return;
     }
@@ -59,7 +59,7 @@ export function createNodeWithPrefab (node: Node) {
     const _objFlags = node._objFlags;
     const _parent = node.getParent();
     const _id = node.uuid;
-    const _prefab = node.prefab;
+    const _prefab = node._prefab;
     const editorExtras = node[editorExtrasTag];
 
     // instantiate prefab
@@ -80,15 +80,15 @@ export function createNodeWithPrefab (node: Node) {
 
     // restore preserved props
     node._objFlags = _objFlags;
-    node.setParent(_parent);
+    node._parent = _parent;
     node.id = _id;
     if (EDITOR) {
         node[editorExtrasTag] = editorExtras;
     }
 
-    if (node.prefab) {
+    if (node._prefab) {
         // just keep the instance
-        node.prefab.instance = _prefab?.instance;
+        node._prefab.instance = _prefab?.instance;
     }
 }
 
@@ -104,13 +104,13 @@ export function generateTargetMap (node: Node, targetMap: any, isRoot: boolean) 
 
     let curTargetMap = targetMap;
 
-    const prefabInstance = node.prefab?.instance;
+    const prefabInstance = node._prefab?.instance;
     if (!isRoot && prefabInstance) {
         targetMap[prefabInstance.fileId] = {};
         curTargetMap = targetMap[prefabInstance.fileId];
     }
 
-    const prefabInfo = node.prefab;
+    const prefabInfo = node._prefab;
     if (prefabInfo) {
         curTargetMap[prefabInfo.fileId] = node;
     }
@@ -177,7 +177,7 @@ export function applyMountedChildren (node: Node, mountedChildren: MountedChildr
                     }
 
                     target.children.push(childNode);
-                    childNode.setParent(target);
+                    childNode._parent = target;
                     if (EDITOR) {
                         if (!childNode[editorExtrasTag]) {
                             childNode[editorExtrasTag] = {};
@@ -187,7 +187,7 @@ export function applyMountedChildren (node: Node, mountedChildren: MountedChildr
                     }
                     // mounted node need to add to the target map
                     generateTargetMap(childNode, curTargetMap, false);
-                    childNode.setSiblingIndex(target.children.length - 1);
+                    childNode._siblingIndex = target.children.length - 1;
                     expandPrefabInstanceNode(childNode, true);
                 }
             }
@@ -310,7 +310,7 @@ export function applyPropertyOverrides (node: Node, propertyOverrides: PropertyO
 }
 
 export function applyTargetOverrides (node: Node) {
-    const targetOverrides = node.prefab?.targetOverrides;
+    const targetOverrides = node._prefab?.targetOverrides;
     if (targetOverrides) {
         for (let i = 0; i < targetOverrides.length; i++) {
             const targetOverride = targetOverrides[i];
@@ -319,7 +319,7 @@ export function applyTargetOverrides (node: Node) {
             const sourceInfo = targetOverride.sourceInfo;
             if (sourceInfo) {
                 // TODO: targetOverride.source is type of `Node | Component`, while `_prefab` does not exist on type 'Component'.
-                const sourceInstance = (targetOverride.source as Node)?.prefab?.instance;
+                const sourceInstance = (targetOverride.source as Node)?._prefab?.instance;
                 if (sourceInstance && sourceInstance.targetMap) {
                     source = getTarget(sourceInfo.localID, sourceInstance.targetMap);
                 }
@@ -336,7 +336,7 @@ export function applyTargetOverrides (node: Node) {
                 continue;
             }
 
-            const targetInstance = targetOverride.target?.prefab?.instance;
+            const targetInstance = targetOverride.target?._prefab?.instance;
             if (!targetInstance || !targetInstance.targetMap) {
                 continue;
             }
@@ -373,7 +373,7 @@ export function applyTargetOverrides (node: Node) {
 }
 
 export function expandPrefabInstanceNode (node: Node, recursively = false) {
-    const prefabInfo = node.prefab;
+    const prefabInfo = node._prefab;
     const prefabInstance = prefabInfo?.instance;
     if (prefabInstance && !prefabInstance.expanded) {
         createNodeWithPrefab(node);
@@ -404,14 +404,14 @@ export function expandPrefabInstanceNode (node: Node, recursively = false) {
 }
 
 export function expandNestedPrefabInstanceNode (node: Node) {
-    const prefabInfo = node.prefab;
+    const prefabInfo = node._prefab;
 
     if (prefabInfo && prefabInfo.nestedPrefabInstanceRoots) {
         prefabInfo.nestedPrefabInstanceRoots.forEach((instanceNode: Node) => {
             expandPrefabInstanceNode(instanceNode);
             // when expanding the prefab,it's children will be change,so need to apply after expanded
             if (!EDITOR) {
-                applyNodeAndComponentId(instanceNode, instanceNode.prefab?.instance?.fileId ?? '');
+                applyNodeAndComponentId(instanceNode, instanceNode._prefab?.instance?.fileId ?? '');
             }
         });
     }
@@ -427,7 +427,7 @@ export function applyNodeAndComponentId (prefabInstanceNode: Node, rootId: strin
     }
     for (let i = 0; i < children.length; i++) {
         const child = children[i];
-        const prefabInfo = child.prefab!;
+        const prefabInfo = child._prefab!;
         const fileId = prefabInfo?.instance ? prefabInfo.instance.fileId : prefabInfo?.fileId;
         if (!fileId) continue;
         child.id = `${rootId}${fileId}`;
