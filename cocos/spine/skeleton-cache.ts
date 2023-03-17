@@ -369,10 +369,7 @@ export class AnimationCache {
             vertices: new Float32Array(),
             indices: new Uint16Array(),
         };
-        const frame = this.frames[index];
-        if (!frame) {
-            return;
-        }
+        const frame = this.frames[index]!;
 
         const segments = this._tempSegments = frame.segments;
         const colors = this._tempColors = frame.colors;

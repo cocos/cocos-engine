@@ -352,8 +352,8 @@ export class TiledLayer extends UIRenderer {
 
         const rowData = this._userNodeGrid[row];
         const colData = rowData && rowData[col];
-        if (rowData && colData) {
-            rowData.count--;
+        if (colData) {
+            rowData!.count--;
             colData.count--;
             colData.list[index] = null;
             if (colData.count <= 0) {
