@@ -1541,6 +1541,8 @@ static GLES3GPUFramebuffer::GLFramebufferInfo doCreateFramebuffer(GLES3Device *d
         GLES3GPUTextureView *gpuColorTextureView = attachments[colors[j]];
         GLES3GPUTextureView *gpuResolveTextureView = resolves ? attachments[resolves[j]] : nullptr;
         GLES3GPUTexture *gpuColorTexture = gpuColorTextureView->gpuTexture;
+        auto target = gpuColorTexture->arrayLayer == 6 && gpuColorTextureView->layerCount == 1 ?
+            GL_TEXTURE_CUBE_MAP_POSITIVE_X + gpuColorTextureView->baseLayer : gpuColorTexture->glTarget;
         GLES3GPUTexture *gpuResolveTexture = resolves ? gpuResolveTextureView->gpuTexture : nullptr;
 
         drawBuffers.push_back(static_cast<GLenum>(GL_COLOR_ATTACHMENT0 + j));
@@ -1548,7 +1550,7 @@ static GLES3GPUFramebuffer::GLFramebufferInfo doCreateFramebuffer(GLES3Device *d
         if (gpuResolveTexture) {
             if (autoResolve) {
                 GL_CHECK(glFramebufferTexture2DMultisampleEXT(GL_FRAMEBUFFER, static_cast<GLenum>(GL_COLOR_ATTACHMENT0 + j),
-                                                              gpuResolveTexture->glTarget, gpuResolveTexture->glTexture,
+                                                              target, gpuResolveTexture->glTexture,
                                                               gpuResolveTextureView->baseLevel, gpuColorTexture->glSamples));
                 continue;
             }
@@ -1557,10 +1559,10 @@ static GLES3GPUFramebuffer::GLFramebufferInfo doCreateFramebuffer(GLES3Device *d
         if (gpuColorTexture) {
             if (gpuColorTexture->glTexture) {
                 GL_CHECK(glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, static_cast<GLenum>(GL_COLOR_ATTACHMENT0 + j),
-                                                gpuColorTexture->glTarget, gpuColorTexture->glTexture, gpuColorTextureView->baseLevel));
+                                                target, gpuColorTexture->glTexture, gpuColorTextureView->baseLevel));
             } else {
                 GL_CHECK(glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, static_cast<GLenum>(GL_COLOR_ATTACHMENT0 + j),
-                                                   gpuColorTexture->glTarget, gpuColorTexture->glRenderbuffer));
+                                                   target, gpuColorTexture->glRenderbuffer));
             }
         }
         res.width = std::min(res.width, gpuColorTexture->width);

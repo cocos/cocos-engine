@@ -228,6 +228,67 @@ void ReflectionProbe::initBakedTextures() {
         }
     }
 }
+
+void ReflectionProbe::initRealTimeFrameBuffers() {
+    auto *device = gfx::Device::getInstance();
+
+    gfx::RenderPassInfo passInfo = {};
+    passInfo.colorAttachments.emplace_back(gfx::ColorAttachment{
+        _cubemap->getGFXTexture()->getFormat(),
+        gfx::SampleCount::ONE,
+        gfx::LoadOp::CLEAR, gfx::StoreOp::STORE,
+    });
+
+    passInfo.depthStencilAttachment.format = gfx::Format::DEPTH;
+    passInfo.depthStencilAttachment.depthLoadOp = gfx::LoadOp::CLEAR;
+    passInfo.depthStencilAttachment.depthStoreOp = gfx::StoreOp::DISCARD;
+    passInfo.depthStencilAttachment.stencilLoadOp = gfx::LoadOp::DISCARD;
+    passInfo.depthStencilAttachment.stencilStoreOp = gfx::StoreOp::DISCARD;
+    _renderPass = device->createRenderPass(passInfo);
+
+    gfx::TextureInfo dsInfo = {};
+    dsInfo.type = gfx::TextureType::TEX2D;
+    dsInfo.width = _cubemap->getWidth();
+    dsInfo.height = _cubemap->getHeight();
+    dsInfo.depth = 1;
+    dsInfo.format = gfx::Format::DEPTH;
+    dsInfo.usage = gfx::TextureUsageBit::SAMPLED | gfx::TextureUsageBit::COLOR_ATTACHMENT;
+    _depthStencil = device->createTexture(dsInfo);
+
+    gfx::TextureViewInfo viewInfo = {};
+    viewInfo.format = _cubemap->getGFXTexture()->getFormat();
+    viewInfo.texture = _cubemap->getGFXTexture();
+    viewInfo.type = gfx::TextureType::TEX2D;
+
+    gfx::FramebufferInfo fbInfo = {};
+    fbInfo.colorTextures.resize(1);
+    fbInfo.depthStencilTexture = _depthStencil;
+    fbInfo.renderPass = _renderPass;
+
+    _views.resize(6);
+    _frameBuffers.resize(6);
+    for (uint32_t i = 0; i < 6; ++i) {
+        viewInfo.baseLevel = i;
+        _views[i] = device->createTexture(viewInfo);
+
+        fbInfo.colorTextures[0] = _views[i];
+        _frameBuffers[i] = device->createFramebuffer(fbInfo);
+    }
+}
+
+gfx::Framebuffer* ReflectionProbe::getFrameBuffer(uint32_t face) const
+{
+    if (!_frameBuffers.empty()) {
+        return _frameBuffers[face];
+    }
+
+    if (!_bakedCubeTextures.empty()) {
+        return _bakedCubeTextures[face]->getWindow()->getFramebuffer();
+    }
+
+    return nullptr;
+}
+
 void ReflectionProbe::resetCameraParams() {
     _camera->setProjectionType(CameraProjection::PERSPECTIVE);
     _camera->setOrthoHeight(10.F);

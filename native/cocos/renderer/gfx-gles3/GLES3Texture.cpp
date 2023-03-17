@@ -84,6 +84,8 @@ void GLES3Texture::createTextureView() {
     _gpuTextureView->format = _viewInfo.format;
     _gpuTextureView->baseLevel = _viewInfo.baseLevel;
     _gpuTextureView->levelCount = _viewInfo.levelCount;
+    _gpuTextureView->baseLayer = _viewInfo.baseLayer;
+    _gpuTextureView->layerCount = _viewInfo.layerCount;
 }
 
 void GLES3Texture::doDestroy() {
