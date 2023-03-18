@@ -126,14 +126,6 @@ CCProgram macro-remapping %{
 }%
 
 CCProgram surface-vertex %{
-  #define CC_SURFACES_VERTEX_MODIFY_UV
-  void SurfacesVertexModifyUV(inout SurfacesStandardVertexIntermediate In)
-  {
-    In.texCoord = In.texCoord * tilingOffset.xy + tilingOffset.zw;
-  #if CC_SURFACES_USE_SECOND_UV
-    In.texCoord1 = In.texCoord1 * tilingOffset.xy + tilingOffset.zw;
-  #endif
-  }
 }%
 
 CCProgram surface-fragment %{
@@ -156,13 +148,6 @@ CCProgram surface-fragment %{
     uniform sampler2D emissiveMap;
     #pragma define-meta EMISSIVE_UV options([v_uv, v_uv1])
   #endif
-  #if USE_BACK_LIT
-    uniform sampler2D maskMap;
-  #endif
-  #if USE_PREINTEGRATED_SKIN
-    uniform sampler2D sssCurvatureMap;
-  #endif
-    uniform sampler2D cavityMap;
 
   #pragma define OCCLUSION_CHANNEL          r
   #pragma define ROUGHNESS_CHANNEL          g
@@ -172,6 +157,15 @@ CCProgram surface-fragment %{
   #if USE_ALPHA_TEST
     #pragma define-meta ALPHA_TEST_CHANNEL options([a, r])
   #endif
+
+  //////////////////User Defines
+  #if USE_BACK_LIT
+    uniform sampler2D maskMap;
+  #endif
+  #if USE_PREINTEGRATED_SKIN
+    uniform sampler2D sssCurvatureMap;
+  #endif
+    uniform sampler2D cavityMap;
 
   #define CC_SURFACES_FRAGMENT_MODIFY_TRANSMIT_SCATTERING_PARAMS
   vec4 SurfacesFragmentModifyTransmitScatteringParams()
@@ -205,104 +199,14 @@ CCProgram surface-fragment %{
   vec4 SurfacesFragmentModifySSSParams()
   {
     float sssCurvature = scatterParams.w;
-    float cavity = texture(cavityMap, DEFAULT_UV).x;
+    float cavity = texture(cavityMap, FSInput_texcoord).x;
     #if USE_PREINTEGRATED_SKIN
-      sssCurvature *= texture(sssCurvatureMap, DEFAULT_UV).x;
+      sssCurvature *= texture(sssCurvatureMap, FSInput_texcoord).x;
     #endif
     return vec4(scatterParams.z, sssCurvature, scatterColor.w, cavity);
   }
 
-  #define CC_SURFACES_FRAGMENT_MODIFY_BASECOLOR_AND_TRANSPARENCY
-  vec4 SurfacesFragmentModifyBaseColorAndTransparency()
-  {
-    vec4 baseColor = albedo;
-    
-    #if USE_VERTEX_COLOR
-      baseColor.rgb *= SRGBToLinear(FSInput_vertexColor.rgb); // use linear
-      baseColor.a *= FSInput_vertexColor.a;
-    #endif
-
-    #if USE_ALBEDO_MAP
-      vec4 texColor = texture(albedoMap, ALBEDO_UV);
-      texColor.rgb = SRGBToLinear(texColor.rgb);
-      baseColor *= texColor;
-    #endif
-
-    #if USE_ALPHA_TEST
-      if (baseColor.ALPHA_TEST_CHANNEL < albedoScaleAndCutoff.w) discard;
-    #endif
-
-    baseColor.rgb *= albedoScaleAndCutoff.xyz;
-    return baseColor;
-  }
-
-  #define CC_SURFACES_FRAGMENT_ALPHA_CLIP_ONLY
-  void SurfacesFragmentAlphaClipOnly()
-  {
-    #if USE_ALPHA_TEST
-      float alpha = albedo.ALPHA_TEST_CHANNEL;
-      #if USE_VERTEX_COLOR
-        alpha *= FSInput_vertexColor.a;
-      #endif
-      #if USE_ALBEDO_MAP
-        alpha = texture(albedoMap, ALBEDO_UV).ALPHA_TEST_CHANNEL;
-      #endif
-  
-      if (alpha < albedoScaleAndCutoff.w) discard;
-    #endif
-  }
-
-  #define CC_SURFACES_FRAGMENT_MODIFY_WORLD_NORMAL
-  vec3 SurfacesFragmentModifyWorldNormal()
-  {
-    vec3 normal = FSInput_worldNormal;
-    #if USE_NORMAL_MAP
-      vec3 nmmp = texture(normalMap, NORMAL_UV).xyz - vec3(0.5);
-      normal = CalculateNormalFromTangentSpace(nmmp, emissiveScaleParam.w, normal.xyz, FSInput_worldTangent, FSInput_mirrorNormal);
-    #endif
-
-    return normalize(normal);
-  }
-
-  #define CC_SURFACES_FRAGMENT_MODIFY_EMISSIVE
-  vec3 SurfacesFragmentModifyEmissive()
-  {
-    vec3 emissive = emissive.rgb;
-    #if USE_EMISSIVE_MAP
-      emissive = SRGBToLinear(texture(emissiveMap, EMISSIVE_UV).rgb);
-    #endif
-    return emissive * emissiveScaleParam.xyz;
-  }
-
-  #define CC_SURFACES_FRAGMENT_MODIFY_PBRPARAMS
-  vec4 SurfacesFragmentModifyPBRParams()
-  {
-    vec4 pbr = pbrParams;
-    pbr.x = 1.0;
-    #if USE_PBR_MAP
-      vec4 res = texture(pbrMap, DEFAULT_UV);
-      pbr.x *= res.OCCLUSION_CHANNEL;
-      pbr.y *= res.ROUGHNESS_CHANNEL;
-      pbr.z *= res.METALLIC_CHANNEL;
-      pbr.w *= res.SPECULAR_INTENSITY_CHANNEL;
-    #endif
-    #if USE_OCCLUSION_MAP
-      pbr.x = mix(1.0, texture(occlusionMap, DEFAULT_UV).OCCLUSION_CHANNEL, pbrParams.x);
-    #endif
-
-    return pbr;
-  }
-
-  /*
-  // definition of SurfacesMaterialData structure with corresponding shading-model
-  #include <surfaces/data-structures/standard>
-
-  //see <surfaces/default-functions/XXXX> for more overrided functions, XXXX is shading-model name
-  #define CC_SURFACES_FRAGMENT_MODIFY_SHARED_DATA
-  void SurfacesFragmentModifySharedData(inout SurfacesMaterialData surfaceData)
-  {
-  }*/
-
+  #include <common-functions>
   #include <lighting-models/default-functions/simple-skin>
 }%
 
