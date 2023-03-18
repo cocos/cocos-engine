@@ -148,6 +148,7 @@ export const ttfUtils =  {
         }
     },
 
+    // 直接赋值到 Data 中，避免一次状态转换，但可能会产生临时变量
     _updateProperties (comp: Label, trans: UITransform) {
         const assemblerData = comp.assemblerData;
         if (!assemblerData) {
@@ -199,6 +200,9 @@ export const ttfUtils =  {
         this._updatePaddingRect();
     },
 
+    // 缺失了 padding 的计算
+    // 是收到后效影响的位置偏移
+    // 比如斜体 contentSize 要宽一些才行
     _updatePaddingRect () {
         let top = 0; let bottom = 0; let left = 0; let right = 0;
         let outlineWidth = 0;
