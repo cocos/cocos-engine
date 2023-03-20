@@ -50,5 +50,5 @@ export class EventAcceleration extends Event {
     }
 }
 
-// @ts-expect-error TODO
-Event.EventAcceleration = EventAcceleration;
+// TODO: this is an injected property, should be deprecated
+(Event as any).EventAcceleration = EventAcceleration;

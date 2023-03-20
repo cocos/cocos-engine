@@ -92,13 +92,13 @@ export class AudioPlayer {
             if (opts?.audioLoadMode === AudioType.DOM_AUDIO || !AudioContextAgent.support) {
                 if (!AudioContextAgent.support) { warnID(5201); }
                 AudioPlayerDOM.loadOneShotAudio(url, volume).then((oneShotAudioDOM) => {
-                    // @ts-expect-error AudioPlayer should be a friend class in OneShotAudio
-                    resolve(new OneShotAudio(oneShotAudioDOM));
+                    // HACK: AudioPlayer should be a friend class in OneShotAudio
+                    resolve(new (OneShotAudio as any)(oneShotAudioDOM));
                 }).catch(reject);
             } else {
                 AudioPlayerWeb.loadOneShotAudio(url, volume).then((oneShotAudioWeb) => {
-                    // @ts-expect-error AudioPlayer should be a friend class in OneShotAudio
-                    resolve(new OneShotAudio(oneShotAudioWeb));
+                    // HACK: AudioPlayer should be a friend class in OneShotAudio
+                    resolve(new (OneShotAudio as any)(oneShotAudioWeb));
                 }).catch(reject);
             }
         });

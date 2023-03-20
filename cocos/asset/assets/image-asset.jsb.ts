@@ -67,7 +67,6 @@ function isNativeImage (imageSource: ImageSource): imageSource is (HTMLImageElem
 
 const imageAssetProto = ImageAsset.prototype;
 
-// @ts-expect-error TODO: Property '_ctor' does not exist on type 'ImageAsset'.
 imageAssetProto._ctor = function (nativeAsset?: ImageSource) {
     jsb.Asset.prototype._ctor.apply(this, arguments);
     this._width = 0;
@@ -92,9 +91,10 @@ Object.defineProperty(imageAssetProto, '_nativeAsset', {
     get () {
         return this._nativeData;
     },
-    set (value: ImageSource) {
+    // TODO: Property 'format' does not exist on type 'HTMLCanvasElement'
+    // set (value: ImageSource) {
+    set (value: any) {
         if (!(value instanceof jsbWindow.HTMLElement) && !isImageBitmap(value)) {
-            // @ts-expect-error internal API usage
             value.format = value.format || this.format;
         }
         this.reset(value);
@@ -121,12 +121,12 @@ imageAssetProto._setRawAsset = function (filename: string, inLibrary = true) {
     }
 };
 
-
-imageAssetProto.reset = function (data: ImageSource) {
+// TODO: Property 'format' does not exist on type 'HTMLCanvasElement'.
+// imageAssetProto.reset = function (data: ImageSource) {
+imageAssetProto.reset = function (data: any) {
     this._nativeData = data;
 
     if (!(data instanceof jsbWindow.HTMLElement)) {
-        // @ts-expect-error internal api usage
         if(data.format !== undefined) {
             this.format = (data as any).format;
         }
@@ -162,7 +162,6 @@ Object.defineProperty(imageAssetProto, 'height', {
     }
 });
 
-// @ts-expect-error TODO: Property '_syncDataToNative' does not exist on type 'ImageAsset'.
 imageAssetProto._syncDataToNative = function () {
     const data: any = this._nativeData;
     this._width = data.width;

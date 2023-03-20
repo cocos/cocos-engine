@@ -90,13 +90,13 @@ export class AudioPlayer {
         return new Promise((resolve, reject) => {
             if (typeof minigame.tt === 'object' && typeof minigame.tt.getAudioContext !== 'undefined') {
                 AudioPlayerWeb.loadOneShotAudio(url, volume).then((oneShotAudioWeb) => {
-                    // @ts-expect-error AudioPlayer should be a friend class in OneShotAudio
-                    resolve(new OneShotAudio(oneShotAudioWeb));
+                    // HACK: AudioPlayer should be a friend class in OneShotAudio
+                    resolve(new (OneShotAudio as any)(oneShotAudioWeb));
                 }).catch(reject);
             } else {
                 AudioPlayerMinigame.loadOneShotAudio(url, volume).then((oneShotAudioMinigame) => {
-                    // @ts-expect-error AudioPlayer should be a friend class in OneShotAudio
-                    resolve(new OneShotAudio(oneShotAudioMinigame));
+                    // HACK: AudioPlayer should be a friend class in OneShotAudio
+                    resolve(new (OneShotAudio as any)(oneShotAudioMinigame));
                 }).catch(reject);
             }
         });

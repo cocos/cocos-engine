@@ -400,7 +400,7 @@ export class Profiler extends System {
             this.offsetData[3] = surfaceTransform;
         }
 
-        // @ts-expect-error using private members for efficiency.
+        // TODO: on native, we only binding the `_rootBufferDirty` setter. @dumganhar
         this.pass._rootBufferDirty = true;
 
         if (this._meshRenderer.model) {

@@ -187,8 +187,8 @@ export class AudioPlayer implements OperationQueueable {
     static loadOneShotAudio (url: string, volume: number): Promise<OneShotAudio> {
         return new Promise((resolve, reject) => {
             AudioPlayer.loadNative(url).then((url) => {
-                // @ts-expect-error AudioPlayer should be a friend class in OneShotAudio
-                resolve(new OneShotAudio(url, volume));
+                // HACK: AudioPlayer should be a friend class in OneShotAudio
+                resolve(new (OneShotAudio as any)(url, volume));
             }).catch(reject);
         });
     }

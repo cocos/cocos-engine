@@ -105,8 +105,7 @@ function compileDeserializeJIT (self: _Deserializer, klass: CCClassConstructor<u
 
     for (let p = 0; p < props.length; p++) {
         const propName = props[p];
-        // @ts-expect-error 2341
-        if ((PREVIEW || (EDITOR && self._ignoreEditorOnly)) && attrs[propName + POSTFIX_EDITOR_ONLY]) {
+        if ((PREVIEW || (EDITOR && self.ignoreEditorOnly)) && attrs[propName + POSTFIX_EDITOR_ONLY]) {
             continue;   // skip editor only if in preview
         }
 
@@ -162,8 +161,7 @@ function compileDeserializeJIT (self: _Deserializer, klass: CCClassConstructor<u
         sources.push('}');
     }
     if (js.isChildClassOf(klass, cclegacy.Node) || js.isChildClassOf(klass, cclegacy.Component)) {
-        // @ts-expect-error 2341
-        if (PREVIEW || (EDITOR && self._ignoreEditorOnly)) {
+        if (PREVIEW || (EDITOR && self.ignoreEditorOnly)) {
             const mayUsedInPersistRoot = js.isChildClassOf(klass, cclegacy.Node);
             if (mayUsedInPersistRoot) {
                 sources.push('d._id&&(o._id=d._id);');
@@ -260,13 +258,11 @@ function compileDeserializeNative (_self: _Deserializer, klass: CCClassConstruct
                 const valueTypeCtor = advancedPropsValueType[i];
                 if (valueTypeCtor) {
                     if (fastMode || prop) {
-                        // @ts-expect-error 2341
                         s._deserializeFastDefinedObject(o[propName] as Record<PropertyKey, unknown>, prop as SerializedGeneralTypedObject, valueTypeCtor);
                     } else {
                         o[propName] = null;
                     }
                 } else if (prop) {
-                    // @ts-expect-error 2341
                     s._deserializeAndAssignField(o, prop, propName);
                 } else {
                     o[propName] = null;
@@ -280,7 +276,6 @@ function compileDeserializeNative (_self: _Deserializer, klass: CCClassConstruct
             // deep copy original serialized data
             o._$erialized = JSON.parse(JSON.stringify(d));
             // parse the serialized data as primitive javascript object, so its __id__ will be dereferenced
-            // @ts-expect-error 2341
             s._fillPlainObject(o._$erialized as Record<PropertyKey, unknown>, d);
         }
     };
@@ -356,24 +351,25 @@ class DeserializerPool extends js.Pool<_Deserializer> {
             deserializer.clear();
         }, 1);
     }
-
-    // @ts-expect-error We only use this signature.
-    public get (
-        details: Details,
-        classFinder: ClassFinder,
-        reportMissingClass: ReportMissingClass,
-        customEnv: unknown,
-        ignoreEditorOnly: boolean | undefined,
-    ) {
-        const cache = this._get();
-        if (cache) {
-            cache.reset(details, classFinder, reportMissingClass, customEnv, ignoreEditorOnly);
-            return cache;
-        } else {
-            return new _Deserializer(details, classFinder, reportMissingClass, customEnv, ignoreEditorOnly);
-        }
-    }
 }
+
+// TODO: this is should be a HACK, we've changed the method signature
+(DeserializerPool.prototype as any).get = function (
+    this: DeserializerPool,
+    details: Details,
+    classFinder: ClassFinder,
+    reportMissingClass: ReportMissingClass,
+    customEnv: unknown,
+    ignoreEditorOnly: boolean | undefined,
+) {
+    const cache = this._get();
+    if (cache) {
+        cache.reset(details, classFinder, reportMissingClass, customEnv, ignoreEditorOnly);
+        return cache;
+    } else {
+        return new _Deserializer(details, classFinder, reportMissingClass, customEnv, ignoreEditorOnly);
+    }
+};
 
 class _Deserializer {
     public static pool: DeserializerPool = new DeserializerPool();
@@ -385,7 +381,11 @@ class _Deserializer {
     private declare _classFinder: ClassFinder;
     private declare _reportMissingClass: ReportMissingClass;
     private declare _onDereferenced: ClassFinder['onDereferenced'];
-    private _ignoreEditorOnly: any;
+    /**
+     * @engineInternal
+     */
+    public get ignoreEditorOnly () { return this._ignoreEditorOnly; }
+    private _ignoreEditorOnly: unknown;
     private declare _mainBinChunk: Uint8Array;
     private declare _serializedData: SerializedObject | SerializedObject[];
     private declare _context: DeserializationContext;
@@ -670,7 +670,10 @@ class _Deserializer {
         deserialize(this, obj, serialized, klass);
     }
 
-    private _deserializeAndAssignField (
+    /**
+     * @engineInternal
+     */
+    public _deserializeAndAssignField (
         obj: Record<PropertyKey, unknown> | unknown[],
         serializedField: SerializedFieldObjectValue,
         propName: string,
@@ -727,7 +730,10 @@ class _Deserializer {
         }
     }
 
-    private _fillPlainObject (instance: Record<string, unknown>, serialized: Record<string, unknown>) {
+    /**
+     * @engineInternal
+     */
+    public _fillPlainObject (instance: Record<string, unknown>, serialized: Record<string, unknown>) {
         for (const propName in serialized) {
             // eslint-disable-next-line no-prototype-builtins
             if (!serialized.hasOwnProperty(propName)) {
@@ -750,7 +756,10 @@ class _Deserializer {
         }
     }
 
-    private _deserializeFastDefinedObject (
+    /**
+     * @engineInternal
+     */
+    public _deserializeFastDefinedObject (
         instance: Record<PropertyKey, unknown>,
         serialized: SerializedGeneralTypedObject,
         klass: SerializableClassConstructor,
@@ -782,8 +791,8 @@ class _Deserializer {
         }
 
         const attrs = CCClass.Attr.getClassAttrs(klass);
-        // @ts-expect-error 2339
-        const props: string[] = klass.__values__;
+        // TODO: `__values__` is injected property
+        const props: string[] = (klass as any).__values__;
         if (DEBUG && !props) {
             error(`Unable to deserialize ${js.getClassName(klass)}. `
                 + 'For non-CCClass types, they can only be marked as serializable by `CCClass.fastDefine`.');
@@ -830,7 +839,9 @@ export function deserializeDynamic (data: SerializedData | CCON, details: Detail
 
     details.init();
 
-    const deserializer = _Deserializer.pool.get(details, classFinder, reportMissingClass, customEnv, ignoreEditorOnly);
+    // TODO: this should be a HACK, we've changed the method signature
+    // workaround: mark pool as type of any.
+    const deserializer = (_Deserializer.pool as any).get(details, classFinder, reportMissingClass, customEnv, ignoreEditorOnly);
 
     cclegacy.game._isCloning = true;
     const res = deserializer.deserialize(data);

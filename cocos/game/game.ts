@@ -590,7 +590,6 @@ export class Game extends EventTarget {
      */
     public resume () {
         if (!this._paused) { return; }
-        // @ts-expect-error _clearEvents is a private method.
         input._clearEvents();
         this._paused = false;
         this._pacer?.start();
