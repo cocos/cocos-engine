@@ -149,11 +149,11 @@ vec3 SurfacesFragmentModifyTTColor(in vec3 baseColor, in vec3 trtColor)
 #ifndef CC_SURFACES_FRAGMENT_MODIFY_SSS_PARAMS
 vec4 SurfacesFragmentModifySSSParams()
 {
-    // x: sssIntensity
-    // y: sssCurvature
-    // z: sssColoration
+    // x: sssIntensity, moisture
+    // y: sssCurvature, for preintegrated sss
+    // z: sssColoration, for sss transmitted light color with dark area
     // w: cavity for specular
-    return vec4(1.0, 0.2, 1.0, 1.0);
+    return vec4(1.0, 0.1, 1.0, 1.0);
 }
 #endif
 
