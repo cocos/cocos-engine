@@ -139,7 +139,7 @@ export function updateChildrenForDeserialize (node: Node) {
         return;
     }
 
-    // TODO: `_setChildren` is only implemented on native platforms. @dumganhar
+    // NOTE: `_setChildren` is only implemented on native platforms. @dumganhar
     (node as any)._setChildren(children);
 
     for (let i = 0; i < len; ++i) {
