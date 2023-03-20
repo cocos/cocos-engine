@@ -47,7 +47,6 @@ export class PhysXJoint implements IBaseConstraint {
         if (oldBody2) {
             const oldSB2 = (oldBody2.body as PhysXRigidBody).sharedBody;
             oldSB2.removeJoint(this, 1);
-            oldBody2.wakeUp();
         }
 
         const sb = (this._rigidBody.body as PhysXRigidBody).sharedBody;
@@ -132,6 +131,7 @@ export class PhysXJoint implements IBaseConstraint {
         this._impl.release();
         (this._com as any) = null;
         (this._rigidBody as any) = null;
+        (this._connectedBody as any) = null;
         this._impl = null;
     }
 }

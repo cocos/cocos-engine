@@ -31,9 +31,6 @@ import { bt, EBulletType } from '../instantiated';
 export abstract class BulletConstraint implements IBaseConstraint {
     setConnectedBody (v: RigidBody | null): void {
         if (this._connectedBody === v) return;
-
-        console.log(`new connected body: ${v?.node.name}`);
-
         // clear old joint info
         const oldBody2 = this._connectedBody;
         if (oldBody2) {
@@ -52,6 +49,7 @@ export abstract class BulletConstraint implements IBaseConstraint {
         const connect = this._connectedBody;
         // create the new joint
         this.onComponentSet();
+        this.setEnableCollision(this._collided);
         sb.wrappedWorld.addConstraint(this);
         sb.addJoint(this, 0);
         // fill new joint info
@@ -99,6 +97,7 @@ export abstract class BulletConstraint implements IBaseConstraint {
         this._connectedBody = v.connectedBody;
         this._collided = v.enableCollision;
         this.onComponentSet();
+        this.setEnableCollision(this._collided);
     }
 
     // virtual
@@ -133,5 +132,6 @@ export abstract class BulletConstraint implements IBaseConstraint {
         bt._safe_delete(this._impl, EBulletType.EBulletTypeTypedConstraint);
         (this._com as any) = null;
         (this._rigidBody as any) = null;
+        (this._connectedBody as any) = null;
     }
 }
