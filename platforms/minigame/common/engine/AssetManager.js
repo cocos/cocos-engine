@@ -26,7 +26,7 @@ function downloadScript (url, options, onComplete) {
     if (REGEX.test(url)) {
         onComplete && onComplete(new Error('Can not load remote scripts'));
     } else {
-        if (sys.platform === sys.Platform.TAOBAO_MINI_GAME) { //Can't load scripts dynamically on Taobao platform
+        if (sys.platform === sys.Platform.TAOBAO_MINI_GAME) {
             require(`../../../${url}`);
         } else if (sys.platform !== sys.Platform.TAOBAO_CREATIVE_APP) { //Can't load scripts dynamically on Taobao platform
             require(`../../../${url}`);
@@ -256,7 +256,7 @@ function downloadBundle (nameOrUrl, options, onComplete) {
             js = `assets/${bundleName}/index.${suffix}js`;
         }
 
-        if (sys.platform === sys.Platform.TAOBAO_MINI_GAME) { // Can't load scripts dynamically on Taobao platform
+        if (sys.platform === sys.Platform.TAOBAO_MINI_GAME) {
             require(js);
         } else if (sys.platform !== sys.Platform.TAOBAO_CREATIVE_APP) { // Can't load scripts dynamically on Taobao platform
             require(`./${js}`);

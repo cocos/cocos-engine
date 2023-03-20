@@ -157,7 +157,7 @@ minigame.stopAccelerometer = function (res: any) {
 // #region SafeArea
 // It should be a value that is not multiplied by dpr
 minigame.getSafeArea = function () {
-    const systemInfo = minigame.getWindowInfoSync();
+    const systemInfo = my.getWindowInfoSync();
     if (typeof systemInfo.safeArea !== 'undefined') {
         return systemInfo.safeArea;
     }
