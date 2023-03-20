@@ -45,6 +45,9 @@ export function loadJsFile (path: string): any {
     if (WECHAT || WECHAT_MINI_PROGRAM) {
         return __wxRequire(path);
     }
+    if (TAOBAO_MINIGAME) {
+        return globalThis.__taobaoRequire(path);
+    }
     if (TAOBAO) {
         // NOTE: Taobao doesn't support dynamic require
         return undefined;

@@ -41,7 +41,9 @@ const CanvasProxy = new Proxy(Canvas, {
 
     canvas.dispatchEvent = function (event = {}) {
       console.log('canvas.dispatchEvent', event.type, event);
-      // nothing to do
+      if (my.isIDE) {
+        $global.document.dispatchEvent(event);
+      }
     };
 
     Object.defineProperty(canvas, 'clientWidth', {
