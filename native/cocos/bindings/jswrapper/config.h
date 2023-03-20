@@ -32,9 +32,14 @@
 #define SCRIPT_ENGINE_NONE 0
 #define SCRIPT_ENGINE_SM   1
 #define SCRIPT_ENGINE_V8   2
+#define SCRIPT_ENGINE_NAPI 5
 
 #ifndef SCRIPT_ENGINE_TYPE
+#if CC_PLATFORM == CC_PLATFORM_OPENHARMONY
+    #define SCRIPT_ENGINE_TYPE SCRIPT_ENGINE_NAPI
+#else
     #define SCRIPT_ENGINE_TYPE SCRIPT_ENGINE_V8
+#endif
 #endif
 
 #define SE_LOG_TO_JS_ENV 0 // print log to JavaScript environment, for example DevTools

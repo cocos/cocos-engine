@@ -27,7 +27,6 @@
 
 // ----------------------------------------------------------------------------
 
-#include <android/log.h>
 #include <stdint.h>
 #include "audio/android/cutils/bitops.h"
 
