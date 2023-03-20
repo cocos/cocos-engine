@@ -76,6 +76,7 @@ Object.defineProperty(minigame, 'orientation', {
 // #endregion SystemInfo
 
 // @ts-expect-error TODO: move into minigame.d.ts
+// eslint-disable-next-line func-names
 minigame.isSupportLandscape = function () {
     const locSysInfo = minigame.getSystemInfoSync();
     if (typeof locSysInfo.deviceOrientation === 'string' && locSysInfo.deviceOrientation.startsWith('landscape')) {
@@ -94,6 +95,7 @@ const polyfilledCreateInnerAudio = createInnerAudioContextPolyfill(my, {
     onStop: false,
     onSeek: false,
 }, true);
+// eslint-disable-next-line func-names
 minigame.createInnerAudioContext = function (): InnerAudioContext {
     const audio: InnerAudioContext = polyfilledCreateInnerAudio();
     // @ts-expect-error InnerAudioContext has onCanPlay
@@ -105,6 +107,7 @@ minigame.createInnerAudioContext = function (): InnerAudioContext {
 // #region Audio
 
 // #region Font
+// eslint-disable-next-line func-names
 minigame.loadFont = function (url) {
     // my.loadFont crash when url is not in user data path
     return 'Arial';
@@ -113,6 +116,7 @@ minigame.loadFont = function (url) {
 
 // #region Accelerometer
 let _accelerometerCb: AccelerometerChangeCallback | undefined;
+// eslint-disable-next-line func-names
 minigame.onAccelerometerChange = function (cb: AccelerometerChangeCallback) {
     minigame.offAccelerometerChange();
     // onAccelerometerChange would start accelerometer
@@ -134,12 +138,14 @@ minigame.onAccelerometerChange = function (cb: AccelerometerChangeCallback) {
         cb(resClone);
     };
 };
+// eslint-disable-next-line func-names
 minigame.offAccelerometerChange = function (cb?: AccelerometerChangeCallback) {
     if (_accelerometerCb) {
         my.offAccelerometerChange(_accelerometerCb);
         _accelerometerCb = undefined;
     }
 };
+// eslint-disable-next-line func-names
 minigame.startAccelerometer = function (res: any) {
     if (_accelerometerCb) {
         my.onAccelerometerChange(_accelerometerCb);
@@ -148,6 +154,7 @@ minigame.startAccelerometer = function (res: any) {
         console.error('minigame.onAccelerometerChange() should be invoked before minigame.startAccelerometer() on taobao platform');
     }
 };
+// eslint-disable-next-line func-names
 minigame.stopAccelerometer = function (res: any) {
     // my.stopAccelerometer() is not implemented.
     minigame.offAccelerometerChange();
@@ -159,6 +166,7 @@ minigame.stopAccelerometer = function (res: any) {
 minigame.getSafeArea = function () {
     const systemInfo = my.getWindowInfoSync();
     if (typeof systemInfo.safeArea !== 'undefined') {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return systemInfo.safeArea;
     }
     console.warn('getSafeArea is not supported on this platform');
@@ -179,6 +187,7 @@ if (!my.isIDE) {
     const locCanvas = $global.screencanvas;
     if (locCanvas) {
         const originalGetContext = locCanvas.getContext.bind(locCanvas);
+        // eslint-disable-next-line func-names
         locCanvas.getContext = function (name, param) {
             if (typeof name === 'string' && typeof param === 'object' && name.startsWith('webgl')) {
                 Object.assign(param, { enable_flip_y_after_read_pixels: false });
@@ -206,6 +215,7 @@ function adapterGL (gl) {
         // Android return value: undefined.   iOS return value: {ID: -1}.
         if (my.getSystemInfoSync().platform.toLocaleLowerCase() === 'ios') {
             const originalGetUniformLocation = gl.getUniformLocation.bind(gl);
+            // eslint-disable-next-line func-names
             gl.getUniformLocation = function (program, name) {
                 const glLoc = originalGetUniformLocation(program, name);
                 if (glLoc && glLoc.ID === -1) {
