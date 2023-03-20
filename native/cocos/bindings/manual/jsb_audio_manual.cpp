@@ -30,7 +30,6 @@
 #include "bindings/auto/jsb_audio_auto.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/bindings/manual/jsb_global.h"
-#include "v8/HelperMacros.h"
 
 // NOLINTNEXTLINE(readability-identifier-naming)
 static bool PCMHeader_to_seval(PCMHeader& header, se::Value* ret) {

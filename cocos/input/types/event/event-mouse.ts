@@ -378,5 +378,5 @@ export class EventMouse extends Event {
     }
 }
 
-// @ts-expect-error TODO
-Event.EventMouse = EventMouse;
+// TODO: this is an injected property, should be deprecated
+(Event as any).EventMouse = EventMouse;

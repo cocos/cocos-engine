@@ -373,12 +373,7 @@ export class Scheduler extends System {
             found = true;
         }
         if (!found) {
-            // @ts-expect-error Notes written for over eslint
-            if (target.__instanceId) {
-                warnID(1513);
-            } else {
-                target.id = idGenerator.getNewId();
-            }
+            target.id = idGenerator.getNewId();
         }
     }
 
@@ -526,36 +521,34 @@ export class Scheduler extends System {
     }
 
     /**
-     * @en Specify the callback, target and other information to schedule a new timer.
-     * @zh 指定回调函数，调用对象等信息来规划一个新的定时器。
-     * @param callback
-     * @en The specified callback function.
+     * @en Specify the callback to schedule a new timer.
      * If the callback function is already scheduled, then only the interval parameter will be updated without re-scheduling it again.
-     * @zh 所指定的回调函数。
+     * @zh 指定回调函数来规划一个新的定时器。
      * 如果回调函数已经被定时器使用，那么只会更新之前定时器的时间间隔参数，不会设置新的定时器。
-     * @param target
+     * @param callback
      * @en The specified target.
      * @zh 所指定的调用对象。
-     * @param interval
+     * @param target
      * @en The scheduled method will be called every 'interval' seconds.
      * If 'interval' is 0, it will be called every frame, but if so, it recommended to use 'scheduleUpdateForTarget:' instead.
      * @zh 当时间间隔达到指定值时，设置的回调函数将会被调用。
      * 如果 interval 值为 0，那么回调函数每一帧都会被调用，但如果是这样，建议使用 scheduleUpdateForTarget 代替。
-     * @param [repeat]
+     * @param interval
      * @en repeat let the action be repeated repeat + 1 times, use `macro.REPEAT_FOREVER` to let the action run continuously.
      * @zh repeat 值可以让定时器触发 repeat + 1 次，使用 `macro.REPEAT_FOREVER` 可以让定时器一直循环触发。
-     * @param [delay=0]
+     * @param repeat
      * @en delay is the amount of time the action will wait before it'll start. Unit: s.
      * @zh delay 值指定延迟时间，定时器会在延迟指定的时间之后开始计时，单位: 秒。
-     * @param [paused=false]
+     * @param delay
      * @en If paused is YES, then it won't be called until it is resumed.
      * @zh 如果 paused 值为 true，那么直到 resume 被调用才开始计时。
+     * @param paused
      */
     public schedule (callback: (dt?: number) => void, target: ISchedulable, interval: number, repeat?: number, delay?: number, paused?: boolean) {
         if (typeof callback !== 'function') {
+            warnID(1514);
             const tmp = callback;
-            // @ts-expect-error Notes written for over eslint
-            callback = target;
+            callback = target as any;
             target = tmp;
         }
         // selector, target, interval, repeat, delay, paused

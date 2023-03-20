@@ -71,6 +71,7 @@ ccstd::unordered_map<uint32_t, ccstd::string> debugInfos = {
 { 1510, "cc.Scheduler: Illegal target which doesn't have id, you should do Scheduler.enableForTarget(target) before all scheduler API usage on target" },
 { 1511, "cc.Scheduler: pause state of the scheduled task doesn't match the element pause state in Scheduler, the given paused state will be ignored." },
 { 1513, "cc.Scheduler: scheduler stopped using `__instanceId` as id since v2.0, you should do Scheduler.enableForTarget(target) before all scheduler API usage on target" },
+{ 1514, "since v3.8.0, `Scheduler.schedule(target, callback, interval)` is deprecated, please use `Scheduler.schedule(callback, target, interval)` instead." },
 { 1607, "removeFromParentAndCleanup is deprecated. Use removeFromParent instead" },
 { 1619, "callback function must be non-null" },
 { 1620, "interval must be positive" },

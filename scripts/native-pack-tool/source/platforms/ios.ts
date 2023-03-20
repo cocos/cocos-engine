@@ -306,6 +306,8 @@ export class IOSPackTool extends MacOSPackTool {
                 'xcrun', ['simctl', 'install', simId, `"${foundApps[0].trim()}"`], false);
             await cchelper.runCmd(
                 'xcrun', ['simctl', 'launch', simId, `"${bundleId}"`], false);
+        } else {
+            throw new Error(`[iOS run] App or BundleId is not found!`);
         }
         return false;
     }

@@ -77,8 +77,7 @@ export class InteractiveState extends State {
 
     public instantiateComponents (): StateMachineComponent[] {
         const instantiatedComponents = this._components.map((component) => {
-            // @ts-expect-error Typing
-            const instantiated = instantiate(component, true) as unknown as StateMachineComponent;
+            const instantiated = instantiate(component) as unknown as StateMachineComponent;
             return instantiated;
         });
         return instantiatedComponents;

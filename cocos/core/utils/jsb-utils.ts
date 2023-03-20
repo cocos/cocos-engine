@@ -108,25 +108,19 @@ import type { Node } from '../../scene-graph';
 //     });
 // }
 
-export function syncNodeValues (node: Node) {
-    // @ts-expect-error: jsb related codes.
+// TODO: we mark node as type of any, because we access much of protected properties here.
+// export function syncNodeValues (node: Node) {
+export function syncNodeValues (node: any) {
     const lpos = node._lpos;
-    // @ts-expect-error: jsb related codes.
     node.setPositionForJS(lpos.x, lpos.y, lpos.z);
 
-    // @ts-expect-error: jsb related codes.
     const lscale = node._lscale;
-    // @ts-expect-error: jsb related codes.
     node.setScaleForJS(lscale.x, lscale.y, lscale.z);
 
-    // @ts-expect-error: jsb related codes.
     const lrot = node._lrot;
-    // @ts-expect-error: jsb related codes.
     node.setRotationForJS(lrot.x, lrot.y, lrot.z, lrot.w);
 
-    // @ts-expect-error: jsb related codes.
     const euler = node._euler;
-    // @ts-expect-error: jsb related codes.
     node.setRotationFromEulerForJS(euler.x, euler.y, euler.z);
 }
 
@@ -135,8 +129,7 @@ export function updateChildrenForDeserialize (node: Node) {
         return;
     }
 
-    // @ts-expect-error: jsb related codes.
-    const children = node._children;
+    const children = node.children;
     if (!children) {
         return;
     }
@@ -146,8 +139,8 @@ export function updateChildrenForDeserialize (node: Node) {
         return;
     }
 
-    // @ts-expect-error: jsb related codes.
-    node._setChildren(children);
+    // NOTE: `_setChildren` is only implemented on native platforms. @dumganhar
+    (node as any)._setChildren(children);
 
     for (let i = 0; i < len; ++i) {
         const child = children[i];

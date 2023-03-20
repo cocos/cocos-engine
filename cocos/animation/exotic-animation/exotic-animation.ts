@@ -181,14 +181,13 @@ class ExoticNodeAnimation {
     private _scale: ExoticVec3Track | null = null;
 }
 
-function floatToHashString (value: number) {
+function floatToHashString (value: number): string {
     // Note: referenced to `Skeleton.prototype.hash`
     return value.toPrecision(2);
 }
 
 function floatArrayToHashString (values: FloatArray) {
-    // @ts-expect-error Complex typing
-    return (values).map(floatToHashString).join(' ');
+    return (values).map((v: number) => Number.parseFloat(floatToHashString(v))).join(' ');
 }
 
 interface ExoticTrackValues<TValue> {

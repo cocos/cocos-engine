@@ -107,6 +107,16 @@ declare type EnumAlias<EnumT> = EnumT[keyof EnumT];
 declare module 'internal:native' {}
 
 /**
+ * Only declare on minigame platforms.
+ */
+declare const GameGlobal: any;
+
+/**
+ * only implemented on Editor.
+ */
+declare const Editor: any;
+
+/**
  * To provide a safe Record type, if you want to enable checking index access on Object, please use SafeRecord instead of Record.
  * we provide this type because we don't want to enable `noUncheckedIndexedAccess` in tsconfig.json for it's noisy for a lot of code.
  */
