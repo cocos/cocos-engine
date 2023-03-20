@@ -188,7 +188,8 @@ nodeProto.addComponent = function (typeOrClassName) {
 
     // check requirement
 
-    const ReqComp = (constructor)._requireComponent;
+    // TODO: `_requireComponent` is injected properties
+    const ReqComp = (constructor as any)._requireComponent;
     if (ReqComp && !this.getComponent(ReqComp)) {
         this.addComponent(ReqComp);
     }
@@ -1271,7 +1272,9 @@ nodeProto._instantiate = function (cloned: Node, isSyncedNode: boolean) {
         cloned = legacyCC.instantiate._clone(this, this);
     }
 
-    const newPrefabInfo = cloned._prefab;
+    // TODO(PP_Pro): after we support editorOnly tag, we could remove this any type assertion.
+    // Tracking issue: https://github.com/cocos/cocos-engine/issues/14613
+    const newPrefabInfo = (cloned as any)._prefab;
     if (EDITOR && newPrefabInfo) {
         if (cloned === newPrefabInfo.root) {
             // newPrefabInfo.fileId = '';
