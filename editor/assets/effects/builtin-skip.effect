@@ -6,7 +6,7 @@ CCEffect %{
     passes:
     - vert: standard-vs
       frag: standard-fs
-      embeddedMacros: { CC_SURFACES_LIGHTING_CALCULATE_DIFFUSE: true, CC_SURFACES_LIGHTING_CALCULATE_SPECULAR: false }
+      embeddedMacros: { CC_SURFACES_LIGHTING_DISCARD_DIFFUSE: false, CC_SURFACES_LIGHTING_DISCARD_SPECULAR: true }
       properties: &props
         tilingOffset:                     { value: [1.0, 1.0, 0.0, 0.0] }
         mainColor:                        { value: [1.0, 1.0, 1.0, 1.0], target: albedo, linear: true, editor: { displayName: Albedo, type: color } }
@@ -37,7 +37,7 @@ CCEffect %{
       frag: standard-fs
       phase: forward-add
       propertyIndex: 0
-      embeddedMacros: { CC_FORWARD_ADD: true, CC_SURFACES_LIGHTING_CALCULATE_DIFFUSE: true, CC_SURFACES_LIGHTING_CALCULATE_SPECULAR: false }
+      embeddedMacros: { CC_FORWARD_ADD: true, CC_SURFACES_LIGHTING_DISCARD_DIFFUSE: false, CC_SURFACES_LIGHTING_DISCARD_SPECULAR: true }
       depthStencilState:
         depthFunc: equal
         depthTest: true
@@ -65,7 +65,7 @@ CCEffect %{
       frag: standard-fs
       pass: specular-pass
       propertyIndex: 0
-      embeddedMacros: { CC_SURFACES_LIGHTING_CALCULATE_DIFFUSE: false, CC_SURFACES_LIGHTING_CALCULATE_SPECULAR: true }
+      embeddedMacros: { CC_SURFACES_LIGHTING_DISCARD_DIFFUSE: true, CC_SURFACES_LIGHTING_DISCARD_SPECULAR: false }
       depthStencilState:
         stencilTestFront: true
         stencilFuncFront: equal
@@ -75,7 +75,7 @@ CCEffect %{
       pass: specular-pass
       phase: forward-add
       propertyIndex: 0
-      embeddedMacros: { CC_FORWARD_ADD: true, CC_SURFACES_LIGHTING_CALCULATE_DIFFUSE: false, CC_SURFACES_LIGHTING_CALCULATE_SPECULAR: true }
+      embeddedMacros: { CC_FORWARD_ADD: true, CC_SURFACES_LIGHTING_DISCARD_DIFFUSE: true, CC_SURFACES_LIGHTING_DISCARD_SPECULAR: false }
       depthStencilState:
         depthFunc: equal
         depthTest: true
@@ -94,7 +94,7 @@ CCEffect %{
     passes:
     - vert: standard-vs
       frag: standard-fs
-      embeddedMacros: { CC_FORCE_FORWARD_SHADING: true, CC_SURFACES_LIGHTING_CALCULATE_DIFFUSE: true, CC_SURFACES_LIGHTING_CALCULATE_SPECULAR: false }
+      embeddedMacros: { CC_FORCE_FORWARD_SHADING: true, CC_SURFACES_LIGHTING_DISCARD_DIFFUSE: false, CC_SURFACES_LIGHTING_DISCARD_SPECULAR: true }
       depthStencilState:
         depthTest: true
         depthWrite: false
@@ -111,7 +111,7 @@ CCEffect %{
     - vert: standard-vs
       frag: standard-fs
       pass: specular-pass
-      embeddedMacros: { CC_FORCE_FORWARD_SHADING: true, CC_SURFACES_LIGHTING_CALCULATE_DIFFUSE: false, CC_SURFACES_LIGHTING_CALCULATE_SPECULAR: true }
+      embeddedMacros: { CC_FORCE_FORWARD_SHADING: true, CC_SURFACES_LIGHTING_DISCARD_DIFFUSE: true, CC_SURFACES_LIGHTING_DISCARD_SPECULAR: false }
       depthStencilState:
         depthTest: true
         depthWrite: false
@@ -223,11 +223,8 @@ CCProgram surface-fragment %{
       baseColor *= texColor;
     #endif
 
-    #if USE_ALPHA_TEST
-      if (baseColor.ALPHA_TEST_CHANNEL < albedoScaleAndCutoff.w) discard;
-    #endif
-
     baseColor.rgb *= albedoScaleAndCutoff.xyz;
+    baseColor.a = 0.5;
     return baseColor;
   }
 
