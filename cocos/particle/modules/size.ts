@@ -32,7 +32,7 @@ import { ParticleData } from '../particle-data';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 
 const SIZE_OVERTIME_RAND_OFFSET = ModuleRandSeed.SIZE;
-const size = new Vec3();
+const tempSize = new Vec3();
 
 @ccclass('cc.SizeModule')
 @ParticleModule.register('Size', ModuleExecStage.UPDATE, 24)
@@ -116,33 +116,33 @@ export class SizeModule extends ParticleModule {
     private _z: CurveRange | null = null;
 
     public execute (particles: ParticleData, params: ParticleEmitterParams, context: ParticleExecContext) {
-        const { normalizedAliveTime, randomSeed } = particles;
+        const { normalizedAliveTime, randomSeed, startSize, size } = particles;
         const { fromIndex, toIndex } = context;
         if (!this.separateAxes) {
             if (this.size.mode === CurveRange.Mode.Constant) {
                 const constant = this.size.constant;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    particles.getStartSizeAt(size, i);
-                    particles.setSizeAt(size.multiplyScalar(constant), i);
+                    startSize.getVec3At(tempSize, i);
+                    size.setVec3At(tempSize.multiplyScalar(constant), i);
                 }
             } else if (this.size.mode === CurveRange.Mode.Curve) {
                 const { spline, multiplier } = this.size;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    particles.getStartSizeAt(size, i);
-                    particles.setSizeAt(size.multiplyScalar(spline.evaluate(normalizedAliveTime[i]) * multiplier), i);
+                    startSize.getVec3At(tempSize, i);
+                    size.setVec3At(tempSize.multiplyScalar(spline.evaluate(normalizedAliveTime[i]) * multiplier), i);
                 }
             } else if (this.size.mode === CurveRange.Mode.TwoConstants) {
                 const { constantMin, constantMax } = this.size;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    particles.getStartSizeAt(size, i);
-                    particles.setSizeAt(size.multiplyScalar(lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + SIZE_OVERTIME_RAND_OFFSET))), i);
+                    startSize.getVec3At(tempSize, i);
+                    size.setVec3At(tempSize.multiplyScalar(lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + SIZE_OVERTIME_RAND_OFFSET))), i);
                 }
             } else {
                 const { splineMin, splineMax, multiplier } = this.size;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    particles.getStartSizeAt(size, i);
+                    startSize.getVec3At(tempSize, i);
                     const currentLife = normalizedAliveTime[i];
-                    particles.setSizeAt(size.multiplyScalar(lerp(splineMin.evaluate(currentLife),
+                    size.setVec3At(tempSize.multiplyScalar(lerp(splineMin.evaluate(currentLife),
                         splineMax.evaluate(currentLife),
                         pseudoRandom(randomSeed[i] + SIZE_OVERTIME_RAND_OFFSET)) * multiplier), i);
                 }
@@ -154,17 +154,17 @@ export class SizeModule extends ParticleModule {
                 const { constant: constantY } = this.y;
                 const { constant: constantZ } = this.z;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    particles.getStartSizeAt(size, i);
-                    particles.setSizeAt(size.multiply3f(constantX, constantY, constantZ), i);
+                    startSize.getVec3At(tempSize, i);
+                    size.setVec3At(tempSize.multiply3f(constantX, constantY, constantZ), i);
                 }
             } else if (this.size.mode === CurveRange.Mode.Curve) {
                 const { spline: splineX, multiplier: xMultiplier } = this.x;
                 const { spline: splineY, multiplier: yMultiplier } = this.y;
                 const { spline: splineZ, multiplier: zMultiplier } = this.z;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    particles.getStartSizeAt(size, i);
+                    startSize.getVec3At(tempSize, i);
                     const currentLife = normalizedAliveTime[i];
-                    particles.setSizeAt(size.multiply3f(splineX.evaluate(currentLife) * xMultiplier,
+                    size.setVec3At(tempSize.multiply3f(splineX.evaluate(currentLife) * xMultiplier,
                         splineY.evaluate(currentLife) * yMultiplier,
                         splineZ.evaluate(currentLife) * zMultiplier), i);
                 }
@@ -173,8 +173,8 @@ export class SizeModule extends ParticleModule {
                 const { constantMin: yMin, constantMax: yMax } = this.y;
                 const { constantMin: zMin, constantMax: zMax } = this.z;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    particles.getStartSizeAt(size, i);
-                    particles.setSizeAt(size.multiply3f(
+                    startSize.getVec3At(tempSize, i);
+                    size.setVec3At(tempSize.multiply3f(
                         lerp(xMin, xMax, pseudoRandom(randomSeed[i] + SIZE_OVERTIME_RAND_OFFSET)),
                         lerp(yMin, yMax, pseudoRandom(randomSeed[i] + SIZE_OVERTIME_RAND_OFFSET)),
                         lerp(zMin, zMax, pseudoRandom(randomSeed[i] + SIZE_OVERTIME_RAND_OFFSET)),
@@ -185,9 +185,9 @@ export class SizeModule extends ParticleModule {
                 const { splineMin: yMin, splineMax: yMax, multiplier: yMultiplier } = this.y;
                 const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.z;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    particles.getStartSizeAt(size, i);
+                    startSize.getVec3At(tempSize, i);
                     const currentLife = normalizedAliveTime[i];
-                    particles.setSizeAt(size.multiply3f(
+                    size.setVec3At(tempSize.multiply3f(
                         lerp(xMin.evaluate(currentLife), xMax.evaluate(currentLife), pseudoRandom(randomSeed[i] + SIZE_OVERTIME_RAND_OFFSET)) * xMultiplier,
                         lerp(yMin.evaluate(currentLife), yMax.evaluate(currentLife), pseudoRandom(randomSeed[i] + SIZE_OVERTIME_RAND_OFFSET)) * yMultiplier,
                         lerp(zMin.evaluate(currentLife), zMax.evaluate(currentLife), pseudoRandom(randomSeed[i] + SIZE_OVERTIME_RAND_OFFSET)) * zMultiplier,

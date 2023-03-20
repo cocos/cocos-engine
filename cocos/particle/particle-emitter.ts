@@ -740,13 +740,9 @@ export class ParticleEmitter extends Component {
     }
 
     private resetAnimatedState (particles: ParticleData, fromIndex: number, toIndex: number) {
-        const { animatedVelocityX, animatedVelocityY, animatedVelocityZ, angularVelocityX, angularVelocityY, angularVelocityZ, color, startColor } = particles;
-        animatedVelocityX.fill(0, fromIndex, toIndex);
-        animatedVelocityY.fill(0, fromIndex, toIndex);
-        animatedVelocityZ.fill(0, fromIndex, toIndex);
-        angularVelocityX.fill(0, fromIndex, toIndex);
-        angularVelocityY.fill(0, fromIndex, toIndex);
-        angularVelocityZ.fill(0, fromIndex, toIndex);
+        const { animatedVelocity, angularVelocity, color, startColor } = particles;
+        animatedVelocity.fill1f(0, fromIndex, toIndex);
+        angularVelocity.fill1f(0, fromIndex, toIndex);
         for (let i = fromIndex; i < toIndex; i++) {
             color[i] = startColor[i];
         }
@@ -790,11 +786,12 @@ export class ParticleEmitter extends Component {
             particles.addParticles(numToEmit);
             const toIndex = particles.count;
             const initialPosition = context.emitterTransform.getTranslation(tempPosition);
+            const { position, startDir } = particles;
             const initialDir = Vec3.set(tempDir, context.emitterTransform.m02, context.emitterTransform.m06, context.emitterTransform.m10);
             for (let i = fromIndex; i < toIndex; i++) {
                 randomSeed[i] = randomRangeInt(0, 233280);
-                particles.setPositionAt(initialPosition, i);
-                particles.setStartDirAt(initialDir, i);
+                position.setVec3At(initialPosition, i);
+                startDir.setVec3At(initialDir, i);
             }
             if (!approx(interval, 0)) {
                 for (let i = toIndex - 1, num = 0; i >= fromIndex; i--, ++num) {
@@ -803,7 +800,7 @@ export class ParticleEmitter extends Component {
                     const normalizeT = lerp(currentTime, prevTime, offset);
                     context.setTime(normalizeT, normalizeT, params.invDuration);
                     Vec3.multiplyScalar(startPositionOffset, initialVelocity, context.deltaTime);
-                    particles.addPositionAt(startPositionOffset, i);
+                    position.addVec3At(startPositionOffset, i);
                     spawningStage.execute(particles, params, context);
                     context.setTime(currentTime, normalizeT, params.invDuration);
                     updateStage.execute(particles, params, context);

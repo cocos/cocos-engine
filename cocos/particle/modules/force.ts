@@ -86,7 +86,7 @@ export class ForceModule extends ParticleModule {
 
     public execute (particles: ParticleData, params: ParticleEmitterParams, context: ParticleExecContext) {
         const needTransform = calculateTransform(params.simulationSpace, this.space, context.localToWorld, context.worldToLocal, rotation);
-        const { normalizedAliveTime, randomSeed } = particles;
+        const { normalizedAliveTime, randomSeed, velocity } = particles;
         const { fromIndex, toIndex, deltaTime } = context;
         if (DEBUG) {
             assert(this.x.mode === this.y.mode && this.y.mode === this.z.mode, 'The curve of x, y, z must have same mode!');
@@ -100,7 +100,7 @@ export class ForceModule extends ParticleModule {
                 Vec3.transformQuat(force, force, rotation);
                 Vec3.multiplyScalar(force, force, deltaTime);
                 for (let i = fromIndex; i < toIndex; i++) {
-                    particles.addVelocityAt(force, i);
+                    velocity.addVec3At(force, i);
                 }
             } else if (this.x.mode === CurveRange.Mode.Curve) {
                 const { spline: xCurve, multiplier: xMultiplier } = this.x;
@@ -114,7 +114,7 @@ export class ForceModule extends ParticleModule {
                         zCurve.evaluate(normalizedTime) * zMultiplier);
                     Vec3.transformQuat(force, force, rotation);
                     Vec3.multiplyScalar(force, force, deltaTime);
-                    particles.addVelocityAt(force, i);
+                    velocity.addVec3At(force, i);
                 }
             } else if (this.x.mode === CurveRange.Mode.TwoConstants) {
                 const { constantMin: xMin, constantMax: xMax } = this.x;
@@ -128,7 +128,7 @@ export class ForceModule extends ParticleModule {
                         lerp(zMin, zMax, pseudoRandom(seed)));
                     Vec3.transformQuat(force, force, rotation);
                     Vec3.multiplyScalar(force, force, deltaTime);
-                    particles.addVelocityAt(force, i);
+                    velocity.addVec3At(force, i);
                 }
             } else {
                 const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.x;
@@ -143,7 +143,7 @@ export class ForceModule extends ParticleModule {
                         lerp(zMin.evaluate(normalizedTime), zMax.evaluate(normalizedTime), pseudoRandom(seed))  * zMultiplier);
                     Vec3.transformQuat(force, force, rotation);
                     Vec3.multiplyScalar(force, force, deltaTime);
-                    particles.addVelocityAt(force, i);
+                    velocity.addVec3At(force, i);
                 }
             }
         } else {
@@ -155,7 +155,7 @@ export class ForceModule extends ParticleModule {
                     this.z.constant);
                 Vec3.multiplyScalar(force, force, deltaTime);
                 for (let i = fromIndex; i < toIndex; i++) {
-                    particles.addVelocityAt(force, i);
+                    velocity.addVec3At(force, i);
                 }
             } else if (this.x.mode === CurveRange.Mode.Curve) {
                 const { spline: xCurve, multiplier: xMultiplier } = this.x;
@@ -168,7 +168,7 @@ export class ForceModule extends ParticleModule {
                         yCurve.evaluate(normalizedTime) * yMultiplier,
                         zCurve.evaluate(normalizedTime) * zMultiplier);
                     Vec3.multiplyScalar(force, force, deltaTime);
-                    particles.addVelocityAt(force, i);
+                    velocity.addVec3At(force, i);
                 }
             } else if (this.x.mode === CurveRange.Mode.TwoConstants) {
                 const { constantMin: xMin, constantMax: xMax } = this.x;
@@ -181,7 +181,7 @@ export class ForceModule extends ParticleModule {
                         lerp(yMin, yMax, pseudoRandom(seed)),
                         lerp(zMin, zMax, pseudoRandom(seed)));
                     Vec3.multiplyScalar(force, force, deltaTime);
-                    particles.addVelocityAt(force, i);
+                    velocity.addVec3At(force, i);
                 }
             } else {
                 const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.x;
@@ -195,7 +195,7 @@ export class ForceModule extends ParticleModule {
                         lerp(yMin.evaluate(normalizedTime), yMax.evaluate(normalizedTime), pseudoRandom(seed))  * yMultiplier,
                         lerp(zMin.evaluate(normalizedTime), zMax.evaluate(normalizedTime), pseudoRandom(seed))  * zMultiplier);
                     Vec3.multiplyScalar(force, force, deltaTime);
-                    particles.addVelocityAt(force, i);
+                    velocity.addVec3At(force, i);
                 }
             }
         }

@@ -342,6 +342,7 @@ export class ShapeModule extends ParticleModule {
 
     public execute (particles: ParticleData, params: ParticleEmitterParams, context: ParticleExecContext) {
         const { fromIndex, toIndex } = context;
+        const { position, startDir } = particles;
         const randomPositionAmount = this.randomPositionAmount;
         const minRadius = this.radius * (1 - this.radiusThickness);
         const velocityZ = -Math.cos(this._angle) * this.radius;
@@ -358,7 +359,7 @@ export class ShapeModule extends ParticleModule {
                     randomRange(-0.5, 0.5),
                     randomRange(-0.5, 0.5),
                     randomRange(-0.5, 0.5));
-                particles.setPositionAt(tmpPosition, i);
+                position.setVec3At(tmpPosition, i);
             }
             break;
         case ShapeType.BOX_SHELL:
@@ -369,7 +370,7 @@ export class ShapeModule extends ParticleModule {
                 shuffleFloat3(shuffleArray);
                 applyBoxThickness(shuffleArray, boxThickness);
                 Vec3.set(tmpPosition, shuffleArray[0], shuffleArray[1], shuffleArray[2]);
-                particles.setPositionAt(tmpPosition, i);
+                position.setVec3At(tmpPosition, i);
             }
             break;
         case ShapeType.BOX_EDGE:
@@ -380,7 +381,7 @@ export class ShapeModule extends ParticleModule {
                 shuffleFloat3(shuffleArray);
                 applyBoxThickness(shuffleArray, boxThickness);
                 Vec3.set(tmpPosition, shuffleArray[0], shuffleArray[1], shuffleArray[2]);
-                particles.setPositionAt(tmpPosition, i);
+                position.setVec3At(tmpPosition, i);
             }
             break;
         case ShapeType.CIRCLE:
@@ -390,8 +391,8 @@ export class ShapeModule extends ParticleModule {
                     tmpPosition.set(Math.cos(theta), Math.sin(theta), 0);
                     tmpPosition.multiplyScalar(minRadius + (this.radius - minRadius) * random());
                     Vec3.normalize(tmpDir, tmpPosition);
-                    particles.setStartDirAt(tmpDir, i);
-                    particles.setPositionAt(tmpPosition, i);
+                    startDir.setVec3At(tmpDir, i);
+                    position.setVec3At(tmpPosition, i);
                 }
             } else {
                 if (this.arcMode === ArcMode.LOOP) {
@@ -403,8 +404,8 @@ export class ShapeModule extends ParticleModule {
                     tmpPosition.set(Math.cos(angle), Math.sin(angle), 0);
                     tmpPosition.multiplyScalar(minRadius + (this.radius - minRadius) * random());
                     Vec3.normalize(tmpDir, tmpPosition);
-                    particles.setStartDirAt(tmpDir, i);
-                    particles.setPositionAt(tmpPosition, i);
+                    startDir.setVec3At(tmpDir, i);
+                    position.setVec3At(tmpPosition, i);
                 }
             }
             break;
@@ -420,8 +421,8 @@ export class ShapeModule extends ParticleModule {
                     tmpDir.z = velocityZ;
                     Vec3.normalize(tmpDir, tmpDir);
                     Vec3.scaleAndAdd(tmpPosition, tmpPosition, tmpDir, this.length * random() / -velocityZ);
-                    particles.setStartDirAt(tmpDir, i);
-                    particles.setPositionAt(tmpPosition, i);
+                    startDir.setVec3At(tmpDir, i);
+                    position.setVec3At(tmpPosition, i);
                 }
             } else {
                 if (this.arcMode === ArcMode.LOOP) {
@@ -436,8 +437,8 @@ export class ShapeModule extends ParticleModule {
                     tmpDir.z = velocityZ;
                     tmpDir.normalize();
                     Vec3.scaleAndAdd(tmpPosition, tmpPosition, tmpDir, this.length * random() / -velocityZ);
-                    particles.setStartDirAt(tmpDir, i);
-                    particles.setPositionAt(tmpPosition, i);
+                    startDir.setVec3At(tmpDir, i);
+                    position.setVec3At(tmpPosition, i);
                 }
             }
             break;
@@ -450,8 +451,8 @@ export class ShapeModule extends ParticleModule {
                     Vec2.multiplyScalar(tmpDir, tmpPosition, Math.sin(this._angle));
                     tmpDir.z = velocityZ;
                     Vec3.normalize(tmpDir, tmpDir);
-                    particles.setStartDirAt(tmpDir, i);
-                    particles.setPositionAt(tmpPosition, i);
+                    startDir.setVec3At(tmpDir, i);
+                    position.setVec3At(tmpPosition, i);
                 }
             } else {
                 if (this.arcMode === ArcMode.LOOP) {
@@ -466,8 +467,8 @@ export class ShapeModule extends ParticleModule {
                     Vec2.multiplyScalar(tmpDir, tmpPosition, Math.sin(this._angle));
                     tmpDir.z = velocityZ;
                     tmpDir.normalize();
-                    particles.setStartDirAt(tmpDir, i);
-                    particles.setPositionAt(tmpPosition, i);
+                    startDir.setVec3At(tmpDir, i);
+                    position.setVec3At(tmpPosition, i);
                 }
             }
             break;
@@ -480,8 +481,8 @@ export class ShapeModule extends ParticleModule {
                     tmpDir.z = -Math.cos(this._angle);
                     tmpDir.normalize();
                     Vec2.multiplyScalar(tmpPosition, tmpPosition, this.radius);
-                    particles.setStartDirAt(tmpDir, i);
-                    particles.setPositionAt(tmpPosition, i);
+                    startDir.setVec3At(tmpDir, i);
+                    position.setVec3At(tmpPosition, i);
                 }
             } else {
                 if (this.arcMode === ArcMode.LOOP) {
@@ -496,8 +497,8 @@ export class ShapeModule extends ParticleModule {
                     tmpDir.z = -Math.cos(this._angle);
                     tmpDir.normalize();
                     Vec2.multiplyScalar(tmpPosition, tmpPosition, this.radius);
-                    particles.setStartDirAt(tmpDir, i);
-                    particles.setPositionAt(tmpPosition, i);
+                    startDir.setVec3At(tmpDir, i);
+                    position.setVec3At(tmpPosition, i);
                 }
             }
             break;
@@ -511,8 +512,8 @@ export class ShapeModule extends ParticleModule {
                 tmpPosition.z = z;
                 tmpPosition.multiplyScalar(minRadius + (this.radius - minRadius) * random());
                 Vec3.normalize(tmpDir, tmpPosition);
-                particles.setStartDirAt(tmpDir, i);
-                particles.setPositionAt(tmpPosition, i);
+                startDir.setVec3At(tmpDir, i);
+                position.setVec3At(tmpPosition, i);
             }
             break;
         case ShapeType.SPHERE_SHELL:
@@ -525,8 +526,8 @@ export class ShapeModule extends ParticleModule {
                 tmpPosition.z = z;
                 tmpPosition.multiplyScalar(this.radius);
                 Vec3.normalize(tmpDir, tmpPosition);
-                particles.setStartDirAt(tmpDir, i);
-                particles.setPositionAt(tmpPosition, i);
+                startDir.setVec3At(tmpDir, i);
+                position.setVec3At(tmpPosition, i);
             }
             break;
         case ShapeType.HEMISPHERE:
@@ -542,8 +543,8 @@ export class ShapeModule extends ParticleModule {
                     tmpPosition.z *= -1;
                 }
                 Vec3.normalize(tmpDir, tmpPosition);
-                particles.setStartDirAt(tmpDir, i);
-                particles.setPositionAt(tmpPosition, i);
+                startDir.setVec3At(tmpDir, i);
+                position.setVec3At(tmpPosition, i);
             }
             break;
         case ShapeType.HEMISPHERE_SHELL:
@@ -559,8 +560,8 @@ export class ShapeModule extends ParticleModule {
                     tmpPosition.z *= -1;
                 }
                 Vec3.normalize(tmpDir, tmpPosition);
-                particles.setStartDirAt(tmpDir, i);
-                particles.setPositionAt(tmpPosition, i);
+                startDir.setVec3At(tmpDir, i);
+                position.setVec3At(tmpPosition, i);
             }
             break;
         default:
@@ -568,30 +569,30 @@ export class ShapeModule extends ParticleModule {
         }
         if (randomPositionAmount > 0) {
             for (let i = fromIndex; i < toIndex; ++i) {
-                particles.getPositionAt(tmpPosition, i);
+                position.getVec3At(tmpPosition, i);
                 tmpPosition.add3f(randomRange(-randomPositionAmount, randomPositionAmount),
                     randomRange(-randomPositionAmount, randomPositionAmount),
                     randomRange(-randomPositionAmount, randomPositionAmount));
-                particles.setPositionAt(tmpPosition, i);
+                position.setVec3At(tmpPosition, i);
             }
         }
 
         for (let i = fromIndex; i < toIndex; ++i) {
-            particles.getPositionAt(tmpPosition, i);
-            particles.setPositionAt(Vec3.transformMat4(tmpPosition, tmpPosition, this._mat), i);
+            position.getVec3At(tmpPosition, i);
+            position.setVec3At(Vec3.transformMat4(tmpPosition, tmpPosition, this._mat), i);
         }
         if (this.sphericalDirectionAmount > 0) {
             for (let i = fromIndex; i < toIndex; ++i) {
-                particles.getPositionAt(tmpPosition, i);
-                particles.getStartDirAt(tmpDir, i);
+                position.getVec3At(tmpPosition, i);
+                startDir.getVec3At(tmpDir, i);
                 const sphericalVel = Vec3.normalize(_intermediVec, tmpPosition);
                 Vec3.lerp(tmpDir, tmpDir, sphericalVel, this.sphericalDirectionAmount);
-                particles.setStartDirAt(tmpDir, i);
+                startDir.setVec3At(tmpDir, i);
             }
         }
         for (let i = fromIndex; i < toIndex; ++i) {
-            particles.getStartDirAt(tmpDir, i);
-            particles.setStartDirAt(Vec3.transformQuat(tmpDir, tmpDir, this._quat), i);
+            startDir.getVec3At(tmpDir, i);
+            startDir.setVec3At(Vec3.transformQuat(tmpDir, tmpDir, this._quat), i);
         }
     }
 }

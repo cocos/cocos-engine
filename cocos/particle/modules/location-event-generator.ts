@@ -27,7 +27,7 @@ import { approx, BitMask, CCFloat, Enum, EPSILON, Mat4, pseudoRandom, Quat, Vec3
 import { ccclass, range, serializable, type, visible } from '../../core/data/decorators';
 import { Space } from '../enum';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
-import { ParticleData } from '../particle-data';
+import { ParticleData, ParticleVec3Parameter } from '../particle-data';
 import { ParticleExecContext, ParticleEmitterParams, ParticleEventInfo } from '../particle-base';
 
 const PROBABILITY_RANDOM_SEED_OFFSET = 199208;
@@ -42,7 +42,7 @@ export class LocationEventGeneratorModule extends ParticleModule {
     public probability = 1;
 
     public execute (particles: ParticleData, params: ParticleEmitterParams, context: ParticleExecContext) {
-        const { randomSeed, invStartLifeTime, normalizedAliveTime, id } = particles;
+        const { randomSeed, invStartLifeTime, normalizedAliveTime, id, velocity, animatedVelocity, position, rotation, size } = particles;
         const { fromIndex, toIndex, deltaTime, locationEvents } = context;
         const { localToWorld } = context;
         const { simulationSpace } = params;
@@ -51,14 +51,14 @@ export class LocationEventGeneratorModule extends ParticleModule {
                 if (pseudoRandom(randomSeed[i] + PROBABILITY_RANDOM_SEED_OFFSET) > this.probability) {
                     continue;
                 }
-                particles.getPositionAt(eventInfo.position, i);
-                particles.getFinalVelocityAt(eventInfo.velocity, i);
+                position.getVec3At(eventInfo.position, i);
+                ParticleVec3Parameter.add(eventInfo.velocity, velocity, animatedVelocity, i);
                 if (simulationSpace === Space.LOCAL) {
                     Vec3.transformMat4(eventInfo.position, eventInfo.position, localToWorld);
                     Vec3.transformMat4(eventInfo.velocity, eventInfo.velocity, localToWorld);
                 }
-                particles.getRotationAt(eventInfo.rotation, i);
-                particles.getSizeAt(eventInfo.size, i);
+                rotation.getVec3At(eventInfo.rotation, i);
+                size.getVec3At(eventInfo.size, i);
                 particles.getColorAt(eventInfo.color, i);
                 const currentTime = normalizedAliveTime[i] / invStartLifeTime[i];
                 eventInfo.particleId = id[i];
