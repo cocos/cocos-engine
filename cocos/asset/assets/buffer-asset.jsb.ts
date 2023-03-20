@@ -24,9 +24,12 @@
 import { cclegacy } from '../../core';
 import './asset';
 import { patch_cc_BufferAsset } from '../../native-binding/decorators';
+import type { BufferAsset as JsbBufferAsset } from './buffer-asset';
 
-export type BufferAsset = jsb.BufferAsset;
-export const BufferAsset = jsb.BufferAsset;
+declare const jsb: any;
+
+export type BufferAsset = JsbBufferAsset;
+export const BufferAsset: typeof JsbBufferAsset = jsb.BufferAsset;
 
 cclegacy.BufferAsset = jsb.BufferAsset;
 

@@ -551,7 +551,7 @@ export class BlendTarget {
 }
 
 export class BlendState {
-    private targets: BlendTarget[];
+    public targets: BlendTarget[];
     private _blendColor: Color;
     protected _nativeObj;
     protected _isA2C: boolean = false;

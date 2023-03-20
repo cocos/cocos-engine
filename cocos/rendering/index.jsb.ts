@@ -25,34 +25,71 @@
 declare const nr: any;
 declare const jsb: any;
 
-import { getPhaseID } from './pass-phase';
 import { ccenum, CCString, js } from '../core';
 import * as pipeline from './define';
 import { ccclass, serializable, editable, type } from '../core/data/class-decorator';
 import { legacyCC } from '../core/global-exports';
 import * as decors from '../native-binding/decorators';
+import { RenderTexture } from '../asset/assets/render-texture';
+import type { 
+    RenderPipeline as NrRenderPipeline,
+    RenderFlow as NrRenderFlow,
+    RenderStage as NrRenderStage,
+    InstancedBuffer as NrInstancedBuffer,
+    PipelineStateManager as NrPipelineStateManager,
+    ForwardPipeline as NrForwardPipeline,
+    ForwardFlow as NrForwardFlow,
+    ShadowFlow as NrShadowFlow,
+    ForwardStage as NrForwardStage,
+    ShadowStage as NrShadowStage,
+    DeferredPipeline as NrDeferredPipeline,
+    MainFlow as NrMainFlow,
+    LightingStage as NrLightingStage,
+    PostProcessStage as NrPostProcessStage,
+    GbufferStage as NrGbufferStage,
+    BloomStage as NrBloomStage,
+    ReflectionProbeFlow as NrReflectionProbeFlow,
+    ReflectionProbeStage as NrReflectionProbeStage,
+} from './index';
+
 export { pipeline };
-
-nr.getPhaseID = getPhaseID;
-
-export const RenderPipeline = nr.RenderPipeline;
-export const RenderFlow = nr.RenderFlow;
-export const RenderStage = nr.RenderStage;
-export const InstancedBuffer = nr.InstancedBuffer;
-export const PipelineStateManager = nr.PipelineStateManager;
-export const ForwardPipeline = nr.ForwardPipeline;
-export const ForwardFlow = nr.ForwardFlow;
-export const ShadowFlow = nr.ShadowFlow;
-export const ForwardStage = nr.ForwardStage;
-export const ShadowStage = nr.ShadowStage;
-export const DeferredPipeline = nr.DeferredPipeline;
-export const MainFlow = nr.MainFlow;
-export const LightingStage = nr.LightingStage;
-export const PostProcessStage = nr.PostProcessStage;
-export const GbufferStage = nr.GbufferStage;
-export const BloomStage = nr.BloomStage;
-export const ReflectionProbeFlow = nr.ReflectionProbeFlow;
-export const ReflectionProbeStage = nr.ReflectionProbeStage;
+export * from './pass-phase';
+export const RenderPipeline: typeof NrRenderPipeline = nr.RenderPipeline;
+export type RenderPipeline = NrRenderPipeline;
+export const RenderFlow: typeof NrRenderFlow = nr.RenderFlow;
+export type RenderFlow = NrRenderFlow;
+export const RenderStage: typeof NrRenderStage = nr.RenderStage;
+export type RenderStage = NrRenderStage;
+export const InstancedBuffer: typeof NrInstancedBuffer = nr.InstancedBuffer;
+export type InstancedBuffer = NrInstancedBuffer;
+export const PipelineStateManager: typeof NrPipelineStateManager = nr.PipelineStateManager;
+export type PipelineStateManager = NrPipelineStateManager;
+export const ForwardPipeline: typeof NrForwardPipeline = nr.ForwardPipeline;
+export type ForwardPipeline = NrForwardPipeline;
+export const ForwardFlow: typeof NrForwardFlow = nr.ForwardFlow;
+export type ForwardFlow = NrForwardFlow;
+export const ShadowFlow: typeof NrShadowFlow = nr.ShadowFlow;
+export type ShadowFlow = NrShadowFlow;
+export const ForwardStage: typeof NrForwardStage = nr.ForwardStage;
+export type ForwardStage = NrForwardStage;
+export const ShadowStage: typeof NrShadowStage = nr.ShadowStage;
+export type ShadowStage = NrShadowStage;
+export const DeferredPipeline: typeof NrDeferredPipeline = nr.DeferredPipeline;
+export type DeferredPipeline = NrDeferredPipeline;
+export const MainFlow: typeof NrMainFlow = nr.MainFlow;
+export type MainFlow = NrMainFlow;
+export const LightingStage: typeof NrLightingStage = nr.LightingStage;
+export type LightingStage = NrLightingStage;
+export const PostProcessStage: typeof NrPostProcessStage = nr.PostProcessStage;
+export type PostProcessStage = NrPostProcessStage;
+export const GbufferStage: typeof NrGbufferStage = nr.GbufferStage;
+export type GbufferStage = NrGbufferStage;
+export const BloomStage: typeof NrBloomStage = nr.BloomStage;
+export type BloomStage = NrBloomStage;
+export const ReflectionProbeFlow: typeof NrReflectionProbeFlow = nr.ReflectionProbeFlow;
+export type ReflectionProbeFlow = NrReflectionProbeFlow;
+export const ReflectionProbeStage: typeof NrReflectionProbeStage = nr.ReflectionProbeStage;
+export type ReflectionProbeStage = NrReflectionProbeStage;
 export { PipelineEventType } from './pipeline-event';
 
 interface IRenderFlowInfo {
@@ -350,8 +387,6 @@ legacyCC.RenderFlow = RenderFlow;
 legacyCC.RenderStage = RenderStage;
 legacyCC.RenderPipeline = RenderPipeline;
 
-
-const RenderTexture: any = jsb.RenderTexture;
 @ccclass('RenderTextureConfig')
 class RenderTextureConfig {
     @serializable

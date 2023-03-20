@@ -22,9 +22,12 @@
  THE SOFTWARE.
 */
 import { Vec3, Enum, cclegacy } from '../../core';
+import type { LODData as JsbLODData, LODGroup as JsbLODGroup } from './lod-group';
 
-export const LODData = jsb.LODData;
-export const LODGroup = jsb.LODGroup;
+export const LODData: typeof JsbLODData = jsb.LODData;
+export type LODData = JsbLODData;
+export const LODGroup: typeof JsbLODGroup = jsb.LODGroup;
+export type LODGroup = JsbLODGroup;
 
 import type {
     Ambient as JsbAmbient,
