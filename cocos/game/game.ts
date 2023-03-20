@@ -409,6 +409,19 @@ export class Game extends EventTarget {
     }
 
     /**
+     * @en Make engine update in faked fixed interval regardless of the actual running interval.
+     * @zh 让引擎以假的时间间隔更新，而不考虑实际的运行间隔。
+     * @param deltaTime
+     * @en The faked fixed interval, the unit is second. Will not use faked interval if the value is less or equal to 0.
+     * @zh 假的时间间隔，单位是秒。如果传入的值小于或等于0，那么不使用假的时间间隔。
+     * @engineInternal
+     */
+    public setFixedDeltaTime (deltaTime: number) {
+        this._deltaTime = deltaTime;
+        this._useFixedDeltaTime = deltaTime > 0;
+    }
+
+    /**
      * @en The delta time since last frame, unit: s.
      * @zh 获取上一帧的增量时间，以秒为单位。
      */
@@ -454,6 +467,7 @@ export class Game extends EventTarget {
     private _initTime = 0;
     private _startTime = 0;
     private _deltaTime = 0.0;
+    private _useFixedDeltaTime = false;
     private _shouldLoadLaunchScene = true;
 
     /**
@@ -981,12 +995,15 @@ export class Game extends EventTarget {
     // @Methods
 
     private _calculateDT () {
-        const now = performance.now();
-        this._deltaTime = now > this._startTime ? (now - this._startTime) / 1000 : 0;
-        if (this._deltaTime > Game.DEBUG_DT_THRESHOLD) {
-            this._deltaTime = this.frameTime / 1000;
+        if (!this._useFixedDeltaTime) {
+            const now = performance.now();
+            this._deltaTime = now > this._startTime ? (now - this._startTime) / 1000 : 0;
+            if (this._deltaTime > Game.DEBUG_DT_THRESHOLD) {
+                this._deltaTime = this.frameTime / 1000;
+            }
+            this._startTime = now;
         }
-        this._startTime = now;
+
         return this._deltaTime;
     }
 
