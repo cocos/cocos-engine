@@ -1,6 +1,5 @@
-
-
-
+// include this file after all fragment surface functions definition
+// not contain anisotropic params
 
 #ifndef CC_SURFACES_FRAGMENT_MODIFY_BASECOLOR_AND_TRANSPARENCY
   #define CC_SURFACES_FRAGMENT_MODIFY_BASECOLOR_AND_TRANSPARENCY
