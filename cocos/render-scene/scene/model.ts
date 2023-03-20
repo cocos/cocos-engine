@@ -676,7 +676,7 @@ export class Model {
         if (!this._localDataUpdated) { return; }
         this._localDataUpdated = false;
 
-        const worldMatrix = this.transform.worldMatrix;
+        const worldMatrix = this.transform._mat;
         let hasNonInstancingPass = false;
         for (let i = 0; i < subModels.length; i++) {
             const subModel = subModels[i];
