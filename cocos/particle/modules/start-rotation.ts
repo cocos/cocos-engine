@@ -25,7 +25,7 @@
 
 import { ccclass, displayOrder, formerlySerializedAs, radian, range, serializable, tooltip, type, visible } from '../../core/data/decorators';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
-import { ParticleSOAData } from '../particle-soa-data';
+import { ParticleData } from '../particle-data';
 import { ParticleExecContext, ParticleEmitterParams } from '../particle-base';
 import { CurveRange } from '../curve-range';
 import { lerp, pseudoRandom, randomRangeInt, Vec3 } from '../../core/math';
@@ -105,7 +105,7 @@ export class StartRotationModule extends ParticleModule {
     @serializable
     private _startRotationY: CurveRange | null = null;
 
-    public execute (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public execute (particles: ParticleData, params: ParticleEmitterParams, context: ParticleExecContext) {
         const { rotationX, rotationY, rotationZ } = particles;
         const { fromIndex, toIndex, normalizedTimeInCycle } = context;
         if (this.startRotation3D) {

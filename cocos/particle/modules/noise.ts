@@ -30,7 +30,7 @@ import { range, rangeStep, slide, visible } from '../../core/data/decorators/edi
 import { clamp, lerp, pseudoRandom, randomRangeInt, Vec2, Vec3 } from '../../core/math';
 import { CurveRange } from '../curve-range';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
-import { ParticleSOAData } from '../particle-soa-data';
+import { ParticleData } from '../particle-data';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { perlin1D, perlin2D, perlin3D, PerlinNoise1DCache, PerlinNoise2DCache, PerlinNoise3DCache } from './perlin-noise';
 
@@ -268,14 +268,14 @@ export class NoiseModule extends ParticleModule {
     private _randomSeed = randomRangeInt(0, 233280);
     private _scrollOffset = 0;
 
-    public tick (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public tick (particles: ParticleData, params: ParticleEmitterParams, context: ParticleExecContext) {
         this._scrollOffset += this._scrollSpeed.evaluate(context.normalizedTimeInCycle, 1) * context.deltaTime;
         if (this._scrollOffset > 256) {
             this._scrollOffset -= 256;
         }
     }
 
-    public execute (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public execute (particles: ParticleData, params: ParticleEmitterParams, context: ParticleExecContext) {
         const { randomSeed, normalizedAliveTime, noiseX, noiseY, noiseZ, rotationX, rotationY, rotationZ, sizeX, sizeY, sizeZ } = particles;
         const { fromIndex, toIndex, deltaTime } = context;
         const scrollOffset = this._scrollOffset;

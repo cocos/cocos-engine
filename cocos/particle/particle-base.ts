@@ -27,6 +27,7 @@ import { CullingMode, Space } from './enum';
 import { Color, Mat4, Quat, Vec3 } from '../core';
 import { ccclass, serializable } from '../core/data/decorators';
 import { CurveRange } from './curve-range';
+import { ModuleExecStage } from './particle-module';
 
 export enum ParticleEventType {
     UNKNOWN,
@@ -251,6 +252,7 @@ export class ParticleExecContext {
     public worldRotation = new Quat();
     public fromIndex = 0;
     public toIndex = 0;
+    public executionStage = ModuleExecStage.NONE;
 
     private _locationEvents: ParticleEvents | null = null;
     private _deathEvents: ParticleEvents | null = null;
@@ -267,6 +269,10 @@ export class ParticleExecContext {
             this._deathEvents = new ParticleEvents();
         }
         return this._deathEvents;
+    }
+
+    setExecutionStage (stage: ModuleExecStage) {
+        this.executionStage = stage;
     }
 
     setExecuteRange (fromIndex: number, toIndex: number) {

@@ -30,7 +30,7 @@ import { GradientRange } from '../gradient-range';
 import { Space, TextureMode, TrailMode } from '../enum';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { Enum } from '../../core';
-import { ParticleHandle } from '../particle-soa-data';
+import { ParticleHandle } from '../particle-data';
 
 const PRE_TRIANGLE_INDEX = 1;
 const NEXT_TRIANGLE_INDEX = 1 << 2;

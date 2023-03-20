@@ -1,4 +1,4 @@
-import { ShapeModule } from '../../../typedoc-index';
+import { ShapeModule } from './shape';
 import { ccclass } from '../../core/data/decorators';
 import { ModuleExecStage, ParticleModule } from '../particle-module';
 

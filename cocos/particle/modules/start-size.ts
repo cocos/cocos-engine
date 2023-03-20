@@ -25,7 +25,7 @@
 
 import { ccclass, displayOrder, formerlySerializedAs, radian, range, serializable, tooltip, type, visible } from '../../core/data/decorators';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
-import { ParticleSOAData } from '../particle-soa-data';
+import { ParticleData } from '../particle-data';
 import { ParticleExecContext, ParticleEmitterParams } from '../particle-base';
 import { CurveRange } from '../curve-range';
 import { GradientRange } from '../gradient-range';
@@ -102,7 +102,7 @@ export class StartSizeModule extends ParticleModule {
     @serializable
     private _startSizeZ: CurveRange | null = null;
 
-    public execute (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public execute (particles: ParticleData, params: ParticleEmitterParams, context: ParticleExecContext) {
         const { startSizeX, startSizeY, startSizeZ, sizeX, sizeY, sizeZ } = particles;
         const { fromIndex, toIndex, normalizedTimeInCycle } = context;
         if (this.startSize3D) {

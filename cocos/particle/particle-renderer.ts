@@ -44,8 +44,8 @@ const CC_RENDER_MODE = 'CC_RENDER_MODE';
 const ROTATION_OVER_TIME_MODULE_ENABLE = 'ROTATION_OVER_TIME_MODULE_ENABLE';
 const INSTANCE_PARTICLE = 'CC_INSTANCE_PARTICLE';
 
-@ccclass('cc.ParticleEmitterRenderer')
-export class ParticleEmitterRenderer extends ModelRenderer {
+@ccclass('cc.ParticleRenderer')
+export class ParticleRenderer extends ModelRenderer {
     public static AlignmentSpace = AlignmentSpace;
     /**
      * @zh 设定粒子生成模式。
@@ -75,7 +75,7 @@ export class ParticleEmitterRenderer extends ModelRenderer {
      * @zh 在粒子生成方式为 StretchedBillboard 时,对粒子在运动方向上按速度大小进行拉伸。
      */
     @displayOrder(1)
-    @visible(function (this: ParticleEmitterRenderer) { return this._renderMode === RenderMode.STRETCHED_BILLBOARD; })
+    @visible(function (this: ParticleRenderer) { return this._renderMode === RenderMode.STRETCHED_BILLBOARD; })
     @tooltip('i18n:particleSystemRenderer.velocityScale')
     public get velocityScale () {
         return this._velocityScale;
@@ -89,7 +89,7 @@ export class ParticleEmitterRenderer extends ModelRenderer {
      * @zh 在粒子生成方式为 StretchedBillboard 时,对粒子在运动方向上按粒子大小进行拉伸。
      */
     @displayOrder(2)
-    @visible(function (this: ParticleEmitterRenderer) { return this._renderMode === RenderMode.STRETCHED_BILLBOARD; })
+    @visible(function (this: ParticleRenderer) { return this._renderMode === RenderMode.STRETCHED_BILLBOARD; })
     @tooltip('i18n:particleSystemRenderer.lengthScale')
     public get lengthScale () {
         return this._lengthScale;
@@ -103,7 +103,7 @@ export class ParticleEmitterRenderer extends ModelRenderer {
      * @zh 粒子发射的模型。
      */
     @type(Mesh)
-    @visible(function (this: ParticleEmitterRenderer) { return this._renderMode === RenderMode.MESH; })
+    @visible(function (this: ParticleRenderer) { return this._renderMode === RenderMode.MESH; })
     @displayOrder(7)
     @tooltip('i18n:particleSystemRenderer.mesh')
     public get mesh () {

@@ -23,8 +23,8 @@
  THE SOFTWARE.
  */
 
-import { Component } from "../core";
-import { ParticleEmitter } from "./particle-emitter";
+import { Component } from '../core';
+import { ParticleEmitter } from './particle-emitter';
 
 export class VFXSystem extends Component {
     private _emitters: ParticleEmitter[] = [];

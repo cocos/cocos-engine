@@ -29,14 +29,14 @@ import { EDITOR } from 'internal:constants';
 import { Particle } from '@cocos/cannon';
 import { approx, clamp01, EPSILON, lerp, Mat3, Mat4, pseudoRandom, Quat, randomRangeInt, Size, Vec2, Vec3, Vec4 } from '../core/math';
 import { countTrailingZeros, INT_MAX } from '../core/math/bits';
-import { ColorModule } from './modules/color';
+import { MultiplyColorModule } from './modules/multiply-color';
 import { CurveRange, Mode } from './curve-range';
 import { ForceModule } from './modules/force';
 import { LimitVelocityModule } from './modules/limit-velocity';
 import { RotationModule } from './modules/rotation';
 import { SizeModule } from './modules/size';
 import { SubUVAnimationModule } from './modules/sub-uv-animation';
-import { VelocityModule } from './modules/velocity';
+import { AddVelocityModule } from './modules/add-velocity';
 import { StartColorModule } from './modules/start-color';
 import { StartSizeModule } from './modules/start-size';
 import { StartSpeedModule } from './modules/start-speed';
@@ -51,14 +51,14 @@ import { StartRotationModule } from './modules/start-rotation';
 import { ShapeModule } from './modules/shape';
 import { InheritedProperty, ParticleEmitterParams, ParticleEmitterState, ParticleEventInfo, ParticleEventType, ParticleExecContext, PlayingState } from './particle-base';
 import { CullingMode, Space } from './enum';
-import { ParticleEmitterRenderer } from './particle-emitter-renderer';
+import { ParticleRenderer } from './particle-renderer';
 import { legacyCC } from '../core/global-exports';
 import { TransformBit } from '../core/scene-graph/node-enum';
 import { AABB, intersect } from '../core/geometry';
 import { Camera, Model } from '../core/renderer/scene';
 import { NoiseModule } from './modules/noise';
 import { assert, BitMask, CCBoolean, CCClass, CCFloat, CCInteger, Component, Enum, geometry, js } from '../core';
-import { INVALID_HANDLE, ParticleHandle, ParticleSOAData } from './particle-soa-data';
+import { INVALID_HANDLE, ParticleHandle, ParticleData } from './particle-data';
 import { ParticleModule, ParticleModuleStage, ModuleExecStage } from './particle-module';
 import { vfxManager } from './vfx-manager';
 import { BurstModule } from './modules/burst';
@@ -112,7 +112,7 @@ export class EventReceiver {
 @help('i18n:cc.ParticleEmitter')
 @menu('Effects/ParticleEmitter')
 @executionOrder(99)
-@requireComponent(ParticleEmitterRenderer)
+@requireComponent(ParticleRenderer)
 @executeInEditMode
 export class ParticleEmitter extends Component {
     public static CullingMode = CullingMode;
@@ -313,7 +313,7 @@ export class ParticleEmitter extends Component {
      * @deprecated since v3.8, please use [[ParticleSystem.getModule]] instead.
      */
     public get colorOverLifetimeModule () {
-        return this._updateStage.getOrAddModule(ColorModule);
+        return this._updateStage.getOrAddModule(MultiplyColorModule);
     }
 
     /**
@@ -337,7 +337,7 @@ export class ParticleEmitter extends Component {
      * @deprecated since v3.8, please use [[ParticleSystem.getModule]] instead.
      */
     public get velocityOverLifetimeModule () {
-        return this._updateStage.getOrAddModule(VelocityModule);
+        return this._updateStage.getOrAddModule(AddVelocityModule);
     }
 
     /**
@@ -392,7 +392,7 @@ export class ParticleEmitter extends Component {
     }
 
     public get renderer () {
-        return this.getComponent(ParticleEmitterRenderer);
+        return this.getComponent(ParticleRenderer);
     }
 
     public get isPlaying () {
@@ -462,7 +462,7 @@ export class ParticleEmitter extends Component {
     @serializable
     private _params = new ParticleEmitterParams();
     private _bounds = new Vec3();
-    private _particles = new ParticleSOAData();
+    private _particles = new ParticleData();
     private _context = new ParticleExecContext();
     private _state = new ParticleEmitterState();
 
@@ -589,7 +589,7 @@ export class ParticleEmitter extends Component {
     }
 
     protected onLoad () {
-        const renderer = this.getComponent(ParticleEmitterRenderer);
+        const renderer = this.getComponent(ParticleRenderer);
         if (renderer) {
             renderer.setEmitter(this);
         }
@@ -602,7 +602,7 @@ export class ParticleEmitter extends Component {
         this._spawningStage.getOrAddModule(StartRotationModule);
         this._spawningStage.getOrAddModule(StartSizeModule);
         this._spawningStage.getOrAddModule(StartSpeedModule);
-        this._updateStage.getOrAddModule(ColorModule);
+        this._updateStage.getOrAddModule(MultiplyColorModule);
         this._updateStage.getOrAddModule(ForceModule);
         this._updateStage.getOrAddModule(GravityModule);
         this._updateStage.getOrAddModule(LimitVelocityModule);
@@ -613,7 +613,7 @@ export class ParticleEmitter extends Component {
         this._updateStage.getOrAddModule(SolveModule);
         this._updateStage.getOrAddModule(SpeedModifierModule);
         this._updateStage.getOrAddModule(SubUVAnimationModule);
-        this._updateStage.getOrAddModule(VelocityModule);
+        this._updateStage.getOrAddModule(AddVelocityModule);
         this._updateStage.getOrAddModule(DeathEventGeneratorModule);
         this._updateStage.getOrAddModule(LocationEventGeneratorModule);
         if (this.eventReceivers.length === 0) {
@@ -739,20 +739,20 @@ export class ParticleEmitter extends Component {
         }
     }
 
-    private resetAnimatedState (particles: ParticleSOAData, fromIndex: number, toIndex: number) {
+    private resetAnimatedState (particles: ParticleData, fromIndex: number, toIndex: number) {
         const { animatedVelocityX, animatedVelocityY, animatedVelocityZ, angularVelocityX, angularVelocityY, angularVelocityZ, color, startColor } = particles;
+        animatedVelocityX.fill(0, fromIndex, toIndex);
+        animatedVelocityY.fill(0, fromIndex, toIndex);
+        animatedVelocityZ.fill(0, fromIndex, toIndex);
+        angularVelocityX.fill(0, fromIndex, toIndex);
+        angularVelocityY.fill(0, fromIndex, toIndex);
+        angularVelocityZ.fill(0, fromIndex, toIndex);
         for (let i = fromIndex; i < toIndex; i++) {
-            animatedVelocityX[i] = 0;
-            animatedVelocityY[i] = 0;
-            animatedVelocityZ[i] = 0;
-            angularVelocityX[i] = 0;
-            angularVelocityY[i] = 0;
-            angularVelocityZ[i] = 0;
             color[i] = startColor[i];
         }
     }
 
-    private emit (particles: ParticleSOAData, params: ParticleEmitterParams,
+    private emit (particles: ParticleData, params: ParticleEmitterParams,
         initialVelocity: Vec3, prevTime: number, currentTime: number, spawnFraction: number): number {
         const context = this._context;
         const timeInterval = 1 / context.emittingNumOverTime;
@@ -776,7 +776,7 @@ export class ParticleEmitter extends Component {
         return spawnFraction;
     }
 
-    private spawnParticles (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext,
+    private spawnParticles (particles: ParticleData, params: ParticleEmitterParams, context: ParticleExecContext,
         initialVelocity: Vec3, prevTime: number, currentTime: number, numToEmit: number, interval: number, spawnFraction: number) {
         const { randomSeed } = particles;
         if (numToEmit + particles.count > params.capacity) {
@@ -802,10 +802,10 @@ export class ParticleEmitter extends Component {
                     const offset = clamp01((spawnFraction + num) * interval);
                     const normalizeT = lerp(currentTime, prevTime, offset);
                     context.setTime(normalizeT, normalizeT, params.invDuration);
-                    spawningStage.execute(particles, params, context);
-                    context.setTime(currentTime, normalizeT, params.invDuration);
                     Vec3.multiplyScalar(startPositionOffset, initialVelocity, context.deltaTime);
                     particles.addPositionAt(startPositionOffset, i);
+                    spawningStage.execute(particles, params, context);
+                    context.setTime(currentTime, normalizeT, params.invDuration);
                     updateStage.execute(particles, params, context);
                 }
             } else {

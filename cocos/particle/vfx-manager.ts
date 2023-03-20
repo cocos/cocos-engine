@@ -26,7 +26,7 @@
 import { Director, director, game, js } from '../core';
 import System from '../core/components/system';
 import { ParticleEmitter } from './particle-emitter';
-import { ParticleEmitterRenderer } from './particle-emitter-renderer';
+import { ParticleRenderer } from './particle-renderer';
 
 export class VFXManager extends System {
     get totalFrames () {
@@ -42,7 +42,7 @@ export class VFXManager extends System {
     }
 
     private _emitters: ParticleEmitter[] = [];
-    private _renderers: ParticleEmitterRenderer[] = [];
+    private _renderers: ParticleRenderer[] = [];
     private _totalFrames = 0;
     private _maxEmitterDeltaTime = 0.03;
 
@@ -61,11 +61,11 @@ export class VFXManager extends System {
         }
     }
 
-    addRenderer (renderer: ParticleEmitterRenderer) {
+    addRenderer (renderer: ParticleRenderer) {
         this._renderers.push(renderer);
     }
 
-    removeRenderer (renderer: ParticleEmitterRenderer) {
+    removeRenderer (renderer: ParticleRenderer) {
         const index = this._renderers.indexOf(renderer);
         if (index !== -1) {
             js.array.fastRemoveAt(this._renderers, index);

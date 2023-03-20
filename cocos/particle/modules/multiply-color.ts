@@ -27,7 +27,7 @@ import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { Color, pseudoRandom } from '../../core/math';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { GradientRange } from '../gradient-range';
-import { ParticleSOAData } from '../particle-soa-data';
+import { ParticleData } from '../particle-data';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 
 const COLOR_OVERTIME_RAND_OFFSET = 91041;
@@ -35,9 +35,9 @@ const tempColor = new Color();
 const tempColor2 = new Color();
 const tempColor3 = new Color();
 
-@ccclass('cc.ColorModule')
-@ParticleModule.register('Color', ModuleExecStage.UPDATE, 21)
-export class ColorModule extends ParticleModule {
+@ccclass('cc.MultiplyColor')
+@ParticleModule.register('MultiplyColor', ModuleExecStage.UPDATE, 21)
+export class MultiplyColorModule extends ParticleModule {
     /**
      * @zh 颜色随时间变化的参数，各个 key 之间线性差值变化。
      */
@@ -46,36 +46,36 @@ export class ColorModule extends ParticleModule {
     @displayOrder(1)
     public color = new GradientRange();
 
-    public execute (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public execute (particles: ParticleData, params: ParticleEmitterParams, context: ParticleExecContext) {
         const { fromIndex, toIndex } = context;
         if (this.color.mode === GradientRange.Mode.Color) {
             const color = this.color.color;
             for (let i = fromIndex; i < toIndex; i++) {
-                particles.multipleColorAt(color, i);
+                particles.multiplyColorAt(color, i);
             }
         } else if (this.color.mode === GradientRange.Mode.Gradient) {
             const color = this.color.gradient;
             const { normalizedAliveTime } = particles;
             for (let i = fromIndex; i < toIndex; i++) {
-                particles.multipleColorAt(color.evaluate(tempColor, normalizedAliveTime[i]), i);
+                particles.multiplyColorAt(color.evaluate(tempColor, normalizedAliveTime[i]), i);
             }
         } else if (this.color.mode === GradientRange.Mode.RandomColor) {
             const color = this.color.gradient;
             for (let i = fromIndex; i < toIndex; i++) {
-                particles.multipleColorAt(color.randomColor(tempColor), i);
+                particles.multiplyColorAt(color.randomColor(tempColor), i);
             }
         } else if (this.color.mode === GradientRange.Mode.TwoColors) {
             const { colorMax, colorMin } = this.color;
             const { randomSeed } = particles;
             for (let i = fromIndex; i < toIndex; i++) {
-                particles.multipleColorAt(Color.lerp(tempColor, colorMin,
+                particles.multiplyColorAt(Color.lerp(tempColor, colorMin,
                     colorMax, pseudoRandom(randomSeed[i] + COLOR_OVERTIME_RAND_OFFSET)), i);
             }
         } else {
             const { gradientMin, gradientMax } = this.color;
             const { randomSeed, normalizedAliveTime } = particles;
             for (let i = fromIndex; i < toIndex; i++) {
-                particles.multipleColorAt(Color.lerp(tempColor,
+                particles.multiplyColorAt(Color.lerp(tempColor,
                     gradientMin.evaluate(tempColor2, normalizedAliveTime[i]),
                     gradientMax.evaluate(tempColor3, normalizedAliveTime[i]),
                     pseudoRandom(randomSeed[i] + COLOR_OVERTIME_RAND_OFFSET)), i);

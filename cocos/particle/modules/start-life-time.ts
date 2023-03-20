@@ -25,7 +25,7 @@
 
 import { ccclass, displayOrder, formerlySerializedAs, radian, range, serializable, tooltip, type, visible } from '../../core/data/decorators';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
-import { ParticleSOAData } from '../particle-soa-data';
+import { ParticleData } from '../particle-data';
 import { ParticleExecContext, ParticleEmitterParams } from '../particle-base';
 import { CurveRange } from '../curve-range';
 import { GradientRange } from '../gradient-range';
@@ -46,7 +46,7 @@ export class StartLifeTimeModule extends ParticleModule {
     @tooltip('i18n:particle_system.startLifetime')
     public startLifetime = new CurveRange(5);
 
-    public execute (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public execute (particles: ParticleData, params: ParticleEmitterParams, context: ParticleExecContext) {
         const { invStartLifeTime } = particles;
         const { fromIndex, toIndex, normalizedTimeInCycle } = context;
         if (this.startLifetime.mode === CurveRange.Mode.Constant) {

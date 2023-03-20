@@ -25,7 +25,7 @@
 
 import { ccclass, displayOrder, range, serializable, tooltip, type } from '../../core/data/decorators';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
-import { ParticleSOAData } from '../particle-soa-data';
+import { ParticleData } from '../particle-data';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { CurveRange } from '../curve-range';
 import { approx, EPSILON, lerp, pseudoRandom, Quat, Vec3 } from '../../core/math';
@@ -47,7 +47,7 @@ export class GravityModule extends ParticleModule {
     @tooltip('i18n:particle_system.gravityModifier')
     public gravityModifier = new CurveRange();
 
-    public execute (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public execute (particles: ParticleData, params: ParticleEmitterParams, context: ParticleExecContext) {
         const { worldRotation } = context;
         const { normalizedAliveTime, randomSeed, velocityY } = particles;
         const { fromIndex, toIndex, deltaTime } = context;

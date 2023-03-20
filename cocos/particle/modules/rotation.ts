@@ -31,7 +31,7 @@ import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { CurveRange } from '../curve-range';
 import { assert, CCBoolean } from '../../core';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
-import { ParticleSOAData } from '../particle-soa-data';
+import { ParticleData } from '../particle-data';
 
 const ROTATION_OVERTIME_RAND_OFFSET = 125292;
 
@@ -125,7 +125,7 @@ export class RotationModule extends ParticleModule {
     @serializable
     private _x: CurveRange | null = null;
 
-    public execute (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public execute (particles: ParticleData, params: ParticleEmitterParams, context: ParticleExecContext) {
         const {  angularVelocityZ, normalizedAliveTime, randomSeed } = particles;
         const { fromIndex, toIndex } = context;
         if (!this._separateAxes) {

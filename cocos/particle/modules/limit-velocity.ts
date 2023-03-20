@@ -31,7 +31,7 @@ import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { CurveRange } from '../curve-range';
 import { calculateTransform } from '../particle-general-function';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
-import { ParticleSOAData } from '../particle-soa-data';
+import { ParticleData } from '../particle-data';
 import { assert } from '../../core';
 
 const LIMIT_VELOCITY_RAND_OFFSET = ModuleRandSeed.LIMIT;
@@ -146,7 +146,7 @@ export class LimitVelocityModule extends ParticleModule {
     @serializable
     private _z: CurveRange | null = null;
 
-    public execute (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public execute (particles: ParticleData, params: ParticleEmitterParams, context: ParticleExecContext) {
         const { fromIndex, toIndex } = context;
         const needTransform = calculateTransform(params.simulationSpace,
             this.space, context.localToWorld, context.worldToLocal, rotation);

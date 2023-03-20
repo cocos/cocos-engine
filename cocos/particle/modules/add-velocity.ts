@@ -29,7 +29,7 @@ import { lerp, Mat4, pseudoRandom, Quat, Vec3 } from '../../core/math';
 import { Space } from '../enum';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { calculateTransform } from '../particle-general-function';
-import { ParticleSOAData } from '../particle-soa-data';
+import { ParticleData } from '../particle-data';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { CurveRange } from '../curve-range';
 
@@ -40,16 +40,22 @@ const VELOCITY_Z_OVERTIME_RAND_OFFSET = 984136;
 const velocity = new Vec3();
 const rotation = new Quat();
 
-@ccclass('cc.VelocityModule')
-@ParticleModule.register('Velocity', ModuleExecStage.UPDATE, 2)
-export class VelocityModule extends ParticleModule {
+@ccclass('cc.AddVelocityModule')
+@ParticleModule.register('AddVelocity', ModuleExecStage.UPDATE, 2)
+export class AddVelocityModule extends ParticleModule {
+    /**
+     * @zh 速度计算时采用的坐标系[[Space]]。
+     */
+    @type(Enum(Space))
+    @serializable
+    @tooltip('i18n:velocityOvertimeModule.space')
+    public space = Space.LOCAL;
     /**
      * @zh X 轴方向上的速度分量。
      */
     @type(CurveRange)
     @serializable
     @range([-1, 1])
-    @displayOrder(2)
     @tooltip('i18n:velocityOvertimeModule.x')
     public x = new CurveRange();
 
@@ -59,7 +65,6 @@ export class VelocityModule extends ParticleModule {
     @type(CurveRange)
     @serializable
     @range([-1, 1])
-    @displayOrder(3)
     @tooltip('i18n:velocityOvertimeModule.y')
     public y = new CurveRange();
 
@@ -69,20 +74,10 @@ export class VelocityModule extends ParticleModule {
     @type(CurveRange)
     @serializable
     @range([-1, 1])
-    @displayOrder(4)
     @tooltip('i18n:velocityOvertimeModule.z')
     public z = new CurveRange();
 
-    /**
-     * @zh 速度计算时采用的坐标系[[Space]]。
-     */
-    @type(Enum(Space))
-    @serializable
-    @displayOrder(1)
-    @tooltip('i18n:velocityOvertimeModule.space')
-    public space = Space.LOCAL;
-
-    public execute (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public execute (particles: ParticleData, params: ParticleEmitterParams, context: ParticleExecContext) {
         const needTransform = calculateTransform(params.simulationSpace, this.space, context.localToWorld, context.worldToLocal, rotation);
         const { normalizedAliveTime, randomSeed } = particles;
         const { fromIndex, toIndex } = context;

@@ -25,7 +25,7 @@
 
 import { ccclass, displayOrder, formerlySerializedAs, radian, range, serializable, tooltip, type, visible } from '../../core/data/decorators';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
-import { ParticleSOAData } from '../particle-soa-data';
+import { ParticleData } from '../particle-data';
 import { ParticleExecContext, ParticleEmitterParams } from '../particle-base';
 import { GradientRange } from '../gradient-range';
 import { Color, lerp, pseudoRandom, randomRangeInt, Vec3 } from '../../core/math';
@@ -47,7 +47,7 @@ export class StartColorModule extends ParticleModule {
     @tooltip('i18n:particle_system.startColor')
     public startColor = new GradientRange();
 
-    public execute (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public execute (particles: ParticleData, params: ParticleEmitterParams, context: ParticleExecContext) {
         const { startColor, color } = particles;
         const { fromIndex, toIndex, normalizedTimeInCycle } = context;
         if (this.startColor.mode === GradientRange.Mode.Color) {

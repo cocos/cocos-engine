@@ -30,7 +30,7 @@ import { Mat4, Quat, Vec2, Vec3, clamp, pingPong, random, randomRange, repeat, t
 import { CurveRange } from '../curve-range';
 import { randomSign } from '../particle-general-function';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
-import { ParticleSOAData } from '../particle-soa-data';
+import { ParticleData } from '../particle-data';
 import { ParticleExecContext, ParticleEmitterParams } from '../particle-base';
 import { Enum } from '../../core';
 
@@ -331,7 +331,7 @@ export class ShapeModule extends ParticleModule {
     private _quat = new Quat();
     private _isTransformDirty = true;
 
-    public tick (particles: ParticleSOAData,  params: ParticleEmitterParams, context: ParticleExecContext) {
+    public tick (particles: ParticleData,  params: ParticleEmitterParams, context: ParticleExecContext) {
         this._totalAngle += 2 * Math.PI * this.arcSpeed.evaluate(context.normalizedTimeInCycle, 1) * context.deltaTime;
         if (this._isTransformDirty) {
             Quat.fromEuler(this._quat, this._rotation.x, this._rotation.y, this._rotation.z);
@@ -340,7 +340,7 @@ export class ShapeModule extends ParticleModule {
         }
     }
 
-    public execute (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public execute (particles: ParticleData, params: ParticleEmitterParams, context: ParticleExecContext) {
         const { fromIndex, toIndex } = context;
         const randomPositionAmount = this.randomPositionAmount;
         const minRadius = this.radius * (1 - this.radiusThickness);
@@ -575,10 +575,7 @@ export class ShapeModule extends ParticleModule {
                 particles.setPositionAt(tmpPosition, i);
             }
         }
-        for (let i = fromIndex; i < toIndex; ++i) {
-            particles.getStartDirAt(tmpDir, i);
-            particles.setStartDirAt(Vec3.transformQuat(tmpDir, tmpDir, this._quat), i);
-        }
+
         for (let i = fromIndex; i < toIndex; ++i) {
             particles.getPositionAt(tmpPosition, i);
             particles.setPositionAt(Vec3.transformMat4(tmpPosition, tmpPosition, this._mat), i);
@@ -591,6 +588,10 @@ export class ShapeModule extends ParticleModule {
                 Vec3.lerp(tmpDir, tmpDir, sphericalVel, this.sphericalDirectionAmount);
                 particles.setStartDirAt(tmpDir, i);
             }
+        }
+        for (let i = fromIndex; i < toIndex; ++i) {
+            particles.getStartDirAt(tmpDir, i);
+            particles.setStartDirAt(Vec3.transformQuat(tmpDir, tmpDir, this._quat), i);
         }
     }
 }

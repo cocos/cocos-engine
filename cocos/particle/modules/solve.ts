@@ -1,7 +1,7 @@
 import { Vec3 } from '../../core';
 import { ccclass } from '../../core/data/decorators';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
-import { ParticleSOAData } from '../particle-soa-data';
+import { ParticleData } from '../particle-data';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 
 const velocity = new Vec3();
@@ -14,7 +14,7 @@ export class SolveModule extends ParticleModule {
         this.enabled = true;
     }
 
-    public execute (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public execute (particles: ParticleData, params: ParticleEmitterParams, context: ParticleExecContext) {
         const { fromIndex, toIndex, deltaTime } = context;
         const { speedModifier } = particles;
         for (let particleHandle = fromIndex; particleHandle < toIndex; particleHandle++) {

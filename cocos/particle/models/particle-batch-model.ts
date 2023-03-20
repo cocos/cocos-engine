@@ -31,7 +31,7 @@ import { AttributeName, BufferUsageBit, FormatInfos, MemoryUsageBit, PrimitiveMo
 import { Color } from '../../core/math/color';
 import { scene } from '../../core/renderer';
 import { Material, RenderingSubMesh } from '../../core/assets';
-import { ParticleSOAData } from '../particle-soa-data';
+import { ParticleData } from '../particle-data';
 
 const _uvs = [
     0, 0, // bottom-left
@@ -215,17 +215,21 @@ export default class ParticleBatchModel extends scene.Model {
         this.setSubModelMaterial(0, mat);
     }
 
-    public updateIA (particles: ParticleSOAData) {
+    public updateIA (particles: ParticleData) {
         if (particles.count > 0) {
             const dynamicBuffer = this._dynamicBuffer!;
             const dynamicBufferUintView = this._dynamicBufferUintView!;
-            const { positionX, positionY, positionZ, rotationX, rotationY, rotationZ, sizeX, sizeY, sizeZ, frameIndex, color, count } = particles;
+            const { position, rotationX, rotationY, rotationZ, sizeX, sizeY, sizeZ, frameIndex, color, count } = particles;
             if (!this._hasVelocityChanel) {
                 for (let i = 0; i < count; i++) {
                     const offset = i * this._vertDynamicAttrsFloatCount;
-                    dynamicBuffer[offset] = positionX[i];
-                    dynamicBuffer[offset + 1] = positionY[i];
-                    dynamicBuffer[offset + 2] = positionZ[i];
+                    const positionOffset = i * 3;
+                    dynamicBuffer[offset] = position[positionOffset];
+                    dynamicBuffer[offset + 1] = position[positionOffset + 1];
+                    dynamicBuffer[offset + 2] = position[positionOffset + 2];
+                    // dynamicBuffer[offset] = positionX[i];
+                    // dynamicBuffer[offset + 1] = positionY[i];
+                    // dynamicBuffer[offset + 2] = positionZ[i];
                     dynamicBuffer[offset + 3] = rotationX[i];
                     dynamicBuffer[offset + 4] = rotationY[i];
                     dynamicBuffer[offset + 5] = rotationZ[i];
@@ -239,9 +243,13 @@ export default class ParticleBatchModel extends scene.Model {
                 const { velocityX, velocityY, velocityZ, animatedVelocityX, animatedVelocityY, animatedVelocityZ } = particles;
                 for (let i = 0; i < count; i++) {
                     const offset = i * this._vertDynamicAttrsFloatCount;
-                    dynamicBuffer[offset] = positionX[i];
-                    dynamicBuffer[offset + 1] = positionY[i];
-                    dynamicBuffer[offset + 2] = positionZ[i];
+                    const positionOffset = i * 3;
+                    dynamicBuffer[offset] = position[positionOffset];
+                    dynamicBuffer[offset + 1] = position[positionOffset + 1];
+                    dynamicBuffer[offset + 2] = position[positionOffset + 2];
+                    // dynamicBuffer[offset] = positionX[i];
+                    // dynamicBuffer[offset + 1] = positionY[i];
+                    // dynamicBuffer[offset + 2] = positionZ[i];
                     dynamicBuffer[offset + 3] = rotationX[i];
                     dynamicBuffer[offset + 4] = rotationY[i];
                     dynamicBuffer[offset + 5] = rotationZ[i];

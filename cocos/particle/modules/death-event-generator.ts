@@ -27,7 +27,7 @@ import { approx, BitMask, CCFloat, Enum, EPSILON, Mat4, pseudoRandom, Quat, Vec3
 import { ccclass, range, serializable, type, visible } from '../../core/data/decorators';
 import { Space } from '../enum';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
-import { ParticleSOAData } from '../particle-soa-data';
+import { ParticleData } from '../particle-data';
 import { ParticleEmitterParams, ParticleEventInfo, ParticleExecContext } from '../particle-base';
 
 const PROBABILITY_RANDOM_SEED_OFFSET = 199208;
@@ -40,7 +40,7 @@ export class DeathEventGeneratorModule extends ParticleModule {
     @serializable
     public probability = 1;
 
-    public execute (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public execute (particles: ParticleData, params: ParticleEmitterParams, context: ParticleExecContext) {
         const { randomSeed, invStartLifeTime, normalizedAliveTime, id } = particles;
         const { fromIndex, toIndex, deltaTime, deathEvents } = context;
         const { localToWorld } = context;

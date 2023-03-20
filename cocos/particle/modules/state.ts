@@ -1,7 +1,7 @@
 import { Vec3 } from '../../core';
 import { ccclass } from '../../core/data/decorators';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
-import { ParticleSOAData } from '../particle-soa-data';
+import { ParticleData } from '../particle-data';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 
 @ccclass('cc.StateModule')
@@ -12,7 +12,7 @@ export class StateModule extends ParticleModule {
         this.enabled = true;
     }
 
-    public execute (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public execute (particles: ParticleData, params: ParticleEmitterParams, context: ParticleExecContext) {
         const { normalizedAliveTime, invStartLifeTime } = particles;
         const { fromIndex, toIndex, deltaTime } = context;
         for (let particleHandle = toIndex - 1; particleHandle >= fromIndex; particleHandle--) {

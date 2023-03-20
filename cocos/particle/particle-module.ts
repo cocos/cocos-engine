@@ -24,7 +24,7 @@
  */
 
 import { ParticleExecContext, ParticleEmitterParams } from './particle-base';
-import { ParticleSOAData } from './particle-soa-data';
+import { ParticleData } from './particle-data';
 import { ccclass, displayName, serializable, type } from '../core/data/decorators';
 import { assert, CCBoolean, CCString, Mat4 } from '../core';
 
@@ -113,8 +113,8 @@ export abstract class ParticleModule {
         }
     }
 
-    public tick (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext) {}
-    public execute (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext) {}
+    public tick (particles: ParticleData, params: ParticleEmitterParams, context: ParticleExecContext) {}
+    public abstract execute (particles: ParticleData, params: ParticleEmitterParams, context: ParticleExecContext);
 }
 
 @ccclass('cc.ParticleModuleStage')
@@ -185,7 +185,7 @@ export class ParticleModuleStage {
         return module;
     }
 
-    public tick (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public tick (particles: ParticleData, params: ParticleEmitterParams, context: ParticleExecContext) {
         for (let i = 0, length = this._modules.length; i < length; i++) {
             const module = this._modules[i];
             if (module.enabled) {
@@ -194,13 +194,15 @@ export class ParticleModuleStage {
         }
     }
 
-    public execute (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public execute (particles: ParticleData, params: ParticleEmitterParams, context: ParticleExecContext) {
+        context.setExecutionStage(this._execStage);
         for (let i = 0, length = this._modules.length; i < length; i++) {
             const module = this._modules[i];
             if (module.enabled) {
                 module.execute(particles, params, context);
             }
         }
+        context.setExecutionStage(ModuleExecStage.NONE);
     }
 }
 

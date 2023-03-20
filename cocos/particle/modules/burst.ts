@@ -27,7 +27,7 @@ import { lerp } from '../../core';
 import { ccclass, displayOrder, serializable, tooltip, type, range, editable } from '../../core/data/decorators';
 import { CurveRange } from '../curve-range';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
-import { ParticleSOAData } from '../particle-soa-data';
+import { ParticleData } from '../particle-data';
 import { ParticleExecContext, ParticleEmitterParams } from '../particle-base';
 
 @ccclass('cc.Burst')
@@ -92,7 +92,7 @@ export class BurstModule extends ParticleModule {
     @tooltip('i18n:particle_system.bursts')
     public bursts: Burst[] = [];
 
-    public execute (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public execute (particles: ParticleData, params: ParticleEmitterParams, context: ParticleExecContext) {
         const { normalizedTimeInCycle, previousTime, currentTime } = context;
         for (let i = 0, burstCount = this.bursts.length; i < burstCount; i++) {
             const burst = this.bursts[i];

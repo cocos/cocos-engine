@@ -32,7 +32,7 @@ import { CurveRange } from '../curve-range';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { assert, Enum } from '../../core';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
-import { ParticleSOAData } from '../particle-soa-data';
+import { ParticleData } from '../particle-data';
 
 const FORCE_OVER_LIFETIME_RAND_OFFSET = 212165;
 
@@ -84,7 +84,7 @@ export class ForceModule extends ParticleModule {
     // TODO:currently not supported
     public randomized = false;
 
-    public execute (particles: ParticleSOAData, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public execute (particles: ParticleData, params: ParticleEmitterParams, context: ParticleExecContext) {
         const needTransform = calculateTransform(params.simulationSpace, this.space, context.localToWorld, context.worldToLocal, rotation);
         const { normalizedAliveTime, randomSeed } = particles;
         const { fromIndex, toIndex, deltaTime } = context;

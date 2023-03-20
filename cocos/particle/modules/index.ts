@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-export * from './color';
+export * from './multiply-color';
 export * from './speed-modifier';
 export * from './shape';
 export * from './spawn-over-time';
@@ -41,4 +41,6 @@ export * from './solve';
 export * from './state';
 export * from './legacy-trail';
 export * from './sub-uv-animation';
-export * from './sphere-shape';
+export * from './add-velocity';
+export * from './box-shape';
+export * from './multiply-color-by-speed';
