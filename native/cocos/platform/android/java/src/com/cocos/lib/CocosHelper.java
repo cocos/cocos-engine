@@ -262,7 +262,7 @@ public class CocosHelper {
 
     public static boolean openURL(String url) {
         if (GlobalObject.getActivity() == null) {
-            Log.e(TAG, "sActivity is null");
+            Log.e(TAG, "activity is null");
             return false;
         }
 
@@ -359,7 +359,7 @@ public class CocosHelper {
 
     public static float[] getSafeArea() {
         if (GlobalObject.getActivity() == null) {
-            Log.e(TAG, "sActivity is null");
+            Log.e(TAG, "activity is null");
             return new float[]{0, 0, 0, 0};
         }
         if (android.os.Build.VERSION.SDK_INT >= 28) {
@@ -401,7 +401,7 @@ public class CocosHelper {
     }
     public static void finishActivity() {
         if (GlobalObject.getActivity() == null) {
-            Log.e(TAG, "sActivity is null");
+            Log.e(TAG, "activity is null");
             return;
         }
         GlobalObject.runOnUiThread(new Runnable() {
@@ -413,7 +413,7 @@ public class CocosHelper {
     }
     public static void setKeepScreenOn(boolean keepScreenOn) {
         if (GlobalObject.getActivity() == null) {
-            Log.e(TAG, "sActivity is null");
+            Log.e(TAG, "activity is null");
             return;
         }
         GlobalObject.runOnUiThread(new Runnable() {
