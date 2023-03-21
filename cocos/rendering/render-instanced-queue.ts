@@ -88,7 +88,7 @@ export class RenderInstancedQueue {
      */
     public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer,
         descriptorSet: DescriptorSet | null = null, dynamicOffsets?: Readonly<number[]>) {
-        const it = this._renderQueue.length === 0 ? this.queue.values() : this._renderQueue.values();
+        const it = this._renderQueue.length === 0 ? this.queue.values() : this._renderQueue[Symbol.iterator]();
         let res = it.next();
 
         while (!res.done) {
