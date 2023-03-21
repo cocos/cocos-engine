@@ -13,7 +13,8 @@ export class StateModule extends ParticleModule {
     }
 
     public execute (particles: ParticleData, params: ParticleEmitterParams, context: ParticleExecContext) {
-        const { normalizedAliveTime, invStartLifeTime } = particles;
+        const normalizedAliveTime = particles.normalizedAliveTime.data;
+        const invStartLifeTime = particles.invStartLifeTime.data;
         const { fromIndex, toIndex, deltaTime } = context;
         for (let particleHandle = toIndex - 1; particleHandle >= fromIndex; particleHandle--) {
             normalizedAliveTime[particleHandle] += deltaTime * invStartLifeTime[particleHandle];

@@ -79,7 +79,9 @@ export class AddVelocityModule extends ParticleModule {
 
     public execute (particles: ParticleData, params: ParticleEmitterParams, context: ParticleExecContext) {
         const needTransform = calculateTransform(params.simulationSpace, this.space, context.localToWorld, context.worldToLocal, rotation);
-        const { normalizedAliveTime, randomSeed, animatedVelocity } = particles;
+        const { animatedVelocity } = particles;
+        const normalizedAliveTime = particles.normalizedAliveTime.data;
+        const randomSeed = particles.randomSeed.data;
         const { fromIndex, toIndex } = context;
         if (needTransform) {
             if (this.x.mode === CurveRange.Mode.Constant) {

@@ -31,14 +31,15 @@ import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { CurveRange } from '../curve-range';
 import { calculateTransform } from '../particle-general-function';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
-import { ParticleData } from '../particle-data';
+import { ParticleData, ParticleVec3Parameter } from '../particle-data';
 import { assert } from '../../core';
 
 const LIMIT_VELOCITY_RAND_OFFSET = ModuleRandSeed.LIMIT;
 
 const _temp_v3_1 = new Vec3();
 const rotation = new Quat();
-const velocity = new Vec3();
+const tempVelocity = new Vec3();
+const tempAnimatedVelocity = new Vec3();
 
 @ccclass('cc.LimitVelocity')
 @ParticleModule.register('LimitVelocity', ModuleExecStage.UPDATE, 6)
@@ -150,7 +151,9 @@ export class LimitVelocityModule extends ParticleModule {
         const { fromIndex, toIndex } = context;
         const needTransform = calculateTransform(params.simulationSpace,
             this.space, context.localToWorld, context.worldToLocal, rotation);
-        const { normalizedAliveTime, randomSeed, animatedVelocityX, animatedVelocityY, animatedVelocityZ } = particles;
+        const { velocity, animatedVelocity } = particles;
+        const normalizedAliveTime = particles.normalizedAliveTime.data;
+        const randomSeed = particles.randomSeed.data;
         if (this.separateAxes) {
             if (DEBUG) {
                 assert(this.limitX.mode === this.limitY.mode && this.limitY.mode === this.limitZ.mode, 'The curve of limitX, limitY, limitZ must have same mode!');
@@ -160,13 +163,13 @@ export class LimitVelocityModule extends ParticleModule {
                     Vec3.set(_temp_v3_1, this.limitX.constant, this.limitY.constant, this.limitY.constant);
                     Vec3.transformQuat(_temp_v3_1, _temp_v3_1, rotation);
                     for (let i = fromIndex; i < toIndex; i++) {
-                        particles.getVelocityAt(velocity, i);
-                        velocity.add3f(animatedVelocityX[i], animatedVelocityY[i], animatedVelocityZ[i]);
-                        Vec3.set(velocity,
-                            dampenBeyondLimit(velocity.x, _temp_v3_1.x, this.dampen),
-                            dampenBeyondLimit(velocity.y, _temp_v3_1.y, this.dampen),
-                            dampenBeyondLimit(velocity.z, _temp_v3_1.z, this.dampen));
-                        particles.setVelocityAt(velocity.subtract3f(animatedVelocityX[i], animatedVelocityY[i], animatedVelocityZ[i]), i);
+                        ParticleVec3Parameter.addSingle(tempVelocity, velocity, animatedVelocity, i);
+                        Vec3.set(tempVelocity,
+                            dampenBeyondLimit(tempVelocity.x, _temp_v3_1.x, this.dampen),
+                            dampenBeyondLimit(tempVelocity.y, _temp_v3_1.y, this.dampen),
+                            dampenBeyondLimit(tempVelocity.z, _temp_v3_1.z, this.dampen));
+                        animatedVelocity.getVec3At(tempAnimatedVelocity, i);
+                        velocity.setVec3At(tempVelocity.subtract(tempAnimatedVelocity), i);
                     }
                 } else if (this.limitX.mode === CurveRange.Mode.Curve) {
                     const { spline: splineX, multiplier: xMultiplier } = this.limitX;
@@ -178,13 +181,13 @@ export class LimitVelocityModule extends ParticleModule {
                             splineY.evaluate(normalizedTime) * yMultiplier,
                             splineZ.evaluate(normalizedTime) * zMultiplier);
                         Vec3.transformQuat(_temp_v3_1, _temp_v3_1, rotation);
-                        particles.getVelocityAt(velocity, i);
-                        velocity.add3f(animatedVelocityX[i], animatedVelocityY[i], animatedVelocityZ[i]);
-                        Vec3.set(velocity,
-                            dampenBeyondLimit(velocity.x, _temp_v3_1.x, this.dampen),
-                            dampenBeyondLimit(velocity.y, _temp_v3_1.y, this.dampen),
-                            dampenBeyondLimit(velocity.z, _temp_v3_1.z, this.dampen));
-                        particles.setVelocityAt(velocity.subtract3f(animatedVelocityX[i], animatedVelocityY[i], animatedVelocityZ[i]), i);
+                        ParticleVec3Parameter.addSingle(tempVelocity, velocity, animatedVelocity, i);
+                        Vec3.set(tempVelocity,
+                            dampenBeyondLimit(tempVelocity.x, _temp_v3_1.x, this.dampen),
+                            dampenBeyondLimit(tempVelocity.y, _temp_v3_1.y, this.dampen),
+                            dampenBeyondLimit(tempVelocity.z, _temp_v3_1.z, this.dampen));
+                        animatedVelocity.getVec3At(tempAnimatedVelocity, i);
+                        velocity.setVec3At(tempVelocity.subtract(tempAnimatedVelocity), i);
                     }
                 } else if (this.limitX.mode === CurveRange.Mode.TwoConstants) {
                     const { constantMin: xMin, constantMax: xMax } = this.limitX;
@@ -196,13 +199,13 @@ export class LimitVelocityModule extends ParticleModule {
                             lerp(yMin, yMax, pseudoRandom(seed + LIMIT_VELOCITY_RAND_OFFSET)),
                             lerp(zMin, zMax, pseudoRandom(seed + LIMIT_VELOCITY_RAND_OFFSET)));
                         Vec3.transformQuat(_temp_v3_1, _temp_v3_1, rotation);
-                        particles.getVelocityAt(velocity, i);
-                        velocity.add3f(animatedVelocityX[i], animatedVelocityY[i], animatedVelocityZ[i]);
-                        Vec3.set(velocity,
-                            dampenBeyondLimit(velocity.x, _temp_v3_1.x, this.dampen),
-                            dampenBeyondLimit(velocity.y, _temp_v3_1.y, this.dampen),
-                            dampenBeyondLimit(velocity.z, _temp_v3_1.z, this.dampen));
-                        particles.setVelocityAt(velocity.subtract3f(animatedVelocityX[i], animatedVelocityY[i], animatedVelocityZ[i]), i);
+                        ParticleVec3Parameter.addSingle(tempVelocity, velocity, animatedVelocity, i);
+                        Vec3.set(tempVelocity,
+                            dampenBeyondLimit(tempVelocity.x, _temp_v3_1.x, this.dampen),
+                            dampenBeyondLimit(tempVelocity.y, _temp_v3_1.y, this.dampen),
+                            dampenBeyondLimit(tempVelocity.z, _temp_v3_1.z, this.dampen));
+                        animatedVelocity.getVec3At(tempAnimatedVelocity, i);
+                        velocity.setVec3At(tempVelocity.subtract(tempAnimatedVelocity), i);
                     }
                 } else {
                     const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.limitX;
@@ -215,13 +218,13 @@ export class LimitVelocityModule extends ParticleModule {
                             lerp(yMin.evaluate(normalizedTime), yMax.evaluate(normalizedTime), pseudoRandom(seed + LIMIT_VELOCITY_RAND_OFFSET)) * yMultiplier,
                             lerp(zMin.evaluate(normalizedTime), zMax.evaluate(normalizedTime), pseudoRandom(seed + LIMIT_VELOCITY_RAND_OFFSET)) * zMultiplier);
                         Vec3.transformQuat(_temp_v3_1, _temp_v3_1, rotation);
-                        particles.getVelocityAt(velocity, i);
-                        velocity.add3f(animatedVelocityX[i], animatedVelocityY[i], animatedVelocityZ[i]);
-                        Vec3.set(velocity,
-                            dampenBeyondLimit(velocity.x, _temp_v3_1.x, this.dampen),
-                            dampenBeyondLimit(velocity.y, _temp_v3_1.y, this.dampen),
-                            dampenBeyondLimit(velocity.z, _temp_v3_1.z, this.dampen));
-                        particles.setVelocityAt(velocity.subtract3f(animatedVelocityX[i], animatedVelocityY[i], animatedVelocityZ[i]), i);
+                        ParticleVec3Parameter.addSingle(tempVelocity, velocity, animatedVelocity, i);
+                        Vec3.set(tempVelocity,
+                            dampenBeyondLimit(tempVelocity.x, _temp_v3_1.x, this.dampen),
+                            dampenBeyondLimit(tempVelocity.y, _temp_v3_1.y, this.dampen),
+                            dampenBeyondLimit(tempVelocity.z, _temp_v3_1.z, this.dampen));
+                        animatedVelocity.getVec3At(tempAnimatedVelocity, i);
+                        velocity.setVec3At(tempVelocity.subtract(tempAnimatedVelocity), i);
                     }
                 }
             } else {
@@ -229,13 +232,13 @@ export class LimitVelocityModule extends ParticleModule {
                 if (this.limitX.mode === CurveRange.Mode.Constant) {
                     Vec3.set(_temp_v3_1, this.limitX.constant, this.limitY.constant, this.limitY.constant);
                     for (let i = fromIndex; i < toIndex; i++) {
-                        particles.getVelocityAt(velocity, i);
-                        velocity.add3f(animatedVelocityX[i], animatedVelocityY[i], animatedVelocityZ[i]);
-                        Vec3.set(velocity,
-                            dampenBeyondLimit(velocity.x, _temp_v3_1.x, this.dampen),
-                            dampenBeyondLimit(velocity.y, _temp_v3_1.y, this.dampen),
-                            dampenBeyondLimit(velocity.z, _temp_v3_1.z, this.dampen));
-                        particles.setVelocityAt(velocity.subtract3f(animatedVelocityX[i], animatedVelocityY[i], animatedVelocityZ[i]), i);
+                        ParticleVec3Parameter.addSingle(tempVelocity, velocity, animatedVelocity, i);
+                        Vec3.set(tempVelocity,
+                            dampenBeyondLimit(tempVelocity.x, _temp_v3_1.x, this.dampen),
+                            dampenBeyondLimit(tempVelocity.y, _temp_v3_1.y, this.dampen),
+                            dampenBeyondLimit(tempVelocity.z, _temp_v3_1.z, this.dampen));
+                        animatedVelocity.getVec3At(tempAnimatedVelocity, i);
+                        velocity.setVec3At(tempVelocity.subtract(tempAnimatedVelocity), i);
                     }
                 } else if (this.limitX.mode === CurveRange.Mode.Curve) {
                     const { spline: splineX, multiplier: xMultiplier } = this.limitX;
@@ -246,13 +249,13 @@ export class LimitVelocityModule extends ParticleModule {
                         Vec3.set(_temp_v3_1, splineX.evaluate(normalizedTime) * xMultiplier,
                             splineY.evaluate(normalizedTime) * yMultiplier,
                             splineZ.evaluate(normalizedTime) * zMultiplier);
-                        particles.getVelocityAt(velocity, i);
-                        velocity.add3f(animatedVelocityX[i], animatedVelocityY[i], animatedVelocityZ[i]);
-                        Vec3.set(velocity,
-                            dampenBeyondLimit(velocity.x, _temp_v3_1.x, this.dampen),
-                            dampenBeyondLimit(velocity.y, _temp_v3_1.y, this.dampen),
-                            dampenBeyondLimit(velocity.z, _temp_v3_1.z, this.dampen));
-                        particles.setVelocityAt(velocity.subtract3f(animatedVelocityX[i], animatedVelocityY[i], animatedVelocityZ[i]), i);
+                        ParticleVec3Parameter.addSingle(tempVelocity, velocity, animatedVelocity, i);
+                        Vec3.set(tempVelocity,
+                            dampenBeyondLimit(tempVelocity.x, _temp_v3_1.x, this.dampen),
+                            dampenBeyondLimit(tempVelocity.y, _temp_v3_1.y, this.dampen),
+                            dampenBeyondLimit(tempVelocity.z, _temp_v3_1.z, this.dampen));
+                        animatedVelocity.getVec3At(tempAnimatedVelocity, i);
+                        velocity.setVec3At(tempVelocity.subtract(tempAnimatedVelocity), i);
                     }
                 } else if (this.limitX.mode === CurveRange.Mode.TwoConstants) {
                     const { constantMin: xMin, constantMax: xMax } = this.limitX;
@@ -263,13 +266,13 @@ export class LimitVelocityModule extends ParticleModule {
                         Vec3.set(_temp_v3_1, lerp(xMin, xMax, pseudoRandom(seed + LIMIT_VELOCITY_RAND_OFFSET)),
                             lerp(yMin, yMax, pseudoRandom(seed + LIMIT_VELOCITY_RAND_OFFSET)),
                             lerp(zMin, zMax, pseudoRandom(seed + LIMIT_VELOCITY_RAND_OFFSET)));
-                        particles.getVelocityAt(velocity, i);
-                        velocity.add3f(animatedVelocityX[i], animatedVelocityY[i], animatedVelocityZ[i]);
-                        Vec3.set(velocity,
-                            dampenBeyondLimit(velocity.x, _temp_v3_1.x, this.dampen),
-                            dampenBeyondLimit(velocity.y, _temp_v3_1.y, this.dampen),
-                            dampenBeyondLimit(velocity.z, _temp_v3_1.z, this.dampen));
-                        particles.setVelocityAt(velocity.subtract3f(animatedVelocityX[i], animatedVelocityY[i], animatedVelocityZ[i]), i);
+                        ParticleVec3Parameter.addSingle(tempVelocity, velocity, animatedVelocity, i);
+                        Vec3.set(tempVelocity,
+                            dampenBeyondLimit(tempVelocity.x, _temp_v3_1.x, this.dampen),
+                            dampenBeyondLimit(tempVelocity.y, _temp_v3_1.y, this.dampen),
+                            dampenBeyondLimit(tempVelocity.z, _temp_v3_1.z, this.dampen));
+                        animatedVelocity.getVec3At(tempAnimatedVelocity, i);
+                        velocity.setVec3At(tempVelocity.subtract(tempAnimatedVelocity), i);
                     }
                 } else {
                     const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.limitX;
@@ -281,13 +284,13 @@ export class LimitVelocityModule extends ParticleModule {
                         Vec3.set(_temp_v3_1, lerp(xMin.evaluate(normalizedTime), xMax.evaluate(normalizedTime), pseudoRandom(seed + LIMIT_VELOCITY_RAND_OFFSET)) * xMultiplier,
                             lerp(yMin.evaluate(normalizedTime), yMax.evaluate(normalizedTime), pseudoRandom(seed + LIMIT_VELOCITY_RAND_OFFSET)) * yMultiplier,
                             lerp(zMin.evaluate(normalizedTime), zMax.evaluate(normalizedTime), pseudoRandom(seed + LIMIT_VELOCITY_RAND_OFFSET)) * zMultiplier);
-                        particles.getVelocityAt(velocity, i);
-                        velocity.add3f(animatedVelocityX[i], animatedVelocityY[i], animatedVelocityZ[i]);
-                        Vec3.set(velocity,
-                            dampenBeyondLimit(velocity.x, _temp_v3_1.x, this.dampen),
-                            dampenBeyondLimit(velocity.y, _temp_v3_1.y, this.dampen),
-                            dampenBeyondLimit(velocity.z, _temp_v3_1.z, this.dampen));
-                        particles.setVelocityAt(velocity.subtract3f(animatedVelocityX[i], animatedVelocityY[i], animatedVelocityZ[i]), i);
+                        ParticleVec3Parameter.addSingle(tempVelocity, velocity, animatedVelocity, i);
+                        Vec3.set(tempVelocity,
+                            dampenBeyondLimit(tempVelocity.x, _temp_v3_1.x, this.dampen),
+                            dampenBeyondLimit(tempVelocity.y, _temp_v3_1.y, this.dampen),
+                            dampenBeyondLimit(tempVelocity.z, _temp_v3_1.z, this.dampen));
+                        animatedVelocity.getVec3At(tempAnimatedVelocity, i);
+                        velocity.setVec3At(tempVelocity.subtract(tempAnimatedVelocity), i);
                     }
                 }
             }
@@ -296,49 +299,49 @@ export class LimitVelocityModule extends ParticleModule {
             if (this.limitX.mode === CurveRange.Mode.Constant) {
                 const { constant } = this.limit;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    particles.getVelocityAt(velocity, i);
-                    velocity.add3f(animatedVelocityX[i], animatedVelocityY[i], animatedVelocityZ[i]);
-                    const length = velocity.length();
-                    velocity.normalize();
-                    Vec3.multiplyScalar(velocity, velocity,
+                    ParticleVec3Parameter.addSingle(tempVelocity, velocity, animatedVelocity, i);
+                    const length = tempVelocity.length();
+                    tempVelocity.normalize();
+                    Vec3.multiplyScalar(tempVelocity, tempVelocity,
                         dampenBeyondLimit(length, constant, this.dampen));
-                    particles.setVelocityAt(velocity.subtract3f(animatedVelocityX[i], animatedVelocityY[i], animatedVelocityZ[i]), i);
+                    animatedVelocity.getVec3At(tempAnimatedVelocity, i);
+                    velocity.setVec3At(tempVelocity.subtract(tempAnimatedVelocity), i);
                 }
             } else if (this.limitX.mode === CurveRange.Mode.Curve) {
                 const { spline, multiplier } = this.limit;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    particles.getVelocityAt(velocity, i);
-                    velocity.add3f(animatedVelocityX[i], animatedVelocityY[i], animatedVelocityZ[i]);
-                    const length = velocity.length();
-                    velocity.normalize();
-                    Vec3.multiplyScalar(velocity, velocity,
+                    ParticleVec3Parameter.addSingle(tempVelocity, velocity, animatedVelocity, i);
+                    const length = tempVelocity.length();
+                    tempVelocity.normalize();
+                    Vec3.multiplyScalar(tempVelocity, tempVelocity,
                         dampenBeyondLimit(length, spline.evaluate(normalizedAliveTime[i]) * multiplier, this.dampen));
-                    particles.setVelocityAt(velocity.subtract3f(animatedVelocityX[i], animatedVelocityY[i], animatedVelocityZ[i]), i);
+                    animatedVelocity.getVec3At(tempAnimatedVelocity, i);
+                    velocity.setVec3At(tempVelocity.subtract(tempAnimatedVelocity), i);
                 }
             } else if (this.limitX.mode === CurveRange.Mode.TwoConstants) {
                 const { constantMin, constantMax } = this.limit;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const seed = randomSeed[i];
-                    particles.getVelocityAt(velocity, i);
-                    velocity.add3f(animatedVelocityX[i], animatedVelocityY[i], animatedVelocityZ[i]);
-                    const length = velocity.length();
-                    velocity.normalize();
-                    Vec3.multiplyScalar(velocity, velocity,
+                    ParticleVec3Parameter.addSingle(tempVelocity, velocity, animatedVelocity, i);
+                    const length = tempVelocity.length();
+                    tempVelocity.normalize();
+                    Vec3.multiplyScalar(tempVelocity, tempVelocity,
                         dampenBeyondLimit(length, lerp(constantMin, constantMax, pseudoRandom(seed + LIMIT_VELOCITY_RAND_OFFSET)), this.dampen));
-                    particles.setVelocityAt(velocity.subtract3f(animatedVelocityX[i], animatedVelocityY[i], animatedVelocityZ[i]), i);
+                    animatedVelocity.getVec3At(tempAnimatedVelocity, i);
+                    velocity.setVec3At(tempVelocity.subtract(tempAnimatedVelocity), i);
                 }
             } else {
                 const { splineMin, splineMax, multiplier } = this.limit;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const seed = randomSeed[i];
                     const normalizedTime = normalizedAliveTime[i];
-                    particles.getVelocityAt(velocity, i);
-                    velocity.add3f(animatedVelocityX[i], animatedVelocityY[i], animatedVelocityZ[i]);
-                    const length = velocity.length();
-                    velocity.normalize();
-                    Vec3.multiplyScalar(velocity, velocity,
+                    ParticleVec3Parameter.addSingle(tempVelocity, velocity, animatedVelocity, i);
+                    const length = tempVelocity.length();
+                    tempVelocity.normalize();
+                    Vec3.multiplyScalar(tempVelocity, tempVelocity,
                         dampenBeyondLimit(length, lerp(splineMin.evaluate(normalizedTime), splineMax.evaluate(normalizedTime), pseudoRandom(seed + LIMIT_VELOCITY_RAND_OFFSET)) * multiplier, this.dampen));
-                    particles.setVelocityAt(velocity.subtract3f(animatedVelocityX[i], animatedVelocityY[i], animatedVelocityZ[i]), i);
+                    animatedVelocity.getVec3At(tempAnimatedVelocity, i);
+                    velocity.setVec3At(tempVelocity.subtract(tempAnimatedVelocity), i);
                 }
             }
         }

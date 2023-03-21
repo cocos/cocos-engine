@@ -48,36 +48,39 @@ export class MultiplyColorModule extends ParticleModule {
 
     public execute (particles: ParticleData, params: ParticleEmitterParams, context: ParticleExecContext) {
         const { fromIndex, toIndex } = context;
+        const { color } = particles;
         if (this.color.mode === GradientRange.Mode.Color) {
-            const color = this.color.color;
+            const constantColor = this.color.color;
             for (let i = fromIndex; i < toIndex; i++) {
-                particles.multiplyColorAt(color, i);
+                color.multiplyColorAt(constantColor, i);
             }
         } else if (this.color.mode === GradientRange.Mode.Gradient) {
-            const color = this.color.gradient;
+            const gradient = this.color.gradient;
             const { normalizedAliveTime } = particles;
             for (let i = fromIndex; i < toIndex; i++) {
-                particles.multiplyColorAt(color.evaluate(tempColor, normalizedAliveTime[i]), i);
+                color.multiplyColorAt(gradient.evaluate(tempColor, normalizedAliveTime[i]), i);
             }
         } else if (this.color.mode === GradientRange.Mode.RandomColor) {
-            const color = this.color.gradient;
+            const gradient = this.color.gradient;
             for (let i = fromIndex; i < toIndex; i++) {
-                particles.multiplyColorAt(color.randomColor(tempColor), i);
+                color.multiplyColorAt(gradient.randomColor(tempColor), i);
             }
         } else if (this.color.mode === GradientRange.Mode.TwoColors) {
             const { colorMax, colorMin } = this.color;
-            const { randomSeed } = particles;
+            const randomSeed = particles.randomSeed.data;
             for (let i = fromIndex; i < toIndex; i++) {
-                particles.multiplyColorAt(Color.lerp(tempColor, colorMin,
+                color.multiplyColorAt(Color.lerp(tempColor, colorMin,
                     colorMax, pseudoRandom(randomSeed[i] + COLOR_OVERTIME_RAND_OFFSET)), i);
             }
         } else {
             const { gradientMin, gradientMax } = this.color;
-            const { randomSeed, normalizedAliveTime } = particles;
+            const normalizedAliveTime = particles.normalizedAliveTime.data;
+            const randomSeed = particles.randomSeed.data;
             for (let i = fromIndex; i < toIndex; i++) {
-                particles.multiplyColorAt(Color.lerp(tempColor,
-                    gradientMin.evaluate(tempColor2, normalizedAliveTime[i]),
-                    gradientMax.evaluate(tempColor3, normalizedAliveTime[i]),
+                const time = normalizedAliveTime[i];
+                color.multiplyColorAt(Color.lerp(tempColor,
+                    gradientMin.evaluate(tempColor2, time),
+                    gradientMax.evaluate(tempColor3, time),
                     pseudoRandom(randomSeed[i] + COLOR_OVERTIME_RAND_OFFSET)), i);
             }
         }

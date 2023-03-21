@@ -87,6 +87,10 @@ export abstract class ParticleModule {
         this._enabled = val;
     }
 
+    public get requiredParameters () {
+        return [];
+    }
+
     @type(CCString)
     private get name () {
         return ParticleModule.getModuleIdentityByClass(this.constructor as Constructor<ParticleModule>)?.name;

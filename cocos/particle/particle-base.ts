@@ -234,6 +234,7 @@ export class ParticleEmitterState {
     public isSimulating = true;
     public isEmitting = true;
     public lastSimulateFrame = 0;
+    public maxParticleId = 0;
 }
 
 export class ParticleExecContext {

@@ -47,7 +47,7 @@ export class StartLifeTimeModule extends ParticleModule {
     public startLifetime = new CurveRange(5);
 
     public execute (particles: ParticleData, params: ParticleEmitterParams, context: ParticleExecContext) {
-        const { invStartLifeTime } = particles;
+        const invStartLifeTime = particles.invStartLifeTime.data;
         const { fromIndex, toIndex, normalizedTimeInCycle } = context;
         if (this.startLifetime.mode === CurveRange.Mode.Constant) {
             const lifeTime = 1 / this.startLifetime.constant;

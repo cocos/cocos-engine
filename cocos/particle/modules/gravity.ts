@@ -49,7 +49,9 @@ export class GravityModule extends ParticleModule {
 
     public execute (particles: ParticleData, params: ParticleEmitterParams, context: ParticleExecContext) {
         const { worldRotation } = context;
-        const { normalizedAliveTime, randomSeed, velocity } = particles;
+        const { velocity } = particles;
+        const normalizedAliveTime = particles.normalizedAliveTime.data;
+        const randomSeed = particles.randomSeed.data;
         const { fromIndex, toIndex, deltaTime } = context;
         const deltaVelocity = 9.8 * deltaTime;
         if (params.simulationSpace === Space.LOCAL) {

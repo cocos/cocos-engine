@@ -86,7 +86,9 @@ export class ForceModule extends ParticleModule {
 
     public execute (particles: ParticleData, params: ParticleEmitterParams, context: ParticleExecContext) {
         const needTransform = calculateTransform(params.simulationSpace, this.space, context.localToWorld, context.worldToLocal, rotation);
-        const { normalizedAliveTime, randomSeed, velocity } = particles;
+        const { velocity } = particles;
+        const normalizedAliveTime = particles.normalizedAliveTime.data;
+        const randomSeed = particles.randomSeed.data;
         const { fromIndex, toIndex, deltaTime } = context;
         if (DEBUG) {
             assert(this.x.mode === this.y.mode && this.y.mode === this.z.mode, 'The curve of x, y, z must have same mode!');

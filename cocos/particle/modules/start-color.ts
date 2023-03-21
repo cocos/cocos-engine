@@ -48,7 +48,8 @@ export class StartColorModule extends ParticleModule {
     public startColor = new GradientRange();
 
     public execute (particles: ParticleData, params: ParticleEmitterParams, context: ParticleExecContext) {
-        const { startColor, color } = particles;
+        const startColor = particles.startColor.data;
+        const color = particles.color.data;
         const { fromIndex, toIndex, normalizedTimeInCycle } = context;
         if (this.startColor.mode === GradientRange.Mode.Color) {
             const colorNum = Color.toUint32(this.startColor.color);

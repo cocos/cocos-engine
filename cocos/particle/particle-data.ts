@@ -23,11 +23,55 @@
  THE SOFTWARE.
  */
 
+import { DEBUG } from 'internal:constants';
 import { assert, Color, Vec3 } from '../core';
 
 export type ParticleHandle = number;
 export const INVALID_HANDLE = -1;
 const DEFAULT_CAPACITY = 16;
+
+export enum BuiltinParticleParameterName {
+    ID = 'id',
+    RANDOM_SEED = 'random-seed',
+    INV_START_LIFETIME = 'inv-start-lifetime',
+    NORMALIZED_ALIVE_TIME = 'normalized-alive-time',
+    POSITION = 'position',
+    START_DIR = 'start-dir',
+    VELOCITY = 'velocity',
+    ANIMATED_VELOCITY = 'animated-velocity',
+    ROTATION = 'rotation',
+    AXIS_OF_ROTATION = 'axis-of-rotation',
+    ANGULAR_VELOCITY = 'angular-velocity',
+    SPEED_MODIFIER = 'speed-modifier',
+    NOISE = 'noise',
+    FRAME_INDEX = 'frame-index',
+    START_SIZE = 'start-size',
+    SIZE = 'size',
+    START_COLOR = 'start-color',
+    COLOR = 'color',
+}
+
+export enum BuiltinParticleParameter {
+    ID,
+    RANDOM_SEED,
+    INV_START_LIFETIME,
+    NORMALIZED_ALIVE_TIME,
+    POSITION,
+    START_DIR,
+    VELOCITY,
+    ANIMATED_VELOCITY,
+    ROTATION,
+    AXIS_OF_ROTATION,
+    ANGULAR_VELOCITY,
+    SPEED_MODIFIER,
+    NOISE,
+    FRAME_INDEX,
+    START_SIZE,
+    SIZE,
+    START_COLOR,
+    COLOR,
+    COUNT,
+}
 
 export abstract class ParticleParameter {
     get capacity () {
@@ -47,7 +91,7 @@ export class ParticleVec3Parameter extends ParticleParameter {
 
     private _data = new Float32Array(3 * this._capacity);
 
-    static add (out: Vec3, a: ParticleVec3Parameter, b: ParticleVec3Parameter, handle: number) {
+    static addSingle (out: Vec3, a: ParticleVec3Parameter, b: ParticleVec3Parameter, handle: number) {
         const xOffset = handle * 3;
         const yOffset = xOffset + 1;
         const zOffset = yOffset + 1;
@@ -79,6 +123,21 @@ export class ParticleVec3Parameter extends ParticleParameter {
         this._data[bOffset + 2] = this._data[aOffset + 2];
     }
 
+    getXAt (handle: ParticleHandle) {
+        const offset = handle * 3;
+        return this._data[offset];
+    }
+
+    getYAt (handle: ParticleHandle) {
+        const offset = handle * 3;
+        return this._data[offset + 1];
+    }
+
+    getZAt (handle: ParticleHandle) {
+        const offset = handle * 3;
+        return this._data[offset + 2];
+    }
+
     getVec3At (out: Vec3, handle: ParticleHandle) {
         const offset = handle * 3;
         out.x = this._data[offset];
@@ -99,6 +158,21 @@ export class ParticleVec3Parameter extends ParticleParameter {
         this._data[offset] = x;
         this._data[offset + 1] = y;
         this._data[offset + 2] = z;
+    }
+
+    setXAt (val: number, handle: ParticleHandle) {
+        const offset = handle * 3;
+        this._data[offset] = val;
+    }
+
+    setYAt (val: number, handle: ParticleHandle) {
+        const offset = handle * 3;
+        this._data[offset + 1] = val;
+    }
+
+    setZAt (val: number, handle: ParticleHandle) {
+        const offset = handle * 3;
+        this._data[offset + 2] = val;
     }
 
     set1fAt (val: number, handle: ParticleHandle) {
@@ -122,6 +196,42 @@ export class ParticleVec3Parameter extends ParticleParameter {
         this._data[offset + 2] += z;
     }
 
+    addXAt (val: number, handle: ParticleHandle) {
+        const offset = handle * 3;
+        this._data[offset] += val;
+    }
+
+    addYAt (val: number, handle: ParticleHandle) {
+        const offset = handle * 3;
+        this._data[offset + 1] += val;
+    }
+
+    addZAt (val: number, handle: ParticleHandle) {
+        const offset = handle * 3;
+        this._data[offset + 2] += val;
+    }
+
+    multiplyVec3At (val: Vec3, handle: ParticleHandle) {
+        const offset = handle * 3;
+        this._data[offset] *= val.x;
+        this._data[offset + 1] *= val.y;
+        this._data[offset + 2] *= val.z;
+    }
+
+    multiply3fAt (x: number, y: number, z: number, handle: ParticleHandle) {
+        const offset = handle * 3;
+        this._data[offset] *= x;
+        this._data[offset + 1] *= y;
+        this._data[offset + 2] *= z;
+    }
+
+    multiply1fAt (val: number, handle: ParticleHandle) {
+        const offset = handle * 3;
+        this._data[offset] *= val;
+        this._data[offset + 1] *= val;
+        this._data[offset + 2] *= val;
+    }
+
     add1fAt (val: number, handle: ParticleHandle) {
         const offset = handle * 3;
         this._data[offset] += val;
@@ -129,12 +239,94 @@ export class ParticleVec3Parameter extends ParticleParameter {
         this._data[offset + 2] += val;
     }
 
-    fill1f (val: number, start: ParticleHandle, end: ParticleHandle) {
-        if (end - start > 1000) {
-            this._data.fill(val, start * 3, end * 3);
+    fill1f (val: number, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+        if (toIndex - fromIndex > 1000) {
+            this._data.fill(val, fromIndex * 3, toIndex * 3);
         } else {
             const data = this._data;
-            for (let i = start * 3, length = end * 3; i < length; i++) {
+            for (let i = fromIndex * 3, length = toIndex * 3; i < length; i++) {
+                data[i] = val;
+            }
+        }
+    }
+}
+
+export class ParticleFloatParameter extends ParticleParameter {
+    get data () {
+        return this._data;
+    }
+
+    private _data = new Float32Array(this._capacity);
+
+    reserve (capacity: number) {
+        if (capacity <= this._capacity) return;
+        this._capacity = capacity;
+        const oldData = this._data;
+        this._data = new Float32Array(capacity);
+        this._data.set(oldData);
+    }
+
+    move (a: number, b: number) {
+        this._data[b] = this._data[a];
+    }
+
+    get1fAt (handle: ParticleHandle) {
+        return this._data[handle];
+    }
+
+    set1fAt (val: number, handle: ParticleHandle) {
+        this._data[handle] = val;
+    }
+
+    add1fAt (val: number, handle: ParticleHandle) {
+        this._data[handle] += val;
+    }
+
+    fill (val: number, fromIndex: number, toIndex: number) {
+        if ((toIndex - fromIndex) > 1000) {
+            this._data.fill(val, fromIndex, toIndex);
+        } else {
+            const data = this._data;
+            for (let i = fromIndex; i < toIndex; i++) {
+                data[i] = val;
+            }
+        }
+    }
+}
+
+export class ParticleUint32Parameter extends ParticleParameter {
+    get data () {
+        return this._data;
+    }
+
+    private _data = new Uint32Array(this._capacity);
+
+    reserve (capacity: number) {
+        if (capacity <= this._capacity) return;
+        this._capacity = capacity;
+        const oldData = this._data;
+        this._data = new Uint32Array(capacity);
+        this._data.set(oldData);
+    }
+
+    move (a: number, b: number) {
+        this._data[b] = this._data[a];
+    }
+
+    getUint32At (handle: ParticleHandle) {
+        return this._data[handle];
+    }
+
+    setUint32At (val: number, handle: ParticleHandle) {
+        this._data[handle] = val;
+    }
+
+    fill (val: number, fromIndex: number, toIndex: number) {
+        if ((toIndex - fromIndex) > 1000) {
+            this._data.fill(val, fromIndex, toIndex);
+        } else {
+            const data = this._data;
+            for (let i = fromIndex; i < toIndex; i++) {
                 data[i] = val;
             }
         }
@@ -169,17 +361,53 @@ export class ParticleColorParameter extends ParticleParameter {
         this._data[handle] = Color.toUint32(color);
     }
 
+    setUint32At (val: number, handle: ParticleHandle) {
+        this._data[handle] = val;
+    }
+
+    getUint32At (handle: ParticleHandle) {
+        return this._data[handle];
+    }
+
     multiplyColorAt (color: Color, handle: ParticleHandle) {
         Color.fromUint32(tempColor, this._data[handle]);
         tempColor.multiply(color);
         this._data[handle] = Color.toUint32(tempColor);
+    }
+
+    fillUint32 (val: number, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+        if ((toIndex - fromIndex) > 1000) {
+            this._data.fill(val, fromIndex, toIndex);
+        } else {
+            const data = this._data;
+            for (let i = fromIndex; i < toIndex; i++) {
+                data[i] = val;
+            }
+        }
+    }
+
+    fillColor (color: Color, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+        const val = Color.toUint32(color);
+        this.fillUint32(val, fromIndex, toIndex);
+    }
+
+    copyFrom (src: ParticleColorParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+        if ((toIndex - fromIndex) > 1000) {
+            this._data.set(src._data.subarray(fromIndex, toIndex), fromIndex);
+        } else {
+            const destData = this._data;
+            const srcData = src._data;
+            for (let i = fromIndex; i < toIndex; i++) {
+                destData[i] = srcData[i];
+            }
+        }
     }
 }
 
 const tempColor = new Color();
 export class ParticleData {
     get capacity () {
-        return this._capacity;
+        return this._parameters[0] ? this._parameters[0].capacity : 0;
     }
 
     get count () {
@@ -187,189 +415,275 @@ export class ParticleData {
     }
 
     get id () {
-        return this._id;
+        if (DEBUG) { assert(this.hasParameter(BuiltinParticleParameter.ID)); }
+        return this.getParameter(BuiltinParticleParameter.ID) as ParticleUint32Parameter;
+        // return this._id;
     }
 
     get position () {
-        return this._position;
+        if (DEBUG) { assert(this.hasParameter(BuiltinParticleParameter.POSITION)); }
+        return this.getParameter(BuiltinParticleParameter.POSITION) as ParticleVec3Parameter;
+        // return this._position;
     }
 
     get randomSeed () {
-        return this._randomSeed;
+        if (DEBUG) { assert(this.hasParameter(BuiltinParticleParameter.RANDOM_SEED)); }
+        return this.getParameter(BuiltinParticleParameter.RANDOM_SEED) as ParticleUint32Parameter;
+        // return this._randomSeed;
     }
 
     get invStartLifeTime () {
-        return this._invStartLifeTime;
+        if (DEBUG) { assert(this.hasParameter(BuiltinParticleParameter.INV_START_LIFETIME)); }
+        return this.getParameter(BuiltinParticleParameter.INV_START_LIFETIME) as ParticleFloatParameter;
+        // return this._invStartLifeTime;
     }
 
     get normalizedAliveTime () {
-        return this._normalizedAliveTime;
+        if (DEBUG) { assert(this.hasParameter(BuiltinParticleParameter.NORMALIZED_ALIVE_TIME)); }
+        return this.getParameter(BuiltinParticleParameter.NORMALIZED_ALIVE_TIME) as ParticleFloatParameter;
+        // return this._normalizedAliveTime;
     }
 
     get frameIndex () {
-        return this._frameIndex;
+        if (DEBUG) { assert(this.hasParameter(BuiltinParticleParameter.FRAME_INDEX)); }
+        return this.getParameter(BuiltinParticleParameter.FRAME_INDEX) as ParticleFloatParameter;
+        //return this._frameIndex;
     }
 
     get noise () {
-        return this._noise;
+        if (DEBUG) { assert(this.hasParameter(BuiltinParticleParameter.NOISE)); }
+        return this.getParameter(BuiltinParticleParameter.NOISE) as ParticleVec3Parameter;
+        // return this._noise;
     }
 
     get velocity () {
-        return this._velocity;
+        if (DEBUG) { assert(this.hasParameter(BuiltinParticleParameter.VELOCITY)); }
+        return this.getParameter(BuiltinParticleParameter.VELOCITY) as ParticleVec3Parameter;
+        // return this._velocity;
     }
 
     get startDir () {
-        return this._startDir;
+        if (DEBUG) { assert(this.hasParameter(BuiltinParticleParameter.START_DIR)); }
+        return this.getParameter(BuiltinParticleParameter.START_DIR) as ParticleVec3Parameter;
+        // return this._startDir;
     }
 
     get animatedVelocity () {
-        return this._animatedVelocity;
+        if (DEBUG) { assert(this.hasParameter(BuiltinParticleParameter.ANIMATED_VELOCITY)); }
+        return this.getParameter(BuiltinParticleParameter.ANIMATED_VELOCITY) as ParticleVec3Parameter;
+        // return this._animatedVelocity;
     }
 
     get rotation () {
-        return this._rotation;
+        if (DEBUG) { assert(this.hasParameter(BuiltinParticleParameter.ROTATION)); }
+        return this.getParameter(BuiltinParticleParameter.ROTATION) as ParticleVec3Parameter;
+        // return this._rotation;
     }
 
     get axisOfRotation () {
-        return this._axisOfRotation;
+        if (DEBUG) { assert(this.hasParameter(BuiltinParticleParameter.AXIS_OF_ROTATION)); }
+        return this.getParameter(BuiltinParticleParameter.AXIS_OF_ROTATION) as ParticleVec3Parameter;
+        // return this._axisOfRotation;
     }
 
     get angularVelocity () {
-        return this._angularVelocity;
+        if (DEBUG) { assert(this.hasParameter(BuiltinParticleParameter.ANGULAR_VELOCITY)); }
+        return this.getParameter(BuiltinParticleParameter.ANGULAR_VELOCITY) as ParticleVec3Parameter;
+        // return this._angularVelocity;
     }
 
     get speedModifier () {
-        return this._speedModifier;
+        if (DEBUG) { assert(this.hasParameter(BuiltinParticleParameter.SPEED_MODIFIER)); }
+        return this.getParameter(BuiltinParticleParameter.SPEED_MODIFIER) as ParticleFloatParameter;
+        // return this._speedModifier;
     }
 
     get size () {
-        return this._size;
+        if (DEBUG) { assert(this.hasParameter(BuiltinParticleParameter.SIZE)); }
+        return this.getParameter(BuiltinParticleParameter.SIZE) as ParticleVec3Parameter;
+        // return this._size;
     }
 
     get startSize () {
-        return this._startSize;
+        if (DEBUG) { assert(this.hasParameter(BuiltinParticleParameter.START_SIZE)); }
+        return this.getParameter(BuiltinParticleParameter.START_SIZE) as ParticleVec3Parameter;
+        // return this._startSize;
     }
 
     get startColor () {
-        return this._startColor;
+        if (DEBUG) { assert(this.hasParameter(BuiltinParticleParameter.START_COLOR)); }
+        return this.getParameter(BuiltinParticleParameter.START_COLOR) as ParticleColorParameter;
+        // return this._startColor;
     }
 
     get color () {
-        return this._color;
+        if (DEBUG) { assert(this.hasParameter(BuiltinParticleParameter.COLOR)); }
+        return this.getParameter(BuiltinParticleParameter.COLOR) as ParticleColorParameter;
+        // return this._color;
     }
-    private _maxId = 1;
+
     private _count = 0;
-    private _capacity = DEFAULT_CAPACITY;
-    private _id = new Uint32Array(this._capacity);
-    private _position = new ParticleVec3Parameter();
-    private _velocity = new ParticleVec3Parameter();
-    private _startDir = new ParticleVec3Parameter();
-    private _animatedVelocity = new ParticleVec3Parameter();
-    private _rotation = new ParticleVec3Parameter();
-    private _axisOfRotation = new ParticleVec3Parameter();
-    private _angularVelocity = new ParticleVec3Parameter();
-    private _startSize = new ParticleVec3Parameter();
-    private _size = new ParticleVec3Parameter();
-    private _noise = new ParticleVec3Parameter();
-    private _speedModifier = new Float32Array(this._capacity);
-    private _startColor = new ParticleColorParameter();
-    private _color = new ParticleColorParameter();
-    private _randomSeed = new Uint32Array(this._capacity);
-    private _invStartLifeTime = new Float32Array(this._capacity);
-    private _normalizedAliveTime = new Float32Array(this._capacity);
-    private _frameIndex = new Float32Array(this._capacity);
+    private _parameterCount = 0;
+    private _parameterIds = new Uint8Array(8);
+    private _parameters: ParticleParameter[] = [];
+    // private _id = new ParticleUint32Parameter();
+    // private _position = new ParticleVec3Parameter();
+    // private _velocity = new ParticleVec3Parameter();
+    // private _startDir = new ParticleVec3Parameter();
+    // private _animatedVelocity = new ParticleVec3Parameter();
+    // private _rotation = new ParticleVec3Parameter();
+    // private _axisOfRotation = new ParticleVec3Parameter();
+    // private _angularVelocity = new ParticleVec3Parameter();
+    // private _startSize = new ParticleVec3Parameter();
+    // private _size = new ParticleVec3Parameter();
+    // private _noise = new ParticleVec3Parameter();
+    // private _speedModifier = new ParticleFloatParameter();
+    // private _startColor = new ParticleColorParameter();
+    // private _color = new ParticleColorParameter();
+    // private _randomSeed = new ParticleUint32Parameter();
+    // private _invStartLifeTime = new ParticleFloatParameter();
+    // private _normalizedAliveTime = new ParticleFloatParameter();
+    // private _frameIndex = new ParticleFloatParameter();
+
+    constructor () {
+        this.addParameter(BuiltinParticleParameter.POSITION, new ParticleVec3Parameter());
+    }
+
+    getParameter (id: number) {
+        const parameterIds = this._parameterIds;
+        const parameters = this._parameters;
+        for (let i = 0, length = this._parameterCount; i < length; i++) {
+            if (id === parameterIds[i]) {
+                return parameters[i];
+            }
+        }
+        return null;
+    }
+
+    hasParameter (id: number) {
+        const parameterIds = this._parameterIds;
+        for (let i = 0, length = this._parameterCount; i < length; i++) {
+            if (id === parameterIds[i]) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    addParameter (id: number, parameter: ParticleParameter) {
+        const parameterIds = this._parameterIds;
+        const count = this._parameterCount;
+        for (let i = 0; i < count; i++) {
+            if (id === parameterIds[i]) {
+                throw new Error('Already exist a particle parameter with same id!');
+            }
+        }
+        if (parameterIds.length === count) {
+            this._parameterIds = new Uint8Array(2 * count);
+            this._parameterIds.set(parameterIds);
+        }
+        this._parameterIds[this._parameterCount++] = id;
+        this._parameters.push(parameter);
+    }
+
+    removeParameter (id: number) {
+        const parameterIds = this._parameterIds;
+        const parameters = this._parameters;
+        const count = this._parameterCount;
+        for (let i = count - 1; i >= 0; i--) {
+            if (id === parameterIds[i]) {
+                parameterIds[i] = parameterIds[count - 1];
+                parameters[i] = parameters[count - 1];
+                parameters.length--;
+                this._parameterCount--;
+            }
+        }
+    }
 
     addParticles (count: number) {
-        let reservedCount = this._capacity;
+        let reservedCount = this.capacity;
         while (this._count + count > reservedCount) {
             reservedCount *= 2;
         }
         this.reserve(reservedCount);
-        for (let i = 0; i < count; ++i) {
-            this.resetParticle(this._count++);
-        }
+        this._count += count;
+        // this.resetParticles(this._count, this._count += count);
     }
 
     removeParticle (handle: ParticleHandle) {
         assert(handle >= 0 && handle < this._count);
         const lastParticle = this._count - 1;
         if (lastParticle !== handle) {
-            this._id[handle] = this._id[lastParticle];
-            this._position.move(lastParticle, handle);
-            this._velocity.move(lastParticle, handle);
-            this._startDir.move(lastParticle, handle);
-            this._animatedVelocity.move(lastParticle, handle);
-            this._speedModifier[handle] = this._speedModifier[lastParticle];
-            this._rotation.move(lastParticle, handle);
-            this._axisOfRotation.move(lastParticle, handle);
-            this._angularVelocity.move(lastParticle, handle);
-            this._startSize.move(lastParticle, handle);
-            this._size.move(lastParticle, handle);
-            this._startColor.move(lastParticle, handle);
-            this._color.move(lastParticle, handle);
-            this._randomSeed[handle] = this._randomSeed[lastParticle];
-            this._invStartLifeTime[handle] = this._invStartLifeTime[lastParticle];
-            this._normalizedAliveTime[handle] = this._normalizedAliveTime[lastParticle];
-            this._frameIndex[handle] = this._frameIndex[lastParticle];
-            this._noise.move(lastParticle, handle);
+            for (let i = 0; i < this._parameterCount; i++) {
+                this._parameters[i].move(lastParticle, handle);
+            }
+            // this._id.move(lastParticle, handle);
+            // this._position.move(lastParticle, handle);
+            // this._velocity.move(lastParticle, handle);
+            // this._startDir.move(lastParticle, handle);
+            // this._animatedVelocity.move(lastParticle, handle);
+            // this._speedModifier[handle] = this._speedModifier[lastParticle];
+            // this._rotation.move(lastParticle, handle);
+            // this._axisOfRotation.move(lastParticle, handle);
+            // this._angularVelocity.move(lastParticle, handle);
+            // this._startSize.move(lastParticle, handle);
+            // this._size.move(lastParticle, handle);
+            // this._startColor.move(lastParticle, handle);
+            // this._color.move(lastParticle, handle);
+            // this._randomSeed.move(lastParticle, handle);
+            // this._invStartLifeTime.move(lastParticle, handle);
+            // this._normalizedAliveTime.move(lastParticle, handle);
+            // this._frameIndex.move(lastParticle, handle);
+            // this._noise.move(lastParticle, handle);
         }
         this._count -= 1;
     }
 
-    resetParticle (handle: ParticleHandle) {
-        this._id[handle] = this._maxId++;
-        this._position.set1fAt(0, handle);
-        this._velocity.set1fAt(0, handle);
-        this._startDir.set3fAt(0, 0, 1, handle);
-        this._animatedVelocity.set1fAt(0, handle);
-        this._speedModifier[handle] = 1;
-        this._rotation.set1fAt(0, handle);
-        this._axisOfRotation.set1fAt(0, handle);
-        this._angularVelocity.set1fAt(0, handle);
-        this._startSize.set1fAt(1, handle);
-        this._size.set1fAt(1, handle);
-        this._startColor.setColorAt(Color.WHITE, handle);
-        this._color.setColorAt(Color.WHITE, handle);
-        this._randomSeed[handle] = 0;
-        this._invStartLifeTime[handle] = 1;
-        this._normalizedAliveTime[handle] = 0;
-        this._frameIndex[handle] = 0;
-        this._noise.set1fAt(0, handle);
-    }
+    // resetParticles (fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    //     for (let i = fromIndex; i < toIndex; i++) {
+    //         this._id.setUint32At(this._maxId++, i);
+    //     }
+    //     this._velocity.fill1f(0, fromIndex, toIndex);
+    //     this._animatedVelocity.fill1f(0, fromIndex, toIndex);
+    //     this._speedModifier.fill(1, fromIndex, toIndex);
+    //     this._rotation.fill1f(0, fromIndex, toIndex);
+    //     this._axisOfRotation.fill1f(0, fromIndex, toIndex);
+    //     this._angularVelocity.fill1f(0, fromIndex, toIndex);
+    //     this._startSize.fill1f(1, fromIndex, toIndex);
+    //     this._size.fill1f(1, fromIndex, toIndex);
+    //     this._startColor.fillColor(Color.WHITE, fromIndex, toIndex);
+    //     this._color.fillColor(Color.WHITE, fromIndex, toIndex);
+    //     this._randomSeed.fill(0, fromIndex, toIndex);
+    //     this._invStartLifeTime.fill(1, fromIndex, toIndex);
+    //     this._normalizedAliveTime.fill(0, fromIndex, toIndex);
+    //     this._frameIndex.fill(0, fromIndex, toIndex);
+    //     this._noise.fill1f(0, fromIndex, toIndex);
+    // }
 
     reserve (capacity: number) {
-        if (capacity <= this._capacity) return;
-        this._capacity = capacity;
-        const oldId = this._id;
-        const oldRandomSeed = this._randomSeed;
-        const oldInvStartLifeTime = this._invStartLifeTime;
-        const oldNormalizedAliveTime = this._normalizedAliveTime;
-        const oldFrameIndex = this._frameIndex;
-        const oldSpeedModifier = this._speedModifier;
-        this._id = new Uint32Array(capacity);
-        this._id.set(oldId);
-        this._position.reserve(capacity);
-        this._velocity.reserve(capacity);
-        this._startDir.reserve(capacity);
-        this._animatedVelocity.reserve(capacity);
-        this._speedModifier = new Float32Array(capacity);
-        this._speedModifier.set(oldSpeedModifier);
-        this._rotation.reserve(capacity);
-        this._axisOfRotation.reserve(capacity);
-        this._angularVelocity.reserve(capacity);
-        this._startSize.reserve(capacity);
-        this._size.reserve(capacity);
-        this._startColor.reserve(capacity);
-        this._color.reserve(capacity);
-        this._randomSeed = new Uint32Array(capacity);
-        this._randomSeed.set(oldRandomSeed);
-        this._invStartLifeTime = new Float32Array(capacity);
-        this._invStartLifeTime.set(oldInvStartLifeTime);
-        this._normalizedAliveTime = new Float32Array(capacity);
-        this._normalizedAliveTime.set(oldNormalizedAliveTime);
-        this._frameIndex = new Float32Array(capacity);
-        this._frameIndex.set(oldFrameIndex);
-        this._noise.reserve(capacity);
+        if (capacity <= this.capacity) return;
+        const parameters = this._parameters;
+        for (let i = 0, length = this._parameterCount; i < length; i++) {
+            parameters[i].reserve(capacity);
+        }
+        // this._id.reserve(capacity);
+        // this._position.reserve(capacity);
+        // this._velocity.reserve(capacity);
+        // this._startDir.reserve(capacity);
+        // this._animatedVelocity.reserve(capacity);
+        // this._speedModifier.reserve(capacity);
+        // this._rotation.reserve(capacity);
+        // this._axisOfRotation.reserve(capacity);
+        // this._angularVelocity.reserve(capacity);
+        // this._startSize.reserve(capacity);
+        // this._size.reserve(capacity);
+        // this._startColor.reserve(capacity);
+        // this._color.reserve(capacity);
+        // this._randomSeed.reserve(capacity);
+        // this._invStartLifeTime.reserve(capacity);
+        // this._normalizedAliveTime.reserve(capacity);
+        // this._frameIndex.reserve(capacity);
+        // this._noise.reserve(capacity);
     }
 
     clear () {

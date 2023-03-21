@@ -27,7 +27,7 @@
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, type, range, displayName, formerlySerializedAs, override, radian, serializable, visible, requireComponent } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Particle } from '@cocos/cannon';
-import { approx, clamp01, EPSILON, lerp, Mat3, Mat4, pseudoRandom, Quat, randomRangeInt, Size, Vec2, Vec3, Vec4 } from '../core/math';
+import { approx, clamp01, Color, EPSILON, lerp, Mat3, Mat4, pseudoRandom, Quat, randomRangeInt, Size, Vec2, Vec3, Vec4 } from '../core/math';
 import { countTrailingZeros, INT_MAX } from '../core/math/bits';
 import { MultiplyColorModule } from './modules/multiply-color';
 import { CurveRange, Mode } from './curve-range';
@@ -58,7 +58,7 @@ import { AABB, intersect } from '../core/geometry';
 import { Camera, Model } from '../core/renderer/scene';
 import { NoiseModule } from './modules/noise';
 import { assert, BitMask, CCBoolean, CCClass, CCFloat, CCInteger, Component, Enum, geometry, js } from '../core';
-import { INVALID_HANDLE, ParticleHandle, ParticleData } from './particle-data';
+import { INVALID_HANDLE, ParticleHandle, ParticleData, BuiltinParticleParameter } from './particle-data';
 import { ParticleModule, ParticleModuleStage, ModuleExecStage } from './particle-module';
 import { vfxManager } from './vfx-manager';
 import { BurstModule } from './modules/burst';
@@ -668,13 +668,9 @@ export class ParticleEmitter extends Component {
         context.setTime(currentTime, prevTime, params.invDuration);
         context.resetSpawningState();
         context.clearEvents();
-        this._emitterStage.tick(particles, params, context);
-        this._spawningStage.tick(particles, params, context);
-        this._updateStage.tick(particles, params, context);
-        this._renderStage.tick(particles, params, context);
+        this.preTick(particles, params, context);
 
         this._emitterStage.execute(particles, params, context);
-
         const particleCount = particles.count;
         if (particleCount > 0) {
             context.setExecuteRange(0, particleCount);
@@ -691,6 +687,13 @@ export class ParticleEmitter extends Component {
         this.handleEvents();
         this.updateBounds();
         this._renderStage.execute(particles, params, context);
+    }
+
+    private preTick (particles: ParticleData, params: ParticleEmitterParams, context: ParticleExecContext) {
+        this._emitterStage.tick(particles, params, context);
+        this._spawningStage.tick(particles, params, context);
+        this._updateStage.tick(particles, params, context);
+        this._renderStage.tick(particles, params, context);
     }
 
     private updateBounds () {
@@ -743,9 +746,7 @@ export class ParticleEmitter extends Component {
         const { animatedVelocity, angularVelocity, color, startColor } = particles;
         animatedVelocity.fill1f(0, fromIndex, toIndex);
         angularVelocity.fill1f(0, fromIndex, toIndex);
-        for (let i = fromIndex; i < toIndex; i++) {
-            color[i] = startColor[i];
-        }
+        color.copyFrom(startColor, fromIndex, toIndex);
     }
 
     private emit (particles: ParticleData, params: ParticleEmitterParams,
@@ -774,7 +775,6 @@ export class ParticleEmitter extends Component {
 
     private spawnParticles (particles: ParticleData, params: ParticleEmitterParams, context: ParticleExecContext,
         initialVelocity: Vec3, prevTime: number, currentTime: number, numToEmit: number, interval: number, spawnFraction: number) {
-        const { randomSeed } = particles;
         if (numToEmit + particles.count > params.capacity) {
             numToEmit = params.capacity - particles.count;
         }
@@ -786,13 +786,66 @@ export class ParticleEmitter extends Component {
             particles.addParticles(numToEmit);
             const toIndex = particles.count;
             const initialPosition = context.emitterTransform.getTranslation(tempPosition);
-            const { position, startDir } = particles;
-            const initialDir = Vec3.set(tempDir, context.emitterTransform.m02, context.emitterTransform.m06, context.emitterTransform.m10);
+            const { position } = particles;
             for (let i = fromIndex; i < toIndex; i++) {
-                randomSeed[i] = randomRangeInt(0, 233280);
                 position.setVec3At(initialPosition, i);
-                startDir.setVec3At(initialDir, i);
             }
+            if (particles.hasParameter(BuiltinParticleParameter.VELOCITY)) {
+                particles.velocity.fill1f(0, fromIndex, toIndex);
+            }
+            if (particles.hasParameter(BuiltinParticleParameter.ANIMATED_VELOCITY)) {
+                particles.animatedVelocity.fill1f(0, fromIndex, toIndex);
+            }
+            if (particles.hasParameter(BuiltinParticleParameter.SPEED_MODIFIER)) {
+                particles.speedModifier.fill(1, fromIndex, toIndex);
+            }
+            if (particles.hasParameter(BuiltinParticleParameter.ROTATION)) {
+                particles.rotation.fill1f(0, fromIndex, toIndex);
+            }
+            if (particles.hasParameter(BuiltinParticleParameter.AXIS_OF_ROTATION)) {
+                particles.axisOfRotation.fill1f(0, fromIndex, toIndex);
+            }
+            if (particles.hasParameter(BuiltinParticleParameter.ANGULAR_VELOCITY)) {
+                particles.angularVelocity.fill1f(0, fromIndex, toIndex);
+            }
+            if (particles.hasParameter(BuiltinParticleParameter.START_SIZE)) {
+                particles.startSize.fill1f(1, fromIndex, toIndex);
+            }
+            if (particles.hasParameter(BuiltinParticleParameter.SIZE)) {
+                particles.size.fill1f(1, fromIndex, toIndex);
+            }
+            if (particles.hasParameter(BuiltinParticleParameter.START_COLOR)) {
+                particles.startColor.fillColor(Color.WHITE, fromIndex, toIndex);
+            }
+            if (particles.hasParameter(BuiltinParticleParameter.COLOR)) {
+                particles.color.fillColor(Color.WHITE, fromIndex, toIndex);
+            }
+            if (particles.hasParameter(BuiltinParticleParameter.INV_START_LIFETIME)) {
+                particles.invStartLifeTime.fill(1, fromIndex, toIndex);
+            }
+            if (particles.hasParameter(BuiltinParticleParameter.NORMALIZED_ALIVE_TIME)) {
+                particles.normalizedAliveTime.fill(0, fromIndex, toIndex);
+            }
+            if (particles.hasParameter(BuiltinParticleParameter.ID)) {
+                const id = particles.id.data;
+                for (let i = fromIndex; i < toIndex; i++) {
+                    id[i] = ++this._state.maxParticleId;
+                }
+            }
+            if (particles.hasParameter(BuiltinParticleParameter.RANDOM_SEED)) {
+                const randomSeed = particles.randomSeed.data;
+                for (let i = fromIndex; i < toIndex; i++) {
+                    randomSeed[i] = randomRangeInt(0, 233280);
+                }
+            }
+            if (particles.hasParameter(BuiltinParticleParameter.START_DIR)) {
+                const { startDir } = particles;
+                const initialDir = Vec3.set(tempDir, context.emitterTransform.m02, context.emitterTransform.m06, context.emitterTransform.m10);
+                for (let i = fromIndex; i < toIndex; i++) {
+                    startDir.setVec3At(initialDir, i);
+                }
+            }
+
             if (!approx(interval, 0)) {
                 for (let i = toIndex - 1, num = 0; i >= fromIndex; i--, ++num) {
                     context.setExecuteRange(i, i + 1);

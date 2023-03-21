@@ -16,9 +16,10 @@ export class SolveModule extends ParticleModule {
 
     public execute (particles: ParticleData, params: ParticleEmitterParams, context: ParticleExecContext) {
         const { fromIndex, toIndex, deltaTime } = context;
-        const { speedModifier, position, angularVelocity, rotation, velocity, animatedVelocity } = particles;
+        const { position, angularVelocity, rotation, velocity, animatedVelocity } = particles;
+        const speedModifier = particles.speedModifier.data;
         for (let particleHandle = fromIndex; particleHandle < toIndex; particleHandle++) {
-            ParticleVec3Parameter.add(tempVelocity, velocity, animatedVelocity, particleHandle);
+            ParticleVec3Parameter.addSingle(tempVelocity, velocity, animatedVelocity, particleHandle);
             position.addVec3At(Vec3.multiplyScalar(tempVelocity, tempVelocity, deltaTime * speedModifier[particleHandle]), particleHandle);
             angularVelocity.getVec3At(tempVelocity, particleHandle);
             rotation.addVec3At(Vec3.multiplyScalar(tempVelocity, tempVelocity, deltaTime), particleHandle);

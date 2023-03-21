@@ -126,71 +126,75 @@ export class RotationModule extends ParticleModule {
     private _x: CurveRange | null = null;
 
     public execute (particles: ParticleData, params: ParticleEmitterParams, context: ParticleExecContext) {
-        const {  angularVelocityZ, normalizedAliveTime, randomSeed } = particles;
+        const { angularVelocity } = particles;
+        const normalizedAliveTime = particles.normalizedAliveTime.data;
+        const randomSeed = particles.randomSeed.data;
         const { fromIndex, toIndex } = context;
         if (!this._separateAxes) {
             if (this.z.mode === CurveRange.Mode.Constant) {
                 const constant = this.z.constant;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    angularVelocityZ[i] += constant;
+                    angularVelocity.addZAt(constant, i);
                 }
             } else if (this.z.mode === CurveRange.Mode.Curve) {
                 const { spline, multiplier } = this.z;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    angularVelocityZ[i] += spline.evaluate(normalizedAliveTime[i]) * multiplier;
+                    angularVelocity.addZAt(spline.evaluate(normalizedAliveTime[i]) * multiplier, i);
                 }
             } else if (this.z.mode === CurveRange.Mode.TwoConstants) {
                 const { constantMin, constantMax } = this.z;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    angularVelocityZ[i] += lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + ROTATION_OVERTIME_RAND_OFFSET));
+                    angularVelocity.addZAt(lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + ROTATION_OVERTIME_RAND_OFFSET)), i);
                 }
             } else {
                 const { splineMin, splineMax, multiplier } = this.z;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    angularVelocityZ[i] += lerp(splineMin.evaluate(normalizedAliveTime[i]), splineMax.evaluate(normalizedAliveTime[i]), pseudoRandom(randomSeed[i] + ROTATION_OVERTIME_RAND_OFFSET)) * multiplier;
+                    const time = normalizedAliveTime[i];
+                    angularVelocity.addZAt(lerp(splineMin.evaluate(time), splineMax.evaluate(time), pseudoRandom(randomSeed[i] + ROTATION_OVERTIME_RAND_OFFSET)) * multiplier, i);
                 }
             }
         } else {
             if (DEBUG) {
                 assert(this.x.mode === this.y.mode && this.y.mode === this.z.mode, 'The curve of x, y, z must have same mode!');
             }
-            const { angularVelocityX, angularVelocityY } = particles;
             // eslint-disable-next-line no-lonely-if
             if (this.z.mode === CurveRange.Mode.Constant) {
                 const constantX = this.x.constant;
                 const constantY = this.y.constant;
                 const constantZ = this.z.constant;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    angularVelocityX[i] += constantX;
-                    angularVelocityY[i] += constantY;
-                    angularVelocityZ[i] += constantZ;
+                    angularVelocity.add3fAt(constantX, constantY, constantZ, i);
                 }
             } else if (this.z.mode === CurveRange.Mode.Curve) {
                 const { spline: splineX, multiplier: xMultiplier } = this.x;
                 const { spline: splineY, multiplier: yMultiplier } = this.y;
                 const { spline: splineZ, multiplier: zMultiplier } = this.z;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    angularVelocityX[i] += splineX.evaluate(normalizedAliveTime[i]) * xMultiplier;
-                    angularVelocityY[i] += splineY.evaluate(normalizedAliveTime[i]) * yMultiplier;
-                    angularVelocityZ[i] += splineZ.evaluate(normalizedAliveTime[i]) * zMultiplier;
+                    const time = normalizedAliveTime[i];
+                    angularVelocity.add3fAt(splineX.evaluate(time) * xMultiplier,
+                        splineY.evaluate(time) * yMultiplier,
+                        splineZ.evaluate(time) * zMultiplier, i);
                 }
             } else if (this.z.mode === CurveRange.Mode.TwoConstants) {
                 const { constantMin: xMin, constantMax: xMax } = this.x;
                 const { constantMin: yMin, constantMax: yMax } = this.y;
                 const { constantMin: zMin, constantMax: zMax } = this.z;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    angularVelocityX[i] += lerp(xMin, xMax, pseudoRandom(randomSeed[i] + ROTATION_OVERTIME_RAND_OFFSET));
-                    angularVelocityY[i] += lerp(yMin, yMax, pseudoRandom(randomSeed[i] + ROTATION_OVERTIME_RAND_OFFSET));
-                    angularVelocityZ[i] += lerp(zMin, zMax, pseudoRandom(randomSeed[i] + ROTATION_OVERTIME_RAND_OFFSET));
+                    const seed = randomSeed[i];
+                    angularVelocity.add3fAt(lerp(xMin, xMax, pseudoRandom(seed + ROTATION_OVERTIME_RAND_OFFSET)),
+                        lerp(yMin, yMax, pseudoRandom(seed + ROTATION_OVERTIME_RAND_OFFSET)),
+                        lerp(zMin, zMax, pseudoRandom(seed + ROTATION_OVERTIME_RAND_OFFSET)), i);
                 }
             } else {
                 const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.x;
                 const { splineMin: yMin, splineMax: yMax, multiplier: yMultiplier } = this.y;
                 const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.z;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    angularVelocityX[i] += lerp(xMin.evaluate(normalizedAliveTime[i]), xMax.evaluate(normalizedAliveTime[i]), pseudoRandom(randomSeed[i] + ROTATION_OVERTIME_RAND_OFFSET)) * xMultiplier;
-                    angularVelocityY[i] += lerp(yMin.evaluate(normalizedAliveTime[i]), yMax.evaluate(normalizedAliveTime[i]), pseudoRandom(randomSeed[i] + ROTATION_OVERTIME_RAND_OFFSET)) * yMultiplier;
-                    angularVelocityZ[i] += lerp(zMin.evaluate(normalizedAliveTime[i]), zMax.evaluate(normalizedAliveTime[i]), pseudoRandom(randomSeed[i] + ROTATION_OVERTIME_RAND_OFFSET)) * zMultiplier;
+                    const time = normalizedAliveTime[i];
+                    const seed = randomSeed[i];
+                    angularVelocity.add3fAt(lerp(xMin.evaluate(time), xMax.evaluate(time), pseudoRandom(seed + ROTATION_OVERTIME_RAND_OFFSET)) * xMultiplier,
+                        lerp(yMin.evaluate(time), yMax.evaluate(time), pseudoRandom(seed + ROTATION_OVERTIME_RAND_OFFSET)) * yMultiplier,
+                        lerp(zMin.evaluate(time), zMax.evaluate(time), pseudoRandom(seed + ROTATION_OVERTIME_RAND_OFFSET)) * zMultiplier, i);
                 }
             }
         }

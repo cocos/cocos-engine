@@ -41,7 +41,10 @@ export class DeathEventGeneratorModule extends ParticleModule {
     public probability = 1;
 
     public execute (particles: ParticleData, params: ParticleEmitterParams, context: ParticleExecContext) {
-        const { randomSeed, invStartLifeTime, normalizedAliveTime, id, rotation, size, position, velocity, animatedVelocity, color } = particles;
+        const { id, rotation, size, position, velocity, animatedVelocity, color } = particles;
+        const normalizedAliveTime = particles.normalizedAliveTime.data;
+        const randomSeed = particles.randomSeed.data;
+        const invStartLifeTime = particles.invStartLifeTime.data;
         const { fromIndex, toIndex, deltaTime, deathEvents } = context;
         const { localToWorld } = context;
         const { simulationSpace } = params;
@@ -57,7 +60,7 @@ export class DeathEventGeneratorModule extends ParticleModule {
                 size.getVec3At(eventInfo.size, i);
                 color.getColorAt(eventInfo.color, i);
                 position.getVec3At(eventInfo.position, i);
-                ParticleVec3Parameter.add(eventInfo.velocity, velocity, animatedVelocity, i);
+                ParticleVec3Parameter.addSingle(eventInfo.velocity, velocity, animatedVelocity, i);
                 if (simulationSpace === Space.LOCAL) {
                     Vec3.transformMat4(eventInfo.position, eventInfo.position, localToWorld);
                     Vec3.transformMat4(eventInfo.velocity, eventInfo.velocity, localToWorld);

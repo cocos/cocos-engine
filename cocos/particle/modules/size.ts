@@ -116,7 +116,9 @@ export class SizeModule extends ParticleModule {
     private _z: CurveRange | null = null;
 
     public execute (particles: ParticleData, params: ParticleEmitterParams, context: ParticleExecContext) {
-        const { normalizedAliveTime, randomSeed, startSize, size } = particles;
+        const { startSize, size } = particles;
+        const normalizedAliveTime = particles.normalizedAliveTime.data;
+        const randomSeed = particles.randomSeed.data;
         const { fromIndex, toIndex } = context;
         if (!this.separateAxes) {
             if (this.size.mode === CurveRange.Mode.Constant) {

@@ -46,7 +46,9 @@ export class SpeedModifierModule extends ParticleModule {
     public speedModifier = new CurveRange(1);
 
     public execute (particles: ParticleData, params: ParticleEmitterParams, context: ParticleExecContext) {
-        const { speedModifier, normalizedAliveTime, randomSeed } = particles;
+        const normalizedAliveTime = particles.normalizedAliveTime.data;
+        const randomSeed = particles.randomSeed.data;
+        const speedModifier = particles.speedModifier.data;
         const { fromIndex, toIndex } = context;
         if (this.speedModifier.mode === CurveRange.Mode.Constant) {
             const constant = this.speedModifier.constant;

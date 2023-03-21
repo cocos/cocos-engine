@@ -30,21 +30,21 @@ export class MultiplyColorBySpeedModule extends ParticleModule {
         assert(!approx(this.speedRange.x, this.speedRange.y), 'Speed Range X is so closed to Speed Range Y');
         const scale = 1 / Math.abs(this.speedRange.x - this.speedRange.y);
         const offset = -this.speedRange.x * scale;
-        const { velocity, animatedVelocity } = particles;
+        const { velocity, animatedVelocity, color } = particles;
         if (this.color.mode === GradientRange.Mode.Gradient) {
-            const color = this.color.gradient;
+            const gradient = this.color.gradient;
             for (let i = fromIndex; i < toIndex; i++) {
-                ParticleVec3Parameter.add(tempVelocity, velocity, animatedVelocity, i);
+                ParticleVec3Parameter.addSingle(tempVelocity, velocity, animatedVelocity, i);
                 const ratio = math.clamp01(tempVelocity.length() * scale + offset);
-                particles.multiplyColorAt(color.evaluate(tempColor, ratio), i);
+                color.multiplyColorAt(gradient.evaluate(tempColor, ratio), i);
             }
         } else if (this.color.mode === GradientRange.Mode.TwoGradients) {
             const { gradientMin, gradientMax } = this.color;
-            const { randomSeed } = particles;
+            const randomSeed = particles.randomSeed.data;
             for (let i = fromIndex; i < toIndex; i++) {
-                ParticleVec3Parameter.add(tempVelocity, velocity, animatedVelocity, i);
+                ParticleVec3Parameter.addSingle(tempVelocity, velocity, animatedVelocity, i);
                 const ratio = math.clamp01(tempVelocity.length() * scale + offset);
-                particles.multiplyColorAt(Color.lerp(tempColor,
+                color.multiplyColorAt(Color.lerp(tempColor,
                     gradientMin.evaluate(tempColor2, ratio),
                     gradientMax.evaluate(tempColor3, ratio),
                     pseudoRandom(randomSeed[i] + MULTIPLY_COLOR_BY_SPEED_RAND_OFFSET)), i);
