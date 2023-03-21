@@ -409,24 +409,11 @@ export class Game extends EventTarget {
     }
 
     /**
-     * @en Make engine update in faked fixed interval regardless of the actual running interval.
-     * @zh 让引擎以假的时间间隔更新，而不考虑实际的运行间隔。
-     * @param deltaTime
-     * @en The faked fixed interval, the unit is second. Will not use faked interval if the value is less or equal to 0.
-     * @zh 假的时间间隔，单位是秒。如果传入的值小于或等于0，那么不使用假的时间间隔。
-     * @engineInternal
-     */
-    public setFixedDeltaTime (deltaTime: number) {
-        this._deltaTime = deltaTime;
-        this._useFixedDeltaTime = deltaTime > 0;
-    }
-
-    /**
      * @en The delta time since last frame, unit: s.
      * @zh 获取上一帧的增量时间，以秒为单位。
      */
-    public get deltaTime () {
-        return this._deltaTime;
+    public get deltaTime (): number {
+        return this._useFixedDeltaTime ? this.frameTime / 1000 : this._deltaTime;
     }
 
     /**
@@ -545,7 +532,7 @@ export class Game extends EventTarget {
      * @zh 以固定帧间隔执行一帧游戏循环，帧间隔与设定的帧率匹配。
      */
     public step () {
-        director.tick(this.frameTime / 1000);
+        director.tick(this._calculateDT(true));
     }
 
     /**
@@ -994,23 +981,27 @@ export class Game extends EventTarget {
 
     // @Methods
 
-    private _calculateDT () {
-        if (!this._useFixedDeltaTime) {
-            const now = performance.now();
-            this._deltaTime = now > this._startTime ? (now - this._startTime) / 1000 : 0;
-            if (this._deltaTime > Game.DEBUG_DT_THRESHOLD) {
-                this._deltaTime = this.frameTime / 1000;
-            }
-            this._startTime = now;
+    private _calculateDT (useFixedDeltaTime: boolean) {
+        this._useFixedDeltaTime = useFixedDeltaTime;
+
+        if (useFixedDeltaTime) {
+            this._startTime = performance.now();
+            return this.frameTime / 1000;
         }
 
+        const now = performance.now();
+        this._deltaTime = now > this._startTime ? (now - this._startTime) / 1000 : 0;
+        if (this._deltaTime > Game.DEBUG_DT_THRESHOLD) {
+            this._deltaTime = this.frameTime / 1000;
+        }
+        this._startTime = now;
         return this._deltaTime;
     }
 
     private _updateCallback () {
         if (!this._inited) return;
         if (!SplashScreen.instance.isFinished) {
-            SplashScreen.instance.update(this._calculateDT());
+            SplashScreen.instance.update(this._calculateDT(false));
         } else if (this._shouldLoadLaunchScene) {
             this._shouldLoadLaunchScene = false;
             const launchScene = settings.querySettings(Settings.Category.LAUNCH, 'launchScene');
@@ -1028,7 +1019,7 @@ export class Game extends EventTarget {
                 this.onStart?.();
             }
         } else {
-            director.tick(this._calculateDT());
+            director.tick(this._calculateDT(false));
         }
     }
 
