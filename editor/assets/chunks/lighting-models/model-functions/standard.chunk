@@ -29,9 +29,7 @@ void CCSurfacesLightingCalculateDirect(out vec3 lightingDiffuse, out vec3 lighti
 
 #if !CC_SURFACES_LIGHTING_DISABLE_SPECULAR
   lightingSpecular = CalculateDirectSpecular(lightingData, lightSourceColorAndIntensity);
-  lightingSpecular = vec3(0.0, 0.0, 0.5);
 #else
-  lightingSpecular = vec3(0.5, 0.0, 0.0);
 #endif
 }
 
