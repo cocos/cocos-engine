@@ -357,10 +357,11 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     protected _components: Component[] = [];
 
     /**
-     * @engineInternal The PrefabInfo object
+     * TODO(PP_Pro): this property should be exported to editor only, we should support editorOnly tag.
+     * Tracking issue: https://github.com/cocos/cocos-engine/issues/14613
      */
     @serializable
-    public _prefab: PrefabInfo | null = null;
+    protected _prefab: PrefabInfo | null = null;
 
     protected _scene: Scene = null!;
 
