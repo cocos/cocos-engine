@@ -33,7 +33,9 @@ import { ValueType } from '../../core/value-types';
 export * from './prefab-info';
 
 export function createNodeWithPrefab (node: Node) {
-    const prefabInfo = node._prefab;
+    // TODO(PP_Pro): after we support editorOnly tag, we could remove this any type assertion.
+    // Tracking issue: https://github.com/cocos/cocos-engine/issues/14613
+    const prefabInfo = (node as any)._prefab;
     if (!prefabInfo) {
         return;
     }
@@ -59,7 +61,9 @@ export function createNodeWithPrefab (node: Node) {
     const _objFlags = node._objFlags;
     const _parent = node.getParent();
     const _id = node.uuid;
-    const _prefab = node._prefab;
+    // TODO(PP_Pro): after we support editorOnly tag, we could remove this any type assertion.
+    // Tracking issue: https://github.com/cocos/cocos-engine/issues/14613
+    const _prefab = (node as any)._prefab;
     const editorExtras = node[editorExtrasTag];
 
     // instantiate prefab
@@ -86,9 +90,11 @@ export function createNodeWithPrefab (node: Node) {
         node[editorExtrasTag] = editorExtras;
     }
 
-    if (node._prefab) {
+    // TODO(PP_Pro): after we support editorOnly tag, we could remove this any type assertion.
+    // Tracking issue: https://github.com/cocos/cocos-engine/issues/14613
+    if ((node as any)._prefab) {
         // just keep the instance
-        node._prefab.instance = _prefab?.instance;
+        (node as any)._prefab.instance = _prefab?.instance;
     }
 }
 
@@ -104,13 +110,17 @@ export function generateTargetMap (node: Node, targetMap: any, isRoot: boolean) 
 
     let curTargetMap = targetMap;
 
-    const prefabInstance = node._prefab?.instance;
+    // TODO(PP_Pro): after we support editorOnly tag, we could remove this any type assertion.
+    // Tracking issue: https://github.com/cocos/cocos-engine/issues/14613
+    const prefabInstance = (node as any)._prefab?.instance;
     if (!isRoot && prefabInstance) {
         targetMap[prefabInstance.fileId] = {};
         curTargetMap = targetMap[prefabInstance.fileId];
     }
 
-    const prefabInfo = node._prefab;
+    // TODO(PP_Pro): after we support editorOnly tag, we could remove this any type assertion.
+    // Tracking issue: https://github.com/cocos/cocos-engine/issues/14613
+    const prefabInfo = (node as any)._prefab;
     if (prefabInfo) {
         curTargetMap[prefabInfo.fileId] = node;
     }
@@ -310,7 +320,9 @@ export function applyPropertyOverrides (node: Node, propertyOverrides: PropertyO
 }
 
 export function applyTargetOverrides (node: Node) {
-    const targetOverrides = node._prefab?.targetOverrides;
+    // TODO(PP_Pro): after we support editorOnly tag, we could remove this any type assertion.
+    // Tracking issue: https://github.com/cocos/cocos-engine/issues/14613
+    const targetOverrides = (node as any)._prefab?.targetOverrides;
     if (targetOverrides) {
         for (let i = 0; i < targetOverrides.length; i++) {
             const targetOverride = targetOverrides[i];
@@ -319,7 +331,7 @@ export function applyTargetOverrides (node: Node) {
             const sourceInfo = targetOverride.sourceInfo;
             if (sourceInfo) {
                 // TODO: targetOverride.source is type of `Node | Component`, while `_prefab` does not exist on type 'Component'.
-                const sourceInstance = (targetOverride.source as Node)?._prefab?.instance;
+                const sourceInstance = targetOverride.source?._prefab?.instance;
                 if (sourceInstance && sourceInstance.targetMap) {
                     source = getTarget(sourceInfo.localID, sourceInstance.targetMap);
                 }
@@ -373,7 +385,9 @@ export function applyTargetOverrides (node: Node) {
 }
 
 export function expandPrefabInstanceNode (node: Node, recursively = false) {
-    const prefabInfo = node._prefab;
+    // TODO(PP_Pro): after we support editorOnly tag, we could remove this any type assertion.
+    // Tracking issue: https://github.com/cocos/cocos-engine/issues/14613
+    const prefabInfo = (node as any)._prefab;
     const prefabInstance = prefabInfo?.instance;
     if (prefabInstance && !prefabInstance.expanded) {
         createNodeWithPrefab(node);
@@ -404,14 +418,16 @@ export function expandPrefabInstanceNode (node: Node, recursively = false) {
 }
 
 export function expandNestedPrefabInstanceNode (node: Node) {
-    const prefabInfo = node._prefab;
+    // TODO(PP_Pro): after we support editorOnly tag, we could remove this any type assertion.
+    // Tracking issue: https://github.com/cocos/cocos-engine/issues/14613
+    const prefabInfo = (node as any)._prefab;
 
     if (prefabInfo && prefabInfo.nestedPrefabInstanceRoots) {
         prefabInfo.nestedPrefabInstanceRoots.forEach((instanceNode: Node) => {
             expandPrefabInstanceNode(instanceNode);
             // when expanding the prefab,it's children will be change,so need to apply after expanded
             if (!EDITOR) {
-                applyNodeAndComponentId(instanceNode, instanceNode._prefab?.instance?.fileId ?? '');
+                applyNodeAndComponentId(instanceNode, (instanceNode as any)._prefab?.instance?.fileId ?? '');
             }
         });
     }
@@ -427,7 +443,9 @@ export function applyNodeAndComponentId (prefabInstanceNode: Node, rootId: strin
     }
     for (let i = 0; i < children.length; i++) {
         const child = children[i];
-        const prefabInfo = child._prefab!;
+        // TODO(PP_Pro): after we support editorOnly tag, we could remove this any type assertion.
+        // Tracking issue: https://github.com/cocos/cocos-engine/issues/14613
+        const prefabInfo = (child as any)._prefab!;
         const fileId = prefabInfo?.instance ? prefabInfo.instance.fileId : prefabInfo?.fileId;
         if (!fileId) continue;
         child.id = `${rootId}${fileId}`;
