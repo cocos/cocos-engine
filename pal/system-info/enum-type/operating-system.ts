@@ -54,8 +54,13 @@ export enum OS {
      */
     OSX = 'OS X',
     /**
-     * @en Operating System - Huawei Open Harmony OS
+     * @en Operating System - Huawei Harmony OS
      * @zh 操作系统 - 鸿蒙
      */
     OHOS = 'OHOS',
+    /**
+     * @en Operating System - Huawei OpenHarmony
+     * @zh 操作系统 - 鸿蒙
+     */
+    OPENHARMONY = 'OpenHarmony',
 }

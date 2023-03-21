@@ -51,6 +51,7 @@ const platformMap: Record<number, Platform> = {
     // 5 is IPAD
     5: Platform.IOS,
     6: Platform.OHOS,
+    7: Platform.OPENHARMONY,
 };
 
 class SystemInfo extends EventTarget {
@@ -81,7 +82,8 @@ class SystemInfo extends EventTarget {
         this.isBrowser = false;
 
         this.platform = platformMap[__getPlatform()];
-        this.isMobile = this.platform === Platform.ANDROID || this.platform === Platform.IOS || this.platform === Platform.OHOS;
+        // eslint-disable-next-line max-len
+        this.isMobile = this.platform === Platform.ANDROID || this.platform === Platform.IOS || this.platform === Platform.OHOS || this.platform === Platform.OPENHARMONY;
 
         // init isLittleEndian
         this.isLittleEndian = (() => {
