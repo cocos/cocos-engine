@@ -24,15 +24,37 @@
 package com.cocos.lib;
 
 import android.app.Activity;
+import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 
 public class GlobalObject {
+    private static Context sContext = null;
     private static Activity sActivity = null;
+    private static Handler sHandler = null;
 
-    public static void setActivity(Activity activity) {
-        GlobalObject.sActivity = activity;
+    public static void init(Context context, Activity activity) {
+        sContext = context;
+        sActivity = activity;
+        sHandler = new Handler(Looper.getMainLooper());
+    }
+
+    public static void destroy() {
+        sContext = null;
+        sActivity = null;
+        sHandler.removeCallbacksAndMessages(null);
+        sHandler = null;
     }
 
     public static Activity getActivity() {
-        return GlobalObject.sActivity;
+        return sActivity;
+    }
+
+    public static Context getContext() {
+        return sContext;
+    }
+
+    public static void runOnUiThread(Runnable runnable) {
+        sHandler.post(runnable);
     }
 }

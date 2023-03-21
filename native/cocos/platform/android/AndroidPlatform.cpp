@@ -35,7 +35,6 @@
 #include "platform/BasePlatform.h"
 #include "platform/android/FileUtils-android.h"
 #include "platform/java/jni/JniImp.h"
-#include "platform/java/jni/glue/JniNativeGlue.h"
 #include "platform/java/modules/Accelerometer.h"
 #include "platform/java/modules/Battery.h"
 #include "platform/java/modules/Network.h"
