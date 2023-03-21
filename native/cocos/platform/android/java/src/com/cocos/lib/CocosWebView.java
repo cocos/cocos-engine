@@ -26,7 +26,6 @@
 package com.cocos.lib;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 import android.webkit.WebChromeClient;
