@@ -10,9 +10,7 @@ CCEffect %{
         depthTest: false
         depthWrite: false
         stencilTestFront: true
-        stencilFuncFront: always
-        stencilPassOpFront: replace
-        stencilFailOpFront: keep
+        stencilFuncFront: equal
         stencilRef: 0x78 # [0~255],use 120
     # Supports up to MAX_BLUR_FILTER_PASS_NUM upsampling/downsampling passes
     - vert: blur-vs
@@ -153,11 +151,6 @@ CCEffect %{
       depthStencilState:
         depthTest: false
         depthWrite: false
-        stencilTestFront: true
-        stencilFuncFront: equal
-        stencilPassOpFront: replace
-        stencilFailOpFront: keep
-        stencilRef: 0x78 # [0~255],use 120
 }%
 
 CCProgram blur-vs %{
@@ -190,6 +183,8 @@ CCProgram prefilter-fs %{
   };
   #pragma rate outputResultMap pass
   uniform sampler2D outputResultMap;
+  #pragma rate outputResultDSMap pass
+  uniform sampler2D outputResultDSMap;
 
   layout(location = 0) out vec4 fragColor;
 
@@ -198,13 +193,18 @@ CCProgram prefilter-fs %{
   }
 
   void main() {
-    vec3 color = texture(outputResultMap, v_uv).xyz;
+    // vec3 color = texture(outputResultMap, v_uv).xyz;
+    vec3 color = texture(outputResultDSMap, v_uv).xyz;
 
-    if (luminance(SRGBToLinear(color)) > texSize.z) {
-      fragColor = vec4(color, 1.0);
-    } else {
-      fragColor = vec4(0.0, 0.0, 0.0, 1.0);
-    }
+    // if (luminance(SRGBToLinear(color)) > texSize.z) {
+    //   fragColor = vec4(color, 1.0);
+    // } else {
+    //   fragColor = vec4(0.0, 0.0, 0.0, 1.0);
+    // }
+    //vec3 linearColor = SRGBToLinear(color);
+    //linearColor.x += 0.5;
+    // fragColor = vec4(linearColor, 1.0);
+    fragColor = vec4(color, 1.0);
   }
 }%
 
@@ -312,9 +312,9 @@ CCProgram combine-fs %{
 
   void main() {
     vec4 hdrColor = texture(outputResultMap, v_uv);
-    vec3 blurColor = texture(blurTexture, v_uv).rgb;
-    vec3 result = hdrColor.rgb + blurColor * texSize.w * hdrColor.a;
+    vec4 blurColor = texture(blurTexture, v_uv);
+    vec3 result = hdrColor.rgb + blurColor.rgb * texSize.w * hdrColor.a;
 
-    fragColor = vec4(result, hdrColor.a);
+    fragColor = vec4(result, blurColor.a);
   }
 }%

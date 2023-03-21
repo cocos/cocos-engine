@@ -36,8 +36,6 @@ import { RenderWindow } from '../../render-scene/core/render-window';
 import { RenderData } from './render-graph';
 import { WebPipeline } from './web-pipeline';
 import { DescriptorSetData } from './layout-graph';
-import { legacyCC } from '../../core/global-exports';
-import { ClearFlag } from '../../misc/camera-component';
 
 // Anti-aliasing type, other types will be gradually added in the future
 export enum AntiAliasing {
@@ -498,6 +496,7 @@ let blurData: BlurData | null = null;
 export function buildBlurPass (camera: Camera,
     ppl: Pipeline,
     inputRT: string,
+    inputDS: string,
     threshold = 0.1,
     iterations = 2,
     intensity = 0.8) {
@@ -524,8 +523,8 @@ export function buildBlurPass (camera: Camera,
     // ==== Blur pre filter ===
     const blurPassPreFilterRTName = `dsBlurPassPreFilterColor${cameraName}`;
     const blurPassPreFilterDSName = `dsBlurPassPreFilterDS${cameraName}`;
-    width >>= 1;
-    height >>= 1;
+    // width >>= 1;
+    // height >>= 1;
     if (!ppl.containsResource(blurPassPreFilterRTName)) {
         ppl.addRenderTarget(blurPassPreFilterRTName, Format.RGBA8, width, height, ResourceResidency.MANAGED);
         ppl.addDepthStencil(blurPassPreFilterDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
@@ -540,90 +539,105 @@ export function buildBlurPass (camera: Camera,
         computeView.name = 'outputResultMap';
         blurPreFilterPass.addComputeView(inputRT, computeView);
     }
-    const preFilterPassView = new RasterView('_',
-        AccessType.WRITE, AttachmentType.RENDER_TARGET,
-        LoadOp.CLEAR, StoreOp.STORE,
+    if (ppl.containsResource(inputDS)) {
+        const computeView = new ComputeView();
+        computeView.name = 'outputResultDSMap';
+        blurPreFilterPass.addComputeView(inputDS, computeView);
+    }
+    const preFilterPassRTView = new RasterView('_',
+        AccessType.WRITE,
+        AttachmentType.RENDER_TARGET,
+        LoadOp.CLEAR,
+        StoreOp.STORE,
         camera.clearFlag,
         blurClearColor);
-    blurPreFilterPass.addRasterView(blurPassPreFilterRTName, preFilterPassView);
+    blurPreFilterPass.addRasterView(blurPassPreFilterRTName, preFilterPassRTView);
+    const preFilterPassDSView = new RasterView('_',
+        AccessType.WRITE,
+        AttachmentType.DEPTH_STENCIL,
+        LoadOp.LOAD,
+        StoreOp.STORE,
+        camera.clearFlag,
+        new Color(camera.clearDepth, camera.clearStencil, 0.0, 0.0));
+    blurPreFilterPass.addRasterView(inputDS, preFilterPassDSView);
     blurData.blurMaterial.setProperty('texSize', new Vec4(0, 0, blurData.threshold, 0), 0);
-    blurPreFilterPass.addQueue(QueueHint.RENDER_TRANSPARENT).addCameraQuad(
+    blurPreFilterPass.addQueue(QueueHint.RENDER_OPAQUE | QueueHint.RENDER_TRANSPARENT).addCameraQuad(
         camera, blurData.blurMaterial, 0,
         SceneFlags.NONE,
     );
 
     // === Blur downsampling ===
-    for (let i = 0; i < blurData.iterations; ++i) {
-        const texSize = new Vec4(width, height, 0, 0);
-        const blurPassDownsamplingRTName = `dsBlurPassDownsamplingColor${cameraName}${i}`;
-        const blurPassDownsamplingDSName = `dsBlurPassDownsamplingDS${cameraName}${i}`;
-        width >>= 1;
-        height >>= 1;
-        if (!ppl.containsResource(blurPassDownsamplingRTName)) {
-            ppl.addRenderTarget(blurPassDownsamplingRTName, Format.RGBA8, width, height, ResourceResidency.MANAGED);
-            ppl.addDepthStencil(blurPassDownsamplingDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
-        }
-        ppl.updateRenderTarget(blurPassDownsamplingRTName, width, height);
-        ppl.updateDepthStencil(blurPassDownsamplingDSName, width, height);
-        const blurDownsamplingPass = ppl.addRasterPass(width, height, `blur-downsampling${i}`);
-        blurDownsamplingPass.name = `CameraBlurDownsamplingPass${cameraID}${i}`;
-        blurDownsamplingPass.setViewport(new Viewport(area.x, area.y, width, height));
-        const computeView = new ComputeView();
-        computeView.name = 'blurTexture';
-        if (i === 0) {
-            blurDownsamplingPass.addComputeView(blurPassPreFilterRTName, computeView);
-        } else {
-            blurDownsamplingPass.addComputeView(`dsBlurPassDownsamplingColor${cameraName}${i - 1}`, computeView);
-        }
-        const downsamplingPassView = new RasterView('_',
-            AccessType.WRITE, AttachmentType.RENDER_TARGET,
-            LoadOp.CLEAR, StoreOp.STORE,
-            camera.clearFlag,
-            blurClearColor);
-        blurDownsamplingPass.addRasterView(blurPassDownsamplingRTName, downsamplingPassView);
-        blurData.blurMaterial.setProperty('texSize', texSize, BLUR_DOWNSAMPLING_PASS_INDEX + i);
-        blurDownsamplingPass.addQueue(QueueHint.RENDER_TRANSPARENT).addCameraQuad(
-            camera, blurData.blurMaterial, BLUR_DOWNSAMPLING_PASS_INDEX + i,
-            SceneFlags.NONE,
-        );
-    }
+    // for (let i = 0; i < blurData.iterations; ++i) {
+    //     const texSize = new Vec4(width, height, 0, 0);
+    //     const blurPassDownsamplingRTName = `dsBlurPassDownsamplingColor${cameraName}${i}`;
+    //     const blurPassDownsamplingDSName = `dsBlurPassDownsamplingDS${cameraName}${i}`;
+    //     width >>= 1;
+    //     height >>= 1;
+    //     if (!ppl.containsResource(blurPassDownsamplingRTName)) {
+    //         ppl.addRenderTarget(blurPassDownsamplingRTName, Format.RGBA8, width, height, ResourceResidency.MANAGED);
+    //         ppl.addDepthStencil(blurPassDownsamplingDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
+    //     }
+    //     ppl.updateRenderTarget(blurPassDownsamplingRTName, width, height);
+    //     ppl.updateDepthStencil(blurPassDownsamplingDSName, width, height);
+    //     const blurDownsamplingPass = ppl.addRasterPass(width, height, `blur-downsampling${i}`);
+    //     blurDownsamplingPass.name = `CameraBlurDownsamplingPass${cameraID}${i}`;
+    //     blurDownsamplingPass.setViewport(new Viewport(area.x, area.y, width, height));
+    //     const computeView = new ComputeView();
+    //     computeView.name = 'blurTexture';
+    //     if (i === 0) {
+    //         blurDownsamplingPass.addComputeView(blurPassPreFilterRTName, computeView);
+    //     } else {
+    //         blurDownsamplingPass.addComputeView(`dsBlurPassDownsamplingColor${cameraName}${i - 1}`, computeView);
+    //     }
+    //     const downsamplingPassView = new RasterView('_',
+    //         AccessType.WRITE, AttachmentType.RENDER_TARGET,
+    //         LoadOp.CLEAR, StoreOp.STORE,
+    //         camera.clearFlag,
+    //         blurClearColor);
+    //     blurDownsamplingPass.addRasterView(blurPassDownsamplingRTName, downsamplingPassView);
+    //     blurData.blurMaterial.setProperty('texSize', texSize, BLUR_DOWNSAMPLING_PASS_INDEX + i);
+    //     blurDownsamplingPass.addQueue(QueueHint.RENDER_OPAQUE | QueueHint.RENDER_TRANSPARENT).addCameraQuad(
+    //         camera, blurData.blurMaterial, BLUR_DOWNSAMPLING_PASS_INDEX + i,
+    //         SceneFlags.NONE,
+    //     );
+    // }
 
     // === Blur upsampling ===
-    for (let i = 0; i < blurData.iterations; ++i) {
-        const index = blurData.iterations - 1 - i;
-        const texSize = new Vec4(width, height, 0, 0);
-        const blurPassUpsamplingRTName = `dsBlurPassUpsamplingColor${cameraName}${index}`;
-        const blurPassUpsamplingDSName = `dsBlurPassUpsamplingDS${cameraName}${index}`;
-        width <<= 1;
-        height <<= 1;
-        if (!ppl.containsResource(blurPassUpsamplingRTName)) {
-            ppl.addRenderTarget(blurPassUpsamplingRTName, Format.RGBA8, width, height, ResourceResidency.MANAGED);
-            ppl.addDepthStencil(blurPassUpsamplingDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
-        }
-        ppl.updateRenderTarget(blurPassUpsamplingRTName, width, height);
-        ppl.updateDepthStencil(blurPassUpsamplingDSName, width, height);
-        const blurUpsamplingPass = ppl.addRasterPass(width, height, `blur-upsampling${i}`);
-        blurUpsamplingPass.name = `CameraBlurUpsamplingPass${cameraID}${index}`;
-        blurUpsamplingPass.setViewport(new Viewport(area.x, area.y, width, height));
-        const computeView = new ComputeView();
-        computeView.name = 'blurTexture';
-        if (i === 0) {
-            blurUpsamplingPass.addComputeView(`dsBlurPassDownsamplingColor${cameraName}${index}`, computeView);
-        } else {
-            blurUpsamplingPass.addComputeView(`dsBlurPassUpsamplingColor${cameraName}${blurData.iterations - i}`, computeView);
-        }
-        const upSamplingPassView = new RasterView('_',
-            AccessType.WRITE, AttachmentType.RENDER_TARGET,
-            LoadOp.CLEAR, StoreOp.STORE,
-            camera.clearFlag,
-            blurClearColor);
-        blurUpsamplingPass.addRasterView(blurPassUpsamplingRTName, upSamplingPassView);
-        blurData.blurMaterial.setProperty('texSize', texSize, BLUR_UPSAMPLING_PASS_INDEX + i);
-        blurUpsamplingPass.addQueue(QueueHint.RENDER_TRANSPARENT).addCameraQuad(
-            camera, blurData.blurMaterial, BLUR_UPSAMPLING_PASS_INDEX + i,
-            SceneFlags.NONE,
-        );
-    }
+    // for (let i = 0; i < blurData.iterations; ++i) {
+    //     const index = blurData.iterations - 1 - i;
+    //     const texSize = new Vec4(width, height, 0, 0);
+    //     const blurPassUpsamplingRTName = `dsBlurPassUpsamplingColor${cameraName}${index}`;
+    //     const blurPassUpsamplingDSName = `dsBlurPassUpsamplingDS${cameraName}${index}`;
+    //     width <<= 1;
+    //     height <<= 1;
+    //     if (!ppl.containsResource(blurPassUpsamplingRTName)) {
+    //         ppl.addRenderTarget(blurPassUpsamplingRTName, Format.RGBA8, width, height, ResourceResidency.MANAGED);
+    //         ppl.addDepthStencil(blurPassUpsamplingDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
+    //     }
+    //     ppl.updateRenderTarget(blurPassUpsamplingRTName, width, height);
+    //     ppl.updateDepthStencil(blurPassUpsamplingDSName, width, height);
+    //     const blurUpsamplingPass = ppl.addRasterPass(width, height, `blur-upsampling${i}`);
+    //     blurUpsamplingPass.name = `CameraBlurUpsamplingPass${cameraID}${index}`;
+    //     blurUpsamplingPass.setViewport(new Viewport(area.x, area.y, width, height));
+    //     const computeView = new ComputeView();
+    //     computeView.name = 'blurTexture';
+    //     if (i === 0) {
+    //         blurUpsamplingPass.addComputeView(`dsBlurPassDownsamplingColor${cameraName}${index}`, computeView);
+    //     } else {
+    //         blurUpsamplingPass.addComputeView(`dsBlurPassUpsamplingColor${cameraName}${blurData.iterations - i}`, computeView);
+    //     }
+    //     const upSamplingPassView = new RasterView('_',
+    //         AccessType.WRITE, AttachmentType.RENDER_TARGET,
+    //         LoadOp.CLEAR, StoreOp.STORE,
+    //         camera.clearFlag,
+    //         blurClearColor);
+    //     blurUpsamplingPass.addRasterView(blurPassUpsamplingRTName, upSamplingPassView);
+    //     blurData.blurMaterial.setProperty('texSize', texSize, BLUR_UPSAMPLING_PASS_INDEX + i);
+    //     blurUpsamplingPass.addQueue(QueueHint.RENDER_OPAQUE | QueueHint.RENDER_TRANSPARENT).addCameraQuad(
+    //         camera, blurData.blurMaterial, BLUR_UPSAMPLING_PASS_INDEX + i,
+    //         SceneFlags.NONE,
+    //     );
+    // }
 
     // === Blur combine pass ===
     const blurPassCombineRTName = `dsBlurPassCombineColor${cameraName}`;
@@ -642,22 +656,33 @@ export function buildBlurPass (camera: Camera,
     blurCombinePass.setViewport(new Viewport(area.x, area.y, width, height));
     const computeViewOut = new ComputeView();
     computeViewOut.name = 'outputResultMap';
-    blurCombinePass.addComputeView(inputRT, computeViewOut);
+    blurCombinePass.addComputeView(blurPassPreFilterRTName, computeViewOut);
     const computeViewBt = new ComputeView();
     computeViewBt.name = 'blurTexture';
-    blurCombinePass.addComputeView(`dsBlurPassUpsamplingColor${cameraName}${0}`, computeViewBt);
+    // blurCombinePass.addComputeView(`dsBlurPassUpsamplingColor${cameraName}${0}`, computeViewBt);
+    blurCombinePass.addComputeView(inputRT, computeViewBt);
     const combinePassView = new RasterView('_',
-        AccessType.WRITE, AttachmentType.RENDER_TARGET,
-        LoadOp.CLEAR, StoreOp.STORE,
+        AccessType.WRITE,
+        AttachmentType.RENDER_TARGET,
+        LoadOp.CLEAR,
+        StoreOp.STORE,
         camera.clearFlag,
         blurClearColor);
     blurCombinePass.addRasterView(blurPassCombineRTName, combinePassView);
-    blurData.blurMaterial.setProperty('texSize', new Vec4(0, 0, 0, blurData.intensity), BLUR_COMBINE_PASS_INDEX);
-    blurCombinePass.addQueue(QueueHint.RENDER_TRANSPARENT).addCameraQuad(
+    // const combinePassDSView = new RasterView('_',
+    //     AccessType.WRITE,
+    //     AttachmentType.DEPTH_STENCIL,
+    //     LoadOp.LOAD,
+    //     StoreOp.STORE,
+    //     camera.clearFlag,
+    //     new Color(camera.clearDepth, camera.clearStencil, 0.0, 0.0));
+    // blurCombinePass.addRasterView(inputDS, combinePassDSView);
+    blurData.blurMaterial.setProperty('texSize', new Vec4(0, 0, 0, 1.0), BLUR_COMBINE_PASS_INDEX);
+    blurCombinePass.addQueue(QueueHint.RENDER_OPAQUE | QueueHint.RENDER_TRANSPARENT).addCameraQuad(
         camera, blurData.blurMaterial, BLUR_COMBINE_PASS_INDEX,
         SceneFlags.NONE,
     );
-    return { rtName: blurPassCombineRTName, dsName: blurPassCombineDSName };
+    return { rtName: inputRT, dsName: inputDS };
 }
 
 class PostInfo {
@@ -821,6 +846,86 @@ export function buildForwardPass (camera: Camera,
 
     // forwardPass.addQueue(QueueHint.RENDER_OPAQUE, 'forward-add');
     return { rtName: forwardPassRTName, dsName: forwardPassDSName };
+}
+
+export function buildSpecularPass (camera: Camera,
+    ppl: Pipeline,
+    inputRT: string,
+    inputDS: string,
+    blurRT: string) {
+    if (EDITOR) {
+        ppl.setMacroInt('CC_PIPELINE_TYPE', 0);
+    }
+    const cameraID = getCameraUniqueID(camera);
+    const cameraName = `Camera${cameraID}`;
+    const cameraInfo = buildShadowPasses(cameraName, camera, ppl);
+    const area = getRenderArea(camera, camera.window.width, camera.window.height);
+    const width = area.width;
+    const height = area.height;
+
+    // const specularPassRTName = `dsSpecularPassColor${cameraName}`;
+    // const specularPassDSName = `dsSpecularPassDS${cameraName}`;
+    // if (!ppl.containsResource(specularPassRTName)) {
+    //     ppl.addRenderTarget(specularPassRTName, Format.RGBA16F, width, height, ResourceResidency.MANAGED);
+    //     ppl.addDepthStencil(specularPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
+    // }
+    // ppl.updateRenderTarget(specularPassRTName, width, height);
+    // ppl.updateDepthStencil(specularPassDSName, width, height);
+
+    const specalurPass = ppl.addRasterPass(width, height, 'specular-pass');
+    specalurPass.name = `CameraForwardPass${cameraID}`;
+    specalurPass.setViewport(new Viewport(area.x, area.y, width, height));
+    // if (ppl.containsResource(inputRT)) {
+    //     const computeView = new ComputeView();
+    //     computeView.name = 'outputResultMap';
+    //     specalurPass.addComputeView(inputRT, computeView);
+    // }
+    // if (ppl.containsResource(inputDS)) {
+    //     const computeView = new ComputeView();
+    //     computeView.name = 'outputResultDSMap';
+    //     specalurPass.addComputeView(inputDS, computeView);
+    // }
+    // const computeViewBlur = new ComputeView();
+    // computeViewBlur.name = 'blurMap';
+    // specalurPass.addComputeView(blurRT, computeViewBlur);
+    for (const dirShadowName of cameraInfo.mainLightShadowNames) {
+        if (ppl.containsResource(dirShadowName)) {
+            const computeView = new ComputeView('cc_shadowMap');
+            specalurPass.addComputeView(dirShadowName, computeView);
+        }
+    }
+    for (const spotShadowName of cameraInfo.spotLightShadowNames) {
+        if (ppl.containsResource(spotShadowName)) {
+            const computeView = new ComputeView('cc_spotShadowMap');
+            specalurPass.addComputeView(spotShadowName, computeView);
+        }
+    }
+    const passView = new RasterView('_',
+        AccessType.WRITE,
+        AttachmentType.RENDER_TARGET,
+        LoadOp.LOAD,
+        StoreOp.STORE,
+        camera.clearFlag,
+        new Color(camera.clearColor.x, camera.clearColor.y, camera.clearColor.z, camera.clearColor.w));
+    const passDSView = new RasterView('_',
+        AccessType.WRITE,
+        AttachmentType.DEPTH_STENCIL,
+        LoadOp.LOAD,
+        StoreOp.STORE,
+        camera.clearFlag,
+        new Color(camera.clearDepth, camera.clearStencil, 0, 0));
+    specalurPass.addRasterView(inputRT, passView);
+    specalurPass.addRasterView(inputDS, passDSView);
+    specalurPass
+        .addQueue(QueueHint.RENDER_OPAQUE)
+        .addSceneOfCamera(camera, new LightInfo(),
+            SceneFlags.OPAQUE_OBJECT | SceneFlags.PLANAR_SHADOW | SceneFlags.CUTOUT_OBJECT
+             | SceneFlags.DEFAULT_LIGHTING | SceneFlags.DRAW_INSTANCING);
+    specalurPass
+        .addQueue(QueueHint.RENDER_TRANSPARENT)
+        .addSceneOfCamera(camera, new LightInfo(), SceneFlags.TRANSPARENT_OBJECT | SceneFlags.GEOMETRY);
+
+    return { rtName: inputRT, dsName: inputDS };
 }
 
 export function buildShadowPass (passName: Readonly<string>,
