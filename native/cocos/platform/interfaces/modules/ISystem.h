@@ -62,7 +62,7 @@ public:
         ANDROIDOS,   /**< Android, because ANDROID is a macro, so use ANDROIDOS instead */
         IPHONE,      /**< iPhone */
         IPAD,        /**< iPad */
-        OHOS,        /**< Harmony OS> */
+        OHOS,        /**< HarmonyOS> */
         OPENHARMONY, /**< OpenHarmony> */
         QNX,         /**< QNX */
     };
