@@ -76,7 +76,7 @@ public:
     static jobject getActivity();
     static jobject getContext();
 
-    static void init(JNIEnv *env, jobject activity);
+    static void init(JNIEnv *env, jobject context);
     static void onDestroy();
 
     //NOLINTNEXTLINE
