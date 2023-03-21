@@ -477,7 +477,8 @@ class _Deserializer {
         case 'TypedArrayRef':
             return this._deserializeTypedArrayViewRef(serialized);
         default:
-            if (serialized.__type__) { // Typed object (including CCClass)
+            // NOTE: when 'strictNullCheck' is false, TS can't infer serialized as SerializedGeneralTypedObject
+            if ((serialized as unknown as SerializedGeneralTypedObject).__type__) { // Typed object (including CCClass)
                 return this._deserializeTypeTaggedObject(serialized, globalIndex, owner, propName);
             } else if (!Array.isArray(serialized)) { // Embedded primitive javascript object
                 return this._deserializePlainObject(serialized);

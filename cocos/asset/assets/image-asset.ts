@@ -478,7 +478,7 @@ export class ImageAsset extends Asset {
      * @zh 此图像资源的图像数据。
      */
     get data () {
-        if (this._nativeData && isNativeImage(this._nativeData)) {
+        if (isNativeImage(this._nativeData)) {
             return this._nativeData;
         }
 
