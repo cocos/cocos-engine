@@ -151,7 +151,11 @@ struct ControllerEvent {
         UNKNOWN
     };
     Type type = Type::UNKNOWN;
-    std::vector<std::unique_ptr<ControllerInfo>> controllerInfos;
+    ccstd::vector<std::unique_ptr<ControllerInfo>> controllerInfos;
+};
+
+struct ControllerChangeEvent {
+    ccstd::vector<uint32_t> controllerIds;
 };
 
 class MouseEvent {
@@ -315,6 +319,7 @@ DECLARE_BUS_EVENT_ARG1(Touch, Engine, const cc::TouchEvent &)
 DECLARE_BUS_EVENT_ARG1(Mouse, Engine, const cc::MouseEvent &)
 DECLARE_BUS_EVENT_ARG1(Keyboard, Engine, const cc::KeyboardEvent &)
 DECLARE_BUS_EVENT_ARG1(Controller, Engine, const cc::ControllerEvent &)
+DECLARE_BUS_EVENT_ARG1(ControllerChange, Engine, const cc::ControllerChangeEvent &)
 DECLARE_BUS_EVENT_ARG1(Tick, Engine, float)
 DECLARE_BUS_EVENT_ARG3(Resize, Engine, int, int, uint32_t /* windowId*/)
 DECLARE_BUS_EVENT_ARG1(Orientation, Engine, int)
