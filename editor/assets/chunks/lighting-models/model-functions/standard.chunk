@@ -70,6 +70,23 @@ void CCSurfacesLightingCalculateEnvironment(out vec3 lightingDiffuse, out vec3 l
 #else
   lightingSpecular = vec3(0.0);
 #endif
+
+#if CC_ENABLE_DIFFUSE_OR_SPECULAR == CC_DISABLE_DIFFUSE_AND_SPECULAR
+  lightingDiffuse = vec3(0.0);
+  lightingSpecular = vec3(0.0);
+#endif
+#if CC_ENABLE_DIFFUSE_OR_SPECULAR == CC_ONLY_ENABLE_DIFFUSE
+  lightingDiffuse = CalculateEnvironmentDiffuse(lightingData, lightIntensity);
+  lightingSpecular = vec3(0.0);
+#endif
+#if CC_ENABLE_DIFFUSE_OR_SPECULAR == CC_ONLY_ENABLE_SPECULAR
+  lightingDiffuse = vec3(0.0);
+  lightingSpecular = CalculateEnvironmentSpecular(lightingData, lightIntensity);
+#endif
+#if CC_ENABLE_DIFFUSE_OR_SPECULAR == CC_ENABLE_DIFFUSE_AND_SPECULAR
+  lightingDiffuse = CalculateEnvironmentDiffuse(lightingData, lightIntensity);
+  lightingSpecular = CalculateEnvironmentSpecular(lightingData, lightIntensity);
+#endif
 }
 
 #if CC_SURFACES_LIGHTING_USE_FRESNEL
