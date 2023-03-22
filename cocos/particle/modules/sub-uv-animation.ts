@@ -29,7 +29,7 @@ import { lerp, pseudoRandom, repeat } from '../../core/math';
 import { Enum } from '../../core/value-types';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { createRealCurve, CurveRange } from '../curve-range';
-import { ParticleData } from '../particle-data';
+import { ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { assert, CCFloat, CCInteger, RealCurve, RealInterpolationMode } from '../../core';
 
@@ -226,7 +226,7 @@ export class SubUVAnimationModule extends ParticleModule {
     @serializable
     private _fps = 30;
 
-    public execute (particles: ParticleData, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         const normalizedAliveTime = particles.normalizedAliveTime.data;
         const invStartLifeTime = particles.invStartLifeTime.data;
         const frameIndex = particles.frameIndex.data;

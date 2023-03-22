@@ -210,6 +210,55 @@ export enum InheritedProperty {
     DURATION = 1 << 4
 }
 
+export class BitsBucket {
+    private _flags = new Uint32Array(1);
+    private _count = 1;
+
+    mark (flagNum: number) {
+        const bytes = flagNum >> 5;
+        if (bytes >= this._count) {
+            const newFlags = new Uint32Array(bytes + 1);
+            newFlags.set(this._flags);
+            this._flags = newFlags;
+            this._count = bytes + 1;
+        }
+        const left = flagNum - (bytes << 5);
+        this._flags[bytes] |= 1 << left;
+    }
+
+    isMarked (flagNum: number) {
+        const bytes = flagNum >> 5;
+        if (bytes >= this._count) return false;
+        const left = flagNum - (bytes << 5);
+        return (this._flags[bytes] & (1 << left)) !== 0;
+    }
+
+    unmark (flagNum: number) {
+        const bytes = flagNum >> 5;
+        if (bytes >= this._count) return;
+        const left = flagNum - (bytes << 5);
+        this._flags[bytes] &= ~(1 << left);
+    }
+
+    equals (other: BitsBucket) {
+        const count = Math.min(this._count, other._count);
+        for (let i = 0; i < count; i++) {
+            if (this._flags[i] !== other._flags[i]) return false;
+        }
+        for (let i = count; i < this._count; i++) {
+            if (this._flags[i] !== 0) return false;
+        }
+        for (let i = count; i < other._count; i++) {
+            if (other._flags[i] !== 0) return false;
+        }
+        return true;
+    }
+
+    clear () {
+        this._flags.fill(0);
+    }
+}
+
 export class InheritedProperties {
     public rotation = new Vec3();
     public size = new Vec3();
@@ -238,6 +287,24 @@ export class ParticleEmitterState {
 }
 
 export class ParticleExecContext {
+    public get locationEvents (): ParticleEvents {
+        if (!this._locationEvents) {
+            this._locationEvents = new ParticleEvents();
+        }
+        return this._locationEvents;
+    }
+
+    public get deathEvents (): ParticleEvents {
+        if (!this._deathEvents) {
+            this._deathEvents = new ParticleEvents();
+        }
+        return this._deathEvents;
+    }
+
+    public get requiredParameters () {
+        return this._requiredParameters;
+    }
+
     public currentTime = 0;
     public previousTime = 0;
     public normalizedTimeInCycle = 0;
@@ -254,23 +321,9 @@ export class ParticleExecContext {
     public fromIndex = 0;
     public toIndex = 0;
     public executionStage = ModuleExecStage.NONE;
-
+    private _requiredParameters = new BitsBucket();
     private _locationEvents: ParticleEvents | null = null;
     private _deathEvents: ParticleEvents | null = null;
-
-    public get locationEvents (): ParticleEvents {
-        if (!this._locationEvents) {
-            this._locationEvents = new ParticleEvents();
-        }
-        return this._locationEvents;
-    }
-
-    public get deathEvents (): ParticleEvents {
-        if (!this._deathEvents) {
-            this._deathEvents = new ParticleEvents();
-        }
-        return this._deathEvents;
-    }
 
     setExecutionStage (stage: ModuleExecStage) {
         this.executionStage = stage;
@@ -292,8 +345,15 @@ export class ParticleExecContext {
         this.burstCount = this.emittingNumOverDistance = this.emittingNumOverTime = 0;
     }
 
-    clearEvents () {
+    clear () {
         this._deathEvents?.clear();
         this._locationEvents?.clear();
+        this._requiredParameters.clear();
+        this.setExecuteRange(0, 0);
+        this.resetSpawningState();
+    }
+
+    markRequiredParameter (parameterId: number) {
+        this._requiredParameters.mark(parameterId);
     }
 }

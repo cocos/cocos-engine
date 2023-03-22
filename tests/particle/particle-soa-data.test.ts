@@ -1,22 +1,22 @@
 
-import { ParticleSOAData } from '../../cocos/particle/particle-soa-data';
+import { ParticleData } from '../../cocos/particle/particle-data-set';
 
 describe('particle-soa-data', () => {
     
     test('capacity', () => {
-        const particles = new ParticleSOAData();
+        const particles = new ParticleData();
         expect(particles.capacity).toBe(16);
         expect(particles.count).toBe(0);
     });
 
     test('add particle', () => {
-        const particles = new ParticleSOAData();
+        const particles = new ParticleData();
         particles.addParticles(5);
         expect(particles.count).toBe(5);
     });
 
     test('id', () => {
-        const particles = new ParticleSOAData();
+        const particles = new ParticleData();
         for (let i = 0; i < 100; i++) {
             particles.addParticles(1);
         }

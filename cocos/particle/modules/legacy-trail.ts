@@ -30,7 +30,7 @@ import { GradientRange } from '../gradient-range';
 import { Space, TextureMode, TrailMode } from '../enum';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { Enum } from '../../core';
-import { ParticleData, ParticleHandle } from '../particle-data';
+import { ParticleDataSet, ParticleHandle } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 
 const PRE_TRIANGLE_INDEX = 1;
@@ -74,7 +74,7 @@ export class TrailSegment {
 @ccclass('cc.LegacyTrailModule')
 @ParticleModule.register('LegacyTrail', ModuleExecStage.RENDER, 0)
 export class LegacyTrailModule extends ParticleModule {
-    public execute (particles: ParticleData, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         throw new Error('Method not implemented.');
     }
     /**

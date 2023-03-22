@@ -23,15 +23,18 @@
  THE SOFTWARE.
  */
 
-import { approx, BitMask, CCFloat, Enum, EPSILON, Mat4, pseudoRandom, Quat, Vec3, warn } from '../../core';
+import { DEBUG } from 'internal:constants';
+import { approx, BitMask, CCFloat, Color, Enum, EPSILON, Mat4, pseudoRandom, Quat, Vec3, warn } from '../../core';
 import { ccclass, range, serializable, type, visible } from '../../core/data/decorators';
 import { Space } from '../enum';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
-import { ParticleData, ParticleVec3Parameter } from '../particle-data';
+import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
+import { ParticleColorParameter, ParticleVec3Parameter } from '../particle-parameter';
 import { ParticleEmitterParams, ParticleEventInfo, ParticleExecContext } from '../particle-base';
 
 const PROBABILITY_RANDOM_SEED_OFFSET = 199208;
 const eventInfo = new ParticleEventInfo();
+const tempVelocity = new Vec3();
 @ccclass('cc.DeathEventGeneratorModule')
 @ParticleModule.register('DeathEventGenerator', ModuleExecStage.UPDATE, 11)
 export class DeathEventGeneratorModule extends ParticleModule {
@@ -40,14 +43,51 @@ export class DeathEventGeneratorModule extends ParticleModule {
     @serializable
     public probability = 1;
 
-    public execute (particles: ParticleData, params: ParticleEmitterParams, context: ParticleExecContext) {
-        const { id, rotation, size, position, velocity, animatedVelocity, color } = particles;
+    public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+        context.markRequiredParameter(BuiltinParticleParameter.INV_START_LIFETIME);
+        context.markRequiredParameter(BuiltinParticleParameter.RANDOM_SEED);
+        context.markRequiredParameter(BuiltinParticleParameter.NORMALIZED_ALIVE_TIME);
+        context.markRequiredParameter(BuiltinParticleParameter.ID);
+    }
+
+    public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         const normalizedAliveTime = particles.normalizedAliveTime.data;
         const randomSeed = particles.randomSeed.data;
         const invStartLifeTime = particles.invStartLifeTime.data;
+        const id = particles.id.data;
         const { fromIndex, toIndex, deltaTime, deathEvents } = context;
         const { localToWorld } = context;
         const { simulationSpace } = params;
+        const hasVelocity = particles.hasParameter(BuiltinParticleParameter.VELOCITY);
+        const hasAnimatedVelocity = particles.hasParameter(BuiltinParticleParameter.ANIMATED_VELOCITY);
+        const hasRotation = particles.hasParameter(BuiltinParticleParameter.ROTATION);
+        const hasSize = particles.hasParameter(BuiltinParticleParameter.SIZE);
+        const hasColor = particles.hasParameter(BuiltinParticleParameter.COLOR);
+        const hasPosition = particles.hasParameter(BuiltinParticleParameter.POSITION);
+        let velocity: ParticleVec3Parameter | null = null;
+        let animatedVelocity: ParticleVec3Parameter | null = null;
+        let rotation: ParticleVec3Parameter | null = null;
+        let size: ParticleVec3Parameter | null = null;
+        let color: ParticleColorParameter | null = null;
+        let position: ParticleVec3Parameter | null = null;
+        if (hasVelocity) {
+            velocity = particles.velocity;
+        }
+        if (hasAnimatedVelocity) {
+            animatedVelocity = particles.animatedVelocity;
+        }
+        if (hasRotation) {
+            rotation = particles.rotation;
+        }
+        if (hasSize) {
+            size = particles.size;
+        }
+        if (hasColor) {
+            color = particles.color;
+        }
+        if (hasPosition) {
+            position = particles.position;
+        }
         if (!approx(this.probability, 0)) {
             for (let i = fromIndex; i < toIndex; i++) {
                 if (invStartLifeTime[i] * deltaTime + normalizedAliveTime[i] < 1.0) {
@@ -56,11 +96,30 @@ export class DeathEventGeneratorModule extends ParticleModule {
                 if (pseudoRandom(randomSeed[i] + PROBABILITY_RANDOM_SEED_OFFSET) > this.probability) {
                     continue;
                 }
-                rotation.getVec3At(eventInfo.rotation, i);
-                size.getVec3At(eventInfo.size, i);
-                color.getColorAt(eventInfo.color, i);
-                position.getVec3At(eventInfo.position, i);
-                ParticleVec3Parameter.addSingle(eventInfo.velocity, velocity, animatedVelocity, i);
+
+                Vec3.zero(eventInfo.position);
+                Vec3.zero(eventInfo.velocity);
+                Vec3.copy(eventInfo.size, Vec3.ONE);
+                Vec3.zero(eventInfo.rotation);
+                Color.copy(eventInfo.color, Color.WHITE);
+                if (hasPosition) {
+                    (<ParticleVec3Parameter>position).getVec3At(eventInfo.position, i);
+                }
+                if (hasVelocity) {
+                    eventInfo.velocity.add((<ParticleVec3Parameter>velocity).getVec3At(tempVelocity, i));
+                }
+                if (hasAnimatedVelocity) {
+                    eventInfo.velocity.add((<ParticleVec3Parameter>animatedVelocity).getVec3At(tempVelocity, i));
+                }
+                if (hasRotation) {
+                    (<ParticleVec3Parameter>rotation).getVec3At(eventInfo.rotation, i);
+                }
+                if (hasSize) {
+                    (<ParticleVec3Parameter>size).getVec3At(eventInfo.size, i);
+                }
+                if (hasColor) {
+                    (<ParticleColorParameter>color).getColorAt(eventInfo.color, i);
+                }
                 if (simulationSpace === Space.LOCAL) {
                     Vec3.transformMat4(eventInfo.position, eventInfo.position, localToWorld);
                     Vec3.transformMat4(eventInfo.velocity, eventInfo.velocity, localToWorld);

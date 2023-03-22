@@ -25,7 +25,7 @@
 
 import { ccclass, displayOrder, range, serializable, tooltip, type } from '../../core/data/decorators';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
-import { ParticleData } from '../particle-data';
+import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { CurveRange } from '../curve-range';
 import { approx, EPSILON, lerp, pseudoRandom, Quat, Vec3 } from '../../core/math';
@@ -47,11 +47,20 @@ export class GravityModule extends ParticleModule {
     @tooltip('i18n:particle_system.gravityModifier')
     public gravityModifier = new CurveRange();
 
-    public execute (particles: ParticleData, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+        context.markRequiredParameter(BuiltinParticleParameter.POSITION);
+        context.markRequiredParameter(BuiltinParticleParameter.VELOCITY);
+        if (this.gravityModifier.mode === CurveRange.Mode.Curve || this.gravityModifier.mode === CurveRange.Mode.TwoCurves) {
+            context.markRequiredParameter(BuiltinParticleParameter.NORMALIZED_ALIVE_TIME);
+        }
+        if (this.gravityModifier.mode === CurveRange.Mode.TwoConstants || this.gravityModifier.mode === CurveRange.Mode.TwoCurves) {
+            context.markRequiredParameter(BuiltinParticleParameter.RANDOM_SEED);
+        }
+    }
+
+    public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         const { worldRotation } = context;
         const { velocity } = particles;
-        const normalizedAliveTime = particles.normalizedAliveTime.data;
-        const randomSeed = particles.randomSeed.data;
         const { fromIndex, toIndex, deltaTime } = context;
         const deltaVelocity = 9.8 * deltaTime;
         if (params.simulationSpace === Space.LOCAL) {
@@ -65,12 +74,14 @@ export class GravityModule extends ParticleModule {
             } else if (this.gravityModifier.mode === CurveRange.Mode.Curve) {
                 const { spline } = this.gravityModifier;
                 const multiplier = this.gravityModifier.multiplier * deltaVelocity;
+                const normalizedAliveTime = particles.normalizedAliveTime.data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     Vec3.set(gravity, 0, -spline.evaluate(normalizedAliveTime[i]) * multiplier, 0);
                     Vec3.transformQuat(gravity, gravity, invRotation);
                     velocity.addVec3At(gravity, i);
                 }
             } else if (this.gravityModifier.mode === CurveRange.Mode.TwoConstants) {
+                const randomSeed = particles.randomSeed.data;
                 const { constantMin, constantMax } = this.gravityModifier;
                 for (let i = fromIndex; i < toIndex; i++) {
                     Vec3.set(gravity, 0, -lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + GRAVITY_RAND_OFFSET)) * deltaVelocity, 0);
@@ -80,6 +91,8 @@ export class GravityModule extends ParticleModule {
             } else {
                 const { splineMin, splineMax } = this.gravityModifier;
                 const multiplier = this.gravityModifier.multiplier * deltaVelocity;
+                const normalizedAliveTime = particles.normalizedAliveTime.data;
+                const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const normalizedTime = normalizedAliveTime[i];
                     Vec3.set(gravity, 0, -lerp(splineMin.evaluate(normalizedTime), splineMax.evaluate(normalizedTime), pseudoRandom(randomSeed[i] + GRAVITY_RAND_OFFSET)) * multiplier, 0);
@@ -97,10 +110,12 @@ export class GravityModule extends ParticleModule {
             } else if (this.gravityModifier.mode === CurveRange.Mode.Curve) {
                 const { spline } = this.gravityModifier;
                 const multiplier = this.gravityModifier.multiplier * deltaVelocity;
+                const normalizedAliveTime = particles.normalizedAliveTime.data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     velocity.add3fAt(0, -spline.evaluate(normalizedAliveTime[i]) * multiplier, 0, i);
                 }
             } else if (this.gravityModifier.mode === CurveRange.Mode.TwoConstants) {
+                const randomSeed = particles.randomSeed.data;
                 const { constantMin, constantMax } = this.gravityModifier;
                 for (let i = fromIndex; i < toIndex; i++) {
                     velocity.add3fAt(0, -lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + GRAVITY_RAND_OFFSET)) * deltaVelocity, 0, i);
@@ -108,6 +123,8 @@ export class GravityModule extends ParticleModule {
             } else {
                 const { splineMin, splineMax } = this.gravityModifier;
                 const multiplier = this.gravityModifier.multiplier * deltaVelocity;
+                const normalizedAliveTime = particles.normalizedAliveTime.data;
+                const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const normalizedTime = normalizedAliveTime[i];
                     velocity.add3fAt(0, -lerp(splineMin.evaluate(normalizedTime), splineMax.evaluate(normalizedTime), pseudoRandom(randomSeed[i] + GRAVITY_RAND_OFFSET)) * multiplier, 0, i);

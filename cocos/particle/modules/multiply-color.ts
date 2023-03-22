@@ -27,7 +27,7 @@ import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { Color, pseudoRandom } from '../../core/math';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { GradientRange } from '../gradient-range';
-import { ParticleData } from '../particle-data';
+import { ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 
 const COLOR_OVERTIME_RAND_OFFSET = 91041;
@@ -46,7 +46,7 @@ export class MultiplyColorModule extends ParticleModule {
     @displayOrder(1)
     public color = new GradientRange();
 
-    public execute (particles: ParticleData, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         const { fromIndex, toIndex } = context;
         const { color } = particles;
         if (this.color.mode === GradientRange.Mode.Color) {

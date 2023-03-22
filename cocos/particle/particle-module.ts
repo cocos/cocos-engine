@@ -23,8 +23,8 @@
  THE SOFTWARE.
  */
 
-import { ParticleExecContext, ParticleEmitterParams } from './particle-base';
-import { ParticleData } from './particle-data';
+import { ParticleExecContext, ParticleEmitterParams, BitsBucket } from './particle-base';
+import { ParticleDataSet } from './particle-data-set';
 import { ccclass, displayName, serializable, type } from '../core/data/decorators';
 import { assert, CCBoolean, CCString, Mat4 } from '../core';
 
@@ -87,10 +87,6 @@ export abstract class ParticleModule {
         this._enabled = val;
     }
 
-    public get requiredParameters () {
-        return [];
-    }
-
     @type(CCString)
     private get name () {
         return ParticleModule.getModuleIdentityByClass(this.constructor as Constructor<ParticleModule>)?.name;
@@ -117,8 +113,8 @@ export abstract class ParticleModule {
         }
     }
 
-    public tick (particles: ParticleData, params: ParticleEmitterParams, context: ParticleExecContext) {}
-    public abstract execute (particles: ParticleData, params: ParticleEmitterParams, context: ParticleExecContext);
+    public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {}
+    public abstract execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext);
 }
 
 @ccclass('cc.ParticleModuleStage')
@@ -189,7 +185,7 @@ export class ParticleModuleStage {
         return module;
     }
 
-    public tick (particles: ParticleData, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         for (let i = 0, length = this._modules.length; i < length; i++) {
             const module = this._modules[i];
             if (module.enabled) {
@@ -198,7 +194,7 @@ export class ParticleModuleStage {
         }
     }
 
-    public execute (particles: ParticleData, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         context.setExecutionStage(this._execStage);
         for (let i = 0, length = this._modules.length; i < length; i++) {
             const module = this._modules[i];

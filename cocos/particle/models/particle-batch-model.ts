@@ -31,7 +31,7 @@ import { AttributeName, BufferUsageBit, FormatInfos, MemoryUsageBit, PrimitiveMo
 import { Color } from '../../core/math/color';
 import { scene } from '../../core/renderer';
 import { Material, RenderingSubMesh } from '../../core/assets';
-import { ParticleData } from '../particle-data';
+import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
 
 const _uvs = [
     0, 0, // bottom-left
@@ -215,57 +215,96 @@ export default class ParticleBatchModel extends scene.Model {
         this.setSubModelMaterial(0, mat);
     }
 
-    public updateIA (particles: ParticleData) {
+    public updateIA (particles: ParticleDataSet) {
         if (particles.count > 0) {
             const dynamicBuffer = this._dynamicBuffer!;
             const dynamicBufferUintView = this._dynamicBufferUintView!;
             const { count } = particles;
             const position = particles.position.data;
-            const rotation = particles.rotation.data;
-            const size = particles.size.data;
-            const frameIndex = particles.frameIndex.data;
-            const color = particles.color.data;
-            if (!this._hasVelocityChanel) {
+            const colorVal = Color.toUint32(Color.WHITE);
+            for (let i = 0; i < count; i++) {
+                const offset = i * this._vertDynamicAttrsFloatCount;
+                const xOffset = i * 3;
+                const yOffset = xOffset + 1;
+                const zOffset = yOffset + 1;
+                dynamicBuffer[offset] = position[xOffset];
+                dynamicBuffer[offset + 1] = position[yOffset];
+                dynamicBuffer[offset + 2] = position[zOffset];
+                dynamicBuffer[offset + 6] = 1;
+                dynamicBuffer[offset + 7] = 1;
+                dynamicBuffer[offset + 8] = 1;
+                dynamicBufferUintView[offset + 10] = colorVal;
+            }
+            if (particles.hasParameter(BuiltinParticleParameter.ROTATION)) {
+                const rotation = particles.rotation.data;
                 for (let i = 0; i < count; i++) {
                     const offset = i * this._vertDynamicAttrsFloatCount;
                     const xOffset = i * 3;
                     const yOffset = xOffset + 1;
                     const zOffset = yOffset + 1;
-                    dynamicBuffer[offset] = position[xOffset];
-                    dynamicBuffer[offset + 1] = position[yOffset];
-                    dynamicBuffer[offset + 2] = position[zOffset];
                     dynamicBuffer[offset + 3] = rotation[xOffset];
                     dynamicBuffer[offset + 4] = rotation[yOffset];
                     dynamicBuffer[offset + 5] = rotation[zOffset];
+                }
+            }
+            if (particles.hasParameter(BuiltinParticleParameter.SIZE)) {
+                const size = particles.size.data;
+                for (let i = 0; i < count; i++) {
+                    const offset = i * this._vertDynamicAttrsFloatCount;
+                    const xOffset = i * 3;
+                    const yOffset = xOffset + 1;
+                    const zOffset = yOffset + 1;
                     dynamicBuffer[offset + 6] = size[xOffset];
                     dynamicBuffer[offset + 7] = size[yOffset];
                     dynamicBuffer[offset + 8] = size[zOffset];
+                }
+            }
+            if (particles.hasParameter(BuiltinParticleParameter.FRAME_INDEX)) {
+                const frameIndex = particles.frameIndex.data;
+                for (let i = 0; i < count; i++) {
+                    const offset = i * this._vertDynamicAttrsFloatCount;
                     dynamicBuffer[offset + 9] = frameIndex[i];
+                }
+            }
+            if (particles.hasParameter(BuiltinParticleParameter.COLOR)) {
+                const color = particles.color.data;
+                for (let i = 0; i < count; i++) {
+                    const offset = i * this._vertDynamicAttrsFloatCount;
                     dynamicBufferUintView[offset + 10] = color[i];
                 }
-            } else {
-                const { velocity, animatedVelocity } = particles;
-                const velocityData = velocity.data;
-                const animatedVelocityData = animatedVelocity.data;
+            }
+            if (this._hasVelocityChanel && (particles.hasParameter(BuiltinParticleParameter.ANIMATED_VELOCITY) || particles.hasParameter(BuiltinParticleParameter.VELOCITY))) {
                 for (let i = 0; i < count; i++) {
                     const offset = i * this._vertDynamicAttrsFloatCount;
-                    const xOffset = i * 3;
-                    const yOffset = xOffset + 1;
-                    const zOffset = yOffset + 1;
-                    dynamicBuffer[offset] = position[xOffset];
-                    dynamicBuffer[offset + 1] = position[yOffset];
-                    dynamicBuffer[offset + 2] = position[zOffset];
-                    dynamicBuffer[offset + 3] = rotation[xOffset];
-                    dynamicBuffer[offset + 4] = rotation[yOffset];
-                    dynamicBuffer[offset + 5] = rotation[zOffset];
-                    dynamicBuffer[offset + 6] = size[xOffset];
-                    dynamicBuffer[offset + 7] = size[yOffset];
-                    dynamicBuffer[offset + 8] = size[zOffset];
-                    dynamicBuffer[offset + 9] = frameIndex[i];
-                    dynamicBufferUintView[offset + 10] = color[i];
-                    dynamicBuffer[offset + 11] = velocityData[xOffset] + animatedVelocityData[xOffset];
-                    dynamicBuffer[offset + 12] = velocityData[yOffset] + animatedVelocityData[yOffset];
-                    dynamicBuffer[offset + 13] = velocityData[zOffset] + animatedVelocityData[zOffset];
+                    dynamicBuffer[offset + 11] = 0;
+                    dynamicBuffer[offset + 12] = 0;
+                    dynamicBuffer[offset + 13] = 0;
+                }
+                if (particles.hasParameter(BuiltinParticleParameter.ANIMATED_VELOCITY)) {
+                    const { animatedVelocity } = particles;
+                    const animatedVelocityData = animatedVelocity.data;
+                    for (let i = 0; i < count; i++) {
+                        const offset = i * this._vertDynamicAttrsFloatCount;
+                        const xOffset = i * 3;
+                        const yOffset = xOffset + 1;
+                        const zOffset = yOffset + 1;
+                        dynamicBuffer[offset + 11] += animatedVelocityData[xOffset];
+                        dynamicBuffer[offset + 12] += animatedVelocityData[yOffset];
+                        dynamicBuffer[offset + 13] += animatedVelocityData[zOffset];
+                    }
+                }
+                if (particles.hasParameter(BuiltinParticleParameter.VELOCITY)) {
+                    const { velocity } = particles;
+                    const velocityData = velocity.data;
+                    for (let i = 0; i < count; i++) {
+                        const offset = i * this._vertDynamicAttrsFloatCount;
+                        const xOffset = i * 3;
+                        const yOffset = xOffset + 1;
+                        const zOffset = yOffset + 1;
+                        dynamicBuffer[offset + 11] += velocityData[xOffset];
+                        dynamicBuffer[offset + 12] += velocityData[yOffset];
+                        dynamicBuffer[offset + 13] += velocityData[zOffset];
+                    }
                 }
             }
             this._insBuffers[1].update(dynamicBuffer); // update dynamic buffer

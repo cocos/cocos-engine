@@ -28,7 +28,7 @@ import { lerp, pseudoRandom, Vec3 } from '../../core/math';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { CurveRange } from '../curve-range';
 import { ModuleRandSeed } from '../enum';
-import { ParticleData } from '../particle-data';
+import { ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 
 const SIZE_OVERTIME_RAND_OFFSET = ModuleRandSeed.SIZE;
@@ -115,7 +115,7 @@ export class SizeModule extends ParticleModule {
     @serializable
     private _z: CurveRange | null = null;
 
-    public execute (particles: ParticleData, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         const { startSize, size } = particles;
         const normalizedAliveTime = particles.normalizedAliveTime.data;
         const randomSeed = particles.randomSeed.data;

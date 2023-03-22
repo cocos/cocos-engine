@@ -27,7 +27,7 @@ import { lerp, pseudoRandom } from '../../core';
 import { ccclass, displayOrder, range, serializable, tooltip, type } from '../../core/data/decorators';
 import { CurveRange } from '../curve-range';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
-import { ParticleData } from '../particle-data';
+import { ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 
 const SPEED_MODIFIER_RAND_OFFSET = 388180;
@@ -45,7 +45,7 @@ export class SpeedModifierModule extends ParticleModule {
     @tooltip('i18n:velocityOvertimeModule.speedModifier')
     public speedModifier = new CurveRange(1);
 
-    public execute (particles: ParticleData, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         const normalizedAliveTime = particles.normalizedAliveTime.data;
         const randomSeed = particles.randomSeed.data;
         const speedModifier = particles.speedModifier.data;

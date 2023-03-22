@@ -30,8 +30,8 @@ import { Mat4, Quat, Vec2, Vec3, clamp, pingPong, random, randomRange, repeat, t
 import { CurveRange } from '../curve-range';
 import { randomSign } from '../particle-general-function';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
-import { ParticleData } from '../particle-data';
-import { ParticleExecContext, ParticleEmitterParams } from '../particle-base';
+import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
+import { ParticleExecContext, ParticleEmitterParams, BitsBucket } from '../particle-base';
 import { Enum } from '../../core';
 
 const _intermediVec = new Vec3(0, 0, 0);
@@ -331,7 +331,12 @@ export class ShapeModule extends ParticleModule {
     private _quat = new Quat();
     private _isTransformDirty = true;
 
-    public tick (particles: ParticleData,  params: ParticleEmitterParams, context: ParticleExecContext) {
+    public markRequiredParameters (out: BitsBucket) {
+        out.mark(BuiltinParticleParameter.POSITION);
+        out.mark(BuiltinParticleParameter.START_DIR);
+    }
+
+    public tick (particles: ParticleDataSet,  params: ParticleEmitterParams, context: ParticleExecContext) {
         this._totalAngle += 2 * Math.PI * this.arcSpeed.evaluate(context.normalizedTimeInCycle, 1) * context.deltaTime;
         if (this._isTransformDirty) {
             Quat.fromEuler(this._quat, this._rotation.x, this._rotation.y, this._rotation.z);
@@ -340,7 +345,7 @@ export class ShapeModule extends ParticleModule {
         }
     }
 
-    public execute (particles: ParticleData, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         const { fromIndex, toIndex } = context;
         const { position, startDir } = particles;
         const randomPositionAmount = this.randomPositionAmount;
