@@ -63,7 +63,7 @@ export class AccelerometerInputSource {
         }
 
         // fix android acc values are opposite
-        if (systemInfo.os === OS.ANDROID || systemInfo.os === OS.OHOS) {
+        if (systemInfo.os === OS.ANDROID || systemInfo.os === OS.OHOS || systemInfo.os === OS.OPENHARMONY) {
             x = -x;
             y = -y;
         }

@@ -32,7 +32,7 @@ System::System() = default;
 System::~System() = default;
 
 System::OSType System::getOSType() const {
-    return OSType::OHOS;
+    return OSType::OPENHARMONY;
 }
 
 std::string System::getDeviceModel() const {
