@@ -51,6 +51,11 @@ class ScreenAdapter extends EventTarget {
         const dpr = this.devicePixelRatio;
         let screenWidth = sysInfo.windowWidth;
         let screenHeight = sysInfo.windowHeight;
+        if (WECHAT) {
+            // TODO The screen size is full screen, the window size does not include the bangs screen
+            screenWidth = sysInfo.screenWidth;
+            screenHeight = sysInfo.screenHeight;
+        }
         if (ALIPAY && rotateLandscape  && screenWidth < screenHeight) {
             const temp = screenWidth;
             screenWidth = screenHeight;
