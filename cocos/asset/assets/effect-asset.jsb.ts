@@ -44,6 +44,7 @@ effectAssetProto._ctor = function () {
     this.hideInEditor = false;
 };
 
+// NOTE: TS cannot merge exported type in multiple modules, so we need to declare namespace EffectAsset again here.
 export declare namespace EffectAsset {
     export interface IPropertyInfo {
         type: number; // auto-extracted from shader
