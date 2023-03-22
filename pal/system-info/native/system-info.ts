@@ -22,9 +22,12 @@
  THE SOFTWARE.
 */
 
-import { IFeatureMap } from 'pal/system-info';
 import { EventTarget } from '../../../cocos/core/event';
 import { BrowserType, NetworkType, OS, Platform, Language, Feature } from '../enum-type';
+
+type IFeatureMap = {
+    [feature in Feature]: boolean;
+};
 
 // NOTE: these methods are implemented on native.
 declare function __getPlatform(): string;

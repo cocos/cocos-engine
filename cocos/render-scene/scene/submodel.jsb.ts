@@ -21,5 +21,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+import type { SubModel as JsbSubModel } from './submodel';
 
-export const SubModel = jsb.SubModel;
+declare const jsb: any;
+
+export type SubModel = JsbSubModel;
+export const SubModel: typeof JsbSubModel = jsb.SubModel;
