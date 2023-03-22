@@ -467,6 +467,8 @@ export class ParticleEmitter extends Component {
     private _bounds = new Vec3();
     private _context = new ParticleExecContext();
     private _state = new ParticleEmitterState();
+    private _customParameterId: number = BuiltinParticleParameter.COUNT;
+    private _customParameters: ParticleParameterIdentity[] = [];
 
     /**
      * @en play particle system
@@ -526,6 +528,23 @@ export class ParticleEmitter extends Component {
      */
     public getParticleCount () {
         return this._particles.count;
+    }
+
+    public addCustomParameter (name: string, type: ParticleParameterType) {
+        const identity = new ParticleParameterIdentity(this._customParameterId++, name, type);
+        this._customParameters.push(identity);
+        return identity;
+    }
+
+    public removeCustomParameter (name: string) {
+        const index = this._customParameters.findIndex((identity) => identity.name === name);
+        if (index >= 0) {
+            this._customParameters.splice(index, 1);
+        }
+    }
+
+    public getCustomParameter (name: string) {
+        return this._customParameters.find((identity) => identity.name === name);
     }
 
     public addEventReceiver () {

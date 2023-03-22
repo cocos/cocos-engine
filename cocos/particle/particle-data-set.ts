@@ -32,27 +32,30 @@ import { ParticleColorParameter, ParticleFloatParameter, ParticleParameter, Part
 export type ParticleHandle = number;
 export const INVALID_HANDLE = -1;
 
-export enum BuiltinParticleParameterName {
-    ID = 'id',
-    RANDOM_SEED = 'random-seed',
-    INV_START_LIFETIME = 'inv-start-lifetime',
-    NORMALIZED_ALIVE_TIME = 'normalized-alive-time',
-    POSITION = 'position',
-    START_DIR = 'start-dir',
-    VELOCITY = 'velocity',
-    ANIMATED_VELOCITY = 'animated-velocity',
-    ROTATION = 'rotation',
-    AXIS_OF_ROTATION = 'axis-of-rotation',
-    ANGULAR_VELOCITY = 'angular-velocity',
-    SPEED_MODIFIER = 'speed-modifier',
-    NOISE = 'noise',
-    FRAME_INDEX = 'frame-index',
-    START_SIZE = 'start-size',
-    SIZE = 'size',
-    START_COLOR = 'start-color',
-    COLOR = 'color',
-}
+export const BuiltinParticleParameterName = [
+    'id',
+    'random-seed',
+    'inv-start-lifetime',
+    'normalized-alive-time',
+    'position',
+    'start-dir',
+    'velocity',
+    'animated-velocity',
+    'rotation',
+    'axis-of-rotation',
+    'angular-velocity',
+    'speed-modifier',
+    'noise',
+    'frame-index',
+    'start-size',
+    'size',
+    'start-color',
+    'color',
+];
 
+/**
+ * Keep same with BuiltinParticleParameterName.
+ */
 export enum BuiltinParticleParameter {
     ID,
     RANDOM_SEED,
@@ -75,7 +78,6 @@ export enum BuiltinParticleParameter {
     COUNT,
 }
 
-@ccclass('cc.ParticleDataSet')
 export class ParticleDataSet {
     get capacity () {
         return this._parameters[0] ? this._parameters[0].capacity : 0;
@@ -162,10 +164,6 @@ export class ParticleDataSet {
     private _parameterCount = 0;
     private _parameterIds = new Uint8Array(8);
     private _parameters: ParticleParameter[] = [];
-    @serializable
-    private _customParameterId: number = BuiltinParticleParameter.COUNT;
-    @serializable
-    private _customParameterRegistry: ParticleParameterIdentity[] = [];
 
     getParameter<T extends ParticleParameter> (id: number) {
         if (!this.hasParameter(id)) {
@@ -193,7 +191,7 @@ export class ParticleDataSet {
         switch (id) {
         case BuiltinParticleParameter.ID:
         case BuiltinParticleParameter.RANDOM_SEED:
-            this.addParameter(id, new ParticleUint32Parameter());
+            this.addParameter(id, BuiltinParticleParameterName[id], ParticleParameterType.UINT32);
             break;
         case BuiltinParticleParameter.POSITION:
         case BuiltinParticleParameter.VELOCITY:
@@ -205,26 +203,45 @@ export class ParticleDataSet {
         case BuiltinParticleParameter.ANGULAR_VELOCITY:
         case BuiltinParticleParameter.AXIS_OF_ROTATION:
         case BuiltinParticleParameter.NOISE:
-            this.addParameter(id, new ParticleVec3Parameter());
+            this.addParameter(id, BuiltinParticleParameterName[id], ParticleParameterType.VEC3);
             break;
         case BuiltinParticleParameter.COLOR:
         case BuiltinParticleParameter.START_COLOR:
-            this.addParameter(id, new ParticleColorParameter());
+            this.addParameter(id, BuiltinParticleParameterName[id], ParticleParameterType.COLOR);
             break;
         case BuiltinParticleParameter.SPEED_MODIFIER:
         case BuiltinParticleParameter.FRAME_INDEX:
         case BuiltinParticleParameter.INV_START_LIFETIME:
         case BuiltinParticleParameter.NORMALIZED_ALIVE_TIME:
-            this.addParameter(id, new ParticleFloatParameter());
+            this.addParameter(id, BuiltinParticleParameterName[id], ParticleParameterType.FLOAT);
             break;
         default:
         }
     }
 
-    addParameter (id: number, parameter: ParticleParameter) {
+    addParameter (id: number, name: string, type: ParticleParameterType) {
         if (this._parameterFlags.isMarked(id)) {
             throw new Error('Already exist a particle parameter with same id!');
         }
+        switch (type) {
+        case ParticleParameterType.FLOAT:
+            this.addParameter_internal(id, new ParticleFloatParameter(name));
+            break;
+        case ParticleParameterType.VEC3:
+            this.addParameter_internal(id, new ParticleVec3Parameter(name));
+            break;
+        case ParticleParameterType.COLOR:
+            this.addParameter_internal(id, new ParticleColorParameter(name));
+            break;
+        case ParticleParameterType.UINT32:
+            this.addParameter_internal(id, new ParticleUint32Parameter(name));
+            break;
+        default:
+            throw new Error('Unknown particle parameter type!');
+        }
+    }
+
+    addParameter_internal (id: number, parameter: ParticleParameter) {
         const parameterIds = this._parameterIds;
         const count = this._parameterCount;
         if (parameterIds.length === count) {
@@ -234,23 +251,6 @@ export class ParticleDataSet {
         this._parameterFlags.mark(id);
         this._parameterIds[this._parameterCount++] = id;
         this._parameters.push(parameter);
-    }
-
-    registerCustomParameter (name: string, type: ParticleParameterType) {
-        const identity = new ParticleParameterIdentity(this._customParameterId++, name, type);
-        this._customParameterRegistry.push(identity);
-        return identity;
-    }
-
-    unregisterCustomParameter (name: string) {
-        const index = this._customParameterRegistry.findIndex((identity) => identity.name === name);
-        if (index >= 0) {
-            this._customParameterRegistry.splice(index, 1);
-        }
-    }
-
-    getCustomParameterIdentity (name: string) {
-        return this._customParameterRegistry.find((identity) => identity.name === name);
     }
 
     removeParameter (id: number) {
@@ -300,59 +300,33 @@ export class ParticleDataSet {
         }
     }
 
-    ensureParameters (requiredParameters: BitsBucket) {
-        if (requiredParameters.equals(this._parameterFlags)) return;
-        // handle builtin parameters
-        for (let i = 0; i < BuiltinParticleParameter.COUNT; i++) {
-            if (requiredParameters.isMarked(i) && !this._parameterFlags.isMarked(i)) {
-                this.addBuiltinParameter(i);
-            } else if (!requiredParameters.isMarked(i) && this._parameterFlags.isMarked(i)) {
-                this.removeParameter(i);
+    ensureParameters (requiredParameters: BitsBucket, customParameters: ParticleParameterIdentity[]) {
+        if (!requiredParameters.equals(this._parameterFlags)) {
+            // handle builtin parameters
+            for (let i = 0; i < BuiltinParticleParameter.COUNT; i++) {
+                if (requiredParameters.isMarked(i) && !this._parameterFlags.isMarked(i)) {
+                    this.addBuiltinParameter(i);
+                } else if (!requiredParameters.isMarked(i) && this._parameterFlags.isMarked(i)) {
+                    this.removeParameter(i);
+                }
             }
         }
+
         // handle custom parameters
-        const customParameterRegistry = this._customParameterRegistry;
-        for (let i = 0, length = customParameterRegistry.length; i < length; i++) {
-            const id = customParameterRegistry[i].id;
+        for (let i = 0, length = customParameters.length; i < length; i++) {
+            const { id, name, type } = customParameters[i];
             if (requiredParameters.isMarked(id) && !this._parameterFlags.isMarked(id)) {
-                switch (customParameterRegistry[i].type) {
-                case ParticleParameterType.FLOAT:
-                    this.addParameter(id, new ParticleFloatParameter());
-                    break;
-                case ParticleParameterType.VEC3:
-                    this.addParameter(id, new ParticleVec3Parameter());
-                    break;
-                case ParticleParameterType.COLOR:
-                    this.addParameter(id, new ParticleColorParameter());
-                    break;
-                case ParticleParameterType.UINT32:
-                    this.addParameter(id, new ParticleUint32Parameter());
-                    break;
-                default:
-                    throw new Error('Unknown particle parameter type!');
-                }
+                this.addParameter(id, name, type);
             } else if (!requiredParameters.isMarked(id) && this._parameterFlags.isMarked(id)) {
                 this.removeParameter(id);
             } else if (requiredParameters.isMarked(id) && this._parameterFlags.isMarked(id)) {
                 const parameter = this.getParameterNoCheck(id);
-                if (parameter.type !== customParameterRegistry[i].type) {
+                if (parameter.name !== name) {
+                    parameter.name = name;
+                }
+                if (parameter.type !== type) {
                     this.removeParameter(id);
-                    switch (customParameterRegistry[i].type) {
-                    case ParticleParameterType.FLOAT:
-                        this.addParameter(id, new ParticleFloatParameter());
-                        break;
-                    case ParticleParameterType.VEC3:
-                        this.addParameter(id, new ParticleVec3Parameter());
-                        break;
-                    case ParticleParameterType.COLOR:
-                        this.addParameter(id, new ParticleColorParameter());
-                        break;
-                    case ParticleParameterType.UINT32:
-                        this.addParameter(id, new ParticleUint32Parameter());
-                        break;
-                    default:
-                        throw new Error('Unknown particle parameter type!');
-                    }
+                    this.addParameter(id, name, type);
                 }
             }
         }

@@ -34,9 +34,21 @@ export abstract class ParticleParameter {
         return this._capacity;
     }
 
-    abstract get type (): ParticleParameterType;
+    get name () {
+        return this._name;
+    }
 
+    set name (val) {
+        this._name = val;
+    }
+
+    constructor (name: string) {
+        this._name = name;
+    }
+
+    abstract get type (): ParticleParameterType;
     protected _capacity = DEFAULT_CAPACITY;
+    private _name = '';
 
     abstract reserve (capacity: number);
     abstract move (a: ParticleHandle, b: ParticleHandle);
