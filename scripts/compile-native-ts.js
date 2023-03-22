@@ -86,6 +86,7 @@ async function compileTsEngine () {
 
     const compilerOptions = {
         strict: true,
+        noImplicitAny: false,
         experimentalDecorators: true,
         lib: ["lib.es2015.d.ts", "lib.es2017.d.ts"],
         types: [
