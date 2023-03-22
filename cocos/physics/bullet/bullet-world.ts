@@ -35,6 +35,7 @@ import { PhysicsRayResult, PhysicsMaterial } from '../framework';
 import { error, RecyclePool, Vec3, js, IVec3Like, geometry } from '../../core';
 import { BulletContactData } from './bullet-contact-data';
 import { BulletConstraint } from './constraints/bullet-constraint';
+import { BulletCharacterController } from './character-controllers/bullet-character-controller';
 import { bt, EBulletType, EBulletTriangleRaycastFlag } from './instantiated';
 import { Node } from '../../scene-graph';
 
@@ -99,6 +100,7 @@ export class BulletWorld implements IPhysicsWorld {
 
     readonly bodies: BulletSharedBody[] = [];
     readonly ghosts: BulletSharedBody[] = [];
+    readonly ccts: BulletCharacterController[] = [];
     readonly constraints: BulletConstraint[] = [];
     readonly triggerArrayMat = new ArrayCollisionMatrix();
     readonly collisionArrayMat = new ArrayCollisionMatrix();
@@ -132,6 +134,11 @@ export class BulletWorld implements IPhysicsWorld {
         if (!this.bodies.length && !this.ghosts.length) return;
         if (timeSinceLastCalled === undefined) timeSinceLastCalled = deltaTime;
         bt.DynamicsWorld_stepSimulation(this._world, timeSinceLastCalled, maxSubStep, deltaTime);
+
+        for (let i = 0; i < this.ccts.length; i++) {
+            const cct = this.ccts[i];
+            cct.syncPhysicsToScene();
+        }
     }
 
     syncSceneToPhysics (): void {
@@ -229,6 +236,28 @@ export class BulletWorld implements IPhysicsWorld {
         if (i >= 0) {
             js.array.fastRemoveAt(this.ghosts, i);
             bt.CollisionWorld_removeCollisionObject(this._world, sharedBody.ghost);
+        }
+    }
+
+    addCCT (cct: BulletCharacterController): void {
+        const index = this.ccts.indexOf(cct);
+        if (index < 0) {
+            //addCCTToScene(this.scene, cct.impl);
+            this.ccts.push(cct);
+
+            const cctGhost = bt.CharacterController_getGhostObject(cct.impl);
+            bt.CollisionWorld_addCollisionObject(this._world, cctGhost, cct.getGroup(), cct.getMask());
+            //bt.CollisionWorld_addCollisionObject(this._world, cctGhost, -1, -1);
+        }
+    }
+
+    removeCCT (cct: BulletCharacterController): void {
+        const index = this.ccts.indexOf(cct);
+        if (index >= 0) {
+            //this.scene.removeActor(cct.impl, true);
+            js.array.fastRemoveAt(this.ccts, index);
+            const cctGhost = bt.CharacterController_getGhostObject(cct.impl);
+            bt.CollisionWorld_removeCollisionObject(this._world, cctGhost);
         }
     }
 
@@ -392,16 +421,18 @@ export class BulletWorld implements IPhysicsWorld {
                 const s1 = bt.ManifoldPoint_getShape1(manifoldPoint);
                 const shape0: BulletShape = BulletCache.getWrapper(s0, BulletShape.TYPE);
                 const shape1: BulletShape = BulletCache.getWrapper(s1, BulletShape.TYPE);
-                if (shape0.collider.needTriggerEvent || shape1.collider.needTriggerEvent
+                if (shape0 && shape1) {
+                    if (shape0.collider.needTriggerEvent || shape1.collider.needTriggerEvent
                     || shape0.collider.needCollisionEvent || shape1.collider.needCollisionEvent
-                ) {
+                    ) {
                     // current contact
-                    let item = this.contactsDic.get<any>(shape0.id, shape1.id);
-                    if (!item) {
-                        item = this.contactsDic.set(shape0.id, shape1.id,
-                            { shape0, shape1, contacts: [], impl: manifold });
+                        let item = this.contactsDic.get<any>(shape0.id, shape1.id);
+                        if (!item) {
+                            item = this.contactsDic.set(shape0.id, shape1.id,
+                                { shape0, shape1, contacts: [], impl: manifold });
+                        }
+                        item.contacts.push(manifoldPoint);//btManifoldPoint
                     }
-                    item.contacts.push(manifoldPoint);//btManifoldPoint
                 }
             }
         }
