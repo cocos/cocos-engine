@@ -181,9 +181,9 @@ public:
         // Tell GameActivity about any new axis ids so it reports
         // their events
         const uint64_t activeAxisIds = Paddleboat_getActiveAxisMask();
-        uint64_t newAxisIds = activeAxisIds ^ mActiveAxisIds;
+        uint64_t newAxisIds = activeAxisIds ^ _activeAxisIds;
         if (newAxisIds != 0) {
-            mActiveAxisIds = activeAxisIds;
+            _activeAxisIds = activeAxisIds;
             int32_t currentAxisId = 0;
             while (newAxisIds != 0) {
                 if ((newAxisIds & 1) != 0) {
@@ -262,7 +262,7 @@ public:
 
     bool cookGameControllerEvent(const int32_t gameControllerIndex) {
         static std::vector<uint32_t> prevStates{4};
-        int addedControllerEvent = 0;
+        bool addedControllerEvent = false;
         cc::ControllerInfo info;
         if (gameControllerIndex >= 0) {
             if (gameControllerIndex >= prevStates.size()) {
@@ -274,14 +274,13 @@ public:
             Paddleboat_Controller_Data controllerData;
             if (Paddleboat_getControllerData(gameControllerIndex, &controllerData) ==
                 PADDLEBOAT_NO_ERROR) {
+                addedControllerEvent = true;
                 // Generate events from buttons
                 for (auto inputAction : PADDLEBOAT_ACTIONS) {
                     if (controllerData.buttonsDown & inputAction.buttonMask) {
                         reportKeyState(inputAction.actionCode, true);
-                        addedControllerEvent = 1;
                     } else if (prevButtonsDown & inputAction.buttonMask) {
                         reportKeyState(inputAction.actionCode, false);
-                        addedControllerEvent = 1;
                     }
                 }
                 for (auto remap : PADDLEBOAT_MAPKEY) {
@@ -291,13 +290,11 @@ public:
                             CC_LOG_ERROR("key \"%s\" is unhandled", remap.name);
                         }
                         cc::ControllerInfo::ButtonInfo buttonInfo{code, true};
-                        addedControllerEvent = 1;
                         info.buttonInfos.emplace_back(buttonInfo);
                     } else if (prevButtonsDown & remap.buttonMask) {
                         cc::ControllerInfo::ButtonInfo buttonInfo{code, false};
                         buttonInfo.key = code;
                         buttonInfo.isPress = false;
-                        addedControllerEvent = 1;
                         info.buttonInfos.emplace_back(buttonInfo);
                     }
                 }
@@ -343,7 +340,7 @@ public:
                 prevButtonsDown = controllerData.buttonsDown;
             }
         }
-        return (addedControllerEvent != 0);
+        return addedControllerEvent;
     }
 
     // NOLINTNEXTLINE
@@ -606,7 +603,7 @@ private:
     AppEventCallback _eventCallback{nullptr};
     AndroidPlatform *_androidPlatform{nullptr};
     JNIEnv *_jniEnv{nullptr}; // JNI environment
-    uint64_t mActiveAxisIds{0};
+    uint64_t _activeAxisIds{0};
     int32_t _gameControllerIndex{-1}; // Most recently connected game controller index
     bool _launched{false};
     bool _isVisible{false};

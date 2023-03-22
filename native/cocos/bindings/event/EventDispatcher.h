@@ -47,7 +47,7 @@ private:
     static void dispatchMouseEvent(const MouseEvent &mouseEvent);
     static void dispatchKeyboardEvent(const KeyboardEvent &keyboardEvent);
     static void dispatchControllerEvent(const ControllerEvent &controllerEvent);
-    static void dispatchControllerChangeEvent(const ControllerChangeEvent &controllerEvent);
+    static void dispatchControllerChangeEvent(const ControllerChangeEvent &changeEvent);
     static void dispatchTickEvent(float dt);
     static void dispatchResizeEvent(int width, int height, uint32_t windowId = UINT32_MAX);
     static void dispatchOrientationChangeEvent(int orientation);
