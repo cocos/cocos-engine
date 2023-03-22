@@ -132,6 +132,7 @@ class SystemInfo extends EventTarget {
             [Feature.WEB_VIEW]: false,
             [Feature.VIDEO_PLAYER]: WECHAT || OPPO,
             [Feature.SAFE_AREA]: WECHAT || BYTEDANCE,
+            [Feature.HPE]: false,
 
             [Feature.INPUT_TOUCH]: !isPCWechat,
             [Feature.EVENT_KEYBOARD]: isPCWechat,

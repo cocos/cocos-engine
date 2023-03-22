@@ -116,7 +116,7 @@ static int fdGetter(const ccstd::string &url, off_t *start, off_t *length) {
     if (cc::FileUtilsAndroid::getObbFile() != nullptr) {
         int64_t startV;
         int64_t lenV;
-        fd = getObbAssetFileDescriptorJNI(url, &startV, &lenV);
+        fd = cc::getObbAssetFileDescriptorJNI(url, &startV, &lenV);
         *start = static_cast<off_t>(startV);
         *length = static_cast<off_t>(lenV);
     }
