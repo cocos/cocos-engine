@@ -107,12 +107,10 @@ export default class InheritVelocityModule extends ParticleModuleBase {
     public animate (p: Particle, dt: number): void {
         const ps = p.particleSystem;
         if (ps) {
-            // @ts-expect-error private property access
-            const parentParicle = ps._particle;
+            const parentParicle: Particle | null = p.parentParticle;
             if (parentParicle && ps.simulationSpace === Space.World) {
                 const currentVelocity = parentParicle.ultimateVelocity;
-                // @ts-expect-error private property access
-                const initialVelocity = ps._initialVelocity;
+                const initialVelocity = parentParicle.initialVelocity;
 
                 const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
                 const speedMod = this.speedModifier.evaluate(normalizedTime, pseudoRandom(p.randomSeed + INHERIT_VELOCITY_RAND));

@@ -43,6 +43,7 @@ import { NoiseModule } from '../animator/noise-module';
 import { legacyCC } from '../../core/global-exports';
 import { ForceFieldComp } from '../animator/force-field-comp';
 import { forceFieldManager } from '../force-field-manager';
+import { ParticleSystem } from '../particle-system';
 
 const _tempAttribUV = new Vec3();
 const _tempWorldTrans = new Mat4();
@@ -346,9 +347,9 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
         if (mat) {
             const passLen = mat.passes.length;
-            while (this._uNodeRotHandle.length < passLen) {
-                this._uNodeRotHandle.push(0);
-            }
+            // while (this._uNodeRotHandle.length < passLen) {
+            //     this._uNodeRotHandle.push(0);
+            // }
             for (let p = 0; p < passLen; ++p) {
                 mat.passes[p].setUniform(this._uNodeRotHandle[p], _node_rot);
             }
@@ -374,9 +375,9 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
         if (mat) {
             const passLen = mat.passes.length;
-            while (this._uScaleHandle.length < passLen) {
-                this._uScaleHandle.push(0);
-            }
+            // while (this._uScaleHandle.length < passLen) {
+            //     this._uScaleHandle.push(0);
+            // }
             for (let p = 0; p < passLen; ++p) {
                 mat.passes[p].setUniform(this._uScaleHandle[p], this._node_scale);
             }
@@ -387,14 +388,10 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
 
     public clearSubemitter () {
         for (let i = this._particles!.data.length; i >= 0; --i) {
-            const p = this._particles!.data[i];
+            const p: Particle = this._particles!.data[i];
             if (p === undefined || p === null) {
                 continue;
             }
-            for (let se = 0; se < p.subemitter.length; ++se) {
-                p.subemitter[se]._particle = null;
-            }
-            p.subemitter = [];
         }
     }
 
@@ -436,7 +433,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
 
         for (let i = this._particles!.length; i >= 0; --i) {
-            const p = this._particles!.data[i];
+            const p: Particle = this._particles!.data[i];
             if (p === undefined || p === null || !p.active) {
                 continue;
             }
@@ -488,30 +485,28 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                     trailModule.animate(p, dt);
                 }
 
-                if (p.subemitter.length > 0) {
-                    Vec3.normalize(_tempVelo, p.ultimateVelocity);
-                    Vec3.set(_center, _tempVelo.x, _tempVelo.y, _tempVelo.z);
-                    Mat4.lookAt(_lookMat4, _zero, _center, _up);
-                    Mat3.fromMat4(_lookMat3, _lookMat4);
-                    Mat3.transpose(_lookMat3, _lookMat3);
-                    Quat.fromMat3(_tempQuat, _lookMat3);
-                }
+                p.time += dt;
 
-                for (let se = 0; se < p.subemitter.length; ++se) {
-                    if (ps.simulationSpace === Space.Local) {
-                        p.subemitter[se].node.setPosition(p.position.x, p.position.y, p.position.z);
-                        p.subemitter[se].node.setRotation(_tempQuat);
-                    } else {
-                        p.subemitter[se].node.setWorldPosition(p.position.x, p.position.y, p.position.z);
-                        p.subemitter[se].node.setWorldRotation(_tempQuat);
+                if (p.particleSystem) {
+                    const blen = p.particleSystem.getSubEmitters().length;
+                    if (blen > 0) {
+                        Vec3.normalize(_tempVelo, p.ultimateVelocity);
+                        Vec3.set(_center, _tempVelo.x, _tempVelo.y, _tempVelo.z);
+                        Mat4.lookAt(_lookMat4, _zero, _center, _up);
+                        Mat3.fromMat4(_lookMat3, _lookMat4);
+                        Mat3.transpose(_lookMat3, _lookMat3);
+                        Quat.fromMat3(_tempQuat, _lookMat3);
+                        Quat.normalize(_tempQuat, _tempQuat);
+                        p.dir.set(_tempQuat);
                     }
-
-                    p.subemitter[se].node.invalidateChildren(TransformBit.POSITION | TransformBit.ROTATION);
-                    if (p.subemitter[se].isStopped) {
-                        if (!p.subemitter[se].actDie) {
-                            if (!p.subemitter[se]._isPlaying) {
-                                p.subemitter[se].play();
+                    for (let b = 0; b < blen; ++b) {
+                        const subemitter: ParticleSystem = p.particleSystem.getSubEmitters()[b];
+                        if (!subemitter.actDie) {
+                            if (!subemitter.isPlaying) {
+                                subemitter.play();
                             }
+                            // @ts-expect-error private property access
+                            subemitter._emit(dt, p);
                         }
                     }
                 }
@@ -520,49 +515,47 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                     trailModule.removeParticle(p);
                 }
 
-                let actDie = false;
-                for (let se = 0; se < p.subemitter.length; ++se) {
-                    if (!p.subemitter[se].actDie) {
-                        p.subemitter[se].stopEmitting();
-                    } else {
-                        if (!p.subemitter[se]._trigged) {
-                            p.subemitter[se].play();
-                            if (p.subemitter[se]._trailModule && p.subemitter[se]._trailModule.enable) {
-                                p.subemitter[se]._trailModule._detachFromScene();
-                                p.subemitter[se]._needAttach = true;
-                                p.subemitter[se].update(dt);
+                let allSubStop = true;
+                if (p.particleSystem) {
+                    const blen = p.particleSystem.getSubEmitters().length;
+                    if (!p.trigged) {
+                        if (blen > 0) {
+                            Vec3.normalize(_tempVelo, p.ultimateVelocity);
+                            Vec3.set(_center, _tempVelo.x, _tempVelo.y, _tempVelo.z);
+                            Mat4.lookAt(_lookMat4, _zero, _center, _up);
+                            Mat3.fromMat4(_lookMat3, _lookMat4);
+                            Mat3.transpose(_lookMat3, _lookMat3);
+                            Quat.fromMat3(_tempQuat, _lookMat3);
+                            Quat.normalize(_tempQuat, _tempQuat);
+                            p.dir.set(_tempQuat);
+                        }
+                        for (let b = 0; b < blen; ++b) {
+                            const subemitter: ParticleSystem = p.particleSystem.getSubEmitters()[b];
+                            if (subemitter.actDie) {
+                                if (!subemitter.isPlaying) {
+                                    subemitter.play();
+                                }
+                                // @ts-expect-error private property access
+                                subemitter._emit(dt, p);
                             }
                         }
-                        actDie = true;
+                        p.trigged = true;
                     }
-                }
 
-                let allSubStop = true;
-                for (let se = 0; se < p.subemitter.length; ++se) {
-                    if (p.subemitter[se].processor._particles.length > 0) {
-                        allSubStop = false;
-                        break;
-                    }
-                }
-
-                if (p.subemitter.length > 0 && allSubStop) {
-                    let allTrigged = true;
-                    for (let se = 0; se < p.subemitter.length; ++se) {
-                        if (p.subemitter[se]._trigged || !p.subemitter[se].actDie) {
-                            p.subemitter[se].stop();
-                        } else {
-                            allTrigged = false;
+                    for (let b = 0; b < blen; ++b) {
+                        const subemitter: ParticleSystem = p.particleSystem.getSubEmitters()[b];
+                        if (subemitter.getParticleCount() > 0) {
+                            allSubStop = false;
+                            break;
                         }
                     }
-                    if (allTrigged) {
-                        p.active = false;
-                        this._particles!.removeAt(i);
-                    }
-                } else if (p.subemitter.length > 0 && !allSubStop) {
-                    p.color.a = 0;
-                } else if (p.subemitter.length === 0) {
+                }
+
+                if (allSubStop) {
                     p.active = false;
                     this._particles!.removeAt(i);
+                } else {
+                    p.color.a = 0;
                 }
             }
         }

@@ -26,6 +26,7 @@
 import { ccclass, type, serializable, editable, range } from 'cc.decorator';
 import { repeat } from '../core/math';
 import CurveRange from './animator/curve-range';
+import { Particle } from './particle';
 
 @ccclass('cc.Burst')
 export default class Burst {
@@ -84,7 +85,11 @@ export default class Burst {
         this._curTime = 0.0;
     }
 
-    public update (psys, dt: number) {
+    public update (psys, dt: number, parentParticle?: Particle) {
+        if (parentParticle) {
+            psys.emit(this.count.evaluate(parentParticle.time / psys.duration, 1), dt, parentParticle);
+            return;
+        }
         if (this._remainingCount === 0) {
             this._remainingCount = this._repeatCount;
             const startDelay: number = psys.startDelay.evaluate(0, Math.random());
@@ -95,7 +100,9 @@ export default class Burst {
             preFrameTime = (preFrameTime > 0.0) ? preFrameTime : 0.0;
             const curFrameTime = repeat(psys.time, psys.duration);
             if (this._curTime >= preFrameTime && this._curTime < curFrameTime) {
-                psys.emit(this.count.evaluate(this._curTime / psys.duration, 1), dt - (curFrameTime - this._curTime));
+                if (!parentParticle) {
+                    psys.emit(this.count.evaluate(this._curTime / psys.duration, 1), dt - (curFrameTime - this._curTime));
+                }
                 this._curTime += this.repeatInterval;
                 --this._remainingCount;
             }

@@ -61,10 +61,15 @@ import { CCBoolean, CCFloat, CCObject, Node } from '../core';
 
 const _world_mat = new Mat4();
 const _world_rol = new Quat();
-const _inv_world_rol = new Quat();
-const _inv_velo = new Vec3();
+const _world_scale = new Vec3();
+const _local_scale = new Vec3();
+const _temp_trans = new Mat4();
+const _temp_pos = new Vec3();
 const _temp_rol = new Quat();
 const _temp_velo = new Vec3();
+const _inv_mat = new Mat4();
+const _inv_rol = new Quat();
+const _local_mat = new Mat4();
 
 const superMaterials = Object.getOwnPropertyDescriptor(Renderer.prototype, 'sharedMaterials')!;
 
@@ -820,9 +825,9 @@ export class ParticleSystem extends ModelRenderer {
     @serializable
     private _subPercent = 1.0;
 
-    private copyEmitter (subSrc: ParticleSystem, sub: ParticleSystem) {
+    private copyEmitter (subSrc: ParticleSystem, sub: ParticleSystem, cap: number) {
         sub.loop = subSrc.loop;
-        sub.capacity = subSrc.capacity;
+        sub.capacity = cap;
         sub.playOnAwake = subSrc.playOnAwake;
         sub.prewarm = subSrc.prewarm;
         sub.simulationSpace = subSrc.simulationSpace;
@@ -975,7 +980,7 @@ export class ParticleSystem extends ModelRenderer {
         const sub = subNode.components[0] as ParticleSystem;
         sub._parentEmitter = parent;
 
-        this.copyEmitter(base, sub);
+        this.copyEmitter(base, sub, parent.capacity * base.capacity);
 
         sub.name = base.name + i.toString();
         sub.stop();
@@ -993,8 +998,9 @@ export class ParticleSystem extends ModelRenderer {
                     progenyNode.addComponent(ParticleSystem);
                     progenyNode.setRotation(base.node.children[bs].rotation);
                     const progeny = progenyNode.components[0] as ParticleSystem;
+                    progeny._parentEmitter = sub;
 
-                    this.copyEmitter(progenySrc, progeny);
+                    this.copyEmitter(progenySrc, progeny, progenySrc.capacity);
 
                     progeny.name = progenyName;
                     progeny.stop();
@@ -1024,7 +1030,7 @@ export class ParticleSystem extends ModelRenderer {
                     const base: ParticleSystem = baseNode.components[0];
                     if (base.subBase) {
                         ps._baseEmitters.push(base);
-                        const cap = Math.round(ps.capacity * base.subPercent);
+                        const cap = 1;
                         for (let i = 0; i < cap; ++i) {
                             const subEmit = ps.genSubEmitter(base, i, ps, sub);
                             subEmit._useSubEmitter = base._useSubEmitter;
@@ -1086,10 +1092,6 @@ export class ParticleSystem extends ModelRenderer {
     @serializable
     private _parentEmitter: ParticleSystem | null;
 
-    private _particle: Particle | null;
-
-    private _initialVelocity: Vec3;
-
     private _needAttach: boolean;
 
     private _trigged: boolean;
@@ -1141,9 +1143,6 @@ export class ParticleSystem extends ModelRenderer {
         this._baseEmitters = [];
         this._parentEmitter = null;
         this._trigged = false;
-
-        this._particle = null;
-        this._initialVelocity = new Vec3();
     }
 
     public onFocusInEditor () {
@@ -1524,8 +1523,10 @@ export class ParticleSystem extends ModelRenderer {
         if (this._isPlaying) {
             this._time += scaledDeltaTime;
 
-            // Execute emission
-            this._emit(scaledDeltaTime);
+            if (!this._parentEmitter) {
+                // Execute emission
+                this._emit(scaledDeltaTime);
+            }
 
             // simulation, update particles.
             if (this.processor.updateParticles(scaledDeltaTime) === 0 && !this._isEmitting) {
@@ -1536,13 +1537,13 @@ export class ParticleSystem extends ModelRenderer {
             this.processor.updateRotation(mat);
             this.processor.updateScale(mat);
         }
-        // update render data
-        this.processor.updateRenderData();
+        // // update render data
+        // this.processor.updateRenderData();
 
-        // update trail
-        if (this._trailModule && this._trailModule.enable) {
-            this._trailModule.updateRenderData();
-        }
+        // // update trail
+        // if (this._trailModule && this._trailModule.enable) {
+        //     this._trailModule.updateRenderData();
+        // }
 
         if (this._needAttach) { // Check whether this particle model should be reattached
             if (this.getParticleCount() > 0) {
@@ -1589,6 +1590,11 @@ export class ParticleSystem extends ModelRenderer {
         if (!this._isPlaying) return;
 
         if (this.processor.getModel()?.scene) { // Just update particle system in the scene
+            this.processor.updateRenderData();
+            if (this._trailModule && this._trailModule.enable) {
+                this._trailModule.updateRenderData();
+            }
+
             this.processor.beforeRender();
             if (this._trailModule && this._trailModule.enable) {
                 this._trailModule.beforeRender();
@@ -1604,8 +1610,13 @@ export class ParticleSystem extends ModelRenderer {
         }
     }
 
-    private emit (count: number, dt: number) {
-        const loopDelta = (this._time % this.duration) / this.duration; // loop delta value
+    private emit (count: number, dt: number, parentParticle?: Particle) {
+        let time = this._time;
+        if (parentParticle) {
+            time = parentParticle.time;
+        }
+
+        const loopDelta = (time % this.duration) / this.duration; // loop delta value
 
         // refresh particle node position to update emit position
         if (this._needRefresh) {
@@ -1616,8 +1627,50 @@ export class ParticleSystem extends ModelRenderer {
         }
 
         if (this._simulationSpace === Space.World) {
-            this.node.getWorldMatrix(_world_mat);
-            this.node.getWorldRotation(_world_rol);
+            if (!parentParticle) {
+                this.node.getWorldMatrix(_world_mat);
+                this.node.getWorldRotation(_world_rol);
+            } else if (parentParticle.particleSystem._simulationSpace === Space.World) {
+                _world_mat.set(Mat4.IDENTITY);
+                this.node.getWorldScale(_world_scale);
+                Mat4.fromTranslation(_temp_trans, parentParticle.position);
+                Mat4.multiply(_world_mat, _world_mat, _temp_trans);
+                Mat4.fromQuat(_temp_trans, parentParticle.dir);
+                Mat4.multiply(_world_mat, _world_mat, _temp_trans);
+                Mat4.fromScaling(_temp_trans, _world_scale);
+                Mat4.multiply(_world_mat, _world_mat, _temp_trans);
+                Quat.copy(_world_rol, parentParticle.dir);
+            } else {
+                parentParticle.particleSystem.node.getWorldMatrix(_world_mat);
+                parentParticle.particleSystem.node.getScale(_local_scale);
+                Mat4.fromTranslation(_temp_trans, parentParticle.position);
+                Mat4.multiply(_world_mat, _world_mat, _temp_trans);
+                Mat4.fromQuat(_temp_trans, parentParticle.dir);
+                Mat4.multiply(_world_mat, _world_mat, _temp_trans);
+                Mat4.fromScaling(_temp_trans, _local_scale);
+                Mat4.multiply(_world_mat, _world_mat, _temp_trans);
+
+                Mat4.getRotation(_world_rol, _world_mat);
+            }
+        } else if (parentParticle && parentParticle.particleSystem._simulationSpace === Space.World) {
+            parentParticle.particleSystem.node.getWorldMatrix(_inv_mat);
+            parentParticle.particleSystem.node.getWorldRotation(_inv_rol);
+            Mat4.invert(_inv_mat, _inv_mat);
+            Quat.invert(_inv_rol, _inv_rol);
+        } else if (parentParticle && parentParticle.particleSystem._simulationSpace !== Space.World) {
+            this.node.getPosition(_temp_pos);
+            this.node.getScale(_local_scale);
+            this.node.getRotation(_temp_rol);
+            _local_mat.set(Mat4.IDENTITY);
+            Mat4.fromScaling(_temp_trans, _local_scale);
+            Mat4.multiply(_local_mat, _temp_trans, _local_mat);
+            Mat4.fromQuat(_temp_trans, _temp_rol);
+            Mat4.multiply(_local_mat, _temp_trans, _local_mat);
+            Mat4.fromTranslation(_temp_trans, _temp_pos);
+            Mat4.multiply(_local_mat, _temp_trans, _local_mat);
+
+            Mat4.invert(_inv_mat, _local_mat);
+            Quat.invert(_inv_rol, _temp_rol);
         }
 
         const dd = dt / count;
@@ -1628,28 +1681,8 @@ export class ParticleSystem extends ModelRenderer {
             }
             particle.particleSystem = this;
             particle.reset();
-            if (this.useSubEmitter) {
-                if (particle.subemitter.length === 0) {
-                    let offst = 0;
-                    for (let se = 0; se < this._baseEmitters.length; ++se) {
-                        const currCnt = this.capacity * this._baseEmitters[se].subPercent;
-                        const emitterToPush = this._subEmitters[offst + (particle.id % currCnt)];
-                        if (!emitterToPush._particle) {
-                            particle.subemitter.push(emitterToPush);
-                            offst += currCnt;
-                        }
-                    }
-                }
-                for (let se = 0; se < particle.subemitter.length; ++se) {
-                    particle.subemitter[se]._particle = particle;
-                    particle.subemitter[se]._trigged = false;
-                    particle.subemitter[se].stopEmitting();
-                }
-            } else {
-                for (let se = 0; se < particle.subemitter.length; ++se) {
-                    particle.subemitter[se]._particle = null;
-                }
-                particle.subemitter = [];
+            if (parentParticle) {
+                particle.parentParticle = parentParticle;
             }
 
             const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
@@ -1671,33 +1704,44 @@ export class ParticleSystem extends ModelRenderer {
             if (this._simulationSpace === Space.World) {
                 Vec3.transformMat4(particle.position, particle.position, _world_mat);
                 Vec3.transformQuat(particle.velocity, particle.velocity, _world_rol);
+            } else if (parentParticle) {
+                if (parentParticle.particleSystem._simulationSpace === Space.World) {
+                    Vec3.transformQuat(particle.position, particle.position, parentParticle.dir);
+                    Mat4.fromTranslation(_temp_trans, parentParticle.position);
+                    Vec3.transformMat4(particle.position, particle.position, _temp_trans);
+                    Vec3.transformMat4(particle.position, particle.position, _inv_mat);
+
+                    Vec3.transformQuat(particle.velocity, particle.velocity, parentParticle.dir);
+                    Vec3.transformQuat(particle.velocity, particle.velocity, _inv_rol);
+                } else {
+                    Vec3.transformQuat(particle.position, particle.position, parentParticle.dir);
+                    Mat4.fromTranslation(_temp_trans, parentParticle.position);
+                    Vec3.transformMat4(particle.position, particle.position, _temp_trans);
+                    Vec3.transformMat4(particle.position, particle.position, _inv_mat);
+
+                    Vec3.transformQuat(particle.velocity, particle.velocity, parentParticle.dir);
+                    Vec3.transformQuat(particle.velocity, particle.velocity, _inv_rol);
+                }
             }
 
             if (this._simulationSpace === Space.World) {
-                for (let se = 0; se < particle.subemitter.length; ++se) {
-                    Vec3.copy(particle.subemitter[se]._initialVelocity, particle.velocity);
-                }
+                Vec3.copy(particle.initialVelocity, particle.velocity);
             } else {
                 this.node.getWorldRotation(_world_rol);
-                Vec3.transformQuat(_temp_velo, particle.velocity, _world_rol);
-                for (let se = 0; se < particle.subemitter.length; ++se) {
-                    Vec3.copy(particle.subemitter[se]._initialVelocity, _temp_velo);
-                }
+                Vec3.copy(particle.initialVelocity, _temp_velo);
             }
 
             Vec3.copy(particle.ultimateVelocity, particle.velocity);
 
-            if (this._particle) {
-                if (this._particle.particleSystem.simulationSpace === Space.World) {
-                    Vec3.copy(_temp_velo, this._particle.ultimateVelocity);
+            if (parentParticle && parentParticle.particleSystem) {
+                if (parentParticle.particleSystem.simulationSpace === Space.World) {
+                    Vec3.copy(_temp_velo, parentParticle.ultimateVelocity);
                 } else {
-                    this._particle.particleSystem.node.getWorldRotation(_temp_rol);
-                    Vec3.transformQuat(_temp_velo, this._particle.ultimateVelocity, _temp_rol);
+                    parentParticle.particleSystem.node.getWorldRotation(_temp_rol);
+                    Vec3.transformQuat(_temp_velo, parentParticle.ultimateVelocity, _temp_rol);
                 }
                 particle.position.add3f(_temp_velo.x * i * dd, _temp_velo.y * i * dd, _temp_velo.z * i * dd);
             }
-
-            Vec3.copy(particle.ultimateVelocity, particle.velocity);
 
             // apply startRotation.
             if (this.startRotation3D) {
@@ -1722,10 +1766,10 @@ export class ParticleSystem extends ModelRenderer {
             // apply startColor.
             particle.startColor.set(this.startColor.evaluate(loopDelta, rand));
 
-            if (this._particle && this.inheritColor) {
-                particle.startColor.r = this._particle.color.r;
-                particle.startColor.g = this._particle.color.g;
-                particle.startColor.b = this._particle.color.b;
+            if (parentParticle && this.inheritColor) {
+                particle.startColor.r = parentParticle.color.r;
+                particle.startColor.g = parentParticle.color.g;
+                particle.startColor.b = parentParticle.color.b;
             }
 
             particle.color.set(particle.startColor);
@@ -1755,32 +1799,38 @@ export class ParticleSystem extends ModelRenderer {
 
         for (let i = 0; i < cnt; ++i) {
             this._time += dt;
-            this._emit(dt);
+            if (!this._parentEmitter) {
+                this._emit(dt);
+            }
             this.processor.updateParticles(dt);
         }
     }
 
     // internal function
-    private _emit (dt) {
-        if (this._particle && !this._particle.active) {
-            return;
-        }
-
-        // bursts
-        if (!this.loop && this.time <= this.duration) {
+    private _emit (dt, parentParticle?: Particle) {
+        if (!parentParticle) {
+            // bursts
+            if (!this.loop && this.time <= this.duration) {
+                for (const burst of this.bursts) {
+                    burst.update(this, dt, parentParticle);
+                }
+            }
+        } else {
             for (const burst of this.bursts) {
-                burst.update(this, dt);
+                burst.update(this, dt, parentParticle);
             }
         }
 
         // emit particles.
         const startDelay = this.startDelay.evaluate(0, Math.random())!;
 
-        if (this._time > startDelay) {
-            if (this._time > (this.duration + startDelay)) {
-                // this._time = startDelay; // delay will not be applied from the second loop.(Unity)
-                // this._emitRateTimeCounter = 0.0;
-                // this._emitRateDistanceCounter = 0.0;
+        let time = this._time;
+        if (parentParticle) {
+            time = parentParticle.time;
+        }
+
+        if (time > startDelay) {
+            if (time > (this.duration + startDelay)) {
                 if (!this.loop) {
                     this._isEmitting = false;
                 }
@@ -1788,24 +1838,44 @@ export class ParticleSystem extends ModelRenderer {
 
             if (!this._isEmitting) return;
 
-            // emit by rateOverTime
-            this._emitRateTimeCounter += this.rateOverTime.evaluate(this._time / this.duration, 1)! * dt;
-            if (this._emitRateTimeCounter > 1) {
-                const emitNum = Math.floor(this._emitRateTimeCounter);
-                this._emitRateTimeCounter -= emitNum;
-                this.emit(emitNum, dt);
-            }
+            if (!parentParticle) {
+                // emit by rateOverTime
+                this._emitRateTimeCounter += this.rateOverTime.evaluate(time / this.duration, 1)! * dt;
+                if (this._emitRateTimeCounter > 1) {
+                    const emitNum = Math.floor(this._emitRateTimeCounter);
+                    this._emitRateTimeCounter -= emitNum;
+                    this.emit(emitNum, dt, parentParticle);
+                }
 
-            // emit by rateOverDistance
-            this.node.getWorldPosition(this._curWPos);
-            const distance = Vec3.distance(this._curWPos, this._oldWPos);
-            Vec3.copy(this._oldWPos, this._curWPos);
-            this._emitRateDistanceCounter += distance * this.rateOverDistance.evaluate(this._time / this.duration, 1)!;
+                // emit by rateOverDistance
+                this.node.getWorldPosition(this._curWPos);
+                const distance = Vec3.distance(this._curWPos, this._oldWPos);
+                Vec3.copy(this._oldWPos, this._curWPos);
+                this._emitRateDistanceCounter += distance * this.rateOverDistance.evaluate(time / this.duration, 1)!;
 
-            if (this._emitRateDistanceCounter > 1) {
-                const emitNum = Math.floor(this._emitRateDistanceCounter);
-                this._emitRateDistanceCounter -= emitNum;
-                this.emit(emitNum, dt);
+                if (this._emitRateDistanceCounter > 1) {
+                    const emitNum = Math.floor(this._emitRateDistanceCounter);
+                    this._emitRateDistanceCounter -= emitNum;
+                    this.emit(emitNum, dt, parentParticle);
+                }
+            } else {
+                // emit by rateOverTime
+                parentParticle.timeCounter += this.rateOverTime.evaluate(time / this.duration, 1)! * dt;
+                if (parentParticle.timeCounter > 1) {
+                    const emitNum = Math.floor(parentParticle.timeCounter);
+                    parentParticle.timeCounter -= emitNum;
+                    this.emit(emitNum, dt, parentParticle);
+                }
+
+                // emit by rateOverDistance
+                const distance = parentParticle.ultimateVelocity.length() * dt;
+                parentParticle.distanceCounter += distance * this.rateOverDistance.evaluate(time / this.duration, 1)!;
+
+                if (parentParticle.distanceCounter > 1) {
+                    const emitNum = Math.floor(parentParticle.distanceCounter);
+                    parentParticle.distanceCounter -= emitNum;
+                    this.emit(emitNum, dt, parentParticle);
+                }
             }
         }
     }
