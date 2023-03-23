@@ -593,7 +593,7 @@ export class ImageAsset extends Asset {
             // JSB element should destroy native data.
             // TODO: Property 'destroy' does not exist on type 'HTMLImageElement'.
             // maybe we need a higher level implementation called `pal/image`, we provide `destroy` interface here.
-            // issue: https://github.com/cocos/3d-tasks/issues/7519
+            // issue: https://github.com/cocos/cocos-engine/issues/14646
             if (JSB) (this.data as any).destroy();
         } else if (isImageBitmap(this.data)) {
             this.data?.close();
