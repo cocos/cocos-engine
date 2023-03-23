@@ -188,10 +188,7 @@ export class Pass {
     protected _bs: BlendState = new BlendState();
     protected _dss: DepthStencilState = new DepthStencilState();
     protected _rs: RasterizerState = new RasterizerState();
-    /**
-     * @engineInternal TODO: we haven't bind 'setPriority' setter on native, this is engineInternal only
-     */
-    public _priority: RenderPriority = RenderPriority.DEFAULT;
+    protected _priority: RenderPriority = RenderPriority.DEFAULT;
     protected _stage: RenderPassStage = RenderPassStage.DEFAULT;
     protected _phase = getPhaseID('default');
     protected _passID = 0xFFFFFFFF;
@@ -205,11 +202,7 @@ export class Pass {
     // external references
     protected _root: Root;
     protected _device: Device;
-
-    /**
-     * @engineInternal TODO: on native, we only bind the `_rootBufferDirty` setter.
-     */
-    public _rootBufferDirty = false;
+    protected _rootBufferDirty = false;
 
     constructor (root: Root) {
         this._root = root;
@@ -358,10 +351,6 @@ export class Pass {
      */
     public overridePipelineStates (original: EffectAsset.IPassInfo, overrides: PassOverrides): void {
         console.warn('base pass cannot override states, please use pass instance instead.');
-    }
-
-    public _setRootBufferDirty (val: boolean) {
-        this._rootBufferDirty = val;
     }
 
     /**
@@ -845,8 +834,16 @@ export class Pass {
     get blocks (): Float32Array[] { return this._blocks; }
     get blocksInt (): Int32Array[] { return this._blocksInt; }
     get rootBufferDirty (): boolean { return this._rootBufferDirty; }
+    /**
+     * @engineInternal
+     */
+    set rootBufferDirty (val: boolean) { this._rootBufferDirty = val; }
     // states
     get priority (): RenderPriority { return this._priority; }
+    /**
+     * @engineInternal
+     */
+    set priority (val: RenderPriority) { this._priority = val; }
     get primitive (): PrimitiveMode { return this._primitive; }
     get stage (): RenderPassStage { return this._stage; }
     get phase (): number { return this._phase; }
