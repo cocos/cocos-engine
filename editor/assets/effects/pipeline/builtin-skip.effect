@@ -70,6 +70,13 @@ CCEffect %{
         stencilTestFront: true
         stencilFuncFront: always
         stencilRef: 0x78 # [0~255],use 120
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: one
+          blendDst: one
+          blendSrcAlpha: zero
+          blendDstAlpha: one
     - vert: standard-vs
       frag: specular-fs
       pass: specular-pass

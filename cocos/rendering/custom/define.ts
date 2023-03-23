@@ -873,7 +873,7 @@ export function buildSpecularPass (camera: Camera,
     // ppl.updateDepthStencil(specularPassDSName, width, height);
 
     const specalurPass = ppl.addRasterPass(width, height, 'specular-pass');
-    specalurPass.name = `CameraForwardPass${cameraID}`;
+    specalurPass.name = `CameraSpecalurPass${cameraID}`;
     specalurPass.setViewport(new Viewport(area.x, area.y, width, height));
     // if (ppl.containsResource(inputRT)) {
     //     const computeView = new ComputeView();
