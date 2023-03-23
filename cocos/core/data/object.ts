@@ -436,7 +436,7 @@ if (EDITOR || TEST) {
     };
 }
 
-// TODO: `clearImmediate` method is only defined in NodeJS environment.
+// NOTE: `clearImmediate` method is only defined in NodeJS environment.
 declare const clearImmediate: (immediateId: number) => void;
 if (EDITOR) {
     js.value(CCObject, '_clearDeferredDestroyTimer', () => {
