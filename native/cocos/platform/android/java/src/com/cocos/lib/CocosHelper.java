@@ -429,7 +429,7 @@ public class CocosHelper {
         });
     }
     public static boolean supportHPE() {
-        PackageManager pm = GlobalObject.getActivity().getPackageManager();
+        PackageManager pm = GlobalObject.getContext().getPackageManager();
         return pm.hasSystemFeature("com.google.android.play.feature.HPE_EXPERIENCE");
     }
 }
