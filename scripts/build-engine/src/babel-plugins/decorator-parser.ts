@@ -190,17 +190,12 @@ function cvtClassDecorators(className: string) {
 function cvtPropDecorators(className: string, ctx: ClassDecoratorContext) {
     return (d: DecoratorParseResult) => {
         let gs: string | undefined;
-        // NOTE: the decorator `type` has only 2 arguments
-        if (d.isGetterOrSetter && d.decoratorName !== 'type') {
+        if (d.isGetterOrSetter) {
             gs = allocPropVariable(className, d.attrName!);
             const found = ctx.descriptors.reduce((p, c) => p || c.name === gs, false);
             if (!found) {
                 ctx.descriptors.push({ name: gs, decl: `const ${gs} = Object.getOwnPropertyDescriptor(${className}.prototype, '${d.attrName as string}');` });
             }
-        }
-        if (d.decoratorName === 'type') {
-            // same reason, `type` has only 2 arguments
-            return `    ${nameDecorators(d.decoratorName)}${d.decoratorArgs ? `(${d.decoratorArgs.join(',')})` : ''}(${className}.prototype, '${d.attrName}')`;
         }
         return `    ${nameDecorators(d.decoratorName!)}${d.decoratorArgs ? `(${d.decoratorArgs.join(',')})` : ''}(${className}.prototype, '${d.attrName}',  ${gs || `() => { return ${d.attrValue}; }`})`;
     };
