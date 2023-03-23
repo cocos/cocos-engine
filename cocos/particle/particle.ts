@@ -37,6 +37,7 @@ export class Particle {
     public animatedVelocity: Vec3;
     public ultimateVelocity: Vec3;
     public angularVelocity: Vec3;
+    public initialVelocity: Vec3;
     public axisOfRotation: Vec3;
     public rotation: Vec3;
     public startEuler: Vec3;
@@ -59,10 +60,15 @@ export class Particle {
     public emitAccumulator1: number;
     public frameIndex: number;
     public startRow: number;
-    public subemitter: ParticleSystem[];
     public id;
     public delay;
     public active: boolean;
+    public parentParticle: Particle | null;
+    public trigged: boolean;
+    public dir: Quat;
+    public time: number;
+    public timeCounter: number;
+    public distanceCounter: number;
 
     constructor (particleSystem: any) {
         this.particleSystem = particleSystem;
@@ -71,6 +77,7 @@ export class Particle {
         this.animatedVelocity = new Vec3(0, 0, 0);
         this.ultimateVelocity = new Vec3(0, 0, 0);
         this.angularVelocity = new Vec3(0, 0, 0);
+        this.initialVelocity = new Vec3(0, 0, 0);
         this.axisOfRotation = new Vec3(0, 0, 0);
         this.rotation = new Vec3(0, 0, 0);
         this.startEuler = new Vec3(0, 0, 0);
@@ -93,9 +100,14 @@ export class Particle {
         this.emitAccumulator1 = 0.0;
         this.frameIndex = 0.0;
         this.startRow = 0;
-        this.subemitter = [];
         this.id = -1;
         this.active = false;
+        this.parentParticle = null;
+        this.trigged = false;
+        this.dir = new Quat();
+        this.time = 0;
+        this.timeCounter = 0;
+        this.distanceCounter = 0;
     }
 
     public reset () {
@@ -107,6 +119,13 @@ export class Particle {
         this.deltaMat.identity();
         this.localMat.identity();
         this.delay = 0;
+        this.parentParticle = null;
+        this.trigged = false;
+        this.initialVelocity.set(0, 0, 0);
+        this.dir.set(Quat.IDENTITY);
+        this.time = 0;
+        this.timeCounter = 0;
+        this.distanceCounter = 0;
     }
 }
 
