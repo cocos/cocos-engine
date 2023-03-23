@@ -358,7 +358,7 @@ class DeviceRenderQueue {
         this.queueHint = queueHint;
         this.queueId = id;
         this._devicePass = devicePass;
-        if (isEnableEffect()) this._phaseID = cclegacy.rendering.getPhaseID(devicePass.passID, 'default');
+        if (isEnableEffect()) this._phaseID = cclegacy.rendering.getPhaseID(devicePass.passID, context.renderGraph.getLayout(id) || 'default');
         if (!this._sceneVisitor) {
             this._sceneVisitor = new WebSceneVisitor(context.commandBuffer,
                 context.pipeline.pipelineSceneData);
@@ -401,10 +401,11 @@ class DeviceRenderQueue {
     }
 
     record () {
-        if (this._descSetData && this._descSetData.descriptorSet) {
-            context.commandBuffer
-                .bindDescriptorSet(SetIndex.COUNT, this._descSetData.descriptorSet);
-        }
+        // TODO:The desc of the bound phase
+        // if (this._descSetData && this._descSetData.descriptorSet) {
+        // context.commandBuffer
+        //     .bindDescriptorSet(SetIndex.COUNT, this._descSetData.descriptorSet);
+        // }
         for (const task of this._sceneTasks) {
             task.start();
             task.join();
@@ -431,11 +432,7 @@ class SubmitInfo {
     public shadowMap: RenderShadowMapBatchedQueue | null = null;
     public additiveLight: RenderAdditiveLightQueue | null = null;
     public reflectionProbe: RenderReflectionProbeQueue | null = null;
-    private _isInit = false;
-    get isInit () { return this._isInit; }
-    set isInit (val: boolean) { this._isInit = val; }
     reset () {
-        this._isInit = false;
         this.instances.clear();
         this.renderInstanceQueue.length = 0;
         this.batches.clear();
@@ -566,13 +563,15 @@ class DeviceRenderPass {
     protected _clearDepth = 1;
     protected _clearStencil = 0;
     protected _passID: number;
+    protected _layoutName: string;
     protected _viewport: Viewport | null = null;
     private _rasterInfo: RasterPassInfo;
     private _layout: RenderPassLayoutInfo | null = null;
     constructor (passInfo: RasterPassInfo) {
         this._rasterInfo = passInfo;
         const device = context.device;
-        this._passID = cclegacy.rendering.getPassID(context.renderGraph.getLayout(passInfo.id));
+        this._layoutName = context.renderGraph.getLayout(passInfo.id);
+        this._passID = cclegacy.rendering.getPassID(this._layoutName);
         const depthStencilAttachment = new DepthStencilAttachment();
         depthStencilAttachment.format = Format.DEPTH_STENCIL;
         depthStencilAttachment.depthLoadOp = LoadOp.DISCARD;
@@ -669,6 +668,7 @@ class DeviceRenderPass {
             swapchain ? [swapchain.colorTexture] : colorTexs,
             swapchain ? swapchain.depthStencilTexture : depthTex));
     }
+    get layoutName (): string { return this._layoutName; }
     get passID (): number { return this._passID; }
     get renderLayout () { return this._layout; }
     get renderPass () { return this._renderPass; }
@@ -769,15 +769,17 @@ class DeviceRenderPass {
     }
 
     private _clear () {
-        for (const [cam, info] of context.submitMap) {
-            info.additiveLight?.clear();
-            const it = info.instances.values(); let res = it.next();
-            while (!res.done) {
-                res.value.clear();
-                res = it.next();
+        for (const [cam, infoMap] of context.submitMap) {
+            for (const [id, info] of infoMap) {
+                info.additiveLight?.clear();
+                const it = info.instances.values(); let res = it.next();
+                while (!res.done) {
+                    res.value.clear();
+                    res = it.next();
+                }
+                info.renderInstanceQueue = [];
+                info.instances.clear();
             }
-            info.renderInstanceQueue = [];
-            info.instances.clear();
         }
     }
 
@@ -955,15 +957,23 @@ class DevicePreSceneTask extends WebSceneTask {
         }
         const devicePass = this._currentQueue.devicePass;
         const submitMap = context.submitMap;
-        if (submitMap.has(this.camera)) {
-            this._submitInfo = submitMap.get(this.camera)!;
+        let submitInfoMap = submitMap.get(this.camera);
+        if (submitInfoMap && submitInfoMap.has(this._currentQueue.phaseID)) {
+            this._submitInfo = submitInfoMap.get(this._currentQueue.phaseID)!;
         } else {
+            if (!submitInfoMap) {
+                submitInfoMap = new Map();
+                submitMap.set(this.camera, submitInfoMap);
+            }
             this._submitInfo = new SubmitInfo();
-            submitMap.set(this.camera, this._submitInfo);
+            submitInfoMap.set(this._currentQueue.phaseID, this._submitInfo);
         }
         // culling
         if ((!this._isShadowMap() || (this._isShadowMap() && this.graphScene.scene!.light.level === 0))
-        && !this._submitInfo.isInit) { super.start(); this._submitInfo.isInit = true; }
+        && this.camera !== context.cullCamera) {
+            super.start();
+            context.cullCamera = this.camera;
+        }
 
         // shadowmap
         if (this._isShadowMap()) {
@@ -1022,7 +1032,7 @@ class DevicePreSceneTask extends WebSceneTask {
         }
         if (sceneFlag & SceneFlags.DEFAULT_LIGHTING) {
             this._submitInfo.additiveLight = context.additiveLight;
-            this._submitInfo.additiveLight.gatherLightPasses(this.camera, this._cmdBuff);
+            this._submitInfo.additiveLight.gatherLightPasses(this.camera, this._cmdBuff, this._currentQueue.devicePass.layoutName);
         }
         if (sceneFlag & SceneFlags.PLANAR_SHADOW) {
             this._submitInfo.planarQueue = context.planarShadow;
@@ -1058,7 +1068,7 @@ class DevicePreSceneTask extends WebSceneTask {
         const currTransparent = pass.blendState.targets[0].blend;
         const devicePass = this._currentQueue.devicePass;
         const passId = devicePass.passID;
-        const phase = isEnableEffect() ? cclegacy.rendering.getPhaseID(passId, 'default') | cclegacy.rendering.getPhaseID(passId, 'planarShadow')
+        const phase = isEnableEffect() ? this._currentQueue.phaseID // | cclegacy.rendering.getPhaseID(passId, 'planarShadow')
             : getPhaseID('default') | getPhaseID('planarShadow');
         if (currTransparent !== isTransparent || !(pass.phaseID & (isTransparent ? phase : this._currentQueue.phaseID))) {
             return;
@@ -1211,7 +1221,9 @@ class DeviceSceneTask extends WebSceneTask {
     public start () {}
     protected _recordRenderList (isTransparent: boolean) {
         const submitMap = context.submitMap;
-        const renderList = isTransparent ? submitMap.get(this.camera!)!.transparentList : submitMap.get(this.camera!)!.opaqueList;
+        const currSubmitInfo = submitMap.get(this.camera!)!.get(this._currentQueue.phaseID)!;
+        const renderList = isTransparent ? currSubmitInfo.transparentList
+            : currSubmitInfo.opaqueList;
         for (let i = 0; i < renderList.length; ++i) {
             const { subModel, passIdx } = renderList[i];
             const { inputAssembler } = subModel;
@@ -1231,9 +1243,10 @@ class DeviceSceneTask extends WebSceneTask {
     }
     protected _recordInstences () {
         const submitMap = context.submitMap;
-        const it = submitMap.get(this.camera!)!.renderInstanceQueue.length === 0
-            ? submitMap.get(this.camera!)!.instances.values()
-            : submitMap.get(this.camera!)!.renderInstanceQueue.values();
+        const currSubmitInfo = submitMap.get(this.camera!)!.get(this._currentQueue.phaseID)!;
+        const it = currSubmitInfo.renderInstanceQueue.length === 0
+            ? currSubmitInfo.instances.values()
+            : currSubmitInfo.renderInstanceQueue.values();
         let res = it.next();
         while (!res.done) {
             const { instances, pass, hasPendingModels } = res.value;
@@ -1261,7 +1274,8 @@ class DeviceSceneTask extends WebSceneTask {
     }
     protected _recordBatches () {
         const submitMap = context.submitMap;
-        const it = submitMap.get(this.camera!)!.batches.values(); let res = it.next();
+        const currSubmitInfo = submitMap.get(this.camera!)!.get(this._currentQueue.phaseID)!;
+        const it = currSubmitInfo.batches.values(); let res = it.next();
         while (!res.done) {
             let boundPSO = false;
             for (let b = 0; b < res.value.batches.length; ++b) {
@@ -1315,12 +1329,14 @@ class DeviceSceneTask extends WebSceneTask {
     }
     protected _recordShadowMap () {
         const submitMap = context.submitMap;
-        submitMap.get(this.camera!)?.shadowMap?.recordCommandBuffer(context.device,
+        const currSubmitInfo = submitMap.get(this.camera!)!.get(this._currentQueue.phaseID)!;
+        currSubmitInfo.shadowMap?.recordCommandBuffer(context.device,
             this._renderPass, context.commandBuffer);
     }
     protected _recordReflectionProbe () {
         const submitMap = context.submitMap;
-        submitMap.get(this.camera!)?.reflectionProbe?.recordCommandBuffer(context.device,
+        const currSubmitInfo = submitMap.get(this.camera!)!.get(this._currentQueue.phaseID)!;
+        currSubmitInfo.reflectionProbe?.recordCommandBuffer(context.device,
             this._renderPass, context.commandBuffer);
     }
     private _isShadowMap () {
@@ -1379,7 +1395,8 @@ class DeviceSceneTask extends WebSceneTask {
     private _recordAdditiveLights () {
         const devicePass = this._currentQueue.devicePass;
         const submitMap = context.submitMap;
-        submitMap.get(this.camera!)?.additiveLight?.recordCommandBuffer(context.device,
+        const currSubmitInfo = submitMap.get(this.camera!)!.get(this._currentQueue.phaseID)!;
+        currSubmitInfo.additiveLight?.recordCommandBuffer(context.device,
             this._renderPass,
             context.commandBuffer);
     }
@@ -1387,7 +1404,8 @@ class DeviceSceneTask extends WebSceneTask {
     private _recordPlanarShadows () {
         const devicePass = this._currentQueue.devicePass;
         const submitMap = context.submitMap;
-        submitMap.get(this.camera!)?.planarQueue?.recordCommandBuffer(context.device,
+        const currSubmitInfo = submitMap.get(this.camera!)!.get(this._currentQueue.phaseID)!;
+        currSubmitInfo.planarQueue?.recordCommandBuffer(context.device,
             this._renderPass,
             context.commandBuffer);
     }
@@ -1701,8 +1719,9 @@ class ExecutorContext {
     }
     reset () {
         this.pools.reset();
-        for (const info of this.submitMap) {
-            info[1].reset();
+        this.cullCamera = null;
+        for (const infoMap of this.submitMap) {
+            for (const info of infoMap[1]) info[1].reset();
         }
     }
     resize (width: number, height: number) {
@@ -1723,12 +1742,13 @@ class ExecutorContext {
     readonly additiveLight: RenderAdditiveLightQueue;
     readonly shadowMapBatched: RenderShadowMapBatchedQueue;
     readonly planarShadow: PlanarShadowQueue;
-    readonly submitMap: Map<Camera, SubmitInfo> = new Map<Camera, SubmitInfo>();
+    readonly submitMap: Map<Camera, Map<number, SubmitInfo>> = new Map<Camera, Map<number, SubmitInfo>>();
     readonly pools: ExecutorPools;
     readonly blit: BlitInfo;
     renderGraph: RenderGraph;
     width: number;
     height: number;
+    cullCamera;
 }
 class ResourceVisitor implements ResourceGraphVisitor {
     name: string;

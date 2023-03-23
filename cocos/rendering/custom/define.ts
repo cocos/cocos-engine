@@ -873,7 +873,7 @@ export function buildSpecularPass (camera: Camera,
     // ppl.updateDepthStencil(specularPassDSName, width, height);
 
     const specalurPass = ppl.addRasterPass(width, height, 'specular-pass');
-    specalurPass.name = `CameraForwardPass${cameraID}`;
+    specalurPass.name = `CameraSpecularPass${cameraID}`;
     specalurPass.setViewport(new Viewport(area.x, area.y, width, height));
     // if (ppl.containsResource(inputRT)) {
     //     const computeView = new ComputeView();
@@ -917,14 +917,20 @@ export function buildSpecularPass (camera: Camera,
     specalurPass.addRasterView(inputRT, passView);
     specalurPass.addRasterView(inputDS, passDSView);
     specalurPass
-        .addQueue(QueueHint.RENDER_OPAQUE)
+        .addQueue(QueueHint.RENDER_OPAQUE, 'default')
         .addSceneOfCamera(camera, new LightInfo(),
-            SceneFlags.OPAQUE_OBJECT | SceneFlags.PLANAR_SHADOW | SceneFlags.CUTOUT_OBJECT
-             | SceneFlags.DEFAULT_LIGHTING | SceneFlags.DRAW_INSTANCING);
+            SceneFlags.OPAQUE_OBJECT | SceneFlags.PLANAR_SHADOW | SceneFlags.CUTOUT_OBJECT | SceneFlags.DRAW_INSTANCING);
+    // specalurPass
+    //     .addQueue(QueueHint.RENDER_TRANSPARENT, 'default')
+    //     .addSceneOfCamera(camera, new LightInfo(), SceneFlags.TRANSPARENT_OBJECT | SceneFlags.GEOMETRY);
+    // specalurPass
+    //     .addQueue(QueueHint.RENDER_OPAQUE, 'forward-add')
+    //     .addSceneOfCamera(camera, new LightInfo(),
+    //         SceneFlags.OPAQUE_OBJECT | SceneFlags.PLANAR_SHADOW | SceneFlags.CUTOUT_OBJECT
+    //          | SceneFlags.DEFAULT_LIGHTING | SceneFlags.DRAW_INSTANCING);
     specalurPass
-        .addQueue(QueueHint.RENDER_TRANSPARENT)
-        .addSceneOfCamera(camera, new LightInfo(), SceneFlags.TRANSPARENT_OBJECT | SceneFlags.GEOMETRY);
-
+        .addQueue(QueueHint.RENDER_TRANSPARENT, 'forward-add')
+        .addSceneOfCamera(camera, new LightInfo(), SceneFlags.DEFAULT_LIGHTING | SceneFlags.TRANSPARENT_OBJECT | SceneFlags.GEOMETRY);
     return { rtName: inputRT, dsName: inputDS };
 }
 
