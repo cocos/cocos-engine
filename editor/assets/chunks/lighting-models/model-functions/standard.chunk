@@ -26,66 +26,32 @@ float CCSurfacesLightingCalculateAngleAttenuation(in LightingIntermediateData li
 
 void CCSurfacesLightingCalculateDirect(out vec3 lightingDiffuse, out vec3 lightingSpecular, in LightingIntermediateData lightingData, in vec4 lightSourceColorAndIntensity)
 {
-#if CC_SURFACES_LIGHTING_CALCULATE_DIFFUSE
+#if !CC_SURFACES_LIGHTING_DISABLE_DIFFUSE
   lightingDiffuse = CalculateDirectDiffuse(lightingData, lightSourceColorAndIntensity);
 #else
   lightingDiffuse = vec3(0.0);
 #endif
 
-#if CC_SURFACES_LIGHTING_CALCULATE_SPECULAR
+#if !CC_SURFACES_LIGHTING_DISABLE_SPECULAR
   lightingSpecular = CalculateDirectSpecular(lightingData, lightSourceColorAndIntensity);
 #else
   lightingSpecular = vec3(0.0);
-#endif
-
-#if CC_ENABLE_DIFFUSE_OR_SPECULAR == CC_DISABLE_DIFFUSE_AND_SPECULAR
-  lightingDiffuse = vec3(0.0);
-  lightingSpecular = vec3(0.0);
-#endif
-#if CC_ENABLE_DIFFUSE_OR_SPECULAR == CC_ONLY_ENABLE_DIFFUSE
-  lightingDiffuse = CalculateDirectDiffuse(lightingData, lightSourceColorAndIntensity);
-  lightingSpecular = vec3(0.0);
-#endif
-#if CC_ENABLE_DIFFUSE_OR_SPECULAR == CC_ONLY_ENABLE_SPECULAR
-  lightingDiffuse = vec3(0.0);
-  lightingSpecular = CalculateDirectSpecular(lightingData, lightSourceColorAndIntensity);
-#endif
-#if CC_ENABLE_DIFFUSE_OR_SPECULAR == CC_ENABLE_DIFFUSE_AND_SPECULAR
-  lightingDiffuse = CalculateDirectDiffuse(lightingData, lightSourceColorAndIntensity);
-  lightingSpecular = CalculateDirectSpecular(lightingData, lightSourceColorAndIntensity);
 #endif
 }
 
 
 void CCSurfacesLightingCalculateEnvironment(out vec3 lightingDiffuse, out vec3 lightingSpecular, in LightingIntermediateData lightingData, float lightIntensity)
 {
-#if CC_SURFACES_LIGHTING_CALCULATE_DIFFUSE
+#if !CC_SURFACES_LIGHTING_DISABLE_DIFFUSE
   lightingDiffuse = CalculateEnvironmentDiffuse(lightingData, lightIntensity);
 #else
   lightingDiffuse = vec3(0.0);
 #endif
 
-#if CC_SURFACES_LIGHTING_CALCULATE_SPECULAR
+#if !CC_SURFACES_LIGHTING_DISABLE_SPECULAR
   lightingSpecular = CalculateEnvironmentSpecular(lightingData, lightIntensity);
 #else
   lightingSpecular = vec3(0.0);
-#endif
-
-#if CC_ENABLE_DIFFUSE_OR_SPECULAR == CC_DISABLE_DIFFUSE_AND_SPECULAR
-  lightingDiffuse = vec3(0.0);
-  lightingSpecular = vec3(0.0);
-#endif
-#if CC_ENABLE_DIFFUSE_OR_SPECULAR == CC_ONLY_ENABLE_DIFFUSE
-  lightingDiffuse = CalculateEnvironmentDiffuse(lightingData, lightIntensity);
-  lightingSpecular = vec3(0.0);
-#endif
-#if CC_ENABLE_DIFFUSE_OR_SPECULAR == CC_ONLY_ENABLE_SPECULAR
-  lightingDiffuse = vec3(0.0);
-  lightingSpecular = CalculateEnvironmentSpecular(lightingData, lightIntensity);
-#endif
-#if CC_ENABLE_DIFFUSE_OR_SPECULAR == CC_ENABLE_DIFFUSE_AND_SPECULAR
-  lightingDiffuse = CalculateEnvironmentDiffuse(lightingData, lightIntensity);
-  lightingSpecular = CalculateEnvironmentSpecular(lightingData, lightIntensity);
 #endif
 }
 
