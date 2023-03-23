@@ -354,6 +354,7 @@ class DeserializerPool extends js.Pool<_Deserializer> {
 }
 
 // TODO: this is should be a HACK, we've changed the method signature
+// issue: https://github.com/cocos/cocos-engine/issues/14642
 (DeserializerPool.prototype as any).get = function (
     this: DeserializerPool,
     details: Details,
@@ -793,6 +794,7 @@ class _Deserializer {
 
         const attrs = CCClass.Attr.getClassAttrs(klass);
         // TODO: `__values__` is injected property
+        // issue: https://github.com/cocos/cocos-engine/issues/14642
         const props: string[] = (klass as any).__values__;
         if (DEBUG && !props) {
             error(`Unable to deserialize ${js.getClassName(klass)}. `
@@ -842,6 +844,7 @@ export function deserializeDynamic (data: SerializedData | CCON, details: Detail
 
     // TODO: this should be a HACK, we've changed the method signature
     // workaround: mark pool as type of any.
+    // issue: https://github.com/cocos/cocos-engine/issues/14642
     const deserializer = (_Deserializer.pool as any).get(details, classFinder, reportMissingClass, customEnv, ignoreEditorOnly);
 
     cclegacy.game._isCloning = true;
