@@ -125,6 +125,7 @@ class BlendStateWriterInternal<P extends BlendingPropertyName> implements Runtim
         } = this;
         const weight = host.weight;
         // TODO: please fix type here @Leslie Leigh
+        // Tracking issue: https://github.com/cocos/cocos-engine/issues/14640
         propertyBlendState.blend(value as Readonly<Vec3> & Readonly<Quat>, weight);
     }
 }
