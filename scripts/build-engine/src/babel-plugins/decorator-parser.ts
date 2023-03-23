@@ -16,10 +16,6 @@ import fs from 'fs';
 const enginePath = process.env.ENGINE_PATH!;
 const applyFnName = `apply`;
 
-if (!enginePath) {
-    throw new Error('ENGINE_PATH environment variable not set');
-}
-
 interface DecoratorParseResult {
     decoratorName?: string;
     attrName?: string;
