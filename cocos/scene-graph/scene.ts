@@ -186,6 +186,7 @@ export class Scene extends Node {
         if (EDITOR) {
             // register all nodes to editor
             // TODO: `_registerIfAttached` is injected property
+            // issue: https://github.com/cocos/cocos-engine/issues/14643
             (this as any)._registerIfAttached!(active);
         }
         legacyCC.director._nodeActivator.activateNode(this, active);

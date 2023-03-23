@@ -373,6 +373,7 @@ class CCObject implements EditorExtendableObject {
             return;
         }
         // TODO: '_onPreDestroy' should be define in CCObject class.
+        // issue: https://github.com/cocos/cocos-engine/issues/14643
         ((this as any)._onPreDestroy)?.();
 
         if (!EDITOR || legacyCC.GAME_VIEW) {
@@ -419,6 +420,7 @@ if (EDITOR || TEST) {
     * @method realDestroyInEditor
     * @private
     * TODO: this is a dynamic inject method, should be define in class
+    * issue: https://github.com/cocos/cocos-engine/issues/14643
     */
     (prototype as any).realDestroyInEditor = function () {
         if (!(this._objFlags & Destroyed)) {
@@ -449,6 +451,7 @@ if (EDITOR) {
      * @param {Boolean} exporting
      * @return {object} the serialized json data object
      * TODO: this is a dynamic inject method, should be define in class
+     * issue: https://github.com/cocos/cocos-engine/issues/14643
      */
     (prototype as any)._serialize = null;
 }
@@ -459,6 +462,7 @@ if (EDITOR) {
  * @param {Object} data - the serialized json data
  * @param {_Deserializer} ctx
  * TODO: this is a dynamic inject method, should be define in class
+ * issue: https://github.com/cocos/cocos-engine/issues/14643
  */
 (prototype as any)._deserialize = null;
 
