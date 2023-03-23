@@ -1,3 +1,22 @@
+interface EventEmitter {
+    addListener(event: string | symbol, listener: (...args: any[]) => void): this;
+    on(event: string | symbol, listener: (...args: any[]) => void): this;
+    once(event: string | symbol, listener: (...args: any[]) => void): this;
+    removeListener(event: string | symbol, listener: (...args: any[]) => void): this;
+    off(event: string | symbol, listener: (...args: any[]) => void): this;
+    removeAllListeners(event?: string | symbol): this;
+    setMaxListeners(n: number): this;
+    getMaxListeners(): number;
+    listeners(event: string | symbol): Function[];
+    rawListeners(event: string | symbol): Function[];
+    emit(event: string | symbol, ...args: any[]): boolean;
+    listenerCount(event: string | symbol): number;
+    // Added in Node 6...
+    prependListener(event: string | symbol, listener: (...args: any[]) => void): this;
+    prependOnceListener(event: string | symbol, listener: (...args: any[]) => void): this;
+    eventNames(): Array<string | symbol>;
+}
+
 interface EditorAssetInfo {
     name: string; // 资源名字
     displayName: string; // 资源用于显示的名字
@@ -25,19 +44,21 @@ interface EditorExtendsScript {
     getCtors(uuid: string): { [uuid: string]: any }
 }
 
-interface EditorExtendsNode {
+interface EditorExtendsNode extends EventEmitter{
     add(uuid: string, node: any): any;
     remove(uuid: string): any;
     clear(): any;
     getNode(uuid: string): any;
     getNodes(): {[uuid: string]: any};
+
+
 }
 
 interface EditorExtendsPrefabUtils {
     addPrefabInstance(node: Node);
 }
 
-interface EditorExtendsComponent {
+interface EditorExtendsComponent extends EventEmitter{
     addMenu(component: Function, path: string, priority?: number);
     removeMenu(component: Function);
     getMenus(): { [uuid: string]: Object };
