@@ -319,6 +319,7 @@ class CCObject implements EditorExtendableObject {
 
         if (JSB) {
             // TODO: `_destroy` method only implemented on native @dumganhar
+            // issue: https://github.com/cocos/cocos-engine/issues/14644
             (this as any)._destroy();
         }
 
@@ -381,6 +382,7 @@ class CCObject implements EditorExtendableObject {
              *hasOwnProperty's detection cannot be passed.
              */
             // TODO: `destruct` is only implemented on native @dumganhar
+            // issue: https://github.com/cocos/cocos-engine/issues/14644
             if (JSB && (this as any).destruct) {
                 (this as any).destruct();
             }

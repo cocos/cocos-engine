@@ -50,7 +50,8 @@ export interface ITexture2DSerializeData {
 }
 
 texture2DProto._ctor = function () {
-    // TODO TODO: Property '_ctor' does not exist on type 'SimpleTexture'.
+    // TODO: Property '_ctor' does not exist on type 'SimpleTexture'.
+    // issue: https://github.com/cocos/cocos-engine/issues/14644
     (SimpleTexture.prototype as any)._ctor.apply(this, arguments);
     this._mipmaps = [];
 };
