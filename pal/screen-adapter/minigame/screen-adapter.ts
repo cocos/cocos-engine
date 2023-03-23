@@ -41,6 +41,7 @@ try {
     if (ALIPAY) {
         if (systemInfo.os === OS.IOS && !minigame.isDevTool) {
             // TODO: use pal/fs
+            // issue: https://github.com/cocos/3d-tasks/issues/7512
             const fs = my.getFileSystemManager();
             const screenOrientation = JSON.parse(fs.readFileSync({
                 filePath: 'game.json',
