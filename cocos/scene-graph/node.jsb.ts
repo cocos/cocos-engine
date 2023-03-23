@@ -84,6 +84,7 @@ export const TRANSFORM_ON = 1 << 0;
 const Destroying = CCObject.Flags.Destroying;
 
 // TODO: `_setTempFloatArray` is only implemented on Native platforms. @dumganhar
+// issue: https://github.com/cocos/cocos-engine/issues/14644
 (Node as any)._setTempFloatArray(_tempFloatArray.buffer);
 
 function getConstructor<T>(typeOrClassName) {
@@ -381,6 +382,7 @@ nodeProto._registerIfAttached = !EDITOR ? undefined : function (this: Node, atta
     for (let i = 0, len = children.length; i < len; ++i) {
         const child = children[i];
         // TODO: `_registerIfAttached` is an injected property.
+        // issue: https://github.com/cocos/cocos-engine/issues/14643
         (child as any)._registerIfAttached(attached);
     }
 };
@@ -1285,6 +1287,7 @@ nodeProto._instantiate = function (cloned: Node, isSyncedNode: boolean) {
     }
     if (EDITOR && legacyCC.GAME_VIEW) {
         // TODO: Property 'sync' does not exist on type 'PrefabInfo'.
+        // issue: https://github.com/cocos/cocos-engine/issues/14643
         const syncing = newPrefabInfo && cloned === newPrefabInfo.root && (newPrefabInfo as any).sync;
         if (!syncing) {
             cloned.name += ' (Clone)';

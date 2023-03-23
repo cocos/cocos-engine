@@ -360,6 +360,7 @@ class Component extends CCObject {
     public destroy () {
         if (EDITOR) {
             // TODO: `_getDependComponent` is an injected method.
+            // issue: https://github.com/cocos/cocos-engine/issues/14643
             const depend = (this.node as any)._getDependComponent(this);
             if (depend.length > 0) {
                 errorID(3626,

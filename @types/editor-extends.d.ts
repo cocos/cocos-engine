@@ -31,6 +31,7 @@ interface EditorExtendsNode {
     clear(): any;
     getNode(uuid: string): any;
     getNodes(): {[uuid: string]: any};
+    emit(name: string, ...args: any): void;
 }
 
 interface EditorExtendsPrefabUtils {
