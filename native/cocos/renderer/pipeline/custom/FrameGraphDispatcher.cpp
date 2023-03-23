@@ -1569,7 +1569,8 @@ auto getResourceStatus(PassType passType, const PmrString &name, gfx::MemoryAcce
     } else {
         // can't find this resource in layoutdata, not in descriptor so either input or output attachment.
         gfx::TextureUsage texUsage = gfx::TextureUsage::NONE;
-        bool isAttachment = passType != PassType::COMPUTE && visibility == gfx::ShaderStageFlags::NONE;
+        bool shadingRateAttachment = (desc.flags & ResourceFlags::SHADING_RATE) != ResourceFlags::NONE;
+        bool isAttachment = passType != PassType::COMPUTE && visibility == gfx::ShaderStageFlags::NONE && !shadingRateAttachment;
         if (isAttachment) {
             vis = gfx::ShaderStageFlags::FRAGMENT;
             bool outColorFlag = (desc.flags & ResourceFlags::COLOR_ATTACHMENT) != ResourceFlags::NONE;
@@ -1585,13 +1586,13 @@ auto getResourceStatus(PassType passType, const PmrString &name, gfx::MemoryAcce
             if (depthStencilFlag) texUsage |= gfx::TextureUsage::DEPTH_STENCIL_ATTACHMENT;
 
         } else {
+            // TODO: visbility of slot name "_" not found 
+            vis = passType == PassType::COMPUTE ? gfx::ShaderStageFlags::COMPUTE : gfx::ShaderStageFlags::FRAGMENT;
             texUsage = static_cast<gfx::TextureUsage>(desc.flags);
         }
         usage = texUsage;
         accesFlag = gfx::getAccessFlags(texUsage, memAccess, vis);
     }
-
-    auto val = gfx::getAccessFlags(gfx::TextureUsage::STORAGE, gfx::MemoryAccessBit::READ_WRITE, gfx::ShaderStageFlagBit::VERTEX);
 
     return std::make_tuple(vis, usage, accesFlag);
 }

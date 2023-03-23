@@ -656,9 +656,9 @@ enum class AccessFlagBit : uint32_t {
     TRANSFER_READ = 1 << 16,                                      // Read as the source of a transfer operation
     HOST_READ = 1 << 17,                                          // Read on the host
     PRESENT = 1 << 18,                                            // Read by the presentation engine
+    SHADING_RATE = 1 << 19,                                       // Read as a shading rate image
 
     // Write accesses
-    SHADING_RATE = 1 << 19,                   // Read as a shading rate image
     VERTEX_SHADER_WRITE = 1 << 20,            // Written as any resource in a vertex shader
     FRAGMENT_SHADER_WRITE = 1 << 21,          // Written as any resource in a fragment shader
     COLOR_ATTACHMENT_WRITE = 1 << 22,         // Written as a color attachment during rendering, or via a subpass store op
