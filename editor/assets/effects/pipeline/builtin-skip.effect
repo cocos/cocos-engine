@@ -6,7 +6,7 @@ CCEffect %{
     passes:
     - vert: standard-vs
       frag: standard-fs
-      embeddedMacros: { CC_ENABLE_DIFFUSE_OR_SPECULAR: 1 }
+      embeddedMacros: { CC_SURFACES_LIGHTING_DISABLE_DIFFUSE: false, CC_SURFACES_LIGHTING_CALCULATE_SPECULAR: true }
       properties: &props
         tilingOffset:                     { value: [1.0, 1.0, 0.0, 0.0] }
         mainColor:                        { value: [1.0, 1.0, 1.0, 1.0], target: albedo, linear: true, editor: { displayName: Albedo, type: color } }
@@ -37,7 +37,7 @@ CCEffect %{
       frag: standard-fs
       phase: forward-add
       propertyIndex: 0
-      embeddedMacros: { CC_FORWARD_ADD: true, CC_ENABLE_DIFFUSE_OR_SPECULAR: 1 }
+      embeddedMacros: { CC_FORWARD_ADD: true, CC_SURFACES_LIGHTING_DISABLE_DIFFUSE: false, CC_SURFACES_LIGHTING_CALCULATE_SPECULAR: true }
       depthStencilState:
         depthFunc: equal
         depthTest: true
@@ -65,7 +65,7 @@ CCEffect %{
       frag: specular-fs
       pass: specular-pass
       propertyIndex: 0
-      embeddedMacros: { CC_ENABLE_DIFFUSE_OR_SPECULAR: 2 }
+      embeddedMacros: { CC_SURFACES_LIGHTING_DISABLE_DIFFUSE: true, CC_SURFACES_LIGHTING_CALCULATE_SPECULAR: false }
       depthStencilState:
         stencilTestFront: true
         stencilFuncFront: always
@@ -75,7 +75,7 @@ CCEffect %{
       pass: specular-pass
       phase: forward-add
       propertyIndex: 0
-      embeddedMacros: { CC_FORWARD_ADD: true, CC_ENABLE_DIFFUSE_OR_SPECULAR: 2 }
+      embeddedMacros: { CC_FORWARD_ADD: true, CC_SURFACES_LIGHTING_DISABLE_DIFFUSE: true, CC_SURFACES_LIGHTING_CALCULATE_SPECULAR: false }
       depthStencilState:
         depthFunc: equal
         depthTest: true
@@ -94,7 +94,7 @@ CCEffect %{
   #   passes:
   #   - vert: standard-vs
   #     frag: standard-fs
-  #     embeddedMacros: { CC_FORWARD_ADD: true, CC_ENABLE_DIFFUSE_OR_SPECULAR: 1 }
+  #     embeddedMacros: { CC_FORWARD_ADD: true, CC_SURFACES_LIGHTING_DISABLE_DIFFUSE: false, CC_SURFACES_LIGHTING_CALCULATE_SPECULAR: true }
   #     depthStencilState:
   #       depthTest: true
   #       depthWrite: false
@@ -111,7 +111,7 @@ CCEffect %{
   #   - vert: standard-vs
   #     frag: specular-fs
   #     pass: specular-pass
-  #     embeddedMacros: { CC_FORWARD_ADD: true, CC_ENABLE_DIFFUSE_OR_SPECULAR: 2 }
+  #     embeddedMacros: { CC_FORWARD_ADD: true, CC_SURFACES_LIGHTING_DISABLE_DIFFUSE: true, CC_SURFACES_LIGHTING_CALCULATE_SPECULAR: false }
   #     depthStencilState:
   #       depthTest: true
   #       depthWrite: false
