@@ -26,11 +26,11 @@
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
 import { assert, CCBoolean, CCFloat, CCInteger, Enum, warn } from '../../core';
-import { range, rangeStep, slide, visible } from '../../core/data/decorators/editable';
+import { range, rangeMin, rangeStep, slide, visible } from '../../core/data/decorators/editable';
 import { clamp, lerp, pseudoRandom, randomRangeInt, Vec2, Vec3 } from '../../core/math';
 import { CurveRange } from '../curve-range';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
-import { ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { perlin1D, perlin2D, perlin3D, PerlinNoise1DCache, PerlinNoise2DCache, PerlinNoise3DCache } from './perlin-noise';
 
@@ -40,7 +40,7 @@ const point2D = new Vec2();
 const sampleX = new Vec2();
 const sampleY = new Vec2();
 const sampleZ = new Vec2();
-const velocity = new Vec3();
+const deltaVelocity = new Vec3();
 const rotationRate = new Vec3();
 const sizeScalar = new Vec3();
 const tempRemap = new Vec3();
@@ -117,6 +117,7 @@ export class NoiseModule extends ParticleModule {
     }
 
     @type(CCFloat)
+    @rangeMin(0.0001)
     get frequency () {
         return this._frequency;
     }
@@ -270,30 +271,82 @@ export class NoiseModule extends ParticleModule {
 
     private _randomSeed = randomRangeInt(0, 233280);
     private _scrollOffset = 0;
+    private _offsetX = 0;
+    private _offsetY = 0;
+    private _offsetZ = 0;
+    private _amplitudeScale = 1;
 
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         this._scrollOffset += this._scrollSpeed.evaluate(context.normalizedTimeInCycle, 1) * context.deltaTime;
         if (this._scrollOffset > 256) {
             this._scrollOffset -= 256;
         }
+        if (DEBUG) {
+            if (this.enableRemap) {
+                assert(this.remapX.mode === CurveRange.Mode.Curve, 'The remapX must be curve mode');
+                if (this.separateAxes) {
+                    assert(this.remapX.mode === this.remapY.mode && this.remapZ.mode === this.remapY.mode,
+                        'The remapX, remapY, remapZ must be same mode');
+                }
+            }
+
+            if (this.separateAxes) {
+                assert(this.strengthX.mode === this.strengthY.mode && this.strengthZ.mode === this.remapY.mode,
+                    'The strengthX, strengthY, strengthZ must be curve mode');
+            }
+        }
+        this.frequency = Math.max(this.frequency, 0.0001);
+        this._offsetX = pseudoRandom(this._randomSeed + RANDOM_SEED_OFFSET_X) * 100;
+        this._offsetY = pseudoRandom(this._randomSeed + RANDOM_SEED_OFFSET_Y) * 100;
+        this._offsetZ = pseudoRandom(this._randomSeed + RANDOM_SEED_OFFSET_Z) * 100;
+        this._amplitudeScale = this.damping ? (1 / this.frequency) : 1;
+        context.markRequiredParameter(BuiltinParticleParameter.VEC3_REGISTER);
+        if (this.positionAmount.getScalar() !== 0) {
+            context.markRequiredParameter(BuiltinParticleParameter.POSITION);
+            context.markRequiredParameter(BuiltinParticleParameter.VELOCITY);
+        }
+        if (this.rotationAmount.getScalar() !== 0) {
+            context.markRequiredParameter(BuiltinParticleParameter.ROTATION);
+        }
+        if (this.sizeAmount.getScalar() !== 0) {
+            context.markRequiredParameter(BuiltinParticleParameter.SIZE);
+        }
+
+        if (this._strengthX.mode === CurveRange.Mode.Curve || this._strengthX.mode === CurveRange.Mode.TwoCurves
+            || this.positionAmount.mode === CurveRange.Mode.Curve || this.positionAmount.mode === CurveRange.Mode.TwoCurves
+            || this.rotationAmount.mode === CurveRange.Mode.Curve || this.rotationAmount.mode === CurveRange.Mode.TwoCurves
+            || this.sizeAmount.mode === CurveRange.Mode.Curve || this.sizeAmount.mode === CurveRange.Mode.TwoCurves) {
+            context.markRequiredParameter(BuiltinParticleParameter.NORMALIZED_ALIVE_TIME);
+        }
+        if (this._strengthX.mode === CurveRange.Mode.TwoConstants || this._strengthX.mode === CurveRange.Mode.TwoCurves
+            || this.positionAmount.mode === CurveRange.Mode.TwoConstants || this.positionAmount.mode === CurveRange.Mode.TwoCurves
+            || this.rotationAmount.mode === CurveRange.Mode.TwoConstants || this.rotationAmount.mode === CurveRange.Mode.TwoCurves
+            || this.sizeAmount.mode === CurveRange.Mode.TwoConstants || this.sizeAmount.mode === CurveRange.Mode.TwoCurves) {
+            context.markRequiredParameter(BuiltinParticleParameter.RANDOM_SEED);
+        }
     }
 
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
-        const { position, noise, rotation, size, animatedVelocity } = particles;
-        const normalizedAliveTime = particles.normalizedAliveTime.data;
-        const randomSeed = particles.randomSeed.data;
+        const { vec3Register } = particles;
         const { fromIndex, toIndex, deltaTime } = context;
         const scrollOffset = this._scrollOffset;
-        const frequency = Math.max(this.frequency, 0);
-        const offsetX = pseudoRandom(this._randomSeed + RANDOM_SEED_OFFSET_X) * 100;
-        const offsetY = pseudoRandom(this._randomSeed + RANDOM_SEED_OFFSET_Y) * 100;
-        const offsetZ = pseudoRandom(this._randomSeed + RANDOM_SEED_OFFSET_Z) * 100;
+        const offsetX = this._offsetX;
+        const offsetY = this._offsetY;
+        const offsetZ = this._offsetZ;
+        const amplitudeScale = this._amplitudeScale;
+        const frequency = this.frequency;
         const { octaves,  octaveScale, octaveMultiplier } = this;
-        const amplitudeScale = this.damping ? (1 / this.frequency) : 1;
+
+        const hasPosition = particles.hasParameter(BuiltinParticleParameter.POSITION);
+        const samplePosition = hasPosition ? particles.position : vec3Register;
+        if (!hasPosition) {
+            samplePosition.fill1f(0, fromIndex, toIndex);
+        }
+
         if (octaves > 1) {
             if (this.quality === Quality.MIDDLE) {
                 for (let i = fromIndex; i < toIndex; i++) {
-                    position.getVec3At(pos, i);
+                    samplePosition.getVec3At(pos, i);
                     pos.add3f(offsetX, offsetY, offsetZ);
                     Vec2.set(point2D, pos.z, pos.y + scrollOffset);
                     accumulateNoise2D(sampleX, point2D, frequency, noiseXCache2D, octaves, octaveScale, octaveMultiplier);
@@ -301,11 +354,11 @@ export class NoiseModule extends ParticleModule {
                     accumulateNoise2D(sampleY, point2D, frequency, noiseYCache2D, octaves, octaveScale, octaveMultiplier);
                     Vec2.set(point2D, pos.y, pos.x + 100 + scrollOffset);
                     accumulateNoise2D(sampleZ, point2D, frequency, noiseZCache2D, octaves, octaveScale, octaveMultiplier);
-                    noise.set3fAt(sampleZ.x - sampleY.y, sampleX.x - sampleZ.y, sampleY.x - sampleX.y, i);
+                    vec3Register.set3fAt(sampleZ.x - sampleY.y, sampleX.x - sampleZ.y, sampleY.x - sampleX.y, i);
                 }
             } else if (this.quality === Quality.HIGH) {
                 for (let i = fromIndex; i < toIndex; i++) {
-                    position.getVec3At(pos, i);
+                    samplePosition.getVec3At(pos, i);
                     pos.add3f(offsetX, offsetY, offsetZ);
                     Vec3.set(point3D, pos.z, pos.y, pos.x + scrollOffset);
                     accumulateNoise3D(sampleX, point3D, frequency, noiseXCache3D, octaves, octaveScale, octaveMultiplier);
@@ -313,82 +366,74 @@ export class NoiseModule extends ParticleModule {
                     accumulateNoise3D(sampleY, point3D, frequency, noiseYCache3D, octaves, octaveScale, octaveMultiplier);
                     Vec3.set(point3D, pos.y, pos.x + 100, pos.z + scrollOffset);
                     accumulateNoise3D(sampleZ, point3D, frequency, noiseZCache3D, octaves, octaveScale, octaveMultiplier);
-                    noise.set3fAt(sampleZ.x - sampleY.y, sampleX.x - sampleZ.y, sampleY.x - sampleX.y, i);
+                    vec3Register.set3fAt(sampleZ.x - sampleY.y, sampleX.x - sampleZ.y, sampleY.x - sampleX.y, i);
                 }
             } else {
                 for (let i = fromIndex; i < toIndex; i++) {
-                    position.getVec3At(pos, i);
+                    samplePosition.getVec3At(pos, i);
                     pos.add3f(offsetX, offsetY, offsetZ);
                     accumulateNoise1D(sampleX, pos.z + scrollOffset, frequency, noiseXCache1D, octaves, octaveScale, octaveMultiplier);
                     accumulateNoise1D(sampleY, pos.x + 100 + scrollOffset, frequency, noiseYCache1D, octaves, octaveScale, octaveMultiplier);
                     accumulateNoise1D(sampleZ, pos.y + scrollOffset, frequency, noiseZCache1D, octaves, octaveScale, octaveMultiplier);
-                    noise.set3fAt(sampleZ.x - sampleY.y, sampleX.x - sampleZ.y, sampleY.x - sampleX.y, i);
+                    vec3Register.set3fAt(sampleZ.x - sampleY.y, sampleX.x - sampleZ.y, sampleY.x - sampleX.y, i);
                 }
             }
         } else {
             // eslint-disable-next-line no-lonely-if
             if (this.quality === Quality.HIGH) {
                 for (let i = fromIndex; i < toIndex; i++) {
-                    position.getVec3At(pos, i);
+                    samplePosition.getVec3At(pos, i);
                     pos.add3f(offsetX, offsetY, offsetZ);
                     perlin3D(sampleX, Vec3.set(point3D, pos.z, pos.y, pos.x + scrollOffset), frequency, noiseXCache3D);
                     perlin3D(sampleY, Vec3.set(point3D, pos.x + 100, pos.z, pos.y + scrollOffset), frequency, noiseYCache3D);
                     perlin3D(sampleZ, Vec3.set(point3D, pos.y, pos.x + 100, pos.z + scrollOffset), frequency, noiseZCache3D);
-                    noise.set3fAt(sampleZ.x - sampleY.y, sampleX.x - sampleZ.y, sampleY.x - sampleX.y, i);
+                    vec3Register.set3fAt(sampleZ.x - sampleY.y, sampleX.x - sampleZ.y, sampleY.x - sampleX.y, i);
                 }
             } else if (this.quality === Quality.MIDDLE) {
                 for (let i = fromIndex; i < toIndex; i++) {
-                    position.getVec3At(pos, i);
+                    samplePosition.getVec3At(pos, i);
                     pos.add3f(offsetX, offsetY, offsetZ);
                     perlin2D(sampleX, Vec2.set(point2D, pos.z, pos.y + scrollOffset), frequency, noiseXCache2D);
                     perlin2D(sampleY, Vec2.set(point2D, pos.x + 100, pos.z + scrollOffset), frequency, noiseYCache2D);
                     perlin2D(sampleZ, Vec2.set(point2D, pos.y, pos.x + 100 + scrollOffset), frequency, noiseZCache2D);
-                    noise.set3fAt(sampleZ.x - sampleY.y, sampleX.x - sampleZ.y, sampleY.x - sampleX.y, i);
+                    vec3Register.set3fAt(sampleZ.x - sampleY.y, sampleX.x - sampleZ.y, sampleY.x - sampleX.y, i);
                 }
             } else {
                 for (let i = fromIndex; i < toIndex; i++) {
-                    position.getVec3At(pos, i);
+                    samplePosition.getVec3At(pos, i);
                     pos.add3f(offsetX, offsetY, offsetZ);
                     perlin1D(sampleX, pos.z + scrollOffset, frequency, noiseXCache1D);
                     perlin1D(sampleY, pos.x + 100 + scrollOffset, frequency, noiseYCache1D);
                     perlin1D(sampleZ, pos.y + scrollOffset, frequency, noiseZCache1D);
-                    noise.set3fAt(sampleZ.x - sampleY.y, sampleX.x - sampleZ.y, sampleY.x - sampleX.y, i);
+                    vec3Register.set3fAt(sampleZ.x - sampleY.y, sampleX.x - sampleZ.y, sampleY.x - sampleX.y, i);
                 }
             }
         }
         // remap
         if (this.enableRemap) {
             if (this.separateAxes) {
-                if (DEBUG) {
-                    assert(this.remapX.mode === this.remapY.mode && this.remapZ.mode === this.remapY.mode,
-                        'The remapX, remapY, remapZ must be same mode');
-                }
                 if (this.remapX.mode === CurveRange.Mode.Curve) {
                     const { spline: splineX, multiplier: multiplierX } = this.remapX;
                     const { spline: splineY, multiplier: multiplierY } = this.remapY;
                     const { spline: splineZ, multiplier: multiplierZ } = this.remapZ;
                     for (let i = fromIndex; i < toIndex; i++) {
-                        noise.getVec3At(tempRemap, i);
-                        noise.set3fAt(splineX.evaluate(clamp(tempRemap.x * 0.5 + 0.5, 0, 1)) * multiplierX,
+                        vec3Register.getVec3At(tempRemap, i);
+                        vec3Register.set3fAt(splineX.evaluate(clamp(tempRemap.x * 0.5 + 0.5, 0, 1)) * multiplierX,
                             splineY.evaluate(clamp(tempRemap.y * 0.5 + 0.5, 0, 1)) * multiplierY,
                             splineZ.evaluate(clamp(tempRemap.z * 0.5 + 0.5, 0, 1)) * multiplierZ,
                             i);
                     }
-                } else {
-                    warn('The remap curve range muse be Curve Mode');
                 }
             } else {
                 // eslint-disable-next-line no-lonely-if
                 if (this.remapX.mode === CurveRange.Mode.Curve) {
                     const { spline: splineX, multiplier: multiplierX } = this.remapX;
                     for (let i = fromIndex; i < toIndex; i++) {
-                        noise.getVec3At(tempRemap, i);
-                        noise.set3fAt(splineX.evaluate(clamp(tempRemap.x * 0.5 + 0.5, 0, 1)) * multiplierX,
+                        vec3Register.getVec3At(tempRemap, i);
+                        vec3Register.set3fAt(splineX.evaluate(clamp(tempRemap.x * 0.5 + 0.5, 0, 1)) * multiplierX,
                             splineX.evaluate(clamp(tempRemap.y * 0.5 + 0.5, 0, 1)) * multiplierX,
                             splineX.evaluate(clamp(tempRemap.z * 0.5 + 0.5, 0, 1)) * multiplierX, i);
                     }
-                } else {
-                    warn('The remap curve range muse be Curve Mode');
                 }
             }
         }
@@ -399,7 +444,7 @@ export class NoiseModule extends ParticleModule {
                 const amplitudeY = this.strengthY.constant * amplitudeScale;
                 const amplitudeZ = this.strengthZ.constant * amplitudeScale;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    noise.multiply3fAt(amplitudeX, amplitudeY, amplitudeZ, i);
+                    vec3Register.multiply3fAt(amplitudeX, amplitudeY, amplitudeZ, i);
                 }
             } else if (this.strengthX.mode === CurveRange.Mode.Curve) {
                 const { spline: splineX } = this.strengthX;
@@ -408,9 +453,10 @@ export class NoiseModule extends ParticleModule {
                 const multiplierX = this.strengthX.multiplier * amplitudeScale;
                 const multiplierY = this.strengthY.multiplier * amplitudeScale;
                 const multiplierZ = this.strengthZ.multiplier * amplitudeScale;
+                const normalizedAliveTime = particles.normalizedAliveTime.data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const life = normalizedAliveTime[i];
-                    noise.multiply3fAt(splineX.evaluate(life) * multiplierX,
+                    vec3Register.multiply3fAt(splineX.evaluate(life) * multiplierX,
                         splineY.evaluate(life) * multiplierY,
                         splineZ.evaluate(life) * multiplierZ, i);
                 }
@@ -421,9 +467,10 @@ export class NoiseModule extends ParticleModule {
                 const yMin = this.strengthY.constantMin * amplitudeScale;
                 const zMax = this.strengthZ.constantMax * amplitudeScale;
                 const zMin = this.strengthZ.constantMin * amplitudeScale;
+                const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const seed = randomSeed[i];
-                    noise.multiply3fAt(lerp(xMin, xMax, pseudoRandom(seed + RANDOM_SEED_OFFSET_X)),
+                    vec3Register.multiply3fAt(lerp(xMin, xMax, pseudoRandom(seed + RANDOM_SEED_OFFSET_X)),
                         lerp(yMin, yMax, pseudoRandom(seed + RANDOM_SEED_OFFSET_Y)),
                         lerp(zMin, zMax, pseudoRandom(seed + RANDOM_SEED_OFFSET_Z)), i);
                 }
@@ -434,10 +481,12 @@ export class NoiseModule extends ParticleModule {
                 const xMultiplier = this.strengthX.multiplier * amplitudeScale;
                 const yMultiplier = this.strengthY.multiplier * amplitudeScale;
                 const zMultiplier = this.strengthZ.multiplier * amplitudeScale;
+                const normalizedAliveTime = particles.normalizedAliveTime.data;
+                const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const life = normalizedAliveTime[i];
                     const seed = randomSeed[i];
-                    noise.multiply3fAt(
+                    vec3Register.multiply3fAt(
                         lerp(xMin.evaluate(life), xMax.evaluate(life), pseudoRandom(seed + RANDOM_SEED_OFFSET_X)) * xMultiplier,
                         lerp(yMin.evaluate(life), yMax.evaluate(life), pseudoRandom(seed + RANDOM_SEED_OFFSET_Y)) * yMultiplier,
                         lerp(zMin.evaluate(life), zMax.evaluate(life), pseudoRandom(seed + RANDOM_SEED_OFFSET_Z)) * zMultiplier, i,
@@ -449,135 +498,154 @@ export class NoiseModule extends ParticleModule {
             if (this.strengthX.mode === CurveRange.Mode.Constant) {
                 const amplitude = this.strengthX.constant * amplitudeScale;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    noise.multiply1fAt(amplitude, i);
+                    vec3Register.multiply1fAt(amplitude, i);
                 }
             } else if (this.strengthX.mode === CurveRange.Mode.Curve) {
                 const { spline } = this.strengthX;
                 const multiplier = this.strengthX.multiplier * amplitudeScale;
+                const normalizedAliveTime = particles.normalizedAliveTime.data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const amplitude = spline.evaluate(normalizedAliveTime[i]) * multiplier;
-                    noise.multiply1fAt(amplitude, i);
+                    vec3Register.multiply1fAt(amplitude, i);
                 }
             } else if (this.strengthX.mode === CurveRange.Mode.TwoConstants) {
                 const constantMax = this.strengthX.constantMax * amplitudeScale;
                 const constantMin = this.strengthX.constantMin * amplitudeScale;
+                const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const amplitude = lerp(constantMin, constantMax, pseudoRandom(randomSeed[i]));
-                    noise.multiply1fAt(amplitude, i);
+                    vec3Register.multiply1fAt(amplitude, i);
                 }
             } else {
                 const { splineMin, splineMax } = this.strengthX;
                 const multiplier = this.strengthX.multiplier * amplitudeScale;
+                const normalizedAliveTime = particles.normalizedAliveTime.data;
+                const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const life = normalizedAliveTime[i];
                     const amplitude = lerp(splineMin.evaluate(life),
                         splineMax.evaluate(life), pseudoRandom(randomSeed[i])) * multiplier;
-                    noise.multiply1fAt(amplitude, i);
+                    vec3Register.multiply1fAt(amplitude, i);
                 }
             }
         }
 
-        if (this.positionAmount.getMax() !== 0) {
+        if (this.positionAmount.getScalar() !== 0) {
+            const { velocity } = particles;
             if (this.positionAmount.mode === CurveRange.Mode.Constant) {
                 const amount = this.positionAmount.constant;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    noise.getVec3At(velocity, i);
-                    Vec3.multiplyScalar(velocity, velocity, amount);
-                    animatedVelocity.addVec3At(velocity, i);
+                    vec3Register.getVec3At(deltaVelocity, i);
+                    Vec3.multiplyScalar(deltaVelocity, deltaVelocity, amount);
+                    velocity.addVec3At(deltaVelocity, i);
                 }
             } else if (this.positionAmount.mode === CurveRange.Mode.Curve) {
+                const normalizedAliveTime = particles.normalizedAliveTime.data;
                 const { spline, multiplier } = this.positionAmount;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const amount = spline.evaluate(normalizedAliveTime[i]) * multiplier;
-                    noise.getVec3At(velocity, i);
-                    Vec3.multiplyScalar(velocity, velocity, amount);
-                    animatedVelocity.addVec3At(velocity, i);
+                    vec3Register.getVec3At(deltaVelocity, i);
+                    Vec3.multiplyScalar(deltaVelocity, deltaVelocity, amount);
+                    velocity.addVec3At(deltaVelocity, i);
                 }
-            } else if (this.positionAmount.mode === CurveRange.Mode.TwoCurves) {
+            } else if (this.positionAmount.mode === CurveRange.Mode.TwoConstants) {
                 const { constantMin, constantMax } = this.positionAmount;
+                const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const amount = lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + RANDOM_SEED_OFFSET_POSITION));
-                    noise.getVec3At(velocity, i);
-                    Vec3.multiplyScalar(velocity, velocity, amount);
-                    animatedVelocity.addVec3At(velocity, i);
+                    vec3Register.getVec3At(deltaVelocity, i);
+                    Vec3.multiplyScalar(deltaVelocity, deltaVelocity, amount);
+                    velocity.addVec3At(deltaVelocity, i);
                 }
             } else {
                 const { splineMin, splineMax, multiplier } = this.positionAmount;
+                const normalizedAliveTime = particles.normalizedAliveTime.data;
+                const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const life = normalizedAliveTime[i];
                     const amount = lerp(splineMin.evaluate(life), splineMax.evaluate(life), pseudoRandom(randomSeed[i] + RANDOM_SEED_OFFSET_POSITION)) * multiplier;
-                    noise.getVec3At(velocity, i);
-                    Vec3.multiplyScalar(velocity, velocity, amount);
-                    animatedVelocity.addVec3At(velocity, i);
+                    vec3Register.getVec3At(deltaVelocity, i);
+                    Vec3.multiplyScalar(deltaVelocity, deltaVelocity, amount);
+                    velocity.addVec3At(deltaVelocity, i);
                 }
             }
         }
 
-        if (this.rotationAmount.getMax() !== 0) {
+        if (this.rotationAmount.getScalar() !== 0) {
+            const { rotation } = particles;
             if (this.rotationAmount.mode === CurveRange.Mode.Constant) {
                 const amount = this.rotationAmount.constant * deltaTime;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    noise.getVec3At(rotationRate, i);
+                    vec3Register.getVec3At(rotationRate, i);
                     Vec3.multiplyScalar(rotationRate, rotationRate, amount);
                     rotation.addVec3At(rotationRate, i);
                 }
             } else if (this.rotationAmount.mode === CurveRange.Mode.Curve) {
+                const normalizedAliveTime = particles.normalizedAliveTime.data;
                 const { spline } = this.rotationAmount;
                 const multiplier = this.rotationAmount.multiplier * deltaTime;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const amount = spline.evaluate(normalizedAliveTime[i]) * multiplier * deltaTime;
-                    noise.getVec3At(rotationRate, i);
+                    vec3Register.getVec3At(rotationRate, i);
                     Vec3.multiplyScalar(rotationRate, rotationRate, amount);
                     rotation.addVec3At(rotationRate, i);
                 }
             } else if (this.rotationAmount.mode === CurveRange.Mode.TwoConstants) {
                 const { constantMin, constantMax } = this.rotationAmount;
+                const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const amount = lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + RANDOM_SEED_OFFSET_ROTATION)) * deltaTime;
-                    noise.getVec3At(rotationRate, i);
+                    vec3Register.getVec3At(rotationRate, i);
                     Vec3.multiplyScalar(rotationRate, rotationRate, amount);
                     rotation.addVec3At(rotationRate, i);
                 }
             } else {
                 const { splineMin, splineMax } = this.rotationAmount;
                 const multiplier = this.rotationAmount.multiplier * deltaTime;
+                const normalizedAliveTime = particles.normalizedAliveTime.data;
+                const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const life = normalizedAliveTime[i];
                     const amount = lerp(splineMin.evaluate(life), splineMax.evaluate(life), pseudoRandom(randomSeed[i] + RANDOM_SEED_OFFSET_ROTATION)) * multiplier;
-                    noise.getVec3At(rotationRate, i);
+                    vec3Register.getVec3At(rotationRate, i);
                     Vec3.multiplyScalar(rotationRate, rotationRate, amount);
                     rotation.addVec3At(rotationRate, i);
                 }
             }
         }
 
-        if (this.sizeAmount.getMax() !== 0) {
+        if (this.sizeAmount.getScalar() !== 0) {
+            const { size } = particles;
             if (this.sizeAmount.mode === CurveRange.Mode.Constant) {
                 const amount = this.sizeAmount.constant;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    noise.getVec3At(sizeScalar, i);
+                    vec3Register.getVec3At(sizeScalar, i);
                     size.multiply3fAt(sizeScalar.x * amount + 1, sizeScalar.y * amount + 1, sizeScalar.z * amount + 1, i);
                 }
             } else if (this.sizeAmount.mode === CurveRange.Mode.Curve) {
+                const normalizedAliveTime = particles.normalizedAliveTime.data;
                 const { spline, multiplier } = this.sizeAmount;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const amount = spline.evaluate(normalizedAliveTime[i]) * multiplier;
-                    noise.getVec3At(sizeScalar, i);
+                    vec3Register.getVec3At(sizeScalar, i);
                     size.multiply3fAt(sizeScalar.x * amount + 1, sizeScalar.y * amount + 1, sizeScalar.z * amount + 1, i);
                 }
             } else if (this.sizeAmount.mode === CurveRange.Mode.TwoConstants) {
                 const { constantMin, constantMax } = this.sizeAmount;
+                const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const amount = lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + RANDOM_SEED_OFFSET_ROTATION));
-                    noise.getVec3At(sizeScalar, i);
+                    vec3Register.getVec3At(sizeScalar, i);
                     size.multiply3fAt(sizeScalar.x * amount + 1, sizeScalar.y * amount + 1, sizeScalar.z * amount + 1, i);
                 }
             } else {
                 const { splineMin, splineMax, multiplier } = this.sizeAmount;
+                const normalizedAliveTime = particles.normalizedAliveTime.data;
+                const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const life = normalizedAliveTime[i];
                     const amount = lerp(splineMin.evaluate(life), splineMax.evaluate(life), pseudoRandom(randomSeed[i] + RANDOM_SEED_OFFSET_ROTATION)) * multiplier;
-                    noise.getVec3At(sizeScalar, i);
+                    vec3Register.getVec3At(sizeScalar, i);
                     size.multiply3fAt(sizeScalar.x * amount + 1, sizeScalar.y * amount + 1, sizeScalar.z * amount + 1, i);
                 }
             }

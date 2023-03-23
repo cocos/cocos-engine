@@ -17,36 +17,11 @@ export class SolveModule extends ParticleModule {
 
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         const { fromIndex, toIndex, deltaTime } = context;
-        const hasVelocity = particles.hasParameter(BuiltinParticleParameter.VELOCITY);
-        const hasAnimatedVelocity = particles.hasParameter(BuiltinParticleParameter.ANIMATED_VELOCITY);
-        const hasSpeedModifier = particles.hasParameter(BuiltinParticleParameter.SPEED_MODIFIER);
-        const hasPosition = particles.hasParameter(BuiltinParticleParameter.POSITION);
-        if (hasPosition) {
-            if (hasVelocity && hasAnimatedVelocity && hasSpeedModifier) {
-                const { position, velocity, animatedVelocity } = particles;
-                const speedModifier = particles.speedModifier.data;
-                for (let particleHandle = fromIndex; particleHandle < toIndex; particleHandle++) {
-                    ParticleVec3Parameter.addSingle(tempVelocity, velocity, animatedVelocity, particleHandle);
-                    position.addVec3At(Vec3.multiplyScalar(tempVelocity, tempVelocity, deltaTime * speedModifier[particleHandle]), particleHandle);
-                }
-            } else if (hasVelocity && hasAnimatedVelocity) {
-                const { position, velocity, animatedVelocity } = particles;
-                for (let particleHandle = fromIndex; particleHandle < toIndex; particleHandle++) {
-                    ParticleVec3Parameter.addSingle(tempVelocity, velocity, animatedVelocity, particleHandle);
-                    position.addVec3At(Vec3.multiplyScalar(tempVelocity, tempVelocity, deltaTime), particleHandle);
-                }
-            } else if (hasVelocity) {
-                const { position, velocity } = particles;
-                for (let particleHandle = fromIndex; particleHandle < toIndex; particleHandle++) {
-                    velocity.getVec3At(tempVelocity, particleHandle);
-                    position.addVec3At(Vec3.multiplyScalar(tempVelocity, tempVelocity, deltaTime), particleHandle);
-                }
-            } else if (hasAnimatedVelocity) {
-                const { position, animatedVelocity } = particles;
-                for (let particleHandle = fromIndex; particleHandle < toIndex; particleHandle++) {
-                    animatedVelocity.getVec3At(tempVelocity, particleHandle);
-                    position.addVec3At(Vec3.multiplyScalar(tempVelocity, tempVelocity, deltaTime), particleHandle);
-                }
+        if (particles.hasParameter(BuiltinParticleParameter.VELOCITY) && particles.hasParameter(BuiltinParticleParameter.POSITION)) {
+            const { position, velocity } = particles;
+            for (let particleHandle = fromIndex; particleHandle < toIndex; particleHandle++) {
+                velocity.getVec3At(tempVelocity, particleHandle);
+                position.addVec3At(Vec3.multiplyScalar(tempVelocity, tempVelocity, deltaTime), particleHandle);
             }
         }
         if (particles.hasParameter(BuiltinParticleParameter.ROTATION) && particles.hasParameter(BuiltinParticleParameter.ANGULAR_VELOCITY)) {

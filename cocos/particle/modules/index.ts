@@ -24,7 +24,7 @@
  */
 
 export * from './multiply-color';
-export * from './speed-modifier';
+export * from './scale-speed';
 export * from './shape';
 export * from './spawn-over-time';
 export * from './spawn-per-unit';
@@ -44,3 +44,4 @@ export * from './sub-uv-animation';
 export * from './add-velocity';
 export * from './box-shape';
 export * from './multiply-color-by-speed';
+export * from './scale-size-by-speed';

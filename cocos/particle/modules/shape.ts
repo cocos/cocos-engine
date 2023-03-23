@@ -25,7 +25,7 @@
  */
 
 import { ccclass, tooltip, displayOrder, type, formerlySerializedAs, serializable, visible, range } from 'cc.decorator';
-import { Mat4, Quat, Vec2, Vec3, clamp, pingPong, random, randomRange, repeat, toDegree, toRadian, randomRangeInt } from '../../core/math';
+import { Mat4, Quat, Vec2, Vec3, clamp, pingPong, random, randomRange, repeat, toDegree, toRadian, randomRangeInt, approx } from '../../core/math';
 
 import { CurveRange } from '../curve-range';
 import { randomSign } from '../particle-general-function';
@@ -38,7 +38,6 @@ const _intermediVec = new Vec3(0, 0, 0);
 const tmpPosition = new Vec3();
 const tmpDir = new Vec3();
 const shuffleArray = new Float32Array(3);
-const boxThickness = new Vec3();
 
 /**
  * 粒子发射器类型。
@@ -330,11 +329,10 @@ export class ShapeModule extends ParticleModule {
     private _mat = new Mat4();
     private _quat = new Quat();
     private _isTransformDirty = true;
-
-    public markRequiredParameters (out: BitsBucket) {
-        out.mark(BuiltinParticleParameter.POSITION);
-        out.mark(BuiltinParticleParameter.START_DIR);
-    }
+    private _finalAngle = 0;
+    private _minRadius = 0;
+    private _velocityZ = 0;
+    private _boxThickness = new Vec3(0, 0, 0);
 
     public tick (particles: ParticleDataSet,  params: ParticleEmitterParams, context: ParticleExecContext) {
         this._totalAngle += 2 * Math.PI * this.arcSpeed.evaluate(context.normalizedTimeInCycle, 1) * context.deltaTime;
@@ -343,19 +341,31 @@ export class ShapeModule extends ParticleModule {
             Mat4.fromRTS(this._mat, this._quat, this._position, this._scale);
             this._isTransformDirty = false;
         }
+        context.markRequiredParameter(BuiltinParticleParameter.POSITION);
+        context.markRequiredParameter(BuiltinParticleParameter.START_DIR);
+        context.markRequiredParameter(BuiltinParticleParameter.VEC3_REGISTER);
+        this._finalAngle = this._totalAngle;
+        if (!approx(this.arcSpread, 0)) {
+            this._finalAngle = Math.floor(this._finalAngle / (this._arc * this.arcSpread)) * this._arc * this.arcSpread;
+        }
+        if (this.arcMode === ArcMode.LOOP) {
+            this._finalAngle = repeat(this._finalAngle, this._arc);
+        } else if (this.arcMode === ArcMode.PING_PONG) {
+            this._finalAngle = pingPong(this._finalAngle, this._arc);
+        }
+        this._minRadius = this.radius * (1 - this.radiusThickness);
+        this._velocityZ = -Math.cos(this._angle) * this.radius;
+        this._boxThickness.set(1 - this.boxThickness.x, 1 - this.boxThickness.y, 1 - this.boxThickness.z);
     }
 
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         const { fromIndex, toIndex } = context;
-        const { position, startDir } = particles;
+        const { position, startDir, vec3Register } = particles;
         const randomPositionAmount = this.randomPositionAmount;
-        const minRadius = this.radius * (1 - this.radiusThickness);
-        const velocityZ = -Math.cos(this._angle) * this.radius;
-        boxThickness.set(1 - this.boxThickness.x, 1 - this.boxThickness.y, 1 - this.boxThickness.z);
-        let angle = this._totalAngle;
-        if (this.arcSpread !== 0) {
-            angle = Math.floor(angle / (this._arc * this.arcSpread)) * this._arc * this.arcSpread;
-        }
+        const minRadius = this._minRadius;
+        const velocityZ = this._velocityZ;
+        const boxThickness = this._boxThickness;
+        const angle = this._finalAngle;
 
         switch (this.shapeType) {
         case ShapeType.BOX:
@@ -364,7 +374,7 @@ export class ShapeModule extends ParticleModule {
                     randomRange(-0.5, 0.5),
                     randomRange(-0.5, 0.5),
                     randomRange(-0.5, 0.5));
-                position.setVec3At(tmpPosition, i);
+                vec3Register.setVec3At(tmpPosition, i);
             }
             break;
         case ShapeType.BOX_SHELL:
@@ -375,7 +385,7 @@ export class ShapeModule extends ParticleModule {
                 shuffleFloat3(shuffleArray);
                 applyBoxThickness(shuffleArray, boxThickness);
                 Vec3.set(tmpPosition, shuffleArray[0], shuffleArray[1], shuffleArray[2]);
-                position.setVec3At(tmpPosition, i);
+                vec3Register.setVec3At(tmpPosition, i);
             }
             break;
         case ShapeType.BOX_EDGE:
@@ -386,7 +396,7 @@ export class ShapeModule extends ParticleModule {
                 shuffleFloat3(shuffleArray);
                 applyBoxThickness(shuffleArray, boxThickness);
                 Vec3.set(tmpPosition, shuffleArray[0], shuffleArray[1], shuffleArray[2]);
-                position.setVec3At(tmpPosition, i);
+                vec3Register.setVec3At(tmpPosition, i);
             }
             break;
         case ShapeType.CIRCLE:
@@ -397,20 +407,15 @@ export class ShapeModule extends ParticleModule {
                     tmpPosition.multiplyScalar(minRadius + (this.radius - minRadius) * random());
                     Vec3.normalize(tmpDir, tmpPosition);
                     startDir.setVec3At(tmpDir, i);
-                    position.setVec3At(tmpPosition, i);
+                    vec3Register.setVec3At(tmpPosition, i);
                 }
             } else {
-                if (this.arcMode === ArcMode.LOOP) {
-                    angle = repeat(angle, this._arc);
-                } else {
-                    angle = pingPong(angle, this._arc);
-                }
                 for (let i = fromIndex; i < toIndex; ++i) {
                     tmpPosition.set(Math.cos(angle), Math.sin(angle), 0);
                     tmpPosition.multiplyScalar(minRadius + (this.radius - minRadius) * random());
                     Vec3.normalize(tmpDir, tmpPosition);
                     startDir.setVec3At(tmpDir, i);
-                    position.setVec3At(tmpPosition, i);
+                    vec3Register.setVec3At(tmpPosition, i);
                 }
             }
             break;
@@ -427,14 +432,9 @@ export class ShapeModule extends ParticleModule {
                     Vec3.normalize(tmpDir, tmpDir);
                     Vec3.scaleAndAdd(tmpPosition, tmpPosition, tmpDir, this.length * random() / -velocityZ);
                     startDir.setVec3At(tmpDir, i);
-                    position.setVec3At(tmpPosition, i);
+                    vec3Register.setVec3At(tmpPosition, i);
                 }
             } else {
-                if (this.arcMode === ArcMode.LOOP) {
-                    angle = repeat(angle, this._arc);
-                } else {
-                    angle = pingPong(angle, this._arc);
-                }
                 for (let i = fromIndex; i < toIndex; ++i) {
                     tmpPosition.set(Math.cos(angle), Math.sin(angle), 0);
                     tmpPosition.multiplyScalar(minRadius + (this.radius - minRadius) * random());
@@ -443,7 +443,7 @@ export class ShapeModule extends ParticleModule {
                     tmpDir.normalize();
                     Vec3.scaleAndAdd(tmpPosition, tmpPosition, tmpDir, this.length * random() / -velocityZ);
                     startDir.setVec3At(tmpDir, i);
-                    position.setVec3At(tmpPosition, i);
+                    vec3Register.setVec3At(tmpPosition, i);
                 }
             }
             break;
@@ -457,15 +457,9 @@ export class ShapeModule extends ParticleModule {
                     tmpDir.z = velocityZ;
                     Vec3.normalize(tmpDir, tmpDir);
                     startDir.setVec3At(tmpDir, i);
-                    position.setVec3At(tmpPosition, i);
+                    vec3Register.setVec3At(tmpPosition, i);
                 }
             } else {
-                if (this.arcMode === ArcMode.LOOP) {
-                    angle = repeat(angle, this._arc);
-                } else {
-                    angle = pingPong(angle, this._arc);
-                }
-
                 for (let i = fromIndex; i < toIndex; ++i) {
                     tmpPosition.set(Math.cos(angle), Math.sin(angle), 0);
                     tmpPosition.multiplyScalar(minRadius + (this.radius - minRadius) * random());
@@ -473,7 +467,7 @@ export class ShapeModule extends ParticleModule {
                     tmpDir.z = velocityZ;
                     tmpDir.normalize();
                     startDir.setVec3At(tmpDir, i);
-                    position.setVec3At(tmpPosition, i);
+                    vec3Register.setVec3At(tmpPosition, i);
                 }
             }
             break;
@@ -487,15 +481,9 @@ export class ShapeModule extends ParticleModule {
                     tmpDir.normalize();
                     Vec2.multiplyScalar(tmpPosition, tmpPosition, this.radius);
                     startDir.setVec3At(tmpDir, i);
-                    position.setVec3At(tmpPosition, i);
+                    vec3Register.setVec3At(tmpPosition, i);
                 }
             } else {
-                if (this.arcMode === ArcMode.LOOP) {
-                    angle = repeat(angle, this._arc);
-                } else {
-                    angle = pingPong(angle, this._arc);
-                }
-
                 for (let i = fromIndex; i < toIndex; ++i) {
                     tmpPosition.set(Math.cos(angle), Math.sin(angle), 0);
                     Vec2.multiplyScalar(tmpDir, tmpPosition, Math.sin(this._angle));
@@ -503,7 +491,7 @@ export class ShapeModule extends ParticleModule {
                     tmpDir.normalize();
                     Vec2.multiplyScalar(tmpPosition, tmpPosition, this.radius);
                     startDir.setVec3At(tmpDir, i);
-                    position.setVec3At(tmpPosition, i);
+                    vec3Register.setVec3At(tmpPosition, i);
                 }
             }
             break;
@@ -518,7 +506,7 @@ export class ShapeModule extends ParticleModule {
                 tmpPosition.multiplyScalar(minRadius + (this.radius - minRadius) * random());
                 Vec3.normalize(tmpDir, tmpPosition);
                 startDir.setVec3At(tmpDir, i);
-                position.setVec3At(tmpPosition, i);
+                vec3Register.setVec3At(tmpPosition, i);
             }
             break;
         case ShapeType.SPHERE_SHELL:
@@ -532,7 +520,7 @@ export class ShapeModule extends ParticleModule {
                 tmpPosition.multiplyScalar(this.radius);
                 Vec3.normalize(tmpDir, tmpPosition);
                 startDir.setVec3At(tmpDir, i);
-                position.setVec3At(tmpPosition, i);
+                vec3Register.setVec3At(tmpPosition, i);
             }
             break;
         case ShapeType.HEMISPHERE:
@@ -549,7 +537,7 @@ export class ShapeModule extends ParticleModule {
                 }
                 Vec3.normalize(tmpDir, tmpPosition);
                 startDir.setVec3At(tmpDir, i);
-                position.setVec3At(tmpPosition, i);
+                vec3Register.setVec3At(tmpPosition, i);
             }
             break;
         case ShapeType.HEMISPHERE_SHELL:
@@ -566,7 +554,7 @@ export class ShapeModule extends ParticleModule {
                 }
                 Vec3.normalize(tmpDir, tmpPosition);
                 startDir.setVec3At(tmpDir, i);
-                position.setVec3At(tmpPosition, i);
+                vec3Register.setVec3At(tmpPosition, i);
             }
             break;
         default:
@@ -574,27 +562,29 @@ export class ShapeModule extends ParticleModule {
         }
         if (randomPositionAmount > 0) {
             for (let i = fromIndex; i < toIndex; ++i) {
-                position.getVec3At(tmpPosition, i);
+                vec3Register.getVec3At(tmpPosition, i);
                 tmpPosition.add3f(randomRange(-randomPositionAmount, randomPositionAmount),
                     randomRange(-randomPositionAmount, randomPositionAmount),
                     randomRange(-randomPositionAmount, randomPositionAmount));
-                position.setVec3At(tmpPosition, i);
+                vec3Register.setVec3At(tmpPosition, i);
             }
         }
 
-        for (let i = fromIndex; i < toIndex; ++i) {
-            position.getVec3At(tmpPosition, i);
-            position.setVec3At(Vec3.transformMat4(tmpPosition, tmpPosition, this._mat), i);
-        }
         if (this.sphericalDirectionAmount > 0) {
             for (let i = fromIndex; i < toIndex; ++i) {
-                position.getVec3At(tmpPosition, i);
+                vec3Register.getVec3At(tmpPosition, i);
                 startDir.getVec3At(tmpDir, i);
                 const sphericalVel = Vec3.normalize(_intermediVec, tmpPosition);
                 Vec3.lerp(tmpDir, tmpDir, sphericalVel, this.sphericalDirectionAmount);
                 startDir.setVec3At(tmpDir, i);
             }
         }
+
+        for (let i = fromIndex; i < toIndex; ++i) {
+            vec3Register.getVec3At(tmpPosition, i);
+            position.addVec3At(Vec3.transformMat4(tmpPosition, tmpPosition, this._mat), i);
+        }
+
         for (let i = fromIndex; i < toIndex; ++i) {
             startDir.getVec3At(tmpDir, i);
             startDir.setVec3At(Vec3.transformQuat(tmpDir, tmpDir, this._quat), i);

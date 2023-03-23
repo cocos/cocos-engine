@@ -39,18 +39,17 @@ export const BuiltinParticleParameterName = [
     'normalized-alive-time',
     'position',
     'start-dir',
+    'base-velocity',
     'velocity',
-    'animated-velocity',
     'rotation',
     'axis-of-rotation',
     'angular-velocity',
-    'speed-modifier',
-    'noise',
     'frame-index',
-    'start-size',
+    'base-size',
     'size',
-    'start-color',
+    'base-color',
     'color',
+    'vec3-register',
 ];
 
 /**
@@ -63,18 +62,17 @@ export enum BuiltinParticleParameter {
     NORMALIZED_ALIVE_TIME,
     POSITION,
     START_DIR,
+    BASE_VELOCITY,
     VELOCITY,
-    ANIMATED_VELOCITY,
     ROTATION,
     AXIS_OF_ROTATION,
     ANGULAR_VELOCITY,
-    SPEED_MODIFIER,
-    NOISE,
     FRAME_INDEX,
-    START_SIZE,
+    BASE_SIZE,
     SIZE,
-    START_COLOR,
+    BASE_COLOR,
     COLOR,
+    VEC3_REGISTER,
     COUNT,
 }
 
@@ -111,8 +109,8 @@ export class ParticleDataSet {
         return this.getParameterNoCheck<ParticleFloatParameter>(BuiltinParticleParameter.FRAME_INDEX);
     }
 
-    get noise () {
-        return this.getParameterNoCheck<ParticleVec3Parameter>(BuiltinParticleParameter.NOISE);
+    get baseVelocity () {
+        return this.getParameterNoCheck<ParticleVec3Parameter>(BuiltinParticleParameter.BASE_VELOCITY);
     }
 
     get velocity () {
@@ -121,10 +119,6 @@ export class ParticleDataSet {
 
     get startDir () {
         return this.getParameterNoCheck<ParticleVec3Parameter>(BuiltinParticleParameter.START_DIR);
-    }
-
-    get animatedVelocity () {
-        return this.getParameterNoCheck<ParticleVec3Parameter>(BuiltinParticleParameter.ANIMATED_VELOCITY);
     }
 
     get rotation () {
@@ -139,24 +133,24 @@ export class ParticleDataSet {
         return this.getParameterNoCheck<ParticleVec3Parameter>(BuiltinParticleParameter.ANGULAR_VELOCITY);
     }
 
-    get speedModifier () {
-        return this.getParameterNoCheck<ParticleFloatParameter>(BuiltinParticleParameter.SPEED_MODIFIER);
+    get baseSize () {
+        return this.getParameterNoCheck<ParticleVec3Parameter>(BuiltinParticleParameter.BASE_SIZE);
     }
 
     get size () {
         return this.getParameterNoCheck<ParticleVec3Parameter>(BuiltinParticleParameter.SIZE);
     }
 
-    get startSize () {
-        return this.getParameterNoCheck<ParticleVec3Parameter>(BuiltinParticleParameter.START_SIZE);
-    }
-
-    get startColor () {
-        return this.getParameterNoCheck<ParticleColorParameter>(BuiltinParticleParameter.START_COLOR);
+    get baseColor () {
+        return this.getParameterNoCheck<ParticleColorParameter>(BuiltinParticleParameter.BASE_COLOR);
     }
 
     get color () {
         return this.getParameterNoCheck<ParticleColorParameter>(BuiltinParticleParameter.COLOR);
+    }
+
+    get vec3Register () {
+        return this.getParameterNoCheck<ParticleVec3Parameter>(BuiltinParticleParameter.VEC3_REGISTER);
     }
 
     private _count = 0;
@@ -194,22 +188,21 @@ export class ParticleDataSet {
             this.addParameter(id, BuiltinParticleParameterName[id], ParticleParameterType.UINT32);
             break;
         case BuiltinParticleParameter.POSITION:
+        case BuiltinParticleParameter.BASE_VELOCITY:
         case BuiltinParticleParameter.VELOCITY:
-        case BuiltinParticleParameter.ANIMATED_VELOCITY:
         case BuiltinParticleParameter.START_DIR:
-        case BuiltinParticleParameter.START_SIZE:
+        case BuiltinParticleParameter.BASE_SIZE:
         case BuiltinParticleParameter.SIZE:
         case BuiltinParticleParameter.ROTATION:
         case BuiltinParticleParameter.ANGULAR_VELOCITY:
         case BuiltinParticleParameter.AXIS_OF_ROTATION:
-        case BuiltinParticleParameter.NOISE:
+        case BuiltinParticleParameter.VEC3_REGISTER:
             this.addParameter(id, BuiltinParticleParameterName[id], ParticleParameterType.VEC3);
             break;
         case BuiltinParticleParameter.COLOR:
-        case BuiltinParticleParameter.START_COLOR:
+        case BuiltinParticleParameter.BASE_COLOR:
             this.addParameter(id, BuiltinParticleParameterName[id], ParticleParameterType.COLOR);
             break;
-        case BuiltinParticleParameter.SPEED_MODIFIER:
         case BuiltinParticleParameter.FRAME_INDEX:
         case BuiltinParticleParameter.INV_START_LIFETIME:
         case BuiltinParticleParameter.NORMALIZED_ALIVE_TIME:

@@ -25,7 +25,7 @@
 
 import { ccclass, displayOrder, range, serializable, tooltip, type } from '../../core/data/decorators';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
-import { ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
 import { ParticleExecContext, ParticleEmitterParams } from '../particle-base';
 import { CurveRange } from '../curve-range';
 import { lerp, Mat4, pseudoRandom, randomRangeInt, Vec3 } from '../../core/math';
@@ -46,32 +46,43 @@ export class StartSpeedModule extends ParticleModule {
     @tooltip('i18n:particle_system.startSpeed')
     public startSpeed = new CurveRange(5);
 
+    public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+        context.markRequiredParameter(BuiltinParticleParameter.POSITION);
+        context.markRequiredParameter(BuiltinParticleParameter.VELOCITY);
+        context.markRequiredParameter(BuiltinParticleParameter.BASE_VELOCITY);
+        context.markRequiredParameter(BuiltinParticleParameter.START_DIR);
+    }
+
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         const { fromIndex, toIndex, normalizedTimeInCycle } = context;
-        const { startDir, velocity } = particles;
-        if (this.startSpeed.mode === CurveRange.Mode.Constant) {
+        const { startDir, baseVelocity, velocity } = particles;
+        const mode = this.startSpeed.mode;
+        if (mode === CurveRange.Mode.Constant) {
             const constant = this.startSpeed.constant;
             for (let i = fromIndex; i < toIndex; ++i) {
                 const curveStartSpeed = constant;
                 startDir.getVec3At(tempVelocity, i);
                 Vec3.multiplyScalar(tempVelocity, tempVelocity, curveStartSpeed);
+                baseVelocity.setVec3At(tempVelocity, i);
                 velocity.setVec3At(tempVelocity, i);
             }
-        } else if (this.startSpeed.mode ===  CurveRange.Mode.TwoConstants) {
+        } else if (mode ===  CurveRange.Mode.TwoConstants) {
             const { constantMin, constantMax } = this.startSpeed;
             for (let i = fromIndex; i < toIndex; ++i) {
                 const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
                 const curveStartSpeed = lerp(constantMin, constantMax, rand);
                 startDir.getVec3At(tempVelocity, i);
                 Vec3.multiplyScalar(tempVelocity, tempVelocity, curveStartSpeed);
+                baseVelocity.setVec3At(tempVelocity, i);
                 velocity.setVec3At(tempVelocity, i);
             }
-        } else if (this.startSpeed.mode ===  CurveRange.Mode.Curve) {
+        } else if (mode ===  CurveRange.Mode.Curve) {
             const { spline, multiplier } = this.startSpeed;
             for (let i = fromIndex; i < toIndex; ++i) {
                 const curveStartSpeed = spline.evaluate(normalizedTimeInCycle) * multiplier;
                 startDir.getVec3At(tempVelocity, i);
                 Vec3.multiplyScalar(tempVelocity, tempVelocity, curveStartSpeed);
+                baseVelocity.setVec3At(tempVelocity, i);
                 velocity.setVec3At(tempVelocity, i);
             }
         } else {
@@ -81,6 +92,7 @@ export class StartSpeedModule extends ParticleModule {
                 const curveStartSpeed = lerp(splineMin.evaluate(normalizedTimeInCycle), splineMax.evaluate(normalizedTimeInCycle), rand) * multiplier;
                 startDir.getVec3At(tempVelocity, i);
                 Vec3.multiplyScalar(tempVelocity, tempVelocity, curveStartSpeed);
+                baseVelocity.setVec3At(tempVelocity, i);
                 velocity.setVec3At(tempVelocity, i);
             }
         }

@@ -273,38 +273,17 @@ export default class ParticleBatchModel extends scene.Model {
                     dynamicBufferUintView[offset + 10] = color[i];
                 }
             }
-            if (this._hasVelocityChanel && (particles.hasParameter(BuiltinParticleParameter.ANIMATED_VELOCITY) || particles.hasParameter(BuiltinParticleParameter.VELOCITY))) {
+            if (this._hasVelocityChanel && particles.hasParameter(BuiltinParticleParameter.VELOCITY)) {
+                const { velocity } = particles;
+                const velocityData = velocity.data;
                 for (let i = 0; i < count; i++) {
                     const offset = i * this._vertDynamicAttrsFloatCount;
-                    dynamicBuffer[offset + 11] = 0;
-                    dynamicBuffer[offset + 12] = 0;
-                    dynamicBuffer[offset + 13] = 0;
-                }
-                if (particles.hasParameter(BuiltinParticleParameter.ANIMATED_VELOCITY)) {
-                    const { animatedVelocity } = particles;
-                    const animatedVelocityData = animatedVelocity.data;
-                    for (let i = 0; i < count; i++) {
-                        const offset = i * this._vertDynamicAttrsFloatCount;
-                        const xOffset = i * 3;
-                        const yOffset = xOffset + 1;
-                        const zOffset = yOffset + 1;
-                        dynamicBuffer[offset + 11] += animatedVelocityData[xOffset];
-                        dynamicBuffer[offset + 12] += animatedVelocityData[yOffset];
-                        dynamicBuffer[offset + 13] += animatedVelocityData[zOffset];
-                    }
-                }
-                if (particles.hasParameter(BuiltinParticleParameter.VELOCITY)) {
-                    const { velocity } = particles;
-                    const velocityData = velocity.data;
-                    for (let i = 0; i < count; i++) {
-                        const offset = i * this._vertDynamicAttrsFloatCount;
-                        const xOffset = i * 3;
-                        const yOffset = xOffset + 1;
-                        const zOffset = yOffset + 1;
-                        dynamicBuffer[offset + 11] += velocityData[xOffset];
-                        dynamicBuffer[offset + 12] += velocityData[yOffset];
-                        dynamicBuffer[offset + 13] += velocityData[zOffset];
-                    }
+                    const xOffset = i * 3;
+                    const yOffset = xOffset + 1;
+                    const zOffset = yOffset + 1;
+                    dynamicBuffer[offset + 11] += velocityData[xOffset];
+                    dynamicBuffer[offset + 12] += velocityData[yOffset];
+                    dynamicBuffer[offset + 13] += velocityData[zOffset];
                 }
             }
             this._insBuffers[1].update(dynamicBuffer); // update dynamic buffer

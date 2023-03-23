@@ -27,14 +27,14 @@ import { lerp, pseudoRandom } from '../../core';
 import { ccclass, displayOrder, range, serializable, tooltip, type } from '../../core/data/decorators';
 import { CurveRange } from '../curve-range';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
-import { ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 
 const SPEED_MODIFIER_RAND_OFFSET = 388180;
 
-@ccclass('cc.SpeedModifierModule')
-@ParticleModule.register('SpeedModifie', ModuleExecStage.UPDATE, 9)
-export class SpeedModifierModule extends ParticleModule {
+@ccclass('cc.ScaleSpeedModule')
+@ParticleModule.register('ScaleSpeed', ModuleExecStage.UPDATE, 9)
+export class ScaleSpeedModule extends ParticleModule {
     /**
      * @zh 速度修正系数。
      */
@@ -43,33 +43,47 @@ export class SpeedModifierModule extends ParticleModule {
     @range([-1, 1])
     @displayOrder(5)
     @tooltip('i18n:velocityOvertimeModule.speedModifier')
-    public speedModifier = new CurveRange(1);
+    public scalar = new CurveRange(1);
+
+    public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+        if (this.scalar.mode === CurveRange.Mode.Curve || this.scalar.mode === CurveRange.Mode.TwoCurves) {
+            context.markRequiredParameter(BuiltinParticleParameter.NORMALIZED_ALIVE_TIME);
+        }
+        if (this.scalar.mode === CurveRange.Mode.TwoConstants || this.scalar.mode === CurveRange.Mode.TwoCurves) {
+            context.markRequiredParameter(BuiltinParticleParameter.RANDOM_SEED);
+        }
+    }
 
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
-        const normalizedAliveTime = particles.normalizedAliveTime.data;
-        const randomSeed = particles.randomSeed.data;
-        const speedModifier = particles.speedModifier.data;
+        if (!particles.hasParameter(BuiltinParticleParameter.VELOCITY)) {
+            return;
+        }
+        const { velocity }  = particles;
         const { fromIndex, toIndex } = context;
-        if (this.speedModifier.mode === CurveRange.Mode.Constant) {
-            const constant = this.speedModifier.constant;
+        if (this.scalar.mode === CurveRange.Mode.Constant) {
+            const constant = this.scalar.constant;
             for (let i = fromIndex; i < toIndex; i++) {
-                speedModifier[i] = constant;
+                velocity.multiply1fAt(constant, i);
             }
-        } else if (this.speedModifier.mode === CurveRange.Mode.Curve) {
-            const { spline, multiplier } = this.speedModifier;
+        } else if (this.scalar.mode === CurveRange.Mode.Curve) {
+            const { spline, multiplier } = this.scalar;
+            const normalizedAliveTime = particles.normalizedAliveTime.data;
             for (let i = fromIndex; i < toIndex; i++) {
-                speedModifier[i] = spline.evaluate(normalizedAliveTime[i]) * multiplier;
+                velocity.multiply1fAt(spline.evaluate(normalizedAliveTime[i]) * multiplier, i);
             }
-        } else if (this.speedModifier.mode === CurveRange.Mode.TwoConstants) {
-            const { constantMin, constantMax } = this.speedModifier;
+        } else if (this.scalar.mode === CurveRange.Mode.TwoConstants) {
+            const randomSeed = particles.randomSeed.data;
+            const { constantMin, constantMax } = this.scalar;
             for (let i = fromIndex; i < toIndex; i++) {
-                speedModifier[i] = lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + SPEED_MODIFIER_RAND_OFFSET));
+                velocity.multiply1fAt(lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + SPEED_MODIFIER_RAND_OFFSET)), i);
             }
         } else {
-            const { splineMin, splineMax, multiplier } = this.speedModifier;
+            const { splineMin, splineMax, multiplier } = this.scalar;
+            const randomSeed = particles.randomSeed.data;
+            const normalizedAliveTime = particles.normalizedAliveTime.data;
             for (let i = fromIndex; i < toIndex; i++) {
                 const normalizedTime = normalizedAliveTime[i];
-                speedModifier[i] = lerp(splineMin.evaluate(normalizedTime), splineMax.evaluate(normalizedTime), pseudoRandom(randomSeed[i] + SPEED_MODIFIER_RAND_OFFSET)) * multiplier;
+                velocity.multiply1fAt(lerp(splineMin.evaluate(normalizedTime), splineMax.evaluate(normalizedTime), pseudoRandom(randomSeed[i] + SPEED_MODIFIER_RAND_OFFSET)) * multiplier, i);
             }
         }
     }

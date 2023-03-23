@@ -74,10 +74,6 @@ export default class Burst {
     private _repeatCount = 1;
     @serializable
     private _time = 0;
-
-    public getMaxCount (psys) {
-        return this.count.getMax() * Math.min(Math.ceil(psys.duration / this.repeatInterval), this.repeatCount);
-    }
 }
 
 @ccclass('cc.BurstModule')

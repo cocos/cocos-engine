@@ -1,7 +1,7 @@
 import { Vec3 } from '../../core';
 import { ccclass } from '../../core/data/decorators';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
-import { ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 
 @ccclass('cc.StateModule')
@@ -10,6 +10,11 @@ export class StateModule extends ParticleModule {
     constructor () {
         super();
         this.enabled = true;
+    }
+
+    public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+        context.markRequiredParameter(BuiltinParticleParameter.NORMALIZED_ALIVE_TIME);
+        context.markRequiredParameter(BuiltinParticleParameter.INV_START_LIFETIME);
     }
 
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {

@@ -31,7 +31,7 @@ import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { CurveRange } from '../curve-range';
 import { assert, CCBoolean } from '../../core';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
-import { ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
 
 const ROTATION_OVERTIME_RAND_OFFSET = 125292;
 
@@ -125,10 +125,22 @@ export class RotationModule extends ParticleModule {
     @serializable
     private _x: CurveRange | null = null;
 
+    public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+        if (this.separateAxes && DEBUG) {
+            assert(this.x.mode === this.y.mode && this.y.mode === this.z.mode, 'The curve of x, y, z must have same mode!');
+        }
+        context.markRequiredParameter(BuiltinParticleParameter.ANGULAR_VELOCITY);
+        context.markRequiredParameter(BuiltinParticleParameter.ROTATION);
+        if (this.z.mode === CurveRange.Mode.Curve || this.z.mode === CurveRange.Mode.TwoCurves) {
+            context.markRequiredParameter(BuiltinParticleParameter.NORMALIZED_ALIVE_TIME);
+        }
+        if (this.z.mode === CurveRange.Mode.TwoConstants || this.z.mode === CurveRange.Mode.TwoCurves) {
+            context.markRequiredParameter(BuiltinParticleParameter.RANDOM_SEED);
+        }
+    }
+
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         const { angularVelocity } = particles;
-        const normalizedAliveTime = particles.normalizedAliveTime.data;
-        const randomSeed = particles.randomSeed.data;
         const { fromIndex, toIndex } = context;
         if (!this._separateAxes) {
             if (this.z.mode === CurveRange.Mode.Constant) {
@@ -138,25 +150,26 @@ export class RotationModule extends ParticleModule {
                 }
             } else if (this.z.mode === CurveRange.Mode.Curve) {
                 const { spline, multiplier } = this.z;
+                const normalizedAliveTime = particles.normalizedAliveTime.data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     angularVelocity.addZAt(spline.evaluate(normalizedAliveTime[i]) * multiplier, i);
                 }
             } else if (this.z.mode === CurveRange.Mode.TwoConstants) {
+                const randomSeed = particles.randomSeed.data;
                 const { constantMin, constantMax } = this.z;
                 for (let i = fromIndex; i < toIndex; i++) {
                     angularVelocity.addZAt(lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + ROTATION_OVERTIME_RAND_OFFSET)), i);
                 }
             } else {
                 const { splineMin, splineMax, multiplier } = this.z;
+                const normalizedAliveTime = particles.normalizedAliveTime.data;
+                const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const time = normalizedAliveTime[i];
                     angularVelocity.addZAt(lerp(splineMin.evaluate(time), splineMax.evaluate(time), pseudoRandom(randomSeed[i] + ROTATION_OVERTIME_RAND_OFFSET)) * multiplier, i);
                 }
             }
         } else {
-            if (DEBUG) {
-                assert(this.x.mode === this.y.mode && this.y.mode === this.z.mode, 'The curve of x, y, z must have same mode!');
-            }
             // eslint-disable-next-line no-lonely-if
             if (this.z.mode === CurveRange.Mode.Constant) {
                 const constantX = this.x.constant;
@@ -169,6 +182,7 @@ export class RotationModule extends ParticleModule {
                 const { spline: splineX, multiplier: xMultiplier } = this.x;
                 const { spline: splineY, multiplier: yMultiplier } = this.y;
                 const { spline: splineZ, multiplier: zMultiplier } = this.z;
+                const normalizedAliveTime = particles.normalizedAliveTime.data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const time = normalizedAliveTime[i];
                     angularVelocity.add3fAt(splineX.evaluate(time) * xMultiplier,
@@ -179,6 +193,7 @@ export class RotationModule extends ParticleModule {
                 const { constantMin: xMin, constantMax: xMax } = this.x;
                 const { constantMin: yMin, constantMax: yMax } = this.y;
                 const { constantMin: zMin, constantMax: zMax } = this.z;
+                const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const seed = randomSeed[i];
                     angularVelocity.add3fAt(lerp(xMin, xMax, pseudoRandom(seed + ROTATION_OVERTIME_RAND_OFFSET)),
@@ -189,6 +204,8 @@ export class RotationModule extends ParticleModule {
                 const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.x;
                 const { splineMin: yMin, splineMax: yMax, multiplier: yMultiplier } = this.y;
                 const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.z;
+                const normalizedAliveTime = particles.normalizedAliveTime.data;
+                const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const time = normalizedAliveTime[i];
                     const seed = randomSeed[i];

@@ -33,7 +33,6 @@ import { ParticleExecContext, ParticleEmitterParams, ParticleEventInfo } from '.
 
 const PROBABILITY_RANDOM_SEED_OFFSET = 199208;
 const eventInfo = new ParticleEventInfo();
-const tempVelocity = new Vec3();
 
 @ccclass('cc.LocationEventGeneratorModule')
 @ParticleModule.register('LocationEventGenerator', ModuleExecStage.UPDATE, 23)
@@ -59,22 +58,17 @@ export class LocationEventGeneratorModule extends ParticleModule {
         const { localToWorld } = context;
         const { simulationSpace } = params;
         const hasVelocity = particles.hasParameter(BuiltinParticleParameter.VELOCITY);
-        const hasAnimatedVelocity = particles.hasParameter(BuiltinParticleParameter.ANIMATED_VELOCITY);
         const hasRotation = particles.hasParameter(BuiltinParticleParameter.ROTATION);
         const hasSize = particles.hasParameter(BuiltinParticleParameter.SIZE);
         const hasColor = particles.hasParameter(BuiltinParticleParameter.COLOR);
         const hasPosition = particles.hasParameter(BuiltinParticleParameter.POSITION);
         let velocity: ParticleVec3Parameter | null = null;
-        let animatedVelocity: ParticleVec3Parameter | null = null;
         let rotation: ParticleVec3Parameter | null = null;
         let size: ParticleVec3Parameter | null = null;
         let color: ParticleColorParameter | null = null;
         let position: ParticleVec3Parameter | null = null;
         if (hasVelocity) {
             velocity = particles.velocity;
-        }
-        if (hasAnimatedVelocity) {
-            animatedVelocity = particles.animatedVelocity;
         }
         if (hasRotation) {
             rotation = particles.rotation;
@@ -102,10 +96,7 @@ export class LocationEventGeneratorModule extends ParticleModule {
                     (<ParticleVec3Parameter>position).getVec3At(eventInfo.position, i);
                 }
                 if (hasVelocity) {
-                    eventInfo.velocity.add((<ParticleVec3Parameter>velocity).getVec3At(tempVelocity, i));
-                }
-                if (hasAnimatedVelocity) {
-                    eventInfo.velocity.add((<ParticleVec3Parameter>animatedVelocity).getVec3At(tempVelocity, i));
+                    (<ParticleVec3Parameter>velocity).getVec3At(eventInfo.velocity, i);
                 }
                 if (hasRotation) {
                     (<ParticleVec3Parameter>rotation).getVec3At(eventInfo.rotation, i);

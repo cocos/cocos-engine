@@ -29,7 +29,7 @@ import { lerp, pseudoRandom, repeat } from '../../core/math';
 import { Enum } from '../../core/value-types';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { createRealCurve, CurveRange } from '../curve-range';
-import { ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { assert, CCFloat, CCInteger, RealCurve, RealInterpolationMode } from '../../core';
 
@@ -226,16 +226,33 @@ export class SubUVAnimationModule extends ParticleModule {
     @serializable
     private _fps = 30;
 
-    public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
-        const normalizedAliveTime = particles.normalizedAliveTime.data;
-        const invStartLifeTime = particles.invStartLifeTime.data;
-        const frameIndex = particles.frameIndex.data;
-        const randomSeed = particles.randomSeed.data;
-        const { fromIndex, toIndex } = context;
+    public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         if (DEBUG) {
             assert(this.startFrame.mode === CurveRange.Mode.Constant || this.startFrame.mode === CurveRange.Mode.TwoConstants,
                 'The mode of startFrame in texture-animation module can not be Curve and TwoCurve!');
         }
+        context.markRequiredParameter(BuiltinParticleParameter.FRAME_INDEX);
+        if (this.startFrame.mode === CurveRange.Mode.TwoConstants || (this.animation === Animation.SINGLE_ROW && this.randomRow)) {
+            context.markRequiredParameter(BuiltinParticleParameter.RANDOM_SEED);
+        }
+        if (this._timeMode === TimeMode.LIFETIME && (this.frameOverTime.mode === CurveRange.Mode.TwoConstants
+            || this.frameOverTime.mode === CurveRange.Mode.TwoCurves)) {
+            context.markRequiredParameter(BuiltinParticleParameter.RANDOM_SEED);
+        }
+        if (this._timeMode === TimeMode.LIFETIME && (this.frameOverTime.mode === CurveRange.Mode.TwoCurves
+            || this.frameOverTime.mode === CurveRange.Mode.Curve)) {
+            context.markRequiredParameter(BuiltinParticleParameter.NORMALIZED_ALIVE_TIME);
+        }
+        if (this._timeMode === TimeMode.FPS) {
+            context.markRequiredParameter(BuiltinParticleParameter.NORMALIZED_ALIVE_TIME);
+            context.markRequiredParameter(BuiltinParticleParameter.INV_START_LIFETIME);
+        }
+    }
+
+    public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+        const frameIndex = particles.frameIndex.data;
+        const { fromIndex, toIndex } = context;
+
         if (this._timeMode === TimeMode.LIFETIME) {
             const cycleCount = this.cycleCount;
             const invRange = 1 / (this.animation === Animation.WHOLE_SHEET ? (this._numTilesX * this._numTilesY) : this._numTilesX);
@@ -248,17 +265,21 @@ export class SubUVAnimationModule extends ParticleModule {
                         frameIndex[i] = frame;
                     }
                 } else if (this.frameOverTime.mode === CurveRange.Mode.TwoConstants) {
+                    const randomSeed = particles.randomSeed.data;
                     const { constantMin, constantMax } = this.frameOverTime;
                     for (let i = fromIndex; i < toIndex; i++) {
                         frameIndex[i] = repeat(cycleCount * (lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET)) + startFrame) * invRange, 1);
                     }
                 } else if (this.frameOverTime.mode === CurveRange.Mode.Curve) {
                     const { spline, multiplier } = this.frameOverTime;
+                    const normalizedAliveTime = particles.normalizedAliveTime.data;
                     for (let i = fromIndex; i < toIndex; i++) {
                         frameIndex[i] = repeat(cycleCount * (spline.evaluate(normalizedAliveTime[i]) * multiplier + startFrame) * invRange, 1);
                     }
                 } else {
+                    const randomSeed = particles.randomSeed.data;
                     const { splineMin, splineMax, multiplier } = this.frameOverTime;
+                    const normalizedAliveTime = particles.normalizedAliveTime.data;
                     for (let i = fromIndex; i < toIndex; i++) {
                         const time = normalizedAliveTime[i];
                         frameIndex[i] = repeat(cycleCount * (lerp(splineMin.evaluate(time), splineMax.evaluate(time), pseudoRandom(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET)) * multiplier + startFrame) * invRange, 1);
@@ -266,6 +287,7 @@ export class SubUVAnimationModule extends ParticleModule {
                 }
             } else if (this.startFrame.mode === CurveRange.Mode.TwoConstants) {
                 const { constantMin, constantMax } = this.startFrame;
+                const randomSeed = particles.randomSeed.data;
                 if (this.frameOverTime.mode === CurveRange.Mode.Constant) {
                     const frame = this.frameOverTime.constant;
                     for (let i = fromIndex; i < toIndex; i++) {
@@ -280,12 +302,14 @@ export class SubUVAnimationModule extends ParticleModule {
                     }
                 } else if (this.frameOverTime.mode === CurveRange.Mode.Curve) {
                     const { spline, multiplier } = this.frameOverTime;
+                    const normalizedAliveTime = particles.normalizedAliveTime.data;
                     for (let i = fromIndex; i < toIndex; i++) {
                         const startFrame = lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET));
                         frameIndex[i] = repeat(cycleCount * (spline.evaluate(normalizedAliveTime[i]) * multiplier + startFrame) * invRange, 1);
                     }
                 } else {
                     const { splineMin, splineMax, multiplier } = this.frameOverTime;
+                    const normalizedAliveTime = particles.normalizedAliveTime.data;
                     for (let i = fromIndex; i < toIndex; i++) {
                         const startFrame = lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET));
                         const time = normalizedAliveTime[i];
@@ -298,6 +322,7 @@ export class SubUVAnimationModule extends ParticleModule {
                 const rowLength = 1 / this.numTilesY;
                 if (this.randomRow) {
                     const rows = this.numTilesY;
+                    const randomSeed = particles.randomSeed.data;
                     for (let i = fromIndex; i < toIndex; i++) {
                         const startRow = Math.floor(pseudoRandom(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET) * rows);
                         const from = startRow * rowLength;
@@ -314,6 +339,8 @@ export class SubUVAnimationModule extends ParticleModule {
             }
         } else {
             const invRange = 1 / (this.animation === Animation.WHOLE_SHEET ? (this._numTilesX * this._numTilesY) : this._numTilesX);
+            const normalizedAliveTime = particles.normalizedAliveTime.data;
+            const invStartLifeTime = particles.invStartLifeTime.data;
             // use frameIndex to cache lerp ratio
             if (this.startFrame.mode === CurveRange.Mode.Constant) {
                 const startFrame = this.startFrame.constant;
@@ -321,6 +348,7 @@ export class SubUVAnimationModule extends ParticleModule {
                     frameIndex[i] = repeat((normalizedAliveTime[i] / invStartLifeTime[i] * this._fps + startFrame) * invRange, 1);
                 }
             } else if (this.startFrame.mode === CurveRange.Mode.TwoConstants) {
+                const randomSeed = particles.randomSeed.data;
                 const { constantMin, constantMax } = this.startFrame;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const startFrame = lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET));
@@ -331,6 +359,7 @@ export class SubUVAnimationModule extends ParticleModule {
             if (this.animation === Animation.SINGLE_ROW) {
                 const rowLength = 1 / this.numTilesY;
                 if (this.randomRow) {
+                    const randomSeed = particles.randomSeed.data;
                     const rows = this.numTilesY;
                     for (let i = fromIndex; i < toIndex; i++) {
                         const startRow = Math.floor(pseudoRandom(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET) * rows);

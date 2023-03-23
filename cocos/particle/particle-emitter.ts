@@ -46,7 +46,7 @@ import { SpawnPerUnitModule } from './modules/spawn-per-unit';
 import { GravityModule } from './modules/gravity';
 import { StateModule } from './modules/state';
 import { SolveModule } from './modules/solve';
-import { SpeedModifierModule } from './modules/speed-modifier';
+import { ScaleSpeedModule } from './modules/scale-speed';
 import { StartRotationModule } from './modules/start-rotation';
 import { ShapeModule } from './modules/shape';
 import { InheritedProperty, ParticleEmitterParams, ParticleEmitterState, ParticleEventInfo, ParticleEventType, ParticleExecContext, PlayingState } from './particle-base';
@@ -632,7 +632,7 @@ export class ParticleEmitter extends Component {
         this._updateStage.getOrAddModule(SizeModule);
         this._updateStage.getOrAddModule(StateModule);
         this._updateStage.getOrAddModule(SolveModule);
-        this._updateStage.getOrAddModule(SpeedModifierModule);
+        this._updateStage.getOrAddModule(ScaleSpeedModule);
         this._updateStage.getOrAddModule(SubUVAnimationModule);
         this._updateStage.getOrAddModule(AddVelocityModule);
         this._updateStage.getOrAddModule(DeathEventGeneratorModule);
@@ -715,7 +715,7 @@ export class ParticleEmitter extends Component {
         if (this._eventReceivers.length > 0 || params.simulationSpace === Space.WORLD) {
             context.markRequiredParameter(BuiltinParticleParameter.POSITION);
         }
-        particles.ensureParameters(context.requiredParameters);
+        particles.ensureParameters(context.requiredParameters, this._customParameters);
     }
 
     private updateBounds () {
@@ -765,14 +765,29 @@ export class ParticleEmitter extends Component {
     }
 
     private resetAnimatedState (particles: ParticleDataSet, fromIndex: number, toIndex: number) {
-        if (particles.hasParameter(BuiltinParticleParameter.ANIMATED_VELOCITY)) {
-            particles.animatedVelocity.fill1f(0, fromIndex, toIndex);
+        if (particles.hasParameter(BuiltinParticleParameter.VELOCITY)) {
+            if (particles.hasParameter(BuiltinParticleParameter.BASE_VELOCITY)) {
+                particles.velocity.copyFrom(particles.baseVelocity, fromIndex, toIndex);
+            } else {
+                particles.velocity.fill1f(0, fromIndex, toIndex);
+            }
+        }
+        if (particles.hasParameter(BuiltinParticleParameter.SIZE)) {
+            if (particles.hasParameter(BuiltinParticleParameter.BASE_SIZE)) {
+                particles.size.copyFrom(particles.baseSize, fromIndex, toIndex);
+            } else {
+                particles.size.fill1f(1, fromIndex, toIndex);
+            }
         }
         if (particles.hasParameter(BuiltinParticleParameter.ANGULAR_VELOCITY)) {
             particles.angularVelocity.fill1f(0, fromIndex, toIndex);
         }
-        if (particles.hasParameter(BuiltinParticleParameter.COLOR) && particles.hasParameter(BuiltinParticleParameter.START_COLOR)) {
-            particles.color.copyFrom(particles.startColor, fromIndex, toIndex);
+        if (particles.hasParameter(BuiltinParticleParameter.COLOR)) {
+            if (particles.hasParameter(BuiltinParticleParameter.BASE_COLOR)) {
+                particles.color.copyFrom(particles.baseColor, fromIndex, toIndex);
+            } else {
+                particles.color.fill(Color.WHITE, fromIndex, toIndex);
+            }
         }
     }
 
@@ -822,11 +837,8 @@ export class ParticleEmitter extends Component {
             if (particles.hasParameter(BuiltinParticleParameter.VELOCITY)) {
                 particles.velocity.fill1f(0, fromIndex, toIndex);
             }
-            if (particles.hasParameter(BuiltinParticleParameter.ANIMATED_VELOCITY)) {
-                particles.animatedVelocity.fill1f(0, fromIndex, toIndex);
-            }
-            if (particles.hasParameter(BuiltinParticleParameter.SPEED_MODIFIER)) {
-                particles.speedModifier.fill(1, fromIndex, toIndex);
+            if (particles.hasParameter(BuiltinParticleParameter.BASE_VELOCITY)) {
+                particles.baseVelocity.fill1f(0, fromIndex, toIndex);
             }
             if (particles.hasParameter(BuiltinParticleParameter.ROTATION)) {
                 particles.rotation.fill1f(0, fromIndex, toIndex);
@@ -834,20 +846,17 @@ export class ParticleEmitter extends Component {
             if (particles.hasParameter(BuiltinParticleParameter.AXIS_OF_ROTATION)) {
                 particles.axisOfRotation.fill1f(0, fromIndex, toIndex);
             }
-            if (particles.hasParameter(BuiltinParticleParameter.ANGULAR_VELOCITY)) {
-                particles.angularVelocity.fill1f(0, fromIndex, toIndex);
-            }
-            if (particles.hasParameter(BuiltinParticleParameter.START_SIZE)) {
-                particles.startSize.fill1f(1, fromIndex, toIndex);
+            if (particles.hasParameter(BuiltinParticleParameter.BASE_SIZE)) {
+                particles.baseSize.fill1f(1, fromIndex, toIndex);
             }
             if (particles.hasParameter(BuiltinParticleParameter.SIZE)) {
                 particles.size.fill1f(1, fromIndex, toIndex);
             }
-            if (particles.hasParameter(BuiltinParticleParameter.START_COLOR)) {
-                particles.startColor.fillColor(Color.WHITE, fromIndex, toIndex);
+            if (particles.hasParameter(BuiltinParticleParameter.BASE_COLOR)) {
+                particles.baseColor.fill(Color.WHITE, fromIndex, toIndex);
             }
             if (particles.hasParameter(BuiltinParticleParameter.COLOR)) {
-                particles.color.fillColor(Color.WHITE, fromIndex, toIndex);
+                particles.color.fill(Color.WHITE, fromIndex, toIndex);
             }
             if (particles.hasParameter(BuiltinParticleParameter.INV_START_LIFETIME)) {
                 particles.invStartLifeTime.fill(1, fromIndex, toIndex);

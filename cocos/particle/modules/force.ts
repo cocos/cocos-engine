@@ -37,7 +37,6 @@ import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set'
 const FORCE_OVER_LIFETIME_RAND_OFFSET = 212165;
 
 const _temp_v3 = new Vec3();
-const rotation = new Quat();
 
 @ccclass('cc.ForceModule')
 @ParticleModule.register('Force', ModuleExecStage.UPDATE, 4)
@@ -83,12 +82,15 @@ export class ForceModule extends ParticleModule {
 
     // TODO:currently not supported
     public randomized = false;
+    private _needTransform = false;
+    private _rotation = new Quat();
 
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         if (DEBUG) {
             assert(this.x.mode === this.y.mode && this.y.mode === this.z.mode, 'The curve of x, y, z must have same mode!');
         }
         context.markRequiredParameter(BuiltinParticleParameter.POSITION);
+        context.markRequiredParameter(BuiltinParticleParameter.BASE_VELOCITY);
         context.markRequiredParameter(BuiltinParticleParameter.VELOCITY);
         if (this.x.mode === CurveRange.Mode.Curve || this.x.mode === CurveRange.Mode.TwoCurves) {
             context.markRequiredParameter(BuiltinParticleParameter.NORMALIZED_ALIVE_TIME);
@@ -96,13 +98,14 @@ export class ForceModule extends ParticleModule {
         if (this.x.mode === CurveRange.Mode.TwoConstants || this.x.mode === CurveRange.Mode.TwoCurves) {
             context.markRequiredParameter(BuiltinParticleParameter.RANDOM_SEED);
         }
+        this._needTransform = calculateTransform(params.simulationSpace, this.space, context.localToWorld, context.worldToLocal, this._rotation);
     }
 
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
-        const needTransform = calculateTransform(params.simulationSpace, this.space, context.localToWorld, context.worldToLocal, rotation);
-        const { velocity } = particles;
+        const { velocity, baseVelocity } = particles;
         const { fromIndex, toIndex, deltaTime } = context;
-        if (needTransform) {
+        const rotation = this._rotation;
+        if (this._needTransform) {
             if (this.x.mode === CurveRange.Mode.Constant) {
                 const force = Vec3.set(_temp_v3,
                     this.x.constant,
@@ -112,6 +115,7 @@ export class ForceModule extends ParticleModule {
                 Vec3.multiplyScalar(force, force, deltaTime);
                 for (let i = fromIndex; i < toIndex; i++) {
                     velocity.addVec3At(force, i);
+                    baseVelocity.addVec3At(force, i);
                 }
             } else if (this.x.mode === CurveRange.Mode.Curve) {
                 const normalizedAliveTime = particles.normalizedAliveTime.data;
@@ -127,6 +131,7 @@ export class ForceModule extends ParticleModule {
                     Vec3.transformQuat(force, force, rotation);
                     Vec3.multiplyScalar(force, force, deltaTime);
                     velocity.addVec3At(force, i);
+                    baseVelocity.addVec3At(force, i);
                 }
             } else if (this.x.mode === CurveRange.Mode.TwoConstants) {
                 const { constantMin: xMin, constantMax: xMax } = this.x;
@@ -142,6 +147,7 @@ export class ForceModule extends ParticleModule {
                     Vec3.transformQuat(force, force, rotation);
                     Vec3.multiplyScalar(force, force, deltaTime);
                     velocity.addVec3At(force, i);
+                    baseVelocity.addVec3At(force, i);
                 }
             } else {
                 const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.x;
@@ -159,6 +165,7 @@ export class ForceModule extends ParticleModule {
                     Vec3.transformQuat(force, force, rotation);
                     Vec3.multiplyScalar(force, force, deltaTime);
                     velocity.addVec3At(force, i);
+                    baseVelocity.addVec3At(force, i);
                 }
             }
         } else {
@@ -171,6 +178,7 @@ export class ForceModule extends ParticleModule {
                 Vec3.multiplyScalar(force, force, deltaTime);
                 for (let i = fromIndex; i < toIndex; i++) {
                     velocity.addVec3At(force, i);
+                    baseVelocity.addVec3At(force, i);
                 }
             } else if (this.x.mode === CurveRange.Mode.Curve) {
                 const normalizedAliveTime = particles.normalizedAliveTime.data;
@@ -185,6 +193,7 @@ export class ForceModule extends ParticleModule {
                         zCurve.evaluate(normalizedTime) * zMultiplier);
                     Vec3.multiplyScalar(force, force, deltaTime);
                     velocity.addVec3At(force, i);
+                    baseVelocity.addVec3At(force, i);
                 }
             } else if (this.x.mode === CurveRange.Mode.TwoConstants) {
                 const { constantMin: xMin, constantMax: xMax } = this.x;
@@ -199,6 +208,7 @@ export class ForceModule extends ParticleModule {
                         lerp(zMin, zMax, pseudoRandom(seed)));
                     Vec3.multiplyScalar(force, force, deltaTime);
                     velocity.addVec3At(force, i);
+                    baseVelocity.addVec3At(force, i);
                 }
             } else {
                 const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.x;
@@ -215,6 +225,7 @@ export class ForceModule extends ParticleModule {
                         lerp(zMin.evaluate(normalizedTime), zMax.evaluate(normalizedTime), pseudoRandom(seed))  * zMultiplier);
                     Vec3.multiplyScalar(force, force, deltaTime);
                     velocity.addVec3At(force, i);
+                    baseVelocity.addVec3At(force, i);
                 }
             }
         }

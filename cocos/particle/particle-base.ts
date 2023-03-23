@@ -349,6 +349,7 @@ export class ParticleExecContext {
         this._deathEvents?.clear();
         this._locationEvents?.clear();
         this._requiredParameters.clear();
+        this.executionStage = ModuleExecStage.NONE;
         this.setExecuteRange(0, 0);
         this.resetSpawningState();
     }

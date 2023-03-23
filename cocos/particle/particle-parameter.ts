@@ -29,6 +29,8 @@ import { ParticleHandle } from './particle-data-set';
 
 const DEFAULT_CAPACITY = 16;
 const tempColor = new Color();
+const BATCH_OPERATION_THRESHOLD_VEC3 = 330;
+const BATCH_OPERATION_THRESHOLD = 1000;
 export abstract class ParticleParameter {
     get capacity () {
         return this._capacity;
@@ -220,6 +222,13 @@ export class ParticleVec3Parameter extends ParticleParameter {
         this._data[offset + 2] += val.z;
     }
 
+    subVec3At (val: Vec3, handle: ParticleHandle) {
+        const offset = handle * 3;
+        this._data[offset] -= val.x;
+        this._data[offset + 1] -= val.y;
+        this._data[offset + 2] -= val.z;
+    }
+
     add3fAt (x: number, y: number, z: number, handle: ParticleHandle) {
         const offset = handle * 3;
         this._data[offset] += x;
@@ -270,14 +279,39 @@ export class ParticleVec3Parameter extends ParticleParameter {
         this._data[offset + 2] += val;
     }
 
+    copyFrom (src: ParticleVec3Parameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+        if ((toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD_VEC3) {
+            this._data.set(src._data.subarray(fromIndex * 3, toIndex * 3), fromIndex * 3);
+        } else {
+            const destData = this._data;
+            const srcData = src._data;
+            for (let i = fromIndex * 3, length = toIndex * 3; i < length; i++) {
+                destData[i] = srcData[i];
+            }
+        }
+    }
+
     fill1f (val: number, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
-        if (toIndex - fromIndex > 1000) {
+        if (toIndex - fromIndex > BATCH_OPERATION_THRESHOLD_VEC3) {
             this._data.fill(val, fromIndex * 3, toIndex * 3);
         } else {
             const data = this._data;
             for (let i = fromIndex * 3, length = toIndex * 3; i < length; i++) {
                 data[i] = val;
             }
+        }
+    }
+
+    fill (val: Vec3, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+        const data = this._data;
+        const x = val.x;
+        const y = val.y;
+        const z = val.z;
+        for (let i = fromIndex; i < toIndex; i++) {
+            const offset = 3 * i;
+            data[offset] = x;
+            data[offset + 1] = y;
+            data[offset + 2] = z;
         }
     }
 }
@@ -317,8 +351,20 @@ export class ParticleFloatParameter extends ParticleParameter {
         this._data[handle] += val;
     }
 
+    copyFrom (src: ParticleFloatParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+        if ((toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD) {
+            this._data.set(src._data.subarray(fromIndex, toIndex), fromIndex);
+        } else {
+            const destData = this._data;
+            const srcData = src._data;
+            for (let i = fromIndex; i < toIndex; i++) {
+                destData[i] = srcData[i];
+            }
+        }
+    }
+
     fill (val: number, fromIndex: number, toIndex: number) {
-        if ((toIndex - fromIndex) > 1000) {
+        if ((toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD) {
             this._data.fill(val, fromIndex, toIndex);
         } else {
             const data = this._data;
@@ -360,8 +406,20 @@ export class ParticleUint32Parameter extends ParticleParameter {
         this._data[handle] = val;
     }
 
+    copyFrom (src: ParticleUint32Parameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+        if ((toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD) {
+            this._data.set(src._data.subarray(fromIndex, toIndex), fromIndex);
+        } else {
+            const destData = this._data;
+            const srcData = src._data;
+            for (let i = fromIndex; i < toIndex; i++) {
+                destData[i] = srcData[i];
+            }
+        }
+    }
+
     fill (val: number, fromIndex: number, toIndex: number) {
-        if ((toIndex - fromIndex) > 1000) {
+        if ((toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD) {
             this._data.fill(val, fromIndex, toIndex);
         } else {
             const data = this._data;
@@ -426,7 +484,7 @@ export class ParticleColorParameter extends ParticleParameter {
     }
 
     fillUint32 (val: number, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
-        if ((toIndex - fromIndex) > 1000) {
+        if ((toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD) {
             this._data.fill(val, fromIndex, toIndex);
         } else {
             const data = this._data;
@@ -436,13 +494,13 @@ export class ParticleColorParameter extends ParticleParameter {
         }
     }
 
-    fillColor (color: Color, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    fill (color: Color, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
         const val = Color.toUint32(color);
         this.fillUint32(val, fromIndex, toIndex);
     }
 
     copyFrom (src: ParticleColorParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
-        if ((toIndex - fromIndex) > 1000) {
+        if ((toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD) {
             this._data.set(src._data.subarray(fromIndex, toIndex), fromIndex);
         } else {
             const destData = this._data;

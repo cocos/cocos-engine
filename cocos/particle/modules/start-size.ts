@@ -25,7 +25,7 @@
 
 import { ccclass, displayOrder, formerlySerializedAs, radian, range, serializable, tooltip, type, visible } from '../../core/data/decorators';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
-import { ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
 import { ParticleExecContext, ParticleEmitterParams } from '../particle-base';
 import { CurveRange } from '../curve-range';
 import { GradientRange } from '../gradient-range';
@@ -53,11 +53,11 @@ export class StartSizeModule extends ParticleModule {
     @type(CurveRange)
     @tooltip('i18n:particle_system.startSizeX')
     @visible(function (this: StartSizeModule): boolean { return !this.startSize3D; })
-    public get startSize () {
+    public get baseSize () {
         return this.startSizeX;
     }
 
-    public set startSize (val) {
+    public set baseSize (val) {
         this.startSizeX = val;
     }
 
@@ -102,8 +102,13 @@ export class StartSizeModule extends ParticleModule {
     @serializable
     private _startSizeZ: CurveRange | null = null;
 
+    public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+        context.markRequiredParameter(BuiltinParticleParameter.BASE_SIZE);
+        context.markRequiredParameter(BuiltinParticleParameter.SIZE);
+    }
+
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
-        const { startSize, size } = particles;
+        const { baseSize, size } = particles;
         const { fromIndex, toIndex, normalizedTimeInCycle } = context;
         if (this.startSize3D) {
             if (this.startSizeX.mode === CurveRange.Mode.Constant) {
@@ -112,7 +117,7 @@ export class StartSizeModule extends ParticleModule {
                 const constantZ = this.startSizeZ.constant;
                 for (let i = fromIndex; i < toIndex; ++i) {
                     size.set3fAt(constantX, constantY, constantZ, i);
-                    startSize.set3fAt(constantX, constantY, constantZ, i);
+                    baseSize.set3fAt(constantX, constantY, constantZ, i);
                 }
             } else if (this.startSizeX.mode === CurveRange.Mode.TwoConstants) {
                 const { constantMin: xMin, constantMax: xMax } = this.startSizeX;
@@ -124,7 +129,7 @@ export class StartSizeModule extends ParticleModule {
                     const y = lerp(yMin, yMax, rand);
                     const z = lerp(zMin, zMax, rand);
                     size.set3fAt(x, y, z, i);
-                    startSize.set3fAt(x, y, z, i);
+                    baseSize.set3fAt(x, y, z, i);
                 }
             } else if (this.startSizeX.mode === CurveRange.Mode.Curve) {
                 const { spline: xCurve, multiplier: xMultiplier } = this.startSizeX;
@@ -135,7 +140,7 @@ export class StartSizeModule extends ParticleModule {
                     const y = yCurve.evaluate(normalizedTimeInCycle) * yMultiplier;
                     const z = zCurve.evaluate(normalizedTimeInCycle) * zMultiplier;
                     size.set3fAt(x, y, z, i);
-                    startSize.set3fAt(x, y, z, i);
+                    baseSize.set3fAt(x, y, z, i);
                 }
             } else {
                 const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.startSizeX;
@@ -147,7 +152,7 @@ export class StartSizeModule extends ParticleModule {
                     const y = lerp(yMin.evaluate(normalizedTimeInCycle), yMax.evaluate(normalizedTimeInCycle), rand) * yMultiplier;
                     const z = lerp(zMin.evaluate(normalizedTimeInCycle), zMax.evaluate(normalizedTimeInCycle), rand) * zMultiplier;
                     size.set3fAt(x, y, z, i);
-                    startSize.set3fAt(x, y, z, i);
+                    baseSize.set3fAt(x, y, z, i);
                 }
             }
         } else {
@@ -155,21 +160,21 @@ export class StartSizeModule extends ParticleModule {
             if (this.startSizeX.mode === CurveRange.Mode.Constant) {
                 const constantX = this.startSizeX.constant;
                 size.fill1f(constantX, fromIndex, toIndex);
-                startSize.fill1f(constantX, fromIndex, toIndex);
+                baseSize.fill1f(constantX, fromIndex, toIndex);
             } else if (this.startSizeX.mode === CurveRange.Mode.TwoConstants) {
                 const { constantMin: xMin, constantMax: xMax } = this.startSizeX;
                 for (let i = fromIndex; i < toIndex; ++i) {
                     const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
                     const pSize = lerp(xMin, xMax, rand);
                     size.set1fAt(pSize, i);
-                    startSize.set1fAt(pSize, i);
+                    baseSize.set1fAt(pSize, i);
                 }
             } else if (this.startSizeX.mode === CurveRange.Mode.Curve) {
                 const { spline: xCurve, multiplier: xMultiplier } = this.startSizeX;
                 for (let i = fromIndex; i < toIndex; ++i) {
                     const pSize = xCurve.evaluate(normalizedTimeInCycle) * xMultiplier;
                     size.set1fAt(pSize, i);
-                    startSize.set1fAt(pSize, i);
+                    baseSize.set1fAt(pSize, i);
                 }
             } else {
                 const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.startSizeX;
@@ -177,7 +182,7 @@ export class StartSizeModule extends ParticleModule {
                     const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
                     const pSize = lerp(xMin.evaluate(normalizedTimeInCycle), xMax.evaluate(normalizedTimeInCycle), rand) * xMultiplier;
                     size.set1fAt(pSize, i);
-                    startSize.set1fAt(pSize, i);
+                    baseSize.set1fAt(pSize, i);
                 }
             }
         }

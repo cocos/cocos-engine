@@ -171,7 +171,7 @@ export class CurveRange  {
         }
     }
 
-    public getMax (): number {
+    public getScalar (): number {
         return this.constant;
     }
 
