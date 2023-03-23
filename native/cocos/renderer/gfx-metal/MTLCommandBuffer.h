@@ -83,7 +83,10 @@ public:
     inline bool isCommandBufferBegan() const { return _commandBufferBegan; }
     inline CCMTLGPUCommandBufferObject *gpuCommandBufferObj() const { return _gpuCommandBufferObj; }
 
-    void reset();
+    void afterCommit();
+    
+    void signalFence();
+    void waitFence();
 
 protected:
     friend class CCMTLQueue;
@@ -116,6 +119,11 @@ protected:
     CCMTLSemaphore *_texCopySemaphore = nullptr;
 
     std::bitset<MAX_COLORATTACHMENTS> _colorAppearedBefore;
+    
+    CCMTLSemaphore* _inFlightSem{nullptr};
+
+    int32_t _currentFbWidth = 0;
+    int32_t _currentFbHeight = 0;
 };
 
 } // namespace gfx

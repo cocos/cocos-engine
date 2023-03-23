@@ -158,8 +158,8 @@ export class NodeEventProcessor {
         if (recursive && children.length > 0) {
             for (let i = 0; i < children.length; ++i) {
                 const child = children[i];
-                // @ts-expect-error child._eventProcessor is a protected property.
-                child._eventProcessor.setEnabled(value, true);
+                // NOTE: for circular reference reason, eventProcessor is typeof any, so it's OK to mark child as any
+                (child as any)._eventProcessor.setEnabled(value, true);
             }
         }
         // When a node is dispatching touch events and the node is set to disabled,
@@ -370,6 +370,10 @@ export class NodeEventProcessor {
         }
     }
 
+    public onUpdatingSiblingIndex () {
+        NodeEventProcessor.callbacksInvoker.emit(DispatcherEventType.MARK_LIST_DIRTY);
+    }
+
     private _searchComponentsInParent<T extends Component> (ctor: Constructor<T> | null) {
         const node = this.node;
         if (ctor) {
@@ -459,7 +463,6 @@ export class NodeEventProcessor {
      */
     private _newCallbacksInvoker (): CallbacksInvoker<SystemEventTypeUnion> {
         const callbacksInvoker = new CallbacksInvoker<SystemEventTypeUnion>();
-        // @ts-expect-error Property '_registerOffCallback' is private
         callbacksInvoker._registerOffCallback(() => {
             if (this.shouldHandleEventTouch && !this._hasTouchListeners()) {
                 this.shouldHandleEventTouch = false;
@@ -476,7 +479,10 @@ export class NodeEventProcessor {
 
     // #region handle mouse event
 
-    private _handleEventMouse (eventMouse: EventMouse): boolean {
+    /**
+     * @engineInternal
+     */
+    public _handleEventMouse (eventMouse: EventMouse): boolean {
         switch (eventMouse.type) {
         case InputEventType.MOUSE_DOWN:
             return this._handleMouseDown(eventMouse);
@@ -585,7 +591,10 @@ export class NodeEventProcessor {
 
     // #region handle touch event
 
-    private _handleEventTouch (eventTouch: EventTouch) {
+    /**
+     * @engineInternal
+     */
+    public _handleEventTouch (eventTouch: EventTouch) {
         switch (eventTouch.type) {
         case InputEventType.TOUCH_START:
             return this._handleTouchStart(eventTouch);

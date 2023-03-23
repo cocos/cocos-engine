@@ -20,7 +20,6 @@
  THE SOFTWARE.
 */
 
-import { ccclass, editable, serializable } from 'cc.decorator';
 import { EDITOR, TEST } from "internal:constants";
 import { legacyCC } from '../core/global-exports';
 import { Node } from './node';
@@ -28,9 +27,13 @@ import { applyTargetOverrides, expandNestedPrefabInstanceNode } from "./prefab/u
 import { assert } from "../core/platform/debug";
 import { updateChildrenForDeserialize } from '../core/utils/jsb-utils';
 import { SceneGlobals } from './scene-globals';
+import { patch_cc_Scene } from '../native-binding/decorators';
+import type { Scene as JsbScene } from './scene';
 
-export const Scene = jsb.Scene;
-export type Scene = jsb.Scene;
+declare const jsb: any;
+
+export const Scene: typeof JsbScene = jsb.Scene;
+export type Scene = JsbScene;
 legacyCC.Scene = Scene;
 
 const sceneProto: any = Scene.prototype;
@@ -78,7 +81,8 @@ Object.defineProperty(sceneProto, 'renderScene', {
 });
 
 sceneProto._ctor = function () {
-    Node.prototype._ctor.apply(this, arguments);
+    // TODO: Property '_ctor' does not exist on type 'Node'.
+    (Node.prototype as any)._ctor.apply(this, arguments);
     this._inited = false;
     this._renderSceneInternal = null;
     this._globalRef = null;
@@ -134,10 +138,4 @@ sceneProto._activate = function (active: boolean) {
 };
 
 // handle meta data, it is generated automatically
-const SceneProto = Scene.prototype;
-const globalsDescriptor = Object.getOwnPropertyDescriptor(SceneProto, 'globals');
-editable(SceneProto, 'globals', globalsDescriptor);
-editable(SceneProto, 'autoReleaseAssets', () => false);
-serializable(SceneProto, 'autoReleaseAssets', () => false);
-serializable(SceneProto, '_globals', () => new SceneGlobals());
-ccclass('cc.Scene')(Scene);
+patch_cc_Scene({Scene, SceneGlobals});

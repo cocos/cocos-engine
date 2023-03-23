@@ -224,7 +224,7 @@ export const barFilled: IAssembler = {
             const x = local.x;
             const y = local.y;
             let rhw = m.m03 * x + m.m07 * y + m.m15;
-            rhw = rhw ? Math.abs(1 / rhw) : 1;
+            rhw = rhw ? 1 / rhw : 1;
 
             offset = i * stride;
             vData[offset] = (m.m00 * x + m.m04 * y + m.m12) * rhw;

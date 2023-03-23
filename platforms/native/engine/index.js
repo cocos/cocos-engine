@@ -27,7 +27,10 @@ require('./jsb-assets-manager.js');
 require('./jsb-game.js');
 require('./jsb-gfx.js');
 require('./jsb-loader.js');
-require('./jsb-videoplayer.js');
+if(window.oh)
+    require('./jsb-videoplayer-openharmony.js');
+else 
+    require('./jsb-videoplayer.js');
 require('./jsb-webview.js');
 require('./jsb-editbox.js');
 require('./jsb-editor-support.js');

@@ -21,15 +21,19 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { ccclass, override } from 'cc.decorator';
-import { ALIPAY, XIAOMI, JSB, TEST, BAIDU } from 'internal:constants';
+
+import { ALIPAY, XIAOMI, JSB, TEST, BAIDU, EDITOR } from 'internal:constants';
 import { Format, FormatFeatureBit, deviceManager } from '../../gfx';
 import { PixelFormat } from './asset-enum';
 import { sys, macro, warnID, cclegacy } from '../../core';
+import { patch_cc_ImageAsset } from '../../native-binding/decorators';
 import './asset';
+import type { ImageAsset as JsbImageAsset } from './image-asset';
 
-export type ImageAsset = jsb.ImageAsset;
-export const ImageAsset = jsb.ImageAsset;
+declare const jsb: any;
+
+export type ImageAsset = JsbImageAsset;
+export const ImageAsset: typeof JsbImageAsset = jsb.ImageAsset;
 const jsbWindow = jsb.window;
 
 export interface IMemoryImageSource {
@@ -61,7 +65,8 @@ function isNativeImage (imageSource: ImageSource): imageSource is (HTMLImageElem
     return imageSource instanceof jsbWindow.HTMLImageElement || imageSource instanceof jsbWindow.HTMLCanvasElement || isImageBitmap(imageSource);
 }
 
-const imageAssetProto = ImageAsset.prototype;
+// TODO: we mark imageAssetProto as type of any, because here we have many dynamic injected property @dumganhar
+const imageAssetProto: any = ImageAsset.prototype;
 
 imageAssetProto._ctor = function (nativeAsset?: ImageSource) {
     jsb.Asset.prototype._ctor.apply(this, arguments);
@@ -87,9 +92,10 @@ Object.defineProperty(imageAssetProto, '_nativeAsset', {
     get () {
         return this._nativeData;
     },
-    set (value: ImageSource) {
+    // TODO: Property 'format' does not exist on type 'HTMLCanvasElement'
+    // set (value: ImageSource) {
+    set (value: any) {
         if (!(value instanceof jsbWindow.HTMLElement) && !isImageBitmap(value)) {
-            // @ts-expect-error internal API usage
             value.format = value.format || this.format;
         }
         this.reset(value);
@@ -116,12 +122,12 @@ imageAssetProto._setRawAsset = function (filename: string, inLibrary = true) {
     }
 };
 
-
-imageAssetProto.reset = function (data: ImageSource) {
+// TODO: Property 'format' does not exist on type 'HTMLCanvasElement'.
+// imageAssetProto.reset = function (data: ImageSource) {
+imageAssetProto.reset = function (data: any) {
     this._nativeData = data;
 
     if (!(data instanceof jsbWindow.HTMLElement)) {
-        // @ts-expect-error internal api usage
         if(data.format !== undefined) {
             this.format = (data as any).format;
         }
@@ -273,7 +279,5 @@ imageAssetProto._deserialize = function (data: any) {
 cclegacy.ImageAsset = jsb.ImageAsset;
 
 // handle meta data, it is generated automatically
-const ImageAssetProto = ImageAsset.prototype;
-const _nativeAssetDescriptor = Object.getOwnPropertyDescriptor(ImageAssetProto, '_nativeAsset');
-override(ImageAssetProto, '_nativeAsset', _nativeAssetDescriptor);
-ccclass('cc.ImageAsset')(ImageAsset);
+patch_cc_ImageAsset({ImageAsset});
+

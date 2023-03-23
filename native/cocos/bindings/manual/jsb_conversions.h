@@ -46,6 +46,7 @@
     #include "cocos/editor-support/spine-creator-support/spine-cocos2dx.h"
 #endif
 
+#include "core/assets/EffectAsset.h"
 #include "core/geometry/Geometry.h"
 #include "math/Color.h"
 #include "math/Math.h"
@@ -790,6 +791,30 @@ bool sevalue_to_native(const se::Value &from, ccstd::vector<T> *to, se::Object *
     return false;
 }
 
+template <typename K, typename V>
+bool sevalue_to_native(const se::Value &from, cc::StablePropertyMap<K, V> *to, se::Object *ctx) { // NOLINT
+    // convert object to attribute/value list: [{"prop1", v1}, {"prop2", v2}... {"propN", vn}]
+    CC_ASSERT_NOT_NULL(to);
+    CC_ASSERT(from.isObject());
+    auto *jsObj = from.toObject();
+    ccstd::vector<ccstd::string> objectKeys;
+    jsObj->getAllKeys(&objectKeys);
+    to->clear();
+    se::Value valueJS;
+    for (auto &attr : objectKeys) {
+        V value;
+
+        if (!jsObj->getProperty(attr, &valueJS)) {
+            continue;
+        }
+        if (!sevalue_to_native(valueJS, &value, ctx)) {
+            continue;
+        }
+        to->emplace_back(std::make_pair(std::move(attr), std::move(value)));
+    }
+    return true;
+}
+
 ///////////////////// function
 ///
 
@@ -1205,8 +1230,6 @@ inline bool nativevalue_to_se(const ccstd::vector<T> &from, se::Value &to, se::O
         if constexpr (!std::is_pointer<T>::value && is_jsb_object_v<T>) {
             auto *pFrom = ccnew T(from[i]);
             nativevalue_to_se(pFrom, tmp, ctx);
-            tmp.toObject()->clearPrivateData();
-            tmp.toObject()->setPrivateData(pFrom);
         } else {
             nativevalue_to_se(from[i], tmp, ctx);
         }
@@ -1297,6 +1320,25 @@ template <typename R, typename... Args>
 inline bool nativevalue_to_se(const std::function<R(Args...)> & /*from*/, se::Value & /*to*/, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
     SE_LOGE("Can not convert C++ const lambda to JS object");
     return false;
+}
+
+template <typename K, typename V>
+bool nativevalue_to_se(const cc::StablePropertyMap<K, V> &from, se::Value &to, se::Object *ctx) { // NOLINT(readability-identifier-naming
+    // convert to object from  attribute/value list: [{"prop1", v1}, {"prop2", v2}... {"propN", vn}]
+    se::HandleObject ret(se::Object::createPlainObject());
+    for (const auto &ele : from) {
+        se::Value keyJS;
+        se::Value valueJS;
+        if (!nativevalue_to_se(ele.first, keyJS, ctx)) {
+            continue;
+        }
+        if (!nativevalue_to_se(ele.second, valueJS, ctx)) {
+            continue;
+        }
+        ret->setProperty(keyJS.toString(), valueJS);
+    }
+    to.setObject(ret);
+    return true;
 }
 
 ///////////////////////// function ///////////////////////

@@ -70,6 +70,7 @@ void XRRemotePreviewManager::onClientConnected(const std::shared_ptr<WebSocketSe
     char *pname = nullptr;
     if (len > 0) {
         pname = static_cast<char *>(malloc(len + 2));
+        memset(pname, 0, sizeof(char) * 32);
         snprintf(pname, len + 2, "%s %s", lman > 0 ? man : "", lmod > 0 ? mod : "");
         memcpy(deviceInfo.deviceName, pname, sizeof(char) * 32);
     }
@@ -81,7 +82,7 @@ void XRRemotePreviewManager::onClientConnected(const std::shared_ptr<WebSocketSe
         ccstd::vector<float> leftEyeFov = _xr->getXREyeFov(static_cast<uint32_t>(cc::xr::XREye::LEFT));
         ccstd::vector<float> rightEyeFov = _xr->getXREyeFov(static_cast<uint32_t>(cc::xr::XREye::RIGHT));
         for (uint32_t i = 0; i < 4; i++) {
-            CC_LOG_INFO("[XRRemotePreviewManager] eye fov.%d, L.%f, R.%f.", i, leftEyeFov[i], rightEyeFov[i]);
+            CC_LOG_INFO("[XRRemotePreviewManager] %s.eye fov.%d, L.%f, R.%f.", deviceInfo.deviceName, i, leftEyeFov[i], rightEyeFov[i]);
             deviceInfo.leftEyeFov[i] = leftEyeFov[i] * math::RAD_TO_DEG;
             deviceInfo.rightEyeFov[i] = rightEyeFov[i] * math::RAD_TO_DEG;
         }

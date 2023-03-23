@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { ALIPAY, BAIDU, COCOSPLAY, RUNTIME_BASED, VIVO, WECHAT } from 'internal:constants';
+import { ALIPAY, BAIDU, BYTEDANCE, COCOSPLAY, RUNTIME_BASED, VIVO, WECHAT } from 'internal:constants';
 import { minigame } from 'pal/minigame';
 import { ConfigOrientation, IScreenOptions, SafeAreaEdge } from 'pal/screen-adapter';
 import { systemInfo } from 'pal/system-info';
@@ -32,13 +32,15 @@ import { Size } from '../../../cocos/core/math';
 import { OS } from '../../system-info/enum-type';
 import { Orientation } from '../enum-type';
 
+declare const my: any;
+
 // HACK: In some platform like CocosPlay or Alipay iOS end
 // the windowSize need to rotate when init screenAdapter if it's landscape
 let rotateLandscape = false;
 try {
     if (ALIPAY) {
         if (systemInfo.os === OS.IOS && !minigame.isDevTool) {
-            // @ts-expect-error TODO: use pal/fs
+            // TODO: use pal/fs
             const fs = my.getFileSystemManager();
             const screenOrientation = JSON.parse(fs.readFileSync({
                 filePath: 'game.json',
@@ -72,6 +74,10 @@ class ScreenAdapter extends EventTarget {
         const dpr = this.devicePixelRatio;
         let screenWidth = sysInfo.windowWidth;
         let screenHeight = sysInfo.windowHeight;
+        if (BYTEDANCE) {
+            screenWidth = sysInfo.screenWidth;
+            screenHeight = sysInfo.screenHeight;
+        }
         if (ALIPAY && rotateLandscape  && screenWidth < screenHeight) {
             const temp = screenWidth;
             screenWidth = screenHeight;

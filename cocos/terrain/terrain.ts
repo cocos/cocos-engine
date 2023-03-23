@@ -46,7 +46,7 @@ import { TerrainAsset, TerrainLayerInfo, TERRAIN_HEIGHT_BASE, TERRAIN_HEIGHT_FAC
     TERRAIN_MAX_LAYER_COUNT, TERRAIN_HEIGHT_FMIN, TERRAIN_HEIGHT_FMAX, TERRAIN_MAX_BLEND_LAYERS, TERRAIN_DATA_VERSION5 } from './terrain-asset';
 import { CCFloat } from '../core';
 import { PipelineEventType } from '../rendering';
-import { Node } from '../scene-graph';
+import { MobilityMode, Node } from '../scene-graph';
 
 // the same as dependentAssets: legacy/terrain.effect
 const TERRAIN_EFFECT_UUID = '1d08ef62-a503-4ce2-8b9a-46c90873f7d3';
@@ -293,6 +293,19 @@ class TerrainRenderable extends ModelRenderer {
         return false;
     }
 
+     /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
+    public _updateLightingmap (texture: Texture2D | null, uvParam: Vec4) {
+        if (this._model == null) {
+            return;
+        }
+
+        this._lightmap = texture;
+        this._updateReceiveDirLight();
+        this._model.updateLightingmap(texture, uvParam);
+    }
+
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
@@ -303,7 +316,10 @@ class TerrainRenderable extends ModelRenderer {
         this._onRebuildPSO(idx, mtl || this._getBuiltinMaterial());
     }
 
-    protected _onRebuildPSO (idx: number, material: Material) {
+    /**
+     * @engineInternal
+     */
+    public _onRebuildPSO (idx: number, material: Material) {
         if (this._model) {
             this._model.setSubModelMaterial(idx, material);
         }
@@ -315,6 +331,34 @@ class TerrainRenderable extends ModelRenderer {
         }
 
         this._onMaterialModified(0, null);
+    }
+
+    protected _onUpdateReceiveDirLight (visibility: number, forceClose = false) {
+        if (!this._model) { return; }
+        if (forceClose) {
+            this._model.receiveDirLight = false;
+            return;
+        }
+        if (this.node && ((visibility & this.node.layer) === this.node.layer)
+        || (visibility & this._model.visFlags)) {
+            this._model.receiveDirLight = true;
+        } else {
+            this._model.receiveDirLight = false;
+        }
+    }
+
+    protected _updateReceiveDirLight () {
+        const scene = this.node.scene;
+        if (!scene || !scene.renderScene) { return; }
+        const mainLight = scene.renderScene.mainLight;
+        if (!mainLight) { return; }
+        const visibility = mainLight.visibility;
+        if (!mainLight.node) { return; }
+        if (mainLight.node.mobility === MobilityMode.Static && this._lightmap) {
+            this._onUpdateReceiveDirLight(visibility, true);
+        } else {
+            this._onUpdateReceiveDirLight(visibility);
+        }
     }
 
     private _getBuiltinMaterial () {
@@ -448,9 +492,8 @@ export class TerrainBlock {
     public update () {
         this._updateMaterial(false);
 
-        if (this._renderable._model && this.lightmap !== this._renderable._lightmap) {
-            this._renderable._lightmap = this.lightmap;
-            this._renderable._model?.updateLightingmap(this.lightmap, this.lightmapUVParam);
+        if (this.lightmap !== this._renderable._lightmap) {
+            this._renderable._updateLightingmap(this.lightmap, this.lightmapUVParam);
         }
 
         const useNormalMap = this._terrain.useNormalMap;
@@ -837,8 +880,7 @@ export class TerrainBlock {
                 this.lightmap.setWrapMode(WrapMode.CLAMP_TO_BORDER, WrapMode.CLAMP_TO_BORDER);
             }
 
-            this._renderable._lightmap = this.lightmap;
-            this._renderable._model?.updateLightingmap(this.lightmap, this.lightmapUVParam);
+            this._renderable._updateLightingmap(this.lightmap, this.lightmapUVParam);
         }
     }
 
@@ -2266,6 +2308,17 @@ export class Terrain extends Component {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _updateLightmap (blockId: number, tex: Texture2D|null, uOff: number, vOff: number, uScale: number, vScale: number) {
+        if (tex) {
+            // ensure the lightmap infos is initialized
+            if (this._lightmapInfos.length == 0) {
+                for (let i = 0; i < this._blockCount[0] * this._blockCount[1]; ++i) {
+                    this._lightmapInfos.push(new TerrainBlockLightmapInfo());
+                }
+            }
+        } else if (this._lightmapInfos.length == 0) {
+            return;
+        }
+
         this._lightmapInfos[blockId].texture = tex;
         this._lightmapInfos[blockId].UOff = uOff;
         this._lightmapInfos[blockId].VOff = vOff;

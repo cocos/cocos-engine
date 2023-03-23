@@ -39,7 +39,7 @@ import { AnimationClipAGEvaluation } from './animation-graph-animation-clip-bind
 const { ccclass, type } = _decorator;
 
 @ccclass('cc.animation.ClipMotion')
-export class ClipMotion extends EditorExtendable implements Motion {
+export class ClipMotion extends Motion {
     @type(AnimationClip)
     public clip: AnimationClip | null = null;
 

@@ -29,7 +29,6 @@ import { EmptyTexture } from './empty-texture';
 export class EmptySwapchain extends Swapchain {
     public initialize (info: Readonly<SwapchainInfo>) {
         this._colorTexture = new EmptyTexture();
-        // @ts-expect-error(2445) private initializer
         this._colorTexture.initAsSwapchainTexture({
             swapchain: this,
             format: Format.RGBA8,
@@ -38,7 +37,6 @@ export class EmptySwapchain extends Swapchain {
         });
 
         this._depthStencilTexture = new EmptyTexture();
-        // @ts-expect-error(2445) private initializer
         this._depthStencilTexture.initAsSwapchainTexture({
             swapchain: this,
             format: Format.DEPTH_STENCIL,

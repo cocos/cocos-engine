@@ -23,8 +23,9 @@ function downloadScript (url, options, onComplete) {
     if (REGEX.test(url)) {
         onComplete && onComplete(new Error('Can not load remote scripts'));
     } else {
-        //TODO: Can't load scripts dynamically on Taobao platform
-        if (sys.platform !== sys.Platform.TAOBAO_CREATIVE_APP) {
+        if (sys.platform === sys.Platform.TAOBAO_MINI_GAME) {
+            __taobaoRequire(`../../../${url}`);
+        } else if (sys.platform !== sys.Platform.TAOBAO_CREATIVE_APP) { //Can't load scripts dynamically on Taobao platform
             require(`../../../${url}`);
         }
         onComplete && onComplete(null);
@@ -208,15 +209,32 @@ function downloadBundle (nameOrUrl, options, onComplete) {
     const version = options.version || cc.assetManager.downloader.bundleVers[bundleName];
     const suffix = version ? `${version}.` : '';
 
+    function getConfigPathForSubPackage () {
+        if (sys.platform === sys.Platform.TAOBAO_MINI_GAME) {
+            return `${bundleName}/config.${suffix}json`;
+        }
+        return `subpackages/${bundleName}/config.${suffix}json`;
+    }
+
+    function appendBaseToJsonData (data) {
+        if (!data) return;
+
+        if (sys.platform === sys.Platform.TAOBAO_MINI_GAME) {
+            data.base = `${bundleName}/`;
+        } else {
+            data.base = `subpackages/${bundleName}/`;
+        }
+    }
+
     if (subpackages[bundleName]) {
-        var config = `subpackages/${bundleName}/config.${suffix}json`;
+        const config = getConfigPathForSubPackage();
         loadSubpackage(bundleName, options.onFileProgress, (err) => {
             if (err) {
                 onComplete(err, null);
                 return;
             }
             downloadJson(config, options, (err, data) => {
-                data && (data.base = `subpackages/${bundleName}/`);
+                appendBaseToJsonData(data);
                 onComplete(err, data);
             });
         });
@@ -227,19 +245,20 @@ function downloadBundle (nameOrUrl, options, onComplete) {
             js = `src/bundle-scripts/${bundleName}/index.${suffix}js`;
             cacheManager.makeBundleFolder(bundleName);
         } else if (downloader.remoteBundles.indexOf(bundleName) !== -1) {
-                url = `${downloader.remoteServerAddress}remote/${bundleName}`;
-                js = `src/bundle-scripts/${bundleName}/index.${suffix}js`;
-                cacheManager.makeBundleFolder(bundleName);
-            } else {
-                url = `assets/${bundleName}`;
-                js = `assets/${bundleName}/index.${suffix}js`;
-            }
-        //TODO: Can't load scripts dynamically on Taobao platform
-        if (sys.platform !== sys.Platform.TAOBAO_CREATIVE_APP) {
+            url = `${downloader.remoteServerAddress}remote/${bundleName}`;
+            js = `src/bundle-scripts/${bundleName}/index.${suffix}js`;
+            cacheManager.makeBundleFolder(bundleName);
+        } else {
+            url = `assets/${bundleName}`;
+            js = `assets/${bundleName}/index.${suffix}js`;
+        }
+        if (sys.platform === sys.Platform.TAOBAO_MINI_GAME) {
+            __taobaoRequire(js);
+        } else if (sys.platform !== sys.Platform.TAOBAO_CREATIVE_APP) { // Can't load scripts dynamically on Taobao platform
             require(`./${js}`);
         }
         options.__cacheBundleRoot__ = bundleName;
-        var config = `${url}/config.${suffix}json`;
+        const config = `${url}/config.${suffix}json`;
         downloadJson(config, options, (err, data) => {
             if (err) {
                 onComplete && onComplete(err);

@@ -277,7 +277,7 @@ export class cchelper {
         await cpRAsync(srcRoot, from, copyTo);
     }
 
-    static async replaceInFile(patterns: { reg: string, text: string }[], filepath: string) {
+    static async replaceInFile(patterns: { reg: string | RegExp, text: string }[], filepath: string) {
         filepath = this.replaceEnvVariables(filepath);
         if (!fs.existsSync(filepath)) {
             console.log(`While replace template content, file ${filepath}`);
@@ -444,7 +444,7 @@ export const toolHelper = {
             cp.stdout.on('data', (data: any) => {
                 const msg = iconv.decode(data, 'gbk').toString();
                 if(/warning/i.test(msg)) {
-                    console.warn(`[cmake-warn] ${msg}`);
+                    console.log(`[cmake-warn] ${msg}`);
                 } else {
                     console.log(`[cmake] ${msg}`);
                 }
@@ -452,7 +452,7 @@ export const toolHelper = {
             cp.stderr.on('data', (data: any) => {
                 const msg = iconv.decode(data, 'gbk').toString();
                 if(/CMake Warning/.test(msg) || /warning/i.test(msg)) {
-                    console.warn(`[cmake-warn] ${msg}`);
+                    console.log(`[cmake-warn] ${msg}`);
                 }else{
                     console.error(`[cmake-err] ${msg}`);
                 }

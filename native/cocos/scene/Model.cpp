@@ -65,9 +65,10 @@ const cc::gfx::SamplerInfo LIGHTMAP_SAMPLER_WITH_MIP_HASH{
 const ccstd::vector<cc::scene::IMacroPatch> SHADOW_MAP_PATCHES{{"CC_RECEIVE_SHADOW", true}};
 const ccstd::vector<cc::scene::IMacroPatch> LIGHT_PROBE_PATCHES{{"CC_USE_LIGHT_PROBE", true}};
 const ccstd::string CC_USE_REFLECTION_PROBE = "CC_USE_REFLECTION_PROBE";
-const ccstd::string CC_RECEIVE_DIRECTIONAL_LIGHT = "CC_RECEIVE_DIRECTIONAL_LIGHT";
+const ccstd::string CC_DISABLE_DIRECTIONAL_LIGHT = "CC_DISABLE_DIRECTIONAL_LIGHT";
 const ccstd::vector<cc::scene::IMacroPatch> STATIC_LIGHTMAP_PATHES{{"CC_USE_LIGHTMAP", 1}};
 const ccstd::vector<cc::scene::IMacroPatch> STATIONARY_LIGHTMAP_PATHES{{"CC_USE_LIGHTMAP", 2}};
+const ccstd::vector<cc::scene::IMacroPatch> HIGHP_LIGHTMAP_PATHES{{"CC_LIGHT_MAP_VERSION", 2}};
 } // namespace
 
 namespace cc {
@@ -120,7 +121,7 @@ void Model::updateTransform(uint32_t stamp) {
     }
 
     Node *node = _transform;
-    if (node->getChangedFlags() || node->getDirtyFlag()) {
+    if (node->getChangedFlags() || node->isTransformDirty()) {
         node->updateWorldTransform();
         _localDataUpdated = true;
         if (_modelBounds != nullptr && _modelBounds->isValid() && _worldBounds != nullptr) {
@@ -205,7 +206,7 @@ void Model::updateUBOs(uint32_t stamp) {
         _localBuffer->write(mat4, sizeof(float) * pipeline::UBOLocal::MAT_WORLD_IT_OFFSET);
         _localBuffer->write(_lightmapUVParam, sizeof(float) * pipeline::UBOLocal::LIGHTINGMAP_UVPARAM);
         _localBuffer->write(_shadowBias, sizeof(float) * (pipeline::UBOLocal::LOCAL_SHADOW_BIAS));
-        
+
         auto * probe = scene::ReflectionProbeManager::getInstance()->getReflectionProbeById(_reflectionProbeId);
         if (probe) {
             if (probe->getProbeType() == scene::ReflectionProbe::ProbeType::PLANAR) {
@@ -468,8 +469,17 @@ ccstd::vector<IMacroPatch> Model::getMacroPatches(index_t subModelIndex) {
                 patches.push_back(patch);
             }
         }
+
+        // use highp lightmap
+        if (getNode() != nullptr && getNode()->getScene() != nullptr) {
+            if (getNode()->getScene()->getSceneGlobals()->getBakedWithHighpLightmap()) {
+                for (const auto &patch : HIGHP_LIGHTMAP_PATHES) {
+                    patches.push_back(patch);
+                }
+            }
+        }
     }
-    patches.push_back({CC_RECEIVE_DIRECTIONAL_LIGHT, _receiveDirLight});
+    patches.push_back({CC_DISABLE_DIRECTIONAL_LIGHT, !_receiveDirLight});
 
     return patches;
 }

@@ -226,10 +226,8 @@ struct ResourceAccessGraph {
         ccstd::pmr::vector<InEdge> inEdges;
     };
 
-    struct PassIDTag {
-    } static constexpr PassID{}; // NOLINT
-    struct AccessNodeTag {
-    } static constexpr AccessNode{}; // NOLINT
+    struct PassIDTag {};
+    struct AccessNodeTag {};
 
     // Vertices
     ccstd::pmr::vector<Vertex> _vertices;
@@ -356,8 +354,7 @@ struct RelationGraph {
         ccstd::pmr::vector<InEdge> inEdges;
     };
 
-    struct DescIDTag {
-    } static constexpr DescID{}; // NOLINT
+    struct DescIDTag {};
 
     // Vertices
     ccstd::pmr::vector<Vertex> _vertices;

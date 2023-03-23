@@ -2,6 +2,7 @@ import { log } from '../../test.log';
 import { Mat3 } from '../../../cocos/core/math/mat3';
 import { Quat } from '../../../cocos/core/math/quat';
 import { Vec3 } from '../../../cocos/core/math/vec3';
+import { toDegree } from '../../../cocos/core/math/utils';
 
 describe('Test Quat', () => {
     test('rotationTo', () => {
@@ -114,5 +115,14 @@ describe('Test Quat', () => {
         Quat.toEuler(v0, q0);
         log('toEuler: ', v0);
         expect(Vec3.equals(v0, expect0)).toBe(true);
+    });
+
+    test('rotateTowards', () => {
+        const q0 = new Quat(Math.sin(Math.PI / 8), 0, 0, Math.cos(Math.PI / 8));
+        const q1 = new Quat(Math.sin(Math.PI / 3), 0, 0, Math.cos(Math.PI / 3));
+        const expect0 = new Quat(Math.sin(Math.PI * 3 / 16), 0, 0, Math.cos(Math.PI * 3 / 16));
+        const q2 = Quat.rotateTowards(new Quat(), q0, q1, toDegree(Math.PI / 8));
+        log('rotateTowards: ', q2);
+        expect(Quat.equals(q2, expect0)).toBe(true);
     });
 });

@@ -22,13 +22,37 @@
  THE SOFTWARE.
 */
 import { Vec3, Enum, cclegacy } from '../../core';
+import type { LODData as JsbLODData, LODGroup as JsbLODGroup } from './lod-group';
 
-export type Ambient = jsb.Ambient;
-export const Ambient = jsb.Ambient;
+export const LODData: typeof JsbLODData = jsb.LODData;
+export type LODData = JsbLODData;
+export const LODGroup: typeof JsbLODGroup = jsb.LODGroup;
+export type LODGroup = JsbLODGroup;
+
+import type {
+    Ambient as JsbAmbient,
+    Light as JsbLight,
+    DirectionalLight as JsbDirectionalLight,
+    SpotLight as JsbSpotLight,
+    SphereLight as JsbSphereLight,
+    PointLight as JsbPointLight,
+    RangedDirectionalLight as JsbRangedDirectionalLight,
+    Fog as JsbFog,
+    Shadows as JsbShadows,
+    Skybox as JsbSkybox,
+} from './index';
+
+// NOTE: why don't we export FogInfo and ShadowInfo from 'index.ts' 
+import type {
+    FogInfo as JsbFogInfo,
+    ShadowsInfo as JsbShadowsInfo,
+} from '../../scene-graph/scene-globals';
+
+declare const jsb: any;
+
+export type Ambient = JsbAmbient;
+export const Ambient: typeof JsbAmbient = jsb.Ambient;
 cclegacy.Ambient = Ambient;
-
-export const LODData = jsb.LODData;
-export const LODGroup = jsb.LODGroup;
 
 /**
  * Light related.
@@ -71,28 +95,29 @@ export enum LightType {
 }
 
 export const nt2lm = (size: number) => 4 * Math.PI * Math.PI * size * size;
-export const Light = jsb.Light;
-export type Light = jsb.Light;
+
+export const Light: typeof JsbLight = jsb.Light;
+export type Light = JsbLight;
 cclegacy.Light = jsb.Light;
 
-export const DirectionalLight = jsb.DirectionalLight;
-export type DirectionalLight = jsb.DirectionalLight;
+export const DirectionalLight: typeof JsbDirectionalLight = jsb.DirectionalLight;
+export type DirectionalLight = JsbDirectionalLight;
 cclegacy.DirectionalLight = jsb.DirectionalLight;
 
-export const SpotLight = jsb.SpotLight;
-export type SpotLight = jsb.SpotLight;
+export const SpotLight: typeof JsbSpotLight = jsb.SpotLight;
+export type SpotLight = JsbSpotLight;
 cclegacy.SpotLight = jsb.SpotLight;
 
-export const SphereLight = jsb.SphereLight;
-export type SphereLight = jsb.SphereLight;
+export const SphereLight: typeof JsbSphereLight = jsb.SphereLight;
+export type SphereLight = JsbSphereLight;
 cclegacy.SphereLight = jsb.SphereLight;
 
-export const PointLight = jsb.PointLight;
-export type PointLight = jsb.PointLight;
+export const PointLight: typeof JsbPointLight = jsb.PointLight;
+export type PointLight = JsbPointLight;
 cclegacy.PointLight = jsb.PointLight;
 
-export const RangedDirectionalLight = jsb.RangedDirectionalLight;
-export type RangedDirectionalLight = jsb.RangedDirectionalLight;
+export const RangedDirectionalLight: typeof JsbRangedDirectionalLight = jsb.RangedDirectionalLight;
+export type RangedDirectionalLight = JsbRangedDirectionalLight;
 cclegacy.RangedDirectionalLight = jsb.RangedDirectionalLight;
 
 /**
@@ -133,10 +158,11 @@ export const FogType = Enum({
      */
     LAYERED: 3,
 });
-export const FogInfo = jsb.FogInfo;
-export type FogInfo = jsb.FogInfo;
-export const Fog = jsb.Fog;
-export type Fog = jsb.Fog;
+
+export const FogInfo: typeof JsbFogInfo = jsb.FogInfo;
+export type FogInfo = JsbFogInfo;
+export const Fog: typeof JsbFog = jsb.Fog;
+export type Fog = JsbFog;
 cclegacy.Fog = Fog;
 
 /**
@@ -265,7 +291,7 @@ export const CSMLevel = Enum({
       * @en level 3
       * @readonly
       */
-    DisableRotaitonFix: 3,
+    DisableRotationFix: 3,
 });
 export const EnvironmentLightingType = Enum({
     /**
@@ -293,14 +319,15 @@ export const EnvironmentLightingType = Enum({
      */
     DIFFUSEMAP_WITH_REFLECTION: 2,
 });
-export const ShadowsInfo = jsb.ShadowsInfo;
-export type ShadowsInfo = jsb.ShadowsInfo;
-export const Shadows = jsb.Shadows;
-export type Shadows = jsb.Shadows;
+
+export const ShadowsInfo: typeof JsbShadowsInfo = jsb.ShadowsInfo;
+export type ShadowsInfo = JsbShadowsInfo;
+export const Shadows: typeof JsbShadows = jsb.Shadow;
+export type Shadows = JsbShadows;
 cclegacy.Shadows = Shadows;
 
-export const Skybox = jsb.Skybox;
-export type Skybox = jsb.Skybox;
+export const Skybox: typeof JsbSkybox = jsb.Skybox;
+export type Skybox = JsbSkybox;
 cclegacy.Skybox = Skybox;
 
 export * from './model';

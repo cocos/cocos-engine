@@ -45,8 +45,9 @@ export class UIComponent extends Component {
     protected _lastParent: Node | null = null;
 
     public __preload () {
-        // @ts-expect-error temporary, UIComponent should be removed
-        this.node._uiProps.uiComp = this;
+        // TODO: UIComponent should not be assigned to UIMeshRenderer | UIRenderer @holycanvas
+        // workaround: mark this as any
+        (this as any).node._uiProps.uiComp = this;
     }
 
     public onEnable () {
@@ -57,10 +58,10 @@ export class UIComponent extends Component {
     }
 
     public onDestroy () {
-        // @ts-expect-error temporary, UIComponent should be removed
-        if (this.node._uiProps.uiComp === this) {
-            // @ts-expect-error temporary, UIComponent should be removed
-            this.node._uiProps.uiComp = null;
+        // TODO: UIComponent should not be assigned to UIMeshRenderer | UIRenderer @holycanvas
+        // workaround: mark this as any
+        if ((this as any).node._uiProps.uiComp === this) {
+            (this as any).node._uiProps.uiComp = null;
         }
     }
 

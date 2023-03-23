@@ -464,9 +464,10 @@ export class ImageAsset extends Asset {
         // Maybe returned to pool in webgl.
         return this._nativeData;
     }
-    set _nativeAsset (value: ImageSource) {
+    // TODO: Property 'format' does not exist on type 'ImageBitmap'
+    // set _nativeAsset (value: ImageSource) {
+    set _nativeAsset (value: any) {
         if (!(value instanceof HTMLElement) && !isImageBitmap(value)) {
-            // @ts-expect-error internal API usage
             value.format = value.format || this._format;
         }
         this.reset(value);
@@ -477,7 +478,7 @@ export class ImageAsset extends Asset {
      * @zh 此图像资源的图像数据。
      */
     get data () {
-        if (this._nativeData && isNativeImage(this._nativeData)) {
+        if (isNativeImage(this._nativeData)) {
             return this._nativeData;
         }
 
@@ -579,8 +580,8 @@ export class ImageAsset extends Asset {
         } else if (!(data instanceof HTMLElement)) {
             // this._nativeData = Object.create(data);
             this._nativeData = data;
-            // @ts-expect-error internal api usage
-            this._format = data.format;
+            // TODO: Property 'format' does not exist on type 'ImageBitmap'
+            this._format = (data as any).format;
         } else {
             this._nativeData = data;
         }
@@ -590,11 +591,12 @@ export class ImageAsset extends Asset {
         if (this.data && this.data instanceof HTMLImageElement) {
             this.data.src = '';
             this._setRawAsset('');
-            // @ts-expect-error JSB element should destroy native data.
-            if (JSB) this.data.destroy();
+            // JSB element should destroy native data.
+            // TODO: Property 'destroy' does not exist on type 'HTMLImageElement'.
+            if (JSB) (this.data as any).destroy();
         } else if (isImageBitmap(this.data)) {
-            // @ts-expect-error internal api usage
-            this.data.close && this.data.close();
+            // TODO: Property 'close' does not exist on type 'HTMLCanvasElement'
+            (this.data as any)?.close();
         }
         return super.destroy();
     }

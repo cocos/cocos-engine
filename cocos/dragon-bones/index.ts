@@ -22,6 +22,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @engineInternal Since v3.7.2, this is an engine private enum type.
+ * @deprecated Since v3.7.2, will be removed in the future.
+ */
 export enum ExtensionType {
     FFD = 0,
     AdjustColor = 10,
@@ -33,32 +37,54 @@ export enum ExtensionType {
     GradientGlowFilter = 16
 }
 
+/**
+ * @en Event type in dragonbones animation.
+ * @zh 龙骨动画中的事件类型。
+ */
 export enum EventType {
+    /**
+     * @en Event about animation frame.
+     * @zh 动画帧相关的事件。
+     */
     Frame = 0,
+    /**
+     * @en Event about sound.
+     * @zh 声音相关的事件。
+     */
     Sound = 1
 }
 
-// export enum ActionType {
-//     Play = 0,
-//     Stop = 1,
-//     GotoAndPlay = 2,
-//     GotoAndStop = 3,
-//     FadeIn = 4,
-//     FadeOut = 5
-// }
-
+/**
+ * @en Animation fade out mode.
+ * @zh 动画淡出模式。
+ */
 export enum AnimationFadeOutMode {
     None = 0,
+
+    /**
+     * @en Fade out the animation states of the same layer.
+     * @zh 淡出同层的动画状态。
+     */
     SameLayer = 1,
+
+    /**
+     * @en Fade out the animation states of the same group.
+     * @zh 淡出同组的动画状态。
+     */
     SameGroup = 2,
+
+    /**
+     * @en Fade out the animation states of the same layer and group.
+     * @zh 淡出同层并且同组的动画状态。
+     */
     SameLayerAndGroup = 3,
+
+    /**
+     * @en Fade out of all animation states.
+     * @zh 淡出所有的动画状态。
+     */
     All = 4
 }
-
-// export enum BoneType {
-//     Bone = 0,
-//     Surface = 1
-// }
 
 export * from './CCFactory';
 export * from './CCSlot';

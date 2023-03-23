@@ -50,8 +50,8 @@ class SystemInfo extends EventTarget {
         super();
         const nav = window.navigator;
         const ua = nav.userAgent.toLowerCase();
-        // @ts-expect-error getBattery is not totally supported
-        nav.getBattery?.().then((battery) => {
+        // NOTE: getBattery is not totally supported on Web standard
+        (nav as any).getBattery?.().then((battery) => {
             this._battery = battery;
         });
 
@@ -208,12 +208,12 @@ class SystemInfo extends EventTarget {
             [Feature.EVENT_MOUSE]: supportMouse,
             [Feature.EVENT_TOUCH]: supportTouch || supportMouse,
             [Feature.EVENT_ACCELEROMETER]: (window.DeviceMotionEvent !== undefined || window.DeviceOrientationEvent !== undefined),
-            // @ts-expect-error undefined webkitGetGamepads
-            [Feature.EVENT_GAMEPAD]: (navigator.getGamepads !== undefined || navigator.webkitGetGamepads !== undefined),
+            // NOTE: webkitGetGamepads is not standard web interface
+            [Feature.EVENT_GAMEPAD]: (navigator.getGamepads !== undefined || (navigator as any).webkitGetGamepads !== undefined),
             [Feature.EVENT_HANDLE]: EDITOR || PREVIEW,
             [Feature.EVENT_HMD]: this.isXR,
-            // @ts-expect-error undefined xr
-            [Feature.EVENT_HANDHELD]: (typeof navigator.xr !== 'undefined'),
+            // NOTE: xr is not totally supported on web
+            [Feature.EVENT_HANDHELD]: (typeof (navigator as any).xr !== 'undefined'),
         };
 
         this._initPromise = [];
@@ -280,8 +280,8 @@ class SystemInfo extends EventTarget {
             for (let i = 0; i < changeList.length; i++) {
                 document.addEventListener(changeList[i], (event) => {
                     let visible = document[hiddenPropName];
-                    // @ts-expect-error QQ App need hidden property
-                    visible = visible || event.hidden;
+                    // NOTE: QQ App need hidden property
+                    visible = visible || (event as any).hidden;
                     if (visible) {
                         onHidden();
                     } else {

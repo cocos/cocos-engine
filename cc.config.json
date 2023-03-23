@@ -224,7 +224,6 @@
                 "cocos/render-scene/core/pass.ts": "cocos/render-scene/core/pass.jsb.ts",
                 "cocos/render-scene/core/program-lib.ts": "cocos/render-scene/core/program-lib.jsb.ts",
                 "cocos/render-scene/core/render-window.ts": "cocos/render-scene/core/render-window.jsb.ts",
-                "cocos/render-scene/core/sampler-lib.ts": "cocos/render-scene/core/sampler.jsb.ts",
                 "cocos/render-scene/scene/camera.ts": "cocos/render-scene/scene/camera.jsb.ts",
                 "cocos/render-scene/scene/model.ts": "cocos/render-scene/scene/model.jsb.ts",
                 "cocos/render-scene/core/render-scene.ts": "cocos/render-scene/core/render-scene.jsb.ts",
@@ -233,6 +232,7 @@
                 "cocos/render-scene/scene/reflection-probe.ts": "cocos/render-scene/scene/reflection-probe.jsb.ts",
                 "cocos/2d/renderer/native-2d.ts": "cocos/2d/renderer/native-2d.jsb.ts",
                 "cocos/gfx/base/pipeline-state.ts": "cocos/gfx/base/pipeline-state.jsb.ts",
+                "cocos/gfx/base/pipeline-sub-state.ts": "cocos/gfx/base/pipeline-sub-state.jsb.ts",
                 "cocos/gfx/index.ts": "cocos/gfx/index.jsb.ts",
                 "cocos/spine/index.ts": "cocos/spine/index.jsb.ts",
                 "cocos/dragon-bones/index.ts": "cocos/dragon-bones/index.jsb.ts",
@@ -252,7 +252,6 @@
                 "cocos/asset/assets/effect-asset.ts": "cocos/asset/assets/effect-asset.jsb.ts",
                 "cocos/asset/assets/image-asset.ts": "cocos/asset/assets/image-asset.jsb.ts",
                 "cocos/asset/assets/texture-base.ts": "cocos/asset/assets/texture-base.jsb.ts",
-                "cocos/asset/assets/texture-asset.ts": "cocos/asset/assets/texture-asset.jsb.ts",
                 "cocos/asset/assets/texture-2d.ts": "cocos/asset/assets/texture-2d.jsb.ts",
                 "cocos/asset/assets/texture-cube.ts": "cocos/asset/assets/texture-cube.jsb.ts",
                 "cocos/asset/assets/material.ts": "cocos/asset/assets/material.jsb.ts",
@@ -397,6 +396,12 @@
             "value": false,
             "internal": false
         },
+        "TAOBAO_MINIGAME": {
+            "comment": "Running in the taobao mini game.",
+            "type": "boolean",
+            "value": false,
+            "internal": false
+        },
         "BYTEDANCE": {
             "comment": "Running in the ByteDance's mini game.",
             "type": "boolean",
@@ -506,7 +511,7 @@
         "MINIGAME": {
             "comment": "Running in mini game.",
             "type": "boolean",
-            "value": "$WECHAT || $BAIDU || $XIAOMI || $ALIPAY || $TAOBAO || $BYTEDANCE",
+            "value": "$WECHAT || $BAIDU || $XIAOMI || $ALIPAY || $TAOBAO || $TAOBAO_MINIGAME || $BYTEDANCE",
             "ccGlobal": true,
             "internal": false
         },

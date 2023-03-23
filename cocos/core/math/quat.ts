@@ -342,6 +342,13 @@ export class Quat extends ValueType {
     /**
      * @en Spherical quaternion interpolation with two control points
      * @zh 带两个控制点的四元数球面插值
+     * @param out the receiving quaternion
+     * @param a the first operand
+     * @param b the second operand
+     * @param c the third operand
+     * @param d the fourth operand
+     * @param t interpolation amount, in the range [0-1], between the two inputs
+     * @returns out
      */
     public static sqlerp<Out extends IQuatLike> (out: Out, a: Out, b: Out, c: Out, d: Out, t: number) {
         Quat.slerp(qt_1, a, d, t);
@@ -678,6 +685,40 @@ export class Quat extends ValueType {
     }
 
     /**
+     * @en Gets the angular distance between two unit quaternions
+     * @zh 获取两个单位四元数的夹角
+     * @param a The first unit quaternion
+     * @param b The second unit quaternion
+     * @returns Angle between the two quaternions in radians
+     */
+    public static angle (a: IQuatLike, b: IQuatLike) {
+        const dot = Math.min(Math.abs(Quat.dot(a, b)), 1.0);
+        return Math.acos(dot) * 2.0;
+    }
+
+    /**
+     * @en Rotate a `from` unit quaternion towards `to` unit quaternion
+     * @zh 将一个起始单位四元数旋转到一个目标单位四元数
+     * @param from The first unit quaternion
+     * @param to The second unit quaternion
+     * @param maxStep The maximum angle of rotation in degrees
+     * @returns new unit quaternion generated during rotation
+     */
+    public static rotateTowards (out: IQuatLike, from: IQuatLike, to: IQuatLike, maxStep: number) {
+        const angle = Quat.angle(from, to);
+        if (angle === 0) {
+            out.x = to.x;
+            out.y = to.y;
+            out.z = to.z;
+            out.w = to.w;
+            return out;
+        }
+
+        const t = Math.min(maxStep / toDegree(angle), 1.0);
+        return Quat.slerp(out, from, to, t);
+    }
+
+    /**
      * @en x component.
      * @zh x 分量。
      */
@@ -707,7 +748,7 @@ export class Quat extends ValueType {
 
     constructor (x?: number | IQuatLike, y?: number, z?: number, w?: number) {
         super();
-        if (x && typeof x === 'object') {
+        if (typeof x === 'object') {
             this.x = x.x;
             this.y = x.y;
             this.z = x.z;
@@ -744,7 +785,7 @@ export class Quat extends ValueType {
     public set (x?: number, y?: number, z?: number, w?: number): Quat;
 
     public set (x?: number | Quat, y?: number, z?: number, w?: number) {
-        if (x && typeof x === 'object') {
+        if (typeof x === 'object') {
             this.x = x.x;
             this.y = x.y;
             this.z = x.z;

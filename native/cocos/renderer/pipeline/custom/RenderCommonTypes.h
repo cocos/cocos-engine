@@ -58,7 +58,9 @@ enum class ParameterType {
     SSV,
 };
 
-struct RasterTag {};
+struct RasterPassTag {};
+struct RasterSubpassTag {};
+struct ComputeSubpassTag {};
 struct ComputeTag {};
 struct CopyTag {};
 struct MoveTag {};
@@ -95,6 +97,7 @@ enum class ResourceFlags : uint32_t {
     COLOR_ATTACHMENT = 0x10,
     DEPTH_STENCIL_ATTACHMENT = 0x20,
     INPUT_ATTACHMENT = 0x40,
+    SHADING_RATE = 0x80,
 };
 
 constexpr ResourceFlags operator|(const ResourceFlags lhs, const ResourceFlags rhs) noexcept {
@@ -181,6 +184,7 @@ enum class LightingMode : uint32_t {
 enum class AttachmentType {
     RENDER_TARGET,
     DEPTH_STENCIL,
+    SHADING_RATE,
 };
 
 enum class AccessType {

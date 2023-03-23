@@ -203,7 +203,6 @@
 %ignore dragonBones::BoneData::inheritRotation;
 %ignore dragonBones::BoneData::inheritScale;
 %ignore dragonBones::BoneData::inheritReflection;
-%ignore dragonBones::BoneData::length;
 %ignore dragonBones::BoneData::transform;
 %ignore dragonBones::BoneData::userData;
 

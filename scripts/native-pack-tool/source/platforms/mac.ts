@@ -37,7 +37,7 @@ export class MacPackTool extends MacOSPackTool {
 
         await toolHelper.runCmake(cmakeArgs);
 
-        await this.skipUpdateXcodeProject();
+        await this.modifyXcodeProject();
         return true;
     }
 

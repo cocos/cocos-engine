@@ -37,9 +37,9 @@ const tempMat4 = new Mat4();
  */
 export class AttachUtil {
     protected _inited = false;
-    protected _skeleton:spine.Skeleton|null = null;
-    protected _skeletonNode:Node|null = null;
-    protected _skeletonComp:Skeleton|null = null;
+    protected _skeleton: spine.Skeleton|null = null;
+    protected _skeletonNode: Node|null = null;
+    protected _skeletonComp: Skeleton|null = null;
 
     constructor () {
         this._inited = false;
@@ -48,7 +48,7 @@ export class AttachUtil {
         this._skeletonComp = null;
     }
 
-    init (skeletonComp:Skeleton) {
+    init (skeletonComp: Skeleton) {
         this._inited = true;
         this._skeleton = skeletonComp._skeleton;
         this._skeletonNode = skeletonComp.node;
@@ -68,7 +68,7 @@ export class AttachUtil {
         const socketNodes = this._skeletonComp!.socketNodes;
         if (socketNodes.size === 0) return;
 
-        let boneInfos:FrameBoneInfo[]|null = null;
+        let boneInfos: FrameBoneInfo[]|null = null;
         const isCached = this._skeletonComp!.isAnimationCached();
         if (isCached) {
             boneInfos = this._skeletonComp!._curFrame && this._skeletonComp!._curFrame.boneInfos;
@@ -78,7 +78,7 @@ export class AttachUtil {
 
         if (!boneInfos) return;
 
-        const matrixHandle = (node:Node, bone:FrameBoneInfo) => {
+        const matrixHandle = (node: Node, bone: FrameBoneInfo) => {
             const tm = tempMat4;
             tm.m00 = bone.a;
             tm.m01 = bone.c;

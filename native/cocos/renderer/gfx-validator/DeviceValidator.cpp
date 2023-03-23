@@ -364,5 +364,9 @@ void DeviceValidator::enableAutoBarrier(bool en) {
     _actor->enableAutoBarrier(en);
 }
 
+void DeviceValidator::frameSync() {
+    _actor->frameSync();
+}
+
 } // namespace gfx
 } // namespace cc

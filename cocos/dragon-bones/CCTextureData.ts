@@ -30,10 +30,15 @@ import { Rect, _decorator } from '../core';
 const { ccclass } = _decorator;
 
 /**
-* @deprecated since v3.5.1, this is an engine private interface that will be removed in the future.
-*/
+ * @en The texture atlas of dragonbones.
+ * @zh 龙骨组件中的纹理图集资源。
+ */
 @ccclass('dragonBones.CCTextureAtlasData')
 export class CCTextureAtlasData extends TextureAtlasData {
+    /**
+     * @en The texture used for rendering.
+     * @zh 实际用于渲染显示的纹理对象。
+     */
     get renderTexture () {
         return this._renderTexture;
     }
@@ -70,32 +75,49 @@ export class CCTextureAtlasData extends TextureAtlasData {
     }
 
     protected _renderTexture: TextureBase | null = null;
-
+    /**
+     * @engineInternal Since v3.7.2 this is an engine private function.
+     */
     static toString () {
         return '[class dragonBones.CCTextureAtlasData]';
     }
-
+    /**
+     * @en Create texture data, get data from the object pool.
+     * @zh 创建纹理数据，从对象池获取。
+     */
     createTexture () {
         return BaseObject.borrowObject(CCTextureData);
     }
-
+    /**
+     * @en Clear associated texture resources.
+     * @zh 清除关联的纹理。
+     */
     _onClear () {
         super._onClear();
         this.renderTexture = null;
     }
 }
-
 /**
-* @deprecated since v3.5.1, this is an engine private interface that will be removed in the future.
-*/
+ * @en Texture data used in dragonbones.
+ * @zh 龙骨资源中的纹理数据。
+ */
 @ccclass('dragonBones.CCTextureData')
 export class CCTextureData extends TextureData {
+    /**
+     * @en SpriteFrame assets.
+     * @zh SpriteFrame 资源。
+     */
     spriteFrame: SpriteFrame | null = null
-
+    /**
+     * @engineInternal Since v3.7.2 this is an engine private function.
+     */
     static toString () {
         return '[class dragonBones.CCTextureData]';
     }
-
+    /**
+     * @en Clear SpriteFrame assets.
+     * @zh 清除关联的SpriteFrame 资源。
+     */
     _onClear () {
         super._onClear();
         this.spriteFrame = null;
