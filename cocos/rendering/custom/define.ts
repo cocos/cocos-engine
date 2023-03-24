@@ -919,18 +919,13 @@ export function buildSpecularPass (camera: Camera,
     specalurPass
         .addQueue(QueueHint.RENDER_OPAQUE, 'default')
         .addSceneOfCamera(camera, new LightInfo(),
-            SceneFlags.OPAQUE_OBJECT | SceneFlags.PLANAR_SHADOW | SceneFlags.CUTOUT_OBJECT | SceneFlags.DRAW_INSTANCING);
-    // specalurPass
-    //     .addQueue(QueueHint.RENDER_TRANSPARENT, 'default')
-    //     .addSceneOfCamera(camera, new LightInfo(), SceneFlags.TRANSPARENT_OBJECT | SceneFlags.GEOMETRY);
-    // specalurPass
-    //     .addQueue(QueueHint.RENDER_OPAQUE, 'forward-add')
-    //     .addSceneOfCamera(camera, new LightInfo(),
-    //         SceneFlags.OPAQUE_OBJECT | SceneFlags.PLANAR_SHADOW | SceneFlags.CUTOUT_OBJECT
-    //          | SceneFlags.DEFAULT_LIGHTING | SceneFlags.DRAW_INSTANCING);
+            SceneFlags.TRANSPARENT_OBJECT | SceneFlags.DEFAULT_LIGHTING | SceneFlags.PLANAR_SHADOW
+            | SceneFlags.CUTOUT_OBJECT | SceneFlags.DRAW_INSTANCING | SceneFlags.GEOMETRY);
     specalurPass
         .addQueue(QueueHint.RENDER_TRANSPARENT, 'forward-add')
-        .addSceneOfCamera(camera, new LightInfo(), SceneFlags.DEFAULT_LIGHTING | SceneFlags.TRANSPARENT_OBJECT | SceneFlags.GEOMETRY);
+        .addSceneOfCamera(camera, new LightInfo(),
+            SceneFlags.TRANSPARENT_OBJECT | SceneFlags.DEFAULT_LIGHTING | SceneFlags.PLANAR_SHADOW
+            | SceneFlags.CUTOUT_OBJECT | SceneFlags.DRAW_INSTANCING | SceneFlags.GEOMETRY);
     return { rtName: inputRT, dsName: inputDS };
 }
 

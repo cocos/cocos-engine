@@ -1005,7 +1005,6 @@ class DevicePreSceneTask extends WebSceneTask {
                         && !this._submitInfo.instances.size
                         && !this._submitInfo.batches.size;
         if (isEmpty) {
-            context.pools.resetPassInfo();
             for (const ro of this.sceneData.renderObjects) {
                 const subModels = ro.model.subModels;
                 for (const subModel of subModels) {
@@ -1507,6 +1506,7 @@ class ExecutorPools {
         this.deviceQueuePool.reset();
         this.graphScenePool.reset();
         this.reflectionProbe.reset();
+        this.resetPassInfo();
     }
     readonly deviceQueuePool: RecyclePool<DeviceRenderQueue>;
     readonly graphScenePool: RecyclePool<GraphScene>;
