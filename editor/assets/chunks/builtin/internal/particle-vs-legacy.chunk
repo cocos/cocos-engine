@@ -57,6 +57,7 @@ vec4 lpvs_main () {
     }
     vec4 rot = vec4(rotTmp, 0.0);
     rot.w = mulFactor * sqrt(abs(1.0 - rot.x * rot.x - rot.y * rot.y - rot.z * rot.z));
+    rot = normalize(rot);
   #endif
   #if !ROTATION_OVER_TIME_MODULE_ENABLE
     #if CC_RENDER_MODE != RENDER_MODE_MESH

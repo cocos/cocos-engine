@@ -1705,23 +1705,13 @@ export class ParticleSystem extends ModelRenderer {
                 Vec3.transformMat4(particle.position, particle.position, _world_mat);
                 Vec3.transformQuat(particle.velocity, particle.velocity, _world_rol);
             } else if (parentParticle) {
-                if (parentParticle.particleSystem._simulationSpace === Space.World) {
-                    Vec3.transformQuat(particle.position, particle.position, parentParticle.dir);
-                    Mat4.fromTranslation(_temp_trans, parentParticle.position);
-                    Vec3.transformMat4(particle.position, particle.position, _temp_trans);
-                    Vec3.transformMat4(particle.position, particle.position, _inv_mat);
+                Vec3.transformQuat(particle.position, particle.position, parentParticle.dir);
+                Mat4.fromTranslation(_temp_trans, parentParticle.position);
+                Vec3.transformMat4(particle.position, particle.position, _temp_trans);
+                Vec3.transformMat4(particle.position, particle.position, _inv_mat);
 
-                    Vec3.transformQuat(particle.velocity, particle.velocity, parentParticle.dir);
-                    Vec3.transformQuat(particle.velocity, particle.velocity, _inv_rol);
-                } else {
-                    Vec3.transformQuat(particle.position, particle.position, parentParticle.dir);
-                    Mat4.fromTranslation(_temp_trans, parentParticle.position);
-                    Vec3.transformMat4(particle.position, particle.position, _temp_trans);
-                    Vec3.transformMat4(particle.position, particle.position, _inv_mat);
-
-                    Vec3.transformQuat(particle.velocity, particle.velocity, parentParticle.dir);
-                    Vec3.transformQuat(particle.velocity, particle.velocity, _inv_rol);
-                }
+                Vec3.transformQuat(particle.velocity, particle.velocity, parentParticle.dir);
+                Vec3.transformQuat(particle.velocity, particle.velocity, _inv_rol);
             }
 
             if (this._simulationSpace === Space.World) {
