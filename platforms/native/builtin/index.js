@@ -1,5 +1,6 @@
 globalThis.__EDITOR__ = globalThis.process && ('electron' in globalThis.process.versions);
 
+require('./wasm');
 const jsbWindow = require('../jsbWindow');
 
 jsb.device = jsb.Device; // cc namespace will be reset to {} in creator, use jsb namespace instead.
@@ -207,10 +208,6 @@ jsb.generateGetSet = function (moduleObj) {
 for (const key in jsbWindow) {
     if (globalThis[key] === undefined) {
         globalThis[key] = jsbWindow[key];
-        console.debug(`[web-adapter] override window.${key}`);
-    } else {
-        // globalThis[key] = jsbWindow[key];
-        console.debug(`[web-adapter] skip window.${key}`);
     }
 }
 

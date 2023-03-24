@@ -62,7 +62,7 @@ private:
 
     static BuiltinResMgr *instance;
 
-    Record<ccstd::string, IntrusivePtr<Asset>> _resources;
+    ccstd::unordered_map<ccstd::string, IntrusivePtr<Asset>> _resources;
     bool _isInitialized{false};
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(BuiltinResMgr);
