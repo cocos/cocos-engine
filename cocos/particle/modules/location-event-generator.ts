@@ -35,7 +35,7 @@ const PROBABILITY_RANDOM_SEED_OFFSET = 199208;
 const eventInfo = new ParticleEventInfo();
 
 @ccclass('cc.LocationEventGeneratorModule')
-@ParticleModule.register('LocationEventGenerator', ModuleExecStage.UPDATE)
+@ParticleModule.register('LocationEventGenerator', ModuleExecStage.UPDATE, ['Solve', 'State'])
 export class LocationEventGeneratorModule extends ParticleModule {
     @type(CCFloat)
     @range([0, 1])

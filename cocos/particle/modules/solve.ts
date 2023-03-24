@@ -8,7 +8,7 @@ import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 const tempVelocity = new Vec3();
 
 @ccclass('SolveModule')
-@ParticleModule.register('Solve', ModuleExecStage.UPDATE)
+@ParticleModule.register('Solve', ModuleExecStage.UPDATE, [], ['State'])
 export class SolveModule extends ParticleModule {
     constructor () {
         super();
