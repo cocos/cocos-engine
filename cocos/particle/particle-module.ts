@@ -59,6 +59,41 @@ export abstract class ParticleModule {
         return this._allRegisteredModules;
     }
 
+    public static findAProperPositionToInsert (modules: ParticleModule[], module: ParticleModule) {
+        const identity = ParticleModule.getModuleIdentityByClassNoCheck(module.constructor as Constructor<ParticleModule>);
+        const preDependencies = identity.preDependencies;
+        const postDependencies = identity.postDependencies;
+        let lastIndexOfPreDependency = -1;
+        for (let i = 0, l = preDependencies.length; i < l; i++) {
+            for (let j = 0; j < modules.length; j++) {
+                const module = modules[j];
+                const currentModuleId = ParticleModule.getModuleIdentityByClassNoCheck(module.constructor as Constructor<ParticleModule>);
+                if (currentModuleId.name === preDependencies[i]) {
+                    if (j > lastIndexOfPreDependency) {
+                        lastIndexOfPreDependency = j;
+                    }
+                }
+            }
+        }
+        let firstIndexOfPostDependency = modules.length;
+        for (let i = 0, l = postDependencies.length; i < l; i++) {
+            for (let j = 0; j < modules.length; j++) {
+                const module = modules[j];
+                const currentModuleId = ParticleModule.getModuleIdentityByClassNoCheck(module.constructor as Constructor<ParticleModule>);
+                if (currentModuleId.name === postDependencies[i]) {
+                    if (j < firstIndexOfPostDependency) {
+                        firstIndexOfPostDependency = j;
+                    }
+                }
+            }
+        }
+        if (firstIndexOfPostDependency > lastIndexOfPreDependency) {
+            return firstIndexOfPostDependency;
+        } else {
+            return lastIndexOfPreDependency + 1;
+        }
+    }
+
     public static getModuleIdentityByClassNoCheck (ctor: Constructor<ParticleModule>) {
         const identity = this.getModuleIdentityByClass(ctor);
         assert(identity, 'Module not registered!');
@@ -139,19 +174,8 @@ export class ParticleModuleStage {
         assert(id, 'Particle Module should be registered!');
         if (id.execStages & this._execStage) {
             const newModule = new ModuleType();
-            const preDependencies = id.preDependencies;
-            const postDependencies = id.postDependencies;
-            for (let i = 0, l = preDependencies.length; i < l; i++) {
-                for (let j = 0; j < this._modules.length; j++) {
-                    const module = this._modules[j];
-                    const currentModuleId = ParticleModule.getModuleIdentityByClassNoCheck(module.constructor as Constructor<ParticleModule>);
-                    if (currentModuleId.name === preDependencies[i]) {
-                        this._modules.splice(j, 0, newModule);
-                        return newModule;
-                    }
-                }
-            }
-            this._modules.push(newModule);
+            const index = ParticleModule.findAProperPositionToInsert(this._modules, newModule);
+            this._modules.splice(index, 0, newModule);
             return newModule;
         } else {
             throw new Error('This stage does not support this module!');

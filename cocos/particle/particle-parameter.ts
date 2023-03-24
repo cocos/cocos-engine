@@ -375,6 +375,18 @@ export class ParticleFloatParameter extends ParticleParameter {
     }
 }
 
+export class ParticleBoolParameter extends ParticleParameter {
+    get type (): ParticleParameterType {
+        throw new Error('Method not implemented.');
+    }
+    reserve (capacity: number) {
+        throw new Error('Method not implemented.');
+    }
+    move (a: number, b: number) {
+        throw new Error('Method not implemented.');
+    }
+}
+
 export class ParticleUint32Parameter extends ParticleParameter {
     get data () {
         return this._data;
