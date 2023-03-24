@@ -96,3 +96,12 @@ void RotateTangentAndBinormal(inout vec3 tangent, inout vec3 binormal, vec3 norm
     tangent = normalize(tangentNew);
     // tangent = cross(binormal, normal);
 }
+
+// fast rotation for anisotropic offset
+// rotationAngle: -1 - +1
+void RotateNormalAndBinormal(inout vec3 binormal, inout vec3 normal, in vec3 tangent, float rotationAngle)
+{
+  normal += (binormal - normal) * rotationAngle;
+  normal = normalize(normal);
+  binormal = normalize(cross(tangent, normal));
+}

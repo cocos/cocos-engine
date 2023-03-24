@@ -369,6 +369,12 @@
             "ccGlobal": true,
             "internal": false
         },
+        "WECHAT_MINI_PROGRAM": {
+            "comment": "Running in the Wechat's mini program.",
+            "type": "boolean",
+            "value": false,
+            "internal": false
+        },
         "BAIDU": {
             "comment": "Running in the baidu's mini game.",
             "type": "boolean",
@@ -511,7 +517,7 @@
         "MINIGAME": {
             "comment": "Running in mini game.",
             "type": "boolean",
-            "value": "$WECHAT || $BAIDU || $XIAOMI || $ALIPAY || $TAOBAO || $TAOBAO_MINIGAME || $BYTEDANCE",
+            "value": "$WECHAT || $WECHAT_MINI_PROGRAM || $BAIDU || $XIAOMI || $ALIPAY || $TAOBAO || $TAOBAO_MINIGAME || $BYTEDANCE",
             "ccGlobal": true,
             "internal": false
         },
