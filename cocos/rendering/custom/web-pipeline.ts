@@ -680,11 +680,11 @@ export class WebRasterSubpassBuilder extends WebSetter implements RasterSubpassB
     setViewport (viewport: Viewport): void {
 
     }
-    addQueue (hint: QueueHint = QueueHint.RENDER_OPAQUE, name = 'Queue'): RasterQueueBuilder {
+    addQueue (hint: QueueHint = QueueHint.RENDER_OPAQUE, layoutName = 'default'): RasterQueueBuilder {
         const queue = new RenderQueue(hint);
         const data = new RenderData();
         const queueID = this._renderGraph.addVertex<RenderGraphValue.Queue>(
-            RenderGraphValue.Queue, queue, name, '', data, false, this._vertID,
+            RenderGraphValue.Queue, queue, '', layoutName, data, false, this._vertID,
         );
         return new WebRasterQueueBuilder(data, this._renderGraph, this._layoutGraph, queueID, queue, this._pipeline);
     }
@@ -752,11 +752,11 @@ export class WebRasterPassBuilder extends WebSetter implements RasterPassBuilder
     addComputeSubpass (layoutName = ''): ComputeSubpassBuilder {
         throw new Error('Method not implemented.');
     }
-    addQueue (hint: QueueHint = QueueHint.RENDER_OPAQUE, name = 'Queue') {
+    addQueue (hint: QueueHint = QueueHint.RENDER_OPAQUE, layoutName = 'default') {
         const queue = new RenderQueue(hint);
         const data = new RenderData();
         const queueID = this._renderGraph.addVertex<RenderGraphValue.Queue>(
-            RenderGraphValue.Queue, queue, name, '', data, false, this._vertID,
+            RenderGraphValue.Queue, queue, '', layoutName, data, false, this._vertID,
         );
         return new WebRasterQueueBuilder(data, this._renderGraph, this._layoutGraph, queueID, queue, this._pipeline);
     }
@@ -863,11 +863,11 @@ export class WebComputePassBuilder extends WebSetter implements ComputePassBuild
             this._pass.computeViews.set(name, [view]);
         }
     }
-    addQueue (name = 'Queue') {
+    addQueue (layoutName = 'default') {
         const queue = new RenderQueue();
         const data = new RenderData();
         const queueID = this._renderGraph.addVertex<RenderGraphValue.Queue>(
-            RenderGraphValue.Queue, queue, name, '', data, false, this._vertID,
+            RenderGraphValue.Queue, queue, '', layoutName, data, false, this._vertID,
         );
         return new WebComputeQueueBuilder(data, this._renderGraph, this._layoutGraph, queueID, queue, this._pipeline);
     }

@@ -70,10 +70,10 @@ function cullSpotLight (light: SpotLight, model: Model) {
 const phaseName = 'forward-add';
 let _phaseID = getPhaseID(phaseName);
 const _lightPassIndices: number[] = [];
-function getLightPassIndices (subModels: SubModel[], lightPassIndices: number[]) {
+function getLightPassIndices (subModels: SubModel[], lightPassIndices: number[], passLayout = 'default') {
     const r = cclegacy.rendering;
     if (isEnableEffect()) {
-        _phaseID = r.getPhaseID(r.getPassID('default'), phaseName);
+        _phaseID = r.getPhaseID(r.getPassID(passLayout), phaseName);
     }
     lightPassIndices.length = 0;
     let hasValidLightPass = false;
@@ -175,26 +175,19 @@ export class RenderAdditiveLightQueue {
         }
     }
 
-    public gatherLightPasses (camera: Camera, cmdBuff: CommandBuffer) {
-        this.clear();
-
-        const validPunctualLights = this._pipeline.pipelineSceneData.validPunctualLights;
-        if (!validPunctualLights.length) { return; }
-
-        this._updateUBOs(camera, cmdBuff);
-        this._updateLightDescriptorSet(camera, cmdBuff);
+    private _bindForwardAddLight (validPunctualLights, passLayout = 'default') {
         const renderObjects = this._pipeline.pipelineSceneData.renderObjects;
         for (let i = 0; i < renderObjects.length; i++) {
             const ro = renderObjects[i];
             const { model } = ro;
             const { subModels } = model;
-            if (!getLightPassIndices(subModels, _lightPassIndices)) { continue; }
+            if (!getLightPassIndices(subModels, _lightPassIndices, passLayout)) { continue; }
 
             _lightIndices.length = 0;
 
             this._lightCulling(model, validPunctualLights);
 
-            if (!_lightIndices.length) { continue; }
+            if (!_lightIndices.length && validPunctualLights.length > 0) { continue; }
 
             for (let j = 0; j < subModels.length; j++) {
                 const lightPassIdx = _lightPassIndices[j];
@@ -213,7 +206,20 @@ export class RenderAdditiveLightQueue {
                 this._addRenderQueue(pass, subModel, model, lightPassIdx);
             }
         }
+    }
 
+    public gatherLightPasses (camera: Camera, cmdBuff: CommandBuffer, passLayout = 'default') {
+        this.clear();
+
+        const validPunctualLights = this._pipeline.pipelineSceneData.validPunctualLights;
+        if (!validPunctualLights.length) {
+            this._bindForwardAddLight(validPunctualLights, passLayout);
+            return;
+        }
+
+        this._updateUBOs(camera, cmdBuff);
+        this._updateLightDescriptorSet(camera, cmdBuff);
+        this._bindForwardAddLight(validPunctualLights, passLayout);
         // only for instanced and batched, no light culling applied
         for (let l = 0; l < validPunctualLights.length; l++) {
             const light = validPunctualLights[l];
