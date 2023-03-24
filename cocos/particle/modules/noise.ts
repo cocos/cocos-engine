@@ -59,7 +59,7 @@ const noiseXCache1D = new PerlinNoise1DCache();
 const noiseYCache1D = new PerlinNoise1DCache();
 const noiseZCache1D = new PerlinNoise1DCache();
 
-enum Quality {
+export enum Quality {
     LOW,
     MIDDLE,
     HIGH
@@ -277,7 +277,7 @@ export class NoiseModule extends ParticleModule {
     private _amplitudeScale = 1;
 
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
-        this._scrollOffset += this._scrollSpeed.evaluate(context.normalizedTimeInCycle, 1) * context.deltaTime;
+        this._scrollOffset += this._scrollSpeed.evaluate(context.emitterNormalizedTime, 1) * context.emitterDeltaTime;
         if (this._scrollOffset > 256) {
             this._scrollOffset -= 256;
         }

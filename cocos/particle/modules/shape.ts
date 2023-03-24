@@ -335,7 +335,8 @@ export class ShapeModule extends ParticleModule {
     private _boxThickness = new Vec3(0, 0, 0);
 
     public tick (particles: ParticleDataSet,  params: ParticleEmitterParams, context: ParticleExecContext) {
-        this._totalAngle += 2 * Math.PI * this.arcSpeed.evaluate(context.normalizedTimeInCycle, 1) * context.deltaTime;
+        const { emitterNormalizedTime: normalizedT, emitterDeltaTime } = context;
+        this._totalAngle += 2 * Math.PI * this.arcSpeed.evaluate(normalizedT, 1) * emitterDeltaTime;
         if (this._isTransformDirty) {
             Quat.fromEuler(this._quat, this._rotation.x, this._rotation.y, this._rotation.z);
             Mat4.fromRTS(this._mat, this._quat, this._position, this._scale);

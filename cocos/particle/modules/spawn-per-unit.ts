@@ -27,7 +27,7 @@ import { ccclass, displayOrder, serializable, tooltip, type, range } from '../..
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { ParticleExecContext, ParticleEmitterParams } from '../particle-base';
 import { CurveRange } from '../curve-range';
-import { ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
 
 @ccclass('cc.SpawnPerUnitModule')
 @ParticleModule.register('SpawnPerUnit', ModuleExecStage.EMITTER_UPDATE | ModuleExecStage.EVENT_HANDLER, 1)
@@ -42,9 +42,13 @@ export class SpawnPerUnitModule extends ParticleModule {
     @tooltip('i18n:particle_system.rateOverDistance')
     public rate = new CurveRange();
 
+    public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+        context.markRequiredParameter(BuiltinParticleParameter.SPAWN_TIME);
+    }
+
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
-        const { velocity, normalizedTimeInCycle, deltaTime } = context;
-        context.emittingNumOverDistance += velocity.length()
-        * this.rate.evaluate(normalizedTimeInCycle, Math.random()) * deltaTime;
+        const { velocity, emitterNormalizedTime: normalizeT, emitterDeltaTime } = context;
+        context.spawnNumOverDistance += velocity.length()
+        * this.rate.evaluate(normalizeT, Math.random()) * emitterDeltaTime;
     }
 }

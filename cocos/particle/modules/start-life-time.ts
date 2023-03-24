@@ -48,11 +48,14 @@ export class StartLifeTimeModule extends ParticleModule {
 
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         context.markRequiredParameter(BuiltinParticleParameter.INV_START_LIFETIME);
+        if (this.startLifetime.mode === CurveRange.Mode.Curve || this.startLifetime.mode === CurveRange.Mode.TwoCurves) {
+            context.markRequiredParameter(BuiltinParticleParameter.SPAWN_TIME);
+        }
     }
 
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         const invStartLifeTime = particles.invStartLifeTime.data;
-        const { fromIndex, toIndex, normalizedTimeInCycle } = context;
+        const { fromIndex, toIndex } = context;
         if (this.startLifetime.mode === CurveRange.Mode.Constant) {
             const lifeTime = 1 / this.startLifetime.constant;
             for (let i = fromIndex; i < toIndex; ++i) {
@@ -66,14 +69,17 @@ export class StartLifeTimeModule extends ParticleModule {
             }
         } else if (this.startLifetime.mode ===  CurveRange.Mode.Curve) {
             const { spline, multiplier } = this.startLifetime;
+            const spawnTime = particles.spawnTime.data;
             for (let i = fromIndex; i < toIndex; ++i) {
-                invStartLifeTime[i] = 1 / (spline.evaluate(normalizedTimeInCycle) * multiplier);
+                invStartLifeTime[i] = 1 / (spline.evaluate(spawnTime[i]) * multiplier);
             }
         } else {
             const { splineMin, splineMax, multiplier } = this.startLifetime;
+            const spawnTime = particles.spawnTime.data;
             for (let i = fromIndex; i < toIndex; ++i) {
                 const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
-                invStartLifeTime[i] = 1 / (lerp(splineMin.evaluate(normalizedTimeInCycle), splineMax.evaluate(normalizedTimeInCycle), rand) * multiplier);
+                const normalizedT = spawnTime[i];
+                invStartLifeTime[i] = 1 / (lerp(splineMin.evaluate(normalizedT), splineMax.evaluate(normalizedT), rand) * multiplier);
             }
         }
     }

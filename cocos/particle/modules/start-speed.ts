@@ -54,7 +54,7 @@ export class StartSpeedModule extends ParticleModule {
     }
 
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
-        const { fromIndex, toIndex, normalizedTimeInCycle } = context;
+        const { fromIndex, toIndex, emitterNormalizedTime: normalizedT } = context;
         const { startDir, baseVelocity, velocity } = particles;
         const mode = this.startSpeed.mode;
         if (mode === CurveRange.Mode.Constant) {
@@ -79,7 +79,7 @@ export class StartSpeedModule extends ParticleModule {
         } else if (mode ===  CurveRange.Mode.Curve) {
             const { spline, multiplier } = this.startSpeed;
             for (let i = fromIndex; i < toIndex; ++i) {
-                const curveStartSpeed = spline.evaluate(normalizedTimeInCycle) * multiplier;
+                const curveStartSpeed = spline.evaluate(normalizedT) * multiplier;
                 startDir.getVec3At(tempVelocity, i);
                 Vec3.multiplyScalar(tempVelocity, tempVelocity, curveStartSpeed);
                 baseVelocity.setVec3At(tempVelocity, i);
@@ -89,7 +89,7 @@ export class StartSpeedModule extends ParticleModule {
             const { splineMin, splineMax, multiplier } = this.startSpeed;
             for (let i = fromIndex; i < toIndex; ++i) {
                 const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
-                const curveStartSpeed = lerp(splineMin.evaluate(normalizedTimeInCycle), splineMax.evaluate(normalizedTimeInCycle), rand) * multiplier;
+                const curveStartSpeed = lerp(splineMin.evaluate(normalizedT), splineMax.evaluate(normalizedT), rand) * multiplier;
                 startDir.getVec3At(tempVelocity, i);
                 Vec3.multiplyScalar(tempVelocity, tempVelocity, curveStartSpeed);
                 baseVelocity.setVec3At(tempVelocity, i);

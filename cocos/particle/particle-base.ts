@@ -305,22 +305,33 @@ export class ParticleExecContext {
         return this._requiredParameters;
     }
 
-    public currentTime = 0;
-    public previousTime = 0;
-    public normalizedTimeInCycle = 0;
-    public deltaTime = 0;
-    public velocity = new Vec3();
-    public inheritedProperties: InheritedProperties | null = null;
+    // emitter range
+    public emitterCurrentTime = 0;
+    public emitterPreviousTime = 0;
+    public emitterNormalizedTime = 0;
+    public emitterDeltaTime = 0;
     public emitterTransform = new Mat4();
-    public emittingNumOverTime = 0;
-    public emittingNumOverDistance = 0;
+    public inheritedProperties: InheritedProperties | null = null;
+    public spawnNumOverTime = 0;
+    public spawnNumOverDistance = 0;
     public burstCount = 0;
+    public velocity = new Vec3();
+    // end emitter range
+
+    // simulation range
+    public deltaTime = 0;
     public localToWorld = new Mat4();
     public worldToLocal = new Mat4();
     public worldRotation = new Quat();
+    public rotationIfNeedTransform = new Quat();
+    // end simulation range
+
+    // execution range
     public fromIndex = 0;
     public toIndex = 0;
     public executionStage = ModuleExecStage.NONE;
+    // end execution range
+
     private _requiredParameters = new BitsBucket();
     private _locationEvents: ParticleEvents | null = null;
     private _deathEvents: ParticleEvents | null = null;
@@ -334,15 +345,19 @@ export class ParticleExecContext {
         this.toIndex = toIndex;
     }
 
-    setTime (currentTime: number, previousTime: number, invCycle: number) {
-        this.previousTime = previousTime;
-        this.currentTime = currentTime;
-        this.deltaTime = currentTime - previousTime;
-        this.normalizedTimeInCycle = currentTime * invCycle;
+    setEmitterTime (currentTime: number, previousTime: number, invCycle: number) {
+        this.emitterPreviousTime = previousTime;
+        this.emitterCurrentTime = currentTime;
+        this.emitterDeltaTime = currentTime - previousTime;
+        this.emitterNormalizedTime = currentTime * invCycle;
+    }
+
+    setDeltaTime (deltaTime: number) {
+        this.deltaTime = deltaTime;
     }
 
     resetSpawningState () {
-        this.burstCount = this.emittingNumOverDistance = this.emittingNumOverTime = 0;
+        this.burstCount = this.spawnNumOverDistance = this.spawnNumOverTime = 0;
     }
 
     clear () {

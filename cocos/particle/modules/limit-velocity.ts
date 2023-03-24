@@ -146,8 +146,6 @@ export class LimitVelocityModule extends ParticleModule {
     private _y: CurveRange | null = null;
     @serializable
     private _z: CurveRange | null = null;
-    private _needTransform = false;
-    private _rotation = new Quat();
 
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         if (this.separateAxes && DEBUG) {
@@ -161,8 +159,6 @@ export class LimitVelocityModule extends ParticleModule {
         if (this.limitX.mode === CurveRange.Mode.TwoConstants || this.limitX.mode === CurveRange.Mode.TwoCurves) {
             context.markRequiredParameter(BuiltinParticleParameter.RANDOM_SEED);
         }
-        this._needTransform = calculateTransform(params.simulationSpace,
-            this.space, context.localToWorld, context.worldToLocal, this._rotation);
     }
 
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
@@ -172,9 +168,10 @@ export class LimitVelocityModule extends ParticleModule {
             return;
         }
         const { velocity, baseVelocity } = particles;
-        const rotation = this._rotation;
+        const rotation = context.rotationIfNeedTransform;
+        const needTransform = this.space === params.simulationSpace;
         if (this.separateAxes) {
-            if (this._needTransform) {
+            if (needTransform) {
                 if (this.limitX.mode === CurveRange.Mode.Constant) {
                     Vec3.set(_temp_v3_1, this.limitX.constant, this.limitY.constant, this.limitY.constant);
                     Vec3.transformQuat(_temp_v3_1, _temp_v3_1, rotation);

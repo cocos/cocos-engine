@@ -38,7 +38,6 @@ const VELOCITY_Y_OVERTIME_RAND_OFFSET = 156497;
 const VELOCITY_Z_OVERTIME_RAND_OFFSET = 984136;
 
 const tempVelocity = new Vec3();
-const rotation = new Quat();
 
 @ccclass('cc.AddVelocityModule')
 @ParticleModule.register('AddVelocity', ModuleExecStage.UPDATE, 2)
@@ -89,13 +88,13 @@ export class AddVelocityModule extends ParticleModule {
     }
 
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
-        const needTransform = calculateTransform(params.simulationSpace, this.space, context.localToWorld, context.worldToLocal, rotation);
+        const needTransform = this.space !== params.simulationSpace;
         const { velocity } = particles;
-        const { fromIndex, toIndex } = context;
+        const { fromIndex, toIndex, rotationIfNeedTransform } = context;
         if (needTransform) {
             if (this.x.mode === CurveRange.Mode.Constant) {
                 tempVelocity.set(this.x.constant, this.y.constant, this.z.constant);
-                Vec3.transformQuat(tempVelocity, tempVelocity, rotation);
+                Vec3.transformQuat(tempVelocity, tempVelocity, rotationIfNeedTransform);
                 for (let i = fromIndex; i < toIndex; i++) {
                     velocity.addVec3At(tempVelocity, i);
                 }
@@ -109,7 +108,7 @@ export class AddVelocityModule extends ParticleModule {
                     tempVelocity.set(xCurve.evaluate(normalizedTime) * xMultiplier,
                         yCurve.evaluate(normalizedTime) * yMultiplier,
                         zCurve.evaluate(normalizedTime) * zMultiplier);
-                    Vec3.transformQuat(tempVelocity, tempVelocity, rotation);
+                    Vec3.transformQuat(tempVelocity, tempVelocity, rotationIfNeedTransform);
                     velocity.addVec3At(tempVelocity, i);
                 }
             } else if (this.x.mode === CurveRange.Mode.TwoConstants) {
@@ -122,7 +121,7 @@ export class AddVelocityModule extends ParticleModule {
                     tempVelocity.set(lerp(xMin, xMax, pseudoRandom(seed + VELOCITY_X_OVERTIME_RAND_OFFSET)),
                         lerp(yMin, yMax, pseudoRandom(seed + VELOCITY_Y_OVERTIME_RAND_OFFSET)),
                         lerp(zMin, zMax, pseudoRandom(seed + VELOCITY_Z_OVERTIME_RAND_OFFSET)));
-                    Vec3.transformQuat(tempVelocity, tempVelocity, rotation);
+                    Vec3.transformQuat(tempVelocity, tempVelocity, rotationIfNeedTransform);
                     velocity.addVec3At(tempVelocity, i);
                 }
             } else {
@@ -137,7 +136,7 @@ export class AddVelocityModule extends ParticleModule {
                     tempVelocity.set(lerp(xMin.evaluate(normalizedTime), xMax.evaluate(normalizedTime), pseudoRandom(seed + VELOCITY_X_OVERTIME_RAND_OFFSET)) * xMultiplier,
                         lerp(yMin.evaluate(normalizedTime), yMax.evaluate(normalizedTime), pseudoRandom(seed + VELOCITY_Y_OVERTIME_RAND_OFFSET)) * yMultiplier,
                         lerp(zMin.evaluate(normalizedTime), zMax.evaluate(normalizedTime), pseudoRandom(seed + VELOCITY_Z_OVERTIME_RAND_OFFSET)) * zMultiplier);
-                    Vec3.transformQuat(tempVelocity, tempVelocity, rotation);
+                    Vec3.transformQuat(tempVelocity, tempVelocity, rotationIfNeedTransform);
                     velocity.addVec3At(tempVelocity, i);
                 }
             }

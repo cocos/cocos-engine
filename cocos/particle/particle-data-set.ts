@@ -49,6 +49,7 @@ export const BuiltinParticleParameterName = [
     'size',
     'base-color',
     'color',
+    'spawn-time',
     'vec3-register',
 ];
 
@@ -72,6 +73,7 @@ export enum BuiltinParticleParameter {
     SIZE,
     BASE_COLOR,
     COLOR,
+    SPAWN_TIME,
     VEC3_REGISTER,
     COUNT,
 }
@@ -149,6 +151,10 @@ export class ParticleDataSet {
         return this.getParameterNoCheck<ParticleColorParameter>(BuiltinParticleParameter.COLOR);
     }
 
+    get spawnTime () {
+        return this.getParameterNoCheck<ParticleFloatParameter>(BuiltinParticleParameter.SPAWN_TIME);
+    }
+
     get vec3Register () {
         return this.getParameterNoCheck<ParticleVec3Parameter>(BuiltinParticleParameter.VEC3_REGISTER);
     }
@@ -206,6 +212,7 @@ export class ParticleDataSet {
         case BuiltinParticleParameter.FRAME_INDEX:
         case BuiltinParticleParameter.INV_START_LIFETIME:
         case BuiltinParticleParameter.NORMALIZED_ALIVE_TIME:
+        case BuiltinParticleParameter.SPAWN_TIME:
             this.addParameter(id, BuiltinParticleParameterName[id], ParticleParameterType.FLOAT);
             break;
         default:

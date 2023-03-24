@@ -111,7 +111,7 @@ export class StartRotationModule extends ParticleModule {
 
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         const { rotation } = particles;
-        const { fromIndex, toIndex, normalizedTimeInCycle } = context;
+        const { fromIndex, toIndex, emitterNormalizedTime: normalizedT } = context;
         if (this.startRotation3D) {
             if (this.startRotationX.mode === CurveRange.Mode.Constant) {
                 const constantX = this.startRotationX.constant;
@@ -135,9 +135,9 @@ export class StartRotationModule extends ParticleModule {
                 const { spline: yCurve, multiplier: yMultiplier } = this.startRotationY;
                 const { spline: zCurve, multiplier: zMultiplier } = this.startRotationZ;
                 for (let i = fromIndex; i < toIndex; ++i) {
-                    rotation.set3fAt(xCurve.evaluate(normalizedTimeInCycle) * xMultiplier,
-                        yCurve.evaluate(normalizedTimeInCycle) * yMultiplier,
-                        zCurve.evaluate(normalizedTimeInCycle) * zMultiplier, i);
+                    rotation.set3fAt(xCurve.evaluate(normalizedT) * xMultiplier,
+                        yCurve.evaluate(normalizedT) * yMultiplier,
+                        zCurve.evaluate(normalizedT) * zMultiplier, i);
                 }
             } else {
                 const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.startRotationX;
@@ -145,9 +145,9 @@ export class StartRotationModule extends ParticleModule {
                 const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.startRotationZ;
                 for (let i = fromIndex; i < toIndex; ++i) {
                     const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
-                    rotation.set3fAt(lerp(xMin.evaluate(normalizedTimeInCycle), xMax.evaluate(normalizedTimeInCycle), rand) * xMultiplier,
-                        lerp(yMin.evaluate(normalizedTimeInCycle), yMax.evaluate(normalizedTimeInCycle), rand) * yMultiplier,
-                        lerp(zMin.evaluate(normalizedTimeInCycle), zMax.evaluate(normalizedTimeInCycle), rand) * zMultiplier, i);
+                    rotation.set3fAt(lerp(xMin.evaluate(normalizedT), xMax.evaluate(normalizedT), rand) * xMultiplier,
+                        lerp(yMin.evaluate(normalizedT), yMax.evaluate(normalizedT), rand) * yMultiplier,
+                        lerp(zMin.evaluate(normalizedT), zMax.evaluate(normalizedT), rand) * zMultiplier, i);
                 }
             }
         } else {
@@ -166,13 +166,13 @@ export class StartRotationModule extends ParticleModule {
             } else if (this.startRotationZ.mode === CurveRange.Mode.Curve) {
                 const { spline: zCurve, multiplier: zMultiplier } = this.startRotationZ;
                 for (let i = fromIndex; i < toIndex; ++i) {
-                    rotation.setZAt(zCurve.evaluate(normalizedTimeInCycle) * zMultiplier, i);
+                    rotation.setZAt(zCurve.evaluate(normalizedT) * zMultiplier, i);
                 }
             } else {
                 const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.startRotationZ;
                 for (let i = fromIndex; i < toIndex; ++i) {
                     const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
-                    rotation.setZAt(lerp(zMin.evaluate(normalizedTimeInCycle), zMax.evaluate(normalizedTimeInCycle), rand) * zMultiplier, i);
+                    rotation.setZAt(lerp(zMin.evaluate(normalizedT), zMax.evaluate(normalizedT), rand) * zMultiplier, i);
                 }
             }
         }

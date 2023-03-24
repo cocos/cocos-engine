@@ -82,8 +82,6 @@ export class ForceModule extends ParticleModule {
 
     // TODO:currently not supported
     public randomized = false;
-    private _needTransform = false;
-    private _rotation = new Quat();
 
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         if (DEBUG) {
@@ -98,14 +96,14 @@ export class ForceModule extends ParticleModule {
         if (this.x.mode === CurveRange.Mode.TwoConstants || this.x.mode === CurveRange.Mode.TwoCurves) {
             context.markRequiredParameter(BuiltinParticleParameter.RANDOM_SEED);
         }
-        this._needTransform = calculateTransform(params.simulationSpace, this.space, context.localToWorld, context.worldToLocal, this._rotation);
     }
 
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         const { velocity, baseVelocity } = particles;
         const { fromIndex, toIndex, deltaTime } = context;
-        const rotation = this._rotation;
-        if (this._needTransform) {
+        const needTransform = this.space === params.simulationSpace;
+        const rotation = context.rotationIfNeedTransform;
+        if (needTransform) {
             if (this.x.mode === CurveRange.Mode.Constant) {
                 const force = Vec3.set(_temp_v3,
                     this.x.constant,

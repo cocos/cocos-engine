@@ -109,7 +109,7 @@ export class StartSizeModule extends ParticleModule {
 
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         const { baseSize, size } = particles;
-        const { fromIndex, toIndex, normalizedTimeInCycle } = context;
+        const { fromIndex, toIndex, emitterNormalizedTime: normalizedT } = context;
         if (this.startSize3D) {
             if (this.startSizeX.mode === CurveRange.Mode.Constant) {
                 const constantX = this.startSizeX.constant;
@@ -136,9 +136,9 @@ export class StartSizeModule extends ParticleModule {
                 const { spline: yCurve, multiplier: yMultiplier } = this.startSizeY;
                 const { spline: zCurve, multiplier: zMultiplier } = this.startSizeZ;
                 for (let i = fromIndex; i < toIndex; ++i) {
-                    const x = xCurve.evaluate(normalizedTimeInCycle) * xMultiplier;
-                    const y = yCurve.evaluate(normalizedTimeInCycle) * yMultiplier;
-                    const z = zCurve.evaluate(normalizedTimeInCycle) * zMultiplier;
+                    const x = xCurve.evaluate(normalizedT) * xMultiplier;
+                    const y = yCurve.evaluate(normalizedT) * yMultiplier;
+                    const z = zCurve.evaluate(normalizedT) * zMultiplier;
                     size.set3fAt(x, y, z, i);
                     baseSize.set3fAt(x, y, z, i);
                 }
@@ -148,9 +148,9 @@ export class StartSizeModule extends ParticleModule {
                 const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.startSizeZ;
                 for (let i = fromIndex; i < toIndex; ++i) {
                     const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
-                    const x = lerp(xMin.evaluate(normalizedTimeInCycle), xMax.evaluate(normalizedTimeInCycle), rand) * xMultiplier;
-                    const y = lerp(yMin.evaluate(normalizedTimeInCycle), yMax.evaluate(normalizedTimeInCycle), rand) * yMultiplier;
-                    const z = lerp(zMin.evaluate(normalizedTimeInCycle), zMax.evaluate(normalizedTimeInCycle), rand) * zMultiplier;
+                    const x = lerp(xMin.evaluate(normalizedT), xMax.evaluate(normalizedT), rand) * xMultiplier;
+                    const y = lerp(yMin.evaluate(normalizedT), yMax.evaluate(normalizedT), rand) * yMultiplier;
+                    const z = lerp(zMin.evaluate(normalizedT), zMax.evaluate(normalizedT), rand) * zMultiplier;
                     size.set3fAt(x, y, z, i);
                     baseSize.set3fAt(x, y, z, i);
                 }
@@ -172,7 +172,7 @@ export class StartSizeModule extends ParticleModule {
             } else if (this.startSizeX.mode === CurveRange.Mode.Curve) {
                 const { spline: xCurve, multiplier: xMultiplier } = this.startSizeX;
                 for (let i = fromIndex; i < toIndex; ++i) {
-                    const pSize = xCurve.evaluate(normalizedTimeInCycle) * xMultiplier;
+                    const pSize = xCurve.evaluate(normalizedT) * xMultiplier;
                     size.set1fAt(pSize, i);
                     baseSize.set1fAt(pSize, i);
                 }
@@ -180,7 +180,7 @@ export class StartSizeModule extends ParticleModule {
                 const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.startSizeX;
                 for (let i = fromIndex; i < toIndex; ++i) {
                     const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
-                    const pSize = lerp(xMin.evaluate(normalizedTimeInCycle), xMax.evaluate(normalizedTimeInCycle), rand) * xMultiplier;
+                    const pSize = lerp(xMin.evaluate(normalizedT), xMax.evaluate(normalizedT), rand) * xMultiplier;
                     size.set1fAt(pSize, i);
                     baseSize.set1fAt(pSize, i);
                 }

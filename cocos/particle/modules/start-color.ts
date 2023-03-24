@@ -28,7 +28,7 @@ import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
 import { ParticleExecContext, ParticleEmitterParams } from '../particle-base';
 import { GradientRange } from '../gradient-range';
-import { Color, lerp, pseudoRandom, randomRangeInt, Vec3 } from '../../core/math';
+import { clamp01, Color, lerp, pseudoRandom, randomRangeInt, Vec3 } from '../../core/math';
 import { INT_MAX } from '../../core/math/bits';
 
 const tempColor = new Color();
@@ -50,34 +50,41 @@ export class StartColorModule extends ParticleModule {
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         context.markRequiredParameter(BuiltinParticleParameter.COLOR);
         context.markRequiredParameter(BuiltinParticleParameter.BASE_COLOR);
+        if (this.startColor.mode === GradientRange.Mode.Gradient || this.startColor.mode === GradientRange.Mode.TwoGradients) {
+            context.markRequiredParameter(BuiltinParticleParameter.SPAWN_TIME);
+        }
     }
 
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         const baseColor = particles.baseColor.data;
         const color = particles.color.data;
-        const { fromIndex, toIndex, normalizedTimeInCycle } = context;
+        const { fromIndex, toIndex } = context;
+        const { invDuration } = params;
         if (this.startColor.mode === GradientRange.Mode.Color) {
             const colorNum = Color.toUint32(this.startColor.color);
-            for (let i = fromIndex; i < toIndex; ++i) {
+            for (let i = fromIndex; i < toIndex; i++) {
                 color[i] = baseColor[i] = colorNum;
             }
         } else if (this.startColor.mode === GradientRange.Mode.Gradient) {
             const { gradient } = this.startColor;
-            for (let i = fromIndex; i < toIndex; ++i) {
-                color[i] = baseColor[i] = Color.toUint32(gradient.evaluate(tempColor, normalizedTimeInCycle));
+            const spawnTime = particles.spawnTime.data;
+            for (let i = fromIndex, num = 0; i < toIndex; i++, num++) {
+                color[i] = baseColor[i] = Color.toUint32(gradient.evaluate(tempColor, spawnTime[i] * invDuration));
             }
         } else if (this.startColor.mode === GradientRange.Mode.TwoColors) {
             const { colorMin, colorMax } = this.startColor;
-            for (let i = fromIndex; i < toIndex; ++i) {
+            for (let i = fromIndex; i < toIndex; i++) {
                 const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
                 color[i] = baseColor[i] = Color.toUint32(Color.lerp(tempColor, colorMin, colorMax, rand));
             }
         } else if (this.startColor.mode === GradientRange.Mode.TwoGradients) {
             const { gradientMin, gradientMax } = this.startColor;
-            for (let i = fromIndex; i < toIndex; ++i) {
+            const spawnTime = particles.spawnTime.data;
+            for (let i = fromIndex, num = 0; i < toIndex; i++, num++) {
+                const normalizedT = spawnTime[i] * invDuration;
                 const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
                 color[i] = baseColor[i] = Color.toUint32(Color.lerp(tempColor,
-                    gradientMin.evaluate(tempColor2, normalizedTimeInCycle), gradientMax.evaluate(tempColor3, normalizedTimeInCycle), rand));
+                    gradientMin.evaluate(tempColor2, normalizedT), gradientMax.evaluate(tempColor3, normalizedT), rand));
             }
         } else {
             const { gradient } = this.startColor;
