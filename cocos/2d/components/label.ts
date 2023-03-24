@@ -36,6 +36,7 @@ import { InstanceMaterialType, UIRenderer } from '../framework/ui-renderer';
 import { TextureBase } from '../../asset/assets/texture-base';
 import { PixelFormat } from '../../asset/assets/asset-enum';
 import { BlendFactor } from '../../gfx';
+import { TextProcessData } from '../assembler';
 
 const tempColor = Color.WHITE.clone();
 /**
@@ -643,6 +644,11 @@ export class Label extends UIRenderer {
         }
     }
 
+    // Processing Data
+    get processingData () {
+        return this._textProcessingData;
+    }
+
     @serializable
     protected _string = 'label';
     @serializable
@@ -690,6 +696,8 @@ export class Label extends UIRenderer {
 
     protected _contentWidth = 0;
 
+    protected _textProcessingData: TextProcessData;
+
     /**
      * @engineInternal
      */
@@ -711,6 +719,7 @@ export class Label extends UIRenderer {
         }
 
         this._ttfSpriteFrame = null;
+        this._textProcessingData = new TextProcessData();
     }
 
     public onEnable () {

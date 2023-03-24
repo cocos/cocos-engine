@@ -33,6 +33,8 @@ import { UITransform } from '../../framework/ui-transform';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
 import { BlendFactor } from '../../../gfx';
 import { WrapMode } from '../../../asset/assets/asset-enum';
+import { TextProcessing } from './text-processing';
+import { TextProcessData } from './text-process-data';
 
 const Overflow = Label.Overflow;
 const MAX_SIZE = 2048;
@@ -86,6 +88,68 @@ const Alignment = [
 ];
 
 export const ttfUtils =  {
+
+    updateProcessingData (data: TextProcessData, comp: Label, trans: UITransform) {
+        // 字体信息 // both
+        data._font = comp.font;
+        // _fontAtlas 待完善
+        data._isSystemFontUsed = comp.useSystemFont;
+        data._fontSize = comp.fontSize; // 可能需要暴露下 shrink 模式下的实际字号？
+
+        // node 相关信息 // both
+        data._nodeContentSize.width = data._canvasSize.width = trans.width;
+        data._nodeContentSize.height = data._canvasSize.height = trans.height;
+        // 排版相关
+        data.inputString = comp.string; // both
+        data._lineHeight = comp.lineHeight; // both
+        data._overFlow = comp.overflow; // layout only // 但是会导致 render
+        if (comp.overflow === Overflow.NONE) {
+            data._wrapping = false;
+        } else if (comp.overflow === Overflow.RESIZE_HEIGHT) {
+            data._wrapping = true;
+        } else {
+            data._wrapping = comp.enableWrapText; // layout only // 但是会导致 render
+        }
+
+        // 后效相关 // both // 很奇怪，但是由于他会影响的还有canvas的宽度，所以是 both
+        data.isBold = comp.isBold;
+        data.isItalic = comp.isItalic;
+        data.isUnderline = comp.isUnderline;
+        data.underlineHeight = comp.underlineHeight;
+
+        // outline// both // 很奇怪，但是由于他会影响的还有canvas的宽度，所以是 both
+        let outlineComp = LabelOutline && comp.getComponent(LabelOutline);
+        outlineComp = (outlineComp && outlineComp.enabled && outlineComp.width > 0) ? outlineComp : null;
+        if (outlineComp) {
+            data._isOutlined = true;
+            data._outlineColor.set(outlineComp.color);
+            data.outlineWidth = outlineComp.width;
+        } else {
+            data._isOutlined = false;
+        }
+
+        // shadow// both // 很奇怪，但是由于他会影响的还有canvas的宽度，所以是 both
+        let shadowComp = LabelShadow && comp.getComponent(LabelShadow);
+        shadowComp = (shadowComp && shadowComp.enabled) ? shadowComp : null;
+        if (shadowComp) {
+            data._hasShadow = true;
+            data.shadowColor.set(shadowComp.color);
+            data.shadowBlur = shadowComp.blur;
+            data.shadowOffsetX = shadowComp.offset.x;
+            data.shadowOffsetY = shadowComp.offset.y;
+        } else {
+            data._hasShadow = false;
+        }
+
+        // 渲染相关
+        data._color = comp.color;// 级联可能有问题 // render Only
+        data._texture = comp.spriteFrame; // render Only
+
+        data._hAlign = comp.horizontalAlign; // render Only
+        data._vAlign = comp.verticalAlign; // render Only
+        // 差一个 alpha
+    },
+
     getAssemblerData () {
         const sharedLabelData = Label._canvasPool.get();
         sharedLabelData.canvas.width = sharedLabelData.canvas.height = 1;
@@ -101,28 +165,36 @@ export const ttfUtils =  {
     updateRenderData (comp: Label) {
         if (!comp.renderData) { return; }
 
-        if (comp.renderData.vertDirty) {
-            const trans = comp.node._uiProps.uiTransformComp!;
-            this._updateFontFamily(comp);
-            this._updateProperties(comp, trans);
-            this._calculateLabelFont();
-            this._updateLabelDimensions();
-            this._updateTexture(comp);
-            this._calDynamicAtlas(comp);
+        const trans = comp.node._uiProps.uiTransformComp!;
+        const processing = TextProcessing.instance;
+        const data = comp.processingData;
+        this.updateProcessingData(data, comp, trans);// 同步信息
+        // hack
+        const fontFamily = this._updateFontFamily(comp);
+        comp.processingData._fontFamily = fontFamily; // 外部不应该操作 data，集中于处理器内部最好
+        processing.processingString(data);// 可以填 out // 用一个flag来避免排版的更新，比如 renderDirtyOnly
 
-            comp.actualFontSize = _fontSize;
-            trans.setContentSize(_canvasSize);
+        processing.generateRenderInfo(data); // 传个方法进去
+        const renderData = comp.renderData;
+        renderData.textureDirty = true;
+        // this._calDynamicAtlas(comp);
 
-            this.updateVertexData(comp);
-            this.updateUVs(comp); // Empty
-            comp.renderData.vertDirty = false;
-            // comp.markForUpdateRenderData(false);
-            comp.contentWidth = _nodeContentSize.width;
+        // comp.actualFontSize = _fontSize;
+        trans.setContentSize(data._canvasSize);
 
-            _context = null;
-            _canvas = null;
-            _texture = null;
+        // this.updateVertexData(comp); // 合并到了 generateRenderInfo 中
+        if (!renderData) {
+            return;
         }
+        const datalist = renderData.data;
+        datalist[0] = data.vertexBuffer[0];
+        datalist[1] = data.vertexBuffer[1];
+        datalist[2] = data.vertexBuffer[2];
+        datalist[3] = data.vertexBuffer[3];
+
+        this.updateUVs(comp);
+        comp.renderData.vertDirty = false;
+        comp.contentWidth = data._nodeContentSize.width;
 
         if (comp.spriteFrame) {
             const renderData = comp.renderData;
@@ -146,9 +218,9 @@ export const ttfUtils =  {
         } else {
             _fontFamily = comp.fontFamily || 'Arial';
         }
+        return _fontFamily;
     },
 
-    // 直接赋值到 Data 中，避免一次状态转换，但可能会产生临时变量
     _updateProperties (comp: Label, trans: UITransform) {
         const assemblerData = comp.assemblerData;
         if (!assemblerData) {
@@ -200,9 +272,6 @@ export const ttfUtils =  {
         this._updatePaddingRect();
     },
 
-    // 缺失了 padding 的计算
-    // 是收到后效影响的位置偏移
-    // 比如斜体 contentSize 要宽一些才行
     _updatePaddingRect () {
         let top = 0; let bottom = 0; let left = 0; let right = 0;
         let outlineWidth = 0;

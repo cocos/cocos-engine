@@ -23,26 +23,37 @@
 */
 
 import { Material, Texture2D } from '../../../asset/assets';
-import { Color, Rect, Size } from '../../../core';
+import { Color, Pool, Rect, Size, Vec2 } from '../../../core';
+import { Font, SpriteFrame } from '../../assets';
+import { FontAtlas } from '../../assets/bitmap-font';
+import { LetterAtlas } from './font-utils';
+import { IRenderData } from './text-processing';
 
 // 作为上下层数据的交换中心，负责联通处理器和上层数据
 // 可认为是为 文本相关 组件定制的数据存储结构
 // 谁持有？相关组件，会不会导致组件体积变大
 export class TextProcessData {
+    constructor () {
+
+    }
+
     // 字体资源
-    public _fontFamily: string; // ttf？
-    public _fontAtlas: FontAtlas | LetterAtlas | null; // 是否为 bmfont 资源
+    public _font: Font | null = null;
+    public _fontFamily = 'Arial'; // ttf // fontFamily 只有名字不是资源
+    public declare _fontAtlas: FontAtlas | LetterAtlas | null; // 是否为 bmfont 资源
     public _isSystemFontUsed = false; // 用于处理标签
 
     // 字体表现效果
     public _fontDesc: string; // 描述集，包含 字体 和 style // 上层可以不用这个
     public _fontStyle: string; // 或者为枚举，格式统一即可 // style 包含了 bold,italic // 需要能够反解出分量的位运算
-    public _fontSize: number; // 用户输入的 fonSize
-    public _actualFontSize: number; // 在 shrink 模式下实际最终的 font size // 我们不一定需要 shrink 模式，直接 auto 就ok // 记得同步
-    public _material: Material | null; // 要使用的材质，虽然可以上层不可知，但可能要暴露
+    public _fontSize = 40; // 用户输入的 fonSize
+    public _actualFontSize = 0; // 在 shrink 模式下实际最终的 font size // 我们不一定需要 shrink 模式，直接 auto 就ok // 记得同步
+    public declare _material: Material | null; // 要使用的材质，虽然可以上层不可知，但可能要暴露// 好像和处理层无关，但之后可能会有关系
 
     // 后效参数 // 做一次数据合并吧，正解反解都需要
     // 需要考虑后效参数对hash信息是否会产生影响
+    // bold // 应对属于 style
+    public isBold = false;
     // Italic // 应对属于 style
     public isItalic = false;
     // under line // 应当属于 style
@@ -75,8 +86,9 @@ export class TextProcessData {
     public _hash: string; // 处理器用于辨别图集使用的哈希值
 
     // Process Output
-    public vertexBUffer: Float32Array[] = [];// 数组
-    public texture: Texture2D | null;
+    public quadCount = 0;
+    public vertexBuffer: IRenderData[] = [];// 数组
+    public _texture: Texture2D | SpriteFrame | null;
 
     // string before process
     public inputString = '';
@@ -91,4 +103,11 @@ export class TextProcessData {
 
     public _canvasPadding = new Rect(); // 存储由于受到 style 影响而导致的 padding
     public _contentSizeExtend = Size.ZERO.clone(); // 额外多出的宽
+
+    // 绘制的额外信息？
+    public _startPosition = Vec2.ZERO.clone(); // 绘制的起始位置，canvas 要的
+
+    // 还需要保存 anchor???
+    public uiTransAnchorX = 0.5;
+    public uiTransAnchorY = 0.5;
 }
