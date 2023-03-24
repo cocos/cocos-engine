@@ -836,14 +836,16 @@ export class Pass {
     get rootBufferDirty (): boolean { return this._rootBufferDirty; }
     /**
      * @engineInternal
+     * Currently, can not just mark setter as private, so change to a function.
      */
-    set rootBufferDirty (val: boolean) { this._rootBufferDirty = val; }
+    setRootBufferDirty (val: boolean) { this._rootBufferDirty = val; }
     // states
     get priority (): RenderPriority { return this._priority; }
     /**
      * @engineInternal
+     * Currently, can not just mark setter as private, so change to a function.
      */
-    set priority (val: RenderPriority) { this._priority = val; }
+    setPriority (val: RenderPriority) { this._priority = val; }
     get primitive (): PrimitiveMode { return this._primitive; }
     get stage (): RenderPassStage { return this._stage; }
     get phase (): number { return this._phase; }
