@@ -153,7 +153,7 @@ export interface IMemoryImageSource {
  */
 export type ImageSource = HTMLCanvasElement | HTMLImageElement | IMemoryImageSource | ImageBitmap;
 
-function isImageBitmap (imageSource: any): boolean {
+function isImageBitmap (imageSource: any): imageSource is ImageBitmap {
     return !!(sys.hasFeature(sys.Feature.IMAGE_BITMAP) && imageSource instanceof ImageBitmap);
 }
 
@@ -580,8 +580,7 @@ export class ImageAsset extends Asset {
         } else if (!(data instanceof HTMLElement)) {
             // this._nativeData = Object.create(data);
             this._nativeData = data;
-            // TODO: Property 'format' does not exist on type 'ImageBitmap'
-            this._format = (data as any).format;
+            this._format = data.format;
         } else {
             this._nativeData = data;
         }
@@ -593,10 +592,11 @@ export class ImageAsset extends Asset {
             this._setRawAsset('');
             // JSB element should destroy native data.
             // TODO: Property 'destroy' does not exist on type 'HTMLImageElement'.
+            // maybe we need a higher level implementation called `pal/image`, we provide `destroy` interface here.
+            // issue: https://github.com/cocos/cocos-engine/issues/14646
             if (JSB) (this.data as any).destroy();
         } else if (isImageBitmap(this.data)) {
-            // TODO: Property 'close' does not exist on type 'HTMLCanvasElement'
-            (this.data as any)?.close();
+            this.data?.close();
         }
         return super.destroy();
     }

@@ -181,6 +181,7 @@ export class DependUtil {
 
             // TODO: json: any[] is not assigned to IFileData
             // workaround: mark json as any
+            // issue: https://github.com/cocos/cocos-engine/issues/14642
             if (Array.isArray(json) && (!(BUILD || isCompiledJson(json)) || !hasNativeDep(json as any))) {
                 out = {
                     deps: this._parseDepsFromJson(json),

@@ -319,6 +319,7 @@ class CCObject implements EditorExtendableObject {
 
         if (JSB) {
             // TODO: `_destroy` method only implemented on native @dumganhar
+            // issue: https://github.com/cocos/cocos-engine/issues/14644
             (this as any)._destroy();
         }
 
@@ -373,6 +374,7 @@ class CCObject implements EditorExtendableObject {
             return;
         }
         // TODO: '_onPreDestroy' should be define in CCObject class.
+        // issue: https://github.com/cocos/cocos-engine/issues/14643
         ((this as any)._onPreDestroy)?.();
 
         if (!EDITOR || legacyCC.GAME_VIEW) {
@@ -380,6 +382,7 @@ class CCObject implements EditorExtendableObject {
              *hasOwnProperty's detection cannot be passed.
              */
             // TODO: `destruct` is only implemented on native @dumganhar
+            // issue: https://github.com/cocos/cocos-engine/issues/14644
             if (JSB && (this as any).destruct) {
                 (this as any).destruct();
             }
@@ -419,6 +422,7 @@ if (EDITOR || TEST) {
     * @method realDestroyInEditor
     * @private
     * TODO: this is a dynamic inject method, should be define in class
+    * issue: https://github.com/cocos/cocos-engine/issues/14643
     */
     (prototype as any).realDestroyInEditor = function () {
         if (!(this._objFlags & Destroyed)) {
@@ -434,7 +438,7 @@ if (EDITOR || TEST) {
     };
 }
 
-// TODO: `clearImmediate` method is only defined in NodeJS environment.
+// NOTE: `clearImmediate` method is only defined in NodeJS environment.
 declare const clearImmediate: (immediateId: number) => void;
 if (EDITOR) {
     js.value(CCObject, '_clearDeferredDestroyTimer', () => {
@@ -449,6 +453,7 @@ if (EDITOR) {
      * @param {Boolean} exporting
      * @return {object} the serialized json data object
      * TODO: this is a dynamic inject method, should be define in class
+     * issue: https://github.com/cocos/cocos-engine/issues/14643
      */
     (prototype as any)._serialize = null;
 }
@@ -459,6 +464,7 @@ if (EDITOR) {
  * @param {Object} data - the serialized json data
  * @param {_Deserializer} ctx
  * TODO: this is a dynamic inject method, should be define in class
+ * issue: https://github.com/cocos/cocos-engine/issues/14643
  */
 (prototype as any)._deserialize = null;
 

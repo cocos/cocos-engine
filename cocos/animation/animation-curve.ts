@@ -318,6 +318,7 @@ const selectLerpFx = (() => {
         return (from: T, to: T, ratio: number) => {
             // TODO: `ValueType` class doesn't define lerp method
             // please fix the type @Leslie Leigh
+        // Tracking issue: https://github.com/cocos/cocos-engine/issues/14640
             (constructor as any).lerp(tempValue, from, to, ratio);
             return tempValue;
         };

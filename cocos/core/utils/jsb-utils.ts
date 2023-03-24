@@ -108,7 +108,8 @@ import type { Node } from '../../scene-graph';
 //     });
 // }
 
-// TODO: we mark node as type of any, because we access much of protected properties here.
+// TODO: we mark node as type of any, because the properties we access are only implemented on native. @dumganhar
+// issue: https://github.com/cocos/cocos-engine/issues/14644
 // export function syncNodeValues (node: Node) {
 export function syncNodeValues (node: any) {
     const lpos = node._lpos;

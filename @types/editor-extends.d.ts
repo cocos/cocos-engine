@@ -50,8 +50,6 @@ interface EditorExtendsNode extends EventEmitter{
     clear(): any;
     getNode(uuid: string): any;
     getNodes(): {[uuid: string]: any};
-
-
 }
 
 interface EditorExtendsPrefabUtils {

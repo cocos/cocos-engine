@@ -134,6 +134,7 @@ Object.defineProperty(Camera, "standardExposureValue", {
     enumerable: true,
     get () {
         // TODO: `getStandardExposureValue` only implemented on native platforms. @dumganhar
+        // issue: https://github.com/cocos/cocos-engine/issues/14644
         return (Camera as any).getStandardExposureValue();
     },
 });
@@ -143,6 +144,7 @@ Object.defineProperty(Camera, "standardLightMeterScale", {
     enumerable: true,
     get () {
         // TODO: `getStandardLightMeterScale` only implemented on native platforms. @dumganhar
+        // issue: https://github.com/cocos/cocos-engine/issues/14644
         return (Camera as any).getStandardLightMeterScale();
     },
 });
