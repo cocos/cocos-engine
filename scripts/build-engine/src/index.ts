@@ -424,6 +424,9 @@ async function doBuild({
     };
     
     if (options.generateDecoratorsForJSB) {
+        if (!process.env.ENGINE_PATH) {
+            throw new Error('ENGINE_PATH environment variable not set');
+        }
         babelOptions.presets?.push([() => ({ plugins: [[decoratorRecorder]] })]);
     }
 
