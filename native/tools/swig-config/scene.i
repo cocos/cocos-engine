@@ -268,7 +268,6 @@ using namespace cc;
 %attribute(cc::scene::Pass, index_t, propertyIndex, getPropertyIndex);
 %attribute(cc::scene::Pass, cc::scene::IPassDynamics &, dynamics, getDynamics);
 %attribute(cc::scene::Pass, bool, rootBufferDirty, isRootBufferDirty);
-%attribute(cc::scene::Pass, bool, _rootBufferDirty, isRootBufferDirty, _setRootBufferDirty);
 %attribute(cc::scene::Pass, cc::pipeline::RenderPriority, priority, getPriority);
 %attribute(cc::scene::Pass, cc::gfx::PrimitiveMode, primitive, getPrimitive);
 %attribute(cc::scene::Pass, cc::pipeline::RenderPassStage, stage, getStage);

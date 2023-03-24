@@ -276,13 +276,11 @@ public:
     inline const ccstd::vector<IBlockRef> &getBlocks() const { return _blocks; }
     inline ArrayBuffer *getRootBlock() { return _rootBlock; }
     inline bool isRootBufferDirty() const { return _rootBufferDirty; }
-    // NOTE: _setRootBufferDirty must contain a _ prefix to make bindings-generator work correctly.
-    //  In ts engine, Pass has rootBufferDirty getter and without setter, but it contains a protected function named _setRootBufferDirty.
-    //  If we remove _ prefix in C++, bindings-generator doesn't support to bind rootBufferDirty property as getter and ignore to bind setRootBufferDirty as setter at the same time.
-    //  So let's keep the _ prefix temporarily.
-    inline void _setRootBufferDirty(bool val) { _rootBufferDirty = val; } // NOLINT(readability-identifier-naming)
+    inline void setRootBufferDirty(bool val) { _rootBufferDirty = val; }
     // states
     inline pipeline::RenderPriority getPriority() const { return _priority; }
+    // It is added for internal use by the engine.
+    inline void setPriority(pipeline::RenderPriority priority) { _priority = priority; }
     inline gfx::PrimitiveMode getPrimitive() const { return _primitive; }
     inline pipeline::RenderPassStage getStage() const { return _stage; }
     inline uint32_t getPhase() const { return _phase; }
