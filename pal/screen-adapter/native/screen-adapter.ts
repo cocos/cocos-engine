@@ -23,10 +23,34 @@
 */
 
 import { EDITOR } from 'internal:constants';
-import { ConfigOrientation, IScreenOptions, SafeAreaEdge } from 'pal/screen-adapter';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { Size } from '../../../cocos/core/math';
 import { Orientation } from '../enum-type';
+
+export interface SafeAreaEdge {
+    top: number;
+    bottom: number;
+    left: number;
+    right: number;
+}
+
+export type ConfigOrientation = 'auto' | 'landscape' | 'portrait';
+
+export interface IScreenOptions {
+    /**
+     * Orientation options from editor builder.
+     */
+    configOrientation: ConfigOrientation;
+    /**
+     * Determine whether the game frame exact fits the screen.
+     * Now it only works on Web platform.
+     */
+    exactFitScreen: boolean,
+    /**
+     * Determine whether use headless renderer, which means do not support some screen operations.
+     */
+    isHeadlessMode: boolean;
+}
 
 // these value is defined in the native layer
 const orientationMap: Record<string, Orientation> = {
@@ -54,10 +78,10 @@ class ScreenAdapter extends EventTarget {
     public get windowSize (): Size {
         const dpr = this.devicePixelRatio;
         // NOTE: fix precision issue on Metal render end.
-        // @ts-expect-error interface for OH only
-        const width = globalThis.oh ? jsb.device.getInnerWidth() : jsb.window.innerWidth;
-        // @ts-expect-error interface for OH only
-        const height = globalThis.oh ? jsb.device.getInnerHeight() : jsb.window.innerHeight;
+        // TODO: interface for OH only, we need a unified interface @qiuguohua
+        const width = globalThis.oh ? (jsb.device as any).getInnerWidth() : jsb.window.innerWidth;
+        // TODO: interface for OH only, we need a unified interface @qiuguohua
+        const height = globalThis.oh ? (jsb.device as any).getInnerHeight() : jsb.window.innerHeight;
         // NOTE: fix precision issue on Metal render end.
         const roundWidth = Math.round(width);
         const roundHeight = Math.round(height);

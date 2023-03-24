@@ -84,6 +84,7 @@ export const TRANSFORM_ON = 1 << 0;
 const Destroying = CCObject.Flags.Destroying;
 
 // TODO: `_setTempFloatArray` is only implemented on Native platforms. @dumganhar
+// issue: https://github.com/cocos/cocos-engine/issues/14644
 (Node as any)._setTempFloatArray(_tempFloatArray.buffer);
 
 function getConstructor<T>(typeOrClassName) {
@@ -188,7 +189,8 @@ nodeProto.addComponent = function (typeOrClassName) {
 
     // check requirement
 
-    const ReqComp = (constructor)._requireComponent;
+    // TODO: `_requireComponent` is injected properties
+    const ReqComp = (constructor as any)._requireComponent;
     if (ReqComp && !this.getComponent(ReqComp)) {
         this.addComponent(ReqComp);
     }
@@ -380,6 +382,7 @@ nodeProto._registerIfAttached = !EDITOR ? undefined : function (this: Node, atta
     for (let i = 0, len = children.length; i < len; ++i) {
         const child = children[i];
         // TODO: `_registerIfAttached` is an injected property.
+        // issue: https://github.com/cocos/cocos-engine/issues/14643
         (child as any)._registerIfAttached(attached);
     }
 };
@@ -1271,7 +1274,9 @@ nodeProto._instantiate = function (cloned: Node, isSyncedNode: boolean) {
         cloned = legacyCC.instantiate._clone(this, this);
     }
 
-    const newPrefabInfo = cloned._prefab;
+    // TODO(PP_Pro): after we support editorOnly tag, we could remove this any type assertion.
+    // Tracking issue: https://github.com/cocos/cocos-engine/issues/14613
+    const newPrefabInfo = (cloned as any)._prefab;
     if (EDITOR && newPrefabInfo) {
         if (cloned === newPrefabInfo.root) {
             // newPrefabInfo.fileId = '';
@@ -1282,6 +1287,7 @@ nodeProto._instantiate = function (cloned: Node, isSyncedNode: boolean) {
     }
     if (EDITOR && legacyCC.GAME_VIEW) {
         // TODO: Property 'sync' does not exist on type 'PrefabInfo'.
+        // issue: https://github.com/cocos/cocos-engine/issues/14643
         const syncing = newPrefabInfo && cloned === newPrefabInfo.root && (newPrefabInfo as any).sync;
         if (!syncing) {
             cloned.name += ' (Clone)';

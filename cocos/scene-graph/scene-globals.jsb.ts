@@ -28,6 +28,17 @@ import { Ambient, EnvironmentLightingType } from '../render-scene/scene';
 import { Material } from '../asset/assets/material';
 import { Vec2, Vec3, Color, Vec4 } from '../core/math';
 import * as decros from '../native-binding/decorators';
+import type {
+    AmbientInfo as JsbAmbientInfo,
+    SkyboxInfo as JsbSkyboxInfo,
+    FogInfo as JsbFogInfo,
+    ShadowsInfo as JsbShadowsInfo,
+    OctreeInfo as JsbOctreeInfo,
+    SceneGlobals as JsbSceneGlobals,
+    LightProbeInfo as JsbLightProbeInfo,
+} from './scene-globals';
+
+declare const jsb: any;
 
 export const DEFAULT_WORLD_MIN_POS = new Vec3(-1024.0, -1024.0, -1024.0);
 export const DEFAULT_WORLD_MAX_POS = new Vec3(1024.0, 1024.0, 1024.0);
@@ -135,34 +146,34 @@ export const ShadowType = Enum({
     ShadowMap: 1,
 });
 
-// @ts-ignore
-export const AmbientInfo = jsb.AmbientInfo;
+export const AmbientInfo: typeof JsbAmbientInfo = jsb.AmbientInfo;
+export type AmbientInfo = JsbAmbientInfo;
 legacyCC.AmbientInfo = AmbientInfo;
 
-// @ts-ignore
-export const SkyboxInfo = jsb.SkyboxInfo;
+export const SkyboxInfo: typeof JsbSkyboxInfo = jsb.SkyboxInfo;
+export type SkyboxInfo = JsbSkyboxInfo;
 legacyCC.SkyboxInfo = SkyboxInfo;
 
 
-// @ts-ignore
-export const FogInfo = jsb.FogInfo;
+export const FogInfo: typeof JsbFogInfo = jsb.FogInfo;
+export type FogInfo = JsbFogInfo;
 legacyCC.FogInfo = FogInfo;
 FogInfo.FogType = FogType;
 
-// @ts-ignore
-export const ShadowsInfo = jsb.ShadowsInfo;
+export const ShadowsInfo: typeof JsbShadowsInfo = jsb.ShadowsInfo;
+export type ShadowsInfo = JsbShadowsInfo;
 legacyCC.ShadowsInfo = ShadowsInfo;
 
-// @ts-ignore
-export const OctreeInfo = jsb.OctreeInfo;
+export const OctreeInfo: typeof JsbOctreeInfo = jsb.OctreeInfo;
+export type OctreeInfo = JsbOctreeInfo;
 legacyCC.OctreeInfo = OctreeInfo;
 
-// @ts-ignore
-export const LightProbeInfo = jsb.LightProbeInfo;
+export const LightProbeInfo: typeof JsbLightProbeInfo = jsb.LightProbeInfo;
+export type LightProbeInfo = JsbLightProbeInfo;
 //legacyCC.LightProbeInfo = LightProbeInfo;
 
-// @ts-ignore
-export const SceneGlobals = jsb.SceneGlobals;
+export const SceneGlobals: typeof JsbSceneGlobals = jsb.SceneGlobals;
+export type SceneGlobals = JsbSceneGlobals;
 legacyCC.SceneGlobals = SceneGlobals;
 
 (function () {
@@ -266,7 +277,7 @@ legacyCC.SceneGlobals = SceneGlobals;
 
 // handle meta data, it is generated automatically
 
-decros.patch_cc_SceneGlobals({SceneGlobals, AmbientInfo, SkyboxInfo, FogInfo, ShadowsInfo, LightProbeInfo, OctreeInfo, LightProbeInfo});
+decros.patch_cc_SceneGlobals({SceneGlobals, AmbientInfo, SkyboxInfo, FogInfo, ShadowsInfo, LightProbeInfo, OctreeInfo});
 
 decros.patch_cc_OctreeInfo({OctreeInfo, CCInteger, Vec3, DEFAULT_WORLD_MAX_POS, DEFAULT_WORLD_MIN_POS, DEFAULT_OCTREE_DEPTH});
 

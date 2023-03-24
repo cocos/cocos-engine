@@ -65,7 +65,8 @@ function isNativeImage (imageSource: ImageSource): imageSource is (HTMLImageElem
     return imageSource instanceof jsbWindow.HTMLImageElement || imageSource instanceof jsbWindow.HTMLCanvasElement || isImageBitmap(imageSource);
 }
 
-const imageAssetProto = ImageAsset.prototype;
+// TODO: we mark imageAssetProto as type of any, because here we have many dynamic injected property @dumganhar
+const imageAssetProto: any = ImageAsset.prototype;
 
 imageAssetProto._ctor = function (nativeAsset?: ImageSource) {
     jsb.Asset.prototype._ctor.apply(this, arguments);
@@ -91,11 +92,9 @@ Object.defineProperty(imageAssetProto, '_nativeAsset', {
     get () {
         return this._nativeData;
     },
-    // TODO: Property 'format' does not exist on type 'HTMLCanvasElement'
-    // set (value: ImageSource) {
-    set (value: any) {
+    set (value: ImageSource) {
         if (!(value instanceof jsbWindow.HTMLElement) && !isImageBitmap(value)) {
-            value.format = value.format || this.format;
+            (value as IMemoryImageSource).format = (value as IMemoryImageSource).format || this.format;
         }
         this.reset(value);
     },

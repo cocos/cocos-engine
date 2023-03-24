@@ -420,6 +420,7 @@ class MotionEvalRecord {
 
     public rebind(bindContext: AnimationGraphBindingContext) {
         // TODO: please fix type @Leslie Leigh
+        // Tracking issue: https://github.com/cocos/cocos-engine/issues/14640
         const motionEval = this._motion[createEval]({
             additive: false,
             up: bindContext,

@@ -1332,10 +1332,12 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
             if (!inCurrentSceneBefore && inCurrentSceneNow) {
                 // attached
                 // TODO: `_registerIfAttached` is injected property
+                // issue: https://github.com/cocos/cocos-engine/issues/14643
                 (this as any)._registerIfAttached!(true);
             } else if (inCurrentSceneBefore && !inCurrentSceneNow) {
                 // detached
                 // TODO: `_registerIfAttached` is injected property
+                // issue: https://github.com/cocos/cocos-engine/issues/14643
                 (this as any)._registerIfAttached!(false);
             }
 
@@ -1358,6 +1360,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         const destroyByParent: boolean = (!!parent) && ((parent._objFlags & Destroying) !== 0);
         if (!destroyByParent && EDITOR) {
             // TODO: `_registerIfAttached` is injected property
+            // issue: https://github.com/cocos/cocos-engine/issues/14643
             (this as any)._registerIfAttached!(false);
         }
 

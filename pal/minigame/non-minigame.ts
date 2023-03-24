@@ -22,7 +22,5 @@
  THE SOFTWARE.
 */
 
-import { IMiniGame } from 'pal/minigame';
-
-const minigame: IMiniGame = {} as IMiniGame;
+const minigame: any = {};
 export { minigame };

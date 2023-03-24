@@ -47,6 +47,7 @@ export class UIComponent extends Component {
     public __preload () {
         // TODO: UIComponent should not be assigned to UIMeshRenderer | UIRenderer @holycanvas
         // workaround: mark this as any
+        // issue: https://github.com/cocos/cocos-engine/issues/14637
         (this as any).node._uiProps.uiComp = this;
     }
 
@@ -60,6 +61,7 @@ export class UIComponent extends Component {
     public onDestroy () {
         // TODO: UIComponent should not be assigned to UIMeshRenderer | UIRenderer @holycanvas
         // workaround: mark this as any
+        // issue: https://github.com/cocos/cocos-engine/issues/14637
         if ((this as any).node._uiProps.uiComp === this) {
             (this as any).node._uiProps.uiComp = null;
         }

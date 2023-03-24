@@ -247,4 +247,5 @@ export class EventTouch extends Event {
 }
 
 // TODO: this is an injected property, should be deprecated
+// issue: https://github.com/cocos/cocos-engine/issues/14643
 (Event as any).EventTouch = EventTouch;

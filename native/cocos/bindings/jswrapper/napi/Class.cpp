@@ -100,6 +100,7 @@ void Class::defineStaticProperty(const char* name, napi_callback g, napi_callbac
 }
 
 bool Class::defineStaticProperty(const char *name, const Value &v, PropertyAttribute attribute /* = PropertyAttribute::NONE */) {
+    // TODO(qgh): Assigning get and set to nullptr in openharmony will cause a crash
     //napi_value value;
     //internal::seToJsValue(v, &value);
     //_properties.push_back({name, nullptr, nullptr, nullptr, nullptr, value, napi_static, 0});
