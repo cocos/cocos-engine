@@ -200,6 +200,8 @@ export class ParticleEmitterParams {
     public startDelay = new CurveRange();
     @serializable
     public cullingMode = CullingMode.ALWAYS_SIMULATE;
+    @serializable
+    public spawningUseInterpolation = false;
 }
 
 export enum InheritedProperty {
@@ -309,11 +311,11 @@ export class ParticleExecContext {
     public emitterCurrentTime = 0;
     public emitterPreviousTime = 0;
     public emitterNormalizedTime = 0;
+    public emitterNormalizedPrevTime = 0;
     public emitterDeltaTime = 0;
     public emitterTransform = new Mat4();
     public inheritedProperties: InheritedProperties | null = null;
-    public spawnNumOverTime = 0;
-    public spawnNumOverDistance = 0;
+    public spawnContinuousCount = 0;
     public burstCount = 0;
     public velocity = new Vec3();
     // end emitter range
@@ -322,7 +324,6 @@ export class ParticleExecContext {
     public deltaTime = 0;
     public localToWorld = new Mat4();
     public worldToLocal = new Mat4();
-    public worldRotation = new Quat();
     public rotationIfNeedTransform = new Quat();
     // end simulation range
 
@@ -350,6 +351,18 @@ export class ParticleExecContext {
         this.emitterCurrentTime = currentTime;
         this.emitterDeltaTime = currentTime - previousTime;
         this.emitterNormalizedTime = currentTime * invCycle;
+        this.emitterNormalizedPrevTime = previousTime * invCycle;
+    }
+
+    setWorldMatrix (localToWorld: Mat4, inWorldSpace: boolean) {
+        this.localToWorld.set(localToWorld);
+        Mat4.invert(this.worldToLocal, this.localToWorld);
+        if (inWorldSpace) {
+            Mat4.getRotation(this.rotationIfNeedTransform, this.localToWorld);
+        } else {
+            Mat4.getRotation(this.rotationIfNeedTransform, this.worldToLocal);
+        }
+        Quat.normalize(this.rotationIfNeedTransform, this.rotationIfNeedTransform);
     }
 
     setDeltaTime (deltaTime: number) {
@@ -357,7 +370,7 @@ export class ParticleExecContext {
     }
 
     resetSpawningState () {
-        this.burstCount = this.spawnNumOverDistance = this.spawnNumOverTime = 0;
+        this.burstCount = this.spawnContinuousCount = 0;
     }
 
     clear () {

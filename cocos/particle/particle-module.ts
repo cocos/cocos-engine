@@ -40,7 +40,7 @@ export enum ModuleExecStage {
 
 @ccclass('cc.ParticleModule')
 export abstract class ParticleModule {
-    public static register (name: string, stages: ModuleExecStage, order: number) {
+    public static register (name: string, stages: ModuleExecStage, preDependencies: string[] = [], postDependencies: string[] = []) {
         return function (ctor: Constructor<ParticleModule>) {
             for (let i = 0, length = ParticleModule._allRegisteredModules.length; i < length; i++) {
                 if (ParticleModule._allRegisteredModules[i].ctor === ctor) {
@@ -50,13 +50,19 @@ export abstract class ParticleModule {
                     throw new Error('Duplicated name with other module!');
                 }
             }
-            const identity = new ParticleModuleIdentity(ctor, name, stages, order);
+            const identity = new ParticleModuleIdentity(ctor, name, stages, preDependencies, postDependencies);
             ParticleModule._allRegisteredModules.push(identity);
         };
     }
 
     public static get allRegisteredModules (): ReadonlyArray<ParticleModuleIdentity> {
         return this._allRegisteredModules;
+    }
+
+    public static getModuleIdentityByClassNoCheck (ctor: Constructor<ParticleModule>) {
+        const identity = this.getModuleIdentityByClass(ctor);
+        assert(identity, 'Module not registered!');
+        return identity;
     }
 
     public static getModuleIdentityByClass (ctor: Constructor<ParticleModule>) {
@@ -66,14 +72,6 @@ export abstract class ParticleModule {
             }
         }
         return null;
-    }
-
-    public static particleModuleSorter (moduleA: ParticleModule, moduleB: ParticleModule) {
-        const idA = ParticleModule.getModuleIdentityByClass(moduleA.constructor as Constructor<ParticleModule>);
-        const idB = ParticleModule.getModuleIdentityByClass(moduleB.constructor as Constructor<ParticleModule>);
-        assert(idA && idB);
-        return (idA.execOrder - idB.execOrder)
-            || idA.name.localeCompare(idB.name);
     }
 
     private static _allRegisteredModules: ParticleModuleIdentity[] = [];
@@ -141,8 +139,19 @@ export class ParticleModuleStage {
         assert(id, 'Particle Module should be registered!');
         if (id.execStages & this._execStage) {
             const newModule = new ModuleType();
+            const preDependencies = id.preDependencies;
+            const postDependencies = id.postDependencies;
+            for (let i = 0, l = preDependencies.length; i < l; i++) {
+                for (let j = 0; j < this._modules.length; j++) {
+                    const module = this._modules[j];
+                    const currentModuleId = ParticleModule.getModuleIdentityByClassNoCheck(module.constructor as Constructor<ParticleModule>);
+                    if (currentModuleId.name === preDependencies[i]) {
+                        this._modules.splice(j, 0, newModule);
+                        return newModule;
+                    }
+                }
+            }
             this._modules.push(newModule);
-            this._modules.sort(ParticleModule.particleModuleSorter);
             return newModule;
         } else {
             throw new Error('This stage does not support this module!');
@@ -168,6 +177,22 @@ export class ParticleModuleStage {
             }
         }
         return out;
+    }
+
+    public moveUpModule (module: ParticleModule) {
+        const index = this._modules.indexOf(module);
+        if (index !== -1) {
+            this._modules.splice(index, 1);
+            this._modules.splice(index - 1, 0, module);
+        }
+    }
+
+    public moveDownModule (module: ParticleModule) {
+        const index = this._modules.indexOf(module);
+        if (index !== -1) {
+            this._modules.splice(index, 1);
+            this._modules.splice(index + 1, 0, module);
+        }
     }
 
     public removeModule (module: ParticleModule) {
@@ -210,12 +235,14 @@ class ParticleModuleIdentity {
     public readonly ctor: Constructor<ParticleModule> | null = null;
     public readonly name: string = '';
     public readonly execStages = ModuleExecStage.NONE;
-    public readonly execOrder: number = 0;
+    public readonly preDependencies: string[];
+    public readonly postDependencies: string[];
 
-    constructor (ctor: Constructor<ParticleModule>, name: string, execStages: ModuleExecStage, execOrder: number) {
+    constructor (ctor: Constructor<ParticleModule>, name: string, execStages: ModuleExecStage, preDependencies: string[] = [], postDependencies: string[] = []) {
         this.ctor = ctor;
         this.name = name;
         this.execStages = execStages;
-        this.execOrder = execOrder;
+        this.preDependencies = preDependencies;
+        this.postDependencies = postDependencies;
     }
 }

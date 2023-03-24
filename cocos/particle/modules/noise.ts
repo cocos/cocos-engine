@@ -27,7 +27,7 @@ import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
 import { assert, CCBoolean, CCFloat, CCInteger, Enum, warn } from '../../core';
 import { range, rangeMin, rangeStep, slide, visible } from '../../core/data/decorators/editable';
-import { clamp, lerp, pseudoRandom, randomRangeInt, Vec2, Vec3 } from '../../core/math';
+import { approx, clamp, lerp, pseudoRandom, randomRangeInt, Vec2, Vec3 } from '../../core/math';
 import { CurveRange } from '../curve-range';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
@@ -66,7 +66,7 @@ export enum Quality {
 }
 
 @ccclass('cc.NoiseModule')
-@ParticleModule.register('Noise', ModuleExecStage.UPDATE, 3)
+@ParticleModule.register('Noise', ModuleExecStage.UPDATE, [], ['Solve', 'State'])
 export class NoiseModule extends ParticleModule {
     @serializable
     @visible(true)
@@ -301,14 +301,14 @@ export class NoiseModule extends ParticleModule {
         this._offsetZ = pseudoRandom(this._randomSeed + RANDOM_SEED_OFFSET_Z) * 100;
         this._amplitudeScale = this.damping ? (1 / this.frequency) : 1;
         context.markRequiredParameter(BuiltinParticleParameter.VEC3_REGISTER);
-        if (this.positionAmount.getScalar() !== 0) {
+        if (!approx(this.positionAmount.getScalar(), 0)) {
             context.markRequiredParameter(BuiltinParticleParameter.POSITION);
             context.markRequiredParameter(BuiltinParticleParameter.VELOCITY);
         }
-        if (this.rotationAmount.getScalar() !== 0) {
+        if (!approx(this.rotationAmount.getScalar(), 0)) {
             context.markRequiredParameter(BuiltinParticleParameter.ROTATION);
         }
-        if (this.sizeAmount.getScalar() !== 0) {
+        if (!approx(this.sizeAmount.getScalar(), 0)) {
             context.markRequiredParameter(BuiltinParticleParameter.SIZE);
         }
 

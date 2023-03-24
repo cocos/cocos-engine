@@ -35,7 +35,7 @@ import { ParticleEmitterParams, ParticleEventInfo, ParticleExecContext } from '.
 const PROBABILITY_RANDOM_SEED_OFFSET = 199208;
 const eventInfo = new ParticleEventInfo();
 @ccclass('cc.DeathEventGeneratorModule')
-@ParticleModule.register('DeathEventGenerator', ModuleExecStage.UPDATE, 11)
+@ParticleModule.register('DeathEventGenerator', ModuleExecStage.UPDATE, ['Solve'], ['State'])
 export class DeathEventGeneratorModule extends ParticleModule {
     @type(CCFloat)
     @range([0, 1])

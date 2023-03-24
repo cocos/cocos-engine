@@ -35,7 +35,7 @@ const rotation = new Quat();
 const gravity = new Vec3();
 const GRAVITY_RAND_OFFSET = 238818;
 @ccclass('cc.GravityModule')
-@ParticleModule.register('Gravity', ModuleExecStage.UPDATE, 5)
+@ParticleModule.register('Gravity', ModuleExecStage.UPDATE, [], ['Solve', 'State'])
 export class GravityModule extends ParticleModule {
     /**
      * @zh 粒子受重力影响的重力系数。
@@ -60,12 +60,12 @@ export class GravityModule extends ParticleModule {
     }
 
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
-        const { worldRotation } = context;
+        const { rotationIfNeedTransform } = context;
         const { velocity, baseVelocity } = particles;
         const { fromIndex, toIndex, deltaTime } = context;
         const deltaVelocity = 9.8 * deltaTime;
         if (params.simulationSpace === Space.LOCAL) {
-            const invRotation = Quat.conjugate(rotation, worldRotation);
+            const invRotation = rotationIfNeedTransform;
             if (this.gravityModifier.mode === CurveRange.Mode.Constant) {
                 Vec3.set(gravity, 0, -this.gravityModifier.constant * deltaVelocity, 0);
                 Vec3.transformQuat(gravity, gravity, invRotation);

@@ -41,7 +41,7 @@ const _temp_v3_1 = new Vec3();
 const tempVelocity = new Vec3();
 
 @ccclass('cc.LimitVelocity')
-@ParticleModule.register('LimitVelocity', ModuleExecStage.UPDATE, 6)
+@ParticleModule.register('LimitVelocity', ModuleExecStage.UPDATE, ['Force', 'Gravity', 'AddVelocity', 'ScaleSpeed'], ['Solve'])
 export class LimitVelocityModule extends ParticleModule {
     /**
      * @zh X 轴方向上的速度下限。

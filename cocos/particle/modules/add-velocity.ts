@@ -40,7 +40,7 @@ const VELOCITY_Z_OVERTIME_RAND_OFFSET = 984136;
 const tempVelocity = new Vec3();
 
 @ccclass('cc.AddVelocityModule')
-@ParticleModule.register('AddVelocity', ModuleExecStage.UPDATE, 2)
+@ParticleModule.register('AddVelocity', ModuleExecStage.UPDATE, [], ['Solve', 'State'])
 export class AddVelocityModule extends ParticleModule {
     /**
      * @zh 速度计算时采用的坐标系[[Space]]。

@@ -37,7 +37,7 @@ const tempColor2 = new Color();
 const tempColor3 = new Color();
 
 @ccclass('cc.MultiplyColor')
-@ParticleModule.register('MultiplyColor', ModuleExecStage.UPDATE, 21)
+@ParticleModule.register('MultiplyColor', ModuleExecStage.UPDATE, ['State'])
 export class MultiplyColorModule extends ParticleModule {
     /**
      * @zh 颜色随时间变化的参数，各个 key 之间线性差值变化。

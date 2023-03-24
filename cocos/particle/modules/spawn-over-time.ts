@@ -30,7 +30,7 @@ import { ParticleExecContext, ParticleEmitterParams } from '../particle-base';
 import { CurveRange } from '../curve-range';
 
 @ccclass('cc.SpawnOverTimeModule')
-@ParticleModule.register('SpawnOverTime', ModuleExecStage.EMITTER_UPDATE | ModuleExecStage.EVENT_HANDLER, 0)
+@ParticleModule.register('SpawnOverTime', ModuleExecStage.EMITTER_UPDATE | ModuleExecStage.EVENT_HANDLER)
 export class SpawnOverTimeModule extends ParticleModule {
     /**
      * @zh 每秒发射的粒子数。
@@ -42,12 +42,8 @@ export class SpawnOverTimeModule extends ParticleModule {
     @tooltip('i18n:particle_system.rateOverTime')
     public rate = new CurveRange(10);
 
-    public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
-        context.markRequiredParameter(BuiltinParticleParameter.SPAWN_TIME);
-    }
-
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext)  {
         const { emitterDeltaTime, emitterNormalizedTime: normalizedT } = context;
-        context.spawnNumOverTime += this.rate.evaluate(normalizedT, Math.random()) * emitterDeltaTime;
+        context.spawnContinuousCount += this.rate.evaluate(normalizedT, Math.random()) * emitterDeltaTime;
     }
 }

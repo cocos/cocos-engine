@@ -73,7 +73,7 @@ export enum Animation {
 }
 
 @ccclass('cc.SubUVAnimationModule')
-@ParticleModule.register('SubUVAnimation', ModuleExecStage.UPDATE, 25)
+@ParticleModule.register('SubUVAnimation', ModuleExecStage.UPDATE, ['State', 'Solve'])
 export class SubUVAnimationModule extends ParticleModule {
     /**
      * @zh 设定粒子贴图动画的类型（暂只支持 Grid 模式）[[Mode]]。

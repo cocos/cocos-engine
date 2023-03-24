@@ -34,7 +34,7 @@ import { INT_MAX } from '../../core/math/bits';
 import { Space } from '../enum';
 
 @ccclass('cc.StartLifeTimeModule')
-@ParticleModule.register('StartLifeTime', ModuleExecStage.SPAWN, 1)
+@ParticleModule.register('StartLifeTime', ModuleExecStage.SPAWN)
 export class StartLifeTimeModule extends ParticleModule {
     /**
       * @zh 粒子生命周期。
@@ -49,7 +49,7 @@ export class StartLifeTimeModule extends ParticleModule {
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         context.markRequiredParameter(BuiltinParticleParameter.INV_START_LIFETIME);
         if (this.startLifetime.mode === CurveRange.Mode.Curve || this.startLifetime.mode === CurveRange.Mode.TwoCurves) {
-            context.markRequiredParameter(BuiltinParticleParameter.SPAWN_TIME);
+            context.markRequiredParameter(BuiltinParticleParameter.SPAWN_NORMALIZED_TIME);
         }
     }
 
@@ -69,13 +69,13 @@ export class StartLifeTimeModule extends ParticleModule {
             }
         } else if (this.startLifetime.mode ===  CurveRange.Mode.Curve) {
             const { spline, multiplier } = this.startLifetime;
-            const spawnTime = particles.spawnTime.data;
+            const spawnTime = particles.spawnNormalizedTime.data;
             for (let i = fromIndex; i < toIndex; ++i) {
                 invStartLifeTime[i] = 1 / (spline.evaluate(spawnTime[i]) * multiplier);
             }
         } else {
             const { splineMin, splineMax, multiplier } = this.startLifetime;
-            const spawnTime = particles.spawnTime.data;
+            const spawnTime = particles.spawnNormalizedTime.data;
             for (let i = fromIndex; i < toIndex; ++i) {
                 const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
                 const normalizedT = spawnTime[i];

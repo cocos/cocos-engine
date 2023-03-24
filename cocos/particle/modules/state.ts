@@ -5,7 +5,7 @@ import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set'
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 
 @ccclass('cc.StateModule')
-@ParticleModule.register('State', ModuleExecStage.UPDATE, 20)
+@ParticleModule.register('State', ModuleExecStage.UPDATE)
 export class StateModule extends ParticleModule {
     constructor () {
         super();

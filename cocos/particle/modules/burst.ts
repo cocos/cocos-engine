@@ -77,7 +77,7 @@ export default class Burst {
 }
 
 @ccclass('cc.BurstModule')
-@ParticleModule.register('Burst', ModuleExecStage.EMITTER_UPDATE | ModuleExecStage.EVENT_HANDLER, 2)
+@ParticleModule.register('Burst', ModuleExecStage.EMITTER_UPDATE | ModuleExecStage.EVENT_HANDLER)
 export class BurstModule extends ParticleModule {
     /**
       * @zh 设定在指定时间发射指定数量的粒子的 burst 的数量。

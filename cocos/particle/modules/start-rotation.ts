@@ -32,7 +32,7 @@ import { lerp, pseudoRandom, randomRangeInt, Vec3 } from '../../core/math';
 import { INT_MAX } from '../../core/math/bits';
 
 @ccclass('cc.StartRotationModule')
-@ParticleModule.register('StartRotation', ModuleExecStage.SPAWN, 1)
+@ParticleModule.register('StartRotation', ModuleExecStage.SPAWN)
 export class StartRotationModule extends ParticleModule {
     @serializable
     @tooltip('i18n:particle_system.startRotation3D')
@@ -107,11 +107,14 @@ export class StartRotationModule extends ParticleModule {
 
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         context.markRequiredParameter(BuiltinParticleParameter.ROTATION);
+        if (this.startRotationX.mode === CurveRange.Mode.Curve || this.startRotationX.mode === CurveRange.Mode.TwoCurves) {
+            context.markRequiredParameter(BuiltinParticleParameter.SPAWN_NORMALIZED_TIME);
+        }
     }
 
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         const { rotation } = particles;
-        const { fromIndex, toIndex, emitterNormalizedTime: normalizedT } = context;
+        const { fromIndex, toIndex, emitterNormalizedTime } = context;
         if (this.startRotation3D) {
             if (this.startRotationX.mode === CurveRange.Mode.Constant) {
                 const constantX = this.startRotationX.constant;
@@ -134,7 +137,9 @@ export class StartRotationModule extends ParticleModule {
                 const { spline: xCurve, multiplier: xMultiplier } = this.startRotationX;
                 const { spline: yCurve, multiplier: yMultiplier } = this.startRotationY;
                 const { spline: zCurve, multiplier: zMultiplier } = this.startRotationZ;
+                const spawnTime = particles.spawnNormalizedTime.data;
                 for (let i = fromIndex; i < toIndex; ++i) {
+                    const normalizedT = spawnTime[i];
                     rotation.set3fAt(xCurve.evaluate(normalizedT) * xMultiplier,
                         yCurve.evaluate(normalizedT) * yMultiplier,
                         zCurve.evaluate(normalizedT) * zMultiplier, i);
@@ -143,8 +148,10 @@ export class StartRotationModule extends ParticleModule {
                 const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.startRotationX;
                 const { splineMin: yMin, splineMax: yMax, multiplier: yMultiplier } = this.startRotationY;
                 const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.startRotationZ;
+                const spawnTime = particles.spawnNormalizedTime.data;
                 for (let i = fromIndex; i < toIndex; ++i) {
                     const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
+                    const normalizedT = spawnTime[i];
                     rotation.set3fAt(lerp(xMin.evaluate(normalizedT), xMax.evaluate(normalizedT), rand) * xMultiplier,
                         lerp(yMin.evaluate(normalizedT), yMax.evaluate(normalizedT), rand) * yMultiplier,
                         lerp(zMin.evaluate(normalizedT), zMax.evaluate(normalizedT), rand) * zMultiplier, i);
@@ -165,13 +172,16 @@ export class StartRotationModule extends ParticleModule {
                 }
             } else if (this.startRotationZ.mode === CurveRange.Mode.Curve) {
                 const { spline: zCurve, multiplier: zMultiplier } = this.startRotationZ;
+                const spawnTime = particles.spawnNormalizedTime.data;
                 for (let i = fromIndex; i < toIndex; ++i) {
-                    rotation.setZAt(zCurve.evaluate(normalizedT) * zMultiplier, i);
+                    rotation.setZAt(zCurve.evaluate(spawnTime[i]) * zMultiplier, i);
                 }
             } else {
                 const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.startRotationZ;
+                const spawnTime = particles.spawnNormalizedTime.data;
                 for (let i = fromIndex; i < toIndex; ++i) {
                     const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
+                    const normalizedT = spawnTime[i];
                     rotation.setZAt(lerp(zMin.evaluate(normalizedT), zMax.evaluate(normalizedT), rand) * zMultiplier, i);
                 }
             }

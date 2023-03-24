@@ -36,7 +36,7 @@ import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set'
 const ROTATION_OVERTIME_RAND_OFFSET = 125292;
 
 @ccclass('cc.RotationModule')
-@ParticleModule.register('Rotation', ModuleExecStage.UPDATE, 1)
+@ParticleModule.register('Rotation', ModuleExecStage.UPDATE, [], ['Solve', 'State'])
 export class RotationModule extends ParticleModule {
     /**
      * @zh 是否三个轴分开设定旋转。

@@ -104,7 +104,7 @@ export enum ArcMode {
 }
 
 @ccclass('cc.ShapeModule')
-@ParticleModule.register('Shape', ModuleExecStage.SPAWN, 0)
+@ParticleModule.register('Shape', ModuleExecStage.SPAWN)
 export class ShapeModule extends ParticleModule {
     /**
      * @zh 粒子发射器位置。

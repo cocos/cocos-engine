@@ -34,7 +34,7 @@ import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 const SIZE_OVERTIME_RAND_OFFSET = ModuleRandSeed.SIZE;
 
 @ccclass('cc.SizeModule')
-@ParticleModule.register('Size', ModuleExecStage.UPDATE, 24)
+@ParticleModule.register('Size', ModuleExecStage.UPDATE, ['State'])
 export class SizeModule extends ParticleModule {
     /**
      * @zh 决定是否在每个轴上独立控制粒子大小。

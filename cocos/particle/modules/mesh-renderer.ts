@@ -23,28 +23,12 @@
  THE SOFTWARE.
  */
 
-export * from './multiply-color';
-export * from './scale-speed';
-export * from './shape';
-export * from './spawn-over-time';
-export * from './spawn-per-unit';
-export * from './burst';
-export * from './start-speed';
-export * from './start-color';
-export * from './start-rotation';
-export * from './start-life-time';
-export * from './start-size';
-export * from './gravity';
-export * from './location-event-generator';
-export * from './death-event-generator';
-export * from './solve';
-export * from './state';
-export * from './legacy-trail';
-export * from './sub-uv-animation';
-export * from './add-velocity';
-export * from './box-shape';
-export * from './multiply-color-by-speed';
-export * from './scale-size-by-speed';
-export * from './mesh-renderer';
-export * from './ribbon-renderer';
-export * from './sprite-renderer';
+import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
+import { ParticleDataSet } from '../particle-data-set';
+import { ParticleModule } from '../particle-module';
+
+export class MeshRendererModule extends ParticleModule {
+    public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+        throw new Error('Method not implemented.');
+    }
+}

@@ -35,7 +35,7 @@ import { assert } from '../../core';
 const SIZE_OVERTIME_RAND_OFFSET = ModuleRandSeed.SIZE;
 
 @ccclass('cc.ScaleSizeBySpeedModule')
-@ParticleModule.register('ScaleSizeBySpeed', ModuleExecStage.UPDATE, 25)
+@ParticleModule.register('ScaleSizeBySpeed', ModuleExecStage.UPDATE)
 export class ScaleSizeBySpeedModule extends ParticleModule {
     /**
       * @zh 决定是否在每个轴上独立控制粒子大小。

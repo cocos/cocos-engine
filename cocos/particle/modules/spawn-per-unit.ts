@@ -30,7 +30,7 @@ import { CurveRange } from '../curve-range';
 import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
 
 @ccclass('cc.SpawnPerUnitModule')
-@ParticleModule.register('SpawnPerUnit', ModuleExecStage.EMITTER_UPDATE | ModuleExecStage.EVENT_HANDLER, 1)
+@ParticleModule.register('SpawnPerUnit', ModuleExecStage.EMITTER_UPDATE | ModuleExecStage.EVENT_HANDLER)
 export class SpawnPerUnitModule extends ParticleModule {
     /**
       * @zh 每移动单位距离发射的粒子数。
@@ -42,13 +42,9 @@ export class SpawnPerUnitModule extends ParticleModule {
     @tooltip('i18n:particle_system.rateOverDistance')
     public rate = new CurveRange();
 
-    public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
-        context.markRequiredParameter(BuiltinParticleParameter.SPAWN_TIME);
-    }
-
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         const { velocity, emitterNormalizedTime: normalizeT, emitterDeltaTime } = context;
-        context.spawnNumOverDistance += velocity.length()
+        context.spawnContinuousCount += velocity.length()
         * this.rate.evaluate(normalizeT, Math.random()) * emitterDeltaTime;
     }
 }

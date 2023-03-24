@@ -39,7 +39,7 @@ const FORCE_OVER_LIFETIME_RAND_OFFSET = 212165;
 const _temp_v3 = new Vec3();
 
 @ccclass('cc.ForceModule')
-@ParticleModule.register('Force', ModuleExecStage.UPDATE, 4)
+@ParticleModule.register('Force', ModuleExecStage.UPDATE, [], ['Solve', 'State'])
 export class ForceModule extends ParticleModule {
     /**
      * @zh X 轴方向上的加速度分量。

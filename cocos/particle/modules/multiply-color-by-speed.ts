@@ -13,7 +13,7 @@ const tempColor3 = new Color();
 const MULTIPLY_COLOR_BY_SPEED_RAND_OFFSET = 27382;
 
 @ccclass('cc.MultiplyColorBySpeed')
-@ParticleModule.register('MultiplyColorBySpeed', ModuleExecStage.UPDATE, 22)
+@ParticleModule.register('MultiplyColorBySpeed', ModuleExecStage.UPDATE, ['Solve', 'State'])
 export class MultiplyColorBySpeedModule extends ParticleModule {
     /**
      * @zh 颜色随速度变化的参数，各个 key 之间线性差值变化。

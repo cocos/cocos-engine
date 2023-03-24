@@ -72,7 +72,7 @@ export class TrailSegment {
 }
 
 @ccclass('cc.LegacyTrailModule')
-@ParticleModule.register('LegacyTrail', ModuleExecStage.RENDER, 0)
+@ParticleModule.register('LegacyTrail', ModuleExecStage.RENDER)
 export class LegacyTrailModule extends ParticleModule {
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         throw new Error('Method not implemented.');
