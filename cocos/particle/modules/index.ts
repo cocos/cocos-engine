@@ -48,3 +48,4 @@ export * from './scale-size-by-speed';
 export * from './mesh-renderer';
 export * from './ribbon-renderer';
 export * from './sprite-renderer';
+export * from './renderer';

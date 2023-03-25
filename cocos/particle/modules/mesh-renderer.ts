@@ -23,11 +23,31 @@
  THE SOFTWARE.
  */
 
+import { Mesh } from '../../3d';
+import { displayOrder, serializable, tooltip, type } from '../../core/data/decorators';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { ParticleDataSet } from '../particle-data-set';
 import { ParticleModule } from '../particle-module';
+import { RendererModule } from './renderer';
 
-export class MeshRendererModule extends ParticleModule {
+export class MeshRendererModule extends RendererModule {
+    /**
+     * @zh 粒子发射的模型。
+     */
+    @type(Mesh)
+    @displayOrder(7)
+    @tooltip('i18n:particleSystemRenderer.mesh')
+    public get mesh () {
+        return this._mesh;
+    }
+
+    public set mesh (val) {
+        this._mesh = val;
+    }
+
+    @serializable
+    private _mesh: Mesh | null = null;
+    
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         throw new Error('Method not implemented.');
     }

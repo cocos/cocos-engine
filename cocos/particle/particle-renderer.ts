@@ -217,11 +217,8 @@ export class ParticleRenderer extends ModelRenderer {
         // }
     }
 
-    public setEmitter (emitter: ParticleEmitter) {
-        this._emitter = emitter;
-    }
-
     public onLoad () {
+        this._emitter = this.getComponent(ParticleEmitter);
         if (!this._model) {
             this._model = legacyCC.director.root.createModel(ParticleBatchModel) as ParticleBatchModel;
             this._model.visFlags = this.node.layer;

@@ -26,7 +26,6 @@
 // eslint-disable-next-line max-len
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, type, range, displayName, formerlySerializedAs, override, radian, serializable, visible, requireComponent } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { Particle } from '@cocos/cannon';
 import { approx, clamp01, Color, EPSILON, lerp, Mat3, Mat4, pseudoRandom, Quat, randomRangeInt, Size, Vec2, Vec3, Vec4 } from '../core/math';
 import { countTrailingZeros, INT_MAX } from '../core/math/bits';
 import { MultiplyColorModule } from './modules/multiply-color';
@@ -113,7 +112,6 @@ export class EventReceiver {
 @help('i18n:cc.ParticleEmitter')
 @menu('Effects/ParticleEmitter')
 @executionOrder(99)
-@requireComponent(ParticleRenderer)
 @executeInEditMode
 export class ParticleEmitter extends Component {
     public static CullingMode = CullingMode;
@@ -402,10 +400,6 @@ export class ParticleEmitter extends Component {
         return this._particles;
     }
 
-    public get renderer () {
-        return this.getComponent(ParticleRenderer);
-    }
-
     public get isPlaying () {
         return this._state.playingState === PlayingState.PLAYING;
     }
@@ -620,10 +614,6 @@ export class ParticleEmitter extends Component {
     }
 
     protected onLoad () {
-        const renderer = this.getComponent(ParticleRenderer);
-        if (renderer) {
-            renderer.setEmitter(this);
-        }
         this._emitterStage.getOrAddModule(BurstModule);
         this._emitterStage.getOrAddModule(SpawnPerUnitModule);
         this._emitterStage.getOrAddModule(SpawnOverTimeModule);
@@ -712,6 +702,7 @@ export class ParticleEmitter extends Component {
 
         this.handleEvents();
         this.updateBounds();
+        context.setExecuteRange(0, particleCount);
         this._renderStage.execute(particles, params, context);
     }
 

@@ -220,20 +220,18 @@ export default class ParticleBatchModel extends scene.Model {
             const dynamicBuffer = this._dynamicBuffer!;
             const dynamicBufferUintView = this._dynamicBufferUintView!;
             const { count } = particles;
-            const position = particles.position.data;
-            const colorVal = Color.toUint32(Color.WHITE);
-            for (let i = 0; i < count; i++) {
-                const offset = i * this._vertDynamicAttrsFloatCount;
-                const xOffset = i * 3;
-                const yOffset = xOffset + 1;
-                const zOffset = yOffset + 1;
-                dynamicBuffer[offset] = position[xOffset];
-                dynamicBuffer[offset + 1] = position[yOffset];
-                dynamicBuffer[offset + 2] = position[zOffset];
-                dynamicBuffer[offset + 6] = 1;
-                dynamicBuffer[offset + 7] = 1;
-                dynamicBuffer[offset + 8] = 1;
-                dynamicBufferUintView[offset + 10] = colorVal;
+            
+            if (particles.hasParameter(BuiltinParticleParameter.POSITION)) {
+                const position = particles.position.data;
+                for (let i = 0; i < count; i++) {
+                    const offset = i * this._vertDynamicAttrsFloatCount;
+                    const xOffset = i * 3;
+                    const yOffset = xOffset + 1;
+                    const zOffset = yOffset + 1;
+                    dynamicBuffer[offset] = position[xOffset];
+                    dynamicBuffer[offset + 1] = position[yOffset];
+                    dynamicBuffer[offset + 2] = position[zOffset];
+                }
             }
             if (particles.hasParameter(BuiltinParticleParameter.ROTATION)) {
                 const rotation = particles.rotation.data;
@@ -273,7 +271,7 @@ export default class ParticleBatchModel extends scene.Model {
                     dynamicBufferUintView[offset + 10] = color[i];
                 }
             }
-            if (this._hasVelocityChanel && particles.hasParameter(BuiltinParticleParameter.VELOCITY)) {
+            if (particles.hasParameter(BuiltinParticleParameter.VELOCITY)) {
                 const { velocity } = particles;
                 const velocityData = velocity.data;
                 for (let i = 0; i < count; i++) {

@@ -325,6 +325,10 @@ export class ParticleExecContext {
     public localToWorld = new Mat4();
     public worldToLocal = new Mat4();
     public rotationIfNeedTransform = new Quat();
+    public localScale = new Vec3();
+    public worldScale = new Vec3();
+    public worldRotation = new Quat();
+    public localRotation = new Quat();
     // end simulation range
 
     // execution range
