@@ -115,7 +115,7 @@
           miscData.lightColorAndIntensity = cc_lightColor[i];
           miscData.lightSizeRangeAngle = cc_lightSizeRangeAngle[i];
           SurfacesLightingModifyFinalResult(lightingResult, lightingData, surfaceData, miscData);
-        #endif     
+        #endif
 
         // accumulate per-light results
         CCSurfacesAccumulateLightingResult(lightingResultAccumulated, lightingResult);
@@ -177,8 +177,9 @@
       
         #if CC_SURFACES_USE_LIGHT_MAP == LIGHT_MAP_TYPE_INDIRECT_OCCLUSION
           lightingResult.shadow *= lightmapShadow;
-          lightingResult.ao *= lightmapAO;
         #endif
+        // env lighting hasn't baked with static / stationary type, so ao need to be output all the time
+        lightingResult.ao *= lightmapAO;
       #endif
 
       // dynamic & stationary dir light
@@ -238,7 +239,7 @@
         miscData.lightColorAndIntensity = cc_mainLitColor;
         miscData.lightSizeRangeAngle = vec4(0.0, 0.0, 0.0, 0.0);
         SurfacesLightingModifyFinalResult(lightingResult, lightingData, surfaceData, miscData);
-      #endif      
+      #endif
     }
     #if CC_ENABLE_CLUSTERED_LIGHT_CULLING
       // #todo: cluster related lighting flow, invoke after CCSurfacesLighting
