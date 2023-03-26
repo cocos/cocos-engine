@@ -35,6 +35,7 @@ declare function __getCurrentLanguageCode(): string;
 declare function __getCurrentLanguage(): Language;
 declare function __getOS(): OS;
 declare function __getOSVersion(): string;
+declare const __supportHPE: (() => boolean) | undefined;
 declare function __restartVM(): void;
 declare function __close(): void;
 declare function __exit(): void;
@@ -111,12 +112,15 @@ class SystemInfo extends EventTarget {
 
         this.isXR = (typeof xr !== 'undefined' && typeof xr.XrEntry !== 'undefined');
 
+        const isHPE: boolean = typeof __supportHPE === 'function' ? __supportHPE() : false;
+
         this._featureMap = {
             [Feature.WEBP]: true,
             [Feature.IMAGE_BITMAP]: false,
             [Feature.WEB_VIEW]: this.isMobile,
             [Feature.VIDEO_PLAYER]: this.isMobile,
             [Feature.SAFE_AREA]: this.isMobile,
+            [Feature.HPE]: isHPE,
 
             [Feature.INPUT_TOUCH]: this.isMobile,
             [Feature.EVENT_KEYBOARD]: true,

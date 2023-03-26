@@ -33,6 +33,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.AssetFileDescriptor;
 import android.net.ConnectivityManager;
@@ -426,5 +427,9 @@ public class CocosHelper {
                 }
             }
         });
+    }
+    public static boolean supportHPE() {
+        PackageManager pm = GlobalObject.getContext().getPackageManager();
+        return pm.hasSystemFeature("com.google.android.play.feature.HPE_EXPERIENCE");
     }
 }

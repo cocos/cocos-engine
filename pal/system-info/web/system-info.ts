@@ -202,6 +202,7 @@ class SystemInfo extends EventTarget {
             [Feature.WEB_VIEW]: true,
             [Feature.VIDEO_PLAYER]: true,
             [Feature.SAFE_AREA]: false,
+            [Feature.HPE]: false,
 
             [Feature.INPUT_TOUCH]: supportTouch,
             [Feature.EVENT_KEYBOARD]: document.documentElement.onkeyup !== undefined || EDITOR,
