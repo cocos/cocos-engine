@@ -178,7 +178,7 @@ bool isPassExecAdjecent(uint32_t passLID, uint32_t passRID) {
 }
 
 inline bool isReadOnlyAccess(gfx::AccessFlagBit flag) {
-    return flag < gfx::AccessFlagBit::PRESENT;
+    return flag < gfx::AccessFlagBit::PRESENT || flag == gfx::AccessFlagBit::SHADING_RATE;
 }
 
 bool isTransitionStatusDependent(const AccessStatus &lhs, const AccessStatus &rhs);
