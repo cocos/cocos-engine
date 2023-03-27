@@ -434,6 +434,15 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     }
 
     /**
+     * As there is already setter and setParent(), and both of them not just modify _parent, but has
+     * other logic. So add a new function that only modify _parent value.
+     * @engineInternal
+     */
+    public modifyParent (parent: this | null) {
+        this._parent = parent;
+    }
+
+    /**
      * @en Set parent of the node.
      * @zh 设置该节点的父节点。
      * @param value Parent node

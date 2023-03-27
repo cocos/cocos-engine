@@ -141,6 +141,7 @@ public:
     virtual void onPostActivated(bool active) {}
 
     void setParent(Node *parent, bool isKeepWorld = false);
+    inline void modifyParent(Node *parent) { _parent = parent; }
 
     inline Scene *getScene() const { return _scene; };
 

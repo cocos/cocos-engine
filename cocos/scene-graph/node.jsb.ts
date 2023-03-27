@@ -998,7 +998,7 @@ Object.defineProperty(nodeProto, '_siblingIndex', {
     configurable: true,
     enumerable: true,
     get() {
-        return this.getSiblingIndex(this);
+        return this.getSiblingIndex();
     },
     set(v) {
         this.setSiblingIndex(v);
