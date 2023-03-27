@@ -24,7 +24,7 @@
  */
 
 // eslint-disable-next-line max-len
-import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, type, range, displayName, formerlySerializedAs, override, radian, serializable, visible, requireComponent } from 'cc.decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, type, range, displayName, formerlySerializedAs, override, radian, serializable, visible, requireComponent, rangeMin } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { approx, clamp01, Color, EPSILON, lerp, Mat3, Mat4, pseudoRandom, Quat, randomRangeInt, Size, Vec2, Vec3, Vec4 } from '../core/math';
 import { countTrailingZeros, INT_MAX } from '../core/math/bits';
@@ -225,6 +225,27 @@ export class ParticleEmitter extends Component {
 
     public set playOnAwake (val) {
         this._params.playOnAwake = val;
+    }
+
+    @type(CCBoolean)
+    @visible(true)
+    public get useAutoRandomSeed () {
+        return this._params.useAutoRandomSeed;
+    }
+
+    public set useAutoRandomSeed (val) {
+        this._params.useAutoRandomSeed = val;
+    }
+
+    @type(CCInteger)
+    @rangeMin(0)
+    @visible(function (this: ParticleEmitter) { return !this.useAutoRandomSeed; })
+    public get randomSeed () {
+        return this._params.randomSeed;
+    }
+
+    public set randomSeed (val) {
+        this._params.randomSeed = val;
     }
 
     /**
@@ -479,10 +500,16 @@ export class ParticleEmitter extends Component {
      * @zh 播放粒子效果。
      */
     public play () {
+        this._state.randomSeed = this.useAutoRandomSeed ? randomRangeInt(0, INT_MAX) : this.randomSeed;
+        this._state.rand.seed = this.randomSeed;
         this._state.playingState = PlayingState.PLAYING;
         this._state.isEmitting = true;
         this._state.currentPosition.set(this.node.worldPosition);
-        this._state.startDelay = this.startDelay.evaluate(0, 1);
+        this._state.startDelay = this.startDelay.evaluate(0, this._state.rand.getFloat());
+        this._emitterStage.onPlay(this._params, this._state);
+        this._spawningStage.onPlay(this._params, this._state);
+        this._updateStage.onPlay(this._params, this._state);
+        this._renderStage.onPlay(this._params, this._state);
         vfxManager.addEmitter(this);
     }
 
@@ -702,8 +729,11 @@ export class ParticleEmitter extends Component {
 
         this.handleEvents();
         this.updateBounds();
-        context.setExecuteRange(0, particleCount);
-        this._renderStage.execute(particles, params, context);
+    }
+
+    public render () {
+        this._context.setExecuteRange(0, this.particles.count);
+        this._renderStage.execute(this.particles, this._params, this._context);
     }
 
     private preTick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
@@ -866,8 +896,9 @@ export class ParticleEmitter extends Component {
         }
         if (particles.hasParameter(BuiltinParticleParameter.RANDOM_SEED)) {
             const randomSeed = particles.randomSeed.data;
+            const rand = this._state.rand;
             for (let i = fromIndex; i < toIndex; i++) {
-                randomSeed[i] = randomRangeInt(0, 233280);
+                randomSeed[i] = rand.getUInt32();
             }
         }
         if (particles.hasParameter(BuiltinParticleParameter.START_DIR)) {

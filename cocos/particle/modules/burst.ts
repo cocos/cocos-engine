@@ -28,7 +28,8 @@ import { ccclass, displayOrder, serializable, tooltip, type, range, editable } f
 import { CurveRange } from '../curve-range';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { ParticleDataSet } from '../particle-data-set';
-import { ParticleExecContext, ParticleEmitterParams } from '../particle-base';
+import { ParticleExecContext, ParticleEmitterParams, ParticleEmitterState } from '../particle-base';
+import { RandNumGen } from '../rand-num-gen';
 
 @ccclass('cc.Burst')
 export default class Burst {
@@ -88,8 +89,15 @@ export class BurstModule extends ParticleModule {
     @tooltip('i18n:particle_system.bursts')
     public bursts: Burst[] = [];
 
+    private _rand = new RandNumGen();
+
+    public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {
+        this._rand.seed = state.rand.getUInt32();
+    }
+
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         const { emitterPreviousTime: prevT, emitterCurrentTime: currT, emitterNormalizedTime: normalizeT } = context;
+        const rand = this._rand;
         for (let i = 0, burstCount = this.bursts.length; i < burstCount; i++) {
             const burst = this.bursts[i];
             if ((prevT <= burst.time && currT > burst.time) || (prevT > burst.time && burst.repeatCount > 1)) {
@@ -110,12 +118,12 @@ export class BurstModule extends ParticleModule {
                     } else if (burst.count.mode === CurveRange.Mode.TwoConstants) {
                         const { constantMin, constantMax } = burst.count;
                         for (let j = 0; j < toEmitTime; j++) {
-                            context.burstCount += lerp(constantMin, constantMax, Math.random());
+                            context.burstCount += lerp(constantMin, constantMax, rand.getFloat());
                         }
                     } else {
                         const { splineMin, splineMax, multiplier } = burst.count;
                         for (let j = 0; j < toEmitTime; j++) {
-                            context.burstCount += lerp(splineMin.evaluate(normalizeT), splineMax.evaluate(normalizeT), Math.random()) * multiplier;
+                            context.burstCount += lerp(splineMin.evaluate(normalizeT), splineMax.evaluate(normalizeT), rand.getFloat()) * multiplier;
                         }
                     }
                 }

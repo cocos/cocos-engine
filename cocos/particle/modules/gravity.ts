@@ -28,8 +28,9 @@ import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { CurveRange } from '../curve-range';
-import { approx, EPSILON, lerp, pseudoRandom, Quat, Vec3 } from '../../core/math';
+import { approx, EPSILON, lerp, Quat, Vec3 } from '../../core/math';
 import { Space } from '../enum';
+import { RandNumGen } from '../rand-num-gen';
 
 const rotation = new Quat();
 const gravity = new Vec3();
@@ -87,7 +88,7 @@ export class GravityModule extends ParticleModule {
                 const randomSeed = particles.randomSeed.data;
                 const { constantMin, constantMax } = this.gravityModifier;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    Vec3.set(gravity, 0, -lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + GRAVITY_RAND_OFFSET)) * deltaVelocity, 0);
+                    Vec3.set(gravity, 0, -lerp(constantMin, constantMax, RandNumGen.getFloat(randomSeed[i] + GRAVITY_RAND_OFFSET)) * deltaVelocity, 0);
                     Vec3.transformQuat(gravity, gravity, invRotation);
                     velocity.addVec3At(gravity, i);
                     baseVelocity.addVec3At(gravity, i);
@@ -99,7 +100,7 @@ export class GravityModule extends ParticleModule {
                 const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const normalizedTime = normalizedAliveTime[i];
-                    Vec3.set(gravity, 0, -lerp(splineMin.evaluate(normalizedTime), splineMax.evaluate(normalizedTime), pseudoRandom(randomSeed[i] + GRAVITY_RAND_OFFSET)) * multiplier, 0);
+                    Vec3.set(gravity, 0, -lerp(splineMin.evaluate(normalizedTime), splineMax.evaluate(normalizedTime), RandNumGen.getFloat(randomSeed[i] + GRAVITY_RAND_OFFSET)) * multiplier, 0);
                     Vec3.transformQuat(gravity, gravity, invRotation);
                     velocity.addVec3At(gravity, i);
                     baseVelocity.addVec3At(gravity, i);
@@ -126,7 +127,7 @@ export class GravityModule extends ParticleModule {
                 const randomSeed = particles.randomSeed.data;
                 const { constantMin, constantMax } = this.gravityModifier;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const gravity = -lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + GRAVITY_RAND_OFFSET)) * deltaVelocity;
+                    const gravity = -lerp(constantMin, constantMax, RandNumGen.getFloat(randomSeed[i] + GRAVITY_RAND_OFFSET)) * deltaVelocity;
                     velocity.addYAt(gravity, i);
                     baseVelocity.addYAt(gravity, i);
                 }
@@ -137,7 +138,7 @@ export class GravityModule extends ParticleModule {
                 const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const normalizedTime = normalizedAliveTime[i];
-                    const gravity = -lerp(splineMin.evaluate(normalizedTime), splineMax.evaluate(normalizedTime), pseudoRandom(randomSeed[i] + GRAVITY_RAND_OFFSET)) * multiplier;
+                    const gravity = -lerp(splineMin.evaluate(normalizedTime), splineMax.evaluate(normalizedTime), RandNumGen.getFloat(randomSeed[i] + GRAVITY_RAND_OFFSET)) * multiplier;
                     velocity.addYAt(gravity, i);
                     baseVelocity.addYAt(gravity, i);
                 }

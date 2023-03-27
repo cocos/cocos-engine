@@ -28,6 +28,7 @@ import { Color, Mat4, Quat, Vec3 } from '../core';
 import { ccclass, serializable } from '../core/data/decorators';
 import { CurveRange } from './curve-range';
 import { ModuleExecStage } from './particle-module';
+import { RandNumGen } from './rand-num-gen';
 
 export enum ParticleEventType {
     UNKNOWN,
@@ -202,6 +203,10 @@ export class ParticleEmitterParams {
     public cullingMode = CullingMode.ALWAYS_SIMULATE;
     @serializable
     public spawningUseInterpolation = false;
+    @serializable
+    public useAutoRandomSeed = true;
+    @serializable
+    public randomSeed = 0;
 }
 
 export enum InheritedProperty {
@@ -286,6 +291,8 @@ export class ParticleEmitterState {
     public isEmitting = true;
     public lastSimulateFrame = 0;
     public maxParticleId = 0;
+    public randomSeed = 0;
+    public rand = new RandNumGen();
 }
 
 export class ParticleExecContext {

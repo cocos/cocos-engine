@@ -26,10 +26,10 @@
 import { ccclass, displayOrder, range, serializable, tooltip, type } from '../../core/data/decorators';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
-import { ParticleExecContext, ParticleEmitterParams } from '../particle-base';
+import { ParticleExecContext, ParticleEmitterParams, ParticleEmitterState } from '../particle-base';
 import { CurveRange } from '../curve-range';
-import { lerp, Mat4, pseudoRandom, randomRangeInt, Vec3 } from '../../core/math';
-import { INT_MAX } from '../../core/math/bits';
+import { lerp, Mat4, Vec3 } from '../../core/math';
+import { RandNumGen } from '../rand-num-gen';
 
 const tempVelocity = new Vec3();
 
@@ -45,6 +45,12 @@ export class StartSpeedModule extends ParticleModule {
     @tooltip('i18n:particle_system.startSpeed')
     public startSpeed = new CurveRange(5);
 
+    private _rand = new RandNumGen();
+
+    public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {
+        this._rand.seed = state.rand.getUInt32();
+    }
+
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         context.markRequiredParameter(BuiltinParticleParameter.POSITION);
         context.markRequiredParameter(BuiltinParticleParameter.VELOCITY);
@@ -59,6 +65,7 @@ export class StartSpeedModule extends ParticleModule {
         const { fromIndex, toIndex } = context;
         const { startDir, baseVelocity } = particles;
         const mode = this.startSpeed.mode;
+        const rand = this._rand;
         if (mode === CurveRange.Mode.Constant) {
             const constant = this.startSpeed.constant;
             for (let i = fromIndex; i < toIndex; ++i) {
@@ -70,8 +77,7 @@ export class StartSpeedModule extends ParticleModule {
         } else if (mode ===  CurveRange.Mode.TwoConstants) {
             const { constantMin, constantMax } = this.startSpeed;
             for (let i = fromIndex; i < toIndex; ++i) {
-                const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
-                const curveStartSpeed = lerp(constantMin, constantMax, rand);
+                const curveStartSpeed = lerp(constantMin, constantMax, rand.getFloat());
                 startDir.getVec3At(tempVelocity, i);
                 Vec3.multiplyScalar(tempVelocity, tempVelocity, curveStartSpeed);
                 baseVelocity.setVec3At(tempVelocity, i);
@@ -90,8 +96,7 @@ export class StartSpeedModule extends ParticleModule {
             const spawnTime = particles.spawnNormalizedTime.data;
             for (let i = fromIndex; i < toIndex; ++i) {
                 const normalizedT = spawnTime[i];
-                const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
-                const curveStartSpeed = lerp(splineMin.evaluate(normalizedT), splineMax.evaluate(normalizedT), rand) * multiplier;
+                const curveStartSpeed = lerp(splineMin.evaluate(normalizedT), splineMax.evaluate(normalizedT), rand.getFloat()) * multiplier;
                 startDir.getVec3At(tempVelocity, i);
                 Vec3.multiplyScalar(tempVelocity, tempVelocity, curveStartSpeed);
                 baseVelocity.setVec3At(tempVelocity, i);

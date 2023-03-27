@@ -25,19 +25,17 @@
 
 import { ccclass, tooltip, displayOrder, range, type, serializable } from 'cc.decorator';
 import { Enum } from '../../core';
-import { lerp, Mat4, pseudoRandom, Quat, Vec3 } from '../../core/math';
+import { lerp, Mat4, Quat, Vec3 } from '../../core/math';
 import { Space } from '../enum';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
-import { calculateTransform } from '../particle-general-function';
 import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { CurveRange } from '../curve-range';
+import { RandNumGen } from '../rand-num-gen';
 
-const VELOCITY_X_OVERTIME_RAND_OFFSET = 197866;
-const VELOCITY_Y_OVERTIME_RAND_OFFSET = 156497;
-const VELOCITY_Z_OVERTIME_RAND_OFFSET = 984136;
-
+const VELOCITY_RAND_OFFSET = 197866;
 const tempVelocity = new Vec3();
+const seed = new Vec3();
 
 @ccclass('cc.AddVelocityModule')
 @ParticleModule.register('AddVelocity', ModuleExecStage.UPDATE | ModuleExecStage.SPAWN, [], ['Solve', 'State'])
@@ -117,10 +115,10 @@ export class AddVelocityModule extends ParticleModule {
                 const { constantMin: yMin, constantMax: yMax } = this.y;
                 const { constantMin: zMin, constantMax: zMax } = this.z;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const seed = randomSeed[i];
-                    tempVelocity.set(lerp(xMin, xMax, pseudoRandom(seed + VELOCITY_X_OVERTIME_RAND_OFFSET)),
-                        lerp(yMin, yMax, pseudoRandom(seed + VELOCITY_Y_OVERTIME_RAND_OFFSET)),
-                        lerp(zMin, zMax, pseudoRandom(seed + VELOCITY_Z_OVERTIME_RAND_OFFSET)));
+                    const ratio = RandNumGen.get3Float(randomSeed[i] + VELOCITY_RAND_OFFSET, seed);
+                    tempVelocity.set(lerp(xMin, xMax, ratio.x),
+                        lerp(yMin, yMax, ratio.y),
+                        lerp(zMin, zMax, ratio.z));
                     Vec3.transformQuat(tempVelocity, tempVelocity, rotationIfNeedTransform);
                     velocity.addVec3At(tempVelocity, i);
                 }
@@ -131,11 +129,11 @@ export class AddVelocityModule extends ParticleModule {
                 const { splineMin: yMin, splineMax: yMax, multiplier: yMultiplier } = this.y;
                 const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.z;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const seed = randomSeed[i];
+                    const ratio = RandNumGen.get3Float(randomSeed[i] + VELOCITY_RAND_OFFSET, seed);
                     const normalizedTime = normalizedAliveTime[i];
-                    tempVelocity.set(lerp(xMin.evaluate(normalizedTime), xMax.evaluate(normalizedTime), pseudoRandom(seed + VELOCITY_X_OVERTIME_RAND_OFFSET)) * xMultiplier,
-                        lerp(yMin.evaluate(normalizedTime), yMax.evaluate(normalizedTime), pseudoRandom(seed + VELOCITY_Y_OVERTIME_RAND_OFFSET)) * yMultiplier,
-                        lerp(zMin.evaluate(normalizedTime), zMax.evaluate(normalizedTime), pseudoRandom(seed + VELOCITY_Z_OVERTIME_RAND_OFFSET)) * zMultiplier);
+                    tempVelocity.set(lerp(xMin.evaluate(normalizedTime), xMax.evaluate(normalizedTime), ratio.x) * xMultiplier,
+                        lerp(yMin.evaluate(normalizedTime), yMax.evaluate(normalizedTime), ratio.y) * yMultiplier,
+                        lerp(zMin.evaluate(normalizedTime), zMax.evaluate(normalizedTime), ratio.z) * zMultiplier);
                     Vec3.transformQuat(tempVelocity, tempVelocity, rotationIfNeedTransform);
                     velocity.addVec3At(tempVelocity, i);
                 }
@@ -165,10 +163,10 @@ export class AddVelocityModule extends ParticleModule {
                 const { constantMin: yMin, constantMax: yMax } = this.y;
                 const { constantMin: zMin, constantMax: zMax } = this.z;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const seed = randomSeed[i];
-                    tempVelocity.set(lerp(xMin, xMax, pseudoRandom(seed + VELOCITY_X_OVERTIME_RAND_OFFSET)),
-                        lerp(yMin, yMax, pseudoRandom(seed + VELOCITY_Y_OVERTIME_RAND_OFFSET)),
-                        lerp(zMin, zMax, pseudoRandom(seed + VELOCITY_Z_OVERTIME_RAND_OFFSET)));
+                    const ratio = RandNumGen.get3Float(randomSeed[i] + VELOCITY_RAND_OFFSET, seed);
+                    tempVelocity.set(lerp(xMin, xMax, ratio.x),
+                        lerp(yMin, yMax, ratio.y),
+                        lerp(zMin, zMax, ratio.z));
                     velocity.addVec3At(tempVelocity, i);
                 }
             } else {
@@ -178,11 +176,11 @@ export class AddVelocityModule extends ParticleModule {
                 const { splineMin: yMin, splineMax: yMax, multiplier: yMultiplier } = this.y;
                 const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.z;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const seed = randomSeed[i];
+                    const ratio = RandNumGen.get3Float(randomSeed[i] + VELOCITY_RAND_OFFSET, seed);
                     const normalizedTime = normalizedAliveTime[i];
-                    tempVelocity.set(lerp(xMin.evaluate(normalizedTime), xMax.evaluate(normalizedTime), pseudoRandom(seed + VELOCITY_X_OVERTIME_RAND_OFFSET)) * xMultiplier,
-                        lerp(yMin.evaluate(normalizedTime), yMax.evaluate(normalizedTime), pseudoRandom(seed + VELOCITY_Y_OVERTIME_RAND_OFFSET)) * yMultiplier,
-                        lerp(zMin.evaluate(normalizedTime), zMax.evaluate(normalizedTime), pseudoRandom(seed + VELOCITY_Z_OVERTIME_RAND_OFFSET)) * zMultiplier);
+                    tempVelocity.set(lerp(xMin.evaluate(normalizedTime), xMax.evaluate(normalizedTime), ratio.x) * xMultiplier,
+                        lerp(yMin.evaluate(normalizedTime), yMax.evaluate(normalizedTime), ratio.y) * yMultiplier,
+                        lerp(zMin.evaluate(normalizedTime), zMax.evaluate(normalizedTime), ratio.z) * zMultiplier);
                     velocity.addVec3At(tempVelocity, i);
                 }
             }

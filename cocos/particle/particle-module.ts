@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { ParticleExecContext, ParticleEmitterParams, BitsBucket } from './particle-base';
+import { ParticleExecContext, ParticleEmitterParams, BitsBucket, ParticleEmitterState } from './particle-base';
 import { ParticleDataSet } from './particle-data-set';
 import { ccclass, displayName, serializable, type } from '../core/data/decorators';
 import { assert, CCBoolean, CCString, Mat4 } from '../core';
@@ -148,6 +148,8 @@ export abstract class ParticleModule {
 
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {}
     public abstract execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext);
+    public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {}
+    public onStop (params: ParticleEmitterParams, state: ParticleEmitterState) {}
 }
 
 @ccclass('cc.ParticleModuleStage')
@@ -232,6 +234,20 @@ export class ParticleModuleStage {
             module = this.addModule(moduleType);
         }
         return module;
+    }
+
+    public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {
+        for (let i = 0, length = this._modules.length; i < length; i++) {
+            const module = this._modules[i];
+            module.onPlay(params, state);
+        }
+    }
+
+    public onStop (params: ParticleEmitterParams, state: ParticleEmitterState) {
+        for (let i = 0, length = this._modules.length; i < length; i++) {
+            const module = this._modules[i];
+            module.onStop(params, state);
+        }
     }
 
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {

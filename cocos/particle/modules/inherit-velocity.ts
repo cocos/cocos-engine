@@ -42,40 +42,6 @@ const tempVelocity = new Vec3();
 @ccclass('cc.InheritVelocityModule')
 @ParticleModule.register('InheritVelocity', ModuleExecStage.UPDATE | ModuleExecStage.SPAWN, [], ['Solve', 'State'])
 export class InheritVelocityModule extends ParticleModule {
-    /**
-      * @zh 速度计算时采用的坐标系[[Space]]。
-      */
-    @type(Enum(Space))
-    @serializable
-    @tooltip('i18n:velocityOvertimeModule.space')
-    public space = Space.LOCAL;
-    /**
-      * @zh X 轴方向上的速度分量。
-      */
-    @type(CurveRange)
-    @serializable
-    @range([-1, 1])
-    @tooltip('i18n:velocityOvertimeModule.x')
-    public x = new CurveRange();
-
-    /**
-      * @zh Y 轴方向上的速度分量。
-      */
-    @type(CurveRange)
-    @serializable
-    @range([-1, 1])
-    @tooltip('i18n:velocityOvertimeModule.y')
-    public y = new CurveRange();
-
-    /**
-      * @zh Z 轴方向上的速度分量。
-      */
-    @type(CurveRange)
-    @serializable
-    @range([-1, 1])
-    @tooltip('i18n:velocityOvertimeModule.z')
-    public z = new CurveRange();
-
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         if (this.x.mode === CurveRange.Mode.TwoConstants || this.x.mode === CurveRange.Mode.TwoCurves) {
             context.markRequiredParameter(BuiltinParticleParameter.RANDOM_SEED);

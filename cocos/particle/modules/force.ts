@@ -25,16 +25,17 @@
 
 import { ccclass, tooltip, displayOrder, range, type, serializable } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
-import { lerp, pseudoRandom, Quat, Vec3 } from '../../core/math';
+import { lerp, Quat, Vec3 } from '../../core/math';
 import { Space } from '../enum';
-import { calculateTransform } from '../particle-general-function';
 import { CurveRange } from '../curve-range';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { assert, Enum } from '../../core';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
+import { RandNumGen } from '../rand-num-gen';
 
-const FORCE_OVER_LIFETIME_RAND_OFFSET = 212165;
+const FORCE_RAND_OFFSET = 212165;
+const seed = new Vec3();
 
 const _temp_v3 = new Vec3();
 
@@ -137,11 +138,11 @@ export class ForceModule extends ParticleModule {
                 const { constantMin: zMin, constantMax: zMax } = this.z;
                 const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const seed = randomSeed[i] + FORCE_OVER_LIFETIME_RAND_OFFSET;
+                    const ratio = RandNumGen.get3Float(randomSeed[i] + FORCE_RAND_OFFSET, seed);
                     const force = Vec3.set(_temp_v3,
-                        lerp(xMin, xMax, pseudoRandom(seed)),
-                        lerp(yMin, yMax, pseudoRandom(seed)),
-                        lerp(zMin, zMax, pseudoRandom(seed)));
+                        lerp(xMin, xMax, ratio.x),
+                        lerp(yMin, yMax, ratio.y),
+                        lerp(zMin, zMax, ratio.z));
                     Vec3.transformQuat(force, force, rotation);
                     Vec3.multiplyScalar(force, force, deltaTime);
                     velocity.addVec3At(force, i);
@@ -155,11 +156,11 @@ export class ForceModule extends ParticleModule {
                 const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const normalizedTime = normalizedAliveTime[i];
-                    const seed = randomSeed[i] + FORCE_OVER_LIFETIME_RAND_OFFSET;
+                    const ratio = RandNumGen.get3Float(randomSeed[i] + FORCE_RAND_OFFSET, seed);
                     const force = Vec3.set(_temp_v3,
-                        lerp(xMin.evaluate(normalizedTime), xMax.evaluate(normalizedTime), pseudoRandom(seed))  * xMultiplier,
-                        lerp(yMin.evaluate(normalizedTime), yMax.evaluate(normalizedTime), pseudoRandom(seed))  * yMultiplier,
-                        lerp(zMin.evaluate(normalizedTime), zMax.evaluate(normalizedTime), pseudoRandom(seed))  * zMultiplier);
+                        lerp(xMin.evaluate(normalizedTime), xMax.evaluate(normalizedTime), ratio.x)  * xMultiplier,
+                        lerp(yMin.evaluate(normalizedTime), yMax.evaluate(normalizedTime), ratio.y)  * yMultiplier,
+                        lerp(zMin.evaluate(normalizedTime), zMax.evaluate(normalizedTime), ratio.z)  * zMultiplier);
                     Vec3.transformQuat(force, force, rotation);
                     Vec3.multiplyScalar(force, force, deltaTime);
                     velocity.addVec3At(force, i);
@@ -199,11 +200,11 @@ export class ForceModule extends ParticleModule {
                 const { constantMin: zMin, constantMax: zMax } = this.z;
                 const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const seed = randomSeed[i] + FORCE_OVER_LIFETIME_RAND_OFFSET;
+                    const ratio = RandNumGen.get3Float(randomSeed[i] + FORCE_RAND_OFFSET, seed);
                     const force = Vec3.set(_temp_v3,
-                        lerp(xMin, xMax, pseudoRandom(seed)),
-                        lerp(yMin, yMax, pseudoRandom(seed)),
-                        lerp(zMin, zMax, pseudoRandom(seed)));
+                        lerp(xMin, xMax, ratio.x),
+                        lerp(yMin, yMax, ratio.y),
+                        lerp(zMin, zMax, ratio.z));
                     Vec3.multiplyScalar(force, force, deltaTime);
                     velocity.addVec3At(force, i);
                     baseVelocity.addVec3At(force, i);
@@ -216,11 +217,11 @@ export class ForceModule extends ParticleModule {
                 const normalizedAliveTime = particles.normalizedAliveTime.data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const normalizedTime = normalizedAliveTime[i];
-                    const seed = randomSeed[i] + FORCE_OVER_LIFETIME_RAND_OFFSET;
+                    const ratio = RandNumGen.get3Float(randomSeed[i] + FORCE_RAND_OFFSET, seed);
                     const force = Vec3.set(_temp_v3,
-                        lerp(xMin.evaluate(normalizedTime), xMax.evaluate(normalizedTime), pseudoRandom(seed))  * xMultiplier,
-                        lerp(yMin.evaluate(normalizedTime), yMax.evaluate(normalizedTime), pseudoRandom(seed))  * yMultiplier,
-                        lerp(zMin.evaluate(normalizedTime), zMax.evaluate(normalizedTime), pseudoRandom(seed))  * zMultiplier);
+                        lerp(xMin.evaluate(normalizedTime), xMax.evaluate(normalizedTime), ratio.x)  * xMultiplier,
+                        lerp(yMin.evaluate(normalizedTime), yMax.evaluate(normalizedTime), ratio.y)  * yMultiplier,
+                        lerp(zMin.evaluate(normalizedTime), zMax.evaluate(normalizedTime), ratio.z)  * zMultiplier);
                     Vec3.multiplyScalar(force, force, deltaTime);
                     velocity.addVec3At(force, i);
                     baseVelocity.addVec3At(force, i);

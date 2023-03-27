@@ -26,12 +26,13 @@
 import { ccclass, displayOrder, formerlySerializedAs, radian, range, serializable, tooltip, type, visible } from '../../core/data/decorators';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
-import { ParticleExecContext, ParticleEmitterParams } from '../particle-base';
+import { ParticleExecContext, ParticleEmitterParams, ParticleEmitterState } from '../particle-base';
 import { CurveRange } from '../curve-range';
 import { GradientRange } from '../gradient-range';
-import { Color, lerp, pseudoRandom, randomRangeInt, Vec3 } from '../../core/math';
+import { Color, lerp, Vec3 } from '../../core/math';
 import { INT_MAX } from '../../core/math/bits';
 import { Space } from '../enum';
+import { RandNumGen } from '../rand-num-gen';
 
 @ccclass('cc.StartLifeTimeModule')
 @ParticleModule.register('StartLifeTime', ModuleExecStage.SPAWN)
@@ -45,6 +46,12 @@ export class StartLifeTimeModule extends ParticleModule {
     @displayOrder(7)
     @tooltip('i18n:particle_system.startLifetime')
     public startLifetime = new CurveRange(5);
+
+    private _rand = new RandNumGen();
+
+    public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {
+        this._rand.seed = state.rand.getUInt32();
+    }
 
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         context.markRequiredParameter(BuiltinParticleParameter.INV_START_LIFETIME);
@@ -63,9 +70,9 @@ export class StartLifeTimeModule extends ParticleModule {
             }
         } else if (this.startLifetime.mode ===  CurveRange.Mode.TwoConstants) {
             const { constantMin, constantMax } = this.startLifetime;
+            const rand = this._rand;
             for (let i = fromIndex; i < toIndex; ++i) {
-                const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
-                invStartLifeTime[i] = 1 / lerp(constantMin, constantMax, rand);
+                invStartLifeTime[i] = 1 / lerp(constantMin, constantMax, rand.getFloat());
             }
         } else if (this.startLifetime.mode ===  CurveRange.Mode.Curve) {
             const { spline, multiplier } = this.startLifetime;
@@ -76,10 +83,10 @@ export class StartLifeTimeModule extends ParticleModule {
         } else {
             const { splineMin, splineMax, multiplier } = this.startLifetime;
             const spawnTime = particles.spawnNormalizedTime.data;
+            const rand = this._rand;
             for (let i = fromIndex; i < toIndex; ++i) {
-                const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
                 const normalizedT = spawnTime[i];
-                invStartLifeTime[i] = 1 / (lerp(splineMin.evaluate(normalizedT), splineMax.evaluate(normalizedT), rand) * multiplier);
+                invStartLifeTime[i] = 1 / (lerp(splineMin.evaluate(normalizedT), splineMax.evaluate(normalizedT), rand.getFloat()) * multiplier);
             }
         }
     }
