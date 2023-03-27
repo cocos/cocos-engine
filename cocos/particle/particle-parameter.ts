@@ -444,6 +444,7 @@ export class ParticleUint32Parameter extends ParticleParameter {
 
 export enum ParticleParameterType {
     FLOAT,
+    BOOL,
     VEC3,
     COLOR,
     UINT32,

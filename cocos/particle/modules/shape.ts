@@ -190,14 +190,6 @@ export class ShapeModule extends ParticleModule {
     }
 
     /**
-     * @zh 根据粒子的初始方向决定粒子的移动方向。
-     */
-    @serializable
-    @displayOrder(16)
-    @tooltip('i18n:shapeModule.alignToDirection')
-    public alignToDirection = false;
-
-    /**
      * @zh 粒子生成方向随机设定。
      */
     @serializable
@@ -297,17 +289,6 @@ export class ShapeModule extends ParticleModule {
     })
     public length = 5;
 
-    /**
-     * @zh 粒子发射器发射位置（针对 Box 类型的粒子发射器）。
-     */
-    @serializable
-    @displayOrder(12)
-    @tooltip('i18n:shapeModule.boxThickness')
-    @visible(function (this: ShapeModule) {
-        return this._shapeType === ShapeType.BOX || this._shapeType === ShapeType.BOX_EDGE || this._shapeType === ShapeType.BOX_SHELL;
-    })
-    public boxThickness = new Vec3(0, 0, 0);
-
     @serializable
     private _position = new Vec3(0, 0, 0);
 
@@ -332,7 +313,6 @@ export class ShapeModule extends ParticleModule {
     private _finalAngle = 0;
     private _minRadius = 0;
     private _velocityZ = 0;
-    private _boxThickness = new Vec3(0, 0, 0);
 
     public tick (particles: ParticleDataSet,  params: ParticleEmitterParams, context: ParticleExecContext) {
         const { emitterNormalizedTime: normalizedT, emitterDeltaTime } = context;

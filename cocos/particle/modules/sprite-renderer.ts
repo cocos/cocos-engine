@@ -14,7 +14,7 @@ const INSTANCE_PARTICLE = 'CC_INSTANCE_PARTICLE';
 const meshPosition = new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F, false, 0);           // mesh position
 const meshUv = new Attribute(AttributeName.ATTR_TEX_COORD, Format.RGB32F, false, 0);                // mesh uv
 const particlePosition = new Attribute('a_particle_position', Format.RGB32F, false, 1, true);       // particle position
-const particleRotation =new Attribute('a_particle_rotation', Format.RGB32F, false, 1, true);        // particle rotation
+const particleRotation = new Attribute('a_particle_rotation', Format.RGB32F, false, 1, true);        // particle rotation
 const particleSize = new Attribute('a_particle_size', Format.RGB32F, false, 1, true);               // particle size
 const particleFrameId = new Attribute('a_particle_frame_id', Format.R32F, false, 1, true);          // particle frame id
 const particleColor = new Attribute('a_particle_color', Format.RGBA8, true, 1, true);               // particle color
@@ -26,7 +26,6 @@ const fixedVertexBuffer = new Float32Array([
     1, 1, 0, 1, 1, 0, // top-right
 ]);
 export class SpriteRendererModule extends RendererModule {
-
     /**
      * @zh 设定粒子生成模式。
      */
@@ -40,7 +39,6 @@ export class SpriteRendererModule extends RendererModule {
     public set renderMode (val) {
         this._renderMode = val;
     }
-
 
     @tooltip('i18n:particleSystemRenderer.velocityScale')
     public get velocityScale () {
@@ -173,7 +171,7 @@ export class SpriteRendererModule extends RendererModule {
 
     private _generateMesh () {
         if (!this._renderingSubMesh) {
-            let vertexStreamSizeStatic = 0;
+            const vertexStreamSizeStatic = 0;
             let vertexStreamSizeDynamic = 0;
             for (const a of this._vertexStreamAttributes) {
                 vertexStreamSizeDynamic += FormatInfos[a.format].size;
@@ -184,7 +182,7 @@ export class SpriteRendererModule extends RendererModule {
                 vertexStreamSizeStatic * 4,
                 vertexStreamSizeStatic,
             ));
-    
+
             const vBuffer = new ArrayBuffer(vertexStreamSizeStatic * 4);
         }
     }

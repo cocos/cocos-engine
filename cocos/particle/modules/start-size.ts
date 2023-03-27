@@ -168,7 +168,6 @@ export class StartSizeModule extends ParticleModule {
             // eslint-disable-next-line no-lonely-if
             if (this.startSizeX.mode === CurveRange.Mode.Constant) {
                 const constantX = this.startSizeX.constant;
-                size.fill1f(constantX, fromIndex, toIndex);
                 baseSize.fill1f(constantX, fromIndex, toIndex);
             } else if (this.startSizeX.mode === CurveRange.Mode.TwoConstants) {
                 const { constantMin: xMin, constantMax: xMax } = this.startSizeX;

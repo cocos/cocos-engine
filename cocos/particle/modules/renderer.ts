@@ -1,8 +1,7 @@
-import { Material } from "../../core";
-import { ccclass, displayName, serializable, type } from "../../core/data/decorators";
-import { MaterialInstance } from "../../core/renderer";
-import { ParticleModule } from "../particle-module";
-
+import { Material } from '../../core';
+import { ccclass, displayName, serializable, type } from '../../core/data/decorators';
+import { MaterialInstance } from '../../core/renderer';
+import { ParticleModule } from '../particle-module';
 
 @ccclass('cc.RendererModule')
 export abstract class RendererModule extends ParticleModule {

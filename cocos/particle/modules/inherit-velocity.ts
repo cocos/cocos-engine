@@ -39,19 +39,19 @@ const VELOCITY_Z_OVERTIME_RAND_OFFSET = 984136;
 
 const tempVelocity = new Vec3();
 
-@ccclass('cc.AddVelocityModule')
-@ParticleModule.register('AddVelocity', ModuleExecStage.UPDATE | ModuleExecStage.SPAWN, [], ['Solve', 'State'])
-export class AddVelocityModule extends ParticleModule {
+@ccclass('cc.InheritVelocityModule')
+@ParticleModule.register('InheritVelocity', ModuleExecStage.UPDATE | ModuleExecStage.SPAWN, [], ['Solve', 'State'])
+export class InheritVelocityModule extends ParticleModule {
     /**
-     * @zh 速度计算时采用的坐标系[[Space]]。
-     */
+      * @zh 速度计算时采用的坐标系[[Space]]。
+      */
     @type(Enum(Space))
     @serializable
     @tooltip('i18n:velocityOvertimeModule.space')
     public space = Space.LOCAL;
     /**
-     * @zh X 轴方向上的速度分量。
-     */
+      * @zh X 轴方向上的速度分量。
+      */
     @type(CurveRange)
     @serializable
     @range([-1, 1])
@@ -59,8 +59,8 @@ export class AddVelocityModule extends ParticleModule {
     public x = new CurveRange();
 
     /**
-     * @zh Y 轴方向上的速度分量。
-     */
+      * @zh Y 轴方向上的速度分量。
+      */
     @type(CurveRange)
     @serializable
     @range([-1, 1])
@@ -68,8 +68,8 @@ export class AddVelocityModule extends ParticleModule {
     public y = new CurveRange();
 
     /**
-     * @zh Z 轴方向上的速度分量。
-     */
+      * @zh Z 轴方向上的速度分量。
+      */
     @type(CurveRange)
     @serializable
     @range([-1, 1])
@@ -89,7 +89,7 @@ export class AddVelocityModule extends ParticleModule {
 
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         const needTransform = this.space !== params.simulationSpace;
-        const velocity = context.executionStage === ModuleExecStage.UPDATE ? particles.velocity : particles.baseVelocity;
+        const { velocity } = particles;
         const { fromIndex, toIndex, rotationIfNeedTransform } = context;
         if (needTransform) {
             if (this.x.mode === CurveRange.Mode.Constant) {
