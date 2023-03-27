@@ -170,11 +170,11 @@ class AuxiliaryCurveBinding implements PoseBinding<number> {
     }
 
     public setValue (value: number, pose: Pose): void {
-        pose.metaValues[this._handle.index] = value;
+        pose.auxiliaryCurves[this._handle.index] = value;
     }
 
     public getValue (pose: Pose) {
-        return pose.metaValues[this._handle.index];
+        return pose.auxiliaryCurves[this._handle.index];
     }
 }
 

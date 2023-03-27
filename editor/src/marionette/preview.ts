@@ -8,7 +8,8 @@ import {
 } from '../../../cocos/animation/marionette/animation-blend';
 import type { RuntimeID } from '../../../cocos/animation/marionette/graph-debug';
 import {
-    AnimationGraphBindingContext, AnimationGraphEvaluationContext, AnimationGraphLayerWideBindingContext, AnimationGraphPoseLayoutMaintainer, defaultTransformsTag, MetaValueRegistry,
+    AnimationGraphBindingContext, AnimationGraphEvaluationContext,
+    AnimationGraphLayerWideBindingContext, AnimationGraphPoseLayoutMaintainer, defaultTransformsTag, AuxiliaryCurveRegistry,
 } from '../../../cocos/animation/marionette/animation-graph-context';
 import { blendPoseInto, Pose } from '../../../cocos/animation/core/pose';
 
@@ -69,7 +70,7 @@ class AnimationGraphPartialPreviewer {
     private _motionRecords: MotionEvalRecord[] = [];
 
     private _updateAllRecords() {
-        const poseLayoutMaintainer = new AnimationGraphPoseLayoutMaintainer(new MetaValueRegistry());
+        const poseLayoutMaintainer = new AnimationGraphPoseLayoutMaintainer(new AuxiliaryCurveRegistry());
         this._poseLayoutMaintainer = poseLayoutMaintainer;
 
         const bindingContext = new AnimationGraphBindingContext(this._root, this._poseLayoutMaintainer, this._varInstances);
@@ -84,7 +85,7 @@ class AnimationGraphPartialPreviewer {
 
         const evaluationContext = new AnimationGraphEvaluationContext({
             transformCount: poseLayoutMaintainer.transformCount,
-            metaValueCount: poseLayoutMaintainer.metaValueCount,
+            auxiliaryCurveCount: poseLayoutMaintainer.auxiliaryCurveCount,
         });
 
         poseLayoutMaintainer.fetchDefaultTransforms(evaluationContext[defaultTransformsTag]);
