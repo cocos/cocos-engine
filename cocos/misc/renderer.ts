@@ -232,7 +232,10 @@ export class Renderer extends Component {
     protected _onMaterialModified (index: number, material: Material | null) {
     }
 
-    protected _onRebuildPSO (index: number, material: Material | null) {
+    /**
+     * @engineInternal
+     */
+    public _onRebuildPSO (index: number, material: Material | null) {
     }
 
     protected _clearMaterials () {

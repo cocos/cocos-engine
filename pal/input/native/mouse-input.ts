@@ -22,12 +22,13 @@
  THE SOFTWARE.
 */
 
-import { MouseCallback } from 'pal/input';
 import { screenAdapter } from 'pal/screen-adapter';
 import { EventMouse } from '../../../cocos/input/types';
 import { EventTarget } from '../../../cocos/core/event';
 import { Vec2 } from '../../../cocos/core/math';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
+
+export type MouseCallback = (res: EventMouse) => void;
 
 declare const jsb: any;
 

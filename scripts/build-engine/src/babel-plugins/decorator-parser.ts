@@ -16,10 +16,6 @@ import fs from 'fs';
 const enginePath = process.env.ENGINE_PATH!;
 const applyFnName = `apply`;
 
-if (!enginePath) {
-    throw new Error('ENGINE_PATH environment variable not set');
-}
-
 interface DecoratorParseResult {
     decoratorName?: string;
     attrName?: string;
@@ -190,17 +186,12 @@ function cvtClassDecorators(className: string) {
 function cvtPropDecorators(className: string, ctx: ClassDecoratorContext) {
     return (d: DecoratorParseResult) => {
         let gs: string | undefined;
-        // NOTE: the decorator `type` has only 2 arguments
-        if (d.isGetterOrSetter && d.decoratorName !== 'type') {
+        if (d.isGetterOrSetter) {
             gs = allocPropVariable(className, d.attrName!);
             const found = ctx.descriptors.reduce((p, c) => p || c.name === gs, false);
             if (!found) {
                 ctx.descriptors.push({ name: gs, decl: `const ${gs} = Object.getOwnPropertyDescriptor(${className}.prototype, '${d.attrName as string}');` });
             }
-        }
-        if (d.decoratorName === 'type') {
-            // same reason, `type` has only 2 arguments
-            return `    ${nameDecorators(d.decoratorName)}${d.decoratorArgs ? `(${d.decoratorArgs.join(',')})` : ''}(${className}.prototype, '${d.attrName}')`;
         }
         return `    ${nameDecorators(d.decoratorName!)}${d.decoratorArgs ? `(${d.decoratorArgs.join(',')})` : ''}(${className}.prototype, '${d.attrName}',  ${gs || `() => { return ${d.attrValue}; }`})`;
     };
@@ -621,7 +612,9 @@ namespace p {
         if (np.typeParameters) {
             visitAstRecursive(np.typeParameters);
         }
+        // @ts-expect-error wrong version of babel
         if (np.predicate) {
+            // @ts-expect-error wrong version of babel
             visitAstRecursive(np.predicate);
         }
     }
@@ -698,6 +691,7 @@ namespace p {
     }
 
     export function AssignmentPattern(np: t.AssignmentPattern) {
+        // @ts-expect-error wrong version of babel
         debugLog(`[assignment pattern] optional: ${np.optional}`);
         visitAstRecursive(np.left);
         visitAstRecursive(np.right);
@@ -713,6 +707,7 @@ namespace p {
     }
 
     export function RestElement(np: t.RestElement) {
+        // @ts-expect-error wrong version of babel
         debugLog(`[rest element] optional: ${np.optional}`);
         visitAstRecursive(np.argument);
         if (np.typeAnnotation) {
@@ -848,6 +843,7 @@ namespace p {
     }
 
     export function TSTypeParameter(np: t.TSTypeParameter) {
+        // @ts-expect-error wrong version of babel
         debugLog(`[type parameter] ${np.name}, const ${np.const}, in: ${np.in}, out: ${np.out}`);
         if (np.constraint) visitAstRecursive(np.constraint);
         if (np.default) visitAstRecursive(np.default);
@@ -906,6 +902,7 @@ namespace p {
     export function TSBigIntKeyword(np: t.TSBigIntKeyword) {
         debugLog(`[TSType] BigInt`);
     }
+    // @ts-expect-error wrong version of babel
     export function TSIntrinsicKeyword(np: t.TSIntrinsicKeyword) {
         debugLog(`[TSType] instrinsic`);
     }
@@ -968,7 +965,9 @@ namespace p {
     }
     export function TSTypeQuery(np: t.TSTypeQuery) {
         visitAstRecursive(np.exprName);
+        // @ts-expect-error wrong version of babel
         if (np.typeParameters) {
+            // @ts-expect-error wrong version of babel
             visitAstRecursive(np.typeParameters);
         }
     }
@@ -1056,7 +1055,9 @@ namespace p {
         if (np.typeAnnotation) {
             visitAstRecursive(np.typeAnnotation);
         }
+        // @ts-expect-error wrong version of babel
         if (np.nameType) {
+            // @ts-expect-error wrong version of babel
             visitAstRecursive(np.nameType);
         }
     }

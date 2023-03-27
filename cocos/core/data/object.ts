@@ -318,8 +318,9 @@ class CCObject implements EditorExtendableObject {
         }
 
         if (JSB) {
-            // @ts-expect-error JSB method
-            this._destroy();
+            // TODO: `_destroy` method only implemented on native @dumganhar
+            // issue: https://github.com/cocos/cocos-engine/issues/14644
+            (this as any)._destroy();
         }
 
         return true;
@@ -372,25 +373,18 @@ class CCObject implements EditorExtendableObject {
             errorID(5000);
             return;
         }
-        // engine internal callback
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error
-        if (this._onPreDestroy) {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-expect-error
-            this._onPreDestroy();
-        }
+        // TODO: '_onPreDestroy' should be define in CCObject class.
+        // issue: https://github.com/cocos/cocos-engine/issues/14643
+        ((this as any)._onPreDestroy)?.();
 
         if (!EDITOR || legacyCC.GAME_VIEW) {
             /*Native properties cannot be reset by _destruct, because the native properties are hung on the prototype and
              *hasOwnProperty's detection cannot be passed.
              */
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-expect-error
-            if (JSB && this.destruct) {
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-expect-error
-                this.destruct();
+            // TODO: `destruct` is only implemented on native @dumganhar
+            // issue: https://github.com/cocos/cocos-engine/issues/14644
+            if (JSB && (this as any).destruct) {
+                (this as any).destruct();
             }
             this._destruct();
         }
@@ -427,10 +421,10 @@ if (EDITOR || TEST) {
     * 析构操作将在 Undo 系统中**延后**执行。
     * @method realDestroyInEditor
     * @private
+    * TODO: this is a dynamic inject method, should be define in class
+    * issue: https://github.com/cocos/cocos-engine/issues/14643
     */
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
-    prototype.realDestroyInEditor = function () {
+    (prototype as any).realDestroyInEditor = function () {
         if (!(this._objFlags & Destroyed)) {
             warnID(5001);
             return;
@@ -444,46 +438,35 @@ if (EDITOR || TEST) {
     };
 }
 
+// NOTE: `clearImmediate` method is only defined in NodeJS environment.
+declare const clearImmediate: (immediateId: number) => void;
 if (EDITOR) {
     js.value(CCObject, '_clearDeferredDestroyTimer', () => {
         if (deferredDestroyTimer !== null) {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-expect-error
             clearImmediate(deferredDestroyTimer);
             deferredDestroyTimer = null;
         }
     });
-
-    /*
+    /**
      * The customized serialization for this object. (Editor Only)
      * @method _serialize
      * @param {Boolean} exporting
      * @return {object} the serialized json data object
-     * @private
+     * TODO: this is a dynamic inject method, should be define in class
+     * issue: https://github.com/cocos/cocos-engine/issues/14643
      */
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
-    prototype._serialize = null;
+    (prototype as any)._serialize = null;
 }
 
-/*
+/**
  * Init this object from the custom serialized data.
  * @method _deserialize
  * @param {Object} data - the serialized json data
  * @param {_Deserializer} ctx
- * @private
+ * TODO: this is a dynamic inject method, should be define in class
+ * issue: https://github.com/cocos/cocos-engine/issues/14643
  */
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
-prototype._deserialize = null;
-/*
- * Called before the object being destroyed.
- * @method _onPreDestroy
- * @private
- */
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
-prototype._onPreDestroy = null;
+(prototype as any)._deserialize = null;
 
 CCClass.fastDefine('cc.Object', CCObject, { _name: '', _objFlags: 0, [editorExtrasTag]: {} });
 CCClass.Attr.setClassAttr(CCObject, editorExtrasTag, 'editorOnly', true);
@@ -703,9 +686,7 @@ if (JSB) {
     copyAllProperties(CCObject.prototype, jsb.CCObject.prototype,
         ['constructor', 'name', 'hideFlags', 'replicated', 'isValid']);
 
-    // @ts-expect-error TS2629
-    // eslint-disable-next-line no-class-assign
-    CCObject = jsb.CCObject;
+    (CCObject as unknown as any) = jsb.CCObject;
 }
 
 legacyCC.Object = CCObject;

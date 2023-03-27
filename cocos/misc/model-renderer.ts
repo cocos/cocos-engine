@@ -83,7 +83,10 @@ export class ModelRenderer extends Renderer {
     protected _attachToScene () {
     }
 
-    protected _detachFromScene () {
+    /**
+     * @engineInternal
+     */
+    public _detachFromScene () {
     }
 
     protected _onVisibilityChange (val) {

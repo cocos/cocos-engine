@@ -1,7 +1,7 @@
-/*
- Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
+/****************************************************************************
+ Copyright (c) 2023 Xiamen Yaji Software Co., Ltd.
 
- https://www.cocos.com/
+ http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -20,8 +20,31 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
-*/
+****************************************************************************/
 
-declare const nr: any;
+#pragma once
 
-export const getPhaseID = nr.getPhaseID;
+#include "base/std/container/unordered_map.h"
+#include "platform/interfaces/modules/ISystemWindowManager.h"
+
+namespace cc {
+
+class ISystemWindow;
+
+class SystemWindowManager : public ISystemWindowManager {
+public:
+    SystemWindowManager() = default;
+
+    int init() override;
+    void processEvent() override;
+
+    ISystemWindow *createWindow(const ISystemWindowInfo &info) override;
+    ISystemWindow *getWindow(uint32_t windowId) const override;
+    const SystemWindowMap &getWindows() const override { return _windows; }
+
+private:
+    uint32_t _nextWindowId{1}; // start from 1, 0 means an invalid ID
+
+    SystemWindowMap _windows;
+};
+} // namespace cc

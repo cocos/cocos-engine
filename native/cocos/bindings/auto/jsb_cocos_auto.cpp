@@ -3626,6 +3626,69 @@ se::Class* __jsb_cc_Device_class = nullptr;
 se::Object* __jsb_cc_Device_proto = nullptr;
 SE_DECLARE_FINALIZE_FUNC(js_delete_cc_Device) 
 
+static bool js_cc_Device_getInnerWidth_static(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    uint32_t result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    result = cc::Device::getInnerWidth();
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_Device_getInnerWidth_static) 
+
+static bool js_cc_Device_getInnerHeight_static(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    uint32_t result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    result = cc::Device::getInnerHeight();
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_Device_getInnerHeight_static) 
+
+static bool js_cc_Device_getWindowHandle_static(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    uintptr_t result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    result = cc::Device::getWindowHandle();
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_Device_getWindowHandle_static) 
+
 static bool js_cc_Device_getDPI_static(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -3877,6 +3940,9 @@ bool js_register_cc_Device(se::Object* obj) {
     
     
     
+    cls->defineStaticFunction("getInnerWidth", _SE(js_cc_Device_getInnerWidth_static)); 
+    cls->defineStaticFunction("getInnerHeight", _SE(js_cc_Device_getInnerHeight_static)); 
+    cls->defineStaticFunction("getWindowHandle", _SE(js_cc_Device_getWindowHandle_static)); 
     cls->defineStaticFunction("getDPI", _SE(js_cc_Device_getDPI_static)); 
     cls->defineStaticFunction("getDevicePixelRatio", _SE(js_cc_Device_getDevicePixelRatio_static)); 
     cls->defineStaticFunction("setAccelerometerEnabled", _SE(js_cc_Device_setAccelerometerEnabled_static)); 

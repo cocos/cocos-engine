@@ -81,8 +81,9 @@ Object.defineProperty(sceneProto, 'renderScene', {
 });
 
 sceneProto._ctor = function () {
-    // @ts-expect-error TODO: Property '_ctor' does not exist on type 'Node'.
-    Node.prototype._ctor.apply(this, arguments);
+    // TODO: Property '_ctor' does not exist on type 'Node'.
+    // issue: https://github.com/cocos/cocos-engine/issues/14644
+    (Node.prototype as any)._ctor.apply(this, arguments);
     this._inited = false;
     this._renderSceneInternal = null;
     this._globalRef = null;

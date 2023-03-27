@@ -418,8 +418,8 @@ export class Game extends EventTarget {
      * @en The delta time since last frame, unit: s.
      * @zh 获取上一帧的增量时间，以秒为单位。
      */
-    public get deltaTime () {
-        return this._deltaTime;
+    public get deltaTime (): number {
+        return this._useFixedDeltaTime ? this.frameTime / 1000 : this._deltaTime;
     }
 
     /**
@@ -460,6 +460,7 @@ export class Game extends EventTarget {
     private _initTime = 0;
     private _startTime = 0;
     private _deltaTime = 0.0;
+    private _useFixedDeltaTime = false;
     private _shouldLoadLaunchScene = true;
 
     /**
@@ -537,7 +538,7 @@ export class Game extends EventTarget {
      * @zh 以固定帧间隔执行一帧游戏循环，帧间隔与设定的帧率匹配。
      */
     public step () {
-        director.tick(this.frameTime / 1000);
+        director.tick(this._calculateDT(true));
     }
 
     /**
@@ -590,7 +591,6 @@ export class Game extends EventTarget {
      */
     public resume () {
         if (!this._paused) { return; }
-        // @ts-expect-error _clearEvents is a private method.
         input._clearEvents();
         this._paused = false;
         this._pacer?.start();
@@ -986,7 +986,14 @@ export class Game extends EventTarget {
 
     // @Methods
 
-    private _calculateDT () {
+    private _calculateDT (useFixedDeltaTime: boolean) {
+        this._useFixedDeltaTime = useFixedDeltaTime;
+
+        if (useFixedDeltaTime) {
+            this._startTime = performance.now();
+            return this.frameTime / 1000;
+        }
+
         const now = performance.now();
         this._deltaTime = now > this._startTime ? (now - this._startTime) / 1000 : 0;
         if (this._deltaTime > Game.DEBUG_DT_THRESHOLD) {
@@ -999,7 +1006,7 @@ export class Game extends EventTarget {
     private _updateCallback () {
         if (!this._inited) return;
         if (!SplashScreen.instance.isFinished) {
-            SplashScreen.instance.update(this._calculateDT());
+            SplashScreen.instance.update(this._calculateDT(false));
         } else if (this._shouldLoadLaunchScene) {
             this._shouldLoadLaunchScene = false;
             const launchScene = settings.querySettings(Settings.Category.LAUNCH, 'launchScene');
@@ -1017,7 +1024,7 @@ export class Game extends EventTarget {
                 this.onStart?.();
             }
         } else {
-            director.tick(this._calculateDT());
+            director.tick(this._calculateDT(false));
         }
     }
 

@@ -18820,11 +18820,11 @@ static bool js_cc_scene_Pass_properties_get(se::State& s)
 {
     CC_UNUSED bool ok = true;
     cc::scene::Pass *arg1 = (cc::scene::Pass *) NULL ;
-    Record< ccstd::string,cc::IPropertyInfo > *result = 0 ;
+    ccstd::unordered_map< ccstd::string,cc::IPropertyInfo > *result = 0 ;
     
     arg1 = SE_THIS_OBJECT<cc::scene::Pass>(s);
     if (nullptr == arg1) return true;
-    result = (Record< ccstd::string,cc::IPropertyInfo > *) &cc_scene_Pass_properties_get(arg1);
+    result = (ccstd::unordered_map< ccstd::string,cc::IPropertyInfo > *) &cc_scene_Pass_properties_get(arg1);
     
     ok &= nativevalue_to_se(*result, s.rval(), s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments");

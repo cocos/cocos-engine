@@ -98,6 +98,7 @@ jobs:
           mkdir -p build-android/proj
           touch build-android/proj/cfg.cmake
           echo "set(CI_FORCE_MINIMAL_FEATURES ON)" >> build-android/proj/cfg.cmake
+          echo "set(COCOS_X_PATH $NATIVE_ROOT)" >> build-android/proj/cfg.cmake
 
           mkdir -p build-android/assets
 
@@ -163,6 +164,7 @@ jobs:
           echo "set(CC_USE_GLES2 ON)" >> build-android/proj/cfg.cmake
           echo "set(USE_WEBSOCKET_SERVER ON)" >> build-android/proj/cfg.cmake
           echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> build-android/proj/cfg.cmake
+          echo "set(COCOS_X_PATH $NATIVE_ROOT)" >> build-android/proj/cfg.cmake
 
           mkdir -p build-android/assets
 

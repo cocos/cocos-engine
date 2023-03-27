@@ -1,0 +1,21 @@
+{
+    "license": "ISC",
+    "devDependencies": {},
+    "name": "myapplication",
+    "ohos": {
+        "org": "huawei",
+        "directoryLevel": "project",
+        "buildTool": "hvigor"
+    },
+    "scripts": {
+        "build": "hvigor assembleHap"
+    },
+    "description": "example description",
+    "repository": {},
+    "version": "1.0.0",
+    "dependencies": {
+        "@ohos/hypium": "1.0.1",
+        "@ohos/hvigor-ohos-plugin": "1.1.6",
+        "@ohos/hvigor": "1.1.6"
+    }
+}

@@ -77,7 +77,7 @@ public:
      */
     //    @serializable
     //    @editable
-    Record<ccstd::string, float> info; //cjh float?
+    ccstd::unordered_map<ccstd::string, float> info; // cjh float?
 
     explicit Primitive(PrimitiveType type = PrimitiveType::BOX);
     ~Primitive() override;

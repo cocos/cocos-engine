@@ -1987,7 +1987,8 @@ export function WebGL2CmdFuncBeginRenderPass (
                         gl.colorMask(true, true, true, true);
                     }
 
-                    if (!gpuFramebuffer.isOffscreen) {
+                    // We-chat mini-game, glClearBufferfv get INVALID_ENUM. MRT may not be supported. use clearColor instead.
+                    if (gpuRenderPass.colorAttachments.length === 1) {
                         const clearColor = clearColors[0];
                         gl.clearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
                         clears |= gl.COLOR_BUFFER_BIT;

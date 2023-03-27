@@ -49,7 +49,7 @@ struct ProgramInfo {
     }
 
     ProgramInfo(const allocator_type& alloc) noexcept; // NOLINT
-    ProgramInfo(IProgramInfo programInfoIn, gfx::ShaderInfo shaderInfoIn, ccstd::pmr::vector<gfx::Attribute> attributesIn, ccstd::vector<signed> blockSizesIn, Record<ccstd::string, uint32_t> handleMapIn, const allocator_type& alloc) noexcept;
+    ProgramInfo(IProgramInfo programInfoIn, gfx::ShaderInfo shaderInfoIn, ccstd::pmr::vector<gfx::Attribute> attributesIn, ccstd::vector<signed> blockSizesIn, ccstd::unordered_map<ccstd::string, uint32_t> handleMapIn, const allocator_type& alloc) noexcept;
     ProgramInfo(ProgramInfo&& rhs, const allocator_type& alloc);
     ProgramInfo(ProgramInfo const& rhs, const allocator_type& alloc);
 
@@ -62,7 +62,7 @@ struct ProgramInfo {
     gfx::ShaderInfo shaderInfo;
     ccstd::pmr::vector<gfx::Attribute> attributes;
     ccstd::vector<signed> blockSizes;
-    Record<ccstd::string, uint32_t> handleMap;
+    ccstd::unordered_map<ccstd::string, uint32_t> handleMap;
 };
 
 struct ProgramGroup {

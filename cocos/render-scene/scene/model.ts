@@ -637,7 +637,6 @@ export class Model {
             this._localDataUpdated = true;
             const worldBounds = this._worldBounds;
             if (this._modelBounds && worldBounds) {
-                // @ts-expect-error TS2445
                 this._modelBounds.transform(node._mat, node._pos, node._rot, node._scale, worldBounds);
             }
         }
@@ -654,7 +653,6 @@ export class Model {
             this._localDataUpdated = true;
             const worldBounds = this._worldBounds;
             if (this._modelBounds && worldBounds) {
-                // @ts-expect-error TS2445
                 this._modelBounds.transform(node._mat, node._pos, node._rot, node._scale, worldBounds);
             }
         }
@@ -678,7 +676,6 @@ export class Model {
         if (!this._localDataUpdated) { return; }
         this._localDataUpdated = false;
 
-        // @ts-expect-error using private members here for efficiency
         const worldMatrix = this.transform._mat;
         let hasNonInstancingPass = false;
         for (let i = 0; i < subModels.length; i++) {

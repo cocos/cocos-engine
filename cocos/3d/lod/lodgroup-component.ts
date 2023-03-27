@@ -629,7 +629,6 @@ export class LODGroup extends Component {
      */
     private _emitChangeNode (node: Node) {
         if (EDITOR) {
-            // @ts-expect-error Because EditorExtends is Editor only
             EditorExtends.Node.emit('change', node.uuid, node);
         }
     }

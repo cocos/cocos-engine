@@ -133,8 +133,9 @@ Object.defineProperty(Camera, "standardExposureValue", {
     configurable: true,
     enumerable: true,
     get () {
-        // @ts-expect-error Property 'getStandardExposureValue' does not exist on type 'typeof Camera'.
-        return Camera.getStandardExposureValue();
+        // TODO: `getStandardExposureValue` only implemented on native platforms. @dumganhar
+        // issue: https://github.com/cocos/cocos-engine/issues/14644
+        return (Camera as any).getStandardExposureValue();
     },
 });
 
@@ -142,8 +143,9 @@ Object.defineProperty(Camera, "standardLightMeterScale", {
     configurable: true,
     enumerable: true,
     get () {
-        // @ts-expect-error Property 'getStandardLightMeterScale' does not exist on type 'typeof Camera'.
-        return Camera.getStandardLightMeterScale();
+        // TODO: `getStandardLightMeterScale` only implemented on native platforms. @dumganhar
+        // issue: https://github.com/cocos/cocos-engine/issues/14644
+        return (Camera as any).getStandardLightMeterScale();
     },
 });
 
@@ -199,7 +201,7 @@ Object.defineProperty(cameraProto, 'matViewProjInv', {
 
 const oldInitialize = cameraProto.initialize;
 
-cameraProto.initialize = function initialize () {
+cameraProto.initialize = function initialize() {
     oldInitialize.apply(this, arguments);
     this._matView = new Mat4();
     this._matProj = new Mat4();

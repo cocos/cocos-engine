@@ -43,9 +43,7 @@ SystemWindow::SystemWindow(uint32_t windowId, void *externalHandle)
     }
 }
 
-SystemWindow::~SystemWindow() {
-    setCursorEnabled(true);
-}
+SystemWindow::~SystemWindow() = default;
 
 bool SystemWindow::createWindow(const char *title,
                                 int w, int h, int flags) {

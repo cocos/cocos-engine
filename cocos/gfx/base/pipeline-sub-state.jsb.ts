@@ -551,8 +551,10 @@ export class BlendTarget {
 }
 
 export class BlendState {
-    private targets: BlendTarget[];
-    private _blendColor: Color;
+    // NOTE: not initialize in constructor
+    public targets!: BlendTarget[];
+    // NOTE: not initialize in constructor
+    private _blendColor!: Color;
     protected _nativeObj;
     protected _isA2C: boolean = false;
     protected _isIndepend: boolean = false;
@@ -647,7 +649,8 @@ export class BlendState {
         for (let i = 0, len = this.targets.length; i < len; ++i) {
             this.targets[i].destroy();
         }
-        this.targets = null;
+        // NOTE: Type 'null' is not assignable to type 'BlendTarget[]'.
+        this.targets = null as any;
         this._nativeObj = null;
     }
 }

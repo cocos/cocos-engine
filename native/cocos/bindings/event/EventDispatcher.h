@@ -47,6 +47,7 @@ private:
     static void dispatchMouseEvent(const MouseEvent &mouseEvent);
     static void dispatchKeyboardEvent(const KeyboardEvent &keyboardEvent);
     static void dispatchControllerEvent(const ControllerEvent &controllerEvent);
+    static void dispatchControllerChangeEvent(const ControllerChangeEvent &changeEvent);
     static void dispatchTickEvent(float dt);
     static void dispatchResizeEvent(int width, int height, uint32_t windowId = UINT32_MAX);
     static void dispatchOrientationChangeEvent(int orientation);
@@ -66,6 +67,7 @@ private:
     static events::Mouse::Listener listenerMouse;
     static events::Keyboard::Listener listenerKeyboard;
     static events::Controller::Listener listenerConroller;
+    static events::ControllerChange::Listener listenerConrollerChange;
     static events::Tick::Listener listenerTick;
     static events::Resize::Listener listenerResize;
     static events::Orientation::Listener listenerOrientation;

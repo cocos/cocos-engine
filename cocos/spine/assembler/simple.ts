@@ -36,7 +36,7 @@ import { BlendFactor } from '../../gfx';
 import { legacyCC } from '../../core/global-exports';
 import { StaticVBAccessor } from '../../2d/renderer/static-vb-accessor';
 import { RenderData } from '../../2d/renderer/render-data';
-import { Texture2D } from '../../../typedoc-index.js';
+import { Texture2D } from '../../asset/assets/texture-2d';
 import { director } from '../../game';
 
 const _quadTriangles = [0, 1, 2, 2, 3, 0];
