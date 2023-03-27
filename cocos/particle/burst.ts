@@ -24,7 +24,7 @@
  */
 
 import { ccclass, type, serializable, editable, range } from 'cc.decorator';
-import { repeat } from '../core/math';
+import { random, repeat } from '../core/math';
 import CurveRange from './animator/curve-range';
 import { Particle } from './particle';
 
@@ -92,7 +92,7 @@ export default class Burst {
         }
         if (this._remainingCount === 0) {
             this._remainingCount = this._repeatCount;
-            const startDelay: number = psys.startDelay.evaluate(0, Math.random());
+            const startDelay: number = psys.startDelay.evaluate(0, random());
             this._curTime = this._time + startDelay;
         }
         if (this._remainingCount > 0) {

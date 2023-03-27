@@ -25,7 +25,7 @@
 
 import { ccclass, serializable, editable } from 'cc.decorator';
 import { CCClass } from '../../core/data/class';
-import { Color, lerp, repeat } from '../../core/math';
+import { Color, lerp, random, repeat } from '../../core/math';
 import { Enum } from '../../core/value-types';
 
 const Mode = Enum({
@@ -121,8 +121,8 @@ export default class Gradient {
     }
 
     public randomColor () {
-        const c = this.colorKeys[Math.trunc(Math.random() * this.colorKeys.length)];
-        const a = this.alphaKeys[Math.trunc(Math.random() * this.alphaKeys.length)];
+        const c = this.colorKeys[Math.trunc(random() * this.colorKeys.length)];
+        const a = this.alphaKeys[Math.trunc(random() * this.alphaKeys.length)];
         this._color.set(c.color);
         this._color._set_a_unsafe(a.alpha);
         return this._color;
