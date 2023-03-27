@@ -316,7 +316,6 @@ export class ShapeModule extends ParticleModule {
 
     public tick (particles: ParticleDataSet,  params: ParticleEmitterParams, context: ParticleExecContext) {
         const { emitterNormalizedTime: normalizedT, emitterDeltaTime } = context;
-        this._totalAngle += 2 * Math.PI * this.arcSpeed.evaluate(normalizedT, 1) * emitterDeltaTime;
         if (this._isTransformDirty) {
             Quat.fromEuler(this._quat, this._rotation.x, this._rotation.y, this._rotation.z);
             Mat4.fromRTS(this._mat, this._quat, this._position, this._scale);
@@ -325,6 +324,7 @@ export class ShapeModule extends ParticleModule {
         context.markRequiredParameter(BuiltinParticleParameter.POSITION);
         context.markRequiredParameter(BuiltinParticleParameter.START_DIR);
         context.markRequiredParameter(BuiltinParticleParameter.VEC3_REGISTER);
+        this._totalAngle += 2 * Math.PI * this.arcSpeed.evaluate(normalizedT, 1) * emitterDeltaTime;
         this._finalAngle = this._totalAngle;
         if (!approx(this.arcSpread, 0)) {
             this._finalAngle = Math.floor(this._finalAngle / (this._arc * this.arcSpread)) * this._arc * this.arcSpread;
@@ -336,7 +336,6 @@ export class ShapeModule extends ParticleModule {
         }
         this._minRadius = this.radius * (1 - this.radiusThickness);
         this._velocityZ = -Math.cos(this._angle) * this.radius;
-        this._boxThickness.set(1 - this.boxThickness.x, 1 - this.boxThickness.y, 1 - this.boxThickness.z);
     }
 
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
@@ -345,41 +344,9 @@ export class ShapeModule extends ParticleModule {
         const randomPositionAmount = this.randomPositionAmount;
         const minRadius = this._minRadius;
         const velocityZ = this._velocityZ;
-        const boxThickness = this._boxThickness;
         const angle = this._finalAngle;
 
         switch (this.shapeType) {
-        case ShapeType.BOX:
-            for (let i = fromIndex; i < toIndex; ++i) {
-                Vec3.set(tmpPosition,
-                    randomRange(-0.5, 0.5),
-                    randomRange(-0.5, 0.5),
-                    randomRange(-0.5, 0.5));
-                vec3Register.setVec3At(tmpPosition, i);
-            }
-            break;
-        case ShapeType.BOX_SHELL:
-            for (let i = fromIndex; i < toIndex; ++i) {
-                shuffleArray[0] = randomRange(-0.5, 0.5);
-                shuffleArray[1] = randomRange(-0.5, 0.5);
-                shuffleArray[2] = randomSign() * 0.5;
-                shuffleFloat3(shuffleArray);
-                applyBoxThickness(shuffleArray, boxThickness);
-                Vec3.set(tmpPosition, shuffleArray[0], shuffleArray[1], shuffleArray[2]);
-                vec3Register.setVec3At(tmpPosition, i);
-            }
-            break;
-        case ShapeType.BOX_EDGE:
-            for (let i = fromIndex; i < toIndex; ++i) {
-                shuffleArray[0] = randomRange(-0.5, 0.5);
-                shuffleArray[1] = randomSign() * 0.5;
-                shuffleArray[2] = randomSign() * 0.5;
-                shuffleFloat3(shuffleArray);
-                applyBoxThickness(shuffleArray, boxThickness);
-                Vec3.set(tmpPosition, shuffleArray[0], shuffleArray[1], shuffleArray[2]);
-                vec3Register.setVec3At(tmpPosition, i);
-            }
-            break;
         case ShapeType.CIRCLE:
             if (this.arcMode === ArcMode.RANDOM) {
                 for (let i = fromIndex; i < toIndex; ++i) {

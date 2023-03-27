@@ -51,3 +51,4 @@ export * from './sprite-renderer';
 export * from './renderer';
 export * from './inherit-velocity';
 export * from './orbit-velocity';
+export * from './cone-shape';
