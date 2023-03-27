@@ -174,10 +174,6 @@ using namespace cc;
 #define cc_scene_Pass_rootBufferDirty_get(self_) self_->isRootBufferDirty()
   
 
-#define cc_scene_Pass__rootBufferDirty_get(self_) self_->isRootBufferDirty()
-#define cc_scene_Pass__rootBufferDirty_set(self_, val_) self_->_setRootBufferDirty(val_)
-  
-
 #define cc_scene_Pass_priority_get(self_) self_->getPriority()
   
 
@@ -18615,6 +18611,55 @@ static bool js_cc_scene_Pass_getRootBlock(se::State& s)
 }
 SE_BIND_FUNC(js_cc_scene_Pass_getRootBlock) 
 
+static bool js_cc_scene_Pass_setRootBufferDirty(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::Pass *arg1 = (cc::scene::Pass *) NULL ;
+    bool arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::Pass>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2);
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    (arg1)->setRootBufferDirty(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_Pass_setRootBufferDirty) 
+
+static bool js_cc_scene_Pass_setPriority(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::Pass *arg1 = (cc::scene::Pass *) NULL ;
+    cc::pipeline::RenderPriority arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::Pass>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    (arg1)->setPriority(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_Pass_setPriority) 
+
 static bool js_cc_scene_Pass_getPassID(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -18924,43 +18969,6 @@ static bool js_cc_scene_Pass_rootBufferDirty_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_scene_Pass_rootBufferDirty_get) 
 
-static bool js_cc_scene_Pass__rootBufferDirty_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::scene::Pass *arg1 = (cc::scene::Pass *) NULL ;
-    bool arg2 ;
-    
-    arg1 = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    if (nullptr == arg1) return true;
-    
-    ok &= sevalue_to_native(args[0], &arg2);
-    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
-    cc_scene_Pass__rootBufferDirty_set(arg1,arg2);
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_scene_Pass__rootBufferDirty_set) 
-
-static bool js_cc_scene_Pass__rootBufferDirty_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::scene::Pass *arg1 = (cc::scene::Pass *) NULL ;
-    bool result;
-    
-    arg1 = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    if (nullptr == arg1) return true;
-    result = (bool)cc_scene_Pass__rootBufferDirty_get(arg1);
-    
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_scene_Pass__rootBufferDirty_get) 
-
 static bool js_cc_scene_Pass_priority_get(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -19208,7 +19216,6 @@ bool js_register_cc_scene_Pass(se::Object* obj) {
     cls->defineProperty("propertyIndex", _SE(js_cc_scene_Pass_propertyIndex_get), nullptr); 
     cls->defineProperty("dynamics", _SE(js_cc_scene_Pass_dynamics_get), nullptr); 
     cls->defineProperty("rootBufferDirty", _SE(js_cc_scene_Pass_rootBufferDirty_get), nullptr); 
-    cls->defineProperty("_rootBufferDirty", _SE(js_cc_scene_Pass__rootBufferDirty_get), _SE(js_cc_scene_Pass__rootBufferDirty_set)); 
     cls->defineProperty("priority", _SE(js_cc_scene_Pass_priority_get), nullptr); 
     cls->defineProperty("primitive", _SE(js_cc_scene_Pass_primitive_get), nullptr); 
     cls->defineProperty("stage", _SE(js_cc_scene_Pass_stage_get), nullptr); 
@@ -19244,6 +19251,8 @@ bool js_register_cc_scene_Pass(se::Object* obj) {
     cls->defineFunction("getShaderVariant", _SE(js_cc_scene_Pass_getShaderVariant)); 
     cls->defineFunction("getPassInfoFull", _SE(js_cc_scene_Pass_getPassInfoFull)); 
     cls->defineFunction("getRootBlock", _SE(js_cc_scene_Pass_getRootBlock)); 
+    cls->defineFunction("setRootBufferDirty", _SE(js_cc_scene_Pass_setRootBufferDirty)); 
+    cls->defineFunction("setPriority", _SE(js_cc_scene_Pass_setPriority)); 
     cls->defineFunction("getPassID", _SE(js_cc_scene_Pass_getPassID)); 
     cls->defineFunction("getPhaseID", _SE(js_cc_scene_Pass_getPhaseID)); 
     cls->defineFunction("_updatePassHash", _SE(js_cc_scene_Pass__updatePassHash)); 
