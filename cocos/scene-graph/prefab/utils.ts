@@ -187,7 +187,7 @@ export function applyMountedChildren (node: Node, mountedChildren: MountedChildr
                     }
 
                     target.children.push(childNode);
-                    childNode.parent = target;
+                    childNode.modifyParent(target);
                     if (EDITOR) {
                         if (!childNode[editorExtrasTag]) {
                             childNode[editorExtrasTag] = {};
