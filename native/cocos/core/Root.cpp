@@ -557,6 +557,7 @@ void Root::doXRFrameMove(int32_t totalFrames) {
     if (_xr->isRenderAllowable()) {
         bool isSceneUpdated = false;
         int viewCount = _xr->getXRConfig(xr::XRConfigKey::VIEW_COUNT).getInt();
+        bool forceUpdateSceneTwice = _xr->getXRConfig(xr::XRConfigKey::EYE_RENDER_JS_CALLBACK).getBool();
         for (int xrEye = 0; xrEye < viewCount; xrEye++) {
             _xr->beginRenderEyeFrame(xrEye);
 
@@ -590,6 +591,9 @@ void Root::doXRFrameMove(int32_t totalFrames) {
             }
 
             bool isNeedUpdateScene = xrEye == static_cast<uint32_t>(xr::XREye::LEFT) || (xrEye == static_cast<uint32_t>(xr::XREye::RIGHT) && !isSceneUpdated);
+            if (forceUpdateSceneTwice) {
+                isNeedUpdateScene = true;
+            }
             frameMoveProcess(isNeedUpdateScene, totalFrames);
             auto camIter = _cameraList.begin();
             while (camIter != _cameraList.end()) {
