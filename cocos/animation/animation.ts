@@ -40,7 +40,3 @@ export { ColorTrack } from './tracks/color-track';
 export { SizeTrack } from './tracks/size-track';
 export { ObjectTrack } from './tracks/object-track';
 export * from './marionette/runtime-exports';
-
-export {
-    AuxiliaryCurveInfo as AuxiliaryCurveInfo_experimental,
-} from './auxiliary-curve';

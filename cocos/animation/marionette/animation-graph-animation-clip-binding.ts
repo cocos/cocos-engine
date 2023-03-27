@@ -3,7 +3,7 @@ import { error, Quat, RealCurve, Vec3, warnID } from '../../core';
 import { assertIsTrue } from '../../core/data/utils/asserts';
 import { Node } from '../../scene-graph/node';
 import { AnimationClip, exoticAnimationTag } from '../animation-clip';
-import { AuxiliaryCurveInfo } from '../auxiliary-curve';
+import { AuxiliaryCurveEntry } from '../auxiliary-curve-entry';
 import { AuxiliaryCurveHandle, TransformHandle } from '../core/animation-handle';
 import { Pose } from '../core/pose';
 import { createEvalSymbol } from '../define';
@@ -331,7 +331,6 @@ export class AnimationClipAGEvaluation {
         const {
             tracks,
             [exoticAnimationTag]: exoticAnimation,
-            auxiliaryCurveInfos_experimental: auxiliaryCurves,
         } = clip;
 
         for (const track of tracks) {
@@ -355,12 +354,11 @@ export class AnimationClipAGEvaluation {
             exoticAnimationEvaluation = exoticAnimation.createEvaluatorForAnimationGraph(context);
         }
 
-        const nAuxiliaryCurves = auxiliaryCurves.length;
+        const auxiliaryCurveNames = clip.getAuxiliaryCurveNames_experimental();
+        const nAuxiliaryCurves = auxiliaryCurveNames.length;
         for (let iAuxiliaryCurve = 0; iAuxiliaryCurve < nAuxiliaryCurves; ++iAuxiliaryCurve) {
-            const {
-                name: curveName,
-                curve,
-            } = auxiliaryCurves[iAuxiliaryCurve];
+            const curveName = auxiliaryCurveNames[iAuxiliaryCurve];
+            const curve = clip.getAuxiliaryCurve_experimental(curveName);
             const handle = context.bindAuxiliaryCurve(curveName);
             const binding = new AuxiliaryCurveBinding(handle);
             auxiliaryCurveEvaluations.push(new AuxiliaryCurveEvaluation(
