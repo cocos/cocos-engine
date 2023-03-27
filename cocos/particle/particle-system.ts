@@ -29,7 +29,7 @@ import { EDITOR } from 'internal:constants';
 import { Renderer } from '../core/components/renderer';
 import { ModelRenderer } from '../core/components/model-renderer';
 import { Material } from '../core/assets/material';
-import { Mat4, pseudoRandom, Quat, random, randomRangeInt, Vec2, Vec3 } from '../core/math';
+import { Mat4, pseudoRandom, Quat, random, randomRangeInt, SetRandomSeed, SetUseRandomSeed, Vec2, Vec3 } from '../core/math';
 import { INT_MAX } from '../core/math/bits';
 import { scene } from '../core/renderer';
 import ColorOverLifetimeModule from './animator/color-overtime';
@@ -57,7 +57,7 @@ import { ParticleCuller } from './particle-culler';
 import { NoiseModule } from './animator/noise-module';
 import { ForceFieldModule } from './animator/force-field-module';
 import InheritVelocityModule from './animator/inherit-velocity';
-import { CCBoolean, CCFloat, CCObject, Node } from '../core';
+import { CCBoolean, CCFloat, CCInteger, CCObject, Node } from '../core';
 
 const _world_mat = new Mat4();
 const _world_rol = new Quat();
@@ -823,6 +823,32 @@ export class ParticleSystem extends ModelRenderer {
     }
 
     @serializable
+    private _useSeed = false;
+
+    @type(CCBoolean)
+    public get useSeed () {
+        return this._useSeed;
+    }
+
+    public set useSeed (val) {
+        this._useSeed = val;
+        SetUseRandomSeed(this.useSeed);
+    }
+
+    @serializable
+    private _randomSeed = 10;
+
+    @type(CCInteger)
+    @visible(function (this: ParticleSystem): boolean { return this._useSeed; })
+    public get randomSeed () {
+        return this._randomSeed;
+    }
+
+    public set randomSeed (val) {
+        this._randomSeed = val;
+    }
+
+    @serializable
     private _subPercent = 1.0;
 
     private copyEmitter (subSrc: ParticleSystem, sub: ParticleSystem, cap: number) {
@@ -1143,6 +1169,9 @@ export class ParticleSystem extends ModelRenderer {
         this._baseEmitters = [];
         this._parentEmitter = null;
         this._trigged = false;
+
+        SetUseRandomSeed(this.useSeed);
+        SetRandomSeed(this.randomSeed);
     }
 
     public onFocusInEditor () {
@@ -1262,6 +1291,9 @@ export class ParticleSystem extends ModelRenderer {
                 model.enabled = this.enabledInHierarchy;
             }
         }
+
+        SetUseRandomSeed(this.useSeed);
+        SetRandomSeed(this.randomSeed);
     }
 
     /**
@@ -1812,7 +1844,7 @@ export class ParticleSystem extends ModelRenderer {
         }
 
         // emit particles.
-        const startDelay = this.startDelay.evaluate(0, Math.random())!;
+        const startDelay = this.startDelay.evaluate(0, random())!;
 
         let time = this._time;
         if (parentParticle) {

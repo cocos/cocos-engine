@@ -112,10 +112,29 @@ export function toDegree (a: number) {
     return a * _r2d;
 }
 
+let UseRandomSeed = true;
+
 /**
  * @method random
  */
-export const random = Math.random;
+// eslint-disable-next-line import/no-mutable-exports
+export let random = UseRandomSeed ? genRandom : Math.random;
+
+let RandomSeed = 0;
+
+export function SetUseRandomSeed (val: boolean) {
+    UseRandomSeed = val;
+    random = UseRandomSeed ? genRandom : Math.random;
+}
+
+export function SetRandomSeed (val: number) {
+    RandomSeed = val;
+}
+
+export function genRandom () {
+    RandomSeed = (RandomSeed * 9301 + 49297) % 233280;
+    return RandomSeed / 233280.0;
+}
 
 /**
  * @en Returns a floating-point random number between min (inclusive) and max (exclusive).<br/>
@@ -126,7 +145,7 @@ export const random = Math.random;
  * @return The random number.
  */
 export function randomRange (min: number, max: number) {
-    return Math.random() * (max - min) + min;
+    return random() * (max - min) + min;
 }
 
 /**
