@@ -434,7 +434,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     }
 
     /**
-     * As there is already setter and setParent(), and both of them not just modify _parent, but has
+     * As there are setter and setParent(), and both of them not just modify _parent, but have
      * other logic. So add a new function that only modify _parent value.
      * @engineInternal
      */
