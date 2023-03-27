@@ -25,12 +25,15 @@
 package com.cocos.lib.xr.permission;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Process;
 import android.text.TextUtils;
 import android.util.Log;
 import com.cocos.lib.CocosHelper;
 import com.cocos.lib.JsbBridgeWrapper;
+import com.cocos.lib.xr.CocosXRApi;
+
 import java.util.Arrays;
 
 public class CocosXRPermissionHelper {
@@ -38,9 +41,6 @@ public class CocosXRPermissionHelper {
     public static final String XR_PERMISSION_EVENT_NAME = "xr-permission";
     public static final String XR_PERMISSION_TAG_CHECK = "check";
     public static final String XR_PERMISSION_TAG_REQUEST = "request";
-    public static Activity getForegroundActivity() {
-        return CocosHelper.getActivity();
-    }
     public interface PermissionCallback {
         void onRequestPermissionsResult(String[] permissions, int[] grantResults);
     }
@@ -58,10 +58,10 @@ public class CocosXRPermissionHelper {
     }
 
     public static boolean checkPermission(String permission) {
-        Activity activity = getForegroundActivity();
-        if (activity == null)
+        Context context = CocosXRApi.getInstance().getContext();
+        if (context == null)
             return false;
-        if (activity.checkPermission(permission, android.os.Process.myPid(), Process.myUid()) == PackageManager.PERMISSION_GRANTED) {
+        if (context.checkPermission(permission, android.os.Process.myPid(), Process.myUid()) == PackageManager.PERMISSION_GRANTED) {
             Log.d(LOG_TAG, "checkPermission: " + permission + " has granted");
             return true;
         } else {
@@ -71,9 +71,8 @@ public class CocosXRPermissionHelper {
     }
 
     public static void acquirePermissions(String[] permissions, PermissionCallback callback) {
-        Activity activity = getForegroundActivity();
         permissionCallback = callback;
-        CocosXRPermissionHelper.acquirePermissions(permissions, activity);
+        CocosXRPermissionHelper.acquirePermissions(permissions, CocosXRApi.getInstance().getActivity());
     }
 
     public static void acquirePermissions(String[] permissions, Activity InActivity) {
