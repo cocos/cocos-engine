@@ -336,6 +336,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         }
     }
 
+    @serializable
     protected _parent: this | null = null;
 
     @serializable
