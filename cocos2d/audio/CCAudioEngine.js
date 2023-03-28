@@ -43,13 +43,17 @@ let recycleAudio = function (audio) {
     audio.off('ended');
     audio.off('stop');
     audio.src = null;
-    // In case repeatly recycle audio
-    if (!_audioPool.includes(audio)) {
-        if (_audioPool.length < audioEngine._maxPoolSize) {
-            _audioPool.push(audio);
-        }
-        else {
-            audio.destroy();
+    if (cc.sys.platform === cc.sys.ALIPAY_GAME) {
+        audio.destroy();
+    } else {
+        // In case repeatly recycle audio
+        if (!_audioPool.includes(audio)) {
+            if (_audioPool.length < audioEngine._maxPoolSize) {
+                _audioPool.push(audio);
+            }
+            else {
+                audio.destroy();
+            }
         }
     }
     audio._shouldRecycleOnEnded = false;
