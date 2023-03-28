@@ -218,7 +218,7 @@ struct Index {
         case "seekVideoTo" : {
           var video = msg.param;
           var index = this.videoIndexMap.get(video.tag);
-          this.videoArray[index].controller.setCurrentTime(video.time);
+          this.videoArray[index].controller.setCurrentTime(video.time, SeekMode.Accurate);
           break;
         }
         case "setVideoVisible" : {
