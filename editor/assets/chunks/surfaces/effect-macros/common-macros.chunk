@@ -75,6 +75,15 @@
   #define CC_SURFACES_LIGHTING_SSS 0
 #endif
 
+// common 2nd-specular for TRT / Dual-Lobe / Wet / ClearCoat...
+#if CC_SURFACES_LIGHTING_TRT
+  #define CC_SURFACES_LIGHTING_2ND_LAYER_SPECULAR 1
+#endif
+#ifndef CC_SURFACES_LIGHTING_2ND_LAYER_SPECULAR
+  #define CC_SURFACES_LIGHTING_2ND_LAYER_SPECULAR 0
+#endif
+
+
 // render-to-color-map can disable functionality to avoid error data map
 #ifndef CC_SURFACES_ENABLE_DEBUG_VIEW
   #define CC_SURFACES_ENABLE_DEBUG_VIEW 1

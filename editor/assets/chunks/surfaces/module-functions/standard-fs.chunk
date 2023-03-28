@@ -46,13 +46,13 @@ void CCSurfacesFragmentGetMaterialData(inout SurfacesMaterialData surfaceData)
   vec3 baseColorTRT = vec3(0.0);
 #if CC_SURFACES_LIGHTING_TRT
   vec4 trtParams = SurfacesFragmentModifyTRTParams();
-  surfaceData.roughnessTRT = saturate(surfaceData.roughness + trtParams.x);
-  surfaceData.trtIntensity = trtParams.w;
-  surfaceData.baseColorTRT = baseColorTRT = SurfacesFragmentModifyTRTColor();
-  surfaceData.worldNormalTRT = surfaceData.worldNormal;
-  surfaceData.worldTangentTRT = surfaceData.worldTangent;
-  surfaceData.worldBinormalTRT = surfaceData.worldBinormal;
-  RotateNormalAndBinormal(surfaceData.worldBinormalTRT, surfaceData.worldNormalTRT, surfaceData.worldTangentTRT, trtParams.y);
+  surfaceData.roughness2ndSpecular = saturate(surfaceData.roughness + trtParams.x);
+  surfaceData.intensity2ndSpecular = trtParams.w;
+  surfaceData.baseColor2ndSpecular = baseColorTRT = SurfacesFragmentModifyTRTColor();
+  surfaceData.worldNormal2ndSpecular = surfaceData.worldNormal;
+  surfaceData.worldTangent2ndSpecular = surfaceData.worldTangent;
+  surfaceData.worldBinormal2ndSpecular = surfaceData.worldBinormal;
+  RotateNormalAndBinormal(surfaceData.worldBinormal2ndSpecular, surfaceData.worldNormal2ndSpecular, surfaceData.worldTangent2ndSpecular, trtParams.y);
 #endif
 
 #if CC_SURFACES_LIGHTING_TT
@@ -79,8 +79,8 @@ void CCSurfacesFragmentGetMaterialData(inout SurfacesMaterialData surfaceData)
   if (!IS_DEBUG_VIEW_LIGHTING_ENABLE_WITH_ALBEDO)
   {
       surfaceData.baseColor.rgb = vec3(1.0);
-      #if CC_SURFACES_LIGHTING_TRT
-        surfaceData.baseColorTRT.rgb = vec3(1.0);
+      #if CC_SURFACES_LIGHTING_2ND_LAYER_SPECULAR
+        surfaceData.baseColor2ndSpecular.rgb = vec3(1.0);
       #endif
       #if CC_SURFACES_LIGHTING_TT
         surfaceData.baseColorTT.rgb = vec3(1.0);
@@ -157,22 +157,22 @@ void CCSurfacesGetLightingIntermediateDataTransmitDiffuse(inout LightingIntermed
 }
 #endif
 
-#if CC_SURFACES_LIGHTING_TRT
+#if CC_SURFACES_LIGHTING_2ND_LAYER_SPECULAR
 // pass original lightingData, get TRT lightingData
-void CCSurfacesGetLightingIntermediateDataTRT(inout LightingIntermediateData lightingDataTRT, in LightingIntermediateData lightingData, in SurfacesMaterialData surfaceData)
+void CCSurfacesGetLightingIntermediateData2ndSpecular(inout LightingIntermediateData lightingData2ndSpecular, in LightingIntermediateData lightingData, in SurfacesMaterialData surfaceData)
 {
-  lightingDataTRT = lightingData;
-  lightingDataTRT.specularParam = surfaceData.roughnessTRT;
+  lightingData2ndSpecular = lightingData;
+  lightingData2ndSpecular.specularParam = surfaceData.roughness2ndSpecular;
   // new TBN with anisotropic offset
-  lightingDataTRT.N = surfaceData.worldNormalTRT;
-  lightingDataTRT.T = surfaceData.worldTangentTRT;
-  lightingDataTRT.B = surfaceData.worldBinormalTRT;
+  lightingData2ndSpecular.N = surfaceData.worldNormal2ndSpecular;
+  lightingData2ndSpecular.T = surfaceData.worldTangent2ndSpecular;
+  lightingData2ndSpecular.B = surfaceData.worldBinormal2ndSpecular;
 }
 // pass original surfaceData, get TRT surfaceData
-void CCSurfacesGetSurfacesMaterialDataTRT(inout SurfacesMaterialData surfaceDataTRT, in SurfacesMaterialData surfaceData)
+void CCSurfacesGetSurfacesMaterialData2ndSpecular(inout SurfacesMaterialData surfaceData2ndSpecular, in SurfacesMaterialData surfaceData)
 {
-  surfaceDataTRT = surfaceData;
-  surfaceDataTRT.baseColor = vec4(surfaceData.baseColorTRT, 1.0);
+  surfaceData2ndSpecular = surfaceData;
+  surfaceData2ndSpecular.baseColor = vec4(surfaceData.baseColor2ndSpecular, 1.0);
 }
 #endif
 
@@ -194,8 +194,8 @@ void CCSurfacesInitializeLightingResult(inout LightingResult lightingResult)
 #if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
   lightingResult.directTransmitDiffuse = vec3(0.0);
 #endif
-#if CC_SURFACES_LIGHTING_TRT
-  lightingResult.directTRT = vec3(0.0);
+#if CC_SURFACES_LIGHTING_2ND_LAYER_SPECULAR
+  lightingResult.direct2ndSpecular = vec3(0.0);
 #endif
 #if CC_SURFACES_LIGHTING_TT
   lightingResult.directTT = vec3(0.0);
@@ -214,8 +214,8 @@ void CCSurfacesAccumulateLightingResult(inout LightingResult lightingResultAccum
   #if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
     lightingResultAccumulated.directTransmitDiffuse += lightingResult.directTransmitDiffuse;
   #endif
-  #if CC_SURFACES_LIGHTING_TRT
-    lightingResultAccumulated.directTRT += lightingResult.directTRT * lightingResult.shadow;
+  #if CC_SURFACES_LIGHTING_2ND_LAYER_SPECULAR
+    lightingResultAccumulated.direct2ndSpecular += lightingResult.direct2ndSpecular * lightingResult.shadow;
   #endif
   #if CC_SURFACES_LIGHTING_TT
     lightingResultAccumulated.directTT += lightingResult.directTT * lightingResult.shadow;
@@ -253,8 +253,8 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
   #if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR
     + lightingResult.directTransmitSpecular * lightingResult.specularColorWithLighting
   #endif
-  #if CC_SURFACES_LIGHTING_TRT
-    + lightingResult.directTRT * lightingResult.specularColorWithLightingTRT * surfaceData.trtIntensity * surfaceData.baseColorTRT
+  #if CC_SURFACES_LIGHTING_2ND_LAYER_SPECULAR
+    + lightingResult.direct2ndSpecular * lightingResult.specularColorWithLighting2ndSpecular * surfaceData.intensity2ndSpecular * surfaceData.baseColor2ndSpecular
   #endif
   #if CC_SURFACES_LIGHTING_TT
     + lightingResult.directTT * lightingResult.diffuseColorWithLightingTT
@@ -277,8 +277,8 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
   #if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR
     + lightingResult.directTransmitSpecular * lightingResult.specularColorWithLighting * invFresnel
   #endif
-  #if CC_SURFACES_LIGHTING_TRT
-    + lightingResult.directTRT * lightingResult.specularColorWithLightingTRT * surfaceData.trtIntensity * surfaceData.baseColorTRT
+  #if CC_SURFACES_LIGHTING_2ND_LAYER_SPECULAR
+    + lightingResult.direct2ndSpecular * lightingResult.specularColorWithLighting2ndSpecular * surfaceData.intensity2ndSpecular * surfaceData.baseColor2ndSpecular
   #endif
   #if CC_SURFACES_LIGHTING_TT
     + lightingResult.directTT * lightingResult.diffuseColorWithLightingTT
@@ -302,8 +302,8 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
   #if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR
     + lightingResult.environmentTransmitSpecular * lightingResult.specularColorWithLighting * invFresnel
   #endif
-  #if CC_SURFACES_LIGHTING_TRT
-    + lightingResult.environmentTRT * lightingResult.specularColorWithLightingTRT * surfaceData.trtIntensity * surfaceData.baseColorTRT
+  #if CC_SURFACES_LIGHTING_2ND_LAYER_SPECULAR
+    + lightingResult.environment2ndSpecular * lightingResult.specularColorWithLighting2ndSpecular * surfaceData.intensity2ndSpecular * surfaceData.baseColor2ndSpecular
   #endif
     )
     * lightingResult.ao

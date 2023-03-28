@@ -15,11 +15,11 @@
       lightingResultAccumulated.diffuseColorWithLighting = lightingResult.diffuseColorWithLighting;
       lightingResultAccumulated.specularColorWithLighting = lightingResult.specularColorWithLighting;
 
-      #if CC_SURFACES_LIGHTING_TRT
+      #if CC_SURFACES_LIGHTING_2ND_LAYER_SPECULAR
         vec3 diff;
-        SurfacesMaterialData surfaceDataTRT;
-        CCSurfacesGetSurfacesMaterialDataTRT(surfaceDataTRT, surfaceData);
-        CCSurfacesLightingInitializeColorWithLighting(diff, lightingResultAccumulated.specularColorWithLightingTRT, surfaceDataTRT, lightingData);
+        SurfacesMaterialData surfaceData2ndSpecular;
+        CCSurfacesGetSurfacesMaterialData2ndSpecular(surfaceData2ndSpecular, surfaceData);
+        CCSurfacesLightingInitializeColorWithLighting(diff, lightingResultAccumulated.specularColorWithLighting2ndSpecular, surfaceData2ndSpecular, lightingData);
       #endif
 
       int numLights = CC_PIPELINE_TYPE == CC_PIPELINE_TYPE_FORWARD ? LIGHTS_PER_PASS : int(cc_lightDir[0].w);
@@ -93,12 +93,12 @@
           CCSurfacesLightingCalculateDirectTransmitDiffuse(lightingResult.directTransmitDiffuse, lightingDataTD, attenuatedLightColorAndIntensity, lightingResult.shadow);
         #endif
 
-        #if CC_SURFACES_LIGHTING_TRT
-          LightingIntermediateData lightingDataTRT;
-          CCSurfacesGetLightingIntermediateDataTRT(lightingDataTRT, lightingData, surfaceData);
-          CCSurfacesLightingCalculateIntermediateData_PerLight(lightingDataTRT, surfaceData, cc_lightPos[i].xyz - worldPos);
-          CCSurfacesLightingCalculateDirectTRT(lightingResult.directTRT, lightingDataTRT, attenuatedLightColorAndIntensity, lightingResult.directSpecular);
-          lightingResult.directTRT *= multiplier * fresnel;
+        #if CC_SURFACES_LIGHTING_2ND_LAYER_SPECULAR
+          LightingIntermediateData lightingData2ndSpecular;
+          CCSurfacesGetLightingIntermediateData2ndSpecular(lightingData2ndSpecular, lightingData, surfaceData);
+          CCSurfacesLightingCalculateIntermediateData_PerLight(lightingData2ndSpecular, surfaceData, cc_lightPos[i].xyz - worldPos);
+          CCSurfacesLightingCalculateDirect2ndSpecular(lightingResult.direct2ndSpecular, lightingData2ndSpecular, attenuatedLightColorAndIntensity, lightingResult.directSpecular);
+          lightingResult.direct2ndSpecular *= multiplier * fresnel;
         #endif
 
         #if CC_SURFACES_LIGHTING_TT
@@ -213,17 +213,17 @@
         CCSurfacesLightingCalculateEnvironmentTransmitDiffuse(lightingResult.environmentTransmitDiffuse, lightingDataTD, cc_ambientSky.w, lightingResult.ao, -cc_mainLitDir.xyz);
       #endif
 
-      #if CC_SURFACES_LIGHTING_TRT
-        LightingIntermediateData lightingDataTRT;
-        CCSurfacesGetLightingIntermediateDataTRT(lightingDataTRT, lightingData, surfaceData);
-        CCSurfacesLightingCalculateIntermediateData_PerLight(lightingDataTRT, surfaceData, -cc_mainLitDir.xyz);
-        CCSurfacesLightingCalculateDirectTRT(lightingResult.directTRT, lightingDataTRT, cc_mainLitColor, lightingResult.directSpecular);
-        CCSurfacesLightingCalculateEnvironmentTRT(lightingResult.environmentTRT, lightingDataTRT, cc_ambientSky.w, lightingResult.environmentSpecular);
+      #if CC_SURFACES_LIGHTING_2ND_LAYER_SPECULAR
+        LightingIntermediateData lightingData2ndSpecular;
+        CCSurfacesGetLightingIntermediateData2ndSpecular(lightingData2ndSpecular, lightingData, surfaceData);
+        CCSurfacesLightingCalculateIntermediateData_PerLight(lightingData2ndSpecular, surfaceData, -cc_mainLitDir.xyz);
+        CCSurfacesLightingCalculateDirect2ndSpecular(lightingResult.direct2ndSpecular, lightingData2ndSpecular, cc_mainLitColor, lightingResult.directSpecular);
+        CCSurfacesLightingCalculateEnvironment2ndSpecular(lightingResult.environment2ndSpecular, lightingData2ndSpecular, cc_ambientSky.w, lightingResult.environmentSpecular);
 
         vec3 diff;
-        SurfacesMaterialData surfaceDataTRT;
-        CCSurfacesGetSurfacesMaterialDataTRT(surfaceDataTRT, surfaceData);
-        CCSurfacesLightingInitializeColorWithLighting(diff, lightingResult.specularColorWithLightingTRT, surfaceDataTRT, lightingDataTRT);
+        SurfacesMaterialData surfaceData2ndSpecular;
+        CCSurfacesGetSurfacesMaterialData2ndSpecular(surfaceData2ndSpecular, surfaceData);
+        CCSurfacesLightingInitializeColorWithLighting(diff, lightingResult.specularColorWithLighting2ndSpecular, surfaceData2ndSpecular, lightingData2ndSpecular);
       #endif
 
       #if CC_SURFACES_LIGHTING_TT
