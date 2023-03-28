@@ -24,7 +24,7 @@
 
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { error, IVec3Like, Vec3 } from '../../../core';
-import { PhysicsSystem  } from '../../framework';
+import { CharacterControllerContact, PhysicsSystem  } from '../../framework';
 import { CharacterController } from '../../framework/components/character-controllers/character-controller';
 import { IBaseCharacterController } from '../../spec/i-character-controller';
 import { BulletCache } from '../bullet-cache';
@@ -32,8 +32,13 @@ import { bullet2CocosVec3, cocos2BulletVec3 } from '../bullet-utils';
 import { BulletWorld } from '../bullet-world';
 import { bt } from '../instantiated';
 import { PhysicsGroup } from '../../framework/physics-enum';
+import { BulletShape } from '../shapes/bullet-shape';
+import { BulletRigidBody } from '../bullet-rigid-body';
 
 const v3_0 = new Vec3(0, 0, 0);
+const v3_1 = new Vec3(0, 0, 0);
+const v3_2 = new Vec3(0, 0, 0);
+const emitHit = new CharacterControllerContact();
 export abstract class BulletCharacterController implements IBaseCharacterController {
     private _isEnabled = false;
     protected _impl: any = null;
@@ -87,7 +92,15 @@ export abstract class BulletCharacterController implements IBaseCharacterControl
             return false;
         } else {
             (PhysicsSystem.instance.physicsWorld as BulletWorld).addCCT(this);
+            this.setWrapper();
             return true;
+        }
+    }
+
+    setWrapper () {
+        if (BulletCache.isNotEmptyShape(this._impl)) {
+            //bt.CollisionShape_setUserPointer(this._impl, this._impl);
+            BulletCache.setWrapper(this._impl, bt.CCT_CACHE_NAME, this);
         }
     }
 
@@ -226,5 +239,28 @@ export abstract class BulletCharacterController implements IBaseCharacterControl
     //todo
     updateEventListener () {
         this.updateFilterData();
+    }
+
+    onShapeHitExt (hit: number) {
+        const worldPos = v3_0;
+        bullet2CocosVec3(worldPos, bt.ControllerHit_getHitWorldPos(hit));
+        const worldNormal = v3_1;
+        bullet2CocosVec3(worldNormal, bt.ControllerHit_getHitWorldNormal(hit));
+        const motionDir = v3_2;
+        bullet2CocosVec3(motionDir, bt.ControllerHit_getHitMotionDir(hit));
+        const shapePtr = bt.ControllerShapeHit_getHitShape(hit);
+        const shape: BulletShape = BulletCache.getWrapper(shapePtr, BulletShape.TYPE);
+        const motionLength = bt.ControllerHit_getHitMotionLength(hit);
+
+        const cct = this.characterController;
+        const collider = shape.collider;
+
+        emitHit.selfCCT = cct;
+        emitHit.otherCollider = collider;
+        emitHit.worldPosition.set(worldPos.x, worldPos.y, worldPos.z);
+        emitHit.worldNormal.set(worldNormal.x, worldNormal.y, worldNormal.z);
+        emitHit.motionDirection.set(motionDir.x, motionDir.y, motionDir.z);
+        emitHit.motionLength = motionLength;
+        cct?.emit('onColliderHit', cct, collider, emitHit);
     }
 }
