@@ -29,8 +29,10 @@ import { Space, ModuleRandSeed } from '../enum';
 import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
 import CurveRange from './curve-range';
 import { calculateTransform } from '../particle-general-function';
+import { CCBoolean } from '../../core';
 
 const LIMIT_VELOCITY_RAND_OFFSET = ModuleRandSeed.LIMIT;
+const LIMIT_DRAG_RAND_OFFSET = LIMIT_VELOCITY_RAND_OFFSET + 1;
 
 const animatedVelocity = new Vec3();
 const magVel = new Vec3();
@@ -132,10 +134,21 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
     @tooltip('i18n:limitVelocityOvertimeModule.space')
     public space = Space.Local;
 
-    // TODO:functions related to drag are temporarily not supported
-    public drag = null;
+    @type(CurveRange)
+    @serializable
+    @displayOrder(8)
+    public drag = new CurveRange();
+
+    @type(CCBoolean)
+    @serializable
+    @displayOrder(9)
     public multiplyDragByParticleSize = false;
+
+    @type(CCBoolean)
+    @serializable
+    @displayOrder(10)
     public multiplyDragByParticleVelocity = false;
+
     public name = PARTICLE_MODULE_NAME.LIMIT;
     private rotation: Quat;
     private invRot: Quat;
@@ -151,6 +164,27 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
 
     public update (space: number, worldTransform: Mat4) {
         this.needTransform = calculateTransform(space, this.space, worldTransform, this.rotation);
+    }
+
+    private applyDrag (p: Particle, dt: number, velNormalized: Vec3, velMag: number) {
+        if (this.drag.getMaxAbs() === 0.0) {
+            return;
+        }
+        const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
+        const dragCoefficient = this.drag.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_DRAG_RAND_OFFSET));
+        let maxDimension = p.size.x > p.size.y ? p.size.x : p.size.y;
+        maxDimension = maxDimension > p.size.z ? maxDimension : p.size.z;
+        maxDimension *= 0.5;
+        const circleArea = (Math.PI * maxDimension * maxDimension);
+
+        let dragN = dragCoefficient;
+        dragN *= this.multiplyDragByParticleSize ? circleArea : 1.0;
+        dragN *= this.multiplyDragByParticleVelocity ? velMag * velMag : 1.0;
+
+        let mag = velMag - dragN * dt;
+        mag = mag < 0 ? 0 : mag;
+
+        magVel.set(velNormalized.x * mag, velNormalized.y * mag, velNormalized.z * mag);
     }
 
     public animate (p: Particle, dt: number) {
@@ -172,6 +206,10 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
                 dampenBeyondLimit(magVel.y, limitY, this.dampen),
                 dampenBeyondLimit(magVel.z, limitZ, this.dampen));
 
+            Vec3.normalize(normalizedVel, magVel);
+            const velLen = magVel.length();
+            this.applyDrag(p, dt, normalizedVel, velLen);
+
             magVel.set(magVel.x - animatedVelocity.x, magVel.y - animatedVelocity.y, magVel.z - animatedVelocity.z);
 
             if (this.needTransform) {
@@ -180,11 +218,15 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
             }
         } else {
             const lmt = this.limit.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET));
-            const velLen = magVel.length();
+            let velLen = magVel.length();
             Vec3.normalize(normalizedVel, magVel);
 
             const damped = dampenBeyondLimit(velLen, lmt, this.dampen);
             magVel.set(normalizedVel.x * damped, normalizedVel.y * damped, normalizedVel.z * damped);
+
+            Vec3.normalize(normalizedVel, magVel);
+            velLen = magVel.length();
+            this.applyDrag(p, dt, normalizedVel, velLen);
 
             magVel.set(magVel.x - animatedVelocity.x, magVel.y - animatedVelocity.y, magVel.z - animatedVelocity.z);
         }
