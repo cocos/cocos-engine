@@ -39,4 +39,9 @@ export const importFunc = {
         const body = bt.CACHE.getWrapper(id, bt.BODY_CACHE_NAME);
         body.syncPhysicsToGraphics();
     },
+    onShapeHitExt (hit: number, controller: number) {
+        const bt = globalThis.Bullet;
+        const cct = bt.CACHE.getWrapper(controller, bt.CCT_CACHE_NAME);
+        cct.onShapeHitExt(hit);
+    },
 };

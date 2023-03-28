@@ -64,11 +64,13 @@ export enum EBulletTriangleRaycastFlag {
 interface instanceExt extends Bullet.instance {
     CACHE: any,
     BODY_CACHE_NAME: string,
+    CCT_CACHE_NAME: string,
 }
 
 export const bt: instanceExt = {} as any;
 globalThis.Bullet = bt;
 bt.BODY_CACHE_NAME = 'body';
+bt.CCT_CACHE_NAME = 'cct';
 
 export function waitForAmmoInstantiation () {
     // refer https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly
