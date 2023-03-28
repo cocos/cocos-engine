@@ -1468,9 +1468,9 @@ export class ArmatureDisplay extends UIRenderer {
         }
         if (this._armature && this._assembler) {
             this._renderData = this._assembler.createData(this);
-            if (this.renderData) {
-                this.maxVertexCount = this.renderData.vertexCount;
-                this.maxIndexCount = this.renderData.indexCount;
+            if (this._renderData) {
+                this.maxVertexCount = this._renderData.vertexCount;
+                this.maxIndexCount = this._renderData.indexCount;
             }
             this.markForUpdateRenderData();
             this._updateColor();

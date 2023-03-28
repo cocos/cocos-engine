@@ -186,10 +186,10 @@ export class MotionStreak extends UIRenderer {
             this._assembler = assembler;
         }
 
-        if (!this.renderData) {
+        if (!this._renderData) {
             if (this._assembler && this._assembler.createData) {
                 this._renderData = this._assembler.createData(this);
-                this.renderData!.material = this.material;
+                this._renderData!.material = this.material;
                 this._updateColor();
             }
         }
@@ -216,7 +216,7 @@ export class MotionStreak extends UIRenderer {
      */
     public reset () {
         this._points.length = 0;
-        if (this.renderData) this.renderData.clear();
+        if (this._renderData) this._renderData.clear();
     }
 
     public lateUpdate (dt) {
@@ -228,6 +228,6 @@ export class MotionStreak extends UIRenderer {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _render (render: IBatcher) {
-        render.commitComp(this, this.renderData, this._texture, this._assembler, null);
+        render.commitComp(this, this._renderData, this._texture, this._assembler, null);
     }
 }
