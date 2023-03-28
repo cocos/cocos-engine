@@ -582,7 +582,7 @@ export function buildBlurPass (camera: Camera,
         sampler.mipFilter = Filter.NONE;
         const computeView = new ComputeView();
         computeView.name = 'colorTex';
-        sssblurXPass.addComputeView(inputRT, computeView);
+        sssblurYPass.addComputeView(inputRT, computeView);
     }
     if (ppl.containsResource(inputDS)) {
         const verId = webPipeline.resourceGraph.vertex(inputDS);
@@ -592,7 +592,7 @@ export function buildBlurPass (camera: Camera,
         sampler.mipFilter = Filter.NONE;
         const computeView = new ComputeView();
         computeView.name = 'depthTex';
-        sssblurXPass.addComputeView(inputDS, computeView);
+        sssblurYPass.addComputeView(inputDS, computeView);
     }
     const sssBlurYPassView = new RasterView('_',
         AccessType.WRITE,
@@ -609,7 +609,7 @@ export function buildBlurPass (camera: Camera,
         StoreOp.STORE,
         camera.clearFlag,
         new Color(camera.clearDepth, camera.clearStencil, 0.0, 0.0));
-    sssblurYPass.addRasterView(blurPassDSName, sssBlurXPassDSView);
+    sssblurYPass.addRasterView(blurPassDSName, sssBlurYPassDSView);
     blurData.blurMaterial.setProperty('blurInfo', new Vec4(blurData.sssFov, blurData.sssWidth, blurData.depthUnitScale, 0), SSS_BLUR_Y_PASS_INDEX);
     blurData.blurMaterial.setProperty('kernel', kernel, SSS_BLUR_Y_PASS_INDEX);
     sssblurYPass.addQueue(QueueHint.RENDER_OPAQUE | QueueHint.RENDER_TRANSPARENT).addCameraQuad(
