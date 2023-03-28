@@ -1995,6 +1995,30 @@ static bool js_cc_Node_setParent(se::State& s)
 }
 SE_BIND_FUNC(js_cc_Node_setParent) 
 
+static bool js_cc_Node_modifyParent(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::Node *arg1 = (cc::Node *) NULL ;
+    cc::Node *arg2 = (cc::Node *) NULL ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::Node>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    (arg1)->modifyParent(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_Node_modifyParent) 
+
 static bool js_cc_Node_getScene(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -3912,6 +3936,7 @@ bool js_register_cc_Node(se::Object* obj) {
     
     cls->defineFunction("onPostActivated", _SE(js_cc_Node_onPostActivated)); 
     cls->defineFunction("setParent", _SE(js_cc_Node_setParent)); 
+    cls->defineFunction("modifyParent", _SE(js_cc_Node_modifyParent)); 
     cls->defineFunction("getScene", _SE(js_cc_Node_getScene)); 
     cls->defineFunction("walk", _SE(js_cc_Node_walk)); 
     cls->defineFunction("destroyAllChildren", _SE(js_cc_Node_destroyAllChildren)); 
