@@ -38,11 +38,6 @@ jobs:
           EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
           git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
           rm -rf native/external/.git
-      - name: Generate Bindings
-        run: |
-          cd ./native/tools/swig-config
-          node genbindings.js
-          git status
       - name: Update auto-gen source files 
         run: |
           cd native
