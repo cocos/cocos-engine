@@ -1,5 +1,8 @@
 globalThis.__taobaoRequire = (urlNoSchema) => {
-    require("./" + urlNoSchema);
+    if (urlNoSchema.startsWith('./')) {
+        urlNoSchema = urlNoSchema.replace('./', '');
+    }
+    require('./' + urlNoSchema);
 };
 loadCC();
 
