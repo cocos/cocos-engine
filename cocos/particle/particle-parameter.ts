@@ -31,29 +31,13 @@ const DEFAULT_CAPACITY = 16;
 const tempColor = new Color();
 const BATCH_OPERATION_THRESHOLD_VEC3 = 330;
 const BATCH_OPERATION_THRESHOLD = 1000;
-export abstract class ParticleParameter {
-    get capacity () {
-        return this._capacity;
-    }
 
-    get name () {
-        return this._name;
-    }
-
-    set name (val) {
-        this._name = val;
-    }
-
-    constructor (name: string) {
-        this._name = name;
-    }
-
-    abstract get type (): ParticleParameterType;
-    protected _capacity = DEFAULT_CAPACITY;
-    private _name = '';
-
-    abstract reserve (capacity: number);
-    abstract move (a: ParticleHandle, b: ParticleHandle);
+export enum ParticleParameterType {
+    FLOAT,
+    BOOL,
+    VEC3,
+    COLOR,
+    UINT32,
 }
 
 @ccclass('cc.ParticleParameterIdentity')
@@ -93,6 +77,30 @@ export class ParticleParameterIdentity {
         this._name = name;
         this._type = type;
     }
+}
+export abstract class ParticleParameter {
+    get capacity () {
+        return this._capacity;
+    }
+
+    get name () {
+        return this._name;
+    }
+
+    set name (val) {
+        this._name = val;
+    }
+
+    constructor (name: string) {
+        this._name = name;
+    }
+
+    abstract get type (): ParticleParameterType;
+    protected _capacity = DEFAULT_CAPACITY;
+    private _name = '';
+
+    abstract reserve (capacity: number);
+    abstract move (a: ParticleHandle, b: ParticleHandle);
 }
 
 export class ParticleVec3Parameter extends ParticleParameter {
@@ -376,14 +384,58 @@ export class ParticleFloatParameter extends ParticleParameter {
 }
 
 export class ParticleBoolParameter extends ParticleParameter {
-    get type (): ParticleParameterType {
-        throw new Error('Method not implemented.');
+    get data () {
+        return this._data;
     }
+
+    get type () {
+        return ParticleParameterType.BOOL;
+    }
+
+    private _data = new Uint8Array(this._capacity);
+
     reserve (capacity: number) {
-        throw new Error('Method not implemented.');
+        if (capacity <= this._capacity) return;
+        this._capacity = capacity;
+        const oldData = this._data;
+        this._data = new Uint8Array(capacity);
+        this._data.set(oldData);
     }
-    move (a: number, b: number) {
-        throw new Error('Method not implemented.');
+
+    move (a: ParticleHandle, b: ParticleHandle) {
+        this._data[b] = this._data[a];
+    }
+
+    getBoolAt (handle: ParticleHandle) {
+        return this._data[handle] !== 0;
+    }
+
+    setBoolAt (val: boolean, handle: ParticleHandle) {
+        this._data[handle] = val ? 1 : 0;
+    }
+
+    copyFrom (src: ParticleBoolParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+        if ((toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD) {
+            this._data.set(src._data.subarray(fromIndex, toIndex), fromIndex);
+        } else {
+            const destData = this._data;
+            const srcData = src._data;
+            for (let i = fromIndex; i < toIndex; i++) {
+                destData[i] = srcData[i];
+            }
+        }
+    }
+
+    fill (val: boolean, fromIndex: number, toIndex: number) {
+        const valNum = val ? 1 : 0;
+        if ((toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD) {
+            this._data.fill(valNum, fromIndex, toIndex);
+        } else {
+            const data = this._data;
+            for (let i = fromIndex; i < toIndex; i++) {
+                data[i] = valNum;
+            }
+        }
     }
 }
 
@@ -440,14 +492,6 @@ export class ParticleUint32Parameter extends ParticleParameter {
             }
         }
     }
-}
-
-export enum ParticleParameterType {
-    FLOAT,
-    BOOL,
-    VEC3,
-    COLOR,
-    UINT32,
 }
 
 export class ParticleColorParameter extends ParticleParameter {

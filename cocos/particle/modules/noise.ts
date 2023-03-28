@@ -27,12 +27,13 @@ import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
 import { assert, CCBoolean, CCFloat, CCInteger, Enum, warn } from '../../core';
 import { range, rangeMin, rangeStep, slide, visible } from '../../core/data/decorators/editable';
-import { approx, clamp, lerp, pseudoRandom, randomRangeInt, Vec2, Vec3 } from '../../core/math';
+import { approx, clamp, lerp, randomRangeInt, Vec2, Vec3 } from '../../core/math';
 import { CurveRange } from '../curve-range';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
-import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
+import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
 import { perlin1D, perlin2D, perlin3D, PerlinNoise1DCache, PerlinNoise2DCache, PerlinNoise3DCache } from './perlin-noise';
+import { RandNumGen } from '../rand-num-gen';
 
 const pos = new Vec3();
 const point3D = new Vec3();
@@ -44,9 +45,8 @@ const deltaVelocity = new Vec3();
 const rotationRate = new Vec3();
 const sizeScalar = new Vec3();
 const tempRemap = new Vec3();
-const RANDOM_SEED_OFFSET_X = 112331;
-const RANDOM_SEED_OFFSET_Y = 291830;
-const RANDOM_SEED_OFFSET_Z = 616728;
+const seed = new Vec3();
+const RANDOM_SEED_OFFSET = 112331;
 const RANDOM_SEED_OFFSET_POSITION = 943728;
 const RANDOM_SEED_OFFSET_ROTATION = 746210;
 const noiseXCache3D = new PerlinNoise3DCache();
@@ -74,104 +74,69 @@ export class NoiseModule extends ParticleModule {
 
     @type(CurveRange)
     @visible(function (this: NoiseModule) { return this.separateAxes; })
-    get strengthX () {
+    public get strengthX () {
         return this._strengthX;
     }
 
-    set strengthX (value) {
+    public set strengthX (value) {
         this._strengthX = value;
     }
 
     @type(CurveRange)
     @visible(function (this: NoiseModule) { return this.separateAxes; })
-    get strengthY () {
+    public get strengthY () {
         if (!this._strengthY) {
             this._strengthY = new CurveRange(1);
         }
         return this._strengthY;
     }
-    set strengthY (value) {
+    public set strengthY (value) {
         this._strengthY = value;
     }
 
     @type(CurveRange)
     @visible(function (this: NoiseModule) { return this.separateAxes; })
-    get strengthZ () {
+    public get strengthZ () {
         if (!this._strengthZ) {
             this._strengthZ = new CurveRange(1);
         }
         return this._strengthZ;
     }
-    set strengthZ (value) {
+    public set strengthZ (value) {
         this._strengthZ = value;
     }
 
     @type(CurveRange)
     @visible(function (this: NoiseModule) { return !this.separateAxes; })
-    get strength () {
+    public get strength () {
         return this.strengthX;
     }
 
-    set strength (val) {
+    public set strength (val) {
         this.strengthX = val;
     }
 
     @type(CCFloat)
     @rangeMin(0.0001)
-    get frequency () {
+    public get frequency () {
         return this._frequency;
     }
-    set frequency (value) {
+    public set frequency (value) {
         this._frequency = value;
     }
 
     @type(CurveRange)
-    get scrollSpeed () {
+    public get scrollSpeed () {
         return this._scrollSpeed;
     }
 
-    set scrollSpeed (val) {
+    public set scrollSpeed (val) {
         this._scrollSpeed = val;
     }
 
     @serializable
     @visible(true)
     public damping = true;
-
-    @type(CCInteger)
-    @range([1, 4])
-    @rangeStep(1)
-    @slide
-    get octaves () {
-        return this._octaves;
-    }
-    set octaves (value: number) {
-        this._octaves = value;
-    }
-
-    // eslint-disable-next-line func-names
-    @visible(function (this: NoiseModule) { return this._octaves > 1; })
-    @type(CCFloat)
-    @range([0, 1])
-    @rangeStep(0.1)
-    get octaveMultiplier () {
-        return this._octaveMultiplier;
-    }
-    set octaveMultiplier (value: number) {
-        this._octaveMultiplier = value;
-    }
-
-    // eslint-disable-next-line func-names
-    @visible(function (this: NoiseModule) { return this._octaves > 1; })
-    @type(CCFloat)
-    @range([1, 4])
-    @rangeStep(0.1)
-    get octaveScale () {
-        return this._octaveScale;
-    }
-    set octaveScale (value: number) {
-        this._octaveScale = value;
-    }
 
     @type(Enum(Quality))
     @serializable
@@ -185,49 +150,49 @@ export class NoiseModule extends ParticleModule {
     @type(CurveRange)
     @range([-1, 1])
     @visible(function (this: NoiseModule) { return this.enableRemap && this.separateAxes; })
-    get remapX () {
+    public get remapX () {
         if (!this._remapX) {
             this._remapX = new CurveRange(1);
         }
         return this._remapX;
     }
-    set remapX (value) {
+    public set remapX (value) {
         this._remapX = value;
     }
 
     @type(CurveRange)
     @range([-1, 1])
     @visible(function (this: NoiseModule) { return this.enableRemap && this.separateAxes; })
-    get remapY () {
+    public get remapY () {
         if (!this._remapY) {
             this._remapY = new CurveRange(1);
         }
         return this._remapY;
     }
-    set remapY (value) {
+    public set remapY (value) {
         this._remapY = value;
     }
 
     @type(CurveRange)
     @range([-1, 1])
     @visible(function (this: NoiseModule) { return this.enableRemap && this.separateAxes; })
-    get remapZ () {
+    public get remapZ () {
         if (!this._remapZ) {
             this._remapZ = new CurveRange(1);
         }
         return this._remapZ;
     }
-    set remapZ (value) {
+    public set remapZ (value) {
         this._remapZ = value;
     }
 
     @type(CurveRange)
     @range([-1, 1])
     @visible(function (this: NoiseModule) { return this.enableRemap && !this.separateAxes; })
-    get remapCurve () {
+    public get remapCurve () {
         return this.remapX;
     }
-    set remapCurve (value) {
+    public set remapCurve (value) {
         this.remapX = value;
     }
 
@@ -262,19 +227,18 @@ export class NoiseModule extends ParticleModule {
     private _remapY: CurveRange | null = null;
     @serializable
     private _remapZ: CurveRange | null = null;
-    @serializable
-    private _octaves = 1;
-    @serializable
-    private _octaveScale = 2;
-    @serializable
-    private _octaveMultiplier = 0.5;
 
-    private _randomSeed = randomRangeInt(0, 233280);
     private _scrollOffset = 0;
-    private _offsetX = 0;
-    private _offsetY = 0;
-    private _offsetZ = 0;
+    private _offset = new Vec3();
     private _amplitudeScale = 1;
+
+    private _randomSeed = 0;
+
+    public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {
+        this._randomSeed = state.rand.getUInt32();
+        RandNumGen.get3Float(this._randomSeed, this._offset);
+        this._offset.multiplyScalar(100);
+    }
 
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         this._scrollOffset += this._scrollSpeed.evaluate(context.emitterNormalizedTime, 1) * context.emitterDeltaTime;
@@ -296,9 +260,6 @@ export class NoiseModule extends ParticleModule {
             }
         }
         this.frequency = Math.max(this.frequency, 0.0001);
-        this._offsetX = pseudoRandom(this._randomSeed + RANDOM_SEED_OFFSET_X) * 100;
-        this._offsetY = pseudoRandom(this._randomSeed + RANDOM_SEED_OFFSET_Y) * 100;
-        this._offsetZ = pseudoRandom(this._randomSeed + RANDOM_SEED_OFFSET_Z) * 100;
         this._amplitudeScale = this.damping ? (1 / this.frequency) : 1;
         context.markRequiredParameter(BuiltinParticleParameter.VEC3_REGISTER);
         if (!approx(this.positionAmount.getScalar(), 0)) {
@@ -330,85 +291,45 @@ export class NoiseModule extends ParticleModule {
         const { vec3Register } = particles;
         const { fromIndex, toIndex, deltaTime } = context;
         const scrollOffset = this._scrollOffset;
-        const offsetX = this._offsetX;
-        const offsetY = this._offsetY;
-        const offsetZ = this._offsetZ;
         const amplitudeScale = this._amplitudeScale;
         const frequency = this.frequency;
-        const { octaves,  octaveScale, octaveMultiplier } = this;
-
+        const offset = this._offset;
         const hasPosition = particles.hasParameter(BuiltinParticleParameter.POSITION);
         const samplePosition = hasPosition ? particles.position : vec3Register;
         if (!hasPosition) {
             samplePosition.fill1f(0, fromIndex, toIndex);
         }
 
-        if (octaves > 1) {
-            if (this.quality === Quality.MIDDLE) {
-                for (let i = fromIndex; i < toIndex; i++) {
-                    samplePosition.getVec3At(pos, i);
-                    pos.add3f(offsetX, offsetY, offsetZ);
-                    Vec2.set(point2D, pos.z, pos.y + scrollOffset);
-                    accumulateNoise2D(sampleX, point2D, frequency, noiseXCache2D, octaves, octaveScale, octaveMultiplier);
-                    Vec2.set(point2D, pos.x + 100, pos.z + scrollOffset);
-                    accumulateNoise2D(sampleY, point2D, frequency, noiseYCache2D, octaves, octaveScale, octaveMultiplier);
-                    Vec2.set(point2D, pos.y, pos.x + 100 + scrollOffset);
-                    accumulateNoise2D(sampleZ, point2D, frequency, noiseZCache2D, octaves, octaveScale, octaveMultiplier);
-                    vec3Register.set3fAt(sampleZ.x - sampleY.y, sampleX.x - sampleZ.y, sampleY.x - sampleX.y, i);
-                }
-            } else if (this.quality === Quality.HIGH) {
-                for (let i = fromIndex; i < toIndex; i++) {
-                    samplePosition.getVec3At(pos, i);
-                    pos.add3f(offsetX, offsetY, offsetZ);
-                    Vec3.set(point3D, pos.z, pos.y, pos.x + scrollOffset);
-                    accumulateNoise3D(sampleX, point3D, frequency, noiseXCache3D, octaves, octaveScale, octaveMultiplier);
-                    Vec3.set(point3D, pos.x + 100, pos.z, pos.y + scrollOffset);
-                    accumulateNoise3D(sampleY, point3D, frequency, noiseYCache3D, octaves, octaveScale, octaveMultiplier);
-                    Vec3.set(point3D, pos.y, pos.x + 100, pos.z + scrollOffset);
-                    accumulateNoise3D(sampleZ, point3D, frequency, noiseZCache3D, octaves, octaveScale, octaveMultiplier);
-                    vec3Register.set3fAt(sampleZ.x - sampleY.y, sampleX.x - sampleZ.y, sampleY.x - sampleX.y, i);
-                }
-            } else {
-                for (let i = fromIndex; i < toIndex; i++) {
-                    samplePosition.getVec3At(pos, i);
-                    pos.add3f(offsetX, offsetY, offsetZ);
-                    accumulateNoise1D(sampleX, pos.z + scrollOffset, frequency, noiseXCache1D, octaves, octaveScale, octaveMultiplier);
-                    accumulateNoise1D(sampleY, pos.x + 100 + scrollOffset, frequency, noiseYCache1D, octaves, octaveScale, octaveMultiplier);
-                    accumulateNoise1D(sampleZ, pos.y + scrollOffset, frequency, noiseZCache1D, octaves, octaveScale, octaveMultiplier);
-                    vec3Register.set3fAt(sampleZ.x - sampleY.y, sampleX.x - sampleZ.y, sampleY.x - sampleX.y, i);
-                }
+        // eslint-disable-next-line no-lonely-if
+        if (this.quality === Quality.HIGH) {
+            for (let i = fromIndex; i < toIndex; i++) {
+                samplePosition.getVec3At(pos, i);
+                pos.add(offset);
+                perlin3D(sampleX, Vec3.set(point3D, pos.z, pos.y, pos.x + scrollOffset), frequency, noiseXCache3D);
+                perlin3D(sampleY, Vec3.set(point3D, pos.x + 100, pos.z, pos.y + scrollOffset), frequency, noiseYCache3D);
+                perlin3D(sampleZ, Vec3.set(point3D, pos.y, pos.x + 100, pos.z + scrollOffset), frequency, noiseZCache3D);
+                vec3Register.set3fAt(sampleZ.x - sampleY.y, sampleX.x - sampleZ.y, sampleY.x - sampleX.y, i);
+            }
+        } else if (this.quality === Quality.MIDDLE) {
+            for (let i = fromIndex; i < toIndex; i++) {
+                samplePosition.getVec3At(pos, i);
+                pos.add(offset);
+                perlin2D(sampleX, Vec2.set(point2D, pos.z, pos.y + scrollOffset), frequency, noiseXCache2D);
+                perlin2D(sampleY, Vec2.set(point2D, pos.x + 100, pos.z + scrollOffset), frequency, noiseYCache2D);
+                perlin2D(sampleZ, Vec2.set(point2D, pos.y, pos.x + 100 + scrollOffset), frequency, noiseZCache2D);
+                vec3Register.set3fAt(sampleZ.x - sampleY.y, sampleX.x - sampleZ.y, sampleY.x - sampleX.y, i);
             }
         } else {
-            // eslint-disable-next-line no-lonely-if
-            if (this.quality === Quality.HIGH) {
-                for (let i = fromIndex; i < toIndex; i++) {
-                    samplePosition.getVec3At(pos, i);
-                    pos.add3f(offsetX, offsetY, offsetZ);
-                    perlin3D(sampleX, Vec3.set(point3D, pos.z, pos.y, pos.x + scrollOffset), frequency, noiseXCache3D);
-                    perlin3D(sampleY, Vec3.set(point3D, pos.x + 100, pos.z, pos.y + scrollOffset), frequency, noiseYCache3D);
-                    perlin3D(sampleZ, Vec3.set(point3D, pos.y, pos.x + 100, pos.z + scrollOffset), frequency, noiseZCache3D);
-                    vec3Register.set3fAt(sampleZ.x - sampleY.y, sampleX.x - sampleZ.y, sampleY.x - sampleX.y, i);
-                }
-            } else if (this.quality === Quality.MIDDLE) {
-                for (let i = fromIndex; i < toIndex; i++) {
-                    samplePosition.getVec3At(pos, i);
-                    pos.add3f(offsetX, offsetY, offsetZ);
-                    perlin2D(sampleX, Vec2.set(point2D, pos.z, pos.y + scrollOffset), frequency, noiseXCache2D);
-                    perlin2D(sampleY, Vec2.set(point2D, pos.x + 100, pos.z + scrollOffset), frequency, noiseYCache2D);
-                    perlin2D(sampleZ, Vec2.set(point2D, pos.y, pos.x + 100 + scrollOffset), frequency, noiseZCache2D);
-                    vec3Register.set3fAt(sampleZ.x - sampleY.y, sampleX.x - sampleZ.y, sampleY.x - sampleX.y, i);
-                }
-            } else {
-                for (let i = fromIndex; i < toIndex; i++) {
-                    samplePosition.getVec3At(pos, i);
-                    pos.add3f(offsetX, offsetY, offsetZ);
-                    perlin1D(sampleX, pos.z + scrollOffset, frequency, noiseXCache1D);
-                    perlin1D(sampleY, pos.x + 100 + scrollOffset, frequency, noiseYCache1D);
-                    perlin1D(sampleZ, pos.y + scrollOffset, frequency, noiseZCache1D);
-                    vec3Register.set3fAt(sampleZ.x - sampleY.y, sampleX.x - sampleZ.y, sampleY.x - sampleX.y, i);
-                }
+            for (let i = fromIndex; i < toIndex; i++) {
+                samplePosition.getVec3At(pos, i);
+                pos.add(offset);
+                perlin1D(sampleX, pos.z + scrollOffset, frequency, noiseXCache1D);
+                perlin1D(sampleY, pos.x + 100 + scrollOffset, frequency, noiseYCache1D);
+                perlin1D(sampleZ, pos.y + scrollOffset, frequency, noiseZCache1D);
+                vec3Register.set3fAt(sampleZ.x - sampleY.y, sampleX.x - sampleZ.y, sampleY.x - sampleX.y, i);
             }
         }
+
         // remap
         if (this.enableRemap) {
             if (this.separateAxes) {
@@ -469,10 +390,10 @@ export class NoiseModule extends ParticleModule {
                 const zMin = this.strengthZ.constantMin * amplitudeScale;
                 const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const seed = randomSeed[i];
-                    vec3Register.multiply3fAt(lerp(xMin, xMax, pseudoRandom(seed + RANDOM_SEED_OFFSET_X)),
-                        lerp(yMin, yMax, pseudoRandom(seed + RANDOM_SEED_OFFSET_Y)),
-                        lerp(zMin, zMax, pseudoRandom(seed + RANDOM_SEED_OFFSET_Z)), i);
+                    const ratio = RandNumGen.get3Float(randomSeed[i] + RANDOM_SEED_OFFSET, seed);
+                    vec3Register.multiply3fAt(lerp(xMin, xMax, ratio.x),
+                        lerp(yMin, yMax, ratio.y),
+                        lerp(zMin, zMax, ratio.z), i);
                 }
             } else {
                 const { splineMin: xMin, splineMax: xMax } = this.strengthX;
@@ -485,11 +406,11 @@ export class NoiseModule extends ParticleModule {
                 const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const life = normalizedAliveTime[i];
-                    const seed = randomSeed[i];
+                    const ratio = RandNumGen.get3Float(randomSeed[i] + RANDOM_SEED_OFFSET, seed);
                     vec3Register.multiply3fAt(
-                        lerp(xMin.evaluate(life), xMax.evaluate(life), pseudoRandom(seed + RANDOM_SEED_OFFSET_X)) * xMultiplier,
-                        lerp(yMin.evaluate(life), yMax.evaluate(life), pseudoRandom(seed + RANDOM_SEED_OFFSET_Y)) * yMultiplier,
-                        lerp(zMin.evaluate(life), zMax.evaluate(life), pseudoRandom(seed + RANDOM_SEED_OFFSET_Z)) * zMultiplier, i,
+                        lerp(xMin.evaluate(life), xMax.evaluate(life), ratio.x) * xMultiplier,
+                        lerp(yMin.evaluate(life), yMax.evaluate(life), ratio.y) * yMultiplier,
+                        lerp(zMin.evaluate(life), zMax.evaluate(life), ratio.z) * zMultiplier, i,
                     );
                 }
             }
@@ -513,7 +434,7 @@ export class NoiseModule extends ParticleModule {
                 const constantMin = this.strengthX.constantMin * amplitudeScale;
                 const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const amplitude = lerp(constantMin, constantMax, pseudoRandom(randomSeed[i]));
+                    const amplitude = lerp(constantMin, constantMax, RandNumGen.getFloat(randomSeed[i] + RANDOM_SEED_OFFSET));
                     vec3Register.multiply1fAt(amplitude, i);
                 }
             } else {
@@ -524,7 +445,7 @@ export class NoiseModule extends ParticleModule {
                 for (let i = fromIndex; i < toIndex; i++) {
                     const life = normalizedAliveTime[i];
                     const amplitude = lerp(splineMin.evaluate(life),
-                        splineMax.evaluate(life), pseudoRandom(randomSeed[i])) * multiplier;
+                        splineMax.evaluate(life), RandNumGen.getFloat(randomSeed[i] + RANDOM_SEED_OFFSET)) * multiplier;
                     vec3Register.multiply1fAt(amplitude, i);
                 }
             }
@@ -552,7 +473,7 @@ export class NoiseModule extends ParticleModule {
                 const { constantMin, constantMax } = this.positionAmount;
                 const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const amount = lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + RANDOM_SEED_OFFSET_POSITION));
+                    const amount = lerp(constantMin, constantMax, RandNumGen.getFloat(randomSeed[i] + RANDOM_SEED_OFFSET_POSITION));
                     vec3Register.getVec3At(deltaVelocity, i);
                     Vec3.multiplyScalar(deltaVelocity, deltaVelocity, amount);
                     velocity.addVec3At(deltaVelocity, i);
@@ -563,7 +484,7 @@ export class NoiseModule extends ParticleModule {
                 const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const life = normalizedAliveTime[i];
-                    const amount = lerp(splineMin.evaluate(life), splineMax.evaluate(life), pseudoRandom(randomSeed[i] + RANDOM_SEED_OFFSET_POSITION)) * multiplier;
+                    const amount = lerp(splineMin.evaluate(life), splineMax.evaluate(life), RandNumGen.getFloat(randomSeed[i] + RANDOM_SEED_OFFSET_POSITION)) * multiplier;
                     vec3Register.getVec3At(deltaVelocity, i);
                     Vec3.multiplyScalar(deltaVelocity, deltaVelocity, amount);
                     velocity.addVec3At(deltaVelocity, i);
@@ -594,7 +515,7 @@ export class NoiseModule extends ParticleModule {
                 const { constantMin, constantMax } = this.rotationAmount;
                 const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const amount = lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + RANDOM_SEED_OFFSET_ROTATION)) * deltaTime;
+                    const amount = lerp(constantMin, constantMax, RandNumGen.getFloat(randomSeed[i] + RANDOM_SEED_OFFSET_ROTATION)) * deltaTime;
                     vec3Register.getVec3At(rotationRate, i);
                     Vec3.multiplyScalar(rotationRate, rotationRate, amount);
                     rotation.addVec3At(rotationRate, i);
@@ -606,7 +527,7 @@ export class NoiseModule extends ParticleModule {
                 const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const life = normalizedAliveTime[i];
-                    const amount = lerp(splineMin.evaluate(life), splineMax.evaluate(life), pseudoRandom(randomSeed[i] + RANDOM_SEED_OFFSET_ROTATION)) * multiplier;
+                    const amount = lerp(splineMin.evaluate(life), splineMax.evaluate(life), RandNumGen.getFloat(randomSeed[i] + RANDOM_SEED_OFFSET_ROTATION)) * multiplier;
                     vec3Register.getVec3At(rotationRate, i);
                     Vec3.multiplyScalar(rotationRate, rotationRate, amount);
                     rotation.addVec3At(rotationRate, i);
@@ -634,7 +555,7 @@ export class NoiseModule extends ParticleModule {
                 const { constantMin, constantMax } = this.sizeAmount;
                 const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const amount = lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + RANDOM_SEED_OFFSET_ROTATION));
+                    const amount = lerp(constantMin, constantMax, RandNumGen.getFloat(randomSeed[i] + RANDOM_SEED_OFFSET_ROTATION));
                     vec3Register.getVec3At(sizeScalar, i);
                     size.multiply3fAt(sizeScalar.x * amount + 1, sizeScalar.y * amount + 1, sizeScalar.z * amount + 1, i);
                 }
@@ -644,7 +565,7 @@ export class NoiseModule extends ParticleModule {
                 const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const life = normalizedAliveTime[i];
-                    const amount = lerp(splineMin.evaluate(life), splineMax.evaluate(life), pseudoRandom(randomSeed[i] + RANDOM_SEED_OFFSET_ROTATION)) * multiplier;
+                    const amount = lerp(splineMin.evaluate(life), splineMax.evaluate(life), RandNumGen.getFloat(randomSeed[i] + RANDOM_SEED_OFFSET_ROTATION)) * multiplier;
                     vec3Register.getVec3At(sizeScalar, i);
                     size.multiply3fAt(sizeScalar.x * amount + 1, sizeScalar.y * amount + 1, sizeScalar.z * amount + 1, i);
                 }
@@ -662,7 +583,7 @@ export class NoiseModule extends ParticleModule {
 
     protected getSerializedProps () {
         const serializedProps = ['separateAxes', '_strengthX', '_scrollSpeed', '_frequency',
-            'enableRemap', '_octaves', '_octaveScale', '_octaveMultiplier', 'quality', 'damping'];
+            'enableRemap', 'quality', 'damping'];
         if (this.enableRemap) {
             serializedProps.push('_remapX');
         }
@@ -674,45 +595,4 @@ export class NoiseModule extends ParticleModule {
         }
         return serializedProps;
     }
-}
-
-const tempSample = new Vec2();
-
-function accumulateNoise1D (outSample: Vec2, pos: number, frequency: number, cache: PerlinNoise1DCache, octaveToIndex: number, octaveScale: number, octaveMultiplier: number) {
-    const sum = perlin1D(outSample, pos, frequency, cache);
-    let amplitude = 1;
-    let range = 1;
-    for (let i = 1; i < octaveToIndex; i++) {
-        frequency *= octaveScale;
-        amplitude *= octaveMultiplier;
-        range += amplitude;
-        Vec2.scaleAndAdd(sum, sum, perlin1D(tempSample, pos, frequency, cache), amplitude);
-    }
-    return Vec2.multiplyScalar(sum, sum, 1 / range);
-}
-
-function accumulateNoise2D (outSample: Vec2, pos: Vec2, frequency: number, cache: PerlinNoise2DCache, octaveToIndex: number, octaveScale: number, octaveMultiplier: number) {
-    const sum = perlin2D(outSample, pos, frequency, cache);
-    let amplitude = 1;
-    let range = 1;
-    for (let i = 1; i < octaveToIndex; i++) {
-        frequency *= octaveScale;
-        amplitude *= octaveMultiplier;
-        range += amplitude;
-        Vec2.scaleAndAdd(sum, sum, perlin2D(tempSample, pos, frequency, cache), amplitude);
-    }
-    return Vec2.multiplyScalar(sum, sum, 1 / range);
-}
-
-function accumulateNoise3D (outSample: Vec2, pos: Vec3, frequency: number, cache: PerlinNoise3DCache, octaveToIndex: number, octaveScale: number, octaveMultiplier: number) {
-    const sum = perlin3D(outSample, pos, frequency, cache);
-    let amplitude = 1;
-    let range = 1;
-    for (let i = 1; i < octaveToIndex; i++) {
-        frequency *= octaveScale;
-        amplitude *= octaveMultiplier;
-        range += amplitude;
-        Vec2.scaleAndAdd(sum, sum, perlin3D(tempSample, pos, frequency, cache), amplitude);
-    }
-    return Vec2.multiplyScalar(sum, sum, 1 / range);
 }

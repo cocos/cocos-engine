@@ -95,61 +95,6 @@ export enum AlignmentSpace {
 }
 
 /**
- * 粒子的生成模式。
- * @enum ParticleSystemRenderer.RenderMode
- */
-export enum RenderMode {
-    /**
-     * 粒子始终面向摄像机。
-     */
-    BILLBOARD,
-    // /**
-    //  * @deprecated since v3.8, please use RenderMode.BILLBOARD instead
-    //  */
-    // Billboard = BILLBOARD,
-
-    /**
-     * 粒子始终面向摄像机但会根据参数进行拉伸。
-     */
-    STRETCHED_BILLBOARD,
-
-    // /**
-    //  * @deprecated since v3.8, please use RenderMode.STRETCHED_BILLBOARD instead
-    //  */
-    // StrecthedBillboard = STRETCHED_BILLBOARD,
-
-    /**
-     * 粒子始终与 XZ 平面平行。
-     */
-    HORIZONTAL_BILLBOARD,
-
-    // /**
-    //  * @deprecated since v3.8, please use RenderMode.HORIZONTAL_BILLBOARD instead
-    //  */
-    // HorizontalBillboard = HORIZONTAL_BILLBOARD,
-
-    /**
-     * 粒子始终与 Y 轴平行且朝向摄像机。
-     */
-    VERTICAL_BILLBOARD,
-
-    // /**
-    //  * @deprecated since v3.8, please use RenderMode.VERTICAL_BILLBOARD instead
-    //  */
-    // VerticalBillboard = VERTICAL_BILLBOARD,
-
-    /**
-     * 粒子保持模型本身状态。
-     */
-    MESH,
-
-    // /**
-    //  * @deprecated since v3.8, please use RenderMode.MESH instead
-    //  */
-    // Mesh = MESH,
-}
-
-/**
  * 选择如何为粒子系统生成轨迹。
  * @enum trailModule.TrailMode
  */

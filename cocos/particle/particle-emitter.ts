@@ -26,7 +26,7 @@
 // eslint-disable-next-line max-len
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, type, range, displayName, formerlySerializedAs, override, radian, serializable, visible, requireComponent, rangeMin } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { approx, clamp01, Color, EPSILON, lerp, Mat3, Mat4, pseudoRandom, Quat, randomRangeInt, Size, Vec2, Vec3, Vec4 } from '../core/math';
+import { approx, clamp01, Color, EPSILON, lerp, Mat3, Mat4, Quat, randomRangeInt, Size, Vec2, Vec3, Vec4 } from '../core/math';
 import { countTrailingZeros, INT_MAX } from '../core/math/bits';
 import { MultiplyColorModule } from './modules/multiply-color';
 import { CurveRange, Mode } from './curve-range';
@@ -728,6 +728,7 @@ export class ParticleEmitter extends Component {
         }
 
         this.handleEvents();
+        this.removeDeadParticles(particles, params, context);
         this.updateBounds();
     }
 
@@ -749,6 +750,17 @@ export class ParticleEmitter extends Component {
 
     private updateBounds () {
 
+    }
+
+    private removeDeadParticles (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+        if (particles.hasParameter(BuiltinParticleParameter.IS_DEAD)) {
+            const isDead = particles.isDead.data;
+            for (let i = particles.count - 1; i >= 0; i--) {
+                if (isDead[i]) {
+                    particles.removeParticle(i);
+                }
+            }
+        }
     }
 
     private handleEvents () {
@@ -837,7 +849,7 @@ export class ParticleEmitter extends Component {
             this.spawnParticles(particles, params, context, burstCount);
         }
         const toIndex = particles.count;
-        const { emitterDeltaTime, emitterNormalizedTime, emitterNormalizedPrevTime } = context;
+        const { emitterDeltaTime } = context;
         if (particles.hasParameter(BuiltinParticleParameter.POSITION)) {
             const initialPosition = context.emitterTransform.getTranslation(tempPosition);
             const { position } = particles;
@@ -854,17 +866,16 @@ export class ParticleEmitter extends Component {
                 position.fill(initialPosition, fromIndex, toIndex);
             }
         }
-        if (particles.hasParameter(BuiltinParticleParameter.SPAWN_NORMALIZED_TIME)) {
+        if (particles.hasParameter(BuiltinParticleParameter.SPAWN_TIME_RATIO)) {
             if (!approx(interval, 0) && numContinuous > 0) {
-                const spawnTime = particles.spawnNormalizedTime.data;
+                const spawnTime = particles.spawnTimeRatio.data;
                 for (let i = fromIndex, num = 0, length = fromIndex + numContinuous; i < length; i++, num++) {
                     const offset = clamp01((spawnFraction + num) * interval);
-                    const time = lerp(emitterNormalizedTime, emitterNormalizedPrevTime, offset);
-                    spawnTime[i] = time;
+                    spawnTime[i] = offset;
                 }
-                particles.spawnNormalizedTime.fill(emitterNormalizedTime, fromIndex + numContinuous, toIndex);
+                particles.spawnTimeRatio.fill(0, fromIndex + numContinuous, toIndex);
             } else {
-                particles.spawnNormalizedTime.fill(emitterNormalizedTime, fromIndex, toIndex);
+                particles.spawnTimeRatio.fill(0, fromIndex, toIndex);
             }
         }
         if (particles.hasParameter(BuiltinParticleParameter.BASE_VELOCITY)) {

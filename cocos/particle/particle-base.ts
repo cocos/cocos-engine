@@ -339,22 +339,33 @@ export class ParticleExecContext {
     // end simulation range
 
     // execution range
-    public fromIndex = 0;
-    public toIndex = 0;
-    public executionStage = ModuleExecStage.NONE;
+    public get fromIndex () {
+        return this._fromIndex;
+    }
+
+    public get toIndex () {
+        return this._toIndex;
+    }
+
+    public get executionStage () {
+        return this._executionStage;
+    }
     // end execution range
 
+    private _fromIndex = 0;
+    private _toIndex = 0;
+    private _executionStage = ModuleExecStage.NONE;
     private _requiredParameters = new BitsBucket();
     private _locationEvents: ParticleEvents | null = null;
     private _deathEvents: ParticleEvents | null = null;
 
     setExecutionStage (stage: ModuleExecStage) {
-        this.executionStage = stage;
+        this._executionStage = stage;
     }
 
     setExecuteRange (fromIndex: number, toIndex: number) {
-        this.fromIndex = fromIndex;
-        this.toIndex = toIndex;
+        this._fromIndex = fromIndex;
+        this._toIndex = toIndex;
     }
 
     setEmitterTime (currentTime: number, previousTime: number, invCycle: number) {
@@ -388,7 +399,7 @@ export class ParticleExecContext {
         this._deathEvents?.clear();
         this._locationEvents?.clear();
         this._requiredParameters.clear();
-        this.executionStage = ModuleExecStage.NONE;
+        this._executionStage = ModuleExecStage.NONE;
         this.setExecuteRange(0, 0);
         this.resetSpawningState();
     }

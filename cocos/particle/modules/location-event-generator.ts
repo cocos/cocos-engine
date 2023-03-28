@@ -23,13 +23,14 @@
  THE SOFTWARE.
  */
 
-import { approx, BitMask, CCFloat, Color, Enum, EPSILON, Mat4, pseudoRandom, Quat, Vec3, warn } from '../../core';
+import { approx, BitMask, CCFloat, Color, Enum, EPSILON, Mat4, Quat, Vec3, warn } from '../../core';
 import { ccclass, range, serializable, type, visible } from '../../core/data/decorators';
 import { Space } from '../enum';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
 import { ParticleColorParameter, ParticleVec3Parameter } from '../particle-parameter';
 import { ParticleExecContext, ParticleEmitterParams, ParticleEventInfo } from '../particle-base';
+import { RandNumGen } from '../rand-num-gen';
 
 const PROBABILITY_RANDOM_SEED_OFFSET = 199208;
 const eventInfo = new ParticleEventInfo();
@@ -84,7 +85,7 @@ export class LocationEventGeneratorModule extends ParticleModule {
         }
         if (!approx(this.probability, 0)) {
             for (let i = fromIndex; i < toIndex; i++) {
-                if (pseudoRandom(randomSeed[i] + PROBABILITY_RANDOM_SEED_OFFSET) > this.probability) {
+                if (RandNumGen.getFloat(randomSeed[i] + PROBABILITY_RANDOM_SEED_OFFSET) > this.probability) {
                     continue;
                 }
                 Vec3.zero(eventInfo.position);

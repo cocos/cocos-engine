@@ -1,9 +1,34 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
 import { ShapeModule } from './shape';
 import { ccclass, displayOrder, serializable, tooltip, type, visible } from '../../core/data/decorators';
 import { ModuleExecStage, ParticleModule } from '../particle-module';
 import { Enum, Vec3 } from '../../core';
 import { ParticleDataSet } from '../particle-data-set';
-import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
+import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
+import { RandNumGen } from '../rand-num-gen';
 
 export enum EmitFrom {
     VOLUME,
@@ -11,6 +36,7 @@ export enum EmitFrom {
     SHELL,
 }
 
+const tempPosition = new Vec3();
 @ccclass('cc.BoxShapeModule')
 @ParticleModule.register('BoxShape', ModuleExecStage.SPAWN)
 export class BoxShapeModule extends ShapeModule {
@@ -24,50 +50,66 @@ export class BoxShapeModule extends ShapeModule {
     @visible(function (this: BoxShapeModule) { return this.emitFrom !== EmitFrom.VOLUME; })
     public boxThickness = new Vec3(0, 0, 0);
 
-    private _boxThickness = new Vec3(0, 0, 0);
+    private _thicknessPercent = new Vec3(0, 0, 0);
+    private _rand = new RandNumGen();
+
+    public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {
+        this._rand.seed = state.rand.getUInt32();
+    }
 
     public tick (particles: ParticleDataSet,  params: ParticleEmitterParams, context: ParticleExecContext) {
         super.tick(particles, params, context);
-        this._boxThickness.set(1 - this.boxThickness.x, 1 - this.boxThickness.y, 1 - this.boxThickness.z);
+        this._thicknessPercent.set(1 - this.boxThickness.x, 1 - this.boxThickness.y, 1 - this.boxThickness.z);
     }
 
     public execute (particles: ParticleDataSet,  params: ParticleEmitterParams, context: ParticleExecContext) {
-        const boxThickness = this._boxThickness;
+        const thicknessPercent = this._thicknessPercent;
         const { fromIndex, toIndex } = context;
-        const { position, startDir, vec3Register } = particles;
+        const { startDir, vec3Register } = particles;
+        const rand = this._rand;
         switch (this.emitFrom) {
         case EmitFrom.VOLUME:
             for (let i = fromIndex; i < toIndex; ++i) {
-                Vec3.set(tmpPosition,
-                    randomRange(-0.5, 0.5),
-                    randomRange(-0.5, 0.5),
-                    randomRange(-0.5, 0.5));
-                vec3Register.setVec3At(tmpPosition, i);
+                vec3Register.set3fAt(rand.getFloat() - 0.5, rand.getFloat() - 0.5, rand.getFloat() - 0.5, i);
+                startDir.set3fAt(0, 0, 1, i);
             }
             break;
         case EmitFrom.SHELL:
             for (let i = fromIndex; i < toIndex; ++i) {
-                shuffleArray[0] = randomRange(-0.5, 0.5);
-                shuffleArray[1] = randomRange(-0.5, 0.5);
-                shuffleArray[2] = randomSign() * 0.5;
-                shuffleFloat3(shuffleArray);
-                applyBoxThickness(shuffleArray, boxThickness);
-                Vec3.set(tmpPosition, shuffleArray[0], shuffleArray[1], shuffleArray[2]);
-                vec3Register.setVec3At(tmpPosition, i);
+                const x = rand.getFloat();
+                const y = rand.getFloat();
+                const z = rand.getFloat();
+                const face = rand.getIntFromRange(0, 3);
+                Vec3.set(tempPosition,
+                    face === 0 ? (x >= 0.5 ? 1 : 0) : x,
+                    face === 1 ? (y >= 0.5 ? 1 : 0) : y,
+                    face === 2 ? (z >= 0.5 ? 1 : 0) : z);
+                tempPosition.x *= rand.getFloatFromRange(thicknessPercent.x, 1);
+                tempPosition.y *= rand.getFloatFromRange(thicknessPercent.y, 1);
+                tempPosition.z *= rand.getFloatFromRange(thicknessPercent.z, 1);
+                vec3Register.set3fAt(tempPosition.x - 0.5, tempPosition.y - 0.5, tempPosition.z - 0.5, i);
+                startDir.set3fAt(0, 0, 1, i);
             }
             break;
         case EmitFrom.EDGE:
             for (let i = fromIndex; i < toIndex; ++i) {
-                shuffleArray[0] = randomRange(-0.5, 0.5);
-                shuffleArray[1] = randomSign() * 0.5;
-                shuffleArray[2] = randomSign() * 0.5;
-                shuffleFloat3(shuffleArray);
-                applyBoxThickness(shuffleArray, boxThickness);
-                Vec3.set(tmpPosition, shuffleArray[0], shuffleArray[1], shuffleArray[2]);
-                vec3Register.setVec3At(tmpPosition, i);
+                const x = rand.getFloat();
+                const y = rand.getFloat();
+                const z = rand.getFloat();
+                const face = rand.getIntFromRange(0, 3);
+                Vec3.set(tempPosition,
+                    face !== 0 ? (x >= 0.5 ? 1 : 0) : x,
+                    face !== 1 ? (y >= 0.5 ? 1 : 0) : y,
+                    face !== 2 ? (z >= 0.5 ? 1 : 0) : z);
+                tempPosition.x *= rand.getFloatFromRange(thicknessPercent.x, 1);
+                tempPosition.y *= rand.getFloatFromRange(thicknessPercent.y, 1);
+                tempPosition.z *= rand.getFloatFromRange(thicknessPercent.z, 1);
+                vec3Register.set3fAt(tempPosition.x - 0.5, tempPosition.y - 0.5, tempPosition.z - 0.5, i);
+                startDir.set3fAt(0, 0, 1, i);
             }
             break;
         default:
         }
+        super.execute(particles, params, context);
     }
 }

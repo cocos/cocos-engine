@@ -56,13 +56,13 @@ export class StartLifeTimeModule extends ParticleModule {
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         context.markRequiredParameter(BuiltinParticleParameter.INV_START_LIFETIME);
         if (this.startLifetime.mode === CurveRange.Mode.Curve || this.startLifetime.mode === CurveRange.Mode.TwoCurves) {
-            context.markRequiredParameter(BuiltinParticleParameter.SPAWN_NORMALIZED_TIME);
+            context.markRequiredParameter(BuiltinParticleParameter.SPAWN_TIME_RATIO);
         }
     }
 
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         const invStartLifeTime = particles.invStartLifeTime.data;
-        const { fromIndex, toIndex } = context;
+        const { fromIndex, toIndex, emitterNormalizedTime: normalizedT, emitterNormalizedPrevTime: normalizedPrevT } = context;
         if (this.startLifetime.mode === CurveRange.Mode.Constant) {
             const lifeTime = 1 / this.startLifetime.constant;
             for (let i = fromIndex; i < toIndex; ++i) {
@@ -76,17 +76,17 @@ export class StartLifeTimeModule extends ParticleModule {
             }
         } else if (this.startLifetime.mode ===  CurveRange.Mode.Curve) {
             const { spline, multiplier } = this.startLifetime;
-            const spawnTime = particles.spawnNormalizedTime.data;
+            const spawnTime = particles.spawnTimeRatio.data;
             for (let i = fromIndex; i < toIndex; ++i) {
-                invStartLifeTime[i] = 1 / (spline.evaluate(spawnTime[i]) * multiplier);
+                invStartLifeTime[i] = 1 / (spline.evaluate(lerp(normalizedT, normalizedPrevT, spawnTime[i])) * multiplier);
             }
         } else {
             const { splineMin, splineMax, multiplier } = this.startLifetime;
-            const spawnTime = particles.spawnNormalizedTime.data;
+            const spawnTime = particles.spawnTimeRatio.data;
             const rand = this._rand;
             for (let i = fromIndex; i < toIndex; ++i) {
-                const normalizedT = spawnTime[i];
-                invStartLifeTime[i] = 1 / (lerp(splineMin.evaluate(normalizedT), splineMax.evaluate(normalizedT), rand.getFloat()) * multiplier);
+                const time = lerp(normalizedT, normalizedPrevT, spawnTime[i]);
+                invStartLifeTime[i] = 1 / (lerp(splineMin.evaluate(time), splineMax.evaluate(time), rand.getFloat()) * multiplier);
             }
         }
     }

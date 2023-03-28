@@ -36,7 +36,7 @@ import { RandNumGen } from '../rand-num-gen';
 const PROBABILITY_RANDOM_SEED_OFFSET = 199208;
 const eventInfo = new ParticleEventInfo();
 @ccclass('cc.DeathEventGeneratorModule')
-@ParticleModule.register('DeathEventGenerator', ModuleExecStage.UPDATE, ['Solve'], ['State'])
+@ParticleModule.register('DeathEventGenerator', ModuleExecStage.UPDATE, ['Solve', 'State'])
 export class DeathEventGeneratorModule extends ParticleModule {
     @type(CCFloat)
     @range([0, 1])
@@ -48,6 +48,7 @@ export class DeathEventGeneratorModule extends ParticleModule {
         context.markRequiredParameter(BuiltinParticleParameter.RANDOM_SEED);
         context.markRequiredParameter(BuiltinParticleParameter.NORMALIZED_ALIVE_TIME);
         context.markRequiredParameter(BuiltinParticleParameter.ID);
+        context.markRequiredParameter(BuiltinParticleParameter.IS_DEAD);
     }
 
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
@@ -55,7 +56,8 @@ export class DeathEventGeneratorModule extends ParticleModule {
         const randomSeed = particles.randomSeed.data;
         const invStartLifeTime = particles.invStartLifeTime.data;
         const id = particles.id.data;
-        const { fromIndex, toIndex, deltaTime, deathEvents } = context;
+        const isDead = particles.isDead.data;
+        const { fromIndex, toIndex, deathEvents } = context;
         const { localToWorld } = context;
         const { simulationSpace } = params;
         const hasVelocity = particles.hasParameter(BuiltinParticleParameter.VELOCITY);
@@ -85,7 +87,7 @@ export class DeathEventGeneratorModule extends ParticleModule {
         }
         if (!approx(this.probability, 0)) {
             for (let i = fromIndex; i < toIndex; i++) {
-                if (invStartLifeTime[i] * deltaTime + normalizedAliveTime[i] < 1.0) {
+                if (!isDead[i]) {
                     continue;
                 }
                 if (RandNumGen.getFloat(randomSeed[i] + PROBABILITY_RANDOM_SEED_OFFSET) > this.probability) {

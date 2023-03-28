@@ -27,7 +27,7 @@ import { DEBUG } from 'internal:constants';
 import { assert } from '../core';
 import { ccclass, serializable } from '../core/data/decorators';
 import { BitsBucket } from './particle-base';
-import { ParticleColorParameter, ParticleFloatParameter, ParticleParameter, ParticleParameterIdentity, ParticleParameterType, ParticleUint32Parameter, ParticleVec3Parameter } from './particle-parameter';
+import { ParticleBoolParameter, ParticleColorParameter, ParticleFloatParameter, ParticleParameter, ParticleParameterIdentity, ParticleParameterType, ParticleUint32Parameter, ParticleVec3Parameter } from './particle-parameter';
 
 export type ParticleHandle = number;
 export const INVALID_HANDLE = -1;
@@ -61,6 +61,7 @@ export enum BuiltinParticleParameter {
     RANDOM_SEED,
     INV_START_LIFETIME,
     NORMALIZED_ALIVE_TIME,
+    IS_DEAD,
     POSITION,
     START_DIR,
     BASE_VELOCITY,
@@ -73,8 +74,9 @@ export enum BuiltinParticleParameter {
     SIZE,
     BASE_COLOR,
     COLOR,
-    SPAWN_NORMALIZED_TIME,
+    SPAWN_TIME_RATIO,
     VEC3_REGISTER,
+    FLOAT_REGISTER,
     COUNT,
 }
 
@@ -105,6 +107,10 @@ export class ParticleDataSet {
 
     get normalizedAliveTime () {
         return this.getParameterNoCheck<ParticleFloatParameter>(BuiltinParticleParameter.NORMALIZED_ALIVE_TIME);
+    }
+
+    get isDead () {
+        return this.getParameterNoCheck<ParticleBoolParameter>(BuiltinParticleParameter.IS_DEAD);
     }
 
     get frameIndex () {
@@ -151,12 +157,16 @@ export class ParticleDataSet {
         return this.getParameterNoCheck<ParticleColorParameter>(BuiltinParticleParameter.COLOR);
     }
 
-    get spawnNormalizedTime () {
-        return this.getParameterNoCheck<ParticleFloatParameter>(BuiltinParticleParameter.SPAWN_NORMALIZED_TIME);
+    get spawnTimeRatio () {
+        return this.getParameterNoCheck<ParticleFloatParameter>(BuiltinParticleParameter.SPAWN_TIME_RATIO);
     }
 
     get vec3Register () {
         return this.getParameterNoCheck<ParticleVec3Parameter>(BuiltinParticleParameter.VEC3_REGISTER);
+    }
+
+    get floatRegister () {
+        return this.getParameterNoCheck<ParticleFloatParameter>(BuiltinParticleParameter.FLOAT_REGISTER);
     }
 
     private _count = 0;
@@ -212,8 +222,12 @@ export class ParticleDataSet {
         case BuiltinParticleParameter.FRAME_INDEX:
         case BuiltinParticleParameter.INV_START_LIFETIME:
         case BuiltinParticleParameter.NORMALIZED_ALIVE_TIME:
-        case BuiltinParticleParameter.SPAWN_NORMALIZED_TIME:
+        case BuiltinParticleParameter.SPAWN_TIME_RATIO:
+        case BuiltinParticleParameter.FLOAT_REGISTER:
             this.addParameter(id, BuiltinParticleParameterName[id], ParticleParameterType.FLOAT);
+            break;
+        case BuiltinParticleParameter.IS_DEAD:
+            this.addParameter(id, BuiltinParticleParameterName[id], ParticleParameterType.BOOL);
             break;
         default:
         }
@@ -235,6 +249,9 @@ export class ParticleDataSet {
             break;
         case ParticleParameterType.UINT32:
             this.addParameter_internal(id, new ParticleUint32Parameter(name));
+            break;
+        case ParticleParameterType.BOOL:
+            this.addParameter_internal(id, new ParticleBoolParameter(name));
             break;
         default:
             throw new Error('Unknown particle parameter type!');

@@ -1,5 +1,29 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
 import { Enum, Material, Quat, RenderingSubMesh, Vec4 } from '../../core';
-import { displayName, displayOrder, serializable, tooltip, type } from '../../core/data/decorators';
+import { displayName, displayOrder, serializable, tooltip, type, visible } from '../../core/data/decorators';
 import { Attribute, AttributeName, BufferInfo, BufferUsageBit, deviceManager, Format, FormatInfos, MemoryUsageBit } from '../../core/gfx';
 import { MacroRecord, MaterialInstance } from '../../core/renderer';
 import { AlignmentSpace, RenderMode, Space } from '../enum';
@@ -25,6 +49,31 @@ const fixedVertexBuffer = new Float32Array([
     0, 1, 0, 0, 1, 0, // top-left
     1, 1, 0, 1, 1, 0, // top-right
 ]);
+/**
+ * 粒子的生成模式。
+ * @enum ParticleSystemRenderer.RenderMode
+ */
+export enum RenderMode {
+    /**
+     * 粒子始终面向摄像机。
+     */
+    BILLBOARD,
+
+    /**
+     * 粒子始终面向摄像机但会根据参数进行拉伸。
+     */
+    STRETCHED_BILLBOARD,
+
+    /**
+     * 粒子始终与 XZ 平面平行。
+     */
+    HORIZONTAL_BILLBOARD,
+
+    /**
+     * 粒子始终与 Y 轴平行且朝向摄像机。
+     */
+    VERTICAL_BILLBOARD,
+}
 export class SpriteRendererModule extends RendererModule {
     /**
      * @zh 设定粒子生成模式。
@@ -41,6 +90,7 @@ export class SpriteRendererModule extends RendererModule {
     }
 
     @tooltip('i18n:particleSystemRenderer.velocityScale')
+    @visible(function (this: SpriteRendererModule) { return this.renderMode === RenderMode.STRETCHED_BILLBOARD; })
     public get velocityScale () {
         return this._velocityScale;
     }
@@ -50,6 +100,7 @@ export class SpriteRendererModule extends RendererModule {
     }
 
     @tooltip('i18n:particleSystemRenderer.lengthScale')
+    @visible(function (this: SpriteRendererModule) { return this.renderMode === RenderMode.STRETCHED_BILLBOARD; })
     public get lengthScale () {
         return this._lengthScale;
     }

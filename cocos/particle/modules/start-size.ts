@@ -118,13 +118,13 @@ export class StartSizeModule extends ParticleModule {
                 'StartSizeModule: startSizeX, startSizeY and startSizeZ must have the same mode.');
         }
         if (this.startSizeX.mode === CurveRange.Mode.Curve || this.startSizeX.mode === CurveRange.Mode.TwoCurves) {
-            context.markRequiredParameter(BuiltinParticleParameter.SPAWN_NORMALIZED_TIME);
+            context.markRequiredParameter(BuiltinParticleParameter.SPAWN_TIME_RATIO);
         }
     }
 
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
-        const { baseSize, size } = particles;
-        const { fromIndex, toIndex } = context;
+        const { baseSize } = particles;
+        const { fromIndex, toIndex, emitterNormalizedTime: normalizedT, emitterNormalizedPrevTime: normalizedPrevT } = context;
         const rand = this._rand;
         if (this.startSize3D) {
             if (this.startSizeX.mode === CurveRange.Mode.Constant) {
@@ -148,24 +148,24 @@ export class StartSizeModule extends ParticleModule {
                 const { spline: xCurve, multiplier: xMultiplier } = this.startSizeX;
                 const { spline: yCurve, multiplier: yMultiplier } = this.startSizeY;
                 const { spline: zCurve, multiplier: zMultiplier } = this.startSizeZ;
-                const spawnTime = particles.spawnNormalizedTime.data;
+                const spawnTime = particles.spawnTimeRatio.data;
                 for (let i = fromIndex; i < toIndex; ++i) {
-                    const normalizedT = spawnTime[i];
-                    const x = xCurve.evaluate(normalizedT) * xMultiplier;
-                    const y = yCurve.evaluate(normalizedT) * yMultiplier;
-                    const z = zCurve.evaluate(normalizedT) * zMultiplier;
+                    const time = lerp(normalizedT, normalizedPrevT, spawnTime[i]);
+                    const x = xCurve.evaluate(time) * xMultiplier;
+                    const y = yCurve.evaluate(time) * yMultiplier;
+                    const z = zCurve.evaluate(time) * zMultiplier;
                     baseSize.set3fAt(x, y, z, i);
                 }
             } else {
                 const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.startSizeX;
                 const { splineMin: yMin, splineMax: yMax, multiplier: yMultiplier } = this.startSizeY;
                 const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.startSizeZ;
-                const spawnTime = particles.spawnNormalizedTime.data;
+                const spawnTime = particles.spawnTimeRatio.data;
                 for (let i = fromIndex; i < toIndex; ++i) {
-                    const normalizedT = spawnTime[i];
-                    const x = lerp(xMin.evaluate(normalizedT), xMax.evaluate(normalizedT), rand.getFloat()) * xMultiplier;
-                    const y = lerp(yMin.evaluate(normalizedT), yMax.evaluate(normalizedT), rand.getFloat()) * yMultiplier;
-                    const z = lerp(zMin.evaluate(normalizedT), zMax.evaluate(normalizedT), rand.getFloat()) * zMultiplier;
+                    const time = lerp(normalizedT, normalizedPrevT, spawnTime[i]);
+                    const x = lerp(xMin.evaluate(time), xMax.evaluate(time), rand.getFloat()) * xMultiplier;
+                    const y = lerp(yMin.evaluate(time), yMax.evaluate(time), rand.getFloat()) * yMultiplier;
+                    const z = lerp(zMin.evaluate(time), zMax.evaluate(time), rand.getFloat()) * zMultiplier;
                     baseSize.set3fAt(x, y, z, i);
                 }
             }
@@ -182,17 +182,17 @@ export class StartSizeModule extends ParticleModule {
                 }
             } else if (this.startSizeX.mode === CurveRange.Mode.Curve) {
                 const { spline: xCurve, multiplier: xMultiplier } = this.startSizeX;
-                const spawnTime = particles.spawnNormalizedTime.data;
+                const spawnTime = particles.spawnTimeRatio.data;
                 for (let i = fromIndex; i < toIndex; ++i) {
-                    const pSize = xCurve.evaluate(spawnTime[i]) * xMultiplier;
+                    const pSize = xCurve.evaluate(lerp(normalizedT, normalizedPrevT, spawnTime[i])) * xMultiplier;
                     baseSize.set1fAt(pSize, i);
                 }
             } else {
                 const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.startSizeX;
-                const spawnTime = particles.spawnNormalizedTime.data;
+                const spawnTime = particles.spawnTimeRatio.data;
                 for (let i = fromIndex; i < toIndex; ++i) {
-                    const normalizedT = spawnTime[i];
-                    const pSize = lerp(xMin.evaluate(normalizedT), xMax.evaluate(normalizedT), rand.getFloat()) * xMultiplier;
+                    const time = lerp(normalizedT, normalizedPrevT, spawnTime[i]);
+                    const pSize = lerp(xMin.evaluate(time), xMax.evaluate(time), rand.getFloat()) * xMultiplier;
                     baseSize.set1fAt(pSize, i);
                 }
             }
