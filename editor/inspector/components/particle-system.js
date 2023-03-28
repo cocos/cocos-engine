@@ -150,6 +150,9 @@ exports.template = /* html*/`
             <ui-prop type="dump" key="limitVelocityOvertimeModule.value.limitX"></ui-prop>
             <ui-prop type="dump" key="limitVelocityOvertimeModule.value.limitY"></ui-prop>
             <ui-prop type="dump" key="limitVelocityOvertimeModule.value.limitZ"></ui-prop>
+            <ui-prop type="dump" key="limitVelocityOvertimeModule.value.drag"></ui-prop>
+            <ui-prop type="dump" key="limitVelocityOvertimeModule.value.multiplyDragByParticleSize"></ui-prop>
+            <ui-prop type="dump" key="limitVelocityOvertimeModule.value.multiplyDragByParticleVelocity"></ui-prop>
         </ui-section>
         <ui-section empty="true" class="config" showflag="!renderer.value.useGPU" key="trailModule"
             cache-expand="particle-system-trailModule">
