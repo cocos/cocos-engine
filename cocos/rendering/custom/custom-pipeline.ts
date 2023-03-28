@@ -48,9 +48,9 @@ export class CustomPipelineBuilder implements PipelineBuilder {
                 // forward pass
                 const forwardInfo = buildForwardPass(camera, ppl, isGameView);
                 // blur pass
-                // const blurInfo  = buildBlurPass(camera, ppl, forwardInfo.rtName, forwardInfo.dsName);
+                const blurInfo  = buildBlurPass(camera, ppl, forwardInfo.rtName, forwardInfo.dsName);
                 // specalur pass
-                const specalurInfo = buildSpecularPass(camera, ppl, forwardInfo.rtName, forwardInfo.dsName, '');
+                const specalurInfo = buildSpecularPass(camera, ppl, forwardInfo.rtName, forwardInfo.dsName, blurInfo.rtName);
                 // // fxaa pass
                 // const fxaaInfo = buildFxaaPass(camera, ppl, forwardInfo.rtName);
                 // // bloom passes
