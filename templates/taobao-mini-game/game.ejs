@@ -1,5 +1,5 @@
 globalThis.__taobaoRequire = (urlNoSchema) => {
-    if (urlNoSchema.startsWith('./') && !urlNoSchema.startsWith('../')) {
+    if (urlNoSchema.startsWith('./')) {
         urlNoSchema = urlNoSchema.replace("./", "");
     }
     require("./" + urlNoSchema);
