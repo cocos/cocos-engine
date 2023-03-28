@@ -998,16 +998,32 @@ Object.defineProperty(nodeProto, '_siblingIndex', {
     configurable: true,
     enumerable: true,
     get() {
-        return this._sharedInt32Arr[0]; // Int32, 0: siblingIndex
+        return this.getSiblingIndex();
     },
     set(v) {
-        this._sharedInt32Arr[0] = v; // Int32, 0: siblingIndex
+        this.setSiblingIndex(v);
+    },
+});
+
+// External classes need to access it through getter/setter
+Object.defineProperty(nodeProto, 'siblingIndex', {
+    configurable: true,
+    enumerable: true,
+    get() {
+        return this.getSiblingIndex();
+    },
+    set(v) {
+        this.setSiblingIndex(v);
     },
 });
 
 nodeProto.getSiblingIndex = function getSiblingIndex() {
     return this._sharedInt32Arr[0]; // Int32, 0: siblingIndex
 };
+
+nodeProto.setSiblingIndex = function setSiblingIndex(val: number) {
+    this._sharedInt32Arr[0] = val; // Int32, 0: siblingIndex
+}
 
 Object.defineProperty(nodeProto, '_transformFlags', {
     configurable: true,

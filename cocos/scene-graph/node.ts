@@ -336,11 +336,8 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         }
     }
 
-    /**
-     * @engineInternal this is engineInternal for it doesn't have side effect of setting parent.
-     */
     @serializable
-    public _parent: this | null = null;
+    protected _parent: this | null = null;
 
     @serializable
     protected _children: this[] = [];
@@ -378,10 +375,15 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     protected _eventProcessor: any = new legacyCC.NodeEventProcessor(this);
     protected _eventMask = 0;
 
+    protected _siblingIndex = 0;
     /**
-     * @engineInternal this is engineInternal for it doesn't have side effect of setting sibling index
+     * @engineInternal
      */
-    public _siblingIndex = 0;
+    public get siblingIndex (): number { return this._siblingIndex; }
+    /**
+     * @engineInternal
+     */
+    public set siblingIndex (val: number) { this._siblingIndex = val; }
 
     /**
      * @en
@@ -429,6 +431,15 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      */
     public getParent () {
         return this._parent;
+    }
+
+    /**
+     * As there are setter and setParent(), and both of them not just modify _parent, but have
+     * other logic. So add a new function that only modify _parent value.
+     * @engineInternal
+     */
+    public modifyParent (parent: this | null) {
+        this._parent = parent;
     }
 
     /**
