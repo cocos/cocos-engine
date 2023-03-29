@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { Mat4, Quat, random, randomRange, randomRangeInt, Vec2, Vec3 } from '../core/math';
+import { Mat4, Quat, random, randomRange, Vec2, Vec3 } from '../core/math';
 import { sign } from '../core/math/bits';
 import { Space } from './enum';
 

@@ -27,7 +27,7 @@ import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
 import { assert, CCBoolean, CCFloat, CCInteger, Enum, warn } from '../../core';
 import { range, rangeMin, rangeStep, slide, visible } from '../../core/data/decorators/editable';
-import { approx, clamp, lerp, randomRangeInt, Vec2, Vec3 } from '../../core/math';
+import { approx, clamp, lerp, Vec2, Vec3 } from '../../core/math';
 import { CurveRange } from '../curve-range';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';

@@ -24,12 +24,13 @@
  */
 
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
-import { Color, pseudoRandom } from '../../core/math';
+import { Color } from '../../core/math';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { GradientRange } from '../gradient-range';
 import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { assert } from '../../core';
+import { RandNumGen } from '../rand-num-gen';
 
 const COLOR_OVERTIME_RAND_OFFSET = 91041;
 const tempColor = new Color();
@@ -74,7 +75,7 @@ export class MultiplyColorModule extends ParticleModule {
                 color.multiplyColorAt(Color.lerp(tempColor,
                     gradientMin.evaluate(tempColor2, time),
                     gradientMax.evaluate(tempColor3, time),
-                    pseudoRandom(randomSeed[i] + COLOR_OVERTIME_RAND_OFFSET)), i);
+                    RandNumGen.getFloat(randomSeed[i] + COLOR_OVERTIME_RAND_OFFSET)), i);
             }
         }
     }

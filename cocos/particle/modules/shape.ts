@@ -45,19 +45,26 @@ export enum DistributionMode {
     RANDOM,
 
     /**
-     * 沿某一方向循环发射，每次循环方向相同。
+     * 在该发射器形状上移动发射，每次移动的距离由移动速度决定。
      */
-    LOOP,
-
-    /**
-     * 循环发射，每次循环方向相反。
-     */
-    PING_PONG,
+    MOVE,
 
     /**
      * 均匀分布在发射器形状上，只对 Burst 出来的粒子有效，因为此模式依赖当前发射总数进行均匀分布。
      */
     UNIFORM,
+}
+
+export enum MoveWarpMode {
+    /**
+     * 沿某一方向循环发射，每次循环方向相同。
+     */
+    LOOP,
+
+    /**
+      * 循环发射，每次循环方向相反。
+      */
+    PING_PONG,
 }
 
 @ccclass('cc.ShapeModule')

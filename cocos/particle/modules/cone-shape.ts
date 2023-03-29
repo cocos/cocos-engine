@@ -22,17 +22,24 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { ArcMode, ShapeModule } from './shape';
+import { DistributionMode, ShapeModule } from './shape';
 import { ccclass, displayOrder, range, serializable, tooltip, type, visible } from '../../core/data/decorators';
 import { ModuleExecStage, ParticleModule } from '../particle-module';
 import { Enum, toDegree, toRadian, Vec3 } from '../../core';
 import { ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { CurveRange } from '../curve-range';
+import { AngleBasedShapeModule } from './angle-based-shape';
 
+export enum EmitFrom {
+    BASE = 0,
+    VOLUME = 1,
+}
+
+const temp = new Vec3();
 @ccclass('cc.ConeShapeModule')
 @ParticleModule.register('ConeShape', ModuleExecStage.SPAWN)
-export class ConeShapeModule extends ShapeModule {
+export class ConeShapeModule extends AngleBasedShapeModule {
     /**
      * @zh 圆锥的轴与母线的夹角<bg>。
      * 决定圆锥发射器的开合程度。
@@ -53,6 +60,9 @@ export class ConeShapeModule extends ShapeModule {
     @tooltip('i18n:shapeModule.radius')
     public radius = 1;
 
+    @serializable
+    public length = 5;
+
     /**
       * @zh 粒子发射器发射位置（对 Box 类型的发射器无效）：<bg>
       * - 0 表示从表面发射；
@@ -63,130 +73,53 @@ export class ConeShapeModule extends ShapeModule {
     @tooltip('i18n:shapeModule.radiusThickness')
     public radiusThickness = 1;
 
-    /**
-      * @zh 粒子在扇形范围内的发射方式 [[ArcMode]]。
-      */
-    @type(Enum(ArcMode))
+    @type(Enum(EmitFrom))
     @serializable
-    @tooltip('i18n:shapeModule.arcMode')
-    public arcMode = ArcMode.RANDOM;
-
-    /**
-      * @zh 控制可能产生粒子的弧周围的离散间隔。
-      */
-    @serializable
-    @tooltip('i18n:shapeModule.arcSpread')
-    public arcSpread = 0;
-
-    /**
-      * @zh 粒子沿圆周发射的速度。
-      */
-    @type(CurveRange)
-    @range([0, 1])
-    @serializable
-    @tooltip('i18n:shapeModule.arcSpeed')
-    @visible(function (this: ShapeModule) {
-        return this.arcMode !== ArcMode.RANDOM;
-    })
-    public arcSpeed = new CurveRange();
-    /**
-     * @zh 粒子发射器在一个扇形范围内发射。
-     */
-    @displayOrder(6)
-    @tooltip('i18n:shapeModule.arc')
-    get arc () {
-        return toDegree(this._arc);
-    }
-
-    set arc (val) {
-        this._arc = toRadian(val);
-    }
+    public emitFrom = EmitFrom.BASE;
 
     @serializable
     private _angle = toRadian(25);
-    @serializable
-    private _arc = toRadian(360);
+    private _sinAngle = 0;
+    private _cosAngle = 0;
+    private _innerRadius = 0;
 
-    public tick (particles: ParticleDataSet,  params: ParticleEmitterParams, context: ParticleExecContext) {
+    public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         super.tick(particles, params, context);
+        this._sinAngle = Math.sin(this._angle);
+        this._cosAngle = Math.cos(this._angle);
+        this._innerRadius = (1 - this.radiusThickness) ** 2;
     }
 
-    public execute () {
-        case ShapeType.CONE:
-            if (this.arcMode === ArcMode.RANDOM) {
-                const radiusThickness = this.radius - minRadius;
-                const angleSin = Math.sin(this._angle);
-                for (let i = fromIndex; i < toIndex; ++i) {
-                    const theta = randomRange(0, this._arc);
-                    Vec3.set(tmpPosition, Math.cos(theta), Math.sin(theta), 0);
-                    Vec3.multiplyScalar(tmpPosition, tmpPosition, minRadius + radiusThickness * random());
-                    Vec2.multiplyScalar(tmpDir, tmpPosition, angleSin);
-                    tmpDir.z = velocityZ;
-                    Vec3.normalize(tmpDir, tmpDir);
-                    Vec3.scaleAndAdd(tmpPosition, tmpPosition, tmpDir, this.length * random() / -velocityZ);
-                    startDir.setVec3At(tmpDir, i);
-                    vec3Register.setVec3At(tmpPosition, i);
-                }
-            } else {
-                for (let i = fromIndex; i < toIndex; ++i) {
-                    tmpPosition.set(Math.cos(angle), Math.sin(angle), 0);
-                    tmpPosition.multiplyScalar(minRadius + (this.radius - minRadius) * random());
-                    Vec2.multiplyScalar(tmpDir, tmpPosition, Math.sin(this._angle));
-                    tmpDir.z = velocityZ;
-                    tmpDir.normalize();
-                    Vec3.scaleAndAdd(tmpPosition, tmpPosition, tmpDir, this.length * random() / -velocityZ);
-                    startDir.setVec3At(tmpDir, i);
-                    vec3Register.setVec3At(tmpPosition, i);
-                }
+    protected generatePosAndDir (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+        const { fromIndex, toIndex } = context;
+        const floatRegister = particles.floatRegister.data;
+        const { vec3Register, startDir } = particles;
+        const rand = this._rand;
+        const innerRadius = this._innerRadius;
+        const radius = this.radius;
+        const sinAngle = this._sinAngle;
+        const cosAngle = this._cosAngle;
+        const length = this.length;
+        if (this.emitFrom === EmitFrom.BASE) {
+            for (let i = fromIndex; i < toIndex; ++i) {
+                const angle = floatRegister[i];
+                const r = Math.sqrt(rand.getFloatFromRange(innerRadius, 1)) * radius;
+                const x = Math.cos(angle);
+                const y = Math.sin(angle);
+                startDir.set3fAt(x * sinAngle, y * sinAngle, cosAngle, i);
+                vec3Register.set3fAt(x * r, y * r, 0, i);
             }
-            break;
-        case ShapeType.CONE_BASE:
-            if (this.arcMode === ArcMode.RANDOM) {
-                for (let i = fromIndex; i < toIndex; ++i) {
-                    const theta = randomRange(0, this._arc);
-                    tmpPosition.set(Math.cos(theta), Math.sin(theta), 0);
-                    tmpPosition.multiplyScalar(minRadius + (this.radius - minRadius) * random());
-                    Vec2.multiplyScalar(tmpDir, tmpPosition, Math.sin(this._angle));
-                    tmpDir.z = velocityZ;
-                    Vec3.normalize(tmpDir, tmpDir);
-                    startDir.setVec3At(tmpDir, i);
-                    vec3Register.setVec3At(tmpPosition, i);
-                }
-            } else {
-                for (let i = fromIndex; i < toIndex; ++i) {
-                    tmpPosition.set(Math.cos(angle), Math.sin(angle), 0);
-                    tmpPosition.multiplyScalar(minRadius + (this.radius - minRadius) * random());
-                    Vec2.multiplyScalar(tmpDir, tmpPosition, Math.sin(this._angle));
-                    tmpDir.z = velocityZ;
-                    tmpDir.normalize();
-                    startDir.setVec3At(tmpDir, i);
-                    vec3Register.setVec3At(tmpPosition, i);
-                }
+        } else {
+            for (let i = fromIndex; i < toIndex; ++i) {
+                const angle = floatRegister[i];
+                const r = Math.sqrt(rand.getFloatFromRange(innerRadius, 1)) * radius;
+                const x = Math.cos(angle);
+                const y = Math.sin(angle);
+                Vec3.set(temp, x * sinAngle, y * sinAngle, cosAngle);
+                startDir.setVec3At(temp, i);
+                vec3Register.set3fAt(x * r, y * r, 0, i);
+                vec3Register.addVec3At(Vec3.multiplyScalar(temp, temp, rand.getFloat() * length), i);
             }
-            break;
-        case ShapeType.CONE_SHELL:
-            if (this.arcMode === ArcMode.RANDOM) {
-                for (let i = fromIndex; i < toIndex; ++i) {
-                    const theta = randomRange(0, this._arc);
-                    tmpPosition.set(Math.cos(theta), Math.sin(theta), 0);
-                    Vec2.multiplyScalar(tmpDir, tmpPosition, Math.sin(this._angle));
-                    tmpDir.z = -Math.cos(this._angle);
-                    tmpDir.normalize();
-                    Vec2.multiplyScalar(tmpPosition, tmpPosition, this.radius);
-                    startDir.setVec3At(tmpDir, i);
-                    vec3Register.setVec3At(tmpPosition, i);
-                }
-            } else {
-                for (let i = fromIndex; i < toIndex; ++i) {
-                    tmpPosition.set(Math.cos(angle), Math.sin(angle), 0);
-                    Vec2.multiplyScalar(tmpDir, tmpPosition, Math.sin(this._angle));
-                    tmpDir.z = -Math.cos(this._angle);
-                    tmpDir.normalize();
-                    Vec2.multiplyScalar(tmpPosition, tmpPosition, this.radius);
-                    startDir.setVec3At(tmpDir, i);
-                    vec3Register.setVec3At(tmpPosition, i);
-                }
-            }
-            break;
+        }
     }
 }

@@ -1,4 +1,4 @@
-
+import { Vec3 } from "../../cocos/core";
 import { RandNumGen } from "../../cocos/particle/rand-num-gen";
 
 test ('PNG with no seed should produce different sequence', () => {
@@ -19,6 +19,15 @@ test('RNG', () => {
     for (let i = 0; i < 1000; i++) {
         const val = rng.getFloat();
         expect(val).toBeGreaterThanOrEqual(0);
+        expect(val).toBeLessThan(1);
+    }
+});
+
+test('Get signed float', () => {
+    const rand = new RandNumGen();
+    for (let i = 0; i < 100; i++) {
+        const val = rand.getSignedFloat();
+        expect(val).toBeGreaterThan(-1);
         expect(val).toBeLessThan(1);
     }
 });
@@ -63,5 +72,16 @@ test('static getFloat', () => {
     for (let i = 0; i < 100; i++) {
         const seed = Math.random() * 10000;
         expect(new RandNumGen(seed).getFloat()).toBe(RandNumGen.getFloat(seed));
+    }
+});
+
+test('static get3Float', () => {
+    const temp = new Vec3();
+    for (let i = 0; i < 100; i++) {
+        const seed = Math.random() * 10000;
+        const rand = new RandNumGen(seed);
+        expect(rand.getFloat()).toBe(RandNumGen.get3Float(seed, temp).x);
+        expect(rand.getFloat()).toBe(RandNumGen.get3Float(seed, temp).y);
+        expect(rand.getFloat()).toBe(RandNumGen.get3Float(seed, temp).z);
     }
 });

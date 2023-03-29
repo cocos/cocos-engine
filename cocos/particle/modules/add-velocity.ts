@@ -38,7 +38,7 @@ const tempVelocity = new Vec3();
 const seed = new Vec3();
 
 @ccclass('cc.AddVelocityModule')
-@ParticleModule.register('AddVelocity', ModuleExecStage.UPDATE | ModuleExecStage.SPAWN, [], ['Solve', 'State'])
+@ParticleModule.register('AddVelocity', ModuleExecStage.UPDATE | ModuleExecStage.SPAWN, ['State'], ['Solve'])
 export class AddVelocityModule extends ParticleModule {
     /**
      * @zh 速度计算时采用的坐标系[[Space]]。

@@ -27,7 +27,7 @@ import { ccclass, tooltip, displayOrder, type, serializable, disallowAnimation, 
 import { EDITOR } from 'internal:constants';
 import { Mesh } from '../3d';
 import { Material, Texture2D } from '../core/assets';
-import { AlignmentSpace, RenderMode, Space } from './enum';
+import { AlignmentSpace, Space } from './enum';
 import { Attribute, AttributeName, BufferInfo, BufferUsageBit, Device, deviceManager, DrawInfo, Feature, Format, FormatFeatureBit, FormatInfos, IndirectBuffer, MemoryUsageBit } from '../core/gfx';
 import { legacyCC } from '../core/global-exports';
 import { builtinResMgr, director, Enum, errorID, gfx, Mat4, ModelRenderer, Quat, RenderingSubMesh, Vec2, Vec4, warnID } from '../core';

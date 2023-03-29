@@ -24,14 +24,16 @@
  */
 
 import { ccclass, tooltip, displayOrder, type, serializable, range, visible } from 'cc.decorator';
-import { lerp, pseudoRandom, Vec3 } from '../../core/math';
+import { lerp, Vec3 } from '../../core/math';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { CurveRange } from '../curve-range';
 import { ModuleRandSeed } from '../enum';
 import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
+import { RandNumGen } from '../rand-num-gen';
 
-const SIZE_OVERTIME_RAND_OFFSET = ModuleRandSeed.SIZE;
+const SIZE_OVERTIME_RAND_OFFSET = 1233881;
+const seed = new Vec3();
 
 @ccclass('cc.SizeModule')
 @ParticleModule.register('Size', ModuleExecStage.UPDATE, ['State'])
@@ -143,7 +145,7 @@ export class SizeModule extends ParticleModule {
                 const { constantMin, constantMax } = this.size;
                 const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    size.multiply1fAt(lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + SIZE_OVERTIME_RAND_OFFSET)), i);
+                    size.multiply1fAt(lerp(constantMin, constantMax, RandNumGen.getFloat(randomSeed[i] + SIZE_OVERTIME_RAND_OFFSET)), i);
                 }
             } else {
                 const { splineMin, splineMax, multiplier } = this.size;
@@ -153,7 +155,7 @@ export class SizeModule extends ParticleModule {
                     const currentLife = normalizedAliveTime[i];
                     size.multiply1fAt(lerp(splineMin.evaluate(currentLife),
                         splineMax.evaluate(currentLife),
-                        pseudoRandom(randomSeed[i] + SIZE_OVERTIME_RAND_OFFSET)) * multiplier, i);
+                        RandNumGen.getFloat(randomSeed[i] + SIZE_OVERTIME_RAND_OFFSET)) * multiplier, i);
                 }
             }
         } else {
@@ -182,9 +184,10 @@ export class SizeModule extends ParticleModule {
                 const { constantMin: zMin, constantMax: zMax } = this.z;
                 const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    size.multiply3fAt(lerp(xMin, xMax, pseudoRandom(randomSeed[i] + SIZE_OVERTIME_RAND_OFFSET)),
-                        lerp(yMin, yMax, pseudoRandom(randomSeed[i] + SIZE_OVERTIME_RAND_OFFSET)),
-                        lerp(zMin, zMax, pseudoRandom(randomSeed[i] + SIZE_OVERTIME_RAND_OFFSET)), i);
+                    const ratio = RandNumGen.get3Float(randomSeed[i] + SIZE_OVERTIME_RAND_OFFSET, seed);
+                    size.multiply3fAt(lerp(xMin, xMax, ratio.x),
+                        lerp(yMin, yMax, ratio.y),
+                        lerp(zMin, zMax, ratio.z), i);
                 }
             } else {
                 const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.x;
@@ -194,10 +197,11 @@ export class SizeModule extends ParticleModule {
                 const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const currentLife = normalizedAliveTime[i];
+                    const ratio = RandNumGen.get3Float(randomSeed[i] + SIZE_OVERTIME_RAND_OFFSET, seed);
                     size.multiply3fAt(
-                        lerp(xMin.evaluate(currentLife), xMax.evaluate(currentLife), pseudoRandom(randomSeed[i] + SIZE_OVERTIME_RAND_OFFSET)) * xMultiplier,
-                        lerp(yMin.evaluate(currentLife), yMax.evaluate(currentLife), pseudoRandom(randomSeed[i] + SIZE_OVERTIME_RAND_OFFSET)) * yMultiplier,
-                        lerp(zMin.evaluate(currentLife), zMax.evaluate(currentLife), pseudoRandom(randomSeed[i] + SIZE_OVERTIME_RAND_OFFSET)) * zMultiplier, i,
+                        lerp(xMin.evaluate(currentLife), xMax.evaluate(currentLife), ratio.x) * xMultiplier,
+                        lerp(yMin.evaluate(currentLife), yMax.evaluate(currentLife), ratio.y) * yMultiplier,
+                        lerp(zMin.evaluate(currentLife), zMax.evaluate(currentLife), ratio.z) * zMultiplier, i,
                     );
                 }
             }

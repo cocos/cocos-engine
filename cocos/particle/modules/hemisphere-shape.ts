@@ -22,114 +22,58 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { ArcMode, ShapeModule } from './shape';
-import { ccclass, displayOrder, range, serializable, tooltip, type, visible } from '../../core/data/decorators';
+import { ccclass, serializable, tooltip } from '../../core/data/decorators';
 import { ModuleExecStage, ParticleModule } from '../particle-module';
-import { Enum, toDegree, toRadian, Vec3 } from '../../core';
+import { Vec3 } from '../../core';
 import { ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
-import { CurveRange } from '../curve-range';
+import { AngleBasedShapeModule } from './angle-based-shape';
 
+const temp = new Vec3();
 @ccclass('cc.HemisphereShapeModule')
 @ParticleModule.register('HemisphereShape', ModuleExecStage.SPAWN)
-export class HemisphereShapeModule extends ShapeModule {
+export class HemisphereShapeModule extends AngleBasedShapeModule {
     /**
-       * @zh 粒子发射器半径。
-       */
+      * @zh 粒子发射器半径。
+      */
     @serializable
     @tooltip('i18n:shapeModule.radius')
     public radius = 1;
 
     /**
-     * @zh 粒子发射器发射位置（对 Box 类型的发射器无效）：<bg>
-     * - 0 表示从表面发射；
-     * - 1 表示从中心发射；
-     * - 0 ~ 1 之间表示在中心到表面之间发射。
-     */
+        * @zh 粒子发射器发射位置（对 Box 类型的发射器无效）：<bg>
+        * - 0 表示从表面发射；
+        * - 1 表示从中心发射；
+        * - 0 ~ 1 之间表示在中心到表面之间发射。
+        */
     @serializable
     @tooltip('i18n:shapeModule.radiusThickness')
     public radiusThickness = 1;
 
-    /**
-     * @zh 粒子发射器在一个扇形范围内发射。
-     */
-    @displayOrder(6)
-    @tooltip('i18n:shapeModule.arc')
-    get arc () {
-        return toDegree(this._arc);
-    }
-
-    set arc (val) {
-        this._arc = toRadian(val);
-    }
-
-    /**
-        * @zh 粒子在扇形范围内的发射方式 [[ArcMode]]。
-        */
-    @type(Enum(ArcMode))
-    @serializable
-    @tooltip('i18n:shapeModule.arcMode')
-    public arcMode = ArcMode.RANDOM;
-
-    /**
-        * @zh 控制可能产生粒子的弧周围的离散间隔。
-        */
-    @serializable
-    @tooltip('i18n:shapeModule.arcSpread')
-    public arcSpread = 0;
-
-    /**
-        * @zh 粒子沿圆周发射的速度。
-        */
-    @type(CurveRange)
-    @range([0, 1])
-    @serializable
-    @tooltip('i18n:shapeModule.arcSpeed')
-    @visible(function (this: ShapeModule) {
-        return this.arcMode !== ArcMode.RANDOM;
-    })
-    public arcSpeed = new CurveRange();
-
-    @serializable
-    private _arc = toRadian(360);
+    private _innerRadius = 0;
 
     public tick (particles: ParticleDataSet,  params: ParticleEmitterParams, context: ParticleExecContext) {
         super.tick(particles, params, context);
+        this._innerRadius = (1 - this.radiusThickness) ** 3;
     }
 
-    public execute () {
-        case ShapeType.HEMISPHERE:
-            for (let i = fromIndex; i < toIndex; ++i) {
-                const z = randomRange(-1, 1);
-                const a = randomRange(0, 2 * Math.PI);
-                const r = Math.sqrt(1 - z * z);
-                tmpPosition.x = r * Math.cos(a);
-                tmpPosition.y = r * Math.sin(a);
-                tmpPosition.z = z;
-                tmpPosition.multiplyScalar(minRadius + (this.radius - minRadius) * random());
-                if (tmpPosition.z > 0) {
-                    tmpPosition.z *= -1;
-                }
-                Vec3.normalize(tmpDir, tmpPosition);
-                startDir.setVec3At(tmpDir, i);
-                vec3Register.setVec3At(tmpPosition, i);
-            }
-            break;
-        case ShapeType.HEMISPHERE_SHELL:
-            for (let i = fromIndex; i < toIndex; ++i) {
-                const z = randomRange(-1, 1);
-                const a = randomRange(0, 2 * Math.PI);
-                const r = Math.sqrt(1 - z * z);
-                tmpPosition.x = r * Math.cos(a);
-                tmpPosition.y = r * Math.sin(a);
-                tmpPosition.z = z;
-                tmpPosition.multiplyScalar(this.radius);
-                if (tmpPosition.z > 0) {
-                    tmpPosition.z *= -1;
-                }
-                Vec3.normalize(tmpDir, tmpPosition);
-                startDir.setVec3At(tmpDir, i);
-                vec3Register.setVec3At(tmpPosition, i);
-            }
+    protected generatePosAndDir (particles: ParticleDataSet,  params: ParticleEmitterParams, context: ParticleExecContext) {
+        const { fromIndex, toIndex } = context;
+        const { startDir, vec3Register } = particles;
+        const innerRadius = this._innerRadius;
+        const floatRegister = particles.floatRegister.data;
+        const radius = this.radius;
+        const rand = this._rand;
+        for (let i = fromIndex; i < toIndex; ++i) {
+            const angle = floatRegister[i];
+            const z = rand.getFloatFromRange(0, 1);
+            const r = Math.sqrt(1 - z * z);
+            temp.x = r * Math.cos(angle);
+            temp.y = r * Math.sin(angle);
+            temp.z = z;
+            startDir.setVec3At(temp, i);
+            Vec3.multiplyScalar(temp, temp, rand.getFloatFromRange(innerRadius, 1.0) ** 0.3333 * radius);
+            vec3Register.setVec3At(temp, i);
+        }
     }
 }

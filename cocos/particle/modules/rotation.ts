@@ -26,14 +26,16 @@
 
 import { ccclass, tooltip, displayOrder, range, type, radian, serializable, visible, displayName } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
-import { Mat4, pseudoRandom, Quat, Vec4, Vec3, lerp } from '../../core/math';
+import { Mat4, Quat, Vec4, Vec3, lerp } from '../../core/math';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { CurveRange } from '../curve-range';
 import { assert, CCBoolean } from '../../core';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
+import { RandNumGen } from '../rand-num-gen';
 
 const ROTATION_OVERTIME_RAND_OFFSET = 125292;
+const seed = new Vec3();
 
 @ccclass('cc.RotationModule')
 @ParticleModule.register('Rotation', ModuleExecStage.UPDATE, [], ['Solve', 'State'])
@@ -158,7 +160,7 @@ export class RotationModule extends ParticleModule {
                 const randomSeed = particles.randomSeed.data;
                 const { constantMin, constantMax } = this.z;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    angularVelocity.addZAt(lerp(constantMin, constantMax, pseudoRandom(randomSeed[i] + ROTATION_OVERTIME_RAND_OFFSET)), i);
+                    angularVelocity.addZAt(lerp(constantMin, constantMax, RandNumGen.getFloat(randomSeed[i] + ROTATION_OVERTIME_RAND_OFFSET)), i);
                 }
             } else {
                 const { splineMin, splineMax, multiplier } = this.z;
@@ -166,7 +168,7 @@ export class RotationModule extends ParticleModule {
                 const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const time = normalizedAliveTime[i];
-                    angularVelocity.addZAt(lerp(splineMin.evaluate(time), splineMax.evaluate(time), pseudoRandom(randomSeed[i] + ROTATION_OVERTIME_RAND_OFFSET)) * multiplier, i);
+                    angularVelocity.addZAt(lerp(splineMin.evaluate(time), splineMax.evaluate(time), RandNumGen.getFloat(randomSeed[i] + ROTATION_OVERTIME_RAND_OFFSET)) * multiplier, i);
                 }
             }
         } else {
@@ -195,10 +197,10 @@ export class RotationModule extends ParticleModule {
                 const { constantMin: zMin, constantMax: zMax } = this.z;
                 const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const seed = randomSeed[i];
-                    angularVelocity.add3fAt(lerp(xMin, xMax, pseudoRandom(seed + ROTATION_OVERTIME_RAND_OFFSET)),
-                        lerp(yMin, yMax, pseudoRandom(seed + ROTATION_OVERTIME_RAND_OFFSET)),
-                        lerp(zMin, zMax, pseudoRandom(seed + ROTATION_OVERTIME_RAND_OFFSET)), i);
+                    const ratio = RandNumGen.get3Float(randomSeed[i] + ROTATION_OVERTIME_RAND_OFFSET, seed);
+                    angularVelocity.add3fAt(lerp(xMin, xMax, ratio.x),
+                        lerp(yMin, yMax, ratio.y),
+                        lerp(zMin, zMax, ratio.z), i);
                 }
             } else {
                 const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.x;
@@ -209,9 +211,9 @@ export class RotationModule extends ParticleModule {
                 for (let i = fromIndex; i < toIndex; i++) {
                     const time = normalizedAliveTime[i];
                     const seed = randomSeed[i];
-                    angularVelocity.add3fAt(lerp(xMin.evaluate(time), xMax.evaluate(time), pseudoRandom(seed + ROTATION_OVERTIME_RAND_OFFSET)) * xMultiplier,
-                        lerp(yMin.evaluate(time), yMax.evaluate(time), pseudoRandom(seed + ROTATION_OVERTIME_RAND_OFFSET)) * yMultiplier,
-                        lerp(zMin.evaluate(time), zMax.evaluate(time), pseudoRandom(seed + ROTATION_OVERTIME_RAND_OFFSET)) * zMultiplier, i);
+                    angularVelocity.add3fAt(lerp(xMin.evaluate(time), xMax.evaluate(time), RandNumGen.getFloat(seed + ROTATION_OVERTIME_RAND_OFFSET)) * xMultiplier,
+                        lerp(yMin.evaluate(time), yMax.evaluate(time), RandNumGen.getFloat(seed + ROTATION_OVERTIME_RAND_OFFSET)) * yMultiplier,
+                        lerp(zMin.evaluate(time), zMax.evaluate(time), RandNumGen.getFloat(seed + ROTATION_OVERTIME_RAND_OFFSET)) * zMultiplier, i);
                 }
             }
         }

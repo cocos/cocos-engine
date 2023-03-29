@@ -58,3 +58,4 @@ export * from './donut-shape';
 export * from './circle-shape';
 export * from './line-shape';
 export * from './rectangle-shape';
+export * from './drag';
