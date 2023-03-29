@@ -242,7 +242,12 @@ export class UIRenderer extends Renderer {
      * @engineInternal
      */
     @serializable
-    public _srcBlendFactor = BlendFactor.SRC_ALPHA;
+    protected _srcBlendFactor = BlendFactor.SRC_ALPHA;
+    /**
+     * @engineInternal
+     */
+    get srcBlendFactor (): BlendFactor { return this._srcBlendFactor; }
+    set srcBlendFactor (srcBlendFactor: BlendFactor) { this._srcBlendFactor = srcBlendFactor; }
     @serializable
     protected _dstBlendFactor = BlendFactor.ONE_MINUS_SRC_ALPHA;
     @serializable

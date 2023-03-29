@@ -52,7 +52,7 @@ export class TiledObjectGroup extends Component {
     get premultiplyAlpha () {
         return this._premultiplyAlpha;
     }
-    set premultiplyAlpha (value:boolean) {
+    set premultiplyAlpha (value: boolean) {
         this._premultiplyAlpha = value;
     }
 
@@ -112,7 +112,7 @@ export class TiledObjectGroup extends Component {
      * @example
      * let object = tMXObjectGroup.getObject("Group");
      */
-    public getObject (objectName:string) {
+    public getObject (objectName: string) {
         for (let i = 0, len = this._objects.length; i < len; i++) {
             const obj = this._objects[i];
             if (obj && obj.name === objectName) {
@@ -344,8 +344,8 @@ export class TiledObjectGroup extends Component {
 
                 // HACK: we should support _premultiplyAlpha when group had material
                 const srcBlendFactor = this._premultiplyAlpha ? BlendFactor.ONE : BlendFactor.SRC_ALPHA;
-                if (sprite._srcBlendFactor !== srcBlendFactor) {
-                    sprite._srcBlendFactor = srcBlendFactor;
+                if (sprite.srcBlendFactor !== srcBlendFactor) {
+                    sprite.srcBlendFactor = srcBlendFactor;
                     if (sprite.material) {
                         sprite._updateBlendFunc();
                     }
