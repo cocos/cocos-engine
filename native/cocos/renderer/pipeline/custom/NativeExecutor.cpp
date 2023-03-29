@@ -1046,13 +1046,6 @@ struct RenderGraphUploadVisitor : boost::dfs_visitor<> {
     RenderGraphVisitorContext& ctx;
 };
 
-
-template<class... Ts> struct overloaded_t : Ts... {
-    using Ts::operator()...;
-};
-
-template<class... Ts> overloaded_t(Ts...) -> overloaded_t<Ts...>;
-
 struct RenderGraphVisitor : boost::dfs_visitor<> {
     void submitBarriers(const std::vector<Barrier>& barriers) const {
         auto& resg = ctx.resourceGraph;
@@ -1405,9 +1398,9 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         const boost::filtered_graph<AddressableView<RenderGraph>, boost::keep_all, RenderGraphFilter>& gv) const {
         std::ignore = gv;
 
-        ccstd::visit(overloaded_t{
-            [&](const RasterPass* ppass) {
-                auto &pass = *ppass;
+        visitObject(
+            vertID, ctx.g,
+            [&](const RasterPass& pass) {
                 mountResources(pass);
                 {
                     const auto& layoutName = get(RenderGraph::LayoutTag{}, ctx.g, vertID);
@@ -1456,16 +1449,13 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
                 frontBarriers(vertID);
                 begin(pass, vertID);
             },
-            [&](const RasterSubpass* ppass) {
-                auto &subpass = *ppass;
+            [&](const RasterSubpass& subpass) {
                 begin(subpass, vertID);
             },
-            [&](const ComputeSubpass* ppass) {
-                auto &subpass = *ppass;
+            [&](const ComputeSubpass& subpass) {
                 begin(subpass, vertID);
             },
-            [&](const ComputePass* ppass) {
-                auto &pass = *ppass;
+            [&](const ComputePass& pass) {
                 mountResources(pass);
 
                 {
@@ -1482,28 +1472,24 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
                 frontBarriers(vertID);
                 begin(pass, vertID);
             },
-            [&](const CopyPass* ppass) {
-                auto &pass = *ppass;
+            [&](const CopyPass& pass) {
                 mountResources(pass);
                 frontBarriers(vertID);
                 begin(pass, vertID);
             },
-            [&](const MovePass* ppass) {
-                auto &pass = *ppass;
+            [&](const MovePass& pass) {
                 mountResources(pass);
                 frontBarriers(vertID);
                 begin(pass, vertID);
             },
-            [&](const RaytracePass* ppass) {
-                auto &pass = *ppass;
+            [&](const RaytracePass& pass) {
                 mountResources(pass);
                 frontBarriers(vertID);
                 begin(pass, vertID);
             },
-            [&](const auto* ppass) {
-                auto &queue = *ppass;
+            [&](const auto& queue) {
                 begin(queue, vertID);
-            }}, value(vertID, ctx.g));
+            });
     }
 
     void finish_vertex(
