@@ -198,15 +198,19 @@ export class UIRenderer extends Renderer {
         }
     }
 
-    /**
-     * @engineInternal NOTE: this is engine internal only, we need to access `_renderData` for we don't want to see the deprecated warning.
-     */
-    public _renderData: RenderData | null = null;
+    protected _renderData: RenderData | null = null;
     /**
      * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     get renderData () {
         return this._renderData;
+    }
+    /**
+     * As can not set setter internal individually, so add setRenderData();
+     * @engineInternal
+     */
+    setRenderData (renderData: RenderData | null) {
+        this._renderData = renderData;
     }
 
     /**
@@ -352,7 +356,7 @@ export class UIRenderer extends Renderer {
      */
     public markForUpdateRenderData (enable = true) {
         if (enable) {
-            const renderData = this.renderData;
+            const renderData = this._renderData;
             if (renderData) {
                 renderData.vertDirty = true;
             }
@@ -377,11 +381,11 @@ export class UIRenderer extends Renderer {
      * @zh 销毁当前渲染数据。
      */
     public destroyRenderData () {
-        if (!this.renderData) {
+        if (!this._renderData) {
             return;
         }
-        this.renderData.removeRenderDrawInfo(this);
-        RenderData.remove(this.renderData);
+        this._renderData.removeRenderDrawInfo(this);
+        RenderData.remove(this._renderData);
         this._renderData = null;
     }
 
@@ -544,7 +548,7 @@ export class UIRenderer extends Renderer {
 
     // pos, rot, scale changed
     protected _nodeStateChange (transformType: TransformBit) {
-        if (this.renderData) {
+        if (this._renderData) {
             this.markForUpdateRenderData();
         }
 
@@ -563,9 +567,9 @@ export class UIRenderer extends Renderer {
     }
 
     protected _onMaterialModified (idx: number, material: Material | null) {
-        if (this.renderData) {
+        if (this._renderData) {
             this.markForUpdateRenderData();
-            this.renderData.passDirty = true;
+            this._renderData.passDirty = true;
         }
         super._onMaterialModified(idx, material);
     }
@@ -598,8 +602,8 @@ export class UIRenderer extends Renderer {
      * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public setNodeDirty () {
-        if (this.renderData) {
-            this.renderData.nodeDirty = true;
+        if (this._renderData) {
+            this._renderData.nodeDirty = true;
         }
     }
 
@@ -607,8 +611,8 @@ export class UIRenderer extends Renderer {
      * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public setTextureDirty () {
-        if (this.renderData) {
-            this.renderData.textureDirty = true;
+        if (this._renderData) {
+            this._renderData.textureDirty = true;
         }
     }
 
