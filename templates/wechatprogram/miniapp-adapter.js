@@ -17,7 +17,7 @@ exports.adapt = function (canvas, width, height) {
             isFirstCall = false;
             return canvas;
         } else {
-            return wx.createOffscreenCanvas(width, height);
+            return wx.createOffscreenCanvas({type:"2d", width: width, height: height});
         }
     }
 

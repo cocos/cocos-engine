@@ -22,6 +22,7 @@
  THE SOFTWARE.
 */
 
+import { WECHAT_MINI_PROGRAM } from 'internal:constants';
 import { debug, error, errorID, CachedArray, cclegacy } from '../../core';
 import { WebGLCommandAllocator } from './webgl-command-allocator';
 import { WebGLEXT } from './webgl-define';
@@ -2714,10 +2715,30 @@ export function WebGLCmdFuncCopyTexImagesToTexture (
     case gl.TEXTURE_2D: {
         for (let i = 0; i < regions.length; i++) {
             const region = regions[i];
-            // console.debug('Copying image to texture 2D: ' + region.texExtent.width + ' x ' + region.texExtent.height);
-            gl.texSubImage2D(gl.TEXTURE_2D, region.texSubres.mipLevel,
-                region.texOffset.x, region.texOffset.y,
-                gpuTexture.glFormat, gpuTexture.glType, texImages[n++]);
+            if (WECHAT_MINI_PROGRAM) {
+                // TODO: Property 'type' does not exist on type 'HTMLImageElement'.
+                // maybe we need a higher level implementation called `pal/image`, we provide `type` interface here.
+                // issue: https://github.com/cocos/cocos-engine/issues/14646
+                const texImg = texImages[n++] as any;
+                if (texImg.type !== 'undefined' && texImg.type === 'canvas') {
+                    const canvas = texImg;
+                    const ctx = canvas.getContext('2d');
+                    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    gl.texSubImage2D(gl.TEXTURE_2D, region.texSubres.mipLevel,
+                        region.texOffset.x, region.texOffset.y, canvas.width, canvas.height,
+                        gpuTexture.glFormat, gpuTexture.glType, imgData.data);
+                } else {
+                    // console.debug('Copying image to texture 2D: ' + region.texExtent.width + ' x ' + region.texExtent.height);
+                    gl.texSubImage2D(gl.TEXTURE_2D, region.texSubres.mipLevel,
+                        region.texOffset.x, region.texOffset.y,
+                        gpuTexture.glFormat, gpuTexture.glType, texImg);
+                }
+            } else {
+                // console.debug('Copying image to texture 2D: ' + region.texExtent.width + ' x ' + region.texExtent.height);
+                gl.texSubImage2D(gl.TEXTURE_2D, region.texSubres.mipLevel,
+                    region.texOffset.x, region.texOffset.y,
+                    gpuTexture.glFormat, gpuTexture.glType, texImages[n++]);
+            }
         }
         break;
     }

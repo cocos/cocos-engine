@@ -1,20 +1,21 @@
-globalThis.__wxRequire = require;  // FIX: require cannot work in separate engine 
+globalThis.__wxRequire = require;
 var GameGlobal = getApp().GameGlobal;
 Page({
     onReady() {
         const query = wx.createSelectorQuery()
-        query.select('#myCanvas').node().exec((res) => {
-            // require('./miniapp-adapter');
+        query.select('#myCanvas').node().exec(async (res) => {
             const canvas = res[0].node;
             let width = canvas.width;
             let height = canvas.height;
-    
             const adapter = require('./miniapp-adapter');
             adapter.adapt(canvas, width, height);
             require('./web-adapter');
-
             const firstScreen = require('./first-screen'); 
             <%- include(cocosTemplate, {}) %>
+            const loader = require('load-module.js');
+            await loader.loadModules();
+
+            require('./application.js');
             // Adjust initial canvas size
             if (canvas && GameGlobal.devicePixelRatio >= 2) {
                 canvas.width *= 2; canvas.height *= 2;
@@ -25,17 +26,17 @@ Page({
             System.warmup({
                 importMap,
                 importMapUrl: '<%= importMapFile%>',
-                defaultHandler: (urlNoSchema) => {
-                    require('.' + urlNoSchema);
-                },
-                handlers: {
-                    'plugin:': (urlNoSchema) => {
-                        requirePlugin(urlNoSchema);
-                    },
-                    'project:': (urlNoSchema) => {
-                        require(urlNoSchema);
-                    },
-                },
+                // defaultHandler: (urlNoSchema) => {
+                //     require('.' + urlNoSchema);
+                // },
+                // handlers: {
+                //     'plugin:': (urlNoSchema) => {
+                //         requirePlugin(urlNoSchema);
+                //     },
+                //     'project:': (urlNoSchema) => {
+                //         require(urlNoSchema);
+                //     },
+                // },
             });
 
             firstScreen.start('<%= alpha %>', '<%= antialias %>', '<%= useWebgl2 %>').then(() => {
@@ -57,6 +58,7 @@ Page({
                     return firstScreen.setProgress(0.6).then(() => Promise.resolve(module));
                 }).then((cc) => {
                     require('./engine-adapter');
+                    require('src/chunks/bundle.js'); //bundle.js should reuqire after engine-adapter if use named register mode
                     return application.init(cc);
                 }).then(() => {
                     return firstScreen.end().then(() => application.start());
