@@ -4,11 +4,6 @@
 #include <common/lighting/functions>
 #include <lighting-models/model-functions/standard-common>
 
-#pragma define CC_DISABLE_DIFFUSE_AND_SPECULAR 0
-#pragma define CC_ONLY_ENABLE_DIFFUSE 1
-#pragma define CC_ONLY_ENABLE_SPECULAR 2
-#pragma define CC_ENABLE_DIFFUSE_AND_SPECULAR 3
-
 bool CCSurfacesLightingEnableShadow(in float NoL)
 {
   return NoL > 0.0;
