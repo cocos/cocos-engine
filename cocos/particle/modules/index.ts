@@ -29,7 +29,7 @@ export * from './shape';
 export * from './spawn-over-time';
 export * from './spawn-per-unit';
 export * from './burst';
-export * from './start-speed';
+export * from './add-speed-in-initial-speed';
 export * from './start-color';
 export * from './start-rotation';
 export * from './start-life-time';

@@ -27,17 +27,28 @@ import { ccclass, displayOrder, range, serializable, tooltip, type, visible } fr
 import { ModuleExecStage, ParticleModule } from '../particle-module';
 import { Enum, toDegree, toRadian, Vec3 } from '../../core';
 import { ParticleDataSet } from '../particle-data-set';
-import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
+import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
 import { CurveRange } from '../curve-range';
+import { RandNumGen } from '../rand-num-gen';
 
 @ccclass('cc.RectangleShapeModule')
 @ParticleModule.register('RectangleShape', ModuleExecStage.SPAWN)
 export class RectangleShapeModule extends ShapeModule {
-    public tick (particles: ParticleDataSet,  params: ParticleEmitterParams, context: ParticleExecContext) {
-        super.tick(particles, params, context);
+    private _rand = new RandNumGen();
+
+    public onPlay (params: ParticleEmitterParams, states: ParticleEmitterState) {
+        this._rand.seed = states.rand.getUInt32();
     }
 
-    public execute () {
-
+    public execute (particles: ParticleDataSet,  params: ParticleEmitterParams, context: ParticleExecContext) {
+        const { fromIndex, toIndex } = context;
+        const { vec3Register, startDir } = particles;
+        const rand = this._rand;
+        for (let i = fromIndex; i < toIndex; i++) {
+            const x = rand.getFloatFromRange(-0.5, 0.5);
+            const y = rand.getFloatFromRange(-0.5, 0.5);
+            vec3Register.set3fAt(x, y, 0, i);
+            startDir.set3fAt(0, 0, 1, i);
+        }
     }
 }

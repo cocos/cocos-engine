@@ -38,7 +38,7 @@ import { SubUVAnimationModule } from './modules/sub-uv-animation';
 import { AddVelocityModule } from './modules/add-velocity';
 import { StartColorModule } from './modules/start-color';
 import { StartSizeModule } from './modules/start-size';
-import { StartSpeedModule } from './modules/start-speed';
+import { StartSpeedModule } from './modules/add-speed-in-initial-speed';
 import { StartLifeTimeModule } from './modules/start-life-time';
 import { SpawnOverTimeModule } from './modules/spawn-over-time';
 import { SpawnPerUnitModule } from './modules/spawn-per-unit';
