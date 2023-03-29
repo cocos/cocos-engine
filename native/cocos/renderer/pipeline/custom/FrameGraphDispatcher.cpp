@@ -58,7 +58,7 @@ namespace cc {
 
 namespace render {
 
-static constexpr bool ENABLE_BRANCH_CULLING = true;
+static constexpr bool ENABLE_BRANCH_CULLING = false;
 
 void passReorder(FrameGraphDispatcher &fgDispatcher);
 void memoryAliasing(FrameGraphDispatcher &fgDispatcher);
