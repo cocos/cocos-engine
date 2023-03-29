@@ -238,9 +238,6 @@ export class UIRenderer extends Renderer {
     @type(Material)
     protected _customMaterial: Material | null = null;
 
-    /**
-     * @engineInternal
-     */
     @serializable
     protected _srcBlendFactor = BlendFactor.SRC_ALPHA;
     /**
