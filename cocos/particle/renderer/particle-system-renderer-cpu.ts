@@ -84,6 +84,7 @@ const CC_USE_WORLD_SPACE = 'CC_USE_WORLD_SPACE';
 const CC_RENDER_MODE = 'CC_RENDER_MODE';
 const ROTATION_OVER_TIME_MODULE_ENABLE = 'ROTATION_OVER_TIME_MODULE_ENABLE';
 const INSTANCE_PARTICLE = 'CC_INSTANCE_PARTICLE';
+const USE_CUSTOM = 'CC_USE_CUSTOM';
 const RENDER_MODE_BILLBOARD = 0;
 const RENDER_MODE_STRETCHED_BILLBOARD = 1;
 const RENDER_MODE_HORIZONTAL_BILLBOARD = 2;
@@ -146,6 +147,40 @@ const _vertex_attrs_mesh_ins = [
     new Attribute(AttributeName.ATTR_COLOR1, Format.RGBA8, true, 1),                 // mesh color
 ];
 
+const _vertex_attrs_cus_ins = [
+    new Attribute(AttributeName.ATTR_TEX_COORD4, Format.RGBA32F, false, 0, true),    // position,frame idx
+    new Attribute(AttributeName.ATTR_TEX_COORD1, Format.RGB32F, false, 0, true),     // size
+    new Attribute(AttributeName.ATTR_TEX_COORD2, Format.RGB32F, false, 0, true),     // rotation
+    new Attribute(AttributeName.ATTR_COLOR, Format.RGBA8, true, 0, true),            // color
+    new Attribute(AttributeName.ATTR_TEX_COORD5, Format.RGBA32F, true, 0, true),
+    new Attribute(AttributeName.ATTR_TEX_COORD6, Format.RGBA32F, true, 0, true),
+    new Attribute(AttributeName.ATTR_TEX_COORD, Format.RGB32F, false, 1),            // uv
+];
+
+const _vertex_attrs_stretch_cus_ins = [
+    new Attribute(AttributeName.ATTR_TEX_COORD4, Format.RGBA32F, false, 0, true),    // position,frame idx
+    new Attribute(AttributeName.ATTR_TEX_COORD1, Format.RGB32F, false, 0, true),     // size
+    new Attribute(AttributeName.ATTR_TEX_COORD2, Format.RGB32F, false, 0, true),     // rotation
+    new Attribute(AttributeName.ATTR_COLOR, Format.RGBA8, true, 0, true),            // color
+    new Attribute(AttributeName.ATTR_COLOR1, Format.RGB32F, false, 0, true),         // particle velocity
+    new Attribute(AttributeName.ATTR_TEX_COORD5, Format.RGBA32F, true, 0, true),
+    new Attribute(AttributeName.ATTR_TEX_COORD6, Format.RGBA32F, true, 0, true),
+    new Attribute(AttributeName.ATTR_TEX_COORD, Format.RGB32F, false, 1),            // uv
+];
+
+const _vertex_attrs_mesh_cus_ins = [
+    new Attribute(AttributeName.ATTR_TEX_COORD4, Format.RGBA32F, false, 0, true),    // particle position,frame idx
+    new Attribute(AttributeName.ATTR_TEX_COORD1, Format.RGB32F, false, 0, true),     // size
+    new Attribute(AttributeName.ATTR_TEX_COORD2, Format.RGB32F, false, 0, true),     // rotation
+    new Attribute(AttributeName.ATTR_COLOR, Format.RGBA8, true, 0, true),            // particle color
+    new Attribute(AttributeName.ATTR_TEX_COORD5, Format.RGBA32F, true, 0, true),
+    new Attribute(AttributeName.ATTR_TEX_COORD6, Format.RGBA32F, true, 0, true),
+    new Attribute(AttributeName.ATTR_TEX_COORD, Format.RGB32F, false, 1),            // mesh uv
+    new Attribute(AttributeName.ATTR_TEX_COORD3, Format.RGB32F, false, 1),           // mesh position
+    new Attribute(AttributeName.ATTR_NORMAL, Format.RGB32F, false, 1),               // mesh normal
+    new Attribute(AttributeName.ATTR_COLOR1, Format.RGBA8, true, 1),                 // mesh color
+];
+
 const _matInsInfo: IMaterialInstanceInfo = {
     parent: null!,
     owner: null!,
@@ -183,13 +218,14 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         this._frameTile_velLenScale = new Vec4(1, 1, 0, 0);
         this._tmp_velLenScale = this._frameTile_velLenScale.clone();
         this._node_scale = new Vec4();
-        this._attrs = new Array(7);
+        this._attrs = new Array(8);
         this._defines = {
             CC_USE_WORLD_SPACE: true,
             CC_USE_BILLBOARD: true,
             CC_USE_STRETCHED_BILLBOARD: false,
             CC_USE_HORIZONTAL_BILLBOARD: false,
             CC_USE_VERTICAL_BILLBOARD: false,
+            CC_USE_CUSTOM: false,
         };
         this._trailDefines = {
             CC_USE_WORLD_SPACE: true,
@@ -638,6 +674,14 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         this._attrs[2] = p.size;
         this._attrs[3] = p.rotation;
         this._attrs[4] = p.color._val;
+        this._attrs[5] = null;
+        if (this.getUseCustom()) {
+            this._attrs[6] = p.custom1;
+            this._attrs[7] = p.custom2;
+        } else {
+            this._attrs[6] = null;
+            this._attrs[7] = null;
+        }
         this._model!.addParticleVertexData(i, this._attrs);
     }
 
@@ -670,6 +714,13 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         this._attrs[3] = p.rotation;
         this._attrs[4] = p.color._val;
         this._attrs[5] = p.ultimateVelocity;
+        if (this.getUseCustom()) {
+            this._attrs[6] = p.custom1;
+            this._attrs[7] = p.custom2;
+        } else {
+            this._attrs[6] = null;
+            this._attrs[7] = null;
+        }
         this._model!.addParticleVertexData(i, this._attrs);
     }
 
@@ -701,6 +752,13 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         this._attrs[3] = p.rotation;
         this._attrs[4] = p.color._val;
         this._attrs[5] = null;
+        if (this.getUseCustom()) {
+            this._attrs[6] = p.custom1;
+            this._attrs[7] = p.custom2;
+        } else {
+            this._attrs[6] = null;
+            this._attrs[7] = null;
+        }
         this._model!.addParticleVertexData(i, this._attrs);
     }
 
@@ -718,10 +776,12 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                         break;
                     }
                 }
-                this._vertAttrs[7] = new Attribute(AttributeName.ATTR_COLOR1, type, true, !this._useInstance ? 0 : 1);
+                const colorInd = this._useCustom ? 9 : 7;
+                this._vertAttrs[colorInd] = new Attribute(AttributeName.ATTR_COLOR1, type, true, !this._useInstance ? 0 : 1);
             } else { // mesh without vertex color
                 const type = Format.RGBA8;
-                this._vertAttrs[7] = new Attribute(AttributeName.ATTR_COLOR1, type, true, !this._useInstance ? 0 : 1);
+                const colorInd = this._useCustom ? 9 : 7;
+                this._vertAttrs[colorInd] = new Attribute(AttributeName.ATTR_COLOR1, type, true, !this._useInstance ? 0 : 1);
             }
         }
     }
@@ -746,13 +806,25 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     private _setVertexAttribIns () {
         switch (this._renderInfo!.renderMode) {
         case RenderMode.StrecthedBillboard:
-            this._vertAttrs = _vertex_attrs_stretch_ins.slice();
+            if (!this.getUseCustom()) {
+                this._vertAttrs = _vertex_attrs_stretch_ins.slice();
+            } else {
+                this._vertAttrs = _vertex_attrs_stretch_cus_ins.slice();
+            }
             break;
         case RenderMode.Mesh:
-            this._vertAttrs = _vertex_attrs_mesh_ins.slice();
+            if (!this.getUseCustom()) {
+                this._vertAttrs = _vertex_attrs_mesh_ins.slice();
+            } else {
+                this._vertAttrs = _vertex_attrs_mesh_cus_ins.slice();
+            }
             break;
         default:
-            this._vertAttrs = _vertex_attrs_ins.slice();
+            if (!this.getUseCustom()) {
+                this._vertAttrs = _vertex_attrs_ins.slice();
+            } else {
+                this._vertAttrs = _vertex_attrs_cus_ins.slice();
+            }
         }
     }
 
@@ -840,6 +912,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         enable = roationModule && roationModule.enable;
         this._defines[ROTATION_OVER_TIME_MODULE_ENABLE] = enable;
         this._defines[INSTANCE_PARTICLE] = this._useInstance;
+        this._defines[USE_CUSTOM] = this._useCustom;
 
         mat.recompileShaders(this._defines);
         if (this._model) {

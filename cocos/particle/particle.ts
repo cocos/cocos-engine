@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { Color, Vec3, Mat4, Quat } from '../core/math';
+import { Color, Vec3, Mat4, Quat, Vec4 } from '../core/math';
 import { ParticleSystem } from './particle-system';
 import { IParticleSystemRenderer } from './renderer/particle-system-renderer-base';
 
@@ -50,6 +50,8 @@ export class Particle {
     public size: Vec3;
     public startColor: Color;
     public color: Color;
+    public custom1: Vec4;
+    public custom2: Vec4;
     public randomSeed: number; // uint
     public remainingLifetime: number;
     public loopCount: number;
@@ -90,6 +92,8 @@ export class Particle {
         this.size = new Vec3(0, 0, 0);
         this.startColor = Color.WHITE.clone();
         this.color = Color.WHITE.clone();
+        this.custom1 = new Vec4();
+        this.custom2 = new Vec4();
         this.randomSeed = 0; // uint
         this.remainingLifetime = 0.0;
         this.loopCount = 0;
@@ -126,6 +130,8 @@ export class Particle {
         this.time = 0;
         this.timeCounter = 0;
         this.distanceCounter = 0;
+        this.custom1.set(0, 0, 0, 0);
+        this.custom2.set(0, 0, 0, 0);
     }
 }
 
