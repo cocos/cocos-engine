@@ -4,14 +4,19 @@
 // V from pixel to camera
 vec3 CalculateRefractDirection(vec3 N, vec3 V, float NoV, float ior)
 {
-  float NoVAbs = abs(NoV);
   // two sided
   float sideSign = NoV < 0.0 ? -1.0 : 1.0;
   N *= sideSign;
-  NoV *= sideSign;
-  float sinB = sqrt(1.0 - NoVAbs*NoVAbs) / ior;
-  vec3 X = normalize(-V + N * NoVAbs);
-  vec3 R = -N + X * sinB;
+  
+	// A: NV  B:NR
+	float cosA = abs(NoV);
+	float sinA = sqrt(1.0 - cosA * cosA);
+  float sinB = saturate(sinA / ior);
+	float cosB = sqrt(1.0 - sinB * sinB);
+
+  vec3 edgeA = -V + N * cosA;
+  vec3 edgeB = normalize(edgeA) * sinB;
+  vec3 R = edgeB - N * cosB;
   return R;
 }
 
