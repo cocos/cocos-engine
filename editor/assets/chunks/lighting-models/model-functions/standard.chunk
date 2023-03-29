@@ -165,36 +165,38 @@ void CCSurfacesLightingCalculateEnvironment(out vec3 lightingDiffuse, out vec3 l
   #ifndef CC_SURFACES_FRAGMENT_MODIFY_2ND_SPECULAR_COLOR
     vec3 SurfacesLightingGet2ndSpecularColor(float specBRDF, bool isSaturated)
     {
-      return vec3(specBRDF);
+      return vec3(saturate(specBRDF));
     }
   #endif
   
-  void CCSurfacesLightingCalculateDirect2ndSpecular(out vec3 specularLighting, in LightingIntermediateData lightingData, in vec4 lightSourceColorAndIntensity, in vec3 originalSpecular)
+  void CCSurfacesLightingCalculateDirect2ndSpecular(out vec3 specularLighting, in LightingIntermediateData lightingData, in vec4 lightSourceColorAndIntensity, float intensitySpecular, in vec3 originalSpecular)
   {
   #if !CC_SURFACES_LIGHTING_DISABLE_SPECULAR
     vec3 unused;
     // light color has less influence
-    CCSurfacesLightingCalculateDirect(unused, specularLighting, lightingData, vec4(1.0));
-    float brdf = specularLighting.x;
-    vec3 Color = SurfacesLightingGet2ndSpecularColor(brdf, true);
+    CCSurfacesLightingCalculateDirect(unused, specularLighting, lightingData, lightSourceColorAndIntensity);
+    // float brdf = specularLighting.x;
+    // vec3 Color = SurfacesLightingGet2ndSpecularColor(brdf, true);
     // todo: modify Color to add some light color influence
-    specularLighting *= Color * lightSourceColorAndIntensity.w;
+    // specularLighting *= Color * lightSourceColorAndIntensity.w;
+    specularLighting *= intensitySpecular;
     // specularLighting -= originalSpecular;
   #else
     specularLighting = vec3(0.0);
   #endif
   }
 
-  void CCSurfacesLightingCalculateEnvironment2ndSpecular(out vec3 specularLighting, in LightingIntermediateData lightingData, float lightIntensity, in vec3 originalSpecular)
+  void CCSurfacesLightingCalculateEnvironment2ndSpecular(out vec3 specularLighting, in LightingIntermediateData lightingData, float lightIntensity, float intensitySpecular, in vec3 originalSpecular)
   {
   #if !CC_SURFACES_LIGHTING_DISABLE_SPECULAR
     vec3 unused;
     // light color has less influence
-    specularLighting = CalculateEnvironmentSpecular(lightingData, 1.0);
-    float brdf = length(specularLighting);
-    vec3 Color = SurfacesLightingGet2ndSpecularColor(brdf, false);
+    specularLighting = CalculateEnvironmentSpecular(lightingData, lightIntensity);
+    // float brdf = length(specularLighting);
+    // vec3 Color = SurfacesLightingGet2ndSpecularColor(brdf, false);
     // todo: modify Color to add some light color influence
-    specularLighting *= Color * lightIntensity;
+    // specularLighting *= Color * lightIntensity;
+    specularLighting *= intensitySpecular;
     // specularLighting -= originalSpecular;
   #else
     specularLighting = vec3(0.0);

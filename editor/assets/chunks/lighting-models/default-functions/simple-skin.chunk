@@ -32,10 +32,16 @@
     #endif
 
     result.directSpecular *= cavity;
+  #if CC_SURFACES_LIGHTING_2ND_LAYER_SPECULAR
+    result.direct2ndSpecular *= cavity;
+  #endif
 
     #if !CC_FORWARD_ADD
       result.environmentDiffuse = CalculateEnvironmentDiffuse(lightingData3S, cc_ambientSky.w);
       result.environmentSpecular *= cavity;
+      #if CC_SURFACES_LIGHTING_2ND_LAYER_SPECULAR
+        result.environment2ndSpecular *= cavity;
+      #endif
     #endif
   #endif
   }

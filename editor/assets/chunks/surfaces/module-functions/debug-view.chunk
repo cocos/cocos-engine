@@ -110,7 +110,7 @@ vec4 CCSurfacesDebugDisplayInvalidInputData(vec4 color, vec3 data)
     
     if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_DIRECT_SPECULAR))
     {
-        color.rgb = lightingResult.directSpecular * lightingResult.specularColorWithLighting;
+        color.rgb = lightingResult.directSpecular * lightingResult.specularColorWithEnvLighting;
         isSRGBColor = true;
     }
     
@@ -128,7 +128,7 @@ vec4 CCSurfacesDebugDisplayInvalidInputData(vec4 color, vec3 data)
     
     if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_ENV_SPECULAR))
     {
-        color.rgb = lightingResult.environmentSpecular * lightingResult.specularColorWithLighting;
+        color.rgb = lightingResult.environmentSpecular * lightingResult.specularColorWithEnvLighting;
         isSRGBColor = true;
     }
     
@@ -181,7 +181,7 @@ vec4 CCSurfacesDebugDisplayInvalidInputData(vec4 color, vec3 data)
   #if CC_SURFACES_LIGHTING_2ND_LAYER_SPECULAR
     direct2ndSpecular = lightingResult.direct2ndSpecular;
     environment2ndSpecular = lightingResult.environment2ndSpecular;
-    specularColorWithLighting2ndSpecular = lightingResult.specularColorWithLighting2ndSpecular;
+    specularColorWithLighting2ndSpecular = lightingResult.specularColorWithEnvLighting2ndSpecular;
   #endif
 
     if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_FRESNEL))

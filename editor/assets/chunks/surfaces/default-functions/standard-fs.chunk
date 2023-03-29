@@ -146,6 +146,15 @@ vec3 SurfacesFragmentModifyTTColor(in vec3 baseColor, in vec3 trtColor)
 }
 #endif
 
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_DUAL_LOBE_SPECULAR_PARAMS
+vec4 SurfacesFragmentModifyDualLobeSpecularParams(float roughness)
+{
+    //x: secondary lobe roughness, according to argument (first lobe roughness)
+    //w: intensity
+    return vec4(0.2, 0.0, 0.0, 1.0);
+}
+#endif
+
 #ifndef CC_SURFACES_FRAGMENT_MODIFY_SSS_PARAMS
 vec4 SurfacesFragmentModifySSSParams()
 {

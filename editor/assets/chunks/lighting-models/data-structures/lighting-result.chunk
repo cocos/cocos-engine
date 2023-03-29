@@ -1,7 +1,7 @@
 struct LightingResult
 {
   // material-dependent lighting data
-  vec3 diffuseColorWithLighting, specularColorWithLighting;
+  vec3 diffuseColorWithLighting, specularColorWithLighting, specularColorWithEnvLighting;
 
   // pure lighting
   vec3 directDiffuse, directSpecular;
@@ -23,7 +23,7 @@ struct LightingResult
 #endif  
 #if CC_SURFACES_LIGHTING_2ND_LAYER_SPECULAR
   vec3 direct2ndSpecular, environment2ndSpecular;
-  vec3 specularColorWithLighting2ndSpecular;
+  vec3 specularColorWithLighting2ndSpecular, specularColorWithEnvLighting2ndSpecular;
 #endif
 #if CC_SURFACES_LIGHTING_TT
   vec3 directTT;
