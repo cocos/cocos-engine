@@ -488,6 +488,9 @@ void cmdFuncCCVKCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
         }
 
         if (subpassInfo.shadingRate != INVALID_BINDING && subpassInfo.shadingRate < colorAttachmentCount) {
+            // layout is guaranteed
+            attachmentDescriptions[subpassInfo.shadingRate].initialLayout = VK_IMAGE_LAYOUT_FRAGMENT_SHADING_RATE_ATTACHMENT_OPTIMAL_KHR;
+            attachmentDescriptions[subpassInfo.shadingRate].finalLayout = VK_IMAGE_LAYOUT_FRAGMENT_SHADING_RATE_ATTACHMENT_OPTIMAL_KHR;
             const ColorAttachment &desc = gpuRenderPass->colorAttachments[subpassInfo.shadingRate];
             attachmentReferences.push_back({VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2, nullptr, subpassInfo.shadingRate, VK_IMAGE_LAYOUT_FRAGMENT_SHADING_RATE_ATTACHMENT_OPTIMAL_KHR, VK_IMAGE_ASPECT_COLOR_BIT});
         }
@@ -661,7 +664,7 @@ void cmdFuncCCVKCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
                         updateLifeCycle(statistics, j, subpass.pInputAttachments[k].layout, AttachmentStatistics::SubpassUsage::INPUT);
                     }
                 }
-                const auto *vrsDesc = static_cast<const VkFragmentShadingRateAttachmentInfoKHR*>(subpass.pNext);
+                const auto *vrsDesc = static_cast<const VkFragmentShadingRateAttachmentInfoKHR *>(subpass.pNext);
                 if (vrsDesc != nullptr && vrsDesc->sType == VK_STRUCTURE_TYPE_FRAGMENT_SHADING_RATE_ATTACHMENT_INFO_KHR && vrsDesc->pFragmentShadingRateAttachment->attachment == targetAttachment) {
                     updateLifeCycle(statistics, j, vrsDesc->pFragmentShadingRateAttachment->layout, AttachmentStatistics::SubpassUsage::SHADING_RATE);
                 }

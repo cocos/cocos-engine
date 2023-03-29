@@ -1387,7 +1387,7 @@ void NativeComputeQueueBuilder::addDispatch(
             threadGroupCountX,
             threadGroupCountY,
             threadGroupCountZ),
-        *renderGraph);
+        *renderGraph, passID);
 }
 
 void NativeComputeQueueBuilder::setMat4(const ccstd::string &name, const Mat4 &mat) {

@@ -143,6 +143,13 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     // requestedFeatures2.features.se
     requestedVulkan12Features.separateDepthStencilLayouts = _gpuContext->physicalDeviceVulkan12Features.separateDepthStencilLayouts;
 
+    VkPhysicalDeviceFragmentShadingRateFeaturesKHR shadingRateRequest;
+    shadingRateRequest.attachmentFragmentShadingRate = VK_TRUE;
+    shadingRateRequest.pipelineFragmentShadingRate = VK_TRUE;
+    shadingRateRequest.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_FEATURES_KHR;
+    requestedVulkan12Features.pNext = &shadingRateRequest;
+    shadingRateRequest.pNext = NULL;
+
     if (_gpuContext->validationEnabled) {
         requestedLayers.push_back("VK_LAYER_KHRONOS_validation");
     }

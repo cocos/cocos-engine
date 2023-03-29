@@ -656,7 +656,6 @@ enum class AccessFlagBit : uint32_t {
     TRANSFER_READ = 1 << 16,                                      // Read as the source of a transfer operation
     HOST_READ = 1 << 17,                                          // Read on the host
     PRESENT = 1 << 18,                                            // Read by the presentation engine
-    SHADING_RATE = 1 << 27,                                       // Read as a shading rate image
 
     // Write accesses
     VERTEX_SHADER_WRITE = 1 << 19,            // Written as any resource in a vertex shader
@@ -667,6 +666,8 @@ enum class AccessFlagBit : uint32_t {
     TRANSFER_WRITE = 1 << 24,                 // Written as the destination of a transfer operation
     HOST_PREINITIALIZED = 1 << 25,            // Data pre-filled by host before device access starts
     HOST_WRITE = 1 << 26,                     // Written on the host
+
+    SHADING_RATE = 1 << 27, // Read as a shading rate image
 };
 CC_ENUM_BITWISE_OPERATORS(AccessFlagBit);
 using AccessFlags = AccessFlagBit;
