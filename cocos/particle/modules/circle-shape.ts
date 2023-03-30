@@ -26,7 +26,7 @@ import { DistributionMode, ShapeModule } from './shape';
 import { ccclass, displayOrder, range, serializable, tooltip, type, visible } from '../../core/data/decorators';
 import { ModuleExecStage, ParticleModule } from '../particle-module';
 import { Enum, lerp, toDegree, toRadian, Vec3 } from '../../core';
-import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameter, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { CurveRange } from '../curve-range';
 import { RandNumGen } from '../rand-num-gen';
@@ -34,7 +34,7 @@ import { AngleBasedShapeModule } from './angle-based-shape';
 
 const temp = new Vec3();
 @ccclass('cc.CircleShapeModule')
-@ParticleModule.register('CircleShape', ModuleExecStage.SPAWN)
+@ParticleModule.register('CircleShape', ModuleExecStage.SPAWN, [BuiltinParticleParameterName.START_DIR])
 export class CircleShapeModule extends AngleBasedShapeModule {
     /**
       * @zh 粒子发射器半径。

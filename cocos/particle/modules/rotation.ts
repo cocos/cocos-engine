@@ -31,14 +31,14 @@ import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { CurveRange } from '../curve-range';
 import { assert, CCBoolean } from '../../core';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
-import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameter, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { RandNumGen } from '../rand-num-gen';
 
 const ROTATION_OVERTIME_RAND_OFFSET = 125292;
 const seed = new Vec3();
 
 @ccclass('cc.RotationModule')
-@ParticleModule.register('Rotation', ModuleExecStage.UPDATE, [], ['Solve', 'State'])
+@ParticleModule.register('Rotation', ModuleExecStage.UPDATE, [BuiltinParticleParameterName.ANGULAR_VELOCITY], [])
 export class RotationModule extends ParticleModule {
     /**
      * @zh 是否三个轴分开设定旋转。

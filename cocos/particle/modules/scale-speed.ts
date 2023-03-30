@@ -27,14 +27,14 @@ import { lerp } from '../../core';
 import { ccclass, displayOrder, range, serializable, tooltip, type } from '../../core/data/decorators';
 import { CurveRange } from '../curve-range';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
-import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameter, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { RandNumGen } from '../rand-num-gen';
 
 const SPEED_MODIFIER_RAND_OFFSET = 388180;
 
 @ccclass('cc.ScaleSpeedModule')
-@ParticleModule.register('ScaleSpeed', ModuleExecStage.UPDATE, ['AddVelocity', 'Force', 'Gravity'], ['State', 'Solve'])
+@ParticleModule.register('ScaleSpeed', ModuleExecStage.UPDATE, [BuiltinParticleParameterName.VELOCITY], [BuiltinParticleParameterName.VELOCITY])
 export class ScaleSpeedModule extends ParticleModule {
     /**
      * @zh 速度修正系数。

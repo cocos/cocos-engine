@@ -22,56 +22,178 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { ShapeModule, DistributionMode } from './shape';
-import { ccclass, displayOrder, range, serializable, tooltip, type, visible } from '../../core/data/decorators';
+import { ShapeModule, DistributionMode, MoveWarpMode } from './shape';
+import { ccclass, displayOrder, range, rangeMax, rangeMin, serializable, tooltip, type, visible } from '../../core/data/decorators';
 import { ModuleExecStage, ParticleModule } from '../particle-module';
-import { Enum, toDegree, toRadian, Vec3 } from '../../core';
-import { ParticleDataSet } from '../particle-data-set';
-import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
+import { Enum, lerp, toDegree, toRadian, Vec3 } from '../../core';
+import { BuiltinParticleParameter, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
+import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
 import { CurveRange } from '../curve-range';
+import { RandNumGen } from '../rand-num-gen';
 
 @ccclass('cc.LineShapeModule')
-@ParticleModule.register('LineShape', ModuleExecStage.SPAWN)
+@ParticleModule.register('LineShape', ModuleExecStage.SPAWN, [BuiltinParticleParameterName.START_DIR])
 export class LineShapeModule extends ShapeModule {
     /**
-       * @zh 粒子发射器半径。
-       */
+     * @zh 粒子发射器半径。
+     */
     @serializable
     @tooltip('i18n:shapeModule.radius')
+    @rangeMin(0.0001)
     public length = 1;
 
     /**
-        * @zh 粒子在扇形范围内的发射方式 [[ArcMode]]。
-        */
+     * @zh 粒子在扇形范围内的发射方式 [[ArcMode]]。
+     */
     @type(Enum(DistributionMode))
     @serializable
     @tooltip('i18n:shapeModule.arcMode')
     public distributionMode = DistributionMode.RANDOM;
 
-    /**
-        * @zh 控制可能产生粒子的弧周围的离散间隔。
-        */
+    @type(Enum(MoveWarpMode))
     @serializable
-    @tooltip('i18n:shapeModule.arcSpread')
-    public spread = 0;
+    @visible(function (this: LineShapeModule) {
+        return this.distributionMode === DistributionMode.MOVE;
+    })
+    public moveWrapMode = MoveWarpMode.LOOP;
 
     /**
-        * @zh 粒子沿圆周发射的速度。
-        */
+     * @zh 使用移动分布方式时的移动速度。
+     */
     @type(CurveRange)
     @range([0, 1])
     @serializable
     @tooltip('i18n:shapeModule.arcSpeed')
     @visible(function (this: LineShapeModule) {
-        return this.distributionMode !== DistributionMode.RANDOM;
+        return this.distributionMode === DistributionMode.MOVE;
     })
-    public speed = new CurveRange();
+    public moveSpeed = new CurveRange();
+
+    /**
+      * @zh 控制可能产生粒子的弧周围的离散间隔。
+      */
+    @serializable
+    @tooltip('i18n:shapeModule.arcSpread')
+    public spread = 0;
+
+    private _invLength = 0;
+    private _lengthTimer = 0;
+    private _lengthTimePrev = 0;
+    private _spreadStep = 0;
+    private _lengthRounded = 0;
+    private _halfLength = 0;
+
+    public onPlay (params: ParticleEmitterParams, states: ParticleEmitterState) {
+        super.onPlay(params, states);
+        this._lengthTimer = 0;
+        this._lengthTimePrev = 0;
+    }
 
     public tick (particles: ParticleDataSet,  params: ParticleEmitterParams, context: ParticleExecContext) {
         super.tick(particles, params, context);
+        context.markRequiredParameter(BuiltinParticleParameter.FLOAT_REGISTER);
+        if (this.distributionMode === DistributionMode.MOVE) {
+            context.markRequiredParameter(BuiltinParticleParameter.SPAWN_TIME_RATIO);
+        }
+        this._lengthTimePrev = this._lengthTimer;
+        this._lengthTimer += this.moveSpeed.evaluate(context.emitterNormalizedTime, 1) * context.emitterDeltaTime;
+        this._invLength = 1 / this.length;
+        this._spreadStep = this.spread * this._invLength;
+        this._lengthRounded = Math.ceil(this.length / this._spreadStep) * this._spreadStep;
+        this._halfLength = this.length * 0.5;
     }
 
-    public execute () {
-
+    public execute (particles: ParticleDataSet,  params: ParticleEmitterParams, context: ParticleExecContext) {
+        const { fromIndex, toIndex } = context;
+        const floatRegister = particles.floatRegister.data;
+        const { vec3Register, startDir } = particles;
+        const rand = this._rand;
+        const spreadStep = this._spreadStep;
+        const lengthTimer = this._lengthTimer;
+        const lengthTimerPrev = this._lengthTimePrev;
+        const length = this.length;
+        const invLength = this._invLength;
+        const lengthRounded = this._lengthRounded;
+        const halfLength = this._halfLength;
+        if (this.distributionMode === DistributionMode.RANDOM) {
+            if (this.spread > 0) {
+                for (let i = fromIndex; i < toIndex; ++i) {
+                    floatRegister[i] = length * rand.getFloat();
+                }
+            } else {
+                for (let i = fromIndex; i < toIndex; ++i) {
+                    floatRegister[i] = Math.floor((lengthRounded * rand.getFloat()) / spreadStep) * spreadStep;
+                }
+            }
+        } else if (this.distributionMode === DistributionMode.MOVE) {
+            if (this.moveWrapMode === MoveWarpMode.LOOP) {
+                const spawnTimeRatio = particles.spawnTimeRatio.data;
+                if (this.spread > 0) {
+                    for (let i = fromIndex; i < toIndex; ++i) {
+                        let len = lerp(lengthTimer, lengthTimerPrev, spawnTimeRatio[i]);
+                        len = Math.floor(len / spreadStep) * spreadStep;
+                        len %= length;
+                        if (len < 0) {
+                            len += length;
+                        }
+                        floatRegister[i] = len;
+                    }
+                } else {
+                    for (let i = fromIndex; i < toIndex; ++i) {
+                        let len = lerp(lengthTimer, lengthTimerPrev, spawnTimeRatio[i]);
+                        len %= length;
+                        if (len < 0) {
+                            len += length;
+                        }
+                        floatRegister[i] = len;
+                    }
+                }
+            } else {
+                const spawnTimeRatio = particles.spawnTimeRatio.data;
+                if (this.spread > 0) {
+                    for (let i = fromIndex; i < toIndex; ++i) {
+                        let len = lerp(lengthTimer, lengthTimerPrev, spawnTimeRatio[i]);
+                        len = Math.floor(len / spreadStep) * spreadStep;
+                        len *= invLength;
+                        len %= 2;
+                        len = Math.abs(len);
+                        if (len >= 1.0) {
+                            len = 2 - len;
+                        }
+                        floatRegister[i] = len * length;
+                    }
+                } else {
+                    for (let i = fromIndex; i < toIndex; ++i) {
+                        let len = lerp(lengthTimer, lengthTimerPrev, spawnTimeRatio[i]);
+                        len *= invLength;
+                        len %= 2;
+                        len = Math.abs(len);
+                        if (len >= 1.0) {
+                            len = 2 - len;
+                        }
+                        floatRegister[i] = len * length;
+                    }
+                }
+            }
+        } else {
+            const invTotal = 1 / (toIndex - fromIndex);
+            if (this.spread > 0) {
+                for (let i = fromIndex; i < toIndex; ++i) {
+                    let len = i * invTotal * length;
+                    len = Math.floor(len / spreadStep) * spreadStep;
+                    floatRegister[i] = len;
+                }
+            } else {
+                for (let i = fromIndex; i < toIndex; ++i) {
+                    floatRegister[i] = i * invTotal * length;
+                }
+            }
+        }
+        for (let i = fromIndex; i < toIndex; i++) {
+            const len = floatRegister[i];
+            vec3Register.set3fAt(len - halfLength, 0, 0, i);
+            startDir.set3fAt(0, 1, 0, i);
+        }
+        super.execute(particles, params, context);
     }
 }

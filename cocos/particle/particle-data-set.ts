@@ -32,27 +32,28 @@ import { ParticleBoolParameter, ParticleColorParameter, ParticleFloatParameter, 
 export type ParticleHandle = number;
 export const INVALID_HANDLE = -1;
 
-export const BuiltinParticleParameterName = [
-    'id',
-    'random-seed',
-    'inv-start-lifetime',
-    'normalized-alive-time',
-    'position',
-    'start-dir',
-    'base-velocity',
-    'velocity',
-    'rotation',
-    'axis-of-rotation',
-    'angular-velocity',
-    'frame-index',
-    'base-size',
-    'size',
-    'base-color',
-    'color',
-    'spawn-normalized-time',
-    'vec3-register',
-];
-
+export enum BuiltinParticleParameterName {
+    ID = 'id',
+    RANDOM_SEED = 'random-seed',
+    INV_START_LIFETIME = 'inv-start-lifetime',
+    NORMALIZED_ALIVE_TIME = 'normalized-alive-time',
+    IS_DEAD = 'is-dead',
+    POSITION = 'position',
+    START_DIR = 'start-dir',
+    BASE_VELOCITY = 'base-velocity',
+    VELOCITY = 'velocity',
+    ROTATION = 'rotation',
+    AXIS_OF_ROTATION = 'axis-of-rotation',
+    ANGULAR_VELOCITY = 'angular-velocity',
+    FRAME_INDEX = 'frame-index',
+    BASE_SIZE = 'base-size',
+    SIZE = 'size',
+    BASE_COLOR = 'base-color',
+    COLOR = 'color',
+    SPAWN_TIME_RATIO = 'spawn-time-ratio',
+    VEC3_REGISTER = 'vec3-register',
+    FLOAT_REGISTER = 'float-register'
+}
 /**
  * Keep same with BuiltinParticleParameterName.
  */
@@ -79,6 +80,29 @@ export enum BuiltinParticleParameter {
     FLOAT_REGISTER,
     COUNT,
 }
+
+export const BuiltinParticleParameterID2Name = {
+    [BuiltinParticleParameter.ID]: BuiltinParticleParameterName.ID,
+    [BuiltinParticleParameter.RANDOM_SEED]: BuiltinParticleParameterName.RANDOM_SEED,
+    [BuiltinParticleParameter.INV_START_LIFETIME]: BuiltinParticleParameterName.INV_START_LIFETIME,
+    [BuiltinParticleParameter.NORMALIZED_ALIVE_TIME]: BuiltinParticleParameterName.NORMALIZED_ALIVE_TIME,
+    [BuiltinParticleParameter.IS_DEAD]: BuiltinParticleParameterName.IS_DEAD,
+    [BuiltinParticleParameter.POSITION]: BuiltinParticleParameterName.POSITION,
+    [BuiltinParticleParameter.START_DIR]: BuiltinParticleParameterName.START_DIR,
+    [BuiltinParticleParameter.BASE_VELOCITY]: BuiltinParticleParameterName.BASE_VELOCITY,
+    [BuiltinParticleParameter.VELOCITY]: BuiltinParticleParameterName.VELOCITY,
+    [BuiltinParticleParameter.ROTATION]: BuiltinParticleParameterName.ROTATION,
+    [BuiltinParticleParameter.AXIS_OF_ROTATION]: BuiltinParticleParameterName.AXIS_OF_ROTATION,
+    [BuiltinParticleParameter.ANGULAR_VELOCITY]: BuiltinParticleParameterName.ANGULAR_VELOCITY,
+    [BuiltinParticleParameter.FRAME_INDEX]: BuiltinParticleParameterName.FRAME_INDEX,
+    [BuiltinParticleParameter.BASE_SIZE]: BuiltinParticleParameterName.BASE_SIZE,
+    [BuiltinParticleParameter.SIZE]: BuiltinParticleParameterName.SIZE,
+    [BuiltinParticleParameter.BASE_COLOR]: BuiltinParticleParameterName.BASE_COLOR,
+    [BuiltinParticleParameter.COLOR]: BuiltinParticleParameterName.COLOR,
+    [BuiltinParticleParameter.SPAWN_TIME_RATIO]: BuiltinParticleParameterName.SPAWN_TIME_RATIO,
+    [BuiltinParticleParameter.VEC3_REGISTER]: BuiltinParticleParameterName.VEC3_REGISTER,
+    [BuiltinParticleParameter.FLOAT_REGISTER]: BuiltinParticleParameterName.FLOAT_REGISTER,
+};
 
 export class ParticleDataSet {
     get capacity () {
@@ -201,7 +225,7 @@ export class ParticleDataSet {
         switch (id) {
         case BuiltinParticleParameter.ID:
         case BuiltinParticleParameter.RANDOM_SEED:
-            this.addParameter(id, BuiltinParticleParameterName[id], ParticleParameterType.UINT32);
+            this.addParameter(id, BuiltinParticleParameterID2Name[id], ParticleParameterType.UINT32);
             break;
         case BuiltinParticleParameter.POSITION:
         case BuiltinParticleParameter.BASE_VELOCITY:
@@ -213,21 +237,21 @@ export class ParticleDataSet {
         case BuiltinParticleParameter.ANGULAR_VELOCITY:
         case BuiltinParticleParameter.AXIS_OF_ROTATION:
         case BuiltinParticleParameter.VEC3_REGISTER:
-            this.addParameter(id, BuiltinParticleParameterName[id], ParticleParameterType.VEC3);
+            this.addParameter(id, BuiltinParticleParameterID2Name[id], ParticleParameterType.VEC3);
             break;
         case BuiltinParticleParameter.COLOR:
         case BuiltinParticleParameter.BASE_COLOR:
-            this.addParameter(id, BuiltinParticleParameterName[id], ParticleParameterType.COLOR);
+            this.addParameter(id, BuiltinParticleParameterID2Name[id], ParticleParameterType.COLOR);
             break;
         case BuiltinParticleParameter.FRAME_INDEX:
         case BuiltinParticleParameter.INV_START_LIFETIME:
         case BuiltinParticleParameter.NORMALIZED_ALIVE_TIME:
         case BuiltinParticleParameter.SPAWN_TIME_RATIO:
         case BuiltinParticleParameter.FLOAT_REGISTER:
-            this.addParameter(id, BuiltinParticleParameterName[id], ParticleParameterType.FLOAT);
+            this.addParameter(id, BuiltinParticleParameterID2Name[id], ParticleParameterType.FLOAT);
             break;
         case BuiltinParticleParameter.IS_DEAD:
-            this.addParameter(id, BuiltinParticleParameterName[id], ParticleParameterType.BOOL);
+            this.addParameter(id, BuiltinParticleParameterID2Name[id], ParticleParameterType.BOOL);
             break;
         default:
         }

@@ -28,7 +28,7 @@ import { Enum } from '../../core';
 import { lerp, Mat4, Quat, Vec3 } from '../../core/math';
 import { Space } from '../enum';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
-import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameter, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { CurveRange } from '../curve-range';
 import { RandNumGen } from '../rand-num-gen';
@@ -38,7 +38,7 @@ const tempVelocity = new Vec3();
 const seed = new Vec3();
 
 @ccclass('cc.AddVelocityModule')
-@ParticleModule.register('AddVelocity', ModuleExecStage.UPDATE | ModuleExecStage.SPAWN, ['State'], ['Solve'])
+@ParticleModule.register('AddVelocity', ModuleExecStage.UPDATE | ModuleExecStage.SPAWN, [BuiltinParticleParameterName.VELOCITY])
 export class AddVelocityModule extends ParticleModule {
     /**
      * @zh 速度计算时采用的坐标系[[Space]]。

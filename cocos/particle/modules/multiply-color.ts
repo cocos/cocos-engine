@@ -27,7 +27,7 @@ import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { Color } from '../../core/math';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { GradientRange } from '../gradient-range';
-import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameter, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { assert } from '../../core';
 import { RandNumGen } from '../rand-num-gen';
@@ -38,7 +38,7 @@ const tempColor2 = new Color();
 const tempColor3 = new Color();
 
 @ccclass('cc.MultiplyColor')
-@ParticleModule.register('MultiplyColor', ModuleExecStage.UPDATE, ['State'])
+@ParticleModule.register('MultiplyColor', ModuleExecStage.UPDATE, [], [BuiltinParticleParameterName.NORMALIZED_ALIVE_TIME])
 export class MultiplyColorModule extends ParticleModule {
     /**
      * @zh 颜色随时间变化的参数，各个 key 之间线性差值变化。

@@ -33,20 +33,20 @@ import { CurveRange, Mode } from './curve-range';
 import { ForceModule } from './modules/force';
 import { LimitVelocityModule } from './modules/limit-velocity';
 import { RotationModule } from './modules/rotation';
-import { SizeModule } from './modules/size';
+import { MultiplySizeModule } from './modules/multiply-size';
 import { SubUVAnimationModule } from './modules/sub-uv-animation';
 import { AddVelocityModule } from './modules/add-velocity';
-import { StartColorModule } from './modules/start-color';
-import { StartSizeModule } from './modules/start-size';
-import { StartSpeedModule } from './modules/add-speed-in-initial-speed';
-import { StartLifeTimeModule } from './modules/start-life-time';
+import { SetColorModule } from './modules/set-color';
+import { SetSizeModule } from './modules/set-size';
+import { AddSpeedInInitialDirectionModule } from './modules/add-speed-in-initial-direction';
+import { SetLifeTimeModule } from './modules/set-life-time';
 import { SpawnOverTimeModule } from './modules/spawn-over-time';
 import { SpawnPerUnitModule } from './modules/spawn-per-unit';
 import { GravityModule } from './modules/gravity';
 import { StateModule } from './modules/state';
 import { SolveModule } from './modules/solve';
 import { ScaleSpeedModule } from './modules/scale-speed';
-import { StartRotationModule } from './modules/start-rotation';
+import { SetRotationModule } from './modules/set-rotation';
 import { ShapeModule } from './modules/shape';
 import { InheritedProperty, ParticleEmitterParams, ParticleEmitterState, ParticleEventInfo, ParticleEventType, ParticleExecContext, PlayingState } from './particle-base';
 import { CullingMode, Space } from './enum';
@@ -276,66 +276,66 @@ export class ParticleEmitter extends Component {
      * @deprecated since v3.8, please use [[StartColorModule.startColor]] instead.
      */
     get startColor () {
-        return this._spawningStage.getOrAddModule(StartColorModule).startColor;
+        return this._spawningStage.getOrAddModule(SetColorModule).color;
     }
 
     set startColor (val) {
-        this._spawningStage.getOrAddModule(StartColorModule).startColor = val;
+        this._spawningStage.getOrAddModule(SetColorModule).color = val;
     }
 
     /**
      * @deprecated since v3.8, please use [[StartSizeModule.startSize3D]] instead.
      */
     get startSize3D () {
-        return this._spawningStage.getOrAddModule(StartSizeModule).startSize3D;
+        return this._spawningStage.getOrAddModule(SetSizeModule).separateAxes;
     }
 
     set startSize3D (val) {
-        this._spawningStage.getOrAddModule(StartSizeModule).startSize3D = val;
+        this._spawningStage.getOrAddModule(SetSizeModule).separateAxes = val;
     }
 
     /**
      * @deprecated since v3.8, please use [[StartSizeModule.startSizeX]] instead.
      */
     get startSizeX () {
-        return this._spawningStage.getOrAddModule(StartSizeModule).startSizeX;
+        return this._spawningStage.getOrAddModule(SetSizeModule).sizeX;
     }
 
     set startSizeX (val) {
-        this._spawningStage.getOrAddModule(StartSizeModule).startSizeX = val;
+        this._spawningStage.getOrAddModule(SetSizeModule).sizeX = val;
     }
 
     /**
      * @deprecated since v3.8, please use [[StartSizeModule.startSizeY]] instead.
      */
     get startSizeY () {
-        return this._spawningStage.getOrAddModule(StartSizeModule).startSizeY;
+        return this._spawningStage.getOrAddModule(SetSizeModule).sizeY;
     }
 
     set startSizeY (val) {
-        this._spawningStage.getOrAddModule(StartSizeModule).startSizeY = val;
+        this._spawningStage.getOrAddModule(SetSizeModule).sizeY = val;
     }
 
     /**
      * @deprecated since v3.8, please use [[StartSizeModule.startSizeZ]] instead.
      */
     get startSizeZ () {
-        return this._spawningStage.getOrAddModule(StartSizeModule).startSizeZ;
+        return this._spawningStage.getOrAddModule(SetSizeModule).sizeZ;
     }
 
     set startSizeZ (val) {
-        this._spawningStage.getOrAddModule(StartSizeModule).startSizeZ = val;
+        this._spawningStage.getOrAddModule(SetSizeModule).sizeZ = val;
     }
 
     /**
      * @deprecated since v3.8, please use [[StartSpeedModule.startSpeed]] instead.
      */
     get startSpeed () {
-        return this._spawningStage.getOrAddModule(StartSpeedModule).startSpeed;
+        return this._spawningStage.getOrAddModule(AddSpeedInInitialDirectionModule).speed;
     }
 
     set startSpeed (val) {
-        this._spawningStage.getOrAddModule(StartSpeedModule).startSpeed = val;
+        this._spawningStage.getOrAddModule(AddSpeedInInitialDirectionModule).speed = val;
     }
 
     /**
@@ -359,7 +359,7 @@ export class ParticleEmitter extends Component {
      * @deprecated since v3.8, please use [[ParticleSystem.getModule]] instead.
      */
     public get sizeOverLifetimeModule () {
-        return this._updateStage.getOrAddModule(SizeModule);
+        return this._updateStage.getOrAddModule(MultiplySizeModule);
     }
 
     /**
@@ -645,18 +645,18 @@ export class ParticleEmitter extends Component {
         this._emitterStage.getOrAddModule(SpawnPerUnitModule);
         this._emitterStage.getOrAddModule(SpawnOverTimeModule);
         this._spawningStage.getOrAddModule(ShapeModule);
-        this._spawningStage.getOrAddModule(StartColorModule);
-        this._spawningStage.getOrAddModule(StartLifeTimeModule);
-        this._spawningStage.getOrAddModule(StartRotationModule);
-        this._spawningStage.getOrAddModule(StartSizeModule);
-        this._spawningStage.getOrAddModule(StartSpeedModule);
+        this._spawningStage.getOrAddModule(SetColorModule);
+        this._spawningStage.getOrAddModule(SetLifeTimeModule);
+        this._spawningStage.getOrAddModule(SetRotationModule);
+        this._spawningStage.getOrAddModule(SetSizeModule);
+        this._spawningStage.getOrAddModule(AddSpeedInInitialDirectionModule);
         this._updateStage.getOrAddModule(MultiplyColorModule);
         this._updateStage.getOrAddModule(ForceModule);
         this._updateStage.getOrAddModule(GravityModule);
         this._updateStage.getOrAddModule(LimitVelocityModule);
         this._updateStage.getOrAddModule(NoiseModule);
         this._updateStage.getOrAddModule(RotationModule);
-        this._updateStage.getOrAddModule(SizeModule);
+        this._updateStage.getOrAddModule(MultiplySizeModule);
         this._updateStage.getOrAddModule(StateModule);
         this._updateStage.getOrAddModule(SolveModule);
         this._updateStage.getOrAddModule(ScaleSpeedModule);
@@ -703,15 +703,17 @@ export class ParticleEmitter extends Component {
         context.clear();
         state.lastPosition.set(state.currentPosition);
         state.currentPosition.set(this.node.worldPosition);
-        context.setWorldMatrix(this.node.worldMatrix, this.simulationSpace === Space.WORLD);
-        Vec3.subtract(context.velocity, state.currentPosition, state.lastPosition);
-        Vec3.multiplyScalar(context.velocity, context.velocity, 1 / deltaTime);
-        context.emitterTransform.set(params.simulationSpace === Space.WORLD ? context.localToWorld : Mat4.IDENTITY);
+        context.setWorldMatrix(this.node.worldMatrix, params.simulationSpace === Space.WORLD);
+        Vec3.subtract(context.emitterVelocity, state.currentPosition, state.lastPosition);
+        Vec3.multiplyScalar(context.emitterVelocity, context.emitterVelocity, 1 / deltaTime);
+        context.emitterTransformInEmittingSpace.set(params.simulationSpace === Space.WORLD ? context.localToWorld : Mat4.IDENTITY);
+        context.emitterVelocityInEmittingSpace.set(params.simulationSpace === Space.WORLD ? context.emitterVelocity : Vec3.ZERO);
         const prevTime = Math.max(state.accumulatedTime - state.startDelay, 0);
         state.accumulatedTime += deltaTime;
         const currentTime = Math.max(state.accumulatedTime - state.startDelay, 0);
         context.setEmitterTime(currentTime, prevTime, params.invDuration);
         context.setDeltaTime(deltaTime);
+        context.setSpawnFraction(state.spawnFraction);
         this.preTick(particles, params, context);
 
         this._emitterStage.execute(particles, params, context);
@@ -723,8 +725,8 @@ export class ParticleEmitter extends Component {
         }
 
         if (state.isEmitting) {
-            state.spawnFraction = this.emit(particles, params,
-                params.simulationSpace === Space.WORLD ? context.velocity : Vec3.ZERO, state.spawnFraction);
+            this.emit(particles, params, context);
+            state.spawnFraction = context.spawnFraction;
         }
 
         this.handleEvents();
@@ -782,23 +784,23 @@ export class ParticleEmitter extends Component {
                     const angle = Math.abs(Vec3.dot(dir, Vec3.UNIT_Z));
                     Vec3.lerp(up, Vec3.UNIT_Z, Vec3.UNIT_Y, angle);
                     Quat.fromViewUp(rot, dir, up);
-                    Mat4.fromRT(this._context.emitterTransform, rot, eventInfo.position);
-                    Vec3.copy(this._context.velocity, eventInfo.velocity);
+                    Mat4.fromRT(this._context.emitterTransformInEmittingSpace, rot, eventInfo.position);
+                    Vec3.copy(this._context.emitterVelocity, eventInfo.velocity);
+                    Vec3.copy(this._context.emitterVelocityInEmittingSpace, eventInfo.velocity);
                     if (this._params.simulationSpace === Space.LOCAL) {
-                        Mat4.multiply(this._context.emitterTransform, this._context.worldToLocal, this._context.emitterTransform);
-                        Vec3.transformMat4(this._context.velocity, this._context.velocity, this._context.worldToLocal);
-                    }
-                    let spawnFraction = 0;
-                    if (eventReceiver.eventType === ParticleEventType.LOCATION) {
-                        spawnFraction = spawnFractionCollection.fraction[i];
+                        Mat4.multiply(this._context.emitterTransformInEmittingSpace, this._context.worldToLocal, this._context.emitterTransformInEmittingSpace);
+                        Vec3.transformMat4(this._context.emitterVelocityInEmittingSpace, this._context.emitterVelocityInEmittingSpace, this._context.worldToLocal);
                     }
                     this._context.setExecuteRange(0, 0);
                     this._context.resetSpawningState();
                     this._context.setEmitterTime(eventInfo.currentTime, eventInfo.prevTime, this._params.invDuration);
-                    eventReceiver.stage.execute(this._particles, this._params, this._context);
-                    spawnFraction = this.emit(this.particles, this._params, this._context.velocity, spawnFraction);
                     if (eventReceiver.eventType === ParticleEventType.LOCATION) {
-                        spawnFractionCollection.fraction[i] = spawnFraction;
+                        this._context.setSpawnFraction(spawnFractionCollection.fraction[i]);
+                    }
+                    eventReceiver.stage.execute(this._particles, this._params, this._context);
+                    this.emit(this.particles, this._params, this._context);
+                    if (eventReceiver.eventType === ParticleEventType.LOCATION) {
+                        spawnFractionCollection.fraction[i] = this._context.spawnFraction;
                     }
                 }
             }
@@ -833,14 +835,13 @@ export class ParticleEmitter extends Component {
     }
 
     private emit (particles: ParticleDataSet, params: ParticleEmitterParams,
-        initialVelocity: Vec3, spawnFraction: number): number {
-        const context = this._context;
+        context: ParticleExecContext): number {
         const interval = 1 / context.spawnContinuousCount;
-        spawnFraction += context.spawnContinuousCount;
-        const numOverTime = Math.floor(spawnFraction);
+        context.spawnFraction += context.spawnContinuousCount;
+        const numOverTime = Math.floor(context.spawnFraction);
         const fromIndex = particles.count;
         if (numOverTime > 0) {
-            spawnFraction -= numOverTime;
+            context.spawnFraction -= numOverTime;
             this.spawnParticles(particles, params, context, numOverTime);
         }
         const numContinuous = particles.count - fromIndex;
@@ -849,9 +850,9 @@ export class ParticleEmitter extends Component {
             this.spawnParticles(particles, params, context, burstCount);
         }
         const toIndex = particles.count;
-        const { emitterDeltaTime } = context;
+        const { emitterDeltaTime, emitterVelocityInEmittingSpace: initialVelocity, emitterTransformInEmittingSpace: emitterTransform, spawnFraction } = context;
         if (particles.hasParameter(BuiltinParticleParameter.POSITION)) {
-            const initialPosition = context.emitterTransform.getTranslation(tempPosition);
+            const initialPosition = emitterTransform.getTranslation(tempPosition);
             const { position } = particles;
 
             if (!initialVelocity.equals(Vec3.ZERO) && !approx(interval, 0) && numContinuous > 0) {
@@ -914,7 +915,7 @@ export class ParticleEmitter extends Component {
         }
         if (particles.hasParameter(BuiltinParticleParameter.START_DIR)) {
             const { startDir } = particles;
-            const initialDir = Vec3.set(tempDir, context.emitterTransform.m02, context.emitterTransform.m06, context.emitterTransform.m10);
+            const initialDir = Vec3.set(tempDir, emitterTransform.m02, emitterTransform.m06, emitterTransform.m10);
             startDir.fill(initialDir, fromIndex, toIndex);
         }
 

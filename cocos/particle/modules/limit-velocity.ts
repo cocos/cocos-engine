@@ -31,7 +31,7 @@ import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { CurveRange } from '../curve-range';
 import { calculateTransform } from '../particle-general-function';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
-import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameter, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleVec3Parameter } from '../particle-parameter';
 import { assert } from '../../core';
 import { RandNumGen } from '../rand-num-gen';
@@ -43,7 +43,7 @@ const tempVelocity = new Vec3();
 const seed = new Vec3();
 
 @ccclass('cc.LimitVelocity')
-@ParticleModule.register('LimitVelocity', ModuleExecStage.UPDATE, ['Force', 'Gravity', 'AddVelocity', 'ScaleSpeed'], ['Solve', 'State'])
+@ParticleModule.register('LimitVelocity', ModuleExecStage.UPDATE, [BuiltinParticleParameterName.VELOCITY], [BuiltinParticleParameterName.VELOCITY])
 export class LimitVelocityModule extends ParticleModule {
     /**
      * @zh X 轴方向上的速度下限。

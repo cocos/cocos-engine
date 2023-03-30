@@ -178,7 +178,7 @@ export class GradientRange {
             Color.lerp(out, this.colorMin, this.colorMax, rndRatio);
             break;
         case Mode.RandomColor:
-            this.gradient.randomColor(out);
+            this.gradient.evaluate(out, rndRatio);
             break;
         case Mode.Gradient:
             this.gradient.evaluate(out, time);

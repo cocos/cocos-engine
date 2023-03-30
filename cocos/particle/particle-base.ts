@@ -320,11 +320,22 @@ export class ParticleExecContext {
     public emitterNormalizedTime = 0;
     public emitterNormalizedPrevTime = 0;
     public emitterDeltaTime = 0;
-    public emitterTransform = new Mat4();
+    /**
+     * The emitter transform in emitting space. when emitting space equals to world space, it's equals to localToWorld matrix.
+     */
+    public emitterTransformInEmittingSpace = new Mat4();
     public inheritedProperties: InheritedProperties | null = null;
     public spawnContinuousCount = 0;
     public burstCount = 0;
-    public velocity = new Vec3();
+    public spawnFraction = 0;
+    /**
+     * The velocity of the emitter in world space.
+     */
+    public emitterVelocity = new Vec3();
+    /**
+     * The velocity of the emitter in emitting space. When emitting space equals to world space, it's equals to emitterVelocity.
+     */
+    public emitterVelocityInEmittingSpace = new Vec3();
     // end emitter range
 
     // simulation range
@@ -391,8 +402,12 @@ export class ParticleExecContext {
         this.deltaTime = deltaTime;
     }
 
+    setSpawnFraction (spawnFraction: number) {
+        this.spawnFraction = spawnFraction;
+    }
+
     resetSpawningState () {
-        this.burstCount = this.spawnContinuousCount = 0;
+        this.burstCount = this.spawnContinuousCount = this.spawnFraction = 0;
     }
 
     clear () {

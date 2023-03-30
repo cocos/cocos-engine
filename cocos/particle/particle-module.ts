@@ -40,7 +40,7 @@ export enum ModuleExecStage {
 
 @ccclass('cc.ParticleModule')
 export abstract class ParticleModule {
-    public static register (name: string, stages: ModuleExecStage, preDependencies: string[] = [], postDependencies: string[] = []) {
+    public static register (name: string, stages: ModuleExecStage, produce: string[] = [], consume: string[] = []) {
         return function (ctor: Constructor<ParticleModule>) {
             for (let i = 0, length = ParticleModule._allRegisteredModules.length; i < length; i++) {
                 if (ParticleModule._allRegisteredModules[i].ctor === ctor) {
@@ -50,7 +50,7 @@ export abstract class ParticleModule {
                     throw new Error('Duplicated name with other module!');
                 }
             }
-            const identity = new ParticleModuleIdentity(ctor, name, stages, preDependencies, postDependencies);
+            const identity = new ParticleModuleIdentity(ctor, name, stages, produce, consume);
             ParticleModule._allRegisteredModules.push(identity);
         };
     }
@@ -61,14 +61,15 @@ export abstract class ParticleModule {
 
     public static findAProperPositionToInsert (modules: ParticleModule[], module: ParticleModule) {
         const identity = ParticleModule.getModuleIdentityByClassNoCheck(module.constructor as Constructor<ParticleModule>);
-        const preDependencies = identity.preDependencies;
-        const postDependencies = identity.postDependencies;
+        const produceParams = identity.produceParams;
+        const consumeParams = identity.consumeParams;
         let lastIndexOfPreDependency = -1;
-        for (let i = 0, l = preDependencies.length; i < l; i++) {
+        for (let i = 0, l = consumeParams.length; i < l; i++) {
             for (let j = 0; j < modules.length; j++) {
                 const module = modules[j];
                 const currentModuleId = ParticleModule.getModuleIdentityByClassNoCheck(module.constructor as Constructor<ParticleModule>);
-                if (currentModuleId.name === preDependencies[i]) {
+                const currentProduceParams = currentModuleId.produceParams;
+                if (currentProduceParams.includes(consumeParams[i])) {
                     if (j > lastIndexOfPreDependency) {
                         lastIndexOfPreDependency = j;
                     }
@@ -76,11 +77,12 @@ export abstract class ParticleModule {
             }
         }
         let firstIndexOfPostDependency = modules.length;
-        for (let i = 0, l = postDependencies.length; i < l; i++) {
-            for (let j = 0; j < modules.length; j++) {
+        for (let i = 0, l = produceParams.length; i < l; i++) {
+            for (let j = modules.length - 1; j >= 0; j--) {
                 const module = modules[j];
                 const currentModuleId = ParticleModule.getModuleIdentityByClassNoCheck(module.constructor as Constructor<ParticleModule>);
-                if (currentModuleId.name === postDependencies[i]) {
+                const currentConsumeParams = currentModuleId.consumeParams;
+                if (currentConsumeParams.includes(produceParams[i])) {
                     if (j < firstIndexOfPostDependency) {
                         firstIndexOfPostDependency = j;
                     }
@@ -277,14 +279,14 @@ class ParticleModuleIdentity {
     public readonly ctor: Constructor<ParticleModule> | null = null;
     public readonly name: string = '';
     public readonly execStages = ModuleExecStage.NONE;
-    public readonly preDependencies: string[];
-    public readonly postDependencies: string[];
+    public readonly produceParams: string[];
+    public readonly consumeParams: string[];
 
-    constructor (ctor: Constructor<ParticleModule>, name: string, execStages: ModuleExecStage, preDependencies: string[] = [], postDependencies: string[] = []) {
+    constructor (ctor: Constructor<ParticleModule>, name: string, execStages: ModuleExecStage, produceParams: string[] = [], consumeParams: string[] = []) {
         this.ctor = ctor;
         this.name = name;
         this.execStages = execStages;
-        this.preDependencies = preDependencies;
-        this.postDependencies = postDependencies;
+        this.produceParams = produceParams;
+        this.consumeParams = consumeParams;
     }
 }

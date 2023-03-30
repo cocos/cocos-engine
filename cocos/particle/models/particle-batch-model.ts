@@ -220,7 +220,7 @@ export default class ParticleBatchModel extends scene.Model {
             const dynamicBuffer = this._dynamicBuffer!;
             const dynamicBufferUintView = this._dynamicBufferUintView!;
             const { count } = particles;
-            
+
             if (particles.hasParameter(BuiltinParticleParameter.POSITION)) {
                 const position = particles.position.data;
                 for (let i = 0; i < count; i++) {

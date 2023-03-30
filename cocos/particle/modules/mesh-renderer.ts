@@ -47,7 +47,7 @@ export class MeshRendererModule extends RendererModule {
 
     @serializable
     private _mesh: Mesh | null = null;
-    
+
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         throw new Error('Method not implemented.');
     }

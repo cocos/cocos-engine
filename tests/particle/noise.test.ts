@@ -1,5 +1,5 @@
 import { Vec2, Vec3 } from '../../cocos/core/math';
-import { perlin3D, perlin2D, perlin1D, PerlinNoise3DCache, PerlinNoise2DCache, PerlinNoise1DCache } from '../../cocos/particle/modules/perlin-noise';
+import { perlin3D, perlin2D, perlin1D, PerlinNoise3DCache, PerlinNoise2DCache, PerlinNoise1DCache } from '../../cocos/particle/modules/noise';
 
 test('perlin noise 3d', () => {
     const cache = new PerlinNoise3DCache();

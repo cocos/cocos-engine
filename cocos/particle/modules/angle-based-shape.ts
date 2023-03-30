@@ -80,7 +80,6 @@ export abstract class AngleBasedShapeModule extends ShapeModule {
     @tooltip('i18n:shapeModule.arcSpread')
     public spread = 0;
 
-    protected _rand = new RandNumGen();
     @serializable
     private _arc = toRadian(360);
     private _invArc = 0;
@@ -90,7 +89,7 @@ export abstract class AngleBasedShapeModule extends ShapeModule {
     private _arcTimePrev = 0;
 
     public onPlay (params: ParticleEmitterParams, states: ParticleEmitterState) {
-        this._rand.seed = states.rand.getUInt32();
+        super.onPlay(params, states);
         this._arcTimer = 0;
         this._arcTimePrev = 0;
     }

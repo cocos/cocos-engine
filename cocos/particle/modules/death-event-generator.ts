@@ -28,7 +28,7 @@ import { approx, BitMask, CCFloat, Color, Enum, EPSILON, Mat4, Quat, Vec3, warn 
 import { ccclass, range, serializable, type, visible } from '../../core/data/decorators';
 import { Space } from '../enum';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
-import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameter, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleColorParameter, ParticleVec3Parameter } from '../particle-parameter';
 import { ParticleEmitterParams, ParticleEventInfo, ParticleExecContext } from '../particle-base';
 import { RandNumGen } from '../rand-num-gen';
@@ -36,7 +36,7 @@ import { RandNumGen } from '../rand-num-gen';
 const PROBABILITY_RANDOM_SEED_OFFSET = 199208;
 const eventInfo = new ParticleEventInfo();
 @ccclass('cc.DeathEventGeneratorModule')
-@ParticleModule.register('DeathEventGenerator', ModuleExecStage.UPDATE, ['Solve', 'State'])
+@ParticleModule.register('DeathEventGenerator', ModuleExecStage.UPDATE, [], [ParameterName.POSITION, ParameterName.SIZE, ParameterName.ROTATION, ParameterName.VELOCITY, ParameterName.NORMALIZED_ALIVE_TIME, ParameterName.COLOR])
 export class DeathEventGeneratorModule extends ParticleModule {
     @type(CCFloat)
     @range([0, 1])

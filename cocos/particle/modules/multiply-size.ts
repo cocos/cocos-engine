@@ -28,16 +28,16 @@ import { lerp, Vec3 } from '../../core/math';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { CurveRange } from '../curve-range';
 import { ModuleRandSeed } from '../enum';
-import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameter, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { RandNumGen } from '../rand-num-gen';
 
 const SIZE_OVERTIME_RAND_OFFSET = 1233881;
 const seed = new Vec3();
 
-@ccclass('cc.SizeModule')
-@ParticleModule.register('Size', ModuleExecStage.UPDATE, ['State'])
-export class SizeModule extends ParticleModule {
+@ccclass('cc.MultiplySizeModule')
+@ParticleModule.register('MultiplySize', ModuleExecStage.UPDATE | ModuleExecStage.SPAWN, [BuiltinParticleParameterName.SIZE], [BuiltinParticleParameterName.NORMALIZED_ALIVE_TIME])
+export class MultiplySizeModule extends ParticleModule {
     /**
      * @zh 决定是否在每个轴上独立控制粒子大小。
      */
@@ -53,12 +53,12 @@ export class SizeModule extends ParticleModule {
     @range([0, 1])
     @displayOrder(2)
     @tooltip('i18n:sizeOvertimeModule.size')
-    @visible(function (this: SizeModule): boolean { return !this.separateAxes; })
-    public get size () {
+    @visible(function (this: MultiplySizeModule): boolean { return !this.separateAxes; })
+    public get scalar () {
         return this.x;
     }
 
-    public set size (val) {
+    public set scalar (val) {
         this.x = val;
     }
 
@@ -70,7 +70,7 @@ export class SizeModule extends ParticleModule {
     @range([0, 1])
     @displayOrder(3)
     @tooltip('i18n:sizeOvertimeModule.x')
-    @visible(function (this: SizeModule): boolean { return this.separateAxes; })
+    @visible(function (this: MultiplySizeModule): boolean { return this.separateAxes; })
     public x = new CurveRange(1);
 
     /**
@@ -80,7 +80,7 @@ export class SizeModule extends ParticleModule {
     @range([0, 1])
     @displayOrder(4)
     @tooltip('i18n:sizeOvertimeModule.y')
-    @visible(function (this: SizeModule): boolean { return this.separateAxes; })
+    @visible(function (this: MultiplySizeModule): boolean { return this.separateAxes; })
     public get y () {
         if (!this._y) {
             this._y = new CurveRange(1);
@@ -99,7 +99,7 @@ export class SizeModule extends ParticleModule {
     @range([0, 1])
     @displayOrder(5)
     @tooltip('i18n:sizeOvertimeModule.z')
-    @visible(function (this: SizeModule): boolean { return this.separateAxes; })
+    @visible(function (this: MultiplySizeModule): boolean { return this.separateAxes; })
     public get z () {
         if (!this._z) {
             this._z = new CurveRange(1);
@@ -130,25 +130,25 @@ export class SizeModule extends ParticleModule {
         const { size } = particles;
         const { fromIndex, toIndex } = context;
         if (!this.separateAxes) {
-            if (this.size.mode === CurveRange.Mode.Constant) {
-                const constant = this.size.constant;
+            if (this.scalar.mode === CurveRange.Mode.Constant) {
+                const constant = this.scalar.constant;
                 for (let i = fromIndex; i < toIndex; i++) {
                     size.multiply1fAt(constant, i);
                 }
-            } else if (this.size.mode === CurveRange.Mode.Curve) {
-                const { spline, multiplier } = this.size;
+            } else if (this.scalar.mode === CurveRange.Mode.Curve) {
+                const { spline, multiplier } = this.scalar;
                 const normalizedAliveTime = particles.normalizedAliveTime.data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     size.multiply1fAt(spline.evaluate(normalizedAliveTime[i]) * multiplier, i);
                 }
-            } else if (this.size.mode === CurveRange.Mode.TwoConstants) {
-                const { constantMin, constantMax } = this.size;
+            } else if (this.scalar.mode === CurveRange.Mode.TwoConstants) {
+                const { constantMin, constantMax } = this.scalar;
                 const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     size.multiply1fAt(lerp(constantMin, constantMax, RandNumGen.getFloat(randomSeed[i] + SIZE_OVERTIME_RAND_OFFSET)), i);
                 }
             } else {
-                const { splineMin, splineMax, multiplier } = this.size;
+                const { splineMin, splineMax, multiplier } = this.scalar;
                 const normalizedAliveTime = particles.normalizedAliveTime.data;
                 const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
@@ -160,14 +160,14 @@ export class SizeModule extends ParticleModule {
             }
         } else {
             // eslint-disable-next-line no-lonely-if
-            if (this.size.mode === CurveRange.Mode.Constant) {
+            if (this.scalar.mode === CurveRange.Mode.Constant) {
                 const { constant: constantX } = this.x;
                 const { constant: constantY } = this.y;
                 const { constant: constantZ } = this.z;
                 for (let i = fromIndex; i < toIndex; i++) {
                     size.multiply3fAt(constantX, constantY, constantZ, i);
                 }
-            } else if (this.size.mode === CurveRange.Mode.Curve) {
+            } else if (this.scalar.mode === CurveRange.Mode.Curve) {
                 const { spline: splineX, multiplier: xMultiplier } = this.x;
                 const { spline: splineY, multiplier: yMultiplier } = this.y;
                 const { spline: splineZ, multiplier: zMultiplier } = this.z;
@@ -178,7 +178,7 @@ export class SizeModule extends ParticleModule {
                         splineY.evaluate(currentLife) * yMultiplier,
                         splineZ.evaluate(currentLife) * zMultiplier, i);
                 }
-            } else if (this.size.mode === CurveRange.Mode.TwoConstants) {
+            } else if (this.scalar.mode === CurveRange.Mode.TwoConstants) {
                 const { constantMin: xMin, constantMax: xMax } = this.x;
                 const { constantMin: yMin, constantMax: yMax } = this.y;
                 const { constantMin: zMin, constantMax: zMax } = this.z;

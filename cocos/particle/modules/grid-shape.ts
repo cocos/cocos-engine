@@ -23,3 +23,72 @@
  THE SOFTWARE.
  */
 
+import { CCInteger, lerp } from '../../core';
+import { ccclass, rangeMax, rangeMin, serializable, type } from '../../core/data/decorators';
+import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
+import { BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
+import { ModuleExecStage, ParticleModule } from '../particle-module';
+import { ShapeModule } from './shape';
+
+@ccclass('cc.ConeShapeModule')
+@ParticleModule.register('ConeShape', ModuleExecStage.SPAWN, [BuiltinParticleParameterName.START_DIR])
+export class GridShape extends ShapeModule {
+    @serializable
+    public length = 1;
+    @serializable
+    public width = 1;
+    @serializable
+    public height = 1;
+
+    @type(CCInteger)
+    @rangeMin(1)
+    @serializable
+    public numInX = 1;
+
+    @type(CCInteger)
+    @rangeMin(1)
+    @serializable
+    public numInY = 1;
+
+    @type(CCInteger)
+    @rangeMin(1)
+    @serializable
+    public numInZ = 1;
+
+    private _xyCellNum = 0;
+    private _lengthPerCell = 0;
+    private _widthPerCell = 0;
+    private _heightPerCell = 0;
+
+    public tick (particles: ParticleDataSet,  params: ParticleEmitterParams, context: ParticleExecContext) {
+        super.tick(particles, params, context);
+        this._xyCellNum = this.numInX * this.numInY;
+        this._lengthPerCell = this.length / this.numInX;
+        this._widthPerCell = this.width / this.numInY;
+        this._heightPerCell = this.height / this.numInZ;
+    }
+
+    public execute (particles: ParticleDataSet,  params: ParticleEmitterParams, context: ParticleExecContext) {
+        const { fromIndex, toIndex } = context;
+        const { startDir, vec3Register } = particles;
+        const xyCellNum = this._xyCellNum;
+        const numInX = this.numInX;
+        const numInZ = this.numInZ;
+        const lengthPerCell = this._lengthPerCell;
+        const widthPerCell = this._widthPerCell;
+        const heightPerCell = this._heightPerCell;
+        for (let i = fromIndex, index = 0; i < toIndex; i++, index++) {
+            startDir.set3fAt(0, 0, 1, index);
+            const zIndex = Math.floor(index / xyCellNum) % numInZ;
+            const cellIndex = index % xyCellNum;
+            const xIndex =  cellIndex % numInX;
+            const yIndex = Math.floor(cellIndex / numInX);
+            const x = (xIndex + 0.5) * lengthPerCell;
+            const y = (yIndex + 0.5) * widthPerCell;
+            const z = (zIndex + 0.5) * heightPerCell;
+
+            vec3Register.set3fAt(x, y, z, i);
+        }
+        super.execute(particles, params, context);
+    }
+}

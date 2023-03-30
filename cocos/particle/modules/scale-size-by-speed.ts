@@ -28,7 +28,7 @@ import { approx, lerp, Vec2, Vec3 } from '../../core/math';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { CurveRange } from '../curve-range';
 import { ModuleRandSeed } from '../enum';
-import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameter, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { assert } from '../../core';
 import { RandNumGen } from '../rand-num-gen';
@@ -36,7 +36,7 @@ import { RandNumGen } from '../rand-num-gen';
 const SIZE_OVERTIME_RAND_OFFSET = ModuleRandSeed.SIZE;
 
 @ccclass('cc.ScaleSizeBySpeedModule')
-@ParticleModule.register('ScaleSizeBySpeed', ModuleExecStage.UPDATE, ['Solve'])
+@ParticleModule.register('ScaleSizeBySpeed', ModuleExecStage.UPDATE, [ParameterName.SIZE], [ParameterName.SIZE, ParameterName.VELOCITY])
 export class ScaleSizeBySpeedModule extends ParticleModule {
     /**
       * @zh 决定是否在每个轴上独立控制粒子大小。

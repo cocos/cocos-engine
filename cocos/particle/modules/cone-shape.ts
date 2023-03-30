@@ -26,20 +26,22 @@ import { DistributionMode, ShapeModule } from './shape';
 import { ccclass, displayOrder, range, serializable, tooltip, type, visible } from '../../core/data/decorators';
 import { ModuleExecStage, ParticleModule } from '../particle-module';
 import { Enum, toDegree, toRadian, Vec3 } from '../../core';
-import { ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { CurveRange } from '../curve-range';
 import { AngleBasedShapeModule } from './angle-based-shape';
 
-export enum EmitFrom {
+enum EmitFrom {
     BASE = 0,
     VOLUME = 1,
 }
 
 const temp = new Vec3();
 @ccclass('cc.ConeShapeModule')
-@ParticleModule.register('ConeShape', ModuleExecStage.SPAWN)
+@ParticleModule.register('ConeShape', ModuleExecStage.SPAWN, [BuiltinParticleParameterName.START_DIR])
 export class ConeShapeModule extends AngleBasedShapeModule {
+    static EmitFrom = EmitFrom;
+
     /**
      * @zh 圆锥的轴与母线的夹角<bg>。
      * 决定圆锥发射器的开合程度。

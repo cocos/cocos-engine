@@ -26,20 +26,14 @@ import { ShapeModule, DistributionMode } from './shape';
 import { ccclass, displayOrder, range, serializable, tooltip, type, visible } from '../../core/data/decorators';
 import { ModuleExecStage, ParticleModule } from '../particle-module';
 import { Enum, toDegree, toRadian, Vec3 } from '../../core';
-import { ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
 import { CurveRange } from '../curve-range';
 import { RandNumGen } from '../rand-num-gen';
 
 @ccclass('cc.RectangleShapeModule')
-@ParticleModule.register('RectangleShape', ModuleExecStage.SPAWN)
+@ParticleModule.register('RectangleShape', ModuleExecStage.SPAWN, [BuiltinParticleParameterName.START_DIR])
 export class RectangleShapeModule extends ShapeModule {
-    private _rand = new RandNumGen();
-
-    public onPlay (params: ParticleEmitterParams, states: ParticleEmitterState) {
-        this._rand.seed = states.rand.getUInt32();
-    }
-
     public execute (particles: ParticleDataSet,  params: ParticleEmitterParams, context: ParticleExecContext) {
         const { fromIndex, toIndex } = context;
         const { vec3Register, startDir } = particles;

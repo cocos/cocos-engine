@@ -31,7 +31,7 @@ import { CurveRange } from '../curve-range';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { assert, Enum } from '../../core';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
-import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameter, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { RandNumGen } from '../rand-num-gen';
 
 const FORCE_RAND_OFFSET = 212165;
@@ -40,7 +40,7 @@ const seed = new Vec3();
 const _temp_v3 = new Vec3();
 
 @ccclass('cc.ForceModule')
-@ParticleModule.register('Force', ModuleExecStage.UPDATE, [], ['Solve', 'State'])
+@ParticleModule.register('Force', ModuleExecStage.UPDATE, [BuiltinParticleParameterName.VELOCITY])
 export class ForceModule extends ParticleModule {
     /**
      * @zh X 轴方向上的加速度分量。

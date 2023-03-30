@@ -27,26 +27,22 @@ import { ccclass, displayOrder, formerlySerializedAs, radian, range, serializabl
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
 import { ParticleExecContext, ParticleEmitterParams, ParticleEmitterState } from '../particle-base';
-import { GradientRange } from '../gradient-range';
-import { clamp01, Color, lerp, Vec3 } from '../../core/math';
-import { INT_MAX } from '../../core/math/bits';
+import { CurveRange } from '../curve-range';
+import { Color, lerp, Vec3 } from '../../core/math';
 import { RandNumGen } from '../rand-num-gen';
 
-const tempColor = new Color();
-const tempColor2 = new Color();
-const tempColor3 = new Color();
-
-@ccclass('cc.StartColorModule')
-@ParticleModule.register('StartColor', ModuleExecStage.SPAWN)
-export class StartColorModule extends ParticleModule {
+@ccclass('cc.SetLifeTimeModule')
+@ParticleModule.register('SetLifeTime', ModuleExecStage.SPAWN)
+export class SetLifeTimeModule extends ParticleModule {
     /**
-      * @zh 粒子初始颜色。
+      * @zh 粒子生命周期。
       */
-    @type(GradientRange)
+    @type(CurveRange)
     @serializable
-    @displayOrder(8)
-    @tooltip('i18n:particle_system.baseColor')
-    public startColor = new GradientRange();
+    @range([0, 1])
+    @displayOrder(7)
+    @tooltip('i18n:particle_system.startLifetime')
+    public lifetime = new CurveRange(5);
 
     private _rand = new RandNumGen();
 
@@ -55,45 +51,39 @@ export class StartColorModule extends ParticleModule {
     }
 
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
-        context.markRequiredParameter(BuiltinParticleParameter.COLOR);
-        context.markRequiredParameter(BuiltinParticleParameter.BASE_COLOR);
-        if (this.startColor.mode === GradientRange.Mode.Gradient || this.startColor.mode === GradientRange.Mode.TwoGradients) {
+        context.markRequiredParameter(BuiltinParticleParameter.INV_START_LIFETIME);
+        if (this.lifetime.mode === CurveRange.Mode.Curve || this.lifetime.mode === CurveRange.Mode.TwoCurves) {
             context.markRequiredParameter(BuiltinParticleParameter.SPAWN_TIME_RATIO);
         }
     }
 
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
-        const baseColor = particles.baseColor.data;
+        const invStartLifeTime = particles.invStartLifeTime.data;
         const { fromIndex, toIndex, emitterNormalizedTime: normalizedT, emitterNormalizedPrevTime: normalizedPrevT } = context;
-        const rand = this._rand;
-        if (this.startColor.mode === GradientRange.Mode.Color) {
-            const colorNum = Color.toUint32(this.startColor.color);
-            for (let i = fromIndex; i < toIndex; i++) {
-                baseColor[i] = colorNum;
+        if (this.lifetime.mode === CurveRange.Mode.Constant) {
+            const lifeTime = 1 / this.lifetime.constant;
+            for (let i = fromIndex; i < toIndex; ++i) {
+                invStartLifeTime[i] = lifeTime;
             }
-        } else if (this.startColor.mode === GradientRange.Mode.Gradient) {
-            const { gradient } = this.startColor;
+        } else if (this.lifetime.mode ===  CurveRange.Mode.TwoConstants) {
+            const { constantMin, constantMax } = this.lifetime;
+            const rand = this._rand;
+            for (let i = fromIndex; i < toIndex; ++i) {
+                invStartLifeTime[i] = 1 / lerp(constantMin, constantMax, rand.getFloat());
+            }
+        } else if (this.lifetime.mode ===  CurveRange.Mode.Curve) {
+            const { spline, multiplier } = this.lifetime;
             const spawnTime = particles.spawnTimeRatio.data;
-            for (let i = fromIndex, num = 0; i < toIndex; i++, num++) {
-                baseColor[i] = Color.toUint32(gradient.evaluate(tempColor, lerp(normalizedT, normalizedPrevT, spawnTime[i])));
-            }
-        } else if (this.startColor.mode === GradientRange.Mode.TwoColors) {
-            const { colorMin, colorMax } = this.startColor;
-            for (let i = fromIndex; i < toIndex; i++) {
-                baseColor[i] = Color.toUint32(Color.lerp(tempColor, colorMin, colorMax, rand.getFloat()));
-            }
-        } else if (this.startColor.mode === GradientRange.Mode.TwoGradients) {
-            const { gradientMin, gradientMax } = this.startColor;
-            const spawnTime = particles.spawnTimeRatio.data;
-            for (let i = fromIndex, num = 0; i < toIndex; i++, num++) {
-                const time = lerp(normalizedT, normalizedPrevT, spawnTime[i]);
-                baseColor[i] = Color.toUint32(Color.lerp(tempColor,
-                    gradientMin.evaluate(tempColor2, time), gradientMax.evaluate(tempColor3, time), rand.getFloat()));
+            for (let i = fromIndex; i < toIndex; ++i) {
+                invStartLifeTime[i] = 1 / (spline.evaluate(lerp(normalizedT, normalizedPrevT, spawnTime[i])) * multiplier);
             }
         } else {
-            const { gradient } = this.startColor;
+            const { splineMin, splineMax, multiplier } = this.lifetime;
+            const spawnTime = particles.spawnTimeRatio.data;
+            const rand = this._rand;
             for (let i = fromIndex; i < toIndex; ++i) {
-                baseColor[i] = Color.toUint32(gradient.randomColor(tempColor));
+                const time = lerp(normalizedT, normalizedPrevT, spawnTime[i]);
+                invStartLifeTime[i] = 1 / (lerp(splineMin.evaluate(time), splineMax.evaluate(time), rand.getFloat()) * multiplier);
             }
         }
     }

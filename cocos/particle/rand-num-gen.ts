@@ -2,6 +2,9 @@ import { DEBUG } from 'internal:constants';
 import { assert } from '../core';
 
 export class RandNumGen {
+    setSeed (randomSeed: number) {
+        throw new Error('Method not implemented.');
+    }
     public get seed () {
         return this._seed;
     }

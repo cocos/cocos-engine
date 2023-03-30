@@ -25,7 +25,7 @@
 import { Vec3 } from '../../core';
 import { ccclass, serializable } from '../../core/data/decorators';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
-import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameter, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 
 export enum LifetimeElapsedOperation {
@@ -35,7 +35,7 @@ export enum LifetimeElapsedOperation {
 }
 
 @ccclass('cc.StateModule')
-@ParticleModule.register('State', ModuleExecStage.UPDATE)
+@ParticleModule.register('State', ModuleExecStage.UPDATE, [BuiltinParticleParameterName.NORMALIZED_ALIVE_TIME])
 export class StateModule extends ParticleModule {
     @serializable
     public lifetimeElapsedOperation = LifetimeElapsedOperation.KILL;
@@ -48,9 +48,6 @@ export class StateModule extends ParticleModule {
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         context.markRequiredParameter(BuiltinParticleParameter.NORMALIZED_ALIVE_TIME);
         context.markRequiredParameter(BuiltinParticleParameter.INV_START_LIFETIME);
-        if (this.lifetimeElapsedOperation === LifetimeElapsedOperation.KILL) {
-            context.markRequiredParameter(BuiltinParticleParameter.IS_DEAD);
-        }
     }
 
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
@@ -71,13 +68,23 @@ export class StateModule extends ParticleModule {
                     normalizedAliveTime[particleHandle] = 1;
                 }
             }
-        } else {
+            // if has isDead parameter, deferred to remove particle until rendering.
+        } else if (particles.hasParameter(BuiltinParticleParameter.IS_DEAD)) {
             const isDead = particles.isDead.data;
             for (let particleHandle = fromIndex; particleHandle < toIndex; particleHandle++) {
                 normalizedAliveTime[particleHandle] += deltaTime * invStartLifeTime[particleHandle];
                 if (normalizedAliveTime[particleHandle] > 1) {
                     normalizedAliveTime[particleHandle] = 1;
                     isDead[particleHandle] = 1;
+                }
+            }
+        } else {
+            for (let particleHandle = toIndex - 1; particleHandle >= fromIndex; particleHandle--) {
+                normalizedAliveTime[particleHandle] += deltaTime * invStartLifeTime[particleHandle];
+                if (normalizedAliveTime[particleHandle] > 1) {
+                    normalizedAliveTime[particleHandle] = 1;
+                    particles.removeParticle(particleHandle);
+                    context.setExecuteRange(fromIndex, context.toIndex - 1);
                 }
             }
         }

@@ -26,14 +26,14 @@
 import { Vec3 } from '../../core';
 import { ccclass } from '../../core/data/decorators';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
-import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameter, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleVec3Parameter } from '../particle-parameter';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 
 const tempVelocity = new Vec3();
 
 @ccclass('SolveModule')
-@ParticleModule.register('Solve', ModuleExecStage.UPDATE, [], ['State'])
+@ParticleModule.register('Solve', ModuleExecStage.UPDATE, [ParameterName.POSITION, ParameterName.ROTATION], [ParameterName.VELOCITY, ParameterName.ANGULAR_VELOCITY])
 export class SolveModule extends ParticleModule {
     constructor () {
         super();

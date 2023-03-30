@@ -26,11 +26,11 @@ import { ShapeModule } from './shape';
 import { ccclass, displayOrder, serializable, tooltip, type, visible } from '../../core/data/decorators';
 import { ModuleExecStage, ParticleModule } from '../particle-module';
 import { Enum, Vec3 } from '../../core';
-import { ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
 import { RandNumGen } from '../rand-num-gen';
 
-export enum EmitFrom {
+enum EmitFrom {
     VOLUME,
     EDGE,
     SHELL,
@@ -38,8 +38,10 @@ export enum EmitFrom {
 
 const tempPosition = new Vec3();
 @ccclass('cc.BoxShapeModule')
-@ParticleModule.register('BoxShape', ModuleExecStage.SPAWN)
+@ParticleModule.register('BoxShape', ModuleExecStage.SPAWN, [BuiltinParticleParameterName.START_DIR])
 export class BoxShapeModule extends ShapeModule {
+    static EmitFrom = EmitFrom;
+
     @type(Enum(EmitFrom))
     @serializable
     public emitFrom = EmitFrom.VOLUME;
@@ -51,11 +53,6 @@ export class BoxShapeModule extends ShapeModule {
     public boxThickness = new Vec3(0, 0, 0);
 
     private _thicknessPercent = new Vec3(0, 0, 0);
-    private _rand = new RandNumGen();
-
-    public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {
-        this._rand.seed = state.rand.getUInt32();
-    }
 
     public tick (particles: ParticleDataSet,  params: ParticleEmitterParams, context: ParticleExecContext) {
         super.tick(particles, params, context);

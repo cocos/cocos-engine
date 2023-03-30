@@ -29,7 +29,7 @@ import { lerp, Mat4, pseudoRandom, Quat, Vec3 } from '../../core/math';
 import { Space } from '../enum';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { calculateTransform } from '../particle-general-function';
-import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameter, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { CurveRange } from '../curve-range';
 import { RandNumGen } from '../rand-num-gen';
@@ -40,9 +40,9 @@ const VELOCITY_Z_OVERTIME_RAND_OFFSET = 984136;
 
 const tempVelocity = new Vec3();
 
-@ccclass('cc.OrbitVelocityModule')
-@ParticleModule.register('OrbitVelocity', ModuleExecStage.UPDATE | ModuleExecStage.SPAWN, [], ['Solve', 'State'])
-export class OrbitVelocityModule extends ParticleModule {
+@ccclass('cc.VortexVelocityModule')
+@ParticleModule.register('VortexVelocity', ModuleExecStage.UPDATE | ModuleExecStage.SPAWN, [BuiltinParticleParameterName.VELOCITY])
+export class VortexVelocityModule extends ParticleModule {
     /**
        * @zh 速度计算时采用的坐标系[[Space]]。
        */

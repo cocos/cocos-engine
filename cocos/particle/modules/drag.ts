@@ -30,7 +30,7 @@ import { CurveRange } from '../curve-range';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { assert, CCBoolean, Enum } from '../../core';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
-import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameter, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
 import { RandNumGen } from '../rand-num-gen';
 
 const DRAG_RAND_OFFSET = 72617;
@@ -38,7 +38,7 @@ const DRAG_RAND_OFFSET = 72617;
 const _temp_v3 = new Vec3();
 
 @ccclass('cc.DragModule')
-@ParticleModule.register('Drag', ModuleExecStage.UPDATE, ['State'], ['Solve'])
+@ParticleModule.register('Drag', ModuleExecStage.UPDATE, [ParameterName.VELOCITY], [ParameterName.VELOCITY, ParameterName.SIZE])
 export class DragModule extends ParticleModule {
     @type(CurveRange)
     @visible(true)

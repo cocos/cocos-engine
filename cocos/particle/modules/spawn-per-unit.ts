@@ -43,8 +43,8 @@ export class SpawnPerUnitModule extends ParticleModule {
     public rate = new CurveRange();
 
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
-        const { velocity, emitterNormalizedTime: normalizeT, emitterDeltaTime } = context;
-        context.spawnContinuousCount += velocity.length()
+        const { emitterVelocity, emitterNormalizedTime: normalizeT, emitterDeltaTime } = context;
+        context.spawnContinuousCount += emitterVelocity.length()
         * this.rate.evaluate(normalizeT, Math.random()) * emitterDeltaTime;
     }
 }

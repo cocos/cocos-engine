@@ -29,7 +29,7 @@ import { lerp, repeat } from '../../core/math';
 import { Enum } from '../../core/value-types';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { createRealCurve, CurveRange } from '../curve-range';
-import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameter, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { assert, CCFloat, CCInteger, RealCurve, RealInterpolationMode } from '../../core';
 import { RandNumGen } from '../rand-num-gen';
@@ -74,7 +74,7 @@ export enum Animation {
 }
 
 @ccclass('cc.SubUVAnimationModule')
-@ParticleModule.register('SubUVAnimation', ModuleExecStage.UPDATE, ['State', 'Solve'])
+@ParticleModule.register('SubUVAnimation', ModuleExecStage.UPDATE, [], [ParameterName.VELOCITY, ParameterName.NORMALIZED_ALIVE_TIME])
 export class SubUVAnimationModule extends ParticleModule {
     /**
      * @zh 设定粒子贴图动画的类型（暂只支持 Grid 模式）[[Mode]]。

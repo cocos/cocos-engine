@@ -114,14 +114,6 @@ export default class Gradient {
         return out;
     }
 
-    public randomColor (out: Color) {
-        const c = this.colorKeys[Math.trunc(Math.random() * this.colorKeys.length)];
-        const a = this.alphaKeys[Math.trunc(Math.random() * this.alphaKeys.length)];
-        Color.copy(out, c.color);
-        out._set_a_unsafe(a.alpha);
-        return out;
-    }
-
     private getRGB (out: Color, time: number) {
         const colorKeys = this.colorKeys;
         const length = colorKeys.length;

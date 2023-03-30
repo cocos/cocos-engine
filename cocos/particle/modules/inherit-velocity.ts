@@ -29,131 +29,103 @@ import { lerp, Mat4, Quat, Vec3 } from '../../core/math';
 import { Space } from '../enum';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { calculateTransform } from '../particle-general-function';
-import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
-import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
+import { BuiltinParticleParameter, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
+import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
 import { CurveRange } from '../curve-range';
 import { RandNumGen } from '../rand-num-gen';
 
-const VELOCITY_X_OVERTIME_RAND_OFFSET = 197866;
-const VELOCITY_Y_OVERTIME_RAND_OFFSET = 156497;
-const VELOCITY_Z_OVERTIME_RAND_OFFSET = 984136;
+const INHERIT_VELOCITY_RAND = 718231;
 
 const tempVelocity = new Vec3();
 @ccclass('cc.InheritVelocityModule')
-@ParticleModule.register('InheritVelocity', ModuleExecStage.UPDATE | ModuleExecStage.SPAWN, [], ['Solve', 'State'])
+@ParticleModule.register('InheritVelocity', ModuleExecStage.UPDATE | ModuleExecStage.SPAWN, [BuiltinParticleParameterName.VELOCITY])
 export class InheritVelocityModule extends ParticleModule {
     @type(CurveRange)
     @visible(true)
     @serializable
     public scale = new CurveRange();
 
+    private _rand = new RandNumGen();
+
+    public onPlay (params: ParticleEmitterParams, states: ParticleEmitterState) {
+        this._rand.seed = states.rand.getUInt32();
+    }
+
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         if (this.scale.mode === CurveRange.Mode.TwoConstants || this.scale.mode === CurveRange.Mode.TwoCurves) {
-            context.markRequiredParameter(BuiltinParticleParameter.RANDOM_SEED);
+            if (context.executionStage !== ModuleExecStage.SPAWN) {
+                context.markRequiredParameter(BuiltinParticleParameter.RANDOM_SEED);
+            }
         }
         if (this.scale.mode === CurveRange.Mode.TwoCurves || this.scale.mode === CurveRange.Mode.Curve) {
-            context.markRequiredParameter(BuiltinParticleParameter.NORMALIZED_ALIVE_TIME);
+            if (context.executionStage !== ModuleExecStage.SPAWN) {
+                context.markRequiredParameter(BuiltinParticleParameter.NORMALIZED_ALIVE_TIME);
+            } else {
+                context.markRequiredParameter(BuiltinParticleParameter.SPAWN_TIME_RATIO);
+            }
         }
         context.markRequiredParameter(BuiltinParticleParameter.POSITION);
-        context.markRequiredParameter(BuiltinParticleParameter.VELOCITY);
+        if (context.executionStage !== ModuleExecStage.SPAWN) {
+            context.markRequiredParameter(BuiltinParticleParameter.VELOCITY);
+        } else {
+            context.markRequiredParameter(BuiltinParticleParameter.BASE_VELOCITY);
+        }
     }
 
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
-        const needTransform = this.space !== params.simulationSpace;
-        const { velocity } = particles;
-        const { fromIndex, toIndex, rotationIfNeedTransform } = context;
-        if (needTransform) {
-            if (this.x.mode === CurveRange.Mode.Constant) {
-                tempVelocity.set(this.x.constant, this.y.constant, this.z.constant);
-                Vec3.transformQuat(tempVelocity, tempVelocity, rotationIfNeedTransform);
+        const { fromIndex, toIndex, emitterVelocityInEmittingSpace: initialVelocity,
+            emitterNormalizedTime: normalizedT, emitterNormalizedPrevTime: normalizedPrevT } = context;
+        const velocity = context.executionStage === ModuleExecStage.SPAWN ? particles.baseVelocity : particles.velocity;
+        const rand = this._rand;
+        if (this.scale.mode === CurveRange.Mode.Constant) {
+            Vec3.multiplyScalar(tempVelocity, initialVelocity, this.scale.constant);
+            for (let i = fromIndex; i < toIndex; i++) {
+                velocity.addVec3At(tempVelocity, i);
+            }
+        } else if (this.scale.mode === CurveRange.Mode.TwoConstants) {
+            const { constantMin, constantMax } = this.scale;
+            if (context.executionStage === ModuleExecStage.SPAWN) {
                 for (let i = fromIndex; i < toIndex; i++) {
-                    velocity.addVec3At(tempVelocity, i);
-                }
-            } else if (this.x.mode === CurveRange.Mode.Curve) {
-                const normalizedAliveTime = particles.normalizedAliveTime.data;
-                const { spline: xCurve, multiplier: xMultiplier } = this.x;
-                const { spline: yCurve, multiplier: yMultiplier } = this.y;
-                const { spline: zCurve, multiplier: zMultiplier } = this.z;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    const normalizedTime = normalizedAliveTime[i];
-                    tempVelocity.set(xCurve.evaluate(normalizedTime) * xMultiplier,
-                        yCurve.evaluate(normalizedTime) * yMultiplier,
-                        zCurve.evaluate(normalizedTime) * zMultiplier);
-                    Vec3.transformQuat(tempVelocity, tempVelocity, rotationIfNeedTransform);
-                    velocity.addVec3At(tempVelocity, i);
-                }
-            } else if (this.x.mode === CurveRange.Mode.TwoConstants) {
-                const randomSeed = particles.randomSeed.data;
-                const { constantMin: xMin, constantMax: xMax } = this.x;
-                const { constantMin: yMin, constantMax: yMax } = this.y;
-                const { constantMin: zMin, constantMax: zMax } = this.z;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    const seed = randomSeed[i];
-                    tempVelocity.set(lerp(xMin, xMax, RandNumGen.getFloat(seed + VELOCITY_X_OVERTIME_RAND_OFFSET)),
-                        lerp(yMin, yMax, RandNumGen.getFloat(seed + VELOCITY_Y_OVERTIME_RAND_OFFSET)),
-                        lerp(zMin, zMax, RandNumGen.getFloat(seed + VELOCITY_Z_OVERTIME_RAND_OFFSET)));
-                    Vec3.transformQuat(tempVelocity, tempVelocity, rotationIfNeedTransform);
+                    Vec3.multiplyScalar(tempVelocity, initialVelocity, lerp(constantMin, constantMax, rand.getFloat()));
                     velocity.addVec3At(tempVelocity, i);
                 }
             } else {
-                const randomSeed = particles.randomSeed.data;
-                const normalizedAliveTime = particles.normalizedAliveTime.data;
-                const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.x;
-                const { splineMin: yMin, splineMax: yMax, multiplier: yMultiplier } = this.y;
-                const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.z;
+                const seed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const seed = randomSeed[i];
-                    const normalizedTime = normalizedAliveTime[i];
-                    tempVelocity.set(lerp(xMin.evaluate(normalizedTime), xMax.evaluate(normalizedTime), RandNumGen.getFloat(seed + VELOCITY_X_OVERTIME_RAND_OFFSET)) * xMultiplier,
-                        lerp(yMin.evaluate(normalizedTime), yMax.evaluate(normalizedTime), RandNumGen.getFloat(seed + VELOCITY_Y_OVERTIME_RAND_OFFSET)) * yMultiplier,
-                        lerp(zMin.evaluate(normalizedTime), zMax.evaluate(normalizedTime), RandNumGen.getFloat(seed + VELOCITY_Z_OVERTIME_RAND_OFFSET)) * zMultiplier);
-                    Vec3.transformQuat(tempVelocity, tempVelocity, rotationIfNeedTransform);
+                    Vec3.multiplyScalar(tempVelocity, initialVelocity, lerp(constantMin, constantMax, RandNumGen.getFloat(seed[i] + INHERIT_VELOCITY_RAND)));
+                    velocity.addVec3At(tempVelocity, i);
+                }
+            }
+        } else if (this.scale.mode === CurveRange.Mode.Curve) {
+            const { spline, multiplier } = this.scale;
+            if (context.executionStage === ModuleExecStage.SPAWN) {
+                const spawnTime = particles.spawnTimeRatio.data;
+                for (let i = fromIndex; i < toIndex; i++) {
+                    Vec3.multiplyScalar(tempVelocity, initialVelocity, spline.evaluate(lerp(normalizedT, normalizedPrevT, spawnTime[i])) * multiplier);
+                    velocity.addVec3At(tempVelocity, i);
+                }
+            } else {
+                const normalizedAliveTime = particles.normalizedAliveTime.data;
+                for (let i = fromIndex; i < toIndex; i++) {
+                    Vec3.multiplyScalar(tempVelocity, initialVelocity, spline.evaluate(normalizedAliveTime[i]) * multiplier);
                     velocity.addVec3At(tempVelocity, i);
                 }
             }
         } else {
-            // eslint-disable-next-line no-lonely-if
-            if (this.x.mode === CurveRange.Mode.Constant) {
-                tempVelocity.set(this.x.constant, this.y.constant, this.z.constant);
+            const { splineMin, splineMax, multiplier } = this.scale;
+            if (context.executionStage === ModuleExecStage.SPAWN) {
+                const spawnTime = particles.spawnTimeRatio.data;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    velocity.addVec3At(tempVelocity, i);
-                }
-            } else if (this.x.mode === CurveRange.Mode.Curve) {
-                const normalizedAliveTime = particles.normalizedAliveTime.data;
-                const { spline: xCurve, multiplier: xMultiplier } = this.x;
-                const { spline: yCurve, multiplier: yMultiplier } = this.y;
-                const { spline: zCurve, multiplier: zMultiplier } = this.z;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    const normalizedTime = normalizedAliveTime[i];
-                    tempVelocity.set(xCurve.evaluate(normalizedTime) * xMultiplier,
-                        yCurve.evaluate(normalizedTime) * yMultiplier,
-                        zCurve.evaluate(normalizedTime) * zMultiplier);
-                    velocity.addVec3At(tempVelocity, i);
-                }
-            } else if (this.x.mode === CurveRange.Mode.TwoConstants) {
-                const randomSeed = particles.randomSeed.data;
-                const { constantMin: xMin, constantMax: xMax } = this.x;
-                const { constantMin: yMin, constantMax: yMax } = this.y;
-                const { constantMin: zMin, constantMax: zMax } = this.z;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    const seed = randomSeed[i];
-                    tempVelocity.set(lerp(xMin, xMax, RandNumGen.getFloat(seed + VELOCITY_X_OVERTIME_RAND_OFFSET)),
-                        lerp(yMin, yMax, RandNumGen.getFloat(seed + VELOCITY_Y_OVERTIME_RAND_OFFSET)),
-                        lerp(zMin, zMax, RandNumGen.getFloat(seed + VELOCITY_Z_OVERTIME_RAND_OFFSET)));
+                    const time = lerp(normalizedT, normalizedPrevT, spawnTime[i]);
+                    Vec3.multiplyScalar(tempVelocity, initialVelocity, lerp(splineMin.evaluate(time), splineMax.evaluate(time), rand.getFloat()) * multiplier);
                     velocity.addVec3At(tempVelocity, i);
                 }
             } else {
-                const randomSeed = particles.randomSeed.data;
                 const normalizedAliveTime = particles.normalizedAliveTime.data;
-                const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.x;
-                const { splineMin: yMin, splineMax: yMax, multiplier: yMultiplier } = this.y;
-                const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.z;
+                const seed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const seed = randomSeed[i];
-                    const normalizedTime = normalizedAliveTime[i];
-                    tempVelocity.set(lerp(xMin.evaluate(normalizedTime), xMax.evaluate(normalizedTime), RandNumGen.getFloat(seed + VELOCITY_X_OVERTIME_RAND_OFFSET)) * xMultiplier,
-                        lerp(yMin.evaluate(normalizedTime), yMax.evaluate(normalizedTime), RandNumGen.getFloat(seed + VELOCITY_Y_OVERTIME_RAND_OFFSET)) * yMultiplier,
-                        lerp(zMin.evaluate(normalizedTime), zMax.evaluate(normalizedTime), RandNumGen.getFloat(seed + VELOCITY_Z_OVERTIME_RAND_OFFSET)) * zMultiplier);
+                    const time = normalizedAliveTime[i];
+                    Vec3.multiplyScalar(tempVelocity, initialVelocity, lerp(splineMin.evaluate(time), splineMax.evaluate(time), RandNumGen.getFloat(seed[i] + INHERIT_VELOCITY_RAND)) * multiplier);
                     velocity.addVec3At(tempVelocity, i);
                 }
             }

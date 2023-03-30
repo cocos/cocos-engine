@@ -26,7 +26,7 @@ import { ccclass, rangeMin, serializable, type } from '../../core/data/decorator
 import { GradientRange } from '../gradient-range';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { ModuleExecStage, ParticleModule } from '../particle-module';
-import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameter, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleVec3Parameter } from '../particle-parameter';
 import { approx, assert, Color, math, Vec3, Vec2 } from '../../core';
 import { RandNumGen } from '../rand-num-gen';
@@ -38,7 +38,7 @@ const tempColor3 = new Color();
 const MULTIPLY_COLOR_BY_SPEED_RAND_OFFSET = 27382;
 
 @ccclass('cc.MultiplyColorBySpeed')
-@ParticleModule.register('MultiplyColorBySpeed', ModuleExecStage.UPDATE, ['Solve', 'State'])
+@ParticleModule.register('MultiplyColorBySpeed', ModuleExecStage.UPDATE, [ParameterName.COLOR], [ParameterName.VELOCITY])
 export class MultiplyColorBySpeedModule extends ParticleModule {
     /**
      * @zh 颜色随速度变化的参数，各个 key 之间线性差值变化。

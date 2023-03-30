@@ -26,14 +26,14 @@
 import { ccclass, displayOrder, range, serializable, tooltip, type, visible } from '../../core/data/decorators';
 import { ModuleExecStage, ParticleModule } from '../particle-module';
 import { Enum, toDegree, toRadian, Vec3 } from '../../core';
-import { ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { CurveRange } from '../curve-range';
 import { AngleBasedShapeModule } from './angle-based-shape';
 
 const temp = new Vec3();
 @ccclass('cc.DonutShapeModule')
-@ParticleModule.register('DonutShape', ModuleExecStage.SPAWN)
+@ParticleModule.register('DonutShape', ModuleExecStage.SPAWN, [BuiltinParticleParameterName.START_DIR])
 export class DonutShapeModule extends AngleBasedShapeModule {
     /**
        * @zh 粒子发射器半径。
