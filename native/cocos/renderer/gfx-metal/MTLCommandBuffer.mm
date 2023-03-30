@@ -924,8 +924,6 @@ void CCMTLCommandBuffer::bindDescriptorSets() {
 }
 
 void CCMTLCommandBuffer::copyTexture(Texture *srcTexture, Texture *dstTexture, const TextureCopy *regions, uint32_t count) {
-    // blit copy texture supported ios13.0+ / macos 10.15+, use blit instead.
-
     ccstd::vector<TextureBlit> blitRegions(count);
     for (uint32_t i = 0; i < count; ++i) {
         auto &blit = blitRegions[i];
