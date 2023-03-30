@@ -435,7 +435,7 @@ function getExportedClassesFromCppSourceCode() {
     const toFullPath = (prefix: string) => (filename: string) => path.join(prefix, filename);
     const findInDir = (filterCb: { (p: string): boolean }) => (dir: string) => fs.readdirSync(dir).filter(filterCb).map(toFullPath(dir)).forEach((fp) => cppSourceFiles.push(fp));
 
-    ['native/cocos/bindings/manual', 'native/cocos/bindings/auto'].map(toFullPath(enginePath)).forEach(findInDir((x) => x.startsWith('jsb_') && x.endsWith('.cpp')));
+    ['native/cocos/bindings/manual', 'native/build/generated/cocos/bindings/auto'].map(toFullPath(enginePath)).forEach(findInDir((x) => x.startsWith('jsb_') && x.endsWith('.cpp')));
 
     const se_Class_create = /se::Class::create\((\{("\w+",\s*"\w+")+\}|("\w+"))/;
 
