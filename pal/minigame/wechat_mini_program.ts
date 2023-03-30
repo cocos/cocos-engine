@@ -173,4 +173,23 @@ if (systemInfo.platform === 'windows' && versionCompare(systemInfo.SDKVersion, '
     }
 }
 
+// HACK: adapt gl.texSubImage2D: gl.texSubImage2D do not support 2d canvas in wechat miniprogram
+// @ts-expect-error getApp defined in global
+const gl = getApp().GameGlobal.canvas.getContext('webgl') as any;
+const oldTexSubImage2D = gl.texSubImage2D;
+gl.texSubImage2D = function (...args) {
+    if (args.length === 7) {
+        const canvas = args[6];
+        if (typeof canvas.type !== 'undefined' && canvas.type === 'canvas') {
+            const ctx = canvas.getContext('2d');
+            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            oldTexSubImage2D.call(gl, args[0], args[1], args[2], args[3], args[4], args[5], imgData);
+        } else {
+            oldTexSubImage2D.apply(gl, args);
+        }
+    } else {
+        oldTexSubImage2D.apply(gl, args);
+    }
+};
+
 export { minigame };
