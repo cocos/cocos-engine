@@ -892,7 +892,12 @@ const Elements = {
                 });
             }
         },
-        async setReflectionConvolutionMap(uuid) {
+        async setEnvMapAndConvolutionMap(uuid) {
+            await Editor.Message.request('scene', 'execute-scene-script', {
+                name: 'inspector',
+                method: 'setSkyboxEnvMap',
+                args: [uuid],
+            });
             if (uuid) {
                 await Editor.Message.request('scene', 'execute-scene-script', {
                     name: 'inspector',
@@ -900,13 +905,6 @@ const Elements = {
                     args: [uuid],
                 });
             }
-        },
-        async setSkyboxEnvMap(uuid) {
-            await Editor.Message.request('scene', 'execute-scene-script', {
-                name: 'inspector',
-                method: 'setSkyboxEnvMap',
-                args: [uuid],
-            });
         },
         async skyboxReflectionConvolution() {
             const panel = this;
@@ -989,8 +987,7 @@ const Elements = {
 
             const $prop = useHDR ? panel.$.sceneSkyboxEnvmapHDR : panel.$.sceneSkyboxEnvmapLDR;
             const uuid = $prop.dump.value.uuid;
-            Elements.scene.setReflectionConvolutionMap.call(panel, uuid);
-            Elements.scene.setSkyboxEnvMap.call(panel, uuid);
+            Elements.scene.setEnvMapAndConvolutionMap.call(panel, uuid);
         },
         async skyboxEnvmapChange(useHDR, event) {
             const panel = this;
@@ -1001,8 +998,7 @@ const Elements = {
 
             const $prop = event.currentTarget;
             const uuid = $prop.dump.value.uuid;
-            Elements.scene.setReflectionConvolutionMap.call(panel, uuid);
-            Elements.scene.setSkyboxEnvMap.call(panel, uuid);
+            Elements.scene.setEnvMapAndConvolutionMap.call(panel, uuid);
         },
     },
     node: {
