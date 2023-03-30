@@ -70,6 +70,7 @@ const _anim_module = [
     '_noiseModule',
     '_forcefieldModule',
     '_inheritVelocityModule',
+    '_customDataModule',
 ];
 
 const _uvs = [
@@ -152,8 +153,8 @@ const _vertex_attrs_cus_ins = [
     new Attribute(AttributeName.ATTR_TEX_COORD1, Format.RGB32F, false, 0, true),     // size
     new Attribute(AttributeName.ATTR_TEX_COORD2, Format.RGB32F, false, 0, true),     // rotation
     new Attribute(AttributeName.ATTR_COLOR, Format.RGBA8, true, 0, true),            // color
-    new Attribute(AttributeName.ATTR_TEX_COORD5, Format.RGBA32F, true, 0, true),
-    new Attribute(AttributeName.ATTR_TEX_COORD6, Format.RGBA32F, true, 0, true),
+    new Attribute(AttributeName.ATTR_TEX_COORD5, Format.RGBA32F, false, 0, true),
+    new Attribute(AttributeName.ATTR_TEX_COORD6, Format.RGBA32F, false, 0, true),
     new Attribute(AttributeName.ATTR_TEX_COORD, Format.RGB32F, false, 1),            // uv
 ];
 
@@ -163,8 +164,8 @@ const _vertex_attrs_stretch_cus_ins = [
     new Attribute(AttributeName.ATTR_TEX_COORD2, Format.RGB32F, false, 0, true),     // rotation
     new Attribute(AttributeName.ATTR_COLOR, Format.RGBA8, true, 0, true),            // color
     new Attribute(AttributeName.ATTR_COLOR1, Format.RGB32F, false, 0, true),         // particle velocity
-    new Attribute(AttributeName.ATTR_TEX_COORD5, Format.RGBA32F, true, 0, true),
-    new Attribute(AttributeName.ATTR_TEX_COORD6, Format.RGBA32F, true, 0, true),
+    new Attribute(AttributeName.ATTR_TEX_COORD5, Format.RGBA32F, false, 0, true),
+    new Attribute(AttributeName.ATTR_TEX_COORD6, Format.RGBA32F, false, 0, true),
     new Attribute(AttributeName.ATTR_TEX_COORD, Format.RGB32F, false, 1),            // uv
 ];
 
@@ -173,8 +174,8 @@ const _vertex_attrs_mesh_cus_ins = [
     new Attribute(AttributeName.ATTR_TEX_COORD1, Format.RGB32F, false, 0, true),     // size
     new Attribute(AttributeName.ATTR_TEX_COORD2, Format.RGB32F, false, 0, true),     // rotation
     new Attribute(AttributeName.ATTR_COLOR, Format.RGBA8, true, 0, true),            // particle color
-    new Attribute(AttributeName.ATTR_TEX_COORD5, Format.RGBA32F, true, 0, true),
-    new Attribute(AttributeName.ATTR_TEX_COORD6, Format.RGBA32F, true, 0, true),
+    new Attribute(AttributeName.ATTR_TEX_COORD5, Format.RGBA32F, false, 0, true),
+    new Attribute(AttributeName.ATTR_TEX_COORD6, Format.RGBA32F, false, 0, true),
     new Attribute(AttributeName.ATTR_TEX_COORD, Format.RGB32F, false, 1),            // mesh uv
     new Attribute(AttributeName.ATTR_TEX_COORD3, Format.RGB32F, false, 1),           // mesh position
     new Attribute(AttributeName.ATTR_NORMAL, Format.RGB32F, false, 1),               // mesh normal
