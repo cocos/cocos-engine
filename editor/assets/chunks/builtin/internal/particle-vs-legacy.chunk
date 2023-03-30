@@ -20,6 +20,11 @@ in vec3 a_texCoord;  // xy:vertex index,z:frame index
   in vec3 a_color1; // velocity.x, velocity.y, velocity.z, scale
 #endif
 
+#if CC_USE_CUSTOM
+  in vec4 a_texCoord5; // custom1
+  in vec4 a_texCoord6; // custom2
+#endif
+
 #if CC_RENDER_MODE == RENDER_MODE_MESH
   in vec3 a_texCoord3;  // mesh vertices
   in vec3 a_normal;     // mesh normal
@@ -100,6 +105,10 @@ vec4 lpvs_main () {
     pos = xform * vec4(a_texCoord3, 1);
     vec4 normal = xformNoScale * vec4(a_normal, 0);
     color = a_color * a_color1;
+  #endif
+
+  #if CC_USE_CUSTOM
+  
   #endif
 
   #if !CC_INSTANCE_PARTICLE

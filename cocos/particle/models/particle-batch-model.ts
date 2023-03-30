@@ -418,6 +418,18 @@ export default class ParticleBatchModel extends scene.Model {
                 this._vdataF32![offset++] = pvdata[5].y;
                 this._vdataF32![offset++] = pvdata[5].z;
             }
+            if (pvdata[6]) {
+                this._vdataF32![offset++] = pvdata[6].x; // custom1
+                this._vdataF32![offset++] = pvdata[6].y;
+                this._vdataF32![offset++] = pvdata[6].z;
+                this._vdataF32![offset++] = pvdata[6].w;
+            }
+            if (pvdata[7]) {
+                this._vdataF32![offset++] = pvdata[7].x; // custom2
+                this._vdataF32![offset++] = pvdata[7].y;
+                this._vdataF32![offset++] = pvdata[7].z;
+                this._vdataF32![offset++] = pvdata[7].w;
+            }
         } else {
             this._vdataF32![offset++] = pvdata[0].x; // position
             this._vdataF32![offset++] = pvdata[0].y;
@@ -433,6 +445,19 @@ export default class ParticleBatchModel extends scene.Model {
             this._vdataF32![offset++] = pvdata[3].z;
 
             this._vdataUint32![offset++] = pvdata[4]; // color
+
+            if (pvdata[6]) {
+                this._vdataF32![offset++] = pvdata[6].x; // custom1
+                this._vdataF32![offset++] = pvdata[6].y;
+                this._vdataF32![offset++] = pvdata[6].z;
+                this._vdataF32![offset++] = pvdata[6].w;
+            }
+            if (pvdata[7]) {
+                this._vdataF32![offset++] = pvdata[7].x; // custom2
+                this._vdataF32![offset++] = pvdata[7].y;
+                this._vdataF32![offset++] = pvdata[7].z;
+                this._vdataF32![offset++] = pvdata[7].w;
+            }
         }
     }
 

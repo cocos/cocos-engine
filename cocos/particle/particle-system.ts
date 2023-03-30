@@ -57,6 +57,7 @@ import { ParticleCuller } from './particle-culler';
 import { NoiseModule } from './animator/noise-module';
 import { ForceFieldModule } from './animator/force-field-module';
 import InheritVelocityModule from './animator/inherit-velocity';
+import { CustomDataModule } from './animator/custom-data';
 import { CCBoolean, CCFloat, CCInteger, CCObject, Node } from '../core';
 
 const _world_mat = new Mat4();
@@ -732,6 +733,30 @@ export class ParticleSystem extends ModelRenderer {
         this._inheritVelocityModule = val;
     }
 
+    @type(CustomDataModule)
+    private _customDataModule: CustomDataModule | null = null;
+
+    @type(CustomDataModule)
+    @displayOrder(26)
+    public get customDataModule () {
+        if (EDITOR) {
+            if (!this._customDataModule) {
+                this._customDataModule = new CustomDataModule();
+                this._customDataModule.bindTarget(this.processor);
+            }
+        }
+        if (this._customDataModule && this.processor) {
+            this.processor.setUseCustom(this._customDataModule._enable);
+            this.processor.updateRenderMode();
+        }
+        return this._customDataModule;
+    }
+
+    public set customDataModule (val) {
+        if (!val) return;
+        this._customDataModule = val;
+    }
+
     // trail module
     @type(TrailModule)
     _trailModule: TrailModule | null = null;
@@ -966,6 +991,24 @@ export class ParticleSystem extends ModelRenderer {
                 sub.inheritVelocityModule.mode = subSrc.inheritVelocityModule.mode;
                 Object.assign(sub.inheritVelocityModule.speedModifier, subSrc.inheritVelocityModule.speedModifier);
                 sub.inheritVelocityModule.enable = subSrc.inheritVelocityModule.enable;
+            }
+        }
+
+        if (subSrc.customDataModule) {
+            if (sub.customDataModule) {
+                sub.customDataModule.dataType1 = subSrc.customDataModule.dataType1;
+                sub.customDataModule.dataType2 = subSrc.customDataModule.dataType2;
+                Object.assign(sub.customDataModule.data1Color, subSrc.customDataModule.data1Color);
+                Object.assign(sub.customDataModule.data2Color, subSrc.customDataModule.data2Color);
+                Object.assign(sub.customDataModule.data1X, subSrc.customDataModule.data1X);
+                Object.assign(sub.customDataModule.data1Y, subSrc.customDataModule.data1Y);
+                Object.assign(sub.customDataModule.data1Z, subSrc.customDataModule.data1Z);
+                Object.assign(sub.customDataModule.data1W, subSrc.customDataModule.data1W);
+                Object.assign(sub.customDataModule.data2X, subSrc.customDataModule.data2X);
+                Object.assign(sub.customDataModule.data2Y, subSrc.customDataModule.data2Y);
+                Object.assign(sub.customDataModule.data2Z, subSrc.customDataModule.data2Z);
+                Object.assign(sub.customDataModule.data2W, subSrc.customDataModule.data2W);
+                sub.customDataModule.enable = subSrc.customDataModule.enable;
             }
         }
 
@@ -1252,6 +1295,7 @@ export class ParticleSystem extends ModelRenderer {
         if (this._noiseModule) this._noiseModule.bindTarget(this.processor);
         if (this._forceFieldModule) this._forceFieldModule.bindTarget(this.processor);
         if (this._inheritVelocityModule) this._inheritVelocityModule.bindTarget(this.processor);
+        if (this._customDataModule) this._customDataModule.bindTarget(this.processor);
     }
 
     // TODO: Fast forward current particle system by simulating particles over given period of time, then pause it.

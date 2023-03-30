@@ -65,6 +65,8 @@ export interface IParticleSystemRenderer {
     setUseInstance (value: boolean): void;
     getUseInstance (): boolean;
     getNoisePreview (out: number[], width: number, height: number): void;
+    getUseCustom (): boolean;
+    setUseCustom (val): void;
 }
 
 export abstract class ParticleSystemRendererBase implements IParticleSystemRenderer {
@@ -73,6 +75,7 @@ export abstract class ParticleSystemRendererBase implements IParticleSystemRende
     protected _renderInfo: ParticleSystemRenderer | null = null;
     protected _vertAttrs: Attribute[] = [];
     protected _useInstance: boolean;
+    protected _useCustom: boolean;
 
     constructor (info: ParticleSystemRenderer) {
         this._renderInfo = info;
@@ -81,6 +84,15 @@ export abstract class ParticleSystemRendererBase implements IParticleSystemRende
         } else {
             this._useInstance = true;
         }
+        this._useCustom = false;
+    }
+
+    public getUseCustom (): boolean {
+        return this._useCustom;
+    }
+
+    public setUseCustom (val: boolean): void {
+        this._useCustom = val;
     }
 
     public getUseInstance (): boolean {
