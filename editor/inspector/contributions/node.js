@@ -901,6 +901,13 @@ const Elements = {
                 });
             }
         },
+        async setSkyboxEnvMap(uuid) {
+            await Editor.Message.request('scene', 'execute-scene-script', {
+                name: 'inspector',
+                method: 'setSkyboxEnvMap',
+                args: [uuid],
+            });
+        },
         async skyboxReflectionConvolution() {
             const panel = this;
 
@@ -983,8 +990,9 @@ const Elements = {
             const $prop = useHDR ? panel.$.sceneSkyboxEnvmapHDR : panel.$.sceneSkyboxEnvmapLDR;
             const uuid = $prop.dump.value.uuid;
             Elements.scene.setReflectionConvolutionMap.call(panel, uuid);
+            Elements.scene.setSkyboxEnvMap.call(panel, uuid);
         },
-        skyboxEnvmapChange(useHDR, event) {
+        async skyboxEnvmapChange(useHDR, event) {
             const panel = this;
             if (panel.dump._globals.skybox.value['useHDR'].value !== useHDR) {
                 // 未选中项的变动，不需要后续执行
@@ -994,6 +1002,7 @@ const Elements = {
             const $prop = event.currentTarget;
             const uuid = $prop.dump.value.uuid;
             Elements.scene.setReflectionConvolutionMap.call(panel, uuid);
+            Elements.scene.setSkyboxEnvMap.call(panel, uuid);
         },
     },
     node: {
