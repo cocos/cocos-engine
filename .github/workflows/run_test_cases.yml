@@ -91,13 +91,6 @@ jobs:
           git -C $PRECLONE_EXTERNAL reset --hard
           git -C $PRECLONE_EXTERNAL fetch --all --prune
           git -C $PRECLONE_EXTERNAL archive --format=tar $EXT_VERSION | tar -C native/external -xf -
-      - name: Generate bindings
-        run: |
-          cd ./native/tools/swig-config
-          echo "Create auto-generated jsbinding glue codes."
-          node genbindings.js &&
-          git status
-          
       - name: npm install
         run: |
           npm -v
@@ -206,12 +199,6 @@ jobs:
           git -C $PRECLONE_EXTERNAL reset --hard
           git -C $PRECLONE_EXTERNAL fetch --all --prune
           git -C $PRECLONE_EXTERNAL archive --format=tar $EXT_VERSION | tar -C native/external -xf -
-      - name: Generate bindings
-        run: |
-          cd ./native/tools/swig-config
-          echo "Create auto-generated jsbinding glue codes."
-          node genbindings.js &&
-          git status
       - name: npm install
         run: |
           npm -v

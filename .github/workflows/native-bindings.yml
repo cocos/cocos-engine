@@ -2,7 +2,7 @@ name: <Native> Generate Code
 
 on:
   pull_request_target:
-    types: [closed]
+    types: [opened, synchronize, closed]
     paths:
     - 'templates/**'
     - 'native/**'
@@ -11,7 +11,7 @@ on:
 
 jobs:
   generate-jsb:
-    if: github.event_name == 'pull_request_target' && github.event.action == 'closed' && github.event.pull_request.merged == true
+    # if: github.event_name == 'pull_request_target' && github.event.action == 'closed' && github.event.pull_request.merged == true
     strategy:
       matrix:
         node-version: [14.x]
@@ -21,39 +21,32 @@ jobs:
       - name: Generate decorators
         run: |
           npm install
-          echo "Installing babel dependencies..."
           cd scripts/build-engine
-          npm install @babel/types @babel/traverse @babel/generator
-          echo " build ast parser..."
+          echo "Installing babel dependencies ..."
+          npm install
+          echo "Build typescripts ... "
           npm run build
           cd ../..
           echo " parsing ..."
           node .github/workflows/gen_decorators.js
+          echo " generate done!"
           git checkout HEAD package.json package-lock.json
           git checkout HEAD scripts # revert all changes within build-engine/
 
-      - name: Download external libraries
-        run: |
-          EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
-          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
-          rm -rf native/external/.git
-      - name: Generate Bindings
-        run: |
-          cd ./native/tools/swig-config
-          node genbindings.js
-          git status
       - name: Update auto-gen source files 
         run: |
           cd native
-          npm install -g typescript
-          sh utils/generate_compile_commands_android.sh
           echo "Generating DebugInfos ... "
-          cmake --build ./build --target builtin-res
+          node cmake/scripts/gen_debugInfos.js \
+            ../EngineErrorMap.md \
+            cocos/core/builtin/DebugInfos.cpp.in \
+            cocos/core/builtin/DebugInfos.cpp 
           echo "Generating cocos-version.h ... "
           node ./cmake/scripts/engine-version.js
 
       - name: Create Pull Request 
         uses: fish9167/create-pull-request@v3
+        if: github.event_name == 'pull_request_target' && github.event.action == 'closed' && github.event.pull_request.merged == true
         with:
             title: '[ci skip][AUTO]: Automated PR to generate code'
             body: |
