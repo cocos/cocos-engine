@@ -50,7 +50,7 @@ export class CustomPipelineBuilder implements PipelineBuilder {
                 // blur pass
                 const blurInfo  = buildSSSSBlurPass(camera, ppl, forwardInfo.rtName, forwardInfo.dsName);
                 // specalur pass
-                const specalurInfo = buildSpecularPass(camera, ppl, forwardInfo.rtName, forwardInfo.dsName, blurInfo.rtName);
+                const specalurInfo = buildSpecularPass(camera, ppl, blurInfo.rtName, blurInfo.dsName);
                 // // fxaa pass
                 // const fxaaInfo = buildFxaaPass(camera, ppl, forwardInfo.rtName);
                 // // bloom passes

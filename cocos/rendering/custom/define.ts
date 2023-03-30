@@ -500,7 +500,6 @@ export function buildSSSSBlurPass (camera: Camera,
     ssssBlurData.depthUnitScale = depthUnitScale;
 
     const cameraID = getCameraUniqueID(camera);
-    const cameraName = `Camera${cameraID}`;
     const area = getRenderArea(camera, camera.window.width, camera.window.height);
     const width = area.width;
     const height = area.height;
@@ -515,14 +514,6 @@ export function buildSSSSBlurPass (camera: Camera,
     ssssBlurClearColor.w = camera.clearColor.w;
 
     // ==== SSSS Blur X Pass ===
-    const ssssBlurPassRTName = `dsSSSSBlurPassColor${cameraName}`;
-    const ssssBlurPassDSName = `dsSSSSBlurPassDS${cameraName}`;
-    if (!ppl.containsResource(ssssBlurPassRTName)) {
-        ppl.addRenderTarget(ssssBlurPassRTName, Format.RGBA8, width, height, ResourceResidency.MANAGED);
-        ppl.addDepthStencil(ssssBlurPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
-    }
-    ppl.updateRenderTarget(ssssBlurPassRTName, width, height);
-    ppl.updateDepthStencil(ssssBlurPassDSName, width, height);
     const ssssblurXPass = ppl.addRasterPass(width, height, 'SSSSblurX');
     ssssblurXPass.name = `CameraSSSSBlurXPass${cameraID}`;
     ssssblurXPass.setViewport(new Viewport(area.x, area.y, width, height));
@@ -548,21 +539,21 @@ export function buildSSSSBlurPass (camera: Camera,
         ssssblurXPass.addComputeView(inputDS, computeView);
     }
     const ssssBlurXPassRTView = new RasterView('_',
-        AccessType.WRITE,
+        AccessType.READ_WRITE,
         AttachmentType.RENDER_TARGET,
-        LoadOp.CLEAR,
+        LoadOp.LOAD,
         StoreOp.STORE,
         camera.clearFlag,
         ssssBlurClearColor);
-    ssssblurXPass.addRasterView(ssssBlurPassRTName, ssssBlurXPassRTView);
+    ssssblurXPass.addRasterView(inputRT, ssssBlurXPassRTView);
     const ssssBlurXPassDSView = new RasterView('_',
-        AccessType.WRITE,
+        AccessType.READ_WRITE,
         AttachmentType.DEPTH_STENCIL,
-        LoadOp.CLEAR,
+        LoadOp.LOAD,
         StoreOp.STORE,
         camera.clearFlag,
         new Color(camera.clearDepth, camera.clearStencil, 0.0, 0.0));
-    ssssblurXPass.addRasterView(ssssBlurPassDSName, ssssBlurXPassDSView);
+    ssssblurXPass.addRasterView(inputDS, ssssBlurXPassDSView);
     ssssBlurData.ssssBlurMaterial.setProperty('blurInfo', new Vec4(ssssBlurData.ssssFov, ssssBlurData.ssssWidth, ssssBlurData.depthUnitScale, 0), SSSS_BLUR_X_PASS_INDEX);
     ssssBlurData.ssssBlurMaterial.setProperty('kernel', kernel, SSSS_BLUR_X_PASS_INDEX);
     ssssblurXPass.addQueue(QueueHint.RENDER_OPAQUE | QueueHint.RENDER_TRANSPARENT).addCameraQuad(
@@ -595,28 +586,28 @@ export function buildSSSSBlurPass (camera: Camera,
         ssssblurYPass.addComputeView(inputDS, computeView);
     }
     const ssssBlurYPassView = new RasterView('_',
-        AccessType.WRITE,
+        AccessType.READ_WRITE,
         AttachmentType.RENDER_TARGET,
         LoadOp.LOAD,
         StoreOp.STORE,
         camera.clearFlag,
         ssssBlurClearColor);
-    ssssblurYPass.addRasterView(ssssBlurPassRTName, ssssBlurYPassView);
+    ssssblurYPass.addRasterView(inputRT, ssssBlurYPassView);
     const ssssBlurYPassDSView = new RasterView('_',
-        AccessType.WRITE,
+        AccessType.READ_WRITE,
         AttachmentType.DEPTH_STENCIL,
         LoadOp.LOAD,
         StoreOp.STORE,
         camera.clearFlag,
         new Color(camera.clearDepth, camera.clearStencil, 0.0, 0.0));
-    ssssblurYPass.addRasterView(ssssBlurPassDSName, ssssBlurYPassDSView);
+    ssssblurYPass.addRasterView(inputDS, ssssBlurYPassDSView);
     ssssBlurData.ssssBlurMaterial.setProperty('blurInfo', new Vec4(ssssBlurData.ssssFov, ssssBlurData.ssssWidth, ssssBlurData.depthUnitScale, 0), SSSS_BLUR_Y_PASS_INDEX);
     ssssBlurData.ssssBlurMaterial.setProperty('kernel', kernel, SSSS_BLUR_Y_PASS_INDEX);
     ssssblurYPass.addQueue(QueueHint.RENDER_OPAQUE | QueueHint.RENDER_TRANSPARENT).addCameraQuad(
         camera, ssssBlurData.ssssBlurMaterial, SSSS_BLUR_Y_PASS_INDEX,
         SceneFlags.NONE,
     );
-    return { rtName: ssssBlurPassRTName, dsName: ssssBlurPassDSName };
+    return { rtName: inputRT, dsName: inputDS };
 }
 
 class PostInfo {
@@ -785,8 +776,7 @@ export function buildForwardPass (camera: Camera,
 export function buildSpecularPass (camera: Camera,
     ppl: Pipeline,
     inputRT: string,
-    inputDS: string,
-    blurRT: string) {
+    inputDS: string) {
     if (EDITOR) {
         ppl.setMacroInt('CC_PIPELINE_TYPE', 0);
     }

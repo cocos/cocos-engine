@@ -67,6 +67,9 @@ CCEffect %{
       propertyIndex: 0
       embeddedMacros: { CC_SURFACES_LIGHTING_DISABLE_DIFFUSE: true, CC_SURFACES_LIGHTING_CALCULATE_SPECULAR: false }
       depthStencilState:
+        depthFunc: equal
+        depthTest: true
+        depthWrite: false
         stencilTestFront: true
         stencilFuncFront: always
         stencilRef: 0x78 # [0~255],use 120
