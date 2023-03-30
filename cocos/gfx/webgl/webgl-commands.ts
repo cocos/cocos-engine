@@ -22,7 +22,6 @@
  THE SOFTWARE.
 */
 
-import { WECHAT_MINI_PROGRAM } from 'internal:constants';
 import { debug, error, errorID, CachedArray, cclegacy } from '../../core';
 import { WebGLCommandAllocator } from './webgl-command-allocator';
 import { WebGLEXT } from './webgl-define';
