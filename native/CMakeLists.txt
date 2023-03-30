@@ -2939,6 +2939,9 @@ endif()
 
 add_library(${ENGINE_NAME} ${COCOS_SOURCE_LIST})
 
+add_dependencies(${ENGINE_NAME} genbindings)
+
+
 if(USE_MODULES)
     target_link_libraries(${ENGINE_NAME} PUBLIC
         ccmath
@@ -3288,9 +3291,11 @@ endforeach()
 
 source_group(TREE ${SWIG_OUTPUT_ROOT} PREFIX "Source Files/generated" FILES ${COCOS_GENERATED_LIST})
 
-add_custom_target(genbindings
-    DEPENDS ${COCOS_GENERATED_LIST}
-)
+if(CMAKE_GENERATOR STREQUAL "Xcode")
+    add_custom_target(genbindings
+        DEPENDS ${COCOS_GENERATED_LIST}
+    )
+endif()
 set_target_properties(genbindings PROPERTIES FOLDER Utils)
 
 if(USE_BUILTIN_EXTERNAL)
