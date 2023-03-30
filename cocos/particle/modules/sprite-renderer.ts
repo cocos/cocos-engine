@@ -24,9 +24,9 @@
  */
 import { Enum, Material, Quat, RenderingSubMesh, Vec4 } from '../../core';
 import { displayName, displayOrder, serializable, tooltip, type, visible } from '../../core/data/decorators';
-import { Attribute, AttributeName, BufferInfo, BufferUsageBit, deviceManager, Format, FormatInfos, MemoryUsageBit } from '../../core/gfx';
+import { Attribute, AttributeName, BufferInfo, BufferUsageBit, deviceManager, DrawInfo, DRAW_INFO_SIZE, Format, FormatInfos, IndirectBuffer, MemoryUsageBit, PrimitiveMode } from '../../core/gfx';
 import { MacroRecord, MaterialInstance } from '../../core/renderer';
-import { AlignmentSpace, RenderMode, Space } from '../enum';
+import { AlignmentSpace, Space } from '../enum';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
 import { RendererModule } from './renderer';
@@ -48,6 +48,9 @@ const fixedVertexBuffer = new Float32Array([
     1, 0, 0, 1, 0, 0, // bottom-right
     0, 1, 0, 0, 1, 0, // top-left
     1, 1, 0, 1, 1, 0, // top-right
+]);
+const fixedIndexBuffer = new Uint16Array([
+    0, 1, 2, 3, 2, 1,
 ]);
 /**
  * 粒子的生成模式。
@@ -117,12 +120,24 @@ export class SpriteRendererModule extends RendererModule {
     @serializable
     private _renderMode = RenderMode.BILLBOARD;
     private _defines: MacroRecord = {};
-    private _vertexStreamAttributes: Attribute[] = [particlePosition, particleRotation, particleSize, particleFrameId, particleColor, particleVelocity];
+    private _vertexStreamAttributes: Attribute[] = [meshPosition, meshUv, particlePosition, particleRotation, particleSize, particleFrameId, particleColor, particleVelocity];
     private _frameTile_velLenScale = new Vec4(1, 1, 0, 0);
     private _tmp_velLenScale = new Vec4(1, 1, 0, 0);
     private _node_scale = new Vec4();
     private _rotation = new Quat();
     private _renderingSubMesh: RenderingSubMesh | null = null;
+    private _insBuffers: Buffer[] = [];
+    private _dynamicBuffer: Float32Array | null = null;
+    private _dynamicBufferUintView: Uint32Array | null = null;
+    private _insIndices: Buffer | null = null;
+    private _vertexStreamSize = 0;
+    private _iaInfo = new IndirectBuffer([new DrawInfo()]);
+    private _iaInfoBuffer = deviceManager.gfxDevice.createBuffer(new BufferInfo(
+        BufferUsageBit.INDIRECT,
+        MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+        DRAW_INFO_SIZE,
+        DRAW_INFO_SIZE,
+    ));
 
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         if (!this.material) {
@@ -220,21 +235,36 @@ export class SpriteRendererModule extends RendererModule {
         this._insBuffers[1].update(dynamicBuffer); // update dynamic buffer
     }
 
+    private _updateAttributes () {
+        let vertexStreamSizeDynamic = 0;
+        for (let i = 0, length = this._vertexStreamAttributes.length; i < length; i++) {
+            vertexStreamSizeDynamic += FormatInfos[this._vertexStreamAttributes[i].format].size;
+        }
+        this._vertexStreamSize = vertexStreamSizeDynamic;
+    }
+
     private _generateMesh () {
         if (!this._renderingSubMesh) {
             const vertexStreamSizeStatic = 0;
-            let vertexStreamSizeDynamic = 0;
-            for (const a of this._vertexStreamAttributes) {
-                vertexStreamSizeDynamic += FormatInfos[a.format].size;
-            }
             const vertexBuffer = deviceManager.gfxDevice.createBuffer(new BufferInfo(
                 BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
                 MemoryUsageBit.DEVICE,
                 vertexStreamSizeStatic * 4,
                 vertexStreamSizeStatic,
             ));
-
-            const vBuffer = new ArrayBuffer(vertexStreamSizeStatic * 4);
+            vertexBuffer.update(fixedVertexBuffer);
+            const indexBuffer = deviceManager.gfxDevice.createBuffer(new BufferInfo(
+                BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
+                MemoryUsageBit.DEVICE,
+                6 * Uint16Array.BYTES_PER_ELEMENT,
+                Uint16Array.BYTES_PER_ELEMENT,
+            ));
+            indexBuffer.update(fixedIndexBuffer);
+            this._iaInfo.drawInfos[0].vertexCount = 4;
+            this._iaInfo.drawInfos[0].indexCount = 6;
+            this._iaInfoBuffer.update(this._iaInfo);
+            this._renderingSubMesh = new RenderingSubMesh(this._insBuffers, this._vertexStreamAttributes,
+                PrimitiveMode.TRIANGLE_LIST, indexBuffer, this._iaInfoBuffer);
         }
     }
 }
