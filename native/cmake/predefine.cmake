@@ -239,7 +239,7 @@ endfunction()
 
 function(cc_parse_cfg_include_files cfg_file output_var)
     file(STRINGS ${cfg_file} my_lines)
-    set(include_pattern "^%include\\s*\"([^\"]*)\"\\s*")
+    set(include_pattern "^%include *\"([^\"]*)\" *$")
     set(include_files "")
     foreach(line ${my_lines})
         if(line MATCHES ${include_pattern})

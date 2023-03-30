@@ -1029,7 +1029,6 @@ endif()
 
 set(SWIG_OUTPUT_ROOT ${CMAKE_CURRENT_BINARY_DIR}/generated)
 set(SWIG_OUTPUT ${SWIG_OUTPUT_ROOT}/cocos/bindings/auto)
-file(MAKE_DIRECTORY ${SWIG_OUTPUT})
 cc_gen_swig_files(${CMAKE_CURRENT_LIST_DIR}/tools/swig-config ${SWIG_OUTPUT})
 
 
@@ -2815,7 +2814,7 @@ list(APPEND COCOS_SOURCE_LIST ${CC_EXTERNAL_SOURCES})
 
 ### generate source files
 
-set(CC_GENERATED_FILES
+set(COCOS_DEBUGINFO_SRC
     ${CWD}/cocos/core/builtin/DebugInfos.cpp
 )
 
@@ -2832,7 +2831,7 @@ add_custom_target(builtin-res
 set_target_properties(builtin-res PROPERTIES FOLDER Utils)
 
 
-list(APPEND COCOS_SOURCE_LIST ${CC_GENERATED_FILES})
+list(APPEND COCOS_SOURCE_LIST ${COCOS_DEBUGINFO_SRC})
 
 if(USE_MODULES)
     add_library(ccmath ${ccmath_SOURCE_LIST})
@@ -3289,6 +3288,10 @@ endforeach()
 
 source_group(TREE ${SWIG_OUTPUT_ROOT} PREFIX "Source Files/generated" FILES ${COCOS_GENERATED_LIST})
 
+add_custom_target(genbindings
+    DEPENDS ${COCOS_GENERATED_LIST}
+)
+set_target_properties(genbindings PROPERTIES FOLDER Utils)
 
 if(USE_BUILTIN_EXTERNAL)
     set(EXCLUDE_EXTERANL_LIST ${COCOS_SOURCE_LIST_EXCLUDE_GENRATED})
