@@ -24,9 +24,11 @@
  */
 
 import { ccclass, type, serializable, editable, range } from 'cc.decorator';
-import { random, repeat } from '../core/math';
+import { pseudoRandom, random, repeat } from '../core/math';
 import CurveRange from './animator/curve-range';
 import { Particle } from './particle';
+
+const BURST_RND_SEED = 1712325;
 
 @ccclass('cc.Burst')
 export default class Burst {
@@ -87,7 +89,8 @@ export default class Burst {
 
     public update (psys, dt: number, parentParticle?: Particle) {
         if (parentParticle) {
-            psys.emit(this.count.evaluate(parentParticle.time / psys.duration, 1), dt, parentParticle);
+            const rand = pseudoRandom(parentParticle.randomSeed ^ (BURST_RND_SEED + 1));
+            psys.emit(this.count.evaluate(parentParticle.time / psys.duration, rand), dt, parentParticle);
             return;
         }
         if (this._remainingCount === 0) {
@@ -101,7 +104,7 @@ export default class Burst {
             const curFrameTime = repeat(psys.time, psys.duration);
             if (this._curTime >= preFrameTime && this._curTime < curFrameTime) {
                 if (!parentParticle) {
-                    psys.emit(this.count.evaluate(this._curTime / psys.duration, 1), dt - (curFrameTime - this._curTime));
+                    psys.emit(this.count.evaluate(this._curTime / psys.duration, random()), dt - (curFrameTime - this._curTime));
                 }
                 this._curTime += this.repeatInterval;
                 --this._remainingCount;
