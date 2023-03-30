@@ -888,6 +888,7 @@ export class ParticleSystem extends ModelRenderer {
         sub.startSize3D = subSrc.startSize3D;
         sub.startRotation3D = subSrc.startRotation3D;
         sub.simulationSpeed = subSrc.simulationSpeed;
+        sub.subPercent = subSrc.subPercent;
         Object.assign(sub.startColor, subSrc.startColor);
         Object.assign(sub.startDelay, subSrc.startDelay);
         Object.assign(sub.startLifetime, subSrc.startLifetime);
@@ -1009,6 +1010,25 @@ export class ParticleSystem extends ModelRenderer {
                 Object.assign(sub.customDataModule.data2Z, subSrc.customDataModule.data2Z);
                 Object.assign(sub.customDataModule.data2W, subSrc.customDataModule.data2W);
                 sub.customDataModule.enable = subSrc.customDataModule.enable;
+            }
+        }
+
+        if (subSrc.noiseModule) {
+            if (sub.noiseModule) {
+                sub.noiseModule.strengthX = subSrc.noiseModule.strengthX;
+                sub.noiseModule.strengthY = subSrc.noiseModule.strengthY;
+                sub.noiseModule.strengthZ = subSrc.noiseModule.strengthZ;
+                sub.noiseModule.noiseSpeedX = subSrc.noiseModule.noiseSpeedX;
+                sub.noiseModule.noiseSpeedY = subSrc.noiseModule.noiseSpeedY;
+                sub.noiseModule.noiseSpeedZ = subSrc.noiseModule.noiseSpeedZ;
+                sub.noiseModule.noiseFrequency = subSrc.noiseModule.noiseFrequency;
+                sub.noiseModule.remapX = subSrc.noiseModule.remapX;
+                sub.noiseModule.remapY = subSrc.noiseModule.remapY;
+                sub.noiseModule.remapZ = subSrc.noiseModule.remapZ;
+                sub.noiseModule.octaves = subSrc.noiseModule.octaves;
+                sub.noiseModule.octaveMultiplier = subSrc.noiseModule.octaveMultiplier;
+                sub.noiseModule.octaveScale = subSrc.noiseModule.octaveScale;
+                sub.noiseModule.enable = subSrc.noiseModule.enable;
             }
         }
 

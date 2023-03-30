@@ -539,11 +539,13 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                     for (let b = 0; b < blen; ++b) {
                         const subemitter: ParticleSystem = p.particleSystem.getSubEmitters()[b];
                         if (!subemitter.actDie) {
-                            if (!subemitter.isPlaying) {
-                                subemitter.play();
+                            if (random() <= subemitter.subPercent) {
+                                if (!subemitter.isPlaying) {
+                                    subemitter.play();
+                                }
+                                // @ts-expect-error private property access
+                                subemitter._emit(dt, p);
                             }
-                            // @ts-expect-error private property access
-                            subemitter._emit(dt, p);
                         }
                     }
                 }
@@ -569,11 +571,13 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                         for (let b = 0; b < blen; ++b) {
                             const subemitter: ParticleSystem = p.particleSystem.getSubEmitters()[b];
                             if (subemitter.actDie) {
-                                if (!subemitter.isPlaying) {
-                                    subemitter.play();
+                                if (random() <= subemitter.subPercent) {
+                                    if (!subemitter.isPlaying) {
+                                        subemitter.play();
+                                    }
+                                    // @ts-expect-error private property access
+                                    subemitter._emit(dt, p);
                                 }
-                                // @ts-expect-error private property access
-                                subemitter._emit(dt, p);
                             }
                         }
                         p.trigged = true;
