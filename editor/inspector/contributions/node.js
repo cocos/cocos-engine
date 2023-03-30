@@ -989,7 +989,7 @@ const Elements = {
             const uuid = $prop.dump.value.uuid;
             Elements.scene.setEnvMapAndConvolutionMap.call(panel, uuid);
         },
-        async skyboxEnvmapChange(useHDR, event) {
+        skyboxEnvmapChange(useHDR, event) {
             const panel = this;
             if (panel.dump._globals.skybox.value['useHDR'].value !== useHDR) {
                 // 未选中项的变动，不需要后续执行
