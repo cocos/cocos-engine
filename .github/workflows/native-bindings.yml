@@ -33,23 +33,14 @@ jobs:
           git checkout HEAD package.json package-lock.json
           git checkout HEAD scripts # revert all changes within build-engine/
 
-      - name: Download external libraries
-        run: |
-          EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
-          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
-          rm -rf native/external/.git
-      - name: Generate Bindings
-        run: |
-          cd ./native/tools/swig-config
-          node genbindings.js
-          git status
       - name: Update auto-gen source files 
         run: |
           cd native
-          npm install -g typescript
-          sh utils/generate_compile_commands_android.sh
           echo "Generating DebugInfos ... "
-          cmake --build ./build --target builtin-res
+          node cmake/scripts/gen_debugInfos.js \
+            ../EngineErrorMap.md \
+            cocos/core/builtin/DebugInfos.cpp.in \
+            cocos/core/builtin/DebugInfos.cpp 
           echo "Generating cocos-version.h ... "
           node ./cmake/scripts/engine-version.js
 
