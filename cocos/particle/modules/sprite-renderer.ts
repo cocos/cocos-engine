@@ -260,6 +260,15 @@ export class SpriteRendererModule extends RendererModule {
                 Uint16Array.BYTES_PER_ELEMENT,
             ));
             indexBuffer.update(fixedIndexBuffer);
+            const dynamicBuffer = deviceManager.gfxDevice.createBuffer(new BufferInfo(
+                BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+                MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+                this._vertexStreamSize * this._capacity,
+                this._vertexStreamSize,
+            ));
+            this._dynamicBuffer = new Float32Array(new ArrayBuffer(this._capacity * this._vertexStreamSize));
+            this._dynamicBufferUintView = new Uint32Array(this._dynamicBuffer.buffer);
+            this._insBuffers.push(vertexBuffer);
             this._iaInfo.drawInfos[0].vertexCount = 4;
             this._iaInfo.drawInfos[0].indexCount = 6;
             this._iaInfoBuffer.update(this._iaInfo);
