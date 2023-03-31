@@ -77,7 +77,11 @@ void dispatchTouchEventCB(OH_NativeXComponent* component, void* window) {
     }
     // TODO(qgh):Is it possible to find an efficient way to do this, I thought about using a cache queue but it requires locking.
     cc::TouchEvent* ev = new cc::TouchEvent;
-    ev->windowId = 1;
+    cc::SystemWindowManager* windowMgr = this->getInterface<cc::SystemWindowManager>();
+    CC_ASSERT_NOT_NULL(windowMgr);
+    cc::ISystemWindow* systemWindow = windowMgr->getWindowFromHandle(window);
+    CC_ASSERT_NOT_NULL(systemWindow);
+    ev->windowId = systemWindow->getWindowId();
     if (touchEvent.type == OH_NATIVEXCOMPONENT_DOWN) {
         ev->type = cc::TouchEvent::Type::BEGAN;
     } else if (touchEvent.type == OH_NATIVEXCOMPONENT_MOVE) {
@@ -223,12 +227,14 @@ void OpenHarmonyPlatform::onCreateNative(napi_env env, uv_loop_t* loop) {
 void OpenHarmonyPlatform::onShowNative() {
     WindowEvent ev;
     ev.type = WindowEvent::Type::SHOW;
+    ev.windowId = cc::ISystemWindow::mainWindowId;
     events::WindowEvent::broadcast(ev);
 }
 
 void OpenHarmonyPlatform::onHideNative() {
     WindowEvent ev;
     ev.type = WindowEvent::Type::HIDDEN;
+    ev.windowId = cc::ISystemWindow::mainWindowId;
     events::WindowEvent::broadcast(ev);
 }
 
@@ -271,8 +277,32 @@ void OpenHarmonyPlatform::onSurfaceChanged(OH_NativeXComponent* component, void*
 }
 
 void OpenHarmonyPlatform::onSurfaceDestroyed(OH_NativeXComponent* component, void* window) {
-    SystemWindow* systemWindowIntf = getPlatform()->getInterface<SystemWindow>();
-    systemWindowIntf->setWindowHandle(nullptr);
+    cc::SystemWindowManager* windowMgr = this->getInterface<cc::SystemWindowManager>();
+    CC_ASSERT_NOT_NULL(windowMgr);
+    windowMgr->removeWindow(window);
+}
+
+void OpenHarmonyPlatform::dispatchTouchEvent(OH_NativeXComponent* component, void* window) {
+    OH_NativeXComponent_TouchEvent touchEvent;
+    int32_t ret = OH_NativeXComponent_GetTouchEvent(component, window, &touchEvent);
+    if (ret != OH_NATIVEXCOMPONENT_RESULT_SUCCESS) {
+        return;
+    }
+
+    if (touchEvent.type == OH_NATIVEXCOMPONENT_DOWN) {
+        ev.type = cc::TouchEvent::Type::BEGAN;
+    } else if (touchEvent.type == OH_NATIVEXCOMPONENT_MOVE) {
+        ev.type = cc::TouchEvent::Type::MOVED;
+    } else if (touchEvent.type == OH_NATIVEXCOMPONENT_UP) {
+        ev.type = cc::TouchEvent::Type::ENDED;
+    } else if (touchEvent.type == OH_NATIVEXCOMPONENT_CANCEL) {
+        ev.type = cc::TouchEvent::Type::CANCELLED;
+    }
+    for(int i = 0; i < touchEvent.numPoints; ++i) {
+        ev.touches.emplace_back(touchEvent.touchPoints[i].x, touchEvent.touchPoints[i].y, touchEvent.touchPoints[i].id);
+    }
+
+    events::Touch::broadcast(ev);
 }
 
 ISystemWindow *OpenHarmonyPlatform::createNativeWindow(uint32_t windowId, void *externalHandle) {
