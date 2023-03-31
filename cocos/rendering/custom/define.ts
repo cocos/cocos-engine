@@ -29,7 +29,7 @@ import { Camera, CSMLevel, DirectionalLight, Light, LightType, ReflectionProbe, 
 import { supportsR32FloatTexture } from '../define';
 import { Pipeline } from './pipeline';
 import { AccessType, AttachmentType, ComputeView, LightInfo, QueueHint, RasterView, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
-import { Vec4, macro, geometry, toRadian, cclegacy, assert } from '../../core';
+import { Vec3, Vec4, macro, geometry, toRadian, cclegacy, assert } from '../../core';
 import { Material } from '../../asset/assets';
 import { getProfilerCamera, SRGBToLinear } from '../pipeline-funcs';
 import { RenderWindow } from '../../render-scene/core/render-window';
@@ -440,13 +440,110 @@ export function buildBloomPass (camera: Camera,
     return { rtName: bloomPassCombineRTName, dsName: bloomPassCombineDSName };
 }
 
+const _vec3Array: Vec3[] = [new Vec3(), new Vec3(), new Vec3(), new Vec3(), new Vec3()];
+const _varianceArray: number[] = [0.0484, 0.187, 0.567, 1.99, 7.41];
+const _strengthParameterArray: number[] = [0.100, 0.118, 0.113, 0.358, 0.078];
+const _vec3Temp: Vec3 = new Vec3();
+const _vec4Temp: Vec4 = new Vec4();
+
 export const SSSS_BLUR_X_PASS_INDEX = 0;
 export const SSSS_BLUR_Y_PASS_INDEX = 1;
+export const EXPONENT = 2.0;
+export const I_SAMPLES_COUNT = 28;
 class SSSSBlurData {
     declare ssssBlurMaterial: Material;
     ssssFov = 45.0;
     ssssWidth = 2;
     depthUnitScale = 1.0;
+
+    get ssssStrength () {
+        return this._v3SSSSStrength;
+    }
+    set ssssStrength (val: Vec3) {
+        this._v3SSSSStrength = val;
+        this._updateSampleCount();
+    }
+
+    get ssssFallOff () {
+        return this._v3SSSSFallOff;
+    }
+    set ssssFallOff (val: Vec3) {
+        this._v3SSSSFallOff = val;
+        this._updateSampleCount();
+    }
+
+    private _v3SSSSStrength = new Vec3(0.48, 0.41, 0.28);
+    private _v3SSSSFallOff = new Vec3(1.0, 0.37, 0.3);
+    private _kernel: Vec4[] = [];
+
+    /**
+     * We use a falloff to modulate the shape of the profile. Big falloffs
+     * spreads the shape making it wider, while small falloffs make it
+     * narrower.
+     */
+    private _gaussian (out: Vec3, variance: number, r: number) {
+        const xx = r / (0.001 + this._v3SSSSFallOff.x);
+        out.x = Math.exp((-(xx * xx)) / (2.0 * variance)) / (2.0 * 3.14 * variance);
+        const yy = r / (0.001 + this._v3SSSSFallOff.y);
+        out.y = Math.exp((-(yy * yy)) / (2.0 * variance)) / (2.0 * 3.14 * variance);
+        const zz = r / (0.001 + this._v3SSSSFallOff.z);
+        out.z = Math.exp((-(zz * zz)) / (2.0 * variance)) / (2.0 * 3.14 * variance);
+    }
+
+    /**
+     * We used the red channel of the original skin profile defined in
+     * [d'Eon07] for all three channels. We noticed it can be used for green
+     * and blue channels (scaled using the falloff parameter) without
+     * introducing noticeable differences and allowing for total control over
+     * the profile. For example, it allows to create blue SSS gradients, which
+     * could be useful in case of rendering blue creatures.
+     */
+    private _profile (out: Vec3, val: number) {
+        for (let i = 0; i < 5; i++) {
+            this._gaussian(_vec3Array[i], _varianceArray[i], val);
+            Vec3.multiplyScalar(_vec3Array[i], _vec3Array[i], _strengthParameterArray[i]);
+            Vec3.multiply(out, out, _vec3Array[i]);
+        }
+    }
+
+    private _updateSampleCount () {
+        const strength = this._v3SSSSStrength;
+        const fallOff = this._v3SSSSFallOff;
+        const nSamples = I_SAMPLES_COUNT;
+        const range = nSamples > 20 ? 3.0 : 2.0;
+        this._kernel.length = nSamples;
+
+        // Calculate the offsets:
+        const step = 2.0 * range / (nSamples - 1);
+        for (let i = 0; i < nSamples; i++) {
+            const o = -range + i * step;
+            const sign = o < 0.0 ? -1.0 : 1.0;
+            // eslint-disable-next-line no-restricted-properties
+            kernel[i].w = range * sign * Math.abs(Math.pow(o, EXPONENT)) / Math.pow(range, EXPONENT);
+        }
+
+        // Calculate the weights:
+        for (let i = 0; i < nSamples; i++) {
+            const w0 = i > 0 ? Math.abs(kernel[i].w - kernel[i - 1].w) : 0.0;
+            const w1 = i < nSamples - 1 ? Math.abs(kernel[i].w - kernel[i + 1].w) : 0.0;
+            const area = (w0 + w1) / 2.0;
+            _vec3Temp.set(0);
+            this._profile(_vec3Temp, kernel[i].w);
+            Vec3.multiplyScalar(_vec3Temp, _vec3Temp, area);
+            kernel[i].x = _vec3Temp.x;
+            kernel[i].y = _vec3Temp.y;
+            kernel[i].z = _vec3Temp.z;
+        }
+
+        // We want the offset 0.0 to come first:
+        _vec4Temp.set(kernel[nSamples / 2]);
+        for (let i = 0; i < nSamples; i++) {
+            kernel[i].set(kernel[i - 1]);
+        }
+        kernel[0].set(_vec4Temp);
+
+        // Calculate the sum of the weights, we will need to normalize them below:
+    }
 
     private _updateBlurPass () {
         if (!this.ssssBlurMaterial) return;
@@ -471,6 +568,7 @@ class SSSSBlurData {
             this.ssssBlurMaterial.passes[i].tryCompile();
         }
         this._updateBlurPass();
+        this._updateSampleCount();
     }
 
     constructor () {
