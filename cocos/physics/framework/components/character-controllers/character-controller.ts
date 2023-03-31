@@ -178,7 +178,7 @@ export class CharacterController extends Eventify(Component) {
         if (!selector.runInEditor) return;
         this._cct = createCharacterController(this.TYPE);
         this._initialized = this._cct.initialize(this);
-        //this._cct.onLoad();
+        this._cct.onLoad!();
     }
 
     protected onEnable () {

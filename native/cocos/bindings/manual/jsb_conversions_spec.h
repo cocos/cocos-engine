@@ -622,6 +622,7 @@ bool nativevalue_to_se(const ccstd::vector<std::shared_ptr<cc::physics::TriggerE
 bool nativevalue_to_se(const ccstd::vector<cc::physics::ContactPoint> &from, se::Value &to, se::Object * /*ctx*/);
 bool nativevalue_to_se(const ccstd::vector<std::shared_ptr<cc::physics::ContactEventPair>> &from, se::Value &to, se::Object *ctx);
 bool nativevalue_to_se(const cc::physics::RaycastResult &from, se::Value &to, se::Object *ctx);
+bool nativevalue_to_se(const ccstd::vector<std::shared_ptr<cc::physics::CCTShapeEventPair>> &from, se::Value &to, se::Object *ctx);
 
 bool sevalue_to_native(const se::Value &from, cc::physics::ConvexDesc *to, se::Object *ctx);
 bool sevalue_to_native(const se::Value &from, cc::physics::TrimeshDesc *to, se::Object *ctx);

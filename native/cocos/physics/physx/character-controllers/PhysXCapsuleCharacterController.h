@@ -24,39 +24,27 @@
 
 #pragma once
 
-#include <memory>
-#include "base/Macros.h"
-#include "physics/spec/IWorld.h"
+#include "physics/physx/character-controllers/PhysXCharacterController.h"
 
 namespace cc {
 namespace physics {
-class CC_DLL World final : public IPhysicsWorld {
+
+class PhysXCapsuleCharacterController final : public PhysXCharacterController, public ICapsuleCharacterController {
 public:
-    World();
-    ~World() override;
-    void setGravity(float x, float y, float z) override;
-    void setAllowSleep(bool v) override;
-    void step(float fixedTimeStep) override;
-    void emitEvents() override;
-    void syncSceneToPhysics() override;
-    void syncSceneWithCheck() override;
-    void setCollisionMatrix(uint32_t i, uint32_t m) override;
-    ccstd::vector<std::shared_ptr<TriggerEventPair>> &getTriggerEventPairs() override;
-    ccstd::vector<std::shared_ptr<ContactEventPair>>& getContactEventPairs() override;
-    ccstd::vector<std::shared_ptr<CCTShapeEventPair>>& getCCTShapeEventPairs() override;
-    bool raycast(RaycastOptions &opt) override;
-    bool raycastClosest(RaycastOptions &opt) override;
-    ccstd::vector<RaycastResult> &raycastResult() override;
-    RaycastResult &raycastClosestResult() override;
-    uint32_t createConvex(ConvexDesc &desc) override;
-    uint32_t createTrimesh(TrimeshDesc &desc) override;
-    uint32_t createHeightField(HeightFieldDesc &desc) override;
-    bool createMaterial(uint16_t id, float f, float df, float r,
-                        uint8_t m0, uint8_t m1) override;
-    void destroy() override;
+    PhysXCapsuleCharacterController();
+    ~PhysXCapsuleCharacterController() override = default;
+    
+    // ICapsuleCharacterController
+    void setRadius(float v) override;
+    void setHeight(float v) override;
+    // ICapsuleCharacterController END
 
 private:
-    std::unique_ptr<IPhysicsWorld> _impl;
+    float _mRadius;
+    float _mHeight;
+    void create() override;
+    void onComponentSet() override;
 };
+
 } // namespace physics
 } // namespace cc

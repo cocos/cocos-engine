@@ -88,7 +88,7 @@ export abstract class BulletCharacterController implements IBaseCharacterControl
         this.onComponentSet();
 
         if (this._impl == null) {
-            error('[Physics]: PhysXCharacterController Initialize createCapsuleCharacterController Failed');
+            error('[Physics]: BulletCharacterController Initialize createCapsuleCharacterController Failed');
             return false;
         } else {
             (PhysicsSystem.instance.physicsWorld as BulletWorld).addCCT(this);
@@ -123,6 +123,10 @@ export abstract class BulletCharacterController implements IBaseCharacterControl
         // }
 
         (PhysicsSystem.instance.physicsWorld as BulletWorld).removeCCT(this);
+    }
+
+    onLoad (): void {
+
     }
 
     getPosition (out: IVec3Like): void {
