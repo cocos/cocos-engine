@@ -298,33 +298,33 @@ export class ParticleEmitter extends Component {
      * @deprecated since v3.8, please use [[StartSizeModule.startSizeX]] instead.
      */
     get startSizeX () {
-        return this._spawningStage.getOrAddModule(SetSizeModule).sizeX;
+        return this._spawningStage.getOrAddModule(SetSizeModule).x;
     }
 
     set startSizeX (val) {
-        this._spawningStage.getOrAddModule(SetSizeModule).sizeX = val;
+        this._spawningStage.getOrAddModule(SetSizeModule).x = val;
     }
 
     /**
      * @deprecated since v3.8, please use [[StartSizeModule.startSizeY]] instead.
      */
     get startSizeY () {
-        return this._spawningStage.getOrAddModule(SetSizeModule).sizeY;
+        return this._spawningStage.getOrAddModule(SetSizeModule).y;
     }
 
     set startSizeY (val) {
-        this._spawningStage.getOrAddModule(SetSizeModule).sizeY = val;
+        this._spawningStage.getOrAddModule(SetSizeModule).y = val;
     }
 
     /**
      * @deprecated since v3.8, please use [[StartSizeModule.startSizeZ]] instead.
      */
     get startSizeZ () {
-        return this._spawningStage.getOrAddModule(SetSizeModule).sizeZ;
+        return this._spawningStage.getOrAddModule(SetSizeModule).z;
     }
 
     set startSizeZ (val) {
-        this._spawningStage.getOrAddModule(SetSizeModule).sizeZ = val;
+        this._spawningStage.getOrAddModule(SetSizeModule).z = val;
     }
 
     /**
