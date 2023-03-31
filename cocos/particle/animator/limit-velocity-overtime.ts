@@ -29,7 +29,7 @@ import { Space, ModuleRandSeed } from '../enum';
 import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
 import CurveRange from './curve-range';
 import { calculateTransform } from '../particle-general-function';
-import { CCBoolean } from '../../core';
+import { CCBoolean, CCFloat } from '../../core';
 
 const LIMIT_VELOCITY_RAND_OFFSET = ModuleRandSeed.LIMIT;
 const LIMIT_DRAG_RAND_OFFSET = LIMIT_VELOCITY_RAND_OFFSET + 1;
@@ -139,14 +139,19 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
     @displayOrder(8)
     public drag = new CurveRange();
 
-    @type(CCBoolean)
+    @type(CCFloat)
     @serializable
     @displayOrder(9)
-    public multiplyDragByParticleSize = false;
+    public sizeFactor = 1.0;
 
     @type(CCBoolean)
     @serializable
     @displayOrder(10)
+    public multiplyDragByParticleSize = false;
+
+    @type(CCBoolean)
+    @serializable
+    @displayOrder(11)
     public multiplyDragByParticleVelocity = false;
 
     public name = PARTICLE_MODULE_NAME.LIMIT;
@@ -175,6 +180,7 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
         let maxDimension = p.size.x > p.size.y ? p.size.x : p.size.y;
         maxDimension = maxDimension > p.size.z ? maxDimension : p.size.z;
         maxDimension *= 0.5;
+        maxDimension *= this.sizeFactor;
         const circleArea = (Math.PI * maxDimension * maxDimension);
 
         let dragN = dragCoefficient;
