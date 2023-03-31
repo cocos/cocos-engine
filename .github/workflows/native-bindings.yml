@@ -3,6 +3,7 @@ name: <Native> Generate Code
 on:
   pull_request_target:
     types: [opened, synchronize, closed]
+  # pull_request:
     paths:
     - 'templates/**'
     - 'native/**'
@@ -18,8 +19,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Install CMake & Clang Tidy
+        run: |
+          sudo apt update --fix-missing
+          sudo apt install -y ninja-build
+      - name: Download external
+        run: |
+          EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
+          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
+      - uses: nttld/setup-ndk@v1
+        id: setup-ndk
+        with:
+          ndk-version: r21e
+          add-to-path: false
       - name: Generate decorators
         run: |
+          cd native
+          echo "Generate compile_commands.json & ninja target"
+          bash ./utils/generate_compile_commands_android.sh
+          echo "Generate binding code ..."
+          ninja -C build genbindings
+          cd ..
           npm install
           cd scripts/build-engine
           echo "Installing babel dependencies ..."
