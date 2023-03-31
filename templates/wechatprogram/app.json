@@ -1,15 +1,16 @@
-{ "lazyCodeLoading":"requiredComponents",
-  "pages":[
-    "index"
+{
+  "pages": [
+      "index"
   ],
-  "window":{
-    "backgroundTextStyle":"light",
-    "navigationBarBackgroundColor": "#fff",
-    "navigationBarTitleText": "CocosCreator",
-    "navigationBarTextStyle":"black",
-    "navigationStyle": "custom",
-    "pageOrientation": "auto"
+  "window": {
+      "backgroundTextStyle": "light",
+      "navigationBarBackgroundColor": "#fff",
+      "navigationBarTitleText": "CocosCreator",
+      "navigationBarTextStyle": "black",
+      "navigationStyle": "custom",
+      "pageOrientation": "portrait"
   },
   "style": "v2",
-  "sitemapLocation": "sitemap.json"
+  "sitemapLocation": "sitemap.json",
+  "subPackages": []
 }

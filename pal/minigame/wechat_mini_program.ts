@@ -27,6 +27,8 @@ import { Orientation } from '../screen-adapter/enum-type';
 import { cloneObject, createInnerAudioContextPolyfill, versionCompare } from '../utils';
 
 declare let wx: any;
+// NOTE: getApp is defined on wechat miniprogram platform
+declare const getApp: any;
 
 // @ts-expect-error can't init minigame when it's declared
 const minigame: IMiniGame = {};
@@ -172,5 +174,26 @@ if (systemInfo.platform === 'windows' && versionCompare(systemInfo.SDKVersion, '
         };
     }
 }
+
+// HACK: adapt gl.texSubImage2D: gl.texSubImage2D do not support 2d canvas in wechat miniprogram
+const gl = getApp().GameGlobal.canvas.getContext('webgl');
+const oldTexSubImage2D = gl.texSubImage2D;
+gl.texSubImage2D = function (...args) {
+    if (args.length === 7) {
+        const canvas = args[6];
+        if (typeof canvas.type !== 'undefined' && canvas.type === 'canvas') {
+            const ctx = canvas.getContext('2d');
+            const texOffsetX = args[2];
+            const texOffsetY = args[3];
+            const imgData = ctx.getImageData(texOffsetX, texOffsetY, canvas.width, canvas.height);
+            oldTexSubImage2D.call(gl, args[0], args[1], texOffsetX, texOffsetY,
+                canvas.width, canvas.height, args[4], args[5], new Uint8Array(imgData.data));
+        } else {
+            oldTexSubImage2D.apply(gl, args);
+        }
+    } else {
+        oldTexSubImage2D.apply(gl, args);
+    }
+};
 
 export { minigame };
