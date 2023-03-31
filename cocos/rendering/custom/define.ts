@@ -440,11 +440,12 @@ export function buildBloomPass (camera: Camera,
     return { rtName: bloomPassCombineRTName, dsName: bloomPassCombineDSName };
 }
 
-const _vec3Array: Vec3[] = [new Vec3(), new Vec3(), new Vec3(), new Vec3(), new Vec3()];
 const _varianceArray: number[] = [0.0484, 0.187, 0.567, 1.99, 7.41];
 const _strengthParameterArray: number[] = [0.100, 0.118, 0.113, 0.358, 0.078];
 const _vec3Temp: Vec3 = new Vec3();
+const _vec3Temp2: Vec3 = new Vec3();
 const _vec4Temp: Vec4 = new Vec4();
+const _vec4Temp2: Vec4 = new Vec4();
 
 export const SSSS_BLUR_X_PASS_INDEX = 0;
 export const SSSS_BLUR_Y_PASS_INDEX = 1;
@@ -470,6 +471,10 @@ class SSSSBlurData {
     set ssssFallOff (val: Vec3) {
         this._v3SSSSFallOff = val;
         this._updateSampleCount();
+    }
+
+    get kernel () {
+        return this._kernel;
     }
 
     private _v3SSSSStrength = new Vec3(0.48, 0.41, 0.28);
@@ -500,18 +505,16 @@ class SSSSBlurData {
      */
     private _profile (out: Vec3, val: number) {
         for (let i = 0; i < 5; i++) {
-            this._gaussian(_vec3Array[i], _varianceArray[i], val);
-            Vec3.multiplyScalar(_vec3Array[i], _vec3Array[i], _strengthParameterArray[i]);
-            Vec3.multiply(out, out, _vec3Array[i]);
+            this._gaussian(_vec3Temp2, _varianceArray[i], val);
+            _vec3Temp2.multiplyScalar(_strengthParameterArray[i]);
+            out.add(_vec3Temp2);
         }
     }
 
     private _updateSampleCount () {
         const strength = this._v3SSSSStrength;
-        const fallOff = this._v3SSSSFallOff;
         const nSamples = I_SAMPLES_COUNT;
         const range = nSamples > 20 ? 3.0 : 2.0;
-        this._kernel.length = nSamples;
 
         // Calculate the offsets:
         const step = 2.0 * range / (nSamples - 1);
@@ -519,30 +522,55 @@ class SSSSBlurData {
             const o = -range + i * step;
             const sign = o < 0.0 ? -1.0 : 1.0;
             // eslint-disable-next-line no-restricted-properties
-            kernel[i].w = range * sign * Math.abs(Math.pow(o, EXPONENT)) / Math.pow(range, EXPONENT);
+            this._kernel[i].w = range * sign * Math.abs(Math.pow(o, EXPONENT)) / Math.pow(range, EXPONENT);
         }
 
         // Calculate the weights:
         for (let i = 0; i < nSamples; i++) {
-            const w0 = i > 0 ? Math.abs(kernel[i].w - kernel[i - 1].w) : 0.0;
-            const w1 = i < nSamples - 1 ? Math.abs(kernel[i].w - kernel[i + 1].w) : 0.0;
+            const w0 = i > 0 ? Math.abs(this._kernel[i].w - this._kernel[i - 1].w) : 0.0;
+            const w1 = i < nSamples - 1 ? Math.abs(this._kernel[i].w - this._kernel[i + 1].w) : 0.0;
             const area = (w0 + w1) / 2.0;
             _vec3Temp.set(0);
-            this._profile(_vec3Temp, kernel[i].w);
-            Vec3.multiplyScalar(_vec3Temp, _vec3Temp, area);
-            kernel[i].x = _vec3Temp.x;
-            kernel[i].y = _vec3Temp.y;
-            kernel[i].z = _vec3Temp.z;
+            this._profile(_vec3Temp, this._kernel[i].w);
+            _vec3Temp.multiplyScalar(area);
+            this._kernel[i].x = _vec3Temp.x;
+            this._kernel[i].y = _vec3Temp.y;
+            this._kernel[i].z = _vec3Temp.z;
         }
 
         // We want the offset 0.0 to come first:
-        _vec4Temp.set(kernel[nSamples / 2]);
-        for (let i = 0; i < nSamples; i++) {
-            kernel[i].set(kernel[i - 1]);
+        _vec4Temp.set(this._kernel[nSamples / 2]);
+        for (let i = nSamples / 2; i > 0; i--) {
+            _vec4Temp2.set(this._kernel[i - 1]);
+            this._kernel[i].set(_vec4Temp2);
         }
-        kernel[0].set(_vec4Temp);
+        this._kernel[0].set(_vec4Temp);
 
         // Calculate the sum of the weights, we will need to normalize them below:
+        _vec3Temp.set(0.0);
+        for (let i = 0; i < nSamples; i++) {
+            _vec3Temp.add3f(this._kernel[i].x, this._kernel[i].y, this._kernel[i].z);
+        }
+        // Normalize the weights:
+        for (let i = 0; i < nSamples; i++) {
+            this._kernel[i].x /= _vec3Temp.x;
+            this._kernel[i].y /= _vec3Temp.y;
+            this._kernel[i].z /= _vec3Temp.z;
+        }
+
+        // Tweak them using the desired strength. The first one is:
+        // lerp(1.0, kernel[0].rgb, strength)
+        this._kernel[0].x = (1.0 - strength.x) * 1.0 + strength.x * this._kernel[0].x;
+        this._kernel[0].y = (1.0 - strength.y) * 1.0 + strength.y * this._kernel[0].y;
+        this._kernel[0].z = (1.0 - strength.z) * 1.0 + strength.z * this._kernel[0].z;
+
+        // The others:
+        // lerp(0.0, kernel[0].rgb, strength)
+        for (let i = 1; i < nSamples; i++) {
+            this._kernel[i].x *= strength.x;
+            this._kernel[i].y *= strength.y;
+            this._kernel[i].z *= strength.z;
+        }
     }
 
     private _updateBlurPass () {
@@ -568,6 +596,10 @@ class SSSSBlurData {
             this.ssssBlurMaterial.passes[i].tryCompile();
         }
         this._updateBlurPass();
+
+        for (let i = 0; i < I_SAMPLES_COUNT; i++) {
+            this._kernel[i] = new Vec4();
+        }
         this._updateSampleCount();
     }
 
@@ -577,20 +609,12 @@ class SSSSBlurData {
 }
 
 let ssssBlurData: SSSSBlurData | null = null;
-const kernel: Vec4[] = [
-    new Vec4(1, 1, 1, 1), new Vec4(1, 1, 1, 1), new Vec4(1, 1, 1, 1), new Vec4(1, 1, 1, 1),
-    new Vec4(1, 1, 1, 1), new Vec4(1, 1, 1, 1), new Vec4(1, 1, 1, 1), new Vec4(1, 1, 1, 1),
-    new Vec4(1, 1, 1, 1), new Vec4(1, 1, 1, 1), new Vec4(1, 1, 1, 1), new Vec4(1, 1, 1, 1),
-    new Vec4(1, 1, 1, 1), new Vec4(1, 1, 1, 1), new Vec4(1, 1, 1, 1), new Vec4(1, 1, 1, 1),
-    new Vec4(1, 1, 1, 1), new Vec4(1, 1, 1, 1), new Vec4(1, 1, 1, 1), new Vec4(1, 1, 1, 1),
-    new Vec4(1, 1, 1, 1), new Vec4(1, 1, 1, 1), new Vec4(1, 1, 1, 1), new Vec4(1, 1, 1, 1),
-    new Vec4(1, 1, 1, 1), new Vec4(1, 1, 1, 1), new Vec4(1, 1, 1, 1), new Vec4(1, 1, 1, 1)];
 export function buildSSSSBlurPass (camera: Camera,
     ppl: Pipeline,
     inputRT: string,
     inputDS: string,
     ssssFov = 45.0,
-    ssssWidth = 2,
+    ssssWidth = 1,
     depthUnitScale = 1.0) {
     if (!ssssBlurData) ssssBlurData = new SSSSBlurData();
     ssssBlurData.ssssFov = ssssFov;
@@ -653,7 +677,7 @@ export function buildSSSSBlurPass (camera: Camera,
         new Color(camera.clearDepth, camera.clearStencil, 0.0, 0.0));
     ssssblurXPass.addRasterView(inputDS, ssssBlurXPassDSView);
     ssssBlurData.ssssBlurMaterial.setProperty('blurInfo', new Vec4(ssssBlurData.ssssFov, ssssBlurData.ssssWidth, ssssBlurData.depthUnitScale, 0), SSSS_BLUR_X_PASS_INDEX);
-    ssssBlurData.ssssBlurMaterial.setProperty('kernel', kernel, SSSS_BLUR_X_PASS_INDEX);
+    ssssBlurData.ssssBlurMaterial.setProperty('kernel', ssssBlurData.kernel, SSSS_BLUR_X_PASS_INDEX);
     ssssblurXPass.addQueue(QueueHint.RENDER_OPAQUE | QueueHint.RENDER_TRANSPARENT).addCameraQuad(
         camera, ssssBlurData.ssssBlurMaterial, SSSS_BLUR_X_PASS_INDEX,
         SceneFlags.NONE,
@@ -700,7 +724,7 @@ export function buildSSSSBlurPass (camera: Camera,
         new Color(camera.clearDepth, camera.clearStencil, 0.0, 0.0));
     ssssblurYPass.addRasterView(inputDS, ssssBlurYPassDSView);
     ssssBlurData.ssssBlurMaterial.setProperty('blurInfo', new Vec4(ssssBlurData.ssssFov, ssssBlurData.ssssWidth, ssssBlurData.depthUnitScale, 0), SSSS_BLUR_Y_PASS_INDEX);
-    ssssBlurData.ssssBlurMaterial.setProperty('kernel', kernel, SSSS_BLUR_Y_PASS_INDEX);
+    ssssBlurData.ssssBlurMaterial.setProperty('kernel', ssssBlurData.kernel, SSSS_BLUR_Y_PASS_INDEX);
     ssssblurYPass.addQueue(QueueHint.RENDER_OPAQUE | QueueHint.RENDER_TRANSPARENT).addCameraQuad(
         camera, ssssBlurData.ssssBlurMaterial, SSSS_BLUR_Y_PASS_INDEX,
         SceneFlags.NONE,
@@ -885,31 +909,9 @@ export function buildSpecularPass (camera: Camera,
     const width = area.width;
     const height = area.height;
 
-    // const specularPassRTName = `dsSpecularPassColor${cameraName}`;
-    // const specularPassDSName = `dsSpecularPassDS${cameraName}`;
-    // if (!ppl.containsResource(specularPassRTName)) {
-    //     ppl.addRenderTarget(specularPassRTName, Format.RGBA16F, width, height, ResourceResidency.MANAGED);
-    //     ppl.addDepthStencil(specularPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
-    // }
-    // ppl.updateRenderTarget(specularPassRTName, width, height);
-    // ppl.updateDepthStencil(specularPassDSName, width, height);
-
     const specalurPass = ppl.addRasterPass(width, height, 'specular-pass');
     specalurPass.name = `CameraSpecalurPass${cameraID}`;
     specalurPass.setViewport(new Viewport(area.x, area.y, width, height));
-    // if (ppl.containsResource(inputRT)) {
-    //     const computeView = new ComputeView();
-    //     computeView.name = 'outputResultMap';
-    //     specalurPass.addComputeView(inputRT, computeView);
-    // }
-    // if (ppl.containsResource(inputDS)) {
-    //     const computeView = new ComputeView();
-    //     computeView.name = 'outputResultDSMap';
-    //     specalurPass.addComputeView(inputDS, computeView);
-    // }
-    // const computeViewBlur = new ComputeView();
-    // computeViewBlur.name = 'blurMap';
-    // specalurPass.addComputeView(blurRT, computeViewBlur);
     for (const dirShadowName of cameraInfo.mainLightShadowNames) {
         if (ppl.containsResource(dirShadowName)) {
             const computeView = new ComputeView('cc_shadowMap');
