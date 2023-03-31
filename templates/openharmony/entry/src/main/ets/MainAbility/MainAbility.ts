@@ -22,7 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 ****************************************************************************/
-import Ability from '@ohos.application.Ability'
+import Ability from '@ohos.app.ability.UIAbility';
 import nativerender from "libcocos.so";
 import { ContextType } from "../common/Constants"
 import resourceManager from '@ohos.resourceManager';

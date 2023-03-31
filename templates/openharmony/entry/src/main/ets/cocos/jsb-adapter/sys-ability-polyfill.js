@@ -25,7 +25,7 @@
 import display from '@ohos.display';
 import i18n from '@ohos.i18n'
 import deviceInfo from '@ohos.deviceInfo'
-import batteryInfo from '@ohos.batteryinfo';
+import batteryInfo from '@ohos.batteryInfo';
 import sensor from '@ohos.sensor';
 
 window.oh = {};

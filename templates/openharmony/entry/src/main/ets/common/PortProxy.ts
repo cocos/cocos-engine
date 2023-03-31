@@ -24,14 +24,16 @@
 ****************************************************************************/
 import worker from '@ohos.worker';
 import {DedicatedWorkerGlobalScope} from '@ohos.worker';
-import * as wk from '@ohos.worker';
+// NOTE: don't use this import all statement, because this has compile issue.
+// import * as wk from '@ohos.worker';
+import { MessageEvent } from '@ohos.worker';
 
 export class PortProxy {
     private autoId: number = 0;
     public actionHandleMap = {}
     private port :DedicatedWorkerGlobalScope = null;
 
-    public _messageHandle?:(e:wk.MessageEvent<any>) => void;
+    public _messageHandle?:(e: MessageEvent<any>) => void;
 
     constructor (port) {
         this.port = port;

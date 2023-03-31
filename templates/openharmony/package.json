@@ -15,7 +15,7 @@
     "version": "1.0.0",
     "dependencies": {
         "@ohos/hypium": "1.0.1",
-        "@ohos/hvigor-ohos-plugin": "1.1.6",
-        "@ohos/hvigor": "1.1.6"
+        "@ohos/hvigor-ohos-plugin": "1.4.1",
+        "@ohos/hvigor": "1.4.0"
     }
 }
