@@ -4,7 +4,7 @@ apply plugin: 'com.android.application'
 
 RES_PATH = RES_PATH.replace("\\", "/")
 COCOS_ENGINE_PATH = COCOS_ENGINE_PATH.replace("\\", "/")
-buildDir = "${RES_PATH}/proj/build/$project.name"
+buildDir = "${RES_PATH}/proj/build/${project.name ==~ /^[_a-zA-Z0-9-]+$/ ? project.name : 'CocosGame'}Instant"
 
 android {
     compileSdkVersion PROP_COMPILE_SDK_VERSION.toInteger()
