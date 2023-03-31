@@ -139,9 +139,9 @@ vec4 SurfacesFragmentModifyTTParams()
 }
 #endif
 #ifndef CC_SURFACES_FRAGMENT_MODIFY_TT_COLOR
-vec3 SurfacesFragmentModifyTTColor(in vec3 baseColor, in vec3 trtColor)
+vec3 SurfacesFragmentModifyTTColor(in vec3 baseColor)
 {
-    // baseColor and trtColor for reference
+    // baseColor for reference
     return vec3(1.0, 1.0, 1.0);
 }
 #endif

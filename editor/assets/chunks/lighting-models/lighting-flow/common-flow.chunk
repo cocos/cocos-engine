@@ -96,9 +96,9 @@
 
         #if CC_SURFACES_LIGHTING_2ND_LAYER_SPECULAR
           LightingIntermediateData lightingData2ndSpecular;
-          CCSurfacesGetLightingIntermediateData2ndSpecular(lightingData2ndSpecular, lightingData, surfaceData);
+          CCSurfacesInitializeLightingIntermediateData(lightingData2ndSpecular, surfaceData2ndSpecular);
           CCSurfacesLightingCalculateIntermediateData_PerLight(lightingData2ndSpecular, surfaceData, cc_lightPos[i].xyz - worldPos);
-          CCSurfacesLightingCalculateDirect2ndSpecular(lightingResult.direct2ndSpecular, lightingData2ndSpecular, attenuatedLightColorAndIntensity, surfaceData.intensity2ndSpecular, lightingResult.directSpecular);
+          CCSurfacesLightingCalculateDirect2ndSpecular(lightingResult.direct2ndSpecular, lightingData2ndSpecular, attenuatedLightColorAndIntensity, surfaceData2ndSpecular.intensity2ndSpecular, lightingResult.directSpecular);
           lightingResult.direct2ndSpecular *= multiplier * fresnel;
         #endif
 
@@ -215,15 +215,16 @@
       #endif
 
       #if CC_SURFACES_LIGHTING_2ND_LAYER_SPECULAR
-        LightingIntermediateData lightingData2ndSpecular;
-        CCSurfacesGetLightingIntermediateData2ndSpecular(lightingData2ndSpecular, lightingData, surfaceData);
-        CCSurfacesLightingCalculateIntermediateData_PerLight(lightingData2ndSpecular, surfaceData, -cc_mainLitDir.xyz);
-        CCSurfacesLightingCalculateDirect2ndSpecular(lightingResult.direct2ndSpecular, lightingData2ndSpecular, cc_mainLitColor, surfaceData.intensity2ndSpecular, lightingResult.directSpecular);
-        CCSurfacesLightingCalculateEnvironment2ndSpecular(lightingResult.environment2ndSpecular, lightingData2ndSpecular, cc_ambientSky.w, surfaceData.intensity2ndSpecular, lightingResult.environmentSpecular);
-
-        vec3 diff;
         SurfacesMaterialData surfaceData2ndSpecular;
         CCSurfacesGetSurfacesMaterialData2ndSpecular(surfaceData2ndSpecular, surfaceData);
+
+        LightingIntermediateData lightingData2ndSpecular;
+        CCSurfacesInitializeLightingIntermediateData(lightingData2ndSpecular, surfaceData2ndSpecular);
+        CCSurfacesLightingCalculateIntermediateData_PerLight(lightingData2ndSpecular, surfaceData2ndSpecular, -cc_mainLitDir.xyz);
+        CCSurfacesLightingCalculateDirect2ndSpecular(lightingResult.direct2ndSpecular, lightingData2ndSpecular, cc_mainLitColor, surfaceData2ndSpecular.intensity2ndSpecular, lightingResult.directSpecular);
+        CCSurfacesLightingCalculateEnvironment2ndSpecular(lightingResult.environment2ndSpecular, lightingData2ndSpecular, cc_ambientSky.w, surfaceData2ndSpecular.intensity2ndSpecular, lightingResult.environmentSpecular);
+
+        vec3 diff;
         CCSurfacesLightingInitializeColorWithLighting(diff, lightingResult.specularColorWithLighting2ndSpecular, lightingResult.specularColorWithEnvLighting2ndSpecular, surfaceData2ndSpecular, lightingData2ndSpecular);
       #endif
 

@@ -27,7 +27,7 @@ struct SurfacesMaterialData
   vec4 transmitDiffuseParams;
 #endif
 #if CC_SURFACES_LIGHTING_2ND_LAYER_SPECULAR
-  vec3 baseColor2ndSpecular;
+  vec3 baseColor2ndSpecular, color2ndSpecular;
   float intensity2ndSpecular, roughness2ndSpecular;
   vec3 worldNormal2ndSpecular, worldTangent2ndSpecular, worldBinormal2ndSpecular;
 #endif

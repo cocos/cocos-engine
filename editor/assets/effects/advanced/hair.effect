@@ -284,7 +284,7 @@ CCProgram surface-fragment %{
       return ttParams;
   }
   #define CC_SURFACES_FRAGMENT_MODIFY_TT_COLOR
-  vec3 SurfacesFragmentModifyTTColor(in vec3 baseColor, in vec3 trtColor)
+  vec3 SurfacesFragmentModifyTTColor(in vec3 baseColor)
   {
       return mix(baseColor.rgb, ttColor.rgb, ttColor.a); //ttColor can be (0.992, 0.808, 0.516)
   }

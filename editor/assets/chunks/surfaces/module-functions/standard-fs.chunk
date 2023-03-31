@@ -43,12 +43,13 @@ void CCSurfacesFragmentGetMaterialData(inout SurfacesMaterialData surfaceData)
   surfaceData.transmitDiffuseParams = SurfacesFragmentModifyTransmitDiffuseParams();
 #endif
 
-  vec3 baseColorTRT = vec3(0.0);
 #if CC_SURFACES_LIGHTING_TRT
+  // skip in shader graph, need extra code
   vec4 trtParams = SurfacesFragmentModifyTRTParams();
   surfaceData.roughness2ndSpecular = saturate(surfaceData.roughness + trtParams.x);
   surfaceData.intensity2ndSpecular = trtParams.w;
-  surfaceData.baseColor2ndSpecular = baseColorTRT = SurfacesFragmentModifyTRTColor();
+  surfaceData.baseColor2ndSpecular = vec3(1.0); // specular color use specified trt color only
+  surfaceData.color2ndSpecular = SurfacesFragmentModifyTRTColor();
   surfaceData.worldNormal2ndSpecular = surfaceData.worldNormal;
   surfaceData.worldTangent2ndSpecular = surfaceData.worldTangent;
   surfaceData.worldBinormal2ndSpecular = surfaceData.worldBinormal;
@@ -59,14 +60,16 @@ void CCSurfacesFragmentGetMaterialData(inout SurfacesMaterialData surfaceData)
   vec4 ttParams = SurfacesFragmentModifyTTParams();
   surfaceData.ttScatterCoef = ttParams.x;
   surfaceData.ttIntensity = ttParams.w;
-  surfaceData.baseColorTT = SurfacesFragmentModifyTTColor(surfaceData.baseColor.rgb, baseColorTRT);
+  surfaceData.baseColorTT = SurfacesFragmentModifyTTColor(surfaceData.baseColor.rgb);
 #endif
 
 #if CC_SURFACES_LIGHTING_DUAL_LOBE_SPECULAR
+  // skip in shader graph, need extra code
   vec4 dualLobeParams = SurfacesFragmentModifyDualLobeSpecularParams(surfaceData.roughness);
   surfaceData.roughness2ndSpecular = saturate(dualLobeParams.x);
   surfaceData.intensity2ndSpecular = dualLobeParams.w;
   surfaceData.baseColor2ndSpecular = surfaceData.baseColor.rgb;
+  surfaceData.color2ndSpecular = vec3(1.0); // no extra coloration
   surfaceData.worldNormal2ndSpecular = surfaceData.worldNormal;
   surfaceData.worldTangent2ndSpecular = surfaceData.worldTangent;
   surfaceData.worldBinormal2ndSpecular = surfaceData.worldBinormal;
@@ -169,22 +172,15 @@ void CCSurfacesGetLightingIntermediateDataTransmitDiffuse(inout LightingIntermed
 #endif
 
 #if CC_SURFACES_LIGHTING_2ND_LAYER_SPECULAR
-// pass original lightingData, get lightingData for 2nd specular
-void CCSurfacesGetLightingIntermediateData2ndSpecular(inout LightingIntermediateData lightingData2ndSpecular, in LightingIntermediateData lightingData, in SurfacesMaterialData surfaceData)
-{
-  lightingData2ndSpecular = lightingData;
-  lightingData2ndSpecular.specularParam = surfaceData.roughness2ndSpecular;
-  // new TBN with anisotropic offset
-  lightingData2ndSpecular.N = surfaceData.worldNormal2ndSpecular;
-  lightingData2ndSpecular.T = surfaceData.worldTangent2ndSpecular;
-  lightingData2ndSpecular.B = surfaceData.worldBinormal2ndSpecular;
-}
 // pass original surfaceData, get surfaceData for 2nd specular
 void CCSurfacesGetSurfacesMaterialData2ndSpecular(inout SurfacesMaterialData surfaceData2ndSpecular, in SurfacesMaterialData surfaceData)
 {
   surfaceData2ndSpecular = surfaceData;
   surfaceData2ndSpecular.baseColor = vec4(surfaceData.baseColor2ndSpecular, 1.0);
   surfaceData2ndSpecular.roughness = surfaceData.roughness2ndSpecular;
+  surfaceData2ndSpecular.worldNormal = surfaceData.worldNormal2ndSpecular;
+  surfaceData2ndSpecular.worldTangent = surfaceData.worldTangent2ndSpecular;
+  surfaceData2ndSpecular.worldBinormal = surfaceData.worldBinormal2ndSpecular;
 }
 #endif
 
@@ -267,7 +263,7 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
     + lightingResult.directTransmitSpecular * lightingResult.specularColorWithEnvLighting
   #endif
   #if CC_SURFACES_LIGHTING_2ND_LAYER_SPECULAR
-    + lightingResult.direct2ndSpecular * lightingResult.specularColorWithEnvLighting2ndSpecular * surfaceData.baseColor2ndSpecular
+    + lightingResult.direct2ndSpecular * lightingResult.specularColorWithEnvLighting2ndSpecular * surfaceData.color2ndSpecular
   #endif
   #if CC_SURFACES_LIGHTING_TT
     + lightingResult.directTT * lightingResult.diffuseColorWithLightingTT
@@ -291,7 +287,7 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
     + lightingResult.directTransmitSpecular * lightingResult.specularColorWithEnvLighting * invFresnel
   #endif
   #if CC_SURFACES_LIGHTING_2ND_LAYER_SPECULAR
-    + lightingResult.direct2ndSpecular * lightingResult.specularColorWithEnvLighting2ndSpecular * surfaceData.baseColor2ndSpecular
+    + lightingResult.direct2ndSpecular * lightingResult.specularColorWithEnvLighting2ndSpecular * surfaceData.color2ndSpecular
   #endif
   #if CC_SURFACES_LIGHTING_TT
     + lightingResult.directTT * lightingResult.diffuseColorWithLightingTT
@@ -316,7 +312,7 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
     + lightingResult.environmentTransmitSpecular * lightingResult.specularColorWithEnvLighting * invFresnel
   #endif
   #if CC_SURFACES_LIGHTING_2ND_LAYER_SPECULAR
-    + lightingResult.environment2ndSpecular * lightingResult.specularColorWithEnvLighting2ndSpecular * surfaceData.baseColor2ndSpecular
+    + lightingResult.environment2ndSpecular * lightingResult.specularColorWithEnvLighting2ndSpecular * surfaceData.color2ndSpecular
   #endif
     )
     * lightingResult.ao
