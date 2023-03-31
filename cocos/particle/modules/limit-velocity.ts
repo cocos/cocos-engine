@@ -32,7 +32,7 @@ import { CurveRange } from '../curve-range';
 import { calculateTransform } from '../particle-general-function';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { BuiltinParticleParameter, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
-import { ParticleVec3Parameter } from '../particle-parameter';
+import { ParticleVec3ArrayParameter } from '../particle-parameter';
 import { assert } from '../../core';
 import { RandNumGen } from '../rand-num-gen';
 

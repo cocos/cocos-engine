@@ -28,7 +28,7 @@ import { ccclass, range, serializable, type, visible } from '../../core/data/dec
 import { Space } from '../enum';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { BuiltinParticleParameter, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
-import { ParticleColorParameter, ParticleVec3Parameter } from '../particle-parameter';
+import { ParticleColorArrayParameter, ParticleVec3ArrayParameter } from '../particle-parameter';
 import { ParticleExecContext, ParticleEmitterParams, ParticleEventInfo } from '../particle-base';
 import { RandNumGen } from '../rand-num-gen';
 
@@ -63,11 +63,11 @@ export class LocationEventGeneratorModule extends ParticleModule {
         const hasSize = particles.hasParameter(BuiltinParticleParameter.SIZE);
         const hasColor = particles.hasParameter(BuiltinParticleParameter.COLOR);
         const hasPosition = particles.hasParameter(BuiltinParticleParameter.POSITION);
-        let velocity: ParticleVec3Parameter | null = null;
-        let rotation: ParticleVec3Parameter | null = null;
-        let size: ParticleVec3Parameter | null = null;
-        let color: ParticleColorParameter | null = null;
-        let position: ParticleVec3Parameter | null = null;
+        let velocity: ParticleVec3ArrayParameter | null = null;
+        let rotation: ParticleVec3ArrayParameter | null = null;
+        let size: ParticleVec3ArrayParameter | null = null;
+        let color: ParticleColorArrayParameter | null = null;
+        let position: ParticleVec3ArrayParameter | null = null;
         if (hasVelocity) {
             velocity = particles.velocity;
         }
@@ -94,19 +94,19 @@ export class LocationEventGeneratorModule extends ParticleModule {
                 Vec3.zero(eventInfo.rotation);
                 Color.copy(eventInfo.color, Color.WHITE);
                 if (hasPosition) {
-                    (<ParticleVec3Parameter>position).getVec3At(eventInfo.position, i);
+                    (<ParticleVec3ArrayParameter>position).getVec3At(eventInfo.position, i);
                 }
                 if (hasVelocity) {
-                    (<ParticleVec3Parameter>velocity).getVec3At(eventInfo.velocity, i);
+                    (<ParticleVec3ArrayParameter>velocity).getVec3At(eventInfo.velocity, i);
                 }
                 if (hasRotation) {
-                    (<ParticleVec3Parameter>rotation).getVec3At(eventInfo.rotation, i);
+                    (<ParticleVec3ArrayParameter>rotation).getVec3At(eventInfo.rotation, i);
                 }
                 if (hasSize) {
-                    (<ParticleVec3Parameter>size).getVec3At(eventInfo.size, i);
+                    (<ParticleVec3ArrayParameter>size).getVec3At(eventInfo.size, i);
                 }
                 if (hasColor) {
-                    (<ParticleColorParameter>color).getColorAt(eventInfo.color, i);
+                    (<ParticleColorArrayParameter>color).getColorAt(eventInfo.color, i);
                 }
                 if (simulationSpace === Space.LOCAL) {
                     Vec3.transformMat4(eventInfo.position, eventInfo.position, localToWorld);

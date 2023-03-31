@@ -493,6 +493,7 @@ export class Root {
 
         if (this._pipeline && cameraList.length > 0) {
             this._device.acquire([deviceManager.swapchain]);
+            legacyCC.director.emit(legacyCC.Director.EVENT_BEFORE_COMMIT);
             const scenes = this._scenes;
             const stamp = legacyCC.director.getTotalFrames();
             if (this._batcher) {
@@ -504,7 +505,6 @@ export class Root {
                 scenes[i].update(stamp);
             }
 
-            legacyCC.director.emit(legacyCC.Director.EVENT_BEFORE_COMMIT);
             cameraList.sort((a: Camera, b: Camera) => a.priority - b.priority);
 
             for (let i = 0; i < cameraList.length; ++i) {

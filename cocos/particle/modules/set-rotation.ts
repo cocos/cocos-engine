@@ -46,15 +46,15 @@ export class SetRotationModule extends ParticleModule {
     @radian
     @tooltip('i18n:particle_system.startRotationX')
     @visible(function (this: SetRotationModule): boolean { return this.separateAxes; })
-    public get rotationX () {
-        if (!this._rotationX) {
-            this._rotationX = new CurveRange();
+    public get x () {
+        if (!this._x) {
+            this._x = new CurveRange();
         }
-        return this._rotationX;
+        return this._x;
     }
 
-    public set rotationX (val) {
-        this._rotationX = val;
+    public set x (val) {
+        this._x = val;
     }
 
     /**
@@ -65,15 +65,15 @@ export class SetRotationModule extends ParticleModule {
     @radian
     @tooltip('i18n:particle_system.startRotationY')
     @visible(function (this: SetRotationModule): boolean { return this.separateAxes; })
-    public get rotationY () {
-        if (!this._rotationY) {
-            this._rotationY = new CurveRange();
+    public get y () {
+        if (!this._y) {
+            this._y = new CurveRange();
         }
-        return this._rotationY;
+        return this._y;
     }
 
-    public set rotationY (val) {
-        this._rotationY = val;
+    public set y (val) {
+        this._y = val;
     }
 
     /**
@@ -84,7 +84,7 @@ export class SetRotationModule extends ParticleModule {
     @radian
     @tooltip('i18n:particle_system.startRotationZ')
     @visible(function (this: SetRotationModule): boolean { return this.separateAxes; })
-    public rotationZ = new CurveRange();
+    public z = new CurveRange();
 
     @type(CurveRange)
     @range([-1, 1])
@@ -92,17 +92,17 @@ export class SetRotationModule extends ParticleModule {
     @tooltip('i18n:particle_system.startRotationZ')
     @visible(function (this: SetRotationModule): boolean { return !this.separateAxes; })
     public get rotation () {
-        return this.rotationZ;
+        return this.z;
     }
 
     public set rotation (val) {
-        this.rotationZ = val;
+        this.z = val;
     }
 
     @serializable
-    private _rotationX: CurveRange | null = null;
+    private _x: CurveRange | null = null;
     @serializable
-    private _rotationY: CurveRange | null = null;
+    private _y: CurveRange | null = null;
 
     private _rand = new RandNumGen();
 
@@ -112,7 +112,7 @@ export class SetRotationModule extends ParticleModule {
 
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         context.markRequiredParameter(BuiltinParticleParameter.ROTATION);
-        if (this.rotationX.mode === CurveRange.Mode.Curve || this.rotationX.mode === CurveRange.Mode.TwoCurves) {
+        if (this.x.mode === CurveRange.Mode.Curve || this.x.mode === CurveRange.Mode.TwoCurves) {
             context.markRequiredParameter(BuiltinParticleParameter.SPAWN_TIME_RATIO);
         }
     }
@@ -122,26 +122,26 @@ export class SetRotationModule extends ParticleModule {
         const { fromIndex, toIndex, emitterNormalizedTime: normalizedT, emitterNormalizedPrevTime: normalizedPrevT } = context;
         const rand = this._rand;
         if (this.separateAxes) {
-            if (this.rotationX.mode === CurveRange.Mode.Constant) {
-                const constantX = this.rotationX.constant;
-                const constantY = this.rotationY.constant;
-                const constantZ = this.rotationZ.constant;
+            if (this.x.mode === CurveRange.Mode.Constant) {
+                const constantX = this.x.constant;
+                const constantY = this.y.constant;
+                const constantZ = this.z.constant;
                 for (let i = fromIndex; i < toIndex; ++i) {
                     rotation.set3fAt(constantX, constantY, constantZ, i);
                 }
-            } else if (this.rotationX.mode === CurveRange.Mode.TwoConstants) {
-                const { constantMin: xMin, constantMax: xMax } = this.rotationX;
-                const { constantMin: yMin, constantMax: yMax } = this.rotationY;
-                const { constantMin: zMin, constantMax: zMax } = this.rotationZ;
+            } else if (this.x.mode === CurveRange.Mode.TwoConstants) {
+                const { constantMin: xMin, constantMax: xMax } = this.x;
+                const { constantMin: yMin, constantMax: yMax } = this.y;
+                const { constantMin: zMin, constantMax: zMax } = this.z;
                 for (let i = fromIndex; i < toIndex; ++i) {
                     rotation.set3fAt(lerp(xMin, xMax, rand.getFloat()),
                         lerp(yMin, yMax, rand.getFloat()),
                         lerp(zMin, zMax, rand.getFloat()), i);
                 }
-            } else if (this.rotationX.mode === CurveRange.Mode.Curve) {
-                const { spline: xCurve, multiplier: xMultiplier } = this.rotationX;
-                const { spline: yCurve, multiplier: yMultiplier } = this.rotationY;
-                const { spline: zCurve, multiplier: zMultiplier } = this.rotationZ;
+            } else if (this.x.mode === CurveRange.Mode.Curve) {
+                const { spline: xCurve, multiplier: xMultiplier } = this.x;
+                const { spline: yCurve, multiplier: yMultiplier } = this.y;
+                const { spline: zCurve, multiplier: zMultiplier } = this.z;
                 const spawnTime = particles.spawnTimeRatio.data;
                 for (let i = fromIndex; i < toIndex; ++i) {
                     const time = lerp(normalizedT, normalizedPrevT, spawnTime[i]);
@@ -150,9 +150,9 @@ export class SetRotationModule extends ParticleModule {
                         zCurve.evaluate(time) * zMultiplier, i);
                 }
             } else {
-                const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.rotationX;
-                const { splineMin: yMin, splineMax: yMax, multiplier: yMultiplier } = this.rotationY;
-                const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.rotationZ;
+                const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.x;
+                const { splineMin: yMin, splineMax: yMax, multiplier: yMultiplier } = this.y;
+                const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.z;
                 const spawnTime = particles.spawnTimeRatio.data;
                 for (let i = fromIndex; i < toIndex; ++i) {
                     const time = lerp(normalizedT, normalizedPrevT, spawnTime[i]);
@@ -163,24 +163,24 @@ export class SetRotationModule extends ParticleModule {
             }
         } else {
             // eslint-disable-next-line no-lonely-if
-            if (this.rotationZ.mode === CurveRange.Mode.Constant) {
-                const constantZ = this.rotationZ.constant;
+            if (this.z.mode === CurveRange.Mode.Constant) {
+                const constantZ = this.z.constant;
                 for (let i = fromIndex; i < toIndex; ++i) {
                     rotation.setZAt(constantZ, i);
                 }
-            } else if (this.rotationZ.mode === CurveRange.Mode.TwoConstants) {
-                const { constantMin: zMin, constantMax: zMax } = this.rotationZ;
+            } else if (this.z.mode === CurveRange.Mode.TwoConstants) {
+                const { constantMin: zMin, constantMax: zMax } = this.z;
                 for (let i = fromIndex; i < toIndex; ++i) {
                     rotation.setZAt(lerp(zMin, zMax, rand.getFloat()), i);
                 }
-            } else if (this.rotationZ.mode === CurveRange.Mode.Curve) {
-                const { spline: zCurve, multiplier: zMultiplier } = this.rotationZ;
+            } else if (this.z.mode === CurveRange.Mode.Curve) {
+                const { spline: zCurve, multiplier: zMultiplier } = this.z;
                 const spawnTime = particles.spawnTimeRatio.data;
                 for (let i = fromIndex; i < toIndex; ++i) {
                     rotation.setZAt(zCurve.evaluate(lerp(normalizedT, normalizedPrevT, spawnTime[i])) * zMultiplier, i);
                 }
             } else {
-                const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.rotationZ;
+                const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.z;
                 const spawnTime = particles.spawnTimeRatio.data;
                 for (let i = fromIndex; i < toIndex; ++i) {
                     const time = lerp(normalizedT, normalizedPrevT, spawnTime[i]);
@@ -196,9 +196,9 @@ export class SetRotationModule extends ParticleModule {
 
     protected getSerializedProps () {
         if (!this.separateAxes) {
-            return ['separateAxes', 'rotationZ'];
+            return ['separateAxes', 'z'];
         } else {
-            return ['separateAxes', '_rotationX', '_rotationY', 'rotationZ'];
+            return ['separateAxes', '_x', '_y', 'z'];
         }
     }
 }

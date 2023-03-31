@@ -186,7 +186,7 @@ export class ParticleModuleStage {
         }
     }
 
-    public getModule<T extends ParticleModule> (moduleType: Constructor<T>): T | null {
+    public getModule<T extends ParticleModule> (moduleType: Constructor<T> | AbstractedConstructor<T>): T | null {
         for (let i = 0, l = this._modules.length; i < l; i++) {
             const particleModule = this._modules[i];
             if (particleModule instanceof moduleType) {
@@ -196,7 +196,7 @@ export class ParticleModuleStage {
         return null;
     }
 
-    public getModules<T extends ParticleModule> (moduleType: Constructor<T>, out: Array<T>): Array<T> {
+    public getModules<T extends ParticleModule> (moduleType: Constructor<T> | AbstractedConstructor<T>, out: Array<T>): Array<T> {
         out.length = 0;
         for (let i = 0, l = this._modules.length; i < l; i++) {
             const module = this._modules[i];

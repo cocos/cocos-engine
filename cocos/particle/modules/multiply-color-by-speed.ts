@@ -27,7 +27,6 @@ import { GradientRange } from '../gradient-range';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { ModuleExecStage, ParticleModule } from '../particle-module';
 import { BuiltinParticleParameter, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
-import { ParticleVec3Parameter } from '../particle-parameter';
 import { approx, assert, Color, math, Vec3, Vec2 } from '../../core';
 import { RandNumGen } from '../rand-num-gen';
 

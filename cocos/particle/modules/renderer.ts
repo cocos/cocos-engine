@@ -24,8 +24,30 @@
  */
 import { Material } from '../../core';
 import { ccclass, displayName, serializable, type } from '../../core/data/decorators';
+import { AttributeName, Format, Attribute } from '../../core/gfx';
 import { MaterialInstance } from '../../core/renderer';
 import { ParticleModule } from '../particle-module';
+
+export const CC_USE_WORLD_SPACE = 'CC_USE_WORLD_SPACE';
+export const CC_RENDER_MODE = 'CC_RENDER_MODE';
+export const ROTATION_OVER_TIME_MODULE_ENABLE = 'ROTATION_OVER_TIME_MODULE_ENABLE';
+export const INSTANCE_PARTICLE = 'CC_INSTANCE_PARTICLE';
+export const RENDER_MODE_BILLBOARD = 0;
+export const RENDER_MODE_STRETCHED_BILLBOARD = 1;
+export const RENDER_MODE_HORIZONTAL_BILLBOARD = 2;
+export const RENDER_MODE_VERTICAL_BILLBOARD = 3;
+export const RENDER_MODE_MESH = 4;
+
+export const meshPosition = new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F, false, 0);           // mesh position
+export const meshUv = new Attribute(AttributeName.ATTR_TEX_COORD, Format.RGB32F, false, 0);                // mesh uv
+export const meshNormal = new Attribute(AttributeName.ATTR_NORMAL, Format.RGB32F, false, 0);               // mesh normal
+export const meshColorRGBA8 = new Attribute(AttributeName.ATTR_COLOR, Format.RGBA8, true, 0);              // mesh color
+export const particlePosition = new Attribute('a_particle_position', Format.RGB32F, false, 1, true);       // particle position
+export const particleRotation = new Attribute('a_particle_rotation', Format.RGB32F, false, 1, true);       // particle rotation
+export const particleSize = new Attribute('a_particle_size', Format.RGB32F, false, 1, true);               // particle size
+export const particleFrameId = new Attribute('a_particle_frame_id', Format.R32F, false, 1, true);          // particle frame id
+export const particleColor = new Attribute('a_particle_color', Format.RGBA8, true, 1, true);               // particle color
+export const particleVelocity = new Attribute('a_particle_velocity', Format.RGB32F, false, 1, true);       // particle velocity
 
 @ccclass('cc.RendererModule')
 export abstract class RendererModule extends ParticleModule {

@@ -48,6 +48,7 @@ export class VFXManager extends System {
 
     init () {
         director.on(Director.EVENT_UPDATE_PARTICLE, this.tick, this);
+        director.on(Director.EVENT_BEFORE_COMMIT, this.render, this);
     }
 
     addEmitter (particleSystem: ParticleEmitter) {
@@ -76,10 +77,13 @@ export class VFXManager extends System {
         this._totalFrames++;
         const dt = game.deltaTime;
         const emitters = this._emitters;
-        const renderers = this._renderers;
         for (let i = 0, length = emitters.length; i < length; i++) {
             this.simulate(emitters[i], dt);
         }
+    }
+
+    render () {
+        const renderers = this._renderers;
         for (let i = 0, length = renderers.length; i < length; i++) {
             renderers[i].updateRenderData();
         }

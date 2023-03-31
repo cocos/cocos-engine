@@ -27,7 +27,6 @@ import { Vec3 } from '../../core';
 import { ccclass } from '../../core/data/decorators';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { BuiltinParticleParameter, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
-import { ParticleVec3Parameter } from '../particle-parameter';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 
 const tempVelocity = new Vec3();

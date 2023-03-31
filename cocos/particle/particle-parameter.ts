@@ -22,7 +22,6 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-
 import { Color, Enum, Vec3 } from '../core';
 import { ccclass, serializable, type, visible } from '../core/data/decorators';
 import { ParticleHandle } from './particle-data-set';
@@ -78,11 +77,8 @@ export class ParticleParameterIdentity {
         this._type = type;
     }
 }
-export abstract class ParticleParameter {
-    get capacity () {
-        return this._capacity;
-    }
 
+export abstract class ParticleParameter {
     get name () {
         return this._name;
     }
@@ -91,19 +87,33 @@ export abstract class ParticleParameter {
         this._name = val;
     }
 
+    get isArray () {
+        return false;
+    }
+
     constructor (name: string) {
         this._name = name;
     }
 
     abstract get type (): ParticleParameterType;
-    protected _capacity = DEFAULT_CAPACITY;
     private _name = '';
+}
 
+export abstract class ParticleArrayParameter extends ParticleParameter {
+    get capacity () {
+        return this._capacity;
+    }
+
+    get isArray () {
+        return true;
+    }
+
+    protected _capacity = DEFAULT_CAPACITY;
     abstract reserve (capacity: number);
     abstract move (a: ParticleHandle, b: ParticleHandle);
 }
 
-export class ParticleVec3Parameter extends ParticleParameter {
+export class ParticleVec3ArrayParameter extends ParticleArrayParameter {
     get data () {
         return this._data;
     }
@@ -114,7 +124,7 @@ export class ParticleVec3Parameter extends ParticleParameter {
 
     private _data = new Float32Array(3 * this._capacity);
 
-    static addSingle (out: Vec3, a: ParticleVec3Parameter, b: ParticleVec3Parameter, handle: ParticleHandle) {
+    static addSingle (out: Vec3, a: ParticleVec3ArrayParameter, b: ParticleVec3ArrayParameter, handle: ParticleHandle) {
         const xOffset = handle * 3;
         const yOffset = xOffset + 1;
         const zOffset = yOffset + 1;
@@ -125,7 +135,7 @@ export class ParticleVec3Parameter extends ParticleParameter {
         out.z = aData[zOffset] + bData[zOffset];
     }
 
-    static add (out: ParticleVec3Parameter, a: ParticleVec3Parameter, b: ParticleVec3Parameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    static add (out: ParticleVec3ArrayParameter, a: ParticleVec3ArrayParameter, b: ParticleVec3ArrayParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
         const aData = a.data;
         const bData = b.data;
         const outData = out.data;
@@ -134,7 +144,7 @@ export class ParticleVec3Parameter extends ParticleParameter {
         }
     }
 
-    static sub (out: ParticleVec3Parameter, a: ParticleVec3Parameter, b: ParticleVec3Parameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    static sub (out: ParticleVec3ArrayParameter, a: ParticleVec3ArrayParameter, b: ParticleVec3ArrayParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
         const aData = a.data;
         const bData = b.data;
         const outData = out.data;
@@ -287,7 +297,7 @@ export class ParticleVec3Parameter extends ParticleParameter {
         this._data[offset + 2] += val;
     }
 
-    copyFrom (src: ParticleVec3Parameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    copyFrom (src: ParticleVec3ArrayParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
         if ((toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD_VEC3) {
             this._data.set(src._data.subarray(fromIndex * 3, toIndex * 3), fromIndex * 3);
         } else {
@@ -324,7 +334,7 @@ export class ParticleVec3Parameter extends ParticleParameter {
     }
 }
 
-export class ParticleFloatParameter extends ParticleParameter {
+export class ParticleFloatArrayParameter extends ParticleArrayParameter {
     get data () {
         return this._data;
     }
@@ -359,7 +369,7 @@ export class ParticleFloatParameter extends ParticleParameter {
         this._data[handle] += val;
     }
 
-    copyFrom (src: ParticleFloatParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    copyFrom (src: ParticleFloatArrayParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
         if ((toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD) {
             this._data.set(src._data.subarray(fromIndex, toIndex), fromIndex);
         } else {
@@ -383,7 +393,7 @@ export class ParticleFloatParameter extends ParticleParameter {
     }
 }
 
-export class ParticleBoolParameter extends ParticleParameter {
+export class ParticleBoolArrayParameter extends ParticleArrayParameter {
     get data () {
         return this._data;
     }
@@ -414,7 +424,7 @@ export class ParticleBoolParameter extends ParticleParameter {
         this._data[handle] = val ? 1 : 0;
     }
 
-    copyFrom (src: ParticleBoolParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    copyFrom (src: ParticleBoolArrayParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
         if ((toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD) {
             this._data.set(src._data.subarray(fromIndex, toIndex), fromIndex);
         } else {
@@ -439,12 +449,12 @@ export class ParticleBoolParameter extends ParticleParameter {
     }
 }
 
-export class ParticleUint32Parameter extends ParticleParameter {
+export class ParticleUint32ArrayParameter extends ParticleArrayParameter {
     get data () {
         return this._data;
     }
 
-    get type (): ParticleParameterType {
+    get type () {
         return ParticleParameterType.UINT32;
     }
 
@@ -470,7 +480,7 @@ export class ParticleUint32Parameter extends ParticleParameter {
         this._data[handle] = val;
     }
 
-    copyFrom (src: ParticleUint32Parameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    copyFrom (src: ParticleUint32ArrayParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
         if ((toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD) {
             this._data.set(src._data.subarray(fromIndex, toIndex), fromIndex);
         } else {
@@ -494,7 +504,7 @@ export class ParticleUint32Parameter extends ParticleParameter {
     }
 }
 
-export class ParticleColorParameter extends ParticleParameter {
+export class ParticleColorArrayParameter extends ParticleArrayParameter {
     get data () {
         return this._data;
     }
@@ -556,7 +566,7 @@ export class ParticleColorParameter extends ParticleParameter {
         this.fillUint32(val, fromIndex, toIndex);
     }
 
-    copyFrom (src: ParticleColorParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    copyFrom (src: ParticleColorArrayParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
         if ((toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD) {
             this._data.set(src._data.subarray(fromIndex, toIndex), fromIndex);
         } else {

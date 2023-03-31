@@ -43,6 +43,18 @@ export class SetSizeModule extends ParticleModule {
     @tooltip('i18n:particle_system.startSize3D')
     public separateAxes = false;
 
+    @range([0, 1])
+    @type(CurveRange)
+    @tooltip('i18n:particle_system.startSizeX')
+    @visible(function (this: SetSizeModule): boolean { return !this.separateAxes; })
+    public get size () {
+        return this.x;
+    }
+
+    public set size (val) {
+        this.x = val;
+    }
+
     /**
       * @zh 粒子初始大小。
       */
@@ -50,19 +62,7 @@ export class SetSizeModule extends ParticleModule {
     @type(CurveRange)
     @tooltip('i18n:particle_system.startSizeX')
     @visible(function (this: SetSizeModule): boolean { return this.separateAxes; })
-    public sizeX = new CurveRange(1);
-
-    @range([0, 1])
-    @type(CurveRange)
-    @tooltip('i18n:particle_system.startSizeX')
-    @visible(function (this: SetSizeModule): boolean { return !this.separateAxes; })
-    public get size () {
-        return this.sizeX;
-    }
-
-    public set size (val) {
-        this.sizeX = val;
-    }
+    public x = new CurveRange(1);
 
     /**
       * @zh 粒子初始大小。
@@ -71,15 +71,15 @@ export class SetSizeModule extends ParticleModule {
     @range([0, 1])
     @tooltip('i18n:particle_system.startSizeY')
     @visible(function (this: SetSizeModule): boolean { return this.separateAxes; })
-    public get sizeY () {
-        if (!this._sizeY) {
-            this._sizeY = new CurveRange(1);
+    public get y () {
+        if (!this._y) {
+            this._y = new CurveRange(1);
         }
-        return this._sizeY;
+        return this._y;
     }
 
-    public set sizeY (val) {
-        this._sizeY = val;
+    public set y (val) {
+        this._y = val;
     }
 
     /**
@@ -89,21 +89,21 @@ export class SetSizeModule extends ParticleModule {
     @range([0, 1])
     @tooltip('i18n:particle_system.startSizeZ')
     @visible(function (this: SetSizeModule): boolean { return this.separateAxes; })
-    public get sizeZ () {
-        if (!this._sizeZ) {
-            this._sizeZ = new CurveRange(1);
+    public get z () {
+        if (!this._z) {
+            this._z = new CurveRange(1);
         }
-        return this._sizeZ;
+        return this._z;
     }
 
-    public set sizeZ (val) {
-        this._sizeZ = val;
+    public set z (val) {
+        this._z = val;
     }
 
     @serializable
-    private _sizeY: CurveRange | null = null;
+    private _y: CurveRange | null = null;
     @serializable
-    private _sizeZ: CurveRange | null = null;
+    private _z: CurveRange | null = null;
     private _rand = new RandNumGen();
 
     public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {
@@ -114,10 +114,10 @@ export class SetSizeModule extends ParticleModule {
         context.markRequiredParameter(BuiltinParticleParameter.BASE_SIZE);
         context.markRequiredParameter(BuiltinParticleParameter.SIZE);
         if (this.separateAxes && DEBUG) {
-            assert(this.sizeX.mode === this.sizeY.mode && this.sizeX.mode === this.sizeZ.mode,
-                'SetSizeModule: sizeX, sizeY and sizeZ must have the same mode.');
+            assert(this.x.mode === this.y.mode && this.x.mode === this.z.mode,
+                'SetSizeModule: x, y and z must have the same mode.');
         }
-        if (this.sizeX.mode === CurveRange.Mode.Curve || this.sizeX.mode === CurveRange.Mode.TwoCurves) {
+        if (this.x.mode === CurveRange.Mode.Curve || this.x.mode === CurveRange.Mode.TwoCurves) {
             context.markRequiredParameter(BuiltinParticleParameter.SPAWN_TIME_RATIO);
         }
     }
@@ -127,27 +127,27 @@ export class SetSizeModule extends ParticleModule {
         const { fromIndex, toIndex, emitterNormalizedTime: normalizedT, emitterNormalizedPrevTime: normalizedPrevT } = context;
         const rand = this._rand;
         if (this.separateAxes) {
-            if (this.sizeX.mode === CurveRange.Mode.Constant) {
-                const constantX = this.sizeX.constant;
-                const constantY = this.sizeY.constant;
-                const constantZ = this.sizeZ.constant;
+            if (this.x.mode === CurveRange.Mode.Constant) {
+                const constantX = this.x.constant;
+                const constantY = this.y.constant;
+                const constantZ = this.z.constant;
                 for (let i = fromIndex; i < toIndex; ++i) {
                     baseSize.set3fAt(constantX, constantY, constantZ, i);
                 }
-            } else if (this.sizeX.mode === CurveRange.Mode.TwoConstants) {
-                const { constantMin: xMin, constantMax: xMax } = this.sizeX;
-                const { constantMin: yMin, constantMax: yMax } = this.sizeY;
-                const { constantMin: zMin, constantMax: zMax } = this.sizeZ;
+            } else if (this.x.mode === CurveRange.Mode.TwoConstants) {
+                const { constantMin: xMin, constantMax: xMax } = this.x;
+                const { constantMin: yMin, constantMax: yMax } = this.y;
+                const { constantMin: zMin, constantMax: zMax } = this.z;
                 for (let i = fromIndex; i < toIndex; ++i) {
                     const x = lerp(xMin, xMax, rand.getFloat());
                     const y = lerp(yMin, yMax, rand.getFloat());
                     const z = lerp(zMin, zMax, rand.getFloat());
                     baseSize.set3fAt(x, y, z, i);
                 }
-            } else if (this.sizeX.mode === CurveRange.Mode.Curve) {
-                const { spline: xCurve, multiplier: xMultiplier } = this.sizeX;
-                const { spline: yCurve, multiplier: yMultiplier } = this.sizeY;
-                const { spline: zCurve, multiplier: zMultiplier } = this.sizeZ;
+            } else if (this.x.mode === CurveRange.Mode.Curve) {
+                const { spline: xCurve, multiplier: xMultiplier } = this.x;
+                const { spline: yCurve, multiplier: yMultiplier } = this.y;
+                const { spline: zCurve, multiplier: zMultiplier } = this.z;
                 const spawnTime = particles.spawnTimeRatio.data;
                 for (let i = fromIndex; i < toIndex; ++i) {
                     const time = lerp(normalizedT, normalizedPrevT, spawnTime[i]);
@@ -157,9 +157,9 @@ export class SetSizeModule extends ParticleModule {
                     baseSize.set3fAt(x, y, z, i);
                 }
             } else {
-                const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.sizeX;
-                const { splineMin: yMin, splineMax: yMax, multiplier: yMultiplier } = this.sizeY;
-                const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.sizeZ;
+                const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.x;
+                const { splineMin: yMin, splineMax: yMax, multiplier: yMultiplier } = this.y;
+                const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.z;
                 const spawnTime = particles.spawnTimeRatio.data;
                 for (let i = fromIndex; i < toIndex; ++i) {
                     const time = lerp(normalizedT, normalizedPrevT, spawnTime[i]);
@@ -171,24 +171,24 @@ export class SetSizeModule extends ParticleModule {
             }
         } else {
             // eslint-disable-next-line no-lonely-if
-            if (this.sizeX.mode === CurveRange.Mode.Constant) {
-                const constantX = this.sizeX.constant;
+            if (this.x.mode === CurveRange.Mode.Constant) {
+                const constantX = this.x.constant;
                 baseSize.fill1f(constantX, fromIndex, toIndex);
-            } else if (this.sizeX.mode === CurveRange.Mode.TwoConstants) {
-                const { constantMin: xMin, constantMax: xMax } = this.sizeX;
+            } else if (this.x.mode === CurveRange.Mode.TwoConstants) {
+                const { constantMin: xMin, constantMax: xMax } = this.x;
                 for (let i = fromIndex; i < toIndex; ++i) {
                     const pSize = lerp(xMin, xMax, rand.getFloat());
                     baseSize.set1fAt(pSize, i);
                 }
-            } else if (this.sizeX.mode === CurveRange.Mode.Curve) {
-                const { spline: xCurve, multiplier: xMultiplier } = this.sizeX;
+            } else if (this.x.mode === CurveRange.Mode.Curve) {
+                const { spline: xCurve, multiplier: xMultiplier } = this.x;
                 const spawnTime = particles.spawnTimeRatio.data;
                 for (let i = fromIndex; i < toIndex; ++i) {
                     const pSize = xCurve.evaluate(lerp(normalizedT, normalizedPrevT, spawnTime[i])) * xMultiplier;
                     baseSize.set1fAt(pSize, i);
                 }
             } else {
-                const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.sizeX;
+                const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.x;
                 const spawnTime = particles.spawnTimeRatio.data;
                 for (let i = fromIndex; i < toIndex; ++i) {
                     const time = lerp(normalizedT, normalizedPrevT, spawnTime[i]);
@@ -205,9 +205,9 @@ export class SetSizeModule extends ParticleModule {
 
     protected getSerializedProps () {
         if (!this.separateAxes) {
-            return ['separateAxes', 'sizeX'];
+            return ['separateAxes', 'x'];
         } else {
-            return ['separateAxes', 'sizeX', '_sizeY', '_sizeZ'];
+            return ['separateAxes', 'x', '_y', '_z'];
         }
     }
 }
