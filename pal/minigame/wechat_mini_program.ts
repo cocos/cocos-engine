@@ -183,8 +183,11 @@ gl.texSubImage2D = function (...args) {
         const canvas = args[6];
         if (typeof canvas.type !== 'undefined' && canvas.type === 'canvas') {
             const ctx = canvas.getContext('2d');
-            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            oldTexSubImage2D.call(gl, args[0], args[1], args[2], args[3], args[4], args[5], imgData);
+            const texOffsetX = args[2];
+            const texOffsetY = args[3];
+            const imgData = ctx.getImageData(texOffsetX, texOffsetY, canvas.width, canvas.height);
+            oldTexSubImage2D.call(gl, args[0], args[1], texOffsetX, texOffsetY,
+                canvas.width, canvas.height, args[4], args[5], new Uint8Array(imgData.data));
         } else {
             oldTexSubImage2D.apply(gl, args);
         }
