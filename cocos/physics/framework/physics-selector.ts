@@ -459,6 +459,7 @@ const CREATE_CHARACTER_CONTROLLER_PROXY = { INITED: false };
 interface IEntireCharacterController extends IBoxCharacterController, ICapsuleCharacterController { }
 const ENTIRE_CHARACTER_CONTROLLER: IEntireCharacterController = {
     initialize: FUNC,
+    onLoad: FUNC,
     onEnable: FUNC,
     onDisable: FUNC,
     onDestroy: FUNC,
@@ -468,6 +469,14 @@ const ENTIRE_CHARACTER_CONTROLLER: IEntireCharacterController = {
     setStepOffset: FUNC,
     setSlopeLimit: FUNC,
     setContactOffset: FUNC,
+    setGroup: FUNC,
+    getGroup: FUNC,
+    addGroup: FUNC,
+    removeGroup: FUNC,
+    setMask: FUNC,
+    getMask: FUNC,
+    addMask: FUNC,
+    removeMask: FUNC,
     move: FUNC,
     //IBoxCharacterController
     setHalfHeight: FUNC,
@@ -476,6 +485,7 @@ const ENTIRE_CHARACTER_CONTROLLER: IEntireCharacterController = {
     //ICapsuleCharacterController
     setRadius: FUNC,
     setHeight: FUNC,
+    updateEventListener: FUNC,
 };
 
 export function createCharacterController (type: ECharacterControllerType): IEntireCharacterController {

@@ -61,6 +61,7 @@ export class PhysXCharacterController implements IBaseCharacterController {
 
     // virtual
     protected onComponentSet (): void { }
+    protected create (): void { }
 
     initialize (comp: CharacterController): boolean {
         this._comp = comp;
@@ -91,7 +92,11 @@ export class PhysXCharacterController implements IBaseCharacterController {
         this._isEnabled = false;
     }
 
-    onDestroy (): void {
+    onLoad (): void {
+
+    }
+
+    release (): void {
         if (this._impl) {
             if (this._impl.$$) {
                 PX.IMPL_PTR[this._impl.$$.ptr] = null;
@@ -100,6 +105,10 @@ export class PhysXCharacterController implements IBaseCharacterController {
             this._impl.release();
             this._impl = null;
         }
+    }
+
+    onDestroy (): void {
+        this.release();
 
         (PhysicsSystem.instance.physicsWorld as PhysXWorld).removeCCT(this);
     }
@@ -109,7 +118,7 @@ export class PhysXCharacterController implements IBaseCharacterController {
     }
 
     setPosition (value: IVec3Like): void {
-        this._impl.setLinearVelocity(value);
+        this._impl.setPosition(value);
     }
 
     setContactOffset (value: number): void {
@@ -203,19 +212,15 @@ export class PhysXCharacterController implements IBaseCharacterController {
         this.updateFilterData();
     }
 
-    updateFilterData () {
+    updateEventListener () {
         if (this._comp.needTriggerEvent) {
             this._filterData.word3 |= EFilterDataWord3.DETECT_TRIGGER_EVENT;
         }
-       
-        this.setFilerData(this.filterData);
+        this.updateFilterData();
     }
 
-    setFilerData (filterData: any) {
+    updateFilterData () {
         // this._impl.setQueryFilterData(filterData);
-        this._impl.setSimulationFilterData(filterData);
-    }
-    updateEventListener () {
-        this.updateFilterData();
+        this._impl.setSimulationFilterData(this.filterData);
     }
 }

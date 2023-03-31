@@ -34,16 +34,21 @@ import { PhysXWorld } from '../physx-world';
 import { degreesToRadians } from '../../../core/utils/misc';
 
 const v3_0 = new Vec3(0, 0, 0);
+const upDir = new Vec3(0, 1, 0);
 export class PhysXBoxCharacterController extends PhysXCharacterController implements IBoxCharacterController {
     get component (): BoxCharacterController {
         return this._comp as BoxCharacterController;
     }
 
     onComponentSet (): void {
+        this.create();
+    }
+
+    create (): void {
+        super.release();
+
         this.component.node.getWorldPosition(v3_0);
-        const upDir = new Vec3(0, 1, 0);//temp
         const pxMtl = PhysXInstance.physics.createMaterial(0.5, 0.5, 0.5);//temp
-        //const mat = collider.material;//PhysXInstance.physics.createMaterial(0.5, 0.5, 0.5);//temp
         const physxWorld = (PhysicsSystem.instance.physicsWorld as PhysXWorld);
 
         const controllerDesc = new PX.PxBoxControllerDesc();

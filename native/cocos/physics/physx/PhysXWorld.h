@@ -33,6 +33,7 @@
 #include "physics/physx/PhysXInc.h"
 #include "physics/physx/PhysXRigidBody.h"
 #include "physics/physx/PhysXSharedBody.h"
+#include "physics/physx/character-controllers/PhysXCharacterController.h"
 #include "physics/spec/IWorld.h"
 
 namespace cc {
@@ -44,6 +45,8 @@ public:
     static physx::PxFoundation &getFundation();
     static physx::PxCooking &getCooking();
     static physx::PxPhysics &getPhysics();
+    static physx::PxControllerManager &getControllerManager();
+
     PhysXWorld();
     ~PhysXWorld() override;
     void step(float fixedTimeStep) override;
@@ -66,6 +69,9 @@ public:
     inline ccstd::vector<std::shared_ptr<ContactEventPair>> &getContactEventPairs() override {
         return _mEventMgr->getConatctPairs();
     }
+    inline ccstd::vector<std::shared_ptr<CCTShapeEventPair>>& getCCTShapeEventPairs() override {
+        return _mEventMgr->getCCTShapePairs();
+    }
     void syncSceneToPhysics() override;
     void syncSceneWithCheck() override;
     void destroy() override;
@@ -81,7 +87,9 @@ public:
     void syncPhysicsToScene();
     void addActor(const PhysXSharedBody &sb);
     void removeActor(const PhysXSharedBody &sb);
-
+    void addCCT(const PhysXCharacterController &cct);
+    void removeCCT(const PhysXCharacterController &cct);
+    
     //Mapping PhysX Object ID and Pointer
     uint32_t addPXObject(uintptr_t PXObjectPtr);
     void removePXObject(uint32_t pxObjectID);
@@ -99,6 +107,8 @@ private:
     physx::PxFoundation *_mFoundation;
     physx::PxCooking *_mCooking;
     physx::PxPhysics *_mPhysics;
+    physx::PxControllerManager *_mControllerManager = NULL;
+
 #ifdef CC_DEBUG
     physx::PxPvd *_mPvd;
 #endif
@@ -107,6 +117,7 @@ private:
     PhysXEventManager *_mEventMgr;
     uint32_t _mCollisionMatrix[31];
     ccstd::vector<PhysXSharedBody *> _mSharedBodies;
+    ccstd::vector<PhysXCharacterController *> _mCCTs;
 
     static uint32_t _msWrapperObjectID;
     static uint32_t _msPXObjectID;
