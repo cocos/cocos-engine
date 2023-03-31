@@ -412,7 +412,7 @@ function split<TValue> (
             nextValue,
             resultValue,
         );
-        newTimes[outputIndex] = splitInfo.transformTime(lerp(times[iPrevious], times[iNext], ratio));
+        newTimes[outputIndex] = lerp(times[iPrevious], times[iNext], ratio) - from;
         ValueConstructor.toArray(newValues, resultValue, components * outputIndex);
     };
 
@@ -423,7 +423,7 @@ function split<TValue> (
     }
     for (let index = directKeyframesBegin; index < directKeyframesEnd; ++index, ++iKeyframe) {
         values.get(index, resultValue);
-        newTimes[iKeyframe] = splitInfo.transformTime(times[index]);
+        newTimes[iKeyframe] = times[index] - from;
         ValueConstructor.toArray(newValues, resultValue, components * iKeyframe);
     }
     if (postLerpIndex >= 0) {
@@ -463,12 +463,12 @@ class SplitInfo {
             + (postLerpIndex < 0 ? 0 : 1);
     }
 
-    public transformTime (input: number) {
-        return input - this._timeOffset;
-    }
-
     public calculate (times: ArrayLike<number>, from: number, to: number) {
         this._reset();
+
+        if (from > to) {
+            return;
+        }
 
         const nKeyframes = times.length;
         if (!nKeyframes) {
@@ -477,17 +477,29 @@ class SplitInfo {
 
         const firstTime = times[0];
         const lastTime = times[nKeyframes - 1];
-        const fromClamped = clamp(from, firstTime, lastTime);
-        const toClamped = clamp(to, firstTime, lastTime);
 
-        this._timeOffset = fromClamped;
+        let fromIndex = 0;
+        let fromRatio = 0.0;
+        if (from < firstTime) {
+            // Leave as-is.
+        } else if (from >= lastTime) {
+            fromIndex = nKeyframes - 1;
+            fromRatio = 0.0;
+        } else {
+            ({ index: fromIndex, ratio: fromRatio } = binarySearchRatio(times, from));
+        }
 
-        const {
-            fromIndex,
-            fromRatio,
-            toIndex,
-            toRatio,
-        } = searchRange(times, fromClamped, toClamped);
+        let toIndex = 0;
+        let toRatio = 0.0;
+        if (to < firstTime) {
+            // Leave as-is.
+        } else if (to >= lastTime) {
+            toIndex = nKeyframes - 1;
+            toRatio = 0.0;
+        } else {
+            ({ index: toIndex, ratio: toRatio } = binarySearchRatio(times, to));
+        }
+
         assertIsTrue(toIndex >= fromIndex);
 
         const fromJust = !fromRatio;
@@ -519,8 +531,6 @@ class SplitInfo {
         }
     }
 
-    private declare _timeOffset: number;
-
     private _reset () {
         this.preLerpIndex = -1;
         this.preLerpRatio = 0.0;
@@ -528,22 +538,7 @@ class SplitInfo {
         this.directKeyframesEnd = 0;
         this.postLerpIndex = -1;
         this.postLerpRatio = 0.0;
-        this._timeOffset = 0.0;
     }
-}
-
-function searchRange (values: ArrayLike<number>, from: number, to: number) {
-    const nValues = values.length;
-    assertIsTrue(nValues !== 0);
-    assertIsTrue(to >= from && from >= values[0] && to <= values[nValues - 1]);
-    const { index: fromIndex, ratio: fromRatio } = binarySearchRatio(values, from);
-    const { index: toIndex, ratio: toRatio } = binarySearchRatio(values, to);
-    return {
-        fromIndex,
-        fromRatio,
-        toIndex,
-        toRatio,
-    };
 }
 
 function binarySearchRatio (values: ArrayLike<number>, value: number) {
