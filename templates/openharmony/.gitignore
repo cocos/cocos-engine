@@ -4,3 +4,7 @@
 **/build
 /.hvigor
 log.txt
+.cxx
+/.clangd
+/.clang-format
+/.clang-tidy
