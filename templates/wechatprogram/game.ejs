@@ -58,7 +58,6 @@ Page({
                     return firstScreen.setProgress(0.6).then(() => Promise.resolve(module));
                 }).then((cc) => {
                     require('./engine-adapter');
-                    require('src/chunks/bundle.js'); //bundle.js should reuqire after engine-adapter if use named register mode
                     return application.init(cc);
                 }).then(() => {
                     return firstScreen.end().then(() => application.start());
