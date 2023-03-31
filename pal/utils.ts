@@ -181,3 +181,26 @@ export function versionCompare (versionA: string, versionB: string): number {
     }
     return 0;
 }
+
+/**
+ * A custom implementation of setTimeout that uses requestAnimationFrame.
+ * @param callback The function to be executed after a delay.
+ * @param delay The delay time in milliseconds.
+ * @param args The arguments to be passed to the callback function.
+ */
+type TimerCallback = (...args: any[]) => void;
+
+export function setTimeoutRAF (callback: TimerCallback, delay: number, ...args: any[]) {
+    let start: number | null = null;
+
+    const frame = () => {
+        if (!start) start = performance.now();
+        const progress = performance.now() - start;
+        if (progress < delay) {
+            requestAnimationFrame(frame);
+        } else {
+            callback(...args);
+        }
+    };
+    requestAnimationFrame(frame);
+}
