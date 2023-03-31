@@ -55,10 +55,10 @@ export function createInnerAudioContextPolyfill (minigameEnv: any, polyfillConfi
         // add polyfill if onPlay method doesn't work this platform
         if (polyfillConfig.onPlay) {
             const originalPlay = audioContext.play;
-            let _onPlayCB: (()=> void) | null = null;
+            let _onPlayCB: (() => void) | null = null;
             Object.defineProperty(audioContext, 'onPlay', {
                 configurable: true,
-                value (cb: ()=> void) {
+                value (cb: () => void) {
                     _onPlayCB = cb;
                 },
             });
@@ -80,10 +80,10 @@ export function createInnerAudioContextPolyfill (minigameEnv: any, polyfillConfi
         // add polyfill if onPause method doesn't work this platform
         if (polyfillConfig.onPause) {
             const originalPause = audioContext.pause;
-            let _onPauseCB: (()=> void) | null = null;
+            let _onPauseCB: (() => void) | null = null;
             Object.defineProperty(audioContext, 'onPause', {
                 configurable: true,
-                value (cb: ()=> void) {
+                value (cb: () => void) {
                     _onPauseCB = cb;
                 },
             });
@@ -105,10 +105,10 @@ export function createInnerAudioContextPolyfill (minigameEnv: any, polyfillConfi
         // add polyfill if onStop method doesn't work on this platform
         if (polyfillConfig.onStop) {
             const originalStop = audioContext.stop;
-            let _onStopCB: (()=> void) | null = null;
+            let _onStopCB: (() => void) | null = null;
             Object.defineProperty(audioContext, 'onStop', {
                 configurable: true,
-                value (cb: ()=> void) {
+                value (cb: () => void) {
                     _onStopCB = cb;
                 },
             });
@@ -130,10 +130,10 @@ export function createInnerAudioContextPolyfill (minigameEnv: any, polyfillConfi
         // add polyfill if onSeeked method doesn't work on this platform
         if (polyfillConfig.onSeek) {
             const originalSeek = audioContext.seek;
-            let _onSeekCB: (()=> void) | null = null;
+            let _onSeekCB: (() => void) | null = null;
             Object.defineProperty(audioContext, 'onSeeked', {
                 configurable: true,
-                value (cb: ()=> void) {
+                value (cb: () => void) {
                     _onSeekCB = cb;
                 },
             });
@@ -187,20 +187,23 @@ export function versionCompare (versionA: string, versionB: string): number {
  * @param callback The function to be executed after a delay.
  * @param delay The delay time in milliseconds.
  * @param args The arguments to be passed to the callback function.
+ * @returns A unique identifier for the timer.
  */
-type TimerCallback = (...args: any[]) => void;
 
-export function setTimeoutRAF (callback: TimerCallback, delay: number, ...args: any[]) {
-    let start: number | null = null;
+export function setTimeoutRAF (callback: (...args: any[]) => void, delay: number, ...args: any[]): number {
+    let start = performance.now();
+    let remaining = delay;
 
-    const frame = () => {
-        if (!start) start = performance.now();
-        const progress = performance.now() - start;
-        if (progress < delay) {
-            requestAnimationFrame(frame);
-        } else {
+    const handleRAF = (timestamp: number) => {
+        remaining -= timestamp - start;
+        start = timestamp;
+
+        if (remaining <= 0) {
             callback(...args);
+        } else {
+            requestAnimationFrame(handleRAF);
         }
     };
-    requestAnimationFrame(frame);
+
+    return requestAnimationFrame(handleRAF);
 }
