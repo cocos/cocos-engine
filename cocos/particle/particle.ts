@@ -147,6 +147,7 @@ export const PARTICLE_MODULE_NAME = {
     FORCEFIELD: 'forcefieldModule',
     INHERIT: 'inheritVelocityModule',
     CUSTOM: 'customDataModule',
+    ROTATIONSPEED: 'rotationSpeedModule',
 };
 
 export const PARTICLE_MODULE_ORDER = [
@@ -161,6 +162,7 @@ export const PARTICLE_MODULE_ORDER = [
     'forcefieldModule',
     'inheritVelocityModule',
     'customDataModule',
+    'rotationSpeedModule',
 ];
 
 export const PARTICLE_MODULE_PROPERTY = [
@@ -177,6 +179,7 @@ export const PARTICLE_MODULE_PROPERTY = [
     '_forcefieldModule',
     '_inheritVelocityModule',
     '_customDataModule',
+    '_rotationSpeedModule',
 ];
 
 export interface IParticleModule {

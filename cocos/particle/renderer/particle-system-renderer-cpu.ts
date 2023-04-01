@@ -71,6 +71,7 @@ const _anim_module = [
     '_forcefieldModule',
     '_inheritVelocityModule',
     '_customDataModule',
+    '_rotationSpeedModule',
 ];
 
 const _uvs = [
@@ -914,7 +915,8 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
 
         let enable = false;
         const roationModule = this._particleSystem._rotationOvertimeModule;
-        enable = roationModule && roationModule.enable;
+        const roationSpeedModule = this._particleSystem._rotationSpeedModule;
+        enable = (roationModule && roationModule.enable) || (roationSpeedModule && roationSpeedModule.enable);
         this._defines[ROTATION_OVER_TIME_MODULE_ENABLE] = enable;
         this._defines[INSTANCE_PARTICLE] = this._useInstance;
         this._defines[USE_CUSTOM] = this._useCustom;

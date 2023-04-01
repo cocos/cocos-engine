@@ -58,6 +58,7 @@ import { NoiseModule } from './animator/noise-module';
 import { ForceFieldModule } from './animator/force-field-module';
 import InheritVelocityModule from './animator/inherit-velocity';
 import { CustomDataModule } from './animator/custom-data';
+import { RotationSpeedModule } from './animator/rotation-speed';
 import { CCBoolean, CCFloat, CCInteger, CCObject, Node } from '../core';
 
 const _world_mat = new Mat4();
@@ -757,6 +758,26 @@ export class ParticleSystem extends ModelRenderer {
         this._customDataModule = val;
     }
 
+    @type(RotationSpeedModule)
+    private _rotationSpeedModule: RotationSpeedModule | null = null;
+
+    @type(RotationSpeedModule)
+    @displayOrder(27)
+    public get rotationSpeedModule () {
+        if (EDITOR) {
+            if (!this._rotationSpeedModule) {
+                this._rotationSpeedModule = new RotationSpeedModule();
+                this._rotationSpeedModule.bindTarget(this.processor);
+            }
+        }
+        return this._rotationSpeedModule;
+    }
+
+    public set rotationSpeedModule (val) {
+        if (!val) return;
+        this._rotationSpeedModule = val;
+    }
+
     // trail module
     @type(TrailModule)
     _trailModule: TrailModule | null = null;
@@ -1010,6 +1031,17 @@ export class ParticleSystem extends ModelRenderer {
                 Object.assign(sub.customDataModule.data2Z, subSrc.customDataModule.data2Z);
                 Object.assign(sub.customDataModule.data2W, subSrc.customDataModule.data2W);
                 sub.customDataModule.enable = subSrc.customDataModule.enable;
+            }
+        }
+
+        if (subSrc.rotationSpeedModule) {
+            if (sub.rotationSpeedModule) {
+                sub.rotationSpeedModule.rotation3D = subSrc.rotationSpeedModule.rotation3D;
+                Object.assign(sub.rotationSpeedModule.range, subSrc.rotationSpeedModule.range);
+                Object.assign(sub.rotationSpeedModule.rotationX, subSrc.rotationSpeedModule.rotationX);
+                Object.assign(sub.rotationSpeedModule.rotationY, subSrc.rotationSpeedModule.rotationY);
+                Object.assign(sub.rotationSpeedModule.rotationZ, subSrc.rotationSpeedModule.rotationZ);
+                sub.rotationSpeedModule.enable = subSrc.rotationSpeedModule.enable;
             }
         }
 
@@ -1316,6 +1348,7 @@ export class ParticleSystem extends ModelRenderer {
         if (this._forceFieldModule) this._forceFieldModule.bindTarget(this.processor);
         if (this._inheritVelocityModule) this._inheritVelocityModule.bindTarget(this.processor);
         if (this._customDataModule) this._customDataModule.bindTarget(this.processor);
+        if (this._rotationSpeedModule) this._rotationSpeedModule.bindTarget(this.processor);
     }
 
     // TODO: Fast forward current particle system by simulating particles over given period of time, then pause it.
