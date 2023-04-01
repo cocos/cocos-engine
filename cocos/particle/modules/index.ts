@@ -61,5 +61,5 @@ export * from './rectangle-shape';
 export * from './drag';
 export * from './grid-shape';
 export * from './vortex-velocity';
-export * from './light';
+export * from './light-renderer';
 export * from './collision';

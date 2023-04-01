@@ -87,6 +87,12 @@ export class ParticleRenderer extends ModelRenderer {
         } else {
             this._emitter.render();
             const rendererModules = this._emitter.renderStage.modules;
+            for (let i = 0; i < rendererModules.length; i++) {
+                const module = rendererModules[i];
+                if (module instanceof RendererModule) {
+
+                }
+            }
         }
     }
 }

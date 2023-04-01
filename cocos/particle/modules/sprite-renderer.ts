@@ -112,7 +112,6 @@ export class SpriteRendererModule extends RendererModule {
     private _vertexStreamAttributes = [meshPosition, meshUv, particlePosition, particleRotation, particleSize, particleFrameId, particleColor, particleVelocity];
     private _renderScale = new Vec4();
     private _rotation = new Quat();
-    private _renderingSubMesh: RenderingSubMesh | null = null;
     private _insBuffers: Buffer[] = [];
     private declare _dynamicBuffer: Float32Array;
     private declare _dynamicBufferUintView: Uint32Array;

@@ -22,7 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { Material } from '../../core';
+import { Material, RenderingSubMesh } from '../../core';
 import { ccclass, displayName, serializable, type } from '../../core/data/decorators';
 import { AttributeName, Format, Attribute } from '../../core/gfx';
 import { MaterialInstance } from '../../core/renderer';
@@ -78,6 +78,11 @@ export abstract class RendererModule extends ParticleModule {
         }
     }
 
+    public get renderingSubMesh () {
+        return this._renderingSubMesh;
+    }
+
+    protected _renderingSubMesh: RenderingSubMesh | null = null;
     @serializable
     private _sharedMaterial: Material | null = null;
     private _material: MaterialInstance | null = null;
