@@ -31,6 +31,8 @@ import { HorizontalTextAlignment, VerticalTextAlignment, Label, Overflow, CacheM
 import { UITransform } from '../../framework/ui-transform';
 import { LetterAtlas, shareLabelInfo } from './font-utils';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
+import { TextProcessing } from './text-processing';
+import { TextProcessData } from './text-process-data';
 
 class LetterInfo {
     public char = '';
@@ -53,10 +55,10 @@ const _lettersInfo: LetterInfo[] = [];
 const _linesWidth: number[] = [];
 const _linesOffsetX: number[] = [];
 const _labelDimensions = new Size();
-const _lineBreakWithoutSpaces = false;
+const _lineBreakWithoutSpaces = false; // 这又不改为啥要个这
 const _contentSize = new Size();
 const letterPosition = new Vec2();
-const _lineSpacing = 0;
+const _lineSpacing = 0; // 这个也是？有啥用
 
 let _fntConfig: IConfig | null = null;
 let _numberOfLines = 0;
@@ -81,6 +83,41 @@ let _maxLineWidth = 0;
 let QUAD_INDICES;
 
 export const bmfontUtils = {
+
+    updateProcessingData (data: TextProcessData, comp: Label, trans: UITransform) {
+        data.inputString = comp.string.toString();
+        data._fontSize = comp.fontSize;
+        data._actualFontSize = comp.fontSize;// 可缓存//这样就重新计算了
+        data._originFontSize = _fntConfig ? _fntConfig.fontSize : comp.fontSize;
+        data._hAlign = comp.horizontalAlign;
+        data._vAlign = comp.verticalAlign;
+        data._spacingX = comp.spacingX;
+        const overflow = comp.overflow;
+        data._overFlow = overflow;
+        data._lineHeight = comp.lineHeight;
+
+        data._nodeContentSize.width = trans.width;
+        data._nodeContentSize.height = trans.height;
+
+        // should wrap text
+        if (overflow === Overflow.NONE) {
+            data._wrapping = false;
+            data._nodeContentSize.width += shareLabelInfo.margin * 2;
+            data._nodeContentSize.height += shareLabelInfo.margin * 2;
+        } else if (overflow === Overflow.RESIZE_HEIGHT) {
+            data._wrapping = true;
+            data._nodeContentSize.height += shareLabelInfo.margin * 2;
+        } else {
+            data._wrapping = comp.enableWrapText;
+        }
+
+        shareLabelInfo.lineHeight = comp.lineHeight;
+        shareLabelInfo.fontSize = comp.fontSize;
+
+        shareLabelInfo.hash = '';
+        shareLabelInfo.margin = 0;
+    },
+
     updateRenderData (comp: Label) {
         if (!comp.renderData) {
             return;
@@ -91,20 +128,50 @@ export const bmfontUtils = {
         if (comp.renderData.vertDirty) {
             _comp = comp;
             _uiTrans = _comp.node._uiProps.uiTransformComp!;
-            this._updateFontFamily(comp);
-            this._updateProperties(comp);
-            this._updateLabelInfo(comp);
-            this._updateContent();
+            const renderData = comp.renderData;
 
-            _comp.actualFontSize = _fontSize;
-            _uiTrans.setContentSize(_contentSize);
-            this.updateUVs(comp);// dirty need
+            const processing = TextProcessing.instance;
+            const data = comp.processingData;
+            data.isBmFont = true;
+            // hack
+            this._updateFontFamily(comp); // 如果不纳入处理器的话，分化实现
+            // 同步数据？
+            data._spriteFrame = _spriteFrame; // 只同步这一次
+            data._fntConfig = _fntConfig; // 只同步这一次
+            data._fontAtlas = shareLabelInfo.fontAtlas; // 注意这个值在 char 模式中不止这么点
+
+            // this._updateProperties(comp); // 数据同步，可以不纳入 // 数据冗余
+            // this._updateLabelInfo(comp); // char 和 bm 有区别 // 单纯为了复用代码分开的函数// bmfont里合并到上面
+            this.updateProcessingData(data, comp, _uiTrans);
+
+            // 将下面的内容拆为两个函数 // 存在递归调用哦
+            // this._updateContent(); // 对齐入口 // 需要拆分 // 存在分别实现问题
+            // TextProcessing
+            processing.processingString(data);// 可以填 out // 用一个flag来避免排版的更新，比如 renderDirtyOnly
+            // generateVertex
+            this.resetRenderData(comp);
+            data.quadCount = 0;
+            processing.generateRenderInfo(data, this.generateVertexData); // 传个方法进去
+
+            // 更新 vb
+            renderData.dataLength = data.quadCount;
+            renderData.resize(renderData.dataLength, renderData.dataLength / 2 * 3);
+            const datalist = renderData.data;
+            for (let i = 0, l = data.quadCount; i < l; i++) {
+                datalist[i] = data.vertexBuffer[i];
+            }
+
+            // 处理 ib
+            const indexCount = renderData.indexCount;
+            this.createQuadIndices(indexCount);
+            renderData.chunk.setIndexBuffer(QUAD_INDICES);
+
+            _comp.actualFontSize = data._actualFontSize; // 可额外同步一次
+            _uiTrans.setContentSize(data._nodeContentSize); // 可额外同步一次
+            this.updateUVs(comp);// dirty need // 为了对接renderData，要同步一次 data
             this.updateColor(comp); // dirty need
 
-            _comp.renderData!.vertDirty = false;
-            // fix bmfont run updateRenderData twice bug
-            // _comp.markForUpdateRenderData(false);
-
+            renderData.vertDirty = false;
             _comp = null;
 
             this._resetProperties();
@@ -151,6 +218,69 @@ export const bmfontUtils = {
                 colorOffset += stride;
             }
         }
+    },
+
+    resetRenderData (comp: Label) {
+        const renderData = comp.renderData!;
+        renderData.dataLength = 0;
+        renderData.resize(0, 0);
+    },
+
+    // callBack function
+    generateVertexData (info: TextProcessData, offset: number,
+        spriteFrame: SpriteFrame, rect: Rect, rotated: boolean, x: number, y: number) {
+        const dataOffset = offset;
+        const scale = info._bmfontScale;
+
+        const dataList = info.vertexBuffer;
+        const texW = spriteFrame.width;
+        const texH = spriteFrame.height;
+
+        const rectWidth = rect.width;
+        const rectHeight = rect.height;
+
+        let l = 0;
+        let b = 0;
+        let t = 0;
+        let r = 0;
+        if (!rotated) {
+            l = (rect.x) / texW;
+            r = (rect.x + rectWidth) / texW;
+            b = (rect.y + rectHeight) / texH;
+            t = (rect.y) / texH;
+
+            dataList[dataOffset].u = l;
+            dataList[dataOffset].v = b;
+            dataList[dataOffset + 1].u = r;
+            dataList[dataOffset + 1].v = b;
+            dataList[dataOffset + 2].u = l;
+            dataList[dataOffset + 2].v = t;
+            dataList[dataOffset + 3].u = r;
+            dataList[dataOffset + 3].v = t;
+        } else {
+            l = (rect.x) / texW;
+            r = (rect.x + rectHeight) / texW;
+            b = (rect.y + rectWidth) / texH;
+            t = (rect.y) / texH;
+
+            dataList[dataOffset].u = l;
+            dataList[dataOffset].v = t;
+            dataList[dataOffset + 1].u = l;
+            dataList[dataOffset + 1].v = b;
+            dataList[dataOffset + 2].u = r;
+            dataList[dataOffset + 2].v = t;
+            dataList[dataOffset + 3].u = r;
+            dataList[dataOffset + 3].v = b;
+        }
+
+        dataList[dataOffset].x = x;
+        dataList[dataOffset].y = y - rectHeight * scale;
+        dataList[dataOffset + 1].x = x + rectWidth * scale;
+        dataList[dataOffset + 1].y = y - rectHeight * scale;
+        dataList[dataOffset + 2].x = x;
+        dataList[dataOffset + 2].y = y;
+        dataList[dataOffset + 3].x = x + rectWidth * scale;
+        dataList[dataOffset + 3].y = y;
     },
 
     _updateFontScale () {

@@ -165,16 +165,19 @@ export const ttfUtils =  {
     updateRenderData (comp: Label) {
         if (!comp.renderData) { return; }
 
+        // 需要使用 vertexDirty
         const trans = comp.node._uiProps.uiTransformComp!;
         const processing = TextProcessing.instance;
         const data = comp.processingData;
         this.updateProcessingData(data, comp, trans);// 同步信息
         // hack
         const fontFamily = this._updateFontFamily(comp);
-        comp.processingData._fontFamily = fontFamily; // 外部不应该操作 data，集中于处理器内部最好
-        processing.processingString(data);// 可以填 out // 用一个flag来避免排版的更新，比如 renderDirtyOnly
+        data._fontFamily = fontFamily; // 外部不应该操作 data，集中于处理器内部最好
 
-        processing.generateRenderInfo(data); // 传个方法进去
+        // TextProcessing
+        processing.processingString(data);// 可以填 out // 用一个flag来避免排版的更新，比如 renderDirtyOnly
+        processing.generateRenderInfo(data, this.generateVertexData); // 传个方法进去
+
         const renderData = comp.renderData;
         renderData.textureDirty = true;
         // this._calDynamicAtlas(comp);
@@ -200,6 +203,26 @@ export const ttfUtils =  {
             const renderData = comp.renderData;
             renderData.updateRenderData(comp, comp.spriteFrame);
         }
+    },
+
+    // callBack function
+    generateVertexData (info: TextProcessData) {
+        const data = info.vertexBuffer; // 需要预先知道格式和长度，可以考虑只保存基础的 xyzuv
+
+        // 此后的部分处理会有区别，怎么对接？
+        const width = info._canvasSize.width;
+        const height = info._canvasSize.height;
+        const appX = info.uiTransAnchorX * width;
+        const appY = info.uiTransAnchorY * height;
+
+        data[0].x = -appX; // l
+        data[0].y = -appY; // b
+        data[1].x = width - appX; // r
+        data[1].y = -appY; // b
+        data[2].x = -appX; // l
+        data[2].y = height - appY; // t
+        data[3].x = width - appX; // r
+        data[3].y = height - appY; // t
     },
 
     updateVertexData (comp: Label) {

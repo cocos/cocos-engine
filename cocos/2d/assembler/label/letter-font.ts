@@ -42,6 +42,7 @@ export const letterFont = js.mixin(bmfontUtils, {
         return _shareAtlas.getTexture();
     },
 
+    // 分化实现
     _updateFontFamily (comp) {
         shareLabelInfo.fontAtlas = _shareAtlas;
         shareLabelInfo.fontFamily = this._getFontFamily(comp);
@@ -72,12 +73,14 @@ export const letterFont = js.mixin(bmfontUtils, {
         return fontFamily;
     },
 
+    // bmfont 分化
     _updateLabelInfo (comp) {
         shareLabelInfo.fontDesc = this._getFontDesc();
         shareLabelInfo.color = comp.color;
         shareLabelInfo.hash = computeHash(shareLabelInfo);
     },
 
+    // 分化实现
     _getFontDesc () {
         let fontDesc = `${shareLabelInfo.fontSize.toString()}px `;
         fontDesc += shareLabelInfo.fontFamily;
@@ -87,7 +90,9 @@ export const letterFont = js.mixin(bmfontUtils, {
 
         return fontDesc;
     },
+    // bmfont 分化
     _computeHorizontalKerningForText () {},
+    // bmfont 分化
     _determineRect (tempRect) {
         return false;
     },

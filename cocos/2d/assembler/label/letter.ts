@@ -54,6 +54,7 @@ export const letter = {
         fillMeshVertices3D(node, renderer, comp.renderData, tempColor);
     },
 
+    // 相同
     appendQuad: bmfont.appendQuad,
 
     updateColor (label: Label) {

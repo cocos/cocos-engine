@@ -25,7 +25,7 @@
 import { Material, Texture2D } from '../../../asset/assets';
 import { Color, Pool, Rect, Size, Vec2 } from '../../../core';
 import { Font, SpriteFrame } from '../../assets';
-import { FontAtlas } from '../../assets/bitmap-font';
+import { FontAtlas, IConfig } from '../../assets/bitmap-font';
 import { LetterAtlas } from './font-utils';
 import { IRenderData } from './text-processing';
 
@@ -40,7 +40,6 @@ export class TextProcessData {
     // 字体资源
     public _font: Font | null = null;
     public _fontFamily = 'Arial'; // ttf // fontFamily 只有名字不是资源
-    public declare _fontAtlas: FontAtlas | LetterAtlas | null; // 是否为 bmfont 资源
     public _isSystemFontUsed = false; // 用于处理标签
 
     // 字体表现效果
@@ -83,8 +82,6 @@ export class TextProcessData {
     public _maxWidth = 0;
     public _lineHeight = 10;
 
-    public _hash: string; // 处理器用于辨别图集使用的哈希值
-
     // Process Output
     public quadCount = 0;
     public vertexBuffer: IRenderData[] = [];// 数组
@@ -110,4 +107,35 @@ export class TextProcessData {
     // 还需要保存 anchor???
     public uiTransAnchorX = 0.5;
     public uiTransAnchorY = 0.5;
+
+    // =============================bitMap 额外需要的信息====================================
+    public isBmFont = false;
+
+    public declare _fntConfig: IConfig | null;
+    public declare _fontAtlas: FontAtlas | LetterAtlas | null; // 是否为 bmfont 资源 // 赋值有些问题//而且很可能会很卡
+    public declare _spriteFrame: SpriteFrame | null;//???
+
+    public _spacingX = 0;
+    public _originFontSize = 0;
+
+    public _hash = ''; // 处理器用于辨别图集使用的哈希值
+
+    // 只有在 char 模式中才不会为 0
+    public margin = 0;
+
+    public _bmfontScale = 1.0;
+
+    // bmfont 使用的临时变量，考虑下要不要
+    public _labelWidth = 0;
+    public _labelHeight = 0;
+    public _labelDimensions = new Size();
+    public _maxLineWidth = 0;
+
+    public _tailoredTopY = 0;
+    public _tailoredBottomY = 0;
+
+    public _horizontalKerning: number[] = []; // 临时变量，但是会跨函数
+
+    public _textDesiredHeight = 0; // 跨函数临时变量 // 存 data 不合适
+    public _linesWidth: number[] = []; // 跨函数临时变量 // 存 data 不合适
 }
