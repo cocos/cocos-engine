@@ -378,5 +378,9 @@ export class ParticleDataSet {
 
     clear () {
         this._count = 0;
+        this._parameters.length = 0;
+        this._parameterIds.fill(0);
+        this._parameterCount = 0;
+        this._parameterFlags.clear();
     }
 }

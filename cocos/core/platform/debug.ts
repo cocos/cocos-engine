@@ -203,12 +203,7 @@ export function _resetDebugSetting (mode: DebugMode) {
         ccAssert = (condition: any, message?: any, ...optionalParams: any[]) => {
             if (!condition) {
                 const errorText = formatString(message, ...optionalParams);
-                if (DEV) {
-                    // eslint-disable-next-line no-debugger
-                    debugger;
-                } else {
-                    throw new Error(errorText);
-                }
+                throw new Error(errorText);
             }
         };
     }

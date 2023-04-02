@@ -34,7 +34,7 @@ import { RandNumGen } from '../rand-num-gen';
 const tempVelocity = new Vec3();
 
 @ccclass('cc.AddSpeedInInitialDirectionModule')
-@ParticleModule.register('AddSpeedInInitialDirection', ModuleExecStage.SPAWN, [ParameterName.VELOCITY], [ParameterName.START_DIR])
+@ParticleModule.register('AddSpeedInInitialDirection', ModuleExecStage.SPAWN | ModuleExecStage.UPDATE, [ParameterName.VELOCITY], [ParameterName.START_DIR])
 export class AddSpeedInInitialDirectionModule extends ParticleModule {
     /**
       * @zh 粒子初始速度。

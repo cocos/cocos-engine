@@ -25,11 +25,14 @@ test('RNG', () => {
 
 test('Get signed float', () => {
     const rand = new RandNumGen();
+    const values: number[] = [];
     for (let i = 0; i < 100; i++) {
         const val = rand.getSignedFloat();
+        values.push(val);
         expect(val).toBeGreaterThan(-1);
         expect(val).toBeLessThan(1);
     }
+    expect(values.find((val) => val < 0)).not.toBeUndefined();
 });
 
 test ('Same seed RNG should produce same sequence', () => {

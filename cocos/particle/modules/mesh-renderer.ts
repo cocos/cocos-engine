@@ -25,14 +25,17 @@
 
 import { Mesh } from '../../3d';
 import { Color, Material, Quat, RenderingSubMesh, Vec2, Vec3, Vec4 } from '../../core';
-import { displayOrder, serializable, tooltip, type } from '../../core/data/decorators';
+import { ccclass, displayOrder, serializable, tooltip, type } from '../../core/data/decorators';
 import { BufferInfo, BufferUsageBit, deviceManager, DrawInfo, DRAW_INFO_SIZE, IndirectBuffer, MemoryUsageBit, Buffer, Attribute, FormatInfos, PrimitiveMode, AttributeName } from '../../core/gfx';
 import { MacroRecord } from '../../core/renderer';
 import { AlignmentSpace, Space } from '../enum';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
+import { ModuleExecStage, ParticleModule } from '../particle-module';
 import { CC_RENDER_MODE, CC_USE_WORLD_SPACE, meshColorRGBA8, meshNormal, meshPosition, meshUv, particleColor, particleFrameId, particlePosition, particleRotation, particleSize, particleVelocity, RendererModule, RENDER_MODE_MESH, ROTATION_OVER_TIME_MODULE_ENABLE } from './renderer';
 
+@ccclass('cc.MeshRendererModule')
+@ParticleModule.register('MeshRenderer', ModuleExecStage.RENDER)
 export class MeshRendererModule extends RendererModule {
     /**
      * @zh 粒子发射的模型。
@@ -65,7 +68,6 @@ export class MeshRendererModule extends RendererModule {
     ];
     private _renderScale = new Vec4();
     private _rotation = new Quat();
-    private _renderingSubMesh: RenderingSubMesh | null = null;
     private _insBuffers: Buffer[] = [];
     private declare _dynamicBuffer: Float32Array;
     private declare _dynamicBufferUintView: Uint32Array;

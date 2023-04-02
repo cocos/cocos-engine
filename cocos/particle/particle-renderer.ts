@@ -70,28 +70,40 @@ export class ParticleRenderer extends ModelRenderer {
         }
     }
 
-    public clear () {
-        if (this._model) this._model.enabled = false;
-    }
-
-    public getModel () {
-        return this._model;
-    }
-
     // internal function
     public updateRenderData () {
-        if (!this._emitter) return;
+        if (!this._emitter || !this._model) return;
         const { particles } = this._emitter;
         if (particles.count === 0) {
-            this._model!.enabled = false;
-        } else {
-            this._emitter.render();
-            const rendererModules = this._emitter.renderStage.modules;
-            for (let i = 0; i < rendererModules.length; i++) {
-                const module = rendererModules[i];
-                if (module instanceof RendererModule) {
-
+            this._model.enabled = false;
+            return;
+        }
+        const model = this._model;
+        const subModels = model.subModels;
+        this._emitter.render();
+        const rendererModules = this._emitter.renderStage.modules;
+        const materials = this._materials;
+        const materialInstances = this._materialInstances;
+        let subModelIndex = 0;
+        for (let i = 0, length = rendererModules.length; i < length; i++) {
+            const module = rendererModules[i];
+            if (!(module instanceof RendererModule) || !module.enabled) continue;
+            const { renderingSubMesh, material, sharedMaterial } = module;
+            if (renderingSubMesh && material) {
+                let materialDirty = false;
+                if (materialInstances[subModelIndex] !== material) {
+                    materials[subModelIndex] = sharedMaterial;
+                    materialInstances[subModelIndex] = material;
+                    materialDirty = true;
                 }
+                const subModel = subModels[subModelIndex];
+                if (!subModel) {
+                    model.initSubModel(subModelIndex, renderingSubMesh, material);
+                } else if (subModel.subMesh !== renderingSubMesh || materialDirty) {
+                    model.setSubModelMesh(i, renderingSubMesh);
+                    model.setSubModelMaterial(i, material);
+                }
+                subModelIndex++;
             }
         }
     }

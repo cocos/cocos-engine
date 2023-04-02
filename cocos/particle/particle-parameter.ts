@@ -22,14 +22,16 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { Color, Enum, Vec3 } from '../core';
+import { DEBUG } from 'internal:constants';
+import { assert, Color, Enum, Vec3 } from '../core';
 import { ccclass, serializable, type, visible } from '../core/data/decorators';
 import { ParticleHandle } from './particle-data-set';
 
 const DEFAULT_CAPACITY = 16;
 const tempColor = new Color();
-const BATCH_OPERATION_THRESHOLD_VEC3 = 330;
-const BATCH_OPERATION_THRESHOLD = 1000;
+const tempVec3 = new Vec3();
+export const BATCH_OPERATION_THRESHOLD_VEC3 = 330;
+export const BATCH_OPERATION_THRESHOLD = 1000;
 
 export enum ParticleParameterType {
     FLOAT,
@@ -108,6 +110,10 @@ export abstract class ParticleArrayParameter extends ParticleParameter {
         return true;
     }
 
+    get stride () {
+        return 1;
+    }
+
     protected _capacity = DEFAULT_CAPACITY;
     abstract reserve (capacity: number);
     abstract move (a: ParticleHandle, b: ParticleHandle);
@@ -122,20 +128,26 @@ export class ParticleVec3ArrayParameter extends ParticleArrayParameter {
         return ParticleParameterType.VEC3;
     }
 
+    get stride () {
+        return 3;
+    }
+
     private _data = new Float32Array(3 * this._capacity);
 
     static addSingle (out: Vec3, a: ParticleVec3ArrayParameter, b: ParticleVec3ArrayParameter, handle: ParticleHandle) {
-        const xOffset = handle * 3;
-        const yOffset = xOffset + 1;
-        const zOffset = yOffset + 1;
-        const aData = a.data;
-        const bData = b.data;
-        out.x = aData[xOffset] + bData[xOffset];
-        out.y = aData[yOffset] + bData[yOffset];
-        out.z = aData[zOffset] + bData[zOffset];
+        if (DEBUG) {
+            assert(handle < a._capacity && handle >= 0 && handle < b._capacity);
+        }
+        a.getVec3At(out, handle);
+        b.getVec3At(tempVec3, handle);
+        return Vec3.add(out, out, tempVec3);
     }
 
     static add (out: ParticleVec3ArrayParameter, a: ParticleVec3ArrayParameter, b: ParticleVec3ArrayParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+        if (DEBUG) {
+            assert(out._capacity === a._capacity && a._capacity === b._capacity
+                && toIndex <= out._capacity && fromIndex >= 0 && fromIndex <= toIndex);
+        }
         const aData = a.data;
         const bData = b.data;
         const outData = out.data;
@@ -145,6 +157,10 @@ export class ParticleVec3ArrayParameter extends ParticleArrayParameter {
     }
 
     static sub (out: ParticleVec3ArrayParameter, a: ParticleVec3ArrayParameter, b: ParticleVec3ArrayParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+        if (DEBUG) {
+            assert(out._capacity === a._capacity && a._capacity === b._capacity
+                && toIndex <= out._capacity && fromIndex >= 0 && fromIndex <= toIndex);
+        }
         const aData = a.data;
         const bData = b.data;
         const outData = out.data;
@@ -167,137 +183,210 @@ export class ParticleVec3ArrayParameter extends ParticleArrayParameter {
      * @param b the handle to be overwrite.
      */
     move (a: ParticleHandle, b: ParticleHandle) {
-        const aOffset = a * 3;
-        const bOffset = b * 3;
-        this._data[bOffset] = this._data[aOffset];
-        this._data[bOffset + 1] = this._data[aOffset + 1];
-        this._data[bOffset + 2] = this._data[aOffset + 2];
+        if (DEBUG) {
+            assert(a < this._capacity && a >= 0 && b < this._capacity && b >= 0);
+        }
+        this.setVec3At(this.getVec3At(tempVec3, a), b);
     }
 
     getXAt (handle: ParticleHandle) {
+        if (DEBUG) {
+            assert(handle < this._capacity && handle >= 0);
+        }
         const offset = handle * 3;
         return this._data[offset];
     }
 
     getYAt (handle: ParticleHandle) {
+        if (DEBUG) {
+            assert(handle < this._capacity && handle >= 0);
+        }
         const offset = handle * 3;
         return this._data[offset + 1];
     }
 
     getZAt (handle: ParticleHandle) {
+        if (DEBUG) {
+            assert(handle < this._capacity && handle >= 0);
+        }
         const offset = handle * 3;
         return this._data[offset + 2];
     }
 
     getVec3At (out: Vec3, handle: ParticleHandle) {
+        if (DEBUG) {
+            assert(handle < this._capacity && handle >= 0);
+        }
         const offset = handle * 3;
-        out.x = this._data[offset];
-        out.y = this._data[offset + 1];
-        out.z = this._data[offset + 2];
+        const data = this._data;
+        out.x = data[offset];
+        out.y = data[offset + 1];
+        out.z = data[offset + 2];
         return out;
     }
 
     setVec3At (val: Vec3, handle: ParticleHandle) {
+        if (DEBUG) {
+            assert(handle < this._capacity && handle >= 0);
+        }
         const offset = handle * 3;
-        this._data[offset] = val.x;
-        this._data[offset + 1] = val.y;
-        this._data[offset + 2] = val.z;
+        const data = this._data;
+        data[offset] = val.x;
+        data[offset + 1] = val.y;
+        data[offset + 2] = val.z;
     }
 
     set3fAt (x: number, y: number, z: number, handle: ParticleHandle) {
+        if (DEBUG) {
+            assert(handle < this._capacity && handle >= 0);
+        }
         const offset = handle * 3;
-        this._data[offset] = x;
-        this._data[offset + 1] = y;
-        this._data[offset + 2] = z;
+        const data = this._data;
+        data[offset] = x;
+        data[offset + 1] = y;
+        data[offset + 2] = z;
     }
 
     setXAt (val: number, handle: ParticleHandle) {
+        if (DEBUG) {
+            assert(handle < this._capacity && handle >= 0);
+        }
         const offset = handle * 3;
         this._data[offset] = val;
     }
 
     setYAt (val: number, handle: ParticleHandle) {
+        if (DEBUG) {
+            assert(handle < this._capacity && handle >= 0);
+        }
         const offset = handle * 3;
         this._data[offset + 1] = val;
     }
 
     setZAt (val: number, handle: ParticleHandle) {
+        if (DEBUG) {
+            assert(handle < this._capacity && handle >= 0);
+        }
         const offset = handle * 3;
         this._data[offset + 2] = val;
     }
 
     set1fAt (val: number, handle: ParticleHandle) {
+        if (DEBUG) {
+            assert(handle < this._capacity && handle >= 0);
+        }
         const offset = handle * 3;
-        this._data[offset] = val;
-        this._data[offset + 1] = val;
-        this._data[offset + 2] = val;
+        const data = this._data;
+        data[offset] = val;
+        data[offset + 1] = val;
+        data[offset + 2] = val;
     }
 
     addVec3At (val: Vec3, handle: ParticleHandle) {
+        if (DEBUG) {
+            assert(handle < this._capacity && handle >= 0);
+        }
         const offset = handle * 3;
-        this._data[offset] += val.x;
-        this._data[offset + 1] += val.y;
-        this._data[offset + 2] += val.z;
+        const data = this._data;
+        data[offset] += val.x;
+        data[offset + 1] += val.y;
+        data[offset + 2] += val.z;
     }
 
     subVec3At (val: Vec3, handle: ParticleHandle) {
+        if (DEBUG) {
+            assert(handle < this._capacity && handle >= 0);
+        }
         const offset = handle * 3;
-        this._data[offset] -= val.x;
-        this._data[offset + 1] -= val.y;
-        this._data[offset + 2] -= val.z;
+        const data = this._data;
+        data[offset] -= val.x;
+        data[offset + 1] -= val.y;
+        data[offset + 2] -= val.z;
     }
 
     add3fAt (x: number, y: number, z: number, handle: ParticleHandle) {
+        if (DEBUG) {
+            assert(handle < this._capacity && handle >= 0);
+        }
         const offset = handle * 3;
-        this._data[offset] += x;
-        this._data[offset + 1] += y;
-        this._data[offset + 2] += z;
+        const data = this._data;
+        data[offset] += x;
+        data[offset + 1] += y;
+        data[offset + 2] += z;
     }
 
     addXAt (val: number, handle: ParticleHandle) {
+        if (DEBUG) {
+            assert(handle < this._capacity && handle >= 0);
+        }
         const offset = handle * 3;
         this._data[offset] += val;
     }
 
     addYAt (val: number, handle: ParticleHandle) {
+        if (DEBUG) {
+            assert(handle < this._capacity && handle >= 0);
+        }
         const offset = handle * 3;
         this._data[offset + 1] += val;
     }
 
     addZAt (val: number, handle: ParticleHandle) {
+        if (DEBUG) {
+            assert(handle < this._capacity && handle >= 0);
+        }
         const offset = handle * 3;
         this._data[offset + 2] += val;
     }
 
     multiplyVec3At (val: Vec3, handle: ParticleHandle) {
+        if (DEBUG) {
+            assert(handle < this._capacity && handle >= 0);
+        }
         const offset = handle * 3;
-        this._data[offset] *= val.x;
-        this._data[offset + 1] *= val.y;
-        this._data[offset + 2] *= val.z;
+        const data = this._data;
+        data[offset] *= val.x;
+        data[offset + 1] *= val.y;
+        data[offset + 2] *= val.z;
     }
 
     multiply3fAt (x: number, y: number, z: number, handle: ParticleHandle) {
+        if (DEBUG) {
+            assert(handle < this._capacity && handle >= 0);
+        }
         const offset = handle * 3;
-        this._data[offset] *= x;
-        this._data[offset + 1] *= y;
-        this._data[offset + 2] *= z;
+        const data = this._data;
+        data[offset] *= x;
+        data[offset + 1] *= y;
+        data[offset + 2] *= z;
     }
 
     multiply1fAt (val: number, handle: ParticleHandle) {
+        if (DEBUG) {
+            assert(handle < this._capacity && handle >= 0);
+        }
         const offset = handle * 3;
-        this._data[offset] *= val;
-        this._data[offset + 1] *= val;
-        this._data[offset + 2] *= val;
+        const data = this._data;
+        data[offset] *= val;
+        data[offset + 1] *= val;
+        data[offset + 2] *= val;
     }
 
     add1fAt (val: number, handle: ParticleHandle) {
+        if (DEBUG) {
+            assert(handle < this._capacity && handle >= 0);
+        }
         const offset = handle * 3;
-        this._data[offset] += val;
-        this._data[offset + 1] += val;
-        this._data[offset + 2] += val;
+        const data = this._data;
+        data[offset] += val;
+        data[offset + 1] += val;
+        data[offset + 2] += val;
     }
 
     copyFrom (src: ParticleVec3ArrayParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+        if (DEBUG) {
+            assert(this._capacity === src._capacity && toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
+        }
         if ((toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD_VEC3) {
             this._data.set(src._data.subarray(fromIndex * 3, toIndex * 3), fromIndex * 3);
         } else {
@@ -310,6 +399,9 @@ export class ParticleVec3ArrayParameter extends ParticleArrayParameter {
     }
 
     fill1f (val: number, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+        if (DEBUG) {
+            assert(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
+        }
         if (toIndex - fromIndex > BATCH_OPERATION_THRESHOLD_VEC3) {
             this._data.fill(val, fromIndex * 3, toIndex * 3);
         } else {
@@ -321,6 +413,9 @@ export class ParticleVec3ArrayParameter extends ParticleArrayParameter {
     }
 
     fill (val: Vec3, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+        if (DEBUG) {
+            assert(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
+        }
         const data = this._data;
         const x = val.x;
         const y = val.y;

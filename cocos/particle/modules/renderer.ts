@@ -61,6 +61,7 @@ export abstract class RendererModule extends ParticleModule {
         if (this._sharedMaterial !== val) {
             this._sharedMaterial = val;
             this._material = null;
+            this._isMaterialDirty = true;
         }
     }
 
@@ -75,6 +76,7 @@ export abstract class RendererModule extends ParticleModule {
         if (this._material !== val) {
             this._material = val;
             this._sharedMaterial = null;
+            this._isMaterialDirty = true;
         }
     }
 
@@ -82,6 +84,7 @@ export abstract class RendererModule extends ParticleModule {
         return this._renderingSubMesh;
     }
 
+    protected _isMaterialDirty = false;
     protected _renderingSubMesh: RenderingSubMesh | null = null;
     @serializable
     private _sharedMaterial: Material | null = null;
