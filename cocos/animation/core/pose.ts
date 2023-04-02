@@ -104,7 +104,9 @@ export function blendTransformsInto (
             blendIntoTransformArrayAt(target, source, alpha, iTransform);
         }
     } else {
-        for (const involvedTransformIndex of transformFilter.involvedTransforms) {
+        // NOTE: cannot use for-of statement for Readonly ArrayBuffer on TS 4.2 for OH platform, wait for they upgrade ts version.
+        for (let index = 0; index < transformFilter.involvedTransforms.length; ++index) {
+            const involvedTransformIndex = transformFilter.involvedTransforms[index];
             blendIntoTransformArrayAt(target, source, alpha, involvedTransformIndex);
         }
     }
@@ -113,7 +115,9 @@ export function blendTransformsInto (
 function copyTransformsWithFilter (target: TransformArray, source: Readonly<TransformArray>, filter: TransformFilter) {
     const nTransforms = target.length;
     assertIsTrue(nTransforms === target.length);
-    for (const involvedTransformIndex of filter.involvedTransforms) {
+    // NOTE: cannot use for-of statement for Readonly ArrayBuffer on TS 4.2 for OH platform, wait for they upgrade ts version.
+    for (let index = 0; index < filter.involvedTransforms.length; ++index) {
+        const involvedTransformIndex = filter.involvedTransforms[index];
         target.copyRange(involvedTransformIndex, source, involvedTransformIndex, 1);
     }
 }
@@ -195,7 +199,9 @@ export function applyDeltaTransforms (
             applyDeltaTransformArrayAt(target, delta, alpha, iTransform);
         }
     } else {
-        for (const transformIndex of transformFilter.involvedTransforms) {
+        // NOTE: cannot use for-of statement for Readonly ArrayBuffer on TS 4.2 for OH platform, wait for they upgrade ts version.
+        for (let index = 0; index < transformFilter.involvedTransforms.length; ++index) {
+            const transformIndex = transformFilter.involvedTransforms[index];
             applyDeltaTransformArrayAt(target, delta, alpha, transformIndex);
         }
     }

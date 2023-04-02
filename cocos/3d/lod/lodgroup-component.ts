@@ -248,7 +248,7 @@ export class LODGroup extends Component {
     /**
      * @engineInternal
      */
-    set localBoundaryCenter (val: Vec3) {
+    set localBoundaryCenter (val: Readonly<Vec3>) {
         this._localBoundaryCenter.set(val);
         this._lodGroup.localBoundaryCenter = val;
     }
