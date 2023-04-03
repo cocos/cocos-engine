@@ -25,7 +25,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
 import { PhysicsMaterial, PhysicsRayResult, CollisionEventType, TriggerEventType, CharacterControllerContact } from '../framework';
-import { error, RecyclePool, js, IVec3Like, geometry } from '../../core';
+import { error, RecyclePool, js, IVec3Like, geometry, Vec3 } from '../../core';
 import { IBaseConstraint } from '../spec/i-physics-constraint';
 import { PhysXRigidBody } from './physx-rigid-body';
 import {
@@ -174,6 +174,7 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
         gatherEvents(this);
         PhysXCallback.emitTriggerEvent();
         PhysXCallback.emitCollisionEvent();
+        PhysXCallback.emitCCTShapeEvent();
     }
 }
 
@@ -202,6 +203,9 @@ const triggerEventsPool: ITriggerEventItem[] = [];
 const contactEventDic = new TupleDictionary();
 const contactEventsPool: ICollisionEventItem[] = [];
 const contactsPool: [] = [];
+const cctShapeEventDic = new TupleDictionary();
+const emitHit = new CharacterControllerContact();
+
 const PhysXCallback = {
     eventCallback: {
         onContactBegin: (a: any, b: any, c: any, d: any, o: number): void => {
@@ -391,16 +395,20 @@ const PhysXCallback = {
     },
     controllerHitReportCB: {
         onShapeHit (hit: PX.PxControllerShapeHit): void {
-            const cct = getWrapShape<PhysXCharacterController>(hit.getCurrentController()).characterController;
-            const collider = getWrapShape<PhysXShape>(hit.getTouchedShape()).collider;
-            const emitHit = new CharacterControllerContact();
-            emitHit.selfCCT = cct;
-            emitHit.otherCollider = collider;
-            emitHit.worldPosition.set(hit.worldPos.x, hit.worldPos.y, hit.worldPos.z);
-            emitHit.worldNormal.set(hit.worldNormal.x, hit.worldNormal.y, hit.worldNormal.z);
-            emitHit.motionDirection.set(hit.dir.x, hit.dir.y, hit.dir.z);
-            emitHit.motionLength = hit.length;
-            cct?.emit('onColliderHit', cct, collider, emitHit);
+            const cct = getWrapShape<PhysXCharacterController>(hit.getCurrentController());
+            const s = getWrapShape<PhysXShape>(hit.getTouchedShape());
+            let item = cctShapeEventDic.get<any>(hit.getCurrentController(), hit.getTouchedShape());
+            if (!item) {
+                const worldPos = new Vec3();
+                worldPos.set(hit.worldPos.x, hit.worldPos.y, hit.worldPos.z);
+                const worldNormal = new Vec3();
+                worldNormal.set(hit.worldNormal.x, hit.worldNormal.y, hit.worldNormal.z);
+                const motionDir = new Vec3();
+                motionDir.set(hit.dir.x, hit.dir.y, hit.dir.z);
+                const motionLength = hit.length;
+                item = cctShapeEventDic.set(hit.getCurrentController(), hit.getTouchedShape(),
+                    { PhysXCharacterController: cct, PhysXShape: s, worldPos, worldNormal, motionDir, motionLength });
+            }
         },
         onControllerHit (hit: PX.PxControllersHit): void {
             // todo
@@ -413,5 +421,24 @@ const PhysXCallback = {
             // emitHit.motionLength = hit.length;
             // cct?.emit('onControllerHit', cct, otherCct, emitHit);
         },
+    },
+    emitCCTShapeEvent (): void {
+        let dicL = cctShapeEventDic.getLength();
+        while (dicL--) {
+            const key = cctShapeEventDic.getKeyByIndex(dicL);
+            const data = cctShapeEventDic.getDataByKey<any>(key);
+            const cct = data.PhysXCharacterController.characterController;
+            const collider = data.PhysXShape.collider;
+            if (cct && cct.isValid && collider && collider.isValid) {
+                emitHit.selfCCT = cct;
+                emitHit.otherCollider = collider;
+                emitHit.worldPosition.set(data.worldPos);
+                emitHit.worldNormal.set(data.worldNormal);
+                emitHit.motionDirection.set(data.motionDir);
+                emitHit.motionLength = data.motionLength;
+                cct.emit('onColliderHit', cct, collider, emitHit);
+            }
+        }
+        cctShapeEventDic.reset();
     },
 };

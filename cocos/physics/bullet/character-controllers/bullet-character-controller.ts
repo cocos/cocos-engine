@@ -38,7 +38,6 @@ import { BulletRigidBody } from '../bullet-rigid-body';
 const v3_0 = new Vec3(0, 0, 0);
 const v3_1 = new Vec3(0, 0, 0);
 const v3_2 = new Vec3(0, 0, 0);
-const emitHit = new CharacterControllerContact();
 export abstract class BulletCharacterController implements IBaseCharacterController {
     private _isEnabled = false;
     protected _impl: any = null;
@@ -246,25 +245,21 @@ export abstract class BulletCharacterController implements IBaseCharacterControl
     }
 
     onShapeHitExt (hit: number) {
-        const worldPos = v3_0;
-        bullet2CocosVec3(worldPos, bt.ControllerHit_getHitWorldPos(hit));
-        const worldNormal = v3_1;
-        bullet2CocosVec3(worldNormal, bt.ControllerHit_getHitWorldNormal(hit));
-        const motionDir = v3_2;
-        bullet2CocosVec3(motionDir, bt.ControllerHit_getHitMotionDir(hit));
         const shapePtr = bt.ControllerShapeHit_getHitShape(hit);
-        const shape: BulletShape = BulletCache.getWrapper(shapePtr, BulletShape.TYPE);
-        const motionLength = bt.ControllerHit_getHitMotionLength(hit);
-
-        const cct = this.characterController;
-        const collider = shape.collider;
-
-        emitHit.selfCCT = cct;
-        emitHit.otherCollider = collider;
-        emitHit.worldPosition.set(worldPos.x, worldPos.y, worldPos.z);
-        emitHit.worldNormal.set(worldNormal.x, worldNormal.y, worldNormal.z);
-        emitHit.motionDirection.set(motionDir.x, motionDir.y, motionDir.z);
-        emitHit.motionLength = motionLength;
-        cct?.emit('onColliderHit', cct, collider, emitHit);
+        const bulletWorld = (PhysicsSystem.instance.physicsWorld as BulletWorld);
+        //use characterController impl and shape impl pair as key
+        let item = bulletWorld.cctShapeEventDic.get<any>(this.impl, shapePtr);
+        if (!item) {
+            const worldPos = new Vec3();
+            bullet2CocosVec3(worldPos, bt.ControllerHit_getHitWorldPos(hit));
+            const worldNormal = new Vec3();
+            bullet2CocosVec3(worldNormal, bt.ControllerHit_getHitWorldNormal(hit));
+            const motionDir = new Vec3();
+            bullet2CocosVec3(motionDir, bt.ControllerHit_getHitMotionDir(hit));
+            const motionLength = bt.ControllerHit_getHitMotionLength(hit);
+            const s: BulletShape = BulletCache.getWrapper(shapePtr, BulletShape.TYPE);
+            item = bulletWorld.cctShapeEventDic.set(this.impl, shapePtr,
+                { BulletCharacterController: this, BulletShape: s, worldPos, worldNormal, motionDir, motionLength });
+        }
     }
 }
