@@ -24,7 +24,7 @@
 */
 
 import { ccclass, help, executionOrder, menu, tooltip, type, visible, override, editable, serializable } from 'cc.decorator';
-import { JSB } from 'internal:constants';
+import { JSB, OPEN_HARMONY } from 'internal:constants';
 import { builtinResMgr } from '../../asset/asset-manager';
 import { InstanceMaterialType, UIRenderer } from '../framework/ui-renderer';
 import { director } from '../../game/director';
@@ -238,7 +238,10 @@ export class Graphics extends UIRenderer {
         super();
         this._instanceMaterialType = InstanceMaterialType.ADD_COLOR;
         this.impl = new Impl(this);
-        if (JSB) {
+        // TODO: there is still a crash on OH platform when we instantiate NativeUIModelProxy.
+        // for now we cannot use Graphics component on OH platform.
+        // issue: https://github.com/cocos/cocos-engine/issues/14711
+        if (JSB && !OPEN_HARMONY) {
             this._graphicsNativeProxy = new NativeUIModelProxy();
         }
     }
