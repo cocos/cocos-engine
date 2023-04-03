@@ -77,7 +77,6 @@ export class Settings {
         if (!path) return Promise.resolve();
 
         if (window.oh) {
-            // TODO(qgh):OpenHarmony temporarily does not support reading json that is not in the resource directory
             return new Promise((resolve, reject) => {
                 // TODO: to support a virtual module of settings.
                 // For now, we use a system module context to dynamically import the relative path of module.
