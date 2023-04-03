@@ -104,7 +104,8 @@ export function blendTransformsInto (
             blendIntoTransformArrayAt(target, source, alpha, iTransform);
         }
     } else {
-        // NOTE: cannot use for-of statement for Readonly ArrayBuffer on TS 4.2 for OH platform, wait for they upgrade ts version.
+        // TODO: cannot use for-of statement for Readonly ArrayBuffer on TS 4.2 for OH platform, wait for they upgrade TS version.
+        // issue: https://github.com/cocos/cocos-engine/issues/14715
         for (let index = 0; index < transformFilter.involvedTransforms.length; ++index) {
             const involvedTransformIndex = transformFilter.involvedTransforms[index];
             blendIntoTransformArrayAt(target, source, alpha, involvedTransformIndex);
@@ -115,7 +116,8 @@ export function blendTransformsInto (
 function copyTransformsWithFilter (target: TransformArray, source: Readonly<TransformArray>, filter: TransformFilter) {
     const nTransforms = target.length;
     assertIsTrue(nTransforms === target.length);
-    // NOTE: cannot use for-of statement for Readonly ArrayBuffer on TS 4.2 for OH platform, wait for they upgrade ts version.
+    // TODO: cannot use for-of statement for Readonly ArrayBuffer on TS 4.2 for OH platform, wait for they upgrade TS version.
+    // issue: https://github.com/cocos/cocos-engine/issues/14715
     for (let index = 0; index < filter.involvedTransforms.length; ++index) {
         const involvedTransformIndex = filter.involvedTransforms[index];
         target.copyRange(involvedTransformIndex, source, involvedTransformIndex, 1);
@@ -199,7 +201,8 @@ export function applyDeltaTransforms (
             applyDeltaTransformArrayAt(target, delta, alpha, iTransform);
         }
     } else {
-        // NOTE: cannot use for-of statement for Readonly ArrayBuffer on TS 4.2 for OH platform, wait for they upgrade ts version.
+        // TODO: cannot use for-of statement for Readonly ArrayBuffer on TS 4.2 for OH platform, wait for they upgrade TS version.
+        // issue: https://github.com/cocos/cocos-engine/issues/14715
         for (let index = 0; index < transformFilter.involvedTransforms.length; ++index) {
             const transformIndex = transformFilter.involvedTransforms[index];
             applyDeltaTransformArrayAt(target, delta, alpha, transformIndex);
