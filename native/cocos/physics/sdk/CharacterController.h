@@ -67,5 +67,11 @@ namespace physics {
         void setRadius(float v) override;
         void setHeight(float v) override;
         };
+
+        CC_PHYSICS_CCT_CLASS(BoxCharacterController)
+        void setHalfHeight(float v) override;
+        void setHalfSideExtent(float v) override;
+        void setHalfForwardExtent(float v) override;
+};
 }; // namespace physics
 } // namespace cc

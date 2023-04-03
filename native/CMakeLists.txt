@@ -1899,6 +1899,8 @@ if(USE_PHYSICS_PHYSX)
         cocos/physics/physx/character-controllers/PhysXCharacterController.cpp
 		cocos/physics/physx/character-controllers/PhysXCapsuleCharacterController.h
         cocos/physics/physx/character-controllers/PhysXCapsuleCharacterController.cpp
+		cocos/physics/physx/character-controllers/PhysXBoxCharacterController.h
+        cocos/physics/physx/character-controllers/PhysXBoxCharacterController.cpp
     )
     cocos_source_files(
         NO_WERROR NO_UBUILD ${SWIG_OUTPUT}/jsb_physics_auto.cpp

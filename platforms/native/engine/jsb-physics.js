@@ -760,6 +760,19 @@ class CapsuleCharacterController extends CharacterController {
     }
 }
 
+class BoxCharacterController extends CharacterController {
+    constructor () { super(); this._impl = new jsbPhy.BoxCharacterController(); }
+    setHalfHeight (v) { this._impl.setHalfHeight(v); }
+    setHalfSideExtent (v) { this._impl.setHalfSideExtent(v); }
+    setHalfForwardExtent (v) { this._impl.setHalfForwardExtent(v); }
+    onLoad () {
+        super.onLoad();
+        this.setHalfHeight(this._com.halfHeight);
+        this.setHalfSideExtent(this._com.halfSideExtent);
+        this.setHalfForwardExtent(this._com.halfForwardExtent);
+    }
+}
+
 cc.physics.selector.register('physx', {
     PhysicsWorld,
     RigidBody,
@@ -775,4 +788,5 @@ cc.physics.selector.register('physx', {
     HingeConstraint: RevoluteJoint,
     FixedConstraint: FixedJoint,
     CapsuleCharacterController,
+	BoxCharacterController,
 });

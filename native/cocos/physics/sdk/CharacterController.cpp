@@ -128,6 +128,7 @@ namespace physics {
 
 /// COMMON ///
 CC_PHYSICS_CCT_DEFINITION(CapsuleCharacterController, WrappedCapsuleCharacterController)
+CC_PHYSICS_CCT_DEFINITION(BoxCharacterController, WrappedBoxCharacterController)
 
 /// EXTRAS ///
 
@@ -137,6 +138,18 @@ void CapsuleCharacterController::setRadius(float v) {
 
 void CapsuleCharacterController::setHeight(float v) {
     _impl->setHeight(v);
+}
+
+void BoxCharacterController::setHalfHeight(float v) {
+    _impl->setHalfHeight(v);
+}
+
+void BoxCharacterController::setHalfSideExtent(float v) {
+    _impl->setHalfSideExtent(v);
+}
+
+void BoxCharacterController::setHalfForwardExtent(float v) {
+    _impl->setHalfForwardExtent(v);
 }
 
 } // namespace physics
