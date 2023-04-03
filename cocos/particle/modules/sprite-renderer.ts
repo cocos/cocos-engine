@@ -22,7 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { Enum, Material, Quat, RenderingSubMesh, Vec3, Vec4, Vec2 } from '../../core';
+import { Enum, Material, Quat, RenderingSubMesh, Vec3, Vec4, Vec2, Color } from '../../core';
 import { ccclass, displayName, displayOrder, serializable, tooltip, type, visible } from '../../core/data/decorators';
 import { Attribute, Buffer, AttributeName, BufferInfo, BufferUsageBit, deviceManager, DrawInfo, DRAW_INFO_SIZE, Format, FormatInfos, IndirectBuffer, MemoryUsageBit, PrimitiveMode } from '../../core/gfx';
 import { MacroRecord, MaterialInstance } from '../../core/renderer';
@@ -112,20 +112,12 @@ export class SpriteRendererModule extends RendererModule {
     private _subUVTilesAndVelLenScale = new Vec4(1, 1, 1, 1);
     private _isSubUVTilesAndVelLenScaleDirty = true;
     private _defines: MacroRecord = {};
-    private _vertexStreamAttributes = [meshPosition, meshUv, particlePosition, particleRotation, particleSize, particleFrameId, particleColor, particleVelocity];
     private _renderScale = new Vec4();
     private _rotation = new Quat();
-    private _insBuffers: Buffer[] = [];
-    private declare _dynamicBuffer: Float32Array;
+    private declare _dynamicBuffer: Buffer;
+    private declare _dynamicBufferFloatView: Float32Array;
     private declare _dynamicBufferUintView: Uint32Array;
     private _vertexStreamSize = 0;
-    private _iaInfo = new IndirectBuffer([new DrawInfo()]);
-    private _iaInfoBuffer = deviceManager.gfxDevice.createBuffer(new BufferInfo(
-        BufferUsageBit.INDIRECT,
-        MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
-        DRAW_INFO_SIZE,
-        DRAW_INFO_SIZE,
-    ));
 
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         const material = this.material;
@@ -139,9 +131,9 @@ export class SpriteRendererModule extends RendererModule {
         this._updateRenderScale(material, particles, params, context);
         this._updateRenderingSubMesh(material, particles, params, context);
         this._isMaterialDirty = false;
-        const dynamicBuffer = this._dynamicBuffer;
+        const dynamicBufferFloatView = this._dynamicBufferFloatView;
         const dynamicBufferUintView = this._dynamicBufferUintView;
-        const vertexStreamSizeDynamic = this._vertexStreamSize;
+        const vertexStreamSizeDynamic = this._vertexStreamSize / 4;
         if (particles.hasParameter(BuiltinParticleParameter.POSITION)) {
             const position = particles.position.data;
             for (let i = 0; i < count; i++) {
@@ -149,9 +141,9 @@ export class SpriteRendererModule extends RendererModule {
                 const xOffset = i * 3;
                 const yOffset = xOffset + 1;
                 const zOffset = yOffset + 1;
-                dynamicBuffer[offset] = position[xOffset];
-                dynamicBuffer[offset + 1] = position[yOffset];
-                dynamicBuffer[offset + 2] = position[zOffset];
+                dynamicBufferFloatView[offset] = position[xOffset];
+                dynamicBufferFloatView[offset + 1] = position[yOffset];
+                dynamicBufferFloatView[offset + 2] = position[zOffset];
             }
         }
         if (particles.hasParameter(BuiltinParticleParameter.ROTATION)) {
@@ -161,9 +153,9 @@ export class SpriteRendererModule extends RendererModule {
                 const xOffset = i * 3;
                 const yOffset = xOffset + 1;
                 const zOffset = yOffset + 1;
-                dynamicBuffer[offset + 3] = rotation[xOffset];
-                dynamicBuffer[offset + 4] = rotation[yOffset];
-                dynamicBuffer[offset + 5] = rotation[zOffset];
+                dynamicBufferFloatView[offset + 3] = rotation[xOffset];
+                dynamicBufferFloatView[offset + 4] = rotation[yOffset];
+                dynamicBufferFloatView[offset + 5] = rotation[zOffset];
             }
         }
         if (particles.hasParameter(BuiltinParticleParameter.SIZE)) {
@@ -173,25 +165,38 @@ export class SpriteRendererModule extends RendererModule {
                 const xOffset = i * 3;
                 const yOffset = xOffset + 1;
                 const zOffset = yOffset + 1;
-                dynamicBuffer[offset + 6] = size[xOffset];
-                dynamicBuffer[offset + 7] = size[yOffset];
-                dynamicBuffer[offset + 8] = size[zOffset];
+                dynamicBufferFloatView[offset + 6] = size[xOffset];
+                dynamicBufferFloatView[offset + 7] = size[yOffset];
+                dynamicBufferFloatView[offset + 8] = size[zOffset];
             }
-        }
-        if (particles.hasParameter(BuiltinParticleParameter.FRAME_INDEX)) {
-            const frameIndex = particles.frameIndex.data;
+        } else {
             for (let i = 0; i < count; i++) {
                 const offset = i * vertexStreamSizeDynamic;
-                dynamicBuffer[offset + 9] = frameIndex[i];
+                dynamicBufferFloatView[offset + 6] = 1;
+                dynamicBufferFloatView[offset + 7] = 1;
+                dynamicBufferFloatView[offset + 8] = 1;
             }
         }
         if (particles.hasParameter(BuiltinParticleParameter.COLOR)) {
             const color = particles.color.data;
             for (let i = 0; i < count; i++) {
                 const offset = i * vertexStreamSizeDynamic;
-                dynamicBufferUintView[offset + 10] = color[i];
+                dynamicBufferUintView[offset + 9] = color[i];
+            }
+        } else {
+            for (let i = 0; i < count; i++) {
+                const offset = i * vertexStreamSizeDynamic;
+                dynamicBufferUintView[offset + 9] = Color.WHITE._val;
             }
         }
+        if (particles.hasParameter(BuiltinParticleParameter.FRAME_INDEX)) {
+            const frameIndex = particles.frameIndex.data;
+            for (let i = 0; i < count; i++) {
+                const offset = i * vertexStreamSizeDynamic;
+                dynamicBufferFloatView[offset + 10] = frameIndex[i];
+            }
+        }
+
         if (particles.hasParameter(BuiltinParticleParameter.VELOCITY)) {
             const { velocity } = particles;
             const velocityData = velocity.data;
@@ -200,19 +205,20 @@ export class SpriteRendererModule extends RendererModule {
                 const xOffset = i * 3;
                 const yOffset = xOffset + 1;
                 const zOffset = yOffset + 1;
-                dynamicBuffer[offset + 11] += velocityData[xOffset];
-                dynamicBuffer[offset + 12] += velocityData[yOffset];
-                dynamicBuffer[offset + 13] += velocityData[zOffset];
+                dynamicBufferFloatView[offset + 11] += velocityData[xOffset];
+                dynamicBufferFloatView[offset + 12] += velocityData[yOffset];
+                dynamicBufferFloatView[offset + 13] += velocityData[zOffset];
             }
         }
-        this._insBuffers[1].update(dynamicBuffer); // update dynamic buffer
+        this._dynamicBuffer.update(dynamicBufferFloatView); // update dynamic buffer
     }
 
     private _updateSubUvTilesAndVelocityLengthScale (material: Material, particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
-        if (!this._isSubUVTilesAndVelLenScaleDirty || !this._isMaterialDirty) {
+        if (!this._isSubUVTilesAndVelLenScaleDirty && !this._isMaterialDirty) {
             return;
         }
         material.setProperty('frameTile_velLenScale', this._subUVTilesAndVelLenScale);
+        this._isSubUVTilesAndVelLenScaleDirty = false;
     }
 
     private _updateRotation (material: Material, particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
@@ -287,18 +293,19 @@ export class SpriteRendererModule extends RendererModule {
 
     private _updateAttributes (material: Material, particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         let vertexStreamSizeDynamic = 0;
-        const vertexStreamAttributes = this._vertexStreamAttributes;
+        const vertexStreamAttributes = [meshPosition, meshUv, particlePosition, particleRotation, particleSize, particleColor, particleFrameId, particleVelocity];
         for (let i = 0, length = vertexStreamAttributes.length; i < length; i++) {
             if (vertexStreamAttributes[i].stream === 1) {
                 vertexStreamSizeDynamic += FormatInfos[vertexStreamAttributes[i].format].size;
             }
         }
         this._vertexStreamSize = vertexStreamSizeDynamic;
+        return vertexStreamAttributes;
     }
 
     private _updateRenderingSubMesh (material: Material, particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         if (!this._renderingSubMesh) {
-            this._updateAttributes(material, particles, params, context);
+            const vertexStreamAttributes = this._updateAttributes(material, particles, params, context);
             const vertexStreamSizeStatic = 24;
             const vertexBuffer = deviceManager.gfxDevice.createBuffer(new BufferInfo(
                 BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
@@ -320,20 +327,19 @@ export class SpriteRendererModule extends RendererModule {
                 this._vertexStreamSize * particles.capacity,
                 this._vertexStreamSize,
             ));
-            this._dynamicBuffer = new Float32Array(new ArrayBuffer(particles.capacity * this._vertexStreamSize));
-            this._dynamicBufferUintView = new Uint32Array(this._dynamicBuffer.buffer);
-            this._insBuffers.push(vertexBuffer);
-            this._insBuffers.push(dynamicBuffer);
-            this._iaInfo.drawInfos[0].vertexCount = 4;
-            this._iaInfo.drawInfos[0].indexCount = 6;
-            this._iaInfoBuffer.update(this._iaInfo);
-            this._renderingSubMesh = new RenderingSubMesh(this._insBuffers, this._vertexStreamAttributes,
-                PrimitiveMode.TRIANGLE_LIST, indexBuffer, this._iaInfoBuffer);
+            this._dynamicBufferFloatView = new Float32Array(new ArrayBuffer(particles.capacity * this._vertexStreamSize));
+            this._dynamicBufferUintView = new Uint32Array(this._dynamicBufferFloatView.buffer);
+            this._dynamicBuffer = dynamicBuffer;
+            this._renderingSubMesh = new RenderingSubMesh([vertexBuffer, dynamicBuffer], vertexStreamAttributes,
+                PrimitiveMode.TRIANGLE_LIST, indexBuffer);
+            this._vertexCount = 4;
+            this._indexCount = 6;
         }
-        if (this._dynamicBuffer.byteLength !== particles.capacity * this._vertexStreamSize) {
-            this._dynamicBuffer = new Float32Array(new ArrayBuffer(particles.capacity * this._vertexStreamSize));
-            this._dynamicBufferUintView = new Uint32Array(this._dynamicBuffer.buffer);
-            this._insBuffers[1].resize(particles.capacity * this._vertexStreamSize);
+        if (this._dynamicBufferFloatView.byteLength !== particles.capacity * this._vertexStreamSize) {
+            this._dynamicBufferFloatView = new Float32Array(new ArrayBuffer(particles.capacity * this._vertexStreamSize));
+            this._dynamicBufferUintView = new Uint32Array(this._dynamicBufferFloatView.buffer);
+            this._dynamicBuffer.resize(particles.capacity * this._vertexStreamSize);
         }
+        this._instanceCount = particles.count;
     }
 }

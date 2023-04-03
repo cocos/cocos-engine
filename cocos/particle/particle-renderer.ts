@@ -23,16 +23,18 @@
  THE SOFTWARE.
  */
 
-import { ccclass, tooltip, displayOrder, type, serializable, disallowAnimation, visible, override } from 'cc.decorator';
+import { ccclass, visible, override, executeInEditMode, requireComponent, menu } from 'cc.decorator';
 import { legacyCC } from '../core/global-exports';
-import { builtinResMgr, director, Enum, errorID, gfx, Mat4, ModelRenderer, Quat, RenderingSubMesh, Vec2, Vec4, warnID } from '../core';
-import ParticleBatchModel from './models/particle-batch-model';
+import { ModelRenderer } from '../core';
 import { ParticleEmitter } from './particle-emitter';
 import { vfxManager } from './vfx-manager';
 import { scene } from '../core/renderer';
 import { RendererModule } from './modules/renderer';
 
 @ccclass('cc.ParticleRenderer')
+@menu('Effects/ParticleRenderer')
+@executeInEditMode
+@requireComponent(ParticleEmitter)
 export class ParticleRenderer extends ModelRenderer {
     @override
     @visible(false)
@@ -54,12 +56,14 @@ export class ParticleRenderer extends ModelRenderer {
             this._model.visFlags = this.node.layer;
             this._model.node = this._model.transform = this.node;
         }
+        this._models.push(this._model);
         this._getRenderScene().addModel(this._model);
         vfxManager.addRenderer(this);
     }
 
     public onDisable () {
         this._model!.scene!.removeModel(this._model!);
+        this._models.length = 0;
         vfxManager.removeRenderer(this);
     }
 
@@ -74,13 +78,13 @@ export class ParticleRenderer extends ModelRenderer {
     public updateRenderData () {
         if (!this._emitter || !this._model) return;
         const { particles } = this._emitter;
+        this._model.enabled = particles.count !== 0;
         if (particles.count === 0) {
-            this._model.enabled = false;
             return;
         }
+        this._emitter.render();
         const model = this._model;
         const subModels = model.subModels;
-        this._emitter.render();
         const rendererModules = this._emitter.renderStage.modules;
         const materials = this._materials;
         const materialInstances = this._materialInstances;
@@ -96,15 +100,25 @@ export class ParticleRenderer extends ModelRenderer {
                     materialInstances[subModelIndex] = material;
                     materialDirty = true;
                 }
-                const subModel = subModels[subModelIndex];
+                let subModel = subModels[subModelIndex];
                 if (!subModel) {
                     model.initSubModel(subModelIndex, renderingSubMesh, material);
+                    subModel = subModels[subModelIndex];
                 } else if (subModel.subMesh !== renderingSubMesh || materialDirty) {
                     model.setSubModelMesh(i, renderingSubMesh);
                     model.setSubModelMaterial(i, material);
                 }
+                subModel.inputAssembler.instanceCount = module.instanceCount;
+                subModel.inputAssembler.vertexCount = module.vertexCount;
+                subModel.inputAssembler.indexCount = module.indexCount;
                 subModelIndex++;
             }
+        }
+        if (subModelIndex < subModels.length) {
+            for (let i = subModelIndex, length = subModels.length; i < length; i++) {
+                subModels[i].destroy();
+            }
+            subModels.length = subModelIndex;
         }
     }
 }

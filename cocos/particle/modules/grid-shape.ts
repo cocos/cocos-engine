@@ -30,8 +30,8 @@ import { BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-
 import { ModuleExecStage, ParticleModule } from '../particle-module';
 import { ShapeModule } from './shape';
 
-@ccclass('cc.ConeShapeModule')
-@ParticleModule.register('ConeShape', ModuleExecStage.SPAWN, [BuiltinParticleParameterName.START_DIR])
+@ccclass('cc.GridShapeModule')
+@ParticleModule.register('GridShape', ModuleExecStage.SPAWN, [BuiltinParticleParameterName.START_DIR])
 export class GridShape extends ShapeModule {
     @serializable
     public length = 1;

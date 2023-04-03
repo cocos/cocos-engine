@@ -1,4 +1,4 @@
 
-test('particle-module', () => {
+describe('particle-module', () => {
 
 })

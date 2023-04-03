@@ -1,7 +1,7 @@
 
 import { ParticleDataSet } from '../../cocos/particle/particle-data-set';
 
-describe('particle-soa-data', () => {
+describe('particle-data-set', () => {
     
     test('capacity', () => {
         const particles = new ParticleDataSet();

@@ -45,8 +45,8 @@ export const meshColorRGBA8 = new Attribute(AttributeName.ATTR_COLOR, Format.RGB
 export const particlePosition = new Attribute('a_particle_position', Format.RGB32F, false, 1, true);       // particle position
 export const particleRotation = new Attribute('a_particle_rotation', Format.RGB32F, false, 1, true);       // particle rotation
 export const particleSize = new Attribute('a_particle_size', Format.RGB32F, false, 1, true);               // particle size
-export const particleFrameId = new Attribute('a_particle_frame_id', Format.R32F, false, 1, true);          // particle frame id
 export const particleColor = new Attribute('a_particle_color', Format.RGBA8, true, 1, true);               // particle color
+export const particleFrameId = new Attribute('a_particle_frame_id', Format.R32F, false, 1, true);          // particle frame id
 export const particleVelocity = new Attribute('a_particle_velocity', Format.RGB32F, false, 1, true);       // particle velocity
 
 @ccclass('cc.RendererModule')
@@ -84,8 +84,23 @@ export abstract class RendererModule extends ParticleModule {
         return this._renderingSubMesh;
     }
 
+    public get vertexCount () {
+        return this._vertexCount;
+    }
+
+    public get indexCount () {
+        return this._indexCount;
+    }
+
+    public get instanceCount () {
+        return this._instanceCount;
+    }
+
     protected _isMaterialDirty = false;
     protected _renderingSubMesh: RenderingSubMesh | null = null;
+    protected _vertexCount = 0;
+    protected _indexCount = 0;
+    protected _instanceCount = 0;
     @serializable
     private _sharedMaterial: Material | null = null;
     private _material: MaterialInstance | null = null;

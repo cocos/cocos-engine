@@ -44,10 +44,10 @@ export abstract class ParticleModule {
         return function (ctor: Constructor<ParticleModule>) {
             for (let i = 0, length = ParticleModule._allRegisteredModules.length; i < length; i++) {
                 if (ParticleModule._allRegisteredModules[i].ctor === ctor) {
-                    throw new Error('Duplicated calling registered module!');
+                    throw new Error(`Duplicated calling registered module for module ${name}!`);
                 }
                 if (ParticleModule._allRegisteredModules[i].name === name) {
-                    throw new Error('Duplicated name with other module!');
+                    throw new Error(`Duplicated name ${name} with other module!`);
                 }
             }
             const identity = new ParticleModuleIdentity(ctor, name, stages, produce, consume);

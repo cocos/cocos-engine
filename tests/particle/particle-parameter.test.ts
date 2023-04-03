@@ -98,7 +98,7 @@ describe('ParticleVec3ArrayParameter', () => {
     test('fill1f', () => {
         expect(() => vec3Parameter.fill1f(1, -1, 2)).toThrowError();
         expect(() => vec3Parameter.fill1f(1, 2, 10000)).toThrowError();
-        expect(() => vec3Parameter.fill1f(1, 10000, 2)).toThrowError();
+        expect(() => vec3Parameter.fill1f(1, 3, 2)).toThrowError();
         vec3Parameter.fill1f(1, 0, vec3Parameter.capacity);
         for (let i = 0; i < vec3Parameter.capacity * 3; i++) {
             expect(vec3Parameter.data[i]).toBe(1);
@@ -395,6 +395,23 @@ describe('ParticleVec3ArrayParameter', () => {
             expect(vec3Parameter.getXAt(i)).toBeCloseTo(1 - vec3.x, 5);
             expect(vec3Parameter.getYAt(i)).toBeCloseTo(1 - vec3.y, 5);
             expect(vec3Parameter.getZAt(i)).toBeCloseTo(1 - vec3.z, 5);
+        }
+    });
+
+    test('fill', () => {
+        expect(() => vec3Parameter.fill(vec3, -1, 50)).toThrowError();
+        expect(() => vec3Parameter.fill(vec3, 2, 10000)).toThrowError();
+        expect(() => vec3Parameter.fill(vec3, 4, 3)).toThrowError();
+        vec3Parameter.fill1f(1, 0, vec3Parameter.capacity);
+        const randomIndex = Math.floor(Math.random() * vec3Parameter.capacity);
+        vec3Parameter.fill(new Vec3(2, 3, 4), randomIndex, randomIndex + 1);
+        for (let i = 0; i < vec3Parameter.capacity; i++) {
+            vec3Parameter.getVec3At(vec3, i);
+            if (i === randomIndex) {
+                expect(vec3).toStrictEqual(new Vec3(2, 3, 4));
+            } else {
+                expect(vec3).toStrictEqual(Vec3.ONE);
+            }
         }
     });
 });

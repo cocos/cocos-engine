@@ -32,11 +32,13 @@ import { legacyCC } from '../core/global-exports';
 import { GradientRange } from './gradient-range';
 import Gradient, { AlphaKey, ColorKey } from './gradient';
 import './vfx-manager';
+import { ParticleRenderer } from './particle-renderer';
 
 export {
     Billboard,
     Line,
     ParticleEmitter,
+    ParticleRenderer,
     ParticleUtils,
     CurveRange,
     GradientRange,

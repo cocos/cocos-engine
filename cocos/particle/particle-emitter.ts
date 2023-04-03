@@ -62,7 +62,7 @@ import { ParticleModule, ParticleModuleStage, ModuleExecStage } from './particle
 import { vfxManager } from './vfx-manager';
 import { BurstModule } from './modules/burst';
 import { SpawnFractionCollection } from './spawn-fraction-collection';
-import { DeathEventGeneratorModule, LegacyTrailModule, LocationEventGeneratorModule } from './modules';
+import { DeathEventGeneratorModule, LegacyTrailModule, LocationEventGeneratorModule, SpriteRendererModule } from './modules';
 import { VFXSystem } from './vfx-system';
 import { ParticleParameterIdentity, ParticleParameterType } from './particle-parameter';
 
@@ -644,7 +644,7 @@ export class ParticleEmitter extends Component {
         this._emitterStage.getOrAddModule(BurstModule);
         this._emitterStage.getOrAddModule(SpawnPerUnitModule);
         this._emitterStage.getOrAddModule(SpawnOverTimeModule);
-        this._spawningStage.getOrAddModule(ShapeModule);
+        //this._spawningStage.getOrAddModule(ShapeModule);
         this._spawningStage.getOrAddModule(SetColorModule);
         this._spawningStage.getOrAddModule(SetLifeTimeModule);
         this._spawningStage.getOrAddModule(SetRotationModule);
@@ -664,6 +664,7 @@ export class ParticleEmitter extends Component {
         this._updateStage.getOrAddModule(AddVelocityModule);
         this._updateStage.getOrAddModule(DeathEventGeneratorModule);
         this._updateStage.getOrAddModule(LocationEventGeneratorModule);
+        this._renderStage.getOrAddModule(SpriteRendererModule);
         if (this.eventReceivers.length === 0) {
             this.addEventReceiver();
         }
@@ -700,7 +701,7 @@ export class ParticleEmitter extends Component {
         const context = this._context;
         const params = this._params;
         const state = this._state;
-        context.clear();
+        context.reset();
         state.lastPosition.set(state.currentPosition);
         state.currentPosition.set(this.node.worldPosition);
         context.setWorldMatrix(this.node.worldMatrix, params.simulationSpace === Space.WORLD);
