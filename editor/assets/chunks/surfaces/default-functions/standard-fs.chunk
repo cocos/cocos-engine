@@ -161,8 +161,8 @@ vec4 SurfacesFragmentModifySSSParams()
     // x: sssIntensity, moisture
     // y: sssCurvature, for preintegrated sss
     // z: sssColoration, for sss transmitted light color with dark area
-    // w: cavity for specular
-    return vec4(1.0, 0.1, 1.0, 1.0);
+    // w: unused
+    return vec4(1.0, 0.1, 1.0, 0.0);
 }
 #endif
 
