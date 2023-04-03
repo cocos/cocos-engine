@@ -34,7 +34,7 @@ export const vfmt = [
 ];
 
 /**
- * @en Vertex format with the following layout
+ * @en Vertex format with the following layout.
  * 1. Vector 3 position attribute (Float32)
  * 2. Vector 4 color attribute (Float32)
  * @zh 包含以下数据的顶点格式
@@ -62,6 +62,16 @@ export const vfmtPosUvColor = [
     new Attribute(AttributeName.ATTR_COLOR, Format.RGBA32F),
 ];
 
+/**
+ * @en Vertex format with the following layout
+ * 1. Vector 3 position attribute (Float32)
+ * 2. Vector 2 uv attribute (Float32)
+ * 3. Byte 4 color attribute (Byte)
+ * @zh 包含以下数据的顶点格式
+ * 1. 三维位置属性（Float32）
+ * 2. 二维贴图 UV 属性（Float32）
+ * 3. RGBA 颜色属性（Byte）
+ */
 export const vfmtPosUvColor4B = [
     new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F),
     new Attribute(AttributeName.ATTR_TEX_COORD, Format.RG32F),
@@ -78,7 +88,7 @@ export const vfmtPosUvColor4B = [
  * 1. 三维位置属性（Float32）
  * 2. 二维贴图 UV 属性（Float32）
  * 3. 第一套 RGBA 颜色属性（Float32）
- * 3. 第二套 RGBA 颜色属性（Float32）
+ * 4. 第二套 RGBA 颜色属性（Float32）
  */
 export const vfmtPosUvTwoColor = [
     new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F),
@@ -87,6 +97,18 @@ export const vfmtPosUvTwoColor = [
     new Attribute(AttributeName.ATTR_COLOR2, Format.RGBA32F),
 ];
 
+/**
+ * @en Vertex format with the following layout
+ * 1. Vector 3 position attribute (Float32)
+ * 2. Vector 2 uv attribute (Float32)
+ * 3. First byte 4 color attribute (Byte)
+ * 4. Second byte 4 color attribute (Byte)
+ * @zh 包含以下数据的顶点格式
+ * 1. 三维位置属性（Float32）
+ * 2. 二维贴图 UV 属性（Float32）
+ * 3. 第一套 RGBA 颜色属性（Byte）
+ * 4. 第二套 RGBA 颜色属性（Byte）
+ */
 export const vfmtPosUvTwoColor4B = [
     new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F),
     new Attribute(AttributeName.ATTR_TEX_COORD, Format.RG32F),

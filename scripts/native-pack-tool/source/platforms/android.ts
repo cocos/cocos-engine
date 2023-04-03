@@ -198,6 +198,8 @@ export class AndroidPackTool extends NativePackTool {
             content = content.replace(/PROP_MIN_SDK_VERSION=.*/, `PROP_MIN_SDK_VERSION=${Math.min(apiLevel, minimalSDKVersion)}`);
             content = content.replace(/PROP_APP_NAME=.*/, `PROP_APP_NAME=${this.params.projectName}`);
             content = content.replace(/PROP_ENABLE_INSTANT_APP=.*/, `PROP_ENABLE_INSTANT_APP=${options.androidInstant ? "true" : "false"}`);
+            content = content.replace(/PROP_ENABLE_INPUTSDK=.*/, `PROP_ENABLE_INPUTSDK=${options.inputSDK ? "true" : "false"}`);
+            content = content.replace(/PROP_IS_DEBUG=.*/, `PROP_IS_DEBUG=${this.params.debug ? "true" : "false"}`);
 
             content = content.replace(/RES_PATH=.*/, `RES_PATH=${cchelper.fixPath(this.paths.buildDir)}`);
             content = content.replace(/COCOS_ENGINE_PATH=.*/, `COCOS_ENGINE_PATH=${cchelper.fixPath(Paths.nativeRoot)}`);

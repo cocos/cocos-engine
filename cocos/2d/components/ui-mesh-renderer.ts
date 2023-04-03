@@ -36,6 +36,7 @@ import { RenderEntity, RenderEntityType } from '../renderer/render-entity';
 import { MeshRenderData, RenderData } from '../renderer/render-data';
 import { assert, cclegacy } from '../../core';
 import { RenderDrawInfoType } from '../renderer/render-draw-info';
+import type { UIRenderer } from '../framework/ui-renderer';
 
 /**
  * @en
@@ -61,6 +62,10 @@ export class UIMeshRenderer extends Component {
         }
     }
 
+    /**
+     * @en Get the model component on this node
+     * @zh 获取同节点的 model 组件
+     */
     public get modelComponent () {
         return this._modelComponent;
     }
@@ -123,11 +128,11 @@ export class UIMeshRenderer extends Component {
      * @zh 渲染数据组装程序，这个方法会在所有子节点数据组装之前更新并组装当前组件的渲染数据到 UI 的顶点数据缓冲区中。
      * 一般在 UI 渲染流程中调用，用于组装所有的渲染数据到顶点数据缓冲区。
      * 注意：不要手动调用该函数，除非你理解整个流程。
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public _render (render: IBatcher) {
         if (this._modelComponent) {
             const models = this._modelComponent._collectModels();
-            // @ts-expect-error: UIMeshRenderer do not attachToScene
             this._modelComponent._detachFromScene();
             for (let i = 0; i < models.length; i++) {
                 if (models[i].enabled) {
@@ -140,19 +145,24 @@ export class UIMeshRenderer extends Component {
         return false;
     }
 
+    /**
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     public fillBuffers (render: IBatcher) {
         if (this.enabled) {
             this._render(render);
         }
     }
 
+    /**
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     // Native updateAssembler
     public updateRenderer () {
         if (JSB) {
             this.renderEntity.enabled = this._canRender();
             if (this._modelComponent) {
                 const models = this._modelComponent._collectModels();
-                // @ts-expect-error: UIMeshRenderer do not attachToScene
                 this._modelComponent._detachFromScene(); // JSB
                 // clear models
                 this._UIModelNativeProxy.clearModels();
@@ -169,11 +179,15 @@ export class UIMeshRenderer extends Component {
     private _uploadRenderData (index) {
         if (JSB) {
             const renderData = MeshRenderData.add();
-            // @ts-expect-error temporary no care
-            renderData.initRenderDrawInfo(this, RenderDrawInfoType.MODEL);
-            // @ts-expect-error temporary no care
-            this._renderData = renderData;
-            this._renderData!.material = this._modelComponent!.getMaterialInstance(index);
+            // TODO: here we weirdly use UIMeshRenderer as UIRenderer
+            // please fix the type @holycanvas
+            // issue: https://github.com/cocos/cocos-engine/issues/14637
+            renderData.initRenderDrawInfo(this as unknown as UIRenderer, RenderDrawInfoType.MODEL);
+            // TODO: MeshRenderData and RenderData are both sub class of BaseRenderData, here we weirdly use MeshRenderData as RenderData
+            // please fix the type @holycanvas
+            // issue: https://github.com/cocos/cocos-engine/issues/14637
+            this._renderData = renderData as unknown as RenderData;
+            this._renderData.material = this._modelComponent!.getMaterialInstance(index);
         }
     }
 
@@ -211,8 +225,7 @@ export class UIMeshRenderer extends Component {
             const passNum = passes.length;
             for (let j = 0; j < passNum; j++) {
                 const pass = passes[j];
-                // @ts-expect-error private property access
-                pass._priority = RenderPriority.MAX - 11;
+                pass.setPriority(RenderPriority.MAX - 11);
                 // Because the deferred pipeline cannot perform lighting processing on the uimodel,
                 // it may even cause the uimodel to crash in the metal backend,
                 // so force rendering uimodel in forward pipeline
@@ -221,16 +234,28 @@ export class UIMeshRenderer extends Component {
         }
     }
 
+    /**
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     // interface
     public markForUpdateRenderData (enable = true) {
         uiRendererManager.markDirtyRenderer(this);
     }
 
+    /**
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     public stencilStage: Stage = Stage.DISABLED;
 
+    /**
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     public setNodeDirty () {
     }
 
+    /**
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     public setTextureDirty () {
     }
 
@@ -238,6 +263,9 @@ export class UIMeshRenderer extends Component {
         return (this.enabled && this._modelComponent !== null);
     }
 
+    /**
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     get renderEntity () {
         if (DEBUG) {
             assert(this._renderEntity, 'this._renderEntity should not be invalid');
@@ -246,6 +274,9 @@ export class UIMeshRenderer extends Component {
     }
 
     protected _renderData: RenderData | null = null;
+    /**
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     get renderData () {
         return this._renderData;
     }

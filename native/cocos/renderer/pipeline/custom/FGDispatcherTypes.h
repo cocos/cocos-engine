@@ -226,10 +226,8 @@ struct ResourceAccessGraph {
         ccstd::pmr::vector<InEdge> inEdges;
     };
 
-    struct PassIDTag {
-    } static constexpr PassID{}; // NOLINT
-    struct AccessNodeTag {
-    } static constexpr AccessNode{}; // NOLINT
+    struct PassIDTag {};
+    struct AccessNodeTag {};
 
     // Vertices
     ccstd::pmr::vector<Vertex> _vertices;
@@ -356,8 +354,7 @@ struct RelationGraph {
         ccstd::pmr::vector<InEdge> inEdges;
     };
 
-    struct DescIDTag {
-    } static constexpr DescID{}; // NOLINT
+    struct DescIDTag {};
 
     // Vertices
     ccstd::pmr::vector<Vertex> _vertices;
@@ -391,7 +388,7 @@ struct FrameGraphDispatcher {
         return {resourceAccessGraph.get_allocator().resource()};
     }
 
-    FrameGraphDispatcher(ResourceGraph& resourceGraphIn, const RenderGraph& graphIn, LayoutGraphData& layoutGraphIn, boost::container::pmr::memory_resource* scratchIn, const allocator_type& alloc) noexcept;
+    FrameGraphDispatcher(ResourceGraph& resourceGraphIn, const RenderGraph& graphIn, const LayoutGraphData& layoutGraphIn, boost::container::pmr::memory_resource* scratchIn, const allocator_type& alloc) noexcept;
     FrameGraphDispatcher(FrameGraphDispatcher&& rhs) = delete;
     FrameGraphDispatcher(FrameGraphDispatcher const& rhs) = delete;
     FrameGraphDispatcher& operator=(FrameGraphDispatcher&& rhs) = delete;
@@ -417,7 +414,7 @@ struct FrameGraphDispatcher {
     ResourceAccessGraph resourceAccessGraph;
     ResourceGraph& resourceGraph;
     const RenderGraph& graph;
-    LayoutGraphData& layoutGraph;
+    const LayoutGraphData& layoutGraph;
     boost::container::pmr::memory_resource* scratch{nullptr};
     PmrFlatMap<ccstd::pmr::string, ResourceTransition> externalResMap;
     RelationGraph relationGraph;

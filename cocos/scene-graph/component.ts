@@ -359,8 +359,9 @@ class Component extends CCObject {
 
     public destroy () {
         if (EDITOR) {
-            // @ts-expect-error private function access
-            const depend = this.node._getDependComponent(this);
+            // TODO: `_getDependComponent` is an injected method.
+            // issue: https://github.com/cocos/cocos-engine/issues/14643
+            const depend = (this.node as any)._getDependComponent(this);
             if (depend.length > 0) {
                 errorID(3626,
                     getClassName(this), getClassName(depend[0]));
@@ -647,48 +648,31 @@ class Component extends CCObject {
     protected onRestore? (): void;
 }
 
-const proto = Component.prototype;
-// @ts-expect-error modify prototype
-proto.update = null;
-// @ts-expect-error modify prototype
-proto.lateUpdate = null;
-// @ts-expect-error modify prototype
-proto.__preload = null;
-// @ts-expect-error modify prototype
-proto.onLoad = null;
-// @ts-expect-error modify prototype
-proto.start = null;
-// @ts-expect-error modify prototype
-proto.onEnable = null;
-// @ts-expect-error modify prototype
-proto.onDisable = null;
-// @ts-expect-error modify prototype
-proto.onDestroy = null;
-// @ts-expect-error modify prototype
-proto.onFocusInEditor = null;
-// @ts-expect-error modify prototype
-proto.onLostFocusInEditor = null;
-// @ts-expect-error modify prototype
-proto.resetInEditor = null;
-// @ts-expect-error modify prototype
-proto._getLocalBounds = null;
-// @ts-expect-error modify prototype
-proto.onRestore = null;
-// @ts-expect-error modify class
-Component._requireComponent = null;
-// @ts-expect-error modify class
-Component._executionOrder = 0;
+// NOTE: here we access the protected properties in Component, so we need to mark it as type of any.
+const proto = Component.prototype as any;
+proto.update = undefined;
+proto.lateUpdate = undefined;
+proto.__preload = undefined;
+proto.onLoad = undefined;
+proto.start = undefined;
+proto.onEnable = undefined;
+proto.onDisable = undefined;
+proto.onDestroy = undefined;
+proto.onFocusInEditor = undefined;
+proto.onLostFocusInEditor = undefined;
+proto.resetInEditor = undefined;
+proto._getLocalBounds = undefined;
+proto.onRestore = undefined;
+// NOTE: these are all injected properties
+(Component as any)._requireComponent = null;
+(Component as any)._executionOrder = 0;
 
 if (EDITOR || TEST) {
     // INHERITABLE STATIC MEMBERS
-    // @ts-expect-error modify static member
-    Component._executeInEditMode = false;
-    // @ts-expect-error modify static member
-    Component._playOnFocus = false;
-    // @ts-expect-error modify static member
-    Component._disallowMultiple = null;
-    // @ts-expect-error modify static member
-    Component._help = '';
+    (Component as any)._executeInEditMode = false;
+    (Component as any)._playOnFocus = false;
+    (Component as any)._disallowMultiple = null;
+    (Component as any)._help = '';
 
     // NON-INHERITED STATIC MEMBERS
     // (TypeScript 2.3 will still inherit them, so always check hasOwnProperty before using)

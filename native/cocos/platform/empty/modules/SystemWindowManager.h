@@ -36,7 +36,7 @@ public:
     explicit SystemWindowManager() = default;
 
     int init() override;
-    void processEvent(bool *quit) override;
+    void processEvent() override;
 
     ISystemWindow *createWindow(const ISystemWindowInfo &info) override;
     ISystemWindow *getWindow(uint32_t windowId) const override;

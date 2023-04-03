@@ -28,8 +28,7 @@ import { cloneObject, createInnerAudioContextPolyfill } from '../utils';
 
 declare let swan: any;
 
-// @ts-expect-error can't init minigame when it's declared
-const minigame: IMiniGame = {};
+const minigame: IMiniGame = {} as IMiniGame;
 cloneObject(minigame, swan);
 
 // #region SystemInfo

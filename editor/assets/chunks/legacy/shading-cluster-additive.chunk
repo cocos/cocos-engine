@@ -121,7 +121,7 @@ vec4 CCClusterShadingAdditive (StandardSurface s, vec4 shadowPos) {
     float att = GetDistAtt(distSqr, attRadiusSqrInv);
     vec3 lspec = specular * CalcSpecular(s.roughness, SNH, SH, N);
 
-    if (light.cc_lightPos.w > 0.0) {
+    if (IS_SPOT_LIGHT(light.cc_lightPos.w)) {
       float cosInner = max(dot(-light.cc_lightDir.xyz, SL), 0.01);
       float cosOuter = light.cc_lightSizeRangeAngle.z;
       float litAngleScale = 1.0 / max(0.001, cosInner - cosOuter);
@@ -133,7 +133,7 @@ vec4 CCClusterShadingAdditive (StandardSurface s, vec4 shadowPos) {
 
     float shadow = 1.0;
     #if CC_RECEIVE_SHADOW && CC_SHADOW_TYPE == CC_SHADOW_MAP
-      if (light.cc_lightPos.w > 0.0) {
+      if (IS_SPOT_LIGHT(light.cc_lightPos.w)  && cc_lightSizeRangeAngle.w > 0.0) {
         shadow = CCSpotShadowFactorBase(shadowPos, position, s.shadowBias);
       }
     #endif

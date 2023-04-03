@@ -32,7 +32,7 @@ import { Value } from './variable';
 import { AnimationGraphVariant, AnimationGraphVariantRunTime } from './animation-graph-variant';
 import { AnimationGraphLike } from './animation-graph-like';
 
-const { ccclass, menu, property } = _decorator;
+const { ccclass, menu, type, serializable, editable, formerlySerializedAs } = _decorator;
 
 export type {
     MotionStateStatus,
@@ -60,8 +60,19 @@ export class AnimationController extends Component {
      * @en
      * The animation graph associated with the animation controller.
      */
-    @property(AnimationGraphLike)
-    public graph: AnimationGraphRunTime | AnimationGraphVariantRunTime | null = null;
+    @type(AnimationGraphLike)
+    @editable
+    public get graph () {
+        return this._graph;
+    }
+
+    public set graph (value) {
+        this._graph = value;
+    }
+
+    @serializable
+    @formerlySerializedAs('graph')
+    private _graph: AnimationGraphRunTime | AnimationGraphVariantRunTime | null = null;
 
     private _graphEval: AnimationGraphEval | null = null;
 

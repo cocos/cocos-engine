@@ -164,6 +164,7 @@ export enum ResourceFlags {
     COLOR_ATTACHMENT = 0x10,
     DEPTH_STENCIL_ATTACHMENT = 0x20,
     INPUT_ATTACHMENT = 0x40,
+    SHADING_RATE = 0x80,
 }
 
 export enum TaskType {
@@ -223,6 +224,7 @@ export function getLightingModeName (e: LightingMode): string {
 export enum AttachmentType {
     RENDER_TARGET,
     DEPTH_STENCIL,
+    SHADING_RATE,
 }
 
 export function getAttachmentTypeName (e: AttachmentType): string {
@@ -231,6 +233,8 @@ export function getAttachmentTypeName (e: AttachmentType): string {
         return 'RENDER_TARGET';
     case AttachmentType.DEPTH_STENCIL:
         return 'DEPTH_STENCIL';
+    case AttachmentType.SHADING_RATE:
+        return 'SHADING_RATE';
     default:
         return '';
     }
@@ -280,6 +284,7 @@ export class RasterView {
     storeOp: StoreOp;
     clearFlags: ClearFlagBit;
     readonly clearColor: Color;
+    slotID = 0;
 }
 
 export enum ClearValueType {
@@ -465,6 +470,20 @@ export class MovePair {
     targetPlaneSlice: number;
 }
 
+export class PipelineStatistics {
+    numRenderPasses = 0;
+    numManagedTextures = 0;
+    totalManagedTextures = 0;
+    numUploadBuffers = 0;
+    numUploadBufferViews = 0;
+    numFreeUploadBuffers = 0;
+    numFreeUploadBufferViews = 0;
+    numDescriptorSets = 0;
+    numFreeDescriptorSets = 0;
+    numInstancingBuffers = 0;
+    numInstancingUniformBlocks = 0;
+}
+
 export function saveRasterView (ar: OutputArchive, v: RasterView) {
     ar.writeString(v.slotName);
     ar.writeNumber(v.accessType);
@@ -473,6 +492,7 @@ export function saveRasterView (ar: OutputArchive, v: RasterView) {
     ar.writeNumber(v.storeOp);
     ar.writeNumber(v.clearFlags);
     saveColor(ar, v.clearColor);
+    ar.writeNumber(v.slotID);
 }
 
 export function loadRasterView (ar: InputArchive, v: RasterView) {
@@ -483,6 +503,7 @@ export function loadRasterView (ar: InputArchive, v: RasterView) {
     v.storeOp = ar.readNumber();
     v.clearFlags = ar.readNumber();
     loadColor(ar, v.clearColor);
+    v.slotID = ar.readNumber();
 }
 
 export function saveComputeView (ar: OutputArchive, v: ComputeView) {
@@ -665,4 +686,32 @@ export function loadMovePair (ar: InputArchive, v: MovePair) {
     v.targetMostDetailedMip = ar.readNumber();
     v.targetFirstSlice = ar.readNumber();
     v.targetPlaneSlice = ar.readNumber();
+}
+
+export function savePipelineStatistics (ar: OutputArchive, v: PipelineStatistics) {
+    ar.writeNumber(v.numRenderPasses);
+    ar.writeNumber(v.numManagedTextures);
+    ar.writeNumber(v.totalManagedTextures);
+    ar.writeNumber(v.numUploadBuffers);
+    ar.writeNumber(v.numUploadBufferViews);
+    ar.writeNumber(v.numFreeUploadBuffers);
+    ar.writeNumber(v.numFreeUploadBufferViews);
+    ar.writeNumber(v.numDescriptorSets);
+    ar.writeNumber(v.numFreeDescriptorSets);
+    ar.writeNumber(v.numInstancingBuffers);
+    ar.writeNumber(v.numInstancingUniformBlocks);
+}
+
+export function loadPipelineStatistics (ar: InputArchive, v: PipelineStatistics) {
+    v.numRenderPasses = ar.readNumber();
+    v.numManagedTextures = ar.readNumber();
+    v.totalManagedTextures = ar.readNumber();
+    v.numUploadBuffers = ar.readNumber();
+    v.numUploadBufferViews = ar.readNumber();
+    v.numFreeUploadBuffers = ar.readNumber();
+    v.numFreeUploadBufferViews = ar.readNumber();
+    v.numDescriptorSets = ar.readNumber();
+    v.numFreeDescriptorSets = ar.readNumber();
+    v.numInstancingBuffers = ar.readNumber();
+    v.numInstancingUniformBlocks = ar.readNumber();
 }

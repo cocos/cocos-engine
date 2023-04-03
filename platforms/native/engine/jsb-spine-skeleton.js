@@ -428,70 +428,6 @@ const cacheManager = require('./jsb-cache-manager');
             this._useAttach = true;
             nativeSkeleton.setAttachEnabled(true);
         }
-
-        if (!this.isAnimationCached() && (this.debugBones || this.debugSlots || this.debugMesh) && this._debugRenderer) {
-            const graphics = this._debugRenderer;
-            graphics.clear();
-            graphics.lineWidth = 5;
-
-            const debugData = this._debugData || nativeSkeleton.getDebugData();
-            if (!debugData) return;
-            let debugIdx = 0; let debugType = 0; let debugLen = 0;
-
-            debugType = debugData[debugIdx++];
-            while (debugType !== 0) {
-                debugLen = debugData[debugIdx++];
-
-                switch (debugType) {
-                    case 1: // slots
-                        graphics.strokeColor = _slotColor;
-                        for (let i = 0; i < debugLen; i += 8) {
-                            graphics.moveTo(debugData[debugIdx++], debugData[debugIdx++]);
-                            graphics.lineTo(debugData[debugIdx++], debugData[debugIdx++]);
-                            graphics.lineTo(debugData[debugIdx++], debugData[debugIdx++]);
-                            graphics.lineTo(debugData[debugIdx++], debugData[debugIdx++]);
-                            graphics.close();
-                            graphics.stroke();
-                        }
-                    break;
-                    case 2: // mesh
-                        graphics.strokeColor = _meshColor;
-                        for (let i = 0; i < debugLen; i += 6) {
-                            graphics.moveTo(debugData[debugIdx++], debugData[debugIdx++]);
-                            graphics.lineTo(debugData[debugIdx++], debugData[debugIdx++]);
-                            graphics.lineTo(debugData[debugIdx++], debugData[debugIdx++]);
-                            graphics.close();
-                            graphics.stroke();
-                        }
-                    break;
-                    case 3: // bones
-                        graphics.strokeColor = _boneColor;
-                        graphics.fillColor = _slotColor; // Root bone color is same as slot color.
-                        for (let i = 0; i < debugLen; i += 4) {
-                            const bx = debugData[debugIdx++];
-                            const by = debugData[debugIdx++];
-                            const x = debugData[debugIdx++];
-                            const y = debugData[debugIdx++];
-
-                            // Bone lengths.
-                            graphics.moveTo(bx, by);
-                            graphics.lineTo(x, y);
-                            graphics.stroke();
-
-                            // Bone origins.
-                            graphics.circle(bx, by, Math.PI * 1.5);
-                            graphics.fill();
-                            if (i === 0) {
-                                graphics.fillColor = _originColor;
-                            }
-                        }
-                    break;
-                    default:
-                    return;
-                }
-                debugType = debugData[debugIdx++];
-            }
-        }
     };
 
     skeleton.updateWorldTransform = function () {
@@ -753,6 +689,7 @@ const cacheManager = require('./jsb-cache-manager');
             this.setSkeletonData(this.skeletonData);
 
             this._indexBoneSockets();
+            this._updateSocketBindings();
             this.attachUtil.init(this);
             this._preCacheMode = this._cacheMode;
 
@@ -777,14 +714,81 @@ const cacheManager = require('./jsb-cache-manager');
         this._stateData = null;
     };
 
-    const _tempAttachMat4 = cc.mat4();
-
     skeleton._render = function () {
         const nativeSkeleton = this._nativeSkeleton;
         if (!nativeSkeleton) return;
 
+        if (!this.isAnimationCached() && (this.debugBones || this.debugSlots || this.debugMesh) && this._debugRenderer) {
+            const graphics = this._debugRenderer;
+            graphics.clear();
+            graphics.lineWidth = 5;
+
+            const debugData = this._debugData || nativeSkeleton.getDebugData();
+            if (!debugData) return;
+            let debugIdx = 0; let debugType = 0; let debugLen = 0;
+
+            debugType = debugData[debugIdx++];
+            while (debugType !== 0) {
+                debugLen = debugData[debugIdx++];
+
+                switch (debugType) {
+                    case 1: // slots
+                        graphics.strokeColor = _slotColor;
+                        for (let i = 0; i < debugLen; i += 8) {
+                            graphics.moveTo(debugData[debugIdx++], debugData[debugIdx++]);
+                            graphics.lineTo(debugData[debugIdx++], debugData[debugIdx++]);
+                            graphics.lineTo(debugData[debugIdx++], debugData[debugIdx++]);
+                            graphics.lineTo(debugData[debugIdx++], debugData[debugIdx++]);
+                            graphics.close();
+                            graphics.stroke();
+                        }
+                    break;
+                    case 2: // mesh
+                        graphics.strokeColor = _meshColor;
+                        for (let i = 0; i < debugLen; i += 6) {
+                            graphics.moveTo(debugData[debugIdx++], debugData[debugIdx++]);
+                            graphics.lineTo(debugData[debugIdx++], debugData[debugIdx++]);
+                            graphics.lineTo(debugData[debugIdx++], debugData[debugIdx++]);
+                            graphics.close();
+                            graphics.stroke();
+                        }
+                    break;
+                    case 3: // bones
+                        graphics.strokeColor = _boneColor;
+                        graphics.fillColor = _slotColor; // Root bone color is same as slot color.
+                        for (let i = 0; i < debugLen; i += 4) {
+                            const bx = debugData[debugIdx++];
+                            const by = debugData[debugIdx++];
+                            const x = debugData[debugIdx++];
+                            const y = debugData[debugIdx++];
+
+                            // Bone lengths.
+                            graphics.moveTo(bx, by);
+                            graphics.lineTo(x, y);
+                            graphics.stroke();
+
+                            // Bone origins.
+                            graphics.circle(bx, by, Math.PI * 1.5);
+                            graphics.fill();
+                            if (i === 0) {
+                                graphics.fillColor = _originColor;
+                            }
+                        }
+                    break;
+                    default:
+                    return;
+                }
+                debugType = debugData[debugIdx++];
+            }
+        }
+    };
+
+    const _tempAttachMat4 = cc.mat4();
+    skeleton.syncAttachedNode = function () {
+        const nativeSkeleton = this._nativeSkeleton;
+        if (!nativeSkeleton) return;
         const socketNodes = this.socketNodes;
-        if (socketNodes.size > 0) {
+        if (socketNodes.size > 0 && this._useAttach) {
             const sharedBufferOffset = this._sharedBufferOffset;
             if (!sharedBufferOffset) return;
             const attachInfoMgr = middleware.attachInfoMgr;

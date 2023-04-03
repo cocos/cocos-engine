@@ -25,21 +25,22 @@
 import { legacyCC } from './core/global-exports';
 import { DataPoolManager } from './3d/skeletal-animation/data-pool-manager';
 import { Device, deviceManager } from './gfx';
-import { EDITOR } from "internal:constants";
-import { DebugView } from './rendering/debug-view';
-import { buildDeferredLayout, buildForwardLayout } from './rendering/custom/effect';
 import { settings, Settings, warnID, Pool, macro } from './core';
 import { ForwardPipeline } from './rendering';
+import type { Root as JsbRoot } from './root';
 
 declare const nr: any;
 declare const jsb: any;
 
-export const Root = jsb.Root;
+export const Root: typeof JsbRoot = jsb.Root;
+export type Root = JsbRoot;
 
 enum LightType {
     DIRECTIONAL,
     SPHERE,
     SPOT,
+    POINT,
+    RANGED_DIRECTIONAL,
     UNKNOWN,
 }
 
@@ -89,14 +90,6 @@ Object.defineProperty(rootProto, 'pipelineEvent', {
     }
 });
 
-Object.defineProperty(rootProto, 'debugView', {
-    configurable: true,
-    enumerable: true,
-    get() {
-        return this._debugView;
-    }
-});
-
 class DummyPipelineEvent {
     on(type: any, callback: any, target?: any, once?: boolean) { }
     once(type: any, callback: any, target?: any) { }
@@ -114,8 +107,6 @@ rootProto._ctor = function (device: Device) {
     this._lightPools = new Map();
     this._batcher = null;
     this._pipelineEvent = new DummyPipelineEvent();
-    this._debugView = new DebugView();
-    this.setDebugViewConfig(this._debugView._nativeConfig);
     this._registerListeners();
 };
 
@@ -173,6 +164,12 @@ rootProto.destroyLight = function (l) {
             case LightType.SPOT:
                 l.scene.removeSpotLight(l);
                 break;
+            case LightType.POINT:
+                l.scene.removePointLight(l);
+                break;
+            case LightType.RANGED_DIRECTIONAL:
+                l.scene.removeRangedDirLight(l);
+                break;
             default:
                 break;
         }
@@ -194,6 +191,12 @@ rootProto.recycleLight = function (l) {
                     break;
                 case LightType.SPOT:
                     l.scene.removeSpotLight(l);
+                    break;
+                case LightType.POINT:
+                    l.scene.removePointLight(l);
+                    break;
+                case LightType.RANGED_DIRECTIONAL:
+                    l.scene.removeRangedDirLight(l);
                     break;
                 default:
                     break;
@@ -230,15 +233,8 @@ const oldSetPipeline = rootProto.setRenderPipeline;
 rootProto.setRenderPipeline = function (pipeline) {
     let ppl;
     if (macro.CUSTOM_PIPELINE_NAME !== '' && legacyCC.rendering && this.usesCustomPipeline) {
-        const result = oldSetPipeline.call(this, null);
-        const ppl = this.customPipeline;
-        if (this.useDeferredPipeline) {
-            buildDeferredLayout(ppl);
-        } else {
-            buildForwardLayout(ppl);
-        }
-        ppl.layoutGraphBuilder.compile();
-        return result;
+        legacyCC.rendering.createCustomPipeline();
+        ppl = oldSetPipeline.call(this, null);
     } else {
         if (!pipeline) {
             // pipeline should not be created in C++, ._ctor need to be triggered

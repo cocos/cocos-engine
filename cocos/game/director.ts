@@ -35,10 +35,11 @@ import { Root } from '../root';
 import { Node, Scene } from '../scene-graph';
 import { ComponentScheduler } from '../scene-graph/component-scheduler';
 import NodeActivator from '../scene-graph/node-activator';
-import { containerManager } from '../core/memop/container-manager';
+import { scalableContainerManager } from '../core/memop/scalable-container';
 import { uiRendererManager } from '../2d/framework/ui-renderer-manager';
 import { assetManager } from '../asset/asset-manager';
 import { deviceManager } from '../gfx';
+import { releaseManager } from '../asset/asset-manager/release-manager';
 
 // ----------------------------------------------------------------------------------------------------------------------
 
@@ -336,14 +337,13 @@ export class Director extends EventTarget {
      * @param onBeforeLoadScene - The function invoked at the scene before loading.
      * @param onLaunched - The function invoked at the scene after launch.
      */
-    public runSceneImmediate (scene: Scene|SceneAsset, onBeforeLoadScene?: Director.OnBeforeLoadScene, onLaunched?: Director.OnSceneLaunched) {
+    public runSceneImmediate (scene: Scene | SceneAsset, onBeforeLoadScene?: Director.OnBeforeLoadScene, onLaunched?: Director.OnSceneLaunched) {
         if (scene instanceof SceneAsset) scene = scene.scene!;
         assertID(scene instanceof Scene, 1216);
 
         if (BUILD && DEBUG) {
             console.time('InitScene');
         }
-        // @ts-expect-error run private method
         scene._load();  // ensure scene initialized
         if (BUILD && DEBUG) {
             console.timeEnd('InitScene');
@@ -387,8 +387,7 @@ export class Director extends EventTarget {
             if (BUILD && DEBUG) {
                 console.time('AutoRelease');
             }
-            // @ts-expect-error Using private API in editor
-            assetManager._releaseManager._autoRelease(oldScene!, scene, this._persistRootNodes);
+            releaseManager._autoRelease(oldScene!, scene, this._persistRootNodes);
             if (BUILD && DEBUG) {
                 console.timeEnd('AutoRelease');
             }
@@ -411,7 +410,6 @@ export class Director extends EventTarget {
         if (BUILD && DEBUG) {
             console.time('Activate');
         }
-        // @ts-expect-error run private method
         scene._activate();
         if (BUILD && DEBUG) {
             console.timeEnd('Activate');
@@ -521,8 +519,9 @@ export class Director extends EventTarget {
     ) {
         const bundle = assetManager.bundles.find((bundle) => !!bundle.getSceneInfo(sceneName));
         if (bundle) {
-            // @ts-expect-error Manual checked parameter mapping
-            bundle.preloadScene(sceneName, null, onProgress, onLoaded);
+            // NOTE: the similar function signatures but defined as deferent function types.
+            bundle.preloadScene(sceneName, null, onProgress as (finished: number, total: number, item: any) => void,
+                onLoaded as ((err?: Error | null) => void) | null);
         } else {
             const err = `Can not preload the scene "${sceneName}" because it is not in the build settings.`;
             if (onLoaded) {
@@ -698,9 +697,9 @@ export class Director extends EventTarget {
         if (!this._invalid) {
             this.emit(Director.EVENT_BEGIN_FRAME);
             if (!EDITOR || cclegacy.GAME_VIEW) {
-                // @ts-expect-error _frameDispatchEvents is a private method.
                 input._frameDispatchEvents();
             }
+
             // Update
             if (!this._paused) {
                 this.emit(Director.EVENT_BEFORE_UPDATE);
@@ -732,7 +731,7 @@ export class Director extends EventTarget {
 
             Node.resetHasChangedFlags();
             Node.clearNodeArray();
-            containerManager.update(dt);
+            scalableContainerManager.update(dt);
             this.emit(Director.EVENT_END_FRAME);
             this._totalFrames++;
         }
@@ -808,8 +807,7 @@ export class Director extends EventTarget {
             }
             this._persistRootNodes[id] = node;
             node._persistNode = true;
-            // @ts-expect-error Using private API
-            assetManager._releaseManager._addPersistNodeRef(node);
+            releaseManager._addPersistNodeRef(node);
         }
     }
 
@@ -824,8 +822,7 @@ export class Director extends EventTarget {
             delete this._persistRootNodes[id];
             node._persistNode = false;
             node._originalSceneId = '';
-            // @ts-expect-error Using private API
-            assetManager._releaseManager._removePersistNodeRef(node);
+            releaseManager._removePersistNodeRef(node);
         }
     }
 

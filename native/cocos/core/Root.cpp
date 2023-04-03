@@ -26,6 +26,7 @@
 #include "2d/renderer/Batcher2d.h"
 #include "application/ApplicationManager.h"
 #include "bindings/event/EventDispatcher.h"
+#include "pipeline/custom/RenderingModule.h"
 #include "platform/interfaces/modules/IScreen.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
 #include "platform/interfaces/modules/ISystemWindowManager.h"
@@ -92,6 +93,8 @@ void Root::initialize(gfx::Swapchain * /*swapchain*/) {
     uint32_t maxJoints = (_device->getCapabilities().maxVertexUniformVectors - usedUBOVectorCount) / 3;
     maxJoints = maxJoints < 256 ? maxJoints : 256;
     pipeline::localDescriptorSetLayoutResizeMaxJoints(maxJoints);
+
+    _debugView = std::make_unique<pipeline::DebugView>();
 }
 
 render::Pipeline *Root::getCustomPipeline() const {
@@ -160,6 +163,8 @@ void Root::destroy() {
         CC_SAFE_DELETE(swapchain);
     }
     _swapchains.clear();
+
+    _debugView.reset();
 
     // TODO(minggo):
     //    this.dataPoolManager.clear();
@@ -316,8 +321,8 @@ bool Root::setRenderPipeline(pipeline::RenderPipeline *rppl /* = nullptr*/) {
             return false;
         }
     } else {
-        _pipelineRuntime = std::make_unique<render::NativePipeline>(
-            boost::container::pmr::get_default_resource());
+        CC_ASSERT(!_pipelineRuntime);
+        _pipelineRuntime.reset(render::Factory::createPipeline());
         if (!_pipelineRuntime->activate(_mainRenderWindow->getSwapchain())) {
             _pipelineRuntime->destroy();
             _pipelineRuntime.reset();
@@ -362,6 +367,12 @@ void Root::activeWindow(scene::RenderWindow *window) {
 
 void Root::resetCumulativeTime() {
     _cumulativeTime = 0;
+}
+
+void Root::frameSync() {
+    if (_device) {
+        _device->frameSync();
+    }
 }
 
 void Root::frameMoveBegin() {
@@ -526,6 +537,10 @@ void Root::destroyLight(scene::Light *light) { // NOLINT(readability-convert-mem
             light->getScene()->removeSphereLight(static_cast<scene::SphereLight *>(light));
         } else if (light->getType() == scene::LightType::SPOT) {
             light->getScene()->removeSpotLight(static_cast<scene::SpotLight *>(light));
+        } else if (light->getType() == scene::LightType::POINT) {
+            light->getScene()->removePointLight(static_cast<scene::PointLight *>(light));
+        } else if (light->getType() == scene::LightType::RANGED_DIRECTIONAL) {
+            light->getScene()->removeRangedDirLight(static_cast<scene::RangedDirectionalLight *>(light));
         }
     }
     light->destroy();

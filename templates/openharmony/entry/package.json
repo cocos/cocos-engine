@@ -1,0 +1,14 @@
+{
+	"license":"ISC",
+	"devDependencies":{},
+	"name":"entry",
+	"ohos":{
+		"org":"huawei",
+		"directoryLevel":"module",
+		"buildTool":"hvigor"
+	},
+	"description":"example description",
+	"repository":{},
+	"version":"1.0.0",
+	"dependencies":{}
+}

@@ -91,6 +91,9 @@ export class Toggle extends Button {
         this._checkMark = value;
     }
 
+    /**
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     set _resizeToTarget (value: boolean) {
         if (value) {
             this._resizeNodeToTargetNode();
@@ -108,6 +111,10 @@ export class Toggle extends Button {
         return null;
     }
 
+    /**
+     * @en Enum for toggle event.
+     * @zh toggle 事件枚举。
+     */
     public static EventType = extendsEnum(EventType, ButtonEventType);
 
     /**
@@ -149,7 +156,9 @@ export class Toggle extends Button {
         }
     }
 
-    //
+    /**
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     public playEffect () {
         if (this._checkMark) {
             this._checkMark.node.active = this._isChecked;
@@ -163,7 +172,7 @@ export class Toggle extends Button {
      * @zh
      * 设置 isChecked 而不调用 checkEvents 回调。
      *
-     * @param value @en Whether this toggle is pressed @zh 是否被按下
+     * @param value @en Whether this toggle is pressed. @zh 是否被按下。
      */
     public setIsCheckedWithoutNotify (value: boolean) {
         this._set(value, false);
@@ -199,8 +208,8 @@ export class Toggle extends Button {
  * @zh
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
  * @event toggle
- * @param event @en The event when toggle is pressed up or down @zh 切换键被按下或抬起时发送的事件
- * @param toggle @en The Toggle component @zh 切换键组件
+ * @param event @en The event when toggle is pressed up or down. @zh 切换键被按下或抬起时发送的事件。
+ * @param toggle @en The Toggle component. @zh 切换键组件。
  */
 
 legacyCC.Toggle = Toggle;

@@ -18,7 +18,9 @@
 #define COCOS_AUDIO_FORMAT_H
 
 #include <stdint.h>
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
 #include <sys/cdefs.h>
+#endif
 
 #include "audio/android/audio.h"
 

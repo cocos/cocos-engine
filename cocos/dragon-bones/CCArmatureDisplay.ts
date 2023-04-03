@@ -33,40 +33,79 @@ import { Node } from '../scene-graph';
 const { ccclass } = _decorator;
 
 /**
-* @deprecated since v3.5.1, this is an engine private interface that will be removed in the future.
-*/
+ * @en CCArmatureDisplay contains function about data showing and sending events.
+ * @zh CCArmatureDisplay 封装了数据显示和事件派发的功能。
+ */
 @ccclass('dragonBones.CCArmatureDisplay')
 export class CCArmatureDisplay extends DisplayData implements IEventDispatcher {
+    /**
+     * @en Return this.
+     * @zh 返回自身。
+     */
     get node () { return this; }
-
+    /**
+     * @deprecated This variable will be removed in the future.
+     */
     shouldAdvanced = false;
+    /**
+     * @en The node contains ArmatureDisplay component.
+     * @zh ArmatureDisplay 组件所在的 node。
+     */
     _ccNode: Node|null = null;
+    /**
+     * @en ArmatureDisplay component.
+     * @zh ArmatureDisplay 组件。
+     */
     _ccComponent: ArmatureDisplay |null = null;
+    /**
+     * @en EventTarget is an object to which an event is dispatched when something has occurred.
+     * @zh 事件目标是具有注册监听器、派发事件能力的对象。
+     */
     _eventTarget: EventTarget;
-
+    /**
+     * @en The core Armature object.
+     * @zh 核心骨架对象。
+     */
     _armature: Armature | null = null;
 
     constructor () {
         super();
         this._eventTarget = new EventTarget();
     }
-
+    /**
+     * @en The funciton is empty and always return false.
+     * @zh 方法未实现总返回 false。
+     */
     hasEvent (type: string): boolean {
         console.warn('Method not implemented.');
         return false;
     }
+    /**
+     * @en The funciton has no realization.
+     * @zh 方法未实现。
+     */
     addEvent (type: string, listener: any, thisObject: any): void {
         console.warn('Method not implemented.');
     }
+    /**
+     * @en The funciton has no realization.
+     * @zh 方法未实现。
+     */
     removeEvent (type: string, listener: any, thisObject: any): void {
         console.warn('Method not implemented.');
     }
-
-    setEventTarget (eventTarget:EventTarget) {
+    /**
+     * @en Sets EventTarget object.
+     * @zh 设置事件目标。
+     */
+    setEventTarget (eventTarget: EventTarget) {
         this._eventTarget = eventTarget;
     }
-
-    getRootDisplay () : CCArmatureDisplay {
+    /**
+     * @en Gets the root display object.
+     * @zh 获取顶层的显示容器实例。
+     */
+    getRootDisplay (): CCArmatureDisplay {
         let parentSlot = this._armature!._parent;
         if (!parentSlot) {
             return this;
@@ -79,7 +118,10 @@ export class CCArmatureDisplay extends DisplayData implements IEventDispatcher {
         }
         return slot!._armature.display;
     }
-
+    /**
+     * @en Convert pos to parent slot coordination.
+     * @zh 将坐标转换到父插槽的坐标系下。
+     */
     convertToRootSpace (pos: Vec3) {
         const slot = this._armature!._parent as CCSlot;
         if (!slot) {
@@ -93,33 +135,52 @@ export class CCArmatureDisplay extends DisplayData implements IEventDispatcher {
         newPos.y = pos.x * worldMatrix.m01 + pos.y * worldMatrix.m05 + worldMatrix.m13;
         return newPos;
     }
-
+    /**
+     * @en Convert pos to world coordination.
+     * @zh 将坐标转换到世界坐标系下。
+     */
     convertToWorldSpace (point: Vec3) {
         const newPos = this.convertToRootSpace(point);
         const ccNode = this.getRootNode();
         return ccNode?._uiProps.uiTransformComp?.convertToWorldSpaceAR(newPos);
     }
-
+    /**
+     * @en Get the node of root ArmatureDisplay component in.
+     * @zh 获取顶层 ArmatureDisplay 组件所在的 node。
+     */
     getRootNode () {
         const rootDisplay = this.getRootDisplay();
         return rootDisplay && rootDisplay._ccNode;
     }
 
+    /**
+     * @en Initialize _armature at start.
+     * @zh 初始时设置骨架。
+     */
     // dragonbones api
     dbInit (armature: Armature | null) {
         this._armature = armature;
     }
-
+    /**
+     * @en Clears Armature object.
+     * @zh 清除骨架对象。
+     */
     dbClear () {
         this._armature = null;
     }
-
+    /**
+     * @en Trigger ArmatureDisplay component to update render data.
+     * @zh 触发 ArmatureDisplay 组件更新渲染数据。
+     */
     dbUpdate () {
         if (this._ccComponent) {
             this._ccComponent.markForUpdateRenderData();
         }
     }
-
+    /**
+     * @engineInternal Since v3.7.2.
+     * @deprecated This variable will be removed in the future.
+     */
     advanceTimeBySelf (on: boolean | number) {
         this.shouldAdvanced = !!on;
     }

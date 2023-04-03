@@ -97,27 +97,20 @@ function serializeBuiltinValueTypes (obj: ValueType): IValueTypeData | null {
     const typeId = BuiltinValueTypes.indexOf(ctor);
     switch (ctor) {
     case Vec2:
-        // @ts-expect-error Complex typing
-        return [typeId, obj.x, obj.y];
+        return [typeId, (obj as Vec2).x, (obj as Vec2).y];
     case Vec3:
-        // @ts-expect-error Complex typing
-        return [typeId, obj.x, obj.y, obj.z];
+        return [typeId, (obj as Vec3).x, (obj as Vec3).y, (obj as Vec3).z];
     case Vec4:
     case Quat:
-        // @ts-expect-error Complex typing
-        return [typeId, obj.x, obj.y, obj.z, obj.w];
+        return [typeId, (obj as Vec4).x, (obj as Vec4).y, (obj as Vec4).z, (obj as Vec4).w];
     case Color:
-        // @ts-expect-error Complex typing
-        return [typeId, obj._val];
+        return [typeId, (obj as Color)._val];
     case Size:
-        // @ts-expect-error Complex typing
-        return [typeId, obj.width, obj.height];
+        return [typeId, (obj as Size).width, (obj as Size).height];
     case Rect:
-        // @ts-expect-error Complex typing
-        return [typeId, obj.x, obj.y, obj.width, obj.height];
+        return [typeId, (obj as Rect).x, (obj as Rect).y, (obj as Rect).width, (obj as Rect).height];
     case Mat4: {
-        // @ts-expect-error Complex typing
-        const res: IValueTypeData = new Array<number>(1 + 16);
+        const res: IValueTypeData = new Array<number>(1 + 16) as IValueTypeData;
         res[VALUETYPE_SETTER] = typeId;
         Mat4.toArray(res, obj as Mat4, 1);
         return res;
@@ -961,8 +954,7 @@ function cacheMasks (data: IPackedFileData) {
         const classes = data[File.SharedClasses];
         for (let i = 0; i < masks.length; ++i) {
             const mask = masks[i];
-            // @ts-expect-error Complex typing.
-            mask[MASK_CLASS] = classes[mask[MASK_CLASS]];
+            mask[MASK_CLASS] = classes[mask[MASK_CLASS]] as unknown as number;
         }
     }
 }

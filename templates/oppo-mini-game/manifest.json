@@ -1,0 +1,26 @@
+{
+    "package": "",
+    "name": "",
+    "versionName": "1.0.0",
+    "versionCode": 1201,
+    "minPlatformVersion": 1056,
+    "icon": "/logo.png",
+    "features": [
+        {
+            "name": "system.prompt"
+        },
+        {
+            "name": "system.router"
+        },
+        {
+            "name": "system.shortcut"
+        }
+    ],
+    "permissions": [
+        {
+            "origin": "*"
+        }
+    ],
+    "orientation": "portrait",
+    "subpackages": []
+}

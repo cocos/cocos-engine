@@ -98,6 +98,12 @@ rules:
 
     ##### TYPESCRIPT-SPECIFIC RULE OVERRIDES #####
 
+    '@typescript-eslint/ban-ts-comment': [error, {
+        'ts-expect-error': true,
+        'ts-ignore': true,
+        'ts-nocheck': true,
+        'ts-check': false,
+    }]
     '@typescript-eslint/indent': [warn, 4, {
         SwitchCase: 0
     }]

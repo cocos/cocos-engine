@@ -64,6 +64,7 @@ public:
     using Device::createTexture;
     using Device::createTextureBarrier;
 
+    void frameSync() override;
     void acquire(Swapchain *const *swapchains, uint32_t count) override;
     void present() override;
 
@@ -102,6 +103,8 @@ public:
 
     void presentWait();
     void presentSignal();
+
+    void enableAutoBarrier(bool en) override;
 
 protected:
     static DeviceAgent *instance;

@@ -53,7 +53,7 @@ const stride = getAttributeStride(attributes);
  * Graphics component.
  *
  * @zh
- * 自定义图形类
+ * 自定义图形类。
  */
 @ccclass('cc.Graphics')
 @help('i18n:cc.Graphics')
@@ -200,20 +200,6 @@ export class Graphics extends UIRenderer {
         this._color.set(value);
     }
 
-    get srcBlendFactor () {
-        return this._srcBlendFactor;
-    }
-
-    set srcBlendFactor (value) {
-    }
-
-    get dstBlendFactor () {
-        return this._dstBlendFactor;
-    }
-
-    set dstBlendFactor (value) {
-    }
-
     public static LineJoin = LineJoin;
     public static LineCap = LineCap;
     public impl: Impl | null = null;
@@ -240,7 +226,10 @@ export class Graphics extends UIRenderer {
     private _graphicsUseSubMeshes: RenderingSubMesh[] = [];
 
     //nativeObj
-    protected declare _graphicsNativeProxy:NativeUIModelProxy;
+    protected declare _graphicsNativeProxy: NativeUIModelProxy;
+    /**
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     get graphicsNativeProxy () {
         return this._graphicsNativeProxy;
     }
@@ -280,7 +269,7 @@ export class Graphics extends UIRenderer {
     public onDestroy () {
         this._sceneGetter = null;
         if (JSB) {
-            this.graphicsNativeProxy.destroy();
+            this._graphicsNativeProxy.destroy();
             this.model = null;
         } else {
             if (this.model) {
@@ -632,6 +621,9 @@ export class Graphics extends UIRenderer {
         }
     }
 
+    /**
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     public activeSubModel (idx: number) {
         if (!this.model) {
             warnID(4500, this.node.name);
@@ -730,6 +722,9 @@ export class Graphics extends UIRenderer {
         }
     }
 
+    /**
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     public updateRenderer () {
         super.updateRenderer();
         if (JSB) {

@@ -58,7 +58,9 @@ enum class ParameterType {
     SSV,
 };
 
-struct RasterTag {};
+struct RasterPassTag {};
+struct RasterSubpassTag {};
+struct ComputeSubpassTag {};
 struct ComputeTag {};
 struct CopyTag {};
 struct MoveTag {};
@@ -95,6 +97,7 @@ enum class ResourceFlags : uint32_t {
     COLOR_ATTACHMENT = 0x10,
     DEPTH_STENCIL_ATTACHMENT = 0x20,
     INPUT_ATTACHMENT = 0x40,
+    SHADING_RATE = 0x80,
 };
 
 constexpr ResourceFlags operator|(const ResourceFlags lhs, const ResourceFlags rhs) noexcept {
@@ -181,6 +184,7 @@ enum class LightingMode : uint32_t {
 enum class AttachmentType {
     RENDER_TARGET,
     DEPTH_STENCIL,
+    SHADING_RATE,
 };
 
 enum class AccessType {
@@ -212,6 +216,7 @@ struct RasterView {
     gfx::StoreOp storeOp{gfx::StoreOp::STORE};
     gfx::ClearFlagBit clearFlags{gfx::ClearFlagBit::ALL};
     gfx::Color clearColor;
+    uint32_t slotID{0};
 };
 
 inline bool operator==(const RasterView& lhs, const RasterView& rhs) noexcept {
@@ -384,6 +389,20 @@ struct MovePair {
     uint32_t targetMostDetailedMip{0};
     uint32_t targetFirstSlice{0};
     uint32_t targetPlaneSlice{0};
+};
+
+struct PipelineStatistics {
+    uint32_t numRenderPasses{0};
+    uint32_t numManagedTextures{0};
+    uint32_t totalManagedTextures{0};
+    uint32_t numUploadBuffers{0};
+    uint32_t numUploadBufferViews{0};
+    uint32_t numFreeUploadBuffers{0};
+    uint32_t numFreeUploadBufferViews{0};
+    uint32_t numDescriptorSets{0};
+    uint32_t numFreeDescriptorSets{0};
+    uint32_t numInstancingBuffers{0};
+    uint32_t numInstancingUniformBlocks{0};
 };
 
 } // namespace render

@@ -22,12 +22,13 @@
  THE SOFTWARE.
 */
 
-import { MouseCallback } from 'pal/input';
 import { screenAdapter } from 'pal/screen-adapter';
 import { EventMouse } from '../../../cocos/input/types';
 import { EventTarget } from '../../../cocos/core/event';
 import { Vec2 } from '../../../cocos/core/math';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
+
+export type MouseCallback = (res: EventMouse) => void;
 
 declare const jsb: any;
 
@@ -36,6 +37,7 @@ export class MouseInputSource {
     private _preMousePos: Vec2 = new Vec2();
     private _isPressed = false;
     private _windowManager: any;
+    private _pointLocked = false;
 
     private _handleMouseDown: (mouseEvent: jsb.MouseEvent) => void;
     private _handleMouseMove: (mouseEvent: jsb.MouseEvent) => void;
@@ -70,6 +72,9 @@ export class MouseInputSource {
         jsb.onMouseMove = this._handleMouseMove;
         jsb.onMouseUp =  this._handleMouseUp;
         jsb.onMouseWheel = this._boundedHandleMouseWheel;
+        jsb.onPointerlockChange = (value: boolean) => {
+            this._pointLocked = value;
+        };
     }
 
     private _createCallback (eventType: InputEventType) {
@@ -95,9 +100,9 @@ export class MouseInputSource {
             const eventMouse = new EventMouse(eventType, false, this._preMousePos, mouseEvent.windowId);
             eventMouse.setLocation(location.x, location.y);
             eventMouse.setButton(button);
-            eventMouse.movementX = location.x - this._preMousePos.x;
-            eventMouse.movementY = this._preMousePos.y - location.y;
-
+            const dpr = screenAdapter.devicePixelRatio;
+            eventMouse.movementX = typeof mouseEvent.xDelta === 'undefined' ? 0 : mouseEvent.xDelta * dpr;
+            eventMouse.movementY = typeof mouseEvent.yDelta === 'undefined' ? 0 : mouseEvent.yDelta * dpr;
             // update previous mouse position.
             this._preMousePos.set(location.x, location.y);
             this._eventTarget.emit(eventType, eventMouse);

@@ -392,8 +392,8 @@ export function __checkObsoleteInNamespace__ (ccNamespace: object) {
         } else {
             _cachedProxy = new Proxy(ccNamespace, {
                 get (target, name, receiver) {
-                    // @ts-expect-error name could be a symbol
-                    _checkObsoleteByName(name);
+                    // NOTE: for now we use tsc version 4.3.5, which has not supported symbol as index.
+                    _checkObsoleteByName(name as string);
                     return Reflect.get(target, name, receiver);
                 },
             });

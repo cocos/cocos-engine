@@ -129,6 +129,13 @@ export abstract class NativePackTool {
     }
 
     /**
+     * Debug / Release
+     */
+    protected get buildType(): string {
+        return this.params.debug ? "Debug" : "Release";
+    }
+
+    /**
      * Read version number from cocos-version.json
      */
     protected tryReadProjectTemplateVersion(): { version: string, skipCheck: boolean | undefined } | null {
@@ -206,14 +213,14 @@ export abstract class NativePackTool {
                 return false;
             }
 
-            if(!fs.existsSync(srcFile)) {
+            if (!fs.existsSync(srcFile)) {
                 console.warn(`${f} not exists in ${commonSrc}`);
                 return false;
             }
 
-            if(!compFile(srcFile, dstFile)) {
+            if (!compFile(srcFile, dstFile)) {
                 console.log(`File ${dstFile} differs from ${srcFile}`);
-                return false;   
+                return false;
             }
         }
         return true;
@@ -429,9 +436,15 @@ export abstract class NativePackTool {
         await fs.outputFile(file, content);
     }
 
-    protected appendCmakeResDirArgs(args: string[]) {
-        args.push(`-DRES_DIR="${cchelper.fixPath(this.paths.buildDir)}" -DAPP_NAME="${this.params.projectName}" `);
+    protected appendCmakeCommonArgs(args: string[]) {
+        args.push(`-DRES_DIR="${cchelper.fixPath(this.paths.buildDir)}"`);
+        args.push(`-DAPP_NAME="${this.params.projectName}"`);
+        args.push(`-DLAUNCH_TYPE="${this.buildType}"`);
+        if (this.params.platformParams?.skipUpdateXcodeProject) {
+            args.push(`-DCMAKE_SUPPRESS_REGENERATION=ON`);
+        }
     }
+
 
     /**
      * 加密脚本，加密后，会修改 cmake 参数，因而需要再次执行 cmake 配置文件的生成

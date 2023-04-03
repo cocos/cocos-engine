@@ -40,7 +40,9 @@ namespace render {
 enum class UpdateFrequency;
 enum class ParameterType;
 
-struct RasterTag;
+struct RasterPassTag;
+struct RasterSubpassTag;
+struct ComputeSubpassTag;
 struct ComputeTag;
 struct CopyTag;
 struct MoveTag;
@@ -75,6 +77,7 @@ struct DescriptorBlockFlattened;
 struct DescriptorBlockIndex;
 struct CopyPair;
 struct MovePair;
+struct PipelineStatistics;
 
 } // namespace render
 

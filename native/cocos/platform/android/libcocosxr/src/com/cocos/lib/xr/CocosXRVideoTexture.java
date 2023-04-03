@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright (c) 2018-2022 Xiamen Yaji Software Co., Ltd.
+ * Copyright (c) 2018-2023 Xiamen Yaji Software Co., Ltd.
  *
  * http://www.cocos.com
  *
@@ -27,21 +27,25 @@ package com.cocos.lib.xr;
 
 import android.graphics.SurfaceTexture;
 import android.opengl.GLES30;
+import android.opengl.Matrix;
 
 public class CocosXRVideoTexture implements SurfaceTexture.OnFrameAvailableListener {
     SurfaceTexture surfaceTexture;
     private boolean surfaceNeedsUpdate = false;
     private long videoTimestampNs = -1;
     private final float[] videoSTMatrix = new float[16];
+    private long lastFrameAvailableTime = 0;
 
     @Override
     public void onFrameAvailable(SurfaceTexture surfaceTexture) {
         surfaceNeedsUpdate = true;
+        lastFrameAvailableTime = System.currentTimeMillis();
     }
 
     private int videoOESTextureId;
 
     public CocosXRVideoTexture() {
+        Matrix.setIdentityM(videoSTMatrix, 0);
     }
 
     public SurfaceTexture createSurfaceTexture() {
@@ -68,6 +72,11 @@ public class CocosXRVideoTexture implements SurfaceTexture.OnFrameAvailableListe
     }
 
     public synchronized boolean updateTexture() {
+        if (!surfaceNeedsUpdate && System.currentTimeMillis() - lastFrameAvailableTime > 30) {
+            surfaceNeedsUpdate = true;
+            lastFrameAvailableTime = System.currentTimeMillis();
+        }
+
         if (surfaceNeedsUpdate) {
             surfaceTexture.updateTexImage();
             surfaceTexture.getTransformMatrix(videoSTMatrix);

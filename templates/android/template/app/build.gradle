@@ -26,7 +26,7 @@ android {
         externalNativeBuild {
             cmake {
                 targets "cocos"
-                arguments "-DRES_DIR=${RES_PATH}", "-DCOCOS_X_PATH=${COCOS_ENGINE_PATH}", "-DANDROID_STL=c++_static", "-DANDROID_TOOLCHAIN=clang", "-DANDROID_ARM_NEON=TRUE", "-DANDROID_LD=gold"
+                arguments "-DRES_DIR=${RES_PATH}", "-DANDROID_STL=c++_static", "-DANDROID_TOOLCHAIN=clang", "-DANDROID_ARM_NEON=TRUE"
             }
             ndk { abiFilters PROP_APP_ABI.split(':') }
         }
@@ -81,7 +81,11 @@ android {
                     arguments "-DHIDE_SYMBOLS=ON"
                 }
             }
-            
+
+            if (!Boolean.parseBoolean(PROP_IS_DEBUG)) {
+                getIsDefault().set(true)
+            }
+
             // resValue  "string", "app_name", PROP_APP_NAME
         }
 
@@ -101,4 +105,7 @@ dependencies {
     implementation fileTree(dir: "${COCOS_ENGINE_PATH}/cocos/platform/android/java/libs", include: ['*.jar'])
     implementation project(':libservice')
     implementation project(':libcocos')
+    if (Boolean.parseBoolean(PROP_ENABLE_INPUTSDK)) {
+        implementation 'com.google.android.libraries.play.games:inputmapping:1.0.0-beta'
+    }
 }

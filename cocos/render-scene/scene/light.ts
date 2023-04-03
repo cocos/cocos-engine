@@ -63,6 +63,8 @@ export enum LightType {
     DIRECTIONAL,
     SPHERE,
     SPOT,
+    POINT,
+    RANGED_DIRECTIONAL,
     UNKNOWN,
 }
 
@@ -91,6 +93,7 @@ export class Light {
      */
     set color (color: Vec3) {
         this._color.set(color);
+        if (this._useColorTemperature) { Vec3.multiply(this._finalColor, this._color, this._colorTempRGB); }
     }
 
     get color (): Vec3 {
@@ -103,6 +106,7 @@ export class Light {
      */
     set useColorTemperature (enable: boolean) {
         this._useColorTemperature = enable;
+        if (enable) { Vec3.multiply(this._finalColor, this._color, this._colorTempRGB); }
     }
 
     get useColorTemperature (): boolean {
@@ -116,6 +120,7 @@ export class Light {
     set colorTemperature (val: number) {
         this._colorTemp = val;
         ColorTemperatureToRGB(this._colorTempRGB, this._colorTemp);
+        if (this._useColorTemperature) { Vec3.multiply(this._finalColor, this._color, this._colorTempRGB); }
     }
 
     get colorTemperature (): number {
@@ -128,6 +133,10 @@ export class Light {
      */
     get colorTemperatureRGB (): Vec3 {
         return this._colorTempRGB;
+    }
+
+    get finalColor (): Readonly<Vec3> {
+        return this._finalColor;
     }
 
     /**
@@ -161,7 +170,7 @@ export class Light {
      * @en The type of the light source, e.g. directional light, spot light, etc
      * @zh 光源的类型，比如方向光、聚光灯等
      */
-    get type () : LightType {
+    get type (): LightType {
         return this._type;
     }
 
@@ -192,6 +201,8 @@ export class Light {
     protected _colorTemp = 6550.0;
 
     protected _colorTempRGB: Vec3 = new Vec3(1, 1, 1);
+
+    private _finalColor: Vec3 = new Vec3(1, 1, 1);
 
     protected _scene: RenderScene | null = null;
 

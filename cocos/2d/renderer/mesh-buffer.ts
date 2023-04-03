@@ -34,7 +34,7 @@ interface IIARef {
     indexBuffer: Buffer;
 }
 
-export enum MeshBufferSharedBufferView{
+enum MeshBufferSharedBufferView {
     byteOffset,
     vertexOffset,
     indexOffset,
@@ -42,15 +42,37 @@ export enum MeshBufferSharedBufferView{
     count,
 }
 
+const IA_POOL_USED_SCALE = 1 / 2;
+
+/**
+ * @en Mesh buffer used for 2d rendering, used internally and not of concern to the user.
+ * @zh 2d 渲染使用的网格缓冲数据，内部使用，用户不须关心。
+ * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+ */
 export class MeshBuffer {
+    /**
+     * @en The vertex attributes of the buffer.
+     * @zh buffer 的顶点属性。
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     get attributes () { return this._attributes; }
+    /**
+     * @en Number of bytes in vertex format.
+     * @zh 顶点格式的字节数。
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     get vertexFormatBytes () { return this._vertexFormatBytes; }
 
     protected _byteOffset = 0;
+    /**
+     * @en byte offset.
+     * @zh 字节偏移量。
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     get byteOffset () {
         return this._byteOffset;
     }
-    set byteOffset (val:number) {
+    set byteOffset (val: number) {
         this._byteOffset = val;
         if (JSB) {
             this._sharedBuffer[MeshBufferSharedBufferView.byteOffset] = val;
@@ -58,10 +80,15 @@ export class MeshBuffer {
     }
 
     protected _vertexOffset = 0;
+    /**
+     * @en Vertexes offset.
+     * @zh 顶点数偏移。
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     get vertexOffset () {
         return this._vertexOffset;
     }
-    set vertexOffset (val:number) {
+    set vertexOffset (val: number) {
         this._vertexOffset = val;
         if (JSB) {
             this._sharedBuffer[MeshBufferSharedBufferView.vertexOffset] = val;
@@ -69,10 +96,15 @@ export class MeshBuffer {
     }
 
     protected _indexOffset = 0;
+    /**
+     * @en Indices offset.
+     * @zh 索引偏移。
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     get indexOffset () {
         return this._indexOffset;
     }
-    set indexOffset (val:number) {
+    set indexOffset (val: number) {
         this._indexOffset = val;
         if (JSB) {
             this._sharedBuffer[MeshBufferSharedBufferView.indexOffset] = val;
@@ -80,10 +112,15 @@ export class MeshBuffer {
     }
 
     protected _dirty = false;
+    /**
+     * @en Dirty flag.
+     * @zh 脏标记。
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     get dirty () {
         return this._dirty;
     }
-    set dirty (val:boolean) {
+    set dirty (val: boolean) {
         this._dirty = val;
         if (JSB) {
             this._sharedBuffer[MeshBufferSharedBufferView.dirty] = val ? 1 : 0;
@@ -91,18 +128,28 @@ export class MeshBuffer {
     }
 
     protected _floatsPerVertex = 0;
+    /**
+     * @en Float numbers per vertex.
+     * @zh 每顶点的浮点数长度。
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     get floatsPerVertex () {
         return this._floatsPerVertex;
     }
-    set floatsPerVertex (val:number) {
+    set floatsPerVertex (val: number) {
         this._floatsPerVertex = val;
     }
 
     protected _vData: Float32Array = null!;
+    /**
+     * @en Vertexes data.
+     * @zh 顶点数据。
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     get vData () {
         return this._vData;
     }
-    set vData (val:Float32Array) {
+    set vData (val: Float32Array) {
         this._vData = val;
         //还得看是否需要共享.buffer
         if (JSB) {
@@ -111,10 +158,15 @@ export class MeshBuffer {
     }
 
     protected _iData: Uint16Array = null!;
+    /**
+     * @en Indices data.
+     * @zh 索引数据。
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     get iData () {
         return this._iData;
     }
-    set iData (val:Uint16Array) {
+    set iData (val: Uint16Array) {
         this._iData = val;
         if (JSB) {
             this._nativeObj.iData = val;
@@ -132,23 +184,43 @@ export class MeshBuffer {
     private _nextFreeIAHandle = 0;
 
     //nativeObj
-    protected declare _nativeObj:NativeUIMeshBuffer;
+    protected declare _nativeObj: NativeUIMeshBuffer;
+    /**
+     * @en Native object.
+     * @zh 原生对象。
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     get nativeObj () {
         return this._nativeObj;
     }
 
     //sharedBuffer
     protected declare _sharedBuffer: Uint32Array;
+    /**
+     * @en Native shared buffer.
+     * @zh 原生共享缓冲。
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     get sharedBuffer () {
         return this._sharedBuffer;
     }
 
+    /**
+     * @en Initial native shared buffer.
+     * @zh 初始化原生共享缓冲。
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     public initSharedBuffer () {
         if (JSB) {
             this._sharedBuffer = new Uint32Array(MeshBufferSharedBufferView.count);
         }
     }
 
+    /**
+     * @en Synchronized native shared buffer.
+     * @zh 同步原生共享缓冲。
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     public syncSharedBufferToNative () {
         if (JSB) {
             this._nativeObj.syncSharedBufferToNative(this._sharedBuffer);
@@ -163,6 +235,15 @@ export class MeshBuffer {
         this.syncSharedBufferToNative();
     }
 
+    /**
+     * @en Initialize mesh buffer.
+     * @zh 初始化对象。
+     * @param device @en The GFX device. @zh GFX设备。
+     * @param attrs @en The vertex attributes of the buffer. @zh 缓冲区的顶点属性。
+     * @param vFloatCount @en The vertexes float count. @zh 每顶点所需的 float 数量。
+     * @param iCount @en The indices count. @zh 索引数量。
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     public initialize (device: Device, attrs: Attribute[], vFloatCount: number, iCount: number) {
         this._initVDataCount = vFloatCount;
         this._initIDataCount = iCount;
@@ -183,6 +264,11 @@ export class MeshBuffer {
         }
     }
 
+    /**
+     * @en Reset state.
+     * @zh 重置状态。
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     public reset () {
         this._nextFreeIAHandle = 0;
         this.dirty = false;
@@ -209,6 +295,11 @@ export class MeshBuffer {
         this._iaPool.length = 0;
     }
 
+    /**
+     * @en Set dirty flag.
+     * @zh 设置脏标签。
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     public setDirty () {
         this.dirty = true;
     }
@@ -222,7 +313,11 @@ export class MeshBuffer {
         return false;
     }
 
-    //有返回值暂时没写
+    /**
+     * @en require Free input assembler.
+     * @zh 请求可用的输入汇集器。
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     public requireFreeIA (device: Device) {
         if (this._iaPool.length <= this._nextFreeIAHandle) {
             this._iaPool.push(this.createNewIA(device));
@@ -231,7 +326,11 @@ export class MeshBuffer {
         return ia;
     }
 
-    //参数暂时没传
+    /**
+     * @en recycle input assembler.
+     * @zh 回收输入汇集器。
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     public recycleIA (ia: InputAssembler) {
         const pool = this._iaPool;
         for (let i = 0; i < this._nextFreeIAHandle; ++i) {
@@ -245,6 +344,11 @@ export class MeshBuffer {
         }
     }
 
+    /**
+     * @en check capacity.
+     * @zh 检查可分配余量。
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     public checkCapacity (vertexCount: number, indexCount: number) {
         const maxVertex = (this.vertexOffset + vertexCount) * this._floatsPerVertex;
         const maxIndex = this.indexOffset + indexCount;
@@ -254,26 +358,39 @@ export class MeshBuffer {
         return true;
     }
 
+    /**
+     * @en Upload and update buffers data.
+     * @zh 上传更新缓冲内容。
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     public uploadBuffers () {
         if (this.byteOffset === 0 || !this._dirty) {
             return;
         }
 
         // On iOS14, different IAs can not share same GPU buffer, so must submit the same date to different buffers
-        // @ts-expect-error Property '__isWebIOS14OrIPadOS14Env' does not exist on 'sys'
         const iOS14 = sys.__isWebIOS14OrIPadOS14Env;
         const submitCount = iOS14 ? this._nextFreeIAHandle : 1;
+        if (iOS14 && (submitCount / this._iaPool.length < IA_POOL_USED_SCALE)) {
+            const count = submitCount / IA_POOL_USED_SCALE;
+            const length = this._iaPool.length;
+            // Destroy InputAssemblers
+            for (let i = length - 1; i >= count; i--) {
+                const iaRef = this._iaPool[i];
+                if (iaRef.vertexBuffers[0]) {
+                    iaRef.vertexBuffers[0].destroy();
+                }
+                if (iaRef.indexBuffer) {
+                    iaRef.indexBuffer.destroy();
+                }
+                iaRef.ia.destroy();
+            }
+            this._iaPool.length = count;
+        }
         const byteCount = this.byteOffset;
         const indexCount = this.indexOffset;
         for (let i = 0; i < submitCount; ++i) {
             const iaRef = this._iaPool[i];
-            // if (iOS14) {
-            //     indexCount = iaRef.ia.firstIndex + iaRef.ia.indexCount;
-            //     const maxVertex = this.iData[indexCount];
-            //     // Only upload as much data as needed, to avoid frequent resize, using pow2 size
-            //     // Wrong implementation because maxVertex might be larger than the last vertex id, hard to find the correct max vertex
-            //     byteCount = Math.min(this.byteOffset, nextPow2(maxVertex + 2) * this.vertexFormatBytes);
-            // }
 
             const verticesData = new Float32Array(this.vData.buffer, 0, byteCount >> 2);
             const indicesData = new Uint16Array(this.iData.buffer, 0, indexCount);
@@ -292,14 +409,12 @@ export class MeshBuffer {
         this.dirty = false;
     }
 
-    //有返回值，暂时没原生化
     private createNewIA (device: Device): IIARef {
         let ia;
         let vertexBuffers;
         let indexBuffer;
         // HACK: After sharing buffer between drawcalls, the performance degradation a lots on iOS 14 or iPad OS 14 device
         // TODO: Maybe it can be removed after Apple fixes it?
-        // @ts-expect-error Property '__isWebIOS14OrIPadOS14Env' does not exist on 'sys'
         if (sys.__isWebIOS14OrIPadOS14Env || !this._iaPool[0]) {
             const vbStride = this._vertexFormatBytes = this._floatsPerVertex * Float32Array.BYTES_PER_ELEMENT;
             const ibStride = Uint16Array.BYTES_PER_ELEMENT;

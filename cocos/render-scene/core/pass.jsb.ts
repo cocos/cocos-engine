@@ -23,6 +23,9 @@
 */
 import { MacroRecord } from "./pass-utils";
 import { EffectAsset } from '../../asset/assets/effect-asset';
+import type { Pass as JsbPass } from './pass';
+
+declare const jsb: any;
 
 export interface IPassInfoFull extends EffectAsset.IPassStates {
     // generated part
@@ -43,5 +46,5 @@ export enum BatchingSchemes {
     VB_MERGING = 2,
 }
 
-export const Pass = jsb.Pass;
-export type Pass = jsb.Pass;
+export const Pass: typeof JsbPass = jsb.Pass;
+export type Pass = JsbPass;

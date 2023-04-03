@@ -316,8 +316,10 @@ const selectLerpFx = (() => {
     function makeValueTypeLerpFx<T extends ValueType> (constructor: Constructor<T>) {
         const tempValue = new constructor();
         return (from: T, to: T, ratio: number) => {
-            // @ts-expect-error Hard to typing
-            constructor.lerp(tempValue, from, to, ratio);
+            // TODO: `ValueType` class doesn't define lerp method
+            // please fix the type @Leslie Leigh
+        // Tracking issue: https://github.com/cocos/cocos-engine/issues/14640
+            (constructor as any).lerp(tempValue, from, to, ratio);
             return tempValue;
         };
     }

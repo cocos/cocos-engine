@@ -28,15 +28,15 @@
 #include "audio/android/UrlAudioPlayer.h"
 #include "audio/android/ICallerThreadUtils.h"
 #include "base/std/container/vector.h"
-
-#include <math.h>
+#include "base/Macros.h"
+#include <cmath>
 #include <algorithm> // for std::find
 
 namespace {
 
-std::mutex __playerContainerMutex;
-ccstd::vector<cc::UrlAudioPlayer *> __playerContainer;
-std::once_flag __onceFlag;
+std::mutex __playerContainerMutex;//NOLINT(bugprone-reserved-identifier,readability-identifier-naming)
+ccstd::vector<cc::UrlAudioPlayer *> __playerContainer;//NOLINT(bugprone-reserved-identifier,readability-identifier-naming)
+std::once_flag __onceFlag;//NOLINT(bugprone-reserved-identifier,readability-identifier-naming)
 
 } // namespace
 
@@ -45,7 +45,7 @@ namespace cc {
 class SLUrlAudioPlayerCallbackProxy {
 public:
     static void playEventCallback(SLPlayItf caller, void *context, SLuint32 playEvent) {
-        UrlAudioPlayer *thiz = (UrlAudioPlayer *)context;
+        auto *thiz = reinterpret_cast<UrlAudioPlayer *>(context);
         // We must use a mutex for the whole block of the following function invocation.
         std::lock_guard<std::mutex> lk(__playerContainerMutex);
         auto iter = std::find(__playerContainer.begin(), __playerContainer.end(), thiz);
@@ -56,7 +56,7 @@ public:
 };
 
 UrlAudioPlayer::UrlAudioPlayer(SLEngineItf engineItf, SLObjectItf outputMixObject, ICallerThreadUtils *callerThreadUtils)
-: _engineItf(engineItf), _outputMixObj(outputMixObject), _callerThreadUtils(callerThreadUtils), _id(-1), _assetFd(nullptr), _playObj(nullptr), _playItf(nullptr), _seekItf(nullptr), _volumeItf(nullptr), _volume(0.0f), _duration(0.0f), _isLoop(false), _isAudioFocus(true), _state(State::INVALID), _playEventCallback(nullptr), _isDestroyed(std::make_shared<bool>(false)) {
+: _engineItf(engineItf), _outputMixObj(outputMixObject), _callerThreadUtils(callerThreadUtils), _id(-1), _assetFd(nullptr), _playObj(nullptr), _playItf(nullptr), _seekItf(nullptr), _volumeItf(nullptr), _volume(0.0F), _duration(0.0F), _isLoop(false), _isAudioFocus(true), _state(State::INVALID), _playEventCallback(nullptr), _isDestroyed(std::make_shared<bool>(false)) {
     std::call_once(__onceFlag, []() {
         __playerContainer.reserve(10);
     });
@@ -83,6 +83,7 @@ UrlAudioPlayer::~UrlAudioPlayer() {
 }
 
 void UrlAudioPlayer::playEventCallback(SLPlayItf caller, SLuint32 playEvent) {
+    CC_UNUSED_PARAM(caller);
     // Note that it's on sub thread, please don't invoke OpenSLES API on sub thread
     if (playEvent == SL_PLAYEVENT_HEADATEND) {
         std::shared_ptr<bool> isDestroyed = _isDestroyed;
@@ -179,7 +180,7 @@ void UrlAudioPlayer::play() {
 }
 
 void UrlAudioPlayer::setVolumeToSLPlayer(float volume) {
-    int dbVolume = 2000 * log10(volume);
+    int dbVolume = static_cast<int>(2000 * log10(volume));
     if (dbVolume < SL_MILLIBEL_MIN) {
         dbVolume = SL_MILLIBEL_MIN;
     }
@@ -200,7 +201,7 @@ float UrlAudioPlayer::getVolume() const {
 
 void UrlAudioPlayer::setAudioFocus(bool isFocus) {
     _isAudioFocus = isFocus;
-    float volume = _isAudioFocus ? _volume : 0.0f;
+    float volume = _isAudioFocus ? _volume : 0.0F;
     setVolumeToSLPlayer(volume);
 }
 
@@ -211,15 +212,15 @@ float UrlAudioPlayer::getDuration() const {
 
     SLmillisecond duration;
     SLresult r = (*_playItf)->GetDuration(_playItf, &duration);
-    SL_RETURN_VAL_IF_FAILED(r, 0.0f, "UrlAudioPlayer::getDuration failed");
+    SL_RETURN_VAL_IF_FAILED(r, 0.0F, "UrlAudioPlayer::getDuration failed");
 
     if (duration == SL_TIME_UNKNOWN) {
-        return -1.0f;
-    } else {
-        const_cast<UrlAudioPlayer *>(this)->_duration = duration / 1000.0f;
+        return -1.0F;
+    } else {// NOLINT(readability-else-after-return)
+        const_cast<UrlAudioPlayer *>(this)->_duration = duration / 1000.0F;
 
         if (_duration <= 0) {
-            return -1.0f;
+            return -1.0F;
         }
     }
     return _duration;
@@ -228,12 +229,12 @@ float UrlAudioPlayer::getDuration() const {
 float UrlAudioPlayer::getPosition() const {
     SLmillisecond millisecond;
     SLresult r = (*_playItf)->GetPosition(_playItf, &millisecond);
-    SL_RETURN_VAL_IF_FAILED(r, 0.0f, "UrlAudioPlayer::getPosition failed");
-    return millisecond / 1000.0f;
+    SL_RETURN_VAL_IF_FAILED(r, 0.0F, "UrlAudioPlayer::getPosition failed");
+    return millisecond / 1000.0F;
 }
 
 bool UrlAudioPlayer::setPosition(float pos) {
-    SLmillisecond millisecond = 1000.0f * pos;
+    SLmillisecond millisecond = 1000.0F * pos;
     SLresult r = (*_seekItf)->SetPosition(_seekItf, millisecond, SL_SEEKMODE_ACCURATE);
     SL_RETURN_VAL_IF_FAILED(r, false, "UrlAudioPlayer::setPosition %f failed", pos);
     return true;
@@ -242,14 +243,14 @@ bool UrlAudioPlayer::setPosition(float pos) {
 bool UrlAudioPlayer::prepare(const ccstd::string &url, SLuint32 locatorType, std::shared_ptr<AssetFd> assetFd, int start,
                              int length) {
     _url = url;
-    _assetFd = assetFd;
-
+    _assetFd = std::move(assetFd);
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
     const char *locatorTypeStr = "UNKNOWN";
-    if (locatorType == SL_DATALOCATOR_ANDROIDFD)
+    if (locatorType == SL_DATALOCATOR_ANDROIDFD) {
         locatorTypeStr = "SL_DATALOCATOR_ANDROIDFD";
-    else if (locatorType == SL_DATALOCATOR_URI)
+    } else if (locatorType == SL_DATALOCATOR_URI) {
         locatorTypeStr = "SL_DATALOCATOR_URI";
-    else {
+    } else {
         ALOGE("Oops, invalid locatorType: %d", (int)locatorType);
         return false;
     }
@@ -274,7 +275,7 @@ bool UrlAudioPlayer::prepare(const ccstd::string &url, SLuint32 locatorType, std
         locFd = {locatorType, _assetFd->getFd(), start, length};
         audioSrc.pLocator = &locFd;
     } else if (locatorType == SL_DATALOCATOR_URI) {
-        locUri = {locatorType, (SLchar *)_url.c_str()};
+        locUri = {locatorType, (SLchar *)_url.c_str()}; // NOLINT(google-readability-casting)
         audioSrc.pLocator = &locUri;
         ALOGV("locUri: locatorType: %d", (int)locUri.locatorType);
     }
@@ -315,8 +316,8 @@ bool UrlAudioPlayer::prepare(const ccstd::string &url, SLuint32 locatorType, std
 
     setState(State::INITIALIZED);
 
-    setVolume(1.0f);
-
+    setVolume(1.0F);
+#endif
     return true;
 }
 

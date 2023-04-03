@@ -55,6 +55,7 @@ public:
     using Device::createTexture;
     using Device::createTextureBarrier;
 
+    void frameSync() override;
     void acquire(Swapchain *const *swapchains, uint32_t count) override;
     void present() override;
 
@@ -90,6 +91,8 @@ public:
     inline void enableRecording(bool recording) { _recording = recording; }
     inline bool isRecording() const { return _recording; }
     inline uint64_t currentFrame() const { return _currentFrame; }
+
+    void enableAutoBarrier(bool enable) override;
 
 protected:
     static DeviceValidator *instance;

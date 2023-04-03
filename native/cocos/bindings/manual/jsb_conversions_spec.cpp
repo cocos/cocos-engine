@@ -42,7 +42,9 @@
 
 #include "bindings/auto/jsb_assets_auto.h"
 #include "bindings/auto/jsb_cocos_auto.h"
+#if CC_USE_PHYSICS_PHYSX
 #include "bindings/auto/jsb_physics_auto.h"
+#endif
 #include "cocos/core/geometry/Geometry.h"
 #include "scene/Fog.h"
 #include "scene/Shadow.h"
