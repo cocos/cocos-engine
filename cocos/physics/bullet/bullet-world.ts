@@ -28,10 +28,10 @@ import { BulletRigidBody } from './bullet-rigid-body';
 import { BulletShape } from './shapes/bullet-shape';
 import { ArrayCollisionMatrix } from '../utils/array-collision-matrix';
 import { TupleDictionary } from '../utils/tuple-dictionary';
-import { TriggerEventObject, CollisionEventObject, CC_V3_0, CC_V3_1, BulletCache } from './bullet-cache';
+import { TriggerEventObject, CollisionEventObject, CC_V3_0, CC_V3_1, CC_V3_2, BulletCache } from './bullet-cache';
 import { bullet2CocosVec3, cocos2BulletVec3 } from './bullet-utils';
 import { IRaycastOptions, IPhysicsWorld } from '../spec/i-physics-world';
-import { PhysicsRayResult, PhysicsMaterial } from '../framework';
+import { PhysicsRayResult, PhysicsMaterial, CharacterControllerContact } from '../framework';
 import { error, RecyclePool, Vec3, js, IVec3Like, geometry } from '../../core';
 import { BulletContactData } from './bullet-contact-data';
 import { BulletConstraint } from './constraints/bullet-constraint';
@@ -42,7 +42,8 @@ import { Node } from '../../scene-graph';
 const contactsPool: BulletContactData[] = [];
 const v3_0 = CC_V3_0;
 const v3_1 = CC_V3_1;
-
+const v3_2 = CC_V3_2;
+const emitHit = new CharacterControllerContact();
 export class BulletWorld implements IPhysicsWorld {
     setDefaultMaterial (v: PhysicsMaterial) { }
 
@@ -106,6 +107,7 @@ export class BulletWorld implements IPhysicsWorld {
     readonly collisionArrayMat = new ArrayCollisionMatrix();
     readonly contactsDic = new TupleDictionary();
     readonly oldContactsDic = new TupleDictionary();
+    readonly cctShapeEventDic = new TupleDictionary();
 
     constructor () {
         this._broadphase = bt.DbvtBroadphase_new();
@@ -127,6 +129,8 @@ export class BulletWorld implements IPhysicsWorld {
         (this as any).collisionArrayMat = null;
         (this as any).contactsDic = null;
         (this as any).oldContactsDic = null;
+        (this as any).cctShapeEventDic = null;
+        (this as any).cctShapeEventPool = null;
         contactsPool.length = 0;
     }
 
@@ -408,6 +412,29 @@ export class BulletWorld implements IPhysicsWorld {
         }
 
         this.contactsDic.reset();
+
+        // emit cct events
+        {
+            let dicL = this.cctShapeEventDic.getLength();
+            while (dicL--) {
+                const key = this.cctShapeEventDic.getKeyByIndex(dicL);
+                const data = this.cctShapeEventDic.getDataByKey<any>(key);
+                const cct: BulletCharacterController = data.BulletCharacterController;
+                const shape: BulletShape = data.BulletShape;
+                const worldPos = data.worldPos;
+                const worldNormal = data.worldNormal;
+                const motionDir = data.motionDir;
+                const motionLength = data.motionLength;
+                emitHit.selfCCT = cct.characterController;
+                emitHit.otherCollider = shape.collider;
+                emitHit.worldPosition.set(worldPos.x, worldPos.y, worldPos.z);
+                emitHit.worldNormal.set(worldNormal.x, worldNormal.y, worldNormal.z);
+                emitHit.motionDirection.set(motionDir.x, motionDir.y, motionDir.z);
+                emitHit.motionLength = motionLength;
+                emitHit.selfCCT?.emit('onColliderHit', emitHit.selfCCT, emitHit.otherCollider, emitHit);
+            }
+            this.cctShapeEventDic.reset();
+        }
     }
 
     gatherConatactData () {
