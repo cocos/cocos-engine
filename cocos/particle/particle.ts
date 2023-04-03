@@ -48,6 +48,7 @@ export class Particle {
     public localMat: Mat4;
     public startSize: Vec3;
     public size: Vec3;
+    public animatedSize: Vec3;
     public startColor: Color;
     public color: Color;
     public custom1: Vec4;
@@ -90,6 +91,7 @@ export class Particle {
         this.localMat = new Mat4();
         this.startSize = new Vec3(0, 0, 0);
         this.size = new Vec3(0, 0, 0);
+        this.animatedSize = new Vec3(1, 1, 1);
         this.startColor = Color.WHITE.clone();
         this.color = Color.WHITE.clone();
         this.custom1 = new Vec4();
@@ -132,6 +134,7 @@ export class Particle {
         this.distanceCounter = 0;
         this.custom1.set(0, 0, 0, 0);
         this.custom2.set(0, 0, 0, 0);
+        this.animatedSize = new Vec3(1, 1, 1);
     }
 }
 
@@ -148,6 +151,7 @@ export const PARTICLE_MODULE_NAME = {
     INHERIT: 'inheritVelocityModule',
     CUSTOM: 'customDataModule',
     ROTATIONSPEED: 'rotationSpeedModule',
+    SIZESPEED: 'sizeSpeedModule',
 };
 
 export const PARTICLE_MODULE_ORDER = [
@@ -163,6 +167,7 @@ export const PARTICLE_MODULE_ORDER = [
     'inheritVelocityModule',
     'customDataModule',
     'rotationSpeedModule',
+    'sizeSpeedModule',
 ];
 
 export const PARTICLE_MODULE_PROPERTY = [
@@ -180,6 +185,7 @@ export const PARTICLE_MODULE_PROPERTY = [
     '_inheritVelocityModule',
     '_customDataModule',
     '_rotationSpeedModule',
+    '_sizeSpeedModule',
 ];
 
 export interface IParticleModule {
