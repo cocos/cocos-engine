@@ -428,15 +428,20 @@ export const toolHelper = {
     },
 
     runCmake(args: string[]) {
-        const cmakePath = Paths.cmakePath;
+        let cmakeCommand = Paths.cmakePath;
+        if (process.platform === 'win32' && cmakeCommand.indexOf(' ') > -1) {
+            cmakeCommand = `"${cmakeCommand}"`;
+        } else {
+            cmakeCommand = cmakeCommand.replace(/ /g, '\\ ');
+        }
         // Delete environment variables start with `npm_`, which may cause compile error on windows
         const newEnv: any = {};
         Object.assign(newEnv, process.env);
         Object.keys(newEnv).filter(x => x.toLowerCase().startsWith("npm_")).forEach(e => delete newEnv[e]);
 
         return new Promise<void>((resolve, reject) => {
-            console.log(`run ${cmakePath} ${args.join(' ')}`);
-            const cp = spawn(cmakePath, args, {
+            console.log(`run '${cmakeCommand}' ${args.join(' ')}`);
+            const cp = spawn(`"${cmakeCommand}"`, args, {
                 stdio: ['pipe', 'pipe', 'pipe'],
                 env: newEnv,
                 shell: true,
