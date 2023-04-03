@@ -47,6 +47,8 @@ public:
         NONE = 0,
         BAKED_CUBEMAP = 1,
         PLANAR_REFLECTION = 2,
+        BLEND_PROBES = 3,
+        BLEND_PROBES_AND_SKYBOX = 4,
     };
     /**
      * @en Set probe type,cube or planar.

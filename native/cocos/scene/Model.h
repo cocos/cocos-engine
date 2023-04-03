@@ -117,6 +117,7 @@ public:
     void updateReflectionProbePlanarMap(gfx::Texture *texture);
     void updateReflectionProbeId();
     void updateReflectionProbeDataMap(Texture2D *texture);
+    void updateReflectionProbeBlendCubemap(TextureCube *texture);
 
     inline void attachToScene(RenderScene *scene) {
         _scene = scene;
@@ -168,6 +169,10 @@ public:
         _reflectionProbeId = reflectionProbeId;
         _shadowBias.z = reflectionProbeId;
     }
+    inline int32_t getReflectionProbeBlendId() const { return _reflectionProbeBlendId; }
+    inline void setReflectionProbeBlendId(int32_t reflectionProbeId) { _reflectionProbeBlendId = reflectionProbeId; }
+    inline float getReflectionProbeBlendWeight() const { return _reflectionProbeBlendWeight; }
+    inline void setReflectionProbeBlendWeight(float weight) { _reflectionProbeBlendWeight = weight; }
     inline int32_t getTetrahedronIndex() const { return _tetrahedronIndex; }
     inline void setTetrahedronIndex(int32_t index) { _tetrahedronIndex = index; }
     inline bool showTetrahedron() const { return isLightProbeAvailable(); }
@@ -227,6 +232,8 @@ protected:
     uint32_t _priority{0};
     uint32_t _updateStamp{0};
     int32_t _reflectionProbeId{-1};
+    int32_t _reflectionProbeBlendId{ -1 };
+    float _reflectionProbeBlendWeight{0.F};
 
     OctreeNode *_octreeNode{nullptr};
     RenderScene *_scene{nullptr};

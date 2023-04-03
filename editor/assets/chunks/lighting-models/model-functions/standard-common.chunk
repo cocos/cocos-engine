@@ -171,7 +171,36 @@ vec3 CalculateEnvironmentSpecular(in LightingIntermediateData lightingData, floa
         vec3 worldPosOffset = CalculatePlanarReflectPositionOnPlane(lightingData.N, lightingData.V, worldPos, plane, cc_cameraPos.xyz, planarReflectionDepthScale);
         vec2 screenUV = GetPlanarReflectScreenUV(worldPosOffset, cc_matViewProj, cc_cameraPos.w, lightingData.V, R);
         envSpec = unpackRGBE(fragTextureLod(cc_reflectionProbePlanarMap, screenUV, mipCount)).xyz;
-    } 
+    }
+  #elif CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND || CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND_AND_SKYBOX
+    if(FSInput_reflectionProbeId < 0.0){
+        envSpec = SampleEnvironmentSpecular(cc_reflectionProbeCubemap, lightingData, cc_ambientGround.w);
+    }else{
+      vec3 centerPos, boxHalfSize;
+      float mipCount;
+      GetCubeReflectionProbeData(centerPos, boxHalfSize, mipCount, FSInput_reflectionProbeId);
+      envSpec = SampleEnvironmentSpecular(cc_reflectionProbeCubemap, lightingData, mipCount, worldPos, centerPos, boxHalfSize);
+
+      float blendFactor = 0.0;
+      #if USE_INSTANCING
+        blendFactor = FSInput_reflectionProbeData.x;
+      #else
+        blendFactor = cc_reflectionProbeBlendData1.w;
+      #endif
+
+      if(FSInput_reflectionProbeBlendId < 0.0)
+      {
+        #if CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND_AND_SKYBOX
+          envSpec = mix(envSpec, SampleEnvironmentSpecular(cc_environment, lightingData, cc_ambientGround.w).rgb, blendFactor);
+        #endif 
+      }else{
+        vec3 centerPosBlend, boxHalfSizeBlend;
+        float mipCountBlend;
+        GetBlendCubeReflectionProbeData(centerPosBlend, boxHalfSizeBlend, mipCountBlend, FSInput_reflectionProbeBlendId);
+        vec3 probeBlend = SampleEnvironmentSpecular(cc_reflectionProbeBlendCubemap, lightingData, mipCountBlend, worldPos, centerPosBlend, boxHalfSizeBlend);
+        envSpec = mix(envSpec, probeBlend, blendFactor);
+      }     
+    }
   #endif
 #elif CC_USE_IBL
     envSpec = SampleEnvironmentSpecular(cc_environment, lightingData, cc_ambientGround.w);

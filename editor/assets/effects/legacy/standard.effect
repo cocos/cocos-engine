@@ -111,6 +111,12 @@ CCProgram standard-vs %{
     out mediump vec4 v_shadowBiasAndProbeId;
   #endif
 
+  #if CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND || CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND_AND_SKYBOX
+    #if USE_INSTANCING
+      out mediump vec4 v_reflectionProbeData;
+    #endif
+  #endif
+
   #if USE_NORMAL_MAP
     out mediump vec4 v_tangent;
   #endif
@@ -143,6 +149,12 @@ CCProgram standard-vs %{
         v_shadowBiasAndProbeId.zw = a_localShadowBiasAndProbeId.zw;
       #else
         v_shadowBiasAndProbeId.zw = cc_localShadowBias.zw;
+      #endif
+    #endif
+
+    #if CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND || CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND_AND_SKYBOX
+      #if USE_INSTANCING
+        v_reflectionProbeData = a_reflectionProbeData;
       #endif
     #endif
 
@@ -202,6 +214,12 @@ CCProgram standard-fs %{
 
   #if CC_RECEIVE_SHADOW || CC_USE_REFLECTION_PROBE
     in mediump vec4 v_shadowBiasAndProbeId;
+  #endif
+
+  #if CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND || CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND_AND_SKYBOX
+    #if USE_INSTANCING
+      in mediump vec4 v_reflectionProbeData;
+    #endif
   #endif
 
   #if USE_VERTEX_COLOR
@@ -266,6 +284,15 @@ CCProgram standard-fs %{
     #endif
     #if CC_USE_REFLECTION_PROBE
       s.reflectionProbeId = v_shadowBiasAndProbeId.z;
+    #endif
+
+    #if CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND || CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND_AND_SKYBOX
+      s.reflectionProbeBlendId = v_shadowBiasAndProbeId.w;    
+      #if USE_INSTANCING
+        s.reflectionProbeBlendFactor = v_reflectionProbeData.x;
+      #else
+        s.reflectionProbeBlendFactor = cc_reflectionProbeBlendData1.w;
+      #endif
     #endif
 
 

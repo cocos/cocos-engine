@@ -83,19 +83,29 @@ const ModelShadowReceivingMode = Enum({
 export enum ReflectionProbeType {
     /**
      * @en Use the default skybox.
-     * @zh 使用默认天空盒
+     * @zh 使用默认天空盒。
      */
     NONE = 0,
     /**
-     * @en Cubemap generate by probe
-     * @zh Probe烘焙的cubemap
+     * @en Cubemap generate by probe.
+     * @zh Probe烘焙的cubemap。
      */
     BAKED_CUBEMAP = 1,
     /**
-     * @en Realtime planar reflection
-     * @zh 实时平面反射
+     * @en Realtime planar reflection.
+     * @zh 实时平面反射。
      */
     PLANAR_REFLECTION = 2,
+    /**
+     * @en Mixing between reflection probe.
+     * @zh 反射探针之间进行混合。
+     */
+    BLEND_PROBES = 3,
+    /**
+     * @en Mixing between reflection probe and skybox.
+     * @zh 反射探针之间混合或反射探针和天空盒之间混合。
+     */
+    BLEND_PROBES_AND_SKYBOX = 4,
 }
 
 /**
@@ -146,6 +156,7 @@ class ModelBakeSettings extends EventTarget {
     protected _bakeToReflectionProbe = true;
     @serializable
     public _probeCubemap: TextureCube | null = null;
+    public _probeBlendCubemap: TextureCube | null = null;
     public _probePlanarmap: Texture | null = null;
 
     /**
@@ -320,6 +331,10 @@ export class MeshRenderer extends ModelRenderer {
 
     @serializable
     protected _reflectionProbeId = -1;
+
+    protected _reflectionProbeBlendId = -1;
+
+    protected _reflectionProbeBlendWeight = 0;
 
     protected _reflectionProbeDataMap: Texture2D | null = null;
 
@@ -550,6 +565,7 @@ export class MeshRenderer extends ModelRenderer {
         this._updateUseLightProbe();
         this._updateReceiveDirLight();
         this._onUpdateReflectionProbeDataMap();
+        this._onUpdateLocalReflectionProbeData();
         this._attachToScene();
     }
 
@@ -696,6 +712,19 @@ export class MeshRenderer extends ModelRenderer {
             this.model.updateReflectionProbeCubemap(cubeMap);
         }
     }
+    public updateProbeBlendCubemap (cubeMap: TextureCube | null) {
+        if (this.bakeSettings._probeBlendCubemap && this.bakeSettings._probeBlendCubemap === cubeMap) {
+            return;
+        }
+        this.bakeSettings._probeBlendCubemap = cubeMap;
+        if (this.model !== null) {
+            let cubeMap = this.bakeSettings._probeBlendCubemap;
+            if (!cubeMap && this.node.scene) {
+                cubeMap = this.node.scene._globals.skybox.envmap;
+            }
+            this.model.updateReflectionProbeBlendCubemap(cubeMap);
+        }
+    }
     public updateProbePlanarMap (planarMap: Texture | null) {
         if (this.bakeSettings._probePlanarmap === planarMap) {
             return;
@@ -721,22 +750,58 @@ export class MeshRenderer extends ModelRenderer {
         this._onUpdateLocalShadowBiasAndProbeId();
     }
 
+    public updateReflectionProbeBlendId (blendProbeId: number) {
+        this._reflectionProbeBlendId = blendProbeId;
+        if (this.model) {
+            this.model.reflectionProbeBlendId = blendProbeId;
+        }
+        this._onUpdateLocalShadowBiasAndProbeId();
+    }
+
+    public updateReflectionProbeBlendWeight (weight: number) {
+        this._reflectionProbeBlendWeight = weight;
+        if (this.model) {
+            this.model.reflectionProbeBlendWeight = weight;
+        }
+        this._onUpdateLocalReflectionProbeData();
+    }
+
     protected _updateReflectionProbeTexture () {
-        if (this.model === null) return;
-        if (this.bakeSettings.reflectionProbe === ReflectionProbeType.BAKED_CUBEMAP) {
-            let cubeMap = this.bakeSettings._probeCubemap;
-            if (!cubeMap && this.node.scene) {
-                cubeMap = this.node.scene._globals.skybox.envmap;
-            }
-            this.model.updateReflectionProbeCubemap(cubeMap);
+        if (!this.model) return;
+
+        const bakeSettings = this.bakeSettings;
+
+        const reflectionProbe = bakeSettings.reflectionProbe;
+        const probeBlendCubemap = bakeSettings._probeBlendCubemap;
+        const probePlanarMap = bakeSettings._probePlanarmap;
+
+        if (reflectionProbe === ReflectionProbeType.BAKED_CUBEMAP) {
+            this._updateReflectionProbeCubemap();
             this.model.updateReflectionProbePlanarMap(null);
-        } else if (this.bakeSettings.reflectionProbe === ReflectionProbeType.PLANAR_REFLECTION) {
-            this.model.updateReflectionProbePlanarMap(this.bakeSettings._probePlanarmap);
+            this.model.updateReflectionProbeBlendCubemap(null);
+        } else if (reflectionProbe === ReflectionProbeType.BLEND_PROBES
+            || reflectionProbe === ReflectionProbeType.BLEND_PROBES_AND_SKYBOX) {
+            this._updateReflectionProbeCubemap();
+            this.model.updateReflectionProbeBlendCubemap(probeBlendCubemap);
+            this.model.updateReflectionProbePlanarMap(null);
+        } else if (reflectionProbe === ReflectionProbeType.PLANAR_REFLECTION) {
+            this.model.updateReflectionProbePlanarMap(probePlanarMap);
             this.model.updateReflectionProbeCubemap(null);
+            this.model.updateReflectionProbeBlendCubemap(null);
         } else {
             this.model.updateReflectionProbeCubemap(null);
             this.model.updateReflectionProbePlanarMap(null);
+            this.model.updateReflectionProbeBlendCubemap(null);
         }
+    }
+
+    protected _updateReflectionProbeCubemap () {
+        if (this.model === null) return;
+        let cubeMap = this.bakeSettings._probeCubemap;
+        if (!cubeMap && this.node.scene) {
+            cubeMap = this.node.scene._globals.skybox.envmap;
+        }
+        this.model.updateReflectionProbeCubemap(cubeMap);
     }
 
     protected _updateModels () {
@@ -768,6 +833,7 @@ export class MeshRenderer extends ModelRenderer {
             this._updateUseReflectionProbe();
             this._updateReceiveDirLight();
             this._onUpdateReflectionProbeDataMap();
+            this._onUpdateLocalReflectionProbeData();
         }
     }
 
@@ -871,8 +937,23 @@ export class MeshRenderer extends ModelRenderer {
             this._shadowBias,
             this._shadowNormalBias,
             this._reflectionProbeId,
-            0.0,
+            this._reflectionProbeBlendId,
         ]);
+    }
+
+    protected _onUpdateLocalReflectionProbeData () {
+        if (this.bakeSettings.reflectionProbe === ReflectionProbeType.BLEND_PROBES
+            || this.bakeSettings.reflectionProbe === ReflectionProbeType.BLEND_PROBES_AND_SKYBOX) {
+            if (this.model !== null) {
+                this.model.updateReflectionProbeId();
+            }
+            this.setInstancedAttribute('a_reflectionProbeData', [
+                this._reflectionProbeBlendWeight,
+                0.0,
+                0.0,
+                0.0,
+            ]);
+        }
     }
 
     protected _onUpdateReflectionProbeDataMap () {
@@ -894,6 +975,7 @@ export class MeshRenderer extends ModelRenderer {
         this._onUpdateLocalShadowBiasAndProbeId();
         this._updateReflectionProbeTexture();
         this._onUpdateReflectionProbeDataMap();
+        this._onUpdateLocalReflectionProbeData();
     }
 
     protected _onMeshChanged (old: Mesh | null) {
@@ -965,14 +1047,16 @@ export class MeshRenderer extends ModelRenderer {
     protected onReflectionProbeChanged () {
         this._updateUseReflectionProbe();
         this._onUpdateLocalShadowBiasAndProbeId();
-        if (this.bakeSettings.reflectionProbe === ReflectionProbeType.BAKED_CUBEMAP) {
+        if (this.bakeSettings.reflectionProbe === ReflectionProbeType.BAKED_CUBEMAP
+            || this.bakeSettings.reflectionProbe === ReflectionProbeType.BLEND_PROBES
+            || this.bakeSettings.reflectionProbe === ReflectionProbeType.BLEND_PROBES_AND_SKYBOX) {
             cclegacy.internal.reflectionProbeManager.updateUseCubeModels(this._model);
-            if (!cclegacy.internal.reflectionProbeManager.getUsedReflectionProbe(this._model, ReflectionProbeType.BAKED_CUBEMAP)) {
+            if (!cclegacy.internal.reflectionProbeManager.getUsedReflectionProbe(this._model, false)) {
                 warnID(16302);
             }
         } else if (this.bakeSettings.reflectionProbe === ReflectionProbeType.PLANAR_REFLECTION) {
             cclegacy.internal.reflectionProbeManager.updateUsePlanarModels(this._model);
-            if (!cclegacy.internal.reflectionProbeManager.getUsedReflectionProbe(this._model, ReflectionProbeType.PLANAR_REFLECTION)) {
+            if (!cclegacy.internal.reflectionProbeManager.getUsedReflectionProbe(this._model, true)) {
                 warnID(16302);
             }
         }

@@ -36,7 +36,7 @@ import { IMacroPatch } from '../core/pass';
 import { Mat4, Vec3, Vec4, geometry, cclegacy, EPSILON } from '../../core';
 import { Attribute, DescriptorSet, Device, Buffer, BufferInfo,
     BufferUsageBit, MemoryUsageBit, Filter, Address, SamplerInfo, deviceManager, Texture } from '../../gfx';
-import { UBOLocal, UBOSH, UBOWorldBound, UNIFORM_LIGHTMAP_TEXTURE_BINDING, UNIFORM_REFLECTION_PROBE_CUBEMAP_BINDING, UNIFORM_REFLECTION_PROBE_DATA_MAP_BINDING, UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING } from '../../rendering/define';
+import { UBOLocal, UBOSH, UBOWorldBound, UNIFORM_LIGHTMAP_TEXTURE_BINDING, UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_BINDING, UNIFORM_REFLECTION_PROBE_CUBEMAP_BINDING, UNIFORM_REFLECTION_PROBE_DATA_MAP_BINDING, UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING } from '../../rendering/define';
 import { Root } from '../../root';
 import { TextureCube } from '../../asset/assets';
 import { ShadowType } from './shadows';
@@ -91,6 +91,14 @@ const lightmapSamplerWithMipHash = new SamplerInfo(
     Address.CLAMP,
     Address.CLAMP,
 );
+
+const enum ReflectionProbeType {
+    NONE = 0,
+    BAKED_CUBEMAP = 1,
+    PLANAR_REFLECTION = 2,
+    BLEND_PROBES = 3,
+    BLEND_PROBES_AND_SKYBOX = 4,
+}
 
 /**
  * @en A representation of a model instance
@@ -360,6 +368,30 @@ export class Model {
     }
 
     /**
+     * @en Sets or gets the reflection probe id for blend.
+     * @zh 设置或获取用于混合的反射探针id。
+     */
+    get reflectionProbeBlendId () {
+        return this._reflectionProbeBlendId;
+    }
+
+    set reflectionProbeBlendId (val) {
+        this._reflectionProbeBlendId = val;
+    }
+
+    /**
+     * @en Sets or gets the reflection probe blend weight.
+     * @zh 设置或获取反射探针混合权重。
+     */
+    get reflectionProbeBlendWeight () {
+        return this._reflectionProbeBlendWeight;
+    }
+
+    set reflectionProbeBlendWeight (val) {
+        this._reflectionProbeBlendWeight = val;
+    }
+
+    /**
      * @en The type of the model
      * @zh 模型类型
      */
@@ -513,6 +545,18 @@ export class Model {
      * @zh 使用第几个反射探针
      */
     protected _reflectionProbeId = -1;
+
+    /**
+     * @en Use which probe to blend
+     * @zh 使用第几个反射探针进行混合
+     */
+    protected _reflectionProbeBlendId = -1;
+
+    /**
+     * @en Reflection probe blend weight
+     * @zh 反射探针混合权重
+     */
+    protected _reflectionProbeBlendWeight = 0;
 
     /**
      * @en Whether the model is enabled in the render scene so that it will be rendered
@@ -956,6 +1000,34 @@ export class Model {
     }
 
     /**
+     * @en Update the cube map of the reflection probe for blend
+     * @zh 更新用于blend的反射探针立方体贴图
+     * @param texture probe cubemap
+     */
+    public updateReflectionProbeBlendCubemap (texture: TextureCube | null) {
+        this._localDataUpdated = true;
+        this.onMacroPatchesStateChanged();
+
+        if (!texture) {
+            texture = builtinResMgr.get<TextureCube>('default-cube-texture');
+        }
+
+        const gfxTexture = texture.getGFXTexture();
+        if (gfxTexture) {
+            const reflectionSampler = this._device.getSampler(texture.getSamplerInfo());
+            const subModels = this._subModels;
+            for (let i = 0; i < subModels.length; i++) {
+                const { descriptorSet } = subModels[i];
+                if (descriptorSet) {
+                    descriptorSet.bindSampler(UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_BINDING, reflectionSampler);
+                    descriptorSet.bindTexture(UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_BINDING, gfxTexture);
+                    descriptorSet.update();
+                }
+            }
+        }
+    }
+
+    /**
      * @en Update the planar relflection map of the reflection probe
      * @zh 更新反射探针的平面反射贴图
      * @param texture planar relflection map
@@ -1032,10 +1104,12 @@ export class Model {
     public updateReflectionProbeId  () {
         const sv = this._localData;
         sv[UBOLocal.LOCAL_SHADOW_BIAS + 2] = this._reflectionProbeId;
-        sv[UBOLocal.LOCAL_SHADOW_BIAS + 3] = 0;
+        sv[UBOLocal.LOCAL_SHADOW_BIAS + 3] = this._reflectionProbeBlendId;
         let probe: ReflectionProbe | null = null;
+        let blendProbe: ReflectionProbe | null = null;
         if (cclegacy.internal.reflectionProbeManager) {
             probe = cclegacy.internal.reflectionProbeManager.getProbeById(this._reflectionProbeId);
+            blendProbe = cclegacy.internal.reflectionProbeManager.getProbeById(this._reflectionProbeBlendId);
         }
         if (probe) {
             if (probe.probeType === ProbeType.PLANAR) {
@@ -1058,6 +1132,24 @@ export class Model {
                 sv[UBOLocal.REFLECTION_PROBE_DATA2 + 1] = probe.size.y;
                 sv[UBOLocal.REFLECTION_PROBE_DATA2 + 2] = probe.size.z;
                 sv[UBOLocal.REFLECTION_PROBE_DATA2 + 3] = probe.cubemap ? probe.cubemap.mipmapLevel : 1.0;
+            }
+            // eslint-disable-next-line max-len
+            if (this._reflectionProbeType === ReflectionProbeType.BLEND_PROBES
+                || this._reflectionProbeType === ReflectionProbeType.BLEND_PROBES_AND_SKYBOX) {
+                if (blendProbe) {
+                    sv[UBOLocal.REFLECTION_PROBE_BLEND_DATA1] = blendProbe.node.worldPosition.x;
+                    sv[UBOLocal.REFLECTION_PROBE_BLEND_DATA1 + 1] = blendProbe.node.worldPosition.y;
+                    sv[UBOLocal.REFLECTION_PROBE_BLEND_DATA1 + 2] = blendProbe.node.worldPosition.z;
+                    sv[UBOLocal.REFLECTION_PROBE_BLEND_DATA1 + 3] = this.reflectionProbeBlendWeight;
+
+                    sv[UBOLocal.REFLECTION_PROBE_BLEND_DATA2] = blendProbe.size.x;
+                    sv[UBOLocal.REFLECTION_PROBE_BLEND_DATA2 + 1] = blendProbe.size.y;
+                    sv[UBOLocal.REFLECTION_PROBE_BLEND_DATA2 + 2] = blendProbe.size.z;
+                    sv[UBOLocal.REFLECTION_PROBE_BLEND_DATA2 + 3] = blendProbe.cubemap ? blendProbe.cubemap.mipmapLevel : 1.0;
+                } else if (this._reflectionProbeType === ReflectionProbeType.BLEND_PROBES_AND_SKYBOX) {
+                    //blend with skybox
+                    sv[UBOLocal.REFLECTION_PROBE_BLEND_DATA1 + 3] = this.reflectionProbeBlendWeight;
+                }
             }
         }
         this._localDataUpdated = true;

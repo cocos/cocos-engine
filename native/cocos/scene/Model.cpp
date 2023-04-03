@@ -208,6 +208,7 @@ void Model::updateUBOs(uint32_t stamp) {
         _localBuffer->write(_shadowBias, sizeof(float) * (pipeline::UBOLocal::LOCAL_SHADOW_BIAS));
 
         auto * probe = scene::ReflectionProbeManager::getInstance()->getReflectionProbeById(_reflectionProbeId);
+        auto * blendProbe = scene::ReflectionProbeManager::getInstance()->getReflectionProbeById(_reflectionProbeBlendId);
         if (probe) {
             if (probe->getProbeType() == scene::ReflectionProbe::ProbeType::PLANAR) {
                 const Vec4 plane = {probe->getNode()->getUp().x, probe->getNode()->getUp().y, probe->getNode()->getUp().z, 1.F};
@@ -219,6 +220,15 @@ void Model::updateUBOs(uint32_t stamp) {
                 _localBuffer->write(pos, sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_DATA1));
                 const Vec4 boxSize = {probe->getBoudingSize().x, probe->getBoudingSize().y, probe->getBoudingSize().z, static_cast<float>(probe->getCubeMap() ? probe->getCubeMap()->mipmapLevel() : 1)};
                 _localBuffer->write(boxSize, sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_DATA2));
+            }
+            if (blendProbe && (_reflectionProbeType == static_cast<int32_t>(scene::ReflectionProbe::UseProbeType::BLEND_PROBES) ||
+                               _reflectionProbeType == static_cast<int32_t>(scene::ReflectionProbe::UseProbeType::BLEND_PROBES_AND_SKYBOX))) {
+                const Vec3 worldPos = blendProbe->getNode()->getWorldPosition();
+                Vec3 boudingBox = blendProbe->getBoudingSize();
+                const Vec4 pos = {worldPos.x, worldPos.y, worldPos.z, _reflectionProbeBlendWeight};
+                _localBuffer->write(pos, sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_BLEND_DATA1));
+                const Vec4 boxSize = {boudingBox.x, boudingBox.y, boudingBox.z, static_cast<float>(blendProbe->getCubeMap() ? blendProbe->getCubeMap()->mipmapLevel() : 1)};
+                _localBuffer->write(boxSize, sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_BLEND_DATA2));
             }
         }
 
@@ -655,6 +665,23 @@ void Model::updateReflectionProbeDataMap(Texture2D *texture) {
             gfx::DescriptorSet *descriptorSet = subModel->getDescriptorSet();
             descriptorSet->bindTexture(pipeline::REFLECTIONPROBEDATAMAP::BINDING, gfxTexture);
             descriptorSet->bindSampler(pipeline::REFLECTIONPROBEDATAMAP::BINDING, texture->getGFXSampler());
+            descriptorSet->update();
+        }
+    }
+}
+
+void Model::updateReflectionProbeBlendCubemap(TextureCube *texture) {
+    _localDataUpdated = true;
+    if (texture == nullptr) {
+        texture = BuiltinResMgr::getInstance()->get<TextureCube>(ccstd::string("default-cube-texture"));
+    }
+    gfx::Texture *gfxTexture = texture->getGFXTexture();
+    if (gfxTexture) {
+        auto *sampler = _device->getSampler(texture->getSamplerInfo());
+        for (SubModel *subModel : _subModels) {
+            gfx::DescriptorSet *descriptorSet = subModel->getDescriptorSet();
+            descriptorSet->bindTexture(pipeline::REFLECTIONPROBEBLENDCUBEMAP::BINDING, gfxTexture);
+            descriptorSet->bindSampler(pipeline::REFLECTIONPROBEBLENDCUBEMAP::BINDING, sampler);
             descriptorSet->update();
         }
     }

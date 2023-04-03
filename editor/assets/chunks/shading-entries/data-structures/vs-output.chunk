@@ -37,6 +37,13 @@
   #define VSOutput_reflectionProbeId v_shadowBiasAndProbeId.z
 #endif
 
+#if CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND || CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND_AND_SKYBOX
+  #define VSOutput_reflectionProbeBlendId v_shadowBiasAndProbeId.w
+  #if USE_INSTANCING
+    #define VSOutput_reflectionProbeData v_reflectionProbeData
+  #endif
+#endif
+
 #if CC_USE_FOG != CC_FOG_NONE && !CC_USE_ACCURATE_FOG
   #define VSOutput_fogFactor v_fogFactor
 #endif
