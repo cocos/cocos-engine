@@ -131,6 +131,7 @@ exports.template = /* html */`
             <ui-label value="LODS" tooltip="To import LODs, please make sure the LOD mesh names are ending with _LOD#"></ui-label>
         </div>
         <div class="lod-items"></div>
+        <div class="no-lod-label" hidden>There is no LOD(Level of Details) group can be detected in this model.LOD levels can be automatically generated with above settings.</div>
     </ui-section>
 </div>
 `;
@@ -233,6 +234,14 @@ ui-section {
     background: var(--color-hover-fill-weaker);
     color: var(--color-focus-contrast-emphasis);
 }
+.lods .no-lod-label {
+    padding-left: 20px;
+    text-align: center;
+    margin-top: 4px;
+}
+.lods .no-lod-label[hidden] {
+    display: none;
+}
 `;
 
 exports.$ = {
@@ -268,6 +277,7 @@ exports.$ = {
     // lods
     lodsCheckbox: '.lods-checkbox',
     lodItems: '.lod-items',
+    noLodLabel: '.no-lod-label',
 };
 
 const Elements = {
@@ -763,18 +773,79 @@ const Elements = {
         ready() {
             const panel = this;
 
+            // TODO: 启用 lods 使用减面算法自动生成
             // 监听 LODS 的开启和关闭
             panel.$.lodsCheckbox.addEventListener('change', panel.setProp.bind(panel, 'lods.enable', 'boolean'));
             panel.$.lodsCheckbox.addEventListener('confirm', () => {
                 panel.dispatch('snapshot');
             });
-            // TODO: 需要自定义监听 LOD# 的修改和提交
+            // 自定义监听 screenRatio 和 faceCount 变化
             panel.$.lodItems.addEventListener('change', (event) => {
                 const path = event.target.getAttribute('path');
-                if (path === 'screenRatio') {
-                    // TODO: 补充各层级 LOD 的 screenRatio 的 min/max
-                    panel.setProp.bind(panel, '');
+                const index = Number(event.target.getAttribute('key'));
+                const value = Editor.Utils.Math.divide(event.target.value, 100);
+                switch (path) {
+                    case 'screenRatio':
+                        // TODO: 补充各层级 LOD 的 screenRatio 的 min/max
+                        panel.metaList.forEach((meta) => {
+                            meta.userData.lods.options[index].screenRatio = value;
+                        });
+                        panel.dispatch('change');
+                        break;
+                    case 'faceCount':
+                        // TODO: 补充各层级 LOD 的 faceCount 的 min/max
+                        panel.metaList.forEach((meta) => {
+                            meta.userData.lods.options[index].faceCount = value;
+                        });
+                        panel.dispatch('change');
+                        break;
                 }
+            });
+            // 监听新增删除 lod 层级
+            panel.$.lodItems.addEventListener('click', (event) => {
+                event.stopPropagation();
+                event.preventDefault();
+                const path = event.target.getAttribute('path');
+                const index = Number(event.target.getAttribute('key'));
+                if (path === 'insertLod') {
+                    if (Object.keys(panel.meta.userData.lods.options).length >= 8) {
+                        console.warn('Maximum 8 LOD, Can\'t add more LOD');
+                        return;
+                    }
+                    const preScreenRatio = panel.meta.userData.lods.options[index].screenRatio;
+                    const nextScreenRatio = panel.meta.userData.lods.options[index + 1] ? panel.meta.userData.lods.options[index + 1].screenRatio : 0;
+                    const preFaceCount = panel.meta.userData.lods.options[index].faceCount;
+                    const nextFaceCount = panel.meta.userData.lods.options[index + 1] ? panel.meta.userData.lods.options[index + 1].faceCount : 0;
+                    const option = {
+                        screenRatio: (preScreenRatio + nextScreenRatio) / 2,
+                        triangleCount: 0,
+                        faceCount: (preFaceCount + nextFaceCount) / 2,
+                    };
+                    // 插入指定 lod 层级
+                    for (let key = Object.keys(panel.meta.userData.lods.options).length - 1; key > index; key--) {
+                        panel.meta.userData.lods.options[parseInt(key) + 1] = panel.meta.userData.lods.options[key];
+                    }
+                    panel.meta.userData.lods.options[index + 1] = option;
+                    // 更新面板
+                    panel.$.lodItems.innerHTML = getLodItemHTML(panel.meta.userData.lods.options, panel.meta.userData.lods.isBuiltin);
+                    panel.dispatch('change');
+                } else if (path === 'deleteLod') {
+                    if (Object.keys(panel.meta.userData.lods.options).length <= 1) {
+                        console.warn('At least one LOD, Can\'t delete any more');
+                        return;
+                    }
+                    // 删除指定 lod 层级
+                    for (let key = index; key < Object.keys(panel.meta.userData.lods.options).length; key++) {
+                        panel.meta.userData.lods.options[key] = panel.meta.userData.lods.options[key + 1];
+                    }
+                    delete panel.meta.userData.lods.options[Object.keys(panel.meta.userData.lods.options).length - 1];
+                    // 更新面板
+                    panel.$.lodItems.innerHTML = getLodItemHTML(panel.meta.userData.lods.options, panel.meta.userData.lods.isBuiltin);
+                    panel.dispatch('change');
+                }
+            });
+            panel.$.lodItems.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
             });
         },
         update() {
@@ -782,16 +853,12 @@ const Elements = {
 
             panel.$.lodsCheckbox.value = getPropValue.call(panel, panel.meta.userData.lods, false, 'enable');
             const lodItems = panel.meta.userData.lods.options || [];
-            const disable = panel.meta.userData.lods.disable;
-            if (Object.keys(lodItems).length) {
-                panel.$.lodItems.innerHTML = getLodItemHTML(lodItems, disable);
-            } else {
-                // TODO: 没有 options，没有包含 lod 显示生成按钮
-                panel.$.lodItems.innerHTML = '不包含 LOD，请开启 LODS 后自动生成';
-            }
+            const isBuiltin = panel.meta.userData.lods.isBuiltin;
+            panel.$.lodItems.innerHTML = getLodItemHTML(lodItems, isBuiltin);
+            isBuiltin ? panel.$.noLodLabel.setAttribute('hidden', '') : panel.$.noLodLabel.removeAttribute('hidden');
 
             updateElementInvalid.call(panel, panel.$.lodsCheckbox, 'lods.enable');
-            // updateElementReadonly.call(panel, panel.$.lodsCheckbox, 'lods.disable');
+            updateElementReadonly.call(panel, panel.$.lodsCheckbox, isBuiltin);
         },
     },
     // lods end
@@ -841,39 +908,45 @@ exports.close = function() {
     }
 };
 
-function getLodItemHTML(lodItems, disable = false) {
+function getLodItemHTML(lodItems, isBuiltin = false) {
     let lodItemsStr = '';
     for (const index in lodItems) {
         const lodItem = lodItems[index];
         lodItemsStr += `
 <div class="lod-item">
-    <ui-section>
+    <ui-section cache-expand="fbx-mode-lod-item-${index}">
         <header slot="header" class="lod-item-header">
             <div class="left">
                 <span>LOD ${index}</span>
             </div>
-            <div class="middle" ${ index == 0 ? 'hidden' : '' }>
+            <div class="middle" ${ index == 0 || lodItems[0].faceCount == 0 ? 'hidden' : '' }>
                 <span class="face-count">Face count(%)</span>
-                <ui-num-input path="faceCount" value="${Editor.Utils.Math.multi(lodItem.faceCount, 100)}" ${ disable ? 'disabled' : '' }></ui-num-input>
+                <ui-num-input path="faceCount" min="0" max="100" key="${index}"
+                    value="${Editor.Utils.Math.multi(lodItem.faceCount, 100)}"
+                    ${ isBuiltin ? 'disabled' : '' }>
+                </ui-num-input>
             </div>
             <div class="right">
                 <div class="triangles">
                     <span> ${lodItem.triangleCount} Triangles</span>
                 </div>
-                <div class="operator" ${ disable ? 'hidden' : '' }>
-                    <ui-icon value="add" tooltip="insert after this LOD"></ui-icon>
-                    <ui-icon value="reduce" tooltip="delete this LOD"></ui-icon>
+                <div class="operator" ${ isBuiltin ? 'hidden' : '' }>
+                    <ui-icon value="add" key="${index}" path="insertLod" tooltip="insert after this LOD"></ui-icon>
+                    <ui-icon value="reduce" key="${index}" path="deleteLod" tooltip="delete this LOD"></ui-icon>
                 </div>
             </div>
         </header>
         <div class="lod-item-content">
             <ui-prop>
                 <ui-label slot="label" value="Screen Ratio (%)"></ui-label>
-                <ui-num-input slot="content" path="screenRatio" value="${Editor.Utils.Math.multi(lodItem.screenRatio, 100)}"></ui-num-input>
+                <ui-num-input slot="content" key="${index}" path="screenRatio" min="0" max="100"
+                    value="${Editor.Utils.Math.multi(lodItem.screenRatio, 100)}">
+                </ui-num-input>
             </ui-prop>
         </div>
     </ui-section>
 </div>`;
     }
+
     return lodItemsStr;
 }
