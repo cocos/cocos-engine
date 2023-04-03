@@ -268,6 +268,13 @@ const getGradientBandCartesianCoords: GetGradientBandCoords = (pI, pJ, input, pI
 
 const PRECOMPUTED_VIJ_DATA_STRIDE = 3;
 
+/**
+ * The class tracking the polar space gradient band interpolation.
+ * For code readers, throughout the implementation:
+ * - Variable names like `V_IJ` denotes a vector pointing from example motion "I" to example motion "J";
+ * - Variable names like `V_IX` denotes a vector pointing from example motion "I" to new velocity being queried, which is properly named "X".
+ * For detail definitions see section 6.3 in [paper](https://runevision.com/thesis/rune_skovbo_johansen_thesis.pdf) .
+ */
 export class PolarSpaceGradientBandInterpolator2D {
     private static _CACHE_INPUT_DIRECTION = new Vec2();
 
@@ -295,7 +302,7 @@ export class PolarSpaceGradientBandInterpolator2D {
             return direction;
         });
 
-        const precomputedPIJs = this._precomputedPIJs = new Float32Array(PRECOMPUTED_VIJ_DATA_STRIDE * nExamples * nExamples);
+        const precomputedVIJs = this._precomputedVIJs = new Float32Array(PRECOMPUTED_VIJ_DATA_STRIDE * nExamples * nExamples);
         for (let iExample = 0; iExample < nExamples; ++iExample) {
             const magnitudeI = exampleMagnitudes[iExample];
             const directionI = exampleDirections[iExample];
@@ -307,9 +314,9 @@ export class PolarSpaceGradientBandInterpolator2D {
                 const directionJ = exampleDirections[jExample];
                 const averagedMagnitude = (magnitudeI + magnitudeJ) / 2;
                 const pOutput = PRECOMPUTED_VIJ_DATA_STRIDE * (nExamples * iExample + jExample);
-                precomputedPIJs[pOutput + 0] = (magnitudeJ - magnitudeI) / averagedMagnitude;
-                precomputedPIJs[pOutput + 1] = signedAngle(directionI, directionJ) * angleMultiplier;
-                precomputedPIJs[pOutput + 2] = averagedMagnitude;
+                precomputedVIJs[pOutput + 0] = (magnitudeJ - magnitudeI) / averagedMagnitude;
+                precomputedVIJs[pOutput + 1] = signedAngle(directionI, directionJ) * angleMultiplier;
+                precomputedVIJs[pOutput + 2] = averagedMagnitude;
             }
         }
 
@@ -320,7 +327,7 @@ export class PolarSpaceGradientBandInterpolator2D {
         const {
             _exampleDirections: exampleDirections,
             _exampleMagnitudes: exampleMagnitudes,
-            _precomputedPIJs: precomputedVIJs,
+            _precomputedVIJs: precomputedVIJs,
             _cacheVIXAngles: cacheVIXAngles,
         } = this;
 
@@ -442,7 +449,7 @@ export class PolarSpaceGradientBandInterpolator2D {
     /**
      * n*n Precomputed (\vec{p_i}{p_j}, (|p_i| + |p_j|) / 2).
      */
-    private declare _precomputedPIJs: Float32Array;
+    private declare _precomputedVIJs: Float32Array;
 
     private declare _cacheVIXAngles: Float32Array;
 }
