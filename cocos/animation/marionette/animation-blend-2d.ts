@@ -161,7 +161,7 @@ export class AnimationBlend2D extends AnimationBlend {
     }
 
     @serializable
-    public _algorithm = Algorithm.SIMPLE_DIRECTIONAL;
+    private _algorithm = Algorithm.SIMPLE_DIRECTIONAL;
 
     private _polarSpaceGBI: PolarSpaceGradientBandInterpolator2D | undefined = undefined;
 
