@@ -33,6 +33,7 @@ import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { BuiltinParticleParameter, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
 import { RandNumGen } from '../rand-num-gen';
+import { ParticleVec3ArrayParameter } from '../particle-parameter';
 
 export class PerlinNoise1DCache {
     i0 = 0;
@@ -766,11 +767,7 @@ export class NoiseModule extends ParticleModule {
             const { velocity } = particles;
             if (this.positionAmount.mode === CurveRange.Mode.Constant) {
                 const amount = this.positionAmount.constant;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    vec3Register.getVec3At(deltaVelocity, i);
-                    Vec3.multiplyScalar(deltaVelocity, deltaVelocity, amount);
-                    velocity.addVec3At(deltaVelocity, i);
-                }
+                ParticleVec3ArrayParameter.scaleAndAdd(velocity, velocity, vec3Register, amount, fromIndex, toIndex);
             } else if (this.positionAmount.mode === CurveRange.Mode.Curve) {
                 const normalizedAliveTime = particles.normalizedAliveTime.data;
                 const { spline, multiplier } = this.positionAmount;
@@ -807,11 +804,7 @@ export class NoiseModule extends ParticleModule {
             const { rotation } = particles;
             if (this.rotationAmount.mode === CurveRange.Mode.Constant) {
                 const amount = this.rotationAmount.constant * deltaTime;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    vec3Register.getVec3At(rotationRate, i);
-                    Vec3.multiplyScalar(rotationRate, rotationRate, amount);
-                    rotation.addVec3At(rotationRate, i);
-                }
+                ParticleVec3ArrayParameter.scaleAndAdd(rotation, rotation, vec3Register, amount, fromIndex, toIndex);
             } else if (this.rotationAmount.mode === CurveRange.Mode.Curve) {
                 const normalizedAliveTime = particles.normalizedAliveTime.data;
                 const { spline } = this.rotationAmount;

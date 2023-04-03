@@ -33,68 +33,6 @@ describe('ParticleVec3ArrayParameter', () => {
         expect(vec3Parameter.data.length).toBe(32 * 3);
     });
 
-    test('set3fAt', () => {
-        expect(() => vec3Parameter.set3fAt(1, 2, 3, -1)).toThrowError();
-        expect(() => vec3Parameter.set3fAt(1, 2, 3, 10000)).toThrowError();
-        const randomIndex = Math.floor(Math.random() * vec3Parameter.capacity); 
-        vec3Parameter.set3fAt(1, 2, 3, randomIndex);
-        for (let i = 1; i < vec3Parameter.capacity; i++) {
-            if (i === randomIndex) {
-                expect(vec3Parameter.data[randomIndex * 3]).toBe(1);
-                expect(vec3Parameter.data[randomIndex * 3 + 1]).toBe(2);
-                expect(vec3Parameter.data[randomIndex * 3 + 2]).toBe(3);
-            } else {
-                expect(vec3Parameter.data[i * 3]).toBe(0);
-                expect(vec3Parameter.data[i * 3 + 1]).toBe(0);
-                expect(vec3Parameter.data[i * 3 + 2]).toBe(0);
-            }
-        }
-        vec3Parameter.set3fAt(0, 0, 0, randomIndex);
-        for (let i = 0; i < vec3Parameter.capacity; i += 2) {
-            vec3Parameter.set3fAt(i * 3, i * 3 + 1, i * 3 + 2, i);
-        }
-        const data = vec3Parameter.data;
-        for (let i = 0; i < vec3Parameter.capacity; i++) {
-            if (i % 2 === 1) {
-                expect(data[i * 3]).toBe(0);
-                expect(data[i * 3 + 1]).toBe(0);
-                expect(data[i * 3 + 2]).toBe(0);
-            } else {
-                expect(data[i * 3]).toBe(i * 3);
-                expect(data[i * 3 + 1]).toBe(i * 3 + 1);
-                expect(data[i * 3 + 2]).toBe(i * 3 + 2);
-            }
-        }
-
-        for (let i = 0; i < vec3Parameter.capacity; i++) {
-            if (i % 2 === 1) {
-                vec3Parameter.set3fAt(i * 3, i * 3 + 1, i * 3 + 2, i);
-            } else {
-                vec3Parameter.set3fAt(0, 0, 0, i);
-            }
-        }
-
-        for (let i = 0; i < vec3Parameter.capacity; i++) {
-            if (i % 2 === 0) {
-                expect(data[i * 3]).toBe(0);
-                expect(data[i * 3 + 1]).toBe(0);
-                expect(data[i * 3 + 2]).toBe(0);
-            } else {
-                expect(data[i * 3]).toBe(i * 3);
-                expect(data[i * 3 + 1]).toBe(i * 3 + 1);
-                expect(data[i * 3 + 2]).toBe(i * 3 + 2);
-            }
-        }
-        for (let i = 0; i < vec3Parameter.capacity; i++) {
-            vec3Parameter.set3fAt(i ** 2, i / vec3Parameter.capacity, Math.sqrt(i), i);
-        }
-        for (let i = 0; i < vec3Parameter.capacity; i++) {
-            expect(data[i * 3]).toBeCloseTo(i ** 2, 5);
-            expect(data[i * 3 + 1]).toBeCloseTo(i / vec3Parameter.capacity, 5);
-            expect(data[i * 3 + 2]).toBeCloseTo(Math.sqrt(i), 5);
-        }
-    });
-
     test('fill1f', () => {
         expect(() => vec3Parameter.fill1f(1, -1, 2)).toThrowError();
         expect(() => vec3Parameter.fill1f(1, 2, 10000)).toThrowError();
@@ -155,105 +93,6 @@ describe('ParticleVec3ArrayParameter', () => {
         }
     });
 
-    test('getVec3At', () => {
-        vec3Parameter.fill1f(1, 0, vec3Parameter.capacity);
-        expect(() => vec3Parameter.getVec3At(vec3, -1)).toThrowError();
-        expect(() => vec3Parameter.getVec3At(vec3, 10000)).toThrowError();
-        expect(vec3Parameter.getVec3At(vec3, 0)).toBe(vec3);
-        for (let i = 0; i < vec3Parameter.capacity; i++) {
-            vec3Parameter.getVec3At(vec3, i);
-            expect(vec3.x).toBe(1);
-            expect(vec3.y).toBe(1);
-            expect(vec3.z).toBe(1);
-        }
-        for (let i = 0; i < vec3Parameter.capacity; i++) {
-            vec3Parameter.set3fAt(i ** 2, i / vec3Parameter.capacity, Math.sqrt(i), i);
-        }
-        for (let i = 0; i < vec3Parameter.capacity; i++) {
-            vec3Parameter.getVec3At(vec3, i);
-            expect(vec3.x).toBeCloseTo(i ** 2, 5);
-            expect(vec3.y).toBeCloseTo(i / vec3Parameter.capacity, 5);
-            expect(vec3.z).toBeCloseTo(Math.sqrt(i), 5);
-        }
-
-    });
-
-    test('move', () => {
-        vec3Parameter.fill1f(0, 0, vec3Parameter.capacity);
-        expect(() => vec3Parameter.move(1, -1)).toThrowError();
-        expect(() => vec3Parameter.move(1, 10000)).toThrowError();
-        const randomIndex1 = Math.floor(Math.random() * vec3Parameter.capacity);
-        const randomIndex2 = Math.floor(Math.random() * vec3Parameter.capacity);
-        vec3Parameter.set3fAt(2, 2, 2, randomIndex1);
-        vec3Parameter.set3fAt(3, 3, 3, randomIndex2);
-        vec3Parameter.move(randomIndex1, randomIndex2);
-        for (let i = 0; i < vec3Parameter.capacity; i++) {
-            if (i === randomIndex1 || i === randomIndex2) {
-                expect(vec3Parameter.data[i * 3]).toBe(2);
-                expect(vec3Parameter.data[i * 3 + 1]).toBe(2);
-                expect(vec3Parameter.data[i * 3 + 2]).toBe(2);
-            } else {
-                expect(vec3Parameter.data[i * 3]).toBe(0);
-                expect(vec3Parameter.data[i * 3 + 1]).toBe(0);
-                expect(vec3Parameter.data[i * 3 + 2]).toBe(0);
-            }
-        }
-        vec3Parameter.set3fAt(0, 0, 0, randomIndex1);
-        vec3Parameter.set3fAt(0, 0, 0, randomIndex1);
-        for (let i = 0; i < vec3Parameter.capacity; i += 2) {
-            vec3Parameter.set3fAt(i ** 2, i / vec3Parameter.capacity, Math.sqrt(i), i);
-        }
-        for (let i = 0; i < vec3Parameter.capacity; i += 2) {
-            vec3Parameter.move(i, i + 1);
-        }
-        for (let i = 0; i < vec3Parameter.capacity; i++) {
-            if (i % 2 === 0) {
-                vec3Parameter.getVec3At(vec3, i);
-                expect(vec3.x).toBeCloseTo(i ** 2, 5);
-                expect(vec3.y).toBeCloseTo(i / vec3Parameter.capacity, 5);
-                expect(vec3.z).toBeCloseTo(Math.sqrt(i), 5);
-            } else {
-                expect(vec3Parameter.data[i * 3]).toBe(vec3.x);
-                expect(vec3Parameter.data[i * 3 + 1]).toBe(vec3.y);
-                expect(vec3Parameter.data[i * 3 + 2]).toBe(vec3.z);
-            }
-        }
-    });
-
-    test('set1fAt', () => {
-        vec3Parameter.fill1f(0, 0, vec3Parameter.capacity);
-        expect(() => vec3Parameter.set1fAt(1, -1)).toThrowError();
-        expect(() => vec3Parameter.set1fAt(1, 10000)).toThrowError();
-        const randomIndex = Math.floor(Math.random() * vec3Parameter.capacity);
-        vec3Parameter.set1fAt(2, randomIndex);
-        for (let i = 0; i < vec3Parameter.capacity; i++) {
-            if (i === randomIndex) {
-                expect(vec3Parameter.data[randomIndex * 3]).toBe(2);
-                expect(vec3Parameter.data[randomIndex * 3 + 1]).toBe(2);
-                expect(vec3Parameter.data[randomIndex * 3 + 2]).toBe(2);
-            } else {
-                expect(vec3Parameter.data[i * 3]).toBe(0);
-                expect(vec3Parameter.data[i * 3 + 1]).toBe(0);
-                expect(vec3Parameter.data[i * 3 + 2]).toBe(0);
-            }
-        }
-        vec3Parameter.set1fAt(0, randomIndex);
-        for (let i = 0; i < vec3Parameter.capacity; i += 2) {
-            vec3Parameter.set1fAt(vec3Parameter.capacity - i, i);
-        }
-        for (let i = 0; i < vec3Parameter.capacity; i++) {
-            if (i % 2 === 0) {
-                expect(vec3Parameter.data[i * 3]).toBe(vec3Parameter.capacity - i);
-                expect(vec3Parameter.data[i * 3 + 1]).toBe(vec3Parameter.capacity - i);
-                expect(vec3Parameter.data[i * 3 + 2]).toBe(vec3Parameter.capacity - i);
-            } else {
-                expect(vec3Parameter.data[i * 3]).toBe(0);
-                expect(vec3Parameter.data[i * 3 + 1]).toBe(0);
-                expect(vec3Parameter.data[i * 3 + 2]).toBe(0);
-            }
-        }
-    });
-
     test('set x, y, z, get x, y, z', () => {
         vec3Parameter.fill1f(0, 0, vec3Parameter.capacity);
         expect(() => vec3Parameter.setXAt(1, -1)).toThrowError();
@@ -309,6 +148,169 @@ describe('ParticleVec3ArrayParameter', () => {
         }
     });
 
+    test('set3fAt', () => {
+        expect(() => vec3Parameter.set3fAt(1, 2, 3, -1)).toThrowError();
+        expect(() => vec3Parameter.set3fAt(1, 2, 3, 10000)).toThrowError();
+        vec3Parameter.fill1f(0, 0, vec3Parameter.capacity);
+        const randomIndex = Math.floor(Math.random() * vec3Parameter.capacity); 
+        vec3Parameter.set3fAt(1, 2, 3, randomIndex);
+        for (let i = 1; i < vec3Parameter.capacity; i++) {
+            if (i === randomIndex) {
+                expect(vec3Parameter.getXAt(i)).toBe(1);
+                expect(vec3Parameter.getYAt(i)).toBe(2);
+                expect(vec3Parameter.getZAt(i)).toBe(3);
+            } else {
+                expect(vec3Parameter.getXAt(i)).toBe(0);
+                expect(vec3Parameter.getYAt(i)).toBe(0);
+                expect(vec3Parameter.getZAt(i)).toBe(0);
+            }
+        }
+        vec3Parameter.set3fAt(0, 0, 0, randomIndex);
+        for (let i = 0; i < vec3Parameter.capacity; i += 2) {
+            vec3Parameter.set3fAt(i * 3, i * 3 + 1, i * 3 + 2, i);
+        }
+        for (let i = 0; i < vec3Parameter.capacity; i++) {
+            if (i % 2 === 1) {
+                expect(vec3Parameter.getXAt(i)).toBe(0);
+                expect(vec3Parameter.getYAt(i)).toBe(0);
+                expect(vec3Parameter.getZAt(i)).toBe(0);
+            } else {
+                expect(vec3Parameter.getXAt(i)).toBe(i * 3);
+                expect(vec3Parameter.getYAt(i)).toBe(i * 3 + 1);
+                expect(vec3Parameter.getZAt(i)).toBe(i * 3 + 2);
+            }
+        }
+
+        for (let i = 0; i < vec3Parameter.capacity; i++) {
+            if (i % 2 === 1) {
+                vec3Parameter.set3fAt(i * 3, i * 3 + 1, i * 3 + 2, i);
+            } else {
+                vec3Parameter.set3fAt(0, 0, 0, i);
+            }
+        }
+
+        for (let i = 0; i < vec3Parameter.capacity; i++) {
+            if (i % 2 === 0) {
+                expect(vec3Parameter.getXAt(i)).toBe(0);
+                expect(vec3Parameter.getYAt(i)).toBe(0);
+                expect(vec3Parameter.getZAt(i)).toBe(0);
+            } else {
+                expect(vec3Parameter.getXAt(i)).toBe(i * 3);
+                expect(vec3Parameter.getYAt(i)).toBe(i * 3 + 1);
+                expect(vec3Parameter.getZAt(i)).toBe(i * 3 + 2);
+            }
+        }
+        for (let i = 0; i < vec3Parameter.capacity; i++) {
+            vec3Parameter.set3fAt(i ** 2, i / vec3Parameter.capacity, Math.sqrt(i), i);
+        }
+        for (let i = 0; i < vec3Parameter.capacity; i++) {
+            expect(vec3Parameter.getXAt(i)).toBeCloseTo(i ** 2, 5);
+            expect(vec3Parameter.getYAt(i)).toBeCloseTo(i / vec3Parameter.capacity, 5);
+            expect(vec3Parameter.getZAt(i)).toBeCloseTo(Math.sqrt(i), 5);
+        }
+    });
+
+    
+
+    test('getVec3At', () => {
+        vec3Parameter.fill1f(1, 0, vec3Parameter.capacity);
+        expect(() => vec3Parameter.getVec3At(vec3, -1)).toThrowError();
+        expect(() => vec3Parameter.getVec3At(vec3, 10000)).toThrowError();
+        expect(vec3Parameter.getVec3At(vec3, 0)).toBe(vec3);
+        for (let i = 0; i < vec3Parameter.capacity; i++) {
+            vec3Parameter.getVec3At(vec3, i);
+            expect(vec3.x).toBe(1);
+            expect(vec3.y).toBe(1);
+            expect(vec3.z).toBe(1);
+        }
+        for (let i = 0; i < vec3Parameter.capacity; i++) {
+            vec3Parameter.set3fAt(i ** 2, i / vec3Parameter.capacity, Math.sqrt(i), i);
+        }
+        for (let i = 0; i < vec3Parameter.capacity; i++) {
+            vec3Parameter.getVec3At(vec3, i);
+            expect(vec3.x).toBeCloseTo(i ** 2, 5);
+            expect(vec3.y).toBeCloseTo(i / vec3Parameter.capacity, 5);
+            expect(vec3.z).toBeCloseTo(Math.sqrt(i), 5);
+        }
+
+    });
+
+    test('move', () => {
+        vec3Parameter.fill1f(0, 0, vec3Parameter.capacity);
+        expect(() => vec3Parameter.move(1, -1)).toThrowError();
+        expect(() => vec3Parameter.move(1, 10000)).toThrowError();
+        const randomIndex1 = Math.floor(Math.random() * vec3Parameter.capacity);
+        const randomIndex2 = Math.floor(Math.random() * vec3Parameter.capacity);
+        vec3Parameter.set3fAt(2, 2, 2, randomIndex1);
+        vec3Parameter.set3fAt(3, 3, 3, randomIndex2);
+        vec3Parameter.move(randomIndex1, randomIndex2);
+        for (let i = 0; i < vec3Parameter.capacity; i++) {
+            if (i === randomIndex1 || i === randomIndex2) {
+                expect(vec3Parameter.getXAt(i)).toBe(2);
+                expect(vec3Parameter.getYAt(i)).toBe(2);
+                expect(vec3Parameter.getZAt(i)).toBe(2);
+            } else {
+                expect(vec3Parameter.getXAt(i)).toBe(0);
+                expect(vec3Parameter.getYAt(i)).toBe(0);
+                expect(vec3Parameter.getZAt(i)).toBe(0);
+            }
+        }
+        vec3Parameter.set3fAt(0, 0, 0, randomIndex1);
+        vec3Parameter.set3fAt(0, 0, 0, randomIndex1);
+        for (let i = 0; i < vec3Parameter.capacity; i += 2) {
+            vec3Parameter.set3fAt(i ** 2, i / vec3Parameter.capacity, Math.sqrt(i), i);
+        }
+        for (let i = 0; i < vec3Parameter.capacity; i += 2) {
+            vec3Parameter.move(i, i + 1);
+        }
+        for (let i = 0; i < vec3Parameter.capacity; i++) {
+            if (i % 2 === 0) {
+                vec3Parameter.getVec3At(vec3, i);
+                expect(vec3.x).toBeCloseTo(i ** 2, 5);
+                expect(vec3.y).toBeCloseTo(i / vec3Parameter.capacity, 5);
+                expect(vec3.z).toBeCloseTo(Math.sqrt(i), 5);
+            } else {
+                expect(vec3Parameter.getXAt(i)).toBe(vec3.x);
+                expect(vec3Parameter.getYAt(i)).toBe(vec3.y);
+                expect(vec3Parameter.getZAt(i)).toBe(vec3.z);
+            }
+        }
+    });
+
+    test('set1fAt', () => {
+        vec3Parameter.fill1f(0, 0, vec3Parameter.capacity);
+        expect(() => vec3Parameter.set1fAt(1, -1)).toThrowError();
+        expect(() => vec3Parameter.set1fAt(1, 10000)).toThrowError();
+        const randomIndex = Math.floor(Math.random() * vec3Parameter.capacity);
+        vec3Parameter.set1fAt(2, randomIndex);
+        for (let i = 0; i < vec3Parameter.capacity; i++) {
+            if (i === randomIndex) {
+                expect(vec3Parameter.getXAt(i)).toBe(2);
+                expect(vec3Parameter.getYAt(i)).toBe(2);
+                expect(vec3Parameter.getZAt(i)).toBe(2);
+            } else {
+                expect(vec3Parameter.getXAt(i)).toBe(0);
+                expect(vec3Parameter.getYAt(i)).toBe(0);
+                expect(vec3Parameter.getZAt(i)).toBe(0);
+            }
+        }
+        vec3Parameter.set1fAt(0, randomIndex);
+        for (let i = 0; i < vec3Parameter.capacity; i += 2) {
+            vec3Parameter.set1fAt(vec3Parameter.capacity - i, i);
+        }
+        for (let i = 0; i < vec3Parameter.capacity; i++) {
+            if (i % 2 === 0) {
+                expect(vec3Parameter.getXAt(i)).toBe(vec3Parameter.capacity - i);
+                expect(vec3Parameter.getYAt(i)).toBe(vec3Parameter.capacity - i);
+                expect(vec3Parameter.getZAt(i)).toBe(vec3Parameter.capacity - i);
+            } else {
+                expect(vec3Parameter.getXAt(i)).toBe(0);
+                expect(vec3Parameter.getYAt(i)).toBe(0);
+                expect(vec3Parameter.getZAt(i)).toBe(0);
+            }
+        }
+    });
+
     test('setVec3At', () => {
         vec3Parameter.fill1f(1, 0, vec3Parameter.capacity);
         expect(() => vec3Parameter.setVec3At(vec3, -1)).toThrowError();
@@ -318,13 +320,13 @@ describe('ParticleVec3ArrayParameter', () => {
         vec3Parameter.setVec3At(vec3, randomIndex);
         for (let i = 0; i < vec3Parameter.capacity; i++) {
             if (i === randomIndex) {
-                expect(vec3Parameter.data[randomIndex * 3]).toBe(2);
-                expect(vec3Parameter.data[randomIndex * 3 + 1]).toBe(3);
-                expect(vec3Parameter.data[randomIndex * 3 + 2]).toBe(4);
+                expect(vec3Parameter.getXAt(i)).toBe(2);
+                expect(vec3Parameter.getYAt(i)).toBe(3);
+                expect(vec3Parameter.getZAt(i)).toBe(4);
             } else {
-                expect(vec3Parameter.data[i * 3]).toBe(1);
-                expect(vec3Parameter.data[i * 3 + 1]).toBe(1);
-                expect(vec3Parameter.data[i * 3 + 2]).toBe(1);
+                expect(vec3Parameter.getXAt(i)).toBe(1);
+                expect(vec3Parameter.getYAt(i)).toBe(1);
+                expect(vec3Parameter.getZAt(i)).toBe(1);
             }
         }
         vec3Parameter.setVec3At(Vec3.ONE, randomIndex);
@@ -351,13 +353,13 @@ describe('ParticleVec3ArrayParameter', () => {
         vec3Parameter.addVec3At(vec3, randomIndex);
         for (let i = 0; i < vec3Parameter.capacity; i++) {
             if (i === randomIndex) {
-                expect(vec3Parameter.data[i * 3]).toBe(3);
-                expect(vec3Parameter.data[i * 3 + 1]).toBe(4);
-                expect(vec3Parameter.data[i * 3 + 2]).toBe(5);
+                expect(vec3Parameter.getXAt(i)).toBe(3);
+                expect(vec3Parameter.getYAt(i)).toBe(4);
+                expect(vec3Parameter.getZAt(i)).toBe(5);
             } else {
-                expect(vec3Parameter.data[i * 3]).toBe(1);
-                expect(vec3Parameter.data[i * 3 + 1]).toBe(1);
-                expect(vec3Parameter.data[i * 3 + 2]).toBe(1);
+                expect(vec3Parameter.getXAt(i)).toBe(1);
+                expect(vec3Parameter.getYAt(i)).toBe(1);
+                expect(vec3Parameter.getZAt(i)).toBe(1);
             }
         }
         vec3Parameter.setVec3At(Vec3.ONE, randomIndex);
@@ -379,13 +381,13 @@ describe('ParticleVec3ArrayParameter', () => {
         vec3Parameter.subVec3At(vec3, randomIndex);
         for (let i = 0; i < vec3Parameter.capacity; i++) {
             if (i === randomIndex) {
-                expect(vec3Parameter.data[i * 3]).toBe(-1);
-                expect(vec3Parameter.data[i * 3 + 1]).toBe(-2);
-                expect(vec3Parameter.data[i * 3 + 2]).toBe(-3);
+                expect(vec3Parameter.getXAt(i)).toBe(-1);
+                expect(vec3Parameter.getYAt(i)).toBe(-2);
+                expect(vec3Parameter.getZAt(i)).toBe(-3);
             } else {
-                expect(vec3Parameter.data[i * 3]).toBe(1);
-                expect(vec3Parameter.data[i * 3 + 1]).toBe(1);
-                expect(vec3Parameter.data[i * 3 + 2]).toBe(1);
+                expect(vec3Parameter.getXAt(i)).toBe(1);
+                expect(vec3Parameter.getYAt(i)).toBe(1);
+                expect(vec3Parameter.getZAt(i)).toBe(1);
             }
         }
         vec3Parameter.setVec3At(Vec3.ONE, randomIndex);
@@ -395,6 +397,46 @@ describe('ParticleVec3ArrayParameter', () => {
             expect(vec3Parameter.getXAt(i)).toBeCloseTo(1 - vec3.x, 5);
             expect(vec3Parameter.getYAt(i)).toBeCloseTo(1 - vec3.y, 5);
             expect(vec3Parameter.getZAt(i)).toBeCloseTo(1 - vec3.z, 5);
+        }
+    });
+
+    test('scaleAndAdd', () => {
+        vec3Parameter.fill1f(0, 0, vec3Parameter.capacity);
+        const b = new ParticleVec3ArrayParameter('b');
+        expect(() => ParticleVec3ArrayParameter.scaleAndAdd(vec3Parameter, vec3Parameter, b, 0.5, 0, 100)).toThrowError();
+        b.reserve(vec3Parameter.capacity);
+        expect(() => ParticleVec3ArrayParameter.scaleAndAdd(vec3Parameter, vec3Parameter, b, 0.5, -1, 100)).toThrowError();
+        expect(() => ParticleVec3ArrayParameter.scaleAndAdd(vec3Parameter, vec3Parameter, b, 0.5, 0, 10000)).toThrowError();
+        expect(() => ParticleVec3ArrayParameter.scaleAndAdd(vec3Parameter, vec3Parameter, b, 0.5, 3, 2)).toThrowError();
+        b.fill1f(1, 0, b.capacity);
+        const randomIndex = Math.floor(Math.random() * vec3Parameter.capacity);
+        ParticleVec3ArrayParameter.scaleAndAdd(vec3Parameter, vec3Parameter, b, 0.5, randomIndex, randomIndex + 1);
+        for (let i = 0; i < vec3Parameter.capacity; i++) {
+            if (i === randomIndex) {
+                expect(vec3Parameter.getXAt(i)).toBe(0.5);
+                expect(vec3Parameter.getYAt(i)).toBe(0.5);
+                expect(vec3Parameter.getZAt(i)).toBe(0.5);
+            } else {
+                expect(vec3Parameter.getXAt(i)).toBe(0);
+                expect(vec3Parameter.getYAt(i)).toBe(0);
+                expect(vec3Parameter.getZAt(i)).toBe(0);
+            }
+        }
+        for (let i = 0; i < vec3Parameter.capacity; i++) {
+            vec3Parameter.set3fAt(i, i + 1, i + 2, i);
+            b.set3fAt(i, i - 1, i - 2 ,i);
+        }
+        ParticleVec3ArrayParameter.scaleAndAdd(vec3Parameter, vec3Parameter, b, 0.5, 0, vec3Parameter.capacity);
+        for (let i = 0; i < vec3Parameter.capacity; i++) {
+            vec3Parameter.getVec3At(vec3, i);
+            expect(vec3).toStrictEqual(new Vec3(i * 1.5, 1.5 * i + 0.5, 1.5 * i + 1));
+        }
+        ParticleVec3ArrayParameter.scaleAndAdd(b, vec3Parameter, b, 0, 0, vec3Parameter.capacity);
+        for (let i = 0; i < vec3Parameter.capacity; i++) {
+            vec3Parameter.getVec3At(vec3, i);
+            expect(b.getXAt(i)).toBeCloseTo(vec3.x, 5);
+            expect(b.getYAt(i)).toBeCloseTo(vec3.y, 5);
+            expect(b.getZAt(i)).toBeCloseTo(vec3.z, 5);
         }
     });
 
@@ -413,7 +455,14 @@ describe('ParticleVec3ArrayParameter', () => {
                 expect(vec3).toStrictEqual(Vec3.ONE);
             }
         }
+        vec3Parameter.fill(new Vec3(2, 3, 4), 0, vec3Parameter.capacity);
+        for (let i = 0; i < vec3Parameter.capacity; i++) {
+            vec3Parameter.getVec3At(vec3, i);
+            expect(vec3).toStrictEqual(new Vec3(2, 3, 4));
+        }
     });
+
+
 });
 
 describe('ParticleFloatArrayParameter', () => {

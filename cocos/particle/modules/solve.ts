@@ -28,8 +28,7 @@ import { ccclass } from '../../core/data/decorators';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { BuiltinParticleParameter, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
-
-const tempVelocity = new Vec3();
+import { ParticleVec3ArrayParameter } from '../particle-parameter';
 
 @ccclass('SolveModule')
 @ParticleModule.register('Solve', ModuleExecStage.UPDATE, [ParameterName.POSITION, ParameterName.ROTATION], [ParameterName.VELOCITY, ParameterName.ANGULAR_VELOCITY])
@@ -43,17 +42,11 @@ export class SolveModule extends ParticleModule {
         const { fromIndex, toIndex, deltaTime } = context;
         if (particles.hasParameter(BuiltinParticleParameter.VELOCITY) && particles.hasParameter(BuiltinParticleParameter.POSITION)) {
             const { position, velocity } = particles;
-            for (let particleHandle = fromIndex; particleHandle < toIndex; particleHandle++) {
-                velocity.getVec3At(tempVelocity, particleHandle);
-                position.addVec3At(Vec3.multiplyScalar(tempVelocity, tempVelocity, deltaTime), particleHandle);
-            }
+            ParticleVec3ArrayParameter.scaleAndAdd(position, position, velocity, deltaTime, fromIndex, toIndex);
         }
         if (particles.hasParameter(BuiltinParticleParameter.ROTATION) && particles.hasParameter(BuiltinParticleParameter.ANGULAR_VELOCITY)) {
             const { angularVelocity, rotation } = particles;
-            for (let particleHandle = fromIndex; particleHandle < toIndex; particleHandle++) {
-                angularVelocity.getVec3At(tempVelocity, particleHandle);
-                rotation.addVec3At(Vec3.multiplyScalar(tempVelocity, tempVelocity, deltaTime), particleHandle);
-            }
+            ParticleVec3ArrayParameter.scaleAndAdd(rotation, rotation, angularVelocity, deltaTime, fromIndex, toIndex);
         }
     }
 }

@@ -30,6 +30,7 @@ import { ParticleExecContext, ParticleEmitterParams, ParticleEmitterState } from
 import { CurveRange } from '../curve-range';
 import { lerp, Mat4, Vec3 } from '../../core/math';
 import { RandNumGen } from '../rand-num-gen';
+import { ParticleVec3ArrayParameter } from '../particle-parameter';
 
 const tempVelocity = new Vec3();
 
@@ -68,12 +69,7 @@ export class AddSpeedInInitialDirectionModule extends ParticleModule {
         const rand = this._rand;
         if (mode === CurveRange.Mode.Constant) {
             const constant = this.speed.constant;
-            for (let i = fromIndex; i < toIndex; ++i) {
-                const curveStartSpeed = constant;
-                startDir.getVec3At(tempVelocity, i);
-                Vec3.multiplyScalar(tempVelocity, tempVelocity, curveStartSpeed);
-                baseVelocity.addVec3At(tempVelocity, i);
-            }
+            ParticleVec3ArrayParameter.scaleAndAdd(baseVelocity, baseVelocity, startDir, constant, fromIndex, toIndex);
         } else if (mode ===  CurveRange.Mode.TwoConstants) {
             const { constantMin, constantMax } = this.speed;
             for (let i = fromIndex; i < toIndex; ++i) {

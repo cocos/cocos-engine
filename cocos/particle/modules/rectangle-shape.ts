@@ -39,9 +39,7 @@ export class RectangleShapeModule extends ShapeModule {
         const { vec3Register, startDir } = particles;
         const rand = this._rand;
         for (let i = fromIndex; i < toIndex; i++) {
-            const x = rand.getFloatFromRange(-0.5, 0.5);
-            const y = rand.getFloatFromRange(-0.5, 0.5);
-            vec3Register.set3fAt(x, y, 0, i);
+            vec3Register.set3fAt(rand.getFloatFromRange(-0.5, 0.5), rand.getFloatFromRange(-0.5, 0.5), 0, i);
             startDir.set3fAt(0, 0, 1, i);
         }
     }

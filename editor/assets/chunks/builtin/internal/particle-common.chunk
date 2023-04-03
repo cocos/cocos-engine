@@ -16,6 +16,26 @@ uniform Constants {
 #include <builtin/uniforms/cc-local>
 #include <common/math/transform>
 
+
+#if CC_PARTICLE_POSITION
+in vec3 a_particle_position;
+#endif
+#if CC_PARTICLE_ROTATION
+in vec3 a_particle_rotation;  // rotation
+#endif
+#if CC_PARTICLE_SIZE
+in vec3 a_particle_size;  // size
+#endif
+#if CC_PARTICLE_COLOR
+in vec4 a_particle_color;
+#endif
+#if CC_PARTICLE_FRAME_INDEX
+in float a_particle_frame_index;
+#endif
+#if CC_PARTICLE_VELOCITY
+in vec3 a_particle_velocity; // velocity.x, velocity.y, velocity.z
+#endif
+
 out mediump vec2 uv;
 out mediump vec4 color;
 
@@ -67,3 +87,45 @@ vec2 computeUV (float frameIndex, vec2 vertIndex, vec2 frameTile){
 #endif
   return (aniUV.xy + vertIndex) / vec2(frameTile.x, frameTile.y);
 }
+
+struct ParticleInput {
+  vec3 position;
+  vec3 rotation;
+  vec3 size;
+  vec4 color;
+  float frameIndex;
+  vec3 velocity;
+}
+
+#define CC_SETUP_PARTICLE_INPUT(input) \
+#if CC_PARTICLE_POSITION \
+input.position = a_particle_position; \
+#else \
+input.position = vec3(0., 0., 0.); \
+#endif \
+#if CC_PARTICLE_ROTATION \
+input.rotation = a_particle_rotation; \
+#else \
+input.rotation = vec3(0., 0., 0.); \
+#endif \
+#if CC_PARTICLE_SIZE \
+input.size = a_particle_size; \
+#else \
+input.size = vec3(1.0, 1.0, 1.0); \
+#endif \
+#if CC_PARTICLE_COLOR \
+input.color = a_particle_color; \
+#else \
+input.color = vec4(1.0, 1.0, 1.0, 1.0); \
+#endif \
+#if CC_PARTICLE_FRAME_INDEX \
+input.frameIndex = a_particle_frame_index; \
+#else \
+input.frameIndex = 0.0; \
+#endif \
+#if CC_PARTICLE_VELOCITY \
+input.velocity = a_particle_velocity; \
+#else \
+input.velocity = vec3(0., 0., 0.); \
+#endif \
+

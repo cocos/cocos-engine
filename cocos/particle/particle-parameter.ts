@@ -169,6 +169,19 @@ export class ParticleVec3ArrayParameter extends ParticleArrayParameter {
         }
     }
 
+    static scaleAndAdd (out: ParticleVec3ArrayParameter, a: ParticleVec3ArrayParameter, b: ParticleVec3ArrayParameter, scale: number, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+        if (DEBUG) {
+            assert(out._capacity === a._capacity && a._capacity === b._capacity
+                && toIndex <= out._capacity && fromIndex >= 0 && fromIndex <= toIndex);
+        }
+        const aData = a.data;
+        const bData = b.data;
+        const outData = out.data;
+        for (let i = fromIndex * 3, length = toIndex * 3; i < length; i++) {
+            outData[i] = aData[i] + bData[i] * scale;
+        }
+    }
+
     reserve (capacity: number) {
         if (capacity <= this._capacity) return;
         this._capacity = capacity;
@@ -398,6 +411,21 @@ export class ParticleVec3ArrayParameter extends ParticleArrayParameter {
         }
     }
 
+    copyToTypedArray (dest: Float32Array, stride: number, strideOffset: number, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+        if (DEBUG) {
+            assert(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
+            assert(stride >= 3 && strideOffset >= 0 && strideOffset < stride);
+            assert(dest.length >= (toIndex - fromIndex) * stride);
+        }
+
+        const data = this._data;
+        for (let offset = fromIndex * stride + strideOffset, offset3 = fromIndex * 3, length = toIndex * 3; offset3 < length; offset += stride, offset3 += 3) {
+            dest[offset] = data[offset3];
+            dest[offset + 1] = data[offset3 + 1];
+            dest[offset + 2] = data[offset3 + 2];
+        }
+    }
+
     fill1f (val: number, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
         if (DEBUG) {
             assert(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
@@ -473,6 +501,19 @@ export class ParticleFloatArrayParameter extends ParticleArrayParameter {
             for (let i = fromIndex; i < toIndex; i++) {
                 destData[i] = srcData[i];
             }
+        }
+    }
+
+    copyToTypedArray (dest: Float32Array, stride: number, strideOffset: number, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+        if (DEBUG) {
+            assert(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
+            assert(stride >= 1 && strideOffset >= 0 && strideOffset < stride);
+            assert(dest.length >= (toIndex - fromIndex) * stride);
+        }
+
+        const data = this._data;
+        for (let offset = fromIndex * stride + strideOffset, i = fromIndex; i < toIndex; offset += stride, i++) {
+            dest[offset] = data[i];
         }
     }
 
@@ -659,6 +700,19 @@ export class ParticleColorArrayParameter extends ParticleArrayParameter {
     fill (color: Color, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
         const val = Color.toUint32(color);
         this.fillUint32(val, fromIndex, toIndex);
+    }
+
+    copyToTypedArray (dest: Uint32Array, stride: number, strideOffset: number, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+        if (DEBUG) {
+            assert(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
+            assert(stride >= 1 && strideOffset >= 0 && strideOffset < stride);
+            assert(dest.length >= (toIndex - fromIndex) * stride);
+        }
+
+        const data = this._data;
+        for (let offset = fromIndex * stride + strideOffset, i = fromIndex; i < toIndex; offset += stride, i++) {
+            dest[offset] = data[i];
+        }
     }
 
     copyFrom (src: ParticleColorArrayParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
