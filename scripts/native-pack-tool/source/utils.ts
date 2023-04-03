@@ -441,7 +441,7 @@ export const toolHelper = {
 
         return new Promise<void>((resolve, reject) => {
             console.log(`run ${cmakePath} ${args.join(' ')}`);
-            const cp = spawn(`${cmakePath}`, args, {
+            const cp = spawn(cmakePath, args, {
                 stdio: ['pipe', 'pipe', 'pipe'],
                 env: newEnv,
                 shell: true,
