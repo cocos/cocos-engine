@@ -3,6 +3,7 @@ import { ExoticAnimation } from '../../../cocos/animation/exotic-animation/exoti
 import { Binder, RuntimeBinding, TrackBinding } from '../../../cocos/animation/tracks/track';
 import { degreesToRadians } from '../../../cocos/core/utils/misc';
 import '../../utils/matcher-deep-close-to';
+import '../../utils/matchers/value-type-asymmetric-matchers';
 
 describe(`Split`, () => {
     describe(`Vec3 split`, () => {
@@ -40,58 +41,157 @@ describe(`Split`, () => {
             10, 11, 12,
         ];
 
-        test.each([
-            ['FromToSame/Just', { from: 0.2, to: 0.2, expected: {
-                times: [0.0],
-                values: [
-                    4, 5, 6,
-                ],
-            }}],
-            ['FromToSame/Interval', { from: 0.23, to: 0.23, expected: {
-                times: [0.0],
-                values: [
-                    ...[4, 5, 6].map((x) => x + 3 * 0.3),
-                ],
-            }}],
-            ['FromToSame/Underflow', { from: 0.05, to: 0.05, expected: {
-                times: [0.0],
-                values: [
-                    1, 2, 3,
-                ],
-            }}],
-            ['FromToSame/Overflow', { from: 0.5, to: 0.5, expected: {
-                times: [0.0],
-                values: [
-                    10, 11, 12,
-                ],
-            }}],
-            ['BothEndFallOntoKeyframe', { from: 0.2, to: 0.3, expected: {
-                times: [0.0, 0.1],
-                values: [
-                    4, 5, 6,
-                    7, 8, 9,
-                ],
-            }}],
-            ['BothEndFallInSameInterval', { from: 0.26, to: 0.27, expected: {
-                times: [0.0, 0.01],
-                values: [
-                    ...[4, 5, 6].map((x) => x + 3 * 0.6),
-                    ...[4, 5, 6].map((x) => x + 3 * 0.7),
-                ],
-            }}],
-            ['FromInterval/ToJust', { from: 0.26, to: 0.3, expected: {
-                times: [0.0, 0.04],
-                values: [
-                    ...[4, 5, 6].map((x) => x + 3 * 0.6),
-                    ...[7, 8, 9],
-                ],
-            }}],
-        ] as [string, NonEmptySplitCase][])(`%s`, (_, splitCase) => {
-            runVec3SplitCase({
-                times: TIMES_4,
-                values: VALUES_4,
-                ...splitCase,
+        describe(`From and to is same`, () => {
+            test.each([
+                ['Just', { from: TIMES_4[1], to: TIMES_4[1], expected: {
+                    times: [TIMES_4[1]],
+                    values: [...VALUES_4.slice(1 * 3, (1 + 1) * 3)],
+                }}],
+                ['Interval', { from: 0.23, to: 0.23, expected: {
+                    times: [0.23],
+                    values: [
+                        ...[4, 5, 6].map((x) => x + 3 * 0.3),
+                    ],
+                }}],
+                ['Underflow', { from: TIMES_4[0] - 1.0, to: TIMES_4[0] - 1.0, expected: {
+                    times: [TIMES_4[0]],
+                    values: [...VALUES_4.slice(0 * 3, (0 + 1) * 3)],
+                }}],
+                ['Overflow', { from: TIMES_4[0] + 1.0, to: TIMES_4[0] + 1.0, expected: {
+                    times: [TIMES_4[TIMES_4.length - 1]],
+                    values: [...VALUES_4.slice(VALUES_4.length - 3)],
+                }}],
+            ] as [string, NonEmptySplitCase][])(`%s`, (_, splitCase) => {
+                runVec3SplitCase({
+                    times: TIMES_4,
+                    values: VALUES_4,
+                    ...splitCase,
+                });
             });
+        });
+
+        describe(`From and to is not same`, () => {
+            test.each([
+                ['Both underflow', { from: TIMES_4[0] - 0.2, to: TIMES_4[0] - 0.1, expected: {
+                    times: [TIMES_4[0]],
+                    values: [...VALUES_4.slice(0, 3)],
+                }}],
+
+                ['Both overflow', { from: TIMES_4[TIMES_4.length - 1] + 0.1, to: TIMES_4[TIMES_4.length - 1] + 0.2, expected: {
+                    times: [TIMES_4[TIMES_4.length - 1]],
+                    values: [...VALUES_4.slice(VALUES_4.length - 3)],
+                }}],
+
+                ['From underflow/To overflow', { from: TIMES_4[0] - 0.1, to: TIMES_4[TIMES_4.length - 1] + 0.2, expected: {
+                    times: TIMES_4,
+                    values: VALUES_4,
+                }}],
+                
+                ['BothEndFallInSameInterval', { from: 0.26, to: 0.27, expected: {
+                    times: [0.26, 0.27],
+                    values: [
+                        ...[4, 5, 6].map((x) => x + 3 * 0.6),
+                        ...[4, 5, 6].map((x) => x + 3 * 0.7),
+                    ],
+                }}],
+            ] as [string, NonEmptySplitCase][])(`%s`, (_, splitCase) => {
+                runVec3SplitCase({
+                    times: TIMES_4,
+                    values: VALUES_4,
+                    ...splitCase,
+                });
+            });
+
+            test.each([
+                [true, false],
+                [false, true],
+                [true, true],
+                [false, false],
+            ])(`From sit just at key: (**%s**) | To sit just at key: (**%s**)`, (fromJust, toJust) => {
+                const nKeyframes = 8;
+                const TIMES = Array.from({ length: nKeyframes }).map((_, index) => index + 0.3);
+                const VALUES = TIMES.flatMap((t, i) => [t + 0.1, t + 0.2, t + 0.3]);
+
+                const fromTimeIndex = 1;
+                for (const toTimeIndex of [
+                    fromTimeIndex + 1,
+                    fromTimeIndex + 2,
+                    nKeyframes - 1,
+                ]) {
+                    if (toTimeIndex === nKeyframes - 1 && !toJust) {
+                        // Skip this impossible case.
+                        continue;
+                    }
+                    const fromTimeRatio = fromJust ? 0.0 : 0.6;
+                    const toTimeRatio = toJust ? 0.0 : 0.3;
+                    
+                    const inputFromTime = fromJust
+                        ? TIMES[fromTimeIndex]
+                        : lerp(TIMES[fromTimeIndex], TIMES[fromTimeIndex + 1], fromTimeRatio);
+                    const inputToTime = toJust
+                        ? TIMES[toTimeIndex]
+                        : lerp(TIMES[toTimeIndex], TIMES[toTimeIndex + 1], toTimeRatio);
+
+                    const expectedHeadInterval = fromJust ? -1 : fromTimeIndex;
+                    const expectedCompleteStart = fromJust ? fromTimeIndex : fromTimeIndex + 1;
+                    const expectedCompleteEnd = toTimeIndex + 1;
+                    const expectedTailInterval = toJust ? -1 : toTimeIndex;
+
+                    const expectedTimes: number[] = [];
+                    const expectedValues: number[] = [];
+
+                    if (expectedHeadInterval >= 0) {
+                        expectedTimes.push(lerp(TIMES[expectedHeadInterval], TIMES[expectedHeadInterval + 1], fromTimeRatio));
+                        expectedValues.push(...Array.from({ length: 3 }, (_, i) => {
+                            return lerp(
+                                VALUES[expectedHeadInterval * 3 + i],
+                                VALUES[(expectedHeadInterval + 1) * 3 + i],
+                                fromTimeRatio,
+                            );
+                        }));
+                    }
+
+                    expectedTimes.push(...TIMES.slice(expectedCompleteStart, expectedCompleteEnd));
+                    expectedValues.push(...VALUES.slice(expectedCompleteStart * 3, expectedCompleteEnd * 3));
+
+                    if (expectedTailInterval >= 0) {
+                        expectedTimes.push(lerp(TIMES[expectedTailInterval], TIMES[expectedTailInterval + 1], toTimeRatio));
+                        expectedValues.push(...Array.from({ length: 3 }, (_, i) => {
+                            return lerp(
+                                VALUES[expectedTailInterval * 3 + i],
+                                VALUES[(expectedTailInterval + 1) * 3 + i],
+                                toTimeRatio,
+                            );
+                        }));
+                    }
+
+                    runVec3SplitCase({
+                        times: TIMES,
+                        values: VALUES,
+                        from: inputFromTime,
+                        to: inputToTime,
+                        expected: {
+                            times: expectedTimes,
+                            values: expectedValues,
+                        },
+                    });
+                }
+            });
+        });
+    });
+
+    test(`Bugfix cocos/3d-tasks#16074`, () => {
+        const times = [0.9833333492279053, 1, 1.9833333492279053, 2, 2.9833333492279053, 3, 3.9833333492279053, 4];
+        const values = [1, 1, 1, -1, -1, -1, -1, -1, -1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, 1, 1, 1];
+        runVec3SplitCase({
+            times,
+            values,
+            from: 0.0,
+            to: times[times.length - 1],
+            expected: {
+                times,
+                values,
+            },
         });
     });
 });
@@ -214,7 +314,7 @@ function runVec3SplitCase ({ times, values, from, to, expected }: Vec3SplitCases
     // @ts-expect-error
     const resultValuesInternal = resultPosition.values._values;
     const resultValues = Array.from(resultValuesInternal as Float32Array);
-    expect(resultTimes).toBeDeepCloseTo(Array.from(new Float32Array(expected.times)), 5);
+    expect(resultTimes.map((t) => t + from)).toBeDeepCloseTo(Array.from(new Float32Array(expected.times)), 5);
     expect(resultValues).toBeDeepCloseTo(Array.from(new Float32Array(expected.values)), 5);
 }
 

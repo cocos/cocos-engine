@@ -22,15 +22,16 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 ****************************************************************************/
-import Ability from '@ohos.application.Ability'
+import UIAbility from '@ohos.app.ability.UIAbility';
 import nativerender from "libcocos.so";
 import { ContextType } from "../common/Constants"
+import window from '@ohos.window';
 import resourceManager from '@ohos.resourceManager';
 
 const nativeContext = nativerender.getContext(ContextType.ENGINE_UTILS);
 const nativeAppLifecycle = nativerender.getContext(ContextType.APP_LIFECYCLE);
 
-export default class MainAbility extends Ability {
+export default class MainAbility extends UIAbility {
     onCreate(want, launchParam) {
         globalThis.abilityWant = want;
         nativeAppLifecycle.onCreate();
@@ -49,6 +50,10 @@ export default class MainAbility extends Ability {
                 return;
             }
         });
+        // Set full screen
+        //windowStage.getMainWindow().then((window: window.Window) => {
+        //    window.setFullScreen(true);
+        //});
         nativeContext.writablePathInit(this.context.cacheDir);
     }
 
