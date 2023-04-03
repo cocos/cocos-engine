@@ -190,8 +190,8 @@ export function versionCompare (versionA: string, versionB: string): number {
  * @returns A unique identifier for the timer.
  */
 export function setTimeoutRAF (callback: (...args: any[]) => void, delay: number, ...args: any[]): number {
-    let start = performance.now();
-    let remaining = delay;
+    const start = performance.now();
+
     const raf = requestAnimationFrame
     || window.requestAnimationFrame
     || window.webkitRequestAnimationFrame
@@ -203,14 +203,11 @@ export function setTimeoutRAF (callback: (...args: any[]) => void, delay: number
         return setTimeout(callback, delay, ...args);
     }
 
-    const handleRAF = (timestamp: number) => {
-        remaining -= timestamp - start;
-        start = timestamp;
-
-        if (remaining <= 0) {
-            callback(...args);
-        } else {
+    const handleRAF = () => {
+        if (performance.now() - start < delay) {
             raf(handleRAF);
+        } else {
+            callback(...args);
         }
     };
 
