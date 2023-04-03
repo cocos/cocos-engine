@@ -189,10 +189,19 @@ export function versionCompare (versionA: string, versionB: string): number {
  * @param args The arguments to be passed to the callback function.
  * @returns A unique identifier for the timer.
  */
-
 export function setTimeoutRAF (callback: (...args: any[]) => void, delay: number, ...args: any[]): number {
     let start = performance.now();
     let remaining = delay;
+    const raf = requestAnimationFrame
+    || window.requestAnimationFrame
+    || window.webkitRequestAnimationFrame
+    || window.mozRequestAnimationFrame
+    || window.oRequestAnimationFrame
+    || window.msRequestAnimationFrame;
+
+    if (raf === undefined) {
+        return setTimeout(callback, delay, ...args);
+    }
 
     const handleRAF = (timestamp: number) => {
         remaining -= timestamp - start;
@@ -201,9 +210,28 @@ export function setTimeoutRAF (callback: (...args: any[]) => void, delay: number
         if (remaining <= 0) {
             callback(...args);
         } else {
-            requestAnimationFrame(handleRAF);
+            raf(handleRAF);
         }
     };
 
-    return requestAnimationFrame(handleRAF);
+    return raf(handleRAF);
+}
+
+/**
+ * Cancels a timer that was created using the rafTimeout function.
+ * @param id A numeric ID that represents the timer to be canceled.
+ * @returns Nothing.
+ */
+export function clearTimeoutRAF (id) {
+    const raf = requestAnimationFrame
+    || window.requestAnimationFrame
+    || window.webkitRequestAnimationFrame
+    || window.mozRequestAnimationFrame
+    || window.oRequestAnimationFrame
+    || window.msRequestAnimationFrame;
+    if (raf === undefined) {
+        clearTimeout(id);
+    } else {
+        cancelAnimationFrame(id);
+    }
 }
