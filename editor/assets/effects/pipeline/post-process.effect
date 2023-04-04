@@ -13,7 +13,7 @@ CCEffect %{
         cullMode: none
       blendState:
         targets:
-        - blend: true
+        - blend: false
           blendSrc: src_alpha
           blendDst: one_minus_src_alpha
           blendSrcAlpha: src_alpha

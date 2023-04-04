@@ -98,7 +98,7 @@ CCProgram SSSSBlur %{
 
     // Calculate the ssssWidth scale (1.0 for a unit plane sitting on the
     // projection window):
-    float distanceToProjectionWindow = 1.0 / tan(0.5 * blurInfo.x);
+    float distanceToProjectionWindow = 1.0 / tan(0.5 * blurInfo.x / 57.3);
     float scale = distanceToProjectionWindow / depthM * blurInfo.z;
 
     // Calculate the final step to fetch the surrounding pixels:

@@ -661,7 +661,7 @@ export function buildSSSSBlurPass (camera: Camera,
         ssssblurXPass.addComputeView(inputDS, computeView);
     }
     const ssssBlurXPassRTView = new RasterView('_',
-        AccessType.READ_WRITE,
+        AccessType.WRITE,
         AttachmentType.RENDER_TARGET,
         LoadOp.LOAD,
         StoreOp.STORE,
@@ -669,7 +669,7 @@ export function buildSSSSBlurPass (camera: Camera,
         ssssBlurClearColor);
     ssssblurXPass.addRasterView(inputRT, ssssBlurXPassRTView);
     const ssssBlurXPassDSView = new RasterView('_',
-        AccessType.READ_WRITE,
+        AccessType.WRITE,
         AttachmentType.DEPTH_STENCIL,
         LoadOp.LOAD,
         StoreOp.STORE,
@@ -708,7 +708,7 @@ export function buildSSSSBlurPass (camera: Camera,
         ssssblurYPass.addComputeView(inputDS, computeView);
     }
     const ssssBlurYPassView = new RasterView('_',
-        AccessType.READ_WRITE,
+        AccessType.WRITE,
         AttachmentType.RENDER_TARGET,
         LoadOp.LOAD,
         StoreOp.STORE,
@@ -716,7 +716,7 @@ export function buildSSSSBlurPass (camera: Camera,
         ssssBlurClearColor);
     ssssblurYPass.addRasterView(inputRT, ssssBlurYPassView);
     const ssssBlurYPassDSView = new RasterView('_',
-        AccessType.READ_WRITE,
+        AccessType.WRITE,
         AttachmentType.DEPTH_STENCIL,
         LoadOp.LOAD,
         StoreOp.STORE,
