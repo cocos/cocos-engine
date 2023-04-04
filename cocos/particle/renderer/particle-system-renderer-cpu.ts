@@ -58,6 +58,7 @@ const _center = new Vec3();
 const _up = new Vec3(0, 1, 0);
 const _tempQuat = new Quat();
 const _tempVelo = new Vec3();
+const _tempSize = new Vec3();
 
 const _anim_module = [
     '_colorOverLifetimeModule',
@@ -72,6 +73,7 @@ const _anim_module = [
     '_inheritVelocityModule',
     '_customDataModule',
     '_rotationSpeedModule',
+    '_sizeSpeedModule',
 ];
 
 const _uvs = [
@@ -677,7 +679,8 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         this._attrs[0] = p.position;
         _tempAttribUV.z = fi;
         this._attrs[1] = _tempAttribUV;
-        this._attrs[2] = p.size;
+        Vec3.multiply(_tempSize, p.size, p.animatedSize);
+        this._attrs[2] = _tempSize;
         this._attrs[3] = p.rotation;
         this._attrs[4] = p.color._val;
         this._attrs[5] = null;
@@ -699,7 +702,8 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                 _tempAttribUV.y = _uvs[2 * j + 1];
                 _tempAttribUV.z = fi;
                 this._attrs[1] = _tempAttribUV;
-                this._attrs[2] = p.size;
+                Vec3.multiply(_tempSize, p.size, p.animatedSize);
+                this._attrs[2] = _tempSize;
                 this._attrs[3] = p.rotation;
                 this._attrs[4] = p.color._val;
                 this._attrs[5] = p.ultimateVelocity;
@@ -716,7 +720,8 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         this._attrs[0] = p.position;
         _tempAttribUV.z = fi;
         this._attrs[1] = _tempAttribUV;
-        this._attrs[2] = p.size;
+        Vec3.multiply(_tempSize, p.size, p.animatedSize);
+        this._attrs[2] = _tempSize;
         this._attrs[3] = p.rotation;
         this._attrs[4] = p.color._val;
         this._attrs[5] = p.ultimateVelocity;
@@ -738,7 +743,8 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                 _tempAttribUV.y = _uvs[2 * j + 1];
                 _tempAttribUV.z = fi;
                 this._attrs[1] = _tempAttribUV;
-                this._attrs[2] = p.size;
+                Vec3.multiply(_tempSize, p.size, p.animatedSize);
+                this._attrs[2] = _tempSize;
                 this._attrs[3] = p.rotation;
                 this._attrs[4] = p.color._val;
                 this._attrs[5] = null;
@@ -754,7 +760,8 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         this._attrs[0] = p.position;
         _tempAttribUV.z = fi;
         this._attrs[1] = _tempAttribUV;
-        this._attrs[2] = p.size;
+        Vec3.multiply(_tempSize, p.size, p.animatedSize);
+        this._attrs[2] = _tempSize;
         this._attrs[3] = p.rotation;
         this._attrs[4] = p.color._val;
         this._attrs[5] = null;

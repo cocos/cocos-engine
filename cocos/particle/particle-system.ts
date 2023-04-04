@@ -59,6 +59,7 @@ import { ForceFieldModule } from './animator/force-field-module';
 import InheritVelocityModule from './animator/inherit-velocity';
 import { CustomDataModule } from './animator/custom-data';
 import { RotationSpeedModule } from './animator/rotation-speed';
+import { SizeSpeedModule } from './animator/size-speed';
 import { CCBoolean, CCFloat, CCInteger, CCObject, Node } from '../core';
 
 const _world_mat = new Mat4();
@@ -778,6 +779,26 @@ export class ParticleSystem extends ModelRenderer {
         this._rotationSpeedModule = val;
     }
 
+    @type(SizeSpeedModule)
+    private _sizeSpeedModule: SizeSpeedModule | null = null;
+
+    @type(SizeSpeedModule)
+    @displayOrder(28)
+    public get sizeSpeedModule () {
+        if (EDITOR) {
+            if (!this._sizeSpeedModule) {
+                this._sizeSpeedModule = new SizeSpeedModule();
+                this._sizeSpeedModule.bindTarget(this.processor);
+            }
+        }
+        return this._sizeSpeedModule;
+    }
+
+    public set sizeSpeedModule (val) {
+        if (!val) return;
+        this._sizeSpeedModule = val;
+    }
+
     // trail module
     @type(TrailModule)
     _trailModule: TrailModule | null = null;
@@ -1042,6 +1063,16 @@ export class ParticleSystem extends ModelRenderer {
                 Object.assign(sub.rotationSpeedModule.rotationY, subSrc.rotationSpeedModule.rotationY);
                 Object.assign(sub.rotationSpeedModule.rotationZ, subSrc.rotationSpeedModule.rotationZ);
                 sub.rotationSpeedModule.enable = subSrc.rotationSpeedModule.enable;
+            }
+        }
+
+        if (subSrc.sizeSpeedModule) {
+            if (sub.sizeSpeedModule) {
+                sub.sizeSpeedModule.size3D = subSrc.sizeSpeedModule.size3D;
+                Object.assign(sub.sizeSpeedModule.sizeX, subSrc.sizeSpeedModule.sizeX);
+                Object.assign(sub.sizeSpeedModule.sizeY, subSrc.sizeSpeedModule.sizeY);
+                Object.assign(sub.sizeSpeedModule.sizeZ, subSrc.sizeSpeedModule.sizeZ);
+                sub.sizeSpeedModule.enable = subSrc.sizeSpeedModule.enable;
             }
         }
 
@@ -1349,6 +1380,7 @@ export class ParticleSystem extends ModelRenderer {
         if (this._inheritVelocityModule) this._inheritVelocityModule.bindTarget(this.processor);
         if (this._customDataModule) this._customDataModule.bindTarget(this.processor);
         if (this._rotationSpeedModule) this._rotationSpeedModule.bindTarget(this.processor);
+        if (this._sizeSpeedModule) this._sizeSpeedModule.bindTarget(this.processor);
     }
 
     // TODO: Fast forward current particle system by simulating particles over given period of time, then pause it.
