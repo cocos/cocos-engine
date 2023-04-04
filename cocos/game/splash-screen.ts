@@ -70,11 +70,11 @@ export class SplashScreen {
     private isMobile = false;
 
     private bgMat!: Material;
-    private bgImage!: TexImageSource;
+    private bgImage!: HTMLImageElement;
     private bgTexture!: Texture;
 
     private logoMat!: Material;
-    private logoImage!: TexImageSource;
+    private logoImage!: HTMLImageElement;
     private logoTexture!: Texture;
 
     private watermarkMat!: Material;
