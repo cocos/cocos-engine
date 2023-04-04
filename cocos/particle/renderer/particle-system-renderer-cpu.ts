@@ -27,7 +27,7 @@ import { EDITOR } from 'internal:constants';
 import { builtinResMgr } from '../../core/builtin';
 import { Material } from '../../core/assets';
 import { AttributeName, Format, Attribute, FormatInfo, FormatInfos } from '../../core/gfx';
-import { Mat4, Vec2, Vec3, Vec4, pseudoRandom, Quat, random, EPSILON, approx, Mat3 } from '../../core/math';
+import { Mat4, Vec2, Vec3, Vec4, pseudoRandom, Quat, random, EPSILON, approx, Mat3, Color } from '../../core/math';
 import { RecyclePool } from '../../core/memop';
 import { MaterialInstance, IMaterialInstanceInfo } from '../../core/renderer/core/material-instance';
 import { MacroRecord } from '../../core/renderer/core/pass-utils';
@@ -59,6 +59,7 @@ const _up = new Vec3(0, 1, 0);
 const _tempQuat = new Quat();
 const _tempVelo = new Vec3();
 const _tempSize = new Vec3();
+const _tempColor = new Color();
 
 const _anim_module = [
     '_colorOverLifetimeModule',
@@ -74,6 +75,7 @@ const _anim_module = [
     '_customDataModule',
     '_rotationSpeedModule',
     '_sizeSpeedModule',
+    '_colorSpeedModule',
 ];
 
 const _uvs = [
@@ -682,7 +684,8 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         Vec3.multiply(_tempSize, p.size, p.animatedSize);
         this._attrs[2] = _tempSize;
         this._attrs[3] = p.rotation;
-        this._attrs[4] = p.color._val;
+        _tempColor.set(p.color.r * p.animatedColor.x, p.color.g * p.animatedColor.y, p.color.b * p.animatedColor.z, p.color.a * p.animatedColor.w);
+        this._attrs[4] = _tempColor._val;
         this._attrs[5] = null;
         if (this.getUseCustom()) {
             this._attrs[6] = p.custom1;
@@ -705,7 +708,8 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                 Vec3.multiply(_tempSize, p.size, p.animatedSize);
                 this._attrs[2] = _tempSize;
                 this._attrs[3] = p.rotation;
-                this._attrs[4] = p.color._val;
+                _tempColor.set(p.color.r * p.animatedColor.x, p.color.g * p.animatedColor.y, p.color.b * p.animatedColor.z, p.color.a * p.animatedColor.w);
+                this._attrs[4] = _tempColor._val;
                 this._attrs[5] = p.ultimateVelocity;
                 this._attrs[6] = null;
                 this._model!.addParticleVertexData(idx++, this._attrs);
@@ -723,7 +727,8 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         Vec3.multiply(_tempSize, p.size, p.animatedSize);
         this._attrs[2] = _tempSize;
         this._attrs[3] = p.rotation;
-        this._attrs[4] = p.color._val;
+        _tempColor.set(p.color.r * p.animatedColor.x, p.color.g * p.animatedColor.y, p.color.b * p.animatedColor.z, p.color.a * p.animatedColor.w);
+        this._attrs[4] = _tempColor._val;
         this._attrs[5] = p.ultimateVelocity;
         if (this.getUseCustom()) {
             this._attrs[6] = p.custom1;
@@ -746,7 +751,8 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                 Vec3.multiply(_tempSize, p.size, p.animatedSize);
                 this._attrs[2] = _tempSize;
                 this._attrs[3] = p.rotation;
-                this._attrs[4] = p.color._val;
+                _tempColor.set(p.color.r * p.animatedColor.x, p.color.g * p.animatedColor.y, p.color.b * p.animatedColor.z, p.color.a * p.animatedColor.w);
+                this._attrs[4] = _tempColor._val;
                 this._attrs[5] = null;
                 this._model!.addParticleVertexData(idx++, this._attrs);
             }
@@ -763,7 +769,8 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         Vec3.multiply(_tempSize, p.size, p.animatedSize);
         this._attrs[2] = _tempSize;
         this._attrs[3] = p.rotation;
-        this._attrs[4] = p.color._val;
+        _tempColor.set(p.color.r * p.animatedColor.x, p.color.g * p.animatedColor.y, p.color.b * p.animatedColor.z, p.color.a * p.animatedColor.w);
+        this._attrs[4] = _tempColor._val;
         this._attrs[5] = null;
         if (this.getUseCustom()) {
             this._attrs[6] = p.custom1;
