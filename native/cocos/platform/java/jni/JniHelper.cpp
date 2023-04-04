@@ -119,7 +119,7 @@ namespace cc {
 jmethodID JniHelper::loadclassMethodMethodId = nullptr;
 jobject JniHelper::classloader = nullptr;
 std::function<void()> JniHelper::classloaderCallback = nullptr;
-jobject JniHelper::sActivity = nullptr;
+jobject JniHelper::sContext = nullptr;
 JavaVM *JniHelper::sJavaVM = nullptr;
 
 JavaVM *JniHelper::getJavaVM() {
@@ -128,20 +128,20 @@ JavaVM *JniHelper::getJavaVM() {
     return JniHelper::sJavaVM;
 }
 
-void JniHelper::init(JNIEnv *env, jobject activity) {
+void JniHelper::init(JNIEnv *env, jobject context) {
     env->GetJavaVM(&JniHelper::sJavaVM);
-    JniHelper::sActivity = activity;
+    JniHelper::sContext = context;
 
     pthread_key_create(&g_key, cbDetachCurrentThread);
-    auto ok = JniHelper::setClassLoaderFrom(activity);
+    auto ok = JniHelper::setClassLoaderFrom(context);
     CC_ASSERT(ok);
 }
 
 void JniHelper::onDestroy() {
     if (JniHelper::sJavaVM) {
-        if (JniHelper::sActivity) {
-            cc::JniHelper::getEnv()->DeleteGlobalRef(JniHelper::sActivity);
-            JniHelper::sActivity = nullptr;
+        if (JniHelper::sContext) {
+            cc::JniHelper::getEnv()->DeleteGlobalRef(JniHelper::sContext);
+            JniHelper::sContext = nullptr;
         }
         LOGD("JniHelper::onDestroy");
     }
@@ -192,12 +192,18 @@ JNIEnv *JniHelper::getEnv() {
     return env;
 }
 
+jobject JniHelper::getContext() {
+    return sContext;
+}
+
 jobject JniHelper::getActivity() {
-    return sActivity;
+    // TODO(cjh): In normal mode, sContext is Activity itself, but in surface-less mode, we need to
+    // returns nullptr.
+    return sContext;
 }
 
 #if CC_PLATFORM == CC_PLATFORM_OHOS
-bool JniHelper::setClassLoaderFrom(jobject activityinstance) {
+bool JniHelper::setClassLoaderFrom(jobject contextInstance) {
     if (!JniHelper::classloader) {
         JniMethodInfo getclassloaderMethod;
         if (!JniHelper::getMethodInfoDefaultClassLoader(getclassloaderMethod,
@@ -207,7 +213,7 @@ bool JniHelper::setClassLoaderFrom(jobject activityinstance) {
             return false;
         }
 
-        jobject klassLoader = cc::JniHelper::getEnv()->CallObjectMethod(activityinstance,
+        jobject klassLoader = cc::JniHelper::getEnv()->CallObjectMethod(contextInstance,
                                                                         getclassloaderMethod.methodID);
 
         if (nullptr == klassLoader) {
@@ -226,7 +232,7 @@ bool JniHelper::setClassLoaderFrom(jobject activityinstance) {
         JniHelper::loadclassMethodMethodId = loadClass.methodID;
     }
 
-    JniHelper::sActivity = cc::JniHelper::getEnv()->NewGlobalRef(activityinstance);
+    JniHelper::sContext = cc::JniHelper::getEnv()->NewGlobalRef(contextInstance);
     if (JniHelper::classloaderCallback != nullptr) {
         JniHelper::classloaderCallback();
     }
@@ -234,7 +240,7 @@ bool JniHelper::setClassLoaderFrom(jobject activityinstance) {
     return true;
 }
 #elif CC_PLATFORM == CC_PLATFORM_ANDROID
-bool JniHelper::setClassLoaderFrom(jobject activityinstance) {
+bool JniHelper::setClassLoaderFrom(jobject contextInstance) {
     if (!JniHelper::classloader) {
         JniMethodInfo getClassloaderMethod;
         if (!JniHelper::getMethodInfoDefaultClassLoader(getClassloaderMethod,
@@ -244,7 +250,7 @@ bool JniHelper::setClassLoaderFrom(jobject activityinstance) {
             return false;
         }
 
-        jobject classLoader = cc::JniHelper::getEnv()->CallObjectMethod(activityinstance,
+        jobject classLoader = cc::JniHelper::getEnv()->CallObjectMethod(contextInstance,
                                                                         getClassloaderMethod.methodID);
 
         if (nullptr == classLoader) {
@@ -263,7 +269,7 @@ bool JniHelper::setClassLoaderFrom(jobject activityinstance) {
         JniHelper::loadclassMethodMethodId = loadClass.methodID;
     }
 
-    JniHelper::sActivity = cc::JniHelper::getEnv()->NewGlobalRef(activityinstance);
+    JniHelper::sContext = cc::JniHelper::getEnv()->NewGlobalRef(contextInstance);
     if (JniHelper::classloaderCallback != nullptr) {
         JniHelper::classloaderCallback();
     }

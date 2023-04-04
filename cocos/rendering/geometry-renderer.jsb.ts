@@ -22,7 +22,11 @@
  THE SOFTWARE.
 */
 import { cclegacy } from '../core';
+import type { GeometryRenderer as JsbGeometryRenderer } from './geometry-renderer';
 
-export const GeometryRenderer = jsb.GeometryRenderer;
+declare const jsb: any;
+
+export const GeometryRenderer: typeof JsbGeometryRenderer = jsb.GeometryRenderer;
+export type GeometryRenderer = JsbGeometryRenderer;
 cclegacy.GeometryRenderer = jsb.GeometryRenderer;
 

@@ -42,14 +42,14 @@ uint32_t materialSet = static_cast<uint32_t>(SetIndex::MATERIAL);
 uint32_t localSet = static_cast<uint32_t>(SetIndex::LOCAL);
 
 gfx::BindingMappingInfo bindingMappingInfo = {
-    {globalUBOCount, 0, localUBOCount},         // Uniform Buffer Counts
-    {globalSamplerCount, 0, localSamplerCount}, // Combined Sampler Texture Counts
-    {0, 0, 0},                                  // Sampler Counts
-    {0, 0, 0},                                  // Texture Counts
-    {0, 0, 0},                                  // Storage Buffer Counts
-    {0, 0, localStorageImageCount},             // Storage Image Counts
-    {0, 0, 0},                                  // Subpass Input Counts
-    {0, 2, 1},                                  // Set Order Indices
+    {globalUBOCount, 0, localUBOCount, 0},         // Uniform Buffer Counts
+    {globalSamplerCount, 0, localSamplerCount, 0}, // Combined Sampler Texture Counts
+    {0, 0, 0, 0},                                  // Sampler Counts
+    {0, 0, 0, 0},                                  // Texture Counts
+    {0, 0, 0, 0},                                  // Storage Buffer Counts
+    {0, 0, localStorageImageCount, 0},             // Storage Image Counts
+    {0, 0, 0, 0},                                  // Subpass Input Counts
+    {0, 2, 1, 3},                                  // Set Order Indices
 };
 
 DescriptorSetLayoutInfos globalDescriptorSetLayout;
@@ -73,10 +73,6 @@ const gfx::UniformBlock UBOGlobal::LAYOUT = {
         {"cc_probeInfo", gfx::Type::FLOAT4, 1},
 
         {"cc_debug_view_mode", gfx::Type::FLOAT4, 1},
-        {"cc_debug_view_composite_pack_1", gfx::Type::FLOAT4, 1},
-        {"cc_debug_view_composite_pack_2", gfx::Type::FLOAT4, 1},
-        {"cc_debug_view_composite_pack_3", gfx::Type::FLOAT4, 1},
-        {"cc_debug_view_composite_pack_4", gfx::Type::FLOAT4, 1},
     },
     1,
 };
@@ -246,6 +242,7 @@ const gfx::UniformBlock UBOForwardLight::LAYOUT = {
         {"cc_lightColor", gfx::Type::FLOAT4, static_cast<uint32_t>(UBOForwardLight::LIGHTS_PER_PASS)},
         {"cc_lightSizeRangeAngle", gfx::Type::FLOAT4, static_cast<uint32_t>(UBOForwardLight::LIGHTS_PER_PASS)},
         {"cc_lightDir", gfx::Type::FLOAT4, static_cast<uint32_t>(UBOForwardLight::LIGHTS_PER_PASS)},
+        {"cc_lightBoundingSizeVS", gfx::Type::FLOAT4, static_cast<uint32_t>(UBOForwardLight::LIGHTS_PER_PASS)},
     },
     1,
 };

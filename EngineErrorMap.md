@@ -367,6 +367,10 @@ cc.Scheduler: updateFunc parameter is deprecated in scheduleUpdate function, and
 
 cc.Scheduler: scheduler stopped using `__instanceId` as id since v2.0, you should do Scheduler.enableForTarget(target) before all scheduler API usage on target
 
+### 1514
+
+since v3.8.0, `Scheduler.schedule(target, callback, interval)` is deprecated, please use `Scheduler.schedule(callback, target, interval)` instead.
+
 ### 1600
 
 <!-- DEPRECATED -->

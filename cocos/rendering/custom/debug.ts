@@ -26,7 +26,7 @@
 import { Viewport } from '../../gfx';
 import { assert } from '../../core';
 import { DefaultVisitor, ReferenceGraphView, ED} from './graph';
-import { Blit, ClearView, ComputePass, CopyPass, Dispatch, getRenderGraphValueName, MovePass, PresentPass, RasterPass, RaytracePass, RenderGraph, RenderGraphVisitor, RenderQueue, SceneData } from './render-graph';
+import { Blit, ClearView, ComputePass, ComputeSubpass, CopyPass, Dispatch, getRenderGraphValueName, MovePass, RasterPass, RasterSubpass, RaytracePass, RenderGraph, RenderGraphVisitor, RenderQueue, SceneData } from './render-graph';
 import { getQueueHintName } from './types';
 
 export const enableDebug = true;
@@ -44,7 +44,7 @@ class PrePrintVisitor implements RenderGraphVisitor {
     viewport (value: Viewport) {
         // do nothing
     }
-    raster (value: RasterPass) {
+    rasterPass (value: RasterPass) {
         oss += `${space}width = ${value.width}\n`;
         oss += `${space}height = ${value.height}\n`;
         for (const rasterView of value.rasterViews) {
@@ -54,6 +54,8 @@ class PrePrintVisitor implements RenderGraphVisitor {
             oss += `${space}"${computeView[0]}": ComputeView[]\n`;
         }
     }
+    rasterSubpass(value: RasterSubpass) {}
+    computeSubpass(value: ComputeSubpass) {}
     compute (value: ComputePass) {
         for (const computeView of value.computeViews) {
             oss += `${space}"${computeView[0]}": ComputeView[]\n`;
@@ -111,11 +113,6 @@ class PrePrintVisitor implements RenderGraphVisitor {
             oss += ']\n';
         }
     }
-    present (value: PresentPass) {
-        for (const present of value.presents) {
-            oss += `${space}"${present[0]}": Present{ interval = ${present[1].syncInterval} }\n`;
-        }
-    }
     raytrace (value: RaytracePass) {
         for (const computeView of value.computeViews) {
             oss += `${space}"${computeView[0]}": ComputeView[]\n`;
@@ -137,7 +134,8 @@ class PrePrintVisitor implements RenderGraphVisitor {
     }
     blit (value: Blit) {}
     dispatch (value: Dispatch) {
-        oss += `${space}shader = "${value.shader}"\n`;
+        oss += `${space}material = "${value.material?.name}"\n`;
+        oss += `${space}passID = "${value.passID}"\n`;
         oss += `${space}groupX = ${value.threadGroupCountX}\n`;
         oss += `${space}groupY = ${value.threadGroupCountY}\n`;
         oss += `${space}groupZ = ${value.threadGroupCountZ}\n`;
@@ -155,13 +153,14 @@ class PostPrintVisitor implements RenderGraphVisitor {
     viewport (value: Viewport) {
         // do nothing
     }
-    raster (value: RasterPass) {
+    rasterPass (value: RasterPass) {
         // post raster pass
     }
+    rasterSubpass(value: RasterSubpass) {}
+    computeSubpass(value: ComputeSubpass) {}
     compute (value: ComputePass) {}
     copy (value: CopyPass) {}
     move (value: MovePass) {}
-    present (value: PresentPass) {}
     raytrace (value: RaytracePass) {}
     queue (value: RenderQueue) {
         // collect scene results
@@ -186,11 +185,10 @@ export class RenderGraphPrintVisitor extends DefaultVisitor {
     startVertex (v: number, gv: ReferenceGraphView<RenderGraph>): void {
         const g = gv.g;
         // passes begin
-        // assert(g.holds(RenderGraphValue.Raster, v)
+        // assert(g.holds(RenderGraphValue.RasterPass, v)
         //     || g.holds(RenderGraphValue.Compute, v)
         //     || g.holds(RenderGraphValue.Copy, v)
         //     || g.holds(RenderGraphValue.Move, v)
-        //     || g.holds(RenderGraphValue.Present, v)
         //     || g.holds(RenderGraphValue.Raytrace, v));
     }
     discoverVertex (v: number, gv: ReferenceGraphView<RenderGraph>): void {

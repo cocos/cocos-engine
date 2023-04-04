@@ -124,7 +124,6 @@ export class DrawBatch2D {
                 // Hack: Cause pass.hash can not check all pass value
                 if (!dss) { dss = mtlPass.depthStencilState; dssHash = 0; }
 
-                // @ts-expect-error hack for UI use pass object
                 passInUse._initPassFromTarget(mtlPass, dss, dssHash);
 
                 this._shaders[i] = passInUse.getShaderVariant(patches)!;

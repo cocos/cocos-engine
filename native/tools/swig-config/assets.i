@@ -141,7 +141,7 @@
 %attribute(cc::SimpleTexture, uint32_t, mipmapLevel, mipmapLevel);
 %attribute(cc::RenderTexture, cc::scene::RenderWindow*, window, getWindow);
 
-%attribute(cc::Mesh, ccstd::hash_t, _hash, getHash);
+%attribute(cc::Mesh, ccstd::hash_t, _hash, getHash, setHash);
 %attribute(cc::Mesh, ccstd::hash_t, hash, getHash);
 %attribute(cc::Mesh, cc::Uint8Array&, data, getData);
 %attribute(cc::Mesh, cc::Uint8Array&, _data, getData);

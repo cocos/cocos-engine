@@ -13,14 +13,14 @@ CCEffect %{
         roughness:                        { value: 0.5, target: pbrParams.y, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         fresnelIntensity:                 { value: 1.5, target: pbrParams.z, editor: { slide: true, range: [0, 3.0], step: 0.001 } }
         normalMap:                        { value: normal }
-        normalMapDetailed:                { value: normal }
+        normalMapDetailed:                { value: normal, editor : { tooltip: i18n:ENGINE.assets.effect.propertyTips.normalMap } }
         baseTiling:                       { value: 100.0, target: pbrParams.x, editor: { parent: USE_NORMAL_MAP, range: [1.0, 10000.0] } }
         waterSpeed:                       { value: 0.2, target: waterParam.x, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 1.0], step: 0.001 } }
         detailedSpeed:                    { value: 0.2, target: waterParam.y, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 1.0], step: 0.001 } }
         detailedTiling:                   { value: 0.2, target: waterParam.z, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 1.0], step: 0.001 } }
         detailedIntensity:                { value: 0.5, target: waterParam.w, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 1.0], step: 0.001 } }
         waterInScatterColor:              { value: [0.07, 0.13, 0.087, 1.0], target: waterColor, linear: true, editor: { parent: USE_WATER_SCATTERING, type: color } }
-        waterScatterCoef:                 { value: 3.0, target: waterColor.w, editor: { parent: USE_WATER_SCATTERING, range: [0, 10.0] } }
+        waterScatterCoef:                 { value: 3.0, target: waterColor.w, editor: { parent: USE_WATER_SCATTERING, range: [0, 10.0], tooltip: 'The higher the value, the more turbid or deeper the water is.' } }
       rasterizerState:
         cullMode: none
     - &forward-add
@@ -88,7 +88,8 @@ CCProgram shared-ubos %{
 CCProgram macro-remapping %{
   // ui displayed macros
   #pragma define-meta HAS_SECOND_UV
-  #pragma define-meta USE_TWOSIDE
+  #pragma define-meta USE_TWOSIDE editor({ tooltip: i18n:ENGINE.assets.effect.propertyTips.USE_TWOSIDE })
+
   #define CC_SURFACES_USE_SECOND_UV HAS_SECOND_UV
   #define CC_SURFACES_USE_TWO_SIDED USE_TWOSIDE
   #define CC_SURFACES_LIGHTING_USE_FRESNEL 1
@@ -175,18 +176,22 @@ CCProgram surface-fragment %{
   {
       return 1.33;
   }
-#define CC_SURFACES_FRAGMENT_MODIFY_TRANSMIT_PARAMS
-void SurfacesFragmentModifyTransmitParams(out vec4 transmitParams, out vec3 inScatteringLightColor)
+#define CC_SURFACES_FRAGMENT_MODIFY_TRANSMIT_SCATTERING_PARAMS
+vec4 SurfacesFragmentModifyTransmitScatteringParams()
 {
   #if USE_WATER_SCATTERING
     float depth = max(abs(FSInput_texcoord.x - 0.5), abs(FSInput_texcoord.y - 0.5)) * 2.0;
     depth = saturate(1.0 - depth);
-    transmitParams = vec4(waterColor.ww, 1.0, depth);
+    return vec4(waterColor.w, 1.0, 1.0, depth);
   #else
-    transmitParams = vec4(0.0, 0.0, 0.0, 0.0);
+    return vec4(0.0, 0.0, 0.0, 0.0);
   #endif
+}
 
-    inScatteringLightColor = waterColor.rgb;
+#define CC_SURFACES_FRAGMENT_MODIFY_TRANSMIT_IN_SCATTERING_COLOR
+vec3 SurfacesFragmentModifyTransmitInScatteringColor()
+{
+    return waterColor.rgb;
 }
 
   #include <surfaces/data-structures/standard>

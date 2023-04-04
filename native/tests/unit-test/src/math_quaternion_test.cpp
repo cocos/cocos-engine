@@ -101,12 +101,36 @@ TEST(mathQuaternionTest, test6) {
     ExpectEq(IsEqualF(7.5, quat.x) && IsEqualF(0.5, quat.z), true);
     // slerp
     logLabel = "test the quaternion slerp function";
-    q1.set(1, 2, 10, 1);
-    q2.set(30, 10, 20, 1);
-    cc::Quaternion::slerp(q1, q2, 0, &quat);
-    ExpectEq(IsEqualF(1, quat.x) && IsEqualF(10, quat.z), true);
+    q1.setIdentity();
+    q2.set(sin(M_PI / 4), 0, 0, cos(M_PI / 4));
+    cc::Quaternion::slerp(q1, q2, 0.5f, &quat);
+    ExpectEq(quat.approxEquals(cc::Quaternion(sin(M_PI / 8), 0, 0, cos(M_PI / 8))), true);
     logLabel = "test the quaternion approx equal function";
     cc::Quaternion a{0.123456F, 1.234567F, 2.345678F, 3.345679F};
     cc::Quaternion b{0.123455F, 1.234568F, 2.345679F, 3.345678F};
     ExpectEq(a.approxEquals(b), true);
+    // fromEuler
+    logLabel = "test the quaternion fromEuler function";
+    cc::Quaternion::fromEuler(0, 0, 60, &q1);
+    ExpectEq(q1.approxEquals(cc::Quaternion(0, 0, sin(M_PI / 6), cos(M_PI / 6))), true);
+    // toEuler
+    logLabel = "test the quaternion toEuler function";
+    cc::Vec3 v;
+    cc::Quaternion::toEuler(q1, false, &v);
+    ExpectEq(v == cc::Vec3(0, 0, 60), true);
+    // fromMat3
+    logLabel = "test the quaternion fromMat3 function";
+    cc::Mat3 m;
+    cc::Mat3::fromRotation(M_PI / 3, &m);
+    cc::Quaternion::fromMat3(m, &q1);
+    ExpectEq(q1.approxEquals(cc::Quaternion(0, 0, sin(M_PI / 6), cos(M_PI / 6))), true);
+    // createFromAngleZ
+    logLabel = "test the quaternion createFromAngleZ function";
+    cc::Quaternion::createFromAngleZ(60, &q1);
+    ExpectEq(q1.approxEquals(cc::Quaternion(0, 0, sin(M_PI / 6), cos(M_PI / 6))), true);
+    // rotateTowards
+    cc::Quaternion qfrom(std::sin(M_PI / 8), 0, 0, std::cos(M_PI / 8));
+    cc::Quaternion qto(std::sin(M_PI / 3), 0, 0, std::cos(M_PI / 3));
+    cc::Quaternion::rotateTowards(qfrom, qto, 180.0F / 8, &q1);
+    ExpectEq(q1.approxEquals(cc::Quaternion(std::sin(M_PI * 3 / 16), 0, 0, std::cos(M_PI * 3 / 16))), true);
 }

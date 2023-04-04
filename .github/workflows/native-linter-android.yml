@@ -29,7 +29,7 @@ jobs:
       - name: Install CMake & Clang Tidy
         run: |
           sudo apt update --fix-missing
-          sudo apt install -y cmake llvm clang-tidy-11
+          sudo apt install -y cmake llvm clang-tidy-11 ninja-build
       - name: Download external
         run: |
           EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
@@ -39,11 +39,6 @@ jobs:
         with:
           ndk-version: r21e
           add-to-path: false
-      - name: Generate bindings
-        run: |
-          cd ./native/tools/swig-config
-          node genbindings.js
-          git status
       - name: Get changed files
         uses: PatriceJiang/paths-filter@master
         id: listchanged
@@ -83,6 +78,7 @@ jobs:
         run: |
           cd native
           ./utils/generate_compile_commands_android.sh
+          ninja -C build -t targets |grep -E ".*jsb_.*auto.*" |awk -F": " '{print $1}' |xargs ninja -C build
 
       - name: Generate clang-fix.yaml
         shell: bash

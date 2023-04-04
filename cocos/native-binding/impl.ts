@@ -23,7 +23,10 @@
 */
 import { sys } from "../core";
 import { NATIVE } from 'internal:constants';
-const globalJsb = globalThis.jsb ?? {};
+
+const globalJsb: any = globalThis.jsb ?? {};
+declare const ScriptNativeBridge: any;
+
 if (NATIVE) {
     Object.defineProperty(globalJsb, 'reflection', {
         get() {

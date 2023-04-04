@@ -436,7 +436,7 @@ public class CocosEditBoxActivity extends Activity {
 
     private static void showNative(String defaultValue, int maxLength, boolean isMultiline, boolean confirmHold, String confirmType, String inputType) {
 
-        GlobalObject.getActivity().runOnUiThread(new Runnable() {
+        GlobalObject.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 Intent i = new Intent(GlobalObject.getActivity(), CocosEditBoxActivity.class);
@@ -453,7 +453,7 @@ public class CocosEditBoxActivity extends Activity {
 
     private static void hideNative() {
         if (null != CocosEditBoxActivity.sThis) {
-            GlobalObject.getActivity().runOnUiThread(new Runnable() {
+            GlobalObject.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     CocosEditBoxActivity.sThis.hide();

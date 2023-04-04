@@ -25,6 +25,20 @@
 declare var nr:any;
 
 import { legacyCC } from '../core/global-exports';
-export const RenderStage = nr.RenderStage;
+import type { RenderStage as NrRenderStage } from './render-stage';
+import type { RenderQueueDesc } from './pipeline-serialization';
+export const RenderStage: typeof NrRenderStage = nr.RenderStage;
+export type RenderStage = NrRenderStage;
 // Do not delete, for the class detection of editor
 legacyCC.RenderStage = RenderStage;
+
+/**
+ * @en The render stage information descriptor
+ * @zh 渲染阶段描述信息。
+ */
+export interface IRenderStageInfo {
+    name: string;
+    priority: number;
+    tag?: number;
+    renderQueues?: RenderQueueDesc[];
+}

@@ -34,7 +34,7 @@ import { TMXMapInfo } from './tmx-xml-parser';
 import { Color, IVec2Like, Mat4, Size, Vec2, Vec3, warn, logID } from '../core';
 import { TiledTile } from './tiled-tile';
 import { RenderData } from '../2d/renderer/render-data';
-import { IBatcher } from '../2d/renderer/i-batcher.js';
+import { IBatcher } from '../2d/renderer/i-batcher';
 import {
     MixedGID, GID, Orientation, TiledTextureGrids, TMXTilesetInfo, RenderOrder, StaggerAxis, StaggerIndex, TileFlag,
     GIDFlags, TiledAnimationType, PropertiesInfo, TMXLayerInfo,
@@ -84,7 +84,7 @@ interface TiledSubNodeData {
 @ccclass('cc.TiledLayer')
 export class TiledLayer extends UIRenderer {
     // [row][col] = {count: 0, nodesList: []};
-    protected _userNodeGrid: { [key: number]: { count: number;[key: number]: { count: number, list: (TiledUserNodeData | null)[] } } } = {};
+    protected _userNodeGrid: SafeRecord<number, { count: number; } & SafeRecord<number, { count: number, list: (TiledUserNodeData | null)[] } >> = {};
     protected _userNodeMap: { [key: string]: TiledUserNodeData } = {};// [id] = node;
     protected _userNodeDirty = false;
 
@@ -121,7 +121,7 @@ export class TiledLayer extends UIRenderer {
     public tiles: MixedGID[] = [];
 
     // vertex array
-    public vertices: { minCol: number, maxCol: number, [key: number]: { left: number, bottom: number, index: number } }[] = [];
+    public vertices: SafeArray<{ minCol: number, maxCol: number } & SafeRecord<number, { left: number, bottom: number, index: number }>> = [];
     // vertices dirty
     protected _verticesDirty = true;
 
@@ -175,7 +175,7 @@ export class TiledLayer extends UIRenderer {
     get leftDownToCenterX () { return this._leftDownToCenterX; }
     get leftDownToCenterY () { return this._leftDownToCenterY; }
 
-    private _drawInfoList : RenderDrawInfo[] = [];
+    private _drawInfoList: RenderDrawInfo[] = [];
     private requestDrawInfo (idx: number) {
         if (!this._drawInfoList[idx]) {
             this._drawInfoList[idx] = new RenderDrawInfo();
@@ -353,7 +353,7 @@ export class TiledLayer extends UIRenderer {
         const rowData = this._userNodeGrid[row];
         const colData = rowData && rowData[col];
         if (colData) {
-            rowData.count--;
+            rowData!.count--;
             colData.count--;
             colData.list[index] = null;
             if (colData.count <= 0) {
@@ -797,16 +797,13 @@ export class TiledLayer extends UIRenderer {
             _tempRowCol.col++;
         }
 
-        // avoid range out of max rect
-        if (_tempRowCol.row > this._rightTop.row) _tempRowCol.row = this._rightTop.row;
-        if (_tempRowCol.col > this._rightTop.col) _tempRowCol.col = this._rightTop.col;
-
         if (_tempRowCol.row !== rightTop.row || _tempRowCol.col !== rightTop.col) {
             rightTop.row = _tempRowCol.row;
             rightTop.col = _tempRowCol.col;
             this._cullingDirty = true;
-            this.markForUpdateRenderData();
         }
+
+        if (this._cullingDirty) this.markForUpdateRenderData();
     }
 
     // the result may not precise, but it dose't matter, it just uses to be got range
@@ -996,7 +993,7 @@ export class TiledLayer extends UIRenderer {
         }
 
         const rowData = vertices[cullingRow] = vertices[cullingRow] || { minCol: 0, maxCol: 0 };
-        const colData = rowData[cullingCol] = rowData[cullingCol] || {};
+        const colData = rowData[cullingCol] = rowData[cullingCol] || { left: 0, bottom: 0, index: 0 };
 
         // record each row range, it will faster when culling grid
         if (rowData.minCol > cullingCol) {
@@ -1345,18 +1342,20 @@ export class TiledLayer extends UIRenderer {
         if (this._layerOrientation === Orientation.HEX) {
             let width = 0;
             let height = 0;
+            const tileWidth = maptw & ~1;
+            const tileHeight = mapth & ~1;
 
             this._odd_even = (this._staggerIndex === StaggerIndex.STAGGERINDEX_ODD) ? 1 : -1;
             if (this._staggerAxis === StaggerAxis.STAGGERAXIS_X) {
-                this._diffX1 = (maptw - this._hexSideLength) / 2;
+                this._diffX1 = (tileWidth - this._hexSideLength) / 2;
                 this._diffY1 = 0;
-                height = mapth * (layerH + 0.5);
-                width = (maptw + this._hexSideLength) * Math.floor(layerW / 2) + maptw * (layerW % 2);
+                width = (this._diffX1 + this._hexSideLength) * layerW + this._diffX1;
+                height = (tileHeight * layerH) + tileHeight / 2;
             } else {
                 this._diffX1 = 0;
-                this._diffY1 = (mapth - this._hexSideLength) / 2;
-                width = maptw * (layerW + 0.5);
-                height = (mapth + this._hexSideLength) * Math.floor(layerH / 2) + mapth * (layerH % 2);
+                this._diffY1 = (tileHeight - this._hexSideLength) / 2;
+                width = (tileWidth * layerW) + tileWidth / 2;
+                height = (this._diffY1 + this._hexSideLength) * layerH + this._diffY1;
             }
             this.node._uiProps.uiTransformComp!.setContentSize(width, height);
         } else if (this._layerOrientation === Orientation.ISO) {

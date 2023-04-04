@@ -18,7 +18,7 @@ void CCSurfacesGetFragmentInput(out SurfacesStandardFragmentInput fsInput)
 // Use macros instead of structure to avoid structure precision issues
 #define FSInput_worldPos v_worldPos
 #define FSInput_worldNormal v_normal.xyz
-#define FSInput_faceSideSign v_normal.w
+#define FSInput_faceSideSign v_normal.w // physical face side, has no relation to USE_TWO_SIDED
 #define FSInput_texcoord v_uv
 
 #if CC_SURFACES_USE_VERTEX_COLOR
@@ -58,4 +58,8 @@ void CCSurfacesGetFragmentInput(out SurfacesStandardFragmentInput fsInput)
 
 #if CC_SURFACES_TRANSFER_LOCAL_POS
   #define FSInput_localPos v_localPos
+#endif
+
+#if CC_SURFACES_TRANSFER_CLIP_POS
+  #define FSInput_clipPos v_clipPos
 #endif

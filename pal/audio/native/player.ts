@@ -23,7 +23,7 @@
 */
 
 import { systemInfo } from 'pal/system-info';
-import { AudioType, AudioState, AudioEvent, AudioPCMDataView, AudioBufferView } from '../type';
+import { AudioType, AudioState, AudioEvent, AudioPCMDataView, AudioBufferView, AudioLoadOptions } from '../type';
 import { EventTarget } from '../../../cocos/core/event';
 import { legacyCC } from '../../../cocos/core/global-exports';
 import { clamp, clamp01 } from '../../../cocos/core';
@@ -157,14 +157,14 @@ export class AudioPlayer implements OperationQueueable {
             }).catch((e) => {});
         }
     }
-    static load (url: string): Promise<AudioPlayer> {
+    static load (url: string, opts?: AudioLoadOptions): Promise<AudioPlayer> {
         return new Promise((resolve, reject) => {
-            AudioPlayer.loadNative(url).then((url) => {
+            AudioPlayer.loadNative(url, opts).then((url) => {
                 resolve(new AudioPlayer(url as string));
             }).catch((err) => reject(err));
         });
     }
-    static loadNative (url: string): Promise<unknown> {
+    static loadNative (url: string, opts?: AudioLoadOptions): Promise<unknown> {
         return new Promise((resolve, reject) => {
             if (systemInfo.platform === Platform.WIN32) {
                 // NOTE: audioEngine.preload() not works well on Win32 platform.
@@ -184,11 +184,11 @@ export class AudioPlayer implements OperationQueueable {
             }
         });
     }
-    static loadOneShotAudio (url: string, volume: number): Promise<OneShotAudio> {
+    static loadOneShotAudio (url: string, volume: number, opts?: AudioLoadOptions): Promise<OneShotAudio> {
         return new Promise((resolve, reject) => {
-            AudioPlayer.loadNative(url).then((url) => {
-                // @ts-expect-error AudioPlayer should be a friend class in OneShotAudio
-                resolve(new OneShotAudio(url, volume));
+            AudioPlayer.loadNative(url, opts).then((url) => {
+                // HACK: AudioPlayer should be a friend class in OneShotAudio
+                resolve(new (OneShotAudio as any)(url, volume));
             }).catch(reject);
         });
     }

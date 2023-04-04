@@ -27,8 +27,9 @@ import { Texture } from '../../gfx';
 import { TextureBase } from './texture-base';
 import { PassOverrides, MacroRecord, MaterialProperty } from '../../render-scene';
 import { Color, Mat3, Mat4, Quat, Vec2, Vec3, Vec4, cclegacy } from '../../core';
-import { type, serializable, ccclass } from '../../core/data/decorators';
 import './asset';
+import { patch_cc_Material } from '../../native-binding/decorators';
+import type { Material as JsbMaterial } from './material';
 
 /**
  * @en The basic infos for material initialization.
@@ -78,7 +79,7 @@ declare const jsb: any;
 const matProto: any = jsb.Material.prototype;
 
 type setProperyCB = (name: string, val: MaterialPropertyFull | MaterialPropertyFull[], passIdx?: number) => void;
-function wrapSetProperty (cb: setProperyCB, target: Material, name: string, val: MaterialPropertyFull | MaterialPropertyFull[], passIdx?: number) {
+function wrapSetProperty(cb: setProperyCB, target: Material, name: string, val: MaterialPropertyFull | MaterialPropertyFull[], passIdx?: number) {
     if (passIdx != undefined) {
         cb.call(target, name, val, passIdx);
     } else {
@@ -158,7 +159,7 @@ matProto.setProperty = function (name: string, val: MaterialPropertyFull | Mater
             this.setPropertyNull(name);
         }
     }
-     else {
+    else {
         cclegacy.error(`Material.setProperty Unknown type: ${val}`);
     }
 };
@@ -254,9 +255,8 @@ matProto.getProperty = function (name: string, passIdx?: number) {
     return ret || val;
 };
 
-// @ts-ignore
-export type Material = jsb.Material;
-export const Material = jsb.Material;
+export type Material = JsbMaterial;
+export const Material: typeof JsbMaterial = jsb.Material;
 cclegacy.Material = Material;
 
 const materialProto: any = Material.prototype;
@@ -283,7 +283,7 @@ materialProto._onPassesUpdated = function () {
 Object.defineProperty(materialProto, 'passes', {
     enumerable: true,
     configurable: true,
-    get () {
+    get() {
         if (!this._isCtorCalled) {
             // Builtin materials are created in cpp, the _passes property is not updated when access it in JS.
             // So we need to invoke getPasses() to sync _passes property.
@@ -296,11 +296,4 @@ Object.defineProperty(materialProto, 'passes', {
 });
 
 // handle meta data, it is generated automatically
-const MaterialProto = Material.prototype;
-// @ts-expect-error
-type(EffectAsset)(MaterialProto, '_effectAsset', () => null);
-serializable(MaterialProto, '_techIdx', () => 0);
-serializable(MaterialProto, '_defines', () => []);
-serializable(MaterialProto, '_states', () => []);
-serializable(MaterialProto, '_props', () => []);
-ccclass('cc.Material')(Material);
+patch_cc_Material({ Material, EffectAsset});

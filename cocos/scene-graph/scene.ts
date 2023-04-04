@@ -161,7 +161,10 @@ export class Scene extends Node {
 
     protected _instantiate () { }
 
-    protected _load () {
+    /**
+     * @engineInternal
+     */
+    public _load () {
         if (!this._inited) {
             if (TEST) {
                 assert(!this._activeInHierarchy, 'Should deactivate ActionManager by default');
@@ -176,12 +179,15 @@ export class Scene extends Node {
         this.walk(Node._setScene);
     }
 
-    protected _activate (active: boolean) {
-        active = (active !== false);
+    /**
+     * @engineInternal
+     */
+    public _activate (active = true) {
         if (EDITOR) {
             // register all nodes to editor
-            // @ts-expect-error Polyfilled functions in node-dev.ts
-            this._registerIfAttached!(active);
+            // TODO: `_registerIfAttached` is injected property
+            // issue: https://github.com/cocos/cocos-engine/issues/14643
+            (this as any)._registerIfAttached!(active);
         }
         legacyCC.director._nodeActivator.activateNode(this, active);
         // The test environment does not currently support the renderer

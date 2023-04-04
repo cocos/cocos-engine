@@ -70,7 +70,10 @@ void ShadowMapBatchedQueue::gatherLightPasses(const scene::Camera *camera, const
                         } else {
                             layer = csmLayers->getLayers()[level];
                         }
-                        shadowCulling(_pipeline, camera, layer);
+                        bool isCullingEnable = camera->isCullingEnabled();
+                        if (isCullingEnable) {
+                            shadowCulling(_pipeline, camera, layer);
+                        }
                         const RenderObjectList &dirShadowObjects = layer->getShadowObjects();
                         for (const auto &ro : dirShadowObjects) {
                             add(ro.model);

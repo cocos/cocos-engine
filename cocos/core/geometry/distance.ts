@@ -150,7 +150,7 @@ export function pt_point_obb (out: Vec3, point: Vec3, obb_: OBB): Vec3 {
  */
 export function pt_point_line (out: Vec3, point: Vec3, linePointA: Vec3, linePointB: Vec3) {
     Vec3.subtract(X, linePointA, linePointB);
-    const dir = X;
+    const dir = X.clone();
     const dirSquaredLength = Vec3.lengthSqr(dir);
 
     if (dirSquaredLength === 0) {

@@ -21,10 +21,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { ccclass, serializable } from 'cc.decorator';
 
 import { cclegacy, js, _decorator, path, jsbUtils, CallbacksInvoker, applyMixins } from '../../core';
 import { getUrlWithUuid } from '../asset-manager/helper';
+import { patch_cc_Asset } from '../../native-binding/decorators';
+import type { Asset as JsbAsset } from './asset';
 
 declare const jsb: any;
 
@@ -114,15 +115,10 @@ assetProto.toString = function () {
 
 assetProto.createNode = null!;
 
-// @ts-ignore
-export type Asset = jsb.Asset;
-export const Asset = jsb.Asset;
+export type Asset = JsbAsset;
+export const Asset: typeof JsbAsset = jsb.Asset;
 
 cclegacy.Asset = jsb.Asset;
 
 // handle meta data, it is generated automatically
-const AssetProto = Asset.prototype;
-serializable(AssetProto, '_native', () => '');
-const _nativeAssetDescriptor = Object.getOwnPropertyDescriptor(AssetProto, '_nativeAsset');
-_decorator.property(AssetProto, '_nativeAsset', _nativeAssetDescriptor);
-ccclass('cc.Asset')(Asset);
+patch_cc_Asset({Asset});

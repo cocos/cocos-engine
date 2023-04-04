@@ -22,74 +22,62 @@
 
 #pragma once
 #include <cmath>
-#include "math/Vec3.h"
 #include "math/Mat4.h"
+#include "math/Vec3.h"
 
 NS_CC_MATH_BEGIN
 
-
-inline bool Vec3::isZero() const
-{
+inline bool Vec3::isZero() const {
     return x == 0.0f && y == 0.0f && z == 0.0f;
 }
 
-inline bool Vec3::isOne() const
-{
+inline bool Vec3::isOne() const {
     return x == 1.0f && y == 1.0f && z == 1.0f;
 }
 
-inline void Vec3::add(const Vec3& v)
-{
+inline void Vec3::add(const Vec3& v) {
     x += v.x;
     y += v.y;
     z += v.z;
 }
 
-inline void Vec3::add(float xx, float yy, float zz)
-{
+inline void Vec3::add(float xx, float yy, float zz) {
     x += xx;
     y += yy;
     z += zz;
 }
 
-inline float Vec3::length() const
-{
+inline float Vec3::length() const {
     return std::sqrt(x * x + y * y + z * z);
 }
 
-inline float Vec3::lengthSquared() const
-{
+inline float Vec3::lengthSquared() const {
     return (x * x + y * y + z * z);
 }
 
-inline void Vec3::negate()
-{
+inline void Vec3::negate() {
     x = -x;
     y = -y;
     z = -z;
 }
 
-inline void Vec3::scale(float scalar)
-{
+inline void Vec3::scale(float scalar) {
     x *= scalar;
     y *= scalar;
     z *= scalar;
 }
 
-inline Vec3 Vec3::lerp(const Vec3 &target, float alpha) const
-{
+inline Vec3 Vec3::lerp(const Vec3& target, float alpha) const {
     return *this * (1.f - alpha) + target * alpha;
 }
 
-inline void Vec3::set(float xx, float yy, float zz)
-{
+inline void Vec3::set(float xx, float yy, float zz) {
     this->x = xx;
     this->y = yy;
     this->z = zz;
 }
 
-inline void Vec3::set(const float* array)
-{
+inline void Vec3::set(const float* array) {
     CC_ASSERT(array);
 
     x = array[0];
@@ -97,105 +85,89 @@ inline void Vec3::set(const float* array)
     z = array[2];
 }
 
-inline void Vec3::set(const Vec3& v)
-{
+inline void Vec3::set(const Vec3& v) {
     this->x = v.x;
     this->y = v.y;
     this->z = v.z;
 }
 
-inline void Vec3::set(const Vec3& p1, const Vec3& p2)
-{
+inline void Vec3::set(const Vec3& p1, const Vec3& p2) {
     x = p2.x - p1.x;
     y = p2.y - p1.y;
     z = p2.z - p1.z;
 }
 
-inline void Vec3::setZero()
-{
+inline void Vec3::setZero() {
     x = y = z = 0.0f;
 }
 
-inline void Vec3::subtract(const Vec3& v)
-{
+inline void Vec3::subtract(const Vec3& v) {
     x -= v.x;
     y -= v.y;
     z -= v.z;
 }
 
-inline const Vec3 Vec3::operator+(const Vec3& v) const
-{
+inline const Vec3 Vec3::operator+(const Vec3& v) const {
     Vec3 result(*this);
     result.add(v);
     return result;
 }
 
-inline Vec3& Vec3::operator+=(const Vec3& v)
-{
+inline Vec3& Vec3::operator+=(const Vec3& v) {
     add(v);
     return *this;
 }
 
-inline const Vec3 Vec3::operator-(const Vec3& v) const
-{
+inline const Vec3 Vec3::operator-(const Vec3& v) const {
     Vec3 result(*this);
     result.subtract(v);
     return result;
 }
 
-inline Vec3& Vec3::operator-=(const Vec3& v)
-{
+inline Vec3& Vec3::operator-=(const Vec3& v) {
     subtract(v);
     return *this;
 }
 
-inline const Vec3 Vec3::operator-() const
-{
+inline const Vec3 Vec3::operator-() const {
     Vec3 result(*this);
     result.negate();
     return result;
 }
 
-inline const Vec3 Vec3::operator*(float s) const
-{
+inline const Vec3 Vec3::operator*(float s) const {
     Vec3 result(*this);
     result.scale(s);
     return result;
 }
 
-inline Vec3 Vec3::operator*(const Vec3 &rhs) const
-{
+inline Vec3 Vec3::operator*(const Vec3& rhs) const {
     return Vec3(x * rhs.x, y * rhs.y, z * rhs.z);
 }
 
-inline Vec3& Vec3::operator*=(float s)
-{
+inline Vec3& Vec3::operator*=(float s) {
     scale(s);
     return *this;
 }
 
-inline const Vec3 Vec3::operator/(const float s) const
-{
-    return Vec3(this->x / s, this->y / s, this->z / s);
+inline const Vec3 Vec3::operator/(const float s) const {
+    const float inv = 1.0F / s;
+    return Vec3(this->x * inv, this->y * inv, this->z * inv);
 }
 
-inline Vec3 Vec3::operator/(const Vec3 &rhs) const
-{
+inline Vec3 Vec3::operator/(const Vec3& rhs) const {
     return Vec3(x / rhs.x, y / rhs.y, z / rhs.z);
 }
 
-inline bool Vec3::operator==(const Vec3& v) const
-{
-    return x==v.x && y==v.y && z==v.z;
+inline bool Vec3::operator==(const Vec3& v) const {
+    return x == v.x && y == v.y && z == v.z;
 }
 
-inline bool Vec3::operator!=(const Vec3& v) const
-{
-    return x!=v.x || y!=v.y || z!=v.z;
+inline bool Vec3::operator!=(const Vec3& v) const {
+    return x != v.x || y != v.y || z != v.z;
 }
 
-inline const Vec3 operator*(float x, const Vec3& v)
-{
+inline const Vec3 operator*(float x, const Vec3& v) {
     Vec3 result(v);
     result.scale(x);
     return result;

@@ -378,5 +378,6 @@ export class EventMouse extends Event {
     }
 }
 
-// @ts-expect-error TODO
-Event.EventMouse = EventMouse;
+// TODO: this is an injected property, should be deprecated
+// issue: https://github.com/cocos/cocos-engine/issues/14643
+(Event as any).EventMouse = EventMouse;

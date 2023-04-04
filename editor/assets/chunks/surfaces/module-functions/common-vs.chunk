@@ -60,6 +60,10 @@ void CCSurfacesVertexOutput(in SurfacesStandardVertexIntermediate In)
   VSOutput_localPos = In.position;
 #endif
 
+#if CC_SURFACES_TRANSFER_CLIP_POS
+  VSOutput_clipPos = In.clipPos;
+#endif
+
 #if CC_USE_LIGHT_PROBE
   #if USE_INSTANCING
     v_sh_linear_const_r = a_sh_linear_const_r;

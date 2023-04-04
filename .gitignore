@@ -48,3 +48,5 @@ scripts/typedoc-plugin/lib/
 !templates/**/*
 
 @types/consts.d.ts
+
+__TS_ENGINE__/

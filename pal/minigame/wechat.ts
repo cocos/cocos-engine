@@ -28,8 +28,7 @@ import { cloneObject, createInnerAudioContextPolyfill, versionCompare } from '..
 
 declare let wx: any;
 
-// @ts-expect-error can't init minigame when it's declared
-const minigame: IMiniGame = {};
+const minigame: IMiniGame = {} as IMiniGame;
 cloneObject(minigame, wx);
 
 // #region platform related
@@ -44,8 +43,8 @@ minigame.wx.onWheel = wx.onWheel?.bind(wx);
 
 // #region SystemInfo
 let _cachedSystemInfo: SystemInfo = wx.getSystemInfoSync();
-// @ts-expect-error TODO: move into minigame.d.ts
-minigame.testAndUpdateSystemInfoCache = function (testAmount: number, testInterval: number) {
+
+function testAndUpdateSystemInfoCache (testAmount: number, testInterval: number) {
     let successfullyTestTimes = 0;
     let intervalTimer: number | null = null;
     function testCachedSystemInfo () {
@@ -61,9 +60,9 @@ minigame.testAndUpdateSystemInfoCache = function (testAmount: number, testInterv
         _cachedSystemInfo = currentSystemInfo;
     }
     intervalTimer = setInterval(testCachedSystemInfo, testInterval);
-};
-// @ts-expect-error TODO: update when view resize
-minigame.testAndUpdateSystemInfoCache(10, 500);
+}
+testAndUpdateSystemInfoCache(10, 500);
+
 minigame.onWindowResize?.(() => {
     // update cached system info
     _cachedSystemInfo = wx.getSystemInfoSync() as SystemInfo;
@@ -158,9 +157,10 @@ minigame.getSafeArea = function () {
 };
 // #endregion SafeArea
 
+declare const canvas: any;  // defined in global
+
 // HACK: adapt GL.useProgram: use program not supported to unbind program on pc end
 if (systemInfo.platform === 'windows' && versionCompare(systemInfo.SDKVersion, '2.16.0') < 0) {
-    // @ts-expect-error canvas defined in global
     const locCanvas = canvas;
     if (locCanvas) {
         const webglRC = locCanvas.getContext('webgl');

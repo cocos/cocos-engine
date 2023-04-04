@@ -689,6 +689,7 @@ const cacheManager = require('./jsb-cache-manager');
             this.setSkeletonData(this.skeletonData);
 
             this._indexBoneSockets();
+            this._updateSocketBindings();
             this.attachUtil.init(this);
             this._preCacheMode = this._cacheMode;
 
@@ -712,8 +713,6 @@ const cacheManager = require('./jsb-cache-manager');
         }
         this._stateData = null;
     };
-
-    const _tempAttachMat4 = cc.mat4();
 
     skeleton._render = function () {
         const nativeSkeleton = this._nativeSkeleton;
@@ -782,9 +781,14 @@ const cacheManager = require('./jsb-cache-manager');
                 debugType = debugData[debugIdx++];
             }
         }
+    };
 
+    const _tempAttachMat4 = cc.mat4();
+    skeleton.syncAttachedNode = function () {
+        const nativeSkeleton = this._nativeSkeleton;
+        if (!nativeSkeleton) return;
         const socketNodes = this.socketNodes;
-        if (socketNodes.size > 0) {
+        if (socketNodes.size > 0 && this._useAttach) {
             const sharedBufferOffset = this._sharedBufferOffset;
             if (!sharedBufferOffset) return;
             const attachInfoMgr = middleware.attachInfoMgr;

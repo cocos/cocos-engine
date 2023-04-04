@@ -32,7 +32,7 @@ import dependUtil from './depend-util';
 import downloader from './downloader';
 import { getUuidFromURL, transform } from './helper';
 import parser from './parser';
-import releaseManager from './release-manager';
+import { releaseManager } from './release-manager';
 import { assets, BuiltinBundleName, bundles } from './shared';
 import { parseLoadResArgs, setDefaultProgressCallback } from './utilities';
 import factory from './factory';
@@ -108,8 +108,7 @@ export class CCLoader {
      */
     public get _cache (): Record<string, Asset> {
         if (assets instanceof Cache) {
-            // @ts-expect-error return private property
-            return assets._map;
+            return assets.map!;
         } else {
             const map = {};
             assets.forEach((val, key) => {

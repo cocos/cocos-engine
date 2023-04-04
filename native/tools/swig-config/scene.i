@@ -22,6 +22,8 @@
 #include "scene/DirectionalLight.h"
 #include "scene/SpotLight.h"
 #include "scene/SphereLight.h"
+#include "scene/PointLight.h"
+#include "scene/RangedDirectionalLight.h"
 #include "scene/Model.h"
 #include "scene/SubModel.h"
 #include "scene/Pass.h"
@@ -137,6 +139,8 @@ using namespace cc;
 %ignore cc::Node::getWorldMatrix;
 %ignore cc::Node::getWorldRS;
 %ignore cc::Node::getWorldRT;
+%ignore cc::Node::isTransformDirty;
+%ignore cc::Node::_getSharedArrayBufferObject;
 
 %ignore cc::scene::Camera::screenPointToRay;
 %ignore cc::scene::Camera::screenToWorld;
@@ -161,6 +165,8 @@ using namespace cc;
 %ignore cc::JointInfo;
 %ignore cc::BakedJointInfo;
 %ignore cc::ITemplateInfo;
+
+%ignore cc::Root::frameSync;
 
 // ----- Rename Section ------
 // Brief: Classes, methods or attributes needs to be renamed
@@ -256,13 +262,12 @@ using namespace cc;
 %attribute(cc::scene::Pass, cc::IProgramInfo*, shaderInfo, getShaderInfo);
 %attribute(cc::scene::Pass, cc::gfx::DescriptorSetLayout*, localSetLayout, getLocalSetLayout);
 %attribute(cc::scene::Pass, ccstd::string&, program, getProgram);
-%attribute(cc::scene::Pass, %arg(Record<ccstd::string, cc::IPropertyInfo> &), properties, getProperties);
+%attribute(cc::scene::Pass, %arg(ccstd::unordered_map<ccstd::string, cc::IPropertyInfo> &), properties, getProperties);
 %attribute(cc::scene::Pass, cc::MacroRecord&, defines, getDefines);
 %attribute(cc::scene::Pass, index_t, passIndex, getPassIndex);
 %attribute(cc::scene::Pass, index_t, propertyIndex, getPropertyIndex);
 %attribute(cc::scene::Pass, cc::scene::IPassDynamics &, dynamics, getDynamics);
 %attribute(cc::scene::Pass, bool, rootBufferDirty, isRootBufferDirty);
-%attribute(cc::scene::Pass, bool, _rootBufferDirty, isRootBufferDirty, _setRootBufferDirty);
 %attribute(cc::scene::Pass, cc::pipeline::RenderPriority, priority, getPriority);
 %attribute(cc::scene::Pass, cc::gfx::PrimitiveMode, primitive, getPrimitive);
 %attribute(cc::scene::Pass, cc::pipeline::RenderPassStage, stage, getStage);
@@ -358,6 +363,17 @@ using namespace cc;
 %attribute(cc::scene::SphereLight, float, luminanceLDR, getLuminanceLDR, setLuminanceLDR);
 %attribute(cc::scene::SphereLight, cc::geometry::AABB&, aabb, getAABB);
 
+%attribute(cc::scene::PointLight, cc::Vec3&, position, getPosition, setPosition);
+%attribute(cc::scene::PointLight, float, range, getRange, setRange);
+%attribute(cc::scene::PointLight, float, luminance, getLuminance, setLuminance);
+%attribute(cc::scene::PointLight, float, luminanceHDR, getLuminanceHDR, setLuminanceHDR);
+%attribute(cc::scene::PointLight, float, luminanceLDR, getLuminanceLDR, setLuminanceLDR);
+%attribute(cc::scene::PointLight, cc::geometry::AABB&, aabb, getAABB);
+
+%attribute(cc::scene::RangedDirectionalLight, float, illuminance, getIlluminance, setIlluminance);
+%attribute(cc::scene::RangedDirectionalLight, float, illuminanceHDR, getIlluminanceHDR, setIlluminanceHDR);
+%attribute(cc::scene::RangedDirectionalLight, float, illuminanceLDR, getIlluminanceLDR, setIlluminanceLDR);
+
 %attribute(cc::scene::Camera, cc::scene::CameraISO, iso, getIso, setIso);
 %attribute(cc::scene::Camera, float, isoValue, getIsoValue);
 %attribute(cc::scene::Camera, float, ec, getEc, setEc);
@@ -402,6 +418,8 @@ using namespace cc;
 %attribute(cc::scene::RenderScene, ccstd::vector<cc::IntrusivePtr<cc::scene::Camera>>&, cameras, getCameras);
 %attribute(cc::scene::RenderScene, ccstd::vector<cc::IntrusivePtr<cc::scene::SphereLight>>&, sphereLights, getSphereLights);
 %attribute(cc::scene::RenderScene, ccstd::vector<cc::IntrusivePtr<cc::scene::SpotLight>>&, spotLights, getSpotLights);
+%attribute(cc::scene::RenderScene, ccstd::vector<cc::IntrusivePtr<cc::scene::PointLight>>&, pointLights, getPointLights);
+%attribute(cc::scene::RenderScene, ccstd::vector<cc::IntrusivePtr<cc::scene::RangedDirectionalLight>>&, rangedDirLights, getRangedDirLights);
 %attribute(cc::scene::RenderScene, ccstd::vector<cc::IntrusivePtr<cc::scene::Model>>&, models, getModels);
 %attribute(cc::scene::RenderScene, ccstd::vector<cc::IntrusivePtr<cc::scene::LODGroup>>&, lodGroups, getLODGroups);
 
@@ -544,6 +562,7 @@ using namespace cc;
 %attribute(cc::scene::ReflectionProbe, cc::RenderTexture*, realtimePlanarTexture, getRealtimePlanarTexture);
 
 %attribute(cc::SceneGlobals, bool, bakedWithStationaryMainLight, getBakedWithStationaryMainLight, setBakedWithStationaryMainLight);
+%attribute(cc::SceneGlobals, bool, bakedWithHighpLightmap, getBakedWithHighpLightmap, setBakedWithHighpLightmap);
 
 
 // ----- Import Section ------
@@ -628,6 +647,8 @@ using namespace cc;
 %include "scene/DirectionalLight.h"
 %include "scene/SpotLight.h"
 %include "scene/SphereLight.h"
+%include "scene/PointLight.h"
+%include "scene/RangedDirectionalLight.h"
 %include "scene/Model.h"
 %include "scene/SubModel.h"
 %include "scene/Pass.h"

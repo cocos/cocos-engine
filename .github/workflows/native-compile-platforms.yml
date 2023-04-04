@@ -27,12 +27,6 @@ jobs:
       - name: Install deps
         run: |
           choco install --forcex86 vulkan-sdk
-      - name: Generate bindings
-        run: |
-          cd ./native/tools/swig-config
-          echo "Create auto-generated jsbinding glue codes."
-          node genbindings.js &&
-          git status
       - name: Compile win64
         shell: bash
         env:
@@ -75,11 +69,6 @@ jobs:
         with:
           ndk-version: r21e
           add-to-path: false
-      - name: Generate bindings
-        run: |
-          cd ./native/tools/swig-config
-          node genbindings.js
-          git status
       - name: Compile
         env:
           COCOS_ENGINE_DEV: 1
@@ -98,6 +87,7 @@ jobs:
           mkdir -p build-android/proj
           touch build-android/proj/cfg.cmake
           echo "set(CI_FORCE_MINIMAL_FEATURES ON)" >> build-android/proj/cfg.cmake
+          echo "set(COCOS_X_PATH $NATIVE_ROOT)" >> build-android/proj/cfg.cmake
 
           mkdir -p build-android/assets
 
@@ -135,12 +125,6 @@ jobs:
         with:
           ndk-version: r21e
           add-to-path: false
-      - name: Generate bindings
-        run: |
-          cd ./native/tools/swig-config
-          node genbindings.js
-          git status
-
       - name: Compile
         env:
           COCOS_ENGINE_DEV: 1
@@ -163,6 +147,7 @@ jobs:
           echo "set(CC_USE_GLES2 ON)" >> build-android/proj/cfg.cmake
           echo "set(USE_WEBSOCKET_SERVER ON)" >> build-android/proj/cfg.cmake
           echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> build-android/proj/cfg.cmake
+          echo "set(COCOS_X_PATH $NATIVE_ROOT)" >> build-android/proj/cfg.cmake
 
           mkdir -p build-android/assets
 
@@ -196,11 +181,6 @@ jobs:
           EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
           git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
 
-      - name: Generate bindings
-        run: |
-          cd ./native/tools/swig-config
-          node genbindings.js
-          git status
       - name: Compile
         env:
           COCOS_ENGINE_DEV: 1
@@ -248,11 +228,6 @@ jobs:
         run: |
           EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
           git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
-      - name: Generate bindings
-        run: |
-          cd ./native/tools/swig-config
-          node genbindings.js
-          git status
       - name: Compile
         env:
           COCOS_ENGINE_DEV: 1
@@ -301,11 +276,6 @@ jobs:
         run: |
           EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
           git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
-      - name: Generate bindings
-        run: |
-          cd ./native/tools/swig-config
-          node genbindings.js
-          git status
       - name: Compile
         env:
           COCOS_ENGINE_DEV: 1

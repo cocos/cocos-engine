@@ -167,8 +167,9 @@ export class SortingLayers {
             scene.walk((node) => {
                 const sort = node.getComponent('cc.Sorting');
                 if (sort) {
-                    // @ts-expect-error private method
-                    sort._updateSortingPriority();
+                    // HACK: Property '_updateSortingPriority' does not exist on type 'Component'.
+                    // we can't import Sorting class in this module.
+                    (sort as any)._updateSortingPriority();
                 }
             });
         }
