@@ -64,7 +64,7 @@ void onSurfaceCreatedCB(OH_NativeXComponent* component, void* window) {
     info.height = 0;
     info.flags = 0;
     info.externalHandle = window;
-    cc::ISystemWindowManager* windowMgr = 
+    cc::ISystemWindowManager* windowMgr =
         cc::OpenHarmonyPlatform::getInstance()->getInterface<cc::ISystemWindowManager>();
     windowMgr->createWindow(info);
 }
@@ -77,7 +77,8 @@ void dispatchTouchEventCB(OH_NativeXComponent* component, void* window) {
     }
     // TODO(qgh):Is it possible to find an efficient way to do this, I thought about using a cache queue but it requires locking.
     cc::TouchEvent* ev = new cc::TouchEvent;
-    cc::SystemWindowManager* windowMgr = this->getInterface<cc::SystemWindowManager>();
+    cc::SystemWindowManager* windowMgr =
+        cc::OpenHarmonyPlatform::getInstance()->getInterface<cc::SystemWindowManager>();
     CC_ASSERT_NOT_NULL(windowMgr);
     cc::ISystemWindow* systemWindow = windowMgr->getWindowFromHandle(window);
     CC_ASSERT_NOT_NULL(systemWindow);
@@ -280,29 +281,6 @@ void OpenHarmonyPlatform::onSurfaceDestroyed(OH_NativeXComponent* component, voi
     cc::SystemWindowManager* windowMgr = this->getInterface<cc::SystemWindowManager>();
     CC_ASSERT_NOT_NULL(windowMgr);
     windowMgr->removeWindow(window);
-}
-
-void OpenHarmonyPlatform::dispatchTouchEvent(OH_NativeXComponent* component, void* window) {
-    OH_NativeXComponent_TouchEvent touchEvent;
-    int32_t ret = OH_NativeXComponent_GetTouchEvent(component, window, &touchEvent);
-    if (ret != OH_NATIVEXCOMPONENT_RESULT_SUCCESS) {
-        return;
-    }
-
-    if (touchEvent.type == OH_NATIVEXCOMPONENT_DOWN) {
-        ev.type = cc::TouchEvent::Type::BEGAN;
-    } else if (touchEvent.type == OH_NATIVEXCOMPONENT_MOVE) {
-        ev.type = cc::TouchEvent::Type::MOVED;
-    } else if (touchEvent.type == OH_NATIVEXCOMPONENT_UP) {
-        ev.type = cc::TouchEvent::Type::ENDED;
-    } else if (touchEvent.type == OH_NATIVEXCOMPONENT_CANCEL) {
-        ev.type = cc::TouchEvent::Type::CANCELLED;
-    }
-    for(int i = 0; i < touchEvent.numPoints; ++i) {
-        ev.touches.emplace_back(touchEvent.touchPoints[i].x, touchEvent.touchPoints[i].y, touchEvent.touchPoints[i].id);
-    }
-
-    events::Touch::broadcast(ev);
 }
 
 ISystemWindow *OpenHarmonyPlatform::createNativeWindow(uint32_t windowId, void *externalHandle) {
