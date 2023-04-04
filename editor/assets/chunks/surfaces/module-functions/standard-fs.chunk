@@ -53,7 +53,7 @@ void CCSurfacesFragmentGetMaterialData(inout SurfacesMaterialData surfaceData)
   surfaceData.worldNormal2ndSpecular = surfaceData.worldNormal;
   surfaceData.worldTangent2ndSpecular = surfaceData.worldTangent;
   surfaceData.worldBinormal2ndSpecular = surfaceData.worldBinormal;
-  RotateNormalAndBinormal(surfaceData.worldBinormal2ndSpecular, surfaceData.worldNormal2ndSpecular, surfaceData.worldTangent2ndSpecular, trtParams.y);
+  RotateNormalAndBinormal(surfaceData.worldBinormal2ndSpecular, surfaceData.worldNormal2ndSpecular, surfaceData.worldTangent2ndSpecular, trtParams.y, FSInput_mirrorNormal);
 #endif
 
 #if CC_SURFACES_LIGHTING_TT
