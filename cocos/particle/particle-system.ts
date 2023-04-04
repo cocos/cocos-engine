@@ -60,6 +60,7 @@ import InheritVelocityModule from './animator/inherit-velocity';
 import { CustomDataModule } from './animator/custom-data';
 import { RotationSpeedModule } from './animator/rotation-speed';
 import { SizeSpeedModule } from './animator/size-speed';
+import { ColorSpeedModule } from './animator/color-speed';
 import { CCBoolean, CCFloat, CCInteger, CCObject, Node } from '../core';
 
 const _world_mat = new Mat4();
@@ -799,6 +800,26 @@ export class ParticleSystem extends ModelRenderer {
         this._sizeSpeedModule = val;
     }
 
+    @type(ColorSpeedModule)
+    private _colorSpeedModule: ColorSpeedModule | null = null;
+
+    @type(ColorSpeedModule)
+    @displayOrder(29)
+    public get colorSpeedModule () {
+        if (EDITOR) {
+            if (!this._colorSpeedModule) {
+                this._colorSpeedModule = new ColorSpeedModule();
+                this._colorSpeedModule.bindTarget(this.processor);
+            }
+        }
+        return this._colorSpeedModule;
+    }
+
+    public set colorSpeedModule (val) {
+        if (!val) return;
+        this._colorSpeedModule = val;
+    }
+
     // trail module
     @type(TrailModule)
     _trailModule: TrailModule | null = null;
@@ -1072,7 +1093,18 @@ export class ParticleSystem extends ModelRenderer {
                 Object.assign(sub.sizeSpeedModule.sizeX, subSrc.sizeSpeedModule.sizeX);
                 Object.assign(sub.sizeSpeedModule.sizeY, subSrc.sizeSpeedModule.sizeY);
                 Object.assign(sub.sizeSpeedModule.sizeZ, subSrc.sizeSpeedModule.sizeZ);
+                sub.sizeSpeedModule.rangeX = subSrc.sizeSpeedModule.rangeX;
+                sub.sizeSpeedModule.rangeY = subSrc.sizeSpeedModule.rangeY;
                 sub.sizeSpeedModule.enable = subSrc.sizeSpeedModule.enable;
+            }
+        }
+
+        if (subSrc.colorSpeedModule) {
+            if (sub.colorSpeedModule) {
+                Object.assign(sub.colorSpeedModule.color, subSrc.colorSpeedModule.color);
+                sub.colorSpeedModule.rangeX = subSrc.colorSpeedModule.rangeX;
+                sub.colorSpeedModule.rangeY = subSrc.colorSpeedModule.rangeY;
+                sub.colorSpeedModule.enable = subSrc.colorSpeedModule.enable;
             }
         }
 
@@ -1381,6 +1413,7 @@ export class ParticleSystem extends ModelRenderer {
         if (this._customDataModule) this._customDataModule.bindTarget(this.processor);
         if (this._rotationSpeedModule) this._rotationSpeedModule.bindTarget(this.processor);
         if (this._sizeSpeedModule) this._sizeSpeedModule.bindTarget(this.processor);
+        if (this._colorSpeedModule) this._colorSpeedModule.bindTarget(this.processor);
     }
 
     // TODO: Fast forward current particle system by simulating particles over given period of time, then pause it.

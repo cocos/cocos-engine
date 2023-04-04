@@ -51,6 +51,7 @@ export class Particle {
     public animatedSize: Vec3;
     public startColor: Color;
     public color: Color;
+    public animatedColor: Color;
     public custom1: Vec4;
     public custom2: Vec4;
     public randomSeed: number; // uint
@@ -94,6 +95,7 @@ export class Particle {
         this.animatedSize = new Vec3(1, 1, 1);
         this.startColor = Color.WHITE.clone();
         this.color = Color.WHITE.clone();
+        this.animatedColor = Color.WHITE.clone();
         this.custom1 = new Vec4();
         this.custom2 = new Vec4();
         this.randomSeed = 0; // uint
@@ -135,6 +137,7 @@ export class Particle {
         this.custom1.set(0, 0, 0, 0);
         this.custom2.set(0, 0, 0, 0);
         this.animatedSize = new Vec3(1, 1, 1);
+        this.animatedColor.set(255, 255, 255, 255);
     }
 }
 
@@ -152,6 +155,7 @@ export const PARTICLE_MODULE_NAME = {
     CUSTOM: 'customDataModule',
     ROTATIONSPEED: 'rotationSpeedModule',
     SIZESPEED: 'sizeSpeedModule',
+    COLORSPEED: 'colorSpeedModule',
 };
 
 export const PARTICLE_MODULE_ORDER = [
@@ -168,6 +172,7 @@ export const PARTICLE_MODULE_ORDER = [
     'customDataModule',
     'rotationSpeedModule',
     'sizeSpeedModule',
+    'colorSpeedModule',
 ];
 
 export const PARTICLE_MODULE_PROPERTY = [
@@ -186,6 +191,7 @@ export const PARTICLE_MODULE_PROPERTY = [
     '_customDataModule',
     '_rotationSpeedModule',
     '_sizeSpeedModule',
+    '_colorSpeedModule',
 ];
 
 export interface IParticleModule {
