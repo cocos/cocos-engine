@@ -221,14 +221,20 @@ void Model::updateUBOs(uint32_t stamp) {
                 const Vec4 boxSize = {probe->getBoudingSize().x, probe->getBoudingSize().y, probe->getBoudingSize().z, static_cast<float>(probe->getCubeMap() ? probe->getCubeMap()->mipmapLevel() : 1)};
                 _localBuffer->write(boxSize, sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_DATA2));
             }
-            if (blendProbe && (_reflectionProbeType == static_cast<int32_t>(scene::ReflectionProbe::UseProbeType::BLEND_PROBES) ||
-                               _reflectionProbeType == static_cast<int32_t>(scene::ReflectionProbe::UseProbeType::BLEND_PROBES_AND_SKYBOX))) {
-                const Vec3 worldPos = blendProbe->getNode()->getWorldPosition();
-                Vec3 boudingBox = blendProbe->getBoudingSize();
-                const Vec4 pos = {worldPos.x, worldPos.y, worldPos.z, _reflectionProbeBlendWeight};
-                _localBuffer->write(pos, sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_BLEND_DATA1));
-                const Vec4 boxSize = {boudingBox.x, boudingBox.y, boudingBox.z, static_cast<float>(blendProbe->getCubeMap() ? blendProbe->getCubeMap()->mipmapLevel() : 1)};
-                _localBuffer->write(boxSize, sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_BLEND_DATA2));
+            if (_reflectionProbeType == static_cast<int32_t>(scene::ReflectionProbe::UseProbeType::BLEND_PROBES) ||
+                _reflectionProbeType == static_cast<int32_t>(scene::ReflectionProbe::UseProbeType::BLEND_PROBES_AND_SKYBOX)) {
+                if (blendProbe) {
+                    const Vec3 worldPos = blendProbe->getNode()->getWorldPosition();
+                    Vec3 boudingBox = blendProbe->getBoudingSize();
+                    const Vec4 pos = {worldPos.x, worldPos.y, worldPos.z, _reflectionProbeBlendWeight};
+                    _localBuffer->write(pos, sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_BLEND_DATA1));
+                    const Vec4 boxSize = {boudingBox.x, boudingBox.y, boudingBox.z, static_cast<float>(blendProbe->getCubeMap() ? blendProbe->getCubeMap()->mipmapLevel() : 1)};
+                    _localBuffer->write(boxSize, sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_BLEND_DATA2));
+                } else if (_reflectionProbeType == static_cast<int32_t>(scene::ReflectionProbe::UseProbeType::BLEND_PROBES_AND_SKYBOX)) {
+                    //blend with skybox
+                    const Vec4 pos = { 0.F, 0.F, 0.F, _reflectionProbeBlendWeight };
+                    _localBuffer->write(pos, sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_BLEND_DATA1));
+                }
             }
         }
 
