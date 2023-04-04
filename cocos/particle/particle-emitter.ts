@@ -702,13 +702,13 @@ export class ParticleEmitter extends Component {
         const params = this._params;
         const state = this._state;
         context.reset();
-        state.lastPosition.set(state.currentPosition);
-        state.currentPosition.set(this.node.worldPosition);
+        Vec3.copy(state.lastPosition, state.currentPosition);
+        Vec3.copy(state.currentPosition, this.node.worldPosition);
         context.setWorldMatrix(this.node.worldMatrix, params.simulationSpace === Space.WORLD);
         Vec3.subtract(context.emitterVelocity, state.currentPosition, state.lastPosition);
         Vec3.multiplyScalar(context.emitterVelocity, context.emitterVelocity, 1 / deltaTime);
-        context.emitterTransformInEmittingSpace.set(params.simulationSpace === Space.WORLD ? context.localToWorld : Mat4.IDENTITY);
-        context.emitterVelocityInEmittingSpace.set(params.simulationSpace === Space.WORLD ? context.emitterVelocity : Vec3.ZERO);
+        Mat4.copy(context.emitterTransformInEmittingSpace, params.simulationSpace === Space.WORLD ? context.localToWorld : Mat4.IDENTITY);
+        Vec3.copy(context.emitterVelocityInEmittingSpace, params.simulationSpace === Space.WORLD ? context.emitterVelocity : Vec3.ZERO);
         const prevTime = Math.max(state.accumulatedTime - state.startDelay, 0);
         state.accumulatedTime += deltaTime;
         const currentTime = Math.max(state.accumulatedTime - state.startDelay, 0);
@@ -748,7 +748,7 @@ export class ParticleEmitter extends Component {
         if (this._eventReceivers.length > 0 || params.simulationSpace === Space.WORLD) {
             context.markRequiredParameter(BuiltinParticleParameter.POSITION);
         }
-        particles.ensureParameters(context.requiredParameters, this._customParameters);
+        particles.ensureParameters(context.builtinParameterRequirements, context.customParameterRequirements, this._customParameters);
     }
 
     private updateBounds () {

@@ -95,37 +95,40 @@ struct ParticleInput {
   vec4 color;
   float frameIndex;
   vec3 velocity;
+};
+
+void setupParticleInput (out ParticleInput particleInput) {
+  #if CC_PARTICLE_POSITION
+  particleInput.position = a_particle_position;
+  #else
+  particleInput.position = vec3(0., 0., 0.);
+  #endif
+  #if CC_PARTICLE_ROTATION
+  particleInput.rotation = a_particle_rotation;
+  #else 
+  particleInput.rotation = vec3(0., 0., 0.);
+  #endif
+  #if CC_PARTICLE_SIZE
+  particleInput.size = a_particle_size;
+  #else
+  particleInput.size = vec3(1.0, 1.0, 1.0);
+  #endif
+  #if CC_PARTICLE_COLOR
+  particleInput.color = a_particle_color;
+  #else
+  particleInput.color = vec4(1.0, 1.0, 1.0, 1.0);
+  #endif
+  #if CC_PARTICLE_FRAME_INDEX
+  particleInput.frameIndex = a_particle_frame_index;
+  #else
+  particleInput.frameIndex = 0.0;
+  #endif
+  #if CC_PARTICLE_VELOCITY
+  particleInput.velocity = a_particle_velocity;
+  #else
+  particleInput.velocity = vec3(0., 0., 0.);
+  #endif
 }
 
-#define CC_SETUP_PARTICLE_INPUT(input) \
-#if CC_PARTICLE_POSITION \
-input.position = a_particle_position; \
-#else \
-input.position = vec3(0., 0., 0.); \
-#endif \
-#if CC_PARTICLE_ROTATION \
-input.rotation = a_particle_rotation; \
-#else \
-input.rotation = vec3(0., 0., 0.); \
-#endif \
-#if CC_PARTICLE_SIZE \
-input.size = a_particle_size; \
-#else \
-input.size = vec3(1.0, 1.0, 1.0); \
-#endif \
-#if CC_PARTICLE_COLOR \
-input.color = a_particle_color; \
-#else \
-input.color = vec4(1.0, 1.0, 1.0, 1.0); \
-#endif \
-#if CC_PARTICLE_FRAME_INDEX \
-input.frameIndex = a_particle_frame_index; \
-#else \
-input.frameIndex = 0.0; \
-#endif \
-#if CC_PARTICLE_VELOCITY \
-input.velocity = a_particle_velocity; \
-#else \
-input.velocity = vec3(0., 0., 0.); \
-#endif \
+
 

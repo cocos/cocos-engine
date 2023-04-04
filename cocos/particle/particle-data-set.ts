@@ -23,14 +23,13 @@
  THE SOFTWARE.
  */
 
-import { DEBUG } from 'internal:constants';
 import { assert } from '../core';
-import { ccclass, serializable } from '../core/data/decorators';
-import { BitsBucket } from './particle-base';
-import { ParticleArrayParameter, ParticleBoolArrayParameter, ParticleColorArrayParameter, ParticleFloatArrayParameter, ParticleParameter, ParticleParameterIdentity, ParticleParameterType, ParticleUint32ArrayParameter, ParticleVec3ArrayParameter } from './particle-parameter';
+import { ParticleArrayParameter, ParticleBoolArrayParameter, ParticleColorArrayParameter, ParticleFloatArrayParameter, ParticleParameterIdentity, ParticleParameterType, ParticleUint32ArrayParameter, ParticleVec3ArrayParameter } from './particle-parameter';
 
 export type ParticleHandle = number;
 export const INVALID_HANDLE = -1;
+export const MAX_BUILTIN_PARAMETER_COUNT = 32;
+export const MAX_CUSTOM_PARAMETER_COUNT = 32;
 
 export enum BuiltinParticleParameterName {
     ID = 'id',
@@ -195,10 +194,11 @@ export class ParticleDataSet {
 
     private _count = 0;
     private _capacity = 16;
-    private _parameterFlags = new BitsBucket();
     private _parameterCount = 0;
-    private _parameterIds = new Uint8Array(8);
+    private _builtinParameterFlags = 0;
+    private _customParameterFlags = 0;
     private _parameters: ParticleArrayParameter[] = [];
+    private _parameterMap: Record<number, ParticleArrayParameter | null> = {};
 
     getParameter<T extends ParticleArrayParameter> (id: number) {
         if (!this.hasParameter(id)) {
@@ -208,25 +208,18 @@ export class ParticleDataSet {
     }
 
     getParameterNoCheck<T extends ParticleArrayParameter> (id: number) {
-        const parameterIds = this._parameterIds;
-        const parameters = this._parameters;
-        for (let i = 0, length = this._parameterCount; i < length; i++) {
-            if (id === parameterIds[i]) {
-                return parameters[i] as T;
-            }
-        }
-        throw new Error('Oops, should not be here. Please make sure the parameter exists before calling getParameterNoCheck');
+        return this._parameterMap[id] as T;
     }
 
     hasParameter (id: number) {
-        return this._parameterFlags.isMarked(id);
+        return id < MAX_BUILTIN_PARAMETER_COUNT ? (this._builtinParameterFlags & (1 << id)) : (this._customParameterFlags & (1 << (id - MAX_BUILTIN_PARAMETER_COUNT)));
     }
 
     addBuiltinParameter (id: BuiltinParticleParameter) {
         switch (id) {
         case BuiltinParticleParameter.ID:
         case BuiltinParticleParameter.RANDOM_SEED:
-            this.addParameter(id, BuiltinParticleParameterID2Name[id], ParticleParameterType.UINT32);
+            this.addParameter(id, ParticleParameterType.UINT32);
             break;
         case BuiltinParticleParameter.POSITION:
         case BuiltinParticleParameter.BASE_VELOCITY:
@@ -238,45 +231,45 @@ export class ParticleDataSet {
         case BuiltinParticleParameter.ANGULAR_VELOCITY:
         case BuiltinParticleParameter.AXIS_OF_ROTATION:
         case BuiltinParticleParameter.VEC3_REGISTER:
-            this.addParameter(id, BuiltinParticleParameterID2Name[id], ParticleParameterType.VEC3);
+            this.addParameter(id, ParticleParameterType.VEC3);
             break;
         case BuiltinParticleParameter.COLOR:
         case BuiltinParticleParameter.BASE_COLOR:
-            this.addParameter(id, BuiltinParticleParameterID2Name[id], ParticleParameterType.COLOR);
+            this.addParameter(id, ParticleParameterType.COLOR);
             break;
         case BuiltinParticleParameter.FRAME_INDEX:
         case BuiltinParticleParameter.INV_START_LIFETIME:
         case BuiltinParticleParameter.NORMALIZED_ALIVE_TIME:
         case BuiltinParticleParameter.SPAWN_TIME_RATIO:
         case BuiltinParticleParameter.FLOAT_REGISTER:
-            this.addParameter(id, BuiltinParticleParameterID2Name[id], ParticleParameterType.FLOAT);
+            this.addParameter(id, ParticleParameterType.FLOAT);
             break;
         case BuiltinParticleParameter.IS_DEAD:
-            this.addParameter(id, BuiltinParticleParameterID2Name[id], ParticleParameterType.BOOL);
+            this.addParameter(id, ParticleParameterType.BOOL);
             break;
         default:
         }
     }
 
-    addParameter (id: number, name: string, type: ParticleParameterType) {
-        if (this._parameterFlags.isMarked(id)) {
+    addParameter (id: number, type: ParticleParameterType) {
+        if (this.hasParameter(id)) {
             throw new Error('Already exist a particle parameter with same id!');
         }
         switch (type) {
         case ParticleParameterType.FLOAT:
-            this.addParameter_internal(id, new ParticleFloatArrayParameter(name));
+            this.addParameter_internal(id, new ParticleFloatArrayParameter());
             break;
         case ParticleParameterType.VEC3:
-            this.addParameter_internal(id, new ParticleVec3ArrayParameter(name));
+            this.addParameter_internal(id, new ParticleVec3ArrayParameter());
             break;
         case ParticleParameterType.COLOR:
-            this.addParameter_internal(id, new ParticleColorArrayParameter(name));
+            this.addParameter_internal(id, new ParticleColorArrayParameter());
             break;
         case ParticleParameterType.UINT32:
-            this.addParameter_internal(id, new ParticleUint32ArrayParameter(name));
+            this.addParameter_internal(id, new ParticleUint32ArrayParameter());
             break;
         case ParticleParameterType.BOOL:
-            this.addParameter_internal(id, new ParticleBoolArrayParameter(name));
+            this.addParameter_internal(id, new ParticleBoolArrayParameter());
             break;
         default:
             throw new Error('Unknown particle parameter type!');
@@ -284,33 +277,31 @@ export class ParticleDataSet {
     }
 
     addParameter_internal (id: number, parameter: ParticleArrayParameter) {
-        const parameterIds = this._parameterIds;
-        const count = this._parameterCount;
-        if (parameterIds.length === count) {
-            this._parameterIds = new Uint8Array(2 * count);
-            this._parameterIds.set(parameterIds);
-        }
-        this._parameterFlags.mark(id);
-        this._parameterIds[this._parameterCount++] = id;
+        this._parameterCount++;
         this._parameters.push(parameter);
+        this._parameterMap[id] = parameter;
+        if (id < MAX_BUILTIN_PARAMETER_COUNT) {
+            this._builtinParameterFlags |= (1 << id);
+        } else {
+            this._customParameterFlags |= (1 << (id - MAX_BUILTIN_PARAMETER_COUNT));
+        }
         parameter.reserve(this._capacity);
     }
 
     removeParameter (id: number) {
-        if (!this._parameterFlags.isMarked(id)) {
+        if (!this.hasParameter(id)) {
             return;
         }
-        const parameterIds = this._parameterIds;
-        const parameters = this._parameters;
-        const count = this._parameterCount;
-        for (let i = count - 1; i >= 0; i--) {
-            if (id === parameterIds[i]) {
-                parameterIds[i] = parameterIds[count - 1];
-                parameters[i] = parameters[count - 1];
-                this._parameterFlags.unmark(id);
-                parameters.length--;
-                this._parameterCount--;
-            }
+        const parameter = this._parameterMap[id];
+        assert(parameter);
+        this._parameterMap[id] = null;
+        const index = this._parameters.indexOf(parameter);
+        this._parameters.splice(index, 1);
+        this._parameterCount--;
+        if (id < MAX_BUILTIN_PARAMETER_COUNT) {
+            this._builtinParameterFlags &= ~(1 << id);
+        } else {
+            this._customParameterFlags &= ~(1 << (id - MAX_BUILTIN_PARAMETER_COUNT));
         }
     }
 
@@ -344,33 +335,31 @@ export class ParticleDataSet {
         }
     }
 
-    ensureParameters (requiredParameters: BitsBucket, customParameters: ParticleParameterIdentity[]) {
-        if (!requiredParameters.equals(this._parameterFlags)) {
-            // handle builtin parameters
+    ensureParameters (builtinParameterRequirement: number, customParameterRequirement: number, customParameters: ParticleParameterIdentity[]) {
+        if (builtinParameterRequirement !== this._builtinParameterFlags) {
             for (let i = 0; i < BuiltinParticleParameter.COUNT; i++) {
-                if (requiredParameters.isMarked(i) && !this._parameterFlags.isMarked(i)) {
+                if ((builtinParameterRequirement & 1 << i) && !this.hasParameter(i)) {
                     this.addBuiltinParameter(i);
-                } else if (!requiredParameters.isMarked(i) && this._parameterFlags.isMarked(i)) {
+                } else if (!(builtinParameterRequirement & 1 << i) && this.hasParameter(i)) {
                     this.removeParameter(i);
                 }
             }
         }
 
-        // handle custom parameters
-        for (let i = 0, length = customParameters.length; i < length; i++) {
-            const { id, name, type } = customParameters[i];
-            if (requiredParameters.isMarked(id) && !this._parameterFlags.isMarked(id)) {
-                this.addParameter(id, name, type);
-            } else if (!requiredParameters.isMarked(id) && this._parameterFlags.isMarked(id)) {
-                this.removeParameter(id);
-            } else if (requiredParameters.isMarked(id) && this._parameterFlags.isMarked(id)) {
-                const parameter = this.getParameterNoCheck(id);
-                if (parameter.name !== name) {
-                    parameter.name = name;
-                }
-                if (parameter.type !== type) {
+        if (customParameterRequirement !== this._customParameterFlags) {
+            // handle custom parameters
+            for (let i = 0, length = customParameters.length; i < length; i++) {
+                const { id, type } = customParameters[i];
+                if (customParameterRequirement[i] && !this.hasParameter(i)) {
+                    this.addParameter(id, type);
+                } else if (!customParameterRequirement[i] && this.hasParameter(i)) {
                     this.removeParameter(id);
-                    this.addParameter(id, name, type);
+                } else if (customParameterRequirement[i] && this.hasParameter(i)) {
+                    const parameter = this.getParameterNoCheck(id);
+                    if (parameter.type !== type) {
+                        this.removeParameter(id);
+                        this.addParameter(id, type);
+                    }
                 }
             }
         }
@@ -379,8 +368,7 @@ export class ParticleDataSet {
     clear () {
         this._count = 0;
         this._parameters.length = 0;
-        this._parameterIds.fill(0);
+        this._parameterMap = {};
         this._parameterCount = 0;
-        this._parameterFlags.clear();
     }
 }

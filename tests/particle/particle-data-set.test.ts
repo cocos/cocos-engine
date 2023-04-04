@@ -1,11 +1,15 @@
 
 import { ParticleDataSet } from '../../cocos/particle/particle-data-set';
+import { ParticleFloatArrayParameter, ParticleParameterType } from '../../cocos/particle/particle-parameter';
 
 describe('particle-data-set', () => {
     
     test('capacity', () => {
         const particles = new ParticleDataSet();
         expect(particles.capacity).toBe(16);
+        expect(particles.count).toBe(0);
+        particles.reserve(100);
+        expect(particles.capacity).toBe(100);
         expect(particles.count).toBe(0);
     });
 
@@ -15,14 +19,17 @@ describe('particle-data-set', () => {
         expect(particles.count).toBe(5);
     });
 
-    test('id', () => {
+    test('parameter', () => {
         const particles = new ParticleDataSet();
-        for (let i = 0; i < 100; i++) {
-            particles.addParticles(1);
-        }
-        for (let i = 0; i < 100; i++) {
-            expect(particles.id[i]).toBe(i + 1);
-        }
+        const customId1 = 31;
+        const customId2 = 32;
+        expect(particles.hasParameter(customId1)).toBeFalsy();
+        expect(particles.getParameter(customId1)).toBeFalsy();
+        expect(particles.getParameterNoCheck(customId1)).toBeUndefined();
+        particles.addParameter(customId1, ParticleParameterType.FLOAT);
+        expect(particles.hasParameter(customId1)).toBeTruthy();
+        expect(particles.getParameter(customId1)).toBeTruthy();
+        expect(particles.getParameter(customId1)).toBeInstanceOf(ParticleFloatArrayParameter);
+
     });
-    
 });

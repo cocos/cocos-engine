@@ -2,14 +2,9 @@ import { Vec3 } from '../../cocos/core';
 import { BATCH_OPERATION_THRESHOLD_VEC3, ParticleBoolArrayParameter, ParticleColorArrayParameter, ParticleFloatArrayParameter, ParticleParameterType, ParticleUint32ArrayParameter, ParticleVec3ArrayParameter } from '../../cocos/particle/particle-parameter';
 
 describe('ParticleVec3ArrayParameter', () => {
-    const vec3Parameter = new ParticleVec3ArrayParameter('test');
+    const vec3Parameter = new ParticleVec3ArrayParameter();
     const vec3 = new Vec3();
     test('basic', () => {
-        expect(vec3Parameter.name).toBe('test');
-        vec3Parameter.name = 'test2';
-        expect(vec3Parameter.name).toBe('test2');
-        vec3Parameter.name = 'test';
-        expect(vec3Parameter.name).toBe('test');
         expect(vec3Parameter.stride).toBe(3);
         expect(vec3Parameter.type).toBe(ParticleParameterType.VEC3);
     });
@@ -400,9 +395,48 @@ describe('ParticleVec3ArrayParameter', () => {
         }
     });
 
+    test('static add', () => {
+        vec3Parameter.fill1f(0, 0, vec3Parameter.capacity);
+        const b = new ParticleVec3ArrayParameter();
+        expect(() => ParticleVec3ArrayParameter.add(vec3Parameter, vec3Parameter, b, 0, 100)).toThrowError();
+        b.reserve(vec3Parameter.capacity);
+        expect(() => ParticleVec3ArrayParameter.add(vec3Parameter, vec3Parameter, b, -1, 100)).toThrowError();
+        expect(() => ParticleVec3ArrayParameter.add(vec3Parameter, vec3Parameter, b, 0, 10000)).toThrowError();
+        expect(() => ParticleVec3ArrayParameter.add(vec3Parameter, vec3Parameter, b, 3, 2)).toThrowError();
+        b.fill1f(0.5, 0, b.capacity);
+        const randomIndex = Math.floor(Math.random() * vec3Parameter.capacity);
+        ParticleVec3ArrayParameter.add(vec3Parameter, vec3Parameter, b, randomIndex, randomIndex + 1);
+        for (let i = 0; i < vec3Parameter.capacity; i++) {
+            if (i === randomIndex) {
+                expect(vec3Parameter.getXAt(i)).toBe(0.5);
+                expect(vec3Parameter.getYAt(i)).toBe(0.5);
+                expect(vec3Parameter.getZAt(i)).toBe(0.5);
+            } else {
+                expect(vec3Parameter.getXAt(i)).toBe(0);
+                expect(vec3Parameter.getYAt(i)).toBe(0);
+                expect(vec3Parameter.getZAt(i)).toBe(0);
+            }
+        }
+        for (let i = 0; i < vec3Parameter.capacity; i++) {
+            vec3Parameter.set3fAt(i, i + 1, i + 2, i);
+            b.set3fAt(i, i - 1, i - 2 ,i);
+        }
+        ParticleVec3ArrayParameter.add(vec3Parameter, vec3Parameter, b, 0, vec3Parameter.capacity);
+        for (let i = 0; i < vec3Parameter.capacity; i++) {
+            vec3Parameter.getVec3At(vec3, i);
+            expect(vec3).toStrictEqual(new Vec3(i * 2, 2 * i, 2 * i));
+        }
+        ParticleVec3ArrayParameter.add(b, vec3Parameter, b, 0, vec3Parameter.capacity);
+        for (let i = 0; i < vec3Parameter.capacity; i++) {
+            b.getVec3At(vec3, i);
+            expect(vec3).toStrictEqual(new Vec3(i * 3, 3 * i - 1, 3 * i - 2));
+        }
+    });
+
+
     test('scaleAndAdd', () => {
         vec3Parameter.fill1f(0, 0, vec3Parameter.capacity);
-        const b = new ParticleVec3ArrayParameter('b');
+        const b = new ParticleVec3ArrayParameter();
         expect(() => ParticleVec3ArrayParameter.scaleAndAdd(vec3Parameter, vec3Parameter, b, 0.5, 0, 100)).toThrowError();
         b.reserve(vec3Parameter.capacity);
         expect(() => ParticleVec3ArrayParameter.scaleAndAdd(vec3Parameter, vec3Parameter, b, 0.5, -1, 100)).toThrowError();
@@ -440,6 +474,39 @@ describe('ParticleVec3ArrayParameter', () => {
         }
     });
 
+    test('static sub', () => {
+        vec3Parameter.fill1f(1, 0, vec3Parameter.capacity);
+        const b = new ParticleVec3ArrayParameter();
+        expect(() => ParticleVec3ArrayParameter.sub(vec3Parameter, vec3Parameter, b, 0, 100)).toThrowError();
+        b.reserve(vec3Parameter.capacity);
+        expect(() => ParticleVec3ArrayParameter.sub(vec3Parameter, vec3Parameter, b, -1, 100)).toThrowError();
+        expect(() => ParticleVec3ArrayParameter.sub(vec3Parameter, vec3Parameter, b, 0, 10000)).toThrowError();
+        expect(() => ParticleVec3ArrayParameter.sub(vec3Parameter, vec3Parameter, b, 3, 2)).toThrowError();
+        b.fill1f(1, 0, b.capacity);
+        const randomIndex = Math.floor(Math.random() * vec3Parameter.capacity);
+        ParticleVec3ArrayParameter.sub(vec3Parameter, vec3Parameter, b, randomIndex, randomIndex + 1);
+        for (let i = 0; i < vec3Parameter.capacity; i++) {
+            if (i === randomIndex) {
+                expect(vec3Parameter.getXAt(i)).toBe(0);
+                expect(vec3Parameter.getYAt(i)).toBe(0);
+                expect(vec3Parameter.getZAt(i)).toBe(0);
+            } else {
+                expect(vec3Parameter.getXAt(i)).toBe(1);
+                expect(vec3Parameter.getYAt(i)).toBe(1);
+                expect(vec3Parameter.getZAt(i)).toBe(1);
+            }
+        }
+        for (let i = 0; i < vec3Parameter.capacity; i++) {
+            vec3Parameter.set3fAt(i, i + 1, i + 2, i);
+            b.set3fAt(i, i - 1, i - 2 ,i);
+        }
+        ParticleVec3ArrayParameter.sub(vec3Parameter, vec3Parameter, b, 0, vec3Parameter.capacity);
+        for (let i = 0; i < vec3Parameter.capacity; i++) {
+            vec3Parameter.getVec3At(vec3, i);
+            expect(vec3).toStrictEqual(new Vec3(0, 2, 4));
+        }
+    });
+
     test('fill', () => {
         expect(() => vec3Parameter.fill(vec3, -1, 50)).toThrowError();
         expect(() => vec3Parameter.fill(vec3, 2, 10000)).toThrowError();
@@ -462,17 +529,13 @@ describe('ParticleVec3ArrayParameter', () => {
         }
     });
 
+    
 
 });
 
 describe('ParticleFloatArrayParameter', () => {
-    const floatParameter = new ParticleFloatArrayParameter('test');
+    const floatParameter = new ParticleFloatArrayParameter();
     test('basic', () => {
-        expect(floatParameter.name).toBe('test');
-        floatParameter.name = 'test2';
-        expect(floatParameter.name).toBe('test2');
-        floatParameter.name = 'test';
-        expect(floatParameter.name).toBe('test');
         expect(floatParameter.type).toBe(ParticleParameterType.FLOAT);
         expect(floatParameter.stride).toBe(1);
     });
@@ -491,13 +554,8 @@ describe('ParticleFloatArrayParameter', () => {
 });
 
 describe('ParticleUint32ArrayParameter', () => {
-    const uint32Parameter = new ParticleUint32ArrayParameter('test');
+    const uint32Parameter = new ParticleUint32ArrayParameter();
     test('basic', () => {
-        expect(uint32Parameter.name).toBe('test');
-        uint32Parameter.name = 'test2';
-        expect(uint32Parameter.name).toBe('test2');
-        uint32Parameter.name = 'test';
-        expect(uint32Parameter.name).toBe('test');
         expect(uint32Parameter.type).toBe(ParticleParameterType.UINT32);
         expect(uint32Parameter.stride).toBe(1);
     });
@@ -516,13 +574,8 @@ describe('ParticleUint32ArrayParameter', () => {
 });
 
 describe('ParticleBoolArrayParameter', () => {
-    const boolParameter = new ParticleBoolArrayParameter('test');
+    const boolParameter = new ParticleBoolArrayParameter();
     test('basic', () => {
-        expect(boolParameter.name).toBe('test');
-        boolParameter.name = 'test2';
-        expect(boolParameter.name).toBe('test2');
-        boolParameter.name = 'test';
-        expect(boolParameter.name).toBe('test');
         expect(boolParameter.type).toBe(ParticleParameterType.BOOL);
         expect(boolParameter.stride).toBe(1);
     });
@@ -541,13 +594,8 @@ describe('ParticleBoolArrayParameter', () => {
 });
 
 describe('ParticleColorArrayParameter', () => {
-    const colorParameter = new ParticleColorArrayParameter('test');
+    const colorParameter = new ParticleColorArrayParameter();
     test('basic', () => {
-        expect(colorParameter.name).toBe('test');
-        colorParameter.name = 'test2';
-        expect(colorParameter.name).toBe('test2');
-        colorParameter.name = 'test';
-        expect(colorParameter.name).toBe('test');
         expect(colorParameter.type).toBe(ParticleParameterType.COLOR);
         expect(colorParameter.stride).toBe(1);
     });

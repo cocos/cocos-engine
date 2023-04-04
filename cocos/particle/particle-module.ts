@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { ParticleExecContext, ParticleEmitterParams, BitsBucket, ParticleEmitterState } from './particle-base';
+import { ParticleExecContext, ParticleEmitterParams, ParticleEmitterState } from './particle-base';
 import { ParticleDataSet } from './particle-data-set';
 import { ccclass, displayName, serializable, type } from '../core/data/decorators';
 import { assert, CCBoolean, CCString, Mat4 } from '../core';
@@ -36,11 +36,12 @@ export enum ModuleExecStage {
     EVENT_HANDLER = 1 << 3,
     RENDER = 1 << 4,
     SIMULATION = 1 << 5,
+    ALL = EMITTER_UPDATE | SPAWN | UPDATE | EVENT_HANDLER | RENDER | SIMULATION,
 }
 
 @ccclass('cc.ParticleModule')
 export abstract class ParticleModule {
-    public static register (name: string, stages: ModuleExecStage, produce: string[] = [], consume: string[] = []) {
+    public static register (name: string, stages: ModuleExecStage, provide: string[] = [], consume: string[] = []) {
         return function (ctor: Constructor<ParticleModule>) {
             for (let i = 0, length = ParticleModule._allRegisteredModules.length; i < length; i++) {
                 if (ParticleModule._allRegisteredModules[i].ctor === ctor) {
@@ -50,7 +51,7 @@ export abstract class ParticleModule {
                     throw new Error(`Duplicated name ${name} with other module!`);
                 }
             }
-            const identity = new ParticleModuleIdentity(ctor, name, stages, produce, consume);
+            const identity = new ParticleModuleIdentity(ctor, name, stages, provide, consume);
             ParticleModule._allRegisteredModules.push(identity);
         };
     }
@@ -61,14 +62,14 @@ export abstract class ParticleModule {
 
     public static findAProperPositionToInsert (modules: ParticleModule[], module: ParticleModule) {
         const identity = ParticleModule.getModuleIdentityByClassNoCheck(module.constructor as Constructor<ParticleModule>);
-        const produceParams = identity.produceParams;
+        const provideParams = identity.provideParams;
         const consumeParams = identity.consumeParams;
         let lastIndexOfPreDependency = -1;
         for (let i = 0, l = consumeParams.length; i < l; i++) {
             for (let j = 0; j < modules.length; j++) {
                 const module = modules[j];
                 const currentModuleId = ParticleModule.getModuleIdentityByClassNoCheck(module.constructor as Constructor<ParticleModule>);
-                const currentProduceParams = currentModuleId.produceParams;
+                const currentProduceParams = currentModuleId.provideParams;
                 if (currentProduceParams.includes(consumeParams[i])) {
                     if (j > lastIndexOfPreDependency) {
                         lastIndexOfPreDependency = j;
@@ -77,12 +78,12 @@ export abstract class ParticleModule {
             }
         }
         let firstIndexOfPostDependency = modules.length;
-        for (let i = 0, l = produceParams.length; i < l; i++) {
+        for (let i = 0, l = provideParams.length; i < l; i++) {
             for (let j = modules.length - 1; j >= 0; j--) {
                 const module = modules[j];
                 const currentModuleId = ParticleModule.getModuleIdentityByClassNoCheck(module.constructor as Constructor<ParticleModule>);
                 const currentConsumeParams = currentModuleId.consumeParams;
-                if (currentConsumeParams.includes(produceParams[i])) {
+                if (currentConsumeParams.includes(provideParams[i])) {
                     if (j < firstIndexOfPostDependency) {
                         firstIndexOfPostDependency = j;
                     }
@@ -109,6 +110,29 @@ export abstract class ParticleModule {
             }
         }
         return null;
+    }
+
+    public static getModuleIdentityByName (name: string) {
+        for (let i = 0, length = ParticleModule._allRegisteredModules.length; i < length; i++) {
+            if (ParticleModule._allRegisteredModules[i].name === name) {
+                return ParticleModule._allRegisteredModules[i];
+            }
+        }
+        return null;
+    }
+
+    public static getModuleIdentitiesWithSpecificStage (stage: ModuleExecStage, out: ParticleModuleIdentity[]) {
+        for (let i = 0, length = ParticleModule._allRegisteredModules.length; i < length; i++) {
+            const identity = ParticleModule._allRegisteredModules[i];
+            if (identity.execStages & stage) {
+                out.push(identity);
+            }
+        }
+        return out;
+    }
+
+    public static clearRegisteredModules () {
+        this._allRegisteredModules.length = 0;
     }
 
     private static _allRegisteredModules: ParticleModuleIdentity[] = [];
@@ -279,14 +303,14 @@ class ParticleModuleIdentity {
     public readonly ctor: Constructor<ParticleModule> | null = null;
     public readonly name: string = '';
     public readonly execStages = ModuleExecStage.NONE;
-    public readonly produceParams: string[];
+    public readonly provideParams: string[];
     public readonly consumeParams: string[];
 
-    constructor (ctor: Constructor<ParticleModule>, name: string, execStages: ModuleExecStage, produceParams: string[] = [], consumeParams: string[] = []) {
+    constructor (ctor: Constructor<ParticleModule>, name: string, execStages: ModuleExecStage, provideParams: string[] = [], consumeParams: string[] = []) {
         this.ctor = ctor;
         this.name = name;
         this.execStages = execStages;
-        this.produceParams = produceParams;
+        this.provideParams = provideParams;
         this.consumeParams = consumeParams;
     }
 }

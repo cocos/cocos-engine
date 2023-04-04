@@ -216,56 +216,6 @@ export enum InheritedProperty {
     LIFETIME = 1 << 3,
     DURATION = 1 << 4
 }
-
-export class BitsBucket {
-    private _flags = new Uint32Array(1);
-    private _count = 1;
-
-    mark (flagNum: number) {
-        const bytes = flagNum >> 5;
-        if (bytes >= this._count) {
-            const newFlags = new Uint32Array(bytes + 1);
-            newFlags.set(this._flags);
-            this._flags = newFlags;
-            this._count = bytes + 1;
-        }
-        const left = flagNum - (bytes << 5);
-        this._flags[bytes] |= 1 << left;
-    }
-
-    isMarked (flagNum: number) {
-        const bytes = flagNum >> 5;
-        if (bytes >= this._count) return false;
-        const left = flagNum - (bytes << 5);
-        return (this._flags[bytes] & (1 << left)) !== 0;
-    }
-
-    unmark (flagNum: number) {
-        const bytes = flagNum >> 5;
-        if (bytes >= this._count) return;
-        const left = flagNum - (bytes << 5);
-        this._flags[bytes] &= ~(1 << left);
-    }
-
-    equals (other: BitsBucket) {
-        const count = Math.min(this._count, other._count);
-        for (let i = 0; i < count; i++) {
-            if (this._flags[i] !== other._flags[i]) return false;
-        }
-        for (let i = count; i < this._count; i++) {
-            if (this._flags[i] !== 0) return false;
-        }
-        for (let i = count; i < other._count; i++) {
-            if (other._flags[i] !== 0) return false;
-        }
-        return true;
-    }
-
-    clear () {
-        this._flags.fill(0);
-    }
-}
-
 export class InheritedProperties {
     public rotation = new Vec3();
     public size = new Vec3();
@@ -310,8 +260,12 @@ export class ParticleExecContext {
         return this._deathEvents;
     }
 
-    public get requiredParameters () {
-        return this._requiredParameters;
+    public get builtinParameterRequirements () {
+        return this._builtinParameterRequirements;
+    }
+
+    public get customParameterRequirements () {
+        return this._customParameterRequirements;
     }
 
     // emitter range
@@ -366,7 +320,8 @@ export class ParticleExecContext {
     private _fromIndex = 0;
     private _toIndex = 0;
     private _executionStage = ModuleExecStage.NONE;
-    private _requiredParameters = new BitsBucket();
+    private _builtinParameterRequirements = 0;
+    private _customParameterRequirements = 0;
     private _locationEvents: ParticleEvents | null = null;
     private _deathEvents: ParticleEvents | null = null;
 
@@ -388,7 +343,7 @@ export class ParticleExecContext {
     }
 
     setWorldMatrix (localToWorld: Mat4, inWorldSpace: boolean) {
-        this.localToWorld.set(localToWorld);
+        Mat4.copy(this.localToWorld, localToWorld);
         Mat4.invert(this.worldToLocal, this.localToWorld);
         if (inWorldSpace) {
             Mat4.getRotation(this.rotationIfNeedTransform, this.localToWorld);
@@ -413,13 +368,18 @@ export class ParticleExecContext {
     reset () {
         this._deathEvents?.clear();
         this._locationEvents?.clear();
-        this._requiredParameters.clear();
+        this._builtinParameterRequirements = 0;
+        this._customParameterRequirements = 0;
         this._executionStage = ModuleExecStage.NONE;
         this.setExecuteRange(0, 0);
         this.resetSpawningState();
     }
 
     markRequiredParameter (parameterId: number) {
-        this._requiredParameters.mark(parameterId);
+        if (parameterId < 32) {
+            this._builtinParameterRequirements |= (1 << parameterId);
+        } else {
+            this._customParameterRequirements |= (1 << (parameterId - 32));
+        }
     }
 }

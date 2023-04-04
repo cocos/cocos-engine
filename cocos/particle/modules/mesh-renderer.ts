@@ -32,7 +32,7 @@ import { AlignmentSpace, Space } from '../enum';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
 import { ModuleExecStage, ParticleModule } from '../particle-module';
-import { CC_RENDER_MODE, CC_USE_WORLD_SPACE, meshColorRGBA8, meshNormal, meshPosition, meshUv, particleColor, particleFrameId, particlePosition, particleRotation, particleSize, particleVelocity, RendererModule, RENDER_MODE_MESH, ROTATION_OVER_TIME_MODULE_ENABLE } from './renderer';
+import { CC_RENDER_MODE, CC_USE_WORLD_SPACE, meshColorRGBA8, meshNormal, meshPosition, meshUv, particleColor, particleFrameIndex, particlePosition, particleRotation, particleSize, particleVelocity, RendererModule, RENDER_MODE_MESH, ROTATION_OVER_TIME_MODULE_ENABLE } from './renderer';
 
 @ccclass('cc.MeshRendererModule')
 @ParticleModule.register('MeshRenderer', ModuleExecStage.RENDER)
@@ -64,7 +64,7 @@ export class MeshRendererModule extends RendererModule {
     private _defines: MacroRecord = { [CC_RENDER_MODE]: RENDER_MODE_MESH };
     private _vertexStreamAttributes = [
         meshPosition, meshUv, meshNormal, meshColorRGBA8, particlePosition,
-        particleRotation, particleSize, particleFrameId, particleColor, particleVelocity,
+        particleRotation, particleSize, particleFrameIndex, particleColor, particleVelocity,
     ];
     private _renderScale = new Vec4();
     private _rotation = new Quat();
@@ -257,14 +257,14 @@ export class MeshRendererModule extends RendererModule {
             const vertStaticAttrsFloatCount = vertexStreamSizeStatic / 4;
             const vBuffer: ArrayBuffer = new ArrayBuffer(vertexStreamSizeStatic * vertCount);
             let vIdx = this._vertexStreamAttributes.findIndex((val) => val.name === AttributeName.ATTR_TEX_COORD); // find ATTR_TEX_COORD index
-            let vOffset = (this._vertexStreamAttributes[vIdx] as any).offset; // find ATTR_TEX_COORD offset
+            let vOffset = (this._vertexStreamAttributes[vIdx]).offset; // find ATTR_TEX_COORD offset
             mesh.copyAttribute(0, AttributeName.ATTR_TEX_COORD, vBuffer, vertexStreamSizeStatic, vOffset);  // copy mesh uv to ATTR_TEX_COORD
             vIdx = this._vertexStreamAttributes.findIndex((val) => val.name === AttributeName.ATTR_POSITION); // find ATTR_TEX_COORD3 index
-            vOffset = (this._vertexStreamAttributes[vIdx++] as any).offset; // find ATTR_TEX_COORD3 offset
+            vOffset = (this._vertexStreamAttributes[vIdx++]).offset; // find ATTR_TEX_COORD3 offset
             mesh.copyAttribute(0, AttributeName.ATTR_POSITION, vBuffer, vertexStreamSizeStatic, vOffset);  // copy mesh position to ATTR_TEX_COORD3
-            vOffset = (this._vertexStreamAttributes[vIdx++] as any).offset;
+            vOffset = (this._vertexStreamAttributes[vIdx++]).offset;
             mesh.copyAttribute(0, AttributeName.ATTR_NORMAL, vBuffer, vertexStreamSizeStatic, vOffset);  // copy mesh normal to ATTR_NORMAL
-            vOffset = (this._vertexStreamAttributes[vIdx++] as any).offset;
+            vOffset = (this._vertexStreamAttributes[vIdx++]).offset;
             if (!mesh.copyAttribute(0, AttributeName.ATTR_COLOR, vBuffer, vertexStreamSizeStatic, vOffset)) {  // copy mesh color to ATTR_COLOR1
                 const vb = new Uint32Array(vBuffer);
                 for (let iVertex = 0; iVertex < vertCount; ++iVertex) {
