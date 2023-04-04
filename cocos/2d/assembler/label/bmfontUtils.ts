@@ -23,63 +23,24 @@
 */
 
 import { JSB } from 'internal:constants';
-import { IConfig, FontLetterDefinition, FontAtlas } from '../../assets/bitmap-font';
+import { IConfig, FontAtlas } from '../../assets/bitmap-font';
 import { SpriteFrame } from '../../assets/sprite-frame';
-import { isUnicodeCJK, isUnicodeSpace } from '../../utils/text-utils';
-import { Rect, Size, Vec2 } from '../../../core';
-import { HorizontalTextAlignment, VerticalTextAlignment, Label, Overflow, CacheMode } from '../../components/label';
+import { Rect } from '../../../core';
+import { Label, Overflow, CacheMode } from '../../components/label';
 import { UITransform } from '../../framework/ui-transform';
 import { LetterAtlas, shareLabelInfo } from './font-utils';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
 import { TextProcessing } from './text-processing';
 import { TextProcessData } from './text-process-data';
 
-class LetterInfo {
-    public char = '';
-    public valid = true;
-    public x = 0;
-    public y = 0;
-    public line = 0;
-    public hash = '';
-}
-
-const _tmpRect = new Rect();
 const _defaultLetterAtlas = new LetterAtlas(64, 64);
 const _defaultFontAtlas = new FontAtlas(null);
 
 let _comp: Label | null = null;
 let _uiTrans: UITransform | null = null;
 
-const _horizontalKerning: number[] = [];
-const _lettersInfo: LetterInfo[] = [];
-const _linesWidth: number[] = [];
-const _linesOffsetX: number[] = [];
-const _labelDimensions = new Size();
-const _lineBreakWithoutSpaces = false; // 这又不改为啥要个这
-const _contentSize = new Size();
-const letterPosition = new Vec2();
-const _lineSpacing = 0; // 这个也是？有啥用
-
 let _fntConfig: IConfig | null = null;
-let _numberOfLines = 0;
-let _textDesiredHeight = 0;
-let _letterOffsetY = 0;
-let _tailoredTopY = 0;
-let _tailoredBottomY = 0;
-let _bmfontScale = 1.0;
 let _spriteFrame: SpriteFrame|null = null;
-let _string = '';
-let _fontSize = 0;
-let _originFontSize = 0;
-let _hAlign = 0;
-let _vAlign = 0;
-let _spacingX = 0;
-let _lineHeight = 0;
-let _overflow = 0;
-let _isWrapText = false;
-let _labelWidth = 0;
-let _labelHeight = 0;
-let _maxLineWidth = 0;
 let QUAD_INDICES;
 
 export const bmfontUtils = {
@@ -114,8 +75,16 @@ export const bmfontUtils = {
         shareLabelInfo.lineHeight = comp.lineHeight;
         shareLabelInfo.fontSize = comp.fontSize;
 
-        shareLabelInfo.hash = '';
-        shareLabelInfo.margin = 0;
+        // 同步数据？
+        data._spriteFrame = _spriteFrame; // 只同步这一次 // char 模式为 null
+        data._fntConfig = _fntConfig; // 只同步这一次
+        data._fontAtlas = shareLabelInfo.fontAtlas; // 注意这个值在 char 模式中不止这么点
+        data._fontFamily = shareLabelInfo.fontFamily;
+
+        // 同步下 info 中的内容
+        data._fontDesc = shareLabelInfo.fontDesc;
+        data._color = comp.color;
+        data._hash = shareLabelInfo.hash;// 可能是不要的
     },
 
     updateRenderData (comp: Label) {
@@ -132,20 +101,12 @@ export const bmfontUtils = {
 
             const processing = TextProcessing.instance;
             const data = comp.processingData;
-            data.isBmFont = true;
-            // hack
-            this._updateFontFamily(comp); // 如果不纳入处理器的话，分化实现
-            // 同步数据？
-            data._spriteFrame = _spriteFrame; // 只同步这一次
-            data._fntConfig = _fntConfig; // 只同步这一次
-            data._fontAtlas = shareLabelInfo.fontAtlas; // 注意这个值在 char 模式中不止这么点
+            data.isBmFont = true; // 标签赋值存在风险
+            this._updateFontFamily(comp);
 
-            // this._updateProperties(comp); // 数据同步，可以不纳入 // 数据冗余
-            // this._updateLabelInfo(comp); // char 和 bm 有区别 // 单纯为了复用代码分开的函数// bmfont里合并到上面
+            this._updateLabelInfo(comp);
             this.updateProcessingData(data, comp, _uiTrans);
 
-            // 将下面的内容拆为两个函数 // 存在递归调用哦
-            // this._updateContent(); // 对齐入口 // 需要拆分 // 存在分别实现问题
             // TextProcessing
             processing.processingString(data);// 可以填 out // 用一个flag来避免排版的更新，比如 renderDirtyOnly
             // generateVertex
@@ -283,10 +244,6 @@ export const bmfontUtils = {
         dataList[dataOffset + 3].y = y;
     },
 
-    _updateFontScale () {
-        _bmfontScale = _fontSize / _originFontSize;
-    },
-
     _updateFontFamily (comp) {
         const fontAsset = comp.font;
         _spriteFrame = fontAsset.spriteFrame;
@@ -308,38 +265,6 @@ export const bmfontUtils = {
         // clear
         shareLabelInfo.hash = '';
         shareLabelInfo.margin = 0;
-    },
-
-    _updateProperties (comp) {
-        _string = comp.string.toString();
-        _fontSize = comp.fontSize;
-        _originFontSize = _fntConfig ? _fntConfig.fontSize : comp.fontSize;
-        _hAlign = comp.horizontalAlign;
-        _vAlign = comp.verticalAlign;
-        _spacingX = comp.spacingX;
-        _overflow = comp.overflow;
-        _lineHeight = comp._lineHeight;
-
-        const contentSize = _uiTrans!.contentSize;
-        _contentSize.width = contentSize.width;
-        _contentSize.height = contentSize.height;
-
-        // should wrap text
-        if (_overflow === Overflow.NONE) {
-            _isWrapText = false;
-            _contentSize.width += shareLabelInfo.margin * 2;
-            _contentSize.height += shareLabelInfo.margin * 2;
-        } else if (_overflow === Overflow.RESIZE_HEIGHT) {
-            _isWrapText = true;
-            _contentSize.height += shareLabelInfo.margin * 2;
-        } else {
-            _isWrapText = comp.enableWrapText;
-        }
-
-        shareLabelInfo.lineHeight = _lineHeight;
-        shareLabelInfo.fontSize = _fontSize;
-
-        this._setupBMFontOverflowMetrics();
     },
 
     _resetProperties () {
@@ -813,90 +738,6 @@ export const bmfontUtils = {
             QUAD_INDICES[offset++] = 3 + i * 4;
             QUAD_INDICES[offset++] = 2 + i * 4;
         }
-    },
-
-    appendQuad (comp, texture, rect, rotated, x, y, scale) {
-    },
-
-    _determineRect () {
-        const isRotated = _spriteFrame!.isRotated();
-
-        const originalSize = _spriteFrame!.getOriginalSize();
-        const rect = _spriteFrame!.getRect();
-        const offset = _spriteFrame!.getOffset();
-        const trimmedLeft = offset.x + (originalSize.width - rect.width) / 2;
-        const trimmedTop = offset.y - (originalSize.height - rect.height) / 2;
-
-        if (!isRotated) {
-            _tmpRect.x += (rect.x - trimmedLeft);
-            _tmpRect.y += (rect.y + trimmedTop);
-        } else {
-            const originalX = _tmpRect.x;
-            _tmpRect.x = rect.x + rect.height - _tmpRect.y - _tmpRect.height - trimmedTop;
-            _tmpRect.y = originalX + rect.y - trimmedLeft;
-            if (_tmpRect.y < 0) {
-                _tmpRect.height += trimmedTop;
-            }
-        }
-
-        return isRotated;
-    },
-
-    _computeAlignmentOffset () {
-        _linesOffsetX.length = 0;
-
-        switch (_hAlign) {
-        case HorizontalTextAlignment.LEFT:
-            for (let i = 0; i < _numberOfLines; ++i) {
-                _linesOffsetX.push(0);
-            }
-            break;
-        case HorizontalTextAlignment.CENTER:
-            for (let i = 0, l = _linesWidth.length; i < l; i++) {
-                _linesOffsetX.push((_contentSize.width - _linesWidth[i]) / 2);
-            }
-            break;
-        case HorizontalTextAlignment.RIGHT:
-            for (let i = 0, l = _linesWidth.length; i < l; i++) {
-                _linesOffsetX.push(_contentSize.width - _linesWidth[i]);
-            }
-            break;
-        default:
-            break;
-        }
-
-        // TOP
-        _letterOffsetY = _contentSize.height;
-        if (_vAlign !== VerticalTextAlignment.TOP) {
-            const blank = _contentSize.height - _textDesiredHeight + _lineHeight * this._getFontScale() - _originFontSize * _bmfontScale;
-            if (_vAlign === VerticalTextAlignment.BOTTOM) {
-                // BOTTOM
-                _letterOffsetY -= blank;
-            } else {
-                // CENTER:
-                _letterOffsetY -= blank / 2;
-            }
-        }
-    },
-
-    _setupBMFontOverflowMetrics () {
-        let newWidth = _contentSize.width;
-        let newHeight = _contentSize.height;
-
-        if (_overflow === Overflow.RESIZE_HEIGHT) {
-            newHeight = 0;
-        }
-
-        if (_overflow === Overflow.NONE) {
-            newWidth = 0;
-            newHeight = 0;
-        }
-
-        _labelWidth = newWidth;
-        _labelHeight = newHeight;
-        _labelDimensions.width = newWidth;
-        _labelDimensions.height = newHeight;
-        _maxLineWidth = newWidth;
     },
 };
 

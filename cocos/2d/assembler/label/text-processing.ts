@@ -90,6 +90,7 @@ export class TextProcessing {
     public destroy () {
     }
 
+    // 状态切换有问题！！！！！！！！！！！！！！！！！！！
     // 两个接口
     // 排版一个，渲染一个
     // 在进行 string 的分析的时候，也会计算出 node 的 content size
@@ -649,8 +650,9 @@ export class TextProcessing {
     private _computeHorizontalKerningForText (info: TextProcessData) {
         const string = info.inputString;
         const stringLen = string.length;
+        if (!info._fntConfig) return; // for char
 
-        const kerningDict = info._fntConfig!.kerningDict; // 应该是用于处理连词的
+        const kerningDict = info._fntConfig.kerningDict; // 应该是用于处理连词的
         const horizontalKerning = info._horizontalKerning; // 不重置的话可能存在泄露风险
 
         if (!kerningDict || kerningDict.length === 0) { // 新加了保护
@@ -1126,11 +1128,12 @@ export class TextProcessing {
 
     _determineRect (info: TextProcessData) {
         const _spriteFrame = info._spriteFrame;
-        const isRotated = _spriteFrame!.isRotated();
+        if (!_spriteFrame) return false; // for char mode
+        const isRotated = _spriteFrame.isRotated();
 
-        const originalSize = _spriteFrame!.getOriginalSize();
-        const rect = _spriteFrame!.getRect();
-        const offset = _spriteFrame!.getOffset();
+        const originalSize = _spriteFrame.getOriginalSize();
+        const rect = _spriteFrame.getRect();
+        const offset = _spriteFrame.getOffset();
         const trimmedLeft = offset.x + (originalSize.width - rect.width) / 2;
         const trimmedTop = offset.y - (originalSize.height - rect.height) / 2;
 
