@@ -170,7 +170,10 @@ public:
         _shadowBias.z = reflectionProbeId;
     }
     inline int32_t getReflectionProbeBlendId() const { return _reflectionProbeBlendId; }
-    inline void setReflectionProbeBlendId(int32_t reflectionProbeId) { _reflectionProbeBlendId = reflectionProbeId; }
+    inline void setReflectionProbeBlendId(int32_t reflectionProbeId) {
+        _reflectionProbeBlendId = reflectionProbeId;
+        _shadowBias.w = reflectionProbeId;
+    }
     inline float getReflectionProbeBlendWeight() const { return _reflectionProbeBlendWeight; }
     inline void setReflectionProbeBlendWeight(float weight) { _reflectionProbeBlendWeight = weight; }
     inline int32_t getTetrahedronIndex() const { return _tetrahedronIndex; }

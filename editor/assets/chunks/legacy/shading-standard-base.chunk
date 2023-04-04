@@ -248,11 +248,14 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
 
         if (s.reflectionProbeBlendId < 0.0) {
           #if CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND_AND_SKYBOX
-            vec4 skybox = fragTextureLod(cc_environment, R, s.roughness * (cc_ambientGround.w - 1.0));
-            #if CC_USE_IBL == IBL_RGBE
-              vec3 skyBoxEnv = unpackRGBE(skybox);
-            #else
-              vec3 skyBoxEnv = SRGBToLinear(skybox.rgb);
+            vec3 skyBoxEnv = vec3(0.0);
+            #if CC_USE_IBL
+              vec4 skybox = fragTextureLod(cc_environment, R, s.roughness * (cc_ambientGround.w - 1.0));
+              #if CC_USE_IBL == IBL_RGBE
+                skyBoxEnv = unpackRGBE(skybox);
+              #else
+                skyBoxEnv = SRGBToLinear(skybox.rgb);
+              #endif
             #endif
             env = mix(env, skyBoxEnv, s.reflectionProbeBlendFactor);
           #endif

@@ -100,12 +100,18 @@ vec3 SampleEnvironmentSpecular(samplerCube tex, in LightingIntermediateData ligh
     vec3 envmap = SampleEnvironmentSpecular(cc_environment, lightingData, cc_ambientGround.w).xyz;
     #if CC_SURFACES_LIGHTING_ANISOTROPIC && CC_SURFACES_LIGHTING_ANISOTROPIC_ENVCONVOLUTION_COUNT
       envSpec = EnvAnisotropicReflection(tex, fixedR.xyz, roughness, mipCount, lightingData.anisotropyShape, lightingData.V, lightingData.N, lightingData.T, lightingData.B);
-      envSpec = mix(envmap, envSpec, fixedR.w);
+      #if CC_USE_REFLECTION_PROBE && CC_USE_REFLECTION_PROBE != REFLECTION_PROBE_TYPE_BLEND_AND_SKYBOX
+        envSpec = mix(envmap, envSpec, fixedR.w);
+      #endif
     #else
       #if CC_SURFACES_USE_REFLECTION_DENOISE && !CC_IBL_CONVOLUTED
         envSpec = EnvReflectionWithMipFiltering(normalize(R), roughness, mipCount, 0.6);
       #else
-        envSpec = mix(envmap, EnvReflection(tex, R, roughness, mipCount), fixedR.w);
+         #if CC_USE_REFLECTION_PROBE && CC_USE_REFLECTION_PROBE != REFLECTION_PROBE_TYPE_BLEND_AND_SKYBOX
+          envSpec = mix(envmap, EnvReflection(tex, R, roughness, mipCount), fixedR.w);
+         #else
+          envSpec = EnvReflection(tex, R, roughness, mipCount);
+         #endif
       #endif
     #endif
     return envSpec;
