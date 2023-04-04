@@ -710,6 +710,7 @@ class CharacterController {
         this.setStepOffset(this._com.stepOffset);
         this.setSlopeLimit(this._com.slopeLimit);
         this.setContactOffset(this._com.contactOffset);
+        this.setDetectCollisions(this._com.detectCollisions);
     }
     onEnable () { this._impl.onEnable(); }
     onDisable () { this._impl.onDisable(); }
@@ -733,6 +734,7 @@ class CharacterController {
     getSlopeLimit () { return this._impl.getSlopeLimit(); }
     setContactOffset (v) { this._impl.setContactOffset(v); }
     getContactOffset () { return this._impl.getContactOffset(); }
+    setDetectCollisions (v) { this._impl.setDetectCollisions(v); }
 
     updateEventListener () {
         let flag = 0;
