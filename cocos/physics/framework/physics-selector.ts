@@ -466,10 +466,10 @@ const ENTIRE_CHARACTER_CONTROLLER: IEntireCharacterController = {
     onGround: FUNC,
     getPosition: FUNC,
     setPosition: FUNC,
-    getVelocity: FUNC,
     setStepOffset: FUNC,
     setSlopeLimit: FUNC,
     setContactOffset: FUNC,
+    setDetectCollisions: FUNC,
     setGroup: FUNC,
     getGroup: FUNC,
     addGroup: FUNC,
@@ -479,6 +479,7 @@ const ENTIRE_CHARACTER_CONTROLLER: IEntireCharacterController = {
     addMask: FUNC,
     removeMask: FUNC,
     move: FUNC,
+    updateEventListener: FUNC,
     //IBoxCharacterController
     setHalfHeight: FUNC,
     setHalfSideExtent: FUNC,
@@ -486,7 +487,6 @@ const ENTIRE_CHARACTER_CONTROLLER: IEntireCharacterController = {
     //ICapsuleCharacterController
     setRadius: FUNC,
     setHeight: FUNC,
-    updateEventListener: FUNC,
 };
 
 export function createCharacterController (type: ECharacterControllerType): IEntireCharacterController {

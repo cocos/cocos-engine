@@ -28,7 +28,7 @@ import {
     ccclass, help, disallowMultiple, executeInEditMode, menu, executionOrder,
     tooltip, displayOrder, visible, type, serializable } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
-import { Vec3, error, warn, CCFloat, Eventify } from '../../../../core';
+import { Vec3, error, warn, CCFloat, Eventify, CCBoolean } from '../../../../core';
 import { Component } from '../../../../scene-graph';
 import { IBaseCharacterController } from '../../../spec/i-character-controller';
 import { ECharacterControllerType } from '../../physics-enum';
@@ -121,6 +121,19 @@ export class CharacterController extends Eventify(Component) {
         }
     }
 
+    @type(CCBoolean)
+    public get detectCollisions () {
+        return this._detectCollisions;
+    }
+
+    public set detectCollisions (value) {
+        if (this._detectCollisions === value) return;
+        this._detectCollisions = value;
+        if (this._cct) {
+            this._cct.setDetectCollisions(value);
+        }
+    }
+
     /**
      * @en
      * Gets the wrapper object, through which the lowLevel instance can be accessed.
@@ -157,6 +170,8 @@ export class CharacterController extends Eventify(Component) {
     private _slopeLimit = 45.0; //degree[ 0, 180]
     @serializable
     private _contactOffset = 0.01;
+    @serializable
+    private _detectCollisions = true;
 
     private _initialized = false;
     private _prevPos: Vec3 = new Vec3();

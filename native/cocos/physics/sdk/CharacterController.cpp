@@ -100,6 +100,9 @@ float CLASS::getContactOffset() {                                               
     return _impl->getContactOffset();                                           \
 }                                                                               \
                                                                                 \
+void CLASS::setDetectCollisions(bool v) {                                    \
+    _impl->setDetectCollisions(v);                                                  \
+}                                                                               \
 uint32_t CLASS::getGroup() {                                                    \
     return _impl->getGroup();                                                   \
 }                                                                               \
