@@ -159,6 +159,9 @@ export class CharacterController extends Eventify(Component) {
     private _contactOffset = 0.01;
 
     private _initialized = false;
+    private _prevPos: Vec3 = new Vec3();
+    private _currentPos: Vec3 = new Vec3();
+    private _velocity: Vec3 = new Vec3();
 
     protected _needTriggerEvent = false;
     protected _needCollisionEvent = false;
@@ -226,6 +229,10 @@ export class CharacterController extends Eventify(Component) {
         if (this._isInitialized) this._cct!.setPosition(value);
     }
 
+    public getVelocity (): Vec3 {
+        return this._velocity;
+    }
+
     /**
      * @en
      * .
@@ -247,8 +254,13 @@ export class CharacterController extends Eventify(Component) {
     public move (movement: Vec3): void {
         if (!this._isInitialized) { return; }
 
+        this.getPosition(this._prevPos);
+
         const elapsedTime = PhysicsSystem.instance.fixedTimeStep;
         this._cct!.move(movement, this._minMoveDistance, elapsedTime);
+
+        this.getPosition(this._currentPos);
+        this._velocity = this._currentPos.subtract(this._prevPos).multiplyScalar(1.0 / elapsedTime);
     }
 
     /// EVENT INTERFACE ///

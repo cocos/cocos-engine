@@ -466,6 +466,7 @@ const ENTIRE_CHARACTER_CONTROLLER: IEntireCharacterController = {
     onGround: FUNC,
     getPosition: FUNC,
     setPosition: FUNC,
+    getVelocity: FUNC,
     setStepOffset: FUNC,
     setSlopeLimit: FUNC,
     setContactOffset: FUNC,
