@@ -60,13 +60,16 @@ export abstract class ParticleModule {
         return this._allRegisteredModules;
     }
 
-    public static findAProperPositionToInsert (modules: ParticleModule[], module: ParticleModule) {
+    public static findAProperPositionToInsert (modules: ParticleModule[], module: ParticleModule, fromIndex: number, toIndex: number): number {
+        if (fromIndex === toIndex) {
+            return fromIndex;
+        }
         const identity = ParticleModule.getModuleIdentityByClassNoCheck(module.constructor as Constructor<ParticleModule>);
         const provideParams = identity.provideParams;
         const consumeParams = identity.consumeParams;
         let lastIndexOfPreDependency = -1;
         for (let i = 0, l = consumeParams.length; i < l; i++) {
-            for (let j = 0; j < modules.length; j++) {
+            for (let j = fromIndex; j < toIndex; j++) {
                 const module = modules[j];
                 const currentModuleId = ParticleModule.getModuleIdentityByClassNoCheck(module.constructor as Constructor<ParticleModule>);
                 const currentProduceParams = currentModuleId.provideParams;
@@ -79,7 +82,7 @@ export abstract class ParticleModule {
         }
         let firstIndexOfPostDependency = modules.length;
         for (let i = 0, l = provideParams.length; i < l; i++) {
-            for (let j = modules.length - 1; j >= 0; j--) {
+            for (let j = toIndex - 1; j >= fromIndex; j--) {
                 const module = modules[j];
                 const currentModuleId = ParticleModule.getModuleIdentityByClassNoCheck(module.constructor as Constructor<ParticleModule>);
                 const currentConsumeParams = currentModuleId.consumeParams;
@@ -93,7 +96,7 @@ export abstract class ParticleModule {
         if (firstIndexOfPostDependency > lastIndexOfPreDependency) {
             return firstIndexOfPostDependency;
         } else {
-            return lastIndexOfPreDependency + 1;
+            return ParticleModule.findAProperPositionToInsert(modules, module, lastIndexOfPreDependency + 1, toIndex);
         }
     }
 
@@ -180,15 +183,15 @@ export abstract class ParticleModule {
 
 @ccclass('cc.ParticleModuleStage')
 export class ParticleModuleStage {
-    @serializable
-    private _modules: ParticleModule[] = [];
-    @serializable
-    private _execStage = ModuleExecStage.NONE;
-
     @type([ParticleModule])
     public get modules (): ReadonlyArray<ParticleModule> {
         return this._modules;
     }
+
+    @serializable
+    private _modules: ParticleModule[] = [];
+    @serializable
+    private _execStage = ModuleExecStage.NONE;
 
     constructor (stage: ModuleExecStage = ModuleExecStage.NONE) {
         this._execStage = stage;
@@ -202,7 +205,7 @@ export class ParticleModuleStage {
         assert(id, 'Particle Module should be registered!');
         if (id.execStages & this._execStage) {
             const newModule = new ModuleType();
-            const index = ParticleModule.findAProperPositionToInsert(this._modules, newModule);
+            const index = ParticleModule.findAProperPositionToInsert(this._modules, newModule, 0, this._modules.length);
             this._modules.splice(index, 0, newModule);
             return newModule;
         } else {
@@ -220,7 +223,7 @@ export class ParticleModuleStage {
         return null;
     }
 
-    public getModules<T extends ParticleModule> (moduleType: Constructor<T> | AbstractedConstructor<T>, out: Array<T>): Array<T> {
+    public getModules<T extends ParticleModule> (moduleType: Constructor<T> | AbstractedConstructor<T>, out: Array<any>): Array<T> {
         out.length = 0;
         for (let i = 0, l = this._modules.length; i < l; i++) {
             const module = this._modules[i];
@@ -228,12 +231,12 @@ export class ParticleModuleStage {
                 out.push(module);
             }
         }
-        return out;
+        return out as Array<T>;
     }
 
     public moveUpModule (module: ParticleModule) {
         const index = this._modules.indexOf(module);
-        if (index !== -1) {
+        if (index !== -1 && index !== 0) {
             this._modules.splice(index, 1);
             this._modules.splice(index - 1, 0, module);
         }
@@ -241,7 +244,7 @@ export class ParticleModuleStage {
 
     public moveDownModule (module: ParticleModule) {
         const index = this._modules.indexOf(module);
-        if (index !== -1) {
+        if (index !== -1 && index !== this._modules.length - 1) {
             this._modules.splice(index, 1);
             this._modules.splice(index + 1, 0, module);
         }
