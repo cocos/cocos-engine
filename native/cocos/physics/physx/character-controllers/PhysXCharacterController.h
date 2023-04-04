@@ -76,6 +76,7 @@ public:
     virtual float getSlopeLimit() override;
     virtual void setContactOffset(float v) override;
     virtual float getContactOffset() override;
+    virtual void setDetectCollisions(bool v) override;
 
     uint32_t getGroup() override;
     void setGroup(uint32_t g) override;

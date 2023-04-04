@@ -245,6 +245,13 @@ float PhysXCharacterController::getContactOffset() {
     return _mContactOffset;
 }
 
+void PhysXCharacterController::setDetectCollisions(bool v) {
+    physx::PxRigidDynamic* actor = _impl->getActor();
+    physx::PxShape* shape;
+    actor->getShapes(&shape, 1);
+    shape->setFlag(physx::PxShapeFlag::eSIMULATION_SHAPE, v);
+}
+
 uint32_t PhysXCharacterController::getGroup() {
     return _mFilterData.word0;
 }

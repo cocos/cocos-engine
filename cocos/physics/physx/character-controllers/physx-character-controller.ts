@@ -133,6 +133,10 @@ export class PhysXCharacterController implements IBaseCharacterController {
         this._impl.setSlopeLimit(value);
     }
 
+    setDetectCollisions (value: boolean): void {
+        this._impl.setCollision(value);
+    }
+
     onGround (): boolean {
         return (this._pxCollisionFlags & (1 << 2)) > 0;//PxControllerCollisionFlag::Enum::eCOLLISION_DOWN
     }
