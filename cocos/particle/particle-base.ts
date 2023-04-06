@@ -23,8 +23,8 @@
  THE SOFTWARE.
  */
 
-import { CullingMode, Space } from './enum';
-import { Color, Mat4, Quat, Vec3 } from '../core';
+import { CullingMode, FinishAction, Space } from './enum';
+import { Color, Mat4, Quat, Vec3, Node, Vec2 } from '../core';
 import { ccclass, serializable } from '../core/data/decorators';
 import { CurveRange } from './curve-range';
 import { ModuleExecStage } from './particle-module';
@@ -179,14 +179,36 @@ export class ParticleEvents {
     }
 }
 
+export enum LoopMode {
+    INFINITE,
+    ONCE,
+    MULTIPLE
+}
+
+export enum LoopDelayMode {
+    NONE,
+    FIRST_LOOP_ONLY,
+    EVERY_LOOP,
+}
+
+export enum BoundsMode {
+    AUTO,
+    FIXED,
+}
+
+export enum CapacityMode {
+    AUTO,
+    FIXED,
+}
+
 @ccclass('cc.ParticleEmitterParams')
 export class ParticleEmitterParams {
     @serializable
-    public capacity = 100;
+    public loopMode = LoopMode.INFINITE;
     @serializable
-    public loop = true;
+    public loopCount = 1;
     @serializable
-    public invDuration = 0.2;
+    public duration = 5;
     @serializable
     public prewarm = false;
     @serializable
@@ -196,17 +218,33 @@ export class ParticleEmitterParams {
     @serializable
     public simulationSpeed = 1.0;
     @serializable
+    public maxDeltaTime = 0.05;
+    @serializable
     public playOnAwake = true;
     @serializable
-    public startDelay = new CurveRange();
+    public loopDelayMode = LoopDelayMode.NONE;
+    @serializable
+    public loopDelayRange = new Vec2(0, 0);
+    @serializable
+    public boundsMode = BoundsMode.AUTO;
+    @serializable
+    public fixedBoundsMin = new Vec3(-100, -100, -100);
+    @serializable
+    public fixedBoundsMax = new Vec3(100, 100, 100);
     @serializable
     public cullingMode = CullingMode.ALWAYS_SIMULATE;
+    @serializable
+    public capacityMode = CapacityMode.AUTO;
+    @serializable
+    public capacity = 100;
     @serializable
     public spawningUseInterpolation = false;
     @serializable
     public useAutoRandomSeed = true;
     @serializable
     public randomSeed = 0;
+    @serializable
+    public finishAction = FinishAction.NONE;
 }
 
 export enum InheritedProperty {
@@ -232,17 +270,25 @@ export enum PlayingState {
 
 export class ParticleEmitterState {
     public accumulatedTime = 0;
+    public prevTime = 0
     public spawnFraction = 0;
     public playingState = PlayingState.STOPPED;
     public lastPosition = new Vec3();
     public currentPosition = new Vec3();
-    public startDelay = 0;
+    public loopDelay = 0;
     public isSimulating = true;
     public isEmitting = true;
     public lastSimulateFrame = 0;
     public maxParticleId = 0;
+    public boundsMin = new Vec3();
+    public boundsMax = new Vec3();
     public randomSeed = 0;
     public rand = new RandNumGen();
+
+    tick (dt: number) {
+        this.prevTime = this.accumulatedTime;
+        this.accumulatedTime += dt;
+    }
 }
 
 export class ParticleExecContext {
@@ -274,6 +320,7 @@ export class ParticleExecContext {
     public emitterNormalizedTime = 0;
     public emitterNormalizedPrevTime = 0;
     public emitterDeltaTime = 0;
+    public loopCount = 0;
     /**
      * The emitter transform in emitting space. when emitting space equals to world space, it's equals to localToWorld matrix.
      */
@@ -324,6 +371,7 @@ export class ParticleExecContext {
     private _customParameterRequirements = 0;
     private _locationEvents: ParticleEvents | null = null;
     private _deathEvents: ParticleEvents | null = null;
+    private _lastTransformChangedVersion = 0xffffffff;
 
     setExecutionStage (stage: ModuleExecStage) {
         this._executionStage = stage;
@@ -334,23 +382,33 @@ export class ParticleExecContext {
         this._toIndex = toIndex;
     }
 
-    setEmitterTime (currentTime: number, previousTime: number, invCycle: number) {
-        this.emitterPreviousTime = previousTime;
-        this.emitterCurrentTime = currentTime;
-        this.emitterDeltaTime = currentTime - previousTime;
-        this.emitterNormalizedTime = currentTime * invCycle;
-        this.emitterNormalizedPrevTime = previousTime * invCycle;
+    setEmitterTime (currentTime: number, previousTime: number, loopDelay: number, params: ParticleEmitterParams) {
+        if (params.loopDelayMode !== LoopDelayMode.EVERY_LOOP) {
+            this.emitterPreviousTime = Math.max(previousTime - loopDelay, 0) % params.duration;
+            this.emitterCurrentTime = Math.max(currentTime - loopDelay, 0) % params.duration;
+        } else {
+            const durationAndDelay = loopDelay + params.duration;
+            this.emitterPreviousTime = Math.max(previousTime % durationAndDelay - loopDelay, 0);
+            this.emitterCurrentTime = Math.max(currentTime % durationAndDelay - loopDelay, 0);
+        }
+        const invDuration = 1 / params.duration;
+        this.emitterDeltaTime = this.emitterCurrentTime - this.emitterPreviousTime;
+        this.emitterNormalizedTime = this.emitterCurrentTime * invDuration;
+        this.emitterNormalizedPrevTime = this.emitterPreviousTime * invDuration;
     }
 
-    setWorldMatrix (localToWorld: Mat4, inWorldSpace: boolean) {
-        Mat4.copy(this.localToWorld, localToWorld);
-        Mat4.invert(this.worldToLocal, this.localToWorld);
-        if (inWorldSpace) {
-            Mat4.getRotation(this.rotationIfNeedTransform, this.localToWorld);
-        } else {
-            Mat4.getRotation(this.rotationIfNeedTransform, this.worldToLocal);
+    updateTransform (node: Node, inWorldSpace: boolean) {
+        if (node.flagChangedVersion !== this._lastTransformChangedVersion) {
+            Mat4.copy(this.localToWorld, node.worldMatrix);
+            Mat4.invert(this.worldToLocal, this.localToWorld);
+            if (inWorldSpace) {
+                Mat4.getRotation(this.rotationIfNeedTransform, this.localToWorld);
+            } else {
+                Mat4.getRotation(this.rotationIfNeedTransform, this.worldToLocal);
+            }
+            Quat.normalize(this.rotationIfNeedTransform, this.rotationIfNeedTransform);
+            this._lastTransformChangedVersion = node.flagChangedVersion;
         }
-        Quat.normalize(this.rotationIfNeedTransform, this.rotationIfNeedTransform);
     }
 
     setDeltaTime (deltaTime: number) {

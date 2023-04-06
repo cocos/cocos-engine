@@ -120,5 +120,6 @@ export class ParticleRenderer extends ModelRenderer {
             }
             subModels.length = subModelIndex;
         }
+        model.createBoundingShape(this._emitter.boundsMin, this._emitter.boundsMax);
     }
 }

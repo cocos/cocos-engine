@@ -28,43 +28,22 @@ import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displa
 import { EDITOR } from 'internal:constants';
 import { approx, clamp01, Color, EPSILON, lerp, Mat3, Mat4, Quat, randomRangeInt, Size, Vec2, Vec3, Vec4 } from '../core/math';
 import { countTrailingZeros, INT_MAX } from '../core/math/bits';
-import { MultiplyColorModule } from './modules/multiply-color';
 import { CurveRange, Mode } from './curve-range';
-import { ForceModule } from './modules/force';
-import { LimitVelocityModule } from './modules/limit-velocity';
-import { RotationModule } from './modules/rotation';
-import { MultiplySizeModule } from './modules/multiply-size';
-import { SubUVAnimationModule } from './modules/sub-uv-animation';
-import { AddVelocityModule } from './modules/add-velocity';
-import { SetColorModule } from './modules/set-color';
-import { SetSizeModule } from './modules/set-size';
 import { AddSpeedInInitialDirectionModule } from './modules/add-speed-in-initial-direction';
-import { SetLifeTimeModule } from './modules/set-life-time';
 import { SpawnOverTimeModule } from './modules/spawn-over-time';
-import { SpawnPerUnitModule } from './modules/spawn-per-unit';
-import { GravityModule } from './modules/gravity';
 import { StateModule } from './modules/state';
 import { SolveModule } from './modules/solve';
-import { ScaleSpeedModule } from './modules/scale-speed';
-import { SetRotationModule } from './modules/set-rotation';
-import { ShapeModule } from './modules/shape';
-import { InheritedProperty, ParticleEmitterParams, ParticleEmitterState, ParticleEventInfo, ParticleEventType, ParticleExecContext, PlayingState } from './particle-base';
-import { CullingMode, Space } from './enum';
-import { ParticleRenderer } from './particle-renderer';
+import { BoundsMode, CapacityMode, InheritedProperty, LoopDelayMode, LoopMode, ParticleEmitterParams, ParticleEmitterState, ParticleEventInfo, ParticleEventType, ParticleExecContext, PlayingState } from './particle-base';
+import { CullingMode, FinishAction, Space } from './enum';
 import { legacyCC } from '../core/global-exports';
-import { TransformBit } from '../core/scene-graph/node-enum';
-import { AABB, intersect } from '../core/geometry';
-import { Camera, Model } from '../core/renderer/scene';
-import { NoiseModule } from './modules/noise';
 import { assert, BitMask, CCBoolean, CCClass, CCFloat, CCInteger, Component, Enum, geometry, js } from '../core';
-import { INVALID_HANDLE, ParticleHandle, ParticleDataSet, BuiltinParticleParameter } from './particle-data-set';
-import { ParticleModule, ParticleModuleStage, ModuleExecStage } from './particle-module';
+import { ParticleDataSet, BuiltinParticleParameter } from './particle-data-set';
+import { ParticleModuleStage, ModuleExecStage } from './particle-module';
 import { vfxManager } from './vfx-manager';
-import { BurstModule } from './modules/burst';
 import { SpawnFractionCollection } from './spawn-fraction-collection';
-import { DeathEventGeneratorModule, LegacyTrailModule, LocationEventGeneratorModule, SpriteRendererModule } from './modules';
-import { VFXSystem } from './vfx-system';
+import { SpriteRendererModule } from './modules';
 import { ParticleParameterIdentity, ParticleParameterType } from './particle-parameter';
+import { RandNumGen } from './rand-num-gen';
 
 const startPositionOffset = new Vec3();
 const tempPosition = new Vec3();
@@ -121,23 +100,49 @@ export class ParticleEmitter extends Component {
      */
     @tooltip('i18n:particle_system.duration')
     public get duration () {
-        return 1 / this._params.invDuration;
+        return this._params.duration;
     }
 
     public set duration (val) {
-        this._params.invDuration = 1 / val;
+        this._params.duration = val;
     }
 
     /**
      * @zh 粒子系统是否循环播放。
      */
+    @type(Enum(LoopMode))
     @tooltip('i18n:particle_system.loop')
-    public get loop () {
-        return this._params.loop;
+    public get loopMode () {
+        return this._params.loopMode;
     }
 
-    public set loop (val) {
-        this._params.loop = val;
+    public set loopMode (val) {
+        this._params.loopMode = val;
+    }
+
+    @visible(true)
+    @type(Enum(LoopDelayMode))
+    public get loopDelayMode () {
+        return this._params.loopDelayMode;
+    }
+
+    public set loopDelayMode (val) {
+        this._params.loopDelayMode = val;
+    }
+
+    /**
+     * @zh 粒子系统开始运行后，延迟粒子发射的时间。
+     */
+    @type(Vec2)
+    @rangeMin(0)
+    @visible(function (this: ParticleEmitter) { return this.loopDelayMode !== LoopDelayMode.NONE; })
+    @tooltip('i18n:particle_system.startDelay')
+    public get loopDelayRange () {
+        return this._params.loopDelayRange as Readonly<Vec2>;
+    }
+
+    public set loopDelayRange (val) {
+        this._params.loopDelayRange.set(val);
     }
 
     /**
@@ -150,20 +155,6 @@ export class ParticleEmitter extends Component {
 
     public set prewarm (val) {
         this._params.prewarm = val;
-    }
-
-    /**
-     * @zh 粒子系统开始运行后，延迟粒子发射的时间。
-     */
-    @type(CurveRange)
-    @range([0, 1])
-    @tooltip('i18n:particle_system.startDelay')
-    public get startDelay () {
-        return this._params.startDelay;
-    }
-
-    public set startDelay (val) {
-        this._params.startDelay = val;
     }
 
     /**
@@ -191,6 +182,15 @@ export class ParticleEmitter extends Component {
         this._params.simulationSpeed = val;
     }
 
+    @visible(true)
+    public get maxDeltaTime () {
+        return this._params.maxDeltaTime;
+    }
+
+    public set maxDeltaTime (val) {
+        this._params.maxDeltaTime = val;
+    }
+
     @type(Enum(Space))
     @tooltip('i18n:particle_system.scaleSpace')
     public get scaleSpace () {
@@ -201,12 +201,23 @@ export class ParticleEmitter extends Component {
         this._params.scaleSpace = val;
     }
 
+    @visible(true)
+    @type(Enum(CapacityMode))
+    public get capacityMode () {
+        return this._params.capacityMode;
+    }
+
+    public set capacityMode (val) {
+        this._params.capacityMode = val;
+    }
+
     /**
      * @zh 粒子系统能生成的最大粒子数量。
      */
     @type(CCInteger)
-    @range([0, Number.POSITIVE_INFINITY])
     @tooltip('i18n:particle_system.capacity')
+    @visible(function (this: ParticleEmitter) { return this.capacityMode === CapacityMode.FIXED; })
+    @range([0, Number.POSITIVE_INFINITY])
     public get capacity () {
         return this._params.capacity;
     }
@@ -248,6 +259,36 @@ export class ParticleEmitter extends Component {
         this._params.randomSeed = val;
     }
 
+    @visible(true)
+    @type(Enum(BoundsMode))
+    public get boundsMode () {
+        return this._params.boundsMode;
+    }
+
+    public set boundsMode (val) {
+        this._params.boundsMode = val;
+    }
+
+    @type(Vec3)
+    @visible(function (this: ParticleEmitter) { return this.boundsMode === BoundsMode.FIXED; })
+    public get fixedBoundsMin () {
+        return this._params.fixedBoundsMin as Readonly<Vec3>;
+    }
+
+    public set fixedBoundsMin (val) {
+        this._params.fixedBoundsMin.set(val);
+    }
+
+    @type(Vec3)
+    @visible(function (this: ParticleEmitter) { return this.boundsMode === BoundsMode.FIXED; })
+    public get fixedBoundsMax () {
+        return this._params.fixedBoundsMax as Readonly<Vec3>;
+    }
+
+    public set fixedBoundsMax (val) {
+        this._params.fixedBoundsMax.set(val);
+    }
+
     /**
      * @en Particle culling mode option. Includes pause, pause and catchup, always simulate.
      * @zh 粒子剔除模式选择。包括暂停模拟，暂停以后快进继续以及不间断模拟。
@@ -262,6 +303,16 @@ export class ParticleEmitter extends Component {
         this._params.cullingMode = val;
     }
 
+    @visible(true)
+    @type(Enum(FinishAction))
+    public get finishAction () {
+        return this._params.finishAction;
+    }
+
+    public set finishAction (val) {
+        this._params.finishAction = val;
+    }
+
     @type(CCBoolean)
     @visible(true)
     public get spawningUseInterpolation () {
@@ -270,151 +321,6 @@ export class ParticleEmitter extends Component {
 
     public set spawningUseInterpolation (val) {
         this._params.spawningUseInterpolation = val;
-    }
-
-    /**
-     * @deprecated since v3.8, please use [[StartColorModule.startColor]] instead.
-     */
-    get startColor () {
-        return this._spawningStage.getOrAddModule(SetColorModule).color;
-    }
-
-    set startColor (val) {
-        this._spawningStage.getOrAddModule(SetColorModule).color = val;
-    }
-
-    /**
-     * @deprecated since v3.8, please use [[StartSizeModule.startSize3D]] instead.
-     */
-    get startSize3D () {
-        return this._spawningStage.getOrAddModule(SetSizeModule).separateAxes;
-    }
-
-    set startSize3D (val) {
-        this._spawningStage.getOrAddModule(SetSizeModule).separateAxes = val;
-    }
-
-    /**
-     * @deprecated since v3.8, please use [[StartSizeModule.startSizeX]] instead.
-     */
-    get startSizeX () {
-        return this._spawningStage.getOrAddModule(SetSizeModule).x;
-    }
-
-    set startSizeX (val) {
-        this._spawningStage.getOrAddModule(SetSizeModule).x = val;
-    }
-
-    /**
-     * @deprecated since v3.8, please use [[StartSizeModule.startSizeY]] instead.
-     */
-    get startSizeY () {
-        return this._spawningStage.getOrAddModule(SetSizeModule).y;
-    }
-
-    set startSizeY (val) {
-        this._spawningStage.getOrAddModule(SetSizeModule).y = val;
-    }
-
-    /**
-     * @deprecated since v3.8, please use [[StartSizeModule.startSizeZ]] instead.
-     */
-    get startSizeZ () {
-        return this._spawningStage.getOrAddModule(SetSizeModule).z;
-    }
-
-    set startSizeZ (val) {
-        this._spawningStage.getOrAddModule(SetSizeModule).z = val;
-    }
-
-    /**
-     * @deprecated since v3.8, please use [[StartSpeedModule.startSpeed]] instead.
-     */
-    get startSpeed () {
-        return this._spawningStage.getOrAddModule(AddSpeedInInitialDirectionModule).speed;
-    }
-
-    set startSpeed (val) {
-        this._spawningStage.getOrAddModule(AddSpeedInInitialDirectionModule).speed = val;
-    }
-
-    /**
-     * @zh 颜色控制模块。
-     * @deprecated since v3.8, please use [[ParticleSystem.getModule]] instead.
-     */
-    public get colorOverLifetimeModule () {
-        return this._updateStage.getOrAddModule(MultiplyColorModule);
-    }
-
-    /**
-     * @zh 粒子发射器模块。
-     * @deprecated since v3.8, please use [[ParticleSystem.getModule]] instead.
-     */
-    public get shapeModule () {
-        return this._spawningStage.getOrAddModule(ShapeModule);
-    }
-
-    /**
-     * @zh 粒子大小模块。
-     * @deprecated since v3.8, please use [[ParticleSystem.getModule]] instead.
-     */
-    public get sizeOverLifetimeModule () {
-        return this._updateStage.getOrAddModule(MultiplySizeModule);
-    }
-
-    /**
-     * @zh 粒子速度模块。
-     * @deprecated since v3.8, please use [[ParticleSystem.getModule]] instead.
-     */
-    public get velocityOverLifetimeModule () {
-        return this._updateStage.getOrAddModule(AddVelocityModule);
-    }
-
-    /**
-     * @zh 粒子加速度模块。
-     * @deprecated since v3.8, please use [[ParticleSystem.getModule]] instead.
-     */
-    public get forceOverLifetimeModule () {
-        return this._updateStage.getOrAddModule(ForceModule);
-    }
-
-    /**
-     * @zh 粒子限制速度模块（只支持 CPU 粒子）
-     * @deprecated since v3.8, please use [[ParticleSystem.getModule]] instead.。
-     */
-    public get limitVelocityOverLifetimeModule () {
-        return this._updateStage.getOrAddModule(LimitVelocityModule);
-    }
-
-    /**
-     * @zh 粒子旋转模块。
-     * @deprecated since v3.8, please use [[ParticleSystem.getModule]] instead.
-     */
-    public get rotationOverLifetimeModule () {
-        return this._updateStage.getOrAddModule(RotationModule);
-    }
-
-    /**
-     * @zh 贴图动画模块。
-     * @deprecated since v3.8, please use [[ParticleSystem.getModule]] instead.
-     */
-    public get textureAnimationModule () {
-        return this._updateStage.getOrAddModule(SubUVAnimationModule);
-    }
-
-    /**
-     * @deprecated since v3.8, please use [[ParticleSystem.getModule]] instead.
-     */
-    public get noiseModule () {
-        return this._updateStage.getOrAddModule(NoiseModule);
-    }
-
-    /**
-     * @zh 粒子轨迹模块。
-     * @deprecated since v3.8, please use [[ParticleSystem.getModule]] instead.
-     */
-    public get trailModule () {
-        return this._updateStage.getOrAddModule(LegacyTrailModule);
     }
 
     public get particles () {
@@ -475,6 +381,14 @@ export class ParticleEmitter extends Component {
         return this._state.lastSimulateFrame;
     }
 
+    public get boundsMin () {
+        return this._state.boundsMin as Readonly<Vec3>;
+    }
+
+    public get boundsMax () {
+        return this._state.boundsMax as Readonly<Vec3>;
+    }
+
     @serializable
     private _emitterStage = new ParticleModuleStage(ModuleExecStage.EMITTER_UPDATE);
     @serializable
@@ -489,7 +403,6 @@ export class ParticleEmitter extends Component {
     private _params = new ParticleEmitterParams();
     @serializable
     private _particles = new ParticleDataSet();
-    private _bounds = new Vec3();
     private _context = new ParticleExecContext();
     private _state = new ParticleEmitterState();
     private _customParameterId: number = BuiltinParticleParameter.COUNT;
@@ -500,16 +413,26 @@ export class ParticleEmitter extends Component {
      * @zh 播放粒子效果。
      */
     public play () {
-        this._state.randomSeed = this.useAutoRandomSeed ? randomRangeInt(0, INT_MAX) : this.randomSeed;
-        this._state.rand.seed = this.randomSeed;
+        if (!this.enabledInHierarchy) {
+            throw new Error('Particle Emitter is not active, Please make sure the node is active in the scene.');
+        }
+        if (this._state.playingState === PlayingState.PLAYING) {
+            return;
+        }
+        if (this._state.playingState === PlayingState.STOPPED) {
+            this._state.randomSeed = this.useAutoRandomSeed ? randomRangeInt(0, INT_MAX) : this.randomSeed;
+            this._state.rand.seed = this.randomSeed;
+            this._state.loopDelay = this.loopDelayMode !== LoopDelayMode.NONE
+                ? Math.max(lerp(this.loopDelayRange.x, this.loopDelayRange.y, this._state.rand.getFloat()), 0) : 0;
+            this._emitterStage.onPlay(this._params, this._state);
+            this._spawningStage.onPlay(this._params, this._state);
+            this._updateStage.onPlay(this._params, this._state);
+            this._renderStage.onPlay(this._params, this._state);
+        }
+
         this._state.playingState = PlayingState.PLAYING;
         this._state.isEmitting = true;
-        this._state.currentPosition.set(this.node.worldPosition);
-        this._state.startDelay = this.startDelay.evaluate(0, this._state.rand.getFloat());
-        this._emitterStage.onPlay(this._params, this._state);
-        this._spawningStage.onPlay(this._params, this._state);
-        this._updateStage.onPlay(this._params, this._state);
-        this._renderStage.onPlay(this._params, this._state);
+        Vec3.copy(this._state.currentPosition, this.node.worldPosition);
         vfxManager.addEmitter(this);
     }
 
@@ -526,24 +449,16 @@ export class ParticleEmitter extends Component {
     }
 
     /**
-     * @zh 停止发射粒子。
-     * @en Stop emitting particles.
-     */
-    public stopEmitting () {
-        this._state.isEmitting = false;
-    }
-
-    /**
      * @en stop particle system
      * @zh 停止播放粒子。
      */
-    public stop () {
-        if (this.isPlaying || this.isPaused) {
-            this.clear();
-        }
-        vfxManager.removeEmitter(this);
+    public stop (clear = false) {
         this._state.isEmitting = false;
-        this._state.playingState = PlayingState.STOPPED;
+        if (clear) {
+            this._state.playingState = PlayingState.STOPPED;
+            this.clear();
+            vfxManager.removeEmitter(this);
+        }
     }
 
     /**
@@ -597,80 +512,50 @@ export class ParticleEmitter extends Component {
     public simulate (dt: number) {
         this._state.lastSimulateFrame = vfxManager.totalFrames;
         let scaledDeltaTime = dt * Math.max(this.simulationSpeed, 0);
-        if (scaledDeltaTime > vfxManager.maxEmitterDeltaTime) {
-            scaledDeltaTime /= Math.ceil(scaledDeltaTime / vfxManager.maxEmitterDeltaTime);
+        if (scaledDeltaTime > this.maxDeltaTime) {
+            scaledDeltaTime /= Math.ceil(scaledDeltaTime / this.maxDeltaTime);
         }
 
-        if (this.isPlaying && this._state.isSimulating) {
-            // simulation, update particles.
+        if (this.isPlaying) {
             this.tick(scaledDeltaTime);
 
-            if (this._particles.count === 0 && !this.loop && !this.isEmitting) {
+            if (this._particles.count === 0 && this.loopMode === LoopMode.ONCE && !this.isEmitting) {
                 this.stop();
             }
-        }
-
-        const currentPosition = this.node.worldPosition;
-        const boundingBox = new AABB(currentPosition.x, currentPosition.y, currentPosition.z,
-            this._bounds.x, this._bounds.y, this._bounds.z);
-
-        const cameraLst: Camera[]| undefined = this.node.scene.renderScene?.cameras;
-        let culled = true;
-        if (cameraLst) {
-            for (let i = 0; i < cameraLst.length; ++i) {
-                const camera = cameraLst[i];
-                const visibility = camera.visibility;
-                if ((visibility & this.node.layer) === this.node.layer) {
-                    if (intersect.aabbFrustum(boundingBox, camera.frustum)) {
-                        culled = false;
-                        break;
-                    }
-                }
-            }
-        }
-        if (culled) {
-            if (this.cullingMode !== CullingMode.ALWAYS_SIMULATE) {
-                this._state.isSimulating = false;
-            }
-            if (this.cullingMode === CullingMode.PAUSE_AND_CATCHUP) {
-                this._state.accumulatedTime += scaledDeltaTime;
-            }
-        } else {
-            this._state.isSimulating = true;
         }
     }
 
     protected onLoad () {
-        this._emitterStage.getOrAddModule(BurstModule);
-        this._emitterStage.getOrAddModule(SpawnPerUnitModule);
-        this._emitterStage.getOrAddModule(SpawnOverTimeModule);
+        // this._emitterStage.getOrAddModule(BurstModule);
+        // this._emitterStage.getOrAddModule(SpawnPerUnitModule);
+        // this._emitterStage.getOrAddModule(SpawnOverTimeModule);
         //this._spawningStage.getOrAddModule(ShapeModule);
-        this._spawningStage.getOrAddModule(SetColorModule);
-        this._spawningStage.getOrAddModule(SetLifeTimeModule);
-        this._spawningStage.getOrAddModule(SetRotationModule);
-        this._spawningStage.getOrAddModule(SetSizeModule);
-        this._spawningStage.getOrAddModule(AddSpeedInInitialDirectionModule);
-        this._updateStage.getOrAddModule(MultiplyColorModule);
-        this._updateStage.getOrAddModule(ForceModule);
-        this._updateStage.getOrAddModule(GravityModule);
-        this._updateStage.getOrAddModule(LimitVelocityModule);
-        this._updateStage.getOrAddModule(NoiseModule);
-        this._updateStage.getOrAddModule(RotationModule);
-        this._updateStage.getOrAddModule(MultiplySizeModule);
-        this._updateStage.getOrAddModule(StateModule);
-        this._updateStage.getOrAddModule(SolveModule);
-        this._updateStage.getOrAddModule(ScaleSpeedModule);
-        this._updateStage.getOrAddModule(SubUVAnimationModule);
-        this._updateStage.getOrAddModule(AddVelocityModule);
-        this._updateStage.getOrAddModule(DeathEventGeneratorModule);
-        this._updateStage.getOrAddModule(LocationEventGeneratorModule);
-        this._renderStage.getOrAddModule(SpriteRendererModule);
-        if (this.eventReceivers.length === 0) {
-            this.addEventReceiver();
-        }
-        this.getEventReceiverAt(0).stage.getOrAddModule(SpawnOverTimeModule);
-        this.getEventReceiverAt(0).stage.getOrAddModule(SpawnPerUnitModule);
-        this.getEventReceiverAt(0).stage.getOrAddModule(BurstModule);
+        // this._spawningStage.getOrAddModule(SetColorModule);
+        // this._spawningStage.getOrAddModule(SetLifeTimeModule);
+        // this._spawningStage.getOrAddModule(SetRotationModule);
+        // this._spawningStage.getOrAddModule(SetSizeModule);
+        // this._spawningStage.getOrAddModule(AddSpeedInInitialDirectionModule);
+        // this._updateStage.getOrAddModule(MultiplyColorModule);
+        // this._updateStage.getOrAddModule(ForceModule);
+        // this._updateStage.getOrAddModule(GravityModule);
+        // this._updateStage.getOrAddModule(LimitVelocityModule);
+        // this._updateStage.getOrAddModule(NoiseModule);
+        // this._updateStage.getOrAddModule(RotationModule);
+        // this._updateStage.getOrAddModule(MultiplySizeModule);
+        // this._updateStage.getOrAddModule(StateModule);
+        // this._updateStage.getOrAddModule(SolveModule);
+        // this._updateStage.getOrAddModule(ScaleSpeedModule);
+        // this._updateStage.getOrAddModule(SubUVAnimationModule);
+        // this._updateStage.getOrAddModule(AddVelocityModule);
+        // this._updateStage.getOrAddModule(DeathEventGeneratorModule);
+        // this._updateStage.getOrAddModule(LocationEventGeneratorModule);
+        // this._renderStage.getOrAddModule(SpriteRendererModule);
+        // if (this.eventReceivers.length === 0) {
+        //     this.addEventReceiver();
+        // }
+        // this.getEventReceiverAt(0).stage.getOrAddModule(SpawnOverTimeModule);
+        // this.getEventReceiverAt(0).stage.getOrAddModule(SpawnPerUnitModule);
+        // this.getEventReceiverAt(0).stage.getOrAddModule(BurstModule);
     }
 
     protected onEnable () {
@@ -685,8 +570,6 @@ export class ParticleEmitter extends Component {
 
     // spawn particle system as though it had already completed a full cycle.
     private _prewarmSystem () {
-        this.startDelay.mode = Mode.Constant; // clear startDelay.
-        this.startDelay.constant = 0;
         const dt = 1.0; // should use varying value?
         const cnt = this.duration / dt;
 
@@ -702,17 +585,15 @@ export class ParticleEmitter extends Component {
         const params = this._params;
         const state = this._state;
         context.reset();
+        state.tick(deltaTime);
         Vec3.copy(state.lastPosition, state.currentPosition);
         Vec3.copy(state.currentPosition, this.node.worldPosition);
-        context.setWorldMatrix(this.node.worldMatrix, params.simulationSpace === Space.WORLD);
+        context.updateTransform(this.node, params.simulationSpace === Space.WORLD);
         Vec3.subtract(context.emitterVelocity, state.currentPosition, state.lastPosition);
         Vec3.multiplyScalar(context.emitterVelocity, context.emitterVelocity, 1 / deltaTime);
         Mat4.copy(context.emitterTransformInEmittingSpace, params.simulationSpace === Space.WORLD ? context.localToWorld : Mat4.IDENTITY);
         Vec3.copy(context.emitterVelocityInEmittingSpace, params.simulationSpace === Space.WORLD ? context.emitterVelocity : Vec3.ZERO);
-        const prevTime = Math.max(state.accumulatedTime - state.startDelay, 0);
-        state.accumulatedTime += deltaTime;
-        const currentTime = Math.max(state.accumulatedTime - state.startDelay, 0);
-        context.setEmitterTime(currentTime, prevTime, params.invDuration);
+        context.setEmitterTime(state.accumulatedTime, state.prevTime, state.loopDelay, params);
         context.setDeltaTime(deltaTime);
         context.setSpawnFraction(state.spawnFraction);
         this.preTick(particles, params, context);
@@ -731,13 +612,13 @@ export class ParticleEmitter extends Component {
         }
 
         this.handleEvents();
-        this.removeDeadParticles(particles, params, context);
-        this.updateBounds();
     }
 
     public render () {
+        this.removeDeadParticles(this._particles, this._params, this._context);
+        this.updateBounds();
         this._context.setExecuteRange(0, this.particles.count);
-        this._renderStage.execute(this.particles, this._params, this._context);
+        this._renderStage.execute(this._particles, this._params, this._context);
     }
 
     private preTick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
@@ -752,7 +633,10 @@ export class ParticleEmitter extends Component {
     }
 
     private updateBounds () {
-
+        if (this.boundsMode === BoundsMode.FIXED) {
+            Vec3.copy(this._state.boundsMin, this._params.fixedBoundsMin);
+            Vec3.copy(this._state.boundsMax, this._params.fixedBoundsMax);
+        }
     }
 
     private removeDeadParticles (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
@@ -794,7 +678,8 @@ export class ParticleEmitter extends Component {
                     }
                     this._context.setExecuteRange(0, 0);
                     this._context.resetSpawningState();
-                    this._context.setEmitterTime(eventInfo.currentTime, eventInfo.prevTime, this._params.invDuration);
+                    const loopDelay = Math.max(lerp(this.loopDelayRange.x, this.loopDelayRange.y, RandNumGen.getFloat(eventInfo.randomSeed)), 0);
+                    this._context.setEmitterTime(eventInfo.currentTime, eventInfo.prevTime, loopDelay, this._params);
                     if (eventReceiver.eventType === ParticleEventType.LOCATION) {
                         this._context.setSpawnFraction(spawnFractionCollection.fraction[i]);
                     }

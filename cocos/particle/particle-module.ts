@@ -281,8 +281,9 @@ export class ParticleModuleStage {
 
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         context.setExecutionStage(this._execStage);
-        for (let i = 0, length = this._modules.length; i < length; i++) {
-            const module = this._modules[i];
+        const modules = this._modules;
+        for (let i = 0, length = modules.length; i < length; i++) {
+            const module = modules[i];
             if (module.enabled) {
                 module.tick(particles, params, context);
             }
@@ -292,8 +293,9 @@ export class ParticleModuleStage {
 
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         context.setExecutionStage(this._execStage);
-        for (let i = 0, length = this._modules.length; i < length; i++) {
-            const module = this._modules[i];
+        const modules = this._modules;
+        for (let i = 0, length = modules.length; i < length; i++) {
+            const module = modules[i];
             if (module.enabled) {
                 module.execute(particles, params, context);
             }

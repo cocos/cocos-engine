@@ -529,7 +529,48 @@ describe('ParticleVec3ArrayParameter', () => {
         }
     });
 
-    
+    test('copyToTypedArray', () => {
+        const array = new Float32Array(10000);
+        expect(() => vec3Parameter.copyToTypedArray(new Float32Array(100), 3, 0, 0, vec3Parameter.capacity)).toThrowError();
+        expect(() => vec3Parameter.copyToTypedArray(array, 0, 3, 0, 1)).toThrowError();
+        expect(() => vec3Parameter.copyToTypedArray(array, 3, 0, 3, 1)).toThrowError();
+        expect(() => vec3Parameter.copyToTypedArray(array, 3, 0, -1, 1)).toThrowError();
+        expect(() => vec3Parameter.copyToTypedArray(array, 3, 0, 1, 10000)).toThrowError();
+        expect(() => vec3Parameter.copyToTypedArray(array, 3, 1, 1, 100)).toThrowError();
+        const typedArray = new Float32Array(vec3Parameter.capacity * 5);
+        vec3Parameter.fill1f(1, 0, vec3Parameter.capacity);
+        vec3Parameter.copyToTypedArray(typedArray, 5, 1, 0, vec3Parameter.capacity);
+        for (let i = 0; i < vec3Parameter.capacity; i++) {
+            expect(typedArray[i * 5]).toBe(0);
+            expect(typedArray[i * 5 + 1]).toBe(1);
+            expect(typedArray[i * 5 + 2]).toBe(1);
+            expect(typedArray[i * 5 + 3]).toBe(1);
+            expect(typedArray[i * 5 + 4]).toBe(0);
+        }
+        vec3Parameter.fill1f(2, 0, vec3Parameter.capacity);
+        vec3Parameter.copyToTypedArray(typedArray, 5, 2, 0, vec3Parameter.capacity);
+        for (let i = 0; i < vec3Parameter.capacity; i++) {
+            expect(typedArray[i * 5]).toBe(0);
+            expect(typedArray[i * 5 + 1]).toBe(1);
+            expect(typedArray[i * 5 + 2]).toBe(2);
+            expect(typedArray[i * 5 + 3]).toBe(2);
+            expect(typedArray[i * 5 + 4]).toBe(2);
+        }
+        vec3Parameter.fill1f(3, 0, vec3Parameter.capacity);
+        typedArray.fill(0);
+        vec3Parameter.copyToTypedArray(typedArray, 3, 0, 0, vec3Parameter.capacity);
+        for (let i = 0; i < vec3Parameter.capacity; i++) {
+            expect(typedArray[i * 3 + 0]).toBe(3);
+            expect(typedArray[i * 3 + 1]).toBe(3);
+            expect(typedArray[i * 3 + 2]).toBe(3);
+        }
+        expect(vec3Parameter.capacity * 3).toBeLessThan(typedArray.length);
+        for (let i = vec3Parameter.capacity * 3; i < typedArray.length; i += 3) {
+            expect(typedArray[i]).toBe(0);
+            expect(typedArray[i + 1]).toBe(0);
+            expect(typedArray[i + 2]).toBe(0);
+        }
+    });
 
 });
 

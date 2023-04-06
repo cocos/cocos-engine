@@ -135,27 +135,28 @@ export class SpriteRendererModule extends RendererModule {
         const dynamicBufferUintView = this._dynamicBufferUintView;
         const vertexStreamSizeDynamic = this._vertexStreamSize / 4;
         let offset = 0;
-        if (this._defines[CC_PARTICLE_POSITION]) {
+        const define = this._defines;
+        if (define[CC_PARTICLE_POSITION]) {
             particles.position.copyToTypedArray(dynamicBufferFloatView, vertexStreamSizeDynamic, offset, 0, count);
             offset += 3;
         }
-        if (this._defines[CC_PARTICLE_ROTATION]) {
+        if (define[CC_PARTICLE_ROTATION]) {
             particles.rotation.copyToTypedArray(dynamicBufferFloatView, vertexStreamSizeDynamic, offset, 0, count);
             offset += 3;
         }
-        if (this._defines[CC_PARTICLE_SIZE]) {
+        if (define[CC_PARTICLE_SIZE]) {
             particles.size.copyToTypedArray(dynamicBufferFloatView, vertexStreamSizeDynamic, offset, 0, count);
             offset += 3;
         }
-        if (this._defines[CC_PARTICLE_COLOR]) {
+        if (define[CC_PARTICLE_COLOR]) {
             particles.color.copyToTypedArray(dynamicBufferUintView, vertexStreamSizeDynamic, offset, 0, count);
             offset += 1;
         }
-        if (this._defines[CC_PARTICLE_FRAME_INDEX]) {
+        if (define[CC_PARTICLE_FRAME_INDEX]) {
             particles.frameIndex.copyToTypedArray(dynamicBufferFloatView, vertexStreamSizeDynamic, offset, 0, count);
             offset += 1;
         }
-        if (this._defines[CC_PARTICLE_VELOCITY]) {
+        if (define[CC_PARTICLE_VELOCITY]) {
             particles.velocity.copyToTypedArray(dynamicBufferFloatView, vertexStreamSizeDynamic, offset, 0, count);
             offset += 3;
         }
@@ -220,86 +221,88 @@ export class SpriteRendererModule extends RendererModule {
 
     private _compileMaterial (material: Material, particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         let needRecompile = this._isMaterialDirty;
-        if (this._defines[CC_USE_WORLD_SPACE] !== (params.simulationSpace === Space.WORLD)) {
-            this._defines[CC_USE_WORLD_SPACE] = params.simulationSpace === Space.WORLD;
+        const define = this._defines;
+        if (define[CC_USE_WORLD_SPACE] !== (params.simulationSpace === Space.WORLD)) {
+            define[CC_USE_WORLD_SPACE] = params.simulationSpace === Space.WORLD;
             needRecompile = true;
         }
 
-        if (this._defines[CC_RENDER_MODE] !== this.renderMode) {
-            this._defines[CC_RENDER_MODE] = this.renderMode;
+        if (define[CC_RENDER_MODE] !== this.renderMode) {
+            define[CC_RENDER_MODE] = this.renderMode;
             needRecompile = true;
         }
 
-        if (this._defines[ROTATION_OVER_TIME_MODULE_ENABLE] !== true) {
-            this._defines[ROTATION_OVER_TIME_MODULE_ENABLE] = true;
+        if (define[ROTATION_OVER_TIME_MODULE_ENABLE] !== true) {
+            define[ROTATION_OVER_TIME_MODULE_ENABLE] = true;
             needRecompile = true;
         }
 
         const hasPosition = particles.hasParameter(BuiltinParticleParameter.POSITION);
-        if (this._defines[CC_PARTICLE_POSITION] !== hasPosition) {
-            this._defines[CC_PARTICLE_POSITION] = hasPosition;
+        if (define[CC_PARTICLE_POSITION] !== hasPosition) {
+            define[CC_PARTICLE_POSITION] = hasPosition;
             needRecompile = true;
         }
 
         const hasRotation = particles.hasParameter(BuiltinParticleParameter.ROTATION);
-        if (this._defines[CC_PARTICLE_ROTATION] !== hasRotation) {
-            this._defines[CC_PARTICLE_ROTATION] = hasRotation;
+        if (define[CC_PARTICLE_ROTATION] !== hasRotation) {
+            define[CC_PARTICLE_ROTATION] = hasRotation;
             needRecompile = true;
         }
 
         const hasSize = particles.hasParameter(BuiltinParticleParameter.SIZE);
-        if (this._defines[CC_PARTICLE_SIZE] !== hasSize) {
-            this._defines[CC_PARTICLE_SIZE] = hasSize;
+        if (define[CC_PARTICLE_SIZE] !== hasSize) {
+            define[CC_PARTICLE_SIZE] = hasSize;
             needRecompile = true;
         }
 
         const hasColor = particles.hasParameter(BuiltinParticleParameter.COLOR);
-        if (this._defines[CC_PARTICLE_COLOR] !== hasColor) {
-            this._defines[CC_PARTICLE_COLOR] = hasColor;
+        if (define[CC_PARTICLE_COLOR] !== hasColor) {
+            define[CC_PARTICLE_COLOR] = hasColor;
             needRecompile = true;
         }
 
         const hasFrameIndex = particles.hasParameter(BuiltinParticleParameter.FRAME_INDEX);
-        if (this._defines[CC_PARTICLE_FRAME_INDEX] !== hasFrameIndex) {
-            this._defines[CC_PARTICLE_FRAME_INDEX] = hasFrameIndex;
+        if (define[CC_PARTICLE_FRAME_INDEX] !== hasFrameIndex) {
+            define[CC_PARTICLE_FRAME_INDEX] = hasFrameIndex;
             needRecompile = true;
         }
 
         const hasVelocity = particles.hasParameter(BuiltinParticleParameter.VELOCITY);
-        if (this._defines[CC_PARTICLE_VELOCITY] !== hasVelocity) {
-            this._defines[CC_PARTICLE_VELOCITY] = hasVelocity;
+        if (define[CC_PARTICLE_VELOCITY] !== hasVelocity) {
+            define[CC_PARTICLE_VELOCITY] = hasVelocity;
             needRecompile = true;
         }
 
         if (needRecompile) {
-            material.recompileShaders(this._defines);
+            material.recompileShaders(define);
         }
     }
 
     private _updateAttributes (material: Material, particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         let vertexStreamSizeDynamic = 0;
         const vertexStreamAttributes = [meshPosition, meshUv];
-        if (this._defines[CC_PARTICLE_POSITION]) {
+        const define = this._defines;
+        if (define[CC_PARTICLE_POSITION]) {
             vertexStreamAttributes.push(particlePosition);
             vertexStreamSizeDynamic += FormatInfos[particlePosition.format].size;
         }
-        if (this._defines[CC_PARTICLE_ROTATION]) {
+        if (define[CC_PARTICLE_ROTATION]) {
             vertexStreamAttributes.push(particleRotation);
             vertexStreamSizeDynamic += FormatInfos[particleRotation.format].size;
         }
-        if (this._defines[CC_PARTICLE_SIZE]) {
+        if (define[CC_PARTICLE_SIZE]) {
             vertexStreamAttributes.push(particleSize);
             vertexStreamSizeDynamic += FormatInfos[particleSize.format].size;
         }
-        if (this._defines[CC_PARTICLE_COLOR]) {
+        if (define[CC_PARTICLE_COLOR]) {
             vertexStreamAttributes.push(particleColor);
             vertexStreamSizeDynamic += FormatInfos[particleColor.format].size;
         }
-        if (this._defines[CC_PARTICLE_FRAME_INDEX]) {
+        if (define[CC_PARTICLE_FRAME_INDEX]) {
             vertexStreamAttributes.push(particleFrameIndex);
             vertexStreamSizeDynamic += FormatInfos[particleFrameIndex.format].size;
         }
-        if (this._defines[CC_PARTICLE_VELOCITY]) {
+        if (define[CC_PARTICLE_VELOCITY]) {
             vertexStreamAttributes.push(particleVelocity);
             vertexStreamSizeDynamic += FormatInfos[particleVelocity.format].size;
         }

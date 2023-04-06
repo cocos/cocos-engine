@@ -553,8 +553,10 @@ export class Model {
      */
     public createBoundingShape (minPos?: Vec3, maxPos?: Vec3) {
         if (!minPos || !maxPos) { return; }
-        this._modelBounds = AABB.fromPoints(AABB.create(), minPos, maxPos);
-        this._worldBounds = AABB.clone(this._modelBounds);
+        if (!this._modelBounds) { this._modelBounds = AABB.create(); }
+        if (!this._worldBounds) { this._worldBounds = AABB.create(); }
+        AABB.fromPoints(this._modelBounds, minPos, maxPos);
+        AABB.copy(this._worldBounds, this._modelBounds);
     }
 
     private _createSubModel () {

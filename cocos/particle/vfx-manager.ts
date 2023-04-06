@@ -33,18 +33,9 @@ export class VFXManager extends System {
         return this._totalFrames;
     }
 
-    get maxEmitterDeltaTime () {
-        return this._maxEmitterDeltaTime;
-    }
-
-    set maxEmitterDeltaTime (val) {
-        this._maxEmitterDeltaTime = Math.max(val, 0);
-    }
-
     private _emitters: ParticleEmitter[] = [];
     private _renderers: ParticleRenderer[] = [];
     private _totalFrames = 0;
-    private _maxEmitterDeltaTime = 0.03;
 
     init () {
         director.on(Director.EVENT_UPDATE_PARTICLE, this.tick, this);
@@ -85,11 +76,16 @@ export class VFXManager extends System {
     render () {
         const renderers = this._renderers;
         for (let i = 0, length = renderers.length; i < length; i++) {
-            renderers[i].updateRenderData();
+            if (renderers[i].isValid) {
+                renderers[i].updateRenderData();
+            }
         }
     }
 
     simulate (emitter: ParticleEmitter, dt: number) {
+        if (!emitter.isValid) {
+            return;
+        }
         if (emitter.lastSimulateFrame === this._totalFrames) {
             return;
         }

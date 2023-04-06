@@ -392,7 +392,8 @@ export class ParticleVec3ArrayParameter extends ParticleArrayParameter {
     copyToTypedArray (dest: Float32Array, stride: number, strideOffset: number, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
         if (DEBUG) {
             assert(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
-            assert(stride >= 3 && strideOffset >= 0 && strideOffset < stride);
+            assert(stride >= this.stride && strideOffset >= 0 && strideOffset < stride);
+            assert(stride >= strideOffset + this.stride);
             assert(dest.length >= (toIndex - fromIndex) * stride);
         }
 
@@ -426,11 +427,10 @@ export class ParticleVec3ArrayParameter extends ParticleArrayParameter {
         const x = val.x;
         const y = val.y;
         const z = val.z;
-        for (let i = fromIndex; i < toIndex; i++) {
-            const offset = 3 * i;
-            data[offset] = x;
-            data[offset + 1] = y;
-            data[offset + 2] = z;
+        for (let i = fromIndex * 3, length = toIndex * 3; i < length; i += 3) {
+            data[i] = x;
+            data[i + 1] = y;
+            data[i + 2] = z;
         }
     }
 }
