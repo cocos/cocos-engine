@@ -43,7 +43,6 @@ public:
      @brief enable/disable(lock) the cursor, default is enabled
      */
     void setCursorEnabled(bool value) override;
-    void copyTextToClipboard(const std::string& text) override;
 
     int init();
     void pollEvent(bool* quit);

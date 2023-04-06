@@ -77,7 +77,8 @@ public:
     virtual ccstd::string getSystemVersion() const = 0;
 
     virtual ccstd::string getCurrentLanguageToString();
-
+    
+    virtual void copyTextToClipboard(const ccstd::string& text) = 0;
     /**
      @brief Open url in default browser.
      @param String with url to open.
