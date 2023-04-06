@@ -25,7 +25,7 @@
 #include "platform/linux/modules/System.h"
 #include <string.h>
 #include <sys/utsname.h>
-#include "sdl2/SDL_clipboard.h"
+#include "SDL2/SDL_clipboard.h"
 
 namespace cc {
 
