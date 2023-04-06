@@ -614,14 +614,15 @@ export function buildSSSSBlurPass (camera: Camera,
     inputRT: string,
     inputDS: string,
     ssssFov = 45.0,
-    ssssWidth = 1,
-    depthUnitScale = 1.0) {
+    ssssWidth = 0.1,
+    depthUnitScale = 0.4) {
     if (!ssssBlurData) ssssBlurData = new SSSSBlurData();
     ssssBlurData.ssssFov = ssssFov;
     ssssBlurData.ssssWidth = ssssWidth;
     ssssBlurData.depthUnitScale = depthUnitScale;
 
     const cameraID = getCameraUniqueID(camera);
+    const cameraName = `Camera${cameraID}`;
     const area = getRenderArea(camera, camera.window.width, camera.window.height);
     const width = area.width;
     const height = area.height;
@@ -634,6 +635,15 @@ export function buildSSSSBlurPass (camera: Camera,
         ssssBlurClearColor.z = camera.clearColor.z;
     }
     ssssBlurClearColor.w = camera.clearColor.w;
+
+    const ssssBlurRTName = `dsSSSSBlurColor${cameraName}`;
+    const ssssBlurDSName = `dsSSSSBlurDS${cameraName}`;
+    if (!ppl.containsResource(ssssBlurRTName)) {
+        ppl.addRenderTarget(ssssBlurRTName, Format.RGBA8, width, height, ResourceResidency.MANAGED);
+        ppl.addRenderTarget(ssssBlurDSName, Format.RGBA8, width, height, ResourceResidency.MANAGED);
+    }
+    ppl.updateRenderTarget(ssssBlurRTName, width, height);
+    ppl.updateRenderTarget(ssssBlurDSName, width, height);
 
     // ==== SSSS Blur X Pass ===
     const ssssblurXPass = ppl.addRasterPass(width, height, 'SSSSblurX');
@@ -663,19 +673,19 @@ export function buildSSSSBlurPass (camera: Camera,
     const ssssBlurXPassRTView = new RasterView('_',
         AccessType.WRITE,
         AttachmentType.RENDER_TARGET,
-        LoadOp.LOAD,
+        LoadOp.CLEAR,
         StoreOp.STORE,
         camera.clearFlag,
         ssssBlurClearColor);
-    ssssblurXPass.addRasterView(inputRT, ssssBlurXPassRTView);
+    ssssblurXPass.addRasterView(ssssBlurRTName, ssssBlurXPassRTView);
     const ssssBlurXPassDSView = new RasterView('_',
         AccessType.WRITE,
         AttachmentType.DEPTH_STENCIL,
-        LoadOp.LOAD,
+        LoadOp.CLEAR,
         StoreOp.STORE,
         camera.clearFlag,
         new Color(camera.clearDepth, camera.clearStencil, 0.0, 0.0));
-    ssssblurXPass.addRasterView(inputDS, ssssBlurXPassDSView);
+    ssssblurXPass.addRasterView(ssssBlurDSName, ssssBlurXPassDSView);
     ssssBlurData.ssssBlurMaterial.setProperty('blurInfo', new Vec4(ssssBlurData.ssssFov, ssssBlurData.ssssWidth, ssssBlurData.depthUnitScale, 0), SSSS_BLUR_X_PASS_INDEX);
     ssssBlurData.ssssBlurMaterial.setProperty('kernel', ssssBlurData.kernel, SSSS_BLUR_X_PASS_INDEX);
     ssssblurXPass.addQueue(QueueHint.RENDER_OPAQUE | QueueHint.RENDER_TRANSPARENT).addCameraQuad(
@@ -687,25 +697,25 @@ export function buildSSSSBlurPass (camera: Camera,
     const ssssblurYPass = ppl.addRasterPass(width, height, 'SSSSblurY');
     ssssblurYPass.name = `CameraSSSSBlurYPass${cameraID}`;
     ssssblurYPass.setViewport(new Viewport(area.x, area.y, width, height));
-    if (ppl.containsResource(inputRT)) {
-        const verId = webPipeline.resourceGraph.vertex(inputRT);
+    if (ppl.containsResource(ssssBlurRTName)) {
+        const verId = webPipeline.resourceGraph.vertex(ssssBlurRTName);
         const sampler = webPipeline.resourceGraph.getSampler(verId);
         sampler.minFilter = Filter.POINT;
         sampler.magFilter = Filter.POINT;
         sampler.mipFilter = Filter.NONE;
         const computeView = new ComputeView();
         computeView.name = 'colorTex';
-        ssssblurYPass.addComputeView(inputRT, computeView);
+        ssssblurYPass.addComputeView(ssssBlurRTName, computeView);
     }
-    if (ppl.containsResource(inputDS)) {
-        const verId = webPipeline.resourceGraph.vertex(inputDS);
+    if (ppl.containsResource(ssssBlurDSName)) {
+        const verId = webPipeline.resourceGraph.vertex(ssssBlurDSName);
         const sampler = webPipeline.resourceGraph.getSampler(verId);
         sampler.minFilter = Filter.POINT;
         sampler.magFilter = Filter.POINT;
         sampler.mipFilter = Filter.NONE;
         const computeView = new ComputeView();
         computeView.name = 'depthTex';
-        ssssblurYPass.addComputeView(inputDS, computeView);
+        ssssblurYPass.addComputeView(ssssBlurDSName, computeView);
     }
     const ssssBlurYPassView = new RasterView('_',
         AccessType.WRITE,
