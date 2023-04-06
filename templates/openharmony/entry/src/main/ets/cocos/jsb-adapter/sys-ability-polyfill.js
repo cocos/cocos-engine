@@ -25,12 +25,10 @@
 import display from '@ohos.display';
 import i18n from '@ohos.i18n'
 import deviceInfo from '@ohos.deviceInfo'
-import batteryInfo from '@ohos.batteryinfo';
+import batteryInfo from '@ohos.batteryInfo';
 import sensor from '@ohos.sensor';
 
-window.oh = {};
-
-module.exports = function systemReady () {
+export function systemReady () {
     return new Promise(resolve => {
         if (typeof XMLHttpRequest === 'undefined') {
             window.XMLHttpRequest = function () {}
@@ -83,7 +81,7 @@ try {
     sensor.on(sensor.SensorType.SENSOR_TYPE_ID_ACCELEROMETER, function (data) {
         sDeviceMotionValues[0] = data.x;
         sDeviceMotionValues[1] = data.y;
-        sDeviceMotionValues[2] = data.z;
+        sDeviceMotionValues[2] = -data.z;
     },
         { interval: 10000000000 }
     );

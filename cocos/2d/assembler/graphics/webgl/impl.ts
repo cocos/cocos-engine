@@ -199,8 +199,9 @@ export class Impl {
             renderData.initRenderDrawInfo(this._comp, RenderDrawInfoType.MODEL);
             // TODO: MeshRenderData and RenderData are both sub class of BaseRenderData, here we weirdly use MeshRenderData as RenderData
             // please fix the type @holycanvas
-            this._comp._renderData = renderData as unknown as RenderData;
-            this._comp._renderData.material = this._comp.getMaterialInstance(0)!;// hack
+            // issue: https://github.com/cocos/cocos-engine/issues/14637
+            renderData.material = this._comp.getMaterialInstance(0)!;// hack
+            this._comp.setRenderData(renderData as unknown as RenderData);
         }
 
         return renderData;

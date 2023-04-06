@@ -8,17 +8,133 @@ import * as babel from '@babel/core';
 import generate from '@babel/generator';
 import traverse from '@babel/traverse';
 import * as parser from '@babel/parser';
-import * as t from '@babel/types';
 
 import path from 'path';
 import fs from 'fs';
 
+/// type definitions varies by versions
+// import * as t from '@babel/types';
+declare namespace t {
+    type Identifier = any;
+    type Import = any;
+    type StringLiteral = any;
+    type SequenceExpression = any;
+    type ClassDeclaration = any;
+    type ObjectExpression = any;
+    type ObjectMethod = any;
+    type ObjectProperty = any;
+    type ExportNamedDeclaration = any;
+    type ExportDefaultDeclaration = any;
+    type ExportAllDeclaration = any;
+    type ExportSpecifier = any;
+    type ImportDeclaration = any;
+    type UpdateExpression = any;
+    type ObjectPattern = any;
+    type ArrayPattern = any;
+    type ArrayExpression = any;
+    type ThisExpression = any;
+    type Super = any;
+    type TSTypeAssertion = any;
+    type TSPropertySignature = any;
+    type TSMethodSignature = any;
+    type TSIndexSignature = any;
+    type MemberExpression = any;
+    type OptionalMemberExpression = any;
+    type VariableDeclaration = any;
+    type TSQualifiedName = any;
+    type VariableDeclarator = any;
+    type FunctionExpression = any;
+    type ArrowFunctionExpression = any;
+    type NewExpression = any;
+    type TryStatement = any;
+    type CatchClause = any;
+    type BlockStatement = any;
+    type ExpressionStatement = any;
+    type CallExpression = any;
+    type OptionalCallExpression = any;
+    type AssignmentPattern = any;
+    type AssignmentExpression = any;
+    type RestElement = any;
+    type SpreadElement = any;
+    type LogicalExpression = any;
+    type ConditionalExpression = any;
+    type BinaryExpression = any;
+    type SwitchStatement = any;
+    type SwitchCase = any;
+    type ThrowStatement = any;
+    type BreakStatement = any;
+    type ContinueStatement = any;
+    type LabeledStatement = any;
+    type YieldExpression = any;
+    type AwaitExpression = any;
+    type IfStatement = any;
+    type DoWhileStatement = any;
+    type WhileStatement = any;
+    type ForInStatement = any;
+    type ForOfStatement = any;
+    type ForStatement = any;
+    type ReturnStatement = any;
+    type TSTypeParameterDeclaration = any;
+    type TSTypeParameter = any;
+    type TSNonNullExpression = any;
+    type FunctionDeclaration = any;
+    type TSAsExpression = any;
+    type TSTypeAnnotation = any;
+    type TSTypeParameterInstantiation = any;
+    type TSType = any;
+    type TSAnyKeyword = any;
+    type TSBooleanKeyword = any;
+    type TSBigIntKeyword = any;
+    type TSIntrinsicKeyword = any;
+    type TSNeverKeyword = any;
+    type TSNullKeyword = any;
+    type TSNumberKeyword = any;
+    type TSObjectKeyword = any;
+    type TSStringKeyword = any;
+    type TSSymbolKeyword = any;
+    type TSUndefinedKeyword = any;
+    type TSUnknownKeyword = any;
+    type TSVoidKeyword = any;
+    type TSThisType = any;
+    type TSFunctionType = any;
+    type TSConstructorType = any;
+    type TSTypeReference = any;
+    type TSTypePredicate = any;
+    type TSTypeQuery = any;
+    type TemplateLiteral = any;
+    type TemplateElement = any;
+    type TSTypeLiteral = any;
+    type TSArrayType = any;
+    type TSTupleType = any;
+    type TSOptionalType = any;
+    type TSRestType = any;
+    type TSUnionType = any;
+    type TSIntersectionType = any;
+    type TSConditionalType = any;
+    type TSInferType = any;
+    type TSParenthesizedType = any;
+    type TSTypeOperator = any;
+    type TSIndexedAccessType = any;
+    type TSMappedType = any;
+    type TSLiteralType = any;
+    type TSExpressionWithTypeArguments = any;
+    type TSImportType = any;
+    type BooleanLiteral = any;
+    type NumericLiteral = any;
+    type NullLiteral = any;
+    type RegExpLiteral = any;
+    type UnaryExpression = any;
+    type Directive = any;
+    type DirectiveLiteral = any;
+    type EmptyStatement = any;
+    type TSTypeAliasDeclaration = any;
+    type TSInterfaceDeclaration = any;
+}
+
+
+
 const enginePath = process.env.ENGINE_PATH!;
 const applyFnName = `apply`;
-
-if (!enginePath) {
-    throw new Error('ENGINE_PATH environment variable not set');
-}
 
 interface DecoratorParseResult {
     decoratorName?: string;
@@ -319,7 +435,7 @@ function getExportedClassesFromCppSourceCode() {
     const toFullPath = (prefix: string) => (filename: string) => path.join(prefix, filename);
     const findInDir = (filterCb: { (p: string): boolean }) => (dir: string) => fs.readdirSync(dir).filter(filterCb).map(toFullPath(dir)).forEach((fp) => cppSourceFiles.push(fp));
 
-    ['native/cocos/bindings/manual', 'native/cocos/bindings/auto'].map(toFullPath(enginePath)).forEach(findInDir((x) => x.startsWith('jsb_') && x.endsWith('.cpp')));
+    ['native/cocos/bindings/manual', 'native/build/generated/cocos/bindings/auto'].map(toFullPath(enginePath)).forEach(findInDir((x) => x.startsWith('jsb_') && x.endsWith('.cpp')));
 
     const se_Class_create = /se::Class::create\((\{("\w+",\s*"\w+")+\}|("\w+"))/;
 

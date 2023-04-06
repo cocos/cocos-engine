@@ -248,7 +248,7 @@ export class LODGroup extends Component {
     /**
      * @engineInternal
      */
-    set localBoundaryCenter (val: Vec3) {
+    set localBoundaryCenter (val: Readonly<Vec3>) {
         this._localBoundaryCenter.set(val);
         this._lodGroup.localBoundaryCenter = val;
     }
@@ -629,9 +629,7 @@ export class LODGroup extends Component {
      */
     private _emitChangeNode (node: Node) {
         if (EDITOR) {
-            // TODO: Property 'emit' does not exist on type 'EditorExtendsNode'.
-            // workaround: mark Node as any
-            (EditorExtends.Node as any).emit('change', node.uuid, node);
+            EditorExtends.Node.emit('change', node.uuid, node);
         }
     }
 

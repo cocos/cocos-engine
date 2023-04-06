@@ -1502,7 +1502,7 @@ ProgramProxy *NativeProgramLibrary::getProgramVariant(
     return res.first->second.get();
 }
 
-gfx::PipelineState* NativeProgramLibrary::getComputePipelineState(
+gfx::PipelineState *NativeProgramLibrary::getComputePipelineState(
     gfx::Device *device, uint32_t phaseID, const ccstd::string &name,
     MacroRecord &defines, const ccstd::pmr::string *key) {
     auto *program = getProgramVariant(device, phaseID, name, defines, key);
@@ -1543,7 +1543,7 @@ const ccstd::vector<int32_t> &NativeProgramLibrary::getBlockSizes(
     throw std::invalid_argument("program not found");
 }
 
-const Record<ccstd::string, uint32_t> &NativeProgramLibrary::getHandleMap(
+const ccstd::unordered_map<ccstd::string, uint32_t> &NativeProgramLibrary::getHandleMap(
     uint32_t phaseID, const ccstd::string &programName) const {
     CC_EXPECTS(phaseID != LayoutGraphData::null_vertex());
     const auto &group = phases.at(phaseID);

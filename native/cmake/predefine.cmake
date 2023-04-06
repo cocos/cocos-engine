@@ -104,7 +104,6 @@ add_definitions(-DCC_PLATFORM_OPENHARMONY=${CC_PLATFORM_OPENHARMONY})
 add_definitions(-DCC_PLATFORM_EMSCRIPTEN=${CC_PLATFORM_EMSCRIPTEN})
 add_definitions(-DCC_PLATFORM=${CC_PLATFORM})
 
-include_directories(${CMAKE_CURRENT_LIST_DIR}/../external/sources)
 
 # simplify generator condition, please use them everywhere
 if(CMAKE_GENERATOR STREQUAL Xcode)
@@ -202,21 +201,26 @@ macro(cocos_source_files)
         elseif("NO_UBUILD" STREQUAL "${src}")
             set(NO_UBUILD ON)
         else()
-            set(fp "${CWD}/${src}")
-            if(EXISTS ${fp})
-                if("${src}" MATCHES "\\.(cpp|mm|c|m)\$" AND TWAE)
-                     set_source_files_properties("${CWD}/${src}" PROPERTIES
+            if(IS_ABSOLUTE "${src}")
+                set(fp "${src}")
+            else()
+                set(fp "${CWD}/${src}")
+            endif()
+            get_source_file_property(IS_GENERATED ${fp} GENERATED)
+            if(EXISTS ${fp} OR ${IS_GENERATED})
+                if("${fp}" MATCHES "\\.(cpp|mm|c|m)\$" AND TWAE)
+                     set_source_files_properties("${fp}" PROPERTIES
                          COMPILE_FLAGS "${WERROR_FLAGS}"
                      )
                 endif()
-                if("${src}" MATCHES "\\.(cpp|mm|c|m)\$" AND NO_UBUILD)
-                set_source_files_properties("${CWD}/${src}" PROPERTIES
+                if("${fp}" MATCHES "\\.(cpp|mm|c|m)\$" AND NO_UBUILD)
+                    set_source_files_properties("${fp}" PROPERTIES
                          SKIP_UNITY_BUILD_INCLUSION ON
-                )
+                    )
                 endif()
-                list(APPEND ${MODULE_NAME}_SOURCE_LIST "${CWD}/${src}")
+                list(APPEND ${MODULE_NAME}_SOURCE_LIST "${fp}")
             else()
-                message(FATAL_ERROR "Cocos souce file not exists: ${fp} in ${CWD}")
+                message(FATAL_ERROR "Cocos souce file not exists: \"${src}\", is generated ${IS_GENERATED}")
             endif()
             set(TWAE ON)
             set(NO_UBUILD OFF)
@@ -233,8 +237,99 @@ function(cc_inspect_values)
     endforeach()
 endfunction()
 
+function(cc_parse_cfg_include_files cfg_file output_var)
+    file(STRINGS ${cfg_file} my_lines)
+    set(include_pattern "^%include *\"([^\"]*)\" *$")
+    set(include_files "")
+    foreach(line ${my_lines})
+        if(line MATCHES ${include_pattern})
+            # keep syncing with SWIG_ARGS
+            set(include_file ${CMAKE_CURRENT_LIST_DIR}/cocos/${CMAKE_MATCH_1})
+            set(include_file2 ${CMAKE_CURRENT_LIST_DIR}/${CMAKE_MATCH_1})
+            if(EXISTS ${include_file})
+                list(APPEND include_files ${include_file})
+            elseif(EXISTS ${include_file2})
+                list(APPEND include_files ${include_file2})
+            else()
+                message(FATAL_ERROR "%include ${include_file}:  file not found")
+            endif()
+        endif()
+    endforeach()
+    set(${output_var} ${include_files} PARENT_SCOPE)
+endfunction()
 
+function(cc_gen_swig_files cfg_directory output_dir)
+    file(MAKE_DIRECTORY "${output_dir}")
+    if(${CMAKE_HOST_SYSTEM_NAME} MATCHES "Windows")
+        set(SWIG_DIR ${EXTERNAL_ROOT}/win64/bin/swig) 
+        set(SWIG_EXEC ${SWIG_DIR}/bin/swig.exe)
+    elseif(${CMAKE_HOST_SYSTEM_NAME} MATCHES "Darwin")
+        set(SWIG_DIR ${EXTERNAL_ROOT}/mac/bin/swig) 
+        set(SWIG_EXEC ${SWIG_DIR}/bin/swig)
+    elseif(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Linux")
+        set(SWIG_DIR ${EXTERNAL_ROOT}/linux/bin/swig) 
+        set(SWIG_EXEC ${SWIG_DIR}/bin/swig)
+    else()
+        message(FATAL_ERROR "swig is not supported on current platform!")
+    endif()
 
+    set(SWIG_ARGS
+        -c++
+        -cocos
+        -fvirtual
+        -noexcept
+        -cpperraswarn
+        -D__clang__
+        -Dfinal= 
+        -DCC_PLATFORM=3
+        -Dconstexpr=const
+        -DCC_PLATFORM_ANDROID=3
+        -I${SWIG_DIR}/share/swig/4.1.0/javascript/cocos
+        -I${SWIG_DIR}/share/swig/4.1.0
+        -I${CMAKE_CURRENT_LIST_DIR}/
+        -I${CMAKE_CURRENT_LIST_DIR}/cocos
+        -o
+    )
+    file(GLOB cfg_files ${cfg_directory}/*.i)
+
+    list(FILTER cfg_files EXCLUDE REGEX ".*template.*")
+    foreach(cfg ${cfg_files})
+
+        set(dep_files)
+        get_filename_component(mod_name ${cfg} NAME_WE)
+        file(MAKE_DIRECTORY ${output_dir}/temp)
+        set(output_file_tmp ${output_dir}/temp/jsb_${mod_name}_auto.cpp)
+        set(output_file ${output_dir}/jsb_${mod_name}_auto.cpp)
+
+        set(output_hfile_tmp ${output_dir}/temp/jsb_${mod_name}_auto.h)
+        set(output_hfile ${output_dir}/jsb_${mod_name}_auto.h)
+
+        cc_parse_cfg_include_files(${cfg} dep_files)
+
+        add_custom_command(
+            OUTPUT
+                ${output_hfile}
+                ${output_file}
+            COMMAND ${CMAKE_COMMAND} -E echo "Running swig with config file ${cfg} ..."
+            COMMAND ${SWIG_EXEC} ${SWIG_ARGS}
+                ${output_file_tmp}
+                ${cfg}
+            COMMAND
+                ${CMAKE_COMMAND} -E copy_if_different ${output_file_tmp} ${output_file}
+            COMMAND
+                ${CMAKE_COMMAND} -E copy_if_different ${output_hfile_tmp} ${output_hfile}
+            DEPENDS ${cfg} ${dep_files}
+            WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/..
+        )
+        set_source_files_properties(${output_file}
+            PROPERTIES 
+            GENERATED TRUE
+            LOCATION ${output_file}
+        )
+        get_source_file_property(IS_GENERATED ${output_file} GENERATED)
+
+    endforeach()
+endfunction(cc_gen_swig_files)
 
 function(cc_set_target_property target_name property value)
     set_target_properties(${target_name} PROPERTIES CC_${property} ${value})

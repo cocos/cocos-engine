@@ -180,7 +180,6 @@ export class ParticleSystem extends ModelRenderer {
      */
     @type(CurveRange)
     @serializable
-    @range([-2 * Math.PI, 2 * Math.PI])
     @radian
     @displayOrder(12)
     @tooltip('i18n:particle_system.startRotationX')
@@ -193,7 +192,6 @@ export class ParticleSystem extends ModelRenderer {
      */
     @type(CurveRange)
     @serializable
-    @range([-2 * Math.PI, 2 * Math.PI])
     @radian
     @displayOrder(12)
     @tooltip('i18n:particle_system.startRotationY')
@@ -206,7 +204,6 @@ export class ParticleSystem extends ModelRenderer {
      */
     @type(CurveRange)
     @formerlySerializedAs('startRotation')
-    @range([-2 * Math.PI, 2 * Math.PI])
     @radian
     @displayOrder(12)
     @tooltip('i18n:particle_system.startRotationZ')

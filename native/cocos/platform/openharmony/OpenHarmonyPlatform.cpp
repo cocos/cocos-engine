@@ -46,11 +46,11 @@
 #include <chrono>
 
 namespace {
-void sendMsgToWorker(const cc::MessageType& type, OH_NativeXComponent* component, void* window) {
+void sendMsgToWorker(const cc::MessageType& type, void* data, void* window) {
     cc::OpenHarmonyPlatform* platform = dynamic_cast<cc::OpenHarmonyPlatform*>(cc::BasePlatform::getPlatform());
     CC_ASSERT(platform != nullptr);
-    cc::WorkerMessageData data{type, static_cast<void*>(component), window};
-    platform->enqueue(data);
+    cc::WorkerMessageData msg{type, static_cast<void*>(data), window};
+    platform->enqueue(msg);
 }
 
 void onSurfaceCreatedCB(OH_NativeXComponent* component, void* window) {
@@ -64,21 +64,46 @@ void onSurfaceCreatedCB(OH_NativeXComponent* component, void* window) {
     info.height = 0;
     info.flags = 0;
     info.externalHandle = window;
-    cc::ISystemWindowManager* windowMgr = 
+    cc::ISystemWindowManager* windowMgr =
         cc::OpenHarmonyPlatform::getInstance()->getInterface<cc::ISystemWindowManager>();
     windowMgr->createWindow(info);
 }
 
 void dispatchTouchEventCB(OH_NativeXComponent* component, void* window) {
-    sendMsgToWorker(cc::MessageType::WM_XCOMPONENT_TOUCH_EVENT, component, window);
+    OH_NativeXComponent_TouchEvent touchEvent;
+    int32_t ret = OH_NativeXComponent_GetTouchEvent(component, window, &touchEvent);
+    if (ret != OH_NATIVEXCOMPONENT_RESULT_SUCCESS) {
+        return;
+    }
+    // TODO(qgh):Is it possible to find an efficient way to do this, I thought about using a cache queue but it requires locking.
+    cc::TouchEvent* ev = new cc::TouchEvent;
+    cc::SystemWindowManager* windowMgr =
+        cc::OpenHarmonyPlatform::getInstance()->getInterface<cc::SystemWindowManager>();
+    CC_ASSERT_NOT_NULL(windowMgr);
+    cc::ISystemWindow* systemWindow = windowMgr->getWindowFromHandle(window);
+    CC_ASSERT_NOT_NULL(systemWindow);
+    ev->windowId = systemWindow->getWindowId();
+    if (touchEvent.type == OH_NATIVEXCOMPONENT_DOWN) {
+        ev->type = cc::TouchEvent::Type::BEGAN;
+    } else if (touchEvent.type == OH_NATIVEXCOMPONENT_MOVE) {
+        ev->type = cc::TouchEvent::Type::MOVED;
+    } else if (touchEvent.type == OH_NATIVEXCOMPONENT_UP) {
+        ev->type = cc::TouchEvent::Type::ENDED;
+    } else if (touchEvent.type == OH_NATIVEXCOMPONENT_CANCEL) {
+        ev->type = cc::TouchEvent::Type::CANCELLED;
+    }
+    for(int i = 0; i < touchEvent.numPoints; ++i) {
+        ev->touches.emplace_back(touchEvent.touchPoints[i].x, touchEvent.touchPoints[i].y, touchEvent.touchPoints[i].id);
+    }
+    sendMsgToWorker(cc::MessageType::WM_XCOMPONENT_TOUCH_EVENT, reinterpret_cast<void*>(ev), window);
 }
 
 void onSurfaceChangedCB(OH_NativeXComponent* component, void* window) {
-    sendMsgToWorker(cc::MessageType::WM_XCOMPONENT_SURFACE_CHANGED, component, window);
+    sendMsgToWorker(cc::MessageType::WM_XCOMPONENT_SURFACE_CHANGED, reinterpret_cast<void*>(component), window);
 }
 
 void onSurfaceDestroyedCB(OH_NativeXComponent* component, void* window) {
-    sendMsgToWorker(cc::MessageType::WM_XCOMPONENT_SURFACE_DESTROY, component, window);
+    sendMsgToWorker(cc::MessageType::WM_XCOMPONENT_SURFACE_DESTROY, reinterpret_cast<void*>(component), window);
 }
 
 } // namespace
@@ -157,16 +182,23 @@ void OpenHarmonyPlatform::onMessageCallback(const uv_async_t* /* req */) {
         }
 
         if ((msgData.type >= MessageType::WM_XCOMPONENT_SURFACE_CREATED) && (msgData.type <= MessageType::WM_XCOMPONENT_SURFACE_DESTROY)) {
-            OH_NativeXComponent* nativexcomponet = reinterpret_cast<OH_NativeXComponent*>(msgData.data);
-            CC_ASSERT(nativexcomponet != nullptr);
-
-            if (msgData.type == MessageType::WM_XCOMPONENT_SURFACE_CREATED) {
+            if (msgData.type == MessageType::WM_XCOMPONENT_TOUCH_EVENT) {
+                TouchEvent* ev = reinterpret_cast<TouchEvent*>(msgData.data);
+                CC_ASSERT(ev != nullptr);
+                events::Touch::broadcast(*ev);
+                delete ev;
+                ev = nullptr;
+            } else if (msgData.type == MessageType::WM_XCOMPONENT_SURFACE_CREATED) {
+                OH_NativeXComponent* nativexcomponet = reinterpret_cast<OH_NativeXComponent*>(msgData.data);
+                CC_ASSERT(nativexcomponet != nullptr);
                 platform->onSurfaceCreated(nativexcomponet, msgData.window);
-            } else if (msgData.type == MessageType::WM_XCOMPONENT_TOUCH_EVENT) {
-                platform->dispatchTouchEvent(nativexcomponet, msgData.window);
             } else if (msgData.type == MessageType::WM_XCOMPONENT_SURFACE_CHANGED) {
+                OH_NativeXComponent* nativexcomponet = reinterpret_cast<OH_NativeXComponent*>(msgData.data);
+                CC_ASSERT(nativexcomponet != nullptr);
                 platform->onSurfaceChanged(nativexcomponet, msgData.window);
             } else if (msgData.type == MessageType::WM_XCOMPONENT_SURFACE_DESTROY) {
+                OH_NativeXComponent* nativexcomponet = reinterpret_cast<OH_NativeXComponent*>(msgData.data);
+                CC_ASSERT(nativexcomponet != nullptr);
                 platform->onSurfaceDestroyed(nativexcomponet, msgData.window);
             } else {
                 CC_ASSERT(false);
@@ -196,12 +228,14 @@ void OpenHarmonyPlatform::onCreateNative(napi_env env, uv_loop_t* loop) {
 void OpenHarmonyPlatform::onShowNative() {
     WindowEvent ev;
     ev.type = WindowEvent::Type::SHOW;
+    ev.windowId = cc::ISystemWindow::mainWindowId;
     events::WindowEvent::broadcast(ev);
 }
 
 void OpenHarmonyPlatform::onHideNative() {
     WindowEvent ev;
     ev.type = WindowEvent::Type::HIDDEN;
+    ev.windowId = cc::ISystemWindow::mainWindowId;
     events::WindowEvent::broadcast(ev);
 }
 
@@ -244,33 +278,9 @@ void OpenHarmonyPlatform::onSurfaceChanged(OH_NativeXComponent* component, void*
 }
 
 void OpenHarmonyPlatform::onSurfaceDestroyed(OH_NativeXComponent* component, void* window) {
-    SystemWindow* systemWindowIntf = getPlatform()->getInterface<SystemWindow>();
-    systemWindowIntf->setWindowHandle(nullptr);
-}
-
-void OpenHarmonyPlatform::dispatchTouchEvent(OH_NativeXComponent* component, void* window) {
-    OH_NativeXComponent_TouchEvent touchEvent;
-    int32_t ret = OH_NativeXComponent_GetTouchEvent(component, window, &touchEvent);
-    if (ret != OH_NATIVEXCOMPONENT_RESULT_SUCCESS) {
-        return;
-    }
-
-    TouchEvent ev;
-    ev.windowId = 1;
-    if (touchEvent.type == OH_NATIVEXCOMPONENT_DOWN) {
-        ev.type = cc::TouchEvent::Type::BEGAN;
-    } else if (touchEvent.type == OH_NATIVEXCOMPONENT_MOVE) {
-        ev.type = cc::TouchEvent::Type::MOVED;
-    } else if (touchEvent.type == OH_NATIVEXCOMPONENT_UP) {
-        ev.type = cc::TouchEvent::Type::ENDED;
-    } else if (touchEvent.type == OH_NATIVEXCOMPONENT_CANCEL) {
-        ev.type = cc::TouchEvent::Type::CANCELLED;
-    }
-    for(int i = 0; i < touchEvent.numPoints; ++i) {
-        ev.touches.emplace_back(touchEvent.touchPoints[i].x, touchEvent.touchPoints[i].y, touchEvent.touchPoints[i].id);
-    }
-
-    events::Touch::broadcast(ev);
+    cc::SystemWindowManager* windowMgr = this->getInterface<cc::SystemWindowManager>();
+    CC_ASSERT_NOT_NULL(windowMgr);
+    windowMgr->removeWindow(window);
 }
 
 ISystemWindow *OpenHarmonyPlatform::createNativeWindow(uint32_t windowId, void *externalHandle) {

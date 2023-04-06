@@ -201,7 +201,7 @@ float CCGetLinearDepth(vec3 worldPos) {
 
 
   //////////////////////////////////////////////////////////Main Functions
-  float CCSpotShadowFactorBase(out vec4 shadowNDCPosWithBias, vec4 shadowPos, vec3 worldPos, vec2 shadowBias)
+  float CCSpotShadowFactorBase(out vec4 shadowPosWithDepthBias, vec4 shadowPos, vec3 worldPos, vec2 shadowBias)
   {
     float pcf = cc_shadowWHPBInfo.z;
     vec4 pos = vec4(1.0);
@@ -222,11 +222,11 @@ float CCGetLinearDepth(vec3 worldPos) {
       realtimeShadow = CCGetSpotLightShadowFactorHard(pos, worldPos);
     }
 
-    shadowNDCPosWithBias = pos;
+    shadowPosWithDepthBias = pos;
     return mix(realtimeShadow, 1.0, cc_shadowNFLSInfo.w);
   }
   
-  float CCShadowFactorBase(out vec4 shadowNDCPosWithBias, vec4 shadowPos, vec3 N, vec2 shadowBias)
+  float CCShadowFactorBase(out vec4 shadowPosWithDepthBias, vec4 shadowPos, vec3 N, vec2 shadowBias)
   {
     vec4 pos = ApplyShadowDepthBias_FaceNormal(shadowPos, N, shadowBias.y, cc_matLightView, cc_shadowProjInfo.xy);
     pos = ApplyShadowDepthBias_Orthographic(pos, shadowBias.x, cc_shadowProjDepthInfo.x, cc_shadowProjDepthInfo.y);
@@ -245,7 +245,7 @@ float CCGetLinearDepth(vec3 worldPos) {
       realtimeShadow = CCGetDirLightShadowFactorHard(pos); 
     #endif
 
-    shadowNDCPosWithBias = pos;
+    shadowPosWithDepthBias = pos;
     return mix(realtimeShadow, 1.0, cc_shadowNFLSInfo.w);
   }
   
@@ -344,7 +344,7 @@ float CCGetLinearDepth(vec3 worldPos) {
     }
 
     // output csmPos is non-biased position that can be used for sampling shadow map after homogeneous divid
-    float CCCSMFactorBase(out vec4 csmPos, out vec4 csmNDCPosWithBias, vec3 worldPos, vec3 N, vec2 shadowBias)
+    float CCCSMFactorBase(out vec4 csmPos, out vec4 csmPosWithBias, vec3 worldPos, vec3 N, vec2 shadowBias)
     {
       bool isTransitionArea = false;
       highp float ratio = 0.0;
@@ -361,7 +361,7 @@ float CCGetLinearDepth(vec3 worldPos) {
 
       vec4 pos = ApplyShadowDepthBias_FaceNormal(csmPos, N, shadowBias.y, shadowViewDir0, shadowViewDir1, shadowViewDir2, shadowProjInfo.xy);
       pos = ApplyShadowDepthBias_Orthographic(pos, shadowBias.x, shadowProjDepthInfo.x, shadowProjDepthInfo.y);
-      csmNDCPosWithBias = pos;
+      csmPosWithBias = pos;
 
       float realtimeShadow = 1.0;
       #if CC_DIR_SHADOW_PCF_TYPE == CC_SHADOW_PCF_SOFT_5X
@@ -413,26 +413,26 @@ float CCGetLinearDepth(vec3 worldPos) {
       return -1;
     }
 
-    float CCCSMFactorBase(out vec4 csmPos, out vec4 csmNDCPosWithBias, vec3 worldPos, vec3 N, vec2 shadowBias) {
+    float CCCSMFactorBase(out vec4 csmPos, out vec4 csmPosWithBias, vec3 worldPos, vec3 N, vec2 shadowBias) {
       csmPos = cc_matLightViewProj * vec4(worldPos, 1.0);
-      return CCShadowFactorBase(csmNDCPosWithBias, csmPos, N, shadowBias);
+      return CCShadowFactorBase(csmPosWithBias, csmPos, N, shadowBias);
     }
   #endif
 
   // compatible version
   float CCShadowFactorBase(vec4 shadowPos, vec3 N, vec2 shadowBias) {
-    vec4 shadowNDCPosWithBias;
-    return CCShadowFactorBase(shadowNDCPosWithBias, shadowPos, N, shadowBias);
+    vec4 shadowPosWithDepthBias;
+    return CCShadowFactorBase(shadowPosWithDepthBias, shadowPos, N, shadowBias);
   }
 
   float CCCSMFactorBase(vec3 worldPos, vec3 N, vec2 shadowBias) {
-    vec4 csmPos, csmNDCPosWithBias;
-    return CCCSMFactorBase(csmPos, csmNDCPosWithBias, worldPos, N, shadowBias);
+    vec4 csmPos, csmPosWithBias;
+    return CCCSMFactorBase(csmPos, csmPosWithBias, worldPos, N, shadowBias);
   }
 
   float CCSpotShadowFactorBase(vec4 shadowPos, vec3 worldPos, vec2 shadowBias)
   {
-    vec4 shadowNDCPosWithBias;
-    return CCSpotShadowFactorBase(shadowNDCPosWithBias, shadowPos, worldPos, shadowBias);
+    vec4 shadowPosWithDepthBias;
+    return CCSpotShadowFactorBase(shadowPosWithDepthBias, shadowPos, worldPos, shadowBias);
   }
 #endif

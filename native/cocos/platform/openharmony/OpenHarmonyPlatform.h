@@ -67,7 +67,6 @@ public:
     void onSurfaceCreated(OH_NativeXComponent* component, void* window);
     void onSurfaceChanged(OH_NativeXComponent* component, void* window);
     void onSurfaceDestroyed(OH_NativeXComponent* component, void* window);
-    void dispatchTouchEvent(OH_NativeXComponent* component, void* window);
     
     static void onMessageCallback(const uv_async_t* req);
     static void timerCb(uv_timer_t* handle);

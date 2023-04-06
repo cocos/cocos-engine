@@ -84,7 +84,7 @@ export function createNodeWithPrefab (node: Node) {
 
     // restore preserved props
     node._objFlags = _objFlags;
-    node._parent = _parent;
+    node.modifyParent(_parent);
     node.id = _id;
     if (EDITOR) {
         node[editorExtrasTag] = editorExtras;
@@ -187,7 +187,7 @@ export function applyMountedChildren (node: Node, mountedChildren: MountedChildr
                     }
 
                     target.children.push(childNode);
-                    childNode._parent = target;
+                    childNode.modifyParent(target);
                     if (EDITOR) {
                         if (!childNode[editorExtrasTag]) {
                             childNode[editorExtrasTag] = {};
@@ -197,7 +197,7 @@ export function applyMountedChildren (node: Node, mountedChildren: MountedChildr
                     }
                     // mounted node need to add to the target map
                     generateTargetMap(childNode, curTargetMap, false);
-                    childNode._siblingIndex = target.children.length - 1;
+                    childNode.siblingIndex = target.children.length - 1;
                     expandPrefabInstanceNode(childNode, true);
                 }
             }

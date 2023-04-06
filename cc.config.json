@@ -204,14 +204,14 @@
             "overrides": {}
         },
         {
-            "test": "context.platform !== 'NATIVE'",
+            "test": "!context.buildTimeConstants.NATIVE",
             "isVirtualModule": false,
             "overrides": {
                 "cocos/2d/renderer/native-2d.ts": "cocos/2d/renderer/native-2d-empty.ts"
             }
         },
         {
-            "test": "context.platform === 'NATIVE'",
+            "test": "context.buildTimeConstants.NATIVE",
             "isVirtualModule": false,
             "overrides": {
                 "cocos/rendering/index.ts": "cocos/rendering/index.jsb.ts",
@@ -358,15 +358,70 @@
         "NATIVE": {
             "comment": "Running in native platform (mobile app, desktop app, or simulator).",
             "type": "boolean",
-            "value": false,
+            "value": "$ANDROID || $IOS || $MAC || $WINDOWS || $LINUX || $OHOS || $OPEN_HARMONY",
             "internal": false,
             "dynamic": true
+        },
+        "ANDROID": {
+            "comment": "Running in ANDROID platform",
+            "type": "boolean",
+            "value": false,
+            "internal": false,
+            "dynamic": false
+        },
+        "IOS": {
+            "comment": "Running in IOS platform",
+            "type": "boolean",
+            "value": false,
+            "internal": false,
+            "dynamic": false
+        },
+        "MAC": {
+            "comment": "Running in MAC platform",
+            "type": "boolean",
+            "value": false,
+            "internal": false,
+            "dynamic": false
+        },
+        "WINDOWS": {
+            "comment": "Running in WINDOWS platform",
+            "type": "boolean",
+            "value": false,
+            "internal": false,
+            "dynamic": false
+        },
+        "LINUX": {
+            "comment": "Running in LINUX platform",
+            "type": "boolean",
+            "value": false,
+            "internal": false,
+            "dynamic": false
+        },        
+        "OHOS": {
+            "comment": "Running in OHOS platform",
+            "type": "boolean",
+            "value": false,
+            "internal": false,
+            "dynamic": false
+        },
+        "OPEN_HARMONY": {
+            "comment": "Running in OPEN_HARMONY platform",
+            "type": "boolean",
+            "value": false,
+            "internal": false,
+            "dynamic": false
         },
         "WECHAT": {
             "comment": "Running in the Wechat's mini game.",
             "type": "boolean",
             "value": false,
             "ccGlobal": true,
+            "internal": false
+        },
+        "WECHAT_MINI_PROGRAM": {
+            "comment": "Running in the Wechat's mini program.",
+            "type": "boolean",
+            "value": false,
             "internal": false
         },
         "BAIDU": {
@@ -511,7 +566,7 @@
         "MINIGAME": {
             "comment": "Running in mini game.",
             "type": "boolean",
-            "value": "$WECHAT || $BAIDU || $XIAOMI || $ALIPAY || $TAOBAO || $TAOBAO_MINIGAME || $BYTEDANCE",
+            "value": "$WECHAT || $WECHAT_MINI_PROGRAM || $BAIDU || $XIAOMI || $ALIPAY || $TAOBAO || $TAOBAO_MINIGAME || $BYTEDANCE",
             "ccGlobal": true,
             "internal": false
         },
@@ -525,7 +580,7 @@
         "SUPPORT_JIT": {
             "comment": "Support JIT.",
             "type": "boolean",
-            "value": "!(($PREVIEW && !$NATIVE) || $MINIGAME || $RUNTIME_BASED)",
+            "value": "!(($PREVIEW && !$NATIVE) || $MINIGAME || $RUNTIME_BASED || $OPEN_HARMONY)",
             "ccGlobal": true,
             "internal": false
         },

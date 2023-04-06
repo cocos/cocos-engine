@@ -188,6 +188,9 @@ if(NOT EXISTS ${EXTERNAL_ROOT}/CMakeLists.txt)
         message(FATAL_ERROR "Please download external libraries! File ${CMAKE_CURRENT_LIST_DIR}/external/CMakeLists.txt not exist!")
     endif()
 endif()
+
+include_directories(${EXTERNAL_ROOT}/sources)
+
 ################################# list all option values ##############################
 
 cc_inspect_values(
@@ -1023,6 +1026,10 @@ if(WINDOWS OR MACOSX OR LINUX OR QNX OR OPENHARMONY)
         NO_WERROR   NO_UBUILD   cocos/network/HttpClient.cpp
     )
 endif()
+
+set(SWIG_OUTPUT_ROOT ${CMAKE_CURRENT_BINARY_DIR}/generated)
+set(SWIG_OUTPUT ${SWIG_OUTPUT_ROOT}/cocos/bindings/auto)
+cc_gen_swig_files(${CMAKE_CURRENT_LIST_DIR}/tools/swig-config ${SWIG_OUTPUT})
 
 
 ##### platform
@@ -1887,8 +1894,8 @@ if(USE_PHYSICS_PHYSX)
         cocos/physics/physx/joints/PhysXSpherical.cpp
     )
     cocos_source_files(
-        NO_WERROR NO_UBUILD cocos/bindings/auto/jsb_physics_auto.cpp
-                            cocos/bindings/auto/jsb_physics_auto.h
+        NO_WERROR NO_UBUILD ${SWIG_OUTPUT}/jsb_physics_auto.cpp
+                            ${SWIG_OUTPUT}/jsb_physics_auto.h
     )
 endif()
 
@@ -2086,49 +2093,49 @@ cocos_source_files(
 
 ######## auto
 cocos_source_files(
-    NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_network_auto.cpp
-                            cocos/bindings/auto/jsb_network_auto.h
-    NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_cocos_auto.cpp
-                            cocos/bindings/auto/jsb_cocos_auto.h
-    NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_extension_auto.cpp
-                            cocos/bindings/auto/jsb_extension_auto.h
-    NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_gfx_auto.cpp
-                            cocos/bindings/auto/jsb_gfx_auto.h
-    NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_pipeline_auto.cpp
-                            cocos/bindings/auto/jsb_pipeline_auto.h
-    NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_scene_auto.cpp
-                            cocos/bindings/auto/jsb_scene_auto.h
-    NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_gi_auto.cpp
-                            cocos/bindings/auto/jsb_gi_auto.h
-    NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_assets_auto.cpp
-                            cocos/bindings/auto/jsb_assets_auto.h
-    NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_geometry_auto.cpp
-                            cocos/bindings/auto/jsb_geometry_auto.h
-    NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_render_auto.cpp
-                            cocos/bindings/auto/jsb_render_auto.h
-    NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_2d_auto.cpp
-                            cocos/bindings/auto/jsb_2d_auto.h
+    NO_WERROR   NO_UBUILD   ${SWIG_OUTPUT}/jsb_network_auto.cpp
+                            ${SWIG_OUTPUT}/jsb_network_auto.h
+    NO_WERROR   NO_UBUILD   ${SWIG_OUTPUT}/jsb_cocos_auto.cpp
+                            ${SWIG_OUTPUT}/jsb_cocos_auto.h
+    NO_WERROR   NO_UBUILD   ${SWIG_OUTPUT}/jsb_extension_auto.cpp
+                            ${SWIG_OUTPUT}/jsb_extension_auto.h
+    NO_WERROR   NO_UBUILD   ${SWIG_OUTPUT}/jsb_gfx_auto.cpp
+                            ${SWIG_OUTPUT}/jsb_gfx_auto.h
+    NO_WERROR   NO_UBUILD   ${SWIG_OUTPUT}/jsb_pipeline_auto.cpp
+                            ${SWIG_OUTPUT}/jsb_pipeline_auto.h
+    NO_WERROR   NO_UBUILD   ${SWIG_OUTPUT}/jsb_scene_auto.cpp
+                            ${SWIG_OUTPUT}/jsb_scene_auto.h
+    NO_WERROR   NO_UBUILD   ${SWIG_OUTPUT}/jsb_gi_auto.cpp
+                            ${SWIG_OUTPUT}/jsb_gi_auto.h
+    NO_WERROR   NO_UBUILD   ${SWIG_OUTPUT}/jsb_assets_auto.cpp
+                            ${SWIG_OUTPUT}/jsb_assets_auto.h
+    NO_WERROR   NO_UBUILD   ${SWIG_OUTPUT}/jsb_geometry_auto.cpp
+                            ${SWIG_OUTPUT}/jsb_geometry_auto.h
+    NO_WERROR   NO_UBUILD   ${SWIG_OUTPUT}/jsb_render_auto.cpp
+                            ${SWIG_OUTPUT}/jsb_render_auto.h
+    NO_WERROR   NO_UBUILD   ${SWIG_OUTPUT}/jsb_2d_auto.cpp
+                            ${SWIG_OUTPUT}/jsb_2d_auto.h
 )
 
 
 if(USE_AUDIO)
     cocos_source_files(
-        NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_audio_auto.cpp
-                                cocos/bindings/auto/jsb_audio_auto.h
+        NO_WERROR   NO_UBUILD   ${SWIG_OUTPUT}/jsb_audio_auto.cpp
+                                ${SWIG_OUTPUT}/jsb_audio_auto.h
     )
 endif()
 
 if(USE_VIDEO)
     cocos_source_files(
-        NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_video_auto.cpp
-                                cocos/bindings/auto/jsb_video_auto.h
+        NO_WERROR   NO_UBUILD   ${SWIG_OUTPUT}/jsb_video_auto.cpp
+                                ${SWIG_OUTPUT}/jsb_video_auto.h
     )
 endif()
 
 if(USE_WEBVIEW)
     cocos_source_files(
-        NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_webview_auto.cpp
-                                cocos/bindings/auto/jsb_webview_auto.h
+        NO_WERROR   NO_UBUILD   ${SWIG_OUTPUT}/jsb_webview_auto.cpp
+                                ${SWIG_OUTPUT}/jsb_webview_auto.h
     )
 endif()
 
@@ -2159,8 +2166,8 @@ if(USE_MIDDLEWARE)
     )
 
     cocos_source_files(
-        NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_editor_support_auto.cpp
-                                cocos/bindings/auto/jsb_editor_support_auto.h
+        NO_WERROR   NO_UBUILD   ${SWIG_OUTPUT}/jsb_editor_support_auto.cpp
+                                ${SWIG_OUTPUT}/jsb_editor_support_auto.h
     )
 
     if(USE_SPINE)
@@ -2330,8 +2337,8 @@ if(USE_MIDDLEWARE)
 
         )
         cocos_source_files(
-        NO_WERROR       cocos/bindings/auto/jsb_spine_auto.cpp
-                        cocos/bindings/auto/jsb_spine_auto.h
+        NO_WERROR       ${SWIG_OUTPUT}/jsb_spine_auto.cpp
+                        ${SWIG_OUTPUT}/jsb_spine_auto.h
         NO_WERROR       cocos/bindings/manual/jsb_spine_manual.cpp
                         cocos/bindings/manual/jsb_spine_manual.h
         )
@@ -2426,8 +2433,8 @@ if(USE_MIDDLEWARE)
 
         )
         cocos_source_files(
-            NO_WERROR    cocos/bindings/auto/jsb_dragonbones_auto.cpp
-                         cocos/bindings/auto/jsb_dragonbones_auto.h
+            NO_WERROR    ${SWIG_OUTPUT}/jsb_dragonbones_auto.cpp
+                         ${SWIG_OUTPUT}/jsb_dragonbones_auto.h
             NO_WERROR    cocos/bindings/manual/jsb_dragonbones_manual.cpp
                          cocos/bindings/manual/jsb_dragonbones_manual.h
         )
@@ -2807,7 +2814,7 @@ list(APPEND COCOS_SOURCE_LIST ${CC_EXTERNAL_SOURCES})
 
 ### generate source files
 
-set(CC_GENERATED_FILES
+set(COCOS_DEBUGINFO_SRC
     ${CWD}/cocos/core/builtin/DebugInfos.cpp
 )
 
@@ -2824,7 +2831,7 @@ add_custom_target(builtin-res
 set_target_properties(builtin-res PROPERTIES FOLDER Utils)
 
 
-list(APPEND COCOS_SOURCE_LIST ${CC_GENERATED_FILES})
+list(APPEND COCOS_SOURCE_LIST ${COCOS_DEBUGINFO_SRC})
 
 if(USE_MODULES)
     add_library(ccmath ${ccmath_SOURCE_LIST})
@@ -2931,6 +2938,11 @@ if(QNX)
 endif()
 
 add_library(${ENGINE_NAME} ${COCOS_SOURCE_LIST})
+
+if(CMAKE_GENERATOR STREQUAL "Xcode")
+    add_dependencies(${ENGINE_NAME} genbindings)
+endif()
+
 
 if(USE_MODULES)
     target_link_libraries(${ENGINE_NAME} PUBLIC
@@ -3091,6 +3103,8 @@ target_include_directories(${ENGINE_NAME}
         ${CWD}/cocos/platform
         ${CWD}/cocos/renderer/core
         ${CWD}/cocos/editor-support
+        ${SWIG_OUTPUT_ROOT}
+        ${SWIG_OUTPUT_ROOT}/cocos
         $<$<BOOL:USE_SE_V8>:${CWD}/cocos/bindings/jswrapper>
     PRIVATE
         ${CC_EXTERNAL_PRIVATE_INCLUDES}
@@ -3266,8 +3280,26 @@ elseif(LINUX)
     )
 endif()
 
+### set source_group for generated files
+set(COCOS_SOURCE_LIST_EXCLUDE_GENRATED ${COCOS_SOURCE_LIST})
+set(COCOS_GENERATED_LIST)
+foreach(src IN LISTS COCOS_SOURCE_LIST_EXCLUDE_GENRATED)
+    get_source_file_property(IS_GENERATED ${src} GENERATED)
+    if(IS_GENERATED) 
+        list(REMOVE_ITEM COCOS_SOURCE_LIST_EXCLUDE_GENRATED ${src})
+        list(APPEND COCOS_GENERATED_LIST ${src})
+    endif()
+endforeach()
+
+source_group(TREE ${SWIG_OUTPUT_ROOT} PREFIX "Source Files/generated" FILES ${COCOS_GENERATED_LIST})
+
+add_custom_target(genbindings
+    DEPENDS ${COCOS_GENERATED_LIST}
+)
+set_target_properties(genbindings PROPERTIES FOLDER Utils)
+
 if(USE_BUILTIN_EXTERNAL)
-    set(EXCLUDE_EXTERANL_LIST ${COCOS_SOURCE_LIST})
+    set(EXCLUDE_EXTERANL_LIST ${COCOS_SOURCE_LIST_EXCLUDE_GENRATED})
     foreach(x IN LISTS CC_EXTERNAL_SOURCES)
         list(REMOVE_ITEM EXCLUDE_EXTERANL_LIST ${x})
     endforeach()
@@ -3283,13 +3315,13 @@ if(USE_BUILTIN_EXTERNAL)
     endif()
 else()
     if(USE_XR OR USE_AR_MODULE)
-        set(EXCLUDE_XR_LIST ${COCOS_SOURCE_LIST})
+        set(EXCLUDE_XR_LIST ${COCOS_SOURCE_LIST_EXCLUDE_GENRATED})
         foreach(x IN LISTS XR_COMMON_SOURCES)
             list(REMOVE_ITEM EXCLUDE_XR_LIST ${x})
         endforeach()
         source_group(TREE ${CWD} PREFIX "Source Files" FILES ${EXCLUDE_XR_LIST})
         source_group(TREE ${XR_COMMON_PATH} PREFIX "Source Files/common" FILES ${XR_COMMON_SOURCES})
     else()
-        source_group(TREE ${CWD} PREFIX "Source Files" FILES ${COCOS_SOURCE_LIST})
+        source_group(TREE ${CWD} PREFIX "Source Files" FILES ${COCOS_SOURCE_LIST_EXCLUDE_GENRATED})
     endif()
 endif()

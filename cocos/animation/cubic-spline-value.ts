@@ -89,7 +89,8 @@ function makeCubicSplineValueConstructor<T> (
         }
     }
 
-    // TODO: This comparison appears to be unintentional because the types 'new () => T' and 'typeof Quat' have no overlap.
+    // TODO: This comparison appears to be unintentional because the types 'new () => T' and 'typeof Quat' have no overlap. @Lelie Leight
+    // Tracking issue: https://github.com/cocos/cocos-engine/issues/14640
     if (ConstructorX as any === Quat) {
         const lerp = CubicSplineValueClass.prototype.lerp;
         CubicSplineValueClass.prototype.lerp = function (this: CubicSplineValueClass, to: CubicSplineValueClass, t: number, dt: number) {

@@ -280,7 +280,7 @@ exports.ready = function() {
                     },
                 },
             ],
-            events: {
+            listeners: {
                 async confirm(detail) {
                     const info = await Editor.Message.request('asset-db', 'query-asset-info', detail.value);
                     if (!info || !info.redirect || info.redirect.type !== 'cc.Prefab') {

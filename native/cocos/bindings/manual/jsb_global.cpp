@@ -377,6 +377,16 @@ static bool JSB_getOSVersion(se::State &s) { // NOLINT
 }
 SE_BIND_FUNC(JSB_getOSVersion)
 
+static bool JSB_supportHPE(se::State &s) { // NOLINT
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
+    s.rval().setBoolean(getSupportHPE());
+#else
+    s.rval().setBoolean(false);
+#endif
+    return true;
+}
+SE_BIND_FUNC(JSB_supportHPE)
+
 static bool JSB_core_restartVM(se::State &s) { // NOLINT
     // REFINE: release AudioEngine, waiting HttpClient & WebSocket threads to exit.
     CC_CURRENT_APPLICATION()->restart();
@@ -1436,6 +1446,7 @@ bool jsb_register_global_variables(se::Object *global) { // NOLINT
     global->defineFunction("__getPlatform", _SE(JSBCore_platform));
     global->defineFunction("__getOS", _SE(JSBCore_os));
     global->defineFunction("__getOSVersion", _SE(JSB_getOSVersion));
+    global->defineFunction("__supportHPE", _SE(JSB_supportHPE));
     global->defineFunction("__getCurrentLanguage", _SE(JSBCore_getCurrentLanguage));
     global->defineFunction("__getCurrentLanguageCode", _SE(JSBCore_getCurrentLanguageCode));
     global->defineFunction("__restartVM", _SE(JSB_core_restartVM));

@@ -24,20 +24,19 @@
 ****************************************************************************/
 import importMap from './src/<%= importMapUrl%>'
 const commonJSModuleMap: Record<string, Function> = {
-    '/src/<%= applicationUrl%>'() { require('./src/<%= applicationUrl%>'); },
+    '/src/<%= applicationUrl%>'() { return import('./src/<%= applicationUrl%>'); },
 <% if (chunkBundleUrl) { %>
-    '/src/chunks/<%= chunkBundleUrl%>'() { require('./src/chunks/<%= chunkBundleUrl%>') },
+    '/src/chunks/<%= chunkBundleUrl%>'() { return import('./src/chunks/<%= chunkBundleUrl%>') },
 <% }  %> 
-<% for (var i = 0; i < ccUrls.length; i++) {%>
-    '/src/cocos-js/<%=ccUrls[i]%>' () { require('./src/cocos-js/<%=ccUrls[i]%>'); },
-<% } %> 
 <% for (var j = 0; j < bundleJsList.length; j++) {%> 
-    'assets/<%=bundleJsList[j]%>' () { require('./assets/<%=bundleJsList[j]%>'); },
+    'assets/<%=bundleJsList[j]%>' () { return import('./assets/<%=bundleJsList[j]%>'); },
 <% } %>
+    '/src/<%= systemCCUrl%>' () { return import('./src/<%= systemCCUrl%>'); },
+    '/src/settings.js' () { return import('./src/settings.js'); },
 }
 export function loadModule (name: string) {
     const moduleExecutor = commonJSModuleMap[name];
-    moduleExecutor?.();
+    return moduleExecutor?.();
 }
 declare const require: any;
 declare const System: any;
@@ -65,46 +64,48 @@ console.timeEnd = function (tag) {
 const onTouch = () => new Promise<void>(resolve => resolve())
 
 export function launchEngine (): Promise<void> {
-    return new Promise((resolve, reject) => {
-        // @ts-ignore
-        window.global = window;
-        const systemReady = require('./jsb-adapter/sys-ability-polyfill.js');
-        systemReady().then(() => {
+    // @ts-ignore
+    window.global = window;
+    // @ts-ignore
+    window.oh = {};
+    return import('./jsb-adapter/sys-ability-polyfill.js').then(({ systemReady }) => {
+        return systemReady().then(() => {
             // @ts-ignore
             window.oh.loadModule = loadModule;
-            try {
-                require("./jsb-adapter/web-adapter.js");
-            } catch (e) {
-                console.error('error in builtin ', e.stack, e.message);
-            }
-
-            require("./src/<%= systemBundleUrl%>");
-            System.warmup({
-                importMap,
-                importMapUrl: './src/<%= importMapUrl%>',
-                defaultHandler: (urlNoSchema: string) => {
-                    console.info('urlNoSchema ', urlNoSchema);
-                    loadModule(urlNoSchema);
-                },
-            });
-            System.import('./src/<%= applicationUrl%>').then(({ Application }) => {
-                return new Application();
-            }).then((application) => {
-                System.import('cc').then((cc) => {
-                    require('./jsb-adapter/engine-adapter.js');
-                    cc.macro.CLEANUP_IMAGE_CACHE = false;
-                    return application.init(cc);
-                }).then(() => {
-                    return application.start();
-                }).catch(e => {
-                    console.log('error in importing cc ' + e.stack)
+            import('./jsb-adapter/web-adapter.js').then(() => {
+                return import('./src/<%= systemBundleUrl%>').then(() => {
+                    System.warmup({
+                        importMap,
+                        importMapUrl: './src/<%= importMapUrl%>',
+                        defaultHandler: (urlNoSchema: string) => {
+                            console.info('urlNoSchema ', urlNoSchema);
+                            return loadModule(urlNoSchema);
+                        },
+                    });
+                    return System.import('./src/<%= applicationUrl%>').then(({ Application }) => {
+                        return new Application();
+                    }).then((application) => {
+                        <% if(useAotOptimization) { %>
+                        return import('./src/cocos-js/cc').then(() => {
+                        <% } %>
+                            return System.import('cc').then((cc) => {
+                                return import('./jsb-adapter/engine-adapter.js').then(() => {
+                                    cc.macro.CLEANUP_IMAGE_CACHE = false;
+                                    return application.init(cc);
+                                });
+                            }).then(() => {
+                                return application.start();
+                            });
+                        <% if(useAotOptimization) { %>
+                        });
+                        <% } %>
+                    });
                 });
-            }).catch((e: any) => {
-                console.error('imported failed', e.message, e.stack)
-                reject(e);
-            })
+            });             
         });
-    })
+    }).catch((e: any) => {
+        console.error('imported failed', e.message, e.stack)
+    });
 }
 
 

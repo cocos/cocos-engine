@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { EDITOR, TAOBAO, TAOBAO_MINIGAME } from 'internal:constants';
+import { EDITOR, TAOBAO } from 'internal:constants';
 import { Material } from '../asset/assets/material';
 import { clamp01, Mat4, Vec2, Settings, settings, sys, cclegacy, easing, preTransforms } from '../core';
 import {
@@ -70,11 +70,11 @@ export class SplashScreen {
     private isMobile = false;
 
     private bgMat!: Material;
-    private bgImage!: TexImageSource;
+    private bgImage!: HTMLImageElement;
     private bgTexture!: Texture;
 
     private logoMat!: Material;
-    private logoImage!: TexImageSource;
+    private logoImage!: HTMLImageElement;
     private logoTexture!: Texture;
 
     private watermarkMat!: Material;
@@ -125,7 +125,7 @@ export class SplashScreen {
         this._curTime = 0;
 
         // TODO: Image can't load with base64 data on Taobao platform.
-        if (EDITOR || TAOBAO || TAOBAO_MINIGAME || this.settings.base64src === '' || this.settings.totalTime <= 0) {
+        if (EDITOR || TAOBAO || this.settings.base64src === '' || this.settings.totalTime <= 0) {
             this.settings.totalTime = 0;
         } else {
             this.device = cclegacy.director.root!.device;
