@@ -64,6 +64,7 @@ public:
     void setVec4(const ccstd::string &name, const Vec4 &vec) override;
     void setVec2(const ccstd::string &name, const Vec2 &vec) override;
     void setFloat(const ccstd::string &name, float v) override;
+    void setArrayBuffer(const ccstd::string &name, const ArrayBuffer *arrayBuffer) override;
     void setBuffer(const ccstd::string &name, gfx::Buffer *buffer) override;
     void setTexture(const ccstd::string &name, gfx::Texture *texture) override;
     void setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) override;
@@ -102,6 +103,7 @@ public:
     void setVec4(const ccstd::string &name, const Vec4 &vec) override;
     void setVec2(const ccstd::string &name, const Vec2 &vec) override;
     void setFloat(const ccstd::string &name, float v) override;
+    void setArrayBuffer(const ccstd::string &name, const ArrayBuffer *arrayBuffer) override;
     void setBuffer(const ccstd::string &name, gfx::Buffer *buffer) override;
     void setTexture(const ccstd::string &name, gfx::Texture *texture) override;
     void setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) override;
@@ -141,6 +143,7 @@ public:
     void setVec4(const ccstd::string &name, const Vec4 &vec) override;
     void setVec2(const ccstd::string &name, const Vec2 &vec) override;
     void setFloat(const ccstd::string &name, float v) override;
+    void setArrayBuffer(const ccstd::string &name, const ArrayBuffer *arrayBuffer) override;
     void setBuffer(const ccstd::string &name, gfx::Buffer *buffer) override;
     void setTexture(const ccstd::string &name, gfx::Texture *texture) override;
     void setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) override;
@@ -177,6 +180,7 @@ public:
     void setVec4(const ccstd::string &name, const Vec4 &vec) override;
     void setVec2(const ccstd::string &name, const Vec2 &vec) override;
     void setFloat(const ccstd::string &name, float v) override;
+    void setArrayBuffer(const ccstd::string &name, const ArrayBuffer *arrayBuffer) override;
     void setBuffer(const ccstd::string &name, gfx::Buffer *buffer) override;
     void setTexture(const ccstd::string &name, gfx::Texture *texture) override;
     void setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) override;
@@ -217,6 +221,7 @@ public:
     void setVec4(const ccstd::string &name, const Vec4 &vec) override;
     void setVec2(const ccstd::string &name, const Vec2 &vec) override;
     void setFloat(const ccstd::string &name, float v) override;
+    void setArrayBuffer(const ccstd::string &name, const ArrayBuffer *arrayBuffer) override;
     void setBuffer(const ccstd::string &name, gfx::Buffer *buffer) override;
     void setTexture(const ccstd::string &name, gfx::Texture *texture) override;
     void setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) override;
@@ -248,6 +253,7 @@ public:
     void setVec4(const ccstd::string &name, const Vec4 &vec) override;
     void setVec2(const ccstd::string &name, const Vec2 &vec) override;
     void setFloat(const ccstd::string &name, float v) override;
+    void setArrayBuffer(const ccstd::string &name, const ArrayBuffer *arrayBuffer) override;
     void setBuffer(const ccstd::string &name, gfx::Buffer *buffer) override;
     void setTexture(const ccstd::string &name, gfx::Texture *texture) override;
     void setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) override;
@@ -759,6 +765,7 @@ public:
     void setVec4(const ccstd::string &name, const Vec4 &vec) override;
     void setVec2(const ccstd::string &name, const Vec2 &vec) override;
     void setFloat(const ccstd::string &name, float v) override;
+    void setArrayBuffer(const ccstd::string &name, const ArrayBuffer *arrayBuffer) override;
     void setBuffer(const ccstd::string &name, gfx::Buffer *buffer) override;
     void setTexture(const ccstd::string &name, gfx::Texture *texture) override;
     void setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) override;

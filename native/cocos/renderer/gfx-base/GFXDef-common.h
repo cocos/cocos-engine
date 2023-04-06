@@ -471,6 +471,7 @@ enum class TextureUsageBit : uint32_t {
     COLOR_ATTACHMENT = 0x10,
     DEPTH_STENCIL_ATTACHMENT = 0x20,
     INPUT_ATTACHMENT = 0x40,
+    SHADING_RATE = 0x80,
 };
 using TextureUsage = TextureUsageBit;
 CC_ENUM_BITWISE_OPERATORS(TextureUsageBit);
@@ -490,6 +491,7 @@ enum class FormatFeatureBit : uint32_t {
     LINEAR_FILTER = 0x4,     // Allow linear filtering when sampling in shaders or blitting
     STORAGE_TEXTURE = 0x8,   // Allow storage reads & writes in shaders
     VERTEX_ATTRIBUTE = 0x10, // Allow usages as vertex input attributes
+    SHADING_RATE = 0x20,     // Allow usages as shading rate
 };
 using FormatFeature = FormatFeatureBit;
 CC_ENUM_BITWISE_OPERATORS(FormatFeatureBit);
@@ -664,6 +666,8 @@ enum class AccessFlagBit : uint32_t {
     TRANSFER_WRITE = 1 << 24,                 // Written as the destination of a transfer operation
     HOST_PREINITIALIZED = 1 << 25,            // Data pre-filled by host before device access starts
     HOST_WRITE = 1 << 26,                     // Written on the host
+
+    SHADING_RATE = 1 << 27, // Read as a shading rate image
 };
 CC_ENUM_BITWISE_OPERATORS(AccessFlagBit);
 using AccessFlags = AccessFlagBit;
@@ -844,6 +848,8 @@ struct DeviceCaps {
     Size maxComputeWorkGroupCount;
 
     bool supportQuery{false};
+    bool supportVariableRateShading{false};
+    bool supportSubPassShading{false};
 
     float clipSpaceMinZ{-1.F};
     float screenSpaceSignY{1.F};
@@ -1308,6 +1314,7 @@ struct SubpassInfo {
 
     uint32_t depthStencil{INVALID_BINDING};
     uint32_t depthStencilResolve{INVALID_BINDING};
+    uint32_t shadingRate{INVALID_BINDING};
     ResolveMode depthResolveMode{ResolveMode::NONE};
     ResolveMode stencilResolveMode{ResolveMode::NONE};
 

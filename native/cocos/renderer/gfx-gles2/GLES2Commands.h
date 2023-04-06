@@ -231,6 +231,12 @@ void cmdFuncGLES2CopyTextureToBuffers(GLES2Device *device,
                                       const BufferTextureCopy *regions,
                                       uint32_t count);
 
+void cmdFuncGLES2CopyTexture(GLES2Device *device,
+                             GLES2GPUTexture *gpuTextureSrc,
+                             GLES2GPUTexture *gpuTextureDst,
+                             const TextureCopy *regions,
+                             uint32_t count);
+
 void cmdFuncGLES2BlitTexture(GLES2Device *device,
                              GLES2GPUTexture *gpuTextureSrc,
                              GLES2GPUTexture *gpuTextureDst,
