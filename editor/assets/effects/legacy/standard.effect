@@ -111,10 +111,8 @@ CCProgram standard-vs %{
     out mediump vec4 v_shadowBiasAndProbeId;
   #endif
 
-  #if CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND || CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND_AND_SKYBOX
-    #if USE_INSTANCING
-      out mediump vec4 v_reflectionProbeData;
-    #endif
+  #if CC_USE_REFLECTION_PROBE && USE_INSTANCING
+    out mediump vec4 v_reflectionProbeData;
   #endif
 
   #if USE_NORMAL_MAP
@@ -151,11 +149,8 @@ CCProgram standard-vs %{
         v_shadowBiasAndProbeId.zw = cc_localShadowBias.zw;
       #endif
     #endif
-
-    #if CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND || CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND_AND_SKYBOX
-      #if USE_INSTANCING
+    #if CC_USE_REFLECTION_PROBE && USE_INSTANCING
         v_reflectionProbeData = a_reflectionProbeData;
-      #endif
     #endif
 
     #if USE_TWOSIDE
@@ -216,10 +211,8 @@ CCProgram standard-fs %{
     in mediump vec4 v_shadowBiasAndProbeId;
   #endif
 
-  #if CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND || CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND_AND_SKYBOX
-    #if USE_INSTANCING
-      in mediump vec4 v_reflectionProbeData;
-    #endif
+  #if CC_USE_REFLECTION_PROBE && USE_INSTANCING
+    in mediump vec4 v_reflectionProbeData;
   #endif
 
   #if USE_VERTEX_COLOR
