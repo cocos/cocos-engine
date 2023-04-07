@@ -4,24 +4,27 @@ CCEffect %{
   techniques:
   - passes:
     - vert: blur-vs
-      frag: SSSSblurX-fs
-      pass: SSSSblurX
+      frag: copy-fs
+      pass: copy-pass
+      depthTest: false
+      depthWrite: false
+    - vert: blur-vs
+      frag: ssssBlurX-fs
+      pass: ssss-blurX
       depthStencilState:
         depthTest: false
         depthWrite: false
         stencilTestFront: true
         stencilFuncFront: equal
-        stencilPassOpFront: replace
         stencilRef: 0x78 # [0~255],use 120
     - vert: blur-vs
-      frag: SSSSblurY-fs
-      pass: SSSSblurY
+      frag: ssssBlurY-fs
+      pass: ssss-blurY
       depthStencilState:
         depthTest: false
         depthWrite: false
         stencilTestFront: true
         stencilFuncFront: equal
-        stencilPassOpFront: replace
         stencilRef: 0x78 # [0~255],use 120
 }%
 
@@ -43,8 +46,29 @@ CCProgram blur-vs %{
   }
 }%
 
-CCProgram SSSSBlur %{
+CCProgram copy-fs %{
+  precision highp float;
+  #include <builtin/uniforms/cc-global>
+  #include <common/data/packing>
+
+  #pragma rate depthRaw pass
+  uniform sampler2D depthRaw;
+
+  in vec2 v_uv;
+
+  layout(location = 0) out vec4 fragColor;
+
+  void main() {
+    float depth = texture(depthRaw, v_uv).r;
+    fragColor = packDepthToRGBA(depth);
+  }
+}%
+
+CCProgram ssssBlur %{
+  precision highp float;
   #include <number>
+  #include <common/data/packing>
+  #include <common/color/gamma>
 
   #pragma define NUMKERNEL 28
 
@@ -65,7 +89,7 @@ CCProgram SSSSBlur %{
    *   - First pass:   float2(1.0, 0.0)
    *   - Second pass:  float2(0.0, 1.0)
    */
-  vec4 SSSSBlur(vec2 texcoord, vec2 dir) {
+  vec4 blur(vec2 texcoord, vec2 dir) {
     // This parameter specifies the global level of subsurface scattering
     // or, in other words, the width of the filter. It's specified in
     // world space units.
@@ -73,6 +97,7 @@ CCProgram SSSSBlur %{
     // Fetch color of current pixel:
     // Use Sample_Point_Clamp
     vec4 colorM = texture(colorTex, texcoord);
+    colorM = vec4(SRGBToLinear(colorM.rgb), colorM.a);
 
     //如果出现把旁边不属于皮肤的地方也糊出来了（星星状的亮线）,请改此处,使其能得到正确的ssss强度(ssss标记)
 	  //正常情况,4s物体的像素,a通道给0表示标记,正常物体a通道会输出1
@@ -82,7 +107,7 @@ CCProgram SSSSBlur %{
 
     // Fetch linear depth of current pixel:
     // Use Sample_Point_Clamp
-    float depthM = texture(depthTex, texcoord).r;
+    float depthM = unpackRGBAToDepth(texture(depthTex, texcoord));
 
     // Calculate the ssssWidth scale (1.0 for a unit plane sitting on the
     // projection window):
@@ -107,49 +132,51 @@ CCProgram SSSSBlur %{
       //如果有糊出来的星星状的亮线,可以尝试把这个改成point采样来修复
       // Use Sample_Point_Clamp
       vec4 color = texture(colorTex, offset);
+      color = vec4(SRGBToLinear(color.rgb), color.a);
 
       //此时要当心是否会采到无理数(场景颜色为浮点格式时),有的话就跳过,否则会糊出黑块或亮块
 		  //if (isnan(dot(color, color)) || isinf(dot(color, color))) continue;
 
       // If the difference in depth is huge, we lerp color back to "colorM":
-      float depth = texture(depthTex, offset).r;
+      float depth = unpackRGBAToDepth(texture(depthTex, offset));
       float s = saturate(300.0 / blurInfo.z * distanceToProjectionWindow *
                                ssssWidth * abs(depthM - depth));
       color.rgb = mix(color.rgb, colorM.rgb, s);
 
       // Accumulate:
       //如果采到非SSSS区域,则使用中心点的颜色来代替,不能不叠加此点的贡献,这样会形成暗边
-      colorBlurred.rgb = kernel[i].rgb * mix(colorM.rgb, color.rgb, SSSS_STRENGTH_SOURCE_INLOOP);
+      colorBlurred.rgb += kernel[i].rgb * mix(colorM.rgb, color.rgb, SSSS_STRENGTH_SOURCE_INLOOP);
     }
 
+    colorBlurred = vec4(LinearToSRGB(colorBlurred.rgb), colorBlurred.a);
     return colorBlurred;
   }
 }%
 
-CCProgram SSSSblurX-fs %{
+CCProgram ssssBlurX-fs %{
   precision highp float;
   #include <builtin/uniforms/cc-global>
-  #include <SSSSBlur>
+  #include <ssssBlur>
 
   in vec2 v_uv;
 
   layout(location = 0) out vec4 fragColor;
 
   void main() {
-    fragColor = SSSSBlur(v_uv, vec2(1.0, 0.0));
+    fragColor = blur(v_uv, vec2(1.0, 0.0));
   }
 }%
 
-CCProgram SSSSblurY-fs %{
+CCProgram ssssBlurY-fs %{
   precision highp float;
   #include <builtin/uniforms/cc-global>
-  #include <SSSSBlur>
+  #include <ssssBlur>
 
   in vec2 v_uv;
 
   layout(location = 0) out vec4 fragColor;
 
   void main() {
-    fragColor = SSSSBlur(v_uv, vec2(0.0, 1.0));
+    fragColor = blur(v_uv, vec2(0.0, 1.0));
   }
 }%
