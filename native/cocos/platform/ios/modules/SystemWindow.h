@@ -43,7 +43,6 @@ public:
      @brief enable/disable(lock) the cursor, default is enabled
      */
     void setCursorEnabled(bool value) override;
-    void copyTextToClipboard(const std::string& text) override;
 
     uint32_t getWindowId() const override { return _windowId; }
     UIWindow* getUIWindow() const { return _window; }

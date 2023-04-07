@@ -29,7 +29,6 @@
 #include "engine/EngineEvents.h"
 #include "platform/SDLHelper.h"
 #include "platform/win32/WindowsPlatform.h"
-#include "sdl2/SDL_clipboard.h"
 
 namespace cc {
 SystemWindow::SystemWindow(uint32_t windowId, void *externalHandle)
@@ -89,10 +88,6 @@ uintptr_t SystemWindow::getWindowHandle() const {
 
 void SystemWindow::setCursorEnabled(bool value) {
     SDLHelper::setCursorEnabled(value);
-}
-
-void SystemWindow::copyTextToClipboard(const ccstd::string &text) {
-    SDL_SetClipboardText(text.c_str());
 }
 
 SystemWindow::Size SystemWindow::getViewSize() const {
