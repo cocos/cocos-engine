@@ -1584,8 +1584,6 @@ auto getResourceStatus(PassType passType, const PmrString &name, gfx::MemoryAcce
             bool depthStencilFlag = (desc.flags & ResourceFlags::DEPTH_STENCIL_ATTACHMENT) != ResourceFlags::NONE;
             bool shadingRateAttachment = (desc.flags & ResourceFlags::SHADING_RATE) != ResourceFlags::NONE;
 
-//            CC_EXPECTS(outColorFlag ^ depthStencilFlag);
-
             inputFlag &= gfx::hasFlag(memAccess, gfx::MemoryAccess::READ_ONLY);
 
             if (outColorFlag) texUsage |= gfx::TextureUsage::COLOR_ATTACHMENT;
@@ -1597,7 +1595,6 @@ auto getResourceStatus(PassType passType, const PmrString &name, gfx::MemoryAcce
             if (memAccess == gfx::MemoryAccess::READ_ONLY) {
                 if ((desc.flags & ResourceFlags::INPUT_ATTACHMENT) != ResourceFlags::NONE) {
                     texUsage |= (static_cast<gfx::TextureUsage>(desc.flags) & (gfx::TextureUsage::COLOR_ATTACHMENT | gfx::TextureUsage::COLOR_ATTACHMENT | gfx::TextureUsage::DEPTH_STENCIL_ATTACHMENT));
-                    // CC_ASSERT(false); // won't happen
                 } else {
                     texUsage |= (static_cast<gfx::TextureUsage>(desc.flags) & (gfx::TextureUsage::SAMPLED | gfx::TextureUsage::STORAGE | gfx::TextureUsage::SHADING_RATE));
                 }

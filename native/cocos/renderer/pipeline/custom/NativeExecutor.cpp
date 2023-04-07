@@ -258,7 +258,6 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
                     [&](const RenderSwapchain& sc) {
                         fbInfo.colorTextures.emplace_back(sc.swapchain->getColorTexture());
                     });
-//                CC_ENSURES(rpInfo.colorAttachments.size() == subpass.colors.size());
                 CC_ENSURES(rpInfo.colorAttachments.size() == data.clearColors.size());
                 CC_ENSURES(rpInfo.colorAttachments.size() == fbInfo.colorTextures.size());
             } else if (view.attachmentType == AttachmentType::DEPTH_STENCIL) { // DepthStencil
@@ -1200,8 +1199,8 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
             CC_ENSURES(srcTexture);
             CC_ENSURES(dstTexture);
 
-            auto &srcInfo = srcTexture->getInfo();
-            auto &dstInfo = dstTexture->getInfo();
+            const auto &srcInfo = srcTexture->getInfo();
+            const auto &dstInfo = dstTexture->getInfo();
             CC_ENSURES(srcInfo.width == dstInfo.width);
             CC_ENSURES(srcInfo.height == dstInfo.height);
             CC_ENSURES(srcInfo.depth == dstInfo.depth);

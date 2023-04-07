@@ -422,8 +422,8 @@ void CommandBufferValidator::copyTexture(Texture *srcTexture, Texture *dstTextur
     CC_ASSERT(isInited());
     CC_ASSERT(srcTexture && static_cast<TextureValidator *>(srcTexture)->isInited());
     CC_ASSERT(dstTexture && static_cast<TextureValidator *>(dstTexture)->isInited());
-    auto &srcInfo = srcTexture->getInfo();
-    auto &dstInfo = dstTexture->getInfo();
+    const auto &srcInfo = srcTexture->getInfo();
+    const auto &dstInfo = dstTexture->getInfo();
 
     CC_ASSERT(!_insideRenderPass);
 

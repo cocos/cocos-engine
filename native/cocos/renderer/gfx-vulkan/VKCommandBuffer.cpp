@@ -514,13 +514,10 @@ void CCVKCommandBuffer::copyTexture(Texture *srcTexture, Texture *dstTexture, co
     VkImage srcImage = VK_NULL_HANDLE;
     VkImage dstImage = VK_NULL_HANDLE;
 
-    auto getImage = [](Texture *texture) -> auto {
+    auto getImage = [](Texture *texture) -> auto{
         CCVKGPUTexture *gpuTexture = static_cast<CCVKTexture *>(texture)->gpuTexture();
-        if (gpuTexture->swapchain) {
-            return std::pair{gpuTexture->aspectMask, gpuTexture->swapchainVkImages[gpuTexture->swapchain->curImageIndex]};
-        } else {
-            return std::pair{gpuTexture->aspectMask, gpuTexture->vkImage};
-        }
+        return gpuTexture->swapchain ? std::pair{gpuTexture->aspectMask, gpuTexture->swapchainVkImages[gpuTexture->swapchain->curImageIndex]} :
+            std::pair{gpuTexture->aspectMask, gpuTexture->vkImage};
     };
 
     std::tie(srcAspectMask, srcImage) = getImage(srcTexture);
@@ -843,7 +840,7 @@ void CCVKCommandBuffer::pipelineBarrier(const GeneralBarrier *barrier, const Buf
                 _barrierEvents.erase(textures[index]);
                 _availableEvents.push(event);
             }
-            
+
             for (size_t i = 0; i < splitBufferBarriers.size(); ++i) { // NOLINT (range-based-for)
                 auto index = splitBufferBarriers[i].first;
                 VkEvent event = _barrierEvents.at(buffers[index]);

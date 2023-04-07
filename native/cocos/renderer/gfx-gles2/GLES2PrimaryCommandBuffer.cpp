@@ -157,7 +157,7 @@ void GLES2PrimaryCommandBuffer::copyTexture(Texture *srcTexture, Texture *dstTex
     ccstd::vector<TextureBlit> blitRegions(count);
     for (uint32_t i = 0; i < count; ++i) {
         auto &blit = blitRegions[i];
-        auto &copy = regions[i];
+        const auto &copy = regions[i];
 
         blit.srcSubres = copy.srcSubres;
         blit.dstSubres = copy.dstSubres;
