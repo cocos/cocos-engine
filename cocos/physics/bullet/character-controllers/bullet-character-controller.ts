@@ -40,7 +40,7 @@ const v3_1 = new Vec3(0, 0, 0);
 const v3_2 = new Vec3(0, 0, 0);
 export abstract class BulletCharacterController implements IBaseCharacterController {
     private _isEnabled = false;
-    protected _impl: any = null;
+    protected _impl: any = null; //btCapsuleCharacterController
     protected _comp: CharacterController = null as any;
     private _btCollisionFlags = 0;//: PX.PxControllerCollisionFlags;
     private _filterData: any;
@@ -90,6 +90,7 @@ export abstract class BulletCharacterController implements IBaseCharacterControl
             error('[Physics]: BulletCharacterController Initialize createCapsuleCharacterController Failed');
             return false;
         } else {
+            this.setDetectCollisions(this._comp.detectCollisions);
             (PhysicsSystem.instance.physicsWorld as BulletWorld).addCCT(this);
             this.setWrapper();
             return true;
@@ -146,6 +147,10 @@ export abstract class BulletCharacterController implements IBaseCharacterControl
 
     setSlopeLimit (value: number): void {
         // this._impl.setSlopeLimit(value);
+    }
+
+    setDetectCollisions (value: boolean): void {
+        bt.CharacterController_setCollision(this.impl, value);
     }
 
     onGround (): boolean {

@@ -251,7 +251,7 @@ export class BulletWorld implements IPhysicsWorld {
 
             const cctGhost = bt.CharacterController_getGhostObject(cct.impl);
             bt.CollisionWorld_addCollisionObject(this._world, cctGhost, cct.getGroup(), cct.getMask());
-            //bt.CollisionWorld_addCollisionObject(this._world, cctGhost, -1, -1);
+            bt.DynamicsWorld_addAction(this._world, cct.impl);
         }
     }
 
@@ -262,6 +262,7 @@ export class BulletWorld implements IPhysicsWorld {
             js.array.fastRemoveAt(this.ccts, index);
             const cctGhost = bt.CharacterController_getGhostObject(cct.impl);
             bt.CollisionWorld_removeCollisionObject(this._world, cctGhost);
+            bt.DynamicsWorld_removeAction(this._world, cct.impl);
         }
     }
 

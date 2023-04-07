@@ -79,7 +79,7 @@ export class PhysXCharacterController implements IBaseCharacterController {
             error('[Physics]: PhysXCharacterController Initialize createCapsuleCharacterController Failed');
             return false;
         } else {
-            this._impl.setCollision(this._comp.detectCollisions);
+            this.setDetectCollisions(this._comp.detectCollisions);
             (PhysicsSystem.instance.physicsWorld as PhysXWorld).addCCT(this);
             return true;
         }
