@@ -1158,8 +1158,9 @@ void cmdFuncCCVKCreateGraphicsPipelineState(CCVKDevice *device, CCVKGPUPipelineS
 
     ///////////////////// ShadingRate /////////////////////
     VkPipelineFragmentShadingRateStateCreateInfoKHR shadingRateInfo = {VK_STRUCTURE_TYPE_PIPELINE_FRAGMENT_SHADING_RATE_STATE_CREATE_INFO_KHR};
-    if (device->getCapabilities().supportVariableRateShading) {
-        shadingRateInfo.fragmentSize = {1, 1}; // per draw shading rate not support.s
+    if (device->getCapabilities().supportVariableRateShading &&
+        gpuPipelineState->gpuRenderPass->hasShadingAttachment(gpuPipelineState->subpass)) {
+        shadingRateInfo.fragmentSize = {1, 1}; // perDraw && perVertex shading rate not support.
         shadingRateInfo.combinerOps[0] = VK_FRAGMENT_SHADING_RATE_COMBINER_OP_KEEP_KHR;
         shadingRateInfo.combinerOps[1] = VK_FRAGMENT_SHADING_RATE_COMBINER_OP_REPLACE_KHR;
         createInfo.pNext = &shadingRateInfo;
@@ -1586,6 +1587,12 @@ const CCVKGPUGeneralBarrier *CCVKGPURenderPass::getBarrier(size_t index, CCVKGPU
         return colorAttachments[index].barrier ? static_cast<CCVKGeneralBarrier *>(colorAttachments[index].barrier)->gpuBarrier() : &gpuDevice->defaultColorBarrier;
     }
     return depthStencilAttachment.barrier ? static_cast<CCVKGeneralBarrier *>(depthStencilAttachment.barrier)->gpuBarrier() : &gpuDevice->defaultDepthStencilBarrier;
+}
+
+bool CCVKGPURenderPass::hasShadingAttachment(uint32_t subPassId) const
+{
+        CC_ASSERT(subPassId < subpasses.size());
+        return subpasses[subPassId].shadingRate != INVALID_BINDING;
 }
 
 VkSampleCountFlagBits CCVKGPUContext::getSampleCountForAttachments(Format format, VkFormat vkFormat, SampleCount sampleCount) const {
