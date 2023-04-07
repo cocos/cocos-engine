@@ -26,6 +26,7 @@ import { Asset } from '../assets';
 import { js, cclegacy } from '../../core';
 import Cache from './cache';
 import { decodeUuid, normalize } from './helper';
+import { legacyCC } from '../../core/global-exports';
 
 export interface IConfigOption {
     importBase: string;
@@ -147,7 +148,7 @@ const isMatchByWord = (path: string, test: string): boolean => {
 };
 
 const processOptions = (options: IConfigOption) => {
-    if (EDITOR || TEST) { return; }
+    if ((EDITOR && !legacyCC.GAME_VIEW) || TEST) { return; }
     let uuids = options.uuids;
     const paths = options.paths;
     const types = options.types;
