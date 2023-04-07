@@ -845,7 +845,7 @@ void buildBarriers(FrameGraphDispatcher &fgDispatcher) {
                             blockFrontBarrier.emplace_back(firstMeetBarrier);
                         }
                     }
-                    
+
                 }
                 status = status->nextSubpass;
             }
@@ -1604,7 +1604,7 @@ auto getResourceStatus(PassType passType, const PmrString &name, gfx::MemoryAcce
             } else {
                 texUsage |= (static_cast<gfx::TextureUsage>(desc.flags) & (gfx::TextureUsage::COLOR_ATTACHMENT | gfx::TextureUsage::DEPTH_STENCIL_ATTACHMENT | gfx::TextureUsage::STORAGE));
             }
-            
+
             vis = visibility;
             CC_ASSERT(vis != gfx::ShaderStageFlags::NONE);
         }
@@ -1762,6 +1762,7 @@ gfx::ShaderStageFlagBit getVisibilityByDescName(const RenderGraph& renderGraph, 
 
     // unreachable
     CC_EXPECTS(false);
+    return gfx::ShaderStageFlagBit::NONE;
 };
 
 bool checkRasterViews(const Graphs &graphs, uint32_t vertID, uint32_t passID, PassType passType, ResourceAccessNode &node, const RasterViewsMap &rasterViews) {

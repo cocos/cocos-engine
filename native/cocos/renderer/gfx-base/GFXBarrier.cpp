@@ -33,23 +33,24 @@ namespace gfx {
 namespace {
 
 template <unsigned char... indices>
-constexpr unsigned long long setbit() {
-    return ((1ull << indices) | ... | 0ull);
+constexpr uint64_t setbit() {
+    return ((1ULL << indices) | ... | 0ULL);
 }
 
 template <typename T, size_t... indices>
-constexpr unsigned long long setbits(const std::integer_sequence<T, indices...>& int_seq) {
+constexpr uint64_t setbits(const std::integer_sequence<T, indices...>& intSeq) {
+    std::ignore = intSeq;
     return setbit<indices...>();
 }
 
 template <std::size_t N>
-constexpr unsigned long long setbits() {
+constexpr uint64_t setbits() {
     using index_seq = std::make_index_sequence<N>;
     return setbits(index_seq{});
 }
 
 template <unsigned char first, unsigned char end>
-constexpr unsigned long long setbitBetween() {
+constexpr uint64_t setbitBetween() {
     static_assert(first >= end);
     return setbits<first>() ^ setbits<end>();
 }
@@ -151,11 +152,11 @@ struct AccessElem {
 
 #define OPERABLE(val) static_cast<std::underlying_type<decltype(val)>::type>(val)
 
-constexpr uint8_t CommonUsageCount = highestBitPosOffset<OPERABLE(CommonUsage::LAST_ONE)>();
-constexpr uint8_t ShaderStageReserveCount = 6;
-constexpr uint8_t ResourceTypeCount = 2;
-constexpr uint8_t MemTypeCount = 2;
-constexpr uint8_t AccessTypeCount = 2;
+constexpr uint8_t COMMON_USAGE_COUNT = highestBitPosOffset<OPERABLE(CommonUsage::LAST_ONE)>();
+constexpr uint8_t SHADER_STAGE_RESERVE_COUNT = 6;
+constexpr uint8_t RESOURCE_TYPE_COUNT = 2;
+constexpr uint8_t MEM_TYPE_COUNT = 2;
+constexpr uint8_t ACCESS_TYPE_COUNT = 2;
 
 constexpr auto CMN_NONE = OPERABLE(CommonUsage::NONE);
 constexpr auto CMN_COPY_SRC = OPERABLE(CommonUsage::COPY_SRC);
@@ -167,28 +168,28 @@ constexpr auto CMN_VB_OR_DS = OPERABLE(CommonUsage::VB_OR_DS);
 constexpr auto CMN_INDIRECT_OR_INPUT = OPERABLE(CommonUsage::INDIRECT_OR_INPUT);
 constexpr auto CMN_SHADING_RATE = OPERABLE(CommonUsage::SHADING_RATE);
 
-constexpr auto ShaderStageBitPos = CommonUsageCount;
+constexpr auto SHADER_STAGE_BIT_POPS = COMMON_USAGE_COUNT;
 constexpr auto SHADERSTAGE_NONE = 0;
-constexpr auto SHADERSTAGE_VERT = 1 << (0 + ShaderStageBitPos);
-constexpr auto SHADERSTAGE_CTRL = 1 << (1 + ShaderStageBitPos);
-constexpr auto SHADERSTAGE_EVAL = 1 << (2 + ShaderStageBitPos);
-constexpr auto SHADERSTAGE_GEOM = 1 << (3 + ShaderStageBitPos);
-constexpr auto SHADERSTAGE_FRAG = 1 << (4 + ShaderStageBitPos);
-constexpr auto SHADERSTAGE_COMP = 1 << (5 + ShaderStageBitPos);
+constexpr auto SHADERSTAGE_VERT = 1 << (0 + SHADER_STAGE_BIT_POPS);
+constexpr auto SHADERSTAGE_CTRL = 1 << (1 + SHADER_STAGE_BIT_POPS);
+constexpr auto SHADERSTAGE_EVAL = 1 << (2 + SHADER_STAGE_BIT_POPS);
+constexpr auto SHADERSTAGE_GEOM = 1 << (3 + SHADER_STAGE_BIT_POPS);
+constexpr auto SHADERSTAGE_FRAG = 1 << (4 + SHADER_STAGE_BIT_POPS);
+constexpr auto SHADERSTAGE_COMP = 1 << (5 + SHADER_STAGE_BIT_POPS);
 
-constexpr auto ResourceTypeBitPos = CommonUsageCount + ShaderStageReserveCount;
-constexpr auto RES_TEXTURE = OPERABLE(ResourceType::TEXTURE) << ResourceTypeBitPos;
-constexpr auto RES_BUFFER = OPERABLE(ResourceType::BUFFER) << ResourceTypeBitPos;
+constexpr auto RESOURCE_TYPE_BIT_POS = COMMON_USAGE_COUNT + SHADER_STAGE_RESERVE_COUNT;
+constexpr auto RES_TEXTURE = OPERABLE(ResourceType::TEXTURE) << RESOURCE_TYPE_BIT_POS;
+constexpr auto RES_BUFFER = OPERABLE(ResourceType::BUFFER) << RESOURCE_TYPE_BIT_POS;
 
-constexpr auto MemTypeBitPos = CommonUsageCount + ShaderStageReserveCount + ResourceTypeCount;
-constexpr auto MEM_HOST = OPERABLE(MemoryUsage::HOST) << MemTypeBitPos;
-constexpr auto MEM_DEVICE = OPERABLE(MemoryUsage::DEVICE) << MemTypeBitPos;
+constexpr auto MEM_TYPE_BIT_POS = COMMON_USAGE_COUNT + SHADER_STAGE_RESERVE_COUNT + RESOURCE_TYPE_COUNT;
+constexpr auto MEM_HOST = OPERABLE(MemoryUsage::HOST) << MEM_TYPE_BIT_POS;
+constexpr auto MEM_DEVICE = OPERABLE(MemoryUsage::DEVICE) << MEM_TYPE_BIT_POS;
 
-constexpr auto AccessTypeBitPos = CommonUsageCount + ShaderStageReserveCount + ResourceTypeCount + MemTypeCount;
-constexpr auto ACCESS_WRITE = OPERABLE(MemoryAccess::WRITE_ONLY) << AccessTypeBitPos;
-constexpr auto ACCESS_READ = OPERABLE(MemoryAccess::READ_ONLY) << AccessTypeBitPos;
+constexpr auto ACCESS_TYPE_BIT_POS = COMMON_USAGE_COUNT + SHADER_STAGE_RESERVE_COUNT + RESOURCE_TYPE_COUNT + MEM_TYPE_COUNT;
+constexpr auto ACCESS_WRITE = OPERABLE(MemoryAccess::WRITE_ONLY) << ACCESS_TYPE_BIT_POS;
+constexpr auto ACCESS_READ = OPERABLE(MemoryAccess::READ_ONLY) << ACCESS_TYPE_BIT_POS;
 
-constexpr uint8_t UsedBitCount = CommonUsageCount + ShaderStageReserveCount + ResourceTypeCount + MemTypeCount + AccessTypeCount;
+constexpr uint8_t USED_BIT_COUNT = COMMON_USAGE_COUNT + SHADER_STAGE_RESERVE_COUNT + RESOURCE_TYPE_COUNT + MEM_TYPE_COUNT + ACCESS_TYPE_COUNT;
 // 20 and above :reserved
 // 18 ~ 19: MemoryAccess
 // 16 ~ 17: MemoryUsage
@@ -197,11 +198,11 @@ constexpr uint8_t UsedBitCount = CommonUsageCount + ShaderStageReserveCount + Re
 // 0 ~ 7: CommonUsage
 
 constexpr uint32_t CARE_NONE = 0x0;
-constexpr uint32_t CARE_CMNUSAGE = setbitBetween<ShaderStageBitPos, 0>();
-constexpr uint32_t CARE_SHADERSTAGE = setbitBetween<ResourceTypeBitPos, ShaderStageBitPos>();
-constexpr uint32_t CARE_RESTYPE = setbitBetween<MemTypeBitPos, ResourceTypeBitPos>();
-constexpr uint32_t CARE_MEMUSAGE = setbitBetween<AccessTypeBitPos, MemTypeBitPos>();
-constexpr uint32_t CARE_MEMACCESS = setbitBetween<UsedBitCount, AccessTypeBitPos>();
+constexpr uint32_t CARE_CMNUSAGE = setbitBetween<SHADER_STAGE_BIT_POPS, 0>();
+constexpr uint32_t CARE_SHADERSTAGE = setbitBetween<RESOURCE_TYPE_BIT_POS, SHADER_STAGE_BIT_POPS>();
+constexpr uint32_t CARE_RESTYPE = setbitBetween<MEM_TYPE_BIT_POS, RESOURCE_TYPE_BIT_POS>();
+constexpr uint32_t CARE_MEMUSAGE = setbitBetween<ACCESS_TYPE_BIT_POS, MEM_TYPE_BIT_POS>();
+constexpr uint32_t CARE_MEMACCESS = setbitBetween<USED_BIT_COUNT, ACCESS_TYPE_BIT_POS>();
 
 constexpr uint32_t IGNORE_NONE = 0xFFFFFFFF;
 constexpr uint32_t IGNORE_CMNUSAGE = ~CARE_CMNUSAGE;
@@ -370,10 +371,10 @@ constexpr AccessFlags getAccessFlagsImpl(
     CommonUsage cmnUsage = bufferUsageToCommonUsage(usage);
     if (validateAccess(ResourceType::BUFFER, cmnUsage, access, visibility)) {
         uint32_t info = 0xFFFFFFFF;
-        info &= ((OPERABLE(access) << AccessTypeBitPos) | IGNORE_MEMACCESS);
-        info &= ((OPERABLE(memUsage) << MemTypeBitPos) | IGNORE_MEMUSAGE);
-        info &= ((OPERABLE(ResourceType::TEXTURE) << ResourceTypeBitPos) | IGNORE_RESTYPE);
-        info &= ((OPERABLE(visibility) << ShaderStageBitPos) | IGNORE_SHADERSTAGE);
+        info &= ((OPERABLE(access) << ACCESS_TYPE_BIT_POS) | IGNORE_MEMACCESS);
+        info &= ((OPERABLE(memUsage) << MEM_TYPE_BIT_POS) | IGNORE_MEMUSAGE);
+        info &= ((OPERABLE(ResourceType::TEXTURE) << RESOURCE_TYPE_BIT_POS) | IGNORE_RESTYPE);
+        info &= ((OPERABLE(visibility) << SHADER_STAGE_BIT_POPS) | IGNORE_SHADERSTAGE);
         info &= OPERABLE(cmnUsage) | IGNORE_CMNUSAGE;
 
         for (const auto& elem : ACCESS_MAP) {
@@ -401,10 +402,10 @@ constexpr AccessFlags getAccessFlagsImpl(
             return gfx::AccessFlagBit::PRESENT;
         }
         uint32_t info = 0xFFFFFFFF;
-        info &= ((OPERABLE(access) << AccessTypeBitPos) | IGNORE_MEMACCESS);
-        info &= ((OPERABLE(MemoryUsage::DEVICE) << MemTypeBitPos) | IGNORE_MEMUSAGE);
-        info &= ((OPERABLE(ResourceType::TEXTURE) << ResourceTypeBitPos) | IGNORE_RESTYPE);
-        info &= ((OPERABLE(visibility) << (ShaderStageBitPos)) | IGNORE_SHADERSTAGE);
+        info &= ((OPERABLE(access) << ACCESS_TYPE_BIT_POS) | IGNORE_MEMACCESS);
+        info &= ((OPERABLE(MemoryUsage::DEVICE) << MEM_TYPE_BIT_POS) | IGNORE_MEMUSAGE);
+        info &= ((OPERABLE(ResourceType::TEXTURE) << RESOURCE_TYPE_BIT_POS) | IGNORE_RESTYPE);
+        info &= ((OPERABLE(visibility) << (SHADER_STAGE_BIT_POPS)) | IGNORE_SHADERSTAGE);
         info &= OPERABLE(cmnUsage) | IGNORE_CMNUSAGE;
 
         for (const auto& elem : ACCESS_MAP) {
