@@ -603,7 +603,8 @@ export class ReflectionProbeManager {
             const d1 = Vec3.distance(model.node.worldPosition, probe.node.worldPosition);
             const d2 = Vec3.distance(model.node.worldPosition, blendProbe.node.worldPosition);
             return 1.0 - d2 / (d1 + d2);
-        } else if (model.reflectionProbeType === ReflectionProbeType.BLEND_PROBES) {
+        }
+        if (model.reflectionProbeType === ReflectionProbeType.BLEND_PROBES) {
             return 0.0;
         } else if (model.reflectionProbeType === ReflectionProbeType.BLEND_PROBES_AND_SKYBOX) {
             return this._calculateBlendOfSkybox(model.worldBounds, probe.boundingBox!);

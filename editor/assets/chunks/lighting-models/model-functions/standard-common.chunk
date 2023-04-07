@@ -84,7 +84,7 @@ vec3 SampleEnvironmentSpecular(samplerCube tex, in LightingIntermediateData ligh
     return envSpec;
 }
 
-vec3 SampleEnvironmentSpecular(samplerCube tex, in LightingIntermediateData lightingData, float mipCount, vec3 worldPos, vec3 cubeCenterPos, vec3 boxHalfSize ,bool isRGBE)
+vec3 SampleEnvironmentSpecular(samplerCube tex, in LightingIntermediateData lightingData, float mipCount, vec3 worldPos, vec3 cubeCenterPos, vec3 boxHalfSize, bool isRGBE)
 {
     vec3 envSpec = vec3(0.0);
     float roughness = lightingData.specularParam;
@@ -158,7 +158,7 @@ vec3 CalculateEnvironmentSpecular(in LightingIntermediateData lightingData, floa
 
   #if CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_CUBE
     if(FSInput_reflectionProbeId < 0.0){
-        envSpec = SampleEnvironmentSpecular(cc_reflectionProbeCubemap, lightingData, cc_ambientGround.w);
+        envSpec = SampleEnvironmentSpecular(cc_environment, lightingData, cc_ambientGround.w);
     }else{
       vec3 centerPos, boxHalfSize;
       float mipCount;
@@ -180,7 +180,7 @@ vec3 CalculateEnvironmentSpecular(in LightingIntermediateData lightingData, floa
     }
   #elif CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND || CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND_AND_SKYBOX
     if(FSInput_reflectionProbeId < 0.0){
-        envSpec = SampleEnvironmentSpecular(cc_reflectionProbeCubemap, lightingData, cc_ambientGround.w);
+        envSpec = SampleEnvironmentSpecular(cc_environment, lightingData, cc_ambientGround.w);
     }else{
       vec3 centerPos, boxHalfSize;
       float mipCount;
@@ -198,9 +198,7 @@ vec3 CalculateEnvironmentSpecular(in LightingIntermediateData lightingData, floa
       {
         #if CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND_AND_SKYBOX
           //blend with skybox
-          #if CC_USE_IBL
-            envSpec = mix(envSpec, SampleEnvironmentSpecular(cc_environment, lightingData, cc_ambientGround.w).rgb, blendFactor);
-          #endif
+          envSpec = mix(envSpec, SampleEnvironmentSpecular(cc_environment, lightingData, cc_ambientGround.w).rgb, blendFactor);
         #endif 
       }else{
         vec3 centerPosBlend, boxHalfSizeBlend;

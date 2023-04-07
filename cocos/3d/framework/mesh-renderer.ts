@@ -705,7 +705,7 @@ export class MeshRenderer extends ModelRenderer {
         }
         this.bakeSettings._probeCubemap = cubeMap;
         if (this.model !== null) {
-            //Use skybox if the reflection probe is not baked or if the object is not in the range of the reflection probe
+            //Use skybox if the reflection probe is not baked or the object is not in the range of the reflection probe
             let cubeMap = this.bakeSettings._probeCubemap;
             if (!cubeMap && this.node.scene && !useDefaultTexture) {
                 cubeMap = this.node.scene._globals.skybox.envmap;
@@ -719,7 +719,7 @@ export class MeshRenderer extends ModelRenderer {
         }
         this.bakeSettings._probeBlendCubemap = cubeMap;
         if (this.model !== null) {
-            //Use skybox if the reflection probe is not baked or if the object is not in the range of the reflection probe
+            //Use skybox if the reflection probe is not baked or the object is not in the range of the reflection probe
             let cubeMap = this.bakeSettings._probeBlendCubemap;
             if (!cubeMap && this.node.scene) {
                 cubeMap = this.node.scene._globals.skybox.envmap;
@@ -801,7 +801,7 @@ export class MeshRenderer extends ModelRenderer {
         if (this.model === null) return;
         let cubeMap = this.bakeSettings._probeCubemap;
         if (!cubeMap && this.node.scene) {
-            //Use skybox if the reflection probe is not baked or if the object is not in the range of the reflection probe
+            //Use skybox if the reflection probe is not baked or the object is not in the range of the reflection probe
             cubeMap = this.node.scene._globals.skybox.envmap;
         }
         this.model.updateReflectionProbeCubemap(cubeMap);
@@ -945,15 +945,17 @@ export class MeshRenderer extends ModelRenderer {
     }
 
     protected _onUpdateLocalReflectionProbeData () {
-        if (this.bakeSettings.reflectionProbe === ReflectionProbeType.BLEND_PROBES
+        if (this.bakeSettings.reflectionProbe === ReflectionProbeType.BAKED_CUBEMAP
+            || this.bakeSettings.reflectionProbe === ReflectionProbeType.BLEND_PROBES
             || this.bakeSettings.reflectionProbe === ReflectionProbeType.BLEND_PROBES_AND_SKYBOX) {
             if (this.model !== null) {
                 this.model.updateReflectionProbeId();
             }
+
             this.setInstancedAttribute('a_reflectionProbeData', [
                 this._reflectionProbeBlendWeight,
-                this.bakeSettings._probeCubemap?.isRGBE ? 1.0 : 0.0,
-                this.bakeSettings._probeBlendCubemap?.isRGBE ? 1.0 : 0.0,
+                0.0,
+                0.0,
                 0.0,
             ]);
         }

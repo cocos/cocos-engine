@@ -220,7 +220,7 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
     vec3 R = normalize(reflect(-V, N));
     #if CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_CUBE
       if(s.reflectionProbeId < 0.0){
-        env = SampleReflectionProbe(cc_reflectionProbeCubemap, R, s.roughness, cc_ambientGround.w, CC_USE_IBL == IBL_RGBE);
+        env = SampleReflectionProbe(cc_environment, R, s.roughness, cc_ambientGround.w, CC_USE_IBL == IBL_RGBE);
       }else{
         vec3 centerPos, boxHalfSize;
         float mipCount;
@@ -245,7 +245,7 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
       env = unpackRGBE(probe);
     #elif CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND || CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND_AND_SKYBOX
       if (s.reflectionProbeId < 0.0) {
-        env = SampleReflectionProbe(cc_reflectionProbeCubemap, R, s.roughness, cc_ambientGround.w, CC_USE_IBL == IBL_RGBE);
+        env = SampleReflectionProbe(cc_environment, R, s.roughness, cc_ambientGround.w, CC_USE_IBL == IBL_RGBE);
       } else {
         vec3 centerPos, boxHalfSize;
         float mipCount;

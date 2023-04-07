@@ -51,7 +51,7 @@ bool isReflectProbeUsingRGBE(float probeId)
       float uv_y = (probeId + 0.5) / cc_probeInfo.x; //align to texel center
       float dataMapWidth = 12.0;
       vec4 texData3 = GetTexData(cc_reflectionProbeDataMap, dataMapWidth, 8.0, uv_y);
-      return true;
+      return texData3.x > 100.0;
   #else
     return cc_reflectionProbeData2.w > 100.0;
   #endif
@@ -63,7 +63,7 @@ bool isBlendReflectProbeUsingRGBE(float probeId)
       float uv_y = (probeId + 0.5) / cc_probeInfo.x; //align to texel center
       float dataMapWidth = 12.0;
       vec4 texData3 = GetTexData(cc_reflectionProbeDataMap, dataMapWidth, 8.0, uv_y);
-      return true;
+      return texData3.x > 100.0;
   #else
     return cc_reflectionProbeBlendData2.w > 100.0;
   #endif
