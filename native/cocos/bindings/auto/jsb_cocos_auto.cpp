@@ -4158,33 +4158,6 @@ static bool js_cc_ISystemWindow_setCursorEnabled(se::State& s)
 }
 SE_BIND_FUNC(js_cc_ISystemWindow_setCursorEnabled) 
 
-static bool js_cc_ISystemWindow_copyTextToClipboard(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::ISystemWindow *arg1 = (cc::ISystemWindow *) NULL ;
-    ccstd::string *arg2 = 0 ;
-    ccstd::string temp2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::ISystemWindow>(s);
-    if (nullptr == arg1) return true;
-    
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    arg2 = &temp2;
-    
-    (arg1)->copyTextToClipboard((ccstd::string const &)*arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_ISystemWindow_copyTextToClipboard) 
-
 static bool js_delete_cc_ISystemWindow(se::State& s)
 {
     return true;
@@ -4203,7 +4176,6 @@ bool js_register_cc_ISystemWindow(se::Object* obj) {
     cls->defineFunction("getViewSize", _SE(js_cc_ISystemWindow_getViewSize)); 
     cls->defineFunction("setViewSize", _SE(js_cc_ISystemWindow_setViewSize)); 
     cls->defineFunction("setCursorEnabled", _SE(js_cc_ISystemWindow_setCursorEnabled)); 
-    cls->defineFunction("copyTextToClipboard", _SE(js_cc_ISystemWindow_copyTextToClipboard)); 
     
     cls->defineStaticProperty("mainWindowId", nullptr, nullptr); 
     
