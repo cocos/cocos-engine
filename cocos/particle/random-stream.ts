@@ -1,10 +1,7 @@
 import { DEBUG } from 'internal:constants';
 import { assert } from '../core';
 
-export class RandNumGen {
-    setSeed (randomSeed: number) {
-        throw new Error('Method not implemented.');
-    }
+export class RandomStream {
     public get seed () {
         return this._seed;
     }
@@ -12,7 +9,7 @@ export class RandNumGen {
     public set seed (val) {
         this._seed = val;
     }
-    private static _gRand = new RandNumGen();
+    private static _gRand = new RandomStream();
     private _seed = 0;
 
     public static getFloat (seed: number) {

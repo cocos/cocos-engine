@@ -90,5 +90,15 @@ describe ('rand-num-gen', () => {
             expect(rand.getFloat()).toBe(RandNumGen.get3Float(seed, temp).z);
         }
     });
+
+    test('sub sequence', () => {
+        const rng = new RandNumGen(12345);
+        const rng2 = new RandNumGen(rng.getUInt32());
+        for (let i = 0; i < 1000; i++) {
+            const val1 = rng.getFloat();
+            const val2 = rng2.getFloat();
+            expect(val1).toStrictEqual(val2);
+        }
+    })
 });
 

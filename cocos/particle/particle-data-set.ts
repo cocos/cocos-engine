@@ -50,6 +50,7 @@ export enum BuiltinParticleParameterName {
     BASE_COLOR = 'base-color',
     COLOR = 'color',
     SPAWN_TIME_RATIO = 'spawn-time-ratio',
+    SPAWN_NORMALIZED_TIME = 'spawn-normalized-time',
     VEC3_REGISTER = 'vec3-register',
     FLOAT_REGISTER = 'float-register'
 }
@@ -75,9 +76,34 @@ export enum BuiltinParticleParameter {
     BASE_COLOR,
     COLOR,
     SPAWN_TIME_RATIO,
+    SPAWN_NORMALIZED_TIME,
     VEC3_REGISTER,
     FLOAT_REGISTER,
     COUNT,
+}
+
+export enum BuiltinParticleParameterFlags {
+    ID = 1 << BuiltinParticleParameter.ID,
+    RANDOM_SEED = 1 << BuiltinParticleParameter.RANDOM_SEED,
+    INV_START_LIFETIME = 1 << BuiltinParticleParameter.INV_START_LIFETIME,
+    NORMALIZED_ALIVE_TIME = 1 << BuiltinParticleParameter.NORMALIZED_ALIVE_TIME,
+    IS_DEAD = 1 << BuiltinParticleParameter.IS_DEAD,
+    POSITION = 1 << BuiltinParticleParameter.POSITION,
+    START_DIR = 1 << BuiltinParticleParameter.START_DIR,
+    BASE_VELOCITY = 1 << BuiltinParticleParameter.BASE_VELOCITY,
+    VELOCITY = 1 << BuiltinParticleParameter.VELOCITY,
+    ROTATION = 1 << BuiltinParticleParameter.ROTATION,
+    AXIS_OF_ROTATION = 1 << BuiltinParticleParameter.AXIS_OF_ROTATION,
+    ANGULAR_VELOCITY = 1 << BuiltinParticleParameter.ANGULAR_VELOCITY,
+    FRAME_INDEX = 1 << BuiltinParticleParameter.FRAME_INDEX,
+    BASE_SIZE = 1 << BuiltinParticleParameter.BASE_SIZE,
+    SIZE = 1 << BuiltinParticleParameter.SIZE,
+    BASE_COLOR = 1 << BuiltinParticleParameter.BASE_COLOR,
+    COLOR = 1 << BuiltinParticleParameter.COLOR,
+    SPAWN_TIME_RATIO = 1 << BuiltinParticleParameter.SPAWN_TIME_RATIO,
+    SPAWN_NORMALIZED_TIME = 1 << BuiltinParticleParameter.SPAWN_NORMALIZED_TIME,
+    VEC3_REGISTER = 1 << BuiltinParticleParameter.VEC3_REGISTER,
+    FLOAT_REGISTER = 1 << BuiltinParticleParameter.FLOAT_REGISTER,
 }
 
 export const BuiltinParticleParameterID2Name = {
@@ -99,6 +125,7 @@ export const BuiltinParticleParameterID2Name = {
     [BuiltinParticleParameter.BASE_COLOR]: BuiltinParticleParameterName.BASE_COLOR,
     [BuiltinParticleParameter.COLOR]: BuiltinParticleParameterName.COLOR,
     [BuiltinParticleParameter.SPAWN_TIME_RATIO]: BuiltinParticleParameterName.SPAWN_TIME_RATIO,
+    [BuiltinParticleParameter.SPAWN_NORMALIZED_TIME]: BuiltinParticleParameterName.SPAWN_NORMALIZED_TIME,
     [BuiltinParticleParameter.VEC3_REGISTER]: BuiltinParticleParameterName.VEC3_REGISTER,
     [BuiltinParticleParameter.FLOAT_REGISTER]: BuiltinParticleParameterName.FLOAT_REGISTER,
 };
@@ -182,6 +209,10 @@ export class ParticleDataSet {
 
     get spawnTimeRatio () {
         return this.getParameterNoCheck<ParticleFloatArrayParameter>(BuiltinParticleParameter.SPAWN_TIME_RATIO);
+    }
+
+    get spawnNormalizedTime () {
+        return this.getParameterNoCheck<ParticleFloatArrayParameter>(BuiltinParticleParameter.SPAWN_NORMALIZED_TIME);
     }
 
     get vec3Register () {
@@ -366,6 +397,10 @@ export class ParticleDataSet {
     }
 
     clear () {
+        this._count = 0;
+    }
+
+    reset () {
         this._count = 0;
         this._parameters.length = 0;
         this._parameterMap = {};

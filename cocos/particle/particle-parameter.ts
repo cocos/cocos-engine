@@ -41,6 +41,14 @@ export enum ParticleParameterType {
     UINT32,
 }
 
+export enum ParameterNameSpace {
+    PARTICLE_BUILTIN,
+    PARTICLE_CUSTOM,
+    EMITTER_BUILTIN,
+    EMITTER_CUSTOM,
+    USER,
+}
+
 @ccclass('cc.ParticleParameterIdentity')
 export class ParticleParameterIdentity {
     public get id () {

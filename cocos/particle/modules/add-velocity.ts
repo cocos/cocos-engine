@@ -29,9 +29,9 @@ import { lerp, Mat4, Quat, Vec3 } from '../../core/math';
 import { Space } from '../enum';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { BuiltinParticleParameter, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
-import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
+import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
 import { CurveRange } from '../curve-range';
-import { RandNumGen } from '../rand-num-gen';
+import { RandomStream } from '../random-stream';
 
 const VELOCITY_RAND_OFFSET = 197866;
 const tempVelocity = new Vec3();
@@ -74,6 +74,12 @@ export class AddVelocityModule extends ParticleModule {
     @tooltip('i18n:velocityOvertimeModule.z')
     public z = new CurveRange();
 
+    private _randomOffset = 0;
+
+    public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {
+        this._randomOffset = state.rand.getUInt32();
+    }
+
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         if (this.x.mode === CurveRange.Mode.TwoConstants || this.x.mode === CurveRange.Mode.TwoCurves) {
             context.markRequiredParameter(BuiltinParticleParameter.RANDOM_SEED);
@@ -82,7 +88,7 @@ export class AddVelocityModule extends ParticleModule {
             if (context.executionStage !== ModuleExecStage.SPAWN) {
                 context.markRequiredParameter(BuiltinParticleParameter.NORMALIZED_ALIVE_TIME);
             } else {
-                context.markRequiredParameter(BuiltinParticleParameter.SPAWN_TIME_RATIO);
+                context.markRequiredParameter(BuiltinParticleParameter.SPAWN_NORMALIZED_TIME);
             }
         }
         context.markRequiredParameter(BuiltinParticleParameter.POSITION);
@@ -105,7 +111,7 @@ export class AddVelocityModule extends ParticleModule {
                     velocity.addVec3At(tempVelocity, i);
                 }
             } else if (this.x.mode === CurveRange.Mode.Curve) {
-                const time = context.executionStage !== ModuleExecStage.SPAWN ? particles.normalizedAliveTime.data : particles.spawnTimeRatio.data;
+                const time = context.executionStage !== ModuleExecStage.SPAWN ? particles.normalizedAliveTime.data : particles.spawnNormalizedTime.data;
                 const { spline: xCurve, multiplier: xMultiplier } = this.x;
                 const { spline: yCurve, multiplier: yMultiplier } = this.y;
                 const { spline: zCurve, multiplier: zMultiplier } = this.z;
@@ -132,7 +138,7 @@ export class AddVelocityModule extends ParticleModule {
                 }
             } else {
                 const randomSeed = particles.randomSeed.data;
-                const time = context.executionStage !== ModuleExecStage.SPAWN ? particles.normalizedAliveTime.data : particles.spawnTimeRatio.data;
+                const time = context.executionStage !== ModuleExecStage.SPAWN ? particles.normalizedAliveTime.data : particles.spawnNormalizedTime.data;
                 const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.x;
                 const { splineMin: yMin, splineMax: yMax, multiplier: yMultiplier } = this.y;
                 const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.z;
@@ -154,7 +160,7 @@ export class AddVelocityModule extends ParticleModule {
                     velocity.addVec3At(tempVelocity, i);
                 }
             } else if (this.x.mode === CurveRange.Mode.Curve) {
-                const time = context.executionStage !== ModuleExecStage.SPAWN ? particles.normalizedAliveTime.data : particles.spawnTimeRatio.data;
+                const time = context.executionStage !== ModuleExecStage.SPAWN ? particles.normalizedAliveTime.data : particles.spawnNormalizedTime.data;
                 const { spline: xCurve, multiplier: xMultiplier } = this.x;
                 const { spline: yCurve, multiplier: yMultiplier } = this.y;
                 const { spline: zCurve, multiplier: zMultiplier } = this.z;
@@ -179,7 +185,7 @@ export class AddVelocityModule extends ParticleModule {
                 }
             } else {
                 const randomSeed = particles.randomSeed.data;
-                const time = context.executionStage !== ModuleExecStage.SPAWN ? particles.normalizedAliveTime.data : particles.spawnTimeRatio.data;
+                const time = context.executionStage !== ModuleExecStage.SPAWN ? particles.normalizedAliveTime.data : particles.spawnNormalizedTime.data;
                 const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.x;
                 const { splineMin: yMin, splineMax: yMax, multiplier: yMultiplier } = this.y;
                 const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.z;

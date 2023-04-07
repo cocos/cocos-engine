@@ -28,7 +28,7 @@ import { Color, Mat4, Quat, Vec3, Node, Vec2 } from '../core';
 import { ccclass, serializable } from '../core/data/decorators';
 import { CurveRange } from './curve-range';
 import { ModuleExecStage } from './particle-module';
-import { RandNumGen } from './rand-num-gen';
+import { RandNumGen } from './random-stream';
 
 export enum ParticleEventType {
     UNKNOWN,
@@ -185,8 +185,7 @@ export enum LoopMode {
     MULTIPLE
 }
 
-export enum LoopDelayMode {
-    NONE,
+export enum DelayMode {
     FIRST_LOOP_ONLY,
     EVERY_LOOP,
 }
@@ -212,6 +211,10 @@ export class ParticleEmitterParams {
     @serializable
     public prewarm = false;
     @serializable
+    public prewarmTime = 5;
+    @serializable
+    public prewarmTimeStep = 0.03;
+    @serializable
     public simulationSpace = Space.LOCAL;
     @serializable
     public scaleSpace = Space.LOCAL;
@@ -222,9 +225,11 @@ export class ParticleEmitterParams {
     @serializable
     public playOnAwake = true;
     @serializable
-    public loopDelayMode = LoopDelayMode.NONE;
+    public delay = false;
     @serializable
-    public loopDelayRange = new Vec2(0, 0);
+    public delayMode = DelayMode.FIRST_LOOP_ONLY;
+    @serializable
+    public delayRange = new Vec2(0, 0);
     @serializable
     public boundsMode = BoundsMode.AUTO;
     @serializable
@@ -275,7 +280,7 @@ export class ParticleEmitterState {
     public playingState = PlayingState.STOPPED;
     public lastPosition = new Vec3();
     public currentPosition = new Vec3();
-    public loopDelay = 0;
+    public currentDelay = 0;
     public isSimulating = true;
     public isEmitting = true;
     public lastSimulateFrame = 0;
@@ -288,6 +293,11 @@ export class ParticleEmitterState {
     tick (dt: number) {
         this.prevTime = this.accumulatedTime;
         this.accumulatedTime += dt;
+    }
+
+    updateTransform (pos: Vec3) {
+        Vec3.copy(this.lastPosition, this.currentPosition);
+        Vec3.copy(this.currentPosition, pos);
     }
 }
 
@@ -328,7 +338,6 @@ export class ParticleExecContext {
     public inheritedProperties: InheritedProperties | null = null;
     public spawnContinuousCount = 0;
     public burstCount = 0;
-    public spawnFraction = 0;
     /**
      * The velocity of the emitter in world space.
      */
@@ -382,16 +391,16 @@ export class ParticleExecContext {
         this._toIndex = toIndex;
     }
 
-    setEmitterTime (currentTime: number, previousTime: number, loopDelay: number, params: ParticleEmitterParams) {
-        if (params.loopDelayMode !== LoopDelayMode.EVERY_LOOP) {
-            this.emitterPreviousTime = Math.max(previousTime - loopDelay, 0) % params.duration;
-            this.emitterCurrentTime = Math.max(currentTime - loopDelay, 0) % params.duration;
+    setEmitterTime (currentTime: number, previousTime: number, loopDelay: number, delayMode: DelayMode, duration: number) {
+        if (delayMode !== DelayMode.EVERY_LOOP) {
+            this.emitterPreviousTime = Math.max(previousTime - loopDelay, 0) % duration;
+            this.emitterCurrentTime = Math.max(currentTime - loopDelay, 0) % duration;
         } else {
-            const durationAndDelay = loopDelay + params.duration;
+            const durationAndDelay = loopDelay + duration;
             this.emitterPreviousTime = Math.max(previousTime % durationAndDelay - loopDelay, 0);
             this.emitterCurrentTime = Math.max(currentTime % durationAndDelay - loopDelay, 0);
         }
-        const invDuration = 1 / params.duration;
+        const invDuration = 1 / duration;
         this.emitterDeltaTime = this.emitterCurrentTime - this.emitterPreviousTime;
         this.emitterNormalizedTime = this.emitterCurrentTime * invDuration;
         this.emitterNormalizedPrevTime = this.emitterPreviousTime * invDuration;
@@ -415,12 +424,8 @@ export class ParticleExecContext {
         this.deltaTime = deltaTime;
     }
 
-    setSpawnFraction (spawnFraction: number) {
-        this.spawnFraction = spawnFraction;
-    }
-
     resetSpawningState () {
-        this.burstCount = this.spawnContinuousCount = this.spawnFraction = 0;
+        this.burstCount = this.spawnContinuousCount = 0;
     }
 
     reset () {
@@ -439,5 +444,9 @@ export class ParticleExecContext {
         } else {
             this._customParameterRequirements |= (1 << (parameterId - 32));
         }
+    }
+
+    markRequiredBuiltinParameters (parameterFlags: number) {
+        this._builtinParameterRequirements |= parameterFlags;
     }
 }

@@ -29,9 +29,9 @@ import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set'
 import { ParticleExecContext, ParticleEmitterParams } from '../particle-base';
 import { CurveRange } from '../curve-range';
 
-@ccclass('cc.SpawnOverTimeModule')
-@ParticleModule.register('SpawnOverTime', ModuleExecStage.EMITTER_UPDATE | ModuleExecStage.EVENT_HANDLER)
-export class SpawnOverTimeModule extends ParticleModule {
+@ccclass('cc.SpawnRateModule')
+@ParticleModule.register('SpawnRate', ModuleExecStage.EMITTER_UPDATE | ModuleExecStage.EVENT_HANDLER)
+export class SpawnRateModule extends ParticleModule {
     /**
      * @zh 每秒发射的粒子数。
      */

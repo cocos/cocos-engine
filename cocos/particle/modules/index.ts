@@ -26,7 +26,7 @@
 export * from './multiply-color';
 export * from './scale-speed';
 export * from './shape';
-export * from './spawn-over-time';
+export * from './spawn-rate';
 export * from './spawn-per-unit';
 export * from './burst';
 export * from './add-speed-in-initial-direction';
@@ -39,7 +39,6 @@ export * from './location-event-generator';
 export * from './death-event-generator';
 export * from './solve';
 export * from './state';
-export * from './legacy-trail';
 export * from './sub-uv-animation';
 export * from './add-velocity';
 export * from './box-shape';

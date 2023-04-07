@@ -256,19 +256,20 @@ export class MeshRendererModule extends RendererModule {
             ));
             const vertStaticAttrsFloatCount = vertexStreamSizeStatic / 4;
             const vBuffer: ArrayBuffer = new ArrayBuffer(vertexStreamSizeStatic * vertCount);
+            let offset = 0;
             let vIdx = this._vertexStreamAttributes.findIndex((val) => val.name === AttributeName.ATTR_TEX_COORD); // find ATTR_TEX_COORD index
-            let vOffset = (this._vertexStreamAttributes[vIdx]).offset; // find ATTR_TEX_COORD offset
-            mesh.copyAttribute(0, AttributeName.ATTR_TEX_COORD, vBuffer, vertexStreamSizeStatic, vOffset);  // copy mesh uv to ATTR_TEX_COORD
+            mesh.copyAttribute(0, AttributeName.ATTR_TEX_COORD, vBuffer, vertexStreamSizeStatic, offset);  // copy mesh uv to ATTR_TEX_COORD
+            offset += FormatInfos[this._vertexStreamAttributes[vIdx].format].size; // find ATTR_TEX_COORD offset
             vIdx = this._vertexStreamAttributes.findIndex((val) => val.name === AttributeName.ATTR_POSITION); // find ATTR_TEX_COORD3 index
-            vOffset = (this._vertexStreamAttributes[vIdx++]).offset; // find ATTR_TEX_COORD3 offset
-            mesh.copyAttribute(0, AttributeName.ATTR_POSITION, vBuffer, vertexStreamSizeStatic, vOffset);  // copy mesh position to ATTR_TEX_COORD3
-            vOffset = (this._vertexStreamAttributes[vIdx++]).offset;
-            mesh.copyAttribute(0, AttributeName.ATTR_NORMAL, vBuffer, vertexStreamSizeStatic, vOffset);  // copy mesh normal to ATTR_NORMAL
-            vOffset = (this._vertexStreamAttributes[vIdx++]).offset;
-            if (!mesh.copyAttribute(0, AttributeName.ATTR_COLOR, vBuffer, vertexStreamSizeStatic, vOffset)) {  // copy mesh color to ATTR_COLOR1
+            mesh.copyAttribute(0, AttributeName.ATTR_POSITION, vBuffer, vertexStreamSizeStatic, offset);  // copy mesh position to ATTR_TEX_COORD3
+            offset += FormatInfos[this._vertexStreamAttributes[vIdx].format].size; // find ATTR_TEX_COORD offset
+            mesh.copyAttribute(0, AttributeName.ATTR_NORMAL, vBuffer, vertexStreamSizeStatic, offset);  // copy mesh normal to ATTR_NORMAL
+            offset += FormatInfos[this._vertexStreamAttributes[vIdx].format].size; // find ATTR_TEX_COORD offset
+            if (!mesh.copyAttribute(0, AttributeName.ATTR_COLOR, vBuffer, vertexStreamSizeStatic, offset)) {  // copy mesh color to ATTR_COLOR1
+                offset += FormatInfos[this._vertexStreamAttributes[vIdx].format].size;
                 const vb = new Uint32Array(vBuffer);
                 for (let iVertex = 0; iVertex < vertCount; ++iVertex) {
-                    vb[iVertex * vertStaticAttrsFloatCount + vOffset / 4] = Color.WHITE._val;
+                    vb[iVertex * vertStaticAttrsFloatCount + offset / 4] = Color.WHITE._val;
                 }
             }
             vertexBuffer.update(vBuffer);

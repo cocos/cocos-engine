@@ -25,14 +25,15 @@
 
 import { ccclass, displayOrder, range, serializable, tooltip, type } from '../../core/data/decorators';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
-import { BuiltinParticleParameter, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleExecContext, ParticleEmitterParams, ParticleEmitterState } from '../particle-base';
 import { CurveRange } from '../curve-range';
 import { lerp, Mat4, Vec3 } from '../../core/math';
-import { RandNumGen } from '../rand-num-gen';
+import { RandomStream } from '../random-stream';
 import { ParticleVec3ArrayParameter } from '../particle-parameter';
 
 const tempVelocity = new Vec3();
+const requiredParameter = BuiltinParticleParameterFlags.POSITION | BuiltinParticleParameterFlags.VELOCITY | BuiltinParticleParameterFlags.START_DIR;
 
 @ccclass('cc.AddSpeedInInitialDirectionModule')
 @ParticleModule.register('AddSpeedInInitialDirection', ModuleExecStage.SPAWN | ModuleExecStage.UPDATE, [ParameterName.VELOCITY], [ParameterName.START_DIR])
@@ -46,54 +47,58 @@ export class AddSpeedInInitialDirectionModule extends ParticleModule {
     @tooltip('i18n:particle_system.startSpeed')
     public speed = new CurveRange(5);
 
-    private _rand = new RandNumGen();
+    private _randomOffset = 0;
 
     public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {
-        this._rand.seed = state.rand.getUInt32();
+        this._randomOffset = state.rand.getUInt32();
     }
 
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
-        context.markRequiredParameter(BuiltinParticleParameter.POSITION);
-        context.markRequiredParameter(BuiltinParticleParameter.VELOCITY);
-        context.markRequiredParameter(BuiltinParticleParameter.BASE_VELOCITY);
-        context.markRequiredParameter(BuiltinParticleParameter.START_DIR);
+        context.markRequiredBuiltinParameters(requiredParameter);
         if (this.speed.mode === CurveRange.Mode.Curve || this.speed.mode === CurveRange.Mode.TwoCurves) {
-            context.markRequiredParameter(BuiltinParticleParameter.SPAWN_TIME_RATIO);
+            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.SPAWN_NORMALIZED_TIME);
+        }
+        if (this.speed.mode === CurveRange.Mode.TwoCurves || this.speed.mode === CurveRange.Mode.TwoConstants) {
+            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
+        }
+        if (context.executionStage !== ModuleExecStage.UPDATE) {
+            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.BASE_VELOCITY);
         }
     }
 
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
-        const { fromIndex, toIndex, emitterNormalizedTime: normalizedT, emitterNormalizedPrevTime: normalizedPrevT } = context;
+        const { fromIndex, toIndex } = context;
         const velocity = context.executionStage === ModuleExecStage.SPAWN ? particles.baseVelocity : particles.velocity;
+        const normalizedTime = context.executionStage === ModuleExecStage.SPAWN ? particles.spawnNormalizedTime.data : particles.normalizedAliveTime.data;
         const { startDir } = particles;
         const mode = this.speed.mode;
-        const rand = this._rand;
+        const randomOffset = this._randomOffset;
         if (mode === CurveRange.Mode.Constant) {
             const constant = this.speed.constant;
             ParticleVec3ArrayParameter.scaleAndAdd(velocity, velocity, startDir, constant, fromIndex, toIndex);
         } else if (mode ===  CurveRange.Mode.TwoConstants) {
             const { constantMin, constantMax } = this.speed;
+            const randomSeed = particles.randomSeed.data;
             for (let i = fromIndex; i < toIndex; ++i) {
-                const curveStartSpeed = lerp(constantMin, constantMax, rand.getFloat());
+                const curveStartSpeed = lerp(constantMin, constantMax, RandomStream.getFloat(randomSeed[i] + randomOffset));
                 startDir.getVec3At(tempVelocity, i);
                 Vec3.multiplyScalar(tempVelocity, tempVelocity, curveStartSpeed);
                 velocity.addVec3At(tempVelocity, i);
             }
         } else if (mode ===  CurveRange.Mode.Curve) {
             const { spline, multiplier } = this.speed;
-            const spawnTime = particles.spawnTimeRatio.data;
             for (let i = fromIndex; i < toIndex; ++i) {
-                const curveStartSpeed = spline.evaluate(lerp(normalizedT, normalizedPrevT, spawnTime[i])) * multiplier;
+                const curveStartSpeed = spline.evaluate(normalizedTime[i]) * multiplier;
                 startDir.getVec3At(tempVelocity, i);
                 Vec3.multiplyScalar(tempVelocity, tempVelocity, curveStartSpeed);
                 velocity.addVec3At(tempVelocity, i);
             }
         } else {
             const { splineMin, splineMax, multiplier } = this.speed;
-            const spawnTime = particles.spawnTimeRatio.data;
+            const randomSeed = particles.randomSeed.data;
             for (let i = fromIndex; i < toIndex; ++i) {
-                const time = lerp(normalizedT, normalizedPrevT, spawnTime[i]);
-                const curveStartSpeed = lerp(splineMin.evaluate(time), splineMax.evaluate(time), rand.getFloat()) * multiplier;
+                const time = normalizedTime[i];
+                const curveStartSpeed = lerp(splineMin.evaluate(time), splineMax.evaluate(time), RandomStream.getFloat(randomSeed[i] + randomOffset)) * multiplier;
                 startDir.getVec3At(tempVelocity, i);
                 Vec3.multiplyScalar(tempVelocity, tempVelocity, curveStartSpeed);
                 velocity.addVec3At(tempVelocity, i);
