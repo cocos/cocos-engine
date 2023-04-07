@@ -1517,9 +1517,6 @@ export class ColorAttachment {
         public storeOp: StoreOp = StoreOp.STORE,
         public barrier: GeneralBarrier = null!,
         public isGeneralLayout: boolean = false,
-        public externalResLow: number = 0,
-        public externalResHigh: number = 0,
-        public externalFlag: TextureExternalFlag = TextureExternalFlag.NONE,
     ) {}
 
     public copy (info: Readonly<ColorAttachment>) {
@@ -1529,9 +1526,6 @@ export class ColorAttachment {
         this.storeOp = info.storeOp;
         this.barrier = info.barrier;
         this.isGeneralLayout = info.isGeneralLayout;
-        this.externalResLow = info.externalResLow;
-        this.externalResHigh = info.externalResHigh;
-        this.externalFlag = info.externalFlag;
         return this;
     }
 }

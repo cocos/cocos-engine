@@ -1288,9 +1288,6 @@ struct ALIGNAS(8) ColorAttachment {
 #if CC_CPU_ARCH == CC_CPU_ARCH_64
     uint32_t _padding{0};
 #endif
-    void *externalResLow{nullptr}; // CVPixelBuffer for Metal, EGLImage/Texture2D for GLES
-    void *externalResHigh{nullptr};// for vulkan
-    TextureExternalFlag externalFlag{TextureExternalFlag::NONE};
 
     EXPOSE_COPY_FN(ColorAttachment)
 };

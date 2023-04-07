@@ -25,7 +25,7 @@ import { screenAdapter } from 'pal/screen-adapter';
 import { Orientation } from '../../../pal/screen-adapter/enum-type';
 import {
     TextureType, TextureUsageBit, Format, RenderPass, Texture, Framebuffer,
-    RenderPassInfo, Device, TextureInfo, FramebufferInfo, Swapchain, SurfaceTransform,
+    RenderPassInfo, Device, TextureInfo, FramebufferInfo, Swapchain, SurfaceTransform, TextureExternalFlag,
 } from '../../gfx';
 import { Root } from '../../root';
 import { Camera } from '../scene';
@@ -36,6 +36,9 @@ export interface IRenderWindowInfo {
     height: number;
     renderPassInfo: RenderPassInfo;
     swapchain?: Swapchain;
+    externalResLow?: number;
+    externalResHigh?: number;
+    externalFlag?: TextureExternalFlag;
 }
 
 const orientationMap: Record<Orientation, SurfaceTransform> = {
@@ -130,13 +133,17 @@ export class RenderWindow {
             this._depthStencilTexture = info.swapchain.depthStencilTexture;
         } else {
             for (let i = 0; i < info.renderPassInfo.colorAttachments.length; i++) {
-                this._colorTextures.push(device.createTexture(new TextureInfo(
+                const textureInfo = new TextureInfo(
                     TextureType.TEX2D,
                     TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED | TextureUsageBit.TRANSFER_SRC,
                     info.renderPassInfo.colorAttachments[i].format,
                     this._width,
                     this._height,
-                )));
+                );
+                textureInfo.externalResLow = info.externalResLow ? info.externalResLow : 0;
+                textureInfo.externalResHigh = info.externalResHigh ? info.externalResHigh : 0;
+                textureInfo.externalFlag = info.externalFlag ? info.externalFlag : 0;
+                this._colorTextures.push(device.createTexture(textureInfo));
             }
             if (info.renderPassInfo.depthStencilAttachment.format !== Format.UNKNOWN) {
                 this._depthStencilTexture = device.createTexture(new TextureInfo(
