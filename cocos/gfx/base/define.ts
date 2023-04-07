@@ -376,6 +376,12 @@ export enum MemoryUsageBit {
     HOST = 0x2,   // for frequently-updated resources, use MemoryUsageBit::DEVICE | MemoryUsageBit::HOST
 }
 
+export enum TextureExternalFlag {
+    NONE,
+    OES,
+    NORMAL
+}
+
 export enum TextureType {
     TEX1D,
     TEX2D,
@@ -1161,6 +1167,9 @@ export class TextureInfo {
         public samples: SampleCount = SampleCount.ONE,
         public depth: number = 1,
         public externalRes: number = 0,
+        public externalResLow: number = 0,
+        public externalResHigh: number = 0,
+        public externalFlag: TextureExternalFlag = TextureExternalFlag.NONE,
     ) {}
 
     public copy (info: Readonly<TextureInfo>) {
@@ -1175,6 +1184,9 @@ export class TextureInfo {
         this.samples = info.samples;
         this.depth = info.depth;
         this.externalRes = info.externalRes;
+        this.externalResLow = info.externalResLow;
+        this.externalResHigh = info.externalResHigh;
+        this.externalFlag = info.externalFlag;
         return this;
     }
 }
@@ -1505,6 +1517,9 @@ export class ColorAttachment {
         public storeOp: StoreOp = StoreOp.STORE,
         public barrier: GeneralBarrier = null!,
         public isGeneralLayout: boolean = false,
+        public externalResLow: number = 0,
+        public externalResHigh: number = 0,
+        public externalFlag: TextureExternalFlag = TextureExternalFlag.NONE,
     ) {}
 
     public copy (info: Readonly<ColorAttachment>) {
@@ -1514,6 +1529,9 @@ export class ColorAttachment {
         this.storeOp = info.storeOp;
         this.barrier = info.barrier;
         this.isGeneralLayout = info.isGeneralLayout;
+        this.externalResLow = info.externalResLow;
+        this.externalResHigh = info.externalResHigh;
+        this.externalFlag = info.externalFlag;
         return this;
     }
 }

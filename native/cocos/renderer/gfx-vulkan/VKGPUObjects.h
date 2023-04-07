@@ -162,6 +162,9 @@ struct CCVKGPUTexture : public CCVKGPUDeviceObject {
     // for barrier manager
     ccstd::vector<ThsvsAccessType> renderAccessTypes; // gathered from descriptor sets
     ThsvsAccessType transferAccess = THSVS_ACCESS_NONE;
+
+    VkImage externalVKImage = VK_NULL_HANDLE;
+    TextureExternalFlag glExternalFlag{TextureExternalFlag::NONE};
 };
 
 struct CCVKGPUTextureView : public CCVKGPUDeviceObject {

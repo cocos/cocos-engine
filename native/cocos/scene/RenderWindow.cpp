@@ -70,12 +70,15 @@ bool RenderWindow::initialize(gfx::Device *device, IRenderWindowInfo &info) {
         _depthStencilTexture = info.swapchain->getDepthStencilTexture();
     } else {
         for (auto &colorAttachment : info.renderPassInfo.colorAttachments) {
-            _colorTextures.pushBack(
-                device->createTexture({gfx::TextureType::TEX2D,
-                                       gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED | gfx::TextureUsageBit::TRANSFER_SRC,
-                                       colorAttachment.format,
-                                       _width,
-                                       _height}));
+            gfx::TextureInfo info = {gfx::TextureType::TEX2D,
+                                      gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED | gfx::TextureUsageBit::TRANSFER_SRC,
+                                      colorAttachment.format,
+                                      _width,
+                                      _height};
+            info.externalResLow = colorAttachment.externalResLow;
+            info.externalResHigh = colorAttachment.externalResHigh;
+            info.externalFlag = colorAttachment.externalFlag;
+            _colorTextures.pushBack(device->createTexture(info));
         }
         if (info.renderPassInfo.depthStencilAttachment.format != gfx::Format::UNKNOWN) {
             _depthStencilTexture = device->createTexture({gfx::TextureType::TEX2D,

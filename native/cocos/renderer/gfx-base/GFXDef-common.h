@@ -452,6 +452,13 @@ enum class MemoryUsageBit : uint32_t {
 using MemoryUsage = MemoryUsageBit;
 CC_ENUM_BITWISE_OPERATORS(MemoryUsageBit);
 
+enum class TextureExternalFlag : uint32_t {
+  NONE,
+  OES,
+  NORMAL
+};
+CC_ENUM_CONVERSION_OPERATOR(TextureExternalFlag);
+
 enum class TextureType : uint32_t {
     TEX1D,
     TEX2D,
@@ -1066,9 +1073,12 @@ struct ALIGNAS(8) TextureInfo {
     SampleCount samples{SampleCount::ONE};
     uint32_t depth{1};
     void *externalRes{nullptr}; // CVPixelBuffer for Metal, EGLImage for GLES
+    void *externalResLow{nullptr}; // for vulkan/opengl es
+    void *externalResHigh{nullptr}; // for vulkan
 #if CC_CPU_ARCH == CC_CPU_ARCH_32
     uint32_t _padding{0};
 #endif
+    TextureExternalFlag externalFlag{TextureExternalFlag::NONE};
 
     EXPOSE_COPY_FN(TextureInfo)
 };
@@ -1278,6 +1288,9 @@ struct ALIGNAS(8) ColorAttachment {
 #if CC_CPU_ARCH == CC_CPU_ARCH_64
     uint32_t _padding{0};
 #endif
+    void *externalResLow{nullptr}; // CVPixelBuffer for Metal, EGLImage/Texture2D for GLES
+    void *externalResHigh{nullptr};// for vulkan
+    TextureExternalFlag externalFlag{TextureExternalFlag::NONE};
 
     EXPOSE_COPY_FN(ColorAttachment)
 };

@@ -828,7 +828,11 @@ void cmdFuncGLES3CreateTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture)
     }
 
     if (gpuTexture->glTexture) {
-        gpuTexture->glTarget = GL_TEXTURE_EXTERNAL_OES;
+        if(gpuTexture->glExternalFlag == TextureExternalFlag::OES) {
+            gpuTexture->glTarget = GL_TEXTURE_EXTERNAL_OES;
+        } else {
+            gpuTexture->glTarget = GL_TEXTURE_2D;
+        }
         return;
     }
 
@@ -934,7 +938,7 @@ void cmdFuncGLES3DestroyTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture
                 glTexture = 0;
             }
         }
-        if (gpuTexture->glTarget != GL_TEXTURE_EXTERNAL_OES) {
+        if (gpuTexture->glExternalFlag == TextureExternalFlag::NONE) {
             GL_CHECK(glDeleteTextures(1, &gpuTexture->glTexture));
         }
         gpuTexture->glTexture = 0;
@@ -951,7 +955,7 @@ void cmdFuncGLES3DestroyTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture
 }
 
 void cmdFuncGLES3ResizeTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture) {
-    if (gpuTexture->memoryless || gpuTexture->glTarget == GL_TEXTURE_EXTERNAL_OES) return;
+    if (gpuTexture->memoryless || gpuTexture->glExternalFlag != TextureExternalFlag::NONE) return;
 
     if (gpuTexture->glSamples <= 1) {
         // immutable by default
