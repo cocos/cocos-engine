@@ -54,11 +54,15 @@
 #include "pipeline/custom/RenderGraphTypes.h"
 #include "pipeline/custom/details/GslUtils.h"
 
+#ifndef BRANCH_CULLING
+    #define BRANCH_CULLING 0
+#endif
+
 namespace cc {
 
 namespace render {
 
-static constexpr bool ENABLE_BRANCH_CULLING = false;
+static constexpr bool ENABLE_BRANCH_CULLING = BRANCH_CULLING;
 
 void passReorder(FrameGraphDispatcher &fgDispatcher);
 void memoryAliasing(FrameGraphDispatcher &fgDispatcher);
@@ -206,7 +210,6 @@ void buildAccessGraph(const Graphs &graphs) {
     numPasses += renderGraph.movePasses.size();
     numPasses += renderGraph.raytracePasses.size();
 
-
     resourceAccessGraph.reserve(static_cast<ResourceAccessGraph::vertices_size_type>(numPasses));
     resourceAccessGraph.resourceNames.reserve(128);
     resourceAccessGraph.resourceIndex.reserve(128);
@@ -228,7 +231,7 @@ void buildAccessGraph(const Graphs &graphs) {
 
     // const auto &names = get(RenderGraph::Name, renderGraph);
     for (size_t i = 1; i <= numPasses; ++i) {
-        resourceAccessGraph.leafPasses.emplace(i, LeafStatus{false, false});
+        resourceAccessGraph.leafPasses.emplace(i, LeafStatus{false, true});
     }
 
     auto startID = add_vertex(resourceAccessGraph, INVALID_ID - 1);
@@ -799,7 +802,7 @@ void buildBarriers(FrameGraphDispatcher &fgDispatcher) {
         for (size_t i = 0; i < rag.access.size(); ++i) {
             const auto *status = &rag.access[i];
             while (status) {
-                for (const auto& attachment : status->attachmentStatus) {
+                for (const auto &attachment : status->attachmentStatus) {
                     AccessStatus lastStatus{
                         static_cast<uint32_t>(i),
                         gfx::ShaderStageFlagBit::NONE,
@@ -845,7 +848,6 @@ void buildBarriers(FrameGraphDispatcher &fgDispatcher) {
                             blockFrontBarrier.emplace_back(firstMeetBarrier);
                         }
                     }
-
                 }
                 status = status->nextSubpass;
             }
@@ -1536,6 +1538,29 @@ bool isTransitionStatusDependent(const AccessStatus &lhs, const AccessStatus &rh
            (lhs.accessFlag != rhs.accessFlag);
 }
 
+auto mapTextureFlags(ResourceFlags flags) {
+    gfx::TextureUsage usage = gfx::TextureUsage::NONE;
+    if ((flags & ResourceFlags::SAMPLED) != ResourceFlags::NONE) {
+        usage |= gfx::TextureUsage::SAMPLED;
+    }
+    if ((flags & ResourceFlags::STORAGE) != ResourceFlags::NONE) {
+        usage |= gfx::TextureUsage::STORAGE;
+    }
+    if ((flags & ResourceFlags::SHADING_RATE) != ResourceFlags::NONE) {
+        usage |= gfx::TextureUsage::SHADING_RATE;
+    }
+    if ((flags & ResourceFlags::COLOR_ATTACHMENT) != ResourceFlags::NONE) {
+        usage |= gfx::TextureUsage::COLOR_ATTACHMENT;
+    }
+    if ((flags & ResourceFlags::DEPTH_STENCIL_ATTACHMENT) != ResourceFlags::NONE) {
+        usage |= gfx::TextureUsage::DEPTH_STENCIL_ATTACHMENT;
+    }
+    if ((flags & ResourceFlags::INPUT_ATTACHMENT) != ResourceFlags::NONE) {
+        usage |= gfx::TextureUsage::INPUT_ATTACHMENT;
+    }
+    return usage;
+}
+
 auto getResourceStatus(PassType passType, const PmrString &name, gfx::MemoryAccess memAccess, gfx::ShaderStageFlags visibility, const ResourceGraph &resourceGraph) {
     ResourceUsage usage;
     gfx::ShaderStageFlags vis;
@@ -1554,8 +1579,8 @@ auto getResourceStatus(PassType passType, const PmrString &name, gfx::MemoryAcce
             bool uniformFlag = (desc.flags & ResourceFlags::UNIFORM) != ResourceFlags::NONE;
             bool storageFlag = (desc.flags & ResourceFlags::STORAGE) != ResourceFlags::NONE;
 
-            //CC_EXPECTS(uniformFlag ^ storageFlag);
-            // uniform or read-only storage buffer
+            // CC_EXPECTS(uniformFlag ^ storageFlag);
+            //  uniform or read-only storage buffer
             bufferUsage = uniformFlag ? gfx::BufferUsage::UNIFORM : gfx::BufferUsage::STORAGE;
         }
 
@@ -1594,12 +1619,12 @@ auto getResourceStatus(PassType passType, const PmrString &name, gfx::MemoryAcce
         } else {
             if (memAccess == gfx::MemoryAccess::READ_ONLY) {
                 if ((desc.flags & ResourceFlags::INPUT_ATTACHMENT) != ResourceFlags::NONE) {
-                    texUsage |= (static_cast<gfx::TextureUsage>(desc.flags) & (gfx::TextureUsage::COLOR_ATTACHMENT | gfx::TextureUsage::COLOR_ATTACHMENT | gfx::TextureUsage::DEPTH_STENCIL_ATTACHMENT));
+                    texUsage |= (mapTextureFlags(desc.flags) & (gfx::TextureUsage::COLOR_ATTACHMENT | gfx::TextureUsage::DEPTH_STENCIL_ATTACHMENT));
                 } else {
-                    texUsage |= (static_cast<gfx::TextureUsage>(desc.flags) & (gfx::TextureUsage::SAMPLED | gfx::TextureUsage::STORAGE | gfx::TextureUsage::SHADING_RATE));
+                    texUsage |= (mapTextureFlags(desc.flags) & (gfx::TextureUsage::SAMPLED | gfx::TextureUsage::STORAGE | gfx::TextureUsage::SHADING_RATE));
                 }
             } else {
-                texUsage |= (static_cast<gfx::TextureUsage>(desc.flags) & (gfx::TextureUsage::COLOR_ATTACHMENT | gfx::TextureUsage::DEPTH_STENCIL_ATTACHMENT | gfx::TextureUsage::STORAGE));
+                texUsage |= (mapTextureFlags(desc.flags) & (gfx::TextureUsage::COLOR_ATTACHMENT | gfx::TextureUsage::DEPTH_STENCIL_ATTACHMENT | gfx::TextureUsage::STORAGE));
             }
 
             vis = visibility;
@@ -1733,7 +1758,7 @@ AccessVertex dependencyCheck(RAG &rag, AccessVertex curVertID, const ResourceGra
     return lastVertID;
 }
 
-gfx::ShaderStageFlagBit getVisibilityByDescName(const RenderGraph& renderGraph, const LGD &lgd, uint32_t passID, const PmrString &resName) {
+gfx::ShaderStageFlagBit getVisibilityByDescName(const RenderGraph &renderGraph, const LGD &lgd, uint32_t passID, const PmrString &resName) {
     auto iter = lgd.attributeIndex.find(resName);
     if (iter == lgd.attributeIndex.end()) {
         iter = lgd.constantIndex.find(resName);
@@ -1796,7 +1821,7 @@ bool checkComputeViews(const Graphs &graphs, uint32_t vertID, uint32_t passID, P
         for (const auto &computeView : values) {
             auto access = toGfxAccess(computeView.accessType);
             gfx::ShaderStageFlagBit tryGotVis = gfx::ShaderStageFlagBit::NONE;
-            for (const auto& view : pair.second) {
+            for (const auto &view : pair.second) {
                 tryGotVis |= getVisibilityByDescName(renderGraph, layoutGraphData, passID, view.name);
             }
             const auto &[vis, usage, accessFlag] = getResourceStatus(passType, pair.first, access, tryGotVis, resourceGraph);

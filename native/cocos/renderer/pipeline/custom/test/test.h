@@ -650,14 +650,14 @@ static void runTestGraph(const RenderGraph &renderGraph, const ResourceGraph &re
                                                                          \
     LayoutInfo layoutInfo = {                                            \
         {                                                                \
-            {"0", 0, cc::gfx::ShaderStageFlagBit::VERTEX},               \
+            {"0", 0, cc::gfx::ShaderStageFlagBit::FRAGMENT},             \
             {"1", 1, cc::gfx::ShaderStageFlagBit::FRAGMENT},             \
-            {"2", 2, cc::gfx::ShaderStageFlagBit::VERTEX},               \
+            {"2", 2, cc::gfx::ShaderStageFlagBit::FRAGMENT},             \
             {"3", 3, cc::gfx::ShaderStageFlagBit::FRAGMENT},             \
         },                                                               \
         {                                                                \
-            {"3", 3, cc::gfx::ShaderStageFlagBit::VERTEX},               \
-            {"22", 22, cc::gfx::ShaderStageFlagBit::VERTEX},             \
+            {"3", 3, cc::gfx::ShaderStageFlagBit::FRAGMENT},             \
+            {"22", 22, cc::gfx::ShaderStageFlagBit::FRAGMENT},           \
         }};
 
 #define TEST_CASE_2                                            \
@@ -994,7 +994,7 @@ static void runTestGraph(const RenderGraph &renderGraph, const ResourceGraph &re
                                                                \
     LayoutInfo layoutInfo = {                                  \
         {                                                      \
-            {"0", 0, cc::gfx::ShaderStageFlagBit::VERTEX},     \
+            {"0", 0, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \
         },                                                     \
         {                                                      \
             {"0", 0, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \
