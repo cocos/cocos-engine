@@ -180,10 +180,12 @@ CGRect getSafeAreaRect() {
         UIInterfaceOrientation orient = [UIApplication sharedApplication].statusBarOrientation;
         if (UIInterfaceOrientationLandscapeLeft == orient) {
             viewRect.origin.x = 0;
+            viewRect.size.width -= safeAreaInsets.left;
             viewRect.size.width -= safeAreaInsets.right;
         } else {
             viewRect.origin.x += safeAreaInsets.left;
             viewRect.size.width -= safeAreaInsets.left;
+            viewRect.size.width -= safeAreaInsets.right;
         }
     }
 
