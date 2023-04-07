@@ -504,9 +504,6 @@ export class Model {
     private _lastWorldBoundCenter = new Vec3(Infinity, Infinity, Infinity);
     private _useLightProbe = false;
 
-    private _probeCubemap: TextureCube | null = null;
-    private _probeBlendCubemap: TextureCube | null = null;
-
     /**
      * @en World AABB buffer
      * @zh 世界空间包围盒缓冲
@@ -980,7 +977,6 @@ export class Model {
      * @param texture probe cubemap
      */
     public updateReflectionProbeCubemap (texture: TextureCube | null) {
-        this._probeCubemap = texture;
         this._localDataUpdated = true;
         this.onMacroPatchesStateChanged();
 
@@ -1009,7 +1005,6 @@ export class Model {
      * @param texture probe cubemap
      */
     public updateReflectionProbeBlendCubemap (texture: TextureCube | null) {
-        this._probeBlendCubemap = texture;
         this._localDataUpdated = true;
         this.onMacroPatchesStateChanged();
 
@@ -1136,7 +1131,7 @@ export class Model {
                 sv[UBOLocal.REFLECTION_PROBE_DATA2] = probe.size.x;
                 sv[UBOLocal.REFLECTION_PROBE_DATA2 + 1] = probe.size.y;
                 sv[UBOLocal.REFLECTION_PROBE_DATA2 + 2] = probe.size.z;
-                const mipAndUseRGBE = this._probeCubemap?.isRGBE ? 1000 : 0;
+                const mipAndUseRGBE = probe.isRGBE() ? 1000 : 0;
                 sv[UBOLocal.REFLECTION_PROBE_DATA2 + 3] = probe.cubemap ? probe.cubemap.mipmapLevel + mipAndUseRGBE : 1.0 + mipAndUseRGBE;
             }
             // eslint-disable-next-line max-len
@@ -1151,7 +1146,7 @@ export class Model {
                     sv[UBOLocal.REFLECTION_PROBE_BLEND_DATA2] = blendProbe.size.x;
                     sv[UBOLocal.REFLECTION_PROBE_BLEND_DATA2 + 1] = blendProbe.size.y;
                     sv[UBOLocal.REFLECTION_PROBE_BLEND_DATA2 + 2] = blendProbe.size.z;
-                    const mipAndUseRGBE = this._probeBlendCubemap?.isRGBE ? 1000 : 0;
+                    const mipAndUseRGBE = blendProbe.isRGBE() ? 1000 : 0;
                     // eslint-disable-next-line max-len
                     sv[UBOLocal.REFLECTION_PROBE_BLEND_DATA2 + 3] = blendProbe.cubemap ? blendProbe.cubemap.mipmapLevel + mipAndUseRGBE : 1.0 + mipAndUseRGBE;
                 } else if (this._reflectionProbeType === ReflectionProbeType.BLEND_PROBES_AND_SKYBOX) {
