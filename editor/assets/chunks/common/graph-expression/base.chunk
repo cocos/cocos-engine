@@ -24,9 +24,8 @@ vec3 TransformNormalMap(vec3 vectorFromNormalMap)
 {
   vec3 vectorTS = normalize(vectorFromNormalMap - vec3(0.5));
   vec3 binormal = CalculateBinormal(FSInput_worldNormal, FSInput_worldTangent, FSInput_mirrorNormal);
-  return vectorTS.x * FSInput_worldTangent +
-         vectorTS.y * binormal +
-         vectorTS.z * FSInput_worldNormal;
+  vec3 vecWS = vectorTS.x * FSInput_worldTangent + vectorTS.y * binormal + vectorTS.z * FSInput_worldNormal;
+  return vecWS * vec3(1.0, 1.0, -1.0); // inverse Z for RH
 }
 
 
