@@ -119,11 +119,11 @@ void RenderTexture::initWindow(const IRenderTextureCreateInfo &info) {
     }
 
     if (info.externalResLow.has_value()) {
-        windowInfo.externalResLow = reinterpret_cast<void *>(info.externalResLow.value());
+        windowInfo.externalResLow = info.externalResLow.value();
     }
 
     if (info.externalResHigh.has_value()) {
-        windowInfo.externalResHigh = reinterpret_cast<void *>(info.externalResHigh.value());
+        windowInfo.externalResHigh = info.externalResHigh.value();
     }
 
     if (info.externalFlag.has_value()) {

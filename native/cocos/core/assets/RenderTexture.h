@@ -34,8 +34,8 @@ struct IRenderTextureCreateInfo {
     uint32_t width;
     uint32_t height;
     ccstd::optional<gfx::RenderPassInfo> passInfo;
-    ccstd::optional<uint32_t> externalResLow;
-    ccstd::optional<uint32_t> externalResHigh;
+    ccstd::optional<uint32_t> externalResLow; // for vulkan/opengl es
+    ccstd::optional<uint32_t> externalResHigh;// for vulkan
     ccstd::optional<gfx::TextureExternalFlag> externalFlag;
 };
 namespace scene {

@@ -1073,8 +1073,8 @@ struct ALIGNAS(8) TextureInfo {
     SampleCount samples{SampleCount::ONE};
     uint32_t depth{1};
     void *externalRes{nullptr}; // CVPixelBuffer for Metal, EGLImage for GLES
-    void *externalResLow{nullptr}; // for vulkan/opengl es
-    void *externalResHigh{nullptr}; // for vulkan
+    uint32_t externalResLow{0}; // for vulkan/opengl es
+    uint32_t externalResHigh{0}; // for vulkan
 #if CC_CPU_ARCH == CC_CPU_ARCH_32
     uint32_t _padding{0};
 #endif

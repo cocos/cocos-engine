@@ -71,10 +71,9 @@ void CCVKTexture::createTexture(uint32_t width, uint32_t height, uint32_t size, 
     _gpuTexture->mipLevels = _info.levelCount;
     _gpuTexture->samples = _info.samples;
     _gpuTexture->flags = _info.flags;
-    _gpuTexture->glExternalFlag = static_cast<TextureExternalFlag>(_info.externalFlag);
+    _gpuTexture->glExternalFlag =_info.externalFlag;
     if(_gpuTexture->glExternalFlag != TextureExternalFlag::NONE) {
-        uint64_t vkImageAddr = (static_cast<uint64_t>(static_cast<uint32_t>(reinterpret_cast<size_t>(_info.externalResHigh))) << 32) |
-            static_cast<uint32_t>(reinterpret_cast<size_t>(_info.externalResLow));
+        uint64_t vkImageAddr = (static_cast<uint64_t>(_info.externalResHigh) << 32) | _info.externalResLow;
         _gpuTexture->externalVKImage = reinterpret_cast<VkImage>(vkImageAddr);
     }
 

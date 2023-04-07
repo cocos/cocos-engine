@@ -40,9 +40,9 @@ struct IRenderWindowInfo {
     uint32_t height{0};
     gfx::RenderPassInfo renderPassInfo;
     gfx::Swapchain *swapchain{nullptr};
-    void *externalResLow{nullptr}; // for vulkan/opengl es
-    void *externalResHigh{nullptr};// for vulkan/opengl es
-    gfx::TextureExternalFlag externalFlag{gfx::TextureExternalFlag::NONE};
+    ccstd::optional<uint32_t> externalResLow{0}; // for vulkan/opengl es
+    ccstd::optional<uint32_t> externalResHigh{0};// for vulkan
+    ccstd::optional<gfx::TextureExternalFlag> externalFlag{gfx::TextureExternalFlag::NONE};
 };
 
 /**

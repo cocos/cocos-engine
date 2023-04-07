@@ -58,11 +58,11 @@ void GLES3Texture::doInit(const TextureInfo & /*info*/) {
     _gpuTexture->isPowerOf2 = math::isPowerOfTwo(_info.width) && math::isPowerOfTwo(_info.height);
     if(_info.externalRes && !_info.externalResLow) {
         // compatibility
-        _info.externalResLow = _info.externalRes;
+        _info.externalResLow = static_cast<GLuint>(reinterpret_cast<size_t>(_info.externalRes));
     }
 
     if (_info.externalResLow) {
-        _gpuTexture->glTexture = static_cast<GLuint>(reinterpret_cast<size_t>(_info.externalResLow));
+        _gpuTexture->glTexture = _info.externalResLow;
         if (_info.externalFlag == TextureExternalFlag::NONE) {
             _gpuTexture->glExternalFlag = TextureExternalFlag::OES;
         } else {

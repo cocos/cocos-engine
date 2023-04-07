@@ -75,9 +75,18 @@ bool RenderWindow::initialize(gfx::Device *device, IRenderWindowInfo &info) {
                                       colorAttachment.format,
                                       _width,
                                       _height};
-            textureInfo.externalResLow = info.externalResLow;
-            textureInfo.externalResHigh = info.externalResHigh;
-            textureInfo.externalFlag = info.externalFlag;
+            if (info.externalResLow.has_value()) {
+                textureInfo.externalResLow = info.externalResLow.value();
+            }
+
+            if (info.externalResHigh.has_value()) {
+                textureInfo.externalResHigh = info.externalResHigh.value();
+            }
+
+            if (info.externalFlag.has_value()) {
+                textureInfo.externalFlag = info.externalFlag.value();
+            }
+
             _colorTextures.pushBack(device->createTexture(textureInfo));
         }
         if (info.renderPassInfo.depthStencilAttachment.format != gfx::Format::UNKNOWN) {
