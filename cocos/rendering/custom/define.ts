@@ -640,7 +640,7 @@ export function buildSSSSBlurPass (camera: Camera,
     const ssssBlurDSName = `dsSSSSBlurDS${cameraName}`;
     if (!ppl.containsResource(ssssBlurRTName)) {
         ppl.addRenderTarget(ssssBlurRTName, Format.RGBA8, width, height, ResourceResidency.MANAGED);
-        ppl.addRenderTarget(ssssBlurDSName, Format.RGBA8, width, height, ResourceResidency.MANAGED);
+        ppl.addRenderTarget(ssssBlurDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
     }
     ppl.updateRenderTarget(ssssBlurRTName, width, height);
     ppl.updateRenderTarget(ssssBlurDSName, width, height);
