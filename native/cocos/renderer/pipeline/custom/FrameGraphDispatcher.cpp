@@ -1575,7 +1575,6 @@ auto getResourceStatus(PassType passType, const PmrString &name, gfx::MemoryAcce
         // can't find this resource in layoutdata, not in descriptor so either input or output attachment.
         gfx::TextureUsage texUsage = gfx::TextureUsage::NONE;
 
-        // TODO: visbility of slot name "_" not found
         bool isAttachment = (visibility == gfx::ShaderStageFlags::NONE || visibility == gfx::ShaderStageFlags::FRAGMENT);
         if (isAttachment) {
             vis = gfx::ShaderStageFlags::FRAGMENT;
