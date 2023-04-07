@@ -32,6 +32,7 @@ import { EFilterDataWord3 } from '../physx-enum';
 import { PhysXInstance } from '../physx-instance';
 import { PhysXWorld } from '../physx-world';
 import { PhysXShape } from '../shapes/physx-shape';
+import { degreesToRadians } from '../../../core/utils/misc';
 
 const v3_0 = new Vec3(0, 0, 0);
 export class PhysXCharacterController implements IBaseCharacterController {
@@ -131,7 +132,7 @@ export class PhysXCharacterController implements IBaseCharacterController {
     }
 
     setSlopeLimit (value: number): void {
-        this._impl.setSlopeLimit(value);
+        this._impl.setSlopeLimit(Math.cos(degreesToRadians(value)));
     }
 
     setDetectCollisions (value: boolean): void {

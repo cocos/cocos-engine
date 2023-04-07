@@ -34,6 +34,7 @@ import { bt } from '../instantiated';
 import { PhysicsGroup } from '../../framework/physics-enum';
 import { BulletShape } from '../shapes/bullet-shape';
 import { BulletRigidBody } from '../bullet-rigid-body';
+import { degreesToRadians } from '../../../core/utils/misc';
 
 const v3_0 = new Vec3(0, 0, 0);
 const v3_1 = new Vec3(0, 0, 0);
@@ -138,15 +139,15 @@ export abstract class BulletCharacterController implements IBaseCharacterControl
     }
 
     setContactOffset (value: number): void {
-        //this._impl.setContactOffset(value);
+        bt.CharacterController_setContactOffset(this._impl, value);
     }
 
     setStepOffset (value: number): void {
-        //this._impl.setStepOffset(value);
+        bt.CharacterController_setStepOffset(this._impl, value);
     }
 
     setSlopeLimit (value: number): void {
-        // this._impl.setSlopeLimit(value);
+        bt.CharacterController_setSlopeLimit(this._impl, degreesToRadians(value));
     }
 
     setDetectCollisions (value: boolean): void {
