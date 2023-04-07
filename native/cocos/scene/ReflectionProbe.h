@@ -144,6 +144,7 @@ public:
     void updateCameraDir(int32_t faceIdx);
     Vec2 getRenderArea() const;
     void packBackgroundColor();
+    bool isRGBE() const;
 
 private:
     ccstd::vector<IntrusivePtr<cc::RenderTexture>> _bakedCubeTextures;

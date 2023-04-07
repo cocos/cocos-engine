@@ -229,7 +229,7 @@ protected:
     Type _type{Type::DEFAULT};
     Layers::Enum _visFlags{Layers::Enum::NONE};
 
-    int32_t _reflectionProbeType{0};
+    int32_t _reflectionProbeType{1};
     int32_t _tetrahedronIndex{-1};
     uint32_t _descriptorSetCount{1};
     uint32_t _priority{0};
