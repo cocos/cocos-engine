@@ -159,6 +159,7 @@ export abstract class BulletCharacterController implements IBaseCharacterControl
 
     syncPhysicsToScene (): void {
         this.getPosition(v3_0);
+        v3_0.subtract(this._comp.center);
         this._comp.node.setWorldPosition(v3_0);
     }
 

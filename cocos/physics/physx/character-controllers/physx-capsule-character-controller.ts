@@ -48,6 +48,7 @@ export class PhysXCapsuleCharacterController extends PhysXCharacterController im
         super.release();
 
         this.component.node.getWorldPosition(v3_0);
+        v3_0.add(this.component.center);
         const pxMtl = PhysXInstance.physics.createMaterial(0.5, 0.5, 0.5);//temp
         const physxWorld = (PhysicsSystem.instance.physicsWorld as PhysXWorld);
 

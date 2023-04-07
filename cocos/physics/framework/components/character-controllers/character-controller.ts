@@ -31,6 +31,7 @@ import { DEBUG } from 'internal:constants';
 import { Vec3, error, warn, CCFloat, Eventify, CCBoolean } from '../../../../core';
 import { Component } from '../../../../scene-graph';
 import { IBaseCharacterController } from '../../../spec/i-character-controller';
+import { VEC3_0 } from '../../../utils/util';
 import { ECharacterControllerType } from '../../physics-enum';
 import { CharacterCollisionEventType } from '../../physics-interface';
 import { selector, createCharacterController } from '../../physics-selector';
@@ -136,6 +137,27 @@ export class CharacterController extends Eventify(Component) {
 
     /**
      * @en
+     * Gets or sets the center of the cct, in local space.
+     * @zh
+     * 在本地空间中，获取或设置角色控制器的中心点。
+     */
+    @type(Vec3)
+    public get center () {
+        return this._center;
+    }
+
+    public set center (value: Vec3) {
+        if (this._center === value) return;
+        Vec3.copy(this._center, value);
+        if (this._cct) {
+            Vec3.copy(VEC3_0, this.node.worldPosition);
+            VEC3_0.add(value);//cct world position
+            this._cct.setPosition(VEC3_0);
+        }
+    }
+
+    /**
+     * @en
      * Gets the wrapper object, through which the lowLevel instance can be accessed.
      * @zh
      * 获取封装对象，通过此对象可以访问到底层实例。
@@ -172,6 +194,8 @@ export class CharacterController extends Eventify(Component) {
     private _contactOffset = 0.01;
     @serializable
     private _detectCollisions = true;
+    @serializable
+    private _center: Vec3 = new Vec3();
 
     private _initialized = false;
     private _prevPos: Vec3 = new Vec3();

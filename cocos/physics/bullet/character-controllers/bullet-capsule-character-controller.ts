@@ -42,6 +42,7 @@ export class BulletCapsuleCharacterController extends BulletCharacterController 
 
     onComponentSet (): void {
         this.component.node.getWorldPosition(v3_0);
+        v3_0.add(this.component.center);
         const pos = BulletCache.instance.BT_V3_0;
         bt.Vec3_set(pos, v3_0.x, v3_0.y, v3_0.z);
 
