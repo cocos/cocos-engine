@@ -49,7 +49,7 @@ layout(location = 3) in vec4 a_tangent;
   #endif
   
   #if CC_USE_REFLECTION_PROBE
-    in vec4 a_reflectionProbeData; // x:reflection probe blend weight y:probe rgbe z :blend probe rgbe
+    in vec4 a_reflectionProbeData; // x:reflection probe blend weight
   #endif
 
   #if CC_USE_LIGHT_PROBE
