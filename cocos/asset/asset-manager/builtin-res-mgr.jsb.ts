@@ -24,7 +24,7 @@
 
 import { TEST, EDITOR } from 'internal:constants';
 import { SpriteFrame } from '../../2d/assets/sprite-frame';
-import type { ImageSource }  from '../assets/image-asset';
+import type { ImageSource } from '../assets/image-asset';
 import assetManager from '../asset-manager/asset-manager';
 import { BuiltinBundleName } from '../asset-manager/shared';
 import Bundle from '../asset-manager/bundle';
@@ -47,13 +47,12 @@ builtinResMgrProto.init = function () {
     const len = 2;
     const numChannels = 4;
 
-    const blackValueView   = new Uint8Array(len * len * numChannels);
-    let offset = 0;
+    const blackValueView = new Uint8Array(len * len * numChannels);
     for (let i = 0; i < len * len; i++) {
-        blackValueView[offset] = 0;
-        blackValueView[offset + 1] = 0;
-        blackValueView[offset + 2] = 0;
-        blackValueView[offset + 3] = 255;
+        blackValueView[i * numChannels] = 0;
+        blackValueView[i * numChannels + 1] = 0;
+        blackValueView[i * numChannels + 2] = 0;
+        blackValueView[i * numChannels + 3] = 255;
     }
 
     const blackMemImageSource: ImageSource = {
@@ -123,19 +122,19 @@ builtinResMgrProto.compileBuiltinMaterial = function () {
 };
 
 builtinResMgrProto.loadBuiltinAssets = function () {
-   const builtinAssets = settings.querySettings<string[]>(Settings.Category.ENGINE, 'builtinAssets');
-   if (TEST || !builtinAssets) return Promise.resolve();
-   const resources = this._resources;
-   return new Promise<void>((resolve, reject) => {
-       assetManager.loadBundle(BuiltinBundleName.INTERNAL, (err, bundle) => {
-           if (err) {
-               reject(err);
-               return;
-           }
-           assetManager.loadAny(builtinAssets, (err, assets) => {
-               if (err) {
-                   reject(err);
-               } else {
+    const builtinAssets = settings.querySettings<string[]>(Settings.Category.ENGINE, 'builtinAssets');
+    if (TEST || !builtinAssets) return Promise.resolve();
+    const resources = this._resources;
+    return new Promise<void>((resolve, reject) => {
+        assetManager.loadBundle(BuiltinBundleName.INTERNAL, (err, bundle) => {
+            if (err) {
+                reject(err);
+                return;
+            }
+            assetManager.loadAny(builtinAssets, (err, assets) => {
+                if (err) {
+                    reject(err);
+                } else {
                     assets.forEach((asset) => {
                         resources[asset.name] = asset;
                         const url = asset.nativeUrl;
@@ -146,11 +145,11 @@ builtinResMgrProto.loadBuiltinAssets = function () {
                             this._materialsToBeCompiled.push(asset);
                         }
                     });
-                   resolve();
-               }
-           });
-       });
-   });
+                    resolve();
+                }
+            });
+        });
+    });
 }
 
 const builtinResMgr = cclegacy.builtinResMgr = BuiltinResMgr.getInstance() as JsbBuiltinResMgr;
