@@ -48,9 +48,8 @@ export const ttf: IAssembler = {
         renderData.dataLength = 4;
         renderData.resize(4, 6);
 
-        // hack 不太好维护
-        // 需要有一个统一触发的分配入口
-        comp.processingData.quadCount = 4;//???
+        // hard code
+        comp.processingData.quadCount = 4;
 
         const vData = renderData.chunk.vb;
 

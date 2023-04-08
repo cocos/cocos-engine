@@ -47,44 +47,41 @@ export const bmfontUtils = {
 
     updateProcessingData (data: TextProcessData, comp: Label, trans: UITransform) {
         data.inputString = comp.string.toString();
-        data._fontSize = comp.fontSize;
-        data._actualFontSize = comp.fontSize;// 可缓存//这样就重新计算了
-        data._originFontSize = _fntConfig ? _fntConfig.fontSize : comp.fontSize;
-        data._hAlign = comp.horizontalAlign;
-        data._vAlign = comp.verticalAlign;
-        data._spacingX = comp.spacingX;
+        data.fontSize = comp.fontSize;
+        data.actualFontSize = comp.fontSize;
+        data.originFontSize = _fntConfig ? _fntConfig.fontSize : comp.fontSize;
+        data.hAlign = comp.horizontalAlign;
+        data.vAlign = comp.verticalAlign;
+        data.spacingX = comp.spacingX;
         const overflow = comp.overflow;
-        data._overFlow = overflow;
-        data._lineHeight = comp.lineHeight;
+        data.overFlow = overflow;
+        data.lineHeight = comp.lineHeight;
 
-        data._nodeContentSize.width = trans.width;
-        data._nodeContentSize.height = trans.height;
+        data.nodeContentSize.width = trans.width;
+        data.nodeContentSize.height = trans.height;
 
         // should wrap text
         if (overflow === Overflow.NONE) {
-            data._wrapping = false;
-            data._nodeContentSize.width += shareLabelInfo.margin * 2;
-            data._nodeContentSize.height += shareLabelInfo.margin * 2;
+            data.wrapping = false;
+            data.nodeContentSize.width += shareLabelInfo.margin * 2;
+            data.nodeContentSize.height += shareLabelInfo.margin * 2;
         } else if (overflow === Overflow.RESIZE_HEIGHT) {
-            data._wrapping = true;
-            data._nodeContentSize.height += shareLabelInfo.margin * 2;
+            data.wrapping = true;
+            data.nodeContentSize.height += shareLabelInfo.margin * 2;
         } else {
-            data._wrapping = comp.enableWrapText;
+            data.wrapping = comp.enableWrapText;
         }
 
         shareLabelInfo.lineHeight = comp.lineHeight;
         shareLabelInfo.fontSize = comp.fontSize;
 
         // 同步数据？
-        data._spriteFrame = _spriteFrame; // 只同步这一次 // char 模式为 null
-        data._fntConfig = _fntConfig; // 只同步这一次
-        data._fontAtlas = shareLabelInfo.fontAtlas; // 注意这个值在 char 模式中不止这么点
-        data._fontFamily = shareLabelInfo.fontFamily;
+        data.spriteFrame = _spriteFrame; // 只同步这一次 // char 模式为 null
+        data.fntConfig = _fntConfig; // 只同步这一次
+        data.fontAtlas = shareLabelInfo.fontAtlas;
+        data.fontFamily = shareLabelInfo.fontFamily;
 
-        // 同步下 info 中的内容
-        data._fontDesc = shareLabelInfo.fontDesc;
-        data._color = comp.color;
-        data._hash = shareLabelInfo.hash;// 可能是不要的
+        data.color.set(comp.color);
     },
 
     updateRenderData (comp: Label) {
@@ -101,11 +98,15 @@ export const bmfontUtils = {
 
             const processing = TextProcessing.instance;
             const data = comp.processingData;
-            data.isBmFont = true; // 标签赋值存在风险
+            data.isBmFont = true; // hard code
             this._updateFontFamily(comp);
 
-            this._updateLabelInfo(comp);
             this.updateProcessingData(data, comp, _uiTrans);
+
+            this._updateLabelInfo(comp);
+
+            // 同步下 info 中的内容 // hack
+            data.fontDesc = shareLabelInfo.fontDesc;
 
             // TextProcessing
             processing.processingString(data);// 可以填 out // 用一个flag来避免排版的更新，比如 renderDirtyOnly
@@ -127,9 +128,9 @@ export const bmfontUtils = {
             this.createQuadIndices(indexCount);
             renderData.chunk.setIndexBuffer(QUAD_INDICES);
 
-            _comp.actualFontSize = data._actualFontSize; // 可额外同步一次
-            _uiTrans.setContentSize(data._nodeContentSize); // 可额外同步一次
-            this.updateUVs(comp);// dirty need // 为了对接renderData，要同步一次 data
+            _comp.actualFontSize = data.actualFontSize;
+            _uiTrans.setContentSize(data.nodeContentSize);
+            this.updateUVs(comp);// dirty need
             this.updateColor(comp); // dirty need
 
             renderData.vertDirty = false;
@@ -191,7 +192,7 @@ export const bmfontUtils = {
     generateVertexData (info: TextProcessData, offset: number,
         spriteFrame: SpriteFrame, rect: Rect, rotated: boolean, x: number, y: number) {
         const dataOffset = offset;
-        const scale = info._bmfontScale;
+        const scale = info.bmfontScale;
 
         const dataList = info.vertexBuffer;
         const texW = spriteFrame.width;

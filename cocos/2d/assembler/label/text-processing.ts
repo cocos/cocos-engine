@@ -29,18 +29,10 @@ import { logID } from '../../../core/platform';
 import { SpriteFrame } from '../../assets';
 import { FontLetterDefinition } from '../../assets/bitmap-font';
 import { HorizontalTextAlignment, Overflow, VerticalTextAlignment } from '../../components/label';
-import { BASELINE_RATIO, fragmentText, getBaselineOffset, isUnicodeCJK, isUnicodeSpace, safeMeasureText } from '../../utils/text-utils';// 工具函数待整合
-import { CanvasPool, shareLabelInfo } from './font-utils';
+import { BASELINE_RATIO, fragmentText, getBaselineOffset, isUnicodeCJK, isUnicodeSpace, safeMeasureText } from '../../utils/text-utils';
+import { CanvasPool, ISharedLabelData, shareLabelInfo } from './font-utils';
 import { TextProcessData } from './text-process-data';
 
-// 其只负责数据的处理和组织，不负责和具体的组件交互
-// 两种方案，句子模式和拼接模式，需要做到上层无感的切换
-// 接口不论上层是什么组件，都和处理层无关
-// 处理层拿到信息之后进行组织
-// 之后返回回去，可以针对数据进行判断是否要进行更新
-// 返回的应该是顶点数组和图，请针对它进行更新操作
-
-// 用于将对齐枚举转换为字符串
 const Alignment = [
     'left', // macro.TextAlignment.LEFT
     'center', // macro.TextAlignment.CENTER
@@ -77,91 +69,70 @@ class LetterInfo {
     public hash = '';
 }
 
-// 所以需要一个 TextProcessingData 来作为上层数据的提供者和处理器的返回者
 export class TextProcessing {
-    // -------------------- 公用公开接口部分 --------------------------
+    // -------------------- Common Part --------------------------
     public static instance: TextProcessing;
     constructor () {
-        const data = CanvasPool.getInstance().get();
-        this._canvas = data.canvas;
-        this._context = data.context;
+        this._canvasData = CanvasPool.getInstance().get();
+        this._canvas = this._canvasData.canvas;
+        this._context = this._canvasData.context;
     }
 
     public destroy () {
+        CanvasPool.getInstance().put(this._canvasData!);
+        this._lettersInfo.length = 0;
     }
 
-    // 状态切换有问题！！！！！！！！！！！！！！！！！！！
-    // 两个接口
-    // 排版一个，渲染一个
-    // 在进行 string 的分析的时候，也会计算出 node 的 content size
-    // 有些奇怪，受到了组件化的影响,需要更新出contentSize
-    // 能否将节点信息更新的过程拆分出来
     public processingString (info: TextProcessData, out?: string[]) {
         if (!info.isBmFont) {
-            // 返回处理过换行甚至是字间排版的数据？
-            // 相通之处在于目前只需要存换好行的数据
-            // 先进行 padding 的计算
-            // if (info.styleChange)
             this._updatePaddingRect(info);
-            // 类似于 richText 的拆分
             this._calculateLabelFont(info);
-            if (out) {
-                out = info.parsedString; // 不太好
-            }
         } else {
             this._setupBMFontOverflowMetrics(info);
             this._updateFontScale(info);
-            this._computeHorizontalKerningForText(info); // char 模式分化
-            this._alignText(info);// 换行操作
-
-            if (out) {
-                out = info.parsedString; // 不太好
-            }
+            this._computeHorizontalKerningForText(info);
+            this._alignText(info);
+        }
+        if (out) {
+            out = info.parsedString;
         }
     }
 
-    public generateRenderInfo (info: TextProcessData, callback: AnyFunction, out?: number[]) {
+    public generateRenderInfo (info: TextProcessData, callback: AnyFunction) {
         if (!info.isBmFont) {
-        // 处理 info 中的数据
-        // 生成 渲染数据
-        // 根据参数决定是否要 out
-        // 会更新到 textProcessData 中的 vertexBuffer 中
-        // 使用之前需要同步一次 context 的信息
             this._updateLabelDimensions(info);
             this._updateTexture(info);
             this.generateVertexData(info, callback);
-            if (out) {
-                out = info.vertexBuffer; // 不太好
-            }
         } else {
-            this._computeAlignmentOffset(info); // 和分解字符无关， 和排版渲染相关
+            this._computeAlignmentOffset(info);
             this.generateVertexData(info, callback);
-            if (out) {
-                out = info.vertexBuffer; // 不太好
-            }
         }
     }
-    // -------------------- 公用公开接口部分 --------------------------
+    // -------------------- Common Part --------------------------
 
-    // -------------------- 句子模式处理部分 --------------------------
+    // -------------------- Canvas Mode Part --------------------------
 
-    // -------------------- 换行处理部分 --------------------------
-    private _context: CanvasRenderingContext2D | null = null; // 需要注意这个变量是否为零时使用的，穿插容易出现错误
+    // -------------------- String Processing Part --------------------------
+    private _context: CanvasRenderingContext2D | null = null;
     private _canvas: HTMLCanvasElement | null = null;
+    private _canvasData: ISharedLabelData | null = null;
+
+    private _lettersInfo: LetterInfo[] = [];
+    private _tmpRect = new Rect();
 
     private _calculateLabelFont (info: TextProcessData) {
         if (!this._context) {
             return;
         }
 
-        info._actualFontSize = info._fontSize;
+        info.actualFontSize = info.fontSize;
         const paragraphedStrings = info.inputString.split('\n');
 
         const _splitStrings = info.parsedString = paragraphedStrings;
-        const _fontDesc = this._getFontDesc(info._actualFontSize, info._fontFamily, info.isBold, info.isItalic);
-        this._context.font = info._fontDesc = _fontDesc;
+        const _fontDesc = this._getFontDesc(info.actualFontSize, info.fontFamily, info.isBold, info.isItalic);
+        this._context.font = info.fontDesc = _fontDesc;
 
-        switch (info._overFlow) {
+        switch (info.overFlow) {
         case Overflow.NONE: {
             let canvasSizeX = 0;
             let canvasSizeY = 0;
@@ -169,14 +140,14 @@ export class TextProcessing {
                 const paraLength = safeMeasureText(this._context, paragraphedStrings[i], _fontDesc);
                 canvasSizeX = canvasSizeX > paraLength ? canvasSizeX : paraLength;
             }
-            canvasSizeY = (_splitStrings.length + BASELINE_RATIO) * this._getLineHeight(info._lineHeight, info._actualFontSize, info._fontSize);// 定义不明
+            canvasSizeY = (_splitStrings.length + BASELINE_RATIO) * this._getLineHeight(info.lineHeight, info.actualFontSize, info.fontSize);
             const rawWidth = parseFloat(canvasSizeX.toFixed(2));
             const rawHeight = parseFloat(canvasSizeY.toFixed(2));
-            // 设置其他的上层使用的信息，可以用于输出
-            info._canvasSize.width = rawWidth + info._canvasPadding.width;
-            info._canvasSize.height = rawHeight + info._canvasPadding.height;
-            info._nodeContentSize.width = rawWidth + info._contentSizeExtend.width;
-            info._nodeContentSize.height = rawHeight + info._contentSizeExtend.height;
+
+            info.canvasSize.width = rawWidth + info.canvasPadding.width;
+            info.canvasSize.height = rawHeight + info.canvasPadding.height;
+            info.nodeContentSize.width = rawWidth + info.contentSizeExtend.width;
+            info.nodeContentSize.height = rawHeight + info.contentSizeExtend.height;
             break;
         }
         case Overflow.SHRINK: {
@@ -190,11 +161,11 @@ export class TextProcessing {
         }
         case Overflow.RESIZE_HEIGHT: {
             this._calculateWrapText(paragraphedStrings, info);
-            const rawHeight = (info.parsedString.length + BASELINE_RATIO) * this._getLineHeight(info._lineHeight, info._actualFontSize, info._fontSize);// 定义不明
-            // 设置其他的上层使用的信息，可以用于输出
-            info._canvasSize.height = rawHeight + info._canvasPadding.height;
+            const rawHeight = (info.parsedString.length + BASELINE_RATIO) * this._getLineHeight(info.lineHeight, info.actualFontSize, info.fontSize);
+
+            info.canvasSize.height = rawHeight + info.canvasPadding.height;
             // set node height
-            info._nodeContentSize.height = rawHeight + info._contentSizeExtend.height;
+            info.nodeContentSize.height = rawHeight + info.contentSizeExtend.height;
             break;
         }
         default: {
@@ -203,10 +174,7 @@ export class TextProcessing {
         }
     }
 
-    // 或者这一步提前组织好，存在 data 里
-    // 比如 info.fontStyle
-    // 由于访问频繁，存在 data 里是一个更好的选择
-    // 可以做缓存
+    // can cache
     private _getFontDesc (fontSize: number, fontFamily: string, isBold: boolean, isItalic: boolean) {
         let fontDesc = `${fontSize.toString()}px `;
         fontDesc += fontFamily;
@@ -221,8 +189,7 @@ export class TextProcessing {
         return fontDesc;
     }
 
-    // 做个缓存，既然我不是状态机了那么这些值直接取就行了
-    // 注意所有使用的地方可能都有问题
+    // can cache
     private _getLineHeight (lineHeight: number, fontSize: number, drawFontsize: number) {
         let nodeSpacingY = lineHeight;
         if (nodeSpacingY === 0) {
@@ -236,22 +203,23 @@ export class TextProcessing {
 
     private _calculateShrinkFont (paragraphedStrings: string[], info: TextProcessData) {
         if (!this._context) return;
-        let _fontDesc = this._getFontDesc(info._actualFontSize, info._fontFamily, info.isBold, info.isItalic);
+        let _fontDesc = this._getFontDesc(info.actualFontSize, info.fontFamily, info.isBold, info.isItalic);
+        this._context.font = _fontDesc;
         const paragraphLength = this._calculateParagraphLength(paragraphedStrings, this._context, _fontDesc);
 
         let i = 0;
         let totalHeight = 0;
         let maxLength = 0;
-        let _fontSize = info._actualFontSize;
+        let _fontSize = info.actualFontSize;
 
-        if (info._wrapping) {
-            const canvasWidthNoMargin = info._nodeContentSize.width; // 提供最大的换行宽度
-            const canvasHeightNoMargin = info._nodeContentSize.height;
+        if (info.wrapping) {
+            const canvasWidthNoMargin = info.nodeContentSize.width;
+            const canvasHeightNoMargin = info.nodeContentSize.height;
             if (canvasWidthNoMargin < 0 || canvasHeightNoMargin < 0) {
                 return;
             }
             totalHeight = canvasHeightNoMargin + 1;
-            const actualFontSize = info._fontSize + 1;
+            const actualFontSize = info.fontSize + 1;
             let textFragment: string[] = [];
             let left = 0;
             let right = actualFontSize | 0;
@@ -266,9 +234,9 @@ export class TextProcessing {
                 }
 
                 _fontSize = mid;
-                _fontDesc = this._getFontDesc(_fontSize, info._fontFamily, info.isBold, info.isItalic);
+                _fontDesc = this._getFontDesc(_fontSize, info.fontFamily, info.isBold, info.isItalic);
                 this._context.font = _fontDesc;
-                const lineHeight = this._getLineHeight(info._lineHeight, _fontSize, info._fontSize); //小心
+                const lineHeight = this._getLineHeight(info.lineHeight, _fontSize, info.fontSize);
 
                 totalHeight = 0;
                 for (i = 0; i < paragraphedStrings.length; ++i) {
@@ -291,35 +259,36 @@ export class TextProcessing {
                 logID(4003);
             } else {
                 _fontSize = left;
-                _fontDesc = this._getFontDesc(_fontSize, info._fontFamily, info.isBold, info.isItalic);
-                this._context.font = _fontDesc;// 会有问题，不可使用 context 来存储信息
+                _fontDesc = this._getFontDesc(_fontSize, info.fontFamily, info.isBold, info.isItalic);
+                this._context.font = _fontDesc;
             }
         } else {
-            totalHeight = paragraphedStrings.length * this._getLineHeight(info._lineHeight, _fontSize, info._fontSize);
+            totalHeight = paragraphedStrings.length * this._getLineHeight(info.lineHeight, _fontSize, info.fontSize);
 
             for (i = 0; i < paragraphedStrings.length; ++i) {
                 if (maxLength < paragraphLength[i]) {
                     maxLength = paragraphLength[i];
                 }
             }
-            const scaleX = (info._canvasSize.width - info._canvasPadding.width) / maxLength;
-            const scaleY = info._canvasSize.height / totalHeight;
+            const scaleX = (info.canvasSize.width - info.canvasPadding.width) / maxLength;
+            const scaleY = info.canvasSize.height / totalHeight;
 
-            _fontSize = (info._fontSize * Math.min(1, scaleX, scaleY)) | 0; // 进行字号缩放
-            _fontDesc = this._getFontDesc(_fontSize, info._fontFamily, info.isBold, info.isItalic); // 需要保存
+            _fontSize = (info.fontSize * Math.min(1, scaleX, scaleY)) | 0;
+            _fontDesc = this._getFontDesc(_fontSize, info.fontFamily, info.isBold, info.isItalic);
             this._context.font = _fontDesc;
         }
 
-        info._actualFontSize = _fontSize;
-        info._fontDesc = _fontDesc;
+        info.actualFontSize = _fontSize;
+        info.fontDesc = _fontDesc;
     }
 
     private _calculateWrapText (paragraphedStrings: string[], info: TextProcessData) {
-        if (!info._wrapping || !this._context) return; // 用于提前判断是否能够换行
+        if (!info.wrapping || !this._context) return;
 
         let _splitStrings: string[] = [];
-        const canvasWidthNoMargin = info._nodeContentSize.width;
-        const _fontDesc = this._getFontDesc(info._actualFontSize, info._fontFamily, info.isBold, info.isItalic);
+        const canvasWidthNoMargin = info.nodeContentSize.width;
+        const _fontDesc = this._getFontDesc(info.actualFontSize, info.fontFamily, info.isBold, info.isItalic);
+        this._context.font = _fontDesc;
         for (let i = 0; i < paragraphedStrings.length; ++i) {
             const allWidth = safeMeasureText(this._context, paragraphedStrings[i], _fontDesc);
             const textFragment = fragmentText(paragraphedStrings[i],
@@ -329,12 +298,10 @@ export class TextProcessing {
             _splitStrings = _splitStrings.concat(textFragment);
         }
         info.parsedString = _splitStrings;
-        // 是否要 return _splitStrings
-        info._fontDesc = _fontDesc; // 同步时机在这里不合适
+        info.fontDesc = _fontDesc;
     }
 
     private _measureText (ctx: CanvasRenderingContext2D, fontDesc) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return (string: string) => safeMeasureText(ctx, string, fontDesc);
     }
 
@@ -349,19 +316,16 @@ export class TextProcessing {
         return paragraphLength;
     }
 
-    // 在对齐之前执行
-    // 是收到后效影响的位置偏移
-    // 比如斜体 contentSize 要宽一些才行
     private _updatePaddingRect (info: TextProcessData) {
         let top = 0; let bottom = 0; let left = 0; let right = 0;
         let outlineWidth = 0;
-        info._contentSizeExtend.width = info._contentSizeExtend.height = 0;
-        if (info._isOutlined) {
+        info.contentSizeExtend.width = info.contentSizeExtend.height = 0;
+        if (info.isOutlined) {
             outlineWidth = info.outlineWidth;
             top = bottom = left = right = outlineWidth;
-            info._contentSizeExtend.width = info._contentSizeExtend.height = outlineWidth * 2;
+            info.contentSizeExtend.width = info.contentSizeExtend.height = outlineWidth * 2;
         }
-        if (info._hasShadow) {
+        if (info.hasShadow) {
             const shadowWidth = info.shadowBlur + outlineWidth;
             const offsetX = info.shadowOffsetX;
             const offsetY = info.shadowOffsetY;
@@ -372,60 +336,51 @@ export class TextProcessing {
         }
         if (info.isItalic) {
             // 0.0174532925 = 3.141592653 / 180
-            const offset = info._actualFontSize * Math.tan(12 * 0.0174532925);
+            const offset = info.actualFontSize * Math.tan(12 * 0.0174532925);
             right += offset;
-            info._contentSizeExtend.width += offset;
+            info.contentSizeExtend.width += offset;
         }
-        info._canvasPadding.x = left;
-        info._canvasPadding.y = top;
-        info._canvasPadding.width = left + right;
-        info._canvasPadding.height = top + bottom;
+        info.canvasPadding.x = left;
+        info.canvasPadding.y = top;
+        info.canvasPadding.width = left + right;
+        info.canvasPadding.height = top + bottom;
     }
 
-    // -------------------- 换行处理部分 --------------------------
+    // -------------------- String Processing Part --------------------------
 
-    // -------------------- 渲染处理部分 --------------------------
+    // -------------------- Render Processing Part --------------------------
 
-    // 同步处理一次 context 使用的信息
     private _updateLabelDimensions (info: TextProcessData) {
-        info._canvasSize.width = Math.min(info._canvasSize.width, MAX_SIZE);
-        info._canvasSize.height = Math.min(info._canvasSize.height, MAX_SIZE);
+        info.canvasSize.width = Math.min(info.canvasSize.width, MAX_SIZE);
+        info.canvasSize.height = Math.min(info.canvasSize.height, MAX_SIZE);
 
-        let recreate = false;
-        if (this._canvas!.width !== info._canvasSize.width) {
-            this._canvas!.width = info._canvasSize.width;
-            recreate = true;
-        }
+        this._canvas!.width = info.canvasSize.width;
+        this._canvas!.height = info.canvasSize.height;
 
-        if (this._canvas!.height !== info._canvasSize.height) {
-            this._canvas!.height = info._canvasSize.height;
-            recreate = true;
-        }
-
-        if (recreate) this._context!.font = info._fontDesc;
+        this._context!.font = info.fontDesc;
         // align
-        this._context!.textAlign = Alignment[info._hAlign] as any;
+        this._context!.textAlign = Alignment[info.hAlign] as any;
         this._context!.textBaseline = 'alphabetic';
     }
 
     private _calculateFillTextStartPosition (info: TextProcessData) {
         let labelX = 0;
-        if (info._hAlign === HorizontalTextAlignment.RIGHT) {
-            labelX = info._canvasSize.width - info._canvasPadding.width;
-        } else if (info._hAlign === HorizontalTextAlignment.CENTER) {
-            labelX = (info._canvasSize.width - info._canvasPadding.width) / 2;
+        if (info.hAlign === HorizontalTextAlignment.RIGHT) {
+            labelX = info.canvasSize.width - info.canvasPadding.width;
+        } else if (info.hAlign === HorizontalTextAlignment.CENTER) {
+            labelX = (info.canvasSize.width - info.canvasPadding.width) / 2;
         }
 
-        const lineHeight = this._getLineHeight(info._lineHeight, info._actualFontSize, info._fontSize);
+        const lineHeight = this._getLineHeight(info.lineHeight, info.actualFontSize, info.fontSize);
         const drawStartY = lineHeight * (info.parsedString.length - 1);
         // TOP
-        let firstLinelabelY = info._actualFontSize * (1 - BASELINE_RATIO / 2);
-        if (info._vAlign !== VerticalTextAlignment.TOP) {
+        let firstLinelabelY = info.actualFontSize * (1 - BASELINE_RATIO / 2);
+        if (info.vAlign !== VerticalTextAlignment.TOP) {
             // free space in vertical direction
-            let blank = drawStartY + info._canvasPadding.height + info._actualFontSize - info._canvasSize.height;
-            if (info._vAlign === VerticalTextAlignment.BOTTOM) {
+            let blank = drawStartY + info.canvasPadding.height + info.actualFontSize - info.canvasSize.height;
+            if (info.vAlign === VerticalTextAlignment.BOTTOM) {
                 // Unlike BMFont, needs to reserve space below.
-                blank += BASELINE_RATIO / 2 * info._actualFontSize;
+                blank += BASELINE_RATIO / 2 * info.actualFontSize;
                 // BOTTOM
                 firstLinelabelY -= blank;
             } else {
@@ -434,9 +389,9 @@ export class TextProcessing {
             }
         }
 
-        firstLinelabelY += _BASELINE_OFFSET * info._actualFontSize;
+        firstLinelabelY += _BASELINE_OFFSET * info.actualFontSize;
 
-        info._startPosition.set(labelX + info._canvasPadding.x, firstLinelabelY + info._canvasPadding.y);
+        info.startPosition.set(labelX + info.canvasPadding.x, firstLinelabelY + info.canvasPadding.y);
     }
 
     private _updateTexture (info: TextProcessData) {
@@ -445,36 +400,36 @@ export class TextProcessing {
         }
 
         this._context.clearRect(0, 0, this._canvas.width, this._canvas.height);
-        this._context.font = info._fontDesc;
+        this._context.font = info.fontDesc;
 
         this._calculateFillTextStartPosition(info);
-        const lineHeight = this._getLineHeight(info._lineHeight, info._actualFontSize, info._fontSize);
+        const lineHeight = this._getLineHeight(info.lineHeight, info.actualFontSize, info.fontSize);
         // use round for line join to avoid sharp intersect point
         this._context.lineJoin = 'round';
 
-        if (info._isOutlined) {
-            this._context.fillStyle = `rgba(${info._outlineColor.r}, ${info._outlineColor.g}, ${info._outlineColor.b}, ${_invisibleAlpha})`;
+        if (info.isOutlined) {
+            this._context.fillStyle = `rgba(${info.outlineColor.r}, ${info.outlineColor.g}, ${info.outlineColor.b}, ${_invisibleAlpha})`;
             // Notice: fillRect twice will not effect
             this._context.fillRect(0, 0, this._canvas.width, this._canvas.height);
         } else {
-            this._context.fillStyle = `rgba(${info._color.r}, ${info._color.g}, ${info._color.b}, ${_invisibleAlpha})`;
+            this._context.fillStyle = `rgba(${info.color.r}, ${info.color.g}, ${info.color.b}, ${_invisibleAlpha})`;
             this._context.fillRect(0, 0, this._canvas.width, this._canvas.height);
         }
-        this._context.fillStyle = `rgb(${info._color.r}, ${info._color.g}, ${info._color.b})`;
-        const drawTextPosX = info._startPosition.x;
+        this._context.fillStyle = `rgb(${info.color.r}, ${info.color.g}, ${info.color.b})`;
+        const drawTextPosX = info.startPosition.x;
         let drawTextPosY = 0;
         // draw shadow and underline
-        this._drawTextEffect(info._startPosition, lineHeight, info);
+        this._drawTextEffect(info.startPosition, lineHeight, info);
         // draw text and outline
         for (let i = 0; i < info.parsedString.length; ++i) {
-            drawTextPosY = info._startPosition.y + i * lineHeight;
-            if (info._isOutlined) {
+            drawTextPosY = info.startPosition.y + i * lineHeight;
+            if (info.isOutlined) {
                 this._context.strokeText(info.parsedString[i], drawTextPosX, drawTextPosY);
             }
             this._context.fillText(info.parsedString[i], drawTextPosX, drawTextPosY);
         }
 
-        if (info._hasShadow) {
+        if (info.hasShadow) {
             this._context.shadowColor = 'transparent';
         }
 
@@ -482,19 +437,12 @@ export class TextProcessing {
     }
 
     private _uploadTexture (info: TextProcessData) {
-        // May better for JIT
-        // if (comp.cacheMode === Label.CacheMode.BITMAP) {
-        //     const frame = comp.ttfSpriteFrame!;
-        //     dynamicAtlasManager.deleteAtlasSpriteFrame(frame);
-        //     frame._resetDynamicAtlasFrame();
-        // }
-
-        if (info._texture && this._canvas) {
+        if (info.texture && this._canvas) {
             let tex: Texture2D;
-            if (info._texture instanceof SpriteFrame) {
-                tex = (info._texture.texture as Texture2D);
+            if (info.texture instanceof SpriteFrame) {
+                tex = (info.texture.texture as Texture2D);
             } else {
-                tex = info._texture;
+                tex = info.texture;
             }
 
             const uploadAgain = this._canvas.width !== 0 && this._canvas.height !== 0;
@@ -507,9 +455,9 @@ export class TextProcessing {
                 });
                 tex.uploadData(this._canvas);
                 tex.setWrapMode(WrapMode.CLAMP_TO_EDGE, WrapMode.CLAMP_TO_EDGE);
-                if (info._texture instanceof SpriteFrame) {
-                    info._texture.rect = new Rect(0, 0, this._canvas.width, this._canvas.height);
-                    info._texture._calculateUV();
+                if (info.texture instanceof SpriteFrame) {
+                    info.texture.rect = new Rect(0, 0, this._canvas.width, this._canvas.height);
+                    info.texture._calculateUV();
                 }
                 if (cclegacy.director.root && cclegacy.director.root.batcher2D) {
                     if (JSB) {
@@ -523,19 +471,19 @@ export class TextProcessing {
     }
 
     private _drawTextEffect (startPosition: Vec2, lineHeight: number, info: TextProcessData) {
-        if (!info._hasShadow && !info._isOutlined && !info.isUnderline) return;
+        if (!info.hasShadow && !info.isOutlined && !info.isUnderline) return;
 
-        const isMultiple = info.parsedString.length > 1 && info._hasShadow;
-        const measureText = this._measureText(this._context!, info._fontDesc);
+        const isMultiple = info.parsedString.length > 1 && info.hasShadow;
+        const measureText = this._measureText(this._context!, info.fontDesc);
         let drawTextPosX = 0;
         let drawTextPosY = 0;
 
         // only one set shadow and outline
-        if (info._hasShadow) {
+        if (info.hasShadow) {
             this._setupShadow(info);
         }
 
-        if (info._isOutlined) {
+        if (info.isOutlined) {
             this._setupOutline(info);
         }
 
@@ -545,7 +493,7 @@ export class TextProcessing {
             drawTextPosY = startPosition.y + i * lineHeight;
             // multiple lines need to be drawn outline and fill text
             if (isMultiple) {
-                if (info._isOutlined) {
+                if (info.isOutlined) {
                     this._context!.strokeText(info.parsedString[i], drawTextPosX, drawTextPosY);
                 }
                 this._context!.fillText(info.parsedString[i], drawTextPosX, drawTextPosY);
@@ -555,14 +503,14 @@ export class TextProcessing {
             if (info.isUnderline) {
                 const _drawUnderlineWidth = measureText(info.parsedString[i]);
                 const _drawUnderlinePos = new Vec2();
-                if (info._hAlign === HorizontalTextAlignment.RIGHT) {
+                if (info.hAlign === HorizontalTextAlignment.RIGHT) {
                     _drawUnderlinePos.x = startPosition.x - _drawUnderlineWidth;
-                } else if (info._hAlign === HorizontalTextAlignment.CENTER) {
+                } else if (info.hAlign === HorizontalTextAlignment.CENTER) {
                     _drawUnderlinePos.x = startPosition.x - (_drawUnderlineWidth / 2);
                 } else {
                     _drawUnderlinePos.x = startPosition.x;
                 }
-                _drawUnderlinePos.y = drawTextPosY + info._actualFontSize / 8;
+                _drawUnderlinePos.y = drawTextPosY + info.actualFontSize / 8;
                 this._context!.fillRect(_drawUnderlinePos.x, _drawUnderlinePos.y, _drawUnderlineWidth, info.underlineHeight);
             }
         }
@@ -573,7 +521,7 @@ export class TextProcessing {
     }
 
     private _setupOutline (info: TextProcessData) {
-        this._context!.strokeStyle = `rgba(${info._outlineColor.r}, ${info._outlineColor.g}, ${info._outlineColor.b}, ${info._outlineColor.a / 255})`;
+        this._context!.strokeStyle = `rgba(${info.outlineColor.r}, ${info.outlineColor.g}, ${info.outlineColor.b}, ${info.outlineColor.a / 255})`;
         this._context!.lineWidth = info.outlineWidth * 2;
     }
 
@@ -584,19 +532,14 @@ export class TextProcessing {
         this._context!.shadowOffsetY = -info.shadowOffsetY;
     }
 
-    // -------------------- 渲染处理部分 --------------------------
+    // -------------------- Render Processing Part --------------------------
 
     private generateVertexData (info: TextProcessData, callback: AnyFunction) {
         if (!info.isBmFont) {
-            this.updateQuatCount(info); // 更新vbBuffer数量
-
-            // 对于不同的模式，存在不同的顶点对接方式
+            this.updateQuatCount(info); // update vbBuffer count
             callback(info);
         } else {
-            // 对于不同的模式，存在不同的顶点对接方式
             this._updateQuads(info, callback);
-
-            // callback(info);
         }
     }
 
@@ -619,43 +562,42 @@ export class TextProcessing {
         }
     }
 
-    // -------------------- 句子模式处理部分 --------------------------
-    // -------------------- 单字模式处理部分 --------------------------
+    // -------------------- Canvas Mode Part ---------------------------
+    // -------------------- Multiple Quad Mode Part --------------------
 
-    // 处理之前的预计算
     private _setupBMFontOverflowMetrics (info: TextProcessData) {
-        let newWidth = info._nodeContentSize.width;
-        let newHeight = info._nodeContentSize.height;
+        let newWidth = info.nodeContentSize.width;
+        let newHeight = info.nodeContentSize.height;
 
-        if (info._overFlow === Overflow.RESIZE_HEIGHT) {
+        if (info.overFlow === Overflow.RESIZE_HEIGHT) {
             newHeight = 0;
         }
 
-        if (info._overFlow === Overflow.NONE) {
+        if (info.overFlow === Overflow.NONE) {
             newWidth = 0;
             newHeight = 0;
         }
 
-        info._labelWidth = newWidth;
-        info._labelHeight = newHeight;
-        info._labelDimensions.width = newWidth;
-        info._labelDimensions.height = newHeight;
-        info._maxLineWidth = newWidth;
+        info.labelWidth = newWidth;
+        info.labelHeight = newHeight;
+        info.labelDimensions.width = newWidth;
+        info.labelDimensions.height = newHeight;
+        info.maxLineWidth = newWidth;
     }
 
     private _updateFontScale (info: TextProcessData) {
-        info._bmfontScale = info._actualFontSize / info._originFontSize;
+        info.bmfontScale = info.actualFontSize / info.originFontSize;
     }
 
     private _computeHorizontalKerningForText (info: TextProcessData) {
         const string = info.inputString;
         const stringLen = string.length;
-        if (!info._fntConfig) return; // for char
+        if (!info.fntConfig) return; // for char
 
-        const kerningDict = info._fntConfig.kerningDict; // 应该是用于处理连词的
-        const horizontalKerning = info._horizontalKerning; // 不重置的话可能存在泄露风险
+        const kerningDict = info.fntConfig.kerningDict;
+        const horizontalKerning = info.horizontalKerning;
 
-        if (!kerningDict || kerningDict.length === 0) { // 新加了保护
+        if (!kerningDict || kerningDict.length === 0) {
             return;
         }
 
@@ -673,19 +615,17 @@ export class TextProcessing {
     }
 
     private _alignText (info: TextProcessData) {
-        this._multilineTextWrap(info, this._getFirstWordLen);// 先尝试计算一次换行信息
+        this._multilineTextWrap(info, this._getFirstWordLen);
 
         // shrink
-        if (info._overFlow === Overflow.SHRINK) {
-            if (info._fontSize > 0 && this._isVerticalClamp(info, this)) {
-                this._shrinkLabelToContentSize(info, this._isVerticalClamp); // 竖直字号处理完毕
+        if (info.overFlow === Overflow.SHRINK) {
+            if (info.fontSize > 0 && this._isVerticalClamp(info, this)) {
+                this._shrinkLabelToContentSize(info, this._isVerticalClamp);
             }
-            // 然后这里加个条件，判断上面的字号是不是需要横向缩小？
-            if (info._fontSize > 0 && this._isHorizontalClamped(info)) {
+            if (info.fontSize > 0 && this._isHorizontalClamped(info)) {
                 this._shrinkLabelToContentSize(info, this._isHorizontalClamp);
             }
         }
-        // 分析完成，取行号和结果出来
         this._parsedString(info);
     }
 
@@ -708,12 +648,8 @@ export class TextProcessing {
         info.parsedString = _splitStrings;
     }
 
-    // hack
-    private _numberOfLines = 0;
-    private _textDesiredHeight = 0;
     private _multilineTextWrap (info: TextProcessData, nextTokenFunc: (arg0: TextProcessData, arg1: string, arg2: number, arg3: number) => number) {
-        info._textDesiredHeight = 0; // 跨函数临时变量 // 存 data 不合适
-        info._linesWidth.length = 0; // 跨函数临时变量 // 存 data 不合适
+        info.linesWidth.length = 0;
 
         const _string = info.inputString;
         const textLen = _string.length;
@@ -728,16 +664,16 @@ export class TextProcessing {
         let lowestY = 0;
         let letterDef: FontLetterDefinition | null = null;
 
-        const _lineSpacing = 0; // 这个也是？有啥用？？？？？？原代码还是个全局变量
+        const _lineSpacing = 0; // use less?
 
         for (let index = 0; index < textLen;) {
             let character = _string.charAt(index);
             if (character === '\n') {
-                info._linesWidth.push(letterRight);
+                info.linesWidth.push(letterRight);
                 letterRight = 0;
                 lineIndex++;
                 nextTokenX = 0;
-                nextTokenY -= info._lineHeight * this._getFontScale(info) + _lineSpacing;
+                nextTokenY -= info.lineHeight * this._getFontScale(info) + _lineSpacing;
                 this._recordPlaceholderInfo(index, character);
                 index++;
                 continue;
@@ -762,45 +698,45 @@ export class TextProcessing {
                 if (!letterDef) {
                     this._recordPlaceholderInfo(letterIndex, character);
                     console.log(`Can't find letter definition in texture atlas ${
-                        info._fntConfig!.atlasName} for letter:${character}`);
+                        info.fntConfig!.atlasName} for letter:${character}`);
                     continue;
                 }
 
-                const letterX = nextLetterX + letterDef.offsetX * info._bmfontScale - shareLabelInfo.margin;
+                const letterX = nextLetterX + letterDef.offsetX * info.bmfontScale - shareLabelInfo.margin;
 
-                if (info._wrapping
-                    && info._maxLineWidth > 0
+                if (info.wrapping
+                    && info.maxLineWidth > 0
                     && nextTokenX > 0
-                    && letterX + letterDef.w * info._bmfontScale > info._maxLineWidth
+                    && letterX + letterDef.w * info.bmfontScale > info.maxLineWidth
                     && !isUnicodeSpace(character)) {
-                    info._linesWidth.push(letterRight);
+                    info.linesWidth.push(letterRight);
                     letterRight = 0;
                     lineIndex++;
                     nextTokenX = 0;
-                    nextTokenY -= (info._lineHeight * this._getFontScale(info) + _lineSpacing);
+                    nextTokenY -= (info.lineHeight * this._getFontScale(info) + _lineSpacing);
                     newLine = true;
                     break;
                 } else {
                     letterPosition.x = letterX;
                 }
 
-                letterPosition.y = nextTokenY - letterDef.offsetY * info._bmfontScale;
-                this._recordLetterInfo(letterPosition, character, letterIndex, lineIndex); // 换行信息录入 // 应该此处就可以分割了
+                letterPosition.y = nextTokenY - letterDef.offsetY * info.bmfontScale;
+                this._recordLetterInfo(letterPosition, character, letterIndex, lineIndex);
 
-                if (letterIndex + 1 < info._horizontalKerning.length && letterIndex < textLen - 1) {
-                    nextLetterX += info._horizontalKerning[letterIndex + 1];
+                if (letterIndex + 1 < info.horizontalKerning.length && letterIndex < textLen - 1) {
+                    nextLetterX += info.horizontalKerning[letterIndex + 1];
                 }
 
-                nextLetterX += letterDef.xAdvance * info._bmfontScale + info._spacingX;
+                nextLetterX += letterDef.xAdvance * info.bmfontScale + info.spacingX;
 
-                tokenRight = letterPosition.x + letterDef.w * info._bmfontScale;
+                tokenRight = letterPosition.x + letterDef.w * info.bmfontScale;
 
                 if (tokenHighestY < letterPosition.y) {
                     tokenHighestY = letterPosition.y;
                 }
 
-                if (tokenLowestY > letterPosition.y - letterDef.h * info._bmfontScale) {
-                    tokenLowestY = letterPosition.y - letterDef.h * info._bmfontScale;
+                if (tokenLowestY > letterPosition.y - letterDef.h * info.bmfontScale) {
+                    tokenLowestY = letterPosition.y - letterDef.h * info.bmfontScale;
                 }
             } // end of for loop
 
@@ -822,37 +758,35 @@ export class TextProcessing {
             index += tokenLen;
         } // end of for loop
 
-        info._linesWidth.push(letterRight);
+        info.linesWidth.push(letterRight);
 
-        this._numberOfLines = lineIndex + 1;
-        this._textDesiredHeight = this._numberOfLines * info._lineHeight * this._getFontScale(info);
-        if (this._numberOfLines > 1) {
-            this._textDesiredHeight += (this._numberOfLines - 1) * _lineSpacing;
+        info.numberOfLines = lineIndex + 1;
+        info.textDesiredHeight = info.numberOfLines * info.lineHeight * this._getFontScale(info);
+        if (info.numberOfLines > 1) {
+            info.textDesiredHeight += (info.numberOfLines - 1) * _lineSpacing;
         }
 
-        info._nodeContentSize.width = info._labelWidth;
-        info._nodeContentSize.height = info._labelHeight;
-        if (info._labelWidth <= 0) {
-            info._nodeContentSize.width = parseFloat(longestLine.toFixed(2)) + shareLabelInfo.margin * 2;
+        info.nodeContentSize.width = info.labelWidth;
+        info.nodeContentSize.height = info.labelHeight;
+        if (info.labelWidth <= 0) {
+            info.nodeContentSize.width = parseFloat(longestLine.toFixed(2)) + shareLabelInfo.margin * 2;
         }
-        if (info._labelHeight <= 0) {
-            info._nodeContentSize.height = parseFloat(this._textDesiredHeight.toFixed(2)) + shareLabelInfo.margin * 2;
+        if (info.labelHeight <= 0) {
+            info.nodeContentSize.height = parseFloat(info.textDesiredHeight.toFixed(2)) + shareLabelInfo.margin * 2;
         }
 
-        info._tailoredTopY = info._nodeContentSize.height;
-        info._tailoredBottomY = 0;
+        info.tailoredTopY = info.nodeContentSize.height;
+        info.tailoredBottomY = 0;
         if (highestY > 0) {
-            info._tailoredTopY = info._nodeContentSize.height + highestY;
+            info.tailoredTopY = info.nodeContentSize.height + highestY;
         }
-        if (lowestY < -this._textDesiredHeight) {
-            info._tailoredBottomY = this._textDesiredHeight + lowestY;
+        if (lowestY < -info.textDesiredHeight) {
+            info.tailoredBottomY = info.textDesiredHeight + lowestY;
         }
 
         return true;
     }
 
-    // 这个值公用可能比较危险，因为是俩函数了
-    private _lettersInfo: LetterInfo[] = []; // 尝试公用 // 需要管理，之前那个写法可能会泄露
     private _recordPlaceholderInfo (letterIndex: number, char: string) {
         if (letterIndex >= this._lettersInfo.length) {
             const tmpInfo = new LetterInfo();
@@ -894,7 +828,7 @@ export class TextProcessing {
         if (!letterDef) {
             return len;
         }
-        let nextLetterX = letterDef.xAdvance * info._bmfontScale + info._spacingX;
+        let nextLetterX = letterDef.xAdvance * info.bmfontScale + info.spacingX;
         let letterX = 0;
         for (let index = startIndex + 1; index < textLen; ++index) {
             character = text.charAt(index);
@@ -903,14 +837,14 @@ export class TextProcessing {
             if (!letterDef) {
                 break;
             }
-            letterX = nextLetterX + letterDef.offsetX * info._bmfontScale;
+            letterX = nextLetterX + letterDef.offsetX * info.bmfontScale;
 
-            if (letterX + letterDef.w * info._bmfontScale > info._maxLineWidth
+            if (letterX + letterDef.w * info.bmfontScale > info.maxLineWidth
                 && !isUnicodeSpace(character)
-                && info._maxLineWidth > 0) {
+                && info.maxLineWidth > 0) {
                 return len;
             }
-            nextLetterX += letterDef.xAdvance * info._bmfontScale + info._spacingX;
+            nextLetterX += letterDef.xAdvance * info.bmfontScale + info.spacingX;
             if (character === '\n'
                 || isUnicodeSpace(character)
                 || isUnicodeCJK(character)) {
@@ -922,25 +856,24 @@ export class TextProcessing {
         return len;
     }
 
-    private _linesOffsetX: number[] = [];
-    private _letterOffsetY = 0;
     private _computeAlignmentOffset (info: TextProcessData) {
-        this._linesOffsetX.length = 0;
+        info.linesOffsetX.length = 0;
+        info.letterOffsetY = 0;
 
-        switch (info._hAlign) {
+        switch (info.hAlign) {
         case HorizontalTextAlignment.LEFT:
-            for (let i = 0; i < this._numberOfLines; ++i) {
-                this._linesOffsetX.push(0);
+            for (let i = 0; i < info.numberOfLines; ++i) {
+                info.linesOffsetX.push(0);
             }
             break;
         case HorizontalTextAlignment.CENTER:
-            for (let i = 0, l = info._linesWidth.length; i < l; i++) {
-                this._linesOffsetX.push((info._nodeContentSize.width - info._linesWidth[i]) / 2);
+            for (let i = 0, l = info.linesWidth.length; i < l; i++) {
+                info.linesOffsetX.push((info.nodeContentSize.width - info.linesWidth[i]) / 2);
             }
             break;
         case HorizontalTextAlignment.RIGHT:
-            for (let i = 0, l = info._linesWidth.length; i < l; i++) {
-                this._linesOffsetX.push(info._nodeContentSize.width - info._linesWidth[i]);
+            for (let i = 0, l = info.linesWidth.length; i < l; i++) {
+                info.linesOffsetX.push(info.nodeContentSize.width - info.linesWidth[i]);
             }
             break;
         default:
@@ -948,33 +881,32 @@ export class TextProcessing {
         }
 
         // TOP
-        this._letterOffsetY = info._nodeContentSize.height;
-        if (info._vAlign !== VerticalTextAlignment.TOP) {
-            const blank = info._nodeContentSize.height - this._textDesiredHeight
-            + info._lineHeight * this._getFontScale(info) - info._originFontSize * info._bmfontScale;
-            if (info._vAlign === VerticalTextAlignment.BOTTOM) {
+        info.letterOffsetY = info.nodeContentSize.height;
+        if (info.vAlign !== VerticalTextAlignment.TOP) {
+            const blank = info.nodeContentSize.height - info.textDesiredHeight
+            + info.lineHeight * this._getFontScale(info) - info.originFontSize * info.bmfontScale;
+            if (info.vAlign === VerticalTextAlignment.BOTTOM) {
                 // BOTTOM
-                this._letterOffsetY -= blank;
+                info.letterOffsetY -= blank;
             } else {
                 // CENTER:
-                this._letterOffsetY -= blank / 2;
+                info.letterOffsetY -= blank / 2;
             }
         }
     }
 
     private _getFontScale (info: TextProcessData) {
-        return info._overFlow === Overflow.SHRINK ? info._bmfontScale : 1;
+        return info.overFlow === Overflow.SHRINK ? info.bmfontScale : 1;
     }
 
     private _isVerticalClamp (info: TextProcessData, process: TextProcessing) {
-        if (process._textDesiredHeight > info._nodeContentSize.height) {
+        if (info.textDesiredHeight > info.nodeContentSize.height) {
             return true;
         } else {
             return false;
         }
     }
 
-    // 这里，实际上就遍历了 // 有点伤
     private _isHorizontalClamp (info: TextProcessData, process: TextProcessing) {
         let letterClamp = false;
         const _string = info.inputString;
@@ -986,17 +918,17 @@ export class TextProcessing {
                     continue;
                 }
 
-                const px = letterInfo.x + letterDef.w * info._bmfontScale;
+                const px = letterInfo.x + letterDef.w * info.bmfontScale;
                 const lineIndex = letterInfo.line;
-                if (info._labelWidth > 0) {
-                    if (!info._wrapping) {
-                        if (px > info._nodeContentSize.width) {
+                if (info.labelWidth > 0) {
+                    if (!info.wrapping) {
+                        if (px > info.nodeContentSize.width) {
                             letterClamp = true;
                             break;
                         }
                     } else {
-                        const wordWidth = info._linesWidth[lineIndex];
-                        if (wordWidth > info._nodeContentSize.width && (px > info._nodeContentSize.width || px < 0)) {
+                        const wordWidth = info.linesWidth[lineIndex];
+                        if (wordWidth > info.nodeContentSize.width && (px > info.nodeContentSize.width || px < 0)) {
                             letterClamp = true;
                             break;
                         }
@@ -1008,18 +940,17 @@ export class TextProcessing {
         return letterClamp;
     }
 
-    // 可能存在 px 的问题，不必要的累加
     private _isHorizontalClamped (info: TextProcessData) {
         let wordWidth = 0;
-        for (let ctr = 0, l = info._linesWidth.length; ctr < l; ++ctr) {
-            wordWidth = info._linesWidth[ctr];
-            if (wordWidth > info._nodeContentSize.width) return true;
+        for (let ctr = 0, l = info.linesWidth.length; ctr < l; ++ctr) {
+            wordWidth = info.linesWidth[ctr];
+            if (wordWidth > info.nodeContentSize.width) return true;
         }
         return false;
     }
 
     private _shrinkLabelToContentSize (info: TextProcessData, lambda: (info: TextProcessData, process: TextProcessing) => boolean) {
-        const fontSize = info._actualFontSize;
+        const fontSize = info.actualFontSize;
 
         let left = 0;
         let right = fontSize | 0;
@@ -1032,14 +963,13 @@ export class TextProcessing {
                 break;
             }
 
-            // 注意此处赋值可能带来的流程不统一的问题
-            info._bmfontScale = newFontSize / info._originFontSize; // 可以考虑在函数外同步
+            info.bmfontScale = newFontSize / info.originFontSize;
 
             this._multilineTextWrap(info, this._getFirstWordLen);
 
             this._computeAlignmentOffset(info);
 
-            if (lambda(info, this)) { // 不行不行
+            if (lambda(info, this)) {
                 right = mid - 1;
             } else {
                 left = mid;
@@ -1057,25 +987,23 @@ export class TextProcessing {
             fontSize = 0.1;
             shouldUpdateContent = false;
         }
-        info._actualFontSize = fontSize; // 可能只要这一步就够了
+        info.actualFontSize = fontSize;
 
         if (shouldUpdateContent) {
-            this._updateFontScale(info); // 这步也是
-            this._multilineTextWrap(info, this._getFirstWordLen); // 这部不一定要啊
+            this._updateFontScale(info);
+            this._multilineTextWrap(info, this._getFirstWordLen);
         }
     }
 
-    private _tmpRect = new Rect(); // 跨函数的临时变量
     private _updateQuads (info: TextProcessData, callback) {
-        // 这个取 spriteFrame 的操作有点奇怪
-        const texture =  info._spriteFrame ? info._spriteFrame.texture : shareLabelInfo.fontAtlas!.getTexture();
+        const texture =  info.spriteFrame ? info.spriteFrame.texture : shareLabelInfo.fontAtlas!.getTexture();
 
-        const appX = info.uiTransAnchorX * info._nodeContentSize.width;
-        const appY = info.uiTransAnchorY * info._nodeContentSize.height;
+        const appX = info.uiTransAnchorX * info.nodeContentSize.width;
+        const appY = info.uiTransAnchorY * info.nodeContentSize.height;
 
         const ret = true;
         for (let ctr = 0, l = info.inputString.length; ctr < l; ++ctr) {
-            const letterInfo = this._lettersInfo[ctr]; // 危险
+            const letterInfo = this._lettersInfo[ctr];
             if (!letterInfo.valid) { continue; }
             const letterDef = shareLabelInfo.fontAtlas!.getLetter(letterInfo.hash);
             if (!letterDef) {
@@ -1088,27 +1016,27 @@ export class TextProcessing {
             this._tmpRect.x = letterDef.u;
             this._tmpRect.y = letterDef.v;
 
-            let py = letterInfo.y + this._letterOffsetY;
+            let py = letterInfo.y + info.letterOffsetY;
 
-            if (info._labelHeight > 0) {
-                if (py > info._tailoredTopY) {
-                    const clipTop = py - info._tailoredTopY;
+            if (info.labelHeight > 0) {
+                if (py > info.tailoredTopY) {
+                    const clipTop = py - info.tailoredTopY;
                     this._tmpRect.y += clipTop;
                     this._tmpRect.height -= clipTop;
                     py -= clipTop;
                 }
 
-                if ((py - this._tmpRect.height * info._bmfontScale < info._tailoredBottomY) && info._overFlow === Overflow.CLAMP) {
-                    this._tmpRect.height = (py < info._tailoredBottomY) ? 0 : (py - info._tailoredBottomY) / info._bmfontScale;
+                if ((py - this._tmpRect.height * info.bmfontScale < info.tailoredBottomY) && info.overFlow === Overflow.CLAMP) {
+                    this._tmpRect.height = (py < info.tailoredBottomY) ? 0 : (py - info.tailoredBottomY) / info.bmfontScale;
                 }
             }
 
-            const lineIndex = letterInfo.line; // 关键位置，这个行号说明了是第几行
-            const px = letterInfo.x + letterDef.w / 2 * info._bmfontScale + this._linesOffsetX[lineIndex];
+            const lineIndex = letterInfo.line;
+            const px = letterInfo.x + letterDef.w / 2 * info.bmfontScale + info.linesOffsetX[lineIndex];
 
-            if (info._labelWidth > 0) {
-                if (this._isHorizontalClamped(info)) { // px 的风险
-                    if (info._overFlow === Overflow.CLAMP) {
+            if (info.labelWidth > 0) {
+                if (this._isHorizontalClamped(info)) {
+                    if (info.overFlow === Overflow.CLAMP) {
                         this._tmpRect.width = 0;
                     }
                 }
@@ -1116,18 +1044,18 @@ export class TextProcessing {
 
             if (this._tmpRect.height > 0 && this._tmpRect.width > 0) {
                 const isRotated = this._determineRect(info);
-                const letterPositionX = letterInfo.x + this._linesOffsetX[letterInfo.line];
-                const offset = info.quadCount; // hack
-                info.quadCount += 4; // hack
-                this.updateQuatCount(info); // 更新vbBuffer数量
+                const letterPositionX = letterInfo.x + info.linesOffsetX[letterInfo.line];
+                const offset = info.quadCount;
+                info.quadCount += 4; // Hard Code
+                this.updateQuatCount(info);
                 callback(info, offset, texture, this._tmpRect, isRotated, letterPositionX - appX, py - appY);
             }
         }
         return ret;
     }
 
-    _determineRect (info: TextProcessData) {
-        const _spriteFrame = info._spriteFrame;
+    private _determineRect (info: TextProcessData) {
+        const _spriteFrame = info.spriteFrame;
         if (!_spriteFrame) return false; // for char mode
         const isRotated = _spriteFrame.isRotated();
 
@@ -1152,7 +1080,7 @@ export class TextProcessing {
         return isRotated;
     }
 
-    // -------------------- 单字模式处理部分 --------------------------
+    // -------------------- Multiple Quad Mode Part --------------------
 }
 
 TextProcessing.instance = new TextProcessing();

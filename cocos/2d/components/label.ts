@@ -644,9 +644,12 @@ export class Label extends UIRenderer {
         }
     }
 
+    /**
+     * @engineInternal
+     */
     // Processing Data
     get processingData () {
-        return this._textProcessingData;
+        return this._textProcessingData!;
     }
 
     @serializable
@@ -696,7 +699,7 @@ export class Label extends UIRenderer {
 
     protected _contentWidth = 0;
 
-    protected _textProcessingData: TextProcessData;
+    protected _textProcessingData: TextProcessData | null = null;
 
     /**
      * @engineInternal
@@ -756,6 +759,11 @@ export class Label extends UIRenderer {
             }
             this._ttfSpriteFrame = null;
         }
+
+        if (this._textProcessingData) {
+            this._textProcessingData.destroy();
+        }
+        this._textProcessingData = null;
 
         // texture cannot be destroyed in here, lettertexture image source is public.
         this._letterTexture = null;
@@ -828,6 +836,7 @@ export class Label extends UIRenderer {
         if (this._assembler !== assembler) {
             this.destroyRenderData();
             this._assembler = assembler;
+            this.processingData.reset();
         }
 
         if (!this.renderData) {
