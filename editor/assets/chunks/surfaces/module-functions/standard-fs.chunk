@@ -330,8 +330,9 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
 
 // Debug view
 #if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_SINGLE
-void CCSurfacesDebugViewSurfaceData(inout vec4 color, in SurfacesMaterialData surfaceData)
+bool CCSurfacesDebugViewSurfaceData(inout vec4 color, in SurfacesMaterialData surfaceData)
 {
+    bool enableMaterialAlpha = true;
     vec4 black = vec4(0.0, 0.0, 0.0, 1.0);
     float scalar;
     if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_FRAGMENT_NORMAL))
@@ -358,6 +359,7 @@ void CCSurfacesDebugViewSurfaceData(inout vec4 color, in SurfacesMaterialData su
     if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_TRANSPARENCY)) {
         scalar = surfaceData.baseColor.a;
         color = vec4(scalar, scalar, scalar, 1.0);
+        enableMaterialAlpha = false;
     }
     if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_BASE_COLOR))
         color = vec4(LinearToSRGB(surfaceData.baseColor.rgb), 1.0);
@@ -384,6 +386,8 @@ void CCSurfacesDebugViewSurfaceData(inout vec4 color, in SurfacesMaterialData su
         scalar = surfaceData.ior - 1.0;
         color = vec4(scalar, scalar, scalar, 1.0);
     }
+
+    return enableMaterialAlpha;
 }
 #endif
 

@@ -71,7 +71,10 @@ void main()  {
 
     #if !CC_FORWARD_ADD
       CCSurfacesDebugViewMeshData(debugColor);
-      CCSurfacesDebugViewSurfaceData(debugColor, surfaceData);
+      if (CCSurfacesDebugViewSurfaceData(debugColor, surfaceData))
+      {
+        debugColor.a = materialTransparency;
+      }
       if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_FOG))
       {
         debugColor.rgb = vec3(1.0 - fogFactor);
