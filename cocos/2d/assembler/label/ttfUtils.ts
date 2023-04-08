@@ -89,7 +89,6 @@ export const ttfUtils =  {
 
         data.hAlign = comp.horizontalAlign; // render Only
         data.vAlign = comp.verticalAlign; // render Only
-        // 差一个 alpha
     },
 
     getAssemblerData () {
@@ -112,13 +111,12 @@ export const ttfUtils =  {
             const processing = TextProcessing.instance;
             const data = comp.processingData;
             data.isBmFont = false; // hard code
-            this.updateProcessingData(data, comp, trans);// 同步信息
-            // hack
+            this.updateProcessingData(data, comp, trans);
             data.fontFamily = this._updateFontFamily(comp);
 
             // TextProcessing
-            processing.processingString(data);// 可以填 out // 用一个flag来避免排版的更新，比如 renderDirtyOnly
-            processing.generateRenderInfo(data, this.generateVertexData); // 传个方法进去
+            processing.processingString(data);
+            processing.generateRenderInfo(data, this.generateVertexData);
 
             const renderData = comp.renderData;
             renderData.textureDirty = true;

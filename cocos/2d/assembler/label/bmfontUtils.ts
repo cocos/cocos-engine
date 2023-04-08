@@ -75,9 +75,8 @@ export const bmfontUtils = {
         shareLabelInfo.lineHeight = comp.lineHeight;
         shareLabelInfo.fontSize = comp.fontSize;
 
-        // 同步数据？
-        data.spriteFrame = _spriteFrame; // 只同步这一次 // char 模式为 null
-        data.fntConfig = _fntConfig; // 只同步这一次
+        data.spriteFrame = _spriteFrame;
+        data.fntConfig = _fntConfig;
         data.fontAtlas = shareLabelInfo.fontAtlas;
         data.fontFamily = shareLabelInfo.fontFamily;
 
@@ -105,17 +104,15 @@ export const bmfontUtils = {
 
             this._updateLabelInfo(comp);
 
-            // 同步下 info 中的内容 // hack
             data.fontDesc = shareLabelInfo.fontDesc;
 
             // TextProcessing
-            processing.processingString(data);// 可以填 out // 用一个flag来避免排版的更新，比如 renderDirtyOnly
+            processing.processingString(data);
             // generateVertex
             this.resetRenderData(comp);
             data.quadCount = 0;
-            processing.generateRenderInfo(data, this.generateVertexData); // 传个方法进去
+            processing.generateRenderInfo(data, this.generateVertexData);
 
-            // 更新 vb
             renderData.dataLength = data.quadCount;
             renderData.resize(renderData.dataLength, renderData.dataLength / 2 * 3);
             const datalist = renderData.data;
@@ -123,7 +120,6 @@ export const bmfontUtils = {
                 datalist[i] = data.vertexBuffer[i];
             }
 
-            // 处理 ib
             const indexCount = renderData.indexCount;
             this.createQuadIndices(indexCount);
             renderData.chunk.setIndexBuffer(QUAD_INDICES);
