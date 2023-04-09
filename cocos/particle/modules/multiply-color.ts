@@ -28,11 +28,10 @@ import { Color } from '../../core/math';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { GradientRange } from '../gradient-range';
 import { BuiltinParticleParameter, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
-import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
+import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
 import { assert } from '../../core';
-import { RandNumGen } from '../rand-num-gen';
+import { RandomStream } from '../random-stream';
 
-const COLOR_OVERTIME_RAND_OFFSET = 91041;
 const tempColor = new Color();
 const tempColor2 = new Color();
 const tempColor3 = new Color();
@@ -48,6 +47,12 @@ export class MultiplyColorModule extends ParticleModule {
     @displayOrder(1)
     public color = new GradientRange();
 
+    private _randomOffset = 0;
+
+    public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {
+        this._randomOffset = state.rand.getUInt32();
+    }
+
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         assert(this.color.mode === GradientRange.Mode.Gradient || this.color.mode === GradientRange.Mode.TwoGradients, 'Color mode must be Gradient or TwoGradients');
         context.markRequiredParameter(BuiltinParticleParameter.COLOR);
@@ -60,6 +65,7 @@ export class MultiplyColorModule extends ParticleModule {
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         const { fromIndex, toIndex } = context;
         const { color } = particles;
+        const randomOffset = this._randomOffset;
         if (this.color.mode === GradientRange.Mode.Gradient) {
             const gradient = this.color.gradient;
             const { normalizedAliveTime } = particles;
@@ -75,7 +81,7 @@ export class MultiplyColorModule extends ParticleModule {
                 color.multiplyColorAt(Color.lerp(tempColor,
                     gradientMin.evaluate(tempColor2, time),
                     gradientMax.evaluate(tempColor3, time),
-                    RandNumGen.getFloat(randomSeed[i] + COLOR_OVERTIME_RAND_OFFSET)), i);
+                    RandomStream.getFloat(randomSeed[i] + randomOffset)), i);
             }
         }
     }

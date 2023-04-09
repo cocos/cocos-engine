@@ -28,7 +28,6 @@ import { ModuleExecStage, ParticleModule } from '../particle-module';
 import { Enum, Vec3 } from '../../core';
 import { BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
-import { RandNumGen } from '../rand-num-gen';
 
 enum EmitFrom {
     VOLUME,
@@ -56,7 +55,7 @@ export class BoxShapeModule extends ShapeModule {
 
     public tick (particles: ParticleDataSet,  params: ParticleEmitterParams, context: ParticleExecContext) {
         super.tick(particles, params, context);
-        this._thicknessPercent.set(1 - this.boxThickness.x, 1 - this.boxThickness.y, 1 - this.boxThickness.z);
+        Vec3.set(this._thicknessPercent, 1 - this.boxThickness.x, 1 - this.boxThickness.y, 1 - this.boxThickness.z);
     }
 
     public execute (particles: ParticleDataSet,  params: ParticleEmitterParams, context: ParticleExecContext) {

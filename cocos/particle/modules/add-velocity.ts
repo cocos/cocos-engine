@@ -28,14 +28,14 @@ import { Enum } from '../../core';
 import { lerp, Mat4, Quat, Vec3 } from '../../core/math';
 import { Space } from '../enum';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
-import { BuiltinParticleParameter, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
 import { CurveRange } from '../curve-range';
 import { RandomStream } from '../random-stream';
 
-const VELOCITY_RAND_OFFSET = 197866;
 const tempVelocity = new Vec3();
 const seed = new Vec3();
+const requiredParameter = BuiltinParticleParameterFlags.VELOCITY | BuiltinParticleParameterFlags.POSITION;
 
 @ccclass('cc.AddVelocityModule')
 @ParticleModule.register('AddVelocity', ModuleExecStage.UPDATE | ModuleExecStage.SPAWN, [BuiltinParticleParameterName.VELOCITY])
@@ -82,25 +82,24 @@ export class AddVelocityModule extends ParticleModule {
 
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         if (this.x.mode === CurveRange.Mode.TwoConstants || this.x.mode === CurveRange.Mode.TwoCurves) {
-            context.markRequiredParameter(BuiltinParticleParameter.RANDOM_SEED);
+            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
         }
         if (this.x.mode === CurveRange.Mode.TwoCurves || this.x.mode === CurveRange.Mode.Curve) {
             if (context.executionStage !== ModuleExecStage.SPAWN) {
-                context.markRequiredParameter(BuiltinParticleParameter.NORMALIZED_ALIVE_TIME);
+                context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
             } else {
-                context.markRequiredParameter(BuiltinParticleParameter.SPAWN_NORMALIZED_TIME);
+                context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.SPAWN_NORMALIZED_TIME);
             }
         }
-        context.markRequiredParameter(BuiltinParticleParameter.POSITION);
-        if (context.executionStage === ModuleExecStage.UPDATE) {
-            context.markRequiredParameter(BuiltinParticleParameter.VELOCITY);
-        } else {
-            context.markRequiredParameter(BuiltinParticleParameter.BASE_VELOCITY);
+        context.markRequiredBuiltinParameters(requiredParameter);
+        if (context.executionStage !== ModuleExecStage.UPDATE) {
+            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.BASE_VELOCITY);
         }
     }
 
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         const needTransform = this.space !== params.simulationSpace;
+        const randomOffset = this._randomOffset;
         const velocity = context.executionStage === ModuleExecStage.UPDATE ? particles.velocity : particles.baseVelocity;
         const { fromIndex, toIndex, rotationIfNeedTransform } = context;
         if (needTransform) {
@@ -111,13 +110,15 @@ export class AddVelocityModule extends ParticleModule {
                     velocity.addVec3At(tempVelocity, i);
                 }
             } else if (this.x.mode === CurveRange.Mode.Curve) {
-                const time = context.executionStage !== ModuleExecStage.SPAWN ? particles.normalizedAliveTime.data : particles.spawnNormalizedTime.data;
+                const time = context.executionStage !== ModuleExecStage.SPAWN
+                    ? particles.normalizedAliveTime.data : particles.spawnNormalizedTime.data;
                 const { spline: xCurve, multiplier: xMultiplier } = this.x;
                 const { spline: yCurve, multiplier: yMultiplier } = this.y;
                 const { spline: zCurve, multiplier: zMultiplier } = this.z;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const normalizedTime = time[i];
-                    tempVelocity.set(xCurve.evaluate(normalizedTime) * xMultiplier,
+                    Vec3.set(tempVelocity,
+                        xCurve.evaluate(normalizedTime) * xMultiplier,
                         yCurve.evaluate(normalizedTime) * yMultiplier,
                         zCurve.evaluate(normalizedTime) * zMultiplier);
                     Vec3.transformQuat(tempVelocity, tempVelocity, rotationIfNeedTransform);
@@ -129,8 +130,9 @@ export class AddVelocityModule extends ParticleModule {
                 const { constantMin: yMin, constantMax: yMax } = this.y;
                 const { constantMin: zMin, constantMax: zMax } = this.z;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const ratio = RandNumGen.get3Float(randomSeed[i] + VELOCITY_RAND_OFFSET, seed);
-                    tempVelocity.set(lerp(xMin, xMax, ratio.x),
+                    const ratio = RandomStream.get3Float(randomSeed[i] + randomOffset, seed);
+                    Vec3.set(tempVelocity,
+                        lerp(xMin, xMax, ratio.x),
                         lerp(yMin, yMax, ratio.y),
                         lerp(zMin, zMax, ratio.z));
                     Vec3.transformQuat(tempVelocity, tempVelocity, rotationIfNeedTransform);
@@ -138,14 +140,16 @@ export class AddVelocityModule extends ParticleModule {
                 }
             } else {
                 const randomSeed = particles.randomSeed.data;
-                const time = context.executionStage !== ModuleExecStage.SPAWN ? particles.normalizedAliveTime.data : particles.spawnNormalizedTime.data;
+                const time = context.executionStage !== ModuleExecStage.SPAWN
+                    ? particles.normalizedAliveTime.data : particles.spawnNormalizedTime.data;
                 const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.x;
                 const { splineMin: yMin, splineMax: yMax, multiplier: yMultiplier } = this.y;
                 const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.z;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const ratio = RandNumGen.get3Float(randomSeed[i] + VELOCITY_RAND_OFFSET, seed);
+                    const ratio = RandomStream.get3Float(randomSeed[i] + randomOffset, seed);
                     const normalizedTime = time[i];
-                    tempVelocity.set(lerp(xMin.evaluate(normalizedTime), xMax.evaluate(normalizedTime), ratio.x) * xMultiplier,
+                    Vec3.set(tempVelocity,
+                        lerp(xMin.evaluate(normalizedTime), xMax.evaluate(normalizedTime), ratio.x) * xMultiplier,
                         lerp(yMin.evaluate(normalizedTime), yMax.evaluate(normalizedTime), ratio.y) * yMultiplier,
                         lerp(zMin.evaluate(normalizedTime), zMax.evaluate(normalizedTime), ratio.z) * zMultiplier);
                     Vec3.transformQuat(tempVelocity, tempVelocity, rotationIfNeedTransform);
@@ -155,18 +159,20 @@ export class AddVelocityModule extends ParticleModule {
         } else {
             // eslint-disable-next-line no-lonely-if
             if (this.x.mode === CurveRange.Mode.Constant) {
-                tempVelocity.set(this.x.constant, this.y.constant, this.z.constant);
+                Vec3.set(tempVelocity, this.x.constant, this.y.constant, this.z.constant);
                 for (let i = fromIndex; i < toIndex; i++) {
                     velocity.addVec3At(tempVelocity, i);
                 }
             } else if (this.x.mode === CurveRange.Mode.Curve) {
-                const time = context.executionStage !== ModuleExecStage.SPAWN ? particles.normalizedAliveTime.data : particles.spawnNormalizedTime.data;
+                const time = context.executionStage !== ModuleExecStage.SPAWN
+                    ? particles.normalizedAliveTime.data : particles.spawnNormalizedTime.data;
                 const { spline: xCurve, multiplier: xMultiplier } = this.x;
                 const { spline: yCurve, multiplier: yMultiplier } = this.y;
                 const { spline: zCurve, multiplier: zMultiplier } = this.z;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const normalizedTime = time[i];
-                    tempVelocity.set(xCurve.evaluate(normalizedTime) * xMultiplier,
+                    Vec3.set(tempVelocity,
+                        xCurve.evaluate(normalizedTime) * xMultiplier,
                         yCurve.evaluate(normalizedTime) * yMultiplier,
                         zCurve.evaluate(normalizedTime) * zMultiplier);
                     velocity.addVec3At(tempVelocity, i);
@@ -177,22 +183,25 @@ export class AddVelocityModule extends ParticleModule {
                 const { constantMin: yMin, constantMax: yMax } = this.y;
                 const { constantMin: zMin, constantMax: zMax } = this.z;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const ratio = RandNumGen.get3Float(randomSeed[i] + VELOCITY_RAND_OFFSET, seed);
-                    tempVelocity.set(lerp(xMin, xMax, ratio.x),
+                    const ratio = RandomStream.get3Float(randomSeed[i] + randomOffset, seed);
+                    Vec3.set(tempVelocity,
+                        lerp(xMin, xMax, ratio.x),
                         lerp(yMin, yMax, ratio.y),
                         lerp(zMin, zMax, ratio.z));
                     velocity.addVec3At(tempVelocity, i);
                 }
             } else {
                 const randomSeed = particles.randomSeed.data;
-                const time = context.executionStage !== ModuleExecStage.SPAWN ? particles.normalizedAliveTime.data : particles.spawnNormalizedTime.data;
+                const time = context.executionStage !== ModuleExecStage.SPAWN
+                    ? particles.normalizedAliveTime.data : particles.spawnNormalizedTime.data;
                 const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.x;
                 const { splineMin: yMin, splineMax: yMax, multiplier: yMultiplier } = this.y;
                 const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.z;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const ratio = RandNumGen.get3Float(randomSeed[i] + VELOCITY_RAND_OFFSET, seed);
+                    const ratio = RandomStream.get3Float(randomSeed[i] + randomOffset, seed);
                     const normalizedTime = time[i];
-                    tempVelocity.set(lerp(xMin.evaluate(normalizedTime), xMax.evaluate(normalizedTime), ratio.x) * xMultiplier,
+                    Vec3.set(tempVelocity,
+                        lerp(xMin.evaluate(normalizedTime), xMax.evaluate(normalizedTime), ratio.x) * xMultiplier,
                         lerp(yMin.evaluate(normalizedTime), yMax.evaluate(normalizedTime), ratio.y) * yMultiplier,
                         lerp(zMin.evaluate(normalizedTime), zMax.evaluate(normalizedTime), ratio.z) * zMultiplier);
                     velocity.addVec3At(tempVelocity, i);

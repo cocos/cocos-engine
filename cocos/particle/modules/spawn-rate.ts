@@ -26,8 +26,9 @@
 import { ccclass, displayOrder, serializable, tooltip, type, range } from '../../core/data/decorators';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
-import { ParticleExecContext, ParticleEmitterParams } from '../particle-base';
+import { ParticleExecContext, ParticleEmitterParams, ParticleEmitterState } from '../particle-base';
 import { CurveRange } from '../curve-range';
+import { RandomStream } from '../random-stream';
 
 @ccclass('cc.SpawnRateModule')
 @ParticleModule.register('SpawnRate', ModuleExecStage.EMITTER_UPDATE | ModuleExecStage.EVENT_HANDLER)
@@ -42,8 +43,20 @@ export class SpawnRateModule extends ParticleModule {
     @tooltip('i18n:particle_system.rateOverTime')
     public rate = new CurveRange(10);
 
+    private _rand = new RandomStream();
+
+    public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {
+        this._rand.seed = Math.imul(state.rand.getUInt32(), state.rand.getUInt32()) >>> 0;
+    }
+
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext)  {
-        const { emitterDeltaTime, emitterNormalizedTime: normalizedT } = context;
-        context.spawnContinuousCount += this.rate.evaluate(normalizedT, Math.random()) * emitterDeltaTime;
+        const { emitterDeltaTime, emitterNormalizedTime: normalizedT, emitterPreviousTime, emitterCurrentTime } = context;
+        let deltaTime = emitterDeltaTime;
+        const random = this._rand.getFloat();
+        if (emitterPreviousTime > emitterCurrentTime) {
+            context.spawnContinuousCount += this.rate.evaluate(1, random) * (params.duration - emitterPreviousTime);
+            deltaTime = emitterCurrentTime;
+        }
+        context.spawnContinuousCount += this.rate.evaluate(normalizedT, random) * deltaTime;
     }
 }

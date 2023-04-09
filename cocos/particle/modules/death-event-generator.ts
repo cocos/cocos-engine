@@ -30,10 +30,9 @@ import { Space } from '../enum';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { BuiltinParticleParameter, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleColorArrayParameter, ParticleVec3ArrayParameter } from '../particle-parameter';
-import { ParticleEmitterParams, ParticleEventInfo, ParticleExecContext } from '../particle-base';
-import { RandNumGen } from '../rand-num-gen';
+import { ParticleEmitterParams, ParticleEmitterState, ParticleEventInfo, ParticleExecContext } from '../particle-base';
+import { RandomStream } from '../random-stream';
 
-const PROBABILITY_RANDOM_SEED_OFFSET = 199208;
 const eventInfo = new ParticleEventInfo();
 @ccclass('cc.DeathEventGeneratorModule')
 @ParticleModule.register('DeathEventGenerator', ModuleExecStage.UPDATE, [], [ParameterName.POSITION, ParameterName.SIZE, ParameterName.ROTATION, ParameterName.VELOCITY, ParameterName.NORMALIZED_ALIVE_TIME, ParameterName.COLOR])
@@ -42,6 +41,12 @@ export class DeathEventGeneratorModule extends ParticleModule {
     @range([0, 1])
     @serializable
     public probability = 1;
+
+    private _randomOffset = 0;
+
+    public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {
+        this._randomOffset = state.rand.getUInt32();
+    }
 
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         context.markRequiredParameter(BuiltinParticleParameter.INV_START_LIFETIME);
@@ -60,11 +65,13 @@ export class DeathEventGeneratorModule extends ParticleModule {
         const { fromIndex, toIndex, deathEvents } = context;
         const { localToWorld } = context;
         const { simulationSpace } = params;
+        const randomOffset = this._randomOffset;
         const hasVelocity = particles.hasParameter(BuiltinParticleParameter.VELOCITY);
         const hasRotation = particles.hasParameter(BuiltinParticleParameter.ROTATION);
         const hasSize = particles.hasParameter(BuiltinParticleParameter.SIZE);
         const hasColor = particles.hasParameter(BuiltinParticleParameter.COLOR);
         const hasPosition = particles.hasParameter(BuiltinParticleParameter.POSITION);
+        const probability = this.probability;
         let velocity: ParticleVec3ArrayParameter | null = null;
         let rotation: ParticleVec3ArrayParameter | null = null;
         let size: ParticleVec3ArrayParameter | null = null;
@@ -85,12 +92,12 @@ export class DeathEventGeneratorModule extends ParticleModule {
         if (hasPosition) {
             position = particles.position;
         }
-        if (!approx(this.probability, 0)) {
+        if (!approx(probability, 0)) {
             for (let i = fromIndex; i < toIndex; i++) {
                 if (!isDead[i]) {
                     continue;
                 }
-                if (RandNumGen.getFloat(randomSeed[i] + PROBABILITY_RANDOM_SEED_OFFSET) > this.probability) {
+                if (RandomStream.getFloat(randomSeed[i] + randomOffset) > probability) {
                     continue;
                 }
 

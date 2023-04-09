@@ -30,7 +30,7 @@ import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { BuiltinParticleParameter, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleColorArrayParameter, ParticleVec3ArrayParameter } from '../particle-parameter';
 import { ParticleExecContext, ParticleEmitterParams, ParticleEventInfo } from '../particle-base';
-import { RandNumGen } from '../rand-num-gen';
+import { RandomStream } from '../random-stream';
 
 const PROBABILITY_RANDOM_SEED_OFFSET = 199208;
 const eventInfo = new ParticleEventInfo();
@@ -85,7 +85,7 @@ export class LocationEventGeneratorModule extends ParticleModule {
         }
         if (!approx(this.probability, 0)) {
             for (let i = fromIndex; i < toIndex; i++) {
-                if (RandNumGen.getFloat(randomSeed[i] + PROBABILITY_RANDOM_SEED_OFFSET) > this.probability) {
+                if (RandomStream.getFloat(randomSeed[i] + PROBABILITY_RANDOM_SEED_OFFSET) > this.probability) {
                     continue;
                 }
                 Vec3.zero(eventInfo.position);

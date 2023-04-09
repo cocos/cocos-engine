@@ -69,7 +69,7 @@ export class AddSpeedInInitialDirectionModule extends ParticleModule {
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         const { fromIndex, toIndex } = context;
         const velocity = context.executionStage === ModuleExecStage.SPAWN ? particles.baseVelocity : particles.velocity;
-        const normalizedTime = context.executionStage === ModuleExecStage.SPAWN ? particles.spawnNormalizedTime.data : particles.normalizedAliveTime.data;
+
         const { startDir } = particles;
         const mode = this.speed.mode;
         const randomOffset = this._randomOffset;
@@ -87,6 +87,8 @@ export class AddSpeedInInitialDirectionModule extends ParticleModule {
             }
         } else if (mode ===  CurveRange.Mode.Curve) {
             const { spline, multiplier } = this.speed;
+            const normalizedTime = context.executionStage === ModuleExecStage.SPAWN
+                ? particles.spawnNormalizedTime.data : particles.normalizedAliveTime.data;
             for (let i = fromIndex; i < toIndex; ++i) {
                 const curveStartSpeed = spline.evaluate(normalizedTime[i]) * multiplier;
                 startDir.getVec3At(tempVelocity, i);
@@ -96,9 +98,12 @@ export class AddSpeedInInitialDirectionModule extends ParticleModule {
         } else {
             const { splineMin, splineMax, multiplier } = this.speed;
             const randomSeed = particles.randomSeed.data;
+            const normalizedTime = context.executionStage === ModuleExecStage.SPAWN
+                ? particles.spawnNormalizedTime.data : particles.normalizedAliveTime.data;
             for (let i = fromIndex; i < toIndex; ++i) {
                 const time = normalizedTime[i];
-                const curveStartSpeed = lerp(splineMin.evaluate(time), splineMax.evaluate(time), RandomStream.getFloat(randomSeed[i] + randomOffset)) * multiplier;
+                const curveStartSpeed = lerp(splineMin.evaluate(time),
+                    splineMax.evaluate(time), RandomStream.getFloat(randomSeed[i] + randomOffset)) * multiplier;
                 startDir.getVec3At(tempVelocity, i);
                 Vec3.multiplyScalar(tempVelocity, tempVelocity, curveStartSpeed);
                 velocity.addVec3At(tempVelocity, i);

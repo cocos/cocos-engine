@@ -29,7 +29,7 @@ import { CurveRange } from '../curve-range';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { ParticleDataSet } from '../particle-data-set';
 import { ParticleExecContext, ParticleEmitterParams, ParticleEmitterState } from '../particle-base';
-import { RandNumGen } from '../rand-num-gen';
+import { RandomStream } from '../random-stream';
 
 @ccclass('cc.Burst')
 export default class Burst {
@@ -89,14 +89,24 @@ export class BurstModule extends ParticleModule {
     @tooltip('i18n:particle_system.bursts')
     public bursts: Burst[] = [];
 
-    private _rand = new RandNumGen();
+    private _rand = new RandomStream();
 
     public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {
-        this._rand.seed = state.rand.getUInt32();
+        this._rand.seed = Math.imul(state.rand.getUInt32(), state.rand.getUInt32()) >>> 0;
     }
 
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
-        const { emitterPreviousTime: prevT, emitterCurrentTime: currT, emitterNormalizedTime: normalizeT } = context;
+        const { emitterPreviousTime, emitterCurrentTime, emitterNormalizedTime } = context;
+        let prevT = emitterPreviousTime;
+        // handle loop.
+        if (prevT > emitterCurrentTime) {
+            this._accumulateBurst(prevT, params.duration, 1, context);
+            prevT = 0;
+        }
+        this._accumulateBurst(prevT, emitterCurrentTime, emitterNormalizedTime, context);
+    }
+
+    private _accumulateBurst (prevT: number, currT: number, normalizeT: number, context: ParticleExecContext) {
         const rand = this._rand;
         for (let i = 0, burstCount = this.bursts.length; i < burstCount; i++) {
             const burst = this.bursts[i];

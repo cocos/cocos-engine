@@ -26,6 +26,7 @@
 import { Billboard } from './billboard';
 import { Line } from './line';
 import { ParticleEmitter } from './particle-emitter';
+import { EventReceiver } from './event-receiver';
 import { ParticleUtils } from './particle-utils';
 import { CurveRange } from './curve-range';
 import { legacyCC } from '../core/global-exports';

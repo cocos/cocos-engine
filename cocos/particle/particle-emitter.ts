@@ -43,7 +43,8 @@ import { vfxManager } from './vfx-manager';
 import { SpawnFractionCollection } from './spawn-fraction-collection';
 import { SpriteRendererModule } from './modules';
 import { ParticleParameterIdentity, ParticleParameterType } from './particle-parameter';
-import { RandNumGen } from './rand-num-gen';
+import { RandomStream } from './random-stream';
+import { EventReceiver } from './event-receiver';
 
 const startPositionOffset = new Vec3();
 const tempPosition = new Vec3();
@@ -51,41 +52,8 @@ const tempDir = new Vec3();
 const dir = new Vec3();
 const up = new Vec3();
 const rot = new Quat();
+const tempEmitterTransform = new Mat4();
 const eventInfo = new ParticleEventInfo();
-
-@ccclass('cc.EventReceiver')
-export class EventReceiver {
-    @visible(true)
-    @serializable
-    public target: ParticleEmitter | null = null;
-
-    @type(Enum(ParticleEventType))
-    @visible(true)
-    @serializable
-    public eventType = ParticleEventType.UNKNOWN;
-
-    @type(BitMask(InheritedProperty))
-    @visible(true)
-    @serializable
-    public inheritedProperties = 0;
-
-    @displayName('事件处理')
-    @type(ParticleModuleStage)
-    get stage () {
-        return this._stage;
-    }
-
-    get spawnFractionCollection () {
-        if (!this._spawnFractionCollection) {
-            this._spawnFractionCollection = new SpawnFractionCollection();
-        }
-        return this._spawnFractionCollection;
-    }
-
-    @serializable
-    private _stage = new ParticleModuleStage(ModuleExecStage.EVENT_HANDLER);
-    private _spawnFractionCollection: SpawnFractionCollection | null = null;
-}
 
 @ccclass('cc.ParticleEmitter')
 @help('i18n:cc.ParticleEmitter')
@@ -99,12 +67,13 @@ export class ParticleEmitter extends Component {
      * @zh 粒子系统运行时间。
      */
     @tooltip('i18n:particle_system.duration')
+    @rangeMin(0.01)
     public get duration () {
         return this._params.duration;
     }
 
     public set duration (val) {
-        this._params.duration = val;
+        this._params.duration = Math.max(val, 0.01);
     }
 
     /**
@@ -122,25 +91,16 @@ export class ParticleEmitter extends Component {
 
     @type(CCInteger)
     @visible(function (this: ParticleEmitter) { return this.loopMode === LoopMode.MULTIPLE; })
+    @rangeMin(1)
     public get loopCount () {
         return this._params.loopCount;
     }
 
     public set loopCount (val) {
-        this._params.loopCount = val;
+        this._params.loopCount = Math.max(val, 1);
     }
 
-    @type(CCBoolean)
     @visible(true)
-    public get delay () {
-        return this._params.delay;
-    }
-
-    public set delay (val) {
-        this._params.delay = val;
-    }
-
-    @visible(function (this: ParticleEmitter) { return this.delay; })
     @type(Enum(DelayMode))
     public get delayMode () {
         return this._params.delayMode;
@@ -155,14 +115,14 @@ export class ParticleEmitter extends Component {
      */
     @type(Vec2)
     @rangeMin(0)
-    @visible(function (this: ParticleEmitter) { return this.delay; })
+    @visible(function (this: ParticleEmitter) { return this.delayMode !== DelayMode.NONE; })
     @tooltip('i18n:particle_system.startDelay')
     public get delayRange () {
         return this._params.delayRange as Readonly<Vec2>;
     }
 
     public set delayRange (val) {
-        this._params.delayRange.set(val);
+        this._params.delayRange.set(Math.max(val.x, 0), Math.max(val.y, 0));
     }
 
     /**
@@ -184,17 +144,17 @@ export class ParticleEmitter extends Component {
     }
 
     public set prewarmTime (val) {
-        this._params.prewarmTime = val;
+        this._params.prewarmTime = Math.max(val, 0.001);
     }
 
     @visible(function (this: ParticleEmitter) { return this.prewarm; })
-    @rangeMin(0.01)
+    @rangeMin(0.001)
     public get prewarmTimeStep () {
         return this._params.prewarmTimeStep;
     }
 
     public set prewarmTimeStep (val) {
-        this._params.prewarmTimeStep = val;
+        this._params.prewarmTimeStep = Math.max(val, 0.001);
     }
 
     /**
@@ -214,21 +174,23 @@ export class ParticleEmitter extends Component {
      * @zh 控制整个粒子系统的更新速度。
      */
     @tooltip('i18n:particle_system.simulationSpeed')
+    @rangeMin(0.001)
     public get simulationSpeed () {
         return this._params.simulationSpeed;
     }
 
     public set simulationSpeed (val) {
-        this._params.simulationSpeed = val;
+        this._params.simulationSpeed = Math.max(val, 0.001);
     }
 
     @visible(true)
+    @rangeMin(0.001)
     public get maxDeltaTime () {
         return this._params.maxDeltaTime;
     }
 
     public set maxDeltaTime (val) {
-        this._params.maxDeltaTime = val;
+        this._params.maxDeltaTime = Math.max(val, 0.001);
     }
 
     @type(Enum(Space))
@@ -257,7 +219,7 @@ export class ParticleEmitter extends Component {
     @type(CCInteger)
     @tooltip('i18n:particle_system.capacity')
     @visible(function (this: ParticleEmitter) { return this.capacityMode === CapacityMode.FIXED; })
-    @range([0, Number.POSITIVE_INFINITY])
+    @rangeMin(0)
     public get capacity () {
         return this._params.capacity;
     }
@@ -460,13 +422,14 @@ export class ParticleEmitter extends Component {
             return;
         }
         if (this._state.playingState === PlayingState.STOPPED) {
-            this._state.randomSeed = this.useAutoRandomSeed ? randomRangeInt(0, INT_MAX) : this.randomSeed;
-            this._state.rand.seed = this.randomSeed;
-            this._state.currentDelay = this.delay
-                ? Math.max(lerp(this.delayRange.x, this.delayRange.y, this._state.rand.getFloat()), 0) : 0;
+            this._state.rand.seed = this.useAutoRandomSeed ? randomRangeInt(0, INT_MAX) : this.randomSeed;
+            this._state.currentDelay = Math.max(lerp(this.delayRange.x, this.delayRange.y, this._state.rand.getFloat()), 0);
             this._emitterStage.onPlay(this._params, this._state);
             this._spawningStage.onPlay(this._params, this._state);
             this._updateStage.onPlay(this._params, this._state);
+            for (const receiver of this._eventReceivers) {
+                receiver.onPlay(this._params, this._state);
+            }
             this._renderStage.onPlay(this._params, this._state);
             if (this.prewarm) {
                 this._prewarmSystem();
@@ -627,14 +590,6 @@ export class ParticleEmitter extends Component {
         const params = this._params;
         const state = this._state;
         context.reset();
-        state.tick(deltaTime);
-        state.updateTransform(this.node.worldPosition);
-        context.updateTransform(this.node, params.simulationSpace === Space.WORLD);
-        Vec3.subtract(context.emitterVelocity, state.currentPosition, state.lastPosition);
-        Vec3.multiplyScalar(context.emitterVelocity, context.emitterVelocity, 1 / deltaTime);
-        Mat4.copy(context.emitterTransformInEmittingSpace, params.simulationSpace === Space.WORLD ? context.localToWorld : Mat4.IDENTITY);
-        Vec3.copy(context.emitterVelocityInEmittingSpace, params.simulationSpace === Space.WORLD ? context.emitterVelocity : Vec3.ZERO);
-        context.setEmitterTime(state.accumulatedTime, state.prevTime, state.currentDelay, params.delayMode, params.duration);
         context.setDeltaTime(deltaTime);
         this.preTick(particles, params, context);
 
@@ -647,11 +602,12 @@ export class ParticleEmitter extends Component {
         }
 
         if (state.isEmitting) {
-            state.spawnFraction = this.emit(particles, params, context, state.spawnFraction);
+            state.spawnFraction = this.emit(state.spawnFraction, params.simulationSpace === Space.WORLD
+                ? context.localToWorld : Mat4.IDENTITY, Color.WHITE, Vec3.ONE, Vec3.ZERO);
         }
 
-        this.processEvents();
-        this.removeDeadParticles(this._particles, this._params, this._context);
+        this.processEvents(particles, params, context);
+        this.removeDeadParticles(particles, params, context);
     }
 
     public render () {
@@ -661,11 +617,15 @@ export class ParticleEmitter extends Component {
     }
 
     private preTick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+        this._state.tick(this.node, params, context);
         this._emitterStage.tick(particles, params, context);
         this._spawningStage.tick(particles, params, context);
         this._updateStage.tick(particles, params, context);
         this._renderStage.tick(particles, params, context);
-        if (this._eventReceivers.length > 0 || params.simulationSpace === Space.WORLD) {
+        if (this._eventReceivers.length > 0) {
+            for (let i = 0, length = this._eventReceivers.length; i < length; i++) {
+                this._eventReceivers[i].tick(particles, params, context);
+            }
             context.markRequiredParameter(BuiltinParticleParameter.POSITION);
         }
         particles.ensureParameters(context.builtinParameterRequirements, context.customParameterRequirements, this._customParameters);
@@ -689,12 +649,12 @@ export class ParticleEmitter extends Component {
         }
     }
 
-    private processEvents () {
+    private processEvents (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         for (let i = 0, length = this._eventReceivers.length; i < length; i++) {
             const eventReceiver = this._eventReceivers[i];
             const emitter = eventReceiver.target;
-            const spawnFractionCollection = eventReceiver.spawnFractionCollection;
             if (emitter && emitter.isValid) {
+                const spawnFractionCollection = eventReceiver.spawnFractionCollection;
                 let events = emitter._context.locationEvents;
                 if (eventReceiver.eventType === ParticleEventType.DEATH) {
                     events = emitter._context.deathEvents;
@@ -708,23 +668,24 @@ export class ParticleEmitter extends Component {
                     const angle = Math.abs(Vec3.dot(dir, Vec3.UNIT_Z));
                     Vec3.lerp(up, Vec3.UNIT_Z, Vec3.UNIT_Y, angle);
                     Quat.fromViewUp(rot, dir, up);
-                    Mat4.fromRT(this._context.emitterTransformInEmittingSpace, rot, eventInfo.position);
-                    Vec3.copy(this._context.emitterVelocity, eventInfo.velocity);
-                    Vec3.copy(this._context.emitterVelocityInEmittingSpace, eventInfo.velocity);
-                    if (this._params.simulationSpace === Space.LOCAL) {
-                        Mat4.multiply(this._context.emitterTransformInEmittingSpace, this._context.worldToLocal, this._context.emitterTransformInEmittingSpace);
-                        Vec3.transformMat4(this._context.emitterVelocityInEmittingSpace, this._context.emitterVelocityInEmittingSpace, this._context.worldToLocal);
+                    Mat4.fromRT(tempEmitterTransform, rot, eventInfo.position);
+                    Vec3.copy(context.emitterVelocity, eventInfo.velocity);
+                    Vec3.copy(context.emitterVelocityInEmittingSpace, eventInfo.velocity);
+                    if (params.simulationSpace === Space.LOCAL) {
+                        Mat4.multiply(tempEmitterTransform, context.worldToLocal, tempEmitterTransform);
+                        Vec3.transformMat4(context.emitterVelocityInEmittingSpace, context.emitterVelocityInEmittingSpace, context.worldToLocal);
                     }
-                    this._context.setExecuteRange(0, 0);
-                    this._context.resetSpawningState();
-                    const loopDelay = this.delay ? Math.max(lerp(this.delayRange.x, this.delayRange.y, RandNumGen.getFloat(eventInfo.randomSeed)), 0) : 0;
-                    this._context.setEmitterTime(eventInfo.currentTime, eventInfo.prevTime, loopDelay, this._params.delayMode, this._params.duration);
+                    context.setExecuteRange(0, 0);
+                    context.resetSpawningState();
+                    const loopDelay = Math.max(lerp(params.delayRange.x, params.delayRange.y, RandomStream.getFloat(eventInfo.randomSeed)), 0);
+                    context.updateEmitterTime(eventInfo.currentTime, eventInfo.prevTime,
+                        params.delayMode, loopDelay, params.loopMode, params.loopCount, params.duration);
                     let spawnFraction = 0;
                     if (eventReceiver.eventType === ParticleEventType.LOCATION) {
                         spawnFraction = spawnFractionCollection.fraction[i];
                     }
-                    eventReceiver.stage.execute(this._particles, this._params, this._context);
-                    spawnFraction = this.emit(this.particles, this._params, this._context, spawnFraction);
+                    eventReceiver.execute(particles, params, context);
+                    spawnFraction = this.emit(spawnFraction, tempEmitterTransform, eventInfo.color, eventInfo.size, eventInfo.rotation);
                     if (eventReceiver.eventType === ParticleEventType.LOCATION) {
                         spawnFractionCollection.fraction[i] = spawnFraction;
                     }
@@ -760,8 +721,9 @@ export class ParticleEmitter extends Component {
         }
     }
 
-    private emit (particles: ParticleDataSet, params: ParticleEmitterParams,
-        context: ParticleExecContext, spawnFraction: number): number {
+    private emit (spawnFraction: number, initialTransform: Mat4, initialColor: Color,
+        initialSize: Vec3, initialRotation: Vec3): number {
+        const { _particles: particles, _params: params, _context: context } = this;
         const interval = 1 / context.spawnContinuousCount;
         spawnFraction += context.spawnContinuousCount;
         const numOverTime = Math.floor(spawnFraction);
@@ -776,9 +738,9 @@ export class ParticleEmitter extends Component {
             this.spawnParticles(particles, params, context, burstCount);
         }
         const toIndex = particles.count;
-        const { emitterDeltaTime, emitterVelocityInEmittingSpace: initialVelocity, emitterTransformInEmittingSpace: emitterTransform } = context;
+        const { emitterDeltaTime, emitterVelocityInEmittingSpace: initialVelocity } = context;
         if (particles.hasParameter(BuiltinParticleParameter.POSITION)) {
-            const initialPosition = emitterTransform.getTranslation(tempPosition);
+            const initialPosition = initialTransform.getTranslation(tempPosition);
             const { position } = particles;
 
             if (!initialVelocity.equals(Vec3.ZERO) && !approx(interval, 0) && numContinuous > 0) {
@@ -809,16 +771,16 @@ export class ParticleEmitter extends Component {
             particles.baseVelocity.fill1f(0, fromIndex, toIndex);
         }
         if (particles.hasParameter(BuiltinParticleParameter.ROTATION)) {
-            particles.rotation.fill1f(0, fromIndex, toIndex);
+            particles.rotation.fill(initialRotation, fromIndex, toIndex);
         }
         if (particles.hasParameter(BuiltinParticleParameter.AXIS_OF_ROTATION)) {
             particles.axisOfRotation.fill1f(0, fromIndex, toIndex);
         }
         if (particles.hasParameter(BuiltinParticleParameter.BASE_SIZE)) {
-            particles.baseSize.fill1f(1, fromIndex, toIndex);
+            particles.baseSize.fill(initialSize, fromIndex, toIndex);
         }
         if (particles.hasParameter(BuiltinParticleParameter.BASE_COLOR)) {
-            particles.baseColor.fill(Color.WHITE, fromIndex, toIndex);
+            particles.baseColor.fill(initialColor, fromIndex, toIndex);
         }
         if (particles.hasParameter(BuiltinParticleParameter.INV_START_LIFETIME)) {
             particles.invStartLifeTime.fill(1, fromIndex, toIndex);
@@ -841,7 +803,7 @@ export class ParticleEmitter extends Component {
         }
         if (particles.hasParameter(BuiltinParticleParameter.START_DIR)) {
             const { startDir } = particles;
-            const initialDir = Vec3.set(tempDir, emitterTransform.m02, emitterTransform.m06, emitterTransform.m10);
+            const initialDir = Vec3.set(tempDir, initialTransform.m02, initialTransform.m06, initialTransform.m10);
             startDir.fill(initialDir, fromIndex, toIndex);
         }
 

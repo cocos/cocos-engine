@@ -29,8 +29,8 @@ import { Enum, lerp, toDegree, toRadian, Vec3 } from '../../core';
 import { BuiltinParticleParameter, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { CurveRange } from '../curve-range';
-import { RandNumGen } from '../rand-num-gen';
 import { AngleBasedShapeModule } from './angle-based-shape';
+import { ParticleVec3ArrayParameter } from '../particle-parameter';
 
 const temp = new Vec3();
 @ccclass('cc.CircleShapeModule')
@@ -57,22 +57,13 @@ export class CircleShapeModule extends AngleBasedShapeModule {
         this._innerRadius = (1 - this.radiusThickness) ** 2;
     }
 
-    protected generatePosAndDir (particles: ParticleDataSet,  params: ParticleEmitterParams, context: ParticleExecContext) {
-        const { fromIndex, toIndex } = context;
-        const { startDir, vec3Register } = particles;
-        const innerRadius = this._innerRadius;
-        const floatRegister = particles.floatRegister.data;
-        const radius = this.radius;
-        const rand = this._rand;
-        for (let i = fromIndex; i < toIndex; ++i) {
-            const angle = floatRegister[i];
-            const radiusRandom = Math.sqrt(rand.getFloatFromRange(innerRadius, 1.0));
-            const r = radiusRandom * radius;
-            temp.x = Math.cos(angle);
-            temp.y = Math.sin(angle);
-            startDir.setVec3At(temp, i);
-            Vec3.multiplyScalar(temp, temp, r);
-            vec3Register.setVec3At(temp, i);
-        }
+    protected generatePosAndDir (index: number, angle: number, startDir: ParticleVec3ArrayParameter, vec3Register: ParticleVec3ArrayParameter) {
+        const radiusRandom = Math.sqrt(this._rand.getFloatFromRange(this._innerRadius, 1.0));
+        const r = radiusRandom * this.radius;
+        temp.x = Math.cos(angle);
+        temp.y = Math.sin(angle);
+        startDir.setVec3At(temp, index);
+        Vec3.multiplyScalar(temp, temp, r);
+        vec3Register.setVec3At(temp, index);
     }
 }

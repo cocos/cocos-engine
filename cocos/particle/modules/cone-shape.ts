@@ -30,6 +30,7 @@ import { BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { CurveRange } from '../curve-range';
 import { AngleBasedShapeModule } from './angle-based-shape';
+import { ParticleVec3ArrayParameter } from '../particle-parameter';
 
 enum EmitFrom {
     BASE = 0,
@@ -92,10 +93,7 @@ export class ConeShapeModule extends AngleBasedShapeModule {
         this._innerRadius = (1 - this.radiusThickness) ** 2;
     }
 
-    protected generatePosAndDir (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
-        const { fromIndex, toIndex } = context;
-        const floatRegister = particles.floatRegister.data;
-        const { vec3Register, startDir } = particles;
+    protected generatePosAndDir (index: number, angle: number, startDir: ParticleVec3ArrayParameter, vec3Register: ParticleVec3ArrayParameter) {
         const rand = this._rand;
         const innerRadius = this._innerRadius;
         const radius = this.radius;
@@ -103,25 +101,19 @@ export class ConeShapeModule extends AngleBasedShapeModule {
         const cosAngle = this._cosAngle;
         const length = this.length;
         if (this.emitFrom === EmitFrom.BASE) {
-            for (let i = fromIndex; i < toIndex; ++i) {
-                const angle = floatRegister[i];
-                const r = Math.sqrt(rand.getFloatFromRange(innerRadius, 1)) * radius;
-                const x = Math.cos(angle);
-                const y = Math.sin(angle);
-                startDir.set3fAt(x * sinAngle, y * sinAngle, cosAngle, i);
-                vec3Register.set3fAt(x * r, y * r, 0, i);
-            }
+            const r = Math.sqrt(rand.getFloatFromRange(innerRadius, 1)) * radius;
+            const x = Math.cos(angle);
+            const y = Math.sin(angle);
+            startDir.set3fAt(x * sinAngle, y * sinAngle, cosAngle, index);
+            vec3Register.set3fAt(x * r, y * r, 0, index);
         } else {
-            for (let i = fromIndex; i < toIndex; ++i) {
-                const angle = floatRegister[i];
-                const r = Math.sqrt(rand.getFloatFromRange(innerRadius, 1)) * radius;
-                const x = Math.cos(angle);
-                const y = Math.sin(angle);
-                Vec3.set(temp, x * sinAngle, y * sinAngle, cosAngle);
-                startDir.setVec3At(temp, i);
-                vec3Register.set3fAt(x * r, y * r, 0, i);
-                vec3Register.addVec3At(Vec3.multiplyScalar(temp, temp, rand.getFloat() * length), i);
-            }
+            const r = Math.sqrt(rand.getFloatFromRange(innerRadius, 1)) * radius;
+            const x = Math.cos(angle);
+            const y = Math.sin(angle);
+            Vec3.set(temp, x * sinAngle, y * sinAngle, cosAngle);
+            startDir.setVec3At(temp, index);
+            vec3Register.set3fAt(x * r, y * r, 0, index);
+            vec3Register.addVec3At(Vec3.multiplyScalar(temp, temp, rand.getFloat() * length), index);
         }
     }
 }

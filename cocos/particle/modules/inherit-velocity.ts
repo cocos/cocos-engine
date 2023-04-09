@@ -32,7 +32,7 @@ import { calculateTransform } from '../particle-general-function';
 import { BuiltinParticleParameter, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
 import { CurveRange } from '../curve-range';
-import { RandNumGen } from '../rand-num-gen';
+import { RandomStream } from '../random-stream';
 
 const INHERIT_VELOCITY_RAND = 718231;
 
@@ -45,7 +45,7 @@ export class InheritVelocityModule extends ParticleModule {
     @serializable
     public scale = new CurveRange();
 
-    private _rand = new RandNumGen();
+    private _rand = new RandomStream();
 
     public onPlay (params: ParticleEmitterParams, states: ParticleEmitterState) {
         this._rand.seed = states.rand.getUInt32();
@@ -92,7 +92,7 @@ export class InheritVelocityModule extends ParticleModule {
             } else {
                 const seed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    Vec3.multiplyScalar(tempVelocity, initialVelocity, lerp(constantMin, constantMax, RandNumGen.getFloat(seed[i] + INHERIT_VELOCITY_RAND)));
+                    Vec3.multiplyScalar(tempVelocity, initialVelocity, lerp(constantMin, constantMax, RandomStream.getFloat(seed[i] + INHERIT_VELOCITY_RAND)));
                     velocity.addVec3At(tempVelocity, i);
                 }
             }
@@ -125,7 +125,7 @@ export class InheritVelocityModule extends ParticleModule {
                 const seed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const time = normalizedAliveTime[i];
-                    Vec3.multiplyScalar(tempVelocity, initialVelocity, lerp(splineMin.evaluate(time), splineMax.evaluate(time), RandNumGen.getFloat(seed[i] + INHERIT_VELOCITY_RAND)) * multiplier);
+                    Vec3.multiplyScalar(tempVelocity, initialVelocity, lerp(splineMin.evaluate(time), splineMax.evaluate(time), RandomStream.getFloat(seed[i] + INHERIT_VELOCITY_RAND)) * multiplier);
                     velocity.addVec3At(tempVelocity, i);
                 }
             }

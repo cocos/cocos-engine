@@ -24,11 +24,12 @@
  */
 
 import { CullingMode, FinishAction, Space } from './enum';
-import { Color, Mat4, Quat, Vec3, Node, Vec2 } from '../core';
+import { Color, Mat4, Quat, Vec3, Node, Vec2, assert } from '../core';
 import { ccclass, serializable } from '../core/data/decorators';
 import { CurveRange } from './curve-range';
 import { ModuleExecStage } from './particle-module';
-import { RandNumGen } from './random-stream';
+import { RandomStream } from './random-stream';
+import { BuiltinParticleParameter, BuiltinParticleParameterFlags, ParticleDataSet } from './particle-data-set';
 
 export enum ParticleEventType {
     UNKNOWN,
@@ -186,6 +187,7 @@ export enum LoopMode {
 }
 
 export enum DelayMode {
+    NONE,
     FIRST_LOOP_ONLY,
     EVERY_LOOP,
 }
@@ -225,9 +227,7 @@ export class ParticleEmitterParams {
     @serializable
     public playOnAwake = true;
     @serializable
-    public delay = false;
-    @serializable
-    public delayMode = DelayMode.FIRST_LOOP_ONLY;
+    public delayMode = DelayMode.NONE;
     @serializable
     public delayRange = new Vec2(0, 0);
     @serializable
@@ -287,12 +287,21 @@ export class ParticleEmitterState {
     public maxParticleId = 0;
     public boundsMin = new Vec3();
     public boundsMax = new Vec3();
-    public randomSeed = 0;
-    public rand = new RandNumGen();
+    public rand = new RandomStream();
 
-    tick (dt: number) {
+    tick (transform: Node, params: ParticleEmitterParams, context: ParticleExecContext) {
+        const dt = context.deltaTime;
         this.prevTime = this.accumulatedTime;
         this.accumulatedTime += dt;
+        const isWorldSpace = params.simulationSpace === Space.WORLD;
+        context.updateEmitterTime(this.accumulatedTime, this.prevTime,
+            params.delayMode, this.currentDelay, params.loopMode, params.loopCount, params.duration);
+        this.updateTransform(transform.worldPosition);
+        context.updateTransform(transform, isWorldSpace);
+        Vec3.subtract(context.emitterVelocity, this.currentPosition, this.lastPosition);
+        Vec3.multiplyScalar(context.emitterVelocity, context.emitterVelocity, 1 / dt);
+        Vec3.copy(context.emitterVelocityInEmittingSpace, isWorldSpace ? context.emitterVelocity : Vec3.ZERO);
+        context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.POSITION);
     }
 
     updateTransform (pos: Vec3) {
@@ -331,10 +340,6 @@ export class ParticleExecContext {
     public emitterNormalizedPrevTime = 0;
     public emitterDeltaTime = 0;
     public loopCount = 0;
-    /**
-     * The emitter transform in emitting space. when emitting space equals to world space, it's equals to localToWorld matrix.
-     */
-    public emitterTransformInEmittingSpace = new Mat4();
     public inheritedProperties: InheritedProperties | null = null;
     public spawnContinuousCount = 0;
     public burstCount = 0;
@@ -391,19 +396,46 @@ export class ParticleExecContext {
         this._toIndex = toIndex;
     }
 
-    setEmitterTime (currentTime: number, previousTime: number, loopDelay: number, delayMode: DelayMode, duration: number) {
-        if (delayMode !== DelayMode.EVERY_LOOP) {
-            this.emitterPreviousTime = Math.max(previousTime - loopDelay, 0) % duration;
-            this.emitterCurrentTime = Math.max(currentTime - loopDelay, 0) % duration;
-        } else {
-            const durationAndDelay = loopDelay + duration;
-            this.emitterPreviousTime = Math.max(previousTime % durationAndDelay - loopDelay, 0);
-            this.emitterCurrentTime = Math.max(currentTime % durationAndDelay - loopDelay, 0);
-        }
+    updateEmitterTime (accumulatedTime: number, previousTime: number, delayMode: DelayMode,
+        delay: number, loopMode: LoopMode, loopCount: number, duration: number) {
+        assert((accumulatedTime - previousTime) < duration,
+            'The delta time should not exceed the duration of the particle system. please adjust the duration of the particle system.');
+        let prevTime = delayMode === DelayMode.FIRST_LOOP_ONLY ? Math.max(previousTime - delay, 0) : previousTime;
+        let currentTime = delayMode === DelayMode.FIRST_LOOP_ONLY ? Math.max(accumulatedTime - delay, 0) : accumulatedTime;
+        const expectedLoopCount = loopMode === LoopMode.INFINITE ? Number.MAX_SAFE_INTEGER
+            : (loopMode === LoopMode.MULTIPLE ? loopCount : 1);
         const invDuration = 1 / duration;
-        this.emitterDeltaTime = this.emitterCurrentTime - this.emitterPreviousTime;
-        this.emitterNormalizedTime = this.emitterCurrentTime * invDuration;
-        this.emitterNormalizedPrevTime = this.emitterPreviousTime * invDuration;
+        const durationAndDelay = delayMode === DelayMode.EVERY_LOOP ? (duration + delay) : duration;
+        const invDurationAndDelay = delayMode === DelayMode.EVERY_LOOP ? (1 / durationAndDelay) : invDuration;
+        const count = Math.floor(currentTime * invDurationAndDelay);
+        if (count < expectedLoopCount) {
+            prevTime %= durationAndDelay;
+            currentTime %= durationAndDelay;
+            this.loopCount = count;
+        } else {
+            if (Math.floor(prevTime * invDurationAndDelay) >= expectedLoopCount) {
+                prevTime = durationAndDelay;
+            } else {
+                prevTime %= durationAndDelay;
+            }
+            currentTime = durationAndDelay;
+            this.loopCount = expectedLoopCount;
+        }
+        if (delayMode === DelayMode.EVERY_LOOP) {
+            prevTime = Math.max(prevTime - delay, 0);
+            currentTime = Math.max(currentTime - delay, 0);
+        }
+
+        let deltaTime = currentTime - prevTime;
+        if (deltaTime < 0) {
+            deltaTime += duration;
+        }
+
+        this.emitterCurrentTime = currentTime;
+        this.emitterPreviousTime = prevTime;
+        this.emitterDeltaTime = deltaTime;
+        this.emitterNormalizedTime = currentTime * invDuration;
+        this.emitterNormalizedPrevTime = prevTime * invDuration;
     }
 
     updateTransform (node: Node, inWorldSpace: boolean) {
@@ -446,7 +478,7 @@ export class ParticleExecContext {
         }
     }
 
-    markRequiredBuiltinParameters (parameterFlags: number) {
+    markRequiredBuiltinParameters (parameterFlags: BuiltinParticleParameterFlags) {
         this._builtinParameterRequirements |= parameterFlags;
     }
 }

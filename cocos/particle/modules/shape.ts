@@ -30,7 +30,7 @@ import { Mat4, Quat, Vec2, Vec3, randomRange } from '../../core/math';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
 import { ParticleExecContext, ParticleEmitterParams, ParticleEmitterState } from '../particle-base';
-import { RandNumGen } from '../rand-num-gen';
+import { RandomStream } from '../random-stream';
 
 const _intermediVec = new Vec3(0, 0, 0);
 const tmpPosition = new Vec3();
@@ -144,10 +144,10 @@ export class ShapeModule extends ParticleModule {
     private _mat = new Mat4();
     private _quat = new Quat();
     private _isTransformDirty = true;
-    protected _rand = new RandNumGen();
+    protected _rand = new RandomStream();
 
     public onPlay (params: ParticleEmitterParams, states: ParticleEmitterState) {
-        this._rand.seed = states.rand.getUInt32();
+        this._rand.seed = states.rand.getUInt32() + states.rand.getUInt32();
     }
 
     public tick (particles: ParticleDataSet,  params: ParticleEmitterParams, context: ParticleExecContext) {

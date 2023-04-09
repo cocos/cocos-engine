@@ -7,13 +7,13 @@ export class RandomStream {
     }
 
     public set seed (val) {
-        this._seed = val;
+        this._seed = val >>> 0;
     }
     private static _gRand = new RandomStream();
     private _seed = 0;
 
     public static getFloat (seed: number) {
-        this._gRand._seed = seed;
+        this._gRand.seed = seed;
         return this._gRand.getFloat();
     }
 
@@ -65,7 +65,7 @@ export class RandomStream {
      * @returns a random unsigned 32 bits integer.
      */
     public getUInt32 () {
-        this._seed = (Math.imul(this._seed, 196314165) + 907633515) >>> 0;
+        this._seed = ((Math.imul(this._seed, 196314165) >>> 0) + 907633515) >>> 0;
         return this._seed;
     }
 
