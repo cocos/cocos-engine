@@ -23,6 +23,7 @@
 */
 
 import { assertIsTrue } from '../../cocos/core/data/utils/asserts';
+import { clearTimeoutRAF, setTimeoutRAF } from '../utils';
 
 export class Pacer {
     private _rafHandle = 0;
@@ -118,11 +119,11 @@ export class Pacer {
         const currTime = performance.now();
         const elapseTime = Math.max(0, (currTime - this._startTime));
         const timeToCall = Math.max(0, this._frameTime - elapseTime);
-        const id = setTimeout(callback, timeToCall);
+        const id = setTimeoutRAF(callback, timeToCall);
         return id;
     }
 
     private _ctTime (id: number | undefined) {
-        clearTimeout(id);
+        clearTimeoutRAF(id);
     }
 }
