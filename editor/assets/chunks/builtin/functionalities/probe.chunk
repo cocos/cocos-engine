@@ -42,7 +42,7 @@ void GetCubeReflectionProbeData(out vec3 centerPos, out vec3 boxHalfSize, out fl
       boxHalfSize = cc_reflectionProbeData2.xyz;
       mipCount = cc_reflectionProbeData2.w;
     #endif
-    if (mipCount > 100.0) mipCount = mipCount - 1000.0;
+    if(IS_REFLECTION_PROBE_USE_RGBE(mipCount)) mipCount = mipCount - 1000.0;
 }
 
 bool isReflectProbeUsingRGBE(float probeId)
@@ -51,9 +51,9 @@ bool isReflectProbeUsingRGBE(float probeId)
       float uv_y = (probeId + 0.5) / cc_probeInfo.x; //align to texel center
       float dataMapWidth = 12.0;
       vec4 texData3 = GetTexData(cc_reflectionProbeDataMap, dataMapWidth, 8.0, uv_y);
-      return texData3.x > 100.0;
+      return IS_REFLECTION_PROBE_USE_RGBE(texData3.x);
   #else
-    return cc_reflectionProbeData2.w > 100.0;
+    return IS_REFLECTION_PROBE_USE_RGBE(cc_reflectionProbeData2.w);
   #endif
 }
 
@@ -63,9 +63,9 @@ bool isBlendReflectProbeUsingRGBE(float probeId)
       float uv_y = (probeId + 0.5) / cc_probeInfo.x; //align to texel center
       float dataMapWidth = 12.0;
       vec4 texData3 = GetTexData(cc_reflectionProbeDataMap, dataMapWidth, 8.0, uv_y);
-      return texData3.x > 100.0;
+      return IS_REFLECTION_PROBE_USE_RGBE(texData3.x);
   #else
-    return cc_reflectionProbeBlendData2.w > 100.0;
+    return IS_REFLECTION_PROBE_USE_RGBE(cc_reflectionProbeBlendData2.w);
   #endif
 }
 
@@ -85,5 +85,5 @@ void GetBlendCubeReflectionProbeData(out vec3 centerPos, out vec3 boxHalfSize, o
       boxHalfSize = cc_reflectionProbeBlendData2.xyz;
       mipCount = cc_reflectionProbeBlendData2.w;
     #endif
-    if (mipCount > 100.0) mipCount = mipCount - 1000.0;
+    if(IS_REFLECTION_PROBE_USE_RGBE(mipCount)) mipCount = mipCount - 1000.0;
 }

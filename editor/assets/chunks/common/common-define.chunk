@@ -56,6 +56,7 @@ void clip(float value) { if(value < 0.0) discard; }
 #define REFLECTION_PROBE_TYPE_PLANAR 2
 #define REFLECTION_PROBE_TYPE_BLEND 3
 #define REFLECTION_PROBE_TYPE_BLEND_AND_SKYBOX 4
+#pragma define IS_REFLECTION_PROBE_USE_RGBE(mipcount) mipcount > 100.0
 
 // Light Type
 #define LIGHT_TYPE_DIRECTIONAL 0.0
