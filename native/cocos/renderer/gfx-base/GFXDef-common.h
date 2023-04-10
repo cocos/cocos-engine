@@ -36,6 +36,8 @@
     #undef Status
 #endif
 
+#define CC_USE_PIPELINE_CACHE 0
+
 /**
  * Some general guide lines:
  * Always use explicit numeric types rather than `int`, `long`, etc. for a stable memory layout

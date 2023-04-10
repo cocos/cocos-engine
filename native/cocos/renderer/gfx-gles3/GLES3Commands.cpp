@@ -25,6 +25,7 @@
 #include "GLES3Commands.h"
 #include "GLES3Device.h"
 #include "GLES3QueryPool.h"
+#include "GLES3PipelineCache.h"
 #include "GLES3Std.h"
 #include "base/StringUtil.h"
 #include "gfx-base/GFXDef-common.h"
@@ -1028,8 +1029,22 @@ GLuint GLES3GPUSampler::getGLSampler(uint16_t minLod, uint16_t maxLod) {
     return _cache[hash];
 }
 
-// NOLINTNEXTLINE(google-readability-function-size, readability-function-size)
-void cmdFuncGLES3CreateShader(GLES3Device *device, GLES3GPUShader *gpuShader) {
+bool cmdFuncGLES3CreateProgramByBinary(GLES3Device *device, GLES3GPUShader *gpuShader) {
+    auto *pipelineCache = device->pipelineCache();
+    if (pipelineCache == nullptr) {
+        return false;
+    }
+
+    auto *item = pipelineCache->fetchBinary(gpuShader);
+    if (item != nullptr) {
+        GL_CHECK(gpuShader->glProgram = glCreateProgram());
+        GL_CHECK(glProgramBinary(gpuShader->glProgram, item->format, item->data.data(), item->data.size()));
+        return true;
+    }
+    return false;
+}
+
+bool cmdFuncGLES3CreateProgramBySource(GLES3Device *device, GLES3GPUShader *gpuShader) {
     GLenum glShaderStage = 0;
     ccstd::string shaderStageStr;
     GLint status;
@@ -1055,7 +1070,7 @@ void cmdFuncGLES3CreateShader(GLES3Device *device, GLES3GPUShader *gpuShader) {
             }
             default: {
                 CC_ABORT();
-                return;
+                return false;
             }
         }
         GL_CHECK(gpuStage.glShader = glCreateShader(glShaderStage));
@@ -1079,7 +1094,7 @@ void cmdFuncGLES3CreateShader(GLES3Device *device, GLES3GPUShader *gpuShader) {
             CC_FREE(logs);
             GL_CHECK(glDeleteShader(gpuStage.glShader));
             gpuStage.glShader = 0;
-            return;
+            return false;
         }
     }
 
@@ -1115,10 +1130,33 @@ void cmdFuncGLES3CreateShader(GLES3Device *device, GLES3GPUShader *gpuShader) {
 
             CC_LOG_ERROR(logs);
             CC_FREE(logs);
-            return;
+            return false;
         }
     }
 
+    auto *cache = device->pipelineCache();
+    if (cache != nullptr) {
+        GLint binaryLength = 0;
+        GL_CHECK(glGetProgramiv(gpuShader->glProgram, GL_PROGRAM_BINARY_LENGTH, &binaryLength));
+        GLsizei length = 0;
+        IntrusivePtr<GLES3GPUProgramBinary> binary = ccnew GLES3GPUProgramBinary();
+        binary->name = gpuShader->name;
+        binary->hash = gpuShader->hash;
+        binary->data.resize(binaryLength);
+        GL_CHECK(glGetProgramBinary(gpuShader->glProgram, binaryLength, &length, &binary->format, binary->data.data()));
+        cache->addBinary(binary);
+    }
+    return true;
+}
+
+// NOLINTNEXTLINE(google-readability-function-size, readability-function-size)
+void cmdFuncGLES3CreateShader(GLES3Device *device, GLES3GPUShader *gpuShader) {
+
+    if (!cmdFuncGLES3CreateProgramByBinary(device, gpuShader)) {
+        if (!cmdFuncGLES3CreateProgramBySource(device, gpuShader)) {
+            return;
+        }
+    }
     CC_LOG_INFO("Shader '%s' compilation succeeded.", gpuShader->name.c_str());
 
     GLint attrMaxLength = 0;

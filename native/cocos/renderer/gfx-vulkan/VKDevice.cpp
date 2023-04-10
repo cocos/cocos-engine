@@ -39,6 +39,7 @@
 #include "VKShader.h"
 #include "VKSwapchain.h"
 #include "VKTexture.h"
+#include "VKPipelineCache.h"
 #include "VKUtils.h"
 #include "base/Utils.h"
 #include "gfx-base/GFXDef-common.h"
@@ -461,8 +462,8 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     getAccessTypes(AccessFlagBit::DEPTH_STENCIL_ATTACHMENT_WRITE, _gpuDevice->defaultDepthStencilBarrier.nextAccesses);
     cmdFuncCCVKCreateGeneralBarrier(this, &_gpuDevice->defaultDepthStencilBarrier);
 
-    VkPipelineCacheCreateInfo pipelineCacheInfo{VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO};
-    VK_CHECK(vkCreatePipelineCache(_gpuDevice->vkDevice, &pipelineCacheInfo, nullptr, &_gpuDevice->vkPipelineCache));
+    _pipelineCache = std::make_unique<CCVKPipelineCache>();
+    _pipelineCache->init(_gpuDevice->vkDevice);
 
     ///////////////////// Print Debug Info /////////////////////
 
@@ -545,10 +546,7 @@ void CCVKDevice::doDestroy() {
     _gpuFencePools.clear();
 
     if (_gpuDevice) {
-        if (_gpuDevice->vkPipelineCache) {
-            vkDestroyPipelineCache(_gpuDevice->vkDevice, _gpuDevice->vkPipelineCache, nullptr);
-            _gpuDevice->vkPipelineCache = VK_NULL_HANDLE;
-        }
+        _pipelineCache.reset();
 
         if (_gpuDevice->memoryAllocator != VK_NULL_HANDLE) {
             VmaStats stats;

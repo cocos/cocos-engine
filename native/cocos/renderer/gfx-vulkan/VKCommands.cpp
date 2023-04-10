@@ -33,6 +33,7 @@
 #include "VKCommands.h"
 #include "VKDevice.h"
 #include "VKGPUObjects.h"
+#include "VKPipelineCache.h"
 #include "gfx-base/GFXDef.h"
 #include "states/VKBufferBarrier.h"
 #include "states/VKGeneralBarrier.h"
@@ -958,7 +959,7 @@ void cmdFuncCCVKCreateComputePipelineState(CCVKDevice *device, CCVKGPUPipelineSt
 
     ///////////////////// Creation /////////////////////
 
-    VK_CHECK(vkCreateComputePipelines(device->gpuDevice()->vkDevice, device->gpuDevice()->vkPipelineCache,
+    VK_CHECK(vkCreateComputePipelines(device->gpuDevice()->vkDevice, device->pipelineCache()->getHandle(),
                                       1, &createInfo, nullptr, &gpuPipelineState->vkPipeline));
 }
 
@@ -1174,7 +1175,7 @@ void cmdFuncCCVKCreateGraphicsPipelineState(CCVKDevice *device, CCVKGPUPipelineS
 
     ///////////////////// Creation /////////////////////
 
-    VK_CHECK(vkCreateGraphicsPipelines(device->gpuDevice()->vkDevice, device->gpuDevice()->vkPipelineCache,
+    VK_CHECK(vkCreateGraphicsPipelines(device->gpuDevice()->vkDevice, device->pipelineCache()->getHandle(),
                                        1, &createInfo, nullptr, &gpuPipelineState->vkPipeline));
 }
 
