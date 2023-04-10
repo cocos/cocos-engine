@@ -27,12 +27,10 @@ import { ccclass, tooltip, displayOrder, type, serializable, range, visible } fr
 import { lerp, Vec3 } from '../../core/math';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { CurveRange } from '../curve-range';
-import { ModuleRandSeed } from '../enum';
-import { BuiltinParticleParameter, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
-import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
-import { RandNumGen } from '../rand-num-gen';
+import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
+import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
+import { RandomStream } from '../random-stream';
 
-const SIZE_OVERTIME_RAND_OFFSET = 1233881;
 const seed = new Vec3();
 
 @ccclass('cc.MultiplySizeModule')
@@ -116,18 +114,32 @@ export class MultiplySizeModule extends ParticleModule {
     @serializable
     private _z: CurveRange | null = null;
 
+    private _randomOffset = 0;
+
+    public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {
+        this._randomOffset = state.rand.getUInt32();
+    }
+
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
-        context.markRequiredParameter(BuiltinParticleParameter.SIZE);
+        context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.SIZE);
+        if (context.executionStage === ModuleExecStage.SPAWN) {
+            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.BASE_SIZE);
+        }
         if (this.x.mode === CurveRange.Mode.TwoConstants || this.x.mode === CurveRange.Mode.TwoCurves) {
-            context.markRequiredParameter(BuiltinParticleParameter.RANDOM_SEED);
+            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
         }
         if (this.x.mode === CurveRange.Mode.Curve || this.x.mode === CurveRange.Mode.TwoCurves) {
-            context.markRequiredParameter(BuiltinParticleParameter.NORMALIZED_ALIVE_TIME);
+            if (context.executionStage === ModuleExecStage.SPAWN) {
+                context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.SPAWN_NORMALIZED_TIME);
+            } else {
+                context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
+            }
         }
     }
 
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
-        const { size } = particles;
+        const size = context.executionStage === ModuleExecStage.SPAWN ? particles.baseSize : particles.size;
+        const randomOffset = this._randomOffset;
         const { fromIndex, toIndex } = context;
         if (!this.separateAxes) {
             if (this.scalar.mode === CurveRange.Mode.Constant) {
@@ -137,25 +149,25 @@ export class MultiplySizeModule extends ParticleModule {
                 }
             } else if (this.scalar.mode === CurveRange.Mode.Curve) {
                 const { spline, multiplier } = this.scalar;
-                const normalizedAliveTime = particles.normalizedAliveTime.data;
+                const normalizedTime = context.executionStage === ModuleExecStage.UPDATE ? particles.normalizedAliveTime.data : particles.spawnNormalizedTime.data;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    size.multiply1fAt(spline.evaluate(normalizedAliveTime[i]) * multiplier, i);
+                    size.multiply1fAt(spline.evaluate(normalizedTime[i]) * multiplier, i);
                 }
             } else if (this.scalar.mode === CurveRange.Mode.TwoConstants) {
                 const { constantMin, constantMax } = this.scalar;
                 const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    size.multiply1fAt(lerp(constantMin, constantMax, RandNumGen.getFloat(randomSeed[i] + SIZE_OVERTIME_RAND_OFFSET)), i);
+                    size.multiply1fAt(lerp(constantMin, constantMax, RandomStream.getFloat(randomSeed[i] + randomOffset)), i);
                 }
             } else {
                 const { splineMin, splineMax, multiplier } = this.scalar;
-                const normalizedAliveTime = particles.normalizedAliveTime.data;
+                const normalizedTime = context.executionStage === ModuleExecStage.UPDATE ? particles.normalizedAliveTime.data : particles.spawnNormalizedTime.data;
                 const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const currentLife = normalizedAliveTime[i];
+                    const currentLife = normalizedTime[i];
                     size.multiply1fAt(lerp(splineMin.evaluate(currentLife),
                         splineMax.evaluate(currentLife),
-                        RandNumGen.getFloat(randomSeed[i] + SIZE_OVERTIME_RAND_OFFSET)) * multiplier, i);
+                        RandomStream.getFloat(randomSeed[i] + randomOffset)) * multiplier, i);
                 }
             }
         } else {
@@ -171,9 +183,9 @@ export class MultiplySizeModule extends ParticleModule {
                 const { spline: splineX, multiplier: xMultiplier } = this.x;
                 const { spline: splineY, multiplier: yMultiplier } = this.y;
                 const { spline: splineZ, multiplier: zMultiplier } = this.z;
-                const normalizedAliveTime = particles.normalizedAliveTime.data;
+                const normalizedTime = context.executionStage === ModuleExecStage.UPDATE ? particles.normalizedAliveTime.data : particles.spawnNormalizedTime.data;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const currentLife = normalizedAliveTime[i];
+                    const currentLife = normalizedTime[i];
                     size.multiply3fAt(splineX.evaluate(currentLife) * xMultiplier,
                         splineY.evaluate(currentLife) * yMultiplier,
                         splineZ.evaluate(currentLife) * zMultiplier, i);
@@ -184,7 +196,7 @@ export class MultiplySizeModule extends ParticleModule {
                 const { constantMin: zMin, constantMax: zMax } = this.z;
                 const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const ratio = RandNumGen.get3Float(randomSeed[i] + SIZE_OVERTIME_RAND_OFFSET, seed);
+                    const ratio = RandomStream.get3Float(randomSeed[i] + randomOffset, seed);
                     size.multiply3fAt(lerp(xMin, xMax, ratio.x),
                         lerp(yMin, yMax, ratio.y),
                         lerp(zMin, zMax, ratio.z), i);
@@ -193,11 +205,11 @@ export class MultiplySizeModule extends ParticleModule {
                 const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.x;
                 const { splineMin: yMin, splineMax: yMax, multiplier: yMultiplier } = this.y;
                 const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.z;
-                const normalizedAliveTime = particles.normalizedAliveTime.data;
+                const normalizedTime = context.executionStage === ModuleExecStage.UPDATE ? particles.normalizedAliveTime.data : particles.spawnNormalizedTime.data;
                 const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const currentLife = normalizedAliveTime[i];
-                    const ratio = RandNumGen.get3Float(randomSeed[i] + SIZE_OVERTIME_RAND_OFFSET, seed);
+                    const currentLife = normalizedTime[i];
+                    const ratio = RandomStream.get3Float(randomSeed[i] + randomOffset, seed);
                     size.multiply3fAt(
                         lerp(xMin.evaluate(currentLife), xMax.evaluate(currentLife), ratio.x) * xMultiplier,
                         lerp(yMin.evaluate(currentLife), yMax.evaluate(currentLife), ratio.y) * yMultiplier,

@@ -26,10 +26,10 @@ import { ShapeModule, DistributionMode, MoveWarpMode } from './shape';
 import { ccclass, displayOrder, range, rangeMax, rangeMin, serializable, tooltip, type, visible } from '../../core/data/decorators';
 import { ModuleExecStage, ParticleModule } from '../particle-module';
 import { Enum, lerp, toDegree, toRadian, Vec3 } from '../../core';
-import { BuiltinParticleParameter, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
 import { CurveRange } from '../curve-range';
-import { RandNumGen } from '../rand-num-gen';
+import { RandomStream } from '../random-stream';
 
 @ccclass('cc.LineShapeModule')
 @ParticleModule.register('LineShape', ModuleExecStage.SPAWN, [BuiltinParticleParameterName.START_DIR])
@@ -91,12 +91,16 @@ export class LineShapeModule extends ShapeModule {
 
     public tick (particles: ParticleDataSet,  params: ParticleEmitterParams, context: ParticleExecContext) {
         super.tick(particles, params, context);
-        context.markRequiredParameter(BuiltinParticleParameter.FLOAT_REGISTER);
         if (this.distributionMode === DistributionMode.MOVE) {
-            context.markRequiredParameter(BuiltinParticleParameter.SPAWN_TIME_RATIO);
+            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.SPAWN_TIME_RATIO);
         }
         this._lengthTimePrev = this._lengthTimer;
-        this._lengthTimer += this.moveSpeed.evaluate(context.emitterNormalizedTime, 1) * context.emitterDeltaTime;
+        let deltaTime = context.emitterDeltaTime;
+        if (context.emitterNormalizedTime < context.emitterNormalizedPrevTime) {
+            this._lengthTimer += (this.moveSpeed.evaluate(1, 1) * (params.duration - context.emitterPreviousTime));
+            deltaTime = context.emitterCurrentTime;
+        }
+        this._lengthTimer += this.moveSpeed.evaluate(context.emitterNormalizedTime, 1) * deltaTime;
         this._invLength = 1 / this.length;
         this._spreadStep = this.spread * this._invLength;
         this._lengthRounded = Math.ceil(this.length / this._spreadStep) * this._spreadStep;
@@ -105,7 +109,6 @@ export class LineShapeModule extends ShapeModule {
 
     public execute (particles: ParticleDataSet,  params: ParticleEmitterParams, context: ParticleExecContext) {
         const { fromIndex, toIndex } = context;
-        const floatRegister = particles.floatRegister.data;
         const { vec3Register, startDir } = particles;
         const rand = this._rand;
         const spreadStep = this._spreadStep;
@@ -118,11 +121,15 @@ export class LineShapeModule extends ShapeModule {
         if (this.distributionMode === DistributionMode.RANDOM) {
             if (this.spread > 0) {
                 for (let i = fromIndex; i < toIndex; ++i) {
-                    floatRegister[i] = length * rand.getFloat();
+                    const len = length * rand.getFloat();
+                    vec3Register.set3fAt(len - halfLength, 0, 0, i);
+                    startDir.set3fAt(0, 1, 0, i);
                 }
             } else {
                 for (let i = fromIndex; i < toIndex; ++i) {
-                    floatRegister[i] = Math.floor((lengthRounded * rand.getFloat()) / spreadStep) * spreadStep;
+                    const len = Math.floor((lengthRounded * rand.getFloat()) / spreadStep) * spreadStep;
+                    vec3Register.set3fAt(len - halfLength, 0, 0, i);
+                    startDir.set3fAt(0, 1, 0, i);
                 }
             }
         } else if (this.distributionMode === DistributionMode.MOVE) {
@@ -136,7 +143,8 @@ export class LineShapeModule extends ShapeModule {
                         if (len < 0) {
                             len += length;
                         }
-                        floatRegister[i] = len;
+                        vec3Register.set3fAt(len - halfLength, 0, 0, i);
+                        startDir.set3fAt(0, 1, 0, i);
                     }
                 } else {
                     for (let i = fromIndex; i < toIndex; ++i) {
@@ -145,7 +153,8 @@ export class LineShapeModule extends ShapeModule {
                         if (len < 0) {
                             len += length;
                         }
-                        floatRegister[i] = len;
+                        vec3Register.set3fAt(len - halfLength, 0, 0, i);
+                        startDir.set3fAt(0, 1, 0, i);
                     }
                 }
             } else {
@@ -160,7 +169,9 @@ export class LineShapeModule extends ShapeModule {
                         if (len >= 1.0) {
                             len = 2 - len;
                         }
-                        floatRegister[i] = len * length;
+                        len *= length;
+                        vec3Register.set3fAt(len - halfLength, 0, 0, i);
+                        startDir.set3fAt(0, 1, 0, i);
                     }
                 } else {
                     for (let i = fromIndex; i < toIndex; ++i) {
@@ -171,7 +182,9 @@ export class LineShapeModule extends ShapeModule {
                         if (len >= 1.0) {
                             len = 2 - len;
                         }
-                        floatRegister[i] = len * length;
+                        len *= length;
+                        vec3Register.set3fAt(len - halfLength, 0, 0, i);
+                        startDir.set3fAt(0, 1, 0, i);
                     }
                 }
             }
@@ -181,18 +194,16 @@ export class LineShapeModule extends ShapeModule {
                 for (let i = fromIndex; i < toIndex; ++i) {
                     let len = i * invTotal * length;
                     len = Math.floor(len / spreadStep) * spreadStep;
-                    floatRegister[i] = len;
+                    vec3Register.set3fAt(len - halfLength, 0, 0, i);
+                    startDir.set3fAt(0, 1, 0, i);
                 }
             } else {
                 for (let i = fromIndex; i < toIndex; ++i) {
-                    floatRegister[i] = i * invTotal * length;
+                    const len = i * invTotal * length;
+                    vec3Register.set3fAt(len - halfLength, 0, 0, i);
+                    startDir.set3fAt(0, 1, 0, i);
                 }
             }
-        }
-        for (let i = fromIndex; i < toIndex; i++) {
-            const len = floatRegister[i];
-            vec3Register.set3fAt(len - halfLength, 0, 0, i);
-            startDir.set3fAt(0, 1, 0, i);
         }
         super.execute(particles, params, context);
     }

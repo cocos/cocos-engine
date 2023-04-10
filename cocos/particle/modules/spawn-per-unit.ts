@@ -25,9 +25,10 @@
 
 import { ccclass, displayOrder, serializable, tooltip, type, range } from '../../core/data/decorators';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
-import { ParticleExecContext, ParticleEmitterParams } from '../particle-base';
+import { ParticleExecContext, ParticleEmitterParams, ParticleEmitterState } from '../particle-base';
 import { CurveRange } from '../curve-range';
 import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
+import { RandomStream } from '../random-stream';
 
 @ccclass('cc.SpawnPerUnitModule')
 @ParticleModule.register('SpawnPerUnit', ModuleExecStage.EMITTER_UPDATE | ModuleExecStage.EVENT_HANDLER)
@@ -42,9 +43,20 @@ export class SpawnPerUnitModule extends ParticleModule {
     @tooltip('i18n:particle_system.rateOverDistance')
     public rate = new CurveRange();
 
+    private _rand = new RandomStream();
+
+    public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {
+        this._rand.seed = Math.imul(state.rand.getUInt32(), state.rand.getUInt32()) >>> 0;
+    }
+
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
-        const { emitterVelocity, emitterNormalizedTime: normalizeT, emitterDeltaTime } = context;
-        context.spawnContinuousCount += emitterVelocity.length()
-        * this.rate.evaluate(normalizeT, Math.random()) * emitterDeltaTime;
+        const { emitterVelocity, emitterNormalizedTime: normalizeT, emitterDeltaTime, emitterPreviousTime, emitterCurrentTime } = context;
+        let deltaTime = emitterDeltaTime;
+        const random = this._rand.getFloat();
+        if (emitterPreviousTime > emitterCurrentTime) {
+            context.spawnContinuousCount += emitterVelocity.length() * this.rate.evaluate(1, random) * (params.duration - emitterPreviousTime);
+            deltaTime = emitterCurrentTime;
+        }
+        context.spawnContinuousCount += emitterVelocity.length() * this.rate.evaluate(normalizeT, random) * deltaTime;
     }
 }

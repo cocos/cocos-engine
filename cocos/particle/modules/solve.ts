@@ -33,11 +33,6 @@ import { ParticleVec3ArrayParameter } from '../particle-parameter';
 @ccclass('SolveModule')
 @ParticleModule.register('Solve', ModuleExecStage.UPDATE, [ParameterName.POSITION, ParameterName.ROTATION], [ParameterName.VELOCITY, ParameterName.ANGULAR_VELOCITY])
 export class SolveModule extends ParticleModule {
-    constructor () {
-        super();
-        this.enabled = true;
-    }
-
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         const { fromIndex, toIndex, deltaTime } = context;
         if (particles.hasParameter(BuiltinParticleParameter.VELOCITY) && particles.hasParameter(BuiltinParticleParameter.POSITION)) {

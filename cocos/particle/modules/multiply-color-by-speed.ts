@@ -26,9 +26,9 @@ import { ccclass, rangeMin, serializable, type } from '../../core/data/decorator
 import { GradientRange } from '../gradient-range';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { ModuleExecStage, ParticleModule } from '../particle-module';
-import { BuiltinParticleParameter, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
 import { approx, assert, Color, math, Vec3, Vec2 } from '../../core';
-import { RandNumGen } from '../rand-num-gen';
+import { RandomStream } from '../random-stream';
 
 const tempVelocity = new Vec3();
 const tempColor = new Color();
@@ -57,9 +57,9 @@ export class MultiplyColorBySpeedModule extends ParticleModule {
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         assert(!approx(this.speedRange.x, this.speedRange.y), 'Speed Range X is so closed to Speed Range Y');
         assert(this.color.mode === GradientRange.Mode.Gradient || this.color.mode === GradientRange.Mode.TwoGradients, 'Color mode must be Gradient or TwoGradients');
-        context.markRequiredParameter(BuiltinParticleParameter.COLOR);
+        context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.COLOR);
         if (this.color.mode === GradientRange.Mode.TwoGradients) {
-            context.markRequiredParameter(BuiltinParticleParameter.RANDOM_SEED);
+            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
         }
         this._speedScale = 1 / Math.abs(this.speedRange.x - this.speedRange.y);
         this._speedOffset = -this.speedRange.x * this._speedScale;
@@ -88,7 +88,7 @@ export class MultiplyColorBySpeedModule extends ParticleModule {
                 color.multiplyColorAt(Color.lerp(tempColor,
                     gradientMin.evaluate(tempColor2, ratio),
                     gradientMax.evaluate(tempColor3, ratio),
-                    RandNumGen.getFloat(randomSeed[i] + MULTIPLY_COLOR_BY_SPEED_RAND_OFFSET)), i);
+                    RandomStream.getFloat(randomSeed[i] + MULTIPLY_COLOR_BY_SPEED_RAND_OFFSET)), i);
             }
         }
     }

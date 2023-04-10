@@ -28,12 +28,14 @@ import { approx, BitMask, CCFloat, Color, Enum, EPSILON, Mat4, Quat, Vec3, warn 
 import { ccclass, range, serializable, type, visible } from '../../core/data/decorators';
 import { Space } from '../enum';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
-import { BuiltinParticleParameter, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleColorArrayParameter, ParticleVec3ArrayParameter } from '../particle-parameter';
 import { ParticleEmitterParams, ParticleEmitterState, ParticleEventInfo, ParticleExecContext } from '../particle-base';
 import { RandomStream } from '../random-stream';
 
 const eventInfo = new ParticleEventInfo();
+const requiredParameters = BuiltinParticleParameterFlags.INV_START_LIFETIME | BuiltinParticleParameterFlags.RANDOM_SEED
+| BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME | BuiltinParticleParameterFlags.ID | BuiltinParticleParameterFlags.IS_DEAD;
 @ccclass('cc.DeathEventGeneratorModule')
 @ParticleModule.register('DeathEventGenerator', ModuleExecStage.UPDATE, [], [ParameterName.POSITION, ParameterName.SIZE, ParameterName.ROTATION, ParameterName.VELOCITY, ParameterName.NORMALIZED_ALIVE_TIME, ParameterName.COLOR])
 export class DeathEventGeneratorModule extends ParticleModule {
@@ -49,11 +51,7 @@ export class DeathEventGeneratorModule extends ParticleModule {
     }
 
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
-        context.markRequiredParameter(BuiltinParticleParameter.INV_START_LIFETIME);
-        context.markRequiredParameter(BuiltinParticleParameter.RANDOM_SEED);
-        context.markRequiredParameter(BuiltinParticleParameter.NORMALIZED_ALIVE_TIME);
-        context.markRequiredParameter(BuiltinParticleParameter.ID);
-        context.markRequiredParameter(BuiltinParticleParameter.IS_DEAD);
+        context.markRequiredBuiltinParameters(requiredParameters);
     }
 
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {

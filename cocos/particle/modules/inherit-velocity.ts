@@ -29,14 +29,13 @@ import { lerp, Mat4, Quat, Vec3 } from '../../core/math';
 import { Space } from '../enum';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { calculateTransform } from '../particle-general-function';
-import { BuiltinParticleParameter, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
 import { CurveRange } from '../curve-range';
 import { RandomStream } from '../random-stream';
 
-const INHERIT_VELOCITY_RAND = 718231;
-
 const tempVelocity = new Vec3();
+const requiredParameters = BuiltinParticleParameterFlags.POSITION | BuiltinParticleParameterFlags.VELOCITY;
 @ccclass('cc.InheritVelocityModule')
 @ParticleModule.register('InheritVelocity', ModuleExecStage.UPDATE | ModuleExecStage.SPAWN, [BuiltinParticleParameterName.VELOCITY])
 export class InheritVelocityModule extends ParticleModule {
@@ -45,38 +44,33 @@ export class InheritVelocityModule extends ParticleModule {
     @serializable
     public scale = new CurveRange();
 
-    private _rand = new RandomStream();
+    private _randomOffset = 0;
 
     public onPlay (params: ParticleEmitterParams, states: ParticleEmitterState) {
-        this._rand.seed = states.rand.getUInt32();
+        this._randomOffset = states.rand.getUInt32();
     }
 
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         if (this.scale.mode === CurveRange.Mode.TwoConstants || this.scale.mode === CurveRange.Mode.TwoCurves) {
-            if (context.executionStage !== ModuleExecStage.SPAWN) {
-                context.markRequiredParameter(BuiltinParticleParameter.RANDOM_SEED);
-            }
+            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
         }
         if (this.scale.mode === CurveRange.Mode.TwoCurves || this.scale.mode === CurveRange.Mode.Curve) {
             if (context.executionStage !== ModuleExecStage.SPAWN) {
-                context.markRequiredParameter(BuiltinParticleParameter.NORMALIZED_ALIVE_TIME);
+                context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
             } else {
-                context.markRequiredParameter(BuiltinParticleParameter.SPAWN_TIME_RATIO);
+                context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.SPAWN_NORMALIZED_TIME);
             }
         }
-        context.markRequiredParameter(BuiltinParticleParameter.POSITION);
-        if (context.executionStage !== ModuleExecStage.SPAWN) {
-            context.markRequiredParameter(BuiltinParticleParameter.VELOCITY);
-        } else {
-            context.markRequiredParameter(BuiltinParticleParameter.BASE_VELOCITY);
+        context.markRequiredBuiltinParameters(requiredParameters);
+        if (context.executionStage === ModuleExecStage.SPAWN) {
+            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.BASE_VELOCITY);
         }
     }
 
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
-        const { fromIndex, toIndex, emitterVelocityInEmittingSpace: initialVelocity,
-            emitterNormalizedTime: normalizedT, emitterNormalizedPrevTime: normalizedPrevT } = context;
+        const { fromIndex, toIndex, emitterVelocityInEmittingSpace: initialVelocity } = context;
         const velocity = context.executionStage === ModuleExecStage.SPAWN ? particles.baseVelocity : particles.velocity;
-        const rand = this._rand;
+        const randomOffset = this._randomOffset;
         if (this.scale.mode === CurveRange.Mode.Constant) {
             Vec3.multiplyScalar(tempVelocity, initialVelocity, this.scale.constant);
             for (let i = fromIndex; i < toIndex; i++) {
@@ -84,50 +78,26 @@ export class InheritVelocityModule extends ParticleModule {
             }
         } else if (this.scale.mode === CurveRange.Mode.TwoConstants) {
             const { constantMin, constantMax } = this.scale;
-            if (context.executionStage === ModuleExecStage.SPAWN) {
-                for (let i = fromIndex; i < toIndex; i++) {
-                    Vec3.multiplyScalar(tempVelocity, initialVelocity, lerp(constantMin, constantMax, rand.getFloat()));
-                    velocity.addVec3At(tempVelocity, i);
-                }
-            } else {
-                const seed = particles.randomSeed.data;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    Vec3.multiplyScalar(tempVelocity, initialVelocity, lerp(constantMin, constantMax, RandomStream.getFloat(seed[i] + INHERIT_VELOCITY_RAND)));
-                    velocity.addVec3At(tempVelocity, i);
-                }
+            const seed = particles.randomSeed.data;
+            for (let i = fromIndex; i < toIndex; i++) {
+                Vec3.multiplyScalar(tempVelocity, initialVelocity, lerp(constantMin, constantMax, RandomStream.getFloat(seed[i] + randomOffset)));
+                velocity.addVec3At(tempVelocity, i);
             }
         } else if (this.scale.mode === CurveRange.Mode.Curve) {
             const { spline, multiplier } = this.scale;
-            if (context.executionStage === ModuleExecStage.SPAWN) {
-                const spawnTime = particles.spawnTimeRatio.data;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    Vec3.multiplyScalar(tempVelocity, initialVelocity, spline.evaluate(lerp(normalizedT, normalizedPrevT, spawnTime[i])) * multiplier);
-                    velocity.addVec3At(tempVelocity, i);
-                }
-            } else {
-                const normalizedAliveTime = particles.normalizedAliveTime.data;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    Vec3.multiplyScalar(tempVelocity, initialVelocity, spline.evaluate(normalizedAliveTime[i]) * multiplier);
-                    velocity.addVec3At(tempVelocity, i);
-                }
+            const normalizedAliveTime = particles.normalizedAliveTime.data;
+            for (let i = fromIndex; i < toIndex; i++) {
+                Vec3.multiplyScalar(tempVelocity, initialVelocity, spline.evaluate(normalizedAliveTime[i]) * multiplier);
+                velocity.addVec3At(tempVelocity, i);
             }
         } else {
             const { splineMin, splineMax, multiplier } = this.scale;
-            if (context.executionStage === ModuleExecStage.SPAWN) {
-                const spawnTime = particles.spawnTimeRatio.data;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    const time = lerp(normalizedT, normalizedPrevT, spawnTime[i]);
-                    Vec3.multiplyScalar(tempVelocity, initialVelocity, lerp(splineMin.evaluate(time), splineMax.evaluate(time), rand.getFloat()) * multiplier);
-                    velocity.addVec3At(tempVelocity, i);
-                }
-            } else {
-                const normalizedAliveTime = particles.normalizedAliveTime.data;
-                const seed = particles.randomSeed.data;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    const time = normalizedAliveTime[i];
-                    Vec3.multiplyScalar(tempVelocity, initialVelocity, lerp(splineMin.evaluate(time), splineMax.evaluate(time), RandomStream.getFloat(seed[i] + INHERIT_VELOCITY_RAND)) * multiplier);
-                    velocity.addVec3At(tempVelocity, i);
-                }
+            const normalizedAliveTime = particles.normalizedAliveTime.data;
+            const seed = particles.randomSeed.data;
+            for (let i = fromIndex; i < toIndex; i++) {
+                const time = normalizedAliveTime[i];
+                Vec3.multiplyScalar(tempVelocity, initialVelocity, lerp(splineMin.evaluate(time), splineMax.evaluate(time), RandomStream.getFloat(seed[i] + randomOffset)) * multiplier);
+                velocity.addVec3At(tempVelocity, i);
             }
         }
     }

@@ -27,10 +27,10 @@ import { ccclass, tooltip, displayOrder, type, serializable, range, visible, ran
 import { approx, lerp, Vec2, Vec3 } from '../../core/math';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { CurveRange } from '../curve-range';
-import { BuiltinParticleParameter, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { assert } from '../../core';
-import { RandNumGen } from '../rand-num-gen';
+import { RandomStream } from '../random-stream';
 
 const SCALE_SIZE_RAND = 2818312;
 @ccclass('cc.ScaleSizeBySpeedModule')
@@ -121,12 +121,12 @@ export class ScaleSizeBySpeedModule extends ParticleModule {
 
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         assert(!approx(this.speedRange.x, this.speedRange.y), 'Speed Range X is so closed to Speed Range Y');
-        context.markRequiredParameter(BuiltinParticleParameter.SIZE);
+        context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.SIZE);
         if (this.x.mode === CurveRange.Mode.TwoConstants || this.x.mode === CurveRange.Mode.TwoCurves) {
-            context.markRequiredParameter(BuiltinParticleParameter.RANDOM_SEED);
+            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
         }
         if (this.x.mode === CurveRange.Mode.Curve || this.x.mode === CurveRange.Mode.TwoCurves) {
-            context.markRequiredParameter(BuiltinParticleParameter.NORMALIZED_ALIVE_TIME);
+            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
         }
     }
 
@@ -149,7 +149,7 @@ export class ScaleSizeBySpeedModule extends ParticleModule {
             } else if (this.x.mode === CurveRange.Mode.TwoConstants) {
                 const { constantMin, constantMax } = this.x;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    size.multiply1fAt(lerp(constantMin, constantMax, RandNumGen.getFloat(randomSeed[i] + SCALE_SIZE_RAND)), i);
+                    size.multiply1fAt(lerp(constantMin, constantMax, RandomStream.getFloat(randomSeed[i] + SCALE_SIZE_RAND)), i);
                 }
             } else {
                 const { splineMin, splineMax, multiplier } = this.x;
@@ -157,7 +157,7 @@ export class ScaleSizeBySpeedModule extends ParticleModule {
                     const currentLife = normalizedAliveTime[i];
                     size.multiply1fAt(lerp(splineMin.evaluate(currentLife),
                         splineMax.evaluate(currentLife),
-                        RandNumGen.getFloat(randomSeed[i] + SCALE_SIZE_RAND)) * multiplier, i);
+                        RandomStream.getFloat(randomSeed[i] + SCALE_SIZE_RAND)) * multiplier, i);
                 }
             }
         } else {
@@ -184,9 +184,9 @@ export class ScaleSizeBySpeedModule extends ParticleModule {
                 const { constantMin: yMin, constantMax: yMax } = this.y;
                 const { constantMin: zMin, constantMax: zMax } = this.z;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    size.multiply3fAt(lerp(xMin, xMax, RandNumGen.getFloat(randomSeed[i] + SCALE_SIZE_RAND)),
-                        lerp(yMin, yMax, RandNumGen.getFloat(randomSeed[i] + SCALE_SIZE_RAND)),
-                        lerp(zMin, zMax, RandNumGen.getFloat(randomSeed[i] + SCALE_SIZE_RAND)), i);
+                    size.multiply3fAt(lerp(xMin, xMax, RandomStream.getFloat(randomSeed[i] + SCALE_SIZE_RAND)),
+                        lerp(yMin, yMax, RandomStream.getFloat(randomSeed[i] + SCALE_SIZE_RAND)),
+                        lerp(zMin, zMax, RandomStream.getFloat(randomSeed[i] + SCALE_SIZE_RAND)), i);
                 }
             } else {
                 const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.x;
@@ -195,9 +195,9 @@ export class ScaleSizeBySpeedModule extends ParticleModule {
                 for (let i = fromIndex; i < toIndex; i++) {
                     const currentLife = normalizedAliveTime[i];
                     size.multiply3fAt(
-                        lerp(xMin.evaluate(currentLife), xMax.evaluate(currentLife), RandNumGen.getFloat(randomSeed[i] + SCALE_SIZE_RAND)) * xMultiplier,
-                        lerp(yMin.evaluate(currentLife), yMax.evaluate(currentLife), RandNumGen.getFloat(randomSeed[i] + SCALE_SIZE_RAND)) * yMultiplier,
-                        lerp(zMin.evaluate(currentLife), zMax.evaluate(currentLife), RandNumGen.getFloat(randomSeed[i] + SCALE_SIZE_RAND)) * zMultiplier, i,
+                        lerp(xMin.evaluate(currentLife), xMax.evaluate(currentLife), RandomStream.getFloat(randomSeed[i] + SCALE_SIZE_RAND)) * xMultiplier,
+                        lerp(yMin.evaluate(currentLife), yMax.evaluate(currentLife), RandomStream.getFloat(randomSeed[i] + SCALE_SIZE_RAND)) * yMultiplier,
+                        lerp(zMin.evaluate(currentLife), zMax.evaluate(currentLife), RandomStream.getFloat(randomSeed[i] + SCALE_SIZE_RAND)) * zMultiplier, i,
                     );
                 }
             }

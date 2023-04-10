@@ -30,11 +30,11 @@ import { Space } from '../enum';
 import { CurveRange } from '../curve-range';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { assert, Enum } from '../../core';
-import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
-import { BuiltinParticleParameter, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
-import { RandNumGen } from '../rand-num-gen';
+import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
+import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
+import { RandomStream } from '../random-stream';
 
-const FORCE_RAND_OFFSET = 212165;
+const randomOffset = 212165;
 const seed = new Vec3();
 
 const _temp_v3 = new Vec3();
@@ -84,18 +84,24 @@ export class ForceModule extends ParticleModule {
     // TODO:currently not supported
     public randomized = false;
 
+    private _randomOffset = 0;
+
+    public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {
+        this._randomOffset = state.rand.getUInt32();
+    }
+
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         if (DEBUG) {
             assert(this.x.mode === this.y.mode && this.y.mode === this.z.mode, 'The curve of x, y, z must have same mode!');
         }
-        context.markRequiredParameter(BuiltinParticleParameter.POSITION);
-        context.markRequiredParameter(BuiltinParticleParameter.BASE_VELOCITY);
-        context.markRequiredParameter(BuiltinParticleParameter.VELOCITY);
+        context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.POSITION);
+        context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.BASE_VELOCITY);
+        context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.VELOCITY);
         if (this.x.mode === CurveRange.Mode.Curve || this.x.mode === CurveRange.Mode.TwoCurves) {
-            context.markRequiredParameter(BuiltinParticleParameter.NORMALIZED_ALIVE_TIME);
+            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
         }
         if (this.x.mode === CurveRange.Mode.TwoConstants || this.x.mode === CurveRange.Mode.TwoCurves) {
-            context.markRequiredParameter(BuiltinParticleParameter.RANDOM_SEED);
+            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
         }
     }
 
@@ -103,6 +109,7 @@ export class ForceModule extends ParticleModule {
         const { velocity, baseVelocity } = particles;
         const { fromIndex, toIndex, deltaTime } = context;
         const needTransform = this.space === params.simulationSpace;
+        const randomOffset = this._randomOffset;
         const rotation = context.rotationIfNeedTransform;
         if (needTransform) {
             if (this.x.mode === CurveRange.Mode.Constant) {
@@ -138,7 +145,7 @@ export class ForceModule extends ParticleModule {
                 const { constantMin: zMin, constantMax: zMax } = this.z;
                 const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const ratio = RandNumGen.get3Float(randomSeed[i] + FORCE_RAND_OFFSET, seed);
+                    const ratio = RandomStream.get3Float(randomSeed[i] + randomOffset, seed);
                     const force = Vec3.set(_temp_v3,
                         lerp(xMin, xMax, ratio.x),
                         lerp(yMin, yMax, ratio.y),
@@ -156,7 +163,7 @@ export class ForceModule extends ParticleModule {
                 const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const normalizedTime = normalizedAliveTime[i];
-                    const ratio = RandNumGen.get3Float(randomSeed[i] + FORCE_RAND_OFFSET, seed);
+                    const ratio = RandomStream.get3Float(randomSeed[i] + randomOffset, seed);
                     const force = Vec3.set(_temp_v3,
                         lerp(xMin.evaluate(normalizedTime), xMax.evaluate(normalizedTime), ratio.x)  * xMultiplier,
                         lerp(yMin.evaluate(normalizedTime), yMax.evaluate(normalizedTime), ratio.y)  * yMultiplier,
@@ -200,7 +207,7 @@ export class ForceModule extends ParticleModule {
                 const { constantMin: zMin, constantMax: zMax } = this.z;
                 const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const ratio = RandNumGen.get3Float(randomSeed[i] + FORCE_RAND_OFFSET, seed);
+                    const ratio = RandomStream.get3Float(randomSeed[i] + randomOffset, seed);
                     const force = Vec3.set(_temp_v3,
                         lerp(xMin, xMax, ratio.x),
                         lerp(yMin, yMax, ratio.y),
@@ -217,7 +224,7 @@ export class ForceModule extends ParticleModule {
                 const normalizedAliveTime = particles.normalizedAliveTime.data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const normalizedTime = normalizedAliveTime[i];
-                    const ratio = RandNumGen.get3Float(randomSeed[i] + FORCE_RAND_OFFSET, seed);
+                    const ratio = RandomStream.get3Float(randomSeed[i] + randomOffset, seed);
                     const force = Vec3.set(_temp_v3,
                         lerp(xMin.evaluate(normalizedTime), xMax.evaluate(normalizedTime), ratio.x)  * xMultiplier,
                         lerp(yMin.evaluate(normalizedTime), yMax.evaluate(normalizedTime), ratio.y)  * yMultiplier,

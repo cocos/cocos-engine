@@ -29,7 +29,6 @@ import { Enum, toDegree, toRadian, Vec3 } from '../../core';
 import { BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
 import { CurveRange } from '../curve-range';
-import { RandNumGen } from '../rand-num-gen';
 
 @ccclass('cc.RectangleShapeModule')
 @ParticleModule.register('RectangleShape', ModuleExecStage.SPAWN, [BuiltinParticleParameterName.START_DIR])

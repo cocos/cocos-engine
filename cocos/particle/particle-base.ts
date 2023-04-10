@@ -243,8 +243,6 @@ export class ParticleEmitterParams {
     @serializable
     public capacity = 100;
     @serializable
-    public spawningUseInterpolation = false;
-    @serializable
     public useAutoRandomSeed = true;
     @serializable
     public randomSeed = 0;
@@ -400,6 +398,7 @@ export class ParticleExecContext {
         delay: number, loopMode: LoopMode, loopCount: number, duration: number) {
         assert((accumulatedTime - previousTime) < duration,
             'The delta time should not exceed the duration of the particle system. please adjust the duration of the particle system.');
+        assert(accumulatedTime >= previousTime);
         let prevTime = delayMode === DelayMode.FIRST_LOOP_ONLY ? Math.max(previousTime - delay, 0) : previousTime;
         let currentTime = delayMode === DelayMode.FIRST_LOOP_ONLY ? Math.max(accumulatedTime - delay, 0) : accumulatedTime;
         const expectedLoopCount = loopMode === LoopMode.INFINITE ? Number.MAX_SAFE_INTEGER
@@ -468,14 +467,6 @@ export class ParticleExecContext {
         this._executionStage = ModuleExecStage.NONE;
         this.setExecuteRange(0, 0);
         this.resetSpawningState();
-    }
-
-    markRequiredParameter (parameterId: number) {
-        if (parameterId < 32) {
-            this._builtinParameterRequirements |= (1 << parameterId);
-        } else {
-            this._customParameterRequirements |= (1 << (parameterId - 32));
-        }
     }
 
     markRequiredBuiltinParameters (parameterFlags: BuiltinParticleParameterFlags) {

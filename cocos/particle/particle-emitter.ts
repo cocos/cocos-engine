@@ -28,21 +28,13 @@ import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displa
 import { EDITOR } from 'internal:constants';
 import { approx, clamp01, Color, EPSILON, lerp, Mat3, Mat4, Quat, randomRangeInt, Size, Vec2, Vec3, Vec4 } from '../core/math';
 import { countTrailingZeros, INT_MAX } from '../core/math/bits';
-import { CurveRange, Mode } from './curve-range';
-import { AddSpeedInInitialDirectionModule } from './modules/add-speed-in-initial-direction';
-import { SpawnRateModule } from './modules/spawn-rate';
-import { StateModule } from './modules/state';
-import { SolveModule } from './modules/solve';
 import { BoundsMode, CapacityMode, DelayMode, InheritedProperty, LoopMode, ParticleEmitterParams, ParticleEmitterState, ParticleEventInfo, ParticleEventType, ParticleExecContext, PlayingState } from './particle-base';
 import { CullingMode, FinishAction, Space } from './enum';
 import { legacyCC } from '../core/global-exports';
 import { assert, BitMask, CCBoolean, CCClass, CCFloat, CCInteger, Component, Enum, geometry, js } from '../core';
-import { ParticleDataSet, BuiltinParticleParameter } from './particle-data-set';
+import { ParticleDataSet, BuiltinParticleParameter, BuiltinParticleParameterFlags } from './particle-data-set';
 import { ParticleModuleStage, ModuleExecStage } from './particle-module';
 import { vfxManager } from './vfx-manager';
-import { SpawnFractionCollection } from './spawn-fraction-collection';
-import { SpriteRendererModule } from './modules';
-import { ParticleParameterIdentity, ParticleParameterType } from './particle-parameter';
 import { RandomStream } from './random-stream';
 import { EventReceiver } from './event-receiver';
 
@@ -315,16 +307,6 @@ export class ParticleEmitter extends Component {
         this._params.finishAction = val;
     }
 
-    @type(CCBoolean)
-    @visible(true)
-    public get spawningUseInterpolation () {
-        return this._params.spawningUseInterpolation;
-    }
-
-    public set spawningUseInterpolation (val) {
-        this._params.spawningUseInterpolation = val;
-    }
-
     public get particles () {
         return this._particles;
     }
@@ -407,8 +389,6 @@ export class ParticleEmitter extends Component {
     private _particles = new ParticleDataSet();
     private _context = new ParticleExecContext();
     private _state = new ParticleEmitterState();
-    private _customParameterId: number = BuiltinParticleParameter.COUNT;
-    private _customParameters: ParticleParameterIdentity[] = [];
 
     /**
      * @en play particle system
@@ -482,23 +462,6 @@ export class ParticleEmitter extends Component {
         return this._particles.count;
     }
 
-    public addCustomParameter (name: string, type: ParticleParameterType) {
-        const identity = new ParticleParameterIdentity(this._customParameterId++, name, type);
-        this._customParameters.push(identity);
-        return identity;
-    }
-
-    public removeCustomParameter (name: string) {
-        const index = this._customParameters.findIndex((identity) => identity.name === name);
-        if (index >= 0) {
-            this._customParameters.splice(index, 1);
-        }
-    }
-
-    public getCustomParameter (name: string) {
-        return this._customParameters.find((identity) => identity.name === name);
-    }
-
     public addEventReceiver () {
         const eventReceiver = new EventReceiver();
         this._eventReceivers.push(eventReceiver);
@@ -513,39 +476,6 @@ export class ParticleEmitter extends Component {
     public removeEventReceiverAt (index: number) {
         assert(index < this._eventReceivers.length && index >= 0, 'Invalid index!');
         this._eventReceivers.splice(index, 1);
-    }
-
-    protected onLoad () {
-        // this._emitterStage.getOrAddModule(BurstModule);
-        // this._emitterStage.getOrAddModule(SpawnPerUnitModule);
-        this._emitterStage.getOrAddModule(SpawnRateModule);
-        // this._spawningStage.getOrAddModule(ShapeModule);
-        // this._spawningStage.getOrAddModule(SetColorModule);
-        // this._spawningStage.getOrAddModule(SetLifeTimeModule);
-        // this._spawningStage.getOrAddModule(SetRotationModule);
-        // this._spawningStage.getOrAddModule(SetSizeModule);
-        this._spawningStage.getOrAddModule(AddSpeedInInitialDirectionModule);
-        // this._updateStage.getOrAddModule(MultiplyColorModule);
-        // this._updateStage.getOrAddModule(ForceModule);
-        // this._updateStage.getOrAddModule(GravityModule);
-        // this._updateStage.getOrAddModule(LimitVelocityModule);
-        // this._updateStage.getOrAddModule(NoiseModule);
-        // this._updateStage.getOrAddModule(RotationModule);
-        // this._updateStage.getOrAddModule(MultiplySizeModule);
-        this._updateStage.getOrAddModule(StateModule);
-        this._updateStage.getOrAddModule(SolveModule);
-        // this._updateStage.getOrAddModule(ScaleSpeedModule);
-        // this._updateStage.getOrAddModule(SubUVAnimationModule);
-        // this._updateStage.getOrAddModule(AddVelocityModule);
-        // this._updateStage.getOrAddModule(DeathEventGeneratorModule);
-        // this._updateStage.getOrAddModule(LocationEventGeneratorModule);
-        this._renderStage.getOrAddModule(SpriteRendererModule);
-        // if (this.eventReceivers.length === 0) {
-        //     this.addEventReceiver();
-        // }
-        // this.getEventReceiverAt(0).stage.getOrAddModule(SpawnOverTimeModule);
-        // this.getEventReceiverAt(0).stage.getOrAddModule(SpawnPerUnitModule);
-        // this.getEventReceiverAt(0).stage.getOrAddModule(BurstModule);
     }
 
     protected onEnable () {
@@ -626,9 +556,9 @@ export class ParticleEmitter extends Component {
             for (let i = 0, length = this._eventReceivers.length; i < length; i++) {
                 this._eventReceivers[i].tick(particles, params, context);
             }
-            context.markRequiredParameter(BuiltinParticleParameter.POSITION);
+            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.POSITION);
         }
-        particles.ensureParameters(context.builtinParameterRequirements, context.customParameterRequirements, this._customParameters);
+        particles.ensureBuiltinParameters(context.builtinParameterRequirements);
     }
 
     private updateBounds () {
@@ -738,7 +668,7 @@ export class ParticleEmitter extends Component {
             this.spawnParticles(particles, params, context, burstCount);
         }
         const toIndex = particles.count;
-        const { emitterDeltaTime, emitterVelocityInEmittingSpace: initialVelocity } = context;
+        const { emitterDeltaTime, emitterVelocityInEmittingSpace: initialVelocity, emitterNormalizedTime, emitterNormalizedPrevTime } = context;
         if (particles.hasParameter(BuiltinParticleParameter.POSITION)) {
             const initialPosition = initialTransform.getTranslation(tempPosition);
             const { position } = particles;
@@ -753,6 +683,31 @@ export class ParticleEmitter extends Component {
                 position.fill(initialPosition, fromIndex + numContinuous, toIndex);
             } else {
                 position.fill(initialPosition, fromIndex, toIndex);
+            }
+        }
+        if (particles.hasParameter(BuiltinParticleParameter.SPAWN_NORMALIZED_TIME)) {
+            if (!approx(interval, 0) && numContinuous > 0) {
+                const spawnNormalizedTime = particles.spawnNormalizedTime.data;
+                if (emitterNormalizedTime >= emitterNormalizedPrevTime) {
+                    for (let i = fromIndex, num = 0, length = fromIndex + numContinuous; i < length; i++, num++) {
+                        const offset = clamp01((spawnFraction + num) * interval);
+                        spawnNormalizedTime[i] = lerp(emitterNormalizedTime, emitterNormalizedPrevTime, offset);
+                    }
+                } else { // handle loop
+                    const emitterTime = emitterNormalizedTime + 1;
+                    for (let i = fromIndex, num = 0, length = fromIndex + numContinuous; i < length; i++, num++) {
+                        const offset = clamp01((spawnFraction + num) * interval);
+                        let time = lerp(emitterTime, emitterNormalizedPrevTime, offset);
+                        if (time > 1) {
+                            time -= 1;
+                        }
+                        spawnNormalizedTime[i] = time;
+                    }
+                }
+
+                particles.spawnNormalizedTime.fill(emitterNormalizedTime, fromIndex + numContinuous, toIndex);
+            } else {
+                particles.spawnNormalizedTime.fill(emitterNormalizedTime, fromIndex, toIndex);
             }
         }
         if (particles.hasParameter(BuiltinParticleParameter.SPAWN_TIME_RATIO)) {
@@ -810,7 +765,7 @@ export class ParticleEmitter extends Component {
         context.setExecuteRange(fromIndex, toIndex);
         this._spawningStage.execute(particles, params, context);
         this.resetAnimatedState(particles, fromIndex, toIndex);
-        if (this._params.spawningUseInterpolation && !approx(interval, 0) && numContinuous > 0) {
+        if (!approx(interval, 0) && numContinuous > 0) {
             const updateStage = this._updateStage;
             for (let i = fromIndex + numContinuous - 1, num = numContinuous - 1; i >= fromIndex; i--, num--) {
                 context.setExecuteRange(i, i + 1);

@@ -28,6 +28,7 @@ import { Vec3 } from '../../core';
 import { BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { AngleBasedShapeModule } from './angle-based-shape';
+import { ParticleVec3ArrayParameter } from '../particle-parameter';
 
 const temp = new Vec3();
 
@@ -58,23 +59,17 @@ export class SphereShapeModule extends AngleBasedShapeModule {
         this._innerRadius = (1 - this.radiusThickness) ** 3;
     }
 
-    protected generatePosAndDir (particles: ParticleDataSet,  params: ParticleEmitterParams, context: ParticleExecContext) {
-        const { fromIndex, toIndex } = context;
-        const { startDir, vec3Register } = particles;
+    protected generatePosAndDir (index: number, angle: number, startDir: ParticleVec3ArrayParameter, vec3Register: ParticleVec3ArrayParameter) {
         const innerRadius = this._innerRadius;
-        const floatRegister = particles.floatRegister.data;
         const radius = this.radius;
         const rand = this._rand;
-        for (let i = fromIndex; i < toIndex; ++i) {
-            const angle = floatRegister[i];
-            const z = rand.getFloatFromRange(-1, 1);
-            const r = Math.sqrt(1 - z * z);
-            temp.x = r * Math.cos(angle);
-            temp.y = r * Math.sin(angle);
-            temp.z = z;
-            startDir.setVec3At(temp, i);
-            Vec3.multiplyScalar(temp, temp, rand.getFloatFromRange(innerRadius, 1.0) ** 0.3333 * radius);
-            vec3Register.setVec3At(temp, i);
-        }
+        const z = rand.getFloatFromRange(-1, 1);
+        const r = Math.sqrt(1 - z * z);
+        temp.x = r * Math.cos(angle);
+        temp.y = r * Math.sin(angle);
+        temp.z = z;
+        startDir.setVec3At(temp, index);
+        Vec3.multiplyScalar(temp, temp, rand.getFloatFromRange(innerRadius, 1.0) ** 0.3333 * radius);
+        vec3Register.setVec3At(temp, index);
     }
 }

@@ -30,17 +30,18 @@ import { Space } from '../enum';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { CurveRange } from '../curve-range';
 import { calculateTransform } from '../particle-general-function';
-import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
-import { BuiltinParticleParameter, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
+import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
+import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleVec3ArrayParameter } from '../particle-parameter';
 import { assert } from '../../core';
-import { RandNumGen } from '../rand-num-gen';
+import { RandomStream } from '../random-stream';
 
-const LIMIT_VELOCITY_RAND_OFFSET = 721883;
+const randomOffset = 721883;
 
 const _temp_v3_1 = new Vec3();
 const tempVelocity = new Vec3();
 const seed = new Vec3();
+const requiredParameters = BuiltinParticleParameterFlags.VELOCITY | BuiltinParticleParameterFlags.BASE_VELOCITY;
 
 @ccclass('cc.LimitVelocity')
 @ParticleModule.register('LimitVelocity', ModuleExecStage.UPDATE, [BuiltinParticleParameterName.VELOCITY], [BuiltinParticleParameterName.VELOCITY])
@@ -149,17 +150,22 @@ export class LimitVelocityModule extends ParticleModule {
     @serializable
     private _z: CurveRange | null = null;
 
+    private _randomOffset = 0;
+
+    public onPlay (params: ParticleEmitterParams, states: ParticleEmitterState) {
+        this._randomOffset = states.rand.getUInt32();
+    }
+
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         if (this.separateAxes && DEBUG) {
             assert(this.limitX.mode === this.limitY.mode && this.limitY.mode === this.limitZ.mode, 'The curve of limitX, limitY, limitZ must have same mode!');
         }
-        context.markRequiredParameter(BuiltinParticleParameter.VELOCITY);
-        context.markRequiredParameter(BuiltinParticleParameter.BASE_VELOCITY);
+        context.markRequiredBuiltinParameters(requiredParameters);
         if (this.limitX.mode === CurveRange.Mode.Curve || this.limitX.mode === CurveRange.Mode.TwoCurves) {
-            context.markRequiredParameter(BuiltinParticleParameter.NORMALIZED_ALIVE_TIME);
+            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
         }
         if (this.limitX.mode === CurveRange.Mode.TwoConstants || this.limitX.mode === CurveRange.Mode.TwoCurves) {
-            context.markRequiredParameter(BuiltinParticleParameter.RANDOM_SEED);
+            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
         }
     }
 
@@ -170,6 +176,7 @@ export class LimitVelocityModule extends ParticleModule {
             return;
         }
         const { velocity, baseVelocity } = particles;
+        const randomOffset = this._randomOffset;
         const rotation = context.rotationIfNeedTransform;
         const needTransform = this.space === params.simulationSpace;
         if (this.separateAxes) {
@@ -211,7 +218,7 @@ export class LimitVelocityModule extends ParticleModule {
                     const { constantMin: zMin, constantMax: zMax } = this.limitZ;
                     const randomSeed = particles.randomSeed.data;
                     for (let i = fromIndex; i < toIndex; i++) {
-                        const ratio = RandNumGen.get3Float(randomSeed[i] + LIMIT_VELOCITY_RAND_OFFSET, seed);
+                        const ratio = RandomStream.get3Float(randomSeed[i] + randomOffset, seed);
                         Vec3.set(_temp_v3_1, lerp(xMin, xMax, ratio.x),
                             lerp(yMin, yMax, ratio.y),
                             lerp(zMin, zMax, ratio.z));
@@ -231,7 +238,7 @@ export class LimitVelocityModule extends ParticleModule {
                     const normalizedAliveTime = particles.normalizedAliveTime.data;
                     const randomSeed = particles.randomSeed.data;
                     for (let i = fromIndex; i < toIndex; i++) {
-                        const ratio = RandNumGen.get3Float(randomSeed[i] + LIMIT_VELOCITY_RAND_OFFSET, seed);
+                        const ratio = RandomStream.get3Float(randomSeed[i] + randomOffset, seed);
                         const normalizedTime = normalizedAliveTime[i];
                         Vec3.set(_temp_v3_1, lerp(xMin.evaluate(normalizedTime), xMax.evaluate(normalizedTime), ratio.x) * xMultiplier,
                             lerp(yMin.evaluate(normalizedTime), yMax.evaluate(normalizedTime), ratio.y) * yMultiplier,
@@ -284,9 +291,9 @@ export class LimitVelocityModule extends ParticleModule {
                     const randomSeed = particles.randomSeed.data;
                     for (let i = fromIndex; i < toIndex; i++) {
                         const seed = randomSeed[i];
-                        Vec3.set(_temp_v3_1, lerp(xMin, xMax, RandNumGen.getFloat(seed + LIMIT_VELOCITY_RAND_OFFSET)),
-                            lerp(yMin, yMax, RandNumGen.getFloat(seed + LIMIT_VELOCITY_RAND_OFFSET)),
-                            lerp(zMin, zMax, RandNumGen.getFloat(seed + LIMIT_VELOCITY_RAND_OFFSET)));
+                        Vec3.set(_temp_v3_1, lerp(xMin, xMax, RandomStream.getFloat(seed + randomOffset)),
+                            lerp(yMin, yMax, RandomStream.getFloat(seed + randomOffset)),
+                            lerp(zMin, zMax, RandomStream.getFloat(seed + randomOffset)));
                         velocity.getVec3At(tempVelocity, i);
                         Vec3.set(tempVelocity,
                             tempVelocity.x - dampenBeyondLimit(tempVelocity.x, _temp_v3_1.x, dampen),
@@ -304,9 +311,9 @@ export class LimitVelocityModule extends ParticleModule {
                     for (let i = fromIndex; i < toIndex; i++) {
                         const seed = randomSeed[i];
                         const normalizedTime = normalizedAliveTime[i];
-                        Vec3.set(_temp_v3_1, lerp(xMin.evaluate(normalizedTime), xMax.evaluate(normalizedTime), RandNumGen.getFloat(seed + LIMIT_VELOCITY_RAND_OFFSET)) * xMultiplier,
-                            lerp(yMin.evaluate(normalizedTime), yMax.evaluate(normalizedTime), RandNumGen.getFloat(seed + LIMIT_VELOCITY_RAND_OFFSET)) * yMultiplier,
-                            lerp(zMin.evaluate(normalizedTime), zMax.evaluate(normalizedTime), RandNumGen.getFloat(seed + LIMIT_VELOCITY_RAND_OFFSET)) * zMultiplier);
+                        Vec3.set(_temp_v3_1, lerp(xMin.evaluate(normalizedTime), xMax.evaluate(normalizedTime), RandomStream.getFloat(seed + randomOffset)) * xMultiplier,
+                            lerp(yMin.evaluate(normalizedTime), yMax.evaluate(normalizedTime), RandomStream.getFloat(seed + randomOffset)) * yMultiplier,
+                            lerp(zMin.evaluate(normalizedTime), zMax.evaluate(normalizedTime), RandomStream.getFloat(seed + randomOffset)) * zMultiplier);
                         velocity.getVec3At(tempVelocity, i);
                         Vec3.set(tempVelocity,
                             tempVelocity.x - dampenBeyondLimit(tempVelocity.x, _temp_v3_1.x, dampen),
@@ -348,7 +355,7 @@ export class LimitVelocityModule extends ParticleModule {
                     velocity.getVec3At(tempVelocity, i);
                     const length = tempVelocity.length();
                     Vec3.multiplyScalar(tempVelocity, tempVelocity,
-                        1 - dampenBeyondLimit(length, lerp(constantMin, constantMax, RandNumGen.getFloat(seed + LIMIT_VELOCITY_RAND_OFFSET)), dampen) / length);
+                        1 - dampenBeyondLimit(length, lerp(constantMin, constantMax, RandomStream.getFloat(seed + randomOffset)), dampen) / length);
                     velocity.subVec3At(tempVelocity, i);
                     baseVelocity.subVec3At(tempVelocity, i);
                 }
@@ -362,7 +369,7 @@ export class LimitVelocityModule extends ParticleModule {
                     velocity.getVec3At(tempVelocity, i);
                     const length = tempVelocity.length();
                     Vec3.multiplyScalar(tempVelocity, tempVelocity,
-                        1 - dampenBeyondLimit(length, lerp(splineMin.evaluate(normalizedTime), splineMax.evaluate(normalizedTime), RandNumGen.getFloat(seed + LIMIT_VELOCITY_RAND_OFFSET)) * multiplier, dampen) / length);
+                        1 - dampenBeyondLimit(length, lerp(splineMin.evaluate(normalizedTime), splineMax.evaluate(normalizedTime), RandomStream.getFloat(seed + randomOffset)) * multiplier, dampen) / length);
                     velocity.subVec3At(tempVelocity, i);
                     baseVelocity.subVec3At(tempVelocity, i);
                 }

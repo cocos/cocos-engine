@@ -27,9 +27,8 @@ import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { Color } from '../../core/math';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { GradientRange } from '../gradient-range';
-import { BuiltinParticleParameter, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
-import { assert } from '../../core';
 import { RandomStream } from '../random-stream';
 
 const tempColor = new Color();
@@ -37,7 +36,7 @@ const tempColor2 = new Color();
 const tempColor3 = new Color();
 
 @ccclass('cc.MultiplyColor')
-@ParticleModule.register('MultiplyColor', ModuleExecStage.UPDATE, [], [BuiltinParticleParameterName.NORMALIZED_ALIVE_TIME])
+@ParticleModule.register('MultiplyColor', ModuleExecStage.UPDATE | ModuleExecStage.SPAWN, [], [BuiltinParticleParameterName.NORMALIZED_ALIVE_TIME])
 export class MultiplyColorModule extends ParticleModule {
     /**
      * @zh 颜色随时间变化的参数，各个 key 之间线性差值变化。
@@ -54,34 +53,56 @@ export class MultiplyColorModule extends ParticleModule {
     }
 
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
-        assert(this.color.mode === GradientRange.Mode.Gradient || this.color.mode === GradientRange.Mode.TwoGradients, 'Color mode must be Gradient or TwoGradients');
-        context.markRequiredParameter(BuiltinParticleParameter.COLOR);
-        context.markRequiredParameter(BuiltinParticleParameter.NORMALIZED_ALIVE_TIME);
-        if (this.color.mode === GradientRange.Mode.TwoGradients || this.color.mode === GradientRange.Mode.Color) {
-            context.markRequiredParameter(BuiltinParticleParameter.RANDOM_SEED);
+        context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.COLOR);
+        if (this.color.mode === GradientRange.Mode.TwoGradients || this.color.mode === GradientRange.Mode.TwoColors || this.color.mode === GradientRange.Mode.RandomColor) {
+            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
+        }
+        if (this.color.mode === GradientRange.Mode.TwoGradients || this.color.mode === GradientRange.Mode.Gradient) {
+            if (context.executionStage === ModuleExecStage.UPDATE) {
+                context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
+            } else {
+                context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.SPAWN_NORMALIZED_TIME);
+            }
         }
     }
 
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         const { fromIndex, toIndex } = context;
-        const { color } = particles;
+        const color = context.executionStage === ModuleExecStage.UPDATE ? particles.color : particles.baseColor;
         const randomOffset = this._randomOffset;
-        if (this.color.mode === GradientRange.Mode.Gradient) {
-            const gradient = this.color.gradient;
-            const { normalizedAliveTime } = particles;
+        if (this.color.mode === GradientRange.Mode.Color) {
+            const colorVal = this.color.color;
             for (let i = fromIndex; i < toIndex; i++) {
-                color.multiplyColorAt(gradient.evaluate(tempColor, normalizedAliveTime[i]), i);
+                color.multiplyColorAt(colorVal, i);
+            }
+        } else if (this.color.mode === GradientRange.Mode.TwoColors) {
+            const { colorMin, colorMax } = this.color;
+            const randomSeed = particles.randomSeed.data;
+            for (let i = fromIndex; i < toIndex; i++) {
+                color.multiplyColorAt(Color.lerp(tempColor, colorMin, colorMax, RandomStream.getFloat(randomSeed[i] + randomOffset)), i);
+            }
+        } else if (this.color.mode === GradientRange.Mode.Gradient) {
+            const gradient = this.color.gradient;
+            const normalizedTime = context.executionStage === ModuleExecStage.UPDATE ? particles.normalizedAliveTime.data : particles.spawnNormalizedTime.data;
+            for (let i = fromIndex; i < toIndex; i++) {
+                color.multiplyColorAt(gradient.evaluate(tempColor, normalizedTime[i]), i);
             }
         } else if (this.color.mode === GradientRange.Mode.TwoGradients) {
             const { gradientMin, gradientMax } = this.color;
-            const normalizedAliveTime = particles.normalizedAliveTime.data;
+            const normalizedTime = context.executionStage === ModuleExecStage.UPDATE ? particles.normalizedAliveTime.data : particles.spawnNormalizedTime.data;
             const randomSeed = particles.randomSeed.data;
             for (let i = fromIndex; i < toIndex; i++) {
-                const time = normalizedAliveTime[i];
+                const time = normalizedTime[i];
                 color.multiplyColorAt(Color.lerp(tempColor,
                     gradientMin.evaluate(tempColor2, time),
                     gradientMax.evaluate(tempColor3, time),
                     RandomStream.getFloat(randomSeed[i] + randomOffset)), i);
+            }
+        } else {
+            const randomSeed = particles.randomSeed.data;
+            const gradient = this.color.gradient;
+            for (let i = fromIndex; i < toIndex; i++) {
+                color.multiplyColorAt(gradient.evaluate(tempColor, RandomStream.getFloat(randomSeed[i] + randomOffset)), i);
             }
         }
     }

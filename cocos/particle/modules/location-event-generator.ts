@@ -27,13 +27,15 @@ import { approx, BitMask, CCFloat, Color, Enum, EPSILON, Mat4, Quat, Vec3, warn 
 import { ccclass, range, serializable, type, visible } from '../../core/data/decorators';
 import { Space } from '../enum';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
-import { BuiltinParticleParameter, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleColorArrayParameter, ParticleVec3ArrayParameter } from '../particle-parameter';
-import { ParticleExecContext, ParticleEmitterParams, ParticleEventInfo } from '../particle-base';
+import { ParticleExecContext, ParticleEmitterParams, ParticleEventInfo, ParticleEmitterState } from '../particle-base';
 import { RandomStream } from '../random-stream';
 
 const PROBABILITY_RANDOM_SEED_OFFSET = 199208;
 const eventInfo = new ParticleEventInfo();
+const requiredParameters = BuiltinParticleParameterFlags.INV_START_LIFETIME | BuiltinParticleParameterFlags.RANDOM_SEED
+| BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME | BuiltinParticleParameterFlags.ID;
 
 @ccclass('cc.LocationEventGeneratorModule')
 @ParticleModule.register('LocationEventGenerator', ModuleExecStage.UPDATE, [], [ParameterName.POSITION, ParameterName.VELOCITY, ParameterName.COLOR])
@@ -43,11 +45,14 @@ export class LocationEventGeneratorModule extends ParticleModule {
     @serializable
     public probability = 1;
 
+    private _randomOffset = 0;
+
+    public onPlay (params: ParticleEmitterParams, states: ParticleEmitterState) {
+        this._randomOffset = states.rand.getUInt32();
+    }
+
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
-        context.markRequiredParameter(BuiltinParticleParameter.INV_START_LIFETIME);
-        context.markRequiredParameter(BuiltinParticleParameter.RANDOM_SEED);
-        context.markRequiredParameter(BuiltinParticleParameter.NORMALIZED_ALIVE_TIME);
-        context.markRequiredParameter(BuiltinParticleParameter.ID);
+        context.markRequiredBuiltinParameters(requiredParameters);
     }
 
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
@@ -55,6 +60,7 @@ export class LocationEventGeneratorModule extends ParticleModule {
         const randomSeed = particles.randomSeed.data;
         const invStartLifeTime = particles.invStartLifeTime.data;
         const id = particles.id.data;
+        const randomOffset = this._randomOffset;
         const { fromIndex, toIndex, deltaTime, locationEvents } = context;
         const { localToWorld } = context;
         const { simulationSpace } = params;
@@ -85,7 +91,7 @@ export class LocationEventGeneratorModule extends ParticleModule {
         }
         if (!approx(this.probability, 0)) {
             for (let i = fromIndex; i < toIndex; i++) {
-                if (RandomStream.getFloat(randomSeed[i] + PROBABILITY_RANDOM_SEED_OFFSET) > this.probability) {
+                if (RandomStream.getFloat(randomSeed[i] + randomOffset) > this.probability) {
                     continue;
                 }
                 Vec3.zero(eventInfo.position);

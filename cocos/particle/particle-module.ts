@@ -25,8 +25,8 @@
 
 import { ParticleExecContext, ParticleEmitterParams, ParticleEmitterState } from './particle-base';
 import { ParticleDataSet } from './particle-data-set';
-import { ccclass, displayName, serializable, type } from '../core/data/decorators';
-import { assert, CCBoolean, CCString, Mat4 } from '../core';
+import { ccclass, displayName, serializable, type, visible } from '../core/data/decorators';
+import { assert, CCBoolean, CCString, Enum, Mat4 } from '../core';
 
 export enum ModuleExecStage {
     NONE,
@@ -35,8 +35,7 @@ export enum ModuleExecStage {
     UPDATE = 1 << 2,
     EVENT_HANDLER = 1 << 3,
     RENDER = 1 << 4,
-    SIMULATION = 1 << 5,
-    ALL = EMITTER_UPDATE | SPAWN | UPDATE | EVENT_HANDLER | RENDER | SIMULATION,
+    ALL = EMITTER_UPDATE | SPAWN | UPDATE | EVENT_HANDLER | RENDER,
 }
 
 @ccclass('cc.ParticleModule')
@@ -52,6 +51,8 @@ export abstract class ParticleModule {
                 }
             }
             const identity = new ParticleModuleIdentity(ctor, name, stages, provide, consume);
+            ParticleModule._moduleEnum[name] = ParticleModule._allRegisteredModules.length;
+            Enum.update(ParticleModule._moduleEnum);
             ParticleModule._allRegisteredModules.push(identity);
         };
     }
@@ -100,6 +101,10 @@ export abstract class ParticleModule {
         }
     }
 
+    public static get ModuleEnum () {
+        return Enum(this._moduleEnum);
+    }
+
     public static getModuleIdentityByClassNoCheck (ctor: Constructor<ParticleModule>) {
         const identity = this.getModuleIdentityByClass(ctor);
         assert(identity, 'Module not registered!');
@@ -136,9 +141,14 @@ export abstract class ParticleModule {
 
     public static clearRegisteredModules () {
         this._allRegisteredModules.length = 0;
+        for (const key in this._moduleEnum) {
+            delete this._moduleEnum[key];
+        }
+        Enum.update(this._moduleEnum);
     }
 
     private static _allRegisteredModules: ParticleModuleIdentity[] = [];
+    private static _moduleEnum: Record<string, number> = {};
 
     @type(CCBoolean)
     public get enabled () {
@@ -155,7 +165,7 @@ export abstract class ParticleModule {
     }
 
     @serializable
-    private _enabled = false;
+    private _enabled = true;
 
     protected needsFilterSerialization () {
         return false;
@@ -183,10 +193,26 @@ export abstract class ParticleModule {
 
 @ccclass('cc.ParticleModuleStage')
 export class ParticleModuleStage {
+    @type(ParticleModule.ModuleEnum)
+    @visible(true)
+    public get add () {
+        return this._moduleToAdd;
+    }
+
+    public set add (val) {
+        const identity = ParticleModule.allRegisteredModules[val];
+        if (!identity) { return; }
+        if (identity.execStages & this._execStage) {
+            this.addModule(identity.ctor as Constructor<ParticleModule>);
+        }
+    }
+
     @type([ParticleModule])
     public get modules (): ReadonlyArray<ParticleModule> {
         return this._modules;
     }
+
+    private _moduleToAdd = 0;
 
     @serializable
     private _modules: ParticleModule[] = [];

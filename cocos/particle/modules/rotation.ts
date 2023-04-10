@@ -31,8 +31,8 @@ import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { CurveRange } from '../curve-range';
 import { assert, CCBoolean } from '../../core';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
-import { BuiltinParticleParameter, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
-import { RandNumGen } from '../rand-num-gen';
+import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
+import { RandomStream } from '../random-stream';
 
 const ROTATION_OVERTIME_RAND_OFFSET = 125292;
 const seed = new Vec3();
@@ -131,13 +131,13 @@ export class RotationModule extends ParticleModule {
         if (this.separateAxes && DEBUG) {
             assert(this.x.mode === this.y.mode && this.y.mode === this.z.mode, 'The curve of x, y, z must have same mode!');
         }
-        context.markRequiredParameter(BuiltinParticleParameter.ANGULAR_VELOCITY);
-        context.markRequiredParameter(BuiltinParticleParameter.ROTATION);
+        context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.ANGULAR_VELOCITY);
+        context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.ROTATION);
         if (this.z.mode === CurveRange.Mode.Curve || this.z.mode === CurveRange.Mode.TwoCurves) {
-            context.markRequiredParameter(BuiltinParticleParameter.NORMALIZED_ALIVE_TIME);
+            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
         }
         if (this.z.mode === CurveRange.Mode.TwoConstants || this.z.mode === CurveRange.Mode.TwoCurves) {
-            context.markRequiredParameter(BuiltinParticleParameter.RANDOM_SEED);
+            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
         }
     }
 
@@ -160,7 +160,7 @@ export class RotationModule extends ParticleModule {
                 const randomSeed = particles.randomSeed.data;
                 const { constantMin, constantMax } = this.z;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    angularVelocity.addZAt(lerp(constantMin, constantMax, RandNumGen.getFloat(randomSeed[i] + ROTATION_OVERTIME_RAND_OFFSET)), i);
+                    angularVelocity.addZAt(lerp(constantMin, constantMax, RandomStream.getFloat(randomSeed[i] + ROTATION_OVERTIME_RAND_OFFSET)), i);
                 }
             } else {
                 const { splineMin, splineMax, multiplier } = this.z;
@@ -168,7 +168,7 @@ export class RotationModule extends ParticleModule {
                 const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const time = normalizedAliveTime[i];
-                    angularVelocity.addZAt(lerp(splineMin.evaluate(time), splineMax.evaluate(time), RandNumGen.getFloat(randomSeed[i] + ROTATION_OVERTIME_RAND_OFFSET)) * multiplier, i);
+                    angularVelocity.addZAt(lerp(splineMin.evaluate(time), splineMax.evaluate(time), RandomStream.getFloat(randomSeed[i] + ROTATION_OVERTIME_RAND_OFFSET)) * multiplier, i);
                 }
             }
         } else {
@@ -197,7 +197,7 @@ export class RotationModule extends ParticleModule {
                 const { constantMin: zMin, constantMax: zMax } = this.z;
                 const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const ratio = RandNumGen.get3Float(randomSeed[i] + ROTATION_OVERTIME_RAND_OFFSET, seed);
+                    const ratio = RandomStream.get3Float(randomSeed[i] + ROTATION_OVERTIME_RAND_OFFSET, seed);
                     angularVelocity.add3fAt(lerp(xMin, xMax, ratio.x),
                         lerp(yMin, yMax, ratio.y),
                         lerp(zMin, zMax, ratio.z), i);
@@ -211,9 +211,9 @@ export class RotationModule extends ParticleModule {
                 for (let i = fromIndex; i < toIndex; i++) {
                     const time = normalizedAliveTime[i];
                     const seed = randomSeed[i];
-                    angularVelocity.add3fAt(lerp(xMin.evaluate(time), xMax.evaluate(time), RandNumGen.getFloat(seed + ROTATION_OVERTIME_RAND_OFFSET)) * xMultiplier,
-                        lerp(yMin.evaluate(time), yMax.evaluate(time), RandNumGen.getFloat(seed + ROTATION_OVERTIME_RAND_OFFSET)) * yMultiplier,
-                        lerp(zMin.evaluate(time), zMax.evaluate(time), RandNumGen.getFloat(seed + ROTATION_OVERTIME_RAND_OFFSET)) * zMultiplier, i);
+                    angularVelocity.add3fAt(lerp(xMin.evaluate(time), xMax.evaluate(time), RandomStream.getFloat(seed + ROTATION_OVERTIME_RAND_OFFSET)) * xMultiplier,
+                        lerp(yMin.evaluate(time), yMax.evaluate(time), RandomStream.getFloat(seed + ROTATION_OVERTIME_RAND_OFFSET)) * yMultiplier,
+                        lerp(zMin.evaluate(time), zMax.evaluate(time), RandomStream.getFloat(seed + ROTATION_OVERTIME_RAND_OFFSET)) * zMultiplier, i);
                 }
             }
         }

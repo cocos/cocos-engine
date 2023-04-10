@@ -27,9 +27,9 @@ import { lerp } from '../../core';
 import { ccclass, displayOrder, range, serializable, tooltip, type } from '../../core/data/decorators';
 import { CurveRange } from '../curve-range';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
-import { BuiltinParticleParameter, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
-import { RandNumGen } from '../rand-num-gen';
+import { RandomStream } from '../random-stream';
 
 const SPEED_MODIFIER_RAND_OFFSET = 388180;
 
@@ -48,10 +48,10 @@ export class ScaleSpeedModule extends ParticleModule {
 
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         if (this.scalar.mode === CurveRange.Mode.Curve || this.scalar.mode === CurveRange.Mode.TwoCurves) {
-            context.markRequiredParameter(BuiltinParticleParameter.NORMALIZED_ALIVE_TIME);
+            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
         }
         if (this.scalar.mode === CurveRange.Mode.TwoConstants || this.scalar.mode === CurveRange.Mode.TwoCurves) {
-            context.markRequiredParameter(BuiltinParticleParameter.RANDOM_SEED);
+            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
         }
     }
 
@@ -76,7 +76,7 @@ export class ScaleSpeedModule extends ParticleModule {
             const randomSeed = particles.randomSeed.data;
             const { constantMin, constantMax } = this.scalar;
             for (let i = fromIndex; i < toIndex; i++) {
-                velocity.multiply1fAt(lerp(constantMin, constantMax, RandNumGen.getFloat(randomSeed[i] + SPEED_MODIFIER_RAND_OFFSET)), i);
+                velocity.multiply1fAt(lerp(constantMin, constantMax, RandomStream.getFloat(randomSeed[i] + SPEED_MODIFIER_RAND_OFFSET)), i);
             }
         } else {
             const { splineMin, splineMax, multiplier } = this.scalar;
@@ -84,7 +84,7 @@ export class ScaleSpeedModule extends ParticleModule {
             const normalizedAliveTime = particles.normalizedAliveTime.data;
             for (let i = fromIndex; i < toIndex; i++) {
                 const normalizedTime = normalizedAliveTime[i];
-                velocity.multiply1fAt(lerp(splineMin.evaluate(normalizedTime), splineMax.evaluate(normalizedTime), RandNumGen.getFloat(randomSeed[i] + SPEED_MODIFIER_RAND_OFFSET)) * multiplier, i);
+                velocity.multiply1fAt(lerp(splineMin.evaluate(normalizedTime), splineMax.evaluate(normalizedTime), RandomStream.getFloat(randomSeed[i] + SPEED_MODIFIER_RAND_OFFSET)) * multiplier, i);
             }
         }
     }

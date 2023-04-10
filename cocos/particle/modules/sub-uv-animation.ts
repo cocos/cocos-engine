@@ -29,7 +29,7 @@ import { lerp, repeat } from '../../core/math';
 import { Enum } from '../../core/value-types';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { createRealCurve, CurveRange } from '../curve-range';
-import { BuiltinParticleParameter, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { assert, CCFloat, CCInteger, RealCurve, RealInterpolationMode } from '../../core';
 import { RandomStream } from '../random-stream';
@@ -232,21 +232,21 @@ export class SubUVAnimationModule extends ParticleModule {
             assert(this.startFrame.mode === CurveRange.Mode.Constant || this.startFrame.mode === CurveRange.Mode.TwoConstants,
                 'The mode of startFrame in texture-animation module can not be Curve and TwoCurve!');
         }
-        context.markRequiredParameter(BuiltinParticleParameter.FRAME_INDEX);
+        context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.FRAME_INDEX);
         if (this.startFrame.mode === CurveRange.Mode.TwoConstants || (this.animation === Animation.SINGLE_ROW && this.randomRow)) {
-            context.markRequiredParameter(BuiltinParticleParameter.RANDOM_SEED);
+            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
         }
         if (this._timeMode === TimeMode.LIFETIME && (this.frameOverTime.mode === CurveRange.Mode.TwoConstants
             || this.frameOverTime.mode === CurveRange.Mode.TwoCurves)) {
-            context.markRequiredParameter(BuiltinParticleParameter.RANDOM_SEED);
+            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
         }
         if (this._timeMode === TimeMode.LIFETIME && (this.frameOverTime.mode === CurveRange.Mode.TwoCurves
             || this.frameOverTime.mode === CurveRange.Mode.Curve)) {
-            context.markRequiredParameter(BuiltinParticleParameter.NORMALIZED_ALIVE_TIME);
+            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
         }
         if (this._timeMode === TimeMode.FPS) {
-            context.markRequiredParameter(BuiltinParticleParameter.NORMALIZED_ALIVE_TIME);
-            context.markRequiredParameter(BuiltinParticleParameter.INV_START_LIFETIME);
+            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
+            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.INV_START_LIFETIME);
         }
     }
 

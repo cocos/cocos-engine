@@ -366,31 +366,13 @@ export class ParticleDataSet {
         }
     }
 
-    ensureParameters (builtinParameterRequirement: number, customParameterRequirement: number, customParameters: ParticleParameterIdentity[]) {
+    ensureBuiltinParameters (builtinParameterRequirement: number) {
         if (builtinParameterRequirement !== this._builtinParameterFlags) {
             for (let i = 0; i < BuiltinParticleParameter.COUNT; i++) {
                 if ((builtinParameterRequirement & 1 << i) && !this.hasParameter(i)) {
                     this.addBuiltinParameter(i);
                 } else if (!(builtinParameterRequirement & 1 << i) && this.hasParameter(i)) {
                     this.removeParameter(i);
-                }
-            }
-        }
-
-        if (customParameterRequirement !== this._customParameterFlags) {
-            // handle custom parameters
-            for (let i = 0, length = customParameters.length; i < length; i++) {
-                const { id, type } = customParameters[i];
-                if (customParameterRequirement[i] && !this.hasParameter(i)) {
-                    this.addParameter(id, type);
-                } else if (!customParameterRequirement[i] && this.hasParameter(i)) {
-                    this.removeParameter(id);
-                } else if (customParameterRequirement[i] && this.hasParameter(i)) {
-                    const parameter = this.getParameterNoCheck(id);
-                    if (parameter.type !== type) {
-                        this.removeParameter(id);
-                        this.addParameter(id, type);
-                    }
                 }
             }
         }

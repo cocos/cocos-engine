@@ -25,16 +25,15 @@
 
 import { ccclass, displayOrder, range, serializable, tooltip, type } from '../../core/data/decorators';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
-import { BuiltinParticleParameter, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
-import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
+import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
+import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
 import { CurveRange } from '../curve-range';
 import { approx, EPSILON, lerp, Quat, Vec3 } from '../../core/math';
 import { Space } from '../enum';
-import { RandNumGen } from '../rand-num-gen';
+import { RandomStream } from '../random-stream';
 
-const rotation = new Quat();
 const gravity = new Vec3();
-const GRAVITY_RAND_OFFSET = 238818;
+const requiredParameters = BuiltinParticleParameterFlags.POSITION | BuiltinParticleParameterFlags.BASE_VELOCITY | BuiltinParticleParameterFlags.VELOCITY;
 @ccclass('cc.GravityModule')
 @ParticleModule.register('Gravity', ModuleExecStage.UPDATE, [BuiltinParticleParameterName.VELOCITY])
 export class GravityModule extends ParticleModule {
@@ -48,15 +47,19 @@ export class GravityModule extends ParticleModule {
     @tooltip('i18n:particle_system.gravityModifier')
     public gravityModifier = new CurveRange();
 
+    private _randomOffset = 0;
+
+    public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {
+        this._randomOffset = state.rand.getUInt32();
+    }
+
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
-        context.markRequiredParameter(BuiltinParticleParameter.POSITION);
-        context.markRequiredParameter(BuiltinParticleParameter.BASE_VELOCITY);
-        context.markRequiredParameter(BuiltinParticleParameter.VELOCITY);
+        context.markRequiredBuiltinParameters(requiredParameters);
         if (this.gravityModifier.mode === CurveRange.Mode.Curve || this.gravityModifier.mode === CurveRange.Mode.TwoCurves) {
-            context.markRequiredParameter(BuiltinParticleParameter.NORMALIZED_ALIVE_TIME);
+            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
         }
         if (this.gravityModifier.mode === CurveRange.Mode.TwoConstants || this.gravityModifier.mode === CurveRange.Mode.TwoCurves) {
-            context.markRequiredParameter(BuiltinParticleParameter.RANDOM_SEED);
+            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
         }
     }
 
@@ -64,6 +67,7 @@ export class GravityModule extends ParticleModule {
         const { rotationIfNeedTransform } = context;
         const { velocity, baseVelocity } = particles;
         const { fromIndex, toIndex, deltaTime } = context;
+        const randomOffset = this._randomOffset;
         const deltaVelocity = 9.8 * deltaTime;
         if (params.simulationSpace === Space.LOCAL) {
             const invRotation = rotationIfNeedTransform;
@@ -88,7 +92,7 @@ export class GravityModule extends ParticleModule {
                 const randomSeed = particles.randomSeed.data;
                 const { constantMin, constantMax } = this.gravityModifier;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    Vec3.set(gravity, 0, -lerp(constantMin, constantMax, RandNumGen.getFloat(randomSeed[i] + GRAVITY_RAND_OFFSET)) * deltaVelocity, 0);
+                    Vec3.set(gravity, 0, -lerp(constantMin, constantMax, RandomStream.getFloat(randomSeed[i] + randomOffset)) * deltaVelocity, 0);
                     Vec3.transformQuat(gravity, gravity, invRotation);
                     velocity.addVec3At(gravity, i);
                     baseVelocity.addVec3At(gravity, i);
@@ -100,7 +104,7 @@ export class GravityModule extends ParticleModule {
                 const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const normalizedTime = normalizedAliveTime[i];
-                    Vec3.set(gravity, 0, -lerp(splineMin.evaluate(normalizedTime), splineMax.evaluate(normalizedTime), RandNumGen.getFloat(randomSeed[i] + GRAVITY_RAND_OFFSET)) * multiplier, 0);
+                    Vec3.set(gravity, 0, -lerp(splineMin.evaluate(normalizedTime), splineMax.evaluate(normalizedTime), RandomStream.getFloat(randomSeed[i] + randomOffset)) * multiplier, 0);
                     Vec3.transformQuat(gravity, gravity, invRotation);
                     velocity.addVec3At(gravity, i);
                     baseVelocity.addVec3At(gravity, i);
@@ -127,7 +131,7 @@ export class GravityModule extends ParticleModule {
                 const randomSeed = particles.randomSeed.data;
                 const { constantMin, constantMax } = this.gravityModifier;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const gravity = -lerp(constantMin, constantMax, RandNumGen.getFloat(randomSeed[i] + GRAVITY_RAND_OFFSET)) * deltaVelocity;
+                    const gravity = -lerp(constantMin, constantMax, RandomStream.getFloat(randomSeed[i] + randomOffset)) * deltaVelocity;
                     velocity.addYAt(gravity, i);
                     baseVelocity.addYAt(gravity, i);
                 }
@@ -138,7 +142,7 @@ export class GravityModule extends ParticleModule {
                 const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const normalizedTime = normalizedAliveTime[i];
-                    const gravity = -lerp(splineMin.evaluate(normalizedTime), splineMax.evaluate(normalizedTime), RandNumGen.getFloat(randomSeed[i] + GRAVITY_RAND_OFFSET)) * multiplier;
+                    const gravity = -lerp(splineMin.evaluate(normalizedTime), splineMax.evaluate(normalizedTime), RandomStream.getFloat(randomSeed[i] + randomOffset)) * multiplier;
                     velocity.addYAt(gravity, i);
                     baseVelocity.addYAt(gravity, i);
                 }

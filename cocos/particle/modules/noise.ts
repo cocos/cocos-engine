@@ -30,9 +30,9 @@ import { range, rangeMin, rangeStep, slide, visible } from '../../core/data/deco
 import { approx, clamp, lerp, Vec2, Vec3 } from '../../core/math';
 import { CurveRange } from '../curve-range';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
-import { BuiltinParticleParameter, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
-import { RandNumGen } from '../rand-num-gen';
+import { RandomStream } from '../random-stream';
 import { ParticleVec3ArrayParameter } from '../particle-parameter';
 
 export class PerlinNoise1DCache {
@@ -358,9 +358,9 @@ const rotationRate = new Vec3();
 const sizeScalar = new Vec3();
 const tempRemap = new Vec3();
 const seed = new Vec3();
-const RANDOM_SEED_OFFSET = 112331;
-const RANDOM_SEED_OFFSET_POSITION = 943728;
-const RANDOM_SEED_OFFSET_ROTATION = 746210;
+const randomOffset = 112331;
+const randomOffsetVelocity = 943728;
+const randomOffsetRotation = 746210;
 const noiseXCache3D = new PerlinNoise3DCache();
 const noiseYCache3D = new PerlinNoise3DCache();
 const noiseZCache3D = new PerlinNoise3DCache();
@@ -544,16 +544,27 @@ export class NoiseModule extends ParticleModule {
     private _offset = new Vec3();
     private _amplitudeScale = 1;
 
-    private _randomSeed = 0;
+    private _randomOffset = 0;
+    private _randomOffsetVelocity = 0;
+    private _randomOffsetSize = 0;
+    private _randomOffsetRotation = 0;
 
     public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {
-        this._randomSeed = state.rand.getUInt32();
-        RandNumGen.get3Float(this._randomSeed, this._offset);
+        RandomStream.get3Float(state.rand.getUInt32() + state.rand.getUInt32(), this._offset);
+        this._randomOffset = state.rand.getUInt32();
+        this._randomOffsetVelocity = state.rand.getUInt32();
+        this._randomOffsetSize = state.rand.getUInt32();
+        this._randomOffsetRotation = state.rand.getUInt32();
         this._offset.multiplyScalar(100);
     }
 
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
-        this._scrollOffset += this._scrollSpeed.evaluate(context.emitterNormalizedTime, 1) * context.emitterDeltaTime;
+        let deltaTime = context.emitterDeltaTime;
+        if (context.emitterNormalizedTime < context.emitterNormalizedPrevTime) {
+            this._scrollOffset += (this._scrollSpeed.evaluate(1, 1) * (params.duration - context.emitterPreviousTime));
+            deltaTime = context.emitterCurrentTime;
+        }
+        this._scrollOffset += this._scrollSpeed.evaluate(context.emitterNormalizedTime, 1) * deltaTime;
         if (this._scrollOffset > 256) {
             this._scrollOffset -= 256;
         }
@@ -573,29 +584,29 @@ export class NoiseModule extends ParticleModule {
         }
         this.frequency = Math.max(this.frequency, 0.0001);
         this._amplitudeScale = this.damping ? (1 / this.frequency) : 1;
-        context.markRequiredParameter(BuiltinParticleParameter.VEC3_REGISTER);
+        context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.VEC3_REGISTER);
         if (!approx(this.positionAmount.getScalar(), 0)) {
-            context.markRequiredParameter(BuiltinParticleParameter.POSITION);
-            context.markRequiredParameter(BuiltinParticleParameter.VELOCITY);
+            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.POSITION);
+            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.VELOCITY);
         }
         if (!approx(this.rotationAmount.getScalar(), 0)) {
-            context.markRequiredParameter(BuiltinParticleParameter.ROTATION);
+            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.ROTATION);
         }
         if (!approx(this.sizeAmount.getScalar(), 0)) {
-            context.markRequiredParameter(BuiltinParticleParameter.SIZE);
+            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.SIZE);
         }
 
         if (this._strengthX.mode === CurveRange.Mode.Curve || this._strengthX.mode === CurveRange.Mode.TwoCurves
             || this.positionAmount.mode === CurveRange.Mode.Curve || this.positionAmount.mode === CurveRange.Mode.TwoCurves
             || this.rotationAmount.mode === CurveRange.Mode.Curve || this.rotationAmount.mode === CurveRange.Mode.TwoCurves
             || this.sizeAmount.mode === CurveRange.Mode.Curve || this.sizeAmount.mode === CurveRange.Mode.TwoCurves) {
-            context.markRequiredParameter(BuiltinParticleParameter.NORMALIZED_ALIVE_TIME);
+            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
         }
         if (this._strengthX.mode === CurveRange.Mode.TwoConstants || this._strengthX.mode === CurveRange.Mode.TwoCurves
             || this.positionAmount.mode === CurveRange.Mode.TwoConstants || this.positionAmount.mode === CurveRange.Mode.TwoCurves
             || this.rotationAmount.mode === CurveRange.Mode.TwoConstants || this.rotationAmount.mode === CurveRange.Mode.TwoCurves
             || this.sizeAmount.mode === CurveRange.Mode.TwoConstants || this.sizeAmount.mode === CurveRange.Mode.TwoCurves) {
-            context.markRequiredParameter(BuiltinParticleParameter.RANDOM_SEED);
+            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
         }
     }
 
@@ -607,6 +618,10 @@ export class NoiseModule extends ParticleModule {
         const frequency = this.frequency;
         const offset = this._offset;
         const hasPosition = particles.hasParameter(BuiltinParticleParameter.POSITION);
+        const randomOffset = this._randomOffset;
+        const randomOffsetVelocity = this._randomOffsetVelocity;
+        const randomOffsetSize = this._randomOffsetSize;
+        const randomOffsetRotation = this._randomOffsetRotation;
         const samplePosition = hasPosition ? particles.position : vec3Register;
         if (!hasPosition) {
             samplePosition.fill1f(0, fromIndex, toIndex);
@@ -702,7 +717,7 @@ export class NoiseModule extends ParticleModule {
                 const zMin = this.strengthZ.constantMin * amplitudeScale;
                 const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const ratio = RandNumGen.get3Float(randomSeed[i] + RANDOM_SEED_OFFSET, seed);
+                    const ratio = RandomStream.get3Float(randomSeed[i] + randomOffset, seed);
                     vec3Register.multiply3fAt(lerp(xMin, xMax, ratio.x),
                         lerp(yMin, yMax, ratio.y),
                         lerp(zMin, zMax, ratio.z), i);
@@ -718,7 +733,7 @@ export class NoiseModule extends ParticleModule {
                 const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const life = normalizedAliveTime[i];
-                    const ratio = RandNumGen.get3Float(randomSeed[i] + RANDOM_SEED_OFFSET, seed);
+                    const ratio = RandomStream.get3Float(randomSeed[i] + randomOffset, seed);
                     vec3Register.multiply3fAt(
                         lerp(xMin.evaluate(life), xMax.evaluate(life), ratio.x) * xMultiplier,
                         lerp(yMin.evaluate(life), yMax.evaluate(life), ratio.y) * yMultiplier,
@@ -746,7 +761,7 @@ export class NoiseModule extends ParticleModule {
                 const constantMin = this.strengthX.constantMin * amplitudeScale;
                 const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const amplitude = lerp(constantMin, constantMax, RandNumGen.getFloat(randomSeed[i] + RANDOM_SEED_OFFSET));
+                    const amplitude = lerp(constantMin, constantMax, RandomStream.getFloat(randomSeed[i] + randomOffset));
                     vec3Register.multiply1fAt(amplitude, i);
                 }
             } else {
@@ -757,7 +772,7 @@ export class NoiseModule extends ParticleModule {
                 for (let i = fromIndex; i < toIndex; i++) {
                     const life = normalizedAliveTime[i];
                     const amplitude = lerp(splineMin.evaluate(life),
-                        splineMax.evaluate(life), RandNumGen.getFloat(randomSeed[i] + RANDOM_SEED_OFFSET)) * multiplier;
+                        splineMax.evaluate(life), RandomStream.getFloat(randomSeed[i] + randomOffset)) * multiplier;
                     vec3Register.multiply1fAt(amplitude, i);
                 }
             }
@@ -781,7 +796,7 @@ export class NoiseModule extends ParticleModule {
                 const { constantMin, constantMax } = this.positionAmount;
                 const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const amount = lerp(constantMin, constantMax, RandNumGen.getFloat(randomSeed[i] + RANDOM_SEED_OFFSET_POSITION));
+                    const amount = lerp(constantMin, constantMax, RandomStream.getFloat(randomSeed[i] + randomOffsetVelocity));
                     vec3Register.getVec3At(deltaVelocity, i);
                     Vec3.multiplyScalar(deltaVelocity, deltaVelocity, amount);
                     velocity.addVec3At(deltaVelocity, i);
@@ -792,7 +807,7 @@ export class NoiseModule extends ParticleModule {
                 const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const life = normalizedAliveTime[i];
-                    const amount = lerp(splineMin.evaluate(life), splineMax.evaluate(life), RandNumGen.getFloat(randomSeed[i] + RANDOM_SEED_OFFSET_POSITION)) * multiplier;
+                    const amount = lerp(splineMin.evaluate(life), splineMax.evaluate(life), RandomStream.getFloat(randomSeed[i] + randomOffsetVelocity)) * multiplier;
                     vec3Register.getVec3At(deltaVelocity, i);
                     Vec3.multiplyScalar(deltaVelocity, deltaVelocity, amount);
                     velocity.addVec3At(deltaVelocity, i);
@@ -819,7 +834,7 @@ export class NoiseModule extends ParticleModule {
                 const { constantMin, constantMax } = this.rotationAmount;
                 const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const amount = lerp(constantMin, constantMax, RandNumGen.getFloat(randomSeed[i] + RANDOM_SEED_OFFSET_ROTATION)) * deltaTime;
+                    const amount = lerp(constantMin, constantMax, RandomStream.getFloat(randomSeed[i] + randomOffsetRotation)) * deltaTime;
                     vec3Register.getVec3At(rotationRate, i);
                     Vec3.multiplyScalar(rotationRate, rotationRate, amount);
                     rotation.addVec3At(rotationRate, i);
@@ -831,7 +846,7 @@ export class NoiseModule extends ParticleModule {
                 const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const life = normalizedAliveTime[i];
-                    const amount = lerp(splineMin.evaluate(life), splineMax.evaluate(life), RandNumGen.getFloat(randomSeed[i] + RANDOM_SEED_OFFSET_ROTATION)) * multiplier;
+                    const amount = lerp(splineMin.evaluate(life), splineMax.evaluate(life), RandomStream.getFloat(randomSeed[i] + randomOffsetRotation)) * multiplier;
                     vec3Register.getVec3At(rotationRate, i);
                     Vec3.multiplyScalar(rotationRate, rotationRate, amount);
                     rotation.addVec3At(rotationRate, i);
@@ -859,7 +874,7 @@ export class NoiseModule extends ParticleModule {
                 const { constantMin, constantMax } = this.sizeAmount;
                 const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const amount = lerp(constantMin, constantMax, RandNumGen.getFloat(randomSeed[i] + RANDOM_SEED_OFFSET_ROTATION));
+                    const amount = lerp(constantMin, constantMax, RandomStream.getFloat(randomSeed[i] + randomOffsetSize));
                     vec3Register.getVec3At(sizeScalar, i);
                     size.multiply3fAt(sizeScalar.x * amount + 1, sizeScalar.y * amount + 1, sizeScalar.z * amount + 1, i);
                 }
@@ -869,7 +884,7 @@ export class NoiseModule extends ParticleModule {
                 const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const life = normalizedAliveTime[i];
-                    const amount = lerp(splineMin.evaluate(life), splineMax.evaluate(life), RandNumGen.getFloat(randomSeed[i] + RANDOM_SEED_OFFSET_ROTATION)) * multiplier;
+                    const amount = lerp(splineMin.evaluate(life), splineMax.evaluate(life), RandomStream.getFloat(randomSeed[i] + randomOffsetSize)) * multiplier;
                     vec3Register.getVec3At(sizeScalar, i);
                     size.multiply3fAt(sizeScalar.x * amount + 1, sizeScalar.y * amount + 1, sizeScalar.z * amount + 1, i);
                 }

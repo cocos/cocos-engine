@@ -29,13 +29,12 @@ import { lerp, Quat, Vec3 } from '../../core/math';
 import { CurveRange } from '../curve-range';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { assert, CCBoolean, Enum } from '../../core';
-import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
-import { BuiltinParticleParameter, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
-import { RandNumGen } from '../rand-num-gen';
-
-const DRAG_RAND_OFFSET = 72617;
+import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
+import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
+import { RandomStream } from '../random-stream';
 
 const _temp_v3 = new Vec3();
+const requiredParameters = BuiltinParticleParameterFlags.POSITION | BuiltinParticleParameterFlags.BASE_VELOCITY | BuiltinParticleParameterFlags.VELOCITY | BuiltinParticleParameterFlags.FLOAT_REGISTER;
 
 @ccclass('cc.DragModule')
 @ParticleModule.register('Drag', ModuleExecStage.UPDATE, [ParameterName.VELOCITY], [ParameterName.VELOCITY, ParameterName.SIZE])
@@ -52,19 +51,22 @@ export class DragModule extends ParticleModule {
     @serializable
     public multiplyBySpeed = true;
 
+    private _randomOffset = 0;
+
+    public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {
+        this._randomOffset = state.rand.getUInt32();
+    }
+
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
-        context.markRequiredParameter(BuiltinParticleParameter.POSITION);
-        context.markRequiredParameter(BuiltinParticleParameter.BASE_VELOCITY);
-        context.markRequiredParameter(BuiltinParticleParameter.VELOCITY);
-        context.markRequiredParameter(BuiltinParticleParameter.FLOAT_REGISTER);
+        context.markRequiredBuiltinParameters(requiredParameters);
         if (this.drag.mode === CurveRange.Mode.Curve || this.drag.mode === CurveRange.Mode.TwoCurves) {
-            context.markRequiredParameter(BuiltinParticleParameter.NORMALIZED_ALIVE_TIME);
+            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
         }
         if (this.drag.mode === CurveRange.Mode.TwoConstants || this.drag.mode === CurveRange.Mode.TwoCurves) {
-            context.markRequiredParameter(BuiltinParticleParameter.RANDOM_SEED);
+            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
         }
         if (this.multiplyBySize) {
-            context.markRequiredParameter(BuiltinParticleParameter.SIZE);
+            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.SIZE);
         }
     }
 
@@ -72,6 +74,7 @@ export class DragModule extends ParticleModule {
         const { velocity, baseVelocity } = particles;
         const { fromIndex, toIndex, deltaTime } = context;
         const floatRegister = particles.floatRegister.data;
+        const randomOffset = this._randomOffset;
         // eslint-disable-next-line no-lonely-if
         if (this.drag.mode === CurveRange.Mode.Constant) {
             const drag = this.drag.constant;
@@ -89,7 +92,7 @@ export class DragModule extends ParticleModule {
             const { constantMin, constantMax } = this.drag;
             const randomSeed = particles.randomSeed.data;
             for (let i = fromIndex; i < toIndex; i++) {
-                floatRegister[i] = lerp(constantMin, constantMax, RandNumGen.getFloat(randomSeed[i] + DRAG_RAND_OFFSET));
+                floatRegister[i] = lerp(constantMin, constantMax, RandomStream.getFloat(randomSeed[i] + randomOffset));
             }
         } else {
             const { splineMin, splineMax, multiplier } = this.drag;
@@ -97,7 +100,7 @@ export class DragModule extends ParticleModule {
             const normalizedAliveTime = particles.normalizedAliveTime.data;
             for (let i = fromIndex; i < toIndex; i++) {
                 const normalizedTime = normalizedAliveTime[i];
-                floatRegister[i] = lerp(splineMin.evaluate(normalizedTime), splineMax.evaluate(normalizedTime), RandNumGen.getFloat(randomSeed[i] + DRAG_RAND_OFFSET))  * multiplier;
+                floatRegister[i] = lerp(splineMin.evaluate(normalizedTime), splineMax.evaluate(normalizedTime), RandomStream.getFloat(randomSeed[i] + randomOffset))  * multiplier;
             }
         }
         if (this.multiplyBySize) {

@@ -22,10 +22,10 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { Vec3 } from '../../core';
-import { ccclass, serializable } from '../../core/data/decorators';
+import { Enum, Vec3 } from '../../core';
+import { ccclass, serializable, type, visible } from '../../core/data/decorators';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
-import { BuiltinParticleParameter, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 
 export enum LifetimeElapsedOperation {
@@ -37,17 +37,14 @@ export enum LifetimeElapsedOperation {
 @ccclass('cc.StateModule')
 @ParticleModule.register('State', ModuleExecStage.UPDATE, [BuiltinParticleParameterName.NORMALIZED_ALIVE_TIME])
 export class StateModule extends ParticleModule {
+    @type(Enum(LifetimeElapsedOperation))
+    @visible(true)
     @serializable
     public lifetimeElapsedOperation = LifetimeElapsedOperation.KILL;
 
-    constructor () {
-        super();
-        this.enabled = true;
-    }
-
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
-        context.markRequiredParameter(BuiltinParticleParameter.NORMALIZED_ALIVE_TIME);
-        context.markRequiredParameter(BuiltinParticleParameter.INV_START_LIFETIME);
+        context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
+        context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.INV_START_LIFETIME);
     }
 
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {

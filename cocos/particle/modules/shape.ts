@@ -28,7 +28,7 @@ import { ccclass, tooltip, displayOrder, type, formerlySerializedAs, serializabl
 import { Mat4, Quat, Vec2, Vec3, randomRange } from '../../core/math';
 
 import { ParticleModule, ModuleExecStage } from '../particle-module';
-import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameter, BuiltinParticleParameterFlags, ParticleDataSet } from '../particle-data-set';
 import { ParticleExecContext, ParticleEmitterParams, ParticleEmitterState } from '../particle-base';
 import { RandomStream } from '../random-stream';
 
@@ -156,9 +156,9 @@ export class ShapeModule extends ParticleModule {
             Mat4.fromRTS(this._mat, this._quat, this._position, this._scale);
             this._isTransformDirty = false;
         }
-        context.markRequiredParameter(BuiltinParticleParameter.POSITION);
-        context.markRequiredParameter(BuiltinParticleParameter.START_DIR);
-        context.markRequiredParameter(BuiltinParticleParameter.VEC3_REGISTER);
+        context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.POSITION);
+        context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.START_DIR);
+        context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.VEC3_REGISTER);
     }
 
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {

@@ -30,6 +30,7 @@ import { BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { CurveRange } from '../curve-range';
 import { AngleBasedShapeModule } from './angle-based-shape';
+import { ParticleVec3ArrayParameter } from '../particle-parameter';
 
 const temp = new Vec3();
 @ccclass('cc.DonutShapeModule')
@@ -62,28 +63,22 @@ export class DonutShapeModule extends AngleBasedShapeModule {
         this._donutInnerRadius = (1 - this.radiusThickness) ** 2;
     }
 
-    protected generatePosAndDir (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
-        const { fromIndex, toIndex } = context;
-        const { startDir, vec3Register } = particles;
+    protected generatePosAndDir (index: number, angle: number, startDir: ParticleVec3ArrayParameter, vec3Register: ParticleVec3ArrayParameter) {
         const innerRadius = this._donutInnerRadius;
-        const floatRegister = particles.floatRegister.data;
         const radius = this.radius;
         const donutRadius = this.donutRadius;
         const rand = this._rand;
-        for (let i = fromIndex; i < toIndex; ++i) {
-            const angle = floatRegister[i];
-            const radiusRandom = Math.sqrt(rand.getFloatFromRange(innerRadius, 1.0));
-            const r = radiusRandom * donutRadius;
-            const x = Math.cos(angle);
-            const y = Math.sin(angle);
-            const donutAngle = rand.getFloatFromRange(0, Math.PI * 2);
-            const dx = Math.cos(donutAngle);
-            const dy = Math.sin(donutAngle);
-            startDir.set3fAt(x * dx, y * dx, dy, i);
-            temp.x = (radius + r * dx) * x;
-            temp.y = (radius + r * dy) * y;
-            temp.z = r * dy;
-            vec3Register.setVec3At(temp, i);
-        }
+        const radiusRandom = Math.sqrt(rand.getFloatFromRange(innerRadius, 1.0));
+        const r = radiusRandom * donutRadius;
+        const x = Math.cos(angle);
+        const y = Math.sin(angle);
+        const donutAngle = rand.getFloatFromRange(0, Math.PI * 2);
+        const dx = Math.cos(donutAngle);
+        const dy = Math.sin(donutAngle);
+        startDir.set3fAt(x * dx, y * dx, dy, index);
+        temp.x = (radius + r * dx) * x;
+        temp.y = (radius + r * dy) * y;
+        temp.z = r * dy;
+        vec3Register.setVec3At(temp, index);
     }
 }
