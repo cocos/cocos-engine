@@ -238,6 +238,7 @@ VkImageUsageFlagBits mapVkImageUsageFlagBits(TextureUsage usage) {
     if (hasFlag(usage, TextureUsage::COLOR_ATTACHMENT)) flags |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
     if (hasFlag(usage, TextureUsage::DEPTH_STENCIL_ATTACHMENT)) flags |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
     if (hasFlag(usage, TextureUsage::INPUT_ATTACHMENT)) flags |= VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
+    if (hasFlag(usage, TextureUsage::SHADING_RATE)) flags |= VK_IMAGE_USAGE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR;
     return static_cast<VkImageUsageFlagBits>(flags);
 }
 
@@ -559,6 +560,7 @@ static constexpr ThsvsAccessType THSVS_ACCESS_TYPES[] = {
     THSVS_ACCESS_TRANSFER_WRITE,                                             // TRANSFER_WRITE
     THSVS_ACCESS_HOST_PREINITIALIZED,                                        // HOST_PREINITIALIZED
     THSVS_ACCESS_HOST_WRITE,                                                 // HOST_WRITE
+    THSVS_ACCESS_SHADING_RATE_READ_NV,                                       // SHADING_RATE
 };
 
 const ThsvsAccessType *getAccessType(AccessFlagBit flag) {

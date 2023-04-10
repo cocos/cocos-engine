@@ -30,29 +30,15 @@
 
 namespace cc {
 
-// https://stackoverflow.com/questions/50510122/stdvariant-with-overloaded-lambdas-alternative-with-msvc
-
-template <class... Ts>
-struct Overloaded {}; // NOLINT
-
-template <class T0>
-struct Overloaded<T0> : T0 {
-    using T0::operator();
-    Overloaded(T0 t0) // NOLINT
-    : T0(std::move(t0)) {}
+template<class... Ts> struct Overloaded : Ts... {
+    using Ts::operator()...;
 };
 
-template <class T0, class T1, class... Ts>
-struct Overloaded<T0, T1, Ts...> : T0, Overloaded<T1, Ts...> {
-    using T0::operator();
-    using Overloaded<T1, Ts...>::operator();
-    Overloaded(T0 t0, T1 t1, Ts... ts)
-    : T0(std::move(t0)), Overloaded<T1, Ts...>(std::move(t1), std::move(ts)...) {}
-};
+template<class... Ts> Overloaded(Ts...) -> Overloaded<Ts...>;
 
 template <class... Ts>
-Overloaded<Ts...> overload(Ts... ts) {
-    return {std::move(ts)...};
+Overloaded<Ts...> overload(Ts&&... ts) {
+    return {std::forward<Ts>(ts)...};
 }
 
 template <typename V>

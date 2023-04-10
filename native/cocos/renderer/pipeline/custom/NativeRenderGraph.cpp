@@ -148,6 +148,14 @@ void addFloat(const LayoutGraphData &lg, const ccstd::string &name, float v, Ren
     memcpy(data.constants[nameID.value].data(), &v, sizeof(v));
 }
 
+void addArrayBuffer(
+    const LayoutGraphData &lg, std::string_view name,
+    const ArrayBuffer &buffer, RenderData &data) {
+    auto nameID = getNameID(lg.constantIndex, name);
+    data.constants[nameID.value].resize(buffer.byteLength());
+    memcpy(data.constants[nameID.value].data(), buffer.getData(), buffer.byteLength());
+}
+
 void addBuffer(const LayoutGraphData &lg, const ccstd::string &name, gfx::Buffer *buffer, RenderData &data) {
     auto nameID = getNameID(lg.attributeIndex, name);
     data.buffers[nameID.value] = IntrusivePtr<gfx::Buffer>(buffer);
@@ -210,6 +218,11 @@ void NativeSetter::setVec2(const ccstd::string &name, const Vec2 &vec) {
 void NativeSetter::setFloat(const ccstd::string &name, float v) {
     auto &data = renderData;
     addFloat(layoutGraph, name, v, data);
+}
+
+void NativeSetter::setArrayBuffer(const ccstd::string &name, const ArrayBuffer *buffer) {
+    auto &data = renderData;
+    addArrayBuffer(layoutGraph, name, *buffer, data);
 }
 
 void NativeSetter::setBuffer(const ccstd::string &name, gfx::Buffer *buffer) {
@@ -334,6 +347,11 @@ void NativeRasterSubpassBuilder::setVec2(const ccstd::string &name, const Vec2 &
 void NativeRasterSubpassBuilder::setFloat(const ccstd::string &name, float v) {
     auto &data = get(RenderGraph::DataTag{}, *renderGraph, subpassID);
     addFloat(*layoutGraph, name, v, data);
+}
+
+void NativeRasterSubpassBuilder::setArrayBuffer(const ccstd::string &name, const ArrayBuffer *buffer) {
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, subpassID);
+    addArrayBuffer(*layoutGraph, name, *buffer, data);
 }
 
 void NativeRasterSubpassBuilder::setBuffer(const ccstd::string &name, gfx::Buffer *buffer) {
@@ -526,6 +544,11 @@ void NativeComputeSubpassBuilder::setVec2(const ccstd::string &name, const Vec2 
 void NativeComputeSubpassBuilder::setFloat(const ccstd::string &name, float v) {
     auto &data = get(RenderGraph::DataTag{}, *renderGraph, subpassID);
     addFloat(*layoutGraph, name, v, data);
+}
+
+void NativeComputeSubpassBuilder::setArrayBuffer(const ccstd::string &name, const ArrayBuffer *buffer) {
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, subpassID);
+    addArrayBuffer(*layoutGraph, name, *buffer, data);
 }
 
 void NativeComputeSubpassBuilder::setBuffer(const ccstd::string &name, gfx::Buffer *buffer) {
@@ -1145,6 +1168,11 @@ void NativeRasterQueueBuilder::setFloat(const ccstd::string &name, float v) {
     addFloat(*layoutGraph, name, v, data);
 }
 
+void NativeRasterQueueBuilder::setArrayBuffer(const ccstd::string &name, const ArrayBuffer *buffer) {
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, queueID);
+    addArrayBuffer(*layoutGraph, name, *buffer, data);
+}
+
 void NativeRasterQueueBuilder::setBuffer(const ccstd::string &name, gfx::Buffer *buffer) {
     auto &data = get(RenderGraph::DataTag{}, *renderGraph, queueID);
     addBuffer(*layoutGraph, name, buffer, data);
@@ -1300,6 +1328,11 @@ void NativeRasterPassBuilder::setFloat(const ccstd::string &name, float v) {
     addFloat(*layoutGraph, name, v, data);
 }
 
+void NativeRasterPassBuilder::setArrayBuffer(const ccstd::string &name, const ArrayBuffer *buffer) {
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, passID);
+    addArrayBuffer(*layoutGraph, name, *buffer, data);
+}
+
 void NativeRasterPassBuilder::setBuffer(const ccstd::string &name, gfx::Buffer *buffer) {
     auto &data = get(RenderGraph::DataTag{}, *renderGraph, passID);
     addBuffer(*layoutGraph, name, buffer, data);
@@ -1354,7 +1387,7 @@ void NativeComputeQueueBuilder::addDispatch(
             threadGroupCountX,
             threadGroupCountY,
             threadGroupCountZ),
-        *renderGraph);
+        *renderGraph, passID);
 }
 
 void NativeComputeQueueBuilder::setMat4(const ccstd::string &name, const Mat4 &mat) {
@@ -1385,6 +1418,11 @@ void NativeComputeQueueBuilder::setVec2(const ccstd::string &name, const Vec2 &v
 void NativeComputeQueueBuilder::setFloat(const ccstd::string &name, float v) {
     auto &data = get(RenderGraph::DataTag{}, *renderGraph, queueID);
     addFloat(*layoutGraph, name, v, data);
+}
+
+void NativeComputeQueueBuilder::setArrayBuffer(const ccstd::string &name, const ArrayBuffer *buffer) {
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, queueID);
+    addArrayBuffer(*layoutGraph, name, *buffer, data);
 }
 
 void NativeComputeQueueBuilder::setBuffer(const ccstd::string &name, gfx::Buffer *buffer) {
@@ -1486,6 +1524,11 @@ void NativeComputePassBuilder::setVec2(const ccstd::string &name, const Vec2 &ve
 void NativeComputePassBuilder::setFloat(const ccstd::string &name, float v) {
     auto &data = get(RenderGraph::DataTag{}, *renderGraph, passID);
     addFloat(*layoutGraph, name, v, data);
+}
+
+void NativeComputePassBuilder::setArrayBuffer(const ccstd::string &name, const ArrayBuffer *buffer) {
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, passID);
+    addArrayBuffer(*layoutGraph, name, *buffer, data);
 }
 
 void NativeComputePassBuilder::setBuffer(const ccstd::string &name, gfx::Buffer *buffer) {

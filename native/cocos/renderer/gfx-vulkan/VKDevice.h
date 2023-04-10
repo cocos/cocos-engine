@@ -138,6 +138,7 @@ protected:
     void getQueryPoolResults(QueryPool *queryPool) override;
 
     void initFormatFeature();
+    void initExtensionCapability();
 
     std::unique_ptr<CCVKGPUDevice> _gpuDevice;
     std::unique_ptr<CCVKGPUContext> _gpuContext;
