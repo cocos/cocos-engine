@@ -24,12 +24,12 @@
 
 import { EDITOR } from 'internal:constants';
 import { BufferInfo, Buffer, BufferUsageBit, ClearFlagBit, Color, DescriptorSet, LoadOp,
-    Format, Rect, Sampler, StoreOp, Texture, Viewport, MemoryUsageBit } from '../../gfx';
+    Format, Rect, Sampler, StoreOp, Texture, Viewport, MemoryUsageBit, Filter } from '../../gfx';
 import { Camera, CSMLevel, DirectionalLight, Light, LightType, ReflectionProbe, ShadowType, SKYBOX_FLAG, SpotLight } from '../../render-scene/scene';
 import { supportsR32FloatTexture } from '../define';
 import { Pipeline } from './pipeline';
 import { AccessType, AttachmentType, ComputeView, LightInfo, QueueHint, RasterView, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
-import { Vec4, macro, geometry, toRadian, cclegacy, assert } from '../../core';
+import { Vec3, Vec4, macro, geometry, toRadian, cclegacy, assert } from '../../core';
 import { Material } from '../../asset/assets';
 import { getProfilerCamera, SRGBToLinear } from '../pipeline-funcs';
 import { RenderWindow } from '../../render-scene/core/render-window';
@@ -441,6 +441,340 @@ export function buildBloomPass (camera: Camera,
     return { rtName: bloomPassCombineRTName, dsName: bloomPassCombineDSName };
 }
 
+const _varianceArray: number[] = [0.0484, 0.187, 0.567, 1.99, 7.41];
+const _strengthParameterArray: number[] = [0.100, 0.118, 0.113, 0.358, 0.078];
+const _vec3Temp: Vec3 = new Vec3();
+const _vec3Temp2: Vec3 = new Vec3();
+const _vec4Temp: Vec4 = new Vec4();
+const _vec4Temp2: Vec4 = new Vec4();
+
+export const COPY_INPUT_DS_PASS_INDEX = 0;
+export const SSSS_BLUR_X_PASS_INDEX = 1;
+export const SSSS_BLUR_Y_PASS_INDEX = 2;
+export const EXPONENT = 2.0;
+export const I_SAMPLES_COUNT = 28;
+class SSSSBlurData {
+    declare ssssBlurMaterial: Material;
+    ssssFov = 45.0;
+    ssssWidth = 2;
+    depthUnitScale = 1.0;
+
+    get ssssStrength () {
+        return this._v3SSSSStrength;
+    }
+    set ssssStrength (val: Vec3) {
+        this._v3SSSSStrength = val;
+        this._updateSampleCount();
+    }
+
+    get ssssFallOff () {
+        return this._v3SSSSFallOff;
+    }
+    set ssssFallOff (val: Vec3) {
+        this._v3SSSSFallOff = val;
+        this._updateSampleCount();
+    }
+
+    get kernel () {
+        return this._kernel;
+    }
+
+    private _v3SSSSStrength = new Vec3(0.48, 0.41, 0.28);
+    private _v3SSSSFallOff = new Vec3(1.0, 0.37, 0.3);
+    private _kernel: Vec4[] = [];
+
+    /**
+     * We use a falloff to modulate the shape of the profile. Big falloffs
+     * spreads the shape making it wider, while small falloffs make it
+     * narrower.
+     */
+    private _gaussian (out: Vec3, variance: number, r: number) {
+        const xx = r / (0.001 + this._v3SSSSFallOff.x);
+        out.x = Math.exp((-(xx * xx)) / (2.0 * variance)) / (2.0 * 3.14 * variance);
+        const yy = r / (0.001 + this._v3SSSSFallOff.y);
+        out.y = Math.exp((-(yy * yy)) / (2.0 * variance)) / (2.0 * 3.14 * variance);
+        const zz = r / (0.001 + this._v3SSSSFallOff.z);
+        out.z = Math.exp((-(zz * zz)) / (2.0 * variance)) / (2.0 * 3.14 * variance);
+    }
+
+    /**
+     * We used the red channel of the original skin profile defined in
+     * [d'Eon07] for all three channels. We noticed it can be used for green
+     * and blue channels (scaled using the falloff parameter) without
+     * introducing noticeable differences and allowing for total control over
+     * the profile. For example, it allows to create blue SSS gradients, which
+     * could be useful in case of rendering blue creatures.
+     */
+    private _profile (out: Vec3, val: number) {
+        for (let i = 0; i < 5; i++) {
+            this._gaussian(_vec3Temp2, _varianceArray[i], val);
+            _vec3Temp2.multiplyScalar(_strengthParameterArray[i]);
+            out.add(_vec3Temp2);
+        }
+    }
+
+    private _updateSampleCount () {
+        const strength = this._v3SSSSStrength;
+        const nSamples = I_SAMPLES_COUNT;
+        const range = nSamples > 20 ? 3.0 : 2.0;
+
+        // Calculate the offsets:
+        const step = 2.0 * range / (nSamples - 1);
+        for (let i = 0; i < nSamples; i++) {
+            const o = -range + i * step;
+            const sign = o < 0.0 ? -1.0 : 1.0;
+            // eslint-disable-next-line no-restricted-properties
+            this._kernel[i].w = range * sign * Math.abs(Math.pow(o, EXPONENT)) / Math.pow(range, EXPONENT);
+        }
+
+        // Calculate the weights:
+        for (let i = 0; i < nSamples; i++) {
+            const w0 = i > 0 ? Math.abs(this._kernel[i].w - this._kernel[i - 1].w) : 0.0;
+            const w1 = i < nSamples - 1 ? Math.abs(this._kernel[i].w - this._kernel[i + 1].w) : 0.0;
+            const area = (w0 + w1) / 2.0;
+            _vec3Temp.set(0);
+            this._profile(_vec3Temp, this._kernel[i].w);
+            _vec3Temp.multiplyScalar(area);
+            this._kernel[i].x = _vec3Temp.x;
+            this._kernel[i].y = _vec3Temp.y;
+            this._kernel[i].z = _vec3Temp.z;
+        }
+
+        // We want the offset 0.0 to come first:
+        _vec4Temp.set(this._kernel[nSamples / 2]);
+        for (let i = nSamples / 2; i > 0; i--) {
+            _vec4Temp2.set(this._kernel[i - 1]);
+            this._kernel[i].set(_vec4Temp2);
+        }
+        this._kernel[0].set(_vec4Temp);
+
+        // Calculate the sum of the weights, we will need to normalize them below:
+        _vec3Temp.set(0.0);
+        for (let i = 0; i < nSamples; i++) {
+            _vec3Temp.add3f(this._kernel[i].x, this._kernel[i].y, this._kernel[i].z);
+        }
+        // Normalize the weights:
+        for (let i = 0; i < nSamples; i++) {
+            this._kernel[i].x /= _vec3Temp.x;
+            this._kernel[i].y /= _vec3Temp.y;
+            this._kernel[i].z /= _vec3Temp.z;
+        }
+
+        // Tweak them using the desired strength. The first one is:
+        // lerp(1.0, kernel[0].rgb, strength)
+        this._kernel[0].x = (1.0 - strength.x) * 1.0 + strength.x * this._kernel[0].x;
+        this._kernel[0].y = (1.0 - strength.y) * 1.0 + strength.y * this._kernel[0].y;
+        this._kernel[0].z = (1.0 - strength.z) * 1.0 + strength.z * this._kernel[0].z;
+
+        // The others:
+        // lerp(0.0, kernel[0].rgb, strength)
+        for (let i = 1; i < nSamples; i++) {
+            this._kernel[i].x *= strength.x;
+            this._kernel[i].y *= strength.y;
+            this._kernel[i].z *= strength.z;
+        }
+    }
+
+    private _updateBlurPass () {
+        if (!this.ssssBlurMaterial) return;
+
+        const copyInputDSPass = this.ssssBlurMaterial.passes[COPY_INPUT_DS_PASS_INDEX];
+        copyInputDSPass.beginChangeStatesSilently();
+        copyInputDSPass.tryCompile();
+        copyInputDSPass.endChangeStatesSilently();
+        const ssssBlurXPass = this.ssssBlurMaterial.passes[SSSS_BLUR_X_PASS_INDEX];
+        ssssBlurXPass.beginChangeStatesSilently();
+        ssssBlurXPass.tryCompile();
+        ssssBlurXPass.endChangeStatesSilently();
+        const ssssBlurYPass = this.ssssBlurMaterial.passes[SSSS_BLUR_Y_PASS_INDEX];
+        ssssBlurYPass.beginChangeStatesSilently();
+        ssssBlurYPass.tryCompile();
+        ssssBlurYPass.endChangeStatesSilently();
+    }
+
+    private _init () {
+        if (this.ssssBlurMaterial) return;
+
+        this.ssssBlurMaterial = new Material();
+        this.ssssBlurMaterial._uuid = 'builtin-ssssBlur-material';
+        this.ssssBlurMaterial.initialize({ effectName: 'pipeline/ssss-blur' });
+        for (let i = 0; i < this.ssssBlurMaterial.passes.length; ++i) {
+            this.ssssBlurMaterial.passes[i].tryCompile();
+        }
+        this._updateBlurPass();
+
+        for (let i = 0; i < I_SAMPLES_COUNT; i++) {
+            this._kernel[i] = new Vec4();
+        }
+        this._updateSampleCount();
+    }
+
+    constructor () {
+        this._init();
+    }
+}
+
+let ssssBlurData: SSSSBlurData | null = null;
+export function buildSSSSBlurPass (camera: Camera,
+    ppl: Pipeline,
+    inputRT: string,
+    inputDS: string,
+    ssssFov = 45.0,
+    ssssWidth = 0.1,
+    depthUnitScale = 0.4) {
+    if (!ssssBlurData) ssssBlurData = new SSSSBlurData();
+    ssssBlurData.ssssFov = ssssFov;
+    ssssBlurData.ssssWidth = ssssWidth;
+    ssssBlurData.depthUnitScale = depthUnitScale;
+
+    const cameraID = getCameraUniqueID(camera);
+    const cameraName = `Camera${cameraID}`;
+    const webPipeline = (ppl as WebPipeline);
+    const area = getRenderArea(camera, camera.window.width, camera.window.height);
+    const width = area.width;
+    const height = area.height;
+
+    // Start blur
+    const ssssBlurClearColor = new Color(0, 0, 0, 1);
+    if (camera.clearFlag & ClearFlagBit.COLOR) {
+        ssssBlurClearColor.x = camera.clearColor.x;
+        ssssBlurClearColor.y = camera.clearColor.y;
+        ssssBlurClearColor.z = camera.clearColor.z;
+    }
+    ssssBlurClearColor.w = camera.clearColor.w;
+
+    const ssssBlurRTName = `dsSSSSBlurColor${cameraName}`;
+    const ssssBlurDSName = `dsSSSSBlurDSColor${cameraName}`;
+    if (!ppl.containsResource(ssssBlurRTName)) {
+        ppl.addRenderTarget(ssssBlurRTName, Format.RGBA8, width, height, ResourceResidency.MANAGED);
+        ppl.addRenderTarget(ssssBlurDSName, Format.RGBA8, width, height, ResourceResidency.MANAGED);
+    }
+    ppl.updateRenderTarget(ssssBlurRTName, width, height);
+    ppl.updateRenderTarget(ssssBlurDSName, width, height);
+
+    // ==== Copy input DS ===
+    const copyInputDSPass = ppl.addRasterPass(width, height, 'copy-pass');
+    copyInputDSPass.name = `CameraCopyDSPass${cameraID}`;
+    copyInputDSPass.setViewport(new Viewport(area.x, area.y, width, height));
+    if (ppl.containsResource(inputDS)) {
+        const verId = webPipeline.resourceGraph.vertex(inputDS);
+        const sampler = webPipeline.resourceGraph.getSampler(verId);
+        sampler.minFilter = Filter.POINT;
+        sampler.magFilter = Filter.POINT;
+        sampler.mipFilter = Filter.NONE;
+        const computeView = new ComputeView();
+        computeView.name = 'depthRaw';
+        copyInputDSPass.addComputeView(inputDS, computeView);
+    }
+    const copyInputDSPassView = new RasterView('_',
+        AccessType.WRITE,
+        AttachmentType.RENDER_TARGET,
+        LoadOp.CLEAR,
+        StoreOp.STORE,
+        camera.clearFlag,
+        new Color(1.0, 0.0, 0.0, 0.0));
+    copyInputDSPass.addRasterView(ssssBlurDSName, copyInputDSPassView);
+    copyInputDSPass.addQueue(QueueHint.RENDER_OPAQUE | QueueHint.RENDER_TRANSPARENT).addCameraQuad(
+        camera, ssssBlurData.ssssBlurMaterial, COPY_INPUT_DS_PASS_INDEX,
+        SceneFlags.NONE,
+    );
+
+    // ==== SSSS Blur X Pass ===
+    const ssssblurXPass = ppl.addRasterPass(width, height, 'ssss-blurX');
+    ssssblurXPass.name = `CameraSSSSBlurXPass${cameraID}`;
+    ssssblurXPass.setViewport(new Viewport(area.x, area.y, width, height));
+    if (ppl.containsResource(inputRT)) {
+        const verId = webPipeline.resourceGraph.vertex(inputRT);
+        const sampler = webPipeline.resourceGraph.getSampler(verId);
+        sampler.minFilter = Filter.POINT;
+        sampler.magFilter = Filter.POINT;
+        sampler.mipFilter = Filter.NONE;
+        const computeView = new ComputeView();
+        computeView.name = 'colorTex';
+        ssssblurXPass.addComputeView(inputRT, computeView);
+    }
+    if (ppl.containsResource(ssssBlurDSName)) {
+        const verId = webPipeline.resourceGraph.vertex(ssssBlurDSName);
+        const sampler = webPipeline.resourceGraph.getSampler(verId);
+        sampler.minFilter = Filter.POINT;
+        sampler.magFilter = Filter.POINT;
+        sampler.mipFilter = Filter.NONE;
+        const computeView = new ComputeView();
+        computeView.name = 'depthTex';
+        ssssblurXPass.addComputeView(ssssBlurDSName, computeView);
+    }
+    const ssssBlurXPassRTView = new RasterView('_',
+        AccessType.WRITE,
+        AttachmentType.RENDER_TARGET,
+        LoadOp.CLEAR,
+        StoreOp.STORE,
+        camera.clearFlag,
+        ssssBlurClearColor);
+    ssssblurXPass.addRasterView(ssssBlurRTName, ssssBlurXPassRTView);
+    const ssssBlurXPassDSView = new RasterView('_',
+        AccessType.WRITE,
+        AttachmentType.DEPTH_STENCIL,
+        LoadOp.LOAD,
+        StoreOp.STORE,
+        camera.clearFlag,
+        new Color(camera.clearDepth, camera.clearStencil, 0.0, 0.0));
+    ssssblurXPass.addRasterView(inputDS, ssssBlurXPassDSView);
+    ssssBlurData.ssssBlurMaterial.setProperty('blurInfo', new Vec4(ssssBlurData.ssssFov, ssssBlurData.ssssWidth, ssssBlurData.depthUnitScale, 0), SSSS_BLUR_X_PASS_INDEX);
+    ssssBlurData.ssssBlurMaterial.setProperty('kernel', ssssBlurData.kernel, SSSS_BLUR_X_PASS_INDEX);
+    ssssblurXPass.addQueue(QueueHint.RENDER_OPAQUE | QueueHint.RENDER_TRANSPARENT).addCameraQuad(
+        camera, ssssBlurData.ssssBlurMaterial, SSSS_BLUR_X_PASS_INDEX,
+        SceneFlags.NONE,
+    );
+
+    // === SSSS Blur Y Pass ===
+    const ssssblurYPass = ppl.addRasterPass(width, height, 'ssss-blurY');
+    ssssblurYPass.name = `CameraSSSSBlurYPass${cameraID}`;
+    ssssblurYPass.setViewport(new Viewport(area.x, area.y, width, height));
+    if (ppl.containsResource(ssssBlurRTName)) {
+        const verId = webPipeline.resourceGraph.vertex(ssssBlurRTName);
+        const sampler = webPipeline.resourceGraph.getSampler(verId);
+        sampler.minFilter = Filter.POINT;
+        sampler.magFilter = Filter.POINT;
+        sampler.mipFilter = Filter.NONE;
+        const computeView = new ComputeView();
+        computeView.name = 'colorTex';
+        ssssblurYPass.addComputeView(ssssBlurRTName, computeView);
+    }
+    if (ppl.containsResource(ssssBlurDSName)) {
+        const verId = webPipeline.resourceGraph.vertex(ssssBlurDSName);
+        const sampler = webPipeline.resourceGraph.getSampler(verId);
+        sampler.minFilter = Filter.POINT;
+        sampler.magFilter = Filter.POINT;
+        sampler.mipFilter = Filter.NONE;
+        const computeView = new ComputeView();
+        computeView.name = 'depthTex';
+        ssssblurYPass.addComputeView(ssssBlurDSName, computeView);
+    }
+    const ssssBlurYPassView = new RasterView('_',
+        AccessType.WRITE,
+        AttachmentType.RENDER_TARGET,
+        LoadOp.LOAD,
+        StoreOp.STORE,
+        camera.clearFlag,
+        ssssBlurClearColor);
+    ssssblurYPass.addRasterView(inputRT, ssssBlurYPassView);
+    const ssssBlurYPassDSView = new RasterView('_',
+        AccessType.WRITE,
+        AttachmentType.DEPTH_STENCIL,
+        LoadOp.LOAD,
+        StoreOp.STORE,
+        camera.clearFlag,
+        new Color(camera.clearDepth, camera.clearStencil, 0.0, 0.0));
+    ssssblurYPass.addRasterView(inputDS, ssssBlurYPassDSView);
+    ssssBlurData.ssssBlurMaterial.setProperty('blurInfo', new Vec4(ssssBlurData.ssssFov, ssssBlurData.ssssWidth, ssssBlurData.depthUnitScale, 0), SSSS_BLUR_Y_PASS_INDEX);
+    ssssBlurData.ssssBlurMaterial.setProperty('kernel', ssssBlurData.kernel, SSSS_BLUR_Y_PASS_INDEX);
+    ssssblurYPass.addQueue(QueueHint.RENDER_OPAQUE | QueueHint.RENDER_TRANSPARENT).addCameraQuad(
+        camera, ssssBlurData.ssssBlurMaterial, SSSS_BLUR_Y_PASS_INDEX,
+        SceneFlags.NONE,
+    );
+    return { rtName: inputRT, dsName: inputDS };
+}
+
 class PostInfo {
     declare postMaterial: Material;
     antiAliasing: AntiAliasing = AntiAliasing.NONE;
@@ -600,6 +934,64 @@ export function buildForwardPass (camera: Camera,
         .addQueue(QueueHint.RENDER_TRANSPARENT)
         .addSceneOfCamera(camera, new LightInfo(), sceneFlags);
     return { rtName: forwardPassRTName, dsName: forwardPassDSName };
+}
+
+export function buildSpecularPass (camera: Camera,
+    ppl: Pipeline,
+    inputRT: string,
+    inputDS: string) {
+    if (EDITOR) {
+        ppl.setMacroInt('CC_PIPELINE_TYPE', 0);
+    }
+    const cameraID = getCameraUniqueID(camera);
+    const cameraName = `Camera${cameraID}`;
+    const cameraInfo = buildShadowPasses(cameraName, camera, ppl);
+    const area = getRenderArea(camera, camera.window.width, camera.window.height);
+    const width = area.width;
+    const height = area.height;
+
+    const specalurPass = ppl.addRasterPass(width, height, 'specular-pass');
+    specalurPass.name = `CameraSpecalurPass${cameraID}`;
+    specalurPass.setViewport(new Viewport(area.x, area.y, width, height));
+    for (const dirShadowName of cameraInfo.mainLightShadowNames) {
+        if (ppl.containsResource(dirShadowName)) {
+            const computeView = new ComputeView('cc_shadowMap');
+            specalurPass.addComputeView(dirShadowName, computeView);
+        }
+    }
+    for (const spotShadowName of cameraInfo.spotLightShadowNames) {
+        if (ppl.containsResource(spotShadowName)) {
+            const computeView = new ComputeView('cc_spotShadowMap');
+            specalurPass.addComputeView(spotShadowName, computeView);
+        }
+    }
+    const passView = new RasterView('_',
+        AccessType.WRITE,
+        AttachmentType.RENDER_TARGET,
+        LoadOp.LOAD,
+        StoreOp.STORE,
+        camera.clearFlag,
+        new Color(camera.clearColor.x, camera.clearColor.y, camera.clearColor.z, camera.clearColor.w));
+    const passDSView = new RasterView('_',
+        AccessType.WRITE,
+        AttachmentType.DEPTH_STENCIL,
+        LoadOp.LOAD,
+        StoreOp.STORE,
+        camera.clearFlag,
+        new Color(camera.clearDepth, camera.clearStencil, 0, 0));
+    specalurPass.addRasterView(inputRT, passView);
+    specalurPass.addRasterView(inputDS, passDSView);
+    specalurPass
+        .addQueue(QueueHint.RENDER_OPAQUE, 'default')
+        .addSceneOfCamera(camera, new LightInfo(),
+            SceneFlags.TRANSPARENT_OBJECT | SceneFlags.DEFAULT_LIGHTING | SceneFlags.PLANAR_SHADOW
+            | SceneFlags.CUTOUT_OBJECT | SceneFlags.DRAW_INSTANCING | SceneFlags.GEOMETRY);
+    specalurPass
+        .addQueue(QueueHint.RENDER_TRANSPARENT, 'forward-add')
+        .addSceneOfCamera(camera, new LightInfo(),
+            SceneFlags.TRANSPARENT_OBJECT | SceneFlags.DEFAULT_LIGHTING | SceneFlags.PLANAR_SHADOW
+            | SceneFlags.CUTOUT_OBJECT | SceneFlags.DRAW_INSTANCING | SceneFlags.GEOMETRY);
+    return { rtName: inputRT, dsName: inputDS };
 }
 
 export function buildShadowPass (passName: Readonly<string>,
