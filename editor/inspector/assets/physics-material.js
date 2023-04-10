@@ -51,6 +51,10 @@ exports.methods = {
         await Editor.Message.request('scene', 'apply-physics-material', this.asset.uuid, this.queryData);
     },
 
+    abort() {
+        this.reset();
+    },
+
     reset() {
         /**
          * reset 环节只需把 uuid 清空

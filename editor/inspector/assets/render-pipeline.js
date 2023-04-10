@@ -54,6 +54,10 @@ exports.methods = {
         await Editor.Message.request('scene', 'apply-render-pipeline', this.asset.uuid, this.pipeline);
     },
 
+    abort() {
+        this.reset();
+    },
+
     reset() {
         /**
          * reset 环节只需把 uuid 清空
