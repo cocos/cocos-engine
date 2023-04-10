@@ -41,8 +41,8 @@ void main()  {
 
       
   // Fog factor
+  float fogFactor = 1.0;
   #if !CC_FORWARD_ADD
-    float fogFactor = 1.0;
     #if CC_USE_FOG != CC_FOG_NONE
       #if !CC_USE_ACCURATE_FOG
         fogFactor = FSInput_fogFactor;
@@ -71,7 +71,10 @@ void main()  {
 
     #if !CC_FORWARD_ADD
       CCSurfacesDebugViewMeshData(debugColor);
-      CCSurfacesDebugViewSurfaceData(debugColor, surfaceData);
+      if (CCSurfacesDebugViewSurfaceData(debugColor, surfaceData))
+      {
+        debugColor.a = materialTransparency;
+      }
       if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_FOG))
       {
         debugColor.rgb = vec3(1.0 - fogFactor);
@@ -81,7 +84,7 @@ void main()  {
     // only base pass or direct lighting is enabled in add pass
     #if CC_FORWARD_ADD
       if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_DIRECT_DIFFUSE) || IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_DIRECT_SPECULAR) || IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_DIRECT_ALL) ||
-          IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_TRANSMIT_DIRECT_DIFFUSE) || IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_TRANSMIT_DIRECT_SPECULAR) || IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_TRT_DIRECT))
+          IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_TRANSMIT_DIRECT_DIFFUSE) || IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_TRANSMIT_DIRECT_SPECULAR) || IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_DIRECT_2ND_SPECULAR))
     #endif
       {
           if (CCSurfacesDebugViewLightingResult(debugColor, lightingResult))
@@ -90,12 +93,14 @@ void main()  {
             debugColor.a = materialTransparency;
 
             // lighting needs color space conversion          
-            #if CC_USE_HDR
-              if (IS_DEBUG_VIEW_COMPOSITE_ENABLE_TONE_MAPPING)
-                  debugColor.rgb = ACESToneMap(debugColor.rgb);
+            #if !CC_USE_FLOAT_OUTPUT
+              #if CC_USE_HDR
+                if (IS_DEBUG_VIEW_COMPOSITE_ENABLE_TONE_MAPPING)
+                    debugColor.rgb = ACESToneMap(debugColor.rgb);
+              #endif
+              if (IS_DEBUG_VIEW_COMPOSITE_ENABLE_GAMMA_CORRECTION)
+                  debugColor.rgb = LinearToSRGB(debugColor.rgb);
             #endif
-            if (IS_DEBUG_VIEW_COMPOSITE_ENABLE_GAMMA_CORRECTION)
-                debugColor.rgb = LinearToSRGB(debugColor.rgb);
           }
       }
     if (IS_DEBUG_VIEW_ENABLE_WITH_CAMERA) {
@@ -129,20 +134,28 @@ void main()  {
     return;
   #endif
 
-  #if CC_USE_HDR
-    #if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC && CC_SURFACES_ENABLE_DEBUG_VIEW
-      if (IS_DEBUG_VIEW_COMPOSITE_ENABLE_TONE_MAPPING)
+  #if !CC_USE_FLOAT_OUTPUT
+    #if CC_USE_HDR
+      #if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC && CC_SURFACES_ENABLE_DEBUG_VIEW
+        if (IS_DEBUG_VIEW_COMPOSITE_ENABLE_TONE_MAPPING)
+      #endif
+        color.rgb = ACESToneMap(color.rgb);
     #endif
-      color.rgb = ACESToneMap(color.rgb);
+    #if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC
+      if (IS_DEBUG_VIEW_COMPOSITE_ENABLE_GAMMA_CORRECTION)
+    #endif
+    color.rgb = LinearToSRGB(color.rgb);
+
+    // 8888 can not add lighting with fog
+    #if !CC_FORWARD_ADD && CC_USE_FOG != CC_FOG_NONE
+      CC_APPLY_FOG_BASE(color, fogFactor);
+    #endif
+  #else
+    #if CC_USE_FOG != CC_FOG_NONE
+      CC_APPLY_FOG_BASE(color, fogFactor);
+    #endif
   #endif
-  #if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC
-    if (IS_DEBUG_VIEW_COMPOSITE_ENABLE_GAMMA_CORRECTION)
-  #endif
-  color.rgb = LinearToSRGB(color.rgb);
-  
-  #if !CC_FORWARD_ADD && CC_USE_FOG != CC_FOG_NONE
-    CC_APPLY_FOG_BASE(color, fogFactor);
-  #endif
+
 
   fragColorX = CCSurfacesDebugDisplayInvalidNumber(color);
 }

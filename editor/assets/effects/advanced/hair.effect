@@ -34,9 +34,9 @@ CCEffect %{
         ScatterCoefTT:                    { value: 0.0, target: ttParams.x, editor: { displayName: TT Scatter Coef, slide: true, range: [0, 1.0], step: 0.01, tooltip: 'The saturation of internal transmit lighting color' } }
         IntensityTT:                      { value: 1.0, target: ttParams.w, editor: { displayName: TT Intensity, slide: true, range: [0, 1.0], step: 0.01 } }
         baseColorTT:                      { value: [0.5, 0.33, 0.18, 1.0], target: ttColor, linear: true, editor: { displayName: TT Albedo, type: color, tooltip: 'The color of internal transmit lighting, allow the light color to vary between backlit and light-facing areas' } }
-        thickness:                        { value: 1.0, target: ttParams.y, editor: { displayName: Scatter Thickness, slide: true, range: [0, 1.0], step: 0.001, tooltip: 'The extend range of internal reflection lighting around the direct specular' } }
-        extinction:                       { value: 0.0, target: ttParams.z, editor: { displayName: Scatter Extinction, slide: true, range: [0, 10.0], step: 0.001, tooltip: 'The position offset of internal reflection lighting compared to direct specular' } }
-        depthMap:                         { value: white }
+        thickness:                        { value: 1.0, target: ttParams.y, editor: { parent: USE_BACK_LIT, displayName: Scatter Thickness, slide: true, range: [0, 1.0], step: 0.001, tooltip: 'The extend range of internal reflection lighting around the direct specular' } }
+        extinction:                       { value: 0.0, target: ttParams.z, editor: { parent: USE_BACK_LIT, displayName: Scatter Extinction, slide: true, range: [0, 10.0], step: 0.001, tooltip: 'The position offset of internal reflection lighting compared to direct specular' } }
+        depthMap:                         { value: white, editor: { parent: USE_BACK_LIT } }
         selfShadowMap:                    { value: white, editor: { parent: USE_SELF_SHADOW_MAP } }
       rasterizerState:
         cullMode: None
@@ -197,15 +197,16 @@ CCProgram macro-remapping %{
   #pragma define IS_ANISOTROPY 1
   #pragma define-meta USE_VERTEX_COLOR
   #pragma define-meta USE_DITHERED_ALPHA_TEST
+  #pragma define-meta USE_BACK_LIT
 
   #define CC_SURFACES_USE_SECOND_UV HAS_SECOND_UV
   #define CC_SURFACES_USE_TWO_SIDED USE_TWOSIDE
   #define CC_SURFACES_LIGHTING_ANISOTROPIC IS_ANISOTROPY
   #define CC_SURFACES_USE_VERTEX_COLOR USE_VERTEX_COLOR
   
+  #define CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE USE_BACK_LIT
   #define CC_SURFACES_LIGHTING_TRT 1
   #define CC_SURFACES_LIGHTING_TT 1
-  #define CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE 1
   #define CC_SURFACES_TRANSFER_CLIP_POS 1
 
   // depend on UI macros
@@ -284,7 +285,7 @@ CCProgram surface-fragment %{
       return ttParams;
   }
   #define CC_SURFACES_FRAGMENT_MODIFY_TT_COLOR
-  vec3 SurfacesFragmentModifyTTColor(in vec3 baseColor, in vec3 trtColor)
+  vec3 SurfacesFragmentModifyTTColor(in vec3 baseColor)
   {
       return mix(baseColor.rgb, ttColor.rgb, ttColor.a); //ttColor can be (0.992, 0.808, 0.516)
   }
