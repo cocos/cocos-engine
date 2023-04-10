@@ -63,4 +63,4 @@ private:
     std::ostream &_stream;
 };
 
-}
+} // namespace cc

@@ -1146,6 +1146,8 @@ cocos_source_files(
                  cocos/renderer/gfx-base/GFXTexture.cpp
                  cocos/renderer/gfx-base/GFXTexture.h
                  cocos/renderer/gfx-base/GFXDeviceObject.h
+                 cocos/renderer/gfx-base/GFXUtil.cpp
+                 cocos/renderer/gfx-base/GFXUtil.h
                  cocos/renderer/gfx-base/states/GFXGeneralBarrier.cpp
                  cocos/renderer/gfx-base/states/GFXGeneralBarrier.h
                  cocos/renderer/gfx-base/states/GFXSampler.cpp

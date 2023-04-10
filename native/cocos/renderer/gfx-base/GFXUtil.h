@@ -24,30 +24,11 @@
 
 #pragma once
 
-#include "base/std/container/vector.h"
-#include "base/std/container/unordered_map.h"
 #include "base/std/container/string.h"
-#include "base/Ptr.h"
-#include "base/RefCounted.h"
-#include "VKGPUObjects.h"
 
 namespace cc::gfx {
 
-class CCVKPipelineCache : public RefCounted {
-public:
-    CCVKPipelineCache() = default;
-    ~CCVKPipelineCache() override;
-
-    void init(VkDevice dev);
-    void loadCache();
-    void saveCache();
-
-    VkPipelineCache getHandle();
-
-private:
-    VkDevice _device = VK_NULL_HANDLE;
-    VkPipelineCache _pipelineCache = VK_NULL_HANDLE;
-    bool _dirty = false;
-};
+// FileUtils `enum class Status conflicts` with `#define Status int` in Xlib.h
+ccstd::string getPipelineCacheFolder();
 
 } // namespace cc::gfx

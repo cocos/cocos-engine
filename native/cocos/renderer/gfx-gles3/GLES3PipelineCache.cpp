@@ -1,7 +1,5 @@
 /****************************************************************************
- Copyright (c) 2010-2012 cocos2d-x.org
- Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -26,13 +24,13 @@
 
 #include "GLES3PipelineCache.h"
 #include "GLES3GPUObjects.h"
-#include "platform/FileUtils.h"
+#include "gfx-base/GFXUtil.h"
 #include "base/BinaryArchive.h"
 #include <fstream>
 
 namespace cc::gfx {
 
-static const char* FILE_NAME = "/pipeline_cache_gles3.bin";
+static const char* fileName = "/pipeline_cache_gles3.bin";
 
 static const uint32_t MAGIC   = 0x4343474C; // "CCGL"
 static const uint32_t VERSION = 1;
@@ -42,7 +40,7 @@ GLES3PipelineCache::~GLES3PipelineCache() {
 }
 
 void GLES3PipelineCache::loadCache() {
-    auto path = FileUtils::getInstance()->getWritablePath() + FILE_NAME;
+    auto path = getPipelineCacheFolder() + fileName;
     std::ifstream stream(path, std::ios::binary);
     if (!stream.is_open()) {
         CC_LOG_INFO("Load program cache, no cached files.");
@@ -91,7 +89,7 @@ void GLES3PipelineCache::saveCache() {
     if (!_dirty) {
         return;
     }
-    auto path = FileUtils::getInstance()->getWritablePath() + FILE_NAME;
+    auto path = getPipelineCacheFolder() + fileName;
     std::ofstream stream(path, std::ios::binary);
     if (!stream.is_open()) {
         CC_LOG_INFO("Save program cache failed.");
