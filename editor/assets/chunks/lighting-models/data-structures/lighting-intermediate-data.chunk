@@ -34,9 +34,6 @@ struct LightingIntermediateData
   vec3 baseColorTT;
   float ttIntensity, ttScatterCoef;
 #endif
-  // #if CC_SURFACES_LIGHTING_CLEAR_COAT
-  // float roughnessClearCoat; // for clear coat or multi-layer pbr
-  // #endif
 };
 
 // add overrided functions for difference shading-models in <surfaces/module-functions/>
