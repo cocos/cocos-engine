@@ -18,18 +18,28 @@ vec2 Rotator(vec2 uv, vec2 centerUV, float time, float speed)
   return vec2(dir.x, dir.z) + centerUV;
 }
 
+// tangent space -> world space
+// same as TransformVector
+vec3 TransformNormalMap(vec3 vectorFromNormalMap)
+{
+  vec3 vectorTS = normalize(vectorFromNormalMap - vec3(0.5));
+  vec3 binormal = CalculateBinormal(FSInput_worldNormal, FSInput_worldTangent, FSInput_mirrorNormal);
+  vec3 vecWS = vectorTS.x * FSInput_worldTangent + vectorTS.y * binormal + vectorTS.z * FSInput_worldNormal;
+  return vecWS * vec3(1.0, 1.0, -1.0); // inverse Z for RH
+}
+
 
 // return 0.0 when out of range
 // hardness: 0 - 1
 float SphereMask(vec2 center, vec2 point, float radius, float hardness)
 {
   float length = length(center - point);
-  float coef = pow(saturate(length / radius), saturate(1.0 - hardness));
-  return length > radius ? 0.0 : coef;
+  float coef = pow(saturate(length / radius), 1.0 / (1.0 - saturate(sqrt(hardness)) + EPSILON));
+  return length > radius ? 0.0 : 1.0 - coef;
 }
 float SphereMask(vec3 center, vec3 point, float radius, float hardness)
 {
   float length = length(center - point);
-  float coef = pow(saturate(length / radius), saturate(1.0 - hardness));
-  return length > radius ? 0.0 : coef;
+  float coef = pow(saturate(length / radius), 1.0 / (1.0 - saturate(sqrt(hardness)) + EPSILON));
+  return length > radius ? 0.0 : 1.0 - coef;
 }
