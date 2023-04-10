@@ -12,7 +12,6 @@
     float sssIntensity = surfaceData.sssParams.x;
     float sssCurvature = surfaceData.sssParams.y;
     float sssColoration = surfaceData.sssParams.z;
-    float cavity = surfaceData.sssParams.w;
 
     // update lighting data for diffuse calculations
     LightingIntermediateData lightingData3S = lightingData;
@@ -33,10 +32,6 @@
 
     #if !CC_FORWARD_ADD
       result.environmentDiffuse = CalculateEnvironmentDiffuse(lightingData3S, cc_ambientSky.w);
-      result.environmentSpecular *= cavity;
-      #if CC_SURFACES_LIGHTING_2ND_LAYER_SPECULAR
-        result.environment2ndSpecular *= cavity;
-      #endif
     #endif
   #endif
   }

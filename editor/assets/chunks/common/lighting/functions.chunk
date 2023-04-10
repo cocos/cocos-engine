@@ -8,11 +8,11 @@ vec3 CalculateRefractDirection(vec3 N, vec3 V, float NoV, float ior)
   float sideSign = NoV < 0.0 ? -1.0 : 1.0;
   N *= sideSign;
   
-	// A: NV  B:NR
-	float cosA = abs(NoV);
-	float sinA = sqrt(1.0 - cosA * cosA);
+  // A: NV  B:NR
+  float cosA = abs(NoV);
+  float sinA = sqrt(1.0 - cosA * cosA);
   float sinB = saturate(sinA / ior);
-	float cosB = sqrt(1.0 - sinB * sinB);
+  float cosB = sqrt(1.0 - sinB * sinB);
 
   vec3 edgeA = -V + N * cosA;
   vec3 edgeB = normalize(edgeA) * sinB;

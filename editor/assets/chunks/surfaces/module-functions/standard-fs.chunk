@@ -254,7 +254,7 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
 {
   vec4 color = vec4(0.0, 0.0, 0.0, surfaceData.baseColor.a);
 
-  // todo: local lighting also use EnvLightingSpecularColor for estimated GF terms, calculate accurate GF instead in the future
+  // todo: local lighting also use EnvLightingSpecularColor for estimated GF terms, calculate accurate GF instead in the future, CCSurfacesDebugViewLightingResult also needs modified
 #if CC_FORWARD_ADD
   // shadow and fresnel has already been applied with common flow
   color.xyz += lightingResult.directDiffuse * lightingResult.diffuseColorWithLighting
