@@ -149,6 +149,28 @@ void GLES2PrimaryCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffe
     }
 }
 
+void GLES2PrimaryCommandBuffer::copyTexture(Texture *srcTexture, Texture *dstTexture, const TextureCopy *regions, uint32_t count) {
+    GLES2GPUTexture *gpuTextureSrc = nullptr;
+    GLES2GPUTexture *gpuTextureDst = nullptr;
+    if (srcTexture) gpuTextureSrc = static_cast<GLES2Texture *>(srcTexture)->gpuTexture();
+    if (dstTexture) gpuTextureDst = static_cast<GLES2Texture *>(dstTexture)->gpuTexture();
+    ccstd::vector<TextureBlit> blitRegions(count);
+    for (uint32_t i = 0; i < count; ++i) {
+        auto &blit = blitRegions[i];
+        const auto &copy = regions[i];
+
+        blit.srcSubres = copy.srcSubres;
+        blit.dstSubres = copy.dstSubres;
+
+        blit.srcOffset = copy.srcOffset;
+        blit.dstOffset = copy.dstOffset;
+
+        blit.srcExtent = copy.extent;
+        blit.dstExtent = copy.extent;
+    }
+    cmdFuncGLES2BlitTexture(GLES2Device::getInstance(), gpuTextureSrc, gpuTextureDst, blitRegions.data(), count, Filter::POINT);
+}
+
 void GLES2PrimaryCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter) {
     GLES2GPUTexture *gpuTextureSrc = nullptr;
     GLES2GPUTexture *gpuTextureDst = nullptr;

@@ -70,7 +70,7 @@ void CCMTLCommandBuffer::doInit(const CommandBufferInfo &info) {
 
 void CCMTLCommandBuffer::doDestroy() {
     CC_SAFE_DELETE(_texCopySemaphore);
-    
+
     if(_inFlightSem) {
         _inFlightSem->syncAll();
         CC_SAFE_DELETE(_inFlightSem);
@@ -757,7 +757,7 @@ void CCMTLCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
         auto bytesPerRowForTarget = formatSize(convertedFormat, targetWidth, 1, 1);
         auto bytesPerImageForTarget = formatSize(convertedFormat, static_cast<uint32_t>(targetSize.width), static_cast<uint32_t>(targetSize.height), static_cast<uint32_t>(targetSize.depth));
         auto alignment = formatSize(convertedFormat, 1, 1, 1);
-        
+
         if(textureType == TextureType::TEX1D || textureType == TextureType::TEX1D_ARRAY || mtlTexture->isPVRTC()) {
             bytesPerRowForTarget = 0;
         }
@@ -771,7 +771,7 @@ void CCMTLCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
         auto bufferBytesPerImage = region.texExtent.depth * bufferBytesPerRow;
 
         auto macroPixelHeight = targetHeight / blockSize.second;
-        
+
         auto copyFunc = [&](const uint8_t * const buffer, const MTLRegion& mtlRegion, uint32_t size, uint32_t slice, uint8_t depth) {
             if(dstTexture.storageMode != MTLStorageModePrivate || mtlTexture->isPVRTC()) {
                 ccstd::vector<uint8_t> data(size);
@@ -788,9 +788,9 @@ void CCMTLCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
                 stagingBuffer.instanceSize = bufferSliceSize;
                 _mtlDevice->gpuStagingBufferPool()->alloc(&stagingBuffer, alignment);
                 memcpy(stagingBuffer.mappedData, buffer, bufferSliceSize);
-                
+
                 CC_ASSERT(stagingBuffer.startOffset % alignment == 0);
-                
+
                 [encoder copyFromBuffer:stagingBuffer.mtlBuffer sourceOffset:stagingBuffer.startOffset sourceBytesPerRow:bytesPerRowForTarget sourceBytesPerImage:bytesPerImageForTarget sourceSize:mtlRegion.size toTexture:dstTexture destinationSlice:slice destinationLevel:region.texSubres.mipLevel destinationOrigin:mtlRegion.origin];
             }
         };
@@ -807,7 +807,7 @@ void CCMTLCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
                         {targetOffset.x, targetOffset.y, d},
                         {targetWidth, targetHeight, 1}
                     };
-                    
+
                     copyFunc(convertedData, mtlRegion, bufferSliceSize, l, d);
 
                     if (format == Format::RGB8 || format == Format::RGB32F) {
@@ -823,7 +823,7 @@ void CCMTLCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
                             {targetOffset.x, targetOffset.y + h, d},
                             {targetWidth, blockSize.second, 1}
                         };
-                        
+
                         copyFunc(convertedData, mtlRegion, bytesPerRowForTarget, l, d);
 
                         if (format == Format::RGB8 || format == Format::RGB32F) {
@@ -921,6 +921,24 @@ void CCMTLCommandBuffer::bindDescriptorSets() {
             _computeEncoder.setTexture(gpuDescriptor.texture->getMTLTexture(), sampler.textureBinding);
         }
     }
+}
+
+void CCMTLCommandBuffer::copyTexture(Texture *srcTexture, Texture *dstTexture, const TextureCopy *regions, uint32_t count) {
+    ccstd::vector<TextureBlit> blitRegions(count);
+    for (uint32_t i = 0; i < count; ++i) {
+        auto &blit = blitRegions[i];
+        auto &copy = regions[i];
+
+        blit.srcSubres = copy.srcSubres;
+        blit.dstSubres = copy.dstSubres;
+
+        blit.srcOffset = copy.srcOffset;
+        blit.dstOffset = copy.dstOffset;
+
+        blit.srcExtent = copy.extent;
+        blit.dstExtent = copy.extent;
+    }
+    blitTexture(srcTexture, dstTexture, blitRegions.data(), count, Filter::POINT);
 }
 
 void CCMTLCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter) {
@@ -1147,7 +1165,7 @@ void CCMTLCommandBuffer::signalFence() {
 void CCMTLCommandBuffer::waitFence() {
     _inFlightSem->wait();
     _inFlightSem->signal();
-    
+
 }
 
 } // namespace gfx

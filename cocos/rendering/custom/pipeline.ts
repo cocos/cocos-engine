@@ -76,6 +76,7 @@ export interface Setter extends RenderNode {
     setVec4 (name: string, vec: Vec4): void;
     setVec2 (name: string, vec: Vec2): void;
     setFloat (name: string, v: number): void;
+    setArrayBuffer (name: string, arrayBuffer: ArrayBuffer): void;
     setBuffer (name: string, buffer: Buffer): void;
     setTexture (name: string, texture: Texture): void;
     setReadWriteBuffer (name: string, buffer: Buffer): void;
