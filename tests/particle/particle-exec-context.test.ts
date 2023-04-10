@@ -61,6 +61,25 @@ describe('particle-exec-context', () => {
             testEmitterTime(context, [9.2, 8.8, DelayMode.EVERY_LOOP, 1, LoopMode.INFINITE, 1, 7], [0, 0.2, 0.2 / 7, 0, 0.2, 1]);
             testEmitterTime(context, [16.2, 15.8, DelayMode.EVERY_LOOP, 1, LoopMode.INFINITE, 1, 7], [6.8, 0, 0, 6.8 / 7, 0.2, 2]);
         });
+
+        test('Every Loop, Once loop', () => {
+            testEmitterTime(context, [0.25, 0, DelayMode.EVERY_LOOP, 1, LoopMode.ONCE, 1, 7], [0, 0, 0, 0, 0, 0]);
+            testEmitterTime(context, [1.25, 0.8, DelayMode.EVERY_LOOP, 1, LoopMode.ONCE, 1, 7], [0, 0.25, 0.25 / 7, 0, 0.25, 0]);
+            testEmitterTime(context, [5, 4.8, DelayMode.EVERY_LOOP, 1, LoopMode.ONCE, 1, 7], [3.8, 4, 4 / 7, 3.8 / 7, 0.2, 0]);
+            testEmitterTime(context, [8.25, 7.8, DelayMode.EVERY_LOOP, 1, LoopMode.ONCE, 1, 7], [6.8, 7, 1, 6.8 / 7, 0.2, 1]);
+            testEmitterTime(context, [8.8, 8.6, DelayMode.EVERY_LOOP, 1, LoopMode.ONCE, 1, 7], [7, 7, 1, 1, 0, 1]);
+        });
+
+        test('Every Loop, Multiple loop', () => {
+            testEmitterTime(context, [0.25, 0, DelayMode.EVERY_LOOP, 1, LoopMode.MULTIPLE, 2, 7], [0, 0, 0, 0, 0, 0]);
+            testEmitterTime(context, [1.25, 0.8, DelayMode.EVERY_LOOP, 1, LoopMode.MULTIPLE, 2, 7], [0, 0.25, 0.25 / 7, 0, 0.25, 0]);
+            testEmitterTime(context, [5, 4.8, DelayMode.EVERY_LOOP, 1, LoopMode.MULTIPLE, 2, 7], [3.8, 4, 4 / 7, 3.8 / 7, 0.2, 0]);
+            testEmitterTime(context, [8.25, 7.8, DelayMode.EVERY_LOOP, 1, LoopMode.MULTIPLE, 2, 7], [6.8, 0, 0, 6.8 / 7, 0.2, 1]);
+            testEmitterTime(context, [8.8, 8.6, DelayMode.EVERY_LOOP, 1, LoopMode.MULTIPLE, 2, 7], [0, 0, 0, 0, 0, 1]);
+            testEmitterTime(context, [9.2, 8.8, DelayMode.EVERY_LOOP, 1, LoopMode.MULTIPLE, 2, 7], [0, 0.2, 0.2 / 7, 0, 0.2, 1]);
+            testEmitterTime(context, [12.2, 12, DelayMode.EVERY_LOOP, 1, LoopMode.MULTIPLE, 2, 7], [3, 3.2, 3.2 / 7, 3 / 7, 0.2, 1]);
+            testEmitterTime(context, [16.2, 15.8, DelayMode.EVERY_LOOP, 1, LoopMode.MULTIPLE, 2, 7], [6.8, 7, 1, 6.8 / 7, 0.2, 2]);
+        });
     });
 });
 

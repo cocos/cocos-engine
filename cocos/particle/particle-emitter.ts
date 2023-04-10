@@ -89,7 +89,7 @@ export class ParticleEmitter extends Component {
     }
 
     public set loopCount (val) {
-        this._params.loopCount = Math.max(val, 1);
+        this._params.loopCount = Math.floor(Math.max(val, 1));
     }
 
     @visible(true)
@@ -532,7 +532,7 @@ export class ParticleEmitter extends Component {
         }
 
         if (state.isEmitting) {
-            state.spawnFraction = this.emit(state.spawnFraction, params.simulationSpace === Space.WORLD
+            state.spawnFraction = this.spawn(state.spawnFraction, params.simulationSpace === Space.WORLD
                 ? context.localToWorld : Mat4.IDENTITY, Color.WHITE, Vec3.ONE, Vec3.ZERO);
         }
 
@@ -615,7 +615,7 @@ export class ParticleEmitter extends Component {
                         spawnFraction = spawnFractionCollection.fraction[i];
                     }
                     eventReceiver.execute(particles, params, context);
-                    spawnFraction = this.emit(spawnFraction, tempEmitterTransform, eventInfo.color, eventInfo.size, eventInfo.rotation);
+                    spawnFraction = this.spawn(spawnFraction, tempEmitterTransform, eventInfo.color, eventInfo.size, eventInfo.rotation);
                     if (eventReceiver.eventType === ParticleEventType.LOCATION) {
                         spawnFractionCollection.fraction[i] = spawnFraction;
                     }
@@ -651,7 +651,7 @@ export class ParticleEmitter extends Component {
         }
     }
 
-    private emit (spawnFraction: number, initialTransform: Mat4, initialColor: Color,
+    private spawn (spawnFraction: number, initialTransform: Mat4, initialColor: Color,
         initialSize: Vec3, initialRotation: Vec3): number {
         const { _particles: particles, _params: params, _context: context } = this;
         const interval = 1 / context.spawnContinuousCount;
@@ -660,12 +660,12 @@ export class ParticleEmitter extends Component {
         const fromIndex = particles.count;
         if (numOverTime > 0) {
             spawnFraction -= numOverTime;
-            this.spawnParticles(particles, params, context, numOverTime);
+            this.addParticles(particles, params, context, numOverTime);
         }
         const numContinuous = particles.count - fromIndex;
         const burstCount = Math.floor(context.burstCount);
         if (burstCount > 0) {
-            this.spawnParticles(particles, params, context, burstCount);
+            this.addParticles(particles, params, context, burstCount);
         }
         const toIndex = particles.count;
         const { emitterDeltaTime, emitterVelocityInEmittingSpace: initialVelocity, emitterNormalizedTime, emitterNormalizedPrevTime } = context;
@@ -778,9 +778,10 @@ export class ParticleEmitter extends Component {
         return spawnFraction;
     }
 
-    private spawnParticles (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext, numToEmit: number) {
-        if (numToEmit + particles.count > params.capacity) {
-            numToEmit = params.capacity - particles.count;
+    private addParticles (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext, numToEmit: number) {
+        const capacity = params.capacityMode === CapacityMode.AUTO ? Number.MAX_SAFE_INTEGER : params.capacity;
+        if (numToEmit + particles.count > capacity) {
+            numToEmit = capacity - particles.count;
         }
 
         if (numToEmit > 0) {
