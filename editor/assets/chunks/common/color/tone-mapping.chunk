@@ -1,4 +1,7 @@
+// Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
+
 #include <common/color/aces>
+
 vec3 HDRToLDR(vec3 color)
 {
   #if CC_USE_HDR
