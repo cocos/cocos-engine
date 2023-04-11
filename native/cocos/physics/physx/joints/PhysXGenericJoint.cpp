@@ -25,8 +25,8 @@
 #include "physics/physx/joints/PhysXGenericJoint.h"
 #include <physics/sdk/Joint.h>
 #include "math/Mat4.h"
-#include "math/Utils.h"
 #include "math/Quaternion.h"
+#include "math/Utils.h"
 #include "math/Vec3.h"
 #include "physics/physx/PhysXSharedBody.h"
 #include "physics/physx/PhysXUtils.h"
@@ -202,17 +202,17 @@ void PhysXGenericJoint::setDriverMode(uint32_t index, uint32_t mode) {
 
 void PhysXGenericJoint::setLinearMotorTarget(float x, float y, float z) {
     auto& p = _linearMotor.target;
-    p.x = - x;
-    p.y = - y;
-    p.z = - z;
+    p.x = -x;
+    p.y = -y;
+    p.z = -z;
     this->updateDrivePosition();
 }
 
 void PhysXGenericJoint::setLinearMotorVelocity(float x, float y, float z) {
     auto& v = _linearMotor.velocity;
-    v.x = - x;
-    v.y = - y;
-    v.z = - z;
+    v.x = -x;
+    v.y = -y;
+    v.z = -z;
     this->updateDriveVelocity();
 }
 
@@ -225,17 +225,17 @@ void PhysXGenericJoint::setLinearMotorForceLimit(float limit) {
 
 void PhysXGenericJoint::setAngularMotorTarget(float x, float y, float z) {
     auto& p = _angularMotor.target;
-    p.x = - x;
-    p.y = - y;
-    p.z = - z;
+    p.x = -x;
+    p.y = -y;
+    p.z = -z;
     this->updateDrivePosition();
 }
 
 void PhysXGenericJoint::setAngularMotorVelocity(float x, float y, float z) {
     auto& v = _angularMotor.velocity;
-    v.x = - mathutils::toRadian(x);
-    v.y = - mathutils::toRadian(y);
-    v.z = - mathutils::toRadian(z);
+    v.x = -mathutils::toRadian(x);
+    v.y = -mathutils::toRadian(y);
+    v.z = -mathutils::toRadian(z);
     this->updateDriveVelocity();
 }
 
@@ -296,9 +296,9 @@ void PhysXGenericJoint::updateLinearLimit() {
     physx::PxD6Joint* joint{static_cast<physx::PxD6Joint*>(_mJoint)};
     const auto lower = _linearLimit.lower;
     const auto upper = _linearLimit.upper;
-    auto& limitx = joint->getLinearLimit(physx::PxD6Axis::Enum::eX);
-    auto& limity = joint->getLinearLimit(physx::PxD6Axis::Enum::eY);
-    auto& limitz = joint->getLinearLimit(physx::PxD6Axis::Enum::eZ);
+    auto limitx = joint->getLinearLimit(physx::PxD6Axis::Enum::eX);
+    auto limity = joint->getLinearLimit(physx::PxD6Axis::Enum::eY);
+    auto limitz = joint->getLinearLimit(physx::PxD6Axis::Enum::eZ);
     if (_linearLimit.soft) {
         limitx.stiffness = _linearLimit.stiffness;
         limitx.damping = _linearLimit.damping;
@@ -335,7 +335,7 @@ void PhysXGenericJoint::updateSwingLimit() {
     }
 
     physx::PxD6Joint* joint{static_cast<physx::PxD6Joint*>(_mJoint)};
-    auto& coneLimit = joint->getSwingLimit();
+    auto coneLimit = joint->getSwingLimit();
     if (_angularLimit.swingSoft) {
         coneLimit.stiffness = _angularLimit.swingStiffness;
         coneLimit.damping = _angularLimit.swingDamping;
@@ -360,7 +360,7 @@ void PhysXGenericJoint::updateTwistLimit() {
         return;
     }
     physx::PxD6Joint* joint{static_cast<physx::PxD6Joint*>(_mJoint)};
-    auto& twistLimit = joint->getTwistLimit();
+    auto twistLimit = joint->getTwistLimit();
     twistLimit.bounceThreshold = 0.1;
     twistLimit.contactDistance = 0.1;
     twistLimit.restitution = _angularLimit.twistRestitution;
@@ -381,7 +381,7 @@ void PhysXGenericJoint::updateTwistLimit() {
 void PhysXGenericJoint::updateDrive(uint32_t axis) {
     assert(axis < 6 && "axis should be in [0, 5]");
     physx::PxD6Joint* joint{static_cast<physx::PxD6Joint*>(_mJoint)};
-    auto& drive = joint->getDrive(static_cast<physx::PxD6Drive::Enum>(axis));
+    auto drive = joint->getDrive(static_cast<physx::PxD6Drive::Enum>(axis));
 
     uint32_t mode = 0;
     switch (axis) {
