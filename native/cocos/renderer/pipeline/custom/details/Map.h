@@ -107,3 +107,18 @@ using PmrUnorderedStringMultiMap = std::unordered_multimap<
     boost::container::pmr::polymorphic_allocator<std::pair<const Key, Value>>>;
 
 } // namespace cc
+
+namespace ccstd {
+
+template <class Key, class T, class Compare, class AllocatorOrContainer>
+struct hash<boost::container::flat_map<Key, T, Compare, AllocatorOrContainer>> {
+    hash_t operator()(const boost::container::flat_map<Key, T, Compare, AllocatorOrContainer> &val) const noexcept {
+        hash_t seed = 0;
+        for (const auto& pair : val) {
+            hash_combine(seed, pair);
+        }
+        return seed;
+    }
+};
+
+} // namespace ccstd
