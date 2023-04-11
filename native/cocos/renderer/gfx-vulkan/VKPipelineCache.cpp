@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -23,19 +23,20 @@
 ****************************************************************************/
 
 #include "VKPipelineCache.h"
-#include "gfx-base/GFXUtil.h"
-#include "base/BinaryArchive.h"
+
 #include <fstream>
 
-namespace cc::gfx {
+#include "base/BinaryArchive.h"
+
+#include "gfx-base/GFXUtil.h"
 
 static const char* fileName = "/pipeline_cache_vk.bin";
 
 static const uint32_t MAGIC   = 0x4343564B; // "CCVK"
 static const uint32_t VERSION = 1;
 
-static void loadData(ccstd::vector<char> &data) {
-    auto path = getPipelineCacheFolder() + fileName;
+namespace {
+void loadData(const ccstd::string &path, ccstd::vector<char> &data) {
     std::ifstream stream(path, std::ios::binary);
     if (!stream.is_open()) {
         CC_LOG_INFO("Load program cache, no cached files.");
@@ -45,7 +46,7 @@ static void loadData(ccstd::vector<char> &data) {
     uint32_t magic = 0;
     uint32_t version = 0;
 
-    BinaryInputArchive archive(stream);
+    cc::BinaryInputArchive archive(stream);
     auto loadResult = archive.load(magic);
     loadResult &= archive.load(version);
 
@@ -58,6 +59,13 @@ static void loadData(ccstd::vector<char> &data) {
     if (loadResult) {
         CC_LOG_INFO("Load pipeline cache success.");
     }
+}
+} // namespace
+
+namespace cc::gfx {
+
+CCVKPipelineCache::CCVKPipelineCache() {
+    _savePath = getPipelineCacheFolder() + fileName;
 }
 
 CCVKPipelineCache::~CCVKPipelineCache() {
@@ -77,7 +85,7 @@ void CCVKPipelineCache::init(VkDevice dev) {
 void CCVKPipelineCache::loadCache() {
     ccstd::vector<char> data;
 #if CC_USE_PIPELINE_CACHE
-    loadData(data);
+    loadData(_savePath, data);
 #endif
 
     VkPipelineCacheCreateInfo cacheInfo = {};
@@ -92,8 +100,7 @@ void CCVKPipelineCache::saveCache() {
     if (!_dirty) {
         return;
     }
-    auto path = getPipelineCacheFolder() + fileName;
-    std::ofstream stream(path, std::ios::binary);
+    std::ofstream stream(_savePath, std::ios::binary);
     if (!stream.is_open()) {
         CC_LOG_INFO("Save program cache failed.");
         return;
@@ -112,8 +119,11 @@ void CCVKPipelineCache::saveCache() {
     _dirty = false;
 }
 
-VkPipelineCache CCVKPipelineCache::getHandle() {
+void CCVKPipelineCache::setDirty() {
     _dirty = true;
+}
+
+VkPipelineCache CCVKPipelineCache::getHandle() const {
     return _pipelineCache;
 }
 

@@ -1029,13 +1029,16 @@ GLuint GLES3GPUSampler::getGLSampler(uint16_t minLod, uint16_t maxLod) {
     return _cache[hash];
 }
 
-bool cmdFuncGLES3CreateProgramByBinary(GLES3Device *device, GLES3GPUShader *gpuShader) {
+bool cmdFuncGLES3CreateProgramByBinary(GLES3Device *device, GLES3GPUShader *gpuShader, GLES3GPUPipelineLayout *pipelineLayout) {
     auto *pipelineCache = device->pipelineCache();
-    if (pipelineCache == nullptr) {
+    if (pipelineCache == nullptr || gpuShader->hash == INVALID_SHADER_HASH) {
         return false;
     }
 
-    auto *item = pipelineCache->fetchBinary(gpuShader);
+    ccstd::hash_t hash = gpuShader->hash;
+    ccstd::hash_combine(hash, pipelineLayout->hash);
+
+    auto *item = pipelineCache->fetchBinary(gpuShader->name, hash);
     if (item != nullptr) {
         GL_CHECK(gpuShader->glProgram = glCreateProgram());
         GL_CHECK(glProgramBinary(gpuShader->glProgram, item->format, item->data.data(), item->data.size()));
@@ -1044,7 +1047,7 @@ bool cmdFuncGLES3CreateProgramByBinary(GLES3Device *device, GLES3GPUShader *gpuS
     return false;
 }
 
-bool cmdFuncGLES3CreateProgramBySource(GLES3Device *device, GLES3GPUShader *gpuShader) {
+bool cmdFuncGLES3CreateProgramBySource(GLES3Device *device, GLES3GPUShader *gpuShader, GLES3GPUPipelineLayout *pipelineLayout) {
     GLenum glShaderStage = 0;
     ccstd::string shaderStageStr;
     GLint status;
@@ -1135,13 +1138,14 @@ bool cmdFuncGLES3CreateProgramBySource(GLES3Device *device, GLES3GPUShader *gpuS
     }
 
     auto *cache = device->pipelineCache();
-    if (cache != nullptr) {
+    if (cache != nullptr && gpuShader->hash != INVALID_SHADER_HASH) {
         GLint binaryLength = 0;
         GL_CHECK(glGetProgramiv(gpuShader->glProgram, GL_PROGRAM_BINARY_LENGTH, &binaryLength));
         GLsizei length = 0;
         IntrusivePtr<GLES3GPUProgramBinary> binary = ccnew GLES3GPUProgramBinary();
         binary->name = gpuShader->name;
         binary->hash = gpuShader->hash;
+        ccstd::hash_combine(binary->hash, pipelineLayout->hash);
         binary->data.resize(binaryLength);
         GL_CHECK(glGetProgramBinary(gpuShader->glProgram, binaryLength, &length, &binary->format, binary->data.data()));
         cache->addBinary(binary);
@@ -1150,10 +1154,10 @@ bool cmdFuncGLES3CreateProgramBySource(GLES3Device *device, GLES3GPUShader *gpuS
 }
 
 // NOLINTNEXTLINE(google-readability-function-size, readability-function-size)
-void cmdFuncGLES3CreateShader(GLES3Device *device, GLES3GPUShader *gpuShader) {
+void cmdFuncGLES3CreateShader(GLES3Device *device, GLES3GPUShader *gpuShader, GLES3GPUPipelineLayout *pipelineLayout) {
 
-    if (!cmdFuncGLES3CreateProgramByBinary(device, gpuShader)) {
-        if (!cmdFuncGLES3CreateProgramBySource(device, gpuShader)) {
+    if (!cmdFuncGLES3CreateProgramByBinary(device, gpuShader, pipelineLayout)) {
+        if (!cmdFuncGLES3CreateProgramBySource(device, gpuShader, pipelineLayout)) {
             return;
         }
     }

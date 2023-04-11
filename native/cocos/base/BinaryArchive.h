@@ -1,7 +1,5 @@
 /****************************************************************************
- Copyright (c) 2010-2012 cocos2d-x.org
- Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -31,29 +29,59 @@
 
 namespace cc {
 
+/**
+ * Binary input stream archive.
+ */
 class BinaryInputArchive {
 public:
     explicit BinaryInputArchive(std::istream &stream) : _stream(stream) {}
     ~BinaryInputArchive() = default;
 
+    /**
+     * Read data from stream.
+     * @param data Pointer to data address to read.
+     * @param size Length of the data.
+     */
     bool load(char *data, uint32_t size);
 
+    /**
+     * Read arithmetic data from stream.
+     * @param val Data to read.
+     */
     template <typename T, typename = std::enable_if<std::is_arithmetic_v<T>>>
     bool load(T &val) {
         return load(reinterpret_cast<char*>(std::addressof(val)), sizeof(T));
     }
 
+    /**
+     * Skip data length
+     * @param length Skip length
+     */
+    void move(uint32_t length);
+
 private:
     std::istream &_stream;
 };
 
+/**
+ * Binary output stream archive.
+ */
 class BinaryOutputArchive {
 public:
     explicit BinaryOutputArchive(std::ostream &stream) : _stream(stream) {}
     ~BinaryOutputArchive() = default;
 
+    /**
+     * Write data to stream.
+     * @param data Pointer to data address to write.
+     * @param size Length of the data.
+     */
     void save(const char* data, uint32_t size);
 
+    /**
+     * Write arithmetic data to stream.
+     * @param val Data to write.
+     */
     template <typename T, typename = std::enable_if<std::is_arithmetic_v<T>>>
     void save(const T &v) {
         save(reinterpret_cast<const char*>(std::addressof(v)), sizeof(T));

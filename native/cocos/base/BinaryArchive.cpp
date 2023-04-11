@@ -1,7 +1,5 @@
 /****************************************************************************
- Copyright (c) 2010-2012 cocos2d-x.org
- Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -32,6 +30,11 @@ namespace cc {
 bool BinaryInputArchive::load(char *data, uint32_t size) {
     CC_ASSERT(!!_stream);
     return _stream.rdbuf()->sgetn(data, size) == size;
+}
+
+void BinaryInputArchive::move(uint32_t length) {
+    CC_ASSERT(!!_stream);
+    _stream.ignore(length);
 }
 
 void BinaryOutputArchive::save(const char *data, uint32_t size) {

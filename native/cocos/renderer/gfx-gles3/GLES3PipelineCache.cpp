@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -23,10 +23,13 @@
 ****************************************************************************/
 
 #include "GLES3PipelineCache.h"
-#include "GLES3GPUObjects.h"
-#include "gfx-base/GFXUtil.h"
-#include "base/BinaryArchive.h"
+
 #include <fstream>
+
+#include "base/BinaryArchive.h"
+
+#include "gfx-base/GFXUtil.h"
+#include "GLES3GPUObjects.h"
 
 namespace cc::gfx {
 
@@ -35,13 +38,16 @@ static const char* fileName = "/pipeline_cache_gles3.bin";
 static const uint32_t MAGIC   = 0x4343474C; // "CCGL"
 static const uint32_t VERSION = 1;
 
+GLES3PipelineCache::GLES3PipelineCache() {
+    _savePath = getPipelineCacheFolder() + fileName;
+}
+
 GLES3PipelineCache::~GLES3PipelineCache() {
     saveCache();
 }
 
 void GLES3PipelineCache::loadCache() {
-    auto path = getPipelineCacheFolder() + fileName;
-    std::ifstream stream(path, std::ios::binary);
+    std::ifstream stream(_savePath, std::ios::binary);
     if (!stream.is_open()) {
         CC_LOG_INFO("Load program cache, no cached files.");
         return;
@@ -54,33 +60,47 @@ void GLES3PipelineCache::loadCache() {
     auto loadResult = archive.load(magic);
     loadResult &= archive.load(version);
 
-    uint32_t cachedItemNum = 0;
-    while (loadResult && magic == MAGIC && version >= VERSION) {
-        ++cachedItemNum;
-        IntrusivePtr<GLES3GPUProgramBinary> binary = ccnew GLES3GPUProgramBinary();
+    if (magic != MAGIC || version < VERSION) {
+        return;
+    }
 
-        // name
-        uint32_t length = 0;
-        loadResult &= archive.load(length);
-        binary->name.resize(length, 0);
-        loadResult &= archive.load(binary->name.data(), length);
+    uint32_t cachedItemNum = 0;
+    GLenum format = GL_NONE;
+    while (archive.load(format)) {
+        ++cachedItemNum;
+
+        // name length
+        uint32_t nameLength = 0;
+        loadResult &= archive.load(nameLength);
+
+        // data length
+        uint32_t dataLength = 0;
+        loadResult &= archive.load(dataLength);
+
+        // skip length if not valid.
+        if (!checkProgramFormat(format)) {
+            archive.move(dataLength + nameLength + sizeof(uint32_t));
+            continue;
+        }
+
+        auto *binary = ccnew GLES3GPUProgramBinary();
+        binary->format = format;
+        binary->name.resize(nameLength, 0);
+        binary->data.resize(dataLength, 0);
 
         // hash
         loadResult &= archive.load(binary->hash);
 
-        // format
-        loadResult &= archive.load(binary->format);
+        // name
+        loadResult &= archive.load(binary->name.data(), nameLength);
 
-        // binary data
-        length = 0;
-        loadResult &= archive.load(length);
-        binary->data.resize(length, 0);
-        loadResult &= archive.load(binary->data.data(), length);
+        // data
+        loadResult &= archive.load(binary->data.data(), dataLength);
 
-        if (checkProgramFormat(binary->format)) {
-            _programCaches.emplace(binary->name, binary);
-        }
+        _programCaches.emplace(binary->name, binary);
     }
+
+    // If the number of cached items does not equal the number of loaded items, it may be necessary to update the cache.
     _dirty = cachedItemNum != _programCaches.size();
     CC_LOG_INFO("Load program cache success. records %u, loaded %u", cachedItemNum, _programCaches.size());
 }
@@ -89,8 +109,7 @@ void GLES3PipelineCache::saveCache() {
     if (!_dirty) {
         return;
     }
-    auto path = getPipelineCacheFolder() + fileName;
-    std::ofstream stream(path, std::ios::binary);
+    std::ofstream stream(_savePath, std::ios::binary);
     if (!stream.is_open()) {
         CC_LOG_INFO("Save program cache failed.");
         return;
@@ -99,14 +118,15 @@ void GLES3PipelineCache::saveCache() {
     archive.save(MAGIC);
     archive.save(VERSION);
 
-    for (auto &[name, binary] : _programCaches) {
-        archive.save(static_cast<uint32_t>(name.size()));
-        archive.save(name.data(), static_cast<uint32_t>(name.size()));
-        archive.save(binary->hash);
+    for (auto &pair : _programCaches) {
+        auto &binary = pair.second;
         archive.save(binary->format);
+        archive.save(static_cast<uint32_t>(binary->name.size()));
         archive.save(static_cast<uint32_t>(binary->data.size()));
+        archive.save(binary->hash);
+        archive.save(binary->name.data(), static_cast<uint32_t>(binary->name.size()));
         archive.save(binary->data.data(), static_cast<uint32_t>(binary->data.size()));
-        CC_LOG_INFO("Save program cache success, name %s.", name.c_str());
+        CC_LOG_INFO("Save program cache success, name %s.", binary->name.c_str());
     }
     _dirty = false;
 }
@@ -126,14 +146,14 @@ void GLES3PipelineCache::addBinary(GLES3GPUProgramBinary *binary) {
     _dirty = true;
 }
 
-GLES3GPUProgramBinary *GLES3PipelineCache::fetchBinary(GLES3GPUShader *shader) {
-    auto iter = _programCaches.find(shader->name);
+GLES3GPUProgramBinary *GLES3PipelineCache::fetchBinary(const ccstd::string &key, ccstd::hash_t hash) {
+    auto iter = _programCaches.find(key);
     if (iter == _programCaches.end()) {
         return nullptr;
     }
 
     // if hash not match, re-generate program binary.
-    if (iter->second->hash != shader->hash) {
+    if (iter->second->hash != hash) {
         _programCaches.erase(iter);
         return nullptr;
     }

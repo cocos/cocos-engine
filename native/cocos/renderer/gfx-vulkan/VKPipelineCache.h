@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -35,18 +35,20 @@ namespace cc::gfx {
 
 class CCVKPipelineCache : public RefCounted {
 public:
-    CCVKPipelineCache() = default;
+    CCVKPipelineCache();
     ~CCVKPipelineCache() override;
 
     void init(VkDevice dev);
     void loadCache();
     void saveCache();
 
-    VkPipelineCache getHandle();
+    void setDirty();
+    VkPipelineCache getHandle() const;
 
 private:
     VkDevice _device = VK_NULL_HANDLE;
     VkPipelineCache _pipelineCache = VK_NULL_HANDLE;
+    ccstd::string _savePath;
     bool _dirty = false;
 };
 

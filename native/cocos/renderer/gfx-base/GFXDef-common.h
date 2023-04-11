@@ -98,6 +98,7 @@ using IndexList = ccstd::vector<uint32_t>;
 constexpr uint32_t MAX_ATTACHMENTS = 4U;
 constexpr uint32_t INVALID_BINDING = ~0U;
 constexpr uint32_t SUBPASS_EXTERNAL = ~0U;
+constexpr ccstd::hash_t INVALID_SHADER_HASH = 0xFFFFFFFFU;
 
 // Although the standard is not limited, some devices do not support up to 65536 queries
 constexpr uint32_t DEFAULT_MAX_QUERY_OBJECTS = 32767;
@@ -1263,6 +1264,7 @@ struct ShaderInfo {
     UniformTextureList textures;
     UniformStorageImageList images;
     UniformInputAttachmentList subpassInputs;
+    ccstd::hash_t hash = INVALID_SHADER_HASH;
 
     EXPOSE_COPY_FN(ShaderInfo)
 };

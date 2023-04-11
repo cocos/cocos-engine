@@ -959,7 +959,10 @@ void cmdFuncCCVKCreateComputePipelineState(CCVKDevice *device, CCVKGPUPipelineSt
 
     ///////////////////// Creation /////////////////////
 
-    VK_CHECK(vkCreateComputePipelines(device->gpuDevice()->vkDevice, device->pipelineCache()->getHandle(),
+    auto *pipelineCache = device->pipelineCache();
+    CC_ASSERT(pipelineCache != nullptr);
+    pipelineCache->setDirty();
+    VK_CHECK(vkCreateComputePipelines(device->gpuDevice()->vkDevice, pipelineCache->getHandle(),
                                       1, &createInfo, nullptr, &gpuPipelineState->vkPipeline));
 }
 
@@ -1174,8 +1177,10 @@ void cmdFuncCCVKCreateGraphicsPipelineState(CCVKDevice *device, CCVKGPUPipelineS
     createInfo.subpass = gpuPipelineState->subpass;
 
     ///////////////////// Creation /////////////////////
-
-    VK_CHECK(vkCreateGraphicsPipelines(device->gpuDevice()->vkDevice, device->pipelineCache()->getHandle(),
+    auto *pipelineCache = device->pipelineCache();
+    CC_ASSERT(pipelineCache != nullptr);
+    pipelineCache->setDirty();
+    VK_CHECK(vkCreateGraphicsPipelines(device->gpuDevice()->vkDevice, pipelineCache->getHandle(),
                                        1, &createInfo, nullptr, &gpuPipelineState->vkPipeline));
 }
 
