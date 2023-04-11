@@ -123,7 +123,6 @@ class ModelBakeSettings extends EventTarget {
     protected _reflectionProbeType = ReflectionProbeType.NONE;
     @serializable
     protected _bakeToReflectionProbe = true;
-    @serializable
     public _probeCubemap: TextureCube | null = null;
     public _probeBlendCubemap: TextureCube | null = null;
     public _probePlanarmap: Texture | null = null;
