@@ -60,4 +60,34 @@ ISystemWindow *SystemWindowManager::getWindow(uint32_t windowId) const {
     return nullptr;
 }
 
+
+ISystemWindow *SystemWindowManager::getWindowFromHandle(void *window) const {
+    if (!window) {
+        return nullptr;
+    }
+    for (const auto &pair : _windows) {
+        ISystemWindow *sysWindow = pair.second.get();
+        auto *nativeWindow = reinterpret_cast<void *>(sysWindow->getWindowHandle());
+        if (nativeWindow == window) {
+            return sysWindow;
+        }
+    }
+    return nullptr;
+}
+
+void SystemWindowManager::removeWindow(void* window) {
+    if (!window) {
+        return;
+    }
+    for (auto it = _windows.begin(); it != _windows.end(); ++it) {
+        ISystemWindow *sysWindow = it->second.get();
+        auto *nativeWindow = reinterpret_cast<void *>(sysWindow->getWindowHandle());
+        if (nativeWindow == window) {
+            _windows.erase(it);
+            break;
+        }
+    }
+    return;
+}
+
 } // namespace cc

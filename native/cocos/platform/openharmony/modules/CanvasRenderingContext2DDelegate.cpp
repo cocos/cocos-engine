@@ -225,12 +225,12 @@ void CanvasRenderingContext2DDelegate::setTextBaseline(TextBaseline baseline) {
 }
 
 void CanvasRenderingContext2DDelegate::setFillStyle(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
-    _fillStyle = {r / 255.0F, g / 255.0F, b / 255.0F, a / 255.0F};
+    _fillStyle = {static_cast<float>(r), static_cast<float>(g), static_cast<float>(b), static_cast<float>(a)};
     OH_Drawing_SetTextStyleColor(_textStyle, OH_Drawing_ColorSetArgb(a, r, g, b));
 }
 
 void CanvasRenderingContext2DDelegate::setStrokeStyle(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
-_strokeStyle = {r / 255.0F, g / 255.0F, b / 255.0F, a / 255.0F};
+    _strokeStyle = {static_cast<float>(r), static_cast<float>(g), static_cast<float>(b), static_cast<float>(a)};
 }
 
 void CanvasRenderingContext2DDelegate::setLineWidth(float lineWidth) {
