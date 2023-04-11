@@ -88,7 +88,7 @@ void Model::initialize() {
     _visFlags = Layers::Enum::NONE;
     _inited = true;
     _bakeToReflectionProbe = true;
-    _reflectionProbeType = static_cast<int32_t>(scene::ReflectionProbe::UseProbeType::BAKED_CUBEMAP);
+    _reflectionProbeType = scene::UseReflectionProbeType::BAKED_CUBEMAP;
 }
 
 void Model::destroy() {
@@ -222,8 +222,8 @@ void Model::updateUBOs(uint32_t stamp) {
                 const Vec4 boxSize = {probe->getBoudingSize().x, probe->getBoudingSize().y, probe->getBoudingSize().z, static_cast<float>(probe->getCubeMap() ? probe->getCubeMap()->mipmapLevel() + mipAndUseRGBE : 1 + mipAndUseRGBE)};
                 _localBuffer->write(boxSize, sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_DATA2));
             }
-            if (_reflectionProbeType == static_cast<int32_t>(scene::ReflectionProbe::UseProbeType::BLEND_PROBES) ||
-                _reflectionProbeType == static_cast<int32_t>(scene::ReflectionProbe::UseProbeType::BLEND_PROBES_AND_SKYBOX)) {
+            if (_reflectionProbeType == scene::UseReflectionProbeType::BLEND_PROBES ||
+                _reflectionProbeType == scene::UseReflectionProbeType::BLEND_PROBES_AND_SKYBOX) {
                 if (blendProbe) {
                     uint16_t mipAndUseRGBE = blendProbe->isRGBE() ? 1000 : 0;
                     const Vec3 worldPos = blendProbe->getNode()->getWorldPosition();
@@ -232,7 +232,7 @@ void Model::updateUBOs(uint32_t stamp) {
                     _localBuffer->write(pos, sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_BLEND_DATA1));
                     const Vec4 boxSize = {boudingBox.x, boudingBox.y, boudingBox.z, static_cast<float>(blendProbe->getCubeMap() ? blendProbe->getCubeMap()->mipmapLevel() + mipAndUseRGBE : 1 + mipAndUseRGBE)};
                     _localBuffer->write(boxSize, sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_BLEND_DATA2));
-                } else if (_reflectionProbeType == static_cast<int32_t>(scene::ReflectionProbe::UseProbeType::BLEND_PROBES_AND_SKYBOX)) {
+                } else if (_reflectionProbeType == scene::UseReflectionProbeType::BLEND_PROBES_AND_SKYBOX) {
                     //blend with skybox
                     const Vec4 pos = { 0.F, 0.F, 0.F, _reflectionProbeBlendWeight };
                     _localBuffer->write(pos, sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_BLEND_DATA1));
@@ -470,7 +470,7 @@ ccstd::vector<IMacroPatch> Model::getMacroPatches(index_t subModelIndex) {
         }
     }
 
-    patches.push_back({CC_USE_REFLECTION_PROBE, _reflectionProbeType});
+    patches.push_back({CC_USE_REFLECTION_PROBE, static_cast<int32_t>(_reflectionProbeType) });
 
     if (_lightmap != nullptr) {
         bool stationary = false;
@@ -704,10 +704,10 @@ void Model::setInstancedAttribute(const ccstd::string &name, const float *value,
         subModel->setInstancedAttribute(name, value, byteLength);
     }
 }
-void Model::setReflectionProbeType(int32_t val) {
+void Model::setReflectionProbeType(UseReflectionProbeType val) {
     _reflectionProbeType = val;
     for (const auto &subModel : _subModels) {
-        subModel->setReflectionProbeType(val);
+        subModel->setReflectionProbeType(static_cast<int32_t>(val));
     }
     onMacroPatchesStateChanged();
 }

@@ -175,8 +175,7 @@ void ReflectionProbe::updatePlanarTexture(const scene::RenderScene* scene) {
     if (!scene) return;
     for (const auto& model : scene->getModels()) {
         // filter model by view visibility
-        auto useProbeType = static_cast<uint32_t>(scene::ReflectionProbe::UseProbeType::PLANAR_REFLECTION);
-        if (model->isEnabled() && model->getReflectionProbeType() == useProbeType) {
+        if (model->isEnabled() && model->getReflectionProbeType() == scene::UseReflectionProbeType::PLANAR_REFLECTION) {
             const auto visibility = _camera->getVisibility();
             const auto* const node = model->getNode();
             if ((model->getNode() && ((visibility & node->getLayer()) == node->getLayer())) ||

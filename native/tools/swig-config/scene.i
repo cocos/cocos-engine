@@ -471,7 +471,7 @@ using namespace cc;
 %attribute(cc::scene::Model, int32_t, tetrahedronIndex, getTetrahedronIndex, setTetrahedronIndex);
 %attribute(cc::scene::Model, bool, useLightProbe, getUseLightProbe, setUseLightProbe);
 %attribute(cc::scene::Model, bool, bakeToReflectionProbe, getBakeToReflectionProbe, setBakeToReflectionProbe);
-%attribute(cc::scene::Model, uint32_t, reflectionProbeType, getReflectionProbeType, setReflectionProbeType);
+%attribute(cc::scene::Model, cc::scene::UseReflectionProbeType, reflectionProbeType, getReflectionProbeType, setReflectionProbeType);
 %attribute(cc::scene::Model, bool, receiveDirLight, isReceiveDirLight, setReceiveDirLight);
 %attribute(cc::scene::Model, int32_t, reflectionProbeId, getReflectionProbeId, setReflectionProbeId);
 %attribute(cc::scene::Model, int32_t, reflectionProbeBlendId, getReflectionProbeBlendId, setReflectionProbeBlendId);

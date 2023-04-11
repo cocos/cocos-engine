@@ -23,8 +23,8 @@
 */
 
 /**
- * @en Reflection probe type
- * @zh 反射探针类型。
+ * @en Use Reflection probe
+ * @zh 使用反射探针。
  */
 export enum ReflectionProbeType {
     /**
