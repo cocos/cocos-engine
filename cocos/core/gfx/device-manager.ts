@@ -114,7 +114,7 @@ export class DeviceManager {
 
         this._renderType = this._determineRenderType(renderMode);
         // console.timeEnd('gfx 1');
-        console.time('gfx 2');
+        console.time('phase gfx 2');
         // WebGL context created successfully
         if (this._renderType === RenderType.WEBGL) {
             const deviceInfo = new DeviceInfo(bindingMappingInfo);
@@ -170,7 +170,7 @@ export class DeviceManager {
         this._swapchain = this._gfxDevice.createSwapchain(swapchainInfo);
 
         if (this._canvas) { this._canvas.oncontextmenu = () => false; }
-        console.timeEnd('gfx 3');
+        console.timeEnd('phase gfx 3');
     }
 
     private _determineRenderType (renderMode: LegacyRenderMode): RenderType {
