@@ -667,6 +667,14 @@ export class MeshRenderer extends ModelRenderer {
         this._updateReceiveDirLight();
     }
 
+    /**
+     * @zh
+     * 更新反射探针烘焙的cubemap。
+     * @en
+     * Updat cubemap baked with reflection probes.
+     * @param cubeMap baked cubemap.
+     * @param useDefaultTexture if the reflection probe has not been baked, is the skybox used instead.
+     */
     public updateProbeCubemap (cubeMap: TextureCube | null, useDefaultTexture?: boolean) {
         if (this.bakeSettings._probeCubemap && this.bakeSettings._probeCubemap === cubeMap) {
             return;
@@ -681,6 +689,14 @@ export class MeshRenderer extends ModelRenderer {
             this.model.updateReflectionProbeCubemap(cubeMap);
         }
     }
+
+    /**
+     * @zh
+     * 更新用于混合的反射探针烘焙的cubemap。
+     * @en
+     * Updat cubemap baked with reflection probes for blending.
+     * @param cubeMap baked cubemap.
+     */
     public updateProbeBlendCubemap (cubeMap: TextureCube | null) {
         if (this.bakeSettings._probeBlendCubemap && this.bakeSettings._probeBlendCubemap === cubeMap) {
             return;
@@ -695,6 +711,14 @@ export class MeshRenderer extends ModelRenderer {
             this.model.updateReflectionProbeBlendCubemap(cubeMap);
         }
     }
+
+    /**
+     * @zh
+     * 更新平面反射渲染纹理。
+     * @en
+     * Update the reflection rendering texture.
+     * @param planarMap render texture.
+     */
     public updateProbePlanarMap (planarMap: Texture | null) {
         if (this.bakeSettings._probePlanarmap === planarMap) {
             return;
@@ -705,6 +729,13 @@ export class MeshRenderer extends ModelRenderer {
         }
     }
 
+    /**
+     * @zh
+     * 更新反射探针的数据贴图。
+     * @en
+     * Update the data mapping of the reflection probe.
+     * @param dataMap data mapping with data saved all reflection probe data.
+     */
     public updateReflectionProbeDataMap (dataMap: Texture2D | null) {
         this._reflectionProbeDataMap = dataMap;
         if (this.model !== null) {
@@ -712,6 +743,13 @@ export class MeshRenderer extends ModelRenderer {
         }
     }
 
+    /**
+     * @zh
+     * 更新反射探针的id。
+     * @en
+     * Update the id of the reflection probe.
+     * @param probeId probe id.
+     */
     public updateReflectionProbeId (probeId: number) {
         this._reflectionProbeId = probeId;
         if (this.model) {
@@ -720,6 +758,13 @@ export class MeshRenderer extends ModelRenderer {
         this._onUpdateLocalShadowBiasAndProbeId();
     }
 
+    /**
+     * @zh
+     * 更新用于混合的反射探针的id。
+     * @en
+     * Update the id of the reflection probe used for blending.
+     * @param blendProbeId probe id of blend.
+     */
     public updateReflectionProbeBlendId (blendProbeId: number) {
         this._reflectionProbeBlendId = blendProbeId;
         if (this.model) {
@@ -728,6 +773,13 @@ export class MeshRenderer extends ModelRenderer {
         this._onUpdateLocalShadowBiasAndProbeId();
     }
 
+    /**
+     * @zh
+     * 更新混合权重。
+     * @en
+     * Update blending weight.
+     * @param weight blending weight.
+     */
     public updateReflectionProbeBlendWeight (weight: number) {
         this._reflectionProbeBlendWeight = weight;
         if (this.model) {
