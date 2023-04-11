@@ -504,14 +504,17 @@ export class ParticleEmitter extends Component {
      * @engineInternal
      */
     protected onDisable () {
-        this.stop();
+        this.stop(true);
     }
 
     private _prewarmSystem () {
-        const dt = Math.max(this.prewarmTimeStep, 0.01);
-        const count = this.prewarmTime / dt;
+        let prewarmTime = this.prewarmTime;
+        const timeStep = Math.max(this.prewarmTimeStep, 0.001);
+        const count = Math.ceil(this.prewarmTime / timeStep);
 
         for (let i = 0; i < count; ++i) {
+            const dt = Math.min(timeStep, this.prewarmTime);
+            prewarmTime -= dt;
             this.tick(dt);
         }
     }
@@ -621,7 +624,7 @@ export class ParticleEmitter extends Component {
                     events = emitter._context.deathEvents;
                 } else if (eventReceiver.eventType === ParticleEventType.LOCATION) {
                     spawnFractionCollection.reserve(events.capacity);
-                    spawnFractionCollection.sync(events.particleId, events.count);
+                    spawnFractionCollection.sync(events.particleId.data, events.count);
                 }
                 for (let i = 0, length = events.count; i < length; i++) {
                     events.getEventInfoAt(eventInfo, i);

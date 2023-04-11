@@ -51,9 +51,7 @@ export class ParticleEventInfo {
     public rotation = new Vec3();
     public size = new Vec3();
     public color = new Color();
-    public startLifeTime = 5;
     public randomSeed = 0;
-    public normalizedAliveTime = 0;
 }
 
 export class ParticleEvents {
@@ -109,42 +107,27 @@ export class ParticleEvents {
             this.reserve(this._capacity * 2);
         }
         const handle = this._count++;
-        this._particleId[handle] = eventInfo.particleId;
-        this._currentTime[handle] = eventInfo.currentTime;
-        this._prevTime[handle] = eventInfo.prevTime;
-        const xOffset = handle * 3;
-        const yOffset = xOffset + 1;
-        const zOffset = yOffset + 1;
-        this._position[xOffset] = eventInfo.position.x;
-        this._position[yOffset] = eventInfo.position.y;
-        this._position[zOffset] = eventInfo.position.z;
-        this._velocity[xOffset] = eventInfo.velocity.x;
-        this._velocity[yOffset] = eventInfo.velocity.y;
-        this._velocity[zOffset] = eventInfo.velocity.z;
-        this._rotation[xOffset] = eventInfo.rotation.x;
-        this._rotation[yOffset] = eventInfo.rotation.y;
-        this._rotation[zOffset] = eventInfo.rotation.z;
-        this._size[xOffset] = eventInfo.size.x;
-        this._size[yOffset] = eventInfo.size.y;
-        this._size[zOffset] = eventInfo.size.z;
-        this._color[handle] = Color.toUint32(eventInfo.color);
-        this._startLifeTime[handle] = eventInfo.startLifeTime;
-        this._randomSeed[handle] = eventInfo.randomSeed;
-        this._normalizedAliveTime[handle] = eventInfo.normalizedAliveTime;
+        this._particleId.setUint32At(eventInfo.particleId, handle);
+        this._currentTime.setFloatAt(eventInfo.currentTime, handle);
+        this._prevTime.setFloatAt(eventInfo.prevTime, handle);
+        this._position.setVec3At(eventInfo.position, handle);
+        this._velocity.setVec3At(eventInfo.velocity, handle);
+        this._rotation.setVec3At(eventInfo.rotation, handle);
+        this._size.setVec3At(eventInfo.size, handle);
+        this._color.setColorAt(eventInfo.color, handle);
+        this._randomSeed.setUint32At(eventInfo.randomSeed, handle);
     }
 
     getEventInfoAt (out: ParticleEventInfo, handle: number) {
         out.particleId = this._particleId.getUint32At(handle);
         out.currentTime = this._currentTime.getFloatAt(handle);
         out.prevTime = this._prevTime.getFloatAt(handle);
+        out.randomSeed = this._randomSeed.getUint32At(handle);
         this._position.getVec3At(out.position, handle);
         this._velocity.getVec3At(out.velocity, handle);
         this._rotation.getVec3At(out.rotation, handle);
         this._size.getVec3At(out.size, handle);
         this._color.getColorAt(out.color, handle);
-        out.startLifeTime = this._startLifeTime.getFloatAt(handle);
-        out.randomSeed = this._randomSeed.getUint32At(handle);
-        out.normalizedAliveTime = this._normalizedAliveTime.getFloatAt(handle);
     }
 }
 
@@ -222,15 +205,6 @@ export enum InheritedProperty {
     COLOR = 1,
     SIZE = 1 << 1,
     ROTATION = 1 << 2,
-    LIFETIME = 1 << 3,
-    DURATION = 1 << 4
-}
-export class InheritedProperties {
-    public rotation = new Vec3();
-    public size = new Vec3();
-    public color = new Color();
-    public invStartLifeTime = 1;
-    public normalizedAliveTime = 0;
 }
 
 export enum PlayingState {
@@ -267,7 +241,9 @@ export class ParticleEmitterState {
         Vec3.subtract(context.emitterVelocity, this.currentPosition, this.lastPosition);
         Vec3.multiplyScalar(context.emitterVelocity, context.emitterVelocity, 1 / dt);
         Vec3.copy(context.emitterVelocityInEmittingSpace, isWorldSpace ? context.emitterVelocity : Vec3.ZERO);
-        context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.POSITION);
+        if (isWorldSpace) {
+            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.POSITION);
+        }
     }
 
     updateTransform (pos: Vec3) {
@@ -294,11 +270,6 @@ export class ParticleExecContext {
     public get builtinParameterRequirements () {
         return this._builtinParameterRequirements;
     }
-
-    public get customParameterRequirements () {
-        return this._customParameterRequirements;
-    }
-
     // emitter range
     public emitterCurrentTime = 0;
     public emitterPreviousTime = 0;
@@ -306,7 +277,6 @@ export class ParticleExecContext {
     public emitterNormalizedPrevTime = 0;
     public emitterDeltaTime = 0;
     public loopCount = 0;
-    public inheritedProperties: InheritedProperties | null = null;
     public spawnContinuousCount = 0;
     public burstCount = 0;
     /**
@@ -348,7 +318,6 @@ export class ParticleExecContext {
     private _toIndex = 0;
     private _executionStage = ModuleExecStage.NONE;
     private _builtinParameterRequirements = 0;
-    private _customParameterRequirements = 0;
     private _locationEvents: ParticleEvents | null = null;
     private _deathEvents: ParticleEvents | null = null;
     private _lastTransformChangedVersion = 0xffffffff;
@@ -431,7 +400,6 @@ export class ParticleExecContext {
         this._deathEvents?.clear();
         this._locationEvents?.clear();
         this._builtinParameterRequirements = 0;
-        this._customParameterRequirements = 0;
         this._executionStage = ModuleExecStage.NONE;
         this.setExecuteRange(0, 0);
         this.resetSpawningState();

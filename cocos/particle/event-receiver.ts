@@ -4,6 +4,7 @@ import { Space } from './enum';
 import { InheritedProperty, ParticleEmitterParams, ParticleEventInfo, ParticleEventType, ParticleExecContext } from './particle-base';
 import { ParticleEmitter } from './particle-emitter';
 import { ModuleExecStage, ParticleModuleStage } from './particle-module';
+import { ParticleFloatArrayParameter } from './particle-parameter';
 import { RandomStream } from './random-stream';
 import { SpawnFractionCollection } from './spawn-fraction-collection';
 
@@ -31,6 +32,8 @@ export class EventReceiver extends ParticleModuleStage {
     }
 
     private _spawnFractionCollection: SpawnFractionCollection | null = null;
+    private _idToIndex: Map<number, number> = new Map();
+    private _spawnFraction = new ParticleFloatArrayParameter();
 
     constructor () {
         super(ModuleExecStage.EVENT_HANDLER);
