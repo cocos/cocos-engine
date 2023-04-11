@@ -42,7 +42,7 @@ void GetCubeReflectionProbeData(out vec3 centerPos, out vec3 boxHalfSize, out fl
       boxHalfSize = cc_reflectionProbeData2.xyz;
       mipCount = cc_reflectionProbeData2.w;
     #endif
-    if(IS_REFLECTION_PROBE_USE_RGBE(mipCount)) mipCount = mipCount - 1000.0;
+    RESTORE_REFLECTION_PROBE_MIP_COUNT(mipCount);
 }
 
 bool isReflectProbeUsingRGBE(float probeId)
@@ -85,5 +85,5 @@ void GetBlendCubeReflectionProbeData(out vec3 centerPos, out vec3 boxHalfSize, o
       boxHalfSize = cc_reflectionProbeBlendData2.xyz;
       mipCount = cc_reflectionProbeBlendData2.w;
     #endif
-    if(IS_REFLECTION_PROBE_USE_RGBE(mipCount)) mipCount = mipCount - 1000.0;
+    RESTORE_REFLECTION_PROBE_MIP_COUNT(mipCount);
 }

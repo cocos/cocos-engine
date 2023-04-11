@@ -343,10 +343,10 @@ export class Model {
      * @zh 反射探针类型。
      */
     get reflectionProbeType () {
-        return this._reflectionProbeType;
+        return this._reflectionProbeType as number;
     }
 
-    set reflectionProbeType (val) {
+    set reflectionProbeType (val: number) {
         this._reflectionProbeType = val;
         const subModels = this._subModels;
         for (let i = 0; i < subModels.length; i++) {
@@ -582,7 +582,7 @@ export class Model {
      * @en Reflection probe type.
      * @zh 反射探针类型。
      */
-    protected _reflectionProbeType = 1;
+    protected _reflectionProbeType = ReflectionProbeType.BAKED_CUBEMAP;
 
     /**
      * @internal
@@ -617,7 +617,7 @@ export class Model {
         this.visFlags = Layers.Enum.NONE;
         this._inited = true;
         this._bakeToReflectionProbe = true;
-        this._reflectionProbeType = 1;
+        this._reflectionProbeType = ReflectionProbeType.BAKED_CUBEMAP;
     }
 
     /**

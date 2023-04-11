@@ -27,7 +27,7 @@ import { EDITOR } from 'internal:constants';
 import { MeshRenderer, ReflectionProbeType } from '../3d/framework/mesh-renderer';
 import { ImageAsset, Texture2D } from '../asset/assets';
 import { PixelFormat } from '../asset/assets/asset-enum';
-import { Vec3, geometry, cclegacy, equals } from '../core';
+import { Vec3, geometry, cclegacy } from '../core';
 import { AABB } from '../core/geometry';
 import { Texture } from '../gfx';
 import { Camera, Model } from '../render-scene/scene';

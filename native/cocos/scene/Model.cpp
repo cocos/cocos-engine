@@ -88,7 +88,7 @@ void Model::initialize() {
     _visFlags = Layers::Enum::NONE;
     _inited = true;
     _bakeToReflectionProbe = true;
-    _reflectionProbeType = 1;
+    _reflectionProbeType = static_cast<int32_t>(scene::ReflectionProbe::UseProbeType::BAKED_CUBEMAP);
 }
 
 void Model::destroy() {
