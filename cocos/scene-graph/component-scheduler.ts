@@ -36,8 +36,8 @@ const IsOnEnableCalled = CCObject.Flags.IsOnEnableCalled;
 const IsEditorOnEnableCalled = CCObject.Flags.IsEditorOnEnableCalled;
 
 const callerFunctor: any = EDITOR && tryCatchFunctor_EDITOR;
-const callOnEnableInTryCatch = EDITOR && callerFunctor('onEnable');
-const callOnDisableInTryCatch = EDITOR && callerFunctor('onDisable');
+const callOnEnableInTryCatch: any = EDITOR && callerFunctor('onEnable');
+const callOnDisableInTryCatch: any = EDITOR && callerFunctor('onDisable');
 
 function sortedIndex (array, comp) {
     const order = comp.constructor._executionOrder;

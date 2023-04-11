@@ -26,7 +26,6 @@
 
 import type { Color, Vec2 } from '../core';
 
-// @ts-expect-error this is a virtual module
 export * from 'internal:native';
 
 /**
@@ -81,17 +80,17 @@ export declare namespace native {
     }
 
     export namespace EventAssetsManager {
-        export const ERROR_NO_LOCAL_MANIFEST:number;
-        export const ERROR_DOWNLOAD_MANIFEST:number;
-        export const ERROR_PARSE_MANIFEST :number;
-        export const NEW_VERSION_FOUND :number;
-        export const ALREADY_UP_TO_DATE :number;
-        export const UPDATE_PROGRESSION :number;
-        export const ASSET_UPDATED :number;
-        export const ERROR_UPDATING :number;
-        export const UPDATE_FINISHED :number;
-        export const UPDATE_FAILED :number;
-        export const ERROR_DECOMPRESS :number;
+        export const ERROR_NO_LOCAL_MANIFEST: number;
+        export const ERROR_DOWNLOAD_MANIFEST: number;
+        export const ERROR_PARSE_MANIFEST: number;
+        export const NEW_VERSION_FOUND: number;
+        export const ALREADY_UP_TO_DATE: number;
+        export const UPDATE_PROGRESSION: number;
+        export const ASSET_UPDATED: number;
+        export const ERROR_UPDATING: number;
+        export const UPDATE_FINISHED: number;
+        export const UPDATE_FAILED: number;
+        export const ERROR_DECOMPRESS: number;
     }
 
     export interface ManifestAsset {

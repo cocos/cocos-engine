@@ -29,6 +29,8 @@ import { MotionEvalContext } from './motion';
 import { AnimationBlend, AnimationBlendEval, AnimationBlendItem } from './animation-blend';
 import { blend1D } from './blend-1d';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
+import { AnimationGraphLayerWideBindingContext } from './animation-graph-context';
+import { ReadonlyClipOverrideMap } from './graph-eval';
 
 const { ccclass, serializable } = _decorator;
 
@@ -77,10 +79,12 @@ export class AnimationBlend1D extends AnimationBlend {
         return that;
     }
 
-    public [createEval] (context: MotionEvalContext) {
-        const evaluation = new AnimationBlend1DEval(context, this, this._items, this._items.map(({ threshold }) => threshold), 0.0);
+    public [createEval] (context: AnimationGraphLayerWideBindingContext, clipOverrides: ReadonlyClipOverrideMap | null) {
+        const evaluation = new AnimationBlend1DEval(
+            context, clipOverrides, this, this._items, this._items.map(({ threshold }) => threshold), 0.0,
+        );
         const initialValue = bindOr(
-            context,
+            context.outerContext,
             this.param,
             VariableType.FLOAT,
             evaluation.setInput,
@@ -99,8 +103,12 @@ export declare namespace AnimationBlend1D {
 class AnimationBlend1DEval extends AnimationBlendEval {
     private declare _thresholds: readonly number[];
 
-    constructor (context: MotionEvalContext, base: AnimationBlend, items: AnimationBlendItem[], thresholds: readonly number[], input: number) {
-        super(context, base, items, [input]);
+    constructor (
+        context: AnimationGraphLayerWideBindingContext,
+        overrides: ReadonlyClipOverrideMap | null,
+        base: AnimationBlend, items: AnimationBlendItem[], thresholds: readonly number[], input: number,
+    ) {
+        super(context, overrides, base, items, [input]);
         this._thresholds = thresholds;
         this.doEval();
     }

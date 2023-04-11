@@ -50,6 +50,12 @@ export enum Feature {
     SAFE_AREA = 'SAFE_AREA',
 
     /**
+     * @en Feature to support HPE (high performance emulator) platforms, such as Google Play Games For PC.
+     * @zh 是否支持 HPE 平台, 比如: Android 的 Google Play Games 在 PC 上的模拟器.
+     */
+    HPE = 'HPE',
+
+    /**
      * @en Feature to support Touch Input.
      * Touch Input is only supported on some devices with touch screen.
      * This feature tells that whether the device has a touch screen.

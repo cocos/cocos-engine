@@ -21,40 +21,47 @@ vec4 CCStandardShadingAdditive (StandardSurface s, vec4 shadowPos) {
 
   for (int i = 0; i < LIGHTS_PER_PASS; i++) {
     if (i >= numLights) break;
-    vec3 SLU = cc_lightPos[i].xyz - position;
+
+    // lighting
+    vec3 SLU = IS_RANGED_DIRECTIONAL_LIGHT(cc_lightPos[i].w) ? -cc_lightDir[i].xyz : cc_lightPos[i].xyz - position;
     vec3 SL = normalize(SLU);
     vec3 SH = normalize(SL + V);
     float SNL = max(dot(N, SL), 0.0);
     float SNH = max(dot(N, SH), 0.0);
-
-    float distSqr = dot(SLU, SLU);
-    float litRadius = cc_lightSizeRangeAngle[i].x;
-    float litRadiusSqr = litRadius * litRadius;
-    float illum = litRadiusSqr / max(litRadiusSqr, distSqr);
-    float attRadiusSqrInv = 1.0 / max(cc_lightSizeRangeAngle[i].y, 0.01);
-    attRadiusSqrInv *= attRadiusSqrInv;
-    float att = GetDistAtt(distSqr, attRadiusSqrInv);
     vec3 lspec = specular * CalcSpecular(s.roughness, SNH, SH, N);
 
-    if (cc_lightPos[i].w > 0.0) {
-      float cosInner = max(dot(-cc_lightDir[i].xyz, SL), 0.01);
-      float cosOuter = cc_lightSizeRangeAngle[i].z;
-      float litAngleScale = 1.0 / max(0.001, cosInner - cosOuter);
-      float litAngleOffset = -cosOuter * litAngleScale;
-      att *= GetAngleAtt(SL, -cc_lightDir[i].xyz, litAngleScale, litAngleOffset);
+    // attenuations
+    float illum = 1.0;
+    float att = 1.0;
+    if (IS_RANGED_DIRECTIONAL_LIGHT(cc_lightPos[i].w)) {
+      att = GetOutOfRange(position, cc_lightPos[i].xyz, cc_lightDir[i].xyz, cc_lightSizeRangeAngle[i].xyz, cc_lightBoundingSizeVS[i].xyz);
+    } else {
+      float distSqr = dot(SLU, SLU);
+      float litRadius = cc_lightSizeRangeAngle[i].x;
+      float litRadiusSqr = litRadius * litRadius;
+      illum = (IS_POINT_LIGHT(cc_lightPos[i].w) || IS_RANGED_DIRECTIONAL_LIGHT(cc_lightPos[i].w)) ? 1.0 : litRadiusSqr / max(litRadiusSqr, distSqr);
+      float attRadiusSqrInv = 1.0 / max(cc_lightSizeRangeAngle[i].y, 0.01);
+      attRadiusSqrInv *= attRadiusSqrInv;
+      att = GetDistAtt(distSqr, attRadiusSqrInv);
+
+      if (IS_SPOT_LIGHT(cc_lightPos[i].w)) {
+        float cosInner = max(dot(-cc_lightDir[i].xyz, SL), 0.01);
+        float cosOuter = cc_lightSizeRangeAngle[i].z;
+        float litAngleScale = 1.0 / max(0.001, cosInner - cosOuter);
+        float litAngleOffset = -cosOuter * litAngleScale;
+        att *= GetAngleAtt(SL, -cc_lightDir[i].xyz, litAngleScale, litAngleOffset);
+      }
     }
 
-    vec3 lightColor = cc_lightColor[i].rgb;
-
+    // shadows
     float shadow = 1.0;
     #if CC_RECEIVE_SHADOW  && CC_SHADOW_TYPE == CC_SHADOW_MAP
-      if (cc_lightPos[i].w > 0.0 && cc_lightSizeRangeAngle[i].w > 0.0) {
+      if (IS_SPOT_LIGHT(cc_lightPos[i].w) && cc_lightSizeRangeAngle[i].w > 0.0) {
         shadow = CCSpotShadowFactorBase(shadowPos, position, s.shadowBias);
       }
     #endif
 
-    lightColor *= shadow;
-    finalColor += SNL * lightColor * cc_lightColor[i].w * illum * att * (diffuseContrib + lspec);
+    finalColor += SNL * cc_lightColor[i].rgb * shadow * cc_lightColor[i].w * illum * att * (diffuseContrib + lspec);
   }
 
   return vec4(finalColor, 0.0);

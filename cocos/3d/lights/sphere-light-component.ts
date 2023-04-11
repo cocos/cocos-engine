@@ -23,10 +23,11 @@
  THE SOFTWARE.
 */
 
-import { ccclass, help, executeInEditMode, menu, tooltip, type, displayOrder, serializable, formerlySerializedAs } from 'cc.decorator';
+import { ccclass, help, executeInEditMode, menu, tooltip, type, displayOrder, serializable, formerlySerializedAs,
+    editable, slide, rangeMin } from 'cc.decorator';
 import { scene } from '../../render-scene';
 import { Light, PhotometricTerm } from './light-component';
-import { cclegacy } from '../../core';
+import { CCFloat, CCInteger, cclegacy } from '../../core';
 import { Camera } from '../../render-scene/scene';
 import { Root } from '../../root';
 
@@ -57,6 +58,10 @@ export class SphereLight extends Light {
      */
     @displayOrder(-1)
     @tooltip('i18n:lights.luminous_flux')
+    @editable
+    @rangeMin(0)
+    @slide
+    @type(CCInteger)
     get luminousFlux () {
         const isHDR = (cclegacy.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
@@ -84,6 +89,10 @@ export class SphereLight extends Light {
      */
     @displayOrder(-1)
     @tooltip('i18n:lights.luminance')
+    @editable
+    @rangeMin(0)
+    @slide
+    @type(CCInteger)
     get luminance () {
         const isHDR = (cclegacy.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
@@ -110,6 +119,10 @@ export class SphereLight extends Light {
     @type(PhotometricTerm)
     @displayOrder(-2)
     @tooltip('i18n:lights.term')
+    @editable
+    @rangeMin(0)
+    @slide
+    @type(CCInteger)
     get term (): number {
         return this._term;
     }
@@ -124,6 +137,10 @@ export class SphereLight extends Light {
      * 光源大小。
      */
     @tooltip('i18n:lights.size')
+    @editable
+    @rangeMin(0)
+    @slide
+    @type(CCFloat)
     get size () {
         return this._size;
     }
@@ -139,6 +156,10 @@ export class SphereLight extends Light {
      * 光源范围。
      */
     @tooltip('i18n:lights.range')
+    @editable
+    @rangeMin(0)
+    @slide
+    @type(CCFloat)
     get range () {
         return this._range;
     }

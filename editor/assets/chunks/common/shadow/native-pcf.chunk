@@ -14,6 +14,27 @@ float SampleShadowMap (vec3 shadowNDCPos, highp sampler2D shadowMap)
   #endif
 }
 
+// return averaged depth
+float SampleShadowMapSoft (vec3 shadowNDCPos, highp sampler2D shadowMap, vec2 shadowMapResolution)
+{
+  vec2 oneTap = 1.0 / shadowMapResolution;
+  vec2 shadowNDCPos_offset = shadowNDCPos.xy + oneTap;
+
+  float block0 = SampleShadowMap(vec3(shadowNDCPos.x, shadowNDCPos.y, shadowNDCPos.z), shadowMap);
+  float block1 = SampleShadowMap(vec3(shadowNDCPos_offset.x, shadowNDCPos.y, shadowNDCPos.z), shadowMap);
+  float block2 = SampleShadowMap(vec3(shadowNDCPos.x, shadowNDCPos_offset.y, shadowNDCPos.z), shadowMap);
+  float block3 = SampleShadowMap(vec3(shadowNDCPos_offset.x, shadowNDCPos_offset.y, shadowNDCPos.z), shadowMap);
+
+  float coefX   = mod(shadowNDCPos.x, oneTap.x) * shadowMapResolution.x;
+  float resultX = mix(block0, block1, coefX);
+  float resultY = mix(block2, block3, coefX);
+  float coefY   = mod(shadowNDCPos.y, oneTap.y) * shadowMapResolution.y;
+  
+  return mix(resultX, resultY, coefY);
+}
+
+
+
 float NativePCFShadowFactorHard (vec3 shadowNDCPos, highp sampler2D shadowMap, vec2 shadowMapResolution)
 {
   #if CC_SHADOWMAP_FORMAT == SHADOWMAP_FORMAT_RGBA8

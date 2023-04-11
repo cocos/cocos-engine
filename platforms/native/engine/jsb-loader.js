@@ -55,7 +55,10 @@ function downloadScript (url, options, onComplete) {
     if (loadedScripts[url]) return onComplete && onComplete();
 
     download(url, (src, options, onComplete) => {
-        if (__EDITOR__) {
+        if (window.oh) {
+            // TODO(qgh):OpenHarmony does not currently support dynamic require expressions
+            window.oh.loadModule(src);
+        } else if (__EDITOR__) {
             // in editor mode,require is from electron,__require is from engine
             globalThis.__require(src);
         } else {

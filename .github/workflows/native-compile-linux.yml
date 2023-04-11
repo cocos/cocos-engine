@@ -25,11 +25,6 @@ jobs:
         run: |
           EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
           git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
-      - name: Generate bindings
-        run: |
-          cd ./native/tools/swig-config
-          node genbindings.js
-          git status
       - name: Install dependencies
         run: |
           sudo apt install libx11-dev -y
@@ -37,7 +32,7 @@ jobs:
           sudo apt install ninja-build -y
       - name: Compile
         env:
-          COCOS_ENGINE_DEV: 0
+          COCOS_ENGINE_DEV: 1
         run: |
           NATIVE_ROOT=$GITHUB_WORKSPACE/native
           echo "Compiling Linux ... "
@@ -51,6 +46,7 @@ jobs:
           echo "set(USE_WEBSOCKET_SERVER OFF)" >> build-linux/proj/cfg.cmake
           echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> build-linux/proj/cfg.cmake
           echo "set(USE_PHYSICS_PHYSX OFF)" >> build-linux/proj/cfg.cmake
+          echo "set(CC_EXECUTABLE_NAME \"\")" >> build-linux/proj/cfg.cmake
           mkdir build-linux/assets
 
           RES_DIR=$GITHUB_WORKSPACE/templates/linux/build-linux

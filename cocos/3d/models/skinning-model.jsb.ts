@@ -23,6 +23,10 @@
 */
 
 import { cclegacy } from "../../core";
+import type { SkinningModel as JsbSkinningModel } from './skinning-model';
 
-export const SkinningModel = jsb.SkinningModel;
+declare const jsb: any;
+
+export const SkinningModel: typeof JsbSkinningModel = jsb.SkinningModel;
+export type SkinningModel = JsbSkinningModel;
 cclegacy.SkinningModel = jsb.SkinningModel;

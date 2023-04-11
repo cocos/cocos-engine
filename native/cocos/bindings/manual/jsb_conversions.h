@@ -46,10 +46,13 @@
     #include "cocos/editor-support/spine-creator-support/spine-cocos2dx.h"
 #endif
 
+#include "core/assets/EffectAsset.h"
 #include "core/geometry/Geometry.h"
 #include "math/Color.h"
 #include "math/Math.h"
 #include "renderer/gfx-base/states/GFXSampler.h"
+
+#include "base/HasMemberFunction.h"
 
 #define SE_PRECONDITION2_VOID(condition, ...)                                                                   \
     do {                                                                                                        \
@@ -196,7 +199,7 @@ seval_to_type(const se::Value &v, bool &ok) { // NOLINT(readability-identifier-n
 }
 
 inline se::HandleObject unwrapProxyObject(se::Object *obj) {
-    if(obj->isProxy()) {
+    if (obj->isProxy()) {
         return se::HandleObject(se::Object::createProxyTarget(obj));
     }
     obj->incRef();
@@ -344,7 +347,23 @@ native_ptr_to_seval(T &v_ref, se::Value *ret, bool *isReturnCachedValue = nullpt
             cc_tmp_set_private_data(obj, v);
 
             se::Value property;
-            if (obj->getProperty("_ctor", &property)) {
+            bool foundCtor = false;
+            if (!cls->_getCtor().has_value()) {
+                foundCtor = obj->getProperty("_ctor", &property, true);
+                if (foundCtor) {
+                    cls->_setCtor(property.toObject());
+                } else {
+                    cls->_setCtor(nullptr);
+                }
+            } else {
+                auto *ctorObj = cls->_getCtor().value();
+                if (ctorObj != nullptr) {
+                    property.setObject(ctorObj);
+                    foundCtor = true;
+                }
+            }
+
+            if (foundCtor) {
                 property.toObject()->call(se::EmptyValueArray, obj);
             }
 
@@ -366,6 +385,16 @@ bool native_ptr_to_seval(T *vp, se::Class *cls, se::Value *ret, bool *isReturnCa
         return true;
     }
 
+    if constexpr (cc::has_getScriptObject<DecayT, se::Object *()>::value) {
+        if (v->getScriptObject() != nullptr) {
+            if (isReturnCachedValue != nullptr) {
+                *isReturnCachedValue = true;
+            }
+            ret->setObject(v->getScriptObject());
+            return true;
+        }
+    }
+
     se::NativePtrToObjectMap::filter(v, cls)
         .forEach(
             [&](se::Object *foundObj) {
@@ -383,7 +412,23 @@ bool native_ptr_to_seval(T *vp, se::Class *cls, se::Value *ret, bool *isReturnCa
             cc_tmp_set_private_data(obj, v);
 
             se::Value property;
-            if (obj->getProperty("_ctor", &property)) {
+            bool foundCtor = false;
+            if (!cls->_getCtor().has_value()) {
+                foundCtor = obj->getProperty("_ctor", &property, true);
+                if (foundCtor) {
+                    cls->_setCtor(property.toObject());
+                } else {
+                    cls->_setCtor(nullptr);
+                }
+            } else {
+                auto *ctorObj = cls->_getCtor().value();
+                if (ctorObj != nullptr) {
+                    property.setObject(ctorObj);
+                    foundCtor = true;
+                }
+            }
+
+            if (foundCtor) {
                 property.toObject()->call(se::EmptyValueArray, obj);
             }
 
@@ -718,7 +763,7 @@ bool sevalue_to_native(const se::Value &from, ccstd::vector<T> *to, se::Object *
 
     CC_ASSERT(from.toObject());
     se::HandleObject array(unwrapProxyObject(from.toObject()));
-    
+
     if (array->isArray()) {
         uint32_t len = 0;
         array->getArrayLength(&len);
@@ -744,6 +789,30 @@ bool sevalue_to_native(const se::Value &from, ccstd::vector<T> *to, se::Object *
 
     SE_LOGE("[warn] failed to convert to ccstd::vector\n");
     return false;
+}
+
+template <typename K, typename V>
+bool sevalue_to_native(const se::Value &from, cc::StablePropertyMap<K, V> *to, se::Object *ctx) { // NOLINT
+    // convert object to attribute/value list: [{"prop1", v1}, {"prop2", v2}... {"propN", vn}]
+    CC_ASSERT_NOT_NULL(to);
+    CC_ASSERT(from.isObject());
+    auto *jsObj = from.toObject();
+    ccstd::vector<ccstd::string> objectKeys;
+    jsObj->getAllKeys(&objectKeys);
+    to->clear();
+    se::Value valueJS;
+    for (auto &attr : objectKeys) {
+        V value;
+
+        if (!jsObj->getProperty(attr, &valueJS)) {
+            continue;
+        }
+        if (!sevalue_to_native(valueJS, &value, ctx)) {
+            continue;
+        }
+        to->emplace_back(std::make_pair(std::move(attr), std::move(value)));
+    }
+    return true;
 }
 
 ///////////////////// function
@@ -1032,6 +1101,7 @@ bool sevalue_to_native(const se::Value &from, ccstd::optional<T> *to, se::Object
     }
     return ret;
 }
+
 //////////////////////  shoter form
 template <typename T>
 inline bool sevalue_to_native(const se::Value &from, T &&to) { // NOLINT(readability-identifier-naming)
@@ -1106,7 +1176,7 @@ nativevalue_to_se(const T &from, se::Value &to, se::Object * /*ctx*/) { // NOLIN
     return true;
 }
 
-//#endif // HAS_CONSTEXPR
+// #endif // HAS_CONSTEXPR
 
 //////////////////////////////// forward declaration: nativevalue_to_se ////////////////////////////////
 
@@ -1160,8 +1230,6 @@ inline bool nativevalue_to_se(const ccstd::vector<T> &from, se::Value &to, se::O
         if constexpr (!std::is_pointer<T>::value && is_jsb_object_v<T>) {
             auto *pFrom = ccnew T(from[i]);
             nativevalue_to_se(pFrom, tmp, ctx);
-            tmp.toObject()->clearPrivateData();
-            tmp.toObject()->setPrivateData(pFrom);
         } else {
             nativevalue_to_se(from[i], tmp, ctx);
         }
@@ -1252,6 +1320,25 @@ template <typename R, typename... Args>
 inline bool nativevalue_to_se(const std::function<R(Args...)> & /*from*/, se::Value & /*to*/, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
     SE_LOGE("Can not convert C++ const lambda to JS object");
     return false;
+}
+
+template <typename K, typename V>
+bool nativevalue_to_se(const cc::StablePropertyMap<K, V> &from, se::Value &to, se::Object *ctx) { // NOLINT(readability-identifier-naming
+    // convert to object from  attribute/value list: [{"prop1", v1}, {"prop2", v2}... {"propN", vn}]
+    se::HandleObject ret(se::Object::createPlainObject());
+    for (const auto &ele : from) {
+        se::Value keyJS;
+        se::Value valueJS;
+        if (!nativevalue_to_se(ele.first, keyJS, ctx)) {
+            continue;
+        }
+        if (!nativevalue_to_se(ele.second, valueJS, ctx)) {
+            continue;
+        }
+        ret->setProperty(keyJS.toString(), valueJS);
+    }
+    to.setObject(ret);
+    return true;
 }
 
 ///////////////////////// function ///////////////////////

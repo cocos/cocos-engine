@@ -712,7 +712,10 @@ export class ArmatureDisplay extends UIRenderer {
         this.markForUpdateRenderData();
     }
 
-    protected updateMaterial () {
+    /**
+     * @engineInternal
+     */
+    public updateMaterial () {
         let mat;
         if (this._customMaterial) mat = this._customMaterial;
         else mat = this._updateBuiltinMaterial();
@@ -895,7 +898,7 @@ export class ArmatureDisplay extends UIRenderer {
         if (!this._playing) {
             if (frameCache.isInvalid()) {
                 frameCache.updateToFrame();
-                this._curFrame = frames[frames.length - 1];
+                this._curFrame = frames[frames.length - 1]!;
                 // Update render data size if needed
                 if (this.renderData
                     && (this.renderData.vertexCount < frameCache.maxVertexCount
@@ -941,7 +944,7 @@ export class ArmatureDisplay extends UIRenderer {
             this._playCount++;
             if ((this.playTimes > 0 && this._playCount >= this.playTimes)) {
                 // set frame to end frame.
-                this._curFrame = frames[frames.length - 1];
+                this._curFrame = frames[frames.length - 1]!;
                 this._accTime = 0;
                 this._playing = false;
                 this._playCount = 0;
@@ -954,7 +957,7 @@ export class ArmatureDisplay extends UIRenderer {
             this._emitCacheCompleteEvent();
         }
 
-        this._curFrame = frames[frameIdx];
+        this._curFrame = frames[frameIdx]!;
         this.attachUtil._syncAttachedNode();
     }
     /**
@@ -1272,7 +1275,7 @@ export class ArmatureDisplay extends UIRenderer {
                 }
                 this._frameCache.updateToFrame(0);
                 this._playing = true;
-                this._curFrame = this._frameCache.frames[0];
+                this._curFrame = this._frameCache.frames[0]!;
             }
         } else if (this._armature) {
             return this._armature.animation.play(animName, this.playTimes);
@@ -1465,9 +1468,9 @@ export class ArmatureDisplay extends UIRenderer {
         }
         if (this._armature && this._assembler) {
             this._renderData = this._assembler.createData(this);
-            if (this.renderData) {
-                this.maxVertexCount = this.renderData.vertexCount;
-                this.maxIndexCount = this.renderData.indexCount;
+            if (this._renderData) {
+                this.maxVertexCount = this._renderData.vertexCount;
+                this.maxIndexCount = this._renderData.indexCount;
             }
             this.markForUpdateRenderData();
             this._updateColor();

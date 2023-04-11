@@ -42,16 +42,16 @@ public class CocosLocalStorage {
     private static SQLiteDatabase mDatabase = null;
 
     public static boolean init(String dbName, String tableName) {
-        if (GlobalObject.getActivity() != null) {
+        if (GlobalObject.getContext() != null) {
             DATABASE_NAME = dbName;
             TABLE_NAME = tableName;
-            mDatabaseOpenHelper = new DBOpenHelper(GlobalObject.getActivity());
+            mDatabaseOpenHelper = new DBOpenHelper(GlobalObject.getContext());
             mDatabase = mDatabaseOpenHelper.getWritableDatabase();
             return true;
         }
         return false;
     }
-    
+
     public static void destroy() {
         if (mDatabase != null) {
             mDatabase.close();

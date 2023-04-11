@@ -51,18 +51,19 @@ struct EventParam : std::conditional<std::is_enum<T>::value, std::true_type, std
     using type = typename std::conditional<IS_ENUM, T, void>::type;
 };
 
+template <bool>
+struct Char;
+template <>
+struct Char<true> {
+    static constexpr char VALUE{'E'};
+};
+template <>
+struct Char<false> {
+    static constexpr char VALUE{'?'};
+};
+
 template <typename T>
 struct Signature {
-    template <bool>
-    struct Char;
-    template <>
-    struct Char<true> {
-        static constexpr char VALUE{'E'};
-    };
-    template <>
-    struct Char<false> {
-        static constexpr char VALUE{'?'};
-    };
     constexpr static char name() { return Char<std::is_enum<T>::value>::VALUE; }
 };
 

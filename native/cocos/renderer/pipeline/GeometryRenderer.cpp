@@ -322,7 +322,7 @@ void GeometryRenderer::addTriangle(const Vec3 &v0, const Vec3 &v1, const Vec3 &v
         const Vec3 dist1 = v1 - v0;
         const Vec3 dist2 = v2 - v0;
         Vec3 norm;
-        Vec3::crossProduct(dist1, dist2, &norm);
+        Vec3::cross(dist1, dist2, &norm);
         norm.normalize();
         normal.set(norm.x, norm.y, norm.z, 1.0F);
     }

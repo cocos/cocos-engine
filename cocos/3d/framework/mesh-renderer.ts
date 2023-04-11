@@ -889,7 +889,10 @@ export class MeshRenderer extends ModelRenderer {
         renderScene.addModel(this._model);
     }
 
-    protected _detachFromScene () {
+    /**
+     * @engineInternal
+     */
+    public _detachFromScene () {
         if (this._model && this._model.scene) {
             this._model.scene.removeModel(this._model);
         }
@@ -972,7 +975,10 @@ export class MeshRenderer extends ModelRenderer {
         this._onRebuildPSO(idx, material || this._getBuiltinMaterial());
     }
 
-    protected _onRebuildPSO (idx: number, material: Material) {
+    /**
+     * @engineInternal
+     */
+    public _onRebuildPSO (idx: number, material: Material) {
         if (!this._model || !this._model.inited) { return; }
         this._model.isDynamicBatching = this._isBatchingEnabled();
         this._model.setSubModelMaterial(idx, material);

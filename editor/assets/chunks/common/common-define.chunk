@@ -28,7 +28,7 @@
 #pragma define equalf(data1, data2) (abs(float(data1) - float(data2)) < EPSILON)
 #pragma define equalf_lowp(data1, data2) (abs(float(data1) - float(data2)) < EPSILON_LOWP)
 #pragma define equalf_epsilon(data1, data2, epsilonValue) (abs(float(data1) - float(data2)) < epsilonValue)
-void clip(float value) { if(value < 0.0) discard; }
+#pragma define clip(value) if(value < 0.0) discard;
 
 // runtime constants
 #pragma define-meta CC_DEVICE_SUPPORT_FLOAT_TEXTURE default(1)
@@ -61,12 +61,16 @@ void clip(float value) { if(value < 0.0) discard; }
 
 // Light Type
 #define LIGHT_TYPE_DIRECTIONAL 0.0
-#define LIGHT_TYPE_POINT 1.0
+#define LIGHT_TYPE_SPHERE 1.0
 #define LIGHT_TYPE_SPOT 2.0
-#define LIGHT_TYPE_SPHERE 3.0
+#define LIGHT_TYPE_POINT 3.0
 #define LIGHT_TYPE_RANGED_DIRECTIONAL 4.0
+
 #define IS_DIRECTIONAL_LIGHT(light_type) equalf_lowp(light_type, LIGHT_TYPE_DIRECTIONAL)
 #define IS_SPHERE_LIGHT(light_type) equalf_lowp(light_type, LIGHT_TYPE_SPHERE)
 #define IS_SPOT_LIGHT(light_type) equalf_lowp(light_type, LIGHT_TYPE_SPOT)
 #define IS_POINT_LIGHT(light_type) equalf_lowp(light_type, LIGHT_TYPE_POINT)
 #define IS_RANGED_DIRECTIONAL_LIGHT(light_type) equalf_lowp(light_type, LIGHT_TYPE_RANGED_DIRECTIONAL)
+
+// Material
+#define SURFACES_MAX_TRANSMIT_DEPTH_VALUE 999999.0

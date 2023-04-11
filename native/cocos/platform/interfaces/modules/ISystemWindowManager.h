@@ -55,7 +55,7 @@ public:
     /**
      * Process messages at the PAL layer
      */
-    virtual void processEvent(bool *quit) = 0;
+    virtual void processEvent() = 0;
 
     /**
      * Create an ISystemWindow object

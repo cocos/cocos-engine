@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { ALIPAY, RUNTIME_BASED, BYTEDANCE, WECHAT, LINKSURE, QTT, COCOSPLAY, HUAWEI, EDITOR, VIVO, TAOBAO, TAOBAO_MINIGAME } from 'internal:constants';
+import { ALIPAY, RUNTIME_BASED, BYTEDANCE, WECHAT, LINKSURE, QTT, COCOSPLAY, HUAWEI, EDITOR, VIVO, TAOBAO, TAOBAO_MINIGAME, WECHAT_MINI_PROGRAM } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
 import { WebGLCommandAllocator } from './webgl-command-allocator';
 import { WebGLStateCache } from './webgl-state-cache';
@@ -155,13 +155,13 @@ export function getExtensions (gl: WebGLRenderingContext) {
 
         // some earlier version of iOS and android wechat implement gl.detachShader incorrectly
         if ((systemInfo.os === OS.IOS && systemInfo.osMainVersion <= 10)
-            || (WECHAT && systemInfo.os === OS.ANDROID)) {
+            || ((WECHAT || WECHAT_MINI_PROGRAM) && systemInfo.os === OS.ANDROID)) {
             res.destroyShadersImmediately = false;
         }
 
         // getUniformLocation has always been problematic because the
         // paradigm differs from GLES, and many platforms get it wrong [eyerolling]
-        if (WECHAT) {
+        if (WECHAT || WECHAT_MINI_PROGRAM) {
             // wEcHaT just returns { id: -1 } for inactive names
             res.isLocationActive = (glLoc: unknown): glLoc is WebGLUniformLocation => !!glLoc && (glLoc as { id: number }).id !== -1;
         }
@@ -171,7 +171,7 @@ export function getExtensions (gl: WebGLRenderingContext) {
         }
 
         // compressedTexSubImage2D too
-        if (WECHAT) {
+        if (WECHAT || WECHAT_MINI_PROGRAM) {
             res.noCompressedTexSubImage2D = true;
         }
 
@@ -265,7 +265,6 @@ export class WebGLSwapchain extends Swapchain {
         else if (depthBits) depthStencilFmt = Format.DEPTH;
 
         this._colorTexture = new WebGLTexture();
-        // @ts-expect-error(2445) private initializer
         this._colorTexture.initAsSwapchainTexture({
             swapchain: this,
             format: colorFmt,
@@ -274,7 +273,6 @@ export class WebGLSwapchain extends Swapchain {
         });
 
         this._depthStencilTexture = new WebGLTexture();
-        // @ts-expect-error(2445) private initializer
         this._depthStencilTexture.initAsSwapchainTexture({
             swapchain: this,
             format: depthStencilFmt,

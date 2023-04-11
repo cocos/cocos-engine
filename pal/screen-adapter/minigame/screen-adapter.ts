@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { ALIPAY, BAIDU, BYTEDANCE, COCOSPLAY, RUNTIME_BASED, VIVO, WECHAT } from 'internal:constants';
+import { ALIPAY, BAIDU, BYTEDANCE, COCOSPLAY, RUNTIME_BASED, VIVO, WECHAT, WECHAT_MINI_PROGRAM } from 'internal:constants';
 import { minigame } from 'pal/minigame';
 import { ConfigOrientation, IScreenOptions, SafeAreaEdge } from 'pal/screen-adapter';
 import { systemInfo } from 'pal/system-info';
@@ -32,13 +32,16 @@ import { Size } from '../../../cocos/core/math';
 import { OS } from '../../system-info/enum-type';
 import { Orientation } from '../enum-type';
 
+declare const my: any;
+
 // HACK: In some platform like CocosPlay or Alipay iOS end
 // the windowSize need to rotate when init screenAdapter if it's landscape
 let rotateLandscape = false;
 try {
     if (ALIPAY) {
         if (systemInfo.os === OS.IOS && !minigame.isDevTool) {
-            // @ts-expect-error TODO: use pal/fs
+            // TODO: use pal/fs
+            // issue: https://github.com/cocos/cocos-engine/issues/14647
             const fs = my.getFileSystemManager();
             const screenOrientation = JSON.parse(fs.readFileSync({
                 filePath: 'game.json',
@@ -153,7 +156,7 @@ class ScreenAdapter extends EventTarget {
     constructor () {
         super();
         // TODO: onResize or onOrientationChange is not supported well
-        if (WECHAT || COCOSPLAY) {
+        if (WECHAT || WECHAT_MINI_PROGRAM || COCOSPLAY) {
             minigame.onWindowResize?.(() => {
                 this.emit('window-resize', this.windowSize.width, this.windowSize.height);
             });

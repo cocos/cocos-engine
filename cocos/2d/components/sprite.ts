@@ -601,10 +601,10 @@ export class Sprite extends UIRenderer {
             this._assembler = assembler;
         }
 
-        if (!this.renderData) {
+        if (!this._renderData) {
             if (this._assembler && this._assembler.createData) {
                 this._renderData = this._assembler.createData(this);
-                this.renderData!.material = this.getRenderMaterial(0);
+                this._renderData!.material = this.getRenderMaterial(0);
                 this.markForUpdateRenderData();
                 if (this.spriteFrame) {
                     this._assembler.updateUVs(this);

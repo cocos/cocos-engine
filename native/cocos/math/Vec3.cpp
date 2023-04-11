@@ -102,11 +102,17 @@ void Vec3::transformInverseRTS(const Vec3 &v, const Quaternion &r, const Vec3 &t
 }
 
 float Vec3::angle(const Vec3 &v1, const Vec3 &v2) {
-    const float dx = v1.y * v2.z - v1.z * v2.y;
-    const float dy = v1.z * v2.x - v1.x * v2.z;
-    const float dz = v1.x * v2.y - v1.y * v2.x;
+    const auto magSqr1 = v1.x * v1.x + v1.y * v1.y + v1.z * v1.z;
+    const auto magSqr2 = v2.x * v2.x + v2.y * v2.y + v2.z * v2.z;
 
-    return std::atan2(std::sqrt(dx * dx + dy * dy + dz * dz) + MATH_FLOAT_SMALL, dot(v1, v2));
+    if (magSqr1 == 0.0F || magSqr2 == 0.0F) {
+        return 0.0F;
+    }
+
+    const auto dot = v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+    auto cosine = dot / (sqrt(magSqr1 * magSqr2));
+    cosine = clampf(cosine, -1.0, 1.0);
+    return acos(cosine);
 }
 
 void Vec3::add(const Vec3 &v1, const Vec3 &v2, Vec3 *dst) {
@@ -182,15 +188,6 @@ void Vec3::cross(const Vec3 &v) {
 }
 
 void Vec3::cross(const Vec3 &v1, const Vec3 &v2, Vec3 *dst) {
-    CC_ASSERT(dst);
-
-    // NOTE: This code assumes Vec3 struct members are contiguous floats in memory.
-    // We might want to revisit this (and other areas of code that make this assumption)
-    // later to guarantee 100% safety/compatibility.
-    MathUtil::crossVec3(&v1.x, &v2.x, &dst->x);
-}
-
-void Vec3::crossProduct(const Vec3 &v1, const Vec3 &v2, Vec3 *dst) {
     dst->set(
         v1.y * v2.z - v1.z * v2.y,
         v1.z * v2.x - v1.x * v2.z,
@@ -283,10 +280,29 @@ void Vec3::transformMat4Normal(const Vec3 &v, const Mat4 &m, Vec3 *dst) {
     float y = v.y;
     float z = v.z;
     float rhw = m.m[3] * x + m.m[7] * y + m.m[11] * z;
-    rhw = rhw != 0.0F ? std::abs(1.0F / rhw) : 1.0F;
+    rhw = (rhw != 0.0F ? 1.0F / rhw : 1.0F);
     dst->x = (m.m[0] * x + m.m[4] * y + m.m[8] * z) * rhw;
     dst->y = (m.m[1] * x + m.m[5] * y + m.m[9] * z) * rhw;
     dst->z = (m.m[2] * x + m.m[6] * y + m.m[10] * z) * rhw;
+}
+
+void Vec3::moveTowards(const Vec3 &current, const Vec3 &target, float maxStep, Vec3 *dst) {
+    const auto deltaX = target.x - current.x;
+    const auto deltaY = target.y - current.y;
+    const auto deltaZ = target.z - current.z;
+
+    const auto distanceSqr = deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ;
+    if (distanceSqr == 0.0F || (maxStep >= 0.0F && distanceSqr < maxStep * maxStep)) {
+        dst->set(target);
+        return;
+    }
+
+    const auto distance = std::sqrt(distanceSqr);
+    const auto scale = maxStep / distance;
+    dst->set(
+        current.x + deltaX * scale,
+        current.y + deltaY * scale,
+        current.z + deltaZ * scale);
 }
 
 void Vec3::transformQuat(const Quaternion &q) {
@@ -332,22 +348,13 @@ float Vec3::dot(const Vec3 &v1, const Vec3 &v2) {
 }
 
 void Vec3::normalize() {
-    float n = x * x + y * y + z * z;
-    // Already normalized.
-    if (n == 1.0F) {
-        return;
+    float len = x * x + y * y + z * z;
+    if (len > 0.0F) {
+        len = 1.0F / std::sqrt(len);
+        x *= len;
+        y *= len;
+        z *= len;
     }
-
-    n = std::sqrt(n);
-    // Too close to zero.
-    if (n < MATH_TOLERANCE) {
-        return;
-    }
-
-    n = 1.0F / n;
-    x *= n;
-    y *= n;
-    z *= n;
 }
 
 Vec3 Vec3::getNormalized() const {

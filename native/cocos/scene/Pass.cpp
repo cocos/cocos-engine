@@ -27,6 +27,7 @@
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/renderer/pipeline/custom/RenderingModule.h"
 #include "core/Root.h"
+#include "core/assets/EffectAsset.h"
 #include "core/assets/TextureBase.h"
 #include "core/builtin/BuiltinResMgr.h"
 #include "core/platform/Debug.h"
@@ -379,12 +380,12 @@ void Pass::resetTexture(const ccstd::string &name, uint32_t index) {
     const gfx::Type type = Pass::getTypeFromHandle(handle);
     const uint32_t binding = Pass::getBindingFromHandle(handle);
     ccstd::string texName;
-    IPropertyInfo *info = nullptr;
+    const IPropertyInfo *info = nullptr;
     auto iter = _properties.find(name);
     if (iter != _properties.end()) {
         if (iter->second.value.has_value()) {
             info = &iter->second;
-            ccstd::string *pStrVal = ccstd::get_if<ccstd::string>(&iter->second.value.value());
+            const ccstd::string *pStrVal = ccstd::get_if<ccstd::string>(&iter->second.value.value());
             if (pStrVal != nullptr) {
                 texName = (*pStrVal) + getStringFromType(type);
             }
@@ -418,11 +419,10 @@ void Pass::resetUBOs() {
         uint32_t ofs = 0;
         for (const auto &cur : u.members) {
             const auto &block = _blocks[u.binding];
-            const auto &info = _properties[cur.name];
-            const auto &givenDefault = info.value;
+            auto iter = _properties.find(cur.name);
             const auto &value =
-                (givenDefault.has_value()
-                     ? ccstd::get<ccstd::vector<float>>(givenDefault.value())
+                (iter != _properties.end() && iter->second.value.has_value()
+                     ? ccstd::get<ccstd::vector<float>>(iter->second.value.value())
                      : getDefaultFloatArrayFromType(cur.type));
             const uint32_t size = (gfx::getTypeSize(cur.type) >> 2) * cur.count;
             for (size_t k = 0; (k + value.size()) <= size; k += value.size()) {
@@ -687,7 +687,7 @@ void Pass::doInit(const IPassInfoFull &info, bool /*copyDefines*/ /* = false */)
     // store handles
     _propertyHandleMap = handleMap;
     auto &directHandleMap = _propertyHandleMap;
-    Record<ccstd::string, uint32_t> indirectHandleMap;
+    ccstd::unordered_map<ccstd::string, uint32_t> indirectHandleMap;
     for (const auto &properties : _properties) {
         if (!properties.second.handleInfo.has_value()) {
             continue;
@@ -727,7 +727,6 @@ void Pass::buildUniformBlock(
     gfx::BufferViewInfo &bufferViewInfo,
     ccstd::vector<uint32_t> &startOffsets,
     size_t &count) {
-
     const auto alignment = _device->getCapabilities().uboOffsetAlignment;
     bufferViewInfo.buffer = _rootBuffer;
     bufferViewInfo.offset = startOffsets[count++];

@@ -22,14 +22,15 @@
  THE SOFTWARE.
 */
 
+import { TEST, EDITOR } from 'internal:constants';
 import { SpriteFrame } from '../../2d/assets/sprite-frame';
 import type { ImageSource }  from '../assets/image-asset';
 import assetManager from '../asset-manager/asset-manager';
 import { BuiltinBundleName } from '../asset-manager/shared';
-import { TEST, EDITOR } from 'internal:constants';
 import Bundle from '../asset-manager/bundle';
 import { Settings, settings, cclegacy } from '../../core';
-import releaseManager from '../asset-manager/release-manager';
+import { releaseManager } from '../asset-manager/release-manager';
+import type { BuiltinResMgr as JsbBuiltinResMgr } from './builtin-res-mgr';
 
 declare const jsb: any;
 
@@ -39,7 +40,7 @@ const ImageAsset = jsb.ImageAsset;
 const BuiltinResMgr = jsb.BuiltinResMgr;
 const builtinResMgrProto = BuiltinResMgr.prototype;
 
-builtinResMgrProto.init = function (): Promise<void> {
+builtinResMgrProto.init = function () {
     this._resources = {};
     this._materialsToBeCompiled = [];
     const resources = this._resources;
@@ -152,5 +153,5 @@ builtinResMgrProto.loadBuiltinAssets = function () {
    });
 }
 
-const builtinResMgr = cclegacy.builtinResMgr = BuiltinResMgr.getInstance();
+const builtinResMgr = cclegacy.builtinResMgr = BuiltinResMgr.getInstance() as JsbBuiltinResMgr;
 export { builtinResMgr };

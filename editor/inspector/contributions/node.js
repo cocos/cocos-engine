@@ -1392,24 +1392,25 @@ const Elements = {
             const panel = this;
 
             panel.$.componentAdd.addEventListener('click', () => {
-                const rawTimestamp = Date.now();
-                Editor.Panel._kitControl.open({
-                    $kit: panel.$.componentAdd,
-                    name: 'ui-kit.searcher',
-                    timestamp: rawTimestamp,
-                    type: 'add-component',
-                    events: {
-                        async confirm(name, data) {
+                Editor.Panel.__protected__.openKit('ui-kit.searcher', {
+                    elem: panel.$.componentAdd,
+                    params: [
+                        {
+                            type: 'add-component',
+                        },
+                    ],
+                    listeners: {
+                        async confirm(detail/* info */) {
                             Editor.Message.send('scene', 'snapshot');
 
                             for (const uuid of panel.uuidList) {
                                 await Editor.Message.request('scene', 'create-component', {
                                     uuid,
-                                    component: data.cid,
+                                    component: detail.info.cid,
                                 });
                             }
-                            if (data.name) {
-                                trackEventWithTimer('laber', `A100000_${data.name}`);
+                            if (detail.info.name) {
+                                trackEventWithTimer('laber', `A100000_${detail.info.name}`);
                             }
 
                             Editor.Message.send('scene', 'snapshot');

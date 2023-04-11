@@ -316,7 +316,10 @@ class TerrainRenderable extends ModelRenderer {
         this._onRebuildPSO(idx, mtl || this._getBuiltinMaterial());
     }
 
-    protected _onRebuildPSO (idx: number, material: Material) {
+    /**
+     * @engineInternal
+     */
+    public _onRebuildPSO (idx: number, material: Material) {
         if (this._model) {
             this._model.setSubModelMaterial(idx, material);
         }

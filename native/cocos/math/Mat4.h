@@ -88,7 +88,12 @@ public:
     // }
     /**
      * Stores the columns of this 4x4 matrix.
-     * */
+     * matrix layout
+     * |m[0]  m[4]  m[8]  m[12]|
+     * |m[1]  m[5]  m[9]  m[13]|
+     * |m[2]  m[6]  m[10] m[14]|
+     * |m[3]  m[7]  m[11] m[15]|
+     */
 #ifdef __SSE__
     union {
         __m128 col[4];
@@ -112,25 +117,27 @@ public:
     /**
      * Constructs a matrix initialized to the specified value.
      *
-     * @param m11 The first element of the first row.
-     * @param m12 The second element of the first row.
-     * @param m13 The third element of the first row.
-     * @param m14 The fourth element of the first row.
-     * @param m21 The first element of the second row.
-     * @param m22 The second element of the second row.
-     * @param m23 The third element of the second row.
-     * @param m24 The fourth element of the second row.
-     * @param m31 The first element of the third row.
-     * @param m32 The second element of the third row.
-     * @param m33 The third element of the third row.
-     * @param m34 The fourth element of the third row.
-     * @param m41 The first element of the fourth row.
-     * @param m42 The second element of the fourth row.
-     * @param m43 The third element of the fourth row.
-     * @param m44 The fourth element of the fourth row.
+     * @param m00 Component in column 0, row 0 position (index 0)
+     * @param m01 Component in column 0, row 1 position (index 1)
+     * @param m02 Component in column 0, row 2 position (index 2)
+     * @param m03 Component in column 0, row 3 position (index 3)
+     * @param m10 Component in column 1, row 0 position (index 4)
+     * @param m11 Component in column 1, row 1 position (index 5)
+     * @param m12 Component in column 1, row 2 position (index 6)
+     * @param m13 Component in column 1, row 3 position (index 7)
+     * @param m20 Component in column 2, row 0 position (index 8)
+     * @param m21 Component in column 2, row 1 position (index 9)
+     * @param m22 Component in column 2, row 2 position (index 10)
+     * @param m23 Component in column 2, row 3 position (index 11)
+     * @param m30 Component in column 3, row 0 position (index 12)
+     * @param m31 Component in column 3, row 1 position (index 13)
+     * @param m32 Component in column 3, row 2 position (index 14)
+     * @param m33 Component in column 3, row 3 position (index 15)
      */
-    Mat4(float m11, float m12, float m13, float m14, float m21, float m22, float m23, float m24,
-         float m31, float m32, float m33, float m34, float m41, float m42, float m43, float m44);
+    Mat4(float m00, float m01, float m02, float m03,
+         float m10, float m11, float m12, float m13,
+         float m20, float m21, float m22, float m23,
+         float m30, float m31, float m32, float m33);
 
     /**
      * Creates a matrix initialized to the specified column-major array.
@@ -211,17 +218,6 @@ public:
     /**
      * Creates an orthographic projection matrix.
      *
-     * @param width The width of the view.
-     * @param height The height of the view.
-     * @param zNearPlane The minimum z-value of the view volume.
-     * @param zFarPlane The maximum z-value of the view volume.
-     * @param dst A matrix to store the result in.
-     */
-    static void createOrthographic(float left, float right, float bottom, float top, float zNearPlane, float zFarPlane, Mat4 *dst);
-
-    /**
-     * Creates an orthographic projection matrix.
-     *
      * Projection space refers to the space after applying
      * projection transformation from view space. After the
      * projection transformation, visible content has
@@ -247,8 +243,11 @@ public:
      * @param zFarPlane The maximum z-value of the view volume.
      * @param dst A matrix to store the result in.
      */
+    static void createOrthographic(float left, float right, float bottom, float top, float zNearPlane, float zFarPlane, Mat4 *dst);
+
     static void createOrthographicOffCenter(float left, float right, float bottom, float top,
                                             float zNearPlane, float zFarPlane, Mat4 *dst);
+
     static void createOrthographicOffCenter(float left, float right, float bottom, float top,
                                             float zNearPlane, float zFarPlane, float minClipZ,
                                             float projectionSignY, int orientation, Mat4 *dst);
@@ -725,25 +724,27 @@ public:
     /**
      * Sets the values of this matrix.
      *
-     * @param m11 The first element of the first row.
-     * @param m12 The second element of the first row.
-     * @param m13 The third element of the first row.
-     * @param m14 The fourth element of the first row.
-     * @param m21 The first element of the second row.
-     * @param m22 The second element of the second row.
-     * @param m23 The third element of the second row.
-     * @param m24 The fourth element of the second row.
-     * @param m31 The first element of the third row.
-     * @param m32 The second element of the third row.
-     * @param m33 The third element of the third row.
-     * @param m34 The fourth element of the third row.
-     * @param m41 The first element of the fourth row.
-     * @param m42 The second element of the fourth row.
-     * @param m43 The third element of the fourth row.
-     * @param m44 The fourth element of the fourth row.
+     * @param m00 Component in column 0, row 0 position (index 0)
+     * @param m01 Component in column 0, row 1 position (index 1)
+     * @param m02 Component in column 0, row 2 position (index 2)
+     * @param m03 Component in column 0, row 3 position (index 3)
+     * @param m10 Component in column 1, row 0 position (index 4)
+     * @param m11 Component in column 1, row 1 position (index 5)
+     * @param m12 Component in column 1, row 2 position (index 6)
+     * @param m13 Component in column 1, row 3 position (index 7)
+     * @param m20 Component in column 2, row 0 position (index 8)
+     * @param m21 Component in column 2, row 1 position (index 9)
+     * @param m22 Component in column 2, row 2 position (index 10)
+     * @param m23 Component in column 2, row 3 position (index 11)
+     * @param m30 Component in column 3, row 0 position (index 12)
+     * @param m31 Component in column 3, row 1 position (index 13)
+     * @param m32 Component in column 3, row 2 position (index 14)
+     * @param m33 Component in column 3, row 3 position (index 15)
      */
-    void set(float m11, float m12, float m13, float m14, float m21, float m22, float m23, float m24,
-             float m31, float m32, float m33, float m34, float m41, float m42, float m43, float m44);
+    void set(float m00, float m01, float m02, float m03,
+             float m10, float m11, float m12, float m13,
+             float m20, float m21, float m22, float m23,
+             float m30, float m31, float m32, float m33);
 
     /**
      * Sets the values of this matrix to those in the specified column-major array.

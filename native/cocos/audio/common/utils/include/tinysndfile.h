@@ -25,8 +25,9 @@
     #include <sys/cdefs.h>
 #elif CC_PLATFORM == CC_PLATFORM_WINDOWS
     #include <sys/types.h>
+#elif CC_PLATFORM == CC_PLATFORM_OPENHARMONY
+    #include <cstdint>
 #endif
-
 #include <cstdint>
 #include <cstdio>
 
@@ -35,7 +36,7 @@ namespace sf {
 // visible to clients
 using sf_count_t = int;
 
-using SF_INFO = struct {
+struct SF_INFO {
     sf_count_t frames;
     int samplerate;
     int channels;
@@ -55,7 +56,7 @@ using SNDFILE = struct SNDFILE_;
 #define SF_FORMAT_PCM_32   8
 #define SF_FORMAT_PCM_24   10
 
-using snd_callbacks = struct {
+struct snd_callbacks {
     void *(*open)(const char *path, void *user);
     size_t (*read)(void *ptr, size_t size, size_t nmemb, void *datasource);
     int (*seek)(void *datasource, long offset, int whence); //NOLINT(google-runtime-int)
