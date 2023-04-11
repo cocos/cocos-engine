@@ -519,8 +519,6 @@ export function buildPostprocessPass (camera: Camera,
     postprocessPass.addQueue(QueueHint.NONE).addFullscreenQuad(
         postInfo.postMaterial, 0, SceneFlags.NONE,
     );
-    postprocessPass.addQueue(QueueHint.RENDER_TRANSPARENT).addSceneOfCamera(camera, new LightInfo(),
-        SceneFlags.UI);
     if (getProfilerCamera() === camera) {
         postprocessPass.showStatistics = true;
     }

@@ -1081,7 +1081,7 @@ export class RaytracePass {
 }
 
 export class ClearView {
-    constructor (slotName = '', clearFlags: ClearFlagBit = gfx.ClearFlagBit.ALL, clearColor: Color = new Color()) {
+    constructor (slotName = '', clearFlags: ClearFlagBit = ClearFlagBit.ALL, clearColor: Color = new Color()) {
         this.slotName = slotName;
         this.clearFlags = clearFlags;
         this.clearColor = clearColor;
