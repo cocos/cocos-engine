@@ -65,7 +65,19 @@ exports.listeners = {
         }
 
         try {
+            /**
+             * When the multi-select node is updated in bulk, 
+             * the node-change of the previous node may be issued due to await, 
+             * so it is necessary to block the interface data update.
+             */
+            const lockUpdateTimes = panel.uuidList.length - 1;
+            panel.readyToUpdate = false;
+
             for (let i = 0; i < panel.uuidList.length; i++) {
+                if (i === lockUpdateTimes) {
+                    panel.readyToUpdate = true;
+                }
+
                 const uuid = panel.uuidList[i];
                 const { path, type, isArray } = dump;
                 let value = dump.value;
@@ -418,7 +430,7 @@ const Elements = {
                     window.cancelAnimationFrame(panel.__nodeChangedHandle__);
                     panel.__nodeChangedHandle__ = window.requestAnimationFrame(async () => {
                         for (const prop in Elements) {
-                            if (!panel.ready) {
+                            if (!panel.readyToUpdate) {
                                 return;
                             }
                             const element = Elements[prop];
@@ -2025,7 +2037,7 @@ exports.ready = async function ready() {
 
     // 为了避免把 ui-num-input, ui-color 的连续 change 进行 snapshot
     panel.snapshotLock = false;
-    panel.ready = true;
+    panel.readyToUpdate = true;
 
     for (const prop in Elements) {
         const element = Elements[prop];
@@ -2042,7 +2054,7 @@ exports.ready = async function ready() {
 
 exports.close = async function close() {
     const panel = this;
-    panel.ready = false;
+    panel.readyToUpdate = false;
 
     for (const prop in Elements) {
         const element = Elements[prop];
