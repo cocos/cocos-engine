@@ -232,6 +232,7 @@ Object* Object::createTypedArray(Object::TypedArrayType type, const void* data, 
         case TypedArrayType::INT16:
             napiType  = napi_int16_array;
             sizeOfEle = 2;
+            break;
         case TypedArrayType::UINT16:
             napiType  = napi_uint16_array;
             sizeOfEle = 2;
@@ -239,9 +240,11 @@ Object* Object::createTypedArray(Object::TypedArrayType type, const void* data, 
         case TypedArrayType::INT32:
             napiType  = napi_int32_array;
             sizeOfEle = 4;
+            break;
         case TypedArrayType::UINT32:
             napiType  = napi_uint32_array;
             sizeOfEle = 4;
+            break;
         case TypedArrayType::FLOAT32:
             napiType  = napi_float32_array;
             sizeOfEle = 4;
@@ -307,6 +310,7 @@ Object* Object::createTypedArrayWithBuffer(TypedArrayType type, const Object *ob
         case TypedArrayType::INT16:
             napiType  = napi_int16_array;
             sizeOfEle = 2;
+            break;
         case TypedArrayType::UINT16:
             napiType  = napi_uint16_array;
             sizeOfEle = 2;
@@ -314,9 +318,11 @@ Object* Object::createTypedArrayWithBuffer(TypedArrayType type, const Object *ob
         case TypedArrayType::INT32:
             napiType  = napi_int32_array;
             sizeOfEle = 4;
+            break;
         case TypedArrayType::UINT32:
             napiType  = napi_uint32_array;
             sizeOfEle = 4;
+            break;
         case TypedArrayType::FLOAT32:
             napiType  = napi_float32_array;
             sizeOfEle = 4;
