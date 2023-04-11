@@ -1822,6 +1822,8 @@ if(USE_PHYSICS_PHYSX)
         cocos/physics/physx/joints/PhysXFixedJoint.cpp
         cocos/physics/physx/joints/PhysXSpherical.h
         cocos/physics/physx/joints/PhysXSpherical.cpp
+        cocos/physics/physx/joints/PhysXGenericJoint.h
+        cocos/physics/physx/joints/PhysXGenericJoint.cpp
     )
     cocos_source_files(
         NO_WERROR NO_UBUILD cocos/bindings/auto/jsb_physics_auto.cpp

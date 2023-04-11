@@ -62,8 +62,8 @@ export class PhysXFixedJoint extends PhysXJoint implements IFixedConstraint {
         const cb = this.constraint.connectedBody;
         const bodyB = cb ? (cb.body as PhysXRigidBody).sharedBody : (PhysicsSystem.instance.physicsWorld as PhysXWorld).getSharedBody(bodyA.node);
 
-        const pos : Vec3 = new Vec3();
-        const rot : Quat = new Quat();
+        const pos = new Vec3();
+        const rot = new Quat();
 
         const trans = new Mat4();
         Mat4.fromRT(trans, bodyA.node.worldRotation, bodyA.node.worldPosition);

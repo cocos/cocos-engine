@@ -28,6 +28,7 @@ import {
     menu,
     type,
     serializable,
+    tooltip,
 } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Constraint } from './constraint';
@@ -41,11 +42,12 @@ import { IPointToPointConstraint } from '../../../spec/i-physics-constraint';
 export class PointToPointConstraint extends Constraint {
     /**
      * @en
-     * The position of the own rigid body in local space with respect to the constraint axis.
+     * The pivot point of the constraint in the local coordinate system of the attached rigid body.
      * @zh
-     * 在本地空间中，自身刚体相对于约束关节的位置。
+     * 约束关节在连接刚体本地坐标系中的位置。
      */
     @type(Vec3)
+    @tooltip('i18n:physics3d.constraint.pivotA')
     get pivotA () {
         return this._pivotA;
     }
@@ -59,11 +61,12 @@ export class PointToPointConstraint extends Constraint {
 
     /**
      * @en
-     * The position of the connected rigid body in the local space with respect to the constraint axis.
+     * The pivot point of the constraint in the local coordinate system of the connected rigid body.
      * @zh
-     * 在本地空间中，连接刚体相对于约束关节的位置。
+     * 约束关节在连接刚体本地坐标系中的位置。
      */
     @type(Vec3)
+    @tooltip('i18n:physics3d.constraint.pivotB')
     get pivotB () {
         return this._pivotB;
     }

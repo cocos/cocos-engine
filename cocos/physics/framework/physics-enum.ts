@@ -38,6 +38,16 @@ export enum EAxisDirection {
 }
 Enum(EAxisDirection);
 
+export enum ED6Axis {
+    X = 0,
+    Y = 1,
+    Z = 2,
+    SWING1 = 3,
+    SWING2 = 4,
+    TWIST = 5,
+}
+Enum(ED6Axis);
+
 export enum ESimplexType {
     VERTEX = 1,
     LINE = 2,
@@ -64,8 +74,23 @@ export enum EConstraintType {
     HINGE,
     CONE_TWIST,
     FIXED,
+    CONFIGURABLE,
 }
 Enum(EConstraintType);
+
+export enum EConstraintMode {
+    FREE = 0,
+    LIMITED = 1,
+    LOCKED = 2,
+}
+Enum(EConstraintMode);
+
+export enum EDriverMode {
+    DISABLED = 0,
+    SERVO = 1,
+    INDUCTION = 2,
+}
+Enum(EDriverMode);
 
 export enum PhysicsGroup {
     DEFAULT = 1,

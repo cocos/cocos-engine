@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 
-import { ccclass, requireComponent, displayOrder, type, readOnly, serializable } from 'cc.decorator';
+import { ccclass, requireComponent, displayOrder, type, readOnly, serializable, tooltip } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Component } from '../../../../scene-graph';
 import { RigidBody } from '../rigid-body';
@@ -51,25 +51,27 @@ export class Constraint extends Eventify(Component) {
 
     /**
      * @en
-     * Gets the collider attached rigid-body.
+     * The rigid body where the constraint is attached to.
      * @zh
-     * 获取碰撞器所绑定的刚体组件。
+     * 约束附着的刚体。
      */
     @type(RigidBody)
     @readOnly
     @displayOrder(-2)
+    @tooltip('i18n:physics3d.constraint.attachedBody')
     get attachedBody (): RigidBody | null {
         return this.getComponent(RigidBody);
     }
 
     /**
      * @en
-     * Get or set the jointed rigid body, null means link to a static rigid body at the world origin.
+     * The rigid body connected to the constraint, if not set, it will be connected to the world.
      * @zh
-     * 获取或设置关节连接的刚体，为空时表示链接到位于世界原点的静态刚体。
+     * 约束连接的刚体， 未设置时为世界坐标系。
      */
     @type(RigidBody)
     @displayOrder(-1)
+    @tooltip('i18n:physics3d.constraint.connectedBody')
     get connectedBody (): RigidBody | null {
         return this._connectedBody;
     }
@@ -83,11 +85,12 @@ export class Constraint extends Eventify(Component) {
 
     /**
      * @en
-     * Get or set whether collision is turned on between two rigid bodies connected by a joint.
+     * Whether to enable collision between the two rigid bodies.
      * @zh
-     * 获取或设置关节连接的两刚体之间是否开启碰撞。
+     * 是否开启两个刚体之间的碰撞。
      */
     @displayOrder(0)
+    @tooltip('i18n:physics3d.constraint.enableCollision')
     get enableCollision () {
         return this._enableCollision;
     }

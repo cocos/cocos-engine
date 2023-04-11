@@ -42,6 +42,7 @@ import { PlaneCollider } from './components/colliders/plane-collider';
 import { Constraint } from './components/constraints/constraint';
 import { HingeConstraint } from './components/constraints/hinge-constraint';
 import { FixedConstraint } from './components/constraints/fixed-constraint';
+import { ConfigurableConstraint } from './components/constraints/configurable-constraint';
 
 import { PointToPointConstraint } from './components/constraints/point-to-point-constraint';
 
@@ -68,6 +69,7 @@ export {
     HingeConstraint,
     FixedConstraint,
     PointToPointConstraint,
+    ConfigurableConstraint,
 
     RigidBody,
     PhysicsMaterial,

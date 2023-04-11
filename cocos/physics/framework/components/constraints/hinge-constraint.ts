@@ -29,6 +29,7 @@ import {
     serializable,
     formerlySerializedAs,
     type,
+    tooltip,
 } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Constraint } from './constraint';
@@ -42,11 +43,12 @@ import { IHingeConstraint } from '../../../spec/i-physics-constraint';
 export class HingeConstraint extends Constraint {
     /**
      * @en
-     * The position of the own rigid body in local space with respect to the constraint axis.
+     * The pivot point of the constraint in the local coordinate system of the attached rigid body.
      * @zh
-     * 在本地空间中，自身刚体相对于约束关节的位置。
+     * 约束关节在连接刚体的本地坐标系中的锚点。
      */
     @type(Vec3)
+    @tooltip('i18n:physics3d.constraint.pivotA')
     get pivotA (): Vec3 {
         return this._pivotA;
     }
@@ -60,11 +62,12 @@ export class HingeConstraint extends Constraint {
 
     /**
      * @en
-     * The position of the connected rigid body in the local space with respect to the constraint axis.
+     * The pivot point of the constraint in the local coordinate system of the connected rigid body.
      * @zh
-     * 在本地空间中，连接刚体相对于约束关节的位置。
+     * 约束关节在连接刚体的本地坐标系中的锚点。
      */
     @type(Vec3)
+    @tooltip('i18n:physics3d.constraint.pivotB')
     get pivotB (): Vec3 {
         return this._pivotB;
     }
@@ -78,11 +81,12 @@ export class HingeConstraint extends Constraint {
 
     /**
      * @en
-     * The direction of the constraint axis rotation in local space.
+     * The axis of the constraint in the local coordinate system of the attached rigid body.
      * @zh
-     * 在本地空间中，约束关节旋转的方向。
+     * 约束关节在连接刚体的本地坐标系中的轴。
      */
     @type(Vec3)
+    @tooltip('i18n:physics3d.constraint.axis')
     get axis (): Vec3 {
         return this._axis;
     }
