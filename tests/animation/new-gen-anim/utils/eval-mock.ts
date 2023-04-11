@@ -22,6 +22,16 @@ export class AnimationGraphEvalMock {
         this._eval = graphEval;
     }
 
+    public destroy(afterException = false) {
+        if (afterException) {
+            this._eval._destroyAfterException_debugging();
+            // @ts-expect-error HACK
+            this.controller._graphEval = null;
+        } else {
+            this.controller.destroy();
+        }
+    }
+
     get controller() {
         return this._controller;
     }
@@ -53,4 +63,13 @@ export class AnimationGraphEvalMock {
 
     private _eval: AnimationGraphEval;
     private _controller: AnimationController;
+}
+
+export function* generateIntervals(...times: readonly number[]) {
+    let last = 0.0;
+    for (let i = 0; i < times.length; ++i) {
+        const t = times[i];
+        yield [t - last, i, t] as [interval: number, index: number, timePoint: number];
+        last = t;
+    }
 }

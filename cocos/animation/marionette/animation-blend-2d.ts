@@ -29,8 +29,8 @@ import { MotionEvalContext } from './motion';
 import { BindableNumber, bindOr, VariableType } from './parametric';
 import { sampleFreeformCartesian, blendSimpleDirectional, PolarSpaceGradientBandInterpolator2D } from './blend-2d';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
-import { AnimationGraphLayerWideBindingContext } from './animation-graph-context';
 import { ReadonlyClipOverrideMap } from './graph-eval';
+import { AnimationGraphBindingContext } from './animation-graph-context';
 
 const { ccclass, serializable } = _decorator;
 
@@ -107,7 +107,7 @@ export class AnimationBlend2D extends AnimationBlend {
         return that;
     }
 
-    public [createEval] (context: AnimationGraphLayerWideBindingContext, clipOverrides: ReadonlyClipOverrideMap | null) {
+    public [createEval] (context: AnimationGraphBindingContext, clipOverrides: ReadonlyClipOverrideMap | null) {
         const { algorithm } = this;
         let evaluation: AnimationBlendEval;
         switch (algorithm) {
@@ -140,7 +140,7 @@ export class AnimationBlend2D extends AnimationBlend {
         }
 
         const initialValueX = bindOr(
-            context.outerContext,
+            context,
             this.paramX,
             VariableType.FLOAT,
             evaluation.setInput,
@@ -148,7 +148,7 @@ export class AnimationBlend2D extends AnimationBlend {
             0,
         );
         const initialValueY = bindOr(
-            context.outerContext,
+            context,
             this.paramY,
             VariableType.FLOAT,
             evaluation.setInput,
@@ -186,7 +186,7 @@ class AnimationBlend2DEval extends AnimationBlendEval {
     private _value = new Vec2();
 
     constructor (
-        context: AnimationGraphLayerWideBindingContext,
+        context: AnimationGraphBindingContext,
         clipOverrides: ReadonlyClipOverrideMap | null,
         base: AnimationBlend,
         items: AnimationBlendItem[],
@@ -221,7 +221,7 @@ class PolarSpaceGradientBandBlend2DEval extends AnimationBlendEval {
     private _value = new Vec2();
 
     constructor (
-        context: AnimationGraphLayerWideBindingContext,
+        context: AnimationGraphBindingContext,
         clipOverrides: ReadonlyClipOverrideMap | null,
         base: AnimationBlend,
         items: AnimationBlendItem[],

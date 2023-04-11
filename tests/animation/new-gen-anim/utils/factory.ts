@@ -1,5 +1,6 @@
 import { AnimationClip } from "../../../../cocos/animation/animation-clip";
-import { AnimationGraph, AnimationTransition, EmptyStateTransition, isAnimationTransition, State, StateMachine, SubStateMachine, Transition } from "../../../../cocos/animation/marionette/animation-graph";
+import { AnimationGraph, AnimationTransition, EmptyStateTransition, isAnimationTransition, PoseState, PoseTransition, State, StateMachine, SubStateMachine, Transition } from "../../../../cocos/animation/marionette/animation-graph";
+import { PoseGraph, PoseNode } from "../../../../cocos/animation/marionette/asset-creation";
 import { ClipMotion } from "../../../../cocos/animation/marionette/clip-motion";
 import { BinaryCondition, TriggerCondition, UnaryCondition } from "../../../../cocos/animation/marionette/condition";
 import { Motion } from "../../../../cocos/animation/marionette/motion";
@@ -47,6 +48,10 @@ export function fillStateMachine(stateMachine: StateMachine, params: StateMachin
                 if (stateParams.motion) {
                     (state as MotionState).motion = stateParams.motion instanceof Motion ? stateParams.motion : createMotion(stateParams.motion);
                 }
+                break;
+            case 'pose':
+                state = stateMachine.addPoseState();
+                fillPoseGraph((state as PoseState).graph, stateParams.graph);
                 break;
             case 'empty':
                 state = stateMachine.addEmpty();
@@ -136,8 +141,8 @@ function fillTransition(transition: Transition, params: TransitionAttributes) {
         }
     }
 
-    function assertsIsDurableTransition(transition: Transition): asserts transition is (AnimationTransition | EmptyStateTransition) {
-        if (!isAnimationTransition(transition) && !(transition instanceof EmptyStateTransition)) {
+    function assertsIsDurableTransition(transition: Transition): asserts transition is (AnimationTransition | EmptyStateTransition | PoseTransition) {
+        if (!isAnimationTransition(transition) && !(transition instanceof EmptyStateTransition) && !(transition instanceof PoseTransition)) {
             throw new Error(`The transition should be animation/empty transition.`);
         }
     }
@@ -236,6 +241,9 @@ export type StateParams = ({
     stateMachine: StateMachineParams;
 } | {
     type: 'empty',
+} | {
+    type: 'pose';
+    graph: PoseGraphParams;
 }) & {
     name?: string;
 };
@@ -295,3 +303,22 @@ export type MotionParams = {
         duration: number;
     };
 };
+
+export interface PoseGraphParams {
+    rootNode?: PoseNodeParams;
+}
+
+export type PoseNodeParams = PoseNode;
+
+function fillPoseGraph(poseGraph: PoseGraph, params: PoseGraphParams) {
+    if (params.rootNode) {
+        const root = createPoseNode(poseGraph, params.rootNode);
+        poseGraph.main = root;
+    }
+}
+
+export function createPoseNode(poseGraph: PoseGraph, params: PoseNodeParams): NonNullable<PoseGraph['main']> {
+    poseGraph.addNode(params);
+    return params;
+}
+

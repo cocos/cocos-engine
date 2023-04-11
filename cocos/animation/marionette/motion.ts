@@ -29,7 +29,7 @@ import type { BindContext } from './parametric';
 import type { BlendStateBuffer } from '../../3d/skeletal-animation/skeletal-animation-blending';
 import type { ReadonlyClipOverrideMap, ClipStatus } from './graph-eval';
 import type { RuntimeID } from './graph-debug';
-import { AnimationGraphEvaluationContext, AnimationGraphLayerWideBindingContext } from './animation-graph-context';
+import { AnimationGraphBindingContext, AnimationGraphEvaluationContext } from './animation-graph-context';
 import { Pose } from '../core/pose';
 import { EditorExtendable } from '../../core';
 import { ccclass } from '../../core/data/decorators';
@@ -61,7 +61,7 @@ export interface MotionEval {
 
     getClipStatuses(baseWeight: number): Iterator<ClipStatus>;
 
-    overrideClips(clipOverrides: ReadonlyClipOverrideMap, context: AnimationGraphLayerWideBindingContext): void;
+    overrideClips(clipOverrides: ReadonlyClipOverrideMap, context: AnimationGraphBindingContext): void;
 
     createPort(): MotionPort;
 }
@@ -70,7 +70,7 @@ export interface MotionEval {
 // since we ever made a historical mistaken: take a look at `MotionState`'s class name...
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}MotionBase`)
 export abstract class Motion extends EditorExtendable {
-    abstract [createEval] (context: AnimationGraphLayerWideBindingContext, clipOverrides: ReadonlyClipOverrideMap | null): MotionEval | null;
+    abstract [createEval] (context: AnimationGraphBindingContext, clipOverrides: ReadonlyClipOverrideMap | null): MotionEval | null;
 
     abstract clone(): Motion;
 }
