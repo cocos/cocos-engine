@@ -24,7 +24,8 @@
 */
 
 import { EDITOR } from 'internal:constants';
-import { MeshRenderer, ReflectionProbeType } from '../3d/framework/mesh-renderer';
+import { MeshRenderer } from '../3d/framework/mesh-renderer';
+import { ReflectionProbeType } from '../3d/framework/reflection-probe-enum';
 import { ImageAsset, Texture2D } from '../asset/assets';
 import { PixelFormat } from '../asset/assets/asset-enum';
 import { Vec3, geometry, cclegacy } from '../core';

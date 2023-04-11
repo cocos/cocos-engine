@@ -41,6 +41,7 @@ import { Root } from '../../root';
 import { TextureCube } from '../../asset/assets';
 import { ShadowType } from './shadows';
 import { ProbeType, ReflectionProbe } from './reflection-probe';
+import { ReflectionProbeType } from '../../3d/framework/reflection-probe-enum';
 
 const m4_1 = new Mat4();
 
@@ -91,14 +92,6 @@ const lightmapSamplerWithMipHash = new SamplerInfo(
     Address.CLAMP,
     Address.CLAMP,
 );
-
-const enum ReflectionProbeType {
-    NONE = 0,
-    BAKED_CUBEMAP = 1,
-    PLANAR_REFLECTION = 2,
-    BLEND_PROBES = 3,
-    BLEND_PROBES_AND_SKYBOX = 4,
-}
 
 /**
  * @en A representation of a model instance
@@ -343,10 +336,10 @@ export class Model {
      * @zh 反射探针类型。
      */
     get reflectionProbeType () {
-        return this._reflectionProbeType as number;
+        return this._reflectionProbeType;
     }
 
-    set reflectionProbeType (val: number) {
+    set reflectionProbeType (val) {
         this._reflectionProbeType = val;
         const subModels = this._subModels;
         for (let i = 0; i < subModels.length; i++) {
