@@ -49,10 +49,11 @@ builtinResMgrProto.init = function () {
 
     const blackValueView = new Uint8Array(len * len * numChannels);
     for (let i = 0; i < len * len; i++) {
-        blackValueView[i * numChannels] = 0;
-        blackValueView[i * numChannels + 1] = 0;
-        blackValueView[i * numChannels + 2] = 0;
-        blackValueView[i * numChannels + 3] = 255;
+        const offset = i * numChannels;
+        blackValueView[offset] = 0;
+        blackValueView[offset + 1] = 0;
+        blackValueView[offset + 2] = 0;
+        blackValueView[offset + 3] = 255;
     }
 
     const blackMemImageSource: ImageSource = {
