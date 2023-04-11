@@ -1222,7 +1222,7 @@ void cmdFuncCCVKUpdateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer, const
     }
 
     // upload buffer by chunks
-    uint32_t chunkSize = std::min(sizeToUpload, CCVKGPUStagingBufferPool::CHUNK_SIZE);
+    uint32_t chunkSize = std::min(static_cast<VkDeviceSize>(sizeToUpload), CCVKGPUStagingBufferPool::CHUNK_SIZE);
 
     uint32_t chunkOffset = 0U;
     while (sizeToUpload) {

@@ -8,6 +8,7 @@ import { spawn } from "child_process";
 
 export interface IWindowsParam {
     targetPlatform: 'x64';
+    vsVersion: string;
 }
 
 export class WindowsPackTool extends NativePackTool {
@@ -37,13 +38,14 @@ export class WindowsPackTool extends NativePackTool {
 
         let generateArgs: string[] = [];
         if (!fs.existsSync(ps.join(nativePrjDir, 'CMakeCache.txt'))) {
-            const g = this.getCmakeGenerator();
+            const vsVersion = this.getCmakeGenerator();
             // const g = '';
-            if (g) {
-                const optlist = cocosConfig.cmake.windows.generators.filter((x) => x.G.toLowerCase() === g.toLowerCase());
-                if (optlist.length === 0) {
-                    generateArgs.push(`-G"${g}"`);
-                } else {
+            if (vsVersion) {
+                const optlist = cocosConfig.cmake.windows.generators.filter((x) => x.V === vsVersion);
+                if (optlist.length > 0) {
+                    generateArgs.push(`-G"${optlist[0].G}"`);
+                }
+                if (Number.parseInt(vsVersion) <= 2017) {
                     generateArgs.push('-A', this.params.platformParams.targetPlatform);
                 }
             } else {
@@ -129,9 +131,8 @@ export class WindowsPackTool extends NativePackTool {
         return ret;
     }
 
-    // TODO visual studio version
     getCmakeGenerator() {
-        return '';
+        return this.params.platformParams.vsVersion || '';
     }
 
     async run(): Promise<boolean> {

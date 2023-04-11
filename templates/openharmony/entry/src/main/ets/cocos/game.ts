@@ -85,7 +85,9 @@ export function launchEngine (): Promise<void> {
                     return System.import('./src/<%= applicationUrl%>').then(({ Application }) => {
                         return new Application();
                     }).then((application) => {
+                        <% if(useAotOptimization) { %>
                         return import('./src/cocos-js/cc').then(() => {
+                        <% } %>
                             return System.import('cc').then((cc) => {
                                 return import('./jsb-adapter/engine-adapter.js').then(() => {
                                     cc.macro.CLEANUP_IMAGE_CACHE = false;
@@ -94,7 +96,9 @@ export function launchEngine (): Promise<void> {
                             }).then(() => {
                                 return application.start();
                             });
+                        <% if(useAotOptimization) { %>
                         });
+                        <% } %>
                     });
                 });
             });             

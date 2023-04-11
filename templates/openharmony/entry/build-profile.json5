@@ -9,7 +9,8 @@
         "arm64-v8a"
       ],
       "cppFlags": "",
-    }
+    },
+    "compileMode": "esmodule",
   },
   "targets": [
     {

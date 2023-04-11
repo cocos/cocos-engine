@@ -41,7 +41,8 @@ public:
     ISystemWindow *createWindow(const ISystemWindowInfo &info) override;
     ISystemWindow *getWindow(uint32_t windowId) const override;
     const SystemWindowMap &getWindows() const override { return _windows; }
-
+    ISystemWindow *getWindowFromHandle(void* handle) const;
+    void removeWindow(void* window);
 private:
     uint32_t _nextWindowId{1}; // start from 1, 0 means an invalid ID
 
