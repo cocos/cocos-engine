@@ -650,8 +650,7 @@ void CCVKCommandBuffer::bindDescriptorSets(VkPipelineBindPoint bindPoint) {
     uint32_t dirtyDescriptorSetCount = descriptorSetCount - _firstDirtyDescriptorSet;
     for (uint32_t i = _firstDirtyDescriptorSet; i < descriptorSetCount; ++i) {
         if (_curGPUDescriptorSets[i]) {
-            const CCVKGPUDescriptorSet::Instance &instance = _curGPUDescriptorSets[i]->instances[gpuDevice->curBackBufferIndex];
-            _curVkDescriptorSets[i] = instance.vkDescriptorSet;
+            _curVkDescriptorSets[i] = _curGPUDescriptorSets[i]->instance.vkDescriptorSet;
         } else {
             _curVkDescriptorSets[i] = pipelineLayout->setLayouts[i]->defaultDescriptorSet;
         }

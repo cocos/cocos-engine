@@ -60,6 +60,7 @@ void CCVKBuffer::createBuffer(uint32_t size, uint32_t count) {
     _gpuBuffer->usage = _usage;
     _gpuBuffer->memUsage = _memUsage;
     _gpuBuffer->stride = _stride;
+    _gpuBuffer->flags = _flags;
     _gpuBuffer->init();
 }
 
@@ -88,7 +89,7 @@ void CCVKBuffer::doResize(uint32_t size, uint32_t count) {
 
 void CCVKBuffer::update(const void *buffer, uint32_t size) {
     CC_PROFILE(CCVKBufferUpdate);
-    cmdFuncCCVKUpdateBuffer(CCVKDevice::getInstance(), _gpuBuffer, buffer, size, nullptr);
+    cmdFuncCCVKUpdateBuffer2(CCVKDevice::getInstance(), _gpuBuffer, buffer, size, nullptr);
 }
 
 void CCVKGPUBuffer::shutdown() {

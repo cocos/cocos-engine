@@ -1733,6 +1733,8 @@ if(CC_USE_VULKAN)
                      cocos/renderer/gfx-vulkan/VKGPURecycleBin.cpp
                      cocos/renderer/gfx-vulkan/VKPipelineCache.cpp
                      cocos/renderer/gfx-vulkan/VKPipelineCache.h
+                     cocos/renderer/gfx-vulkan/VKCachedObjectPool.cpp
+                     cocos/renderer/gfx-vulkan/VKCachedObjectPool.h
                      cocos/renderer/gfx-vulkan/states/VKGeneralBarrier.cpp
                      cocos/renderer/gfx-vulkan/states/VKGeneralBarrier.h
                      cocos/renderer/gfx-vulkan/states/VKSampler.cpp
