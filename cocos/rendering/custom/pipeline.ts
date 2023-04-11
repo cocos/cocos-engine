@@ -190,13 +190,13 @@ export interface Pipeline extends PipelineRuntime {
     addShadingRateTexture (name: string, width: number, height: number, residency: ResourceResidency): number;
     addShadingRateTexture (name: string, width: number, height: number/*, ResourceResidency.MANAGED*/): number;
     updateStorageBuffer (name: string, size: number, format: Format): void;
-    updateStorageBuffer (name: string, size: number/*, gfx.Format.UNKNOWN*/): void;
+    updateStorageBuffer (name: string, size: number/*, Format.UNKNOWN*/): void;
     updateRenderTarget (name: string, width: number, height: number, format: Format): void;
-    updateRenderTarget (name: string, width: number, height: number/*, gfx.Format.UNKNOWN*/): void;
+    updateRenderTarget (name: string, width: number, height: number/*, Format.UNKNOWN*/): void;
     updateDepthStencil (name: string, width: number, height: number, format: Format): void;
-    updateDepthStencil (name: string, width: number, height: number/*, gfx.Format.UNKNOWN*/): void;
+    updateDepthStencil (name: string, width: number, height: number/*, Format.UNKNOWN*/): void;
     updateStorageTexture (name: string, width: number, height: number, format: Format): void;
-    updateStorageTexture (name: string, width: number, height: number/*, gfx.Format.UNKNOWN*/): void;
+    updateStorageTexture (name: string, width: number, height: number/*, Format.UNKNOWN*/): void;
     updateShadingRateTexture (name: string, width: number, height: number): void;
     beginFrame (): void;
     endFrame (): void;

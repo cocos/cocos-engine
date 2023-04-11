@@ -622,7 +622,7 @@ uint8_t getCombineSignY(gfx::Device *device) {
     if (combineSignY < 0) {
         const float screenSpaceSignY = device->getCapabilities().screenSpaceSignY * 0.5F + 0.5F;
         const float clipSpaceSignY = device->getCapabilities().clipSpaceSignY * 0.5F + 0.5F;
-        combineSignY = static_cast<int8_t>(screenSpaceSignY) << 1 | static_cast<int8_t>(clipSpaceSignY);
+        combineSignY = static_cast<int8_t>(static_cast<int>(screenSpaceSignY) << 1 | static_cast<int>(clipSpaceSignY));
     }
     return static_cast<uint8_t>(combineSignY);
 }
