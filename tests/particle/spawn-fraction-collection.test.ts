@@ -1,4 +1,3 @@
-import { cpuUsage } from 'process';
 import { SpawnFractionCollection } from '../../cocos/particle/spawn-fraction-collection';
 
 test('Base', () => {

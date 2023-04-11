@@ -466,15 +466,15 @@ export class ParticleFloatArrayParameter extends ParticleArrayParameter {
         this._data[b] = this._data[a];
     }
 
-    get1fAt (handle: ParticleHandle) {
+    getFloatAt (handle: ParticleHandle) {
         return this._data[handle];
     }
 
-    set1fAt (val: number, handle: ParticleHandle) {
+    setFloatAt (val: number, handle: ParticleHandle) {
         this._data[handle] = val;
     }
 
-    add1fAt (val: number, handle: ParticleHandle) {
+    addFloatAt (val: number, handle: ParticleHandle) {
         this._data[handle] += val;
     }
 

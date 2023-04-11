@@ -250,7 +250,7 @@ export class ParticleEmitter extends Component {
     }
 
     public set randomSeed (val) {
-        this._params.randomSeed = val;
+        this._params.randomSeed = val >>> 0;
     }
 
     @visible(true)
@@ -361,6 +361,10 @@ export class ParticleEmitter extends Component {
         return this._renderStage;
     }
 
+    public get eventReceiverCount () {
+        return this._eventReceiverCount;
+    }
+
     public get lastSimulateFrame () {
         return this._state.lastSimulateFrame;
     }
@@ -382,10 +386,11 @@ export class ParticleEmitter extends Component {
     @serializable
     private _eventReceivers: EventReceiver[] = [];
     @serializable
+    private _eventReceiverCount = 0;
+    @serializable
     private _renderStage = new ParticleModuleStage(ModuleExecStage.RENDER);
     @serializable
     private _params = new ParticleEmitterParams();
-    @serializable
     private _particles = new ParticleDataSet();
     private _context = new ParticleExecContext();
     private _state = new ParticleEmitterState();
@@ -404,13 +409,17 @@ export class ParticleEmitter extends Component {
         if (this._state.playingState === PlayingState.STOPPED) {
             this._state.rand.seed = this.useAutoRandomSeed ? randomRangeInt(0, INT_MAX) : this.randomSeed;
             this._state.currentDelay = Math.max(lerp(this.delayRange.x, this.delayRange.y, this._state.rand.getFloat()), 0);
-            this._emitterStage.onPlay(this._params, this._state);
-            this._spawningStage.onPlay(this._params, this._state);
-            this._updateStage.onPlay(this._params, this._state);
-            for (const receiver of this._eventReceivers) {
-                receiver.onPlay(this._params, this._state);
+            if (this.particles.count === 0) {
+                this._emitterStage.onPlay(this._params, this._state);
+                this._spawningStage.onPlay(this._params, this._state);
+                this._updateStage.onPlay(this._params, this._state);
+                if (this._eventReceiverCount > 0) {
+                    for (let i = 0, length = this._eventReceiverCount; i < length; i++) {
+                        this._eventReceivers[i].onPlay(this._params, this._state);
+                    }
+                }
+                this._renderStage.onPlay(this._params, this._state);
             }
-            this._renderStage.onPlay(this._params, this._state);
             if (this.prewarm) {
                 this._prewarmSystem();
             }
@@ -465,25 +474,35 @@ export class ParticleEmitter extends Component {
     public addEventReceiver () {
         const eventReceiver = new EventReceiver();
         this._eventReceivers.push(eventReceiver);
+        this._eventReceiverCount++;
         return eventReceiver;
     }
 
     public getEventReceiverAt (index: number) {
-        assert(index < this._eventReceivers.length && index >= 0, 'Invalid index!');
+        assert(index < this._eventReceiverCount && index >= 0, 'Invalid index!');
         return this._eventReceivers[index];
     }
 
     public removeEventReceiverAt (index: number) {
-        assert(index < this._eventReceivers.length && index >= 0, 'Invalid index!');
+        assert(index < this._eventReceiverCount && index >= 0, 'Invalid index!');
         this._eventReceivers.splice(index, 1);
+        this._eventReceiverCount--;
     }
 
+    /**
+     * @internal
+     * @engineInternal
+     */
     protected onEnable () {
         if (this.playOnAwake && (!EDITOR || legacyCC.GAME_VIEW)) {
             this.play();
         }
     }
 
+    /**
+     * @internal
+     * @engineInternal
+     */
     protected onDisable () {
         this.stop();
     }
@@ -497,6 +516,10 @@ export class ParticleEmitter extends Component {
         }
     }
 
+    /**
+     * @internal
+     * @engineInternal
+     */
     public simulate (dt: number) {
         this._state.lastSimulateFrame = vfxManager.totalFrames;
         let scaledDeltaTime = dt * Math.max(this.simulationSpeed, 0);
@@ -540,6 +563,10 @@ export class ParticleEmitter extends Component {
         this.removeDeadParticles(particles, params, context);
     }
 
+    /**
+     * @internal
+     * @engineInternal
+     */
     public render () {
         this.updateBounds();
         this._context.setExecuteRange(0, this.particles.count);
@@ -552,8 +579,8 @@ export class ParticleEmitter extends Component {
         this._spawningStage.tick(particles, params, context);
         this._updateStage.tick(particles, params, context);
         this._renderStage.tick(particles, params, context);
-        if (this._eventReceivers.length > 0) {
-            for (let i = 0, length = this._eventReceivers.length; i < length; i++) {
+        if (this._eventReceiverCount > 0) {
+            for (let i = 0, length = this._eventReceiverCount; i < length; i++) {
                 this._eventReceivers[i].tick(particles, params, context);
             }
             context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.POSITION);
@@ -579,8 +606,12 @@ export class ParticleEmitter extends Component {
         }
     }
 
-    private processEvents (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
-        for (let i = 0, length = this._eventReceivers.length; i < length; i++) {
+    /**
+     * @internal
+     * @engineInternal
+     */
+    public processEvents (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+        for (let i = 0, length = this._eventReceiverCount; i < length; i++) {
             const eventReceiver = this._eventReceivers[i];
             const emitter = eventReceiver.target;
             if (emitter && emitter.isValid) {
@@ -624,7 +655,11 @@ export class ParticleEmitter extends Component {
         }
     }
 
-    private resetAnimatedState (particles: ParticleDataSet, fromIndex: number, toIndex: number) {
+    /**
+     * @internal
+     * @engineInternal
+     */
+    public resetAnimatedState (particles: ParticleDataSet, fromIndex: number, toIndex: number) {
         if (particles.hasParameter(BuiltinParticleParameter.VELOCITY)) {
             if (particles.hasParameter(BuiltinParticleParameter.BASE_VELOCITY)) {
                 particles.velocity.copyFrom(particles.baseVelocity, fromIndex, toIndex);
@@ -651,7 +686,11 @@ export class ParticleEmitter extends Component {
         }
     }
 
-    private spawn (spawnFraction: number, initialTransform: Mat4, initialColor: Color,
+    /**
+     * @internal
+     * @engineInternal
+     */
+    public spawn (spawnFraction: number, initialTransform: Mat4, initialColor: Color,
         initialSize: Vec3, initialRotation: Vec3): number {
         const { _particles: particles, _params: params, _context: context } = this;
         const interval = 1 / context.spawnContinuousCount;
@@ -660,12 +699,12 @@ export class ParticleEmitter extends Component {
         const fromIndex = particles.count;
         if (numOverTime > 0) {
             spawnFraction -= numOverTime;
-            this.addParticles(particles, params, context, numOverTime);
+            this.addNewParticles(particles, params, context, numOverTime);
         }
         const numContinuous = particles.count - fromIndex;
         const burstCount = Math.floor(context.burstCount);
         if (burstCount > 0) {
-            this.addParticles(particles, params, context, burstCount);
+            this.addNewParticles(particles, params, context, burstCount);
         }
         const toIndex = particles.count;
         const { emitterDeltaTime, emitterVelocityInEmittingSpace: initialVelocity, emitterNormalizedTime, emitterNormalizedPrevTime } = context;
@@ -778,7 +817,11 @@ export class ParticleEmitter extends Component {
         return spawnFraction;
     }
 
-    private addParticles (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext, numToEmit: number) {
+    /**
+     * @internal
+     * @engineInternal
+     */
+    public addNewParticles (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext, numToEmit: number) {
         const capacity = params.capacityMode === CapacityMode.AUTO ? Number.MAX_SAFE_INTEGER : params.capacity;
         if (numToEmit + particles.count > capacity) {
             numToEmit = capacity - particles.count;

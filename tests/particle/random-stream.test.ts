@@ -3,7 +3,7 @@ import { Vec3 } from "../../cocos/core";
 import { RandomStream } from "../../cocos/particle/random-stream";
 
 describe ('rand-num-gen', () => {
-    test ('PNG with no seed should produce different sequence', () => {
+    test ('RNG with no seed should produce different sequence', () => {
         const rng1 = new RandomStream();
         const rng2 = new RandomStream();
         const result1: number[] = [];

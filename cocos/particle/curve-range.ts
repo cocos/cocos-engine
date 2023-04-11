@@ -28,7 +28,7 @@ import { EDITOR } from 'internal:constants';
 import { approx, lerp } from '../core/math';
 import { Enum } from '../core/value-types';
 import { constructLegacyCurveAndConvert } from '../core/geometry/curve';
-import { RealCurve, CCClass } from '../core';
+import { RealCurve, CCClass, RealKeyframeValue } from '../core';
 
 const setClassAttr = CCClass.Attr.setClassAttr;
 
@@ -231,7 +231,7 @@ setClassAttr(CurveRange, 'spline', 'visible', true);
 setClassAttr(CurveRange, 'spline', 'hasGetter', true);
 setClassAttr(CurveRange, 'spline', 'hasSetter', true);
 
-export function createRealCurve (keyframes: Iterable<[number, number]>) {
+export function createRealCurve (keyframes: Iterable<[number,  number | Partial<RealKeyframeValue>]>) {
     const curve = new RealCurve();
     curve.assignSorted(keyframes);
     return curve;

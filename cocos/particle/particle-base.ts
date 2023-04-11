@@ -30,6 +30,7 @@ import { CurveRange } from './curve-range';
 import { ModuleExecStage } from './particle-module';
 import { RandomStream } from './random-stream';
 import { BuiltinParticleParameter, BuiltinParticleParameterFlags, ParticleDataSet } from './particle-data-set';
+import { ParticleColorArrayParameter, ParticleFloatArrayParameter, ParticleUint32ArrayParameter, ParticleVec3ArrayParameter } from './particle-parameter';
 
 export enum ParticleEventType {
     UNKNOWN,
@@ -70,17 +71,17 @@ export class ParticleEvents {
 
     private _count = 0;
     private _capacity = 16;
-    private _particleId = new Uint32Array(this._capacity);
-    private _currentTime = new Float32Array(this._capacity);
-    private _prevTime = new Float32Array(this._capacity);
-    private _position = new Float32Array(this._capacity * 3);
-    private _velocity = new Float32Array(this._capacity * 3);
-    private _rotation = new Float32Array(this._capacity * 3);
-    private _size = new Float32Array(this._capacity * 3);
-    private _color = new Uint32Array(this._capacity);
-    private _startLifeTime = new Float32Array(this._capacity);
-    private _randomSeed = new Uint32Array(this._capacity);
-    private _normalizedAliveTime = new Float32Array(this._capacity);
+    private _particleId = new ParticleUint32ArrayParameter();
+    private _currentTime = new ParticleFloatArrayParameter();
+    private _prevTime = new ParticleFloatArrayParameter();
+    private _position = new ParticleVec3ArrayParameter();
+    private _velocity = new ParticleVec3ArrayParameter();
+    private _rotation = new ParticleVec3ArrayParameter();
+    private _size = new ParticleVec3ArrayParameter();
+    private _color = new ParticleColorArrayParameter();
+    private _startLifeTime = new ParticleFloatArrayParameter();
+    private _randomSeed = new ParticleUint32ArrayParameter();
+    private _normalizedAliveTime = new ParticleFloatArrayParameter();
 
     clear () {
         this._count = 0;
@@ -88,39 +89,17 @@ export class ParticleEvents {
 
     reserve (capacity: number) {
         if (capacity > this._capacity) {
-            const oldParticleId = this._particleId;
-            const oldCurrentTime = this._currentTime;
-            const oldPrevTime = this._prevTime;
-            const oldPosition = this._position;
-            const oldVelocity = this._velocity;
-            const oldRotation = this._rotation;
-            const oldSize = this._size;
-            const oldColor = this._color;
-            const oldStartLifeTime = this._startLifeTime;
-            const oldRandomSeed = this._randomSeed;
-            const oldNormalizedAliveTime = this._normalizedAliveTime;
-            this._particleId = new Uint32Array(capacity);
-            this._particleId.set(oldParticleId);
-            this._currentTime = new Float32Array(capacity);
-            this._currentTime.set(oldCurrentTime);
-            this._prevTime = new Float32Array(capacity);
-            this._prevTime.set(oldPrevTime);
-            this._position = new Float32Array(capacity * 3);
-            this._position.set(oldPosition);
-            this._velocity = new Float32Array(capacity * 3);
-            this._velocity.set(oldVelocity);
-            this._rotation = new Float32Array(capacity * 3);
-            this._rotation.set(oldRotation);
-            this._size = new Float32Array(capacity * 3);
-            this._size.set(oldSize);
-            this._color = new Uint32Array(capacity);
-            this._color.set(oldColor);
-            this._startLifeTime = new Float32Array(capacity);
-            this._startLifeTime.set(oldStartLifeTime);
-            this._randomSeed = new Uint32Array(capacity);
-            this._randomSeed.set(oldRandomSeed);
-            this._normalizedAliveTime = new Float32Array(capacity);
-            this._normalizedAliveTime.set(oldNormalizedAliveTime);
+            this._particleId.reserve(capacity);
+            this._currentTime.reserve(capacity);
+            this._prevTime.reserve(capacity);
+            this._position.reserve(capacity);
+            this._velocity.reserve(capacity);
+            this._rotation.reserve(capacity);
+            this._size.reserve(capacity);
+            this._color.reserve(capacity);
+            this._startLifeTime.reserve(capacity);
+            this._randomSeed.reserve(capacity);
+            this._normalizedAliveTime.reserve(capacity);
             this._capacity = capacity;
         }
     }
@@ -155,28 +134,17 @@ export class ParticleEvents {
     }
 
     getEventInfoAt (out: ParticleEventInfo, handle: number) {
-        const xOffset = handle * 3;
-        const yOffset = xOffset + 1;
-        const zOffset = yOffset + 1;
-        out.particleId = this._particleId[handle];
-        out.currentTime = this._currentTime[handle];
-        out.prevTime = this._prevTime[handle];
-        out.position.x = this._position[xOffset];
-        out.position.y = this._position[yOffset];
-        out.position.z = this._position[zOffset];
-        out.velocity.x = this._velocity[xOffset];
-        out.velocity.y = this._velocity[yOffset];
-        out.velocity.z = this._velocity[zOffset];
-        out.rotation.x = this._rotation[xOffset];
-        out.rotation.y = this._rotation[yOffset];
-        out.rotation.z = this._rotation[zOffset];
-        out.size.x = this._size[xOffset];
-        out.size.y = this._size[yOffset];
-        out.size.z = this._size[zOffset];
-        Color.fromUint32(out.color, this._color[handle]);
-        out.startLifeTime = this._startLifeTime[handle];
-        out.randomSeed = this._randomSeed[handle];
-        out.normalizedAliveTime = this._normalizedAliveTime[handle];
+        out.particleId = this._particleId.getUint32At(handle);
+        out.currentTime = this._currentTime.getFloatAt(handle);
+        out.prevTime = this._prevTime.getFloatAt(handle);
+        this._position.getVec3At(out.position, handle);
+        this._velocity.getVec3At(out.velocity, handle);
+        this._rotation.getVec3At(out.rotation, handle);
+        this._size.getVec3At(out.size, handle);
+        this._color.getColorAt(out.color, handle);
+        out.startLifeTime = this._startLifeTime.getFloatAt(handle);
+        out.randomSeed = this._randomSeed.getUint32At(handle);
+        out.normalizedAliveTime = this._normalizedAliveTime.getFloatAt(handle);
     }
 }
 

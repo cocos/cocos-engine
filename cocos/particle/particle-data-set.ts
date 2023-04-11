@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { assert } from '../core';
+import { assert, Color } from '../core';
 import { ParticleArrayParameter, ParticleBoolArrayParameter, ParticleColorArrayParameter, ParticleFloatArrayParameter, ParticleParameterIdentity, ParticleParameterType, ParticleUint32ArrayParameter, ParticleVec3ArrayParameter } from './particle-parameter';
 
 export type ParticleHandle = number;
