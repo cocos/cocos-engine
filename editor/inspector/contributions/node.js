@@ -58,14 +58,7 @@ exports.listeners = {
         }
 
         try {
-            const lockUpdateTimes = panel.uuidList.length - 1;
-            panel.readyUpdate = false;
-
             for (let i = 0; i < panel.uuidList.length; i++) {
-                if (i === lockUpdateTimes) {
-                    panel.readyUpdate = true;
-                }
-
                 const uuid = panel.uuidList[i];
                 const { path, type, isArray } = dump;
                 let value = dump.value;
