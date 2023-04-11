@@ -96,7 +96,7 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
                     js.array.fastRemoveAt(contacts, i);
 
                     const other = contact.shape1 === shape ? contact.shape2 : contact.shape1;
-                    let contactIndex = other!._contacts.indexOf(contact);
+                    const contactIndex = other!._contacts.indexOf(contact);
                     if (contactIndex >= 0) {
                         js.array.fastRemoveAt(other!._contacts, contactIndex);
                     }
