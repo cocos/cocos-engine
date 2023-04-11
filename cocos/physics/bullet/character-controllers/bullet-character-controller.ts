@@ -256,17 +256,15 @@ export abstract class BulletCharacterController implements IBaseCharacterControl
         const bulletWorld = (PhysicsSystem.instance.physicsWorld as BulletWorld);
         //use characterController impl and shape impl pair as key
         let item = bulletWorld.cctShapeEventDic.get<any>(this.impl, shapePtr);
-        if (!item) {
-            const worldPos = new Vec3();
-            bullet2CocosVec3(worldPos, bt.ControllerHit_getHitWorldPos(hit));
-            const worldNormal = new Vec3();
-            bullet2CocosVec3(worldNormal, bt.ControllerHit_getHitWorldNormal(hit));
-            const motionDir = new Vec3();
-            bullet2CocosVec3(motionDir, bt.ControllerHit_getHitMotionDir(hit));
-            const motionLength = bt.ControllerHit_getHitMotionLength(hit);
-            const s: BulletShape = BulletCache.getWrapper(shapePtr, BulletShape.TYPE);
-            item = bulletWorld.cctShapeEventDic.set(this.impl, shapePtr,
-                { BulletCharacterController: this, BulletShape: s, worldPos, worldNormal, motionDir, motionLength });
-        }
+        const worldPos = new Vec3();
+        bullet2CocosVec3(worldPos, bt.ControllerHit_getHitWorldPos(hit));
+        const worldNormal = new Vec3();
+        bullet2CocosVec3(worldNormal, bt.ControllerHit_getHitWorldNormal(hit));
+        const motionDir = new Vec3();
+        bullet2CocosVec3(motionDir, bt.ControllerHit_getHitMotionDir(hit));
+        const motionLength = bt.ControllerHit_getHitMotionLength(hit);
+        const s: BulletShape = BulletCache.getWrapper(shapePtr, BulletShape.TYPE);
+        item = bulletWorld.cctShapeEventDic.set(this.impl, shapePtr,
+            { BulletCharacterController: this, BulletShape: s, worldPos, worldNormal, motionDir, motionLength });
     }
 }
