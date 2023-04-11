@@ -57,27 +57,27 @@ enum class UseReflectionProbeType {
      * @en Use the default skybox.
      * @zh 使用默认天空盒。
      */
-    NONE = 0,
+    NONE,
     /**
      * @en Cubemap generate by probe.
      * @zh Probe烘焙的cubemap。
      */
-    BAKED_CUBEMAP = 1,
+    BAKED_CUBEMAP,
     /**
      * @en Realtime planar reflection.
      * @zh 实时平面反射。
      */
-    PLANAR_REFLECTION = 2,
+    PLANAR_REFLECTION,
     /**
      * @en Mixing between reflection probe.
      * @zh 反射探针之间进行混合。
      */
-    BLEND_PROBES = 3,
+    BLEND_PROBES,
     /**
      * @en Mixing between reflection probe and skybox.
      * @zh 反射探针之间混合或反射探针和天空盒之间混合。
      */
-    BLEND_PROBES_AND_SKYBOX = 4,
+    BLEND_PROBES_AND_SKYBOX,
 };
 
 // SubModel.h -> Define.h -> Model.h, so do not include SubModel.h here.
