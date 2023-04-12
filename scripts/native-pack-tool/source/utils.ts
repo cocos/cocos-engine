@@ -436,7 +436,7 @@ export const toolHelper = {
             cp.stdout.on('data', (d)=>stdOut.push(d));
             cp.on('close', (code, signal)=>{
                 if(cb) {
-                    cb(code, Buffer.concat(stdOut).toString('utf8'), Buffer.concat(stdErr).toString('utf8'));
+                    cb(code as any, Buffer.concat(stdOut).toString('utf8'), Buffer.concat(stdErr).toString('utf8'));
                 }
                 resolve(code === 0);
             });

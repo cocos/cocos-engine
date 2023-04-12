@@ -242,6 +242,7 @@ export class UIRenderer extends Renderer {
     protected _srcBlendFactor = BlendFactor.SRC_ALPHA;
     /**
      * @engineInternal
+     * @internal
      */
     get srcBlendFactor (): BlendFactor { return this._srcBlendFactor; }
     set srcBlendFactor (srcBlendFactor: BlendFactor) { this._srcBlendFactor = srcBlendFactor; }
