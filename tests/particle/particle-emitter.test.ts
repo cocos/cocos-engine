@@ -79,5 +79,7 @@ describe('ParticleEmitter', () => {
         expect(particleEmitter.eventReceiverCount).toBe(1);
         expect(particleEmitter.eventReceivers[0]).toBe(eventReceiver4);
         expect(particleEmitter.getEventReceiverAt(0)).toBe(eventReceiver4);
-    })
+    });
+
+    
 });

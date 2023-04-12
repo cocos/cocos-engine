@@ -24,7 +24,7 @@
  */
 
 import { CullingMode, FinishAction, Space } from './enum';
-import { Color, Mat4, Quat, Vec3, Node, Vec2, assert } from '../core';
+import { Color, Mat4, Quat, Vec3, Node, Vec2, assert, approx } from '../core';
 import { ccclass, serializable } from '../core/data/decorators';
 import { CurveRange } from './curve-range';
 import { ModuleExecStage } from './particle-module';
@@ -215,7 +215,6 @@ export enum PlayingState {
 
 export class ParticleEmitterState {
     public accumulatedTime = 0;
-    public prevTime = 0
     public spawnFraction = 0;
     public playingState = PlayingState.STOPPED;
     public lastPosition = new Vec3();
@@ -229,12 +228,11 @@ export class ParticleEmitterState {
     public boundsMax = new Vec3();
     public rand = new RandomStream();
 
-    tick (transform: Node, params: ParticleEmitterParams, context: ParticleExecContext) {
-        const dt = context.deltaTime;
-        this.prevTime = this.accumulatedTime;
+    tick (transform: Node, params: ParticleEmitterParams, context: ParticleExecContext, dt: number) {
+        const prevTime = this.accumulatedTime;
         this.accumulatedTime += dt;
         const isWorldSpace = params.simulationSpace === Space.WORLD;
-        context.updateEmitterTime(this.accumulatedTime, this.prevTime,
+        context.updateEmitterTime(this.accumulatedTime, prevTime,
             params.delayMode, this.currentDelay, params.loopMode, params.loopCount, params.duration);
         this.updateTransform(transform.worldPosition);
         context.updateTransform(transform, isWorldSpace);
@@ -276,6 +274,7 @@ export class ParticleExecContext {
     public emitterNormalizedTime = 0;
     public emitterNormalizedPrevTime = 0;
     public emitterDeltaTime = 0;
+    public emitterFrameOffset = 0;
     public loopCount = 0;
     public spawnContinuousCount = 0;
     public burstCount = 0;
@@ -336,6 +335,7 @@ export class ParticleExecContext {
         assert((accumulatedTime - previousTime) < duration,
             'The delta time should not exceed the duration of the particle system. please adjust the duration of the particle system.');
         assert(accumulatedTime >= previousTime);
+        const deltaTime = accumulatedTime - previousTime;
         let prevTime = delayMode === DelayMode.FIRST_LOOP_ONLY ? Math.max(previousTime - delay, 0) : previousTime;
         let currentTime = delayMode === DelayMode.FIRST_LOOP_ONLY ? Math.max(accumulatedTime - delay, 0) : accumulatedTime;
         const expectedLoopCount = loopMode === LoopMode.INFINITE ? Number.MAX_SAFE_INTEGER
@@ -362,14 +362,16 @@ export class ParticleExecContext {
             currentTime = Math.max(currentTime - delay, 0);
         }
 
-        let deltaTime = currentTime - prevTime;
-        if (deltaTime < 0) {
-            deltaTime += duration;
+        let emitterDeltaTime = currentTime - prevTime;
+        if (emitterDeltaTime < 0) {
+            emitterDeltaTime += duration;
         }
 
+        this.deltaTime = deltaTime;
+        this.emitterFrameOffset = deltaTime > 0 ? (deltaTime - emitterDeltaTime) / deltaTime : 0;
         this.emitterCurrentTime = currentTime;
         this.emitterPreviousTime = prevTime;
-        this.emitterDeltaTime = deltaTime;
+        this.emitterDeltaTime = emitterDeltaTime;
         this.emitterNormalizedTime = currentTime * invDuration;
         this.emitterNormalizedPrevTime = prevTime * invDuration;
     }

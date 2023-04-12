@@ -85,10 +85,12 @@ describe('particle-exec-context', () => {
 
 function testEmitterTime(context: ParticleExecContext, input: number[], output: number[]) {
     context.updateEmitterTime(input[0], input[1], input[2], input[3], input[4], input[5], input[6]);
+    expect(context.deltaTime).toBeCloseTo(input[0] - input[1], 5);
     expect(context.emitterPreviousTime).toBeCloseTo(output[0], 5);
     expect(context.emitterCurrentTime).toBeCloseTo(output[1], 5);
     expect(context.emitterNormalizedTime).toBeCloseTo(output[2], 5);
     expect(context.emitterNormalizedPrevTime).toBeCloseTo(output[3], 5);
     expect(context.emitterDeltaTime).toBeCloseTo(output[4], 5);
+    expect(context.emitterFrameOffset).toBeCloseTo(context.deltaTime > 0 ? (context.deltaTime - context.emitterDeltaTime) / context.deltaTime: 0, 5);
     expect(context.loopCount).toBeCloseTo(output[5], 5);
 }

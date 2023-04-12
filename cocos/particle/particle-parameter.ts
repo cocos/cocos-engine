@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 import { DEBUG } from 'internal:constants';
-import { assert, Color, Enum, Vec3 } from '../core';
+import { Color, Enum, Vec3 } from '../core';
 import { ccclass, serializable, type, visible } from '../core/data/decorators';
 import { ParticleHandle } from './particle-data-set';
 
@@ -85,6 +85,12 @@ export class ParticleParameterIdentity {
         this._id = id;
         this._name = name;
         this._type = type;
+    }
+}
+
+function assert (condition: boolean, message?: string) {
+    if (!condition) {
+        throw new Error(message);
     }
 }
 

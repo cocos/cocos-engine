@@ -29,6 +29,9 @@ import { approx, lerp } from '../core/math';
 import { Enum } from '../core/value-types';
 import { constructLegacyCurveAndConvert } from '../core/geometry/curve';
 import { RealCurve, CCClass, RealKeyframeValue } from '../core';
+import { RandomStream } from './random-stream';
+import { ParticleDataSet } from './particle-data-set';
+import { ParticleEmitterParams, ParticleExecContext } from './particle-base';
 
 const setClassAttr = CCClass.Attr.setClassAttr;
 
@@ -135,6 +138,10 @@ export class CurveRange  {
     private _mode = Mode.Constant;
     private _spline: RealCurve | null = null;
     private _splineMin: RealCurve | null = null;
+    private _timeStream: Float32Array | null = null;
+    private _randomStream: Uint32Array | null = null;
+    private _randomOffset = 0;
+    public execute = this.executeConstant;
 
     constructor ();
     constructor (scalar: number);
@@ -169,6 +176,47 @@ export class CurveRange  {
         case Mode.TwoConstants:
             return lerp(this.constantMin, this.constantMax, rndRatio);
         }
+    }
+
+    public tick (particles: ParticleDataSet, params: ParticleEmitterParams, randomOffset: number) {
+        this._randomOffset = randomOffset;
+        switch (this.mode) {
+        case Mode.Constant:
+            this.execute = this.executeConstant;
+            break;
+        case Mode.Curve:
+            this._timeStream = particles.normalizedAliveTime.data;
+            this.execute = this.executeCurve;
+            break;
+        case Mode.TwoCurves:
+            this._timeStream = particles.normalizedAliveTime.data;
+            this._randomStream = particles.randomSeed.data;
+            this.execute = this.executeTwoCurves;
+            break;
+        case Mode.TwoConstants:
+            this._randomStream = particles.randomSeed.data;
+            this.execute = this.executeTwoConstants;
+            break;
+        default:
+            break;
+        }
+    }
+
+    public executeConstant (index: number) {
+        return this.constant;
+    }
+
+    public executeCurve (index: number) {
+        return this._spline!.evaluate(this._randomStream![index] + this._randomOffset) * this.multiplier;
+    }
+
+    public executeTwoCurves (index: number) {
+        const time = this._timeStream![index];
+        return lerp(this._splineMin!.evaluate(time), this._spline!.evaluate(time), RandomStream.getFloat(this._randomStream![index] + this._randomOffset)) * this.multiplier;
+    }
+
+    public executeTwoConstants (index: number) {
+        return lerp(this.constantMin, this.constantMax, RandomStream.getFloat(this._randomStream![index] + this._randomOffset));
     }
 
     public getScalar (): number {

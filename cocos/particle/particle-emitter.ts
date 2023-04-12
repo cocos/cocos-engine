@@ -25,7 +25,7 @@
 
 // eslint-disable-next-line max-len
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, type, range, displayName, formerlySerializedAs, override, radian, serializable, visible, requireComponent, rangeMin } from 'cc.decorator';
-import { EDITOR } from 'internal:constants';
+import { DEBUG, EDITOR } from 'internal:constants';
 import { approx, clamp01, Color, EPSILON, lerp, Mat3, Mat4, Quat, randomRangeInt, Size, Vec2, Vec3, Vec4 } from '../core/math';
 import { countTrailingZeros, INT_MAX } from '../core/math/bits';
 import { BoundsMode, CapacityMode, DelayMode, InheritedProperty, LoopMode, ParticleEmitterParams, ParticleEmitterState, ParticleEventInfo, ParticleEventType, ParticleExecContext, PlayingState } from './particle-base';
@@ -37,6 +37,8 @@ import { ParticleModuleStage, ModuleExecStage } from './particle-module';
 import { vfxManager } from './vfx-manager';
 import { RandomStream } from './random-stream';
 import { EventReceiver } from './event-receiver';
+import { delayTime } from '../tween/actions/action-interval';
+import { State } from '../core/animation/marionette/state';
 
 const startPositionOffset = new Vec3();
 const tempPosition = new Vec3();
@@ -546,7 +548,7 @@ export class ParticleEmitter extends Component {
         const params = this._params;
         const state = this._state;
         context.reset();
-        context.setDeltaTime(deltaTime);
+        state.tick(this.node, params, context, deltaTime);
         this.preTick(particles, params, context);
 
         this._emitterStage.execute(particles, params, context);
@@ -577,7 +579,6 @@ export class ParticleEmitter extends Component {
     }
 
     private preTick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
-        this._state.tick(this.node, params, context);
         this._emitterStage.tick(particles, params, context);
         this._spawningStage.tick(particles, params, context);
         this._updateStage.tick(particles, params, context);
@@ -696,7 +697,6 @@ export class ParticleEmitter extends Component {
     public spawn (spawnFraction: number, initialTransform: Mat4, initialColor: Color,
         initialSize: Vec3, initialRotation: Vec3): number {
         const { _particles: particles, _params: params, _context: context } = this;
-        const interval = 1 / context.spawnContinuousCount;
         spawnFraction += context.spawnContinuousCount;
         const numOverTime = Math.floor(spawnFraction);
         const fromIndex = particles.count;
@@ -709,61 +709,49 @@ export class ParticleEmitter extends Component {
         if (burstCount > 0) {
             this.addNewParticles(particles, params, context, burstCount);
         }
-        const toIndex = particles.count;
-        const { emitterDeltaTime, emitterVelocityInEmittingSpace: initialVelocity, emitterNormalizedTime, emitterNormalizedPrevTime } = context;
-        if (particles.hasParameter(BuiltinParticleParameter.POSITION)) {
-            const initialPosition = initialTransform.getTranslation(tempPosition);
-            const { position } = particles;
-
-            if (!initialVelocity.equals(Vec3.ZERO) && !approx(interval, 0) && numContinuous > 0) {
-                for (let i = fromIndex, num = 0, length = fromIndex + numContinuous; i < length; i++, num++) {
-                    const offset = clamp01((spawnFraction + num) * interval);
-                    const subDt = offset * emitterDeltaTime;
-                    Vec3.multiplyScalar(startPositionOffset, initialVelocity, -subDt);
-                    position.addVec3At(startPositionOffset, i);
-                }
-                position.fill(initialPosition, fromIndex + numContinuous, toIndex);
-            } else {
-                position.fill(initialPosition, fromIndex, toIndex);
-            }
+        if (numOverTime === 0 && burstCount === 0) {
+            return spawnFraction;
         }
-        if (particles.hasParameter(BuiltinParticleParameter.SPAWN_NORMALIZED_TIME)) {
-            if (!approx(interval, 0) && numContinuous > 0) {
-                const spawnNormalizedTime = particles.spawnNormalizedTime.data;
-                if (emitterNormalizedTime >= emitterNormalizedPrevTime) {
-                    for (let i = fromIndex, num = 0, length = fromIndex + numContinuous; i < length; i++, num++) {
-                        const offset = clamp01((spawnFraction + num) * interval);
-                        spawnNormalizedTime[i] = lerp(emitterNormalizedTime, emitterNormalizedPrevTime, offset);
+        const toIndex = particles.count;
+        const { emitterDeltaTime, emitterVelocityInEmittingSpace: initialVelocity, emitterNormalizedTime,
+            emitterNormalizedPrevTime, deltaTime, emitterFrameOffset: frameOffset } = context;
+        const hasPosition = particles.hasParameter(BuiltinParticleParameter.POSITION);
+        const hasSpawnNormalizedTime = particles.hasParameter(BuiltinParticleParameter.SPAWN_NORMALIZED_TIME);
+        const hasSpawnTimeRatio = particles.hasParameter(BuiltinParticleParameter.SPAWN_TIME_RATIO);
+        const emitterTimeInterval = 1 / context.spawnContinuousCount;
+        if (hasPosition) {
+            const initialPosition = initialTransform.getTranslation(tempPosition);
+            particles.position.fill(initialPosition, fromIndex, toIndex);
+        }
+        if (hasSpawnNormalizedTime || hasSpawnTimeRatio) {
+            let noContinuousStartIndex = fromIndex;
+            if (!approx(emitterTimeInterval, 0) && numContinuous > 0) {
+                const spawnNormalizedTime = hasSpawnNormalizedTime ? particles.spawnNormalizedTime.data : null;
+                const spawnRatio = hasSpawnNormalizedTime ? particles.spawnTimeRatio.data : null;
+                const emitterTime = emitterNormalizedTime < emitterNormalizedPrevTime ? emitterNormalizedTime + 1 : emitterNormalizedTime;
+                for (let i = fromIndex, num = 0, length = fromIndex + numContinuous; i < length; i++, num++) {
+                    const offset = clamp01((spawnFraction + num) * emitterTimeInterval);
+                    if (hasSpawnTimeRatio) {
+                        spawnRatio![i] = offset;
                     }
-                } else { // handle loop
-                    const emitterTime = emitterNormalizedTime + 1;
-                    for (let i = fromIndex, num = 0, length = fromIndex + numContinuous; i < length; i++, num++) {
-                        const offset = clamp01((spawnFraction + num) * interval);
+                    if (hasSpawnNormalizedTime) {
                         let time = lerp(emitterTime, emitterNormalizedPrevTime, offset);
                         if (time > 1) {
                             time -= 1;
                         }
-                        spawnNormalizedTime[i] = time;
+                        spawnNormalizedTime![i] = time;
                     }
                 }
+                noContinuousStartIndex = fromIndex + numContinuous;
+            }
+            if (hasSpawnNormalizedTime) {
+                particles.spawnNormalizedTime.fill(emitterNormalizedTime, noContinuousStartIndex, toIndex);
+            }
+            if (hasSpawnTimeRatio) {
+                particles.spawnTimeRatio.fill(0, noContinuousStartIndex, toIndex);
+            }
+        }
 
-                particles.spawnNormalizedTime.fill(emitterNormalizedTime, fromIndex + numContinuous, toIndex);
-            } else {
-                particles.spawnNormalizedTime.fill(emitterNormalizedTime, fromIndex, toIndex);
-            }
-        }
-        if (particles.hasParameter(BuiltinParticleParameter.SPAWN_TIME_RATIO)) {
-            if (!approx(interval, 0) && numContinuous > 0) {
-                const spawnTime = particles.spawnTimeRatio.data;
-                for (let i = fromIndex, num = 0, length = fromIndex + numContinuous; i < length; i++, num++) {
-                    const offset = clamp01((spawnFraction + num) * interval);
-                    spawnTime[i] = offset;
-                }
-                particles.spawnTimeRatio.fill(0, fromIndex + numContinuous, toIndex);
-            } else {
-                particles.spawnTimeRatio.fill(0, fromIndex, toIndex);
-            }
-        }
         if (particles.hasParameter(BuiltinParticleParameter.BASE_VELOCITY)) {
             particles.baseVelocity.fill1f(0, fromIndex, toIndex);
         }
@@ -807,16 +795,67 @@ export class ParticleEmitter extends Component {
         context.setExecuteRange(fromIndex, toIndex);
         this._spawningStage.execute(particles, params, context);
         this.resetAnimatedState(particles, fromIndex, toIndex);
-        if (!approx(interval, 0) && numContinuous > 0) {
-            const updateStage = this._updateStage;
-            for (let i = fromIndex + numContinuous - 1, num = numContinuous - 1; i >= fromIndex; i--, num--) {
-                context.setExecuteRange(i, i + 1);
-                const offset = clamp01((spawnFraction + num) * interval);
-                const subDt = offset * emitterDeltaTime;
-                context.setDeltaTime(subDt);
-                updateStage.execute(particles, params, context);
-            }
-        }
+        // const emitterTimeDeltaTimeScale = emitterDeltaTime / deltaTime;
+        // const interval = emitterTimeInterval * emitterTimeDeltaTimeScale;
+        // if (!approx(interval, 0) && numContinuous > 0) {
+        //     const needPositionOffset = hasPosition && !initialVelocity.equals(Vec3.ZERO);
+        //     const position = needPositionOffset ? particles.position : null;
+        //     const updateStage = this._updateStage;
+        //     // handle edge case when delayMode is EveryLoop and delay is less than deltaTime
+        //     if (params.delayMode === DelayMode.EVERY_LOOP && emitterNormalizedTime < emitterNormalizedPrevTime && emitterNormalizedTime > 0) {
+        //         // |------ Delay ------|-----------Duration------------------|
+        //         // |---------------------PrevTime--------------------|
+        //         //                     |----currentTime---|
+        //         //                                                   |-dt----|
+        //         // |-----------------dt-------------------|
+        //         //                                                   |emitdt-|
+        //         //                     |-----emitdt-------|
+        //         // |----frameOffset----|
+        //         // Should add frameOffset to particle which spawnNormalizedTime is less than 1
+        //         const emitterCurrentTime = emitterNormalizedTime + 1;
+        //         const emitterTimeInterval = 1 / context.spawnContinuousCount;
+        //         for (let i = fromIndex + numContinuous - 1, num = numContinuous - 1; i >= fromIndex; i--, num--) {
+        //             const spawnOffset = clamp01((spawnFraction + num) * emitterTimeInterval);
+        //             if (DEBUG) {
+        //                 assert(spawnOffset >= 0 && spawnOffset <= 1);
+        //             }
+        //             let dtOffset = spawnOffset * emitterTimeDeltaTimeScale;
+        //             const spawnTime = lerp(emitterCurrentTime, emitterNormalizedPrevTime, spawnOffset);
+        //             if (spawnTime < 1) {
+        //                 dtOffset += frameOffset;
+        //             }
+        //             const subDt = dtOffset * deltaTime;
+        //             if (needPositionOffset) {
+        //                 Vec3.multiplyScalar(startPositionOffset, initialVelocity, -subDt);
+        //                 position!.addVec3At(startPositionOffset, i);
+        //             }
+        //             context.setExecuteRange(i, i + 1);
+        //             context.setDeltaTime(subDt);
+        //             updateStage.execute(particles, params, context);
+        //         }
+        //     } else {
+        //         // |------ Delay ------|-----------Duration-----------------------|
+        //         //                     |-----------PrevTime----------|
+        //         //                     |------------currentTime-------------------|
+        //         //                                                   |----------dt--------------|
+        //         //                                                   |---emitdt---|
+        //         //                                                                |-frameOffset-|
+        //         for (let i = fromIndex + numContinuous - 1, num = numContinuous - 1; i >= fromIndex; i--, num--) {
+        //             const offset = (spawnFraction + num) * interval + frameOffset;
+        //             if (DEBUG) {
+        //                 assert(offset >= 0 && offset <= 1);
+        //             }
+        //             const subDt = offset * deltaTime;
+        //             if (needPositionOffset) {
+        //                 Vec3.multiplyScalar(startPositionOffset, initialVelocity, -subDt);
+        //                 position!.addVec3At(startPositionOffset, i);
+        //             }
+        //             context.setExecuteRange(i, i + 1);
+        //             context.setDeltaTime(subDt);
+        //             updateStage.execute(particles, params, context);
+        //         }
+        //     }
+        // }
         return spawnFraction;
     }
 

@@ -119,9 +119,7 @@ export class LocationEventGeneratorModule extends ParticleModule {
                     Vec3.transformMat4(eventInfo.velocity, eventInfo.velocity, localToWorld);
                 }
                 eventInfo.particleId = id[i];
-                eventInfo.startLifeTime = 1 / invStartLifeTime[i];
-                eventInfo.normalizedAliveTime = normalizedAliveTime[i];
-                eventInfo.currentTime = eventInfo.startLifeTime * eventInfo.normalizedAliveTime;
+                eventInfo.currentTime = 1 / invStartLifeTime[i] * normalizedAliveTime[i];
                 eventInfo.prevTime = eventInfo.currentTime - deltaTime;
                 eventInfo.randomSeed = randomSeed[i];
                 locationEvents.dispatch(eventInfo);

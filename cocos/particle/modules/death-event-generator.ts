@@ -34,8 +34,8 @@ import { ParticleEmitterParams, ParticleEmitterState, ParticleEventInfo, Particl
 import { RandomStream } from '../random-stream';
 
 const eventInfo = new ParticleEventInfo();
-const requiredParameters = BuiltinParticleParameterFlags.INV_START_LIFETIME | BuiltinParticleParameterFlags.RANDOM_SEED
-| BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME | BuiltinParticleParameterFlags.ID | BuiltinParticleParameterFlags.IS_DEAD;
+const requiredParameters =  BuiltinParticleParameterFlags.RANDOM_SEED
+| BuiltinParticleParameterFlags.ID | BuiltinParticleParameterFlags.IS_DEAD;
 @ccclass('cc.DeathEventGeneratorModule')
 @ParticleModule.register('DeathEventGenerator', ModuleExecStage.UPDATE, [], [ParameterName.POSITION, ParameterName.SIZE, ParameterName.ROTATION, ParameterName.VELOCITY, ParameterName.NORMALIZED_ALIVE_TIME, ParameterName.COLOR])
 export class DeathEventGeneratorModule extends ParticleModule {
@@ -55,9 +55,7 @@ export class DeathEventGeneratorModule extends ParticleModule {
     }
 
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
-        const normalizedAliveTime = particles.normalizedAliveTime.data;
         const randomSeed = particles.randomSeed.data;
-        const invStartLifeTime = particles.invStartLifeTime.data;
         const id = particles.id.data;
         const isDead = particles.isDead.data;
         const { fromIndex, toIndex, deathEvents } = context;
@@ -127,8 +125,6 @@ export class DeathEventGeneratorModule extends ParticleModule {
                 eventInfo.prevTime = 0;
                 eventInfo.currentTime = EPSILON;
                 eventInfo.randomSeed = randomSeed[i];
-                eventInfo.startLifeTime = 1 / invStartLifeTime[i];
-                eventInfo.normalizedAliveTime = normalizedAliveTime[i];
                 deathEvents.dispatch(eventInfo);
             }
         }
