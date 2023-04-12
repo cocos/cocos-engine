@@ -20,7 +20,7 @@ CCEffect %{
         normalStrength:                   { value: 1.0, target: emissiveScaleParam.w, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 5.0], step: 0.001 } }
         mainTexture:                      { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
         normalMap:                        { value: normal }
-        pbrMap:                           { value: grey }
+        pbrMap:                           { value: grey, editor: { displayName: PbrOrRoughnessMap } }
         occlusionMap:                     { value: white }
         emissiveMap:                      { value: grey }
         sssIntensity:                     { value: 1.0, target: scatterParams.z, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 1.0], step: 0.001 } }
@@ -28,8 +28,8 @@ CCEffect %{
         sssCurvatureMap:                  { value: white, editor: { parent: USE_PREINTEGRATED_SKIN } }
         sssCurvature:                     { value: 0.1, target: scatterParams.w, editor: { parent: USE_PREINTEGRATED_SKIN, slide: true, range: [0, 1.0], step: 0.001 } }
         sssColoration:                    { value: 1.0, target: scatterColor.w, editor: { parent: USE_PREINTEGRATED_SKIN, slide: true, range: [0, 10.0], step: 0.001 } }
-        cavityMap:                        { value: white }
-        maskMap:                          { value: white, editor: { parent: USE_BACK_LIT } }
+        cavityMap:                        { value: white, editor: { tooltip: 'cavity map or specular map' } }
+        maskMap:                          { value: black, editor: { parent: USE_BACK_LIT } }
         thickness:                        { value: 0.0, target: scatterParams.x, editor: { parent: USE_BACK_LIT, displayName: Object Thickness, range: [0, 1000.0], tooltip: 'Object thickness (world space unit), setting a too small value will cause the scattered light to disappear' } }
         extinction:                       { value: 0.0, target: scatterParams.y, editor: { parent: USE_BACK_LIT, displayName: Transmit Scatter Extinction, slide: true, range: [0, 10.0], step: 0.001 } }
         scatterColor:                     { value: [1.0, 0.2, 0.1, 1.0], linear: true, editor: { parent: USE_BACK_LIT, displayName: Transmit Scatter Color, type: color, tooltip: 'The color of scattered lighting' } }
@@ -223,6 +223,12 @@ CCProgram surface-fragment %{
   {
     float cavity = texture(cavityMap, FSInput_texcoord).x;
     surfaceData.specularIntensity *= cavity;
+
+    // ao and metallic ignored from pbrMap
+    #if !USE_OCCLUSION_MAP
+      surfaceData.ao = 1.0;
+    #endif
+    surfaceData.metallic = 0.0;
   }
 
   #include <lighting-models/default-functions/simple-skin>
