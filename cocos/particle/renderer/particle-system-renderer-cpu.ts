@@ -44,6 +44,7 @@ import { legacyCC } from '../../core/global-exports';
 import { ForceFieldComp } from '../animator/force-field-comp';
 import { forceFieldManager } from '../force-field-manager';
 import { ParticleSystem } from '../particle-system';
+import { SubBurst } from '../burst';
 
 const _tempAttribUV = new Vec3();
 const _tempWorldTrans = new Mat4();
@@ -559,38 +560,48 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                     trailModule.removeParticle(p);
                 }
 
+                p.time += dt;
+
                 let allSubStop = true;
                 if (p.particleSystem) {
                     const blen = p.particleSystem.getSubEmitters().length;
-                    if (!p.trigged) {
-                        if (blen > 0) {
-                            Vec3.normalize(_tempVelo, p.ultimateVelocity);
-                            Vec3.set(_center, _tempVelo.x, _tempVelo.y, _tempVelo.z);
-                            Mat4.lookAt(_lookMat4, _zero, _center, _up);
-                            Mat3.fromMat4(_lookMat3, _lookMat4);
-                            Mat3.transpose(_lookMat3, _lookMat3);
-                            Quat.fromMat3(_tempQuat, _lookMat3);
-                            Quat.normalize(_tempQuat, _tempQuat);
-                            p.dir.set(_tempQuat);
-                        }
+                    if (blen > 0) {
+                        Vec3.normalize(_tempVelo, p.ultimateVelocity);
+                        Vec3.set(_center, _tempVelo.x, _tempVelo.y, _tempVelo.z);
+                        Mat4.lookAt(_lookMat4, _zero, _center, _up);
+                        Mat3.fromMat4(_lookMat3, _lookMat4);
+                        Mat3.transpose(_lookMat3, _lookMat3);
+                        Quat.fromMat3(_tempQuat, _lookMat3);
+                        Quat.normalize(_tempQuat, _tempQuat);
+                        p.dir.set(_tempQuat);
+                    }
+
+                    if (p.bursts.length === 0) {
                         for (let b = 0; b < blen; ++b) {
                             const subemitter: ParticleSystem = p.particleSystem.getSubEmitters()[b];
                             if (subemitter.actDie) {
-                                if (random() <= subemitter.subPercent) {
-                                    if (!subemitter.isPlaying) {
-                                        subemitter.play();
-                                    }
-                                    // @ts-expect-error private property access
-                                    subemitter._emit(dt, p);
+                                for (let br = 0; br < subemitter.bursts.length; ++br) {
+                                    const subburst: SubBurst = new SubBurst(subemitter);
+                                    subburst.copy(subemitter.bursts[br]);
+                                    p.bursts.push(subburst);
                                 }
                             }
                         }
-                        p.trigged = true;
+                    }
+
+                    for (let sb = 0; sb < p.bursts.length; ++sb) {
+                        p.bursts[sb].update(dt, p);
                     }
 
                     for (let b = 0; b < blen; ++b) {
                         const subemitter: ParticleSystem = p.particleSystem.getSubEmitters()[b];
                         if (subemitter.getParticleCount() > 0) {
+                            allSubStop = false;
+                            break;
+                        }
+                    }
+                    for (let b = 0; b < p.bursts.length; ++b) {
+                        if (!p.bursts[b].finish) {
                             allSubStop = false;
                             break;
                         }
