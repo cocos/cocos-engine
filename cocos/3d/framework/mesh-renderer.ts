@@ -123,9 +123,10 @@ class ModelBakeSettings extends EventTarget {
     protected _reflectionProbeType = ReflectionProbeType.NONE;
     @serializable
     protected _bakeToReflectionProbe = true;
-    public _probeCubemap: TextureCube | null = null;
-    public _probeBlendCubemap: TextureCube | null = null;
-    public _probePlanarmap: Texture | null = null;
+
+    public probeCubemap: TextureCube | null = null;
+    public probeBlendCubemap: TextureCube | null = null;
+    public probePlanarmap: Texture | null = null;
 
     /**
      * @en Whether the model is static and bake-able with light map.
@@ -676,13 +677,13 @@ export class MeshRenderer extends ModelRenderer {
      * @param useDefaultTexture if the reflection probe has not been baked, is the skybox used instead.
      */
     public updateProbeCubemap (cubeMap: TextureCube | null, useDefaultTexture?: boolean) {
-        if (this.bakeSettings._probeCubemap && this.bakeSettings._probeCubemap === cubeMap) {
+        if (this.bakeSettings.probeCubemap && this.bakeSettings.probeCubemap === cubeMap) {
             return;
         }
-        this.bakeSettings._probeCubemap = cubeMap;
+        this.bakeSettings.probeCubemap = cubeMap;
         if (this.model !== null) {
             //Use skybox if the reflection probe is not baked or the object is not in the range of the reflection probe
-            let cubeMap = this.bakeSettings._probeCubemap;
+            let cubeMap = this.bakeSettings.probeCubemap;
             if (!cubeMap && this.node.scene && !useDefaultTexture) {
                 cubeMap = this.node.scene._globals.skybox.envmap;
             }
@@ -698,13 +699,13 @@ export class MeshRenderer extends ModelRenderer {
      * @param cubeMap baked cubemap.
      */
     public updateProbeBlendCubemap (cubeMap: TextureCube | null) {
-        if (this.bakeSettings._probeBlendCubemap && this.bakeSettings._probeBlendCubemap === cubeMap) {
+        if (this.bakeSettings.probeBlendCubemap && this.bakeSettings.probeBlendCubemap === cubeMap) {
             return;
         }
-        this.bakeSettings._probeBlendCubemap = cubeMap;
+        this.bakeSettings.probeBlendCubemap = cubeMap;
         if (this.model !== null) {
             //Use skybox if the reflection probe is not baked or the object is not in the range of the reflection probe
-            let cubeMap = this.bakeSettings._probeBlendCubemap;
+            let cubeMap = this.bakeSettings.probeBlendCubemap;
             if (!cubeMap && this.node.scene) {
                 cubeMap = this.node.scene._globals.skybox.envmap;
             }
@@ -720,12 +721,12 @@ export class MeshRenderer extends ModelRenderer {
      * @param planarMap render texture.
      */
     public updateProbePlanarMap (planarMap: Texture | null) {
-        if (this.bakeSettings._probePlanarmap === planarMap) {
+        if (this.bakeSettings.probePlanarmap === planarMap) {
             return;
         }
-        this.bakeSettings._probePlanarmap = planarMap;
+        this.bakeSettings.probePlanarmap = planarMap;
         if (this.model !== null) {
-            this.model.updateReflectionProbePlanarMap(this.bakeSettings._probePlanarmap);
+            this.model.updateReflectionProbePlanarMap(this.bakeSettings.probePlanarmap);
         }
     }
 
@@ -794,8 +795,8 @@ export class MeshRenderer extends ModelRenderer {
         const bakeSettings = this.bakeSettings;
 
         const reflectionProbe = bakeSettings.reflectionProbe;
-        const probeBlendCubemap = bakeSettings._probeBlendCubemap;
-        const probePlanarMap = bakeSettings._probePlanarmap;
+        const probeBlendCubemap = bakeSettings.probeBlendCubemap;
+        const probePlanarMap = bakeSettings.probePlanarmap;
 
         if (reflectionProbe === ReflectionProbeType.BAKED_CUBEMAP) {
             this._updateReflectionProbeCubemap();
@@ -819,7 +820,7 @@ export class MeshRenderer extends ModelRenderer {
 
     protected _updateReflectionProbeCubemap () {
         if (this.model === null) return;
-        let cubeMap = this.bakeSettings._probeCubemap;
+        let cubeMap = this.bakeSettings.probeCubemap;
         if (!cubeMap && this.node.scene) {
             //Use skybox if the reflection probe is not baked or the object is not in the range of the reflection probe
             cubeMap = this.node.scene._globals.skybox.envmap;
