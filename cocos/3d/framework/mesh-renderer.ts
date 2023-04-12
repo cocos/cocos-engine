@@ -301,8 +301,10 @@ export class MeshRenderer extends ModelRenderer {
     @serializable
     protected _reflectionProbeId = -1;
 
+    @serializable
     protected _reflectionProbeBlendId = -1;
 
+    @serializable
     protected _reflectionProbeBlendWeight = 0;
 
     protected _reflectionProbeDataMap: Texture2D | null = null;
