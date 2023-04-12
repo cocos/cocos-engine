@@ -450,6 +450,14 @@ function initSys () {
      * @default 120
      */
     sys.TAOBAO = 120;
+
+    /**
+     * @property {Number} TAOBAO_MINIGAME
+     * @readOnly
+     * @default 121
+     */
+     sys.TAOBAO_MINIGAME = 121;
+
     /**
      * BROWSER_TYPE_WECHAT
      * @property {String} BROWSER_TYPE_WECHAT
