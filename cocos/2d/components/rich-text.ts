@@ -582,14 +582,14 @@ export class RichText extends Component {
             return partStringArr;
         }
 
-        const labelSize = this._calculateSize(styleIndex, text);
+        const labelSize = this._calculateSize(styleIndex, text).clone();
         if (labelSize.x < 2048) {
             partStringArr.push(text);
         } else {
             const multilineTexts = text.split('\n');
             for (let i = 0; i < multilineTexts.length; i++) {
-                const thisPartSize = this._calculateSize(styleIndex, multilineTexts[i]);
-                if (thisPartSize.x < 2048) {
+                labelSize.set(this._calculateSize(styleIndex, multilineTexts[i]));
+                if (labelSize.x < 2048) {
                     partStringArr.push(multilineTexts[i]);
                 } else {
                     const thisPartSplitResultArr =  this.splitLongStringOver2048(multilineTexts[i], styleIndex);
@@ -611,8 +611,8 @@ export class RichText extends Component {
         let curEnd = longStr.length / 2;
         let curString = longStr.substring(curStart, curEnd);
         let leftString = longStr.substring(curEnd);
-        let curStringSize = this._calculateSize(styleIndex, curString);
-        let leftStringSize = this._calculateSize(styleIndex, leftString);
+        const curStringSize = this._calculateSize(styleIndex, curString).clone();
+        const leftStringSize = this._calculateSize(styleIndex, leftString).clone();
         let maxWidth = this._maxWidth;
         if (this._maxWidth === 0) {
             maxWidth = 2047.9; // Callback when maxWidth is 0
@@ -633,7 +633,7 @@ export class RichText extends Component {
 
             curString = curString.substring(curStart, curEnd);
             leftString = longStr.substring(curEnd);
-            curStringSize = this._calculateSize(styleIndex, curString);
+            curStringSize.set(this._calculateSize(styleIndex, curString));
         }
 
         // avoid too many loops
@@ -651,7 +651,7 @@ export class RichText extends Component {
 
                 curString = longStr.substring(curStart, curEnd);
                 leftString = longStr.substring(curEnd);
-                curStringSize = this._calculateSize(styleIndex, curString);
+                curStringSize.set(this._calculateSize(styleIndex, curString));
 
                 leftTryTimes--;
             }
@@ -660,7 +660,7 @@ export class RichText extends Component {
             while (leftTryTimes && curString.length >= 2 && curStringSize.x > sizeForOnePart) {
                 curEnd -= curWordStep;
                 curString = longStr.substring(curStart, curEnd);
-                curStringSize = this._calculateSize(styleIndex, curString);
+                curStringSize.set(this._calculateSize(styleIndex, curString));
                 // after the first reduction, the step should be 1.
                 curWordStep = 1;
 
@@ -688,13 +688,14 @@ export class RichText extends Component {
 
             curString = longStr.substring(curStart, curEnd);
             leftString = longStr.substring(curEnd);
-            leftStringSize = this._calculateSize(styleIndex, leftString);
+            leftStringSize.set(this._calculateSize(styleIndex, leftString));
+            curStringSize.set(this._calculateSize(styleIndex, curString));
 
             leftTryTimes--;
 
             // Exit: If the left part string size is less than 2048, the method will finish.
-            if (leftStringSize.x < 2048) {
-                partStringArr.push(curString); // 跳行问题解决，但是空白太多
+            if (leftStringSize.x < 2048 && curStringSize.x < sizeForOnePart) {
+                partStringArr.push(curString);
                 curStart = text.length;
                 curEnd = text.length;
                 curString = leftString;
@@ -702,8 +703,6 @@ export class RichText extends Component {
                     partStringArr.push(curString);
                 }
                 break;
-            } else {
-                curStringSize = this._calculateSize(styleIndex, curString);
             }
         }
 
@@ -712,8 +711,8 @@ export class RichText extends Component {
 
     protected _measureText (styleIndex: number, string?: string) {
         const func = (s: string) => {
-            const labelSize = this._calculateSize(styleIndex, s);
-            return labelSize.width;
+            const width = this._calculateSize(styleIndex, s).width;
+            return width;
         };
         if (string) {
             return func(string);
