@@ -27,6 +27,8 @@
 #include "core/scene-graph/Scene.h"
 #include "math/Quaternion.h"
 #include "scene/ReflectionProbeManager.h"
+#include "core/scene-graph/SceneGlobals.h"
+#include "scene/Skybox.h"
 namespace cc {
 namespace scene {
 // right left up down front back
@@ -173,8 +175,7 @@ void ReflectionProbe::updatePlanarTexture(const scene::RenderScene* scene) {
     if (!scene) return;
     for (const auto& model : scene->getModels()) {
         // filter model by view visibility
-        auto useProbeType = static_cast<uint32_t>(scene::ReflectionProbe::UseProbeType::PLANAR_REFLECTION);
-        if (model->isEnabled() && model->getReflectionProbeType() == useProbeType) {
+        if (model->isEnabled() && model->getReflectionProbeType() == scene::UseReflectionProbeType::PLANAR_REFLECTION) {
             const auto visibility = _camera->getVisibility();
             const auto* const node = model->getNode();
             if ((model->getNode() && ((visibility & node->getLayer()) == node->getLayer())) ||
@@ -290,6 +291,17 @@ void ReflectionProbe::packBackgroundColor() {
     Vec3 stepVec3 = sub < Vec3(0.5F, 0.5F, 0.5F) ? Vec3(0.5F, 0.5F, 0.5F) : sub;
     Vec3 encodeRounded(fVec3 + stepVec3);
     _camera->setClearColor(gfx::Color{encodeRounded.x / 255.F, encodeRounded.y / 255.F, encodeRounded.z / 255.F, e / 255.F});
+}
+
+bool ReflectionProbe::isRGBE() const {
+    if (_cubemap) {
+        return _cubemap->isRGBE;
+    }
+    // no baking will reflect the skybox
+    if (_node && _node->getScene() && _node->getScene()->getSceneGlobals()->getSkyboxInfo()->getEnvmap()) {
+        return _node->getScene()->getSceneGlobals()->getSkyboxInfo()->getEnvmap()->isRGBE;
+    }
+    return true;
 }
 
 } // namespace scene

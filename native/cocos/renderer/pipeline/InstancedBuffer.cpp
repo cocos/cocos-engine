@@ -64,6 +64,7 @@ void InstancedBuffer::merge(scene::SubModel *subModel, uint32_t passIdx, gfx::Sh
     auto *lightingMap = descriptorSet->getTexture(LIGHTMAPTEXTURE::BINDING);
     auto *reflectionProbeCubemap = descriptorSet->getTexture(REFLECTIONPROBECUBEMAP::BINDING);
     auto *reflectionProbePlanarMap = descriptorSet->getTexture(REFLECTIONPROBEPLANARMAP::BINDING);
+    auto *reflectionProbeBlendCubemap = descriptorSet->getTexture(REFLECTIONPROBEBLENDCUBEMAP::BINDING);
     uint32_t reflectionProbeType = subModel->getReflectionProbeType();
     auto *shader = shaderImplant;
     if (!shader) {
@@ -87,6 +88,9 @@ void InstancedBuffer::merge(scene::SubModel *subModel, uint32_t passIdx, gfx::Sh
             continue;
         }
         if (instance.reflectionProbePlanarMap != reflectionProbePlanarMap) {
+            continue;
+        }
+        if (instance.reflectionProbeBlendCubemap != reflectionProbeBlendCubemap) {
             continue;
         }
 
@@ -139,7 +143,7 @@ void InstancedBuffer::merge(scene::SubModel *subModel, uint32_t passIdx, gfx::Sh
     const gfx::InputAssemblerInfo iaInfo = {attributes, vertexBuffers, indexBuffer};
     auto *ia = _device->createInputAssembler(iaInfo);
     InstancedItem item = {1, INITIAL_CAPACITY, vb, data, ia, stride, shader, descriptorSet,
-                          lightingMap, reflectionProbeCubemap, reflectionProbePlanarMap, reflectionProbeType};
+                          lightingMap, reflectionProbeCubemap, reflectionProbePlanarMap, reflectionProbeType, reflectionProbeBlendCubemap };
     _instances.emplace_back(item);
     _hasPendingModels = true;
 }

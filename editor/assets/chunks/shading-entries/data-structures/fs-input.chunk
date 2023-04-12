@@ -50,6 +50,12 @@ void CCSurfacesGetFragmentInput(out SurfacesStandardFragmentInput fsInput)
 #endif
 #if CC_USE_REFLECTION_PROBE
   #define FSInput_reflectionProbeId v_shadowBiasAndProbeId.z
+  #if CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND || CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND_AND_SKYBOX
+    #define FSInput_reflectionProbeBlendId v_shadowBiasAndProbeId.w
+  #endif
+  #if USE_INSTANCING
+    #define FSInput_reflectionProbeData v_reflectionProbeData
+  #endif
 #endif
 
 #if CC_USE_FOG != CC_FOG_NONE && !CC_USE_ACCURATE_FOG
