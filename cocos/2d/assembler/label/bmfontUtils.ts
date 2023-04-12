@@ -319,7 +319,7 @@ export const bmfontUtils = {
                 this._recordLetterInfo(letterPosition, character, letterIndex, lineIndex);
 
                 if (letterIndex + 1 < _horizontalKerning.length && letterIndex < textLen - 1) {
-                    nextLetterX += _horizontalKerning[letterIndex + 1];
+                    nextLetterX += _horizontalKerning[letterIndex + 1] * _bmfontScale;
                 }
 
                 nextLetterX += letterDef.xAdvance * _bmfontScale + _spacingX;
