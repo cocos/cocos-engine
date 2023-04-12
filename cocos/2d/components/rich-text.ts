@@ -613,10 +613,14 @@ export class RichText extends Component {
         let leftString = longStr.substring(curEnd);
         let curStringSize = this._calculateSize(styleIndex, curString);
         let leftStringSize = this._calculateSize(styleIndex, leftString);
+        let maxWidth = this._maxWidth;
+        if (this._maxWidth === 0) {
+            maxWidth = 2047.9; // Callback when maxWidth is 0
+        }
 
         // a line should be an unit to split long string
         const lineCountForOnePart = 1;
-        const sizeForOnePart = lineCountForOnePart * this.maxWidth;
+        const sizeForOnePart = lineCountForOnePart * maxWidth;
 
         // divide text into some pieces of which the size is less than sizeForOnePart
         while (curStringSize.x > sizeForOnePart) {
@@ -690,10 +694,13 @@ export class RichText extends Component {
 
             // Exit: If the left part string size is less than 2048, the method will finish.
             if (leftStringSize.x < 2048) {
+                partStringArr.push(curString); // 跳行问题解决，但是空白太多
                 curStart = text.length;
                 curEnd = text.length;
                 curString = leftString;
-                partStringArr.push(curString);
+                if (leftString !== '') {
+                    partStringArr.push(curString);
+                }
                 break;
             } else {
                 curStringSize = this._calculateSize(styleIndex, curString);
