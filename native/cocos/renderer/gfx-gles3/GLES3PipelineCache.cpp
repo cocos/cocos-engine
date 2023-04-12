@@ -33,10 +33,11 @@
 
 namespace cc::gfx {
 
-static const char* fileName = "/pipeline_cache_gles3.bin";
-
-static const uint32_t MAGIC   = 0x4343474C; // "CCGL"
-static const uint32_t VERSION = 1;
+namespace {
+const char *fileName = "/pipeline_cache_gles3.bin";
+const uint32_t MAGIC = 0x4343474C; // "CCGL"
+const uint32_t VERSION = 1;
+} // namespace
 
 GLES3PipelineCache::GLES3PipelineCache() {
     _savePath = getPipelineCacheFolder() + fileName;
@@ -66,7 +67,7 @@ void GLES3PipelineCache::loadCache() {
 
     uint32_t cachedItemNum = 0;
     GLenum format = GL_NONE;
-    while (archive.load(format)) {
+    while (loadResult && archive.load(format)) {
         ++cachedItemNum;
 
         // name length
@@ -79,7 +80,7 @@ void GLES3PipelineCache::loadCache() {
 
         // skip length if not valid.
         if (!checkProgramFormat(format)) {
-            archive.move(dataLength + nameLength + sizeof(uint32_t));
+            archive.move(dataLength + nameLength + sizeof(GLES3GPUProgramBinary::hash));
             continue;
         }
 

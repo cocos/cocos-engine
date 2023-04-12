@@ -30,12 +30,11 @@
 
 #include "gfx-base/GFXUtil.h"
 
-static const char* fileName = "/pipeline_cache_vk.bin";
-
-static const uint32_t MAGIC   = 0x4343564B; // "CCVK"
-static const uint32_t VERSION = 1;
-
 namespace {
+const char* fileName = "/pipeline_cache_vk.bin";
+const uint32_t MAGIC   = 0x4343564B; // "CCVK"
+const uint32_t VERSION = 1;
+
 void loadData(const ccstd::string &path, ccstd::vector<char> &data) {
     std::ifstream stream(path, std::ios::binary);
     if (!stream.is_open()) {
