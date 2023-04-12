@@ -1,8 +1,7 @@
 /*
- Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -23,8 +22,34 @@
  THE SOFTWARE.
 */
 
-export { MeshRenderer } from './mesh-renderer';
-export { ReflectionProbeType } from './reflection-probe-enum';
-
-/** deprecated */
-export * from './deprecated';
+/**
+ * @en Use Reflection probe
+ * @zh 使用反射探针。
+ */
+export enum ReflectionProbeType {
+    /**
+     * @en Use the default skybox.
+     * @zh 使用默认天空盒。
+     */
+    NONE = 0,
+    /**
+     * @en Cubemap generate by probe.
+     * @zh Probe烘焙的cubemap。
+     */
+    BAKED_CUBEMAP = 1,
+    /**
+     * @en Realtime planar reflection.
+     * @zh 实时平面反射。
+     */
+    PLANAR_REFLECTION = 2,
+    /**
+     * @en Mixing between reflection probe.
+     * @zh 反射探针之间进行混合。
+     */
+    BLEND_PROBES = 3,
+    /**
+     * @en Mixing between reflection probe and skybox.
+     * @zh 反射探针之间混合或反射探针和天空盒之间混合。
+     */
+    BLEND_PROBES_AND_SKYBOX = 4,
+}
