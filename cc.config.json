@@ -71,6 +71,10 @@
                 "78e0584a-4343-4727-8f37-e14e65c2a2db"
             ]
         },
+        "vfx": {
+            "modules": ["vfx"],
+            "dependentAssets": []
+        },
         "particle-2d": {
             "modules": ["particle-2d"],
             "dependentModules": ["2d"]

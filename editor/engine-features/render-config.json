@@ -73,6 +73,12 @@
             "category": "3d",
             "wechatPlugin": true
         },
+        "vfx": {
+            "default": ["vfx"],
+            "label": "i18n:ENGINE.features.particle.label",
+            "description": "i18n:ENGINE.features.particle.description",
+            "wechatPlugin": true
+        },
         "physics": {
             "label": "i18n:ENGINE.features.physics.label",
             "description": "i18n:ENGINE.features.physics.description",

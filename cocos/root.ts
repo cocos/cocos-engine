@@ -506,7 +506,7 @@ export class Root {
 
         if (this._pipeline && cameraList.length > 0) {
             this._device.acquire([deviceManager.swapchain]);
-            legacyCC.director.emit(legacyCC.Director.EVENT_BEFORE_COMMIT);
+            cclegacy.director.emit(cclegacy.Director.EVENT_BEFORE_COMMIT);
             const scenes = this._scenes;
             const stamp = director.getTotalFrames();
 

@@ -474,6 +474,10 @@ public:
         _changedVersionAndRTS = (globalFlagChangeVersion << 3) | value;
     }
 
+    inline void getFlagChangedVersion() const {
+        return _changedVersionAndRTS >> 3;
+    }
+
     inline bool isTransformDirty() const { return _transformFlags != static_cast<uint32_t>(TransformBit::NONE); }
     inline void setLayer(uint32_t layer) {
         _layer = layer;
