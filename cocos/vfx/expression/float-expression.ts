@@ -24,7 +24,8 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { approx, lerp, Enum, RealCurve, CCClass, RealKeyframeValue, constructLegacyCurveAndConvert } from '../../core';
+import { approx, lerp, Enum, RealCurve, CCClass, RealKeyframeValue } from '../../core';
+import { constructLegacyCurveAndConvert } from '../../core/geometry/curve';
 
 const setClassAttr = CCClass.Attr.setClassAttr;
 
