@@ -109,6 +109,7 @@ function initAdaptWrapper (obj: any) {
     obj.ConvexMeshGeometry = obj.PxConvexMeshGeometry;
     obj.D6Motion = obj.PxD6Motion;
     obj.D6Axis = obj.PxD6Axis;
+    obj.D6Drive = obj.PxD6Drive;
     obj.D6JointDrive = obj.PxD6JointDrive;
     obj.LinearLimitPair = obj.PxJointLinearLimitPair;
     obj.AngularLimitPair = obj.PxJointAngularLimitPair;

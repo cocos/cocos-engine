@@ -384,24 +384,34 @@ void PhysXGenericJoint::updateDrive(uint32_t axis) {
     auto drive = joint->getDrive(static_cast<physx::PxD6Drive::Enum>(axis));
 
     uint32_t mode = 0;
+    physx::PxD6Drive::Enum driveAxis = physx::PxD6Drive::Enum::eX;
     switch (axis) {
         case 0:
             mode = _linearMotor.xDrive;
+            driveAxis = physx::PxD6Drive::Enum::eX;
             break;
         case 1:
             mode = _linearMotor.yDrive;
+            driveAxis = physx::PxD6Drive::Enum::eY;
             break;
         case 2:
             mode = _linearMotor.zDrive;
+            driveAxis = physx::PxD6Drive::Enum::eZ;
             break;
         case 3:
             mode = _angularMotor.twistDrive;
+            driveAxis = physx::PxD6Drive::Enum::eTWIST;
             break;
         case 4:
-            mode = _angularMotor.swingDrive1;
-            break;
         case 5:
-            mode = _angularMotor.swingDrive2;
+            if (_angularMotor.swingDrive1 == 2 || _angularMotor.swingDrive2 == 2) {
+                mode = 2;
+            } else if (_angularMotor.swingDrive1 == 1 || _angularMotor.swingDrive2 == 1) {
+                mode = 1;
+            } else {
+                mode = 0;
+            }
+            driveAxis = physx::PxD6Drive::Enum::eSWING;
             break;
         default:
             break;
@@ -424,7 +434,7 @@ void PhysXGenericJoint::updateDrive(uint32_t axis) {
         drive.damping = 1000.0;
         drive.stiffness = 0.0;
     }
-    joint->setDrive(static_cast<physx::PxD6Drive::Enum>(axis), drive);
+    joint->setDrive(driveAxis, drive);
 }
 
 void PhysXGenericJoint::updateDrivePosition() {

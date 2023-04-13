@@ -22,58 +22,121 @@
  THE SOFTWARE.
 */
 
-import CANNON from '@cocos/cannon';
-import { EConstraintMode, EDriverMode, FixedConstraint } from '../../framework';
+import { ConfigurableConstraint, EConstraintMode, EDriverMode } from '../../framework';
 import { IConfigurableConstraint } from '../../spec/i-physics-constraint';
 import { CannonConstraint } from './cannon-constraint';
-import { IVec3Like } from '../../../core';
+import { IVec3Like, errorID } from '../../../core';
 
+const err = 9613;
 export class CannonConfigurableJoint extends CannonConstraint implements IConfigurableConstraint {
-    setAngularExtent (twist: number, swing1: number, swing2: number): void {}
-    setConstraintMode (idx: number, v: EConstraintMode): void {}
-    setLinearLimit (idx: number, lower: number, upper: number): void {}
-    setLinearRestitution (v: number): void {}
-    setSwingRestitution (v: number): void {}
-    setTwistRestitution (v: number): void {}
-    setLinearSoftConstraint (v: boolean): void {}
-    setLinearStiffness (v: number): void {}
-    setLinearDamping (v: number): void {}
-    setSwingSoftConstraint (v: boolean): void {}
-    setTwistSoftConstraint (v: boolean): void {}
-    setSwingStiffness (v: number): void {}
-    setSwingDamping (v: number): void {}
-    setTwistStiffness (v: number): void {}
-    setTwistDamping (v: number): void {}
-    setDriverMode (idx: number, v: EDriverMode): void {}
-    setLinearMotorTarget (v: IVec3Like): void {}
-    setLinearMotorVelocity (v: IVec3Like): void {}
-    setLinearMotorForceLimit (v: number): void {}
-    setAngularMotorTarget (v: IVec3Like): void {}
-    setAngularMotorVelocity (v: IVec3Like): void {}
-    setAngularMotorForceLimit (v: number): void {}
-    setPivotA (v: IVec3Like): void {}
-    setPivotB (v: IVec3Like): void {}
-    setAutoPivotB (v: boolean): void {}
-    setAxis (v: IVec3Like): void {}
-    setSecondaryAxis (v: IVec3Like): void {}
-
-    setBreakForce (v: number): void {}
-    setBreakTorque (v: number): void {}
-
-    public get impl () {
-        return this._impl as CANNON.LockConstraint;
+    setAngularExtent (twist: number, swing1: number, swing2: number): void {
+        errorID(err);
+    }
+    setConstraintMode (idx: number, v: EConstraintMode): void {
+        errorID(err);
+    }
+    setLinearLimit (idx: number, lower: number, upper: number): void {
+        errorID(err);
+    }
+    setLinearRestitution (v: number): void {
+        errorID(err);
+    }
+    setSwingRestitution (v: number): void {
+        errorID(err);
+    }
+    setTwistRestitution (v: number): void {
+        errorID(err);
+    }
+    setLinearSoftConstraint (v: boolean): void {
+        errorID(err);
+    }
+    setLinearStiffness (v: number): void {
+        errorID(err);
+    }
+    setLinearDamping (v: number): void {
+        errorID(err);
+    }
+    setSwingSoftConstraint (v: boolean): void {
+        errorID(err);
+    }
+    setTwistSoftConstraint (v: boolean): void {
+        errorID(err);
+    }
+    setSwingStiffness (v: number): void {
+        errorID(err);
+    }
+    setSwingDamping (v: number): void {
+        errorID(err);
+    }
+    setTwistStiffness (v: number): void {
+        errorID(err);
+    }
+    setTwistDamping (v: number): void {
+        errorID(err);
+    }
+    setDriverMode (idx: number, v: EDriverMode): void {
+        errorID(err);
+    }
+    setLinearMotorTarget (v: IVec3Like): void {
+        errorID(err);
+    }
+    setLinearMotorVelocity (v: IVec3Like): void {
+        errorID(err);
+    }
+    setLinearMotorForceLimit (v: number): void {
+        errorID(err);
+    }
+    setAngularMotorTarget (v: IVec3Like): void {
+        errorID(err);
+    }
+    setAngularMotorVelocity (v: IVec3Like): void {
+        errorID(err);
+    }
+    setAngularMotorForceLimit (v: number): void {
+        errorID(err);
+    }
+    setPivotA (v: IVec3Like): void {
+        errorID(err);
+    }
+    setPivotB (v: IVec3Like): void {
+        errorID(err);
+    }
+    setAutoPivotB (v: boolean): void {
+        errorID(err);
+    }
+    setAxis (v: IVec3Like): void {
+        errorID(err);
+    }
+    setSecondaryAxis (v: IVec3Like): void {
+        errorID(err);
     }
 
-    get constraint (): FixedConstraint {
-        return this._com as FixedConstraint;
+    setBreakForce (v: number): void {
+        errorID(err);
+    }
+    setBreakTorque (v: number): void {
+        errorID(err);
+    }
+
+    public get impl () {
+        errorID(err);
+        return this._impl;
+    }
+
+    get constraint (): ConfigurableConstraint {
+        errorID(err);
+        return this._com as ConfigurableConstraint;
     }
 
     onComponentSet (): void {
+        errorID(err);
     }
 
     updateScale0 (): void {
+        errorID(err);
     }
 
     updateScale1 (): void {
+        errorID(err);
     }
 }

@@ -143,13 +143,25 @@ export class PhysXConfigurableJoint extends PhysXJoint implements IConfigurableC
         const com = this.constraint;
         const ld = com.linearDriverSettings;
         const ad = com.angularDriverSettings;
+
+        const getSwingDriveMode =  () => {
+            const ad = this.constraint.angularDriverSettings;
+            if (ad.swingDrive1 === EDriverMode.INDUCTION || ad.swingDrive2 === EDriverMode.INDUCTION) {
+                return EDriverMode.INDUCTION;
+            } else if (ad.swingDrive1 === EDriverMode.SERVO || ad.swingDrive2 === EDriverMode.SERVO) {
+                return EDriverMode.SERVO;
+            } else {
+                return EDriverMode.DISABLED;
+            }
+        };
+
         switch (idx) {
-        case 0: axis = PX.D6Axis.eX; driveMode = ld.xDrive;  break;
-        case 1: axis = PX.D6Axis.eY; driveMode = ld.yDrive; break;
-        case 2: axis = PX.D6Axis.eZ; driveMode = ld.zDrive; break;
-        case 3: axis = PX.D6Axis.eTWIST; driveMode = ad.twistDrive; break;
-        case 4: axis = PX.D6Axis.eSWING1; driveMode = ad.swingDrive1; break;
-        case 5: axis = PX.D6Axis.eSWING2; driveMode = ad.swingDrive2; break;
+        case 0: axis = PX.D6Drive.eX; driveMode = ld.xDrive;  break;
+        case 1: axis = PX.D6Drive.eY; driveMode = ld.yDrive; break;
+        case 2: axis = PX.D6Drive.eZ; driveMode = ld.zDrive; break;
+        case 3: axis = PX.D6Drive.eTWIST; driveMode = ad.twistDrive; break;
+        case 4: axis = PX.D6Drive.eSWING; driveMode = getSwingDriveMode(); break;
+        case 5: axis = PX.D6Drive.eSWING; driveMode = getSwingDriveMode(); break;
         default: break;
         }
         const drive = this._drive[idx];
