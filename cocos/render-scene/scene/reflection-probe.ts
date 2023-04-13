@@ -393,6 +393,15 @@ export class ReflectionProbe {
         return false;
     }
 
+    public isRGBE (): boolean  {
+        if (this._cubemap?.isRGBE) {
+            return true;
+        }
+        // no baking will reflect the skybox
+        const envmap = this.node?.scene?._globals.skybox.envmap;
+        return !!envmap?.isRGBE;
+    }
+
     private _syncCameraParams (camera: Camera) {
         this.camera.projectionType = camera.projectionType;
         this.camera.orthoHeight = camera.orthoHeight;
