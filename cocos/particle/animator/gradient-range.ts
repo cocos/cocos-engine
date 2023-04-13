@@ -24,8 +24,7 @@
 
 import { ccclass, type, serializable, editable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { Color, Enum, cclegacy } from '../../core';
-import Gradient, { AlphaKey, ColorKey } from './gradient';
+import { Color, Enum, cclegacy, Gradient, AlphaKey, ColorKey } from '../../core';
 import { Texture2D } from '../../asset/assets';
 import { PixelFormat, Filter, WrapMode } from '../../asset/assets/asset-enum';
 
