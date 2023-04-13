@@ -209,6 +209,7 @@ vec3 CalculateEnvironmentSpecular(in LightingIntermediateData lightingData, floa
       }     
     }
   #endif
+  lightIntensity = 1.0;
 #elif CC_USE_IBL
     envSpec = SampleEnvironmentSpecular(cc_environment, lightingData, cc_ambientGround.w);
 #endif

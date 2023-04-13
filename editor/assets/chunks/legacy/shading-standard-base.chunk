@@ -215,6 +215,7 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
     #endif
   #endif
 
+  float lightIntensity = cc_ambientSky.w;
   #if CC_USE_REFLECTION_PROBE
     vec4 probe = vec4(0.0);
     vec3 R = normalize(reflect(-V, N));
@@ -268,9 +269,10 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
         }
       }
     #endif
+    lightIntensity = 1.0;
   #endif
 
-  finalColor += env * cc_ambientSky.w * specular * s.occlusion;
+  finalColor += env * lightIntensity* specular * s.occlusion;
 
 
 #if CC_USE_LIGHT_PROBE
