@@ -2756,7 +2756,7 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2Device, cmdPackage: WebG
     } // for
 }
 
-function isUseTexImage2D (texImages: Readonly<TexImageSource[]>, regions: Readonly<BufferTextureCopy[]>) {
+function toUseTexImage2D (texImages: Readonly<TexImageSource[]>, regions: Readonly<BufferTextureCopy[]>) {
     if (texImages.length > 1 || regions.length > 1) return false;
     const isVideoElement = texImages[0] instanceof HTMLVideoElement;
     if (isVideoElement) {
@@ -2788,7 +2788,7 @@ export function WebGL2CmdFuncCopyTexImagesToTexture (
 
     switch (gpuTexture.glTarget) {
     case gl.TEXTURE_2D: {
-        if (isUseTexImage2D(texImages, regions)) {
+        if (toUseTexImage2D(texImages, regions)) {
             gl.texImage2D(gl.TEXTURE_2D, regions[0].texSubres.mipLevel, gpuTexture.glInternalFmt, regions[0].texExtent.width,
                 regions[0].texExtent.height, 0, gpuTexture.glFormat, gpuTexture.glType, texImages[0]);
         } else {
