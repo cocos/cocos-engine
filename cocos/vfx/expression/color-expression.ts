@@ -25,8 +25,7 @@
 
 import { ccclass, type, serializable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { Color, Enum } from '../../core';
-import Gradient, { AlphaKey, ColorKey } from '../gradient';
+import { Color, Enum, Gradient, AlphaKey, ColorKey } from '../../core';
 import { legacyCC } from '../../core/global-exports';
 
 const SerializableTable = [
