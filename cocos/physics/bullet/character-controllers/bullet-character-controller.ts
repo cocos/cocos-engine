@@ -264,7 +264,9 @@ export abstract class BulletCharacterController implements IBaseCharacterControl
         bullet2CocosVec3(motionDir, bt.ControllerHit_getHitMotionDir(hit));
         const motionLength = bt.ControllerHit_getHitMotionLength(hit);
         const s: BulletShape = BulletCache.getWrapper(shapePtr, BulletShape.TYPE);
-        item = bulletWorld.cctShapeEventDic.set(this.impl, shapePtr,
-            { BulletCharacterController: this, BulletShape: s, worldPos, worldNormal, motionDir, motionLength });
+        if (s) {
+            item = bulletWorld.cctShapeEventDic.set(this.impl, shapePtr,
+                { BulletCharacterController: this, BulletShape: s, worldPos, worldNormal, motionDir, motionLength });
+        }
     }
 }
