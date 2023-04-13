@@ -174,7 +174,7 @@ void processRasterPass(const Graphs &graphs, uint32_t passID, const RasterPass &
 void processComputePass(const Graphs &graphs, uint32_t passID, const ComputePass &pass);
 void processCopyPass(const Graphs &graphs, uint32_t passID, const CopyPass &pass);
 void processRaytracePass(const Graphs &graphs, uint32_t passID, const RaytracePass &pass);
-auto getResourceStatus(PassType passType, const PmrString &name, gfx::MemoryAccess memAccess, gfx::ShaderStageFlags visibility, const ResourceGraph &resourceGraph);
+auto getResourceStatus(PassType passType, const PmrString &name, gfx::MemoryAccess memAccess, gfx::ShaderStageFlags visibility, const ResourceGraph &resourceGraph, bool rasterized);
 
 // execution order BUT NOT LOGICALLY
 bool isPassExecAdjecent(uint32_t passLID, uint32_t passRID) {
@@ -1561,7 +1561,7 @@ auto mapTextureFlags(ResourceFlags flags) {
     return usage;
 }
 
-auto getResourceStatus(PassType passType, const PmrString &name, gfx::MemoryAccess memAccess, gfx::ShaderStageFlags visibility, const ResourceGraph &resourceGraph) {
+auto getResourceStatus(PassType passType, const PmrString &name, gfx::MemoryAccess memAccess, gfx::ShaderStageFlags visibility, const ResourceGraph &resourceGraph, bool rasterized) {
     ResourceUsage usage;
     gfx::ShaderStageFlags vis;
     vis = visibility;
@@ -1601,7 +1601,7 @@ auto getResourceStatus(PassType passType, const PmrString &name, gfx::MemoryAcce
         gfx::TextureUsage texUsage = gfx::TextureUsage::NONE;
 
         // TODO(Zeqiang): visbility of slot name "_" not found
-        bool isAttachment = (visibility == gfx::ShaderStageFlags::NONE || visibility == gfx::ShaderStageFlags::FRAGMENT);
+        bool isAttachment = (visibility == gfx::ShaderStageFlags::NONE || visibility == gfx::ShaderStageFlags::FRAGMENT) && rasterized;
         if (isAttachment) {
             vis = gfx::ShaderStageFlags::FRAGMENT;
             bool outColorFlag = (desc.flags & ResourceFlags::COLOR_ATTACHMENT) != ResourceFlags::NONE;
@@ -1795,7 +1795,7 @@ bool checkRasterViews(const Graphs &graphs, uint32_t vertID, uint32_t passID, Pa
         const auto &rasterView = pair.second;
         auto access = toGfxAccess(rasterView.accessType);
         gfx::ShaderStageFlagBit tryGotVis = getVisibilityByDescName(renderGraph, layoutGraphData, passID, pair.second.slotName);
-        const auto &[vis, usage, accessFlag] = getResourceStatus(passType, pair.first, access, tryGotVis, resourceGraph);
+        const auto &[vis, usage, accessFlag] = getResourceStatus(passType, pair.first, access, tryGotVis, resourceGraph, true);
         ViewStatus viewStatus{pair.first, passType, vis, access, accessFlag, usage};
         addAccessStatus(resourceAccessGraph, resourceGraph, node, viewStatus);
         auto lastVertId = dependencyCheck(resourceAccessGraph, vertID, resourceGraph, viewStatus);
@@ -1824,7 +1824,7 @@ bool checkComputeViews(const Graphs &graphs, uint32_t vertID, uint32_t passID, P
             for (const auto &view : pair.second) {
                 tryGotVis |= getVisibilityByDescName(renderGraph, layoutGraphData, passID, view.name);
             }
-            const auto &[vis, usage, accessFlag] = getResourceStatus(passType, pair.first, access, tryGotVis, resourceGraph);
+            const auto &[vis, usage, accessFlag] = getResourceStatus(passType, pair.first, access, tryGotVis, resourceGraph, false);
             ViewStatus viewStatus{pair.first, passType, vis, access, accessFlag, usage};
             addAccessStatus(resourceAccessGraph, resourceGraph, node, viewStatus);
             auto lastVertId = dependencyCheck(resourceAccessGraph, vertID, resourceGraph, viewStatus);
