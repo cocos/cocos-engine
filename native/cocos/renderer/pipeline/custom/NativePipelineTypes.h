@@ -110,7 +110,13 @@ public:
     void setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) override;
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override;
 
+    /**
+     * @deprecated method will be removed in 3.8.0
+     */
     void addRasterView(const ccstd::string &name, const RasterView &view) override;
+    /**
+     * @deprecated method will be removed in 3.8.0
+     */
     void addComputeView(const ccstd::string &name, const ComputeView &view) override;
     void setViewport(const gfx::Viewport &viewport) override;
     RasterQueueBuilder *addQueue(QueueHint hint, const ccstd::string &layoutName) override;
@@ -150,7 +156,13 @@ public:
     void setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) override;
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override;
 
+    /**
+     * @deprecated method will be removed in 3.8.0
+     */
     void addRasterView(const ccstd::string &name, const RasterView &view) override;
+    /**
+     * @deprecated method will be removed in 3.8.0
+     */
     void addComputeView(const ccstd::string &name, const ComputeView &view) override;
     ComputeQueueBuilder *addQueue(const ccstd::string &layoutName) override;
 
@@ -187,7 +199,13 @@ public:
     void setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) override;
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override;
 
+    /**
+     * @deprecated method will be removed in 3.8.0
+     */
     void addRasterView(const ccstd::string &name, const RasterView &view) override;
+    /**
+     * @deprecated method will be removed in 3.8.0
+     */
     void addComputeView(const ccstd::string &name, const ComputeView &view) override;
     RasterQueueBuilder *addQueue(QueueHint hint, const ccstd::string &layoutName) override;
     RasterSubpassBuilder *addRasterSubpass(const ccstd::string &layoutName) override;
@@ -260,6 +278,9 @@ public:
     void setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) override;
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override;
 
+    /**
+     * @deprecated method will be removed in 3.8.0
+     */
     void addComputeView(const ccstd::string &name, const ComputeView &view) override;
     ComputeQueueBuilder *addQueue(const ccstd::string &layoutName) override;
 

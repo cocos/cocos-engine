@@ -170,7 +170,13 @@ class RasterSubpassBuilder : public Setter {
 public:
     RasterSubpassBuilder() noexcept = default;
 
+    /**
+     * @deprecated method will be removed in 3.8.0
+     */
     virtual void addRasterView(const ccstd::string &name, const RasterView &view) = 0;
+    /**
+     * @deprecated method will be removed in 3.8.0
+     */
     virtual void addComputeView(const ccstd::string &name, const ComputeView &view) = 0;
     virtual void setViewport(const gfx::Viewport &viewport) = 0;
     virtual RasterQueueBuilder *addQueue(QueueHint hint, const ccstd::string &layoutName) = 0;
@@ -201,7 +207,13 @@ class ComputeSubpassBuilder : public Setter {
 public:
     ComputeSubpassBuilder() noexcept = default;
 
+    /**
+     * @deprecated method will be removed in 3.8.0
+     */
     virtual void addRasterView(const ccstd::string &name, const RasterView &view) = 0;
+    /**
+     * @deprecated method will be removed in 3.8.0
+     */
     virtual void addComputeView(const ccstd::string &name, const ComputeView &view) = 0;
     virtual ComputeQueueBuilder *addQueue(const ccstd::string &layoutName) = 0;
     ComputeQueueBuilder *addQueue() {
@@ -213,7 +225,13 @@ class RasterPassBuilder : public Setter {
 public:
     RasterPassBuilder() noexcept = default;
 
+    /**
+     * @deprecated method will be removed in 3.8.0
+     */
     virtual void addRasterView(const ccstd::string &name, const RasterView &view) = 0;
+    /**
+     * @deprecated method will be removed in 3.8.0
+     */
     virtual void addComputeView(const ccstd::string &name, const ComputeView &view) = 0;
     virtual RasterQueueBuilder *addQueue(QueueHint hint, const ccstd::string &layoutName) = 0;
     virtual RasterSubpassBuilder *addRasterSubpass(const ccstd::string &layoutName) = 0;
@@ -240,6 +258,9 @@ class ComputePassBuilder : public Setter {
 public:
     ComputePassBuilder() noexcept = default;
 
+    /**
+     * @deprecated method will be removed in 3.8.0
+     */
     virtual void addComputeView(const ccstd::string &name, const ComputeView &view) = 0;
     virtual ComputeQueueBuilder *addQueue(const ccstd::string &layoutName) = 0;
     ComputeQueueBuilder *addQueue() {

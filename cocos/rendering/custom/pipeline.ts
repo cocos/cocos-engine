@@ -99,7 +99,13 @@ export interface RasterQueueBuilder extends Setter {
 }
 
 export interface RasterSubpassBuilder extends Setter {
+    /**
+     * @deprecated method will be removed in 3.8.0
+     */
     addRasterView (name: string, view: RasterView): void;
+    /**
+     * @deprecated method will be removed in 3.8.0
+     */
     addComputeView (name: string, view: ComputeView): void;
     setViewport (viewport: Viewport): void;
     addQueue (hint: QueueHint, layoutName: string): RasterQueueBuilder;
@@ -115,14 +121,26 @@ export interface ComputeQueueBuilder extends Setter {
 }
 
 export interface ComputeSubpassBuilder extends Setter {
+    /**
+     * @deprecated method will be removed in 3.8.0
+     */
     addRasterView (name: string, view: RasterView): void;
+    /**
+     * @deprecated method will be removed in 3.8.0
+     */
     addComputeView (name: string, view: ComputeView): void;
     addQueue (layoutName: string): ComputeQueueBuilder;
     addQueue (/*''*/): ComputeQueueBuilder;
 }
 
 export interface RasterPassBuilder extends Setter {
+    /**
+     * @deprecated method will be removed in 3.8.0
+     */
     addRasterView (name: string, view: RasterView): void;
+    /**
+     * @deprecated method will be removed in 3.8.0
+     */
     addComputeView (name: string, view: ComputeView): void;
     addQueue (hint: QueueHint, layoutName: string): RasterQueueBuilder;
     addQueue (hint: QueueHint/*, ''*/): RasterQueueBuilder;
@@ -137,6 +155,9 @@ export interface RasterPassBuilder extends Setter {
 }
 
 export interface ComputePassBuilder extends Setter {
+    /**
+     * @deprecated method will be removed in 3.8.0
+     */
     addComputeView (name: string, view: ComputeView): void;
     addQueue (layoutName: string): ComputeQueueBuilder;
     addQueue (/*''*/): ComputeQueueBuilder;
