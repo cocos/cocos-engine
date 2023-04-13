@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -22,47 +22,25 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "GFXShader.h"
-#include "GFXDevice.h"
-#include "GFXObject.h"
+#include "BinaryArchive.h"
+#include "base/Assertf.h"
 
 namespace cc {
-namespace gfx {
 
-Shader::Shader()
-: GFXObject(ObjectType::SHADER) {
+bool BinaryInputArchive::load(char *data, uint32_t size) {
+    CC_ASSERT(!!_stream);
+    return _stream.rdbuf()->sgetn(data, size) == size;
 }
 
-Shader::~Shader() = default;
-
-void Shader::initialize(const ShaderInfo &info) {
-    _name = info.name;
-    _stages = info.stages;
-    _attributes = info.attributes;
-    _blocks = info.blocks;
-    _buffers = info.buffers;
-    _samplerTextures = info.samplerTextures;
-    _samplers = info.samplers;
-    _textures = info.textures;
-    _images = info.images;
-    _subpassInputs = info.subpassInputs;
-    _hash = info.hash;
-    doInit(info);
+void BinaryInputArchive::move(uint32_t length) {
+    CC_ASSERT(!!_stream);
+    _stream.ignore(length);
 }
 
-void Shader::destroy() {
-    doDestroy();
-
-    _stages.clear();
-    _attributes.clear();
-    _blocks.clear();
-    _buffers.clear();
-    _samplerTextures.clear();
-    _samplers.clear();
-    _textures.clear();
-    _images.clear();
-    _subpassInputs.clear();
+void BinaryOutputArchive::save(const char *data, uint32_t size) {
+    CC_ASSERT(!!_stream);
+    auto len = _stream.rdbuf()->sputn(data, size);
+    CC_ASSERT(len == size);
 }
 
-} // namespace gfx
 } // namespace cc

@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -22,47 +22,34 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "GFXShader.h"
-#include "GFXDevice.h"
-#include "GFXObject.h"
+#pragma once
 
-namespace cc {
-namespace gfx {
+#include "base/std/container/vector.h"
+#include "base/std/container/unordered_map.h"
+#include "base/std/container/string.h"
+#include "base/Ptr.h"
+#include "base/RefCounted.h"
+#include "VKGPUObjects.h"
 
-Shader::Shader()
-: GFXObject(ObjectType::SHADER) {
-}
+namespace cc::gfx {
 
-Shader::~Shader() = default;
+class CCVKPipelineCache : public RefCounted {
+public:
+    CCVKPipelineCache();
+    ~CCVKPipelineCache() override;
 
-void Shader::initialize(const ShaderInfo &info) {
-    _name = info.name;
-    _stages = info.stages;
-    _attributes = info.attributes;
-    _blocks = info.blocks;
-    _buffers = info.buffers;
-    _samplerTextures = info.samplerTextures;
-    _samplers = info.samplers;
-    _textures = info.textures;
-    _images = info.images;
-    _subpassInputs = info.subpassInputs;
-    _hash = info.hash;
-    doInit(info);
-}
+    void init(VkDevice dev);
+    void loadCache();
+    void saveCache();
 
-void Shader::destroy() {
-    doDestroy();
+    void setDirty();
+    VkPipelineCache getHandle() const;
 
-    _stages.clear();
-    _attributes.clear();
-    _blocks.clear();
-    _buffers.clear();
-    _samplerTextures.clear();
-    _samplers.clear();
-    _textures.clear();
-    _images.clear();
-    _subpassInputs.clear();
-}
+private:
+    VkDevice _device = VK_NULL_HANDLE;
+    VkPipelineCache _pipelineCache = VK_NULL_HANDLE;
+    ccstd::string _savePath;
+    bool _dirty = false;
+};
 
-} // namespace gfx
-} // namespace cc
+} // namespace cc::gfx

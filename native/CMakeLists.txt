@@ -453,6 +453,8 @@ cocos_source_files(
     cocos/base/ThreadPool.cpp
     cocos/base/ThreadPool.h
     cocos/base/TypeDef.h
+    cocos/base/BinaryArchive.cpp
+    cocos/base/BinaryArchive.h
     cocos/base/std/any.h
     cocos/base/std/optional.h
     cocos/base/std/variant.h
@@ -1144,6 +1146,8 @@ cocos_source_files(
                  cocos/renderer/gfx-base/GFXTexture.cpp
                  cocos/renderer/gfx-base/GFXTexture.h
                  cocos/renderer/gfx-base/GFXDeviceObject.h
+                 cocos/renderer/gfx-base/GFXUtil.cpp
+                 cocos/renderer/gfx-base/GFXUtil.h
                  cocos/renderer/gfx-base/states/GFXGeneralBarrier.cpp
                  cocos/renderer/gfx-base/states/GFXGeneralBarrier.h
                  cocos/renderer/gfx-base/states/GFXSampler.cpp
@@ -1628,6 +1632,8 @@ if(CC_USE_GLES3)
                      cocos/renderer/gfx-gles3/GLES3Texture.h
                      cocos/renderer/gfx-gles3/GLES3Wrangler.cpp
                      cocos/renderer/gfx-gles3/GLES3Wrangler.h
+                     cocos/renderer/gfx-gles3/GLES3PipelineCache.cpp
+                     cocos/renderer/gfx-gles3/GLES3PipelineCache.h
                      cocos/renderer/gfx-gles3/states/GLES3GeneralBarrier.cpp
                      cocos/renderer/gfx-gles3/states/GLES3GeneralBarrier.h
                      cocos/renderer/gfx-gles3/states/GLES3Sampler.cpp
@@ -1725,6 +1731,8 @@ if(CC_USE_VULKAN)
                      cocos/renderer/gfx-vulkan/volk.c
                      cocos/renderer/gfx-vulkan/volk.h
                      cocos/renderer/gfx-vulkan/VKGPURecycleBin.cpp
+                     cocos/renderer/gfx-vulkan/VKPipelineCache.cpp
+                     cocos/renderer/gfx-vulkan/VKPipelineCache.h
                      cocos/renderer/gfx-vulkan/states/VKGeneralBarrier.cpp
                      cocos/renderer/gfx-vulkan/states/VKGeneralBarrier.h
                      cocos/renderer/gfx-vulkan/states/VKSampler.cpp

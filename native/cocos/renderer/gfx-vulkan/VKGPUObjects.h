@@ -428,7 +428,6 @@ public:
     ccstd::vector<VkLayerProperties> layers;
     ccstd::vector<VkExtensionProperties> extensions;
     VmaAllocator memoryAllocator{VK_NULL_HANDLE};
-    VkPipelineCache vkPipelineCache{VK_NULL_HANDLE};
     uint32_t minorVersion{0U};
 
     VkFormat depthFormat{VK_FORMAT_UNDEFINED};

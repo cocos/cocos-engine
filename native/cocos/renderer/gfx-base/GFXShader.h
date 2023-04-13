@@ -63,6 +63,7 @@ protected:
     UniformTextureList _textures;
     UniformStorageImageList _images;
     UniformInputAttachmentList _subpassInputs;
+    ccstd::hash_t _hash = 0;
 };
 
 } // namespace gfx

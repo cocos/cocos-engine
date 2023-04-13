@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -22,47 +22,38 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "GFXShader.h"
-#include "GFXDevice.h"
-#include "GFXObject.h"
 
-namespace cc {
-namespace gfx {
+#pragma once
 
-Shader::Shader()
-: GFXObject(ObjectType::SHADER) {
-}
+#include "base/std/container/vector.h"
+#include "base/std/container/unordered_map.h"
+#include "base/std/container/string.h"
+#include "base/Ptr.h"
+#include "base/RefCounted.h"
+#include "GLES3GPUObjects.h"
 
-Shader::~Shader() = default;
+namespace cc::gfx {
+class GLES3GPUShader;
 
-void Shader::initialize(const ShaderInfo &info) {
-    _name = info.name;
-    _stages = info.stages;
-    _attributes = info.attributes;
-    _blocks = info.blocks;
-    _buffers = info.buffers;
-    _samplerTextures = info.samplerTextures;
-    _samplers = info.samplers;
-    _textures = info.textures;
-    _images = info.images;
-    _subpassInputs = info.subpassInputs;
-    _hash = info.hash;
-    doInit(info);
-}
+class GLES3PipelineCache : public RefCounted {
+public:
+    GLES3PipelineCache();
+    ~GLES3PipelineCache() override;
 
-void Shader::destroy() {
-    doDestroy();
+    void init();
 
-    _stages.clear();
-    _attributes.clear();
-    _blocks.clear();
-    _buffers.clear();
-    _samplerTextures.clear();
-    _samplers.clear();
-    _textures.clear();
-    _images.clear();
-    _subpassInputs.clear();
-}
+    void addBinary(GLES3GPUProgramBinary *binary);
+    GLES3GPUProgramBinary *fetchBinary(const ccstd::string &key, ccstd::hash_t hash);
+    bool checkProgramFormat(GLuint format) const;
 
-} // namespace gfx
-} // namespace cc
+private:
+    void loadCache();
+    void saveCache();
+
+    ccstd::vector<GLint> _programBinaryFormats;
+    ccstd::unordered_map<ccstd::string, IntrusivePtr<GLES3GPUProgramBinary>> _programCaches;
+    ccstd::string _savePath;
+    bool _dirty = false;
+};
+
+} // namespace cc::gfx
