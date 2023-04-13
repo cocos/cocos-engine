@@ -2762,7 +2762,7 @@ function isUseTexImage2D (texImages: Readonly<TexImageSource[]>, regions: Readon
     if (isVideoElement) {
         const videoElement = texImages[0] as HTMLVideoElement;
         const isSameSize = regions[0].texOffset.x === 0
-        && regions[0].texOffset.x === 0
+        && regions[0].texOffset.y === 0
         && regions[0].texExtent.width === videoElement.videoWidth
         && regions[0].texExtent.height === videoElement.videoHeight;
         return isSameSize;
