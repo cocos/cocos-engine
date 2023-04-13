@@ -76,8 +76,8 @@ bool RenderWindow::initialize(gfx::Device *device, IRenderWindowInfo &info) {
                                       _width,
                                       _height};
             if (info.externalFlag.has_value()) {
-                textureInfo.flags |= info.externalFlag.value();
                 if (hasFlag(info.externalFlag.value(), gfx::TextureFlagBit::EXTERNAL_NORMAL)) {
+                    textureInfo.flags |= info.externalFlag.value();
                     if (info.externalResLow.has_value() && info.externalResHigh.has_value()) {
                         uint64_t externalResAddr = (static_cast<uint64_t>(info.externalResHigh.value()) << 32) | info.externalResLow.value();
                         textureInfo.externalRes = reinterpret_cast<void *>(externalResAddr);
