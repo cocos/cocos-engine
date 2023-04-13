@@ -82,7 +82,7 @@ bool RenderWindow::initialize(gfx::Device *device, IRenderWindowInfo &info) {
                         uint64_t externalResAddr = (static_cast<uint64_t>(info.externalResHigh.value()) << 32) | info.externalResLow.value();
                         textureInfo.externalRes = reinterpret_cast<void *>(externalResAddr);
                     } else if(info.externalResLow.has_value()) {
-                        textureInfo.externalRes = reinterpret_cast<void *>(info.externalResLow.value());
+                        textureInfo.externalRes = reinterpret_cast<void *>(static_cast<uint64_t>(info.externalResLow.value()));
                     }
                 }
             }
