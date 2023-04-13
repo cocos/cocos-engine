@@ -242,9 +242,20 @@ export type CollisionEventType = 'onCollisionEnter' | 'onCollisionStay' | 'onCol
  */
 export type CollisionCallback = (event?: ICollisionEvent) => void;
 
-//ICharacterCollisionEventTypeEvent?
+/**
+ * @en
+ * Value type definitions fot the collision events of character controller.
+ * @zh
+ * 角色控制器碰撞事件的值类型定义。
+ */
 export type CharacterCollisionEventType = 'onColliderHit';
 
+/**
+ * @en
+ * Contact information of the collision event of character controller.
+ * @zh
+ * 角色控制器碰撞事件的碰撞信息。
+ */
 export class CharacterControllerContact {
     /**
      * @en
@@ -264,24 +275,33 @@ export class CharacterControllerContact {
 
     /**
      * @en
-     * Gets the contact point relative to the rigid body A in the world coordinate system.
+     * The contact point in the world coordinate system.
      * @zh
-     * 获取世界坐标系中的碰撞点。
-     * @param out used to storage the output.
+     * 世界坐标系中的碰撞点。
      */
     worldPosition: Vec3 = new Vec3();
 
     /**
      * @en
-     * Gets the contact normal relative to the rigid body A in the world coordinate system.
+     * The contact normal in the world coordinate system.
      * @zh
-     * 获取世界坐标系中的碰撞法线。
-     * @param out used to storage the output.
+     * 世界坐标系中的碰撞法线。
      */
     worldNormal: Vec3 = new Vec3();
 
-    motionDirection: Vec3 = new Vec3(); //not right
-    motionLength = 0;//not right
-    //getMotionDirection (out: IVec3Like): void;
-    //getMotionLength (): number;
+    /**
+     * @en
+     * Motion direction.
+     * @zh
+     * 移动方向。
+     */
+    motionDirection: Vec3 = new Vec3();
+
+    /**
+     * @en
+     * Motion length.
+     * @zh
+     * 移动长度。
+     */
+    motionLength = 0;
 }

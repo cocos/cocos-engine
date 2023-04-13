@@ -45,7 +45,7 @@ const v3_0 = new Vec3(0, 0, 0);
  * 角色控制器组件。
  */
 @ccclass('cc.BoxCharacterController')
-@help('i18n:cc.BoxCharacterController')
+//@help('i18n:cc.BoxCharacterController')
 @menu('Physics/BoxCharacterController')
 @executeInEditMode
 @disallowMultiple
@@ -58,11 +58,11 @@ export class BoxCharacterController extends CharacterController {
     /// PUBLIC PROPERTY GETTER\SETTER ///
     /**
      * @en
-     * Gets or sets the radius of the sphere on the capsule body, in local space.
+     * Gets or sets the half height of the box shape of the CharacterController in local space.
      * @zh
-     * 获取或设置胶囊体在本地坐标系下的球半径。
+     * 获取或设置立方体在本地坐标系下的高度的一半。
      */
-    //@tooltip('i18n:physics3d.collider.capsule_radius')
+    @tooltip('i18n:physics3d.character_controller.boxHalfHeight')
     @type(CCFloat)
     public get halfHeight () {
         return this._halfHeight;
@@ -78,12 +78,11 @@ export class BoxCharacterController extends CharacterController {
 
     /**
      * @en
-     * Gets or sets the height.
-     * Height the distance between the two sphere centers at the end of the capsule.
+     * Gets or sets the half side extent of box shape of the CharacterController in local space.
      * @zh
-     * 获取或设置在本地坐标系下的胶囊体两个圆心的距离。
+     * 获取或设置立方体在本地坐标系下的横向宽度的一半。
      */
-    //@tooltip('i18n:physics3d.collider.capsule_cylinderHeight')
+    @tooltip('i18n:physics3d.character_controller.boxHalfSideExtent')
     @type(CCFloat)
     public get halfSideExtent () {
         return this._halfSideExtent;
@@ -97,6 +96,13 @@ export class BoxCharacterController extends CharacterController {
         }
     }
 
+    /**
+     * @en
+     * Gets or sets the half forward extent of the box on the CharacterController in local space.
+     * @zh
+     * 获取或设置立方体在本地坐标系下的纵向宽度一半。
+     */
+    @tooltip('i18n:physics3d.character_controller.boxHalfForwardExtent')
     @type(CCFloat)
     public get halfForwardExtent () {
         return this._halfForwardExtent;
@@ -112,9 +118,9 @@ export class BoxCharacterController extends CharacterController {
 
     /// PRIVATE PROPERTY ///
     @serializable
-    public _halfHeight = 0.5;
+    private _halfHeight = 0.5;
     @serializable
-    public _halfSideExtent = 0.5;
+    private _halfSideExtent = 0.5;
     @serializable
-    public _halfForwardExtent = 0.5;
+    private _halfForwardExtent = 0.5;
 }
