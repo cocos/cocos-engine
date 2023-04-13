@@ -30,7 +30,7 @@ import {
 import { Color, assert, ccenum, cclegacy } from '../../core';
 import { builtinResMgr } from '../../asset/asset-manager';
 import { Material } from '../../asset/assets';
-import { BlendFactor } from '../../gfx';
+import { BlendFactor, BlendOp, ColorMask } from '../../gfx';
 import { IAssembler, IAssemblerManager } from '../renderer/base';
 import { RenderData } from '../renderer/render-data';
 import { IBatcher } from '../renderer/i-batcher';
@@ -47,6 +47,8 @@ import { director } from '../../game';
 
 // hack
 ccenum(BlendFactor);
+ccenum(BlendOp);
+ccenum(ColorMask);
 
 /**
  * @en
