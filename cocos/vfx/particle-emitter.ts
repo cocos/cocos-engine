@@ -473,10 +473,10 @@ export class ParticleEmitter extends Component {
     }
 
     public addEventReceiver () {
-        const eventReceiver = new EventHandler();
-        this._eventHandlers.push(eventReceiver);
+        const eventHandler = new EventHandler();
+        this._eventHandlers.push(eventHandler);
         this._eventHandlerCount++;
-        return eventReceiver;
+        return eventHandler;
     }
 
     public getEventReceiverAt (index: number) {
@@ -615,19 +615,13 @@ export class ParticleEmitter extends Component {
      */
     public processEvents (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         for (let i = 0, length = this._eventHandlerCount; i < length; i++) {
-            const eventReceiver = this._eventHandlers[i];
-            const emitter = eventReceiver.target;
+            const eventHandler = this._eventHandlers[i];
+            const emitter = eventHandler.target;
             if (emitter && emitter.isValid) {
-                const spawnFractionCollection = eventReceiver.spawnFractionCollection;
-                let events = emitter._context.locationEvents;
-                if (eventReceiver.eventType === ParticleEventType.DEATH) {
-                    events = emitter._context.deathEvents;
-                } else if (eventReceiver.eventType === ParticleEventType.LOCATION) {
-                    spawnFractionCollection.reserve(events.capacity);
-                    spawnFractionCollection.sync(events.particleId.data, events.count);
-                }
+                const events = emitter._context.events;
                 for (let i = 0, length = events.count; i < length; i++) {
                     events.getEventInfoAt(eventInfo, i);
+                    if (eventInfo.type !== eventHandler.eventType) { continue; }
                     Vec3.normalize(dir, eventInfo.velocity);
                     const angle = Math.abs(Vec3.dot(dir, Vec3.UNIT_Z));
                     Vec3.lerp(up, Vec3.UNIT_Z, Vec3.UNIT_Y, angle);
@@ -645,13 +639,13 @@ export class ParticleEmitter extends Component {
                     context.updateEmitterTime(eventInfo.currentTime, eventInfo.prevTime,
                         params.delayMode, loopDelay, params.loopMode, params.loopCount, params.duration);
                     let spawnFraction = 0;
-                    if (eventReceiver.eventType === ParticleEventType.LOCATION) {
-                        spawnFraction = spawnFractionCollection.fraction[i];
+                    if (eventHandler.eventType === ParticleEventType.LOCATION) {
+                        spawnFraction = eventHandler.getSpawnFraction(eventInfo.particleId);
                     }
-                    eventReceiver.execute(particles, params, context);
+                    eventHandler.execute(particles, params, context);
                     spawnFraction = this.spawn(spawnFraction, tempEmitterTransform, eventInfo.color, eventInfo.size, eventInfo.rotation);
-                    if (eventReceiver.eventType === ParticleEventType.LOCATION) {
-                        spawnFractionCollection.fraction[i] = spawnFraction;
+                    if (eventHandler.eventType === ParticleEventType.LOCATION) {
+                        eventHandler.setSpawnFraction(eventInfo.particleId, spawnFraction);
                     }
                 }
             }

@@ -29,7 +29,7 @@ import { Space } from '../enum';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleColorArrayParameter, ParticleVec3ArrayParameter } from '../particle-parameter';
-import { ParticleEmitterParams, ParticleEmitterState, ParticleEventInfo, ParticleExecContext } from '../particle-base';
+import { ParticleEmitterParams, ParticleEmitterState, ParticleEventInfo, ParticleEventType, ParticleExecContext } from '../particle-base';
 import { RandomStream } from '../random-stream';
 
 const eventInfo = new ParticleEventInfo();
@@ -57,7 +57,7 @@ export class DeathEventGeneratorModule extends ParticleModule {
         const randomSeed = particles.randomSeed.data;
         const id = particles.id.data;
         const isDead = particles.isDead.data;
-        const { fromIndex, toIndex, deathEvents } = context;
+        const { fromIndex, toIndex, events } = context;
         const { localToWorld } = context;
         const { simulationSpace } = params;
         const randomOffset = this._randomOffset;
@@ -124,7 +124,8 @@ export class DeathEventGeneratorModule extends ParticleModule {
                 eventInfo.prevTime = 0;
                 eventInfo.currentTime = EPSILON;
                 eventInfo.randomSeed = randomSeed[i];
-                deathEvents.dispatch(eventInfo);
+                eventInfo.type = ParticleEventType.DEATH;
+                events.dispatch(eventInfo);
             }
         }
     }

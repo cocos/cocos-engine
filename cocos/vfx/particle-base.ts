@@ -51,6 +51,7 @@ export class ParticleEventInfo {
     public rotation = new Vec3();
     public size = new Vec3();
     public color = new Color();
+    public type = ParticleEventType.UNKNOWN;
     public randomSeed = 0;
 }
 
@@ -80,6 +81,7 @@ export class ParticleEvents {
     private _startLifeTime = new ParticleFloatArrayParameter();
     private _randomSeed = new ParticleUint32ArrayParameter();
     private _normalizedAliveTime = new ParticleFloatArrayParameter();
+    private _type = new ParticleUint32ArrayParameter();
 
     clear () {
         this._count = 0;
@@ -98,6 +100,7 @@ export class ParticleEvents {
             this._startLifeTime.reserve(capacity);
             this._randomSeed.reserve(capacity);
             this._normalizedAliveTime.reserve(capacity);
+            this._type.reserve(capacity);
             this._capacity = capacity;
         }
     }
@@ -116,6 +119,7 @@ export class ParticleEvents {
         this._size.setVec3At(eventInfo.size, handle);
         this._color.setColorAt(eventInfo.color, handle);
         this._randomSeed.setUint32At(eventInfo.randomSeed, handle);
+        this._type.setUint32At(eventInfo.type, handle);
     }
 
     getEventInfoAt (out: ParticleEventInfo, handle: number) {
@@ -123,6 +127,7 @@ export class ParticleEvents {
         out.currentTime = this._currentTime.getFloatAt(handle);
         out.prevTime = this._prevTime.getFloatAt(handle);
         out.randomSeed = this._randomSeed.getUint32At(handle);
+        out.type = this._type.getUint32At(handle);
         this._position.getVec3At(out.position, handle);
         this._velocity.getVec3At(out.velocity, handle);
         this._rotation.getVec3At(out.rotation, handle);
@@ -251,18 +256,11 @@ export class ParticleEmitterState {
 }
 
 export class ParticleExecContext {
-    public get locationEvents (): ParticleEvents {
-        if (!this._locationEvents) {
-            this._locationEvents = new ParticleEvents();
+    public get events (): ParticleEvents {
+        if (!this._events) {
+            this._events = new ParticleEvents();
         }
-        return this._locationEvents;
-    }
-
-    public get deathEvents (): ParticleEvents {
-        if (!this._deathEvents) {
-            this._deathEvents = new ParticleEvents();
-        }
-        return this._deathEvents;
+        return this._events;
     }
 
     public get builtinParameterRequirements () {
@@ -317,8 +315,7 @@ export class ParticleExecContext {
     private _toIndex = 0;
     private _executionStage = ModuleExecStage.NONE;
     private _builtinParameterRequirements = 0;
-    private _locationEvents: ParticleEvents | null = null;
-    private _deathEvents: ParticleEvents | null = null;
+    private _events: ParticleEvents | null = null;
     private _lastTransformChangedVersion = 0xffffffff;
 
     setExecutionStage (stage: ModuleExecStage) {
@@ -399,8 +396,7 @@ export class ParticleExecContext {
     }
 
     reset () {
-        this._deathEvents?.clear();
-        this._locationEvents?.clear();
+        this._events?.clear();
         this._builtinParameterRequirements = 0;
         this._executionStage = ModuleExecStage.NONE;
         this.setExecuteRange(0, 0);

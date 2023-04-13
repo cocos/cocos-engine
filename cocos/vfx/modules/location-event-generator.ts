@@ -29,7 +29,7 @@ import { Space } from '../enum';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleColorArrayParameter, ParticleVec3ArrayParameter } from '../particle-parameter';
-import { ParticleExecContext, ParticleEmitterParams, ParticleEventInfo, ParticleEmitterState } from '../particle-base';
+import { ParticleExecContext, ParticleEmitterParams, ParticleEventInfo, ParticleEmitterState, ParticleEventType } from '../particle-base';
 import { RandomStream } from '../random-stream';
 
 const PROBABILITY_RANDOM_SEED_OFFSET = 199208;
@@ -61,7 +61,7 @@ export class LocationEventGeneratorModule extends ParticleModule {
         const invStartLifeTime = particles.invStartLifeTime.data;
         const id = particles.id.data;
         const randomOffset = this._randomOffset;
-        const { fromIndex, toIndex, deltaTime, locationEvents } = context;
+        const { fromIndex, toIndex, deltaTime, events } = context;
         const { localToWorld } = context;
         const { simulationSpace } = params;
         const hasVelocity = particles.hasParameter(BuiltinParticleParameter.VELOCITY);
@@ -122,7 +122,8 @@ export class LocationEventGeneratorModule extends ParticleModule {
                 eventInfo.currentTime = 1 / invStartLifeTime[i] * normalizedAliveTime[i];
                 eventInfo.prevTime = eventInfo.currentTime - deltaTime;
                 eventInfo.randomSeed = randomSeed[i];
-                locationEvents.dispatch(eventInfo);
+                eventInfo.type = ParticleEventType.LOCATION;
+                events.dispatch(eventInfo);
             }
         }
     }
