@@ -26,6 +26,7 @@
 import { Color, Vec3, Mat4, Quat, Vec4 } from '../core/math';
 import { ParticleSystem } from './particle-system';
 import { IParticleSystemRenderer } from './renderer/particle-system-renderer-base';
+import { SubBurst } from './burst';
 
 export class Particle {
     public static INDENTIFY_NEG_QUAT = 10;
@@ -68,11 +69,11 @@ export class Particle {
     public delay;
     public active: boolean;
     public parentParticle: Particle | null;
-    public trigged: boolean;
     public dir: Quat;
     public time: number;
     public timeCounter: number;
     public distanceCounter: number;
+    public bursts: SubBurst[];
 
     constructor (particleSystem: any) {
         this.particleSystem = particleSystem;
@@ -111,11 +112,11 @@ export class Particle {
         this.id = -1;
         this.active = false;
         this.parentParticle = null;
-        this.trigged = false;
         this.dir = new Quat();
         this.time = 0;
         this.timeCounter = 0;
         this.distanceCounter = 0;
+        this.bursts = [];
     }
 
     public reset () {
@@ -128,7 +129,6 @@ export class Particle {
         this.localMat.identity();
         this.delay = 0;
         this.parentParticle = null;
-        this.trigged = false;
         this.initialVelocity.set(0, 0, 0);
         this.dir.set(Quat.IDENTITY);
         this.time = 0;
@@ -138,6 +138,7 @@ export class Particle {
         this.custom2.set(0, 0, 0, 0);
         this.animatedSize = new Vec3(1, 1, 1);
         this.animatedColor.set(255, 255, 255, 255);
+        this.bursts = [];
     }
 }
 

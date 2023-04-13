@@ -30,6 +30,83 @@ import { Particle } from './particle';
 
 const BURST_RND_SEED = 1712325;
 
+export class SubBurst {
+    private _time = 0;
+    private _repeatCount = 1;
+    public repeatInterval = 1;
+    private _remainingCount: number;
+    private _curTime: number;
+    public count: CurveRange = new CurveRange();
+    public finish: boolean;
+    private _ps;
+    private _current = 0;
+    private _delayTime = 0;
+
+    set time (val) {
+        this._time = val;
+        this._curTime = val;
+    }
+
+    set repeatCount (val) {
+        this._repeatCount = val;
+        this._remainingCount = val;
+    }
+
+    constructor (psystem) {
+        this._ps = psystem;
+        this._remainingCount = 0;
+        this._curTime = 0.0;
+        this._current = 0.0;
+        this._delayTime = 0.0;
+        this.finish = false;
+    }
+
+    public reset () {
+        this._remainingCount = 0;
+        this._curTime = 0.0;
+        this._current = this.repeatInterval;
+        this._delayTime = 0.0;
+        this.finish = false;
+    }
+
+    public update (dt: number, parentParticle: Particle) {
+        if (this._remainingCount > 0) {
+            if (!this._ps.isPlaying) {
+                this._ps.play();
+            }
+
+            if (this._delayTime > this._time && this._current >= this.repeatInterval) {
+                const rand = pseudoRandom(parentParticle.randomSeed ^ (BURST_RND_SEED + 1));
+                const count = this.count.evaluate(this._ps.time / this._ps.duration, rand);
+                this._ps.emit(count, dt, parentParticle);
+                --this._remainingCount;
+                this._current = 0.0;
+            }
+        }
+
+        if (this._delayTime > this._time) {
+            this._current += dt;
+        }
+        this._delayTime += dt;
+
+        if (this._remainingCount === 0) {
+            this.finish = true;
+            this._current = this.repeatInterval;
+            this._delayTime = 0.0;
+        }
+    }
+
+    public copy (burst: Burst) {
+        this.time = burst.time;
+        this.repeatCount = burst.repeatCount;
+        this.repeatInterval = burst.repeatInterval;
+        this._current = this.repeatInterval;
+        this._delayTime = 0.0;
+        this.count = burst.count;
+        this.finish = false;
+    }
+}
+
 @ccclass('cc.Burst')
 export default class Burst {
     @serializable
@@ -88,11 +165,6 @@ export default class Burst {
     }
 
     public update (psys, dt: number, parentParticle?: Particle) {
-        if (parentParticle) {
-            const rand = pseudoRandom(parentParticle.randomSeed ^ (BURST_RND_SEED + 1));
-            psys.emit(this.count.evaluate(parentParticle.time / psys.duration, rand), dt, parentParticle);
-            return;
-        }
         if (this._remainingCount === 0) {
             this._remainingCount = this._repeatCount;
             const startDelay: number = psys.startDelay.evaluate(0, random());

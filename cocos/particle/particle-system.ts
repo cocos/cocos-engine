@@ -1999,10 +1999,6 @@ export class ParticleSystem extends ModelRenderer {
                     burst.update(this, dt, parentParticle);
                 }
             }
-        } else {
-            for (const burst of this.bursts) {
-                burst.update(this, dt, parentParticle);
-            }
         }
 
         // emit particles.
