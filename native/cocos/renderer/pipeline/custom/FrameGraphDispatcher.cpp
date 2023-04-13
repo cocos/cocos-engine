@@ -1615,7 +1615,6 @@ auto getResourceStatus(PassType passType, const PmrString &name, gfx::MemoryAcce
             if (inputFlag) texUsage |= gfx::TextureUsage::INPUT_ATTACHMENT;
             if (depthStencilFlag) texUsage |= gfx::TextureUsage::DEPTH_STENCIL_ATTACHMENT;
             if (shadingRateAttachment) texUsage |= gfx::TextureUsage::SHADING_RATE;
-
         } else {
             if (memAccess == gfx::MemoryAccess::READ_ONLY) {
                 if ((desc.flags & ResourceFlags::INPUT_ATTACHMENT) != ResourceFlags::NONE) {
@@ -1874,14 +1873,6 @@ void processRasterPass(const Graphs &graphs, uint32_t passID, const RasterPass &
                     iter = std::prev(node.attachmentStatus.end());
                 } else {
                     (*iter) = attachment;
-                }
-                const auto &name = get(ResourceGraph::NameTag{}, resourceGraph, resID);
-                auto rasterIter = subpass.rasterViews.find(name);
-                if (rasterIter != subpass.rasterViews.end()) {
-                    if (rasterIter->second.loadOp == gfx::LoadOp::LOAD) {
-                        // subpass load access
-                        attachment.accessFlag |= rasterIter->second.attachmentType == AttachmentType::RENDER_TARGET ? gfx::AccessFlags::COLOR_ATTACHMENT_READ : gfx::AccessFlags::DEPTH_STENCIL_ATTACHMENT_READ;
-                    }
                 }
             }
             lastNode = head;
