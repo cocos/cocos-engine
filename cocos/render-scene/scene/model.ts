@@ -575,7 +575,7 @@ export class Model {
      * @en Reflection probe type.
      * @zh 反射探针类型。
      */
-    protected _reflectionProbeType = ReflectionProbeType.BAKED_CUBEMAP;
+    protected _reflectionProbeType = ReflectionProbeType.NONE;
 
     /**
      * @internal
@@ -610,7 +610,7 @@ export class Model {
         this.visFlags = Layers.Enum.NONE;
         this._inited = true;
         this._bakeToReflectionProbe = true;
-        this._reflectionProbeType = ReflectionProbeType.BAKED_CUBEMAP;
+        this._reflectionProbeType = ReflectionProbeType.NONE;
     }
 
     /**
