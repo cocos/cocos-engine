@@ -10,7 +10,7 @@
       ],
       "cppFlags": "",
     },
-    "compileMode": "esmodule",
+    "compileMode": "jsbundle",
   },
   "targets": [
     {
