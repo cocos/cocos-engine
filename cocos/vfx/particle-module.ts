@@ -25,8 +25,8 @@
 
 import { ParticleExecContext, ParticleEmitterParams, ParticleEmitterState } from './particle-base';
 import { ParticleDataSet } from './particle-data-set';
-import { ccclass, displayName, serializable, type, visible } from '../core/data/decorators';
-import { assert, CCBoolean, CCString, Enum, Mat4 } from '../core';
+import { ccclass, serializable, type, visible } from '../core/data/decorators';
+import { assert, CCBoolean, CCString, Enum } from '../core';
 
 export enum ModuleExecStage {
     NONE,

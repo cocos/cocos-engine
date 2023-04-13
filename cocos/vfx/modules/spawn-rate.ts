@@ -23,9 +23,9 @@
  THE SOFTWARE.
  */
 
-import { ccclass, displayOrder, serializable, tooltip, type, range } from '../../core/data/decorators';
+import { ccclass, displayOrder, serializable, tooltip, type, range } from 'cc.decorator';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
-import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
+import { ParticleDataSet } from '../particle-data-set';
 import { ParticleExecContext, ParticleEmitterParams, ParticleEmitterState } from '../particle-base';
 import { FloatExpression } from '../expression/float-expression';
 import { RandomStream } from '../random-stream';

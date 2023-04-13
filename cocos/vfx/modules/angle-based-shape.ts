@@ -22,14 +22,12 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+import { ccclass, displayOrder, range, serializable, tooltip, type, visible } from 'cc.decorator';
 import { DistributionMode, MoveWarpMode, ShapeModule } from './shape';
-import { ccclass, displayOrder, range, serializable, tooltip, type, visible } from '../../core/data/decorators';
-import { ModuleExecStage, ParticleModule } from '../particle-module';
-import { Enum, lerp, toDegree, toRadian, Vec3 } from '../../core';
-import { BuiltinParticleParameter, BuiltinParticleParameterFlags, ParticleDataSet } from '../particle-data-set';
+import { Enum, lerp, toDegree, toRadian } from '../../core';
+import { BuiltinParticleParameterFlags, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
 import { FloatExpression } from '../expression/float-expression';
-import { RandomStream } from '../random-stream';
 import { ParticleVec3ArrayParameter } from '../particle-parameter';
 
 @ccclass('cc.AngleBasedShapeModule')

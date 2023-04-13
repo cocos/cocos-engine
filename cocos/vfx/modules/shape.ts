@@ -24,11 +24,10 @@
  THE SOFTWARE.
  */
 
-import { ccclass, tooltip, displayOrder, type, formerlySerializedAs, serializable, visible, range } from 'cc.decorator';
-import { Mat4, Quat, Vec2, Vec3, randomRange } from '../../core/math';
-
-import { ParticleModule, ModuleExecStage } from '../particle-module';
-import { BuiltinParticleParameter, BuiltinParticleParameterFlags, ParticleDataSet } from '../particle-data-set';
+import { ccclass, tooltip, displayOrder, serializable } from 'cc.decorator';
+import { Mat4, Quat, Vec3, randomRange } from '../../core';
+import { ParticleModule } from '../particle-module';
+import { BuiltinParticleParameterFlags, ParticleDataSet } from '../particle-data-set';
 import { ParticleExecContext, ParticleEmitterParams, ParticleEmitterState } from '../particle-base';
 import { RandomStream } from '../random-stream';
 

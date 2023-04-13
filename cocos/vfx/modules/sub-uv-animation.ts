@@ -23,15 +23,13 @@
  THE SOFTWARE.
  */
 
-import { ccclass, tooltip, displayOrder, type, formerlySerializedAs, serializable, range, visible } from 'cc.decorator';
+import { ccclass, tooltip, type, serializable, range, visible } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
-import { lerp, repeat } from '../../core/math';
-import { Enum } from '../../core/value-types';
+import { lerp, repeat, Enum, assert, CCFloat, CCInteger } from '../../core';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { createRealCurve, FloatExpression } from '../expression/float-expression';
-import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
-import { assert, CCFloat, CCInteger, RealCurve, RealInterpolationMode } from '../../core';
 import { RandomStream } from '../random-stream';
 
 const TEXTURE_ANIMATION_RAND_OFFSET = 90794;

@@ -24,12 +24,11 @@
  */
 
 import { ccclass, tooltip, displayOrder, type, serializable, range, visible, rangeMin } from 'cc.decorator';
-import { approx, lerp, Vec2, Vec3 } from '../../core/math';
+import { approx, lerp, Vec2, assert } from '../../core';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { FloatExpression } from '../expression/float-expression';
-import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
-import { assert } from '../../core';
 import { RandomStream } from '../random-stream';
 
 const SCALE_SIZE_RAND = 2818312;

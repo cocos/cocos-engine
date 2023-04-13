@@ -23,14 +23,12 @@
  THE SOFTWARE.
  */
 
-import { ccclass, tooltip, displayOrder, range, type, serializable, visible } from 'cc.decorator';
-import { DEBUG } from 'internal:constants';
-import { lerp, Quat, Vec3 } from '../../core/math';
+import { ccclass, type, serializable, visible } from 'cc.decorator';
+import { lerp, Vec3, CCBoolean } from '../../core';
 import { FloatExpression } from '../expression/float-expression';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
-import { assert, CCBoolean, Enum } from '../../core';
 import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
-import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
 import { RandomStream } from '../random-stream';
 
 const _temp_v3 = new Vec3();

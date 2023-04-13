@@ -24,21 +24,20 @@
  */
 
 // eslint-disable-next-line max-len
-import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, type, range, displayName, formerlySerializedAs, override, radian, serializable, visible, requireComponent, rangeMin } from 'cc.decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, type, displayName, serializable, visible, rangeMin } from 'cc.decorator';
 import { DEBUG, EDITOR } from 'internal:constants';
-import { approx, clamp01, Color, EPSILON, lerp, Mat3, Mat4, Quat, randomRangeInt, Size, Vec2, Vec3, Vec4 } from '../core/math';
-import { countTrailingZeros, INT_MAX } from '../core/math/bits';
-import { BoundsMode, CapacityMode, DelayMode, InheritedProperty, LoopMode, ParticleEmitterParams, ParticleEmitterState, ParticleEventInfo, ParticleEventType, ParticleExecContext, PlayingState } from './particle-base';
+import { approx, clamp01, Color, lerp, Mat4, Quat, randomRangeInt, Vec2, Vec3 } from '../core/math';
+import { INT_MAX } from '../core/math/bits';
+import { BoundsMode, CapacityMode, DelayMode, LoopMode, ParticleEmitterParams, ParticleEmitterState, ParticleEventInfo, ParticleEventType, ParticleExecContext, PlayingState } from './particle-base';
 import { CullingMode, FinishAction, ScalingMode, Space } from './enum';
 import { legacyCC } from '../core/global-exports';
-import { assert, BitMask, CCBoolean, CCClass, CCFloat, CCInteger, Component, Enum, geometry, js } from '../core';
+import { assert, CCBoolean, CCClass, CCInteger, Enum } from '../core';
+import { Component } from '../scene-graph';
 import { ParticleDataSet, BuiltinParticleParameter, BuiltinParticleParameterFlags } from './particle-data-set';
 import { ParticleModuleStage, ModuleExecStage } from './particle-module';
 import { vfxManager } from './vfx-manager';
 import { RandomStream } from './random-stream';
-import { EventHandler } from './event-receiver';
-import { delayTime } from '../tween/actions/action-interval';
-import { State } from '../core/animation/marionette/state';
+import { EventHandler } from './event-handler';
 
 const startPositionOffset = new Vec3();
 const tempPosition = new Vec3();

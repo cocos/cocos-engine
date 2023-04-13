@@ -24,10 +24,10 @@
  */
 
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
-import { Color } from '../../core/math';
+import { Color } from '../../core';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { ColorExpression } from '../expression/color-expression';
-import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
 import { RandomStream } from '../random-stream';
 

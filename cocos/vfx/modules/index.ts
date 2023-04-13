@@ -61,5 +61,5 @@ export * from './grid-shape';
 export * from './limit-velocity';
 export * from './force';
 export * from './multiply-size';
-export * from './noise';
+export * from './curl-noise';
 export * from './rotation';

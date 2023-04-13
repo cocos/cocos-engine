@@ -23,10 +23,8 @@
  THE SOFTWARE.
  */
 
-import { ccclass, serializable, editable } from 'cc.decorator';
-import { CCClass } from '../core/data/class';
+import { CCClass, Enum } from '../core';
 import { Color, lerp, repeat } from '../core/math';
-import { Enum } from '../core/value-types';
 
 const Mode = Enum({
     Blend: 0,

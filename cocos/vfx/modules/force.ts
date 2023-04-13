@@ -25,13 +25,12 @@
 
 import { ccclass, tooltip, displayOrder, range, type, serializable } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
-import { lerp, Quat, Vec3 } from '../../core/math';
+import { lerp, Vec3, assert, Enum } from '../../core';
 import { Space } from '../enum';
 import { FloatExpression } from '../expression/float-expression';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
-import { assert, Enum } from '../../core';
 import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
-import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { RandomStream } from '../random-stream';
 
 const randomOffset = 212165;

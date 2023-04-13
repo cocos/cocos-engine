@@ -22,12 +22,12 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+import { ccclass, displayOrder, serializable, tooltip, type, visible } from 'cc.decorator';
 import { ShapeModule } from './shape';
-import { ccclass, displayOrder, serializable, tooltip, type, visible } from '../../core/data/decorators';
 import { ModuleExecStage, ParticleModule } from '../particle-module';
 import { Enum, Vec3 } from '../../core';
 import { BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
-import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
+import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 
 enum EmitFrom {
     VOLUME,

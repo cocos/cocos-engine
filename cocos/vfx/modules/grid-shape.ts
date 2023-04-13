@@ -23,8 +23,8 @@
  THE SOFTWARE.
  */
 
-import { CCInteger, lerp } from '../../core';
-import { ccclass, rangeMax, rangeMin, serializable, type } from '../../core/data/decorators';
+import { ccclass, rangeMin, serializable, type } from 'cc.decorator';
+import { CCInteger } from '../../core';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { ModuleExecStage, ParticleModule } from '../particle-module';

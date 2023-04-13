@@ -22,14 +22,13 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+import { ccclass, range, rangeMin, serializable, tooltip, type, visible } from 'cc.decorator';
 import { ShapeModule, DistributionMode, MoveWarpMode } from './shape';
-import { ccclass, displayOrder, range, rangeMax, rangeMin, serializable, tooltip, type, visible } from '../../core/data/decorators';
 import { ModuleExecStage, ParticleModule } from '../particle-module';
-import { Enum, lerp, toDegree, toRadian, Vec3 } from '../../core';
-import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
+import { Enum, lerp } from '../../core';
+import { BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
 import { FloatExpression } from '../expression/float-expression';
-import { RandomStream } from '../random-stream';
 
 @ccclass('cc.LineShapeModule')
 @ParticleModule.register('LineShape', ModuleExecStage.SPAWN, [BuiltinParticleParameterName.START_DIR])

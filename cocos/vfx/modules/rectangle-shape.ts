@@ -22,13 +22,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { ShapeModule, DistributionMode } from './shape';
-import { ccclass, displayOrder, range, serializable, tooltip, type, visible } from '../../core/data/decorators';
+import { ccclass } from 'cc.decorator';
+import { ShapeModule } from './shape';
 import { ModuleExecStage, ParticleModule } from '../particle-module';
-import { Enum, toDegree, toRadian, Vec3 } from '../../core';
 import { BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
-import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
-import { FloatExpression } from '../expression/float-expression';
+import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 
 @ccclass('cc.RectangleShapeModule')
 @ParticleModule.register('RectangleShape', ModuleExecStage.SPAWN, [BuiltinParticleParameterName.START_DIR])

@@ -24,7 +24,7 @@
  */
 
 import { ccclass, tooltip, displayOrder, type, serializable, range, visible } from 'cc.decorator';
-import { lerp, Vec3 } from '../../core/math';
+import { lerp, Vec3 } from '../../core';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { FloatExpression } from '../expression/float-expression';
 import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';

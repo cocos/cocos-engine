@@ -24,14 +24,13 @@
  THE SOFTWARE.
  */
 
-import { ccclass, tooltip, displayOrder, range, type, radian, serializable, visible, displayName } from 'cc.decorator';
+import { ccclass, tooltip, displayOrder, range, type, radian, serializable, visible } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
-import { Mat4, Quat, Vec4, Vec3, lerp } from '../../core/math';
+import { Vec3, lerp, assert, CCBoolean } from '../../core';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { FloatExpression } from '../expression/float-expression';
-import { assert, CCBoolean } from '../../core';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
-import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { RandomStream } from '../random-stream';
 
 const ROTATION_OVERTIME_RAND_OFFSET = 125292;

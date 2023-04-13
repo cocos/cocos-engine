@@ -23,8 +23,8 @@
  THE SOFTWARE.
  */
 
-import { Director, director, game, js } from '../core';
-import System from '../core/components/system';
+import { Director, director, game } from '../game';
+import { js, System } from '../core';
 import { ParticleEmitter } from './particle-emitter';
 import { ParticleRenderer } from './particle-renderer';
 

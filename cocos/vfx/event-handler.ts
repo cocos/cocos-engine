@@ -22,14 +22,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { BitMask, Enum, Mat4, Quat, Vec3, lerp } from '../core';
-import { ccclass, displayName, serializable, type, visible } from '../core/data/decorators';
-import { Space } from './enum';
-import { InheritedProperty, ParticleEmitterParams, ParticleEventInfo, ParticleEventType, ParticleExecContext } from './particle-base';
+import { ccclass, serializable, type, visible } from 'cc.decorator';
+import { BitMask, Enum } from '../core';
+import { InheritedProperty, ParticleEventType } from './particle-base';
 import { ParticleEmitter } from './particle-emitter';
 import { ModuleExecStage, ParticleModuleStage } from './particle-module';
-import { ParticleFloatArrayParameter, ParticleUint32ArrayParameter } from './particle-parameter';
-import { RandomStream } from './random-stream';
 import { SpawnFractionCollection } from './spawn-fraction-collection';
 
 @ccclass('cc.EventHandler')

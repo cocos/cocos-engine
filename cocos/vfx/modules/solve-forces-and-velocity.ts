@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { ccclass } from '../../core/data/decorators';
+import { ccclass } from 'cc.decorator';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { BuiltinParticleParameter, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';

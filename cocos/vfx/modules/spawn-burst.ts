@@ -23,8 +23,8 @@
  THE SOFTWARE.
  */
 
+import { ccclass, serializable, type, range, editable } from 'cc.decorator';
 import { lerp } from '../../core';
-import { ccclass, displayOrder, serializable, tooltip, type, range, editable } from '../../core/data/decorators';
 import { FloatExpression } from '../expression/float-expression';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { ParticleDataSet } from '../particle-data-set';

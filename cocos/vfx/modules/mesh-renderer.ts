@@ -24,10 +24,11 @@
  */
 
 import { Mesh } from '../../3d';
-import { Color, Material, Quat, RenderingSubMesh, Vec2, Vec3, Vec4 } from '../../core';
+import { Color, Quat, Vec3, Vec4 } from '../../core';
+import { Material, RenderingSubMesh } from '../../asset/assets';
 import { ccclass, displayOrder, serializable, tooltip, type } from '../../core/data/decorators';
-import { BufferInfo, BufferUsageBit, deviceManager, DrawInfo, DRAW_INFO_SIZE, IndirectBuffer, MemoryUsageBit, Buffer, Attribute, FormatInfos, PrimitiveMode, AttributeName } from '../../core/gfx';
-import { MacroRecord } from '../../core/renderer';
+import { BufferInfo, BufferUsageBit, deviceManager, DrawInfo, DRAW_INFO_SIZE, IndirectBuffer, MemoryUsageBit, Buffer, FormatInfos, PrimitiveMode, AttributeName } from '../../gfx';
+import { MacroRecord } from '../../render-scene';
 import { AlignmentSpace, ScalingMode, Space } from '../enum';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';

@@ -23,12 +23,13 @@
  THE SOFTWARE.
  */
 
+import { ccclass, serializable } from 'cc.decorator';
 import { CullingMode, FinishAction, ScalingMode, Space } from './enum';
-import { Color, Mat4, Quat, Vec3, Node, Vec2, assert, approx } from '../core';
-import { ccclass, serializable } from '../core/data/decorators';
+import { Color, Mat4, Quat, Vec3, Vec2, assert } from '../core';
+import { Node } from '../scene-graph';
 import { ModuleExecStage } from './particle-module';
 import { RandomStream } from './random-stream';
-import { BuiltinParticleParameter, BuiltinParticleParameterFlags, ParticleDataSet } from './particle-data-set';
+import { BuiltinParticleParameterFlags } from './particle-data-set';
 import { ParticleColorArrayParameter, ParticleFloatArrayParameter, ParticleUint32ArrayParameter, ParticleVec3ArrayParameter } from './particle-parameter';
 
 export enum ParticleEventType {

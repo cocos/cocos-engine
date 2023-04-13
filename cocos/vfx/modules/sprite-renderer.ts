@@ -22,10 +22,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { Enum, Material, Quat, RenderingSubMesh, Vec3, Vec4, Vec2, Color } from '../../core';
-import { ccclass, displayName, displayOrder, serializable, tooltip, type, visible } from '../../core/data/decorators';
-import { Attribute, Buffer, AttributeName, BufferInfo, BufferUsageBit, deviceManager, DrawInfo, DRAW_INFO_SIZE, Format, FormatInfos, IndirectBuffer, MemoryUsageBit, PrimitiveMode } from '../../core/gfx';
-import { MacroRecord, MaterialInstance } from '../../core/renderer';
+import { ccclass, displayOrder, serializable, tooltip, type, visible } from 'cc.decorator';
+import { Material, RenderingSubMesh } from '../../asset/assets';
+import { Enum, Quat, Vec3, Vec4 } from '../../core';
+import { Buffer, BufferInfo, BufferUsageBit, deviceManager, FormatInfos, MemoryUsageBit, PrimitiveMode } from '../../gfx';
+import { MacroRecord } from '../../render-scene';
 import { AlignmentSpace, ScalingMode, Space } from '../enum';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';

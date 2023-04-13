@@ -25,10 +25,10 @@
 
 import { ccclass, visible, override, executeInEditMode, requireComponent, menu } from 'cc.decorator';
 import { legacyCC } from '../core/global-exports';
-import { ModelRenderer } from '../core';
+import { ModelRenderer } from '../misc';
 import { ParticleEmitter } from './particle-emitter';
 import { vfxManager } from './vfx-manager';
-import { scene } from '../core/renderer';
+import { scene } from '../render-scene';
 import { RendererModule } from './modules/renderer';
 
 @ccclass('cc.ParticleRenderer')

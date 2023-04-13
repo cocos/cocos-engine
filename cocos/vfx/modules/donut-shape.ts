@@ -23,12 +23,11 @@
  THE SOFTWARE.
  */
 
-import { ccclass, displayOrder, range, serializable, tooltip, type, visible } from '../../core/data/decorators';
+import { ccclass, serializable, tooltip } from 'cc.decorator';
 import { ModuleExecStage, ParticleModule } from '../particle-module';
-import { Enum, toDegree, toRadian, Vec3 } from '../../core';
+import { Vec3 } from '../../core';
 import { BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
-import { FloatExpression } from '../expression/float-expression';
 import { AngleBasedShapeModule } from './angle-based-shape';
 import { ParticleVec3ArrayParameter } from '../particle-parameter';
 

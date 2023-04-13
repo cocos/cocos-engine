@@ -23,9 +23,8 @@
  THE SOFTWARE.
  */
 
-import { DEBUG } from 'internal:constants';
-import { approx, BitMask, CCFloat, Color, Enum, EPSILON, Mat4, Quat, Vec3, warn } from '../../core';
-import { ccclass, range, serializable, type, visible } from '../../core/data/decorators';
+import { ccclass, range, serializable, type } from 'cc.decorator';
+import { approx, CCFloat, Color, EPSILON, Vec3 } from '../../core';
 import { Space } from '../enum';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
@@ -103,19 +102,19 @@ export class DeathEventGeneratorModule extends ParticleModule {
                 Vec3.zero(eventInfo.rotation);
                 Color.copy(eventInfo.color, Color.WHITE);
                 if (hasPosition) {
-                    (<ParticleVec3ArrayParameter>position).getVec3At(eventInfo.position, i);
+                    (position as ParticleVec3ArrayParameter).getVec3At(eventInfo.position, i);
                 }
                 if (hasVelocity) {
-                    (<ParticleVec3ArrayParameter>velocity).getVec3At(eventInfo.velocity, i);
+                    (velocity as ParticleVec3ArrayParameter).getVec3At(eventInfo.velocity, i);
                 }
                 if (hasRotation) {
-                    (<ParticleVec3ArrayParameter>rotation).getVec3At(eventInfo.rotation, i);
+                    (rotation as ParticleVec3ArrayParameter).getVec3At(eventInfo.rotation, i);
                 }
                 if (hasSize) {
-                    (<ParticleVec3ArrayParameter>size).getVec3At(eventInfo.size, i);
+                    (size as ParticleVec3ArrayParameter).getVec3At(eventInfo.size, i);
                 }
                 if (hasColor) {
-                    (<ParticleColorArrayParameter>color).getColorAt(eventInfo.color, i);
+                    (color as ParticleColorArrayParameter).getColorAt(eventInfo.color, i);
                 }
                 if (simulationSpace === Space.LOCAL) {
                     Vec3.transformMat4(eventInfo.position, eventInfo.position, localToWorld);

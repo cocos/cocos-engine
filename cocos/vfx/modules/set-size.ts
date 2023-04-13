@@ -24,16 +24,12 @@
  */
 
 import { DEBUG } from 'internal:constants';
-import { ccclass, displayOrder, formerlySerializedAs, radian, range, serializable, tooltip, type, visible } from '../../core/data/decorators';
+import { ccclass, range, serializable, tooltip, type, visible } from 'cc.decorator';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
-import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleExecContext, ParticleEmitterParams, ParticleEmitterState } from '../particle-base';
 import { FloatExpression } from '../expression/float-expression';
-import { ColorExpression } from '../expression/color-expression';
-import { Color, lerp, Vec3 } from '../../core/math';
-import { INT_MAX } from '../../core/math/bits';
-import { Space } from '../enum';
-import { assert } from '../../core';
+import { lerp, Vec3, assert } from '../../core';
 import { RandomStream } from '../random-stream';
 
 const seed = new Vec3();

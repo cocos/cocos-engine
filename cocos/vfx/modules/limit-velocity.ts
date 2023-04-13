@@ -25,14 +25,12 @@
 
 import { ccclass, tooltip, displayOrder, range, type, serializable, visible, rangeMin } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
-import { lerp, Vec3, Mat4, Quat, approx } from '../../core/math';
+import { lerp, Vec3, approx, assert } from '../../core';
 import { Space } from '../enum';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { FloatExpression } from '../expression/float-expression';
 import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
-import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
-import { ParticleVec3ArrayParameter } from '../particle-parameter';
-import { assert } from '../../core';
+import { BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { RandomStream } from '../random-stream';
 
 const randomOffset = 721883;

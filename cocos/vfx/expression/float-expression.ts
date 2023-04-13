@@ -23,12 +23,8 @@
  THE SOFTWARE.
  */
 
-import { ccclass, type, serializable, editable, formerlySerializedAs } from 'cc.decorator';
-import { EDITOR } from 'internal:constants';
-import { approx, lerp } from '../../core/math';
-import { Enum } from '../../core/value-types';
-import { constructLegacyCurveAndConvert } from '../../core/geometry/curve';
-import { RealCurve, CCClass, RealKeyframeValue } from '../../core';
+import { ccclass } from 'cc.decorator';
+import { approx, lerp, Enum, RealCurve, CCClass, RealKeyframeValue, constructLegacyCurveAndConvert } from '../../core';
 
 const setClassAttr = CCClass.Attr.setClassAttr;
 

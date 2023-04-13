@@ -1749,6 +1749,10 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         return this._layer;
     }
 
+    get flagChangedVersion () {
+        return this._changedVersionAndRTS >>> 3;
+    }
+
     /**
      * @en Whether the node's transformation have changed during the current frame.
      * @zh 这个节点的空间变换信息在当前帧内是否有变过？

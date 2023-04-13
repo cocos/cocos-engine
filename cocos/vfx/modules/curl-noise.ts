@@ -23,11 +23,9 @@
  THE SOFTWARE.
  */
 
-import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
+import { ccclass, type, serializable, range, rangeMin, visible } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
-import { assert, CCBoolean, CCFloat, CCInteger, Enum, warn } from '../../core';
-import { range, rangeMin, rangeStep, slide, visible } from '../../core/data/decorators/editable';
-import { approx, clamp, lerp, Vec2, Vec3 } from '../../core/math';
+import { assert, CCFloat, Enum, approx, clamp, lerp, Vec2, Vec3 } from '../../core';
 import { FloatExpression } from '../expression/float-expression';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
@@ -358,9 +356,6 @@ const rotationRate = new Vec3();
 const sizeScalar = new Vec3();
 const tempRemap = new Vec3();
 const seed = new Vec3();
-const randomOffset = 112331;
-const randomOffsetVelocity = 943728;
-const randomOffsetRotation = 746210;
 const noiseXCache3D = new PerlinNoise3DCache();
 const noiseYCache3D = new PerlinNoise3DCache();
 const noiseZCache3D = new PerlinNoise3DCache();

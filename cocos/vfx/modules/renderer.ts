@@ -22,10 +22,10 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { Material, RenderingSubMesh } from '../../core';
-import { ccclass, displayName, serializable, type } from '../../core/data/decorators';
-import { AttributeName, Format, Attribute } from '../../core/gfx';
-import { MaterialInstance } from '../../core/renderer';
+import { ccclass, displayName, serializable, type } from 'cc.decorator';
+import { Material, RenderingSubMesh } from '../../asset/assets';
+import { AttributeName, Format, Attribute } from '../../gfx';
+import { MaterialInstance } from '../../render-scene';
 import { ParticleModule } from '../particle-module';
 
 export const CC_USE_WORLD_SPACE = 'CC_USE_WORLD_SPACE';

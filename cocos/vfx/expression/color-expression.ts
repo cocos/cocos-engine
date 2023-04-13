@@ -23,10 +23,9 @@
  THE SOFTWARE.
  */
 
-import { ccclass, type, serializable, editable } from 'cc.decorator';
+import { ccclass, type, serializable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { Color } from '../../core/math';
-import { Enum } from '../../core/value-types';
+import { Color, Enum } from '../../core';
 import Gradient, { AlphaKey, ColorKey } from '../gradient';
 import { legacyCC } from '../../core/global-exports';
 

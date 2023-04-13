@@ -23,12 +23,12 @@
  THE SOFTWARE.
  */
 
-import { ccclass, displayOrder, formerlySerializedAs, radian, range, serializable, tooltip, type, visible } from '../../core/data/decorators';
+import { ccclass, displayOrder, serializable, tooltip, type } from 'cc.decorator';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
-import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleExecContext, ParticleEmitterParams, ParticleEmitterState } from '../particle-base';
 import { ColorExpression } from '../expression/color-expression';
-import { clamp01, Color, lerp, Vec3 } from '../../core/math';
+import { Color } from '../../core';
 import { RandomStream } from '../random-stream';
 
 const tempColor = new Color();

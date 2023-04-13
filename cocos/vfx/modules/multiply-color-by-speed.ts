@@ -22,7 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { ccclass, rangeMin, serializable, type } from '../../core/data/decorators';
+import { ccclass, rangeMin, serializable, type } from 'cc.decorator';
 import { ColorExpression } from '../expression/color-expression';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { ModuleExecStage, ParticleModule } from '../particle-module';

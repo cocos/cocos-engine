@@ -23,12 +23,12 @@
  THE SOFTWARE.
  */
 
-import { ccclass, displayOrder, range, serializable, tooltip, type } from '../../core/data/decorators';
+import { ccclass, range, serializable, tooltip, type } from 'cc.decorator';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
-import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleExecContext, ParticleEmitterParams, ParticleEmitterState } from '../particle-base';
 import { FloatExpression } from '../expression/float-expression';
-import { lerp, Mat4, Vec3 } from '../../core/math';
+import { lerp, Vec3 } from '../../core';
 import { RandomStream } from '../random-stream';
 import { ParticleVec3ArrayParameter } from '../particle-parameter';
 
