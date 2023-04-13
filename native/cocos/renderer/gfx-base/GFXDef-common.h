@@ -452,13 +452,6 @@ enum class MemoryUsageBit : uint32_t {
 using MemoryUsage = MemoryUsageBit;
 CC_ENUM_BITWISE_OPERATORS(MemoryUsageBit);
 
-enum class TextureExternalFlag : uint32_t {
-  NONE,
-  OES,
-  NORMAL
-};
-CC_ENUM_CONVERSION_OPERATOR(TextureExternalFlag);
-
 enum class TextureType : uint32_t {
     TEX1D,
     TEX2D,
@@ -486,6 +479,8 @@ enum class TextureFlagBit : uint32_t {
     NONE = 0,
     GEN_MIPMAP = 0x1,     // Generate mipmaps using bilinear filter
     GENERAL_LAYOUT = 0x2, // For inout framebuffer attachments
+    EXTERNAL_OES = 0x4, // External oes texture
+    EXTERNAL_NORMAL = 0x8, // External normal texture
 };
 using TextureFlags = TextureFlagBit;
 CC_ENUM_BITWISE_OPERATORS(TextureFlagBit);
@@ -1073,12 +1068,9 @@ struct ALIGNAS(8) TextureInfo {
     SampleCount samples{SampleCount::ONE};
     uint32_t depth{1};
     void *externalRes{nullptr}; // CVPixelBuffer for Metal, EGLImage for GLES
-    uint32_t externalResLow{0}; // for vulkan/opengl es
-    uint32_t externalResHigh{0}; // for vulkan
 #if CC_CPU_ARCH == CC_CPU_ARCH_32
     uint32_t _padding{0};
 #endif
-    TextureExternalFlag externalFlag{TextureExternalFlag::NONE};
 
     EXPOSE_COPY_FN(TextureInfo)
 };

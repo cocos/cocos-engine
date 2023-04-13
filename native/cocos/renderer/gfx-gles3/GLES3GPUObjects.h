@@ -144,7 +144,6 @@ struct GLES3GPUTexture {
     GLenum glWrapT{0};
     GLenum glMinFilter{0};
     GLenum glMagFilter{0};
-    TextureExternalFlag glExternalFlag{TextureExternalFlag::NONE};
     GLES3GPUSwapchain *swapchain{nullptr};
 };
 

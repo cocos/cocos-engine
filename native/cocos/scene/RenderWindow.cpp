@@ -75,16 +75,16 @@ bool RenderWindow::initialize(gfx::Device *device, IRenderWindowInfo &info) {
                                       colorAttachment.format,
                                       _width,
                                       _height};
-            if (info.externalResLow.has_value()) {
-                textureInfo.externalResLow = info.externalResLow.value();
-            }
-
-            if (info.externalResHigh.has_value()) {
-                textureInfo.externalResHigh = info.externalResHigh.value();
-            }
-
             if (info.externalFlag.has_value()) {
-                textureInfo.externalFlag = info.externalFlag.value();
+                textureInfo.flags |= info.externalFlag.value();
+                if (hasFlag(info.externalFlag.value(), gfx::TextureFlagBit::EXTERNAL_NORMAL)) {
+                    if (info.externalResLow.has_value() && info.externalResHigh.has_value()) {
+                        uint64_t externalResAddr = (static_cast<uint64_t>(info.externalResHigh.value()) << 32) | info.externalResLow.value();
+                        textureInfo.externalRes = reinterpret_cast<void *>(externalResAddr);
+                    } else if(info.externalResLow.has_value()) {
+                        textureInfo.externalRes = reinterpret_cast<void *>(info.externalResLow.value());
+                    }
+                }
             }
 
             _colorTextures.pushBack(device->createTexture(textureInfo));

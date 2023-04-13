@@ -828,7 +828,7 @@ void cmdFuncGLES3CreateTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture)
     }
 
     if (gpuTexture->glTexture) {
-        if(gpuTexture->glExternalFlag == TextureExternalFlag::OES) {
+        if (hasFlag(gpuTexture->flags, TextureFlagBit::EXTERNAL_OES)) {
             gpuTexture->glTarget = GL_TEXTURE_EXTERNAL_OES;
         } else {
             gpuTexture->glTarget = GL_TEXTURE_2D;
@@ -938,7 +938,7 @@ void cmdFuncGLES3DestroyTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture
                 glTexture = 0;
             }
         }
-        if (gpuTexture->glExternalFlag == TextureExternalFlag::NONE) {
+        if (!hasFlag(gpuTexture->flags, TextureFlagBit::EXTERNAL_OES) && !hasFlag(gpuTexture->flags, TextureFlagBit::EXTERNAL_NORMAL)) {
             GL_CHECK(glDeleteTextures(1, &gpuTexture->glTexture));
         }
         gpuTexture->glTexture = 0;
@@ -955,7 +955,10 @@ void cmdFuncGLES3DestroyTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture
 }
 
 void cmdFuncGLES3ResizeTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture) {
-    if (gpuTexture->memoryless || gpuTexture->glExternalFlag != TextureExternalFlag::NONE) return;
+    if (gpuTexture->memoryless || hasFlag(gpuTexture->flags, TextureFlagBit::EXTERNAL_OES) ||
+        hasFlag(gpuTexture->flags, TextureFlagBit::EXTERNAL_NORMAL)) {
+        return;
+    }
 
     if (gpuTexture->glSamples <= 1) {
         // immutable by default

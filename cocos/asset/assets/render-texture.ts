@@ -26,7 +26,7 @@ import { ccclass } from 'cc.decorator';
 import { EDITOR, TEST } from 'internal:constants';
 import { clamp, cclegacy, errorID } from '../../core';
 import { Texture, ColorAttachment, DepthStencilAttachment, GeneralBarrierInfo, AccessFlagBit, RenderPassInfo, Format, deviceManager,
-    BufferTextureCopy,  TextureExternalFlag } from '../../gfx';
+    BufferTextureCopy, TextureFlags, TextureFlagBit } from '../../gfx';
 import { RenderWindow, IRenderWindowInfo } from '../../render-scene/core/render-window';
 import { Root } from '../../root';
 import { TextureBase } from './texture-base';
@@ -36,9 +36,9 @@ export interface IRenderTextureCreateInfo {
     width: number;
     height: number;
     passInfo?: RenderPassInfo;
-    externalResLow?: number;
-    externalResHigh?: number;
-    externalFlag?: TextureExternalFlag;
+    externalResLow?: number; // for vulkan vkImage/opengl es texture created from external
+    externalResHigh?: number; // for vulkan vkImage created from external
+    externalFlag?: TextureFlags; // external texture type normal or oes
 }
 
 const _colorAttachment = new ColorAttachment();
@@ -174,7 +174,7 @@ export class RenderTexture extends TextureBase {
         _windowInfo.renderPassInfo = info && info.passInfo ? info.passInfo : passInfo;
         _windowInfo.externalResLow = info && info.externalResLow ? info.externalResLow : 0;
         _windowInfo.externalResHigh = info && info.externalResHigh ? info.externalResHigh : 0;
-        _windowInfo.externalFlag = info && info.externalFlag ? info.externalFlag : TextureExternalFlag.NONE;
+        _windowInfo.externalFlag = info && info.externalFlag ? info.externalFlag : TextureFlagBit.NONE;
 
         _colorAttachment.barrier = deviceManager.gfxDevice.getGeneralBarrier(new GeneralBarrierInfo(
             AccessFlagBit.FRAGMENT_SHADER_READ_TEXTURE,

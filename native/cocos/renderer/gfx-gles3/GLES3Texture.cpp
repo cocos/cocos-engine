@@ -56,18 +56,17 @@ void GLES3Texture::doInit(const TextureInfo & /*info*/) {
     _gpuTexture->flags = _info.flags;
     _gpuTexture->size = _size;
     _gpuTexture->isPowerOf2 = math::isPowerOfTwo(_info.width) && math::isPowerOfTwo(_info.height);
-    if(_info.externalRes && !_info.externalResLow) {
+
+    bool hasExternalFlag = hasFlag(_gpuTexture->flags, TextureFlagBit::EXTERNAL_NORMAL) ||
+        hasFlag(_gpuTexture->flags, TextureFlagBit::EXTERNAL_OES);
+    if (_info.externalRes && !hasExternalFlag) {
         // compatibility
-        _info.externalResLow = static_cast<GLuint>(reinterpret_cast<size_t>(_info.externalRes));
+        _gpuTexture->flags = _gpuTexture->flags | TextureFlagBit::EXTERNAL_OES;
+        hasExternalFlag = true;
     }
 
-    if (_info.externalResLow) {
-        _gpuTexture->glTexture = _info.externalResLow;
-        if (_info.externalFlag == TextureExternalFlag::NONE) {
-            _gpuTexture->glExternalFlag = TextureExternalFlag::OES;
-        } else {
-            _gpuTexture->glExternalFlag = static_cast<TextureExternalFlag>(_info.externalFlag);
-        }
+    if(hasExternalFlag) {
+        _gpuTexture->glTexture = static_cast<GLuint>(reinterpret_cast<size_t>(_info.externalRes));
     }
 
     cmdFuncGLES3CreateTexture(GLES3Device::getInstance(), _gpuTexture);

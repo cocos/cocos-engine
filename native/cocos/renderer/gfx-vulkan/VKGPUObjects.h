@@ -164,7 +164,6 @@ struct CCVKGPUTexture : public CCVKGPUDeviceObject {
     ThsvsAccessType transferAccess = THSVS_ACCESS_NONE;
 
     VkImage externalVKImage = VK_NULL_HANDLE;
-    TextureExternalFlag glExternalFlag{TextureExternalFlag::NONE};
 };
 
 struct CCVKGPUTextureView : public CCVKGPUDeviceObject {

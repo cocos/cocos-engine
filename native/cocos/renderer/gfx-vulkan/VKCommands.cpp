@@ -190,7 +190,8 @@ void cmdFuncCCVKCreateTexture(CCVKDevice *device, CCVKGPUTexture *gpuTexture) {
             }
         }
         gpuTexture->memoryless = true;
-    } else if (gpuTexture->glExternalFlag != TextureExternalFlag::NONE) {
+    } else if (hasFlag(gpuTexture->flags, TextureFlagBit::EXTERNAL_OES)
+        || hasFlag(gpuTexture->flags, TextureFlagBit::EXTERNAL_NORMAL)) {
         gpuTexture->vkImage = gpuTexture->externalVKImage;
     } else {
         createFn(&gpuTexture->vkImage, &gpuTexture->vmaAllocation);

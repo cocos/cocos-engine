@@ -97,15 +97,14 @@ function hashFrameBuffer (fbo: Framebuffer) {
     for (const color of fbo.colorTextures) {
         const info = color?.info;
         const hashStr = `${info!.type}_${info!.usage}_${info!.format}_${info!.width}_${info!.height}_${info!.flags}_
-            ${info!.layerCount}_${info!.levelCount}_${info!.samples}_${info!.depth}_${info!.externalRes}_
-            ${info!.externalResLow}_${info!.externalResHigh}`;
+            ${info!.layerCount}_${info!.levelCount}_${info!.samples}_${info!.depth}_${info!.externalRes}`;
         hash = murmurhash2_32_gc(hashStr, hash);
     }
 
     if (fbo.depthStencilTexture) {
         const info = fbo.depthStencilTexture.info;
         const hashStr = `${info.type}_${info.usage}_${info.format}_${info.width}_${info.height}_${info.flags}_
-            ${info.layerCount}_${info.levelCount}_${info.samples}_${info.depth}_${info.externalRes}_${info.externalResLow}_${info.externalResHigh}`;
+            ${info.layerCount}_${info.levelCount}_${info.samples}_${info.depth}_${info.externalRes}`;
         hash = murmurhash2_32_gc(hashStr, hash);
     }
 

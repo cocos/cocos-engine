@@ -25,7 +25,7 @@ import { screenAdapter } from 'pal/screen-adapter';
 import { Orientation } from '../../../pal/screen-adapter/enum-type';
 import {
     TextureType, TextureUsageBit, Format, RenderPass, Texture, Framebuffer,
-    RenderPassInfo, Device, TextureInfo, FramebufferInfo, Swapchain, SurfaceTransform, TextureExternalFlag,
+    RenderPassInfo, Device, TextureInfo, FramebufferInfo, Swapchain, SurfaceTransform, TextureFlagBit, TextureFlags,
 } from '../../gfx';
 import { Root } from '../../root';
 import { Camera } from '../scene';
@@ -36,9 +36,9 @@ export interface IRenderWindowInfo {
     height: number;
     renderPassInfo: RenderPassInfo;
     swapchain?: Swapchain;
-    externalResLow?: number;
-    externalResHigh?: number;
-    externalFlag?: TextureExternalFlag;
+    externalResLow?: number; // for vulkan vkImage/opengl es texture created from external
+    externalResHigh?: number; // for vulkan vkImage created from external
+    externalFlag?: TextureFlags; // external texture type normal or oes
 }
 
 const orientationMap: Record<Orientation, SurfaceTransform> = {
@@ -140,9 +140,11 @@ export class RenderWindow {
                     this._width,
                     this._height,
                 );
-                textureInfo.externalResLow = info.externalResLow ? info.externalResLow : 0;
-                textureInfo.externalResHigh = info.externalResHigh ? info.externalResHigh : 0;
-                textureInfo.externalFlag = info.externalFlag ? info.externalFlag : 0;
+
+                if (info.externalFlag && (info.externalFlag & TextureFlagBit.EXTERNAL_NORMAL || info.externalFlag & TextureFlagBit.EXTERNAL_OES)) {
+                    textureInfo.flags |= info.externalFlag;
+                    textureInfo.externalRes = info.externalResLow ? info.externalResLow : 0;
+                }
                 this._colorTextures.push(device.createTexture(textureInfo));
             }
             if (info.renderPassInfo.depthStencilAttachment.format !== Format.UNKNOWN) {

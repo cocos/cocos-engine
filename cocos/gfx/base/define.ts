@@ -376,12 +376,6 @@ export enum MemoryUsageBit {
     HOST = 0x2,   // for frequently-updated resources, use MemoryUsageBit::DEVICE | MemoryUsageBit::HOST
 }
 
-export enum TextureExternalFlag {
-    NONE,
-    OES,
-    NORMAL
-}
-
 export enum TextureType {
     TEX1D,
     TEX2D,
@@ -406,6 +400,8 @@ export enum TextureFlagBit {
     NONE = 0,
     GEN_MIPMAP = 0x1,     // Generate mipmaps using bilinear filter
     GENERAL_LAYOUT = 0x2, // For inout framebuffer attachments
+    EXTERNAL_OES = 0x4, // External oes texture
+    EXTERNAL_NORMAL = 0x8, // External normal texture
 }
 
 export enum FormatFeatureBit {
@@ -1167,9 +1163,6 @@ export class TextureInfo {
         public samples: SampleCount = SampleCount.ONE,
         public depth: number = 1,
         public externalRes: number = 0,
-        public externalResLow: number = 0,
-        public externalResHigh: number = 0,
-        public externalFlag: TextureExternalFlag = TextureExternalFlag.NONE,
     ) {}
 
     public copy (info: Readonly<TextureInfo>) {
@@ -1184,9 +1177,6 @@ export class TextureInfo {
         this.samples = info.samples;
         this.depth = info.depth;
         this.externalRes = info.externalRes;
-        this.externalResLow = info.externalResLow;
-        this.externalResHigh = info.externalResHigh;
-        this.externalFlag = info.externalFlag;
         return this;
     }
 }
