@@ -27,7 +27,7 @@ CCEffect %{
         preIntegratedSkinMap:             { value: grey, editor: { parent: USE_PREINTEGRATED_SKIN } }
         sssCurvatureMap:                  { value: white, editor: { parent: USE_PREINTEGRATED_SKIN } }
         sssCurvature:                     { value: 0.1, target: scatterParams.w, editor: { parent: USE_PREINTEGRATED_SKIN, slide: true, range: [0, 1.0], step: 0.001 } }
-        sssColoration:                    { value: 1.0, target: scatterColor.w, editor: { parent: USE_PREINTEGRATED_SKIN, slide: true, range: [0, 10.0], step: 0.001 } }
+        sssColoration:                    { value: 1.0, target: dualLobeParams.z, editor: { parent: USE_PREINTEGRATED_SKIN, slide: true, range: [0, 10.0], step: 0.001 } }
         cavityMap:                        { value: white, editor: { tooltip: 'cavity map or specular map' } }
         maskMap:                          { value: black, editor: { parent: USE_BACK_LIT } }
         thickness:                        { value: 0.0, target: scatterParams.x, editor: { parent: USE_BACK_LIT, displayName: Object Thickness, range: [0, 1000.0], tooltip: 'Object thickness (world space unit), setting a too small value will cause the scattered light to disappear' } }
@@ -212,7 +212,7 @@ CCProgram surface-fragment %{
     #if USE_PREINTEGRATED_SKIN
       sssCurvature *= texture(sssCurvatureMap, FSInput_texcoord).x;
     #endif
-    return vec4(scatterParams.z, sssCurvature, scatterColor.w, 0.0);
+    return vec4(scatterParams.z, sssCurvature, dualLobeParams.z, 0.0);
   }
 
   #include <common-functions>
