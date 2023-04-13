@@ -109,6 +109,7 @@ CCProgram unlit-vs %{
 CCProgram unlit-fs %{
   precision highp float;
   #include <legacy/output-standard>
+  #include <common/data/unpack>
   #include <legacy/fog-fs>
 
   #if USE_ALPHA_TEST
@@ -149,6 +150,9 @@ CCProgram unlit-fs %{
     #endif
 
     CC_APPLY_FOG(o);
+    #if CC_USE_RGBE_OUTPUT
+      o = packRGBE(o.rgb);
+    #endif
     return CCFragOutput(o);
   }
 }%

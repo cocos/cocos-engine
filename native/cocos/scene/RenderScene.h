@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+****************************************************************************/
 
 #pragma once
 
@@ -44,8 +43,12 @@ class Camera;
 class Octree;
 class DrawBatch2D;
 class DirectionalLight;
+class LODGroup;
 class SphereLight;
 class SpotLight;
+class PointLight;
+class RangedDirectionalLight;
+class LodStateCache;
 
 struct IRaycastResult {
     Node *node{nullptr};
@@ -71,6 +74,11 @@ public:
     void removeCamera(Camera *camera);
     void removeCameras();
 
+    void addLODGroup(LODGroup *group);
+    void removeLODGroup(LODGroup *group);
+    void removeLODGroups();
+    bool isCulledByLod(const Camera *camera, const Model *model) const;
+
     void unsetMainLight(DirectionalLight *dl);
     void addDirectionalLight(DirectionalLight *dl);
     void removeDirectionalLight(DirectionalLight *dl);
@@ -82,6 +90,14 @@ public:
     void addSpotLight(SpotLight *);
     void removeSpotLight(SpotLight *);
     void removeSpotLights();
+
+    void addPointLight(PointLight *);
+    void removePointLight(PointLight *);
+    void removePointLights();
+
+    void addRangedDirlLight(RangedDirectionalLight *);
+    void removeRangedDirLight(RangedDirectionalLight *);
+    void removeRangedDirLights();
 
     void addModel(Model *);
     void removeModel(Model *model);
@@ -99,8 +115,11 @@ public:
     inline uint64_t generateModelId() { return _modelId++; }
     inline const ccstd::string &getName() const { return _name; }
     inline const ccstd::vector<IntrusivePtr<Camera>> &getCameras() const { return _cameras; }
+    inline const ccstd::vector<IntrusivePtr<LODGroup>> &getLODGroups() const { return _lodGroups; }
     inline const ccstd::vector<IntrusivePtr<SphereLight>> &getSphereLights() const { return _sphereLights; }
     inline const ccstd::vector<IntrusivePtr<SpotLight>> &getSpotLights() const { return _spotLights; }
+    inline const ccstd::vector<IntrusivePtr<PointLight>> &getPointLights() const { return _pointLights; }
+    inline const ccstd::vector<IntrusivePtr<RangedDirectionalLight>> &getRangedDirLights() const { return _rangedDirLights; }
     inline const ccstd::vector<IntrusivePtr<Model>> &getModels() const { return _models; }
     inline Octree *getOctree() const { return _octree; }
     void updateOctree(Model *model);
@@ -110,11 +129,15 @@ private:
     ccstd::string _name;
     uint64_t _modelId{0};
     IntrusivePtr<DirectionalLight> _mainLight;
+    IntrusivePtr<LodStateCache> _lodStateCache;
     ccstd::vector<IntrusivePtr<Model>> _models;
     ccstd::vector<IntrusivePtr<Camera>> _cameras;
     ccstd::vector<IntrusivePtr<DirectionalLight>> _directionalLights;
+    ccstd::vector<IntrusivePtr<LODGroup>> _lodGroups;
     ccstd::vector<IntrusivePtr<SphereLight>> _sphereLights;
     ccstd::vector<IntrusivePtr<SpotLight>> _spotLights;
+    ccstd::vector<IntrusivePtr<PointLight>> _pointLights;
+    ccstd::vector<IntrusivePtr<RangedDirectionalLight>> _rangedDirLights;
     ccstd::vector<DrawBatch2D *> _batches;
     Octree *_octree{nullptr};
 

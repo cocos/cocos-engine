@@ -1,17 +1,17 @@
-/*Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+/****************************************************************************
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -35,9 +35,9 @@
 #include "../FGDispatcherTypes.h"
 #include "../LayoutGraphGraphs.h"
 #include "../NativePipelineTypes.h"
-#include "../Range.h"
 #include "../RenderGraphGraphs.h"
 #include "../RenderGraphTypes.h"
+#include "../details/Range.h"
 #include "GFXDeviceManager.h"
 #include "cocos/base/std/container/vector.h"
 #include "frame-graph/FrameGraph.h"
@@ -68,7 +68,7 @@ static void fillTestGraph(const ViewInfo &rasterData, const ResourceInfo &rescIn
         auto rescVertexID = add_vertex(rescGraph, ManagedTag{}, name.c_str());
         rescGraph.descs[rescVertexID] = std::get<1>(resc);
         rescGraph.traits[rescVertexID] = std::get<2>(resc);
-        rescGraph.states[rescVertexID] = std::get<3>(resc);
+        rescGraph.states[rescVertexID].states = gfx::AccessFlagBit::NONE;
     }
 
     const auto &mem_resource = layoutGraphData.get_allocator();
@@ -96,24 +96,24 @@ static void fillTestGraph(const ViewInfo &rasterData, const ResourceInfo &rescIn
     std::set<ccstd::string> nameSet;
     auto addRasterNode = [&](const vector<vector<vector<string>>> &subpasses, uint32_t count, uint32_t passID) {
         const ccstd::string name = "pass" + std::to_string(passID);
-        const auto vertexID = add_vertex(renderGraph, RasterTag{}, name.c_str());
-        auto &raster = get(RasterTag{}, vertexID, renderGraph);
+        const auto vertexID = add_vertex(renderGraph, RasterPassTag{}, name.c_str());
+        auto &raster = get(RasterPassTag{}, vertexID, renderGraph);
         auto &subpassGraph = raster.subpassGraph;
 
         bool hasSubpass = count > 1;
 
-        RasterSubpass *subpass = nullptr;
+        Subpass *subpass = nullptr;
 
         for (size_t j = 0; j < count; ++j) {
             assert(subpasses[j].size() == 2); // inputs and outputs
             const auto &attachments = subpasses[j];
             bool isOutput = false;
 
-            RasterSubpass *subpass = nullptr;
+            Subpass *subpass = nullptr;
             if (hasSubpass) {
                 const ccstd::string subpassName = "subpass" + std::to_string(passID);
                 auto subpassVertexID = add_vertex(subpassGraph, subpassName.c_str());
-                subpass = &get(SubpassGraph::Subpass, subpassGraph, subpassVertexID);
+                subpass = &get(SubpassGraph::SubpassTag{}, subpassGraph, subpassVertexID);
             }
 
             for (size_t k = 0; k < attachments.size(); ++k) {
@@ -172,31 +172,19 @@ static void fillTestGraph(const ViewInfo &rasterData, const ResourceInfo &rescIn
                 dst.name = outputs.front();
                 dst.accessType = AccessType::WRITE;
 
-                computePass.computeViews.emplace(name, ccstd::pmr::vector<ComputeView>{});
-                computePass.computeViews.at(name.c_str()).emplace_back();
-                computePass.computeViews.at(name.c_str()).emplace_back();
-                computePass.computeViews.at(name.c_str()).front().name = inputs.front();
-                computePass.computeViews.at(name.c_str()).front().accessType = AccessType::READ;
-                computePass.computeViews.at(name.c_str()).back().name = outputs.front();
-                computePass.computeViews.at(name.c_str()).back().accessType = AccessType::WRITE;
+                computePass.computeViews.emplace(src.name, ccstd::pmr::vector<ComputeView>{});
+                computePass.computeViews.emplace(dst.name, ccstd::pmr::vector<ComputeView>{});
+                computePass.computeViews.at(src.name.c_str()).emplace_back();
+                computePass.computeViews.at(dst.name.c_str()).emplace_back();
+                computePass.computeViews.at(src.name.c_str()).front().name = inputs.front();
+                computePass.computeViews.at(src.name.c_str()).front().accessType = AccessType::READ;
+                computePass.computeViews.at(dst.name.c_str()).back().name = outputs.front();
+                computePass.computeViews.at(dst.name.c_str()).back().accessType = AccessType::WRITE;
 
                 break;
             }
             case PassType::PRESENT: {
-                // const string name = pass.first;
-                const auto &subpasses = pass.second;
-                // addRasterNode(subpasses, subpasses.size() - 1, passCount++);
-
-                const ccstd::string name = "pass" + std::to_string(passCount++);
-                const auto vertexID = add_vertex(renderGraph, PresentTag{}, name.c_str());
-                assert(subpasses.back().size() == 2); // inputs and outputs
-                assert(subpasses.back()[1].empty());  // present pass no output
-                auto &presentPass = get(PresentTag{}, vertexID, renderGraph);
-                const auto &resName = subpasses.back()[0].back();
-                if (presentPass.presents.find(resName.c_str()) == presentPass.presents.end()) {
-                    // ?
-                    presentPass.presents.emplace(resName.c_str(), Present{0, 0});
-                }
+                // noop
                 break;
             }
             case PassType::COPY: {
@@ -237,8 +225,8 @@ static void fillTestGraph(const ViewInfo &rasterData, const ResourceInfo &rescIn
 static void fillBarriers(const ResourceGraph &resourceGraph, const BarrierPair &barrierInfo, framegraph::PassNodeBuilder &builder, PassBarrierPair &barriers) {
     auto doFill = [&builder, &resourceGraph](const std::vector<Barrier> &edgeInfo, std::vector<ResourceBarrier> &edgeBarriers) {
         for (const auto &resBarrier : edgeInfo) {
-            const auto &name = get(ResourceGraph::Name, resourceGraph, resBarrier.resourceID);
-            const auto &desc = get(ResourceGraph::Desc, resourceGraph, resBarrier.resourceID);
+            const auto &name = get(ResourceGraph::NameTag{}, resourceGraph, resBarrier.resourceID);
+            const auto &desc = get(ResourceGraph::DescTag{}, resourceGraph, resBarrier.resourceID);
             auto type = desc.dimension == ResourceDimension::BUFFER ? cc::framegraph::ResourceType::BUFFER : cc::framegraph::ResourceType::TEXTURE;
             framegraph::Range layerRange;
             framegraph::Range mipRange;
@@ -291,7 +279,7 @@ struct FrameGraphPassInfo {
 static void addPassToFrameGraph(const FrameGraphPassInfo &info) {
     const auto &rasterViews = info.rasterViews;
     const auto &passID = info.passID;
-    auto &barrierMap = info.barrierMap;
+    const auto &barrierMap = info.barrierMap;
     const auto &renderGraph = info.renderGraph;
     const auto &resourceGraph = info.resourceGraph;
     auto &frameGraph = info.frameGraph;
@@ -407,7 +395,7 @@ static void addPassToFrameGraph(const FrameGraphPassInfo &info) {
         }*/
     };
 
-    auto passHandle = framegraph::FrameGraph::stringToHandle(get(RenderGraph::Name, renderGraph, passID).c_str());
+    auto passHandle = framegraph::FrameGraph::stringToHandle(get(RenderGraph::NameTag{}, renderGraph, passID).c_str());
 
     string presentHandle;
 
@@ -437,7 +425,7 @@ static void runTestGraph(const RenderGraph &renderGraph, const ResourceGraph &re
             passID, renderGraph,
             [&](const RasterPass &pass) {
                 // TestRenderData tmpData;
-                const auto &subpasses = get(SubpassGraph::Subpass, pass.subpassGraph);
+                const auto &subpasses = get(SubpassGraph::SubpassTag{}, pass.subpassGraph);
                 uint32_t count = 0;
                 for (const auto &subpass : *subpasses.container) {
                     FrameGraphPassInfo info = {
@@ -519,51 +507,10 @@ static void runTestGraph(const RenderGraph &renderGraph, const ResourceGraph &re
                                       const framegraph::DevicePassResourceTable &table) {
                 };
 
-                auto passHandle = framegraph::FrameGraph::stringToHandle(get(RenderGraph::Name, renderGraph, passID).c_str());
+                auto passHandle = framegraph::FrameGraph::stringToHandle(get(RenderGraph::NameTag{}, renderGraph, passID).c_str());
                 framegraph.addPass<TestRenderData>(static_cast<uint32_t>(ForwardInsertPoint::IP_FORWARD), passHandle, forwardSetup, forwardExec);
             },
             [&](const RaytracePass &pass) {},
-            [&](const PresentPass &pass) {
-                auto forwardSetup = [&](framegraph::PassNodeBuilder &builder, TestRenderData &data) {
-                    for (const auto &pair : pass.presents) {
-                        auto *externalRes = gfx::Device::getInstance()->createTexture(gfx::TextureInfo{
-                            gfx::TextureType::TEX2D,
-                            gfx::TextureUsageBit::COLOR_ATTACHMENT,
-                            gfx::Format::RGBA8,
-                            960,
-                            640,
-                        });
-
-                        const auto handle = framegraph::FrameGraph::stringToHandle(pair.first.c_str());
-                        auto typedHandle = builder.readFromBlackboard(handle);
-                        data.outputTexes.emplace_back();
-                        auto &lastTex = data.outputTexes.back();
-                        framegraph::Texture::Descriptor colorTexInfo;
-                        colorTexInfo.format = gfx::Format::RGBA8;
-                        colorTexInfo.usage = gfx::TextureUsage::SAMPLED;
-
-                        lastTex.second = static_cast<framegraph::TextureHandle>(typedHandle);
-
-                        if (framegraph::Handle::IndexType(typedHandle) == framegraph::Handle::UNINITIALIZED) {
-                            colorTexInfo.width = 960;
-                            colorTexInfo.height = 640;
-
-                            lastTex.second = builder.create(handle, colorTexInfo);
-                        }
-
-                        auto res = builder.read(framegraph::TextureHandle(builder.readFromBlackboard(handle)));
-                        builder.writeToBlackboard(handle, res);
-
-                        framegraph.presentFromBlackboard(framegraph::FrameGraph::stringToHandle(pair.first.c_str()), externalRes, false);
-                    }
-                };
-
-                auto forwardExec = [](const TestRenderData &data,
-                                      const framegraph::DevicePassResourceTable &table) {
-                };
-                auto passHandle = framegraph::FrameGraph::stringToHandle(get(RenderGraph::Name, renderGraph, passID).c_str());
-                framegraph.addPass<TestRenderData>(static_cast<uint32_t>(ForwardInsertPoint::IP_FORWARD), passHandle, forwardSetup, forwardExec);
-            },
             [&](const auto & /*pass*/) {});
     }
     framegraph.compile();
@@ -659,11 +606,19 @@ static void runTestGraph(const RenderGraph &renderGraph, const ResourceGraph &re
          {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                                                                             \
         {"19",                                                                                                                                                               \
          {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT}, \
-         {ResourceResidency::MANAGED},                                                                                                                                       \
+         {ResourceResidency::EXTERNAL},                                                                                                                                      \
          {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                                                                             \
         {"20",                                                                                                                                                               \
          {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT}, \
-         {ResourceResidency::MANAGED},                                                                                                                                       \
+         {ResourceResidency::EXTERNAL},                                                                                                                                      \
+         {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                                                                             \
+        {"21",                                                                                                                                                               \
+         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT}, \
+         {ResourceResidency::EXTERNAL},                                                                                                                                      \
+         {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                                                                             \
+        {"22",                                                                                                                                                               \
+         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT}, \
+         {ResourceResidency::BACKBUFFER},                                                                                                                                      \
          {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                                                                             \
     };
 
@@ -681,13 +636,7 @@ static void runTestGraph(const RenderGraph &renderGraph, const ResourceGraph &re
         {                                                                \
             PassType::RASTER,                                            \
             {                                                            \
-                {{"3"}, {"5"}},                                          \
-            },                                                           \
-        },                                                               \
-        {                                                                \
-            PassType::PRESENT,                                           \
-            {                                                            \
-                {{"5"}, {}},                                             \
+                {{"3"}, {"22"}},                                         \
             },                                                           \
         },                                                               \
     };                                                                   \
@@ -701,10 +650,7 @@ static void runTestGraph(const RenderGraph &renderGraph, const ResourceGraph &re
         },                                                               \
         {                                                                \
             {"3", 3, cc::gfx::ShaderStageFlagBit::VERTEX},               \
-            {"5", 5, cc::gfx::ShaderStageFlagBit::VERTEX},               \
-        },                                                               \
-        {                                                                \
-            {"5", 5, cc::gfx::ShaderStageFlagBit::COMPUTE /*whatever*/}, \
+            {"22", 22, cc::gfx::ShaderStageFlagBit::VERTEX},             \
         }};
 
 #define TEST_CASE_2                                            \
@@ -756,13 +702,7 @@ static void runTestGraph(const RenderGraph &renderGraph, const ResourceGraph &re
         {                                                      \
             PassType::RASTER,                                  \
             {                                                  \
-                {{"7", "9"}, {"10"}},                          \
-            },                                                 \
-        },                                                     \
-        {                                                      \
-            PassType::PRESENT,                                 \
-            {                                                  \
-                {{"10"}, {}},                                  \
+                {{"7", "9"}, {"22"}},                          \
             },                                                 \
         },                                                     \
     };                                                         \
@@ -804,10 +744,7 @@ static void runTestGraph(const RenderGraph &renderGraph, const ResourceGraph &re
         {                                                      \
             {"7", 7, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \
             {"9", 9, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \
-            {"10", 10, cc::gfx::ShaderStageFlagBit::FRAGMENT}, \
-        },                                                     \
-        {                                                      \
-            {"10", 10, cc::gfx::ShaderStageFlagBit::FRAGMENT}, \
+            {"22", 22, cc::gfx::ShaderStageFlagBit::FRAGMENT}, \
         },                                                     \
     };
 
@@ -905,13 +842,7 @@ static void runTestGraph(const RenderGraph &renderGraph, const ResourceGraph &re
         {                                                      \
             PassType::RASTER,                                  \
             {                                                  \
-                {{"12"}, {"13"}},                              \
-            },                                                 \
-        },                                                     \
-        {                                                      \
-            PassType::PRESENT,                                 \
-            {                                                  \
-                {{"13"}, {}},                                  \
+                {{"12"}, {"22"}},                              \
             },                                                 \
         },                                                     \
     };                                                         \
@@ -982,588 +913,121 @@ static void runTestGraph(const RenderGraph &renderGraph, const ResourceGraph &re
         },                                                     \
         {                                                      \
             {"12", 12, cc::gfx::ShaderStageFlagBit::FRAGMENT}, \
-            {"13", 13, cc::gfx::ShaderStageFlagBit::FRAGMENT}, \
+            {"22", 22, cc::gfx::ShaderStageFlagBit::FRAGMENT}, \
+        },                                                     \
+    };
+
+#define TEST_CASE_4                                            \
+    TEST_CASE_DEFINE                                           \
+                                                               \
+    ViewInfo rasterData = {                                    \
+        {                                                      \
+            PassType::RASTER,                                  \
+            {                                                  \
+                {{}, {"0"}},                                   \
+            },                                                 \
         },                                                     \
         {                                                      \
-            {"13", 13, cc::gfx::ShaderStageFlagBit::FRAGMENT}, \
+            PassType::RASTER,                                  \
+            {                                                  \
+                {{"0"}, {"1"}},                                \
+            },                                                 \
+        },                                                     \
+        {                                                      \
+            PassType::RASTER,                                  \
+            {                                                  \
+                {{"1"}, {"2"}},                                \
+            },                                                 \
+        },                                                     \
+        {                                                      \
+            PassType::RASTER,                                  \
+            {                                                  \
+                {{"0"}, {"3"}},                                \
+            },                                                 \
+        },                                                     \
+        {                                                      \
+            PassType::RASTER,                                  \
+            {                                                  \
+                {{"3"}, {"19"}},                               \
+            },                                                 \
+        },                                                     \
+        {                                                      \
+            PassType::RASTER,                                  \
+            {                                                  \
+                {{"3"}, {"5"}},                                \
+            },                                                 \
+        },                                                     \
+        {                                                      \
+            PassType::RASTER,                                  \
+            {                                                  \
+                {{"5"}, {"6"}},                                \
+            },                                                 \
+        },                                                     \
+        {                                                      \
+            PassType::RASTER,                                  \
+            {                                                  \
+                {{"2"}, {"7"}},                                \
+                {{"7"}, {"20"}},                               \
+            },                                                 \
+        },                                                     \
+        {                                                      \
+            PassType::RASTER,                                  \
+            {                                                  \
+                {{"2", "21"}, {"8"}},                          \
+                {{"8"}, {"9"}},                                \
+            },                                                 \
+        },                                                     \
+        {                                                      \
+            PassType::RASTER,                                  \
+            {                                                  \
+                {{"2"}, {"22"}},                               \
+            },                                                 \
+        },                                                     \
+    };                                                         \
+                                                               \
+    LayoutInfo layoutInfo = {                                  \
+        {                                                      \
+            {"0", 0, cc::gfx::ShaderStageFlagBit::VERTEX},     \
+        },                                                     \
+        {                                                      \
+            {"0", 0, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \
+            {"1", 1, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \
+        },                                                     \
+        {                                                      \
+            {"1", 1, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \
+            {"2", 2, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \
+        },                                                     \
+        {                                                      \
+            {"0", 0, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \
+            {"3", 3, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \
+        },                                                     \
+        {                                                      \
+            {"3", 3, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \
+            {"19", 19, cc::gfx::ShaderStageFlagBit::FRAGMENT}, \
+        },                                                     \
+        {                                                      \
+            {"3", 3, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \
+            {"5", 5, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \
+        },                                                     \
+        {                                                      \
+            {"5", 5, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \
+            {"6", 6, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \
+        },                                                     \
+        {                                                      \
+            {"2", 2, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \
+            {"7", 7, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \
+            {"20", 20, cc::gfx::ShaderStageFlagBit::FRAGMENT}, \
+        },                                                     \
+        {                                                      \
+            {"2", 2, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \
+            {"8", 8, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \
+            {"9", 9, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \
+            {"21", 21, cc::gfx::ShaderStageFlagBit::FRAGMENT}, \
+        },                                                     \
+        {                                                      \
+            {"2", 2, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \
+            {"22", 22, cc::gfx::ShaderStageFlagBit::FRAGMENT}, \
         },                                                     \
     };
-
-/*
-void testCase1() {
-    boost::container::pmr::memory_resource *resource = boost::container::pmr::get_default_resource();
-    RenderGraph renderGraph(resource);
-    ResourceGraph rescGraph(resource);
-    LayoutGraphData layoutGraph(resource);
-
-    ResourceInfo resources = {
-        {"0", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"1", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"2", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"3", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"4", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"5", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"6", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"7", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"8", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"9", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"10", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"11", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"12", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"13", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"14", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"15", gfx::DESCRIPTOR_TEXTURE_TYPE},
-    };
-
-    ViewInfo data = {
-        {
-            PassType::RASTER,
-            {
-                {{}, {"0", "1", "2"}},
-                {{"0", "1", "2", "4"}, {"3"}},
-            },
-        },
-        {
-            PassType::RASTER,
-            {
-                {{"3"}, {"5"}},
-            },
-        },
-        {
-            PassType::PRESENT,
-            {
-                {{"5"}, {}},
-            },
-        },
-    };
-
-    using ShaderStageMap = map<string, gfx::ShaderStageFlagBit>;
-
-    LayoutInfo layoutInfo = {
-        {
-            {"0", 0, gfx::ShaderStageFlagBit::VERTEX},
-            {"1", 1, gfx::ShaderStageFlagBit::FRAGMENT},
-            {"2", 2, gfx::ShaderStageFlagBit::VERTEX},
-        },
-        {
-            {"0", 0, gfx::ShaderStageFlagBit::VERTEX},
-            {"1", 1, gfx::ShaderStageFlagBit::FRAGMENT},
-            {"2", 2, gfx::ShaderStageFlagBit::VERTEX},
-            {"3", 3, gfx::ShaderStageFlagBit::FRAGMENT},
-            {"4", 4, gfx::ShaderStageFlagBit::VERTEX},
-        },
-        {
-            {"3", 3, gfx::ShaderStageFlagBit::VERTEX},
-            {"5", 5, gfx::ShaderStageFlagBit::VERTEX},
-        },
-        {
-            {"5", 5, gfx::ShaderStageFlagBit::COMPUTE},
-        }};
-
-    testData(data, resources, layoutInfo, renderGraph, rescGraph, layoutGraph);
-    // for(const auto* camera : cameras) {}
-}
-
-void testCase2() {
-    boost::container::pmr::memory_resource *resource = boost::container::pmr::get_default_resource();
-    RenderGraph renderGraph(resource);
-    ResourceGraph rescGraph(resource);
-    LayoutGraphData layoutGraph(resource);
-
-    ResourceInfo resources = {
-        {"0", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"1", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"2", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"3", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"4", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"5", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"6", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"7", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"8", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"9", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"10", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"11", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"12", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"13", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"14", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"15", gfx::DESCRIPTOR_TEXTURE_TYPE},
-    };
-
-    ViewInfo data = {
-        {
-            PassType::RASTER,
-            {
-                {{}, {"0", "1"}},
-            },
-        },
-        {
-            PassType::RASTER,
-            {
-                {{"0"}, {"2", "3"}},
-            },
-        },
-        {
-            PassType::RASTER,
-            {
-                {{"1"}, {"4", "5"}},
-            },
-        },
-        {
-            PassType::RASTER,
-            {
-                {{"3", "5"}, {"6"}},
-            },
-        },
-        {
-            PassType::RASTER,
-            {
-                {{"2", "4", "6"}, {"7"}},
-            },
-        },
-        {
-            PassType::RASTER,
-            {
-                {{}, {"8"}},
-            },
-        },
-        {
-            PassType::RASTER,
-            {
-                {{"0", "8"}, {"9"}},
-            },
-        },
-        {
-            PassType::RASTER,
-            {
-                {{"7", "9"}, {"10"}},
-            },
-        },
-        {
-            PassType::PRESENT,
-            {
-                {{"10"}, {}},
-            },
-        },
-    };
-
-    LayoutInfo layoutInfo = {
-        {
-            {"0", 0, gfx::ShaderStageFlagBit::FRAGMENT},
-            {"1", 1, gfx::ShaderStageFlagBit::FRAGMENT},
-        },
-        {
-            {"0", 0, gfx::ShaderStageFlagBit::VERTEX},
-            {"2", 2, gfx::ShaderStageFlagBit::FRAGMENT},
-            {"3", 3, gfx::ShaderStageFlagBit::FRAGMENT},
-        },
-        {
-            {"4", 4, gfx::ShaderStageFlagBit::FRAGMENT},
-            {"5", 5, gfx::ShaderStageFlagBit::FRAGMENT},
-            {"1", 1, gfx::ShaderStageFlagBit::FRAGMENT},
-        },
-        {
-            {"3", 3, gfx::ShaderStageFlagBit::FRAGMENT},
-            {"5", 5, gfx::ShaderStageFlagBit::FRAGMENT},
-            {"6", 6, gfx::ShaderStageFlagBit::FRAGMENT},
-        },
-        {
-            {"2", 2, gfx::ShaderStageFlagBit::FRAGMENT},
-            {"4", 4, gfx::ShaderStageFlagBit::VERTEX},
-            {"6", 6, gfx::ShaderStageFlagBit::FRAGMENT},
-            {"7", 7, gfx::ShaderStageFlagBit::FRAGMENT},
-        },
-        {
-            {"8", 8, gfx::ShaderStageFlagBit::FRAGMENT},
-        },
-        {
-            {"0", 0, gfx::ShaderStageFlagBit::FRAGMENT},
-            {"8", 8, gfx::ShaderStageFlagBit::FRAGMENT},
-            {"9", 9, gfx::ShaderStageFlagBit::FRAGMENT},
-        },
-        {
-            {"7", 7, gfx::ShaderStageFlagBit::FRAGMENT},
-            {"9", 9, gfx::ShaderStageFlagBit::FRAGMENT},
-            {"10", 10, gfx::ShaderStageFlagBit::FRAGMENT},
-        },
-        {
-            {"10", 10, gfx::ShaderStageFlagBit::FRAGMENT},
-        },
-    };
-
-    testData(data, resources, layoutInfo, renderGraph, rescGraph, layoutGraph);
-    // for(const auto* camera : cameras) {}
-}
-
-void testCase3() {
-    boost::container::pmr::memory_resource *resource = boost::container::pmr::get_default_resource();
-    RenderGraph renderGraph(resource);
-    ResourceGraph rescGraph(resource);
-    LayoutGraphData layoutGraph(resource);
-
-    ResourceInfo resources = {
-        {"0", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"1", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"2", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"3", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"4", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"5", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"6", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"7", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"8", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"9", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"10", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"11", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"12", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"13", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"14", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"15", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"16", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"17", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"18", gfx::DESCRIPTOR_TEXTURE_TYPE},
-    };
-
-    ViewInfo data = {
-        {
-            PassType::RASTER,
-            {
-                {{}, {"0"}},
-            },
-        },
-        {
-            PassType::RASTER,
-            {
-                {{"0"}, {"1"}},
-            },
-        },
-        {
-            PassType::RASTER,
-            {
-                {{"1"}, {"2"}},
-            },
-        },
-        {
-            PassType::RASTER,
-            {
-                {{"2"}, {"3"}},
-            },
-        },
-        {
-            PassType::RASTER,
-            {
-                {{"3"}, {"4"}},
-            },
-        },
-        {
-            PassType::RASTER,
-            {
-                {{"4"}, {"5"}},
-            },
-        },
-        {
-            PassType::RASTER,
-            {
-                {{"5"}, {"6"}},
-            },
-        },
-        {
-            PassType::RASTER,
-            {
-                {{"3"}, {"7"}},
-            },
-        },
-        {
-            PassType::RASTER,
-            {
-                {{"7"}, {"8"}},
-            },
-        },
-        {
-            PassType::RASTER,
-            {
-                {{"1"}, {"9"}},
-            },
-        },
-        {
-            PassType::RASTER,
-            {
-                {{"1"}, {"14"}},
-            },
-        },
-        {
-            PassType::RASTER,
-            {
-                {{"14"}, {"15"}},
-            },
-        },
-        {
-            PassType::RASTER,
-            {
-                {{"15", "9"}, {"10"}},
-            },
-        },
-        {
-            PassType::RASTER,
-            {
-                {{"1"}, {"16"}},
-            },
-        },
-        {
-            PassType::RASTER,
-            {
-                {{"16"}, {"17"}},
-            },
-        },
-        {
-            PassType::RASTER,
-            {
-                {{"8", "10", "17"}, {"11"}},
-            },
-        },
-        {
-            PassType::RASTER,
-            {
-                {{"11", "6"}, {"12"}},
-            },
-        },
-        {
-            PassType::RASTER,
-            {
-                {{"12"}, {"13"}},
-            },
-        },
-        {
-            PassType::PRESENT,
-            {
-                {{"13"}, {}},
-            },
-        },
-    };
-
-    using ShaderStageMap = map<string, gfx::ShaderStageFlagBit>;
-
-    LayoutInfo layoutInfo = {
-        {
-            {"0", 0, gfx::ShaderStageFlagBit::FRAGMENT},
-        },
-        {
-            {"0", 0, gfx::ShaderStageFlagBit::FRAGMENT},
-            {"1", 1, gfx::ShaderStageFlagBit::FRAGMENT},
-        },
-        {
-            {"1", 1, gfx::ShaderStageFlagBit::FRAGMENT},
-            {"2", 2, gfx::ShaderStageFlagBit::FRAGMENT},
-        },
-        {
-            {"2", 2, gfx::ShaderStageFlagBit::FRAGMENT},
-            {"3", 3, gfx::ShaderStageFlagBit::FRAGMENT},
-        },
-        {
-            {"3", 3, gfx::ShaderStageFlagBit::FRAGMENT},
-            {"4", 4, gfx::ShaderStageFlagBit::FRAGMENT},
-        },
-        {
-            {"4", 4, gfx::ShaderStageFlagBit::FRAGMENT},
-            {"5", 5, gfx::ShaderStageFlagBit::FRAGMENT},
-        },
-        {
-            {"5", 5, gfx::ShaderStageFlagBit::FRAGMENT},
-            {"6", 6, gfx::ShaderStageFlagBit::FRAGMENT},
-        },
-        {
-            {"3", 3, gfx::ShaderStageFlagBit::FRAGMENT},
-            {"7", 7, gfx::ShaderStageFlagBit::FRAGMENT},
-        },
-        {
-            {"7", 7, gfx::ShaderStageFlagBit::FRAGMENT},
-            {"8", 8, gfx::ShaderStageFlagBit::FRAGMENT},
-        },
-        {
-            {"1", 1, gfx::ShaderStageFlagBit::FRAGMENT},
-            {"9", 9, gfx::ShaderStageFlagBit::FRAGMENT},
-        },
-        {
-            {"1", 1, gfx::ShaderStageFlagBit::FRAGMENT},
-            {"14", 14, gfx::ShaderStageFlagBit::FRAGMENT},
-        },
-        {
-            {"14", 14, gfx::ShaderStageFlagBit::FRAGMENT},
-            {"15", 15, gfx::ShaderStageFlagBit::FRAGMENT},
-        },
-        {
-            {"15", 15, gfx::ShaderStageFlagBit::FRAGMENT},
-            {"9", 9, gfx::ShaderStageFlagBit::FRAGMENT},
-            {"10", 10, gfx::ShaderStageFlagBit::FRAGMENT},
-        },
-        {
-            {"1", 1, gfx::ShaderStageFlagBit::FRAGMENT},
-            {"16", 16, gfx::ShaderStageFlagBit::FRAGMENT},
-        },
-        {
-            {"16", 16, gfx::ShaderStageFlagBit::FRAGMENT},
-            {"17", 17, gfx::ShaderStageFlagBit::FRAGMENT},
-        },
-        {
-            {"8", 8, gfx::ShaderStageFlagBit::FRAGMENT},
-            {"10", 10, gfx::ShaderStageFlagBit::FRAGMENT},
-            {"17", 17, gfx::ShaderStageFlagBit::FRAGMENT},
-            {"11", 11, gfx::ShaderStageFlagBit::FRAGMENT},
-        },
-        {
-            {"6", 6, gfx::ShaderStageFlagBit::FRAGMENT},
-            {"11", 11, gfx::ShaderStageFlagBit::FRAGMENT},
-            {"12", 12, gfx::ShaderStageFlagBit::FRAGMENT},
-        },
-        {
-            {"12", 12, gfx::ShaderStageFlagBit::FRAGMENT},
-            {"13", 13, gfx::ShaderStageFlagBit::FRAGMENT},
-        },
-        {
-            {"13", 13, gfx::ShaderStageFlagBit::FRAGMENT},
-        },
-    };
-
-    testData(data, resources, layoutInfo, renderGraph, rescGraph, layoutGraph);
-    // for(const auto* camera : cameras) {}
-}
-
-void testCase4() {
-    boost::container::pmr::memory_resource *resource = boost::container::pmr::get_default_resource();
-    RenderGraph renderGraph(resource);
-    ResourceGraph rescGraph(resource);
-    LayoutGraphData layoutGraph(resource);
-
-    ResourceInfo resources = {
-        {"0", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"1", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"2", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"3", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"4", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"5", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"6", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"7", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"8", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"9", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"10", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"11", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"12", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"13", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"14", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"15", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"16", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"17", gfx::DESCRIPTOR_TEXTURE_TYPE},
-        {"18", gfx::DESCRIPTOR_TEXTURE_TYPE},
-    };
-
-    ViewInfo data = {
-        {
-            PassType::RASTER,
-            {
-                {{}, {"0"}},
-            },
-        },
-        {
-            PassType::RASTER,
-            {
-                {{"0"}, {"1"}},
-            },
-        },
-        {
-            PassType::RASTER,
-            {
-                {{"1"}, {"2"}},
-            },
-        },
-        {
-            PassType::RASTER,
-            {
-                {{"2"}, {"3"}},
-            },
-        },
-        {
-            PassType::RASTER,
-            {
-                {{"1"}, {"4"}},
-            },
-        },
-        {
-            PassType::RASTER,
-            {
-                {{"4"}, {"5"}},
-            },
-        },
-        {
-            PassType::RASTER,
-            {
-                {{"1"}, {"6"}},
-            },
-        },
-        {
-            PassType::RASTER,
-            {
-                {{"6"}, {"7"}},
-            },
-        },
-        {
-            PassType::RASTER,
-            {
-                {{"7", "5", "3"}, {"8"}},
-            },
-        },
-        {
-            PassType::PRESENT,
-            {
-                {{"8"}, {}},
-            },
-        }};
-
-    using ShaderStageMap = map<string, gfx::ShaderStageFlagBit>;
-
-    LayoutInfo layoutInfo = {
-        {
-            {"0", 0, gfx::ShaderStageFlagBit::FRAGMENT},
-        },
-        {
-            {"0", 0, gfx::ShaderStageFlagBit::FRAGMENT},
-            {"1", 1, gfx::ShaderStageFlagBit::FRAGMENT},
-        },
-        {
-            {"1", 1, gfx::ShaderStageFlagBit::FRAGMENT},
-            {"2", 2, gfx::ShaderStageFlagBit::FRAGMENT},
-        },
-        {
-            {"2", 2, gfx::ShaderStageFlagBit::FRAGMENT},
-            {"3", 3, gfx::ShaderStageFlagBit::FRAGMENT},
-        },
-        {
-            {"1", 1, gfx::ShaderStageFlagBit::FRAGMENT},
-            {"4", 4, gfx::ShaderStageFlagBit::FRAGMENT},
-        },
-        {
-            {"4", 4, gfx::ShaderStageFlagBit::FRAGMENT},
-            {"5", 5, gfx::ShaderStageFlagBit::FRAGMENT},
-        },
-        {
-            {"1", 1, gfx::ShaderStageFlagBit::FRAGMENT},
-            {"6", 6, gfx::ShaderStageFlagBit::FRAGMENT},
-        },
-        {
-            {"6", 6, gfx::ShaderStageFlagBit::FRAGMENT},
-            {"7", 7, gfx::ShaderStageFlagBit::FRAGMENT},
-        },
-        {
-            {"3", 3, gfx::ShaderStageFlagBit::FRAGMENT},
-            {"5", 5, gfx::ShaderStageFlagBit::FRAGMENT},
-            {"7", 7, gfx::ShaderStageFlagBit::FRAGMENT},
-            {"8", 8, gfx::ShaderStageFlagBit::FRAGMENT},
-        },
-        {
-            {"8", 8, gfx::ShaderStageFlagBit::FRAGMENT},
-        },
-    };
-
-    testData(data, resources, layoutInfo, renderGraph, rescGraph, layoutGraph);
-    // for(const auto* camera : cameras) {}
-}
-*/
 } // namespace render
 } // namespace cc

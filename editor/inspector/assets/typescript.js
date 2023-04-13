@@ -4,27 +4,28 @@ const ReadLine = require('readline');
 const MAX_LINES = 400;
 const MAX_LENGTH = 20000;
 
-exports.template = `
+exports.template = /* html */`
 <section class="asset-typescript">
     <ui-code language="typescript"></ui-code>
 </section>`;
 
-exports.$ = {
-    container: '.asset-typescript',
-    code: 'ui-code',
-};
-
-exports.style = `
+exports.style = /* css */`
 .asset-typescript {
     flex: 1;
     display: flex;
     flex-direction: column;
-    height: 0px; // it is necessary
+    /* it is necessary */
+    height: 0px;
 }
 .asset-typescript > ui-code {
     flex: 1;
 }
 `;
+
+exports.$ = {
+    container: '.asset-typescript',
+    code: 'ui-code',
+};
 
 exports.update = function(assetList, metaList) {
     this.assetList = assetList;

@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,20 +20,45 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 // eslint-disable-next-line import/no-extraneous-dependencies
 import bulletModule, { bulletType } from '@cocos/bullet';
-import { WECHAT, RUNTIME_BASED } from 'internal:constants';
-import { physics } from '../../../exports/physics-framework';
-import { game } from '../../core/game';
-import { sys } from '../../core/platform';
+import { WECHAT, RUNTIME_BASED, WECHAT_MINI_PROGRAM } from 'internal:constants';
+import { game } from '../../game';
+import { sys } from '../../core';
 import { pageSize, pageCount, importFunc } from './bullet-env';
 
 let bulletLibs: any = bulletModule;
 if (globalThis.BULLET) {
     console.log('[Physics][Bullet]: Using the external Bullet libs.');
     bulletLibs = globalThis.BULLET;
+}
+
+//corresponds to bulletType in bullet-compile
+export enum EBulletType{
+    EBulletTypeVec3 = 0,
+    EBulletTypeQuat,
+    EBulletTypeTransform,
+    EBulletTypeMotionState,
+    EBulletTypeCollisionObject,
+    EBulletTypeCollisionShape,
+    EBulletTypeStridingMeshInterface,
+    EBulletTypeTriangleMesh,
+    EBulletTypeCollisionDispatcher,
+    EBulletTypeDbvtBroadPhase,
+    EBulletTypeSequentialImpulseConstraintSolver,
+    EBulletTypeCollisionWorld,
+    EBulletTypeTypedConstraint
+}
+
+//corresponds to btTriangleRaycastCallback::EFlags
+export enum EBulletTriangleRaycastFlag {
+    NONE                            = 0,
+    FilterBackfaces                 = 1 << 0,
+    KeepUnflippedNormal             = 1 << 1, //Prevents returned face normal getting flipped when a ray hits a back-facing triangle
+    UseSubSimplexConvexCastRaytest  = 1 << 2, //default, uses an approximate but faster ray versus convex intersection algorithm
+    UseGjkConvexCastRaytest         = 1 << 3
 }
 
 interface instanceExt extends Bullet.instance {
@@ -93,7 +117,7 @@ export function waitForAmmoInstantiation () {
                     }, errorReport);
                 }
 
-                if (WECHAT || RUNTIME_BASED) {
+                if (WECHAT || WECHAT_MINI_PROGRAM || RUNTIME_BASED) {
                     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                     const wasmFilePath = `cocos-js/${module}` as any;
                     instantiateWasm(wasmFilePath);

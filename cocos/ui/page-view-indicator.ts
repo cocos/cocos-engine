@@ -1,19 +1,18 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -26,10 +25,10 @@
 
 import { ccclass, help, executionOrder, menu, tooltip, type, serializable } from 'cc.decorator';
 import { SpriteFrame } from '../2d/assets';
-import { Component } from '../core/components';
+import { Component } from '../scene-graph/component';
 import { Color, Size } from '../core/math';
 import { ccenum } from '../core/value-types/enum';
-import { Node } from '../core/scene-graph';
+import { Node } from '../scene-graph';
 import { Layout } from './layout';
 import { PageView } from './page-view';
 import { Sprite } from '../2d/components/sprite';
@@ -41,7 +40,7 @@ const _color = new Color();
 /**
  * @en Enum for PageView Indicator direction.
  *
- * @zh 页面视图指示器的摆放方向
+ * @zh 页面视图指示器的摆放方向。
  *
  * @enum PageViewIndicator.Direction
  */
@@ -49,14 +48,14 @@ enum Direction {
     /**
      * @en The horizontal direction.
      *
-     * @zh 水平方向
+     * @zh 水平方向。
      */
     HORIZONTAL = 0,
 
     /**
      * @en The vertical direction.
      *
-     * @zh 垂直方向
+     * @zh 垂直方向。
      */
     VERTICAL = 1,
 }
@@ -67,7 +66,7 @@ ccenum(Direction);
  * The Page View Indicator Component.
  *
  * @zh
- * 页面视图每页标记组件
+ * 页面视图每页标记组件。
  */
 @ccclass('cc.PageViewIndicator')
 @help('i18n:cc.PageViewIndicator')
@@ -79,7 +78,7 @@ export class PageViewIndicator extends Component {
      * The spriteFrame for each element.
      *
      * @zh
-     * 每个页面标记显示的图片
+     * 每个页面标记显示的图片。
      */
     @type(SpriteFrame)
     @tooltip('i18n:pageview_indicator.spriteFrame')
@@ -99,9 +98,9 @@ export class PageViewIndicator extends Component {
      * The location direction of PageViewIndicator.
      *
      * @zh
-     * 页面标记摆放方向
+     * 页面标记摆放方向。
      *
-     * @param direction @en The direction of the PageViewIndicator @zh 页面标记的摆放方向
+     * @param direction @en The direction of the PageViewIndicator. @zh 页面标记的摆放方向。
      */
     @type(Direction)
     @tooltip('i18n:pageview_indicator.direction')
@@ -121,7 +120,7 @@ export class PageViewIndicator extends Component {
      * The cellSize for each element.
      *
      * @zh
-     * 每个页面标记的大小
+     * 每个页面标记的大小。
      */
     @type(Size)
     @tooltip('i18n:pageview_indicator.cell_size')
@@ -136,6 +135,11 @@ export class PageViewIndicator extends Component {
         this._cellSize = value;
     }
 
+    /**
+     * @en Enum for PageView Indicator direction.
+     * @zh 页面视图指示器的摆放方向。
+     * @enum PageViewIndicator.Direction
+     */
     public static Direction = Direction;
 
     /**
@@ -143,7 +147,7 @@ export class PageViewIndicator extends Component {
      * The distance between each element.
      *
      * @zh
-     * 每个页面标记之间的边距
+     * 每个页面标记之间的边距。
      */
     @serializable
     @tooltip('i18n:pageview_indicator.spacing')
@@ -167,9 +171,9 @@ export class PageViewIndicator extends Component {
      * Set Page View.
      *
      * @zh
-     * 设置页面视图
+     * 设置页面视图。
      *
-     * @param target @en The page view which is attached with this indicator  @zh 当前标记对象附着到的页面视图对象
+     * @param target @en The page view which is attached with this indicator.  @zh 当前标记对象附着到的页面视图对象。
      */
     public setPageView (target: PageView) {
         this._pageView = target;

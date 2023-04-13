@@ -1,19 +1,18 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -22,15 +21,14 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { ccclass, executeInEditMode, serializable, playOnFocus, menu, help, editable, type } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { UIRenderer } from '../2d/framework';
-import { Texture2D } from '../core/assets/texture-2d';
+import { Texture2D } from '../asset/assets/texture-2d';
 import { IBatcher } from '../2d/renderer/i-batcher';
-import { Vec2 } from '../core';
-import { legacyCC } from '../core/global-exports';
+import { Vec2, cclegacy } from '../core';
 
 class Point {
     public point = new Vec2();
@@ -188,10 +186,10 @@ export class MotionStreak extends UIRenderer {
             this._assembler = assembler;
         }
 
-        if (!this.renderData) {
+        if (!this._renderData) {
             if (this._assembler && this._assembler.createData) {
                 this._renderData = this._assembler.createData(this);
-                this.renderData!.material = this.material;
+                this._renderData!.material = this.material;
                 this._updateColor();
             }
         }
@@ -218,11 +216,11 @@ export class MotionStreak extends UIRenderer {
      */
     public reset () {
         this._points.length = 0;
-        if (this.renderData) this.renderData.clear();
+        if (this._renderData) this._renderData.clear();
     }
 
     public lateUpdate (dt) {
-        if (EDITOR && !legacyCC.GAME_VIEW && !this._preview) return;
+        if (EDITOR && !cclegacy.GAME_VIEW && !this._preview) return;
         if (this._assembler) this._assembler.update(this, dt);
     }
 
@@ -230,6 +228,6 @@ export class MotionStreak extends UIRenderer {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _render (render: IBatcher) {
-        render.commitComp(this, this.renderData, this._texture, this._assembler, null);
+        render.commitComp(this, this._renderData, this._texture, this._assembler, null);
     }
 }

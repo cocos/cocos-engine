@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -33,46 +32,6 @@ extern void cocos_destory();                        // NOLINT(readability-identi
 namespace cc {
 UniversalPlatform::OSType UniversalPlatform::getOSType() const {
     return getInterface<ISystem>()->getOSType();
-}
-
-void UniversalPlatform::dispatchEvent(const OSEvent& ev) {
-    bool isHandled = false;
-    if (_handleEventCallback) {
-        isHandled = (_handleEventCallback)(ev);
-    }
-    if (isHandled) {
-        return;
-    }
-    if (_handleDefaultEventCallback) {
-        isHandled = (_handleDefaultEventCallback)(ev);
-    }
-    if (!isHandled) {
-        handleDefaultEvent(ev);
-    }
-}
-
-void UniversalPlatform::dispatchTouchEvent(const TouchEvent& ev) {
-    if (_handleTouchEventCallback) {
-        _handleTouchEventCallback(ev);
-    } else {
-        dispatchEvent(ev);
-    }
-}
-
-void UniversalPlatform::handleDefaultEvent(const OSEvent& ev) {
-    // TODO(cc) : Follow-up support
-}
-
-void UniversalPlatform::setHandleEventCallback(HandleEventCallback cb) {
-    _handleEventCallback = cb;
-}
-
-void UniversalPlatform::setHandleTouchEventCallback(HandleTouchEventCallback cb) {
-    _handleTouchEventCallback = cb;
-}
-
-void UniversalPlatform::setHandleDefaultEventCallback(HandleEventCallback cb) {
-    _handleDefaultEventCallback = cb;
 }
 
 int32_t UniversalPlatform::run(int argc, const char** argv) {
@@ -118,6 +77,10 @@ void UniversalPlatform::onClose() {
 
 void UniversalPlatform::onDestroy() {
     cocos_destory();
+}
+
+void UniversalPlatform::exit() {
+
 }
 
 } // namespace cc

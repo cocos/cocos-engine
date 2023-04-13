@@ -239,6 +239,8 @@ void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
     // range [0.0, 1.0]
     Color4F color;
     Color4F darkColor;
+    Color4B finalColor;
+    Color4B finalDardk;
 
     AttachmentVertices *attachmentVertices = nullptr;
     middleware::IOBuffer &vb = frameData->vb;
@@ -317,15 +319,15 @@ void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
             _clipper->clipEnd(*slot);
             continue;
         }
-
+        const spine::Color &slotColor = slot->getColor();
         // Early exit if slot is invisible
-        if (slot->getColor().a == 0) {
+        if (slotColor.a == 0) {
             _clipper->clipEnd(*slot);
             continue;
         }
 
         TwoColorTriangles trianglesTwoColor;
-
+        spine::Color attachmentColor;
         if (slot->getAttachment()->getRTTI().isExactly(RegionAttachment::rtti)) {
             auto *attachment = dynamic_cast<RegionAttachment *>(slot->getAttachment());
             attachmentVertices = static_cast<AttachmentVertices *>(attachment->getRendererObject());
@@ -351,10 +353,7 @@ void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
             trianglesTwoColor.indices = reinterpret_cast<uint16_t *>(ib.getCurBuffer());
             memcpy(trianglesTwoColor.indices, attachmentVertices->_triangles->indices, ibSize);
 
-            color.r = attachment->getColor().r;
-            color.g = attachment->getColor().g;
-            color.b = attachment->getColor().b;
-            color.a = attachment->getColor().a;
+            attachmentColor = attachment->getColor();
 
         } else if (slot->getAttachment()->getRTTI().isExactly(MeshAttachment::rtti)) {
             auto *attachment = dynamic_cast<MeshAttachment *>(slot->getAttachment());
@@ -380,12 +379,7 @@ void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
             ib.checkSpace(ibSize, true);
             trianglesTwoColor.indices = reinterpret_cast<uint16_t *>(ib.getCurBuffer());
             memcpy(trianglesTwoColor.indices, attachmentVertices->_triangles->indices, ibSize);
-
-            color.r = attachment->getColor().r;
-            color.g = attachment->getColor().g;
-            color.b = attachment->getColor().b;
-            color.a = attachment->getColor().a;
-
+            attachmentColor = attachment->getColor();
         } else if (slot->getAttachment()->getRTTI().isExactly(ClippingAttachment::rtti)) {
             auto *clip = dynamic_cast<ClippingAttachment *>(slot->getAttachment());
             _clipper->clipStart(*slot, clip);
@@ -394,32 +388,42 @@ void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
             _clipper->clipEnd(*slot);
             continue;
         }
-
-        color.a = _skeleton->getColor().a * slot->getColor().a * color.a * 255;
+        color.a = _skeleton->getColor().a * slotColor.a * attachmentColor.a * 255;
         // skip rendering if the color of this attachment is 0
         if (color.a == 0) {
             _clipper->clipEnd(*slot);
             continue;
         }
 
-        float red = _skeleton->getColor().r * color.r * 255;
-        float green = _skeleton->getColor().g * color.g * 255;
-        float blue = _skeleton->getColor().b * color.b * 255;
+        float red = _skeleton->getColor().r * attachmentColor.r * 255;
+        float green = _skeleton->getColor().g * attachmentColor.g * 255;
+        float blue = _skeleton->getColor().b * attachmentColor.b * 255;
 
-        color.r = red * slot->getColor().r;
-        color.g = green * slot->getColor().g;
-        color.b = blue * slot->getColor().b;
+        color.r = red * slotColor.r;
+        color.g = green * slotColor.g;
+        color.b = blue * slotColor.b;
 
         if (slot->hasDarkColor()) {
             darkColor.r = red * slot->getDarkColor().r;
             darkColor.g = green * slot->getDarkColor().g;
             darkColor.b = blue * slot->getDarkColor().b;
+            darkColor.a = 0;
         } else {
             darkColor.r = 0;
             darkColor.g = 0;
             darkColor.b = 0;
+            darkColor.a = 0;
         }
-        darkColor.a = 0;
+
+        finalColor.r = static_cast<uint8_t>(std::round(color.r));
+        finalColor.g = static_cast<uint8_t>(std::round(color.g));
+        finalColor.b = static_cast<uint8_t>(std::round(color.b));
+        finalColor.a = static_cast<uint8_t>(std::round(color.a));
+
+        finalDardk.r = static_cast<uint8_t>(std::round(darkColor.r));
+        finalDardk.g = static_cast<uint8_t>(std::round(darkColor.g));
+        finalDardk.b = static_cast<uint8_t>(std::round(darkColor.b));
+        finalDardk.a = static_cast<uint8_t>(std::round(darkColor.a));
 
         if (preColor != color || preDarkColor != darkColor) {
             preColor = color;
@@ -430,8 +434,8 @@ void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
                 preColorData->vertexFloatOffset = static_cast<int>(vb.getCurPos() / sizeof(float));
             }
             ColorData *colorData = frameData->buildColorData(colorCount);
-            colorData->finalColor = color;
-            colorData->darkColor = darkColor;
+            colorData->finalColor = finalColor;
+            colorData->darkColor = finalDardk;
         }
 
         // Two color tint logic
@@ -463,26 +467,14 @@ void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
                 vertex->vertex.y = verts[vv + 1];
                 vertex->texCoord.u = uvs[vv];
                 vertex->texCoord.v = uvs[vv + 1];
-                vertex->color.r = color.r / 255.0F;
-                vertex->color.g = color.g / 255.0F;
-                vertex->color.b = color.b / 255.0F;
-                vertex->color.a = color.a / 255.0F;
-                vertex->color2.r = darkColor.r / 255.0F;
-                vertex->color2.g = darkColor.g / 255.0F;
-                vertex->color2.b = darkColor.b / 255.0F;
-                vertex->color2.a = darkColor.a / 255.0F;
+                vertex->color = finalColor;
+                vertex->color2 = finalDardk;
             }
         } else {
             for (int v = 0, vn = trianglesTwoColor.vertCount; v < vn; ++v) {
                 V3F_T2F_C4B_C4B *vertex = trianglesTwoColor.verts + v;
-                vertex->color.r = color.r / 255.0F;
-                vertex->color.g = color.g / 255.0F;
-                vertex->color.b = color.b / 255.0F;
-                vertex->color.a = color.a / 255.0F;
-                vertex->color2.r = darkColor.r / 255.0F;
-                vertex->color2.g = darkColor.g / 255.0F;
-                vertex->color2.b = darkColor.b / 255.0F;
-                vertex->color2.a = darkColor.a / 255.0F;
+                vertex->color = finalColor;
+                vertex->color2 = finalDardk;
             }
         }
 

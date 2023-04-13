@@ -33,6 +33,7 @@ import org.cocos2dx.okhttp3.Call;
 import org.cocos2dx.okhttp3.Callback;
 import org.cocos2dx.okhttp3.Dispatcher;
 import org.cocos2dx.okhttp3.OkHttpClient;
+import org.cocos2dx.okhttp3.Protocol;
 import org.cocos2dx.okhttp3.Request;
 import org.cocos2dx.okhttp3.Response;
 
@@ -45,6 +46,7 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
@@ -105,12 +107,14 @@ public class CocosDownloader {
                     .followRedirects(true)
                     .followSslRedirects(true)
                     .connectTimeout(timeoutInSeconds, TimeUnit.SECONDS)
+                    .protocols(Collections.singletonList(Protocol.HTTP_1_1))
                     .build();
         } else {
             downloader._httpClient = new OkHttpClient().newBuilder()
                     .dispatcher(dispatcher)
                     .followRedirects(true)
                     .followSslRedirects(true)
+                    .protocols(Collections.singletonList(Protocol.HTTP_1_1))
                     .build();
         }
 
@@ -176,7 +180,7 @@ public class CocosDownloader {
 
                         host = domain.startsWith("www.") ? domain.substring(4) : domain;
                         if (fileLen > 0) {
-                            SharedPreferences sharedPreferences = GlobalObject.getActivity().getSharedPreferences("breakpointDownloadSupport", Context.MODE_PRIVATE);
+                            SharedPreferences sharedPreferences = GlobalObject.getContext().getSharedPreferences("breakpointDownloadSupport", Context.MODE_PRIVATE);
                             if (sharedPreferences.contains(host) && sharedPreferences.getBoolean(host, false)) {
                                 downloadStart = fileLen;
                             } else {
@@ -241,7 +245,7 @@ public class CocosDownloader {
                                 }
 
                                 // save breakpointDownloadSupport Data to SharedPreferences storage
-                                Context context = GlobalObject.getActivity();
+                                Context context = GlobalObject.getContext();
                                 SharedPreferences sharedPreferences = context.getSharedPreferences("breakpointDownloadSupport", Context.MODE_PRIVATE);
                                 SharedPreferences.Editor editor = sharedPreferences.edit();
                                 long total = response.body().contentLength() + downloadStart;
@@ -339,7 +343,7 @@ public class CocosDownloader {
     }
 
     public static void abort(final CocosDownloader downloader, final int id) {
-        GlobalObject.getActivity().runOnUiThread(new Runnable() {
+        GlobalObject.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 Iterator iter = downloader._taskMap.entrySet().iterator();
@@ -359,7 +363,7 @@ public class CocosDownloader {
     }
 
     public static void cancelAllRequests(final CocosDownloader downloader) {
-        GlobalObject.getActivity().runOnUiThread(new Runnable() {
+        GlobalObject.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 for (Object o : downloader._taskMap.entrySet()) {
@@ -377,7 +381,7 @@ public class CocosDownloader {
     private void enqueueTask(Runnable taskRunnable) {
         synchronized (_taskQueue) {
             if (_runningTaskCount < _countOfMaxProcessingTasks) {
-                GlobalObject.getActivity().runOnUiThread(taskRunnable);
+                GlobalObject.runOnUiThread(taskRunnable);
                 _runningTaskCount++;
             } else {
                 _taskQueue.add(taskRunnable);
@@ -391,7 +395,7 @@ public class CocosDownloader {
                 CocosDownloader.this._taskQueue.size() > 0) {
 
                 Runnable taskRunnable = CocosDownloader.this._taskQueue.poll();
-                GlobalObject.getActivity().runOnUiThread(taskRunnable);
+                GlobalObject.runOnUiThread(taskRunnable);
                 _runningTaskCount += 1;
             }
         }

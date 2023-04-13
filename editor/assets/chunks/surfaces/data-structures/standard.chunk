@@ -13,9 +13,29 @@ struct SurfacesMaterialData
 
   // for advanced PBR
   vec3 worldTangent, worldBinormal;
+  float ior;
+  
 #if CC_SURFACES_LIGHTING_ANISOTROPIC
   float anisotropyShape;
 #endif
-  // float transmittanceFactor;
-  // float sssCurvature;
+
+#if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR || CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
+  vec3 outScatteringColor, inScatteringColor;
+  vec4 transmitScatteringParams;
+#endif  
+#if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
+  vec4 transmitDiffuseParams;
+#endif
+#if CC_SURFACES_LIGHTING_TRT
+  vec3 baseColorTRT;
+  float trtIntensity, roughnessTRT;
+  vec3 worldNormalTRT, worldTangentTRT, worldBinormalTRT;
+#endif
+#if CC_SURFACES_LIGHTING_TT
+  vec3 baseColorTT;
+  float ttIntensity, ttScatterCoef;
+#endif
+#if CC_SURFACES_LIGHTING_SSS
+  vec4 sssParams;
+#endif
 };

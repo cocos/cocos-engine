@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -38,6 +37,7 @@
 #include "math/Mat4.h"
 #include "math/Vec3.h"
 #include "math/Vec4.h"
+#include "platform/java/modules/XRInterface.h"
 #include "renderer/gfx-base/GFXDef-common.h"
 #include "renderer/pipeline/Define.h"
 
@@ -130,6 +130,14 @@ enum class TrackingType {
     ROTATION = 3,
 };
 
+enum class CameraUsage {
+    EDITOR,
+    GAME_VIEW,
+    SCENE_VIEW,
+    PREVIEW,
+    GAME = 100,
+};
+
 struct ICameraInfo {
     ccstd::string name;
     Node *node{nullptr};
@@ -140,6 +148,7 @@ struct ICameraInfo {
     ccstd::optional<ccstd::string> pipeline;
     CameraType cameraType{CameraType::DEFAULT};
     TrackingType trackingType{TrackingType::NO_TRACKING};
+    CameraUsage usage{CameraUsage::GAME};
 };
 
 class Camera : public RefCounted {
@@ -169,7 +178,7 @@ public:
     void detachFromScene();
     void resize(uint32_t width, uint32_t height);
     void setFixedSize(uint32_t width, uint32_t height);
-    void syncCameraEditor(const Camera &camera);
+    void syncCameraEditor(const Camera *camera);
     void update(bool forceUpdate = false); // for lazy eval situations like the in-editor preview
     void changeTargetWindow(RenderWindow *window);
 
@@ -341,14 +350,22 @@ public:
 
     void detachCamera();
 
+    uint32_t getSystemWindowId() const { return _systemWindowId; }
+
     inline CameraType getCameraType() const { return _cameraType; }
     inline void setCameraType(CameraType type) { _cameraType = type; }
 
     inline TrackingType getTrackingType() const { return _trackingType; }
     inline void setTrackingType(TrackingType type) { _trackingType = type; }
 
+    inline CameraUsage getCameraUsage() const { return _usage; }
+    inline void setCameraUsage(CameraUsage usage) { _usage = usage; }
+
     inline bool isCullingEnabled() const { return _isCullingEnabled; }
     inline void setCullingEnable(bool val) { _isCullingEnabled = val; }
+
+    void calculateObliqueMat(const Vec4 &viewSpacePlane);
+
 protected:
     void setExposure(float ev100);
 
@@ -399,6 +416,7 @@ private:
     float _clearDepth{1.0F};
     CameraType _cameraType{CameraType::DEFAULT};
     TrackingType _trackingType{TrackingType::NO_TRACKING};
+    CameraUsage _usage{CameraUsage::GAME};
 
 #if CC_USE_GEOMETRY_RENDERER
     IntrusivePtr<pipeline::GeometryRenderer> _geometryRenderer;
@@ -412,6 +430,8 @@ private:
     float _exposure{0.F};
     uint32_t _clearStencil{0};
     IXRInterface *_xr{nullptr};
+
+    uint32_t _systemWindowId{0};
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(Camera);
 };

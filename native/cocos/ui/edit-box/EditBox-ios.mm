@@ -53,8 +53,7 @@
 #include "EditBox.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_global.h"
-#include "cocos/bindings/event/EventDispatcher.h"
-#include "cocos/bindings/event/CustomEventTypes.h""
+#include "engine/EngineEvents.h"
 #import <UIKit/UIKit.h>
 
 #define ITEM_MARGIN_WIDTH               10
@@ -223,8 +222,10 @@ void onParentViewTouched(const cc::CustomEvent &touchEvent){
         return;
 
     // check length limit after text changed, a little rude
-    if (textView.text.length > g_maxLength)
-        textView.text = [textView.text substringToIndex:g_maxLength];
+    if (textView.text.length > g_maxLength) {
+        NSRange rangeIndex = [textView.text rangeOfComposedCharacterSequenceAtIndex:g_maxLength];
+        textView.text = [textView.text substringToIndex:rangeIndex.location];
+    }
     tViewOnView.text = textView.text;
     tViewOnToolbar.text = textView.text;
     callJSFunc("input", [textView.text UTF8String]);
@@ -289,6 +290,10 @@ static ButtonHandler*           btnHandler = nil;
     //recently there'ill be only 2 elements
     NSMutableDictionary<NSString*, InputBoxPair*>*      textInputDictionnary;
     InputBoxPair*                                       curView;
+
+    cc::events::Resize::Listener  resizeListener;
+    cc::events::Touch::Listener  touchListener;
+    cc::events::Close::Listener  closeListener;
 }
 static EditboxManager *instance = nil;
 
@@ -322,14 +327,17 @@ static EditboxManager *instance = nil;
             return nil;
         }
         
-        cc::EventDispatcher::addCustomEventListener(EVENT_RESIZE, [&](const cc::CustomEvent& event) -> void {
+        resizeListener.bind([&](int /*width*/, int /*height*/ , uint32_t /*windowId*/) {
                 [[EditboxManager sharedInstance] onOrientationChanged];
         });
         //"onTouchStart" is a sub event for TouchEvent, so we can only add listener for this sub event rather than TouchEvent itself.
-        cc::EventDispatcher::addCustomEventListener("onTouchStart", [&](const cc::CustomEvent& event) -> void {
-            cc::EditBox::complete();
+        touchListener.bind([&](const cc::TouchEvent& event) {
+            if(event.type == cc::TouchEvent::Type::BEGAN) {
+                cc::EditBox::complete();
+            }
         });
-        cc::EventDispatcher::addCustomEventListener(EVENT_CLOSE, [&](const cc::CustomEvent& event) -> void {
+
+        closeListener.bind([&]() {
             [[EditboxManager sharedInstance] dealloc];
         });
     }

@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,21 +20,20 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 /* eslint-disable import/no-mutable-exports */
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { EDITOR, TEST } from 'internal:constants';
-import { legacyCC } from '../../core/global-exports';
-import { IBaseConstraint, IPointToPointConstraint, IHingeConstraint, IConeTwistConstraint } from '../spec/i-physics-constraint';
+import { IBaseConstraint, IPointToPointConstraint, IHingeConstraint, IConeTwistConstraint, IFixedConstraint } from '../spec/i-physics-constraint';
 import {
     IBoxShape, ISphereShape, ICapsuleShape, ITrimeshShape, ICylinderShape,
     IConeShape, ITerrainShape, ISimplexShape, IPlaneShape, IBaseShape,
 } from '../spec/i-physics-shape';
 import { IPhysicsWorld } from '../spec/i-physics-world';
 import { IRigidBody } from '../spec/i-rigid-body';
-import { errorID, IVec3Like, warn } from '../../core';
+import { errorID, IVec3Like, warn, cclegacy } from '../../core';
 import { EColliderType, EConstraintType } from './physics-enum';
 import { PhysicsMaterial } from '.';
 
@@ -56,6 +54,7 @@ interface IPhysicsWrapperObject {
     PointToPointConstraint?: Constructor<IPointToPointConstraint>,
     HingeConstraint?: Constructor<IHingeConstraint>,
     ConeTwistConstraint?: Constructor<IConeTwistConstraint>,
+    FixedConstraint?: Constructor<IFixedConstraint>,
 }
 
 type IPhysicsBackend = { [key: string]: IPhysicsWrapperObject; }
@@ -115,9 +114,9 @@ interface IPhysicsSelector {
 }
 
 function updateLegacyMacro (id: string) {
-    legacyCC._global.CC_PHYSICS_BUILTIN = id === 'builtin';
-    legacyCC._global.CC_PHYSICS_CANNON = id === 'cannon.js';
-    legacyCC._global.CC_PHYSICS_AMMO = id === 'bullet';
+    cclegacy._global.CC_PHYSICS_BUILTIN = id === 'builtin';
+    cclegacy._global.CC_PHYSICS_CANNON = id === 'cannon.js';
+    cclegacy._global.CC_PHYSICS_AMMO = id === 'bullet';
 }
 
 function register (id: IPhysicsEngineId, wrapper: IPhysicsWrapperObject): void {
@@ -223,6 +222,7 @@ enum ECheckType {
     PointToPointConstraint,
     HingeConstraint,
     ConeTwistConstraint,
+    FixedConstraint,
 }
 
 function check (obj: any, type: ECheckType) {
@@ -400,7 +400,7 @@ function initColliderProxy () {
 
 const CREATE_CONSTRAINT_PROXY = { INITED: false };
 
-interface IEntireConstraint extends IPointToPointConstraint, IHingeConstraint, IConeTwistConstraint { }
+interface IEntireConstraint extends IPointToPointConstraint, IHingeConstraint, IConeTwistConstraint, IFixedConstraint { }
 const ENTIRE_CONSTRAINT: IEntireConstraint = {
     impl: null,
     initialize: FUNC,
@@ -413,6 +413,8 @@ const ENTIRE_CONSTRAINT: IEntireConstraint = {
     setPivotA: FUNC,
     setPivotB: FUNC,
     setAxis: FUNC,
+    setBreakForce: FUNC,
+    setBreakTorque: FUNC,
 };
 
 export function createConstraint (type: EConstraintType): IBaseConstraint {
@@ -437,5 +439,10 @@ function initConstraintProxy () {
     CREATE_CONSTRAINT_PROXY[EConstraintType.CONE_TWIST] = function createConeTwistConstraint (): IConeTwistConstraint {
         if (check(selector.wrapper.ConeTwistConstraint, ECheckType.ConeTwistConstraint)) { return ENTIRE_CONSTRAINT; }
         return new selector.wrapper.ConeTwistConstraint!();
+    };
+
+    CREATE_CONSTRAINT_PROXY[EConstraintType.FIXED] = function createFixedConstraint (): IFixedConstraint {
+        if (check(selector.wrapper.FixedConstraint, ECheckType.FixedConstraint)) { return ENTIRE_CONSTRAINT; }
+        return new selector.wrapper.FixedConstraint!();
     };
 }

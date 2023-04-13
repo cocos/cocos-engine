@@ -1,19 +1,18 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -28,18 +27,18 @@ import { ccclass, help, executeInEditMode, executionOrder, menu, requireComponen
 import { EDITOR, JSB, MINIGAME, RUNTIME_BASED } from 'internal:constants';
 import { UITransform } from '../../2d/framework';
 import { SpriteFrame } from '../../2d/assets/sprite-frame';
-import { Component } from '../../core/components/component';
-import { EventHandler as ComponentEventHandler } from '../../core/components/component-event-handler';
-import { Color, Size, Vec3 } from '../../core/math';
+import { Component } from '../../scene-graph/component';
+import { EventHandler as ComponentEventHandler } from '../../scene-graph/component-event-handler';
+import { Size } from '../../core/math';
 import { EventTouch } from '../../input/types';
-import { Node } from '../../core/scene-graph/node';
+import { Node } from '../../scene-graph/node';
 import { Label, VerticalTextAlignment } from '../../2d/components/label';
 import { Sprite } from '../../2d/components/sprite';
 import { EditBoxImpl } from './edit-box-impl';
 import { EditBoxImplBase } from './edit-box-impl-base';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
 import { legacyCC } from '../../core/global-exports';
-import { NodeEventType } from '../../core/scene-graph/node-event';
+import { NodeEventType } from '../../scene-graph/node-event';
 import { XrKeyboardEventType, XrUIPressEventType } from '../../xr/event/xr-event-handle';
 
 const LEFT_PADDING = 2;
@@ -125,10 +124,10 @@ export class EditBox extends Component {
 
     /**
      * @en
-     * The Label component attached to the node for EditBox's input text label
+     * The Label component attached to the node for EditBox's input text label.
      *
      * @zh
-     * 输入框输入文本节点上挂载的 Label 组件对象
+     * 输入框输入文本节点上挂载的 Label 组件对象。
      */
     @type(Label)
     @displayOrder(3)
@@ -303,10 +302,29 @@ export class EditBox extends Component {
         }
     }
 
+    /**
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     public static _EditBoxImpl = EditBoxImplBase;
+    /**
+     * @en Keyboard Return Type.
+     * @zh 键盘的返回键类型。
+     */
     public static KeyboardReturnType = KeyboardReturnType;
+    /**
+     * @en Defines some flag bits for setting text display and text formatting.
+     * @zh 定义了一些用于设置文本显示和文本格式化的标志位。
+     */
     public static InputFlag = InputFlag;
+    /**
+     * @en Input Mode.
+     * @zh 输入模式。
+     */
     public static InputMode = InputMode;
+    /**
+     * @en Keyboard event enumeration.
+     * @zh 键盘的事件枚举。
+     */
     public static EventType = EventType;
     /**
      * @en
@@ -352,7 +370,7 @@ export class EditBox extends Component {
      * The event handler to be called when return key is pressed. Windows is not supported.
      *
      * @zh
-     * 当用户按下回车按键时的事件回调，目前不支持 windows 平台
+     * 当用户按下回车按键时的事件回调，目前不支持 windows 平台。
      */
     @type([ComponentEventHandler])
     @serializable
@@ -427,7 +445,7 @@ export class EditBox extends Component {
     }
 
     /**
-     * @en Let the EditBox get focus
+     * @en Let the EditBox get focus.
      * @zh 让当前 EditBox 获得焦点。
      */
     public setFocus () {
@@ -437,8 +455,8 @@ export class EditBox extends Component {
     }
 
     /**
-     * @en Let the EditBox get focus
-     * @zh 让当前 EditBox 获得焦点
+     * @en Let the EditBox get focus.
+     * @zh 让当前 EditBox 获得焦点。
      */
     public focus () {
         if (this._impl) {
@@ -447,8 +465,8 @@ export class EditBox extends Component {
     }
 
     /**
-     * @en Let the EditBox lose focus
-     * @zh 让当前 EditBox 失去焦点
+     * @en Let the EditBox lose focus.
+     * @zh 让当前 EditBox 失去焦点。
      */
     public blur () {
         if (this._impl) {
@@ -478,10 +496,13 @@ export class EditBox extends Component {
 
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     * @param text content filtered by sensitive words.This parameter may be undefined.
+     * If relevant platform returns desensitized content, it will be passed to developer by EventType.EDITING_DID_ENDED.
+     * Now only ByteDance minigame platform
      */
-    public _editBoxEditingDidEnded () {
+    public _editBoxEditingDidEnded (text?: string) {
         ComponentEventHandler.emitEvents(this.editingDidEnded, this);
-        this.node.emit(EventType.EDITING_DID_ENDED, this);
+        this.node.emit(EventType.EDITING_DID_ENDED, this, text);
     }
 
     /**
@@ -496,10 +517,13 @@ export class EditBox extends Component {
 
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     * @param text content filtered by sensitive words.This parameter may be undefined.
+     * If relevant platform returns desensitized content, it will be passed to developer by EventType.EDITING_RETURN.
+     * Now only ByteDance minigame platform
      */
-    public _editBoxEditingReturn () {
+    public _editBoxEditingReturn (text?: string) {
         ComponentEventHandler.emitEvents(this.editingReturn, this);
-        this.node.emit(EventType.EDITING_RETURN, this);
+        this.node.emit(EventType.EDITING_RETURN, this, text);
     }
 
     /**
@@ -584,10 +608,6 @@ export class EditBox extends Component {
             this._textLabel = textLabel;
         }
 
-        // update
-        const transformComp = this._textLabel!.node._uiProps.uiTransformComp;
-        transformComp!.setAnchorPoint(0, 1);
-        textLabel.overflow = Label.Overflow.CLAMP;
         if (this._inputMode === InputMode.ANY) {
             textLabel.verticalAlign = VerticalTextAlignment.TOP;
             textLabel.enableWrapText = true;
@@ -615,9 +635,6 @@ export class EditBox extends Component {
             this._placeholderLabel = placeholderLabel;
         }
 
-        // update
-        const transform = this._placeholderLabel!.node._uiProps.uiTransformComp;
-        transform!.setAnchorPoint(0, 1);
         if (this._inputMode === InputMode.ANY) {
             placeholderLabel.enableWrapText = true;
         } else {
@@ -768,11 +785,11 @@ export class EditBox extends Component {
         this._syncSize();
     }
 
-    protected _xrUnClick() {
+    protected _xrUnClick () {
         this.node.emit(EventType.XR_EDITING_DID_BEGAN, this._maxLength, this.string);
     }
 
-    protected _xrKeyBoardInput(str: string) {
+    protected _xrKeyBoardInput (str: string) {
         this.string = str;
     }
 }
@@ -782,46 +799,6 @@ export class EditBox extends Component {
 if (typeof window === 'object' && typeof document === 'object' && !MINIGAME && !JSB && !RUNTIME_BASED) {
     EditBox._EditBoxImpl = EditBoxImpl;
 }
-
-/**
- * @en
- * Note: This event is emitted from the node to which the component belongs.
- * @zh
- * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
- * @event editing-did-began
- * @param {Event.EventCustom} event
- * @param {EditBox} editbox - The EditBox component.
- */
-
-/**
- * @en
- * Note: This event is emitted from the node to which the component belongs.
- * @zh
- * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
- * @event editing-did-ended
- * @param {Event.EventCustom} event
- * @param {EditBox} editbox - The EditBox component.
- */
-
-/**
- * @en
- * Note: This event is emitted from the node to which the component belongs.
- * @zh
- * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
- * @event text-changed
- * @param {Event.EventCustom} event
- * @param {EditBox} editbox - The EditBox component.
- */
-
-/**
- * @en
- * Note: This event is emitted from the node to which the component belongs.
- * @zh
- * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
- * @event editing-return
- * @param {Event.EventCustom} event
- * @param {EditBox} editbox - The EditBox component.
- */
 
 /**
  * @en if you don't need the EditBox and it isn't in any running Scene, you should

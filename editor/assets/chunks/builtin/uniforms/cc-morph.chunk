@@ -10,15 +10,15 @@ layout(set = 2, binding = 4) uniform CCMorph {
 
 #if CC_MORPH_TARGET_HAS_POSITION
   #pragma builtin(local)
-  layout(set = 2, binding = 7) uniform sampler2D cc_PositionDisplacements;
+  layout(set = 2, binding = 8) uniform sampler2D cc_PositionDisplacements;
 #endif
 
 #if CC_MORPH_TARGET_HAS_NORMAL
   #pragma builtin(local)
-  layout(set = 2, binding = 8) uniform sampler2D cc_NormalDisplacements;
+  layout(set = 2, binding = 9) uniform sampler2D cc_NormalDisplacements;
 #endif
 
 #if CC_MORPH_TARGET_HAS_TANGENT
   #pragma builtin(local)
-  layout(set = 2, binding = 9) uniform sampler2D cc_TangentDisplacements;
+  layout(set = 2, binding = 10) uniform sampler2D cc_TangentDisplacements;
 #endif

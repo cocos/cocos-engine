@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { Quat, Vec3 } from '../../../core';
 import cylinder from '../../../primitive/cylinder';
@@ -67,7 +66,7 @@ export class PhysXCylinderShape extends PhysXShape implements ICylinderShape {
         meshScale.setScale(Vec3.ONE);
         meshScale.setRotation(Quat.IDENTITY);
         const convexMesh = PhysXCylinderShape.CONVEX_MESH;
-        const pxmat = this.getSharedMaterial(collider.sharedMaterial!);
+        const pxmat = this.getSharedMaterial(collider.sharedMaterial);
         this.geometry = new PX.ConvexMeshGeometry(convexMesh, meshScale, createMeshGeometryFlags(0, true));
         this.updateGeometry();
         this._impl = physics.createShape(this.geometry, pxmat, true, this._flags);
@@ -86,8 +85,9 @@ export class PhysXCylinderShape extends PhysXShape implements ICylinderShape {
         const scale = _trans.translation;
         Vec3.copy(scale, collider.node.worldScale);
         scale.y *= Math.max(0.0001, h / 2);
-        const xz = Math.max(0.0001, r / 0.5);
-        scale.x *= xz; scale.z *= xz;
+        const radius = Math.max(0.0001, r / 0.5);
+        const xzMaxNorm = Math.max(scale.x, scale.z);
+        scale.x = scale.z = xzMaxNorm * radius;
         const quat = _trans.rotation;
         switch (a) {
         case EAxisDirection.X_AXIS:

@@ -3,6 +3,7 @@ name: <Native> Linux
 on:
   pull_request:
     paths:
+    - '.github/workflows/native-compile-linux.yml'
     - 'templates/**'
     - 'native/**'
 
@@ -23,19 +24,7 @@ jobs:
         shell: bash
         run: |
           EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
-          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external native/external
-      - uses: nttld/setup-ndk@v1
-        id: setup-ndk
-        with:
-          ndk-version: r21e
-          add-to-path: false
-      - name: Generate bindings
-        env:
-          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
-        run: |
-          python3 -m pip install PyYAML==5.4.1 Cheetah3
-          python3 ./native/tools/tojs/genbindings.py
-          rm ./native/tools/tojs/userconf.ini
+          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
       - name: Install dependencies
         run: |
           sudo apt install libx11-dev -y
@@ -57,6 +46,7 @@ jobs:
           echo "set(USE_WEBSOCKET_SERVER OFF)" >> build-linux/proj/cfg.cmake
           echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> build-linux/proj/cfg.cmake
           echo "set(USE_PHYSICS_PHYSX OFF)" >> build-linux/proj/cfg.cmake
+          echo "set(CC_EXECUTABLE_NAME \"\")" >> build-linux/proj/cfg.cmake
           mkdir build-linux/assets
 
           RES_DIR=$GITHUB_WORKSPACE/templates/linux/build-linux

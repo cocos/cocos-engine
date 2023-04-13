@@ -1,19 +1,18 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -25,7 +24,7 @@
 */
 
 import { Event } from './event';
-import { Vec2 } from '../../../core/math/vec2';
+import { Vec2 } from '../../../core';
 import { Touch } from '../touch';
 import { SystemEventTypeUnion } from '../event-enum';
 
@@ -55,6 +54,12 @@ export class EventTouch extends Event {
      * @zh 表示触摸事件是真实触点触发的还是模拟的
      */
     public simulate = false;
+
+    /**
+     * @en The unique ID of SystemWindow, which triggerd the event
+     * @zh 触发此事件的系统窗口 ID
+     */
+    public windowId = 0;
 
     /**
      * @en Set whether to prevent events from being swallowed by nodes, which is false by default.
@@ -241,5 +246,6 @@ export class EventTouch extends Event {
     }
 }
 
-// @ts-expect-error TODO
-Event.EventTouch = EventTouch;
+// TODO: this is an injected property, should be deprecated
+// issue: https://github.com/cocos/cocos-engine/issues/14643
+(Event as any).EventTouch = EventTouch;

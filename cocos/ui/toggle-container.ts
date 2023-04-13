@@ -1,19 +1,18 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -25,10 +24,10 @@
 */
 
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, type, serializable } from 'cc.decorator';
-import { Component, EventHandler as ComponentEventHandler } from '../core/components';
+import { Component, EventHandler as ComponentEventHandler } from '../scene-graph';
 import { Toggle } from './toggle';
 import { legacyCC } from '../core/global-exports';
-import { NodeEventType } from '../core/scene-graph/node-event';
+import { NodeEventType } from '../scene-graph/node-event';
 
 /**
  * @en
@@ -86,14 +85,14 @@ export class ToggleContainer extends Component {
      * @zh
      * 只读属性，返回 toggleContainer 管理的 toggle 数组引用。
      */
-    get toggleItems () {
+    get toggleItems (): Toggle[] {
         return this.node.children.map((item) => {
             const toggle = item.getComponent('cc.Toggle') as Toggle;
             if (toggle && toggle.enabled) {
                 return toggle;
             }
             return null;
-        }).filter(Boolean);
+        }).filter(Boolean) as Toggle[];
     }
 
     public onEnable () {
@@ -122,8 +121,8 @@ export class ToggleContainer extends Component {
      * @zh
      * 刷新管理的 toggle 状态。
      *
-     * @param toggle @en The toggle to be updated @zh 需要被更新的切换键
-     * @param emitEvent @en Whether events are needed to be emitted @zh 是否需要触发事件
+     * @param toggle @en The toggle to be updated. @zh 需要被更新的切换键。
+     * @param emitEvent @en Whether events are needed to be emitted. @zh 是否需要触发事件。
      */
     public notifyToggleCheck (toggle: Toggle, emitEvent = true) {
         if (!this.enabledInHierarchy) { return; }
@@ -145,6 +144,10 @@ export class ToggleContainer extends Component {
         }
     }
 
+    /**
+     * @en Ensure toggles state valid.
+     * @zh 确保 toggles 状态有效。
+     */
     public ensureValidState () {
         const toggles = this.toggleItems;
         if (!this._allowSwitchOff && !this.anyTogglesChecked() && toggles.length !== 0) {

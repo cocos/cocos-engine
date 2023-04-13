@@ -1,5 +1,5 @@
-import { Pipeline } from "../../cocos/core/asset-manager/pipeline";
-import Task from "../../cocos/core/asset-manager/task";
+import { Pipeline } from "../../cocos/asset/asset-manager/pipeline";
+import Task from "../../cocos/asset/asset-manager/task";
 
 describe('Pipeline', () => {
     const download = function (task, callback) {

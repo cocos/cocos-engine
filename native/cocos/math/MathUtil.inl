@@ -1,5 +1,7 @@
 /**
  Copyright 2013 BlackBerry Inc.
+ Copyright (c) 2014-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -180,14 +182,14 @@ inline void MathUtilC::transposeMatrix(const float* m, float* dst)
         m[2], m[6], m[10], m[14],
         m[3], m[7], m[11], m[15]
     };
-    memcpy(dst, t, MATRIX_SIZE);
-}
+    memcpy(dst, t, MATRIX_SIZE);}
 
 inline void MathUtilC::transformVec4(const float* m, float x, float y, float z, float w, float* dst)
 {
     dst[0] = x * m[0] + y * m[4] + z * m[8] + w * m[12];
     dst[1] = x * m[1] + y * m[5] + z * m[9] + w * m[13];
     dst[2] = x * m[2] + y * m[6] + z * m[10] + w * m[14];
+    dst[3] = x * m[3] + y * m[7] + z * m[11] + w * m[15];
 }
 
 inline void MathUtilC::transformVec4(const float* m, const float* v, float* dst)

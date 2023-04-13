@@ -1,1 +1,1 @@
-export * from '../cocos/core/animation';
+export * from '../cocos/animation';

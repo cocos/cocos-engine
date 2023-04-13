@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,19 +20,24 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
-import { instantiate } from '../core/data';
-import { CCObject } from '../core/data/object';
-import { Director, director } from '../core/director';
-import { Pool } from '../core/memop';
-import { Node } from '../core/scene-graph';
+import { instantiate } from '../serialization';
+import { CCObject, Pool } from '../core';
+import { Director, director } from '../game/director';
+import { Node } from '../scene-graph';
 import { ParticleSystem } from './particle-system';
+import CurveRange from './animator/curve-range';
+import GradientRange from './animator/gradient-range';
 
+/**
+ * @en Contains some util functions for particle system. Such as create and destroy particle system.
+ * @zh 该类包含一些粒子系统的工具函数，例如创建和销毁粒子系统。
+ */
 export class ParticleUtils {
     /**
-     * @en instantiate particle system from prefab
-     * @zh 从 prefab 实例化粒子系统
+     * @en Instantiate particle system from prefab.
+     * @zh 从 prefab 实例化粒子系统。
      */
     public static instantiate (prefab) {
         if (!this.registeredSceneEvent) {
@@ -47,6 +51,11 @@ export class ParticleUtils {
         return this.particleSystemPool.get(prefab._uuid)!.alloc();
     }
 
+    /**
+     * @en Destroy particle system prefab.
+     * @zh 销毁创建出来的粒子系统prefab。
+     * @param prefab @en Particle system prefab to destroy. @zh 要销毁的粒子系统prefab。
+     */
     public static destroy (prefab) {
         if (this.particleSystemPool.has(prefab._prefab.asset._uuid)) {
             this.stop(prefab);
@@ -54,17 +63,28 @@ export class ParticleUtils {
         }
     }
 
+    /**
+     * @en Play particle system.
+     * @zh 播放粒子系统。
+     * @param rootNode @en Root node contains the particle system. @zh 包含粒子系统的根节点。
+     */
     public static play (rootNode: Node) {
         for (const ps of rootNode.getComponentsInChildren(ParticleSystem)) {
             (ps).play();
         }
     }
 
+    /**
+     * @en Stop particle system.
+     * @zh 停止播放粒子系统。
+     * @param rootNode @en Root node contains the particle system. @zh 包含粒子系统的根节点。
+     */
     public static stop (rootNode: Node) {
         for (const ps of rootNode.getComponentsInChildren(ParticleSystem)) {
             (ps).stop();
         }
     }
+
     private static particleSystemPool: Map<string, Pool<CCObject>> = new Map<string, Pool<CCObject>>();
     private static registeredSceneEvent = false;
 

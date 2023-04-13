@@ -115,9 +115,9 @@ static bool __G_IS_MENUBAR_ENABLED__ = true;    // WTF
     std::stringstream buf;
     buf << "{\"data\":\"" << self.macMenuItem->getMenuId().c_str() << "\"";
     buf << ",\"name\":" << "\"menuClicked\"" << "}";
-    event.setDataString(buf.str());
-    event.args[0].ptrVal = (void*)self.macMenuItem;
-    cc::EventDispatcher::dispatchCustomEvent(event);
+    event.dataString = buf.str();
+    event.menuItem = (void*)self.macMenuItem;
+    SimulatorAppEvent::broadcast(event);
 }
 
 -(BOOL) validateMenuItem:(NSMenuItem *)menuItem

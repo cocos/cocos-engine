@@ -6,4 +6,4 @@ export {
     BufferBuilder,
     decodeCCONBinary,
     parseCCONJson,
-} from '../../cocos/core/data/ccon';
+} from '../../cocos/serialization/ccon';

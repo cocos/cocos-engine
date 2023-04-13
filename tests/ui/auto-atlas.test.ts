@@ -1,6 +1,6 @@
 import { Sprite, SpriteFrame } from '../../cocos/2d';
 import { dynamicAtlasManager } from '../../cocos/2d/utils/dynamic-atlas/atlas-manager';
-import { Texture2D } from '../../cocos/core';
+import { Texture2D } from '../../cocos/asset/assets';
 
 test('Pack to DynamicAtlas', function () {
 

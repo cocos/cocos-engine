@@ -11,6 +11,9 @@
     {}
   ],
   "_props": [
-    {}
+    {
+      "roughness": 0.8,
+      "metallic": 0.6
+    }
   ]
 }

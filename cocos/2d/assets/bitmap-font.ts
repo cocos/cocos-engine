@@ -1,19 +1,18 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -27,9 +26,7 @@
 import { ccclass, type, serializable, editable } from 'cc.decorator';
 import { Font } from './font';
 import { SpriteFrame } from './sprite-frame';
-import { legacyCC } from '../../core/global-exports';
-import { js } from '../../core/utils';
-import { warn } from '../../core/platform/debug';
+import { cclegacy, js, warn } from '../../core';
 
 export interface IConfig {
     [key: string]: any;
@@ -105,19 +102,22 @@ export class FontAtlas {
  */
 @ccclass('cc.BitmapFont')
 export class BitmapFont extends Font {
+    /**
+     * @deprecated since v3.7.0, Useless Code.
+     */
     @serializable
     @editable
     public fntDataStr = '';
 
     /**
-     * @en [[SpriteFrame]] of the bitmap font
+     * @en [[SpriteFrame]] of the bitmap font.
      * @zh 位图字体所使用的精灵。
      */
     @type(SpriteFrame)
     public spriteFrame: SpriteFrame | null = null;
 
     /**
-     * @en The font size
+     * @en The font size.
      * @zh 文字尺寸。
      */
     @serializable
@@ -125,13 +125,16 @@ export class BitmapFont extends Font {
     public fontSize = -1;
 
     /**
-     * @en Font configuration
+     * @en Font configuration.
      * @zh 字体配置。
      */
     @serializable
     @editable
     public fntConfig: IConfig | null = null;
 
+    /**
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     public declare fontDefDictionary: FontAtlas;
 
     onLoaded () {
@@ -166,4 +169,4 @@ export class BitmapFont extends Font {
     }
 }
 
-legacyCC.BitmapFont = BitmapFont;
+cclegacy.BitmapFont = BitmapFont;

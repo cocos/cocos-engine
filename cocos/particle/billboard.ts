@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,18 +20,17 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { ccclass, help, executeInEditMode, menu, tooltip, type, serializable } from 'cc.decorator';
-import { builtinResMgr } from '../core/builtin';
+import { builtinResMgr } from '../asset/asset-manager';
 import { createMesh } from '../3d/misc';
 import { Mesh } from '../3d/assets';
-import { Material, Texture2D } from '../core/assets';
-import { Component } from '../core/components/component';
-import { Attribute, AttributeName, Format, PrimitiveMode } from '../core/gfx';
-import { Color, toDegree, toRadian, Vec4 } from '../core/math';
-import { scene } from '../core/renderer';
-import { legacyCC } from '../core/global-exports';
+import { Material, Texture2D } from '../asset/assets';
+import { Component } from '../scene-graph/component';
+import { Attribute, AttributeName, Format, PrimitiveMode } from '../gfx';
+import { Color, toDegree, toRadian, Vec4, cclegacy } from '../core';
+import { scene } from '../render-scene';
 
 @ccclass('cc.Billboard')
 @help('i18n:cc.Billboard')
@@ -182,7 +180,7 @@ export class Billboard extends Component {
             ],
             indices: [0, 1, 2, 1, 2, 3],
         }, undefined, { calculateBounds: false });
-        const model = this._model = legacyCC.director.root.createModel(scene.Model, this.node);
+        const model = this._model = cclegacy.director.root.createModel(scene.Model, this.node);
         model.node = model.transform = this.node;
         if (this._material == null) {
             this._material = new Material();

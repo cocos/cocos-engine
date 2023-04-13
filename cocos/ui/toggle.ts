@@ -1,19 +1,18 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -26,7 +25,7 @@
 
 import { ccclass, help, requireComponent, executionOrder, menu, tooltip, displayOrder, type, serializable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { EventHandler as ComponentEventHandler } from '../core/components/component-event-handler';
+import { EventHandler as ComponentEventHandler } from '../scene-graph/component-event-handler';
 import { UITransform } from '../2d/framework';
 import { Sprite } from '../2d/components/sprite';
 import { ToggleContainer } from './toggle-container';
@@ -92,6 +91,9 @@ export class Toggle extends Button {
         this._checkMark = value;
     }
 
+    /**
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     set _resizeToTarget (value: boolean) {
         if (value) {
             this._resizeNodeToTargetNode();
@@ -109,6 +111,10 @@ export class Toggle extends Button {
         return null;
     }
 
+    /**
+     * @en Enum for toggle event.
+     * @zh toggle 事件枚举。
+     */
     public static EventType = extendsEnum(EventType, ButtonEventType);
 
     /**
@@ -150,7 +156,9 @@ export class Toggle extends Button {
         }
     }
 
-    //
+    /**
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     public playEffect () {
         if (this._checkMark) {
             this._checkMark.node.active = this._isChecked;
@@ -164,7 +172,7 @@ export class Toggle extends Button {
      * @zh
      * 设置 isChecked 而不调用 checkEvents 回调。
      *
-     * @param value @en Whether this toggle is pressed @zh 是否被按下
+     * @param value @en Whether this toggle is pressed. @zh 是否被按下。
      */
     public setIsCheckedWithoutNotify (value: boolean) {
         this._set(value, false);
@@ -185,13 +193,6 @@ export class Toggle extends Button {
         }
     }
 
-    public OnDestroy () {
-        const group = this._toggleContainer;
-        if (group) {
-            group.ensureValidState();
-        }
-    }
-
     protected _emitToggleEvents () {
         this.node.emit(Toggle.EventType.TOGGLE, this);
         if (this.checkEvents) {
@@ -207,8 +208,8 @@ export class Toggle extends Button {
  * @zh
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
  * @event toggle
- * @param event @en The event when toggle is pressed up or down @zh 切换键被按下或抬起时发送的事件
- * @param toggle @en The Toggle component @zh 切换键组件
+ * @param event @en The event when toggle is pressed up or down. @zh 切换键被按下或抬起时发送的事件。
+ * @param toggle @en The Toggle component. @zh 切换键组件。
  */
 
 legacyCC.Toggle = Toggle;

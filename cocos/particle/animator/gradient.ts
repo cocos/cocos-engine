@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,12 +20,9 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
-import { ccclass, serializable, editable } from 'cc.decorator';
-import { CCClass } from '../../core/data/class';
-import { Color, lerp, repeat } from '../../core/math';
-import { Enum } from '../../core/value-types';
+import { CCClass, Color, lerp, repeat, Enum } from '../../core';
 
 const Mode = Enum({
     Blend: 0,
@@ -76,7 +72,21 @@ CCClass.fastDefine('cc.AlphaKey', AlphaKey, {
 CCClass.Attr.setClassAttr(AlphaKey, 'alpha', 'visible', true);
 CCClass.Attr.setClassAttr(AlphaKey, 'time', 'visible', true);
 
+/**
+ * @en Gradient is a component that has a lot of color keys and alpha keys to get the interpolated color value.
+ * @zh 渐变曲线控件包含了颜色关键帧和透明度关键帧，在关键帧中进行插值渐变返回最终的颜色值。
+ */
 export default class Gradient {
+    /**
+     * @en
+     * There are 2 kind of mode:
+     * Blend just interpolate the nearest 2 colors from keys.
+     * Fixed get the nearest color from keys without interpolate.
+     * @zh
+     * 这个控件包含了两种取色模式：
+     * 混合模式对取到的最近两个颜色帧进行插值计算。
+     * 固定模式直接取最近的颜色帧返回，不进行插值。
+     */
     public static Mode = Mode;
     /**
      * @en Array of color key.
@@ -100,11 +110,21 @@ export default class Gradient {
         this._color = Color.WHITE.clone();
     }
 
+    /**
+     * @en Set color keys array and alpha keys array.
+     * @zh 设置颜色和透明度的关键帧列表。
+     * @param colorKeys @en Array of color keys @zh 颜色关键帧列表
+     * @param alphaKeys @en Array of alpha keys @zh 透明度关键帧列表
+     */
     public setKeys (colorKeys: ColorKey[], alphaKeys: AlphaKey[]) {
         this.colorKeys = colorKeys;
         this.alphaKeys = alphaKeys;
     }
 
+    /**
+     * @en Sort color keys and alpha keys.
+     * @zh 对颜色和透明度的关键帧进行排序。
+     */
     public sortKeys () {
         if (this.colorKeys.length > 1) {
             this.colorKeys.sort((a, b) => a.time - b.time);
@@ -114,12 +134,23 @@ export default class Gradient {
         }
     }
 
+    /**
+     * @en Interpolate color and alpha from color and alpha keys.
+     * @zh 根据颜色列表插值计算颜色和透明度。
+     * @param time @en Normalized time to interpolate. @zh 用于插值的归一化时间。
+     * @returns @en Interpolated color value. @zh 插值过后的颜色值。
+     */
     public evaluate (time: number) {
         this.getRGB(time);
         this._color._set_a_unsafe(this.getAlpha(time)!);
         return this._color;
     }
 
+    /**
+     * @en Generates a random color and alpha.
+     * @zh 随机生成颜色和透明度。
+     * @returns @en Randomized color. @zh 随机生成的颜色。
+     */
     public randomColor () {
         const c = this.colorKeys[Math.trunc(Math.random() * this.colorKeys.length)];
         const a = this.alphaKeys[Math.trunc(Math.random() * this.alphaKeys.length)];

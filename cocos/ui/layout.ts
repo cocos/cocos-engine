@@ -1,19 +1,18 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -24,16 +23,17 @@
  THE SOFTWARE.
 */
 
-import { ccclass, help, executeInEditMode, executionOrder, menu, requireComponent, tooltip, type, displayOrder, serializable, visible, displayName } from 'cc.decorator';
-import { Component } from '../core/components/component';
-import { Rect, Size, Vec2, Vec3 } from '../core/math';
+import { ccclass, help, executeInEditMode, executionOrder, menu, requireComponent, tooltip, type, displayOrder, serializable, visible } from 'cc.decorator';
+import { Component } from '../scene-graph/component';
+import { Size, Vec2, Vec3 } from '../core/math';
 import { ccenum } from '../core/value-types/enum';
 import { UITransform } from '../2d/framework/ui-transform';
-import { director, Director } from '../core/director';
-import { TransformBit } from '../core/scene-graph/node-enum';
-import { Node, warn } from '../core';
-import { NodeEventType } from '../core/scene-graph/node-event';
+import { director, Director } from '../game/director';
+import { TransformBit } from '../scene-graph/node-enum';
+import { warn } from '../core';
+import { NodeEventType } from '../scene-graph/node-event';
 import { legacyCC } from '../core/global-exports';
+import { Node } from '../scene-graph/node';
 
 /**
  * @en Layout type.
@@ -333,7 +333,7 @@ export class Layout extends Component {
     /**
      * @en
      * The start axis for grid layout. If you choose horizontal, then children will layout horizontally at first,
-     * and then break line on demand. Choose vertical if you want to layout vertically at first .
+     * and then break line on demand. Choose vertical if you want to layout vertically at first.
      *
      * @zh
      * 起始轴方向类型，可进行水平和垂直布局排列，只有布局类型为 GRID 的时候才有效。
@@ -608,11 +608,35 @@ export class Layout extends Component {
         this._doLayoutDirty();
     }
 
+    /**
+     * @en Layout type.
+     * @zh 布局类型。
+     */
     public static Type = Type;
+    /**
+     * @en Vertical layout direction.
+     * @zh 垂直方向布局方式。
+     */
     public static VerticalDirection = VerticalDirection;
+    /**
+     * @en Horizontal layout direction.
+     * @zh 水平方向布局方式。
+     */
     public static HorizontalDirection = HorizontalDirection;
+    /**
+     * @en Layout Resize Mode.
+     * @zh 缩放模式。
+     */
     public static ResizeMode = ResizeMode;
+    /**
+     * @en Grid Layout start axis direction.
+     * @zh 布局轴向，只用于 GRID 布局。
+     */
     public static AxisDirection = AxisDirection;
+    /**
+     * @en Layout constraint.
+     * @zh 布局约束。
+     */
     public static Constraint = Constraint;
 
     @serializable
@@ -660,7 +684,7 @@ export class Layout extends Component {
      *
      * @zh
      * 立即执行更新布局。
-     *
+     * @param force @en force update or not. @zh 是否强制更新。
      * @example
      * ```ts
      * import { Layout, log } from 'cc';
@@ -672,7 +696,7 @@ export class Layout extends Component {
      * ```
      */
     public updateLayout (force = false) {
-        if ((this._layoutDirty || force) && this.node.children.length > 0) {
+        if (this._layoutDirty || force) {
             this._doLayout();
             this._layoutDirty = false;
         }

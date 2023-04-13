@@ -1,5 +1,5 @@
 
-import { removeLinearKeys, removeTrivialKeys } from '../../cocos/core/animation/compression';
+import { removeLinearKeys, removeTrivialKeys } from '../../cocos/animation/compression';
 
 describe('Curve compression', () => {
     describe('Remove linear keys', () => {

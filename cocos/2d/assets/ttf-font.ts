@@ -1,19 +1,18 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -25,9 +24,8 @@
 */
 
 import { ccclass, string, override, serializable } from 'cc.decorator';
-import { extname } from '../../core/utils/path';
+import { path, cclegacy } from '../../core';
 import { Font } from './font';
-import { legacyCC } from '../../core/global-exports';
 
 /**
  * @en Class for TTFFont asset.
@@ -58,13 +56,19 @@ export class TTFFont extends Font {
      */
     @override
     get _nativeDep () {
-        return { uuid: this._uuid, __nativeName__: this._native, ext: extname(this._native), __isNative__: true };
+        return { uuid: this._uuid, __nativeName__: this._native, ext: path.extname(this._native), __isNative__: true };
     }
 
+    /**
+     * @en default init.
+     * @zh 默认初始化。
+     * @param uuid @en Asset uuid. @zh 资源 uuid。
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     public initDefault (uuid?: string) {
         this._fontFamily = 'Arial';
         super.initDefault(uuid);
     }
 }
 
-legacyCC.TTFFont = TTFFont;
+cclegacy.TTFFont = TTFFont;

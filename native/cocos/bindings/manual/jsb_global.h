@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -49,9 +48,22 @@ se::PrivateObjectBase *jsb_make_private_object(ARGS &&...args) { // NOLINT(reada
     }
 }
 
-#define JSB_MAKE_PRIVATE_OBJECT(kls, ...) jsb_make_private_object<kls>(__VA_ARGS__)
-#define JSB_ALLOC(kls, ...)               jsb_override_new<kls>(__VA_ARGS__)
-#define JSB_FREE(kls)                     jsb_override_delete(kls)
+template <typename T>
+typename std::enable_if<std::is_base_of<cc::RefCounted, T>::value, se::TypedPrivateObject<T> *>::type
+jsb_make_private_object_with_instance(T *instance) { // NOLINT(readability-identifier-naming)
+    return se::ccintrusive_ptr_private_object(instance);
+}
+
+template <typename T>
+typename std::enable_if<!std::is_base_of<cc::RefCounted, T>::value, se::TypedPrivateObject<T> *>::type
+jsb_make_private_object_with_instance(T *instance) { // NOLINT(readability-identifier-naming)
+    return se::shared_ptr_private_object(std::shared_ptr<T>(instance));
+}
+
+#define JSB_MAKE_PRIVATE_OBJECT(kls, ...)               jsb_make_private_object<kls>(__VA_ARGS__)
+#define JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(instance) jsb_make_private_object_with_instance(instance)
+#define JSB_ALLOC(kls, ...)                             jsb_override_new<kls>(__VA_ARGS__)
+#define JSB_FREE(kls)                                   jsb_override_delete(kls)
 namespace se {
 class Class;
 class Value;

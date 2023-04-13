@@ -12,7 +12,7 @@
     highp vec4 cc_jointAnimInfo; // frameID
   };
   #pragma builtin(local)
-  layout(set = 2, binding = 6) uniform highp sampler2D cc_jointTexture;
+  layout(set = 2, binding = 7) uniform highp sampler2D cc_jointTexture;
   /**
    * Although tempting, don't opt the offset arithmetics out to CPU (could
    * be reduced to a single MAD). The enlarged numerical range could require
@@ -33,7 +33,7 @@
 #else
   #if CC_USE_REAL_TIME_JOINT_TEXTURE
     #pragma builtin(local)
-    layout(set = 2, binding = 6) uniform highp sampler2D cc_realtimeJoint;
+    layout(set = 2, binding = 7) uniform highp sampler2D cc_realtimeJoint;
   #else
     #pragma builtin(local)
     layout(set = 2, binding = 3) uniform CCSkinning {

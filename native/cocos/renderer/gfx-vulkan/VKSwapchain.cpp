@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -33,8 +32,9 @@
 #include "VKUtils.h"
 
 #include "application/ApplicationManager.h"
-#include "platform/interfaces/modules/IXRInterface.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
+#include "platform/interfaces/modules/ISystemWindowManager.h"
+#include "platform/interfaces/modules/IXRInterface.h"
 
 #if CC_SWAPPY_ENABLED
     #include "platform/android/AndroidPlatform.h"
@@ -137,7 +137,7 @@ void CCVKSwapchain::doInit(const SwapchainInfo &info) {
                     case VK_FORMAT_R8G8B8A8_UNORM: colorFmt = Format::RGBA8; break;
                     case VK_FORMAT_R8G8B8A8_SRGB: colorFmt = Format::SRGB8_A8; break;
                     case VK_FORMAT_R5G6B5_UNORM_PACK16: colorFmt = Format::R5G6B5; break;
-                    default: CC_ASSERT(false); break;
+                    default: CC_ABORT(); break;
                 }
             }
         }
@@ -231,25 +231,9 @@ void CCVKSwapchain::doInit(const SwapchainInfo &info) {
     initTexture(textureInfo, _depthStencilTexture);
 
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
-    auto *window = CC_CURRENT_ENGINE()->getInterface<cc::ISystemWindow>();
+    auto *window = CC_GET_SYSTEM_WINDOW(_windowId);
     auto viewSize = window->getViewSize();
-    checkSwapchainStatus(viewSize.x, viewSize.y);
-
-    // Android Game Frame Pacing:swappy
-    #if CC_SWAPPY_ENABLED
-    int32_t fps = cc::BasePlatform::getPlatform()->getFps();
-
-    uint64_t frameRefreshIntervalNS;
-    auto *platform = static_cast<AndroidPlatform *>(cc::BasePlatform::getPlatform());
-    SwappyVk_initAndGetRefreshCycleDuration(static_cast<JNIEnv *>(platform->getEnv()),
-                                            static_cast<jobject>(platform->getActivity()),
-                                            gpuContext->physicalDevice,
-                                            gpuDevice->vkDevice,
-                                            _gpuSwapchain->vkSwapchain,
-                                            &frameRefreshIntervalNS);
-    SwappyVk_setSwapIntervalNS(gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, fps ? 1000000000L / fps : frameRefreshIntervalNS);
-    SwappyVk_setWindow(gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, static_cast<ANativeWindow *>(info.windowHandle));
-    #endif
+    checkSwapchainStatus(viewSize.width, viewSize.height);
 #else
     checkSwapchainStatus();
 #endif
@@ -260,8 +244,8 @@ void CCVKSwapchain::doDestroy() {
 
     CCVKDevice::getInstance()->waitAllFences();
 
-    CC_SAFE_DESTROY(_depthStencilTexture)
-    CC_SAFE_DESTROY(_colorTexture)
+    _depthStencilTexture = nullptr;
+    _colorTexture = nullptr;
 
     auto *gpuDevice = CCVKDevice::getInstance()->gpuDevice();
     const auto *gpuContext = CCVKDevice::getInstance()->gpuContext();
@@ -274,7 +258,7 @@ void CCVKSwapchain::doDestroy() {
     }
 
     gpuDevice->swapchains.erase(_gpuSwapchain);
-    CC_SAFE_DELETE(_gpuSwapchain)
+    _gpuSwapchain = nullptr;
 }
 
 void CCVKSwapchain::doResize(uint32_t width, uint32_t height, SurfaceTransform /*transform*/) {
@@ -362,6 +346,7 @@ bool CCVKSwapchain::checkSwapchainStatus(uint32_t width, uint32_t height) {
         _gpuSwapchain->swapchainImages.resize(imageCount);
         VK_CHECK(vkGetSwapchainImagesKHR(gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, &imageCount, _gpuSwapchain->swapchainImages.data()));
     }
+    ++_generation;
 
     // should skip size check, since the old swapchain has already been destroyed
     static_cast<CCVKTexture *>(_colorTexture.get())->_info.width = 1;
@@ -411,19 +396,32 @@ bool CCVKSwapchain::checkSwapchainStatus(uint32_t width, uint32_t height) {
 
     _gpuSwapchain->lastPresentResult = VK_SUCCESS;
 
+    // Android Game Frame Pacing:swappy
+#if CC_SWAPPY_ENABLED
+
+    auto *gpuDevice = CCVKDevice::getInstance()->gpuDevice();
+    const auto *gpuContext = CCVKDevice::getInstance()->gpuContext();
+    int32_t fps = cc::BasePlatform::getPlatform()->getFps();
+
+    uint64_t frameRefreshIntervalNS;
+    auto *platform = static_cast<AndroidPlatform *>(cc::BasePlatform::getPlatform());
+    auto *window = CC_GET_SYSTEM_WINDOW(_windowId);
+    void *windowHandle = reinterpret_cast<void *>(window->getWindowHandle());
+    SwappyVk_initAndGetRefreshCycleDuration(static_cast<JNIEnv *>(platform->getEnv()),
+                                            static_cast<jobject>(platform->getActivity()),
+                                            gpuContext->physicalDevice,
+                                            gpuDevice->vkDevice,
+                                            _gpuSwapchain->vkSwapchain,
+                                            &frameRefreshIntervalNS);
+    SwappyVk_setSwapIntervalNS(gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, fps ? 1000000000L / fps : frameRefreshIntervalNS);
+    SwappyVk_setWindow(gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, static_cast<ANativeWindow *>(windowHandle));
+#endif
+
     return true;
 }
 
 void CCVKSwapchain::destroySwapchain(CCVKGPUDevice *gpuDevice) {
     if (_gpuSwapchain->vkSwapchain != VK_NULL_HANDLE) {
-        for (auto &it : _gpuSwapchain->vkSwapchainFramebufferListMap) {
-            FramebufferList &list = it.second;
-            for (VkFramebuffer framebuffer : list) {
-                vkDestroyFramebuffer(gpuDevice->vkDevice, framebuffer, nullptr);
-            }
-            list.clear();
-        }
-
         _gpuSwapchain->swapchainImages.clear();
 
 #if CC_SWAPPY_ENABLED
@@ -455,21 +453,17 @@ void CCVKSwapchain::doCreateSurface(void *windowHandle) { // NOLINT
     if (!_gpuSwapchain || _gpuSwapchain->vkSurface != VK_NULL_HANDLE) return;
     createVkSurface();
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
-    auto *window = CC_CURRENT_ENGINE()->getInterface<cc::ISystemWindow>();
+    auto *window = CC_GET_SYSTEM_WINDOW(_windowId);
     auto viewSize = window->getViewSize();
-    checkSwapchainStatus(viewSize.x, viewSize.y);
+    checkSwapchainStatus(viewSize.width, viewSize.height);
 #else
     checkSwapchainStatus();
-#endif
-#if CC_SWAPPY_ENABLED
-    auto *gpuDevice = CCVKDevice::getInstance()->gpuDevice();
-    SwappyVk_setWindow(gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, static_cast<ANativeWindow *>(windowHandle));
 #endif
 }
 
 void CCVKSwapchain::createVkSurface() {
     if (_xr) {
-	    // xr do not need VkSurface
+        // xr do not need VkSurface
         _gpuSwapchain->vkSurface = VK_NULL_HANDLE;
         return;
     }

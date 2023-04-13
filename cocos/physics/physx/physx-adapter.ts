@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 /* eslint-disable import/no-mutable-exports */
 /* eslint-disable no-console */
@@ -33,20 +32,19 @@
 
 import { PhysX } from './physx.asmjs';
 import { BYTEDANCE, DEBUG, EDITOR, TEST } from 'internal:constants';
-import { Director, director, game, IQuatLike, IVec3Like, Node, Quat, RecyclePool, Vec3 } from '../../core';
+import { IQuatLike, IVec3Like, Quat, RecyclePool, Vec3, cclegacy, geometry, Settings, settings } from '../../core';
 import { shrinkPositions } from '../utils/util';
-import { legacyCC } from '../../core/global-exports';
-import { AABB, Ray } from '../../core/geometry';
 import { IRaycastOptions } from '../spec/i-physics-world';
 import { IPhysicsConfig, PhysicsRayResult, PhysicsSystem } from '../framework';
 import { PhysXWorld } from './physx-world';
 import { PhysXInstance } from './physx-instance';
 import { PhysXShape } from './shapes/physx-shape';
 import { PxHitFlag, PxPairFlag, PxQueryFlag, EFilterDataWord3 } from './physx-enum';
-import { Settings, settings } from '../../core/settings';
+import { Node } from '../../scene-graph';
+import { Director, director, game } from '../../game';
 
 export const PX = {} as any;
-const globalThis = legacyCC._global;
+const globalThis = cclegacy._global;
 // Use bytedance native or js physics if nativePhysX is not null.
 const USE_BYTEDANCE = BYTEDANCE && globalThis.nativePhysX;
 const USE_EXTERNAL_PHYSX = !!globalThis.PHYSX;
@@ -112,7 +110,8 @@ function initAdaptWrapper (obj: any) {
     obj.TriangleMeshGeometry = obj.PxTriangleMeshGeometry;
     obj.RigidDynamicLockFlag = obj.PxRigidDynamicLockFlag;
     obj.createRevoluteJoint = (a: any, b: any, c: any, d: any): any => obj.PxRevoluteJointCreate(PX.physics, a, b, c, d);
-    obj.createDistanceJoint = (a: any, b: any, c: any, d: any): any => obj.PxDistanceJointCreate(PX.physics, a, b, c, d);
+    obj.createFixedConstraint = (a: any, b: any, c: any, d: any): any => obj.PxFixedJointCreate(PX.physics, a, b, c, d);
+    obj.createSphericalJoint = (a: any, b: any, c: any, d: any): any => obj.PxSphericalJointCreate(PX.physics, a, b, c, d);
 }
 
 const _v3: IVec3Like = { x: 0, y: 0, z: 0 };
@@ -276,13 +275,13 @@ export function getShapeFlags (isTrigger: boolean): any {
     return new PX.PxShapeFlags(flag);
 }
 
-export function getShapeWorldBounds (shape: any, actor: any, i = 1.01, out: AABB) {
+export function getShapeWorldBounds (shape: any, actor: any, i = 1.01, out: geometry.AABB) {
     if (USE_BYTEDANCE) {
         const b3 = PX.RigidActorExt.getWorldBounds(shape, actor, i);
-        AABB.fromPoints(out, b3.minimum, b3.maximum);
+        geometry.AABB.fromPoints(out, b3.minimum, b3.maximum);
     } else {
         const b3 = shape.getWorldBounds(actor, i);
-        AABB.fromPoints(out, b3.minimum, b3.maximum);
+        geometry.AABB.fromPoints(out, b3.minimum, b3.maximum);
     }
 }
 
@@ -466,7 +465,7 @@ export function simulateScene (scene: any, deltaTime: number) {
     }
 }
 
-export function raycastAll (world: PhysXWorld, worldRay: Ray, options: IRaycastOptions,
+export function raycastAll (world: PhysXWorld, worldRay: geometry.Ray, options: IRaycastOptions,
     pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
     const maxDistance = options.maxDistance;
     const flags = PxHitFlag.ePOSITION | PxHitFlag.eNORMAL;
@@ -518,7 +517,7 @@ export function raycastAll (world: PhysXWorld, worldRay: Ray, options: IRaycastO
     return false;
 }
 
-export function raycastClosest (world: PhysXWorld, worldRay: Ray, options: IRaycastOptions, result: PhysicsRayResult): boolean {
+export function raycastClosest (world: PhysXWorld, worldRay: geometry.Ray, options: IRaycastOptions, result: PhysicsRayResult): boolean {
     const maxDistance = options.maxDistance;
     const flags = PxHitFlag.ePOSITION | PxHitFlag.eNORMAL;
     const word3 = EFilterDataWord3.QUERY_FILTER | (options.queryTrigger ? 0 : EFilterDataWord3.QUERY_CHECK_TRIGGER)
@@ -776,8 +775,8 @@ function hackForMultiThread () {
                 const yieldTime = performance.now() - sys._mutiThreadYield;
                 sys.physicsWorld.syncPhysicsToScene();
                 sys.physicsWorld.emitEvents();
-                if (legacyCC.profiler && legacyCC.profiler._stats) {
-                    legacyCC.profiler._stats.physics.counter._time += yieldTime;
+                if (cclegacy.profiler && cclegacy.profiler._stats) {
+                    cclegacy.profiler._stats.physics.counter._time += yieldTime;
                 }
                 director.emit(Director.EVENT_AFTER_PHYSICS);
             }

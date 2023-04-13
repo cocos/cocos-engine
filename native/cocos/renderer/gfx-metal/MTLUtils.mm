@@ -52,7 +52,7 @@ EShLanguage getShaderStage(ShaderStageFlagBit type) {
         case ShaderStageFlagBit::FRAGMENT: return EShLangFragment;
         case ShaderStageFlagBit::COMPUTE: return EShLangCompute;
         default: {
-            CC_ASSERT(false);
+            CC_ABORT();
             return EShLangVertex;
         }
     }
@@ -64,7 +64,7 @@ glslang::EShTargetClientVersion getClientVersion(int vulkanMinorVersion) {
         case 1: return glslang::EShTargetVulkan_1_1;
         case 2: return glslang::EShTargetVulkan_1_2;
         default: {
-            CC_ASSERT(false);
+            CC_ABORT();
             return glslang::EShTargetVulkan_1_0;
         }
     }
@@ -76,7 +76,7 @@ glslang::EShTargetLanguageVersion getTargetVersion(int vulkanMinorVersion) {
         case 1: return glslang::EShTargetSpv_1_3;
         case 2: return glslang::EShTargetSpv_1_5;
         default: {
-            CC_ASSERT(false);
+            CC_ABORT();
             return glslang::EShTargetSpv_1_0;
         }
     }
@@ -404,9 +404,9 @@ CCMTLGPUPipelineState *getClearRenderPassPipelineState(CCMTLDevice *device, Rend
     pipelineInfo.renderPass = curPass;
 
     DepthStencilState dsState;
-    dsState.depthWrite = 0;
-    dsState.depthTest = 1;
-    dsState.depthFunc = ComparisonFunc::LESS_EQUAL;
+    dsState.depthWrite = curPass->getDepthStencilAttachment().format != Format::UNKNOWN;
+    dsState.depthTest = 0;
+    dsState.depthFunc = ComparisonFunc::ALWAYS;
     pipelineInfo.depthStencilState = dsState;
 
     PipelineState *pipelineState = device->createPipelineState(std::move(pipelineInfo));
@@ -808,7 +808,7 @@ MTLPrimitiveType mu::toMTLPrimitiveType(PrimitiveMode mode) {
         }
         default: {
             //TODO: how to support these mode?
-            CC_ASSERT(false);
+            CC_ABORT();
             return MTLPrimitiveTypeTriangle;
         }
     }
@@ -953,6 +953,8 @@ ccstd::string mu::spirv2MSL(const uint32_t *ir, size_t word_count,
 #endif
     options.emulate_subgroups = true;
     options.pad_fragment_output_components = true;
+    // fully support
+    options.set_msl_version(2, 0, 0);
     if (isFramebufferFetchSupported()) {
         options.use_framebuffer_fetch_subpasses = true;
 #if (CC_PLATFORM == CC_PLATFORM_MACOS)
@@ -1746,8 +1748,7 @@ void mu::clearRenderArea(CCMTLDevice *device, id<MTLRenderCommandEncoder> render
 
     const auto &colorAttachments = renderPass->getColorAttachments();
     const auto &depthStencilAttachment = renderPass->getDepthStencilAttachment();
-
-    [renderEncoder setViewport:(MTLViewport){0, 0, renderTargetWidth, renderTargetHeight}];
+    [renderEncoder setViewport:(MTLViewport){0, 0, renderTargetWidth, renderTargetHeight, 0, 1}];
     MTLScissorRect scissorArea = {static_cast<NSUInteger>(renderArea.x), static_cast<NSUInteger>(renderArea.y), static_cast<NSUInteger>(renderArea.width), static_cast<NSUInteger>(renderArea.height)};
 #if defined(CC_DEBUG) && (CC_DEBUG > 0)
     scissorArea.width = MIN(scissorArea.width, renderTargetWidth - scissorArea.x);

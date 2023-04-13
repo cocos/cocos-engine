@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -97,8 +96,7 @@ Sphere *Sphere::mergeAABB(Sphere *out, const Sphere &s, const AABB &a) {
     return out;
 }
 
-Sphere::Sphere(float cx, float cy, float cz, float radius) {
-    setType(ShapeEnum::SHAPE_SPHERE);
+Sphere::Sphere(float cx, float cy, float cz, float radius) : ShapeBase(ShapeEnum::SHAPE_SPHERE) {
     _center = {cx, cy, cz};
     _radius = radius;
 }
@@ -118,27 +116,27 @@ void Sphere::transform(const Mat4 &m,
     out->_radius = _radius * mathutils::maxComponent(scale);
 }
 
-int Sphere::interset(const Plane &plane) const {
+int Sphere::intersect(const Plane &plane) const {
     const float dot = plane.n.dot(_center);
     const float r = _radius * plane.n.length();
     if (dot + r < plane.d) {
-        return -1;
+        return -1; // Sphere is on the back of the plane
     }
 
     if (dot - r > plane.d) {
-        return 0;
+        return 0; // Sphere is on the front of the plane
     }
 
-    return 1;
+    return 1; // intersect
 }
 
-bool Sphere::interset(const Frustum &frustum) const {
+bool Sphere::intersect(const Frustum &frustum) const {
     const auto &planes = frustum.planes;
     const auto *self = this;
     return std::all_of(planes.begin(),
                        planes.end(),
                        // frustum plane normal points to the inside
-                       [self](const Plane *plane) { return self->interset(*plane) != -1; });
+                       [self](const Plane *plane) { return self->intersect(*plane) != -1; });
 }
 
 void Sphere::mergePoint(const Vec3 &point) {
@@ -185,25 +183,12 @@ void Sphere::mergeAABB(const AABB *aabb) {
     mergePoint(maxPos);
 }
 
-int Sphere::spherePlane(const Plane &plane) {
-    const auto dot = cc::Vec3::dot(plane.n, _center);
-    const auto r = _radius * plane.n.length();
-    if (dot + r < plane.d) {
-        return -1;
-    }
-    if (dot - r > plane.d) {
-        return 0;
-    }
-    return 1;
+int Sphere::spherePlane(const Plane &plane) const {
+    return intersect(plane);
 }
 
 bool Sphere::sphereFrustum(const Frustum &frustum) const {
-    const auto &planes = frustum.planes;
-    const auto *self = this;
-    return std::all_of(planes.begin(),
-                       planes.end(),
-                       // frustum plane normal points to the inside
-                       [self](const Plane *plane) { return self->interset(*plane) != -1; });
+    return intersect(frustum);
 }
 
 void Sphere::mergeFrustum(const Frustum &frustum) {

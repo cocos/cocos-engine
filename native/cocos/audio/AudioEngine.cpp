@@ -1,19 +1,18 @@
 /****************************************************************************
  Copyright (c) 2014-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -35,7 +34,8 @@
 #include "base/std/container/queue.h"
 #include "platform/FileUtils.h"
 
-#if CC_PLATFORM == CC_PLATFORM_ANDROID
+#if CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OPENHARMONY
+    // OpenHarmony and Android use the same audio playback module
     #include "audio/android/AudioEngine-inl.h"
 #elif CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_MACOS
     #include "audio/apple/AudioEngine-inl.h"
@@ -70,8 +70,9 @@ ccstd::unordered_map<int, AudioEngine::AudioInfo> AudioEngine::sAudioIDInfoMap;
 AudioEngineImpl *AudioEngine::sAudioEngineImpl = nullptr;
 
 float AudioEngine::sVolumeFactor = 1.0F;
-uint32_t AudioEngine::sOnPauseListenerID = 0;
-uint32_t AudioEngine::sOnResumeListenerID = 0;
+events::EnterBackground::Listener AudioEngine::sOnPauseListenerID;
+events::EnterForeground::Listener AudioEngine::sOnResumeListenerID;
+
 ccstd::vector<int> AudioEngine::sBreakAudioID;
 
 AudioEngine::AudioEngineThreadPool *AudioEngine::sThreadPool = nullptr;
@@ -158,15 +159,8 @@ void AudioEngine::end() {
     delete sDefaultProfileHelper;
     sDefaultProfileHelper = nullptr;
 
-    if (sOnPauseListenerID != 0) {
-        EventDispatcher::removeCustomEventListener(EVENT_COME_TO_BACKGROUND, sOnPauseListenerID);
-        sOnPauseListenerID = 0;
-    }
-
-    if (sOnResumeListenerID != 0) {
-        EventDispatcher::removeCustomEventListener(EVENT_COME_TO_FOREGROUND, sOnResumeListenerID);
-        sOnResumeListenerID = 0;
-    }
+    sOnPauseListenerID.reset();
+    sOnResumeListenerID.reset();
 }
 
 bool AudioEngine::lazyInit() {
@@ -177,8 +171,8 @@ bool AudioEngine::lazyInit() {
             sAudioEngineImpl = nullptr;
             return false;
         }
-        sOnPauseListenerID = EventDispatcher::addCustomEventListener(EVENT_COME_TO_BACKGROUND, AudioEngine::onEnterBackground);
-        sOnResumeListenerID = EventDispatcher::addCustomEventListener(EVENT_COME_TO_FOREGROUND, AudioEngine::onEnterForeground);
+        sOnPauseListenerID.bind(&onEnterBackground);
+        sOnResumeListenerID.bind(&onEnterForeground);
     }
 
 #if (CC_PLATFORM != CC_PLATFORM_ANDROID)
@@ -333,7 +327,7 @@ void AudioEngine::resumeAll() {
     }
 }
 
-void AudioEngine::onEnterBackground(const CustomEvent & /*event*/) {
+void AudioEngine::onEnterBackground() {
     auto itEnd = sAudioIDInfoMap.end();
     for (auto it = sAudioIDInfoMap.begin(); it != itEnd; ++it) {
         if (it->second.state == AudioState::PLAYING) {
@@ -350,7 +344,7 @@ void AudioEngine::onEnterBackground(const CustomEvent & /*event*/) {
 #endif
 }
 
-void AudioEngine::onEnterForeground(const CustomEvent & /*event*/) {
+void AudioEngine::onEnterForeground() {
     auto itEnd = sBreakAudioID.end();
     for (auto it = sBreakAudioID.begin(); it != itEnd; ++it) {
         auto iter = sAudioIDInfoMap.find(*it);

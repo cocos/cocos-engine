@@ -1,14 +1,14 @@
 /*
- Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
@@ -23,14 +23,15 @@
 */
 
 import { ccclass, executeInEditMode, executionOrder, help, menu, serializable, type, visible } from 'cc.decorator';
-import { EDITOR } from 'internal:constants';
-import { builtinResMgr, Color, Material, ModelRenderer, Vec2 } from '../../core';
-import { legacyCC } from '../../core/global-exports';
-import { ModelLocalBindings } from '../../core/pipeline/define';
-import { Model } from '../../core/renderer/scene';
-import { Root } from '../../core/root';
-import { TransformBit } from '../../core/scene-graph/node-enum';
+import { builtinResMgr } from '../../asset/asset-manager';
+import { Material } from '../../asset/assets';
+import { Color, Vec2, cclegacy } from '../../core';
+import { ModelLocalBindings } from '../../rendering/define';
+import { Model } from '../../render-scene/scene';
+import { Root } from '../../root';
+import { TransformBit } from '../../scene-graph/node-enum';
 import { SpriteFrame } from '../assets/sprite-frame';
+import { ModelRenderer } from '../../misc';
 
 enum SpriteMode {
     SIMPLE = 0,
@@ -49,8 +50,8 @@ enum SpriteMode {
 @executeInEditMode
 export class SpriteRenderer extends ModelRenderer {
     /**
-    * @en The spriteFrame that the component should render
-    * @zh 该组件应渲染的 spriteFrame
+    * @en The spriteFrame that the component should render.
+    * @zh 该组件应渲染的 spriteFrame。
     */
     @type(SpriteFrame)
     get spriteFrame () {
@@ -77,8 +78,8 @@ export class SpriteRenderer extends ModelRenderer {
     }
 
     /**
-     * @en Rendering model of the component
-     * @zh 该组件的渲染模型
+     * @en Rendering model of the component.
+     * @zh 该组件的渲染模型。
      */
     get model () {
         return this._model;
@@ -132,7 +133,7 @@ export class SpriteRenderer extends ModelRenderer {
 
     public onDestroy () {
         if (this._model) {
-            legacyCC.director.root.destroyModel(this._model);
+            cclegacy.director.root.destroyModel(this._model);
             this._model = null;
             this._models.length = 0;
         }
@@ -161,7 +162,7 @@ export class SpriteRenderer extends ModelRenderer {
     }
 
     protected _createModel () {
-        const model = this._model = (legacyCC.director.root as Root).createModel<Model>(Model);
+        const model = this._model = (cclegacy.director.root as Root).createModel<Model>(Model);
         model.visFlags = this.visibility;
         model.node = model.transform = this.node;
         this._models.length = 0;
@@ -204,7 +205,10 @@ export class SpriteRenderer extends ModelRenderer {
         this._onRebuildPSO(idx, material || this._getBuiltinMaterial());
     }
 
-    protected _onRebuildPSO (idx: number, material: Material) {
+    /**
+     * @engineInternal
+     */
+    public _onRebuildPSO (idx: number, material: Material) {
         if (!this._model || !this._model.inited) { return; }
         this._model.setSubModelMaterial(idx, material);
         this._onUpdateLocalDescriptorSet();
@@ -239,7 +243,10 @@ export class SpriteRenderer extends ModelRenderer {
         renderScene.addModel(this._model);
     }
 
-    protected _detachFromScene () {
+    /**
+     * @engineInternal
+     */
+    public _detachFromScene () {
         if (this._model && this._model.scene) {
             this._model.scene.removeModel(this._model);
         }

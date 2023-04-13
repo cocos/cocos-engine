@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -43,11 +42,11 @@
 #include "GLES3Shader.h"
 #include "GLES3Swapchain.h"
 #include "GLES3Texture.h"
+#include "application/ApplicationManager.h"
+#include "platform/java/modules/XRInterface.h"
 #include "profiler/Profiler.h"
 #include "states/GLES3GeneralBarrier.h"
 #include "states/GLES3Sampler.h"
-#include "application/ApplicationManager.h"
-#include "platform/java/modules/XRInterface.h"
 
 // when capturing GLES commands (RENDERDOC_HOOK_EGL=1, default value)
 // renderdoc doesn't support this extension during replay
@@ -75,7 +74,7 @@ GLES3Device::~GLES3Device() {
 
 bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
     _xr = CC_GET_XR_INTERFACE();
-    if(_xr) _xr->preGFXDeviceInitialize(_api);
+    if (_xr) _xr->preGFXDeviceInitialize(_api);
     _gpuContext = ccnew GLES3GPUContext;
     _gpuStateCache = ccnew GLES3GPUStateCache;
     _gpuFramebufferHub = ccnew GLES3GPUFramebufferHub;
@@ -188,6 +187,8 @@ bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, reinterpret_cast<GLint *>(&_caps.maxTextureSize));
     glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE, reinterpret_cast<GLint *>(&_caps.maxCubeMapTextureSize));
     glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, reinterpret_cast<GLint *>(&_caps.uboOffsetAlignment));
+    glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, reinterpret_cast<GLint *>(&_caps.maxArrayTextureLayers));
+    glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE, reinterpret_cast<GLint *>(&_caps.max3DTextureSize));
 
     if (_gpuConstantRegistry->glMinorVersion) {
         glGetIntegerv(GL_MAX_IMAGE_UNITS, reinterpret_cast<GLint *>(&_caps.maxImageUnits));
@@ -256,7 +257,7 @@ void GLES3Device::acquire(Swapchain *const *swapchains, uint32_t count) {
     if (_onAcquire) _onAcquire->execute();
 
     _swapchains.clear();
-    if(_xr) {
+    if (_xr) {
         GLuint xrFramebuffer = 0;
 #if XR_OEM_HUAWEIVR
         stateCache()->glTextures[stateCache()->texUint] = 0;
@@ -288,7 +289,7 @@ void GLES3Device::present() {
 
     bool isGFXDeviceNeedsPresent = _xr ? _xr->isGFXDeviceNeedsPresent(_api) : true;
     for (auto *swapchain : _swapchains) {
-        if(isGFXDeviceNeedsPresent) _gpuContext->present(swapchain);
+        if (isGFXDeviceNeedsPresent) _gpuContext->present(swapchain);
     }
     if (_xr) _xr->postGFXDevicePresent(_api);
 

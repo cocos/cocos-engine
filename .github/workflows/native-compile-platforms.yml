@@ -23,26 +23,10 @@ jobs:
         shell: bash
         run: |
           EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
-          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external native/external
+          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
       - name: Install deps
         run: |
           choco install --forcex86 vulkan-sdk
-          python -m pip install PyYAML==5.4.1 Cheetah3
-      - uses: nttld/setup-ndk@v1
-        id: setup-ndk
-        with:
-          ndk-version: r21e
-          add-to-path: false
-      - name: Generate bindings
-        shell: bash
-        env:
-          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
-        run: |
-          python -V
-          cd ./native/tools/tojs
-          echo "Create auto-generated jsbinding glue codes."
-          python ./genbindings.py
-          rm userconf.ini
       - name: Compile win64
         shell: bash
         env:
@@ -60,6 +44,7 @@ jobs:
           echo "set(USE_DRAGONBONES OFF)" >> build-win64/proj/cfg.cmake
           echo "set(USE_WEBSOCKET_SERVER ON)" >> build-win64/proj/cfg.cmake
           echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> build-win64/proj/cfg.cmake
+          echo "set(CC_EXECUTABLE_NAME \"\")" >> build-win64/proj/cfg.cmake
           mkdir build-win64/assets
           cd build-win64
           RES_DIR=${GITHUB_WORKSPACE//\\//}/templates/windows/build-win64
@@ -79,19 +64,12 @@ jobs:
         shell: bash
         run: |
           EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
-          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external native/external
+          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
       - uses: nttld/setup-ndk@v1
         id: setup-ndk
         with:
           ndk-version: r21e
           add-to-path: false
-      - name: Generate bindings
-        env:
-          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
-        run: |
-          python3 -m pip install PyYAML==5.4.1 Cheetah3
-          python3 ./native/tools/tojs/genbindings.py
-          rm ./native/tools/tojs/userconf.ini
       - name: Compile
         env:
           COCOS_ENGINE_DEV: 1
@@ -110,6 +88,8 @@ jobs:
           mkdir -p build-android/proj
           touch build-android/proj/cfg.cmake
           echo "set(CI_FORCE_MINIMAL_FEATURES ON)" >> build-android/proj/cfg.cmake
+          echo "set(COCOS_X_PATH $NATIVE_ROOT)" >> build-android/proj/cfg.cmake
+          echo "set(CC_EXECUTABLE_NAME \"\")" >> build-android/proj/cfg.cmake
 
           mkdir -p build-android/assets
 
@@ -141,19 +121,12 @@ jobs:
         shell: bash
         run: |
           EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
-          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external native/external
+          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
       - uses: nttld/setup-ndk@v1
         id: setup-ndk
         with:
           ndk-version: r21e
           add-to-path: false
-      - name: Generate bindings
-        env:
-          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
-        run: |
-          python3 -m pip install PyYAML==5.4.1 Cheetah3
-          python3 ./native/tools/tojs/genbindings.py
-          rm ./native/tools/tojs/userconf.ini
       - name: Compile
         env:
           COCOS_ENGINE_DEV: 1
@@ -176,6 +149,8 @@ jobs:
           echo "set(CC_USE_GLES2 ON)" >> build-android/proj/cfg.cmake
           echo "set(USE_WEBSOCKET_SERVER ON)" >> build-android/proj/cfg.cmake
           echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> build-android/proj/cfg.cmake
+          echo "set(COCOS_X_PATH $NATIVE_ROOT)" >> build-android/proj/cfg.cmake
+          echo "set(CC_EXECUTABLE_NAME \"\")" >> build-android/proj/cfg.cmake
 
           mkdir -p build-android/assets
 
@@ -203,26 +178,12 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-        with:
-          python-version: "3.x"
       - name: Download external libraries
         shell: bash
         run: |
           EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
-          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external native/external
-      - uses: nttld/setup-ndk@v1
-        id: setup-ndk
-        with:
-          ndk-version: r21e
-          add-to-path: false
-      - name: Generate bindings
-        env:
-          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
-        run: |
-          python -m pip install PyYAML==5.4.1 Cheetah3
-          python ./native/tools/tojs/genbindings.py
-          rm ./native/tools/tojs/userconf.ini
+          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
+
       - name: Compile
         env:
           COCOS_ENGINE_DEV: 1
@@ -241,6 +202,7 @@ jobs:
           echo "set(CC_USE_METAL ON)" >> build-mac/proj/cfg.cmake
           echo "set(USE_WEBSOCKET_SERVER OFF)" >> build-mac/proj/cfg.cmake
           echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> build-mac/proj/cfg.cmake
+          echo "set(CC_EXECUTABLE_NAME \"\")" >> build-mac/proj/cfg.cmake
           mkdir build-mac/assets
 
           RES_DIR=$GITHUB_WORKSPACE/templates/mac/build-mac
@@ -265,26 +227,11 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-        with:
-          python-version: "3.x"
       - name: Download external libraries
         shell: bash
         run: |
           EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
-          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external native/external
-      - uses: nttld/setup-ndk@v1
-        id: setup-ndk
-        with:
-          ndk-version: r21e
-          add-to-path: false
-      - name: Generate bindings
-        env:
-          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
-        run: |
-          python -m pip install PyYAML==5.4.1 Cheetah3
-          python ./native/tools/tojs/genbindings.py
-          rm ./native/tools/tojs/userconf.ini
+          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
       - name: Compile
         env:
           COCOS_ENGINE_DEV: 1
@@ -301,6 +248,7 @@ jobs:
           echo "set(CC_USE_METAL ON)" >> build-mac/proj/cfg.cmake
           echo "set(USE_WEBSOCKET_SERVER OFF)" >> build-mac/proj/cfg.cmake
           echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> build-mac/proj/cfg.cmake
+          echo "set(CC_EXECUTABLE_NAME \"\")" >> build-mac/proj/cfg.cmake
           mkdir build-mac/assets
 
           RES_DIR=$GITHUB_WORKSPACE/templates/mac/build-mac
@@ -322,32 +270,17 @@ jobs:
     name: "iOS"
     if: 
       (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
-    runs-on: macos-latest
+    runs-on: macos-11
     steps:
       - uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: latest-stable
+          xcode-version: 12.4 
       - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-        with:
-          python-version: "3.x"
       - name: Download external libraries
         shell: bash
         run: |
           EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
-          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external native/external
-      - uses: nttld/setup-ndk@v1
-        id: setup-ndk
-        with:
-          ndk-version: r21e
-          add-to-path: false
-      - name: Generate bindings
-        env:
-          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
-        run: |
-          python -m pip install PyYAML==5.4.1  Cheetah3
-          python ./native/tools/tojs/genbindings.py
-          rm ./native/tools/tojs/userconf.ini
+          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
       - name: Compile
         env:
           COCOS_ENGINE_DEV: 1
@@ -365,11 +298,12 @@ jobs:
           echo "set(CC_USE_VULKAN OFF)" >> build-ios/proj/cfg.cmake
           echo "set(CC_USE_GLES2 OFF)" >> build-ios/proj/cfg.cmake
           echo "set(CC_USE_METAL ON)" >> build-ios/proj/cfg.cmake
-          echo "set(TARGET_IOS_VERSION 12.0)" >> build-ios/proj/cfg.cmake
+          echo "set(TARGET_IOS_VERSION 11.0)" >> build-ios/proj/cfg.cmake
           echo "set(USE_WEBSOCKET_SERVER OFF)" >> build-ios/proj/cfg.cmake
           echo "set(USE_DRAGONBONES OFF)" >> build-ios/proj/cfg.cmake
           echo "set(CMAKE_CXX_STANDARD_REQUIRED OFF)" >> build-ios/proj/cfg.cmake
           echo "set(MACOSX_BUNDLE_GUI_IDENTIFIER com.cocos.demo.ios)" >> build-ios/proj/cfg.cmake
+          echo "set(CC_EXECUTABLE_NAME \"\")" >> build-ios/proj/cfg.cmake
           mkdir build-ios/assets
           cd build-ios
           RES_DIR=$GITHUB_WORKSPACE/templates/ios/build-ios
@@ -401,7 +335,7 @@ jobs:
         shell: bash
         run: |
           EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
-          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external native/external
+          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
       - name: Setup Emscripten
         run: |
           NATIVE_ROOT=$GITHUB_WORKSPACE/native

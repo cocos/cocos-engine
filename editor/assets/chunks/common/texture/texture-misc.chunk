@@ -1,0 +1,24 @@
+
+// for exr data texture and sub resources
+vec3 SampleTextureExr(sampler2D exrRGBE, vec2 uv)
+{
+  vec3 data = unpackRGBE(texture(exrRGBE, uv));
+  return data;
+}
+
+vec3 SampleTextureExr(sampler2D exrRGBE, sampler2D exrSign, vec2 uv)
+{
+  vec3 data = unpackRGBE(texture(exrRGBE, uv));
+  vec4 signValue = sign(texture(exrSign, uv) - vec4(0.5));
+  return data * signValue.xyz;
+}
+
+vec4 SampleTextureExrWithAlpha(sampler2D exrRGBE, sampler2D exrSign, sampler2D exrAlpha, vec2 uv)
+{
+  vec3 data = unpackRGBE(texture(exrRGBE, uv));
+  vec4 alphaTex = texture(exrAlpha, uv);
+  float alpha = unpackRGBE(alphaTex).x;
+
+  vec4 signValue = sign(texture(exrSign, uv) - vec4(0.5));
+  return vec4(data, alpha) * signValue;
+}

@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,25 +20,34 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { ccclass, tooltip, displayOrder, range, type, serializable } from 'cc.decorator';
-import { pseudoRandom, Quat, Vec3 } from '../../core/math';
+import { pseudoRandom, Quat, Vec3 } from '../../core';
 import { Space, ModuleRandSeed } from '../enum';
-import { calculateTransform } from '../particle-general-function';
+import { calculateTransform, isCurveTwoValues } from '../particle-general-function';
 import CurveRange from './curve-range';
 
-import { ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
+import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
 
 const FORCE_OVERTIME_RAND_OFFSET = ModuleRandSeed.FORCE;
 
 const _temp_v3 = new Vec3();
 
+/**
+ * @en
+ * This module will apply force to particle over life time.
+ * Force on every axis is curve so you can modify these curves to see how it animate.
+ * @zh
+ * 本模块用于在粒子生命周期内对粒子施加外力。
+ * 每个轴上的受力大小都是可以用曲线来进行编辑，修改曲线就能够看到粒子受力变化的效果了。
+ */
 @ccclass('cc.ForceOvertimeModule')
 export default class ForceOvertimeModule extends ParticleModuleBase {
     @serializable
     _enable = false;
     /**
+     * @en Enable this module or not.
      * @zh 是否启用。
      */
     @displayOrder(0)
@@ -55,36 +63,37 @@ export default class ForceOvertimeModule extends ParticleModuleBase {
     }
 
     /**
+     * @en Force on the X axis.
      * @zh X 轴方向上的加速度分量。
      */
     @type(CurveRange)
     @serializable
-    @range([-1, 1])
     @displayOrder(2)
     @tooltip('i18n:forceOvertimeModule.x')
     public x = new CurveRange();
 
     /**
+     * @en Force on the Y axis.
      * @zh Y 轴方向上的加速度分量。
      */
     @type(CurveRange)
     @serializable
-    @range([-1, 1])
     @displayOrder(3)
     @tooltip('i18n:forceOvertimeModule.y')
     public y = new CurveRange();
 
     /**
+     * @en Force on the Z axis.
      * @zh Z 轴方向上的加速度分量。
      */
     @type(CurveRange)
     @serializable
-    @range([-1, 1])
     @displayOrder(4)
     @tooltip('i18n:forceOvertimeModule.z')
     public z = new CurveRange();
 
     /**
+     * @en Force calculation coordinate. See [[Space]].
      * @zh 加速度计算时采用的坐标系 [[Space]]。
      */
     @type(Space)
@@ -107,13 +116,34 @@ export default class ForceOvertimeModule extends ParticleModuleBase {
         this.needUpdate = true;
     }
 
+    /**
+     * @en Update force module calculate transform.
+     * @zh 更新模块，计算坐标变换。
+     * @param space @en Force module update space. @zh 模块更新空间。
+     * @param worldTransform @en Particle system world transform. @zh 粒子系统的世界变换矩阵。
+     * @internal
+     */
     public update (space, worldTransform) {
         this.needTransform = calculateTransform(space, this.space, worldTransform, this.rotation);
     }
 
-    public animate (p, dt) {
+    /**
+     * @en Apply force to particle.
+     * @zh 作用力到粒子上。
+     * @param p @en Particle to animate. @zh 模块需要更新的粒子。
+     * @param dt @en Update interval time. @zh 粒子系统更新的间隔时间。
+     * @internal
+     */
+    public animate (p: Particle, dt) {
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
-        const force = Vec3.set(_temp_v3, this.x.evaluate(normalizedTime, pseudoRandom(p.randomSeed + FORCE_OVERTIME_RAND_OFFSET))!, this.y.evaluate(normalizedTime, pseudoRandom(p.randomSeed + FORCE_OVERTIME_RAND_OFFSET))!, this.z.evaluate(normalizedTime, pseudoRandom(p.randomSeed + FORCE_OVERTIME_RAND_OFFSET))!);
+        const randX = isCurveTwoValues(this.x) ? pseudoRandom(p.randomSeed + FORCE_OVERTIME_RAND_OFFSET) : 0;
+        const randY = isCurveTwoValues(this.y) ? pseudoRandom(p.randomSeed + FORCE_OVERTIME_RAND_OFFSET) : 0;
+        const randZ = isCurveTwoValues(this.z) ? pseudoRandom(p.randomSeed + FORCE_OVERTIME_RAND_OFFSET) : 0;
+
+        const force = Vec3.set(_temp_v3,
+            this.x.evaluate(normalizedTime, randX)!,
+            this.y.evaluate(normalizedTime, randY)!,
+            this.z.evaluate(normalizedTime, randZ)!);
         if (this.needTransform) {
             Vec3.transformQuat(force, force, this.rotation);
         }

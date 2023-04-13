@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -25,18 +24,15 @@
 
 import { JSB } from 'internal:constants';
 import { SpriteFrame } from '../../assets';
-import { Texture2D } from '../../../core/assets';
+import { Texture2D } from '../../../asset/assets';
 import { fragmentText, safeMeasureText, getBaselineOffset, BASELINE_RATIO } from '../../utils/text-utils';
-import { Color, Size, Vec2, Rect } from '../../../core/math';
+import { Color, Size, Vec2, Rect, logID, cclegacy } from '../../../core';
 import { HorizontalTextAlignment, Label, LabelOutline, VerticalTextAlignment, LabelShadow } from '../../components';
 import { ISharedLabelData, LetterRenderTexture } from './font-utils';
-import { logID } from '../../../core/platform/debug';
 import { UITransform } from '../../framework/ui-transform';
-import { legacyCC } from '../../../core/global-exports';
-import { assetManager } from '../../../core/asset-manager';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
-import { BlendFactor } from '../../../core/gfx';
-import { WrapMode } from '../../../core/assets/asset-enum';
+import { BlendFactor } from '../../../gfx';
+import { WrapMode } from '../../../asset/assets/asset-enum';
 
 const Overflow = Label.Overflow;
 const MAX_SIZE = 2048;
@@ -283,8 +279,7 @@ export const ttfUtils =  {
             _context.fillRect(0, 0, _canvas.width, _canvas.height);
             // to keep the one model same as before
             // Todo: remove this protect when component remove blend function
-            // @ts-expect-error remove when component remove blend function
-        } else if (comp._srcBlendFactor === BlendFactor.SRC_ALPHA) {
+        } else if (comp.srcBlendFactor === BlendFactor.SRC_ALPHA) {
             _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${_invisibleAlpha})`;
             _context.fillRect(0, 0, _canvas.width, _canvas.height);
         }
@@ -342,11 +337,11 @@ export const ttfUtils =  {
                 if (comp.renderData) {
                     comp.renderData.textureDirty = true;
                 }
-                if (legacyCC.director.root && legacyCC.director.root.batcher2D) {
+                if (cclegacy.director.root && cclegacy.director.root.batcher2D) {
                     if (JSB) {
-                        legacyCC.director.root.batcher2D._releaseDescriptorSetCache(tex.getGFXTexture(), tex.getGFXSampler());
+                        cclegacy.director.root.batcher2D._releaseDescriptorSetCache(tex.getGFXTexture(), tex.getGFXSampler());
                     } else {
-                        legacyCC.director.root.batcher2D._releaseDescriptorSetCache(tex.getHash());
+                        cclegacy.director.root.batcher2D._releaseDescriptorSetCache(tex.getHash());
                     }
                 }
             }

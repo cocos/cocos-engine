@@ -31,6 +31,7 @@ interface EditorExtendsNode {
     clear(): any;
     getNode(uuid: string): any;
     getNodes(): {[uuid: string]: any};
+    emit(name: string, ...args: any): void;
 }
 
 interface EditorExtendsPrefabUtils {
@@ -51,6 +52,8 @@ interface EditorExtendsComponent {
 interface EditorExtendsAsset {
     queryAssetInfo(uuid: string, callback: Function): any;
     getAssetInfoFromUrl(url: string): EditorAssetInfo;
+    saveDataToImage(buffer: Uint8Array | null, width: number, height: number, sceneName: string, fileName: string): any;
+    bakeReflectionProbe(files: string[], isHDR: boolean, sceneName:string, probeID: number, callback: Function): any
 }
 
 interface EditorExtendsUuid {

@@ -1,3 +1,27 @@
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
 import { minigame } from 'pal/minigame';
 import { legacyCC } from '../../../cocos/core/global-exports';
 import { AudioLoadOptions, AudioType, AudioState, AudioPCMDataView } from '../type';
@@ -66,13 +90,13 @@ export class AudioPlayer {
         return new Promise((resolve, reject) => {
             if (typeof minigame.tt === 'object' && typeof minigame.tt.getAudioContext !== 'undefined') {
                 AudioPlayerWeb.loadOneShotAudio(url, volume).then((oneShotAudioWeb) => {
-                    // @ts-expect-error AudioPlayer should be a friend class in OneShotAudio
-                    resolve(new OneShotAudio(oneShotAudioWeb));
+                    // HACK: AudioPlayer should be a friend class in OneShotAudio
+                    resolve(new (OneShotAudio as any)(oneShotAudioWeb));
                 }).catch(reject);
             } else {
                 AudioPlayerMinigame.loadOneShotAudio(url, volume).then((oneShotAudioMinigame) => {
-                    // @ts-expect-error AudioPlayer should be a friend class in OneShotAudio
-                    resolve(new OneShotAudio(oneShotAudioMinigame));
+                    // HACK: AudioPlayer should be a friend class in OneShotAudio
+                    resolve(new (OneShotAudio as any)(oneShotAudioMinigame));
                 }).catch(reject);
             }
         });

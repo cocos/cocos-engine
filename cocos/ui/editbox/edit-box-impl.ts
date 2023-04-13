@@ -2,20 +2,19 @@
  Copyright (c) 2011-2012 cocos2d-x.org
  Copyright (c) 2012 James Chen
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -28,22 +27,21 @@
 
 import { screenAdapter } from 'pal/screen-adapter';
 import { BitmapFont } from '../../2d/assets';
-import { director } from '../../core/director';
-import { game } from '../../core/game';
-import { Color, Mat4, Size, Vec3 } from '../../core/math';
-import { view } from '../../core/platform';
+import { director } from '../../game/director';
+import { game } from '../../game';
+import { Mat4, Vec3, visibleRect, sys } from '../../core';
+import { view } from '../view';
 import { KeyCode } from '../../input/types';
 import { contains } from '../../core/utils/misc';
 import { Label } from '../../2d/components/label';
 import { EditBox } from './edit-box';
 import { tabIndexUtil } from './tabIndexUtil';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
-import { sys } from '../../core/platform/sys';
-import visibleRect from '../../core/platform/visible-rect';
-import { Node } from '../../core/scene-graph';
 import { EditBoxImplBase } from './edit-box-impl-base';
-import { legacyCC } from '../../core/global-exports';
 import { BrowserType, OS } from '../../../pal/system-info/enum-type';
+import { ccwindow } from '../../core/global-exports';
+
+const ccdocument = ccwindow.document;
 
 // https://segmentfault.com/q/1010000002914610
 const SCROLLY = 40;
@@ -173,18 +171,18 @@ export class EditBoxImpl extends EditBoxImplBase {
 
     private _createInput () {
         this._isTextArea = false;
-        this._edTxt = document.createElement('input');
+        this._edTxt = ccdocument.createElement('input');
     }
 
     private _createTextArea () {
         this._isTextArea = true;
-        this._edTxt = document.createElement('textarea');
+        this._edTxt = ccdocument.createElement('textarea');
     }
 
     private _addDomToGameContainer () {
         if (game.container && this._edTxt) {
             game.container.appendChild(this._edTxt);
-            document.head.appendChild(this._placeholderStyleSheet!);
+            ccdocument.head.appendChild(this._placeholderStyleSheet!);
         }
     }
 
@@ -193,9 +191,9 @@ export class EditBoxImpl extends EditBoxImplBase {
         if (hasElem && this._edTxt) {
             game.container!.removeChild(this._edTxt);
         }
-        const hasStyleSheet = contains(document.head, this._placeholderStyleSheet);
+        const hasStyleSheet = contains(ccdocument.head, this._placeholderStyleSheet);
         if (hasStyleSheet) {
-            document.head.removeChild(this._placeholderStyleSheet!);
+            ccdocument.head.removeChild(this._placeholderStyleSheet!);
         }
 
         this._edTxt = null;
@@ -245,7 +243,7 @@ export class EditBoxImpl extends EditBoxImplBase {
 
     private _adjustWindowScroll () {
         setTimeout(() => {
-            if (window.scrollY < SCROLLY) {
+            if (ccwindow.scrollY < SCROLLY) {
                 this._edTxt!.scrollIntoView({ block: 'start', inline: 'nearest', behavior: 'smooth' });
             }
         }, DELAY_TIME);
@@ -254,14 +252,14 @@ export class EditBoxImpl extends EditBoxImplBase {
     private _scrollBackWindow () {
         setTimeout(() => {
             if (sys.browserType === BrowserType.WECHAT && sys.os === OS.IOS) {
-                if (window.top) {
-                    window.top.scrollTo(0, 0);
+                if (ccwindow.top) {
+                    ccwindow.top.scrollTo(0, 0);
                 }
 
                 return;
             }
 
-            window.scrollTo(0, 0);
+            ccwindow.scrollTo(0, 0);
         }, DELAY_TIME);
     }
 
@@ -432,7 +430,7 @@ export class EditBoxImpl extends EditBoxImplBase {
             elem.style.overflowY = 'scroll';
         }
 
-        this._placeholderStyleSheet = document.createElement('style');
+        this._placeholderStyleSheet = ccdocument.createElement('style');
     }
 
     private _updateStyleSheet () {

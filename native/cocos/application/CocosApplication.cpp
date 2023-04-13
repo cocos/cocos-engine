@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -27,7 +26,7 @@
 
 #include "base/Macros.h"
 
-#include "cocos/bindings/event/CustomEventTypes.h"
+#include "ApplicationManager.h"
 #include "cocos/bindings/event/EventDispatcher.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_classtype.h"
@@ -35,13 +34,12 @@
 #include "cocos/bindings/manual/jsb_module_register.h"
 #include "cocos/engine/BaseEngine.h"
 #include "cocos/platform/interfaces/modules/IScreen.h"
+#include "cocos/platform/interfaces/modules/ISystemWindowManager.h"
 
 namespace cc {
 
 CocosApplication::CocosApplication() {
     _engine = BaseEngine::createEngine();
-    _systemWindow = _engine->getInterface<ISystemWindow>();
-    CC_ASSERT(_systemWindow != nullptr);
 }
 
 CocosApplication::~CocosApplication() {
@@ -50,10 +48,7 @@ CocosApplication::~CocosApplication() {
 
 void CocosApplication::unregisterAllEngineEvents() {
     if (_engine != nullptr) {
-        _engine->offAll(BaseEngine::ON_START);
-        _engine->offAll(BaseEngine::ON_RESUME);
-        _engine->offAll(BaseEngine::ON_PAUSE);
-        _engine->offAll(BaseEngine::ON_CLOSE);
+        _engine->off(_engineEvents);
     }
 }
 
@@ -63,18 +58,25 @@ int CocosApplication::init() {
     }
     unregisterAllEngineEvents();
 
-    _engine->on(BaseEngine::ON_START, [this]() {
-        this->onStart();
-    });
+    _systemWindow = CC_GET_MAIN_SYSTEM_WINDOW();
 
-    _engine->on(BaseEngine::ON_RESUME, [this]() {
-        this->onResume();
-    });
-    _engine->on(BaseEngine::ON_PAUSE, [this]() {
-        this->onPause();
-    });
-    _engine->on(BaseEngine::ON_CLOSE, [this]() {
-        this->onClose();
+    _engineEvents = _engine->on<BaseEngine::EngineStatusChange>([this](BaseEngine * /*emitter*/, BaseEngine::EngineStatus status) {
+        switch (status) {
+            case BaseEngine::ON_START:
+                this->onStart();
+                break;
+            case BaseEngine::ON_RESUME:
+                this->onResume();
+                break;
+            case BaseEngine::ON_PAUSE:
+                this->onPause();
+                break;
+            case BaseEngine::ON_CLOSE:
+                this->onClose();
+                break;
+            default:
+                CC_ABORT();
+        }
     });
 
     se::ScriptEngine *se = se::ScriptEngine::getInstance();
@@ -86,14 +88,19 @@ int CocosApplication::init() {
                   std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 
     jsb_register_all_modules();
-
+#if CC_EDITOR
+    auto isolate = v8::Isolate::GetCurrent();
+    se->start(isolate);
+#else
     se->start();
+#endif
 
 #if (CC_PLATFORM == CC_PLATFORM_IOS)
     auto logicSize = _systemWindow->getViewSize();
     IScreen *screen = _engine->getInterface<IScreen>();
     float pixelRatio = screen->getDevicePixelRatio();
-    cc::EventDispatcher::dispatchResizeEvent(logicSize.x * pixelRatio, logicSize.y * pixelRatio);
+    uint32_t windowId = _systemWindow->getWindowId();
+    events::Resize::broadcast(logicSize.width * pixelRatio, logicSize.height * pixelRatio, windowId);
 #endif
     return 0;
 }
@@ -122,6 +129,18 @@ void CocosApplication::close() {
 
 BaseEngine::Ptr CocosApplication::getEngine() const {
     return _engine;
+}
+
+const std::vector<std::string> &CocosApplication::getArguments() const {
+    return _argv;
+}
+
+void CocosApplication::setArgumentsInternal(int argc, const char *argv[]) {
+    _argv.clear();
+    _argv.reserve(argc);
+    for (int i = 0; i < argc; ++i) {
+        _argv.emplace_back(argv[i]);
+    }
 }
 
 void CocosApplication::onStart() {

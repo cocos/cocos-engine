@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -36,6 +35,8 @@ class Pass;
 class Light;
 class SpotLight;
 class SphereLight;
+class PointLight;
+class RangedDirectionalLight;
 } // namespace scene
 namespace pipeline {
 struct RenderObject;
@@ -55,7 +56,7 @@ struct AdditiveLightPass {
 class RenderAdditiveLightQueue final {
 public:
     explicit RenderAdditiveLightQueue(RenderPipeline *pipeline);
-    ~RenderAdditiveLightQueue();
+    ~RenderAdditiveLightQueue() = default;
 
     void recordCommandBuffer(gfx::Device *device, scene::Camera *camera, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer);
     void gatherLightPasses(const scene::Camera *camera, gfx::CommandBuffer *cmdBuffer);
@@ -63,7 +64,8 @@ public:
 private:
     static bool cullSphereLight(const scene::SphereLight *light, const scene::Model *model);
     static bool cullSpotLight(const scene::SpotLight *light, const scene::Model *model);
-    static bool isInstancedOrBatched(const scene::Model *model);
+    static bool cullPointLight(const scene::PointLight *light, const scene::Model *model);
+    static bool cullRangedDirLight(const scene::RangedDirectionalLight *light, const scene::Model *model);
 
     void clear();
     void addRenderQueue(scene::SubModel *subModel, const scene::Model *model, scene::Pass *pass, uint32_t lightPassIdx);
@@ -72,31 +74,38 @@ private:
     bool getLightPassIndex(const scene::Model *model, ccstd::vector<uint32_t> *lightPassIndices) const;
     void lightCulling(const scene::Model *model);
 
+    uint32_t _lightBufferStride{0};
+    uint32_t _lightBufferElementCount{0};
+    uint32_t _lightBufferCount{16};
+    uint32_t _phaseID{0};
+
     // weak reference
     RenderPipeline *_pipeline{nullptr};
-    ccstd::vector<ccstd::vector<uint32_t>> _sortedPSOCIArray;
-    // weak reference
-    ccstd::vector<const scene::Light *> _validPunctualLights;
-    ccstd::vector<uint32_t> _lightIndices;
-    ccstd::vector<AdditiveLightPass> _lightPasses;
-    AdditiveLightPass _instancedLightPass;
-    AdditiveLightPass _batchedLightPass;
-    ccstd::vector<uint32_t> _dynamicOffsets;
-    ccstd::vector<float> _lightBufferData;
-    // manage memory manually
-    RenderInstancedQueue *_instancedQueue{nullptr};
-    // manage memory manually
-    RenderBatchedQueue *_batchedQueue{nullptr};
+
     IntrusivePtr<gfx::Buffer> _lightBuffer;
     IntrusivePtr<gfx::Buffer> _firstLightBufferView;
 
+    float _lightMeterScale{10000.0F};
+
+    AdditiveLightPass _instancedLightPass;
+    AdditiveLightPass _batchedLightPass;
+
+    ccstd::vector<uint32_t> _dynamicOffsets;
+    ccstd::vector<uint32_t> _lightIndices;
+
+    ccstd::vector<float> _lightBufferData;
     ccstd::array<float, UBOShadow::COUNT> _shadowUBO{};
 
-    uint32_t _lightBufferStride = 0;
-    uint32_t _lightBufferElementCount = 0;
-    uint32_t _lightBufferCount = 16;
-    float _lightMeterScale = 10000.0F;
-    uint32_t _phaseID = 0;
+    // weak reference
+    ccstd::vector<const scene::Light *> _validPunctualLights;
+
+    ccstd::vector<IntrusivePtr<RenderInstancedQueue>> _instancedQueues;
+
+    ccstd::vector<IntrusivePtr<RenderBatchedQueue>> _batchedQueues;
+
+    ccstd::vector<AdditiveLightPass> _lightPasses;
+
+    ccstd::vector<ccstd::vector<uint32_t>> _sortedPSOCIArray;
 };
 
 } // namespace pipeline

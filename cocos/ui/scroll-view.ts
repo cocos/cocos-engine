@@ -1,19 +1,18 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -26,19 +25,19 @@
 
 import { ccclass, help, executionOrder, menu, requireComponent, tooltip, displayOrder, range, type, serializable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { EventHandler as ComponentEventHandler } from '../core/components/component-event-handler';
+import { EventHandler as ComponentEventHandler } from '../scene-graph/component-event-handler';
 import { UITransform } from '../2d/framework';
 import { Event, EventMouse, EventTouch, Touch, SystemEventType, EventHandle, EventGamepad } from '../input/types';
-import { logID } from '../core/platform/debug';
+import { errorID, logID } from '../core/platform/debug';
 import { Size, Vec2, Vec3 } from '../core/math';
 import { Layout } from './layout';
 import { ScrollBar } from './scroll-bar';
 import { ViewGroup } from './view-group';
-import { Node } from '../core/scene-graph/node';
-import { director, Director } from '../core/director';
-import { TransformBit } from '../core/scene-graph/node-enum';
+import { Node } from '../scene-graph/node';
+import { director, Director } from '../game/director';
+import { TransformBit } from '../scene-graph/node-enum';
 import { legacyCC } from '../core/global-exports';
-import { NodeEventType } from '../core/scene-graph/node-event';
+import { NodeEventType } from '../scene-graph/node-event';
 import { Input, input } from '../input/input';
 import { DeviceType, XrUIPressEvent, XrUIPressEventType } from '../xr/event/xr-event-handle';
 
@@ -83,7 +82,7 @@ const eventMap = {
  * Enum for ScrollView event type.
  *
  * @zh
- * 滚动视图事件类型
+ * 滚动视图事件类型。
  */
 export enum EventType {
     /**
@@ -315,6 +314,9 @@ export class ScrollView extends ViewGroup {
     @displayOrder(0)
     @tooltip('i18n:scrollview.horizontal_bar')
     get horizontalScrollBar () {
+        if (this._horizontalScrollBar && !this._horizontalScrollBar.isValid) {
+            errorID(4303, 'horizontal', this.node.name);
+        }
         return this._horizontalScrollBar;
     }
 
@@ -354,6 +356,9 @@ export class ScrollView extends ViewGroup {
     @displayOrder(1)
     @tooltip('i18n:scrollview.vertical_bar')
     get verticalScrollBar () {
+        if (this._verticalScrollBar && !this._verticalScrollBar.isValid) {
+            errorID(4303, 'vertical', this.node.name);
+        }
         return this._verticalScrollBar;
     }
 
@@ -397,6 +402,10 @@ export class ScrollView extends ViewGroup {
     @tooltip('i18n:scrollview.scrollEvents')
     public scrollEvents: ComponentEventHandler[] = [];
 
+    /**
+     * @en The display view in the scroll view component.
+     * @zh scroll view 组件中的显示区域。
+     */
     get view () {
         const parent = this._content && this._content.parent;
         if (!parent) {
@@ -444,7 +453,6 @@ export class ScrollView extends ViewGroup {
     protected _deltaPos = new Vec3();
 
     protected _hoverIn: XrhoverType = XrhoverType.NONE;
-    protected _scrollState = new Vec2(0, 0);
 
     /**
      * @en
@@ -485,7 +493,7 @@ export class ScrollView extends ViewGroup {
      *
      * @param timeInSecond
      * @en The rolling time(in seconds). If time is up, the content will slide to the bottom border. @zh 滚动时间（s）。 如果超时，内容将立即跳到底部边界。
-     * @param attenuated @en Whether the rolling acceleration is attenuated(The default is true) @zh 滚动加速是否衰减，默认为 true
+     * @param attenuated @en Whether the rolling acceleration is attenuated(The default is true). @zh 滚动加速是否衰减，默认为 true
      * @example
      * ```ts
      * // Scroll to the top of the view.
@@ -515,7 +523,7 @@ export class ScrollView extends ViewGroup {
      *
      * @param timeInSecond
      * @en The rolling time(in seconds). If time is up, the content will slide to the bottom border. @zh 滚动时间（s）。 如果超时，内容将立即跳到底部边界。
-     * @param attenuated @en Whether the rolling acceleration is attenuated(The default is true) @zh 滚动加速是否衰减，默认为 true
+     * @param attenuated @en Whether the rolling acceleration is attenuated(The default is true). @zh 滚动加速是否衰减，默认为 true。
      * @example
      * ```ts
      * // Scroll to the left of the view.
@@ -545,7 +553,7 @@ export class ScrollView extends ViewGroup {
      *
      * @param timeInSecond
      * @en The rolling time(in seconds). If time is up, the content will slide to the bottom border. @zh 滚动时间（s）。 如果超时，内容将立即跳到底部边界。
-     * @param attenuated @en Whether the rolling acceleration is attenuated(The default is true) @zh 滚动加速是否衰减，默认为 true
+     * @param attenuated @en Whether the rolling acceleration is attenuated(The default is true). @zh 滚动加速是否衰减，默认为 true。
      * @example
      * ```ts
      * // Scroll to the right of the view.
@@ -575,7 +583,7 @@ export class ScrollView extends ViewGroup {
      *
      * @param timeInSecond
      * @en The rolling time(in seconds). If time is up, the content will slide to the bottom border. @zh 滚动时间（s）。 如果超时，内容将立即跳到底部边界。
-     * @param attenuated @en Whether the rolling acceleration is attenuated(The default is true) @zh 滚动加速是否衰减，默认为 true
+     * @param attenuated @en Whether the rolling acceleration is attenuated(The default is true). @zh 滚动加速是否衰减，默认为 true。
      * @example
      * ```ts
      * // Scroll to the upper left corner of the view.
@@ -605,7 +613,7 @@ export class ScrollView extends ViewGroup {
      *
      * @param timeInSecond
      * @en The rolling time(in seconds). If time is up, the content will slide to the bottom border. @zh 滚动时间（s）。 如果超时，内容将立即跳到底部边界。
-     * @param attenuated @en Whether the rolling acceleration is attenuated(The default is true) @zh 滚动加速是否衰减，默认为 true
+     * @param attenuated @en Whether the rolling acceleration is attenuated(The default is true). @zh 滚动加速是否衰减，默认为 true。
      * @example
      * ```ts
      * // Scroll to the top right corner of the view.
@@ -635,7 +643,7 @@ export class ScrollView extends ViewGroup {
      *
      * @param timeInSecond
      * @en The rolling time(in seconds). If time is up, the content will slide to the bottom border. @zh 滚动时间（s）。 如果超时，内容将立即跳到底部边界。
-     * @param attenuated @en Whether the rolling acceleration is attenuated(The default is true) @zh 滚动加速是否衰减，默认为 true
+     * @param attenuated @en Whether the rolling acceleration is attenuated(The default is true). @zh 滚动加速是否衰减，默认为 true。
      * @example
      * ```ts
      * // Scroll to the lower left corner of the view.
@@ -665,7 +673,7 @@ export class ScrollView extends ViewGroup {
      *
      * @param timeInSecond
      * @en The rolling time(in seconds). If time is up, the content will slide to the bottom border. @zh 滚动时间（s）。 如果超时，内容将立即跳到底部边界。
-     * @param attenuated @en Whether the rolling acceleration is attenuated(The default is true) @zh 滚动加速是否衰减，默认为 true
+     * @param attenuated @en Whether the rolling acceleration is attenuated(The default is true). @zh 滚动加速是否衰减，默认为 true。
      * @example
      * ```ts
      * // Scroll to the lower right corner of the view.
@@ -698,7 +706,7 @@ export class ScrollView extends ViewGroup {
      * @en After scrolling the view, the position of the view content relative to the view window. @zh 滚动视图后，视图内容（content）相对于视图窗口（viewport）的位置。
      * @param timeInSecond
      * @en Scroll time (s). If it times out, the content immediately jumps to the specified offset. @zh 滚动时间（s）。 如果超时，内容将立即跳到指定偏移量处。
-     * @param attenuated @en Whether the rolling acceleration is attenuated(The default is true) @zh 滚动加速是否衰减，默认为 true
+     * @param attenuated @en Whether the rolling acceleration is attenuated(The default is true). @zh 滚动加速是否衰减，默认为 true。
      * @example
      * ```ts
      * // Scroll to middle position in 0.1 second in x-axis
@@ -733,7 +741,7 @@ export class ScrollView extends ViewGroup {
      * @zh
      * 获取滚动视图相对于视图窗口左上角原点的位置。
      *
-     * @return @en Current rolling offset @zh 当前滚动偏移量
+     * @return @en Current rolling offset. @zh 当前滚动偏移量。
      */
     public getScrollOffset () {
         const topDelta = this._getContentTopBoundary() - this._topBoundary;
@@ -749,7 +757,7 @@ export class ScrollView extends ViewGroup {
      * @zh
      * 获取滚动视图最大可以滚动的偏移量。
      *
-     * @return @en Maximum scrollable offset @zh 最大可滚动偏移量
+     * @return @en Maximum scrollable offset. @zh 最大可滚动偏移量。
      */
     public getMaxScrollOffset () {
         if (!this._content || !this.view) {
@@ -775,7 +783,7 @@ export class ScrollView extends ViewGroup {
      * @en Scroll to the destination which is located at the percent interpolation from left border to the right border @zh 滚动到从左到右指定百分比插值的位置
      * @param timeInSecond
      * @en Scroll time (s). If it times out, the content immediately jumps to the specified offset. @zh 滚动时间（s）。 如果超时，内容将立即跳到指定偏移量处。
-     * @param attenuated @en Whether the rolling acceleration is attenuated(The default is true) @zh 滚动加速是否衰减，默认为 true
+     * @param attenuated @en Whether the rolling acceleration is attenuated(The default is true). @zh 滚动加速是否衰减，默认为 true。
      * @example
      * ```ts
      * // Scroll to middle position.
@@ -804,11 +812,11 @@ export class ScrollView extends ViewGroup {
      * 视图内容在规定时间内进行垂直方向和水平方向的滚动，并且滚动到指定百分比位置上。
      *
      * @param anchor
-     * @en Scroll to the destination which is located at the anchor interpolation from left/top border to the right/bottom border
-     * @zh 滚动到从左/上到右/下指定锚点对应分量插值的位置
+     * @en Scroll to the destination which is located at the anchor interpolation from left/top border to the right/bottom border.
+     * @zh 滚动到从左/上到右/下指定锚点对应分量插值的位置。
      * @param timeInSecond
      * @en Scroll time (s). If it times out, the content immediately jumps to the specified offset. @zh 滚动时间（s）。 如果超时，内容将立即跳到指定偏移量处。
-     * @param attenuated @en Whether the rolling acceleration is attenuated(The default is true) @zh 滚动加速是否衰减，默认为 true
+     * @param attenuated @en Whether the rolling acceleration is attenuated(The default is true). @zh 滚动加速是否衰减，默认为 true。
      * @example
      * ```ts
      * // Vertical scroll to the bottom of the view.
@@ -840,10 +848,10 @@ export class ScrollView extends ViewGroup {
      * 视图内容在规定时间内滚动到 ScrollView 垂直方向的百分比位置上。
      *
      * @param percent
-     * @en Scroll to the destination which is located at the percent interpolation from top border to the bottom border @zh 滚动到从上到下指定百分比插值的位置
+     * @en Scroll to the destination which is located at the percent interpolation from top border to the bottom border. @zh 滚动到从上到下指定百分比插值的位置。
      * @param timeInSecond
      * @en Scroll time (s). If it times out, the content immediately jumps to the specified offset. @zh 滚动时间（s）。 如果超时，内容将立即跳到指定偏移量处。
-     * @param attenuated @en Whether the rolling acceleration is attenuated(The default is true) @zh 滚动加速是否衰减，默认为 true
+     * @param attenuated @en Whether the rolling acceleration is attenuated(The default is true). @zh 滚动加速是否衰减，默认为 true。
      * @example
      * ```ts
      * scrollView.scrollToPercentVertical(0.5, 0.1);
@@ -882,7 +890,7 @@ export class ScrollView extends ViewGroup {
      * @zh
      * 设置当前视图内容的坐标点。
      *
-     * @param position @en Current content position @zh 希望设置内容框体的位置
+     * @param position @en Current content position. @zh 希望设置内容框体的位置。
      * @deprecated Since 3.1.0, setContentPosition is deprecated, please use scrollToOffset instead.
      */
     public setContentPosition (position: Vec3) {
@@ -909,7 +917,7 @@ export class ScrollView extends ViewGroup {
      * @zh
      * 获取当前视图内容的坐标点。
      *
-     * @returns - current content position.
+     * @returns @en current content position. @zh 当前视图内容的坐标点。
      * @deprecated Since 3.1.0, getContentPosition is deprecated.
      */
     public getContentPosition () {
@@ -932,7 +940,7 @@ export class ScrollView extends ViewGroup {
      * @zh
      * 用户是否在拖拽当前滚动视图。
      *
-     * @returns - 是否在拖拽当前滚动视图。
+     * @returns @en If or not the current scrolling view is being dragged.  @zh 是否在拖拽当前滚动视图。
      */
     public isScrolling () {
         return this._scrolling;
@@ -945,12 +953,17 @@ export class ScrollView extends ViewGroup {
      * @zh
      * 当前滚动视图是否在惯性滚动。
      *
-     * @returns - 滚动视图是否在惯性滚动。
+     * @returns @en Whether the scrolling view is scrolling inertially.  @zh 滚动视图是否在惯性滚动。
      */
     public isAutoScrolling () {
         return this._autoScrolling;
     }
 
+    /**
+     * @en Get the minimum precision time of the end-of-scroll event.
+     * @zh 获得滚动结束的事件的最小精度时间。
+     * @returns @en Minimum time. @zh 最小时间。
+     */
     public getScrollEndedEventTiming () {
         return EPSILON;
     }
@@ -1364,32 +1377,32 @@ export class ScrollView extends ViewGroup {
     }
 
     protected _updateScrollBar (outOfBoundary: Vec2 | Readonly<Vec2>) {
-        if (this._horizontalScrollBar) {
+        if (this._horizontalScrollBar && this._horizontalScrollBar.isValid) {
             this._horizontalScrollBar.onScroll(outOfBoundary);
         }
 
-        if (this.verticalScrollBar) {
-            this.verticalScrollBar.onScroll(outOfBoundary);
+        if (this._verticalScrollBar && this._verticalScrollBar.isValid) {
+            this._verticalScrollBar.onScroll(outOfBoundary);
         }
     }
 
     protected _onScrollBarTouchBegan () {
-        if (this._horizontalScrollBar) {
+        if (this._horizontalScrollBar && this._horizontalScrollBar.isValid) {
             this._horizontalScrollBar.onTouchBegan();
         }
 
-        if (this.verticalScrollBar) {
-            this.verticalScrollBar.onTouchBegan();
+        if (this._verticalScrollBar && this._verticalScrollBar.isValid) {
+            this._verticalScrollBar.onTouchBegan();
         }
     }
 
     protected _onScrollBarTouchEnded () {
-        if (this._horizontalScrollBar) {
+        if (this._horizontalScrollBar && this._horizontalScrollBar.isValid) {
             this._horizontalScrollBar.onTouchEnded();
         }
 
-        if (this.verticalScrollBar) {
-            this.verticalScrollBar.onTouchEnded();
+        if (this._verticalScrollBar && this._verticalScrollBar.isValid) {
+            this._verticalScrollBar.onTouchEnded();
         }
     }
 
@@ -1422,17 +1435,17 @@ export class ScrollView extends ViewGroup {
             const outOfBoundary = this._getHowMuchOutOfBoundary();
             _tempVec3.set(this._getContentPosition());
             _tempVec3.add(outOfBoundary);
-            this._content.setPosition(_tempVec3);
+            this._setContentPosition(_tempVec3);
             this._updateScrollBar(Vec2.ZERO);
         }
     }
 
     protected _hideScrollBar () {
-        if (this._horizontalScrollBar) {
+        if (this._horizontalScrollBar && this._horizontalScrollBar.isValid) {
             this._horizontalScrollBar.hide();
         }
 
-        if (this._verticalScrollBar) {
+        if (this._verticalScrollBar && this._verticalScrollBar.isValid) {
             this._verticalScrollBar.hide();
         }
     }
@@ -1443,19 +1456,19 @@ export class ScrollView extends ViewGroup {
         }
         const viewTrans = this.view;
         const uiTrans = this._content._uiProps.uiTransformComp!;
-        if (this.verticalScrollBar) {
+        if (this._verticalScrollBar && this._verticalScrollBar.isValid) {
             if (uiTrans.height < viewTrans.height) {
-                this.verticalScrollBar.hide();
+                this._verticalScrollBar.hide();
             } else {
-                this.verticalScrollBar.show();
+                this._verticalScrollBar.show();
             }
         }
 
-        if (this.horizontalScrollBar) {
+        if (this._horizontalScrollBar && this._horizontalScrollBar.isValid) {
             if (uiTrans.width < viewTrans.width) {
-                this.horizontalScrollBar.hide();
+                this._horizontalScrollBar.hide();
             } else {
-                this.horizontalScrollBar.show();
+                this._horizontalScrollBar.show();
             }
         }
     }
@@ -1833,23 +1846,19 @@ export class ScrollView extends ViewGroup {
         }
     }
 
-    protected _xrHoverEnter(event: XrUIPressEvent) {
+    protected _xrHoverEnter (event: XrUIPressEvent) {
         if (event.deviceType === DeviceType.Left) {
             this._hoverIn = XrhoverType.LEFT;
         } else if (event.deviceType === DeviceType.Right) {
             this._hoverIn = XrhoverType.RIGHT;
         }
-        this._autoScrolling = false;
-        this._dispatchEvent(EventType.SCROLL_BEGAN);
     }
 
-    protected _xrHoverExit() {
+    protected _xrHoverExit (event: XrUIPressEvent) {
         this._hoverIn = XrhoverType.NONE;
-        this._autoScrolling = true;
-        this._dispatchEvent(EventType.SCROLL_ENDED);
     }
 
-    private _dispatchEventHandleInput(event: EventHandle | EventGamepad) {
+    private _dispatchEventHandleInput (event: EventHandle | EventGamepad) {
         let handleInputDevice;
         if (event instanceof EventGamepad) {
             handleInputDevice = event.gamepad;
@@ -1857,12 +1866,10 @@ export class ScrollView extends ViewGroup {
             handleInputDevice = event.handleInputDevice;
         }
         let value;
-        if (!this.enabledInHierarchy) {
+        if (!this.enabledInHierarchy || this._hoverIn === XrhoverType.NONE) {
             return;
         }
-        if (this._hoverIn === XrhoverType.NONE) {
-            return;
-        } else if (this._hoverIn === XrhoverType.LEFT) {
+        if (this._hoverIn === XrhoverType.LEFT) {
             value = handleInputDevice.leftStick.getValue();
             if (!value.equals(Vec2.ZERO)) {
                 this._xrThumbStickMove(value);
@@ -1873,14 +1880,13 @@ export class ScrollView extends ViewGroup {
                 this._xrThumbStickMove(value);
             }
         }
-
-        if (!value && this._scrollState.equals(Vec2.ZERO)) {
-            this._xrThumbStickMoveEnd();
-            this._scrollState.set(value);
-        }
     }
 
-    protected _xrThumbStickMove(event: Vec2) {
+    protected _xrThumbStickMove (event: Vec2) {
+        if (!this.enabledInHierarchy) {
+            return;
+        }
+
         const deltaMove = new Vec3();
         const wheelPrecision = -62.5;
         const scrollY = event.y;
@@ -1892,12 +1898,12 @@ export class ScrollView extends ViewGroup {
 
         this._mouseWheelEventElapsedTime = 0;
         this._processDeltaMove(deltaMove);
-        this._dispatchEvent(EventType.SCROLLING);
-    }
 
-    protected _xrThumbStickMoveEnd() {
-        this._autoScrolling = true;
-        this._dispatchEvent(EventType.TOUCH_UP);
+        if (!this._stopMouseWheel) {
+            this._handlePressLogic();
+            this.schedule(this._checkMouseWheel, 1.0 / 60, NaN, 0);
+            this._stopMouseWheel = true;
+        }
     }
 }
 

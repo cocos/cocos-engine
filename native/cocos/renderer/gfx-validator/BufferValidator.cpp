@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -39,6 +38,16 @@ BufferValidator::BufferValidator(Buffer *actor)
 
 BufferValidator::~BufferValidator() {
     DeviceResourceTracker<Buffer>::erase(this);
+
+    if (_source != nullptr) {
+        CC_ASSERT(_isBufferView);
+        _source->removeView(this);
+    }
+    for (auto *view : _views) {
+        CC_ASSERT(view->isBufferView());
+        view->onExpire();
+    }
+
     CC_SAFE_DELETE(_actor);
 
     uint64_t lifeTime = DeviceValidator::getInstance()->currentFrame() - _creationFrame;
@@ -54,8 +63,8 @@ void BufferValidator::doInit(const BufferInfo &info) {
     CC_ASSERT(!isInited());
     _inited = true;
 
-    CC_ASSERT(info.usage != BufferUsageBit::NONE);
-    CC_ASSERT(info.memUsage != MemoryUsageBit::NONE);
+    CC_ASSERT_NE(info.usage, BufferUsageBit::NONE);
+    CC_ASSERT_NE(info.memUsage, MemoryUsageBit::NONE);
     CC_ASSERT(info.size);
     CC_ASSERT(info.size / info.stride * info.stride == info.size);
 
@@ -65,7 +74,7 @@ void BufferValidator::doInit(const BufferInfo &info) {
 
     if (hasFlag(info.usage, BufferUsageBit::VERTEX) && !info.stride) {
         // Invalid stride for vertex buffer.
-        CC_ASSERT(false);
+        CC_ABORT();
     }
 
     /////////// execute ///////////
@@ -78,8 +87,9 @@ void BufferValidator::doInit(const BufferViewInfo &info) {
     CC_ASSERT(!isInited());
     _inited = true;
 
+    auto *vBuffer = static_cast<BufferValidator *>(info.buffer);
     // Already been destroyed?
-    CC_ASSERT(info.buffer && static_cast<BufferValidator *>(info.buffer)->isInited());
+    CC_ASSERT(vBuffer != nullptr && vBuffer->isInited());
     CC_ASSERT(info.offset + info.range <= info.buffer->getSize());
     // zero-sized buffer?
     CC_ASSERT(info.range);
@@ -91,7 +101,10 @@ void BufferValidator::doInit(const BufferViewInfo &info) {
     /////////// execute ///////////
 
     BufferViewInfo actorInfo = info;
-    actorInfo.buffer = static_cast<BufferValidator *>(info.buffer)->getActor();
+    actorInfo.buffer = vBuffer->getActor();
+
+    _source = vBuffer;
+    _source->addView(this);
 
     _actor->initialize(actorInfo);
 }
@@ -103,6 +116,11 @@ void BufferValidator::doResize(uint32_t size, uint32_t /*count*/) {
     // Cannot resize through buffer views.
     CC_ASSERT(!_isBufferView);
     CC_ASSERT(size);
+
+    for (auto *view : _views) {
+        view->onExpire();
+    }
+    _views.clear();
 
     /////////// execute ///////////
 
@@ -134,7 +152,7 @@ void BufferValidator::update(const void *buffer, uint32_t size) {
         for (size_t i = 1U; i < drawInfoCount; ++i) {
             if ((++drawInfo)->indexCount > 0 != isIndexed) {
                 // Inconsistent indirect draw infos on using index buffer.
-                CC_ASSERT(false);
+                CC_ABORT();
             }
         }
     }
@@ -163,6 +181,27 @@ void BufferValidator::sanityCheck(const void *buffer, uint32_t size) {
     }
 
     _lastUpdateFrame = cur;
+}
+
+void BufferValidator::addView(BufferValidator *view) {
+    _views.emplace_back(view);
+}
+
+void BufferValidator::removeView(BufferValidator *view) {
+    _views.erase(std::remove(_views.begin(), _views.end(), view), _views.end());
+}
+
+void BufferValidator::onExpire() {
+    _source = nullptr;
+    _expired = true;
+}
+
+void BufferValidator::flush(const uint8_t *buffer) {
+    Buffer::flushBuffer(_actor, buffer);
+}
+
+uint8_t *BufferValidator::getStagingAddress() const {
+    return Buffer::getBufferStagingAddress(_actor);
 }
 
 } // namespace gfx

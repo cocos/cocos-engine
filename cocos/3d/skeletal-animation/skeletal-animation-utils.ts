@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -24,18 +23,17 @@
 */
 
 import { EDITOR, JSB } from 'internal:constants';
-import type { AnimationClip } from '../../core/animation/animation-clip';
+import type { AnimationClip } from '../../animation/animation-clip';
 import { SkelAnimDataHub } from './skeletal-animation-data-hub';
-import { getWorldTransformUntilRoot } from '../../core/animation/transform-utils';
+import { getWorldTransformUntilRoot } from '../../animation/transform-utils';
 import { Mesh } from '../assets/mesh';
 import { Skeleton } from '../assets/skeleton';
-import { AABB } from '../../core/geometry';
-import { Address, BufferUsageBit, Filter, Format, FormatInfos,
-    MemoryUsageBit, Feature, Device, Buffer, BufferInfo, Sampler, SamplerInfo, FormatFeatureBit } from '../../core/gfx';
-import { Mat4, Quat, Vec3 } from '../../core/math';
-import { UBOSkinningAnimation } from '../../core/pipeline/define';
-import { Node } from '../../core/scene-graph';
-import { ITextureBufferHandle, TextureBufferPool } from '../../core/renderer/core/texture-buffer-pool';
+import { geometry, Mat4, Quat, Vec3 } from '../../core';
+import { BufferUsageBit, Format, FormatInfos,
+    MemoryUsageBit, Device, Buffer, BufferInfo, FormatFeatureBit } from '../../gfx';
+import { UBOSkinningAnimation } from '../../rendering/define';
+import { Node } from '../../scene-graph';
+import { ITextureBufferHandle, TextureBufferPool } from '../../render-scene/core/texture-buffer-pool';
 import { jointTextureSamplerInfo } from '../misc/joint-texture-sampler-info';
 
 // change here and cc-skinning.chunk to use other skinning algorithms
@@ -114,7 +112,7 @@ export interface IJointTextureHandle {
     skeletonHash: number;
     readyToBeDeleted: boolean;
     handle: ITextureBufferHandle;
-    bounds: Map<number, AABB[]>;
+    bounds: Map<number, geometry.AABB[]>;
     animInfos?: IInternalJointAnimInfo[];
 }
 
@@ -124,7 +122,7 @@ const v3_min = new Vec3();
 const v3_max = new Vec3();
 const m4_1 = new Mat4();
 const m4_2 = new Mat4();
-const ab_1 = new AABB();
+const ab_1 = new geometry.AABB();
 
 export interface IChunkContent {
     skeleton: number;
@@ -233,7 +231,7 @@ export class JointTexturePool {
             const mat = node ? getWorldTransformUntilRoot(node, skinningRoot, m4_1) : skeleton.inverseBindposes[j];
             const bound = boneSpaceBounds[j];
             if (bound) {
-                AABB.transform(ab_1, bound, mat);
+                geometry.AABB.transform(ab_1, bound, mat);
                 ab_1.getBoundary(v3_3, v3_4);
                 Vec3.min(v3_min, v3_min, v3_3);
                 Vec3.max(v3_max, v3_max, v3_4);
@@ -243,8 +241,8 @@ export class JointTexturePool {
                 uploadJointData(textureBuffer, offset, node ? mat : Mat4.IDENTITY, j === 0);
             }
         }
-        const bounds = [new AABB()]; texture.bounds.set(mesh.hash, bounds);
-        AABB.fromPoints(bounds[0], v3_min, v3_max);
+        const bounds = [new geometry.AABB()]; texture.bounds.set(mesh.hash, bounds);
+        geometry.AABB.fromPoints(bounds[0], v3_min, v3_max);
         if (buildTexture) {
             this._pool.update(texture.handle, textureBuffer.buffer);
             this._textureBuffers.set(hash, texture);
@@ -288,9 +286,9 @@ export class JointTexturePool {
             textureBuffer = new Float32Array(bufSize); buildTexture = true;
         } else { texture.refCount++; }
         const boneSpaceBounds = mesh.getBoneSpaceBounds(skeleton);
-        const bounds: AABB[] = []; texture.bounds.set(mesh.hash, bounds);
+        const bounds: geometry.AABB[] = []; texture.bounds.set(mesh.hash, bounds);
         for (let f = 0; f < frames; f++) {
-            bounds.push(new AABB(Inf, Inf, Inf, -Inf, -Inf, -Inf));
+            bounds.push(new geometry.AABB(Inf, Inf, Inf, -Inf, -Inf, -Inf));
         }
         for (let f = 0, offset = 0; f < frames; f++) {
             const bound = bounds[f];
@@ -312,7 +310,7 @@ export class JointTexturePool {
                 const boneSpaceBound = boneSpaceBounds[j];
                 if (boneSpaceBound) {
                     const transform = bindposeCorrection ? Mat4.multiply(m4_2, mat, bindposeCorrection) : mat;
-                    AABB.transform(ab_1, boneSpaceBound, transform);
+                    geometry.AABB.transform(ab_1, boneSpaceBound, transform);
                     ab_1.getBoundary(v3_3, v3_4);
                     Vec3.min(bound.center, bound.center, v3_3);
                     Vec3.max(bound.halfExtents, bound.halfExtents, v3_4);
@@ -322,7 +320,7 @@ export class JointTexturePool {
                     uploadJointData(textureBuffer, offset, transformValid ? m4_1 : Mat4.IDENTITY, j === 0);
                 }
             }
-            AABB.fromPoints(bound, bound.center, bound.halfExtents);
+            geometry.AABB.fromPoints(bound, bound.center, bound.halfExtents);
         }
         if (buildTexture) {
             this._pool.update(texture.handle, textureBuffer.buffer);
@@ -489,8 +487,9 @@ export class JointAnimationInfo {
 
     public switchClip (info: IAnimInfo, clip: AnimationClip | null) {
         info.currentClip = clip;
-        info.data[0] = -1;
+        info.data[0] = 0; // reset default frame 0
         info.buffer.update(info.data);
+        info.data[0] = -1; // reset frame index to -1. sampleCurves will calculate frame to 0.
         info.dirty = false;
         if (JSB) {
             info.dirtyForJSB[0] = 0;

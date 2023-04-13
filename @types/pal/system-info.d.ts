@@ -40,6 +40,7 @@ declare module 'pal/system-info' {
         public get browserType (): BrowserType;
         public get browserVersion (): string;
         public get isXR (): boolean;
+        public init (): Promise<void[]> ;
         public hasFeature (feature: Feature): boolean;
         public getBatteryLevel (): number;
 
@@ -47,8 +48,14 @@ declare module 'pal/system-info' {
         public openURL (url: string): void;
         public now (): number;
         public restartJSVM (): void;
-
+        /*
+         * Trigger to exit the game
+         */
         public close (): void;
+        /*
+         * Free the native's resources
+         */
+        public exit(): void;
 
         on (event: PalSystemEvent, cb: (...args: any)=>void, target?: any): void;
         off (event: PalSystemEvent, cb?: (...args: any)=>void, target?: any): void;

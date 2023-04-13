@@ -1,14 +1,38 @@
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
 import b2 from '@cocos/box2d';
 import { IRigidBody2D } from '../spec/i-rigid-body';
 import { RigidBody2D } from '../framework/components/rigid-body-2d';
 import { PhysicsSystem2D } from '../framework/physics-system';
 import { b2PhysicsWorld } from './physics-world';
-import { Vec2, toRadian, Vec3, Quat, IVec2Like, toDegree, game } from '../../core';
+import { Vec2, toRadian, Vec3, Quat, IVec2Like, toDegree, TWO_PI, HALF_PI } from '../../core';
 import { PHYSICS_2D_PTM_RATIO, ERigidBody2DType } from '../framework/physics-types';
 
-import { Node } from '../../core/scene-graph/node';
+import { Node } from '../../scene-graph/node';
 import { Collider2D } from '../framework';
-import { NodeEventType } from '../../core/scene-graph/node-event';
+import { NodeEventType } from '../../scene-graph/node-event';
 
 const tempVec3 = new Vec3();
 
@@ -58,17 +82,7 @@ export class b2RigidBody2D implements IRigidBody2D {
         this.setActive(false);
     }
 
-    _registerNodeEvents () {
-        const node = this.rigidBody.node;
-        node.on(NodeEventType.TRANSFORM_CHANGED, this._onNodeTransformChanged, this);
-    }
-
-    _unregisterNodeEvents () {
-        const node = this.rigidBody.node;
-        node.off(NodeEventType.TRANSFORM_CHANGED, this._onNodeTransformChanged, this);
-    }
-
-    _onNodeTransformChanged (type) {
+    nodeTransformChanged (type) {
         if (PhysicsSystem2D.instance.stepping) {
             return;
         }
@@ -92,9 +106,8 @@ export class b2RigidBody2D implements IRigidBody2D {
             return;
         }
 
-        this._registerNodeEvents();
-
         (PhysicsSystem2D.instance.physicsWorld as b2PhysicsWorld).addBody(this);
+        this.setActive(false);
 
         this._inited = true;
     }
@@ -103,7 +116,6 @@ export class b2RigidBody2D implements IRigidBody2D {
         if (!this._inited) return;
 
         (PhysicsSystem2D.instance.physicsWorld as b2PhysicsWorld).removeBody(this);
-        this._unregisterNodeEvents();
 
         this._inited = false;
     }
@@ -120,8 +132,26 @@ export class b2RigidBody2D implements IRigidBody2D {
         tempVec2_1.y = (this._animatedPos.y - b2Pos.y) * timeStep;
         b2body.SetLinearVelocity(tempVec2_1);
 
-        const b2Rotation = b2body.GetAngle();
-        b2body.SetAngularVelocity((this._animatedAngle - b2Rotation) * timeStep);
+        //convert b2Rotation to [-PI~PI], which is the same as this._animatedAngle
+        let b2Rotation = b2body.GetAngle() % (TWO_PI);
+        if (b2Rotation > Math.PI) {
+            b2Rotation -= TWO_PI;
+        }
+
+        //calculate angular velocity
+        let angularVelocity = (this._animatedAngle - b2Rotation) * timeStep;
+        if (this._animatedAngle < -HALF_PI && b2Rotation > HALF_PI) { //ccw, crossing PI
+            angularVelocity = (this._animatedAngle + TWO_PI - b2Rotation) * timeStep;
+        } if (this._animatedAngle > HALF_PI && b2Rotation < -HALF_PI) { //cw, crossing PI
+            angularVelocity = (this._animatedAngle - TWO_PI - b2Rotation) * timeStep;
+        }
+
+        b2body.SetAngularVelocity(angularVelocity);
+    }
+
+    syncSceneToPhysics () {
+        const dirty = this._rigidBody.node.hasChangedFlags;
+        if (dirty) { this.nodeTransformChanged(dirty); }
     }
 
     syncPositionToPhysics (enableAnimated = false) {
@@ -152,7 +182,11 @@ export class b2RigidBody2D implements IRigidBody2D {
         const b2body = this._body;
         if (!b2body) return;
 
-        const rotation = toRadian(this._rigidBody.node.eulerAngles.z);
+        const rot = this._rigidBody.node.worldRotation;
+        const euler = tempVec3;
+        Quat.toEulerInYXZOrder(euler, rot);
+        const rotation = toRadian(euler.z);
+
         const bodyType = this._rigidBody.type;
         if (bodyType === ERigidBody2DType.Animated && enableAnimated) {
             this._animatedAngle = rotation;

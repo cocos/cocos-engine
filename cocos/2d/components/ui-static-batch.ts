@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -27,8 +26,9 @@ import { ccclass, help, menu, executionOrder, visible, override } from 'cc.decor
 import { UIRenderer } from '../framework/ui-renderer';
 import { IBatcher } from '../renderer/i-batcher';
 import { DrawBatch2D } from '../renderer/draw-batch';
-import { director, Color, warnID } from '../../core';
+import { Color, warnID } from '../../core';
 import { StaticVBAccessor } from '../renderer/static-vb-accessor';
+import { director } from '../../game';
 
 /**
  * @en
@@ -44,6 +44,10 @@ import { StaticVBAccessor } from '../renderer/static-vb-accessor';
  * 该组件放在所有需要被静态合批的节点对象的根节点上，子节点放置对象必须是精灵和文本，其余对象不参与静态合批。
  * 用户必须通过手动方式启用收集静态合批数据[[markAsDirty]]，否则合批方式仍然采用动态合批（采集数据的流程相同）。此后渲染的内容是采用收集到的合批渲染数据，子节点的任何修改将不再有效。
  * 注意：子节点下不要放置 Mask，Graphics，以及 UI 模型或者粒子之类对象，否则会在启用完静态合批后跳过渲染。
+ *
+ * @deprecated Since v3.4.1, We have adopted a new rendering batching policy in v3.4.1,
+ * which will result in an effective performance improvement for normal dynamic batching components,
+ * so manual management with the UIStaticBatch component is no longer recommended and will be removed in the future
  */
 @ccclass('cc.UIStaticBatch')
 @help('i18n:cc.UIStaticBatch')

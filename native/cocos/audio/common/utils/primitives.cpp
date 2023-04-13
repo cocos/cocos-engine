@@ -20,10 +20,10 @@
     #include "audio/android/cutils/bitops.h" /* for popcount() */
 #else
     #include "base/Utils.h"
-    using namespace cc::utils;
+using namespace cc::utils;
 #endif
 
-//namespace {
+// namespace {
 void ditherAndClamp(int32_t *out, const int32_t *sums, size_t c) {
     size_t i;
     for (i = 0; i < c; i++) {
@@ -317,7 +317,7 @@ size_t nonZeroStereo16(const int16_t *frames, size_t count) {
  */
 #define COPY_FRAME_BY_MASK(dst, dmask, src, smask, count, zero) \
     {                                                           \
-        uint32_t bit, ormask;                                   \
+        int32_t bit, ormask;                                    \
         while ((count)--) {                                     \
             ormask = (dmask) | (smask);                         \
             while (ormask) {                                    \
@@ -363,7 +363,7 @@ void memcpy_by_channel_mask(void *dst, uint32_t dstMask,
         case 3: { /* could be slow.  use a struct to represent 3 bytes of data. */
             auto *udst = static_cast<uint8x3_t *>(dst);
             const auto *usrc = static_cast<const uint8x3_t *>(src);
-            static const uint8x3_t ZERO{0,0,0}; /* tricky - we use this to zero out a sample */
+            static const uint8x3_t ZERO{0, 0, 0}; /* tricky - we use this to zero out a sample */
 
             COPY_FRAME_BY_MASK(udst, dstMask, usrc, srcMask, count, ZERO);
         } break;
@@ -417,7 +417,7 @@ void memcpy_by_index_array(void *dst, uint32_t dstChannels,
         case 3: { /* could be slow.  use a struct to represent 3 bytes of data. */
             auto *udst = static_cast<uint8x3_t *>(dst);
             const auto *usrc = static_cast<const uint8x3_t *>(src);
-            static const uint8x3_t ZERO{0,0,0};
+            static const uint8x3_t ZERO{0, 0, 0};
 
             COPY_FRAME_BY_IDX(udst, dstChannels, usrc, srcChannels, idxary, count, ZERO);
         } break;
@@ -437,12 +437,12 @@ size_t memcpy_by_index_array_initialization(int8_t *idxary, size_t idxcount,
                                             uint32_t dstMask, uint32_t srcMask) {
     size_t n = 0;
     int srcidx = 0;
-    uint32_t bit;
-    uint32_t ormask = srcMask | dstMask;
+    int32_t bit;
+    int32_t ormask = srcMask | dstMask;
 
     while (ormask && n < idxcount) {
-        bit = ormask & -ormask;          /* get lowest bit */
-        ormask ^= bit;                   /* remove lowest bit */
+        bit = ormask & -ormask;        /* get lowest bit */
+        ormask ^= bit;                 /* remove lowest bit */
         if (srcMask & dstMask & bit) { /* matching channel */
             idxary[n++] = srcidx++;
         } else if (srcMask & bit) { /* source channel only */

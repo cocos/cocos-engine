@@ -1,6 +1,6 @@
 import { SpriteFrame } from '../../cocos/2d/assets/sprite-frame';
-import Config, { IAddressableInfo, IPackInfo } from '../../cocos/core/asset-manager/config'
-import { Texture2D } from '../../cocos/core/assets/texture-2d';
+import Config, { IAddressableInfo, IPackInfo } from '../../cocos/asset/asset-manager/config'
+import { Texture2D } from '../../cocos/asset/assets/texture-2d';
 describe('config', () => {
 
     const config = new Config();

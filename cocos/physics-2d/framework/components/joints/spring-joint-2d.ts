@@ -1,12 +1,37 @@
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
 
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
 
 import { Joint2D } from './joint-2d';
-import { ccclass, property, menu, type } from '../../../../core/data/class-decorator';
 import { ISpringJoint } from '../../../spec/i-physics-joint';
 import { EJoint2DType } from '../../physics-types';
-import { Vec3 } from '../../../../core';
+import { CCBoolean, CCFloat, Vec3, _decorator } from '../../../../core';
+import { help, serializable, tooltip, type } from '../../../../core/data/decorators';
+
+const { ccclass, property, menu } = _decorator;
 
 @ccclass('cc.SpringJoint2D')
+@help('i18n:cc.Joint2D')
 @menu('Physics2D/Joints/SpringJoint2D')
 export class SpringJoint2D extends Joint2D {
     TYPE = EJoint2DType.SPRING;
@@ -17,7 +42,8 @@ export class SpringJoint2D extends Joint2D {
      * @zh
      * 弹性系数。
      */
-    @property
+    @type(CCFloat)
+    @tooltip('i18n:physics2d.joint.frequency')
     get frequency () {
         return this._frequency;
     }
@@ -34,7 +60,8 @@ export class SpringJoint2D extends Joint2D {
      * @zh
      * 阻尼，表示关节变形后，恢复到初始状态受到的阻力。
      */
-    @property
+    @type(CCFloat)
+    @tooltip('i18n:physics2d.joint.dampingRatio')
     get dampingRatio () {
         return this._dampingRatio;
     }
@@ -49,12 +76,17 @@ export class SpringJoint2D extends Joint2D {
      * @en
      * The distance separating the two ends of the joint.
      * @zh
-     * 关节两端的距离
+     * 关节两端的距离。
      */
-    @property
+    @type(CCFloat)
+    @tooltip('i18n:physics2d.joint.distance')
     get distance () {
-        if (this._autoCalcDistance && this.connectedBody) {
-            return Vec3.distance(this.node.worldPosition, this.connectedBody.node.worldPosition);
+        if (this._autoCalcDistance) {
+            if (this.connectedBody) {
+                return Vec3.distance(this.node.worldPosition, this.connectedBody.node.worldPosition);
+            } else { //if connected body is not set, use scene origin as connected body
+                return Vec3.len(this.node.worldPosition);
+            }
         }
         return this._distance;
     }
@@ -69,9 +101,10 @@ export class SpringJoint2D extends Joint2D {
      * @en
      * Auto calculate the distance between the connected two rigid bodies.
      * @zh
-     * 自动计算关节连接的两个刚体间的距离
+     * 自动计算关节连接的两个刚体间的距离。
      */
-    @property
+    @type(CCBoolean)
+    @tooltip('i18n:physics2d.joint.autoCalcDistance')
     get autoCalcDistance () {
         return this._autoCalcDistance;
     }
@@ -81,12 +114,15 @@ export class SpringJoint2D extends Joint2D {
 
     /// private properties
 
-    @property
+    @serializable
     private _frequency = 5;
-    @property
+
+    @serializable
     private _dampingRatio = 0.7;
-    @property
+
+    @serializable
     private _distance = 10;
-    @property
+
+    @serializable
     private _autoCalcDistance = true;
 }

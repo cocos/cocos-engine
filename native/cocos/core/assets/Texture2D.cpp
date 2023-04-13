@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -40,6 +39,34 @@ void Texture2D::syncMipmapsForJS(const ccstd::vector<IntrusivePtr<ImageAsset>> &
 }
 
 void Texture2D::setMipmaps(const ccstd::vector<IntrusivePtr<ImageAsset>> &value) {
+    if (!value.empty() && value[0]->getMipmapLevelDataSize().size() > 1) {
+        _compressedImageAsset.clear();
+        const auto mipmapLevelData = value[0]->getMipmapLevelDataSize();
+        _compressedImageAsset.resize(mipmapLevelData.size());
+        auto *data = const_cast<unsigned char *>(value[0]->getData());
+
+        uint32_t byteOffset = 0;
+        for (uint32_t i = 0; i < mipmapLevelData.size(); ++i) {
+            auto *dstData = static_cast<unsigned char *>(malloc(mipmapLevelData[i] * sizeof(unsigned char)));
+            memcpy(dstData, data + byteOffset, mipmapLevelData[i]);
+
+            _compressedImageAsset[i] = new ImageAsset();
+            _compressedImageAsset[i]->setData(dstData);
+            _compressedImageAsset[i]->setNeedFreeData(true);
+            _compressedImageAsset[i]->setWidth(value[0]->getWidth());
+            _compressedImageAsset[i]->setHeight(value[0]->getHeight());
+            _compressedImageAsset[i]->setFormat(value[0]->getFormat());
+            _compressedImageAsset[i]->setUuid(value[0]->getUuid());
+            setMipFilter(Filter::LINEAR);
+            byteOffset += mipmapLevelData[i];
+        }
+        setMipmapParams(_compressedImageAsset);
+    } else {
+        setMipmapParams(value);
+    }
+}
+
+void Texture2D::setMipmapParams(const ccstd::vector<IntrusivePtr<ImageAsset>> &value) {
     _mipmaps = value;
     setMipmapLevel(static_cast<uint32_t>(_mipmaps.size()));
     if (!_mipmaps.empty()) {
@@ -81,11 +108,11 @@ void Texture2D::reset(const ITexture2DCreateInfo &info) {
     _height = info.height;
     setGFXFormat(info.format);
 
-    uint32_t mipLevels = info.mipmapLevel.has_value() ? info.mipmapLevel.value() : 1;
+    const uint32_t mipLevels = info.mipmapLevel.has_value() ? info.mipmapLevel.value() : 1;
     setMipmapLevel(mipLevels);
 
-    uint32_t minLod = info.baseLevel.has_value() ? info.baseLevel.value() : 0;
-    uint32_t maxLod = info.maxLevel.has_value() ? info.maxLevel.value() : 1000;
+    const uint32_t minLod = info.baseLevel.has_value() ? info.baseLevel.value() : 0;
+    const uint32_t maxLod = info.maxLevel.has_value() ? info.maxLevel.value() : 1000;
     setMipRange(minLod, maxLod);
 
     tryReset();
@@ -118,7 +145,7 @@ void Texture2D::updateMipmaps(uint32_t firstLevel, uint32_t count) {
         (_mipmaps.size() - firstLevel)));
 
     for (uint32_t i = 0; i < nUpdate; ++i) {
-        uint32_t level = firstLevel + i;
+        const uint32_t level = firstLevel + i;
         assignImage(_mipmaps[level], level);
     }
 }

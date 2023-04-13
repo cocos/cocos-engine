@@ -1,20 +1,40 @@
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
 
+ https://www.cocos.com/
 
-import { EDITOR, DEBUG } from 'internal:constants';
-import { System, Vec2, director, Director, game, error, IVec2Like, Rect, Eventify, Enum } from '../../core';
-import { IPhysicsWorld } from '../spec/i-physics-world';
-import { createPhysicsWorld } from './instance';
-import { physicsEngineId } from './physics-selector';
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
+import { EDITOR } from 'internal:constants';
+import { System, Vec2, IVec2Like, Rect, Eventify, Enum, Settings, settings, cclegacy, warnID } from '../../core';
+import { createPhysicsWorld, selector, IPhysicsSelector } from './physics-selector';
+
 import { DelayEvent } from './physics-internal-types';
-import { IPhysicsConfig, ICollisionMatrix } from '../../physics/framework/physics-config';
+import { ICollisionMatrix } from '../../physics/framework/physics-config';
 import { CollisionMatrix } from '../../physics/framework/collision-matrix';
-import { ERaycast2DType, RaycastResult2D, PHYSICS_2D_PTM_RATIO, PhysicsGroup } from './physics-types';
+import { ERaycast2DType, RaycastResult2D, PHYSICS_2D_PTM_RATIO, PhysicsGroup, Contact2DType } from './physics-types';
 import { Collider2D } from './components/colliders/collider-2d';
-import { legacyCC } from '../../core/global-exports';
-import { Settings, settings } from '../../core/settings';
+import { director, Director } from '../../game';
 
 let instance: PhysicsSystem2D | null = null;
-legacyCC.internal.PhysicsGroup2D = PhysicsGroup;
+cclegacy.internal.PhysicsGroup2D = PhysicsGroup;
 
 export class PhysicsSystem2D extends Eventify(System) {
     /**
@@ -41,7 +61,7 @@ export class PhysicsSystem2D extends Eventify(System) {
     }
     set allowSleep (v: boolean) {
         this._allowSleep = v;
-        if (!EDITOR || legacyCC.GAME_VIEW) {
+        if (!EDITOR || cclegacy.GAME_VIEW) {
             this.physicsWorld.setAllowSleep(v);
         }
     }
@@ -57,7 +77,7 @@ export class PhysicsSystem2D extends Eventify(System) {
     }
     set gravity (gravity: Vec2) {
         this._gravity.set(gravity);
-        if (!EDITOR || legacyCC.GAME_VIEW) {
+        if (!EDITOR || cclegacy.GAME_VIEW) {
             this.physicsWorld.setGravity(new Vec2(gravity.x / PHYSICS_2D_PTM_RATIO, gravity.y / PHYSICS_2D_PTM_RATIO));
         }
     }
@@ -115,14 +135,14 @@ export class PhysicsSystem2D extends Eventify(System) {
      * @en
      * The velocity iterations for the velocity constraint solver.
      * @zh
-     * 速度更新迭代数
+     * 速度更新迭代数。
      */
     public velocityIterations = 10;
     /**
      * @en
      * The position Iterations for the position constraint solver.
      * @zh
-     * 位置迭代更新数
+     * 位置迭代更新数。
      */
     public positionIterations = 10;
 
@@ -132,7 +152,9 @@ export class PhysicsSystem2D extends Eventify(System) {
      * @zh
      * 获取物理世界的封装对象，通过它你可以访问到实际的底层对象。
      */
-    readonly physicsWorld: IPhysicsWorld;
+    public get physicsWorld () {
+        return selector.physicsWorld!;
+    }
 
     /**
      * @en
@@ -143,15 +165,15 @@ export class PhysicsSystem2D extends Eventify(System) {
     static readonly ID = 'PHYSICS_2D';
 
     static get PHYSICS_NONE () {
-        return !physicsEngineId;
+        return !selector.id;
     }
 
     static get PHYSICS_BUILTIN () {
-        return physicsEngineId === 'builtin';
+        return selector.id === 'builtin';
     }
 
     static get PHYSICS_BOX2D () {
-        return physicsEngineId === 'box2d';
+        return selector.id === 'box2d';
     }
 
     /**
@@ -230,7 +252,9 @@ export class PhysicsSystem2D extends Eventify(System) {
             }
         }
 
-        this.physicsWorld = createPhysicsWorld();
+        const mutableSelector = selector as Mutable<IPhysicsSelector>;
+        mutableSelector.physicsWorld = createPhysicsWorld();
+
         this.gravity = this._gravity;
         this.allowSleep = this._allowSleep;
     }
@@ -240,7 +264,7 @@ export class PhysicsSystem2D extends Eventify(System) {
     * Perform a simulation of the physics system, which will now be performed automatically on each frame.
     * @zh
     * 执行一次物理系统的模拟，目前将在每帧自动执行一次。
-    * @param deltaTime 与上一次执行相差的时间，目前为每帧消耗时间
+    * @param deltaTime @en time step. @zh 与上一次执行相差的时间，目前为每帧消耗时间。
     */
     postUpdate (deltaTime: number) {
         if (!this._enable) {
@@ -251,6 +275,8 @@ export class PhysicsSystem2D extends Eventify(System) {
         }
 
         director.emit(Director.EVENT_BEFORE_PHYSICS);
+
+        this.physicsWorld.syncSceneToPhysics();
 
         this._steping = true;
 
@@ -274,6 +300,8 @@ export class PhysicsSystem2D extends Eventify(System) {
 
         this.physicsWorld.syncPhysicsToScene();
 
+        this.physicsWorld.finalizeContactEvent();
+
         if (this.debugDrawFlags) {
             this.physicsWorld.drawDebug();
         }
@@ -282,6 +310,7 @@ export class PhysicsSystem2D extends Eventify(System) {
         director.emit(Director.EVENT_AFTER_PHYSICS);
     }
 
+    // eslint-disable-next-line @typescript-eslint/ban-types
     _callAfterStep (target: object, func: Function) {
         if (this._steping) {
             this._delayEvents.push({
@@ -321,10 +350,10 @@ export class PhysicsSystem2D extends Eventify(System) {
      * @zh
      * 检测哪些碰撞体在给定射线的路径上，射线检测将忽略包含起始点的碰撞体。
      * @method rayCast
-     * @param {Vec2} p1 - start point of the raycast
-     * @param {Vec2} p2 - end point of the raycast
-     * @param {RayCastType} type - optional, default is RayCastType.Closest
-     * @param {number} mask - optional, default is 0xffffffff
+     * @param {Vec2} p1 @en start point of the raycast. @zh 射线起点。
+     * @param {Vec2} p2 @en end point of the raycast. @zh 射线终点。
+     * @param {RayCastType} type - @en optional, default is RayCastType.Closest. @zh 可选，默认是RayCastType.Closest。
+     * @param {number} mask - @en optional, default is 0xffffffff. @zh 可选，默认是0xffffffff。
      * @return {[PhysicsRayCastResult]}
      */
     raycast (p1: IVec2Like, p2: IVec2Like, type: ERaycast2DType = ERaycast2DType.Closest, mask = 0xffffffff): readonly Readonly<RaycastResult2D>[] {
@@ -346,14 +375,17 @@ export class PhysicsSystem2D extends Eventify(System) {
     testAABB (rect: Rect): readonly Collider2D[] {
         return this.physicsWorld.testAABB(rect);
     }
-}
 
-director.once(Director.EVENT_INIT, () => {
-    initPhysicsSystem();
-});
-
-function initPhysicsSystem () {
-    if (!PhysicsSystem2D.PHYSICS_NONE && (!EDITOR || legacyCC.GAME_VIEW)) {
-        director.registerSystem(PhysicsSystem2D.ID, PhysicsSystem2D.instance, System.Priority.LOW);
+    public on<TFunction extends (...any) => void>(type: string, callback: TFunction, thisArg?: any, once?: boolean): typeof callback {
+        if (type === Contact2DType.PRE_SOLVE || type === Contact2DType.POST_SOLVE) {
+            warnID(16002, type, '3.7.1');
+        }
+        return super.on(type, callback, thisArg, once);
     }
 }
+
+function initPhysicsSystem () {
+    director.registerSystem(PhysicsSystem2D.ID, PhysicsSystem2D.instance, System.Priority.LOW);
+}
+
+director.once(Director.EVENT_INIT, () => { initPhysicsSystem(); });

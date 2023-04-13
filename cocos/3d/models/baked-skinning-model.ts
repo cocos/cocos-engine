@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,28 +22,27 @@
  THE SOFTWARE.
 */
 
-import type { AnimationClip } from '../../core/animation/animation-clip';
+import type { AnimationClip } from '../../animation/animation-clip';
 import { Mesh } from '../assets/mesh';
 import { Skeleton } from '../assets/skeleton';
-import { AABB } from '../../core/geometry';
-import { BufferUsageBit, MemoryUsageBit, Attribute, DescriptorSet, Buffer, BufferInfo } from '../../core/gfx';
-import { INST_JOINT_ANIM_INFO, UBOSkinningAnimation, UBOSkinningTexture, UNIFORM_JOINT_TEXTURE_BINDING } from '../../core/pipeline/define';
-import { Node } from '../../core/scene-graph';
-import { IMacroPatch, Pass } from '../../core/renderer/core/pass';
+import { geometry, cclegacy } from '../../core';
+import { BufferUsageBit, MemoryUsageBit, Attribute, DescriptorSet, Buffer, BufferInfo } from '../../gfx';
+import { INST_JOINT_ANIM_INFO, UBOSkinningAnimation, UBOSkinningTexture, UNIFORM_JOINT_TEXTURE_BINDING } from '../../rendering/define';
+import { Node } from '../../scene-graph';
+import { IMacroPatch, Pass } from '../../render-scene/core/pass';
 import type { DataPoolManager } from '../skeletal-animation/data-pool-manager';
-import { ModelType } from '../../core/renderer/scene/model';
+import { ModelType } from '../../render-scene/scene/model';
 import { IAnimInfo, IJointTextureHandle } from '../skeletal-animation/skeletal-animation-utils';
 import { MorphModel } from './morph-model';
-import { legacyCC } from '../../core/global-exports';
 import { jointTextureSamplerInfo } from '../misc/joint-texture-sampler-info';
-import { SubModel } from '../../core/renderer/scene';
+import { SubModel } from '../../render-scene/scene';
 
 interface IJointsInfo {
     buffer: Buffer | null;
     jointTextureInfo: Float32Array;
     texture: IJointTextureHandle | null;
     animInfo: IAnimInfo;
-    boundsInfo: AABB[] | null;
+    boundsInfo: geometry.AABB[] | null;
 }
 
 const myPatches = [
@@ -75,7 +73,7 @@ export class BakedSkinningModel extends MorphModel {
     constructor () {
         super();
         this.type = ModelType.BAKED_SKINNING;
-        this._dataPoolManager = legacyCC.director.root.dataPoolManager;
+        this._dataPoolManager = cclegacy.director.root.dataPoolManager;
         const jointTextureInfo = new Float32Array(4);
         const animInfo = this._dataPoolManager.jointAnimationInfo.getData();
         this._jointsMedium = { buffer: null, jointTextureInfo, animInfo, texture: null, boundsInfo: null };
@@ -120,7 +118,6 @@ export class BakedSkinningModel extends MorphModel {
         const worldBounds = this._worldBounds;
         if (worldBounds && skelBound) {
             const node = this.transform;
-            // @ts-expect-error TS2339
             skelBound.transform(node._mat, node._pos, node._rot, node._scale, worldBounds);
         }
     }

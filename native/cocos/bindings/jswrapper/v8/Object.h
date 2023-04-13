@@ -1,19 +1,18 @@
 /****************************************************************************
  Copyright (c) 2016 Chukong Technologies Inc.
- Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -35,6 +34,7 @@
     #include "../Value.h"
     #include "Base.h"
     #include "ObjectWrap.h"
+    #include "base/HasMemberFunction.h"
 
     #include <memory>
 
@@ -62,6 +62,20 @@ public:
      *  @note The return value (non-null) has to be released manually.
      */
     static Object *createPlainObject();
+
+    /**
+     *  @brief Creates a ES6 Map Object like `new Map()` in JS.
+     *  @return A JavaScript Object, or nullptr if there is an error.
+     *  @note The return value (non-null) has to be released manually.
+     */
+    static Object *createMapObject();
+
+    /**
+     *  @brief Creates a ES6 Set Object like `new Set()` in JS.
+     *  @return A JavaScript Object, or nullptr if there is an error.
+     *  @note The return value (non-null) has to be released manually.
+     */
+    static Object *createSetObject();
 
     /**
      *  @brief Creates a JavaScript Array Object like `[] or new Array()`.
@@ -148,11 +162,37 @@ public:
     static Object *createObjectWithClass(Class *cls);
 
     /**
+     *  @brief Creates a JavaScript Native Binding Object from an JS constructor with no arguments, which behaves as `new MyClass();` in JS.
+     *  @param[in] constructor The JS constructor
+     *  @return A JavaScript object, or nullptr if there is an error.
+     *  @note The return value (non-null) has to be released manually.
+     */
+    static Object *createObjectWithConstructor(se::Object *constructor);
+
+    /**
+     *  @brief Creates a JavaScript Native Binding Object from an JS constructor with arguments, which behaves as `new MyClass(arg0, arg1, arg2, ...);` in JS.
+     *  @param[in] constructor The JS constructor
+     *  @param[in] args The arguments passed to the JS constructor
+     *  @return A JavaScript object, or nullptr if there is an error.
+     *  @note The return value (non-null) has to be released manually.
+     */
+    static Object *createObjectWithConstructor(se::Object *constructor, const ValueArray &args);
+
+    /**
+     * Gets the Proxy Target object
+     * @param proxy The JavaScript Proxy object.
+     * @return The target JavaScript object of the parameter.
+     */
+    static Object *createProxyTarget(se::Object *proxy);
+
+    /**
      *  @brief Gets a se::Object from an existing native object pointer.
      *  @param[in] ptr The native object pointer associated with the se::Object
      *  @return A JavaScript Native Binding Object, or nullptr if there is an error.
      *  @note The return value (non-null) has to be released manually.
+     *  @deprecated Use NativePtrToObjectMap to query the native object.
      */
+    CC_DEPRECATED(3.7)
     static Object *getObjectWithPtr(void *ptr);
 
     /**
@@ -197,7 +237,7 @@ public:
      *  @param[in] setter The native callback for setter.
      *  @return true if succeed, otherwise false.
      */
-    bool defineProperty(const char *name, v8::AccessorNameGetterCallback getter, v8::AccessorNameSetterCallback setter);
+    bool defineProperty(const char *name, v8::FunctionCallback getter, v8::FunctionCallback setter);
 
     bool defineOwnProperty(const char *name, const se::Value &value, bool writable = true, bool enumerable = true, bool configurable = true);
 
@@ -223,6 +263,30 @@ public:
      *  @return true if object is a function and there isn't any errors, otherwise false.
      */
     bool call(const ValueArray &args, Object *thisObject, Value *rval = nullptr);
+
+    /**
+     *  @brief Tests whether an object is a ES6 Map.
+     *  @return true if object is a Map, otherwise false.
+     */
+    bool isMap() const;
+
+    /**
+     *  @brief Tests whether an object is a ES6 WeakMap.
+     *  @return true if object is a WeakMap, otherwise false.
+     */
+    bool isWeakMap() const;
+
+    /**
+     *  @brief Tests whether an object is a ES6 Set.
+     *  @return true if object is a Set, otherwise false.
+     */
+    bool isSet() const;
+
+    /**
+     *  @brief Tests whether an object is a ES6 WeakSet.
+     *  @return true if object is a WeakSet, otherwise false.
+     */
+    bool isWeakSet() const;
 
     /**
      *  @brief Tests whether an object is an array.
@@ -257,6 +321,11 @@ public:
      *  @return true if object is a typed array, otherwise false.
      */
     bool isTypedArray() const;
+
+    /** @brief Tests whether an object is a proxy object.
+     *  @return true if object is a proxy object, otherwise false.
+     */
+    bool isProxy() const;
 
     /**
      *  @brief Gets the type of a typed array object.
@@ -293,7 +362,97 @@ public:
      */
     bool getAllKeys(ccstd::vector<ccstd::string> *allKeys) const;
 
+    // ES6 Map operations
+
+    /**
+     *  @brief Clear all elements in a ES6 map object.
+     */
+    void clearMap();
+
+    /**
+     *  @brief Remove an element in a ES6 map by a key.
+     *  @param[in] key The key of the element to remove, it could be any type that se::Value supports.
+     *  @return true if succeed, otherwise false.
+     */
+    bool removeMapElement(const Value &key);
+
+    /**
+     *  @brief Get an element in a ES6 map by a key.
+     *  @param[in] key Key of the element to get, it could be any type that se::Value supports.
+     *  @param[out] outValue Out parameter, On success, *outValue receives the current value of the map element, or nullptr if no such element is found
+     *  @return true if succeed, otherwise false.
+     */
+    bool getMapElement(const Value &key, Value *outValue) const;
+
+    /**
+     *  @brief Set an element in a ES6 map by a key.
+     *  @param[in] key Key of the element to get, it could be any type that se::Value supports.
+     *  @param[in] value The value to set the map.
+     *  @return true if succeed, otherwise false.
+     */
+    bool setMapElement(const Value &key, const Value &value);
+
+    /**
+     *  @brief Get the size of a ES6 map
+     *  @return The size of a ES6 map
+     */
+    uint32_t getMapSize() const;
+
+    /**
+     *  @brief Get all elements in a ES6 map
+     *  @return All elements in a ES6 map, they're stored in a std::vector instead of `std::map/unordered_map` since we don't know how to compare or make a hash for `se::Value`s.
+     */
+    ccstd::vector<std::pair<Value, Value>> getAllElementsInMap() const;
+
+    // ES6 Set operations
+
+    /**
+     *  @brief Clear all elements in a ES6 set object.
+     */
+    void clearSet();
+
+    /**
+     *  @brief Remove an element in a ES6 set.
+     *  @param[in] value The value to remove.
+     *  @return true if succeed, otherwise false.
+     */
+    bool removeSetElement(const Value &value);
+
+    /**
+     *  @brief Add an element to a ES6 set.
+     *  @param[in] value The value to set the set.
+     *  @return true if succeed, otherwise false.
+     */
+    bool addSetElement(const Value &value);
+
+    /**
+     *  @brief Check whether the value is in a ES6 set.
+     *  @return true if the value is in the ES6 set, otherwise false.
+     */
+    bool isElementInSet(const Value &value) const;
+
+    /**
+     *  @brief Get the size of a ES6 set.
+     *  @return The size of a ES6 set.
+     */
+    uint32_t getSetSize() const;
+
+    /**
+     *  @brief Get all elements in a ES6 set.
+     *  @return All elements in a ES6 set.
+     */
+    ValueArray getAllElementsInSet() const;
+
     void setPrivateObject(PrivateObjectBase *data);
+
+    template <typename T>
+    inline void setPrivateObject(TypedPrivateObject<T> *data) {
+        setPrivateObject(static_cast<PrivateObjectBase *>(data));
+        if constexpr (cc::has_setScriptObject<T, void(Object *)>::value) {
+            data->template get<T>()->setScriptObject(this);
+        }
+    }
+
     PrivateObjectBase *getPrivateObject() const;
 
     /*
@@ -308,9 +467,9 @@ public:
      *  @brief Sets a pointer to private data on an object and use smart pointer to hold it.
      *
      *  If the pointer is an instance of `cc::RefCounted`, an `cc::IntrusivePtr` will be created to hold
-     *  the reference to the object, otherwise a `std::shared_ptr` object will be used. 
+     *  the reference to the object, otherwise a `std::shared_ptr` object will be used.
      *  When the JS object is freed by GC, the corresponding smart pointer `IntrusivePtr/shared_ptr` will also be destroyed.
-     * 
+     *
      *  If you do not want the pointer to be released by GC, you can call `setRawPrivateData`.
      *
      *  @param[in] data A void* to set as the object's private data.
@@ -349,8 +508,8 @@ public:
      * @brief Set pointer to the private data on an object and will not use smart pointer to hold it.
      *
      * @tparam T
-     * @param data 
-     * @param tryDestroyInGC When GCing the JS object, whether to `delete` the `data` pointer.  
+     * @param data
+     * @param tryDestroyInGC When GCing the JS object, whether to `delete` the `data` pointer.
      */
     template <typename T>
     inline void setRawPrivateData(T *data, bool tryDestroyInGC = false) {
@@ -514,12 +673,12 @@ private:
     static void nativeObjectFinalizeHook(Object *seObj);
     static void setIsolate(v8::Isolate *isolate);
     static void cleanup();
-    static void setup();
 
     Object();
     ~Object() override;
 
     bool init(Class *cls, v8::Local<v8::Object> obj);
+    v8::Local<v8::Value> getProxyTarget() const;
 
     Class *_cls{nullptr};
     ObjectWrap _obj;
@@ -541,8 +700,6 @@ private:
     friend class ScriptEngine;
     friend class JSBPersistentHandleVisitor;
 };
-// NOLINTNEXTLINE
-extern std::unique_ptr<ccstd::unordered_set<Object *>> __objectSet;
 
 } // namespace se
 

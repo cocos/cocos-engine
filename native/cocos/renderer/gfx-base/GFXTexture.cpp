@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -48,7 +47,10 @@ ccstd::hash_t Texture::computeHash(const TextureViewInfo &info) {
 
 ccstd::hash_t Texture::computeHash(const Texture *texture) {
     ccstd::hash_t hash = texture->isTextureView() ? computeHash(texture->getViewInfo()) : computeHash(texture->getInfo());
-    if (texture->_swapchain) ccstd::hash_combine(hash, texture->_swapchain->getObjectID());
+    if (texture->_swapchain) {
+        ccstd::hash_combine(hash, texture->_swapchain->getObjectID());
+        ccstd::hash_combine(hash, texture->_swapchain->getGeneration());
+    }
     return hash;
 }
 
@@ -114,6 +116,11 @@ void Texture::destroy() {
 ///////////////////////////// Swapchain Specific /////////////////////////////
 
 void Texture::initialize(const SwapchainTextureInfo &info, Texture *out) {
+    updateTextureInfo(info, out);
+    out->doInit(info);
+}
+
+void Texture::updateTextureInfo(const SwapchainTextureInfo &info, Texture *out) {
     out->_info.type = TextureType::TEX2D;
     out->_info.format = info.format;
     out->_info.width = info.width;
@@ -126,7 +133,6 @@ void Texture::initialize(const SwapchainTextureInfo &info, Texture *out) {
     out->_info.usage = GFX_FORMAT_INFOS[toNumber(info.format)].hasDepth
                            ? TextureUsageBit::DEPTH_STENCIL_ATTACHMENT
                            : TextureUsageBit::COLOR_ATTACHMENT;
-
     out->_swapchain = info.swapchain;
     out->_size = formatSize(info.format, info.width, info.height, 1);
     out->_hash = computeHash(out);
@@ -138,8 +144,6 @@ void Texture::initialize(const SwapchainTextureInfo &info, Texture *out) {
     out->_viewInfo.layerCount = out->_info.layerCount;
     out->_viewInfo.baseLevel = 0;
     out->_viewInfo.levelCount = out->_info.levelCount;
-
-    out->doInit(info);
 }
 
 } // namespace gfx

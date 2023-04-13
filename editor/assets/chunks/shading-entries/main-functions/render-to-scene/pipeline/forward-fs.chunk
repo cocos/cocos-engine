@@ -21,7 +21,8 @@ void main()  {
             vec4 csmPos;
             vec4 shadowProjDepthInfo, shadowProjInfo;
             vec3 shadowViewDir0, shadowViewDir1, shadowViewDir2;
-            int csmLayer = CCGetCSMLevel(csmPos, shadowProjDepthInfo, shadowProjInfo, shadowViewDir0, shadowViewDir1, shadowViewDir2, surfaceData.worldPos);
+            int csmLayer = -1;
+            csmLayer = CCGetCSMLevel(csmPos, shadowProjDepthInfo, shadowProjInfo, shadowViewDir0, shadowViewDir1, shadowViewDir2, surfaceData.worldPos);
             bool OutOfRange = csmLayer < 0;
             if (OutOfRange)
                 colDebugCSMLayer = vec3(1.0);
@@ -66,23 +67,28 @@ void main()  {
   // Debug view
   #if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_SINGLE && CC_SURFACES_ENABLE_DEBUG_VIEW
     vec4 debugColor = vec4(0.0, 0.0, 0.0, 1.0);
+    float materialTransparency = CCSurfacesShading(surfaceData, lightingResult).a;
+
     #if !CC_FORWARD_ADD
       CCSurfacesDebugViewMeshData(debugColor);
       CCSurfacesDebugViewSurfaceData(debugColor, surfaceData);
       if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_FOG))
       {
-        fogFactor = 1.0 - fogFactor;
-        debugColor = vec4(fogFactor, fogFactor, fogFactor, 1.0);
+        debugColor.rgb = vec3(1.0 - fogFactor);
       }
     #endif
 
     // only base pass or direct lighting is enabled in add pass
     #if CC_FORWARD_ADD
-      if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_DIRECT_DIFFUSE) || IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_DIRECT_SPECULAR) || IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_DIRECT_ALL))
+      if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_DIRECT_DIFFUSE) || IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_DIRECT_SPECULAR) || IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_DIRECT_ALL) ||
+          IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_TRANSMIT_DIRECT_DIFFUSE) || IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_TRANSMIT_DIRECT_SPECULAR) || IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_TRT_DIRECT))
     #endif
       {
           if (CCSurfacesDebugViewLightingResult(debugColor, lightingResult))
           {
+            // Use material alpha
+            debugColor.a = materialTransparency;
+
             // lighting needs color space conversion          
             #if CC_USE_HDR
               if (IS_DEBUG_VIEW_COMPOSITE_ENABLE_TONE_MAPPING)
@@ -92,9 +98,10 @@ void main()  {
                 debugColor.rgb = LinearToSRGB(debugColor.rgb);
           }
       }
-
-    fragColorX = debugColor;
-    return;
+    if (IS_DEBUG_VIEW_ENABLE_WITH_CAMERA) {
+      fragColorX = debugColor;
+      return;
+    }
 
   #elif CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC && CC_SURFACES_ENABLE_DEBUG_VIEW
     CCSurfacesDebugViewCompositeLightingResult(lightingResult);
@@ -117,6 +124,11 @@ void main()  {
 #endif
 
     // Color output
+  #if CC_USE_RGBE_OUTPUT
+    fragColorX = packRGBE(color.rgb); // for reflection-map
+    return;
+  #endif
+
   #if CC_USE_HDR
     #if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC && CC_SURFACES_ENABLE_DEBUG_VIEW
       if (IS_DEBUG_VIEW_COMPOSITE_ENABLE_TONE_MAPPING)

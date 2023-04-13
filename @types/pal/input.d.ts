@@ -274,6 +274,17 @@ declare module 'pal/input' {
         public get buttonRightStick (): InputSourceButton;
 
         /**
+         * @en The button Options
+         * @zh 选项按键
+         */
+        public get buttonOptions (): InputSourceButton;
+        /**
+         * @en The button Start
+         * @zh 开始按键
+         */
+        public get buttonStart (): InputSourceButton;
+
+        /**
          * @en The position Left hand
          * @zh 左手位置
          */
@@ -357,5 +368,27 @@ declare module 'pal/input' {
          * @zh 头部中间方向
          */
         public get headMiddleOrientation (): InputSourceOrientation;
+    }
+
+    type HandheldCallback = (res: import('cocos/input/types').EventHandheld) => void;
+    /**
+     * Class designed for Handheld input.
+     */
+     export class HandheldInputDevice {
+        /**
+         * Register the handheld event callback.
+         * @engineInternal
+         */
+        public _on (eventType: import('cocos/input/types/event-enum').InputEventType, callback: HandheldCallback, target?: any);
+        /**
+         * @en The position handheld
+         * @zh 手持设备相机位置
+         */
+        public get handheldPosition (): InputSourcePosition;
+        /**
+         * @en The orientation handheld
+         * @zh 手持设备相机方向
+         */
+        public get handheldOrientation (): InputSourceOrientation;
     }
 }

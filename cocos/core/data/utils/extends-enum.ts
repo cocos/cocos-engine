@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { DEV } from 'internal:constants';
 import { errorID } from '../../platform/debug';
@@ -32,10 +31,10 @@ import { errorID } from '../../platform/debug';
  * 此函数的行为等价于返回了一个新的枚举，其成员囊括了所有源枚举的成员。
  * 这些枚举的成员必须各不相同（包括成员名和值），否则行为是未定义的。
  * @en
- * Combine arbitray number of enumerations.
- * It behaves like an enumeration having members that is a combination of members of the source enumerations
+ * Combine an arbitrary number of enumerations.
+ * It behaves like an enumeration having members that are a combination of members of the source enumerations
  * is returned.
- * These enumerations shall have non-overlaped member names or member values.
+ * These enumerations shall have non-overlapped member names or member values.
  * If not, the behavior is undefined.
  * @example
  * ```ts

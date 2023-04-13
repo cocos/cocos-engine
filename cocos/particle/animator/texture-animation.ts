@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,19 +20,20 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { ccclass, tooltip, displayOrder, type, formerlySerializedAs, serializable, range } from 'cc.decorator';
-import { lerp, pseudoRandom, repeat } from '../../core/math';
-import { Enum } from '../../core/value-types';
+import { lerp, pseudoRandom, repeat, Enum } from '../../core';
 import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
 import CurveRange from './curve-range';
 import { ModuleRandSeed } from '../enum';
+import { isCurveTwoValues } from '../particle-general-function';
 
 const TEXTURE_ANIMATION_RAND_OFFSET = ModuleRandSeed.TEXTURE;
 
 /**
- * 粒子贴图动画类型。
+ * @en Texture animation type.
+ * @zh 粒子贴图动画类型。
  * @enum textureAnimationModule.Mode
  */
 const Mode = Enum({
@@ -49,21 +49,30 @@ const Mode = Enum({
 });
 
 /**
- * 贴图动画的播放方式。
+ * @en Mode to play texture animation.
+ * @zh 贴图动画的播放方式。
  * @enum textureAnimationModule.Animation
  */
 const Animation = Enum({
     /**
-     * 播放贴图中的所有帧。
+     * @en Play whole sheet of texture.
+     * @zh 播放贴图中的所有帧。
      */
     WholeSheet: 0,
 
     /**
-     * 播放贴图中的其中一行动画。
+     * @en Play just one row of texture.
+     * @zh 播放贴图中的其中一行动画。
      */
     SingleRow: 1,
 });
 
+/**
+ * @en
+ * Use this module to play frame animation of the particle texture.
+ * @zh
+ * 这个模块用于播放粒子纹理带的纹理帧动画。
+ */
 @ccclass('cc.TextureAnimationModule')
 export default class TextureAnimationModule extends ParticleModuleBase {
     @serializable
@@ -76,6 +85,7 @@ export default class TextureAnimationModule extends ParticleModuleBase {
     private _numTilesY = 0;
 
     /**
+     * @en Enable this module or not.
      * @zh 是否启用。
      */
     @displayOrder(0)
@@ -95,6 +105,7 @@ export default class TextureAnimationModule extends ParticleModuleBase {
     private _mode = Mode.Grid;
 
     /**
+     * @en Set texture animation [[Mode]] (only support Grid mode).
      * @zh 设定粒子贴图动画的类型（暂只支持 Grid 模式）[[Mode]]。
      */
     @type(Mode)
@@ -111,6 +122,7 @@ export default class TextureAnimationModule extends ParticleModuleBase {
     }
 
     /**
+     * @en Tile count on X axis.
      * @zh X 方向动画帧数。
      */
     @displayOrder(2)
@@ -127,6 +139,7 @@ export default class TextureAnimationModule extends ParticleModuleBase {
     }
 
     /**
+     * @en Tile count on Y axis.
      * @zh Y 方向动画帧数。
      */
     @displayOrder(3)
@@ -143,6 +156,7 @@ export default class TextureAnimationModule extends ParticleModuleBase {
     }
 
     /**
+     * @en Texture animation type. See [[Animation]].
      * @zh 动画播放方式 [[Animation]]。
      */
     @type(Animation)
@@ -152,26 +166,29 @@ export default class TextureAnimationModule extends ParticleModuleBase {
     public animation = Animation.WholeSheet;
 
     /**
+     * @en Curve to control texture animation speed.
      * @zh 一个周期内动画播放的帧与时间变化曲线。
      */
     @type(CurveRange)
     @serializable
-    @range([0, 1])
+    @range([0, Number.POSITIVE_INFINITY])
     @displayOrder(7)
     @tooltip('i18n:textureAnimationModule.frameOverTime')
     public frameOverTime = new CurveRange();
 
     /**
+     * @en Texture animation frame start to play.
      * @zh 从第几帧开始播放，时间为整个粒子系统的生命周期。
      */
     @type(CurveRange)
     @serializable
-    @range([0, 1])
+    @range([0, Number.POSITIVE_INFINITY])
     @displayOrder(8)
     @tooltip('i18n:textureAnimationModule.startFrame')
     public startFrame = new CurveRange();
 
     /**
+     * @en Animation cycle count per particle life.
      * @zh 一个生命周期内播放循环的次数。
      */
     @serializable
@@ -216,6 +233,8 @@ export default class TextureAnimationModule extends ParticleModuleBase {
     }
 
     /**
+     * @en Get random row from texture to generate animation.<br>
+     * This option is available when [[Animation]] type is SingleRow.
      * @zh 随机从动画贴图中选择一行以生成动画。<br>
      * 此选项仅在动画播放方式为 SingleRow 时生效。
      */
@@ -225,6 +244,8 @@ export default class TextureAnimationModule extends ParticleModuleBase {
     public randomRow = false;
 
     /**
+     * @en Generate animation from specific row in texture.<br>
+     * This option is available when [[Animation]] type is SingleRow and randomRow option is disabled.
      * @zh 从动画贴图中选择特定行以生成动画。<br>
      * 此选项仅在动画播放方式为 SingleRow 时且禁用 randomRow 时可用。
      */
@@ -235,26 +256,41 @@ export default class TextureAnimationModule extends ParticleModuleBase {
 
     public name = PARTICLE_MODULE_NAME.TEXTURE;
 
+    /**
+     * @en Init start row to particle.
+     * @zh 给粒子创建初始行属性。
+     * @param p @en Particle to set start row. @zh 设置初始行属性的粒子。
+     * @internal
+     */
     public init (p: Particle) {
         p.startRow = Math.floor(Math.random() * this.numTilesY);
     }
 
+    /**
+     * @en Apply texture animation to particle.
+     * @zh 应用贴图动画到粒子。
+     * @param p @en Particle to animate. @zh 模块需要更新的粒子。
+     * @param dt @en Update interval time. @zh 粒子系统更新的间隔时间。
+     * @internal
+     */
     public animate (p: Particle, dt: number) {
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
-        const startFrame = this.startFrame.evaluate(normalizedTime, pseudoRandom(p.randomSeed + TEXTURE_ANIMATION_RAND_OFFSET))! / (this.numTilesX * this.numTilesY);
+        const randStart = isCurveTwoValues(this.startFrame) ? pseudoRandom(p.randomSeed + TEXTURE_ANIMATION_RAND_OFFSET) : 0;
+        const randFrame = isCurveTwoValues(this.frameOverTime) ? pseudoRandom(p.randomSeed + TEXTURE_ANIMATION_RAND_OFFSET) : 0;
+        const startFrame = this.startFrame.evaluate(normalizedTime, randStart)! / (this.numTilesX * this.numTilesY);
         if (this.animation === Animation.WholeSheet) {
-            p.frameIndex = repeat(this.cycleCount * (this.frameOverTime.evaluate(normalizedTime, pseudoRandom(p.randomSeed + TEXTURE_ANIMATION_RAND_OFFSET))! + startFrame), 1);
+            p.frameIndex = repeat(this.cycleCount * (this.frameOverTime.evaluate(normalizedTime, randFrame)! + startFrame), 1);
         } else if (this.animation === Animation.SingleRow) {
             const rowLength = 1 / this.numTilesY;
             if (this.randomRow) {
-                const f = repeat(this.cycleCount * (this.frameOverTime.evaluate(normalizedTime, pseudoRandom(p.randomSeed + TEXTURE_ANIMATION_RAND_OFFSET))! + startFrame), 1);
+                const f = repeat(this.cycleCount * (this.frameOverTime.evaluate(normalizedTime, randFrame)! + startFrame), 1);
                 const from = p.startRow * rowLength;
                 const to = from + rowLength;
                 p.frameIndex = lerp(from, to, f);
             } else {
                 const from = this.rowIndex * rowLength;
                 const to = from + rowLength;
-                p.frameIndex = lerp(from, to, repeat(this.cycleCount * (this.frameOverTime.evaluate(normalizedTime, pseudoRandom(p.randomSeed + TEXTURE_ANIMATION_RAND_OFFSET))! + startFrame), 1));
+                p.frameIndex = lerp(from, to, repeat(this.cycleCount * (this.frameOverTime.evaluate(normalizedTime, randFrame)! + startFrame), 1));
             }
         }
     }

@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -25,6 +24,8 @@
 
 #include "BaseGame.h"
 #include <string>
+#include "ApplicationManager.h"
+#include "platform/interfaces/modules/ISystemWindowManager.h"
 #include "renderer/pipeline/GlobalDescriptorSetManager.h"
 
 extern "C" void cc_load_all_plugins(); // NOLINT
@@ -46,12 +47,21 @@ int BaseGame::init() {
                                                       cc::ISystemWindow::CC_WINDOW_INPUT_FOCUS
                                                 : _windowInfo.flags;
     std::call_once(_windowCreateFlag, [&]() {
-        if (_windowInfo.x == -1 || _windowInfo.y == -1) {
-            createWindow(_windowInfo.title.c_str(), _windowInfo.width, _windowInfo.height, _windowInfo.flags);
-        } else {
-            createWindow(_windowInfo.title.c_str(),
-                         _windowInfo.x, _windowInfo.y, _windowInfo.width, _windowInfo.height, _windowInfo.flags);
-        }
+        ISystemWindowInfo info;
+        info.title = _windowInfo.title;
+    #if CC_PLATFORM == CC_PLATFORM_WINDOWS
+        info.x = _windowInfo.x == -1 ? 50 : _windowInfo.x; // 50 meams move window a little for now
+        info.y = _windowInfo.y == -1 ? 50 : _windowInfo.y; // same above
+    #else
+        info.x = _windowInfo.x == -1 ? 0 : _windowInfo.x;
+        info.y = _windowInfo.y == -1 ? 0 : _windowInfo.y;
+    #endif
+        info.width = _windowInfo.width;
+        info.height = _windowInfo.height;
+        info.flags = _windowInfo.flags;
+
+        ISystemWindowManager* windowMgr = CC_GET_PLATFORM_INTERFACE(ISystemWindowManager);
+        windowMgr->createWindow(info);
     });
 
 #endif

@@ -28,13 +28,14 @@
 #include "platform/interfaces/modules/ISystemWindow.h"
 
 #import <UIKit/UIKit.h>
-
+#include "base/memory/Memory.h"
 #include "modules/Accelerometer.h"
 #include "modules/Battery.h"
 #include "modules/Network.h"
 #include "modules/Screen.h"
 #include "modules/System.h"
 #include "modules/SystemWindow.h"
+#include "modules/SystemWindowManager.h"
 #include "modules/Vibrator.h"
 
 extern int cocos_main(int argc, const char **argv);
@@ -104,9 +105,19 @@ int32_t IOSPlatform::init() {
     registerInterface(std::make_shared<Network>());
     registerInterface(std::make_shared<Screen>());
     registerInterface(std::make_shared<System>());
-    registerInterface(std::make_shared<SystemWindow>());
     registerInterface(std::make_shared<Vibrator>());
+    registerInterface(std::make_shared<SystemWindowManager>());
     return 0;
+}
+
+void IOSPlatform::exit() {
+    if(_requestExit) {
+        // Manual quit requires a call to onDestory.
+        onDestroy();
+        ::exit(0);
+    } else {
+        _quitLoop = true;
+    }
 }
 
 int32_t IOSPlatform::loop() {
@@ -132,7 +143,7 @@ void IOSPlatform::onPause() {
 
     cc::WindowEvent ev;
     ev.type = cc::WindowEvent::Type::HIDDEN;
-    dispatchEvent(ev);
+    cc::events::WindowEvent::broadcast(ev);
 }
 
 void IOSPlatform::onResume() {
@@ -140,13 +151,33 @@ void IOSPlatform::onResume() {
 
     cc::WindowEvent ev;
     ev.type = cc::WindowEvent::Type::SHOW;
-    dispatchEvent(ev);
+    cc::events::WindowEvent::broadcast(ev);
 }
 
 void IOSPlatform::onClose() {
     cc::WindowEvent ev;
     ev.type = cc::WindowEvent::Type::CLOSE;
-    dispatchEvent(ev);
+    cc::events::WindowEvent::broadcast(ev);
+}
+
+void IOSPlatform::requestExit() {
+    _requestExit = true;
+    onClose();
+}
+
+void IOSPlatform::onDestroy() {
+    if(!_requestExit) {
+        // ios exit process is special because it needs to wait for ts layer to destroy resources.
+        // The timer cannot be used here.
+        while (!_quitLoop) {
+            runTask();
+        }
+    }
+    UniversalPlatform::onDestroy();
+}
+
+ISystemWindow *IOSPlatform::createNativeWindow(uint32_t windowId, void *externalHandle) {
+    return ccnew SystemWindow(windowId, externalHandle);
 }
 
 } // namespace cc

@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -34,7 +33,6 @@
 #include "SceneCulling.h"
 #include "forward/ForwardPipeline.h"
 #include "gfx-base/GFXCommandBuffer.h"
-#include "gfx-base/GFXDescriptorSet.h"
 #include "gfx-base/GFXDevice.h"
 #include "scene/Camera.h"
 #include "scene/DirectionalLight.h"
@@ -72,7 +70,10 @@ void ShadowMapBatchedQueue::gatherLightPasses(const scene::Camera *camera, const
                         } else {
                             layer = csmLayers->getLayers()[level];
                         }
-                        shadowCulling(_pipeline, camera, layer);
+                        bool isCullingEnable = camera->isCullingEnabled();
+                        if (isCullingEnable) {
+                            shadowCulling(_pipeline, camera, layer);
+                        }
                         const RenderObjectList &dirShadowObjects = layer->getShadowObjects();
                         for (const auto &ro : dirShadowObjects) {
                             add(ro.model);
@@ -84,10 +85,11 @@ void ShadowMapBatchedQueue::gatherLightPasses(const scene::Camera *camera, const
                 const auto *spotLight = static_cast<const scene::SpotLight *>(light);
                 const RenderObjectList &castShadowObjects = csmLayers->getCastShadowObjects();
                 if (spotLight->isShadowEnabled()) {
+                    const auto visibility = spotLight->getVisibility();
                     geometry::AABB ab;
                     for (const auto &ro : castShadowObjects) {
                         const auto *model = ro.model;
-                        if (!model->isEnabled() || !model->isCastShadow() || !model->getNode()) {
+                        if ((visibility & model->getNode()->getLayer()) != model->getNode()->getLayer() || !model->isEnabled() || !model->isCastShadow() || !model->getNode()) {
                             continue;
                         }
                         if (model->getWorldBounds()) {
@@ -98,15 +100,8 @@ void ShadowMapBatchedQueue::gatherLightPasses(const scene::Camera *camera, const
                     }
                 }
             } break;
-
-            case scene::LightType::SPHERE: {
-            } break;
-
-            case scene::LightType::UNKNOWN: {
-            } break;
-
-            default: {
-            } break;
+            default:
+                break;
         }
 
         _instancedQueue->uploadBuffers(cmdBuffer);

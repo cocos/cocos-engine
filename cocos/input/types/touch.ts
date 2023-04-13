@@ -1,19 +1,18 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -24,8 +23,7 @@
  THE SOFTWARE.
 */
 
-import { Vec2 } from '../../core/math';
-import { legacyCC } from '../../core/global-exports';
+import { Vec2, cclegacy } from '../../core';
 
 const _vec2 = new Vec2();
 /**
@@ -94,7 +92,7 @@ export class Touch {
         }
 
         out.set(this._point.x, this._point.y);
-        legacyCC.view._convertToUISpace(out);
+        cclegacy.view._convertToUISpace(out);
         return out;
     }
 
@@ -103,8 +101,8 @@ export class Touch {
      * @zh 获取当前触点在 UI 坐标系中 X 轴位置。
      */
     public getUILocationX () {
-        const viewport = legacyCC.view.getViewportRect();
-        return (this._point.x - viewport.x) / legacyCC.view.getScaleX();
+        const viewport = cclegacy.view.getViewportRect();
+        return (this._point.x - viewport.x) / cclegacy.view.getScaleX();
     }
 
     /**
@@ -112,8 +110,8 @@ export class Touch {
      * @zh 获取当前触点在 UI 坐标系中 Y 轴位置。
      */
     public getUILocationY () {
-        const viewport = legacyCC.view.getViewportRect();
-        return (this._point.y - viewport.y) / legacyCC.view.getScaleY();
+        const viewport = cclegacy.view.getViewportRect();
+        return (this._point.y - viewport.y) / cclegacy.view.getScaleY();
     }
 
     /**
@@ -141,7 +139,7 @@ export class Touch {
         }
 
         out.set(this._prevPoint.x, this._prevPoint.y);
-        legacyCC.view._convertToUISpace(out);
+        cclegacy.view._convertToUISpace(out);
         return out;
     }
 
@@ -170,7 +168,7 @@ export class Touch {
         }
 
         out.set(this._startPoint.x, this._startPoint.y);
-        legacyCC.view._convertToUISpace(out);
+        cclegacy.view._convertToUISpace(out);
         return out;
     }
 
@@ -201,7 +199,7 @@ export class Touch {
 
         _vec2.set(this._point);
         _vec2.subtract(this._prevPoint);
-        out.set(legacyCC.view.getScaleX(), legacyCC.view.getScaleY());
+        out.set(cclegacy.view.getScaleX(), cclegacy.view.getScaleY());
         Vec2.divide(out, _vec2, out);
         return out;
     }
@@ -216,7 +214,7 @@ export class Touch {
             out = new Vec2();
         }
 
-        out.set(this._point.x, legacyCC.view._designResolutionSize.height - this._point.y);
+        out.set(this._point.x, cclegacy.view._designResolutionSize.height - this._point.y);
         return out;
     }
 
@@ -230,7 +228,7 @@ export class Touch {
             out = new Vec2();
         }
 
-        out.set(this._prevPoint.x, legacyCC.view._designResolutionSize.height - this._prevPoint.y);
+        out.set(this._prevPoint.x, cclegacy.view._designResolutionSize.height - this._prevPoint.y);
         return out;
     }
 
@@ -244,7 +242,7 @@ export class Touch {
             out = new Vec2();
         }
 
-        out.set(this._startPoint.x, legacyCC.view._designResolutionSize.height - this._startPoint.y);
+        out.set(this._startPoint.x, cclegacy.view._designResolutionSize.height - this._startPoint.y);
         return out;
     }
 
@@ -297,7 +295,7 @@ export class Touch {
             this._point.x = x || 0;
             this._point.y = y || 0;
         }
-        this._lastModified = legacyCC.game.frameStartTime;
+        this._lastModified = cclegacy.game.frameStartTime;
     }
 
     /**
@@ -321,8 +319,8 @@ export class Touch {
         } else {
             this._prevPoint = new Vec2(x || 0, y || 0);
         }
-        this._lastModified = legacyCC.game.frameStartTime;
+        this._lastModified = cclegacy.game.frameStartTime;
     }
 }
 
-legacyCC.Touch = Touch;
+cclegacy.Touch = Touch;

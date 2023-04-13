@@ -1,4 +1,8 @@
-exports.template = `
+'use strict';
+
+const { updateElementReadonly, updateElementInvalid } = require('../../utils/assets');
+
+exports.template = /* html */`
 <div class="container">
     <div class="show-type-wrap">
         <ui-tab class="show-type" value="0">
@@ -67,14 +71,32 @@ exports.template = `
             <span slot="label">Speed</span>
             <ui-num-input slot="content" class="speed"></ui-num-input>
         </ui-prop>
+        <ui-prop ui="asset">
+            <span slot="label">Base Clip</span>
+            <ui-asset slot="content" droppable="cc.AnimationClip" class="base-clip"></ui-asset>
+        </ui-prop>
     </div>
+    <ui-label class="multiple-warn-tip" value="i18n:ENGINE.assets.multipleWarning"></ui-label>
 </div>
 `;
 
-exports.style = `
+exports.style = /* css */`
 ui-prop,
 ui-section {
     margin: 4px 0;
+}
+.container[multiple-invalid] > *:not(.multiple-warn-tip) {
+    display: none!important;
+ }
+
+ .container[multiple-invalid] > .multiple-warn-tip {
+    display: block;
+ }
+
+.container .multiple-warn-tip {
+    display: none;
+    text-align: center;
+    color: var(--color-focus-contrast-weakest);
 }
 .container > .show-type-wrap {
     text-align: center;
@@ -104,6 +126,7 @@ ui-section {
     display: flex;
     line-height: 1.6em;
     padding: 2px 5px;
+    cursor: pointer;
 }
 .container > .clips > .clip > .table > .line[active] {
     background: var(--color-focus-fill);
@@ -132,6 +155,16 @@ ui-section {
 }
 .container > .clips > .clip > .add-clip > .button > ui-icon:hover {
     background: var(--color-normal-fill);
+}
+
+.container > .clips > .clip > .add-clip > .button > ui-icon[disabled] {
+    opacity: 0.55;
+    pointer-events: none;
+}
+
+.container > .editor[disabled] {
+    opacity: 0.55;
+    pointer-events: none;
 }
 
 .container > .editor > .anim-name {
@@ -290,6 +323,7 @@ exports.$ = {
     clipFrames: '.clip-frames',
     wrapMode: '.wrap-mode',
     speed: '.speed',
+    baseClip: '.base-clip',
     rulerMaking: '.ruler-making',
     rulerGear: '.ruler-gear',
     controlWrap: '.control-wrap',
@@ -446,6 +480,7 @@ const Elements = {
                 const addIcon = document.createElement('ui-icon');
                 addIcon.setAttribute('value', 'add');
                 addIcon.setAttribute('tooltip', 'Duplicate Selected');
+                updateElementReadonly.call(panel, addIcon);
                 button.appendChild(addIcon);
                 addIcon.addEventListener('click', () => {
                     const newInfo = panel.newClipTemplate();
@@ -455,11 +490,13 @@ const Elements = {
                     Elements.clips.update.call(panel);
                     Elements.editor.update.call(panel);
                     panel.dispatch('change');
+                    panel.dispatch('snapshot');
                 });
 
                 const miniIcon = document.createElement('ui-icon');
                 miniIcon.setAttribute('value', 'mini');
                 miniIcon.setAttribute('tooltip', 'Remove Selected');
+                updateElementReadonly.call(panel, miniIcon);
                 button.appendChild(miniIcon);
                 miniIcon.addEventListener('click', () => {
                     panel.updateCurrentClipInfo();
@@ -476,6 +513,7 @@ const Elements = {
                     Elements.clips.update.call(panel);
                     Elements.editor.update.call(panel);
                     panel.dispatch('change');
+                    panel.dispatch('snapshot');
                 });
             });
         },
@@ -510,6 +548,9 @@ const Elements = {
             panel.onSpeedChangeBind = panel.onSpeedChange.bind(panel);
             panel.$.speed.addEventListener('confirm', panel.onSpeedChangeBind);
 
+            panel.onBaseClipChangeBind = panel.onBaseClipChange.bind(panel);
+            panel.$.baseClip.addEventListener('confirm', panel.onBaseClipChangeBind);
+
             function observer() {
                 const rect = panel.$.editor.getBoundingClientRect();
                 panel.gridTableWith = rect.width - 60;
@@ -542,6 +583,7 @@ const Elements = {
 
             panel.$.wrapMode.removeEventListener('confirm', panel.onWrapModeChangeBind);
             panel.$.speed.removeEventListener('confirm', panel.onSpeedChangeBind);
+            panel.$.baseClip.removeEventListener('confirm', panel.onBaseClipChangeBind);
         },
         update() {
             const panel = this;
@@ -556,6 +598,8 @@ const Elements = {
             } else {
                 panel.$.editor.style.display = 'block';
             }
+
+            updateElementReadonly.call(panel, panel.$.editor);
 
             panel.$.clipName.value = panel.currentClipInfo.name;
 
@@ -615,43 +659,6 @@ const Elements = {
             Object.assign(panel.$.controlRight.style, panel.currentClipInfo.ctrlEndStyle);
         },
     },
-};
-
-exports.update = function(assetList, metaList) {
-    this.assetList = assetList;
-    this.metaList = metaList;
-    this.asset = assetList[0];
-    this.meta = metaList[0];
-
-    for (const prop in Elements) {
-        const element = Elements[prop];
-        if (element.update) {
-            element.update.call(this);
-        }
-    }
-    this.initAnimationNameToUUIDMap();
-    this.initAnimationInfos();
-    if (this.animationInfos) {
-        this.onSelect(this.rawClipIndex, this.splitClipIndex);
-    }
-};
-
-exports.ready = function() {
-    for (const prop in Elements) {
-        const element = Elements[prop];
-        if (element.ready) {
-            element.ready.call(this);
-        }
-    }
-};
-
-exports.close = function() {
-    for (const prop in Elements) {
-        const element = Elements[prop];
-        if (element.close) {
-            element.close.call(this);
-        }
-    }
 };
 
 async function callModelPreviewFunction(funcName, ...args) {
@@ -749,6 +756,7 @@ exports.methods = {
             to,
             wrapMode: splitInfo.wrapMode,
             speed: splitInfo.speed || 1,
+            baseClip: splitInfo.additive?.baseClip || '',
         };
     },
     getRightName(name) {
@@ -797,6 +805,7 @@ exports.methods = {
         const fps = info.fps !== undefined ? info.fps : panel.rawClipInfo.fps;
         const wrapMode = info.wrapMode ?? panel.rawClipInfo.wrapMode;
         const speed = info.speed ?? panel.rawClipInfo.speed;
+        const baseClip = (info.additive?.baseClip) ?? panel.rawClipInfo.baseClip;
         panel.currentClipInfo = {
             name: info.name,
             from: info.from * fps,
@@ -817,6 +826,7 @@ exports.methods = {
             fps,
             wrapMode,
             speed,
+            baseClip,
         };
 
         const maxFrames = (panel.rawClipInfo.duration * panel.currentClipInfo.fps).toFixed(0);
@@ -840,6 +850,7 @@ exports.methods = {
 
         panel.$.wrapMode.value = panel.currentClipInfo.wrapMode;
         panel.$.speed.value = panel.currentClipInfo.speed || 1;
+        panel.$.baseClip.value = panel.currentClipInfo.baseClip || '';
     },
     updateRawClipInfo() {
         const panel = this;
@@ -1000,6 +1011,7 @@ exports.methods = {
         const curClipInfo = panel.getCurClipInfo();
         Editor.Message.broadcast('fbx-inspector:animation-change', curClipInfo);
         panel.dispatch('change');
+        panel.dispatch('snapshot');
     },
     updateVirtualControl() {
         const panel = this;
@@ -1038,6 +1050,7 @@ exports.methods = {
         panel.clipNames.add(name);
 
         panel.dispatch('change');
+        panel.dispatch('snapshot');
         Elements.clips.update.call(panel);
     },
     onCutClip(event) {
@@ -1050,6 +1063,7 @@ exports.methods = {
         Elements.editor.update.call(panel);
 
         panel.dispatch('change');
+        panel.dispatch('snapshot');
     },
     onFpsChange(event) {
         const panel = this;
@@ -1058,6 +1072,7 @@ exports.methods = {
 
         Elements.editor.update.call(panel);
         panel.dispatch('change');
+        panel.dispatch('snapshot');
     },
     onWrapModeChange(event) {
         const panel = this;
@@ -1072,6 +1087,7 @@ exports.methods = {
         );
         Elements.editor.update.call(panel);
         panel.dispatch('change');
+        panel.dispatch('snapshot');
     },
     onSpeedChange(event) {
         const panel = this;
@@ -1087,5 +1103,60 @@ exports.methods = {
 
         Elements.editor.update.call(panel);
         panel.dispatch('change');
+        panel.dispatch('snapshot');
     },
+    onBaseClipChange(event) {
+        const panel = this;
+
+        const baseClipUUID = String(event.target.value);
+        (panel.animationInfos[panel.rawClipIndex].splits[panel.splitClipIndex].additive ??= {}).baseClip = baseClipUUID;
+
+        Elements.editor.update.call(panel);
+        panel.dispatch('change');
+        panel.dispatch('snapshot');
+    },
+};
+
+exports.ready = function() {
+    for (const prop in Elements) {
+        const element = Elements[prop];
+        if (element.ready) {
+            element.ready.call(this);
+        }
+    }
+};
+
+exports.update = function(assetList, metaList) {
+    this.assetList = assetList;
+    this.metaList = metaList;
+    this.asset = assetList[0];
+    this.meta = metaList[0];
+
+    if (assetList.length > 1) {
+        this.$.container.setAttribute('multiple-invalid', '');
+        return;
+    } else {
+        this.$.container.removeAttribute('multiple-invalid');
+    }
+
+    for (const prop in Elements) {
+        const element = Elements[prop];
+        if (element.update) {
+            element.update.call(this);
+        }
+    }
+    this.initAnimationNameToUUIDMap();
+    this.initAnimationInfos();
+    if (this.animationInfos) {
+        this.onSelect(this.rawClipIndex, this.splitClipIndex);
+    }
+};
+
+exports.close = function() {
+    for (const prop in Elements) {
+        const element = Elements[prop];
+        if (element.close) {
+            element.close.call(this);
+        }
+    }
 };

@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -24,6 +23,7 @@
 ****************************************************************************/
 
 #include "jsb_websocket.h"
+#include "MappingUtils.h"
 #include "cocos/base/DeferredReleasePool.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
@@ -74,12 +74,11 @@ void JsbWebSocketDelegate::onOpen(cc::network::WebSocket *ws) {
         return;
     }
 
-    auto iter = se::NativePtrToObjectMap::find(ws);
-    if (iter == se::NativePtrToObjectMap::end()) {
+    se::Object *wsObj = se::NativePtrToObjectMap::findFirst(ws);
+    if (!wsObj) {
         return;
     }
 
-    se::Object *wsObj = iter->second;
     wsObj->setProperty("protocol", se::Value(ws->getProtocol()));
 
     se::HandleObject jsObj(se::Object::createPlainObject());
@@ -107,12 +106,10 @@ void JsbWebSocketDelegate::onMessage(cc::network::WebSocket *ws, const cc::netwo
         return;
     }
 
-    auto iter = se::NativePtrToObjectMap::find(ws);
-    if (iter == se::NativePtrToObjectMap::end()) {
+    se::Object *wsObj = se::NativePtrToObjectMap::findFirst(ws);
+    if (!wsObj) {
         return;
     }
-
-    se::Object *wsObj = iter->second;
     se::HandleObject jsObj(se::Object::createPlainObject());
     jsObj->setProperty("type", se::Value("message"));
     se::Value target;
@@ -158,14 +155,13 @@ void JsbWebSocketDelegate::onClose(cc::network::WebSocket *ws, uint16_t code, co
         return;
     }
 
-    auto iter = se::NativePtrToObjectMap::find(ws);
+    se::Object *wsObj = se::NativePtrToObjectMap::findFirst(ws);
     do {
-        if (iter == se::NativePtrToObjectMap::end()) {
+        if (!wsObj) {
             CC_LOG_INFO("WebSocket js instance was destroyted, don't need to invoke onclose callback!");
             break;
         }
 
-        se::Object *wsObj = iter->second;
         se::HandleObject jsObj(se::Object::createPlainObject());
         jsObj->setProperty("type", se::Value("close")); // deprecated since v3.6
         se::Value target;
@@ -187,7 +183,7 @@ void JsbWebSocketDelegate::onClose(cc::network::WebSocket *ws, uint16_t code, co
             SE_REPORT_ERROR("Can't get onclose function!");
         }
 
-        //JS Websocket object now can be GC, since the connection is closed.
+        // JS Websocket object now can be GC, since the connection is closed.
         wsObj->unroot();
         _JSDelegate.toObject()->unroot();
 
@@ -209,12 +205,10 @@ void JsbWebSocketDelegate::onError(cc::network::WebSocket *ws, const cc::network
         return;
     }
 
-    auto iter = se::NativePtrToObjectMap::find(ws);
-    if (iter == se::NativePtrToObjectMap::end()) {
+    se::Object *wsObj = se::NativePtrToObjectMap::findFirst(ws);
+    if (!wsObj) {
         return;
     }
-
-    se::Object *wsObj = iter->second;
     se::HandleObject jsObj(se::Object::createPlainObject());
     jsObj->setProperty("type", se::Value("error"));
     se::Value target;
@@ -237,7 +231,7 @@ void JsbWebSocketDelegate::setJSDelegate(const se::Value &jsDelegate) {
     _JSDelegate = jsDelegate;
 }
 
-static bool webSocketFinalize(const se::State &s) {
+static bool webSocketFinalize(se::State &s) {
     auto *cobj = static_cast<cc::network::WebSocket *>(s.nativeThisObject());
     CC_LOG_INFO("jsbindings: finalizing JS object %p (WebSocket)", cobj);
 
@@ -346,7 +340,7 @@ static bool webSocketConstructor(se::State &s) {
 }
 SE_BIND_CTOR(webSocketConstructor, jsbWebSocketClass, webSocketFinalize)
 
-static bool webSocketSend(const se::State &s) {
+static bool webSocketSend(se::State &s) {
     const auto &args = s.args();
     int argc = static_cast<int>(args.size());
 
@@ -357,14 +351,14 @@ static bool webSocketSend(const se::State &s) {
             ccstd::string data;
             ok = sevalue_to_native(args[0], &data);
             SE_PRECONDITION2(ok, false, "Convert string failed");
-            //IDEA: We didn't find a way to get the JS string length in JSB2.0.
-            //            if (data.empty() && len > 0)
-            //            {
-            //                CC_LOG_DEBUGWARN("Text message to send is empty, but its length is greater than 0!");
-            //                //IDEA: Note that this text message contains '0x00' prefix, so its length calcuted by strlen is 0.
-            //                // we need to fix that if there is '0x00' in text message,
-            //                // since javascript language could support '0x00' inserted at the beginning or the middle of text message
-            //            }
+            // IDEA: We didn't find a way to get the JS string length in JSB2.0.
+            //             if (data.empty() && len > 0)
+            //             {
+            //                 CC_LOG_DEBUGWARN("Text message to send is empty, but its length is greater than 0!");
+            //                 //IDEA: Note that this text message contains '0x00' prefix, so its length calcuted by strlen is 0.
+            //                 // we need to fix that if there is '0x00' in text message,
+            //                 // since javascript language could support '0x00' inserted at the beginning or the middle of text message
+            //             }
 
             cobj->send(data);
         } else if (args[0].isObject()) {
@@ -378,12 +372,12 @@ static bool webSocketSend(const se::State &s) {
                 ok = dataObj->getTypedArrayData(&ptr, &length);
                 SE_PRECONDITION2(ok, false, "getTypedArrayData failed!");
             } else {
-                CC_ASSERT(false);
+                CC_ABORT();
             }
 
             cobj->send(ptr, static_cast<unsigned int>(length));
         } else {
-            CC_ASSERT(false);
+            CC_ABORT();
         }
 
         return true;
@@ -410,7 +404,7 @@ static bool webSocketClose(se::State &s) {
             sevalue_to_native(args[0], &reasonString);
             cobj->closeAsync(1005, reasonString);
         } else {
-            CC_ASSERT(false);
+            CC_ABORT();
         }
     } else if (argc == 2) {
         if (args[0].isNumber()) {
@@ -424,7 +418,7 @@ static bool webSocketClose(se::State &s) {
                 sevalue_to_native(args[0], &reasonCode);
                 cobj->closeAsync(reasonCode, "no_reason");
             } else {
-                CC_ASSERT(false);
+                CC_ABORT();
             }
         } else if (args[0].isNullOrUndefined()) {
             if (args[1].isString()) {
@@ -434,14 +428,14 @@ static bool webSocketClose(se::State &s) {
             } else if (args[1].isNullOrUndefined()) {
                 cobj->closeAsync();
             } else {
-                CC_ASSERT(false);
+                CC_ABORT();
             }
         } else {
-            CC_ASSERT(false);
+            CC_ABORT();
         }
     } else {
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting <=2", argc);
-        CC_ASSERT(false);
+        CC_ABORT();
     }
     // Attach current WebSocket instance to global object to prevent WebSocket instance
     // being garbage collected after "ws.close(); ws = null;"
@@ -516,8 +510,15 @@ WEBSOCKET_DEFINE_READONLY_INT_FIELD(Websocket_OPEN, static_cast<int>(cc::network
 WEBSOCKET_DEFINE_READONLY_INT_FIELD(Websocket_CLOSING, static_cast<int>(cc::network::WebSocket::State::CLOSING))
 WEBSOCKET_DEFINE_READONLY_INT_FIELD(Websocket_CLOSED, static_cast<int>(cc::network::WebSocket::State::CLOSED))
 
-bool register_all_websocket(se::Object *obj) { // NOLINT (readability-identifier-naming)
-    se::Class *cls = se::Class::create("WebSocket", obj, nullptr, _SE(webSocketConstructor));
+bool register_all_websocket(se::Object *global) { // NOLINT (readability-identifier-naming)
+    se::Value nsVal;
+    if (!global->getProperty("jsb", &nsVal, true)) {
+        se::HandleObject jsobj(se::Object::createPlainObject());
+        nsVal.setObject(jsobj);
+        global->setProperty("jsb", nsVal);
+    }
+    se::Object *ns = nsVal.toObject();
+    se::Class *cls = se::Class::create("WebSocket", ns, nullptr, _SE(webSocketConstructor));
     cls->defineFinalizeFunction(_SE(webSocketFinalize));
 
     cls->defineFunction("send", _SE(webSocketSend));
@@ -533,7 +534,7 @@ bool register_all_websocket(se::Object *obj) { // NOLINT (readability-identifier
     cls->install();
 
     se::Value tmp;
-    obj->getProperty("WebSocket", &tmp);
+    ns->getProperty("WebSocket", &tmp);
     tmp.toObject()->defineProperty("CONNECTING", _SE(Websocket_CONNECTING), nullptr);
     tmp.toObject()->defineProperty("CLOSING", _SE(Websocket_CLOSING), nullptr);
     tmp.toObject()->defineProperty("OPEN", _SE(Websocket_OPEN), nullptr);

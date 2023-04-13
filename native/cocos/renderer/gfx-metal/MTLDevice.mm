@@ -43,10 +43,8 @@
 #import "MTLSwapchain.h"
 #import "MTLTexture.h"
 #import "base/Log.h"
-#import "cocos/bindings/event/CustomEventTypes.h"
-#import "cocos/bindings/event/EventDispatcher.h"
 #import "profiler/Profiler.h"
-
+#import <thread>
 
 namespace cc {
 namespace gfx {
@@ -75,13 +73,21 @@ CCMTLDevice::~CCMTLDevice() {
 
 bool CCMTLDevice::doInit(const DeviceInfo &info) {
     _gpuDeviceObj = ccnew CCMTLGPUDeviceObject;
-    _inFlightSemaphore = ccnew CCMTLSemaphore(3);
+    
     _currentFrameIndex = 0;
 
     id<MTLDevice> mtlDevice = MTLCreateSystemDefaultDevice();
     _mtlDevice = mtlDevice;
 
+    NSString *deviceName = [mtlDevice name];
+    _renderer = [deviceName UTF8String];
+    NSArray* nameArr = [deviceName componentsSeparatedByString:@" "];
+    if ([nameArr count] > 0) {
+        _vendor = [nameArr[0] UTF8String];
+    }
     _mtlFeatureSet = mu::highestSupportedFeatureSet(mtlDevice);
+    _version = std::to_string(_mtlFeatureSet);
+    
     const auto gpuFamily = mu::getGPUFamily(MTLFeatureSet(_mtlFeatureSet));
     _indirectDrawSupported = mu::isIndirectDrawSupported(gpuFamily);
     _caps.maxVertexAttributes = mu::getMaxVertexAttributes(gpuFamily);
@@ -136,13 +142,11 @@ bool CCMTLDevice::doInit(const DeviceInfo &info) {
 
     QueryPoolInfo queryPoolInfo{QueryType::OCCLUSION, DEFAULT_MAX_QUERY_OBJECTS, true};
     _queryPool = createQueryPool(queryPoolInfo);
-
+    
     CommandBufferInfo cmdBuffInfo;
     cmdBuffInfo.type = CommandBufferType::PRIMARY;
     cmdBuffInfo.queue = _queue;
     _cmdBuff = createCommandBuffer(cmdBuffInfo);
-
-    //    _memoryAlarmListenerId = EventDispatcher::addCustomEventListener(EVENT_MEMORY_WARNING, std::bind(&CCMTLDevice::onMemoryWarning, this));
 
     CCMTLGPUGarbageCollectionPool::getInstance()->initialize(std::bind(&CCMTLDevice::currentFrameIndex, this));
 
@@ -152,11 +156,6 @@ bool CCMTLDevice::doInit(const DeviceInfo &info) {
 }
 
 void CCMTLDevice::doDestroy() {
-    //    if (_memoryAlarmListenerId != 0) {
-    //        EventDispatcher::removeCustomEventListener(EVENT_MEMORY_WARNING, _memoryAlarmListenerId);
-    //        _memoryAlarmListenerId = 0;
-    //    }
-
     CC_SAFE_DELETE(_gpuDeviceObj);
 
     CC_SAFE_DESTROY_AND_DELETE(_queryPool)
@@ -164,12 +163,6 @@ void CCMTLDevice::doDestroy() {
     CC_SAFE_DESTROY_AND_DELETE(_cmdBuff);
 
     CCMTLGPUGarbageCollectionPool::getInstance()->flush();
-    
-    if(_inFlightSemaphore) {
-        _inFlightSemaphore->trySyncAll(1000);
-        CC_SAFE_DELETE(_inFlightSemaphore);
-        _inFlightSemaphore = nullptr;
-    }    
 
     for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
         CC_SAFE_DELETE(_gpuStagingBufferPools[i]);
@@ -185,10 +178,14 @@ void CCMTLDevice::doDestroy() {
     CC_ASSERT(!_memoryStatus.textureSize); // Texture memory leaked
 }
 
+void CCMTLDevice::frameSync() {
+    CC_ASSERT(_cmdBuff);
+    auto* cmdBuff = static_cast<CCMTLCommandBuffer*>(_cmdBuff);
+    cmdBuff->waitFence();
+}
+
 void CCMTLDevice::acquire(Swapchain *const *swapchains, uint32_t count) {
     if (_onAcquire) _onAcquire->execute();
-
-    _inFlightSemaphore->wait();
 
     for (CCMTLSwapchain *swapchain : _swapchains) {
         swapchain->acquire();
@@ -244,9 +241,9 @@ void CCMTLDevice::onPresentCompleted(uint32_t index) {
         if (bufferPool) {
             bufferPool->reset();
             CCMTLGPUGarbageCollectionPool::getInstance()->clear(index);
+            static_cast<CCMTLCommandBuffer*>(_cmdBuff)->signalFence();
         }
     }
-    _inFlightSemaphore->signal();
 }
 
 Queue *CCMTLDevice::createQueue() {
@@ -392,7 +389,7 @@ void CCMTLDevice::initFormatFeatures(uint32_t gpuFamily) {
     }
 
     tempFeature = FormatFeature::RENDER_TARGET | FormatFeature::SAMPLED_TEXTURE | FormatFeature::LINEAR_FILTER | FormatFeature::STORAGE_TEXTURE;
-
+    _formatFeatures[toNumber(Format::BGRA8)] = tempFeature;
     _formatFeatures[toNumber(Format::R8SN)] = tempFeature;
     _formatFeatures[toNumber(Format::RG8SN)] = tempFeature;
     _formatFeatures[toNumber(Format::RGBA8SN)] = tempFeature;

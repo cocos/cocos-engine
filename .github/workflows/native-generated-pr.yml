@@ -1,0 +1,50 @@
+name: <Native> Assign Generated PR
+
+# on:
+  # pull_request_target:
+    # types: [opened]
+    # paths:
+    # - 'native/cocos/bindings/auto/**'
+
+on: pull_request_target
+
+jobs:
+  auto-assign:
+    if: 
+      (contains(github.event.pull_request.body, 'Automated PR to genbindings'))
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v2
+      - name: Update assignees
+        id: merger
+        env:
+          PR_NUMBER: ${{github.event.number}}
+          # REPO_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          # REPO_TOKEN: ${{secrets.PR_TOKEN}}
+          REPO_TOKEN: ${{secrets.LABEL_TOKEN}}
+        run: |
+          SRC_PR=`curl ${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/commits | \
+            sh -c 'node ./.github/workflows/jsonr.js [0].commit.message "\(#(\w+)\)" 1'`
+          echo "Source PR:        ${SRC_PR}"
+          SRC_MERGER=`curl -H "Accept: application/vnd.github+json" ${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/pulls/${SRC_PR} | \
+            sh -c 'node ./.github/workflows/jsonr.js merged_by.login'`
+          echo "Source PR merger: ${SRC_MERGER}"
+          echo "Token Length:     ${#REPO_TOKEN}"
+          echo ::set-output name=SRC_MERGER::${SRC_MERGER}
+          # curl -X POST -H "Accept: application/vnd.github+json" \
+          #   -H "Authorization: token $REPO_TOKEN" \
+          #   ${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/assignees \
+          #   -d "{\"assignees\":[\"${SRC_MERGER}\"]}"
+          # exit 0
+      # - name: Assignment
+      #   uses: OperationsYU/auto-assignment@v1
+      #   with:
+      #     token: ${{ secrets.LABEL_TOKEN }}
+      #     users: '["${{steps.merger.outputs.SRC_MERGER}}"]'
+      - name: Notify the merger of previous commit
+        uses: mshick/add-pr-comment@v2
+        with:
+          message: |
+            @${{steps.merger.outputs.SRC_MERGER}} please review

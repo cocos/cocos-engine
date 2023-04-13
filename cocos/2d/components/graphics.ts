@@ -1,19 +1,18 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -26,20 +25,18 @@
 
 import { ccclass, help, executionOrder, menu, tooltip, type, visible, override, editable, serializable } from 'cc.decorator';
 import { JSB } from 'internal:constants';
-import { builtinResMgr } from '../../core/builtin';
+import { builtinResMgr } from '../../asset/asset-manager';
 import { InstanceMaterialType, UIRenderer } from '../framework/ui-renderer';
-import { director } from '../../core/director';
-import { Color } from '../../core/math';
-import { scene } from '../../core/renderer';
+import { director } from '../../game/director';
+import { Color, warnID, cclegacy } from '../../core';
+import { scene } from '../../render-scene';
 import { IAssembler } from '../renderer/base';
 import { IBatcher } from '../renderer/i-batcher';
 import { LineCap, LineJoin } from '../assembler/graphics/types';
 import { Impl } from '../assembler/graphics/webgl/impl';
-import { RenderingSubMesh } from '../../core/assets';
-import { Format, PrimitiveMode, Attribute, Device, BufferUsageBit, BufferInfo, MemoryUsageBit, deviceManager } from '../../core/gfx';
+import { RenderingSubMesh } from '../../asset/assets';
+import { Format, PrimitiveMode, Attribute, Device, BufferUsageBit, BufferInfo, MemoryUsageBit, deviceManager } from '../../gfx';
 import { vfmtPosColor, getAttributeStride, getComponentPerVertex } from '../renderer/vertex-format';
-import { legacyCC } from '../../core/global-exports';
-import { warnID } from '../../core/platform/debug';
 import { NativeUIModelProxy } from '../renderer/native-2d';
 import { RenderEntity, RenderEntityType } from '../renderer/render-entity';
 
@@ -56,7 +53,7 @@ const stride = getAttributeStride(attributes);
  * Graphics component.
  *
  * @zh
- * 自定义图形类
+ * 自定义图形类。
  */
 @ccclass('cc.Graphics')
 @help('i18n:cc.Graphics')
@@ -203,20 +200,6 @@ export class Graphics extends UIRenderer {
         this._color.set(value);
     }
 
-    get srcBlendFactor () {
-        return this._srcBlendFactor;
-    }
-
-    set srcBlendFactor (value) {
-    }
-
-    get dstBlendFactor () {
-        return this._dstBlendFactor;
-    }
-
-    set dstBlendFactor (value) {
-    }
-
     public static LineJoin = LineJoin;
     public static LineCap = LineCap;
     public impl: Impl | null = null;
@@ -243,7 +226,10 @@ export class Graphics extends UIRenderer {
     private _graphicsUseSubMeshes: RenderingSubMesh[] = [];
 
     //nativeObj
-    protected declare _graphicsNativeProxy:NativeUIModelProxy;
+    protected declare _graphicsNativeProxy: NativeUIModelProxy;
+    /**
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     get graphicsNativeProxy () {
         return this._graphicsNativeProxy;
     }
@@ -283,7 +269,7 @@ export class Graphics extends UIRenderer {
     public onDestroy () {
         this._sceneGetter = null;
         if (JSB) {
-            this.graphicsNativeProxy.destroy();
+            this._graphicsNativeProxy.destroy();
             this.model = null;
         } else {
             if (this.model) {
@@ -635,6 +621,9 @@ export class Graphics extends UIRenderer {
         }
     }
 
+    /**
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     public activeSubModel (idx: number) {
         if (!this.model) {
             warnID(4500, this.node.name);
@@ -733,6 +722,9 @@ export class Graphics extends UIRenderer {
         }
     }
 
+    /**
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     public updateRenderer () {
         super.updateRenderer();
         if (JSB) {
@@ -755,4 +747,4 @@ export class Graphics extends UIRenderer {
     }
 }
 
-legacyCC.Graphics = Graphics;
+cclegacy.Graphics = Graphics;

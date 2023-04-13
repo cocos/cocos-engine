@@ -66,12 +66,12 @@
                 "cocos/core/renderer/core/render-scene.ts": "cocos/core/renderer/core/render-scene.jsb.ts",
                 "cocos/core/renderer/scene/submodel.ts": "cocos/core/renderer/scene/submodel.jsb.ts",
                 "cocos/core/renderer/scene/index.ts": "cocos/core/renderer/scene/index.jsb.ts",
+                "cocos/core/renderer/scene/reflection-probe.ts": "cocos/core/renderer/scene/reflection-probe.jsb.ts",
                 "cocos/core/gfx/index.ts": "cocos/core/gfx/index.jsb.ts",
                 "cocos/core/gfx/pipeline-state.ts": "cocos/core/gfx/pipeline-state.jsb.ts",
                 "cocos/spine/index.ts": "cocos/spine/index.jsb.ts",
                 "cocos/dragon-bones/index.ts": "cocos/dragon-bones/index.jsb.ts",
                 "cocos/physics/physx/instantiate.ts": "cocos/physics/physx/instantiate.jsb.ts",
-                "cocos/core/scene-graph/base-node.ts": "cocos/core/scene-graph/base-node.jsb.ts",
                 "cocos/core/scene-graph/node.ts": "cocos/core/scene-graph/node.jsb.ts",
                 "cocos/core/scene-graph/scene.ts": "cocos/core/scene-graph/scene.jsb.ts",
                 "cocos/core/scene-graph/scene-globals.ts": "cocos/core/scene-graph/scene-globals.jsb.ts",
@@ -97,7 +97,9 @@
                 "cocos/3d/models/morph-model.ts":"cocos/3d/models/morph-model.jsb.ts",
                 "cocos/3d/models/skinning-model.ts":"cocos/3d/models/skinning-model.jsb.ts",
                 "cocos/3d/models/baked-skinning-model.ts":"cocos/3d/models/baked-skinning-model.jsb.ts",
-                "cocos/3d/misc/create-mesh.ts":"cocos/3d/misc/create-mesh.jsb.ts"
+                "cocos/3d/misc/create-mesh.ts":"cocos/3d/misc/create-mesh.jsb.ts",
+                "cocos/gi/light-probe/light-probe.ts":"cocos/gi/light-probe/light-probe.jsb.ts",
+                "cocos/gi/light-probe/delaunay.ts":"cocos/gi/light-probe/delaunay.jsb.ts"
             }
         },
         {

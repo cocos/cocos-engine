@@ -1,19 +1,18 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
- 
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
+
  http://www.cocos.com
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
- 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
- 
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -21,18 +20,19 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+****************************************************************************/
 
-#include "renderer/core/PassInstance.h"
-#include <cstdint>
-#include "renderer/core/MaterialInstance.h"
-#include "renderer/core/ProgramLib.h"
-#include "renderer/pipeline/BatchedBuffer.h"
-#include "renderer/pipeline/InstancedBuffer.h"
+#include "cocos/renderer/core/PassInstance.h"
+#include "cocos/renderer/core/MaterialInstance.h"
+#include "cocos/renderer/core/ProgramLib.h"
+#include "cocos/renderer/pipeline/BatchedBuffer.h"
+#include "cocos/renderer/pipeline/InstancedBuffer.h"
+#include "cocos/renderer/pipeline/custom/RenderingModule.h"
 
 namespace cc {
 
-PassInstance::PassInstance(scene::Pass *parent, MaterialInstance *owner) : Super(parent->getRoot()), _parent(parent), _owner(owner) {
+PassInstance::PassInstance(scene::Pass *parent, MaterialInstance *owner)
+: Super(parent->getRoot()), _parent(parent), _owner(owner) {
     doInit(_parent->getPassInfoFull());
     for (const auto &b : _shaderInfo->blocks) {
         scene::IBlockRef &block = _blocks[b.binding];
@@ -43,14 +43,30 @@ PassInstance::PassInstance(scene::Pass *parent, MaterialInstance *owner) : Super
 
     _rootBufferDirty = true;
     gfx::DescriptorSet *parentDescriptorSet = _parent->getDescriptorSet();
-    for (const auto &samplerTexture : _shaderInfo->samplerTextures) {
-        for (uint32_t i = 0; i < samplerTexture.count; ++i) {
-            auto *sampler = parentDescriptorSet->getSampler(samplerTexture.binding, i);
-            auto *texture = parentDescriptorSet->getTexture(samplerTexture.binding, i);
-            _descriptorSet->bindSampler(samplerTexture.binding, sampler, i);
-            _descriptorSet->bindTexture(samplerTexture.binding, texture, i);
+
+    auto *programLib = render::getProgramLibrary();
+    if (programLib) {
+        const auto &set = _shaderInfo->descriptors.at(
+            static_cast<size_t>(pipeline::SetIndex::MATERIAL));
+        for (const auto &samplerTexture : set.samplerTextures) {
+            for (uint32_t i = 0; i < samplerTexture.count; ++i) {
+                auto *sampler = parentDescriptorSet->getSampler(samplerTexture.binding, i);
+                auto *texture = parentDescriptorSet->getTexture(samplerTexture.binding, i);
+                _descriptorSet->bindSampler(samplerTexture.binding, sampler, i);
+                _descriptorSet->bindTexture(samplerTexture.binding, texture, i);
+            }
+        }
+    } else {
+        for (const auto &samplerTexture : _shaderInfo->samplerTextures) {
+            for (uint32_t i = 0; i < samplerTexture.count; ++i) {
+                auto *sampler = parentDescriptorSet->getSampler(samplerTexture.binding, i);
+                auto *texture = parentDescriptorSet->getTexture(samplerTexture.binding, i);
+                _descriptorSet->bindSampler(samplerTexture.binding, sampler, i);
+                _descriptorSet->bindTexture(samplerTexture.binding, texture, i);
+            }
         }
     }
+
     Super::tryCompile();
 }
 

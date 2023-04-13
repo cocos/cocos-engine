@@ -1,19 +1,18 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -22,28 +21,27 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
-import { ccclass, editable, type, displayOrder, menu,
-    executeInEditMode, serializable, playOnFocus, tooltip, visible, formerlySerializedAs } from 'cc.decorator';
+import {
+    ccclass, editable, type, displayOrder, menu,
+    executeInEditMode, serializable, playOnFocus, tooltip, visible, formerlySerializedAs, override,
+} from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { UIRenderer } from '../2d/framework/ui-renderer';
-import { Color, Vec2 } from '../core/math';
-import { warnID, errorID, error } from '../core/platform/debug';
+import { Color, Vec2, warnID, errorID, error, path, cclegacy  } from '../core';
 import { Simulator } from './particle-simulator-2d';
 import { SpriteFrame } from '../2d/assets/sprite-frame';
-import { ImageAsset } from '../core/assets/image-asset';
+import { ImageAsset } from '../asset/assets/image-asset';
 import { ParticleAsset } from './particle-asset';
-import { BlendFactor } from '../core/gfx';
-import { path } from '../core/utils';
+import { BlendFactor } from '../gfx';
 import { PNGReader } from './png-reader';
 import { TiffReader } from './tiff-reader';
 import codec from '../../external/compression/ZipUtils';
 import { IBatcher } from '../2d/renderer/i-batcher';
-import { assetManager } from '../core/asset-manager';
+import { assetManager, builtinResMgr } from '../asset/asset-manager';
 import { PositionType, EmitterMode, DURATION_INFINITY, START_RADIUS_EQUAL_TO_END_RADIUS, START_SIZE_EQUAL_TO_END_SIZE } from './define';
-import { builtinResMgr } from '../core';
-import { legacyCC } from '../core/global-exports';
+import { ccwindow } from '../core/global-exports';
 
 /**
  * Image formats
@@ -188,13 +186,14 @@ export class ParticleSystem2D extends UIRenderer {
         return this._custom;
     }
     public set custom (value) {
-        if (EDITOR && !legacyCC.GAME_VIEW && !value && !this._file) {
+        if (EDITOR && !cclegacy.GAME_VIEW && !value && !this._file) {
             warnID(6000);
             return;
         }
         if (this._custom !== value) {
             this._custom = value;
             this._applyFile();
+            this._updateMaterial();
         }
     }
 
@@ -341,6 +340,7 @@ export class ParticleSystem2D extends UIRenderer {
         this._startColorVar.a = val.a;
     }
 
+    @override
     @visible(() => false)
     set color (value) {
     }
@@ -742,10 +742,12 @@ export class ParticleSystem2D extends UIRenderer {
     private declare _focused: boolean;
     private declare _plistFile;
     private declare _tiffReader;
+    private _useFile: boolean;
 
     constructor () {
         super();
         this.initProperties();
+        this._useFile = false;
     }
 
     public onEnable () {
@@ -825,7 +827,7 @@ export class ParticleSystem2D extends UIRenderer {
         }
 
         // auto play
-        if (!EDITOR || legacyCC.GAME_VIEW) {
+        if (!EDITOR || cclegacy.GAME_VIEW) {
             if (this.playOnLoad) {
                 this.resetSystem();
             }
@@ -966,7 +968,11 @@ export class ParticleSystem2D extends UIRenderer {
                 const textureData = dict.textureImageData;
 
                 if (textureData && textureData.length > 0) {
-                    let imageAsset = assetManager.assets.get(imgPath) as ImageAsset;
+                    let imgPathName = imgPath;
+                    if (this.file) {
+                        imgPathName += `-${this.file.uuid}`;
+                    }
+                    let imageAsset = assetManager.assets.get(imgPathName) as ImageAsset;
 
                     if (!imageAsset) {
                         const buffer = codec.unzipBase64AsArray(textureData, 1);
@@ -981,7 +987,7 @@ export class ParticleSystem2D extends UIRenderer {
                             return false;
                         }
 
-                        const canvasObj = document.createElement('canvas');
+                        const canvasObj = ccwindow.document.createElement('canvas');
                         if (imageFormat === ImageFormat.PNG) {
                             const myPngObj = new PNGReader(buffer);
                             myPngObj.render(canvasObj);
@@ -992,7 +998,7 @@ export class ParticleSystem2D extends UIRenderer {
                             this._tiffReader.parseTIFF(buffer, canvasObj);
                         }
                         imageAsset = new ImageAsset(canvasObj);
-                        assetManager.assets.add(imgPath, imageAsset);
+                        assetManager.assets.add(imgPathName, imageAsset);
                     }
 
                     if (!imageAsset) {
@@ -1016,6 +1022,7 @@ export class ParticleSystem2D extends UIRenderer {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _initWithDictionary (dict: any) {
+        this._useFile = true;
         this.totalParticles = parseInt(dict.maxParticles || 0);
 
         // life span
@@ -1144,7 +1151,9 @@ export class ParticleSystem2D extends UIRenderer {
         this._renderSpriteFrame = this._renderSpriteFrame || this._spriteFrame;
         if (this._renderSpriteFrame) {
             if (this._renderSpriteFrame.texture) {
-                this._simulator.updateUVs(true);
+                if (this._simulator) {
+                    this._simulator.updateUVs(true);
+                }
                 this._syncAspect();
                 this._updateMaterial();
                 this._stopped = false;
@@ -1166,6 +1175,12 @@ export class ParticleSystem2D extends UIRenderer {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _updateMaterial () {
+        if (this._customMaterial) {
+            this.setMaterial(this._customMaterial, 0);
+            const target = this.getRenderMaterial(0)!.passes[0].blendState.targets[0];
+            this._dstBlendFactor = target.blendDst;
+            this._srcBlendFactor = target.blendSrc;
+        }
         const mat = this.getMaterialInstance(0);
         if (mat) mat.recompileShaders({ USE_LOCAL: this._positionType !== PositionType.FREE });
         if (mat && mat.passes.length > 0) {
@@ -1177,7 +1192,7 @@ export class ParticleSystem2D extends UIRenderer {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _finishedSimulation () {
-        if (EDITOR && !legacyCC.GAME_VIEW) {
+        if (EDITOR && !cclegacy.GAME_VIEW) {
             if (this._preview && this._focused && !this.active /* && !cc.engine.isPlaying */) {
                 this.resetSystem();
             }

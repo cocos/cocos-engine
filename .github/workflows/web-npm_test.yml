@@ -11,13 +11,13 @@ jobs:
   npm_test:
     if: 
       (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
 
     - uses: actions/setup-node@v2
       with:
-        node-version: '12.13'
+        node-version: '14.19'
 
     - name: install gulp
       run: |

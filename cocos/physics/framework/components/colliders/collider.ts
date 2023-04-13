@@ -1,19 +1,18 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -22,19 +21,17 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { ccclass, tooltip, displayOrder, displayName, readOnly, type, serializable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { Eventify } from '../../../../core/event';
-import { Vec3 } from '../../../../core/math';
+import { Eventify, Vec3, error, geometry } from '../../../../core';
 import { CollisionEventType, TriggerEventType } from '../../physics-interface';
 import { RigidBody } from '../rigid-body';
 import { PhysicsMaterial } from '../../assets/physics-material';
 import { PhysicsSystem } from '../../physics-system';
-import { Component, error, Node } from '../../../../core';
+import { Component, Node } from '../../../../scene-graph';
 import { IBaseShape } from '../../../spec/i-physics-shape';
-import { AABB, Sphere } from '../../../../core/geometry';
 import { EColliderType, EAxisDirection } from '../../physics-enum';
 import { selector, createShape } from '../../physics-selector';
 
@@ -189,14 +186,14 @@ export class Collider extends Eventify(Component) {
         return this._shape;
     }
 
-    public get worldBounds (): Readonly<AABB> {
-        if (this._aabb == null) this._aabb = new AABB();
+    public get worldBounds (): Readonly<geometry.AABB> {
+        if (this._aabb == null) this._aabb = new geometry.AABB();
         if (this._shape) this._shape.getAABB(this._aabb);
         return this._aabb;
     }
 
-    public get boundingSphere (): Readonly<Sphere> {
-        if (this._boundingSphere == null) this._boundingSphere = new Sphere();
+    public get boundingSphere (): Readonly<geometry.Sphere> {
+        if (this._boundingSphere == null) this._boundingSphere = new geometry.Sphere();
         if (this._shape) this._shape.getBoundingSphere(this._boundingSphere);
         return this._boundingSphere;
     }
@@ -214,8 +211,8 @@ export class Collider extends Eventify(Component) {
     /// PROTECTED PROPERTY ///
 
     protected _shape: IBaseShape | null = null;
-    protected _aabb: AABB | null = null;
-    protected _boundingSphere: Sphere | null = null;
+    protected _aabb: geometry.AABB | null = null;
+    protected _boundingSphere: geometry.Sphere | null = null;
     protected _isSharedMaterial = true;
     protected _needTriggerEvent = false;
     protected _needCollisionEvent = false;
@@ -412,7 +409,8 @@ export class Collider extends Eventify(Component) {
 
     protected onLoad () {
         if (!selector.runInEditor) return;
-        this.sharedMaterial = this._material == null ? PhysicsSystem.instance.defaultMaterial : this._material;
+
+        this.sharedMaterial = this._material;
         this._shape = createShape(this.type);
         this._shape.initialize(this);
         this._shape.onLoad!();

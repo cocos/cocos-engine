@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,9 +20,9 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
-import { PrimitiveMode } from '../core/gfx';
+import { PrimitiveMode } from '../gfx';
 import { IGeometry } from './define';
 
 /**
@@ -69,9 +68,9 @@ export function translate (geometry: IGeometry, offset: { x?: number; y?: number
  * @param value @zh 缩放量。@en The scaling size
  */
 export function scale (geometry: IGeometry, value: { x?: number; y?: number; z?: number }) {
-    const x = value.x || 0;
-    const y = value.y || 0;
-    const z = value.z || 0;
+    const x = value.x ?? 1.0;
+    const y = value.y ?? 1.0;
+    const z = value.z ?? 1.0;
     const nVertex = Math.floor(geometry.positions.length / 3);
     for (let iVertex = 0; iVertex < nVertex; ++iVertex) {
         const iX = iVertex * 3;
@@ -81,17 +80,35 @@ export function scale (geometry: IGeometry, value: { x?: number; y?: number; z?:
         geometry.positions[iY] *= y;
         geometry.positions[iZ] *= z;
     }
-    if (geometry.minPos) {
-        geometry.minPos.x *= x;
-        geometry.minPos.y *= y;
-        geometry.minPos.z *= z;
+    const {
+        minPos,
+        maxPos,
+    } = geometry;
+    if (minPos) {
+        minPos.x *= x;
+        minPos.y *= y;
+        minPos.z *= z;
     }
-    if (geometry.maxPos) {
-        geometry.maxPos.x *= x;
-        geometry.maxPos.y *= y;
-        geometry.maxPos.z *= z;
+    if (maxPos) {
+        maxPos.x *= x;
+        maxPos.y *= y;
+        maxPos.z *= z;
     }
-    geometry.boundingRadius = Math.max(Math.max(x, y), z);
+    if (minPos && maxPos) {
+        // Negative scaling causes min-max to be swapped.
+        if (x < 0) {
+            const tmp = minPos.x; minPos.x = maxPos.x; maxPos.x = tmp;
+        }
+        if (y < 0) {
+            const tmp = minPos.y; minPos.y = maxPos.y; maxPos.y = tmp;
+        }
+        if (z < 0) {
+            const tmp = minPos.z; minPos.z = maxPos.z; maxPos.z = tmp;
+        }
+    }
+    if (typeof geometry.boundingRadius !== 'undefined') {
+        geometry.boundingRadius *= Math.max(Math.max(Math.abs(x), Math.abs(y)), Math.abs(z));
+    }
     return geometry;
 }
 

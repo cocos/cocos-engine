@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -36,18 +35,21 @@ namespace cc {
 namespace render {
 
 ResourceAccessGraph::ResourceAccessGraph(const allocator_type& alloc) noexcept
-: vertices(alloc),
+: _vertices(alloc),
   passID(alloc),
   access(alloc),
   passIndex(alloc),
   resourceNames(alloc),
   resourceIndex(alloc),
-  externalPasses(alloc),
-  accessRecord(alloc) {}
+  leafPasses(alloc),
+  culledPasses(alloc),
+  accessRecord(alloc),
+  resourceLifeRecord(alloc),
+  topologicalOrder(alloc) {}
 
 // ContinuousContainer
 void ResourceAccessGraph::reserve(vertices_size_type sz) {
-    vertices.reserve(sz);
+    _vertices.reserve(sz);
     passID.reserve(sz);
     access.reserve(sz);
 }
@@ -64,13 +66,37 @@ ResourceAccessGraph::Vertex::Vertex(Vertex const& rhs, const allocator_type& all
 : outEdges(rhs.outEdges, alloc),
   inEdges(rhs.inEdges, alloc) {}
 
-FrameGraphDispatcher::FrameGraphDispatcher(ResourceGraph& resourceGraphIn, RenderGraph& graphIn, LayoutGraphData& layoutGraphIn, boost::container::pmr::memory_resource* scratchIn, const allocator_type& alloc) noexcept
+RelationGraph::RelationGraph(const allocator_type& alloc) noexcept
+: _vertices(alloc),
+  descID(alloc),
+  vertexMap(alloc) {}
+
+// ContinuousContainer
+void RelationGraph::reserve(vertices_size_type sz) {
+    _vertices.reserve(sz);
+    descID.reserve(sz);
+}
+
+RelationGraph::Vertex::Vertex(const allocator_type& alloc) noexcept
+: outEdges(alloc),
+  inEdges(alloc) {}
+
+RelationGraph::Vertex::Vertex(Vertex&& rhs, const allocator_type& alloc)
+: outEdges(std::move(rhs.outEdges), alloc),
+  inEdges(std::move(rhs.inEdges), alloc) {}
+
+RelationGraph::Vertex::Vertex(Vertex const& rhs, const allocator_type& alloc)
+: outEdges(rhs.outEdges, alloc),
+  inEdges(rhs.inEdges, alloc) {}
+
+FrameGraphDispatcher::FrameGraphDispatcher(ResourceGraph& resourceGraphIn, const RenderGraph& graphIn, const LayoutGraphData& layoutGraphIn, boost::container::pmr::memory_resource* scratchIn, const allocator_type& alloc) noexcept
 : resourceAccessGraph(alloc),
   resourceGraph(resourceGraphIn),
   graph(graphIn),
   layoutGraph(layoutGraphIn),
   scratch(scratchIn),
-  externalResMap(alloc) {}
+  externalResMap(alloc),
+  relationGraph(alloc) {}
 
 } // namespace render
 

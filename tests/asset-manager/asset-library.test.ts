@@ -1,5 +1,5 @@
 ﻿
-import { AssetLibrary } from "../../cocos/core/asset-manager/deprecated";
+import { AssetLibrary } from "../../cocos/asset/asset-manager/deprecated";
 
 describe('asset-library', () => {
 

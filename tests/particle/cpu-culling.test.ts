@@ -1,6 +1,7 @@
-import { director, Node, Scene, Vec3 } from "../../cocos/core";
+import { director } from "../../cocos/game";
 import { legacyCC } from "../../cocos/core/global-exports";
 import { ParticleSystem } from "../../exports/particle";
+import { Node, Scene } from "../../cocos/scene-graph";
 
 test('particle system cpu culling test', function () {
     const scene = new Scene('test');

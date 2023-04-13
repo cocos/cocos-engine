@@ -1,3 +1,27 @@
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
 import { assertIsNonNullable, assertIsTrue } from './utils/asserts';
 
 /**
@@ -14,7 +38,7 @@ export const deserializeTag = Symbol('[[Deserialize]]');
 
 export interface SerializationInput {
     /**
-     * Reads a property from input.
+     * Reads a property from the input.
      * @param name Property name.
      * @returns The property's value, after deserialized.
      */
@@ -52,21 +76,22 @@ export interface SerializationOutput {
 
 export type SerializationContext = {
     /**
-     * The main serializing asset or root node in the scene/prefab passed to serialization procedure.
+     * The main serializing asset or root node in the scene/prefab passed to the serialization procedure.
      */
     root: unknown;
-
     /**
      * True if the serialization procedure is targeting CCON.
      */
     toCCON: boolean;
-
     /**
      * Customized arguments passed to serialization procedure.
      */
-    customArguments: Record<PropertyKey, unknown>
+    customArguments: Record<PropertyKey, unknown>;
 };
 
+/**
+ * @engineInternal
+ */
 export type DeserializationContext = {
     /**
      * True if the deserialization procedure is deserializing from CCON.
@@ -81,7 +106,7 @@ export interface CustomSerializable {
 }
 
 /**
- * Enables the custom serialize/deserialize method only if the (de)serialize procedure is targeting CCON.
+ * Enables the custom to serialize/deserialize method only if the (de)serialize procedure is targeting CCON.
  * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
  */
 export const enableIfCCON: MethodDecorator = <T>(

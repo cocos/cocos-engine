@@ -1,15 +1,15 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
@@ -22,17 +22,14 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-
-import { ccclass, range, slide, type, editable, displayOrder, help, executeInEditMode,
-    menu, tooltip, serializable, formerlySerializedAs, visible } from 'cc.decorator';
-import { toRadian } from '../../core/math';
-import { scene } from '../../core/renderer';
+import { toRadian, cclegacy,  CCBoolean, CCFloat, _decorator } from '../../core';
+import { scene } from '../../render-scene';
 import { Light, PhotometricTerm } from './light-component';
-import { legacyCC } from '../../core/global-exports';
-import { Root } from '../../core/root';
-import { Camera, PCFType, ShadowType } from '../../core/renderer/scene';
-import { property } from '../../core/data/class-decorator';
-import { CCBoolean, CCFloat } from '../../core/data/utils/attribute';
+import { Root } from '../../root';
+import { Camera, PCFType, ShadowType } from '../../render-scene/scene';
+
+const { ccclass, range, slide, type, editable, displayOrder, help, executeInEditMode,
+    menu, tooltip, serializable, formerlySerializedAs, visible, property } = _decorator;
 
 /**
  * @en The spot light component, multiple spot lights can be added to one scene.
@@ -44,37 +41,33 @@ import { CCBoolean, CCFloat } from '../../core/data/utils/attribute';
 @executeInEditMode
 export class SpotLight extends Light {
     @serializable
-    protected _size = 0.15;
+    private _size = 0.15;
 
     @serializable
     @formerlySerializedAs('_luminance')
-    protected _luminanceHDR = 1700 / scene.nt2lm(0.15);
+    private _luminanceHDR = 1700 / scene.nt2lm(0.15);
 
     @serializable
-    protected _luminanceLDR = 1700 / scene.nt2lm(0.15) * Camera.standardExposureValue * Camera.standardLightMeterScale;
+    private _luminanceLDR = 1700 / scene.nt2lm(0.15) * Camera.standardExposureValue * Camera.standardLightMeterScale;
 
     @serializable
-    protected _term = PhotometricTerm.LUMINOUS_FLUX;
+    private _term = PhotometricTerm.LUMINOUS_FLUX;
 
     @serializable
-    protected _range = 1;
+    private _range = 1;
 
     @serializable
-    protected _spotAngle = 60;
+    private _spotAngle = 60;
 
     // Shadow map properties
     @serializable
-    protected _shadowEnabled = false;
+    private _shadowEnabled = false;
     @serializable
-    protected _shadowPcf = PCFType.HARD;
+    private _shadowPcf = PCFType.HARD;
     @serializable
-    protected _shadowBias = 0.00001;
+    private _shadowBias = 0.00001;
     @serializable
-    protected _shadowNormalBias = 0.0;
-
-    protected _type = scene.LightType.SPOT;
-
-    protected _light: scene.SpotLight | null = null;
+    private _shadowNormalBias = 0.0;
 
     /**
      * @en Luminous flux of the light.
@@ -83,7 +76,7 @@ export class SpotLight extends Light {
     @tooltip('i18n:lights.luminous_flux')
     @displayOrder(-1)
     get luminousFlux () {
-        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        const isHDR = (cclegacy.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             return this._luminanceHDR * scene.nt2lm(this._size);
         } else {
@@ -92,7 +85,7 @@ export class SpotLight extends Light {
     }
 
     set luminousFlux (val) {
-        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        const isHDR = (cclegacy.director.root as Root).pipeline.pipelineSceneData.isHDR;
         let result = 0;
         if (isHDR) {
             this._luminanceHDR = val / scene.nt2lm(this._size);
@@ -101,7 +94,7 @@ export class SpotLight extends Light {
             this._luminanceLDR = val;
             result = this._luminanceLDR;
         }
-        this._light && (this._light.luminance = result);
+        this._light && ((this._light as scene.SpotLight).luminance = result);
     }
 
     /**
@@ -111,7 +104,7 @@ export class SpotLight extends Light {
     @tooltip('i18n:lights.luminance')
     @displayOrder(-1)
     get luminance () {
-        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        const isHDR = (cclegacy.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             return this._luminanceHDR;
         } else {
@@ -120,13 +113,13 @@ export class SpotLight extends Light {
     }
 
     set luminance (val) {
-        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        const isHDR = (cclegacy.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             this._luminanceHDR = val;
-            this._light && (this._light.luminanceHDR = this._luminanceHDR);
+            this._light && ((this._light as scene.SpotLight).luminanceHDR = this._luminanceHDR);
         } else {
             this._luminanceLDR = val;
-            this._light && (this._light.luminanceLDR = this._luminanceLDR);
+            this._light && ((this._light as scene.SpotLight).luminanceLDR = this._luminanceLDR);
         }
     }
 
@@ -158,7 +151,7 @@ export class SpotLight extends Light {
 
     set size (val) {
         this._size = val;
-        if (this._light) { this._light.size = val; }
+        if (this._light) { (this._light as scene.SpotLight).size = val; }
     }
 
     /**
@@ -174,7 +167,7 @@ export class SpotLight extends Light {
 
     set range (val) {
         this._range = val;
-        if (this._light) { this._light.range = val; }
+        if (this._light) { (this._light as scene.SpotLight).range = val; }
     }
 
     /**
@@ -192,7 +185,7 @@ export class SpotLight extends Light {
 
     set spotAngle (val) {
         this._spotAngle = val;
-        if (this._light) { this._light.spotAngle = toRadian(val); }
+        if (this._light) { (this._light as scene.SpotLight).spotAngle = toRadian(val); }
     }
 
     /**
@@ -200,7 +193,7 @@ export class SpotLight extends Light {
      * @zh 是否启用阴影？
      */
     @tooltip('i18n:lights.shadowEnabled')
-    @visible(() => (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
+    @visible(() => (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 1 } })
     @editable
     @type(CCBoolean)
@@ -210,7 +203,7 @@ export class SpotLight extends Light {
     set shadowEnabled (val) {
         this._shadowEnabled = val;
         if (this._light) {
-            this._light.shadowEnabled = val;
+            (this._light as scene.SpotLight).shadowEnabled = val;
         }
     }
 
@@ -219,7 +212,7 @@ export class SpotLight extends Light {
      * @zh 获取或者设置阴影 pcf 等级。
      */
     @tooltip('i18n:lights.shadowPcf')
-    @visible(() => (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
+    @visible(() => (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 2  } })
     @editable
     @type(PCFType)
@@ -229,7 +222,7 @@ export class SpotLight extends Light {
     set shadowPcf (val) {
         this._shadowPcf = val;
         if (this._light) {
-            this._light.shadowPcf = val;
+            (this._light as scene.SpotLight).shadowPcf = val;
         }
     }
 
@@ -238,7 +231,7 @@ export class SpotLight extends Light {
      * @zh 阴影的深度偏移, 可以减弱跨像素导致的条纹状失真
      */
     @tooltip('i18n:lights.shadowBias')
-    @visible(() => (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
+    @visible(() => (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 3 } })
     @editable
     @type(CCFloat)
@@ -248,7 +241,7 @@ export class SpotLight extends Light {
     set shadowBias (val) {
         this._shadowBias = val;
         if (this._light) {
-            this._light.shadowBias = val;
+            (this._light as scene.SpotLight).shadowBias = val;
         }
     }
 
@@ -257,7 +250,7 @@ export class SpotLight extends Light {
      * @zh 设置或者获取法线偏移。
      */
     @tooltip('i18n:lights.shadowNormalBias')
-    @visible(() => (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
+    @visible(() => (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 4 } })
     @editable
     @type(CCFloat)
@@ -267,7 +260,7 @@ export class SpotLight extends Light {
     set shadowNormalBias (val) {
         this._shadowNormalBias = val;
         if (this._light) {
-            this._light.shadowNormalBias = val;
+            (this._light as scene.SpotLight).shadowNormalBias = val;
         }
     }
 
@@ -278,18 +271,20 @@ export class SpotLight extends Light {
 
     protected _createLight () {
         super._createLight();
+        this._type = scene.LightType.SPOT;
         this.size = this._size;
         this.range = this._range;
         this.spotAngle = this._spotAngle;
 
         if (this._light) {
-            this._light.luminanceHDR = this._luminanceHDR;
-            this._light.luminanceLDR = this._luminanceLDR;
+            const spotLight = this._light as scene.SpotLight;
+            spotLight.luminanceHDR = this._luminanceHDR;
+            spotLight.luminanceLDR = this._luminanceLDR;
             // shadow info
-            this._light.shadowEnabled = this._shadowEnabled;
-            this._light.shadowPcf = this._shadowPcf;
-            this._light.shadowBias = this._shadowBias;
-            this._light.shadowNormalBias = this._shadowNormalBias;
+            spotLight.shadowEnabled = this._shadowEnabled;
+            spotLight.shadowPcf = this._shadowPcf;
+            spotLight.shadowBias = this._shadowBias;
+            spotLight.shadowNormalBias = this._shadowNormalBias;
         }
     }
 }

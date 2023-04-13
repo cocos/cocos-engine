@@ -1,19 +1,18 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -26,16 +25,13 @@
 
 import { EDITOR, DEV } from 'internal:constants';
 import { screenAdapter } from 'pal/screen-adapter';
-import { Director, director } from '../core/director';
-import { Vec2, Vec3 } from '../core/math';
-import { View } from '../core/platform/view';
-import visibleRect from '../core/platform/visible-rect';
-import { Scene } from '../core/scene-graph';
-import { Node } from '../core/scene-graph/node';
-import { array } from '../core/utils/js';
+import { Director, director } from '../game/director';
+import { Vec2, Vec3, visibleRect, js, cclegacy } from '../core';
+import { View } from './view';
+import { Scene } from '../scene-graph';
+import { Node } from '../scene-graph/node';
 import { AlignFlags, AlignMode, computeInverseTransForTarget, getReadonlyNodeSize, Widget } from './widget';
 import { UITransform } from '../2d/framework';
-import { legacyCC } from '../core/global-exports';
 
 const _tempPos = new Vec3();
 const _defaultAnchor = new Vec2();
@@ -207,7 +203,7 @@ function visitNode (node: any) {
         // if ((!EDITOR || widgetManager.animationState!.animatedSinceLastFrame) && widget.alignMode === AlignMode.ONCE) {
         //     widget.enabled = false;
         // } else {
-        if (!legacyCC.isValid(node, true)) {
+        if (!cclegacy.isValid(node, true)) {
             return;
         }
         activeWidgets.push(widget);
@@ -265,10 +261,15 @@ function updateAlignment (node: Node) {
     }
 }
 
-export const widgetManager = legacyCC._widgetManager = {
+/**
+ * @en widget Manager， use to align widget
+ * @zh widget 管理器，用于对齐操作
+ * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
+ */
+export const widgetManager = cclegacy._widgetManager = {
     isAligning: false,
     _nodesOrderDirty: false,
-    _activeWidgetsIterator: new array.MutableForwardIterator(activeWidgets),
+    _activeWidgetsIterator: new js.array.MutableForwardIterator(activeWidgets),
     // hack
     animationState: EDITOR ? {
         previewing: false,
@@ -284,7 +285,7 @@ export const widgetManager = legacyCC._widgetManager = {
         if (!EDITOR) {
             const thisOnResized = this.onResized.bind(this);
             View.instance.on('canvas-resize', thisOnResized);
-            screenAdapter.on('orientation-change', thisOnResized);
+            screenAdapter.on('window-resize', thisOnResized);
         }
     },
     add (widget: Widget) {

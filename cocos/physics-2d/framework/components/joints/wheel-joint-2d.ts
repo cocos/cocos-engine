@@ -1,20 +1,47 @@
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
 
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
 
 import { Joint2D } from './joint-2d';
-import { ccclass, property, menu, type } from '../../../../core/data/class-decorator';
+import { CCBoolean, CCFloat, _decorator } from '../../../../core';
 import { IWheelJoint } from '../../../spec/i-physics-joint';
 import { EJoint2DType } from '../../physics-types';
+import { help, serializable, tooltip, type } from '../../../../core/data/decorators';
+
+const { ccclass, menu, property } = _decorator;
 
 @ccclass('cc.WheelJoint2D')
+@help('i18n:cc.Joint2D')
 @menu('Physics2D/Joints/WheelJoint2D')
 export class WheelJoint2D extends Joint2D {
     TYPE = EJoint2DType.WHEEL;
 
     /**
-     * @en Wheel susspension direction
-     * @zh 轮子震动方向
+     * @en Wheel susspension direction.
+     * @zh 轮子震动方向。
      */
-    @property
+    @type(CCFloat)
+    @tooltip('i18n:physics2d.joint.angle')
     get angle (): number {
         return this._angle;
     }
@@ -28,7 +55,8 @@ export class WheelJoint2D extends Joint2D {
      * @zh
      * 是否开启关节马达？
      */
-    @property
+    @type(CCBoolean)
+    @tooltip('i18n:physics2d.joint.enableMotor')
     get enableMotor (): boolean {
         return this._enableMotor;
     }
@@ -45,7 +73,8 @@ export class WheelJoint2D extends Joint2D {
      * @zh
      * 可以施加到刚体的最大扭矩。
      */
-    @property
+    @type(CCFloat)
+    @tooltip('i18n:physics2d.joint.maxMotorTorque')
     get maxMotorTorque (): number {
         return this._maxMotorTorque;
     }
@@ -62,7 +91,8 @@ export class WheelJoint2D extends Joint2D {
      * @zh
      * 期望的马达速度。
      */
-    @property
+    @type(CCFloat)
+    @tooltip('i18n:physics2d.joint.motorSpeed')
     get motorSpeed (): number {
         return this._motorSpeed;
     }
@@ -79,7 +109,8 @@ export class WheelJoint2D extends Joint2D {
      * @zh
      * 弹性系数。
      */
-    @property
+    @type(CCFloat)
+    @tooltip('i18n:physics2d.joint.frequency')
     get frequency (): number {
         return this._frequency;
     }
@@ -96,7 +127,8 @@ export class WheelJoint2D extends Joint2D {
      * @zh
      * 阻尼，表示关节变形后，恢复到初始状态受到的阻力。
      */
-    @property
+    @type(CCFloat)
+    @tooltip('i18n:physics2d.joint.dampingRatio')
     get dampingRatio (): number {
         return this._dampingRatio;
     }
@@ -109,16 +141,21 @@ export class WheelJoint2D extends Joint2D {
 
     /// private properties
 
-    @property
+    @serializable
     private _angle = 90;
-    @property
+
+    @serializable
     private _enableMotor = false;
-    @property
+
+    @serializable
     private _maxMotorTorque = 1000;
-    @property
+
+    @serializable
     private _motorSpeed = 0;
-    @property
+
+    @serializable
     private _frequency = 5;
-    @property
+
+    @serializable
     private _dampingRatio = 0.7;
 }

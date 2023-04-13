@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -29,11 +28,13 @@ import { IAssembler } from '../../2d/renderer/base';
 import { IBatcher } from '../../2d/renderer/i-batcher';
 import { TiledLayer, TiledRenderData, TiledTile } from '..';
 import { GID, MixedGID, RenderOrder, TiledGrid, TileFlag } from '../tiled-types';
-import { Texture2D, Node, director, Director } from '../../core';
+import { director, Director } from '../../game';
 import { StaticVBAccessor } from '../../2d/renderer/static-vb-accessor';
 import { vfmtPosUvColor } from '../../2d/renderer/vertex-format';
 import { RenderData } from '../../2d/renderer/render-data';
 import { RenderDrawInfoType } from '../../2d/renderer/render-draw-info';
+import { Texture2D } from '../../asset/assets';
+import { Node } from '../../scene-graph';
 
 const MaxGridsLimit = Math.ceil(65535 / 6);
 
@@ -344,7 +345,7 @@ function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col:
     const vertStep3 = vertStep * 3;
 
     const vertices = comp.vertices;
-    let rowData: { [key: number]: { left: number, bottom: number; index: number }, maxCol: number, minCol: number };
+    let rowData: { maxCol: number, minCol: number } & SafeRecord<number, { left: number, bottom: number; index: number }>;
     let col: number;
     let cols: number;
     let row: number;
@@ -386,7 +387,7 @@ function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col:
     const vertexBuf = _tempBuffers;
     // traverse row
     for (; (rows - row) * rowMoveDir >= 0; row += rowMoveDir) {
-        rowData = vertices[row];
+        rowData = vertices[row]!;
         colNodesCount = comp.getNodesCountByRow(row);
         isCheckColRange = rowData && colNodesCount === 0;
 
@@ -401,7 +402,7 @@ function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col:
 
         // traverse col
         for (; (cols - col) * colMoveDir >= 0; col += colMoveDir) {
-            colData = rowData && rowData[col];
+            colData = rowData && rowData[col]!;
 
             if (colNodesCount > 0) {
                 packRenderData();

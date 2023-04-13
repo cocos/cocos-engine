@@ -1,19 +1,18 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -27,16 +26,12 @@
 import { ccclass, help, disallowMultiple, executeInEditMode,
     executionOrder, menu, tooltip, type, serializable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { Camera } from '../../core/components/camera-component';
+import { Camera } from '../../misc/camera-component';
 import { Widget } from '../../ui/widget';
-import { Vec3 } from '../../core/math';
-import { view } from '../../core/platform/view';
-import { legacyCC } from '../../core/global-exports';
-import { Enum } from '../../core/value-types/enum';
-import visibleRect from '../../core/platform/visible-rect';
+import { Vec3, screen, Enum, cclegacy, visibleRect } from '../../core';
+import { view } from '../../ui/view';
 import { RenderRoot2D } from './render-root-2d';
-import { Node, screen } from '../../core';
-import { NodeEventType } from '../../core/scene-graph/node-event';
+import { NodeEventType } from '../../scene-graph/node-event';
 
 const _worldPos = new Vec3();
 
@@ -89,6 +84,10 @@ export class Canvas extends RenderRoot2D {
         }
     }
 
+    /**
+     * @en The camera component that will be aligned with this canvas
+     * @zh 将与此 canvas 对齐的相机组件
+     */
     @type(Camera)
     @tooltip('i18n:canvas.camera')
     get cameraComponent () {
@@ -103,6 +102,10 @@ export class Canvas extends RenderRoot2D {
         this._onResizeCamera();
     }
 
+    /**
+     * @en Align canvas with screen
+     * @zh 是否使用屏幕对齐画布
+     */
     @tooltip('i18n:canvas.align')
     get alignCanvasWithScreen () {
         return this._alignCanvasWithScreen;
@@ -113,12 +116,6 @@ export class Canvas extends RenderRoot2D {
 
         this._onResizeCamera();
     }
-
-    // /**
-    //  * @zh
-    //  * 当前激活的画布组件，场景同一时间只能有一个激活的画布。
-    //  */
-    // public static instance: Canvas | null = null;
 
     @type(Camera)
     protected _cameraComponent: Camera | null = null;
@@ -177,12 +174,12 @@ export class Canvas extends RenderRoot2D {
 
         if (EDITOR) {
             // Constantly align canvas node in edit mode
-            legacyCC.director.on(legacyCC.Director.EVENT_AFTER_UPDATE, this._fitDesignResolution!, this);
+            cclegacy.director.on(cclegacy.Director.EVENT_AFTER_UPDATE, this._fitDesignResolution!, this);
 
             // In Editor can not edit these attrs.
             // (Position in Node, contentSize in uiTransform)
             // (anchor in uiTransform, but it can edit, this is different from cocos creator)
-            this._objFlags |= legacyCC.Object.Flags.IsPositionLocked | legacyCC.Object.Flags.IsSizeLocked | legacyCC.Object.Flags.IsAnchorLocked;
+            this._objFlags |= cclegacy.Object.Flags.IsPositionLocked | cclegacy.Object.Flags.IsSizeLocked | cclegacy.Object.Flags.IsAnchorLocked;
         } else {
             // In Editor dont need resized camera when scene window resize
             this.node.on(NodeEventType.TRANSFORM_CHANGED, this._thisOnCameraResized);
@@ -207,7 +204,7 @@ export class Canvas extends RenderRoot2D {
         super.onDestroy();
 
         if (EDITOR) {
-            legacyCC.director.off(legacyCC.Director.EVENT_AFTER_UPDATE, this._fitDesignResolution!, this);
+            cclegacy.director.off(cclegacy.Director.EVENT_AFTER_UPDATE, this._fitDesignResolution!, this);
         } else {
             this.node.off(NodeEventType.TRANSFORM_CHANGED, this._thisOnCameraResized);
         }
@@ -238,4 +235,4 @@ export class Canvas extends RenderRoot2D {
     }
 }
 
-legacyCC.Canvas = Canvas;
+cclegacy.Canvas = Canvas;

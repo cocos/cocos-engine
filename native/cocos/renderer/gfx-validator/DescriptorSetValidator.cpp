@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -49,12 +48,12 @@ DescriptorSetValidator::~DescriptorSetValidator() {
 void DescriptorSetValidator::doInit(const DescriptorSetInfo &info) {
     CC_ASSERT(!isInited());
     _inited = true;
-    CC_ASSERT(info.layout && static_cast<DescriptorSetLayoutValidator *>(info.layout)->isInited());
+    CC_ASSERT(info.layout && static_cast<const DescriptorSetLayoutValidator *>(info.layout)->isInited());
 
     /////////// execute ///////////
 
     DescriptorSetInfo actorInfo;
-    actorInfo.layout = static_cast<DescriptorSetLayoutValidator *>(info.layout)->getActor();
+    actorInfo.layout = static_cast<const DescriptorSetLayoutValidator *>(info.layout)->getActor();
 
     _actor->initialize(actorInfo);
 }
@@ -79,8 +78,8 @@ void DescriptorSetValidator::update() {
     Format format = {};
 
     for (size_t i = 0; i < descriptorCount; ++i) {
-        texture = _textures[i];
-        sampler = _samplers[i];
+        texture = _textures[i].ptr;
+        sampler = _samplers[i].ptr;
         if (texture == nullptr || sampler == nullptr) continue;
         format = texture->getInfo().format;
 
@@ -116,7 +115,9 @@ void DescriptorSetValidator::updateReferenceStamp() {
 
 void DescriptorSetValidator::bindBuffer(uint32_t binding, Buffer *buffer, uint32_t index) {
     CC_ASSERT(isInited());
-    CC_ASSERT(buffer && static_cast<BufferValidator *>(buffer)->isInited());
+    auto *vBuffer = static_cast<BufferValidator *>(buffer);
+    CC_ASSERT(buffer && vBuffer->isInited());
+    CC_ASSERT(vBuffer->isValid() && "Buffer View Expired");
 
     const ccstd::vector<uint32_t> &bindingIndices = _layout->getBindingIndices();
     const DescriptorSetLayoutBindingList &bindings = _layout->getBindings();
@@ -140,7 +141,7 @@ void DescriptorSetValidator::bindBuffer(uint32_t binding, Buffer *buffer, uint32
 
     DescriptorSet::bindBuffer(binding, buffer, index);
 
-    _actor->bindBuffer(binding, static_cast<BufferValidator *>(buffer)->getActor(), index);
+    _actor->bindBuffer(binding, vBuffer->getActor(), index);
 }
 
 void DescriptorSetValidator::bindTexture(uint32_t binding, Texture *texture, uint32_t index) {

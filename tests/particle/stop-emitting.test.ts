@@ -1,5 +1,6 @@
-import { director, game, Node, Scene } from "../../cocos/core";
+import { director, game } from "../../cocos/game";
 import { ParticleSystem } from "../../exports/particle";
+import { Node, Scene } from "../../cocos/scene-graph";
 
 test('stop emitting', () => {
     const scene = new Scene('test-scene');

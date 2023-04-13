@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -68,6 +67,11 @@ public:
     inline void setShadowNear(float nearValue) { _shadowNear = nearValue; }
     inline void setShadowFar(float farValue) { _shadowFar = farValue; }
     inline void setShadowOrthoSize(float orthoSize) { _shadowOrthoSize = orthoSize; }
+    inline void setCSMLayersTransition(bool csmLayersTransition) {
+        _csmLayersTransition = csmLayersTransition;
+        activate();
+    }
+    inline void setCSMTransitionRange(bool csmTransitionRange) { _csmTransitionRange = csmTransitionRange; }
 
     inline bool isShadowEnabled() const { return _shadowEnabled; }
     inline PCFType getShadowPcf() const { return _shadowPcf; }
@@ -91,32 +95,38 @@ public:
     inline void setIlluminanceLDR(float value) { _illuminanceLDR = value; }
     inline float getIlluminanceHDR() const { return _illuminanceHDR; }
     inline float getIlluminanceLDR() const { return _illuminanceLDR; }
+    inline float getCSMLayersTransition() const { return _csmLayersTransition; }
+    inline float getCSMTransitionRange() const { return _csmTransitionRange; }
     float getIlluminance() const;
     void setIlluminance(float value);
 
 private:
     void activate() const;
 
-    float _illuminanceHDR{Ambient::SUN_ILLUM};
-    float _illuminanceLDR{1.F};
-    Vec3 _dir{1.0F, -1.0F, -1.0F};
-
     // shadow info
     bool _shadowEnabled{false};
+    bool _isCSMNeedUpdate{false};
+    bool _shadowFixedArea{false};
+    bool _csmLayersTransition{false};
+
     PCFType _shadowPcf{PCFType::HARD};
+    CSMLevel _csmLevel{CSMLevel::LEVEL_3};
+    CSMOptimizationMode _csmOptimizationMode{CSMOptimizationMode::REMOVE_DUPLICATES};
+
+    float _illuminanceHDR{Ambient::SUN_ILLUM};
+    float _illuminanceLDR{1.F};
     float _shadowBias{0.0F};
     float _shadowNormalBias{0.0F};
     float _shadowSaturation{0.75F};
     float _shadowDistance{50.0F};
     float _shadowInvisibleOcclusionRange{200.0F};
-    CSMLevel _csmLevel{CSMLevel::LEVEL_3};
     float _csmLayerLambda{0.75F};
-    bool _isCSMNeedUpdate{false};
-    CSMOptimizationMode _csmOptimizationMode{CSMOptimizationMode::REMOVE_DUPLICATES};
-    bool _shadowFixedArea{false};
     float _shadowNear{0.1F};
     float _shadowFar{10.0F};
     float _shadowOrthoSize{1.0F};
+    float _csmTransitionRange{0.05F};
+
+    Vec3 _dir{1.0F, -1.0F, -1.0F};
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(DirectionalLight);
 };

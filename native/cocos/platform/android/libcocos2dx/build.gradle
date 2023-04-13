@@ -33,7 +33,5 @@ android {
 }
 
 dependencies {
-    api "androidx.appcompat:appcompat:1.2.0"
-    api "androidx.core:core:1.5.0"
     api fileTree(include: ['*.jar'], dir: '../java/libs')
 }

@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -30,6 +29,10 @@
 #include "base/Macros.h"
 #include "base/RefCounted.h"
 #include "base/TypeDef.h"
+
+namespace se {
+class Object;
+}
 
 namespace cc {
 
@@ -79,9 +82,9 @@ public:
          */
         LOCKED_IN_EDITOR = 1 << 9,
         /**
-          * @en Hide the object in editor.
-          * @zh 在编辑器中隐藏该对象。
-          */
+         * @en Hide the object in editor.
+         * @zh 在编辑器中隐藏该对象。
+         */
         HIDE_IN_HIERARCHY = 1 << 10,
 
         IS_ON_ENABLE_CALLED = 1 << 11,
@@ -108,16 +111,16 @@ public:
 
         // all the hideFlags
         /**
-          * @en The object will not be saved and hide the object in editor,and lock node, when the node is locked,
-          * cannot be clicked in the scene,and The object will not be saved when building a player.
-          * @zh 该对象将不会被保存,构建项目时，该对象将不会被保存, 锁定节点，锁定后场景内不能点击, 在编辑器中隐藏该对象。
-          */
+         * @en The object will not be saved and hide the object in editor,and lock node, when the node is locked,
+         * cannot be clicked in the scene,and The object will not be saved when building a player.
+         * @zh 该对象将不会被保存,构建项目时，该对象将不会被保存, 锁定节点，锁定后场景内不能点击, 在编辑器中隐藏该对象。
+         */
         ALL_HIDE_MASKS = DONT_SAVE | EDITOR_ONLY | LOCKED_IN_EDITOR | HIDE_IN_HIERARCHY,
     };
 
     static void deferredDestroy();
 
-    //cjh    public declare [editorExtrasTag]: unknown;
+    // cjh    public declare [editorExtrasTag]: unknown;
 
     Flags _objFlags{Flags::ZERO};
     ccstd::string _name;
@@ -136,8 +139,8 @@ public:
      * obj.name = "New Obj";
      * ```
      */
-    inline const ccstd::string &getName() const { return _name; }
-    inline void setName(const ccstd::string &value) { _name = value; }
+    inline const ccstd::string& getName() const { return _name; }
+    inline void setName(const ccstd::string& value) { _name = value; }
 
     /**
      * @en After inheriting CCObject objects, control whether you need to hide, lock, serialize, and other functions.
@@ -176,6 +179,8 @@ public:
      * ```
      */
     inline bool isValid() const;
+
+    virtual void destruct();
 
     /**
      * @en
@@ -221,11 +226,16 @@ public:
 
     virtual ccstd::string toString() const { return ""; };
 
+    inline void setScriptObject(se::Object* seObj) { _scriptObject = seObj; }
+    inline se::Object* getScriptObject() const { return _scriptObject; }
+
 protected:
     virtual bool onPreDestroy() {
         // FIXME: need reture value
         return true;
     }
+
+    se::Object* _scriptObject{nullptr}; // weak reference
 };
 
 CC_ENUM_BITWISE_OPERATORS(CCObject::Flags);
@@ -284,6 +294,6 @@ inline bool CCObject::isReplicated() const {
  * log(isValid(node));    // false, destroyed in the end of last frame
  * ```
  */
-bool isObjectValid(CCObject *value, bool strictMode = false);
+bool isObjectValid(CCObject* value, bool strictMode = false);
 
 } // namespace cc

@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -431,6 +430,7 @@ CC_ENUM_BITWISE_OPERATORS(BufferUsageBit);
 
 enum class BufferFlagBit : uint32_t {
     NONE = 0,
+    ENABLE_STAGING_WRITE = 0x01,
 };
 using BufferFlags = BufferFlagBit;
 CC_ENUM_BITWISE_OPERATORS(BufferFlagBit);
@@ -834,6 +834,8 @@ struct DeviceCaps {
     uint32_t maxUniformBlockSize{0};
     uint32_t maxTextureSize{0};
     uint32_t maxCubeMapTextureSize{0};
+    uint32_t maxArrayTextureLayers{0};
+    uint32_t max3DTextureSize{0};
     uint32_t uboOffsetAlignment{1};
 
     uint32_t maxComputeSharedMemorySize{0};
@@ -984,6 +986,7 @@ struct BindingMappingInfo {
 };
 
 struct SwapchainInfo {
+    uint32_t windowId{0};
     void *windowHandle{nullptr}; // @ts-overrides { type: 'HTMLCanvasElement' }
     VsyncMode vsyncMode{VsyncMode::ON};
 
@@ -1114,6 +1117,7 @@ struct UniformBlock {
     ccstd::string name;
     UniformList members;
     uint32_t count{0};
+    uint32_t flattened{0};
 
     EXPOSE_COPY_FN(UniformBlock)
 };
@@ -1126,6 +1130,7 @@ struct UniformSamplerTexture {
     ccstd::string name;
     Type type{Type::UNKNOWN};
     uint32_t count{0};
+    uint32_t flattened{0};
 
     EXPOSE_COPY_FN(UniformSamplerTexture)
 };
@@ -1137,6 +1142,7 @@ struct UniformSampler {
     uint32_t binding{0};
     ccstd::string name;
     uint32_t count{0};
+    uint32_t flattened{0};
 
     EXPOSE_COPY_FN(UniformSampler)
 };
@@ -1149,6 +1155,7 @@ struct UniformTexture {
     ccstd::string name;
     Type type{Type::UNKNOWN};
     uint32_t count{0};
+    uint32_t flattened{0};
 
     EXPOSE_COPY_FN(UniformTexture)
 };
@@ -1162,6 +1169,7 @@ struct UniformStorageImage {
     Type type{Type::UNKNOWN};
     uint32_t count{0};
     MemoryAccess memoryAccess{MemoryAccessBit::READ_WRITE};
+    uint32_t flattened{0};
 
     EXPOSE_COPY_FN(UniformStorageImage)
 };
@@ -1174,6 +1182,7 @@ struct UniformStorageBuffer {
     ccstd::string name;
     uint32_t count{0};
     MemoryAccess memoryAccess{MemoryAccessBit::READ_WRITE};
+    uint32_t flattened{0};
 
     EXPOSE_COPY_FN(UniformStorageBuffer)
 };
@@ -1185,6 +1194,7 @@ struct UniformInputAttachment {
     uint32_t binding{0};
     ccstd::string name;
     uint32_t count{0};
+    uint32_t flattened{0};
 
     EXPOSE_COPY_FN(UniformInputAttachment)
 };
@@ -1409,7 +1419,7 @@ struct DescriptorSetLayoutInfo {
 };
 
 struct DescriptorSetInfo {
-    DescriptorSetLayout *layout{nullptr};
+    const DescriptorSetLayout *layout{nullptr};
 
     EXPOSE_COPY_FN(DescriptorSetInfo)
 };
@@ -1505,7 +1515,7 @@ struct BlendState {
 
     void setTarget(index_t index, const BlendTarget &target) {
         if (index >= targets.size()) {
-            targets.resize(index + 1);
+            targets.resize(static_cast<size_t>(index) + 1);
         }
         targets[index] = target;
     }
@@ -1557,14 +1567,14 @@ struct QueryPoolInfo {
 };
 
 struct FormatInfo {
-    const ccstd::string name;
-    const uint32_t size{0};
-    const uint32_t count{0};
-    const FormatType type{FormatType::NONE};
-    const bool hasAlpha{false};
-    const bool hasDepth{false};
-    const bool hasStencil{false};
-    const bool isCompressed{false};
+    ccstd::string name;
+    uint32_t size{0};
+    uint32_t count{0};
+    FormatType type{FormatType::NONE};
+    bool hasAlpha{false};
+    bool hasDepth{false};
+    bool hasStencil{false};
+    bool isCompressed{false};
 };
 
 struct MemoryStatus {

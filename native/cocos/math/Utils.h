@@ -1,3 +1,27 @@
+/****************************************************************************
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+****************************************************************************/
+
 #pragma once
 
 #include <algorithm>
@@ -25,7 +49,7 @@ constexpr auto HALF_TO_RAD = 0.5 * D2R;
 template <typename F>
 bool equals(F a, F b) {
     static_assert(std::is_floating_point<F>::value, "number expected");
-    return std::fabs(a - b) <= EPSILON * std::max(1.0, std::fabs(a), std::fabs(b));
+    return std::fabs(a - b) <= EPSILON * std::max(1.0F, std::max(std::fabs(a), std::fabs(b)));
 }
 
 /**
@@ -191,6 +215,7 @@ auto pseudoRandomRangeInt(In seed, In min, In max) {
  */
 template <typename T>
 auto nextPow2(T val) {
+    // ref: https://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
     --val;
     val = (val >> 1) | val;
     val = (val >> 2) | val;
@@ -240,15 +265,14 @@ auto inverseLerp(T from, T to, T value) {
     return (value - from) / (to - from);
 }
 
-using Vec3ElementType = decltype(static_cast<Vec3 *>(nullptr)->x);
 /**
  * @zh 对所有分量的绝对值进行比较大小，返回绝对值最大的分量。
  * @param v 类 Vec3 结构
  * @returns 绝对值最大的分量
  */
-Vec3ElementType absMaxComponent(const Vec3 &v);
+float absMaxComponent(const Vec3 &v);
 
-Vec3ElementType maxComponent(const Vec3 &v);
+float maxComponent(const Vec3 &v);
 
 /**
  * @zh 对 a b 的绝对值进行比较大小，返回绝对值最大的值。

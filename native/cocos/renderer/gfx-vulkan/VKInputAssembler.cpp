@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -46,17 +45,21 @@ void CCVKInputAssembler::doInit(const InputAssemblerInfo &info) {
     _gpuInputAssembler->attributes = _attributes;
     _gpuInputAssembler->gpuVertexBuffers.resize(vbCount);
 
+    auto *hub = CCVKDevice::getInstance()->gpuIAHub();
     for (size_t i = 0U; i < vbCount; ++i) {
         auto *vb = static_cast<CCVKBuffer *>(_vertexBuffers[i]);
         _gpuInputAssembler->gpuVertexBuffers[i] = vb->gpuBufferView();
+        hub->connect(_gpuInputAssembler, _gpuInputAssembler->gpuVertexBuffers[i].get());
     }
 
     if (info.indexBuffer) {
         _gpuInputAssembler->gpuIndexBuffer = static_cast<CCVKBuffer *>(info.indexBuffer)->gpuBufferView();
+        hub->connect(_gpuInputAssembler, _gpuInputAssembler->gpuIndexBuffer.get());
     }
 
     if (info.indirectBuffer) {
         _gpuInputAssembler->gpuIndirectBuffer = static_cast<CCVKBuffer *>(info.indirectBuffer)->gpuBufferView();
+        hub->connect(_gpuInputAssembler, _gpuInputAssembler->gpuIndirectBuffer.get());
     }
 
     _gpuInputAssembler->vertexBuffers.resize(vbCount);
@@ -70,11 +73,34 @@ void CCVKInputAssembler::doInit(const InputAssemblerInfo &info) {
 }
 
 void CCVKInputAssembler::doDestroy() {
-    if (_gpuInputAssembler) {
-        _gpuInputAssembler->vertexBuffers.clear();
-        _gpuInputAssembler->vertexBufferOffsets.clear();
-        delete _gpuInputAssembler;
-        _gpuInputAssembler = nullptr;
+    _gpuInputAssembler = nullptr;
+}
+
+void CCVKGPUInputAssembler::shutdown() {
+    auto *hub = CCVKDevice::getInstance()->gpuIAHub();
+    for (auto &vb : gpuVertexBuffers) {
+        hub->disengage(this, vb);
+    }
+    if (gpuIndexBuffer) {
+        hub->disengage(this, gpuIndexBuffer);
+    }
+    if (gpuIndirectBuffer) {
+        hub->disengage(this, gpuIndirectBuffer);
+    }
+}
+
+void CCVKGPUInputAssembler::update(const CCVKGPUBufferView *oldBuffer, const CCVKGPUBufferView *newBuffer) {
+    for (uint32_t i = 0; i < gpuVertexBuffers.size(); ++i) {
+        if (gpuVertexBuffers[i].get() == oldBuffer) {
+            gpuVertexBuffers[i] = newBuffer;
+            vertexBuffers[i] = newBuffer->gpuBuffer->vkBuffer;
+        }
+    }
+    if (gpuIndexBuffer.get() == oldBuffer) {
+        gpuIndexBuffer = newBuffer;
+    }
+    if (gpuIndirectBuffer.get() == oldBuffer) {
+        gpuIndirectBuffer = newBuffer;
     }
 }
 

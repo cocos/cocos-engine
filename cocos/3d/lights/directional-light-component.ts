@@ -1,15 +1,15 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
@@ -23,16 +23,16 @@
  THE SOFTWARE.
 */
 
-import { ccclass, range, slide, type, editable, visible, help, executeInEditMode,
-    menu, tooltip, serializable, formerlySerializedAs } from 'cc.decorator';
 import { Light } from './light-component';
-import { scene } from '../../core/renderer';
-import { legacyCC } from '../../core/global-exports';
-import { Camera, PCFType, Shadows, ShadowType, CSMOptimizationMode, CSMLevel } from '../../core/renderer/scene';
-import { Root } from '../../core/root';
-import { property } from '../../core/data/class-decorator';
-import { CCBoolean, CCFloat } from '../../core/data/utils/attribute';
-import { clamp, warnID } from '../../core';
+import { scene } from '../../render-scene';
+import { cclegacy, clamp, warnID, CCBoolean, CCFloat, _decorator, settings, Settings, CCInteger } from '../../core';
+import { Camera, PCFType, Shadows, ShadowType, CSMOptimizationMode, CSMLevel } from '../../render-scene/scene';
+import { Root } from '../../root';
+import { MeshRenderer } from '../framework';
+import { director } from '../../game/director';
+import { rangeMin } from '../../core/data/decorators';
+
+const { ccclass, menu, executeInEditMode, property, serializable, formerlySerializedAs, tooltip, help, visible, type, editable, slide, range } = _decorator;
 
 /**
  * @en The directional light component, only one real time directional light is permitted in one scene, it act as the main light of the scene.
@@ -45,55 +45,63 @@ import { clamp, warnID } from '../../core';
 export class DirectionalLight extends Light {
     @property
     @formerlySerializedAs('_illuminance')
-    protected _illuminanceHDR = 65000;
+    private _illuminanceHDR = 65000;
 
     @serializable
-    protected _illuminanceLDR = 65000 * Camera.standardExposureValue;
+    private _illuminanceLDR = 65000 * Camera.standardExposureValue;
 
     // Public properties of shadow
     @serializable
-    protected _shadowEnabled = false;
+    private _shadowEnabled = false;
 
     // Shadow map properties
     @serializable
-    protected _shadowPcf = PCFType.HARD;
+    private _shadowPcf = PCFType.HARD;
     @serializable
-    protected _shadowBias = 0.00001;
+    private _shadowBias = 0.00001;
     @serializable
-    protected _shadowNormalBias = 0.0;
+    private _shadowNormalBias = 0.0;
     @serializable
-    protected _shadowSaturation = 1.0;
+    private _shadowSaturation = 1.0;
     @serializable
-    protected _shadowDistance = 50;
+    private _shadowDistance = 50;
     @serializable
-    protected _shadowInvisibleOcclusionRange = 200;
+    private _shadowInvisibleOcclusionRange = 200;
     @serializable
-    protected _csmLevel = CSMLevel.LEVEL_4;
+    private _csmLevel = CSMLevel.LEVEL_4;
     @serializable
-    protected _csmLayerLambda = 0.75;
+    private _csmLayerLambda = 0.75;
     @serializable
-    protected _csmOptimizationMode = CSMOptimizationMode.RemoveDuplicates;
+    private _csmOptimizationMode = CSMOptimizationMode.RemoveDuplicates;
+
+    @serializable
+    private _csmAdvancedOptions = false;
+    @serializable
+    private _csmLayersTransition = false;
+    @serializable
+    private _csmTransitionRange = 0.05;
 
     // fixed area properties
     @serializable
-    protected _shadowFixedArea = false;
+    private _shadowFixedArea = false;
     @serializable
-    protected _shadowNear = 0.1;
+    private _shadowNear = 0.1;
     @serializable
-    protected _shadowFar = 10.0;
+    private _shadowFar = 10.0;
     @serializable
-    protected _shadowOrthoSize = 5;
-
-    protected _type = scene.LightType.DIRECTIONAL;
-    protected _light: scene.DirectionalLight | null = null;
+    private _shadowOrthoSize = 5;
 
     /**
      * @en The light source intensity.
      * @zh 光源强度。
      */
     @tooltip('i18n:lights.illuminance')
+    @editable
+    @rangeMin(0)
+    @slide
+    @type(CCInteger)
     get illuminance () {
-        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        const isHDR = (cclegacy.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             return this._illuminanceHDR;
         } else {
@@ -101,13 +109,13 @@ export class DirectionalLight extends Light {
         }
     }
     set illuminance (val) {
-        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        const isHDR = (cclegacy.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             this._illuminanceHDR = val;
-            this._light && (this._light.illuminanceHDR = this._illuminanceHDR);
+            this._light && ((this._light as scene.DirectionalLight).illuminanceHDR = this._illuminanceHDR);
         } else {
             this._illuminanceLDR = val;
-            this._light && (this._light.illuminanceLDR = this._illuminanceLDR);
+            this._light && ((this._light as scene.DirectionalLight).illuminanceLDR = this._illuminanceLDR);
         }
     }
 
@@ -116,8 +124,8 @@ export class DirectionalLight extends Light {
      * @zh 是否启用实时阴影？
      */
     @tooltip('i18n:lights.shadowEnabled')
-    @visible(() => (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
-    && (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
+    @visible(() => (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
+    && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 1 } })
     @editable
     @type(CCBoolean)
@@ -127,7 +135,7 @@ export class DirectionalLight extends Light {
     set shadowEnabled (val) {
         this._shadowEnabled = val;
         if (this._light) {
-            this._light.shadowEnabled = this._shadowEnabled;
+            (this._light as scene.DirectionalLight).shadowEnabled = this._shadowEnabled;
         }
     }
 
@@ -136,8 +144,8 @@ export class DirectionalLight extends Light {
      * @zh 实时阴影计算中的阴影 pcf 等级。
      */
     @tooltip('i18n:lights.shadowPcf')
-    @visible(() => (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
-    && (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
+    @visible(() => (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
+    && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 5  } })
     @editable
     @type(PCFType)
@@ -147,7 +155,7 @@ export class DirectionalLight extends Light {
     set shadowPcf (val) {
         this._shadowPcf = val;
         if (this._light) {
-            this._light.shadowPcf = this._shadowPcf;
+            (this._light as scene.DirectionalLight).shadowPcf = this._shadowPcf;
         }
     }
 
@@ -156,8 +164,8 @@ export class DirectionalLight extends Light {
      * @zh 实时阴影计算中的阴影纹理偏移值。
      */
     @tooltip('i18n:lights.shadowBias')
-    @visible(() => (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
-    && (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
+    @visible(() => (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
+    && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 6 } })
     @editable
     @type(CCFloat)
@@ -167,7 +175,7 @@ export class DirectionalLight extends Light {
     set shadowBias (val) {
         this._shadowBias = val;
         if (this._light) {
-            this._light.shadowBias = this._shadowBias;
+            (this._light as scene.DirectionalLight).shadowBias = this._shadowBias;
         }
     }
 
@@ -176,8 +184,8 @@ export class DirectionalLight extends Light {
      * @zh 实时阴影计算中的法线偏移。
      */
     @tooltip('i18n:lights.shadowNormalBias')
-    @visible(() => (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
-    && (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
+    @visible(() => (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
+    && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 7 } })
     @editable
     @type(CCFloat)
@@ -187,7 +195,7 @@ export class DirectionalLight extends Light {
     set shadowNormalBias (val) {
         this._shadowNormalBias = val;
         if (this._light) {
-            this._light.shadowNormalBias = this._shadowNormalBias;
+            (this._light as scene.DirectionalLight).shadowNormalBias = this._shadowNormalBias;
         }
     }
 
@@ -196,8 +204,8 @@ export class DirectionalLight extends Light {
      * @zh 实时阴影计算中的阴影颜色饱和度。
      */
     @tooltip('i18n:lights.shadowSaturation')
-    @visible(() => (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
-    && (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
+    @visible(() => (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
+    && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 8 } })
     @editable
     @range([0.0, 1.0, 0.01])
@@ -210,7 +218,7 @@ export class DirectionalLight extends Light {
         this._shadowSaturation = clamp(val, 0.0, 1.0);
 
         if (this._light) {
-            this._light.shadowSaturation = this._shadowSaturation;
+            (this._light as scene.DirectionalLight).shadowSaturation = this._shadowSaturation;
         }
     }
 
@@ -220,8 +228,8 @@ export class DirectionalLight extends Light {
      */
     @tooltip('i18n:lights.shadowDistance')
     @visible(function (this: DirectionalLight) {
-        return (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
-        && (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type
+        return (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
+        && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type
         === ShadowType.ShadowMap && this._shadowFixedArea === false;
     })
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 9 } })
@@ -237,8 +245,8 @@ export class DirectionalLight extends Light {
         this._shadowDistance = Math.min(val, Shadows.MAX_FAR);
         if (this._shadowDistance / 0.1 < 10.0) { warnID(15003, this._shadowDistance); }
         if (this._light) {
-            this._light.shadowDistance = this._shadowDistance;
-            this._light.csmNeedUpdate = true;
+            (this._light as scene.DirectionalLight).shadowDistance = this._shadowDistance;
+            (this._light as scene.DirectionalLight).csmNeedUpdate = true;
         }
     }
 
@@ -248,11 +256,12 @@ export class DirectionalLight extends Light {
     */
     @tooltip('i18n:lights.shadowInvisibleOcclusionRange')
     @visible(function (this: DirectionalLight) {
-        return (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
-        && (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type
-        === ShadowType.ShadowMap && this._shadowFixedArea === false;
+        return (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
+        && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type
+        === ShadowType.ShadowMap && this._shadowFixedArea === false
+        && this._csmAdvancedOptions;
     })
-    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 10 } })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 22 } })
     @editable
     @tooltip('if shadow has been culled, increase this value to fix it')
     @range([0.0, 2000.0, 1.0])
@@ -264,7 +273,7 @@ export class DirectionalLight extends Light {
     set shadowInvisibleOcclusionRange (val) {
         this._shadowInvisibleOcclusionRange = Math.min(val, Shadows.MAX_FAR);
         if (this._light) {
-            this._light.shadowInvisibleOcclusionRange = this._shadowInvisibleOcclusionRange;
+            (this._light as scene.DirectionalLight).shadowInvisibleOcclusionRange = this._shadowInvisibleOcclusionRange;
         }
     }
 
@@ -273,7 +282,7 @@ export class DirectionalLight extends Light {
      * @zh 获取或者设置阴影层级
      */
     @visible(false)
-    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 11 } })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 10 } })
     @editable
     @tooltip('CSM Level')
     @slide
@@ -284,8 +293,8 @@ export class DirectionalLight extends Light {
     set csmLevel (val) {
         this._csmLevel = val;
         if (this._light) {
-            this._light.csmLevel = this._csmLevel;
-            this._light.csmNeedUpdate = true;
+            (this._light as scene.DirectionalLight).csmLevel = this._csmLevel;
+            (this._light as scene.DirectionalLight).csmNeedUpdate = true;
         }
     }
 
@@ -295,11 +304,11 @@ export class DirectionalLight extends Light {
      */
     @tooltip('i18n:lights.enableCSM')
     @visible(function (this: DirectionalLight) {
-        return (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
-        && (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type
+        return (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
+        && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type
             === ShadowType.ShadowMap && this._shadowFixedArea === false;
     })
-    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 12 } })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 11 } })
     @editable
     @tooltip('enable CSM')
     @slide
@@ -310,8 +319,8 @@ export class DirectionalLight extends Light {
     set enableCSM (val) {
         this._csmLevel = val ? CSMLevel.LEVEL_4 : CSMLevel.LEVEL_1;
         if (this._light) {
-            this._light.csmLevel = this._csmLevel;
-            this._light.csmNeedUpdate = true;
+            (this._light as scene.DirectionalLight).csmLevel = this._csmLevel;
+            (this._light as scene.DirectionalLight).csmNeedUpdate = true;
         }
     }
 
@@ -320,7 +329,7 @@ export class DirectionalLight extends Light {
      * @zh 获取或者设置阴影层级系数
      */
     @visible(false)
-    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 13 } })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 12 } })
     @editable
     @tooltip('CSM Level ratio')
     @range([0.0, 1.0, 0.01])
@@ -332,8 +341,8 @@ export class DirectionalLight extends Light {
     set csmLayerLambda (val) {
         this._csmLayerLambda = val;
         if (this._light) {
-            this._light.csmLayerLambda = this._csmLayerLambda;
-            this._light.csmNeedUpdate = true;
+            (this._light as scene.DirectionalLight).csmLayerLambda = this._csmLayerLambda;
+            (this._light as scene.DirectionalLight).csmNeedUpdate = true;
         }
     }
 
@@ -343,7 +352,7 @@ export class DirectionalLight extends Light {
      * @internal
      */
     @visible(false)
-    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 14 } })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 13 } })
     @editable
     @tooltip('CSM Performance Optimization Mode')
     @slide
@@ -354,7 +363,7 @@ export class DirectionalLight extends Light {
     set csmOptimizationMode (val) {
         this._csmOptimizationMode = val;
         if (this._light) {
-            this._light.csmOptimizationMode = this._csmOptimizationMode;
+            (this._light as scene.DirectionalLight).csmOptimizationMode = this._csmOptimizationMode;
         }
     }
 
@@ -363,9 +372,9 @@ export class DirectionalLight extends Light {
      * @zh 实时阴影计算中是否使用固定区域阴影。
      */
     @tooltip('i18n:lights.shadowFixedArea')
-    @visible(() => (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
-    && (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
-    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 15 } })
+    @visible(() => (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
+    && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 14 } })
     @editable
     @type(CCBoolean)
     get shadowFixedArea () {
@@ -374,7 +383,7 @@ export class DirectionalLight extends Light {
     set shadowFixedArea (val) {
         this._shadowFixedArea = val;
         if (this._light) {
-            this._light.shadowFixedArea = this._shadowFixedArea;
+            (this._light as scene.DirectionalLight).shadowFixedArea = this._shadowFixedArea;
         }
     }
 
@@ -384,11 +393,11 @@ export class DirectionalLight extends Light {
      */
     @tooltip('i18n:lights.shadowNear')
     @visible(function (this: DirectionalLight) {
-        return (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
-        && (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type
+        return (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
+        && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type
         === ShadowType.ShadowMap && this._shadowFixedArea === true;
     })
-    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 16 } })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 15 } })
     @editable
     @type(CCFloat)
     get shadowNear () {
@@ -397,7 +406,7 @@ export class DirectionalLight extends Light {
     set shadowNear (val) {
         this._shadowNear = val;
         if (this._light) {
-            this._light.shadowNear = this._shadowNear;
+            (this._light as scene.DirectionalLight).shadowNear = this._shadowNear;
         }
     }
 
@@ -407,11 +416,11 @@ export class DirectionalLight extends Light {
      */
     @tooltip('i18n:lights.shadowFar')
     @visible(function (this: DirectionalLight) {
-        return (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
-        && (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type
+        return (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
+        && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type
         === ShadowType.ShadowMap && this._shadowFixedArea === true;
     })
-    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 17 } })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 16 } })
     @editable
     @type(CCFloat)
     get shadowFar () {
@@ -420,7 +429,7 @@ export class DirectionalLight extends Light {
     set shadowFar (val) {
         this._shadowFar = Math.min(val, Shadows.MAX_FAR);
         if (this._light) {
-            this._light.shadowFar = this._shadowFar;
+            (this._light as scene.DirectionalLight).shadowFar = this._shadowFar;
         }
     }
 
@@ -430,11 +439,11 @@ export class DirectionalLight extends Light {
      */
     @tooltip('i18n:lights.shadowOrthoSize')
     @visible(function (this: DirectionalLight) {
-        return (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
-        && (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type
+        return (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
+        && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type
         === ShadowType.ShadowMap && this._shadowFixedArea === true;
     })
-    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 18 } })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 17 } })
     @type(CCFloat)
     get shadowOrthoSize () {
         return this._shadowOrthoSize;
@@ -442,35 +451,137 @@ export class DirectionalLight extends Light {
     set shadowOrthoSize (val) {
         this._shadowOrthoSize = val;
         if (this._light) {
-            this._light.shadowOrthoSize = this._shadowOrthoSize;
+            (this._light as scene.DirectionalLight).shadowOrthoSize = this._shadowOrthoSize;
         }
+    }
+
+    /**
+     * @en Enabled shadow advanced options
+     * @zh 是否启用高级选项？
+     */
+    @tooltip('i18n:lights.shadowAdvancedOptions')
+    @visible(function (this: DirectionalLight) {
+        return (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
+         && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap
+         && this._csmLevel > CSMLevel.LEVEL_1;
+    })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 19 } })
+    @editable
+    @type(CCBoolean)
+    get csmAdvancedOptions () {
+        return this._csmAdvancedOptions;
+    }
+    set csmAdvancedOptions (val) {
+        this._csmAdvancedOptions = val;
+    }
+
+    /**
+     * @en Enabled csm layers transition
+     * @zh 是否启用级联阴影层级过渡？
+     */
+    @tooltip('i18n:lights.csmLayersTransition')
+    @visible(function (this: DirectionalLight) {
+        return (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
+         && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap
+         && this._csmLevel > CSMLevel.LEVEL_1
+         && this._csmAdvancedOptions;
+    })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 20 } })
+    @editable
+    @type(CCBoolean)
+    get csmLayersTransition () {
+        return this._csmLayersTransition;
+    }
+    set csmLayersTransition (val) {
+        this._csmLayersTransition = val;
+        if (this._light) { (this._light as scene.DirectionalLight).csmLayersTransition = val; }
+    }
+
+    /**
+     * @en get or set csm layers transition range
+     * @zh 获取或者设置级联阴影层级过渡范围？
+     */
+    @tooltip('i18n:lights.csmTransitionRange')
+    @visible(function (this: DirectionalLight) {
+        return (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
+         && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap
+         && this._csmLevel > CSMLevel.LEVEL_1
+         && this._csmAdvancedOptions;
+    })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 21 } })
+    @editable
+    @range([0.0, 0.1, 0.01])
+    @slide
+    @type(CCFloat)
+    get csmTransitionRange () {
+        return this._csmTransitionRange;
+    }
+    set csmTransitionRange (val) {
+        this._csmTransitionRange = val;
+        if (this._light) { (this._light as scene.DirectionalLight).csmTransitionRange = val; }
     }
 
     constructor () {
         super();
         this._lightType = scene.DirectionalLight;
+
+        const highQualityMode = settings.querySettings(Settings.Category.RENDERING, 'highQualityMode');
+
+        if (highQualityMode) {
+            this._shadowPcf = PCFType.SOFT_2X;
+            this._shadowDistance = 50;
+            this.enableCSM = true;
+            this.staticSettings.castShadow = true;
+        }
     }
 
     protected _createLight () {
         super._createLight();
+        this._type = scene.LightType.DIRECTIONAL;
         if (this._light) {
-            this._light.illuminanceHDR = this._illuminanceHDR;
-            this._light.illuminanceLDR = this._illuminanceLDR;
+            const dirLight = this._light as scene.DirectionalLight;
+            dirLight.illuminanceHDR = this._illuminanceHDR;
+            dirLight.illuminanceLDR = this._illuminanceLDR;
             // shadow info
-            this._light.shadowEnabled = this._shadowEnabled;
-            this._light.shadowPcf = this._shadowPcf;
-            this._light.shadowBias = this._shadowBias;
-            this._light.shadowNormalBias = this._shadowNormalBias;
-            this._light.shadowSaturation = this._shadowSaturation;
-            this._light.shadowDistance = this._shadowDistance;
-            this._light.shadowInvisibleOcclusionRange = this._shadowInvisibleOcclusionRange;
-            this._light.shadowFixedArea = this._shadowFixedArea;
-            this._light.shadowNear = this._shadowNear;
-            this._light.shadowFar = this._shadowFar;
-            this._light.shadowOrthoSize = this._shadowOrthoSize;
-            this._light.csmLevel = this._csmLevel;
-            this._light.csmLayerLambda = this._csmLayerLambda;
-            this._light.csmOptimizationMode = this._csmOptimizationMode;
+            dirLight.shadowEnabled = this._shadowEnabled;
+            dirLight.shadowPcf = this._shadowPcf;
+            dirLight.shadowBias = this._shadowBias;
+            dirLight.shadowNormalBias = this._shadowNormalBias;
+            dirLight.shadowSaturation = this._shadowSaturation;
+            dirLight.shadowDistance = this._shadowDistance;
+            dirLight.shadowInvisibleOcclusionRange = this._shadowInvisibleOcclusionRange;
+            dirLight.shadowFixedArea = this._shadowFixedArea;
+            dirLight.shadowNear = this._shadowNear;
+            dirLight.shadowFar = this._shadowFar;
+            dirLight.shadowOrthoSize = this._shadowOrthoSize;
+            dirLight.csmLevel = this._csmLevel;
+            dirLight.csmLayerLambda = this._csmLayerLambda;
+            dirLight.csmOptimizationMode = this._csmOptimizationMode;
+            dirLight.csmLayersTransition = this._csmLayersTransition;
+            dirLight.csmTransitionRange = this._csmTransitionRange;
+        }
+    }
+
+    protected _onUpdateReceiveDirLight () {
+        if (!this._light) {
+            return;
+        }
+        super._onUpdateReceiveDirLight();
+
+        const scene = director.getScene();
+        if (!scene || !scene.renderScene) {
+            return;
+        }
+        if (scene.renderScene.mainLight !== this._light) {
+            return;
+        }
+        const models = scene.renderScene.models;
+        for (let i = 0; i < models.length; i++) {
+            const model = models[i];
+            if (!model.node) continue;
+            const meshRender = model.node.getComponent(MeshRenderer);
+            if (!meshRender) continue;
+            meshRender.onUpdateReceiveDirLight(this._visibility);
         }
     }
 }

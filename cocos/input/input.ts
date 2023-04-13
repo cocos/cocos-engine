@@ -1,16 +1,16 @@
 /*
  Copyright (c) 2011-2012 cocos2d-x.org
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
@@ -25,13 +25,11 @@
 */
 
 import { EDITOR, NATIVE } from 'internal:constants';
-import { TouchInputSource, MouseInputSource, KeyboardInputSource, AccelerometerInputSource, GamepadInputDevice, HandleInputDevice, HMDInputDevice } from 'pal/input';
+import { TouchInputSource, MouseInputSource, KeyboardInputSource, AccelerometerInputSource, GamepadInputDevice, HandleInputDevice, HMDInputDevice, HandheldInputDevice } from 'pal/input';
 import { touchManager } from '../../pal/input/touch-manager';
-import { sys } from '../core/platform/sys';
-import { EventTarget } from '../core/event/event-target';
-import { Event, EventAcceleration, EventGamepad, EventHandle, EventHMD, EventKeyboard, EventMouse, EventTouch, Touch } from './types';
+import { sys, EventTarget, cclegacy } from '../core';
+import { Event, EventAcceleration, EventGamepad, EventHandle, EventHandheld, EventHMD, EventKeyboard, EventMouse, EventTouch, Touch } from './types';
 import { InputEventType } from './types/event-enum';
-import { legacyCC } from '../core/global-exports';
 
 export enum EventDispatcherPriority {
     GLOBAL = 0,
@@ -47,7 +45,7 @@ export interface IEventDispatcher {
      * @param event
      * @returns Whether dispatch to next event dispatcher
      */
-    dispatchEvent (event: Event): boolean;
+    dispatchEvent(event: Event): boolean;
 }
 
 class InputEventDispatcher implements IEventDispatcher {
@@ -92,6 +90,7 @@ interface InputEventMap {
     [Input.EventType.HANDLE_INPUT]: (event: EventHandle) => void,
     [Input.EventType.HANDLE_POSE_INPUT]: (event: EventHandle) => void,
     [Input.EventType.HMD_POSE_INPUT]: (event: EventHMD) => void,
+    [Input.EventType.HANDHELD_POSE_INPUT]: (event: EventHandheld) => void,
 }
 
 /**
@@ -135,6 +134,7 @@ export class Input {
     private _accelerometerInput = new AccelerometerInputSource();
     private _handleInput = new HandleInputDevice();
     private _hmdInput = new HMDInputDevice();
+    private _handheldInput = new HandheldInputDevice();
 
     private _eventTouchList: EventTouch[] = [];
     private _eventMouseList: EventMouse[] = [];
@@ -143,6 +143,7 @@ export class Input {
     private _eventGamepadList: EventGamepad[] = [];
     private _eventHandleList: EventHandle[] = [];
     private _eventHMDList: EventHMD[] = [];
+    private _eventHandheldList: EventHandheld[] = [];
 
     private _needSimulateTouchMoveEvent = false;
 
@@ -223,7 +224,7 @@ export class Input {
      * @param target - The event listener's target and callee
      */
     public off<K extends keyof InputEventMap> (eventType: K, callback?: InputEventMap[K], target?: any) {
-        if (EDITOR && !legacyCC.GAME_VIEW) {
+        if (EDITOR && !cclegacy.GAME_VIEW) {
             return;
         }
         this._eventTarget.off(eventType, callback, target);
@@ -236,7 +237,7 @@ export class Input {
      * 是否启用加速度计事件。
      */
     public setAccelerometerEnabled (isEnable: boolean) {
-        if (EDITOR && !legacyCC.GAME_VIEW) {
+        if (EDITOR && !cclegacy.GAME_VIEW) {
             return;
         }
         if (isEnable) {
@@ -254,7 +255,7 @@ export class Input {
      * 设置加速度计间隔值。
      */
     public setAccelerometerInterval (intervalInMileSeconds: number): void {
-        if (EDITOR && !legacyCC.GAME_VIEW) {
+        if (EDITOR && !cclegacy.GAME_VIEW) {
             return;
         }
         this._accelerometerInput.setInterval(intervalInMileSeconds);
@@ -269,14 +270,18 @@ export class Input {
         }
         const changedTouches = [touch];
         const eventTouch = new EventTouch(changedTouches, false, eventType, (eventType === InputEventType.TOUCH_END ? [] : changedTouches));
+        eventTouch.windowId = eventMouse.windowId;
+
         if (eventType === InputEventType.TOUCH_END) {
             touchManager.releaseTouch(touchID);
         }
         this._dispatchOrPushEventTouch(eventTouch, this._eventTouchList);
     }
 
-    // TODO: public in engine
-    private _registerEventDispatcher (eventDispatcher: IEventDispatcher) {
+    /**
+     * @engineInternal
+     */
+    public _registerEventDispatcher (eventDispatcher: IEventDispatcher) {
         this._eventDispatcherList.push(eventDispatcher);
         this._eventDispatcherList.sort((a, b) => b.priority - a.priority);
     }
@@ -285,8 +290,13 @@ export class Input {
         const length = this._eventDispatcherList.length;
         for (let i = 0; i < length; ++i) {
             const dispatcher = this._eventDispatcherList[i];
-            if (!dispatcher.dispatchEvent(event)) {
-                break;
+            try {
+                if (!dispatcher.dispatchEvent(event)) {
+                    break;
+                }
+            } catch (e) {
+                console.error(`Error occurs in an event listener: ${event.type}`);
+                console.error(e);
             }
         }
     }
@@ -349,9 +359,17 @@ export class Input {
             const eventHMDList = this._eventHMDList;
             this._hmdInput._on(InputEventType.HMD_POSE_INPUT, (event) => { this._dispatchOrPushEvent(event, eventHMDList); });
         }
+
+        if (sys.hasFeature(sys.Feature.EVENT_HANDHELD)) {
+            const eventHandheldList = this._eventHandheldList;
+            this._handheldInput._on(InputEventType.HANDHELD_POSE_INPUT, (event) => { this._dispatchOrPushEvent(event, eventHandheldList); });
+        }
     }
 
-    private _clearEvents () {
+    /**
+     * @engineInternal
+     */
+    public _clearEvents () {
         this._eventMouseList.length = 0;
         this._eventTouchList.length = 0;
         this._eventKeyboardList.length = 0;
@@ -383,7 +401,24 @@ export class Input {
         }
     }
 
-    private _frameDispatchEvents () {
+    /**
+     * @engineInternal
+     */
+    public _frameDispatchEvents () {
+        const eventHMDList = this._eventHMDList;
+        // TODO: culling event queue
+        for (let i = 0, length = eventHMDList.length; i < length; ++i) {
+            const eventHMD = eventHMDList[i];
+            this._emitEvent(eventHMD);
+        }
+
+        const eventHandheldList = this._eventHandheldList;
+        // TODO: culling event queue
+        for (let i = 0, length = eventHandheldList.length; i < length; ++i) {
+            const eventHandheld = eventHandheldList[i];
+            this._emitEvent(eventHandheld);
+        }
+
         const eventMouseList = this._eventMouseList;
         // TODO: culling event queue
         for (let i = 0, length = eventMouseList.length; i < length; ++i) {
@@ -430,13 +465,6 @@ export class Input {
         for (let i = 0, length = eventHandleList.length; i < length; ++i) {
             const eventHandle = eventHandleList[i];
             this._emitEvent(eventHandle);
-        }
-
-        const eventHMDList = this._eventHMDList;
-        // TODO: culling event queue
-        for (let i = 0, length = eventHMDList.length; i < length; ++i) {
-            const eventHMD = eventHMDList[i];
-            this._emitEvent(eventHMD);
         }
 
         this._clearEvents();

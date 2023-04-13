@@ -1,19 +1,18 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
- 
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
+
  http://www.cocos.com
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
- 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
- 
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+****************************************************************************/
 
 #pragma once
 
@@ -65,13 +64,13 @@ constexpr uint32_t customizeType(uint32_t handle, gfx::Type type) {
     return (handle & ~TYPE_MASK) | ((static_cast<uint32_t>(type) << 26) & TYPE_MASK);
 }
 
-using MacroValue = ccstd::variant<int32_t, bool, ccstd::string>;
+using MacroValue = ccstd::variant<ccstd::monostate, int32_t, bool, ccstd::string>;
 
 /**
  * @en Combination of preprocess macros
  * @zh 预处理宏组合
  */
-using MacroRecord = Record<ccstd::string, MacroValue>;
+using MacroRecord = ccstd::unordered_map<ccstd::string, MacroValue>;
 
 using MaterialProperty = ccstd::variant<ccstd::monostate /*0*/, float /*1*/, int32_t /*2*/, Vec2 /*3*/, Vec3 /*4*/, Vec4 /*5*/, Color, /*6*/ Mat3 /*7*/, Mat4 /*8*/, Quaternion /*9*/, IntrusivePtr<TextureBase> /*10*/, IntrusivePtr<gfx::Texture> /*11*/>;
 
@@ -84,9 +83,11 @@ using MaterialPropertyVariant = ccstd::variant<ccstd::monostate /*0*/, MaterialP
 
 using GFXTypeReaderCallback = void (*)(const float *, MaterialProperty &, index_t);
 using GFXTypeWriterCallback = void (*)(float *, const MaterialProperty &, index_t);
+using GFXTypeValidatorCallback = bool (*)(const MaterialProperty &);
 
-extern const ccstd::unordered_map<gfx::Type, GFXTypeReaderCallback> type2reader; //NOLINT(readability-identifier-naming)
-extern const ccstd::unordered_map<gfx::Type, GFXTypeWriterCallback> type2writer; //NOLINT(readability-identifier-naming)
+extern const ccstd::unordered_map<gfx::Type, GFXTypeReaderCallback> type2reader;       // NOLINT(readability-identifier-naming)
+extern const ccstd::unordered_map<gfx::Type, GFXTypeWriterCallback> type2writer;       // NOLINT(readability-identifier-naming)
+extern const ccstd::unordered_map<gfx::Type, GFXTypeValidatorCallback> type2validator; // NOLINT(readability-identifier-naming)
 
 /**
  * @en Gets the default values for the given type of uniform
@@ -110,5 +111,8 @@ const ccstd::string &getStringFromType(gfx::Type type);
 bool overrideMacros(MacroRecord &target, const MacroRecord &source);
 
 MaterialProperty toMaterialProperty(gfx::Type type, const ccstd::vector<float> &vec);
+
+bool macroRecordAsBool(const MacroRecord::mapped_type &v);
+ccstd::string macroRecordAsString(const MacroRecord::mapped_type &v);
 
 } // namespace cc

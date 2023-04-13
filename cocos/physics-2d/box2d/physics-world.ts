@@ -1,10 +1,33 @@
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
 import b2 from '@cocos/box2d';
 import { EDITOR } from 'internal:constants';
 
 import { IPhysicsWorld } from '../spec/i-physics-world';
-import { IVec2Like, Vec3, Quat, toRadian, Vec2, toDegree, Rect, Node, game, CCObject, find, director, Layers } from '../../core';
+import { IVec2Like, Vec3, Quat, toRadian, Vec2, toDegree, Rect, CCObject, js, cclegacy } from '../../core';
 import { PHYSICS_2D_PTM_RATIO, ERaycast2DType, ERigidBody2DType } from '../framework/physics-types';
-import { array } from '../../core/utils/js';
 import { Canvas } from '../../2d/framework';
 import { Graphics } from '../../2d/components';
 
@@ -12,11 +35,11 @@ import { b2RigidBody2D } from './rigid-body';
 import { PhysicsContactListener } from './platform/physics-contact-listener';
 import { PhysicsAABBQueryCallback } from './platform/physics-aabb-query-callback';
 import { PhysicsRayCastCallback } from './platform/physics-ray-cast-callback';
-import { PhysicsContact, b2ContactExtends } from './physics-contact';
-import { Contact2DType, Collider2D, RaycastResult2D } from '../framework';
+import { Collider2D, RaycastResult2D } from '../framework';
 import { b2Shape2D } from './shapes/shape-2d';
 import { PhysicsDebugDraw } from './platform/physics-debug-draw';
-import { legacyCC } from '../../core/global-exports';
+import { Node, find, Layers } from '../../scene-graph';
+import { director } from '../../game';
 
 const tempVec3 = new Vec3();
 const tempVec2_1 = new Vec2();
@@ -32,6 +55,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
     protected _bodies: b2RigidBody2D[] = [];
     protected _animatedBodies: b2RigidBody2D[] = [];
     protected _rotationAxis: Vec3 = new Vec3();
+    protected _physicsGroundBody: b2.Body;
 
     protected _contactListener: PhysicsContactListener;
     protected _aabbQueryCallback: PhysicsAABBQueryCallback;
@@ -41,16 +65,17 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         return this._world;
     }
 
+    get groundBodyImpl () {
+        return this._physicsGroundBody;
+    }
+
     constructor () {
         this._world = new b2.World(new b2.Vec2(0, -10));
-
+        const tempBodyDef = new b2.BodyDef();
+        //tempBodyDef.position.Set(480 / PHYSICS_2D_PTM_RATIO, 320 / PHYSICS_2D_PTM_RATIO);//temporary
+        this._physicsGroundBody = this._world.CreateBody(tempBodyDef);
         const listener = new PhysicsContactListener();
-        listener.setBeginContact(this._onBeginContact);
-        listener.setEndContact(this._onEndContact);
-        listener.setPreSolve(this._onPreSolve);
-        listener.setPostSolve(this._onPostSolve);
         this._world.SetContactListener(listener);
-
         this._contactListener = listener;
 
         this._aabbQueryCallback = new PhysicsAABBQueryCallback();
@@ -65,7 +90,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         return this._debugDrawFlags;
     }
     set debugDrawFlags (v) {
-        if (EDITOR && !legacyCC.GAME_VIEW) return;
+        if (EDITOR && !cclegacy.GAME_VIEW) return;
 
         if (!v) {
             if (this._debugGraphics) {
@@ -77,11 +102,11 @@ export class b2PhysicsWorld implements IPhysicsWorld {
     }
 
     _checkDebugDrawValid () {
-        if (EDITOR && !legacyCC.GAME_VIEW) return;
+        if (EDITOR && !cclegacy.GAME_VIEW) return;
         if (!this._debugGraphics || !this._debugGraphics.isValid) {
             let canvas = find('Canvas');
             if (!canvas) {
-                const scene = director.getScene() as any;
+                const scene = director.getScene();
                 if (!scene) {
                     return;
                 }
@@ -222,8 +247,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
     syncSceneToPhysics () {
         const bodies = this._bodies;
         for (let i = 0; i < bodies.length; i++) {
-            bodies[i].syncRotationToPhysics();
-            bodies[i].syncPositionToPhysics();
+            bodies[i].syncSceneToPhysics();
         }
     }
 
@@ -290,19 +314,12 @@ export class b2PhysicsWorld implements IPhysicsWorld {
             this._world.DestroyBody(body.impl);
             body._imp = null;
         }
-        array.remove(this._bodies, body);
+        js.array.remove(this._bodies, body);
 
         const comp = body.rigidBody;
         if (comp.type === ERigidBody2DType.Animated) {
-            array.remove(this._animatedBodies, body);
+            js.array.remove(this._animatedBodies, body);
         }
-    }
-
-    registerContactFixture (fixture: b2.Fixture) {
-        this._contactListener.registerContactFixture(fixture);
-    }
-    unregisterContactFixture (fixture: b2.Fixture) {
-        this._contactListener.unregisterContactFixture(fixture);
     }
 
     testPoint (point: Vec2): readonly Collider2D[] {
@@ -361,39 +378,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         this._world.DrawDebugData();
     }
 
-    _onBeginContact (b2contact: b2ContactExtends) {
-        const c = PhysicsContact.get(b2contact);
-        c.emit(Contact2DType.BEGIN_CONTACT);
-    }
-
-    _onEndContact (b2contact: b2ContactExtends) {
-        const c = b2contact.m_userData as PhysicsContact;
-        if (!c) {
-            return;
-        }
-        c.emit(Contact2DType.END_CONTACT);
-
-        PhysicsContact.put(b2contact);
-    }
-
-    _onPreSolve (b2contact: b2ContactExtends) {
-        const c = b2contact.m_userData as PhysicsContact;
-        if (!c) {
-            return;
-        }
-
-        c.emit(Contact2DType.PRE_SOLVE);
-    }
-
-    _onPostSolve (b2contact: b2ContactExtends, impulse: b2.ContactImpulse) {
-        const c: PhysicsContact = b2contact.m_userData as PhysicsContact;
-        if (!c) {
-            return;
-        }
-
-        // impulse only survive during post sole callback
-        c._setImpulse(impulse);
-        c.emit(Contact2DType.POST_SOLVE);
-        c._setImpulse(null);
+    finalizeContactEvent () {
+        this._contactListener.finalizeContactEvent();
     }
 }

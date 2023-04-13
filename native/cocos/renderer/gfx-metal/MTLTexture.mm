@@ -65,6 +65,43 @@ void CCMTLTexture::doInit(const TextureInfo &info) {
 
     if (_info.externalRes) {
         auto pixelBuffer = static_cast<CVPixelBufferRef>(_info.externalRes);
+
+// for separating y tex and cbcr tex from arkit background pixelbuffer
+#if CC_USE_AR_MODULE
+        size_t width = CVPixelBufferGetWidthOfPlane(pixelBuffer, _info.layerCount);
+        size_t height = CVPixelBufferGetHeightOfPlane(pixelBuffer, _info.layerCount);
+        CVReturn cvret;
+        CVMetalTextureCacheRef CVMTLTextureCache;
+        cvret = CVMetalTextureCacheCreate(
+            kCFAllocatorDefault,
+            nil,
+            (id<MTLDevice>)CCMTLDevice::getInstance()->getMTLDevice(),
+            nil,
+            &CVMTLTextureCache);
+
+        CC_ASSERT_EQ(cvret, kCVReturnSuccess); // Failed to create Metal texture cache.
+
+        _convertedFormat = mu::convertGFXPixelFormat(_info.format);
+        MTLPixelFormat mtlFormat = mu::toMTLPixelFormat(_convertedFormat);
+        CVMetalTextureRef CVMTLTexture;
+        cvret = CVMetalTextureCacheCreateTextureFromImage(
+            kCFAllocatorDefault,
+            CVMTLTextureCache,
+            pixelBuffer, nil,
+            mtlFormat,
+            width, height,
+            _info.layerCount,
+            &CVMTLTexture);
+
+        CC_ASSERT_EQ(cvret, kCVReturnSuccess); // Failed to create CoreVideo Metal texture from image.
+
+        _mtlTexture = CVMetalTextureGetTexture(CVMTLTexture);
+
+        CC_ASSERT(_mtlTexture); // Failed to create Metal texture CoreVideo Metal Texture
+
+        return;
+#else
+
         size_t width = CVPixelBufferGetWidth(pixelBuffer);
         size_t height = CVPixelBufferGetHeight(pixelBuffer);
 
@@ -77,7 +114,7 @@ void CCMTLTexture::doInit(const TextureInfo &info) {
             nil,
             &CVMTLTextureCache);
 
-        CC_ASSERT(cvret == kCVReturnSuccess); // Failed to create Metal texture cache.
+        CC_ASSERT_EQ(cvret, kCVReturnSuccess); // Failed to create Metal texture cache.
 
         _convertedFormat = mu::convertGFXPixelFormat(_info.format);
         MTLPixelFormat mtlFormat = mu::toMTLPixelFormat(_convertedFormat);
@@ -91,13 +128,15 @@ void CCMTLTexture::doInit(const TextureInfo &info) {
             0,
             &CVMTLTexture);
 
-        CC_ASSERT(cvret == kCVReturnSuccess); // Failed to create CoreVideo Metal texture from image.
+        CC_ASSERT_EQ(cvret, kCVReturnSuccess); // Failed to create CoreVideo Metal texture from image.
 
         _mtlTexture = CVMetalTextureGetTexture(CVMTLTexture);
+
         CFRelease(CVMTLTexture);
         CFRelease(CVMTLTextureCache);
 
         CC_ASSERT(_mtlTexture); // Failed to create Metal texture CoreVideo Metal Texture
+#endif
     }
 
     if (!createMTLTexture()) {
@@ -171,7 +210,7 @@ bool CCMTLTexture::createMTLTexture() {
                                                                           mipmapped:NO];
             break;
         default:
-            CC_ASSERT(false);
+            CC_ABORT();
             break;
     }
 
@@ -200,7 +239,10 @@ bool CCMTLTexture::createMTLTexture() {
 #else
         descriptor.storageMode = MTLStorageModePrivate;
 #endif
-    } else if (hasFlag(_info.usage, TextureUsage::COLOR_ATTACHMENT) || hasFlag(_info.usage, TextureUsage::DEPTH_STENCIL_ATTACHMENT) || hasFlag(_info.usage, TextureUsage::INPUT_ATTACHMENT)) {
+    } else if (hasFlag(_info.usage, TextureUsage::COLOR_ATTACHMENT) ||
+               hasFlag(_info.usage, TextureUsage::DEPTH_STENCIL_ATTACHMENT) ||
+               hasFlag(_info.usage, TextureUsage::INPUT_ATTACHMENT) ||
+               hasFlag(_info.usage, TextureUsage::STORAGE)) {
         descriptor.storageMode = MTLStorageModePrivate;
     }
 

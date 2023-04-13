@@ -1,19 +1,18 @@
 /****************************************************************************
  Copyright (c) 2016 Chukong Technologies Inc.
- Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -35,8 +34,8 @@ namespace se {
 class Object;
 
 /**
-     *  State represents an environment while a function or an accesstor is invoked from JavaScript.
-     */
+ *  State represents an environment while a function or an accesstor is invoked from JavaScript.
+ */
 class State final {
 public:
     /**
@@ -77,24 +76,36 @@ public:
 
     // Private API used in wrapper
     /**
-         *  @brief
-         *  @param[in]
-         *  @return
-         */
-    ~State();
+     *  @brief
+     *  @param[in]
+     *  @return
+     */
+    ~State() {
+        // Inline to speed up high-frequency calls without significant impact on code size
+        SAFE_DEC_REF(_thisObject);
+    }
 
-    explicit State(Object *thisObject);
-    State(Object *thisObject, const ValueArray &args);
+    explicit State(Object *thisObject) : _thisObject(thisObject) {
+        if (_thisObject != nullptr) {
+            _thisObject->incRef();
+        }
+    }
+    State(Object *thisObject, const ValueArray &args) : _thisObject(thisObject),
+                                                        _args(&args) {
+        if (_thisObject != nullptr) {
+            _thisObject->incRef();
+        }
+    }
+
+    // Disable copy/move constructor, copy/move assigment
+    State(const State &) = delete;
+    State(State &&) noexcept = delete;
+    State &operator=(const State &) = delete;
+    State &operator=(State &&) noexcept = delete;
 
 private:
-    // Disable copy/move constructor, copy/move assigment
-    State(const State &);
-    State(State &&) noexcept;
-    State &operator=(const State &);
-    State &operator=(State &&) noexcept;
-
-    Object *_thisObject{nullptr};     //weak ref
-    const ValueArray *_args{nullptr}; //weak ref
-    Value _retVal;                    //weak ref
+    Object *_thisObject{nullptr};     // weak ref
+    const ValueArray *_args{nullptr}; // weak ref
+    Value _retVal;                    // weak ref
 };
 } // namespace se

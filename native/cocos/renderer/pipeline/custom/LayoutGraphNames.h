@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -37,24 +36,6 @@ namespace cc {
 
 namespace render {
 
-inline const char* getName(DescriptorTypeOrder e) noexcept {
-    switch (e) {
-        case DescriptorTypeOrder::UNIFORM_BUFFER: return "UNIFORM_BUFFER";
-        case DescriptorTypeOrder::DYNAMIC_UNIFORM_BUFFER: return "DYNAMIC_UNIFORM_BUFFER";
-        case DescriptorTypeOrder::SAMPLER_TEXTURE: return "SAMPLER_TEXTURE";
-        case DescriptorTypeOrder::SAMPLER: return "SAMPLER";
-        case DescriptorTypeOrder::TEXTURE: return "TEXTURE";
-        case DescriptorTypeOrder::STORAGE_BUFFER: return "STORAGE_BUFFER";
-        case DescriptorTypeOrder::DYNAMIC_STORAGE_BUFFER: return "DYNAMIC_STORAGE_BUFFER";
-        case DescriptorTypeOrder::STORAGE_IMAGE: return "STORAGE_IMAGE";
-        case DescriptorTypeOrder::INPUT_ATTACHMENT: return "INPUT_ATTACHMENT";
-    }
-    return "";
-}
-inline const char* getName(const Descriptor& /*v*/) noexcept { return "Descriptor"; }
-inline const char* getName(const DescriptorBlock& /*v*/) noexcept { return "DescriptorBlock"; }
-inline const char* getName(const DescriptorBlockFlattened& /*v*/) noexcept { return "DescriptorBlockFlattened"; }
-inline const char* getName(const DescriptorBlockIndex& /*v*/) noexcept { return "DescriptorBlockIndex"; }
 inline const char* getName(const DescriptorDB& /*v*/) noexcept { return "DescriptorDB"; }
 inline const char* getName(const RenderStageTag& /*v*/) noexcept { return "RenderStage"; }
 inline const char* getName(const RenderPhaseTag& /*v*/) noexcept { return "RenderPhase"; }
@@ -68,6 +49,10 @@ inline const char* getName(const DescriptorBlockData& /*v*/) noexcept { return "
 inline const char* getName(const DescriptorSetLayoutData& /*v*/) noexcept { return "DescriptorSetLayoutData"; }
 inline const char* getName(const DescriptorSetData& /*v*/) noexcept { return "DescriptorSetData"; }
 inline const char* getName(const PipelineLayoutData& /*v*/) noexcept { return "PipelineLayoutData"; }
+inline const char* getName(const ShaderBindingData& /*v*/) noexcept { return "ShaderBindingData"; }
+inline const char* getName(const ShaderLayoutData& /*v*/) noexcept { return "ShaderLayoutData"; }
+inline const char* getName(const TechniqueData& /*v*/) noexcept { return "TechniqueData"; }
+inline const char* getName(const EffectData& /*v*/) noexcept { return "EffectData"; }
 inline const char* getName(const ShaderProgramData& /*v*/) noexcept { return "ShaderProgramData"; }
 inline const char* getName(const RenderStageData& /*v*/) noexcept { return "RenderStageData"; }
 inline const char* getName(const RenderPhaseData& /*v*/) noexcept { return "RenderPhaseData"; }
