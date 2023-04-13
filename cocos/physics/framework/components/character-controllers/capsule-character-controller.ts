@@ -45,7 +45,7 @@ const v3_0 = new Vec3(0, 0, 0);
  * 角色控制器组件。
  */
 @ccclass('cc.CapsuleCharacterController')
-@help('i18n:cc.CapsuleCharacterController')
+//@help('i18n:cc.CapsuleCharacterController')
 @menu('Physics/CapsuleCharacterController')
 @executeInEditMode
 @disallowMultiple
@@ -58,11 +58,11 @@ export class CapsuleCharacterController extends CharacterController {
     /// PUBLIC PROPERTY GETTER\SETTER ///
     /**
      * @en
-     * Gets or sets the radius of the sphere on the capsule body, in local space.
+     * Gets or sets the radius of the sphere of the capsule shape of the CharacterController in local space.
      * @zh
-     * 获取或设置胶囊体在本地坐标系下的球半径。
+     * 获取或设置在本地坐标系下的胶囊体球半径。
      */
-    //@tooltip('i18n:physics3d.collider.capsule_radius')
+    @tooltip('i18n:physics3d.character_controller.capsuleRadius')
     @type(CCFloat)
     public get radius () {
         return this._radius;
@@ -78,12 +78,12 @@ export class CapsuleCharacterController extends CharacterController {
 
     /**
      * @en
-     * Gets or sets the height.
+     * Gets or sets the height of the capsule shape of the CharacterController in local space.
      * Height the distance between the two sphere centers at the end of the capsule.
      * @zh
-     * 获取或设置在本地坐标系下的胶囊体两个圆心的距离。
+     * 获取或设置在本地坐标系下的胶囊体末端两个球心的距离。
      */
-    //@tooltip('i18n:physics3d.collider.capsule_cylinderHeight')
+    @tooltip('i18n:physics3d.character_controller.capsuleHeight')
     @type(CCFloat)
     public get height () {
         return this._height;
@@ -99,7 +99,7 @@ export class CapsuleCharacterController extends CharacterController {
 
     /// PRIVATE PROPERTY ///
     @serializable
-    public _radius = 0.5;
+    private _radius = 0.5;
     @serializable
-    public _height = 1.0;
+    private _height = 1.0;
 }

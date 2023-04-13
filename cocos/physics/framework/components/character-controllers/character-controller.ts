@@ -51,13 +51,13 @@ export class CharacterController extends Eventify(Component) {
 
     /**
      * @en
-     * Gets or sets the group of the rigid body.
+     * Gets or sets the group of the character controller.
      * @zh
      * 获取或设置分组。
      */
     @type(PhysicsSystem.PhysicsGroup)
     @displayOrder(-2)
-    @tooltip('i18n:physics3d.charactercontroller.group')
+    @tooltip('i18n:physics3d.character_controller.group')
     public get group (): number {
         return this._group;
     }
@@ -73,6 +73,13 @@ export class CharacterController extends Eventify(Component) {
         }
     }
 
+    /**
+     * @en
+     * Gets or sets the minimum movement distance of the character controller.
+     * @zh
+     * 获取或设置角色控制器的最小移动距离。
+     */
+    @tooltip('i18n:physics3d.character_controller.minMoveDistance')
     @type(CCFloat)
     public get minMoveDistance () {
         return this._minMoveDistance;
@@ -83,6 +90,13 @@ export class CharacterController extends Eventify(Component) {
         this._minMoveDistance = Math.abs(value);
     }
 
+    /**
+     * @en 、
+     * Gets or sets the stepOffset of the character controller.
+     * @zh
+     * 获取或设置角色控制器的最大爬台阶高度。
+     */
+    @tooltip('i18n:physics3d.character_controller.stepOffset')
     @type(CCFloat)
     public get stepOffset () {
         return this._stepOffset;
@@ -96,6 +110,13 @@ export class CharacterController extends Eventify(Component) {
         }
     }
 
+    /**
+     * @en
+     * Gets or sets the slope limit of the character controller in degree.
+     * @zh
+     * 获取或设置角色控制器的最大爬坡角度。
+    */
+    @tooltip('i18n:physics3d.character_controller.slopeLimit')
     @type(CCFloat)
     public get slopeLimit () {
         return this._slopeLimit;
@@ -109,6 +130,13 @@ export class CharacterController extends Eventify(Component) {
         }
     }
 
+    /**
+     * @en
+     * Gets or sets the contact offset of the character controller.
+     * @zh
+     * 获取或设置角色控制器的接触间隙。
+     */
+    @tooltip('i18n:physics3d.character_controller.contactOffset')
     @type(CCFloat)
     public get contactOffset () {
         return this._contactOffset;
@@ -122,6 +150,13 @@ export class CharacterController extends Eventify(Component) {
         }
     }
 
+    /**
+     * @en
+     * Gets or sets if the character controller can collide with other objects.
+     * @zh
+     * 获取或设置角色控制器是否和发生碰撞。
+     */
+    @tooltip('i18n:physics3d.character_controller.detectCollisions')
     @type(CCBoolean)
     public get detectCollisions () {
         return this._detectCollisions;
@@ -137,10 +172,11 @@ export class CharacterController extends Eventify(Component) {
 
     /**
      * @en
-     * Gets or sets the center of the cct, in local space.
+     * Gets or sets the center of the character controller in local space.
      * @zh
-     * 在本地空间中，获取或设置角色控制器的中心点。
+     * 获取或设置胶囊体的中心点在局部坐标系中的位置。
      */
+    @tooltip('i18n:physics3d.character_controller.center')
     @type(Vec3)
     public get center () {
         return this._center;
@@ -170,7 +206,7 @@ export class CharacterController extends Eventify(Component) {
      * @en
      * Gets the type of this character controller.
      * @zh
-     * 获取此的类型。
+     * 获取此角色控制器的类型。
      */
     readonly TYPE: ECharacterControllerType;
 
@@ -274,10 +310,9 @@ export class CharacterController extends Eventify(Component) {
 
     /**
      * @en
-     * .
+     * Gets whether the character is on the ground.
      * @zh
-     * 。
-     * @param value @zh  @en
+     * 获取是否在地面上。
      */
     onGround (): boolean {
         return this._cct!.onGround();
@@ -285,10 +320,10 @@ export class CharacterController extends Eventify(Component) {
 
     /**
      * @en
-     * Move.
+     * Move the character.
      * @zh
-     * 。
-     * @param value @zh  @en
+     * 移动角色控制器。
+     * @param movement @zh 移动向量 @en The movement vector
      */
     public move (movement: Vec3): void {
         if (!this._isInitialized) { return; }
