@@ -28,7 +28,7 @@ import { Color, Material, Quat, RenderingSubMesh, Vec2, Vec3, Vec4 } from '../..
 import { ccclass, displayOrder, serializable, tooltip, type } from '../../core/data/decorators';
 import { BufferInfo, BufferUsageBit, deviceManager, DrawInfo, DRAW_INFO_SIZE, IndirectBuffer, MemoryUsageBit, Buffer, Attribute, FormatInfos, PrimitiveMode, AttributeName } from '../../core/gfx';
 import { MacroRecord } from '../../core/renderer';
-import { AlignmentSpace, Space } from '../enum';
+import { AlignmentSpace, ScalingMode, Space } from '../enum';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
 import { ModuleExecStage, ParticleModule } from '../particle-module';
@@ -198,11 +198,11 @@ export class MeshRendererModule extends RendererModule {
 
     private _updateRenderScale (material: Material, particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         let currentScale: Vec3;
-        switch (params.scaleSpace) {
-        case Space.LOCAL:
+        switch (params.scalingMode) {
+        case ScalingMode.LOCAL:
             currentScale = context.localScale;
             break;
-        case Space.WORLD:
+        case ScalingMode.HIERARCHY:
             currentScale = context.worldScale;
             break;
         default:

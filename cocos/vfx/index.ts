@@ -24,7 +24,7 @@
  */
 
 import { ParticleEmitter } from './particle-emitter';
-import { EventHandler } from './event-receiver';
+import { EventHandler } from './event-handler';
 import { FloatExpression } from './expression/float-expression';
 import { ColorExpression } from './expression/color-expression';
 import './vfx-manager';

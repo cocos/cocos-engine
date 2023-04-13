@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { CullingMode, FinishAction, Space } from './enum';
+import { CullingMode, FinishAction, ScalingMode, Space } from './enum';
 import { Color, Mat4, Quat, Vec3, Node, Vec2, assert, approx } from '../core';
 import { ccclass, serializable } from '../core/data/decorators';
 import { ModuleExecStage } from './particle-module';
@@ -169,7 +169,7 @@ export class ParticleEmitterParams {
     @serializable
     public simulationSpace = Space.LOCAL;
     @serializable
-    public scaleSpace = Space.LOCAL;
+    public scalingMode = ScalingMode.LOCAL;
     @serializable
     public simulationSpeed = 1.0;
     @serializable

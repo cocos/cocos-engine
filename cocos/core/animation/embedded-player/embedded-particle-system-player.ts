@@ -1,5 +1,5 @@
 import { ccclass, serializable } from 'cc.decorator';
-import type { ParticleEmitter } from '../../../vfx';
+import type { ParticleSystem } from '../../../particle';
 import { warn } from '../../platform/debug';
 import type { Node } from '../../scene-graph/node';
 import { getClassByName } from '../../utils/js-typed';
@@ -30,7 +30,7 @@ export class EmbeddedParticleSystemPlayable extends EmbeddedPlayable {
             return null;
         }
         // TODO: we shouldn't wanna know the name of `ParticleSystem` indeed.
-        const ParticleSystemConstructor = getClassByName(`cc.ParticleEmitter`) as Constructor<ParticleEmitter> | undefined;
+        const ParticleSystemConstructor = getClassByName(`cc.ParticleSystem`) as Constructor<ParticleSystem> | undefined;
         if (!ParticleSystemConstructor) {
             warn(`Particle system is required for embedded particle system player.`);
             return null;
@@ -45,7 +45,7 @@ export class EmbeddedParticleSystemPlayable extends EmbeddedPlayable {
 }
 
 class EmbeddedParticleSystemPlayableState extends EmbeddedPlayableState {
-    constructor (particleSystem: ParticleEmitter) {
+    constructor (particleSystem: ParticleSystem) {
         super(false);
         this._particleSystem = particleSystem;
     }
@@ -65,14 +65,14 @@ class EmbeddedParticleSystemPlayableState extends EmbeddedPlayableState {
      * Pause the particle system no matter current time.
      */
     public pause (): void {
-        this._particleSystem.stop();
+        this._particleSystem.stopEmitting();
     }
 
     /**
      * Stops the particle system.
      */
     public stop (): void {
-        this._particleSystem.stop();
+        this._particleSystem.stopEmitting();
     }
 
     /**
@@ -83,5 +83,5 @@ class EmbeddedParticleSystemPlayableState extends EmbeddedPlayableState {
         this._particleSystem.simulationSpeed = speed;
     }
 
-    private _particleSystem: ParticleEmitter;
+    private _particleSystem: ParticleSystem;
 }

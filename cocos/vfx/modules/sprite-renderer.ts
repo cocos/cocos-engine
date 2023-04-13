@@ -26,7 +26,7 @@ import { Enum, Material, Quat, RenderingSubMesh, Vec3, Vec4, Vec2, Color } from 
 import { ccclass, displayName, displayOrder, serializable, tooltip, type, visible } from '../../core/data/decorators';
 import { Attribute, Buffer, AttributeName, BufferInfo, BufferUsageBit, deviceManager, DrawInfo, DRAW_INFO_SIZE, Format, FormatInfos, IndirectBuffer, MemoryUsageBit, PrimitiveMode } from '../../core/gfx';
 import { MacroRecord, MaterialInstance } from '../../core/renderer';
-import { AlignmentSpace, Space } from '../enum';
+import { AlignmentSpace, ScalingMode, Space } from '../enum';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
 import { ModuleExecStage, ParticleModule } from '../particle-module';
@@ -202,11 +202,11 @@ export class SpriteRendererModule extends RendererModule {
 
     private _updateRenderScale (material: Material, particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         let currentScale: Vec3;
-        switch (params.scaleSpace) {
-        case Space.LOCAL:
+        switch (params.scalingMode) {
+        case ScalingMode.LOCAL:
             currentScale = context.localScale;
             break;
-        case Space.WORLD:
+        case ScalingMode.HIERARCHY:
             currentScale = context.worldScale;
             break;
         default:

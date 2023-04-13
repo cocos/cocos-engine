@@ -29,7 +29,7 @@ import { DEBUG, EDITOR } from 'internal:constants';
 import { approx, clamp01, Color, EPSILON, lerp, Mat3, Mat4, Quat, randomRangeInt, Size, Vec2, Vec3, Vec4 } from '../core/math';
 import { countTrailingZeros, INT_MAX } from '../core/math/bits';
 import { BoundsMode, CapacityMode, DelayMode, InheritedProperty, LoopMode, ParticleEmitterParams, ParticleEmitterState, ParticleEventInfo, ParticleEventType, ParticleExecContext, PlayingState } from './particle-base';
-import { CullingMode, FinishAction, Space } from './enum';
+import { CullingMode, FinishAction, ScalingMode, Space } from './enum';
 import { legacyCC } from '../core/global-exports';
 import { assert, BitMask, CCBoolean, CCClass, CCFloat, CCInteger, Component, Enum, geometry, js } from '../core';
 import { ParticleDataSet, BuiltinParticleParameter, BuiltinParticleParameterFlags } from './particle-data-set';
@@ -187,14 +187,14 @@ export class ParticleEmitter extends Component {
         this._params.maxDeltaTime = Math.max(val, 0.001);
     }
 
-    @type(Enum(Space))
-    @tooltip('i18n:particle_system.scaleSpace')
-    public get scaleSpace () {
-        return this._params.scaleSpace;
+    @type(Enum(ScalingMode))
+    @tooltip('i18n:particle_system.scalingMode')
+    public get scalingMode () {
+        return this._params.scalingMode;
     }
 
-    public set scaleSpace (val) {
-        this._params.scaleSpace = val;
+    public set scalingMode (val) {
+        this._params.scalingMode = val;
     }
 
     @visible(true)
