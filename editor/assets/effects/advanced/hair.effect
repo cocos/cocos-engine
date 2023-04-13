@@ -36,6 +36,7 @@ CCEffect %{
         baseColorTT:                      { value: [0.5, 0.33, 0.18, 1.0], target: ttColor, linear: true, editor: { displayName: TT Albedo, type: color, tooltip: 'The color of internal transmit lighting, allow the light color to vary between backlit and light-facing areas' } }
         thickness:                        { value: 1.0, target: ttParams.y, editor: { parent: USE_BACK_LIT, displayName: Scatter Thickness, slide: true, range: [0, 1.0], step: 0.001, tooltip: 'The extend range of internal reflection lighting around the direct specular' } }
         extinction:                       { value: 0.0, target: ttParams.z, editor: { parent: USE_BACK_LIT, displayName: Scatter Extinction, slide: true, range: [0, 10.0], step: 0.001, tooltip: 'The position offset of internal reflection lighting compared to direct specular' } }
+        transmitColor:                    { value: [0.7, 0.5, 0.3, 1.0], linear: true, editor: { parent: USE_BACK_LIT, displayName: Transmit Scatter Color, type: color, tooltip: 'The color of scattered lighting' } }
         thicknessMap:                     { value: white, editor: { parent: USE_BACK_LIT } }
         selfShadowMap:                    { value: white, editor: { parent: USE_SELF_SHADOW_MAP } }
       rasterizerState:
@@ -187,6 +188,7 @@ CCProgram shared-ubos %{
     vec4 trtParams;
     vec4 ttColor;
     vec4 ttParams;
+    vec4 transmitColor;
   };
 }%
 
@@ -327,7 +329,7 @@ CCProgram surface-fragment %{
   #define CC_SURFACES_FRAGMENT_MODIFY_TRANSMIT_OUT_SCATTERING_COLOR
   vec3 SurfacesFragmentModifyTransmitOutScatteringColor()
   {
-    return vec3(0.7, 0.5, 0.3);
+    return transmitColor.rgb;
   }
 
   #define CC_SURFACES_FRAGMENT_MODIFY_BASECOLOR_AND_TRANSPARENCY
