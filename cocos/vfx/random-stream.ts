@@ -1,5 +1,5 @@
 import { DEBUG } from 'internal:constants';
-import { assert } from '../core';
+import { assertIsTrue } from '../core';
 
 export class RandomStream {
     public get seed () {
@@ -71,14 +71,14 @@ export class RandomStream {
 
     public getFloatFromRange (min: number, max: number) {
         if (DEBUG) {
-            assert(min < max, 'min should be less than max');
+            assertIsTrue(min < max, 'min should be less than max');
         }
         return min + (max - min) * this.getFloat();
     }
 
     public getIntFromRange (min: number, max: number) {
         if (DEBUG) {
-            assert(min < max, 'min should be less than max');
+            assertIsTrue(min < max, 'min should be less than max');
         }
         return this.getUInt32() % (max - min) + min;
     }

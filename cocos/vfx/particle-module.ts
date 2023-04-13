@@ -26,7 +26,7 @@
 import { ParticleExecContext, ParticleEmitterParams, ParticleEmitterState } from './particle-base';
 import { ParticleDataSet } from './particle-data-set';
 import { ccclass, serializable, type, visible } from '../core/data/decorators';
-import { assert, CCBoolean, CCString, Enum } from '../core';
+import { assertIsTrue, CCBoolean, CCString, Enum } from '../core';
 
 export enum ModuleExecStage {
     NONE,
@@ -107,7 +107,7 @@ export abstract class ParticleModule {
 
     public static getModuleIdentityByClassNoCheck (ctor: Constructor<ParticleModule>) {
         const identity = this.getModuleIdentityByClass(ctor);
-        assert(identity, 'Module not registered!');
+        assertIsTrue(identity, 'Module not registered!');
         return identity;
     }
 
@@ -228,7 +228,7 @@ export class ParticleModuleStage {
      */
     public addModule<T extends ParticleModule> (ModuleType: Constructor<T>): T {
         const id = ParticleModule.getModuleIdentityByClass(ModuleType);
-        assert(id, 'Particle Module should be registered!');
+        assertIsTrue(id, 'Particle Module should be registered!');
         if (id.execStages & this._execStage) {
             const newModule = new ModuleType();
             const index = ParticleModule.findAProperPositionToInsert(this._modules, newModule, 0, this._modules.length);

@@ -31,7 +31,7 @@ import { INT_MAX } from '../core/math/bits';
 import { BoundsMode, CapacityMode, DelayMode, LoopMode, ParticleEmitterParams, ParticleEmitterState, ParticleEventInfo, ParticleEventType, ParticleExecContext, PlayingState } from './particle-base';
 import { CullingMode, FinishAction, ScalingMode, Space } from './enum';
 import { legacyCC } from '../core/global-exports';
-import { assert, CCBoolean, CCClass, CCInteger, Enum } from '../core';
+import { assertIsTrue, CCBoolean, CCClass, CCInteger, Enum } from '../core';
 import { Component } from '../scene-graph';
 import { ParticleDataSet, BuiltinParticleParameter, BuiltinParticleParameterFlags } from './particle-data-set';
 import { ParticleModuleStage, ModuleExecStage } from './particle-module';
@@ -480,12 +480,12 @@ export class ParticleEmitter extends Component {
     }
 
     public getEventReceiverAt (index: number) {
-        assert(index < this._eventHandlerCount && index >= 0, 'Invalid index!');
+        assertIsTrue(index < this._eventHandlerCount && index >= 0, 'Invalid index!');
         return this._eventHandlers[index];
     }
 
     public removeEventReceiverAt (index: number) {
-        assert(index < this._eventHandlerCount && index >= 0, 'Invalid index!');
+        assertIsTrue(index < this._eventHandlerCount && index >= 0, 'Invalid index!');
         this._eventHandlers.splice(index, 1);
         this._eventHandlerCount--;
     }
@@ -816,7 +816,7 @@ export class ParticleEmitter extends Component {
                 for (let i = fromIndex + numContinuous - 1, num = numContinuous - 1; i >= fromIndex; i--, num--) {
                     const spawnOffset = clamp01((spawnFraction + num) * emitterTimeInterval);
                     if (DEBUG) {
-                        assert(spawnOffset >= 0 && spawnOffset <= 1);
+                        assertIsTrue(spawnOffset >= 0 && spawnOffset <= 1);
                     }
                     let dtOffset = spawnOffset * emitterTimeDeltaTimeScale;
                     const spawnTime = lerp(emitterCurrentTime, emitterNormalizedPrevTime, spawnOffset);
@@ -842,7 +842,7 @@ export class ParticleEmitter extends Component {
                 for (let i = fromIndex + numContinuous - 1, num = numContinuous - 1; i >= fromIndex; i--, num--) {
                     const offset = (spawnFraction + num) * interval + frameOffset;
                     if (DEBUG) {
-                        assert(offset >= 0 && offset <= 1);
+                        assertIsTrue(offset >= 0 && offset <= 1);
                     }
                     const subDt = offset * deltaTime;
                     if (needPositionOffset) {

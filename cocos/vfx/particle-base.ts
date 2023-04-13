@@ -25,7 +25,7 @@
 
 import { ccclass, serializable } from 'cc.decorator';
 import { CullingMode, FinishAction, ScalingMode, Space } from './enum';
-import { Color, Mat4, Quat, Vec3, Vec2, assert } from '../core';
+import { Color, Mat4, Quat, Vec3, Vec2, assertIsTrue } from '../core';
 import { Node } from '../scene-graph';
 import { ModuleExecStage } from './particle-module';
 import { RandomStream } from './random-stream';
@@ -332,9 +332,9 @@ export class ParticleExecContext {
 
     updateEmitterTime (accumulatedTime: number, previousTime: number, delayMode: DelayMode,
         delay: number, loopMode: LoopMode, loopCount: number, duration: number) {
-        assert((accumulatedTime - previousTime) < duration,
+        assertIsTrue((accumulatedTime - previousTime) < duration,
             'The delta time should not exceed the duration of the particle system. please adjust the duration of the particle system.');
-        assert(accumulatedTime >= previousTime);
+        assertIsTrue(accumulatedTime >= previousTime);
         const deltaTime = accumulatedTime - previousTime;
         let prevTime = delayMode === DelayMode.FIRST_LOOP_ONLY ? Math.max(previousTime - delay, 0) : previousTime;
         let currentTime = delayMode === DelayMode.FIRST_LOOP_ONLY ? Math.max(accumulatedTime - delay, 0) : accumulatedTime;

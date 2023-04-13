@@ -25,7 +25,7 @@
 
 import { ccclass, tooltip, displayOrder, range, type, serializable, visible, rangeMin } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
-import { lerp, Vec3, approx, assert } from '../../core';
+import { lerp, Vec3, approx, assertIsTrue } from '../../core';
 import { Space } from '../enum';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { FloatExpression } from '../expression/float-expression';
@@ -155,7 +155,7 @@ export class LimitVelocityModule extends ParticleModule {
 
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         if (this.separateAxes && DEBUG) {
-            assert(this.limitX.mode === this.limitY.mode && this.limitY.mode === this.limitZ.mode, 'The curve of limitX, limitY, limitZ must have same mode!');
+            assertIsTrue(this.limitX.mode === this.limitY.mode && this.limitY.mode === this.limitZ.mode, 'The curve of limitX, limitY, limitZ must have same mode!');
         }
         context.markRequiredBuiltinParameters(requiredParameters);
         if (this.limitX.mode === FloatExpression.Mode.CURVE || this.limitX.mode === FloatExpression.Mode.TWO_CURVES) {

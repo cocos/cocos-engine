@@ -24,7 +24,7 @@
  */
 
 import { ccclass, tooltip, displayOrder, type, serializable, range, visible, rangeMin } from 'cc.decorator';
-import { approx, lerp, Vec2, assert } from '../../core';
+import { approx, lerp, Vec2, assertIsTrue } from '../../core';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { FloatExpression } from '../expression/float-expression';
 import { BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
@@ -119,7 +119,7 @@ export class ScaleSizeBySpeedModule extends ParticleModule {
     private _z: FloatExpression | null = null;
 
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
-        assert(!approx(this.speedRange.x, this.speedRange.y), 'Speed Range X is so closed to Speed Range Y');
+        assertIsTrue(!approx(this.speedRange.x, this.speedRange.y), 'Speed Range X is so closed to Speed Range Y');
         context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.SIZE);
         if (this.x.mode === FloatExpression.Mode.TWO_CONSTANTS || this.x.mode === FloatExpression.Mode.TWO_CURVES) {
             context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.RANDOM_SEED);

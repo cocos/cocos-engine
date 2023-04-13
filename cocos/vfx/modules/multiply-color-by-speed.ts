@@ -27,7 +27,7 @@ import { ColorExpression } from '../expression/color-expression';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { ModuleExecStage, ParticleModule } from '../particle-module';
 import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
-import { approx, assert, Color, math, Vec3, Vec2 } from '../../core';
+import { approx, assertIsTrue, Color, math, Vec3, Vec2 } from '../../core';
 import { RandomStream } from '../random-stream';
 
 const tempVelocity = new Vec3();
@@ -55,8 +55,8 @@ export class MultiplyColorBySpeedModule extends ParticleModule {
     private _speedOffset = 0;
 
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
-        assert(!approx(this.speedRange.x, this.speedRange.y), 'Speed Range X is so closed to Speed Range Y');
-        assert(this.color.mode === ColorExpression.Mode.GRADIENT || this.color.mode === ColorExpression.Mode.TWO_GRADIENTS, 'Color mode must be Gradient or TwoGradients');
+        assertIsTrue(!approx(this.speedRange.x, this.speedRange.y), 'Speed Range X is so closed to Speed Range Y');
+        assertIsTrue(this.color.mode === ColorExpression.Mode.GRADIENT || this.color.mode === ColorExpression.Mode.TWO_GRADIENTS, 'Color mode must be Gradient or TwoGradients');
         context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.COLOR);
         if (this.color.mode === ColorExpression.Mode.TWO_GRADIENTS) {
             context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.RANDOM_SEED);

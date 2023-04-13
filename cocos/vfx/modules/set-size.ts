@@ -29,7 +29,7 @@ import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleExecContext, ParticleEmitterParams, ParticleEmitterState } from '../particle-base';
 import { FloatExpression } from '../expression/float-expression';
-import { lerp, Vec3, assert } from '../../core';
+import { lerp, Vec3, assertIsTrue } from '../../core';
 import { RandomStream } from '../random-stream';
 
 const seed = new Vec3();
@@ -115,7 +115,7 @@ export class SetSizeModule extends ParticleModule {
 
         context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.SIZE);
         if (this.separateAxes && DEBUG) {
-            assert(this.x.mode === this.y.mode && this.x.mode === this.z.mode,
+            assertIsTrue(this.x.mode === this.y.mode && this.x.mode === this.z.mode,
                 'SetSizeModule: x, y and z must have the same mode.');
         }
         if (this.x.mode === FloatExpression.Mode.CURVE || this.x.mode === FloatExpression.Mode.TWO_CURVES) {

@@ -26,7 +26,7 @@
 
 import { ccclass, tooltip, displayOrder, range, type, radian, serializable, visible } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
-import { Vec3, lerp, assert, CCBoolean } from '../../core';
+import { Vec3, lerp, assertIsTrue, CCBoolean } from '../../core';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { FloatExpression } from '../expression/float-expression';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
@@ -128,7 +128,7 @@ export class RotationModule extends ParticleModule {
 
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         if (this.separateAxes && DEBUG) {
-            assert(this.x.mode === this.y.mode && this.y.mode === this.z.mode, 'The curve of x, y, z must have same mode!');
+            assertIsTrue(this.x.mode === this.y.mode && this.y.mode === this.z.mode, 'The curve of x, y, z must have same mode!');
         }
         context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.ANGULAR_VELOCITY);
         context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.ROTATION);

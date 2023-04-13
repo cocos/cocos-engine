@@ -25,7 +25,7 @@
 
 import { ccclass, tooltip, displayOrder, range, type, serializable } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
-import { lerp, Vec3, assert, Enum } from '../../core';
+import { lerp, Vec3, assertIsTrue, Enum } from '../../core';
 import { Space } from '../enum';
 import { FloatExpression } from '../expression/float-expression';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
@@ -33,7 +33,6 @@ import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from
 import { BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { RandomStream } from '../random-stream';
 
-const randomOffset = 212165;
 const seed = new Vec3();
 
 const _temp_v3 = new Vec3();
@@ -91,7 +90,7 @@ export class ForceModule extends ParticleModule {
 
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         if (DEBUG) {
-            assert(this.x.mode === this.y.mode && this.y.mode === this.z.mode, 'The curve of x, y, z must have same mode!');
+            assertIsTrue(this.x.mode === this.y.mode && this.y.mode === this.z.mode, 'The curve of x, y, z must have same mode!');
         }
         context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.POSITION);
         context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.BASE_VELOCITY);

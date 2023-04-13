@@ -25,7 +25,7 @@
 
 import { ccclass, type, serializable, range, rangeMin, visible } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
-import { assert, CCFloat, Enum, approx, clamp, lerp, Vec2, Vec3 } from '../../core';
+import { assertIsTrue, CCFloat, Enum, approx, clamp, lerp, Vec2, Vec3 } from '../../core';
 import { FloatExpression } from '../expression/float-expression';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
@@ -565,15 +565,15 @@ export class CurlNoiseModule extends ParticleModule {
         }
         if (DEBUG) {
             if (this.enableRemap) {
-                assert(this.remapX.mode === FloatExpression.Mode.CURVE, 'The remapX must be curve mode');
+                assertIsTrue(this.remapX.mode === FloatExpression.Mode.CURVE, 'The remapX must be curve mode');
                 if (this.separateAxes) {
-                    assert(this.remapX.mode === this.remapY.mode && this.remapZ.mode === this.remapY.mode,
+                    assertIsTrue(this.remapX.mode === this.remapY.mode && this.remapZ.mode === this.remapY.mode,
                         'The remapX, remapY, remapZ must be same mode');
                 }
             }
 
             if (this.separateAxes) {
-                assert(this.strengthX.mode === this.strengthY.mode && this.strengthZ.mode === this.remapY.mode,
+                assertIsTrue(this.strengthX.mode === this.strengthY.mode && this.strengthZ.mode === this.remapY.mode,
                     'The strengthX, strengthY, strengthZ must be curve mode');
             }
         }

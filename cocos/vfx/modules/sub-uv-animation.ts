@@ -25,7 +25,7 @@
 
 import { ccclass, tooltip, type, serializable, range, visible } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
-import { lerp, repeat, Enum, assert, CCFloat, CCInteger } from '../../core';
+import { lerp, repeat, Enum, assertIsTrue, CCFloat, CCInteger } from '../../core';
 import { ParticleModule, ModuleExecStage } from '../particle-module';
 import { createRealCurve, FloatExpression } from '../expression/float-expression';
 import { BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
@@ -227,7 +227,7 @@ export class SubUVAnimationModule extends ParticleModule {
 
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         if (DEBUG) {
-            assert(this.startFrame.mode === FloatExpression.Mode.CONSTANT || this.startFrame.mode === FloatExpression.Mode.TWO_CONSTANTS,
+            assertIsTrue(this.startFrame.mode === FloatExpression.Mode.CONSTANT || this.startFrame.mode === FloatExpression.Mode.TWO_CONSTANTS,
                 'The mode of startFrame in texture-animation module can not be Curve and TwoCurve!');
         }
         context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.FRAME_INDEX);

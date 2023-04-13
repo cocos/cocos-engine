@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { assert } from '../core';
+import { assertIsTrue } from '../core';
 import { ParticleArrayParameter, ParticleBoolArrayParameter, ParticleColorArrayParameter, ParticleFloatArrayParameter, ParticleParameterType, ParticleUint32ArrayParameter, ParticleVec3ArrayParameter } from './particle-parameter';
 
 export type ParticleHandle = number;
@@ -324,7 +324,7 @@ export class ParticleDataSet {
             return;
         }
         const parameter = this._parameterMap[id];
-        assert(parameter);
+        assertIsTrue(parameter);
         this._parameterMap[id] = null;
         const index = this._parameters.indexOf(parameter);
         this._parameters.splice(index, 1);
@@ -346,7 +346,7 @@ export class ParticleDataSet {
     }
 
     removeParticle (handle: ParticleHandle) {
-        assert(handle >= 0 && handle < this._count);
+        assertIsTrue(handle >= 0 && handle < this._count);
         const lastParticle = this._count - 1;
         if (lastParticle !== handle) {
             const parameters = this._parameters;
