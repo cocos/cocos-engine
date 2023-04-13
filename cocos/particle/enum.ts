@@ -25,44 +25,186 @@
 
 import { Enum } from '../core/value-types';
 
-export enum Space {
-    WORLD,
-    LOCAL,
-}
-
-export enum ScalingMode {
-    HIERARCHY,
-    LOCAL,
-    NONE
-}
-
-export enum FinishAction {
-    NONE,
-    DESTROY,
-    DISABLE,
-}
+export const Space = Enum({
+    World: 0,
+    Local: 1,
+    Custom: 2,
+});
 
 /**
  * @en Particle emitter culling mode
  * @zh 粒子的剔除模式。
+ * @enum ParticleSystem.CullingMode
  */
-export enum CullingMode {
-    ALWAYS_SIMULATE,
-    PAUSE,
-    PAUSE_AND_CATCHUP,
-    STOP_EMITTING,
-    CLEAR_AND_FINISH,
-}
+export const CullingMode = Enum({
+    Pause: 0,
+    PauseAndCatchup: 1,
+    AlwaysSimulate: 2,
+});
 
 /**
  * @en Particle emitter alignment space
  * @zh 粒子的对齐模式。
  * @enum ParticleSystemRenderer.AlignmentSpace
  */
-export enum AlignmentSpace {
-    WORLD,
+export const AlignmentSpace = Enum({
+    World: 0,
+    Local: 1,
+    View: 2,
+});
 
-    LOCAL,
+/**
+ * 粒子的生成模式。
+ * @enum ParticleSystemRenderer.RenderMode
+ */
+export const RenderMode = Enum({
 
-    VIEW,
-}
+    /**
+     * 粒子始终面向摄像机。
+     */
+    Billboard: 0,
+
+    /**
+     * 粒子始终面向摄像机但会根据参数进行拉伸。
+     */
+    StrecthedBillboard: 1,
+
+    /**
+     * 粒子始终与 XZ 平面平行。
+     */
+    HorizontalBillboard: 2,
+
+    /**
+     * 粒子始终与 Y 轴平行且朝向摄像机。
+     */
+    VerticalBillboard: 3,
+
+    /**
+     * 粒子保持模型本身状态。
+     */
+    Mesh: 4,
+});
+
+/**
+ * 粒子发射器类型。
+ * @enum shapeModule.ShapeType
+ */
+export const ShapeType = Enum({
+    /**
+     * 立方体类型粒子发射器。
+     */
+    Box: 0,
+
+    /**
+     * 圆形粒子发射器。
+     */
+    Circle: 1,
+
+    /**
+     * 圆锥体粒子发射器。
+     */
+    Cone: 2,
+
+    /**
+     * 球体粒子发射器。
+     */
+    Sphere: 3,
+
+    /**
+     * 半球体粒子发射器。
+     */
+    Hemisphere: 4,
+});
+
+/**
+ * 粒子从发射器的哪个部位发射。
+ * @enum shapeModule.EmitLocation
+ */
+export const EmitLocation = Enum({
+    /**
+     * 基础位置发射（仅对 Circle 类型及 Cone 类型的粒子发射器适用）。
+     */
+    Base: 0,
+
+    /**
+     * 边框位置发射（仅对 Box 类型及 Circle 类型的粒子发射器适用）。
+     */
+    Edge: 1,
+
+    /**
+     * 表面位置发射（对所有类型的粒子发射器都适用）。
+     */
+    Shell: 2,
+
+    /**
+     * 内部位置发射（对所有类型的粒子发射器都适用）。
+     */
+    Volume: 3,
+});
+
+/**
+ * 粒子在扇形区域的发射方式。
+ * @enum shapeModule.ArcMode
+ */
+export const ArcMode = Enum({
+    /**
+     * 随机位置发射。
+     */
+    Random: 0,
+
+    /**
+     * 沿某一方向循环发射，每次循环方向相同。
+     */
+    Loop: 1,
+
+    /**
+     * 循环发射，每次循环方向相反。
+     */
+    PingPong: 2,
+});
+
+/**
+ * 选择如何为粒子系统生成轨迹。
+ * @enum trailModule.TrailMode
+ */
+export const TrailMode = Enum({
+    /**
+     * 粒子模式<bg>。
+     * 创建一种效果，其中每个粒子在其路径中留下固定的轨迹。
+     */
+    Particles: 0,
+
+    /**
+     * 带模式<bg>。
+     * 根据其生命周期创建连接每个粒子的轨迹带。
+     */
+    // Ribbon: 1,
+});
+
+/**
+ * 纹理填充模式。
+ * @enum trailModule.TextureMode
+ */
+export const TextureMode = Enum({
+    /**
+     * 拉伸填充纹理。
+     */
+    Stretch: 0,
+
+    /**
+     * 重复填充纹理。
+     */
+    // Repeat: 1,
+});
+
+export const ModuleRandSeed = {
+    LIMIT: 23541,
+    SIZE: 39825,
+    TEXTURE: 90794,
+    COLOR: 91041,
+    FORCE: 212165,
+    ROTATION: 125292,
+    VELOCITY_X: 197866,
+    VELOCITY_Y: 156497,
+    VELOCITY_Z: 984136,
+};

@@ -25,31 +25,27 @@
 
 import { Billboard } from './billboard';
 import { Line } from './line';
-import { ParticleEmitter } from './particle-emitter';
-import { EventReceiver } from './event-receiver';
+import { ParticleSystem } from './particle-system';
 import { ParticleUtils } from './particle-utils';
-import { CurveRange } from './curve-range';
+import CurveRange from './animator/curve-range';
 import { legacyCC } from '../core/global-exports';
-import { GradientRange } from './gradient-range';
-import Gradient, { AlphaKey, ColorKey } from './gradient';
-import './vfx-manager';
-import { ParticleRenderer } from './particle-renderer';
+import GradientRange from './animator/gradient-range';
+import Gradient, { AlphaKey, ColorKey } from './animator/gradient';
+import Burst from './burst';
 
 export {
     Billboard,
     Line,
-    ParticleEmitter,
-    ParticleRenderer,
+    ParticleSystem,
     ParticleUtils,
     CurveRange,
     GradientRange,
     Gradient,
     AlphaKey,
     ColorKey,
+    Burst,
 };
 
-export * from './modules';
 export * from './deprecated';
-export * from './vfx-system';
 
 legacyCC.ParticleUtils = ParticleUtils;

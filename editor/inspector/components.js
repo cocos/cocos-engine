@@ -4,7 +4,7 @@ module.exports = {
     'cc.Button': join(__dirname, './components/button.js'),
     'cc.Label': join(__dirname, './components/label.js'),
     'cc.Layout': join(__dirname, './components/layout.js'),
-    // 'cc.ParticleSystem': join(__dirname, './components/particle-system.js'),
+    'cc.ParticleSystem': join(__dirname, './components/particle-system.js'),
     'cc.ParticleSystem2D': join(__dirname, './components/particle-system-2d.js'),
     'cc.PolygonCollider2D': join(__dirname, './components/polygon-collider.js'),
     'cc.PrefabLink': join(__dirname, './components/prefab-link.js'),

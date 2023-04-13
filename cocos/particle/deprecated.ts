@@ -24,8 +24,8 @@
  */
 
 import { removeProperty, replaceProperty } from '../core/utils/x-deprecated';
-import Burst from './modules/burst';
-import { ParticleEmitter } from './particle-emitter';
+import Burst from './burst';
+import { ParticleSystem } from './particle-system';
 import { Billboard } from './billboard';
 import { Line } from './line';
 import { js } from '../core/utils/js';
@@ -40,7 +40,7 @@ removeProperty(Burst.prototype, 'Burst.prototype', [
     },
 ]);
 
-replaceProperty(ParticleEmitter.prototype, 'ParticleEmitter.prototype', [
+replaceProperty(ParticleSystem.prototype, 'ParticleSystem.prototype', [
     {
         name: 'enableCulling',
         newName: 'dataCulling',
@@ -48,13 +48,12 @@ replaceProperty(ParticleEmitter.prototype, 'ParticleEmitter.prototype', [
 ]);
 
 /**
- * Alias of [[ParticleEmitter]]
+ * Alias of [[ParticleSystem]]
  * @deprecated Since v1.2
  */
-export { ParticleEmitter as ParticleSystemComponent };
-legacyCC.ParticleSystemComponent = ParticleEmitter;
-js.setClassAlias(ParticleEmitter, 'cc.ParticleSystemComponent');
-
+export { ParticleSystem as ParticleSystemComponent };
+legacyCC.ParticleSystemComponent = ParticleSystem;
+js.setClassAlias(ParticleSystem, 'cc.ParticleSystemComponent');
 /**
  * Alias of [[Billboard]]
  * @deprecated Since v1.2
@@ -69,6 +68,3 @@ js.setClassAlias(Billboard, 'cc.BillboardComponent');
 export { Line as LineComponent };
 legacyCC.LineComponent = Line;
 js.setClassAlias(Line, 'cc.LineComponent');
-
-export { ParticleEmitter as ParticleSystem };
-js.setClassAlias(ParticleEmitter, 'cc.ParticleSystem');

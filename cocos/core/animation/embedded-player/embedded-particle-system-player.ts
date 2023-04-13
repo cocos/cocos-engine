@@ -1,5 +1,5 @@
 import { ccclass, serializable } from 'cc.decorator';
-import type { ParticleEmitter } from '../../../particle';
+import type { ParticleEmitter } from '../../../vfx';
 import { warn } from '../../platform/debug';
 import type { Node } from '../../scene-graph/node';
 import { getClassByName } from '../../utils/js-typed';
