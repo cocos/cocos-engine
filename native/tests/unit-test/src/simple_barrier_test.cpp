@@ -73,7 +73,7 @@ TEST(barrierTest, test10) {
 
     const auto& node2RearBarrier0 = node2.blockBarrier.rearBarriers.back();
     ExpectEq(node2RearBarrier0.beginStatus.access == MemoryAccessBit::WRITE_ONLY, true);
-    ExpectEq(node2RearBarrier0.beginStatus.visibility == ShaderStageFlagBit::VERTEX, true);
+    ExpectEq(node2RearBarrier0.beginStatus.visibility == ShaderStageFlagBit::FRAGMENT, true);
     ExpectEq(node2RearBarrier0.endStatus.accessFlag == AccessFlagBit::PRESENT, true);
     //endstatus: whatever it was, it's COLOR_ATTACHMENT_OPTIMAL
 

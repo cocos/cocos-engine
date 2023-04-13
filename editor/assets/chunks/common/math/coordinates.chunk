@@ -55,10 +55,18 @@ float GetLinearDepthFromViewSpace(vec3 viewPos, float near, float far) {
   return (dist - near) / (far - near);
 }
 
-// params must be normalized
+// for right-hand coordinates, params must be normalized
 vec3 CalculateBinormal(vec3 normal, vec3 tangent, float mirrorNormal)
 {
-    return cross(normal.xyz, tangent) * mirrorNormal;
+    return cross(normal, tangent) * mirrorNormal;
+}
+vec3 CalculateTangent(vec3 normal, vec3 binormal)
+{
+    return cross(binormal, normal);
+}
+vec3 CalculateNormal(vec3 tangent, vec3 binormal)
+{
+    return cross(tangent, binormal);
 }
 
 
@@ -99,14 +107,22 @@ void RotateTangentAndBinormal(inout vec3 tangent, inout vec3 binormal, vec3 norm
 
     tangentNew = T.x * binormal + T.y * normal + T.z * tangent;
     tangent = normalize(tangentNew);
-    // tangent = cross(binormal, normal);
 }
 
 // fast rotation for anisotropic offset
 // rotationAngle: -1 - +1
-void RotateNormalAndBinormal(inout vec3 binormal, inout vec3 normal, in vec3 tangent, float rotationAngle)
+void RotateNormalAndBinormal(inout vec3 binormal, inout vec3 normal, in vec3 tangent, float rotationAngle, float mirrorNormal)
 {
-  normal += (binormal - normal) * rotationAngle;
-  normal = normalize(normal);
-  binormal = normalize(cross(tangent, normal));
+  if(rotationAngle > 0.0)
+  {
+    normal += (binormal - normal) * rotationAngle;
+    normal = normalize(normal);
+    binormal = CalculateBinormal(normal, tangent, mirrorNormal);
+  }
+  else if(rotationAngle < 0.0)
+  {
+    binormal += (binormal - normal) * rotationAngle;
+    binormal = normalize(binormal);
+    normal = CalculateNormal(tangent, binormal);
+  }
 }

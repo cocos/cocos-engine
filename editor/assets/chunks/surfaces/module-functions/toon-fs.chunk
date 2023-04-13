@@ -50,11 +50,11 @@ vec3 CCSurfacesGetSpecularColor(in SurfacesMaterialData surfaceData)
 {
   return surfaceData.specular.xyz;
 }
-void CCSurfacesLightingInitializeColorWithLighting(inout vec3 diffuseColorWithLighting, inout vec3 specularColorWithLighting, in SurfacesMaterialData surfaceData, in LightingIntermediateData lightingData)
+void CCSurfacesLightingInitializeColorWithLighting(inout vec3 diffuseColorWithLighting, inout vec3 specularColorWithLighting, inout vec3 specularColorWithEnvLighting, in SurfacesMaterialData surfaceData, in LightingIntermediateData lightingData)
 {
-  specularColorWithLighting = surfaceData.specular.xyz * surfaceData.baseStep;
+  specularColorWithEnvLighting = specularColorWithLighting = surfaceData.specular.xyz * surfaceData.baseStep;
 }
-void CCSurfacesLightingCalculateColorWithLighting(inout vec3 diffuseColorWithLighting, inout vec3 specularColorWithLighting, in SurfacesMaterialData surfaceData, in LightingIntermediateData lightingData)
+void CCSurfacesLightingCalculateColorWithLighting(inout vec3 diffuseColorWithLighting, inout vec3 specularColorWithLighting, inout vec3 specularColorWithEnvLighting, in SurfacesMaterialData surfaceData, in LightingIntermediateData lightingData)
 {
   float NL = 0.5 * lightingData.NoL + 0.5;
 
@@ -64,7 +64,7 @@ void CCSurfacesLightingCalculateColorWithLighting(inout vec3 diffuseColorWithLig
   diffuse = mix(surfaceData.baseColor.rgb, diffuse,
     clamp(1.0 + (surfaceData.baseStep - surfaceData.baseFeather - NL) / surfaceData.baseFeather, 0.0, 1.0));
 
-  diffuseColorWithLighting = diffuse * surfaceData.baseStep;
+  specularColorWithEnvLighting = specularColorWithLighting = diffuse * surfaceData.baseStep;
 }
 
 
@@ -156,8 +156,9 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
 
 // Debug view
 #if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_SINGLE
-void CCSurfacesDebugViewSurfaceData(inout vec4 color, in SurfacesMaterialData surfaceData)
+bool CCSurfacesDebugViewSurfaceData(inout vec4 color, in SurfacesMaterialData surfaceData)
 {
+    bool enableMaterialAlpha = true;
     float scalar;
     if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_FRAGMENT_NORMAL))
         color = vec4(surfaceData.worldNormal * 0.5 + vec3(0.5), 1.0);
@@ -172,6 +173,7 @@ void CCSurfacesDebugViewSurfaceData(inout vec4 color, in SurfacesMaterialData su
     {
         scalar = surfaceData.baseColor.a;
         color = vec4(scalar, scalar, scalar, 1.0);
+        enableMaterialAlpha = false;
     }
 
     if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_BASE_COLOR))
@@ -188,6 +190,8 @@ void CCSurfacesDebugViewSurfaceData(inout vec4 color, in SurfacesMaterialData su
         scalar = surfaceData.specular.a;
         color = vec4(scalar, scalar, scalar, 1.0);
     }
+
+    return enableMaterialAlpha;
 }
 #endif
 

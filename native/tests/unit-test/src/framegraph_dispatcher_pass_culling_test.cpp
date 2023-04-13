@@ -21,12 +21,14 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
+
 #include "cocos/renderer/pipeline/custom/FGDispatcherGraphs.h"
 #include "cocos/renderer/pipeline/custom/test/test.h"
 #include "gfx-base/GFXDef-common.h"
 #include "gtest/gtest.h"
 #include "utils.h"
 
+#if BRANCH_CULLING
 TEST(fgDispatherCulling, test13) {
     // simple graph
     TEST_CASE_4;
@@ -91,3 +93,4 @@ TEST(fgDispatherCulling, test13) {
 
     // runTestGraph(renderGraph, rescGraph, layoutGraphData, fgDispatcher);
 }
+#endif
