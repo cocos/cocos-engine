@@ -5,6 +5,12 @@ import { PoseNode } from './pose-node';
 
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}PoseGraph`)
 export class PoseGraph extends EditorExtendable {
+    /**
+     * @zh
+     * 连接到该姿势图根输出结点的结点。
+     * @en
+     * The node connected to the root output node of pose graph.
+     */
     public get main () {
         return this._main;
     }
