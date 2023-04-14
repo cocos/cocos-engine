@@ -221,7 +221,7 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
     #if CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_CUBE
       if(s.reflectionProbeId < 0.0){
         env = SampleReflectionProbe(cc_environment, R, s.roughness, cc_ambientGround.w, CC_USE_IBL == IBL_RGBE);
-      }else{       
+      }else{
         vec3 centerPos, boxHalfSize;
         float mipCount;
         GetCubeReflectionProbeData(centerPos, boxHalfSize, mipCount, s.reflectionProbeId);
