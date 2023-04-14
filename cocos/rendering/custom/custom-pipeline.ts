@@ -25,7 +25,7 @@
 import { Camera, CameraUsage } from '../../render-scene/scene';
 import { buildFxaaPass, buildBloomPass as buildBloomPasses, buildForwardPass,
     buildNativeDeferredPipeline, buildNativeForwardPass, buildPostprocessPass,
-    AntiAliasing, buildUIPass, buildSSSSBlurPass, buildSpecularPass } from './define';
+    AntiAliasing, buildUIPass, buildSSSSBlurPass, buildSpecularPass, buildToneMapPass } from './define';
 import { Pipeline, PipelineBuilder } from './pipeline';
 import { isUICamera } from './utils';
 
@@ -52,11 +52,13 @@ export class CustomPipelineBuilder implements PipelineBuilder {
                 // specalur pass
                 const specalurInfo = buildSpecularPass(camera, ppl, blurInfo.rtName, blurInfo.dsName);
                 // fxaa pass
-                const fxaaInfo = buildFxaaPass(camera, ppl, specalurInfo.rtName);
+                // const fxaaInfo = buildFxaaPass(camera, ppl, specalurInfo.rtName);
                 // bloom passes
-                const bloomInfo = buildBloomPasses(camera, ppl, fxaaInfo.rtName);
+                // const bloomInfo = buildBloomPasses(camera, ppl, fxaaInfo.rtName);
                 // Present Pass
-                buildPostprocessPass(camera, ppl, bloomInfo.rtName, AntiAliasing.NONE);
+                // buildPostprocessPass(camera, ppl, specalurInfo.rtName, AntiAliasing.NONE);
+                // tone map
+                buildToneMapPass(camera, ppl, specalurInfo.rtName);
                 continue;
             }
             // render ui

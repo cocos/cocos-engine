@@ -861,6 +861,84 @@ export function buildPostprocessPass (camera: Camera,
     return { rtName: postprocessPassRTName, dsName: postprocessPassDS };
 }
 
+class ToneMappingInfo {
+    declare toneMappingMaterial: Material;
+    private _init () {
+        this.toneMappingMaterial = new Material();
+        this.toneMappingMaterial.name = 'builtin-tone-mapping-material';
+        this.toneMappingMaterial.initialize({
+            effectName: 'pipeline/tone-mapping',
+        });
+        for (let i = 0; i < this.toneMappingMaterial.passes.length; ++i) {
+            this.toneMappingMaterial.passes[i].tryCompile();
+        }
+    }
+    constructor () {
+        this._init();
+    }
+}
+
+let toneMappingInfo: ToneMappingInfo | null = null;
+export function buildToneMapPass (camera: Camera,
+    ppl: Pipeline,
+    inputRT: string) {
+    if (!toneMappingInfo) {
+        toneMappingInfo = new ToneMappingInfo();
+    }
+
+    const cameraID = getCameraUniqueID(camera);
+    const area = getRenderArea(camera, camera.window.width, camera.window.height);
+    const width = area.width;
+    const height = area.height;
+
+    const toneMappingClearColor = new Color(0, 0, 0, camera.clearColor.w);
+    if (camera.clearFlag & ClearFlagBit.COLOR) {
+        toneMappingClearColor.x = camera.clearColor.x;
+        toneMappingClearColor.y = camera.clearColor.y;
+        toneMappingClearColor.z = camera.clearColor.z;
+    }
+
+    const toneMappingPassRTName = `toneMappingPassRTName${cameraID}`;
+    const toneMappingPassDS = `toneMappingPassDS${cameraID}`;
+    if (!ppl.containsResource(toneMappingPassRTName)) {
+        ppl.addRenderTexture(toneMappingPassRTName, Format.RGBA16F, width, height, camera.window);
+        ppl.addDepthStencil(toneMappingPassDS, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
+    }
+    ppl.updateRenderWindow(toneMappingPassRTName, camera.window);
+    ppl.updateDepthStencil(toneMappingPassDS, width, height);
+    const toneMappingPass = ppl.addRasterPass(width, height, 'tone-mapping');
+    toneMappingPass.name = `CameraToneMappingPass${cameraID}`;
+    toneMappingPass.setViewport(new Viewport(area.x, area.y, area.width, area.height));
+    if (ppl.containsResource(inputRT)) {
+        const computeView = new ComputeView();
+        computeView.name = 'u_texSampler';
+        toneMappingPass.addComputeView(inputRT, computeView);
+    }
+    const toneMappingPassView = new RasterView('_',
+        AccessType.WRITE, AttachmentType.RENDER_TARGET,
+        getLoadOpOfClearFlag(camera.clearFlag, AttachmentType.RENDER_TARGET),
+        StoreOp.STORE,
+        camera.clearFlag,
+        toneMappingClearColor);
+    const toneMappingPassDSView = new RasterView('_',
+        AccessType.WRITE, AttachmentType.DEPTH_STENCIL,
+        getLoadOpOfClearFlag(camera.clearFlag, AttachmentType.DEPTH_STENCIL),
+        StoreOp.STORE,
+        camera.clearFlag,
+        new Color(camera.clearDepth, camera.clearStencil, 0, 0));
+    toneMappingPass.addRasterView(toneMappingPassRTName, toneMappingPassView);
+    toneMappingPass.addRasterView(toneMappingPassDS, toneMappingPassDSView);
+    toneMappingPass.addQueue(QueueHint.NONE).addFullscreenQuad(
+        toneMappingInfo.toneMappingMaterial, 0, SceneFlags.NONE,
+    );
+    toneMappingPass.addQueue(QueueHint.RENDER_TRANSPARENT).addSceneOfCamera(camera, new LightInfo(),
+        SceneFlags.UI);
+    if (getProfilerCamera() === camera) {
+        toneMappingPass.showStatistics = true;
+    }
+    return { rtName: toneMappingPassRTName, dsName: toneMappingPassDS };
+}
+
 export function buildForwardPass (camera: Camera,
     ppl: Pipeline,
     isOffScreen: boolean) {

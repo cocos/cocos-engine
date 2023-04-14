@@ -185,6 +185,7 @@ const legacyBuiltinEffectNames = [
     'bloom',
     'ssss-blur',
     'builtin-ssss-skip',
+    'tone-mapping',
     'post-process',
     'profiler',
     'splash-screen',
