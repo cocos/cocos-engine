@@ -67,4 +67,3 @@ vec2 computeUV (float frameIndex, vec2 vertIndex, vec2 frameTile){
 #endif
   return (aniUV.xy + vertIndex) / vec2(frameTile.x, frameTile.y);
 }
-
