@@ -25,9 +25,9 @@
 /* eslint-disable max-len */
 import { systemInfo } from 'pal/system-info';
 import { DEBUG } from 'internal:constants';
-import { Color, Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, ClearFlagBit, DescriptorSet, deviceManager, Viewport, API, CommandBuffer, Type, SamplerInfo, Filter, Address, DescriptorSetInfo } from '../../gfx';
+import { Color, Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, ClearFlagBit, DescriptorSet, deviceManager, Viewport, API, CommandBuffer, Type, SamplerInfo, Filter, Address, DescriptorSetInfo, LoadOp, StoreOp } from '../../gfx';
 import { Mat4, Quat, toRadian, Vec2, Vec3, Vec4, assert, macro, cclegacy } from '../../core';
-import { ComputeView, CopyPair, LightInfo, LightingMode, MovePair, QueueHint, RasterView, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
+import { AccessType, ComputeView, CopyPair, LightInfo, LightingMode, MovePair, QueueHint, RasterView, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
 import { Blit, ClearView, ComputePass, CopyPass, Dispatch, ManagedBuffer, ManagedResource, MovePass, RasterPass, RasterSubpass, RenderData, RenderGraph, RenderGraphComponent, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData, Subpass } from './render-graph';
 import { ComputePassBuilder, ComputeQueueBuilder, ComputeSubpassBuilder, CopyPassBuilder, MovePassBuilder, Pipeline, PipelineBuilder, RasterPassBuilder, RasterQueueBuilder, RasterSubpassBuilder, SceneTransversal } from './pipeline';
 import { PipelineSceneData } from '../pipeline-scene-data';
@@ -705,6 +705,21 @@ export class WebRasterSubpassBuilder extends WebSetter implements RasterSubpassB
     set name (name: string) {
         this._renderGraph.setName(this._vertID, name);
     }
+    addRenderTarget (name: string, accessType: AccessType, slotName: string, loadOp = LoadOp.CLEAR, storeOp = StoreOp.STORE, clearColor = new Color()) {
+        throw new Error('Method not implemented.');
+    }
+    addDepthStencil (name: string, accessType: AccessType, slotName: string, loadOp = LoadOp.CLEAR, storeOp = StoreOp.STORE, depth = 1, stencil = 0, clearFlag = ClearFlagBit.DEPTH_STENCIL): void {
+        throw new Error('Method not implemented.');
+    }
+    addTexture (name: string, slotName: string): void {
+        throw new Error('Method not implemented.');
+    }
+    addStorageBuffer (name: string, accessType: AccessType, slotName: string): void {
+        throw new Error('Method not implemented.');
+    }
+    addStorageImage (name: string, accessType: AccessType, slotName: string): void {
+        throw new Error('Method not implemented.');
+    }
     addRasterView (name: string, view: RasterView): void {
 
     }
@@ -768,6 +783,21 @@ export class WebRasterPassBuilder extends WebSetter implements RasterPassBuilder
     }
     set name (name: string) {
         this._renderGraph.setName(this._vertID, name);
+    }
+    addRenderTarget (name: string, slotName: string, loadOp = LoadOp.CLEAR, storeOp = StoreOp.STORE, clearColor = new Color()) {
+        throw new Error('Method not implemented.');
+    }
+    addDepthStencil (name: string, slotName: string, loadOp = LoadOp.CLEAR, storeOp = StoreOp.STORE, depth = 1, stencil = 0, clearFlag = ClearFlagBit.DEPTH_STENCIL): void {
+        throw new Error('Method not implemented.');
+    }
+    addTexture (name: string, slotName: string): void {
+        throw new Error('Method not implemented.');
+    }
+    addStorageBuffer (name: string, accessType: AccessType, slotName: string): void {
+        throw new Error('Method not implemented.');
+    }
+    addStorageImage (name: string, accessType: AccessType, slotName: string): void {
+        throw new Error('Method not implemented.');
     }
     addRasterView (name: string, view: RasterView) {
         this._pass.rasterViews.set(name, view);
@@ -917,6 +947,15 @@ export class WebComputePassBuilder extends WebSetter implements ComputePassBuild
     set name (name: string) {
         this._renderGraph.setName(this._vertID, name);
     }
+    addTexture (name: string, slotName: string): void {
+        throw new Error('Method not implemented.');
+    }
+    addStorageBuffer (name: string, accessType: AccessType, slotName: string): void {
+        throw new Error('Method not implemented.');
+    }
+    addStorageImage (name: string, accessType: AccessType, slotName: string): void {
+        throw new Error('Method not implemented.');
+    }
     addComputeView (name: string, view: ComputeView) {
         if (DEBUG) {
             assert(name && this._resourceGraph.contains(name));
@@ -996,6 +1035,9 @@ function isManaged (residency: ResourceResidency): boolean {
 export class WebPipeline implements Pipeline {
     constructor (layoutGraph: LayoutGraphData) {
         this._layoutGraph = layoutGraph;
+    }
+    addRenderWindow (name: string, format: Format, width: number, height: number, renderWindow: RenderWindow): number {
+        throw new Error('Method not implemented.');
     }
     updateRenderWindow (name: string, renderWindow: RenderWindow): void {
         const resId = this.resourceGraph.vertex(name);

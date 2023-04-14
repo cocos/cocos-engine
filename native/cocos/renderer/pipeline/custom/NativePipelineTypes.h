@@ -844,7 +844,7 @@ public:
     std::shared_ptr<NativeProgramLibrary> programLibrary;
 };
 
-class NativeSetter final : public Setter {
+class NativeSetter : public Setter {
 public:
     NativeSetter(const LayoutGraphData& layoutGraphIn, RenderData& renderDataIn) noexcept
     : layoutGraph(layoutGraphIn),
