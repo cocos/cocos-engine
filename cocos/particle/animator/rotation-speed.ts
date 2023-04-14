@@ -33,9 +33,6 @@ const scaleOffset = new Vec2();
 const eular = new Vec3();
 const dQuat = new Quat();
 const pQuat = new Quat();
-const dMat = new Mat4();
-const pMat = new Mat4();
-const rotMat = new Mat3();
 
 const ROTATION_RND_SEED = 165610;
 
@@ -157,18 +154,15 @@ export class RotationSpeedModule extends ParticleModuleBase {
         }
         Quat.fromEuler(pQuat, p.startEuler.x * Particle.R2D, p.startEuler.y * Particle.R2D, p.startEuler.z * Particle.R2D);
         Quat.normalize(pQuat, pQuat);
-        Mat4.fromQuat(pMat, pQuat);
 
         Quat.fromEuler(dQuat, eular.x, eular.y, eular.z);
         Quat.normalize(dQuat, dQuat);
-        Mat4.fromQuat(dMat, dQuat);
 
-        Mat4.multiply(p.localMat, dMat, p.localMat);
+        Quat.multiply(p.localQuat, dQuat, p.localQuat);
 
-        Mat4.multiply(pMat, p.localMat, pMat);
-        Mat3.fromMat4(rotMat, pMat);
-        Quat.fromMat3(pQuat, rotMat);
+        Quat.multiply(pQuat, p.localQuat, pQuat);
 
-        compressQuat(p.rotation, pQuat);
+        Quat.toEuler(p.rotation, pQuat, true);
+        Vec3.set(p.rotation, p.rotation.x / Particle.R2D, p.rotation.y / Particle.R2D, p.rotation.z / Particle.R2D);
     }
 }

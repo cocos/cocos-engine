@@ -104,10 +104,7 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
 
     public name = PARTICLE_MODULE_NAME.ROTATION;
 
-    private _startMat:Mat4 = new Mat4();
-    private _matRot:Mat4 = new Mat4();
     private _quatRot:Quat = new Quat();
-    private _otherEuler:Vec3 = new Vec3();
 
     private _processRotation (p: Particle, r2d: number) {
         // Same as the particle-vs-legacy.chunk glsl statemants
@@ -135,10 +132,9 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
             Quat.fromEuler(p.deltaQuat, this.x.evaluate(normalizedTime, rotationRand)! * dt * Particle.R2D, this.y.evaluate(normalizedTime, rotationRand)! * dt * Particle.R2D, this.z.evaluate(normalizedTime, rotationRand)! * dt * Particle.R2D);
         }
 
-        // Rotation-overtime combine with start rotation, after that we get quat from the mat
-        p.deltaMat = Mat4.fromQuat(p.deltaMat, p.deltaQuat);
-        p.localMat = p.localMat.multiply(p.deltaMat); // accumulate rotation
-
+        // Rotation-overtime combine with start rotation
+        Quat.multiply(p.localQuat, p.localQuat, p.deltaQuat); // accumulate rotation
+        Quat.normalize(p.localQuat, p.localQuat);
         if (!p.startRotated) {
             if (renderMode !== RenderMode.Mesh) {
                 if (renderMode === RenderMode.StrecthedBillboard) {
@@ -151,11 +147,11 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
             p.startRotated = true;
         }
 
-        this._startMat = Mat4.fromQuat(this._startMat, p.startRotation);
-        this._matRot = this._startMat.multiply(p.localMat);
+        Quat.normalize(p.startRotation, p.startRotation);
+        Quat.multiply(this._quatRot, p.startRotation, p.localQuat);
+        Quat.normalize(this._quatRot, this._quatRot);
 
-        Mat4.getRotation(this._quatRot, this._matRot);
-        this._processRotation(p, Particle.R2D);
-        p.rotation.set(this._quatRot.x, this._quatRot.y, this._quatRot.z);
+        Quat.toEuler(p.rotation, this._quatRot, true);
+        Vec3.set(p.rotation, p.rotation.x / Particle.R2D, p.rotation.y / Particle.R2D, p.rotation.z / Particle.R2D);
     }
 }
