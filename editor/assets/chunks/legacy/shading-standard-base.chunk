@@ -255,8 +255,9 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
         env = SampleReflectionProbe(cc_reflectionProbeCubemap, fixedR.xyz, s.roughness, mipCount, isReflectProbeUsingRGBE(s.reflectionProbeId));
         if (s.reflectionProbeBlendId < 0.0) {
           #if CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND_AND_SKYBOX
+            //blend with skybox
             vec3 skyBoxEnv = SampleReflectionProbe(cc_environment, R, s.roughness, cc_ambientGround.w, CC_USE_IBL == IBL_RGBE);
-            env = mix(env, skyBoxEnv, s.reflectionProbeBlendFactor);
+            env = mix(env, skyBoxEnv * cc_ambientSky.w, s.reflectionProbeBlendFactor);
           #endif
         } else {
           vec3 centerPosBlend, boxHalfSizeBlend;
