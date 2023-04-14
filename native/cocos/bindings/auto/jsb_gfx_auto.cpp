@@ -11867,6 +11867,43 @@ static bool js_cc_gfx_ShaderInfo_subpassInputs_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_gfx_ShaderInfo_subpassInputs_get) 
 
+static bool js_cc_gfx_ShaderInfo_hash_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gfx::ShaderInfo *arg1 = (cc::gfx::ShaderInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::ShaderInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->hash, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_gfx_ShaderInfo_hash_set) 
+
+static bool js_cc_gfx_ShaderInfo_hash_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gfx::ShaderInfo *arg1 = (cc::gfx::ShaderInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::ShaderInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->hash, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->hash, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_gfx_ShaderInfo_hash_get) 
+
 static bool js_cc_gfx_ShaderInfo_copy(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -11994,6 +12031,12 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::ShaderInfo * to, se::Obje
     }
     
     
+    json->getProperty("hash", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->hash), ctx);
+    }
+    
+    
     return ok;
 }
 
@@ -12012,6 +12055,7 @@ bool js_register_cc_gfx_ShaderInfo(se::Object* obj) {
     cls->defineProperty("textures", _SE(js_cc_gfx_ShaderInfo_textures_get), _SE(js_cc_gfx_ShaderInfo_textures_set)); 
     cls->defineProperty("images", _SE(js_cc_gfx_ShaderInfo_images_get), _SE(js_cc_gfx_ShaderInfo_images_set)); 
     cls->defineProperty("subpassInputs", _SE(js_cc_gfx_ShaderInfo_subpassInputs_get), _SE(js_cc_gfx_ShaderInfo_subpassInputs_set)); 
+    cls->defineProperty("hash", _SE(js_cc_gfx_ShaderInfo_hash_get), _SE(js_cc_gfx_ShaderInfo_hash_set)); 
     
     cls->defineFunction("copy", _SE(js_cc_gfx_ShaderInfo_copy)); 
     
