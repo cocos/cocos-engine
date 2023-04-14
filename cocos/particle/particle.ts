@@ -45,8 +45,7 @@ export class Particle {
     public startRotation: Quat;
     public startRotated: boolean;
     public deltaQuat: Quat;
-    public deltaMat: Mat4;
-    public localMat: Mat4;
+    public localQuat: Quat;
     public startSize: Vec3;
     public size: Vec3;
     public animatedSize: Vec3;
@@ -89,8 +88,7 @@ export class Particle {
         this.startRotation = new Quat();
         this.startRotated = false;
         this.deltaQuat = new Quat();
-        this.deltaMat = new Mat4();
-        this.localMat = new Mat4();
+        this.localQuat = new Quat();
         this.startSize = new Vec3(0, 0, 0);
         this.size = new Vec3(0, 0, 0);
         this.animatedSize = new Vec3(1, 1, 1);
@@ -125,8 +123,7 @@ export class Particle {
         this.startRotation.set(0, 0, 0, 1);
         this.startRotated = false;
         this.deltaQuat.set(0, 0, 0, 1);
-        this.deltaMat.identity();
-        this.localMat.identity();
+        this.localQuat.set(0, 0, 0, 1);
         this.delay = 0;
         this.parentParticle = null;
         this.initialVelocity.set(0, 0, 0);
