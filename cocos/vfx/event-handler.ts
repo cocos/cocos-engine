@@ -31,22 +31,7 @@ import { ModuleExecStage, ParticleModuleStage } from './particle-module';
 import { ParticleFloatArrayParameter, ParticleUint32ArrayParameter } from './particle-parameter';
 import { ParticleDataSet } from './particle-data-set';
 
-@ccclass('cc.EventHandler')
-export class EventHandler extends ParticleModuleStage {
-    @visible(true)
-    @serializable
-    public target: ParticleEmitter | null = null;
-
-    @type(Enum(ParticleEventType))
-    @visible(true)
-    @serializable
-    public eventType = ParticleEventType.UNKNOWN;
-
-    @type(BitMask(InheritedProperty))
-    @visible(true)
-    @serializable
-    public inheritedProperties = 0;
-
+export class EventSpawnStates {
     private _version = 0;
     private _id2IndexMap = {};
     private _count = 0;
@@ -60,10 +45,10 @@ export class EventHandler extends ParticleModuleStage {
             this._lastUsed.setUint32At(this._version, index);
             return this._spawnFraction.getFloatAt(index);
         }
-        this._id.reserve(this._count + 1);
-        this._lastUsed.reserve(this._count + 1);
-        this._spawnFraction.reserve(this._count + 1);
         const index = this._count;
+        this._id.reserve(index + 1);
+        this._lastUsed.reserve(index + 1);
+        this._spawnFraction.reserve(index + 1);
         this._id2IndexMap[id] = index;
         this._spawnFraction.setFloatAt(0, index);
         this._id.setUint32At(id, index);
@@ -81,7 +66,7 @@ export class EventHandler extends ParticleModuleStage {
         this._spawnFraction.setFloatAt(value, index);
     }
 
-    public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public tick () {
         const lastUsed = this._lastUsed;
         const spawnFraction  = this._spawnFraction;
         const id = this._id;
@@ -96,6 +81,35 @@ export class EventHandler extends ParticleModuleStage {
             }
         }
         this._version++;
+    }
+}
+
+@ccclass('cc.EventHandler')
+export class EventHandler extends ParticleModuleStage {
+    @visible(true)
+    @serializable
+    public target: ParticleEmitter | null = null;
+
+    @type(Enum(ParticleEventType))
+    @visible(true)
+    @serializable
+    public eventType = ParticleEventType.UNKNOWN;
+
+    @type(BitMask(InheritedProperty))
+    @visible(true)
+    @serializable
+    public inheritedProperties = 0;
+
+    public get eventSpawnStates () {
+        if (!this._eventSpawnStates) {
+            this._eventSpawnStates = new EventSpawnStates();
+        }
+        return this._eventSpawnStates;
+    }
+    private _eventSpawnStates: EventSpawnStates | null = null;
+
+    public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+        this._eventSpawnStates?.tick();
         super.tick(particles, params, context);
     }
 

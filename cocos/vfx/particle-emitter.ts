@@ -640,12 +640,12 @@ export class ParticleEmitter extends Component {
                         params.delayMode, loopDelay, params.loopMode, params.loopCount, params.duration);
                     let spawnFraction = 0;
                     if (eventHandler.eventType === ParticleEventType.LOCATION) {
-                        spawnFraction = eventHandler.getSpawnFraction(eventInfo.particleId);
+                        spawnFraction = eventHandler.eventSpawnStates.getSpawnFraction(eventInfo.particleId);
                     }
                     eventHandler.execute(particles, params, context);
                     spawnFraction = this.spawn(spawnFraction, tempEmitterTransform, eventInfo.color, eventInfo.size, eventInfo.rotation);
                     if (eventHandler.eventType === ParticleEventType.LOCATION) {
-                        eventHandler.setSpawnFraction(eventInfo.particleId, spawnFraction);
+                        eventHandler.eventSpawnStates.setSpawnFraction(eventInfo.particleId, spawnFraction);
                     }
                 }
             }

@@ -474,7 +474,7 @@ public:
         _changedVersionAndRTS = (globalFlagChangeVersion << 3) | value;
     }
 
-    inline void getFlagChangedVersion() const {
+    inline uint32_t getFlagChangedVersion() const {
         return _changedVersionAndRTS >> 3;
     }
 

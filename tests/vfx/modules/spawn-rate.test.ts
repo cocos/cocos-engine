@@ -1,4 +1,4 @@
-import { createRealCurve, CurveRange } from '../../../cocos/vfx/expression/float-expression';
+import { createRealCurve, FloatExpression } from '../../../cocos/vfx/expression/float-expression';
 import { SpawnRateModule } from '../../../cocos/vfx/modules/spawn-rate';
 import { DelayMode, LoopMode, ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../../../cocos/vfx/particle-base';
 import { ParticleDataSet } from '../../../cocos/vfx/particle-data-set';
@@ -7,14 +7,14 @@ import { RandomStream } from '../../../cocos/vfx/random-stream';
 describe('SpawnRate', () => {
     test('execute', () => {
         const spawnRate = new SpawnRateModule();
-        spawnRate.rate = new CurveRange(1);
+        spawnRate.rate = new FloatExpression(1);
         const context = new ParticleExecContext();
         const params = new ParticleEmitterParams();
         const particles = new ParticleDataSet();
         const state = new ParticleEmitterState();
-        const curveRange1 = new CurveRange(5, 10);
-        const curveRange2 = new CurveRange(1, createRealCurve([[0.0, 0], [0.5, 1.0], [1.0, 0.0]]));
-        const curveRange3 = new CurveRange(1, createRealCurve([[0.0, 0.3], [0.5, 0.8], [1.0, 0.9]]), createRealCurve([[0.0, 0.1], [0.5, 0.5], [1.0, 0.7]]));
+        const curveRange1 = new FloatExpression(5, 10);
+        const curveRange2 = new FloatExpression(1, createRealCurve([[0.0, 0], [0.5, 1.0], [1.0, 0.0]]));
+        const curveRange3 = new FloatExpression(1, createRealCurve([[0.0, 0.3], [0.5, 0.8], [1.0, 0.9]]), createRealCurve([[0.0, 0.1], [0.5, 0.5], [1.0, 0.7]]));
 
         state.rand.seed = 12345;
         const rand = new RandomStream(12345);
