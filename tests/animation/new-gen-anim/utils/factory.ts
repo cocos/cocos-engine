@@ -5,8 +5,8 @@ import { Motion, ClipMotion, AnimationBlend1D, AnimationBlend2D } from "../../..
 import { BinaryCondition, TriggerCondition, UnaryCondition } from "../../../../cocos/animation/marionette/state-machine/condition";
 import { MotionState } from "../../../../cocos/animation/marionette/state-machine/motion-state";
 import { Bindable } from "../../../../cocos/animation/marionette/parametric";
-import { TriggerResetMode } from "../../../../cocos/animation/marionette/variable";
-import { Vec2 } from "../../../../exports/base";
+import { TriggerResetMode, VariableType } from "../../../../cocos/animation/marionette/variable";
+import { assertIsTrue, Vec2 } from "../../../../exports/base";
 import { TCVariableBinding } from "../../../../cocos/animation/marionette/state-machine/condition/binding/variable-binding";
 import { TCAuxiliaryCurveBinding } from "../../../../cocos/animation/marionette/state-machine/condition/binding/auxiliary-curve-binding";
 import { TCStateWeightBinding } from "../../../../cocos/animation/marionette/state-machine/condition/binding/state-weight-binding";
@@ -16,19 +16,19 @@ export function createAnimationGraph(params: AnimationGraphParams): AnimationGra
     if (params.variableDeclarations) {
         for (const [id, variableDeclarationParams] of Object.entries(params.variableDeclarations)) {
             switch (variableDeclarationParams.type) {
-                case 'float': animationGraph.addFloat(id, variableDeclarationParams.value); break;
-                case 'int': animationGraph.addInteger(id, variableDeclarationParams.value); break;
-                case 'boolean': animationGraph.addBoolean(id, variableDeclarationParams.value); break;
-                case 'trigger': animationGraph.addTrigger(
-                    id,
-                    false,
-                    variableDeclarationParams.resetMode == 'after-consumed'
-                        ? TriggerResetMode.AFTER_CONSUMED
-                        : variableDeclarationParams.resetMode === 'next-frame-or-after-consumed'
-                            ? TriggerResetMode.NEXT_FRAME_OR_AFTER_CONSUMED
-                            : undefined,
-                    );
+                case 'float': animationGraph.addVariable(id, VariableType.FLOAT, variableDeclarationParams.value); break;
+                case 'int': animationGraph.addVariable(id, VariableType.INTEGER, variableDeclarationParams.value); break;
+                case 'boolean': animationGraph.addVariable(id, VariableType.BOOLEAN, variableDeclarationParams.value); break;
+                case 'trigger': {
+                    const triggerVar = animationGraph.addVariable(id, VariableType.TRIGGER, false);
+                    assertIsTrue(triggerVar.type === VariableType.TRIGGER);
+                    if (variableDeclarationParams.resetMode === 'after-consumed') {
+                        triggerVar.resetMode = TriggerResetMode.AFTER_CONSUMED;
+                    } else if (variableDeclarationParams.resetMode === 'next-frame-or-after-consumed') {
+                        triggerVar.resetMode = TriggerResetMode.NEXT_FRAME_OR_AFTER_CONSUMED;
+                    }
                     break;
+                }
             }
         }
     }

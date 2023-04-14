@@ -35,4 +35,4 @@ export { AnimationController } from './animation-controller';
 export type { ClipStatus, TransitionStatus, MotionStateStatus } from './animation-controller';
 export { VariableType } from './parametric';
 export { StateMachineComponent } from './state-machine/state-machine-component';
-export type { Value } from './variable';
+export type { PrimitiveValue as Value, Value as Value_experimental } from './variable';

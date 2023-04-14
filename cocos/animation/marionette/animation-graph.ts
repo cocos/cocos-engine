@@ -24,10 +24,10 @@
 
 import { ccclass, serializable } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
-import { js, clamp, assertIsNonNullable, assertIsTrue, EditorExtendable, shift } from '../../core';
+import { js, clamp, assertIsNonNullable, assertIsTrue, EditorExtendable, shift, Vec3, Quat } from '../../core';
 import type { Condition } from './state-machine/condition';
 import { OwnedBy, assertsOwnedBy, own, markAsDangling, ownerSymbol } from './ownership';
-import { TriggerResetMode, Value, VariableType } from './variable';
+import { createVariable, VariableDescription, VariableType, VariableTypeValueTypeMap } from './variable';
 import { InvalidTransitionError } from './errors';
 import { MotionState } from './state-machine/motion-state';
 import { State, outgoingsSymbol, incomingsSymbol, InteractiveState } from './state-machine/state';
@@ -754,117 +754,6 @@ export enum LayerBlending {
     additive,
 }
 
-const TRIGGER_VARIABLE_FLAG_VALUE_START = 0;
-const TRIGGER_VARIABLE_FLAG_VALUE_MASK = 1;
-const TRIGGER_VARIABLE_FLAG_RESET_MODE_START = 1;
-const TRIGGER_VARIABLE_FLAG_RESET_MODE_MASK = 6; // 0b110
-
-// DO NOT CHANGE TO THIS VALUE. This is related to V3.5 migration.
-const TRIGGER_VARIABLE_DEFAULT_FLAGS = 0;
-
-// Let's ensure `0`'s meaning: `value: false, resetMode: TriggerSwitchMode: TriggerResetMode.AFTER_CONSUMED`
-assertIsTrue((
-    (0 << TRIGGER_VARIABLE_FLAG_VALUE_START)
-    | (TriggerResetMode.AFTER_CONSUMED << TRIGGER_VARIABLE_FLAG_RESET_MODE_START)
-) === TRIGGER_VARIABLE_DEFAULT_FLAGS);
-
-type PlainVariableType = VariableType.FLOAT | VariableType.INTEGER | VariableType.BOOLEAN;
-
-@ccclass('cc.animation.PlainVariable')
-class PlainVariable {
-    // TODO: we should not specify type here but due to de-serialization limitation
-    // See: https://github.com/cocos-creator/3d-tasks/issues/7909
-    @serializable
-    private _type: PlainVariableType = VariableType.FLOAT;
-
-    // Same as `_type`
-    @serializable
-    private _value: Value = 0.0;
-
-    constructor (type?: PlainVariableType) {
-        if (typeof type === 'undefined') {
-            return;
-        }
-
-        this._type = type;
-        switch (type) {
-        default:
-            break;
-        case VariableType.FLOAT:
-            this._value = 0;
-            break;
-        case VariableType.INTEGER:
-            this._value = 0.0;
-            break;
-        case VariableType.BOOLEAN:
-            this._value = false;
-            break;
-        }
-    }
-
-    get type () {
-        return this._type;
-    }
-
-    get value () {
-        return this._value;
-    }
-
-    set value (value) {
-        if (DEBUG) {
-            switch (this._type) {
-            default:
-                break;
-            case VariableType.FLOAT:
-                assertIsTrue(typeof value === 'number');
-                break;
-            case VariableType.INTEGER:
-                assertIsTrue(Number.isInteger(value));
-                break;
-            case VariableType.BOOLEAN:
-                assertIsTrue(typeof value === 'boolean');
-                break;
-            }
-        }
-        this._value = value;
-    }
-}
-
-@ccclass('cc.animation.TriggerVariable')
-class TriggerVariable implements BasicVariableDescription<VariableType.TRIGGER> {
-    get type () {
-        return VariableType.TRIGGER as const;
-    }
-
-    get value () {
-        return !!((this._flags & TRIGGER_VARIABLE_FLAG_VALUE_MASK) >> TRIGGER_VARIABLE_FLAG_VALUE_START);
-    }
-
-    set value (value) {
-        if (value) {
-            this._flags |= (1 << TRIGGER_VARIABLE_FLAG_VALUE_START);
-        } else {
-            this._flags &= ~(1 << TRIGGER_VARIABLE_FLAG_VALUE_START);
-        }
-    }
-
-    get resetMode () {
-        return ((this._flags & TRIGGER_VARIABLE_FLAG_RESET_MODE_MASK) >> TRIGGER_VARIABLE_FLAG_RESET_MODE_START);
-    }
-
-    set resetMode (value: TriggerResetMode) {
-        // Clear
-        this._flags &= ~TRIGGER_VARIABLE_FLAG_RESET_MODE_MASK;
-        // Set
-        this._flags |= (value << TRIGGER_VARIABLE_FLAG_RESET_MODE_START);
-    }
-
-    // l -> h
-    // value(1 bits) | reset_mode(2 bits)
-    @serializable
-    private _flags = TRIGGER_VARIABLE_DEFAULT_FLAGS;
-}
-
 /**
  * @en
  * An opacity type which denotes what the animation graph seems like outside the engine.
@@ -877,22 +766,6 @@ export interface AnimationGraphRunTime {
      */
     readonly __brand: 'AnimationGraph';
 }
-
-interface BasicVariableDescription<TType> {
-    readonly type: TType;
-
-    value: TType extends VariableType.FLOAT ? number :
-        TType extends VariableType.INTEGER ? number :
-            TType extends VariableType.BOOLEAN ? boolean :
-                TType extends VariableType.TRIGGER ? boolean :
-                    never;
-}
-
-export type VariableDescription =
-    | BasicVariableDescription<VariableType.FLOAT>
-    | BasicVariableDescription<VariableType.INTEGER>
-    | BasicVariableDescription<VariableType.BOOLEAN>
-    | TriggerVariable;
 
 @ccclass('cc.animation.AnimationGraph')
 export class AnimationGraph extends AnimationGraphLike implements AnimationGraphRunTime {
@@ -953,49 +826,17 @@ export class AnimationGraph extends AnimationGraphLike implements AnimationGraph
     }
 
     /**
-     * Adds a boolean variable.
+     * Adds a variable into this graph.
      * @param name The variable's name.
-     * @param value The variable's default value.
+     * @param type The variable's type.
+     * @param initialValue Initial value.
      */
-    public addBoolean (name: string, value = false) {
-        const variable = new PlainVariable(VariableType.BOOLEAN);
-        variable.value = value;
-        this._variables[name] = variable as unknown as BasicVariableDescription<VariableType.BOOLEAN>;
-    }
-
-    /**
-     * Adds a floating variable.
-     * @param name The variable's name.
-     * @param value The variable's default value.
-     */
-    public addFloat (name: string, value = 0.0) {
-        const variable = new PlainVariable(VariableType.FLOAT);
-        variable.value = value;
-        this._variables[name] = variable as unknown as BasicVariableDescription<VariableType.FLOAT>;
-    }
-
-    /**
-     * Adds an integer variable.
-     * @param name The variable's name.
-     * @param value The variable's default value.
-     */
-    public addInteger (name: string, value = 0) {
-        const variable = new PlainVariable(VariableType.INTEGER);
-        variable.value = value;
-        this._variables[name] = variable as unknown as BasicVariableDescription<VariableType.INTEGER>;
-    }
-
-    /**
-     * Adds a trigger variable.
-     * @param name The variable's name.
-     * @param value The variable's default value.
-     * @param resetMode The trigger's reset mode.
-     */
-    public addTrigger (name: string, value = false, resetMode = TriggerResetMode.AFTER_CONSUMED) {
-        const variable = new TriggerVariable();
-        variable.resetMode = resetMode;
-        variable.value = value;
+    public addVariable<TVariableType extends VariableType> (
+        name: string, type: TVariableType, initialValue?: VariableTypeValueTypeMap[TVariableType],
+    ) {
+        const variable = createVariable(type, initialValue);
         this._variables[name] = variable;
+        return variable;
     }
 
     public removeVariable (name: string) {
@@ -1003,7 +844,7 @@ export class AnimationGraph extends AnimationGraphLike implements AnimationGraph
     }
 
     public getVariable (name: string): VariableDescription | undefined {
-        return this._variables[name] as VariableDescription | undefined;
+        return this._variables[name];
     }
 
     /**
