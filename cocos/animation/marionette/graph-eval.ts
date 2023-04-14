@@ -441,7 +441,10 @@ class TopLevelStateMachineEvaluation {
     }
 
     public settle (context: AnimationGraphSettleContext) {
-        for (const state of this._poseStates) {
+        const { _poseStates: poseStates } = this;
+        const nPoseStates = poseStates.length;
+        for (let iState = 0; iState < nPoseStates; ++iState) {
+            const state = poseStates[iState];
             state.settle(context);
         }
     }
