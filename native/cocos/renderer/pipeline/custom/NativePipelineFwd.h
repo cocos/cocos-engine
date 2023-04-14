@@ -38,6 +38,7 @@ namespace cc {
 
 namespace render {
 
+class NativeSetter;
 class NativeRasterQueueBuilder;
 class NativeRasterSubpassBuilder;
 class NativeComputeSubpassBuilder;
@@ -65,7 +66,6 @@ class NativeProgramLibrary;
 class NativePipeline;
 class NativeProgramProxy;
 class NativeRenderingModule;
-class NativeSetter;
 
 } // namespace render
 

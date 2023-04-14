@@ -139,7 +139,7 @@ public:
     virtual void setSampler(const ccstd::string &name, gfx::Sampler *sampler) = 0;
 };
 
-class RasterQueueBuilder : public Setter {
+class RasterQueueBuilder : virtual public Setter {
 public:
     RasterQueueBuilder() noexcept = default;
 

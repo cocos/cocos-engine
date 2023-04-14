@@ -46,6 +46,38 @@ namespace cc {
 
 namespace render {
 
+class NativeSetter : virtual public Setter {
+public:
+    NativeSetter(const LayoutGraphData& layoutGraphIn, RenderData& renderDataIn) noexcept
+    : layoutGraph(layoutGraphIn),
+      renderData(renderDataIn) {}
+
+    ccstd::string getName() const override;
+    void setName(const ccstd::string &name) override;
+
+    void setMat4(const ccstd::string &name, const Mat4 &mat) override;
+    void setQuaternion(const ccstd::string &name, const Quaternion &quat) override;
+    void setColor(const ccstd::string &name, const gfx::Color &color) override;
+    void setVec4(const ccstd::string &name, const Vec4 &vec) override;
+    void setVec2(const ccstd::string &name, const Vec2 &vec) override;
+    void setFloat(const ccstd::string &name, float v) override;
+    void setArrayBuffer(const ccstd::string &name, const ArrayBuffer *arrayBuffer) override;
+    void setBuffer(const ccstd::string &name, gfx::Buffer *buffer) override;
+    void setTexture(const ccstd::string &name, gfx::Texture *texture) override;
+    void setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) override;
+    void setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) override;
+    void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override;
+
+    void setVec4ArraySize(const ccstd::string& name, uint32_t sz);
+    void setVec4ArrayElem(const ccstd::string& name, const cc::Vec4& vec, uint32_t id);
+
+    void setMat4ArraySize(const ccstd::string& name, uint32_t sz);
+    void setMat4ArrayElem(const ccstd::string& name, const cc::Mat4& mat, uint32_t id);
+
+    const LayoutGraphData& layoutGraph;
+    RenderData& renderData;
+};
+
 class NativeRasterQueueBuilder final : public RasterQueueBuilder {
 public:
     NativeRasterQueueBuilder() = default;
@@ -842,38 +874,6 @@ public:
     uint32_t getPhaseID(uint32_t passID, const ccstd::string &name) const override;
 
     std::shared_ptr<NativeProgramLibrary> programLibrary;
-};
-
-class NativeSetter : public Setter {
-public:
-    NativeSetter(const LayoutGraphData& layoutGraphIn, RenderData& renderDataIn) noexcept
-    : layoutGraph(layoutGraphIn),
-      renderData(renderDataIn) {}
-
-    ccstd::string getName() const override;
-    void setName(const ccstd::string &name) override;
-
-    void setMat4(const ccstd::string &name, const Mat4 &mat) override;
-    void setQuaternion(const ccstd::string &name, const Quaternion &quat) override;
-    void setColor(const ccstd::string &name, const gfx::Color &color) override;
-    void setVec4(const ccstd::string &name, const Vec4 &vec) override;
-    void setVec2(const ccstd::string &name, const Vec2 &vec) override;
-    void setFloat(const ccstd::string &name, float v) override;
-    void setArrayBuffer(const ccstd::string &name, const ArrayBuffer *arrayBuffer) override;
-    void setBuffer(const ccstd::string &name, gfx::Buffer *buffer) override;
-    void setTexture(const ccstd::string &name, gfx::Texture *texture) override;
-    void setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) override;
-    void setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) override;
-    void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override;
-
-    void setVec4ArraySize(const ccstd::string& name, uint32_t sz);
-    void setVec4ArrayElem(const ccstd::string& name, const cc::Vec4& vec, uint32_t id);
-
-    void setMat4ArraySize(const ccstd::string& name, uint32_t sz);
-    void setMat4ArrayElem(const ccstd::string& name, const cc::Mat4& mat, uint32_t id);
-
-    const LayoutGraphData& layoutGraph;
-    RenderData& renderData;
 };
 
 } // namespace render
