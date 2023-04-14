@@ -100,8 +100,13 @@ bool NativePipeline::containsResource(const ccstd::string &name) const {
     return contains(name.c_str(), resourceGraph);
 }
 
-// NOLINTNEXTLINE
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 uint32_t NativePipeline::addRenderTexture(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow *renderWindow) {
+    return addRenderWindow(name, format, width, height, renderWindow);
+}
+
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
+uint32_t NativePipeline::addRenderWindow(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow *renderWindow) {
     ResourceDesc desc{};
     desc.dimension = ResourceDimension::TEXTURE2D;
     desc.width = width;

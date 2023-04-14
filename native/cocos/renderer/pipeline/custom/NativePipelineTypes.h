@@ -111,9 +111,25 @@ public:
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override;
 
     /**
-     * @deprecated method will be removed in 3.8.0
+     * @beta naming might be changed
      */
-    void addRasterView(const ccstd::string &name, const RasterView &view) override;
+    void addRenderTarget(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, const gfx::Color &color) override;
+    /**
+     * @beta naming might be changed
+     */
+    void addDepthStencil(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, float depth, uint8_t stencil, gfx::ClearFlagBit clearFlags) override;
+    /**
+     * @beta naming might be changed
+     */
+    void addTexture(const ccstd::string &name, const ccstd::string &slotName) override;
+    /**
+     * @beta naming might be changed
+     */
+    void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) override;
+    /**
+     * @beta naming might be changed
+     */
+    void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) override;
     /**
      * @deprecated method will be removed in 3.8.0
      */
@@ -157,9 +173,21 @@ public:
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override;
 
     /**
-     * @deprecated method will be removed in 3.8.0
+     * @beta naming might be changed
      */
-    void addRasterView(const ccstd::string &name, const RasterView &view) override;
+    void addRenderTarget(const ccstd::string &name, const ccstd::string &slotName) override;
+    /**
+     * @beta naming might be changed
+     */
+    void addTexture(const ccstd::string &name, const ccstd::string &slotName) override;
+    /**
+     * @beta naming might be changed
+     */
+    void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) override;
+    /**
+     * @beta naming might be changed
+     */
+    void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) override;
     /**
      * @deprecated method will be removed in 3.8.0
      */
@@ -199,6 +227,26 @@ public:
     void setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) override;
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override;
 
+    /**
+     * @beta naming might be changed
+     */
+    void addRenderTarget(const ccstd::string &name, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, const gfx::Color &color) override;
+    /**
+     * @beta naming might be changed
+     */
+    void addDepthStencil(const ccstd::string &name, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, float depth, uint8_t stencil, gfx::ClearFlagBit clearFlags) override;
+    /**
+     * @beta naming might be changed
+     */
+    void addTexture(const ccstd::string &name, const ccstd::string &slotName) override;
+    /**
+     * @beta naming might be changed
+     */
+    void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) override;
+    /**
+     * @beta naming might be changed
+     */
+    void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) override;
     /**
      * @deprecated method will be removed in 3.8.0
      */
@@ -278,6 +326,18 @@ public:
     void setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) override;
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override;
 
+    /**
+     * @beta naming might be changed
+     */
+    void addTexture(const ccstd::string &name, const ccstd::string &slotName) override;
+    /**
+     * @beta naming might be changed
+     */
+    void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) override;
+    /**
+     * @beta naming might be changed
+     */
+    void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) override;
     /**
      * @deprecated method will be removed in 3.8.0
      */
@@ -700,7 +760,17 @@ public:
     void beginSetup() override;
     void endSetup() override;
     bool containsResource(const ccstd::string &name) const override;
+    /**
+     * @deprecated method will be removed in 3.8.0
+     */
     uint32_t addRenderTexture(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow *renderWindow) override;
+    /**
+     * @beta naming might be changed
+     */
+    uint32_t addRenderWindow(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow *renderWindow) override;
+    /**
+     * @deprecated method will be removed in 3.8.0
+     */
     void updateRenderWindow(const ccstd::string &name, scene::RenderWindow *renderWindow) override;
     uint32_t addStorageBuffer(const ccstd::string &name, gfx::Format format, uint32_t size, ResourceResidency residency) override;
     uint32_t addRenderTarget(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) override;
@@ -718,6 +788,9 @@ public:
     ComputePassBuilder *addComputePass(const ccstd::string &layoutName) override;
     MovePassBuilder *addMovePass() override;
     CopyPassBuilder *addCopyPass() override;
+    /**
+     * @deprecated method will be removed in 3.8.0
+     */
     SceneTransversal *createSceneTransversal(const scene::Camera *camera, const scene::RenderScene *scene) override;
     gfx::DescriptorSetLayout *getDescriptorSetLayout(const ccstd::string &shaderName, UpdateFrequency freq) override;
 
