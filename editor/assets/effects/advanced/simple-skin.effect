@@ -183,7 +183,7 @@ CCProgram surface-fragment %{
   {
     float mask = 1.0;
     #if USE_BACK_LIT
-      mask = texture(maskMap, FSInput_texcoord).x > 0.0 ? 1.0 : 0.0;
+      mask = texture(maskMap, FSInput_texcoord).x;
     #endif
     return vec4(scatterParams.x, mask, 1.0, 1.0);
   }
