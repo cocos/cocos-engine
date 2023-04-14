@@ -531,5 +531,15 @@ void CommandBufferAgent::completeQueryPool(QueryPool *queryPool) {
         });
 }
 
+void CommandBufferAgent::customCommand(CustomCommand &&cmd) {
+    ENQUEUE_MESSAGE_2(
+        _messageQueue, CommandBufferCompleteQueryPool,
+        actor, getActor(),
+        cmd, cmd,
+        {
+            actor->customCommand(std::move(cmd));
+        });
+}
+
 } // namespace gfx
 } // namespace cc
