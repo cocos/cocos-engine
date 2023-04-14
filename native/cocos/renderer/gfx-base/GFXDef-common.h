@@ -483,6 +483,8 @@ enum class TextureFlagBit : uint32_t {
     NONE = 0,
     GEN_MIPMAP = 0x1,     // Generate mipmaps using bilinear filter
     GENERAL_LAYOUT = 0x2, // For inout framebuffer attachments
+    EXTERNAL_OES = 0x4, // External oes texture
+    EXTERNAL_NORMAL = 0x8, // External normal texture
 };
 using TextureFlags = TextureFlagBit;
 CC_ENUM_BITWISE_OPERATORS(TextureFlagBit);
