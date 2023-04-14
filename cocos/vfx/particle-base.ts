@@ -24,7 +24,8 @@
  */
 
 import { ccclass, serializable } from 'cc.decorator';
-import { CullingMode, FinishAction, ScalingMode, Space } from './enum';
+import { DEBUG } from 'internal:constants';
+import { BoundsMode, CapacityMode, CullingMode, DelayMode, FinishAction, LoopMode, ParticleEventType, PlayingState, ScalingMode, Space } from './enum';
 import { Color, Mat4, Quat, Vec3, Vec2, assertIsTrue } from '../core';
 import { Node } from '../scene-graph';
 import { ModuleExecStage } from './particle-module';
@@ -32,17 +33,8 @@ import { RandomStream } from './random-stream';
 import { BuiltinParticleParameterFlags } from './particle-data-set';
 import { ParticleColorArrayParameter, ParticleFloatArrayParameter, ParticleUint32ArrayParameter, ParticleVec3ArrayParameter } from './particle-parameter';
 
-export enum ParticleEventType {
-    UNKNOWN,
-    LOCATION,
-    DEATH,
-    BIRTH,
-    COLLISION,
-    TRIGGER,
-    MANUAL,
-}
-
 export class ParticleEventInfo {
+    public type = ParticleEventType.UNKNOWN;
     public particleId = 0;
     public currentTime = 0;
     public prevTime = 0;
@@ -51,7 +43,6 @@ export class ParticleEventInfo {
     public rotation = new Vec3();
     public size = new Vec3();
     public color = new Color();
-    public type = ParticleEventType.UNKNOWN;
     public randomSeed = 0;
 }
 
@@ -61,15 +52,10 @@ export class ParticleEvents {
     }
 
     get capacity () {
-        return this._capacity;
-    }
-
-    get particleId () {
-        return this._particleId;
+        return this._particleId.capacity;
     }
 
     private _count = 0;
-    private _capacity = 16;
     private _particleId = new ParticleUint32ArrayParameter();
     private _currentTime = new ParticleFloatArrayParameter();
     private _prevTime = new ParticleFloatArrayParameter();
@@ -87,8 +73,9 @@ export class ParticleEvents {
         this._count = 0;
     }
 
-    reserve (capacity: number) {
-        if (capacity > this._capacity) {
+    dispatch (eventInfo: ParticleEventInfo) {
+        if (this._count === this.capacity) {
+            const capacity = this.capacity * 2;
             this._particleId.reserve(capacity);
             this._currentTime.reserve(capacity);
             this._prevTime.reserve(capacity);
@@ -101,13 +88,6 @@ export class ParticleEvents {
             this._randomSeed.reserve(capacity);
             this._normalizedAliveTime.reserve(capacity);
             this._type.reserve(capacity);
-            this._capacity = capacity;
-        }
-    }
-
-    dispatch (eventInfo: ParticleEventInfo) {
-        if (this._count === this._capacity) {
-            this.reserve(this._capacity * 2);
         }
         const handle = this._count++;
         this._particleId.setUint32At(eventInfo.particleId, handle);
@@ -123,6 +103,9 @@ export class ParticleEvents {
     }
 
     getEventInfoAt (out: ParticleEventInfo, handle: number) {
+        if (DEBUG) {
+            assertIsTrue(handle < this._count && handle >= 0, 'handle out of range');
+        }
         out.particleId = this._particleId.getUint32At(handle);
         out.currentTime = this._currentTime.getFloatAt(handle);
         out.prevTime = this._prevTime.getFloatAt(handle);
@@ -133,29 +116,8 @@ export class ParticleEvents {
         this._rotation.getVec3At(out.rotation, handle);
         this._size.getVec3At(out.size, handle);
         this._color.getColorAt(out.color, handle);
+        return out;
     }
-}
-
-export enum LoopMode {
-    INFINITE,
-    ONCE,
-    MULTIPLE
-}
-
-export enum DelayMode {
-    NONE,
-    FIRST_LOOP_ONLY,
-    EVERY_LOOP,
-}
-
-export enum BoundsMode {
-    AUTO,
-    FIXED,
-}
-
-export enum CapacityMode {
-    AUTO,
-    FIXED,
 }
 
 @ccclass('cc.ParticleEmitterParams')
@@ -204,18 +166,6 @@ export class ParticleEmitterParams {
     public randomSeed = 0;
     @serializable
     public finishAction = FinishAction.NONE;
-}
-
-export enum InheritedProperty {
-    COLOR = 1,
-    SIZE = 1 << 1,
-    ROTATION = 1 << 2,
-}
-
-export enum PlayingState {
-    STOPPED,
-    PLAYING,
-    PAUSED,
 }
 
 export class ParticleEmitterState {

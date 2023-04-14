@@ -25,33 +25,45 @@
 import { ccclass, serializable, type, visible } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
 import { BitMask, Enum, assertIsTrue } from '../core';
-import { InheritedProperty, ParticleEmitterParams, ParticleEventType, ParticleExecContext } from './particle-base';
+import { ParticleEmitterParams, ParticleExecContext } from './particle-base';
 import { ParticleEmitter } from './particle-emitter';
 import { ModuleExecStage, ParticleModuleStage } from './particle-module';
 import { ParticleFloatArrayParameter, ParticleUint32ArrayParameter } from './particle-parameter';
 import { ParticleDataSet } from './particle-data-set';
+import { ParticleEventType, InheritedProperty } from './enum';
 
 export class EventSpawnStates {
-    private _version = 0;
-    private _id2IndexMap = {};
+    get capacity () {
+        return this._particleId.capacity;
+    }
+
+    get count () {
+        return this._count;
+    }
+
+    private _version = 1;
+    private _particleId2Index = {};
     private _count = 0;
-    private _id = new ParticleUint32ArrayParameter();
+    private _particleId = new ParticleUint32ArrayParameter();
     private _lastUsed = new ParticleUint32ArrayParameter();
     private _spawnFraction = new ParticleFloatArrayParameter();
 
     public getSpawnFraction (id: number) {
-        if (id in this._id2IndexMap) {
-            const index = this._id2IndexMap[id];
+        if (id in this._particleId2Index) {
+            const index = this._particleId2Index[id];
             this._lastUsed.setUint32At(this._version, index);
             return this._spawnFraction.getFloatAt(index);
         }
         const index = this._count;
-        this._id.reserve(index + 1);
-        this._lastUsed.reserve(index + 1);
-        this._spawnFraction.reserve(index + 1);
-        this._id2IndexMap[id] = index;
+        if (index >= this.capacity) {
+            const newCapacity = this.capacity * 2;
+            this._particleId.reserve(newCapacity);
+            this._lastUsed.reserve(newCapacity);
+            this._spawnFraction.reserve(newCapacity);
+        }
+        this._particleId2Index[id] = index;
         this._spawnFraction.setFloatAt(0, index);
-        this._id.setUint32At(id, index);
+        this._particleId.setUint32At(id, index);
         this._lastUsed.setUint32At(this._version, index);
         this._count++;
         return 0;
@@ -59,21 +71,23 @@ export class EventSpawnStates {
 
     public setSpawnFraction (id: number, value: number) {
         if (DEBUG) {
-            assertIsTrue(id in this._id2IndexMap, 'id not found');
-            assertIsTrue(this._lastUsed.getUint32At(this._id2IndexMap[id]) === this._version);
+            assertIsTrue(id in this._particleId2Index, 'id not found');
+            assertIsTrue(this._lastUsed.getUint32At(this._particleId2Index[id]) === this._version);
         }
-        const index = this._id2IndexMap[id];
+        const index = this._particleId2Index[id];
         this._spawnFraction.setFloatAt(value, index);
     }
 
     public tick () {
         const lastUsed = this._lastUsed;
         const spawnFraction  = this._spawnFraction;
-        const id = this._id;
+        const id = this._particleId;
         for (let i = this._count - 1; i >= 0; i--) {
             if (lastUsed.getUint32At(i) !== this._version) {
-                delete this._id2IndexMap[id.getUint32At(i)];
                 const last = this._count - 1;
+                const lastId = id.getUint32At(last);
+                this._particleId2Index[lastId] = i;
+                delete this._particleId2Index[id.getUint32At(i)];
                 id.move(last, i);
                 spawnFraction.move(last, i);
                 lastUsed.move(last, i);
@@ -81,6 +95,12 @@ export class EventSpawnStates {
             }
         }
         this._version++;
+    }
+
+    public clear () {
+        this._version = 0;
+        this._particleId2Index = {};
+        this._count = 0;
     }
 }
 

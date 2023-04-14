@@ -28,8 +28,8 @@ import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, type, 
 import { DEBUG, EDITOR } from 'internal:constants';
 import { approx, clamp01, Color, lerp, Mat4, Quat, randomRangeInt, Vec2, Vec3 } from '../core/math';
 import { INT_MAX } from '../core/math/bits';
-import { BoundsMode, CapacityMode, DelayMode, LoopMode, ParticleEmitterParams, ParticleEmitterState, ParticleEventInfo, ParticleEventType, ParticleExecContext, PlayingState } from './particle-base';
-import { CullingMode, FinishAction, ScalingMode, Space } from './enum';
+import { ParticleEmitterParams, ParticleEmitterState, ParticleEventInfo, ParticleExecContext } from './particle-base';
+import { BoundsMode, CapacityMode, CullingMode, DelayMode, FinishAction, LoopMode, ParticleEventType, PlayingState, ScalingMode, Space } from './enum';
 import { legacyCC } from '../core/global-exports';
 import { assertIsTrue, CCBoolean, CCClass, CCInteger, Enum } from '../core';
 import { Component } from '../scene-graph';

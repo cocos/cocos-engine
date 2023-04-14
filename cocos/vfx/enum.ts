@@ -64,3 +64,47 @@ export enum AlignmentSpace {
 
     VIEW,
 }
+
+export enum LoopMode {
+    INFINITE,
+    ONCE,
+    MULTIPLE
+}
+
+export enum DelayMode {
+    NONE,
+    FIRST_LOOP_ONLY,
+    EVERY_LOOP,
+}
+
+export enum BoundsMode {
+    AUTO,
+    FIXED,
+}
+
+export enum CapacityMode {
+    AUTO,
+    FIXED,
+}
+
+export enum InheritedProperty {
+    COLOR = 1,
+    SIZE = 1 << 1,
+    ROTATION = 1 << 2,
+}
+
+export enum PlayingState {
+    STOPPED,
+    PLAYING,
+    PAUSED,
+}
+
+export enum ParticleEventType {
+    UNKNOWN,
+    LOCATION,
+    DEATH,
+    BIRTH,
+    COLLISION,
+    TRIGGER,
+    MANUAL,
+}
