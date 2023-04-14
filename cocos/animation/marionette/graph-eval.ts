@@ -2014,7 +2014,7 @@ class PoseStateEval extends StateEval {
         const poseEval = instantiatePoseGraph(state.graph);
         if (poseEval) {
             poseEval.bind(context);
-            this._poseEval = poseEval;
+            this._rootPoseNodeEval = poseEval;
         }
         if (DEBUG) {
             this._statusCache.__DEBUG_ID__ = state.name;
@@ -2028,24 +2028,24 @@ class PoseStateEval extends StateEval {
     }
 
     public settle (context: AnimationGraphSettleContext) {
-        this._poseEval?.settle(context);
+        this._rootPoseNodeEval?.settle(context);
     }
 
     public reenter () {
         this._statusCache.progress = 0.0;
-        this._poseEval?.reenter();
+        this._rootPoseNodeEval?.reenter();
     }
 
     public update (context: AnimationGraphUpdateContext) {
         this._elapsedTime += context.deltaTime;
-        this._poseEval?.update(context);
+        this._rootPoseNodeEval?.update(context);
     }
 
     public evaluate (context: AnimationGraphEvaluationContext) {
-        return this._poseEval?.evaluate(context) ?? null;
+        return this._rootPoseNodeEval?.evaluate(context) ?? null;
     }
 
-    private _poseEval: PoseNode | null = null;
+    private _rootPoseNodeEval: PoseNode | null = null;
 
     private readonly _statusCache: MotionStateStatus = createStateStatusCache();
 
