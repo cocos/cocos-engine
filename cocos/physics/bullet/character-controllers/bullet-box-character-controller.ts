@@ -50,6 +50,8 @@ export class BulletBoxCharacterController extends BulletCharacterController impl
         const up = BulletCache.instance.BT_V3_1;
         bt.Vec3_set(up, upDir.x, upDir.y, upDir.z);
 
+        const report = bt.ControllerHitReport_new();
+
         const bulletWorld = (PhysicsSystem.instance.physicsWorld as BulletWorld);
         const controllerDesc = bt.BoxCharacterControllerDesc_new(
             degreesToRadians(this.component.slopeLimit),
@@ -57,7 +59,7 @@ export class BulletBoxCharacterController extends BulletCharacterController impl
             this.component.contactOffset,
             up,
             pos,
-            0, //btUserControllerHitReport
+            report, //btUserControllerHitReport
             this.component.halfHeight,
             this.component.halfSideExtent,
             this.component.halfForwardExtent,
