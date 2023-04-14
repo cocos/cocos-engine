@@ -273,6 +273,7 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
 
   float lightIntensity = cc_ambientSky.w;
   #if CC_USE_REFLECTION_PROBE
+    //If using reflectance probe, no need to multiply by the ambient light intensity.
     if (s.reflectionProbeId >= 0.0) {
       lightIntensity = 1.0;
     }
