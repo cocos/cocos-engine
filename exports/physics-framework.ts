@@ -56,6 +56,9 @@ export {
     HingeConstraint,
     PointToPointConstraint,
 
+    CapsuleCharacterController,
+    BoxCharacterController,
+
     EAxisDirection,
     ERigidBodyType,
 } from '../cocos/physics/framework';
@@ -68,6 +71,8 @@ export type {
     CollisionCallback,
     TriggerEventType,
     TriggerCallback,
+    CharacterCollisionEventType,
+    CharacterControllerContact,
 } from '../cocos/physics/framework';
 
 export * from '../cocos/physics/framework/deprecated';
