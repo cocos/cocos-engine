@@ -43,7 +43,7 @@ var _global = typeof window === 'undefined' ? global : window;
 if (!CC_NATIVERENDERER) {
     _global.dragonBones = require('./lib/dragonBones');
     // HACK: can't share the global dragonBones between all cc sub modules on Taobao platform.
-    if (cc.sys.platform === cc.sys.TAOBAO) {
+    if (cc.sys.platform === cc.sys.TAOBAO || cc.sys.platform === cc.sys.TAOBAO_MINIGAME) {
         dragonBones = _global.dragonBones;
     }
 }
