@@ -10,6 +10,7 @@
   {
   #if CC_SURFACES_LIGHTING_SSS
     float sssIntensity = surfaceData.sssParams.x;
+    // curvature needs pre-generating in vertex or texture data, otherwise disable pre-integrated skin
     float sssCurvature = surfaceData.sssParams.y;
     float sssColoration = surfaceData.sssParams.z;
 
