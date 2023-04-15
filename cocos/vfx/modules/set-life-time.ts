@@ -24,7 +24,7 @@
  */
 
 import { ccclass, displayOrder, range, serializable, tooltip, type } from 'cc.decorator';
-import { ParticleModule, ModuleExecStage } from '../particle-module';
+import { ParticleModule, ModuleExecStageFlags } from '../particle-module';
 import { BuiltinParticleParameterFlags, ParticleDataSet } from '../particle-data-set';
 import { ParticleExecContext, ParticleEmitterParams, ParticleEmitterState } from '../particle-base';
 import { FloatExpression } from '../expression/float-expression';
@@ -32,7 +32,7 @@ import { lerp } from '../../core';
 import { RandomStream } from '../random-stream';
 
 @ccclass('cc.SetLifeTimeModule')
-@ParticleModule.register('SetLifeTime', ModuleExecStage.SPAWN)
+@ParticleModule.register('SetLifeTime', ModuleExecStageFlags.SPAWN)
 export class SetLifeTimeModule extends ParticleModule {
     /**
       * @zh 粒子生命周期。
@@ -47,7 +47,7 @@ export class SetLifeTimeModule extends ParticleModule {
     private _rand = new RandomStream();
 
     public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {
-        this._rand.seed = Math.imul(state.rand.getUInt32(), state.rand.getUInt32());
+        this._rand.seed = Math.imul(state.randomStream.getUInt32(), state.randomStream.getUInt32());
     }
 
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {

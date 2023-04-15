@@ -23,6 +23,20 @@
  THE SOFTWARE.
  */
 
+export enum ParticleParameterType {
+    FLOAT,
+    BOOL,
+    VEC3,
+    COLOR,
+    UINT32,
+}
+
+export enum ParameterNameSpace {
+    PARTICLE,
+    EMITTER,
+    USER,
+}
+
 export enum Space {
     WORLD,
     LOCAL,

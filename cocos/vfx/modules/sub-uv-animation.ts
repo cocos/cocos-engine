@@ -26,7 +26,7 @@
 import { ccclass, tooltip, type, serializable, range, visible } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
 import { lerp, repeat, Enum, assertIsTrue, CCFloat, CCInteger } from '../../core';
-import { ParticleModule, ModuleExecStage } from '../particle-module';
+import { ParticleModule, ModuleExecStageFlags } from '../particle-module';
 import { createRealCurve, FloatExpression } from '../expression/float-expression';
 import { BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
@@ -72,7 +72,7 @@ export enum Animation {
 }
 
 @ccclass('cc.SubUVAnimationModule')
-@ParticleModule.register('SubUVAnimation', ModuleExecStage.UPDATE, [], [ParameterName.VELOCITY, ParameterName.NORMALIZED_ALIVE_TIME])
+@ParticleModule.register('SubUVAnimation', ModuleExecStageFlags.UPDATE, [], [ParameterName.VELOCITY, ParameterName.NORMALIZED_ALIVE_TIME])
 export class SubUVAnimationModule extends ParticleModule {
     /**
      * @zh 设定粒子贴图动画的类型（暂只支持 Grid 模式）[[Mode]]。

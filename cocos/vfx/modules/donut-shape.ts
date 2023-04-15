@@ -24,7 +24,7 @@
  */
 
 import { ccclass, serializable, tooltip } from 'cc.decorator';
-import { ModuleExecStage, ParticleModule } from '../particle-module';
+import { ModuleExecStageFlags, ParticleModule } from '../particle-module';
 import { Vec3 } from '../../core';
 import { BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
@@ -33,7 +33,7 @@ import { ParticleVec3ArrayParameter } from '../particle-parameter';
 
 const temp = new Vec3();
 @ccclass('cc.DonutShapeModule')
-@ParticleModule.register('DonutShape', ModuleExecStage.SPAWN, [BuiltinParticleParameterName.START_DIR])
+@ParticleModule.register('DonutShape', ModuleExecStageFlags.SPAWN, [BuiltinParticleParameterName.START_DIR])
 export class DonutShapeModule extends AngleBasedShapeModule {
     /**
        * @zh 粒子发射器半径。

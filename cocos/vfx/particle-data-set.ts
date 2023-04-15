@@ -23,13 +23,14 @@
  THE SOFTWARE.
  */
 
+import { DEBUG } from 'internal:constants';
 import { assertIsTrue } from '../core';
-import { ParticleArrayParameter, ParticleBoolArrayParameter, ParticleColorArrayParameter, ParticleFloatArrayParameter, ParticleParameterType, ParticleUint32ArrayParameter, ParticleVec3ArrayParameter } from './particle-parameter';
+import { ParticleArrayParameter, ParticleBoolArrayParameter, ParticleColorArrayParameter, ParticleFloatArrayParameter, ParticleParameterIdentity, ParticleUint32ArrayParameter, ParticleVec3ArrayParameter } from './particle-parameter';
+import { ParticleParameterType } from './enum';
 
 export type ParticleHandle = number;
 export const INVALID_HANDLE = -1;
-export const MAX_BUILTIN_PARAMETER_COUNT = 32;
-export const MAX_CUSTOM_PARAMETER_COUNT = 32;
+export const MAX_PARAMETER_COUNT = 32;
 
 export enum BuiltinParticleParameterName {
     ID = 'id',
@@ -106,183 +107,160 @@ export enum BuiltinParticleParameterFlags {
     FLOAT_REGISTER = 1 << BuiltinParticleParameter.FLOAT_REGISTER,
 }
 
-export const BuiltinParticleParameterID2Name = {
-    [BuiltinParticleParameter.ID]: BuiltinParticleParameterName.ID,
-    [BuiltinParticleParameter.RANDOM_SEED]: BuiltinParticleParameterName.RANDOM_SEED,
-    [BuiltinParticleParameter.INV_START_LIFETIME]: BuiltinParticleParameterName.INV_START_LIFETIME,
-    [BuiltinParticleParameter.NORMALIZED_ALIVE_TIME]: BuiltinParticleParameterName.NORMALIZED_ALIVE_TIME,
-    [BuiltinParticleParameter.IS_DEAD]: BuiltinParticleParameterName.IS_DEAD,
-    [BuiltinParticleParameter.POSITION]: BuiltinParticleParameterName.POSITION,
-    [BuiltinParticleParameter.START_DIR]: BuiltinParticleParameterName.START_DIR,
-    [BuiltinParticleParameter.BASE_VELOCITY]: BuiltinParticleParameterName.BASE_VELOCITY,
-    [BuiltinParticleParameter.VELOCITY]: BuiltinParticleParameterName.VELOCITY,
-    [BuiltinParticleParameter.ROTATION]: BuiltinParticleParameterName.ROTATION,
-    [BuiltinParticleParameter.AXIS_OF_ROTATION]: BuiltinParticleParameterName.AXIS_OF_ROTATION,
-    [BuiltinParticleParameter.ANGULAR_VELOCITY]: BuiltinParticleParameterName.ANGULAR_VELOCITY,
-    [BuiltinParticleParameter.FRAME_INDEX]: BuiltinParticleParameterName.FRAME_INDEX,
-    [BuiltinParticleParameter.BASE_SIZE]: BuiltinParticleParameterName.BASE_SIZE,
-    [BuiltinParticleParameter.SIZE]: BuiltinParticleParameterName.SIZE,
-    [BuiltinParticleParameter.BASE_COLOR]: BuiltinParticleParameterName.BASE_COLOR,
-    [BuiltinParticleParameter.COLOR]: BuiltinParticleParameterName.COLOR,
-    [BuiltinParticleParameter.SPAWN_TIME_RATIO]: BuiltinParticleParameterName.SPAWN_TIME_RATIO,
-    [BuiltinParticleParameter.SPAWN_NORMALIZED_TIME]: BuiltinParticleParameterName.SPAWN_NORMALIZED_TIME,
-    [BuiltinParticleParameter.VEC3_REGISTER]: BuiltinParticleParameterName.VEC3_REGISTER,
-    [BuiltinParticleParameter.FLOAT_REGISTER]: BuiltinParticleParameterName.FLOAT_REGISTER,
-};
+export const builtinParticleParameterIdentities = [
+    new ParticleParameterIdentity(BuiltinParticleParameter.ID, BuiltinParticleParameterName.ID, ParticleParameterType.UINT32),
+    new ParticleParameterIdentity(BuiltinParticleParameter.RANDOM_SEED, BuiltinParticleParameterName.RANDOM_SEED, ParticleParameterType.UINT32),
+    new ParticleParameterIdentity(BuiltinParticleParameter.INV_START_LIFETIME, BuiltinParticleParameterName.INV_START_LIFETIME, ParticleParameterType.FLOAT),
+    new ParticleParameterIdentity(BuiltinParticleParameter.NORMALIZED_ALIVE_TIME, BuiltinParticleParameterName.NORMALIZED_ALIVE_TIME, ParticleParameterType.FLOAT),
+    new ParticleParameterIdentity(BuiltinParticleParameter.IS_DEAD, BuiltinParticleParameterName.IS_DEAD, ParticleParameterType.BOOL),
+    new ParticleParameterIdentity(BuiltinParticleParameter.POSITION, BuiltinParticleParameterName.POSITION, ParticleParameterType.VEC3),
+    new ParticleParameterIdentity(BuiltinParticleParameter.START_DIR, BuiltinParticleParameterName.START_DIR, ParticleParameterType.VEC3),
+    new ParticleParameterIdentity(BuiltinParticleParameter.BASE_VELOCITY, BuiltinParticleParameterName.BASE_VELOCITY, ParticleParameterType.VEC3),
+    new ParticleParameterIdentity(BuiltinParticleParameter.VELOCITY, BuiltinParticleParameterName.VELOCITY, ParticleParameterType.VEC3),
+    new ParticleParameterIdentity(BuiltinParticleParameter.ROTATION, BuiltinParticleParameterName.ROTATION, ParticleParameterType.VEC3),
+    new ParticleParameterIdentity(BuiltinParticleParameter.AXIS_OF_ROTATION, BuiltinParticleParameterName.AXIS_OF_ROTATION, ParticleParameterType.VEC3),
+    new ParticleParameterIdentity(BuiltinParticleParameter.ANGULAR_VELOCITY, BuiltinParticleParameterName.ANGULAR_VELOCITY, ParticleParameterType.VEC3),
+    new ParticleParameterIdentity(BuiltinParticleParameter.FRAME_INDEX, BuiltinParticleParameterName.FRAME_INDEX, ParticleParameterType.FLOAT),
+    new ParticleParameterIdentity(BuiltinParticleParameter.BASE_SIZE, BuiltinParticleParameterName.BASE_SIZE, ParticleParameterType.VEC3),
+    new ParticleParameterIdentity(BuiltinParticleParameter.SIZE, BuiltinParticleParameterName.SIZE, ParticleParameterType.VEC3),
+    new ParticleParameterIdentity(BuiltinParticleParameter.BASE_COLOR, BuiltinParticleParameterName.BASE_COLOR, ParticleParameterType.COLOR),
+    new ParticleParameterIdentity(BuiltinParticleParameter.COLOR, BuiltinParticleParameterName.COLOR, ParticleParameterType.COLOR),
+    new ParticleParameterIdentity(BuiltinParticleParameter.SPAWN_TIME_RATIO, BuiltinParticleParameterName.SPAWN_TIME_RATIO, ParticleParameterType.FLOAT),
+    new ParticleParameterIdentity(BuiltinParticleParameter.SPAWN_NORMALIZED_TIME, BuiltinParticleParameterName.SPAWN_NORMALIZED_TIME, ParticleParameterType.FLOAT),
+    new ParticleParameterIdentity(BuiltinParticleParameter.VEC3_REGISTER, BuiltinParticleParameterName.VEC3_REGISTER, ParticleParameterType.VEC3),
+    new ParticleParameterIdentity(BuiltinParticleParameter.FLOAT_REGISTER, BuiltinParticleParameterName.FLOAT_REGISTER, ParticleParameterType.FLOAT),
+];
 
 export class ParticleDataSet {
-    get capacity () {
+    public get capacity () {
         return this._capacity;
     }
 
-    get count () {
+    public get count () {
         return this._count;
     }
 
-    get id () {
+    public get id () {
         return this.getParameterNoCheck<ParticleUint32ArrayParameter>(BuiltinParticleParameter.ID);
     }
 
-    get position () {
+    public get position () {
         return this.getParameterNoCheck<ParticleVec3ArrayParameter>(BuiltinParticleParameter.POSITION);
     }
 
-    get randomSeed () {
+    public get randomSeed () {
         return this.getParameterNoCheck<ParticleUint32ArrayParameter>(BuiltinParticleParameter.RANDOM_SEED);
     }
 
-    get invStartLifeTime () {
+    public get invStartLifeTime () {
         return this.getParameterNoCheck<ParticleFloatArrayParameter>(BuiltinParticleParameter.INV_START_LIFETIME);
     }
 
-    get normalizedAliveTime () {
+    public get normalizedAliveTime () {
         return this.getParameterNoCheck<ParticleFloatArrayParameter>(BuiltinParticleParameter.NORMALIZED_ALIVE_TIME);
     }
 
-    get isDead () {
+    public get isDead () {
         return this.getParameterNoCheck<ParticleBoolArrayParameter>(BuiltinParticleParameter.IS_DEAD);
     }
 
-    get frameIndex () {
+    public get frameIndex () {
         return this.getParameterNoCheck<ParticleFloatArrayParameter>(BuiltinParticleParameter.FRAME_INDEX);
     }
 
-    get baseVelocity () {
+    public get baseVelocity () {
         return this.getParameterNoCheck<ParticleVec3ArrayParameter>(BuiltinParticleParameter.BASE_VELOCITY);
     }
 
-    get velocity () {
+    public get velocity () {
         return this.getParameterNoCheck<ParticleVec3ArrayParameter>(BuiltinParticleParameter.VELOCITY);
     }
 
-    get startDir () {
+    public get startDir () {
         return this.getParameterNoCheck<ParticleVec3ArrayParameter>(BuiltinParticleParameter.START_DIR);
     }
 
-    get rotation () {
+    public get rotation () {
         return this.getParameterNoCheck<ParticleVec3ArrayParameter>(BuiltinParticleParameter.ROTATION);
     }
 
-    get axisOfRotation () {
+    public get axisOfRotation () {
         return this.getParameterNoCheck<ParticleVec3ArrayParameter>(BuiltinParticleParameter.AXIS_OF_ROTATION);
     }
 
-    get angularVelocity () {
+    public get angularVelocity () {
         return this.getParameterNoCheck<ParticleVec3ArrayParameter>(BuiltinParticleParameter.ANGULAR_VELOCITY);
     }
 
-    get baseSize () {
+    public get baseSize () {
         return this.getParameterNoCheck<ParticleVec3ArrayParameter>(BuiltinParticleParameter.BASE_SIZE);
     }
 
-    get size () {
+    public get size () {
         return this.getParameterNoCheck<ParticleVec3ArrayParameter>(BuiltinParticleParameter.SIZE);
     }
 
-    get baseColor () {
+    public get baseColor () {
         return this.getParameterNoCheck<ParticleColorArrayParameter>(BuiltinParticleParameter.BASE_COLOR);
     }
 
-    get color () {
+    public get color () {
         return this.getParameterNoCheck<ParticleColorArrayParameter>(BuiltinParticleParameter.COLOR);
     }
 
-    get spawnTimeRatio () {
+    public get spawnTimeRatio () {
         return this.getParameterNoCheck<ParticleFloatArrayParameter>(BuiltinParticleParameter.SPAWN_TIME_RATIO);
     }
 
-    get spawnNormalizedTime () {
+    public get spawnNormalizedTime () {
         return this.getParameterNoCheck<ParticleFloatArrayParameter>(BuiltinParticleParameter.SPAWN_NORMALIZED_TIME);
     }
 
-    get vec3Register () {
+    public get vec3Register () {
         return this.getParameterNoCheck<ParticleVec3ArrayParameter>(BuiltinParticleParameter.VEC3_REGISTER);
     }
 
-    get floatRegister () {
+    public get floatRegister () {
         return this.getParameterNoCheck<ParticleFloatArrayParameter>(BuiltinParticleParameter.FLOAT_REGISTER);
+    }
+
+    public get parameterCount () {
+        return this._parameterCount;
     }
 
     private _count = 0;
     private _capacity = 16;
     private _parameterCount = 0;
-    private _builtinParameterFlags = 0;
-    private _customParameterFlags = 0;
+    private _parameterFlags = 0;
     private _parameters: ParticleArrayParameter[] = [];
     private _parameterMap: Record<number, ParticleArrayParameter | null> = {};
 
-    getParameter<T extends ParticleArrayParameter> (id: number) {
+    public getParameter<T extends ParticleArrayParameter> (id: number) {
         if (!this.hasParameter(id)) {
             return null;
         }
         return this.getParameterNoCheck<T>(id);
     }
 
-    getParameterNoCheck<T extends ParticleArrayParameter> (id: number) {
+    public getParameterNoCheck<T extends ParticleArrayParameter> (id: number) {
+        if (DEBUG) {
+            assertIsTrue(id < MAX_PARAMETER_COUNT && id >= 0);
+            assertIsTrue(this.hasParameter(id));
+        }
         return this._parameterMap[id] as T;
     }
 
-    hasParameter (id: number) {
-        return id < MAX_BUILTIN_PARAMETER_COUNT ? (this._builtinParameterFlags & (1 << id)) : (this._customParameterFlags & (1 << (id - MAX_BUILTIN_PARAMETER_COUNT)));
-    }
-
-    addBuiltinParameter (id: BuiltinParticleParameter) {
-        switch (id) {
-        case BuiltinParticleParameter.ID:
-        case BuiltinParticleParameter.RANDOM_SEED:
-            this.addParameter(id, ParticleParameterType.UINT32);
-            break;
-        case BuiltinParticleParameter.POSITION:
-        case BuiltinParticleParameter.BASE_VELOCITY:
-        case BuiltinParticleParameter.VELOCITY:
-        case BuiltinParticleParameter.START_DIR:
-        case BuiltinParticleParameter.BASE_SIZE:
-        case BuiltinParticleParameter.SIZE:
-        case BuiltinParticleParameter.ROTATION:
-        case BuiltinParticleParameter.ANGULAR_VELOCITY:
-        case BuiltinParticleParameter.AXIS_OF_ROTATION:
-        case BuiltinParticleParameter.VEC3_REGISTER:
-            this.addParameter(id, ParticleParameterType.VEC3);
-            break;
-        case BuiltinParticleParameter.COLOR:
-        case BuiltinParticleParameter.BASE_COLOR:
-            this.addParameter(id, ParticleParameterType.COLOR);
-            break;
-        case BuiltinParticleParameter.FRAME_INDEX:
-        case BuiltinParticleParameter.INV_START_LIFETIME:
-        case BuiltinParticleParameter.NORMALIZED_ALIVE_TIME:
-        case BuiltinParticleParameter.SPAWN_TIME_RATIO:
-        case BuiltinParticleParameter.FLOAT_REGISTER:
-            this.addParameter(id, ParticleParameterType.FLOAT);
-            break;
-        case BuiltinParticleParameter.IS_DEAD:
-            this.addParameter(id, ParticleParameterType.BOOL);
-            break;
-        default:
+    public hasParameter (id: number) {
+        if (DEBUG) {
+            assertIsTrue(id < MAX_PARAMETER_COUNT && id >= 0);
         }
+        return this._parameterFlags & (1 << id);
     }
 
-    addParameter (id: number, type: ParticleParameterType) {
+    public addParameter (id: number, type: ParticleParameterType) {
+        if (DEBUG) {
+            assertIsTrue(id < MAX_PARAMETER_COUNT && id >= 0);
+        }
         if (this.hasParameter(id)) {
             throw new Error('Already exist a particle parameter with same id!');
         }
@@ -307,36 +285,28 @@ export class ParticleDataSet {
         }
     }
 
-    addParameter_internal (id: number, parameter: ParticleArrayParameter) {
-        this._parameterCount++;
-        this._parameters.push(parameter);
-        this._parameterMap[id] = parameter;
-        if (id < MAX_BUILTIN_PARAMETER_COUNT) {
-            this._builtinParameterFlags |= (1 << id);
-        } else {
-            this._customParameterFlags |= (1 << (id - MAX_BUILTIN_PARAMETER_COUNT));
+    public removeParameter (id: number) {
+        if (DEBUG) {
+            assertIsTrue(id < MAX_PARAMETER_COUNT && id >= 0);
         }
-        parameter.reserve(this._capacity);
-    }
-
-    removeParameter (id: number) {
         if (!this.hasParameter(id)) {
             return;
         }
         const parameter = this._parameterMap[id];
-        assertIsTrue(parameter);
+        if (DEBUG) {
+            assertIsTrue(parameter);
+        }
         this._parameterMap[id] = null;
-        const index = this._parameters.indexOf(parameter);
+        const index = this._parameters.indexOf(parameter!);
         this._parameters.splice(index, 1);
         this._parameterCount--;
-        if (id < MAX_BUILTIN_PARAMETER_COUNT) {
-            this._builtinParameterFlags &= ~(1 << id);
-        } else {
-            this._customParameterFlags &= ~(1 << (id - MAX_BUILTIN_PARAMETER_COUNT));
-        }
+        this._parameterFlags &= ~(1 << id);
     }
 
-    addParticles (count: number) {
+    public addParticles (count: number) {
+        if (DEBUG) {
+            assertIsTrue(count >= 0);
+        }
         let reservedCount = this.capacity;
         while (this._count + count > reservedCount) {
             reservedCount *= 2;
@@ -345,8 +315,10 @@ export class ParticleDataSet {
         this._count += count;
     }
 
-    removeParticle (handle: ParticleHandle) {
-        assertIsTrue(handle >= 0 && handle < this._count);
+    public removeParticle (handle: ParticleHandle) {
+        if (DEBUG) {
+            assertIsTrue(handle >= 0 && handle < this._count);
+        }
         const lastParticle = this._count - 1;
         if (lastParticle !== handle) {
             const parameters = this._parameters;
@@ -357,7 +329,7 @@ export class ParticleDataSet {
         this._count -= 1;
     }
 
-    reserve (capacity: number) {
+    public reserve (capacity: number) {
         if (capacity <= this._capacity) return;
         this._capacity = capacity;
         const parameters = this._parameters;
@@ -366,26 +338,35 @@ export class ParticleDataSet {
         }
     }
 
-    ensureBuiltinParameters (builtinParameterRequirement: number) {
-        if (builtinParameterRequirement !== this._builtinParameterFlags) {
-            for (let i = 0; i < BuiltinParticleParameter.COUNT; i++) {
-                if ((builtinParameterRequirement & 1 << i) && !this.hasParameter(i)) {
-                    this.addBuiltinParameter(i);
-                } else if (!(builtinParameterRequirement & 1 << i) && this.hasParameter(i)) {
-                    this.removeParameter(i);
+    public ensureParameters (parameterRequirement: number, parameterIdentities: ParticleParameterIdentity[]) {
+        if (parameterRequirement !== this._parameterFlags) {
+            for (let i = 0; i < parameterIdentities.length; i++) {
+                const { id, type } = parameterIdentities[i];
+                if ((parameterRequirement & 1 << id) && !this.hasParameter(id)) {
+                    this.addParameter(id, type);
+                } else if (!(parameterRequirement & 1 << id) && this.hasParameter(id)) {
+                    this.removeParameter(id);
                 }
             }
         }
     }
 
-    clear () {
+    public clear () {
         this._count = 0;
     }
 
-    reset () {
+    public reset () {
         this._count = 0;
         this._parameters.length = 0;
         this._parameterMap = {};
         this._parameterCount = 0;
+    }
+
+    private addParameter_internal (id: number, parameter: ParticleArrayParameter) {
+        this._parameterCount++;
+        this._parameters.push(parameter);
+        this._parameterMap[id] = parameter;
+        this._parameterFlags |= (1 << id);
+        parameter.reserve(this._capacity);
     }
 }

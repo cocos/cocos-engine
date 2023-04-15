@@ -24,7 +24,7 @@
  */
 
 import { ccclass, displayOrder, range, serializable, tooltip, type } from 'cc.decorator';
-import { ParticleModule, ModuleExecStage } from '../particle-module';
+import { ParticleModule, ModuleExecStageFlags } from '../particle-module';
 import { BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
 import { FloatExpression } from '../expression/float-expression';
@@ -35,7 +35,7 @@ import { RandomStream } from '../random-stream';
 const gravity = new Vec3();
 const requiredParameters = BuiltinParticleParameterFlags.POSITION | BuiltinParticleParameterFlags.BASE_VELOCITY | BuiltinParticleParameterFlags.VELOCITY;
 @ccclass('cc.GravityModule')
-@ParticleModule.register('Gravity', ModuleExecStage.UPDATE, [BuiltinParticleParameterName.VELOCITY])
+@ParticleModule.register('Gravity', ModuleExecStageFlags.UPDATE, [BuiltinParticleParameterName.VELOCITY])
 export class GravityModule extends ParticleModule {
     /**
      * @zh 粒子受重力影响的重力系数。
@@ -50,7 +50,7 @@ export class GravityModule extends ParticleModule {
     private _randomOffset = 0;
 
     public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {
-        this._randomOffset = state.rand.getUInt32();
+        this._randomOffset = state.randomStream.getUInt32();
     }
 
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {

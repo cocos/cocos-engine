@@ -24,12 +24,12 @@
  */
 import { ccclass } from 'cc.decorator';
 import { ShapeModule } from './shape';
-import { ModuleExecStage, ParticleModule } from '../particle-module';
+import { ModuleExecStageFlags, ParticleModule } from '../particle-module';
 import { BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 
 @ccclass('cc.RectangleShapeModule')
-@ParticleModule.register('RectangleShape', ModuleExecStage.SPAWN, [BuiltinParticleParameterName.START_DIR])
+@ParticleModule.register('RectangleShape', ModuleExecStageFlags.SPAWN, [BuiltinParticleParameterName.START_DIR])
 export class RectangleShapeModule extends ShapeModule {
     public execute (particles: ParticleDataSet,  params: ParticleEmitterParams, context: ParticleExecContext) {
         const { fromIndex, toIndex } = context;

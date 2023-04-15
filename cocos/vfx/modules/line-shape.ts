@@ -24,14 +24,14 @@
  */
 import { ccclass, range, rangeMin, serializable, tooltip, type, visible } from 'cc.decorator';
 import { ShapeModule, DistributionMode, MoveWarpMode } from './shape';
-import { ModuleExecStage, ParticleModule } from '../particle-module';
+import { ModuleExecStageFlags, ParticleModule } from '../particle-module';
 import { Enum, lerp } from '../../core';
 import { BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
 import { FloatExpression } from '../expression/float-expression';
 
 @ccclass('cc.LineShapeModule')
-@ParticleModule.register('LineShape', ModuleExecStage.SPAWN, [BuiltinParticleParameterName.START_DIR])
+@ParticleModule.register('LineShape', ModuleExecStageFlags.SPAWN, [BuiltinParticleParameterName.START_DIR])
 export class LineShapeModule extends ShapeModule {
     /**
      * @zh 粒子发射器半径。

@@ -1,5 +1,6 @@
 import { Vec2 } from '../../cocos/core';
 import { ParticleEmitter } from '../../cocos/vfx/particle-emitter';
+import { ModuleExecStage } from '../../cocos/vfx/particle-module';
 describe('ParticleEmitter', () => {
     test('Parameters Validation', () => {
         const particleEmitter = new ParticleEmitter();
@@ -36,50 +37,69 @@ describe('ParticleEmitter', () => {
         expect(particleEmitter.randomSeed).toBe(23121);
     });
 
-    test('Event Receiver', () => {
+    test('Event Handler', () => {
         const particleEmitter = new ParticleEmitter();
         expect(particleEmitter.eventHandlers.length).toBe(0);
         expect(particleEmitter.eventHandlerCount).toBe(0);
-        expect(() => particleEmitter.getEventReceiverAt(0)).toThrowError();
-        const eventReceiver = particleEmitter.addEventReceiver();
+        expect(() => particleEmitter.getEventHandlerAt(0)).toThrowError();
+        const eventHandler = particleEmitter.addEventHandler();
+        expect(eventHandler.execStage).toBe(ModuleExecStage.EVENT_HANDLER);
+        expect(eventHandler.modules.length).toBe(0);
         expect(particleEmitter.eventHandlers.length).toBe(1);
         expect(particleEmitter.eventHandlerCount).toBe(1);
-        expect(particleEmitter.eventHandlers[0]).toBe(eventReceiver);
-        expect(particleEmitter.getEventReceiverAt(0)).toBe(eventReceiver);
-        expect(() => particleEmitter.getEventReceiverAt(1)).toThrowError();
-        particleEmitter.removeEventReceiverAt(0);
+        expect(particleEmitter.eventHandlers[0]).toBe(eventHandler);
+        expect(particleEmitter.getEventHandlerAt(0)).toBe(eventHandler);
+        expect(() => particleEmitter.getEventHandlerAt(1)).toThrowError();
+        particleEmitter.removeEventHandlerAt(0);
         expect(particleEmitter.eventHandlers.length).toBe(0);
         expect(particleEmitter.eventHandlerCount).toBe(0); 
-        expect(() => particleEmitter.getEventReceiverAt(0)).toThrowError();
-        const eventReceiver2 = particleEmitter.addEventReceiver();
-        const eventReceiver3 = particleEmitter.addEventReceiver();
+        expect(() => particleEmitter.getEventHandlerAt(0)).toThrowError();
+        const eventHandler2 = particleEmitter.addEventHandler();
+        const eventHandler3 = particleEmitter.addEventHandler();
+        expect(eventHandler2.execStage).toBe(ModuleExecStage.EVENT_HANDLER);
+        expect(eventHandler2.modules.length).toBe(0);
+        expect(eventHandler3.execStage).toBe(ModuleExecStage.EVENT_HANDLER);
+        expect(eventHandler3.modules.length).toBe(0);
         expect(particleEmitter.eventHandlers.length).toBe(2);
         expect(particleEmitter.eventHandlerCount).toBe(2);
-        expect(particleEmitter.eventHandlers[0]).toBe(eventReceiver2);
-        expect(particleEmitter.eventHandlers[1]).toBe(eventReceiver3);
-        expect(particleEmitter.getEventReceiverAt(0)).toBe(eventReceiver2);
-        expect(particleEmitter.getEventReceiverAt(1)).toBe(eventReceiver3);
-        expect(() => particleEmitter.getEventReceiverAt(2)).toThrowError();
-        particleEmitter.removeEventReceiverAt(1);
+        expect(particleEmitter.eventHandlers[0]).toBe(eventHandler2);
+        expect(particleEmitter.eventHandlers[1]).toBe(eventHandler3);
+        expect(particleEmitter.getEventHandlerAt(0)).toBe(eventHandler2);
+        expect(particleEmitter.getEventHandlerAt(1)).toBe(eventHandler3);
+        expect(() => particleEmitter.getEventHandlerAt(2)).toThrowError();
+        particleEmitter.removeEventHandlerAt(1);
         expect(particleEmitter.eventHandlers.length).toBe(1);
         expect(particleEmitter.eventHandlerCount).toBe(1);
-        expect(particleEmitter.eventHandlers[0]).toBe(eventReceiver2);
-        expect(particleEmitter.getEventReceiverAt(0)).toBe(eventReceiver2);
-        expect(() => particleEmitter.getEventReceiverAt(1)).toThrowError();
-        const eventReceiver4 = particleEmitter.addEventReceiver();
+        expect(particleEmitter.eventHandlers[0]).toBe(eventHandler2);
+        expect(particleEmitter.getEventHandlerAt(0)).toBe(eventHandler2);
+        expect(() => particleEmitter.getEventHandlerAt(1)).toThrowError();
+        const eventHandler4 = particleEmitter.addEventHandler();
+        expect(eventHandler4.execStage).toBe(ModuleExecStage.EVENT_HANDLER);
+        expect(eventHandler4.modules.length).toBe(0);
         expect(particleEmitter.eventHandlers.length).toBe(2);
         expect(particleEmitter.eventHandlerCount).toBe(2);
-        expect(particleEmitter.eventHandlers[0]).toBe(eventReceiver2);
-        expect(particleEmitter.eventHandlers[1]).toBe(eventReceiver4);
-        expect(particleEmitter.getEventReceiverAt(0)).toBe(eventReceiver2);
-        expect(particleEmitter.getEventReceiverAt(1)).toBe(eventReceiver4);
-        expect(() => particleEmitter.getEventReceiverAt(2)).toThrowError();
-        particleEmitter.removeEventReceiverAt(0);
+        expect(particleEmitter.eventHandlers[0]).toBe(eventHandler2);
+        expect(particleEmitter.eventHandlers[1]).toBe(eventHandler4);
+        expect(particleEmitter.getEventHandlerAt(0)).toBe(eventHandler2);
+        expect(particleEmitter.getEventHandlerAt(1)).toBe(eventHandler4);
+        expect(() => particleEmitter.getEventHandlerAt(2)).toThrowError();
+        particleEmitter.removeEventHandlerAt(0);
         expect(particleEmitter.eventHandlers.length).toBe(1);
         expect(particleEmitter.eventHandlerCount).toBe(1);
-        expect(particleEmitter.eventHandlers[0]).toBe(eventReceiver4);
-        expect(particleEmitter.getEventReceiverAt(0)).toBe(eventReceiver4);
+        expect(particleEmitter.eventHandlers[0]).toBe(eventHandler4);
+        expect(particleEmitter.getEventHandlerAt(0)).toBe(eventHandler4);
     });
 
+    test('Stage', () => {
+        const particleEmitter = new ParticleEmitter();
+        expect(particleEmitter.spawnStage.modules.length).toBe(0);
+        expect(particleEmitter.updateStage.modules.length).toBe(0);
+        expect(particleEmitter.renderStage.modules.length).toBe(0);
+        expect(particleEmitter.emitterStage.modules.length).toBe(0);
+        expect(particleEmitter.updateStage.execStage).toBe(ModuleExecStage.UPDATE);
+        expect(particleEmitter.renderStage.execStage).toBe(ModuleExecStage.RENDER);
+        expect(particleEmitter.emitterStage.execStage).toBe(ModuleExecStage.EMITTER_UPDATE);
+        expect(particleEmitter.spawnStage.execStage).toBe(ModuleExecStage.SPAWN);
+    });
     
 });

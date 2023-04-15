@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 import { ccclass, serializable, tooltip, type } from 'cc.decorator';
-import { ModuleExecStage, ParticleModule } from '../particle-module';
+import { ModuleExecStageFlags, ParticleModule } from '../particle-module';
 import { Enum, toDegree, toRadian, Vec3 } from '../../core';
 import { BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
@@ -37,7 +37,7 @@ enum EmitFrom {
 
 const temp = new Vec3();
 @ccclass('cc.ConeShapeModule')
-@ParticleModule.register('ConeShape', ModuleExecStage.SPAWN, [BuiltinParticleParameterName.START_DIR])
+@ParticleModule.register('ConeShape', ModuleExecStageFlags.SPAWN, [BuiltinParticleParameterName.START_DIR])
 export class ConeShapeModule extends AngleBasedShapeModule {
     static EmitFrom = EmitFrom;
 

@@ -24,7 +24,7 @@
  */
 import { ccclass, serializable, type, visible } from 'cc.decorator';
 import { Enum } from '../../core';
-import { ParticleModule, ModuleExecStage } from '../particle-module';
+import { ParticleModule, ModuleExecStageFlags } from '../particle-module';
 import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 
@@ -35,7 +35,7 @@ export enum LifetimeElapsedOperation {
 }
 
 @ccclass('cc.StateModule')
-@ParticleModule.register('State', ModuleExecStage.UPDATE, [BuiltinParticleParameterName.NORMALIZED_ALIVE_TIME])
+@ParticleModule.register('State', ModuleExecStageFlags.UPDATE, [BuiltinParticleParameterName.NORMALIZED_ALIVE_TIME])
 export class StateModule extends ParticleModule {
     @type(Enum(LifetimeElapsedOperation))
     @visible(true)

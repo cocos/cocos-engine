@@ -1,19 +1,19 @@
 import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from "../../cocos/vfx/particle-base";
 import { ParticleDataSet } from "../../cocos/vfx/particle-data-set";
-import { ModuleExecStage, ParticleModule, ParticleModuleStage } from "../../cocos/vfx/particle-module";
+import { ModuleExecStage, ModuleExecStageFlags, ParticleModule, ParticleModuleStage } from "../../cocos/vfx/particle-module";
 
 describe('particle-module', () => {
     test('particle-module registry', () => {
         expect(ParticleModule.allRegisteredModules.length).toBe(0);
-        expect(ParticleModule.getModuleIdentitiesWithSpecificStage(ModuleExecStage.ALL, []).length).toBe(0);
-        @ParticleModule.register('Test1', ModuleExecStage.UPDATE | ModuleExecStage.SPAWN | ModuleExecStage.EMITTER_UPDATE)
+        expect(ParticleModule.getModuleIdentitiesWithSpecificStage(ModuleExecStage.UPDATE, []).length).toBe(0);
+        @ParticleModule.register('Test1', ModuleExecStageFlags.UPDATE | ModuleExecStageFlags.SPAWN | ModuleExecStageFlags.EMITTER_UPDATE)
         class TestModule extends ParticleModule {
             public execute(particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
                 throw new Error("Method not implemented.");
             }
         }
 
-        @ParticleModule.register('Test2', ModuleExecStage.SPAWN, ['customData', 'customData2'], ['customData3'])
+        @ParticleModule.register('Test2', ModuleExecStageFlags.SPAWN, ['customData', 'customData2'], ['customData3'])
         class TestModule2 extends ParticleModule {
             public execute(particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
                 throw new Error("Method not implemented.");
@@ -37,7 +37,7 @@ describe('particle-module', () => {
         expect(moduleIdentity).toBeTruthy();
         expect(moduleIdentity?.ctor).toBe(TestModule);
         expect(moduleIdentity?.name).toBe('Test1');
-        expect(moduleIdentity?.execStages).toBe( ModuleExecStage.UPDATE | ModuleExecStage.SPAWN | ModuleExecStage.EMITTER_UPDATE);
+        expect(moduleIdentity?.execStages).toBe( ModuleExecStageFlags.UPDATE | ModuleExecStageFlags.SPAWN | ModuleExecStageFlags.EMITTER_UPDATE);
         expect(moduleIdentity?.consumeParams.length).toBe(0);
         expect(moduleIdentity?.provideParams.length).toBe(0);
         expect(moduleIdentity).toBe(ParticleModule.getModuleIdentityByClassNoCheck(TestModule));
@@ -47,7 +47,7 @@ describe('particle-module', () => {
         expect(moduleIdentity1).toBeTruthy();
         expect(moduleIdentity1?.ctor).toBe(TestModule2);
         expect(moduleIdentity1?.name).toBe('Test2');
-        expect(moduleIdentity1?.execStages).toBe(ModuleExecStage.SPAWN);
+        expect(moduleIdentity1?.execStages).toBe(ModuleExecStageFlags.SPAWN);
         expect(moduleIdentity1?.consumeParams).toStrictEqual([ 'customData3' ]);
         expect(moduleIdentity1?.provideParams).toStrictEqual([ 'customData', 'customData2' ]);
         expect(moduleIdentity1).toBe(ParticleModule.getModuleIdentityByClassNoCheck(TestModule2));
@@ -63,14 +63,13 @@ describe('particle-module', () => {
         expect(emitterUpdateModuleIdentities.length).toBe(1);
         expect(emitterUpdateModuleIdentities[0]).toBe(moduleIdentity);
         expect(ParticleModule.getModuleIdentitiesWithSpecificStage(ModuleExecStage.RENDER, []).length).toBe(0);
-        expect(ParticleModule.getModuleIdentitiesWithSpecificStage(ModuleExecStage.ALL, []).length).toBe(2);
 
         const moduleIdentity2 = ParticleModule.getModuleIdentityByClass(TestModule3);
         expect(ParticleModule.getModuleIdentityByName('Test3')).toBeFalsy();
         expect(moduleIdentity2).toBeFalsy();
         expect(() => ParticleModule.getModuleIdentityByClassNoCheck(TestModule3)).toThrowError();
 
-        ParticleModule.register('test3', ModuleExecStage.EMITTER_UPDATE | ModuleExecStage.RENDER, [], ['test3'])(TestModule3);
+        ParticleModule.register('test3', ModuleExecStageFlags.EMITTER_UPDATE | ModuleExecStageFlags.RENDER, [], ['test3'])(TestModule3);
         expect(ParticleModule.allRegisteredModules.length).toBe(3);
         const moduleIdentity3 = ParticleModule.getModuleIdentityByClass(TestModule3);
         expect(ParticleModule.getModuleIdentityByName('test3')).toBe(moduleIdentity3);
@@ -78,10 +77,9 @@ describe('particle-module', () => {
         expect(ParticleModule.getModuleIdentityByClassNoCheck(TestModule3)).toBe(moduleIdentity3);
         expect(moduleIdentity3?.ctor).toBe(TestModule3);
         expect(moduleIdentity3?.name).toBe('test3');
-        expect(moduleIdentity3?.execStages).toBe(ModuleExecStage.EMITTER_UPDATE | ModuleExecStage.RENDER);
+        expect(moduleIdentity3?.execStages).toBe(ModuleExecStageFlags.EMITTER_UPDATE | ModuleExecStageFlags.RENDER);
         expect(moduleIdentity3?.consumeParams).toStrictEqual([ 'test3' ]);
         expect(moduleIdentity3?.provideParams).toStrictEqual([]);
-        expect(ParticleModule.getModuleIdentitiesWithSpecificStage(ModuleExecStage.ALL, []).length).toBe(3);
         const emitterModules = ParticleModule.getModuleIdentitiesWithSpecificStage(ModuleExecStage.EMITTER_UPDATE, []);
         expect(emitterModules.length).toBe(2);
         expect(emitterModules[0]).toBe(moduleIdentity);
@@ -93,10 +91,9 @@ describe('particle-module', () => {
         expect(updateModules.length).toBe(1);
         expect(updateModules[0]).toBe(moduleIdentity);
 
-        expect(() => ParticleModule.register('test4', ModuleExecStage.EMITTER_UPDATE)(TestModule3)).toThrowError();
-        expect(() => ParticleModule.register('test3', ModuleExecStage.EMITTER_UPDATE)(TestModule4)).toThrowError();
+        expect(() => ParticleModule.register('test4', ModuleExecStageFlags.EMITTER_UPDATE)(TestModule3)).toThrowError();
+        expect(() => ParticleModule.register('test3', ModuleExecStageFlags.EMITTER_UPDATE)(TestModule4)).toThrowError();
         ParticleModule.clearRegisteredModules();
-        expect(ParticleModule.getModuleIdentitiesWithSpecificStage(ModuleExecStage.ALL, []).length).toBe(0);
         expect(ParticleModule.getModuleIdentitiesWithSpecificStage(ModuleExecStage.EMITTER_UPDATE, []).length).toBe(0);
         expect(ParticleModule.getModuleIdentitiesWithSpecificStage(ModuleExecStage.RENDER, []).length).toBe(0);
         expect(ParticleModule.getModuleIdentitiesWithSpecificStage(ModuleExecStage.UPDATE, []).length).toBe(0);
@@ -108,7 +105,7 @@ describe('particle-module', () => {
         expect(ParticleModule.getModuleIdentityByClass(TestModule3)).toBeFalsy();
         expect(ParticleModule.getModuleIdentityByClass(TestModule)).toBeFalsy();
         expect(ParticleModule.getModuleIdentityByClass(TestModule2)).toBeFalsy();
-        ParticleModule.register('test3', ModuleExecStage.EMITTER_UPDATE, [], ['test3'])(TestModule3);
+        ParticleModule.register('test3', ModuleExecStageFlags.EMITTER_UPDATE, [], ['test3'])(TestModule3);
         expect(ParticleModule.getModuleIdentityByClass(TestModule3)).toBeTruthy();
         expect(ParticleModule.getModuleIdentityByName('test3')).toBeTruthy();
         expect(ParticleModule.getModuleIdentityByName('test3')).toBe(ParticleModule.getModuleIdentityByClass(TestModule3));
@@ -120,35 +117,35 @@ describe('particle-module', () => {
     });
 
     test('Find a proper position to insert', () => {
-        @ParticleModule.register('Test1', ModuleExecStage.UPDATE, ['A', 'B'], ['C'])
+        @ParticleModule.register('Test1', ModuleExecStageFlags.UPDATE, ['A', 'B'], ['C'])
         class TestModule extends ParticleModule {
             public execute(particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
                 throw new Error("Method not implemented.");
             }
         }
 
-        @ParticleModule.register('Test2', ModuleExecStage.UPDATE, ['C', 'D'], ['E'])
+        @ParticleModule.register('Test2', ModuleExecStageFlags.UPDATE, ['C', 'D'], ['E'])
         class TestModule2 extends ParticleModule {
             public execute(particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
                 throw new Error("Method not implemented.");
             }
         }
 
-        @ParticleModule.register('Test3', ModuleExecStage.UPDATE, ['D'], ['B'])
+        @ParticleModule.register('Test3', ModuleExecStageFlags.UPDATE, ['D'], ['B'])
         class TestModule3 extends ParticleModule {
             public execute(particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
                 throw new Error("Method not implemented.");
             }
         }
 
-        @ParticleModule.register('Test4', ModuleExecStage.UPDATE, [], ['D'])
+        @ParticleModule.register('Test4', ModuleExecStageFlags.UPDATE, [], ['D'])
         class TestModule4 extends ParticleModule {
             public execute(particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
                 throw new Error("Method not implemented.");
             }
         }
 
-        @ParticleModule.register('Test5', ModuleExecStage.UPDATE, ['D'], ['D'])
+        @ParticleModule.register('Test5', ModuleExecStageFlags.UPDATE, ['D'], ['D'])
         class TestModule5 extends ParticleModule {
             public execute(particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
                 throw new Error("Method not implemented.");
@@ -240,16 +237,38 @@ describe('particle-module', () => {
 });
 
 describe('ParticleModuleStage', () => {
+    test('base', () => {
+        const stage = new ParticleModuleStage();
+        expect(stage.modules.length).toBe(0);
+        expect(stage.execStage).toBe(ModuleExecStage.UNKNOWN);
+        
+        const stage2 = new ParticleModuleStage(ModuleExecStage.UPDATE);
+        expect(stage2.modules.length).toBe(0);
+        expect(stage2.execStage).toBe(ModuleExecStage.UPDATE);
+
+        const stage3 = new ParticleModuleStage(ModuleExecStage.RENDER);
+        expect(stage3.modules.length).toBe(0);
+        expect(stage3.execStage).toBe(ModuleExecStage.RENDER);
+
+        const stage4 = new ParticleModuleStage(ModuleExecStage.EMITTER_UPDATE);
+        expect(stage4.modules.length).toBe(0);
+        expect(stage4.execStage).toBe(ModuleExecStage.EMITTER_UPDATE);
+
+        const stage5 = new ParticleModuleStage(ModuleExecStage.SPAWN);
+        expect(stage5.modules.length).toBe(0);
+        expect(stage5.execStage).toBe(ModuleExecStage.SPAWN);
+    });
+
     test ('Add and remove modules', () => {
         ParticleModule.clearRegisteredModules();
-        @ParticleModule.register('Test1', ModuleExecStage.UPDATE, [], ['A'])
+        @ParticleModule.register('Test1', ModuleExecStageFlags.UPDATE, [], ['A'])
         class TestModule extends ParticleModule {
             public execute(particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
                 throw new Error("Method not implemented.");
             }
         }
 
-        @ParticleModule.register('Test2', ModuleExecStage.EMITTER_UPDATE)
+        @ParticleModule.register('Test2', ModuleExecStageFlags.EMITTER_UPDATE)
         class TestModule2 extends ParticleModule {
             public execute(particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
                 throw new Error("Method not implemented.");
@@ -260,23 +279,53 @@ describe('ParticleModuleStage', () => {
                 throw new Error("Method not implemented.");
             }
         }
-        @ParticleModule.register('Test4', ModuleExecStage.UPDATE | ModuleExecStage.RENDER, ['A'], ['B'])
+        @ParticleModule.register('Test4', ModuleExecStageFlags.UPDATE | ModuleExecStageFlags.RENDER, ['A'], ['B'])
         class TestModule4 extends ParticleModule {
             public execute(particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
                 throw new Error("Method not implemented.");
             }
         }
+        const emitterStage = new ParticleModuleStage(ModuleExecStage.EMITTER_UPDATE);
+        expect(emitterStage.modules.length).toBe(0);
+        expect(() => emitterStage.addModule(TestModule)).toThrowError();
+        expect(() => emitterStage.addModule(TestModule4)).toThrowError();
+        expect(() => emitterStage.addModule(TestModule3)).toThrowError();
+        emitterStage.addModule(TestModule2);
+        expect(emitterStage.modules.length).toBe(1);
+        expect(emitterStage.getModule(TestModule2)).toBeTruthy();
+        expect(emitterStage.getModule(TestModule2)).toBeInstanceOf(TestModule2);
+        expect(emitterStage.getModule(TestModule)).toBeFalsy();
+        expect(emitterStage.getModule(TestModule3)).toBeFalsy();
+        expect(emitterStage.getModule(TestModule4)).toBeFalsy();
+
+        const renderStage = new ParticleModuleStage(ModuleExecStage.RENDER);
+        expect(renderStage.modules.length).toBe(0);
+        expect(() => renderStage.addModule(TestModule)).toThrowError();
+        expect(() => renderStage.addModule(TestModule2)).toThrowError();
+        expect(() => renderStage.addModule(TestModule3)).toThrowError();
+        renderStage.addModule(TestModule4);
+        expect(renderStage.modules.length).toBe(1);
+        expect(renderStage.getModule(TestModule4)).toBeTruthy();
+        expect(renderStage.getModule(TestModule4)).toBeInstanceOf(TestModule4);
+        expect(renderStage.getModule(TestModule)).toBeFalsy();
+        expect(renderStage.getModule(TestModule2)).toBeFalsy();
+        expect(renderStage.getModule(TestModule3)).toBeFalsy();
+
         const stage = new ParticleModuleStage(ModuleExecStage.UPDATE);
         expect(stage.modules.length).toBe(0);
         expect(stage.getModule(TestModule)).toBeFalsy();
         expect(stage.getModule(TestModule2)).toBeFalsy();
         const module1 = stage.addModule(TestModule);
+        expect(module1.enabled).toBeTruthy();
         expect(stage.modules.length).toBe(1);
         expect(stage.modules[0] === module1).toBeTruthy();
+        expect(module1).toBeInstanceOf(TestModule);
         expect(stage.getModule(TestModule) === module1).toBeTruthy();
         const module2 = stage.addModule(TestModule);
+        expect(module2.enabled).toBeTruthy();
         expect(stage.modules.length).toBe(2);
         expect(module1 !== module2).toBeTruthy();
+        expect(module2).toBeInstanceOf(TestModule);
         expect(stage.modules[0] === module1).toBeTruthy();
         expect(stage.modules[1] === module2).toBeTruthy();
         expect(stage.getModule(TestModule) === module1).toBeTruthy();
@@ -293,27 +342,33 @@ describe('ParticleModuleStage', () => {
         expect(() => stage.addModule(TestModule2)).toThrowError();
         expect(() => stage.addModule(TestModule3)).toThrowError();
         const module3 = stage.getOrAddModule(TestModule);
+        expect(module3.enabled).toBeTruthy();
         expect(stage.modules.length).toBe(1);
         expect(stage.modules[0] === module3).toBeTruthy();
         expect(stage.getModule(TestModule) === module3).toBeTruthy();
+        expect(module3).toBeInstanceOf(TestModule);
         const module4 = stage.getOrAddModule(TestModule);
         expect(stage.modules.length).toBe(1);
         expect(stage.modules[0] === module3).toBeTruthy();
         expect(stage.getModule(TestModule) === module3).toBeTruthy();
         expect(module3 === module4).toBeTruthy();
-        ParticleModule.register('Test3', ModuleExecStage.UPDATE, ['A', 'B'], [])(TestModule3);
+        expect(module4).toBeInstanceOf(TestModule);
+        ParticleModule.register('Test3', ModuleExecStageFlags.UPDATE, ['A', 'B'], [])(TestModule3);
         const module5 = stage.getOrAddModule(TestModule3);
+        expect(module5.enabled).toBeTruthy();
         expect(stage.modules.length).toBe(2);
         expect(stage.modules[0] === module5).toBeTruthy();
         expect(stage.modules[1] === module3).toBeTruthy();
         expect(stage.getModule(TestModule3) === module5).toBeTruthy();
         expect(module5 !== module3).toBeTruthy();
         const module6 = stage.getOrAddModule(TestModule4);
+        expect(module6.enabled).toBeTruthy();
         expect(stage.modules.length).toBe(3);
         expect(stage.modules[0] === module5).toBeTruthy();
         expect(stage.modules[1] === module6).toBeTruthy();
         expect(stage.modules[2] === module3).toBeTruthy();
         expect(stage.getModule(TestModule4) === module6).toBeTruthy();
+        expect(module6).toBeInstanceOf(TestModule4);
         expect(module6 !== module3).toBeTruthy();
         stage.removeModule(module5);
         expect(stage.modules.length).toBe(2);
@@ -325,7 +380,7 @@ describe('ParticleModuleStage', () => {
 
     test ('Move module', () => {
         ParticleModule.clearRegisteredModules();
-        @ParticleModule.register('Test1', ModuleExecStage.UPDATE, [], ['A'])
+        @ParticleModule.register('Test1', ModuleExecStageFlags.UPDATE, [], ['A'])
         class TestModule extends ParticleModule {
             public execute(particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
                 throw new Error("Method not implemented.");
@@ -381,7 +436,7 @@ describe('ParticleModuleStage', () => {
 
     test ('Execute', () => {
         ParticleModule.clearRegisteredModules();
-        @ParticleModule.register('Test1', ModuleExecStage.UPDATE, [], ['A'])
+        @ParticleModule.register('Test1', ModuleExecStageFlags.UPDATE, [], ['A'])
         class TestModule extends ParticleModule {
             public execute(particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
                 throw new Error("Method not implemented.");
@@ -390,21 +445,29 @@ describe('ParticleModuleStage', () => {
         const executeOrder: number[] = [];
         const stage = new ParticleModuleStage(ModuleExecStage.UPDATE);
         const module1 = stage.addModule(TestModule);
+        expect(module1.enabled).toBeTruthy();
+        module1.enabled = false;
         module1.onPlay = jest.fn(() => { executeOrder.push(1); });
         module1.onStop = jest.fn(() => { executeOrder.push(1); });
         module1.tick = jest.fn(() => { executeOrder.push(1); });
         module1.execute = jest.fn(() => { executeOrder.push(1); });
         const module2 = stage.addModule(TestModule);
+        expect(module2.enabled).toBeTruthy();
+        module2.enabled = false;
         module2.onPlay = jest.fn(() => { executeOrder.push(2); });
         module2.onStop = jest.fn(() => { executeOrder.push(2); });
         module2.tick = jest.fn(() => { executeOrder.push(2); });
         module2.execute = jest.fn(() => { executeOrder.push(2); });
         const module3 = stage.addModule(TestModule);
+        expect(module3.enabled).toBeTruthy();
+        module3.enabled = false;
         module3.onPlay = jest.fn(() => { executeOrder.push(3); });
         module3.onStop = jest.fn(() => { executeOrder.push(3); });
         module3.tick = jest.fn(() => { executeOrder.push(3); });
         module3.execute = jest.fn(() => { executeOrder.push(3); });
         const module4 = stage.addModule(TestModule);
+        expect(module4.enabled).toBeTruthy();
+        module4.enabled = false;
         module4.onPlay = jest.fn(() => { executeOrder.push(4); });
         module4.onStop = jest.fn(() => { executeOrder.push(4); });
         module4.tick = jest.fn(() => { executeOrder.push(4); });
@@ -540,7 +603,7 @@ describe('ParticleModuleStage', () => {
 
     test('execute stage', () => {
         ParticleModule.clearRegisteredModules();
-        @ParticleModule.register('Test1', ModuleExecStage.UPDATE | ModuleExecStage.SPAWN, [], ['A'])
+        @ParticleModule.register('Test1', ModuleExecStageFlags.UPDATE | ModuleExecStageFlags.SPAWN, [], ['A'])
         class TestModule extends ParticleModule {
             public execute(particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
                 throw new Error("Method not implemented.");

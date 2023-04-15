@@ -80,7 +80,7 @@ export class SpawnBurstModule extends ParticleModule {
     private _rand = new RandomStream();
 
     public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {
-        this._rand.seed = Math.imul(state.rand.getUInt32(), state.rand.getUInt32()) >>> 0;
+        this._rand.seed = Math.imul(state.randomStream.getUInt32(), state.randomStream.getUInt32()) >>> 0;
     }
 
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {

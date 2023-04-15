@@ -145,8 +145,8 @@ export class ShapeModule extends ParticleModule {
     private _isTransformDirty = true;
     protected _rand = new RandomStream();
 
-    public onPlay (params: ParticleEmitterParams, states: ParticleEmitterState) {
-        this._rand.seed = states.rand.getUInt32() + states.rand.getUInt32();
+    public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {
+        this._rand.seed = Math.imul(state.randomStream.getUInt32(), state.randomStream.getUInt32());
     }
 
     public tick (particles: ParticleDataSet,  params: ParticleEmitterParams, context: ParticleExecContext) {

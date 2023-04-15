@@ -25,7 +25,7 @@
 
 import { DEBUG } from 'internal:constants';
 import { ccclass, range, serializable, tooltip, type, visible } from 'cc.decorator';
-import { ParticleModule, ModuleExecStage } from '../particle-module';
+import { ParticleModule, ModuleExecStage, ModuleExecStageFlags } from '../particle-module';
 import { BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleExecContext, ParticleEmitterParams, ParticleEmitterState } from '../particle-base';
 import { FloatExpression } from '../expression/float-expression';
@@ -35,7 +35,7 @@ import { RandomStream } from '../random-stream';
 const seed = new Vec3();
 
 @ccclass('cc.SetSizeModule')
-@ParticleModule.register('SetSize', ModuleExecStage.SPAWN | ModuleExecStage.UPDATE, [ParameterName.SIZE], [ParameterName.NORMALIZED_ALIVE_TIME])
+@ParticleModule.register('SetSize', ModuleExecStageFlags.SPAWN | ModuleExecStageFlags.UPDATE, [ParameterName.SIZE], [ParameterName.NORMALIZED_ALIVE_TIME])
 export class SetSizeModule extends ParticleModule {
     @serializable
     @tooltip('i18n:particle_system.startSize3D')
@@ -105,7 +105,7 @@ export class SetSizeModule extends ParticleModule {
     private _randomOffset = 0;
 
     public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {
-        this._randomOffset = state.rand.getUInt32();
+        this._randomOffset = state.randomStream.getUInt32();
     }
 
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {

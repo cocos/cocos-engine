@@ -27,7 +27,7 @@ import { ccclass, tooltip, displayOrder, range, type, serializable, visible, ran
 import { DEBUG } from 'internal:constants';
 import { lerp, Vec3, approx, assertIsTrue } from '../../core';
 import { Space } from '../enum';
-import { ParticleModule, ModuleExecStage } from '../particle-module';
+import { ParticleModule, ModuleExecStageFlags } from '../particle-module';
 import { FloatExpression } from '../expression/float-expression';
 import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
 import { BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
@@ -41,7 +41,7 @@ const seed = new Vec3();
 const requiredParameters = BuiltinParticleParameterFlags.VELOCITY | BuiltinParticleParameterFlags.BASE_VELOCITY;
 
 @ccclass('cc.LimitVelocity')
-@ParticleModule.register('LimitVelocity', ModuleExecStage.UPDATE, [BuiltinParticleParameterName.VELOCITY], [BuiltinParticleParameterName.VELOCITY])
+@ParticleModule.register('LimitVelocity', ModuleExecStageFlags.UPDATE, [BuiltinParticleParameterName.VELOCITY], [BuiltinParticleParameterName.VELOCITY])
 export class LimitVelocityModule extends ParticleModule {
     /**
      * @zh X 轴方向上的速度下限。
@@ -149,8 +149,8 @@ export class LimitVelocityModule extends ParticleModule {
 
     private _randomOffset = 0;
 
-    public onPlay (params: ParticleEmitterParams, states: ParticleEmitterState) {
-        this._randomOffset = states.rand.getUInt32();
+    public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {
+        this._randomOffset = state.randomStream.getUInt32();
     }
 
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {

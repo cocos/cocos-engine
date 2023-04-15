@@ -24,7 +24,7 @@
  */
 import { ccclass, displayOrder, serializable, tooltip, type, visible } from 'cc.decorator';
 import { ShapeModule } from './shape';
-import { ModuleExecStage, ParticleModule } from '../particle-module';
+import { ModuleExecStageFlags, ParticleModule } from '../particle-module';
 import { Enum, Vec3 } from '../../core';
 import { BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
@@ -37,7 +37,7 @@ enum EmitFrom {
 
 const tempPosition = new Vec3();
 @ccclass('cc.BoxShapeModule')
-@ParticleModule.register('BoxShape', ModuleExecStage.SPAWN, [BuiltinParticleParameterName.START_DIR])
+@ParticleModule.register('BoxShape', ModuleExecStageFlags.SPAWN, [BuiltinParticleParameterName.START_DIR])
 export class BoxShapeModule extends ShapeModule {
     static EmitFrom = EmitFrom;
 

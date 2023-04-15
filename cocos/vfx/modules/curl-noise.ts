@@ -27,7 +27,7 @@ import { ccclass, type, serializable, range, rangeMin, visible } from 'cc.decora
 import { DEBUG } from 'internal:constants';
 import { assertIsTrue, CCFloat, Enum, approx, clamp, lerp, Vec2, Vec3 } from '../../core';
 import { FloatExpression } from '../expression/float-expression';
-import { ParticleModule, ModuleExecStage } from '../particle-module';
+import { ParticleModule, ModuleExecStageFlags } from '../particle-module';
 import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
 import { RandomStream } from '../random-stream';
@@ -373,7 +373,7 @@ export enum Quality {
 }
 
 @ccclass('cc.CurlNoiseModule')
-@ParticleModule.register('CurlNoise', ModuleExecStage.UPDATE, [BuiltinParticleParameterName.VELOCITY], [])
+@ParticleModule.register('CurlNoise', ModuleExecStageFlags.UPDATE, [BuiltinParticleParameterName.VELOCITY], [])
 export class CurlNoiseModule extends ParticleModule {
     @serializable
     @visible(true)
@@ -545,11 +545,11 @@ export class CurlNoiseModule extends ParticleModule {
     private _randomOffsetRotation = 0;
 
     public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {
-        RandomStream.get3Float(state.rand.getUInt32() + state.rand.getUInt32(), this._offset);
-        this._randomOffset = state.rand.getUInt32();
-        this._randomOffsetVelocity = state.rand.getUInt32();
-        this._randomOffsetSize = state.rand.getUInt32();
-        this._randomOffsetRotation = state.rand.getUInt32();
+        RandomStream.get3Float(state.randomStream.getUInt32() + state.randomStream.getUInt32(), this._offset);
+        this._randomOffset = state.randomStream.getUInt32();
+        this._randomOffsetVelocity = state.randomStream.getUInt32();
+        this._randomOffsetSize = state.randomStream.getUInt32();
+        this._randomOffsetRotation = state.randomStream.getUInt32();
         this._offset.multiplyScalar(100);
     }
 

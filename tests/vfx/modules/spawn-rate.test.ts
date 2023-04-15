@@ -1,10 +1,28 @@
+import { DelayMode, LoopMode } from '../../../cocos/vfx/enum';
 import { createRealCurve, FloatExpression } from '../../../cocos/vfx/expression/float-expression';
 import { SpawnRateModule } from '../../../cocos/vfx/modules/spawn-rate';
-import { DelayMode, LoopMode, ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../../../cocos/vfx/particle-base';
+import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../../../cocos/vfx/particle-base';
 import { ParticleDataSet } from '../../../cocos/vfx/particle-data-set';
+import { ParticleEmitter } from '../../../cocos/vfx/particle-emitter';
 import { RandomStream } from '../../../cocos/vfx/random-stream';
 
 describe('SpawnRate', () => {
+    test('addModule', () => {
+        const particleEmitter = new ParticleEmitter();
+        particleEmitter.emitterStage.addModule(SpawnRateModule);
+        expect(particleEmitter.emitterStage.modules.length).toBe(1);
+        expect(particleEmitter.emitterStage.modules[0]).toBeInstanceOf(SpawnRateModule);
+
+        expect(() => particleEmitter.spawnStage.addModule(SpawnRateModule)).toThrowError();
+        expect(() => particleEmitter.updateStage.addModule(SpawnRateModule)).toThrowError();
+        expect(() => particleEmitter.renderStage.addModule(SpawnRateModule)).toThrowError();
+
+        const eventHandler = particleEmitter.addEventHandler();
+        eventHandler.addModule(SpawnRateModule);
+        expect(eventHandler.modules.length).toBe(1);
+        expect(eventHandler.modules[0]).toBeInstanceOf(SpawnRateModule);
+    });
+
     test('execute', () => {
         const spawnRate = new SpawnRateModule();
         spawnRate.rate = new FloatExpression(1);
@@ -16,7 +34,7 @@ describe('SpawnRate', () => {
         const curveRange2 = new FloatExpression(1, createRealCurve([[0.0, 0], [0.5, 1.0], [1.0, 0.0]]));
         const curveRange3 = new FloatExpression(1, createRealCurve([[0.0, 0.3], [0.5, 0.8], [1.0, 0.9]]), createRealCurve([[0.0, 0.1], [0.5, 0.5], [1.0, 0.7]]));
 
-        state.rand.seed = 12345;
+        state.randomStream.seed = 12345;
         const rand = new RandomStream(12345);
         rand.seed = Math.imul(rand.getUInt32(), rand.getUInt32()) >>> 0;
         spawnRate.onPlay(params, state);

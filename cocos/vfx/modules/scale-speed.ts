@@ -26,7 +26,7 @@
 import { ccclass, displayOrder, range, serializable, tooltip, type } from 'cc.decorator';
 import { lerp } from '../../core';
 import { FloatExpression } from '../expression/float-expression';
-import { ParticleModule, ModuleExecStage } from '../particle-module';
+import { ParticleModule, ModuleExecStageFlags } from '../particle-module';
 import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { RandomStream } from '../random-stream';
@@ -34,7 +34,7 @@ import { RandomStream } from '../random-stream';
 const SPEED_MODIFIER_RAND_OFFSET = 388180;
 
 @ccclass('cc.ScaleSpeedModule')
-@ParticleModule.register('ScaleSpeed', ModuleExecStage.UPDATE, [BuiltinParticleParameterName.VELOCITY], [BuiltinParticleParameterName.VELOCITY])
+@ParticleModule.register('ScaleSpeed', ModuleExecStageFlags.UPDATE, [BuiltinParticleParameterName.VELOCITY], [BuiltinParticleParameterName.VELOCITY])
 export class ScaleSpeedModule extends ParticleModule {
     /**
      * @zh 速度修正系数。

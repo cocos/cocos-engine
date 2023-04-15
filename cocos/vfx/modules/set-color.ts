@@ -24,7 +24,7 @@
  */
 
 import { ccclass, displayOrder, serializable, tooltip, type } from 'cc.decorator';
-import { ParticleModule, ModuleExecStage } from '../particle-module';
+import { ParticleModule, ModuleExecStage, ModuleExecStageFlags } from '../particle-module';
 import { BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleExecContext, ParticleEmitterParams, ParticleEmitterState } from '../particle-base';
 import { ColorExpression } from '../expression/color-expression';
@@ -38,7 +38,7 @@ const tempColor3 = new Color();
 const COLOR_RAND_SEED = 1767123;
 
 @ccclass('cc.SetColorModule')
-@ParticleModule.register('SetColor', ModuleExecStage.SPAWN, [ParameterName.COLOR], [ParameterName.NORMALIZED_ALIVE_TIME])
+@ParticleModule.register('SetColor', ModuleExecStageFlags.SPAWN, [ParameterName.COLOR], [ParameterName.NORMALIZED_ALIVE_TIME])
 export class SetColorModule extends ParticleModule {
     /**
       * @zh 粒子初始颜色。
@@ -52,7 +52,7 @@ export class SetColorModule extends ParticleModule {
     private _rand = new RandomStream();
 
     public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {
-        this._rand.seed = state.rand.getUInt32();
+        this._rand.seed = state.randomStream.getUInt32();
     }
 
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {

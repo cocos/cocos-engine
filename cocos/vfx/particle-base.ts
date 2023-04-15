@@ -181,7 +181,7 @@ export class ParticleEmitterState {
     public maxParticleId = 0;
     public boundsMin = new Vec3();
     public boundsMax = new Vec3();
-    public rand = new RandomStream();
+    public randomStream = new RandomStream();
 
     tick (transform: Node, params: ParticleEmitterParams, context: ParticleExecContext, dt: number) {
         const prevTime = this.accumulatedTime;
@@ -263,7 +263,7 @@ export class ParticleExecContext {
 
     private _fromIndex = 0;
     private _toIndex = 0;
-    private _executionStage = ModuleExecStage.NONE;
+    private _executionStage = ModuleExecStage.UNKNOWN;
     private _builtinParameterRequirements = 0;
     private _events: ParticleEvents | null = null;
     private _lastTransformChangedVersion = 0xffffffff;
@@ -273,6 +273,10 @@ export class ParticleExecContext {
     }
 
     setExecuteRange (fromIndex: number, toIndex: number) {
+        if (DEBUG) {
+            assertIsTrue(fromIndex <= toIndex);
+            assertIsTrue(fromIndex >= 0);
+        }
         this._fromIndex = fromIndex;
         this._toIndex = toIndex;
     }
@@ -348,7 +352,7 @@ export class ParticleExecContext {
     reset () {
         this._events?.clear();
         this._builtinParameterRequirements = 0;
-        this._executionStage = ModuleExecStage.NONE;
+        this._executionStage = ModuleExecStage.UNKNOWN;
         this.setExecuteRange(0, 0);
         this.resetSpawningState();
     }

@@ -24,14 +24,14 @@
  */
 
 import { ccclass, displayOrder, serializable, tooltip, type, range } from 'cc.decorator';
-import { ParticleModule, ModuleExecStage } from '../particle-module';
+import { ParticleModule, ModuleExecStage, ModuleExecStageFlags } from '../particle-module';
 import { ParticleDataSet } from '../particle-data-set';
 import { ParticleExecContext, ParticleEmitterParams, ParticleEmitterState } from '../particle-base';
 import { FloatExpression } from '../expression/float-expression';
 import { RandomStream } from '../random-stream';
 
 @ccclass('cc.SpawnRateModule')
-@ParticleModule.register('SpawnRate', ModuleExecStage.EMITTER_UPDATE | ModuleExecStage.EVENT_HANDLER)
+@ParticleModule.register('SpawnRate', ModuleExecStageFlags.EMITTER_UPDATE | ModuleExecStageFlags.EVENT_HANDLER)
 export class SpawnRateModule extends ParticleModule {
     /**
      * @zh 每秒发射的粒子数。
@@ -46,7 +46,7 @@ export class SpawnRateModule extends ParticleModule {
     private _rand = new RandomStream();
 
     public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {
-        this._rand.seed = Math.imul(state.rand.getUInt32(), state.rand.getUInt32()) >>> 0;
+        this._rand.seed = Math.imul(state.randomStream.getUInt32(), state.randomStream.getUInt32());
     }
 
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext)  {

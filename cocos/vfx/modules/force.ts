@@ -28,7 +28,7 @@ import { DEBUG } from 'internal:constants';
 import { lerp, Vec3, assertIsTrue, Enum } from '../../core';
 import { Space } from '../enum';
 import { FloatExpression } from '../expression/float-expression';
-import { ParticleModule, ModuleExecStage } from '../particle-module';
+import { ParticleModule, ModuleExecStageFlags } from '../particle-module';
 import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
 import { BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { RandomStream } from '../random-stream';
@@ -38,7 +38,7 @@ const seed = new Vec3();
 const _temp_v3 = new Vec3();
 
 @ccclass('cc.ForceModule')
-@ParticleModule.register('Force', ModuleExecStage.UPDATE, [BuiltinParticleParameterName.VELOCITY])
+@ParticleModule.register('Force', ModuleExecStageFlags.UPDATE, [BuiltinParticleParameterName.VELOCITY])
 export class ForceModule extends ParticleModule {
     /**
      * @zh X 轴方向上的加速度分量。
@@ -85,7 +85,7 @@ export class ForceModule extends ParticleModule {
     private _randomOffset = 0;
 
     public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {
-        this._randomOffset = state.rand.getUInt32();
+        this._randomOffset = state.randomStream.getUInt32();
     }
 
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {

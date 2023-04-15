@@ -29,18 +29,26 @@ import { ccclass, serializable, type, visible } from '../core/data/decorators';
 import { assertIsTrue, CCBoolean, CCString, Enum } from '../core';
 
 export enum ModuleExecStage {
-    NONE,
-    EMITTER_UPDATE = 1,
-    SPAWN = 1 << 1,
-    UPDATE = 1 << 2,
-    EVENT_HANDLER = 1 << 3,
-    RENDER = 1 << 4,
-    ALL = EMITTER_UPDATE | SPAWN | UPDATE | EVENT_HANDLER | RENDER,
+    UNKNOWN = -1,
+    EMITTER_UPDATE,
+    SPAWN,
+    UPDATE,
+    EVENT_HANDLER,
+    RENDER,
+}
+
+export enum ModuleExecStageFlags {
+    NONE = 0,
+    EMITTER_UPDATE = 1 << ModuleExecStage.EMITTER_UPDATE,
+    SPAWN = 1 << ModuleExecStage.SPAWN,
+    UPDATE = 1 << ModuleExecStage.UPDATE,
+    EVENT_HANDLER = 1 << ModuleExecStage.EVENT_HANDLER,
+    RENDER = 1 << ModuleExecStage.RENDER,
 }
 
 @ccclass('cc.ParticleModule')
 export abstract class ParticleModule {
-    public static register (name: string, stages: ModuleExecStage, provide: string[] = [], consume: string[] = []) {
+    public static register (name: string, stages: ModuleExecStageFlags, provide: string[] = [], consume: string[] = []) {
         return function (ctor: Constructor<ParticleModule>) {
             for (let i = 0, length = ParticleModule._allRegisteredModules.length; i < length; i++) {
                 if (ParticleModule._allRegisteredModules[i].ctor === ctor) {
@@ -51,8 +59,6 @@ export abstract class ParticleModule {
                 }
             }
             const identity = new ParticleModuleIdentity(ctor, name, stages, provide, consume);
-            ParticleModule._moduleEnum[name] = ParticleModule._allRegisteredModules.length;
-            Enum.update(ParticleModule._moduleEnum);
             ParticleModule._allRegisteredModules.push(identity);
         };
     }
@@ -101,10 +107,6 @@ export abstract class ParticleModule {
         }
     }
 
-    public static get ModuleEnum () {
-        return Enum(this._moduleEnum);
-    }
-
     public static getModuleIdentityByClassNoCheck (ctor: Constructor<ParticleModule>) {
         const identity = this.getModuleIdentityByClass(ctor);
         assertIsTrue(identity, 'Module not registered!');
@@ -132,7 +134,7 @@ export abstract class ParticleModule {
     public static getModuleIdentitiesWithSpecificStage (stage: ModuleExecStage, out: ParticleModuleIdentity[]) {
         for (let i = 0, length = ParticleModule._allRegisteredModules.length; i < length; i++) {
             const identity = ParticleModule._allRegisteredModules[i];
-            if (identity.execStages & stage) {
+            if (identity.execStages & 1 << stage) {
                 out.push(identity);
             }
         }
@@ -141,14 +143,9 @@ export abstract class ParticleModule {
 
     public static clearRegisteredModules () {
         this._allRegisteredModules.length = 0;
-        for (const key in this._moduleEnum) {
-            delete this._moduleEnum[key];
-        }
-        Enum.update(this._moduleEnum);
     }
 
     private static _allRegisteredModules: ParticleModuleIdentity[] = [];
-    private static _moduleEnum: Record<string, number> = {};
 
     @type(CCBoolean)
     public get enabled () {
@@ -185,41 +182,45 @@ export abstract class ParticleModule {
         }
     }
 
+    /**
+     * @engineInternal
+     * @internal
+     */
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {}
+    /**
+     * @engineInternal
+     * @internal
+     */
     public abstract execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext);
+    /**
+     * @engineInternal
+     * @internal
+     */
     public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {}
+    /**
+     * @engineInternal
+     * @internal
+     */
     public onStop (params: ParticleEmitterParams, state: ParticleEmitterState) {}
 }
 
 @ccclass('cc.ParticleModuleStage')
 export class ParticleModuleStage {
-    @type(ParticleModule.ModuleEnum)
-    @visible(true)
-    public get add () {
-        return this._moduleToAdd;
-    }
-
-    public set add (val) {
-        const identity = ParticleModule.allRegisteredModules[val];
-        if (!identity) { return; }
-        if (identity.execStages & this._execStage) {
-            this.addModule(identity.ctor as Constructor<ParticleModule>);
-        }
-    }
-
     @type([ParticleModule])
     public get modules (): ReadonlyArray<ParticleModule> {
         return this._modules;
     }
 
-    private _moduleToAdd = 0;
+    public get execStage () {
+        return this._execStage;
+    }
 
     @serializable
     private _modules: ParticleModule[] = [];
     @serializable
-    private _execStage = ModuleExecStage.NONE;
+    private _execStage = ModuleExecStage.UNKNOWN;
 
-    constructor (stage: ModuleExecStage = ModuleExecStage.NONE) {
+    constructor (stage: ModuleExecStage = ModuleExecStage.UNKNOWN) {
         this._execStage = stage;
     }
 
@@ -229,7 +230,7 @@ export class ParticleModuleStage {
     public addModule<T extends ParticleModule> (ModuleType: Constructor<T>): T {
         const id = ParticleModule.getModuleIdentityByClass(ModuleType);
         assertIsTrue(id, 'Particle Module should be registered!');
-        if (id.execStages & this._execStage) {
+        if (id.execStages & 1 << this._execStage) {
             const newModule = new ModuleType();
             const index = ParticleModule.findAProperPositionToInsert(this._modules, newModule, 0, this._modules.length);
             this._modules.splice(index, 0, newModule);
@@ -291,6 +292,10 @@ export class ParticleModuleStage {
         return module;
     }
 
+    /**
+     * @engineInternal
+     * @internal
+     */
     public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {
         for (let i = 0, length = this._modules.length; i < length; i++) {
             const module = this._modules[i];
@@ -298,6 +303,10 @@ export class ParticleModuleStage {
         }
     }
 
+    /**
+     * @engineInternal
+     * @internal
+     */
     public onStop (params: ParticleEmitterParams, state: ParticleEmitterState) {
         for (let i = 0, length = this._modules.length; i < length; i++) {
             const module = this._modules[i];
@@ -305,6 +314,10 @@ export class ParticleModuleStage {
         }
     }
 
+    /**
+     * @engineInternal
+     * @internal
+     */
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         context.setExecutionStage(this._execStage);
         const modules = this._modules;
@@ -314,9 +327,13 @@ export class ParticleModuleStage {
                 module.tick(particles, params, context);
             }
         }
-        context.setExecutionStage(ModuleExecStage.NONE);
+        context.setExecutionStage(ModuleExecStage.UNKNOWN);
     }
 
+    /**
+     * @engineInternal
+     * @internal
+     */
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         context.setExecutionStage(this._execStage);
         const modules = this._modules;
@@ -326,18 +343,18 @@ export class ParticleModuleStage {
                 module.execute(particles, params, context);
             }
         }
-        context.setExecutionStage(ModuleExecStage.NONE);
+        context.setExecutionStage(ModuleExecStage.UNKNOWN);
     }
 }
 
 class ParticleModuleIdentity {
     public readonly ctor: Constructor<ParticleModule> | null = null;
     public readonly name: string = '';
-    public readonly execStages = ModuleExecStage.NONE;
+    public readonly execStages = ModuleExecStageFlags.NONE;
     public readonly provideParams: string[];
     public readonly consumeParams: string[];
 
-    constructor (ctor: Constructor<ParticleModule>, name: string, execStages: ModuleExecStage, provideParams: string[] = [], consumeParams: string[] = []) {
+    constructor (ctor: Constructor<ParticleModule>, name: string, execStages: ModuleExecStageFlags, provideParams: string[] = [], consumeParams: string[] = []) {
         this.ctor = ctor;
         this.name = name;
         this.execStages = execStages;

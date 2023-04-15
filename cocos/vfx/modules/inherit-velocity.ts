@@ -25,7 +25,7 @@
 
 import { ccclass, type, serializable, visible } from 'cc.decorator';
 import { lerp, Vec3 } from '../../core';
-import { ParticleModule, ModuleExecStage } from '../particle-module';
+import { ParticleModule, ModuleExecStage, ModuleExecStageFlags } from '../particle-module';
 import { BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
 import { FloatExpression } from '../expression/float-expression';
@@ -34,7 +34,7 @@ import { RandomStream } from '../random-stream';
 const tempVelocity = new Vec3();
 const requiredParameters = BuiltinParticleParameterFlags.POSITION | BuiltinParticleParameterFlags.VELOCITY;
 @ccclass('cc.InheritVelocityModule')
-@ParticleModule.register('InheritVelocity', ModuleExecStage.UPDATE | ModuleExecStage.SPAWN, [BuiltinParticleParameterName.VELOCITY])
+@ParticleModule.register('InheritVelocity', ModuleExecStageFlags.UPDATE | ModuleExecStageFlags.SPAWN, [BuiltinParticleParameterName.VELOCITY])
 export class InheritVelocityModule extends ParticleModule {
     @type(FloatExpression)
     @visible(true)
@@ -43,8 +43,8 @@ export class InheritVelocityModule extends ParticleModule {
 
     private _randomOffset = 0;
 
-    public onPlay (params: ParticleEmitterParams, states: ParticleEmitterState) {
-        this._randomOffset = states.rand.getUInt32();
+    public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {
+        this._randomOffset = state.randomStream.getUInt32();
     }
 
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {

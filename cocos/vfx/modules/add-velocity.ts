@@ -26,7 +26,7 @@
 import { ccclass, tooltip, range, type, serializable } from 'cc.decorator';
 import { Enum, lerp, Vec3 } from '../../core';
 import { Space } from '../enum';
-import { ParticleModule, ModuleExecStage } from '../particle-module';
+import { ParticleModule, ModuleExecStage, ModuleExecStageFlags } from '../particle-module';
 import { BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
 import { FloatExpression } from '../expression/float-expression';
@@ -37,7 +37,7 @@ const seed = new Vec3();
 const requiredParameter = BuiltinParticleParameterFlags.VELOCITY | BuiltinParticleParameterFlags.POSITION;
 
 @ccclass('cc.AddVelocityModule')
-@ParticleModule.register('AddVelocity', ModuleExecStage.UPDATE | ModuleExecStage.SPAWN, [BuiltinParticleParameterName.VELOCITY])
+@ParticleModule.register('AddVelocity', ModuleExecStageFlags.UPDATE | ModuleExecStageFlags.SPAWN, [BuiltinParticleParameterName.VELOCITY])
 export class AddVelocityModule extends ParticleModule {
     /**
      * @zh 速度计算时采用的坐标系[[Space]]。
@@ -76,7 +76,7 @@ export class AddVelocityModule extends ParticleModule {
     private _randomOffset = 0;
 
     public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {
-        this._randomOffset = state.rand.getUInt32();
+        this._randomOffset = state.randomStream.getUInt32();
     }
 
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {

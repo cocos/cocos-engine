@@ -25,7 +25,7 @@
 
 import { ccclass, tooltip, displayOrder, type, serializable, range, visible, rangeMin } from 'cc.decorator';
 import { approx, lerp, Vec2, assertIsTrue } from '../../core';
-import { ParticleModule, ModuleExecStage } from '../particle-module';
+import { ParticleModule, ModuleExecStageFlags } from '../particle-module';
 import { FloatExpression } from '../expression/float-expression';
 import { BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
@@ -33,7 +33,7 @@ import { RandomStream } from '../random-stream';
 
 const SCALE_SIZE_RAND = 2818312;
 @ccclass('cc.ScaleSizeBySpeedModule')
-@ParticleModule.register('ScaleSizeBySpeed', ModuleExecStage.UPDATE, [ParameterName.SIZE], [ParameterName.SIZE, ParameterName.VELOCITY])
+@ParticleModule.register('ScaleSizeBySpeed', ModuleExecStageFlags.UPDATE, [ParameterName.SIZE], [ParameterName.SIZE, ParameterName.VELOCITY])
 export class ScaleSizeBySpeedModule extends ParticleModule {
     /**
       * @zh 决定是否在每个轴上独立控制粒子大小。

@@ -27,28 +27,13 @@ import { Color, Enum, Vec3 } from '../core';
 import { ccclass, serializable, type, visible } from '../core/data/decorators';
 import { ParticleHandle } from './particle-data-set';
 import { assertIsTrue } from '../core/data/utils/asserts';
+import { ParticleParameterType } from './enum';
 
 const DEFAULT_CAPACITY = 16;
 const tempColor = new Color();
 const tempVec3 = new Vec3();
 export const BATCH_OPERATION_THRESHOLD_VEC3 = 330;
 export const BATCH_OPERATION_THRESHOLD = 1000;
-
-export enum ParticleParameterType {
-    FLOAT,
-    BOOL,
-    VEC3,
-    COLOR,
-    UINT32,
-}
-
-export enum ParameterNameSpace {
-    PARTICLE_BUILTIN,
-    PARTICLE_CUSTOM,
-    EMITTER_BUILTIN,
-    EMITTER_CUSTOM,
-    USER,
-}
 
 @ccclass('cc.ParticleParameterIdentity')
 export class ParticleParameterIdentity {

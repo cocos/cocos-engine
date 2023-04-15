@@ -25,7 +25,7 @@
 
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { Color } from '../../core';
-import { ParticleModule, ModuleExecStage } from '../particle-module';
+import { ParticleModule, ModuleExecStage, ModuleExecStageFlags } from '../particle-module';
 import { ColorExpression } from '../expression/color-expression';
 import { BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
@@ -36,7 +36,7 @@ const tempColor2 = new Color();
 const tempColor3 = new Color();
 
 @ccclass('cc.MultiplyColor')
-@ParticleModule.register('MultiplyColor', ModuleExecStage.UPDATE | ModuleExecStage.SPAWN, [], [BuiltinParticleParameterName.NORMALIZED_ALIVE_TIME])
+@ParticleModule.register('MultiplyColor', ModuleExecStageFlags.UPDATE | ModuleExecStageFlags.SPAWN, [], [BuiltinParticleParameterName.NORMALIZED_ALIVE_TIME])
 export class MultiplyColorModule extends ParticleModule {
     /**
      * @zh 颜色随时间变化的参数，各个 key 之间线性差值变化。
@@ -49,7 +49,7 @@ export class MultiplyColorModule extends ParticleModule {
     private _randomOffset = 0;
 
     public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {
-        this._randomOffset = state.rand.getUInt32();
+        this._randomOffset = state.randomStream.getUInt32();
     }
 
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {

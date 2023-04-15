@@ -25,18 +25,18 @@
 
 import { ccclass, range, serializable, type } from 'cc.decorator';
 import { approx, CCFloat, Color, EPSILON, Vec3 } from '../../core';
-import { Space } from '../enum';
-import { ParticleModule, ModuleExecStage } from '../particle-module';
+import { ParticleEventType, Space } from '../enum';
+import { ParticleModule, ModuleExecStageFlags } from '../particle-module';
 import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleColorArrayParameter, ParticleVec3ArrayParameter } from '../particle-parameter';
-import { ParticleEmitterParams, ParticleEmitterState, ParticleEventInfo, ParticleEventType, ParticleExecContext } from '../particle-base';
+import { ParticleEmitterParams, ParticleEmitterState, ParticleEventInfo, ParticleExecContext } from '../particle-base';
 import { RandomStream } from '../random-stream';
 
 const eventInfo = new ParticleEventInfo();
 const requiredParameters =  BuiltinParticleParameterFlags.RANDOM_SEED
 | BuiltinParticleParameterFlags.ID | BuiltinParticleParameterFlags.IS_DEAD;
 @ccclass('cc.DeathEventGeneratorModule')
-@ParticleModule.register('DeathEventGenerator', ModuleExecStage.UPDATE, [], [ParameterName.POSITION, ParameterName.SIZE, ParameterName.ROTATION, ParameterName.VELOCITY, ParameterName.NORMALIZED_ALIVE_TIME, ParameterName.COLOR])
+@ParticleModule.register('DeathEventGenerator', ModuleExecStageFlags.UPDATE, [], [ParameterName.POSITION, ParameterName.SIZE, ParameterName.ROTATION, ParameterName.VELOCITY, ParameterName.NORMALIZED_ALIVE_TIME, ParameterName.COLOR])
 export class DeathEventGeneratorModule extends ParticleModule {
     @type(CCFloat)
     @range([0, 1])
@@ -46,7 +46,7 @@ export class DeathEventGeneratorModule extends ParticleModule {
     private _randomOffset = 0;
 
     public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {
-        this._randomOffset = state.rand.getUInt32();
+        this._randomOffset = state.randomStream.getUInt32();
     }
 
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {

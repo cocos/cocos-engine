@@ -27,11 +27,11 @@ import { ccclass, rangeMin, serializable, type } from 'cc.decorator';
 import { CCInteger } from '../../core';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
-import { ModuleExecStage, ParticleModule } from '../particle-module';
+import { ModuleExecStageFlags, ParticleModule } from '../particle-module';
 import { ShapeModule } from './shape';
 
 @ccclass('cc.GridShapeModule')
-@ParticleModule.register('GridShape', ModuleExecStage.SPAWN, [BuiltinParticleParameterName.START_DIR])
+@ParticleModule.register('GridShape', ModuleExecStageFlags.SPAWN, [BuiltinParticleParameterName.START_DIR])
 export class GridShape extends ShapeModule {
     @serializable
     public length = 1;

@@ -27,7 +27,7 @@
 import { ccclass, tooltip, displayOrder, range, type, radian, serializable, visible } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
 import { Vec3, lerp, assertIsTrue, CCBoolean } from '../../core';
-import { ParticleModule, ModuleExecStage } from '../particle-module';
+import { ParticleModule, ModuleExecStageFlags } from '../particle-module';
 import { FloatExpression } from '../expression/float-expression';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
@@ -37,7 +37,7 @@ const ROTATION_OVERTIME_RAND_OFFSET = 125292;
 const seed = new Vec3();
 
 @ccclass('cc.RotationModule')
-@ParticleModule.register('Rotation', ModuleExecStage.UPDATE, [BuiltinParticleParameterName.ANGULAR_VELOCITY], [])
+@ParticleModule.register('Rotation', ModuleExecStageFlags.UPDATE, [BuiltinParticleParameterName.ANGULAR_VELOCITY], [])
 export class RotationModule extends ParticleModule {
     /**
      * @zh 是否三个轴分开设定旋转。

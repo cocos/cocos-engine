@@ -25,16 +25,16 @@
 
 import { ccclass, tooltip, displayOrder, type, serializable, range, visible } from 'cc.decorator';
 import { lerp, Vec3 } from '../../core';
-import { ParticleModule, ModuleExecStage } from '../particle-module';
+import { ParticleModule, ModuleExecStage, ModuleExecStageFlags } from '../particle-module';
 import { FloatExpression } from '../expression/float-expression';
-import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
 import { RandomStream } from '../random-stream';
 
 const seed = new Vec3();
 
 @ccclass('cc.MultiplySizeModule')
-@ParticleModule.register('MultiplySize', ModuleExecStage.UPDATE | ModuleExecStage.SPAWN, [BuiltinParticleParameterName.SIZE], [BuiltinParticleParameterName.NORMALIZED_ALIVE_TIME])
+@ParticleModule.register('MultiplySize', ModuleExecStageFlags.UPDATE | ModuleExecStageFlags.SPAWN, [BuiltinParticleParameterName.SIZE], [BuiltinParticleParameterName.NORMALIZED_ALIVE_TIME])
 export class MultiplySizeModule extends ParticleModule {
     /**
      * @zh 决定是否在每个轴上独立控制粒子大小。
@@ -117,7 +117,7 @@ export class MultiplySizeModule extends ParticleModule {
     private _randomOffset = 0;
 
     public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {
-        this._randomOffset = state.rand.getUInt32();
+        this._randomOffset = state.randomStream.getUInt32();
     }
 
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {

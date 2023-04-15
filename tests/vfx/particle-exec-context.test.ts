@@ -1,4 +1,6 @@
-import { DelayMode, LoopMode, ParticleExecContext } from "../../cocos/vfx/particle-base";
+import { DelayMode, LoopMode } from "../../cocos/vfx/enum";
+import { ParticleExecContext } from "../../cocos/vfx/particle-base";
+import { ModuleExecStage } from "../../cocos/vfx/particle-module";
 
 describe('particle-exec-context', () => {
     describe('update Emitter Time', () => {
@@ -80,6 +82,34 @@ describe('particle-exec-context', () => {
             testEmitterTime(context, [12.2, 12, DelayMode.EVERY_LOOP, 1, LoopMode.MULTIPLE, 2, 7], [3, 3.2, 3.2 / 7, 3 / 7, 0.2, 1]);
             testEmitterTime(context, [16.2, 15.8, DelayMode.EVERY_LOOP, 1, LoopMode.MULTIPLE, 2, 7], [6.8, 7, 1, 6.8 / 7, 0.2, 2]);
         });
+    });
+
+    test ('ExecutionRange', () => {
+        const context = new ParticleExecContext();
+        expect(context.fromIndex).toBe(0);
+        expect(context.toIndex).toBe(0);
+        context.setExecuteRange(0, 1);
+        expect(context.fromIndex).toBe(0);
+        expect(context.toIndex).toBe(1);
+        context.setExecuteRange(0, 1000);
+        expect(context.fromIndex).toBe(0);
+        expect(context.toIndex).toBe(1000);
+        context.setExecuteRange(100, 1000);
+        expect(context.fromIndex).toBe(100);
+        expect(context.toIndex).toBe(1000);
+        context.setExecuteRange(100, 100);
+        expect(context.fromIndex).toBe(100);
+        expect(context.toIndex).toBe(100);
+        expect(() => context.setExecuteRange(100, 99)).toThrowError();
+    });
+
+    test ('setExecutionStage', () => {
+        const context = new ParticleExecContext();
+        expect(context.executionStage).toBe(ModuleExecStage.UNKNOWN);
+        context.setExecutionStage(ModuleExecStage.UPDATE);
+        expect(context.executionStage).toBe(ModuleExecStage.UPDATE);
+        context.setExecutionStage(ModuleExecStage.EMITTER_UPDATE);
+        expect(context.executionStage).toBe(ModuleExecStage.EMITTER_UPDATE);
     });
 });
 

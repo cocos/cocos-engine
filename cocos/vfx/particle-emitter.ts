@@ -33,7 +33,7 @@ import { BoundsMode, CapacityMode, CullingMode, DelayMode, FinishAction, LoopMod
 import { legacyCC } from '../core/global-exports';
 import { assertIsTrue, CCBoolean, CCClass, CCInteger, Enum } from '../core';
 import { Component } from '../scene-graph';
-import { ParticleDataSet, BuiltinParticleParameter, BuiltinParticleParameterFlags } from './particle-data-set';
+import { ParticleDataSet, BuiltinParticleParameter, BuiltinParticleParameterFlags, builtinParticleParameterIdentities } from './particle-data-set';
 import { ParticleModuleStage, ModuleExecStage } from './particle-module';
 import { vfxManager } from './vfx-manager';
 import { RandomStream } from './random-stream';
@@ -340,8 +340,8 @@ export class ParticleEmitter extends Component {
 
     @displayName('粒子生成')
     @type(ParticleModuleStage)
-    public get spawningStage () {
-        return this._spawningStage;
+    public get spawnStage () {
+        return this._spawnStage;
     }
 
     @displayName('粒子更新')
@@ -381,7 +381,7 @@ export class ParticleEmitter extends Component {
     @serializable
     private _emitterStage = new ParticleModuleStage(ModuleExecStage.EMITTER_UPDATE);
     @serializable
-    private _spawningStage = new ParticleModuleStage(ModuleExecStage.SPAWN);
+    private _spawnStage = new ParticleModuleStage(ModuleExecStage.SPAWN);
     @serializable
     private _updateStage = new ParticleModuleStage(ModuleExecStage.UPDATE);
     @serializable
@@ -408,11 +408,11 @@ export class ParticleEmitter extends Component {
             return;
         }
         if (this._state.playingState === PlayingState.STOPPED) {
-            this._state.rand.seed = this.useAutoRandomSeed ? randomRangeInt(0, INT_MAX) : this.randomSeed;
-            this._state.currentDelay = Math.max(lerp(this.delayRange.x, this.delayRange.y, this._state.rand.getFloat()), 0);
+            this._state.randomStream.seed = this.useAutoRandomSeed ? randomRangeInt(0, INT_MAX) : this.randomSeed;
+            this._state.currentDelay = Math.max(lerp(this.delayRange.x, this.delayRange.y, this._state.randomStream.getFloat()), 0);
             if (this.particles.count === 0) {
                 this._emitterStage.onPlay(this._params, this._state);
-                this._spawningStage.onPlay(this._params, this._state);
+                this._spawnStage.onPlay(this._params, this._state);
                 this._updateStage.onPlay(this._params, this._state);
                 if (this._eventHandlerCount > 0) {
                     for (let i = 0, length = this._eventHandlerCount; i < length; i++) {
@@ -472,19 +472,19 @@ export class ParticleEmitter extends Component {
         return this._particles.count;
     }
 
-    public addEventReceiver () {
+    public addEventHandler () {
         const eventHandler = new EventHandler();
         this._eventHandlers.push(eventHandler);
         this._eventHandlerCount++;
         return eventHandler;
     }
 
-    public getEventReceiverAt (index: number) {
+    public getEventHandlerAt (index: number) {
         assertIsTrue(index < this._eventHandlerCount && index >= 0, 'Invalid index!');
         return this._eventHandlers[index];
     }
 
-    public removeEventReceiverAt (index: number) {
+    public removeEventHandlerAt (index: number) {
         assertIsTrue(index < this._eventHandlerCount && index >= 0, 'Invalid index!');
         this._eventHandlers.splice(index, 1);
         this._eventHandlerCount--;
@@ -579,7 +579,7 @@ export class ParticleEmitter extends Component {
 
     private preTick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         this._emitterStage.tick(particles, params, context);
-        this._spawningStage.tick(particles, params, context);
+        this._spawnStage.tick(particles, params, context);
         this._updateStage.tick(particles, params, context);
         this._renderStage.tick(particles, params, context);
         if (this._eventHandlerCount > 0) {
@@ -588,7 +588,7 @@ export class ParticleEmitter extends Component {
             }
             context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.POSITION);
         }
-        particles.ensureBuiltinParameters(context.builtinParameterRequirements);
+        particles.ensureParameters(context.builtinParameterRequirements, builtinParticleParameterIdentities);
     }
 
     private updateBounds () {
@@ -774,9 +774,9 @@ export class ParticleEmitter extends Component {
         }
         if (particles.hasParameter(BuiltinParticleParameter.RANDOM_SEED)) {
             const randomSeed = particles.randomSeed.data;
-            const rand = this._state.rand;
+            const randomStream = this._state.randomStream;
             for (let i = fromIndex; i < toIndex; i++) {
-                randomSeed[i] = rand.getUInt32();
+                randomSeed[i] = randomStream.getUInt32();
             }
         }
         if (particles.hasParameter(BuiltinParticleParameter.START_DIR)) {
@@ -786,7 +786,7 @@ export class ParticleEmitter extends Component {
         }
 
         context.setExecuteRange(fromIndex, toIndex);
-        this._spawningStage.execute(particles, params, context);
+        this._spawnStage.execute(particles, params, context);
         this.resetAnimatedState(particles, fromIndex, toIndex);
         const emitterTimeDeltaTimeScale = emitterDeltaTime / deltaTime;
         const interval = emitterTimeInterval * emitterTimeDeltaTimeScale;

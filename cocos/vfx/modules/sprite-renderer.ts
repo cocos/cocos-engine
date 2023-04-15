@@ -30,7 +30,7 @@ import { MacroRecord } from '../../render-scene';
 import { AlignmentSpace, ScalingMode, Space } from '../enum';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
-import { ModuleExecStage, ParticleModule } from '../particle-module';
+import { ModuleExecStageFlags, ParticleModule } from '../particle-module';
 import { CC_PARTICLE_COLOR, CC_PARTICLE_FRAME_INDEX, CC_PARTICLE_POSITION, CC_PARTICLE_ROTATION, CC_PARTICLE_SIZE, CC_PARTICLE_VELOCITY, CC_RENDER_MODE, CC_USE_WORLD_SPACE, meshPosition, meshUv, particleColor, particleFrameIndex, particlePosition, particleRotation, particleSize, particleVelocity, RendererModule, ROTATION_OVER_TIME_MODULE_ENABLE } from './renderer';
 
 const fixedVertexBuffer = new Float32Array([
@@ -68,7 +68,7 @@ export enum RenderMode {
     VERTICAL_BILLBOARD,
 }
 @ccclass('cc.SpriteRendererModule')
-@ParticleModule.register('SpriteRenderer', ModuleExecStage.RENDER)
+@ParticleModule.register('SpriteRenderer', ModuleExecStageFlags.RENDER)
 export class SpriteRendererModule extends RendererModule {
     /**
      * @zh 设定粒子生成模式。

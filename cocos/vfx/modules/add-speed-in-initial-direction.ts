@@ -24,7 +24,7 @@
  */
 
 import { ccclass, range, serializable, tooltip, type } from 'cc.decorator';
-import { ParticleModule, ModuleExecStage } from '../particle-module';
+import { ParticleModule, ModuleExecStage, ModuleExecStageFlags } from '../particle-module';
 import { BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleExecContext, ParticleEmitterParams, ParticleEmitterState } from '../particle-base';
 import { FloatExpression } from '../expression/float-expression';
@@ -36,7 +36,7 @@ const tempVelocity = new Vec3();
 const requiredParameter = BuiltinParticleParameterFlags.POSITION | BuiltinParticleParameterFlags.VELOCITY | BuiltinParticleParameterFlags.START_DIR;
 
 @ccclass('cc.AddSpeedInInitialDirectionModule')
-@ParticleModule.register('AddSpeedInInitialDirection', ModuleExecStage.SPAWN | ModuleExecStage.UPDATE, [ParameterName.VELOCITY], [ParameterName.START_DIR])
+@ParticleModule.register('AddSpeedInInitialDirection', ModuleExecStageFlags.SPAWN | ModuleExecStageFlags.UPDATE, [ParameterName.VELOCITY], [ParameterName.START_DIR])
 export class AddSpeedInInitialDirectionModule extends ParticleModule {
     /**
       * @zh 粒子初始速度。
@@ -50,7 +50,7 @@ export class AddSpeedInInitialDirectionModule extends ParticleModule {
     private _randomOffset = 0;
 
     public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {
-        this._randomOffset = state.rand.getUInt32();
+        this._randomOffset = state.randomStream.getUInt32();
     }
 
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {

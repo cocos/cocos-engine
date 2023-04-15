@@ -1,7 +1,7 @@
 import { ParticleRenderer } from '../../cocos/vfx/particle-renderer';
-import { Node } from '../../cocos/core/scene-graph/node';
+import { Node, Scene} from '../../cocos/scene-graph';
 import { ParticleEmitter } from '../../cocos/vfx/particle-emitter';
-import { director, game, Scene } from '../../cocos/core';
+import { director, game } from '../../cocos/game';
 
 describe('particle-renderer', () => {
     const node = new Node();

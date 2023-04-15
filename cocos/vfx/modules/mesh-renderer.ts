@@ -32,11 +32,11 @@ import { MacroRecord } from '../../render-scene';
 import { AlignmentSpace, ScalingMode, Space } from '../enum';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
-import { ModuleExecStage, ParticleModule } from '../particle-module';
+import { ModuleExecStageFlags, ParticleModule } from '../particle-module';
 import { CC_RENDER_MODE, CC_USE_WORLD_SPACE, meshColorRGBA8, meshNormal, meshPosition, meshUv, particleColor, particleFrameIndex, particlePosition, particleRotation, particleSize, particleVelocity, RendererModule, RENDER_MODE_MESH, ROTATION_OVER_TIME_MODULE_ENABLE } from './renderer';
 
 @ccclass('cc.MeshRendererModule')
-@ParticleModule.register('MeshRenderer', ModuleExecStage.RENDER)
+@ParticleModule.register('MeshRenderer', ModuleExecStageFlags.RENDER)
 export class MeshRendererModule extends RendererModule {
     /**
      * @zh 粒子发射的模型。
