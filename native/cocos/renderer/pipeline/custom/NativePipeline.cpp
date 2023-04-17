@@ -483,7 +483,7 @@ ComputePassBuilder *NativePipeline::addComputePass(const ccstd::string &layoutNa
 
     auto passLayoutID = locate(LayoutGraphData::null_vertex(), layoutName, programLibrary->layoutGraph);
 
-    return ccnew NativeComputePassBuilder(&renderGraph, passID, &programLibrary->layoutGraph, passLayoutID);
+    return ccnew NativeComputePassBuilder(this, &renderGraph, passID, &programLibrary->layoutGraph, passLayoutID);
 }
 
 // NOLINTNEXTLINE

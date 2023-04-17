@@ -140,14 +140,6 @@ void NativeSetter::setMat4ArrayElem(const ccstd::string &name, const cc::Mat4 &m
     setMat4ArrayElemImpl(data, *layoutGraph, name, mat, id);
 }
 
-ccstd::string NativeRasterPassBuilder::getName() const {
-    return std::string(get(RenderGraph::NameTag{}, *renderGraph, passID));
-}
-
-void NativeRasterPassBuilder::setName(const ccstd::string &name) {
-    get(RenderGraph::NameTag{}, *renderGraph, passID) = std::string_view{name};
-}
-
 namespace {
 
 template <class Tag>
@@ -226,7 +218,7 @@ void NativeRasterPassBuilder::addRenderTarget(
     const gfx::Color &color) {
     addRenderTargetImpl<RasterPassTag>(
         *renderGraph,
-        passID,
+        nodeID,
         name,
         slotName,
         AccessType::WRITE,
@@ -245,7 +237,7 @@ void NativeRasterPassBuilder::addDepthStencil(
     gfx::ClearFlagBit clearFlags) {
     addDepthStencilImpl<RasterPassTag>(
         *renderGraph,
-        passID,
+        nodeID,
         name,
         slotName,
         AccessType::WRITE,
@@ -267,7 +259,7 @@ void NativeRasterPassBuilder::addStorageImage(const ccstd::string &name, AccessT
 }
 
 void NativeRasterPassBuilder::addRasterView(const ccstd::string &name, const RasterView &view) {
-    auto &pass = get(RasterPassTag{}, passID, *renderGraph);
+    auto &pass = get(RasterPassTag{}, nodeID, *renderGraph);
     auto slotID = static_cast<uint32_t>(pass.rasterViews.size());
     auto res = pass.rasterViews.emplace(
         std::piecewise_construct,
@@ -280,7 +272,7 @@ void NativeRasterPassBuilder::addRasterView(const ccstd::string &name, const Ras
 void NativeRasterPassBuilder::addComputeView(const ccstd::string &name, const ComputeView &view) {
     CC_EXPECTS(!name.empty());
     CC_EXPECTS(!view.name.empty());
-    auto &pass = get(RasterPassTag{}, passID, *renderGraph);
+    auto &pass = get(RasterPassTag{}, nodeID, *renderGraph);
     auto iter = pass.computeViews.find(name.c_str());
     if (iter == pass.computeViews.end()) {
         bool added = false;
@@ -294,12 +286,12 @@ void NativeRasterPassBuilder::addComputeView(const ccstd::string &name, const Co
 }
 
 bool NativeRasterPassBuilder::getShowStatistics() const {
-    const auto &pass = get(RasterPassTag{}, passID, *renderGraph);
+    const auto &pass = get(RasterPassTag{}, nodeID, *renderGraph);
     return pass.showStatistics;
 }
 
 void NativeRasterPassBuilder::setShowStatistics(bool enable) {
-    auto &pass = get(RasterPassTag{}, passID, *renderGraph);
+    auto &pass = get(RasterPassTag{}, nodeID, *renderGraph);
     pass.showStatistics = enable;
 }
 
@@ -482,7 +474,7 @@ RasterQueueBuilder *NativeRasterSubpassBuilder::addQueue(QueueHint hint, const c
         std::forward_as_tuple(hint, phaseLayoutID),
         *renderGraph, nodeID);
 
-    return new NativeRasterQueueBuilder(pipelineRuntime, renderGraph, queueID, layoutGraph);
+    return new NativeRasterQueueBuilder(pipelineRuntime, renderGraph, queueID, layoutGraph, phaseLayoutID);
 }
 
 bool NativeRasterSubpassBuilder::getShowStatistics() const {
@@ -495,74 +487,6 @@ void NativeRasterSubpassBuilder::setShowStatistics(bool enable) {
     subpass.showStatistics = enable;
 }
 
-ccstd::string NativeComputeSubpassBuilder::getName() const {
-    return std::string(get(RenderGraph::NameTag{}, *renderGraph, subpassID));
-}
-
-void NativeComputeSubpassBuilder::setName(const ccstd::string &name) {
-    get(RenderGraph::NameTag{}, *renderGraph, subpassID) = std::string_view{name};
-}
-
-void NativeComputeSubpassBuilder::setMat4(const ccstd::string &name, const Mat4 &mat) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, subpassID);
-    setMat4Impl(data, *layoutGraph, name, mat);
-}
-
-void NativeComputeSubpassBuilder::setQuaternion(const ccstd::string &name, const Quaternion &quat) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, subpassID);
-    setQuaternionImpl(data, *layoutGraph, name, quat);
-}
-
-void NativeComputeSubpassBuilder::setColor(const ccstd::string &name, const gfx::Color &color) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, subpassID);
-    setColorImpl(data, *layoutGraph, name, color);
-}
-
-void NativeComputeSubpassBuilder::setVec4(const ccstd::string &name, const Vec4 &vec) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, subpassID);
-    setVec4Impl(data, *layoutGraph, name, vec);
-}
-
-void NativeComputeSubpassBuilder::setVec2(const ccstd::string &name, const Vec2 &vec) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, subpassID);
-    setVec2Impl(data, *layoutGraph, name, vec);
-}
-
-void NativeComputeSubpassBuilder::setFloat(const ccstd::string &name, float v) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, subpassID);
-    setFloatImpl(data, *layoutGraph, name, v);
-}
-
-void NativeComputeSubpassBuilder::setArrayBuffer(const ccstd::string &name, const ArrayBuffer *buffer) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, subpassID);
-    setArrayBufferImpl(data, *layoutGraph, name, *buffer);
-}
-
-void NativeComputeSubpassBuilder::setBuffer(const ccstd::string &name, gfx::Buffer *buffer) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, subpassID);
-    setBufferImpl(data, *layoutGraph, name, buffer);
-}
-
-void NativeComputeSubpassBuilder::setTexture(const ccstd::string &name, gfx::Texture *texture) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, subpassID);
-    setTextureImpl(data, *layoutGraph, name, texture);
-}
-
-void NativeComputeSubpassBuilder::setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, subpassID);
-    setReadWriteBufferImpl(data, *layoutGraph, name, buffer);
-}
-
-void NativeComputeSubpassBuilder::setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, subpassID);
-    setReadWriteTextureImpl(data, *layoutGraph, name, texture);
-}
-
-void NativeComputeSubpassBuilder::setSampler(const ccstd::string &name, gfx::Sampler *sampler) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, subpassID);
-    setSamplerImpl(data, *layoutGraph, name, sampler);
-}
-
 void NativeComputeSubpassBuilder::addRenderTarget(const ccstd::string &name, const ccstd::string &slotName) {
     addRasterViewImpl<ComputeSubpassTag>(
         name,
@@ -573,7 +497,7 @@ void NativeComputeSubpassBuilder::addRenderTarget(const ccstd::string &name, con
         gfx::StoreOp::STORE,
         gfx::ClearFlagBit::NONE,
         gfx::Color{},
-        subpassID,
+        nodeID,
         *renderGraph);
 }
 
@@ -588,7 +512,7 @@ void NativeComputeSubpassBuilder::addStorageImage(const ccstd::string &name, Acc
 }
 
 void NativeComputeSubpassBuilder::addComputeView(const ccstd::string &name, const ComputeView &view) {
-    addComputeViewImpl<ComputeSubpassTag>(name, view, subpassID, *renderGraph);
+    addComputeViewImpl<ComputeSubpassTag>(name, view, nodeID, *renderGraph);
 }
 
 ComputeQueueBuilder *NativeComputeSubpassBuilder::addQueue(const ccstd::string &layoutName) {
@@ -608,9 +532,9 @@ ComputeQueueBuilder *NativeComputeSubpassBuilder::addQueue(const ccstd::string &
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(phaseLayoutID),
-        *renderGraph, subpassID);
+        *renderGraph, nodeID);
 
-    return new NativeComputeQueueBuilder(renderGraph, queueID, layoutGraph);
+    return new NativeComputeQueueBuilder(pipelineRuntime, renderGraph, queueID, layoutGraph, phaseLayoutID);
 }
 
 namespace {
@@ -1199,14 +1123,14 @@ RasterQueueBuilder *NativeRasterPassBuilder::addQueue(
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(hint, phaseLayoutID),
-        *renderGraph, passID);
+        *renderGraph, nodeID);
 
-    return new NativeRasterQueueBuilder(pipelineRuntime, renderGraph, queueID, layoutGraph);
+    return new NativeRasterQueueBuilder(pipelineRuntime, renderGraph, queueID, layoutGraph, phaseLayoutID);
 }
 
 RasterSubpassBuilder *NativeRasterPassBuilder::addRasterSubpass(const ccstd::string &layoutName) {
     std::string_view name("RasterSubpass");
-    auto &pass = get(RasterPassTag{}, passID, *renderGraph);
+    auto &pass = get(RasterPassTag{}, nodeID, *renderGraph);
     auto &subpassGraph = pass.subpassGraph;
     const auto subpassIndex = num_vertices(pass.subpassGraph);
     {
@@ -1229,7 +1153,7 @@ RasterSubpassBuilder *NativeRasterPassBuilder::addRasterSubpass(const ccstd::str
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(std::move(subpass)),
-        *renderGraph, passID);
+        *renderGraph, nodeID);
 
     auto subpassLayoutID = locate(LayoutGraphData::null_vertex(), layoutName, *layoutGraph);
     CC_EXPECTS(subpassLayoutID != LayoutGraphData::null_vertex());
@@ -1243,7 +1167,7 @@ RasterSubpassBuilder *NativeRasterPassBuilder::addRasterSubpass(const ccstd::str
 
 ComputeSubpassBuilder *NativeRasterPassBuilder::addComputeSubpass(const ccstd::string &layoutName) {
     std::string_view name("ComputeSubpass");
-    auto &pass = get(RasterPassTag{}, passID, *renderGraph);
+    auto &pass = get(RasterPassTag{}, nodeID, *renderGraph);
     auto &subpassGraph = pass.subpassGraph;
     const auto subpassIndex = num_vertices(pass.subpassGraph);
     {
@@ -1264,7 +1188,7 @@ ComputeSubpassBuilder *NativeRasterPassBuilder::addComputeSubpass(const ccstd::s
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(std::move(subpass)),
-        *renderGraph, passID);
+        *renderGraph, nodeID);
 
     auto subpassLayoutID = locate(LayoutGraphData::null_vertex(), layoutName, *layoutGraph);
     CC_EXPECTS(subpassLayoutID != LayoutGraphData::null_vertex());
@@ -1277,68 +1201,8 @@ ComputeSubpassBuilder *NativeRasterPassBuilder::addComputeSubpass(const ccstd::s
 }
 
 void NativeRasterPassBuilder::setViewport(const gfx::Viewport &viewport) {
-    auto &pass = get(RasterPassTag{}, passID, *renderGraph);
+    auto &pass = get(RasterPassTag{}, nodeID, *renderGraph);
     pass.viewport = viewport;
-}
-
-void NativeRasterPassBuilder::setMat4(const ccstd::string &name, const Mat4 &mat) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, passID);
-    setMat4Impl(data, *layoutGraph, name, mat);
-}
-
-void NativeRasterPassBuilder::setQuaternion(const ccstd::string &name, const Quaternion &quat) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, passID);
-    setQuaternionImpl(data, *layoutGraph, name, quat);
-}
-
-void NativeRasterPassBuilder::setColor(const ccstd::string &name, const gfx::Color &color) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, passID);
-    setColorImpl(data, *layoutGraph, name, color);
-}
-
-void NativeRasterPassBuilder::setVec4(const ccstd::string &name, const Vec4 &vec) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, passID);
-    setVec4Impl(data, *layoutGraph, name, vec);
-}
-
-void NativeRasterPassBuilder::setVec2(const ccstd::string &name, const Vec2 &vec) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, passID);
-    setVec2Impl(data, *layoutGraph, name, vec);
-}
-
-void NativeRasterPassBuilder::setFloat(const ccstd::string &name, float v) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, passID);
-    setFloatImpl(data, *layoutGraph, name, v);
-}
-
-void NativeRasterPassBuilder::setArrayBuffer(const ccstd::string &name, const ArrayBuffer *buffer) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, passID);
-    setArrayBufferImpl(data, *layoutGraph, name, *buffer);
-}
-
-void NativeRasterPassBuilder::setBuffer(const ccstd::string &name, gfx::Buffer *buffer) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, passID);
-    setBufferImpl(data, *layoutGraph, name, buffer);
-}
-
-void NativeRasterPassBuilder::setTexture(const ccstd::string &name, gfx::Texture *texture) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, passID);
-    setTextureImpl(data, *layoutGraph, name, texture);
-}
-
-void NativeRasterPassBuilder::setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, passID);
-    setReadWriteBufferImpl(data, *layoutGraph, name, buffer);
-}
-
-void NativeRasterPassBuilder::setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, passID);
-    setReadWriteTextureImpl(data, *layoutGraph, name, texture);
-}
-
-void NativeRasterPassBuilder::setSampler(const ccstd::string &name, gfx::Sampler *sampler) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, passID);
-    setSamplerImpl(data, *layoutGraph, name, sampler);
 }
 
 void NativeRasterPassBuilder::setVersion(const ccstd::string &name, uint64_t version) {
@@ -1346,14 +1210,6 @@ void NativeRasterPassBuilder::setVersion(const ccstd::string &name, uint64_t ver
 }
 
 // NativeComputeQueue
-ccstd::string NativeComputeQueueBuilder::getName() const {
-    return std::string(get(RenderGraph::NameTag{}, *renderGraph, queueID));
-}
-
-void NativeComputeQueueBuilder::setName(const ccstd::string &name) {
-    get(RenderGraph::NameTag{}, *renderGraph, queueID) = std::string_view{name};
-}
-
 void NativeComputeQueueBuilder::addDispatch(
     uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ,
     Material *material, uint32_t passID) {
@@ -1373,74 +1229,6 @@ void NativeComputeQueueBuilder::addDispatch(
         *renderGraph, passID);
 }
 
-void NativeComputeQueueBuilder::setMat4(const ccstd::string &name, const Mat4 &mat) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, queueID);
-    setMat4Impl(data, *layoutGraph, name, mat);
-}
-
-void NativeComputeQueueBuilder::setQuaternion(const ccstd::string &name, const Quaternion &quat) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, queueID);
-    setQuaternionImpl(data, *layoutGraph, name, quat);
-}
-
-void NativeComputeQueueBuilder::setColor(const ccstd::string &name, const gfx::Color &color) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, queueID);
-    setColorImpl(data, *layoutGraph, name, color);
-}
-
-void NativeComputeQueueBuilder::setVec4(const ccstd::string &name, const Vec4 &vec) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, queueID);
-    setVec4Impl(data, *layoutGraph, name, vec);
-}
-
-void NativeComputeQueueBuilder::setVec2(const ccstd::string &name, const Vec2 &vec) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, queueID);
-    setVec2Impl(data, *layoutGraph, name, vec);
-}
-
-void NativeComputeQueueBuilder::setFloat(const ccstd::string &name, float v) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, queueID);
-    setFloatImpl(data, *layoutGraph, name, v);
-}
-
-void NativeComputeQueueBuilder::setArrayBuffer(const ccstd::string &name, const ArrayBuffer *buffer) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, queueID);
-    setArrayBufferImpl(data, *layoutGraph, name, *buffer);
-}
-
-void NativeComputeQueueBuilder::setBuffer(const ccstd::string &name, gfx::Buffer *buffer) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, queueID);
-    setBufferImpl(data, *layoutGraph, name, buffer);
-}
-
-void NativeComputeQueueBuilder::setTexture(const ccstd::string &name, gfx::Texture *texture) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, queueID);
-    setTextureImpl(data, *layoutGraph, name, texture);
-}
-
-void NativeComputeQueueBuilder::setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, queueID);
-    setReadWriteBufferImpl(data, *layoutGraph, name, buffer);
-}
-
-void NativeComputeQueueBuilder::setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, queueID);
-    setReadWriteTextureImpl(data, *layoutGraph, name, texture);
-}
-
-void NativeComputeQueueBuilder::setSampler(const ccstd::string &name, gfx::Sampler *sampler) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, queueID);
-    setSamplerImpl(data, *layoutGraph, name, sampler);
-}
-
-ccstd::string NativeComputePassBuilder::getName() const {
-    return std::string(get(RenderGraph::NameTag{}, *renderGraph, passID));
-}
-
-void NativeComputePassBuilder::setName(const ccstd::string &name) {
-    get(RenderGraph::NameTag{}, *renderGraph, passID) = std::string_view{name};
-}
-
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 void NativeComputePassBuilder::addTexture(const ccstd::string &name, const ccstd::string &slotName) {
 }
@@ -1454,7 +1242,7 @@ void NativeComputePassBuilder::addStorageImage(const ccstd::string &name, Access
 void NativeComputePassBuilder::addComputeView(const ccstd::string &name, const ComputeView &view) {
     CC_EXPECTS(!name.empty());
     CC_EXPECTS(!view.name.empty());
-    auto &pass = get(ComputeTag{}, passID, *renderGraph);
+    auto &pass = get(ComputeTag{}, nodeID, *renderGraph);
     auto iter = pass.computeViews.find(name.c_str());
     if (iter == pass.computeViews.end()) {
         bool added = false;
@@ -1484,69 +1272,9 @@ ComputeQueueBuilder *NativeComputePassBuilder::addQueue(const ccstd::string &lay
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(QueueHint::NONE, phaseLayoutID),
-        *renderGraph, passID);
+        *renderGraph, nodeID);
 
-    return new NativeComputeQueueBuilder(renderGraph, queueID, layoutGraph);
-}
-
-void NativeComputePassBuilder::setMat4(const ccstd::string &name, const Mat4 &mat) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, passID);
-    setMat4Impl(data, *layoutGraph, name, mat);
-}
-
-void NativeComputePassBuilder::setQuaternion(const ccstd::string &name, const Quaternion &quat) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, passID);
-    setQuaternionImpl(data, *layoutGraph, name, quat);
-}
-
-void NativeComputePassBuilder::setColor(const ccstd::string &name, const gfx::Color &color) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, passID);
-    setColorImpl(data, *layoutGraph, name, color);
-}
-
-void NativeComputePassBuilder::setVec4(const ccstd::string &name, const Vec4 &vec) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, passID);
-    setVec4Impl(data, *layoutGraph, name, vec);
-}
-
-void NativeComputePassBuilder::setVec2(const ccstd::string &name, const Vec2 &vec) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, passID);
-    setVec2Impl(data, *layoutGraph, name, vec);
-}
-
-void NativeComputePassBuilder::setFloat(const ccstd::string &name, float v) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, passID);
-    setFloatImpl(data, *layoutGraph, name, v);
-}
-
-void NativeComputePassBuilder::setArrayBuffer(const ccstd::string &name, const ArrayBuffer *buffer) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, passID);
-    setArrayBufferImpl(data, *layoutGraph, name, *buffer);
-}
-
-void NativeComputePassBuilder::setBuffer(const ccstd::string &name, gfx::Buffer *buffer) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, passID);
-    setBufferImpl(data, *layoutGraph, name, buffer);
-}
-
-void NativeComputePassBuilder::setTexture(const ccstd::string &name, gfx::Texture *texture) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, passID);
-    setTextureImpl(data, *layoutGraph, name, texture);
-}
-
-void NativeComputePassBuilder::setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, passID);
-    setReadWriteBufferImpl(data, *layoutGraph, name, buffer);
-}
-
-void NativeComputePassBuilder::setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, passID);
-    setReadWriteTextureImpl(data, *layoutGraph, name, texture);
-}
-
-void NativeComputePassBuilder::setSampler(const ccstd::string &name, gfx::Sampler *sampler) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, passID);
-    setSamplerImpl(data, *layoutGraph, name, sampler);
+    return new NativeComputeQueueBuilder(pipelineRuntime, renderGraph, queueID, layoutGraph, phaseLayoutID);
 }
 
 ccstd::string NativeMovePassBuilder::getName() const {

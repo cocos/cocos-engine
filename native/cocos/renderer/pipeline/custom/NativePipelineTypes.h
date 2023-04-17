@@ -68,9 +68,10 @@ public:
 
 class NativeSetter : public NativeRenderNode {
 public:
-    NativeSetter(const PipelineRuntime* pipelineRuntimeIn, RenderGraph* renderGraphIn, uint32_t nodeIDIn, const LayoutGraphData* layoutGraphIn) // NOLINT
+    NativeSetter(const PipelineRuntime* pipelineRuntimeIn, RenderGraph* renderGraphIn, uint32_t nodeIDIn, const LayoutGraphData* layoutGraphIn, uint32_t layoutIDIn)
     : NativeRenderNode(pipelineRuntimeIn, renderGraphIn, nodeIDIn),
-      layoutGraph(layoutGraphIn) {}
+      layoutGraph(layoutGraphIn),
+      layoutID(layoutIDIn) {}
 
     void setMat4(const ccstd::string &name, const Mat4 &mat) /*implements*/;
     void setQuaternion(const ccstd::string &name, const Quaternion &quat) /*implements*/;
@@ -92,12 +93,13 @@ public:
     void setMat4ArrayElem(const ccstd::string& name, const cc::Mat4& mat, uint32_t id);
 
     const LayoutGraphData* layoutGraph{nullptr};
+    uint32_t layoutID{LayoutGraphData::null_vertex()};
 };
 
 class NativeRasterQueueBuilder final : public RasterQueueBuilder, public NativeSetter {
 public:
-    NativeRasterQueueBuilder(const PipelineRuntime* pipelineRuntimeIn, RenderGraph* renderGraphIn, uint32_t nodeIDIn, const LayoutGraphData* layoutGraphIn) noexcept
-    : NativeSetter(pipelineRuntimeIn, renderGraphIn, nodeIDIn, layoutGraphIn) {}
+    NativeRasterQueueBuilder(const PipelineRuntime* pipelineRuntimeIn, RenderGraph* renderGraphIn, uint32_t nodeIDIn, const LayoutGraphData* layoutGraphIn, uint32_t layoutIDIn) noexcept
+    : NativeSetter(pipelineRuntimeIn, renderGraphIn, nodeIDIn, layoutGraphIn, layoutIDIn) {}
 
     ccstd::string getName() const override {
         return NativeRenderNode::getName();
@@ -153,9 +155,8 @@ public:
 
 class NativeRasterSubpassBuilder final : public RasterSubpassBuilder, public NativeSetter {
 public:
-    NativeRasterSubpassBuilder(const PipelineRuntime* pipelineRuntimeIn, RenderGraph* renderGraphIn, uint32_t nodeIDIn, const LayoutGraphData* layoutGraphIn, uint32_t layoutIDIn) noexcept // NOLINT
-    : NativeSetter(pipelineRuntimeIn, renderGraphIn, nodeIDIn, layoutGraphIn),
-      layoutID(layoutIDIn) {}
+    NativeRasterSubpassBuilder(const PipelineRuntime* pipelineRuntimeIn, RenderGraph* renderGraphIn, uint32_t nodeIDIn, const LayoutGraphData* layoutGraphIn, uint32_t layoutIDIn) noexcept
+    : NativeSetter(pipelineRuntimeIn, renderGraphIn, nodeIDIn, layoutGraphIn, layoutIDIn) {}
 
     ccstd::string getName() const override {
         return NativeRenderNode::getName();
@@ -211,35 +212,56 @@ public:
     RasterQueueBuilder *addQueue(QueueHint hint, const ccstd::string &layoutName) override;
     bool getShowStatistics() const override;
     void setShowStatistics(bool enable) override;
-
-    uint32_t layoutID{LayoutGraphData::null_vertex()};
 };
 
-class NativeComputeSubpassBuilder final : public ComputeSubpassBuilder {
+class NativeComputeSubpassBuilder final : public ComputeSubpassBuilder, public NativeSetter {
 public:
-    NativeComputeSubpassBuilder() = default;
-    NativeComputeSubpassBuilder(const PipelineRuntime* pipelineRuntimeIn, RenderGraph* renderGraphIn, uint32_t subpassIDIn, const LayoutGraphData* layoutGraphIn, uint32_t layoutIDIn) noexcept // NOLINT
-    : pipelineRuntime(pipelineRuntimeIn),
-      renderGraph(renderGraphIn),
-      layoutGraph(layoutGraphIn),
-      subpassID(subpassIDIn),
-      layoutID(layoutIDIn) {}
+    NativeComputeSubpassBuilder(const PipelineRuntime* pipelineRuntimeIn, RenderGraph* renderGraphIn, uint32_t nodeIDIn, const LayoutGraphData* layoutGraphIn, uint32_t layoutIDIn) noexcept
+    : NativeSetter(pipelineRuntimeIn, renderGraphIn, nodeIDIn, layoutGraphIn, layoutIDIn) {}
 
-    ccstd::string getName() const override;
-    void setName(const ccstd::string &name) override;
+    ccstd::string getName() const override {
+        return NativeRenderNode::getName();
+    }
+    void setName(const ccstd::string &name) override {
+        NativeRenderNode::setName(name);
+    }
 
-    void setMat4(const ccstd::string &name, const Mat4 &mat) override;
-    void setQuaternion(const ccstd::string &name, const Quaternion &quat) override;
-    void setColor(const ccstd::string &name, const gfx::Color &color) override;
-    void setVec4(const ccstd::string &name, const Vec4 &vec) override;
-    void setVec2(const ccstd::string &name, const Vec2 &vec) override;
-    void setFloat(const ccstd::string &name, float v) override;
-    void setArrayBuffer(const ccstd::string &name, const ArrayBuffer *arrayBuffer) override;
-    void setBuffer(const ccstd::string &name, gfx::Buffer *buffer) override;
-    void setTexture(const ccstd::string &name, gfx::Texture *texture) override;
-    void setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) override;
-    void setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) override;
-    void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override;
+    void setMat4(const ccstd::string &name, const Mat4 &mat) override {
+        NativeSetter::setMat4(name, mat);
+    }
+    void setQuaternion(const ccstd::string &name, const Quaternion &quat) override {
+        NativeSetter::setQuaternion(name, quat);
+    }
+    void setColor(const ccstd::string &name, const gfx::Color &color) override {
+        NativeSetter::setColor(name, color);
+    }
+    void setVec4(const ccstd::string &name, const Vec4 &vec) override {
+        NativeSetter::setVec4(name, vec);
+    }
+    void setVec2(const ccstd::string &name, const Vec2 &vec) override {
+        NativeSetter::setVec2(name, vec);
+    }
+    void setFloat(const ccstd::string &name, float v) override {
+        NativeSetter::setFloat(name, v);
+    }
+    void setArrayBuffer(const ccstd::string &name, const ArrayBuffer *arrayBuffer) override {
+        NativeSetter::setArrayBuffer(name, arrayBuffer);
+    }
+    void setBuffer(const ccstd::string &name, gfx::Buffer *buffer) override {
+        NativeSetter::setBuffer(name, buffer);
+    }
+    void setTexture(const ccstd::string &name, gfx::Texture *texture) override {
+        NativeSetter::setTexture(name, texture);
+    }
+    void setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) override {
+        NativeSetter::setReadWriteBuffer(name, buffer);
+    }
+    void setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) override {
+        NativeSetter::setReadWriteTexture(name, texture);
+    }
+    void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override {
+        NativeSetter::setSampler(name, sampler);
+    }
 
     void addRenderTarget(const ccstd::string &name, const ccstd::string &slotName) override;
     void addTexture(const ccstd::string &name, const ccstd::string &slotName) override;
@@ -247,39 +269,56 @@ public:
     void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) override;
     void addComputeView(const ccstd::string &name, const ComputeView &view) override;
     ComputeQueueBuilder *addQueue(const ccstd::string &layoutName) override;
-
-    const PipelineRuntime* pipelineRuntime{nullptr};
-    RenderGraph* renderGraph{nullptr};
-    const LayoutGraphData* layoutGraph{nullptr};
-    uint32_t subpassID{RenderGraph::null_vertex()};
-    uint32_t layoutID{LayoutGraphData::null_vertex()};
 };
 
-class NativeRasterPassBuilder final : public RasterPassBuilder {
+class NativeRasterPassBuilder final : public RasterPassBuilder, public NativeSetter {
 public:
-    NativeRasterPassBuilder() = default;
-    NativeRasterPassBuilder(const PipelineRuntime* pipelineRuntimeIn, RenderGraph* renderGraphIn, uint32_t passIDIn, const LayoutGraphData* layoutGraphIn, uint32_t layoutIDIn) noexcept // NOLINT
-    : pipelineRuntime(pipelineRuntimeIn),
-      renderGraph(renderGraphIn),
-      layoutGraph(layoutGraphIn),
-      passID(passIDIn),
-      layoutID(layoutIDIn) {}
+    NativeRasterPassBuilder(const PipelineRuntime* pipelineRuntimeIn, RenderGraph* renderGraphIn, uint32_t nodeIDIn, const LayoutGraphData* layoutGraphIn, uint32_t layoutIDIn) noexcept
+    : NativeSetter(pipelineRuntimeIn, renderGraphIn, nodeIDIn, layoutGraphIn, layoutIDIn) {}
 
-    ccstd::string getName() const override;
-    void setName(const ccstd::string &name) override;
+    ccstd::string getName() const override {
+        return NativeRenderNode::getName();
+    }
+    void setName(const ccstd::string &name) override {
+        NativeRenderNode::setName(name);
+    }
 
-    void setMat4(const ccstd::string &name, const Mat4 &mat) override;
-    void setQuaternion(const ccstd::string &name, const Quaternion &quat) override;
-    void setColor(const ccstd::string &name, const gfx::Color &color) override;
-    void setVec4(const ccstd::string &name, const Vec4 &vec) override;
-    void setVec2(const ccstd::string &name, const Vec2 &vec) override;
-    void setFloat(const ccstd::string &name, float v) override;
-    void setArrayBuffer(const ccstd::string &name, const ArrayBuffer *arrayBuffer) override;
-    void setBuffer(const ccstd::string &name, gfx::Buffer *buffer) override;
-    void setTexture(const ccstd::string &name, gfx::Texture *texture) override;
-    void setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) override;
-    void setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) override;
-    void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override;
+    void setMat4(const ccstd::string &name, const Mat4 &mat) override {
+        NativeSetter::setMat4(name, mat);
+    }
+    void setQuaternion(const ccstd::string &name, const Quaternion &quat) override {
+        NativeSetter::setQuaternion(name, quat);
+    }
+    void setColor(const ccstd::string &name, const gfx::Color &color) override {
+        NativeSetter::setColor(name, color);
+    }
+    void setVec4(const ccstd::string &name, const Vec4 &vec) override {
+        NativeSetter::setVec4(name, vec);
+    }
+    void setVec2(const ccstd::string &name, const Vec2 &vec) override {
+        NativeSetter::setVec2(name, vec);
+    }
+    void setFloat(const ccstd::string &name, float v) override {
+        NativeSetter::setFloat(name, v);
+    }
+    void setArrayBuffer(const ccstd::string &name, const ArrayBuffer *arrayBuffer) override {
+        NativeSetter::setArrayBuffer(name, arrayBuffer);
+    }
+    void setBuffer(const ccstd::string &name, gfx::Buffer *buffer) override {
+        NativeSetter::setBuffer(name, buffer);
+    }
+    void setTexture(const ccstd::string &name, gfx::Texture *texture) override {
+        NativeSetter::setTexture(name, texture);
+    }
+    void setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) override {
+        NativeSetter::setReadWriteBuffer(name, buffer);
+    }
+    void setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) override {
+        NativeSetter::setReadWriteTexture(name, texture);
+    }
+    void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override {
+        NativeSetter::setSampler(name, sampler);
+    }
 
     void addRenderTarget(const ccstd::string &name, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, const gfx::Color &color) override;
     void addDepthStencil(const ccstd::string &name, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, float depth, uint8_t stencil, gfx::ClearFlagBit clearFlags) override;
@@ -295,80 +334,114 @@ public:
     void setVersion(const ccstd::string &name, uint64_t version) override;
     bool getShowStatistics() const override;
     void setShowStatistics(bool enable) override;
-
-    const PipelineRuntime* pipelineRuntime{nullptr};
-    RenderGraph* renderGraph{nullptr};
-    const LayoutGraphData* layoutGraph{nullptr};
-    uint32_t passID{RenderGraph::null_vertex()};
-    uint32_t layoutID{LayoutGraphData::null_vertex()};
 };
 
-class NativeComputeQueueBuilder final : public ComputeQueueBuilder {
+class NativeComputeQueueBuilder final : public ComputeQueueBuilder, public NativeSetter {
 public:
-    NativeComputeQueueBuilder() = default;
-    NativeComputeQueueBuilder(RenderGraph* renderGraphIn, uint32_t queueIDIn, const LayoutGraphData* layoutGraphIn) noexcept
-    : renderGraph(renderGraphIn),
-      layoutGraph(layoutGraphIn),
-      queueID(queueIDIn) {}
+    NativeComputeQueueBuilder(const PipelineRuntime* pipelineRuntimeIn, RenderGraph* renderGraphIn, uint32_t nodeIDIn, const LayoutGraphData* layoutGraphIn, uint32_t layoutIDIn) noexcept
+    : NativeSetter(pipelineRuntimeIn, renderGraphIn, nodeIDIn, layoutGraphIn, layoutIDIn) {}
 
-    ccstd::string getName() const override;
-    void setName(const ccstd::string &name) override;
+    ccstd::string getName() const override {
+        return NativeRenderNode::getName();
+    }
+    void setName(const ccstd::string &name) override {
+        NativeRenderNode::setName(name);
+    }
 
-    void setMat4(const ccstd::string &name, const Mat4 &mat) override;
-    void setQuaternion(const ccstd::string &name, const Quaternion &quat) override;
-    void setColor(const ccstd::string &name, const gfx::Color &color) override;
-    void setVec4(const ccstd::string &name, const Vec4 &vec) override;
-    void setVec2(const ccstd::string &name, const Vec2 &vec) override;
-    void setFloat(const ccstd::string &name, float v) override;
-    void setArrayBuffer(const ccstd::string &name, const ArrayBuffer *arrayBuffer) override;
-    void setBuffer(const ccstd::string &name, gfx::Buffer *buffer) override;
-    void setTexture(const ccstd::string &name, gfx::Texture *texture) override;
-    void setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) override;
-    void setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) override;
-    void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override;
+    void setMat4(const ccstd::string &name, const Mat4 &mat) override {
+        NativeSetter::setMat4(name, mat);
+    }
+    void setQuaternion(const ccstd::string &name, const Quaternion &quat) override {
+        NativeSetter::setQuaternion(name, quat);
+    }
+    void setColor(const ccstd::string &name, const gfx::Color &color) override {
+        NativeSetter::setColor(name, color);
+    }
+    void setVec4(const ccstd::string &name, const Vec4 &vec) override {
+        NativeSetter::setVec4(name, vec);
+    }
+    void setVec2(const ccstd::string &name, const Vec2 &vec) override {
+        NativeSetter::setVec2(name, vec);
+    }
+    void setFloat(const ccstd::string &name, float v) override {
+        NativeSetter::setFloat(name, v);
+    }
+    void setArrayBuffer(const ccstd::string &name, const ArrayBuffer *arrayBuffer) override {
+        NativeSetter::setArrayBuffer(name, arrayBuffer);
+    }
+    void setBuffer(const ccstd::string &name, gfx::Buffer *buffer) override {
+        NativeSetter::setBuffer(name, buffer);
+    }
+    void setTexture(const ccstd::string &name, gfx::Texture *texture) override {
+        NativeSetter::setTexture(name, texture);
+    }
+    void setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) override {
+        NativeSetter::setReadWriteBuffer(name, buffer);
+    }
+    void setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) override {
+        NativeSetter::setReadWriteTexture(name, texture);
+    }
+    void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override {
+        NativeSetter::setSampler(name, sampler);
+    }
 
     void addDispatch(uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ, Material *material, uint32_t passID) override;
-
-    RenderGraph* renderGraph{nullptr};
-    const LayoutGraphData* layoutGraph{nullptr};
-    uint32_t queueID{RenderGraph::null_vertex()};
 };
 
-class NativeComputePassBuilder final : public ComputePassBuilder {
+class NativeComputePassBuilder final : public ComputePassBuilder, public NativeSetter {
 public:
-    NativeComputePassBuilder() = default;
-    NativeComputePassBuilder(RenderGraph* renderGraphIn, uint32_t passIDIn, const LayoutGraphData* layoutGraphIn, uint32_t layoutIDIn) noexcept // NOLINT
-    : renderGraph(renderGraphIn),
-      layoutGraph(layoutGraphIn),
-      passID(passIDIn),
-      layoutID(layoutIDIn) {}
+    NativeComputePassBuilder(const PipelineRuntime* pipelineRuntimeIn, RenderGraph* renderGraphIn, uint32_t nodeIDIn, const LayoutGraphData* layoutGraphIn, uint32_t layoutIDIn) noexcept
+    : NativeSetter(pipelineRuntimeIn, renderGraphIn, nodeIDIn, layoutGraphIn, layoutIDIn) {}
 
-    ccstd::string getName() const override;
-    void setName(const ccstd::string &name) override;
+    ccstd::string getName() const override {
+        return NativeRenderNode::getName();
+    }
+    void setName(const ccstd::string &name) override {
+        NativeRenderNode::setName(name);
+    }
 
-    void setMat4(const ccstd::string &name, const Mat4 &mat) override;
-    void setQuaternion(const ccstd::string &name, const Quaternion &quat) override;
-    void setColor(const ccstd::string &name, const gfx::Color &color) override;
-    void setVec4(const ccstd::string &name, const Vec4 &vec) override;
-    void setVec2(const ccstd::string &name, const Vec2 &vec) override;
-    void setFloat(const ccstd::string &name, float v) override;
-    void setArrayBuffer(const ccstd::string &name, const ArrayBuffer *arrayBuffer) override;
-    void setBuffer(const ccstd::string &name, gfx::Buffer *buffer) override;
-    void setTexture(const ccstd::string &name, gfx::Texture *texture) override;
-    void setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) override;
-    void setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) override;
-    void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override;
+    void setMat4(const ccstd::string &name, const Mat4 &mat) override {
+        NativeSetter::setMat4(name, mat);
+    }
+    void setQuaternion(const ccstd::string &name, const Quaternion &quat) override {
+        NativeSetter::setQuaternion(name, quat);
+    }
+    void setColor(const ccstd::string &name, const gfx::Color &color) override {
+        NativeSetter::setColor(name, color);
+    }
+    void setVec4(const ccstd::string &name, const Vec4 &vec) override {
+        NativeSetter::setVec4(name, vec);
+    }
+    void setVec2(const ccstd::string &name, const Vec2 &vec) override {
+        NativeSetter::setVec2(name, vec);
+    }
+    void setFloat(const ccstd::string &name, float v) override {
+        NativeSetter::setFloat(name, v);
+    }
+    void setArrayBuffer(const ccstd::string &name, const ArrayBuffer *arrayBuffer) override {
+        NativeSetter::setArrayBuffer(name, arrayBuffer);
+    }
+    void setBuffer(const ccstd::string &name, gfx::Buffer *buffer) override {
+        NativeSetter::setBuffer(name, buffer);
+    }
+    void setTexture(const ccstd::string &name, gfx::Texture *texture) override {
+        NativeSetter::setTexture(name, texture);
+    }
+    void setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) override {
+        NativeSetter::setReadWriteBuffer(name, buffer);
+    }
+    void setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) override {
+        NativeSetter::setReadWriteTexture(name, texture);
+    }
+    void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override {
+        NativeSetter::setSampler(name, sampler);
+    }
 
     void addTexture(const ccstd::string &name, const ccstd::string &slotName) override;
     void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) override;
     void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) override;
     void addComputeView(const ccstd::string &name, const ComputeView &view) override;
     ComputeQueueBuilder *addQueue(const ccstd::string &layoutName) override;
-
-    RenderGraph* renderGraph{nullptr};
-    const LayoutGraphData* layoutGraph{nullptr};
-    uint32_t passID{RenderGraph::null_vertex()};
-    uint32_t layoutID{LayoutGraphData::null_vertex()};
 };
 
 class NativeMovePassBuilder final : public MovePassBuilder {
