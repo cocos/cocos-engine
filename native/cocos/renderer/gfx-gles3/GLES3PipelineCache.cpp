@@ -45,13 +45,29 @@ namespace {
 const char *fileName = "/pipeline_cache_gles3.bin";
 const uint32_t MAGIC = 0x4343474C; // "CCGL"
 const uint32_t VERSION = 1;
+
+void saveHeader(BinaryOutputArchive &archive) {
+    archive.save(MAGIC);
+    archive.save(VERSION);
+}
+
+void saveItem(BinaryOutputArchive &archive, GLES3GPUProgramBinary *binary) {
+    archive.save(binary->format);
+    archive.save(static_cast<uint32_t>(binary->name.size()));
+    archive.save(static_cast<uint32_t>(binary->data.size()));
+    archive.save(binary->hash);
+    archive.save(binary->name.data(), static_cast<uint32_t>(binary->name.size()));
+    archive.save(binary->data.data(), static_cast<uint32_t>(binary->data.size()));
+    CC_LOG_INFO("Save program cache success, name %s.", binary->name.c_str());
+}
+
 } // namespace
 
 GLES3PipelineCache::GLES3PipelineCache() {
     _savePath = getPipelineCacheFolder() + fileName;
 }
 
-GLES3PipelineCache::~GLES3PipelineCache() {
+GLES3PipelineCache::~GLES3PipelineCache() { // NOLINT
 #ifdef PIPELINE_CACHE_FULL
     saveCacheFull();
 #endif
@@ -116,21 +132,6 @@ bool GLES3PipelineCache::loadCache() {
     _dirty = cachedItemNum != _programCaches.size();
     CC_LOG_INFO("Load program cache success. records %u, loaded %u", cachedItemNum, _programCaches.size());
     return true;
-}
-
-void GLES3PipelineCache::saveHeader(BinaryOutputArchive &archive) {
-    archive.save(MAGIC);
-    archive.save(VERSION);
-}
-
-void GLES3PipelineCache::saveItem(BinaryOutputArchive &archive, GLES3GPUProgramBinary *binary) {
-    archive.save(binary->format);
-    archive.save(static_cast<uint32_t>(binary->name.size()));
-    archive.save(static_cast<uint32_t>(binary->data.size()));
-    archive.save(binary->hash);
-    archive.save(binary->name.data(), static_cast<uint32_t>(binary->name.size()));
-    archive.save(binary->data.data(), static_cast<uint32_t>(binary->data.size()));
-    CC_LOG_INFO("Save program cache success, name %s.", binary->name.c_str());
 }
 
 void GLES3PipelineCache::saveCacheIncremental(GLES3GPUProgramBinary *binary) {

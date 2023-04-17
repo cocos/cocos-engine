@@ -54,8 +54,6 @@ private:
     bool loadCache();
     void saveCacheFull();
     void saveCacheIncremental(GLES3GPUProgramBinary *binary);
-    void saveItem(BinaryOutputArchive &archive, GLES3GPUProgramBinary *binary);
-    void saveHeader(BinaryOutputArchive &archive);
 
     ccstd::vector<GLint> _programBinaryFormats;
     ccstd::unordered_map<ccstd::string, IntrusivePtr<GLES3GPUProgramBinary>> _programCaches;
