@@ -14,11 +14,11 @@ export interface TransformHandle {
     destroy(): void;
 }
 
-export interface MetaValueHandle {
-    __brand: 'MetaValueHandle';
+export interface AuxiliaryCurveHandle {
+    __brand: 'AuxiliaryCurveHandle';
 
     /**
-     * Index of the meta value in pose's meta value array.
+     * Index of the auxiliary curve in pose's auxiliary curve array.
      */
     readonly index: number;
 
