@@ -2,7 +2,7 @@ import { DEBUG } from 'internal:constants';
 import { Node } from '../../scene-graph';
 import { assertIsTrue } from '../../core/data/utils/asserts';
 import { Pose, TransformFilter } from '../core/pose';
-import { PoseAllocator } from '../core/pose-allocator';
+import { PoseStackAllocator } from '../core/pose-allocator';
 import { TransformArray } from '../core/transform-array';
 import { TransformHandle, MetaValueHandle } from '../core/animation-handle';
 import { Transform, ZERO_DELTA_TRANSFORM } from '../core/transform';
@@ -553,7 +553,7 @@ export class AnimationGraphSettleContext {
 
 export class AnimationGraphEvaluationContext {
     constructor (layout: PoseLayout) {
-        this._poseAllocator = new PoseAllocator(layout.transformCount, layout.metaValueCount);
+        this._poseAllocator = new PoseStackAllocator(layout.transformCount, layout.metaValueCount);
         this[defaultTransformsTag] = new TransformArray(layout.transformCount);
     }
 
@@ -609,7 +609,7 @@ export class AnimationGraphEvaluationContext {
         return pose === this._poseAllocator.top;
     }
 
-    private _poseAllocator: PoseAllocator;
+    private _poseAllocator: PoseStackAllocator;
 }
 
 export interface PoseLayout {

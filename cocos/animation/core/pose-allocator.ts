@@ -3,7 +3,7 @@ import { Pose } from './pose';
 import { TransformArray } from './transform-array';
 import { SharedStackBasedAllocator, SharedStackBasedAllocatorManager } from './shared-stack-based-allocator';
 
-export class PoseAllocator {
+export class PoseStackAllocator {
     constructor (transformCount: number, metaValueCount: number) {
         this._transformCount = transformCount;
         this._metaValueCount = metaValueCount;
@@ -52,7 +52,7 @@ export class PoseAllocator {
     }
 
     public pop () {
-        assertIsTrue(this._allocatedCount > 0, `PoseAllocator: push/pop does not match.`);
+        assertIsTrue(this._allocatedCount > 0, `PoseStackAllocator: push/pop does not match.`);
 
         --this._allocatedCount;
 
