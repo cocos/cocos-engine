@@ -33,6 +33,14 @@
 
 namespace cc::gfx {
 
+//#define PIPELINE_CACHE_FORCE_INCREMENTAL
+
+#if defined(_WIN32) && !defined(PIPELINE_CACHE_FORCE_INCREMENTAL)
+#define PIPELINE_CACHE_FULL
+#else
+#define PIPELINE_CACHE_INCREMENTAL
+#endif
+
 namespace {
 const char *fileName = "/pipeline_cache_gles3.bin";
 const uint32_t MAGIC = 0x4343474C; // "CCGL"
@@ -44,14 +52,16 @@ GLES3PipelineCache::GLES3PipelineCache() {
 }
 
 GLES3PipelineCache::~GLES3PipelineCache() {
-    saveCache();
+#ifdef PIPELINE_CACHE_FULL
+    saveCacheFull();
+#endif
 }
 
-void GLES3PipelineCache::loadCache() {
+bool GLES3PipelineCache::loadCache() {
     std::ifstream stream(_savePath, std::ios::binary);
     if (!stream.is_open()) {
         CC_LOG_INFO("Load program cache, no cached files.");
-        return;
+        return false;
     }
 
     uint32_t magic = 0;
@@ -62,7 +72,8 @@ void GLES3PipelineCache::loadCache() {
     loadResult &= archive.load(version);
 
     if (magic != MAGIC || version < VERSION) {
-        return;
+        // false means invalid cache, need to discard the file content.
+        return false;
     }
 
     uint32_t cachedItemNum = 0;
@@ -104,9 +115,35 @@ void GLES3PipelineCache::loadCache() {
     // If the number of cached items does not equal the number of loaded items, it may be necessary to update the cache.
     _dirty = cachedItemNum != _programCaches.size();
     CC_LOG_INFO("Load program cache success. records %u, loaded %u", cachedItemNum, _programCaches.size());
+    return true;
 }
 
-void GLES3PipelineCache::saveCache() {
+void GLES3PipelineCache::saveHeader(BinaryOutputArchive &archive) {
+    archive.save(MAGIC);
+    archive.save(VERSION);
+}
+
+void GLES3PipelineCache::saveItem(BinaryOutputArchive &archive, GLES3GPUProgramBinary *binary) {
+    archive.save(binary->format);
+    archive.save(static_cast<uint32_t>(binary->name.size()));
+    archive.save(static_cast<uint32_t>(binary->data.size()));
+    archive.save(binary->hash);
+    archive.save(binary->name.data(), static_cast<uint32_t>(binary->name.size()));
+    archive.save(binary->data.data(), static_cast<uint32_t>(binary->data.size()));
+    CC_LOG_INFO("Save program cache success, name %s.", binary->name.c_str());
+}
+
+void GLES3PipelineCache::saveCacheIncremental(GLES3GPUProgramBinary *binary) {
+    std::ofstream stream(_savePath, std::ios::binary | std::ios::app);
+    if (!stream.is_open()) {
+        CC_LOG_INFO("Save program cache failed.");
+        return;
+    }
+    BinaryOutputArchive archive(stream);
+    saveItem(archive, binary);
+}
+
+void GLES3PipelineCache::saveCacheFull() {
     if (!_dirty) {
         return;
     }
@@ -116,18 +153,11 @@ void GLES3PipelineCache::saveCache() {
         return;
     }
     BinaryOutputArchive archive(stream);
-    archive.save(MAGIC);
-    archive.save(VERSION);
+    saveHeader(archive);
 
     for (auto &pair : _programCaches) {
         auto &binary = pair.second;
-        archive.save(binary->format);
-        archive.save(static_cast<uint32_t>(binary->name.size()));
-        archive.save(static_cast<uint32_t>(binary->data.size()));
-        archive.save(binary->hash);
-        archive.save(binary->name.data(), static_cast<uint32_t>(binary->name.size()));
-        archive.save(binary->data.data(), static_cast<uint32_t>(binary->data.size()));
-        CC_LOG_INFO("Save program cache success, name %s.", binary->name.c_str());
+        saveItem(archive, binary);
     }
     _dirty = false;
 }
@@ -139,11 +169,24 @@ void GLES3PipelineCache::init() {
     _programBinaryFormats.resize(shaderBinaryFormats);
     GL_CHECK(glGetIntegerv(GL_PROGRAM_BINARY_FORMATS, _programBinaryFormats.data()));
 
-    loadCache();
+    bool success = loadCache();
+    if (!success) {
+        // discard cache content.
+        std::ofstream stream(_savePath, std::ios::binary | std::ios::trunc);
+#ifdef PIPELINE_CACHE_INCREMENTAL
+        if (stream.is_open()) {
+            BinaryOutputArchive archive(stream);
+            saveHeader(archive);
+        }
+#endif
+    }
 }
 
 void GLES3PipelineCache::addBinary(GLES3GPUProgramBinary *binary) {
     _programCaches[binary->name] = binary;
+#ifdef PIPELINE_CACHE_INCREMENTAL
+    saveCacheIncremental(binary);
+#endif
     _dirty = true;
 }
 
