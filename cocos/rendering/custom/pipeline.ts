@@ -100,55 +100,55 @@ export interface RasterQueueBuilder extends Setter {
 
 export interface RasterSubpassBuilder extends Setter {
     /**
-     * @beta naming might be changed
+     * @beta naming might be changed in 3.8.0
      */
     addRenderTarget (name: string, accessType: AccessType, slotName: string, loadOp: LoadOp, storeOp: StoreOp, color: Color): void;
     /**
-     * @beta naming might be changed
+     * @beta naming might be changed in 3.8.0
      */
     addRenderTarget (name: string, accessType: AccessType, slotName: string, loadOp: LoadOp, storeOp: StoreOp/*, new Color()*/): void;
     /**
-     * @beta naming might be changed
+     * @beta naming might be changed in 3.8.0
      */
     addRenderTarget (name: string, accessType: AccessType, slotName: string, loadOp: LoadOp/*, StoreOp.STORE, new Color()*/): void;
     /**
-     * @beta naming might be changed
+     * @beta naming might be changed in 3.8.0
      */
     addRenderTarget (name: string, accessType: AccessType, slotName: string/*, LoadOp.CLEAR, StoreOp.STORE, new Color()*/): void;
     /**
-     * @beta naming might be changed
+     * @beta naming might be changed in 3.8.0
      */
     addDepthStencil (name: string, accessType: AccessType, slotName: string, loadOp: LoadOp, storeOp: StoreOp, depth: number, stencil: number, clearFlags: ClearFlagBit): void;
     /**
-     * @beta naming might be changed
+     * @beta naming might be changed in 3.8.0
      */
     addDepthStencil (name: string, accessType: AccessType, slotName: string, loadOp: LoadOp, storeOp: StoreOp, depth: number, stencil: number/*, ClearFlagBit.DEPTH_STENCIL*/): void;
     /**
-     * @beta naming might be changed
+     * @beta naming might be changed in 3.8.0
      */
     addDepthStencil (name: string, accessType: AccessType, slotName: string, loadOp: LoadOp, storeOp: StoreOp, depth: number/*, 0, ClearFlagBit.DEPTH_STENCIL*/): void;
     /**
-     * @beta naming might be changed
+     * @beta naming might be changed in 3.8.0
      */
     addDepthStencil (name: string, accessType: AccessType, slotName: string, loadOp: LoadOp, storeOp: StoreOp/*, 1, 0, ClearFlagBit.DEPTH_STENCIL*/): void;
     /**
-     * @beta naming might be changed
+     * @beta naming might be changed in 3.8.0
      */
     addDepthStencil (name: string, accessType: AccessType, slotName: string, loadOp: LoadOp/*, StoreOp.STORE, 1, 0, ClearFlagBit.DEPTH_STENCIL*/): void;
     /**
-     * @beta naming might be changed
+     * @beta naming might be changed in 3.8.0
      */
     addDepthStencil (name: string, accessType: AccessType, slotName: string/*, LoadOp.CLEAR, StoreOp.STORE, 1, 0, ClearFlagBit.DEPTH_STENCIL*/): void;
     /**
-     * @beta naming might be changed
+     * @beta naming might be changed in 3.8.0
      */
     addTexture (name: string, slotName: string): void;
     /**
-     * @beta naming might be changed
+     * @beta naming might be changed in 3.8.0
      */
     addStorageBuffer (name: string, accessType: AccessType, slotName: string): void;
     /**
-     * @beta naming might be changed
+     * @beta naming might be changed in 3.8.0
      */
     addStorageImage (name: string, accessType: AccessType, slotName: string): void;
     /**
@@ -170,19 +170,19 @@ export interface ComputeQueueBuilder extends Setter {
 
 export interface ComputeSubpassBuilder extends Setter {
     /**
-     * @beta naming might be changed
+     * @beta naming might be changed in 3.8.0
      */
     addRenderTarget (name: string, slotName: string): void;
     /**
-     * @beta naming might be changed
+     * @beta naming might be changed in 3.8.0
      */
     addTexture (name: string, slotName: string): void;
     /**
-     * @beta naming might be changed
+     * @beta naming might be changed in 3.8.0
      */
     addStorageBuffer (name: string, accessType: AccessType, slotName: string): void;
     /**
-     * @beta naming might be changed
+     * @beta naming might be changed in 3.8.0
      */
     addStorageImage (name: string, accessType: AccessType, slotName: string): void;
     /**
@@ -195,55 +195,55 @@ export interface ComputeSubpassBuilder extends Setter {
 
 export interface RasterPassBuilder extends Setter {
     /**
-     * @beta naming might be changed
+     * @beta naming might be changed in 3.8.0
      */
     addRenderTarget (name: string, slotName: string, loadOp: LoadOp, storeOp: StoreOp, color: Color): void;
     /**
-     * @beta naming might be changed
+     * @beta naming might be changed in 3.8.0
      */
     addRenderTarget (name: string, slotName: string, loadOp: LoadOp, storeOp: StoreOp/*, new Color()*/): void;
     /**
-     * @beta naming might be changed
+     * @beta naming might be changed in 3.8.0
      */
     addRenderTarget (name: string, slotName: string, loadOp: LoadOp/*, StoreOp.STORE, new Color()*/): void;
     /**
-     * @beta naming might be changed
+     * @beta naming might be changed in 3.8.0
      */
     addRenderTarget (name: string, slotName: string/*, LoadOp.CLEAR, StoreOp.STORE, new Color()*/): void;
     /**
-     * @beta naming might be changed
+     * @beta naming might be changed in 3.8.0
      */
     addDepthStencil (name: string, slotName: string, loadOp: LoadOp, storeOp: StoreOp, depth: number, stencil: number, clearFlags: ClearFlagBit): void;
     /**
-     * @beta naming might be changed
+     * @beta naming might be changed in 3.8.0
      */
     addDepthStencil (name: string, slotName: string, loadOp: LoadOp, storeOp: StoreOp, depth: number, stencil: number/*, ClearFlagBit.DEPTH_STENCIL*/): void;
     /**
-     * @beta naming might be changed
+     * @beta naming might be changed in 3.8.0
      */
     addDepthStencil (name: string, slotName: string, loadOp: LoadOp, storeOp: StoreOp, depth: number/*, 0, ClearFlagBit.DEPTH_STENCIL*/): void;
     /**
-     * @beta naming might be changed
+     * @beta naming might be changed in 3.8.0
      */
     addDepthStencil (name: string, slotName: string, loadOp: LoadOp, storeOp: StoreOp/*, 1, 0, ClearFlagBit.DEPTH_STENCIL*/): void;
     /**
-     * @beta naming might be changed
+     * @beta naming might be changed in 3.8.0
      */
     addDepthStencil (name: string, slotName: string, loadOp: LoadOp/*, StoreOp.STORE, 1, 0, ClearFlagBit.DEPTH_STENCIL*/): void;
     /**
-     * @beta naming might be changed
+     * @beta naming might be changed in 3.8.0
      */
     addDepthStencil (name: string, slotName: string/*, LoadOp.CLEAR, StoreOp.STORE, 1, 0, ClearFlagBit.DEPTH_STENCIL*/): void;
     /**
-     * @beta naming might be changed
+     * @beta naming might be changed in 3.8.0
      */
     addTexture (name: string, slotName: string): void;
     /**
-     * @beta naming might be changed
+     * @beta naming might be changed in 3.8.0
      */
     addStorageBuffer (name: string, accessType: AccessType, slotName: string): void;
     /**
-     * @beta naming might be changed
+     * @beta naming might be changed in 3.8.0
      */
     addStorageImage (name: string, accessType: AccessType, slotName: string): void;
     /**
@@ -268,15 +268,15 @@ export interface RasterPassBuilder extends Setter {
 
 export interface ComputePassBuilder extends Setter {
     /**
-     * @beta naming might be changed
+     * @beta naming might be changed in 3.8.0
      */
     addTexture (name: string, slotName: string): void;
     /**
-     * @beta naming might be changed
+     * @beta naming might be changed in 3.8.0
      */
     addStorageBuffer (name: string, accessType: AccessType, slotName: string): void;
     /**
-     * @beta naming might be changed
+     * @beta naming might be changed in 3.8.0
      */
     addStorageImage (name: string, accessType: AccessType, slotName: string): void;
     /**
@@ -327,7 +327,7 @@ export interface Pipeline extends PipelineRuntime {
      */
     addRenderTexture (name: string, format: Format, width: number, height: number, renderWindow: RenderWindow): number;
     /**
-     * @beta naming might be changed
+     * @beta naming might be changed in 3.8.0
      */
     addRenderWindow (name: string, format: Format, width: number, height: number, renderWindow: RenderWindow): number;
     /**
