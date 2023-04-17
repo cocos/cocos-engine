@@ -51,39 +51,39 @@ namespace cc {
 
 namespace render {
 
-class NativeRenderNode : virtual public RenderNode {
+class NativeRenderNode {
 public:
     NativeRenderNode(const PipelineRuntime* pipelineRuntimeIn, RenderGraph* renderGraphIn, uint32_t nodeIDIn) noexcept
     : pipelineRuntime(pipelineRuntimeIn),
       renderGraph(renderGraphIn),
       nodeID(nodeIDIn) {}
 
-    ccstd::string getName() const override;
-    void setName(const ccstd::string &name) override;
+    ccstd::string getName() const /*implements*/;
+    void setName(const ccstd::string &name) /*implements*/;
 
     const PipelineRuntime* pipelineRuntime{nullptr};
     RenderGraph* renderGraph{nullptr};
     uint32_t nodeID{RenderGraph::null_vertex()};
 };
 
-class NativeSetter : virtual public Setter, public NativeRenderNode {
+class NativeSetter : public NativeRenderNode {
 public:
-    NativeSetter(const PipelineRuntime* pipelineRuntimeIn, RenderGraph* renderGraphIn, uint32_t nodeIDIn, const LayoutGraphData* layoutGraphIn) noexcept // NOLINT
+    NativeSetter(const PipelineRuntime* pipelineRuntimeIn, RenderGraph* renderGraphIn, uint32_t nodeIDIn, const LayoutGraphData* layoutGraphIn) // NOLINT
     : NativeRenderNode(pipelineRuntimeIn, renderGraphIn, nodeIDIn),
       layoutGraph(layoutGraphIn) {}
 
-    void setMat4(const ccstd::string &name, const Mat4 &mat) override;
-    void setQuaternion(const ccstd::string &name, const Quaternion &quat) override;
-    void setColor(const ccstd::string &name, const gfx::Color &color) override;
-    void setVec4(const ccstd::string &name, const Vec4 &vec) override;
-    void setVec2(const ccstd::string &name, const Vec2 &vec) override;
-    void setFloat(const ccstd::string &name, float v) override;
-    void setArrayBuffer(const ccstd::string &name, const ArrayBuffer *arrayBuffer) override;
-    void setBuffer(const ccstd::string &name, gfx::Buffer *buffer) override;
-    void setTexture(const ccstd::string &name, gfx::Texture *texture) override;
-    void setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) override;
-    void setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) override;
-    void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override;
+    void setMat4(const ccstd::string &name, const Mat4 &mat) /*implements*/;
+    void setQuaternion(const ccstd::string &name, const Quaternion &quat) /*implements*/;
+    void setColor(const ccstd::string &name, const gfx::Color &color) /*implements*/;
+    void setVec4(const ccstd::string &name, const Vec4 &vec) /*implements*/;
+    void setVec2(const ccstd::string &name, const Vec2 &vec) /*implements*/;
+    void setFloat(const ccstd::string &name, float v) /*implements*/;
+    void setArrayBuffer(const ccstd::string &name, const ArrayBuffer *arrayBuffer) /*implements*/;
+    void setBuffer(const ccstd::string &name, gfx::Buffer *buffer) /*implements*/;
+    void setTexture(const ccstd::string &name, gfx::Texture *texture) /*implements*/;
+    void setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) /*implements*/;
+    void setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) /*implements*/;
+    void setSampler(const ccstd::string &name, gfx::Sampler *sampler) /*implements*/;
 
     void setVec4ArraySize(const ccstd::string& name, uint32_t sz);
     void setVec4ArrayElem(const ccstd::string& name, const cc::Vec4& vec, uint32_t id);
@@ -98,6 +98,50 @@ class NativeRasterQueueBuilder final : public RasterQueueBuilder, public NativeS
 public:
     NativeRasterQueueBuilder(const PipelineRuntime* pipelineRuntimeIn, RenderGraph* renderGraphIn, uint32_t nodeIDIn, const LayoutGraphData* layoutGraphIn) noexcept
     : NativeSetter(pipelineRuntimeIn, renderGraphIn, nodeIDIn, layoutGraphIn) {}
+
+    ccstd::string getName() const override {
+        return NativeRenderNode::getName();
+    }
+    void setName(const ccstd::string &name) override {
+        NativeRenderNode::setName(name);
+    }
+
+    void setMat4(const ccstd::string &name, const Mat4 &mat) override {
+        NativeSetter::setMat4(name, mat);
+    }
+    void setQuaternion(const ccstd::string &name, const Quaternion &quat) override {
+        NativeSetter::setQuaternion(name, quat);
+    }
+    void setColor(const ccstd::string &name, const gfx::Color &color) override {
+        NativeSetter::setColor(name, color);
+    }
+    void setVec4(const ccstd::string &name, const Vec4 &vec) override {
+        NativeSetter::setVec4(name, vec);
+    }
+    void setVec2(const ccstd::string &name, const Vec2 &vec) override {
+        NativeSetter::setVec2(name, vec);
+    }
+    void setFloat(const ccstd::string &name, float v) override {
+        NativeSetter::setFloat(name, v);
+    }
+    void setArrayBuffer(const ccstd::string &name, const ArrayBuffer *arrayBuffer) override {
+        NativeSetter::setArrayBuffer(name, arrayBuffer);
+    }
+    void setBuffer(const ccstd::string &name, gfx::Buffer *buffer) override {
+        NativeSetter::setBuffer(name, buffer);
+    }
+    void setTexture(const ccstd::string &name, gfx::Texture *texture) override {
+        NativeSetter::setTexture(name, texture);
+    }
+    void setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) override {
+        NativeSetter::setReadWriteBuffer(name, buffer);
+    }
+    void setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) override {
+        NativeSetter::setReadWriteTexture(name, texture);
+    }
+    void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override {
+        NativeSetter::setSampler(name, sampler);
+    }
 
     void addSceneOfCamera(scene::Camera *camera, LightInfo light, SceneFlags sceneFlags) override;
     void addScene(const ccstd::string &name, SceneFlags sceneFlags) override;
@@ -133,29 +177,11 @@ public:
     void setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) override;
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override;
 
-    /**
-     * @beta naming might be changed
-     */
     void addRenderTarget(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, const gfx::Color &color) override;
-    /**
-     * @beta naming might be changed
-     */
     void addDepthStencil(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, float depth, uint8_t stencil, gfx::ClearFlagBit clearFlags) override;
-    /**
-     * @beta naming might be changed
-     */
     void addTexture(const ccstd::string &name, const ccstd::string &slotName) override;
-    /**
-     * @beta naming might be changed
-     */
     void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) override;
-    /**
-     * @beta naming might be changed
-     */
     void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) override;
-    /**
-     * @deprecated method will be removed in 3.8.0
-     */
     void addComputeView(const ccstd::string &name, const ComputeView &view) override;
     void setViewport(const gfx::Viewport &viewport) override;
     RasterQueueBuilder *addQueue(QueueHint hint, const ccstd::string &layoutName) override;
@@ -195,25 +221,10 @@ public:
     void setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) override;
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override;
 
-    /**
-     * @beta naming might be changed
-     */
     void addRenderTarget(const ccstd::string &name, const ccstd::string &slotName) override;
-    /**
-     * @beta naming might be changed
-     */
     void addTexture(const ccstd::string &name, const ccstd::string &slotName) override;
-    /**
-     * @beta naming might be changed
-     */
     void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) override;
-    /**
-     * @beta naming might be changed
-     */
     void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) override;
-    /**
-     * @deprecated method will be removed in 3.8.0
-     */
     void addComputeView(const ccstd::string &name, const ComputeView &view) override;
     ComputeQueueBuilder *addQueue(const ccstd::string &layoutName) override;
 
@@ -250,33 +261,12 @@ public:
     void setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) override;
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override;
 
-    /**
-     * @beta naming might be changed
-     */
     void addRenderTarget(const ccstd::string &name, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, const gfx::Color &color) override;
-    /**
-     * @beta naming might be changed
-     */
     void addDepthStencil(const ccstd::string &name, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, float depth, uint8_t stencil, gfx::ClearFlagBit clearFlags) override;
-    /**
-     * @beta naming might be changed
-     */
     void addTexture(const ccstd::string &name, const ccstd::string &slotName) override;
-    /**
-     * @beta naming might be changed
-     */
     void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) override;
-    /**
-     * @beta naming might be changed
-     */
     void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) override;
-    /**
-     * @deprecated method will be removed in 3.8.0
-     */
     void addRasterView(const ccstd::string &name, const RasterView &view) override;
-    /**
-     * @deprecated method will be removed in 3.8.0
-     */
     void addComputeView(const ccstd::string &name, const ComputeView &view) override;
     RasterQueueBuilder *addQueue(QueueHint hint, const ccstd::string &layoutName) override;
     RasterSubpassBuilder *addRasterSubpass(const ccstd::string &layoutName) override;
@@ -349,21 +339,9 @@ public:
     void setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) override;
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override;
 
-    /**
-     * @beta naming might be changed
-     */
     void addTexture(const ccstd::string &name, const ccstd::string &slotName) override;
-    /**
-     * @beta naming might be changed
-     */
     void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) override;
-    /**
-     * @beta naming might be changed
-     */
     void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) override;
-    /**
-     * @deprecated method will be removed in 3.8.0
-     */
     void addComputeView(const ccstd::string &name, const ComputeView &view) override;
     ComputeQueueBuilder *addQueue(const ccstd::string &layoutName) override;
 
@@ -783,17 +761,8 @@ public:
     void beginSetup() override;
     void endSetup() override;
     bool containsResource(const ccstd::string &name) const override;
-    /**
-     * @deprecated method will be removed in 3.8.0
-     */
     uint32_t addRenderTexture(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow *renderWindow) override;
-    /**
-     * @beta naming might be changed
-     */
     uint32_t addRenderWindow(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow *renderWindow) override;
-    /**
-     * @deprecated method will be removed in 3.8.0
-     */
     void updateRenderWindow(const ccstd::string &name, scene::RenderWindow *renderWindow) override;
     uint32_t addStorageBuffer(const ccstd::string &name, gfx::Format format, uint32_t size, ResourceResidency residency) override;
     uint32_t addRenderTarget(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) override;
@@ -811,9 +780,6 @@ public:
     ComputePassBuilder *addComputePass(const ccstd::string &layoutName) override;
     MovePassBuilder *addMovePass() override;
     CopyPassBuilder *addCopyPass() override;
-    /**
-     * @deprecated method will be removed in 3.8.0
-     */
     SceneTransversal *createSceneTransversal(const scene::Camera *camera, const scene::RenderScene *scene) override;
     gfx::DescriptorSetLayout *getDescriptorSetLayout(const ccstd::string &shaderName, UpdateFrequency freq) override;
 

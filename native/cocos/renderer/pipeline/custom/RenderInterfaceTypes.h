@@ -121,7 +121,7 @@ public:
     virtual void setName(const ccstd::string &name) = 0;
 };
 
-class Setter : virtual public RenderNode {
+class Setter : public RenderNode {
 public:
     Setter() noexcept = default;
 
@@ -139,7 +139,7 @@ public:
     virtual void setSampler(const ccstd::string &name, gfx::Sampler *sampler) = 0;
 };
 
-class RasterQueueBuilder : virtual public Setter {
+class RasterQueueBuilder : public Setter {
 public:
     RasterQueueBuilder() noexcept = default;
 

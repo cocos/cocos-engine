@@ -56,7 +56,7 @@ ccstd::string NativeRenderNode::getName() const {
     return std::string(get(RenderGraph::NameTag{}, *renderGraph, nodeID));
 }
 
-void NativeRenderNode::setName(const ccstd::string &name) {
+void NativeRenderNode::setName(const ccstd::string &name) { // NOLINT(readability-make-member-function-const)
     get(RenderGraph::NameTag{}, *renderGraph, nodeID) = std::string_view{name};
 }
 
