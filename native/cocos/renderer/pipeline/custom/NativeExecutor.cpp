@@ -1454,8 +1454,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
                     if (profiler && profiler->isEnabled()) {
                         // current pass
                         RenderData user(ctx.scratch);
-                        NativeSetter setter(ctx.lg, user);
-                        setter.setMat4("cc_matProj", ctx.currentProjMatrix);
+                        setMat4Impl(user, ctx.lg, "cc_matProj", ctx.currentProjMatrix);
 
                         auto* renderPass = ctx.currentPass;
                         auto* cmdBuff = ctx.cmdBuff;
