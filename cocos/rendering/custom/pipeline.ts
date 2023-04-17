@@ -228,9 +228,6 @@ export interface Pipeline extends PipelineRuntime {
      */
     addRenderTexture (name: string, format: Format, width: number, height: number, renderWindow: RenderWindow): number;
     addRenderWindow (name: string, format: Format, width: number, height: number, renderWindow: RenderWindow): number;
-    /**
-     * @deprecated method will be removed in 3.8.0
-     */
     updateRenderWindow (name: string, renderWindow: RenderWindow): void;
     addStorageBuffer (name: string, format: Format, size: number, residency: ResourceResidency): number;
     addStorageBuffer (name: string, format: Format, size: number/*, ResourceResidency.MANAGED*/): number;
