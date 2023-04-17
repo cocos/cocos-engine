@@ -1663,6 +1663,16 @@ bool sevalue_to_native(const se::Value &from, cc::physics::HeightFieldDesc *to, 
     }
     return ok;
 }
+bool sevalue_to_native(const se::Value& from, ccstd::variant<ccstd::string, bool>* to, se::Object* /*ctx*/) {
+    if (from.isBoolean()) {
+        *to = from.toBoolean();
+    } else if (from.isString()) {
+        *to = from.toString();
+    } else {
+        CC_ASSERT(false);
+    }
+    return true;
+}
 
 bool sevalue_to_native(const se::Value &from, cc::physics::RaycastOptions *to, se::Object *ctx) {
     CC_ASSERT(from.isObject());
