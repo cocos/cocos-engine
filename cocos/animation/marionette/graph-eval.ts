@@ -44,7 +44,7 @@ import { StateMachineComponent } from './state-machine-component';
 import { InteractiveState } from './state';
 import {
     AnimationGraphBindingContext, AnimationGraphEvaluationContext,
-    AnimationGraphPoseLayoutMaintainer, defaultTransformsTag, LayoutChangeFlag, MetaValueRegistry,
+    AnimationGraphPoseLayoutMaintainer, defaultTransformsTag, LayoutChangeFlag, AuxiliaryCurveRegistry,
     AnimationGraphUpdateContext, AnimationGraphUpdateContextGenerator,
     AnimationGraphSettleContext,
     TriggerResetter,
@@ -82,7 +82,7 @@ export class AnimationGraphEval {
             }
         }
 
-        const poseLayoutMaintainer = new AnimationGraphPoseLayoutMaintainer(root, this._metaValueRegistry);
+        const poseLayoutMaintainer = new AnimationGraphPoseLayoutMaintainer(root, this._auxiliaryCurveRegistry);
         this._poseLayoutMaintainer = poseLayoutMaintainer;
 
         const bindingContext = new AnimationGraphBindingContext(
@@ -229,10 +229,14 @@ export class AnimationGraphEval {
         this._updateAfterPossiblePoseLayoutChange();
     }
 
+    public getAuxiliaryCurveValue (curveName: string) {
+        return this._auxiliaryCurveRegistry.get(curveName);
+    }
+
     private _rootPoseNode: DefaultTopLevelPoseNode;
     private _varInstances: Record<string, VarInstance> = {};
     private _hasAutoTrigger = false;
-    private _metaValueRegistry = new MetaValueRegistry();
+    private _auxiliaryCurveRegistry = new AuxiliaryCurveRegistry();
     private _poseLayoutMaintainer: AnimationGraphPoseLayoutMaintainer;
     private _bindingContext: AnimationGraphBindingContext;
     private _settleContext: AnimationGraphSettleContext;
@@ -256,7 +260,7 @@ export class AnimationGraphEval {
 
         const evaluationContext = new AnimationGraphEvaluationContext({
             transformCount: poseLayoutMaintainer.transformCount,
-            metaValueCount: poseLayoutMaintainer.metaValueCount,
+            auxiliaryCurveCount: poseLayoutMaintainer.auxiliaryCurveCount,
         });
         this._evaluationContext = evaluationContext;
 
@@ -282,13 +286,13 @@ export class AnimationGraphEval {
             this._createOrUpdateTransformFilters();
         }
 
-        // Either transform count or meta value count changed, we should recreate the eval context.
+        // Either transform count or auxiliary curve count changed, we should recreate the eval context.
         let evaluationContextRecreated = false;
         if ((layoutChangeFlags & LayoutChangeFlag.TRANSFORM_COUNT)
-        || (layoutChangeFlags & LayoutChangeFlag.META_VALUE_COUNT)) {
+        || (layoutChangeFlags & LayoutChangeFlag.AUXILIARY_CURVE_COUNT)) {
             const evaluationContext = new AnimationGraphEvaluationContext({
                 transformCount: poseLayoutMaintainer.transformCount,
-                metaValueCount: poseLayoutMaintainer.metaValueCount,
+                auxiliaryCurveCount: poseLayoutMaintainer.auxiliaryCurveCount,
             });
             this._evaluationContext.destroy();
             this._evaluationContext = evaluationContext;

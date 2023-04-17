@@ -1,9 +1,10 @@
 import { DEBUG } from 'internal:constants';
-import { error, Quat, Vec3, warnID } from '../../core';
+import { error, Quat, RealCurve, Vec3, warnID } from '../../core';
 import { assertIsTrue } from '../../core/data/utils/asserts';
 import { Node } from '../../scene-graph/node';
 import { AnimationClip, exoticAnimationTag } from '../animation-clip';
-import { TransformHandle } from '../core/animation-handle';
+import { AuxiliaryCurveEntry } from '../auxiliary-curve-entry';
+import { AuxiliaryCurveHandle, TransformHandle } from '../core/animation-handle';
 import { Pose } from '../core/pose';
 import { createEvalSymbol } from '../define';
 import { ExoticTrsAGEvaluation } from '../exotic-animation/exotic-animation';
@@ -39,6 +40,12 @@ export interface AnimationClipGraphBindingContext {
      * @returns The transform handle if successfully bound, `null` otherwise.
      */
     bindTransform(path: string): TransformHandle | null;
+
+    /**
+     * Binds an auxiliary curve.
+     * @param curveName Curve name.
+     */
+    bindAuxiliaryCurve(curveName: string): AuxiliaryCurveHandle;
 }
 
 /**
@@ -153,6 +160,24 @@ class PoseScaleBinding extends PoseBindingBase implements PoseBinding<Vec3> {
     }
 }
 
+class AuxiliaryCurveBinding implements PoseBinding<number> {
+    constructor (private _handle: AuxiliaryCurveHandle) {
+
+    }
+
+    public destroy (): void {
+        this._handle.destroy();
+    }
+
+    public setValue (value: number, pose: Pose): void {
+        pose.auxiliaryCurves[this._handle.index] = value;
+    }
+
+    public getValue (pose: Pose) {
+        return pose.auxiliaryCurves[this._handle.index];
+    }
+}
+
 /**
  * Creates a corresponding pose binding.
  * @param transformHandle Handle to the transform.
@@ -226,6 +251,7 @@ function createRuntimeBindingAG (track: TrackBinding, bindContext: AnimationClip
         origin,
     } = bindContext;
     const { path, proxy } = track;
+
     const nPaths = path.length;
     const iLastPath = nPaths - 1;
 
@@ -267,6 +293,27 @@ function createRuntimeBindingAG (track: TrackBinding, bindContext: AnimationClip
     return undefined;
 }
 
+class AuxiliaryCurveEvaluation {
+    constructor (private _binding: AuxiliaryCurveBinding, private _curve: RealCurve) {
+    }
+
+    /**
+     * Evaluates.
+     * @param time The time.
+     * @param context The evaluation context.
+     */
+    public evaluate (time: number, context: AnimationClipGraphEvaluationContext) {
+        const {
+            _curve: curve,
+            _binding: binding,
+        } = this;
+        const pose = context;
+
+        const value = curve.evaluate(time);
+        binding.setValue(value, pose);
+    }
+}
+
 /**
  * Describes the evaluation of a animation clip in sense of animation graph.
  */
@@ -279,6 +326,7 @@ export class AnimationClipAGEvaluation {
 
         const trackEvaluations: AGTrackEvaluation<unknown>[] = [];
         let exoticAnimationEvaluation: ExoticTrsAGEvaluation | undefined;
+        const auxiliaryCurveEvaluations: AuxiliaryCurveEvaluation[] = [];
 
         const {
             tracks,
@@ -306,8 +354,22 @@ export class AnimationClipAGEvaluation {
             exoticAnimationEvaluation = exoticAnimation.createEvaluatorForAnimationGraph(context);
         }
 
+        const auxiliaryCurveNames = clip.getAuxiliaryCurveNames_experimental();
+        const nAuxiliaryCurves = auxiliaryCurveNames.length;
+        for (let iAuxiliaryCurve = 0; iAuxiliaryCurve < nAuxiliaryCurves; ++iAuxiliaryCurve) {
+            const curveName = auxiliaryCurveNames[iAuxiliaryCurve];
+            const curve = clip.getAuxiliaryCurve_experimental(curveName);
+            const handle = context.bindAuxiliaryCurve(curveName);
+            const binding = new AuxiliaryCurveBinding(handle);
+            auxiliaryCurveEvaluations.push(new AuxiliaryCurveEvaluation(
+                binding,
+                curve,
+            ));
+        }
+
         this._trackEvaluations = trackEvaluations;
         this._exoticAnimationEvaluation = exoticAnimationEvaluation;
+        this._auxiliaryCurveEvaluations = auxiliaryCurveEvaluations;
     }
 
     /**
@@ -334,6 +396,7 @@ export class AnimationClipAGEvaluation {
         const {
             _trackEvaluations: trackEvaluations,
             _exoticAnimationEvaluation: exoticAnimationEvaluation,
+            _auxiliaryCurveEvaluations: auxiliaryCurveEvaluations,
         } = this;
 
         const pose = context;
@@ -346,9 +409,16 @@ export class AnimationClipAGEvaluation {
         if (exoticAnimationEvaluation) {
             exoticAnimationEvaluation.evaluate(time, pose);
         }
+
+        const nAuxiliaryCurveEvaluations = auxiliaryCurveEvaluations.length;
+        for (let iAuxiliaryCurveEvaluation = 0; iAuxiliaryCurveEvaluation < nAuxiliaryCurveEvaluations; ++iAuxiliaryCurveEvaluation) {
+            auxiliaryCurveEvaluations[iAuxiliaryCurveEvaluation].evaluate(time, context);
+        }
     }
 
     private _trackEvaluations: AGTrackEvaluation<any>[] = [];
 
     private _exoticAnimationEvaluation: ExoticTrsAGEvaluation | undefined;
+
+    private _auxiliaryCurveEvaluations: AuxiliaryCurveEvaluation[] = [];
 }

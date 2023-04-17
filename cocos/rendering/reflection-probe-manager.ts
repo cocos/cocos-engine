@@ -23,10 +23,13 @@
  THE SOFTWARE.
 */
 
-import { MeshRenderer, ReflectionProbeType } from '../3d/framework/mesh-renderer';
+import { EDITOR } from 'internal:constants';
+import { MeshRenderer } from '../3d/framework/mesh-renderer';
+import { ReflectionProbeType } from '../3d/framework/reflection-probe-enum';
 import { ImageAsset, Texture2D } from '../asset/assets';
 import { PixelFormat } from '../asset/assets/asset-enum';
 import { Vec3, geometry, cclegacy } from '../core';
+import { AABB } from '../core/geometry';
 import { Texture } from '../gfx';
 import { Camera, Model } from '../render-scene/scene';
 import { ProbeType, ReflectionProbe } from '../render-scene/scene/reflection-probe';
@@ -77,7 +80,8 @@ export class ReflectionProbeManager {
      * @zh 刷新所有反射探针
      */
     public onUpdateProbes (forceUpdate = false) {
-        if (!this._updateForRuntime || this._probes.length === 0) return;
+        if (!EDITOR && !this._updateForRuntime) return;
+        if (this._probes.length === 0) return;
         const scene = cclegacy.director.getScene();
         if (!scene || !scene.renderScene) {
             return;
@@ -87,7 +91,7 @@ export class ReflectionProbeManager {
             const model = models[i];
             if (!model.node) continue;
             if ((model.node.layer & REFLECTION_PROBE_DEFAULT_MASK) && (model.node.hasChangedFlags || forceUpdate)) {
-                if (model.reflectionProbeType === ReflectionProbeType.BAKED_CUBEMAP) {
+                if (model.reflectionProbeType === ReflectionProbeType.BAKED_CUBEMAP || this._isUsedBlending(model)) {
                     this.updateUseCubeModels(model);
                 } else if (model.reflectionProbeType === ReflectionProbeType.PLANAR_REFLECTION) {
                     this.updateUsePlanarModels(model);
@@ -202,6 +206,14 @@ export class ReflectionProbeManager {
             this._updateCubemapOfModel(model, probe);
         }
         probe.needRefresh = false;
+        //if used for blend,when baked end need refresh cubemap
+        if (models.length === 0) {
+            for (const entry of this._useCubeModels.entries()) {
+                if (entry[0].reflectionProbeBlendId === probe.getProbeId()) {
+                    this._updateBlendCubemap(entry[0], probe);
+                }
+            }
+        }
     }
 
     /**
@@ -287,7 +299,7 @@ export class ReflectionProbeManager {
         }
 
         for (let i = 0; i < this._probes.length; i++) {
-            if (this._probes[i].needRefresh && this._probes[i].probeType === ProbeType.CUBE) {
+            if ((this._probes[i].needRefresh && this._probes[i].probeType === ProbeType.CUBE) || this._isUsedBlending(model)) {
                 this.updateBakedCubemap(this._probes[i]);
             }
         }
@@ -302,6 +314,7 @@ export class ReflectionProbeManager {
         const meshRender = probe.previewSphere.getComponent(MeshRenderer);
         if (meshRender) {
             meshRender.updateProbeCubemap(probe.cubemap, !probe.cubemap);
+            meshRender.updateReflectionProbeId(probe.getProbeId());
         }
     }
 
@@ -351,7 +364,8 @@ export class ReflectionProbeManager {
                 buffer[bufferOffset + 5] = probe.size.y;
                 buffer[bufferOffset + 6] = probe.size.z;
                 buffer[bufferOffset + 7] = 0.0;
-                buffer[bufferOffset + 8] = probe.cubemap ? probe.cubemap.mipmapLevel : 1.0;
+                const mipAndUseRGBE = probe.isRGBE() ? 1000 : 0;
+                buffer[bufferOffset + 8] = probe.cubemap ? probe.cubemap.mipmapLevel + mipAndUseRGBE : 1.0 + mipAndUseRGBE;
             } else {
                 //plane.xyz;
                 buffer[bufferOffset] = probe.node.up.x;
@@ -394,6 +408,9 @@ export class ReflectionProbeManager {
                 if (meshRender) {
                     meshRender.updateReflectionProbeDataMap(this._dataTexture);
                     meshRender.updateReflectionProbeId(probe.getProbeId());
+                    if (this._isUsedBlending(models[j])) {
+                        this._updateBlendProbeInfo(models[j], probe);
+                    }
                 }
             }
         }
@@ -417,15 +434,13 @@ export class ReflectionProbeManager {
      * @en Get the reflection probe used by the model.
      * @zh 获取模型使用的反射探针。
      */
-    public getUsedReflectionProbe (model: Model, probeType: ReflectionProbeType) {
-        if (probeType === ReflectionProbeType.BAKED_CUBEMAP) {
-            if (this._useCubeModels.has(model)) {
-                return this._useCubeModels.get(model);
-            }
-        } else if (probeType === ReflectionProbeType.PLANAR_REFLECTION) {
+    public getUsedReflectionProbe (model: Model, planarReflection: boolean) {
+        if (planarReflection) {
             if (this._usePlanarModels.has(model)) {
                 return this._usePlanarModels.get(model);
             }
+        } else if (this._useCubeModels.has(model)) {
+            return this._useCubeModels.get(model);
         }
         return null;
     }
@@ -459,8 +474,9 @@ export class ReflectionProbeManager {
     }
 
     private _getBlendProbe (model: Model): ReflectionProbe | null {
-        if (this._probes.length === 0) return null;
-        if (!model.node || !model.worldBounds) return null;
+        if (!model || !model.node || !model.worldBounds || this._probes.length < 2) {
+            return null;
+        }
         const temp: ReflectionProbe[] = [];
         for (let i = 0; i < this._probes.length; i++) {
             if (this._probes[i].probeType !== ProbeType.CUBE || !this._probes[i].validate() || !geometry.intersect.aabbWithAABB(model.worldBounds, this._probes[i].boundingBox!)) {
@@ -471,7 +487,7 @@ export class ReflectionProbeManager {
         temp.sort((a: ReflectionProbe, b: ReflectionProbe) => {
             const aDistance = Vec3.distance(model.node.worldPosition, a.node.worldPosition);
             const bDistance = Vec3.distance(model.node.worldPosition, b.node.worldPosition);
-            return bDistance - aDistance;
+            return aDistance - bDistance;
         });
         return temp.length > 1 ? temp[1] : null;
     }
@@ -508,15 +524,22 @@ export class ReflectionProbeManager {
     }
 
     private _updateCubemapOfModel (model: Model, probe: ReflectionProbe | null) {
-        if (!model.node) {
+        const node = model.node;
+        if (!node) {
             return;
         }
-        const meshRender = model.node.getComponent(MeshRenderer);
-        if (meshRender) {
-            meshRender.updateProbeCubemap(probe ? probe.cubemap : null);
-            meshRender.updateReflectionProbeId(probe ? probe.getProbeId() : -1);
-            if (probe) {
-                meshRender.updateReflectionProbeDataMap(this._dataTexture);
+        const meshRender = node.getComponent(MeshRenderer);
+        if (!meshRender) {
+            return;
+        }
+
+        meshRender.updateProbeCubemap(probe ? probe.cubemap : null);
+        meshRender.updateReflectionProbeId(probe ? probe.getProbeId() : -1);
+
+        if (probe) {
+            meshRender.updateReflectionProbeDataMap(this._dataTexture);
+            if (this._isUsedBlending(model)) {
+                this._updateBlendProbeInfo(model, probe);
             }
         }
     }
@@ -524,11 +547,129 @@ export class ReflectionProbeManager {
         const meshRender = model.node.getComponent(MeshRenderer);
         if (meshRender) {
             meshRender.updateProbePlanarMap(texture);
-            meshRender.updateReflectionProbeId(probe ? probe.getProbeId() : -1);
             if (probe) {
+                meshRender.updateReflectionProbeId(probe.getProbeId());
                 meshRender.updateReflectionProbeDataMap(this._dataTexture);
+            } else {
+                meshRender.updateReflectionProbeId(-1);
             }
         }
+    }
+    private _isUsedBlending (model: Model) {
+        if (model.reflectionProbeType === ReflectionProbeType.BLEND_PROBES
+            || model.reflectionProbeType === ReflectionProbeType.BLEND_PROBES_AND_SKYBOX) {
+            return true;
+        }
+        return false;
+    }
+
+    private _updateBlendProbeInfo (model: Model, probe: ReflectionProbe) {
+        const node = model.node;
+        if (!node) {
+            return;
+        }
+        const meshRender = node.getComponent(MeshRenderer);
+        if (!meshRender) {
+            return;
+        }
+        const blendProbe = this._getBlendProbe(model);
+        if (blendProbe) {
+            meshRender.updateReflectionProbeBlendId(blendProbe.getProbeId());
+            meshRender.updateProbeBlendCubemap(blendProbe.cubemap);
+            meshRender.updateReflectionProbeBlendWeight(this._calculateBlendWeight(model, probe, blendProbe));
+        } else {
+            meshRender.updateReflectionProbeBlendId(-1);
+            if (model.reflectionProbeType === ReflectionProbeType.BLEND_PROBES_AND_SKYBOX) {
+                meshRender.updateReflectionProbeBlendWeight(this._calculateBlendWeight(model, probe, blendProbe));
+            }
+        }
+    }
+
+    private _updateBlendCubemap (model: Model, probe: ReflectionProbe) {
+        const node = model.node;
+        if (!node) {
+            return;
+        }
+        if (!this._isUsedBlending(model)) {
+            return;
+        }
+        const meshRender = node.getComponent(MeshRenderer);
+        if (meshRender) {
+            meshRender.updateProbeBlendCubemap(probe.cubemap);
+        }
+    }
+
+    private _calculateBlendWeight (model: Model, probe: ReflectionProbe, blendProbe: ReflectionProbe | null) {
+        if (blendProbe) {
+            const d1 = Vec3.distance(model.node.worldPosition, probe.node.worldPosition);
+            const d2 = Vec3.distance(model.node.worldPosition, blendProbe.node.worldPosition);
+            return 1.0 - d2 / (d1 + d2);
+        }
+        if (model.reflectionProbeType === ReflectionProbeType.BLEND_PROBES) {
+            return 0.0;
+        } else if (model.reflectionProbeType === ReflectionProbeType.BLEND_PROBES_AND_SKYBOX) {
+            return this._calculateBlendOfSkybox(model.worldBounds, probe.boundingBox!);
+        }
+        return 0.0;
+    }
+
+    private _calculateBlendOfSkybox (aabb1: AABB, aabb2: AABB) {
+        const aMin = new Vec3();
+        const aMax = new Vec3();
+        const bMin = new Vec3();
+        const bMax = new Vec3();
+        Vec3.subtract(aMin, aabb1.center, aabb1.halfExtents);
+        Vec3.add(aMax, aabb1.center, aabb1.halfExtents);
+
+        Vec3.subtract(bMin, aabb2.center, aabb2.halfExtents);
+        Vec3.add(bMax, aabb2.center, aabb2.halfExtents);
+
+        const inside = (aMin.x <= bMax.x && aMax.x >= bMin.x)
+                && (aMin.y <= bMax.y && aMax.y >= bMin.y)
+                && (aMin.z <= bMax.z && aMax.z >= bMin.z);
+        if (inside) {
+            const fullSize = new Vec3();
+            Vec3.multiplyScalar(fullSize, aabb1.halfExtents, 2.0);
+            const boundaryXAdd = (aMin.x + fullSize.x) <= bMax.x && (aMax.x + fullSize.x) >= bMin.x;
+            const boundaryXSub = (aMin.x - fullSize.x) <= bMax.x && (aMax.x - fullSize.x) >= bMin.x;
+            const boundaryYAdd = (aMin.y + fullSize.y) <= bMax.y && (aMax.y + fullSize.y) >= bMin.y;
+            const boundaryYSub = (aMin.y - fullSize.y) <= bMax.y && (aMax.y - fullSize.y) >= bMin.y;
+            const boundaryZAdd = (aMin.z + fullSize.z) <= bMax.z && (aMax.z + fullSize.z) >= bMin.z;
+            const boundaryZSub = (aMin.z - fullSize.z) <= bMax.z && (aMax.z - fullSize.z) >= bMin.z;
+
+            const weights: number[] = [];
+            if (!boundaryXAdd) {
+                const offset = aMax.x - bMax.x;
+                weights.push(offset / fullSize.x);
+            }
+            if (!boundaryXSub) {
+                const offset = Math.abs(aMin.x - bMin.x);
+                weights.push(offset / fullSize.x);
+            }
+            if (!boundaryYAdd) {
+                const offset = aMax.y - bMax.y;
+                weights.push(offset / fullSize.y);
+            }
+            if (!boundaryYSub) {
+                const offset = Math.abs(aMin.y - bMin.y);
+                weights.push(offset / fullSize.y);
+            }
+            if (!boundaryZAdd) {
+                const offset = aMax.z - bMax.z;
+                weights.push(offset / fullSize.z);
+            }
+            if (!boundaryZSub) {
+                const offset = Math.abs(aMin.z - bMin.z);
+                weights.push(offset / fullSize.z);
+            }
+            if (weights.length > 0) {
+                weights.sort((a: number, b: number) => b - a);
+                return weights[0];
+            } else {
+                return 0.0;
+            }
+        }
+        return 1.0;
     }
 }
 

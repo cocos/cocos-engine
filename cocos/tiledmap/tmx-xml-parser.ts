@@ -656,7 +656,7 @@ export class TMXMapInfo {
                     if (!tileset || collection) {
                         tileset = new TMXTilesetInfo();
                         tileset.name = tilesetName;
-                        tileset.firstGid = ((fgid as unknown as number) & TileFlag.FLIPPED_MASK) as unknown as GID;
+                        tileset.firstGid = fgid & TileFlag.FLIPPED_MASK;
                         tileset.tileOffset.x = tileOffsetX;
                         tileset.tileOffset.y = tileOffsetY;
 
@@ -725,7 +725,7 @@ export class TMXMapInfo {
                             }
                         }
 
-                        tileset.firstGid = ((this.parentGID as unknown as number) & TileFlag.FLIPPED_MASK) as unknown as GID;
+                        tileset.firstGid = this.parentGID & TileFlag.FLIPPED_MASK;
                     }
                     const pid = ((TileFlag.FLIPPED_MASK & this.parentGID as unknown as number) >>> 0) as unknown as GID;
                     this._tileProperties.set(pid, getPropertyList(tile));
