@@ -351,9 +351,6 @@ const point2D = new Vec2();
 const sampleX = new Vec2();
 const sampleY = new Vec2();
 const sampleZ = new Vec2();
-const deltaVelocity = new Vec3();
-const rotationRate = new Vec3();
-const sizeScalar = new Vec3();
 const tempRemap = new Vec3();
 const seed = new Vec3();
 const noiseXCache3D = new PerlinNoise3DCache();
@@ -503,21 +500,6 @@ export class CurlNoiseModule extends ParticleModule {
         this.remapX = value;
     }
 
-    @type(FloatExpression)
-    @serializable
-    @visible(true)
-    public positionAmount = new FloatExpression(1);
-
-    @type(FloatExpression)
-    @serializable
-    @visible(true)
-    public rotationAmount = new FloatExpression();
-
-    @type(FloatExpression)
-    @serializable
-    @visible(true)
-    public sizeAmount = new FloatExpression();
-
     @serializable
     private _strengthX = new FloatExpression(1);
     @serializable
@@ -540,16 +522,10 @@ export class CurlNoiseModule extends ParticleModule {
     private _amplitudeScale = 1;
 
     private _randomOffset = 0;
-    private _randomOffsetVelocity = 0;
-    private _randomOffsetSize = 0;
-    private _randomOffsetRotation = 0;
 
     public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {
         RandomStream.get3Float(state.randomStream.getUInt32() + state.randomStream.getUInt32(), this._offset);
         this._randomOffset = state.randomStream.getUInt32();
-        this._randomOffsetVelocity = state.randomStream.getUInt32();
-        this._randomOffsetSize = state.randomStream.getUInt32();
-        this._randomOffsetRotation = state.randomStream.getUInt32();
         this._offset.multiplyScalar(100);
     }
 
@@ -580,27 +556,13 @@ export class CurlNoiseModule extends ParticleModule {
         this.frequency = Math.max(this.frequency, 0.0001);
         this._amplitudeScale = this.damping ? (1 / this.frequency) : 1;
         context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.VEC3_REGISTER);
-        if (!approx(this.positionAmount.getScalar(), 0)) {
-            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.POSITION);
-            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.VELOCITY);
-        }
-        if (!approx(this.rotationAmount.getScalar(), 0)) {
-            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.ROTATION);
-        }
-        if (!approx(this.sizeAmount.getScalar(), 0)) {
-            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.SIZE);
-        }
+        context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.POSITION);
+        context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.VELOCITY);
 
-        if (this._strengthX.mode === FloatExpression.Mode.CURVE || this._strengthX.mode === FloatExpression.Mode.TWO_CURVES
-            || this.positionAmount.mode === FloatExpression.Mode.CURVE || this.positionAmount.mode === FloatExpression.Mode.TWO_CURVES
-            || this.rotationAmount.mode === FloatExpression.Mode.CURVE || this.rotationAmount.mode === FloatExpression.Mode.TWO_CURVES
-            || this.sizeAmount.mode === FloatExpression.Mode.CURVE || this.sizeAmount.mode === FloatExpression.Mode.TWO_CURVES) {
+        if (this._strengthX.mode === FloatExpression.Mode.CURVE || this._strengthX.mode === FloatExpression.Mode.TWO_CURVES) {
             context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
         }
-        if (this._strengthX.mode === FloatExpression.Mode.TWO_CONSTANTS || this._strengthX.mode === FloatExpression.Mode.TWO_CURVES
-            || this.positionAmount.mode === FloatExpression.Mode.TWO_CONSTANTS || this.positionAmount.mode === FloatExpression.Mode.TWO_CURVES
-            || this.rotationAmount.mode === FloatExpression.Mode.TWO_CONSTANTS || this.rotationAmount.mode === FloatExpression.Mode.TWO_CURVES
-            || this.sizeAmount.mode === FloatExpression.Mode.TWO_CONSTANTS || this.sizeAmount.mode === FloatExpression.Mode.TWO_CURVES) {
+        if (this._strengthX.mode === FloatExpression.Mode.TWO_CONSTANTS || this._strengthX.mode === FloatExpression.Mode.TWO_CURVES) {
             context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
         }
     }
@@ -612,15 +574,8 @@ export class CurlNoiseModule extends ParticleModule {
         const amplitudeScale = this._amplitudeScale;
         const frequency = this.frequency;
         const offset = this._offset;
-        const hasPosition = particles.hasParameter(BuiltinParticleParameter.POSITION);
         const randomOffset = this._randomOffset;
-        const randomOffsetVelocity = this._randomOffsetVelocity;
-        const randomOffsetSize = this._randomOffsetSize;
-        const randomOffsetRotation = this._randomOffsetRotation;
-        const samplePosition = hasPosition ? particles.position : vec3Register;
-        if (!hasPosition) {
-            samplePosition.fill1f(0, fromIndex, toIndex);
-        }
+        const samplePosition = particles.position;
 
         // eslint-disable-next-line no-lonely-if
         if (this.quality === Quality.HIGH) {
@@ -772,123 +727,8 @@ export class CurlNoiseModule extends ParticleModule {
                 }
             }
         }
-
-        if (this.positionAmount.getScalar() !== 0) {
-            const { velocity } = particles;
-            if (this.positionAmount.mode === FloatExpression.Mode.CONSTANT) {
-                const amount = this.positionAmount.constant;
-                ParticleVec3ArrayParameter.scaleAndAdd(velocity, velocity, vec3Register, amount, fromIndex, toIndex);
-            } else if (this.positionAmount.mode === FloatExpression.Mode.CURVE) {
-                const normalizedAliveTime = particles.normalizedAliveTime.data;
-                const { spline, multiplier } = this.positionAmount;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    const amount = spline.evaluate(normalizedAliveTime[i]) * multiplier;
-                    vec3Register.getVec3At(deltaVelocity, i);
-                    Vec3.multiplyScalar(deltaVelocity, deltaVelocity, amount);
-                    velocity.addVec3At(deltaVelocity, i);
-                }
-            } else if (this.positionAmount.mode === FloatExpression.Mode.TWO_CONSTANTS) {
-                const { constantMin, constantMax } = this.positionAmount;
-                const randomSeed = particles.randomSeed.data;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    const amount = lerp(constantMin, constantMax, RandomStream.getFloat(randomSeed[i] + randomOffsetVelocity));
-                    vec3Register.getVec3At(deltaVelocity, i);
-                    Vec3.multiplyScalar(deltaVelocity, deltaVelocity, amount);
-                    velocity.addVec3At(deltaVelocity, i);
-                }
-            } else {
-                const { splineMin, splineMax, multiplier } = this.positionAmount;
-                const normalizedAliveTime = particles.normalizedAliveTime.data;
-                const randomSeed = particles.randomSeed.data;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    const life = normalizedAliveTime[i];
-                    const amount = lerp(splineMin.evaluate(life), splineMax.evaluate(life), RandomStream.getFloat(randomSeed[i] + randomOffsetVelocity)) * multiplier;
-                    vec3Register.getVec3At(deltaVelocity, i);
-                    Vec3.multiplyScalar(deltaVelocity, deltaVelocity, amount);
-                    velocity.addVec3At(deltaVelocity, i);
-                }
-            }
-        }
-
-        if (this.rotationAmount.getScalar() !== 0) {
-            const { rotation } = particles;
-            if (this.rotationAmount.mode === FloatExpression.Mode.CONSTANT) {
-                const amount = this.rotationAmount.constant * deltaTime;
-                ParticleVec3ArrayParameter.scaleAndAdd(rotation, rotation, vec3Register, amount, fromIndex, toIndex);
-            } else if (this.rotationAmount.mode === FloatExpression.Mode.CURVE) {
-                const normalizedAliveTime = particles.normalizedAliveTime.data;
-                const { spline } = this.rotationAmount;
-                const multiplier = this.rotationAmount.multiplier * deltaTime;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    const amount = spline.evaluate(normalizedAliveTime[i]) * multiplier * deltaTime;
-                    vec3Register.getVec3At(rotationRate, i);
-                    Vec3.multiplyScalar(rotationRate, rotationRate, amount);
-                    rotation.addVec3At(rotationRate, i);
-                }
-            } else if (this.rotationAmount.mode === FloatExpression.Mode.TWO_CONSTANTS) {
-                const { constantMin, constantMax } = this.rotationAmount;
-                const randomSeed = particles.randomSeed.data;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    const amount = lerp(constantMin, constantMax, RandomStream.getFloat(randomSeed[i] + randomOffsetRotation)) * deltaTime;
-                    vec3Register.getVec3At(rotationRate, i);
-                    Vec3.multiplyScalar(rotationRate, rotationRate, amount);
-                    rotation.addVec3At(rotationRate, i);
-                }
-            } else {
-                const { splineMin, splineMax } = this.rotationAmount;
-                const multiplier = this.rotationAmount.multiplier * deltaTime;
-                const normalizedAliveTime = particles.normalizedAliveTime.data;
-                const randomSeed = particles.randomSeed.data;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    const life = normalizedAliveTime[i];
-                    const amount = lerp(splineMin.evaluate(life), splineMax.evaluate(life), RandomStream.getFloat(randomSeed[i] + randomOffsetRotation)) * multiplier;
-                    vec3Register.getVec3At(rotationRate, i);
-                    Vec3.multiplyScalar(rotationRate, rotationRate, amount);
-                    rotation.addVec3At(rotationRate, i);
-                }
-            }
-        }
-
-        if (this.sizeAmount.getScalar() !== 0) {
-            const { size } = particles;
-            if (this.sizeAmount.mode === FloatExpression.Mode.CONSTANT) {
-                const amount = this.sizeAmount.constant;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    vec3Register.getVec3At(sizeScalar, i);
-                    size.multiply3fAt(sizeScalar.x * amount + 1, sizeScalar.y * amount + 1, sizeScalar.z * amount + 1, i);
-                }
-            } else if (this.sizeAmount.mode === FloatExpression.Mode.CURVE) {
-                const normalizedAliveTime = particles.normalizedAliveTime.data;
-                const { spline, multiplier } = this.sizeAmount;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    const amount = spline.evaluate(normalizedAliveTime[i]) * multiplier;
-                    vec3Register.getVec3At(sizeScalar, i);
-                    size.multiply3fAt(sizeScalar.x * amount + 1, sizeScalar.y * amount + 1, sizeScalar.z * amount + 1, i);
-                }
-            } else if (this.sizeAmount.mode === FloatExpression.Mode.TWO_CONSTANTS) {
-                const { constantMin, constantMax } = this.sizeAmount;
-                const randomSeed = particles.randomSeed.data;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    const amount = lerp(constantMin, constantMax, RandomStream.getFloat(randomSeed[i] + randomOffsetSize));
-                    vec3Register.getVec3At(sizeScalar, i);
-                    size.multiply3fAt(sizeScalar.x * amount + 1, sizeScalar.y * amount + 1, sizeScalar.z * amount + 1, i);
-                }
-            } else {
-                const { splineMin, splineMax, multiplier } = this.sizeAmount;
-                const normalizedAliveTime = particles.normalizedAliveTime.data;
-                const randomSeed = particles.randomSeed.data;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    const life = normalizedAliveTime[i];
-                    const amount = lerp(splineMin.evaluate(life), splineMax.evaluate(life), RandomStream.getFloat(randomSeed[i] + randomOffsetSize)) * multiplier;
-                    vec3Register.getVec3At(sizeScalar, i);
-                    size.multiply3fAt(sizeScalar.x * amount + 1, sizeScalar.y * amount + 1, sizeScalar.z * amount + 1, i);
-                }
-            }
-        }
-    }
-
-    public getNoisePreview (out: number[], time, width: number, height: number) {
-        return out;
+        const velocity = particles.velocity;
+        ParticleVec3ArrayParameter.add(velocity, velocity, vec3Register, fromIndex, toIndex);
     }
 
     protected needsFilterSerialization () {

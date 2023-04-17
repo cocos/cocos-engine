@@ -24,14 +24,14 @@
  */
 
 import { ccclass, displayOrder, serializable, tooltip, type, range } from 'cc.decorator';
-import { ParticleModule, ModuleExecStage } from '../particle-module';
+import { ParticleModule, ModuleExecStageFlags } from '../particle-module';
 import { ParticleExecContext, ParticleEmitterParams, ParticleEmitterState } from '../particle-base';
 import { FloatExpression } from '../expression/float-expression';
 import { ParticleDataSet } from '../particle-data-set';
 import { RandomStream } from '../random-stream';
 
 @ccclass('cc.SpawnPerUnitModule')
-@ParticleModule.register('SpawnPerUnit', ModuleExecStage.EMITTER_UPDATE | ModuleExecStage.EVENT_HANDLER)
+@ParticleModule.register('SpawnPerUnit', ModuleExecStageFlags.EMITTER_UPDATE | ModuleExecStageFlags.EVENT_HANDLER)
 export class SpawnPerUnitModule extends ParticleModule {
     /**
       * @zh 每移动单位距离发射的粒子数。

@@ -26,13 +26,13 @@
 import { ccclass, serializable, type, range, editable } from 'cc.decorator';
 import { lerp } from '../../core';
 import { FloatExpression } from '../expression/float-expression';
-import { ParticleModule, ModuleExecStage } from '../particle-module';
+import { ParticleModule, ModuleExecStageFlags } from '../particle-module';
 import { ParticleDataSet } from '../particle-data-set';
 import { ParticleExecContext, ParticleEmitterParams, ParticleEmitterState } from '../particle-base';
 import { RandomStream } from '../random-stream';
 
 @ccclass('cc.SpawnBurstModule')
-@ParticleModule.register('SpawnBurst', ModuleExecStage.EMITTER_UPDATE | ModuleExecStage.EVENT_HANDLER)
+@ParticleModule.register('SpawnBurst', ModuleExecStageFlags.EMITTER_UPDATE | ModuleExecStageFlags.EVENT_HANDLER)
 export class SpawnBurstModule extends ParticleModule {
     /**
       * @zh 发射的粒子的数量。

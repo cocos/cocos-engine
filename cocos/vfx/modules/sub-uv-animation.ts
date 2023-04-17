@@ -34,22 +34,6 @@ import { RandomStream } from '../random-stream';
 
 const TEXTURE_ANIMATION_RAND_OFFSET = 90794;
 
-/**
- * 粒子贴图动画类型。
- * @enum textureAnimationModule.Mode
- */
-const Mode = Enum({
-    /**
-     * 网格类型。
-     */
-    Grid: 0,
-
-    /**
-     * 精灵类型（暂未支持）。
-     */
-    // Sprites: 1,
-});
-
 export enum TimeMode {
     LIFETIME,
     FPS,
@@ -74,21 +58,6 @@ export enum Animation {
 @ccclass('cc.SubUVAnimationModule')
 @ParticleModule.register('SubUVAnimation', ModuleExecStageFlags.UPDATE, [], [ParameterName.VELOCITY, ParameterName.NORMALIZED_ALIVE_TIME])
 export class SubUVAnimationModule extends ParticleModule {
-    /**
-     * @zh 设定粒子贴图动画的类型（暂只支持 Grid 模式）[[Mode]]。
-     */
-    @type(Mode)
-    @tooltip('i18n:textureAnimationModule.mode')
-    get mode () {
-        return this._mode;
-    }
-
-    set mode (val) {
-        if (val !== Mode.Grid) {
-            console.error('particle texture animation\'s sprites is not supported!');
-        }
-    }
-
     /**
      * @zh X 方向动画帧数。
      */
@@ -216,8 +185,6 @@ export class SubUVAnimationModule extends ParticleModule {
     private _numTilesX = 1;
     @serializable
     private _numTilesY = 1;
-    @serializable
-    private _mode = Mode.Grid;
     @serializable
     private _animation = Animation.WHOLE_SHEET;
     @serializable

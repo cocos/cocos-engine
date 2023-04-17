@@ -24,7 +24,7 @@
  */
 
 import { ccclass, displayOrder, serializable, tooltip, type, range } from 'cc.decorator';
-import { ParticleModule, ModuleExecStage, ModuleExecStageFlags } from '../particle-module';
+import { ParticleModule, ModuleExecStageFlags } from '../particle-module';
 import { ParticleDataSet } from '../particle-data-set';
 import { ParticleExecContext, ParticleEmitterParams, ParticleEmitterState } from '../particle-base';
 import { FloatExpression } from '../expression/float-expression';
