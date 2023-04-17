@@ -22,13 +22,13 @@
  THE SOFTWARE.
 */
 
-import { OwnedBy, ownerSymbol } from './ownership';
-import type { Layer, StateMachine, TransitionInternal } from './animation-graph';
-import { EditorExtendable, js, editorExtrasTag, _decorator } from '../../core';
-import { CLASS_NAME_PREFIX_ANIM } from '../define';
+import { OwnedBy, ownerSymbol } from '../ownership';
+import type { Layer, StateMachine, TransitionInternal } from '../animation-graph';
+import { EditorExtendable, js, editorExtrasTag, _decorator } from '../../../core';
+import { CLASS_NAME_PREFIX_ANIM } from '../../define';
 import { StateMachineComponent } from './state-machine-component';
-import { instantiate } from '../../serialization/instantiate';
-import { cloneAnimationGraphEditorExtrasFrom } from './animation-graph-editor-extras-clone-helper';
+import { instantiate } from '../../../serialization/instantiate';
+import { cloneAnimationGraphEditorExtrasFrom } from '../animation-graph-editor-extras-clone-helper';
 
 export const outgoingsSymbol = Symbol('[[Outgoing transitions]]');
 

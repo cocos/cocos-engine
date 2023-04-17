@@ -1,6 +1,6 @@
 import { VectorTrack } from "../../../../cocos/animation/animation";
 import { AnimationClip } from "../../../../cocos/animation/animation-clip";
-import { ClipMotion } from "../../../../cocos/animation/marionette/clip-motion";
+import { ClipMotion } from "../../../../cocos/animation/marionette/motion";
 import { Node } from "../../../../cocos/scene-graph";
 import { CreateMotionContext } from "./fixtures";
 

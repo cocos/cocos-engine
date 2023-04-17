@@ -22,41 +22,14 @@
  THE SOFTWARE.
 */
 
-import { ccclass, serializable } from 'cc.decorator';
-import { Motion } from './motion';
-import { State, InteractiveState } from './state';
-import { BindableNumber } from './parametric';
-import { MotionStateEval } from './graph-eval';
+export type {
+    Condition,
+    ConditionEval,
+    ConditionEvalContext,
+} from './condition-base';
 
-@ccclass('cc.animation.Motion')
-export class MotionState extends InteractiveState {
-    @serializable
-    public motion: Motion | null = null;
+export { UnaryCondition } from './unary-condition';
 
-    @serializable
-    public speed = 1.0;
+export { BinaryCondition } from './binary-condition';
 
-    /**
-     * Should be float.
-     */
-    @serializable
-    public speedMultiplier = '';
-
-    @serializable
-    public speedMultiplierEnabled = false;
-
-    public copyTo (that: MotionState) {
-        super.copyTo(that);
-        that.motion = this.motion?.clone() ?? null;
-        that.speed = this.speed;
-        that.speedMultiplier = this.speedMultiplier;
-        that.speedMultiplierEnabled = this.speedMultiplierEnabled;
-        return this;
-    }
-
-    public _clone () {
-        const that = new MotionState();
-        this.copyTo(that);
-        return that;
-    }
-}
+export { TriggerCondition } from './trigger-condition';

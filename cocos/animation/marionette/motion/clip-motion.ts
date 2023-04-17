@@ -22,19 +22,20 @@
  THE SOFTWARE.
 */
 
-import { editorExtrasTag, _decorator, EditorExtendable } from '../../core';
-import { additiveSettingsTag, AnimationClip } from '../animation-clip';
-import { cloneAnimationGraphEditorExtrasFrom } from './animation-graph-editor-extras-clone-helper';
-import { createEval } from './create-eval';
-import { getMotionRuntimeID, RUNTIME_ID_ENABLED } from './graph-debug';
-import { ClipStatus, ReadonlyClipOverrideMap } from './graph-eval';
+import { editorExtrasTag, _decorator, EditorExtendable } from '../../../core';
+import { additiveSettingsTag, AnimationClip } from '../../animation-clip';
+import { cloneAnimationGraphEditorExtrasFrom } from '../animation-graph-editor-extras-clone-helper';
+import { createEval } from '../create-eval';
+import { getMotionRuntimeID, RUNTIME_ID_ENABLED } from '../graph-debug';
+import type { ClipStatus } from '../state-machine/state-machine-eval';
+import type { ReadonlyClipOverrideMap } from '../clip-overriding';
 import { Motion, MotionEval, MotionPort } from './motion';
-import { wrap } from '../wrap';
-import { calculateDeltaPose, Pose } from '../core/pose';
-import { AnimationGraphEvaluationContext, AnimationGraphBindingContext } from './animation-graph-context';
-import { WrappedInfo } from '../types';
-import { WrapModeMask } from '../../core/geometry';
-import { AnimationClipAGEvaluation } from './animation-graph-animation-clip-binding';
+import { wrap } from '../../wrap';
+import { calculateDeltaPose, Pose } from '../../core/pose';
+import { AnimationGraphEvaluationContext, AnimationGraphBindingContext } from '../animation-graph-context';
+import { WrappedInfo } from '../../types';
+import { WrapModeMask } from '../../../core/geometry';
+import { AnimationClipAGEvaluation } from '../animation-graph-animation-clip-binding';
 
 const { ccclass, type } = _decorator;
 

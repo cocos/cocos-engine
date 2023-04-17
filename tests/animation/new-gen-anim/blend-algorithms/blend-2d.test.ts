@@ -1,5 +1,5 @@
 import { approx, clamp01, lerp, toRadian, v2, Vec2 } from "../../../../cocos/core";
-import { blendSimpleDirectional, PolarSpaceGradientBandInterpolator2D } from "../../../../cocos/animation/marionette/blend-2d";
+import { blendSimpleDirectional, PolarSpaceGradientBandInterpolator2D } from "../../../../cocos/animation/marionette/motion/blend-2d";
 import '../../../utils/matcher-deep-close-to';
 import '../../../utils/matchers/value-type-asymmetric-matchers';
 

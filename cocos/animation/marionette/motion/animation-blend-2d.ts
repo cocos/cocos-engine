@@ -22,15 +22,15 @@
  THE SOFTWARE.
 */
 
-import { Vec2, _decorator, ccenum, assertIsTrue, editable } from '../../core';
-import { createEval } from './create-eval';
+import { Vec2, _decorator, ccenum, assertIsTrue, editable } from '../../../core';
+import { createEval } from '../create-eval';
 import { AnimationBlend, AnimationBlendEval, AnimationBlendItem } from './animation-blend';
 import { MotionEvalContext } from './motion';
-import { BindableNumber, bindOr, VariableType } from './parametric';
+import { BindableNumber, bindOr, VariableType } from '../parametric';
 import { sampleFreeformCartesian, blendSimpleDirectional, PolarSpaceGradientBandInterpolator2D } from './blend-2d';
-import { CLASS_NAME_PREFIX_ANIM } from '../define';
-import { ReadonlyClipOverrideMap } from './graph-eval';
-import { AnimationGraphBindingContext } from './animation-graph-context';
+import { CLASS_NAME_PREFIX_ANIM } from '../../define';
+import type { ReadonlyClipOverrideMap } from '../clip-overriding';
+import { AnimationGraphBindingContext } from '../animation-graph-context';
 
 const { ccclass, serializable } = _decorator;
 

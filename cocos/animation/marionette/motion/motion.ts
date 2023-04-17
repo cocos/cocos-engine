@@ -22,18 +22,19 @@
  THE SOFTWARE.
 */
 
-import { Node } from '../../scene-graph';
-import { AnimationMask } from './animation-mask';
-import { createEval } from './create-eval';
-import type { BindContext } from './parametric';
-import type { BlendStateBuffer } from '../../3d/skeletal-animation/skeletal-animation-blending';
-import type { ReadonlyClipOverrideMap, ClipStatus } from './graph-eval';
-import type { RuntimeID } from './graph-debug';
-import { AnimationGraphBindingContext, AnimationGraphEvaluationContext } from './animation-graph-context';
-import { Pose } from '../core/pose';
-import { EditorExtendable } from '../../core';
-import { ccclass } from '../../core/data/decorators';
-import { CLASS_NAME_PREFIX_ANIM } from '../define';
+import { Node } from '../../../scene-graph';
+import { AnimationMask } from '../animation-mask';
+import { createEval } from '../create-eval';
+import type { BindContext } from '../parametric';
+import type { BlendStateBuffer } from '../../../3d/skeletal-animation/skeletal-animation-blending';
+import type { ClipStatus } from '../state-machine/state-machine-eval';
+import type { ReadonlyClipOverrideMap } from '../clip-overriding';
+import type { RuntimeID } from '../graph-debug';
+import { AnimationGraphBindingContext, AnimationGraphEvaluationContext } from '../animation-graph-context';
+import { Pose } from '../../core/pose';
+import { EditorExtendable } from '../../../core';
+import { ccclass } from '../../../core/data/decorators';
+import { CLASS_NAME_PREFIX_ANIM } from '../../define';
 
 export interface CreateClipEvalContext {
     node: Node;

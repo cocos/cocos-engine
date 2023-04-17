@@ -6,7 +6,7 @@ import { captureErrorIDs, captureWarnIDs } from '../utils/log-capture';
 import { Node,Component } from '../../cocos/scene-graph';
 import { LegacyBlendStateBuffer } from '../../cocos/3d/skeletal-animation/skeletal-animation-blending';
 import { AnimationGraph } from '../../cocos/animation/marionette/animation-graph';
-import { ClipMotion } from '../../cocos/animation/marionette/clip-motion';
+import { ClipMotion } from '../../cocos/animation/marionette/motion';
 import { AnimationGraphEval } from '../../cocos/animation/marionette/graph-eval';
 
 test('Common target', () => {
