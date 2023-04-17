@@ -400,8 +400,7 @@ export class Profiler extends System {
             this.offsetData[3] = surfaceTransform;
         }
 
-        // @ts-expect-error using private members for efficiency.
-        this.pass._rootBufferDirty = true;
+        this.pass.setRootBufferDirty(true);
 
         if (this._meshRenderer.model) {
             director.root!.pipeline.profiler = this._meshRenderer.model;

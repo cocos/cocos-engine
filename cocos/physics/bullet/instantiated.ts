@@ -24,7 +24,7 @@
 
 // eslint-disable-next-line import/no-extraneous-dependencies
 import bulletModule, { bulletType } from '@cocos/bullet';
-import { WECHAT, RUNTIME_BASED } from 'internal:constants';
+import { WECHAT, RUNTIME_BASED, WECHAT_MINI_PROGRAM } from 'internal:constants';
 import { game } from '../../game';
 import { sys } from '../../core';
 import { pageSize, pageCount, importFunc } from './bullet-env';
@@ -117,7 +117,7 @@ export function waitForAmmoInstantiation () {
                     }, errorReport);
                 }
 
-                if (WECHAT || RUNTIME_BASED) {
+                if (WECHAT || WECHAT_MINI_PROGRAM || RUNTIME_BASED) {
                     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                     const wasmFilePath = `cocos-js/${module}` as any;
                     instantiateWasm(wasmFilePath);

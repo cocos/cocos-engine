@@ -35,24 +35,23 @@
 
 namespace cc {
 
-namespace {
-class StringHasher final {
-public:
-    ccstd::hash_t operator()(const char *str) const noexcept {
-        return ccstd::hash_range(str, str + strlen(str));
-    }
-};
-
-class StringEqual final {
-public:
-    bool operator()(const char *c1, const char *c2) const noexcept {
-        return strcmp(c1, c2) == 0;
-    }
-};
-} // namespace
-
 template <bool ThreadSafe>
 class StringPool final {
+private:
+    class StringHasher final {
+    public:
+        ccstd::hash_t operator()(const char *str) const noexcept {
+            return ccstd::hash_range(str, str + strlen(str));
+        }
+    };
+
+    class StringEqual final {
+    public:
+        bool operator()(const char *c1, const char *c2) const noexcept {
+            return strcmp(c1, c2) == 0;
+        }
+    };
+
 public:
     StringPool() = default;
     ~StringPool();

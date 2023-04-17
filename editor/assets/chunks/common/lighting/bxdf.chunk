@@ -12,3 +12,12 @@ float CalculateFresnelCoefficient(float ior, float NoVSat)
 	next *= next;
 	return 0.5 * prev * (1.0 + next);
 }
+
+vec3 CalculateScattering(vec3 unscatteredColor, float distance, float outScatterExtinctCoef, float inScatterExtinctCoef, float inScatterCoef, vec3 inScatterColor, vec3 outScatterColor)
+{
+    vec2 e = vec2(outScatterExtinctCoef, inScatterExtinctCoef * inScatterCoef);
+    vec2 extinction = exp(-e * distance);
+    vec3 inScattered = (1.0 - extinction.y) * inScatterColor;
+	vec3 outScattered = unscatteredColor * extinction.x * outScatterColor;
+    return outScattered + inScattered;
+}

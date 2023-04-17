@@ -155,12 +155,12 @@ function getBaseClassWherePropertyDefined_DEV (propName, cls) {
     }
 }
 
-function _wrapOptions (isGetset: boolean, _default, type?: Function | Function[]) {
+function _wrapOptions (isGetset: boolean, _default, type?: Function | Function[] | PrimitiveType<any>) {
     const res: {
         default?: any,
         _short?: boolean,
         type?: any,
-    } = isGetset ? { _short: true } : { _short: true, default: _default };
+    } = isGetset || typeof _default === 'undefined' ? { _short: true } : { _short: true, default: _default };
     if (type) {
         res.type = type;
     }
@@ -176,7 +176,7 @@ export function getFullFormOfProperty (options, isGetset) {
             const type = options;
             return _wrapOptions(isGetset, js.isChildClassOf(type, legacyCC.ValueType) ? new type() : null, type);
         } else if (options instanceof PrimitiveType) {
-            return _wrapOptions(isGetset, options.default);
+            return _wrapOptions(isGetset, undefined, options);
         } else {
             return _wrapOptions(isGetset, options);
         }

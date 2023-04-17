@@ -23,13 +23,13 @@
 	<key>finishColorRed</key>
 	<real>0.68082684278488159</real>
 	<key>finishColorVarianceAlpha</key>
-	<real>0.0</real>
+	<real>0.74000000953674316</real>
 	<key>finishColorVarianceBlue</key>
-	<real>0.0</real>
+	<real>0.98000001907348633</real>
 	<key>finishColorVarianceGreen</key>
-	<real>0.0</real>
+	<real>0.98000001907348633</real>
 	<key>finishColorVarianceRed</key>
-	<real>0.0</real>
+	<real>0.41999998688697815</real>
 	<key>finishParticleSize</key>
 	<real>30.319999694824219</real>
 	<key>finishParticleSizeVariance</key>
@@ -87,13 +87,13 @@
 	<key>startColorRed</key>
 	<real>0.794921875</real>
 	<key>startColorVarianceAlpha</key>
-	<real>0.0</real>
+	<real>0.77999997138977051</real>
 	<key>startColorVarianceBlue</key>
-	<real>0.0</real>
+	<real>0.68000000715255737</real>
 	<key>startColorVarianceGreen</key>
-	<real>0.0</real>
+	<real>1</real>
 	<key>startColorVarianceRed</key>
-	<real>0.0</real>
+	<real>0.89999997615814209</real>
 	<key>startParticleSize</key>
 	<real>3.369999885559082</real>
 	<key>startParticleSizeVariance</key>

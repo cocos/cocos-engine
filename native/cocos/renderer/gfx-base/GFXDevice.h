@@ -57,6 +57,9 @@ public:
 
     bool initialize(const DeviceInfo &info);
     void destroy();
+    
+    // aim to ensure waiting for work on gpu done when cpu encodes ahead of gpu certain frame(s).
+    virtual void frameSync() = 0;
 
     virtual void acquire(Swapchain *const *swapchains, uint32_t count) = 0;
     virtual void present() = 0;
@@ -118,8 +121,7 @@ public:
     template <typename ExecuteMethod>
     void registerOnAcquireCallback(ExecuteMethod &&execute);
 
-    inline void setOptions(const DeviceOptions &opts) { _options = opts; }
-    inline const DeviceOptions &getOptions() const { return _options; }
+    virtual void enableAutoBarrier(bool en) { _options.enableBarrierDeduce = en; }
 
 protected:
     static Device *instance;

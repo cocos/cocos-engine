@@ -7,9 +7,9 @@ bool CCSurfacesLightingEnableShadow(in float NoL)
   return NoL > 0.0;
 }
 
-float CCSurfacesLightingCalculateDistanceAttenuation(in LightingIntermediateData lightingData, in vec4 lightSizeRangeAngle)
+float CCSurfacesLightingCalculateDistanceAttenuation(in LightingIntermediateData lightingData, in vec4 lightSizeRangeAngle, in float lightType)
 {
-  return CalculateDistanceAttenuation(lightingData.distToLightSqr, lightSizeRangeAngle.x, lightSizeRangeAngle.y);
+  return CalculateDistanceAttenuation(lightingData.distToLightSqr, lightSizeRangeAngle.x, lightSizeRangeAngle.y, lightType);
 }
 
 float CCSurfacesLightingCalculateAngleAttenuation(in LightingIntermediateData lightingData, in vec4 lightSizeRangeAngle, in vec3 spotLightDir)
@@ -40,4 +40,3 @@ void CCSurfacesLightingCalculateEnvironment(out vec3 lightingDiffuse, out vec3 l
   lightingDiffuse = vec3(0.0);
   lightingSpecular = vec3(0.0);
 }
-

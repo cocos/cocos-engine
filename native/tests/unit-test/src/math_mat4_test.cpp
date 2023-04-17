@@ -120,6 +120,11 @@ TEST(mathMat4Test, test5) {
     cc::Vec3 transVec(1, 1, 2);
     cc::Mat4::fromRT(rotVec, transVec, &outMat);
     ExpectEq(outMat.m[5] == -3 && outMat.m[9] == -2 && outMat.m[14] == 2, true);
+    // fromRTS
+    logLabel = "test the mat4 fromRTS function";
+    cc::Vec3 scaleVec(1, 1, 1);
+    cc::Mat4::fromRTS(rotVec, transVec, scaleVec, &outMat);
+    ExpectEq(outMat.m[5] == -3 && outMat.m[9] == -2 && outMat.m[14] == 2, true);
     // decompose
     logLabel = "test the mat4 decompose function";
     outMat.decompose(&scale, &rot, &transVec);
@@ -186,12 +191,19 @@ TEST(mathMat4Test, test5) {
     ExpectEq(isInverse == true, true);
     // getInversed
     logLabel = "test the mat4 getInversed function";
-    cc::Mat4 inversed;
-    inversed.m[1] = 10;
-    inversed.m[2] = 13;
-    inversed.m[4] = 2;
+    cc::Mat4 inversed(
+        1, 1, 1, 3,
+        5, 4, 1, 7,
+        9, 3, 2, 1,
+        4, 4, 3, 1);
+
     cc::Mat4 inversedMat = inversed.getInversed();
-    ExpectEq(IsEqualF(inversedMat.m[6], -1.36842108), true);
+    auto inversedMat2 = cc::Mat4(
+        4.0F / 165, -1.0F / 55, 28.0F / 165, -19.0F / 165,
+        -41.0F / 55, 17.0F / 55, -12.0F / 55, 16.0F / 55,
+        13.0F / 15, -2.0F / 5, 1.0F / 15, 2.0F / 15,
+        47.0F / 165, 2.0F / 55, -1.0F / 165, -17.0F / 165);
+    ExpectEq(inversedMat.approxEquals(inversedMat2), true);
     // identity
     logLabel = "test the mat4 isIdentity function";
     ExpectEq(outMat.isIdentity(), false);
@@ -257,9 +269,14 @@ TEST(mathMat4Test, test5) {
     ExpectEq(translate.m[12] = 2 && translate.m[13] == 6, true);
     // transpose
     logLabel = "test the mat4 transpose function";
-    cc::Mat4 matTranspose(11, 21, 31, 2, 12, 22, 32, 4, 13, 23, 33, 5, 0, 0, 0, 1);
+    cc::Mat4 matTranspose(
+        11, 21, 31, 2,
+        12, 22, 32, 4,
+        13, 23, 33, 5,
+        0, 0, 0, 1
+    );
     matTranspose.transpose();
-    ExpectEq(matTranspose.m[1] == 21 && matTranspose.m[4] == 12 && matTranspose.m[7] == 4, true);
+    ExpectEq(matTranspose.m[1] == 12 && matTranspose.m[4] == 21 && matTranspose.m[7] == 0, true);
 
     // approxEqual
     logLabel = "test the mat4 approx equal function";

@@ -32,41 +32,14 @@ import { RenderMode } from '../enum';
 import { cclegacy } from '../../core';
 import { Pass } from '../../render-scene';
 
-export interface IParticleSystemRenderer {
-    onInit (ps: Component): void;
-    getInfo (): ParticleSystemRenderer;
-    onEnable (): void;
-    onDisable (): void;
-    onDestroy (): void;
-    clear (): void;
-    getModel (): ParticleBatchModel | null;
-    attachToScene (): void;
-    detachFromScene (): void;
-    updateMaterialParams (): void;
-    updateVertexAttrib (): void;
-    setVertexAttributes (): void;
-    updateRenderMode (): void;
-    onMaterialModified (index: number, material: Material): void;
-    onRebuildPSO (index: number, material: Material) : void;
-    getParticleCount (): number;
-    getFreeParticle (): Particle | null;
-    setNewParticle (p: Particle): void;
-    getDefaultMaterial(): Material | null;
-    updateRotation (pass: Pass | null): void;
-    updateScale (pass: Pass | null): void;
-    updateParticles (dt: number): number;
-    updateRenderData (): void;
-    enableModule (name: string, val: boolean, pm: IParticleModule): void;
-    updateTrailMaterial (): void;
-    getDefaultTrailMaterial (): any;
-    beforeRender (): void;
-    setUseInstance (value: boolean): void;
-    getUseInstance (): boolean;
-    getNoisePreview (out: number[], width: number, height: number): void;
-}
-
-export abstract class ParticleSystemRendererBase implements IParticleSystemRenderer {
+export abstract class ParticleSystemRendererBase {
     protected _particleSystem: any = null;
+    /**
+     * @engineInternal
+     */
+    public get model () {
+        return this._model;
+    }
     protected _model: ParticleBatchModel | null = null;
     protected _renderInfo: ParticleSystemRenderer | null = null;
     protected _vertAttrs: Attribute[] = [];

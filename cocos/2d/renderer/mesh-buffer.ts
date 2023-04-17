@@ -42,6 +42,8 @@ enum MeshBufferSharedBufferView {
     count,
 }
 
+const IA_POOL_USED_SCALE = 1 / 2;
+
 /**
  * @en Mesh buffer used for 2d rendering, used internally and not of concern to the user.
  * @zh 2d 渲染使用的网格缓冲数据，内部使用，用户不须关心。
@@ -367,20 +369,28 @@ export class MeshBuffer {
         }
 
         // On iOS14, different IAs can not share same GPU buffer, so must submit the same date to different buffers
-        // @ts-expect-error Property '__isWebIOS14OrIPadOS14Env' does not exist on 'sys'
         const iOS14 = sys.__isWebIOS14OrIPadOS14Env;
         const submitCount = iOS14 ? this._nextFreeIAHandle : 1;
+        if (iOS14 && (submitCount / this._iaPool.length < IA_POOL_USED_SCALE)) {
+            const count = submitCount / IA_POOL_USED_SCALE;
+            const length = this._iaPool.length;
+            // Destroy InputAssemblers
+            for (let i = length - 1; i >= count; i--) {
+                const iaRef = this._iaPool[i];
+                if (iaRef.vertexBuffers[0]) {
+                    iaRef.vertexBuffers[0].destroy();
+                }
+                if (iaRef.indexBuffer) {
+                    iaRef.indexBuffer.destroy();
+                }
+                iaRef.ia.destroy();
+            }
+            this._iaPool.length = count;
+        }
         const byteCount = this.byteOffset;
         const indexCount = this.indexOffset;
         for (let i = 0; i < submitCount; ++i) {
             const iaRef = this._iaPool[i];
-            // if (iOS14) {
-            //     indexCount = iaRef.ia.firstIndex + iaRef.ia.indexCount;
-            //     const maxVertex = this.iData[indexCount];
-            //     // Only upload as much data as needed, to avoid frequent resize, using pow2 size
-            //     // Wrong implementation because maxVertex might be larger than the last vertex id, hard to find the correct max vertex
-            //     byteCount = Math.min(this.byteOffset, nextPow2(maxVertex + 2) * this.vertexFormatBytes);
-            // }
 
             const verticesData = new Float32Array(this.vData.buffer, 0, byteCount >> 2);
             const indicesData = new Uint16Array(this.iData.buffer, 0, indexCount);
@@ -405,7 +415,6 @@ export class MeshBuffer {
         let indexBuffer;
         // HACK: After sharing buffer between drawcalls, the performance degradation a lots on iOS 14 or iPad OS 14 device
         // TODO: Maybe it can be removed after Apple fixes it?
-        // @ts-expect-error Property '__isWebIOS14OrIPadOS14Env' does not exist on 'sys'
         if (sys.__isWebIOS14OrIPadOS14Env || !this._iaPool[0]) {
             const vbStride = this._vertexFormatBytes = this._floatsPerVertex * Float32Array.BYTES_PER_ELEMENT;
             const ibStride = Uint16Array.BYTES_PER_ELEMENT;

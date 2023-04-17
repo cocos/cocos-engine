@@ -54,6 +54,8 @@ declare namespace jsb {
     export interface MouseEvent {
         x: number,
         y: number,
+        xDelta: number | undefined,
+        yDelta: number | undefined,
         button: number,
         windowId: number,
     }
@@ -361,3 +363,9 @@ declare namespace ns {
     export class Frustum extends jsb.NativePOD {
     }
 }
+
+/**
+ * Only defined on native platforms.
+ * Now we only support 'V8'
+ */
+declare const scriptEngineType: 'V8';

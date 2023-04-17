@@ -7,18 +7,18 @@ import { TransformArray } from './transform-array';
 export class Pose {
     readonly transforms: TransformArray;
 
-    readonly metaValues: Float64Array;
+    readonly auxiliaryCurves: Float64Array;
 
-    private constructor (transforms: TransformArray, metaValues: Float64Array) {
+    private constructor (transforms: TransformArray, auxiliaryCurves: Float64Array) {
         this.transforms = transforms;
-        this.metaValues = metaValues;
+        this.auxiliaryCurves = auxiliaryCurves;
     }
 
     /**
      * @internal
      */
-    public static _create (transforms: TransformArray, metaValues: Float64Array) {
-        return new Pose(transforms, metaValues);
+    public static _create (transforms: TransformArray, auxiliaryCurves: Float64Array) {
+        return new Pose(transforms, auxiliaryCurves);
     }
 }
 
@@ -77,7 +77,7 @@ export class TransformFilter {
 
 export function blendPoseInto (target: Pose, source: Readonly<Pose>, alpha: number, transformFilter: TransformFilter | undefined = undefined) {
     blendTransformsInto(target.transforms, source.transforms, alpha, transformFilter);
-    blendMetaValuesInto(target.metaValues, source.metaValues, alpha);
+    blendAuxiliaryCurvesInto(target.auxiliaryCurves, source.auxiliaryCurves, alpha);
 }
 
 export function blendTransformsInto (
@@ -104,7 +104,10 @@ export function blendTransformsInto (
             blendIntoTransformArrayAt(target, source, alpha, iTransform);
         }
     } else {
-        for (const involvedTransformIndex of transformFilter.involvedTransforms) {
+        // TODO: cannot use for-of statement for Readonly ArrayBuffer on TS 4.2 for OH platform, wait for they upgrade TS version.
+        // issue: https://github.com/cocos/cocos-engine/issues/14715
+        for (let index = 0; index < transformFilter.involvedTransforms.length; ++index) {
+            const involvedTransformIndex = transformFilter.involvedTransforms[index];
             blendIntoTransformArrayAt(target, source, alpha, involvedTransformIndex);
         }
     }
@@ -113,7 +116,10 @@ export function blendTransformsInto (
 function copyTransformsWithFilter (target: TransformArray, source: Readonly<TransformArray>, filter: TransformFilter) {
     const nTransforms = target.length;
     assertIsTrue(nTransforms === target.length);
-    for (const involvedTransformIndex of filter.involvedTransforms) {
+    // TODO: cannot use for-of statement for Readonly ArrayBuffer on TS 4.2 for OH platform, wait for they upgrade TS version.
+    // issue: https://github.com/cocos/cocos-engine/issues/14715
+    for (let index = 0; index < filter.involvedTransforms.length; ++index) {
+        const involvedTransformIndex = filter.involvedTransforms[index];
         target.copyRange(involvedTransformIndex, source, involvedTransformIndex, 1);
     }
 }
@@ -129,7 +135,7 @@ const blendIntoTransformArrayAt = (() => {
     };
 })();
 
-export function blendMetaValuesInto (target: Float64Array, source: Readonly<Float64Array>, alpha: number) {
+export function blendAuxiliaryCurvesInto (target: Float64Array, source: Readonly<Float64Array>, alpha: number) {
     const nValues = source.length;
     assertIsTrue(nValues === target.length);
     for (let iValue = 0; iValue < nValues; ++iValue) {
@@ -139,7 +145,7 @@ export function blendMetaValuesInto (target: Float64Array, source: Readonly<Floa
 
 export function calculateDeltaPose (target: Pose, base: Pose) {
     calculateDeltaTransforms(target.transforms, base.transforms);
-    calculateDeltaMetaValues(target.metaValues, base.metaValues);
+    calculateDeltaAuxiliaryCurves(target.auxiliaryCurves, base.auxiliaryCurves);
 }
 
 const calculateDeltaTransformArrayAt = (() => {
@@ -161,9 +167,9 @@ export function calculateDeltaTransforms (target: TransformArray, base: Transfor
     }
 }
 
-export function calculateDeltaMetaValues (target: Float64Array, base: Float64Array) {
-    const nMetaValues = target.length;
-    assertIsTrue(nMetaValues === base.length);
+export function calculateDeltaAuxiliaryCurves (target: Float64Array, base: Float64Array) {
+    const nAuxiliaryCurves = target.length;
+    assertIsTrue(nAuxiliaryCurves === base.length);
     for (let i = 0; i < target.length; ++i) {
         target[i] -= base[i];
     }
@@ -171,7 +177,7 @@ export function calculateDeltaMetaValues (target: Float64Array, base: Float64Arr
 
 export function applyDeltaPose (target: Pose, base: Pose, alpha: number, transformFilter: TransformFilter | undefined = undefined) {
     applyDeltaTransforms(target.transforms, base.transforms, alpha, transformFilter);
-    applyDeltaMetaValues(target.metaValues, base.metaValues, alpha);
+    applyDeltaAuxiliaryCurves(target.auxiliaryCurves, base.auxiliaryCurves, alpha);
 }
 
 const applyDeltaTransformArrayAt = (() => {
@@ -195,15 +201,18 @@ export function applyDeltaTransforms (
             applyDeltaTransformArrayAt(target, delta, alpha, iTransform);
         }
     } else {
-        for (const transformIndex of transformFilter.involvedTransforms) {
+        // TODO: cannot use for-of statement for Readonly ArrayBuffer on TS 4.2 for OH platform, wait for they upgrade TS version.
+        // issue: https://github.com/cocos/cocos-engine/issues/14715
+        for (let index = 0; index < transformFilter.involvedTransforms.length; ++index) {
+            const transformIndex = transformFilter.involvedTransforms[index];
             applyDeltaTransformArrayAt(target, delta, alpha, transformIndex);
         }
     }
 }
 
-export function applyDeltaMetaValues (target: Float64Array, delta: Float64Array, alpha: number) {
-    const nMetaValues = target.length;
-    assertIsTrue(nMetaValues === delta.length);
+export function applyDeltaAuxiliaryCurves (target: Float64Array, delta: Float64Array, alpha: number) {
+    const nAuxiliaryCurves = target.length;
+    assertIsTrue(nAuxiliaryCurves === delta.length);
     for (let i = 0; i < target.length; ++i) {
         target[i] += delta[i] * alpha;
     }

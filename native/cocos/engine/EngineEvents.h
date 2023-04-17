@@ -151,7 +151,11 @@ struct ControllerEvent {
         UNKNOWN
     };
     Type type = Type::UNKNOWN;
-    std::vector<std::unique_ptr<ControllerInfo>> controllerInfos;
+    ccstd::vector<std::unique_ptr<ControllerInfo>> controllerInfos;
+};
+
+struct ControllerChangeEvent {
+    ccstd::vector<uint32_t> controllerIds;
 };
 
 class MouseEvent {
@@ -167,6 +171,8 @@ public:
 
     float x = 0.0F;
     float y = 0.0F;
+    float xDelta = 0.0F;
+    float yDelta = 0.0F;
     // The button number that was pressed when the mouse event was fired: Left button=0, middle button=1 (if present), right button=2.
     // For mice configured for left handed use in which the button actions are reversed the values are instead read from right to left.
     uint16_t button = 0;
@@ -313,9 +319,11 @@ DECLARE_BUS_EVENT_ARG1(Touch, Engine, const cc::TouchEvent &)
 DECLARE_BUS_EVENT_ARG1(Mouse, Engine, const cc::MouseEvent &)
 DECLARE_BUS_EVENT_ARG1(Keyboard, Engine, const cc::KeyboardEvent &)
 DECLARE_BUS_EVENT_ARG1(Controller, Engine, const cc::ControllerEvent &)
+DECLARE_BUS_EVENT_ARG1(ControllerChange, Engine, const cc::ControllerChangeEvent &)
 DECLARE_BUS_EVENT_ARG1(Tick, Engine, float)
 DECLARE_BUS_EVENT_ARG3(Resize, Engine, int, int, uint32_t /* windowId*/)
 DECLARE_BUS_EVENT_ARG1(Orientation, Engine, int)
+DECLARE_BUS_EVENT_ARG1(PointerLock, Engine, bool)
 DECLARE_BUS_EVENT_ARG0(RestartVM, Engine)
 DECLARE_BUS_EVENT_ARG0(Close, Engine)
 DECLARE_BUS_EVENT_ARG0(SceneLoad, Engine)

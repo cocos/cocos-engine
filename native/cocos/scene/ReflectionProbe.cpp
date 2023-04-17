@@ -27,6 +27,8 @@
 #include "core/scene-graph/Scene.h"
 #include "math/Quaternion.h"
 #include "scene/ReflectionProbeManager.h"
+#include "core/scene-graph/SceneGlobals.h"
+#include "scene/Skybox.h"
 namespace cc {
 namespace scene {
 // right left up down front back
@@ -124,19 +126,19 @@ void ReflectionProbe::switchProbeType(int32_t type, const Camera* sourceCamera) 
 }
 
 void ReflectionProbe::transformReflectionCamera(const Camera* sourceCamera) {
-    float offset = Vec3::dot(_node->getWorldPosition(), Vec3::UNIT_Y);
-    _cameraWorldPos = reflect(sourceCamera->getNode()->getWorldPosition(), Vec3::UNIT_Y, offset);
+    float offset = Vec3::dot(_node->getWorldPosition(), _node->getUp());
+    _cameraWorldPos = reflect(sourceCamera->getNode()->getWorldPosition(), _node->getUp(), offset);
     _cameraNode->setWorldPosition(_cameraWorldPos);
 
     _forward = Vec3::FORWARD;
     _forward.transformQuat(sourceCamera->getNode()->getWorldRotation());
-    _forward = reflect(_forward, Vec3::UNIT_Y, 0);
+    _forward = reflect(_forward, _node->getUp(), 0);
     _forward.normalize();
     _forward *= -1;
 
     _up = Vec3::UNIT_Y;
     _up.transformQuat(sourceCamera->getNode()->getWorldRotation());
-    _up = reflect(_up, Vec3::UNIT_Y, 0);
+    _up = reflect(_up, _node->getUp(), 0);
     _up.normalize();
 
     Quaternion::fromViewUp(_forward, _up, &_cameraWorldRotation);
@@ -144,7 +146,7 @@ void ReflectionProbe::transformReflectionCamera(const Camera* sourceCamera) {
     _camera->update(true);
 
     // Transform the plane from world space to reflection camera space use the inverse transpose matrix
-    Vec4 viewSpaceProbe{Vec3::UNIT_Y.x, Vec3::UNIT_Y.y, Vec3::UNIT_Y.z, -Vec3::dot(Vec3::UNIT_Y, _node->getWorldPosition())};
+    Vec4 viewSpaceProbe{ _node->getUp().x, _node->getUp().y, _node->getUp().z, -Vec3::dot(_node->getUp(), _node->getWorldPosition())};
     Mat4 matView = _camera->getMatView();
     matView.inverse();
     matView.transpose();
@@ -173,8 +175,7 @@ void ReflectionProbe::updatePlanarTexture(const scene::RenderScene* scene) {
     if (!scene) return;
     for (const auto& model : scene->getModels()) {
         // filter model by view visibility
-        auto useProbeType = static_cast<uint32_t>(scene::ReflectionProbe::UseProbeType::PLANAR_REFLECTION);
-        if (model->isEnabled() && model->getReflectionProbeType() == useProbeType) {
+        if (model->isEnabled() && model->getReflectionProbeType() == scene::UseReflectionProbeType::PLANAR_REFLECTION) {
             const auto visibility = _camera->getVisibility();
             const auto* const node = model->getNode();
             if ((model->getNode() && ((visibility & node->getLayer()) == node->getLayer())) ||
@@ -290,6 +291,17 @@ void ReflectionProbe::packBackgroundColor() {
     Vec3 stepVec3 = sub < Vec3(0.5F, 0.5F, 0.5F) ? Vec3(0.5F, 0.5F, 0.5F) : sub;
     Vec3 encodeRounded(fVec3 + stepVec3);
     _camera->setClearColor(gfx::Color{encodeRounded.x / 255.F, encodeRounded.y / 255.F, encodeRounded.z / 255.F, e / 255.F});
+}
+
+bool ReflectionProbe::isRGBE() const {
+    if (_cubemap) {
+        return _cubemap->isRGBE;
+    }
+    // no baking will reflect the skybox
+    if (_node && _node->getScene() && _node->getScene()->getSceneGlobals()->getSkyboxInfo()->getEnvmap()) {
+        return _node->getScene()->getSceneGlobals()->getSkyboxInfo()->getEnvmap()->isRGBE;
+    }
+    return true;
 }
 
 } // namespace scene

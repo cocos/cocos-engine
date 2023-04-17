@@ -24,6 +24,11 @@
 
 import { API, } from '../../gfx';
 import { cclegacy } from '../../core';
+import type { EffectAsset } from '../../asset/assets/effect-asset';
+import type { Attribute, ShaderInfo, DescriptorSetLayout, DescriptorSetLayoutBinding, PipelineLayout } from '../../gfx';
+import type { IDefineRecord } from './program-lib';
+
+declare const jsb: any;
 
 export interface ITemplateInfo {
     gfxAttributes: Attribute[];

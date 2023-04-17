@@ -202,8 +202,7 @@ export class Pass {
     // external references
     protected _root: Root;
     protected _device: Device;
-
-    protected  _rootBufferDirty = false;
+    protected _rootBufferDirty = false;
 
     constructor (root: Root) {
         this._root = root;
@@ -352,10 +351,6 @@ export class Pass {
      */
     public overridePipelineStates (original: EffectAsset.IPassInfo, overrides: PassOverrides): void {
         console.warn('base pass cannot override states, please use pass instance instead.');
-    }
-
-    public _setRootBufferDirty (val: boolean) {
-        this._rootBufferDirty = val;
     }
 
     /**
@@ -770,8 +765,11 @@ export class Pass {
         return type < Type.FLOAT ? this._blocksInt[binding] : this._blocks[binding];
     }
 
-    // Only for UI
-    private _initPassFromTarget (target: Pass, dss: DepthStencilState, hashFactor: number) {
+    /**
+     * @engineInternal
+     * Only for UI
+     */
+    public _initPassFromTarget (target: Pass, dss: DepthStencilState, hashFactor: number) {
         this._priority = target.priority;
         this._stage = target.stage;
         this._phase = target.phase;
@@ -807,7 +805,10 @@ export class Pass {
     }
 
     // Only for UI
-    private _updatePassHash () {
+    /**
+     * @engineInternal
+     */
+    public _updatePassHash () {
         this._hash = Pass.getPassHash(this);
     }
 
@@ -833,8 +834,18 @@ export class Pass {
     get blocks (): Float32Array[] { return this._blocks; }
     get blocksInt (): Int32Array[] { return this._blocksInt; }
     get rootBufferDirty (): boolean { return this._rootBufferDirty; }
+    /**
+     * @engineInternal
+     * Currently, can not just mark setter as engine internal, so change to a function.
+     */
+    setRootBufferDirty (val: boolean) { this._rootBufferDirty = val; }
     // states
     get priority (): RenderPriority { return this._priority; }
+    /**
+     * @engineInternal
+     * Currently, can not just mark setter as engine internal, so change to a function.
+     */
+    setPriority (val: RenderPriority) { this._priority = val; }
     get primitive (): PrimitiveMode { return this._primitive; }
     get stage (): RenderPassStage { return this._stage; }
     get phase (): number { return this._phase; }

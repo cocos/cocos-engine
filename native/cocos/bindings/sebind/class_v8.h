@@ -90,7 +90,7 @@ void genericConstructor(const v8::FunctionCallbackInfo<v8::Value> &v8args) {
     }
 
     se::Value propertyVal;
-    if (thisObject->getProperty("_ctor", &propertyVal)) {
+    if (thisObject->getProperty("_ctor", &propertyVal, true)) {
         propertyVal.toObject()->call(args, thisObject);
     }
 }

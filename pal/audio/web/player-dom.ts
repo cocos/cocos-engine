@@ -123,8 +123,8 @@ export class AudioPlayerDOM implements OperationQueueable {
         game.off(Game.EVENT_PAUSE, this._onInterruptedBegin, this);
         game.off(Game.EVENT_RESUME, this._onInterruptedEnd, this);
         this._domAudio.removeEventListener('ended', this._onEnded);
-        // @ts-expect-error need to release DOM Audio instance
-        this._domAudio = null;
+        // NOTE: need to release DOM Audio instance
+        this._domAudio = null as any;
     }
     static load (url: string): Promise<AudioPlayerDOM> {
         return new Promise((resolve) => {
@@ -174,8 +174,8 @@ export class AudioPlayerDOM implements OperationQueueable {
     static loadOneShotAudio (url: string, volume: number): Promise<OneShotAudioDOM> {
         return new Promise((resolve, reject) => {
             AudioPlayerDOM.loadNative(url).then((domAudio) => {
-                // @ts-expect-error AudioPlayer should be a friend class in OneShotAudio
-                const oneShotAudio = new OneShotAudioDOM(domAudio, volume);
+                // HACK: AudioPlayer should be a friend class in OneShotAudio
+                const oneShotAudio = new (OneShotAudioDOM as any)(domAudio, volume);
                 resolve(oneShotAudio);
             }).catch(reject);
         });

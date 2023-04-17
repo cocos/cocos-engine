@@ -371,7 +371,10 @@ export class CallbacksInvoker<EventTypeClass extends EventType = EventType> {
         }
     }
 
-    private _registerOffCallback (cb: () => void) {
+    /**
+     * @engineInternal
+     */
+    public _registerOffCallback (cb: () => void) {
         this._offCallback = cb;
     }
 }

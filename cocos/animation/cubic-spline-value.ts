@@ -40,29 +40,29 @@ type ScaleFx<T> = (out: T, v: T, s: number) => T;
 type ScaleAndAddFx<T> = (out: T, v1: T, v2: T, s: number) => T;
 function makeCubicSplineValueConstructor<T> (
     name: string,
-    constructorX: new () => T,
+    ConstructorX: new () => T,
     scaleFx: ScaleFx<T>,
     scaleAndAdd: ScaleAndAddFx<T>,
 ): CubicSplineValueConstructor<T> {
-    let tempValue = new constructorX();
-    let m0 = new constructorX();
-    let m1 = new constructorX();
+    let tempValue = new ConstructorX();
+    let m0 = new ConstructorX();
+    let m1 = new ConstructorX();
 
     @ccclass(name)
     class CubicSplineValueClass implements ICubicSplineValue<T> {
         @serializable
-        public dataPoint: T = new constructorX();
+        public dataPoint: T = new ConstructorX();
 
         @serializable
-        public inTangent: T = new constructorX();
+        public inTangent: T = new ConstructorX();
 
         @serializable
-        public outTangent: T = new constructorX();
+        public outTangent: T = new ConstructorX();
 
         constructor (dataPoint?: T, inTangent?: T, outTangent?: T) {
-            this.dataPoint = dataPoint || new constructorX();
-            this.inTangent = inTangent || new constructorX();
-            this.outTangent = outTangent || new constructorX();
+            this.dataPoint = dataPoint || new ConstructorX();
+            this.inTangent = inTangent || new ConstructorX();
+            this.outTangent = outTangent || new ConstructorX();
         }
 
         public lerp (to: CubicSplineValueClass, t: number, dt: number) {
@@ -89,8 +89,9 @@ function makeCubicSplineValueConstructor<T> (
         }
     }
 
-    // @ts-expect-error TS2367
-    if (constructorX === Quat) {
+    // TODO: This comparison appears to be unintentional because the types 'new () => T' and 'typeof Quat' have no overlap. @Lelie Leight
+    // Tracking issue: https://github.com/cocos/cocos-engine/issues/14640
+    if (ConstructorX as any === Quat) {
         const lerp = CubicSplineValueClass.prototype.lerp;
         CubicSplineValueClass.prototype.lerp = function (this: CubicSplineValueClass, to: CubicSplineValueClass, t: number, dt: number) {
             const result = lerp.call(this, to, t, dt) as Quat;

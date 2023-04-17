@@ -24,7 +24,7 @@
 
 import { Color, Vec3, Mat4, Quat } from '../core';
 import { ParticleSystem } from './particle-system';
-import { IParticleSystemRenderer } from './renderer/particle-system-renderer-base';
+import { ParticleSystemRendererBase } from './renderer/particle-system-renderer-base';
 
 export class Particle {
     public static INDENTIFY_NEG_QUAT = 10;
@@ -137,7 +137,7 @@ export const PARTICLE_MODULE_PROPERTY = [
 ];
 
 export interface IParticleModule {
-    target: IParticleSystemRenderer | null;
+    target: ParticleSystemRendererBase | null;
     needUpdate: boolean;
     needAnimate: boolean;
     name: string;
@@ -147,11 +147,11 @@ export interface IParticleModule {
 }
 
 export abstract class ParticleModuleBase implements IParticleModule {
-    public target:IParticleSystemRenderer | null = null;
+    public target: ParticleSystemRendererBase | null = null;
     public needUpdate = false;
     public needAnimate = true;
 
-    public bindTarget (target: IParticleSystemRenderer) {
+    public bindTarget (target: ParticleSystemRendererBase) {
         this.target = target;
     }
 

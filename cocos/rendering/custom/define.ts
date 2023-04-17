@@ -22,6 +22,7 @@
  THE SOFTWARE.
 */
 
+import { EDITOR } from 'internal:constants';
 import { BufferInfo, Buffer, BufferUsageBit, ClearFlagBit, Color, DescriptorSet, LoadOp,
     Format, Rect, Sampler, StoreOp, Texture, Viewport, MemoryUsageBit } from '../../gfx';
 import { Camera, CSMLevel, DirectionalLight, Light, LightType, ReflectionProbe, ShadowType, SKYBOX_FLAG, SpotLight } from '../../render-scene/scene';
@@ -35,7 +36,10 @@ import { RenderWindow } from '../../render-scene/core/render-window';
 import { RenderData } from './render-graph';
 import { WebPipeline } from './web-pipeline';
 import { DescriptorSetData } from './layout-graph';
-import { legacyCC } from '../../core/global-exports';
+import { AABB } from '../../core/geometry';
+
+const _rangedDirLightBoundingBox = new AABB(0.0, 0.0, 0.0, 0.5, 0.5, 0.5);
+const _tmpBoundingBox = new AABB();
 
 // Anti-aliasing type, other types will be gradually added in the future
 export enum AntiAliasing {
@@ -70,6 +74,27 @@ export function validPunctualLightsCulling (pipeline: Pipeline, camera: Camera) 
         }
         geometry.Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
         if (geometry.intersect.sphereFrustum(_sphere, camera.frustum)) {
+            validPunctualLights.push(light);
+        }
+    }
+
+    const { pointLights } = camera.scene!;
+    for (let i = 0; i < pointLights.length; i++) {
+        const light = pointLights[i];
+        if (light.baked) {
+            continue;
+        }
+        geometry.Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
+        if (geometry.intersect.sphereFrustum(_sphere, camera.frustum)) {
+            validPunctualLights.push(light);
+        }
+    }
+
+    const { rangedDirLights } = camera.scene!;
+    for (let i = 0; i < rangedDirLights.length; i++) {
+        const light = rangedDirLights[i];
+        AABB.transform(_tmpBoundingBox, _rangedDirLightBoundingBox, light.node!.getWorldMatrix());
+        if (geometry.intersect.aabbFrustum(_tmpBoundingBox, camera.frustum)) {
             validPunctualLights.push(light);
         }
     }
@@ -529,6 +554,9 @@ export function buildPostprocessPass (camera: Camera,
 export function buildForwardPass (camera: Camera,
     ppl: Pipeline,
     isOffScreen: boolean) {
+    if (EDITOR) {
+        ppl.setMacroInt('CC_PIPELINE_TYPE', 0);
+    }
     const cameraID = getCameraUniqueID(camera);
     const cameraName = `Camera${cameraID}`;
     const cameraInfo = buildShadowPasses(cameraName, camera, ppl);

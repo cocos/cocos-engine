@@ -25,7 +25,7 @@
 import { TrackEntryListeners } from './track-entry-listeners';
 import spine from './lib/spine-core.js';
 import { Texture2D } from '../asset/assets';
-// Permit max cache time, unit is second.
+
 const MaxCacheTime = 30;
 const FrameTime = 1 / 60;
 
@@ -112,7 +112,7 @@ export interface AnimationFrame {
 
 // Cache all frames in an animation
 export class AnimationCache {
-    public frames: AnimationFrame[] = [];
+    public frames: SafeArray<AnimationFrame> = [];
     public totalTime = 0;
     public isCompleted = false;
     public maxVertexCount = 0;
@@ -159,7 +159,7 @@ export class AnimationCache {
     public clear () {
         this._inited = false;
         for (let i = 0, n = this.frames.length; i < n; i++) {
-            const frame = this.frames[i];
+            const frame = this.frames[i]!;
             frame.segments.length = 0;
         }
         this.invalidAllFrame();
@@ -366,11 +366,10 @@ export class AnimationCache {
             segments: [],
             colors: [],
             boneInfos: [],
-            vertices: null,
-            uintVert: null,
-            indices: null,
+            vertices: new Float32Array(),
+            indices: new Uint16Array(),
         };
-        const frame = this.frames[index];
+        const frame = this.frames[index]!;
 
         const segments = this._tempSegments = frame.segments;
         const colors = this._tempColors = frame.colors;

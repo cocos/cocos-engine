@@ -23,7 +23,8 @@
  THE SOFTWARE.
 */
 
-export { MeshRenderer, ReflectionProbeType } from './mesh-renderer';
+export { MeshRenderer } from './mesh-renderer';
+export { ReflectionProbeType } from './reflection-probe-enum';
 
 /** deprecated */
 export * from './deprecated';

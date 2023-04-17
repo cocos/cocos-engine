@@ -31,6 +31,9 @@ import type { ReadonlyClipOverrideMap, ClipStatus } from './graph-eval';
 import type { RuntimeID } from './graph-debug';
 import { AnimationGraphEvaluationContext, AnimationGraphLayerWideBindingContext } from './animation-graph-context';
 import { Pose } from '../core/pose';
+import { EditorExtendable } from '../../core';
+import { ccclass } from '../../core/data/decorators';
+import { CLASS_NAME_PREFIX_ANIM } from '../define';
 
 export interface CreateClipEvalContext {
     node: Node;
@@ -63,10 +66,13 @@ export interface MotionEval {
     createPort(): MotionPort;
 }
 
-export interface Motion {
-    [createEval] (context: AnimationGraphLayerWideBindingContext, clipOverrides: ReadonlyClipOverrideMap | null): MotionEval | null;
+// Note: the ccclass name mismatch
+// since we ever made a historical mistaken: take a look at `MotionState`'s class name...
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}MotionBase`)
+export abstract class Motion extends EditorExtendable {
+    abstract [createEval] (context: AnimationGraphLayerWideBindingContext, clipOverrides: ReadonlyClipOverrideMap | null): MotionEval | null;
 
-    clone(): Motion;
+    abstract clone(): Motion;
 }
 
 export interface MotionPort {

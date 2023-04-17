@@ -43,9 +43,7 @@ SystemWindow::SystemWindow(uint32_t windowId, void *externalHandle)
     }
 }
 
-SystemWindow::~SystemWindow() {
-    setCursorEnabled(true);
-}
+SystemWindow::~SystemWindow() = default;
 
 bool SystemWindow::createWindow(const char *title,
                                 int w, int h, int flags) {
@@ -116,6 +114,7 @@ void SystemWindow::setCursorEnabled(bool value) {
         _pointerLock = true;
     }
     CC_ASSERT(result == kCGErrorSuccess);
+    events::PointerLock::broadcast(!value);
 }
 
 void SystemWindow::copyTextToClipboard(const std::string &text) {
