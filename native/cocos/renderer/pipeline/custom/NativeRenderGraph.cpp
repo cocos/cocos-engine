@@ -303,74 +303,6 @@ void NativeRasterPassBuilder::setShowStatistics(bool enable) {
     pass.showStatistics = enable;
 }
 
-ccstd::string NativeRasterSubpassBuilder::getName() const {
-    return std::string(get(RenderGraph::NameTag{}, *renderGraph, subpassID));
-}
-
-void NativeRasterSubpassBuilder::setName(const ccstd::string &name) {
-    get(RenderGraph::NameTag{}, *renderGraph, subpassID) = std::string_view{name};
-}
-
-void NativeRasterSubpassBuilder::setMat4(const ccstd::string &name, const Mat4 &mat) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, subpassID);
-    setMat4Impl(data, *layoutGraph, name, mat);
-}
-
-void NativeRasterSubpassBuilder::setQuaternion(const ccstd::string &name, const Quaternion &quat) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, subpassID);
-    setQuaternionImpl(data, *layoutGraph, name, quat);
-}
-
-void NativeRasterSubpassBuilder::setColor(const ccstd::string &name, const gfx::Color &color) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, subpassID);
-    setColorImpl(data, *layoutGraph, name, color);
-}
-
-void NativeRasterSubpassBuilder::setVec4(const ccstd::string &name, const Vec4 &vec) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, subpassID);
-    setVec4Impl(data, *layoutGraph, name, vec);
-}
-
-void NativeRasterSubpassBuilder::setVec2(const ccstd::string &name, const Vec2 &vec) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, subpassID);
-    setVec2Impl(data, *layoutGraph, name, vec);
-}
-
-void NativeRasterSubpassBuilder::setFloat(const ccstd::string &name, float v) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, subpassID);
-    setFloatImpl(data, *layoutGraph, name, v);
-}
-
-void NativeRasterSubpassBuilder::setArrayBuffer(const ccstd::string &name, const ArrayBuffer *buffer) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, subpassID);
-    setArrayBufferImpl(data, *layoutGraph, name, *buffer);
-}
-
-void NativeRasterSubpassBuilder::setBuffer(const ccstd::string &name, gfx::Buffer *buffer) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, subpassID);
-    setBufferImpl(data, *layoutGraph, name, buffer);
-}
-
-void NativeRasterSubpassBuilder::setTexture(const ccstd::string &name, gfx::Texture *texture) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, subpassID);
-    setTextureImpl(data, *layoutGraph, name, texture);
-}
-
-void NativeRasterSubpassBuilder::setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, subpassID);
-    setReadWriteBufferImpl(data, *layoutGraph, name, buffer);
-}
-
-void NativeRasterSubpassBuilder::setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, subpassID);
-    setReadWriteTextureImpl(data, *layoutGraph, name, texture);
-}
-
-void NativeRasterSubpassBuilder::setSampler(const ccstd::string &name, gfx::Sampler *sampler) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, subpassID);
-    setSamplerImpl(data, *layoutGraph, name, sampler);
-}
-
 namespace {
 
 template <class Tag>
@@ -490,7 +422,7 @@ void NativeRasterSubpassBuilder::addRenderTarget(
         storeOp,
         gfx::ClearFlagBit::COLOR,
         color,
-        subpassID,
+        nodeID,
         *renderGraph);
 }
 
@@ -508,7 +440,7 @@ void NativeRasterSubpassBuilder::addDepthStencil(
         storeOp,
         clearFlags,
         gfx::Color{depth, static_cast<float>(stencil)},
-        subpassID,
+        nodeID,
         *renderGraph);
 }
 
@@ -523,11 +455,11 @@ void NativeRasterSubpassBuilder::addStorageImage(const ccstd::string &name, Acce
 }
 
 void NativeRasterSubpassBuilder::addComputeView(const ccstd::string &name, const ComputeView &view) {
-    addComputeViewImpl<RasterSubpassTag>(name, view, subpassID, *renderGraph);
+    addComputeViewImpl<RasterSubpassTag>(name, view, nodeID, *renderGraph);
 }
 
 void NativeRasterSubpassBuilder::setViewport(const gfx::Viewport &viewport) {
-    auto &subpass = get(RasterSubpassTag{}, subpassID, *renderGraph);
+    auto &subpass = get(RasterSubpassTag{}, nodeID, *renderGraph);
     subpass.viewport = viewport;
 }
 
@@ -548,18 +480,18 @@ RasterQueueBuilder *NativeRasterSubpassBuilder::addQueue(QueueHint hint, const c
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(hint, phaseLayoutID),
-        *renderGraph, subpassID);
+        *renderGraph, nodeID);
 
     return new NativeRasterQueueBuilder(pipelineRuntime, renderGraph, queueID, layoutGraph);
 }
 
 bool NativeRasterSubpassBuilder::getShowStatistics() const {
-    const auto &subpass = get(RasterSubpassTag{}, subpassID, *renderGraph);
+    const auto &subpass = get(RasterSubpassTag{}, nodeID, *renderGraph);
     return subpass.showStatistics;
 }
 
 void NativeRasterSubpassBuilder::setShowStatistics(bool enable) {
-    auto &subpass = get(RasterSubpassTag{}, subpassID, *renderGraph);
+    auto &subpass = get(RasterSubpassTag{}, nodeID, *renderGraph);
     subpass.showStatistics = enable;
 }
 
