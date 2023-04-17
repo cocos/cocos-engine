@@ -2950,6 +2950,27 @@ describe('NewGen Anim', () => {
                 expect(controller.getNextStateStatus(0)).toBe(null);
                 expect([...controller.getNextClipStatuses(0)]).toHaveLength(0);
             });
+
+            test(`Pose state`, () => {
+                const graph = new AnimationGraph();
+                const mainLayer = graph.addLayer();
+                const state = mainLayer.stateMachine.addPoseState();
+                state.name = `Hi Pose`;
+                mainLayer.stateMachine.connect(mainLayer.stateMachine.entryState, state);
+
+                const { newGenAnim, graphEval } = createAnimationGraphEval2(graph, new Node());
+                const graphUpdater = new GraphUpdater(graphEval);
+
+                for (const t of [0.2, 1.2, 2.3]) {
+                    graphUpdater.goto(t);
+                    expect(newGenAnim.getCurrentStateStatus(0)).toMatchObject({
+                        __DEBUG_ID__: 'Hi Pose',
+                        progress: t - Math.trunc(t),
+                    });
+                    expect([...newGenAnim.getCurrentClipStatuses(0)]).toHaveLength(0);
+                    commonCheck1(newGenAnim);
+                }
+            });
         });
 
         describe(`If the layer is performing transition`, () => {

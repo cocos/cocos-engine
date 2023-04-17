@@ -37,7 +37,8 @@ import { AnimationMask } from './animation-mask';
 import { onAfterDeserializedTag } from '../../serialization/deserialize-symbols';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 import { AnimationGraphLike } from './animation-graph-like';
-import { renameObjectProperty } from '../../core/utils/internal';
+import { createInstanceofProxy, renameObjectProperty } from '../../core/utils/internal';
+import { PoseGraph } from './pose-graph/pose-graph';
 
 export { State };
 
@@ -231,6 +232,41 @@ export class EmptyStateTransition extends Transition {
     }
 }
 
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}PoseState`)
+class PoseState extends State {
+    @serializable
+    public graph = new PoseGraph();
+
+    /**
+     * // TODO: HACK
+     * @internal
+     */
+    public __callOnAfterDeserializeRecursive () {
+        this.graph.__callOnAfterDeserializeRecursive();
+    }
+}
+
+type PoseState_ = PoseState;
+const PoseState_ = createInstanceofProxy(PoseState);
+export {
+    PoseState_ as PoseState,
+};
+
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}PoseTransition`)
+class PoseTransition extends Transition {
+    /**
+     * The transition duration, in seconds.
+     */
+    @serializable
+    public duration = 0.3;
+}
+
+type PoseTransition_ = PoseTransition;
+const PoseTransition_ = createInstanceofProxy(PoseTransition);
+export {
+    PoseTransition_ as PoseTransition,
+};
+
 @ccclass('cc.animation.StateMachine')
 export class StateMachine extends EditorExtendable {
     @serializable
@@ -382,6 +418,15 @@ export class StateMachine extends EditorExtendable {
     }
 
     /**
+     * @zh 向此状态机中添加一项姿势状态。
+     * @en Adds an pose state into this state machine.
+     * @returns @zh 新创建的姿势状态。 @en The newly created pose state.
+     */
+    public addPoseState () {
+        return this._addState(new PoseState());
+    }
+
+    /**
      * Removes specified state from this state machine.
      * @param state The state to remove.
      */
@@ -421,6 +466,14 @@ export class StateMachine extends EditorExtendable {
      * @param from Source state.
      * @param to Target state.
      * @param condition The transition condition.
+     */
+    public connect (from: PoseState, to: State, conditions?: Condition[]): PoseTransition_;
+
+    /**
+     * Connect two states.
+     * @param from Source state.
+     * @param to Target state.
+     * @param condition The transition condition.
      * @throws `InvalidTransitionError` if:
      * - the target state is entry or any, or
      * - the source state is exit.
@@ -445,7 +498,9 @@ export class StateMachine extends EditorExtendable {
             ? new AnimationTransition(from, to, conditions)
             : from instanceof EmptyState
                 ? new EmptyStateTransition(from, to, conditions)
-                : new Transition(from, to, conditions);
+                : from instanceof PoseState
+                    ? new PoseTransition(from, to, conditions)
+                    : new Transition(from, to, conditions);
 
         own(transition, this);
         this._transitions.push(transition);

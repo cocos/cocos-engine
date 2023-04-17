@@ -29,8 +29,8 @@ import { MotionEvalContext } from './motion';
 import { AnimationBlend, AnimationBlendEval, AnimationBlendItem } from './animation-blend';
 import { blend1D } from './blend-1d';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
-import { AnimationGraphLayerWideBindingContext } from './animation-graph-context';
 import { ReadonlyClipOverrideMap } from './graph-eval';
+import { AnimationGraphBindingContext } from './animation-graph-context';
 
 const { ccclass, serializable } = _decorator;
 
@@ -79,12 +79,12 @@ export class AnimationBlend1D extends AnimationBlend {
         return that;
     }
 
-    public [createEval] (context: AnimationGraphLayerWideBindingContext, clipOverrides: ReadonlyClipOverrideMap | null) {
+    public [createEval] (context: AnimationGraphBindingContext, clipOverrides: ReadonlyClipOverrideMap | null) {
         const evaluation = new AnimationBlend1DEval(
             context, clipOverrides, this, this._items, this._items.map(({ threshold }) => threshold), 0.0,
         );
         const initialValue = bindOr(
-            context.outerContext,
+            context,
             this.param,
             VariableType.FLOAT,
             evaluation.setInput,
@@ -104,7 +104,7 @@ class AnimationBlend1DEval extends AnimationBlendEval {
     private declare _thresholds: readonly number[];
 
     constructor (
-        context: AnimationGraphLayerWideBindingContext,
+        context: AnimationGraphBindingContext,
         overrides: ReadonlyClipOverrideMap | null,
         base: AnimationBlend, items: AnimationBlendItem[], thresholds: readonly number[], input: number,
     ) {

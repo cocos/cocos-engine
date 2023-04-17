@@ -31,13 +31,13 @@ import { ReadonlyClipOverrideMap, ClipStatus } from './graph-eval';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 import { getMotionRuntimeID, RUNTIME_ID_ENABLED } from './graph-debug';
 import { cloneAnimationGraphEditorExtrasFrom } from './animation-graph-editor-extras-clone-helper';
-import { AnimationGraphEvaluationContext, AnimationGraphLayerWideBindingContext } from './animation-graph-context';
+import { AnimationGraphBindingContext, AnimationGraphEvaluationContext } from './animation-graph-context';
 import { blendPoseInto, Pose } from '../core/pose';
 
 const { ccclass, serializable } = _decorator;
 
 export interface AnimationBlend extends Motion, EditorExtendable {
-    [createEval] (_context: AnimationGraphLayerWideBindingContext, overrides: ReadonlyClipOverrideMap | null): MotionEval | null;
+    [createEval] (_context: AnimationGraphBindingContext, overrides: ReadonlyClipOverrideMap | null): MotionEval | null;
 }
 
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}AnimationBlendItem`)
@@ -76,7 +76,7 @@ export class AnimationBlendEval implements MotionEval {
     private declare _inputs: number[];
 
     constructor (
-        context: AnimationGraphLayerWideBindingContext,
+        context: AnimationGraphBindingContext,
         overrides: ReadonlyClipOverrideMap | null,
         base: AnimationBlend,
         children: AnimationBlendItem[],
@@ -174,7 +174,7 @@ export class AnimationBlendEval implements MotionEval {
         return context.pushDefaultedPose();
     }
 
-    public overrideClips (overrides: ReadonlyClipOverrideMap, context: AnimationGraphLayerWideBindingContext): void {
+    public overrideClips (overrides: ReadonlyClipOverrideMap, context: AnimationGraphBindingContext): void {
         for (let iChild = 0; iChild < this._childEvaluators.length; ++iChild) {
             this._childEvaluators[iChild]?.overrideClips(overrides, context);
         }

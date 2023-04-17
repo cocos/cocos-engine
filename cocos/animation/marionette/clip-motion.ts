@@ -31,7 +31,7 @@ import { ClipStatus, ReadonlyClipOverrideMap } from './graph-eval';
 import { Motion, MotionEval, MotionPort } from './motion';
 import { wrap } from '../wrap';
 import { calculateDeltaPose, Pose } from '../core/pose';
-import { AnimationGraphEvaluationContext, AnimationGraphLayerWideBindingContext } from './animation-graph-context';
+import { AnimationGraphEvaluationContext, AnimationGraphBindingContext } from './animation-graph-context';
 import { WrappedInfo } from '../types';
 import { WrapModeMask } from '../../core/geometry';
 import { AnimationClipAGEvaluation } from './animation-graph-animation-clip-binding';
@@ -43,7 +43,7 @@ export class ClipMotion extends Motion {
     @type(AnimationClip)
     public clip: AnimationClip | null = null;
 
-    public [createEval] (context: AnimationGraphLayerWideBindingContext, overrides: ReadonlyClipOverrideMap | null) {
+    public [createEval] (context: AnimationGraphBindingContext, overrides: ReadonlyClipOverrideMap | null) {
         if (!this.clip) {
             return null;
         }
@@ -72,7 +72,7 @@ class ClipMotionEval implements MotionEval {
 
     public declare runtimeId?: number;
 
-    constructor (context: AnimationGraphLayerWideBindingContext, clip: AnimationClip, clipOverrides: ReadonlyClipOverrideMap | null) {
+    constructor (context: AnimationGraphBindingContext, clip: AnimationClip, clipOverrides: ReadonlyClipOverrideMap | null) {
         this._originalClip = clip;
         const overriding = clipOverrides?.get(clip) ?? clip;
         this._setClip(overriding, context);
@@ -155,7 +155,7 @@ class ClipMotionEval implements MotionEval {
         return pose;
     }
 
-    public overrideClips (clipOverrides: ReadonlyClipOverrideMap, context: AnimationGraphLayerWideBindingContext): void {
+    public overrideClips (clipOverrides: ReadonlyClipOverrideMap, context: AnimationGraphBindingContext): void {
         const { _originalClip: originalClip } = this;
         const overriding = clipOverrides.get(originalClip);
         if (overriding) {
@@ -177,7 +177,7 @@ class ClipMotionEval implements MotionEval {
     private _baseClipEval: AnimationClipAGEvaluation | null = null;
     private _duration = 0.0;
 
-    private _setClip (clip: AnimationClip, context: AnimationGraphLayerWideBindingContext) {
+    private _setClip (clip: AnimationClip, context: AnimationGraphBindingContext) {
         this._clipEval?.destroy();
         if (this._clipEmbeddedPlayerEval) {
             this._clipEmbeddedPlayerEval.destroy();
@@ -188,15 +188,15 @@ class ClipMotionEval implements MotionEval {
         this._duration = clip.speed === 0.0
             ? 0.0
             : clip.duration / clip.speed; // TODO, a test for `clip.speed === 0` is required!
-        const clipEval = new AnimationClipAGEvaluation(clip, context.outerContext);
+        const clipEval = new AnimationClipAGEvaluation(clip, context);
         this._clipEval = clipEval;
         if (clip.containsAnyEmbeddedPlayer()) {
-            this._clipEmbeddedPlayerEval = clip.createEmbeddedPlayerEvaluator(context.outerContext.origin);
+            this._clipEmbeddedPlayerEval = clip.createEmbeddedPlayerEvaluator(context.origin);
         }
         if (context.additive) {
             const additiveSettings = clip[additiveSettingsTag];
             const baseClip = additiveSettings.base ?? clip;
-            this._baseClipEval = new AnimationClipAGEvaluation(baseClip, context.outerContext);
+            this._baseClipEval = new AnimationClipAGEvaluation(baseClip, context);
         }
     }
 }

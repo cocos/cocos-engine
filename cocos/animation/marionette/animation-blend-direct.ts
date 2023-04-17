@@ -27,9 +27,9 @@ import { createEval } from './create-eval';
 import { MotionEvalContext } from './motion';
 import { AnimationBlend, AnimationBlendEval, AnimationBlendItem } from './animation-blend';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
-import { AnimationGraphLayerWideBindingContext } from './animation-graph-context';
 import { ReadonlyClipOverrideMap } from './graph-eval';
 import { BindableNumber, bindOr, VariableType } from './parametric';
+import { AnimationGraphBindingContext } from './animation-graph-context';
 
 const { ccclass, serializable } = _decorator;
 
@@ -73,7 +73,7 @@ export class AnimationBlendDirect extends AnimationBlend {
         return that;
     }
 
-    public [createEval] (context: AnimationGraphLayerWideBindingContext, clipOverrides: ReadonlyClipOverrideMap | null) {
+    public [createEval] (context: AnimationGraphBindingContext, clipOverrides: ReadonlyClipOverrideMap | null) {
         const myEval: AnimationBlendDirectEval = new AnimationBlendDirectEval(
             context,
             clipOverrides,
@@ -84,7 +84,7 @@ export class AnimationBlendDirect extends AnimationBlend {
         for (let iItem = 0; iItem < this._items.length; ++iItem) {
             const item = this._items[iItem];
             const initialValue = bindOr(
-                context.outerContext,
+                context,
                 item.weight,
                 VariableType.FLOAT,
                 myEval.setInput,

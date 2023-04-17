@@ -2,7 +2,7 @@ import { DEBUG } from 'internal:constants';
 import { Node } from '../../scene-graph';
 import { assertIsTrue } from '../../core/data/utils/asserts';
 import { Pose, TransformFilter } from '../core/pose';
-import { PoseAllocator } from '../core/pose-allocator';
+import { PoseStackAllocator } from '../core/pose-allocator';
 import { TransformArray } from '../core/transform-array';
 import { TransformHandle, AuxiliaryCurveHandle } from '../core/animation-handle';
 import { Transform, ZERO_DELTA_TRANSFORM } from '../core/transform';
@@ -10,6 +10,7 @@ import { VarInstance } from './variable';
 import { AnimationMask } from './animation-mask';
 import { error } from '../../core';
 import { partition } from '../../core/algorithm/partition';
+import { AnimationController } from './animation-controller';
 
 /**
  * This module contains stuffs related to animation graph's evaluation.
@@ -43,35 +44,57 @@ function findBoneByNameRecursively (from: Node, name: string): Node | null {
     return null;
 }
 
-/**
- * The binding context of an animation graph in layer-wide.
- */
-export interface AnimationGraphLayerWideBindingContext {
-    /**
-     * Indicates if the current layer is an additive layer.
-     */
-    additive: boolean;
-
-    /**
-     * The outer binding context.
-     */
-    outerContext: AnimationGraphBindingContext;
-}
-
 export type VarRegistry = Record<string, VarInstance>;
+
+export type TriggerResetter = (triggerName: string) => void;
 
 /**
  * The binding context of an animation graph.
  */
 export class AnimationGraphBindingContext {
-    constructor (origin: Node, poseLayoutMaintainer: AnimationGraphPoseLayoutMaintainer, varRegistry: VarRegistry) {
+    constructor (
+        origin: Node,
+        poseLayoutMaintainer: AnimationGraphPoseLayoutMaintainer,
+        varRegistry: VarRegistry,
+        private _controller: AnimationController,
+    ) {
         this._origin = origin;
         this._layoutMaintainer = poseLayoutMaintainer;
         this._varRegistry = varRegistry;
+        this._additiveFlagStack = [false]; // By default, non-additive.
     }
 
+    /**
+     * The origin node.
+     *
+     * The origin node is the origin from where the animation target start to resolve.
+     * It's now definitely the node hosting the running animation controller component.
+     */
     get origin () {
         return this._origin;
+    }
+
+    /**
+     * The animation controller component currently running the animation graph.
+     */
+    get controller () {
+        return this._controller;
+    }
+
+    /**
+     * A free function to reset specified trigger.
+     * @internal This function should only be accessed by the builtin state machine.
+     */
+    get triggerResetter () {
+        return this._triggerResetter;
+    }
+
+    /**
+     * Returns if current context expects to have an additive pose.
+     */
+    get additive () {
+        const { _additiveFlagStack: additiveFlagStack } = this;
+        return additiveFlagStack[additiveFlagStack.length - 1];
     }
 
     public bindTransform (bone: string): TransformHandle | null {
@@ -106,11 +129,46 @@ export class AnimationGraphBindingContext {
         return this._varRegistry[id];
     }
 
+    /**
+     * Pushes the `additive` flag. A later `_popAdditiveFlag` is required to pop the change.
+     * @internal
+     */
+    public _pushAdditiveFlag (additive: boolean) {
+        this._additiveFlagStack.push(additive);
+    }
+
+    /**
+     * Undo last `_pushAdditiveFlag`.
+     * @internal
+     */
+    public _popAdditiveFlag () {
+        assertIsTrue(this._additiveFlagStack.length > 1);
+        this._additiveFlagStack.pop();
+    }
+
+    /** @internal */
+    public _integrityCheck () {
+        return this._additiveFlagStack.length === 1;
+    }
+
     private _origin: Node;
 
     private _layoutMaintainer: AnimationGraphPoseLayoutMaintainer;
 
-    private _varRegistry: VarRegistry
+    private _varRegistry: VarRegistry;
+
+    /** At least has one. */
+    private _additiveFlagStack: boolean[] = [];
+
+    private _triggerResetter: TriggerResetter = (name: string) => this._resetTrigger(name);
+
+    private _resetTrigger (triggerName: string) {
+        const varInstance = this._varRegistry[triggerName];
+        if (!varInstance) {
+            return;
+        }
+        varInstance.value = false;
+    }
 }
 
 const cacheTransform = new Transform();
@@ -172,7 +230,7 @@ const checkBindStatus = (bindStarted = false): MethodDecorator => (_, _propertyK
 };
 
 export class AnimationGraphPoseLayoutMaintainer {
-    constructor (auxiliaryCurveRegistry: AuxiliaryCurveRegistry) {
+    constructor (private _origin: Node, auxiliaryCurveRegistry: AuxiliaryCurveRegistry) {
         this._auxiliaryCurveRegistry = auxiliaryCurveRegistry;
     }
 
@@ -240,7 +298,8 @@ export class AnimationGraphPoseLayoutMaintainer {
         }
     }
 
-    public createTransformFilter (mask: Readonly<AnimationMask>, origin: Node) {
+    public createTransformFilter (mask: Readonly<AnimationMask>) {
+        const { _origin: origin } = this;
         const involvedTransformIndices: number[] = [];
         for (const { node, handle } of this._transformRecords) {
             const path = countPath(origin, node);
@@ -472,9 +531,29 @@ function trimRecords<TRecord extends AnimationRecord<any>> (records: TRecord[]) 
 
 export const defaultTransformsTag = Symbol('[[DefaultTransforms]]');
 
+/**
+ * The settle context for animation graph building blocks(state machine/pose node/motion...etc).
+ */
+export class AnimationGraphSettleContext {
+    constructor (
+        private _layoutMaintainer: AnimationGraphPoseLayoutMaintainer,
+    ) {
+
+    }
+
+    /**
+     * Creates a transform filter expressing specified animation mask effect.
+     * @param mask Animation mask.
+     * @returns Result transform filter.
+     */
+    public createTransformFilter (mask: Readonly<AnimationMask>): TransformFilter {
+        return this._layoutMaintainer.createTransformFilter(mask);
+    }
+}
+
 export class AnimationGraphEvaluationContext {
     constructor (layout: PoseLayout) {
-        this._poseAllocator = new PoseAllocator(layout.transformCount, layout.auxiliaryCurveCount);
+        this._poseAllocator = new PoseStackAllocator(layout.transformCount, layout.auxiliaryCurveCount);
         this[defaultTransformsTag] = new TransformArray(layout.transformCount);
     }
 
@@ -516,7 +595,21 @@ export class AnimationGraphEvaluationContext {
         this._poseAllocator.pop();
     }
 
-    private _poseAllocator: PoseAllocator;
+    /**
+     * @internal
+     */
+    public get _stackSize_debugging () {
+        return this._poseAllocator.allocatedCount;
+    }
+
+    /**
+     * @internal
+     */
+    public _isStackTopPose_debugging (pose: Pose) {
+        return pose === this._poseAllocator.top;
+    }
+
+    private _poseAllocator: PoseStackAllocator;
 }
 
 export interface PoseLayout {
@@ -557,4 +650,69 @@ class AuxiliaryCurveHandleInternal implements AuxiliaryCurveHandle {
     }
 
     private _host: AnimationGraphPoseLayoutMaintainer;
+}
+
+/**
+ * The update context for animation graph building blocks(state machine/pose node/motion...etc).
+ */
+export interface AnimationGraphUpdateContext {
+    /**
+     * Delta time to update.
+     */
+    readonly deltaTime: number;
+
+    /**
+     * Indicative weight of the updating target.
+     *
+     * The updating target shall not, for example, weight the result pose by this weight.
+     */
+    readonly indicativeWeight: number;
+}
+
+/**
+ * Utility class to generate animation graph context.
+ *
+ * The result of each method of this class is kept available until next call on any of these methods.
+ */
+export class AnimationGraphUpdateContextGenerator {
+    /**
+     * Generates a context which has specified attributes.
+     * @param deltaTime The result context's `.deltaTime`.
+     * @param indicativeWeight The result context's `.indicativeWeight`.
+     * @returns The result context.
+     */
+    public generate (
+        deltaTime: number,
+        indicativeWeight: number,
+    ) {
+        this._context.deltaTime = deltaTime;
+        this._context.indicativeWeight = indicativeWeight;
+        return this._context as AnimationGraphUpdateContext;
+    }
+
+    /**
+     * Forks specified `base` context so that the result context is same with the base
+     * except that the result indicative weight is taken from base and multiplied by `subWeight`.
+     * @param base The base context.
+     * @param subWeight The sub weight.
+     * @returns The result context.
+     */
+    public forkSubWeight (
+        base: AnimationGraphUpdateContext,
+        subWeight: number,
+    ) {
+        this._context.deltaTime = base.deltaTime;
+        this._context.indicativeWeight = base.indicativeWeight * subWeight;
+    }
+
+    private readonly _context: ReusableUpdateContext = {
+        deltaTime: 0.0,
+        indicativeWeight: 0.0,
+    };
+}
+
+interface ReusableUpdateContext extends AnimationGraphUpdateContext {
+    deltaTime: number;
+
+    indicativeWeight: number;
 }
