@@ -42,18 +42,35 @@
 #include "cocos/renderer/pipeline/custom/details/Map.h"
 #include "cocos/renderer/pipeline/custom/details/Set.h"
 
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable: 4250)
+#endif
+
 namespace cc {
 
 namespace render {
 
-class NativeSetter : virtual public Setter {
+class NativeRenderNode : virtual public RenderNode {
 public:
-    NativeSetter(const LayoutGraphData& layoutGraphIn, RenderData& renderDataIn) noexcept
-    : layoutGraph(layoutGraphIn),
-      renderData(renderDataIn) {}
+    NativeRenderNode(const PipelineRuntime* pipelineRuntimeIn, RenderGraph* renderGraphIn, uint32_t nodeIDIn) noexcept
+    : pipelineRuntime(pipelineRuntimeIn),
+      renderGraph(renderGraphIn),
+      nodeID(nodeIDIn) {}
 
     ccstd::string getName() const override;
     void setName(const ccstd::string &name) override;
+
+    const PipelineRuntime* pipelineRuntime{nullptr};
+    RenderGraph* renderGraph{nullptr};
+    uint32_t nodeID{RenderGraph::null_vertex()};
+};
+
+class NativeSetter : virtual public Setter, public NativeRenderNode {
+public:
+    NativeSetter(const PipelineRuntime* pipelineRuntimeIn, RenderGraph* renderGraphIn, uint32_t nodeIDIn, const LayoutGraphData* layoutGraphIn) noexcept // NOLINT
+    : NativeRenderNode(pipelineRuntimeIn, renderGraphIn, nodeIDIn),
+      layoutGraph(layoutGraphIn) {}
 
     void setMat4(const ccstd::string &name, const Mat4 &mat) override;
     void setQuaternion(const ccstd::string &name, const Quaternion &quat) override;
@@ -74,34 +91,13 @@ public:
     void setMat4ArraySize(const ccstd::string& name, uint32_t sz);
     void setMat4ArrayElem(const ccstd::string& name, const cc::Mat4& mat, uint32_t id);
 
-    const LayoutGraphData& layoutGraph;
-    RenderData& renderData;
+    const LayoutGraphData* layoutGraph{nullptr};
 };
 
-class NativeRasterQueueBuilder final : public RasterQueueBuilder {
+class NativeRasterQueueBuilder final : public RasterQueueBuilder, public NativeSetter {
 public:
-    NativeRasterQueueBuilder() = default;
-    NativeRasterQueueBuilder(const PipelineRuntime* pipelineRuntimeIn, RenderGraph* renderGraphIn, uint32_t queueIDIn, const LayoutGraphData* layoutGraphIn) noexcept
-    : pipelineRuntime(pipelineRuntimeIn),
-      renderGraph(renderGraphIn),
-      layoutGraph(layoutGraphIn),
-      queueID(queueIDIn) {}
-
-    ccstd::string getName() const override;
-    void setName(const ccstd::string &name) override;
-
-    void setMat4(const ccstd::string &name, const Mat4 &mat) override;
-    void setQuaternion(const ccstd::string &name, const Quaternion &quat) override;
-    void setColor(const ccstd::string &name, const gfx::Color &color) override;
-    void setVec4(const ccstd::string &name, const Vec4 &vec) override;
-    void setVec2(const ccstd::string &name, const Vec2 &vec) override;
-    void setFloat(const ccstd::string &name, float v) override;
-    void setArrayBuffer(const ccstd::string &name, const ArrayBuffer *arrayBuffer) override;
-    void setBuffer(const ccstd::string &name, gfx::Buffer *buffer) override;
-    void setTexture(const ccstd::string &name, gfx::Texture *texture) override;
-    void setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) override;
-    void setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) override;
-    void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override;
+    NativeRasterQueueBuilder(const PipelineRuntime* pipelineRuntimeIn, RenderGraph* renderGraphIn, uint32_t nodeIDIn, const LayoutGraphData* layoutGraphIn) noexcept
+    : NativeSetter(pipelineRuntimeIn, renderGraphIn, nodeIDIn, layoutGraphIn) {}
 
     void addSceneOfCamera(scene::Camera *camera, LightInfo light, SceneFlags sceneFlags) override;
     void addScene(const ccstd::string &name, SceneFlags sceneFlags) override;
@@ -109,11 +105,6 @@ public:
     void addCameraQuad(scene::Camera *camera, Material *material, uint32_t passID, SceneFlags sceneFlags) override;
     void clearRenderTarget(const ccstd::string &name, const gfx::Color &color) override;
     void setViewport(const gfx::Viewport &viewport) override;
-
-    const PipelineRuntime* pipelineRuntime{nullptr};
-    RenderGraph* renderGraph{nullptr};
-    const LayoutGraphData* layoutGraph{nullptr};
-    uint32_t queueID{RenderGraph::null_vertex()};
 };
 
 class NativeRasterSubpassBuilder final : public RasterSubpassBuilder {
@@ -881,3 +872,7 @@ public:
 } // namespace cc
 
 // clang-format on
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif

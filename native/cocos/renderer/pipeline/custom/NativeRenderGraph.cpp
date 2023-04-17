@@ -52,91 +52,92 @@ namespace cc {
 
 namespace render {
 
-ccstd::string NativeSetter::getName() const {
-    return {};
+ccstd::string NativeRenderNode::getName() const {
+    return std::string(get(RenderGraph::NameTag{}, *renderGraph, nodeID));
 }
-void NativeSetter::setName(const ccstd::string &name) {
-    // noop
+
+void NativeRenderNode::setName(const ccstd::string &name) {
+    get(RenderGraph::NameTag{}, *renderGraph, nodeID) = std::string_view{name};
 }
 
 void NativeSetter::setMat4(const ccstd::string &name, const Mat4 &mat) {
-    auto &data = renderData;
-    setMat4Impl(data, layoutGraph, name, mat);
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
+    setMat4Impl(data, *layoutGraph, name, mat);
 }
 
 void NativeSetter::setQuaternion(const ccstd::string &name, const Quaternion &quat) {
-    auto &data = renderData;
-    setQuaternionImpl(data, layoutGraph, name, quat);
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
+    setQuaternionImpl(data, *layoutGraph, name, quat);
 }
 
 void NativeSetter::setColor(const ccstd::string &name, const gfx::Color &color) {
-    auto &data = renderData;
-    setColorImpl(data, layoutGraph, name, color);
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
+    setColorImpl(data, *layoutGraph, name, color);
 }
 
 void NativeSetter::setVec4(const ccstd::string &name, const Vec4 &vec) {
-    auto &data = renderData;
-    setVec4Impl(data, layoutGraph, name, vec);
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
+    setVec4Impl(data, *layoutGraph, name, vec);
 }
 
 void NativeSetter::setVec2(const ccstd::string &name, const Vec2 &vec) {
-    auto &data = renderData;
-    setVec2Impl(data, layoutGraph, name, vec);
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
+    setVec2Impl(data, *layoutGraph, name, vec);
 }
 
 void NativeSetter::setFloat(const ccstd::string &name, float v) {
-    auto &data = renderData;
-    setFloatImpl(data, layoutGraph, name, v);
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
+    setFloatImpl(data, *layoutGraph, name, v);
 }
 
 void NativeSetter::setArrayBuffer(const ccstd::string &name, const ArrayBuffer *buffer) {
-    auto &data = renderData;
-    setArrayBufferImpl(data, layoutGraph, name, *buffer);
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
+    setArrayBufferImpl(data, *layoutGraph, name, *buffer);
 }
 
 void NativeSetter::setBuffer(const ccstd::string &name, gfx::Buffer *buffer) {
-    auto &data = renderData;
-    setBufferImpl(data, layoutGraph, name, buffer);
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
+    setBufferImpl(data, *layoutGraph, name, buffer);
 }
 
 void NativeSetter::setTexture(const ccstd::string &name, gfx::Texture *texture) {
-    auto &data = renderData;
-    setTextureImpl(data, layoutGraph, name, texture);
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
+    setTextureImpl(data, *layoutGraph, name, texture);
 }
 
 void NativeSetter::setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) {
-    auto &data = renderData;
-    setReadWriteBufferImpl(data, layoutGraph, name, buffer);
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
+    setReadWriteBufferImpl(data, *layoutGraph, name, buffer);
 }
 
 void NativeSetter::setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) {
-    auto &data = renderData;
-    setReadWriteTextureImpl(data, layoutGraph, name, texture);
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
+    setReadWriteTextureImpl(data, *layoutGraph, name, texture);
 }
 
 void NativeSetter::setSampler(const ccstd::string &name, gfx::Sampler *sampler) {
-    auto &data = renderData;
-    setSamplerImpl(data, layoutGraph, name, sampler);
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
+    setSamplerImpl(data, *layoutGraph, name, sampler);
 }
 
 void NativeSetter::setVec4ArraySize(const ccstd::string &name, uint32_t sz) {
-    auto &data = renderData;
-    setVec4ArraySizeImpl(data, layoutGraph, name, sz);
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
+    setVec4ArraySizeImpl(data, *layoutGraph, name, sz);
 }
 
 void NativeSetter::setVec4ArrayElem(const ccstd::string &name, const cc::Vec4 &vec, uint32_t id) {
-    auto &data = renderData;
-    setVec4ArrayElemImpl(data, layoutGraph, name, vec, id);
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
+    setVec4ArrayElemImpl(data, *layoutGraph, name, vec, id);
 }
 
 void NativeSetter::setMat4ArraySize(const ccstd::string &name, uint32_t sz) {
-    auto &data = renderData;
-    setMat4ArraySizeImpl(data, layoutGraph, name, sz);
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
+    setMat4ArraySizeImpl(data, *layoutGraph, name, sz);
 }
 
 void NativeSetter::setMat4ArrayElem(const ccstd::string &name, const cc::Mat4 &mat, uint32_t id) {
-    auto &data = renderData;
-    setMat4ArrayElemImpl(data, layoutGraph, name, mat, id);
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
+    setMat4ArrayElemImpl(data, *layoutGraph, name, mat, id);
 }
 
 ccstd::string NativeRasterPassBuilder::getName() const {
@@ -680,14 +681,6 @@ ComputeQueueBuilder *NativeComputeSubpassBuilder::addQueue(const ccstd::string &
     return new NativeComputeQueueBuilder(renderGraph, queueID, layoutGraph);
 }
 
-ccstd::string NativeRasterQueueBuilder::getName() const {
-    return std::string(get(RenderGraph::NameTag{}, *renderGraph, queueID));
-}
-
-void NativeRasterQueueBuilder::setName(const ccstd::string &name) {
-    get(RenderGraph::NameTag{}, *renderGraph, queueID) = std::string_view{name};
-}
-
 namespace {
 
 uint8_t getCombineSignY(gfx::Device *device) {
@@ -1125,7 +1118,7 @@ void NativeRasterQueueBuilder::addSceneOfCamera(
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(std::move(scene)),
-        *renderGraph, queueID);
+        *renderGraph, nodeID);
     CC_ENSURES(sceneID != RenderGraph::null_vertex());
 
     auto &data = get(RenderGraph::DataTag{}, *renderGraph, sceneID);
@@ -1172,7 +1165,7 @@ void NativeRasterQueueBuilder::addScene(const ccstd::string &name, SceneFlags sc
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(std::move(scene)),
-        *renderGraph, queueID);
+        *renderGraph, nodeID);
     CC_ENSURES(sceneID != RenderGraph::null_vertex());
 }
 
@@ -1186,7 +1179,7 @@ void NativeRasterQueueBuilder::addFullscreenQuad(
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(material, passID, sceneFlags, nullptr),
-        *renderGraph, queueID);
+        *renderGraph, nodeID);
     CC_ENSURES(drawID != RenderGraph::null_vertex());
 }
 
@@ -1201,7 +1194,7 @@ void NativeRasterQueueBuilder::addCameraQuad(
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(material, passID, sceneFlags, camera),
-        *renderGraph, queueID);
+        *renderGraph, nodeID);
     CC_ENSURES(drawID != RenderGraph::null_vertex());
 
     auto &data = get(RenderGraph::DataTag{}, *renderGraph, drawID);
@@ -1240,7 +1233,7 @@ void NativeRasterQueueBuilder::clearRenderTarget(const ccstd::string &name, cons
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(std::move(clears)),
-        *renderGraph, queueID);
+        *renderGraph, nodeID);
     CC_ENSURES(clearID != RenderGraph::null_vertex());
 }
 
@@ -1252,68 +1245,8 @@ void NativeRasterQueueBuilder::setViewport(const gfx::Viewport &viewport) {
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(viewport),
-        *renderGraph, queueID);
+        *renderGraph, nodeID);
     CC_ENSURES(viewportID != RenderGraph::null_vertex());
-}
-
-void NativeRasterQueueBuilder::setMat4(const ccstd::string &name, const Mat4 &mat) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, queueID);
-    setMat4Impl(data, *layoutGraph, name, mat);
-}
-
-void NativeRasterQueueBuilder::setQuaternion(const ccstd::string &name, const Quaternion &quat) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, queueID);
-    setQuaternionImpl(data, *layoutGraph, name, quat);
-}
-
-void NativeRasterQueueBuilder::setColor(const ccstd::string &name, const gfx::Color &color) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, queueID);
-    setColorImpl(data, *layoutGraph, name, color);
-}
-
-void NativeRasterQueueBuilder::setVec4(const ccstd::string &name, const Vec4 &vec) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, queueID);
-    setVec4Impl(data, *layoutGraph, name, vec);
-}
-
-void NativeRasterQueueBuilder::setVec2(const ccstd::string &name, const Vec2 &vec) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, queueID);
-    setVec2Impl(data, *layoutGraph, name, vec);
-}
-
-void NativeRasterQueueBuilder::setFloat(const ccstd::string &name, float v) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, queueID);
-    setFloatImpl(data, *layoutGraph, name, v);
-}
-
-void NativeRasterQueueBuilder::setArrayBuffer(const ccstd::string &name, const ArrayBuffer *buffer) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, queueID);
-    setArrayBufferImpl(data, *layoutGraph, name, *buffer);
-}
-
-void NativeRasterQueueBuilder::setBuffer(const ccstd::string &name, gfx::Buffer *buffer) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, queueID);
-    setBufferImpl(data, *layoutGraph, name, buffer);
-}
-
-void NativeRasterQueueBuilder::setTexture(const ccstd::string &name, gfx::Texture *texture) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, queueID);
-    setTextureImpl(data, *layoutGraph, name, texture);
-}
-
-void NativeRasterQueueBuilder::setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, queueID);
-    setReadWriteBufferImpl(data, *layoutGraph, name, buffer);
-}
-
-void NativeRasterQueueBuilder::setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, queueID);
-    setReadWriteTextureImpl(data, *layoutGraph, name, texture);
-}
-
-void NativeRasterQueueBuilder::setSampler(const ccstd::string &name, gfx::Sampler *sampler) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, queueID);
-    setSamplerImpl(data, *layoutGraph, name, sampler);
 }
 
 RasterQueueBuilder *NativeRasterPassBuilder::addQueue(

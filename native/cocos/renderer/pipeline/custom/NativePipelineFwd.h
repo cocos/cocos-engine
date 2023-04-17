@@ -38,6 +38,7 @@ namespace cc {
 
 namespace render {
 
+class NativeRenderNode;
 class NativeSetter;
 class NativeRasterQueueBuilder;
 class NativeRasterSubpassBuilder;

@@ -121,7 +121,7 @@ public:
     virtual void setName(const ccstd::string &name) = 0;
 };
 
-class Setter : public RenderNode {
+class Setter : virtual public RenderNode {
 public:
     Setter() noexcept = default;
 
