@@ -498,7 +498,7 @@ MovePassBuilder *NativePipeline::addMovePass() {
         std::forward_as_tuple(),
         renderGraph);
 
-    return ccnew NativeMovePassBuilder(&renderGraph, passID);
+    return ccnew NativeMovePassBuilder(this, &renderGraph, passID);
 }
 
 // NOLINTNEXTLINE
@@ -513,7 +513,7 @@ CopyPassBuilder *NativePipeline::addCopyPass() {
         std::forward_as_tuple(),
         renderGraph);
 
-    return ccnew NativeCopyPassBuilder(&renderGraph, passID);
+    return ccnew NativeCopyPassBuilder(this, &renderGraph, passID);
 }
 
 // NOLINTNEXTLINE

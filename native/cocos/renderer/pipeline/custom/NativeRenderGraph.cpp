@@ -1277,29 +1277,13 @@ ComputeQueueBuilder *NativeComputePassBuilder::addQueue(const ccstd::string &lay
     return new NativeComputeQueueBuilder(pipelineRuntime, renderGraph, queueID, layoutGraph, phaseLayoutID);
 }
 
-ccstd::string NativeMovePassBuilder::getName() const {
-    return std::string(get(RenderGraph::NameTag{}, *renderGraph, passID));
-}
-
-void NativeMovePassBuilder::setName(const ccstd::string &name) {
-    get(RenderGraph::NameTag{}, *renderGraph, passID) = std::string_view{name};
-}
-
 void NativeMovePassBuilder::addPair(const MovePair &pair) {
-    auto &movePass = get(MoveTag{}, passID, *renderGraph);
+    auto &movePass = get(MoveTag{}, nodeID, *renderGraph);
     movePass.movePairs.emplace_back(pair);
 }
 
-ccstd::string NativeCopyPassBuilder::getName() const {
-    return std::string(get(RenderGraph::NameTag{}, *renderGraph, passID));
-}
-
-void NativeCopyPassBuilder::setName(const ccstd::string &name) {
-    get(RenderGraph::NameTag{}, *renderGraph, passID) = std::string_view{name};
-}
-
 void NativeCopyPassBuilder::addPair(const CopyPair &pair) {
-    auto &copyPass = get(CopyTag{}, passID, *renderGraph);
+    auto &copyPass = get(CopyTag{}, nodeID, *renderGraph);
     copyPass.copyPairs.emplace_back(pair);
 }
 

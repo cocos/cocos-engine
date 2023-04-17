@@ -444,36 +444,34 @@ public:
     ComputeQueueBuilder *addQueue(const ccstd::string &layoutName) override;
 };
 
-class NativeMovePassBuilder final : public MovePassBuilder {
+class NativeMovePassBuilder final : public MovePassBuilder, public NativeRenderNode {
 public:
-    NativeMovePassBuilder() = default;
-    NativeMovePassBuilder(RenderGraph* renderGraphIn, uint32_t passIDIn) noexcept
-    : renderGraph(renderGraphIn),
-      passID(passIDIn) {}
+    NativeMovePassBuilder(const PipelineRuntime* pipelineRuntimeIn, RenderGraph* renderGraphIn, uint32_t nodeIDIn) noexcept
+    : NativeRenderNode(pipelineRuntimeIn, renderGraphIn, nodeIDIn) {}
 
-    ccstd::string getName() const override;
-    void setName(const ccstd::string &name) override;
+    ccstd::string getName() const override {
+        return NativeRenderNode::getName();
+    }
+    void setName(const ccstd::string &name) override {
+        NativeRenderNode::setName(name);
+    }
 
     void addPair(const MovePair &pair) override;
-
-    RenderGraph* renderGraph{nullptr};
-    uint32_t passID{RenderGraph::null_vertex()};
 };
 
-class NativeCopyPassBuilder final : public CopyPassBuilder {
+class NativeCopyPassBuilder final : public CopyPassBuilder, public NativeRenderNode {
 public:
-    NativeCopyPassBuilder() = default;
-    NativeCopyPassBuilder(RenderGraph* renderGraphIn, uint32_t passIDIn) noexcept
-    : renderGraph(renderGraphIn),
-      passID(passIDIn) {}
+    NativeCopyPassBuilder(const PipelineRuntime* pipelineRuntimeIn, RenderGraph* renderGraphIn, uint32_t nodeIDIn) noexcept
+    : NativeRenderNode(pipelineRuntimeIn, renderGraphIn, nodeIDIn) {}
 
-    ccstd::string getName() const override;
-    void setName(const ccstd::string &name) override;
+    ccstd::string getName() const override {
+        return NativeRenderNode::getName();
+    }
+    void setName(const ccstd::string &name) override {
+        NativeRenderNode::setName(name);
+    }
 
     void addPair(const CopyPair &pair) override;
-
-    RenderGraph* renderGraph{nullptr};
-    uint32_t passID{RenderGraph::null_vertex()};
 };
 
 class NativeSceneTransversal final : public SceneTransversal {
