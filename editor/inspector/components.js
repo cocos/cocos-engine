@@ -2,8 +2,10 @@ const { join } = require('path');
 
 module.exports = {
     'cc.Button': join(__dirname, './components/button.js'),
+    'cc.Class': join(__dirname, './components/class.js'),
     'cc.Label': join(__dirname, './components/label.js'),
     'cc.Layout': join(__dirname, './components/layout.js'),
+    'cc.LODGroup': join(__dirname, './components/lod-group/index.js'),
     'cc.ParticleSystem': join(__dirname, './components/particle-system.js'),
     'cc.ParticleSystem2D': join(__dirname, './components/particle-system-2d.js'),
     'cc.PolygonCollider2D': join(__dirname, './components/polygon-collider.js'),
@@ -21,6 +23,4 @@ module.exports = {
     'cc.VideoPlayer': join(__dirname, './components/video-player.js'),
     'cc.WebView': join(__dirname, './components/webview.js'),
     'cc.Widget': join(__dirname, './components/widget.js'),
-    'cc.Class': join(__dirname, './components/class.js'),
-    'cc.LODGroup': join(__dirname, './components/lod-group/index.js'),
 };

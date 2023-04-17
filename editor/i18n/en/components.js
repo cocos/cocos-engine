@@ -1,5 +1,9 @@
 module.exports = {
     components: {
+        gizmo: {
+            enter_collider_edit : 'Edit Collider Volume',
+            exit_collider_edit : 'Exit Collider Volume Editing',
+        },
         add_component: 'Add Component',
         safe_area: {
             brief_help:

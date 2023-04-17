@@ -1,5 +1,9 @@
 module.exports = {
     components: {
+        gizmo: {
+            enter_collider_edit : '编辑碰撞体积',
+            exit_collider_edit : '退出碰撞体积编辑',
+        },
         add_component: '添加组件',
         safe_area: {
             brief_help:
