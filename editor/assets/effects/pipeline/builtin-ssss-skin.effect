@@ -27,6 +27,7 @@ CCEffect %{
         pbrMap:                           { value: grey }
         occlusionMap:                     { value: white }
         emissiveMap:                      { value: grey }
+        sssMap:                           { value: grey }
         anisotropyMap:                    { value: black, editor : { parent: IS_ANISOTROPY } }
         anisotropyMapNearestFilter:       { value: black, editor : { parent: FIX_ANISOTROPIC_ROTATION_MAP } }
       depthStencilState:
@@ -206,6 +207,9 @@ CCProgram surface-fragment %{
     uniform sampler2D anisotropyMap;
     uniform sampler2D anisotropyMapNearestFilter;
   #endif
+  #if USE_SSS_MAP
+    uniform sampler2D sssMap;
+  #endif
 
   #pragma define OCCLUSION_CHANNEL          r
   #pragma define ROUGHNESS_CHANNEL          g
@@ -234,7 +238,6 @@ CCProgram surface-fragment %{
     #endif
 
     baseColor.rgb *= albedoScaleAndCutoff.xyz;
-    baseColor.a = 0.5;
     return baseColor;
   }
 
@@ -327,6 +330,19 @@ CCProgram surface-fragment %{
 
     return pbr;
   }
+
+  #include <surfaces/data-structures/standard>
+
+  //see <surfaces/default-functions/XXXX> for more overrided functions, XXXX is shading-model name
+  #define CC_SURFACES_FRAGMENT_MODIFY_SHARED_DATA
+  void SurfacesFragmentModifySharedData(inout SurfacesMaterialData surfaceData)
+  {
+    #if USE_SSS_MAP
+      vec4 res = texture(sssMap, DEFAULT_UV);
+      surfaceData.baseColor.a = 1.0 + res.a;
+    #endif
+  }
+
 }%
 
 CCProgram standard-vs %{
@@ -415,6 +431,9 @@ CCProgram surface-fragment-specular %{
   #if IS_ANISOTROPY && USE_ANISOTROPY_MAP
     uniform sampler2D anisotropyMap;
     uniform sampler2D anisotropyMapNearestFilter;
+  #endif
+  #if USE_SSS_MAP
+    uniform sampler2D sssMap;
   #endif
 
   #pragma define OCCLUSION_CHANNEL          r

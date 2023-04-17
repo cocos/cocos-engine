@@ -90,14 +90,16 @@ CCProgram ssssBlur %{
    *   - Second pass:  float2(0.0, 1.0)
    */
   vec4 blur(vec2 texcoord, vec2 dir) {
+    float ssssFov = blurInfo.x;
     // This parameter specifies the global level of subsurface scattering
     // or, in other words, the width of the filter. It's specified in
     // world space units.
     float ssssWidth = blurInfo.y;
+    float depthUnitScale = blurInfo.z;
     // Fetch color of current pixel:
     // Use Sample_Point_Clamp
     vec4 colorM = texture(colorTex, texcoord);
-    colorM = vec4(SRGBToLinear(colorM.rgb), colorM.a);
+    // return colorM;
 
     //如果出现把旁边不属于皮肤的地方也糊出来了（星星状的亮线）,请改此处,使其能得到正确的ssss强度(ssss标记)
 	  //正常情况,4s物体的像素,a通道给0表示标记,正常物体a通道会输出1
@@ -111,8 +113,8 @@ CCProgram ssssBlur %{
 
     // Calculate the ssssWidth scale (1.0 for a unit plane sitting on the
     // projection window):
-    float distanceToProjectionWindow = 1.0 / tan(0.5 * blurInfo.x / 57.3);
-    float scale = distanceToProjectionWindow / depthM * blurInfo.z;
+    float distanceToProjectionWindow = 1.0 / tan(0.5 * ssssFov / 57.3);
+    float scale = distanceToProjectionWindow / depthM * depthUnitScale;
 
     // Calculate the final step to fetch the surrounding pixels:
     vec2 finalStep = vec2(ssssWidth) * vec2(scale) * dir;
@@ -126,13 +128,12 @@ CCProgram ssssBlur %{
     colorBlurred.rgb *= kernel[0].rgb;
 
     // Accumulate the other samples:
-    for (int i = 0; i < NUMKERNEL; i++) {
+    for (int i = 1; i < NUMKERNEL; i++) {
       // Fetch color and depth for current sample:
       vec2 offset = texcoord + vec2(kernel[i].a) * finalStep;
       //如果有糊出来的星星状的亮线,可以尝试把这个改成point采样来修复
       // Use Sample_Point_Clamp
       vec4 color = texture(colorTex, offset);
-      color = vec4(SRGBToLinear(color.rgb), color.a);
 
       //此时要当心是否会采到无理数(场景颜色为浮点格式时),有的话就跳过,否则会糊出黑块或亮块
 		  //if (isnan(dot(color, color)) || isinf(dot(color, color))) continue;
@@ -147,8 +148,6 @@ CCProgram ssssBlur %{
       //如果采到非SSSS区域,则使用中心点的颜色来代替,不能不叠加此点的贡献,这样会形成暗边
       colorBlurred.rgb += kernel[i].rgb * mix(colorM.rgb, color.rgb, SSSS_STRENGTH_SOURCE_INLOOP);
     }
-
-    colorBlurred = vec4(LinearToSRGB(colorBlurred.rgb), colorBlurred.a);
     return colorBlurred;
   }
 }%
