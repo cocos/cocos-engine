@@ -182,22 +182,16 @@ export class DependUtil {
             // TODO: json: any[] is not assigned to IFileData
             // workaround: mark json as any
             // issue: https://github.com/cocos/cocos-engine/issues/14642
-            if (Array.isArray(json) && (!(BUILD || isCompiledJson(json)) || !hasNativeDep(json as any))) {
-                out = {
-                    deps: this._parseDepsFromJson(json),
-                };
-            } else {
-                try {
-                    const asset = deserialize(json, { __uuid__: uuid });
-                    out = this._parseDepsFromAsset(asset);
-                    if (out.nativeDep) {
-                        out.nativeDep.uuid = uuid;
-                    }
-                    parsed.add(`${uuid}@import`, asset);
-                } catch (e) {
-                    files.remove(`${uuid}@import`);
-                    out = { deps: [] };
+            try {
+                const asset = deserialize(json, { __uuid__: uuid });
+                out = this._parseDepsFromAsset(asset);
+                if (out.nativeDep) {
+                    out.nativeDep.uuid = uuid;
                 }
+                parsed.add(`${uuid}@import`, asset);
+            } catch (e) {
+                files.remove(`${uuid}@import`);
+                out = { deps: [] };
             }
         } else { // get deps from an existing asset
             if (!EDITOR && this._depends.has(uuid)) {
