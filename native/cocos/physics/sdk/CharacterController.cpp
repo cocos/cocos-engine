@@ -68,40 +68,43 @@ void CLASS::move(float x, float y, float z, float minDist, float elapsedTime) { 
     _impl->move(x, y, z, minDist, elapsedTime);                                 \
 }                                                                               \
                                                                                 \
-void CLASS::setMinMoveDistance(float v) {                                              \
-    _impl->setMinMoveDistance(v);                                                \
+void CLASS::setMinMoveDistance(float v) {                                       \
+    _impl->setMinMoveDistance(v);                                               \
 }                                                                               \
                                                                                 \
 float CLASS::getMinMoveDistance() {                                             \
     return _impl->getMinMoveDistance();                                         \
 }                                                                               \
                                                                                 \
-void CLASS::setStepOffset(float v) {                                                   \
-    _impl->setStepOffset(v);                                                     \
+void CLASS::setStepOffset(float v) {                                            \
+    _impl->setStepOffset(v);                                                    \
 }                                                                               \
                                                                                 \
 float CLASS::getStepOffset() {                                                  \
     return _impl->getStepOffset();                                              \
 }                                                                               \
                                                                                 \
-void CLASS::setSlopeLimit(float v) {                                                   \
-    _impl->setSlopeLimit(v);                                                     \
+void CLASS::setSlopeLimit(float v) {                                            \
+    _impl->setSlopeLimit(v);                                                    \
 }                                                                               \
                                                                                 \
 float CLASS::getSlopeLimit() {                                                  \
     return _impl->getSlopeLimit();                                              \
 }                                                                               \
                                                                                 \
-void CLASS::setContactOffset(float v) {                                                \
-    _impl->setContactOffset(v);                                                  \
+void CLASS::setContactOffset(float v) {                                         \
+    _impl->setContactOffset(v);                                                 \
 }                                                                               \
                                                                                 \
 float CLASS::getContactOffset() {                                               \
     return _impl->getContactOffset();                                           \
 }                                                                               \
                                                                                 \
-void CLASS::setDetectCollisions(bool v) {                                    \
-    _impl->setDetectCollisions(v);                                                  \
+void CLASS::setDetectCollisions(bool v) {                                       \
+    _impl->setDetectCollisions(v);                                              \
+}                                                                               \
+void CLASS::setOverlapRecovery(bool v) {                                        \
+    _impl->setOverlapRecovery(v);                                               \
 }                                                                               \
 uint32_t CLASS::getGroup() {                                                    \
     return _impl->getGroup();                                                   \
@@ -118,10 +121,10 @@ uint32_t CLASS::getMask() {                                                     
 void CLASS::setMask(uint32_t m) {                                               \
     _impl->setMask(m);                                                          \
 }                                                                               \
-void CLASS::updateEventListener(EShapeFilterFlag flag) {                    \
-    _impl->updateEventListener(flag);                                    \
+void CLASS::updateEventListener(EShapeFilterFlag flag) {                        \
+    _impl->updateEventListener(flag);                                           \
 }                                                                               \
-uint32_t CLASS::getObjectID()const {                                                 \
+uint32_t CLASS::getObjectID()const {                                            \
     return _impl->getObjectID();                                                \
 }                                                                               \
                                                                                 \

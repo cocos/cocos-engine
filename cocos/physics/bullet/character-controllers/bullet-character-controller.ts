@@ -92,6 +92,7 @@ export abstract class BulletCharacterController implements IBaseCharacterControl
             return false;
         } else {
             this.setDetectCollisions(this._comp.detectCollisions);
+            this.setOverlapRecovery(this._comp.enableOverlapRecovery);
             (PhysicsSystem.instance.physicsWorld as BulletWorld).addCCT(this);
             this.setWrapper();
             return true;
@@ -152,6 +153,10 @@ export abstract class BulletCharacterController implements IBaseCharacterControl
 
     setDetectCollisions (value: boolean): void {
         bt.CharacterController_setCollision(this.impl, value);
+    }
+
+    setOverlapRecovery (value: boolean): void {
+        bt.CharacterController_setOverlapRecovery(this.impl, value);
     }
 
     onGround (): boolean {

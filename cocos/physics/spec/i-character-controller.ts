@@ -41,6 +41,7 @@ export interface IBaseCharacterController extends ILifecycle, IGroupMask {
     setSlopeLimit (value: number): void;
     setContactOffset (value: number): void;
     setDetectCollisions (value: boolean): void;
+    setOverlapRecovery (value: boolean): void;
     move(movement: IVec3Like, minDist: number, elapsedTime: number): void;
 }
 

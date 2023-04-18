@@ -200,6 +200,7 @@ void PhysXCharacterController::move(float x, float y, float z, float minDist, fl
     physx::PxVec3 disp{x, y, z};
     controllerFilter.mFilterData = &_mFilterData;
     controllerFilter.mFilterCallback = &_mFilterCallback;
+    PhysXWorld::getInstance().getControllerManager().setOverlapRecoveryModule(_mOverlapRecovery);
     _pxCollisionFlags = _impl->move(disp, minDist, elapsedTime, controllerFilter);
 }
 
@@ -250,6 +251,10 @@ void PhysXCharacterController::setDetectCollisions(bool v) {
     physx::PxShape* shape;
     actor->getShapes(&shape, 1);
     shape->setFlag(physx::PxShapeFlag::eSIMULATION_SHAPE, v);
+}
+
+void PhysXCharacterController::setOverlapRecovery(bool v) {
+    _mOverlapRecovery = v;
 }
 
 uint32_t PhysXCharacterController::getGroup() {

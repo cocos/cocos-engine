@@ -1112,6 +1112,7 @@ module.exports = {
             slopeLimit: 'The slope limit of the character controller in degree.',
             contactOffset: 'The contact offset of the character controller.',
             detectCollisions: 'If the character controller can collide with other objects without calling move().',
+            enableOverlapRecovery: 'If the character controller enable overlap recovery when penetrating with other colliders.',
             center: 'The center of the character controller in local space.',
             capsuleRadius: 'The radius of the sphere of the capsule shape of the character controller in local space.',
             capsuleHeight: 'The height of the capsule shape of the character controller in local space.',

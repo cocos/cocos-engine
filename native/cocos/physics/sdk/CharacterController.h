@@ -31,7 +31,7 @@
 #include "physics/spec/ICharacterController.h"
 
 #define CC_PHYSICS_CCT_CLASS(CLASS)                                     \
-    class CC_DLL CLASS final : public I##CLASS {                \
+    class CC_DLL CLASS final : public I##CLASS {                        \
     protected:                                                          \
         std::unique_ptr<I##CLASS> _impl;                                \
                                                                         \
@@ -45,16 +45,18 @@
         virtual cc::Vec3 getPosition() override;                        \
         virtual void setPosition(float x, float y, float z) override;   \
         virtual bool onGround() override;                               \
-        virtual void move(float x, float y, float z, float minDist, float elapsedTime) override;\
+        virtual void move(float x, float y, float z, float minDist,     \
+        float elapsedTime) override;                                    \
         virtual void setMinMoveDistance(float v) override;              \
         virtual float getMinMoveDistance() override;                    \
         virtual void setStepOffset(float v) override;                   \
-        virtual float getStepOffset() override;                   \
+        virtual float getStepOffset() override;                         \
         virtual void setSlopeLimit(float v) override;                   \
-        virtual float getSlopeLimit() override;                   \
+        virtual float getSlopeLimit() override;                         \
         virtual void setContactOffset(float v) override;                \
         virtual float getContactOffset()  override;                     \
         virtual void setDetectCollisions(bool v) override;              \
+        virtual void setOverlapRecovery(bool v) override;               \
         uint32_t getGroup() override;                                   \
         void setGroup(uint32_t g) override;                             \
         uint32_t getMask() override;                                    \

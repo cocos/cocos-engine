@@ -711,6 +711,7 @@ class CharacterController {
         this.setSlopeLimit(this._com.slopeLimit);
         this.setContactOffset(this._com.contactOffset);
         this.setDetectCollisions(this._com.detectCollisions);
+        this.setOverlapRecovery(this._com.enableOverlapRecovery);
     }
     onEnable () { this._impl.onEnable(); }
     onDisable () { this._impl.onDisable(); }
@@ -735,6 +736,7 @@ class CharacterController {
     setContactOffset (v) { this._impl.setContactOffset(v); }
     getContactOffset () { return this._impl.getContactOffset(); }
     setDetectCollisions (v) { this._impl.setDetectCollisions(v); }
+    setOverlapRecovery (v) { this._impl.setOverlapRecovery(v); }
 
     updateEventListener () {
         let flag = 0;
