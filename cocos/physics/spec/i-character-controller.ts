@@ -29,9 +29,6 @@ import { CharacterController } from '../framework/components/character-controlle
 //import { ERigidBodyType } from '../framework';
 
 export interface IBaseCharacterController extends ILifecycle, IGroupMask {
-    //readonly impl: any;
-    //readonly characterController: CharacterController;
-
     initialize (v: CharacterController): boolean;
     updateEventListener: () => void;
     onGround(): boolean;

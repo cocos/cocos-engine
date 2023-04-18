@@ -246,7 +246,6 @@ export class BulletWorld implements IPhysicsWorld {
     addCCT (cct: BulletCharacterController): void {
         const index = this.ccts.indexOf(cct);
         if (index < 0) {
-            //addCCTToScene(this.scene, cct.impl);
             this.ccts.push(cct);
 
             const cctGhost = bt.CharacterController_getGhostObject(cct.impl);
@@ -258,7 +257,6 @@ export class BulletWorld implements IPhysicsWorld {
     removeCCT (cct: BulletCharacterController): void {
         const index = this.ccts.indexOf(cct);
         if (index >= 0) {
-            //this.scene.removeActor(cct.impl, true);
             js.array.fastRemoveAt(this.ccts, index);
             const cctGhost = bt.CharacterController_getGhostObject(cct.impl);
             bt.CollisionWorld_removeCollisionObject(this._world, cctGhost);

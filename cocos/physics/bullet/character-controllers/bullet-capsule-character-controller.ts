@@ -64,9 +64,7 @@ export class BulletCapsuleCharacterController extends BulletCharacterController 
             this.component.height,
         );
 
-        //controllerDesc.setReportCallback(PX.PxUserControllerHitReport.implement(physxWorld.callback.controllerHitReportCB));
         this._impl = bt.CapsuleCharacterController_new(bulletWorld.impl, controllerDesc, 0/*?*/);
-        //if (this._impl.$$) PX.IMPL_PTR[this._impl.$$.ptr] = this;
     }
 
     setRadius (value: number): void {

@@ -145,7 +145,6 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
     addCCT (cct: PhysXCharacterController): void {
         const index = this.ccts.indexOf(cct);
         if (index < 0) {
-            //addCCTToScene(this.scene, cct.impl);
             this.ccts.push(cct);
         }
     }
@@ -153,7 +152,6 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
     removeCCT (cct: PhysXCharacterController): void {
         const index = this.ccts.indexOf(cct);
         if (index >= 0) {
-            //this.scene.removeActor(cct.impl, true);
             js.array.fastRemoveAt(this.ccts, index);
         }
     }
@@ -411,15 +409,6 @@ const PhysXCallback = {
             }
         },
         onControllerHit (hit: PX.PxControllersHit): void {
-            // todo
-            // const cct = getWrapShape<PhysXCharacterController>(hit.getCurrentController()).characterController;
-            // const otherCct = getWrapShape<PhysXCharacterController>(hit.getTouchedController()).characterController;
-            // const emitHit = new CharacterControllerContact();
-            // emitHit.worldPosition.set(hit.worldPos.x, hit.worldPos.y, hit.worldPos.z);
-            // emitHit.worldNormal.set(hit.worldNormal.x, hit.worldNormal.y, hit.worldNormal.z);
-            // emitHit.motionDirection.set(hit.dir.x, hit.dir.y, hit.dir.z);
-            // emitHit.motionLength = hit.length;
-            // cct?.emit('onControllerHit', cct, otherCct, emitHit);
         },
     },
     emitCCTShapeEvent (): void {
