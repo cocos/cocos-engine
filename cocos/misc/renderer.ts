@@ -142,10 +142,7 @@ export class Renderer extends Component {
      * @deprecated Since v3.7.3, Duplicated with getSharedMaterial.
      */
     public getMaterial (idx: number): Material | null {
-        if (idx < 0 || idx >= this._materials.length) {
-            return null;
-        }
-        return this._materials[idx];
+        return this.getSharedMaterial(idx);
     }
 
     /**
