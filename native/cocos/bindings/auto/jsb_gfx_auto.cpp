@@ -22666,6 +22666,33 @@ static bool js_cc_gfx_CommandBuffer_completeQueryPool(se::State& s)
 }
 SE_BIND_FUNC(js_cc_gfx_CommandBuffer_completeQueryPool) 
 
+static bool js_cc_gfx_CommandBuffer_customCommand(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gfx::CommandBuffer *arg1 = (cc::gfx::CommandBuffer *) NULL ;
+    cc::gfx::CommandBuffer::CustomCommand *arg2 = 0 ;
+    cc::gfx::CommandBuffer::CustomCommand temp2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg2 = &temp2;
+    
+    (arg1)->customCommand((cc::gfx::CommandBuffer::CustomCommand &&)*arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_gfx_CommandBuffer_customCommand) 
+
 static bool js_cc_gfx_CommandBuffer_pipelineBarrier__SWIG_0(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -23357,6 +23384,7 @@ bool js_register_cc_gfx_CommandBuffer(se::Object* obj) {
     cls->defineFunction("endQuery", _SE(js_cc_gfx_CommandBuffer_endQuery)); 
     cls->defineFunction("resetQueryPool", _SE(js_cc_gfx_CommandBuffer_resetQueryPool)); 
     cls->defineFunction("completeQueryPool", _SE(js_cc_gfx_CommandBuffer_completeQueryPool)); 
+    cls->defineFunction("customCommand", _SE(js_cc_gfx_CommandBuffer_customCommand)); 
     cls->defineFunction("begin", _SE(js_cc_gfx_CommandBuffer_begin)); 
     cls->defineFunction("bindDescriptorSet", _SE(js_cc_gfx_CommandBuffer_bindDescriptorSet)); 
     cls->defineFunction("beginRenderPass", _SE(js_cc_gfx_CommandBuffer_beginRenderPass)); 
