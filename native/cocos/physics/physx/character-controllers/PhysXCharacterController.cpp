@@ -66,53 +66,9 @@ void ControllerHitReport::onShapeHit(const physx::PxControllerShapeHit& hit) {
 
     auto& pairs = PhysXWorld::getInstance().getCCTShapeEventPairs();
     pairs.push_back(pair);
-
-    // const cct = getWrapShape<PhysXCharacterController>(hit.getCurrentController()).characterController;
-    // const collider = getWrapShape<PhysXShape>(hit.getTouchedShape()).collider;
-    // const emitHit = new CharacterControllerContact();
-    // emitHit.selfCCT = cct;
-    // emitHit.otherCollider = collider;
-    // emitHit.worldPosition.set(hit.worldPos.x, hit.worldPos.y, hit.worldPos.z);
-    // emitHit.worldNormal.set(hit.worldNormal.x, hit.worldNormal.y, hit.worldNormal.z);
-    // emitHit.motionDirection.set(hit.dir.x, hit.dir.y, hit.dir.z);
-    // emitHit.motionLength = hit.length;
-    // cct?.emit('onColliderHit', cct, collider, emitHit);
-
-
-	// CharacterController* character = (CharacterController*)(hit.controller->getUserData());
-	// RigidBody* rigidBody = (RigidBody*)(hit.actor->userData);
-	// UtilityLayer::Log("current Character %s\n", character->GetParentNode()->GetName().c_str());
-	// UtilityLayer::Log("hit RigidBody %s\n", rigidBody->GetParentNode()->GetName().c_str());
-	// UtilityLayer::Log("hit world pos %f %f %f\n", hit.worldPos.x, hit.worldPos.y, hit.worldPos.z);
-
-	// //testing
-	// if (character->GetParentNode()->GetName() == "character")
-	// {
-	// 	//Engine::GetInstance()->m_renderer->m_vecView[0]->m_scene->
-	// 	auto scene = character->GetParentNode()->GetScene();
-	// 	auto nodeHitPoint = scene->m_root->CheckHasChild("hitPoint");
-
-	// 	//node->setWorldPos() todo
-	// 	assert(nodeHitPoint);
-	// 	{
-	// 		glm::mat4 worldTransform = nodeHitPoint->GetTransformMatrix();
-	// 		glm::vec3 s0, t0; glm::quat r0;
-	// 		MathUtility::Decompose1(worldTransform, t0, r0, s0);
-
-	// 		// update node's translate, keep scale and rotation
-	// 		glm::vec3 pos(hit.worldPos.x, hit.worldPos.y, hit.worldPos.z);
-	// 		glm::mat4 globalM = MathUtility::TransformFromSRT(s0, r0, pos);
-	// 		nodeHitPoint->SetTransformMatrix(globalM);
-	// 	}
-	// }
 }
 
 void ControllerHitReport::onControllerHit(const physx::PxControllersHit& hit) {
-	// CharacterController* character = (CharacterController*)(hit.controller->getUserData());
-	// CharacterController* other = (CharacterController*)(hit.other->getUserData());
-	// // UtilityLayer::Log("current Character %s\n", character->GetParentNode()->GetName().c_str());
-	// // UtilityLayer::Log("hit controller %s\n", other->GetParentNode()->GetName().c_str());
-	// // UtilityLayer::Log("hit world pos %f %f %f\n", hit.worldPos.x, hit.worldPos.y, hit.worldPos.z);
 }
 
 void ControllerHitReport::onObstacleHit(const physx::PxControllerObstacleHit& hit) {
@@ -223,7 +179,6 @@ void PhysXCharacterController::setStepOffset(float v) {
 
 float PhysXCharacterController::getStepOffset() {
     return _mStepOffset;
-    //return _impl->getStepOffset();
 }
 
 void PhysXCharacterController::setSlopeLimit(float v) {
@@ -232,7 +187,6 @@ void PhysXCharacterController::setSlopeLimit(float v) {
 }
 
 float PhysXCharacterController::getSlopeLimit() {
-    //return _impl->getSlopeLimit();
     return _mSlopeLimit;
 }
 
@@ -242,7 +196,6 @@ void PhysXCharacterController::setContactOffset(float v) {
 }
 
 float PhysXCharacterController::getContactOffset() {
-    //return _impl->getContactOffset();
     return _mContactOffset;
 }
 
@@ -281,8 +234,6 @@ void PhysXCharacterController::updateEventListener(EShapeFilterFlag flag) {
 }
 
 void PhysXCharacterController::updateFilterData() {
-   // _impl->setQueryFilterData(_mFilterData);
-   //_impl->setSimulationFilterData(_mFilterData);
    setSimulationFilterData(_mFilterData);
 }
 
