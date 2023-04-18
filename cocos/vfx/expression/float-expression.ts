@@ -26,6 +26,9 @@
 import { ccclass } from 'cc.decorator';
 import { approx, lerp, Enum, RealCurve, CCClass, RealKeyframeValue } from '../../core';
 import { constructLegacyCurveAndConvert } from '../../core/geometry/curve';
+import { Expression } from '../expression';
+import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
+import { ParticleDataSet } from '../particle-data-set';
 
 const setClassAttr = CCClass.Attr.setClassAttr;
 
@@ -37,7 +40,7 @@ export enum FloatExpressionMode {
 }
 // TODO: can not remove ccclass for now, we need ccclass specified deserialization to handle deserialization of RealCurve
 @ccclass('cc.FloatExpression')
-export class FloatExpression  {
+export abstract class FloatExpression extends Expression {
     public static Mode = FloatExpressionMode;
 
     /**

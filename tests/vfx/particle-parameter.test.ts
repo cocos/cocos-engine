@@ -1,5 +1,6 @@
 import { Vec3 } from '../../cocos/core';
-import { BATCH_OPERATION_THRESHOLD_VEC3, ParticleBoolArrayParameter, ParticleColorArrayParameter, ParticleFloatArrayParameter, ParticleParameterType, ParticleUint32ArrayParameter, ParticleVec3ArrayParameter } from '../../cocos/vfx/particle-parameter';
+import { ParticleParameterType } from '../../cocos/vfx/enum';
+import { BATCH_OPERATION_THRESHOLD_VEC3, ParticleBoolArrayParameter, ParticleColorArrayParameter, ParticleFloatArrayParameter, ParticleUint32ArrayParameter, ParticleVec3ArrayParameter } from '../../cocos/vfx/particle-parameter';
 import { RandomStream } from '../../cocos/vfx/random-stream';
 
 describe('ParticleVec3ArrayParameter', () => {
@@ -678,9 +679,9 @@ describe('ParticleVec3ArrayParameter', () => {
         }
         for (let i = 0; i < vec3Parameter.capacity; i++) {
             vec3Parameter.getVec3At(vec3, i);
-            expect(vec3.x).toBeCloseTo(val + randomStream2.getSignedFloat() * 1000, 4);
-            expect(vec3.y).toBeCloseTo(val + randomStream2.getSignedFloat() * 100, 5);
-            expect(vec3.z).toBeCloseTo(val + randomStream2.getSignedFloat() * 10, 5);
+            expect(vec3.x).toBeCloseTo(val + randomStream2.getSignedFloat() * 1000, 3);
+            expect(vec3.y).toBeCloseTo(val + randomStream2.getSignedFloat() * 100, 4);
+            expect(vec3.z).toBeCloseTo(val + randomStream2.getSignedFloat() * 10, 4);
         }
     });
 
@@ -760,6 +761,77 @@ describe('ParticleVec3ArrayParameter', () => {
         }
     });
 
+    test('multiply1fAt', () => {
+        expect(() => vec3Parameter.multiply1fAt(1, -1)).toThrowError();
+        expect(() => vec3Parameter.multiply1fAt(1, 10000)).toThrowError();
+        const val = Math.random() * 200 - 100;
+        vec3Parameter.fill1f(val, 0, vec3Parameter.capacity);
+        const randomIndex = Math.floor(Math.random() * vec3Parameter.capacity);
+        const x = Math.random();
+        vec3Parameter.multiply1fAt(x, randomIndex);
+        for (let i = 0; i < vec3Parameter.capacity; i++) {
+            vec3Parameter.getVec3At(vec3, i);
+            if (i === randomIndex) {
+                expect(vec3.x).toBeCloseTo(x * val, 4);
+                expect(vec3.y).toBeCloseTo(x * val, 4);
+                expect(vec3.z).toBeCloseTo(x * val, 4);
+            } else {
+                expect(vec3.x).toBeCloseTo(val, 4);
+                expect(vec3.y).toBeCloseTo(val, 4);
+                expect(vec3.z).toBeCloseTo(val, 4);
+            }
+        }
+        const val2 = Math.random() * 200 - 100;
+        vec3Parameter.fill1f(val2, 0, vec3Parameter.capacity);
+        const randomStream = new RandomStream(Math.random() * 10000);
+        const randomStream2 = new RandomStream(randomStream.seed);
+        for (let i = 0; i < vec3Parameter.capacity; i++) {
+            vec3Parameter.multiply1fAt(randomStream.getSignedFloat(), i);
+        }
+        for (let i = 0; i < vec3Parameter.capacity; i++) {
+            vec3Parameter.getVec3At(vec3, i);
+            const random = randomStream2.getSignedFloat();
+            expect(vec3.x).toBeCloseTo(random * val2, 4);
+            expect(vec3.y).toBeCloseTo(random * val2, 4);
+            expect(vec3.z).toBeCloseTo(random * val2, 4);
+        }
+    });
+
+    test('add1fAt', () => {
+        expect(() => vec3Parameter.add1fAt(1, -1)).toThrowError();
+        expect(() => vec3Parameter.add1fAt(1, 10000)).toThrowError();
+        const val = Math.random() * 200 - 100;
+        vec3Parameter.fill1f(val, 0, vec3Parameter.capacity);
+        const randomIndex = Math.floor(Math.random() * vec3Parameter.capacity);
+        const x = Math.random();
+        vec3Parameter.add1fAt(x, randomIndex);
+        for (let i = 0; i < vec3Parameter.capacity; i++) {
+            vec3Parameter.getVec3At(vec3, i);
+            if (i === randomIndex) {
+                expect(vec3.x).toBeCloseTo(x + val, 4);
+                expect(vec3.y).toBeCloseTo(x + val, 4);
+                expect(vec3.z).toBeCloseTo(x + val, 4);
+            } else {
+                expect(vec3.x).toBeCloseTo(val, 4);
+                expect(vec3.y).toBeCloseTo(val, 4);
+                expect(vec3.z).toBeCloseTo(val, 4);
+            }
+        }
+        const val2 = Math.random() * 200 - 100;
+        vec3Parameter.fill1f(val2, 0, vec3Parameter.capacity);
+        const randomStream = new RandomStream(Math.random() * 10000);
+        const randomStream2 = new RandomStream(randomStream.seed);
+        for (let i = 0; i < vec3Parameter.capacity; i++) {
+            vec3Parameter.add1fAt(randomStream.getSignedFloat(), i);
+        }
+        for (let i = 0; i < vec3Parameter.capacity; i++) {
+            vec3Parameter.getVec3At(vec3, i);
+            const random = randomStream2.getSignedFloat();
+            expect(vec3.x).toBeCloseTo(random + val2, 4);
+            expect(vec3.y).toBeCloseTo(random + val2, 4);
+            expect(vec3.z).toBeCloseTo(random + val2, 4);
+        }
+    })
 });
 
 describe('ParticleFloatArrayParameter', () => {

@@ -45,7 +45,7 @@ export enum Space {
 export enum ScalingMode {
     HIERARCHY,
     LOCAL,
-    NONE
+    SHAPE,
 }
 
 export enum FinishAction {

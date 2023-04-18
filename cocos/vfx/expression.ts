@@ -22,22 +22,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+import { ParticleEmitterParams, ParticleExecContext } from "./particle-base";
+import { ParticleDataSet } from "./particle-data-set";
 
-import { ParticleEmitter } from './particle-emitter';
-import { EventHandler } from './event-handler';
-import { FloatExpression } from './expression/float-expression';
-import { ColorExpression } from './expression/color-expression';
-import './vfx-manager';
-import { ParticleRenderer } from './particle-renderer';
-import { Expression } from './expression';
-
-export {
-    ParticleEmitter,
-    ParticleRenderer,
-    FloatExpression,
-    ColorExpression,
-    EventHandler,
-    Expression
-};
-
-export * from './modules';
+export abstract class Expression {
+    public abstract tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext);
+    public abstract bind (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext);
+    public abstract evaluate (index: number);
+}

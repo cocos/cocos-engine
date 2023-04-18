@@ -140,7 +140,7 @@ in vec3 a_normal;     // mesh normal
 in vec4 a_color;     // mesh color
 #endif
 
-vec4 lpvs_main () {
+vec4 vfx_vs_main () {
   ParticleInput particleInput;
   setupParticleInput(particleInput);
   vec4 pos = vec4(particleInput.position.xyz, 1);

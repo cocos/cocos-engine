@@ -329,7 +329,6 @@ export class ParticleExecContext {
 
     updateTransform (node: Node, inWorldSpace: boolean) {
         if (node.flagChangedVersion !== this._lastTransformChangedVersion) {
-            Mat4.copy(this.localToWorld, node.worldMatrix);
             Mat4.invert(this.worldToLocal, this.localToWorld);
             if (inWorldSpace) {
                 Mat4.getRotation(this.rotationIfNeedTransform, this.localToWorld);

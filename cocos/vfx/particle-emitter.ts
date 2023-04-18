@@ -511,10 +511,10 @@ export class ParticleEmitter extends Component {
     private _prewarmSystem () {
         let prewarmTime = this.prewarmTime;
         const timeStep = Math.max(this.prewarmTimeStep, 0.001);
-        const count = Math.ceil(this.prewarmTime / timeStep);
+        const count = Math.ceil(prewarmTime / timeStep);
 
         for (let i = 0; i < count; ++i) {
-            const dt = Math.min(timeStep, this.prewarmTime);
+            const dt = Math.min(timeStep, prewarmTime);
             prewarmTime -= dt;
             this.tick(dt);
         }
