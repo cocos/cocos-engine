@@ -400,102 +400,6 @@ function loadImage (url, options, onComplete)  {
     });
 }
 
-if (sys.os === sys.OS.IOS) {
-    parser.register({
-        '.png': loadImage,
-        '.jpg': loadImage,
-        '.bmp': loadImage,
-        '.jpeg': loadImage,
-        '.gif': loadImage,
-        '.ico': loadImage,
-        '.tiff': loadImage,
-        '.image': loadImage,
-        '.webp': loadImage,
-        '.pvr': parsePVRTex,
-        '.pkm': parsePKMTex,
-        '.astc': parseASTCTex,
-
-        '.font': loadFont,
-        '.eot': loadFont,
-        '.ttf': loadFont,
-        '.woff': loadFont,
-        '.svg': loadFont,
-        '.ttc': loadFont,
-
-        // Audio
-        '.mp3': loadAudioPlayer,
-        '.ogg': loadAudioPlayer,
-        '.wav': loadAudioPlayer,
-        '.m4a': loadAudioPlayer,
-
-        // Txt
-        '.txt': parseText,
-        '.xml': parseText,
-        '.vsh': parseText,
-        '.fsh': parseText,
-        '.atlas': parseText,
-
-        '.tmx': parseText,
-        '.tsx': parseText,
-        '.fnt': parseText,
-        '.plist': parsePlist,
-
-        '.binary': parseArrayBuffer,
-        '.bin': parseArrayBuffer,
-        '.dbbin': parseArrayBuffer,
-        '.skel': parseArrayBuffer,
-
-        '.ExportJson': parseJson,
-    });
-} else {
-    parser.register({
-        '.png': downloader.downloadDomImage,
-        '.jpg': downloader.downloadDomImage,
-        '.bmp': downloader.downloadDomImage,
-        '.jpeg': downloader.downloadDomImage,
-        '.gif': downloader.downloadDomImage,
-        '.ico': downloader.downloadDomImage,
-        '.tiff': downloader.downloadDomImage,
-        '.image': downloader.downloadDomImage,
-        '.webp': downloader.downloadDomImage,
-        '.pvr': parsePVRTex,
-        '.pkm': parsePKMTex,
-        '.astc': parseASTCTex,
-
-        '.font': loadFont,
-        '.eot': loadFont,
-        '.ttf': loadFont,
-        '.woff': loadFont,
-        '.svg': loadFont,
-        '.ttc': loadFont,
-
-        // Audio
-        '.mp3': loadAudioPlayer,
-        '.ogg': loadAudioPlayer,
-        '.wav': loadAudioPlayer,
-        '.m4a': loadAudioPlayer,
-
-        // Txt
-        '.txt': parseText,
-        '.xml': parseText,
-        '.vsh': parseText,
-        '.fsh': parseText,
-        '.atlas': parseText,
-
-        '.tmx': parseText,
-        '.tsx': parseText,
-        '.fnt': parseText,
-        '.plist': parsePlist,
-
-        '.binary': parseArrayBuffer,
-        '.bin': parseArrayBuffer,
-        '.dbbin': parseArrayBuffer,
-        '.skel': parseArrayBuffer,
-
-        '.ExportJson': parseJson,
-    });
-}
-
 function transformUrl (url, options) {
     let inLocal = false;
     let inCache = false;
@@ -541,8 +445,109 @@ cc.assetManager.transformPipeline.append((task) => {
     }
 });
 
+function registerParser () {
+    const loadAssetByBlob = cc.settings.querySettings('custom', 'loadAssetByBlob') || false;
+    console.log('load asset by blob: ', loadAssetByBlob);
+    if (loadAssetByBlob) {
+        parser.register({
+            '.png': loadImage,
+            '.jpg': loadImage,
+            '.bmp': loadImage,
+            '.jpeg': loadImage,
+            '.gif': loadImage,
+            '.ico': loadImage,
+            '.tiff': loadImage,
+            '.image': loadImage,
+            '.webp': loadImage,
+            '.pvr': parsePVRTex,
+            '.pkm': parsePKMTex,
+            '.astc': parseASTCTex,
+
+            '.font': loadFont,
+            '.eot': loadFont,
+            '.ttf': loadFont,
+            '.woff': loadFont,
+            '.svg': loadFont,
+            '.ttc': loadFont,
+
+            // Audio
+            '.mp3': loadAudioPlayer,
+            '.ogg': loadAudioPlayer,
+            '.wav': loadAudioPlayer,
+            '.m4a': loadAudioPlayer,
+
+            // Txt
+            '.txt': parseText,
+            '.xml': parseText,
+            '.vsh': parseText,
+            '.fsh': parseText,
+            '.atlas': parseText,
+
+            '.tmx': parseText,
+            '.tsx': parseText,
+            '.fnt': parseText,
+            '.plist': parsePlist,
+
+            '.binary': parseArrayBuffer,
+            '.bin': parseArrayBuffer,
+            '.dbbin': parseArrayBuffer,
+            '.skel': parseArrayBuffer,
+
+            '.ExportJson': parseJson,
+        });
+    } else {
+        parser.register({
+            '.png': downloader.downloadDomImage,
+            '.jpg': downloader.downloadDomImage,
+            '.bmp': downloader.downloadDomImage,
+            '.jpeg': downloader.downloadDomImage,
+            '.gif': downloader.downloadDomImage,
+            '.ico': downloader.downloadDomImage,
+            '.tiff': downloader.downloadDomImage,
+            '.image': downloader.downloadDomImage,
+            '.webp': downloader.downloadDomImage,
+            '.pvr': parsePVRTex,
+            '.pkm': parsePKMTex,
+            '.astc': parseASTCTex,
+
+            '.font': loadFont,
+            '.eot': loadFont,
+            '.ttf': loadFont,
+            '.woff': loadFont,
+            '.svg': loadFont,
+            '.ttc': loadFont,
+
+            // Audio
+            '.mp3': loadAudioPlayer,
+            '.ogg': loadAudioPlayer,
+            '.wav': loadAudioPlayer,
+            '.m4a': loadAudioPlayer,
+
+            // Txt
+            '.txt': parseText,
+            '.xml': parseText,
+            '.vsh': parseText,
+            '.fsh': parseText,
+            '.atlas': parseText,
+
+            '.tmx': parseText,
+            '.tsx': parseText,
+            '.fnt': parseText,
+            '.plist': parsePlist,
+
+            '.binary': parseArrayBuffer,
+            '.bin': parseArrayBuffer,
+            '.dbbin': parseArrayBuffer,
+            '.skel': parseArrayBuffer,
+
+            '.ExportJson': parseJson,
+        });
+    }
+}
+
 const originInit = cc.assetManager.init;
 cc.assetManager.init = function (options) {
+    registerParser();
     customRootURL = cc.settings.querySettings('custom', 'rootURL') || '';
     originInit.call(cc.assetManager, options);
     const subpacks = cc.settings.querySettings('assets', 'subpackages');
