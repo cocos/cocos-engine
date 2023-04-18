@@ -25,8 +25,6 @@ exports.listeners = {
 
         let setChildrenLayer = false;
         if (dump.path === 'layer') {
-            const newValue = Number(panel.$.nodeLayerSelect.value);
-
             if (panel.dumps && panel.dumps.some((perdump) => perdump.children && perdump.children.length > 0)) {
                 // 只修改自身节点
                 let choose = 1;
@@ -47,20 +45,15 @@ exports.listeners = {
 
                 // 取消，需要还原数值
                 if (choose === 2) {
+                    dump.value = panel.$.nodeLayerSelect.prevValues[0];
+                    if (dump.values) {
+                        dump.values = panel.$.nodeLayerSelect.prevValues;
+                    }
                     Elements.layer.update.call(panel);
                     return;
                 } else {
                     setChildrenLayer = choose === 0 ? true : false;
-
-                    dump.value = newValue;
-                    if (setChildrenLayer && 'values' in dump) {
-                        dump.values.forEach((val, index) => {
-                            dump.values[index] = newValue;
-                        });
-                    }
                 }
-            } else {
-                dump.value = newValue;
             }
         }
 
@@ -341,10 +334,10 @@ exports.template = /* html*/`
         <ui-prop class="rotation" type="dump"></ui-prop>
         <ui-prop class="scale" type="dump"></ui-prop>
         <ui-prop class="mobility" type="dump"></ui-prop>
-        <ui-prop class="layer" type="dump" html="false">
+        <ui-prop class="layer">
             <ui-label slot="label" value="Layer"></ui-label>
             <div class="layer-content" slot="content">
-                <ui-select class="layer-select"></ui-select>
+                <ui-prop class="layer-select" type="dump" no-label></ui-prop>
                 <ui-button class="layer-edit">Edit</ui-button>
             </div>
         </ui-prop>
@@ -407,7 +400,6 @@ exports.$ = {
     nodeRotation: '.node > .rotation',
     nodeScale: '.node > .scale',
     nodeMobility: '.node > .mobility',
-    nodeLayer: '.node > .layer',
     nodeLayerSelect: '.node > .layer .layer-select',
     nodeLayerButton: '.node > .layer .layer-edit',
 
@@ -1046,7 +1038,6 @@ const Elements = {
             panel.$.nodeRotation.render(panel.dump.rotation);
             panel.$.nodeScale.render(panel.dump.scale);
             panel.$.nodeMobility.render(panel.dump.mobility);
-            panel.$.nodeLayer.render(panel.dump.layer);
 
             // 查找需要渲染的 component 列表
             const componentList = [];
@@ -1377,31 +1368,20 @@ const Elements = {
                 Editor.Message.send('project', 'open-settings', 'project', 'layer');
             });
         },
-        async update() {
+        update() {
             const panel = this;
 
             if (!panel.dump || panel.dump.isScene) {
                 return;
             }
 
-            const layerDump = panel.dump.layer;
-            const enumList = layerDump.enumList || [];
+            panel.$.nodeLayerSelect.render(panel.dump.layer);
 
-            let optionHtml = '';
-            if (enumList) {
-                for (const item of enumList) {
-                    optionHtml += `<option value="${item.value}">${item.name}</option>`;
-                }
+            let prevValues = [panel.dump.layer.value];
+            if (panel.dump.layer.values) {
+                prevValues = panel.dump.layer.values.slice();
             }
-            panel.$.nodeLayerSelect.innerHTML = optionHtml;
-            panel.$.nodeLayerSelect.value = layerDump.value;
-
-            if (layerDump.values && layerDump.values.some((value) => value !== layerDump.value)) {
-                panel.$.nodeLayerSelect.invalid = true;
-            } else {
-                panel.$.nodeLayerSelect.invalid = false;
-            }
-            panel.$.nodeLayer.setReadonly(layerDump, panel.$.nodeLayerSelect);
+            panel.$.nodeLayerSelect.prevValues = prevValues;
         },
     },
     footer: {

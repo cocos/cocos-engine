@@ -11867,6 +11867,43 @@ static bool js_cc_gfx_ShaderInfo_subpassInputs_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_gfx_ShaderInfo_subpassInputs_get) 
 
+static bool js_cc_gfx_ShaderInfo_hash_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gfx::ShaderInfo *arg1 = (cc::gfx::ShaderInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::ShaderInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->hash, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_gfx_ShaderInfo_hash_set) 
+
+static bool js_cc_gfx_ShaderInfo_hash_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gfx::ShaderInfo *arg1 = (cc::gfx::ShaderInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::ShaderInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->hash, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->hash, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_gfx_ShaderInfo_hash_get) 
+
 static bool js_cc_gfx_ShaderInfo_copy(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -11994,6 +12031,12 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::ShaderInfo * to, se::Obje
     }
     
     
+    json->getProperty("hash", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->hash), ctx);
+    }
+    
+    
     return ok;
 }
 
@@ -12012,6 +12055,7 @@ bool js_register_cc_gfx_ShaderInfo(se::Object* obj) {
     cls->defineProperty("textures", _SE(js_cc_gfx_ShaderInfo_textures_get), _SE(js_cc_gfx_ShaderInfo_textures_set)); 
     cls->defineProperty("images", _SE(js_cc_gfx_ShaderInfo_images_get), _SE(js_cc_gfx_ShaderInfo_images_set)); 
     cls->defineProperty("subpassInputs", _SE(js_cc_gfx_ShaderInfo_subpassInputs_get), _SE(js_cc_gfx_ShaderInfo_subpassInputs_set)); 
+    cls->defineProperty("hash", _SE(js_cc_gfx_ShaderInfo_hash_get), _SE(js_cc_gfx_ShaderInfo_hash_set)); 
     
     cls->defineFunction("copy", _SE(js_cc_gfx_ShaderInfo_copy)); 
     
@@ -22622,6 +22666,33 @@ static bool js_cc_gfx_CommandBuffer_completeQueryPool(se::State& s)
 }
 SE_BIND_FUNC(js_cc_gfx_CommandBuffer_completeQueryPool) 
 
+static bool js_cc_gfx_CommandBuffer_customCommand(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gfx::CommandBuffer *arg1 = (cc::gfx::CommandBuffer *) NULL ;
+    cc::gfx::CommandBuffer::CustomCommand *arg2 = 0 ;
+    cc::gfx::CommandBuffer::CustomCommand temp2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg2 = &temp2;
+    
+    (arg1)->customCommand((cc::gfx::CommandBuffer::CustomCommand &&)*arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_gfx_CommandBuffer_customCommand) 
+
 static bool js_cc_gfx_CommandBuffer_pipelineBarrier__SWIG_0(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -23313,6 +23384,7 @@ bool js_register_cc_gfx_CommandBuffer(se::Object* obj) {
     cls->defineFunction("endQuery", _SE(js_cc_gfx_CommandBuffer_endQuery)); 
     cls->defineFunction("resetQueryPool", _SE(js_cc_gfx_CommandBuffer_resetQueryPool)); 
     cls->defineFunction("completeQueryPool", _SE(js_cc_gfx_CommandBuffer_completeQueryPool)); 
+    cls->defineFunction("customCommand", _SE(js_cc_gfx_CommandBuffer_customCommand)); 
     cls->defineFunction("begin", _SE(js_cc_gfx_CommandBuffer_begin)); 
     cls->defineFunction("bindDescriptorSet", _SE(js_cc_gfx_CommandBuffer_bindDescriptorSet)); 
     cls->defineFunction("beginRenderPass", _SE(js_cc_gfx_CommandBuffer_beginRenderPass)); 

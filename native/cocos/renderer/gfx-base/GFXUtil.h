@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -22,47 +22,13 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "GFXShader.h"
-#include "GFXDevice.h"
-#include "GFXObject.h"
+#pragma once
 
-namespace cc {
-namespace gfx {
+#include "base/std/container/string.h"
 
-Shader::Shader()
-: GFXObject(ObjectType::SHADER) {
-}
+namespace cc::gfx {
 
-Shader::~Shader() = default;
+// FileUtils `enum class Status conflicts` with `#define Status int` in Xlib.h
+ccstd::string getPipelineCacheFolder();
 
-void Shader::initialize(const ShaderInfo &info) {
-    _name = info.name;
-    _stages = info.stages;
-    _attributes = info.attributes;
-    _blocks = info.blocks;
-    _buffers = info.buffers;
-    _samplerTextures = info.samplerTextures;
-    _samplers = info.samplers;
-    _textures = info.textures;
-    _images = info.images;
-    _subpassInputs = info.subpassInputs;
-    _hash = info.hash;
-    doInit(info);
-}
-
-void Shader::destroy() {
-    doDestroy();
-
-    _stages.clear();
-    _attributes.clear();
-    _blocks.clear();
-    _buffers.clear();
-    _samplerTextures.clear();
-    _samplers.clear();
-    _textures.clear();
-    _images.clear();
-    _subpassInputs.clear();
-}
-
-} // namespace gfx
-} // namespace cc
+} // namespace cc::gfx

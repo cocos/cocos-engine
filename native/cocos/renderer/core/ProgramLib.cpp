@@ -488,7 +488,7 @@ gfx::Shader *ProgramLib::getGFXShader(gfx::Device *device, const ccstd::string &
     tmplInfo.shaderInfo.attributes = render::getActiveAttributes(tmpl, tmplInfo.gfxAttributes, defines);
 
     tmplInfo.shaderInfo.name = render::getShaderInstanceName(name, macroArray);
-
+    tmplInfo.shaderInfo.hash = tmpl.hash;
     auto *shader = device->createShader(tmplInfo.shaderInfo);
     _cache[key] = shader;
     //    CC_LOG_DEBUG("ProgramLib::_cache[%s]=%p, defines: %d", key.c_str(), shader, defines.size());

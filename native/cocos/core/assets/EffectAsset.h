@@ -523,7 +523,7 @@ struct IShaderSource {
 
 struct IShaderInfo {
     ccstd::string name;
-    ccstd::hash_t hash{0xFFFFFFFFU};
+    ccstd::hash_t hash{gfx::INVALID_SHADER_HASH};
     IShaderSource glsl4;
     IShaderSource glsl3;
     IShaderSource glsl1;

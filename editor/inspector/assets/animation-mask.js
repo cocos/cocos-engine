@@ -101,6 +101,10 @@ exports.methods = {
         await Editor.Message.request('scene', 'apply-animation-mask', this.asset.uuid);
     },
 
+    abort() {
+        this.reset();
+    },
+
     reset() {
         this.dirtyData.uuid = '';
     },
