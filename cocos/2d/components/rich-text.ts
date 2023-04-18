@@ -42,6 +42,9 @@ const _htmlTextParser = new HtmlTextParser();
 const RichTextChildName = 'RICHTEXT_CHILD';
 const RichTextChildImageName = 'RICHTEXT_Image_CHILD';
 
+const _tempSize = new Size();
+const _tempSizeLeft = new Size();
+
 /**
  * 富文本池。<br/>
  */
@@ -478,9 +481,6 @@ export class RichText extends Component {
     protected _updateRichTextStatus: () => void;
     protected _labelChildrenNum = 0; // only ISegment
 
-    private _tempSize = new Size();
-    private _tempSizeLeft = new Size();
-
     constructor () {
         super();
         if (EDITOR) {
@@ -585,14 +585,14 @@ export class RichText extends Component {
             return partStringArr;
         }
 
-        this._calculateSize(this._tempSize, styleIndex, text);
-        if (this._tempSize.x < 2048) {
+        this._calculateSize(_tempSize, styleIndex, text);
+        if (_tempSize.x < 2048) {
             partStringArr.push(text);
         } else {
             const multilineTexts = text.split('\n');
             for (let i = 0; i < multilineTexts.length; i++) {
-                this._calculateSize(this._tempSize, styleIndex, multilineTexts[i]);
-                if (this._tempSize.x < 2048) {
+                this._calculateSize(_tempSize, styleIndex, multilineTexts[i]);
+                if (_tempSize.x < 2048) {
                     partStringArr.push(multilineTexts[i]);
                 } else {
                     const thisPartSplitResultArr =  this.splitLongStringOver2048(multilineTexts[i], styleIndex);
@@ -614,8 +614,8 @@ export class RichText extends Component {
         let curEnd = longStr.length / 2;
         let curString = longStr.substring(curStart, curEnd);
         let leftString = longStr.substring(curEnd);
-        const curStringSize = this._calculateSize(this._tempSize, styleIndex, curString);
-        const leftStringSize = this._calculateSize(this._tempSizeLeft, styleIndex, leftString);
+        const curStringSize = this._calculateSize(_tempSize, styleIndex, curString);
+        const leftStringSize = this._calculateSize(_tempSizeLeft, styleIndex, leftString);
         let maxWidth = this._maxWidth;
         if (this._maxWidth === 0) {
             maxWidth = 2047.9; // Callback when maxWidth is 0
@@ -714,7 +714,7 @@ export class RichText extends Component {
 
     protected _measureText (styleIndex: number, string?: string) {
         const func = (s: string) => {
-            const width = this._calculateSize(this._tempSize, styleIndex, s).width;
+            const width = this._calculateSize(_tempSize, styleIndex, s).width;
             return width;
         };
         if (string) {
