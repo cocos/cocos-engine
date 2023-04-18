@@ -362,7 +362,7 @@ export function packCurveRangeZ (tex: Texture2D | null, data: Float32Array | nul
     if (data === null || data.length !== len) {
         data = new Float32Array(samples * height * 4);
     }
-    const interval = 1.0 / (samples);
+    const interval = 1.0 / (samples - 1);
     let sum = 0;
     let average = 0;
     let offset = 0;
@@ -389,7 +389,7 @@ export function packCurveRangeN (tex: Texture2D | null, data: Float32Array | nul
     if (data === null || data.length !== len) {
         data = new Float32Array(samples * height * 4);
     }
-    const interval = 1.0 / (samples);
+    const interval = 1.0 / (samples - 1);
     let sum = 0;
     let average = 0;
     let offset = 0;
@@ -420,7 +420,7 @@ export function packCurveRangeXY (tex: Texture2D | null, data: Float32Array | nu
         data = new Float32Array(samples * height * 4);
     }
     const curves: CurveRange[] = [x, y];
-    const interval = 1.0 / (samples);
+    const interval = 1.0 / (samples - 1);
 
     for (let h = 0; h < height; h++) {
         for (let i = 0; i < 2; i++) {
@@ -450,7 +450,7 @@ export function packCurveRangeXYZ (tex: Texture2D | null, data: Float32Array | n
         data = new Float32Array(samples * height * 4);
     }
     const curves: CurveRange[] = [x, y, z];
-    const interval = 1.0 / (samples);
+    const interval = 1.0 / (samples - 1);
 
     for (let h = 0; h < height; h++) {
         for (let i = 0; i < 3; i++) {
@@ -480,7 +480,7 @@ export function packCurveRangeXYZW (tex: Texture2D | null, data: Float32Array | 
         data = new Float32Array(samples * height * 4);
     }
     const curves: CurveRange[] = [x, y, z, w];
-    const interval = 1.0 / (samples);
+    const interval = 1.0 / (samples - 1);
 
     for (let h = 0; h < height; h++) {
         for (let i = 0; i < 4; i++) {
