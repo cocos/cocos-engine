@@ -215,7 +215,7 @@ vec3 CalculateEnvironmentSpecular(in LightingIntermediateData lightingData, floa
 #endif
 
   #if CC_USE_REFLECTION_PROBE
-    //If using reflectance probe, no need to multiply by the ambient light intensity.
+    //If using reflection probe, no need to multiply by the ambient light intensity.
     if (FSInput_reflectionProbeId >= 0.0) {
       lightIntensity = 1.0;
     }
