@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { CCClass, Color, lerp, repeat, Enum } from '../../core';
+import { CCClass, Color, lerp, repeat, Enum, EPSILON } from '../../core';
 
 const Mode = Enum({
     Blend: 0,
@@ -161,9 +161,7 @@ export default class Gradient {
 
     private getRGB (time: number) {
         if (this.colorKeys.length > 1) {
-            if (time !== 1) {
-                time = repeat(time, 1);
-            }
+            time = repeat(time, 1.0 + EPSILON);
             for (let i = 1; i < this.colorKeys.length; ++i) {
                 const preTime = this.colorKeys[i - 1].time;
                 const curTime = this.colorKeys[i].time;
@@ -198,9 +196,7 @@ export default class Gradient {
     private getAlpha (time: number) {
         const basicAlpha = 0; // default alpha is 0
         if (this.alphaKeys.length > 1) {
-            if (time !== 1) {
-                time = repeat(time, 1);
-            }
+            time = repeat(time, 1.0 + EPSILON);
             for (let i = 1; i < this.alphaKeys.length; ++i) {
                 const preTime = this.alphaKeys[i - 1].time;
                 const curTime = this.alphaKeys[i].time;
