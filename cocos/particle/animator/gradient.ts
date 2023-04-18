@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { CCClass, Color, lerp, repeat, Enum, EPSILON } from '../../core';
+import { CCClass, Color, lerp, repeat, Enum, EPSILON, approx } from '../../core';
 
 const Mode = Enum({
     Blend: 0,
@@ -175,7 +175,7 @@ export default class Gradient {
                 }
             }
             const lastIndex = this.colorKeys.length - 1;
-            if (Math.abs(time - this.colorKeys[lastIndex].time) <= EPSILON) {
+            if (approx(time - this.colorKeys[lastIndex].time, 0.0, EPSILON)) {
                 this._color.set(this.colorKeys[lastIndex].color);
             } else if (time < this.colorKeys[0].time) {
                 Color.lerp(this._color, Color.BLACK, this.colorKeys[0].color, time / this.colorKeys[0].time);
@@ -209,7 +209,7 @@ export default class Gradient {
                 }
             }
             const lastIndex = this.alphaKeys.length - 1;
-            if (Math.abs(time - this.alphaKeys[lastIndex].time) <= EPSILON) {
+            if (approx(time - this.alphaKeys[lastIndex].time, 0.0, EPSILON)) {
                 return this.alphaKeys[lastIndex].alpha;
             } else if (time < this.alphaKeys[0].time) {
                 return lerp(basicAlpha, this.alphaKeys[0].alpha, time / this.alphaKeys[0].time);
