@@ -1277,15 +1277,15 @@ struct property_map<cc::render::RenderGraph, ccstd::pmr::string cc::render::Rend
         const cc::render::RenderGraph,
         const ccstd::pmr::vector<cc::render::RenderData>,
         std::string_view,
-        const std::pmr::string&,
-        const std::pmr::string cc::render::RenderData::*>;
+        const ccstd::pmr::string&,
+        const ccstd::pmr::string cc::render::RenderData::*>;
     using type = cc::render::impl::VectorVertexComponentMemberPropertyMap<
         read_write_property_map_tag,
         cc::render::RenderGraph,
         ccstd::pmr::vector<cc::render::RenderData>,
         std::string_view,
-        std::pmr::string&,
-        std::pmr::string cc::render::RenderData::*>;
+        ccstd::pmr::string&,
+        ccstd::pmr::string cc::render::RenderData::*>;
 };
 
 // Vertex Component

@@ -858,6 +858,9 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
             'Viewport', '', new RenderData(), false, this._vertID,
         );
     }
+    addCustomCommand (customBehavior: string): void {
+        throw new Error('Method not implemented.');
+    }
     private _renderGraph: RenderGraph;
     private _vertID: number;
     private _queue: RenderQueue;

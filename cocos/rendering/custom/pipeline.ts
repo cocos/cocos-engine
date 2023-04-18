@@ -97,6 +97,7 @@ export interface RasterQueueBuilder extends Setter {
     clearRenderTarget (name: string, color: Color): void;
     clearRenderTarget (name: string/*, new Color()*/): void;
     setViewport (viewport: Viewport): void;
+    addCustomCommand (customBehavior: string): void;
 }
 
 export interface RasterSubpassBuilder extends Setter {

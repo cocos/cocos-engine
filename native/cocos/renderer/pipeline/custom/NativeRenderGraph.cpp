@@ -1109,6 +1109,25 @@ void NativeRasterQueueBuilder::setViewport(const gfx::Viewport &viewport) {
     CC_ENSURES(viewportID != RenderGraph::null_vertex());
 }
 
+void NativeRasterQueueBuilder::addCustomCommand(std::string_view customBehavior) {
+    std::string_view name = "FullscreenQuad";
+    auto drawID = addVertex(
+        BlitTag{},
+        std::forward_as_tuple(name),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(
+            IntrusivePtr<cc::Material>{},
+            RenderGraph::null_vertex(),
+            SceneFlags::NONE,
+            nullptr),
+        *renderGraph, nodeID);
+    CC_ENSURES(drawID != RenderGraph::null_vertex());
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, drawID);
+    data.custom = customBehavior;
+}
+
 RasterQueueBuilder *NativeRasterPassBuilder::addQueue(
     QueueHint hint, const ccstd::string &layoutName) {
     CC_EXPECTS(layoutID != LayoutGraphData::null_vertex());
