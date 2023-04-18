@@ -400,101 +400,43 @@ function loadImage (url, options, onComplete)  {
     });
 }
 
-if (sys.os === sys.OS.IOS) {
-    parser.register({
-        '.png': loadImage,
-        '.jpg': loadImage,
-        '.bmp': loadImage,
-        '.jpeg': loadImage,
-        '.gif': loadImage,
-        '.ico': loadImage,
-        '.tiff': loadImage,
-        '.image': loadImage,
-        '.webp': loadImage,
-        '.pvr': parsePVRTex,
-        '.pkm': parsePKMTex,
-        '.astc': parseASTCTex,
+parser.register({
+    '.pvr': parsePVRTex,
+    '.pkm': parsePKMTex,
+    '.astc': parseASTCTex,
 
-        '.font': loadFont,
-        '.eot': loadFont,
-        '.ttf': loadFont,
-        '.woff': loadFont,
-        '.svg': loadFont,
-        '.ttc': loadFont,
+    '.font': loadFont,
+    '.eot': loadFont,
+    '.ttf': loadFont,
+    '.woff': loadFont,
+    '.svg': loadFont,
+    '.ttc': loadFont,
 
-        // Audio
-        '.mp3': loadAudioPlayer,
-        '.ogg': loadAudioPlayer,
-        '.wav': loadAudioPlayer,
-        '.m4a': loadAudioPlayer,
+    // Audio
+    '.mp3': loadAudioPlayer,
+    '.ogg': loadAudioPlayer,
+    '.wav': loadAudioPlayer,
+    '.m4a': loadAudioPlayer,
 
-        // Txt
-        '.txt': parseText,
-        '.xml': parseText,
-        '.vsh': parseText,
-        '.fsh': parseText,
-        '.atlas': parseText,
+    // Txt
+    '.txt': parseText,
+    '.xml': parseText,
+    '.vsh': parseText,
+    '.fsh': parseText,
+    '.atlas': parseText,
 
-        '.tmx': parseText,
-        '.tsx': parseText,
-        '.fnt': parseText,
-        '.plist': parsePlist,
+    '.tmx': parseText,
+    '.tsx': parseText,
+    '.fnt': parseText,
+    '.plist': parsePlist,
 
-        '.binary': parseArrayBuffer,
-        '.bin': parseArrayBuffer,
-        '.dbbin': parseArrayBuffer,
-        '.skel': parseArrayBuffer,
+    '.binary': parseArrayBuffer,
+    '.bin': parseArrayBuffer,
+    '.dbbin': parseArrayBuffer,
+    '.skel': parseArrayBuffer,
 
-        '.ExportJson': parseJson,
-    });
-} else {
-    parser.register({
-        '.png': downloader.downloadDomImage,
-        '.jpg': downloader.downloadDomImage,
-        '.bmp': downloader.downloadDomImage,
-        '.jpeg': downloader.downloadDomImage,
-        '.gif': downloader.downloadDomImage,
-        '.ico': downloader.downloadDomImage,
-        '.tiff': downloader.downloadDomImage,
-        '.image': downloader.downloadDomImage,
-        '.webp': downloader.downloadDomImage,
-        '.pvr': parsePVRTex,
-        '.pkm': parsePKMTex,
-        '.astc': parseASTCTex,
-
-        '.font': loadFont,
-        '.eot': loadFont,
-        '.ttf': loadFont,
-        '.woff': loadFont,
-        '.svg': loadFont,
-        '.ttc': loadFont,
-
-        // Audio
-        '.mp3': loadAudioPlayer,
-        '.ogg': loadAudioPlayer,
-        '.wav': loadAudioPlayer,
-        '.m4a': loadAudioPlayer,
-
-        // Txt
-        '.txt': parseText,
-        '.xml': parseText,
-        '.vsh': parseText,
-        '.fsh': parseText,
-        '.atlas': parseText,
-
-        '.tmx': parseText,
-        '.tsx': parseText,
-        '.fnt': parseText,
-        '.plist': parsePlist,
-
-        '.binary': parseArrayBuffer,
-        '.bin': parseArrayBuffer,
-        '.dbbin': parseArrayBuffer,
-        '.skel': parseArrayBuffer,
-
-        '.ExportJson': parseJson,
-    });
-}
+    '.ExportJson': parseJson,
+});
 
 function transformUrl (url, options) {
     let inLocal = false;
@@ -541,8 +483,39 @@ cc.assetManager.transformPipeline.append((task) => {
     }
 });
 
+function registerImageParser () {
+    const loadImageByBlob = cc.settings.querySettings('custom', 'loadImageByBlob') || false;
+    console.log('load asset by blob: ', loadImageByBlob);
+    if (loadImageByBlob) {
+        parser.register({
+            '.png': loadImage,
+            '.jpg': loadImage,
+            '.bmp': loadImage,
+            '.jpeg': loadImage,
+            '.gif': loadImage,
+            '.ico': loadImage,
+            '.tiff': loadImage,
+            '.image': loadImage,
+            '.webp': loadImage,
+        });
+    } else {
+        parser.register({
+            '.png': downloader.downloadDomImage,
+            '.jpg': downloader.downloadDomImage,
+            '.bmp': downloader.downloadDomImage,
+            '.jpeg': downloader.downloadDomImage,
+            '.gif': downloader.downloadDomImage,
+            '.ico': downloader.downloadDomImage,
+            '.tiff': downloader.downloadDomImage,
+            '.image': downloader.downloadDomImage,
+            '.webp': downloader.downloadDomImage,
+        });
+    }
+}
+
 const originInit = cc.assetManager.init;
 cc.assetManager.init = function (options) {
+    registerImageParser();
     customRootURL = cc.settings.querySettings('custom', 'rootURL') || '';
     originInit.call(cc.assetManager, options);
     const subpacks = cc.settings.querySettings('assets', 'subpackages');
