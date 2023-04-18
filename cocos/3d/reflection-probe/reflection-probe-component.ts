@@ -248,6 +248,7 @@ export class ReflectionProbe extends Component {
      * @en fast bake no convolution.
      * @zh 快速烘焙不会进行卷积。
      */
+    @visible(function (this: ReflectionProbe) { return this.probeType === ProbeType.CUBE; })
     @type(CCBoolean)
     @tooltip('i18n:reflection_probe.fastBake')
     get fastBake () {

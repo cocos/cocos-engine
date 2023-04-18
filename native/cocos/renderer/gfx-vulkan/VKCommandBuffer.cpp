@@ -888,5 +888,9 @@ void CCVKCommandBuffer::resetQueryPool(QueryPool *queryPool) {
     vkQueryPool->_ids.clear();
 }
 
+void CCVKCommandBuffer::customCommand(CustomCommand &&cmd) {
+    cmd(reinterpret_cast<void*>(_gpuCommandBuffer->vkCommandBuffer));
+}
+
 } // namespace gfx
 } // namespace cc

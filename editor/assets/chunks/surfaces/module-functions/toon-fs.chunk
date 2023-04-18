@@ -64,7 +64,7 @@ void CCSurfacesLightingCalculateColorWithLighting(inout vec3 diffuseColorWithLig
   diffuse = mix(surfaceData.baseColor.rgb, diffuse,
     clamp(1.0 + (surfaceData.baseStep - surfaceData.baseFeather - NL) / surfaceData.baseFeather, 0.0, 1.0));
 
-  specularColorWithEnvLighting = specularColorWithLighting = diffuse * surfaceData.baseStep;
+  diffuseColorWithLighting = diffuse * surfaceData.baseStep;
 }
 
 
@@ -139,7 +139,8 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
   LightingIntermediateData lightingData;
   lightingData.NoL = -1.0;
   vec3 backLightingDiffuse, backLightingSpecular;
-  CCSurfacesLightingCalculateColorWithLighting(backLightingDiffuse, backLightingSpecular, surfaceData, lightingData);
+  CCSurfacesLightingInitializeColorWithLighting(backLightingDiffuse, backLightingSpecular, backLightingSpecular, surfaceData, lightingData);
+  CCSurfacesLightingCalculateColorWithLighting(backLightingDiffuse, backLightingSpecular, backLightingSpecular, surfaceData, lightingData);
 
   color.xyz +=
     mix(lightingResult.directDiffuse, lightingResult.lightmapColor, lightmapCoef) * mix(backLightingDiffuse, lightingResult.diffuseColorWithLighting, lightingResult.shadow)

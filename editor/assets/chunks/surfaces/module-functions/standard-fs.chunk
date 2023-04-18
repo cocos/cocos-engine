@@ -167,7 +167,9 @@ void CCSurfacesGetLightingIntermediateDataTransmitDiffuse(inout LightingIntermed
   lightingDataTD = lightingData;
   // view-depenedent mode make sure normal always back from view direction
   // (-N) + (-V) for smoother result
-  lightingDataTD.N = lightingData.transmitScatteringParams.z > 0.0 ? -lightingData.N : -normalize(lightingData.N+lightingData.V);
+  // ignore normalMap for 3S simulation
+  lightingDataTD.N = lightingData.transmitScatteringParams.z > 0.0 ? -FSInput_worldNormal : -(normalize(FSInput_worldNormal)+lightingData.V);
+  lightingDataTD.N = normalize(lightingDataTD.N);
 }
 #endif
 

@@ -65,6 +65,14 @@ vec3 SurfacesVertexModifyWorldNormal(in SurfacesStandardVertexIntermediate In)
 }
 #endif
 
+#ifndef CC_SURFACES_VERTEX_MODIFY_SHADOW_BIAS
+// shadow bias for submesh-level
+vec2 SurfacesVertexModifyShadowBias(in SurfacesStandardVertexIntermediate In, vec2 originShadowBias)
+{
+  return originShadowBias;
+}
+#endif
+
 // some vertex datas use shared raw data, avoid sample / calculate same raw data multiply times, use this function for better performance
 // this function invokes at last
 #ifndef CC_SURFACES_VERTEX_MODIFY_SHARED_DATA

@@ -26,6 +26,7 @@
 
 #include "GLES3Commands.h"
 #include "GLES3DescriptorSetLayout.h"
+#include "states/GLES3Sampler.h"
 
 namespace cc {
 namespace gfx {
@@ -45,11 +46,20 @@ void GLES3DescriptorSetLayout::doInit(const DescriptorSetLayoutInfo & /*info*/) 
     _gpuDescriptorSetLayout->descriptorIndices = _descriptorIndices;
     _gpuDescriptorSetLayout->bindings = _bindings;
 
+    auto &hash = _gpuDescriptorSetLayout->hash;
     for (auto &binding : _bindings) {
         if (hasAnyFlags(binding.descriptorType, DESCRIPTOR_DYNAMIC_TYPE)) {
             for (uint32_t j = 0U; j < binding.count; j++) {
                 _gpuDescriptorSetLayout->dynamicBindings.push_back(binding.binding);
             }
+        }
+
+        ccstd::hash_combine(hash, binding.binding);
+        ccstd::hash_combine(hash, binding.descriptorType);
+        ccstd::hash_combine(hash, binding.count);
+        ccstd::hash_combine(hash, binding.stageFlags);
+        for (auto &sampler : binding.immutableSamplers) {
+            ccstd::hash_combine(hash, sampler->getHash());
         }
     }
 }

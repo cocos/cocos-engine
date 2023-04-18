@@ -94,12 +94,8 @@ void main()  {
 
             // lighting needs color space conversion          
             #if !CC_USE_FLOAT_OUTPUT
-              #if CC_USE_HDR
-                if (IS_DEBUG_VIEW_COMPOSITE_ENABLE_TONE_MAPPING)
-                    debugColor.rgb = ACESToneMap(debugColor.rgb);
-              #endif
-              if (IS_DEBUG_VIEW_COMPOSITE_ENABLE_GAMMA_CORRECTION)
-                  debugColor.rgb = LinearToSRGB(debugColor.rgb);
+              debugColor.rgb = HDRToLDR(debugColor.rgb);
+              debugColor.rgb = LinearToSRGB(debugColor.rgb);
             #endif
           }
       }
@@ -128,34 +124,32 @@ void main()  {
   #endif
 #endif
 
-    // Color output
-  #if CC_USE_RGBE_OUTPUT
-    fragColorX = packRGBE(color.rgb); // for reflection-map
-    return;
-  #endif
-
-  #if !CC_USE_FLOAT_OUTPUT
-    #if CC_USE_HDR
-      #if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC && CC_SURFACES_ENABLE_DEBUG_VIEW
-        if (IS_DEBUG_VIEW_COMPOSITE_ENABLE_TONE_MAPPING)
-      #endif
-        color.rgb = ACESToneMap(color.rgb);
-    #endif
-    #if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC
-      if (IS_DEBUG_VIEW_COMPOSITE_ENABLE_GAMMA_CORRECTION)
-    #endif
-    color.rgb = LinearToSRGB(color.rgb);
-
-    // 8888 can not add lighting with fog
-    #if !CC_FORWARD_ADD && CC_USE_FOG != CC_FOG_NONE
+  // Fog, linear output
+  #if CC_USE_FOG != CC_FOG_NONE
+    #if CC_USE_RGBE_OUTPUT || CC_USE_FLOAT_OUTPUT
       CC_APPLY_FOG_BASE(color, fogFactor);
     #endif
+  #endif
+
+  // Color output
+  #if CC_USE_RGBE_OUTPUT
+    color = packRGBE(color.rgb); // for reflection-map
   #else
+    color = CCSurfacesDebugDisplayInvalidNumber(color);
+    #if !CC_USE_FLOAT_OUTPUT
+      color.rgb = HDRToLDR(color.rgb);
+      color.rgb = LinearToSRGB(color.rgb);
+    #endif
+  #endif
+
+  // todo:
+  // can not perform forward-add with fog with 8888 output, and should blend with LDR gamma color, need move before color output
+  #if !CC_USE_RGBE_OUTPUT && !CC_USE_FLOAT_OUTPUT && !CC_FORWARD_ADD
     #if CC_USE_FOG != CC_FOG_NONE
       CC_APPLY_FOG_BASE(color, fogFactor);
     #endif
   #endif
 
 
-  fragColorX = CCSurfacesDebugDisplayInvalidNumber(color);
+  fragColorX = color;
 }
