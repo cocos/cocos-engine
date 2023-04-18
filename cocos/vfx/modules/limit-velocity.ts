@@ -28,7 +28,7 @@ import { DEBUG } from 'internal:constants';
 import { lerp, Vec3, approx, assertIsTrue } from '../../core';
 import { Space } from '../enum';
 import { ParticleModule, ModuleExecStageFlags } from '../particle-module';
-import { FloatExpression } from '../expression/float-expression';
+import { FloatExpression } from '../expressions/float';
 import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
 import { BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { RandomStream } from '../random-stream';

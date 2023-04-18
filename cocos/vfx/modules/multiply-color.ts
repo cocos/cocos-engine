@@ -26,7 +26,7 @@
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { Color } from '../../core';
 import { ParticleModule, ModuleExecStage, ModuleExecStageFlags } from '../particle-module';
-import { ColorExpression } from '../expression/color-expression';
+import { ColorExpression } from '../expressions/color';
 import { BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
 import { RandomStream } from '../random-stream';

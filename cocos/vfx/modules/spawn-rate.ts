@@ -27,8 +27,9 @@ import { ccclass, displayOrder, serializable, tooltip, type, range } from 'cc.de
 import { ParticleModule, ModuleExecStageFlags } from '../particle-module';
 import { ParticleDataSet } from '../particle-data-set';
 import { ParticleExecContext, ParticleEmitterParams, ParticleEmitterState } from '../particle-base';
-import { FloatExpression } from '../expression/float-expression';
+import { FloatExpression } from '../expressions/float';
 import { RandomStream } from '../random-stream';
+import { ConstantExpression } from '../expressions';
 
 @ccclass('cc.SpawnRateModule')
 @ParticleModule.register('SpawnRate', ModuleExecStageFlags.EMITTER_UPDATE | ModuleExecStageFlags.EVENT_HANDLER)
@@ -41,7 +42,7 @@ export class SpawnRateModule extends ParticleModule {
     @range([0, 1])
     @displayOrder(14)
     @tooltip('i18n:particle_system.rateOverTime')
-    public rate = new FloatExpression(10);
+    public rate = new ConstantExpression(10);
 
     private _rand = new RandomStream();
 
@@ -52,11 +53,12 @@ export class SpawnRateModule extends ParticleModule {
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext)  {
         const { emitterDeltaTime, emitterNormalizedTime: normalizedT, emitterPreviousTime, emitterCurrentTime } = context;
         let deltaTime = emitterDeltaTime;
-        const random = this._rand.getFloat();
         if (emitterPreviousTime > emitterCurrentTime) {
-            context.spawnContinuousCount += this.rate.evaluate(1, random) * (params.duration - emitterPreviousTime);
+            const seed = this._rand.seed;
+            context.spawnContinuousCount += this.rate.evaluateSingle(1, this._rand, context) * (params.duration - emitterPreviousTime);
             deltaTime = emitterCurrentTime;
+            this._rand.seed = seed;
         }
-        context.spawnContinuousCount += this.rate.evaluate(normalizedT, random) * deltaTime;
+        context.spawnContinuousCount += this.rate.evaluateSingle(normalizedT, this._rand, context) * deltaTime;
     }
 }

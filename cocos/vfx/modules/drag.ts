@@ -25,7 +25,7 @@
 
 import { ccclass, type, serializable, visible } from 'cc.decorator';
 import { lerp, Vec3, CCBoolean } from '../../core';
-import { FloatExpression } from '../expression/float-expression';
+import { FloatExpression } from '../expressions/float';
 import { ParticleModule, ModuleExecStageFlags } from '../particle-module';
 import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
 import { BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';

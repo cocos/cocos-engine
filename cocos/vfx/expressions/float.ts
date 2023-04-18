@@ -23,22 +23,16 @@
  THE SOFTWARE.
  */
 
-import { ParticleEmitter } from './particle-emitter';
-import { EventHandler } from './event-handler';
-import { FloatExpression } from './expressions/float';
-import { ColorExpression } from './expressions/color';
-import './vfx-manager';
-import { ParticleRenderer } from './particle-renderer';
-import { Expression } from './expression';
+import { ccclass } from 'cc.decorator';
+import { Expression } from '../expression';
+import { ParticleExecContext } from '../particle-base';
+import { RandomStream } from '../random-stream';
 
-export {
-    ParticleEmitter,
-    ParticleRenderer,
-    FloatExpression,
-    ColorExpression,
-    EventHandler,
-    Expression,
-};
-
-export * from './modules';
-export * from './expressions';
+@ccclass('cc.FloatExpression')
+export abstract class FloatExpression extends Expression {
+    public get type () {
+        return 'Float';
+    }
+    public abstract evaluateSingle (time: number, randomStream: RandomStream, context: ParticleExecContext): number;
+    public abstract evaluate (index: number): number;
+}

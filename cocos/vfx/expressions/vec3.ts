@@ -23,22 +23,17 @@
  THE SOFTWARE.
  */
 
-import { ParticleEmitter } from './particle-emitter';
-import { EventHandler } from './event-handler';
-import { FloatExpression } from './expressions/float';
-import { ColorExpression } from './expressions/color';
-import './vfx-manager';
-import { ParticleRenderer } from './particle-renderer';
-import { Expression } from './expression';
+import { ccclass } from 'cc.decorator';
+import { Expression } from '../expression';
+import { ParticleExecContext } from '../particle-base';
+import { RandomStream } from '../random-stream';
+import { Vec3 } from '../../core';
 
-export {
-    ParticleEmitter,
-    ParticleRenderer,
-    FloatExpression,
-    ColorExpression,
-    EventHandler,
-    Expression,
-};
-
-export * from './modules';
-export * from './expressions';
+@ccclass('cc.Vec3Expression')
+export abstract class Vec3Expression extends Expression {
+    public get type () {
+        return 'Vec3';
+    }
+    public abstract evaluateSingle (time: number, randomStream: RandomStream, context: ParticleExecContext, out: Vec3): Vec3;
+    public abstract evaluate (index: number, out: Vec3): Vec3;
+}

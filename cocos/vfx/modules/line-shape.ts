@@ -28,7 +28,7 @@ import { ModuleExecStageFlags, ParticleModule } from '../particle-module';
 import { Enum, lerp } from '../../core';
 import { BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
-import { FloatExpression } from '../expression/float-expression';
+import { FloatExpression } from '../expressions/float';
 
 @ccclass('cc.LineShapeModule')
 @ParticleModule.register('LineShape', ModuleExecStageFlags.SPAWN, [BuiltinParticleParameterName.START_DIR])

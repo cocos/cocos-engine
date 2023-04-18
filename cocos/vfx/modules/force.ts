@@ -27,7 +27,7 @@ import { ccclass, tooltip, displayOrder, range, type, serializable } from 'cc.de
 import { DEBUG } from 'internal:constants';
 import { lerp, Vec3, assertIsTrue, Enum } from '../../core';
 import { Space } from '../enum';
-import { FloatExpression } from '../expression/float-expression';
+import { FloatExpression } from '../expressions/float';
 import { ParticleModule, ModuleExecStageFlags } from '../particle-module';
 import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
 import { BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';

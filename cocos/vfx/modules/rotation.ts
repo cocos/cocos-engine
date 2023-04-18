@@ -28,7 +28,7 @@ import { ccclass, tooltip, displayOrder, range, type, radian, serializable, visi
 import { DEBUG } from 'internal:constants';
 import { Vec3, lerp, assertIsTrue, CCBoolean } from '../../core';
 import { ParticleModule, ModuleExecStageFlags } from '../particle-module';
-import { FloatExpression } from '../expression/float-expression';
+import { FloatExpression } from '../expressions/float';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { RandomStream } from '../random-stream';

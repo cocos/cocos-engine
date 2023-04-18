@@ -27,7 +27,7 @@ import { ccclass, displayOrder, serializable, tooltip, type } from 'cc.decorator
 import { ParticleModule, ModuleExecStage, ModuleExecStageFlags } from '../particle-module';
 import { BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleExecContext, ParticleEmitterParams, ParticleEmitterState } from '../particle-base';
-import { ColorExpression } from '../expression/color-expression';
+import { ColorExpression } from '../expressions/color';
 import { Color } from '../../core';
 import { RandomStream } from '../random-stream';
 

@@ -22,23 +22,32 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+import { CCFloat } from '../../core';
+import { ccclass, serializable, type } from '../../core/data/class-decorator';
+import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
+import { ParticleDataSet } from '../particle-data-set';
+import { RandomStream } from '../random-stream';
+import { FloatExpression } from './float';
 
-import { ParticleEmitter } from './particle-emitter';
-import { EventHandler } from './event-handler';
-import { FloatExpression } from './expressions/float';
-import { ColorExpression } from './expressions/color';
-import './vfx-manager';
-import { ParticleRenderer } from './particle-renderer';
-import { Expression } from './expression';
+@ccclass('cc.ConstantExpression')
+export class ConstantExpression extends FloatExpression {
+    @type(CCFloat)
+    @serializable
+    public value = 0;
 
-export {
-    ParticleEmitter,
-    ParticleRenderer,
-    FloatExpression,
-    ColorExpression,
-    EventHandler,
-    Expression,
-};
+    constructor (value = 0) {
+        super();
+        this.value = value;
+    }
 
-export * from './modules';
-export * from './expressions';
+    public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {}
+    public bind (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext, randomOffset: number) {}
+
+    public evaluate (index: number): number {
+        return this.value;
+    }
+
+    public evaluateSingle (time: number, randomStream: RandomStream, context: ParticleExecContext): number {
+        return this.value;
+    }
+}

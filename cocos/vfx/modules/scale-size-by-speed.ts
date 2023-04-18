@@ -26,7 +26,7 @@
 import { ccclass, tooltip, displayOrder, type, serializable, range, visible, rangeMin } from 'cc.decorator';
 import { approx, lerp, Vec2, assertIsTrue } from '../../core';
 import { ParticleModule, ModuleExecStageFlags } from '../particle-module';
-import { FloatExpression } from '../expression/float-expression';
+import { FloatExpression } from '../expressions/float';
 import { BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { RandomStream } from '../random-stream';

@@ -29,7 +29,7 @@ import { Space } from '../enum';
 import { ParticleModule, ModuleExecStage, ModuleExecStageFlags } from '../particle-module';
 import { BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
-import { FloatExpression } from '../expression/float-expression';
+import { FloatExpression } from '../expressions/float';
 import { RandomStream } from '../random-stream';
 
 const tempVelocity = new Vec3();

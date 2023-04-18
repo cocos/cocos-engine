@@ -26,7 +26,7 @@
 import { ccclass, type, serializable, range, rangeMin, visible } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
 import { assertIsTrue, CCFloat, Enum, approx, clamp, lerp, Vec2, Vec3 } from '../../core';
-import { FloatExpression } from '../expression/float-expression';
+import { FloatExpression } from '../expressions/float';
 import { ParticleModule, ModuleExecStageFlags } from '../particle-module';
 import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';

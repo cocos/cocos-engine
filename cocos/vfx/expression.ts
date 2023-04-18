@@ -22,11 +22,12 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { ParticleEmitterParams, ParticleExecContext } from "./particle-base";
-import { ParticleDataSet } from "./particle-data-set";
+import { ccclass } from '../core/data/decorators';
+import { ParticleEmitterParams, ParticleExecContext } from './particle-base';
+import { ParticleDataSet } from './particle-data-set';
 
+@ccclass('cc.Expression')
 export abstract class Expression {
     public abstract tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext);
-    public abstract bind (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext);
-    public abstract evaluate (index: number);
+    public abstract bind (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext, randomOffset: number);
 }

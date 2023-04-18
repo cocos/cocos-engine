@@ -27,7 +27,7 @@ import { DistributionMode, MoveWarpMode, ShapeModule } from './shape';
 import { Enum, lerp, toDegree, toRadian } from '../../core';
 import { BuiltinParticleParameterFlags, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
-import { FloatExpression } from '../expression/float-expression';
+import { FloatExpression } from '../expressions/float';
 import { ParticleVec3ArrayParameter } from '../particle-parameter';
 
 @ccclass('cc.AngleBasedShapeModule')

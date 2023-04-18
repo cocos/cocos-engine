@@ -26,9 +26,10 @@
 import { ccclass, displayOrder, serializable, tooltip, type, range } from 'cc.decorator';
 import { ParticleModule, ModuleExecStageFlags } from '../particle-module';
 import { ParticleExecContext, ParticleEmitterParams, ParticleEmitterState } from '../particle-base';
-import { FloatExpression } from '../expression/float-expression';
+import { FloatExpression } from '../expressions/float';
 import { ParticleDataSet } from '../particle-data-set';
 import { RandomStream } from '../random-stream';
+import { ConstantExpression } from '../expressions';
 
 @ccclass('cc.SpawnPerUnitModule')
 @ParticleModule.register('SpawnPerUnit', ModuleExecStageFlags.EMITTER_UPDATE | ModuleExecStageFlags.EVENT_HANDLER)
@@ -41,7 +42,7 @@ export class SpawnPerUnitModule extends ParticleModule {
     @range([0, 1])
     @displayOrder(15)
     @tooltip('i18n:particle_system.rateOverDistance')
-    public rate = new FloatExpression();
+    public rate = new ConstantExpression();
 
     private _rand = new RandomStream();
 
@@ -52,11 +53,12 @@ export class SpawnPerUnitModule extends ParticleModule {
     public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         const { emitterVelocity, emitterNormalizedTime: normalizeT, emitterDeltaTime, emitterPreviousTime, emitterCurrentTime } = context;
         let deltaTime = emitterDeltaTime;
-        const random = this._rand.getFloat();
         if (emitterPreviousTime > emitterCurrentTime) {
-            context.spawnContinuousCount += emitterVelocity.length() * this.rate.evaluate(1, random) * (params.duration - emitterPreviousTime);
+            const seed = this._rand.seed;
+            context.spawnContinuousCount += emitterVelocity.length() * this.rate.evaluateSingle(1, this._rand, context) * (params.duration - emitterPreviousTime);
             deltaTime = emitterCurrentTime;
+            this._rand.seed = seed;
         }
-        context.spawnContinuousCount += emitterVelocity.length() * this.rate.evaluate(normalizeT, random) * deltaTime;
+        context.spawnContinuousCount += emitterVelocity.length() * this.rate.evaluateSingle(normalizeT, this._rand, context) * deltaTime;
     }
 }

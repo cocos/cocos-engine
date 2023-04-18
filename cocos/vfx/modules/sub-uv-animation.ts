@@ -27,7 +27,7 @@ import { ccclass, tooltip, type, serializable, range, visible } from 'cc.decorat
 import { DEBUG } from 'internal:constants';
 import { lerp, repeat, Enum, assertIsTrue, CCFloat, CCInteger } from '../../core';
 import { ParticleModule, ModuleExecStageFlags } from '../particle-module';
-import { createRealCurve, FloatExpression } from '../expression/float-expression';
+import { createRealCurve, FloatExpression } from '../expressions/float';
 import { BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { RandomStream } from '../random-stream';

@@ -25,11 +25,12 @@
 
 import { ccclass, serializable, type, range, editable } from 'cc.decorator';
 import { lerp } from '../../core';
-import { FloatExpression } from '../expression/float-expression';
+import { FloatExpression } from '../expressions/float';
 import { ParticleModule, ModuleExecStageFlags } from '../particle-module';
 import { ParticleDataSet } from '../particle-data-set';
 import { ParticleExecContext, ParticleEmitterParams, ParticleEmitterState } from '../particle-base';
 import { RandomStream } from '../random-stream';
+import { ConstantExpression } from '../expressions';
 
 @ccclass('cc.SpawnBurstModule')
 @ParticleModule.register('SpawnBurst', ModuleExecStageFlags.EMITTER_UPDATE | ModuleExecStageFlags.EVENT_HANDLER)
@@ -40,7 +41,7 @@ export class SpawnBurstModule extends ParticleModule {
     @type(FloatExpression)
     @serializable
     @range([0, 1])
-    public count = new FloatExpression();
+    public count = new ConstantExpression();
 
     /**
      * @zh 粒子系统开始运行到触发此次 Burst 的时间。
@@ -88,8 +89,10 @@ export class SpawnBurstModule extends ParticleModule {
         let prevT = emitterPreviousTime;
         // handle loop.
         if (prevT > emitterCurrentTime) {
+            const seed = this._rand.seed;
             this._accumulateBurst(prevT, params.duration, 1, context);
             prevT = 0;
+            this._rand.seed = seed;
         }
         this._accumulateBurst(prevT, emitterCurrentTime, emitterNormalizedTime, context);
     }
@@ -102,25 +105,8 @@ export class SpawnBurstModule extends ParticleModule {
                 const currentEmitTime = Math.min(Math.ceil((currT - this.time) / this.repeatInterval), this.repeatCount);
                 const toEmitTime = currentEmitTime - preEmitTime;
                 if (toEmitTime === 0) { return; }
-                if (this.count.mode === FloatExpression.Mode.CONSTANT) {
-                    for (let j = 0; j < toEmitTime; j++) {
-                        context.burstCount += this.count.constant;
-                    }
-                } else if (this.count.mode === FloatExpression.Mode.CURVE) {
-                    const { spline, multiplier } = this.count;
-                    for (let j = 0; j < toEmitTime; j++) {
-                        context.burstCount += spline.evaluate(normalizeT) * multiplier;
-                    }
-                } else if (this.count.mode === FloatExpression.Mode.TWO_CONSTANTS) {
-                    const { constantMin, constantMax } = this.count;
-                    for (let j = 0; j < toEmitTime; j++) {
-                        context.burstCount += lerp(constantMin, constantMax, rand.getFloat());
-                    }
-                } else {
-                    const { splineMin, splineMax, multiplier } = this.count;
-                    for (let j = 0; j < toEmitTime; j++) {
-                        context.burstCount += lerp(splineMin.evaluate(normalizeT), splineMax.evaluate(normalizeT), rand.getFloat()) * multiplier;
-                    }
+                for (let j = 0; j < toEmitTime; j++) {
+                    context.burstCount += this.count.evaluateSingle(normalizeT, rand, context);
                 }
             }
         }

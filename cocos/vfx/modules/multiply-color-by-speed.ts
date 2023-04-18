@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 import { ccclass, rangeMin, serializable, type } from 'cc.decorator';
-import { ColorExpression } from '../expression/color-expression';
+import { ColorExpression } from '../expressions/color';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { ModuleExecStageFlags, ParticleModule } from '../particle-module';
 import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
