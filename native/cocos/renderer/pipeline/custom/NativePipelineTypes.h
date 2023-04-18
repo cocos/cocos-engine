@@ -36,7 +36,6 @@
 #include "cocos/renderer/gfx-base/GFXRenderPass.h"
 #include "cocos/renderer/pipeline/GlobalDescriptorSetManager.h"
 #include "cocos/renderer/pipeline/InstancedBuffer.h"
-#include "cocos/renderer/pipeline/custom/CustomTypes.h"
 #include "cocos/renderer/pipeline/custom/NativePipelineFwd.h"
 #include "cocos/renderer/pipeline/custom/NativeTypes.h"
 #include "cocos/renderer/pipeline/custom/details/Map.h"
@@ -60,6 +59,7 @@ public:
 
     ccstd::string getName() const /*implements*/;
     void setName(const ccstd::string &name) /*implements*/;
+    void setCustomBehavior(const ccstd::string &name) /*implements*/;
 
     const PipelineRuntime* pipelineRuntime{nullptr};
     RenderGraph* renderGraph{nullptr};
@@ -106,6 +106,9 @@ public:
     }
     void setName(const ccstd::string &name) override {
         NativeRenderNode::setName(name);
+    }
+    void setCustomBehavior(const ccstd::string &name) override {
+        NativeRenderNode::setCustomBehavior(name);
     }
 
     void setMat4(const ccstd::string &name, const Mat4 &mat) override {
@@ -163,6 +166,9 @@ public:
     }
     void setName(const ccstd::string &name) override {
         NativeRenderNode::setName(name);
+    }
+    void setCustomBehavior(const ccstd::string &name) override {
+        NativeRenderNode::setCustomBehavior(name);
     }
 
     void setMat4(const ccstd::string &name, const Mat4 &mat) override {
@@ -225,6 +231,9 @@ public:
     void setName(const ccstd::string &name) override {
         NativeRenderNode::setName(name);
     }
+    void setCustomBehavior(const ccstd::string &name) override {
+        NativeRenderNode::setCustomBehavior(name);
+    }
 
     void setMat4(const ccstd::string &name, const Mat4 &mat) override {
         NativeSetter::setMat4(name, mat);
@@ -281,6 +290,9 @@ public:
     }
     void setName(const ccstd::string &name) override {
         NativeRenderNode::setName(name);
+    }
+    void setCustomBehavior(const ccstd::string &name) override {
+        NativeRenderNode::setCustomBehavior(name);
     }
 
     void setMat4(const ccstd::string &name, const Mat4 &mat) override {
@@ -347,6 +359,9 @@ public:
     void setName(const ccstd::string &name) override {
         NativeRenderNode::setName(name);
     }
+    void setCustomBehavior(const ccstd::string &name) override {
+        NativeRenderNode::setCustomBehavior(name);
+    }
 
     void setMat4(const ccstd::string &name, const Mat4 &mat) override {
         NativeSetter::setMat4(name, mat);
@@ -398,6 +413,9 @@ public:
     }
     void setName(const ccstd::string &name) override {
         NativeRenderNode::setName(name);
+    }
+    void setCustomBehavior(const ccstd::string &name) override {
+        NativeRenderNode::setCustomBehavior(name);
     }
 
     void setMat4(const ccstd::string &name, const Mat4 &mat) override {
@@ -455,6 +473,9 @@ public:
     void setName(const ccstd::string &name) override {
         NativeRenderNode::setName(name);
     }
+    void setCustomBehavior(const ccstd::string &name) override {
+        NativeRenderNode::setCustomBehavior(name);
+    }
 
     void addPair(const MovePair &pair) override;
 };
@@ -469,6 +490,9 @@ public:
     }
     void setName(const ccstd::string &name) override {
         NativeRenderNode::setName(name);
+    }
+    void setCustomBehavior(const ccstd::string &name) override {
+        NativeRenderNode::setCustomBehavior(name);
     }
 
     void addPair(const CopyPair &pair) override;
@@ -811,6 +835,30 @@ public:
     gfx::Device* device{nullptr};
 };
 
+struct PipelineCustomization {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {contexts.get_allocator().resource()};
+    }
+
+    PipelineCustomization(const allocator_type& alloc) noexcept; // NOLINT
+    PipelineCustomization(PipelineCustomization&& rhs, const allocator_type& alloc);
+    PipelineCustomization(PipelineCustomization const& rhs, const allocator_type& alloc);
+
+    PipelineCustomization(PipelineCustomization&& rhs) noexcept = default;
+    PipelineCustomization(PipelineCustomization const& rhs) = delete;
+    PipelineCustomization& operator=(PipelineCustomization&& rhs) = default;
+    PipelineCustomization& operator=(PipelineCustomization const& rhs) = default;
+
+    PmrTransparentMap<ccstd::pmr::string, std::shared_ptr<CustomPipelineContext>> contexts;
+    PmrTransparentMap<ccstd::pmr::string, std::shared_ptr<CustomRenderPass>> renderPasses;
+    PmrTransparentMap<ccstd::pmr::string, std::shared_ptr<CustomRenderSubpass>> renderSubpasses;
+    PmrTransparentMap<ccstd::pmr::string, std::shared_ptr<CustomComputeSubpass>> computeSubpasses;
+    PmrTransparentMap<ccstd::pmr::string, std::shared_ptr<CustomComputePass>> computePasses;
+    PmrTransparentMap<ccstd::pmr::string, std::shared_ptr<CustomRenderQueue>> renderQueues;
+    PmrTransparentMap<ccstd::pmr::string, std::shared_ptr<CustomRenderCommand>> renderCommands;
+};
+
 class NativePipeline final : public Pipeline {
 public:
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
@@ -894,6 +942,7 @@ public:
     ResourceGraph resourceGraph;
     RenderGraph renderGraph;
     PipelineStatistics statistics;
+    PipelineCustomization custom;
 };
 
 class NativeProgramProxy final : public ProgramProxy {

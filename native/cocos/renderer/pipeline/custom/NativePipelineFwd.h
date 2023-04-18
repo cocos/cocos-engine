@@ -31,7 +31,6 @@
 #pragma once
 #include "cocos/base/std/variant.h"
 #include "cocos/renderer/pipeline/InstancedBuffer.h"
-#include "cocos/renderer/pipeline/custom/CustomFwd.h"
 #include "cocos/renderer/pipeline/custom/NativeFwd.h"
 
 namespace cc {
@@ -64,6 +63,7 @@ struct LayoutGraphNodeResource;
 struct QuadResource;
 struct NativeRenderContext;
 class NativeProgramLibrary;
+struct PipelineCustomization;
 class NativePipeline;
 class NativeProgramProxy;
 class NativeRenderingModule;

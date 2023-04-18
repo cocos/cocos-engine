@@ -257,6 +257,9 @@ export class WebSetter {
         }
         return this._data.textures.has(id);
     }
+    public setCustomBehavior (name: string): void {
+        throw new Error('Method not implemented.');
+    }
 
     // protected
     protected  _data: RenderData;
@@ -1173,6 +1176,9 @@ export class WebMovePassBuilder implements MovePassBuilder {
         this._vertID = vertID;
         this._pass = pass;
     }
+    setCustomBehavior (name: string): void {
+        throw new Error('Method not implemented.');
+    }
     get name () {
         return this._renderGraph.getName(this._vertID);
     }
@@ -1192,6 +1198,9 @@ export class WebCopyPassBuilder implements CopyPassBuilder {
         this._renderGraph = renderGraph;
         this._vertID = vertID;
         this._pass = pass;
+    }
+    setCustomBehavior (name: string): void {
+        throw new Error('Method not implemented.');
     }
     get name () {
         return this._renderGraph.getName(this._vertID);

@@ -60,6 +60,10 @@ void NativeRenderNode::setName(const ccstd::string &name) { // NOLINT(readabilit
     get(RenderGraph::NameTag{}, *renderGraph, nodeID) = std::string_view{name};
 }
 
+void NativeRenderNode::setCustomBehavior(const ccstd::string &name) { // NOLINT(readability-make-member-function-const)
+    get(RenderGraph::DataTag{}, *renderGraph, nodeID).custom = std::string_view{name};
+}
+
 void NativeSetter::setMat4(const ccstd::string &name, const Mat4 &mat) {
     auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
     setMat4Impl(data, *layoutGraph, name, mat);

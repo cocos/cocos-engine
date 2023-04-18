@@ -34,9 +34,8 @@
 #include "cocos/renderer/core/PassUtils.h"
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/pipeline/PipelineSceneData.h"
-#include "cocos/renderer/pipeline/custom/RenderCommonTypes.h"
+#include "cocos/renderer/pipeline/custom/CustomTypes.h"
 #include "cocos/renderer/pipeline/custom/RenderInterfaceFwd.h"
-#include "cocos/scene/Camera.h"
 
 namespace cc {
 
@@ -119,6 +118,7 @@ public:
 
     virtual ccstd::string getName() const = 0;
     virtual void setName(const ccstd::string &name) = 0;
+    virtual void setCustomBehavior(const ccstd::string &name) = 0;
 };
 
 class Setter : public RenderNode {

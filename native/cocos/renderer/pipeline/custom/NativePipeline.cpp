@@ -81,7 +81,8 @@ NativePipeline::NativePipeline(const allocator_type &alloc) noexcept
   nativeContext(std::make_unique<gfx::DefaultResource>(device), alloc),
   resourceGraph(alloc),
   renderGraph(alloc),
-  name(alloc) {
+  name(alloc),
+  custom(alloc) {
     programLibrary->setPipeline(this);
 }
 

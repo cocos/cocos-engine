@@ -67,6 +67,7 @@ export interface PipelineRuntime {
 
 export interface RenderNode {
     name: string;
+    setCustomBehavior (name: string): void;
 }
 
 export interface Setter extends RenderNode {
