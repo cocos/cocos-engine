@@ -42,8 +42,8 @@ const _htmlTextParser = new HtmlTextParser();
 const RichTextChildName = 'RICHTEXT_CHILD';
 const RichTextChildImageName = 'RICHTEXT_Image_CHILD';
 
-const _tempSize = new Size();
-const _tempSizeLeft = new Size();
+const _tempSize = new Vec2();
+const _tempSizeLeft = new Vec2();
 
 /**
  * 富文本池。<br/>
@@ -714,7 +714,7 @@ export class RichText extends Component {
 
     protected _measureText (styleIndex: number, string?: string) {
         const func = (s: string) => {
-            const width = this._calculateSize(_tempSize, styleIndex, s).width;
+            const width = this._calculateSize(_tempSize, styleIndex, s).x;
             return width;
         };
         if (string) {
@@ -727,7 +727,7 @@ export class RichText extends Component {
     /**
     * @engineInternal
     */
-    protected _calculateSize (out: Size, styleIndex: number, s: string) {
+    protected _calculateSize (out: Vec2, styleIndex: number, s: string) {
         let label: ISegment;
         if (this._labelSegmentsCache.length === 0) {
             label = this._createFontLabel(s);
@@ -738,7 +738,8 @@ export class RichText extends Component {
         }
         label.styleIndex = styleIndex;
         this._applyTextAttribute(label);
-        out.set(label.node._uiProps.uiTransformComp!.contentSize);
+        const size = label.node._uiProps.uiTransformComp!.contentSize;
+        Vec2.set(out, size.x, size.y);
         return out;
     }
 
