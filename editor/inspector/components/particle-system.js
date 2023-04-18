@@ -18,8 +18,8 @@ exports.template = /* html*/`
         <ui-prop type="dump" key="scaleSpace"></ui-prop>
         <ui-prop type="dump" key="startSize3D"></ui-prop>
         <!-- hack changeName if startSize3D change -->
-        <ui-prop type="dump" key="startSizeX" displayName="StartSize" showflag="!startSize3D"></ui-prop>
-        <ui-prop type="dump" class="indent" key="startSizeX" displayName="StartSizeX" showflag="startSize3D"></ui-prop>
+        <ui-prop type="dump" key="startSizeX" displayName="Start Size" showflag="!startSize3D"></ui-prop>
+        <ui-prop type="dump" class="indent" key="startSizeX" showflag="startSize3D"></ui-prop>
         <ui-prop type="dump" class="indent" key="startSizeY"></ui-prop>
         <ui-prop type="dump" class="indent" key="startSizeZ"></ui-prop>
         <ui-prop type="dump" key="startSpeed"></ui-prop>
@@ -27,8 +27,8 @@ exports.template = /* html*/`
         <ui-prop type="dump" class="indent" key="startRotationX"></ui-prop>
         <ui-prop type="dump" class="indent" key="startRotationY"></ui-prop>
         <!-- hack changeName if startRotation3D change -->
-        <ui-prop type="dump" class="indent" key="startRotationZ"></ui-prop>
-        <ui-prop type="dump" showflag="!startRotation3D" displayName="StartRotation" key="startRotationZ"></ui-prop>
+        <ui-prop type="dump" class="indent" key="startRotationZ" showflag="startRotation3D"></ui-prop>
+        <ui-prop type="dump" showflag="!startRotation3D" displayName="Start Rotation" key="startRotationZ"></ui-prop>
         <ui-prop type="dump" key="gravityModifier"></ui-prop>
         <ui-prop type="dump" key="rateOverTime"></ui-prop>
         <ui-prop type="dump" key="rateOverDistance"></ui-prop>

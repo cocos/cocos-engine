@@ -102,12 +102,17 @@ describe('Skeletal animation state', () => {
 
         const childNode = new Node('Child');
         const childSkin = childNode.addComponent(SkinnedMeshRenderer) as SkinnedMeshRenderer;
+        const childSkinSetUseBakedAnimationMock = mockSkinSetUseBakedAnimation(childSkin);
         childSkin.skinningRoot = n_0_0;
         n_0_0.addChild(childNode);
-        const childSkinSetUseBakedAnimationMock = mockSkinSetUseBakedAnimation(childSkin);
         expect(animationAddUserMock).toBeCalledTimes(1);
         expect(animationAddUserMock.mock.calls[0][0]).toBe(childSkin);
         animationAddUserMock.mockClear();
+        
+        // Assigning to the skinning root cause `setUseBakedAnimation` to be called.
+        expect(childSkinSetUseBakedAnimationMock).toBeCalledTimes(1);
+        expect(childSkinSetUseBakedAnimationMock.mock.calls[0][0]).toBe(true);
+        childSkinSetUseBakedAnimationMock.mockClear();
 
         // Another child's skin
         const anotherChildSkin = anotherChildNode.addComponent(SkinnedMeshRenderer) as SkinnedMeshRenderer;
@@ -128,12 +133,6 @@ describe('Skeletal animation state', () => {
         const parentSkinSetUseBakedAnimationMock = mockSkinSetUseBakedAnimation(parentSkin);
         parentSkin.skinningRoot = n_0_0;
         expect(animationAddUserMock).toBeCalledTimes(0);
-
-        // Assigning to the skinning root cause `setUseBakedAnimation` to be called.
-        childSkin.skinningRoot = n_0_0;
-        expect(childSkinSetUseBakedAnimationMock).toBeCalledTimes(1);
-        expect(childSkinSetUseBakedAnimationMock.mock.calls[0][0]).toBe(true);
-        childSkinSetUseBakedAnimationMock.mockClear();
 
         // Change to the animation's bake option. Skins are notified.
         animation_0_0.useBakedAnimation = false;

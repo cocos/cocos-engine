@@ -280,8 +280,9 @@ gfx::Texture* ResourceGraph::getTexture(vertex_descriptor resID) {
             texture = tex.get();
         },
         [&](const IntrusivePtr<gfx::Framebuffer>& fb) {
-            std::ignore = fb;
-            CC_EXPECTS(false);
+            CC_EXPECTS(fb->getColorTextures().size() == 1);
+            CC_EXPECTS(fb->getColorTextures().at(0));
+            texture = fb->getColorTextures()[0];
         },
         [&](const RenderSwapchain& sc) {
             texture = sc.swapchain->getColorTexture();

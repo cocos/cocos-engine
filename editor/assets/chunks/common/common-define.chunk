@@ -68,5 +68,9 @@
 #define IS_POINT_LIGHT(light_type) equalf_lowp(light_type, LIGHT_TYPE_POINT)
 #define IS_RANGED_DIRECTIONAL_LIGHT(light_type) equalf_lowp(light_type, LIGHT_TYPE_RANGED_DIRECTIONAL)
 
+// CC_TONE_MAPPING_TYPE Values
+#define TONE_MAPPING_ACES 0
+#define TONE_MAPPING_LINEAR 1
+
 // Material
 #define SURFACES_MAX_TRANSMIT_DEPTH_VALUE 999999.0

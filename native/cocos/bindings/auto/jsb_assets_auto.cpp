@@ -7514,6 +7514,117 @@ static bool js_cc_IRenderTextureCreateInfo_passInfo_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_IRenderTextureCreateInfo_passInfo_get) 
 
+static bool js_cc_IRenderTextureCreateInfo_externalResLow_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::IRenderTextureCreateInfo *arg1 = (cc::IRenderTextureCreateInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IRenderTextureCreateInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->externalResLow, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_IRenderTextureCreateInfo_externalResLow_set) 
+
+static bool js_cc_IRenderTextureCreateInfo_externalResLow_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::IRenderTextureCreateInfo *arg1 = (cc::IRenderTextureCreateInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IRenderTextureCreateInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->externalResLow, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->externalResLow, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_IRenderTextureCreateInfo_externalResLow_get) 
+
+static bool js_cc_IRenderTextureCreateInfo_externalResHigh_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::IRenderTextureCreateInfo *arg1 = (cc::IRenderTextureCreateInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IRenderTextureCreateInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->externalResHigh, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_IRenderTextureCreateInfo_externalResHigh_set) 
+
+static bool js_cc_IRenderTextureCreateInfo_externalResHigh_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::IRenderTextureCreateInfo *arg1 = (cc::IRenderTextureCreateInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IRenderTextureCreateInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->externalResHigh, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->externalResHigh, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_IRenderTextureCreateInfo_externalResHigh_get) 
+
+static bool js_cc_IRenderTextureCreateInfo_externalFlag_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::IRenderTextureCreateInfo *arg1 = (cc::IRenderTextureCreateInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IRenderTextureCreateInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->externalFlag, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_IRenderTextureCreateInfo_externalFlag_set) 
+
+static bool js_cc_IRenderTextureCreateInfo_externalFlag_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::IRenderTextureCreateInfo *arg1 = (cc::IRenderTextureCreateInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IRenderTextureCreateInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->externalFlag, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->externalFlag, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_IRenderTextureCreateInfo_externalFlag_get) 
+
 static bool js_new_cc_IRenderTextureCreateInfo(se::State& s) // NOLINT(readability-identifier-naming)
 {
     CC_UNUSED bool ok = true;
@@ -7573,6 +7684,24 @@ bool sevalue_to_native(const se::Value &from, cc::IRenderTextureCreateInfo * to,
     }
     
     
+    json->getProperty("externalResLow", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->externalResLow), ctx);
+    }
+    
+    
+    json->getProperty("externalResHigh", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->externalResHigh), ctx);
+    }
+    
+    
+    json->getProperty("externalFlag", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->externalFlag), ctx);
+    }
+    
+    
     return ok;
 }
 
@@ -7585,6 +7714,9 @@ bool js_register_cc_IRenderTextureCreateInfo(se::Object* obj) {
     cls->defineProperty("width", _SE(js_cc_IRenderTextureCreateInfo_width_get), _SE(js_cc_IRenderTextureCreateInfo_width_set)); 
     cls->defineProperty("height", _SE(js_cc_IRenderTextureCreateInfo_height_get), _SE(js_cc_IRenderTextureCreateInfo_height_set)); 
     cls->defineProperty("passInfo", _SE(js_cc_IRenderTextureCreateInfo_passInfo_get), _SE(js_cc_IRenderTextureCreateInfo_passInfo_set)); 
+    cls->defineProperty("externalResLow", _SE(js_cc_IRenderTextureCreateInfo_externalResLow_get), _SE(js_cc_IRenderTextureCreateInfo_externalResLow_set)); 
+    cls->defineProperty("externalResHigh", _SE(js_cc_IRenderTextureCreateInfo_externalResHigh_get), _SE(js_cc_IRenderTextureCreateInfo_externalResHigh_set)); 
+    cls->defineProperty("externalFlag", _SE(js_cc_IRenderTextureCreateInfo_externalFlag_get), _SE(js_cc_IRenderTextureCreateInfo_externalFlag_set)); 
     
     
     
