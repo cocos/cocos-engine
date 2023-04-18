@@ -564,5 +564,9 @@ void CommandBufferValidator::completeQueryPool(QueryPool *queryPool) {
     _actor->completeQueryPool(actorQueryPool);
 }
 
+void CommandBufferValidator::customCommand(CustomCommand &&cmd) {
+    _actor->customCommand(std::move(cmd));
+}
+
 } // namespace gfx
 } // namespace cc

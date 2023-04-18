@@ -31,6 +31,7 @@
 #include "gfx-base/GFXDef-common.h"
 #include "gfx-gles-common/GLESCommandPool.h"
 #include "gfx-gles3/GLES3GPUObjects.h"
+#include "gfx-gles3/states/GLES3Sampler.h"
 
 #define BUFFER_OFFSET(idx) (static_cast<char *>(0) + (idx))
 
@@ -2565,7 +2566,8 @@ void cmdFuncGLES3BindState(GLES3Device *device, GLES3GPUPipelineState *gpuPipeli
             for (size_t u = 0; u < glSamplerTexture.units.size(); u++, gpuDescriptor++) {
                 auto unit = static_cast<uint32_t>(glSamplerTexture.units[u]);
 
-                if (!gpuDescriptor->gpuTextureView || !gpuDescriptor->gpuTextureView->gpuTexture || !gpuDescriptor->gpuSampler) {
+                auto *sampler = gpuDescriptor->gpuSampler ? gpuDescriptor->gpuSampler : static_cast<GLES3Sampler*>(device->getSampler({}))->gpuSampler();
+                if (!gpuDescriptor->gpuTextureView || !gpuDescriptor->gpuTextureView->gpuTexture || !sampler) {
                     // CC_LOG_ERROR("Sampler texture '%s' at binding %d set %d index %d is not bounded",
                     //              glSamplerTexture.name.c_str(), glSamplerTexture.set, glSamplerTexture.binding, u);
                     continue;
@@ -2588,7 +2590,7 @@ void cmdFuncGLES3BindState(GLES3Device *device, GLES3GPUPipelineState *gpuPipeli
                         cache->glTextures[unit] = glTexture;
                     }
 
-                    GLuint glSampler = gpuDescriptor->gpuSampler->getGLSampler(minLod, maxLod);
+                    GLuint glSampler = sampler->getGLSampler(minLod, maxLod);
                     if (cache->glSamplers[unit] != glSampler) {
                         GL_CHECK(glBindSampler(unit, glSampler));
                         cache->glSamplers[unit] = glSampler;
