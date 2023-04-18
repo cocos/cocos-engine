@@ -80,6 +80,8 @@ exports.adapt = function (canvas, width, height) {
         GameGlobal.indexThis.setData({
             showInput: true,
             isPassword: false,
+            maxLength: obj.maxLength,
+            confirmType: obj.confirmType
         });
     };
 

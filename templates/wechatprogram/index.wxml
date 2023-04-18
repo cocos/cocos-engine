@@ -6,7 +6,6 @@
         bindinput="onKeyboardInput"
         bindblur="onKeyboardComplete"
         bindconfirm="onKeyboardConfirm"
-        placeholder="请输入内容"
         confirm-type="{{confirmType}}"
         password="{{isPassword}}"
         maxLength="{{maxLength}}"
