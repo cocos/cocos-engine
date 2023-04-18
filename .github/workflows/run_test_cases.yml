@@ -1,6 +1,6 @@
 name: run test cases
 
-on: 
+on:
   pull_request_target:
   issue_comment:
     types: [created, edited]
@@ -72,7 +72,6 @@ jobs:
           git branch ${{ steps.parse_pr.outputs.pr_base_ref }}
           git fetch origin pull/${{ steps.get_pr.outputs.pr_number }}/head:pull-${{ steps.get_pr.outputs.pr_number }}
           git merge --ff -s recursive --no-verify -m "PR Test" origin/${{ steps.parse_pr.outputs.pr_base_ref }} pull-${{ steps.get_pr.outputs.pr_number }}
-
       - name: Download external libraries
         shell: bash
         run: |
@@ -97,32 +96,31 @@ jobs:
           echo "Create auto-generated jsbinding glue codes."
           node genbindings.js &&
           git status
-          
       - name: npm install
         run: |
           npm -v
           npm install --registry https://registry.npm.taobao.org
-      - name: Run test cases
-        timeout-minutes: 120
-        id: run_test_cases
+      - name: Checkout test-projects
+        shell: bash
         run: |
-          cd ..
-          python3 -u ./python/main.py --workspace ${{github.workspace}} --pr_number ${{ steps.get_pr.outputs.pr_number }} --author ${{ steps.parse_pr.outputs.pr_author }}  --base_ref ${{ steps.parse_pr.outputs.pr_base_ref }}  --base_sha  ${{ steps.parse_pr.outputs.pr_base_sha }}  --head_ref  ${{ steps.parse_pr.outputs.pr_head_ref }} --head_sha ${{ steps.parse_pr.outputs.pr_head_sha }}
+          set -x
+          AUTOTEST_VERSION="v3.7"
+          TEST_PROJECTS_EXTERNAL="../../cocos-test-projects"
+          CCTEST_PLUGINS="../../TestAction"
+          if [ ! -d $TEST_PROJECTS_EXTERNAL ]; then
+              mkdir -p $TEST_PROJECTS_EXTERNAL
+              git clone https://github.com/cocos/cocos-test-projects.git $TEST_PROJECTS_EXTERNAL
+          else
+              echo "directory $TEST_PROJECTS_EXTERNAL is ready"
+          fi
+          git -C $TEST_PROJECTS_EXTERNAL reset --hard
+          git -C $TEST_PROJECTS_EXTERNAL fetch --all --prune
+          git -C $TEST_PROJECTS_EXTERNAL checkout origin/$AUTOTEST_VERSION
+          git -C $TEST_PROJECTS_EXTERNAL pull origin $AUTOTEST_VERSION --allow-unrelated-histories
+          rm -rf $TEST_PROJECTS_EXTERNAL/extensions/automation-framework
+          7z x -y $CCTEST_PLUGINS/*.zip -o $TEST_PROJECTS_EXTERNAL/extensions/automation-framework
 
-      - name: Update Comment
-        uses: peter-evans/create-or-update-comment@v1
-        with:
-          issue-number: ${{ steps.get_pr.outputs.pr_number }}
-          body: |
-            @${{ steps.parse_pr.outputs.pr_author }}, Please check the result of `run test cases`:
-            - Test Platform: Windows
-            - Editor Version: ${{ steps.run_test_cases.outputs.editor }}
-            - Task Result: ${{ steps.run_test_cases.outputs.task }}
-            - Task URL: ${{ steps.run_test_cases.outputs.url }}
-            - GitHub Action: https://github.com/cocos/cocos-engine/actions/runs/${{ github.run_id }}
-            ## Task Details
-            ${{ steps.run_test_cases.outputs.report }}
-  
+
   macOS-RunTestCases:
     if: |
       contains(github.event.pull_request.body, '[X] needs automatic test cases check') ||
@@ -168,17 +166,17 @@ jobs:
           echo "${{ steps.parse_pr.outputs.pr_head_sha }}"
           echo "${{ steps.parse_pr.outputs.pr_base_ref }}"
           echo "${{ steps.parse_pr.outputs.pr_base_sha }}"
-          
+
       - name: Checkout engine
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0          
+          fetch-depth: 0
           ref: ${{ steps.parse_pr.outputs.pr_base_ref }}
 
       - name: Checkout rebase
         run: |
           git fetch origin
-          git reset --hard   
+          git reset --hard
           git checkout origin/${{ steps.parse_pr.outputs.pr_base_ref }}
           git pull origin ${{ steps.parse_pr.outputs.pr_base_ref }} --allow-unrelated-histories
           git branch -D ${{ steps.parse_pr.outputs.pr_base_ref }}
@@ -216,12 +214,39 @@ jobs:
         run: |
           npm -v
           npm install --registry https://registry.npm.taobao.org
+      - name: Checkout test-projects
+        shell: bash
+        run: |
+          set -x
+          AUTOTEST_VERSION="v3.7"
+          TEST_PROJECTS_EXTERNAL="../../cocos-test-projects"
+          CCTEST_PLUGINS="../../TestAction"
+          if [ ! -d $TEST_PROJECTS_EXTERNAL ]; then
+              mkdir -p $TEST_PROJECTS_EXTERNAL
+              git clone https://github.com/cocos/cocos-test-projects.git $TEST_PROJECTS_EXTERNAL
+          else
+              echo "directory $TEST_PROJECTS_EXTERNAL is ready"
+          fi
+          git -C $TEST_PROJECTS_EXTERNAL reset --hard
+          git -C $TEST_PROJECTS_EXTERNAL fetch --all --prune
+          git -C $TEST_PROJECTS_EXTERNAL checkout origin/$AUTOTEST_VERSION
+          git -C $TEST_PROJECTS_EXTERNAL pull origin $AUTOTEST_VERSION --allow-unrelated-histories
+          rm -rf $TEST_PROJECTS_EXTERNAL/extensions/automation-framework
+          unzip -oq $CCTEST_PLUGINS/*.zip -d $TEST_PROJECTS_EXTERNAL/extensions/automation-framework
+
+  Creator-PR-RunTestCases:
+    runs-on: self-hosted-mac
+    needs: [macOS-RunTestCases, Win-RunTestCases]
+    steps:
       - name: Run test cases
         timeout-minutes: 90
         id: run_test_cases
         run: |
+          sed -x
+          node  ../../test-projects/extensions/automation-framework/node_modules/@cctest/scheduler/dist/cli.js cicd -p PR-TEST -v ${{ steps.parse_pr.outputs.pr_base_ref }}  -r  test-cctest.cocos.org
+          JOBID='cat ../../test-projects/extensions/automation-framework/node_modules/@cctest/scheduler/logs/PR-TEST/nowJobId.log'
           cd ..
-          python3 -u ./python/main.py --workspace ${{github.workspace}} --pr_number ${{ steps.get_pr.outputs.pr_number }} --author ${{ steps.parse_pr.outputs.pr_author }}  --base_ref ${{ steps.parse_pr.outputs.pr_base_ref }}  --base_sha  ${{ steps.parse_pr.outputs.pr_base_sha }}  --head_ref  ${{ steps.parse_pr.outputs.pr_head_ref }} --head_sha ${{ steps.parse_pr.outputs.pr_head_sha }}
+          python3 -u ./python/main.py -target=job_result --jobid=$JOBID
 
       - name: Update Comment
         uses: peter-evans/create-or-update-comment@v1
@@ -229,10 +254,10 @@ jobs:
           issue-number: ${{ steps.get_pr.outputs.pr_number }}
           body: |
             @${{ steps.parse_pr.outputs.pr_author }}, Please check the result of `run test cases`:
-            - Test Platform: macOS
+            - Test Platform: PR-Test
             - Editor Version: ${{ steps.run_test_cases.outputs.editor }}
-            - Task Result: ${{ steps.run_test_cases.outputs.task }}
-            - Task URL: ${{ steps.run_test_cases.outputs.url }}
+            # - Task Result: ${{ steps.run_test_cases.outputs.task }}
+            # - Task URL: ${{ steps.run_test_cases.outputs.url }}
             - GitHub Action: https://github.com/cocos/cocos-engine/actions/runs/${{ github.run_id }}
             ## Task Details
             ${{ steps.run_test_cases.outputs.report }}
