@@ -619,11 +619,10 @@ export function buildSSSSBlurPass (camera: Camera,
     ppl: Pipeline,
     inputRT: string,
     inputDS: string,
-    ssssFov = 45.0,
-    ssssWidth = 0.1,
-    depthUnitScale = 0.4) {
+    ssssWidth = 0.015,
+    depthUnitScale = 0.2) {
     if (!ssssBlurData) ssssBlurData = new SSSSBlurData();
-    ssssBlurData.ssssFov = ssssFov;
+    ssssBlurData.ssssFov = camera.fov;
     ssssBlurData.ssssWidth = ssssWidth;
     ssssBlurData.depthUnitScale = depthUnitScale;
 
