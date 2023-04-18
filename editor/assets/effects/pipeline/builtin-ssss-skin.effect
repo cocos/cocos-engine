@@ -27,7 +27,7 @@ CCEffect %{
         pbrMap:                           { value: grey }
         occlusionMap:                     { value: white }
         emissiveMap:                      { value: grey }
-        sssMap:                           { value: grey }
+        sssMap:                           { value: black }
         anisotropyMap:                    { value: black, editor : { parent: IS_ANISOTROPY } }
         anisotropyMapNearestFilter:       { value: black, editor : { parent: FIX_ANISOTROPIC_ROTATION_MAP } }
       depthStencilState:
@@ -337,10 +337,12 @@ CCProgram surface-fragment %{
   #define CC_SURFACES_FRAGMENT_MODIFY_SHARED_DATA
   void SurfacesFragmentModifySharedData(inout SurfacesMaterialData surfaceData)
   {
+    float sssStrength = 1.0;
     #if USE_SSS_MAP
-      vec4 res = texture(sssMap, DEFAULT_UV);
-      surfaceData.baseColor.a = 1.0 + res.a;
+      sssStrength = texture(sssMap, DEFAULT_UV).x;
     #endif
+    // 0 - 0.5 is valid value
+    surfaceData.baseColor.a = sssStrength * 0.5;
   }
 
 }%
