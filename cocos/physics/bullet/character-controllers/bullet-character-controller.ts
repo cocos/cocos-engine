@@ -30,7 +30,7 @@ import { IBaseCharacterController } from '../../spec/i-character-controller';
 import { BulletCache } from '../bullet-cache';
 import { bullet2CocosVec3, cocos2BulletVec3 } from '../bullet-utils';
 import { BulletWorld } from '../bullet-world';
-import { bt } from '../instantiated';
+import { bt, EBulletType } from '../instantiated';
 import { PhysicsGroup } from '../../framework/physics-enum';
 import { BulletShape } from '../shapes/bullet-shape';
 import { BulletRigidBody } from '../bullet-rigid-body';
@@ -43,11 +43,9 @@ export abstract class BulletCharacterController implements IBaseCharacterControl
     private _isEnabled = false;
     protected _impl: any = null; //btCapsuleCharacterController
     protected _comp: CharacterController = null as any;
-    private _btCollisionFlags = 0;//: PX.PxControllerCollisionFlags;
-    private _filterData: any;
-    //private _queryFilterCB: any = null;
+    private _btCollisionFlags = 0;//: btControllerCollisionFlag
     protected _word3 = 0;
-
+    private _dirty = false;
     private _collisionFilterGroup: number = PhysicsSystem.PhysicsGroup.DEFAULT;
     private _collisionFilterMask = -1;
 
@@ -55,16 +53,7 @@ export abstract class BulletCharacterController implements IBaseCharacterControl
     get impl (): any { return this._impl; }
     get characterController (): CharacterController { return this._comp; }
 
-    // get filterData () {
-    //     return this._filterData;
-    // }
-
-    // get queryFilterCB () {
-    //     return this._queryFilterCB;
-    // }
-
     constructor () {
-        this._filterData = { word0: 1, word1: 1, word2: 10000, word3: 0 };
     }
 
     // virtual
@@ -72,14 +61,6 @@ export abstract class BulletCharacterController implements IBaseCharacterControl
 
     initialize (comp: CharacterController): boolean {
         this._comp = comp;
-
-        //this._queryFilterCB = PX.PxQueryFilterCallback.implement(this.queryCallback);
-
-        // const group = this._comp.group;
-        // this._filterData.word0 = this._comp.group;
-        // const mask = PhysicsSystem.instance.collisionMatrix[group];
-        // this._filterData.word1 = mask;
-
         const group = this._comp.group;
         const mask =  PhysicsSystem.instance.collisionMatrix[group];
         this._collisionFilterGroup = group;
@@ -88,7 +69,7 @@ export abstract class BulletCharacterController implements IBaseCharacterControl
         this.onComponentSet();
 
         if (this._impl == null) {
-            error('[Physics]: BulletCharacterController Initialize createCapsuleCharacterController Failed');
+            error('[Physics]: BulletCharacterController initialize createCapsuleCharacterController failed');
             return false;
         } else {
             this.setDetectCollisions(this._comp.detectCollisions);
@@ -100,10 +81,7 @@ export abstract class BulletCharacterController implements IBaseCharacterControl
     }
 
     setWrapper () {
-        if (BulletCache.isNotEmptyShape(this._impl)) {
-            //bt.CollisionShape_setUserPointer(this._impl, this._impl);
-            BulletCache.setWrapper(this._impl, bt.CCT_CACHE_NAME, this);
-        }
+        BulletCache.setWrapper(this._impl, bt.CCT_CACHE_NAME, this);
     }
 
     onEnable (): void {
@@ -115,16 +93,10 @@ export abstract class BulletCharacterController implements IBaseCharacterControl
     }
 
     onDestroy (): void {
-        // if (this._impl) {
-        //     if (this._impl.$$) {
-        //         PX.IMPL_PTR[this._impl.$$.ptr] = null;
-        //         delete PX.IMPL_PTR[this._impl.$$.ptr];
-        //     }
-        //     this._impl.release();
-        //     this._impl = null;
-        // }
-
+        (this._comp as any) = null;
         (PhysicsSystem.instance.physicsWorld as BulletWorld).removeCCT(this);
+        bt._safe_delete(this._impl, EBulletType.EBulletTypeCharacterController);
+        BulletCache.delWrapper(this._impl, bt.CCT_CACHE_NAME);
     }
 
     onLoad (): void {
@@ -169,40 +141,16 @@ export abstract class BulletCharacterController implements IBaseCharacterControl
         this._comp.node.setWorldPosition(v3_0);
     }
 
-    // // eNONE = 0,   //!< the query should ignore this shape
-    // // eTOUCH = 1,  //!< a hit on the shape touches the intersection geometry of the query but does not block it
-    // // eBLOCK = 2   //!< a hit on the shape blocks the query (does not block overlap queries)
-    // queryCallback = {
-    //     preFilter (filterData: any, shape: any, _actor: any, _out: any): number {
-    //         const collider = getWrapShape<PhysXShape>(shape).collider;
-    //         if (!(filterData.word0 & collider.getMask()) || !(filterData.word1 & collider.getGroup())) {
-    //             return PX.QueryHitType.eNONE;
-    //         }
-
-    //         // Ignore trigger shape
-    //         // this is done in physx::Cct::findTouchedGeometry
-    //         // Ubi (EA) : Discarding Triggers
-    //         // const shapeFlags = shape.getFlags();
-    //         // if (shapeFlags.isSet(PX.ShapeFlag.eTRIGGER_SHAPE)) {
-    //         //     return PX.QueryHitType.eNONE;
-    //         // }
-
-    //         return PX.QueryHitType.eBLOCK;
-    //     },
-    // };
-
     move (movement: IVec3Like, minDist: number, elapsedTime: number) {
-        //this._btCollisionFlags = this._impl.move(movement, minDist, elapsedTime);//, this.filterData, this.queryFilterCB);
         const movementBT = BulletCache.instance.BT_V3_0;
         bt.Vec3_set(movementBT, movement.x, movement.y, movement.z);
-        this._btCollisionFlags = bt.CharacterController_move(this.impl, movementBT, minDist, elapsedTime);//, this.filterData, this.queryFilterCB);
+        this._btCollisionFlags = bt.CharacterController_move(this.impl, movementBT, minDist, elapsedTime);
     }
 
     setGroup (v: number): void {
         if (v !== this._collisionFilterGroup) {
             this._collisionFilterGroup = v;
-            // this.dirty |= EBtSharedBodyDirty.BODY_RE_ADD;
-            // this.dirty |= EBtSharedBodyDirty.GHOST_RE_ADD;
+            this._dirty = true;
         }
     }
 
@@ -212,17 +160,18 @@ export abstract class BulletCharacterController implements IBaseCharacterControl
 
     addGroup (v: number): void {
         this._collisionFilterGroup |= v;
+        this._dirty = true;
     }
 
     removeGroup (v: number): void {
         this._collisionFilterGroup &= ~v;
+        this._dirty = true;
     }
 
     setMask (v: number): void {
-        if (v !== this._collisionFilterGroup) {
+        if (v !== this._collisionFilterMask) {
             this._collisionFilterMask = v;
-            // this.dirty |= EBtSharedBodyDirty.BODY_RE_ADD;
-            // this.dirty |= EBtSharedBodyDirty.GHOST_RE_ADD;
+            this._dirty = true;
         }
     }
 
@@ -232,28 +181,24 @@ export abstract class BulletCharacterController implements IBaseCharacterControl
 
     addMask (v: number): void {
         this._collisionFilterMask |= v;
+        this._dirty = true;
     }
 
     removeMask (v: number): void {
         this._collisionFilterMask &= ~v;
+        this._dirty = true;
     }
 
-    //todo
-    updateFilterData () {
-        // if (this._comp.needTriggerEvent) {
-        //     this._filterData.word3 |= EFilterDataWord3.DETECT_TRIGGER_EVENT;
-        // }
-
-        // this.setFilerData(this.filterData);
-    }
-    //todo
-    setFilerData (filterData: any) {
-        // this._impl.setQueryFilterData(filterData);
-        this._impl.setSimulationFilterData(filterData);
-    }
-    //todo
     updateEventListener () {
-        this.updateFilterData();
+    }
+
+    // update group and mask by re-adding cct to physics world
+    updateDirty () {
+        if (this._dirty) {
+            (PhysicsSystem.instance.physicsWorld as BulletWorld).removeCCT(this);
+            (PhysicsSystem.instance.physicsWorld as BulletWorld).addCCT(this);
+            this._dirty = false;
+        }
     }
 
     onShapeHitExt (hit: number) {

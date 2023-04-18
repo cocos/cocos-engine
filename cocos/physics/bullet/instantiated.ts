@@ -43,6 +43,7 @@ export enum EBulletType{
     EBulletTypeMotionState,
     EBulletTypeCollisionObject,
     EBulletTypeCollisionShape,
+    EBulletTypeCharacterController,
     EBulletTypeStridingMeshInterface,
     EBulletTypeTriangleMesh,
     EBulletTypeCollisionDispatcher,
