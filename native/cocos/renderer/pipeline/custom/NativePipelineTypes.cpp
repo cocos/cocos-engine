@@ -172,7 +172,8 @@ PipelineCustomization::PipelineCustomization(const allocator_type& alloc) noexce
   renderCommands(alloc) {}
 
 PipelineCustomization::PipelineCustomization(PipelineCustomization&& rhs, const allocator_type& alloc)
-: contexts(std::move(rhs.contexts), alloc),
+: currentContext(std::move(rhs.currentContext)),
+  contexts(std::move(rhs.contexts), alloc),
   renderPasses(std::move(rhs.renderPasses), alloc),
   renderSubpasses(std::move(rhs.renderSubpasses), alloc),
   computeSubpasses(std::move(rhs.computeSubpasses), alloc),
@@ -181,7 +182,8 @@ PipelineCustomization::PipelineCustomization(PipelineCustomization&& rhs, const 
   renderCommands(std::move(rhs.renderCommands), alloc) {}
 
 PipelineCustomization::PipelineCustomization(PipelineCustomization const& rhs, const allocator_type& alloc)
-: contexts(rhs.contexts, alloc),
+: currentContext(rhs.currentContext),
+  contexts(rhs.contexts, alloc),
   renderPasses(rhs.renderPasses, alloc),
   renderSubpasses(rhs.renderSubpasses, alloc),
   computeSubpasses(rhs.computeSubpasses, alloc),

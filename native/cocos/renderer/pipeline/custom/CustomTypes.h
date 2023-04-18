@@ -29,7 +29,6 @@
  */
 // clang-format off
 #pragma once
-#include "cocos/base/Ptr.h"
 #include "cocos/base/std/container/string.h"
 #include "cocos/renderer/pipeline/custom/CustomFwd.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphTypes.h"
@@ -58,7 +57,7 @@ public:
 };
 
 struct CustomRenderGraphContext {
-    IntrusivePtr<CustomPipelineContext> pipelineContext;
+    std::shared_ptr<CustomPipelineContext> pipelineContext;
     const RenderGraph* renderGraph{nullptr};
 };
 

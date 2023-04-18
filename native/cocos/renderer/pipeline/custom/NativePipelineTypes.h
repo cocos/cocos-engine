@@ -850,6 +850,7 @@ struct PipelineCustomization {
     PipelineCustomization& operator=(PipelineCustomization&& rhs) = default;
     PipelineCustomization& operator=(PipelineCustomization const& rhs) = default;
 
+    std::shared_ptr<CustomPipelineContext> currentContext;
     PmrTransparentMap<ccstd::pmr::string, std::shared_ptr<CustomPipelineContext>> contexts;
     PmrTransparentMap<ccstd::pmr::string, std::shared_ptr<CustomRenderPass>> renderPasses;
     PmrTransparentMap<ccstd::pmr::string, std::shared_ptr<CustomRenderSubpass>> renderSubpasses;
@@ -923,6 +924,17 @@ public:
     gfx::DescriptorSetLayout *getDescriptorSetLayout(const ccstd::string &shaderName, UpdateFrequency freq) override;
 
     void executeRenderGraph(const RenderGraph& rg);
+
+    void addCustomContext(std::string_view name, std::shared_ptr<CustomPipelineContext> ptr);
+    void addCustomRenderPass(std::string_view name, std::shared_ptr<CustomRenderPass> ptr);
+    void addCustomRenderSubpass(std::string_view name, std::shared_ptr<CustomRenderSubpass> ptr);
+    void addCustomComputeSubpass(std::string_view name, std::shared_ptr<CustomComputeSubpass> ptr);
+    void addCustomComputePass(std::string_view name, std::shared_ptr<CustomComputePass> ptr);
+    void addCustomRenderQueue(std::string_view name, std::shared_ptr<CustomRenderQueue> ptr);
+    void addCustomRenderCommand(std::string_view name, std::shared_ptr<CustomRenderCommand> ptr);
+
+    void setCustomContext(std::string_view name);
+
 private:
     ccstd::vector<gfx::CommandBuffer*> _commandBuffers;
 
