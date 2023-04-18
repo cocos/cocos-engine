@@ -455,20 +455,10 @@ function parseAttributes (constructor: Function, attributes: PropertyStash, clas
         else if (typeof type === 'object') {
             if (Enum.isEnum(type)) {
                 (attrs || initAttrs())[`${propertyNamePrefix}type`] = ENUM_TAG;
-                Object.defineProperty(attrs!, `${propertyNamePrefix}enumList`, {
-                    enumerable: true,
-                    get () {
-                        return Enum.getList(type);
-                    },
-                });
+                attrs![`${propertyNamePrefix}enumList`] = Enum.getList(type);
             } else if (BitMask.isBitMask(type)) {
                 (attrs || initAttrs())[`${propertyNamePrefix}type`] = BITMASK_TAG;
-                Object.defineProperty(attrs!, `${propertyNamePrefix}bitmaskList`, {
-                    enumerable: true,
-                    get () {
-                        return BitMask.getList(type);
-                    },
-                });
+                attrs![`${propertyNamePrefix}bitmaskList`] = BitMask.getList(type);
             } else if (DEV) {
                 errorID(3645, className, propertyName, type);
             }
