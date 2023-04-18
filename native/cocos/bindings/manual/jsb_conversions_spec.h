@@ -373,7 +373,7 @@ inline bool sevalue_to_native(const se::Value &from, ccstd::string **to, se::Obj
 bool sevalue_to_native(const se::Value &from, cc::ValueMap *to, se::Object * /*ctx*/); // NOLINT(readability-identifier-naming)
 
 bool sevalue_to_native(const se::Value &from, ccstd::vector<bool> *to, se::Object * /*ctx*/); // NOLINT(readability-identifier-naming)
-
+bool sevalue_to_native(const se::Value &from, ccstd::variant<ccstd::string, bool> *to, se::Object * /*ctx*/); // NOLINT(readability-identifier-naming)
 bool sevalue_to_native(const se::Value &from, ccstd::vector<unsigned char> *to, se::Object * /*ctx*/);       // NOLINT(readability-identifier-naming)
 bool sevalue_to_native(const se::Value &from, cc::IPropertyValue *to, se::Object *ctx);                      // NOLINT(readability-identifier-naming)
 inline bool sevalue_to_native(const se::Value & /*from*/, ccstd::monostate * /*to*/, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
