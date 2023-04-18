@@ -22,17 +22,18 @@
  THE SOFTWARE.
 */
 
-import { _decorator, EditorExtendable, editorExtrasTag } from '../../core';
+import { _decorator, EditorExtendable, editorExtrasTag } from '../../../core';
 import { MotionEvalContext, Motion, MotionEval, MotionPort } from './motion';
-import { createEval } from './create-eval';
-import { VariableTypeMismatchedError } from './errors';
-import { ReadonlyClipOverrideMap, ClipStatus } from './graph-eval';
+import { createEval } from '../create-eval';
+import { VariableTypeMismatchedError } from '../errors';
+import { ClipStatus } from '../state-machine/state-machine-eval';
+import type { ReadonlyClipOverrideMap } from '../clip-overriding';
 
-import { CLASS_NAME_PREFIX_ANIM } from '../define';
-import { getMotionRuntimeID, RUNTIME_ID_ENABLED } from './graph-debug';
-import { cloneAnimationGraphEditorExtrasFrom } from './animation-graph-editor-extras-clone-helper';
-import { AnimationGraphBindingContext, AnimationGraphEvaluationContext } from './animation-graph-context';
-import { blendPoseInto, Pose } from '../core/pose';
+import { CLASS_NAME_PREFIX_ANIM } from '../../define';
+import { getMotionRuntimeID, RUNTIME_ID_ENABLED } from '../graph-debug';
+import { cloneAnimationGraphEditorExtrasFrom } from '../animation-graph-editor-extras-clone-helper';
+import { AnimationGraphBindingContext, AnimationGraphEvaluationContext } from '../animation-graph-context';
+import { blendPoseInto, Pose } from '../../core/pose';
 
 const { ccclass, serializable } = _decorator;
 

@@ -4,7 +4,8 @@ import { Layer } from '../animation-graph';
 import { AnimationGraphBindingContext, AnimationGraphEvaluationContext,
     AnimationGraphSettleContext, AnimationGraphUpdateContext } from '../animation-graph-context';
 import { AnimationMask } from '../animation-mask';
-import { ReadonlyClipOverrideMap, TopLevelStateMachineEvaluation } from '../graph-eval';
+import { ReadonlyClipOverrideMap } from '../clip-overriding';
+import { TopLevelStateMachineEvaluation } from '../state-machine/state-machine-eval';
 import { PoseNode } from './pose-node';
 
 export class DefaultTopLevelPoseNode extends PoseNode {

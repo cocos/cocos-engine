@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { approx, assertIsTrue, Vec2, Vec3 } from '../../core';
+import { approx, assertIsTrue, Vec2, Vec3 } from '../../../core';
 
 /**
  * Blends given samples using simple directional algorithm.

@@ -1,12 +1,9 @@
 import { AnimationClip } from "../../../../cocos/animation/animation-clip";
 import { AnimationGraph, AnimationTransition, EmptyStateTransition, isAnimationTransition, PoseState, PoseTransition, State, StateMachine, SubStateMachine, Transition } from "../../../../cocos/animation/marionette/animation-graph";
 import { PoseGraph, PoseNode } from "../../../../cocos/animation/marionette/asset-creation";
-import { AnimationBlend1D } from "../../../../cocos/animation/marionette/animation-blend-1d";
-import { AnimationBlend2D } from "../../../../cocos/animation/marionette/animation-blend-2d";
-import { ClipMotion } from "../../../../cocos/animation/marionette/clip-motion";
-import { BinaryCondition, TriggerCondition, UnaryCondition } from "../../../../cocos/animation/marionette/condition";
-import { Motion } from "../../../../cocos/animation/marionette/motion";
-import { MotionState } from "../../../../cocos/animation/marionette/motion-state";
+import { Motion, ClipMotion, AnimationBlend1D, AnimationBlend2D } from "../../../../cocos/animation/marionette/motion";
+import { BinaryCondition, TriggerCondition, UnaryCondition } from "../../../../cocos/animation/marionette/state-machine/condition";
+import { MotionState } from "../../../../cocos/animation/marionette/state-machine/motion-state";
 import { Bindable } from "../../../../cocos/animation/marionette/parametric";
 import { TriggerResetMode } from "../../../../cocos/animation/marionette/variable";
 import { Vec2 } from "../../../../exports/base";

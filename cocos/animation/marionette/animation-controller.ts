@@ -27,10 +27,11 @@ import { AnimationGraph } from './animation-graph';
 import type { AnimationGraphRunTime } from './animation-graph';
 import { _decorator, assertIsNonNullable, assertIsTrue } from '../../core';
 import { AnimationGraphEval } from './graph-eval';
-import type { MotionStateStatus, TransitionStatus, ClipStatus, ReadonlyClipOverrideMap } from './graph-eval';
+import type { MotionStateStatus, TransitionStatus, ClipStatus } from './state-machine/state-machine-eval';
 import { Value } from './variable';
 import { AnimationGraphVariant, AnimationGraphVariantRunTime } from './animation-graph-variant';
 import { AnimationGraphLike } from './animation-graph-like';
+import { ReadonlyClipOverrideMap } from './clip-overriding';
 
 const { ccclass, menu, type, serializable, editable, formerlySerializedAs } = _decorator;
 

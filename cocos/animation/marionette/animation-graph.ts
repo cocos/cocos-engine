@@ -25,14 +25,12 @@
 import { ccclass, serializable } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
 import { js, clamp, assertIsNonNullable, assertIsTrue, EditorExtendable, shift } from '../../core';
-import { MotionEval, MotionEvalContext } from './motion';
-import type { Condition } from './condition';
+import type { Condition } from './state-machine/condition';
 import { OwnedBy, assertsOwnedBy, own, markAsDangling, ownerSymbol } from './ownership';
 import { TriggerResetMode, Value, VariableType } from './variable';
 import { InvalidTransitionError } from './errors';
-import { createEval } from './create-eval';
-import { MotionState } from './motion-state';
-import { State, outgoingsSymbol, incomingsSymbol, InteractiveState } from './state';
+import { MotionState } from './state-machine/motion-state';
+import { State, outgoingsSymbol, incomingsSymbol, InteractiveState } from './state-machine/state';
 import { AnimationMask } from './animation-mask';
 import { onAfterDeserializedTag } from '../../serialization/deserialize-symbols';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
@@ -315,10 +313,6 @@ export class StateMachine extends EditorExtendable {
             transition.from[outgoingsSymbol].push(transition);
             transition.to[incomingsSymbol].push(transition);
         });
-    }
-
-    [createEval] (context: MotionEvalContext): MotionEval | null {
-        throw new Error('Method not implemented.');
     }
 
     /**

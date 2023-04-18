@@ -22,15 +22,15 @@
  THE SOFTWARE.
 */
 
-import { _decorator } from '../../core';
-import { createEval } from './create-eval';
-import { BindableNumber, bindOr, VariableType } from './parametric';
+import { _decorator } from '../../../core';
+import { createEval } from '../create-eval';
+import { BindableNumber, bindOr, VariableType } from '../parametric';
 import { MotionEvalContext } from './motion';
 import { AnimationBlend, AnimationBlendEval, AnimationBlendItem } from './animation-blend';
 import { blend1D } from './blend-1d';
-import { CLASS_NAME_PREFIX_ANIM } from '../define';
-import { ReadonlyClipOverrideMap } from './graph-eval';
-import { AnimationGraphBindingContext } from './animation-graph-context';
+import { CLASS_NAME_PREFIX_ANIM } from '../../define';
+import type { ReadonlyClipOverrideMap } from '../clip-overriding';
+import { AnimationGraphBindingContext } from '../animation-graph-context';
 
 const { ccclass, serializable } = _decorator;
 

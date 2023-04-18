@@ -22,18 +22,39 @@
  THE SOFTWARE.
 */
 
-export { InvalidTransitionError, VariableNotDefinedError } from './errors';
-export { AnimationGraph, isAnimationTransition, StateMachine, SubStateMachine, EmptyStateTransition, EmptyState, PoseState, PoseTransition } from './animation-graph';
-export type { Transition, AnimationTransition, Layer, State, VariableDescription } from './animation-graph';
-export { BinaryCondition, UnaryCondition, TriggerCondition } from './state-machine/condition';
-export type { Condition } from './state-machine/condition';
-export type { Value } from './variable';
-export { TriggerResetMode } from './variable';
-export { MotionState } from './state-machine/motion-state';
-export * from './motion';
-export { VariableType } from './parametric';
-export { BindableNumber, BindableBoolean } from './parametric';
-export { AnimationMask } from './animation-mask';
-export { AnimationGraphVariant } from './animation-graph-variant';
-export type { PoseGraph } from './pose-graph/pose-graph';
-export type { PoseNode } from './pose-graph/pose-node';
+import { ccclass, serializable } from 'cc.decorator';
+import { Motion } from '../motion';
+import { State, InteractiveState } from './state';
+
+@ccclass('cc.animation.Motion')
+export class MotionState extends InteractiveState {
+    @serializable
+    public motion: Motion | null = null;
+
+    @serializable
+    public speed = 1.0;
+
+    /**
+     * Should be float.
+     */
+    @serializable
+    public speedMultiplier = '';
+
+    @serializable
+    public speedMultiplierEnabled = false;
+
+    public copyTo (that: MotionState) {
+        super.copyTo(that);
+        that.motion = this.motion?.clone() ?? null;
+        that.speed = this.speed;
+        that.speedMultiplier = this.speedMultiplier;
+        that.speedMultiplierEnabled = this.speedMultiplierEnabled;
+        return this;
+    }
+
+    public _clone () {
+        const that = new MotionState();
+        this.copyTo(that);
+        return that;
+    }
+}
