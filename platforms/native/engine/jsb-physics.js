@@ -140,14 +140,14 @@ function emitCollisionEvent (t, c0, c1, impl, b) {
 
 function emitCCTShapeEvent (t, cct, collider, b) {
     CCTShapeEventObject.type = t;
-	
-	const contactCount = b.length / 10;
-	CCTShapeEventObject.worldPosition = new cc.Vec3(b[0], b[1], b[2]);
-	CCTShapeEventObject.worldNormal = new cc.Vec3(b[3], b[4], b[5]);
+
+    const contactCount = b.length / 10;
+    CCTShapeEventObject.worldPosition = new cc.Vec3(b[0], b[1], b[2]);
+    CCTShapeEventObject.worldNormal = new cc.Vec3(b[3], b[4], b[5]);
     CCTShapeEventObject.motionDirection = new cc.Vec3(b[6], b[7], b[8]);
     CCTShapeEventObject.motionLength = b[9];
-	CCTShapeEventObject.otherCollider = collider;
-	cct.emit(t, cct, collider, CCTShapeEventObject);
+    CCTShapeEventObject.otherCollider = collider;
+    cct.emit(t, cct, collider, CCTShapeEventObject);
 }
 
 class PhysicsWorld {
@@ -260,8 +260,8 @@ class PhysicsWorld {
             }
         }
     }
-	
-	emitCCTShapeEvent () {
+
+    emitCCTShapeEvent () {
         const events = this._impl.getCCTShapeEventPairs();
         const len2 = events.length / 3;
         for (let i = 0; i < len2; i++) {
@@ -270,16 +270,7 @@ class PhysicsWorld {
             if (!cct || !shape) continue;
             const c0 = cct.characterController; const c1 = shape.collider;
             if (!(c0 && c0.isValid && c1 && c1.isValid)) continue;
-			emitCCTShapeEvent('onColliderHit', c0, c1, events[t + 2]);
-            // if (!c0.needCollisionEvent && !c1.needCollisionEvent) continue;
-            // const state = ceps[t + 2];
-            // if (state === 1) {
-                // emitCollisionEvent('onCollisionStay', c0, c1, ceps, ceps[t + 3]);
-            // } else if (state === 0) {
-                // emitCollisionEvent('onCollisionEnter', c0, c1, ceps, ceps[t + 3]);
-            // } else {
-                // emitCollisionEvent('onCollisionExit', c0, c1, ceps, ceps[t + 3]);
-            // }
+            emitCCTShapeEvent('onColliderHit', c0, c1, events[t + 2]);
         }
     }
 }
@@ -693,19 +684,17 @@ class CharacterController {
     get characterController () { return this._com; }
     constructor () { updateCollisionMatrix(); }
     initialize (com) {
-        //com.node.updateWorldTransform();
         this._com = com;
         const inited = this._impl.initialize(com.node);
         ptrToObj[this._impl.getObjectID()] = this;
-        //bookNode(com.node);	
         return inited;
     }
     onLoad () {
-		this.setGroup(this._com.group);
-		const cm = cc.PhysicsSystem.instance.collisionMatrix;
-		const mask = cm[this._com.group];
-		this.setMask(mask);
-		
+        this.setGroup(this._com.group);
+        const cm = cc.PhysicsSystem.instance.collisionMatrix;
+        const mask = cm[this._com.group];
+        this.setMask(mask);
+
         this.setMinMoveDistance(this._com.minMoveDistance);
         this.setStepOffset(this._com.stepOffset);
         this.setSlopeLimit(this._com.slopeLimit);
@@ -716,7 +705,6 @@ class CharacterController {
     onEnable () { this._impl.onEnable(); }
     onDisable () { this._impl.onDisable(); }
     onDestroy () {
-        //unBookNode(this._com.node);
         delete ptrToObj[this._impl.getObjectID()];
         ptrToObj[this._impl.getObjectID()] = null;
         this._impl.onDestroy();
@@ -792,5 +780,5 @@ cc.physics.selector.register('physx', {
     HingeConstraint: RevoluteJoint,
     FixedConstraint: FixedJoint,
     CapsuleCharacterController,
-	BoxCharacterController,
+    BoxCharacterController,
 });

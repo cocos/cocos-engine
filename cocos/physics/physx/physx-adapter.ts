@@ -611,10 +611,6 @@ export function initializeWorld (world: PhysXWorld) {
         const sceneDesc = PX.getDefaultSceneDesc(PhysXInstance.physics.getTolerancesScale(), 0, PhysXInstance.simulationCB);
         world.scene = PhysXInstance.physics.createScene(sceneDesc);
         world.controllerManager = PX.PxCreateControllerManager(world.scene, false);
-        // const pos = new Vec3(1, 1, 1);
-        // const upDir = new Vec3(0, 1, 0);
-        // const mat = PhysXInstance.physics.createMaterial(0.5, 0.5, 0.5);
-        // createCapsuleCharacterController(world.controllerManager, 1, 1, pos, 1, 1, upDir, mat);
     }
 }
 
