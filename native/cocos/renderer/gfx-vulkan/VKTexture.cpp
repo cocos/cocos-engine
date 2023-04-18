@@ -71,6 +71,10 @@ void CCVKTexture::createTexture(uint32_t width, uint32_t height, uint32_t size, 
     _gpuTexture->mipLevels = _info.levelCount;
     _gpuTexture->samples = _info.samples;
     _gpuTexture->flags = _info.flags;
+    bool hasExternalFlag = hasFlag(_gpuTexture->flags, TextureFlagBit::EXTERNAL_NORMAL);
+    if(hasExternalFlag) {
+        _gpuTexture->externalVKImage = reinterpret_cast<VkImage>(_info.externalRes);
+    }
 
     if (initGPUTexture) {
         _gpuTexture->init();
@@ -130,7 +134,9 @@ void CCVKGPUTexture::shutdown() {
     }
 
     CCVKDevice::getInstance()->gpuBarrierManager()->cancel(this);
-    CCVKDevice::getInstance()->gpuRecycleBin()->collect(this);
+    if (!hasFlag(flags, TextureFlagBit::EXTERNAL_NORMAL)) {
+        CCVKDevice::getInstance()->gpuRecycleBin()->collect(this);
+    }
 }
 
 void CCVKGPUTextureView::init() {

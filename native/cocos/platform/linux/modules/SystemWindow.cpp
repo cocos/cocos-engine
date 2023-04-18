@@ -96,10 +96,6 @@ void SystemWindow::setCursorEnabled(bool value) {
     SDLHelper::setCursorEnabled(value);
 }
 
-void SystemWindow::copyTextToClipboard(const ccstd::string &text) {
-    //TODO
-}
-
 SystemWindow::Size SystemWindow::getViewSize() const {
     return Size{static_cast<float>(_width), static_cast<float>(_height)};
 }

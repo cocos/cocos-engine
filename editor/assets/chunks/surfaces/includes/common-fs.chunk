@@ -48,7 +48,7 @@
 #include <common/texture/texture-lod>
 #include <common/data/packing>
 #include <common/data/unpack>
-#include <common/color/aces>
+#include <common/color/tone-mapping>
 #include <common/color/gamma>
 #include <common/math/number>
 #include <common/math/coordinates>

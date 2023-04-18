@@ -182,7 +182,6 @@ export class ParticleSystem extends ModelRenderer {
      */
     @type(CurveRange)
     @serializable
-    @range([-2 * Math.PI, 2 * Math.PI])
     @radian
     @displayOrder(12)
     @tooltip('i18n:particle_system.startRotationX')
@@ -195,7 +194,6 @@ export class ParticleSystem extends ModelRenderer {
      */
     @type(CurveRange)
     @serializable
-    @range([-2 * Math.PI, 2 * Math.PI])
     @radian
     @displayOrder(12)
     @tooltip('i18n:particle_system.startRotationY')
@@ -208,7 +206,6 @@ export class ParticleSystem extends ModelRenderer {
      */
     @type(CurveRange)
     @formerlySerializedAs('startRotation')
-    @range([-2 * Math.PI, 2 * Math.PI])
     @radian
     @displayOrder(12)
     @tooltip('i18n:particle_system.startRotationZ')
@@ -1043,7 +1040,11 @@ export class ParticleSystem extends ModelRenderer {
      * @zh 获取当前粒子数量。
      */
     public getParticleCount () {
-        return this.processor.getParticleCount();
+        if (this.processor) {
+            return this.processor.getParticleCount();
+        } else {
+            return 0;
+        }
     }
 
     /**

@@ -33,6 +33,8 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 
+import java.lang.ref.WeakReference;
+
 public class CocosXRApi {
     private static final String TAG = "CocosXRApi";
     private final static String ACTION_ADB_CMD = "com.cocosxr.adb.cmd";
@@ -71,7 +73,12 @@ public class CocosXRApi {
                 } else if (cmdValue instanceof String) {
                     valueStr = intent.getStringExtra("CMD_VALUE");
                 }
-                onAdbCmd(key, valueStr);
+
+                try {
+                    onAdbCmd(key, valueStr);
+                } catch (Throwable e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -84,12 +91,14 @@ public class CocosXRApi {
     }
 
     private Application application;
+    private WeakReference<Activity> activityWeakReference;
     private Context applicationContext;
     private Application.ActivityLifecycleCallbacks activityLifecycleCallbacks;
     private CocosXRActionReceiver actionReceiver;
     private CocosXRWebViewManager webViewManager;
 
     public void onCreate(Activity activity) {
+        activityWeakReference = new WeakReference<>(activity);
         application = activity.getApplication();
         applicationContext = activity.getApplicationContext();
         webViewManager = new CocosXRWebViewManager();
@@ -97,40 +106,68 @@ public class CocosXRApi {
             activityLifecycleCallbacks = new Application.ActivityLifecycleCallbacks() {
                 @Override
                 public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
-                    onActivityLifecycleCallback(ActivityLifecycleType.Created.ordinal(), activity.getLocalClassName());
+                    try {
+                        onActivityLifecycleCallback(ActivityLifecycleType.Created.ordinal(), activity.getLocalClassName());
+                    } catch (Throwable e) {
+                        e.printStackTrace();
+                    }
                 }
 
                 @Override
                 public void onActivityStarted(Activity activity) {
                     webViewManager.onCreate(activity);
-                    onActivityLifecycleCallback(ActivityLifecycleType.Started.ordinal(), activity.getLocalClassName());
+                    try {
+                        onActivityLifecycleCallback(ActivityLifecycleType.Started.ordinal(), activity.getLocalClassName());
+                    } catch (Throwable e) {
+                        e.printStackTrace();
+                    }
                 }
 
                 @Override
                 public void onActivityResumed(Activity activity) {
-                    onActivityLifecycleCallback(ActivityLifecycleType.Resumed.ordinal(), activity.getLocalClassName());
+                    try {
+                        onActivityLifecycleCallback(ActivityLifecycleType.Resumed.ordinal(), activity.getLocalClassName());
+                    } catch (Throwable e) {
+                        e.printStackTrace();
+                    }
                     webViewManager.onResume();
                 }
 
                 @Override
                 public void onActivityPaused(Activity activity) {
-                    onActivityLifecycleCallback(ActivityLifecycleType.Paused.ordinal(), activity.getLocalClassName());
+                    try {
+                        onActivityLifecycleCallback(ActivityLifecycleType.Paused.ordinal(), activity.getLocalClassName());
+                    } catch (Throwable e) {
+                        e.printStackTrace();
+                    }
                     webViewManager.onPause();
                 }
 
                 @Override
                 public void onActivityStopped(Activity activity) {
-                    onActivityLifecycleCallback(ActivityLifecycleType.Stopped.ordinal(), activity.getLocalClassName());
+                    try {
+                        onActivityLifecycleCallback(ActivityLifecycleType.Stopped.ordinal(), activity.getLocalClassName());
+                    } catch (Throwable e) {
+                        e.printStackTrace();
+                    }
                 }
 
                 @Override
                 public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
-                    onActivityLifecycleCallback(ActivityLifecycleType.SaveInstanceState.ordinal(), activity.getLocalClassName());
+                    try {
+                        onActivityLifecycleCallback(ActivityLifecycleType.SaveInstanceState.ordinal(), activity.getLocalClassName());
+                    } catch (Throwable e) {
+                        e.printStackTrace();
+                    }
                 }
 
                 @Override
                 public void onActivityDestroyed(Activity activity) {
-                    onActivityLifecycleCallback(ActivityLifecycleType.Destroyed.ordinal(), activity.getLocalClassName());
+                    try {
+                        onActivityLifecycleCallback(ActivityLifecycleType.Destroyed.ordinal(), activity.getLocalClassName());
+                    } catch (Throwable e) {
+                        e.printStackTrace();
+                    }
                     webViewManager.onDestroy();
                 }
             };
@@ -159,6 +196,14 @@ public class CocosXRApi {
             applicationContext.unregisterReceiver(actionReceiver);
             actionReceiver = null;
         }
+    }
+
+    public Context getContext() {
+        return applicationContext;
+    }
+
+    public Activity getActivity() {
+        return activityWeakReference.get();
     }
 
     // native

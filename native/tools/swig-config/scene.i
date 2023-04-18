@@ -547,6 +547,7 @@ using namespace cc;
 %attribute(cc::scene::ReflectionProbe, cc::RenderTexture*, realtimePlanarTexture, getRealtimePlanarTexture);
 
 %attribute(cc::SceneGlobals, bool, bakedWithStationaryMainLight, getBakedWithStationaryMainLight, setBakedWithStationaryMainLight);
+%attribute(cc::SceneGlobals, bool, bakedWithHighpLightmap, getBakedWithHighpLightmap, setBakedWithHighpLightmap);
 
 
 // ----- Import Section ------

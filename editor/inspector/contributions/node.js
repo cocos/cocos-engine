@@ -892,7 +892,12 @@ const Elements = {
                 });
             }
         },
-        async setReflectionConvolutionMap(uuid) {
+        async setEnvMapAndConvolutionMap(uuid) {
+            await Editor.Message.request('scene', 'execute-scene-script', {
+                name: 'inspector',
+                method: 'setSkyboxEnvMap',
+                args: [uuid],
+            });
             if (uuid) {
                 await Editor.Message.request('scene', 'execute-scene-script', {
                     name: 'inspector',
@@ -904,6 +909,7 @@ const Elements = {
         async skyboxReflectionConvolution() {
             const panel = this;
 
+            panel.$.sceneSkyboxReflection.style.display = 'inline-block';
             panel.$.sceneSkyboxReflectionLoading.style.display = 'none';
 
             const reflectionMap = panel.dump._globals.skybox.value['reflectionMap'];
@@ -914,12 +920,10 @@ const Elements = {
                 panel.$.sceneSkyboxReflectionBake.style.display = 'inline-block';
                 panel.$.sceneSkyboxReflectionRemove.style.display = 'none';
 
-                // 在 bake 按钮显示的状态下，如果 envmap 都没有配置，那 bake 也不需要显示
+                // if envmap value unexist, the column of bake button hidden;
                 const envMapData = panel.dump._globals.skybox.value['envmap'];
-                if (envMapData.value && envMapData.value.uuid) {
-                    panel.$.sceneSkyboxReflection.removeAttribute('hidden');
-                } else {
-                    panel.$.sceneSkyboxReflection.setAttribute('hidden', '');
+                if (!envMapData.value || !envMapData.value.uuid) {
+                    panel.$.sceneSkyboxReflection.style.display = 'none';
                 }
             }
         },
@@ -940,18 +944,35 @@ const Elements = {
                 args: [envMapData.value.uuid],
             });
         },
-        skyboxReflectionConvolutionRemove() {
+        async skyboxReflectionConvolutionRemove() {
             const panel = this;
 
             const reflectionMap = panel.dump._globals.skybox.value['reflectionMap'];
             if (reflectionMap.value && reflectionMap.value.uuid) {
                 const $skyProps = panel.$.sceneSkybox.querySelectorAll('ui-prop[type="dump"]');
-                $skyProps.forEach(($prop) => {
-                    if ($prop.dump.name === 'reflectionMap') {
-                        $prop.dump.value.uuid = '';
-                        $prop.dispatch('change-dump');
+                for (const $skyProp of $skyProps) {
+                    if ($skyProp.dump.name === 'reflectionMap') {
+                        const textCubeAssetUuid = $skyProp.dump.value.uuid;
+                        if (textCubeAssetUuid) {
+                            // remove asset
+                            try {
+                                const imageAssetUuid = textCubeAssetUuid.split('@')[0];
+                                const imageAssetUrl = await Editor.Message.request('asset-db', 'query-url', imageAssetUuid);
+                                if (imageAssetUrl) {
+                                    await Editor.Message.request('asset-db', 'delete-asset', imageAssetUrl);
+                                }
+                            } catch (error) {
+                                console.error(error);
+                            }
+
+                            $skyProp.dump.value.uuid = '';
+                            $skyProp.dispatch('change-dump');
+                            $skyProp.dispatch('confirm-dump'); // for scene snapshot
+                        }
+                        break;
                     }
-                });
+                }
+
             }
         },
         skyboxUseHDRChange(event) {
@@ -962,10 +983,11 @@ const Elements = {
 
             $radioGraph.dump.value = useHDR;
             $radioGraph.dispatch('change-dump');
+            $radioGraph.dispatch('confirm-dump'); // for scene snapshot
 
             const $prop = useHDR ? panel.$.sceneSkyboxEnvmapHDR : panel.$.sceneSkyboxEnvmapLDR;
             const uuid = $prop.dump.value.uuid;
-            Elements.scene.setReflectionConvolutionMap.call(panel, uuid);
+            Elements.scene.setEnvMapAndConvolutionMap.call(panel, uuid);
         },
         skyboxEnvmapChange(useHDR, event) {
             const panel = this;
@@ -976,7 +998,7 @@ const Elements = {
 
             const $prop = event.currentTarget;
             const uuid = $prop.dump.value.uuid;
-            Elements.scene.setReflectionConvolutionMap.call(panel, uuid);
+            Elements.scene.setEnvMapAndConvolutionMap.call(panel, uuid);
         },
     },
     node: {

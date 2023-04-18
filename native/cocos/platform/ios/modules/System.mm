@@ -100,4 +100,10 @@ bool System::openURL(const ccstd::string &url) {
         }];
     return flag;
 }
+
+void System::copyTextToClipboard(const std::string& text) {
+    UIPasteboard* pasteboard = [UIPasteboard generalPasteboard];
+    pasteboard.string = [NSString stringWithCString:text.c_str() encoding:NSUTF8StringEncoding];
+}
+
 } // namespace cc

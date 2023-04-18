@@ -76,6 +76,7 @@ export interface Setter extends RenderNode {
     setVec4 (name: string, vec: Vec4): void;
     setVec2 (name: string, vec: Vec2): void;
     setFloat (name: string, v: number): void;
+    setArrayBuffer (name: string, arrayBuffer: ArrayBuffer): void;
     setBuffer (name: string, buffer: Buffer): void;
     setTexture (name: string, texture: Texture): void;
     setReadWriteBuffer (name: string, buffer: Buffer): void;
@@ -97,14 +98,13 @@ export interface RasterQueueBuilder extends Setter {
     setViewport (viewport: Viewport): void;
 }
 
-export interface RasterPassBuilder extends Setter {
+export interface RasterSubpassBuilder extends Setter {
     addRasterView (name: string, view: RasterView): void;
     addComputeView (name: string, view: ComputeView): void;
+    setViewport (viewport: Viewport): void;
     addQueue (hint: QueueHint, layoutName: string): RasterQueueBuilder;
     addQueue (hint: QueueHint/*, ''*/): RasterQueueBuilder;
     addQueue (/*QueueHint.NONE, ''*/): RasterQueueBuilder;
-    setViewport (viewport: Viewport): void;
-    setVersion (name: string, version: number): void;
     showStatistics: boolean;
 }
 
@@ -112,6 +112,28 @@ export interface ComputeQueueBuilder extends Setter {
     addDispatch (threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number, material: Material, passID: number): void;
     addDispatch (threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number, material: Material/*, 0*/): void;
     addDispatch (threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number/*, null, 0*/): void;
+}
+
+export interface ComputeSubpassBuilder extends Setter {
+    addRasterView (name: string, view: RasterView): void;
+    addComputeView (name: string, view: ComputeView): void;
+    addQueue (layoutName: string): ComputeQueueBuilder;
+    addQueue (/*''*/): ComputeQueueBuilder;
+}
+
+export interface RasterPassBuilder extends Setter {
+    addRasterView (name: string, view: RasterView): void;
+    addComputeView (name: string, view: ComputeView): void;
+    addQueue (hint: QueueHint, layoutName: string): RasterQueueBuilder;
+    addQueue (hint: QueueHint/*, ''*/): RasterQueueBuilder;
+    addQueue (/*QueueHint.NONE, ''*/): RasterQueueBuilder;
+    addRasterSubpass (layoutName: string): RasterSubpassBuilder;
+    addRasterSubpass (/*''*/): RasterSubpassBuilder;
+    addComputeSubpass (layoutName: string): ComputeSubpassBuilder;
+    addComputeSubpass (/*''*/): ComputeSubpassBuilder;
+    setViewport (viewport: Viewport): void;
+    setVersion (name: string, version: number): void;
+    showStatistics: boolean;
 }
 
 export interface ComputePassBuilder extends Setter {
@@ -156,15 +178,26 @@ export interface Pipeline extends PipelineRuntime {
     endSetup (): void;
     containsResource (name: string): boolean;
     addRenderTexture (name: string, format: Format, width: number, height: number, renderWindow: RenderWindow): number;
+    updateRenderWindow (name: string, renderWindow: RenderWindow): void;
+    addStorageBuffer (name: string, format: Format, size: number, residency: ResourceResidency): number;
+    addStorageBuffer (name: string, format: Format, size: number/*, ResourceResidency.MANAGED*/): number;
     addRenderTarget (name: string, format: Format, width: number, height: number, residency: ResourceResidency): number;
     addRenderTarget (name: string, format: Format, width: number, height: number/*, ResourceResidency.MANAGED*/): number;
     addDepthStencil (name: string, format: Format, width: number, height: number, residency: ResourceResidency): number;
     addDepthStencil (name: string, format: Format, width: number, height: number/*, ResourceResidency.MANAGED*/): number;
-    updateRenderWindow (name: string, renderWindow: RenderWindow): void;
+    addStorageTexture (name: string, format: Format, width: number, height: number, residency: ResourceResidency): number;
+    addStorageTexture (name: string, format: Format, width: number, height: number/*, ResourceResidency.MANAGED*/): number;
+    addShadingRateTexture (name: string, width: number, height: number, residency: ResourceResidency): number;
+    addShadingRateTexture (name: string, width: number, height: number/*, ResourceResidency.MANAGED*/): number;
+    updateStorageBuffer (name: string, size: number, format: Format): void;
+    updateStorageBuffer (name: string, size: number/*, gfx.Format.UNKNOWN*/): void;
     updateRenderTarget (name: string, width: number, height: number, format: Format): void;
     updateRenderTarget (name: string, width: number, height: number/*, gfx.Format.UNKNOWN*/): void;
     updateDepthStencil (name: string, width: number, height: number, format: Format): void;
     updateDepthStencil (name: string, width: number, height: number/*, gfx.Format.UNKNOWN*/): void;
+    updateStorageTexture (name: string, width: number, height: number, format: Format): void;
+    updateStorageTexture (name: string, width: number, height: number/*, gfx.Format.UNKNOWN*/): void;
+    updateShadingRateTexture (name: string, width: number, height: number): void;
     beginFrame (): void;
     endFrame (): void;
     addRasterPass (width: number, height: number, layoutName: string): RasterPassBuilder;
@@ -172,7 +205,6 @@ export interface Pipeline extends PipelineRuntime {
     addComputePass (layoutName: string): ComputePassBuilder;
     addMovePass (): MovePassBuilder;
     addCopyPass (): CopyPassBuilder;
-    presentAll (): void;
     createSceneTransversal (camera: Camera, scene: RenderScene): SceneTransversal;
     getDescriptorSetLayout (shaderName: string, freq: UpdateFrequency): DescriptorSetLayout | null;
 }

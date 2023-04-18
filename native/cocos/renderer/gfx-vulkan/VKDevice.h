@@ -45,6 +45,7 @@ class CCVKGPUSemaphorePool;
 class CCVKGPUBarrierManager;
 class CCVKGPUDescriptorSetHub;
 class CCVKGPUInputAssemblerHub;
+class CCVKPipelineCache;
 
 class CCVKGPUFencePool;
 class CCVKGPURecycleBin;
@@ -96,6 +97,7 @@ public:
     inline CCVKGPUBarrierManager *gpuBarrierManager() const { return _gpuBarrierManager.get(); }
     inline CCVKGPUDescriptorSetHub *gpuDescriptorSetHub() const { return _gpuDescriptorSetHub.get(); }
     inline CCVKGPUInputAssemblerHub *gpuIAHub() const { return _gpuIAHub.get(); }
+    inline CCVKPipelineCache *pipelineCache() const { return _pipelineCache.get(); }
 
     CCVKGPUFencePool *gpuFencePool();
     CCVKGPURecycleBin *gpuRecycleBin();
@@ -138,6 +140,7 @@ protected:
     void getQueryPoolResults(QueryPool *queryPool) override;
 
     void initFormatFeature();
+    void initExtensionCapability();
 
     std::unique_ptr<CCVKGPUDevice> _gpuDevice;
     std::unique_ptr<CCVKGPUContext> _gpuContext;
@@ -153,6 +156,7 @@ protected:
     std::unique_ptr<CCVKGPUBarrierManager> _gpuBarrierManager;
     std::unique_ptr<CCVKGPUDescriptorSetHub> _gpuDescriptorSetHub;
     std::unique_ptr<CCVKGPUInputAssemblerHub> _gpuIAHub;
+    std::unique_ptr<CCVKPipelineCache> _pipelineCache;
 
     ccstd::vector<const char *> _layers;
     ccstd::vector<const char *> _extensions;

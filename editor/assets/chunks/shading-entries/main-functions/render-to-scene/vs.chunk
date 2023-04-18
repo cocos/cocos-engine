@@ -31,8 +31,12 @@ void main()
   // Other Data
   CCSurfacesVertexTransformUV(In);  
   CCSurfacesVertexTransferFog(In);
-  CCSurfacesVertexTransferShadow(In);
   CCSurfacesVertexTransferLightMapUV(In);
+
+  CCSurfacesVertexTransferShadow(In);
+  #if CC_RECEIVE_SHADOW || CC_USE_REFLECTION_PROBE
+    In.shadowBiasAndProbeId.xy = SurfacesVertexModifyShadowBias(In, In.shadowBiasAndProbeId.xy);
+  #endif
 
   CCSurfacesVertexOutput(In);
 }

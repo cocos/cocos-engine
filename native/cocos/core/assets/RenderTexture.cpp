@@ -118,6 +118,18 @@ void RenderTexture::initWindow(const IRenderTextureCreateInfo &info) {
         windowInfo.renderPassInfo = getDefaultRenderPassInfo(device);
     }
 
+    if (info.externalResLow.has_value()) {
+        windowInfo.externalResLow = info.externalResLow.value();
+    }
+
+    if (info.externalResHigh.has_value()) {
+        windowInfo.externalResHigh = info.externalResHigh.value();
+    }
+
+    if (info.externalFlag.has_value()) {
+        windowInfo.externalFlag = info.externalFlag.value();
+    }
+
     if (_window != nullptr) {
         _window->destroy();
         _window->initialize(device, windowInfo);

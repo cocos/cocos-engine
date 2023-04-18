@@ -68,6 +68,7 @@ const ccstd::string CC_USE_REFLECTION_PROBE = "CC_USE_REFLECTION_PROBE";
 const ccstd::string CC_DISABLE_DIRECTIONAL_LIGHT = "CC_DISABLE_DIRECTIONAL_LIGHT";
 const ccstd::vector<cc::scene::IMacroPatch> STATIC_LIGHTMAP_PATHES{{"CC_USE_LIGHTMAP", 1}};
 const ccstd::vector<cc::scene::IMacroPatch> STATIONARY_LIGHTMAP_PATHES{{"CC_USE_LIGHTMAP", 2}};
+const ccstd::vector<cc::scene::IMacroPatch> HIGHP_LIGHTMAP_PATHES{{"CC_LIGHT_MAP_VERSION", 2}};
 } // namespace
 
 namespace cc {
@@ -466,6 +467,15 @@ ccstd::vector<IMacroPatch> Model::getMacroPatches(index_t subModelIndex) {
         } else {
             for (const auto &patch : STATIC_LIGHTMAP_PATHES) {
                 patches.push_back(patch);
+            }
+        }
+
+        // use highp lightmap
+        if (getNode() != nullptr && getNode()->getScene() != nullptr) {
+            if (getNode()->getScene()->getSceneGlobals()->getBakedWithHighpLightmap()) {
+                for (const auto &patch : HIGHP_LIGHTMAP_PATHES) {
+                    patches.push_back(patch);
+                }
             }
         }
     }

@@ -40,10 +40,6 @@ SystemWindow::~SystemWindow() = default;
 void SystemWindow::setCursorEnabled(bool value) {
 }
 
-void SystemWindow::copyTextToClipboard(const std::string& text) {
-    UIPasteboard* pasteboard = [UIPasteboard generalPasteboard];
-    pasteboard.string = [NSString stringWithCString:text.c_str() encoding:NSUTF8StringEncoding];
-}
 void SystemWindow::closeWindow() {
     // Force quit as there's no API to exit UIApplication
     cc::events::Close::broadcast();

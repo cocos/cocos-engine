@@ -102,8 +102,6 @@ public:
      @brief enable/disable(lock) the cursor, default is enabled
      */
     virtual void setCursorEnabled(bool value) = 0;
-
-    virtual void copyTextToClipboard(const ccstd::string& text) = 0;
 };
 
 } // namespace cc

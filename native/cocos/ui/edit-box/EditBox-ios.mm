@@ -95,6 +95,7 @@ const bool INPUTBOX_HIDDEN = true; // Toggle if Inputbox is visible
  ************************************************************************/
 namespace {
 static bool g_isMultiline{false};
+static bool g_confirmHold{false};
 static int g_maxLength{INT_MAX};
 se::Value textInputCallback;
 
@@ -180,10 +181,12 @@ CGRect getSafeAreaRect() {
         UIInterfaceOrientation orient = [UIApplication sharedApplication].statusBarOrientation;
         if (UIInterfaceOrientationLandscapeLeft == orient) {
             viewRect.origin.x = 0;
+            viewRect.size.width -= safeAreaInsets.left;
             viewRect.size.width -= safeAreaInsets.right;
         } else {
             viewRect.origin.x += safeAreaInsets.left;
             viewRect.size.width -= safeAreaInsets.left;
+            viewRect.size.width -= safeAreaInsets.right;
         }
     }
 
@@ -551,6 +554,7 @@ static EditboxManager *instance = nil;
 - (void) show: (const cc::EditBox::ShowInfo*)showInfo {
     g_maxLength = showInfo->maxLength;
     g_isMultiline = showInfo->isMultiline;
+    g_confirmHold = showInfo->confirmHold;
     
     if (g_isMultiline) {
         curView = [self createTextView:showInfo];
@@ -562,14 +566,22 @@ static EditboxManager *instance = nil;
     
     [view addSubview:[curView inputOnView]];
     [[curView inputOnView] becomeFirstResponder];
-    [[curView inputOnToolbar] becomeFirstResponder];
+     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+         if(![[curView inputOnToolbar] becomeFirstResponder]) {
+             CC_LOG_ERROR("inputOnToolbar becomeFirstResponder error!");
+         }
+    });
+
 }
 // Change the focus point to the TextField or TextView on the toolbar.
 - (void) hide {
-    [[curView inputOnView] becomeFirstResponder];
-    [[curView inputOnView] removeFromSuperview];
-    [[curView inputOnToolbar] resignFirstResponder];
-    [[curView inputOnView] resignFirstResponder];
+   if ([[curView inputOnToolbar] isFirstResponder]) {
+       [[curView inputOnToolbar] resignFirstResponder];
+   }
+   if ([[curView inputOnView] isFirstResponder]) {
+       [[curView inputOnView] resignFirstResponder];
+   }
+   [[curView inputOnView] removeFromSuperview];
 }
 
 - (InputBoxPair*) getCurrentViewInUse {
@@ -587,7 +599,8 @@ static EditboxManager *instance = nil;
 - (IBAction)buttonTapped:(UIButton *)button {
     const ccstd::string text([[[EditboxManager sharedInstance]getCurrentText] UTF8String]);
     callJSFunc("confirm", text);
-    cc::EditBox::complete();
+    if (!g_confirmHold)
+        cc::EditBox::complete();
 }
 @end
 /*************************************************************************
@@ -605,12 +618,12 @@ void EditBox::show(const cc::EditBox::ShowInfo &showInfo) {
 
 void EditBox::hide() {
     [[EditboxManager sharedInstance] hide];
-    EditBox::_isShown = true;
+    EditBox::_isShown = false;
 }
 
 bool EditBox::complete() {
     if(!EditBox::_isShown)
-        return true;
+        return false;
     NSString *text = [[EditboxManager sharedInstance] getCurrentText];
     callJSFunc("complete", [text UTF8String]);
     EditBox::hide();

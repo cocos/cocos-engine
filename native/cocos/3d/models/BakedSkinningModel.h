@@ -30,6 +30,7 @@
 #include "3d/models/MorphModel.h"
 #include "3d/skeletal-animation/SkeletalAnimationUtils.h"
 #include "gfx-base/GFXDef-common.h"
+#include "core/event/EventTarget.h"
 
 namespace cc {
 
@@ -48,13 +49,15 @@ struct BakedJointInfo {
 };
 
 class BakedSkinningModel final : public MorphModel {
+    IMPL_EVENT_TARGET(BakedSkinningModel)
+    DECLARE_TARGET_EVENT_BEGIN(BakedSkinningModel)
+    TARGET_EVENT_ARG0(Destroy)
+    DECLARE_TARGET_EVENT_END()
 public:
     using Super = MorphModel;
     BakedSkinningModel();
     ~BakedSkinningModel() override = default;
-
     void destroy() override;
-
     ccstd::vector<scene::IMacroPatch> getMacroPatches(index_t subModelIndex) override;
     void updateLocalDescriptors(index_t subModelIndex, gfx::DescriptorSet *descriptorSet) override;
     void updateTransform(uint32_t stamp) override;

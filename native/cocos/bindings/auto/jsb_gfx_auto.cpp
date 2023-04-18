@@ -1302,6 +1302,72 @@ static bool js_cc_gfx_DeviceCaps_supportQuery_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_gfx_DeviceCaps_supportQuery_get) 
 
+static bool js_cc_gfx_DeviceCaps_supportVariableRateShading_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gfx::DeviceCaps *arg1 = (cc::gfx::DeviceCaps *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::DeviceCaps>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->supportVariableRateShading);
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_gfx_DeviceCaps_supportVariableRateShading_set) 
+
+static bool js_cc_gfx_DeviceCaps_supportVariableRateShading_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gfx::DeviceCaps *arg1 = (cc::gfx::DeviceCaps *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::DeviceCaps>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->supportVariableRateShading, s.rval(), s.thisObject());
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_gfx_DeviceCaps_supportVariableRateShading_get) 
+
+static bool js_cc_gfx_DeviceCaps_supportSubPassShading_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gfx::DeviceCaps *arg1 = (cc::gfx::DeviceCaps *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::DeviceCaps>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->supportSubPassShading);
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_gfx_DeviceCaps_supportSubPassShading_set) 
+
+static bool js_cc_gfx_DeviceCaps_supportSubPassShading_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gfx::DeviceCaps *arg1 = (cc::gfx::DeviceCaps *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::DeviceCaps>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->supportSubPassShading, s.rval(), s.thisObject());
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_gfx_DeviceCaps_supportSubPassShading_get) 
+
 static bool js_cc_gfx_DeviceCaps_clipSpaceMinZ_set(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -1594,6 +1660,18 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::DeviceCaps * to, se::Obje
     }
     
     
+    json->getProperty("supportVariableRateShading", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->supportVariableRateShading), ctx);
+    }
+    
+    
+    json->getProperty("supportSubPassShading", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->supportSubPassShading), ctx);
+    }
+    
+    
     json->getProperty("clipSpaceMinZ", &field, true);
     if (!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->clipSpaceMinZ), ctx);
@@ -1641,6 +1719,8 @@ bool js_register_cc_gfx_DeviceCaps(se::Object* obj) {
     cls->defineProperty("maxComputeWorkGroupSize", _SE(js_cc_gfx_DeviceCaps_maxComputeWorkGroupSize_get), _SE(js_cc_gfx_DeviceCaps_maxComputeWorkGroupSize_set)); 
     cls->defineProperty("maxComputeWorkGroupCount", _SE(js_cc_gfx_DeviceCaps_maxComputeWorkGroupCount_get), _SE(js_cc_gfx_DeviceCaps_maxComputeWorkGroupCount_set)); 
     cls->defineProperty("supportQuery", _SE(js_cc_gfx_DeviceCaps_supportQuery_get), _SE(js_cc_gfx_DeviceCaps_supportQuery_set)); 
+    cls->defineProperty("supportVariableRateShading", _SE(js_cc_gfx_DeviceCaps_supportVariableRateShading_get), _SE(js_cc_gfx_DeviceCaps_supportVariableRateShading_set)); 
+    cls->defineProperty("supportSubPassShading", _SE(js_cc_gfx_DeviceCaps_supportSubPassShading_get), _SE(js_cc_gfx_DeviceCaps_supportSubPassShading_set)); 
     cls->defineProperty("clipSpaceMinZ", _SE(js_cc_gfx_DeviceCaps_clipSpaceMinZ_get), _SE(js_cc_gfx_DeviceCaps_clipSpaceMinZ_set)); 
     cls->defineProperty("screenSpaceSignY", _SE(js_cc_gfx_DeviceCaps_screenSpaceSignY_get), _SE(js_cc_gfx_DeviceCaps_screenSpaceSignY_set)); 
     cls->defineProperty("clipSpaceSignY", _SE(js_cc_gfx_DeviceCaps_clipSpaceSignY_get), _SE(js_cc_gfx_DeviceCaps_clipSpaceSignY_set)); 
@@ -11787,6 +11867,43 @@ static bool js_cc_gfx_ShaderInfo_subpassInputs_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_gfx_ShaderInfo_subpassInputs_get) 
 
+static bool js_cc_gfx_ShaderInfo_hash_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gfx::ShaderInfo *arg1 = (cc::gfx::ShaderInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::ShaderInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->hash, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_gfx_ShaderInfo_hash_set) 
+
+static bool js_cc_gfx_ShaderInfo_hash_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gfx::ShaderInfo *arg1 = (cc::gfx::ShaderInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::ShaderInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->hash, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->hash, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_gfx_ShaderInfo_hash_get) 
+
 static bool js_cc_gfx_ShaderInfo_copy(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -11914,6 +12031,12 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::ShaderInfo * to, se::Obje
     }
     
     
+    json->getProperty("hash", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->hash), ctx);
+    }
+    
+    
     return ok;
 }
 
@@ -11932,6 +12055,7 @@ bool js_register_cc_gfx_ShaderInfo(se::Object* obj) {
     cls->defineProperty("textures", _SE(js_cc_gfx_ShaderInfo_textures_get), _SE(js_cc_gfx_ShaderInfo_textures_set)); 
     cls->defineProperty("images", _SE(js_cc_gfx_ShaderInfo_images_get), _SE(js_cc_gfx_ShaderInfo_images_set)); 
     cls->defineProperty("subpassInputs", _SE(js_cc_gfx_ShaderInfo_subpassInputs_get), _SE(js_cc_gfx_ShaderInfo_subpassInputs_set)); 
+    cls->defineProperty("hash", _SE(js_cc_gfx_ShaderInfo_hash_get), _SE(js_cc_gfx_ShaderInfo_hash_set)); 
     
     cls->defineFunction("copy", _SE(js_cc_gfx_ShaderInfo_copy)); 
     
@@ -13243,6 +13367,40 @@ static bool js_cc_gfx_SubpassInfo_depthStencilResolve_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_gfx_SubpassInfo_depthStencilResolve_get) 
 
+static bool js_cc_gfx_SubpassInfo_shadingRate_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gfx::SubpassInfo *arg1 = (cc::gfx::SubpassInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::SubpassInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->shadingRate, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_gfx_SubpassInfo_shadingRate_set) 
+
+static bool js_cc_gfx_SubpassInfo_shadingRate_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gfx::SubpassInfo *arg1 = (cc::gfx::SubpassInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::SubpassInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->shadingRate, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_gfx_SubpassInfo_shadingRate_get) 
+
 static bool js_cc_gfx_SubpassInfo_depthResolveMode_set(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -13420,6 +13578,12 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::SubpassInfo * to, se::Obj
     }
     
     
+    json->getProperty("shadingRate", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->shadingRate), ctx);
+    }
+    
+    
     json->getProperty("depthResolveMode", &field, true);
     if (!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->depthResolveMode), ctx);
@@ -13446,6 +13610,7 @@ bool js_register_cc_gfx_SubpassInfo(se::Object* obj) {
     cls->defineProperty("preserves", _SE(js_cc_gfx_SubpassInfo_preserves_get), _SE(js_cc_gfx_SubpassInfo_preserves_set)); 
     cls->defineProperty("depthStencil", _SE(js_cc_gfx_SubpassInfo_depthStencil_get), _SE(js_cc_gfx_SubpassInfo_depthStencil_set)); 
     cls->defineProperty("depthStencilResolve", _SE(js_cc_gfx_SubpassInfo_depthStencilResolve_get), _SE(js_cc_gfx_SubpassInfo_depthStencilResolve_set)); 
+    cls->defineProperty("shadingRate", _SE(js_cc_gfx_SubpassInfo_shadingRate_get), _SE(js_cc_gfx_SubpassInfo_shadingRate_set)); 
     cls->defineProperty("depthResolveMode", _SE(js_cc_gfx_SubpassInfo_depthResolveMode_get), _SE(js_cc_gfx_SubpassInfo_depthResolveMode_set)); 
     cls->defineProperty("stencilResolveMode", _SE(js_cc_gfx_SubpassInfo_stencilResolveMode_get), _SE(js_cc_gfx_SubpassInfo_stencilResolveMode_set)); 
     
@@ -22331,6 +22496,43 @@ static bool js_cc_gfx_CommandBuffer_blitTexture__SWIG_0(se::State& s)
     return true;
 }
 
+static bool js_cc_gfx_CommandBuffer_copyTexture(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gfx::CommandBuffer *arg1 = (cc::gfx::CommandBuffer *) NULL ;
+    cc::gfx::Texture *arg2 = (cc::gfx::Texture *) NULL ;
+    cc::gfx::Texture *arg3 = (cc::gfx::Texture *) NULL ;
+    cc::gfx::TextureCopy *arg4 = (cc::gfx::TextureCopy *) NULL ;
+    uint32_t arg5 ;
+    
+    if(argc != 4) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    ok &= sevalue_to_native(args[3], &arg5, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    (arg1)->copyTexture(arg2,arg3,(cc::gfx::TextureCopy const *)arg4,arg5);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_gfx_CommandBuffer_copyTexture) 
+
 static bool js_cc_gfx_CommandBuffer_dispatch(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -23149,6 +23351,7 @@ bool js_register_cc_gfx_CommandBuffer(se::Object* obj) {
     cls->defineFunction("setStencilCompareMask", _SE(js_cc_gfx_CommandBuffer_setStencilCompareMask)); 
     cls->defineFunction("nextSubpass", _SE(js_cc_gfx_CommandBuffer_nextSubpass)); 
     cls->defineFunction("drawWithInfo", _SE(js_cc_gfx_CommandBuffer_drawWithInfo)); 
+    cls->defineFunction("copyTexture", _SE(js_cc_gfx_CommandBuffer_copyTexture)); 
     cls->defineFunction("dispatch", _SE(js_cc_gfx_CommandBuffer_dispatch)); 
     cls->defineFunction("beginQuery", _SE(js_cc_gfx_CommandBuffer_beginQuery)); 
     cls->defineFunction("endQuery", _SE(js_cc_gfx_CommandBuffer_endQuery)); 

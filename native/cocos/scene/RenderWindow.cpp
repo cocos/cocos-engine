@@ -70,12 +70,24 @@ bool RenderWindow::initialize(gfx::Device *device, IRenderWindowInfo &info) {
         _depthStencilTexture = info.swapchain->getDepthStencilTexture();
     } else {
         for (auto &colorAttachment : info.renderPassInfo.colorAttachments) {
-            _colorTextures.pushBack(
-                device->createTexture({gfx::TextureType::TEX2D,
-                                       gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED | gfx::TextureUsageBit::TRANSFER_SRC,
-                                       colorAttachment.format,
-                                       _width,
-                                       _height}));
+            gfx::TextureInfo textureInfo = {gfx::TextureType::TEX2D,
+                                      gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED | gfx::TextureUsageBit::TRANSFER_SRC,
+                                      colorAttachment.format,
+                                      _width,
+                                      _height};
+            if (info.externalFlag.has_value()) {
+                if (hasFlag(info.externalFlag.value(), gfx::TextureFlagBit::EXTERNAL_NORMAL)) {
+                    textureInfo.flags |= info.externalFlag.value();
+                    if (info.externalResLow.has_value() && info.externalResHigh.has_value()) {
+                        uint64_t externalResAddr = (static_cast<uint64_t>(info.externalResHigh.value()) << 32) | info.externalResLow.value();
+                        textureInfo.externalRes = reinterpret_cast<void *>(externalResAddr);
+                    } else if(info.externalResLow.has_value()) {
+                        textureInfo.externalRes = reinterpret_cast<void *>(static_cast<uint64_t>(info.externalResLow.value()));
+                    }
+                }
+            }
+
+            _colorTextures.pushBack(device->createTexture(textureInfo));
         }
         if (info.renderPassInfo.depthStencilAttachment.format != gfx::Format::UNKNOWN) {
             _depthStencilTexture = device->createTexture({gfx::TextureType::TEX2D,

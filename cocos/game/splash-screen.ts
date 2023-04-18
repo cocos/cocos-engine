@@ -32,7 +32,7 @@ import {
 } from '../gfx';
 import { PipelineStateManager } from '../rendering';
 import { SetIndex } from '../rendering/define';
-import { ccwindow } from '../core/global-exports';
+import { ccwindow, legacyCC } from '../core/global-exports';
 import { XREye } from '../xr/xr-enums';
 
 const v2_0 = new Vec2();
@@ -454,6 +454,9 @@ export class SplashScreen {
                     }
                 }
 
+                // for legacy pipeline
+                device.enableAutoBarrier(true);
+
                 device.acquire([swapchain]);
                 // record command
                 const cmdBuff = this.cmdBuff;
@@ -499,6 +502,7 @@ export class SplashScreen {
                 device.flushCommands([cmdBuff]);
                 device.queue.submit([cmdBuff]);
                 device.present();
+                device.enableAutoBarrier(!legacyCC.rendering);
 
                 if (sys.isXR) {
                     xr.entry.renderLoopEnd(xrEye);
@@ -554,7 +558,7 @@ export class SplashScreen {
         return SplashScreen._ins;
     }
 
-    private constructor () { }
+    private constructor () {}
 }
 
 cclegacy.internal.SplashScreen = SplashScreen;

@@ -25,6 +25,7 @@
 #include "platform/linux/modules/System.h"
 #include <string.h>
 #include <sys/utsname.h>
+#include "SDL2/SDL_clipboard.h"
 
 namespace cc {
 
@@ -123,4 +124,9 @@ System::LanguageType System::getLanguageTypeByISO2(const char *code) const {
     }
     return ret;
 }
+
+void System::copyTextToClipboard(const ccstd::string &text) {
+    SDL_SetClipboardText(text.c_str());
+}
+
 } // namespace cc

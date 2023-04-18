@@ -43,8 +43,6 @@ public:
      */
     void setCursorEnabled(bool value) override;
 
-    void copyTextToClipboard(const std::string &text) override;
-
     void setWindowHandle(void *handle);
     uintptr_t getWindowHandle() const override;
     uint32_t getWindowId() const override { return _windowId; }

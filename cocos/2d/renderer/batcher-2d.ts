@@ -53,10 +53,8 @@ const _dsInfo = new DescriptorSetInfo(null!);
 const m4_1 = new Mat4();
 
 /**
- * @en
- * UI render flow
- * @zh
- * UI 渲染流程
+ * @en UI rendering process
+ * @zh UI 渲染流程
  */
 export class Batcher2D implements IBatcher {
     protected declare _nativeObj: NativeBatcher2d;

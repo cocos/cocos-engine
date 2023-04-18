@@ -2968,6 +2968,9 @@ void cmdFuncGLES2CopyTextureToBuffers(GLES2Device *device, GLES2GPUTexture *gpuT
     }
 }
 
+void cmdFuncGLES2CopyTexture(GLES2Device *device, GLES2GPUTexture *gpuTextureSrc, GLES2GPUTexture *gpuTextureDst, const TextureCopy *regions, uint32_t count) {
+}
+
 void cmdFuncGLES2BlitTexture(GLES2Device *device, GLES2GPUTexture *gpuTextureSrc, GLES2GPUTexture *gpuTextureDst, const TextureBlit *regions, uint32_t count, Filter filter) {
     GLES2GPUStateCache *cache = device->stateCache();
 
