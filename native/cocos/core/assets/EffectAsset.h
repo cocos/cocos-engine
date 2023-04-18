@@ -516,7 +516,7 @@ struct IDefineInfo {
     ccstd::optional<ccstd::vector<ccstd::string>> options;
     ccstd::optional<ccstd::string> defaultVal;
     ccstd::optional<ccstd::vector<ccstd::string>> defines;             // NOTE: it's only used in Editor
-    ccstd::optional<ccstd::unordered_map<ccstd::string, bool>> editor; // NOTE: it's only used in Editor
+    ccstd::optional<ccstd::unordered_map<ccstd::string, ccstd::variant<ccstd::string, bool>>> editor; // NOTE: it's only used in Editor
 };
 
 struct IBuiltin {
