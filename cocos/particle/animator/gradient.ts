@@ -175,12 +175,12 @@ export default class Gradient {
                 }
             }
             const lastIndex = this.colorKeys.length - 1;
-            if (time < this.colorKeys[0].time) {
+            if (Math.abs(time - this.colorKeys[lastIndex].time) <= EPSILON) {
+                this._color.set(this.colorKeys[lastIndex].color);
+            } else if (time < this.colorKeys[0].time) {
                 Color.lerp(this._color, Color.BLACK, this.colorKeys[0].color, time / this.colorKeys[0].time);
             } else if (time > this.colorKeys[lastIndex].time) {
                 Color.lerp(this._color, this.colorKeys[lastIndex].color, Color.BLACK, (time - this.colorKeys[lastIndex].time) / (1 - this.colorKeys[lastIndex].time));
-            } else if (time === this.colorKeys[lastIndex].time) {
-                this._color.set(this.colorKeys[lastIndex].color);
             }
             // console.warn('something went wrong. can not get gradient color.');
             return this._color;
@@ -209,12 +209,12 @@ export default class Gradient {
                 }
             }
             const lastIndex = this.alphaKeys.length - 1;
-            if (time < this.alphaKeys[0].time) {
+            if (Math.abs(time - this.alphaKeys[lastIndex].time) <= EPSILON) {
+                return this.alphaKeys[lastIndex].alpha;
+            } else if (time < this.alphaKeys[0].time) {
                 return lerp(basicAlpha, this.alphaKeys[0].alpha, time / this.alphaKeys[0].time);
             } else if (time > this.alphaKeys[lastIndex].time) {
                 return lerp(this.alphaKeys[lastIndex].alpha, basicAlpha, (time - this.alphaKeys[lastIndex].time) / (1 - this.alphaKeys[lastIndex].time));
-            } else if (time === this.alphaKeys[lastIndex].time) {
-                return this.alphaKeys[lastIndex].alpha;
             }
             return 255;
         } else if (this.alphaKeys.length === 1) {
