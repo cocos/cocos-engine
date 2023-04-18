@@ -1093,6 +1093,7 @@ module.exports = {
             slopeLimit: '最大爬坡角度',
             contactOffset: '接触间隙',
             detectCollisions: '是否和其他碰撞体发生碰撞 (在不调用move方法的情况下)',
+            enableOverlapRecovery: '和其他碰撞体穿透时是否恢复',
             center: '中心点在局部坐标系中的位置',
             capsuleRadius: '胶囊体的球半径',
             capsuleHeight: '胶囊体的高度 (胶囊体末端两个球心的距离)',

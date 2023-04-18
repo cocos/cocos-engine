@@ -77,6 +77,7 @@ public:
     virtual void setContactOffset(float v) override;
     virtual float getContactOffset() override;
     virtual void setDetectCollisions(bool v) override;
+    virtual void setOverlapRecovery(bool v) override;
 
     uint32_t getGroup() override;
     void setGroup(uint32_t g) override;
@@ -97,6 +98,7 @@ protected:
     QueryFilterCallback _mFilterCallback;
     physx::PxControllerFilters controllerFilter;
     physx::PxControllerCollisionFlags _pxCollisionFlags;
+    bool _mOverlapRecovery{ true };
     float _mMinMoveDistance{ 0.001f };
     float _mContactOffset{ 0.01f };
     float _mStepOffset{ 1.f };

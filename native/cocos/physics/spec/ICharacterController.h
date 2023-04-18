@@ -46,6 +46,7 @@ public:
     virtual void setContactOffset(float v) = 0;
     virtual float getContactOffset() = 0;
     virtual void setDetectCollisions(bool v) = 0;
+    virtual void setOverlapRecovery(bool v) = 0;
 
     virtual cc::Vec3 getPosition() = 0;
     virtual void setPosition(float x, float y, float z) = 0;

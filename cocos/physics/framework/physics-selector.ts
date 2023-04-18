@@ -226,7 +226,7 @@ enum ECheckType {
     HingeConstraint,
     ConeTwistConstraint,
     FixedConstraint,
-    // CHARACTER CONTROLLER
+    // CHARACTER CONTROLLER //
     BoxCharacterController,
     CapsuleCharacterController,
 }
@@ -470,6 +470,7 @@ const ENTIRE_CHARACTER_CONTROLLER: IEntireCharacterController = {
     setSlopeLimit: FUNC,
     setContactOffset: FUNC,
     setDetectCollisions: FUNC,
+    setOverlapRecovery: FUNC,
     setGroup: FUNC,
     getGroup: FUNC,
     addGroup: FUNC,

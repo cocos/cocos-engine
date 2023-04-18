@@ -172,6 +172,26 @@ export class CharacterController extends Eventify(Component) {
 
     /**
      * @en
+     * Gets or sets if the character controller enables overlap recovery when penetrating with other colliders.
+     * @zh
+     * 获取或设置角色控制器和其他碰撞体穿透时是否恢复。
+     */
+    @tooltip('i18n:physics3d.character_controller.enableOverlapRecovery')
+    @type(CCBoolean)
+    public get enableOverlapRecovery () {
+        return this._enableOverlapRecovery;
+    }
+
+    public set enableOverlapRecovery (value) {
+        if (this._enableOverlapRecovery === value) return;
+        this._enableOverlapRecovery = value;
+        if (this._cct) {
+            this._cct.setOverlapRecovery(value);
+        }
+    }
+
+    /**
+     * @en
      * Gets or sets the center of the character controller in local space.
      * @zh
      * 获取或设置胶囊体的中心点在局部坐标系中的位置。
@@ -230,6 +250,8 @@ export class CharacterController extends Eventify(Component) {
     private _contactOffset = 0.01;
     @serializable
     private _detectCollisions = true;
+    @serializable
+    private _enableOverlapRecovery = true;
     @serializable
     private _center: Vec3 = new Vec3();
 

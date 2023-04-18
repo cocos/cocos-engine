@@ -43,6 +43,7 @@ export class PhysXCharacterController implements IBaseCharacterController {
     private _filterData: any;
     private _queryFilterCB: any = null;
     protected _word3 = 0;
+    protected _overlapRecovery = true;
 
     get isEnabled (): boolean { return this._isEnabled; }
     get impl (): any { return this._impl; }
@@ -81,6 +82,7 @@ export class PhysXCharacterController implements IBaseCharacterController {
             return false;
         } else {
             this.setDetectCollisions(this._comp.detectCollisions);
+            this.setOverlapRecovery(this._comp.enableOverlapRecovery);
             (PhysicsSystem.instance.physicsWorld as PhysXWorld).addCCT(this);
             return true;
         }
@@ -139,6 +141,10 @@ export class PhysXCharacterController implements IBaseCharacterController {
         this._impl.setCollision(value);
     }
 
+    setOverlapRecovery (value: boolean): void {
+        this._overlapRecovery = value;
+    }
+
     onGround (): boolean {
         return (this._pxCollisionFlags & (1 << 2)) > 0;//PxControllerCollisionFlag::Enum::eCOLLISION_DOWN
     }
@@ -172,6 +178,7 @@ export class PhysXCharacterController implements IBaseCharacterController {
     };
 
     move (movement: IVec3Like, minDist: number, elapsedTime: number) {
+        (PhysicsSystem.instance.physicsWorld as PhysXWorld).controllerManager.setOverlapRecoveryModule(this._overlapRecovery);
         this._pxCollisionFlags = this._impl.move(movement, minDist, elapsedTime, this.filterData, this.queryFilterCB);
     }
 
