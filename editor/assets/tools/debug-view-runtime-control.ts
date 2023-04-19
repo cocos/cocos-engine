@@ -54,9 +54,9 @@ export class DebugViewRuntimeControl extends Component {
         'Env Transmit Diffuse',
         'Env Transmit Specular',
         'Transmit All',
-        'Direct TRT',
-        'Env TRT',
-        'TRT All',
+        'Direct Internal Specular',
+        'Env Internal Specular',
+        'Internal All',
 
         'Fog',
     ];
@@ -79,7 +79,7 @@ export class DebugViewRuntimeControl extends Component {
         'Fresnel',
         'Transmit Diffuse',
         'Transmit Specular',
-        'TRT',
+        'Internal Specular',
         'TT',
     ];
     private strMisc: string[] = [
