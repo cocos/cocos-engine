@@ -1023,8 +1023,8 @@ export class Camera {
             // Only for rendertexture processing
             if (this._proj === CameraProjection.PERSPECTIVE) {
                 if (xr.isWebXR && xr.webXRWindowMap && xr.webXRMatProjs && xr.webXRMatProjs.length === 2) {
-                    const wndXREye = globalThis.__globalXR.webXRWindowMap.get(this._window);
-                    this._matProj.set(globalThis.__globalXR.webXRMatProjs[wndXREye]);
+                    const wndXREye = xr.webXRWindowMap.get(this._window);
+                    this._matProj.set(xr.webXRMatProjs[wndXREye]);
                 } else {
                     Mat4.perspective(this._matProj, this._fov, this._aspect, this._nearClip, this._farClip,
                         this._fovAxis === CameraFOVAxis.VERTICAL, this._device.capabilities.clipSpaceMinZ, projectionSignY, orientation);

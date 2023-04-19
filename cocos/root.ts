@@ -491,7 +491,7 @@ export class Root {
         }
 
         if (globalThis.__globalXR.isWebXR) {
-            this._doWebXRFrameMoveEnd();
+            this._doWebXRFrameMove();
         } else {
             this._frameMoveBegin();
             this._frameMoveProcess();
@@ -687,16 +687,17 @@ export class Root {
         }
     }
 
-    private _doWebXRFrameMoveEnd () {
+    private _doWebXRFrameMove () {
         const windows = this._windows;
         const cameraList = this._cameraList;
 
         let viewCount = 1;
         const xr = globalThis.__globalXR;
-        if (xr.isWebXR) {
-            viewCount = xr.webXRMatProjs?.length;
+        viewCount = xr.webXRMatProjs?.length;
+        if (!xr.webXRWindowMap) {
             xr.webXRWindowMap = new Map<RenderWindow, number>();
         }
+
         for (let xrEye = 0; xrEye < viewCount; xrEye++) {
             this._frameMoveBegin();
 
@@ -709,15 +710,13 @@ export class Root {
 
             this._frameMoveProcess();
 
-            if (xr.isWebXR) {
-                for (let i = cameraList.length - 1; i >= 0; i--) {
-                    const camera = cameraList[i];
-                    const isMismatchedCam = (xrEye === XREye.LEFT && camera.cameraType === CameraType.RIGHT_EYE)
+            for (let i = cameraList.length - 1; i >= 0; i--) {
+                const camera = cameraList[i];
+                const isMismatchedCam = (xrEye === XREye.LEFT && camera.cameraType === CameraType.RIGHT_EYE)
                         || (xrEye === XREye.RIGHT && camera.cameraType === CameraType.LEFT_EYE);
-                    if (isMismatchedCam) {
-                        // currently is left eye loop, so right camera do not need active
-                        cameraList.splice(i, 1);
-                    }
+                if (isMismatchedCam) {
+                    // currently is left eye loop, so right camera do not need active
+                    cameraList.splice(i, 1);
                 }
             }
 
