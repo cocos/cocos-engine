@@ -31,12 +31,12 @@
 import { Material } from '../../asset/assets';
 import { Camera } from '../../render-scene/scene/camera';
 import { GeometryRenderer } from '../geometry-renderer';
-import { Buffer, Color, CommandBuffer, DescriptorSet, DescriptorSetLayout, Device, DrawInfo, Format, InputAssembler, PipelineState, Rect, Sampler, Swapchain, Texture, Viewport } from '../../gfx';
+import { Buffer, ClearFlagBit, Color, CommandBuffer, DescriptorSet, DescriptorSetLayout, Device, DrawInfo, Format, InputAssembler, LoadOp, PipelineState, Rect, Sampler, StoreOp, Swapchain, Texture, Viewport } from '../../gfx';
 import { GlobalDSManager } from '../global-descriptor-set-manager';
 import { Mat4, Quat, Vec2, Vec4 } from '../../core/math';
 import { MacroRecord } from '../../render-scene/core/pass-utils';
 import { PipelineSceneData } from '../pipeline-scene-data';
-import { ComputeView, CopyPair, LightInfo, MovePair, QueueHint, RasterView, ResourceResidency, SceneFlags, TaskType, UpdateFrequency } from './types';
+import { AccessType, ComputeView, CopyPair, LightInfo, MovePair, QueueHint, RasterView, ResourceResidency, SceneFlags, TaskType, UpdateFrequency } from './types';
 import { RenderScene } from '../../render-scene/core/render-scene';
 import { RenderWindow } from '../../render-scene/core/render-window';
 import { Model } from '../../render-scene/scene';
@@ -67,6 +67,10 @@ export interface PipelineRuntime {
 
 export interface RenderNode {
     name: string;
+    /**
+     * @beta method's name might change
+     */
+    setCustomBehavior (name: string): void;
 }
 
 export interface Setter extends RenderNode {
@@ -96,10 +100,68 @@ export interface RasterQueueBuilder extends Setter {
     clearRenderTarget (name: string, color: Color): void;
     clearRenderTarget (name: string/*, new Color()*/): void;
     setViewport (viewport: Viewport): void;
+    /**
+     * @beta method's name might change
+     */
+    addCustomCommand (customBehavior: string): void;
 }
 
 export interface RasterSubpassBuilder extends Setter {
-    addRasterView (name: string, view: RasterView): void;
+    /**
+     * @beta method's name might change
+     */
+    addRenderTarget (name: string, accessType: AccessType, slotName: string, loadOp: LoadOp, storeOp: StoreOp, color: Color): void;
+    /**
+     * @beta method's name might change
+     */
+    addRenderTarget (name: string, accessType: AccessType, slotName: string, loadOp: LoadOp, storeOp: StoreOp/*, new Color()*/): void;
+    /**
+     * @beta method's name might change
+     */
+    addRenderTarget (name: string, accessType: AccessType, slotName: string, loadOp: LoadOp/*, StoreOp.STORE, new Color()*/): void;
+    /**
+     * @beta method's name might change
+     */
+    addRenderTarget (name: string, accessType: AccessType, slotName: string/*, LoadOp.CLEAR, StoreOp.STORE, new Color()*/): void;
+    /**
+     * @beta method's name might change
+     */
+    addDepthStencil (name: string, accessType: AccessType, slotName: string, loadOp: LoadOp, storeOp: StoreOp, depth: number, stencil: number, clearFlags: ClearFlagBit): void;
+    /**
+     * @beta method's name might change
+     */
+    addDepthStencil (name: string, accessType: AccessType, slotName: string, loadOp: LoadOp, storeOp: StoreOp, depth: number, stencil: number/*, ClearFlagBit.DEPTH_STENCIL*/): void;
+    /**
+     * @beta method's name might change
+     */
+    addDepthStencil (name: string, accessType: AccessType, slotName: string, loadOp: LoadOp, storeOp: StoreOp, depth: number/*, 0, ClearFlagBit.DEPTH_STENCIL*/): void;
+    /**
+     * @beta method's name might change
+     */
+    addDepthStencil (name: string, accessType: AccessType, slotName: string, loadOp: LoadOp, storeOp: StoreOp/*, 1, 0, ClearFlagBit.DEPTH_STENCIL*/): void;
+    /**
+     * @beta method's name might change
+     */
+    addDepthStencil (name: string, accessType: AccessType, slotName: string, loadOp: LoadOp/*, StoreOp.STORE, 1, 0, ClearFlagBit.DEPTH_STENCIL*/): void;
+    /**
+     * @beta method's name might change
+     */
+    addDepthStencil (name: string, accessType: AccessType, slotName: string/*, LoadOp.CLEAR, StoreOp.STORE, 1, 0, ClearFlagBit.DEPTH_STENCIL*/): void;
+    /**
+     * @beta method's name might change
+     */
+    addTexture (name: string, slotName: string): void;
+    /**
+     * @beta method's name might change
+     */
+    addStorageBuffer (name: string, accessType: AccessType, slotName: string): void;
+    /**
+     * @beta method's name might change
+     */
+    addStorageImage (name: string, accessType: AccessType, slotName: string): void;
+    /**
+     * @deprecated method will be removed in 3.8.0
+     */
     addComputeView (name: string, view: ComputeView): void;
     setViewport (viewport: Viewport): void;
     addQueue (hint: QueueHint, layoutName: string): RasterQueueBuilder;
@@ -115,14 +177,90 @@ export interface ComputeQueueBuilder extends Setter {
 }
 
 export interface ComputeSubpassBuilder extends Setter {
-    addRasterView (name: string, view: RasterView): void;
+    /**
+     * @beta method's name might change
+     */
+    addRenderTarget (name: string, slotName: string): void;
+    /**
+     * @beta method's name might change
+     */
+    addTexture (name: string, slotName: string): void;
+    /**
+     * @beta method's name might change
+     */
+    addStorageBuffer (name: string, accessType: AccessType, slotName: string): void;
+    /**
+     * @beta method's name might change
+     */
+    addStorageImage (name: string, accessType: AccessType, slotName: string): void;
+    /**
+     * @deprecated method will be removed in 3.8.0
+     */
     addComputeView (name: string, view: ComputeView): void;
     addQueue (layoutName: string): ComputeQueueBuilder;
     addQueue (/*''*/): ComputeQueueBuilder;
 }
 
 export interface RasterPassBuilder extends Setter {
+    /**
+     * @beta method's name might change
+     */
+    addRenderTarget (name: string, slotName: string, loadOp: LoadOp, storeOp: StoreOp, color: Color): void;
+    /**
+     * @beta method's name might change
+     */
+    addRenderTarget (name: string, slotName: string, loadOp: LoadOp, storeOp: StoreOp/*, new Color()*/): void;
+    /**
+     * @beta method's name might change
+     */
+    addRenderTarget (name: string, slotName: string, loadOp: LoadOp/*, StoreOp.STORE, new Color()*/): void;
+    /**
+     * @beta method's name might change
+     */
+    addRenderTarget (name: string, slotName: string/*, LoadOp.CLEAR, StoreOp.STORE, new Color()*/): void;
+    /**
+     * @beta method's name might change
+     */
+    addDepthStencil (name: string, slotName: string, loadOp: LoadOp, storeOp: StoreOp, depth: number, stencil: number, clearFlags: ClearFlagBit): void;
+    /**
+     * @beta method's name might change
+     */
+    addDepthStencil (name: string, slotName: string, loadOp: LoadOp, storeOp: StoreOp, depth: number, stencil: number/*, ClearFlagBit.DEPTH_STENCIL*/): void;
+    /**
+     * @beta method's name might change
+     */
+    addDepthStencil (name: string, slotName: string, loadOp: LoadOp, storeOp: StoreOp, depth: number/*, 0, ClearFlagBit.DEPTH_STENCIL*/): void;
+    /**
+     * @beta method's name might change
+     */
+    addDepthStencil (name: string, slotName: string, loadOp: LoadOp, storeOp: StoreOp/*, 1, 0, ClearFlagBit.DEPTH_STENCIL*/): void;
+    /**
+     * @beta method's name might change
+     */
+    addDepthStencil (name: string, slotName: string, loadOp: LoadOp/*, StoreOp.STORE, 1, 0, ClearFlagBit.DEPTH_STENCIL*/): void;
+    /**
+     * @beta method's name might change
+     */
+    addDepthStencil (name: string, slotName: string/*, LoadOp.CLEAR, StoreOp.STORE, 1, 0, ClearFlagBit.DEPTH_STENCIL*/): void;
+    /**
+     * @beta method's name might change
+     */
+    addTexture (name: string, slotName: string): void;
+    /**
+     * @beta method's name might change
+     */
+    addStorageBuffer (name: string, accessType: AccessType, slotName: string): void;
+    /**
+     * @beta method's name might change
+     */
+    addStorageImage (name: string, accessType: AccessType, slotName: string): void;
+    /**
+     * @deprecated method will be removed in 3.8.0
+     */
     addRasterView (name: string, view: RasterView): void;
+    /**
+     * @deprecated method will be removed in 3.8.0
+     */
     addComputeView (name: string, view: ComputeView): void;
     addQueue (hint: QueueHint, layoutName: string): RasterQueueBuilder;
     addQueue (hint: QueueHint/*, ''*/): RasterQueueBuilder;
@@ -137,6 +275,21 @@ export interface RasterPassBuilder extends Setter {
 }
 
 export interface ComputePassBuilder extends Setter {
+    /**
+     * @beta method's name might change
+     */
+    addTexture (name: string, slotName: string): void;
+    /**
+     * @beta method's name might change
+     */
+    addStorageBuffer (name: string, accessType: AccessType, slotName: string): void;
+    /**
+     * @beta method's name might change
+     */
+    addStorageImage (name: string, accessType: AccessType, slotName: string): void;
+    /**
+     * @deprecated method will be removed in 3.8.0
+     */
     addComputeView (name: string, view: ComputeView): void;
     addQueue (layoutName: string): ComputeQueueBuilder;
     addQueue (/*''*/): ComputeQueueBuilder;
@@ -177,7 +330,11 @@ export interface Pipeline extends PipelineRuntime {
     beginSetup (): void;
     endSetup (): void;
     containsResource (name: string): boolean;
+    /**
+     * @deprecated method will be removed in 3.8.0
+     */
     addRenderTexture (name: string, format: Format, width: number, height: number, renderWindow: RenderWindow): number;
+    addRenderWindow (name: string, format: Format, width: number, height: number, renderWindow: RenderWindow): number;
     updateRenderWindow (name: string, renderWindow: RenderWindow): void;
     addStorageBuffer (name: string, format: Format, size: number, residency: ResourceResidency): number;
     addStorageBuffer (name: string, format: Format, size: number/*, ResourceResidency.MANAGED*/): number;
@@ -190,13 +347,13 @@ export interface Pipeline extends PipelineRuntime {
     addShadingRateTexture (name: string, width: number, height: number, residency: ResourceResidency): number;
     addShadingRateTexture (name: string, width: number, height: number/*, ResourceResidency.MANAGED*/): number;
     updateStorageBuffer (name: string, size: number, format: Format): void;
-    updateStorageBuffer (name: string, size: number/*, gfx.Format.UNKNOWN*/): void;
+    updateStorageBuffer (name: string, size: number/*, Format.UNKNOWN*/): void;
     updateRenderTarget (name: string, width: number, height: number, format: Format): void;
-    updateRenderTarget (name: string, width: number, height: number/*, gfx.Format.UNKNOWN*/): void;
+    updateRenderTarget (name: string, width: number, height: number/*, Format.UNKNOWN*/): void;
     updateDepthStencil (name: string, width: number, height: number, format: Format): void;
-    updateDepthStencil (name: string, width: number, height: number/*, gfx.Format.UNKNOWN*/): void;
+    updateDepthStencil (name: string, width: number, height: number/*, Format.UNKNOWN*/): void;
     updateStorageTexture (name: string, width: number, height: number, format: Format): void;
-    updateStorageTexture (name: string, width: number, height: number/*, gfx.Format.UNKNOWN*/): void;
+    updateStorageTexture (name: string, width: number, height: number/*, Format.UNKNOWN*/): void;
     updateShadingRateTexture (name: string, width: number, height: number): void;
     beginFrame (): void;
     endFrame (): void;
@@ -205,6 +362,9 @@ export interface Pipeline extends PipelineRuntime {
     addComputePass (layoutName: string): ComputePassBuilder;
     addMovePass (): MovePassBuilder;
     addCopyPass (): CopyPassBuilder;
+    /**
+     * @deprecated method will be removed in 3.8.0
+     */
     createSceneTransversal (camera: Camera, scene: RenderScene): SceneTransversal;
     getDescriptorSetLayout (shaderName: string, freq: UpdateFrequency): DescriptorSetLayout | null;
 }

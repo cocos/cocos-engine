@@ -28,45 +28,11 @@
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
 // clang-format off
-#pragma once
-#include "cocos/base/std/variant.h"
-#include "cocos/renderer/pipeline/InstancedBuffer.h"
-#include "cocos/renderer/pipeline/custom/NativeFwd.h"
+#include "CustomTypes.h"
 
 namespace cc {
 
 namespace render {
-
-class NativeRenderNode;
-class NativeSetter;
-class NativeRasterQueueBuilder;
-class NativeRasterSubpassBuilder;
-class NativeComputeSubpassBuilder;
-class NativeRasterPassBuilder;
-class NativeComputeQueueBuilder;
-class NativeComputePassBuilder;
-class NativeMovePassBuilder;
-class NativeCopyPassBuilder;
-class NativeSceneTransversal;
-struct RenderInstancingQueue;
-struct DrawInstance;
-struct RenderDrawQueue;
-struct NativeRenderQueue;
-class DefaultSceneVisitor;
-class DefaultForwardLightingTransversal;
-struct ResourceGroup;
-struct BufferPool;
-struct DescriptorSetPool;
-struct UniformBlockResource;
-struct ProgramResource;
-struct LayoutGraphNodeResource;
-struct QuadResource;
-struct NativeRenderContext;
-class NativeProgramLibrary;
-struct PipelineCustomization;
-class NativePipeline;
-class NativeProgramProxy;
-class NativeRenderingModule;
 
 } // namespace render
 

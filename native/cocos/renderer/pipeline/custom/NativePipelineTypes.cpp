@@ -162,6 +162,35 @@ NativeProgramLibrary::NativeProgramLibrary(const allocator_type& alloc) noexcept
   phases(alloc),
   localLayoutData(alloc) {}
 
+PipelineCustomization::PipelineCustomization(const allocator_type& alloc) noexcept
+: contexts(alloc),
+  renderPasses(alloc),
+  renderSubpasses(alloc),
+  computeSubpasses(alloc),
+  computePasses(alloc),
+  renderQueues(alloc),
+  renderCommands(alloc) {}
+
+PipelineCustomization::PipelineCustomization(PipelineCustomization&& rhs, const allocator_type& alloc)
+: currentContext(std::move(rhs.currentContext)),
+  contexts(std::move(rhs.contexts), alloc),
+  renderPasses(std::move(rhs.renderPasses), alloc),
+  renderSubpasses(std::move(rhs.renderSubpasses), alloc),
+  computeSubpasses(std::move(rhs.computeSubpasses), alloc),
+  computePasses(std::move(rhs.computePasses), alloc),
+  renderQueues(std::move(rhs.renderQueues), alloc),
+  renderCommands(std::move(rhs.renderCommands), alloc) {}
+
+PipelineCustomization::PipelineCustomization(PipelineCustomization const& rhs, const allocator_type& alloc)
+: currentContext(rhs.currentContext),
+  contexts(rhs.contexts, alloc),
+  renderPasses(rhs.renderPasses, alloc),
+  renderSubpasses(rhs.renderSubpasses, alloc),
+  computeSubpasses(rhs.computeSubpasses, alloc),
+  computePasses(rhs.computePasses, alloc),
+  renderQueues(rhs.renderQueues, alloc),
+  renderCommands(rhs.renderCommands, alloc) {}
+
 } // namespace render
 
 } // namespace cc

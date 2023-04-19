@@ -24,9 +24,10 @@
 
 /* eslint-disable max-len */
 import { systemInfo } from 'pal/system-info';
-import { Color, Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, ClearFlagBit, DescriptorSet, deviceManager, Viewport, API, CommandBuffer, Type, SamplerInfo, Filter, Address, DescriptorSetInfo } from '../../gfx';
+import { DEBUG } from 'internal:constants';
+import { Color, Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, ClearFlagBit, DescriptorSet, deviceManager, Viewport, API, CommandBuffer, Type, SamplerInfo, Filter, Address, DescriptorSetInfo, LoadOp, StoreOp } from '../../gfx';
 import { Mat4, Quat, toRadian, Vec2, Vec3, Vec4, assert, macro, cclegacy } from '../../core';
-import { ComputeView, CopyPair, LightInfo, LightingMode, MovePair, QueueHint, RasterView, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
+import { AccessType, AttachmentType, ComputeView, CopyPair, LightInfo, LightingMode, MovePair, QueueHint, RasterView, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
 import { Blit, ClearView, ComputePass, CopyPass, Dispatch, ManagedBuffer, ManagedResource, MovePass, RasterPass, RasterSubpass, RenderData, RenderGraph, RenderGraphComponent, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData, Subpass } from './render-graph';
 import { ComputePassBuilder, ComputeQueueBuilder, ComputeSubpassBuilder, CopyPassBuilder, MovePassBuilder, Pipeline, PipelineBuilder, RasterPassBuilder, RasterQueueBuilder, RasterSubpassBuilder, SceneTransversal } from './pipeline';
 import { PipelineSceneData } from '../pipeline-scene-data';
@@ -53,13 +54,27 @@ import { getUBOTypeCount } from './utils';
 import { initGlobalDescBinding } from './define';
 import { createGfxDescriptorSetsAndPipelines } from './layout-graph-utils';
 
+const _uboVec = new Vec4();
+const _uboVec3 = new Vec3();
+const _uboCol = new Color();
+const _matView = new Mat4();
+const _mulMatView = new Mat4();
+let uniformOffset = -1;
+const _samplerPointInfo = new SamplerInfo(
+    Filter.POINT,
+    Filter.POINT,
+    Filter.NONE,
+    Address.CLAMP,
+    Address.CLAMP,
+    Address.CLAMP,
+);
 export class WebSetter {
     constructor (data: RenderData, lg: LayoutGraphData) {
         this._data = data;
         this._lg = lg;
     }
-    protected _applyCurrConstantBuffer (name: string, target: any, type: Type, idx = 0) {
-        const offset = this._getUniformOffset(name, type, idx);
+
+    protected _copyToBuffer (target: any, offset: number, type: Type) {
         assert(offset !== -1);
         const arr = this.getCurrConstant();
         switch (type) {
@@ -77,13 +92,23 @@ export class WebSetter {
         case Type.TEXTURE2D:
             break;
         case Type.FLOAT2:
-            Vec2.toArray(arr, new Vec2(target.x, target.y), offset);
+            arr[offset + 0] = target.x;
+            arr[offset + 1] = target.y;
             break;
         default:
         }
     }
 
-    protected _getUniformOffset (name: string, type: Type, idx = 0) {
+    protected _applyCurrConstantBuffer (name: string, target: any, type: Type, idx = 0) {
+        const offset = this.getUniformOffset(name, type, idx);
+        this._copyToBuffer(target, offset, type);
+    }
+
+    public hasUniform (offset: number) {
+        return offset !== -1;
+    }
+
+    public getUniformOffset (name: string, type: Type, idx = 0) {
         const currBlock = this._getCurrUniformBlock();
         if (!currBlock) return -1;
         let offset = 0;
@@ -98,7 +123,7 @@ export class WebSetter {
                 } else if (typeCount < currCount * uniform.count) {
                     return offset + idx;
                 }
-                assert(false);
+                if (DEBUG) assert(false);
             }
             offset += currCount * uniform.count;
         }
@@ -168,23 +193,38 @@ export class WebSetter {
     public setMat4 (name: string, mat: Mat4, idx = 0): void {
         this._applyCurrConstantBuffer(name, mat, Type.MAT4, idx);
     }
+    public offsetMat4 (mat: Mat4, offset: number): void {
+        this._copyToBuffer(mat, offset, Type.MAT4);
+    }
     public setQuaternion (name: string, quat: Quat, idx = 0): void {
-        this._applyCurrConstantBuffer(name, new Vec4(quat.x, quat.y, quat.z, quat.w), Type.FLOAT4, idx);
+        this._applyCurrConstantBuffer(name, quat, Type.FLOAT4, idx);
+    }
+    public offsetQuaternion (quat: Quat, offset: number): void {
+        this._copyToBuffer(quat, offset, Type.FLOAT4);
     }
     public setColor (name: string, color: Color, idx = 0): void {
-        this._applyCurrConstantBuffer(name, new Vec4(color.x, color.y, color.z, color.w), Type.FLOAT4, idx);
+        this._applyCurrConstantBuffer(name, color, Type.FLOAT4, idx);
+    }
+    public offsetColor (color: Color, offset: number): void {
+        this._copyToBuffer(color, offset, Type.FLOAT4);
     }
     public setVec4 (name: string, vec: Vec4, idx = 0): void {
         this._applyCurrConstantBuffer(name, vec, Type.FLOAT4, idx);
     }
+    public offsetVec4 (vec: Vec4, offset: number): void {
+        this._copyToBuffer(vec, offset, Type.FLOAT4);
+    }
     public setVec2 (name: string, vec: Vec2, idx = 0): void {
         this._applyCurrConstantBuffer(name, vec, Type.FLOAT2, idx);
+    }
+    public offsetVec2 (vec: Vec2, offset: number): void {
+        this._copyToBuffer(vec, offset, Type.FLOAT2);
     }
     public setFloat (name: string, v: number, idx = 0): void {
         this._applyCurrConstantBuffer(name, v, Type.FLOAT, idx);
     }
-    public setArrayBuffer (name: string, arrayBuffer: ArrayBuffer): void {
-
+    public offsetFloat (v: number, offset: number): void {
+        this._copyToBuffer(v, offset, Type.FLOAT);
     }
     public setBuffer (name: string, buffer: Buffer): void {}
     public setTexture (name: string, texture: Texture): void {
@@ -217,10 +257,13 @@ export class WebSetter {
         }
         return this._data.textures.has(id);
     }
+    public setCustomBehavior (name: string): void {
+        throw new Error('Method not implemented.');
+    }
 
     // protected
-    protected readonly _data: RenderData;
-    protected readonly _lg: LayoutGraphData;
+    protected  _data: RenderData;
+    protected _lg: LayoutGraphData;
     protected _currBlock;
     protected _currStage;
     protected _currCount;
@@ -240,7 +283,6 @@ function setShadowUBOLightView (setter: WebSetter,
     const csmLayers = sceneData.csmLayers;
     const packing = supportsR32FloatTexture(device) ? 0.0 : 1.0;
     const cap = pipeline.device.capabilities;
-    const _vec4ShadowInfo = new Vec4();
     setter.addConstant('CCCSM', layout);
     // ShadowMap
     if (!setter.addConstant('CCShadow', layout)) return;
@@ -276,8 +318,11 @@ function setShadowUBOLightView (setter: WebSetter,
                         far = csmLayers.specialLayer.shadowCameraFar;
                         levelCount = 1;
                     }
-                    _vec4ShadowInfo.set(0.0, packing, mainLight.shadowNormalBias, 0);
-                    setter.setVec4('cc_shadowLPNNInfo', _vec4ShadowInfo);
+                    uniformOffset = setter.getUniformOffset('cc_shadowLPNNInfo', Type.FLOAT4);
+                    if (setter.hasUniform(uniformOffset)) {
+                        _uboVec.set(0.0, packing, mainLight.shadowNormalBias, 0);
+                        setter.offsetVec4(_uboVec, uniformOffset);
+                    }
                 } else {
                     const layer = csmLayers.layers[level];
                     matShadowView = layer.matShadowView;
@@ -288,52 +333,83 @@ function setShadowUBOLightView (setter: WebSetter,
                     far = layer.splitCameraFar;
                     levelCount = mainLight.csmLevel;
                 }
-                setter.setMat4('cc_matLightView', matShadowView);
-                setter.setVec4('cc_shadowProjDepthInfo', new Vec4(matShadowProj.m10, matShadowProj.m14,
-                    matShadowProj.m11, matShadowProj.m15));
-                setter.setVec4('cc_shadowProjInfo', new Vec4(matShadowProj.m00, matShadowProj.m05,
-                    1.0 / matShadowProj.m00, 1.0 / matShadowProj.m05));
-                setter.setMat4('cc_matLightViewProj', matShadowViewProj);
-                _vec4ShadowInfo.set(near, far, 0, 1.0 - mainLight.shadowSaturation);
-                setter.setVec4('cc_shadowNFLSInfo', _vec4ShadowInfo);
-                _vec4ShadowInfo.set(0.0, packing, mainLight.shadowNormalBias, levelCount);
-                setter.setVec4('cc_shadowLPNNInfo', _vec4ShadowInfo);
-                _vec4ShadowInfo.set(shadowInfo.size.x, shadowInfo.size.y, mainLight.shadowPcf, mainLight.shadowBias);
-                setter.setVec4('cc_shadowWHPBInfo', _vec4ShadowInfo);
+                uniformOffset = setter.getUniformOffset('cc_matLightView', Type.MAT4);
+                if (setter.hasUniform(uniformOffset)) {
+                    setter.offsetMat4(matShadowView, uniformOffset);
+                }
+                uniformOffset = setter.getUniformOffset('cc_shadowProjDepthInfo', Type.FLOAT4);
+                if (setter.hasUniform(uniformOffset)) {
+                    _uboVec.set(matShadowProj.m10, matShadowProj.m14, matShadowProj.m11, matShadowProj.m15);
+                    setter.offsetVec4(_uboVec, uniformOffset);
+                }
+                uniformOffset = setter.getUniformOffset('cc_shadowProjInfo', Type.FLOAT4);
+                if (setter.hasUniform(uniformOffset)) {
+                    _uboVec.set(matShadowProj.m00, matShadowProj.m05, 1.0 / matShadowProj.m00, 1.0 / matShadowProj.m05);
+                    setter.offsetVec4(_uboVec, uniformOffset);
+                }
+                uniformOffset = setter.getUniformOffset('cc_matLightViewProj', Type.MAT4);
+                if (setter.hasUniform(uniformOffset)) {
+                    setter.offsetMat4(matShadowViewProj, uniformOffset);
+                }
+                uniformOffset = setter.getUniformOffset('cc_shadowNFLSInfo', Type.FLOAT4);
+                if (setter.hasUniform(uniformOffset)) {
+                    _uboVec.set(near, far, 0, 1.0 - mainLight.shadowSaturation);
+                    setter.offsetVec4(_uboVec, uniformOffset);
+                }
+                uniformOffset = setter.getUniformOffset('cc_shadowLPNNInfo', Type.FLOAT4);
+                if (setter.hasUniform(uniformOffset)) {
+                    _uboVec.set(0.0, packing, mainLight.shadowNormalBias, levelCount);
+                    setter.offsetVec4(_uboVec, uniformOffset);
+                }
+                uniformOffset = setter.getUniformOffset('cc_shadowWHPBInfo', Type.FLOAT4);
+                if (setter.hasUniform(uniformOffset)) {
+                    _uboVec.set(shadowInfo.size.x, shadowInfo.size.y, mainLight.shadowPcf, mainLight.shadowBias);
+                    setter.offsetVec4(_uboVec, uniformOffset);
+                }
             }
         }
         break;
     }
     case LightType.SPOT: {
         const spotLight = light as SpotLight;
-        const _matShadowView = new Mat4();
-        const _matShadowProj = new Mat4();
-        const _matShadowViewProj = new Mat4();
         if (shadowInfo.enabled && spotLight && spotLight.shadowEnabled) {
-            Mat4.invert(_matShadowView, (light as any).node.getWorldMatrix());
-            setter.setMat4('cc_matLightView', _matShadowView);
-
-            Mat4.perspective(_matShadowProj, (light as any).angle, 1.0, 0.001, (light as any).range,
-                true, cap.clipSpaceMinZ, cap.clipSpaceSignY, 0);
-
-            Mat4.multiply(_matShadowViewProj, _matShadowProj, _matShadowView);
-            setter.setMat4('cc_matLightViewProj', _matShadowViewProj);
-
-            _vec4ShadowInfo.set(0.01, (light as SpotLight).range, 0.0, 0.0);
-            setter.setVec4('cc_shadowNFLSInfo', _vec4ShadowInfo);
-
-            _vec4ShadowInfo.set(shadowInfo.size.x, shadowInfo.size.y, spotLight.shadowPcf, spotLight.shadowBias);
-            setter.setVec4('cc_shadowWHPBInfo', _vec4ShadowInfo);
-
-            _vec4ShadowInfo.set(1.0, packing, spotLight.shadowNormalBias, 0.0);
-            setter.setVec4('cc_shadowLPNNInfo', _vec4ShadowInfo);
+            const matViewOffset = setter.getUniformOffset('cc_matLightView', Type.MAT4);
+            const matViewProOffset = setter.getUniformOffset('cc_matLightViewProj', Type.MAT4);
+            if (setter.hasUniform(matViewOffset) || setter.hasUniform(matViewProOffset)) {
+                Mat4.invert(_matView, (light as any).node.getWorldMatrix());
+            }
+            if (setter.hasUniform(matViewOffset)) setter.offsetMat4(_matView, matViewOffset);
+            if (setter.hasUniform(matViewProOffset)) {
+                Mat4.perspective(_mulMatView, (light as any).angle, 1.0, 0.001, (light as any).range,
+                    true, cap.clipSpaceMinZ, cap.clipSpaceSignY, 0);
+                Mat4.multiply(_matView, _mulMatView, _matView);
+                setter.offsetMat4(_matView, matViewProOffset);
+            }
+            uniformOffset = setter.getUniformOffset('cc_shadowNFLSInfo', Type.FLOAT4);
+            if (setter.hasUniform(uniformOffset)) {
+                _uboVec.set(0.01, (light as SpotLight).range, 0.0, 0.0);
+                setter.offsetVec4(_uboVec, uniformOffset);
+            }
+            uniformOffset = setter.getUniformOffset('cc_shadowWHPBInfo', Type.FLOAT4);
+            if (setter.hasUniform(uniformOffset)) {
+                _uboVec.set(shadowInfo.size.x, shadowInfo.size.y, spotLight.shadowPcf, spotLight.shadowBias);
+                setter.offsetVec4(_uboVec, uniformOffset);
+            }
+            uniformOffset = setter.getUniformOffset('cc_shadowLPNNInfo', Type.FLOAT4);
+            if (setter.hasUniform(uniformOffset)) {
+                _uboVec.set(1.0, packing, spotLight.shadowNormalBias, 0.0);
+                setter.offsetVec4(_uboVec, uniformOffset);
+            }
         }
         break;
     }
     default:
     }
-    setter.setColor('cc_shadowColor', new Color(shadowInfo.shadowColor.x, shadowInfo.shadowColor.y,
-        shadowInfo.shadowColor.z, shadowInfo.shadowColor.w));
+    uniformOffset = setter.getUniformOffset('cc_shadowColor', Type.FLOAT4);
+    if (setter.hasUniform(uniformOffset)) {
+        _uboCol.copy(shadowInfo.shadowColor);
+        setter.offsetColor(_uboCol, uniformOffset);
+    }
 }
 
 function getPCFRadius (shadowInfo: Shadows, mainLight: DirectionalLight): number {
@@ -352,17 +428,17 @@ function getPCFRadius (shadowInfo: Shadows, mainLight: DirectionalLight): number
     return 0.0;
 }
 
-function setShadowUBOView (setter: WebSetter, camera: Camera, layout = 'default') {
+function setShadowUBOView (setter: WebSetter, camera: Camera | null, layout = 'default') {
     const director = cclegacy.director;
     const pipeline = director.root.pipeline;
     const device = pipeline.device;
-    const mainLight = camera.scene!.mainLight;
+    const scene = cclegacy.director.getScene().renderScene;
+    const mainLight = camera && camera.scene ? camera.scene.mainLight : scene.mainLight;
     const sceneData = pipeline.pipelineSceneData;
     const shadowInfo = sceneData.shadows;
     const csmLayers = sceneData.csmLayers;
     const csmSupported = sceneData.csmSupported;
     const packing = supportsR32FloatTexture(device) ? 0.0 : 1.0;
-    const _vec4ShadowInfo = new Vec4();
     const hasCCShadow = setter.addConstant('CCShadow', layout);
     const hasCCCSM = setter.addConstant('CCCSM', layout);
     if (mainLight && shadowInfo.enabled) {
@@ -376,18 +452,34 @@ function setShadowUBOView (setter: WebSetter, camera: Camera, layout = 'default'
                         const matShadowViewProj = csmLayers.specialLayer.matShadowViewProj;
                         const near = mainLight.shadowNear;
                         const far = mainLight.shadowFar;
-
-                        setter.setMat4('cc_matLightView', matShadowView);
-                        setter.setVec4('cc_shadowProjDepthInfo', new Vec4(matShadowProj.m10, matShadowProj.m14,
-                            matShadowProj.m11, matShadowProj.m15));
-
-                        setter.setVec4('cc_shadowProjInfo', new Vec4(matShadowProj.m00, matShadowProj.m05,
-                            1.0 / matShadowProj.m00, 1.0 / matShadowProj.m05));
-                        setter.setMat4('cc_matLightViewProj', matShadowViewProj);
-                        _vec4ShadowInfo.set(near, far, 0, 1.0 - mainLight.shadowSaturation);
-                        setter.setVec4('cc_shadowNFLSInfo', _vec4ShadowInfo);
-                        _vec4ShadowInfo.set(0.0, packing, mainLight.shadowNormalBias, 0);
-                        setter.setVec4('cc_shadowLPNNInfo', _vec4ShadowInfo);
+                        uniformOffset = setter.getUniformOffset('cc_matLightView', Type.MAT4);
+                        if (setter.hasUniform(uniformOffset)) {
+                            setter.offsetMat4(matShadowView, uniformOffset);
+                        }
+                        uniformOffset = setter.getUniformOffset('cc_shadowProjDepthInfo', Type.FLOAT4);
+                        if (setter.hasUniform(uniformOffset)) {
+                            _uboVec.set(matShadowProj.m10, matShadowProj.m14, matShadowProj.m11, matShadowProj.m15);
+                            setter.offsetVec4(_uboVec, uniformOffset);
+                        }
+                        uniformOffset = setter.getUniformOffset('cc_shadowProjInfo', Type.FLOAT4);
+                        if (setter.hasUniform(uniformOffset)) {
+                            _uboVec.set(matShadowProj.m00, matShadowProj.m05, 1.0 / matShadowProj.m00, 1.0 / matShadowProj.m05);
+                            setter.offsetVec4(_uboVec, uniformOffset);
+                        }
+                        uniformOffset = setter.getUniformOffset('cc_matLightViewProj', Type.MAT4);
+                        if (setter.hasUniform(uniformOffset)) {
+                            setter.offsetMat4(matShadowViewProj, uniformOffset);
+                        }
+                        uniformOffset = setter.getUniformOffset('cc_shadowNFLSInfo', Type.FLOAT4);
+                        if (setter.hasUniform(uniformOffset)) {
+                            _uboVec.set(near, far, 0, 1.0 - mainLight.shadowSaturation);
+                            setter.offsetVec4(_uboVec, uniformOffset);
+                        }
+                        uniformOffset = setter.getUniformOffset('cc_shadowLPNNInfo', Type.FLOAT4);
+                        if (setter.hasUniform(uniformOffset)) {
+                            _uboVec.set(0.0, packing, mainLight.shadowNormalBias, 0);
+                            setter.offsetVec4(_uboVec, uniformOffset);
+                        }
                     }
                 } else {
                     if (hasCCCSM) {
@@ -395,57 +487,92 @@ function setShadowUBOView (setter: WebSetter, camera: Camera, layout = 'default'
                         setter.setCurrConstant('CCCSM', layout);
                         for (let i = 0; i < mainLight.csmLevel; i++) {
                             const matShadowView = csmLayers.layers[i].matShadowView;
-                            _vec4ShadowInfo.set(matShadowView.m00, matShadowView.m04, matShadowView.m08, layerThreshold);
-                            setter.setVec4('cc_csmViewDir0', _vec4ShadowInfo, i);
-                            _vec4ShadowInfo.set(matShadowView.m01, matShadowView.m05, matShadowView.m09, 0.0);
-                            setter.setVec4('cc_csmViewDir1', _vec4ShadowInfo, i);
-                            _vec4ShadowInfo.set(matShadowView.m02, matShadowView.m06, matShadowView.m10, 0.0);
-                            setter.setVec4('cc_csmViewDir2', _vec4ShadowInfo, i);
-
-                            const csmAtlas = csmLayers.layers[i].csmAtlas;
-                            setter.setVec4('cc_csmAtlas', csmAtlas, i);
-
-                            setter.setFloat('cc_csmSplitsInfo', csmLayers.layers[i].splitCameraFar / mainLight.shadowDistance, i);
-                            const matShadowViewProj = csmLayers.layers[i].matShadowViewProj;
-                            setter.setMat4('cc_matCSMViewProj', matShadowViewProj, i);
-
+                            uniformOffset = setter.getUniformOffset('cc_csmViewDir0', Type.FLOAT4, i);
+                            if (setter.hasUniform(uniformOffset)) {
+                                _uboVec.set(matShadowView.m00, matShadowView.m04, matShadowView.m08, layerThreshold);
+                                setter.offsetVec4(_uboVec, uniformOffset);
+                            }
+                            uniformOffset = setter.getUniformOffset('cc_csmViewDir1', Type.FLOAT4, i);
+                            if (setter.hasUniform(uniformOffset)) {
+                                _uboVec.set(matShadowView.m01, matShadowView.m05, matShadowView.m09, 0.0);
+                                setter.offsetVec4(_uboVec, uniformOffset);
+                            }
+                            uniformOffset = setter.getUniformOffset('cc_csmViewDir2', Type.FLOAT4, i);
+                            if (setter.hasUniform(uniformOffset)) {
+                                _uboVec.set(matShadowView.m02, matShadowView.m06, matShadowView.m10, 0.0);
+                                setter.offsetVec4(_uboVec, uniformOffset);
+                            }
+                            uniformOffset = setter.getUniformOffset('cc_csmAtlas', Type.FLOAT4, i);
+                            if (setter.hasUniform(uniformOffset)) {
+                                const csmAtlas = csmLayers.layers[i].csmAtlas;
+                                setter.offsetVec4(csmAtlas, uniformOffset);
+                            }
+                            uniformOffset = setter.getUniformOffset('cc_csmSplitsInfo', Type.FLOAT, i);
+                            if (setter.hasUniform(uniformOffset)) {
+                                setter.offsetFloat(csmLayers.layers[i].splitCameraFar / mainLight.shadowDistance, uniformOffset);
+                            }
+                            uniformOffset = setter.getUniformOffset('cc_matCSMViewProj', Type.MAT4, i);
+                            if (setter.hasUniform(uniformOffset)) {
+                                const matShadowViewProj = csmLayers.layers[i].matShadowViewProj;
+                                setter.offsetMat4(matShadowViewProj, uniformOffset);
+                            }
                             const matShadowProj = csmLayers.layers[i].matShadowProj;
-                            setter.setVec4('cc_csmProjDepthInfo', new Vec4(matShadowProj.m10,
-                                matShadowProj.m14, matShadowProj.m11, matShadowProj.m15), i);
-
-                            setter.setVec4('cc_csmProjInfo', new Vec4(matShadowProj.m00,
-                                matShadowProj.m05, 1.0 / matShadowProj.m00, 1.0 / matShadowProj.m05), i);
+                            uniformOffset = setter.getUniformOffset('cc_csmProjDepthInfo', Type.FLOAT4, i);
+                            if (setter.hasUniform(uniformOffset)) {
+                                _uboVec.set(matShadowProj.m10, matShadowProj.m14, matShadowProj.m11, matShadowProj.m15);
+                                setter.offsetVec4(_uboVec, uniformOffset);
+                            }
+                            uniformOffset = setter.getUniformOffset('cc_csmProjInfo', Type.FLOAT4, i);
+                            if (setter.hasUniform(uniformOffset)) {
+                                _uboVec.set(matShadowProj.m00, matShadowProj.m05, 1.0 / matShadowProj.m00, 1.0 / matShadowProj.m05);
+                                setter.offsetVec4(_uboVec, uniformOffset);
+                            }
                         }
                     }
                     if (hasCCShadow) {
                         setter.setCurrConstant('CCShadow', layout);
-                        _vec4ShadowInfo.set(0, 0, 0, 1.0 - mainLight.shadowSaturation);
-                        setter.setVec4('cc_shadowNFLSInfo', _vec4ShadowInfo);
-                        _vec4ShadowInfo.set(0.0, packing, mainLight.shadowNormalBias, mainLight.csmLevel);
-                        setter.setVec4('cc_shadowLPNNInfo', _vec4ShadowInfo);
+                        uniformOffset = setter.getUniformOffset('cc_shadowNFLSInfo', Type.FLOAT4);
+                        if (setter.hasUniform(uniformOffset)) {
+                            _uboVec.set(0, 0, 0, 1.0 - mainLight.shadowSaturation);
+                            setter.offsetVec4(_uboVec, uniformOffset);
+                        }
+                        uniformOffset = setter.getUniformOffset('cc_shadowLPNNInfo', Type.FLOAT4);
+                        if (setter.hasUniform(uniformOffset)) {
+                            _uboVec.set(0.0, packing, mainLight.shadowNormalBias, mainLight.csmLevel);
+                            setter.offsetVec4(_uboVec, uniformOffset);
+                        }
                     }
                 }
                 if (hasCCShadow) {
                     setter.setCurrConstant('CCShadow', layout);
-                    _vec4ShadowInfo.set(shadowInfo.size.x, shadowInfo.size.y, mainLight.shadowPcf, mainLight.shadowBias);
-                    setter.setVec4('cc_shadowWHPBInfo', _vec4ShadowInfo);
+                    uniformOffset = setter.getUniformOffset('cc_shadowWHPBInfo', Type.FLOAT4);
+                    if (setter.hasUniform(uniformOffset)) {
+                        _uboVec.set(shadowInfo.size.x, shadowInfo.size.y, mainLight.shadowPcf, mainLight.shadowBias);
+                        setter.offsetVec4(_uboVec, uniformOffset);
+                    }
                 }
             }
         } else if (hasCCShadow) {
             setter.setCurrConstant('CCShadow', layout);
-            const _tempVec3 = new Vec3();
-            Vec3.normalize(_tempVec3, shadowInfo.normal);
-            setter.setVec4('cc_planarNDInfo', new Vec4(_tempVec3.x, _tempVec3.y, _tempVec3.z, -shadowInfo.distance));
+            uniformOffset = setter.getUniformOffset('cc_planarNDInfo', Type.FLOAT4);
+            if (setter.hasUniform(uniformOffset)) {
+                Vec3.normalize(_uboVec3, shadowInfo.normal);
+                _uboVec.set(_uboVec3.x, _uboVec3.y, _uboVec3.z, -shadowInfo.distance);
+                setter.offsetVec4(_uboVec, uniformOffset);
+            }
         }
         if (hasCCShadow) {
             setter.setCurrConstant('CCShadow', layout);
-            setter.setColor('cc_shadowColor', shadowInfo.shadowColor);
+            uniformOffset = setter.getUniformOffset('cc_shadowColor', Type.FLOAT4);
+            if (setter.hasUniform(uniformOffset)) {
+                setter.offsetColor(shadowInfo.shadowColor, uniformOffset);
+            }
         }
     }
 }
 
 function setCameraUBOValues (setter: WebSetter,
-    camera: Readonly<Camera>, cfg: Readonly<PipelineSceneData>,
+    camera: Readonly<Camera> | null, cfg: Readonly<PipelineSceneData>,
     scene: Readonly<RenderScene>,
     layoutName = 'default') {
     const director = cclegacy.director;
@@ -456,59 +583,139 @@ function setCameraUBOValues (setter: WebSetter,
     const shadingScale = cfg.shadingScale;
     // Camera
     if (!setter.addConstant('CCCamera', layoutName)) return;
-    setter.setMat4('cc_matView', camera.matView);
-    setter.setMat4('cc_matViewInv', camera.node.worldMatrix);
-    setter.setMat4('cc_matProj', camera.matProj);
-    setter.setMat4('cc_matProjInv', camera.matProjInv);
-    setter.setMat4('cc_matViewProj', camera.matViewProj);
-    setter.setMat4('cc_matViewProjInv', camera.matViewProjInv);
-    setter.setVec4('cc_cameraPos', new Vec4(camera.position.x, camera.position.y, camera.position.z, pipeline.getCombineSignY()));
-    setter.setVec4('cc_surfaceTransform', new Vec4(camera.surfaceTransform, 0.0, Math.cos(toRadian(skybox.getRotationAngle())), Math.sin(toRadian(skybox.getRotationAngle()))));
-    setter.setVec4('cc_screenScale', new Vec4(cfg.shadingScale, cfg.shadingScale, 1.0 / cfg.shadingScale, 1.0 / cfg.shadingScale));
-    setter.setVec4('cc_exposure', new Vec4(camera.exposure, 1.0 / camera.exposure, cfg.isHDR ? 1.0 : 0.0, 1.0 / Camera.standardExposureValue));
-
+    if (camera) {
+        uniformOffset = setter.getUniformOffset('cc_matView', Type.MAT4);
+        if (setter.hasUniform(uniformOffset)) {
+            setter.offsetMat4(camera.matView, uniformOffset);
+        }
+        uniformOffset = setter.getUniformOffset('cc_matViewInv', Type.MAT4);
+        if (setter.hasUniform(uniformOffset)) {
+            setter.offsetMat4(camera.node.worldMatrix, uniformOffset);
+        }
+        uniformOffset = setter.getUniformOffset('cc_matProj', Type.MAT4);
+        if (setter.hasUniform(uniformOffset)) {
+            setter.offsetMat4(camera.matProj, uniformOffset);
+        }
+        uniformOffset = setter.getUniformOffset('cc_matProjInv', Type.MAT4);
+        if (setter.hasUniform(uniformOffset)) {
+            setter.offsetMat4(camera.matProjInv, uniformOffset);
+        }
+        uniformOffset = setter.getUniformOffset('cc_matViewProj', Type.MAT4);
+        if (setter.hasUniform(uniformOffset)) {
+            setter.offsetMat4(camera.matViewProj, uniformOffset);
+        }
+        uniformOffset = setter.getUniformOffset('cc_matViewProjInv', Type.MAT4);
+        if (setter.hasUniform(uniformOffset)) {
+            setter.offsetMat4(camera.matViewProjInv, uniformOffset);
+        }
+        uniformOffset = setter.getUniformOffset('cc_surfaceTransform', Type.FLOAT4);
+        if (setter.hasUniform(uniformOffset)) {
+            _uboVec.set(camera.surfaceTransform, 0.0, Math.cos(toRadian(skybox.getRotationAngle())), Math.sin(toRadian(skybox.getRotationAngle())));
+            setter.offsetVec4(_uboVec, uniformOffset);
+        }
+        uniformOffset = setter.getUniformOffset('cc_exposure', Type.FLOAT4);
+        if (setter.hasUniform(uniformOffset)) {
+            _uboVec.set(camera.exposure, 1.0 / camera.exposure, cfg.isHDR ? 1.0 : 0.0, 1.0 / Camera.standardExposureValue);
+            setter.offsetVec4(_uboVec, uniformOffset);
+        }
+    }
+    uniformOffset = setter.getUniformOffset('cc_cameraPos', Type.FLOAT4);
+    if (setter.hasUniform(uniformOffset)) {
+        if (camera) { _uboVec.set(camera.position.x, camera.position.y, camera.position.z, pipeline.getCombineSignY()); } else { _uboVec.set(0, 0, 0, pipeline.getCombineSignY()); }
+        setter.offsetVec4(_uboVec, uniformOffset);
+    }
+    uniformOffset = setter.getUniformOffset('cc_screenScale', Type.FLOAT4);
+    if (setter.hasUniform(uniformOffset)) {
+        _uboVec.set(cfg.shadingScale, cfg.shadingScale, 1.0 / cfg.shadingScale, 1.0 / cfg.shadingScale);
+        setter.offsetVec4(_uboVec, uniformOffset);
+    }
     const mainLight = scene.mainLight;
     if (mainLight) {
-        const shadowEnable = (mainLight.shadowEnabled && shadowInfo.type === ShadowType.ShadowMap) ? 1.0 : 0.0;
-        setter.setVec4('cc_mainLitDir', new Vec4(mainLight.direction.x, mainLight.direction.y, mainLight.direction.z, shadowEnable));
-        let r = mainLight.color.x;
-        let g = mainLight.color.y;
-        let b = mainLight.color.z;
-        if (mainLight.useColorTemperature) {
-            r *= mainLight.colorTemperatureRGB.x;
-            g *= mainLight.colorTemperatureRGB.y;
-            b *= mainLight.colorTemperatureRGB.z;
+        uniformOffset = setter.getUniformOffset('cc_mainLitDir', Type.FLOAT4);
+        if (setter.hasUniform(uniformOffset)) {
+            const shadowEnable = (mainLight.shadowEnabled && shadowInfo.type === ShadowType.ShadowMap) ? 1.0 : 0.0;
+            _uboVec.set(mainLight.direction.x, mainLight.direction.y, mainLight.direction.z, shadowEnable);
+            setter.offsetVec4(_uboVec, uniformOffset);
         }
-        let w = mainLight.illuminance;
-        if (cfg.isHDR) {
-            w *= camera.exposure;
+        uniformOffset = setter.getUniformOffset('cc_mainLitColor', Type.FLOAT4);
+        if (setter.hasUniform(uniformOffset)) {
+            let r = mainLight.color.x;
+            let g = mainLight.color.y;
+            let b = mainLight.color.z;
+            if (mainLight.useColorTemperature) {
+                r *= mainLight.colorTemperatureRGB.x;
+                g *= mainLight.colorTemperatureRGB.y;
+                b *= mainLight.colorTemperatureRGB.z;
+            }
+            let w = mainLight.illuminance;
+            if (cfg.isHDR && camera) {
+                w *= camera.exposure;
+            }
+            _uboVec.set(r, g, b, w);
+            setter.offsetVec4(_uboVec, uniformOffset);
         }
-        setter.setVec4('cc_mainLitColor', new Vec4(r, g, b, w));
     } else {
-        setter.setVec4('cc_mainLitDir', new Vec4(0, 0, 1, 0));
-        setter.setVec4('cc_mainLitColor', new Vec4(0, 0, 0, 0));
+        uniformOffset = setter.getUniformOffset('cc_mainLitDir', Type.FLOAT4);
+        if (setter.hasUniform(uniformOffset)) {
+            _uboVec.set(0, 0, 1, 0);
+            setter.offsetVec4(_uboVec, uniformOffset);
+        }
+        uniformOffset = setter.getUniformOffset('cc_mainLitColor', Type.FLOAT4);
+        if (setter.hasUniform(uniformOffset)) {
+            _uboVec.set(0, 0, 0, 0);
+            setter.offsetVec4(_uboVec, uniformOffset);
+        }
     }
 
     const ambient = cfg.ambient;
-    const skyColor = ambient.skyColor;
-    if (cfg.isHDR) {
-        skyColor.w = ambient.skyIllum * camera.exposure;
-    } else {
-        skyColor.w = ambient.skyIllum;
+    uniformOffset = setter.getUniformOffset('cc_ambientSky', Type.FLOAT4);
+    if (setter.hasUniform(uniformOffset)) {
+        const skyColor = ambient.skyColor;
+        if (cfg.isHDR) {
+            skyColor.w = ambient.skyIllum * (camera ? camera.exposure : 1);
+        } else {
+            skyColor.w = ambient.skyIllum;
+        }
+        _uboVec.set(skyColor.x, skyColor.y, skyColor.z, skyColor.w);
+        setter.offsetVec4(_uboVec, uniformOffset);
     }
-    setter.setVec4('cc_ambientSky', new Vec4(skyColor.x, skyColor.y, skyColor.z, skyColor.w));
-    setter.setVec4('cc_ambientGround', new Vec4(ambient.groundAlbedo.x, ambient.groundAlbedo.y, ambient.groundAlbedo.z, skybox.envmap ? skybox.envmap?.mipmapLevel : 1.0));
-
+    uniformOffset = setter.getUniformOffset('cc_ambientGround', Type.FLOAT4);
+    if (setter.hasUniform(uniformOffset)) {
+        _uboVec.set(ambient.groundAlbedo.x, ambient.groundAlbedo.y, ambient.groundAlbedo.z, skybox.envmap ? skybox.envmap?.mipmapLevel : 1.0);
+        setter.offsetVec4(_uboVec, uniformOffset);
+    }
     const fog = cfg.fog;
-    const colorTempRGB = fog.colorArray;
-    setter.setVec4('cc_fogColor', new Vec4(colorTempRGB.x, colorTempRGB.y, colorTempRGB.z, colorTempRGB.z));
-    setter.setVec4('cc_fogBase', new Vec4(fog.fogStart, fog.fogEnd, fog.fogDensity, 0.0));
-    setter.setVec4('cc_fogAdd', new Vec4(fog.fogTop, fog.fogRange, fog.fogAtten, 0.0));
-    setter.setVec4('cc_nearFar', new Vec4(camera.nearClip, camera.farClip, 0.0, 0.0));
-    setter.setVec4('cc_viewPort', new Vec4(camera.viewport.x, camera.viewport.y, shadingScale * camera.window.width * camera.viewport.z, shadingScale * camera.window.height * camera.viewport.w));
+    uniformOffset = setter.getUniformOffset('cc_fogColor', Type.FLOAT4);
+    if (setter.hasUniform(uniformOffset)) {
+        const colorTempRGB = fog.colorArray;
+        _uboVec.set(colorTempRGB.x, colorTempRGB.y, colorTempRGB.z, colorTempRGB.z);
+        setter.offsetVec4(_uboVec, uniformOffset);
+    }
+    uniformOffset = setter.getUniformOffset('cc_fogBase', Type.FLOAT4);
+    if (setter.hasUniform(uniformOffset)) {
+        _uboVec.set(fog.fogStart, fog.fogEnd, fog.fogDensity, 0.0);
+        setter.offsetVec4(_uboVec, uniformOffset);
+    }
+    uniformOffset = setter.getUniformOffset('cc_fogAdd', Type.FLOAT4);
+    if (setter.hasUniform(uniformOffset)) {
+        _uboVec.set(fog.fogTop, fog.fogRange, fog.fogAtten, 0.0);
+        setter.offsetVec4(_uboVec, uniformOffset);
+    }
+    if (camera) {
+        uniformOffset = setter.getUniformOffset('cc_nearFar', Type.FLOAT4);
+        if (setter.hasUniform(uniformOffset)) {
+            _uboVec.set(camera.nearClip, camera.farClip, 0.0, 0.0);
+            setter.offsetVec4(_uboVec, uniformOffset);
+        }
+        uniformOffset = setter.getUniformOffset('cc_viewPort', Type.FLOAT4);
+        if (setter.hasUniform(uniformOffset)) {
+            _uboVec.set(camera.viewport.x, camera.viewport.y, shadingScale * camera.window.width * camera.viewport.z, shadingScale * camera.window.height * camera.viewport.w);
+            setter.offsetVec4(_uboVec, uniformOffset);
+        }
+    }
 }
 
-function setTextureUBOView (setter: WebSetter, camera: Camera, cfg: Readonly<PipelineSceneData>, layout = 'default') {
+function setTextureUBOView (setter: WebSetter, camera: Camera | null, cfg: Readonly<PipelineSceneData>, layout = 'default') {
     const skybox = cfg.skybox;
     const director = cclegacy.director;
     const root = director.root;
@@ -533,15 +740,6 @@ function setTextureUBOView (setter: WebSetter, camera: Camera, cfg: Readonly<Pip
         setter.setTexture('cc_diffuseMap', texture);
         setter.setSampler('cc_diffuseMap', sampler);
     }
-    const _samplerPointInfo = new SamplerInfo(
-        Filter.POINT,
-        Filter.POINT,
-        Filter.NONE,
-        Address.CLAMP,
-        Address.CLAMP,
-        Address.CLAMP,
-    );
-
     const pointSampler = root.device.getSampler(_samplerPointInfo);
     if (!setter.hasSampler('cc_shadowMap')) {
         setter.setSampler('cc_shadowMap', pointSampler);
@@ -575,6 +773,9 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
         this._vertID = vertID;
         this._queue = queue;
         this._pipeline = pipeline;
+    }
+    setArrayBuffer (name: string, arrayBuffer: ArrayBuffer): void {
+        throw new Error('Method not implemented.');
     }
     get name () {
         return this._renderGraph.getName(this._vertID);
@@ -618,6 +819,16 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
             RenderGraphValue.Blit, new Blit(material, passID, sceneFlags, null),
             name, '', new RenderData(), false, this._vertID,
         );
+        const layoutName = this.getLayoutName();
+        setCameraUBOValues(this, null, this._pipeline,
+            cclegacy.director.getScene().renderScene, layoutName);
+        if (sceneFlags & SceneFlags.SHADOW_CASTER) {
+            // setShadowUBOLightView(this, light.light!, light.level);
+        } else {
+            setShadowUBOView(this, null, layoutName);
+        }
+        setTextureUBOView(this, null, this._pipeline);
+        initGlobalDescBinding(this._data, layoutName);
     }
     addCameraQuad (camera: Camera, material: Material, passID: number, sceneFlags = SceneFlags.NONE) {
         this._renderGraph.addVertex<RenderGraphValue.Blit>(
@@ -647,10 +858,13 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
             'Viewport', '', new RenderData(), false, this._vertID,
         );
     }
-    private readonly _renderGraph: RenderGraph;
-    private readonly _vertID: number;
-    private readonly _queue: RenderQueue;
-    private readonly _pipeline: PipelineSceneData;
+    addCustomCommand (customBehavior: string): void {
+        throw new Error('Method not implemented.');
+    }
+    private _renderGraph: RenderGraph;
+    private _vertID: number;
+    private _queue: RenderQueue;
+    private _pipeline: PipelineSceneData;
 }
 
 export class WebRasterSubpassBuilder extends WebSetter implements RasterSubpassBuilder {
@@ -668,26 +882,48 @@ export class WebRasterSubpassBuilder extends WebSetter implements RasterSubpassB
         );
         this._layoutID = layoutGraph.locateChild(layoutGraph.nullVertex(), layoutName);
     }
+    setArrayBuffer (name: string, arrayBuffer: ArrayBuffer): void {
+        throw new Error('Method not implemented.');
+    }
     get name () {
         return this._renderGraph.getName(this._vertID);
     }
     set name (name: string) {
         this._renderGraph.setName(this._vertID, name);
     }
+    addRenderTarget (name: string, accessType: AccessType, slotName: string, loadOp = LoadOp.CLEAR, storeOp = StoreOp.STORE, clearColor = new Color()) {
+        throw new Error('Method not implemented.');
+    }
+    addDepthStencil (name: string, accessType: AccessType, slotName: string, loadOp = LoadOp.CLEAR, storeOp = StoreOp.STORE, depth = 1, stencil = 0, clearFlag = ClearFlagBit.DEPTH_STENCIL): void {
+        throw new Error('Method not implemented.');
+    }
+    addTexture (name: string, slotName: string): void {
+        throw new Error('Method not implemented.');
+    }
+    addStorageBuffer (name: string, accessType: AccessType, slotName: string): void {
+        throw new Error('Method not implemented.');
+    }
+    addStorageImage (name: string, accessType: AccessType, slotName: string): void {
+        throw new Error('Method not implemented.');
+    }
     addRasterView (name: string, view: RasterView): void {
-
+        throw new Error('Method not implemented.');
     }
     addComputeView (name: string, view: ComputeView): void {
-
+        throw new Error('Method not implemented.');
     }
     setViewport (viewport: Viewport): void {
-
+        throw new Error('Method not implemented.');
     }
-    addQueue (hint: QueueHint = QueueHint.RENDER_OPAQUE, name = 'Queue'): RasterQueueBuilder {
+    addQueue (hint: QueueHint = QueueHint.RENDER_OPAQUE, layoutName = 'default'): RasterQueueBuilder {
+        if (DEBUG) {
+            const layoutId = this._layoutGraph.locateChild(this._layoutID, layoutName);
+            assert(layoutId !== 0xFFFFFFFF);
+        }
         const queue = new RenderQueue(hint);
         const data = new RenderData();
         const queueID = this._renderGraph.addVertex<RenderGraphValue.Queue>(
-            RenderGraphValue.Queue, queue, name, '', data, false, this._vertID,
+            RenderGraphValue.Queue, queue, '', layoutName, data, false, this._vertID,
         );
         return new WebRasterQueueBuilder(data, this._renderGraph, this._layoutGraph, queueID, queue, this._pipeline);
     }
@@ -707,10 +943,11 @@ export class WebRasterSubpassBuilder extends WebSetter implements RasterSubpassB
 }
 
 export class WebRasterPassBuilder extends WebSetter implements RasterPassBuilder {
-    constructor (data: RenderData, renderGraph: RenderGraph, layoutGraph: LayoutGraphData, vertID: number, pass: RasterPass, pipeline: PipelineSceneData) {
+    constructor (data: RenderData, renderGraph: RenderGraph, layoutGraph: LayoutGraphData, resourceGraph: ResourceGraph, vertID: number, pass: RasterPass, pipeline: PipelineSceneData) {
         super(data, layoutGraph);
         this._renderGraph = renderGraph;
         this._layoutGraph = layoutGraph;
+        this._resourceGraph = resourceGraph;
         this._vertID = vertID;
         this._pass = pass;
         this._pipeline = pipeline;
@@ -719,6 +956,26 @@ export class WebRasterPassBuilder extends WebSetter implements RasterPassBuilder
             RenderGraphComponent.Layout, this._vertID,
         );
         this._layoutID = layoutGraph.locateChild(layoutGraph.nullVertex(), layoutName);
+    }
+    addRasterView (name: string, view: RasterView) {
+        this._pass.rasterViews.set(name, view);
+    }
+    addComputeView (name: string, view: ComputeView) {
+        if (DEBUG) {
+            assert(view.name);
+            assert(name && this._resourceGraph.contains(name));
+            const descriptorName = view.name;
+            const descriptorID = this._layoutGraph.attributeIndex.get(descriptorName);
+            assert(descriptorID !== undefined);
+        }
+        if (this._pass.computeViews.has(name)) {
+            this._pass.computeViews.get(name)?.push(view);
+        } else {
+            this._pass.computeViews.set(name, [view]);
+        }
+    }
+    setArrayBuffer (name: string, arrayBuffer: ArrayBuffer): void {
+        throw new Error('Method not implemented.');
     }
     setVersion (name: string, version: number): void {
         this._pass.versionName = name;
@@ -730,15 +987,58 @@ export class WebRasterPassBuilder extends WebSetter implements RasterPassBuilder
     set name (name: string) {
         this._renderGraph.setName(this._vertID, name);
     }
-    addRasterView (name: string, view: RasterView) {
+    addRenderTarget (name: string, slotName: string, loadOp = LoadOp.CLEAR, storeOp = StoreOp.STORE, clearColor = new Color()) {
+        if (DEBUG) {
+            assert(name && this._resourceGraph.contains(name));
+        }
+        let clearFlag = ClearFlagBit.COLOR;
+        if (loadOp === LoadOp.LOAD) {
+            clearFlag = ClearFlagBit.NONE;
+        }
+        const view = new RasterView(slotName,
+            AccessType.WRITE, AttachmentType.RENDER_TARGET,
+            loadOp,
+            storeOp,
+            clearFlag,
+            clearColor);
         this._pass.rasterViews.set(name, view);
     }
-    addComputeView (name: string, view: ComputeView) {
+    addDepthStencil (name: string, slotName: string, loadOp = LoadOp.CLEAR, storeOp = StoreOp.STORE, depth = 1, stencil = 0, clearFlag = ClearFlagBit.DEPTH_STENCIL): void {
+        if (DEBUG) {
+            assert(name && this._resourceGraph.contains(name));
+        }
+        const view = new RasterView(slotName,
+            AccessType.WRITE, AttachmentType.DEPTH_STENCIL,
+            loadOp,
+            storeOp,
+            clearFlag,
+            new Color(depth, stencil, 0, 0));
+        this._pass.rasterViews.set(name, view);
+    }
+    private _addComputeResource (name: string, accessType: AccessType, slotName: string) {
+        const view = new ComputeView(slotName);
+        view.accessType = accessType;
+        if (DEBUG) {
+            assert(view.name);
+            assert(name && this._resourceGraph.contains(name));
+            const descriptorName = view.name;
+            const descriptorID = this._layoutGraph.attributeIndex.get(descriptorName);
+            assert(descriptorID !== undefined);
+        }
         if (this._pass.computeViews.has(name)) {
             this._pass.computeViews.get(name)?.push(view);
         } else {
             this._pass.computeViews.set(name, [view]);
         }
+    }
+    addTexture (name: string, slotName: string): void {
+        this._addComputeResource(name, AccessType.READ, slotName);
+    }
+    addStorageBuffer (name: string, accessType: AccessType, slotName: string): void {
+        this._addComputeResource(name, accessType, slotName);
+    }
+    addStorageImage (name: string, accessType: AccessType, slotName: string): void {
+        this._addComputeResource(name, accessType, slotName);
     }
     addRasterSubpass (layoutName = ''): RasterSubpassBuilder {
         const name = 'Raster';
@@ -755,11 +1055,15 @@ export class WebRasterPassBuilder extends WebSetter implements RasterPassBuilder
     addComputeSubpass (layoutName = ''): ComputeSubpassBuilder {
         throw new Error('Method not implemented.');
     }
-    addQueue (hint: QueueHint = QueueHint.RENDER_OPAQUE, name = 'Queue') {
+    addQueue (hint: QueueHint = QueueHint.RENDER_OPAQUE, layoutName = 'default') {
+        if (DEBUG) {
+            const layoutId = this._layoutGraph.locateChild(this._layoutID, layoutName);
+            assert(layoutId !== 0xFFFFFFFF);
+        }
         const queue = new RenderQueue(hint);
         const data = new RenderData();
         const queueID = this._renderGraph.addVertex<RenderGraphValue.Queue>(
-            RenderGraphValue.Queue, queue, name, '', data, false, this._vertID,
+            RenderGraphValue.Queue, queue, '', layoutName, data, false, this._vertID,
         );
         return new WebRasterQueueBuilder(data, this._renderGraph, this._layoutGraph, queueID, queue, this._pipeline);
     }
@@ -803,6 +1107,7 @@ export class WebRasterPassBuilder extends WebSetter implements RasterPassBuilder
     private readonly _pass: RasterPass;
     private readonly _pipeline: PipelineSceneData;
     private readonly _layoutGraph: LayoutGraphData;
+    private readonly _resourceGraph: ResourceGraph;
 }
 
 export class WebComputeQueueBuilder extends WebSetter implements ComputeQueueBuilder {
@@ -812,6 +1117,9 @@ export class WebComputeQueueBuilder extends WebSetter implements ComputeQueueBui
         this._vertID = vertID;
         this._queue = queue;
         this._pipeline = pipeline;
+    }
+    setArrayBuffer (name: string, arrayBuffer: ArrayBuffer): void {
+        throw new Error('Method not implemented.');
     }
     get name () {
         return this._renderGraph.getName(this._vertID);
@@ -840,10 +1148,11 @@ export class WebComputeQueueBuilder extends WebSetter implements ComputeQueueBui
 }
 
 export class WebComputePassBuilder extends WebSetter implements ComputePassBuilder {
-    constructor (data: RenderData, renderGraph: RenderGraph, layoutGraph: LayoutGraphData, vertID: number, pass: ComputePass, pipeline: PipelineSceneData) {
+    constructor (data: RenderData, renderGraph: RenderGraph, layoutGraph: LayoutGraphData, resourceGraph: ResourceGraph, vertID: number, pass: ComputePass, pipeline: PipelineSceneData) {
         super(data, layoutGraph);
         this._renderGraph = renderGraph;
         this._layoutGraph = layoutGraph;
+        this._resourceGraph = resourceGraph;
         this._vertID = vertID;
         this._pass = pass;
         this._pipeline = pipeline;
@@ -853,29 +1162,49 @@ export class WebComputePassBuilder extends WebSetter implements ComputePassBuild
         );
         this._layoutID = layoutGraph.locateChild(layoutGraph.nullVertex(), layoutName);
     }
+    setArrayBuffer (name: string, arrayBuffer: ArrayBuffer): void {
+        throw new Error('Method not implemented.');
+    }
     get name () {
         return this._renderGraph.getName(this._vertID);
     }
     set name (name: string) {
         this._renderGraph.setName(this._vertID, name);
     }
+    addTexture (name: string, slotName: string): void {
+        throw new Error('Method not implemented.');
+    }
+    addStorageBuffer (name: string, accessType: AccessType, slotName: string): void {
+        throw new Error('Method not implemented.');
+    }
+    addStorageImage (name: string, accessType: AccessType, slotName: string): void {
+        throw new Error('Method not implemented.');
+    }
     addComputeView (name: string, view: ComputeView) {
+        if (DEBUG) {
+            assert(name && this._resourceGraph.contains(name));
+        }
         if (this._pass.computeViews.has(name)) {
             this._pass.computeViews.get(name)?.push(view);
         } else {
             this._pass.computeViews.set(name, [view]);
         }
     }
-    addQueue (name = 'Queue') {
+    addQueue (layoutName = 'default') {
+        if (DEBUG) {
+            const layoutId = this._layoutGraph.locateChild(this._layoutID, layoutName);
+            assert(layoutId !== 0xFFFFFFFF);
+        }
         const queue = new RenderQueue();
         const data = new RenderData();
         const queueID = this._renderGraph.addVertex<RenderGraphValue.Queue>(
-            RenderGraphValue.Queue, queue, name, '', data, false, this._vertID,
+            RenderGraphValue.Queue, queue, '', layoutName, data, false, this._vertID,
         );
         return new WebComputeQueueBuilder(data, this._renderGraph, this._layoutGraph, queueID, queue, this._pipeline);
     }
     private readonly _renderGraph: RenderGraph;
     private readonly _layoutGraph: LayoutGraphData;
+    private readonly _resourceGraph: ResourceGraph;
     private readonly _vertID: number;
     private readonly _layoutID: number;
     private readonly _pass: ComputePass;
@@ -887,6 +1216,9 @@ export class WebMovePassBuilder implements MovePassBuilder {
         this._renderGraph = renderGraph;
         this._vertID = vertID;
         this._pass = pass;
+    }
+    setCustomBehavior (name: string): void {
+        throw new Error('Method not implemented.');
     }
     get name () {
         return this._renderGraph.getName(this._vertID);
@@ -907,6 +1239,9 @@ export class WebCopyPassBuilder implements CopyPassBuilder {
         this._renderGraph = renderGraph;
         this._vertID = vertID;
         this._pass = pass;
+    }
+    setCustomBehavior (name: string): void {
+        throw new Error('Method not implemented.');
     }
     get name () {
         return this._renderGraph.getName(this._vertID);
@@ -930,6 +1265,41 @@ function isManaged (residency: ResourceResidency): boolean {
 export class WebPipeline implements Pipeline {
     constructor (layoutGraph: LayoutGraphData) {
         this._layoutGraph = layoutGraph;
+    }
+    addRenderTexture (name: string, format: Format, width: number, height: number, renderWindow: RenderWindow): number {
+        return this.addRenderWindow(name, format, width, height, renderWindow);
+    }
+    addRenderWindow (name: string, format: Format, width: number, height: number, renderWindow: RenderWindow): number {
+        const desc = new ResourceDesc();
+        desc.dimension = ResourceDimension.TEXTURE2D;
+        desc.width = width;
+        desc.height = height;
+        desc.depthOrArraySize = 1;
+        desc.mipLevels = 1;
+        desc.format = format;
+        desc.flags = ResourceFlags.COLOR_ATTACHMENT;
+
+        if (renderWindow.swapchain === null) {
+            assert(renderWindow.framebuffer.colorTextures.length === 1
+                && renderWindow.framebuffer.colorTextures[0] !== null);
+            return this._resourceGraph.addVertex<ResourceGraphValue.Framebuffer>(
+                ResourceGraphValue.Framebuffer,
+                renderWindow.framebuffer,
+                name, desc,
+                new ResourceTraits(ResourceResidency.EXTERNAL),
+                new ResourceStates(),
+                new SamplerInfo(),
+            );
+        } else {
+            return this._resourceGraph.addVertex<ResourceGraphValue.Swapchain>(
+                ResourceGraphValue.Swapchain,
+                new RenderSwapchain(renderWindow.swapchain),
+                name, desc,
+                new ResourceTraits(ResourceResidency.BACKBUFFER),
+                new ResourceStates(),
+                new SamplerInfo(),
+            );
+        }
     }
     updateRenderWindow (name: string, renderWindow: RenderWindow): void {
         const resId = this.resourceGraph.vertex(name);
@@ -1159,6 +1529,13 @@ export class WebPipeline implements Pipeline {
         }
         return value as boolean;
     }
+    public getSamplerInfo (name: string): SamplerInfo | null {
+        if (this.containsResource(name)) {
+            const verId = this._resourceGraph.vertex(name);
+            return this._resourceGraph.getSampler(verId);
+        }
+        return null;
+    }
     public setMacroString (name: string, value: string): void {
         this._macros[name] = value;
     }
@@ -1173,42 +1550,9 @@ export class WebPipeline implements Pipeline {
     }
     beginSetup (): void {
         if (!this._renderGraph) this._renderGraph = new RenderGraph();
-        // this.renderGraph!.clear();
     }
     endSetup (): void {
         this.compile();
-    }
-    addRenderTexture (name: string, format: Format, width: number, height: number, renderWindow: RenderWindow) {
-        const desc = new ResourceDesc();
-        desc.dimension = ResourceDimension.TEXTURE2D;
-        desc.width = width;
-        desc.height = height;
-        desc.depthOrArraySize = 1;
-        desc.mipLevels = 1;
-        desc.format = format;
-        desc.flags = ResourceFlags.COLOR_ATTACHMENT;
-
-        if (renderWindow.swapchain === null) {
-            assert(renderWindow.framebuffer.colorTextures.length === 1
-                && renderWindow.framebuffer.colorTextures[0] !== null);
-            return this._resourceGraph.addVertex<ResourceGraphValue.Framebuffer>(
-                ResourceGraphValue.Framebuffer,
-                renderWindow.framebuffer,
-                name, desc,
-                new ResourceTraits(ResourceResidency.EXTERNAL),
-                new ResourceStates(),
-                new SamplerInfo(),
-            );
-        } else {
-            return this._resourceGraph.addVertex<ResourceGraphValue.Swapchain>(
-                ResourceGraphValue.Swapchain,
-                new RenderSwapchain(renderWindow.swapchain),
-                name, desc,
-                new ResourceTraits(ResourceResidency.BACKBUFFER),
-                new ResourceStates(),
-                new SamplerInfo(),
-            );
-        }
     }
     addStorageBuffer (name: string, format: Format, size: number, residency = ResourceResidency.MANAGED): number {
         const desc = new ResourceDesc();
@@ -1366,6 +1710,13 @@ export class WebPipeline implements Pipeline {
     }
 
     addRasterPass (width: number, height: number, layoutName = 'default'): RasterPassBuilder {
+        if (DEBUG) {
+            const stageId = this.layoutGraph.locateChild(this.layoutGraph.nullVertex(), layoutName);
+            assert(stageId !== 0xFFFFFFFF);
+            const layout = this.layoutGraph.getLayout(stageId);
+            assert(layout);
+            assert(layout.descriptorSets.get(UpdateFrequency.PER_PASS));
+        }
         const name = 'Raster';
         const pass = new RasterPass();
         pass.viewport.width = width;
@@ -1375,7 +1726,7 @@ export class WebPipeline implements Pipeline {
         const vertID = this._renderGraph!.addVertex<RenderGraphValue.RasterPass>(
             RenderGraphValue.RasterPass, pass, name, layoutName, data, false,
         );
-        const result = new WebRasterPassBuilder(data, this._renderGraph!, this._layoutGraph, vertID, pass, this._pipelineSceneData);
+        const result = new WebRasterPassBuilder(data, this._renderGraph!, this._layoutGraph, this._resourceGraph, vertID, pass, this._pipelineSceneData);
         this._updateRasterPassConstants(result, width, height, isEnableEffect() ? layoutName : 'default');
         initGlobalDescBinding(data, layoutName);
         return result;
@@ -1406,23 +1757,39 @@ export class WebPipeline implements Pipeline {
         const layoutGraph = pipeline.layoutGraph;
         // Global
         if (!setter.addConstant('CCGlobal', layoutName)) return;
-        setter.setVec4('cc_time', new Vec4(root.cumulativeTime, root.frameTime, director.getTotalFrames()));
-        setter.setVec4('cc_screenSize', new Vec4(shadingWidth, shadingHeight, 1.0 / shadingWidth, 1.0 / shadingHeight));
-        setter.setVec4('cc_nativeSize', new Vec4(shadingWidth, shadingHeight, 1.0 / shadingWidth, 1.0 / shadingHeight));
+        uniformOffset = setter.getUniformOffset('cc_time', Type.FLOAT4);
+        if (setter.hasUniform(uniformOffset)) {
+            _uboVec.set(root.cumulativeTime, root.frameTime, director.getTotalFrames());
+            setter.offsetVec4(_uboVec, uniformOffset);
+        }
+        uniformOffset = setter.getUniformOffset('cc_screenSize', Type.FLOAT4);
+        if (setter.hasUniform(uniformOffset)) {
+            _uboVec.set(shadingWidth, shadingHeight, 1.0 / shadingWidth, 1.0 / shadingHeight);
+            setter.offsetVec4(_uboVec, uniformOffset);
+        }
+        uniformOffset = setter.getUniformOffset('cc_nativeSize', Type.FLOAT4);
+        if (setter.hasUniform(uniformOffset)) {
+            _uboVec.set(shadingWidth, shadingHeight, 1.0 / shadingWidth, 1.0 / shadingHeight);
+            setter.offsetVec4(_uboVec, uniformOffset);
+        }
         const debugView = root.debugView;
+        uniformOffset = setter.getUniformOffset('cc_debug_view_mode', Type.FLOAT4);
         if (debugView) {
-            const debugPackVec: number[] = [debugView.singleMode as number, 0.0, 0.0, 0.0];
-            for (let i = DebugViewCompositeType.DIRECT_DIFFUSE as number; i < DebugViewCompositeType.MAX_BIT_COUNT; i++) {
-                const idx = i >> 3;
-                const bit = i % 8;
-                debugPackVec[idx + 1] += (debugView.isCompositeModeEnabled(i) ? 1.0 : 0.0) * (10.0 ** bit);
+            if (setter.hasUniform(uniformOffset)) {
+                const debugPackVec: number[] = [debugView.singleMode as number, 0.0, 0.0, 0.0];
+                for (let i = DebugViewCompositeType.DIRECT_DIFFUSE as number; i < DebugViewCompositeType.MAX_BIT_COUNT; i++) {
+                    const idx = i >> 3;
+                    const bit = i % 8;
+                    debugPackVec[idx + 1] += (debugView.isCompositeModeEnabled(i) ? 1.0 : 0.0) * (10.0 ** bit);
+                }
+                debugPackVec[3] += (debugView.lightingWithAlbedo ? 1.0 : 0.0) * (10.0 ** 6.0);
+                debugPackVec[3] += (debugView.csmLayerColoration ? 1.0 : 0.0) * (10.0 ** 7.0);
+                _uboVec.set(debugPackVec[0], debugPackVec[1], debugPackVec[2], debugPackVec[3]);
+                setter.offsetVec4(_uboVec, uniformOffset);
             }
-            debugPackVec[3] += (debugView.lightingWithAlbedo ? 1.0 : 0.0) * (10.0 ** 6.0);
-            debugPackVec[3] += (debugView.csmLayerColoration ? 1.0 : 0.0) * (10.0 ** 7.0);
-
-            setter.setVec4('cc_debug_view_mode', new Vec4(debugPackVec[0], debugPackVec[1], debugPackVec[2], debugPackVec[3]));
-        } else {
-            setter.setVec4('cc_debug_view_mode', new Vec4(0.0, 0.0, 0.0, 0.0));
+        } else if (setter.hasUniform(uniformOffset)) {
+            _uboVec.set(0.0, 0.0, 0.0, 0.0);
+            setter.offsetVec4(_uboVec, uniformOffset);
         }
     }
 

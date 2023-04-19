@@ -29,6 +29,7 @@
 #include <unordered_map>
 #include "cocos/renderer/pipeline/custom/details/Pmr.h"
 #include "cocos/renderer/pipeline/custom/details/Utility.h"
+#include "cocos/base/std/container/unordered_map.h"
 
 // for std::less<> the transparent comparator
 // see https://stackoverflow.com/questions/20317413/what-are-transparent-comparators
@@ -77,14 +78,10 @@ using PmrFlatMultiMap = boost::container::pmr::flat_multimap<Key, Value, std::le
 
 // unordered_map
 template <class Key, class Value>
-using PmrUnorderedMap = std::unordered_map<
-    Key, Value, std::hash<Key>, std::equal_to<Key>,
-    boost::container::pmr::polymorphic_allocator<std::pair<const Key, Value>>>;
+using PmrUnorderedMap = ccstd::pmr::unordered_map<Key, Value>;
 
 template <class Key, class Value>
-using PmrUnorderedMultiMap = std::unordered_multimap<
-    Key, Value, std::hash<Key>, std::equal_to<Key>,
-    boost::container::pmr::polymorphic_allocator<std::pair<const Key, Value>>>;
+using PmrUnorderedMultiMap = ccstd::pmr::unordered_multimap<Key, Value>;
 
 // transparent string unordered_map
 template <class Key, class Value>
@@ -110,3 +107,18 @@ using PmrUnorderedStringMultiMap = std::unordered_multimap<
     boost::container::pmr::polymorphic_allocator<std::pair<const Key, Value>>>;
 
 } // namespace cc
+
+namespace ccstd {
+
+template <class Key, class T, class Compare, class AllocatorOrContainer>
+struct hash<boost::container::flat_map<Key, T, Compare, AllocatorOrContainer>> {
+    hash_t operator()(const boost::container::flat_map<Key, T, Compare, AllocatorOrContainer> &val) const noexcept {
+        hash_t seed = 0;
+        for (const auto& pair : val) {
+            hash_combine(seed, pair);
+        }
+        return seed;
+    }
+};
+
+} // namespace ccstd

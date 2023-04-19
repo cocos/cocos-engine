@@ -81,7 +81,8 @@ NativePipeline::NativePipeline(const allocator_type &alloc) noexcept
   nativeContext(std::make_unique<gfx::DefaultResource>(device), alloc),
   resourceGraph(alloc),
   renderGraph(alloc),
-  name(alloc) {
+  name(alloc),
+  custom(alloc) {
     programLibrary->setPipeline(this);
 }
 
@@ -100,8 +101,13 @@ bool NativePipeline::containsResource(const ccstd::string &name) const {
     return contains(name.c_str(), resourceGraph);
 }
 
-// NOLINTNEXTLINE
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 uint32_t NativePipeline::addRenderTexture(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow *renderWindow) {
+    return addRenderWindow(name, format, width, height, renderWindow);
+}
+
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
+uint32_t NativePipeline::addRenderWindow(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow *renderWindow) {
     ResourceDesc desc{};
     desc.dimension = ResourceDimension::TEXTURE2D;
     desc.width = width;
@@ -478,7 +484,7 @@ ComputePassBuilder *NativePipeline::addComputePass(const ccstd::string &layoutNa
 
     auto passLayoutID = locate(LayoutGraphData::null_vertex(), layoutName, programLibrary->layoutGraph);
 
-    return ccnew NativeComputePassBuilder(&renderGraph, passID, &programLibrary->layoutGraph, passLayoutID);
+    return ccnew NativeComputePassBuilder(this, &renderGraph, passID, &programLibrary->layoutGraph, passLayoutID);
 }
 
 // NOLINTNEXTLINE
@@ -493,7 +499,7 @@ MovePassBuilder *NativePipeline::addMovePass() {
         std::forward_as_tuple(),
         renderGraph);
 
-    return ccnew NativeMovePassBuilder(&renderGraph, passID);
+    return ccnew NativeMovePassBuilder(this, &renderGraph, passID);
 }
 
 // NOLINTNEXTLINE
@@ -508,7 +514,7 @@ CopyPassBuilder *NativePipeline::addCopyPass() {
         std::forward_as_tuple(),
         renderGraph);
 
-    return ccnew NativeCopyPassBuilder(&renderGraph, passID);
+    return ccnew NativeCopyPassBuilder(this, &renderGraph, passID);
 }
 
 // NOLINTNEXTLINE
@@ -801,6 +807,41 @@ void NativePipeline::resetRenderQueue(bool reset) {
 
 bool NativePipeline::isRenderQueueReset() const {
     return true;
+}
+
+void NativePipeline::addCustomContext(std::string_view name, std::shared_ptr<CustomPipelineContext> ptr) {
+    custom.contexts.emplace(name, std::move(ptr));
+}
+
+void NativePipeline::addCustomRenderPass(std::string_view name, std::shared_ptr<CustomRenderPass> ptr) {
+    custom.renderPasses.emplace(name, std::move(ptr));
+}
+
+void NativePipeline::addCustomRenderSubpass(std::string_view name, std::shared_ptr<CustomRenderSubpass> ptr) {
+    custom.renderSubpasses.emplace(name, std::move(ptr));
+}
+
+void NativePipeline::addCustomComputeSubpass(std::string_view name, std::shared_ptr<CustomComputeSubpass> ptr) {
+    custom.computeSubpasses.emplace(name, std::move(ptr));
+}
+
+void NativePipeline::addCustomComputePass(std::string_view name, std::shared_ptr<CustomComputePass> ptr) {
+    custom.computePasses.emplace(name, std::move(ptr));
+}
+
+void NativePipeline::addCustomRenderQueue(std::string_view name, std::shared_ptr<CustomRenderQueue> ptr) {
+    custom.renderQueues.emplace(name, std::move(ptr));
+}
+
+void NativePipeline::addCustomRenderCommand(std::string_view name, std::shared_ptr<CustomRenderCommand> ptr) {
+    custom.renderCommands.emplace(name, std::move(ptr));
+}
+
+void NativePipeline::setCustomContext(std::string_view name) {
+    auto iter = custom.contexts.find(name);
+    if (iter != custom.contexts.end()) {
+        custom.currentContext = iter->second;
+    }
 }
 
 } // namespace render

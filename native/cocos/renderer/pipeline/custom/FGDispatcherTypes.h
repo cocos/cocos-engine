@@ -47,7 +47,8 @@ namespace cc {
 
 namespace render {
 
-struct NullTag {};
+struct NullTag {
+};
 
 struct ResourceLifeRecord {
     uint32_t start{0};

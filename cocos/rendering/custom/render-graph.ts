@@ -1081,7 +1081,7 @@ export class RaytracePass {
 }
 
 export class ClearView {
-    constructor (slotName = '', clearFlags: ClearFlagBit = gfx.ClearFlagBit.ALL, clearColor: Color = new Color()) {
+    constructor (slotName = '', clearFlags: ClearFlagBit = ClearFlagBit.ALL, clearColor: Color = new Color()) {
         this.slotName = slotName;
         this.clearFlags = clearFlags;
         this.clearColor = clearColor;
@@ -1152,6 +1152,7 @@ export class RenderData {
     readonly buffers: Map<number, Buffer> = new Map<number, Buffer>();
     readonly textures: Map<number, Texture> = new Map<number, Texture>();
     readonly samplers: Map<number, Sampler> = new Map<number, Sampler>();
+    custom = '';
 }
 
 //=================================================================
