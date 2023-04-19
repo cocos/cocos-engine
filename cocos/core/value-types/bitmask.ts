@@ -107,16 +107,35 @@ BitMask.getList = (BitMaskDef) => {
         return BitMaskDef.__bitmask__;
     }
 
-    const bitlist: any[] = BitMaskDef.__bitmask__ = [];
+    return BitMask.update(BitMaskDef);
+};
+
+/**
+ * @en
+ * Update BitMask object properties.
+ * @zh
+ * 更新 BitMask 对象的属性列表。
+ *
+ * @param BitMaskDef
+ * @returns @en A sorted array with integer values. @zh 存储整型属性值的数组。该数组已排序。
+ */
+BitMask.update = (BitMaskDef) => {
+    if (!Array.isArray(BitMaskDef.__bitmask__)) {
+        BitMaskDef.__bitmask__ = [];
+    }
+
+    const bitList = BitMaskDef.__bitmask__;
+    bitList.length = 0;
 
     for (const name in BitMaskDef) {
         const v = BitMaskDef[name];
         if (Number.isInteger(v)) {
-            bitlist.push({ name, value: v });
+            bitList.push({ name, value: v });
         }
     }
-    bitlist.sort((a, b) => a.value - b.value);
-    return bitlist;
+    bitList.sort((a, b) => a.value - b.value);
+
+    return bitList;
 };
 
 /**
