@@ -553,7 +553,6 @@ const Elements = {
                     return;
                 }
 
-                Editor.Message.send('scene', 'snapshot');
 
                 const role = button.getAttribute('role');
 
@@ -561,8 +560,18 @@ const Elements = {
                     const prefab = dump.__prefab__;
 
                     switch (role) {
+                        case 'edit': {
+                            const assetId = prefab.prefabStateInfo?.assetUuid;
+                            if (!assetId) {
+                                return;
+                            }
+                            Editor.Message.request('asset-db', 'open-asset', assetId);
+                            break;
+                        }
                         case 'unlink': {
+                            Editor.Message.send('scene', 'snapshot');
                             await Editor.Message.request('scene', 'unlink-prefab', prefab.rootUuid, false);
+                            Editor.Message.send('scene', 'snapshot');
                             break;
                         }
                         case 'local': {
@@ -570,25 +579,19 @@ const Elements = {
                             break;
                         }
                         case 'reset': {
+                            Editor.Message.send('scene', 'snapshot');
                             await Editor.Message.request('scene', 'restore-prefab', prefab.rootUuid, prefab.uuid);
+                            Editor.Message.send('scene', 'snapshot');
                             break;
                         }
                         case 'save': {
+                            Editor.Message.send('scene', 'snapshot');
                             await Editor.Message.request('scene', 'apply-prefab', prefab.rootUuid);
+                            Editor.Message.send('scene', 'snapshot');
                             break;
                         }
                     }
                 }
-
-                Editor.Message.send('scene', 'snapshot');
-            });
-
-            panel.$.prefabEdit.addEventListener('click', () => {
-                const assetId = panel.dump?.__prefab__?.prefabStateInfo?.assetUuid;
-                if (!assetId) {
-                    return;
-                }
-                Editor.Message.request('asset-db', 'open-asset', assetId);
             });
         },
         async update() {
