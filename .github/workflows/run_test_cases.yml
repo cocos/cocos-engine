@@ -120,7 +120,6 @@ jobs:
           rm -rf $TEST_PROJECTS_EXTERNAL/extensions/automation-framework
           7z x -y $CCTEST_PLUGINS/*.zip -o $TEST_PROJECTS_EXTERNAL/extensions/automation-framework
 
-
   macOS-RunTestCases:
     if: |
       contains(github.event.pull_request.body, '[X] needs automatic test cases check') ||
