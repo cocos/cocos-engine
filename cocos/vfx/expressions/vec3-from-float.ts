@@ -1,11 +1,9 @@
-import { RealCurve, Vec3 } from '../../core';
+import { Vec3 } from '../../core';
 import { ccclass, serializable, type } from '../../core/data/decorators';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
-import { BuiltinParticleParameterFlags, ParticleDataSet } from '../particle-data-set';
-import { ModuleExecStage } from '../particle-module';
+import { ParticleDataSet } from '../particle-data-set';
 import { RandomStream } from '../random-stream';
-import { ConstantExpression } from './constant';
-import { ConstantVec3Expression } from './constant-vec3';
+import { ConstantFloatExpression } from './constant-float';
 import { FloatExpression } from './float';
 import { Vec3Expression } from './vec3';
 
@@ -15,7 +13,7 @@ const ratio = new Vec3();
 export class Vec3FromFloatExpression extends Vec3Expression {
     @type(FloatExpression)
     @serializable
-    public value: FloatExpression = new ConstantExpression();
+    public value: FloatExpression = new ConstantFloatExpression();
 
     public get isConstant (): boolean {
         return this.value.isConstant;

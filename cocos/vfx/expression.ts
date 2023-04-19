@@ -26,8 +26,15 @@ import { ccclass } from '../core/data/decorators';
 import { ParticleEmitterParams, ParticleExecContext } from './particle-base';
 import { ParticleDataSet } from './particle-data-set';
 
+export enum ExpressionType {
+    VEC3,
+    COLOR,
+    FLOAT,
+}
+
 @ccclass('cc.Expression')
 export abstract class Expression {
+    public abstract get type (): ExpressionType;
     public abstract get isConstant (): boolean;
     public abstract tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext);
     public abstract bind (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext, randomOffset: number);

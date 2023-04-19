@@ -1,10 +1,8 @@
-import { Enum, RealCurve, Vec3 } from '../../core';
+import { Enum, Vec3 } from '../../core';
 import { ccclass, serializable, type } from '../../core/data/decorators';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { ParticleDataSet } from '../particle-data-set';
-import { ModuleExecStage } from '../particle-module';
 import { RandomStream } from '../random-stream';
-import { ConstantExpression } from './constant';
 import { ConstantVec3Expression } from './constant-vec3';
 import { FloatExpression } from './float';
 import { Vec3Expression } from './vec3';

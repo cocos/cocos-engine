@@ -3,7 +3,7 @@ import { ccclass, type } from '../../core/data/class-decorator';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { ParticleDataSet } from '../particle-data-set';
 import { RandomStream } from '../random-stream';
-import { ConstantExpression } from './constant';
+import { ConstantFloatExpression } from './constant-float';
 import { FloatExpression } from './float';
 import { Vec3Expression } from './vec3';
 
@@ -11,15 +11,15 @@ import { Vec3Expression } from './vec3';
 export class MakeVec3Expression extends Vec3Expression {
     @type(FloatExpression)
     @serializable
-    public x: FloatExpression = new ConstantExpression();
+    public x: FloatExpression = new ConstantFloatExpression();
 
     @type(CCFloat)
     @serializable
-    public y: FloatExpression = new ConstantExpression();
+    public y: FloatExpression = new ConstantFloatExpression();
 
     @type(CCFloat)
     @serializable
-    public z: FloatExpression = new ConstantExpression();
+    public z: FloatExpression = new ConstantFloatExpression();
 
     public get isConstant (): boolean {
         return this.x.isConstant && this.y.isConstant && this.z.isConstant;

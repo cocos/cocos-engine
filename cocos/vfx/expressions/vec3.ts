@@ -24,7 +24,7 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { Expression } from '../expression';
+import { Expression, ExpressionType } from '../expression';
 import { ParticleExecContext } from '../particle-base';
 import { RandomStream } from '../random-stream';
 import { Vec3 } from '../../core';
@@ -32,7 +32,7 @@ import { Vec3 } from '../../core';
 @ccclass('cc.Vec3Expression')
 export abstract class Vec3Expression extends Expression {
     public get type () {
-        return 'Vec3';
+        return ExpressionType.VEC3;
     }
     public abstract evaluateSingle (time: number, randomStream: RandomStream, context: ParticleExecContext, out: Vec3): Vec3;
     public abstract evaluate (index: number, out: Vec3): Vec3;

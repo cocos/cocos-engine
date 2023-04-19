@@ -75,10 +75,7 @@ export class ParticleParameterIdentity {
 }
 
 export abstract class ParticleParameter {
-    get isArray () {
-        return false;
-    }
-
+    abstract get isArray (): boolean;
     abstract get type (): ParticleParameterType;
 }
 
@@ -91,10 +88,12 @@ export abstract class ParticleArrayParameter extends ParticleParameter {
         return true;
     }
 
+    abstract get data (): ArrayBufferView;
     abstract get stride (): number;
     protected _capacity = DEFAULT_CAPACITY;
     abstract reserve (capacity: number);
     abstract move (a: ParticleHandle, b: ParticleHandle);
+    abstract copyFrom (src: ParticleArrayParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle);
     abstract copyToTypedArray (dest: ArrayBufferView, destOffset: number, stride: number, strideOffset: number, fromIndex: ParticleHandle, toIndex: ParticleHandle);
 }
 
@@ -707,6 +706,10 @@ export class ParticleUint32ArrayParameter extends ParticleArrayParameter {
 }
 
 export class ParticleUint8ArrayParameter extends ParticleArrayParameter {
+    get data () {
+        return this._data;
+    }
+
     get stride (): number {
         return 1;
     }
@@ -715,16 +718,62 @@ export class ParticleUint8ArrayParameter extends ParticleArrayParameter {
         return ParticleParameterType.UINT8;
     }
 
+    private _data = new Uint8Array(this._capacity);
+
     reserve (capacity: number) {
-        throw new Error('Method not implemented.');
+        if (capacity <= this._capacity) return;
+        this._capacity = capacity;
+        const oldData = this._data;
+        this._data = new Uint8Array(capacity);
+        this._data.set(oldData);
     }
 
     move (a: number, b: number) {
-        throw new Error('Method not implemented.');
+        this._data[b] = this._data[a];
     }
 
-    copyToTypedArray (dest: ArrayBufferView, destOffset: number, stride: number, strideOffset: number, fromIndex: number, toIndex: number) {
-        throw new Error('Method not implemented.');
+    getUint32At (handle: ParticleHandle) {
+        return this._data[handle];
+    }
+
+    setUint32At (val: number, handle: ParticleHandle) {
+        this._data[handle] = val;
+    }
+
+    copyFrom (src: ParticleUint8ArrayParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+        if ((toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD) {
+            this._data.set(src._data.subarray(fromIndex, toIndex), fromIndex);
+        } else {
+            const destData = this._data;
+            const srcData = src._data;
+            for (let i = fromIndex; i < toIndex; i++) {
+                destData[i] = srcData[i];
+            }
+        }
+    }
+
+    copyToTypedArray (dest: Uint32Array, destOffset: number, stride: number, strideOffset: number, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+        if (DEBUG) {
+            assertIsTrue(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
+            assertIsTrue(stride >= 1 && strideOffset >= 0 && strideOffset < stride);
+            assertIsTrue(dest.length >= (toIndex - fromIndex) * stride + destOffset * stride);
+        }
+
+        const data = this._data;
+        for (let offset = destOffset * stride + strideOffset, i = fromIndex; i < toIndex; offset += stride, i++) {
+            dest[offset] = data[i];
+        }
+    }
+
+    fill (val: number, fromIndex: number, toIndex: number) {
+        if ((toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD) {
+            this._data.fill(val, fromIndex, toIndex);
+        } else {
+            const data = this._data;
+            for (let i = fromIndex; i < toIndex; i++) {
+                data[i] = val;
+            }
+        }
     }
 }
 

@@ -29,8 +29,8 @@ import { ParticleDataSet } from '../particle-data-set';
 import { RandomStream } from '../random-stream';
 import { FloatExpression } from './float';
 
-@ccclass('cc.ConstantExpression')
-export class ConstantExpression extends FloatExpression {
+@ccclass('cc.ConstantFloatExpression')
+export class ConstantFloatExpression extends FloatExpression {
     @type(CCFloat)
     @serializable
     public value = 0;

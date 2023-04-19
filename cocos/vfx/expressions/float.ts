@@ -24,14 +24,14 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { Expression } from '../expression';
+import { Expression, ExpressionType } from '../expression';
 import { ParticleExecContext } from '../particle-base';
 import { RandomStream } from '../random-stream';
 
 @ccclass('cc.FloatExpression')
 export abstract class FloatExpression extends Expression {
     public get type () {
-        return 'Float';
+        return ExpressionType.FLOAT;
     }
 
     public abstract evaluateSingle (time: number, randomStream: RandomStream, context: ParticleExecContext): number;

@@ -1,20 +1,22 @@
-import { lerp } from '../../core';
+import { Color, lerp } from '../../core';
 import { ccclass, serializable, type } from '../../core/data/decorators';
 import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
 import { BuiltinParticleParameterFlags, ParticleDataSet } from '../particle-data-set';
 import { RandomStream } from '../random-stream';
-import { ConstantFloatExpression } from './constant-float';
-import { FloatExpression } from './float';
+import { ColorExpression } from './color';
+import { ConstantColorExpression } from './constant-color';
 
-@ccclass('cc.RandomRangeFloat')
-export class RandomRangeFloat extends FloatExpression {
-    @type(FloatExpression)
-    @serializable
-    public maximum: FloatExpression = new ConstantFloatExpression(0);
+const tempColor = new Color();
 
-    @type(FloatExpression)
+@ccclass('cc.RandomRangeColor')
+export class RandomRangeColor extends ColorExpression {
+    @type(ColorExpression)
     @serializable
-    public minimum: FloatExpression = new ConstantFloatExpression(0);
+    public maximum: ColorExpression = new ConstantColorExpression();
+
+    @type(ColorExpression)
+    @serializable
+    public minimum: ColorExpression = new ConstantColorExpression();
 
     public get isConstant (): boolean {
         return false;
@@ -36,13 +38,13 @@ export class RandomRangeFloat extends FloatExpression {
         this._randomOffset = randomOffset;
     }
 
-    public evaluate (index: number): number {
-        return lerp(this.minimum.evaluate(index), this.maximum.evaluate(index), RandomStream.getFloat(this._seed[index] + this._randomOffset));
+    public evaluate (index: number, out: Color) {
+        return Color.lerp(out, this.minimum.evaluate(index, out), this.maximum.evaluate(index, tempColor), RandomStream.getFloat(this._seed[index] + this._randomOffset));
     }
 
-    public evaluateSingle (time: number, randomStream: RandomStream, context: ParticleExecContext): number {
-        const min = this.minimum.evaluateSingle(time, randomStream, context);
-        const max = this.maximum.evaluateSingle(time, randomStream, context);
-        return lerp(min, max, randomStream.getFloat());
+    public evaluateSingle (time: number, randomStream: RandomStream, context: ParticleExecContext, out: Color) {
+        const min = this.minimum.evaluateSingle(time, randomStream, context, out);
+        const max = this.maximum.evaluateSingle(time, randomStream, context, tempColor);
+        return Color.lerp(out, min, max, randomStream.getFloat());
     }
 }
