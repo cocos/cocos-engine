@@ -25,7 +25,7 @@
 import { Pool, cclegacy, warnID, settings, Settings, macro } from './core';
 import { RenderPipeline, createDefaultPipeline, DeferredPipeline } from './rendering';
 import { DebugView } from './rendering/debug-view';
-import { Camera, Light, Model } from './render-scene/scene';
+import { Camera, CameraType, Light, Model } from './render-scene/scene';
 import type { DataPoolManager } from './3d/skeletal-animation/data-pool-manager';
 import { LightType } from './render-scene/scene/light';
 import { IRenderSceneInfo, RenderScene } from './render-scene/core/render-scene';
@@ -38,6 +38,7 @@ import { Pipeline, PipelineRuntime } from './rendering/custom/pipeline';
 import { Batcher2D } from './2d/renderer/batcher-2d';
 import { IPipelineEvent } from './rendering/pipeline-event';
 import { localDescriptorSetLayout_ResizeMaxJoints, UBOCamera, UBOGlobal, UBOLocal, UBOShadow, UBOWorldBound } from './rendering/define';
+import { XREye } from './xr/xr-enums';
 
 /**
  * @en Initialization information for the Root
@@ -489,9 +490,13 @@ export class Root {
             this._fpsTime = 0.0;
         }
 
-        this._frameMoveBegin();
-        this._frameMoveProcess();
-        this._frameMoveEnd();
+        if (globalThis.__globalXR.isWebXR) {
+            this._doWebXRFrameMoveEnd();
+        } else {
+            this._frameMoveBegin();
+            this._frameMoveProcess();
+            this._frameMoveEnd();
+        }
     }
 
     /**
@@ -679,6 +684,44 @@ export class Root {
                     break;
                 }
             }
+        }
+    }
+
+    private _doWebXRFrameMoveEnd () {
+        const windows = this._windows;
+        const cameraList = this._cameraList;
+
+        let viewCount = 1;
+        const xr = globalThis.__globalXR;
+        if (xr.isWebXR) {
+            viewCount = xr.webXRMatProjs?.length;
+            xr.webXRWindowMap = new Map<RenderWindow, number>();
+        }
+        for (let xrEye = 0; xrEye < viewCount; xrEye++) {
+            this._frameMoveBegin();
+
+            for (let i = 0; i < windows.length; i++) {
+                const window = windows[i];
+                if (window.swapchain && xr.isWebXR) {
+                    xr.webXRWindowMap.set(window, xrEye);
+                }
+            }
+
+            this._frameMoveProcess();
+
+            if (xr.isWebXR) {
+                for (let i = cameraList.length - 1; i >= 0; i--) {
+                    const camera = cameraList[i];
+                    const isMismatchedCam = (xrEye === XREye.LEFT && camera.cameraType === CameraType.RIGHT_EYE)
+                        || (xrEye === XREye.RIGHT && camera.cameraType === CameraType.LEFT_EYE);
+                    if (isMismatchedCam) {
+                        // currently is left eye loop, so right camera do not need active
+                        cameraList.splice(i, 1);
+                    }
+                }
+            }
+
+            this._frameMoveEnd();
         }
     }
 

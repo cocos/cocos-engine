@@ -996,6 +996,12 @@ export class Camera {
         if (!this._node) return;
 
         let viewProjDirty = false;
+        const xr = globalThis.__globalXR;
+        if (xr.isWebXR && xr.webXRWindowMap && xr.webXRMatProjs) {
+            const wndXREye = globalThis.__globalXR.webXRWindowMap.get(this._window);
+            const x = 1 / globalThis.__globalXR.webXRMatProjs.length;
+            this.setViewportInOrientedSpace(new Rect(x * wndXREye, 0, x, 1));
+        }
         // view matrix
         if (this._node.hasChangedFlags || forceUpdate) {
             Mat4.invert(this._matView, this._node.worldMatrix);
@@ -1016,8 +1022,13 @@ export class Camera {
             const projectionSignY = this._device.capabilities.clipSpaceSignY;
             // Only for rendertexture processing
             if (this._proj === CameraProjection.PERSPECTIVE) {
-                Mat4.perspective(this._matProj, this._fov, this._aspect, this._nearClip, this._farClip,
-                    this._fovAxis === CameraFOVAxis.VERTICAL, this._device.capabilities.clipSpaceMinZ, projectionSignY, orientation);
+                if (xr.isWebXR && xr.webXRWindowMap && xr.webXRMatProjs && xr.webXRMatProjs.length === 2) {
+                    const wndXREye = globalThis.__globalXR.webXRWindowMap.get(this._window);
+                    this._matProj.set(globalThis.__globalXR.webXRMatProjs[wndXREye]);
+                } else {
+                    Mat4.perspective(this._matProj, this._fov, this._aspect, this._nearClip, this._farClip,
+                        this._fovAxis === CameraFOVAxis.VERTICAL, this._device.capabilities.clipSpaceMinZ, projectionSignY, orientation);
+                }
             } else {
                 const x = this._orthoHeight * this._aspect;
                 const y = this._orthoHeight;
