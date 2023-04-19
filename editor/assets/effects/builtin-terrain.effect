@@ -155,7 +155,7 @@ CCProgram surface-fragment %{
 
       vec3 tangent = vec3(1.0, 0.0, 0.0);
       vec3 binormal = vec3(0.0, 0.0, 1.0);
-      vec3 normal = normalize(v_normal.xyz);
+      vec3 normal = normalize(FSInput_worldNormal);
 
       binormal = cross(tangent, normal);
       tangent = cross(normal, binormal);
